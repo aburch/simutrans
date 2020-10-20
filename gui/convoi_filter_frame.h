@@ -18,10 +18,8 @@ class convoi_frame_t;
 class player_t;
 class goods_desc_t;
 
-/*
+/**
  * Displays a filter settings dialog for the convoi list
- *
- * @author V. Meyer
  */
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -78,7 +76,6 @@ private:
 
 		bool infowin_event(event_t const* const ev) OVERRIDE
 		{
-			bool old_pressed = pressed;
 			bool swallow = button_t::infowin_event(ev);
 			if(  IS_LEFTRELEASE(ev)  &&  swallow   ) {
 				pressed ^= 1;
@@ -121,7 +118,6 @@ public:
 
 	/**
 	 * Constructor. Generates all necessary Subcomponents.
-	 * @author V. Meyer
 	 */
 	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent);
 
@@ -134,7 +130,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char *get_help_filename() const OVERRIDE {return "convoi_filter.txt"; }
 

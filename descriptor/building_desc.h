@@ -20,13 +20,8 @@ class tool_t;
 class karte_t;
 class checksum_t;
 
-
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Data for one tile of a potentially multi-tile building.
+/**
+ * Data for one tile of a potentially multi-tile building.
  *
  *  Child nodes:
  *   0   Imagelist2D season 0 back
@@ -106,12 +101,8 @@ public:
 	uint8 get_layout() const;
 };
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *       Data for one building, consists of potentially more than one tile.
+/**
+ * Data for one building, consists of potentially more than one tile.
  *
  *  Child nodes:
  *	0   Name
@@ -129,26 +120,25 @@ class building_desc_t : public obj_desc_timelined_t {
 	public:
 		enum btype
 		{
-			unknown				=  0,
-			attraction_city		=  1,
-			attraction_land		=  2,
-			monument			= 3,
-			factory				= 4,
-			townhall			= 5,
-			others				= 6, ///< monorail foundation
-			headquarters			= 7,
-			dock				= 11, ///< dock, build on sloped coast
-									// in these, the extra data points to a waytype
-			depot				= 33,
-			generic_stop		= 34,
-			generic_extension	= 35,
-			flat_dock			= 36, ///< dock, but can start on a flat coast line
-									// city buildings
-			city_res			= 37, ///< residential city buildings
-			city_com			= 38, ///< commercial  city buildings
-			city_ind			= 39, ///< industrial  city buildings
-			signalbox			= 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
-
+			unknown           =  0,
+			attraction_city   =  1,
+			attraction_land   =  2,
+			monument          =  3,
+			factory           =  4,
+			townhall          =  5,
+			others            =  6, ///< monorail foundation
+			headquarters      =  7,
+			dock              = 11, ///< dock, build on sloped coast
+			// in these, the extra data points to a waytype
+			depot             = 33,
+			generic_stop      = 34,
+			generic_extension = 35,
+			flat_dock         = 36, ///< dock, but can start on a flat coast line
+			// city buildings
+			city_res          = 37, ///< residential city buildings
+			city_com          = 38, ///< commercial  city buildings
+			city_ind          = 39, ///< industrial  city buildings
+			signalbox         = 70  // Signalbox. 70 to allow for plenty more Standard ones in between.
 		};
 
 			enum flag_t {
@@ -181,7 +171,7 @@ class building_desc_t : public obj_desc_timelined_t {
 			monorail_geb      = 22,
 			wartehalle        = 30,
 			mail              = 31,
-			lagerhalle        = 32,
+			lagerhalle        = 32
 		};
 
 	building_desc_t::btype type;
@@ -195,12 +185,13 @@ class building_desc_t : public obj_desc_timelined_t {
 		// Signal groups for signal boxes
 	koord  size;
 	flag_t flags;
-	uint16 level;			// or passengers;
-	uint8  layouts;			// 1 2, 4, 8  or 16
-	uint16 enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
-	uint8  distribution_weight;			// Hajo:chance to build, special buildings, only other is weight factor
+	uint16 level;               // or passengers;
+	uint8  layouts;             // 1 2, 4, 8  or 16
+	uint8  enables;             // if it is a stop, what is enabled ...
+	uint8  distribution_weight; // chance to build, special buildings, only other is weight factor
 
-	/** @author: jamespetts.
+
+	/**
 	 * Additional fields for separate capacity/maintenance
 	 * If these are not specified in the .dat file, they are set to
 	 * PRICE_MAGIC then calculated from the "level" in the old way.
@@ -308,13 +299,11 @@ public:
 
 	/**
 	* the level is used in many places: for price, for capacity, ...
-	* @author Hj. Malthaner
 	*/
 	uint16 get_level() const { return level; }
 
 	/**
 	 * Mail generation level
-	 * @author Hj. Malthaner
 	 */
 	uint16 get_mail_level() const;
 
@@ -349,7 +338,6 @@ public:
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
-	* @author Hj. Malthaner
 	*/
 	const skin_desc_t * get_cursor() const {
 		return flags & FLAG_HAS_CURSOR ? get_child<skin_desc_t>(2 + size.x * size.y * layouts) : 0;
@@ -371,14 +359,12 @@ public:
 	uint16 get_allowed_region_bits() const { return allowed_regions; }
 
 	/**
-	* @return station flags (only used for station buildings, oil rigs and traction types in depots)
-	* @author prissi
+	* @return station flags (only used for station buildings and oil rigs)
 	*/
 	uint16 get_enabled() const { return enables; }
 
 	/**
 	* @return time for doing one step
-	* @author prissi
 	*/
 	uint16 get_animation_time() const { return animation_time; }
 

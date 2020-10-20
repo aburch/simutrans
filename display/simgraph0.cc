@@ -217,7 +217,7 @@ void display_base_img_alpha(const image_id, const image_id, const unsigned, KOOR
 {
 }
 
-// Knightly : variables for storing currently used image procedure set and tile raster width
+// variables for storing currently used image procedure set and tile raster width
 display_image_proc display_normal = display_base_img;
 display_image_proc display_color = display_base_img;
 display_blend_proc display_blend = display_base_img_blend;

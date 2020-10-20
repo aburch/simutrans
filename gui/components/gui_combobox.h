@@ -36,7 +36,6 @@ private:
 
 	/**
 	 * the drop box list
-	 * @author hsiegeln
 	 */
 	gui_scrolled_list_t droplist;
 	bool opened_above:1;
@@ -52,9 +51,9 @@ private:
 
 	// offset of last draw call, needed to decide, where to open droplist
 	scr_coord last_draw_offset;
+
 	/**
 	 * the max size this component can have
-	 * @author hsiegeln
 	 */
 	scr_size max_size;
 
@@ -86,13 +85,11 @@ public:
 
 	/**
 	 * Draw the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * add element to droplist
-	 * @author hsiegeln
 	 */
 	template<class C>
 	void new_component() { droplist.new_component<C>(); }
@@ -103,19 +100,16 @@ public:
 
 	/**
 	 * remove all elements from droplist
-	 * @author hsiegeln
 	 */
 	void clear_elements() { droplist.clear_elements(); }
 
 	/**
 	 * return number of elements in droplist
-	 * @author hsiegeln
 	 */
 	int count_elements() const { return droplist.get_count(); }
 
 	/**
 	 * return element at index from droplist
-	 * @author hsiegeln
 	 */
 	gui_scrolled_list_t::scrollitem_t *get_element(sint32 idx) const { return droplist.get_element(idx); }
 
@@ -127,26 +121,22 @@ public:
 
 	/**
 	 * set maximum size for control
-	 * @author hsiegeln
 	 */
 	void set_max_size(scr_size max);
 
 	/**
 	 * returns the selection id
-	 * @author hsiegeln
 	 */
 	int get_selection() { return droplist.get_selection(); }
 
 	gui_scrolled_list_t::scrollitem_t* get_selected_item() const { return droplist.get_selected_item(); }
 	/**
 	 * sets the selection
-	 * @author hsiegeln
 	 */
 	void set_selection(int s);
 
 	/**
 	* Set this component's position.
-	* @author Hj. Malthaner
 	*/
 	virtual void set_pos(scr_coord pos_par) OVERRIDE;
 
@@ -155,7 +145,6 @@ public:
 	/**
 	 * called when the focus should be released
 	 * does some cleanup before releasing
-	 * @author hsiegeln
 	 */
 	void close_box();
 

@@ -9,8 +9,6 @@
 
 #include <stddef.h>
 
-void guarded_free(void* ptr);
-
 void* xmalloc(size_t size);             // Throws std::bad_alloc on failure
 void* xrealloc(void * const ptr, size_t size); // Throws std::bad_alloc on failure
 

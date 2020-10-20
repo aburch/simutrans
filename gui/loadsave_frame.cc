@@ -9,7 +9,6 @@
 #define MAXINT INT_MAX
 
 #include <sys/stat.h>
-#include <time.h>
 //#include <ctype.h>
 
 #include "loadsave_frame.h"
@@ -30,21 +29,6 @@
 
 #include "../utils/simstring.h"
 
-#include "components/gui_button.h"
-
-
-class gui_loadsave_table_row_t : public gui_file_table_row_t
-{
-	sve_info_t* svei;
-public:
-	//loadsave_t file;
-	const char* get_pak_extension() const { return svei ? svei->pak.c_str() : ""; }
-	uint32 get_version() const { return svei ? svei->version : 0; }
-	uint32 get_extended_version() const { return svei ? svei->extended_version : 0; }
-
-	//gui_loadsave_table_row_t() : gui_file_table_row_t() {};
-	gui_loadsave_table_row_t(const char *pathname, const char *buttontext);
-};
 
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
@@ -96,7 +80,6 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 /**
  * Action that's started with a button click
- * @author Hansj?rg Malthaner
  */
 bool loadsave_frame_t::item_action(const char *filename)
 {
@@ -197,7 +180,6 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 /**
  * Set the window associated helptext
  * @return the filename for the helptext, or NULL
- * @author Hj. Malthaner
  */
 const char *loadsave_frame_t::get_help_filename() const
 {
@@ -332,15 +314,17 @@ void gui_file_table_exp_column_t::paint_cell(const scr_coord& offset, coordinate
 const char *loadsave_frame_t::get_info(const char *fname)
 {
 	static char date[1024];
-	date[0] = 0;
-	const char *pak_extension = NULL;
+
+	std::string pak_extension;
 
 	// get file information
 	struct stat  sb;
 	if(dr_stat(fname, &sb) != 0) {
 		// file not found?
+		date[0] = 0;
 		return date;
 	}
+
 	// check hash table
 	sve_info_t *svei = cached_info.get(fname);
 	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
@@ -359,7 +343,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		pak_extension = test.get_pak_extension();
 
 		// now insert in hash_table
-		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size, test.get_version(), test.get_extended_version());
+		sve_info_t *svei_new = new sve_info_t(pak_extension.c_str(), sb.st_mtime, sb.st_size, test.get_version(), test.get_extended_version());
 		// copy filename
 		char *key = strdup(fname);
 		sve_info_t *svei_old = cached_info.set(key, svei_new);
@@ -369,16 +353,18 @@ const char *loadsave_frame_t::get_info(const char *fname)
 
 	// write everything in string
 	// add pak extension
-	size_t n = sprintf( date, "%s - ", pak_extension);
+	const size_t n = snprintf( date, lengthof(date), "%s - ", pak_extension.c_str());
 
 	// add the time too
 	struct tm *tm = localtime(&sb.st_mtime);
 	if(tm) {
-		strftime(date + n, 18, "%Y-%m-%d %H:%M", tm);
+		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
 		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
 	}
+
+	date[lengthof(date)-1] = 0;
 	return date;
 }
 

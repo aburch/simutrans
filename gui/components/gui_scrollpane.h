@@ -19,10 +19,11 @@ class gui_scrollpane_t : public gui_component_t
 {
 private:
 	scr_size old_comp_size;
+	scr_size cached_min_size;
+	scr_size cached_max_size;
 
 	/**
 	 * Scrollbar X/Y
-	 * @author Hj. Malthaner
 	 */
 	scrollbar_t scroll_x, scroll_y;
 
@@ -30,11 +31,14 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 	bool maximize:1;
+	bool take_cached_size:1;
+
+	// for oversized entries
+	scr_coord_val max_width;
 
 protected:
 	/**
 	 * The scrolling component
-	 * @author Hj. Malthaner
 	 */
 	gui_component_t *comp;
 
@@ -43,14 +47,20 @@ protected:
 public:
 	/**
 	 * @param comp, the scrolling component
-	 * @author Hj. Malthaner
 	 */
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 
 	void set_component(gui_component_t *comp) { this->comp = comp; }
+
+	/**
+	* this is the maximum width a scrollbar requests as minimum size
+	* default is the stadard width of a dialoge (4*button width+3*space)
+	* @param width, the minimum width it should strech to
+	*/
+	virtual void set_min_width( scr_coord_val width ) { max_width = width; }
+
 	/**
 	 * This method MUST be used to set the size of scrollpanes.
-	 * @author Hj. Malthaner
 	 */
 	void set_size(scr_size size) OVERRIDE;
 
@@ -62,7 +72,6 @@ public:
 
 	/**
 	 * Set the position of the Scrollbars
-	 * @author Hj. Malthaner
 	 */
 	void set_scroll_position(int x, int y);
 
@@ -81,7 +90,6 @@ public:
 
 	/**
 	 * Draw the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset) OVERRIDE;
 
@@ -95,7 +103,6 @@ public:
 
 	/**
 	 * Returns true if the hosted component is focusable
-	 * @author Knightly
 	 */
 	virtual bool is_focusable() OVERRIDE { return comp->is_focusable(); }
 
@@ -112,7 +119,6 @@ public:
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
-	 * @author Knightly
 	 */
 	virtual scr_coord get_focus_pos() OVERRIDE { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 

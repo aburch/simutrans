@@ -50,7 +50,7 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 	FLAGGED_PIXVAL colorval = color;
 	if (color&PLAYER_FLAG) {
 		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
-		colorval = player ? PLAYER_FLAG + color_idx_to_rgb(player->get_player_color1() + 1) : color_idx_to_rgb(MN_GREY0);
+		colorval = player ? PLAYER_FLAG + color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_dark) : color_idx_to_rgb(MN_GREY0);
 	}
 	return colorval;
 }
@@ -78,7 +78,7 @@ void message_t::clear()
 	while (!list.empty()) {
 		delete list.remove_first();
 	}
-	ticker::clear_ticker();
+	ticker::clear_messages();
 }
 
 
@@ -104,14 +104,13 @@ void message_t::set_message_flags(sint32 t, sint32 w, sint32 a, sint32 i)
 
 
 /**
-* Add a message to the message list
-* @param pos    position of the event
-* @param color  message color
-* @param where type of message
-* @param image image associated with message (will be ignored if pos!=koord::invalid)
-* @author prissi
-*/
-void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image)
+ * Add a message to the message list
+ * @param pos    position of the event
+ * @param color  message color
+ * @param where type of message
+ * @param image image associated with message (will be ignored if pos!=koord::invalid)
+ */
+void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
 {
 	DBG_MESSAGE("message_t::add_msg()", "%40s (at %i,%i)", text, pos.x, pos.y);
 
@@ -201,7 +200,6 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	}
 	// check if some window has focus
 	gui_frame_t *old_top = win_get_top();
-	gui_component_t *focus = win_get_focus();
 
 	// should we open a window?
 	if (art & (auto_win_flags | win_flags)) {
@@ -218,8 +216,8 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	}
 
 	// restore focus
-	if (old_top  &&  focus) {
-		top_win(old_top, true);
+	if(  old_top    ) {
+		top_win( old_top, true );
 	}
 }
 

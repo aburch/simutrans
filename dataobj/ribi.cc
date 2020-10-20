@@ -332,10 +332,10 @@ ribi_t::ribi ribi_type(const koord3d& dir)
 }
 
 
-/* check, if two directions are orthogonal
-* works with diagonals too
-* @author prissi
-*/
+/**
+ * check, if two directions are orthogonal
+ * works with diagonals too
+ */
 bool ribi_t::is_perpendicular(ribi x, ribi y)
 {
 	// for straight direction x use doppelr lookup table

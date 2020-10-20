@@ -174,14 +174,29 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 	set_table_layout(1,0);
 	new_component<gui_label_t>("hl_txt_sort");
 
-	add_table(2,0);
-	sortedby.init(button_t::roundbox, sort_text[depotlist_stats_t::sort_mode]);
-	sortedby.add_listener(this);
-	add_component(&sortedby);
+	add_table(4,0);
+	{
+		sortedby.clear_elements();
+		for (int i = 0; i < SORT_MODES; i++) {
+			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+		}
+		sortedby.set_selection(depotlist_stats_t::sort_mode);
+		sortedby.add_listener(this);
+		add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, depotlist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+		sort_asc.init(button_t::arrowup_state, "");
+		sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+		sort_asc.add_listener(this);
+		sort_asc.pressed = depotlist_stats_t::reverse;
+		add_component(&sort_asc);
+
+		sort_desc.init(button_t::arrowdown_state, "");
+		sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+		sort_desc.add_listener(this);
+		sort_desc.pressed = !depotlist_stats_t::reverse;
+		add_component(&sort_desc);
+		new_component<gui_margin_t>(LINESPACE);
+	}
 	end_table();
 
 	add_component(&scrolly);
@@ -195,19 +210,18 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
-bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
-		depotlist_stats_t::sort_mode = (depotlist_stats_t::sort_mode + 1) % SORT_MODES;
-		sortedby.set_text(sort_text[depotlist_stats_t::sort_mode]);
+		depotlist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		depotlist_stats_t::reverse = !depotlist_stats_t::reverse;
-		sorteddir.set_text( depotlist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);
+		sort_asc.pressed = depotlist_stats_t::reverse;
+		sort_desc.pressed = !depotlist_stats_t::reverse;
 	}
 	return true;
 }

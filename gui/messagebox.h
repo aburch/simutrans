@@ -15,7 +15,6 @@
 
 /**
  * A class for Message/news window.
- * @author Hj. Malthaner
  */
 class news_window : public base_infowin_t
 {

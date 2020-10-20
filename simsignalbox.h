@@ -20,11 +20,8 @@ private:
 
 	slist_tpl<koord3d> signals; // The signals controlled by this signalbox.
 
-protected:
-
-	static slist_tpl<signalbox_t *> all_signalboxes;
-
 public:
+	static slist_tpl<signalbox_t *> all_signalboxes;
 
 	signalbox_t(loadsave_t *file);
 	signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t);

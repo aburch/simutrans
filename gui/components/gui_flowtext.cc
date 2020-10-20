@@ -8,7 +8,6 @@
 #include "../../simcolor.h"
 #include "../../simevent.h"
 #include "../../display/simgraph.h"
-#include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 #include "../gui_theme.h"
 
@@ -18,7 +17,6 @@
 /**
  * A component for floating text.
  * Original implementation.
- * @author Hj. Malthaner
  */
 class gui_flowtext_intern_t :
 	public gui_action_creator_t,
@@ -29,7 +27,6 @@ public:
 
 	/**
 	 * Sets the text to display.
-	 * @author Hj. Malthaner
 	 */
 	void set_text(const char* text);
 
@@ -50,7 +47,6 @@ public:
 
 	/**
 	 * Paints the component
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord offset);
 
@@ -87,7 +83,6 @@ private:
 
 	/**
 	 * Hyperlink position container
-	 * @author Hj. Malthaner
 	 */
 	struct hyperlink_t
 	{
@@ -124,8 +119,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 	nodes.clear();
 	links.clear();
 
-	// Hajo: danger here, longest word in text
-	// must not exceed 511 chars!
+	// danger here, longest word in text must not exceed stoarge space!
 	char word[512];
 	attributes att = ATT_NONE;
 
@@ -145,8 +139,8 @@ void gui_flowtext_intern_t::set_text(const char *text)
 				tail++;
 			}
 
-			// parse a tag (not allowed to exceed 511 letters)
-			for (int i = 0; *lead != '>' && *lead > 0 && i < 511; i++) {
+			// parse a tag (not allowed to exceed sizeof(word) letters)
+			for (uint i = 0; *lead != '>' && *lead > 0 && i+2 < sizeof(word); i++) {
 				lead++;
 			}
 
@@ -155,6 +149,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 			lead++;
 
 			if (word[0] == 'p' || (word[0] == 'b' && word[1] == 'r')) {
+				// unlike http, we can have as many newlines as we like
 				att = ATT_NEWLINE;
 			}
 			else if (word[0] == 'a') {
@@ -256,7 +251,7 @@ void gui_flowtext_intern_t::set_text(const char *text)
 
 			// parse a word (and obey limits)
 			att = ATT_NONE;
-			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
+			for(  uint i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i+1 < sizeof(word)  &&  *lead != '&'; i++) {
 				if(  *lead>128  ) {
 					size_t len = 0;
 					utf32 symbol = utf8_decoder_t::decode(lead, len);
@@ -360,7 +355,7 @@ void gui_flowtext_intern_t::draw(scr_coord offset)
 
 scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_max_width)
 {
-	const int width = size.w;
+	const int width = size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT;
 
 	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
@@ -397,7 +392,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 						if(  xpos!=last_link_x  &&  link_it  ) {
 							if(  doit  ) {
 								// close the link
-								display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+								display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 							}
 							extra_pixel = 1;
 						}
@@ -414,12 +409,12 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip_rgb(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
+						display_proportional_clip_rgb(offset.x + xpos + 1 + D_MARGIN_LEFT, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 						extra_pixel |= 1;
 					}
-					scr_coord_val width = display_proportional_clip_rgb(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
+					scr_coord_val width = display_proportional_clip_rgb(offset.x + xpos + D_MARGIN_LEFT, offset.y + ypos, i.text.c_str(), 0, color, false);
 					if(  link_it  ) {
-						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
 						last_link_x = xpos+width;
 					}
 				}
@@ -435,7 +430,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 				if(  last_link_x<xpos  &&  link_it  ) {
 					if(  doit  ) {
 						// close the link
-						display_fillbox_wh_clip_rgb( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
+						display_fillbox_wh_clip_rgb( offset.x + last_link_x + D_MARGIN_LEFT, ypos + offset.y + LINESPACE-1, xpos-last_link_x, 1, color, false);
 					}
 					extra_pixel = 1;
 				}
@@ -471,8 +466,8 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 			case ATT_H1_END:
 				double_it = false;
 				if(doit) {
-					display_fillbox_wh_clip_rgb(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
-					display_fillbox_wh_clip_rgb(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
+					display_fillbox_wh_clip_rgb(offset.x + 1 + D_MARGIN_LEFT, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
+					display_fillbox_wh_clip_rgb(offset.x + D_MARGIN_LEFT,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
 				}
 				xpos = 0;
 				extra_pixel = 0;
@@ -513,14 +508,12 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 			default: break;
 		}
 	}
-	if (xpos > 0) {
-		ypos += LINESPACE;
-	}
+	ypos += LINESPACE;
 	if(dirty) {
-		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos );
+		mark_rect_dirty_wc( offset.x + D_MARGIN_LEFT, offset.y, offset.x+max_width + D_MARGIN_LEFT, offset.y+ypos );
 		dirty = false;
 	}
-	return scr_size( return_max_width ? max_width : text_width, ypos);
+	return scr_size( (return_max_width ? max_width : text_width)+D_MARGIN_LEFT+D_MARGIN_RIGHT, ypos);
 }
 
 

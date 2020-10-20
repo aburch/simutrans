@@ -25,9 +25,11 @@
 #include "simwin.h"
 
 #include "../path_explorer.h"
+#include "components/gui_image.h"
 
 enum {
 	IDBTN_SCROLL_INVERSE,
+	IDBTN_IGNORE_NUMLOCK,
 	IDBTN_PEDESTRIANS_AT_STOPS,
 	IDBTN_PEDESTRIANS_IN_TOWNS,
 	IDBTN_DAY_NIGHT_CHANGE,
@@ -47,6 +49,7 @@ enum {
 	IDBTN_CHANGE_FONT,
 	IDBTN_LEFT_TO_RIGHT_GRAPHS,
 	IDBTN_SHOW_SIGNALBOX_COVERAGE,
+	IDBTN_CLASSES_WAITING_BAR,
 	COLORS_MAX_BUTTONS,
 };
 
@@ -193,7 +196,7 @@ void gui_settings_t::draw(scr_coord offset)
 	idle_time_value_label.update();
 
 	// fps_label
-	uint32 target_fps = world()->is_fast_forward() ? 10 : env_t::fps;
+	uint32 target_fps = world()->is_fast_forward() ? env_t::ff_fps : env_t::fps;
 	uint32 loops = world()->get_realFPS();
 	PIXVAL color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*16*3)/4  ) {
@@ -263,6 +266,7 @@ map_settings_t::map_settings_t()
 
 	// Show slice map view checkbox
 	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].init( button_t::square_state, "sliced underground mode" );
+	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 	add_component( buttons + IDBTN_SHOW_SLICE_MAP_VIEW );
 
 	// underground slice edit
@@ -289,6 +293,11 @@ map_settings_t::map_settings_t()
 	buttons[ IDBTN_SCROLL_INVERSE ].init( button_t::square_state, "4LIGHT_CHOOSE" );
 	buttons[ IDBTN_SCROLL_INVERSE ].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
 	add_component( buttons + IDBTN_SCROLL_INVERSE, 2 );
+
+	// Numpad key
+	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
+	buttons[ IDBTN_IGNORE_NUMLOCK ].pressed = env_t::numpad_always_moves_map;
+	add_component( buttons + IDBTN_IGNORE_NUMLOCK, 2 );
 
 	// Scroll speed label
 	new_component<gui_label_t>( "3LIGHT_CHOOSE" );
@@ -399,11 +408,9 @@ label_settings_t::label_settings_t()
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].pressed = env_t::signalbox_coverage_show;
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].set_tooltip("Show coverage radius of the signalbox.");
 	add_component(buttons + IDBTN_SHOW_SIGNALBOX_COVERAGE);
-	new_component<gui_margin_t>(LINESPACE / 3);
+	new_component<gui_margin_t>(0, LINESPACE/3);
 
 	new_component<gui_label_t>("Station display");
-	add_table( 2, 0 );
-
 	// Transparent station coverage
 	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].init( button_t::square_state, "transparent station coverage" );
 	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].pressed = env_t::use_transparency_station_coverage;
@@ -421,19 +428,48 @@ label_settings_t::label_settings_t()
 	buttons[ IDBTN_SHOW_WAITING_BARS ].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
 
-	// Show station names arrow
-	add_table( 2, 1 );
+	add_table(4, 2);
 	{
-		buttons[ IDBTN_SHOW_STATION_NAMES_ARROW ].set_typ( button_t::arrowright );
-		buttons[ IDBTN_SHOW_STATION_NAMES_ARROW ].set_tooltip("Shows the names of the individual stations in the main game window.");
-		add_component( buttons + IDBTN_SHOW_STATION_NAMES_ARROW );
-		new_component<gui_label_stationname_t>( "show station names" );
+		// waiting bar option for passenger and mail classes
+		bool pakset_has_pass_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
+		bool pakset_has_mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
+		if (pakset_has_pass_classes || pakset_has_mail_classes) {
+			new_component<gui_margin_t>(LINESPACE / 2);
+			new_component<gui_image_t>()->set_image(pakset_has_pass_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
+			new_component<gui_image_t>()->set_image(pakset_has_mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
+			buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Divided by class");
+			buttons[IDBTN_CLASSES_WAITING_BAR].pressed = env_t::classes_waiting_bar;
+			buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
+			buttons[IDBTN_CLASSES_WAITING_BAR].set_tooltip("Waiting bars are displayed separately for each class.");
+			add_component(buttons + IDBTN_CLASSES_WAITING_BAR);
+		}
+
+		// waiting bar option for freight
+		new_component<gui_margin_t>(LINESPACE / 2);
+		new_component<gui_image_t>()->set_image(skinverwaltung_t::goods->get_image_id(0), true);
+		new_component<gui_empty_t>();
+		freight_waiting_bar.set_focusable(false);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Unified"), SYSCOL_TEXT);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by category"), SYSCOL_TEXT);
+		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by goods"), SYSCOL_TEXT);
+		freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
+		add_component(&freight_waiting_bar);
+		freight_waiting_bar.add_listener(this);
+
 	}
 	end_table();
 
+	// Show station names arrow
+	add_table(2, 1);
+	{
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
+		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("Shows the names of the individual stations in the main game window.");
+		add_component(buttons + IDBTN_SHOW_STATION_NAMES_ARROW);
+		new_component<gui_label_stationname_t>("show station names");
+	}
 	end_table();
 
-	new_component<gui_margin_t>(LINESPACE/3);
+	new_component<gui_margin_t>(0, LINESPACE/3);
 
 	new_component<gui_label_t>("Convoy tooltips");
 	add_table(2, 0);
@@ -502,6 +538,10 @@ bool label_settings_t::action_triggered(gui_action_creator_t *comp, value_t v)
 	if (&money_booking == comp) {
 		env_t::show_money_message = v.i;
 	}
+	// freight waiting bar detail level
+	if (&freight_waiting_bar == comp) {
+		env_t::freight_waiting_bar_level = v.i;
+	}
 	return true;
 }
 
@@ -510,6 +550,13 @@ void label_settings_t::draw(scr_coord offset)
 	convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
 	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
 	convoy_tooltip.set_selection(env_t::show_vehicle_states);
+	freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
+	if (env_t::show_names & 2) {
+		freight_waiting_bar.enable();
+	}
+	else {
+		freight_waiting_bar.disable();
+	}
 
 	gui_aligned_container_t::draw(offset);
 }
@@ -541,7 +588,6 @@ traffic_settings_t::traffic_settings_t()
 	add_component(&traffic_density);
 
 	// Convoy follow mode
-	/*
 	new_component<gui_label_t>("Convoi following mode");
 
 	follow_mode.set_focusable(false);
@@ -549,10 +595,9 @@ traffic_settings_t::traffic_settings_t()
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("underground mode"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("sliced underground mode"), SYSCOL_TEXT);
 	follow_mode.set_selection(env_t::follow_convoi_underground);
-	//buttons[].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 	add_component(&follow_mode);
 	follow_mode.add_listener(this);
-	*/
+
 	// Show schedule's stop checkbox
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].init( button_t::square_state ,  "Highlite schedule" );
 	buttons[IDBTN_SHOW_SCHEDULES_STOP].set_tooltip("Highlight the locations of stops on the current schedule");
@@ -576,10 +621,9 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 		}
 	}
 
-	/*
 	if( &follow_mode == comp ) {
 		env_t::follow_convoi_underground = v.i;
-	}*/
+	}
 	return true;
 }
 
@@ -625,6 +669,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 	switch( i )
 	{
+	case IDBTN_IGNORE_NUMLOCK:
+		env_t::numpad_always_moves_map = !env_t::numpad_always_moves_map;
+		buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+		break;
 	case IDBTN_SCROLL_INVERSE:
 		env_t::scroll_multi = -env_t::scroll_multi;
 		break;
@@ -684,6 +732,11 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		break;
 	case IDBTN_SHOW_WAITING_BARS:
 		env_t::show_names ^= 2;
+		buttons[IDBTN_CLASSES_WAITING_BAR].enable(env_t::show_names & 2);
+		break;
+	case IDBTN_CLASSES_WAITING_BAR:
+		env_t::classes_waiting_bar = !env_t::classes_waiting_bar;
+		buttons[IDBTN_CLASSES_WAITING_BAR].pressed ^= 1;
 		break;
 	case IDBTN_SHOW_SLICE_MAP_VIEW:
 		// see simtool.cc::tool_show_underground_t::init

@@ -53,8 +53,7 @@ public:
 class label_settings_t : public gui_aligned_container_t, public action_listener_t
 {
 private:
-	gui_combobox_t convoy_tooltip;
-	gui_combobox_t convoy_nameplate, convoy_loadingbar, money_booking;
+	gui_combobox_t convoy_tooltip, money_booking, convoy_nameplate, convoy_loadingbar, freight_waiting_bar;
 public:
 	label_settings_t();
 	virtual bool action_triggered(gui_action_creator_t *comp, value_t v);
@@ -68,7 +67,7 @@ private:
 	gui_combobox_t hide_buildings;
 public:
 	transparency_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 	void draw(scr_coord offset) OVERRIDE;
 };
 
@@ -77,7 +76,7 @@ class traffic_settings_t : public gui_aligned_container_t, public action_listene
 {
 private:
 	gui_numberinput_t traffic_density;
-	/* gui_combobox_t follow_mode;*/
+	gui_combobox_t follow_mode;
 public:
 	traffic_settings_t();
 	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );

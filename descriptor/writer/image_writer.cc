@@ -61,8 +61,6 @@ uint32 image_writer_t::block_getpix(int x, int y)
 /**
  * Encodes image data into the internal representation,
  * considers special colors.
- *
- * @author Hj. Malthaner
  */
 static uint16 pixrgb_to_pixval(uint32 rgb)
 {
@@ -147,8 +145,6 @@ static void init_dim(uint32 *image, dimension *dim, int img_size)
 /**
  * Encodes an image into a sprite data structure, considers
  * special colors.
- *
- * @author Hj. Malthaner
  */
 uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 {
@@ -222,9 +218,9 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				row_px_count++;
 			}
 
-			/* Knightly:
-			 *		If it is not the first clear-colored-run pair and its colored run is empty
-			 *		--> it is superfluous and can be removed by rolling back the pointer
+			/*
+			 * If it is not the first clear-colored-run pair and its colored run is empty
+			 * --> it is superfluous and can be removed by rolling back the pointer
 			 */
 			if(  clear_colored_run_pair_count > 0  &&  count == 0  ) {
 				dest -= 2;
@@ -275,7 +271,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 
 	MEMZERO(image);
 
-	// Hajo: if first char is a '>' then this image is not zoomable
+	// if first char is a '>' then this image is not zoomable
 	if(  an_imagekey[0] == '>'  ) {
 		an_imagekey = an_imagekey.substr(1);
 		image.zoomable = false;

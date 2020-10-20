@@ -26,7 +26,6 @@ public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
 	*/
 	const char * get_help_filename() const OVERRIDE { return "jump_frame.txt"; }
 

@@ -24,4 +24,23 @@ public:
 	void draw(scr_coord offset);
 };
 
+
+class gui_loadingbar_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+	bool size_fixed = false;
+
+public:
+	gui_loadingbar_t(convoihandle_t cnv);
+
+	void draw(scr_coord offset);
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
+
+	void set_size_fixed(bool yesno) { size_fixed = yesno; };
+};
+
 #endif

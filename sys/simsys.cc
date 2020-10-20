@@ -25,6 +25,7 @@
 #include "simsys.h"
 #include "../pathes.h"
 #include "../simevent.h"
+#include "../utils/simstring.h"
 
 
 #ifdef _WIN32
@@ -45,6 +46,7 @@
 #		include <unistd.h>
 #	endif
 #endif
+
 
 
 struct sys_event sys_event;
@@ -114,9 +116,8 @@ char const PATH_SEPARATOR[] = "/";
 
 
 /**
- + * Get Mouse X-Position
- + * @author Hj. Malthaner
- + */
+ * Get Mouse X-Position
+ */
 int get_mouse_x()
 {
 	return sys_event.mx;
@@ -124,9 +125,8 @@ int get_mouse_x()
 
 
 /**
-  * Get Mouse y-Position
-  * @author Hj. Malthaner
-  */
+ * Get Mouse y-Position
+ */
 int get_mouse_y()
 {
 	return sys_event.my;
@@ -169,7 +169,7 @@ bool dr_movetotrash(const char *path)
 
 	// Initalize file operation structure.
 	SHFILEOPSTRUCTW  FileOp;
-	FileOp.hwnd = NULL;
+	FileOp.hwnd = GetActiveWindow();
 	FileOp.wFunc = FO_DELETE;
 	FileOp.pFrom = full_wpath;
 	FileOp.pTo = NULL;
@@ -179,6 +179,8 @@ bool dr_movetotrash(const char *path)
 	int success = SHFileOperationW(&FileOp);
 
 	delete[] full_wpath;
+
+	BringWindowToTop(FileOp.hwnd);
 
 	return success;
 #else
@@ -413,23 +415,56 @@ const char *dr_query_fontpath(int which)
 #else
 		"~/.fonts/",
 		"~/.local/share/fonts/",
-		"/usr/share/fonts/truetype/",
-		"/usr/X11R6/lib/X11/fonts/ttfonts/",
-		"/usr/local/sharefonts/truetype/",
 		"/usr/share/fonts/",
 		"/usr/X11R6/lib/X11/fonts/",
+		"/usr/local/share/fonts/",
 #endif
 		NULL
 	};
-	for (int i = 0; trypaths[i]; i++) {
-		DIR *dir = opendir(trypaths[i]);
-		if (dir) {
-			closedir(dir);
-			if (which == 0) {
-				return trypaths[i];
-			}
-			which--;
+
+	// since we include subdirectories (one level!) too
+	static int which_offset, subdir_offset;
+	if( which == 0 ) {
+		which_offset = 0;
+		subdir_offset = 0;
+	}
+
+	for( int i = which - which_offset; trypaths[ i ]; i++ ) {
+		static char fontpath[PATH_MAX];
+		if( trypaths[i][0] == '~' ) {
+			// prepace with homedirectory
+			snprintf( fontpath, PATH_MAX, "%s/%s", getenv("HOME"), trypaths[i]+2 );
 		}
+		else {
+			tstrncpy( fontpath, trypaths[i], PATH_MAX );
+		}
+		DIR *dir = opendir(fontpath);
+		if(  dir  ) {
+			int j = 0;
+			// look for subdirectories
+			struct dirent *entry;
+			while( (entry = readdir( dir )) ) {
+				if( entry->d_type == DT_DIR ) {
+					if( ((strcmp( entry->d_name, "." )) != 0) && ((strcmp( entry->d_name, ".." )) != 0) ) {
+						j++;
+						if( subdir_offset < j ) {
+							strcpy( buffer, fontpath );
+							strcat( buffer, entry->d_name );
+							strcat( buffer, PATH_SEPARATOR );
+							closedir( dir );
+							subdir_offset++;
+							which_offset++;
+							return buffer;
+						}
+					}
+				}
+			}
+			// last return parent folder
+			closedir( dir );
+			subdir_offset = 0; // we do not increase which_offset, so next the the next folder will be searched
+			return fontpath;
+		}
+		which_offset--;
 	}
 	return NULL;
 #endif
@@ -1029,6 +1064,28 @@ int sysmain(int const argc, char** const argv)
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
+	} else if (strchr(argv[0], '/') == NULL) {
+		// no /proc, no '/' in argv[0] => search PATH
+		const char* path = getenv("PATH");
+		if (path != NULL) {
+			size_t flen = strlen(argv[0]);
+			for (;;) { /* for each directory in PATH */
+				size_t dlen = strcspn(path, ":");
+				if (dlen > 0 && dlen + flen + 2 < lengthof(buffer)) {
+					// buffer = dir '/' argv[0] '\0'
+					memcpy(buffer, path, dlen);
+					buffer[dlen] = '/';
+					memcpy(buffer + dlen + 1, argv[0], flen + 1);
+					if (access(buffer, X_OK) == 0) {
+						argv[0] = buffer;
+						break; /* found it! */
+					}
+				}
+				if (path[dlen] == '\0')
+					break;
+				path += dlen + 1; /* skip ':' */
+			}
+		}
 	}
 #	endif
 	// no process file system => need to parse argv[0]
@@ -1036,6 +1093,7 @@ int sysmain(int const argc, char** const argv)
 	argv[0] = realpath(argv[0], buffer2);
 #endif
 
+	setlocale( LC_CTYPE, "" );
 	return simu_main(argc, argv);
 
 #ifdef _WIN32

@@ -17,7 +17,6 @@
 
 /**
  * @param comp, the scrolling component
- * @author Hj. Malthaner
  */
 gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool b_scroll_y) :
 	scroll_x(scrollbar_t::horizontal),
@@ -25,43 +24,37 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 {
 	this->comp = comp;
 
+	max_width = D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT;
+
 	b_show_scroll_x = b_scroll_x;
 	b_show_scroll_y = b_scroll_y;
 	b_has_size_corner = true;
 
 	old_comp_size = scr_size::invalid;
+	take_cached_size = false;
+	maximize = false;
 }
 
 
 scr_size gui_scrollpane_t::get_min_size() const
 {
-	scr_size csize = comp->get_min_size();
-	if (csize.w < scr_size::inf.w  &&  b_show_scroll_y) {
-		csize.w += scroll_y.get_min_size().w;
-	}
-	if (csize.h < scr_size::inf.h  &&  b_show_scroll_x) {
-		csize.h += scroll_x.get_min_size().h;
-	}
-	csize.clip_rightbottom(scroll_x.get_min_size() + scroll_y.get_min_size());
+	// request width of largest element, but leave enough space for scrollbars
+	scr_size csize = take_cached_size ? cached_min_size : comp->get_min_size();
+	csize.w = max( csize.w, scroll_x.get_min_size().w );
+	csize.w = min( csize.w, max_width );
+	csize.h = min( csize.h, scroll_y.get_min_size().h );
 	return csize;
 }
 
 scr_size gui_scrollpane_t::get_max_size() const
 {
-	scr_size csize = comp->get_max_size();
-	if (csize.w < scr_size::inf.w  &&  b_show_scroll_y) {
-		csize.w += scroll_y.get_max_size().w;
-	}
-	if (csize.h < scr_size::inf.h  &&  b_show_scroll_x) {
-		csize.h += scroll_x.get_max_size().h;
-	}
+	scr_size csize = take_cached_size ? cached_max_size : comp->get_max_size();
 	return csize;
 }
 
 
 /**
  * recalc the scroll bar sizes
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::recalc_sliders(scr_size size)
 {
@@ -99,7 +92,6 @@ void gui_scrollpane_t::recalc_sliders(scr_size size)
 
 /**
  * Scrollpanes _must_ be used in this method to set the size
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_size(scr_size size)
 {
@@ -117,8 +109,13 @@ void gui_scrollpane_t::set_size(scr_size size)
 	if (scroll_y.is_visible()) {
 		c_size.w -= scroll_y.get_size().w;
 	}
-	c_size.clip_lefttop(comp->get_min_size());
-	c_size.clip_rightbottom(comp->get_max_size());
+
+	cached_min_size = comp->get_min_size();
+	cached_max_size = comp->get_max_size();
+	take_cached_size = false; // disabled, there is no proper way to check whether cache is still valid
+
+	c_size.clip_lefttop( cached_min_size );
+	c_size.clip_rightbottom( cached_max_size );
 	comp->set_size(c_size);
 
 	recalc_sliders(size);
@@ -129,7 +126,7 @@ void gui_scrollpane_t::set_size(scr_size size)
 scr_size gui_scrollpane_t::request_size(scr_size request)
 {
 	// do not enlarge past max size of comp
-	scr_size cmax = comp->get_max_size();
+	scr_size cmax = take_cached_size ? cached_max_size : comp->get_max_size();
 	if (cmax.w  < request.w - comp->get_pos().x  &&  cmax.h < request.h - comp->get_pos().y) {
 		request = cmax;
 	}
@@ -139,9 +136,7 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
+ * Events werden hiermit an die GUI-components gemeldet
  */
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
@@ -172,12 +167,12 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// hand event to component
 		swallow = comp->infowin_event(&ev2);
 
-		// Knightly : check if we need to scroll to the focused component
+		// check if we need to scroll to the focused component
 		if(  get_focus()  &&  focused != get_focus()  ) {
 			show_focused();
 		}
 
-		// Hajo: hack: component could have changed size
+		// hack: component could have changed size
 		// this recalculates the scrollbars
 		if(  old_comp_size!=comp->get_size()  ) {
 			recalc_sliders(get_size());
@@ -220,7 +215,6 @@ void gui_scrollpane_t::show_focused()
 
 /**
  * Set the position of the Scrollbars
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::set_scroll_position(int x, int y)
 {
@@ -256,7 +250,6 @@ scr_rect gui_scrollpane_t::get_client( void )
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_scrollpane_t::draw(scr_coord pos)
 {

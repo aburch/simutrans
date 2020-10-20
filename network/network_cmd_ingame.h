@@ -74,7 +74,6 @@ private:
  * @from-client: client sends chat message to server
  *               server logs message and sends it to all clients
  * @from-server: server sends a chat message for display on the client
- * @author Timothy Baldock <tb@entropy.me.uk>
  */
 class nwc_chat_t : public network_command_t {
 public:

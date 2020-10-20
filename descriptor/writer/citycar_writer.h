@@ -12,12 +12,8 @@
 #include "../objversion.h"
 
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *      Description of the automatically generated cars
+/**
+ * Description of the automatically generated cars
  */
 class citycar_writer_t : public obj_writer_t {
 	private:

@@ -85,14 +85,10 @@ static uint8 statistic[convoi_t::MAX_CONVOI_COST] = {
 
 /**
  * This variable defines by which column the table is sorted
- * Values:			0 = destination
- *                  1 = via
- *                  2 = via_amount
- *                  3 = amount
- *					4 = origin
- *					5 = origin_amount
- *					6 = destination (detail)
- * @author prissi - amended by jamespetts (origins)
+ * Values: 0 = destination
+ *                 1 = via
+ *                 2 = via_amount
+ *                 3 = amount
  */
 const char *convoi_info_t::sort_text[SORT_MODES] =
 {
@@ -114,6 +110,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	: gui_frame_t(""),
 	text(&freight_info),
 	view(scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	loading_bar(cnv),
 	scroll_freight(&container_freight, true, true)
 {
 	if (cnv.is_bound()) {
@@ -148,7 +145,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 				add_component(&speed_bar);
 
 				add_component(&weight_label);
-				add_component(&filled_bar);
+				add_component(&loading_bar);
 
 				add_table(3, 1);
 				{
@@ -222,8 +219,11 @@ void convoi_info_t::init(convoihandle_t cnv)
 		details_button.add_listener(this);
 		add_component(&details_button);
 
+		times_history_button.init(button_t::roundbox | button_t::flexible, "times_history");
+		times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+		times_history_button.add_listener(this);
+		add_component(&times_history_button);
 
-		new_component<gui_empty_t>();
 		new_component<gui_empty_t>();
 
 		no_load_button.init(button_t::square_state, "no load");
@@ -263,12 +263,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_freight.add_component(&text);
 
 	switch_mode.add_tab(&container_stats, translator::translate("Chart"));
-/*
-	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
-	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
-	add_component(&times_history_button);
-	times_history_button.add_listener(this);
-	*/
 
 	/*
 #ifdef ACCELERATION_BUTTON
@@ -301,7 +295,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_stats.add_table(4, int((convoi_t::MAX_CONVOI_COST+3) / 4))->set_force_equal_columns(true);
 
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
-		uint16 curve = chart.add_curve( color_idx_to_rgb(cost_type_color[cost]), cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
+		uint16 curve = chart.add_curve( color_idx_to_rgb(cost_type_color[cost]), cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, statistic[cost], MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
 
 		button_t *b = container_stats.new_component<button_t>();
 		b->init(button_t::box_state_automatic  | button_t::flexible, cost_type[cost]);
@@ -313,11 +307,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_stats.end_table();
 
 	cnv->set_sortby(env_t::default_sortmode);
-
-
-	// indicator bars
-	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
-	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
@@ -598,7 +587,6 @@ void convoi_info_t::update_labels()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -823,7 +811,6 @@ koord3d convoi_info_t::get_weltpos( bool set )
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

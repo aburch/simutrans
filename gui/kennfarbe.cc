@@ -92,7 +92,6 @@ farbengui_t::farbengui_t(player_t *player_) :
 
 /**
  * This method is called if an action is triggered
- * @author V. Meyer
  */
 bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

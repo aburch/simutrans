@@ -17,7 +17,6 @@
 
 /**
  * Action, started on button pressing
- * @author Hansjörg Malthaner
  */
 bool load_relief_frame_t::item_action(const char *fullpath)
 {
@@ -33,16 +32,12 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 
 load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
 {
-
 	new_format.init( button_t::square_automatic, "Maximize height levels");
 	new_format.pressed = env_t::new_height_map_conversion;
 	bottom_left_frame.add_component( &new_format );
 
-	static char extra_path[1024 + 5 + 1];
-	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
-	//sprintf(extra_path,"%smaps/", env_t::program_dir);
-
-	this->add_path(extra_path);
+	const std::string extra_path = env_t::program_dir + env_t::objfilename + "maps/";
+	this->add_path(extra_path.c_str());
 
 	set_name(translator::translate("Lade Relief"));
 	this->sets = sets;

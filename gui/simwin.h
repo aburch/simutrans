@@ -3,6 +3,11 @@
  * (see LICENSE.txt)
  */
 
+/*
+ * The function implements a WindowManager 'Object'
+ * There's only one WindowManager
+ */
+
 #ifndef GUI_SIMWIN_H
 #define GUI_SIMWIN_H
 
@@ -115,6 +120,7 @@ enum magic_numbers {
 	magic_line_class_manager= magic_class_manager + 65536,
 	magic_depotlist = magic_line_class_manager +843,
 	magic_vehiclelist = magic_depotlist + MAX_PLAYER_COUNT,
+	magic_signalboxlist,
 	magic_max
 };
 
@@ -144,7 +150,7 @@ void win_set_pos(gui_frame_t *ig, int x, int y);
 
 gui_frame_t *win_get_top();
 
-// Knightly : returns the focused component of the top window
+// returns the focused component of the top window
 gui_component_t *win_get_focus();
 
 int win_get_open_count();
@@ -157,8 +163,6 @@ bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic );
 
 /**
  * Checks if a window is a top level window
- *
- * @author Hj. Malthaner
  */
 bool win_is_top(const gui_frame_t *ig);
 
@@ -201,14 +205,12 @@ void win_load_font(const char *fname, uint16 fontsize);
 /**
  * Sets the tooltip to display.
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
- * @author Hj. Malthaner, Knightly
  */
 void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = 0, const void *const group = 0);
 
 /**
  * Sets a static tooltip that follows the mouse
  * *MUST* be explicitly unset!
- * @author Hj. Malthaner
  */
 void win_set_static_tooltip(const char *text);
 

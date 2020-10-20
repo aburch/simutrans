@@ -47,7 +47,6 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
  * We want to be able to highlight the current tile.
  * Unmarks area around old and marks area around new position.
  * Use this routine to change position.
- * @author Hj. Malthaner
  */
 void zeiger_t::change_pos(koord3d k )
 {
@@ -124,4 +123,8 @@ void zeiger_t::set_area(koord new_area, bool center, koord new_offset)
 	area = new_area;
 	offset = new_offset;
 	welt->mark_area( get_pos()-offset, area, true );
+}
+
+bool zeiger_t::has_managed_lifecycle() const {
+	return true;
 }

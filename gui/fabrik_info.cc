@@ -216,7 +216,6 @@ void fabrik_info_t::set_windowsize(scr_size size)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void fabrik_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -330,11 +329,9 @@ bool fabrik_info_t::is_weltpos()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  *
  * Returns true, if action is done and no more
  * components should be triggered.
- * V.Meyer
  */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {

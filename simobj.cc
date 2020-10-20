@@ -29,7 +29,6 @@
 /**
  * Pointer to the world of this thing. Static to conserve space.
  * Change to instance variable once more than one world is available.
- * @author Hj. Malthaner
  */
 karte_ptr_t obj_t::welt;
 
@@ -172,6 +171,9 @@ void obj_t::show_info()
 	create_win( new obj_infowin_t(this), w_info, (ptrdiff_t)this);
 }
 
+bool obj_t::has_managed_lifecycle() const {
+	return false;
+}
 
 // returns NULL, if removal is allowed
 const char *obj_t:: is_deletable(const player_t *player)
@@ -320,7 +322,6 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 /*
  * when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
  * sometimes they have an extra offset, this is the yoff parameter
-* @author prissi
  */
 void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 {

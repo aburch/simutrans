@@ -5,6 +5,7 @@
 
 #include "unicode.h"
 #include "simtypes.h"
+#include <cwctype>
 
 utf32 const UNICODE_NUL = 0;
 
@@ -262,4 +263,51 @@ uint8 unicode_to_latin2( utf16 chr )
 utf16 latin2_to_unicode( uint8 chr )
 {
 	return chr >= 0xA0 ? latin2_to_unicode_lookup[chr-0xA0] : chr;
+}
+
+
+
+// inspired from Stackoverflow https://stackoverflow.com/questions/27303062/strstr-function-like-that-ignores-upper-or-lower-case
+// Handles somewhat umlaute as well (may depend a little on the locale though)
+const utf8 *utf8caseutf8(const utf8 *haystack_start, const utf8 *needle_start)
+{
+	const utf8 *needle_p = needle_start;
+	const utf8 *haystack_p = haystack_start;
+	utf32 c = towlower( utf8_decoder_t::decode(needle_p ));
+	needle_start = needle_p;
+	if(  c=='\0'  ) {
+		return haystack_start;
+	}
+	const utf8 *haystack_current = haystack_p;
+	utf32 hs = utf8_decoder_t::decode( haystack_p );
+	while(  hs != 0  ) {
+		if(   towlower( hs ) == c   ) {
+			const utf8 *haystack_next = haystack_p;
+
+			while(true) {
+				sint32 nc = utf8_decoder_t::decode( needle_p );
+				if(  nc == 0  ) {
+					return haystack_current;
+				}
+				hs = utf8_decoder_t::decode( haystack_p );
+				if(  towlower( hs ) != towlower( nc )  ) {
+					needle_p = needle_start;
+					break;
+				}
+			}
+
+			// advance one character
+			haystack_p = haystack_next;
+		}
+		haystack_current = haystack_p;
+		hs = utf8_decoder_t::decode( haystack_p );
+	}
+	return NULL;
+}
+
+
+// defining it in the include did not work for whatever reason
+const char *utf8caseutf8( const char *haystack, const char *needle )
+{
+	return (const char *)utf8caseutf8( (const utf8 *)haystack, (const utf8 *)needle );
 }

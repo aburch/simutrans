@@ -11,10 +11,7 @@
 
 /**
  * The water ground models rivers and lakes in Simutrans.
- *
- * @author Hj. Malthaner
  */
-
 class wasser_t : public grund_t
 {
 protected:
@@ -22,16 +19,17 @@ protected:
 	ribi_t::ribi ribi;
 	/// helper variable, ribis to canal tiles, where ships cannot turn left or right
 	ribi_t::ribi canal_ribi;
-
+	/// helper variable ribis for displaying (tiles with harbour are not considered connected to water for displaying)
+	ribi_t::ribi display_ribi;
 	/**
-	* This method also recalculates ribi and cache_ribi!
-	*/
+	 * This method also recalculates ribi and cache_ribi!
+	 */
 	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
 
-	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::none) { rdwr(file); }
-	wasser_t(koord3d pos) : grund_t(pos), ribi(ribi_t::none) {}
+	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::none), canal_ribi(ribi_t::none) { rdwr(file); }
+	wasser_t(koord3d pos);
 
 	inline bool is_water() const { return true; }
 
@@ -42,10 +40,17 @@ public:
 	const char *get_name() const {return "Water";}
 	grund_t::typ get_typ() const {return wasser;}
 
+	// recalculates the water-specific ribis
+	void recalc_ribis();
+
+	// recalculates the water-specific ribis for this and all neighbouring water tiles
+	void recalc_water_neighbours();
+
 	// map rotation
 	void rotate90();
 
 	ribi_t::ribi get_canal_ribi() const { return canal_ribi; }
+	ribi_t::ribi get_display_ribi() const { return display_ribi; }
 
 	// static stuff from here on for water animation
 	static int stage;

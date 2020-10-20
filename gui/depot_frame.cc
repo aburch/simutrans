@@ -332,7 +332,6 @@ void depot_frame_t::layout(scr_size *size)
 
 	/*
 	 * [SELECT ROUTE]:
-	 * @author hsiegeln
 	 */
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
 	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + selector_x + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
@@ -679,12 +678,12 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &convoy_selector  ) {
 			icnv = p.i - 1;
-			if(  !depot->get_convoi(icnv).is_bound()  ) {
+/*			if(  !depot->get_convoi(icnv).is_bound()  ) {
 				set_focus( NULL );
 			}
 			else {
 				set_focus( (gui_component_t *)&convoy_selector );
-			}
+			}*/
 		}
 		else if(  comp == &line_selector  ) {
 			int selection = p.i;
@@ -806,10 +805,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		}
 
 		if(next_dep  &&  next_dep!=this->depot) {
-			/**
-			 * Replace our depot_frame_t with a new at the same position.
-			 * Volker Meyer
-			 */
+			//  Replace our depot_frame_t with a new at the same position.
 			scr_coord const pos = win_get_pos(this);
 			destroy_win( this );
 

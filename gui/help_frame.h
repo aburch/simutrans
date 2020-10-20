@@ -45,7 +45,6 @@ public:
 
 	/**
 	 * resize window in response to a resize event
-	 * @author Hj. Malthaner
 	 */
 	void resize(const scr_coord delta) OVERRIDE;
 

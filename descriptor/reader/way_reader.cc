@@ -43,11 +43,11 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	way_desc_t *desc = new way_desc_t();
 	// DBG_DEBUG("way_reader_t::read_node()", "node size = %d", node.size);
 
-	// Hajo: Read data
+	// Read data
 	fread(desc_buf, node.size, 1, fp);
 	char * p = desc_buf;
 
-	// Hajo: old versions of PAK files have no version stamp.
+	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	int version = 0;
 

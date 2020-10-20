@@ -13,9 +13,7 @@ class karte_t;
 #include "../simobj.h"
 
 /**
- * Brueckenteile (sichtbar)
- *
- * Hj. Malthaner
+ * Bridges (visible)
  */
 class bruecke_t : public obj_no_info_t
 {
@@ -76,8 +74,7 @@ public:
 
 	void rotate90() OVERRIDE;
 	/**
-	 * @return NULL when OK, otherwise an error message
-	 * @author Hj. Malthaner
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 */
 	const char * is_deletable(const player_t *player) OVERRIDE;
 };

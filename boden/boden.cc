@@ -3,12 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Nature/Countryside ground for Simutrans.
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include "../simworld.h"
 #include "../simskin.h"
 

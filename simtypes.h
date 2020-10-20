@@ -44,6 +44,9 @@
 #define DELETED = delete
 #define OVERRIDE override
 
+#include <stdint.h> // intptr_t (standard)
+#include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)
+
 #define ENUM_BITSET(T) \
  static inline T operator ~ (T a) { return (T)~(unsigned)a; } \
  static inline T operator & (T a, T b) { return (T)((unsigned)a & (unsigned)b); } \
@@ -83,8 +86,7 @@ enum climate_bits
 };
 
 /**
- * Vordefinierte Wetypeen.
- * @author Hj. Malthaner
+ * Vordefinierte Wegtypen.
  */
 enum waytype_t {
 	invalid_wt       =  -1,
@@ -107,17 +109,16 @@ enum waytype_t {
  * System types for ways
  */
 enum systemtype_t {
-	type_flat = 0,	///< flat track
-	type_elevated = 1,	///< flag for elevated ways
-	type_runway = 1,	///< flag for runway (only aircrafts)
-	type_tram = 7,	///< tram track (waytype = track_wt)
-	type_river = 255,	///< flag for river
-	type_all = 255,	///< special ?
+	type_flat     = 0,   ///< flat track
+	type_elevated = 1,   ///< flag for elevated ways
+	type_runway   = 1,   ///< flag for runway (only aircrafts)
+	type_tram     = 7,   ///< tram track (waytype = track_wt)
+	type_river    = 255, ///< flag for river
+	type_all      = 255  ///< special ?
 };
 
 /**
  * conditions for overtaking on roads
- * @author teamhimeH
  */
  enum overtaking_mode_t {
 	 halt_mode         = -1, // vehicles can stop on passing lane
@@ -130,12 +131,7 @@ enum systemtype_t {
 
 enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };
 
-// makros are not very safe: thus use these macro like functions
-// otherwise things may fail or functions are called uneccessarily twice
-
-#define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
-
-// Hajo: define machine independent types
+// define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;
 typedef unsigned char       uint8;
@@ -373,7 +369,6 @@ static inline sint64 endian(sint64 const v) { return sint64(endian(uint64(v))); 
  * a helper type to avoid cast operations.  This isn't very clean, but if used
  * with care it seems better than using "long" and casting to a pointer type.
  * In all cases it ensures that no bits are lost.
- * @author Hj. Malthaner
  */
 union value_t
 {

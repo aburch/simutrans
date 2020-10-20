@@ -24,6 +24,7 @@ bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
 sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
+uint8 env_t::follow_convoi_underground = 2;
 
 char env_t::program_dir[PATH_MAX];
 plainstring env_t::default_theme;
@@ -42,7 +43,7 @@ uint32 env_t::server_announce = 0;
 bool env_t::easy_server = false;
 // Minimum is every 60 seconds, default is every 15 minutes (900 seconds), maximum is 86400 (1 day)
 sint32 env_t::server_announce_interval = 900;
-int env_t::server_port = 13353;
+int env_t::server_port = env_t::server ? env_t::server : 13353;
 std::string env_t::server_dns;
 std::string env_t::server_alt_dns; // for dualstack systems
 std::string env_t::server_name;
@@ -77,6 +78,8 @@ scr_size env_t::iconsize( 32, 32 );
 uint8 env_t::chat_window_transparency = 75;
 bool env_t::show_delete_buttons = false;
 
+bool env_t::numpad_always_moves_map = true;
+
 // only used internally => do not touch further
 bool env_t::quit_simutrans = false;
 
@@ -99,6 +102,8 @@ bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
+uint8 env_t::freight_waiting_bar_level;
+bool env_t::classes_waiting_bar;
 uint8 env_t::show_cnv_nameplates;
 uint8 env_t::show_cnv_loadingbar;
 sint32 env_t::message_flags[4];
@@ -121,14 +126,15 @@ plainstring env_t::river_type[10];
 uint8 env_t::river_types;
 sint32 env_t::autosave;
 uint32 env_t::fps;
+uint32 env_t::ff_fps;
 sint16 env_t::max_acceleration;
 bool env_t::show_tooltips;
 uint32 env_t::tooltip_color_rgb;
 PIXVAL env_t::tooltip_color;
 uint32 env_t::tooltip_textcolor_rgb;
 PIXVAL env_t::tooltip_textcolor;
-uint8 env_t::toolbar_max_width;
-uint8 env_t::toolbar_max_height;
+sint8 env_t::toolbar_max_width;
+sint8 env_t::toolbar_max_height;
 uint32 env_t::cursor_overlay_color_rgb;
 PIXVAL env_t::cursor_overlay_color;
 uint32 env_t::background_color_rgb;
@@ -160,6 +166,9 @@ uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
 sint8 env_t::show_money_message;
 
+uint8 env_t::gui_player_color_dark = 1;
+uint8 env_t::gui_player_color_bright = 4;
+
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
 
@@ -178,7 +187,9 @@ uint32 env_t::default_ai_construction_speed;
 
 bool env_t::hide_keyboard = false;
 
-// Hajo: Define default settings.
+
+
+// Define default settings.
 void env_t::init()
 {
 	// settings for messages
@@ -204,6 +215,8 @@ void env_t::init()
 	signalbox_coverage_show = 0;
 
 	show_names = 3;
+	freight_waiting_bar_level = 2;
+	classes_waiting_bar = false;
 	show_cnv_nameplates = 0;
 	show_cnv_loadingbar = 0;
 	player_finance_display_account = true;
@@ -211,6 +224,8 @@ void env_t::init()
 	water_animation = 250; // 250ms per wave stage
 	ground_object_probability = 10; // every n-th tile
 	moving_object_probability = 1000; // every n-th tile
+
+	follow_convoi_underground = 2;  // slice through map
 
 	road_user_info = false;
 	tree_info = true;
@@ -240,11 +255,12 @@ void env_t::init()
 	river_types = 0;
 
 
-	/* prissi: autosave every x months (0=off) */
+	// autosave every x months (0=off)
 	autosave = 0;
 
-	// default: make 25 frames per second (if possible)
-	fps=25;
+	// default: make 25 frames per second (if possible) and 10 for faster fast forward
+	fps = 25;
+	ff_fps = 10;
 
 	// maximum speedup set to 1000 (effectively no limit)
 	max_acceleration=50;
@@ -373,6 +389,9 @@ void env_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long( autosave );
 	file->rdwr_long( fps );
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
+		file->rdwr_long(ff_fps);
+	}
 	file->rdwr_short( max_acceleration );
 
 	file->rdwr_bool( road_user_info );
@@ -534,8 +553,15 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->get_version()>120007) {
 		rdwr_win_settings(file);
 	}
-	if(  file->get_version()>=120007  ) {
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
 		file->rdwr_byte(show_money_message);
+		file->rdwr_byte(follow_convoi_underground);
+		file->rdwr_byte( gui_player_color_dark );
+		file->rdwr_byte( gui_player_color_bright );
+		file->rdwr_bool( env_t::numpad_always_moves_map );
+		file->rdwr_byte(freight_waiting_bar_level);
+		file->rdwr_bool(classes_waiting_bar);
 	}
-	// server settings are not saved, since they are server specific and could be different on different servers on the save computers
+	// server settings are not saved, since they are server specific
+	// and could be different on different servers on the same computers
 }

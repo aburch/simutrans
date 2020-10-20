@@ -20,7 +20,6 @@ static size_t content_length = 0;
  * Copy text to the clipboard
  * @param source : pointer to the start of the source text
  * @param length : number of character bytes to copy
- * @author Knightly
  */
 void dr_copy(const char *source, size_t length)
 {
@@ -38,7 +37,6 @@ void dr_copy(const char *source, size_t length)
  * @param target : pointer to the insertion position in the target text
  * @param max_length : maximum number of character bytes which could be inserted
  * @return number of character bytes actually inserted -> for cursor advancing
- * @author Knightly
  */
 size_t dr_paste(char *target, size_t max_length)
 {

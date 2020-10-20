@@ -24,7 +24,6 @@ class goods_desc_t;
 
 /**
  * Shows statistics. Only goods so far.
- * @author Hj. Malthaner
  */
 class goods_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -91,7 +90,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE {return "goods_filter.txt"; }
 

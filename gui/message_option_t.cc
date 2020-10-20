@@ -12,57 +12,61 @@
 #include "../dataobj/environment.h"
 #include "message_option_t.h"
 
-//#define BUTTON_ROW (110+D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE)
-
-
-
 
 message_option_t::message_option_t() :
 	gui_frame_t( translator::translate("Mailbox Options") ),
-	text_label(&buf),
-	legend( skinverwaltung_t::message_options->get_image_id(0) )
+	legend( skinverwaltung_t::message_options->get_image_id(0),0,0,true )
 {
-	scr_coord_val button_row = get_windowsize().w - legend.get_size().w - D_MARGIN_RIGHT;
+	set_table_layout(5,0);
 
-	buf.clear();
-	buf.append(translator::translate("MessageOptionsText"));
-	text_label.set_pos( scr_coord( D_MARGIN_LEFT + D_CHECKBOX_WIDTH + D_H_SPACE, D_MARGIN_TOP ));
-	add_component( &text_label );
+	// first row with monolithic images ...
+	new_component_span<gui_empty_t>(2);
+	add_component( &legend, 3 );
 
-	legend.set_pos( scr_coord(button_row,0) );
-	add_component( &legend );
-
+	// The text is unfourtunately a single text, which we have to chop into pieces.
+	const unsigned char *p = (const unsigned char *)translator::translate( "MessageOptionsText" );
 	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  i++  ) {
-		buttons[i*4].set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+
 		buttons[i*4].set_typ(button_t::square_state);
 		buttons[i*4].pressed = ((ignore_msg>>i)&1)==0;
 		buttons[i*4].add_listener(this);
 		add_component( buttons+i*4 );
 
-		buttons[i*4+1].set_pos( scr_coord(button_row+10,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
+		// copy the next line of the option text
+		while(  *p < ' '  &&  *p  ) {
+			p++;
+		}
+		for(  int j=0;   *p>=' '; p++  ) {
+			if(  j < MAX_MESSAGE_OPTION_TEXTLEN-1  ) {
+				option_texts[i][j++] = *p;
+				option_texts[i][j] = 0;
+			}
+		}
+		text_lbl[i].set_text( option_texts[i] );
+		add_component( text_lbl+i );
+
 		buttons[i*4+1].set_typ(button_t::square_state);
 		buttons[i*4+1].set_tooltip("Show in the ticker");
 		buttons[i*4+1].pressed = (ticker_msg>>i)&1;
 		buttons[i*4+1].add_listener(this);
 		add_component( buttons+i*4+1 );
 
-		buttons[i*4+2].set_pos( scr_coord(button_row+30,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4+2].set_typ(button_t::square_state);
 		buttons[i*4+2].pressed = (auto_msg>>i)&1;
 		buttons[i*4+2].set_tooltip("Show a transient dialogue box");
 		buttons[i*4+2].add_listener(this);
 		add_component( buttons+i*4+2 );
 
-		buttons[i*4+3].set_pos( scr_coord(button_row+50,D_MARGIN_TOP+(i*2+1)*LINESPACE) );
 		buttons[i*4+3].set_typ(button_t::square_state);
 		buttons[i*4+3].set_tooltip("Show a non-transient dialogue box");
 		buttons[i*4+3].pressed = (window_msg>>i)&1;
 		buttons[i*4+3].add_listener(this);
 		add_component( buttons+i*4+3 );
 	}
-	set_windowsize( scr_size(button_row+70, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+(2*message_t::MAX_MESSAGE_TYPE)*(LINESPACE) + D_MARGIN_BOTTOM ) );
+
+	reset_min_windowsize();
 }
 
 

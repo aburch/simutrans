@@ -47,10 +47,6 @@ userdir_overrides_savegame_settings = 0
 # Consumes 16*x Bytes main memory, where x is the "max_route_steps" value.
 max_route_steps = 1500000
 
-# You can use a system font. BUT you must specify the whole path to it!
-# This can be only set in the user defined simuconf.tab
-#fontname=C:\Windows\fonts\arial.ttf
-
 # How many tiles to check before giving up on finding a free bay at a stop or free alternative route? 
 # Default: 200
 # Unlimited: 0
@@ -108,6 +104,10 @@ way_slope=10
 way_tunnel=8
 way_max_bridge_len=15
 way_leaving_road=25
+
+# if defined, the default tool will try to calculate straight ways (like OpenTTD)
+straight_way_without_control = 0
+
 
 # These settings are used to calculate adjusted figures based on the length of the month. 
 # To assume a base month length based on the settings in Simutrans-Standard, use 1,000
@@ -419,8 +419,9 @@ auto_connect_industries_and_attractions_by_road = 4
 
 ################################# Display settings ################################
 
-# if defined, the default tool will try to calculate straight ways (like OpenTTD)
-straight_way_without_control = 0
+# You can use a system font. BUT you must specify the whole path to it!
+# This can be only set in the user defined simuconf.tab
+#fontname=C:\Windows\fonts\arial.ttf
 
 # player color can be fixed for several players or set totally random
 # in the latter case each player will get unique but random coloring
@@ -438,18 +439,6 @@ remove_dummy_player_months = 6
 
 # remove password of abandoned companies (wihtout any building activity) after x month (0=off default)
 unprotect_abondoned_player_months = 0
-
-# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#diagonal_multiplier = 724
-
-# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#height_conversion_factor = 1
-
-# how height is a tile in z-direction (default 16, TTD 8)
-# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
-#tile_height = 16
 
 # (=1) drive on the left side of the road
 drive_left = 0
@@ -505,6 +494,9 @@ townhall_info = 1
 # (1=hide, 0=show anyway)
 hide_rail_return_ticket = 1
 
+# do not show the buttons to delete old savegames (default)
+show_delete_buttons = 1
+
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1
@@ -514,6 +506,10 @@ hide_rail_return_ticket = 1
 # 1 (default) only no_route and stuck
 # loading and waiting at signals too
 #show_vehicle_states = 1
+
+# If a convoi which you are following enters a tunnel, what to do
+# 0=do not change view, 1=switch to underground mode and back, 2=switch to sliced underground mode
+#follow_convoi_underground = 2
 
 # show (default) tiles with a halt when editing a schedule
 #visualize_schedule = 1
@@ -593,7 +589,7 @@ hide_keyboard = 0
 compass_screen_position = 0
 compass_map_position = 13
 
-# Should either account (default) or net wealth be shown blow the screen?
+# Should either account (default) or net wealth be shown below the screen?
 player_finance_display_account = 1
 
 ################################### Finance settings ##################################
@@ -677,6 +673,23 @@ cst_make_public_months = 60
 #
 # also pak dependent
 #
+
+# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#diagonal_multiplier = 724
+
+# new height for old slopes when old single height savegame loaded with double height pak (default 1=single height, 2=double height)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#height_conversion_factor = 1
+
+# how height is a tile in z-direction (default 16, TTD 8)
+# THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
+#tile_height = 16
+
+# minimum/maximum allowed height level for the map (too high might cause display errors)
+# Also those number must no be the same
+#world_minimum_height = -12
+#world_maximum_height = 32
 
 # minimum distance between two townhalls
 #minimum_city_distance = 16
@@ -843,6 +856,7 @@ power_revenue_factor_percentage = 100
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
 #
+
 # Number of trees on square 2 - minimal usable, 3 good, 4 very nice looking
 max_no_of_trees_on_square = 3
 
@@ -967,6 +981,9 @@ toolbar_max_height = 0
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 30
+
+# Same as frames_per_second, but for fast forward (default 10)
+#fast_forward_frames_per_second = 10
 
 # during zooming out simutrans may get slow due to the very high number
 # of tiles visible. If the tiles become equal or smaller than the tile size

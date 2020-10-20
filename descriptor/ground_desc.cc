@@ -380,11 +380,11 @@ static image_t* create_alpha_tile(const image_t* image_lightmap, slope_t::type s
 				// now we have calulated the y_t of square tile that is rotated by 45 degree
 				// so we just have to do a 45 deg backtransform ...
 				// (and do not forget: tile_y_corrected middle = 0!
-				sint16 x_t = tile_x - tile_y_corrected;
-				sint16 y_t = tile_y_corrected + tile_x;
+				sint32 x_t = tile_x - tile_y_corrected;
+				sint32 y_t = tile_y_corrected + tile_x;
 				// due to some inexactness of integer arithmethics, we have to take care of overflow and underflow
-				x_t = max(0, min(x_t, x_y-1));
-				y_t = max(0, min(y_t, x_y-1));
+				x_t = clamp(x_t, 0, x_y-1);
+				y_t = clamp(y_t, 0, x_y-1);
 				sint32 alphamap_offset = ((y_t * mix_x_y) / x_y) * (mix_x_y + 3) + 2 + (x_t * mix_x_y) / x_y;
 
 				// see only the mixmap for mixing
@@ -414,6 +414,8 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 	image_t *image_dest = image_t::copy_image(*ref);
 	PIXVAL *const sp2 = image_dest->get_data();
 
+	assert(ref->w == ref->y + ref->h  &&  ref->x == 0);
+
 	const sint32 ref_w = ref->w;
 	const sint32 height= image->get_pic()->h;
 
@@ -435,14 +437,27 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 			for(uint16 i=0; i<runlen; i++) {
 				PIXVAL p = *sp++;
 
-#define copypixel(xx, yy) \
-	if (0 <= (yy)  &&  (yy) < ref_w  &&  0 <= (xx)  &&  (xx) < ref_w) { \
-        size_t const index = (ref_w + 3) * (yy) + xx + 2; \
-        if(index < image_dest->len) { \
-		    sp2[index] = p; \
-		} \
-	}
-				// put multiple copies into dest image
+				// macro to copy pixels into rle-encoded image, with range check
+#				define copypixel(xx, yy) \
+				if (ref->y <= (yy)  &&  (yy) < ref->h  &&  0 <= (xx)  &&  (xx) < ref_w) { \
+					size_t const index = (ref_w + 3) * (yy - ref->y) + xx + 2; \
+					assert(index < image_dest->len); \
+					sp2[index] = p; \
+				}
+				/* Put multiple copies into dest image
+				 *
+				 * image is assumed to be tile shaped,
+				 * and is copied four times to cover tiles of neighboring tiles.
+				 *
+				 * copy +   copy
+				 * | /     \  |
+				 * +  image   +
+				 * | \     /  |
+				 * copy +   copy
+				 *
+				 * ref image is assumed to be rectangular,
+				 * it is used to fill holes due to missing pixels in image.
+				 */
 				copypixel(x, y + image->y);
 				copypixel(x + ref_w/2, y + image->y + ref_w/4);
 				copypixel(x - ref_w/2, y + image->y + ref_w/4);

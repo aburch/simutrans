@@ -78,7 +78,6 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	compare = cmp;
 	size = scr_size(0,0);
 	pos = scr_coord(0,0);
-	max_width = scr_size::inf.w;
 	multiple_selection = false;
 	maximize = false;
 }
@@ -180,8 +179,11 @@ void gui_scrolled_list_t::set_size(scr_size size)
 void gui_scrolled_list_t::reset_container_size()
 {
 	// reset element positioning
+	container.set_margin( scr_size( D_H_SPACE, 0 ), scr_size( D_H_SPACE, 0 ) );
+	container.set_spacing( scr_size( D_H_SPACE, 0 ) );
+
 	scr_size csize = container.get_min_size();
-	csize.w = min(max_width, csize.w);
+
 	container.set_size( csize );
 }
 

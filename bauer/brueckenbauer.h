@@ -15,7 +15,7 @@
 class bridge_desc_t;
 class grund_t;
 class karte_ptr_t;
-class player_t;               // Hajo: 22-Nov-01: Added forward declaration
+class player_t;
 class way_desc_t;
 class tool_selector_t;
 

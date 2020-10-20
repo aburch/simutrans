@@ -12,12 +12,8 @@
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
 
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Description:
- *    Images of all possible surface tiles: slopes, climates, transitions,
+/**
+ * Images of all possible surface tiles: slopes, climates, transitions, etc.
  *
  *  Child nodes:
  *	0   Name

@@ -183,7 +183,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 {
 	gui_frame_t::draw( pos, size );
 
-	// Hajo: add white line on top since this frame has no title bar.
+	// add white line on top since this frame has no title bar.
 	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, 1, color_idx_to_rgb(COL_GREY6), false);
 }
 
@@ -207,9 +207,9 @@ void banner_text_t::draw(scr_coord offset)
 
 	PUSH_CLIP_FIT( left, cursor.y, width, height );
 
-	display_fillbox_wh_clip_rgb(left, cursor.y, width, height, color_idx_to_rgb(COL_GREY1), true);
-	display_fillbox_wh_clip_rgb(left, cursor.y - 1, width, 1, color_idx_to_rgb(COL_GREY3), false);
-	display_fillbox_wh_clip_rgb(left, cursor.y + height, width, 1, color_idx_to_rgb(COL_GREY6), false);
+	display_fillbox_wh_clip_rgb(left, cursor.y,          width, height, color_idx_to_rgb(COL_GREY1), true);
+	display_fillbox_wh_clip_rgb(left, cursor.y - 1,      width, 1,      color_idx_to_rgb(COL_GREY3), false);
+	display_fillbox_wh_clip_rgb(left, cursor.y + height, width, 1,      color_idx_to_rgb(COL_GREY6), false);
 
 	cursor.y++;
 

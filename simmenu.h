@@ -120,7 +120,7 @@ enum {
 	TOOL_TOGGLE_RESERVATION,
 	TOOL_VIEW_OWNER,
 	TOOL_HIDE_UNDER_CURSOR,
-	TOOL_CHANGE_ROADSIGN_DEPRECATED,
+	TOOL_MOVE_MAP,
 	TOOL_SHOW_RIBI_DEPRECATED,
 	TOOL_RECOLOUR_TOOL_DEPRECATED,
 	TOOL_ACCESS_TOOL_DEPRECATED,
@@ -173,6 +173,7 @@ enum {
 	DIALOG_SCENARIO_INFO,
 	DIALOG_LIST_DEPOT,
 	DIALOG_LIST_VEHICLE,
+	DIALOG_LIST_SIGNALBOX,
 	DIALOG_TOOL_STANDARD_COUNT,
 	// Extended entries from here:
 	DIALOG_TOOL_COUNT=0x0080,
@@ -226,8 +227,8 @@ public:
 		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
 		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
 		WFL_LOCAL  = 4, ///< tool call was issued by local client
-		WFL_SCRIPT = 8,  ///< tool call was issued by script (no password checks)
-		WFL_NO_CHK = 16, ///< tool call needs no password or scenario checks
+		WFL_SCRIPT = 8, ///< tool call was issued by script
+		WFL_NO_CHK = 16 ///< tool call needs no password or scenario checks
 	};
 	uint8 flags; // flags are set before init/work/move is called
 
@@ -285,13 +286,13 @@ public:
 	virtual bool is_selected() const;
 
 	// when true, local execution would do no harm
-	virtual bool is_init_network_save() const { return false; }
+	virtual bool is_init_network_safe() const { return false; }
 	virtual bool is_move_network_save(player_t *) const { return true; }
 
-	// if is_work_network_save()==false
+	// if is_work_network_safe()==false
 	// and is_work_here_network_save(...)==false
 	// then work-command is sent over network
-	virtual bool is_work_network_save() const { return false; }
+	virtual bool is_work_network_safe() const { return false; }
 	virtual bool is_work_here_network_save(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
@@ -363,10 +364,10 @@ public:
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 };
 
-/*
+
+/**
  * Class for tools needing two clicks (e.g. building ways).
  * Dragging is also possible.
- * @author Gerd Wachsmuth
  */
 class two_click_tool_t : public tool_t {
 public:
@@ -457,8 +458,8 @@ public:
 	tool_selector_t *get_tool_selector() const { return tool_selector; }
 	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return true; }
-	bool is_work_network_save() const OVERRIDE { return true; }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
 	// show this toolbar
 	bool init(player_t*) OVERRIDE;
 	// close this toolbar

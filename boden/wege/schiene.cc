@@ -3,13 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * Rails for Simutrans
- *
- * Revised January 2001
- * Hj. Malthaner
- */
-
 #include <stdio.h>
 
 #include "../../gui/simwin.h"
@@ -206,7 +199,6 @@ void schiene_t::info(cbuffer_t & buf) const
 
 /**
  * true, if this rail can be reserved
- * @author prissi
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, bool check_directions_at_junctions)
 {
@@ -259,7 +251,6 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 /**
 * releases previous reservation
 * only true, if there was something to release
-* @author prissi
 */
 bool schiene_t::unreserve(convoihandle_t c)
 {

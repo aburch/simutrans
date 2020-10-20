@@ -56,8 +56,7 @@ private:
 	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
 	koord find_place_for_hub( const stadt_t *s ) const;
 
-	/* builds harbours and ferries
-	 * @author prissi
+	/** builds harbours and ferries
 	 */
 	koord find_harbour_pos(karte_t* welt, const stadt_t *s );
 	bool create_water_transport_vehicle(const stadt_t* start_stadt, const koord target_pos);
@@ -65,8 +64,7 @@ private:
 	// builds a simple 3x3 three stop airport with town connection road
 	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
 
-	/* build airports and planes
-	 * @author prissi
+	/** build airports and planes
 	 */
 	bool create_air_transport_vehicle(const stadt_t *start_stadt, const stadt_t *end_stadt);
 

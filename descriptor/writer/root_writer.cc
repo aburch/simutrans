@@ -423,7 +423,7 @@ void root_writer_t::uncopy(const char* name)
 					node_name = name_from_next_node(infp);
 				}
 				// use a clever default name, if no name there
-				// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
+				// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained.
 				if (node_name.empty()) {
 					char random_name[16];
 					// we use the file position as unique name
@@ -483,4 +483,80 @@ void root_writer_t::capabilites()
 {
 	printf("This program can pack the following object types (pak version %d) :\n", COMPILER_VERSION_CODE);
 	show_capabilites();
+}
+
+
+void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
+{
+	searchfolder_t find;
+	FILE* outfp = NULL;
+	bool generate_name = false;
+	string file = find.complete(filename, "dat");
+
+	if (file[file.size()-1] == '/') {
+		printf("writing individual files to %s\n", filename);
+		generate_name = true;
+	}
+	else {
+		outfp = fopen(file.c_str(), "wb");
+
+		if (!outfp) {
+			dbg->fatal( "Write dat", "Cannot create destination file %s", filename );
+			exit(3);
+		}
+		printf("writing file %s\n", filename);
+	}
+
+	for(  int i=0;  i==0  ||  i<argc;  i++  ) {
+		const char* arg = (i < argc) ? argv[i] : "./";
+
+		find.search(arg, "dat");
+
+		FOR(searchfolder_t, const& i, find) {
+			tabfile_t infile;
+
+			if (infile.open(i)) {
+				tabfileobj_t obj;
+
+				printf("   reading file %s\n", i);
+
+				inpath = arg;
+				string::size_type n = inpath.rfind('/');
+
+				if(n!=string::npos) {
+					inpath = inpath.substr(0, n + 1);
+				}
+				else {
+					inpath = "";
+				}
+
+				if(generate_name) {
+					string name(i);
+
+					name.replace(name.size() - 3, 3, "expanded.dat");
+
+					outfp = fopen(name.c_str(), "wb");
+					if (!outfp) {
+						dbg->fatal( "Write pak", "Cannot create destination file %s", name.c_str() );
+						exit(3);
+					}
+					printf("   writing file %s\n", name.c_str());
+				}
+					// fprintf(outfp, "# Expanded file by makeobj\n");
+				while(infile.read(obj, outfp)) {
+					fprintf(outfp, "---\n");
+				}
+
+				if(generate_name) {
+					fclose(outfp);
+				}
+			}
+			else {
+				dbg->warning( "Write dat", "Cannot read %s", i);
+			}
+		}
+	}
+	if(!generate_name) {
+		fclose(outfp);
+	}
 }

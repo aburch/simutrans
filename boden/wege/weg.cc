@@ -3,16 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/* Base class for Ways in Simutrans.
- *
- * 14.06.00 derived from simgrund.cc
- * Revised January 2001
- *
- * derived from simobj.h in 2007
- *
- * Hj. Malthaner
- */
-
 #include <stdio.h>
 
 #include "../../tpl/slist_tpl.h"
@@ -64,13 +54,11 @@ static pthread_mutexattr_t mutex_attributes;
 
 /**
  * Alle instantiierten Wege
- * @author Hj. Malthaner
  */
 vector_tpl <weg_t *> alle_wege;
 
 /**
  * Get list of all ways
- * @author Hj. Malthaner
  */
 const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 {
@@ -321,7 +309,6 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 
 /**
  * initializes statistic array
- * @author hsiegeln
  */
 void weg_t::init_statistics()
 {
@@ -341,7 +328,6 @@ void weg_t::init_statistics()
 
 /**
  * Initializes all member variables
- * @author Hj. Malthaner
  */
 void weg_t::init()
 {
@@ -578,10 +564,7 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 }
 
-/**
- * Info-text for this way
- * @author Hj. Malthaner
- */
+
 void weg_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -708,17 +691,15 @@ void weg_t::info(cbuffer_t & buf) const
 					buf.append(translator::translate(building->get_individual_name()));
 #endif
 				}
-				else
+
+				const stadt_t* city = welt->get_city(route.key);
+				if (city && route.key == city->get_townhall_road())
 				{
-					const stadt_t* city = welt->get_city(route.key);
-					if (city)
-					{
-						cities_count++;
+					cities_count++;
 #ifdef DEBUG
-						buf.append("\n");
-						buf.append(city->get_name());
+					buf.append("\n");
+					buf.append(city->get_name());
 #endif
-					}
 				}
 			}
 #ifdef DEBUG
@@ -1244,7 +1225,6 @@ uint32 weg_t::get_runway_length(bool runway_36_18) const
 
 /**
  * called during map rotation
- * @author prissi
  */
 void weg_t::rotate90()
 {
@@ -1257,7 +1237,6 @@ void weg_t::rotate90()
 /**
  * counts signals on this tile;
  * It would be enough for the signals to register and unregister themselves, but this is more secure ...
- * @author prissi
  */
 void weg_t::count_sign()
 {
@@ -1566,7 +1545,6 @@ void weg_t::check_diagonal()
 
 /**
  * new month
- * @author hsiegeln
  */
 void weg_t::new_month()
 {

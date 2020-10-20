@@ -138,7 +138,7 @@ static void dl_free(obj_t** p, uint8 size)
 		freelist_t::putback_node(sizeof(*p) * size, p);
 	}
 	else {
-		guarded_free(p);
+		free(p);
 	}
 }
 
@@ -168,11 +168,20 @@ objlist_t::objlist_t()
 objlist_t::~objlist_t()
 {
 	if(  capacity == 1  ) {
-		delete obj.one;
+		obj.one->set_flag(obj_t::not_on_map);
+
+		if(!obj.one->has_managed_lifecycle()) {
+			delete obj.one;
+		}
 	}
 	else {
 		for(  uint8 i=0;  i<top;  i++  ) {
-			delete obj.some[i];
+			obj_t* const object = obj.some[i];
+			object->set_flag(obj_t::not_on_map);
+
+			if(!object->has_managed_lifecycle()) {
+				delete object;
+			}
 		}
 	}
 
@@ -512,7 +521,7 @@ bool objlist_t::remove(const obj_t* remove_obj)
  * removes object from map
  * deletes object if it is not a zeiger_t
  */
-void local_delete_object(obj_t *remove_obj, player_t *player)
+static void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::pedestrian  &&  remove_obj->get_typ() != obj_t::road_user  &&  remove_obj->get_typ() != obj_t::movingobj) {
@@ -523,7 +532,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
 		// zeiger's will be deleted if their associated tool terminates
-		if (remove_obj->get_typ() != obj_t::zeiger) {
+		if (!remove_obj->has_managed_lifecycle()) {
 			delete remove_obj;
 		}
 	}
@@ -1076,7 +1085,6 @@ void objlist_t::dump() const
 
 
 /** display all things, faster, but will lead to clipping errors
- *  @author prissi
  */
 #ifdef MULTI_THREAD
 void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const
@@ -1129,7 +1137,6 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
  *
  * objlist_t::display_obj_bg() .. called by the methods in grund_t
  * local_display_obj_bg()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
- * @author Dwachs
  */
 inline bool local_display_obj_bg(const obj_t *obj, const sint16 xpos, const sint16 ypos  CLIP_NUM_DEF)
 {
@@ -1168,7 +1175,6 @@ uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uin
  *
  * objlist_t::display_obj_vh() .. called by the methods in grund_t
  * local_display_obj_vh()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
- * @author Dwachs
  */
 inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF)
 {

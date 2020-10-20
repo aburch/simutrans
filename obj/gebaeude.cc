@@ -56,9 +56,8 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /**
-* Initializes all variables with safe, usable values
-* @author Hj. Malthaner
-*/
+ * Initializes all variables with safe, usable values
+ */
 void gebaeude_t::init()
 {
 	tile = NULL;
@@ -231,10 +230,8 @@ stadt_t* gebaeude_t::get_stadt() const
 }
 
 /**
-* Destructor. Removes this from the list of sync objects if necessary.
-*
-* @author Hj. Malthaner
-*/
+ * Destructor. Removes this from the list of sync objects if necessary.
+ */
 gebaeude_t::~gebaeude_t()
 {
 	if (welt->is_destroying())
@@ -443,10 +440,8 @@ void gebaeude_t::rotate90()
 }
 
 
-
-/* sets the corresponding pointer to a factory
-* @author prissi
-*/
+/** sets the corresponding pointer to a factory
+ */
 void gebaeude_t::set_fab(fabrik_t *fd)
 {
 	// sets the pointer in non-zero
@@ -477,10 +472,8 @@ void gebaeude_t::set_fab(fabrik_t *fd)
 }
 
 
-
-/* sets the corresponding city
-* @author prissi
-*/
+/** sets the corresponding city
+ */
 void gebaeude_t::set_stadt(stadt_t *s)
 {
 	if (is_factory && ptr.fab != NULL)
@@ -507,7 +500,7 @@ void gebaeude_t::add_alter(sint64 a)
 void gebaeude_t::set_tile(const building_tile_desc_t *new_tile, bool start_with_construction)
 {
 	construction_start = welt->get_ticks();
-        purchase_time = welt->get_current_month();
+	purchase_time = welt->get_current_month();
 
 	if (!show_construction  &&  tile != NULL) {
 		// mark old tile dirty
@@ -711,7 +704,7 @@ image_id gebaeude_t::get_front_image() const
 	if (show_construction) {
 		return IMG_EMPTY;
 	}
-	if (env_t::hide_buildings != 0 && tile->get_desc()->get_type() < building_desc_t::others) {
+	if (env_t::hide_buildings != 0   &&  (is_city_building()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -825,29 +818,8 @@ void gebaeude_t::show_info()
 		get_stadt()->show_info();
 	}
 
-	if(!tile->get_desc()->no_info_window()) {
-		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
-			// iterate over all places to check if there is already an open window
-			const building_desc_t* const building_desc = tile->get_desc();
-			const uint8 layout = tile->get_layout();
-			koord k;
-			for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
-				for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
-					const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-					if (tile == NULL || !tile->has_image()) {
-						continue;
-					}
-					if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k)) {
-						gebaeude_t *gb = gr->find<gebaeude_t>();
-						if (gb  &&  gb->get_tile() == tile) {
-							if (win_get_magic((ptrdiff_t)gb)) {
-								// already open
-								return;
-							}
-						}
-					}
-				}
-			}
+	if (!tile->get_desc()->no_info_window()) {
+		if (!special || (env_t::townhall_info  &&  old_count == win_get_open_count())) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			access_first_tile()->obj_t::show_info();
 		}
@@ -1638,14 +1610,15 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-        	sint64 month_start = (purchase_time - welt->get_settings().get_starting_month() - welt->get_settings().get_starting_year()*12) *
-        		welt->ticks_per_world_month;
-        	file->rdwr_longlong(file->is_saving() ? month_start : construction_start);
+		sint64 month_start = (purchase_time - welt->get_settings().get_starting_month() - welt->get_settings().get_starting_year()*12) *
+			welt->ticks_per_world_month;
+		file->rdwr_longlong(file->is_saving() ? month_start : construction_start);
 	}
-        if (!file->is_saving()) { // stepping year in game results in mismatch of Ticks vs. Year/Month; avoid updating here
-        	purchase_time = (construction_start / welt->ticks_per_world_month)+welt->get_settings().get_starting_month()+
-	        	welt->get_settings().get_starting_year()*12;
-        }
+
+	if (!file->is_saving()) { // stepping year in game results in mismatch of Ticks vs. Year/Month; avoid updating here
+		purchase_time = (construction_start / welt->ticks_per_world_month)+welt->get_settings().get_starting_month()+
+			welt->get_settings().get_starting_year()*12;
+	}
 
 	if (file->get_extended_version() >= 12)
 	{
@@ -1919,7 +1892,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		// Hajo: rebuild tourist attraction list
+		// rebuild tourist attraction list
 		if (tile && building_type->is_attraction())
 		{
 			welt->add_attraction(this);
@@ -1941,15 +1914,6 @@ void gebaeude_t::rdwr(loadsave_t *file)
 }
 
 
-/**
-* Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-* um das Aussehen des Dings an Boden und Umgebung anzupassen
-*
-* "After loading is called adapting to the world - normally used to the
-* look of the thing in the ground and surrounding area" (Google)
-*
-* @author Hj. Malthaner
-*/
 void gebaeude_t::finish_rd()
 {
 	calc_image();

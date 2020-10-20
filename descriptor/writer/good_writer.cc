@@ -15,9 +15,8 @@ using std::string;
 
 void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// Hajo: version number
-	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversioned
+	// Version needs high bit set as trigger -> this is required
+	// as marker because formerly nodes were unversioned
 	uint16 version = 0x8003;
 
 	// This is the overlay flag for Simutrans-Extended

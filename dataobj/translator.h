@@ -19,8 +19,6 @@
  *
  * The languages are 0 based index, with a valid range of(with lang being
  * required language): <code>0 <= lang < lang_count</code>.
- *
- * @author Hj. Malthaner, Adam Barclay
  */
 class translator
 {

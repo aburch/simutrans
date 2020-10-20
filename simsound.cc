@@ -3,11 +3,6 @@
  * (see LICENSE.txt)
  */
 
-/*
- * High-Level soundschnittstelle
- * von Hj. Maltahner, 1998, 2000
- */
-
 #include <stdio.h>
 #include <string.h>
 #include "macros.h"
@@ -25,40 +20,20 @@
 #include "utils/simstring.h"
 
 
-/**
- * max sound index
- * @author hj. Malthaner
- */
 static bool        new_midi = false;
 static plainstring midi_title[MAX_MIDI];
 
-
-/**
- * Gesamtlautst�rke
- * @author hj. Malthaner
- */
-
 static int max_midi = -1; // number of MIDI files
 
-static int current_midi = -1;  // Hajo: init with error condition,
-                               // reset during loading
+static int current_midi = -1;  // init with error condition, reset during loading
 
 
-
-/**
- * setzt lautst�rke f�r all effekte
- * @author Hj. Malthaner
- */
 void sound_set_global_volume(int volume)
 {
 	env_t::global_volume = volume;
 }
 
 
-/**
- * ermittelt lautsta�rke f�r all effekte
- * @author Hj. Malthaner
- */
 int sound_get_global_volume()
 {
 	return env_t::global_volume;
@@ -69,6 +44,7 @@ void sound_set_mute(bool on)
 {
 	env_t::mute_sound = on;
 }
+
 
 bool sound_get_mute()
 {
@@ -84,12 +60,11 @@ void sound_play(uint16 const idx, uint8 const volume)
 }
 
 
-
-
 bool sound_get_shuffle_midi()
 {
 	return env_t::shuffle_midi;
 }
+
 
 void sound_set_shuffle_midi( bool shuffle )
 {
@@ -97,12 +72,6 @@ void sound_set_shuffle_midi( bool shuffle )
 }
 
 
-
-/**
- * setzt Lautst�rke f�r MIDI playback
- * @param volume volume in range 0..255
- * @author Hj. Malthaner
- */
 void sound_set_midi_volume(int volume)
 {
 	if(  !env_t::mute_midi  &&  max_midi > -1  ) {
@@ -113,11 +82,6 @@ void sound_set_midi_volume(int volume)
 
 
 
-/**
- * ermittelt Lautst�rke f�r MIDI playback
- * @return volume in range 0..255
- * @author Hj. Malthaner
- */
 int sound_get_midi_volume()
 {
 	return env_t::midi_volume;
@@ -127,7 +91,6 @@ int sound_get_midi_volume()
 
 /**
  * gets midi title
- * @author Hj. Malthaner
  */
 const char *sound_get_midi_title(int index)
 {
@@ -142,7 +105,6 @@ const char *sound_get_midi_title(int index)
 
 /**
  * gets current midi number
- * @author Hj. Malthaner
  */
 int get_current_midi()
 {
@@ -153,7 +115,6 @@ int get_current_midi()
 
 /**
  * Load MIDI files
- * By Owen Rudge
  */
 int midi_init(const char *directory)
 {
@@ -291,7 +252,6 @@ void check_midi()
 
 /**
  * shuts down midi playing
- * @author Owen Rudge
  */
 void close_midi()
 {

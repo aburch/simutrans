@@ -116,7 +116,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// 0x300: Double block signals
 	version += 0x300;
 
-	// Hajo: write version data
+	// write version data
 	node.write_uint16(fp, version,     0);
 	node.write_uint16(fp, min_speed,   2);
 	node.write_uint32(fp, price,       4);

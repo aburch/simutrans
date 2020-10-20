@@ -24,11 +24,7 @@
  * to new and delete.
  *
  * Must NOT be used with things with copy constructor like button_t or std::string!!!
- *
- * @date November 2000
- * @author Hj. Malthaner
  */
-
 template<class T>
 class slist_tpl
 {
@@ -139,8 +135,6 @@ public:
 
 	/**
 	 * Creates a new empty list.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	slist_tpl()
 	{
@@ -156,8 +150,6 @@ public:
 
 	/**
 	 * Inserts an element at the beginning of the list.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	void insert(const T& data)
 	{
@@ -186,8 +178,6 @@ public:
 
 	/**
 	 * Appends an element to the end of the list.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	void append(const T& data)
 	{
@@ -221,8 +211,6 @@ public:
 
 	/**
 	 * Appends an element to the end of the list.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	void append_unique(const T& data)
 	{
@@ -241,8 +229,6 @@ public:
 	 * Appends the nodes of another list
 	 * empties other list
 	 * -> no memory allocation involved
-	 *
-	 * @author dwachs
 	 */
 	void append_list(slist_tpl<T>& other)
 	{
@@ -265,8 +251,6 @@ public:
 
 	/**
 	 * Checks if the given element is already contained in the list.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	bool is_contained(const T& data) const
 	{
@@ -280,8 +264,6 @@ public:
 
 	/**
 	 * Removes an element from the list
-	 *
-	 * @author Hj. Malthaner
 	 */
 	bool remove(const T& data)
 	{
@@ -324,7 +306,6 @@ public:
 	/**
 	 * Retrieves the first element from the list. This element is
 	 * deleted from the list. Useful for some queuing tasks.
-	 * @author Hj. Malthaner
 	 */
 	T remove_first()
 	{
@@ -351,7 +332,6 @@ public:
 	/**
 	 * Recycles all nodes.
 	 * Leaves the list empty.
-	 * @author Hj. Malthaner
 	 */
 	void clear()
 	{

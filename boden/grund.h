@@ -89,26 +89,24 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
  * ist_natur(), is_water(), hat_wegtyp(), ist_bruecke().
  * In dieser Basisklasse sind all Eigenschaften false, sie werden erst
  * in den Subklassen redefiniert.</p>
- *
- * @author Hj. Malthaner
+
  */
 class grund_t
 {
 public:
 	/**
-	 * Flag-Werte für das neuzeichnen geänderter Untergründe
-	 * @author Hj. Malthaner
+	 * Flag values for different ground properties
 	 */
 	enum flag_values {
-		no_flags=0,
-		dirty=1, // was changed => redraw full
-		is_kartenboden=2,
-		has_text=4,
-		marked = 8,  // will have a frame
-		draw_as_obj = 16, // is a slope etc => draw as one
-		is_halt_flag = 32,	// is a part of a halt
-		has_way1 = 64,
-		has_way2 = 128
+		no_flags       = 0,
+		dirty          = (1<<0), ///< was changed => redraw full
+		is_kartenboden = (1<<1),
+		has_text       = (1<<2),
+		marked         = (1<<3), ///< will have a frame
+		draw_as_obj    = (1<<4), ///< is a slope etc => draw as one
+		is_halt_flag   = (1<<5), ///< is a part of a halt
+		has_way1       = (1<<6),
+		has_way2       = (1<<7)
 	};
 
 	/**
@@ -164,12 +162,10 @@ public:
 
 public:
 	/** true, when showing a grid
-	 * @author prissi
 	 */
 	static volatile bool show_grid;
 
-	/* underground modes */
-	/* @author Dwachs    */
+	/** underground modes */
 	enum _underground_modes {
 		ugm_none = 0,	// normal view
 		ugm_all  = 1,   // everything underground visible, grid for grounds
@@ -219,7 +215,6 @@ protected:
 public:
 	/**
 	 * setzt die Bildnr. des anzuzeigenden Bodens
-	 * @author Hj. Malthaner
 	 */
 	inline void set_image(image_id n) {
 		imageid = n;
@@ -231,7 +226,6 @@ protected:
 	/**
 	* Pointer to the world of this ground. Static to conserve space.
 	* Change to instance variable once more than one world is available.
-	* @author Hj. Malthaner
 	*/
 	static karte_ptr_t welt;
 
@@ -266,7 +260,6 @@ public:
 
 	/**
 	* Set Flags for the newly drawn changed ground
-	* @author Hj. Malthaner
 	*/
 	inline void set_flag(flag_values flag) {flags |= flag;}
 
@@ -300,20 +293,17 @@ public:
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
-	 * @author Hj. Malthaner
 	 */
 	void calc_image();
 
 	/**
 	* Return the number of images the ground have.
 	* @return The number of images.
-	* @author Hj. Malthaner
 	*/
 	inline image_id get_image() const {return imageid;}
 
 	/**
 	* Returns the number of an eventual foundation
-	* @author prissi
 	*/
 	image_id get_back_image(int leftback) const;
 	virtual void clear_back_image() {back_imageid=0;}
@@ -326,21 +316,18 @@ public:
 	/**
 	* Return the name of the ground.
 	* @return The name of the ground.
-	* @author Hj. Malthaner
 	*/
 	virtual const char* get_name() const = 0;
 
 	/**
 	* Return the ground type.
 	* @return The ground type.
-	* @author Hj. Malthaner
 	*/
 	virtual typ get_typ() const = 0;
 
 	/**
 	* Return the ground description texts.
 	* @return A description for the ground.
-	* @author Hj. Malthaner
 	*/
 	const char* get_text() const;
 
@@ -349,14 +336,12 @@ public:
 	/**
 	* Auffforderung, ein Infofenster zu oeffnen.
 	* Oeffnet standardmaessig kein Infofenster.
-	* @author Hj. Malthaner
 	*/
 	void show_info();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
 	* @return die Farbe des Beschreibungstexthintergrundes.
-	* @author Hj. Malthaner
 	*/
 	FLAGGED_PIXVAL text_farbe() const;
 
@@ -372,7 +357,6 @@ public:
 	/**
 	* This is called very often, it must be inlined and therefore
 	* cannot be virtual - subclasses must set the flags appropriately!
-	* @author Hj. Malthaner
 	*/
 	inline bool ist_bruecke() const {return get_typ()==brueckenboden;}
 
@@ -398,14 +382,12 @@ public:
 
 	/**
 	* returns powerline here
-	* @author Kieron Green
 	*/
 	leitung_t *get_leitung() const { return (leitung_t *) objlist.get_leitung(); }
 
 	/**
 	* Laedt oder speichert die Daten des Untergrundes in eine Datei.
 	* @param file Zeiger auf die Datei in die gespeichert werden soll.
-	* @author Hj. Malthaner
 	*/
 	virtual void rdwr(loadsave_t *file);
 
@@ -424,7 +406,6 @@ public:
 	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
 	* Untergrund gehoert.
 	* @return Die Position des Grundes in der 3d-Welt
-	* @author Hj. Malthaner
 	*/
 	inline const koord3d& get_pos() const { return pos; }
 
@@ -435,16 +416,9 @@ public:
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
-	 * Manche Böden können zu Haltestellen gehören.
-	 * @author Hj. Malthaner
+	 * some ground tiles may be part of halts.
 	 */
 	void set_halt(halthandle_t halt);
-
-	/**
-	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
-	 * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	 * @author Hj. Malthaner
-	 */
 	halthandle_t get_halt() const;
 	bool is_halt() const { return flags & is_halt_flag; }
 
@@ -543,7 +517,6 @@ public:
 
 	/**
 	 * Displays the ground images (including foundations, fences and ways)
-	 * @author Hj. Malthaner
 	 */
 #ifdef MULTI_THREAD
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, bool force_show_grid=false) const;
@@ -553,7 +526,6 @@ public:
 
 	/**
 	 * Displays the earth at the border
-	 * @author prissi
 	 */
 void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF);
 
@@ -570,7 +542,6 @@ void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CL
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
 	 * @param is_global set to true, if this is called during the whole screen update
-	 * @author dwachs
 	 */
 void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
@@ -578,7 +549,6 @@ void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_t
 	 * similar to above but yields clipping error
 	 * => only used for zoom out
 	 * @param is_global set to true, if this is called during the whole screen update
-	 * @author prissi
 	 */
 void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
@@ -588,7 +558,6 @@ void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint1
 	 * @param draw_ways if true then draw images of ways
 	 * @param visible if false then draw only grids and markers
 	 * @return index of first vehicle on the tile
-	 * @author dwachs
 	 */
 uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible  CLIP_NUM_DEF) const;
 
@@ -597,21 +566,18 @@ uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global,
 	 * @param start_offset start with object at this index
 	 * @param ribi draws only vehicles driving in this direction (or against this)
 	 * @param ontile is true if we are on the tile that defines the clipping
-	 * @author dwachs
 	 */
 uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
 
 	/**
 	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
-	 * @author dwachs
 	 */
 void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
 
 	/**
 	 * overlay with signs, good levels and station coverage
 	 * resets the dirty flag
-	 * @author kierongreen
 	 */
 	void display_overlay(sint16 xpos, sint16 ypos);
 
@@ -633,8 +599,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	void take_obj_from( grund_t *gr);
 
 	/**
-	* @return NULL when OK, oder Meldung, warum nicht
-	* @author Hj. Malthaner
+	* @return NULL wenn OK, oder Meldung, warum nicht
 	*/
 	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }
 
@@ -645,7 +610,6 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 
 	/**
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
-	* @author Volker Meyer
 	*/
 	depot_t *get_depot() const;
 
@@ -662,14 +626,12 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 
 	/**
 	* The only way to get the type (typ) of a way on a tile
-	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.
 	* Sucht einen Weg vom typ 'typ' auf diesem Untergrund.
-	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg(waytype_t typ) const {
 		if (weg_t* const w = get_weg_nr(0)) {
@@ -698,8 +660,6 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	/**
 	* Returns the system type s_type of a way of type typ at this location
 	* Currently only needed for tramways or other different types of rails
-	*
-	* @author DarioK
 	* @see get_weg
 	*/
 	uint8 get_styp(waytype_t typ) const
@@ -714,48 +674,38 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	* auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
 	* Wegs nicht hierurber, sondern mit get_weg(), ermittelt werden.
 	* Also beware of water, which always allows all directions ...thus virtual
-	* @author Hj. Malthaner
 	*/
 	virtual ribi_t::ribi get_weg_ribi(waytype_t typ) const;
 
 	/**
-	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
-	* Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
-	* maskierten ribis benutzt.
-	* @author Hj. Malthaner/V. Meyer
-	*
-	*/
+	 * @returns the ribis (unmasked) for waytype @p typ.
+	 * These are required e.g. for building. For pathfinding masked ribis are used.
+	 */
 	virtual ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const;
 
 	/**
 	* checks a ways on this ground tile and returns the highest speedlimit.
 	* only used for the minimap
-	* @author hsiegeln
 	*/
 	int get_max_speed() const;
 
 	/**
 	* only used for bridges, which start at a slope
-	* @author V. Meyer
 	*/
 	virtual sint8 get_weg_yoff() const { return 0; }
 
-	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
-	* @author V. Meyer
-	*/
+
+	/// @returns true if there is at least one way on this ground.
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
 
 	/**
 	* Kreuzen sich hier 2 verschiedene Wege?
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
-	* @author V. Meyer, dariok
 	*/
 	inline bool ist_uebergang() const { return (flags&has_way2)!=0  && ((weg_t*)objlist.bei(1)) && ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehicle of a convoi (if there)
-	* @author V. Meyer
 	*/
 	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }
 
@@ -783,8 +733,6 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
 	 * @param player    Player building the way
-	 *
-	 * @author V. Meyer
 	 */
 	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player, koord3d_vector_t *route = NULL);
 
@@ -794,8 +742,6 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 * @return bool	    true, falls weg vorhanden
 	 * @param wegtyp	    um welchen wegtyp geht es
 	 * @param ribi	    die neuen ribis
-	 *
-	 * @author V. Meyer
 	 */
 	bool weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi);
 
@@ -804,8 +750,6 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 *
 	 * @param wegtyp	    um welchen wegtyp geht es
 	 * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
-	 *
-	 * @author V. Meyer
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
@@ -916,9 +860,8 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 		return h;
 	}
 
-	/* removes everything from a tile, including a halt but i.e. leave a
+	/** removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff
-	 * @author prissi
 	 */
 	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
 

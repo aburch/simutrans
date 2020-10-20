@@ -121,7 +121,6 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
 	lane_affinity = 4;
-	open_direction = 0xA5; // north-south <-> east-west
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -239,11 +238,6 @@ void roadsign_t::show_info()
 }
 
 
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- */
 void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
@@ -362,17 +356,16 @@ void roadsign_t::info(cbuffer_t & buf) const
 #endif
 	if (desc->is_traffic_light())
 	{
-		buf.append(translator::translate("\nSet phases:"));
-		buf.append("\n\n\n\n\n\n");
-	}
-	if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
-	{
-		buf.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	}
-
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
+		if(  automatic  ) {
+			buf.append(translator::translate("\nSet phases:"));
+		}
+		else{
+			if (char const* const maker = desc->get_copyright()) {
+				buf.append("\n");
+				buf.printf(translator::translate("Constructed by %s"), maker);
+			}
+			// extra treatment of trafficlights & private signs, author will be shown by those windows themselves
+		}
 	}
 }
 	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
@@ -646,7 +639,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		uint8 new_state = (ticks >= ticks_ns);
 		if(state!=new_state) {
 			state = new_state;
-			dir = (new_state==0) ? open_direction&0x0F : (open_direction>>4)&0x0F;
+			dir = (new_state == 0) ? ribi_t::northsouth : ribi_t::eastwest;
 			calc_image();
 		}
 	}
@@ -659,9 +652,15 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		uint8 first_dir = ribi_t::rotate90(open_direction&0x0F);
-		uint8 second_dir = ribi_t::rotate90((open_direction>>4)&0x0F);
-		open_direction = first_dir + (second_dir << 4);
+		state = (state+1)&1;
+		if (ticks_offset >= ticks_ns) {
+			ticks_offset -= ticks_ns;
+		} else {
+			ticks_offset += ticks_ow;
+		}
+		uint8 temp = ticks_ns;
+		ticks_ns = ticks_ow;
+		ticks_ow = temp;
 
 		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
 		if(  trafficlight_win  ) {
@@ -731,11 +730,11 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if((file->get_extended_version() == 13 && file->get_extended_revision() >= 6) || file->get_extended_version() >= 14) {
-		file->rdwr_byte(open_direction);
-	} else if(  file->is_loading()  ) {
-		open_direction = 0xA5;
+	if( (file->get_extended_version() == 13 && file->get_extended_revision() >= 6)
+		|| (file->get_extended_version() == 14 && file->get_extended_revision() < 32) ) {
+		file->rdwr_byte(dummy);
 	}
+
 	dummy = state;
 	file->rdwr_byte(dummy);
 	state = dummy;
@@ -786,12 +785,6 @@ void roadsign_t::cleanup(player_t *player)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
- */
 void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
@@ -878,8 +871,7 @@ bool roadsign_t::register_desc(roadsign_desc_t *desc)
 
 
 /**
- * Fill menu with icons of given signals/roadsigns from the list
- * @author Hj. Malthaner
+ * Fill menu with icons of given signals/roadsings from the list
  */
 void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {
@@ -948,7 +940,6 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 /**
  * Finds a matching roadsign
- * @author prissi
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {

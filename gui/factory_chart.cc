@@ -53,7 +53,7 @@ static const gui_chart_t::convert_proc prod_convert[MAX_FAB_STAT] =
 
 static const uint8 chart_type[MAX_FAB_STAT] =
 {
-	PERCENT, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD
+	PERCENT, STANDARD, STANDARD, PERCENT, PERCENT, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD, STANDARD
 };
 
 static const gui_chart_t::chart_marker_t marker_type[MAX_FAB_REF_LINE] =

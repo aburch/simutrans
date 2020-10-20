@@ -95,7 +95,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		// Prepare finances button
 		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
-		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player ? player->get_player_color1():i*8)+4);
+		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player ? player->get_player_color1():i*8)+env_t::gui_player_color_bright);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
@@ -244,7 +244,6 @@ ki_kontroll_t::~ki_kontroll_t()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
@@ -609,7 +608,7 @@ void ki_kontroll_t::update_data()
 			}
 
 			// always update locking status
-			player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb(player->get_player_color1()+4);
+			player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_bright);
 			player_lock[i].background_color = color_idx_to_rgb( player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN );
 
 			// human players cannot be deactivated
@@ -672,7 +671,6 @@ void ki_kontroll_t::update_data()
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 {

@@ -771,7 +771,10 @@ bool scenario_t::open_info_win() const
 	scenario_info_t *si = (scenario_info_t*)win_get_magic(magic_scenario_info);
 	if (si == NULL) {
 		si = new scenario_info_t();
-		create_win(si, w_info, magic_scenario_info);
+		if (create_win(si, w_info, magic_scenario_info) < 0) {
+			// failed
+			return false;
+		}
 	}
 	si->open_result_tab();
 	return true; // dummy return value
@@ -887,6 +890,11 @@ void scenario_t::rdwr(loadsave_t *file)
 			dbg->warning("scenario_t::rdwr", "error [%s] calling resume_game", err);
 			rdwr_error = true;
 		}
+	}
+	// client side of scripted game but not on a client
+	if ( (what_scenario == SCRIPTED_NETWORK)  ^  (env_t::networkmode  &&  env_t::server==0) ) {
+		what_scenario = 0;
+		rdwr_error = true;
 	}
 }
 

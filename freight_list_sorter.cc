@@ -10,6 +10,7 @@
 #include "simtypes.h"
 #include "simware.h"
 #include "simfab.h"
+#include "simmem.h"
 #include "simworld.h"
 #include "simcity.h"
 
@@ -246,7 +247,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 {
 	sortby = sort_mode;
 
-	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
 	ware_t* wlist;

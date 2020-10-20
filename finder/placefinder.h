@@ -16,8 +16,6 @@ class karte_t;
  * Provides a list of all coordinates from (0, 0) sortiert all Koordinaten
  *order with x and y in range [-max_xy; max_xy] except for (0, 0) itself.
  * (0, 0) is used as the end marker.
- *
- * @author V. Meyer
  */
 class pos_list_t {
 	sint16 max_radius;
@@ -31,8 +29,6 @@ class pos_list_t {
 public:
 	/**
 	* @param max_xy (Maximum value for x and y position)
-	*
-	* @author V. Meyer
 	*/
 	pos_list_t(sint16 max_xy);
 	virtual ~pos_list_t();
@@ -46,11 +42,9 @@ public:
 /**
  * pos_list_wh_t:
  *
- * Erweiterte Version von pos_list_t. Liefert die umliegenden Positionen für
- * einen Bereich der Größe h mal w.
- * (0, 0) wird wieder als Endekenzeichen verwendet.
- *
- * @author V. Meyer
+ * Extended version of pos_list_t. Provides surrounding positions
+ * for a range of size h by w.
+ * (0, 0) is used as the end marker again.
  */
 class pos_list_wh_t : public pos_list_t {
 	sint16 b;
@@ -67,9 +61,7 @@ public:
 	bool get_next_pos(koord &k);
 };
 
-/**
- * @author V. Meyer
- */
+
 class placefinder_t {
 protected:
 	karte_t *welt;

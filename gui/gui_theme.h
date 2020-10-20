@@ -127,6 +127,8 @@ class image_t;
 #define D_GET_CENTER_ALIGN_OFFSET(N1,N2) ((N2-N1)>>1)
 #define D_GET_FAR_ALIGN_OFFSET(N1,N2) (N2-N1)
 
+#define D_FILELIST_V_SPACE (gui_theme_t::gui_filelist_vspace)
+
 #define TOOLTIP_MOUSE_OFFSET_X (16)
 #define TOOLTIP_MOUSE_OFFSET_Y (12)
 
@@ -243,9 +245,11 @@ public:
 	static PIXVAL gui_shadow_color;                       //@< Color to draw shadowed dividers (tabs)
 	static PIXVAL gui_color_loadingbar_inner;
 	static PIXVAL gui_color_loadingbar_progress;
+	static PIXVAL gui_color_obsolete;                     //@< Color for obsolete convois/server entries
+	static PIXVAL gui_color_empty;                        //@< Color for empty entries
 	static PIXVAL gui_color_up_pointing_triangle;         //@< Color to draw an upward triangle indicating an increase in the number
 	static PIXVAL gui_color_down_pointing_triangle;       //@< Color to draw an downward triangle indicating an decrease in the number
-	/// @}
+
 
 	/// @name GUI element sizes used by gui components
 	/// @{
@@ -278,6 +282,9 @@ public:
 	static KOORD_VAL gui_hspace;
 	static KOORD_VAL gui_vspace;
 	static KOORD_VAL gui_waitingbar_width;
+
+	// one special entries, since there are lot of lists with files/fonts/paks/... where zero spacing could fit more entires on the screen
+	static KOORD_VAL gui_filelist_vspace;
 	/// @}
 
 	// those are the 3x3 images which are used for stretching
@@ -303,6 +310,7 @@ public:
 
 	static bool gui_drop_shadows;
 
+
 public:
 	// default dimensions and colors
 	static void init_gui_defaults();
@@ -316,8 +324,7 @@ public:
 	/**
 	 * Reads theme configuration data, still not final
 	 * searches a theme.tab inside the specified folder
-	 * @author prissi
 	 */
-	static bool themes_init(const char *dir_name,bool init_font);
+	static bool themes_init(const char *dir_name,bool init_font,bool init_tools);
 };
 #endif

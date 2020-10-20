@@ -13,9 +13,7 @@
 /**
  * building_placefinder_t:
  *
- * Search for a free location using the function find_place().
- *
- * @author V. Meyer
+ * Search a free site for building using function find_place().
  */
 class building_placefinder_t : public placefinder_t {
 public:

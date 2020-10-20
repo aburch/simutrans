@@ -131,8 +131,7 @@ class settings_t;
 
 
 /**
- * Settings for property lists ...
- * @author Hj. Malthaner
+ * Settings for property lists
  */
 class settings_stats_t : public gui_container_t
 {

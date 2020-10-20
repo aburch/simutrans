@@ -1,0 +1,124 @@
+# Flat Skin theme
+# Created by Phystam
+#
+# name of the theme (will be shown with file selector)
+name=Flat (large size)
+
+# show tooltips (default 1=show)
+show_tooltips = 1
+
+# tooltip background color (+-1 around this index is used), taken from player-color table
+tooltip_background_color = 4
+
+# tooltip text color (240=black, 215=white)
+tooltip_text_color = 240
+
+# delay before showing tooltip in ms (default 500ms)
+tooltip_delay = 250
+
+# duration in ms during tooltip is visible (default 5000ms=5s)
+tooltip_duration = 10000
+
+# Color of cursor overlay, which is blended over marked ground tiles
+# The available colors and their numbers can be found on
+#    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
+# Suggested values (155 is the default)
+# -- pak64, pak.german, pak128
+#cursor_overlay_color = 155
+# -- pak128.japan
+#cursor_overlay_color = 149
+
+# in default theme white text
+gui_text_highlight= #FFFFFF
+
+# Use the default height
+#gui_button_height = 22
+
+# larger icons too
+icon_width = 32
+
+# windows drop a little shadow (default off)
+# gui_drop_shadows = 1
+
+##################################window stuff##################################
+
+# when moving, you can use windows to snap onto each other seamlessly
+# if you do not like it, set the catch radius to zero
+window_snap_distance = 8
+
+# show the windows close etc. buttons on the right (like windows 98)
+# Should be rather a user setting, if the theme does not absolutely require it
+#window_buttons_right = 0
+
+# closes windows/toolbar when button clicked a second time (default off=0)
+# Should be rather a user setting, if the theme does not absolutely require it
+#second_open_closes_win = 0
+
+# restores window position when window is reopening
+# This will be saved, but will be discarded when screen is resized
+remember_window_positions = 1
+
+# color used for the default titlebars
+default_window_title_color = #7b7b7b
+
+# there are three different ways to indicate an active window
+
+# first: draw a frame with titlebar color around active window
+#window_frame_active = 0
+
+# second: draw the title with a dark overlay (0=none, 100=full black)
+bottom_window_darkness = 25
+
+# third (best together with 2nd):use different text color for bar
+front_window_text_color = #FFFFFF
+bottom_window_text_color = #DDDDDD
+
+# How much shade for player colors (7 brightest 0 darkest)
+gui_player_color_bright = 5
+gui_player_color_dark = 2
+
+#################################colour stuff#################################
+
+gui_color_text = #101010
+gui_color_text_highlight = #fafafa
+gui_color_text_shadow = #202020
+gui_color_text_title = #fafafa
+gui_color_text_strong = #ef4026
+gui_color_obsolete = #00004a
+gui_color_empty = #FFFFFF
+
+gui_color_edit_text = #fafafa
+gui_color_edit_text_selected = #FAFAFA
+gui_color_edit_text_disabled = #333333
+gui_color_edit_background_selected = #333333
+gui_color_edit_beam = #333333
+
+gui_color_chart_background = #a3a3a3
+gui_color_chart_lines_zero = #FAFAFA
+gui_color_chart_lines_odd = #333333
+gui_color_chart_lines_even = #646464
+
+gui_color_button_text = #101010
+gui_color_button_text_disabled = #333333
+gui_color_button_text_selected = #FAFAFA
+
+gui_color_loadingbar_progress = #4d4d4d
+gui_color_loadingbar_inner = #cfcfcf
+
+##################################size stuff##################################
+
+icon_width = 48
+gui_titlebar_height = 22
+gui_gadget_width = 22
+gui_tab_header_vsize = 26
+gui_button_text_offset = 5,0,5
+gui_color_button_text_offset = 5,0,5
+toolbar_max_width = 0
+toolbar_max_height = 0
+gui_button_height = 24
+gui_button_width = 100
+
+##################################pakstuff##################################
+
+# pak with the images for this theme
+themeimages=flat.pak

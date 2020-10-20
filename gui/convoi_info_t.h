@@ -24,14 +24,12 @@
 #include "simwin.h"
 
 #include "../utils/cbuffer_t.h"
+#include "components/gui_convoy_payloadinfo.h"
 
 #define BUTTON_COUNT convoi_t::MAX_CONVOI_COST
 
-/*
+/**
  * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
  */
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
@@ -52,10 +50,8 @@ public:
 	};
 
 private:
-
 	/**
 	* Buffer for freight info text string.
-	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
 
@@ -64,7 +60,7 @@ private:
 	gui_label_buf_t speed_label, profit_label, running_cost_label, weight_label, target_label, line_label;
 	gui_label_buf_t distance_label, avg_triptime_label;
 	gui_textinput_t input;
-	gui_speedbar_t filled_bar;
+	gui_loadingbar_t loading_bar;
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
 	gui_chart_t chart;
@@ -123,7 +119,6 @@ public:
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const OVERRIDE { return "convoiinfo.txt"; }
 
@@ -131,7 +126,6 @@ public:
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

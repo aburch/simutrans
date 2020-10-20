@@ -57,7 +57,6 @@ road_user_t::road_user_t() :
 /**
  * Ensures that this object is removed correctly from the list
  * of sync step-able things!
- * @author Hj. Malthaner
  */
 road_user_t::~road_user_t()
 {
@@ -130,7 +129,6 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 
 /**
  * Open a new observation window for the object.
- * @author Hj. Malthaner
  */
 void road_user_t::show_info()
 {
@@ -319,7 +317,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		time_to_life = 1;
 	}
 
-	// Hajo: avoid endless growth of the values
+	// avoid endless growth of the values
 	// this causes lockups near 2**32
 	weg_next &= 65535;
 }
@@ -703,7 +701,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90° check!
+			// not a crossing => skip 90 degrees check!
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane );
 			frei = true;
 		}
@@ -840,7 +838,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			while(  number_reversed<2  ) {
 				const grund_t *test = welt->lookup(checkpos);
 				if(!test) {
-					// should not reach here ! (z9999)
+					// should not reach here!
 					break;
 				}
 				const uint8 next_direction = ribi_type(dir);
@@ -936,7 +934,7 @@ grund_t* private_car_t::hop_check()
 	// worthwhile. This takes circa 5-9% of all CPU time on a large
 	// game (768 towns) in the modern era (2004) of Pak128.Britain-Ex.
 
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	// weg_position_t changed to grund_t::get_neighbour()
 	grund_t *const from = welt->lookup(pos_next);
 	if(from==NULL) {
 		// nothing to go? => destroy ...
@@ -955,16 +953,25 @@ grund_t* private_car_t::hop_check()
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
 	const ribi_t::ribi direction90 = ribi_type(get_pos(),pos_next);
 
-	if(  weg->has_sign(  )) {
+	if(  weg->has_sign()  ) {
 		const roadsign_t* rs = from->find<roadsign_t>();
 		const roadsign_desc_t* rs_desc = rs->get_desc();
-		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
-			direction = direction90;
-			calc_image();
-			// wait here
-			current_speed = 48;
-			weg_next = 0;
-			return NULL;
+		if(  rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0  ) {
+			// red traffic light, but we go on, if we are already on a traffic light
+			bool go_on = false;
+			if(  const grund_t *gr_current = welt->lookup(get_pos())  ) {
+				if(  const roadsign_t *rs = gr_current->find<roadsign_t>()  ) {
+					go_on = rs  &&  rs->get_desc()->is_traffic_light()  &&  !from->ist_uebergang();
+				}
+			}
+			if(  !go_on   ) {
+				direction = direction90;
+				calc_image();
+				// wait here
+				current_speed = 48;
+				weg_next = 0;
+				return NULL;
+			}
 		}
 	}
 
@@ -1400,7 +1407,6 @@ void private_car_t::rotate90()
 /**
  * conditions for a city car to overtake another overtaker.
  * The city car is not overtaking/being overtaken.
- * @author isidoro
  */
 bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {

@@ -116,14 +116,6 @@ void signal_t::show_info()
 }
 
 
-/**
-* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-* Beobachtungsfenster angezeigt wird.
-* "return a description string for the object , such as the in a
-* Observation window is displayed." (Google)
-* @author Hj. Malthaner
-*/
-
 void signal_t::info(cbuffer_t & buf) const
 {
 	// well, needs to be done

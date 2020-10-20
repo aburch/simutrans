@@ -314,7 +314,6 @@ bool halt_info_t::is_weltpos()
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
- * @author Hj. Malthaner
  */
 void halt_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -393,7 +392,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s", halt->get_owner()->get_name());
-		display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|color_idx_to_rgb(halt->get_owner()->get_player_color1()+0), true);
+		display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, PLAYER_FLAG|color_idx_to_rgb(halt->get_owner()->get_player_color1()+env_t::gui_player_color_dark), true);
 		top += D_LABEL_HEIGHT * 2;
 
 		bool enabled = false;
@@ -835,7 +834,6 @@ void halt_info_t::update_departures()
 
 /**
  * This method is called if an action is triggered
- * @author Hj. Malthaner
  */
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {

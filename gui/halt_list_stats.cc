@@ -28,7 +28,6 @@ static karte_ptr_t welt;
 /**
  * Events werden hiermit an die GUI-components
  * gemeldet
- * @author Hj. Malthaner
  */
 bool halt_list_stats_t::infowin_event(const event_t *ev)
 {
@@ -96,7 +95,6 @@ const char* halt_list_stats_t::get_text() const
 
 /**
  * Draw the component
- * @author Markus Weber
  */
 void halt_list_stats_t::draw(scr_coord offset)
 {

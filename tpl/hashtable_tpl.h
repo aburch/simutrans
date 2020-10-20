@@ -243,10 +243,7 @@ public:
 		return NULL;
 	}
 
-	//
-	// Inserts a new value - failure, if key exists in table
-	// V. Meyer
-	//
+	/// Inserts a new value - failure if key exists in table
 	bool put(const key_t key, value_t object)
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];
@@ -331,9 +328,8 @@ public:
 
 	//
 	// Insert or replace a value - if a value is replaced, the old value is
-	// returned, otherwise a nullvalue. This may be useful, if you need to delete it
+	// returned, otherwise a nullvalue. This may be useful if you need to delete it
 	// afterwards.
-	// V. Meyer
 	//
 	value_t set(const key_t key, value_t object)
 	{

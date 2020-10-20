@@ -16,7 +16,6 @@ class karte_t;
 
 /**
  * smoke clouds (formerly sync_wolke_t)
- * @author Hj. Malthaner
  */
 class wolke_t : public obj_no_info_t, public sync_steppable
 {
