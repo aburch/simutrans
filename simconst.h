@@ -50,9 +50,6 @@
  * Some routines, eg for drawing, can have low level C++ implementations that might perform better on certain platforms */
 #define LOW_LEVEL
 
-// The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
-//#define USE_DIFFERENT_WIND
-
 // define this for automatically joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 

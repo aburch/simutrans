@@ -11,6 +11,8 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 
+#include "ribi.h"
+
 class player_t;
 class loadsave_t;
 class tabfile_t;
@@ -40,7 +42,7 @@ class settings_t
 	friend class welt_gui_t;
 
 public:
-	typedef enum { HEIGHT_BASED=0, HUMIDITY_BASED } climate_generate_t;
+	typedef enum { HEIGHT_BASED=0, HUMIDITY_BASED, MAP_BASED } climate_generate_t;
 
 private:
 	sint32 size_x, size_y;
@@ -127,6 +129,8 @@ private:
 	sint8 climate_temperature_borders[5];
 	sint8 tropic_humidity;
 	sint8 desert_humidity;
+
+	uint8 wind_direction; // 0=WEST and so on
 
 	sint8 patch_size_percentage; // average size of a climate patch, if there are overlapping climates
 
@@ -439,6 +443,7 @@ public:
 	void rotate90() {
 		rotation = (rotation+1)&3;
 		set_size( size_y, size_x );
+		wind_direction = (wind_direction + 1) % 4;
 	}
 	uint8 get_rotation() const { return rotation; }
 
@@ -578,6 +583,9 @@ public:
 
 	sint8 get_lakeheight() const { return lake_height; }
 	void set_lakeheight(sint8 h) { lake_height = h; }
+
+	ribi_t::ribi get_wind_dir() const { return ribi_t::nsew[wind_direction];  }
+	ribi_t::ribi get_approach_dir() const { return ribi_t::nsew[wind_direction] | ribi_t::nsew[(wind_direction+1)%4];  }
 
 	sint8 get_patch_size_percentage() const { return patch_size_percentage; }
 
