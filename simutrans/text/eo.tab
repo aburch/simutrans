@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -359,6 +359,8 @@ Now %u clients connected.
 Nun %u ludantoj estas en ĉi tiu servilo.
 On this map, you are not\nallowed to change player!\n
 Ĉi tiu ludo estas ŝlosita.\nNeniu ludanto povas interŝanĝi viajn rolojn.
+overtaking
+Preterpasi
 Production of %s has been stopped:\n%s\n
 %s "%s" ne plu estas aĉetebla.
 Remove vehicle from map. Use with care!
@@ -531,7 +533,7 @@ Add Stop
  Aldoni
 Add stops for backward travel
 Aldoni reveturajn haltejojn
-Air
+air_wt
 Aviadilo
 aircraft_tab
 Aviadilo
@@ -823,8 +825,8 @@ cost for removal
 Kosto por malkonstrui
 Cost per unit
 Unuopa kosto
-Cost: %8s (%.2f$/km %.f$/m)\n
-Kosto: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Kosto: %s (%.2f$/km %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Kosto: %8s (%.2f$/km)\n
 Costs
@@ -1655,8 +1657,6 @@ Restore natural slope
 Reigi deklivon
 Restwert:
 Vendprezo:
-Retire date 
-Retiriĝa dato
 Retire. date:
 Retiriĝa dato:
 return ticket

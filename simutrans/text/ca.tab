@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -469,8 +469,6 @@ Add Stop
 Afegeix aturada.
 Add stops for backward travel
 Afegeix aturades per a la tornada.
-Air
-Avions
 aircraft_tab
 Avions de càrrega
 airplane

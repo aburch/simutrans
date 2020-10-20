@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -335,6 +335,10 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s a construit un nouveau monument. %i citoyens ont été réjouis.
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+(%.2f$/km %.2f$/m)
+ (%.2f$/km %.2f$/mois)
+(%.2f$/km)
+ (%.2f$/km)
 (%i)-
 (%i) 
 (in depot)
@@ -469,7 +473,7 @@ Add Stop
 Aj. Arrêt
 Add stops for backward travel
 Ajouter des arrêts pour le retour
-Air
+air_wt
 Piste de décollage/Voie de circulation
 aircraft_tab
 Avions cargo
@@ -747,8 +751,8 @@ Copy the selected convoi and its schedule or line
 Copier le convoi sélectioné ainsi que son itinéraire ou sa ligne
 cost for removal
 cout de remplacement: 
-Cost: %8s (%.2f$/km %.f$/m)\n
-Coût: %8s (%.2f$/km %.f$/m)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Coût: %8s (%.2f$/km, %.2f$/mois)\n
 Cost: %8s (%.2f$/km)\n
 Coût : %8s (%.2f$/km)\n
 Costs

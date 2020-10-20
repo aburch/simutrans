@@ -12,11 +12,13 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+AMBIENT_SOUND
+Ruido ambiental
 cl_btn_filter_disable
 desactivado
 cl_btn_filter_enable
@@ -71,6 +73,10 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 nada
+lake
+Crear lago
+Maximize height levels
+Maximizar niveles de altitud
 Networks
 Redes
 Queueing
@@ -103,6 +109,8 @@ Tundra
 ¡No se ha podido cargar\nel script del escenario!\n
 Autohalt muss auf\nStrasse liegen!\n
 ¡Las paradas de autobús/camión deben situarse en la carretera!
+Bridge blocked by way below or above.
+Puente bloqueado por debajo o por encima.
 Bridge is too long for this type!\n
 ¡La luz del puente es demasiado larga para este tipo de puente!
 Bruecke muss an\neinfachem\nHang beginnen!\n
@@ -119,10 +127,14 @@ Cannot create generic line!\nSelect line type by\nusing filter tabs.
 ¡No se puede crear una línea genérica!\nSeleccione el tipo de línea\nutilizando las pestañas de filtro.
 Cannot create socket
 No se pudo crear el socket
+Cannot rotate this building!
+¡No se puede rotar este edificio!
 Convoi handles exhausted!
 ¡Los controladores de convois están agotados!
 Convoy already deleted!
 ¡El convoy ya ha sido eliminado!
+Could not open file
+No se pudo abrir el archivo
 Das Feld gehoert\neinem anderen Spieler\n
 ¡Esta parcela\nes propiedad\nde otro jugador!\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -147,6 +159,8 @@ Kann Spielstand\nnicht laden.\n
 ¡Imposible leer/abrir\nla partida guardada!\n
 Kann Spielstand\nnicht speichern.\n
 ¡Imposible abrir\nel achivo para\nguardar!\n
+Loading a new game will end the current server session!
+¡Cargar un juego nuevo finalizará la sesión actual del servidor!
 Lost connection\nto server!
 ¡La conexión con el\n servidor se ha perdido!
 Lost synchronisation\nwith server.
@@ -159,6 +173,8 @@ Monorails are not available yet!
 ¡Aún no están disponibles los monorrailes!
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 ¡La estación debe estar en una vía estrecha!
+No bridges over runways!
+¡No se puede construir un puente sobre una pista!
 No suitable way on the ground!
 ¡Las estaciones deben construirse sobre una superfície plana!
 No through station here!
@@ -173,6 +189,8 @@ On narrowgauge track only!\n
 ¡Sólo vehiculos de vía estrecha!\n
 Only public player can lock games!
 ¡Solo el jugador Servicio Público puede proteger la partida!
+Only up and down movement in the underground!
+¡En el subsuelo sólo se puede subir y bajar usando las herramientas de arriba / abajo!
 Out of funds
 ¡No tienes suficiente dinero\npara esto!
 Post muss neben\nHaltestelle\nliegen!\n
@@ -185,6 +203,8 @@ Server busy
 Servidor ocupado.
 Terraforming not possible\nhere in underground view
 No es posible modificar el\nterreno en modo subterráneo.\n
+This tunnel branches. You can try Control+Click to remove.
+Este túnel tiene más de 2 entradas. Puede probar Ctrl+clic para eliminar este túnel.
 Upgrade must have\na higher level
 La actualización debe tener\nun nivel superior.
 Vehicle %s cannot choose because stop too short!
@@ -197,6 +217,14 @@ Zughalt muss auf\nSchiene liegen!\n
 <title>Ayuda</title><h1>Índice</h1><p><it>Acerca de Simutrans</it></p>%1$s<p><it>Cómo usar</it></p>%2$s<p><it>Cómo empezar una partida</it></p>%4$s<p><it>Cómo jugar</it></p>%5$s<p><it>Herramientas</it></p>%3$s<p><it>Otras ventanas</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>Ayuda del Teclado</title>\n<h1><strong>Ayuda del Teclado</strong></h1>\n<p>\n<strong>Ayuda del Teclado</strong> muestra las funciones las distintas teclas.\n</p>\n<p>\nLa<strong>Ayuda del Teclado</strong>se abre cuando pulsas un tecla sin función asociada o desde la <a href="general.txt">Ayuda General</a>.\n</p>\n<p>\nEs sensible a mayúsculas y minúsculas (usa [<em>Shift</em>] para las mayúsculas).\n</p>\n<p>\nLas teclas con funciones asociadas son:\n</p>\n<p>\n[<em>Flechas</em>]: scroll en la dirección de la flecha.<br>\n[<em>Backspace</em>]: cierra todas las ventanas activas en la vista del juego.<br>\n[<em>Delete</em>], o [<em>Escape</em>]: cierra la ventana activa en la vista del juego.<br>\n[<em>Enter</em>], o [<em>Return</em>]: se usa para confirmar acciones.<br>\n[<em>AvPag</em>], o [<em>></em>]: acerca zoom.<br>\n[<em>RePag</em>], o [<em> signo menor que</em>]: alejar zoom.\n[<em>F1</em>]: abre la <a href="general.txt">Ayuda de Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: scroll dirección sur.<br>\n[<em>2</em>]: scroll dirección sureste.<br>\n[<em>3</em>]: scroll dirección este.<br>\n[<em>4</em>]: sscroll dirección suroeste.<br>\n[<em>6</em>]: scroll dirección noreste.<br>\n[<em>7</em>]: scroll dirección oeste.<br>\n[<em>8</em>]: scroll dirección noroeste.<br>\n[<em>9</em>]: scroll dirección norte.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">ratón</a>: usado en el <a href="map.txt">Mapa</a> para ver las conexiones de las <a href="industry_info.txt">Cadenas Industriales</a>.<br>\n[<em>CTRL</em>] + herramienta: construir (señales y <a href="station.txt">Paradas</a>) en niveles superiores; o actualizar infraestructuras; o construir tramos rectos de vias o carreteras.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): establecer la herramienta asociada al pulsar las teclas [<em>F2</em>] a [<em>F12</em>].\n</p>\n<p>
+At least one stop is connected to the factory.
+Al menos una parada se encuentra conectada a la fábrica.
+At least one stop is connected to the town.
+Al menos una parada está conectada a la ciudad.
+Color according to transport capacity left
+Color según capacidad de transporte restante
+Color-coded terrain according to altitude.
+Mostrar/ocultar sombreado del contorno del terreno.
 Decrease water height
 Drenar el agua un nivel
 Highlight railroad tracks
@@ -213,6 +241,8 @@ Highlite tourist attraction
 Resaltar atracciones turísticas
 Increase water height
 Aumentar el agua un nivel
+Open station/stop details
+Mostrar detalles de la estación
 Overlay city limits
 Ver límites de ciudades
 Overlay passenger destinations when a town window is open
@@ -307,6 +337,8 @@ Congratulation\nScenario was complete in\n%i months %i years.
 ¡Felicidades!\nCompletaste el escenario en\n%i meses y %i años.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 La economía crece:\n%s cerca de %s se añade a la cadena de producción.\n%i nuevas industrias establecidas.
+Net wealth less than 10% of starting capital!
+¡Patrimonio neto inferior al 10% del capital inicial!
 New %s now available:\n%s\n
 Nuevo %s ahora esta disponible:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -325,6 +357,8 @@ Screenshot\ngespeichert.\n
 Captura de pantalla\nguardada.\n
 Sends the convoi to the last depot it departed from!
 Envía el convoy al último depósito del que salió.
+Server preparing game ...
+El servidor está preparando el juego...
 Spielstand wurde\ngeladen!\n
 \n¡Partida cargada!\n
 Spielstand wurde\ngespeichert!\n
@@ -383,6 +417,8 @@ vía 2 reservada por\n
 %d convoyes
 %d Einzelfahrzeuge im Depot
 %d vehículos almacenados aquí
+%i car(s),
+%i auto(s),
 %i km/h (max. %ikm/h)
 %i km/h (máx. %ikm/h)
 %i years %i months old.
@@ -417,6 +453,8 @@ Crear línea nueva
 1 convoy
 1 Einzelfahrzeug im Depot
 1 vehículo almacenado aquí
+100 km/h = %i tiles/month
+100 km/h = %i cuadrícula(s)/mes
 1LIGHT_CHOOSE
 Luminosidad:
 1WORLD_CHOOSE
@@ -439,6 +477,8 @@ Peatones en ciudades
 Dens. de tráfico:
 8WORLD_CHOOSE
 Usar modo día y noche
+A bridge must end on a way!
+¡Un puente debe terminar en un camino!
 A bridge must start on a way!
 Sólo puede iniciar un puente\n a partir de una carretera\n ya existente.
 Abfrage
@@ -473,7 +513,7 @@ Add Stop
 Añadir Par.
 Add stops for backward travel
 Añadir paradas para el viaje de vuelta.
-Air
+air_wt
 aéreo
 aircraft_tab
 Aviones de carga
@@ -507,6 +547,8 @@ Appends stops at the end of the schedule
 Añade paradas al final de la línea
 Apply Line
 Aplicar línea
+Apr.
+Abr.
 April
 Abril
 Arbeiter aus:
@@ -519,6 +561,8 @@ Aufloesen
 Desenganchar
 Aufspanntransformator
 Transformador
+Aug.
+Ago.
 August
 Agosto
 Available
@@ -607,6 +651,8 @@ Cancel
 Cancelar
 Cannot connect to offline server!
 No se puede conectar a un servidor parado!
+Capacity
+Capacidad
 Capacity:
 Capacidad:
 Capacity: %.0f MW
@@ -717,6 +763,8 @@ Connected stops
 Paradas conectadas
 Connected with server
 Conectado con servidor
+Connections
+Conexiones
 Constructed by
 Creado por
 Constructed by %s
@@ -749,10 +797,16 @@ Copy Convoi
 Copiar vehículo
 Copy the selected convoi and its schedule or line
 Copia el tren/vehículo seleccionado y su ruta o línea.
+Cost
+Costo
 cost for removal
 coste de demolición 
-Cost: %8s (%.2f$/km %.f$/m)\n
-Costo: %s (%.2f$/km %.2fm)\n
+Cost per unit
+Costo por unidad
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Costo: %s (%.2f$/km %.2f$/m)\n
+Cost: %8s (%.2f$/km)\n
+Costo: %8s (%.2f$/km)\n
 Costs
 Costes
 Create a new line based on this schedule
@@ -767,6 +821,8 @@ Customers live in:
 Los clientes viven en:
 deactivated in online mode
 Desactivado en modo online
+Dec.
+Dic.
 Deccelerate time
 Decelerar
 December
@@ -807,6 +863,10 @@ disable midi
 Silenciar música MIDI
 Distance
 Distancia
+distributing cities
+distribuyendo ciudades
+distributing factories
+distribuyendo industrias
 Dock
 Muelle
 Dock must be built on single slope!
@@ -821,6 +881,8 @@ Eigenbesitz\n
 Propiedad pública\n
 Ein %s\npasst hier nicht.\n
 Un '%s'\nno puede usarse aquí.\n
+Einstellungen
+Configuraciones
 Einstellungen aendern
 Cambiar opciones
 electric
@@ -891,6 +953,8 @@ follow me
 sígueme
 Follow the convoi on the map.
 Seguir al vehículo en el mapa.
+font size
+tamaño de fuente
 Forest
 Flora
 Found new city
@@ -1051,6 +1115,8 @@ Ins Stop
 Insertar
 Insert stop before the current stop
 Inserta una parada antes de esta parada.
+Insufficient funds!
+¡Fondos insuficientes!
 Intercity road len:
 Long. carretera interurbana:
 Intro. date:
@@ -1061,6 +1127,8 @@ Invalid coordinate
 Orden no válida
 isometric map
 mapa isométrico
+Jan.
+Ene.
 January
 Enero
 join game
@@ -1115,6 +1183,8 @@ Leistung: %d kW
 Potencia: %d kW
 Leitung
 Línea eléctrica
+length: %d
+longitud: %d
 letzen Monat: diesen Monat:
 último mes:   este mes:
 Line
@@ -1127,6 +1197,8 @@ Lineless convoys serving this stop
 Convoy sin línea sirviendo en esta parada:
 Lines serving this stop
 Líneas sirviendo a esta parada.
+List of industries on the map
+Lista de industrias
 LKW_tab
 Camiones
 Load game
@@ -1177,6 +1249,8 @@ Manufactured:
 Fabricado:
 Map roughness
 Terreno abrupto:
+map view
+Mapa
 map zoom
 ampliar mapa
 March
@@ -1191,6 +1265,8 @@ Max Boost (%)
 Aumento máx.(%)
 Max income:
 Ingresos máx.
+Max. speed
+Velocidad máx.
 Max. speed:
 Vel. máx.
 Maximum 254 stops\nin a schedule!\n
@@ -1303,6 +1379,8 @@ no timeline
 sin cronología
 no tree
 sin árboles
+No. of Factories
+Fábricas y tiendas:
 none
 nada
 nord
@@ -1315,6 +1393,8 @@ Not enough fields would remain.
 No hay suficiente\nespacio alrededor de esta\ngranja.
 November
 Noviembre
+now
+ahora
 Now active as %s.\n
 Ahora activo como %s.\n
 Number of rivers
@@ -1449,10 +1529,14 @@ Power: %4d kW\n
 Effekt: %4d kW\n
 Powerlines
 Tendido elect.
+Price
+Precio
 Problems_msg
 Problemas
 Produced
 Producido
+Produces: %.1f units/minute
+Produce: %.1f unidades por minuto
 Production/Boost
 Producción/Aumento
 Produktion
@@ -1523,6 +1607,8 @@ Restore natural slope
 Restaurar pendiente natural.
 Restwert:
 Valor de venta:
+Retire date
+Fecha de retiro
 Retire. date:
 Fecha de retirada:
 return ticket
@@ -1537,6 +1623,8 @@ road vehicle
 vehículo de carretera
 Roadsign
 Señal de tráfico
+Rotate Building
+Girar edificio
 Rotate map
 Rotar mapa
 Rotation
@@ -1577,6 +1665,8 @@ Schleppkahn_tab
 Barcazas
 Screenshot
 Captura de pantalla.
+Search:
+Buscar:
 Seasons
 Estaciones
 Sehenswuerdigkeit
@@ -1593,6 +1683,8 @@ SEP_THOUSAND
 .
 SEP_THOUSAND_EXPONENT
 3
+Sept.
+Sep.
 September
 Septiembre
 Server did not respond!
@@ -1649,6 +1741,8 @@ show waiting bars
 Mostrar barras de estado
 show/hide block reservations
 Mostrar/ocultar reservas de bloques
+Show/hide estimated arrival times
+Mostrar/ocultar horarios estimados de llegada
 show/hide object owner
 Mostrar/ocultar propietario
 Show/hide statistics
@@ -1683,6 +1777,8 @@ Smart hide objects
 Ocultar bajo el cursor
 Sort by
 ordenar por
+Sort by:
+Ordenar por:
 Sort waiting list by
 Ordenar lista de espera por
 Sound
@@ -1795,6 +1891,8 @@ Tracks
 Vías
 Traffic
 Tráfico
+traffic settings
+Tráfico
 Train
 Tren
 Trains are not available yet!
@@ -1815,12 +1913,16 @@ Transformer only next to factory!
 ¡Los transformadores deben estar junto a una fábrica!
 Translation
 Traducción
+transparencies
+Transparencia
 transparent station coverage
 cobertura estación transp.
 Transport %li passengers
 Transportó %li pasajeros
 Transported
 Recorrido
+Trees disabled!
+¡Árboles deshabilitados!
 TrolleyBus_tab
 trolebús
 Truck
@@ -1861,10 +1963,14 @@ Vehicle %s is stucked!
 ¡El vehículo %s está atascado!
 Vehicle details
 Detalles del vehículo
+vehicles stored
+vehículos almacenados
 Verbrauch
 Consumo
 Vergroessere die Karte\n
 Agrandar mapa.\n
+Verkauf
+Eliminar ahora
 verkaufen
 Vender
 Verkehrsteilnehmer
@@ -1907,6 +2013,10 @@ Ways not connected
 Las vías no estan conectadas
 Wegpunkt
 Punto de paso
+Weight
+Peso
+Weight:
+Peso:
 Wert
 Valor
 west

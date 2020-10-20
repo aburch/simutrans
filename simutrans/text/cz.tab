@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: cz Cestina                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -381,6 +381,8 @@ Trasa 1 rezervována hráèem\nTrasa 1 rezervována hráèem
 %d souprav
 %d Einzelfahrzeuge im Depot
 %d vozidel zde parkuje.
+%i km/h (max. %ikm/h)
+%i km/h (max. %i km/h)
 %i years %i months old.
 Stáøí: %i rokù a %i mìsícù
 %s at (%i,%i) now public stop.
@@ -479,7 +481,7 @@ Add Stop
 Pøidat zast.
 Add stops for backward travel
 Pøidat zastávky pro jízdu nazpìt
-Air
+air_wt
 ranvej
 aircraft_tab
 Nákladní letadla
@@ -761,8 +763,8 @@ Copy the selected convoi and its schedule or line
 Kopírovat vybranou soupravu vèetnì jízdního plánu èi linky
 cost for removal
 Cena za odstranìní
-Cost: %8s (%.2f$/km %.f$/m)\n
-Cena: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Cena: %s (%.2f$/km %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Cena: %8s (%.2f/km)\n
 Costs
@@ -1166,7 +1168,7 @@ Nahrát scénáø
 loaded
 nalo¾eno
 loaded passenger/freight
-Seøadit zbo¾í dle
+Seøadit náklad dle
 Loading (%i->%i%%)!
 Nalo¾eno %i z %i%%
 Loading addon paks ...
@@ -1398,7 +1400,7 @@ paletten
 Pas_tab
 Osobní a po¹tovní vozy
 Passagiere
-Osoby
+cestujících
 Passagierrate
 Vzrùst osob
 Passagierziele
@@ -1460,7 +1462,7 @@ Hráè 9
 Please choose vehicles first\n
 Nejprve vyberte vozidlo!\n
 Post
-Po¹ta
+po¹ty
 Postrate
 Po¹ta
 Power
@@ -1894,7 +1896,7 @@ Spotøeba
 Vergroessere die Karte\n
 Zvìt¹it mapu
 Verkauf
-Zru¹it
+Odstranit
 verkaufen
 Prodávat
 Verkehrsteilnehmer
@@ -1920,7 +1922,7 @@ Doprava
 Wasser
 Voda
 Water
-prùplav
+voda
 Water level
 Úroveò vody:
 water vehicle
@@ -1948,7 +1950,7 @@ Západní
 Winter snowline
 Snì¾ná èára v zimì
 withdraw
-odstranit
+Vyøadit
 Withdraw All
 Vyøadit v¹e
 WRONGSAVE

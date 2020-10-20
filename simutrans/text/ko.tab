@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -457,7 +457,7 @@ Add Stop
 정류장 추가
 Add stops for backward travel
 여정 뒤에 정류장을 추가합니다.
-Air
+air_wt
 활주로/유도로
 aircraft_tab
 화물 수송기
@@ -731,8 +731,8 @@ Copy the selected convoi and its schedule or line
 선택된 차량과 스케줄 또는 노선을 복사
 cost for removal
 제거비용:
-Cost: %8s (%.2f$/km %.f$/m)\n
-비용: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+비용: %s (%.2f$/km %.2f$달)\n
 Cost: %8s (%.2f$/km)\n
 비용: %8s (%.2f$/km)\n
 Costs

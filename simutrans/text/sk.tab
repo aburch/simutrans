@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                            Language: sk Slovencina                           #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -798,7 +798,7 @@ Scenáre
 loaded
 nalo¾ené
 loaded passenger/freight
-Zoradi» cestujúcich/náklad podµa
+Zoradi» náklad podµa
 Loading (%i->%i%%)!
 Nalo¾ené %i z %i%%
 Loading map ...
@@ -836,7 +836,7 @@ Max. nárast (%)
 Max income:
 Max. tr¾ba:
 Max. speed:
-Max. rýchlost':
+Max. rýchlos»:
 Maximum 254 stops\nin a schedule!\n
 Maximum\n254 staníc\nv cestovnom poriadku!\n
 maximum length of rivers
@@ -992,7 +992,7 @@ paletten
 Pas_tab
 Osobné vlaky
 Passagiere
-Pasa¾ieri
+cestujúcich
 Passagierrate
 Pasa¾ieri
 Passagierziele
@@ -1028,7 +1028,7 @@ PSK & Co KG
 Please choose vehicles first\n
 \nNajprv prosím vyber vozidlo !
 Post
-Po¹ta
+po¹ty
 Postrate
 Po¹ta
 Power
@@ -1320,7 +1320,7 @@ Spotreba
 Vergroessere die Karte\n
 Zväè¹i» mapu.\n
 Verkauf
-Vyradi»!
+Odstráni»
 verkaufen
 Vyradi»
 Verkehrsteilnehmer
@@ -1344,7 +1344,7 @@ Doprava
 Wasser
 Voda/More
 Water
-prieplav
+voda
 Water level
 Úroveò vody
 water vehicle

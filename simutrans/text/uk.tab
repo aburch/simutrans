@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: uk Ukrainian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -481,7 +481,7 @@ Add Stop
 Додати зупинку
 Add stops for backward travel
 Додати зупинки для зворотньої дороги.
-Air
+air_wt
 Літаки
 aircraft_tab
 Вантажні літаки
@@ -763,8 +763,8 @@ Copy the selected convoi and its schedule or line
 Копіювати обраний конвой та його розклад або лінію\n\n
 cost for removal
 Вартість вилучення
-Cost: %8s (%.2f$/km %.f$/m)\n
-Вартість: %s (%.2f$/км %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Вартість: %s (%.2f$/км %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Вартість: %8s (%.2f$/км)\n
 Costs

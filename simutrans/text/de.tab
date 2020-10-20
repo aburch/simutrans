@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -45,6 +45,8 @@ clf_btn_invers
 inv.
 clf_btn_keine
 keine
+climate area percentage
+Größe Klimaregion
 CROSSING_SOUND
 Bahnübergänge
 FACTORY_SOUND
@@ -57,6 +59,8 @@ gl_btn_sort_revenue
 nach Erlös
 gl_btn_unsort
 unsortiert
+height based
+Klima nach Höhe
 hl_btn_filter_disable
 aus
 hl_btn_filter_enable
@@ -79,14 +83,26 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 keine
+humidities
+Feuchtigkeitgrenzen
 lake
 Binnenseen erzeugen
+Lake height
+Maximale Seehöhe
 Maximize height levels
 Mehr Höhenstufen
+moisture land
+Anstieg über Land
+moisture water
+Anstieg über Wasser
 Networks
 Transportnetz
+Num pad keys always move map
+Numlock ignorieren
 Queueing
 Tendenz Wartend
+rainfall
+Luftfeuchte
 Road toll
 Maut
 Scenario
@@ -95,6 +111,10 @@ Sound range:
 Reichweite:
 Start this as a server
 Diese Spiel als Server starten.
+temperature borders
+Temperaturgrenzen
+temperature-humidity based
+Klima nach Wetter
 TOOL_SOUND
 Werkzeuggeräusche
 TRAFFIC_SOUND
@@ -209,6 +229,8 @@ On narrowgauge track only!\n
 Ein Schmalspurhalt muss auf Schmalspurgleisen liegen.
 Only public player can lock games!
 Spieler können nur durch die öffentliche Hand geschützt werden.
+Only up and down movement in the underground!
+Eine Kachel im Untergrund muss kann nur mit dem Absenken/AnhegenßWerkzeugen verändert werden!
 Out of funds
 Dein Geld reicht nicht mehr dafür!
 Post muss neben\nHaltestelle\nliegen!\n
@@ -238,9 +260,15 @@ Vehicle %s cannot choose because stop too short!
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
 <h1>Inhalt</h1><p></p>%1$s<p><it>Hinweise zur Bedienung</it></p>%2$s<p><it>Spiel starten</it></p>%4$s<p><it>Wie spiele ich?</it></p>%5$s<p><it>Werkzeuge</it></p>%3$s<p><it>weitere Dialoge</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Tastaturbefehle</title>\n<h1><strong>Tastaturbefehle</strong></h1><p>\nDie folgenden Tastaturbefehle kennt Simutrans:<p>\n<em>Ctrl</em>(<em>Strg</em>) + Klick - unterdrücke Infofenster (nur an einigen Orten)<br>\n<em>Ctrl</em>(<em>Strg</em>) + Werkzeug - auf oberer Ebene agieren<br>\n\n<em>Esc</em>, <em>Delete</em>: Oberstes Fenster schließen<br>\n<em>Backspace</em>: Alle Fenster schließen<br>\n<em>Bild hoch</em>/<em>Bild runter</em>, <em>&lt;</em>/<em>></em>: Zoom kleiner/größer<br>\n<em>F1</em> - Simutrans Hilfe - Übersicht<br>\n<em>1</em> - Karte südwestlich schieben<br>\n<em>2</em> - Karte südlich schieben<br>\n<em>3</em> - Karte südöstlich schieben<br>\n<em>4</em> - Karte westlich schieben<br>\n<em>6</em> - Karte östlich schieben<br>\n<em>7</em> - Karte nordwestlich schieben<br>\n<em>8</em> - Karte nördlich schieben<br>\n<em>9</em> - Karte nordöstlich schieben<br>\n<p>\nFolgende Befehle sind frei belegbar:<br>\n
+<title>Tastaturbefehle</title>\n<h1><strong>Tastaturbefehle</strong></h1><p>\nDie folgenden Tastaturbefehle kennt Simutrans:<p>\n<em>Ctrl</em>(<em>Strg</em>) + Klick - unterdrücke Infofenster (nur an einigen Orten)<br>\n<em>Ctrl</em>(<em>Strg</em>) + Werkzeug - auf oberer Ebene agieren bzw. nur gerade Wege bauen.<br>\n\n<em>Esc</em>, <em>Delete</em>: Oberstes Fenster schließen<br>\n<em>Backspace</em>: Alle Fenster schließen<br>\n<em>Bild hoch</em>/<em>Bild runter</em>, <em>&lt;</em>/<em>></em>: Zoom kleiner/größer<br>\nCursortasten und Ziffernblock verschieben die Karte\n<p>\nFolgende Befehle sind frei belegbar:<br>\n
+At least one stop is connected to the factory.
+Mindestens ein Halt des Spielers ist mit der Fabrik verbunden.
+At least one stop is connected to the town.
+Mindestens ein Halt des Spielers ist an ein Gebäude in der Stadt angebunden.
 Color according to transport capacity left
 Farbe zeigt freie Transportkapazität an.
+Color-coded terrain according to altitude.
+Zeige/Verstecke Geländehöhenrelief.
 Decrease water height
 Wasser ablassen
 Highlight railroad tracks
@@ -365,6 +393,8 @@ Now %u clients connected.
 Aktuell %i Mitspieler.
 On this map, you are not\nallowed to change player!\n
 Spiel geschützt!\nSpielerwechsel ist auf dieser\nKarte nicht möglich.\n
+overtaking
+überholend
 Production of %s has been stopped:\n%s\n
 %s '%s'\nwird nicht mehr hergestellt.
 Remove vehicle from map. Use with care!
@@ -381,8 +411,16 @@ Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurückzuzahlen.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s ehrt die \nwackeren Pioniere von Simutrans \nmit einem neuen Denkmal.\n%i Zuschauer sind mit dabei.
+#_________________________________program text__________________________________
+#_________________________________program text__________________________________
+vh_title
+Liste aller Fahrzeuge
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+(%.2f$/km %.2f$/m)
+ (%.2f$/km %.2f$/Monat)
+(%.2f$/km)
+ (%.2f$/km)
 (%i)-
 (%i) 
 (in depot)
@@ -538,6 +576,8 @@ Hinzufügen
 Add stops for backward travel
 Füge Stops für Rückfahrt hinzu
 Air
+Fluglinie
+air_wt
 Roll-/Startbahn
 aircraft_tab
 Frachtflugzeuge
@@ -811,14 +851,16 @@ Copy Convoi
 Kopieren
 Copy the selected convoi and its schedule or line
 Der Fahrzeugverband wird mit Fahrplan oder Linienzugehörigkeit kopiert.
+Copy to clipboard
+Text in die Zwischenablage kopieren.
 Cost
 Betriebskosten
 cost for removal
 Kosten für Entfernung 
 Cost per unit
 Kosten/Einheit
-Cost: %8s (%.2f$/km %.f$/m)\n
-Kosten: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Kosten: %s (%.2f$/km, %.2f$/Monat)\n
 Cost: %8s (%.2f$/km)\n
 Kosten: %8s (%.2f$/km)\n
 Costs
@@ -891,6 +933,8 @@ Dock
 Hafen
 Dock must be built on single slope!
 Ein Hafen muss an einem\ngeraden Ufer gebaut werden!\n
+dp_title
+Depotliste
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 Du hast %d Monate Zeit, deine Schulden zurückzuzahlen
 Durchsatz
@@ -1191,6 +1235,8 @@ Line Filter
 Linienfilter
 Line Management
 Linienverwaltung
+line name mouseover tooltips
+Fahrzeuge: Linie und Fahrzeugnamen
 Lineless convoys serving this stop
 Einzelfahrzeuge, die hier halten
 Lines serving this stop
@@ -1309,6 +1355,8 @@ Monuments
 Denkmäler
 Mountain height
 Berghöhe
+Move the map
+Verschiebt Kartenausschnitt
 Movingobj
 bewegliches Objekt
 Music playing disabled/not available
@@ -1581,8 +1629,8 @@ Restore natural slope
 Natürliche Neigung wiederherstellen
 Restwert:
 Verkaufswert:
-Retire date 
-Ausmusterung
+Retire date
+Außerdienststellung
 Retire. date:
 Außerdienststellung:
 return ticket
@@ -1603,6 +1651,8 @@ Rotate map
 Karte um 90° drehen
 Routing
 Verbindungen
+Running cost
+Betriebskosten
 sack
  Sack
 sail
@@ -1657,6 +1707,8 @@ SEP_THOUSAND_EXPONENT
 3
 Sept.
 Sep.
+Served by
+Angebunden von 
 Server did not respond!
 Server antwortet nicht!
 Serves Line:
@@ -1679,8 +1731,12 @@ Show also vehicles no longer in production.
 Auch Fahrzeuge anzeigen, die nicht mehr produziert werden.
 Show also vehicles that do not match for current action.
 Auch Fahrzeuge anzeigen, die im Moment nicht passen.
+Show contour
+Geländreflief
 Show even servers with wrong version or pakset
 Auch Server anzeigen, die die falsche Programmversion bzw. das falsche Pak-Set haben.
+Show future
+Auch zukünftige zeigen
 show grid
 Gitternetz einblenden
 Show industry
@@ -1925,6 +1981,8 @@ Vehicle Name
 Name
 Vehicle Power
 Leistung
+vehicles stored
+Fahrzeuge im Depot
 Vergroessere die Karte\n
 Kartenfläche vergrößern.\n
 Verkauf
@@ -1967,6 +2025,8 @@ Way toll
 Maut
 Ways not connected
 Wege sind nicht verbunden!\n
+waytype
+Fahrweg
 Wegpunkt
 freier Wegpunkt
 Weight
