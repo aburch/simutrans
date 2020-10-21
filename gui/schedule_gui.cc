@@ -128,6 +128,7 @@ public:
 		current_stop_mark = new zeiger_t(koord3d::invalid, NULL );
 		current_stop_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
 	}
+
 	~schedule_gui_stats_t()
 	{
 		delete current_stop_mark;
@@ -273,6 +274,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
+	scrolly.set_maximize( true );
 	schedule = NULL;
 	player   = NULL;
 	if (schedule_) {
