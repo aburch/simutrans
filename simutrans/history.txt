@@ -29,11 +29,16 @@ Release of 121.0 (r8870 on 1-Dec-2019):
 	ADD: search for midi files first in pak folder, then user folder, then program folder
 
 
+Release of 120.4.1 (r8600 on 23-Sep-2018):
+	FIX: location forest could not work with factories smaller than 3x3, since not enough inner tiles were iterated 
+
+
 Release of 120.4 (r8588 on 17-Sep-2018):
 	FIX: properly handle dualstack servers by using both IPv4 and IP6 addresses (if no symbolic name is available)
 	ADD: system clipboard support now also with SDL2
 	FIX: underground slice view now correctly displays front tile walls when a tile infront is flat and 2 elevations below the underground slice
 	OPT: significantly improved the performance of changing underground mode/slice when playing on very large maps
+	ADD: More factory locations (shore, river, forest) to the existing city, water, land
 	ADD: (THLeaderH) option to hide the revenue income messaging at stops
 	ADD: (THLeaderH) configurable height setting for extremely heigh maps (use at own risk)
 
