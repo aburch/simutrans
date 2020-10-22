@@ -472,6 +472,7 @@ void tool_t::read_menu(const std::string &objfilename)
 			char id[256];
 			sprintf( id, "%s[%i]", info[t].type, i );
 			const char *str = contents.get( id );
+
 			/* Format of str:
 			 * for general tools: icon,cursor,sound,key
 			 *     icon is image number in menu.GeneralTools, cursor image number in cursor.GeneralTools
@@ -480,12 +481,15 @@ void tool_t::read_menu(const std::string &objfilename)
 			 * -1 will disable any of them
 			 */
 			tool_t *tool = info[t].tools[i];
+
+			while(*str==' ') {
+				str++;
+			}
+
 			if(*str  &&  *str!=',') {
 				// ok, first comes icon
-				while(*str==' ') {
-					str++;
-				}
 				uint16 icon = (uint16)atoi(str);
+
 				if(  icon==0  &&  *str!='0'  ) {
 					// check, if file name ...
 					int i=0;
