@@ -70,9 +70,9 @@ install_cab()
 	# If so, extract the archive here, otherwise into simutrans/
 	if [ -n "$(echo "$files" | grep -v "^simutrans/")" ]; then
 		mkdir -p "simutrans"
-		destdir="$(pwd)/simutrans"
-	else
 		destdir="$(pwd)"
+	else
+		destdir="$(pwd)/.."
 	fi
 
 	cabextract -qd "$destdir" "$pakzippath" || {
@@ -95,10 +95,9 @@ install_tgz()
 	# First check if we only have a simutrans/ directory at the root.
 	# If so, extract the archive here, otherwise into simutrans/
 	if [ -n "$(echo "$files" | grep -v "^simutrans/")" ]; then
-		mkdir -p "simutrans"
-		destdir="$(pwd)/simutrans"
-	else
 		destdir="$(pwd)"
+	else
+		destdir="$(pwd)/.."
 	fi
 
 	tar -zxf "$pakzippath" -C "$destdir" || {
@@ -126,10 +125,9 @@ install_zip()
 		echo "Error: Could not extract '$pakzippath' (unzip -Z returned: $result)" >&2
 		return 1
 	elif [ -n "$files" ]; then
-		mkdir -p "simutrans"
-		destdir="$(pwd)/simutrans/"
-	else
 		destdir="$(pwd)/"
+	else
+		destdir="$(pwd)/.."
 	fi
 
 	echo "Extracting '$pakzippath' to '$destdir'..."
@@ -219,6 +217,28 @@ pwd | grep "/simutrans$" >/dev/null || {
 	echo "Cannot install paksets: Must be in a simutrans/ directory" >&2
 	exit 1
 }
+
+# first find out, if we have a command options and jsut install these paks
+if  [ "$#" -gt 0 ]; then
+	for paksetnr in "$@" 
+	do
+		cd ..
+		urlname=${paksets[$paksetnr]}
+		zipname="${urlname##http*\/}"
+		choicename="${zipname%.*}"
+		choicename="${choicename%.tar}" # for .tar.gz
+		choicename="${choicename/simupak/pak}"
+
+		echo "-- Installing $choicename --"
+		tempzipname="$TEMP/$zipname"
+		download_and_install_pakset "$urlname" "$tempzipname" || {
+			echo "Error installing pakset $choicename"
+		}
+	done
+	echo "Installation finished."
+	exit 0
+fi
+
 
 echo "-- Choose at least one of these paks --"
 
