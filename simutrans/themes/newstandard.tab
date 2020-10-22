@@ -24,8 +24,8 @@ tooltip_duration = 5000
 # Suggested values (155 is the default)
 # -- pak64, pak.german, pak128
 #cursor_overlay_color = 155
-# -- pak128.japan
-#cursor_overlay_color = 149
+# -- pak128.Britain
+cursor_overlay_color = 71
 
 # size of tools
 icon_width = 32
@@ -51,22 +51,27 @@ second_open_closes_win = 0
 
 # restores window position when window is reopening
 # This will be saved, but will be discarded when screen is resized
-# Note: This does not operate in Simutrans-Experimental
 remember_window_positions = 1
+
+# color used for the default titlebars
+default_window_title_color = #D74700
 
 # there are three different ways to indicate an active window
 
 # first: draw a frame with titlebar color around active window
 #window_frame_active = 0
 
-# second: draw the title with a different brightness (0: dark ... 6: bright)
-front_window_bar_color = 1
-bottom_window_bar_color = 3
+# second: draw the title with a dark overlay (0=none, 100=full black)
+#bottom_window_darkness = 25
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-front_window_text_color = 215
-bottom_window_text_color = 209
+front_window_text_color = #FFFFFF
+bottom_window_text_color = #DDDDDD
+
+# How much shade for player colors (7 brightest 0 darkest)
+gui_player_color_bright = 4
+gui_player_color_dark = 1
 
 ##################################size stuff##################################
 
