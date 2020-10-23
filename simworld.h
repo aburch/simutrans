@@ -102,7 +102,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITIZENS=0,        ///< total people
+		WORLD_CITIZENS = 0,      ///< total people
 		WORLD_GROWTH,            ///< growth (just for convenience)
 		WORLD_TOWNS,             ///< number of all cities
 		WORLD_FACTORIES,         ///< number of all consuming only factories
@@ -704,7 +704,10 @@ private:
 	 */
 	uint32 server_last_announce_time;
 
-	enum { SYNCX_FLAG = 0x01, GRIDS_FLAG = 0x02 };
+	enum {
+		SYNCX_FLAG = 1 << 0,
+		GRIDS_FLAG = 1 << 1
+	};
 
 	void world_xy_loop(xy_loop_func func, uint8 flags);
 	static void *world_xy_loop_thread(void *);

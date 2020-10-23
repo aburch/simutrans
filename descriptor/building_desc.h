@@ -138,10 +138,10 @@ public:
 
 		enum flag_t {
 			FLAG_NULL        = 0,
-			FLAG_NO_INFO     = 1, ///< do not show info window
-			FLAG_NO_PIT      = 2, ///< do not show construction pit
-			FLAG_NEED_GROUND = 4, ///< needs ground drawn below
-			FLAG_HAS_CURSOR  = 8  ///< there is cursor/icon for this
+			FLAG_NO_INFO     = 1 << 0, ///< do not show info window
+			FLAG_NO_PIT      = 1 << 1, ///< do not show construction pit
+			FLAG_NEED_GROUND = 1 << 2, ///< needs ground drawn below
+			FLAG_HAS_CURSOR  = 1 << 3  ///< there is cursor/icon for this
 		};
 private:
 	/**

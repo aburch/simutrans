@@ -2307,8 +2307,8 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL* c
  * to be used in display_img_pc
  */
 enum pixcopy_routines {
-	plain = 0,  /// simply copies the pixels
-	colored = 1 /// replaces player colors
+	plain   = 0, /// simply copies the pixels
+	colored = 1  /// replaces player colors
 };
 
 

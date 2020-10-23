@@ -42,7 +42,11 @@ class settings_t
 	friend class welt_gui_t;
 
 public:
-	typedef enum { HEIGHT_BASED=0, HUMIDITY_BASED, MAP_BASED } climate_generate_t;
+	typedef enum {
+		HEIGHT_BASED = 0,
+		HUMIDITY_BASED,
+		MAP_BASED
+	} climate_generate_t;
 
 private:
 	sint32 size_x, size_y;

@@ -40,7 +40,10 @@ class gui_scrolled_list_t :
 	public gui_scrollpane_t
 {
 public:
-	enum type { windowskin, listskin };
+	enum type {
+		windowskin,
+		listskin
+	};
 
 	/**
 	 * Base class for elements in lists. Virtual inheritance.

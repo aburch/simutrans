@@ -35,7 +35,7 @@ private:
 public:
 	enum special_rotations_t {
 		automatic = 254,
-		random = 255
+		random    = 255
 	};
 
 	gui_rotation_item_t(uint8 r);

@@ -37,8 +37,8 @@ class scenario_t
 private:
 	/// possible states of scenario
 	enum scenario_state_t {
-		INACTIVE = 0,         ///< scenario inactive
-		SCRIPTED = 7,         ///< scenario active (non-network game or at server)
+		INACTIVE         = 0, ///< scenario inactive
+		SCRIPTED         = 7, ///< scenario active (non-network game or at server)
 		SCRIPTED_NETWORK = 8  ///< scenario active, network game at client
 	};
 
@@ -81,7 +81,11 @@ private:
 	 * tools or to have toolbars reflect allowed tools.
 	 */
 	struct forbidden_t {
-		enum forbid_type { forbid_tool = 1, forbid_tool_rect = 2};
+		enum forbid_type {
+			forbid_tool      = 1,
+			forbid_tool_rect = 2
+		};
+
 		forbid_type type;
 		uint8 player_nr;
 		/// id of tool to be forbidden, as set by constructors of classes derived from

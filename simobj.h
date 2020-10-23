@@ -27,11 +27,11 @@ class obj_t
 public:
 	// flags
 	enum flag_values {
-		no_flags=0,  /// no special properties
-		dirty=1,        /// mark image dirty when drawing
-		not_on_map=2,   /// this object is not placed on any tile (e.g. vehicles in a depot)
-		is_vehicle=4,   /// this object is a vehicle obviously
-		highlight=8      /// for drawing some highlighted outline
+		no_flags   = 0,      /// no special properties
+		dirty      = 1 << 0, /// mark image dirty when drawing
+		not_on_map = 1 << 1, /// this object is not placed on any tile (e.g. vehicles in a depot)
+		is_vehicle = 1 << 2, /// this object is a vehicle obviously
+		highlight  = 1 << 3  /// for drawing some highlighted outline
 	};
 
 	// display only outline with player color on owner stuff

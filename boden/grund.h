@@ -97,14 +97,14 @@ public:
 	 */
 	enum flag_values {
 		keine_flags    = 0,
-		dirty          = (1<<0), ///< was changed => redraw full
-		is_kartenboden = (1<<1),
-		has_text       = (1<<2),
-		marked         = (1<<3), ///< will have a frame
-		draw_as_obj    = (1<<4), ///< is a slope etc => draw as one
-		is_halt_flag   = (1<<5), ///< is a part of a halt
-		has_way1       = (1<<6),
-		has_way2       = (1<<7)
+		dirty          = 1 << 0, ///< was changed => redraw full
+		is_kartenboden = 1 << 1,
+		has_text       = 1 << 2,
+		marked         = 1 << 3, ///< will have a frame
+		draw_as_obj    = 1 << 4, ///< is a slope etc => draw as one
+		is_halt_flag   = 1 << 5, ///< is a part of a halt
+		has_way1       = 1 << 6,
+		has_way2       = 1 << 7
 	};
 
 	/**

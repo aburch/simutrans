@@ -27,19 +27,19 @@ class loadsave_t
 {
 public:
 	enum mode_t {
-		binary=0,
-		text=1,
-		xml=2,
-		zipped=4,
-		xml_zipped=6,
-		bzip2=8,
-		xml_bzip2=10,
-		zstd=16,
-		xml_zstd=18
+		binary     = 0,
+		text       = 1 << 0,
+		xml        = 1 << 1,
+		zipped     = 1 << 2,
+		bzip2      = 1 << 3,
+		zstd       = 1 << 4,
+		xml_zipped = xml | zipped,
+		xml_bzip2  = xml | bzip2,
+		xml_zstd   = xml | zstd
 	};
 
 	enum file_error_t {
-		FILE_ERROR_OK=0,
+		FILE_ERROR_OK = 0,
 		FILE_ERROR_NOT_EXISTING,
 		FILE_ERROR_BZ_CORRUPT,
 		FILE_ERROR_GZ_CORRUPT,

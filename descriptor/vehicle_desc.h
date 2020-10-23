@@ -49,8 +49,8 @@ public:
 	 * Engine type
 	 */
 	enum engine_t {
-		unknown=-1,
-		steam=0,
+		unknown = -1,
+		steam   = 0,
 		diesel,
 		electric,
 		bio,

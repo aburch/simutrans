@@ -33,7 +33,10 @@ public:
 	 * Resize modes
 	 */
 	enum resize_modes {
-		no_resize = 0, vertical_resize = 1, horizontal_resize = 2, diagonal_resize = 3
+		no_resize         = 0,
+		vertical_resize   = 1,
+		horizontal_resize = 2,
+		diagonal_resize   = 3
 	};
 
 private:

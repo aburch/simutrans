@@ -14,7 +14,7 @@
 
 namespace labellist {
 	enum sort_mode_t {
-		by_name=  0,
+		by_name = 0,
 		by_koord,
 		by_player,
 		SORT_MODES

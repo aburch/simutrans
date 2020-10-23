@@ -52,9 +52,10 @@ public:
 	};
 
 	/** Constants */
-	enum { default_vehicle_length=4};
+	enum { default_vehicle_length = 4 };
 
-	enum states {INITIAL,
+	enum states {
+		INITIAL,
 		EDIT_SCHEDULE,
 		ROUTING_1,
 		DUMMY4,

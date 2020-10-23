@@ -272,7 +272,7 @@ public:
 
 	/// Three states to control hiding of building
 	enum hide_buildings_states {
-		NOT_HIDE=0,           ///< show all buildings
+		NOT_HIDE = 0,         ///< show all buildings
 		SOME_HIDDEN_BUILDING, ///< hide buildings near cursor
 		ALL_HIDDEN_BUILDING   ///< hide all buildings
 	};
@@ -346,11 +346,11 @@ public:
 
 	/// format in which date is shown
 	enum date_fmt {
-		DATE_FMT_SEASON   = 0,
-		DATE_FMT_MONTH    = 1,
-		DATE_FMT_JAPANESE = 2,
-		DATE_FMT_US       = 3,
-		DATE_FMT_GERMAN   = 4,
+		DATE_FMT_SEASON             = 0,
+		DATE_FMT_MONTH              = 1,
+		DATE_FMT_JAPANESE           = 2,
+		DATE_FMT_US                 = 3,
+		DATE_FMT_GERMAN             = 4,
 		DATE_FMT_JAPANESE_NO_SEASON = 5,
 		DATE_FMT_US_NO_SEASON       = 6,
 		DATE_FMT_GERMAN_NO_SEASON   = 7

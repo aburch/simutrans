@@ -64,12 +64,12 @@ enum accounting_type_common {
  * Supersedes COST_ types, that CAN be distinguished by type of transport.
  */
 enum accounting_type_vehicles {
-	ATV_REVENUE_PASSENGER=0, ///< Revenue from passenger transport
-	ATV_REVENUE_MAIL,        ///< Revenue from mail transport
-	ATV_REVENUE_GOOD,        ///< Revenue from good transport
-	ATV_REVENUE_TRANSPORT,   ///< Operating profit = passenger + mail + goods = was: COST_INCOME
-	ATV_TOLL_RECEIVED,       ///< Toll paid to you by another player
-	ATV_REVENUE,             ///< Operating profit = revenue_transport + toll = passenger + mail+ goods + toll_received
+	ATV_REVENUE_PASSENGER = 0, ///< Revenue from passenger transport
+	ATV_REVENUE_MAIL,          ///< Revenue from mail transport
+	ATV_REVENUE_GOOD,          ///< Revenue from good transport
+	ATV_REVENUE_TRANSPORT,     ///< Operating profit = passenger + mail + goods = was: COST_INCOME
+	ATV_TOLL_RECEIVED,         ///< Toll paid to you by another player
+	ATV_REVENUE,               ///< Operating profit = revenue_transport + toll = passenger + mail+ goods + toll_received
 
 	ATV_RUNNING_COST,               ///< Distance based running costs, was: COST_VEHICLE_RUN
 	ATV_VEHICLE_MAINTENANCE,        ///< Monthly vehicle maintenance. Unused.
