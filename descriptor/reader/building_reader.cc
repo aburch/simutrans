@@ -21,7 +21,12 @@ struct old_btyp
 	/**
 	 * From type "unknown" also come special buildings e.q. Townhall
 	 */
-	enum typ {wohnung, gewerbe, industrie, unknown};
+	enum typ {
+		wohnung,
+		gewerbe,
+		industrie,
+		unknown
+	};
 };
 
 obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)

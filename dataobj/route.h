@@ -38,7 +38,11 @@ private:
 	}
 
 public:
-	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
+	enum route_result_t {
+		no_route                   = 0,
+		valid_route                = 1,
+		valid_route_halt_too_short = 3
+	};
 
 	/**
 	 * Nodes for A* or breadth-first search

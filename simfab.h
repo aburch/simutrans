@@ -194,7 +194,11 @@ public:
 	/**
 	 * Constants
 	 */
-	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
+	enum {
+		old_precision_bits = 10,
+		precision_bits     = 10,
+		precision_mask     = (1 << precision_bits) - 1
+	};
 
 private:
 	/**
@@ -661,7 +665,13 @@ public:
 	sint32 get_current_production() const { return (sint32)welt->scale_with_month_length( ((sint64)prodbase * (sint64)get_prodfactor())>>8 ); }
 
 	/* returns the status of the current factory, as well as output */
-	enum { bad, medium, good, inactive, nothing };
+	enum {
+		bad,
+		medium,
+		good,
+		inactive,
+		nothing
+	};
 	static uint8 status_to_color[5];
 
 	uint8  get_status() const { return status; }

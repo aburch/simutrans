@@ -108,7 +108,12 @@ private:
 
 protected:
 
-	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
+	enum image_type {
+		image_flat,
+		image_slope,
+		image_diagonal,
+		image_switch
+	};
 
 	/**
 	 * initializes both front and back images

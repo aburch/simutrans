@@ -24,7 +24,13 @@ class convoi_frame_t :
 	private action_listener_t
 {
 public:
-	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
+	enum sort_mode_t {
+		nach_name   = 0,
+		nach_gewinn = 1,
+		nach_typ    = 2,
+		nach_id     = 3,
+		SORT_MODES  = 4
+	};
 
 private:
 	player_t *owner;

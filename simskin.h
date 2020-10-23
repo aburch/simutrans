@@ -25,7 +25,13 @@ class skin_desc_t;
 
 class skinverwaltung_t {
 public:
-	enum skintyp_t { nothing, menu, cursor, symbol, misc };
+	enum skintyp_t {
+		nothing,
+		menu,
+		cursor,
+		symbol,
+		misc
+	};
 
 	/// @name icons used in the toolbars
 	/// @{

@@ -321,7 +321,12 @@ private:
 	 */
 	void step_grow_city(bool new_town = false);
 
-	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
+	enum pax_return_type {
+		no_return,
+		factory_return,
+		tourist_return,
+		city_return
+	};
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen

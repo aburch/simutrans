@@ -23,21 +23,33 @@ class gui_scrolled_halt_list_t;
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
 public:
-	enum sort_mode_t { nach_name, nach_wartend, nach_typ, SORT_MODES };
-	enum filter_flag_t { any_filter=1, name_filter=2, typ_filter=4,
-		spezial_filter=8, ware_ab_filter=16, ware_an_filter=32,
-		sub_filter=64,  // Start sub-filter from here!
-		frachthof_filter=64,
-		bahnhof_filter=128,
-		bushalt_filter=256,
-		dock_filter=512,
-		airport_filter=1024,
-		ueberfuellt_filter=2048,
-		ohneverb_filter=4096,
-		monorailstop_filter=8192,
-		maglevstop_filter=16384,
-		narrowgaugestop_filter=32768,
-		tramstop_filter=65536
+	enum sort_mode_t {
+		nach_name,
+		nach_wartend,
+		nach_typ,
+		SORT_MODES
+	};
+	enum filter_flag_t {
+		any_filter             = 1 << 0,
+		name_filter            = 1 << 1,
+		typ_filter             = 1 << 2,
+		spezial_filter         = 1 << 3,
+		ware_ab_filter         = 1 << 4,
+		ware_an_filter         = 1 << 5,
+
+		sub_filter             = 1 << 6,
+		// Start sub-filter from here!
+		frachthof_filter       = 1 << 6,
+		bahnhof_filter         = 1 << 7,
+		bushalt_filter         = 1 << 8,
+		dock_filter            = 1 << 9,
+		airport_filter         = 1 << 10,
+		ueberfuellt_filter     = 1 << 11,
+		ohneverb_filter        = 1 << 12,
+		monorailstop_filter    = 1 << 13,
+		maglevstop_filter      = 1 << 14,
+		narrowgaugestop_filter = 1 << 15,
+		tramstop_filter        = 1 << 16
 	};
 
 private:

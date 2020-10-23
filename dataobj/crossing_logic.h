@@ -23,7 +23,13 @@ class vehicle_base_t;
 class crossing_logic_t
 {
 public:
-	enum crossing_state_t { CROSSING_INVALID=0, CROSSING_OPEN, CROSSING_REQUEST_CLOSE, CROSSING_CLOSED };
+	enum crossing_state_t {
+		CROSSING_INVALID = 0,
+		CROSSING_OPEN,
+		CROSSING_REQUEST_CLOSE,
+		CROSSING_CLOSED
+	};
+
 protected:
 	static karte_ptr_t welt;
 

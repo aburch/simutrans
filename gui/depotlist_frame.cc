@@ -10,7 +10,12 @@
 #include "../dataobj/translator.h"
 #include "../descriptor/skin_desc.h"
 
-enum sort_mode_t { by_coord, by_waytype, by_vehicle, SORT_MODES };
+enum sort_mode_t {
+	by_coord,
+	by_waytype,
+	by_vehicle,
+	SORT_MODES
+};
 
 int depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;

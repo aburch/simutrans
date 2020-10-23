@@ -54,7 +54,12 @@ public:
 	const char* get_name() OVERRIDE { return "nwc_nick_t";}
 	plainstring nickname;
 
-	enum { WELCOME, CHANGE_NICK, FAREWELL};
+	enum {
+		WELCOME,
+		CHANGE_NICK,
+		FAREWELL
+	};
+
 	/**
 	 * Server-side nickname related stuff:
 	 * what = WELCOME     .. new player joined: send welcome message

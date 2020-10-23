@@ -17,7 +17,11 @@ class koord;
 typedef sint32 scr_coord_val;
 
 // Rectangle relations
-enum rect_relation_t { RECT_RELATION_INSIDE, RECT_RELATION_OVERLAP, RECT_RELATION_OUTSIDE };
+enum rect_relation_t {
+	RECT_RELATION_INSIDE,
+	RECT_RELATION_OVERLAP,
+	RECT_RELATION_OUTSIDE
+};
 
 // Two dimensional coordinate type
 class scr_coord

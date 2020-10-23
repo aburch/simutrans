@@ -188,7 +188,11 @@ private:
 	scr_coord_val second_column_x; // x position of the second text column
 	scr_coord_val second_column_w;
 
-	enum { va_append, va_insert, va_sell };
+	enum {
+		va_append,
+		va_insert,
+		va_sell
+	};
 	uint8 veh_action;
 
 	/**

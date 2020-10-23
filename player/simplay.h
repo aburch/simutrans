@@ -33,7 +33,15 @@ class finance_t;
 class player_t
 {
 public:
-	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, AI_SCRIPTED=4, MAX_AI, PASSWORD_PROTECTED=128 };
+	enum {
+		EMPTY        = 0,
+		HUMAN        = 1,
+		AI_GOODS     = 2,
+		AI_PASSENGER = 3,
+		AI_SCRIPTED  = 4,
+		MAX_AI,
+		PASSWORD_PROTECTED = 128
+	};
 
 protected:
 	char player_name_buf[256];

@@ -37,7 +37,14 @@ void simrand_rdwr(loadsave_t *file);
 double perlin_noise_2D(const double x, const double y, const double persistence);
 
 // for network debugging, i.e. finding hidden simrands in wrong places
-enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
+enum {
+	INTERACTIVE_RANDOM = 1 << 0,
+	STEP_RANDOM        = 1 << 1,
+	SYNC_STEP_RANDOM   = 1 << 2,
+	LOAD_RANDOM        = 1 << 3,
+	MAP_CREATE_RANDOM  = 1 << 4
+};
+
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
 uint16 get_random_mode();

@@ -235,7 +235,14 @@ protected:
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
-	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ {
+		boden = 1,
+		wasser,
+		fundament,
+		tunnelboden,
+		brueckenboden,
+		monorailboden
+	};
 
 	grund_t(koord3d pos);
 

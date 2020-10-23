@@ -25,7 +25,11 @@ protected:
 	image_id image;
 	image_id foreground_image;
 
-	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
+	enum {
+		SHOW_FONT        = 1,
+		SHOW_BACK        = 2,
+		SWITCH_AUTOMATIC = 16
+	};
 
 	uint8 state:2; // counter for steps ...
 	uint8 dir:4;
@@ -42,7 +46,11 @@ protected:
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
-	enum signalstate {rot=0, gruen=1, naechste_rot=2 };
+	enum signalstate {
+		rot          = 0,
+		gruen        = 1,
+		naechste_rot = 2
+	};
 
 	/**
 	 * return direction or the state of the traffic light

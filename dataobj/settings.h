@@ -498,7 +498,11 @@ public:
 	bool is_separate_halt_capacities() const { return separate_halt_capacities ; }
 
 	// allowed modes are 0,1,2
-	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
+	enum {
+		TO_PREVIOUS = 0,
+		TO_TRANSFER,
+		TO_DESTINATION
+	};
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
 
 	// do not take people to overcrowded destinations
