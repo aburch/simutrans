@@ -8,7 +8,9 @@
 
 
 #include "../dataobj/koord.h"
+#include "../macros.h"
 #include "../simtypes.h"
+
 
 template <class T> class sparse_tpl;
 template<class T> void swap(sparse_tpl<T>& a, sparse_tpl<T>& b);

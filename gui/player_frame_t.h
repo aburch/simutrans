@@ -14,7 +14,7 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
-
+#include "simwin.h"
 
 
 /**

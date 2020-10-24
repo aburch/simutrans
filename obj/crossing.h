@@ -7,12 +7,16 @@
 #define OBJ_CROSSING_H
 
 
+#include "../simobj.h"
+
 #include "../simtypes.h"
 #include "../display/simimg.h"
 #include "../descriptor/crossing_desc.h"
 #include "../dataobj/crossing_logic.h"
 
+
 class vehicle_base_t;
+
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)

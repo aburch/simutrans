@@ -7,8 +7,13 @@
 #define IFC_SIMTESTDRIVER_H
 
 
+#include "../simtypes.h"
+#include "../dataobj/ribi.h"
+
+
 class grund_t;
 class weg_t;
+
 
 /**
  * Interface to connect the vehicle with its route
