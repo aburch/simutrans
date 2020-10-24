@@ -94,8 +94,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-#Visual Studio local configuration directiory
+#Visual Studio and VS Code local configuration directories
 .vs/
+.vscode/
 
 # =========================
 # Operating System Files
