@@ -47,84 +47,128 @@
 
 #include "objlist.h"
 
-/* All things including ways are stored in this structure.
- * The entries are packed, i.e. the first free entry is at the top.
- * To save memory, a single element (like in the case for houses or a single tree)
- * is stored directly (obj.one) and capacity==1. Otherwise obj.some points to an
- * array.
- * The objects are sorted according to their drawing order.
- * ways are always first.
- */
 
-#define baum_pri (50)
-#define pillar_pri (7)
-#define wayobj_pri (8)
+// priority for inserting into objlist
 
-// priority of moving things: should be smaller than the priority of powerlines
-#define moving_obj_pri (100)
+#define PRI_WAY         (0) // ways (always at the top!)
+#define PRI_DEPOT       (1) // depots (must be before tunnel!)
+#define PRI_CROSSING    (1) // crossings, treated like bridges or tunnels
+#define PRI_GROUNDOBJ   (1)
+#define PRI_BRIDGE      (2)
+#define PRI_TUNNEL      (2)
+#define PRI_BUILDING    (3)
+#define PRI_FIELD       (3)
+#define PRI_TRANSFORMER (4)
+#define PRI_RAUCHER     (5)
+#define PRI_SIGNAL      (6)
+#define PRI_ROADSIGN    PRI_SIGNAL
+#define PRI_PILLAR      (7)
+#define PRI_WAYOBJ      (8)
+#define PRI_LABEL       (9)
+#define PRI_TREE        (50)
+#define PRI_MOVABLE     (100) // priority of moving things: should be smaller than the priority of powerlines
+#define PRI_AIRCRAFT    (PRI_MOVABLE + 1)
+#define PRI_MOVINGOBJ   (PRI_MOVABLE + 1)
+#define PRI_POWERLINE   (150)
+#define PRI_CLOUD       (200)
+#define PRI_ZEIGER      (254)
+#define PRI_INVALID     (255)
 
-// priority for entering into objlist
-// unused entries have 255
-static uint8 type_to_pri[256]=
+
+// Maps obj_t::type -> objlist insertion order
+// unused entries have PRI_INVALID
+static uint8 type_to_pri[256] =
 {
-	255, //
-	baum_pri, // tree
-	254, // cursor/pointers
-	200, 200, 200, // wolke
-	3, 3, // buildings
-	6, // signal
-	2, 2, // bridge/tunnel
-	255,
-	1, 1, 1, // depots
-	5, // smoke generator (not used any more)
-	150, 4, 4, // powerlines
-	6, // roadsign
-	pillar_pri, // pillar
-	1, 1, 1, 1, // depots (must be before tunnel!)
-	wayobj_pri, // way objects (electrification)
-	0, // ways (always at the top!)
-	9, // label, indicates ownership: insert before trees
-	3, // field (factory extension)
-	1, // crossings, treated like bridges or tunnels
-	1, // groundobjs, overlays over bare ground like lakes etc.
-	1,  // narrowgaugedepot
-	255, 255, 255, 255, 255, 255, 255, 255, // 32-63 left empty (old numbers)
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	moving_obj_pri, // pedestrians
-	moving_obj_pri, // city cars
-	moving_obj_pri, // road vehicle
-	moving_obj_pri, // rail vehicle
-	moving_obj_pri, // monorail
-	moving_obj_pri, // maglev
-	moving_obj_pri, // narrowgauge
-	255, 255, 255, 255, 255, 255, 255, 255, 255,
-	moving_obj_pri,   // ship
-	moving_obj_pri+1, // aircraft (no trailer, could be handled by normal method)
-	moving_obj_pri+1, // movingobject (no trailer, could be handled by normal method)
-	255, 255, 255, 255, 255, 255, 255, 255, // 83-95 left empty (for other moving stuff) 95, is reserved for old choosesignals
-	255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, // 96-128 left empty (old numbers)
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255, // 128-255 left empty
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255
+	PRI_INVALID,     // obj
+
+	PRI_TREE,        // baum
+	PRI_ZEIGER,      // cursor/pointers
+	PRI_CLOUD,       // wolke
+	PRI_CLOUD,       // sync_wolke
+	PRI_CLOUD,       // async_wolke
+
+	PRI_INVALID,     // gebaeude_alt, unused
+	PRI_BUILDING,    // gebaeude
+
+	PRI_SIGNAL,      // signal
+	PRI_BRIDGE,      // bridge
+	PRI_TUNNEL,      // tunnel
+	PRI_INVALID,     // old_gebaeudefundament, unused
+
+	PRI_DEPOT,       // bahndepot
+	PRI_DEPOT,       // strassendepot
+	PRI_DEPOT,       // schiffdepot
+
+	PRI_RAUCHER,     // smoke generator (not used any more)
+
+	PRI_POWERLINE,   // poweline
+	PRI_TRANSFORMER, // pumpe
+	PRI_TRANSFORMER, // senke
+
+	PRI_ROADSIGN,    // roadsign
+	PRI_PILLAR,      // pillar
+
+	PRI_DEPOT,       // airdepot
+	PRI_DEPOT,       // monoraildepot
+	PRI_DEPOT,       // tramdepot
+	PRI_DEPOT,       // maglevdepot
+
+	PRI_WAYOBJ,      // way objects (electrification)
+	PRI_WAY,         // way
+	PRI_LABEL,       // label, indicates ownership: insert before trees
+	PRI_FIELD,       // field (factory extension)
+	PRI_CROSSING,    // crossing
+	PRI_GROUNDOBJ,   // groundobjs, overlays over bare ground like lakes etc.
+
+	PRI_DEPOT,       // narrowgaugedepot
+
+	// 32-63 left empty (old numbers)
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+
+	PRI_MOVABLE,   // pedestrians
+	PRI_MOVABLE,   // city cars
+	PRI_MOVABLE,   // road vehicle
+	PRI_MOVABLE,   // rail vehicle
+	PRI_MOVABLE,   // monorail
+	PRI_MOVABLE,   // maglev
+	PRI_MOVABLE,   // narrowgauge
+
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+
+	PRI_MOVABLE,   // ship
+	PRI_AIRCRAFT,  // aircraft (no trailer, could be handled by normal method)
+	PRI_MOVINGOBJ, // movingobject (no trailer, could be handled by normal method)
+
+	// 83-95 left empty (for other moving stuff); 95 is reserved for old choosesignals
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+
+	// 96-128 left empty (old numbers)
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+
+	// 128-255 left empty
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID,
+	PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID, PRI_INVALID
 };
 
 
@@ -421,7 +465,7 @@ bool objlist_t::add(obj_t* new_obj)
 	const uint8 pri=type_to_pri[new_obj->get_typ()];
 
 	// vehicles need a special order
-	if(pri==moving_obj_pri) {
+	if(pri==PRI_MOVABLE) {
 		return intern_add_moving(new_obj);
 	}
 
@@ -443,7 +487,7 @@ bool objlist_t::add(obj_t* new_obj)
 		top++;
 	}
 	else {
-		if(pri==baum_pri) {
+		if(pri==PRI_TREE) {
 			/* trees are a little tricky, since they cast a shadow
 			 * therefore the y-order must be correct!
 			 */
@@ -454,7 +498,7 @@ bool objlist_t::add(obj_t* new_obj)
 				}
 			}
 		}
-		else if (pri == pillar_pri) {
+		else if (pri == PRI_PILLAR) {
 			// pillars have to be sorted wrt their y-offset, too.
 			for(  ;  i<top;  i++) {
 				pillar_t const* const pillar = obj_cast<pillar_t>(obj.some[i]);
@@ -463,7 +507,7 @@ bool objlist_t::add(obj_t* new_obj)
 				}
 			}
 		}
-		else if(  pri == wayobj_pri  &&  obj.some[i]->get_typ()==obj_t::wayobj  ) {
+		else if(  pri == PRI_WAYOBJ  &&  obj.some[i]->get_typ()==obj_t::wayobj  ) {
 			wayobj_t const* const wo = obj_cast<wayobj_t>(obj.some[i]);
 			if(  wo  &&  wo->get_waytype() < obj_cast<wayobj_t>(new_obj)->get_waytype() ) {
 				// insert after a lower waytype

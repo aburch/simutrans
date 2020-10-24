@@ -146,6 +146,7 @@ public:
 		monorail_vehicle=68,
 		maglev_vehicle=69,
 		narrowgauge_vehicle=70,
+
 		water_vehicle=80,
 		air_vehicle=81,
 		movingobj=82,
