@@ -7,10 +7,13 @@
 #define OBJ_GROUNDOBJ_H
 
 
+#include "../simobj.h"
+
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../descriptor/groundobj_desc.h"
 #include "../dataobj/environment.h"
+
 
 /**
  * Decorative objects, like rocks, ponds etc.

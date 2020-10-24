@@ -7,9 +7,12 @@
 #define DESCRIPTOR_WRITER_SKIN_WRITER_H
 
 
-#include <string>
 #include "obj_writer.h"
+
 #include "../objversion.h"
+#include "../../tpl/slist_tpl.h"
+
+#include <string>
 
 
 class skin_writer_t : public obj_writer_t {

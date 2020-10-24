@@ -50,6 +50,9 @@
 #include "gui/vehiclelist_frame.h"
 #include "gui/signalboxlist_frame.h"
 
+#include "obj/baum.h"
+
+
 class player_t;
 
 /********************** dialog tools *****************************/
