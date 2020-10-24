@@ -337,7 +337,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 
 /*
- * Display a string that if abbreviated by the (language specific) ellipsis character if too wide
+ * Display a string that is abbreviated by the (language specific) ellipsis character if too wide
  * If enough space is given, it just display the full string
  * @returns screen_width
  */
@@ -355,6 +355,8 @@ void display_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL c
 void display_filled_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const PIXVAL color );
 void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 
+void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, KOORD_VAL height, const PIXVAL colval, const bool dirty);
+
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO, bool fit = false);
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF0 CLIP_NUM_DEFAULT_ZERO);
 
@@ -371,4 +373,3 @@ extern uint8 display_night_lights[LIGHT_COUNT * 3];
 #endif
 
 #endif
-void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, KOORD_VAL height, const PIXVAL colval, const bool dirty);
