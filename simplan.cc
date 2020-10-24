@@ -367,7 +367,7 @@ void planquadrat_t::abgesenkt()
 			kartenboden_setzen( gr );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if (gr2  &&  gr2->is_water()) {
 					gr2->calc_image();
 				}
@@ -396,7 +396,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}
@@ -408,7 +408,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}

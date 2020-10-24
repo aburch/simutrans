@@ -2699,7 +2699,7 @@ int haltestelle_t::generate_pedestrians(koord3d pos, int count)
 {
 	pedestrian_t::generate_pedestrians_at(pos, count);
 	for(int i=0; i<4 && count>0; i++) {
-		pedestrian_t::generate_pedestrians_at(pos+koord::nsew[i], count);
+		pedestrian_t::generate_pedestrians_at(pos+koord::nesw[i], count);
 	}
 	return count;
 }

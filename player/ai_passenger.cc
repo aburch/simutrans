@@ -569,14 +569,14 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now the airstops (only on single tiles, this will always work
 	const building_desc_t* airstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsew[i],bushalt)==1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nsew[i])->get_weg_ribi_unmasked(air_wt) )  ) {
-			call_general_tool( TOOL_BUILD_STATION, center+koord::nsew[i], airstop_desc->get_name() );
+		if(  koord_distance(center+koord::nesw[i],bushalt)==1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nesw[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( TOOL_BUILD_STATION, center+koord::nesw[i], airstop_desc->get_name() );
 		}
 	}
 	// and now the one far away ...
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsew[i],bushalt)>1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nsew[i])->get_weg_ribi_unmasked(air_wt) )  ) {
-			call_general_tool( TOOL_BUILD_STATION, center+koord::nsew[i], airstop_desc->get_name() );
+		if(  koord_distance(center+koord::nesw[i],bushalt)>1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nesw[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( TOOL_BUILD_STATION, center+koord::nesw[i], airstop_desc->get_name() );
 		}
 	}
 	// success
@@ -815,13 +815,13 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 	for(int r=0; r<4; r++) {
 
 		// a way in our direction?
-		if(  (ribi & ribi_t::nsew[r])==0  ) {
+		if(  (ribi & ribi_t::nesw[r])==0  ) {
 			continue;
 		}
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsew[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_owner(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nesw[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_owner(),this)  ) {
 
 			// ok, here is a valid street tile
 			marker->mark(to);

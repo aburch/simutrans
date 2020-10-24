@@ -10,10 +10,10 @@
 #include "koord.h"
 #include "koord3d.h"
 
-const ribi_t::ribi ribi_t::nsew[4] = {
+const ribi_t::ribi ribi_t::nesw[4] = {
 	north,
-	south,
 	east,
+	south,
 	west
 };
 

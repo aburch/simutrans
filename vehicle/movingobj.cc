@@ -361,7 +361,7 @@ grund_t* movingobj_t::hop_check()
 		uint8 until=0;
 		// find all tiles we can go
 		for(  int i=0;  i<4;  i++  ) {
-			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsew[i]);
+			const grund_t *check = welt->lookup_kartenboden(pos+koord::nesw[i]);
 			if(check_next_tile(check)  &&  check->get_pos()!=get_pos()) {
 				to[until++] = check;
 			}

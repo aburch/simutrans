@@ -66,12 +66,12 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  (ribi & ribi_t::nsew[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsew[i] ) ) {
+		if(  (ribi & ribi_t::nesw[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nesw[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			// check that we can connect to the other tile: correct slope,
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
-			if(  lt  &&  (ribi_t::backward(ribi_t::nsew[i]) & get_powerline_ribi(gr))  &&  ok  ) {
+			if(  lt  &&  (ribi_t::backward(ribi_t::nesw[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				const player_t *owner = get_owner();
 				const player_t *other = lt->get_owner();
 				const player_t *super = welt->get_public_player();
@@ -89,7 +89,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nsew[k] );
+		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nesw[k] );
 		if(fab) {
 			return fab;
 		}
@@ -312,8 +312,8 @@ void leitung_t::calc_neighbourhood()
 	if(gimme_neighbours(conn)>0) {
 		for( uint8 i=0;  i<4 ;  i++  ) {
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
-				ribi |= ribi_t::nsew[i];
-				conn[i]->add_ribi(ribi_t::backward(ribi_t::nsew[i]));
+				ribi |= ribi_t::nesw[i];
+				conn[i]->add_ribi(ribi_t::backward(ribi_t::nesw[i]));
 				conn[i]->calc_image();
 			}
 		}

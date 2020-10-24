@@ -24,10 +24,10 @@ const koord koord::north(    0, -1);
 const koord koord::east(     1,  0);
 const koord koord::south(    0,  1);
 const koord koord::west(   -1,  0);
-const koord koord::nsew[] = {
+const koord koord::nesw[] = {
 	koord( 0, -1),
-	koord( 0,  1),
 	koord( 1,  0),
+	koord( 0,  1),
 	koord(-1,  0)
 };
 

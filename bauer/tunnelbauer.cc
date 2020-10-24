@@ -688,8 +688,8 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
-			if((zv == koord::invalid || zv == koord::nsew[r]) &&
-				from->get_neighbour(to, delete_wegtyp, ribi_t::nsew[r]) &&
+			if((zv == koord::invalid || zv == koord::nesw[r]) &&
+				from->get_neighbour(to, delete_wegtyp, ribi_t::nesw[r]) &&
 				!marker.is_marked(to) &&
 				(wegtyp != powerline_wt || to->get_leitung()))
 			{

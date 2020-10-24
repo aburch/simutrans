@@ -92,7 +92,7 @@ public:
 	static const koord east;
 	static const koord west;
 	// the 4 basic directions as an Array
-	static const koord nsew[4];
+	static const koord nesw[4];
 	// 8 next neighbours
 	static const koord neighbours[8];
 

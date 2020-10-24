@@ -454,7 +454,7 @@ void weg_t::calc_image()
 			if(recursion == 0) {
 				recursion++;
 				for(int r = 0; r < 4; r++) {
-					if(  from->get_neighbour(to, get_waytype(), ribi_t::nsew[r])  ) {
+					if(  from->get_neighbour(to, get_waytype(), ribi_t::nesw[r])  ) {
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...

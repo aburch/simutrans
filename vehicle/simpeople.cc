@@ -292,7 +292,7 @@ void pedestrian_t::hop(grund_t *gr)
 
 	ribi_t::ribi new_direction;
 	for(uint r = 0; r < 4; r++) {
-		new_direction = ribi_t::nsew[ (r+offset) & 3];
+		new_direction = ribi_t::nesw[ (r+offset) & 3];
 
 		if(  (ribi & new_direction)!=0  &&  gr->get_neighbour(to, road_wt, new_direction) ) {
 			// this is our next target

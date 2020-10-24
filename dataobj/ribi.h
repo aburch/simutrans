@@ -194,7 +194,7 @@ private:
 	static const dir  dirs[16];
 public:
 	/// Table containing the four compass directions
-	static const ribi nsew[4];
+	static const ribi nesw[4];
 	/// Convert building layout to ribi (four rotations), use doppelt in case of two rotations
 	static const ribi layout_to_ribi[4]; // building layout to ribi (for four rotations, for two use doppelt()!
 
