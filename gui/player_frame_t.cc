@@ -182,7 +182,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 
 	// freeplay mode
-	freeplay.init( button_t::square_state, "freeplay mode", cursor);
+	freeplay.init( button_t::square_state, "freeplay mode", cursor, scr_size(D_BUTTON_WIDTH*2, D_BUTTON_HEIGHT) );
 	freeplay.add_listener(this);
 	if (welt->get_public_player()->is_locked() || !welt->get_settings().get_allow_player_change()  ||  !player_tools_allowed) {
 		freeplay.disable();
