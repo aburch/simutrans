@@ -6,6 +6,7 @@
 #include <string>
 
 #include "pakselector.h"
+#include "pakinstaller.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../sys/simsys.h"
@@ -14,10 +15,14 @@ pakselector_t::pakselector_t() :
 	savegame_frame_t( NULL, true, env_t::data_dir, true ),
 	notice_label(&notice_buffer)
 {
+	// if true, we would call the installler afterwards
+	pakinstaller_t::finish_install = false;
+
 	// remove unnecessary buttons
 	top_frame.remove_component( &input );
 	savebutton.set_visible(false);
 	cancelbutton.set_visible(false);
+
 
 	// don't show list item labels
 	label_enabled = false;
@@ -30,6 +35,10 @@ pakselector_t::pakselector_t() :
 	);
 	notice_label.recalc_size();
 	add_component(&notice_label);
+
+	installbutton.init( button_t::roundbox, "Install" );
+	installbutton.add_listener( &ps );
+	add_component(&installbutton);
 
 	resize(scr_coord(0,0));
 }
@@ -123,4 +132,11 @@ void pakselector_t::fill_list()
 		// empty path as more than one pakset is present, user has to choose
 		env_t::objfilename = "";
 	}
+}
+
+
+bool pakselector_install_action_t::action_triggered( gui_action_creator_t* comp, value_t v )
+{
+	pakinstaller_t::finish_install = true;
+	return true;
 }

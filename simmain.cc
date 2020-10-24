@@ -47,6 +47,7 @@
 
 #include "gui/banner.h"
 #include "gui/pakselector.h"
+#include "gui/pakinstaller.h"
 #include "gui/welt.h"
 #include "gui/help_frame.h"
 #include "gui/sprachen.h"
@@ -325,8 +326,9 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 
 // some routines for the modal display
 static bool never_quit() { return false; }
-static bool empty_objfilename() { return !env_t::objfilename.empty(); }
+static bool empty_objfilename() { return !env_t::objfilename.empty() ||  pakinstaller_t::finish_install; }
 static bool no_language() { return translator::get_language()!=-1; }
+static bool finish_install() { return pakinstaller_t::finish_install; }
 
 static bool wait_for_key()
 {
@@ -345,8 +347,30 @@ static bool wait_for_key()
 
 
 /**
- * Show pak selector
+ * Show pak installer
  */
+static void install_objfilename()
+{
+#ifdef _WIN32
+	dr_download_pakset( env_t::data_dir, env_t::data_dir == env_t::user_dir );  // windows
+#else
+	pakinstaller_t* sel = new pakinstaller_t();
+	// notify gui to load list of paksets
+	event_t ev;
+	ev.ev_class = INFOWIN;
+	ev.ev_code = WIN_OPEN;
+	sel->infowin_event(&ev);
+
+	destroy_all_win(true); // since eventually the successful load message is still there ....
+	modal_dialogue(sel, magic_none, NULL, finish_install);
+#endif
+}
+
+
+
+/**
+* Show pak selector
+*/
 static void ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
@@ -922,12 +946,11 @@ int simu_main(int argc, char** argv)
 		}
 		if(  env_t::objfilename.empty()  ) {
 			// try to download missing paks
-			if(  dr_download_pakset( env_t::data_dir, env_t::data_dir == env_t::user_dir )  ) {
-				ask_objfilename();
-				if(  env_t::quit_simutrans  ) {
-					simgraph_exit();
-					return EXIT_SUCCESS;
-				}
+			install_objfilename(); // all other
+			ask_objfilename();
+			if(  env_t::quit_simutrans  ) {
+				simgraph_exit();
+				return EXIT_SUCCESS;
 			}
 			// still nothing?
 			if(  env_t::objfilename.empty()  ) {

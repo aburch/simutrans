@@ -1024,6 +1024,7 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 	(void)portable;
 
 	char command[2048];
+	chdir( data_dir );
 	sprintf(command, "%s/get_pak.sh", data_dir);
 	system( command );
 	return true;

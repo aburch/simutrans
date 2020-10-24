@@ -185,6 +185,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\obj_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\optionen.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\pakselector.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\pakinstaller.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\password_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\player_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\privatesign_info.cc" />
@@ -532,6 +533,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\obj_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\optionen.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\pakselector.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\pakinstaller.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\password_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\player_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\privatesign_info.h" />
