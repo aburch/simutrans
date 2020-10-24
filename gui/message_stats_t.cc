@@ -225,7 +225,7 @@ void message_stats_t::draw(scr_coord offset)
 					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
 				}
 			}
-			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x+2, y, D_POS_BUTTON_WIDTH, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
 
 		// correct for player color
@@ -255,7 +255,7 @@ void message_stats_t::draw(scr_coord offset)
 			default:
 				time[0] = 0;
 		}
-		scr_coord_val left = 14;
+		scr_coord_val left = D_POS_BUTTON_WIDTH+4;
 		if(  time[0]  ) {
 			left += display_proportional_clip_rgb(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
 		}
