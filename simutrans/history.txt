@@ -73,6 +73,7 @@ Release of 121.0 (r8870 on 1-Dec-2019):
 	FIX: IP4 address query for easyserver (to detect IP4 changes sometimes occuring for ADSL connections)
 	ADD: new simuconf.tab parameter follow_convoi_underground to slice through grounds to follow a convoi in sliced mode oder full underground mode
 	ADD: search for midi files first in pak folder, then user folder, then program folder
+	ADD: GUI for pakset install script
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):
