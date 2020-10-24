@@ -66,7 +66,7 @@ public:
 	bool init(player_t*) OVERRIDE { return false; }
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	bool is_work_network_safe() const OVERRIDE { return true; }
-	bool is_move_network_save(player_t*) const OVERRIDE { return true; }
+	bool is_move_network_safe(player_t*) const OVERRIDE { return true; }
 };
 tool_t *tool_t::dummy = new tool_dummy_t();
 
@@ -1014,14 +1014,14 @@ bool two_click_tool_t::is_first_click() const
 }
 
 
-bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
+bool two_click_tool_t::is_work_here_network_safe(player_t *player, koord3d pos )
 {
 	if(  !is_first_click()  ) {
 		return false;
 	}
 	const char *error = "";	//default: nosound
 	uint8 value = is_valid_pos( player, pos, error, koord3d::invalid );
-	DBG_MESSAGE("two_click_tool_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
+	DBG_MESSAGE("two_click_tool_t::is_work_here_network_safe", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		// cannot work here at all -> safe
 		return true;
