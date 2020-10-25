@@ -18,7 +18,7 @@ For the recommended SDL2-support you need
 libSDL2 [better than libSDL] (http://www.libsdl.org/)
 libSDL_mixer (link from the same page)
 
-The link for allegro lib is (but the allegro backend has not been 
+The link for allegro lib is (but the allegro backend has not been
 tested for a long time):
 http://www.talula.demon.co.uk/allegro/
 or
@@ -30,7 +30,7 @@ A system set up for OpenTTD will also compile simutrans (except for
 bzlib2, see below sections).
 
 If you are on a MS Windows machine, download either MS VC Express or
-MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to 
+MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to
 be done on the command line).
 
 The packages needed for MSYS2 are
@@ -54,13 +54,13 @@ libpng-dev
 libbz2-dev
 libminiupnpc-dev
 libfreetype-dev
-Depending on your distribution, there may be also number needed, like 
+Depending on your distribution, there may be also number needed, like
 libfreetype2-dev or libminiupnpc6-dev
 
-To built on Haiku you must use GCC4 (type "setarch x86" in the current
+To build on Haiku you must use GCC4 (type "setarch x86" in the current
 nightlies). To incorporate bz2lib, download make bz2lib and add them
 manually (via FLAGS = -I/dwonloadeddir -L/downloadeddir). However, simutrans
-has a Haikuporter package, which may built the lastest version.
+has a Haikuporter package, which may build the lastest version.
 
 A subversion will be also a good idea. You can find some of them on:
 http://subversion.tigris.org/
@@ -76,22 +76,22 @@ svn://servers.simutrans.org/simutrans
 A commandline would look like this:
 svn checkout svn://servers.simutrans.org/simutrans
 
-If everything is set up, you can run configure inside trunk. This should 
-create a config.default file with all the needed settings. Try to compile 
-using make. You can manually fine edit config.default to enable other 
+If everything is set up, you can run configure inside trunk. This should
+create a config.default file with all the needed settings. Try to compile
+using make. You can manually fine edit config.default to enable other
 settings.
 
-Typical you type into a command window:
+Typically you type into a command window:
 ./configure
 make
 
-The executable compiled by this is located in the directory "build/default", 
+The executable compiled by this is located in the directory "build/default",
 i.e. "./build/default/sim" You can start it by this
 cd simutrans
 ../build/default/sim -use_workdir
 but you will need to add at least one pak to the simutrans directory.
 
-You can run ./distribute which will give you a zip file that contains 
+You can run ./distribute which will give you a zip file that contains
 everything (minus a pak) needed to run simutrans.
 
 
@@ -102,16 +102,17 @@ If you want to contribute, read the coding guidelines in
 trunk/coding_styles.txt
 
 
-The following instructions are manual setup for GCC systems:
-------------------------------------------------------------
+The following instructions are manual setup for GCC/Clang systems:
+------------------------------------------------------------------
 
 Go to simutrans/trunk.
 
-Then copy the file trunk/config.template to trunk/config.default and edit 
-the file. You need to specify:
-- frontend (gdi, allegro, SDL, SDL2, posix)
-- color depth (usually 16 or 0)
-- system (you should know it)
+Then copy the file trunk/config.template to trunk/config.default and edit
+the file. You must define (i.e. uncomment by removing the leading # character)
+at least the following variables:
+
+- BACKEND (gdi, allegro, SDL, SDL2, posix)
+- OSTYPE (you should know it)
 
 I recommend to uncomment #DEBUG=1 and #OPTIMISE = 1 (i.e. removing the #),
 if you build for your own use.
@@ -120,8 +121,8 @@ For allegro or libsdl you may need to define the path of the config file
 (or at least on win98 an empty path).
 
 Finally type make. If you want a smaller program and do not care about error
-messages, you can comment out #DEBUG=1 and run strip sim resp. strip sim.exe
-after compile and linking.
+messages, you can comment out #DEBUG=1 and run "strip sim" resp.
+"strip sim.exe" after compile and linking.
 
 
 The following instructions are for MS Visual C Express:
@@ -130,11 +131,11 @@ The following instructions are for MS Visual C Express:
 Download Visual Express C++ (tested for 2012 upwards)
 http://www.microsoft.com/express/Downloads/
 
-For most libraries you will easily find binaries. A quick start for some of 
+For most libraries you will easily find binaries. A quick start for some of
 them is the bundle used for OpenTTD:
 https://www.openttd.org/en/download-openttd-useful/6.0
 
-The bzip2 source tarball comes with an archive where you can easily built
+The bzip2 source tarball comes with an archive where you can easily build
 your own libbz2.lib file.
 
 For debugging, you have to set the correct working directory, i.e. the
