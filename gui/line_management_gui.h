@@ -25,8 +25,8 @@ public:
 
 	// stuff for UI saving
 	line_management_gui_t();
-	virtual void rdwr( loadsave_t *file ) OVERRIDE;
-	virtual uint32 get_rdwr_id() OVERRIDE { return magic_line_schedule_rdwr_dummy; }
+	void rdwr( loadsave_t *file ) OVERRIDE;
+	uint32 get_rdwr_id() OVERRIDE { return magic_line_schedule_rdwr_dummy; }
 
 
 private:

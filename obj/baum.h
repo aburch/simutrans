@@ -7,13 +7,17 @@
 #define OBJ_BAUM_H
 
 
-#include <string>
+#include "../simobj.h"
+
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
 #include "../descriptor/tree_desc.h"
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
+
+#include <string>
+
 
 /**
  * Simulated trees for Simutrans.

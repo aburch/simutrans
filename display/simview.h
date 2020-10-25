@@ -7,8 +7,12 @@
 #define DISPLAY_SIMVIEW_H
 
 
+#include "simgraph.h"
+
+
 class karte_t;
 class viewport_t;
+
 
 /**
  * World view class, it contains the routines that handle world display to the pixel buffer.

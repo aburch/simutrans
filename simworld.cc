@@ -10712,7 +10712,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
 {
 	const char *err = NULL;
-	if (!env_t::networkmode || tool->is_work_network_safe() || tool->is_work_here_network_save(player, pos)) {
+	if (!env_t::networkmode || tool->is_work_network_safe() || tool->is_work_here_network_safe(player, pos)) {
 		// do the work
 		tool->flags |= tool_t::WFL_LOCAL;
 		// check allowance by scenario

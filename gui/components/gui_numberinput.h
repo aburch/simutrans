@@ -109,11 +109,11 @@ public:
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
+	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
-	scr_size get_max_size() const;
+	scr_size get_max_size() const OVERRIDE;
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 };
 
 #endif

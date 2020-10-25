@@ -35,7 +35,7 @@ public:
 	/**
 	 * Updates size and preferred_size.
 	 */
-	void set_size(scr_size size_par);
+	void set_size(scr_size size_par) OVERRIDE;
 
 	/**
 	 * Computes and returns preferred size.
@@ -48,12 +48,12 @@ public:
 	/**
 	 * Paints the component
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/// min-width zero, to trick gui_scrollpane_t::set_size
-	scr_size get_min_size() const { return scr_size(0, scr_size::inf.h); }
+	scr_size get_min_size() const OVERRIDE { return scr_size(0, scr_size::inf.h); }
 
 private:
 	scr_size output(scr_coord pos, bool doit, bool return_max_width=true);

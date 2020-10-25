@@ -48,7 +48,7 @@ private:
 			}
 			return swallow;
 		}
-		virtual void draw(scr_coord offset) OVERRIDE {
+		void draw(scr_coord offset) OVERRIDE {
 			if(ware_ab) {
 				pressed = parent->get_ware_filter_ab(ware_ab);
 			}

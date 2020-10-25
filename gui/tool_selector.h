@@ -100,7 +100,7 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// since no information are needed to be saved to restore this, returning magic is enough
-	virtual uint32 get_rdwr_id() OVERRIDE { return magic_toolbar+toolbar_id; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_toolbar+toolbar_id; }
 
 	bool empty(player_t *player) const;
 };

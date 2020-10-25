@@ -8,6 +8,7 @@
 
 
 class karte_t;
+class loadsave_t;
 
 
 /**

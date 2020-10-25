@@ -15,6 +15,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "../utils/cbuffer_t.h"
+#include "simwin.h"
 
 
 /**

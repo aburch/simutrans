@@ -62,9 +62,9 @@ public:
 
 	const char *get_help_filename() const OVERRIDE { return "citywindow.txt"; }
 
-	virtual koord3d get_weltpos(bool) OVERRIDE;
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos() OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
@@ -81,9 +81,9 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	virtual bool has_min_sizer() const OVERRIDE {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
-	void rdwr(loadsave_t *) OVERRIDE;
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_city_info_t; }
 };

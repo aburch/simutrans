@@ -7,6 +7,9 @@
 #define DESCRIPTOR_READER_SKIN_READER_H
 
 
+#include "../../simskin.h"
+#include "../../tpl/slist_tpl.h"
+
 #include "obj_reader.h"
 
 

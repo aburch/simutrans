@@ -173,10 +173,11 @@ enum {
 	DIALOG_SCENARIO_INFO,
 	DIALOG_LIST_DEPOT,
 	DIALOG_LIST_VEHICLE,
-	DIALOG_LIST_SIGNALBOX,
+	//DIALOG_SCRIPT_TOOL,
 	DIALOG_TOOL_STANDARD_COUNT,
 	// Extended entries from here:
-	DIALOG_TOOL_COUNT=0x0080,
+	DIALOG_LIST_SIGNALBOX =0x0080,
+	DIALOG_TOOL_COUNT,
 	DIALOG_TOOL = 0x4000
 };
 
@@ -287,13 +288,13 @@ public:
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_safe() const { return false; }
-	virtual bool is_move_network_save(player_t *) const { return true; }
+	virtual bool is_move_network_safe(player_t *) const { return true; }
 
 	// if is_work_network_safe()==false
-	// and is_work_here_network_save(...)==false
+	// and is_work_here_network_safe(...)==false
 	// then work-command is sent over network
 	virtual bool is_work_network_safe() const { return false; }
-	virtual bool is_work_here_network_save(player_t *, koord3d) { return false; }
+	virtual bool is_work_here_network_safe(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after(scr_coord pos, bool dirty) const;
@@ -384,7 +385,7 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 
-	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
+	bool is_work_here_network_safe(player_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed
