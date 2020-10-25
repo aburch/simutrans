@@ -78,9 +78,10 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 		// name filter
 		name_filter.add_component(filter_buttons + 0, 2);
 
+		name_filter.new_component<gui_label_t>("  ");
 		name_filter_input.set_text(main_frame->access_name_filter(), 30);
 		name_filter_input.add_listener(this);
-		name_filter.add_component(&name_filter_input, 2);
+		name_filter.add_component(&name_filter_input);
 
 		// type and special buttons
 		for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
