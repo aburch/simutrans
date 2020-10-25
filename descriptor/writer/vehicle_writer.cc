@@ -641,7 +641,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// set front-end flags
 	if (can_be_at_front) {
 		if (!leader_count) {
-			basic_constraint_prev |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+			basic_constraint_prev |= vehicle_desc_t::can_be_tail; // no constraint setting = free
+			if (has_front_cab) {
+				basic_constraint_prev |= vehicle_desc_t::can_be_head;
+			}
 		}
 		else if (prev_has_none) {
 			basic_constraint_prev |= vehicle_desc_t::can_be_tail;
@@ -703,7 +706,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// set back-end flags
 	if (can_be_at_end) {
 		if (!trailer_count) {
-			basic_constraint_next |= vehicle_desc_t::can_be_tail | vehicle_desc_t::can_be_head; // no constraint setting = free
+			basic_constraint_next |= vehicle_desc_t::can_be_tail; // no constraint setting = free
+			if (has_rear_cab) {
+				basic_constraint_next |= vehicle_desc_t::can_be_head;
+			}
 		}
 		else if (next_has_none) {
 			basic_constraint_next |= vehicle_desc_t::can_be_tail;
