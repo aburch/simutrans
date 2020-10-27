@@ -98,7 +98,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			freight_type_c.add_listener(this);
 			add_component(&freight_type_c); // (2,2,1)
 
-			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14));
+			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
 			btn_display_mode.add_listener(this);
 			add_component(&btn_display_mode); // (2,2,2)
 		}
