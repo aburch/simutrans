@@ -29,7 +29,7 @@ class del_button_t : public button_t
 public:
 	del_button_t() : button_t() { init(button_t::roundbox, "X"); }
 
-	scr_size get_min_size() const OVERRIDE { return scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT); }
+	scr_size get_min_size() const OVERRIDE { return scr_size(proportional_string_width("X")+ gui_theme_t::gui_button_text_offset.w*2, D_BUTTON_HEIGHT); }
 };
 
 /**
