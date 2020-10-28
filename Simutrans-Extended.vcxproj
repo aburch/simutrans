@@ -508,8 +508,8 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\freetype-2.10.1\include\freetype;..\miniupnpc;..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\OpenTTD\shared\include;..\bzip\include;..\miniupnpc;..\freetype-2.10.1\include\freetype;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
@@ -528,8 +528,8 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (non-graphical server)|Win32'">..\OpenTTD\win32\library;..\bzip\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\freetype-2.10.1;..\miniupnpc;..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">..\miniupnpc;..\OpenTTD\win64\library;..\bzip\lib\x64;..\freetype-2.10.1;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">..\OpenTTD\win64\library;..\bzip\lib\x64;$(LibraryPath)</LibraryPath>
@@ -950,7 +950,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND;MINIUPNP_STATICLIB;CURL_STATICLIB</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -965,7 +965,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib;imm32.lib;libpng.lib;zlibstat.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib;imm32.lib;libpng.lib;zlibstat.lib;IPHlpApi.Lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win64\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -976,6 +976,9 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
     </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Optimised debug|x64'">
     <PreBuildEvent>
@@ -984,7 +987,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND;MINIUPNP_STATICLIB;CURL_STATICLIB</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -1006,7 +1009,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib;imm32.lib;libpng.lib;zlibstat.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib;imm32.lib;libpng.lib;zlibstat.lib;IPHlpApi.Lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug-optimised.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win64\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>

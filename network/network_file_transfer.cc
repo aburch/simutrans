@@ -4,6 +4,7 @@
  */
 
 #include "network_file_transfer.h"
+
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
@@ -11,6 +12,7 @@
 
 #include <string.h>
 #include <errno.h>
+
 #include "../utils/cbuffer_t.h"
 
 #ifndef NETTOOL
@@ -19,7 +21,9 @@
 #define dr_remove remove
 #define dr_fopen fopen
 #endif
-#include "../simversion.h"
+
+#include <string.h>
+#include <errno.h>
 
 
 /*
