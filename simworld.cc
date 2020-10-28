@@ -2141,7 +2141,7 @@ karte_t::karte_t() :
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		players[i] = NULL;
-		MEMZERO(player_password_hash[i]);
+		player_password_hash[i].clear();
 	}
 
 	// no distance to show at first ...
