@@ -266,6 +266,7 @@ add_executable(simutrans-extended
 	gui/line_class_manager.cc
 	gui/line_item.cc
 	gui/line_management_gui.cc
+	gui/loadfont_frame.cc
 	gui/load_relief_frame.cc
 	gui/loadsave_frame.cc
 	gui/map_frame.cc
@@ -343,6 +344,7 @@ add_executable(simutrans-extended
 	player/simplay.cc
 	script/api/api_city.cc
 	script/api/api_const.cc
+	script/api/api_control.cc
 	script/api/api_convoy.cc
 	script/api/api_factory.cc
 	script/api/api_gui.cc
