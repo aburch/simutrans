@@ -20,7 +20,6 @@ template<class T> void swap(sparse_tpl<T>& a, sparse_tpl<T>& b);
  * It's using Compressed Row Storage (CRS).
  * @see array2d_tpl
  */
-
 template <class T>
 class sparse_tpl
 {
@@ -158,9 +157,9 @@ private:
 	}
 
 	/*
-		* Moves the elements data[start_index]..data[end_index-1] to
-		* data[start_index+offset]..data[end_index-1+offset]
-		*/
+	 * Moves the elements data[start_index]..data[end_index-1] to
+	 * data[start_index+offset]..data[end_index-1+offset]
+	 */
 	void move_data(uint16 start_index, uint16 end_index, sint8 offset)
 	{
 		uint16 num = end_index - start_index;
@@ -209,10 +208,10 @@ private:
 	}
 
 	/*
-		* Returns an index i
-		* - to the pos (if pos already in array)
-		* - to the index, where pos can be inserted.
-		*/
+	 * Returns an index i
+	 * - to the pos (if pos already in array)
+	 * - to the index, where pos can be inserted.
+	 */
 	uint16 pos_to_index( koord pos ) const {
 		uint16 row_start = row_ptr[ pos.y ];
 		uint16 row_end = row_ptr[ pos.y + 1 ];

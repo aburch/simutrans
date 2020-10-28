@@ -103,10 +103,10 @@ public:
 	}
 
 	/**
-		* Resizes the maximum data that can be hold by this vector.
-		* Existing entries are preserved, new_size must be big enough
-		* to hold them.
-		*/
+	 * Resizes the maximum data that can be hold by this vector.
+	 * Existing entries are preserved, new_size must be big enough
+	 * to hold them.
+	 */
 	void resize(uint32 new_size)
 	{
 		if (new_size <= size) return; // do nothing
@@ -119,9 +119,9 @@ public:
 	}
 
 	/**
-		* Checks if element elem is contained in vector.
-		* Uses the == operator for comparison.
-		*/
+	 * Checks if element elem is contained in vector.
+	 * Uses the == operator for comparison.
+	 */
 	bool is_contained(T elem) const
 	{
 		for (uint32 i = 0; i < count; i++) {
@@ -131,9 +131,9 @@ public:
 	}
 
 	/**
-		* Checks if element elem is contained in vector.
-		* Uses the == operator for comparison.
-		*/
+	 * Checks if element elem is contained in vector.
+	 * Uses the == operator for comparison.
+	 */
 	template<typename U> uint32 index_of(U elem) const
 	{
 		for (uint32 i = 0; i < count; i++) {
@@ -143,9 +143,9 @@ public:
 	}
 
 	/**
-		* Appends the element at the end of the vector.
-		* Extend if necessary.
-		*/
+	 * Appends the element at the end of the vector.
+	 * Extend if necessary.
+	 */
 	bool append(T elem, uint32 weight)
 	{
 #ifdef IGNORE_ZERO_WEIGHT
@@ -165,8 +165,8 @@ public:
 	}
 
 	/**
-		* Checks if element is contained. Appends only new elements.
-		*/
+	 * Checks if element is contained. Appends only new elements.
+	 */
 	bool append_unique(T elem, uint32 weight)
 	{
 		return is_contained(elem) || append(elem, weight);
@@ -200,8 +200,8 @@ public:
 	}
 
 	/**
-		* Insert `elem' with respect to ordering.
-		*/
+	 * Insert `elem' with respect to ordering.
+	 */
 	template<class StrictWeakOrdering>
 	void insert_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 	{
@@ -222,11 +222,11 @@ public:
 	}
 
 	/**
-		* Only insert `elem' if not already contained in this vector.
-		* Respects the ordering and assumes the vector is ordered.
-		* Returns NULL if insertion is successful;
-		* Otherwise return the address of the element in conflict.
-		*/
+	 * Only insert `elem' if not already contained in this vector.
+	 * Respects the ordering and assumes the vector is ordered.
+	 * Returns NULL if insertion is successful;
+	 * Otherwise return the address of the element in conflict.
+	 */
 	template<class StrictWeakOrdering>
 	T* insert_unique_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 	{
