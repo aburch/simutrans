@@ -46,7 +46,7 @@ class depotlist_stats_t : public gui_aligned_container_t, public gui_scrolled_li
 {
 private:
 	depot_t *depot;
-	gui_label_buf_t label;
+	gui_label_buf_t lb_name, lb_cnv_count, lb_vh_count, lb_region;
 	gui_image_t waytype_symbol;
 	button_t	gotopos;
 
