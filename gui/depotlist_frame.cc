@@ -9,7 +9,7 @@
 #include "../descriptor/skin_desc.h"
 #include "../simcity.h"
 
-enum sort_mode_t { by_coord, by_waytype, by_vehicle, SORT_MODES };
+enum sort_mode_t { by_waytype, by_convoys, by_vehicle, by_coord, by_region, SORT_MODES };
 
 int depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;
@@ -164,14 +164,25 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 		cmp = 0;
 		break;
 
+	case by_region:
+		cmp = welt->get_region(a->get_pos().get_2d()) - welt->get_region(b->get_pos().get_2d());
+		break;
+
 	case by_waytype:
 		cmp = a->get_waytype() - b->get_waytype();
 		break;
 
-	case by_vehicle:
+	case by_convoys:
 		cmp = a->convoi_count() - b->convoi_count();
 		if( cmp == 0 ) {
 			cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
+		}
+		break;
+
+	case by_vehicle:
+		cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
+		if( cmp == 0 ) {
+			cmp = a->convoi_count() - b->convoi_count();
 		}
 		break;
 
@@ -189,9 +200,11 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 
 
 static const char *sort_text[SORT_MODES] = {
-	"koord",
 	"waytype",
-	"vehicles stored"
+	"convoys stored",
+	"vehicles stored",
+	"koord",
+	"by_region"
 };
 
 depotlist_frame_t::depotlist_frame_t(player_t *player) :
