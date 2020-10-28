@@ -22,7 +22,7 @@ static karte_ptr_t welt;
 citylist_stats_t::citylist_stats_t(stadt_t *c)
 {
 	city = c;
-	set_table_layout(8, 0);
+	set_table_layout(9, 0);
 
 	button_t *b = new_component<button_t>(); // (1,0)
 	b->set_typ(button_t::posbutton_automatic);
@@ -32,14 +32,11 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 	electricity.set_rigid(true);
 	add_component(&electricity); // (2,0)
 
-	lb_name.set_min_size(scr_size(D_BUTTON_WIDTH * 3 / 2, D_LABEL_HEIGHT));
+	lb_name.set_min_size( scr_size( LINEASCENT*15, D_LABEL_HEIGHT ) );
 	//label.set_align(gui_label_t::right); // align::right breaks the layout
 	add_component(&lb_name); // (3,0)
 
 	add_component(&label); // (4,0)
-
-	fluctuation_city.set_show_border_value(false);
-	add_component(&fluctuation_city); // (5,0)
 
 	if (skinverwaltung_t::alerts) {
 		alert.set_image(skinverwaltung_t::alerts->get_image_id(2), true);
@@ -49,7 +46,12 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 		alert.set_image(IMG_EMPTY);
 	}
 	alert.set_rigid(false);
-	add_component(&alert);
+	add_component(&alert); // (5,0)
+
+	fluctuation_city.set_show_border_value(false);
+	add_component(&fluctuation_city); // (6,0)
+
+	add_component(&lb_region);
 
 	update_label();
 
@@ -66,28 +68,23 @@ void citylist_stats_t::update_label()
 	lb_name.buf().printf("%s ", city->get_name());
 	lb_name.update();
 
-	if (sort_mode != SORT_BY_REGION) {
-		label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITICENS));
-	}
-	else {
-		label.buf().printf("(%s)", welt->get_region_name(city->get_pos()).c_str());
-		//label.set_align(gui_label_t::left);
-	}
+	label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITICENS));
 	label.update();
+	//label.set_align(gui_label_t::left);
 
-	if (sort_mode != SORT_BY_REGION) {
-		fluctuation_city.set_visible(true);
-		const bool allow_citygrowth = city->get_citygrowth();
-		if (!allow_citygrowth) {
-			fluctuation_city.set_color(COL_BLUE);
-		}
-		fluctuation_city.set_value(city->get_finance_history_month(0, HIST_GROWTH));
-		alert.set_visible(!allow_citygrowth);
+	lb_region.buf().clear();
+	if (!welt->get_settings().regions.empty()) {
+		lb_region.buf().printf("(%s)", welt->get_region_name(city->get_pos()).c_str());
 	}
-	else {
-		fluctuation_city.set_visible(false);
-		alert.set_visible(false);
+	lb_region.update();
+
+	const bool allow_citygrowth = city->get_citygrowth();
+	if (!allow_citygrowth) {
+		fluctuation_city.set_color(COL_BLUE);
 	}
+	fluctuation_city.set_value(city->get_finance_history_month(0, HIST_GROWTH));
+	alert.set_visible(!allow_citygrowth);
+
 	set_size(size);
 }
 
@@ -95,7 +92,7 @@ void citylist_stats_t::update_label()
 void citylist_stats_t::set_size(scr_size size)
 {
 	gui_aligned_container_t::set_size(size);
-	lb_name.set_width(D_BUTTON_WIDTH * 3 / 2);
+	lb_name.set_width( LINEASCENT*15 );
 }
 
 

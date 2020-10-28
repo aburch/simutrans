@@ -24,7 +24,7 @@ class citylist_stats_t : public gui_aligned_container_t, public gui_scrolled_lis
 private:
 	stadt_t* city;
 
-	gui_label_buf_t lb_name;
+	gui_label_buf_t lb_name, lb_region;
 	gui_label_buf_t label;
 	gui_image_t electricity, alert;
 	gui_label_updown_t fluctuation_city;
