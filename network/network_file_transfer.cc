@@ -7,13 +7,14 @@
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
-#include "../sys/simsys.h"
 
 #include <string.h>
 #include <errno.h>
+
 #include "../utils/cbuffer_t.h"
 
 #ifndef NETTOOL
+#include "../sys/simsys.h"
 #include "../dataobj/translator.h"
 #else
 #define dr_remove remove
