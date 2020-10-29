@@ -80,12 +80,18 @@ public:
 	 */
 	void set_limits(sint32 _min, sint32 _max);
 
-	enum { AUTOLINEAR=0, PLAIN = 1, POWER2=-1, PROGRESS=-2 };
+	enum {
+		AUTOLINEAR = 0,
+		PLAIN      = 1,
+		POWER2     = -1,
+		PROGRESS   = -2
+	};
+
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
 	 * PROGRESS: 0, 1, 5, 10, 25, 50, 75, 90, 95, 99, 100% of range
-	 * PLAIN: actual step size
+	 * any other mode value: actual step size
 	 */
 
 	void set_increment_mode( sint32 m ) { step_mode = m; }
@@ -109,11 +115,11 @@ public:
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
+	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
-	scr_size get_max_size() const;
+	scr_size get_max_size() const OVERRIDE;
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 };
 
 #endif
