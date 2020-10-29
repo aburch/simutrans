@@ -16,7 +16,6 @@
 
 #include "log.h"
 #include "../simdebug.h"
-#include "../sys/simsys.h"
 
 
 #ifdef MAKEOBJ
@@ -34,6 +33,7 @@
 #include "../gui/messagebox.h"
 #include "../display/simgraph.h"
 #include "../gui/simwin.h"
+#include "../sys/simsys.h"
 
 #include "../dataobj/environment.h"
 #endif // NETTOOL
