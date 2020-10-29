@@ -80,7 +80,13 @@ public:
 	 */
 	void set_limits(sint32 _min, sint32 _max);
 
-	enum { AUTOLINEAR=0, PLAIN = 1, POWER2=-1, PROGRESS=-2 };
+	enum {
+		AUTOLINEAR = 0,
+		PLAIN      = 1,
+		POWER2     = -1,
+		PROGRESS   = -2
+	};
+
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
