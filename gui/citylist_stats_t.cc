@@ -74,7 +74,7 @@ void citylist_stats_t::update_label()
 
 	lb_region.buf().clear();
 	if (!welt->get_settings().regions.empty()) {
-		lb_region.buf().printf("(%s)", welt->get_region_name(city->get_pos()).c_str());
+		lb_region.buf().printf("(%s)", translator::translate(welt->get_region_name(city->get_pos()).c_str()));
 	}
 	lb_region.update();
 

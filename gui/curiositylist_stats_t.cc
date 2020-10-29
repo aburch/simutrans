@@ -133,7 +133,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 		lb_region->buf().append(attraction->get_stadt()->get_name());
 	}
 	if (!welt->get_settings().regions.empty()) {
-		lb_region->buf().printf(" (%s)", welt->get_region_name(attraction->get_pos().get_2d()).c_str());
+		lb_region->buf().printf(" (%s)", translator::translate(welt->get_region_name(attraction->get_pos().get_2d()).c_str()));
 	}
 	lb_region->update();
 
