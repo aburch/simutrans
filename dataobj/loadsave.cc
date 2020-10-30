@@ -368,8 +368,8 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		last_error = FILE_ERROR_UNSUPPORTED_COMPRESSION;
 		fclose( fd->fp );
 		fd->fp = NULL;
-		return false;
 		dbg->error( "loadsave_t::rd_open", "Compiled without zstd support!" );
+		return false;
 #endif
 	}
 
