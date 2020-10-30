@@ -37,14 +37,14 @@ sint16 halt_detail_t::tabstate = -1;
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_owner()),
 	halt(halt_),
-	scrolly(&cont),
+	line_number(halt_),
 	pas(halt_),
 	goods(halt_),
-	line_number(halt_),
 	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
-	nearby_factory(halt_)
+	nearby_factory(halt_),
+	scrolly(&cont)
 {
 	if (halt.is_bound()) {
 		init();
@@ -680,14 +680,14 @@ void halt_detail_t::set_windowsize(scr_size size)
 
 halt_detail_t::halt_detail_t():
 	gui_frame_t("", NULL),
-	scrolly(&cont),
-	scrolly_pas(&pas),
-	scrolly_goods(&goods),
+	line_number(halthandle_t()),
 	pas(halthandle_t()),
 	goods(halthandle_t()),
-	nearby_factory(halthandle_t()),
 	txt_info(&buf),
-	line_number(halthandle_t())
+	scrolly_pas(&pas),
+	scrolly_goods(&goods),
+	nearby_factory(halthandle_t()),
+	scrolly(&cont)
 
 {
 	// just a dummy

@@ -166,7 +166,7 @@ private:
 	bool show_border_value=true;
 
 public:
-	gui_label_updown_t(const sint64 value = 0, PIXVAL color = SYSCOL_TEXT, align_t align = left, const sint64 border = 0) :
+	gui_label_updown_t(PIXVAL color = SYSCOL_TEXT, align_t align = left) :
 		gui_label_t(NULL, color, align) { }
 
 	void init(const sint64 value, scr_coord pos_par, PIXVAL color_par = SYSCOL_TEXT, align_t align_par = left, const sint64 border = 0, bool show_border_value=true) {

@@ -4173,7 +4173,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF_NOUSE)
 {
 	uint8 h = VEHICLE_BAR_HEIGHT;
-	uint8 width = (w + 1) * 0.9;
+	uint8 width = (uint8)((w + 1) * 0.9);
 	uint8 margin_left = w - width;
 
 	if (is_rightside) {
@@ -5053,9 +5053,9 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const PIXVAL colval, const bool dirty)
 {
 	double sqrt3 = sqrt(3);
-	for (uint x0 = 0; x0 <= int(0.99 + height * (sqrt3)); x0++)
+	for (uint16 x0 = 0; x0 <= (uint16)(0.99 + height * (sqrt3)); x0++)
 	{
-		display_vline_wh_rgb(x + x0, y + int(0.99 + x0 / sqrt3), height - int(0.99 + x0 / sqrt3) * 2, colval, dirty);
+		display_vline_wh_rgb(x + x0, y + (uint16)(0.99 + x0 / sqrt3), height - (uint16)(0.99 + x0 / sqrt3) * 2, colval, dirty);
 	}
 }
 

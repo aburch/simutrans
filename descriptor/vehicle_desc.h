@@ -527,7 +527,7 @@ public:
 	 */
 	const vehicle_desc_t *get_leader(uint8 i) const
 	{
-		if(i < 0 || i >= leader_count) {
+		if(  i >= leader_count  ) {
 			return NULL;
 		}
 		return get_child<vehicle_desc_t>(get_add_to_node() + i);
@@ -540,7 +540,7 @@ public:
 	 */
 	const vehicle_desc_t *get_trailer(uint8 i) const
 	{
-		if(i < 0 || i >= trailer_count) {
+		if(  i >= trailer_count  ) {
 			return NULL;
 		}
 		return get_child<vehicle_desc_t>(get_add_to_node() + leader_count + i);
@@ -620,7 +620,7 @@ public:
 
 	const vehicle_desc_t *get_upgrades(uint8 i) const
 	{
-		if(i < 0 || i >= upgrades)
+		if(i >= upgrades)
 		{
 			return NULL;
 		}
