@@ -12,7 +12,7 @@
 class checksum_t
 {
 private:
-	uint8 message_digest[20];
+	sha1_hash_t message_digest;
 	bool valid:1;
 	SHA1 *sha;
 public:

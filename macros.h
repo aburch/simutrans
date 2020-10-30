@@ -9,6 +9,9 @@
 
 #include "simtypes.h"
 
+#include <cstring>
+
+
 // XXX Workaround: Old GCCs choke on type check.
 #if !defined __GNUC__ || GCC_ATLEAST(3, 0)
 // Ensures that the argument has array type.

@@ -247,7 +247,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network_packet.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network_socket_list.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\pakset_info.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)network\pwd_hash.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\baum.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\bruecke.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\crossing.cc" />
@@ -327,6 +326,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\log.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\searchfolder.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\sha1.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)utils\sha1_hash.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simrandom.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simstring.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simthread.cc" />
@@ -600,7 +600,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network_packet.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network_socket_list.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\pakset_info.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)network\pwd_hash.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\baum.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\bruecke.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\crossing.h" />
@@ -688,6 +687,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\log.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\searchfolder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1_hash.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simrandom.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simstring.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simthread.h" />

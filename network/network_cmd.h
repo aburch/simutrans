@@ -11,12 +11,14 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "network.h"
-#include "pwd_hash.h"
+#include "../utils/sha1_hash.h"
+
 
 class address_list_t;
 class karte_t;
 class packet_t;
 class socket_info_t;
+
 
 // actual commands
 enum {

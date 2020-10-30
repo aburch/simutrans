@@ -372,10 +372,13 @@ int lock_company(SOCKET socket, uint32, int argc, char **argv)
 	}
 	printf("new password: %s\n",password);
 
-	SHA1 sha1;
-	sha1.Input(password, strlen(password));
 	pwd_hash_t pwd_hash;
-	pwd_hash.set( sha1 );
+	{
+		SHA1 sha1;
+		sha1.Input(password, strlen(password));
+		sha1.Result(pwd_hash);
+	}
+
 	// now send nwc_auth_t command
 	nwc_auth_player_t nwca(player_nr, pwd_hash);
 	if (!nwca.send(socket)) {

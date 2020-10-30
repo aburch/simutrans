@@ -83,7 +83,7 @@ void SHA1::Reset()
  *  Comments:
  *
  */
-bool SHA1::Result(uint8 *message_digest_array )
+bool SHA1::Result(sha1_hash_t &result_digest)
 {
 	if (Corrupted) {
 		return false;
@@ -99,9 +99,9 @@ bool SHA1::Result(uint8 *message_digest_array )
 	for(int i = 0; i < 5; i++) {
 		H_little_endian[i] = endian( H[i] );
 	}
-	memcpy( message_digest_array, H_little_endian, 20 );
+	result_digest = sha1_hash_t((const uint8 *)H_little_endian);
 #else
-	memcpy( message_digest_array, H, 20 );
+	result_digest = sha1_hash_t((const uint8 *)H);
 #endif
 
 	return true;

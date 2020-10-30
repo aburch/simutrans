@@ -7,7 +7,7 @@
 #define PLAYER_SIMPLAY_H
 
 
-#include "../network/pwd_hash.h"
+#include "../utils/sha1_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 

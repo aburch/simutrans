@@ -68,14 +68,16 @@ bool password_frame_t::action_triggered( gui_action_creator_t *comp, value_t p )
 		}
 		// Enter-Key pressed
 		// test for matching password to unlock
-		SHA1 sha1;
 		size_t len = strlen( password.get_text() );
-		sha1.Input( password.get_text(), len );
+
 		pwd_hash_t hash;
 		// remove hash to re-open slot if password is empty
 		if(len>0) {
-			hash.set(sha1);
+			SHA1 sha1;
+			sha1.Input( password.get_text(), len );
+			sha1.Result(hash);
 		}
+
 		// store the hash
 		welt->store_player_password_hash( player->get_player_nr(), hash );
 
