@@ -8,7 +8,6 @@
 
 
 #include "gui_frame.h"
-#include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"

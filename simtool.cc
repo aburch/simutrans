@@ -9662,6 +9662,7 @@ bool tool_recolour_t::init(player_t *)
 				return false;
 			}
 		}
+		break;
 
 		case '2': // Change player colour 2
 		{
@@ -9671,6 +9672,7 @@ bool tool_recolour_t::init(player_t *)
 				return false;
 			}
 		}
+		break;
 	}
 
 	// we are only getting here, if we could not process this request

@@ -3726,7 +3726,6 @@ uint32 fabrik_t::get_total_output_capacity() const
 	uint32 sum = 0;
 	uint32 i = 0;
 	FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
-		const goods_desc_t * type = goods.get_typ();
 		const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
 		sum += (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 	}

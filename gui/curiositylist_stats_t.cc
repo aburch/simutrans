@@ -86,7 +86,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos(attraction->get_pos().get_2d());
 
-	gui_aligned_container_t *table = add_table(2, 1);
+	add_table(2, 1);
 	{
 		add_component(&img_enabled[0]);
 		img_enabled[0].set_image(skinverwaltung_t::passengers->get_image_id(0), true);

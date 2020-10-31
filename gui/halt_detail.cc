@@ -259,7 +259,6 @@ void halt_detail_t::halt_detail_info()
 	}
 	buf.clear();
 
-	sint16 offset_x = 0;
 	sint16 offset_y = D_MARGIN_TOP;
 
 	// add lines that serve this stop
@@ -274,7 +273,7 @@ void halt_detail_t::halt_detail_info()
 				if (halt->registered_lines[i]->get_linetype() != lt) {
 					continue;
 				}
-				int offset_x = D_MARGIN_LEFT;
+				sint16 offset_x = D_MARGIN_LEFT;
 				if (!waytype_line_cnt) {
 					buf.append("\n");
 					offset_y += LINESPACE;
@@ -552,7 +551,6 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	bool is_operating;
 	bool overcrowded;
 	char transfer_time_as_clock[32];
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	for (uint8 i=0; i<3; i++) {
 		is_operating = false;
 		overcrowded = false;
@@ -773,8 +771,6 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 		pas_info.clear();
 
 		// color bar
-		PIXVAL overlay_color = i < good_category->get_number_of_classes() / 2 ? COL_BLACK : COL_WHITE;
-		uint8 overlay_transparency = abs(good_category->get_number_of_classes() / 2 - i) * 7;
 		int bar_width = (halt->get_ware_summe(good_category, i) * GOODS_WAITING_BAR_BASE_WIDTH) / base_capacity;
 		// transferring bar
 		display_fillbox_wh_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 10, y + GOODS_COLOR_BOX_YOFF + 1, (transfers_in * GOODS_WAITING_BAR_BASE_WIDTH / base_capacity) + bar_width, 6, BARCOL_TRANSFER_IN, true);
@@ -818,7 +814,6 @@ void halt_detail_pas_t::draw(scr_coord offset)
 	int x_size = get_size().w - 51 - pos.x;
 	int top = D_MARGIN_TOP;
 	offset.x += D_MARGIN_LEFT;
-	int left = 0;
 
 	if (halt.is_bound()) {
 		// Calculate width of class name cell
@@ -906,8 +901,6 @@ void halt_detail_goods_t::draw(scr_coord offset)
 			display_direct_line_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 5 + 4, offset.y + top, offset.x + GOODS_SYMBOL_CELL_WIDTH + D_BUTTON_WIDTH + GOODS_WAITING_CELL_WIDTH * 2 + 5 + GOODS_WAITING_BAR_BASE_WIDTH, offset.y + top, color_idx_to_rgb(MN_GREY1));
 			top += 4;
 
-			uint32 max_capacity = halt->get_capacity(2);
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 			for (uint i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
 				{
@@ -1063,8 +1056,6 @@ void gui_halt_nearby_factory_info_t::recalc_size()
 
 void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 {
-	clip_dimension const cd = display_get_clip_wh();
-
 	static cbuffer_t buf;
 	int xoff = pos.x;
 	int yoff = pos.y;

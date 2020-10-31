@@ -499,7 +499,6 @@ void convoi_info_t::update_labels()
 			else
 			{
 				uint32 empty_weight = cnv->get_vehicle_summary().weight;
-				uint32 gross_weight = cnv->get_weight_summary().weight;
 
 				speed_bar.set_visible(true);
 				//use median speed to avoid flickering

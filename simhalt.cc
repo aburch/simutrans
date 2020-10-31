@@ -6190,7 +6190,7 @@ uint32 haltestelle_t::get_transferring_cargoes_count() const
 #endif
 
 bool haltestelle_t::has_pax_user(const uint8 months, bool demand_check) const {
-	int count = 0;
+	sint64 count = 0;
 	for (uint8 i = 0; i <= months; i++) {
 		if (i >= MAX_MONTHS) {
 			break;
@@ -6210,7 +6210,7 @@ bool haltestelle_t::has_pax_user(const uint8 months, bool demand_check) const {
 }
 
 bool haltestelle_t::has_mail_user(const uint8 months, bool demand_check) const {
-	int count = 0;
+	sint64 count = 0;
 	for (uint8 i = 0; i <= months; i++) {
 		if (i >= MAX_MONTHS) {
 			break;
@@ -6227,7 +6227,7 @@ bool haltestelle_t::has_mail_user(const uint8 months, bool demand_check) const {
 }
 
 bool haltestelle_t::is_using() const {
-	int count = 0;
+	sint64 count = 0;
 	for (uint8 i = 0; i < 3; i++) {
 		count += financial_history[i][HALT_CONVOIS_ARRIVED];
 		if (count > 0) {
