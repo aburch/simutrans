@@ -146,6 +146,7 @@ void gui_scrolled_list_t::sort( int offset )
 	cleanup_elements();
 
 	if (compare == 0  ||  item_list.get_count() <= 1) {
+		reset_container_size();
 		return;
 	}
 
