@@ -27,13 +27,23 @@ public:
 
 /**
  * Scrollable list of components that can be sorted, and has component selection.
+ *
+ * Displays list, scrollbuttons up/down, dragbar.
+ * Has a min and a max size, and can be displayed with any size in between.
+ * Does ONLY cater for vertical offset (yet).
+ * two possible types:
+ * -list.      simply lists some items.
+ * -selection. is a list, but additionally, one item can be selected.
  */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
 	public gui_scrollpane_t
 {
 public:
-	enum type { windowskin, listskin };
+	enum type {
+		windowskin,
+		listskin
+	};
 
 	/**
 	 * Base class for elements in lists. Virtual inheritance.
@@ -47,7 +57,7 @@ public:
 
 		virtual char const* get_text() const = 0;
 		virtual void set_text(char const *) {}
-		virtual bool is_valid() const { return true; }	//  can be used to indicate invalid entries
+		virtual bool is_valid() const { return true; } //  can be used to indicate invalid entries
 		virtual bool is_editable()  const { return false; }
 
 		/// compares using get_text
@@ -68,14 +78,14 @@ public:
 	public:
 		const_text_scrollitem_t(char const* const t, PIXVAL const col) : gui_label_t(NULL, col) { set_text_pointer(t); }
 
-		virtual char const* get_text() const { return get_text_pointer(); }
+		char const* get_text() const OVERRIDE { return get_text_pointer(); }
 
-		scr_size get_min_size() const;
-		scr_size get_max_size() const;
+		scr_size get_min_size() const OVERRIDE;
+		scr_size get_max_size() const OVERRIDE;
 
-		virtual void set_text(char const *) {}
+		void set_text(char const *) OVERRIDE {}
 
-		void draw(scr_coord pos);
+		void draw(scr_coord pos) OVERRIDE;
 
 		using gui_label_t::get_color;
 	private:
@@ -90,7 +100,7 @@ private:
 	// NOTE: Don't remove this. Extended is still using this
 	PIXVAL highlight_color;
 
-	bool maximize;	// true if to expand to bottom right corner
+	bool maximize; // true if to expand to bottom right corner
 
 	item_compare_func compare;
 
@@ -103,12 +113,12 @@ protected:
 
 	void reset_container_size();
 
-	void set_cmp(item_compare_func cmp) { compare = cmp; }
-
 	/// deletes invalid elements from list
 	void cleanup_elements();
 
 public:
+	void set_cmp(item_compare_func cmp) { compare = cmp; }
+
 	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);
 
 	~gui_scrolled_list_t() { clear_elements(); }
