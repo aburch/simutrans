@@ -2231,7 +2231,7 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
 				desc = way_builder_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
 			}
-			else {
+			else if ( (road_wt <= wt  &&  wt <= narrowgauge_wt)  ||  wt == air_wt) {
 				// this triggers an assertion if wt == powerline_wt
 				weg_t *w = weg_t::alloc(wt);
 				desc = w->get_desc();
