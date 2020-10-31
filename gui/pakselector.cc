@@ -135,7 +135,7 @@ void pakselector_t::fill_list()
 }
 
 
-bool pakselector_install_action_t::action_triggered( gui_action_creator_t* comp, value_t v )
+bool pakselector_install_action_t::action_triggered( gui_action_creator_t*, value_t)
 {
 	pakinstaller_t::finish_install = true;
 	return true;

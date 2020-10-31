@@ -110,7 +110,7 @@ bool tool_selector_t::is_hit(int x, int y)
 
 bool tool_selector_t::infowin_event(const event_t *ev)
 {
-	if(  has_prev_next  &&  IS_LEFTDRAG(ev)  ||  is_dragging  ) {
+	if(  has_prev_next  &&  (IS_LEFTDRAG(ev)  ||  is_dragging)  ) {
 		if( !is_dragging ) {
 			old_offset = offset;
 		}

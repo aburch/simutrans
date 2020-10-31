@@ -53,7 +53,7 @@ pakinstaller_t::pakinstaller_t() :
 /**
  * This method is called if an action is triggered
  */
-bool pakinstaller_t::action_triggered(gui_action_creator_t* comp, value_t v)
+bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 {
 	// now install
 	dr_chdir( env_t::data_dir );
