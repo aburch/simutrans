@@ -5672,7 +5672,6 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 
 uint16 tool_build_roadsign_t::signal_info::spacing = 16;
 
-
 const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 {
 	const grund_t *gr = welt->lookup(pos);
@@ -5690,6 +5689,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 		const building_desc_t *desc = gb->get_tile()->get_desc();
 		if(  desc->get_all_layouts() == 1  ) {
 			// non rotatable =<> finish
+			return NULL;
 		}
 		if(  desc->get_type() == building_desc_t::dock  ) {
 			// cannot roatate a harbour
@@ -5709,12 +5709,8 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			int layout = gb->get_tile()->get_layout();
 			gb->set_tile( gb->get_tile()->get_desc()->get_tile( layout^8, 0, 0 ), false );
 		}
-		else if(  desc->get_x()==1  &&  desc->get_y()==1  ) {
-			// just rotate single tile buildings
-			gb->rotate90();
-		}
 		else {
-			// multitile buildings possible!
+			// single and multitile buildings from here, include factorieh holes etc.
 			bool rotate180 = desc->get_x() != desc->get_y();
 
 			if(  desc->get_x() != desc->get_y()  &&  desc->get_all_layouts()==2  ) {
@@ -5722,7 +5718,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 				return "Cannot rotate this building!";
 			}
 
-			gb = gb->get_first_tile();
+			gb = gb->access_first_tile();
 			uint8 layout = gb->get_tile()->get_layout();
 			uint8 newlayout = (layout+1+rotate180) % desc->get_all_layouts();
 
@@ -5757,10 +5753,8 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			}
 		}
 	}
-	return "";
+	return NULL;
 }
-
-
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {

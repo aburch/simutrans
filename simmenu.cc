@@ -413,7 +413,7 @@ void tool_t::read_menu(const std::string &objfilename)
 			tool_t *tool = info[t].tools[i];
 			if(*str) {
 				// Check if tool is deprecated
-				if(  (  t==0  &&  i>=TOOL_BUILD_SIGNALBOX_DEPRECATED && i<=TOOL_REASSIGN_SIGNAL_DEPRECATED  )
+				if(  (  t==0  &&  i==TOOL_REASSIGN_SIGNAL_DEPRECATED  )
 				   || (  t==1  &&  i>= TOOL_SHOW_RIBI_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
 					// Do not warn if new id also appears in menuconf:
 					char new_id[256];
