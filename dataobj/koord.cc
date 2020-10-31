@@ -171,6 +171,11 @@ void koord::rdwr(loadsave_t *file)
 }
 
 
+koord::koord(loadsave_t *file)
+{
+	rdwr(file);
+}
+
 // for debug messages...
 const char *koord::get_str() const
 {

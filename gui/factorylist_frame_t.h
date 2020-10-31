@@ -62,7 +62,8 @@ public:
 
 	bool has_min_sizer() const { return true; }
 
-	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+	// FIXME: The GUI overhaul has been partially incorporated. The list has not been auto-aligned yet
+	//void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif
