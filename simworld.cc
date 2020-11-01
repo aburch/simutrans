@@ -4449,7 +4449,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	// Rotate cities first so that the private car routes can be removed
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->rotate90(cached_size.x);
+		i->rotate90(cached_size.y);
 	}
 
 	//rotate plans in parallel posix thread ...

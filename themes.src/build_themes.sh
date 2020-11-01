@@ -7,7 +7,7 @@
 
 # assumes makeobj is in the trunk directory
 
-cd aero
+cd ../aero
 rm -rf *.pak
 ../makeobj pak aerotheme.pak skins_aero.dat
 mv *.pak ../../simutrans/themes
@@ -46,8 +46,8 @@ cp *.tab ../../simutrans/themes
 
 cd ../newstandard
 rm -rf *.pak
-../makeobj pak newstandard.pak standard.dat
-#../makeobj pak newstandard-large.pak standard-large.dat
+../makeobj pak newstandard.pak newstandard.dat
+../makeobj pak newstandard-large.pak newstandard-large.dat
 mv *.pak ../../simutrans/themes
 cp *.tab ../../simutrans/themes
 
