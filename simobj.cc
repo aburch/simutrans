@@ -75,13 +75,6 @@ obj_t::obj_t(const koord3d& pos)
 #endif
 
 
-obj_t::obj_t(loadsave_t *file)
-{
-	init();
-	rdwr(file);
-}
-
-
 // removes an object and tries to delete it also from the corresponding objlist
 obj_t::~obj_t()
 {

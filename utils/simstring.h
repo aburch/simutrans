@@ -25,11 +25,6 @@
 #endif
 
 
-// a single use number to string ...
-// format could be zero, the "%d" is assumed
-char *ntos(long number, const char *format);
-
-
 /**
  * Set thousand separator, used in money_to_string and
  * number_to_string

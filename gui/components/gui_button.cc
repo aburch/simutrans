@@ -129,6 +129,14 @@ void button_t::set_typ(enum type t)
 }
 
 
+void button_t::set_targetpos( const koord k )
+{
+	targetpos.x = k.x;
+	targetpos.y = k.y;
+	targetpos.z = welt->max_hgt( k );
+}
+
+
 scr_size button_t::get_max_size() const
 {
 	switch(type&TYPE_MASK) {
@@ -264,11 +272,9 @@ bool button_t::infowin_event(const event_t *ev)
 
 	if(IS_LEFTRELEASE(ev)) {
 		if(  (type & TYPE_MASK)==posbutton  ) {
-			koord k(targetpos.x,targetpos.y);
-			call_listeners( &k );
-
+			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
+				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
 
 			}
 

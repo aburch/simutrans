@@ -21,7 +21,7 @@ static const char *sort_text[labellist::SORT_MODES] = {
 
 class label_sort_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:
-	label_sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
+	label_sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT) { }
 };
 
 labellist_frame_t::labellist_frame_t() :

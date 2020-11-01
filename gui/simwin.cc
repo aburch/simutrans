@@ -476,18 +476,6 @@ bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic )
 }
 
 
-// returns the window on this positions
-gui_frame_t *win_get_oncoord( const scr_coord pt )
-{
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(  wins[i].gui->is_hit( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
-			return wins[i].gui;
-		}
-	}
-	return NULL;
-}
-
-
 /**
  * Returns top window
  */
@@ -1545,12 +1533,6 @@ bool check_pos_win(event_t *ev)
 	process_kill_list();
 
 	return swallowed;
-}
-
-
-void win_get_event(event_t* const ev)
-{
-	display_get_event(ev);
 }
 
 

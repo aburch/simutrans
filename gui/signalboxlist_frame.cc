@@ -51,7 +51,7 @@ void signalboxlist_stats_t::update_label()
 
 	// region name (pos)
 	if (!welt->get_settings().regions.empty()) {
-		lb_region.buf().printf("%s ", welt->get_region_name(sb->get_pos().get_2d()).c_str());
+		lb_region.buf().printf("%s ", translator::translate(welt->get_region_name(sb->get_pos().get_2d()).c_str()));
 	}
 	lb_region.buf().printf("%s", sb->get_pos().get_2d().get_fullstr());
 	lb_region.update();

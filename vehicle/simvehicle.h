@@ -541,8 +541,6 @@ public:
 	*/
 	uint32 get_cargo_weight() const;
 
-	const char * get_cargo_name() const;
-
 	/**
 	* get the type of cargo this vehicle can transport
 	*/
@@ -736,8 +734,7 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
-#ifdef INLINE_OBJ_TYPE
-#else
+#ifndef INLINE_OBJ_TYPE
 	obj_t::typ get_typ() const { return road_vehicle; }
 #endif
 

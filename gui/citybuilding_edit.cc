@@ -196,6 +196,27 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf("%s: %d\n", translator::translate("Jobs"), desc->get_employment_capacity());
 			buf.printf("%s: %d\n", translator::translate("Mail demand/output"), desc->get_mail_demand_and_production_capacity());
 
+			// region
+			if (!welt->get_settings().regions.empty()) {
+				buf.append("\n");
+				buf.append(translator::translate("Allowed regions:"));
+				buf.append("\n");
+				const uint16 allowed_region_bits = desc->get_allowed_region_bits();
+				if (allowed_region_bits < 65535) {
+					uint32 region_idx = 0;
+					FORX(vector_tpl<region_definition_t>, region, welt->get_settings().regions, region_idx) {
+						if (allowed_region_bits & (1 << region_idx))
+						{
+							buf.printf(" - %s\n", translator::translate(region.name.c_str()));
+						}
+						region_idx++;
+					}
+				}
+				else {
+					buf.printf(" - %s\n", translator::translate("All"));
+				}
+			}
+
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
 			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
 				buf.printf("%s%u", translator::translate("\nBauzeit bis"), desc->get_retire_year_month() / 12);

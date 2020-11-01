@@ -625,12 +625,6 @@ private:
 	 */
 	sint64 credit_limit_by_profits() const;
 
-	/// helper method to translate old COST_ constants
-	static int translate_index_cost_to_at(int cost_);
-
-	/// helper method to translate old COST_ constants
-	static int translate_index_cost_to_atc(int cost_index);
-
 	/**
 	 * Translates finance statistics from new format to old one.
 	 * Used for saving data in old format

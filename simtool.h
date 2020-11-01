@@ -440,7 +440,6 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-/*
 class tool_rotate_building_t : public tool_t {
 private:
 	const char *tool_rotate_platform(koord3d);
@@ -452,7 +451,6 @@ public:
 	char const* work(player_t *, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };
-*/
 
 // builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t {

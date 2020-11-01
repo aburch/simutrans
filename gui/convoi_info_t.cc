@@ -170,7 +170,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 				container_line.add_component(&line_label);
 				// goto line button
 				line_button.init( button_t::posbutton, NULL);
-				line_button.set_targetpos( koord(0,0) );
+				line_button.set_targetpos3d( koord3d::invalid );
 				line_button.add_listener( this );
 				line_bound = false;
 
@@ -499,7 +499,6 @@ void convoi_info_t::update_labels()
 			else
 			{
 				uint32 empty_weight = cnv->get_vehicle_summary().weight;
-				uint32 gross_weight = cnv->get_weight_summary().weight;
 
 				speed_bar.set_visible(true);
 				//use median speed to avoid flickering

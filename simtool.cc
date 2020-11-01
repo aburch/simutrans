@@ -73,6 +73,7 @@
 #include "obj/field.h"
 #include "obj/label.h"
 
+#include "dataobj/koord.h"
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
 #include "dataobj/schedule.h"
@@ -5671,6 +5672,90 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 
 uint16 tool_build_roadsign_t::signal_info::spacing = 16;
 
+const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
+{
+	const grund_t *gr = welt->lookup(pos);
+	if(!gr) {
+		return "";
+	}
+
+	if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
+
+		if(  !player_t::check_owner( gb->get_owner(), player )  ) {
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}
+
+		// check for harbour (must no rotate)
+		const building_desc_t *desc = gb->get_tile()->get_desc();
+		if(  desc->get_all_layouts() == 1  ) {
+			// non rotatable =<> finish
+			return NULL;
+		}
+		if(  desc->get_type() == building_desc_t::dock  ) {
+			// cannot roatate a harbour
+			return "Cannot rotate this building!";
+		}
+		if(  desc->get_all_layouts()==2  &&  desc->get_x()!=desc->get_y()  ) {
+			// cannot rotate an aszmmetric building with onlz two rotations
+			return "Cannot rotate this building!";
+		}
+
+		if(  gr->hat_wege()  ) {
+			// this is almost certainlz a station ...
+			if(  desc->get_all_layouts()<16  ) {
+				// either symmetrical (==2, ==8) or freight loading station, so do not rotate!
+				return "Cannot rotate this building!";
+			}
+			int layout = gb->get_tile()->get_layout();
+			gb->set_tile( gb->get_tile()->get_desc()->get_tile( layout^8, 0, 0 ), false );
+		}
+		else {
+			// single and multitile buildings from here, include factorieh holes etc.
+			bool rotate180 = desc->get_x() != desc->get_y();
+
+			if(  desc->get_x() != desc->get_y()  &&  desc->get_all_layouts()==2  ) {
+				// asymmetrical with onlz one rotation so do not rotate!
+				return "Cannot rotate this building!";
+			}
+
+			gb = gb->access_first_tile();
+			uint8 layout = gb->get_tile()->get_layout();
+			uint8 newlayout = (layout+1+rotate180) % desc->get_all_layouts();
+
+			// first test if all tiles are present (check for holes)
+			koord k;
+			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
+				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
+					grund_t *gr = welt->lookup( gb->get_pos()+k );
+					if(  !gr  ) {
+						return "Cannot rotate this building!";
+					}
+					const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
+					gebaeude_t *gbt = gr->find<gebaeude_t>();
+					if(  tile==NULL  &&  gbt  ) {
+						return "Cannot rotate this building!";
+					}
+					if(  tile  &&  gbt==NULL  ) {
+						return "Cannot rotate this building!";
+					}
+				}
+			}
+			// ok, we can roate it
+			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
+				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
+					grund_t *gr = welt->lookup( gb->get_pos()+k );
+					// there could be still holes, so the if is needed
+					if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+						const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
+						gb->set_tile( tile, false );
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
 	const roadsign_desc_t * desc = roadsign_t::find_desc(default_param);
@@ -9662,6 +9747,7 @@ bool tool_recolour_t::init(player_t *)
 				return false;
 			}
 		}
+		break;
 
 		case '2': // Change player colour 2
 		{
@@ -9671,6 +9757,7 @@ bool tool_recolour_t::init(player_t *)
 				return false;
 			}
 		}
+		break;
 	}
 
 	// we are only getting here, if we could not process this request

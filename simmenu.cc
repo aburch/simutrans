@@ -115,7 +115,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
-		case TOOL_REASSIGN_SIGNAL_DEPRECATED:
+		case TOOL_ROTATE_BUILDING:		tool = new tool_rotate_building_t(); break;
 		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
@@ -413,7 +413,7 @@ void tool_t::read_menu(const std::string &objfilename)
 			tool_t *tool = info[t].tools[i];
 			if(*str) {
 				// Check if tool is deprecated
-				if(  (  t==0  &&  i>=TOOL_BUILD_SIGNALBOX_DEPRECATED && i<=TOOL_REASSIGN_SIGNAL_DEPRECATED  )
+				if(  (  t==0  &&  i==TOOL_REASSIGN_SIGNAL_DEPRECATED  )
 				   || (  t==1  &&  i>= TOOL_SHOW_RIBI_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
 					// Do not warn if new id also appears in menuconf:
 					char new_id[256];

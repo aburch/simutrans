@@ -156,6 +156,8 @@ public:
 	 */
 	void update_data(linehandle_t changed_line);
 
+	void map_rotate90( sint16 ) OVERRIDE { update_lineinfo( line ); }
+
 	// following: rdwr stuff
 	void rdwr( loadsave_t *file ) OVERRIDE;
 	uint32 get_rdwr_id() OVERRIDE;

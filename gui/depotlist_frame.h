@@ -40,13 +40,16 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool has_min_sizer() const { return true; }
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
+
 
 class depotlist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
 	depot_t *depot;
-	gui_label_buf_t label;
+	gui_label_buf_t lb_name, lb_cnv_count, lb_vh_count, lb_region;
 	gui_image_t waytype_symbol;
 	button_t	gotopos;
 

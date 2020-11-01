@@ -104,16 +104,17 @@ private:
 
 	cbuffer_t buf;
 
+	gui_halthandled_lines_t line_number;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
-	gui_halthandled_lines_t line_number;
-	gui_container_t cont, cont_goods;
-	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods;
-	gui_label_t lb_nearby_factory;
 	gui_textarea_t txt_info;
+	gui_container_t cont, cont_goods;
+	gui_scrollpane_t scrolly_pas, scrolly_goods;
+	gui_label_t lb_nearby_factory;
 
 	gui_halt_nearby_factory_info_t nearby_factory;
 	gui_tab_panel_t tabs;
+	gui_scrollpane_t scrolly;
 
 
 	slist_tpl<button_t *>posbuttons;

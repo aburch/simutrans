@@ -7,23 +7,26 @@
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "../descriptor/skin_desc.h"
+#include "../simcity.h"
 
-enum sort_mode_t { by_coord, by_waytype, by_vehicle, SORT_MODES };
+enum sort_mode_t { by_waytype, by_convoys, by_vehicle, by_coord, by_region, SORT_MODES };
 
 int depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;
+static karte_ptr_t welt;
 
 
 depotlist_stats_t::depotlist_stats_t(depot_t *d)
 {
 	this->depot = d;
 	// pos button
-	set_table_layout(3,1);
+	set_table_layout(7,1);
 	gotopos.set_typ(button_t::posbutton_automatic);
-	gotopos.set_targetpos(depot->get_pos().get_2d());
+	gotopos.set_targetpos3d(depot->get_pos());
 	add_component(&gotopos);
+	const waytype_t wt = d->get_wegtyp();
 	// now add all specific tabs
-	switch(  d->get_waytype()  ) {
+	switch(  wt  ) {
 	case maglev_wt:
 		waytype_symbol.set_image( skinverwaltung_t::maglevhaltsymbol->get_image_id(0), true );
 		break;
@@ -50,46 +53,73 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 		break;
 	}
 	add_component(&waytype_symbol);
-	add_component(&label);
+
+	const weg_t *w = welt->lookup(depot->get_pos())->get_weg(wt != tram_wt ? wt : track_wt);
+	const bool way_electrified = w ? w->is_electrified() : false;
+	if (way_electrified) {
+		new_component<gui_image_t>()->set_image(skinverwaltung_t::electricity->get_image_id(0), true);
+	}
+	else {
+		new_component<gui_empty_t>();
+	}
+
+	lb_name.buf().append( translator::translate(depot->get_name()) );
+	lb_name.set_min_size(scr_size(LINEASCENT * 14, D_LABEL_HEIGHT));
+	add_component(&lb_name);
+
+	add_component(&lb_cnv_count);
+	add_component(&lb_vh_count);
+
+	lb_region.buf().printf( " %s ", depot->get_pos().get_2d().get_fullstr() );
+	stadt_t* c = welt->get_city(depot->get_pos().get_2d());
+	if (c) {
+		lb_region.buf().append("- ");
+		lb_region.buf().append( c->get_name() );
+	}
+	if (!welt->get_settings().regions.empty()) {
+		if (!c) {
+			lb_region.buf().append("-");
+		}
+		lb_region.buf().printf(" (%s)", welt->get_region_name(depot->get_pos().get_2d()).c_str());
+	}
+	add_component(&lb_region);
 	update_label();
 }
 
 
 void depotlist_stats_t::update_label()
 {
-	cbuffer_t &buf = label.buf();
-	buf.append( translator::translate(depot->get_name()) );
-	buf.printf( " %s ", depot->get_pos().get_2d().get_fullstr() );
+	lb_cnv_count.buf().clear();
 	int cnvs = depot->convoi_count();
 	if( cnvs == 0 ) {
 //		buf.append( translator::translate( "no convois" ) );
 	}
 	else if( cnvs == 1 ) {
-		buf.append( translator::translate( "1 convoi" ) );
-		buf.append(" ");
+		lb_cnv_count.buf().append( translator::translate( "1 convoi" ) );
 	}
 	else {
-		buf.printf( translator::translate( "%d convois" ), cnvs );
-		buf.append(" ");
+		lb_cnv_count.buf().printf( translator::translate( "%d convois" ), cnvs );
 	}
+	lb_cnv_count.update();
+
 	int vhls = depot->get_vehicle_list().get_count();
+	lb_vh_count.buf().clear();
 	if( vhls == 0 ) {
-		buf.append( translator::translate( "Keine Einzelfahrzeuge im Depot" ) );
+		//buf.append( translator::translate( "Keine Einzelfahrzeuge im Depot" ) );
 	}
 	else if( vhls == 1 ) {
-		buf.append( translator::translate( "1 Einzelfahrzeug im Depot" ) );
+		lb_vh_count.buf().append( translator::translate( "1 vehicle" ) );
 	}
 	else {
-		buf.printf( translator::translate( "%d Einzelfahrzeuge im Depot" ), vhls );
+		lb_vh_count.buf().printf( translator::translate( "%d vehicles" ), vhls );
 	}
-	label.update();
+	lb_vh_count.update();
 }
 
 
 void depotlist_stats_t::set_size(scr_size size)
 {
 	gui_aligned_container_t::set_size(size);
-	label.set_size(scr_size(get_size().w - label.get_pos().x, label.get_size().h));
 }
 
 
@@ -134,14 +164,25 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 		cmp = 0;
 		break;
 
+	case by_region:
+		cmp = welt->get_region(a->get_pos().get_2d()) - welt->get_region(b->get_pos().get_2d());
+		break;
+
 	case by_waytype:
 		cmp = a->get_waytype() - b->get_waytype();
 		break;
 
-	case by_vehicle:
+	case by_convoys:
 		cmp = a->convoi_count() - b->convoi_count();
 		if( cmp == 0 ) {
 			cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
+		}
+		break;
+
+	case by_vehicle:
+		cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
+		if( cmp == 0 ) {
+			cmp = a->convoi_count() - b->convoi_count();
 		}
 		break;
 
@@ -159,9 +200,11 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 
 
 static const char *sort_text[SORT_MODES] = {
-	"koord",
 	"waytype",
-	"vehicles stored"
+	"convoys stored",
+	"vehicles stored",
+	"koord",
+	"by_region"
 };
 
 depotlist_frame_t::depotlist_frame_t(player_t *player) :

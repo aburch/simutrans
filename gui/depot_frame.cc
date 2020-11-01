@@ -95,7 +95,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
-	line_button.set_targetpos(koord(0,0));
+	line_button.set_targetpos3d(koord3d::invalid);
 	line_button.add_listener(this);
 	add_component(&line_button);
 
