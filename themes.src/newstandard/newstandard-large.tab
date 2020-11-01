@@ -1,7 +1,7 @@
 # Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans New (touch size)
+name=Simutrans New (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -41,7 +41,7 @@ gui_text_highlight= #FFFFFF
 
 # when moving, you can use windows to snap onto each other seamlessly
 # if you do not like it, set the catch radius to zero
-window_snap_distance = 8
+window_snap_distance = 12
 
 # show the windows close etc. buttons on the right (like windows 98)
 window_buttons_right = 0
@@ -73,6 +73,11 @@ bottom_window_text_color = #DDDDDD
 gui_player_color_bright = 4
 gui_player_color_dark = 1
 
+# Color of load bar in loag game, load serve etc
+gui_color_loadingbar_progress = #3165BD
+#gui_color_loadingbar_inner = #000000
+
+
 ##################################size stuff##################################
 
 # use the larger Button height
@@ -92,7 +97,7 @@ gui_titlebar_height = 22
 # if more tools than allowed by height,
 # next and prev arrows for scrolling appears
 toolbar_max_width = 0
-toolbar_max_height = 0
+toolbar_max_height = 3
 
 ##################################pakstuff##################################
 
