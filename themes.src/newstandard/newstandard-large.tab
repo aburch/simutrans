@@ -27,9 +27,6 @@ tooltip_duration = 5000
 # -- pak128.Britain
 cursor_overlay_color = 71
 
-# size of tools
-icon_width = 32
-
 # in default theme white text
 gui_text_highlight= #FFFFFF
 
@@ -79,6 +76,9 @@ gui_color_loadingbar_progress = #3165BD
 
 
 ##################################size stuff##################################
+
+# size of tools
+icon_width = 48
 
 # use the larger Button height
 gui_button_height = 22
