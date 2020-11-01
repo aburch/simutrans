@@ -155,7 +155,7 @@ gui_tab_header_vsize = 18
 # buttons sizes
 gui_button_height = 16
 # for buttons with fixed widths
-gui_button_width = 100
+gui_button_width = 110
 
 # text margins inside the buttons (left, top, right)
 gui_button_text_offset = 5,0,5
