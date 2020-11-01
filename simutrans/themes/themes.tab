@@ -73,6 +73,10 @@ bottom_window_text_color = #DDDDDD
 gui_player_color_bright = 4
 gui_player_color_dark = 1
 
+# Color of load bar in loag game, load serve etc
+gui_color_loadingbar_progress = #3165BD
+#gui_color_loadingbar_inner = #000000
+
 ##################################size stuff##################################
 
 # maximum size of tool bars in tools (0 = no limit)
