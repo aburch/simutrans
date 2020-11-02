@@ -55,16 +55,16 @@ message_stats_t::message_stats_t(const message_t::node *m, uint32 sid) :
 
 		default:;
 	}
+
 	// the text (without line break)
-	if (msg->msg) {
-		for(int j=0; ;  j++) {
-			char c = msg->msg[j];
-			if (c==0) {
-				break;
-			}
-			label->buf().printf("%c", c == '\n' ? ' ': c);
+	for(int j=0; ;  j++) {
+		char c = msg->msg[j];
+		if (c==0) {
+			break;
 		}
+		label->buf().printf("%c", c == '\n' ? ' ': c);
 	}
+
 	label->update();
 }
 
