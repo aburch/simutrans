@@ -555,7 +555,7 @@ void rdwr_all_win(loadsave_t *file)
 				switch(magic_numbers(id)) {
 
 					// end of dialogues
-					case (uint32)magic_none: return;
+					case magic_none: return;
 
 					// actual dialogues to restore
 					case magic_convoi_info:    w = new convoi_info_t(); break;
