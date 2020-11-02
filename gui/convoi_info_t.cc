@@ -241,7 +241,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 
 	// tab panel: connections, chart panels
 	add_component(&switch_mode);
-	switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
+	switch_mode.add_tab(&scroll_freight, translator::translate("cd_payload_tab"));
 
 	container_freight.set_table_layout(1,0);
 	container_freight.add_table(2,1);
