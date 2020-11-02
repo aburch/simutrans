@@ -74,9 +74,9 @@ gui_color_edit_text_disabled = #666666
 gui_color_edit_background_selected = #72B2DD
 gui_color_edit_beam = #000000
 
-gui_color_chart_background = #FAFAFA
+#gui_color_chart_background = #ADCBD6
 gui_color_chart_lines_zero = #005C9E
-gui_color_chart_lines_odd = #338FCC
+gui_color_chart_lines_odd = #FAFAFA
 gui_color_chart_lines_even = #338FCC
 
 gui_color_list_text_selected_focus = #FAFAFA
@@ -158,7 +158,7 @@ gui_tab_header_vsize = 22
 # buttons sizes
 gui_button_height = 22
 # for buttons with fixed widths
-gui_button_width = 100
+gui_button_width = 120
 
 # text margins inside the buttons (left, top, right)
 gui_button_text_offset = 5,0,5
