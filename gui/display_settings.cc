@@ -64,11 +64,6 @@ public:
 
 		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+3) : color_idx_to_rgb(COL_ORANGE);
 		const char *text = get_text_pointer();
-
-		char ddd[ 16 ];
-		sprintf( ddd, "%d", env_t::show_names );
-		display_proportional_rgb( p.x, p.y + get_size().h/2, ddd, 0, color_idx_to_rgb(COL_BLACK), 1 );
-		p.x += 20;
 		switch( env_t::show_names>>2 ) {
 		case 0:
 			if(  env_t::show_names & 1  ) {
