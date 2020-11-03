@@ -1,5 +1,11 @@
-#ifndef gui_convoy_formation_h
-#define gui_convoy_formation_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_CONVOY_FORMATION_H
+#define GUI_COMPONENTS_GUI_CONVOY_FORMATION_H
+
 
 #include "gui_container.h"
 #include "gui_scrollpane.h"
@@ -9,7 +15,7 @@
 #include "../simwin.h"
 
 
-// content of convoy formation @Ranran
+// content of convoy formation
 class gui_convoy_formation_t : public gui_container_t
 {
 private:
