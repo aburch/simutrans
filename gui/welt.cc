@@ -274,9 +274,13 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 {
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()", "%s", filename);
 
+	const sint8 min_h = env_t::default_settings.get_minimumheight();
+	const sint8 max_h = env_t::default_settings.get_maximumheight();
+
+	height_map_loader_t hml(min_h, max_h, env_t::height_conv_mode);
 	sint16 w, h;
 	sint8 *h_field=NULL;
-	height_map_loader_t hml(sets);
+
 	if(hml.get_height_data_from_file(filename, (sint8)sets->get_groundwater(), h_field, w, h, false )) {
 		sets->set_size_x(w);
 		sets->set_size_y(h);
@@ -295,8 +299,10 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 			}
 		}
 		map_preview.set_map_data(&map);
+		free(h_field);
 		return true;
 	}
+
 	return false;
 }
 

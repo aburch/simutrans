@@ -253,7 +253,6 @@ void loadfont_frame_t::rdwr( loadsave_t *file )
 }
 
 
-
 bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t v)
 {
 	if(  &unicode_only==component  ) {

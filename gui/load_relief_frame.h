@@ -7,17 +7,20 @@
 #define GUI_LOAD_RELIEF_FRAME_H
 
 
+#include "components/gui_combobox.h"
 #include "savegame_frame.h"
 
 
 class settings_t;
+
 
 class load_relief_frame_t : public savegame_frame_t
 {
 private:
 	settings_t* sets;
 
-	button_t new_format;
+	gui_label_t load_mode_label;
+	gui_combobox_t load_mode;
 
 protected:
 	bool item_action(const char *fullpath) OVERRIDE;

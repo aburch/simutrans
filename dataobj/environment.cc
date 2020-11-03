@@ -17,7 +17,7 @@ void rdwr_win_settings(loadsave_t *file); // simwin
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
-bool env_t::new_height_map_conversion = false;
+env_t::height_conversion_mode env_t::height_conv_mode = env_t::HEIGHT_CONV_LINEAR;
 
 bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
@@ -480,8 +480,20 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_str( default_theme );
 	}
 	if(  file->is_version_atleast(120, 2)  ) {
-		file->rdwr_bool( new_height_map_conversion );
+		if(  file->is_version_atleast(122, 1)) {
+			sint32 conv_mode = height_conv_mode;
+			file->rdwr_long( conv_mode );
+			if (file->is_loading()) {
+				height_conv_mode = (env_t::height_conversion_mode)::clamp(conv_mode, 0, (int)env_t::NUM_HEIGHT_CONV_MODES-1);
+			}
+		}
+		else {
+			bool new_convert = height_conv_mode != env_t::HEIGHT_CONV_LEGACY_SMALL;
+			file->rdwr_bool( new_convert );
+			height_conv_mode = new_convert ? env_t::HEIGHT_CONV_LEGACY_LARGE : env_t::HEIGHT_CONV_LEGACY_SMALL;
+		}
 	}
+
 	if(  file->is_version_atleast(120, 5)  ) {
 		file->rdwr_long( background_color_rgb );
 		file->rdwr_long( tooltip_color_rgb );

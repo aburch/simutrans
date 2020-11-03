@@ -329,8 +329,16 @@ public:
 	/// Only use during loading of old games!
 	static sint8 pak_height_conversion_factor;
 
-	// load old height maps (false) or use as many available height levels as possible
-	static bool new_height_map_conversion;
+	enum height_conversion_mode
+	{
+		HEIGHT_CONV_LEGACY_SMALL, ///< Old (fixed) height conversion, small height difference
+		HEIGHT_CONV_LEGACY_LARGE, ///< Old (fixed) height conversion, larger height difference
+		HEIGHT_CONV_LINEAR,       ///< linear interpolation between min_/max_allowed_height
+		HEIGHT_CONV_CLAMP,        ///< Use 1 height level per 1 greyscale level, clamp to allowed height (cut off mountains)
+		NUM_HEIGHT_CONV_MODES
+	};
+
+	static height_conversion_mode height_conv_mode;
 
 	/// use the faster drawing routine (and allow for clipping errors)
 	static bool simple_drawing;
