@@ -38,7 +38,7 @@ class gui_schedule_t :
 {
 private:
 	enum mode_t {
-		adding=0,
+		adding = 0,
 		inserting,
 		removing,
 		MAX_MODE
@@ -53,7 +53,6 @@ private:
 
 	// always needed
 	button_t bt_apply, bt_revert, bt_return, bt_mode;
-	gui_aligned_container_t *schedule_action_row;
 
 	gui_label_t lb_wait, lb_load;
 	gui_numberinput_t numimp_load;
@@ -62,7 +61,6 @@ private:
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
 
-	uint32 last_schedule_count;
 	bool make_return;
 
 	// set the correct tool now ...
