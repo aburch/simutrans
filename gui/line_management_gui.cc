@@ -57,7 +57,8 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 		}
 		return swallowed;
 	}
-	gui_frame_t::infowin_event(ev);
+
+	return gui_frame_t::infowin_event(ev);
 }
 
 
