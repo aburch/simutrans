@@ -572,7 +572,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			return true;
 		}
 		else if (comp == &scd) {
-			if( v.i == NULL ) {
+			if( v.p == NULL ) {
 				// revert schedule
 				init_line_selector();
 			}
