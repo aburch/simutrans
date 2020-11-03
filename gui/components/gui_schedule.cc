@@ -41,8 +41,21 @@
 
 static karte_ptr_t welt;
 
-char *gui_schedule_t::bt_mode_text[MAX_MODE] = { "Add Stop","Ins Stop", "Del Stop" };
-char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] = { "Appends stops at the end of the schedule","Insert stop before the current stop", "Delete the current stop" };
+
+const char *gui_schedule_t::bt_mode_text[MAX_MODE] =
+{
+	"Add Stop",
+	"Ins Stop",
+	"Del Stop"
+};
+
+const char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] =
+{
+	"Appends stops at the end of the schedule",
+	"Insert stop before the current stop",
+	"Delete the current stop"
+};
+
 
 /**
  * One entry in the list of schedule entries.
@@ -361,7 +374,7 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 	}
 
 	scrolly.set_maximize(true);
-	
+
 	set_size( gui_aligned_container_t::get_min_size() );
 }
 
@@ -388,7 +401,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		this->line_mode = lin;
 		this->player = player;
 		current_schedule_rotation = welt->get_settings().get_rotation();
-		
+
 		// prepare editing
 		schedule = old_schedule->copy();
 
@@ -570,7 +583,7 @@ void gui_schedule_t::draw(scr_coord pos)
 				}
 				idx++;
 			}
-			
+
 		}
 	}
 	// always dirty, to cater for shortening of halt names and change of selections

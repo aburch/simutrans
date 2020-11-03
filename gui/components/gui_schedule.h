@@ -46,8 +46,8 @@ private:
 
 	mode_t mode;
 
-	static char *bt_mode_text[ MAX_MODE ];
-	static char *bt_mode_tooltip[ MAX_MODE ];
+	static const char *bt_mode_text[ MAX_MODE ];
+	static const char *bt_mode_tooltip[ MAX_MODE ];
 
 	gui_label_buf_t lb_waitlevel;
 
