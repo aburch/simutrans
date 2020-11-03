@@ -64,7 +64,6 @@ gui_color_text_shadow = #BDD3DF
 gui_color_text_title = #338FCC
 gui_color_text_strong = #E46A0B
 
-########Test########
 gui_color_empty = #868c86
 gui_color_obsolete = #2878ff
 
@@ -109,7 +108,9 @@ gui_shadow_color = #8FC5E6
 gui_color_text_unused = #E46A0B
 
 # Color of cursor overlay, which is blended over marked ground tiles
-cursor_overlay_color = #ff0000
+#cursor_overlay_color = #ff0000
+# -- pak128.Britain
+cursor_overlay_color = 71
 
 # Colo loadbar, save game, load game, server...
 gui_color_loadingbar_progress = #76b9e6
