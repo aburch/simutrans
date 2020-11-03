@@ -7,6 +7,7 @@
 #define GUI_DEPOTLIST_FRAME_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
@@ -49,7 +50,11 @@ public:
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool has_min_sizer() const { return true; }
+	// yes we can reload
+	uint32 get_rdwr_id() OVERRIDE { return magic_depotlist; }
+	void rdwr(loadsave_t *file) OVERRIDE;
+
+	bool has_min_sizer() const OVERRIDE { return true; }
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
@@ -66,7 +71,7 @@ private:
 	void update_label();
 
 public:
-	static int sort_mode;
+	static uint8 sort_mode;
 	static bool reverse;
 
 	depotlist_stats_t(depot_t *);
@@ -80,7 +85,7 @@ public:
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 
-	static const image_id depotlist_stats_t::get_depot_symbol(waytype_t wt);
+	static const image_id get_depot_symbol(waytype_t wt);
 };
 
 #endif

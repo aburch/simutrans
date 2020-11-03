@@ -17,14 +17,14 @@
 #include "../boden/wege/strasse.h"
 #include "../bauer/vehikelbauer.h""
 
-#define IMG_WIDTH 20 // same as gui_tabe_panel
+#define IMG_WIDTH 20 // same as gui_tab_panel
 
 enum sort_mode_t { by_waytype, by_convoys, by_vehicle, by_coord, by_region, SORT_MODES };
 
 static waytype_t depot_types[MAX_DEPOT_TYPES] = { road_wt, track_wt, water_wt, air_wt, monorail_wt, maglev_wt, narrowgauge_wt, tram_wt };
 static char const* const depot_type_texts[] = { "Truck", "Train", "Ship", "Air", "Monorail", "Maglev", "Narrowgauge", "Tram" };
 
-int depotlist_stats_t::sort_mode = by_waytype;
+uint8 depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;
 uint8 depotlist_frame_t::depot_type_filter_bits = 255;
 
@@ -422,4 +422,25 @@ void depotlist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	gui_frame_t::draw(pos,size);
+}
+
+
+void depotlist_frame_t::rdwr(loadsave_t *file)
+{
+	file->rdwr_byte(depot_type_filter_bits);
+	file->rdwr_bool(sort_asc.pressed);
+	uint8 s = depotlist_stats_t::sort_mode;
+	file->rdwr_byte(s);
+
+	if (file->is_loading()) {
+		sortedby.set_selection(s);
+		depotlist_stats_t::sort_mode = s;
+		depotlist_stats_t::reverse = sort_asc.pressed;
+		sort_desc.pressed = !sort_asc.pressed;
+		for (int i = 0; i < MAX_DEPOT_TYPES; i++) {
+			filter_buttons[i].pressed = depot_type_filter_bits & (1 << i);
+		}
+		fill_list();
+		all_depot_types.pressed = (depot_type_filter_bits == 255);
+	}
 }

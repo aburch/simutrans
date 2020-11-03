@@ -60,6 +60,7 @@
 #include "goods_frame_t.h"
 #include "loadfont_frame.h"
 #include "scenario_info.h"
+#include "depotlist_frame.h"
 
 #include "../simversion.h"
 
@@ -585,6 +586,9 @@ void rdwr_all_win(loadsave_t *file)
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
 							w = tool_t::toolbar_tool[id-magic_toolbar]->get_tool_selector();
+						}
+						else if (id >= magic_depotlist && id < magic_depotlist + MAX_PLAYER_COUNT) {
+							w = new depotlist_frame_t(wl->get_player(id - magic_depotlist));
 						}
 						else {
 							dbg->error( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );
