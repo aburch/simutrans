@@ -227,6 +227,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_map_preview.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_numberinput.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_obj_view_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_schedule.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_scrollbar.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_scrolled_list.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_scrollpane.cc" />
@@ -577,6 +578,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_map_preview.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_numberinput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_obj_view_t.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_schedule.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_scrollbar.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_scrolled_list.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_scrollpane.h" />

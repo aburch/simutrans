@@ -24,6 +24,8 @@
 #include "../player/simplay.h"
 
 #include "../utils/simstring.h"
+#include "depot_frame.h"
+#include "line_item.h"
 #include "convoi_detail_t.h"
 
 #define CHART_HEIGHT (100)
@@ -124,6 +126,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 			container_line.add_component(&line_button);
 			container_line.new_component<gui_label_t>("Serves Line:");
 			container_line.add_component(&line_label);
+
 			// goto line button
 			line_button.init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + LINESPACE*4 ) );
 			line_button.set_targetpos3d( koord3d::invalid );
@@ -136,38 +139,19 @@ void convoi_info_t::init(convoihandle_t cnv)
 		{
 			add_component(&view);
 			view.set_obj(cnv->front());
+
+			follow_button.init(button_t::roundbox_state, "follow me");
+			follow_button.set_tooltip("Follow the convoi on the map.");
+			follow_button.add_listener(this);
+			add_component(&follow_button);
 		}
 		end_table();
 	}
 	end_table();
 
-	add_table(4,1)->set_force_equal_columns(true);
-	{
-		// this convoi doesn't belong to an AI
-		button.init(button_t::roundbox | button_t::flexible, "Fahrplan");
-		button.set_tooltip("Alters a schedule.");
-		button.add_listener(this);
-		add_component(&button);
-
-		go_home_button.init(button_t::roundbox | button_t::flexible, "go home");
-		go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
-		go_home_button.add_listener(this);
-		add_component(&go_home_button);
-
-		no_load_button.init(button_t::roundbox | button_t::flexible, "no load");
-		no_load_button.set_tooltip("No goods are loaded onto this convoi.");
-		no_load_button.add_listener(this);
-		add_component(&no_load_button);
-
-		follow_button.init(button_t::roundbox_state | button_t::flexible, "follow me");
-		follow_button.set_tooltip("Follow the convoi on the map.");
-		follow_button.add_listener(this);
-		add_component(&follow_button);
-	}
-	end_table();
-
 	// tab panel: connections, chart panels, details
 	add_component(&switch_mode);
+	switch_mode.add_listener( this );
 	switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
 
 	container_freight.set_table_layout(1,0);
@@ -182,6 +166,49 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	container_freight.end_table();
 	container_freight.add_component(&text);
+
+	switch_mode.add_tab(&container_schedule, translator::translate("Fahrplan"));
+	// tooltip would be set_tooltip("Alters a schedule.");
+
+	container_schedule.set_table_layout(1, 0);
+
+	container_schedule.add_table(4, 1)->set_force_equal_columns(true);
+	{
+		no_load_button.init(button_t::roundbox | button_t::flexible, "no load");
+		no_load_button.set_tooltip("No goods are loaded onto this convoi.");
+		no_load_button.add_listener(this);
+		container_schedule.add_component(&no_load_button);
+
+		withdraw_button.init(button_t::roundbox | button_t::flexible, "withdraw");
+		withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
+		withdraw_button.add_listener(this);
+		container_schedule.add_component(&withdraw_button);
+
+		go_home_button.init(button_t::roundbox | button_t::flexible, "go home");
+		go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
+		go_home_button.add_listener(this);
+		container_schedule.add_component(&go_home_button);
+
+		sale_button.init(button_t::roundbox | button_t::flexible, "Verkauf");
+		sale_button.set_tooltip("Remove vehicle from map. Use with care!");
+		sale_button.add_listener(this);
+		container_schedule.add_component(&sale_button);
+	}
+	container_schedule.end_table();
+
+	container_schedule.add_table( 2, 1 );
+	{
+		container_schedule.new_component<gui_label_t>("Serves Line:");
+		line_selector.clear_elements();
+		init_line_selector();
+		line_selector.add_listener(this);
+		container_schedule.add_component(&line_selector);
+	}
+	container_schedule.end_table();
+
+	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv);
+	container_schedule.add_component(&scd);
+	scd.add_listener(this);
 
 	switch_mode.add_tab(&container_stats, translator::translate("Chart"));
 
@@ -211,9 +238,9 @@ void convoi_info_t::init(convoihandle_t cnv)
 
 	// convoy details in tab
 	switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
+
 	container_details.set_table_layout(1,0);
 	details = container_details.new_component<convoi_detail_t>(cnv);
-
 
 	// indicator bars
 	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
@@ -240,6 +267,53 @@ convoi_info_t::~convoi_info_t()
 	button_to_chart.clear();
 	// rename if necessary
 	rename_cnv();
+}
+
+
+void convoi_info_t::init_line_selector()
+{
+	if (cnv.is_bound()) {
+		line_selector.clear_elements();
+		int selection = 0;
+		vector_tpl<linehandle_t> lines;
+
+		cnv->get_owner()->simlinemgmt.get_lines(cnv->get_schedule()->get_type(), &lines);
+
+		// keep assignment with identical schedules
+		if (line.is_bound() && !cnv->get_schedule()->matches(world(), line->get_schedule())) {
+			if (old_line.is_bound() && cnv->get_schedule()->matches(world(), old_line->get_schedule())) {
+				line = old_line;
+			}
+			else {
+				line = linehandle_t();
+			}
+		}
+		int offset = 0;
+		if (!line.is_bound()) {
+			selection = 0;
+			offset = 2;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<no line>"), SYSCOL_TEXT);
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
+		}
+
+		FOR(vector_tpl<linehandle_t>, line, lines) {
+			line_selector.new_component<line_scrollitem_t>(line);
+			if (!line.is_bound()) {
+				if (cnv->get_schedule()->matches(world(), line->get_schedule())) {
+					selection = line_selector.count_elements() - 1;
+					line = line;
+				}
+			}
+			else if (line == line) {
+				selection = line_selector.count_elements() - 1;
+			}
+		}
+
+		line_selector.set_selection(selection);
+		line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+		line_selector.sort(offset);
+		old_line_count = cnv->get_owner()->simlinemgmt.get_line_count();
+	}
 }
 
 
@@ -328,8 +402,17 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			line_bound = cnv->get_line().is_bound();
 			container_line.set_visible(line_bound);
 		}
-		button.enable();
 		line_button.enable();
+
+		if(  switch_mode.get_count() == 3  ) {
+			int active = switch_mode.get_active_tab_index();
+			switch_mode.clear();
+			switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
+			switch_mode.add_tab(&container_schedule, translator::translate("Fahrplan"));
+			switch_mode.add_tab(&container_stats, translator::translate("Chart"));
+			switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
+			switch_mode.set_active_tab_index((active != 0) ? active - 1 : active);
+		}
 
 		if(  route_search_in_progress  ) {
 			go_home_button.disable();
@@ -343,6 +426,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}
 		no_load_button.pressed = cnv->get_no_load();
 		no_load_button.enable();
+		withdraw_button.enable();
+		sale_button.enable();
 	}
 	else {
 		if(  line_bound  ) {
@@ -351,10 +436,22 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			remove_component( &line_button );
 			line_bound = false;
 		}
-		button.disable();
+		if(  switch_mode.get_count()==4  ) {
+			int active = switch_mode.get_active_tab_index();
+			switch_mode.clear();
+			switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
+//			switch_mode.add_tab(&container_schedule, translator::translate("Fahrplan"));
+			switch_mode.add_tab(&container_stats, translator::translate("Chart"));
+			switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
+			switch_mode.set_active_tab_index((active != 0) ? active - 1 : active);
+			scd.highlight_schedule( false );
+		}
 		go_home_button.disable();
 		no_load_button.disable();
+		sale_button.disable();
+		withdraw_button.disable();
 	}
+	withdraw_button.pressed = cnv->get_withdraw();
 
 	// update button & labels
 	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
@@ -394,7 +491,7 @@ koord3d convoi_info_t::get_weltpos( bool set )
 /**
  * This method is called if an action is triggered
  */
-bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	// follow convoi on map?
 	if(comp == &follow_button) {
@@ -427,12 +524,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 
 	// some actions only allowed, when I am the player
-	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
+	if(cnv.is_bound()  &&  cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 
-		if(  comp == &button  ) {
-			cnv->call_convoi_tool( 'f', NULL );
-			return true;
+		if( comp == &switch_mode ) {
+			scd.highlight_schedule( v.i == 1 );
 		}
+
 
 		if(  comp == &no_load_button    &&    !route_search_in_progress  ) {
 			cnv->call_convoi_tool( 'n', NULL );
@@ -465,8 +562,88 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 				delete schedule;
 			}
 		} // end go home button
+
+		if (comp == &sale_button) {
+			cnv->call_convoi_tool('x', NULL);
+			return true;
+		}
+		else if (comp == &withdraw_button) {
+			cnv->call_convoi_tool('w', NULL);
+			return true;
+		}
+		else if (comp == &scd) {
+			if( v.i == NULL ) {
+				// revert schedule
+				init_line_selector();
+			}
+			else {
+				// apply new schedule
+
+				// do not send changes if the convoi is about to be deleted
+				if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
+					if (cnv->in_depot()) {
+						const grund_t* const ground = welt->lookup(cnv->get_home_depot());
+						if (ground) {
+							const depot_t* const depot = ground->get_depot();
+							if (depot) {
+								depot_frame_t* const frame = dynamic_cast<depot_frame_t*>(win_get_magic((ptrdiff_t)depot));
+								if (frame) {
+									frame->update_data();
+								}
+							}
+						}
+					}
+					// update new line instead
+					if (line != cnv->get_line()) {
+						char id[16];
+						sprintf(id, "%i,%i", line.get_id(), scd.get_schedule()->get_current_stop());
+						cnv->call_convoi_tool('l', id);
+					}
+					else if(!line.is_bound()) {
+						cbuffer_t buf;
+						scd.get_schedule()->sprintf_schedule(buf);
+						cnv->call_convoi_tool('g', buf);
+					}
+				}
+			}
+		}
+		else if (comp == &line_selector) {
+			uint32 selection = v.i;
+			if(  line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
+				line = li->get_line();
+				scd.init(line->get_schedule(), cnv->get_owner(), cnv);
+			}
+			else if(  v.i==1  ) {
+				// update line schedule via tool!
+				tool_t* tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
+				cbuffer_t buf;
+				buf.printf("c,0,%i,%ld,", (int)scd.get_schedule()->get_type(), (long)(intptr_t)cnv->get_schedule());
+				scd.get_schedule()->sprintf_schedule(buf);
+				tool->set_default_param(buf);
+				welt->set_tool(tool, cnv->get_owner());
+				// since init always returns false, it is safe to delete immediately
+				delete tool;
+			}
+			else {
+				// remove line
+				line = linehandle_t();
+				line_selector.set_selection(0);
+			}
+			return true;
+		}
 	}
+
 	return false;
+}
+
+
+bool convoi_info_t::infowin_event(const event_t *ev)
+{
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
+		scd.highlight_schedule( false );
+	}
+	
+	return gui_frame_t::infowin_event(ev);
 }
 
 
@@ -515,18 +692,21 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	size.rdwr( file );
 
 	// init window
-	if(  file->is_loading()  &&  cnv.is_bound())
-	{
+	if(  file->is_loading()  &&  cnv.is_bound()) {
 		init(cnv);
-		win_set_magic(this, magic_convoi_info+cnv.get_id());
-		reset_min_windowsize();
-		set_windowsize(size);
+		win_set_magic(this, magic_convoi_info + cnv.get_id());
 	}
 
 	// after initialization
 	// components
 	scroll_freight.rdwr(file);
 	switch_mode.rdwr(file);
+
+	// schedule stuff
+	simline_t::rdwr_linehandle_t(file, line);
+	simline_t::rdwr_linehandle_t(file, old_line);
+	scd.rdwr(file);
+
 	// button-to-chart array
 	button_to_chart.rdwr(file);
 
@@ -539,4 +719,13 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		destroy_win( this );
 		return;
 	}
+
+	if(  file->is_loading()  ) {
+		reset_min_windowsize();
+		set_windowsize(size);
+		if( switch_mode.get_aktives_tab() == &container_schedule ) {
+			scd.highlight_schedule( true );
+		}
+	}
 }
+

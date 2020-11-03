@@ -1828,11 +1828,13 @@ bool convoi_t::set_schedule(schedule_t * f)
 				unregister_stops();
 			}
 		}
+#ifdef BAD_IDEA
 		// destroy a possibly open schedule window
 		if(  schedule  &&  !schedule->is_editing_finished()  ) {
 			destroy_win((ptrdiff_t)schedule);
 			delete schedule;
 		}
+#endif
 		schedule = f;
 		if(  changed  ) {
 			// if line is unset or schedule is changed

@@ -203,6 +203,8 @@ void schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
+	assert(!file->is_loading() || entries.empty());
+
 	make_current_stop_valid();
 
 	uint8 size = entries.get_count();
@@ -385,11 +387,24 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 
 
 
-void schedule_t::add_return_way()
+void schedule_t::add_return_way(bool append_mirror)
 {
-	if(  entries.get_count()<127  &&  entries.get_count()>1  ) {
-		for(  uint8 maxi=entries.get_count()-2;  maxi>0;  maxi--  ) {
-			entries.append(entries[maxi]);
+	if(  append_mirror  ) {
+		// add mirror entries
+		if(  entries.get_count()<127  &&  entries.get_count()>1  ) {
+			for(  uint8 maxi=entries.get_count()-2;  maxi>0;  maxi--  ) {
+				entries.append(entries[maxi]);
+			}
+		}
+	}
+	else {
+		// invert
+		if(  entries.get_count()>1  ) {
+			for(  uint8 i=0;  i<(entries.get_count()-1)/2;  i++  ) {
+				schedule_entry_t temp = entries[i];
+				entries[i] = entries[entries.get_count()-i-1];
+				entries[ entries.get_count()-i-1] = temp;
+			}
 		}
 	}
 }

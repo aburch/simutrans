@@ -9,9 +9,7 @@
 
 #include "components/gui_aligned_container.h"
 #include "components/gui_scrollpane.h"
-#include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "components/action_listener.h"
 #include "../convoihandle_t.h"
 
 class scr_coord;
@@ -21,7 +19,7 @@ class karte_ptr_t;
  * Convoi details component
  * Fills information table for convoi
  */
-class convoi_detail_t : public gui_aligned_container_t, private action_listener_t
+class convoi_detail_t : public gui_aligned_container_t
 {
 public:
 	enum sort_mode_t {
@@ -39,8 +37,6 @@ private:
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
 
 	convoihandle_t cnv;
-	button_t sale_button;
-	button_t withdraw_button;
 
 	static karte_ptr_t welt;
 public:
@@ -52,8 +48,6 @@ public:
 	void init(convoihandle_t cnv);
 
 	void draw(scr_coord offset) OVERRIDE;
-
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void update_labels();
 

@@ -141,29 +141,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 	set_table_layout(1,0);
 
-
-	add_table(3,1);
-	{
-		add_component(&label_power);
-
-		new_component<gui_fill_t>();
-
-		add_table(2,1)->set_force_equal_columns(true);
-		{
-			sale_button.init(button_t::roundbox| button_t::flexible, "Verkauf");
-			sale_button.set_tooltip("Remove vehicle from map. Use with care!");
-			sale_button.add_listener(this);
-			add_component(&sale_button);
-
-			withdraw_button.init(button_t::roundbox| button_t::flexible, "withdraw");
-			withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
-			withdraw_button.add_listener(this);
-			add_component(&withdraw_button);
-		}
-		end_table();
-	}
-	end_table();
-
+	add_component(&label_power);
 	add_component(&label_odometer);
 	add_component(&label_length);
 	add_component(&label_resale);
@@ -202,15 +180,6 @@ void convoi_detail_t::update_labels()
 
 void convoi_detail_t::draw(scr_coord offset)
 {
-	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
-		withdraw_button.enable();
-		sale_button.enable();
-	}
-	else {
-		sale_button.disable();
-		withdraw_button.disable();
-	}
-	withdraw_button.pressed = cnv->get_withdraw();
 	update_labels();
 
 	scrolly.set_size(scrolly.get_size());
@@ -218,25 +187,6 @@ void convoi_detail_t::draw(scr_coord offset)
 	gui_aligned_container_t::draw(offset);
 }
 
-
-
-/**
- * This method is called if an action is triggered
- */
-bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
-{
-	if(cnv.is_bound()) {
-		if(comp==&sale_button) {
-			cnv->call_convoi_tool( 'x', NULL );
-			return true;
-		}
-		else if(comp==&withdraw_button) {
-			cnv->call_convoi_tool( 'w', NULL );
-			return true;
-		}
-	}
-	return false;
-}
 
 
 void convoi_detail_t::rdwr(loadsave_t *file)

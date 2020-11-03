@@ -156,9 +156,10 @@ public:
 
 	/**
 	 * Calculates a return way for this schedule.
-	 * Will add elements 1 to end in reverse order to schedule.
+	 * Will add elements 1 to end in reverse order to schedule if ture
+	 * Or just mirror order if false
 	 */
-	void add_return_way();
+	void add_return_way(bool);
 
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 
