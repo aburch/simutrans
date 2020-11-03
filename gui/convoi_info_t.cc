@@ -296,15 +296,15 @@ void convoi_info_t::init_line_selector()
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
 		}
 
-		FOR(vector_tpl<linehandle_t>, line, lines) {
-			line_selector.new_component<line_scrollitem_t>(line);
+		FOR(vector_tpl<linehandle_t>, other_line, lines) {
+			line_selector.new_component<line_scrollitem_t>(other_line);
 			if (!line.is_bound()) {
-				if (cnv->get_schedule()->matches(world(), line->get_schedule())) {
+				if (cnv->get_schedule()->matches(world(), other_line->get_schedule())) {
 					selection = line_selector.count_elements() - 1;
-					line = line;
+					line = other_line;
 				}
 			}
-			else if (line == line) {
+			else if (line == other_line) {
 				selection = line_selector.count_elements() - 1;
 			}
 		}
@@ -642,7 +642,7 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 		scd.highlight_schedule( false );
 	}
-	
+
 	return gui_frame_t::infowin_event(ev);
 }
 
