@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_SCHEDULE_H
-#define GUI_SCHEDULE_H
+#ifndef GUI_COMPONENTS_GUI_SCHEDULE_H
+#define GUI_COMPONENTS_GUI_SCHEDULE_H
 
 
 #include "gui_label.h"

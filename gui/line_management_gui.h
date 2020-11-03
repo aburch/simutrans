@@ -6,6 +6,7 @@
 #ifndef GUI_LINE_MANAGEMENT_GUI_H
 #define GUI_LINE_MANAGEMENT_GUI_H
 
+
 #include "simwin.h"
 #include "gui_frame.h"
 #include "components/gui_schedule.h"

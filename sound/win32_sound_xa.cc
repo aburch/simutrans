@@ -2,7 +2,7 @@
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
  */
- 
+
  /* The code is mostly copied and slightly adapted straight from the microsoft documetnation.
   * There was no clear indicating of license, so public domain is assumed.
   */
