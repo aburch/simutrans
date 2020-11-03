@@ -14,6 +14,8 @@
 #include "components/gui_image.h"
 #include "components/gui_combobox.h"
 
+#define MAX_DEPOT_TYPES 8
+
 class depot_t;
 
 
@@ -24,11 +26,19 @@ private:
 	button_t sort_asc, sort_desc;
 	gui_scrolled_list_t scrolly;
 
+	button_t filter_buttons[MAX_DEPOT_TYPES];
+	button_t all_depot_types;
+
 	uint32 last_depot_count;
+	static uint8 depot_type_filter_bits;
 
 	void fill_list();
 
 	player_t *player;
+
+	// Whether the waytype is available in pakset
+	// This is determined by whether the pakset has a vehicle.
+	bool is_available_wt(waytype_t wt) const;
 
 public:
 	depotlist_frame_t(player_t *player);
@@ -69,6 +79,8 @@ public:
 	void set_size(scr_size size) OVERRIDE;
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
+
+	static const image_id depotlist_stats_t::get_depot_symbol(waytype_t wt);
 };
 
 #endif
