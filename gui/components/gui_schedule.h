@@ -31,9 +31,9 @@ class schedule_gui_stats_t;
 /**
  * GUI for Schedule dialog
  */
-class gui_schedule_t : 
+class gui_schedule_t :
 	public gui_action_creator_t,
-	public gui_aligned_container_t, 
+	public gui_aligned_container_t,
 	public action_listener_t
 {
 private:
@@ -91,7 +91,7 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
-	virtual scr_size get_max_size() const { return scr_size::inf; }
+	scr_size get_max_size() const OVERRIDE { return scr_size::inf; }
 
 	void set_size(scr_size size) OVERRIDE;
 
