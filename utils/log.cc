@@ -288,10 +288,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 	// no display available
 	(void)n;
 	puts( buffer );
+	abort();
 #else
-#  ifdef MSG_LEVEL
-	int old_level = env_t::verbose_debug;
-#  endif
 	env_t::verbose_debug = 0; // no more window concerning messages
 	if(is_display_init()) {
 		// show notification
@@ -324,16 +322,8 @@ void log_t::fatal(const char *who, const char *format, ...)
 		dr_fatal_notify(buffer);
 	}
 
-#ifdef DEBUG
-	if (old_level > 4) {
-		// generate a division be zero error, if the user request it
-		static int make_this_a_division_by_zero = 0;
-		printf("%i", 15 / make_this_a_division_by_zero);
-		make_this_a_division_by_zero &= 0xFF;
-	}
-#endif
-#endif
 	abort();
+#endif
 }
 
 
