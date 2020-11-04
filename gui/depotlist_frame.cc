@@ -87,7 +87,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 {
 	this->depot = d;
 	// pos button
-	set_table_layout(7,1);
+	set_table_layout(8,1);
 	gotopos.set_typ(button_t::posbutton_automatic);
 	gotopos.set_targetpos3d(depot->get_pos());
 	add_component(&gotopos);
@@ -105,7 +105,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	}
 
 	lb_name.buf().append( translator::translate(depot->get_name()) );
-	lb_name.set_min_size(scr_size(LINEASCENT * 14, D_LABEL_HEIGHT));
+	lb_name.set_min_size(scr_size(LINEASCENT * 13, D_LABEL_HEIGHT));
 	add_component(&lb_name);
 
 	add_component(&lb_cnv_count);
@@ -123,8 +123,11 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 		}
 		lb_region.buf().printf(" (%s)", welt->get_region_name(depot->get_pos().get_2d()).c_str());
 	}
+	lb_region.update();
 	add_component(&lb_region);
 	update_label();
+
+	new_component<gui_fill_t>();
 }
 
 
