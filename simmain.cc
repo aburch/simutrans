@@ -87,8 +87,11 @@
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
 
+
 using std::string;
 
+
+#ifdef DEBUG
 /* diagnostic routine:
  * show the size of several internal structures
  */
@@ -120,9 +123,10 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
 	DBG_MESSAGE("sizes", "player_t: %d\n", sizeof(player_t));
 }
+#endif
 
 
-
+#if defined DEBUG || defined PROFILE
 // render tests ...
 static void show_times(karte_t *welt, main_view_t *view)
 {
@@ -203,7 +207,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 	}
 	dbg->message( "welt->sync_step/step(200,1,1)", "%i iterations took %li ms", i, dr_time() - ms );
 }
-
+#endif
 
 
 void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*quit)() )
