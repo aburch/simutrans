@@ -8,6 +8,7 @@
 
 
 #include "gui_frame.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_chart.h"
@@ -20,7 +21,6 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "simwin.h"
 

@@ -585,12 +585,12 @@ void gui_schedule_t::draw(scr_coord pos)
 			current_schedule_rotation = (current_schedule_rotation + 1) % 4;
 			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().x : world()->get_size().y );
 		}
-		bt_apply.enable(player == world()->get_active_player());
 
 		schedule_t *scd = get_old_schedule();
 		// change current entry while convois drives on
 		koord3d current = scd->get_current_entry().pos;
 		int idx = 0;
+		bool is_allowed = player==welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 		bool is_all_same = scd->get_count()==schedule->get_count();
 		is_all_same &= !(convoi_mode.is_bound()  &&  line_mode.is_bound()  &&  line_mode != convoi_mode->get_line());
 		FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
@@ -602,8 +602,14 @@ void gui_schedule_t::draw(scr_coord pos)
 			}
 			idx++;
 		}
-		bt_apply.enable( !is_all_same );
-		bt_revert.enable( !is_all_same );
+		bt_apply.enable( !is_all_same && is_allowed );
+		bt_revert.enable( !is_all_same &&  is_allowed );
+
+		numimp_load.enable( is_allowed );
+		wait_load.enable( is_allowed );
+
+		bt_mode.enable( is_allowed );
+		bt_return.enable( is_allowed );
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
 	gui_aligned_container_t::draw(pos);

@@ -27,6 +27,7 @@
 #include "depot_frame.h"
 #include "line_item.h"
 #include "convoi_detail_t.h"
+#include "line_management_gui.h"
 
 #define CHART_HEIGHT (100)
 
@@ -379,58 +380,21 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 	}
 
-	// make titlebar dirty to display the correct coordinates
-	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
+	bool is_change_allowed = cnv->get_owner() == welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 
-		line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
+	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
-		if(  switch_mode.get_count() == 3  ) {
-			int active = switch_mode.get_active_tab_index();
-			switch_mode.clear();
-			switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
-			switch_mode.add_tab(&container_schedule, translator::translate("Fahrplan"));
-			switch_mode.add_tab(&container_stats, translator::translate("Chart"));
-			switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
-			switch_mode.set_active_tab_index((active != 0) ? active - 1 : active);
-		}
+	go_home_button.enable(!route_search_in_progress && is_change_allowed);
 
-		if(  route_search_in_progress  ) {
-			go_home_button.disable();
-		}
-		else {
-			go_home_button.enable();
-		}
-
-		if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
-			go_home_button.pressed = gr->get_depot() != NULL;
-		}
-		no_load_button.pressed = cnv->get_no_load();
-		no_load_button.enable();
-		withdraw_button.enable();
-		sale_button.enable();
+	if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
+		go_home_button.pressed = gr->get_depot() != NULL;
 	}
-	else {
-		if(  line_bound  ) {
-			// do not jump to other player line window
-			line_button.disable();
-			remove_component( &line_button );
-			line_bound = false;
-		}
-		if(  switch_mode.get_count()==4  ) {
-			int active = switch_mode.get_active_tab_index();
-			switch_mode.clear();
-			switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
-//			switch_mode.add_tab(&container_schedule, translator::translate("Fahrplan"));
-			switch_mode.add_tab(&container_stats, translator::translate("Chart"));
-			switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
-			switch_mode.set_active_tab_index((active != 0) ? active - 1 : active);
-			scd.highlight_schedule( false );
-		}
-		go_home_button.disable();
-		no_load_button.disable();
-		sale_button.disable();
-		withdraw_button.disable();
-	}
+	no_load_button.pressed = cnv->get_no_load();
+	no_load_button.enable(is_change_allowed);
+	withdraw_button.enable(is_change_allowed);
+	sale_button.enable(is_change_allowed);
+	line_selector.enable( is_change_allowed );
+
 	withdraw_button.pressed = cnv->get_withdraw();
 
 	update_labels();
@@ -474,8 +438,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	if(  comp == &line_button  ) {
 		// open selected line as schedule
 		if( line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) ) {
-			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), li->get_line() );
-			welt->set_dirty();
+			if(  li->get_line().is_bound()  ) {
+				create_win( new line_management_gui_t(li->get_line(), cnv->get_owner()), w_info, (ptrdiff_t)li->get_line().get_rep() );
+				welt->set_dirty();
+			}
 		}
 	}
 
