@@ -1681,15 +1681,16 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 void karte_t::init_height_to_climate()
 {
 	// mark unused as arctic
-	memset( height_to_climate, arctic_climate, lengthof(height_to_climate) );
-	memset( height_to_climate, temperate_climate, max( 0, settings.get_climate_borders(arctic_climate,1)-groundwater ) );
 	memset( num_climates_at_height, 0, lengthof(num_climates_at_height) );
 
 	// now just add them, the later climates will win (we will do a fineer assessment later
 	for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
 		DBG_DEBUG( "init_height_to_climate()", "climate %i, start %i end %i", cl,  settings.get_climate_borders( cl, 0 ),  settings.get_climate_borders( cl, 1 ) );
 		for( sint8 h = max(groundwater, settings.get_climate_borders( cl, 0 )); h < settings.get_climate_borders( cl, 1 ); h++ ) {
-			height_to_climate[h-groundwater] = (uint8)cl;
+			if(  num_climates_at_height[ h - groundwater ] == 0  ) {
+				// default climate for this height is the first matching one
+				height_to_climate[ h - groundwater ] = (uint8)cl;
+			}
 			num_climates_at_height[h-groundwater]++;
 		}
 	}
@@ -1697,12 +1698,14 @@ void karte_t::init_height_to_climate()
 		if(  num_climates_at_height[h]==0  ) {
 			if( h == 0 ) {
 				height_to_climate[ h ] = desert_climate;
-				num_climates_at_height[ h ] = 1;
 			}
 			else if( h - groundwater > settings.get_climate_borders( arctic_climate, 1 ) ) {
 				height_to_climate[ h ] = arctic_climate;
-				num_climates_at_height[ h ] = 1;
 			}
+			else {
+				height_to_climate[ h ] = temperate_climate;
+			}
+			num_climates_at_height[ h ] = 1;
 		}
 		DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
 	}
