@@ -40,9 +40,9 @@ private:
 	static vector_tpl<const groundobj_desc_t *> movingobj_typen;
 
 protected:
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 public:
 	static bool register_desc(groundobj_desc_t *desc);
@@ -54,37 +54,37 @@ public:
 	movingobj_t(koord3d pos, const groundobj_desc_t *);
 	virtual ~movingobj_t();
 
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	// always free
 	virtual bool check_next_tile(const grund_t *) const;
 	virtual bool can_enter_tile() { return 1; }
-	virtual grund_t* hop_check();
-	virtual void hop(grund_t* gr);
+	grund_t* hop_check() OVERRIDE;
+	void hop(grund_t* gr) OVERRIDE;
 	virtual void update_bookkeeping(uint32) {};
 
-	virtual waytype_t get_waytype() const { return get_desc()->get_waytype(); }
+	waytype_t get_waytype() const OVERRIDE { return get_desc()->get_waytype(); }
 
-	const char *get_name() const {return "Movingobj";}
+	const char *get_name() const OVERRIDE {return "Movingobj";}
 #ifndef INLINE_OBJ_TYPE
-	typ get_typ() const { return movingobj; }
+	typ get_typ() const OVERRIDE { return movingobj; }
 #endif
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool);
+	bool check_season(const bool) OVERRIDE;
 
-	void show_info();
+	void show_info() OVERRIDE;
 
-	void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
 	const groundobj_desc_t* get_desc() const { return movingobj_typen[movingobjtype]; }
 
-	virtual bool is_flying() const { return get_desc()->get_waytype() == air_wt; }
+	bool is_flying() const OVERRIDE { return get_desc()->get_waytype()==air_wt; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

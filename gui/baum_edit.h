@@ -30,9 +30,9 @@ private:
 
 	vector_tpl<const tree_desc_t *>tree_list;
 
-	void fill_list( bool translate );
+	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i );
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	baum_edit_frame_t(player_t* player_);
@@ -47,7 +47,7 @@ public:
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
 	*/
-	const char* get_help_filename() const { return "baum_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "baum_build.txt"; }
 };
 
 #endif

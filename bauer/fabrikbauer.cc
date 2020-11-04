@@ -115,7 +115,7 @@ class factory_place_with_road_finder: public building_placefinder_t  {
 public:
 	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const
+	bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 	{
 		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all

@@ -26,13 +26,13 @@ public:
 
 	void init(const building_desc_t* d, int r);
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
-	scr_size get_max_size() const { return get_min_size(); }
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 };
 
 #endif

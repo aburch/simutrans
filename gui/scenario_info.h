@@ -35,17 +35,17 @@ public:
 	 * Returns true, if action is done and no more
 	 * components should be triggered.
 	 */
-	bool action_triggered( gui_action_creator_t *comp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra) OVERRIDE;
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	void update_scenario_texts(bool init);
 
 	void open_result_tab();
 	//void open_tab(const char* which);
 
-	uint32 get_rdwr_id() { return magic_scenario_info; }
-	void rdwr( loadsave_t *file );
+	uint32 get_rdwr_id() OVERRIDE { return magic_scenario_info; }
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

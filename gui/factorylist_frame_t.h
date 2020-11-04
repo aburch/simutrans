@@ -60,7 +60,7 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	//void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool has_min_sizer() const { return true; }
+	bool has_min_sizer() const OVERRIDE { return true; }
 
 	// FIXME: The GUI overhaul has been partially incorporated. The list has not been auto-aligned yet
 	//void map_rotate90( sint16 ) OVERRIDE { fill_list(); }

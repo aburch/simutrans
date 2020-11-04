@@ -33,7 +33,7 @@ public:
 	const char *get_name() const OVERRIDE {return "Bruecke";}
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return bruecke; }
+	typ get_typ() const OVERRIDE { return bruecke; }
 #endif
 
 #ifdef MULTI_THREAD
@@ -73,10 +73,11 @@ public:
 	void cleanup(player_t *player) OVERRIDE;
 
 	void rotate90() OVERRIDE;
+
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 */
-	const char * is_deletable(const player_t *player) OVERRIDE;
+	const char *is_deletable(const player_t *player) OVERRIDE;
 };
 
 #endif
