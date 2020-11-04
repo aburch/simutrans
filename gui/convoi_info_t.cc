@@ -120,32 +120,11 @@ void convoi_info_t::init(convoihandle_t cnv)
 			add_component(&target_label);
 			add_component(&route_bar);
 			end_table();
-
-			add_component(&container_line);
-			container_line.set_table_layout(3,1);
-			container_line.add_component(&line_button);
-			container_line.new_component<gui_label_t>("Serves Line:");
-			container_line.add_component(&line_label);
-
-			// goto line button
-			line_button.init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + LINESPACE*4 ) );
-			line_button.set_targetpos3d( koord3d::invalid );
-			line_button.add_listener( this );
-			line_bound = false;
 		}
 		end_table();
 
-		add_table(1,0)->set_alignment(ALIGN_TOP);//  |  ALIGN_CENTER_H);
-		{
-			add_component(&view);
-			view.set_obj(cnv->front());
-
-			follow_button.init(button_t::roundbox_state, "follow me");
-			follow_button.set_tooltip("Follow the convoi on the map.");
-			follow_button.add_listener(this);
-			add_component(&follow_button);
-		}
-		end_table();
+		add_component(&view);
+		view.set_obj(cnv->front());
 	}
 	end_table();
 
@@ -196,13 +175,17 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	container_schedule.end_table();
 
-	container_schedule.add_table( 2, 1 );
+	container_schedule.add_table( 3, 1 );
 	{
 		container_schedule.new_component<gui_label_t>("Serves Line:");
 		line_selector.clear_elements();
 		init_line_selector();
 		line_selector.add_listener(this);
 		container_schedule.add_component(&line_selector);
+		line_button.init( button_t::roundbox, "Update Line" );
+		line_button.set_tooltip("Modify the selected line");
+		line_button.add_listener(this);
+		container_schedule.add_component(&line_button);
 	}
 	container_schedule.end_table();
 
@@ -399,11 +382,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	// make titlebar dirty to display the correct coordinates
 	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 
-		if (line_bound != cnv->get_line().is_bound()  ) {
-			line_bound = cnv->get_line().is_bound();
-			container_line.set_visible(line_bound);
-		}
-		line_button.enable();
+		line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
 		if(  switch_mode.get_count() == 3  ) {
 			int active = switch_mode.get_active_tab_index();
@@ -454,8 +433,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	}
 	withdraw_button.pressed = cnv->get_withdraw();
 
-	// update button & labels
-	follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
 	update_labels();
 
 	route_bar.set_base(cnv->get_route()->get_count()-1);
@@ -494,21 +471,12 @@ koord3d convoi_info_t::get_weltpos( bool set )
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
-	// follow convoi on map?
-	if(comp == &follow_button) {
-		if(welt->get_viewport()->get_follow_convoi()==cnv) {
-			// stop following
-			welt->get_viewport()->set_follow_convoi( convoihandle_t() );
-		}
-		else {
-			welt->get_viewport()->set_follow_convoi(cnv);
-		}
-		return true;
-	}
-
 	if(  comp == &line_button  ) {
-		cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
-		welt->set_dirty();
+		// open selected line as schedule
+		if( line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) ) {
+			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), li->get_line() );
+			welt->set_dirty();
+		}
 	}
 
 	if(  comp == &input  ) {

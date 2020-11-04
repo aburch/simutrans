@@ -56,10 +56,9 @@ private:
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
 	gui_chart_t chart;
-	button_t follow_button;
 
 	gui_tab_panel_t switch_mode;
-	gui_aligned_container_t container_freight, container_schedule, container_stats, container_line, *container_top, container_details;
+	gui_aligned_container_t container_freight, container_schedule, container_stats, *container_top, container_details;
 	convoi_detail_t *details;
 	gui_scrollpane_t scroll_freight;
 
