@@ -206,7 +206,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	container_schedule.end_table();
 
-	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv);
+	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line() );
 	container_schedule.add_component(&scd);
 	scd.add_listener(this);
 
@@ -302,6 +302,7 @@ void convoi_info_t::init_line_selector()
 				if (cnv->get_schedule()->matches(world(), other_line->get_schedule())) {
 					selection = line_selector.count_elements() - 1;
 					line = other_line;
+					scd.init( cnv->get_schedule(), cnv->get_owner(), cnv, line );
 				}
 			}
 			else if (line == other_line) {
@@ -599,11 +600,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 						sprintf(id, "%i,%i", line.get_id(), scd.get_schedule()->get_current_stop());
 						cnv->call_convoi_tool('l', id);
 					}
-					else if(!line.is_bound()) {
-						cbuffer_t buf;
-						scd.get_schedule()->sprintf_schedule(buf);
-						cnv->call_convoi_tool('g', buf);
-					}
+					// since waiting times might be different from line
+					cbuffer_t buf;
+					scd.get_schedule()->sprintf_schedule(buf);
+					cnv->call_convoi_tool('g', buf);
 				}
 			}
 		}
@@ -611,7 +611,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			uint32 selection = v.i;
 			if(  line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 				line = li->get_line();
-				scd.init(line->get_schedule(), cnv->get_owner(), cnv);
+				scd.init(line->get_schedule(), cnv->get_owner(), cnv, line);
 			}
 			else if(  v.i==1  ) {
 				// update line schedule via tool!
@@ -628,6 +628,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 				// remove line
 				line = linehandle_t();
 				line_selector.set_selection(0);
+				schedule_t *temp = scd.get_schedule()->copy();
+				scd.init(temp, cnv->get_owner(), cnv, line);
+				delete temp;
 			}
 			return true;
 		}

@@ -61,13 +61,16 @@ private:
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
 
-	bool make_return;
+	bool make_return; // either reverting line or add mirror
+	bool no_editing; // if convoi schedule is part of a line, if has to be removed from it
 
 	// set the correct tool now ...
 	void update_tool(bool set);
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
+
+	schedule_t *get_old_schedule() const;
 
 protected:
 	// only one of these is possible

@@ -286,6 +286,17 @@ public:
 
 cbuffer_t schedule_gui_stats_t::buf;
 
+schedule_t *gui_schedule_t::get_old_schedule() const
+{
+	if( convoi_mode.is_bound() ) {
+		return convoi_mode->get_schedule();
+	}
+	else if( line_mode.is_bound() ) {
+		return line_mode->get_schedule();
+	}
+	return  old_schedule;
+}
+
 void gui_schedule_t::highlight_schedule( bool hl )
 {
 	stats->highlight_schedule(hl);
@@ -421,6 +432,11 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		numimp_load.set_value( schedule->get_current_entry().minimum_loading );
 
+		// not allow to change entries beyond waiting time
+		no_editing = (convoi_mode.is_bound() && line_mode.is_bound());
+		bt_mode.enable( !no_editing );
+		bt_return.enable( !no_editing );
+
 		mode = adding;
 		update_selection();
 	}
@@ -430,7 +446,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 void gui_schedule_t::update_tool(bool set)
 {
-	if(  !set  ||  mode==removing  ) {
+	if(  !set  ||  mode==removing  ||  no_editing  ) {
 		// reset tools, if still selected ...
 		if(welt->get_tool(player->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_ADD]) {
 			if(tool_t::general_tool[TOOL_SCHEDULE_ADD]->get_default_param()==(const char *)schedule) {
@@ -512,7 +528,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			delete schedule;
 			schedule = NULL;
 		}
-		schedule = old_schedule->copy();
+		schedule = get_old_schedule()->copy();
 		stats->schedule = schedule;
 		update_selection();
 		value_t v;
@@ -571,20 +587,23 @@ void gui_schedule_t::draw(scr_coord pos)
 		}
 		bt_apply.enable(player == world()->get_active_player());
 
-		if(  convoi_mode.is_bound()  ) {
-			// change current entry while convois drives on
-			schedule_t *cnv_scd = convoi_mode->get_schedule();
-			koord3d current = cnv_scd->get_current_entry().pos;
-			int idx = 0;
-			FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
-				if( ent.pos == current ) {
-					schedule->set_current_stop( idx );
-					break;
-				}
-				idx++;
+		schedule_t *scd = get_old_schedule();
+		// change current entry while convois drives on
+		koord3d current = scd->get_current_entry().pos;
+		int idx = 0;
+		bool is_all_same = scd->get_count()==schedule->get_count();
+		is_all_same &= !(convoi_mode.is_bound()  &&  line_mode.is_bound()  &&  line_mode != convoi_mode->get_line());
+		FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
+			if( ent.pos == current ) {
+				schedule->set_current_stop( idx );
 			}
-
+			if( is_all_same ) {
+				is_all_same = scd->entries[idx] == schedule->entries[idx];
+			}
+			idx++;
 		}
+		bt_apply.enable( !is_all_same );
+		bt_revert.enable( !is_all_same );
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
 	gui_aligned_container_t::draw(pos);
