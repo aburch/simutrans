@@ -410,7 +410,7 @@ void map_settings_t::draw( scr_coord offset )
 
 label_settings_t::label_settings_t()
 {
-	set_table_layout( 1, 0 );
+	set_table_layout(1,0);
 
 	// Show signalbox coverage
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].init(button_t::square_state, "show signalbox coverage");
@@ -420,29 +420,33 @@ label_settings_t::label_settings_t()
 	new_component<gui_divider_t>();
 
 	new_component<gui_label_t>("Station display");
-	// Transparent station coverage
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].init( button_t::square_state, "transparent station coverage" );
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].pressed = env_t::use_transparency_station_coverage;
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
-	add_component( buttons + IDBTN_TRANSPARENT_STATION_COVERAGE, 2 );
-
-	// Show station coverage
-	buttons[ IDBTN_SHOW_STATION_COVERAGE ].init( button_t::square_state, "show station coverage" );
-	buttons[ IDBTN_SHOW_STATION_COVERAGE ].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
-	add_component( buttons + IDBTN_SHOW_STATION_COVERAGE, 2 );
-
-	// Show waiting bars checkbox
-	buttons[ IDBTN_SHOW_WAITING_BARS ].init( button_t::square_state, "show waiting bars" );
-	buttons[ IDBTN_SHOW_WAITING_BARS ].pressed = env_t::show_names & 2;
-	buttons[ IDBTN_SHOW_WAITING_BARS ].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
-	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
-
-	add_table(4, 2);
+	add_table(5, 0);
 	{
+		// Transparent station coverage
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].init(button_t::square_state, "transparent station coverage");
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed = env_t::use_transparency_station_coverage;
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
+		add_component(buttons + IDBTN_TRANSPARENT_STATION_COVERAGE, 4);
+
+		// Show station coverage
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_STATION_COVERAGE].init(button_t::square_state, "show station coverage");
+		buttons[IDBTN_SHOW_STATION_COVERAGE].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
+		add_component(buttons + IDBTN_SHOW_STATION_COVERAGE, 4);
+
+		// Show waiting bars checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_WAITING_BARS].init(button_t::square_state, "show waiting bars");
+		buttons[IDBTN_SHOW_WAITING_BARS].pressed = env_t::show_names & 2;
+		buttons[IDBTN_SHOW_WAITING_BARS].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
+		add_component(buttons + IDBTN_SHOW_WAITING_BARS, 4);
+
 		// waiting bar option for passenger and mail classes
 		bool pakset_has_pass_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
 		bool pakset_has_mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
 		if (pakset_has_pass_classes || pakset_has_mail_classes) {
+			new_component<gui_margin_t>(LINESPACE/2);
 			new_component<gui_margin_t>(LINESPACE/2);
 			new_component<gui_image_t>()->set_image(pakset_has_pass_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
 			new_component<gui_image_t>()->set_image(pakset_has_mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
@@ -455,6 +459,7 @@ label_settings_t::label_settings_t()
 
 		// waiting bar option for freight
 		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_margin_t>(LINESPACE/2);
 		new_component<gui_image_t>()->set_image(skinverwaltung_t::goods->get_image_id(0), true);
 		new_component<gui_empty_t>();
 		freight_waiting_bar.set_focusable(false);
@@ -465,13 +470,13 @@ label_settings_t::label_settings_t()
 		freight_waiting_bar.enable(env_t::show_names & 2);
 		add_component(&freight_waiting_bar);
 		freight_waiting_bar.add_listener(this);
-
 	}
 	end_table();
 
 	// Show station names arrow
-	add_table(2, 1);
+	add_table(3,1);
 	{
+		new_component<gui_margin_t>(LINESPACE/2);
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("Shows the names of the individual stations in the main game window.");
 		add_component(buttons + IDBTN_SHOW_STATION_NAMES_ARROW);
@@ -482,51 +487,55 @@ label_settings_t::label_settings_t()
 	new_component<gui_divider_t>();
 
 	new_component<gui_label_t>("Convoy tooltips");
-	add_table(2, 0);
+	add_table(3,0);
+	{
+		// Convoy nameplate
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Nameplates")->set_tooltip(translator::translate("The line name or convoy name is displayed above the convoy."));
+		convoy_nameplate.set_focusable(false);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
+		add_component(&convoy_nameplate);
+		convoy_nameplate.add_listener(this);
 
-	// Convoy nameplate
-	new_component<gui_label_t>("Nameplates")->set_tooltip(translator::translate("The line name or convoy name is displayed above the convoy."));
-	convoy_nameplate.set_focusable(false);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
-	add_component(&convoy_nameplate);
-	convoy_nameplate.add_listener(this);
+		// Convoy loading bar
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Loading bar")->set_tooltip(translator::translate("A loading rate bar is displayed above the convoy."));
+		convoy_loadingbar.set_focusable(false);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
+		add_component(&convoy_loadingbar);
+		convoy_loadingbar.add_listener(this);
 
-	// Convoy loading bar
-	new_component<gui_label_t>("Loading bar")->set_tooltip(translator::translate("A loading rate bar is displayed above the convoy."));
-	convoy_loadingbar.set_focusable(false);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
-	add_component(&convoy_loadingbar);
-	convoy_loadingbar.add_listener(this);
+		// Convoy tooltip
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Tooltip")->set_tooltip(translator::translate("Toggle vehicle tooltips"));
+		convoy_tooltip.set_focusable(false);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only error convoys"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_tooltip.set_selection(env_t::show_vehicle_states);
+		add_component(&convoy_tooltip);
+		convoy_tooltip.add_listener(this);
 
-	// Convoy tooltip
-	new_component<gui_label_t>("Tooltip")->set_tooltip(translator::translate("Toggle vehicle tooltips"));
-	convoy_tooltip.set_focusable(false);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only error convoys"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_tooltip.set_selection(env_t::show_vehicle_states);
-	add_component(&convoy_tooltip);
-	convoy_tooltip.add_listener(this);
-
-	// convoi booking message options
-	new_component<gui_label_t>("Money message");
-	money_booking.set_focusable(false);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	money_booking.set_selection(env_t::show_money_message);
-	add_component(&money_booking, 2);
-	money_booking.add_listener(this);
-
+		// convoi booking message options
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Money message")->set_tooltip(translator::translate("Income display displayed when convoy arrives at the stop."));
+		money_booking.set_focusable(false);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		money_booking.set_selection(env_t::show_money_message);
+		add_component(&money_booking, 2);
+		money_booking.add_listener(this);
+	}
 	end_table();
 
 }
@@ -593,10 +602,10 @@ traffic_settings_t::traffic_settings_t()
 	add_component(&traffic_density);
 
 	// Convoy follow mode
-	new_component<gui_label_t>("Convoi following mode");
+	new_component<gui_label_t>("Convoi following mode")->set_tooltip(translator::translate("Select the behavior of the camera when the following convoy enters the tunnel."));
 
 	follow_mode.set_focusable(false);
-	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("None"), SYSCOL_TEXT);
+	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("do nothing"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("underground mode"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("sliced underground mode"), SYSCOL_TEXT);
 	follow_mode.set_selection(env_t::follow_convoi_underground);
