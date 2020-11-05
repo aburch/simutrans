@@ -121,7 +121,7 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 		if (!c) {
 			lb_region.buf().append("-");
 		}
-		lb_region.buf().printf(" (%s)", welt->get_region_name(depot->get_pos().get_2d()).c_str());
+		lb_region.buf().printf(" (%s)", translator::translate(welt->get_region_name(depot->get_pos().get_2d()).c_str()));
 	}
 	lb_region.update();
 	add_component(&lb_region);
