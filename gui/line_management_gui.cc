@@ -235,6 +235,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	sint32 cont_yoff = scrolly_convois.get_scroll_y();
 	sint32 halt_xoff = scrolly_halts.get_scroll_x();
 	sint32 halt_yoff = scrolly_halts.get_scroll_y();
+	uint8 player_nr = player->get_player_nr();
 
 	scr_size size = get_windowsize();
 	size.rdwr( file );
@@ -242,11 +243,13 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	file->rdwr_long( cont_yoff );
 	file->rdwr_long( halt_xoff );
 	file->rdwr_long( halt_yoff );
+	file->rdwr_byte( player_nr );
 
 	simline_t::rdwr_linehandle_t(file, line);
 	scd.rdwr( file );
 
 	if(  file->is_loading()  ) {
+		player = welt->get_player( player_nr );
 		if(  line.is_bound()  ) {
 			set_windowsize(size);
 			win_set_magic(this, (ptrdiff_t)line.get_rep());

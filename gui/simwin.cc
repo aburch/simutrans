@@ -47,6 +47,7 @@
 #include "money_frame.h"
 #include "halt_info.h"
 #include "convoi_detail_t.h"
+#include "convoi_frame.h"
 #include "convoi_info_t.h"
 #include "schedule_gui.h"
 #include "line_management_gui.h"
@@ -574,6 +575,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_font:           w = new loadfont_frame_t(); break;
 					case magic_scenario_info:  w = new scenario_info_t(); break;
 					case magic_depot:          w = new depot_frame_t(); break;
+					case magic_convoi_list:    w = new convoi_frame_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

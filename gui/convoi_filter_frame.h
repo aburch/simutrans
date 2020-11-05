@@ -12,7 +12,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "components/gui_textinput.h"
+
 
 class convoi_frame_t;
 class player_t;
@@ -27,33 +27,28 @@ public:
 
 	enum filter_flag_t {
 		any_filter         = 1 << 0,
-		name_filter        = 1 << 1,
-		typ_filter         = 1 << 2,
-		ware_filter        = 1 << 3,
-		spezial_filter     = 1 << 4,
 
-		lkws_filter        = 1 << 5,
-		zuege_filter       = 1 << 6,
-		schiffe_filter     = 1 << 7,
-		aircraft_filter    = 1 << 8,
-		noroute_filter     = 1 << 9,
-		noschedule_filter  = 1 << 10,
-		noincome_filter    = 1 << 11,
-		indepot_filter     = 1 << 12,
-		noline_filter      = 1 << 13,
-		stucked_filter     = 1 << 14,
-		monorail_filter    = 1 << 15,
-		maglev_filter      = 1 << 16,
-		narrowgauge_filter = 1 << 17,
-		tram_filter        = 1 << 18,
-		obsolete_filter    = 1 << 19,
+		special_filter     = 1 << 1,
+		ware_filter        = 1 << 2,
+
+		noroute_filter     = 1 << 3,
+		noschedule_filter  = 1 << 4,
+		noincome_filter    = 1 << 5,
+		indepot_filter     = 1 << 6,
+		noline_filter      = 1 << 7,
+		stucked_filter     = 1 << 8,
+		monorail_filter    = 1 << 9,
+		maglev_filter      = 1 << 10,
+		narrowgauge_filter = 1 << 11,
+		tram_filter        = 1 << 12,
+		obsolete_filter    = 1 << 13,
 
 		// number of first special filter
-		sub_filter         = lkws_filter
+		sub_filter         = noroute_filter
 	};
 
 	enum {
-		FILTER_BUTTONS = 19
+		FILTER_BUTTONS = 9
 	};
 
 
@@ -105,9 +100,6 @@ private:
 	 * All gui elements of this dialog:
 	 */
 	button_t filter_buttons[FILTER_BUTTONS];
-
-	static char name_filter_text[64];
-	gui_textinput_t name_filter_input;
 
 	button_t typ_filter_enable;
 
