@@ -557,8 +557,8 @@ AIRTOOLS
 航空機ツール
 All
 全て
-all convoi tooltips
-常に車両の状態を表示
+always show all
+全て
 Allow city growth
 街を発展させる
 Allow player change
@@ -811,8 +811,8 @@ contains the following doubled objects:</strong><p>
 以下のオブジェクトが重複しています:</strong><p/>
 convoi %d of %d
 入庫中の編成 %d / %d
-convoi error tooltips
-問題のある車両のみ状態を表示
+only error convoys
+問題のある車両のみ
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 この編成は一番近い車庫に\n向かいました。\n
 Convoi is sold when all wagons are empty.
@@ -3679,8 +3679,8 @@ switch the convoy nameplate display mode
 系統名表示モードの切り替え
 no convoy nameplate
 系統名非表示
-mouseover convoy name
-マウスオーバーで系統名表示
+mouseover
+マウスオーバーで表示
 active player's line name
 自社車両の系統名を常時表示
 always show convoy name
@@ -3813,8 +3813,8 @@ production %.1f%s/month
 月生産 %.1f%s
 production %u%s/month
 月生産 %u%s
-own convoi tooltips
-所有車両の状態を表示
+only active player's
+所有編成のみ
 No service
 運行されている編成がありません
 Passengers/mail

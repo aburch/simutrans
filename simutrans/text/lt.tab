@@ -509,7 +509,7 @@ Airport
 Aerouostas
 All
 Visi
-all convoi tooltips
+always show all
 visi konvojų pranešimai
 Allow city growth
 Leisti miestui augti
@@ -745,7 +745,7 @@ Consumed
 Suvartota
 convoi %d of %d
 Konvojus %d iš %d
-convoi error tooltips
+only error convoys
 konvojaus pranešimai
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Konvojus buvo išsiųstas\nį artimiausia depą. \n

@@ -421,7 +421,7 @@ Airport
 공항
 All
 모두
-all convoi tooltips
+always show all
 모든 차량 도구팁
 Allow city growth
 도시성장 허용
@@ -631,7 +631,7 @@ Constructed by %s
 %s에 의해 제작
 convoi %d of %d
 %d번째 차량 %d대중
-convoi error tooltips
+only error convoys
 차량 오류 도구팁
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 수송대가\n적당한 타입의\n가까운 차고로 보내집니다.\n
