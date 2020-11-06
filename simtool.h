@@ -1150,6 +1150,17 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_rollup_all_win_t : public tool_t {
+public:
+	tool_rollup_all_win_t() : tool_t(TOOL_ROLLUP_ALL_WIN | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Hide/open all windows"); }
+	bool is_selected() const OVERRIDE { return false; }
+	bool init( player_t * ) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
+
 /******************************** Internal tools ***********/
 
 /* internal simple tools needed for network synchronisation */
