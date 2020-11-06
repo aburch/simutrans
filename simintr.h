@@ -34,9 +34,6 @@ void intr_enable();
 void intr_disable();
 
 
-// force sync_step (done before sleeping)
-void interrupt_force();
-
 void interrupt_check(const char* caller_info = "0");
 
 #if COLOUR_DEPTH == 0 && defined PROFILE
