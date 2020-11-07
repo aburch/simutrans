@@ -1658,7 +1658,7 @@ void win_display_flush(double konto)
 				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
+					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+1+LINESPACE/2,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1666,7 +1666,7 @@ void win_display_flush(double konto)
 			}
 			else if(!static_tooltip_text.empty()) {
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+7;
-				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+7,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
+				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+1+LINESPACE/2,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
