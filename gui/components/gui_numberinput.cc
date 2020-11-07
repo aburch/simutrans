@@ -47,7 +47,7 @@ void gui_numberinput_t::set_size(scr_size size_par) {
 
 	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w - D_H_SPACE, size_par.h) );
 
-	bt_left.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	bt_left.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
 	textinp.align_to( &bt_left, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 	bt_right.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 }
