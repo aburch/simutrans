@@ -17,6 +17,7 @@
 #include "components/gui_label.h"
 #include "components/gui_schedule.h"
 #include "components/gui_scrolled_list.h"
+#include "components/gui_speedbar.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_textinput.h"
 
@@ -31,16 +32,20 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 
 	gui_textinput_t inp_name;
 
+	gui_label_t lb_convoi_count;
+	cbuffer_t lb_convoi_count_text;
+	gui_speedbar_t capacity_bar;
+	cbuffer_t lb_profit_value_text;
+	gui_label_t lb_profit_value;
+	button_t bt_delete_line;
+
 	gui_tab_panel_t switch_mode;
 	gui_schedule_t scd;
 
 	gui_chart_t chart;
 	gui_button_to_chart_array_t button_to_chart;
 
-	gui_label_t lb_convoi_count;
-	cbuffer_t lb_convoi_count_text;
-
-	button_t bt_withdraw_line;
+	button_t bt_withdraw_line, bt_find_convois;
 	gui_scrolled_list_t scrolly_convois, scrolly_halts;
 
 	gui_aligned_container_t container_schedule, container_stats, container_convois, container_halts;
@@ -55,6 +60,8 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 	void rename_line();
 
 	uint32 old_convoi_count, old_halt_count;
+
+	sint32 capacity, load;
 
 public:
 	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player_ = NULL);

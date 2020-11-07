@@ -594,9 +594,11 @@ void gui_schedule_t::draw(scr_coord pos)
 		bool is_all_same = scd->get_count()==schedule->get_count();
 		is_all_same &= !(convoi_mode.is_bound()  &&  line_mode.is_bound()  &&  line_mode != convoi_mode->get_line());
 		FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
+#if 0
 			if( ent.pos == current ) {
 				schedule->set_current_stop( idx );
 			}
+#endif
 			if( is_all_same ) {
 				is_all_same = scd->entries[idx] == schedule->entries[idx];
 			}

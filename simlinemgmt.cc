@@ -15,7 +15,7 @@
 #include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
 
-#include "gui/schedule_list.h"
+#include "gui/line_management_gui.h"
 
 #include "player/simplay.h"
 
@@ -223,13 +223,13 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 
 void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
 {
-	gui_frame_t *schedule_list_gui = win_get_magic( magic_line_management_t + player->get_player_nr() );
-	if(  schedule_list_gui  ) {
-		top_win( schedule_list_gui );
+	if( line.is_bound() ) {
+		gui_frame_t *line_info = win_get_magic( (ptrdiff_t)line.get_rep() );
+		if(  line_info  ) {
+			top_win( line_info );
+		}
+		else {
+			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+		}
 	}
-	else {
-		schedule_list_gui = new schedule_list_gui_t(player);
-		create_win( schedule_list_gui, w_info, magic_line_management_t+player->get_player_nr() );
-	}
-	dynamic_cast<schedule_list_gui_t *>(schedule_list_gui)->show_lineinfo(line);
 }

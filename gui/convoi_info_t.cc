@@ -439,8 +439,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		// open selected line as schedule
 		if( line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) ) {
 			if(  li->get_line().is_bound()  ) {
-				create_win( new line_management_gui_t(li->get_line(), cnv->get_owner()), w_info, (ptrdiff_t)li->get_line().get_rep() );
-				welt->set_dirty();
+				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), li->get_line() );
 			}
 		}
 	}
@@ -531,7 +530,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 					// update new line instead
 					if (line != cnv->get_line()) {
 						char id[16];
-						sprintf(id, "%i,%i", line.get_id(), scd.get_schedule()->get_current_stop());
+						sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
 						cnv->call_convoi_tool('l', id);
 					}
 					// since waiting times might be different from line

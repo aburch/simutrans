@@ -7,6 +7,7 @@
 	FIX: Wrong loading of 8 bit greyscale BMP heightmaps if width is not divisible by 4
 	ADD: New height conversion modes when loading heightmaps
 	CHG: schedule/line now tab of convoi window instead independent window
+	CHG: new line list, overhauled convoi list
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

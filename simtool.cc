@@ -6995,18 +6995,7 @@ bool tool_change_line_t::init( player_t *player )
 
 				line->get_schedule()->finish_editing(); // just in case ...
 				if(  can_use_gui()  ) {
-					schedule_gui_t *fg = dynamic_cast<schedule_gui_t *>(win_get_magic((ptrdiff_t)t));
-					if(  fg  ) {
-						fg->init_line_selector();
-					}
-					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+player->get_player_nr()));
-					if(  sl  ) {
-						sl->show_lineinfo( line );
-					}
-					// no schedule window open => then open one
-					if(  fg==NULL  ) {
-						create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
-					}
+					player->simlinemgmt.show_lineinfo( player, line );
 				}
 			}
 			break;
@@ -7234,9 +7223,7 @@ bool tool_change_depot_t::init( player_t *player )
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
 			if(  can_use_gui()  ) {
-				if(  welt->get_active_player()==player  &&  depot_frame  ) {
-					create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
-				}
+				player->simlinemgmt.show_lineinfo( player, selected_line );
 			}
 
 			if(  depot_frame  ) {
@@ -7245,11 +7232,6 @@ bool tool_change_depot_t::init( player_t *player )
 					depot_frame->apply_line();
 				}
 				depot_frame->update_data();
-			}
-
-			schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t + player->get_player_nr() ));
-			if(  sl  ) {
-				sl->update_data( selected_line );
 			}
 			DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 			break;
@@ -7606,11 +7588,6 @@ bool tool_rename_t::init(player_t *player)
 			line.set_id( id );
 			if(  line.is_bound()  &&  (!env_t::networkmode  ||  player_t::check_owner(line->get_owner(), player))  ) {
 				line->set_name( p );
-
-				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+player->get_player_nr()));
-				if(  sl  ) {
-					sl->update_data( line );
-				}
 				return false;
 			}
 			break;
