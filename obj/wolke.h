@@ -40,19 +40,19 @@ public:
 	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, const skin_desc_t *cloud );
 	virtual ~wolke_t();
 
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
-	const char* get_name() const { return "Wolke"; }
+	const char* get_name() const OVERRIDE { return "Wolke"; }
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return sync_wolke; }
+	typ get_typ() const OVERRIDE { return sync_wolke; }
 #endif
 
-	image_id get_image() const;
+	image_id get_image() const OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	virtual void rotate90();
+	void rotate90() OVERRIDE;
 };
 
 
@@ -65,9 +65,9 @@ public:
 	async_wolke_t(loadsave_t *file);
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return async_wolke; }
+	typ get_typ() const OVERRIDE { return async_wolke; }
 #endif
-	image_id get_image() const { return IMG_EMPTY; }
+	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 };
 
 class raucher_t : public obj_t
@@ -76,9 +76,9 @@ public:
 	raucher_t(loadsave_t *file);
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return raucher; }
+	typ get_typ() const OVERRIDE { return raucher; }
 #endif
-	image_id get_image() const { return IMG_EMPTY; }
+	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 };
 
 #endif

@@ -248,67 +248,123 @@ void gui_settings_t::draw(scr_coord offset)
 map_settings_t::map_settings_t()
 {
 	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
-	// Show grid checkbox
-	buttons[ IDBTN_SHOW_GRID ].init( button_t::square_state, "show grid" );
-	buttons[ IDBTN_SHOW_GRID ].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
-	add_component( buttons + IDBTN_SHOW_GRID, 2 );
+	new_component<gui_label_t>("Grid");
+	add_table(3,0);
+	{
+		// Show grid checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_GRID].init(button_t::square_state, "show grid");
+		buttons[IDBTN_SHOW_GRID].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
+		add_component(buttons + IDBTN_SHOW_GRID, 2);
 
-	// Underground view checkbox
-	buttons[ IDBTN_UNDERGROUND_VIEW ].init( button_t::square_state, "underground mode" );
-	buttons[ IDBTN_UNDERGROUND_VIEW ].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
-	add_component( buttons + IDBTN_UNDERGROUND_VIEW, 2 );
+		// Underground view checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_UNDERGROUND_VIEW].init(button_t::square_state, "underground mode");
+		buttons[IDBTN_UNDERGROUND_VIEW].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
+		add_component(buttons + IDBTN_UNDERGROUND_VIEW, 2);
 
-	// Show slice map view checkbox
-	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].init( button_t::square_state, "sliced underground mode" );
-	buttons[ IDBTN_SHOW_SLICE_MAP_VIEW ].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
-	add_component( buttons + IDBTN_SHOW_SLICE_MAP_VIEW );
+		// Show slice map view checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_SLICE_MAP_VIEW].init(button_t::square_state, "sliced underground mode");
+		buttons[IDBTN_SHOW_SLICE_MAP_VIEW].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
+		add_component(buttons + IDBTN_SHOW_SLICE_MAP_VIEW);
+		// underground slice edit
+		inp_underground_level.set_value(grund_t::underground_mode == grund_t::ugm_level ? grund_t::underground_level : world()->get_zeiger()->get_pos().z);
+		inp_underground_level.set_limits(world()->get_groundwater() - 10, 32);
+		inp_underground_level.add_listener(this);
+		add_component(&inp_underground_level);
 
-	// underground slice edit
-	inp_underground_level.set_value( grund_t::underground_mode == grund_t::ugm_level ? grund_t::underground_level : world()->get_zeiger()->get_pos().z );
-	inp_underground_level.set_limits( world()->get_groundwater() - 10, 32 );
-	inp_underground_level.add_listener( this );
-	add_component( &inp_underground_level );
-
-	// Day/night change checkbox
-	buttons[ IDBTN_DAY_NIGHT_CHANGE ].init( button_t::square_state, "8WORLD_CHOOSE" );
-	buttons[ IDBTN_DAY_NIGHT_CHANGE ].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
-	add_component( buttons + IDBTN_DAY_NIGHT_CHANGE, 2 );
-
-	// Brightness label
-	new_component<gui_label_t>( "1LIGHT_CHOOSE" );
-
-	// brightness edit
-	brightness.set_value( env_t::daynight_level );
-	brightness.set_limits( 0, 9 );
-	brightness.add_listener( this );
-	add_component( &brightness );
-
-	// Scroll inverse checkbox
-	buttons[ IDBTN_SCROLL_INVERSE ].init( button_t::square_state, "4LIGHT_CHOOSE" );
-	buttons[ IDBTN_SCROLL_INVERSE ].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
-	add_component( buttons + IDBTN_SCROLL_INVERSE, 2 );
-
-	// Numpad key
-	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
-	buttons[ IDBTN_IGNORE_NUMLOCK ].pressed = env_t::numpad_always_moves_map;
-	add_component( buttons + IDBTN_IGNORE_NUMLOCK, 2 );
-
-	// Scroll speed label
-	new_component<gui_label_t>( "3LIGHT_CHOOSE" );
-
-	// Scroll speed edit
-	scrollspeed.set_value( abs( env_t::scroll_multi ) );
-	scrollspeed.set_limits( 1, 9 );
-	scrollspeed.add_listener( this );
-	add_component( &scrollspeed );
-
-	// Toggle simple drawing for debugging
+		// Toggle simple drawing for debugging
 #ifdef DEBUG
-	buttons[IDBTN_SIMPLE_DRAWING].init(button_t::square_state, "Simple drawing");
-	add_component(buttons+IDBTN_SIMPLE_DRAWING, 2);
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SIMPLE_DRAWING].init(button_t::square_state, "Simple drawing");
+		add_component(buttons + IDBTN_SIMPLE_DRAWING, 2);
 #endif
+	}
+	end_table();
 
+	new_component<gui_label_t>("Brightness");
+	add_table(3, 0);
+	{
+		// Day/night change checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_DAY_NIGHT_CHANGE].init(button_t::square_state, "8WORLD_CHOOSE");
+		buttons[IDBTN_DAY_NIGHT_CHANGE].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
+		add_component(buttons + IDBTN_DAY_NIGHT_CHANGE, 2);
+
+		// Brightness label
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("1LIGHT_CHOOSE");
+		// brightness edit
+		brightness.set_value(env_t::daynight_level);
+		brightness.set_limits(0, 9);
+		brightness.add_listener(this);
+		add_component(&brightness);
+	}
+	end_table();
+
+	new_component<gui_label_t>("Map scroll");
+	add_table(3, 0);
+	{
+		// Scroll inverse checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SCROLL_INVERSE].init(button_t::square_state, "4LIGHT_CHOOSE");
+		buttons[IDBTN_SCROLL_INVERSE].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
+		add_component(buttons + IDBTN_SCROLL_INVERSE, 2);
+
+		// Numpad key
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_IGNORE_NUMLOCK].init(button_t::square_state, "Num pad keys always move map");
+		buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+		add_component(buttons + IDBTN_IGNORE_NUMLOCK, 2);
+
+		// Scroll speed label
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("3LIGHT_CHOOSE");
+		// Scroll speed edit
+		scrollspeed.set_value(abs(env_t::scroll_multi));
+		scrollspeed.set_limits(1, 9);
+		scrollspeed.add_listener(this);
+		add_component(&scrollspeed);
+	}
+	end_table();
+	new_component<gui_divider_t>();
+
+	new_component<gui_label_t>("transparencies");
+	add_table(3, 0);
+	{
+		// Transparent instead of hidden checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].init(button_t::square_state, "hide transparent");
+		buttons[IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
+		add_component(buttons + IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN, 2);
+
+		// Hide trees checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_HIDE_TREES].init(button_t::square_state, "hide trees");
+		buttons[IDBTN_HIDE_TREES].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
+		add_component(buttons + IDBTN_HIDE_TREES, 2);
+
+		// Hide buildings
+		new_component<gui_margin_t>(LINESPACE/2);
+		hide_buildings.set_focusable(false);
+		hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("no buildings hidden"), SYSCOL_TEXT);
+		hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("hide city building"), SYSCOL_TEXT);
+		hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("hide all building"), SYSCOL_TEXT);
+		hide_buildings.set_selection(env_t::hide_buildings);
+		add_component(&hide_buildings, 2);
+		hide_buildings.add_listener(this);
+
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_HIDE_BUILDINGS].init(button_t::square_state, "Smart hide objects");
+		buttons[IDBTN_HIDE_BUILDINGS].set_tooltip("hide objects under cursor");
+		add_component(buttons + IDBTN_HIDE_BUILDINGS);
+		// Smart hide objects edit
+		cursor_hide_range.set_value(env_t::cursor_hide_range);
+		cursor_hide_range.set_limits(0, 10);
+		cursor_hide_range.add_listener(this);
+		add_component(&cursor_hide_range);
+	}
 	end_table();
 }
 
@@ -331,48 +387,6 @@ bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 			world()->update_underground();
 		}
 	}
-	return true;
-}
-
-transparency_settings_t::transparency_settings_t()
-{
-	set_table_layout( 1, 0 );
-	add_table( 2, 0 );
-
-	// Transparent instead of hidden checkbox
-	buttons[ IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN ].init( button_t::square_state, "hide transparent" );
-	buttons[ IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN ].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
-	add_component( buttons + IDBTN_TRANSPARENT_INSTEAD_OF_HIDDEN, 2 );
-
-	// Hide trees checkbox
-	buttons[ IDBTN_HIDE_TREES ].init( button_t::square_state, "hide trees" );
-	buttons[ IDBTN_HIDE_TREES ].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
-	add_component( buttons + IDBTN_HIDE_TREES, 2 );
-
-	// Hide buildings
-	hide_buildings.set_focusable( false );
-	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "no buildings hidden" ), SYSCOL_TEXT );
-	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "hide city building" ), SYSCOL_TEXT );
-	hide_buildings.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "hide all building" ), SYSCOL_TEXT );
-	hide_buildings.set_selection( env_t::hide_buildings );
-	add_component( &hide_buildings, 2 );
-	hide_buildings.add_listener( this );
-
-	buttons[ IDBTN_HIDE_BUILDINGS ].set_tooltip( "hide objects under cursor" );
-	buttons[ IDBTN_HIDE_BUILDINGS ].init( button_t::square_state, "Smart hide objects" );
-	add_component( buttons + IDBTN_HIDE_BUILDINGS );
-
-	// Smart hide objects edit
-	cursor_hide_range.set_value( env_t::cursor_hide_range );
-	cursor_hide_range.set_limits( 0, 10 );
-	cursor_hide_range.add_listener( this );
-	add_component( &cursor_hide_range );
-
-	end_table();
-}
-
-bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
-{
 	// Smart hide objects edit
 	if( &cursor_hide_range == comp ) {
 		env_t::cursor_hide_range = cursor_hide_range.get_value();
@@ -386,7 +400,7 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 }
 
 
-void transparency_settings_t::draw( scr_coord offset )
+void map_settings_t::draw( scr_coord offset )
 {
 	hide_buildings.set_selection( env_t::hide_buildings );
 
@@ -396,40 +410,44 @@ void transparency_settings_t::draw( scr_coord offset )
 
 label_settings_t::label_settings_t()
 {
-	set_table_layout( 1, 0 );
+	set_table_layout(1,0);
 
 	// Show signalbox coverage
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].init(button_t::square_state, "show signalbox coverage");
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].pressed = env_t::signalbox_coverage_show;
 	buttons[IDBTN_SHOW_SIGNALBOX_COVERAGE].set_tooltip("Show coverage radius of the signalbox.");
 	add_component(buttons + IDBTN_SHOW_SIGNALBOX_COVERAGE);
-	new_component<gui_margin_t>(0, LINESPACE/3);
+	new_component<gui_divider_t>();
 
 	new_component<gui_label_t>("Station display");
-	// Transparent station coverage
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].init( button_t::square_state, "transparent station coverage" );
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].pressed = env_t::use_transparency_station_coverage;
-	buttons[ IDBTN_TRANSPARENT_STATION_COVERAGE ].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
-	add_component( buttons + IDBTN_TRANSPARENT_STATION_COVERAGE, 2 );
-
-	// Show station coverage
-	buttons[ IDBTN_SHOW_STATION_COVERAGE ].init( button_t::square_state, "show station coverage" );
-	buttons[ IDBTN_SHOW_STATION_COVERAGE ].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
-	add_component( buttons + IDBTN_SHOW_STATION_COVERAGE, 2 );
-
-	// Show waiting bars checkbox
-	buttons[ IDBTN_SHOW_WAITING_BARS ].init( button_t::square_state, "show waiting bars" );
-	buttons[ IDBTN_SHOW_WAITING_BARS ].pressed = env_t::show_names & 2;
-	buttons[ IDBTN_SHOW_WAITING_BARS ].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
-	add_component( buttons + IDBTN_SHOW_WAITING_BARS, 2 );
-
-	add_table(4, 2);
+	add_table(5, 0);
 	{
+		// Transparent station coverage
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].init(button_t::square_state, "transparent station coverage");
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].pressed = env_t::use_transparency_station_coverage;
+		buttons[IDBTN_TRANSPARENT_STATION_COVERAGE].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
+		add_component(buttons + IDBTN_TRANSPARENT_STATION_COVERAGE, 4);
+
+		// Show station coverage
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_STATION_COVERAGE].init(button_t::square_state, "show station coverage");
+		buttons[IDBTN_SHOW_STATION_COVERAGE].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
+		add_component(buttons + IDBTN_SHOW_STATION_COVERAGE, 4);
+
+		// Show waiting bars checkbox
+		new_component<gui_margin_t>(LINESPACE/2);
+		buttons[IDBTN_SHOW_WAITING_BARS].init(button_t::square_state, "show waiting bars");
+		buttons[IDBTN_SHOW_WAITING_BARS].pressed = env_t::show_names & 2;
+		buttons[IDBTN_SHOW_WAITING_BARS].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
+		add_component(buttons + IDBTN_SHOW_WAITING_BARS, 4);
+
 		// waiting bar option for passenger and mail classes
 		bool pakset_has_pass_classes = (goods_manager_t::passengers->get_number_of_classes() > 1);
 		bool pakset_has_mail_classes = (goods_manager_t::mail->get_number_of_classes() > 1);
 		if (pakset_has_pass_classes || pakset_has_mail_classes) {
-			new_component<gui_margin_t>(LINESPACE / 2);
+			new_component<gui_margin_t>(LINESPACE/2);
+			new_component<gui_margin_t>(LINESPACE/2);
 			new_component<gui_image_t>()->set_image(pakset_has_pass_classes ? skinverwaltung_t::passengers->get_image_id(0) : IMG_EMPTY, true);
 			new_component<gui_image_t>()->set_image(pakset_has_mail_classes ? skinverwaltung_t::mail->get_image_id(0) : IMG_EMPTY, true);
 			buttons[IDBTN_CLASSES_WAITING_BAR].init(button_t::square_state, "Divided by class");
@@ -440,7 +458,8 @@ label_settings_t::label_settings_t()
 		}
 
 		// waiting bar option for freight
-		new_component<gui_margin_t>(LINESPACE / 2);
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_margin_t>(LINESPACE/2);
 		new_component<gui_image_t>()->set_image(skinverwaltung_t::goods->get_image_id(0), true);
 		new_component<gui_empty_t>();
 		freight_waiting_bar.set_focusable(false);
@@ -448,15 +467,16 @@ label_settings_t::label_settings_t()
 		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by category"), SYSCOL_TEXT);
 		freight_waiting_bar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Divided by goods"), SYSCOL_TEXT);
 		freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
+		freight_waiting_bar.enable(env_t::show_names & 2);
 		add_component(&freight_waiting_bar);
 		freight_waiting_bar.add_listener(this);
-
 	}
 	end_table();
 
 	// Show station names arrow
-	add_table(2, 1);
+	add_table(3,1);
 	{
+		new_component<gui_margin_t>(LINESPACE/2);
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_typ(button_t::arrowright);
 		buttons[IDBTN_SHOW_STATION_NAMES_ARROW].set_tooltip("Shows the names of the individual stations in the main game window.");
 		add_component(buttons + IDBTN_SHOW_STATION_NAMES_ARROW);
@@ -464,54 +484,58 @@ label_settings_t::label_settings_t()
 	}
 	end_table();
 
-	new_component<gui_margin_t>(0, LINESPACE/3);
+	new_component<gui_divider_t>();
 
 	new_component<gui_label_t>("Convoy tooltips");
-	add_table(2, 0);
+	add_table(3,0);
+	{
+		// Convoy nameplate
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Nameplates")->set_tooltip(translator::translate("The line name or convoy name is displayed above the convoy."));
+		convoy_nameplate.set_focusable(false);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
+		add_component(&convoy_nameplate);
+		convoy_nameplate.add_listener(this);
 
-	// Convoy nameplate
-	new_component<gui_label_t>("nameplates");
-	convoy_nameplate.set_focusable(false);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_nameplate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_nameplate.set_selection(env_t::show_cnv_nameplates);
-	add_component(&convoy_nameplate);
-	convoy_nameplate.add_listener(this);
+		// Convoy loading bar
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Loading bar")->set_tooltip(translator::translate("A loading rate bar is displayed above the convoy."));
+		convoy_loadingbar.set_focusable(false);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
+		add_component(&convoy_loadingbar);
+		convoy_loadingbar.add_listener(this);
 
-	// Convoy loading bar
-	new_component<gui_label_t>("loading bar");
-	convoy_loadingbar.set_focusable(false);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_loadingbar.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
-	add_component(&convoy_loadingbar);
-	convoy_loadingbar.add_listener(this);
+		// Convoy tooltip
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Tooltip")->set_tooltip(translator::translate("Toggle vehicle tooltips"));
+		convoy_tooltip.set_focusable(false);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only error convoys"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		convoy_tooltip.set_selection(env_t::show_vehicle_states);
+		add_component(&convoy_tooltip);
+		convoy_tooltip.add_listener(this);
 
-	// Convoy tooltip
-	new_component<gui_label_t>("tooltip");
-	convoy_tooltip.set_focusable(false);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("mouseover"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Only error convoys"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	convoy_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	convoy_tooltip.set_selection(env_t::show_vehicle_states);
-	add_component(&convoy_tooltip);
-	convoy_tooltip.add_listener(this);
-
-	// convoi booking message options
-	new_component<gui_label_t>("money message");
-	money_booking.set_focusable(false);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
-	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
-	money_booking.set_selection(env_t::show_money_message);
-	add_component(&money_booking, 2);
-	money_booking.add_listener(this);
-
+		// convoi booking message options
+		new_component<gui_margin_t>(LINESPACE/2);
+		new_component<gui_label_t>("Money message")->set_tooltip(translator::translate("Income display displayed when convoy arrives at the stop."));
+		money_booking.set_focusable(false);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("always show all"), SYSCOL_TEXT);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("only active player's"), SYSCOL_TEXT);
+		money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("never show"), SYSCOL_TEXT);
+		money_booking.set_selection(env_t::show_money_message);
+		add_component(&money_booking, 2);
+		money_booking.add_listener(this);
+	}
 	end_table();
 
 }
@@ -546,12 +570,7 @@ void label_settings_t::draw(scr_coord offset)
 	convoy_loadingbar.set_selection(env_t::show_cnv_loadingbar);
 	convoy_tooltip.set_selection(env_t::show_vehicle_states);
 	freight_waiting_bar.set_selection(env_t::freight_waiting_bar_level);
-	if (env_t::show_names & 2) {
-		freight_waiting_bar.enable();
-	}
-	else {
-		freight_waiting_bar.disable();
-	}
+	freight_waiting_bar.enable(env_t::show_names & 2);
 
 	gui_aligned_container_t::draw(offset);
 }
@@ -583,10 +602,10 @@ traffic_settings_t::traffic_settings_t()
 	add_component(&traffic_density);
 
 	// Convoy follow mode
-	new_component<gui_label_t>("Convoi following mode");
+	new_component<gui_label_t>("Convoi following mode")->set_tooltip(translator::translate("Select the behavior of the camera when the following convoy enters the tunnel."));
 
 	follow_mode.set_focusable(false);
-	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("None"), SYSCOL_TEXT);
+	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("do nothing"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("underground mode"), SYSCOL_TEXT);
 	follow_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("sliced underground mode"), SYSCOL_TEXT);
 	follow_mode.set_selection(env_t::follow_convoi_underground);
@@ -628,7 +647,6 @@ color_gui_t::color_gui_t() :
 	gui_frame_t( translator::translate( "Helligk. u. Farben" ) ),
 	scrolly_gui(&gui_settings),
 	scrolly_map(&map_settings),
-	scrolly_transparency(&transparency_settings),
 	scrolly_station(&station_settings),
 	scrolly_traffic(&traffic_settings)
 {
@@ -636,13 +654,11 @@ color_gui_t::color_gui_t() :
 
 	scrolly_gui.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 	scrolly_map.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
-	scrolly_transparency.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 	scrolly_station.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 	scrolly_traffic.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 
 	tabs.add_tab(&scrolly_gui, translator::translate("GUI settings"));
 	tabs.add_tab(&scrolly_map, translator::translate("map view"));
-	tabs.add_tab(&scrolly_transparency, translator::translate("transparencies"));
 	tabs.add_tab(&scrolly_station, translator::translate("tooltip/coverage"));
 	tabs.add_tab(&scrolly_traffic, translator::translate("traffic settings"));
 	add_component(&tabs);
@@ -652,8 +668,9 @@ color_gui_t::color_gui_t() :
 	}
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
-	set_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
+	set_min_windowsize( scr_size(D_DEFAULT_WIDTH, max(get_min_windowsize().h, traffic_settings.get_size().h)) );
+	// It is assumed that the map view tab is the tab with the most lines.
+	set_windowsize( scr_size(D_DEFAULT_WIDTH, map_settings.get_size().h+D_TAB_HEADER_HEIGHT+D_TITLEBAR_HEIGHT+D_MARGINS_Y) );
 	resize( scr_coord( 0, 0 ) );
 }
 

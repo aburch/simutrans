@@ -23,13 +23,13 @@ public:
 	field_t(const koord3d pos, player_t *player, const field_class_desc_t *desc, fabrik_t *fab);
 	virtual ~field_t();
 
-	const char* get_name() const { return "Field"; }
+	const char* get_name() const OVERRIDE { return "Field"; }
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return obj_t::field; }
+	typ get_typ() const OVERRIDE { return obj_t::field; }
 #endif
 
-	image_id get_image() const;
+	image_id get_image() const OVERRIDE;
 
 	/// @copydoc obj_t::show_info
 	void show_info() OVERRIDE;
@@ -37,9 +37,9 @@ public:
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 */
-	const char *  is_deletable(const player_t *);
+	const char * is_deletable(const player_t *) OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 };
 
 #endif

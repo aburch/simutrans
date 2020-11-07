@@ -33,7 +33,7 @@ protected:
 public:
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return crossing; }
+	typ get_typ() const OVERRIDE { return crossing; }
 #endif
 	const char* get_name() const OVERRIDE { return "Kreuzung"; }
 
@@ -64,7 +64,7 @@ public:
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 */
-	const char * is_deletable(const player_t *player) OVERRIDE;
+	const char *is_deletable(const player_t *player) OVERRIDE;
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehicle_base_t *v, bool check_only = false ) { return logic->request_crossing( v, check_only ); }

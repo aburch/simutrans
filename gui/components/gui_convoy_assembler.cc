@@ -570,7 +570,7 @@ void gui_convoy_assembler_t::layout()
 	// left aligned column 1
 	// right aligned columns 2..4
 
-	y += LINESPACE;
+	y += D_V_SPACE;
 
 	const scr_size column2_size(size.w / 5, D_BUTTON_HEIGHT);
 	const scr_size column3_size(126, D_BUTTON_HEIGHT);
@@ -2496,7 +2496,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		buf.append("\n");
 
-		display_multiline_text_rgb(pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 1 + 4 + 16, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y + tabs.get_pos().y + tabs.get_size().h + (D_BUTTON_HEIGHT+D_V_SPACE)*3, buf, SYSCOL_TEXT);
 
 		buf.clear();
 		// column 2

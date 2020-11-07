@@ -398,7 +398,7 @@ Vrijeme ubrzanja
 Account above %s
 Podizanje preko %s
 Active player only
-Samo aktivan igraË
+Samo aktivan igraÅE
 Add forest
 Dodaj πumu
 Add random citycar
@@ -415,7 +415,7 @@ Airport
 Aerodrom
 All
 Sve
-all convoi tooltips
+always show all
 Savjet za sve konvoje
 Allow city growth
 Dozvoli razvoj grada
@@ -623,7 +623,7 @@ Constructed by %s
 Napravio %s
 convoi %d of %d
 Konvoj %d od %d 
-convoi error tooltips
+only error convoys
 Savjeti greske konvoja
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Konvoj je poslan\nu najblizi depo \nprikladne vrste.\n

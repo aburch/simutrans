@@ -92,7 +92,6 @@ void citylist_stats_t::update_label()
 void citylist_stats_t::set_size(scr_size size)
 {
 	gui_aligned_container_t::set_size(size);
-	lb_name.set_width( LINEASCENT*15 );
 }
 
 

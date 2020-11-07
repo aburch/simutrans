@@ -282,7 +282,7 @@ Jocul este oprit.\nNicio modificare nu este posobila.\n
 Screenshot\ngespeichert.\n
 Imaginea \ns-a salvat.\n
 Sends the convoi to the last depot it departed from!
-Vehicolul este trimis Ón depoul de unde provine!
+Vehicolul este trimis ˚ã depoul de unde provine!
 Spielstand wurde\ngespeichert!\n
 \nSalvarea jocului s-a terminat!\n
 #_________________________________program_text__________________________________
@@ -352,13 +352,13 @@ Cont peste %s
 Active player only
 Doar juc„tor activ
 Add forest
-Adaug„ p„dure
+AdaugÅEp„dure
 Add random citycar
-Adaug„ ma?in„ de ora? aleator
+AdaugÅEma?inÅEde ora? aleator
 Add Stop
-Adaug„ Stop
+AdaugÅEStop
 Add stops for backward travel
-Adaug„ stopuri pentru circula?ie invers„
+AdaugÅEstopuri pentru circula?ie inversÅE
 aircraft_tab
 Avioane de transport
 airplane
@@ -367,7 +367,7 @@ Airport
 Aeroport
 All
 Tot
-all convoi tooltips
+always show all
 toate uneltele pentru convoi
 Allow city growth
 Permite dezvoltarea orasului
@@ -573,7 +573,7 @@ Constructed by %s
 Pictat de %s
 convoi %d of %d
 convoi din %d  %d
-convoi error tooltips
+only error convoys
 ajutor erori convoi
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Convoiul a fost trimis\nin depoul cel mai\napropiat.\n
@@ -1122,7 +1122,7 @@ Parteneri:
 Tage alt
 zile
 There are still vehicles\nstored in this depot!\n
-Mai este vehicol\nÓn depou!\n
+Mai este vehicol\n˚ã depou!\n
 This Year
 Anul actual:
 tonnen
@@ -1196,9 +1196,9 @@ deal
 5center
 %s transfer %s
 Acenter
-Nu exist„!
+Nu existÅE
 Aextern
-Nu exist„!
+Nu existÅE
 Asuburb
 Nu exista!
 Bcenter

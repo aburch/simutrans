@@ -30,10 +30,10 @@ public:
 
 	void change_pos(koord3d k);
 
-	const char *get_name() const {return "Zeiger";}
+	const char *get_name() const OVERRIDE {return "Zeiger";}
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return zeiger; }
+	typ get_typ() const OVERRIDE { return zeiger; }
 #endif
 
 	/**
@@ -47,7 +47,7 @@ public:
 	/// set back image
 	void set_image( image_id b );
 	/// get back image
-	image_id get_image() const {return image;}
+	image_id get_image() const OVERRIDE {return image;}
 
 	/// set front image
 	void set_after_image( image_id b );

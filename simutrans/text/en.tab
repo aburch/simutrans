@@ -4738,11 +4738,11 @@ Percent Electricity
 Electricity output (% demand):
 convoi mouseover tooltips
 Mouse-over convoy tooltips
-all convoi tooltips
-Full convoy tooltips
-convoi error tooltips
+always show all
+Always show all
+only error convoys
 Only error convoy tooltips
-own convoi tooltips
+only active player's
 Current player tooltips
 no buildings hidden
 Do not hide any buildings
@@ -5738,8 +5738,8 @@ cl_txt_mode
 Show:
 sort_pas_arrived
 Passengers arrived
-mouseover convoy name
-Mouse-over line name
+mouseover
+Mouse-over
 always show convoy name
 Always show line name
 no convoy nameplate

@@ -58,7 +58,7 @@ public:
 	void restart(sint16 b, sint16 h);
 	void restart() { pos_list_t::restart(); }
 
-	bool get_next_pos(koord &k);
+	bool get_next_pos(koord &k) OVERRIDE;
 };
 
 

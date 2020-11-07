@@ -32,7 +32,7 @@ public:
 
 	bool action_triggered( gui_action_creator_t *comp,value_t /* */) OVERRIDE;
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	uint32 count_label();
 

@@ -24,7 +24,7 @@ Inattivo
 cl_btn_filter_enable
 Attivo
 cl_btn_filter_settings
-Propriet‡
+ProprietÅE
 cl_btn_sort_asc
 Ascend.
 cl_btn_sort_desc
@@ -56,7 +56,7 @@ Inattivo
 hl_btn_filter_enable
 Attivo
 hl_btn_filter_settings
-Propriet‡
+ProprietÅE
 hl_btn_sort_asc
 Ascend.
 hl_btn_sort_desc
@@ -120,21 +120,21 @@ L'edificio non puÚ\nessere costruito sotto terra.\n
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 Impossibile creare linea generia!\nSelezionare tipo linea\nusando i filtri.
 Cannot create socket
-Non si puÚ creare il raccordo
+Non si puÅEcreare il raccordo
 Convoi handles exhausted!
 Massimo numero di convogli raggiunto
 Convoy already deleted!
-Convoglio gi‡ cancellato!
+Convoglio giÅEcancellato!
 Das Feld gehoert\neinem anderen Spieler\n
-Questo terreno\nË di propriet‡\ndi un altro giocatore!\n
+Questo terreno\nÅEdi propriet‡\ndi un altro giocatore!\n
 Der Besitzer erlaubt das Entfernen nicht
 Il proprietario non\nconcede il permesso\ndi rimozione.\n
 Der Tunnel ist nicht frei!\n
 Galleria non vuota.\n
 Die Bruecke ist nicht frei!\n
-Il ponte non Ë libero!\n
+Il ponte non ÅElibero!\n
 Diese Zusammenstellung kann nicht fahren!\n
-Questa combinazione\nnon puÚ viaggiare!\n
+Questa combinazione\nnon puÅEviaggiare!\n
 Flugzeughalt muss auf\nRunway liegen!\n
 I velivoli devono\nstare su taxiway.
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
@@ -164,11 +164,11 @@ una fermata per scartamento ridotto deve stare su una linea a scartamento ridott
 No suitable way on the ground!
 Serve un percorso
 No through station here!
-Non c'Ë nessuna stazione passante qui!
+Non c'ÅEnessuna stazione passante qui!
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
 Assegna un percorso\nal veicolo prima\ndi dargli l'ordine\ndi partire!\n
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Il percorso del veicolo\nnon puÚ esser cambiato\ndurante la ricerca del percorso.
+Il percorso del veicolo\nnon puÅEesser cambiato\ndurante la ricerca del percorso.
 Not enough clearance.
 Spazio insufficiente.
 Not enough money!
@@ -176,7 +176,7 @@ Non hai abbastanza soldi per costruirlo!
 On narrowgauge track only!\n
 Solo su linee a scartamento ridotto!\n
 Only public player can lock games!
-Solo il giocatore pubblico puÚ bloccare i giochi!
+Solo il giocatore pubblico puÅEbloccare i giochi!
 Out of funds
 Denaro esaurito
 Post muss neben\nHaltestelle\nliegen!\n
@@ -188,17 +188,17 @@ Le fermate delle barche\npossono essere piazzate\nsolo sull'acqua\nvicino ad un 
 Server busy
 Server sovraccarico
 Terraforming not possible\nhere in underground view
-Il terraforming Ë impossibile sottoterra.
+Il terraforming ÅEimpossibile sottoterra.
 Upgrade must have\na higher level
 L'aggiornamento deve essere a un livello superiore
 Vehicle %s cannot choose because stop too short!
-Il veicolo %s non puÚ scegliere, fermata troppo corta!
+Il veicolo %s non puÅEscegliere, fermata troppo corta!
 Zughalt muss auf\nSchiene liegen!\n
 Le fermate ferroviarie\npossono essere piazzate\nsolo sui binari!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Aiuto tastiera</title>\n<h1><strong>Aiuto tastiera</strong></h1>\n<p>\n<strong>Aiuto tastiera</strong> Mostra le funzioni per vari tasti premuti sulla tastiera\n</p>\n<p>\n<strong>Aiuto tastiera</strong> si apre quando viene premuto un tasto non assegnato o da <a href="general.txt">Aiuto generale</a>.\n</p>\n<p>\nLe maiuscole sono diverse dalle minuscole (usare [<em>Shift</em>] per lettere maiuscole).\n</p>\n<p>\nTasti con le funzioni assegnate includono: \n</p>\n<p>\n[<em>Tasti freccia</em>]: muovi la vista nel senso della freccia.<br>\n[<em>Backspace</em>]: chiude tutte le finestre,barre e testi d'aiuto nella vista.<br>\n[<em>Cancella</em>], o [<em>Esc</em>]: chiude la finestra,barra o aiuto in primo piano sulla vista.<br>\n[<em>Enter</em>], or [<em>Return</em>]: usato per confermare azioni.<br>\n[<em>Pagina su</em>], o [<em>></em>]: aumenta zoom.<br>\n[<em>Pagina gi˘</em>], o [<em>simbolo "minore di"</em>]: diminuisce zoom.\n[<em>F1</em>]: apre <a href="general.txt">Aiuto Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: muove la vista verso sud.<br>\n[<em>2</em>]: muove la vista verso sud-est.<br>\n[<em>3</em>]: muove la vista verso est.<br>\n[<em>4</em>]: muove la vista verso sud-ovest.<br>\n[<em>6</em>]: muove la vista verso nord-est.<br>\n[<em>7</em>]: muove la vista verso ovest.<br>\n[<em>8</em>]: muove la vista verso nord-ovest.<br>\n[<em>9</em>]: muove la vista verso nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: usato in <a href="map.txt">Map</a> per vedere collegamenti in <a href="industry_info.txt">Catena approvvigionamenti industrie</a>.<br>\n[<em>CTRL</em>] + strumento: costruisce (segnali & <a href="station.txt">fermate</a>) al livello pi˘ alto; o costruisce strade pi˘ veloci sulle pi˘ lente; o pi˘ dritte (pi˘ dirette) strade e ferrovie.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] fino a [<em>F12</em>]): seleziona lo strumento richiamato da [<em>F2</em>] a [<em>F12</em>].\n</p>\n<p>
+<title>Aiuto tastiera</title>\n<h1><strong>Aiuto tastiera</strong></h1>\n<p>\n<strong>Aiuto tastiera</strong> Mostra le funzioni per vari tasti premuti sulla tastiera\n</p>\n<p>\n<strong>Aiuto tastiera</strong> si apre quando viene premuto un tasto non assegnato o da <a href="general.txt">Aiuto generale</a>.\n</p>\n<p>\nLe maiuscole sono diverse dalle minuscole (usare [<em>Shift</em>] per lettere maiuscole).\n</p>\n<p>\nTasti con le funzioni assegnate includono: \n</p>\n<p>\n[<em>Tasti freccia</em>]: muovi la vista nel senso della freccia.<br>\n[<em>Backspace</em>]: chiude tutte le finestre,barre e testi d'aiuto nella vista.<br>\n[<em>Cancella</em>], o [<em>Esc</em>]: chiude la finestra,barra o aiuto in primo piano sulla vista.<br>\n[<em>Enter</em>], or [<em>Return</em>]: usato per confermare azioni.<br>\n[<em>Pagina su</em>], o [<em>></em>]: aumenta zoom.<br>\n[<em>Pagina giÅE/em>], o [<em>simbolo "minore di"</em>]: diminuisce zoom.\n[<em>F1</em>]: apre <a href="general.txt">Aiuto Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: muove la vista verso sud.<br>\n[<em>2</em>]: muove la vista verso sud-est.<br>\n[<em>3</em>]: muove la vista verso est.<br>\n[<em>4</em>]: muove la vista verso sud-ovest.<br>\n[<em>6</em>]: muove la vista verso nord-est.<br>\n[<em>7</em>]: muove la vista verso ovest.<br>\n[<em>8</em>]: muove la vista verso nord-ovest.<br>\n[<em>9</em>]: muove la vista verso nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: usato in <a href="map.txt">Map</a> per vedere collegamenti in <a href="industry_info.txt">Catena approvvigionamenti industrie</a>.<br>\n[<em>CTRL</em>] + strumento: costruisce (segnali & <a href="station.txt">fermate</a>) al livello piÅEalto; o costruisce strade piÅEveloci sulle piÅElente; o piÅEdritte (piÅEdirette) strade e ferrovie.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] fino a [<em>F12</em>]): seleziona lo strumento richiamato da [<em>F2</em>] a [<em>F12</em>].\n</p>\n<p>
 Decrease water height
 Diminuisci altezza acqua
 Highlight railroad tracks
@@ -218,17 +218,17 @@ Aumenta altezza acqua
 Open station/stop details
 Apri dettagli stazioni/fermate
 Overlay city limits
-Sovrapponi i limiti delle citt‡
+Sovrapponi i limiti delle cittÅE
 Overlay passenger destinations when a town window is open
-Sovrapponi le destinazioni dei passeggeri quando la finestra della citt‡ Ë aperta
+Sovrapponi le destinazioni dei passeggeri quando la finestra della cittÅEÅEaperta
 Overlay schedules/network
 Sovrapponi i percorsi/reti
 Overlay town names
-Sovrapponi i nomi delle citt‡
+Sovrapponi i nomi delle cittÅE
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Click sulla mappa per aggiungere\npassaggi o fermate a questo\npercorso.
 Show capacity and if halt is overcrowded
-Mostra la capacit‡ e se la fermata Ë sovraccarica
+Mostra la capacitÅEe se la fermata ÅEsovraccarica
 Show how many convoi reach a station
 Mostra quanti convogli raggiungono una stazione
 Show how many people/much is waiting at halts
@@ -242,7 +242,7 @@ Mostra la copertura del servizio postale / la rete postale
 Show passenger coverage/passenger network
 Mostra la copertura del servizio passeggeri / la rete passeggeri
 Show speedlimit of ways
-Mostra il limite di velocit‡ delle strade
+Mostra il limite di velocitÅEdelle strade
 Show the change of waiting at halts
 Mostra il cambio di attesa alle fermate
 Show the owenership of infrastructure
@@ -306,7 +306,7 @@ Strumenti tram/ferrovia leggera
 Bankrott:\n\nDu bist bankrott.\n
 Bancarotta:\n\nSei fallito!\n
 Congratulation\nScenario was complete in\n%i months %i years.
-Congratulazioni!\nLo scenario Ë stato\ncompletato in\n%imesi e %i anni!
+Congratulazioni!\nLo scenario ÅEstato\ncompletato in\n%imesi e %i anni!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 L'economia si sta allargando:\n%s vicino %s allarga la catena.\n%i nuove fabbriche sono state fondate
 Net wealth less than 10% of starting capital!
@@ -322,13 +322,13 @@ Adesso sono connessi %i giocatori.
 On this map, you are not\nallowed to change player!\n
 Le impostazioni della partita\nnon permettono il cambio di giocatore.\n
 Production of %s has been stopped:\n%s\n
-Produzione di %s Ë stata interrotta:\n%s\n
+Produzione di %s ÅEstata interrotta:\n%s\n
 Remove vehicle from map. Use with care!
 Rimuovi veicolo dalla mappa.(Attenzione!)
 Screenshot\ngespeichert.\n
 Schermata\nsalvata.\n
 Sends the convoi to the last depot it departed from!
-Manda convoglio all'ultimo deposito da cui Ë partito
+Manda convoglio all'ultimo deposito da cui ÅEpartito
 Spielstand wurde\ngeladen!\n
 \nGioco caricato con successo!\n
 Spielstand wurde\ngespeichert!\n
@@ -356,11 +356,11 @@ Con una grande festa,\n%s ha costruito\nun nuovo monumento.\n%i cittadini festeg
 \nelektrified
 \nelettrificata
 \nHeightfield has wrong image type.\n
-\nLa mappa dei rilievi Ë in un formato\ndi immagine errato.\n
+\nLa mappa dei rilievi ÅEin un formato\ndi immagine errato.\n
 \nis reserved by:
 \nriservata da:
 \nminimum speed:
-\nvelocit‡ minima:
+\nvelocitÅEminima:
 \nnot elektrified
 \nnon elettrificata\n
 \nRibi (masked)
@@ -388,23 +388,23 @@ via 2 riservata da\nvia 2 riservata da
 %i years %i months old.
 ha %i anni e %i mesi.
 %s at (%i,%i) now public stop.
-%s (coordinate %i,%i) Ë divenuta fermata pubblica.
+%s (coordinate %i,%i) ÅEdivenuta fermata pubblica.
 %s building %s %s
 %s %s %s
 %s city %d %s
-%s citt‡ %d %s
+%s cittÅE%d %s
 %s factory %s %s
 %s fabbrica %s %s
 %s has entered a depot.
-%s Ë in deposito.
+%s ÅEin deposito.
 %s land %d %s
 %s terreno %d %s
 %s\nis crowded.
-%s Ë congestionata!
+%s ÅEcongestionata!
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
-%s\nVelocit‡ %i\nVelocit‡ massima %i\ndx:%i dy:%i
+%s\nVelocitÅE%i\nVelocitÅEmassima %i\ndx:%i dy:%i
 %s\nwas liquidated.
-%s\nË stato liquidato.
+%s\nÅEstato liquidato.
 %u Client(s)\n
 %i Connesso(i)\n
 %u Player (%u locked)\n
@@ -430,7 +430,7 @@ ha %i anni e %i mesi.
 100 km/h = %i tiles/month
 100 km/h = %i caselle/mese
 1LIGHT_CHOOSE
-Luminosit‡:
+LuminositÅE
 1WORLD_CHOOSE
 Opzioni della nuova mappa:
 2LIGHT_CHOOSE
@@ -444,13 +444,13 @@ Inverti scrolling
 5LIGHT_CHOOSE
 Mostrare pedoni
 5WORLD_CHOOSE
-Numero citt‡:
+Numero cittÅE
 6LIGHT_CHOOSE
-Pedoni in citt‡
+Pedoni in cittÅE
 6WORLD_CHOOSE
-Densit‡ traffico:
+DensitÅEtraffico:
 8WORLD_CHOOSE
-Modalit‡ giorno e notte
+ModalitÅEgiorno e notte
 A bridge must start on a way!
 I ponti devono\niniziare su un\ntracciato esistente.
 Abfrage
@@ -497,10 +497,10 @@ AIRTOOLS
 Strumenti aeroporto
 All
 Tutto
-all convoi tooltips
+always show all
 Tutti i richiami dei convogli
 Allow city growth
-Permetti crescita citt‡
+Permetti crescita cittÅE
 Allow player change
 Consenti cambio giocatore
 allowed climates:\n
@@ -550,7 +550,7 @@ avanza nel tempo
 Beenden
 Esci
 Beginner mode
-Modalit‡ principiante
+ModalitÅEprincipiante
 Besonderes Gebaeude
 Attrazione Turistica
 BF
@@ -558,11 +558,11 @@ stazione
 bio
 biologico
 Blockstrecke ist\nbelegt\n
-Questo tratto di\nlinea Ë usato\nda un altro treno\n
+Questo tratto di\nlinea ÅEusato\nda un altro treno\n
 Boden
 Terreno
 Bonusspeed: %i km/h
-Bonus velocit‡: %i km/h
+Bonus velocitÅE %i km/h
 Boost (%)
 Incremento (%)
 bridge is too high for its type!
@@ -576,7 +576,7 @@ Costruisci deposito aerei
 build choosesignals
 Costruisci segnali di scelta
 Build city market
-Costruisci un mercato nella citt‡ pi˘ vicina.
+Costruisci un mercato nella cittÅEpiÅEvicina.
 Build drain
 Trasformatore
 build HQ
@@ -616,21 +616,21 @@ Costruisci attrazione casuale
 Bus_tab
 Bus
 Can only move from halt to halt or waypoint to waypoint.
-Si puÚ solo muovere\nda fermata a fermata o\n da punto a punto.
+Si puÅEsolo muovere\nda fermata a fermata o\n da punto a punto.
 Cancel
 Annulla
 Cannot connect to offline server!
 Impossibile connettersi, server offline!
 Capacity
-Capacit‡
+CapacitÅE
 Capacity:
-Capacit‡:
+CapacitÅE
 Capacity: %.0f MW
-Capacit‡: %.0f MW\n
+CapacitÅE %.0f MW\n
 Capacity: %d%s %s\n
-Capacit‡: %3d %s %s\n
+CapacitÅE %3d %s %s\n
 Capacity: %s\nLoad: %d (%d%%)
-Capacit‡: %s\nCarico: %d (%d%%)
+CapacitÅE %s\nCarico: %d (%d%%)
 Cars are not available yet!
 Automobili non ancora disponibili.
 cars.\nstate
@@ -654,9 +654,9 @@ Cittadini
 City attraction
 Attrazione cittadina
 City industries
-Mercati in citt‡
+Mercati in cittÅE
 City list
-Lista citt‡
+Lista cittÅE
 City size
 Dimensioni
 city_road
@@ -664,7 +664,7 @@ Strade urbane
 citybuilding builder
 Costruisci edifici urbani
 CityLimit
-Limiti citt‡
+Limiti cittÅE
 cl_title
 Lista veicoli
 cl_txt_sort
@@ -738,17 +738,17 @@ Disegno di
 Constructed by %s
 Disegno di %s
 construction speed
-velocit‡ di costruzione
+velocitÅEdi costruzione
 Construction_Btn
 Costi costruzione
 Consumed
 Consumato
 convoi %d of %d
 Convoglio %d di %d
-convoi error tooltips
+only error convoys
 Richiami errori convogli
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Convoglio deviato al deposito pi˘ vicino
+Convoglio deviato al deposito piÅEvicino
 Convoi is sold when all wagons are empty.
 Il convoglio viene venduto quando tutti i vagoni sono vuoti.
 convoi mouseover tooltips
@@ -770,7 +770,7 @@ Costo
 cost for removal
 Costi per rimozione
 Cost per unit
-Costo per unit‡
+Costo per unitÅE
 Cost: %8s (%.2f$/km %.f$/m)\n
 Costo: %8s (%.2f$/km %.f$/m)\n
 Cost: %8s (%.2f$/km)\n
@@ -780,7 +780,7 @@ Costi
 Create a new line based on this schedule
 Crea nuova linea da questo percorso
 curiosity builder
-Costruzione curiosit‡
+Costruzione curiositÅE
 curlist_title
 Lista attrazioni
 Currently playing:
@@ -836,7 +836,7 @@ Disabilita MIDI
 Distance
 Distanza
 distributing cities
-distribuzione citt‡
+distribuzione cittÅE
 distributing factories
 distribuzione industrie
 Dock
@@ -848,9 +848,9 @@ Hai %d mesi per ripagare i debiti.
 Durchsatz
 Max. prod. 
 Economy
-Economia e citt‡
+Economia e cittÅE
 Eigenbesitz\n
-Propriet‡ pubblica\n
+ProprietÅEpubblica\n
 Ein %s\npasst hier nicht.\n
 Un '%s'\nnon va bene qui!\n
 Einstellungen aendern
@@ -858,7 +858,7 @@ Cambia opzioni
 electric
 elettrico
 Electricity
-Elettricit‡
+ElettricitÅE
 Electricity producer\n\n
 Produttore elettricit‡\n\n
 Electrics_tab
@@ -876,9 +876,9 @@ Inserire Password
 Error
 Errore
 Erzeuge neue Karte.\n
-Attendere prego,\nsto creando una\nnuova mappa...\n\n(Per grandi mappe,\nquesta operazione\npuÚ richiedere anche\nalcuni minuti)\n
+Attendere prego,\nsto creando una\nnuova mappa...\n\n(Per grandi mappe,\nquesta operazione\npuÅErichiedere anche\nalcuni minuti)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
-Hai gi‡ iniziato\nad inserire un percorso!\n
+Hai giÅEiniziato\nad inserire un percorso!\n
 Fabrikanschluss
 Fabbriche connesse
 Fabrikname
@@ -930,15 +930,15 @@ Segui convoglio sulla mappa
 Forest
 Foresta
 Found new city
-Fonda nuova citt‡
+Fonda nuova cittÅE
 Fracht
 Merce
 Frame time:
 Tempo Frame:
 Free Capacity
-Capacit‡ disp.
+CapacitÅEdisp.
 freeplay mode
-Modalit‡ gioco libero
+ModalitÅEgioco libero
 Friction:
 fattore frizione attuale:
 fuel_cell
@@ -990,7 +990,7 @@ Oggetto
 Grow city
 Ingrandisci
 Growth
-Crescita citt‡
+Crescita cittÅE
 H
 fermata
 Happy
@@ -1010,7 +1010,7 @@ Testo della guida non trovato.
 hide all building
 Nascondi edifici
 hide city building
-Nascondi edifici citt‡
+Nascondi edifici cittÅE
 hide objects under cursor
 nascondi gli oggetti sotto il cursore
 hide station names
@@ -1022,7 +1022,7 @@ Nascondi alberi
 Hier warten/lagern:
 Passeggeri/merci in attesa:
 Higher transport fees, crossconnect all factories
-Tasse di trasporto pi˘ alte, disabilita Just-in-time.
+Tasse di trasporto piÅEalte, disabilita Just-in-time.
 Highlite schedule
 Evidenzia percorso
 hl_title
@@ -1052,7 +1052,7 @@ Filtro per nome:
 hlf_chk_narrowgaugestop
 Stazione linea a scartamento ridotto
 hlf_chk_overflow
-Oltre Capacit‡
+Oltre CapacitÅE
 hlf_chk_spezial_filter
 Filtro speciale:
 hlf_chk_tramstop
@@ -1078,7 +1078,7 @@ Nella legenda delle industrie mostra solo le fabbriche esistenti
 In Transit
 In Transito
 Increase Industry density
-Aumenta densit‡ industrie
+Aumenta densitÅEindustrie
 increase underground view level
 Aumenta livello di visione sotterranea
 industrial building
@@ -1132,7 +1132,7 @@ Carica
 Land attraction
 Attrazioni della zona
 Land industries
-Industrie fuori citt‡:
+Industrie fuori cittÅE
 LANG_CHOOSE\n
 Per favore scegli\nuna lingua:\n
 LARGE_NUMBER_STRING
@@ -1234,9 +1234,9 @@ Massimo incremento (%)
 Max income:
 Guadagno max:
 Max. speed
-Velocit‡ max.
+VelocitÅEmax.
 Max. speed:
-Velocit‡ max.:
+VelocitÅEmax.:
 Maximum 254 stops\nin a schedule!\n
 Al massimo 254 fermate\nin un percorso!\n
 maximum length of rivers
@@ -1244,11 +1244,11 @@ Lunghezza max. fiumi
 Maximum tile height difference reached.
 Massimo dislivello\ntra due blocchi\ndi terreno\nraggiunto.
 Maxspeed
-Velocit‡ massima
+VelocitÅEmassima
 May
 Maggio
 Median Citizen per town
-Media abitanti per citt‡:
+Media abitanti per cittÅE
 Meldung
 Messaggio
 Menge
@@ -1266,7 +1266,7 @@ Nessun pak trovato
 Modify the selected line
 Modifica linea selezionata
 Monate alt
-mesi di et‡
+mesi di etÅE
 Monorail
 Monorotaia
 monorail vehicle
@@ -1300,7 +1300,7 @@ Nome
 Narrowgauge
 Linea a scartamento ridotto
 Narrowgauge are not available yet!
-Linea a scartamento ridotto non Ë ancora disponibile!
+Linea a scartamento ridotto non ÅEancora disponibile!
 narrowgauge vehicle
 Veicolo per linea a scartamento ridotto
 narrowgauge_track
@@ -1330,7 +1330,7 @@ Nessun edificio nascosto
 no convois
 nessun convoglio
 No goods are loaded onto this convoi.
-Nessun bene sar‡ caricato sul convoglio
+Nessun bene sarÅEcaricato sul convoglio
 no goods waiting
 nessuna merce in attesa
 no load
@@ -1342,7 +1342,7 @@ Lo strumento deve essere usato nelle aree di fermata
 No suitable ground!
 Terreno non disponibile
 No terminal station here!
-Non c'Ë nessuna stazione terminale!
+Non c'ÅEnessuna stazione terminale!
 no timeline
 no linea del tempo
 no tree
@@ -1374,9 +1374,9 @@ Ottobre
 On loan since %i month(s)
 In debito da %i mese/i
 Only city chains
-Solo catene di citt‡
+Solo catene di cittÅE
 Only first %d differing paks reported. There are probably more.
-Solo i primi %d paks differenti sono segnalati. Probabilmente le differenze sono di pi˘.
+Solo i primi %d paks differenti sono segnalati. Probabilmente le differenze sono di piÅE
 Only land chains
 Solo catene di campagna
 Only one transformer per factory!
@@ -1398,11 +1398,11 @@ Origine
 ost
 Est
 Ownership
-Propriet‡
+ProprietÅE
 Pak which may cause severe errors:
-Pak che puÚ causare errori gravi:
+Pak che puÅEcausare errori gravi:
 Pak which may cause visual errors:
-Pak che puÚ causare errori di visualizzazione:
+Pak che puÅEcausare errori di visualizzazione:
 Pak(s) different:
 Pak(s) differente:
 Pak(s) missing on client:
@@ -1438,7 +1438,7 @@ Passeggeri <%i> Posta <%i>
 PaxDest
 Destinazioni
 Percent Electricity
-Produzione elettricit‡(% domanda)
+Produzione elettricitÅE% domanda)
 Planes are not available yet!
 Aerei non ancora disponibili.
 Plant tree
@@ -1464,7 +1464,7 @@ Tricchi Trasporti
 player 3
 Fratelli Bianchi Trasporti
 player 4
-Societ‡ Anonima Trasporti
+SocietÅEAnonima Trasporti
 player 5
 Trasporti Veloci Spa
 player 6
@@ -1644,7 +1644,7 @@ Mostra tutto
 show all building
 Visualizza tutti gli edifici
 Show also vehicles no longer in production.
-Mostra anche veicoli non pi˘ prodotti.
+Mostra anche veicoli non piÅEprodotti.
 Show also vehicles that do not match for current action.
 Mostra anche veicoli non adatti.
 Show even servers with wrong version or pakset
@@ -1694,7 +1694,7 @@ Mostra il codice colore per diverse selezioni.
 Shows the currently selected schedule
 Mostra la linea selezionata
 Shrink city
-Rimpicciolisci citt‡
+Rimpicciolisci cittÅE
 shuffle midis
 MIDI casuali
 Signal
@@ -1720,7 +1720,7 @@ Ordina lista di attesa per
 Sound
 Audio
 Sound settings
-Propriet‡ Audio
+ProprietÅEAudio
 Sound volume:
 Volume suono:
 special freight
@@ -1728,7 +1728,7 @@ Carico Speciale
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Bonus velocit‡\nstrada %i km/h, ferrovia %i km/h\nnavi %i km/h, aerei %i km/h.
 Speedlimit
-Limite velocit‡
+Limite velocitÅE
 Speichern
 Salva
 Spieler
@@ -1742,7 +1742,7 @@ Lingua
 Sprachen
 Lingue
 Stadtinformation
-Statistiche della citt‡
+Statistiche della cittÅE
 Start
 Parti
 Start the selected vehicle(s)
@@ -1764,7 +1764,7 @@ Fermate
 Storage
 Accoglienza
 Storage capacity
-Capacit‡ di accoglienza
+CapacitÅEdi accoglienza
 Strassendepot
 Deposito camion/bus
 Strassentunnel
@@ -1786,7 +1786,7 @@ Fornitori
 Supply %s at (%i,%i)
 Fornitura %s a (%i,%i)
 Tage alt
-giorni di et‡
+giorni di etÅE
 There are still vehicles\nstored in this depot!\n
 Ci sono ancora\ndei veicoli\nin questo deposito!\n
 This Month
@@ -1798,9 +1798,9 @@ Rimuovi tutto prima\ndi spostare la terra.
 timeline
 Usa linea del tempo
 tl_title
-Lista di tutte le Citt‡
+Lista di tutte le CittÅE
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-Per attrarre pi˘ turisti,\n%s ha costruito\nun %s\ncon l'aiuto di\n%i contribuenti.
+Per attrarre piÅEturisti,\n%s ha costruito\nun %s\ncon l'aiuto di\n%i contribuenti.
 To heavy traffic\nresults in traffic jam.\n
 Il troppo traffico\nha causato code.\n
 Toggle day/night view
@@ -1818,9 +1818,9 @@ Attrazioni
 Town_msg
 Nuove Destinazioni
 Town: %s\n
-Citt‡ di %s.\n
+CittÅEdi %s.\n
 Towns
-Citt‡
+CittÅE
 track
 linea
 Tracks
@@ -1864,7 +1864,7 @@ Le gallerie devono iniziare su una singola via.
 Tunnelboden
 Galleria
 underground mode
-Modalit‡ sotterranea
+ModalitÅEsotterranea
 UNDO failed!
 Impossibile annullare. \nPuoi annullare la costruzione di \ntracciati solo prima di aver messo\nsegnali/stazioni/fermate ecc.
 Undo last ways construction
@@ -1874,7 +1874,7 @@ Disoccupati
 Unhappy
 Infelici
 units/day
- unit‡/mese
+ unitÅEmese
 Update Line
 Aggiorna linea
 upgrade HQ
@@ -1884,13 +1884,13 @@ Utilizzo: %.0f %%
 Usage/Output
 Utilizzo/Produzione
 Use beginner mode
-Modalit‡ principiante
+ModalitÅEprincipiante
 Use timeline start year
 Linea del tempo dall'anno:
 Vehicle %s can't find a route!
 Il veicolo %s\nnon trova il percorso!
 Vehicle %s is stucked!
-Il veicolo %s Ë bloccato!
+Il veicolo %s ÅEbloccato!
 Vehicle details
 Dettagli Veicolo
 Verbrauch
@@ -1932,13 +1932,13 @@ Livello acqua:
 water vehicle
 Veicolo navale
 way %s cannot longer used:\n
-La via del tipo %s non puÚ pi˘ esser usata.\n
+La via del tipo %s non puÅEpiÅEesser usata.\n
 way %s cannot longer used:\n%s\n
-La via del tipo %s non puÚ pi˘ essere usata:\n%s\n
+La via del tipo %s non puÅEpiÅEessere usata:\n%s\n
 way %s now available:\n
 Via del tipo %s ora disponibile:\n
 way %s now available:\n%s\n
-La via del tipo %s ora Ë disponibile:\n%s\n
+La via del tipo %s ora ÅEdisponibile:\n%s\n
 Way toll
 Casello pedaggio
 Ways not connected
@@ -1962,7 +1962,7 @@ Ritira tutto
 WRONGSAVE
 Versione salvata\nnon compatibile.\n\nImpossibile leggere\nil file.\n
 Year %i has started.
-L'anno %i Ë iniziato.
+L'anno %i ÅEiniziato.
 Years
 Anni
 Your primary color:
@@ -2084,7 +2084,7 @@ Quercia
 5extern
 % trasferimento %s
 5suburb
-%s citt‡ %s
+%s cittÅE%s
 6center
 %s %s Hub
 6extern
@@ -2132,9 +2132,9 @@ da %s
  via %s
 via %s
 ; brakes from max. speed in %i - %i m
-; spazio frenata dalla massima velocit‡ %i - %i m
+; spazio frenata dalla massima velocitÅE%i - %i m
 ; brakes from max. speed in %i m
-; spazio frenata dalla massima velocit‡ %i m
+; spazio frenata dalla massima velocitÅE%i m
 "%s has built a new %s %s %s."
 %s ha costruito un nuovo %s %s %s.
 (catering_levels: %s)
@@ -2142,25 +2142,25 @@ via %s
 (Max. comfortable journey time: 
 (Tempo max per viaggio confortevole:
 (speed_restricted_by_bridge)
-(velocit‡ limitata da ponte)
+(velocitÅElimitata da ponte)
 (speed_restricted_by_city)
-(velocit‡ limitata da citt‡)
+(velocitÅElimitata da cittÅE
 (speed_restricted_by_tunnel)
-(velocit‡ limitata da tunnel)
+(velocitÅElimitata da tunnel)
 (speed_restricted_by_wayobj)
-(velocit‡ limitata da oggetto)
+(velocitÅElimitata da oggetto)
 /month
 /mese
 \n\nInterest on your debt is\naccumulating at %i %%
 \n\nL'interesse sul tuo debito\nsi accumula al %i %%.
 \n\nYour credit rating is being affected.
-\n\nIl tuo rating di credito Ë stato modificato.
+\n\nIl tuo rating di credito ÅEstato modificato.
 \nCity: 
-\nCitt‡: 
+\nCittÅE 
 \nMax. weight:
 \nPeso massimo:
 \nMAY USE: 
-\nPuÚ usare:
+\nPuÅEusare:
 \nMUST USE: 
 \nDeve usare:
 \nNetwork ID:
@@ -2176,7 +2176,7 @@ via %s
 %s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
 %s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkm/h\nPeso: %dt\n
 A signalbox cannot be built here.
-Qui non si puÚ piazzare segnaletica.
+Qui non si puÅEpiazzare segnaletica.
 above\nminutes
 minuti\noltre
 Acceleration
@@ -2206,7 +2206,7 @@ liberi
 average
 media
 Average speed
-Velocit‡ media
+VelocitÅEmedia
 Avg trip time
 Tempo medio di percorrenza
 Axle load:
@@ -2216,7 +2216,7 @@ Profitto al km (quando pieno):
 bidirectional_order
 Andata e Ritorno
 brakes from max. speed in %i m
-si ferma da max. velocit‡ in %i m
+si ferma da max. velocitÅEin %i m
 Bridge cannot be built over deep water\n
 Impossibile costuire ponti su acque profonde\n
 Bridges cannot be built over large buildings.
@@ -2232,17 +2232,17 @@ Impossibile piazzare segnaletica sott'acqua.
 Cannot build this signal underground.
 Non si possono costruire segnali sottoterra.
 Cannot delete a road where to do so would leave a city building unconnected by road.
-Non Ë possibile rimuovere una strada se si lascia un edificio della citt‡ sconnesso dalla rete stradale.
+Non ÅEpossibile rimuovere una strada se si lascia un edificio della cittÅEsconnesso dalla rete stradale.
 Cannot set marker here.\n
 Non si possono impostare marker qui.\n
 Cannot terraform in deep water
 Impossibile modificare il terreno in acque profonde
 capacity_per_class
-Capacit‡ per classe
+CapacitÅEper classe
 Capacity: %3d %s%s %s\n
-Capacit‡: %3d %s%s %s\n
+CapacitÅE %3d %s%s %s\n
 capacity: %s %s
-Capacit‡: %s %s
+CapacitÅE %s %s
 Capital expenditure on infrastructure
 Spese per infrastrutture
 Capital expenditure on vehicle purchases and upgrades
@@ -2250,7 +2250,7 @@ Spese per acquisto o aggiornamento veicoli
 capital_threshold_size
 Limite della capitale
 Car ownership
-Auto di propriet‡
+Auto di proprietÅE
 catering bonus\nfor travelling
 bonus catering\nper viaggio
 catering level 1
@@ -2274,7 +2274,7 @@ Incasso catering al km (quando pieno):
 Centralised path searching
 Ricerca itinerario centralizzata
 Centralised path searching is currently not available when playing online.
-Ricerca itinerario centralizzata non Ë disponibile durante il gioco online.
+Ricerca itinerario centralizzata non ÅEdisponibile durante il gioco online.
 chance\npercent
 possibilit‡\npercento
 change_the_classes_for_the_entire_line
@@ -2282,21 +2282,21 @@ Modifica le classi per l'intera linea
 choose_signal
 Segnale di Scelta
 Cities ignore height
-Citt‡ ignorano altitudine
+CittÅEignorano altitudine
 Cities like water
-Citt‡ vicine all'acqua
+CittÅEvicine all'acqua
 Cities will be built all over the terrain, rather than preferring lower ground
-Le citt‡ saranno costruite su tutto il terreno, invece di preferire i terreni pi˘ bassi
+Le cittÅEsaranno costruite su tutto il terreno, invece di preferire i terreni piÅEbassi
 City
-Citt‡
+CittÅE
 City cluster size:
-Dimensione dei raggruppamenti di citt‡:
+Dimensione dei raggruppamenti di cittÅE
 City generation: not enough places found for cities. Only %d cities generated.\n
-Generazione citt‡: non c'Ë abbastanza spazio per tutte le citt‡. Sono state generate solo %d citt‡.\n
+Generazione cittÅE non c'ÅEabbastanza spazio per tutte le cittÅE Sono state generate solo %d cittÅE\n
 City generation: only %d cities could be placed inside clusters.\n
-Generazione citt‡: solo %d possono essere piazzate all'interno del settore.\n
+Generazione cittÅE solo %d possono essere piazzate all'interno del settore.\n
 city_threshold_size
-Limite della citt‡
+Limite della cittÅE
 Class
 Classe
 class_manager
@@ -2326,15 +2326,15 @@ Condizione
 Congestion
 Congestione
 Connecting cities ...
-Connessione delle citt‡ ...
+Connessione delle cittÅE...
 Constructed by %s\n
 Realizzato da %s\n
 Controlled from
 Controllato da
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
-Il convoglio Ë stato inviato\nal deposito pi˘ vicino\ndel tipo appropriato.\n%s\n
+Il convoglio ÅEstato inviato\nal deposito piÅEvicino\ndel tipo appropriato.\n%s\n
 Convoi is sent to depot when all wagons are empty.
-Il convoglio sar‡ inviato al deposito quando tutti i vagoni saranno vuoti.
+Il convoglio sarÅEinviato al deposito quando tutti i vagoni saranno vuoti.
 Cost of overdraft interest payments
 Costo interessi sullo scoperto
 Cost: %8s (%.2f$/km, %.2f$/month)\n
@@ -2354,7 +2354,7 @@ Partenze
 Departures to\n
 Partenze per\n
 Depot found but could not be inserted in schedule.  This is a bug!%s\n
-E' stato trovato un deposito ma non puÚ essere inserito nelle soste. Questo Ë un bug!%s\n
+E' stato trovato un deposito ma non puÅEessere inserito nelle soste. Questo ÅEun bug!%s\n
 destination (detail)
 destinazione (dettaglio)
 Direction
@@ -2364,11 +2364,11 @@ Distanza (km)\nComfort\nLivello catering\nSpeedbonus\nStrada %i km/h, Ferrovia %
 Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Distanza (km)\nComfort\nSpeedbonus\nStrada %i km/h, Ferrovia %i km/h\nNave %i km/h, Aereo %i km/h.
 Electrical consumption: 
-Consumo di elettricit‡:
+Consumo di elettricitÅE
 Electrical demand: 
-Domanda di elettricit‡:
+Domanda di elettricitÅE
 Electrical output: 
-Produzione di elettricit‡:
+Produzione di elettricitÅE
 Emergency stop
 Frenata di emergenza
 emergency_stop %s left
@@ -2400,17 +2400,17 @@ Prodotti necessari
 Goods supplied
 Prodotti forniti
 Graphs right to left instead of left to right
-Grafici da destra a sinistra anzichÈ da sinistra a destra
+Grafici da destra a sinistra anzichÅEda sinistra a destra
 Graphs showing financial information will appear from right to left instead of left to right
-Il grafico delle informazioni finanziarie apparir‡ da destra a sinistra invece che da sinistra a destra
+Il grafico delle informazioni finanziarie apparirÅEda destra a sinistra invece che da sinistra a destra
 Graphs showing non-financial information will appear from right to left instead of left to right
-Il grafico delle informazioni non finanziarie apparir‡ da destra a sinistra invece che da sinistra a destra
+Il grafico delle informazioni non finanziarie apparirÅEda destra a sinistra invece che da sinistra a destra
 Gross revenue
 Reddito lordo
 Groups:
 Gruppi:
 Growing cities ...
-Crescita citt‡ ...
+Crescita cittÅE...
 has changed its colour scheme.
 ha modificato il suo schema di colori
 head
@@ -2426,7 +2426,7 @@ Se impostato, i convogli aspetteranno fino ad uno dei tempi specificati prima di
 income_pr_km_(when_full):
 Incasso al km (quando pieno):
 Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected.
-Industria: %s ha cessato l'attivit‡, sono stati persi %d posti di lavoro. %d fornitori e %d clienti sono stati coinvolti.
+Industria: %s ha cessato l'attivitÅE sono stati persi %d posti di lavoro. %d fornitori e %d clienti sono stati coinvolti.
 Interest
 Interessi
 Inverse graphs
@@ -2456,7 +2456,7 @@ Caricamento. %s da attendere
 local
 locale
 LOCO_CAP
-Capacit‡: %d%s %s\n
+CapacitÅE %d%s %s\n
 LOCO_INFO_EXT
 %s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\nForza max. freno: %dkN\nResistenza rotolam.: %fN\n
 LOCO_SYM
@@ -2476,13 +2476,13 @@ Manutenzione: %1.2f$/km, %1.2f$/mese\n
 Mark for replacing
 Marca per la sostituzione
 Mark for replacing. The convoy will replace when manually sent to depot
-Marcato per la sostituzione. Il convoglio verr‡ sostituito quando sar‡ inviato manualmente al deposito
+Marcato per la sostituzione. Il convoglio verrÅEsostituito quando sarÅEinviato manualmente al deposito
 Material shortage
 Carenza di materiali
 max catering\nrevenue $
 max catering\nricavo $
 max discomfort penalty
-Max penalit‡ discomfort
+Max penalitÅEdiscomfort
 max luxury bonus
 Max bonus lusso
 Max. axle load:
@@ -2528,11 +2528,11 @@ Da nord a sud
 Not enough money to carry out essential way renewal work.\n
 Denaro insufficiente per terminare il rinnovo delle strade.\n
 Number of big cities
-Numero di grandi citt‡
+Numero di grandi cittÅE
 Number of big cities:
-Numero di grandi citt‡:
+Numero di grandi cittÅE
 Number of city clusters:
-Numero di raggruppamenti di citt‡:
+Numero di raggruppamenti di cittÅE
 Number of clusters
 Numero di gruppi
 Number of units of passengers and goods transported
@@ -2550,7 +2550,7 @@ Ricavo operativo meno costi operativi
 origin
 Origine
 origin (amount)
-origine (quantit‡)
+origine (quantitÅE
 origin (detail)
 origine (dettaglio)
 Passenger destinations
@@ -2568,9 +2568,9 @@ passeggero\ndistribuzione
 Passengers
 Passeggeri
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
-I pedoni appariranno vicino alle fermate quando un veicolo li far‡ scendere lÏ.
+I pedoni appariranno vicino alle fermate quando un veicolo li farÅEscendere lÅE
 Pedestrians will appear randomly in towns.
-I pedoni appariranno a caso nelle citt‡.
+I pedoni appariranno a caso nelle cittÅE
 per 1 km
 per 1km
 percent
@@ -2582,13 +2582,13 @@ benzina
 Placing attractions ...
 Posizionamento attrazioni ...
 Placing cities ...
-Posizionamento citt‡ ...
+Posizionamento cittÅE...
 Placing industries ...
 Posizionamento industrie ...
 Placing trees ...
 Posizionamento alberi ...
 Population density
-Densit‡ popolazione
+DensitÅEpopolazione
 Power demand
 Potenza richiesta
 Power supply
@@ -2606,7 +2606,7 @@ Traina
 Pulls:
 Traina:
 quick_city_growth
-Crescita rapida citt‡
+Crescita rapida cittÅE
 Rail
 Ferrovia
 Range
@@ -2622,7 +2622,7 @@ Riassegna le classi
 reassigned_classes
 Classi riassegnate
 reassigned_to_multiple
-Riassegnata in pi˘ classi
+Riassegnata in piÅEclassi
 Rebuild connexions:
 Ricostruisci connessioni:
 Recurring expenses of infrastructure maintenance
@@ -2670,7 +2670,7 @@ Conserva nel deposito
 Retire
 Pensiona
 Revenue from electricity transmission
-Ricavo da trasmissione elettricit‡
+Ricavo da trasmissione elettricitÅE
 revenue of
 entrate di
 reverse route
@@ -2686,7 +2686,7 @@ Strada
 Rolling resistance:
 Resistenza al rotolamento:
 Routes will update instantly after any changes to lines/schedules. Can make the game respond slowly on big maps.
-I percorsi si aggiorneranno immediatamente dopo le modifiche alle linee / orari. PuÚ far rispondere lentamente il gioco se si usano mappe grandi.
+I percorsi si aggiorneranno immediatamente dopo le modifiche alle linee / orari. PuÅEfar rispondere lentamente il gioco se si usano mappe grandi.
 rpl_cnv_replace
 Sostituisci
 rpl_cnv_sell
@@ -2700,7 +2700,7 @@ gioco salvato in versione Experimental
 Schedule is incomplete/not finished
 Percorso non completo/non finito
 See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
-Guarda sottoterra, uno strato alla volta. Alterna con CTRL + U. Muoviti su / gi˘ di uno strato Home e Fine.
+Guarda sottoterra, uno strato alla volta. Alterna con CTRL + U. Muoviti su / giÅEdi uno strato Home e Fine.
 See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U
 Guarda sotto terra, per costruire tunnel e ferrovie o metropolitane sotterranee. Cambia con SHIFT+U
 Sell
@@ -2708,15 +2708,15 @@ Vendi
 Send convoy to depot, replace and restart it automatically
 Invia convoglio al deposito, sostituiscilo e fallo ripartire automaticamente
 Send convoy to depot, replace it and stay there
-Invia convoglio al deposito, sostituiscilo e fallo rimanere lÏ
+Invia convoglio al deposito, sostituiscilo e fallo rimanere lÅE
 Send the convoy to its home depot for replacing rather than the nearest depot.
-Invia il convoglio al suo deposito base per la sostituzione invece di inviarlo al deposito pi˘ vicino.
+Invia il convoglio al suo deposito base per la sostituzione invece di inviarlo al deposito piÅEvicino.
 Serves line
 Serve linea
 Service frequency
 Frequenza del servizio
 set overtaking mode
-Imposta modalit‡ di sorpasso
+Imposta modalitÅEdi sorpasso
 set signal spacing
 Imposta distanza segnali
 Show a non-transient dialogue box
@@ -2736,7 +2736,7 @@ Mostra i limiti di peso delle strade
 Shows a bar graph representing the number of passengers/mail/goods waiting at stops.
 Visualizza un grafico a barre rappresentante il numero di passeggeri/posta/merci in attesa alle fermate.
 Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.
-Mostra i confini di ogni casella nella finestra di gioco principale. PuÚ essere utile quando si costruisce. Alterna con il tasto #.
+Mostra i confini di ogni casella nella finestra di gioco principale. PuÅEessere utile quando si costruisce. Alterna con il tasto #.
 Shows the names of the individual stations in the main game window.
 Visualizza i nomi delle singole stazioni nella finestra principale di gioco.
 signale bauen
@@ -2760,19 +2760,19 @@ Questa operazione supera\nil tuo limite di credito.
 The amount of mail transported in the region overall
 Ammontare della posta trasportata nella regione
 The charges incurred or revenues earned by running on other players' ways
-Oneri sostenuti viaggiando su tratte possedute da altri giocatori o ricavi conseguiti da altri giocatori che hanno viaggiato sui tratti di percorso di tua propriet‡.
+Oneri sostenuti viaggiando su tratte possedute da altri giocatori o ricavi conseguiti da altri giocatori che hanno viaggiato sui tratti di percorso di tua proprietÅE
 The convoy has been sent\nto its home depot.\n
-Il convoglio Ë stato inviato\nal suo deposito base.\n
+Il convoglio ÅEstato inviato\nal suo deposito base.\n
 The convoy has been sent\nto its home depot.\n%s\n
-Il convoglio Ë stato inviato\nal suo deposito base.\n%s\n
+Il convoglio ÅEstato inviato\nal suo deposito base.\n%s\n
 The display of the station coverage can either be a transparent rectangle or a series of boxes.
-La visualizzazione della copertura delle stazioni puÚ essere un rettangolo trasparente o una serie di quadrati.
+La visualizzazione della copertura delle stazioni puÅEessere un rettangolo trasparente o una serie di quadrati.
 The following %s has become obsolete:\n%s\n
-Il seguente %s Ë divenuto obsoleto:\n%s\n
+Il seguente %s ÅEdivenuto obsoleto:\n%s\n
 The main game window can be scrolled by right-clicking and dragging the ground.
-La finestra principale di gioco puÚ essere mossa cliccando con il destro e spostando il terreno.
+La finestra principale di gioco puÅEessere mossa cliccando con il destro e spostando il terreno.
 The maximum amount that can be borrowed without prohibiting further capital outlays
-Il massimo prestito che puÚ essere preso senza proibire ulteriori spese per il capitale
+Il massimo prestito che puÅEessere preso senza proibire ulteriori spese per il capitale
 The number of convoys that have serviced this stop
 Numero di convogli che si sono fermati a questo stop
 The number of industries in the region
@@ -2786,11 +2786,11 @@ Posti di lavoro regionali
 The number of passengers who could not find a route to their destination
 Numero di passeggeri non serviti
 The number of passengers who decline to travel because the journey would take too long
-Numero di passeggeri che hanno rinunciato al viaggio perchÈ troppo lungo
+Numero di passeggeri che hanno rinunciato al viaggio perchÅEtroppo lungo
 The number of passengers who had to wait so long that they gave up
-Numero di passeggeri che hanno dovuto aspettare cosÏ a lungo da rinunciare
+Numero di passeggeri che hanno dovuto aspettare cosÅEa lungo da rinunciare
 The number of passengers who have been turned away from this stop because it is overcrowded
-Il numero di passeggeri che sono stati allontanati da questa fermata perchÈ Ë sovraffollato
+Il numero di passeggeri che sono stati allontanati da questa fermata perchÅEÅEsovraffollato
 The number of passengers who have travelled successfully from this stop
 Numero di passeggeri che hanno viaggiato con successo da questa fermata
 The number of passengers/units of mail/goods that have arrived at this stop
@@ -2818,11 +2818,11 @@ Numero totale di passeggeri/posta/merci trasportati nella regione
 The total number of passengers wanting to be transported in the region
 Numero totale di passeggeri che vogliono essere trasportati nella regione
 This can only be built underground.
-Questo oggetto puÚ essere costruito solo sottoterra.
+Questo oggetto puÅEessere costruito solo sottoterra.
 This is a tilting vehicle\n
-Questo Ë un veicolo basculante\n
+Questo ÅEun veicolo basculante\n
 This is a travelling post office
-Questo Ë un ufficio postale itinerante
+Questo ÅEun ufficio postale itinerante
 tile
 casella
 tiles
@@ -2838,7 +2838,7 @@ Troppo lento
 Total assets less total liabilities
 Attivi totali meno passivi totali
 Total capital assets, excluding liabilities
-Attivi totali del capitale, escluse passivit‡
+Attivi totali del capitale, escluse passivitÅE
 Total income less total expenditure
 Ricavo totale meno spese totali
 Total liquid assets
@@ -2856,7 +2856,7 @@ in trasferimento
 transfers
 Trasferimenti
 Transformer only next to factory or in city!
-Le sottostazioni elettriche possono essere costruite solo vicino alle industrie o all'interno delle citt‡.
+Le sottostazioni elettriche possono essere costruite solo vicino alle industrie o all'interno delle cittÅE
 Transshipment time: 
 Tempo di trasbordo:
 travelling post office
@@ -2868,7 +2868,7 @@ Troppo affollato
 underground
 metropolitana
 units transferring
-unit‡ in trasferimento
+unitÅEin trasferimento
 Unknown destination
 Destinazione sconosciuta
 unlimited
@@ -2880,7 +2880,7 @@ Solo veicoli senza motore
 Usage: %u %%
 Utilizzo: %u %%
 Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.
-Utilizzare qualsiasi veicolo gi‡ presente nel deposito (se disponibile) invece di comprarne di nuovi o di ristrutturarne.
+Utilizzare qualsiasi veicolo giÅEpresente nel deposito (se disponibile) invece di comprarne di nuovi o di ristrutturarne.
 Use centralised instead of distributed path searching system.
 Usa il sistema di ricerca dell'itinerario centralizzato al posto di quello distribuito
 Use existing vehicles
@@ -2936,9 +2936,9 @@ Limiti di peso
 West To East
 Da ovest ad est
 When adding convoys to the line, every second convoy will follow it in the reverse direction.
-Quando si aggiungono convogli alla linea, ogni secondo convoglio viagger‡ nella direzione opposta (utile per il senso di marcia nelle linee circolari).
+Quando si aggiungono convogli alla linea, ogni secondo convoglio viaggerÅEnella direzione opposta (utile per il senso di marcia nelle linee circolari).
 When this is set, the vehicle will visit stops in reverse order.
-Quando Ë selezionato il veicolo visita le fermate in ordine inverso.
+Quando ÅEselezionato il veicolo visita le fermate in ordine inverso.
 Whether the lighting in the main game window simulates a periodic transition between day and night.
 Se la luce simula la transizione periodica tra giorno e notte.
 You have been overdrawn\nfor %i months
@@ -2948,25 +2948,25 @@ Sei in debito\nda un mese.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 %s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d (%d)%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
+%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d (%d)%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
 %s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
-%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
+%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
 %s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
-%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
 %s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
-%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
 %s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
-%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
 %s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
-%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
 %s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n
-%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacit‡: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacitÅE %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %fN\n
 %s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nAxle load: %dt\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
 %s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\nCarico per asse: %dt\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
 Passengers %d %c, %d %c, %d no route, %d too slow
 Passeggeri %d %c, %d %c, %d senza percorso, %d troppo lento
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
-Passeggeri %d %c, %d %c, %d senza percorso\n\nCapacit‡: %i\n
+Passeggeri %d %c, %d %c, %d senza percorso\n\nCapacitÅE %i\n
 Passengers %d %s, %d %s, %d no route, %d too slow
 Passeggeri %d %s, %d %s, %d senza percorso, %d troppo lento
 Power: %4d kW, %d kN\n

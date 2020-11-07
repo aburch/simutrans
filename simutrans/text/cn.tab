@@ -467,7 +467,7 @@ Airport
 机场
 All
 所有
-all convoi tooltips
+always show all
 显示所有交通工具的提示
 Allow city growth
 允许城市增长
@@ -687,7 +687,7 @@ Constructed by %s
 上色于: %s 
 convoi %d of %d
 交通工具 %d / %d
-convoi error tooltips
+only error convoys
 显示交通工具的错误提示
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 交通工具已经被召回到最近\n同类的库。\n\n
