@@ -268,7 +268,7 @@ void depot_frame_t::layout(scr_size *size)
 	* The image list is horizontally "condensed".
 	*/
 
-	const int ACTIONS_WIDTH = D_DEFAULT_WIDTH;
+	const int ACTIONS_WIDTH = D_DEFAULT_WIDTH + D_BUTTON_WIDTH + D_H_SPACE;
 	const int ACTIONS_HEIGHT = D_BUTTON_HEIGHT;
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
@@ -279,15 +279,15 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	const scr_coord_val MIN_DEPOT_FRAME_WIDTH = min(display_get_width(),                 max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH) );
-	const scr_coord_val     DEPOT_FRAME_WIDTH = min(display_get_width(), max(win_size.w, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
+	const scr_coord_val MIN_DEPOT_FRAME_WIDTH = ACTIONS_WIDTH;
+	const scr_coord_val     DEPOT_FRAME_WIDTH = max(win_size.w, ACTIONS_WIDTH);
 
 	/*
 	*  Now we can do the first vertical adjustment:
 	*/
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
-	const scr_coord_val ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
+	const scr_coord_val ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE;
+	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height() + LINESPACE*5 + D_V_SPACE;
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel

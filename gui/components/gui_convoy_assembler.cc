@@ -85,6 +85,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_livery_counter(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
+	scrolly_convoi(&cont_convoi),
 	pas(&pas_vec),
 	pas2(&pas2_vec),
 	electrics(&electrics_vec),
@@ -139,8 +140,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	convoi.set_player_nr(player_nr);
 	convoi.add_listener(this);
 
-	add_component(&convoi);
-	add_component(&lb_convoi_number);
+	cont_convoi.add_component(&lb_convoi_number);
+	cont_convoi.add_component(&convoi);
+
 	add_component(&lb_convoi_count);
 	add_component(&lb_convoi_count_fluctuation);
 	add_component(&lb_convoi_speed);
@@ -464,10 +466,23 @@ void gui_convoy_assembler_t::layout()
 	lb_convoi_count_fluctuation.set_size(scr_size(30, LINESPACE+2));
 	convoi.set_grid(scr_coord(grid.x - grid_dx, grid.y));
 	convoi.set_placement(scr_coord(placement.x - placement_dx, placement.y));
-	convoi.set_pos(scr_coord((max(c1_x, size.w-get_convoy_image_width())/2), y));
+	convoi.set_pos(scr_coord(0, 0));
 	convoi.set_size(scr_size(get_convoy_image_width(), get_convoy_image_height()));
-	y += get_convoy_image_height();
 
+	cont_convoi.set_size(scr_size(get_convoy_clist_width(), grid.y + 5 + 4));
+	scrolly_convoi.set_size(scr_size(size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(get_convoy_clist_width() >= size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) ));
+	scrolly_convoi.set_show_scroll_x(true);
+	scrolly_convoi.set_show_scroll_y(false);
+	scrolly_convoi.set_scroll_discrete_x(false);
+	scrolly_convoi.set_size_corner(false);
+	scrolly_convoi.set_pos(scr_coord(D_H_SPACE,y));
+
+	scrolly_convoi.set_scrollbar_mode(scrollbar_t::show_disabled);
+	scrolly_convoi.set_size_corner(false);
+	add_component(&scrolly_convoi);
+	y = get_convoy_height();
+
+	// Convoy parameters ( = below convoy image)
 	lb_convoi_tiles.set_pos(scr_coord(c1_x, y));
 	lb_convoi_tiles.set_size(scr_size(proportional_string_width(translator::translate("Station tiles:")) + proportional_string_width(" 000"), LINESPACE));
 	tile_occupancy.set_pos(scr_coord(c1_x + lb_convoi_tiles.get_size().w, y+3));
