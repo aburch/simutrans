@@ -156,6 +156,7 @@ signal_info_t::signal_info_t(signal_t* const s) :
 		add_component(&lb_sb_name);
 
 		bt_info_signalbox.init(button_t::roundbox, "Details");
+		bt_info_signalbox.set_size(scr_size(D_BUTTON_WIDTH*2/3, D_BUTTON_HEIGHT));
 		bt_info_signalbox.set_visible(false);
 		bt_info_signalbox.set_tooltip(translator::translate("open_signalbox_info"));
 		bt_info_signalbox.add_listener(this);
