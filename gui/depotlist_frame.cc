@@ -15,7 +15,7 @@
 #include "../boden/wege/runway.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
-#include "../bauer/vehikelbauer.h""
+#include "../bauer/vehikelbauer.h"
 
 #define IMG_WIDTH 20 // same as gui_tab_panel
 
@@ -51,7 +51,7 @@ bool depotlist_frame_t::is_available_wt(waytype_t wt) const
 		case air_wt:
 			return runway_t::default_runway ? true : false;
 		default:
-			return IMG_EMPTY;
+			return false;
 	}
 	return false;
 }
