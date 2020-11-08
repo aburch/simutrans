@@ -159,6 +159,15 @@ public:
 	void enable();
 	void disable();
 
+	void enable( bool yesno ) {
+		if( yesno && !is_focusable() ) {
+			enable();
+		}
+		else if( !yesno  &&  is_focusable() ) {
+			disable();
+		}
+	}
+
 	// save selection
 	void rdwr( loadsave_t *file );
 };

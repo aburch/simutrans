@@ -381,7 +381,7 @@ public:
 	inline obj_no_info_t(const koord3d& pos) : obj_t(pos) {}
 #endif
 
-	void show_info() {}
+	void show_info() OVERRIDE {}
 
 protected:
 #ifdef INLINE_OBJ_TYPE

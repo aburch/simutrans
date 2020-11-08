@@ -116,8 +116,7 @@ void button_t::set_typ(enum type t)
 
 		case box:
 			text_color = SYSCOL_COLORED_BUTTON_TEXT;
-			// fallthrough
-
+			/* FALLTHROUGH */
 		case roundbox:
 			set_size( scr_size(get_size().w, max(D_BUTTON_HEIGHT, LINESPACE)));
 			break;

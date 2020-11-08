@@ -335,7 +335,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&livery_selector);
 
 	// sort button
-	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), D_ARROW_UP_SIZE);
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, (D_BUTTON_HEIGHT-D_ARROW_UP_HEIGHT)/2), D_ARROW_UP_SIZE);
 	sort_asc.set_tooltip(translator::translate("cl_btn_sort_asc"));
 	sort_asc.add_listener(this);
 	sort_asc.pressed = sortreverse;

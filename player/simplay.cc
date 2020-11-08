@@ -1145,7 +1145,7 @@ sint64 player_t::undo()
 								break;
 							}
 						}
-						// fallthrough
+						/* FALLTHROUGH */
 
 					default:
 						// all other are forbidden => no undo any more

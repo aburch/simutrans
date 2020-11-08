@@ -31,7 +31,7 @@ public:
 
 	scr_size get_min_size() const OVERRIDE
 	{
-		return scr_size(proportional_string_width("X")+ gui_theme_t::gui_button_text_offset.w + gui_theme_t::gui_button_text_offset_right.x, D_BUTTON_HEIGHT);
+		return scr_size(max(D_BUTTON_HEIGHT,proportional_string_width("X")+ gui_theme_t::gui_button_text_offset.w + gui_theme_t::gui_button_text_offset_right.x), D_BUTTON_HEIGHT);
 	}
 };
 

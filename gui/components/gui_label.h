@@ -32,7 +32,7 @@ private:
 	bool shadowed;
 	PIXVAL color_shadow;
 
-	const char * text;	// only for direct access of non-translatable things. Do not use!
+	const char * text; // only for direct access of non-translatable things. Do not use!
 
 	scr_size min_size;
 
@@ -44,6 +44,7 @@ protected:
 
 	align_t align;
 	const char * tooltip;
+
 	using gui_component_t::init;
 
 public:

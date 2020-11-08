@@ -394,7 +394,7 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 \ndirection:
 \nrichtingen:
 \nelektrified
-geëlektrificeerd
+geEektrificeerd
 \nHeightfield has wrong image type.\n
 \nHoogteveld heeft een onjuiste\nbestands opmaak.\n
 \nis reserved by:
@@ -402,7 +402,7 @@ geëlektrificeerd
 \nminimum speed:
 \nminimumsnelheid:
 \nnot elektrified
-niet geëlektrificeerd
+niet geEektrificeerd
 \nRibi (masked)
 \nRichtingen (gemaskeerd)
 \nRibi (unmasked)
@@ -515,7 +515,7 @@ Airport
 Luchthaven 
 All
 Alle
-all convoi tooltips
+always show all
 alle tooltips voor voertuigen
 Allow city growth
 Stadsuitbreiding toestaan
@@ -662,7 +662,7 @@ Inwoners
 City attraction
 Toeristische attractie
 City industries
-Aantal industrieën (stad)
+Aantal industrieE (stad)
 City list
 Stedenlijst
 City size
@@ -749,7 +749,7 @@ Consumed
 verbruikt
 convoi %d of %d
 Voertuig %d van %d
-convoi error tooltips
+only error convoys
 tooltips voor voertuig fouten
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Dit voertuig is naar een\nnabijgelegen depot gestuurd.\n
@@ -766,7 +766,7 @@ Voertuigen: %d\nWinst: %s
 Convoys
 Voertuigen
 Copy Convoi
-Kopiëren
+KopiEen
 Copy the selected convoi and its schedule or line
 Kopieer dit voertuig inclusief dienstregeling of lijn
 cost for removal
@@ -888,9 +888,9 @@ Bestand:
 Files from:
 Bestanden uit:
 Finances of %s
-Financiën van %s
+FinanciE van %s
 Finanzen
-Financiën
+FinanciE
 find mismatch
 Vergelijk je pak
 fl_title
@@ -1052,7 +1052,7 @@ Stop invoegen voor de huidige
 Intercity road len:
 Lengte provinciale wegen
 Intro. date:
-Geïntroduceerd:
+GeEtroduceerd:
 invalid
 ongeldig
 Invalid coordinate
@@ -1084,7 +1084,7 @@ Label lijst
 Land attraction
 Bezienswaardigheid
 Land industries
-Aantal industrieën (land)
+Aantal industrieE (land)
 LANG_CHOOSE\n
 Maak de keuze uit\nde volgende talen:\n
 LARGE_NUMBER_STRING
@@ -1120,7 +1120,7 @@ Aangesloten lijnen
 LKW_tab
 Vrachtverkeer
 load height data from file
-Bestand met reliëfinformatie laden
+Bestand met reliEinformatie laden
 loaded
 geladen.
 loaded passenger/freight
@@ -1254,7 +1254,7 @@ Nieuw voertuig
 New Line
 Nieuwe lijn
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-Nieuwe lijn gecreëerd!\nJe kunt de lijn nu toewijzen\ndoor deze te kiezen uit\nde lijnen hierboven.
+Nieuwe lijn gecreErd!\nJe kunt de lijn nu toewijzen\ndoor deze te kiezen uit\nde lijnen hierboven.
 New Vehicles
 Nieuwe voertuigen
 no buildings hidden

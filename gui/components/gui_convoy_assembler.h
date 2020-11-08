@@ -142,8 +142,8 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_power;
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_brake_force;
+	gui_label_t lb_convoi_brake_distance;
 	gui_label_t lb_convoi_axle_load;
-	gui_label_t lb_convoi_way_wear_factor;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
 	// this depot.
@@ -179,6 +179,8 @@ class gui_convoy_assembler_t :
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
+	gui_container_t cont_convoi;
+	gui_scrollpane_t scrolly_convoi;
 
 	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
 	vector_tpl<gui_image_list_t::image_data_t*> pas2_vec;
@@ -220,7 +222,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_vehicle_count;
 	cbuffer_t txt_livery_count;
 	cbuffer_t tooltip_convoi_acceleration;
-	cbuffer_t tooltip_convoi_brake_distance;
+	cbuffer_t txt_convoi_brake_distance;
 	cbuffer_t tooltip_convoi_speed;
 	cbuffer_t text_convoi_axle_load;
 	char txt_convoi_count_fluctuation[6];
@@ -248,9 +250,6 @@ class gui_convoy_assembler_t :
 
 	/**
 	 * Draw the info text for the vehicle the mouse is over - if any.
-	 * @author Volker Meyer, Hj. Malthaner
-	 * @date  09.06.2003
-	 * @update 09-Jan-04
 	 */
 	void draw_vehicle_info_text(const scr_coord& pos);
 
@@ -263,7 +262,7 @@ class gui_convoy_assembler_t :
 	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	//static const sint16 VINFO_HEIGHT = 186 + 14;
-	static const sint16 VINFO_HEIGHT = 300/*250*/;
+	const scr_coord_val VINFO_HEIGHT = 21 * LINESPACE + D_BUTTON_HEIGHT * 3 + D_EDIT_HEIGHT + 5 * D_V_SPACE;
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
@@ -342,21 +341,22 @@ public:
 
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
-	inline sint16 get_convoy_clist_width() const {return (vehicles.get_count() < 24 ? 24 : vehicles.get_count()) * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_convoy_clist_width() const { return vehicles.get_count() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER; } // = CLIST_WIDTH
 
 	inline sint16 get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
 
-	inline sint16 get_convoy_image_height() const {return grid.y + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_convoy_image_height() const { return grid.y + 2 * gui_image_list_t::BORDER + 5; } // = CLIST_HEIGHT
 
-	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 5 + 6;}
+	inline sint16 get_convoy_height() const {return get_convoy_image_height() + D_SCROLLBAR_HEIGHT * (get_convoy_clist_width() >= size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT);}
+	//	inline sint16 get_convoy_height() const {return get_convoy_image_height() + LINESPACE * 5 + 6;}
 
 	inline sint16 get_vinfo_height() const { return VINFO_HEIGHT; }
 
 	void set_panel_rows(sint32 dy);
 
-	inline sint16 get_panel_height() const {return (panel_rows * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER) - 4;}
+	inline sint16 get_panel_height() const {return (panel_rows * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + VEHICLE_BAR_HEIGHT);}
 
-	inline sint16 get_min_panel_height() const {return grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_min_panel_height() const {return grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER + VEHICLE_BAR_HEIGHT;}
 
 	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_panel_height();}
 

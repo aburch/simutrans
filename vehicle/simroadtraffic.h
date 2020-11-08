@@ -45,7 +45,7 @@ protected:
 	uint8 tiles_since_last_increment;
 
 protected:
-	virtual waytype_t get_waytype() const OVERRIDE { return road_wt; }
+	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 
 	void hop(grund_t *gr) OVERRIDE;
 	virtual void update_bookkeeping(uint32) OVERRIDE {};
@@ -76,7 +76,7 @@ public:
 	/**
 	 * Open a new observation window for the object.
 	 */
-	virtual void show_info() OVERRIDE;
+	void show_info() OVERRIDE;
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -86,7 +86,7 @@ public:
 	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
-	const char * is_deletable(const player_t *) OVERRIDE { return NULL; }
+	const char *is_deletable(const player_t *) OVERRIDE { return NULL; }
 };
 
 
@@ -150,17 +150,17 @@ public:
 	inline sint32 get_max_power_speed() OVERRIDE {return get_max_speed();}
 
 	const char *get_name() const OVERRIDE {return "Verkehrsteilnehmer";}
-	//typ get_typ() const { return road_user; }
+	//typ get_typ() const OVERRIDE { return road_user; }
 
 	/**
 	 * @return a description string for the object
 	 * e.g. for the observation window/dialog
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf) const OVERRIDE;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	// true, if this vehicle did not moved for some time
-	virtual bool is_stuck() OVERRIDE { return current_speed==0;}
+	bool is_stuck() OVERRIDE { return current_speed==0;}
 
 	/** this function builds the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game
@@ -175,10 +175,10 @@ public:
 	void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
-	virtual overtaker_t *get_overtaker() OVERRIDE { return this; }
+	overtaker_t *get_overtaker() OVERRIDE { return this; }
 
 	// Overtaking for city cars
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
+	bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked

@@ -67,6 +67,7 @@ message_frame_t::message_frame_t() :
 		add_component(&option_bt);
 
 		copy_bt.init(button_t::roundbox, translator::translate("Copy to clipboard"));
+		copy_bt.set_size(scr_size(max(proportional_string_width(translator::translate("Copy to clipboard"))+gui_theme_t::gui_button_text_offset.w+gui_theme_t::gui_button_text_offset_right.x, D_BUTTON_WIDTH), D_BUTTON_HEIGHT));
 		copy_bt.add_listener(this);
 		add_component(&copy_bt);
 

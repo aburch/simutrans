@@ -351,7 +351,7 @@ money_frame_t::money_frame_t(player_t *player)
 		new_component<gui_fill_t>();
 
 		add_component(&headquarter);
-		headquarter.init(button_t::roundbox, "");
+		headquarter.init(button_t::roundbox, "", scr_coord(0,0), D_BUTTON_SIZE);
 		headquarter.add_listener(this);
 	}
 	end_table();

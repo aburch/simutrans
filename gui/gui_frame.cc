@@ -45,28 +45,6 @@ scr_coord floating_cursor_t::next_pos(const scr_size& size)
 }
 
 
-//// default button sizes
-//KOORD_VAL gui_frame_t::gui_button_width = 92;
-//KOORD_VAL gui_frame_t::gui_button_height = 14;
-//
-//// default titlebar height
-//KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
-//
-//// dialog borders
-//KOORD_VAL gui_frame_t::gui_frame_left = 10;
-//KOORD_VAL gui_frame_t::gui_frame_top = 10;
-//KOORD_VAL gui_frame_t::gui_frame_right = 10;
-//KOORD_VAL gui_frame_t::gui_frame_bottom = 10;
-//
-//// space between two elements
-//KOORD_VAL gui_frame_t::gui_hspace = 4;
-//KOORD_VAL gui_frame_t::gui_vspace = 4;
-//
-//// size of status indicator elements (colored boxes in factories, station and others)
-//KOORD_VAL gui_frame_t::gui_indicator_width = 20;
-//KOORD_VAL gui_frame_t::gui_indicator_height = 4;
-//
-
 karte_ptr_t gui_frame_t::welt;
 
 
@@ -240,10 +218,6 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 	}
 }
 
-void  gui_frame_t::set_name(const char *name)
-{
-	this->name = translator::translate(name);
-}
 
 uint32 gui_frame_t::get_rdwr_id()
 {

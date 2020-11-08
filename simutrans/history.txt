@@ -37,6 +37,7 @@ Release of 120.4 (r8588 on 17-Sep-2018):
 	OPT: significantly improved the performance of changing underground mode/slice when playing on very large maps
 	ADD: (THLeaderH) option to hide the revenue income messaging at stops
 	ADD: (THLeaderH) configurable height setting for extremely heigh maps (use at own risk)
+	FIX: different obj (ways, bridges, tunnels, ... ) with same name failed for checksum comparision
 
 
 Release of 120.3 (r8503 on 15-June-2018):

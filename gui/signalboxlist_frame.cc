@@ -44,7 +44,7 @@ void signalboxlist_stats_t::update_label()
 	label.update();
 
 	// connected / capacity
-	lb_connected.buf().printf("(%3d/%3d)",
+	lb_connected.buf().printf(" (%3d/%3d)",
 		sb->get_number_of_signals_controlled_from_this_box(),
 		sb->get_first_tile()->get_tile()->get_desc()->get_capacity());
 	lb_connected.update();
@@ -192,7 +192,6 @@ signalboxlist_frame_t::signalboxlist_frame_t(player_t *player) :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool signalboxlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
