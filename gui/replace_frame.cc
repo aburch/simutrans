@@ -214,7 +214,7 @@ void replace_frame_t::layout(scr_size *gr)
 	min_total_height=total_height;
 
 	// Width at least to see labels ok
-	update_total_width(D_DEFAULT_WIDTH + D_BUTTON_WIDTH + D_H_SPACE);
+	update_total_width(335*2 + D_MARGINS_X);
 
 	// Convoy label: name+image+specs
 	scr_size img_size=lb_convoy.get_size();
