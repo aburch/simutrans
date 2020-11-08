@@ -262,7 +262,7 @@ class gui_convoy_assembler_t :
 	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	//static const sint16 VINFO_HEIGHT = 186 + 14;
-	const scr_coord_val VINFO_HEIGHT = 21 * LINESPACE + D_BUTTON_HEIGHT * 3 + D_EDIT_HEIGHT + 5 * D_V_SPACE;
+	const scr_coord_val VINFO_HEIGHT = 20 * LINESPACE + D_BUTTON_HEIGHT * 3 + D_EDIT_HEIGHT + 3 * D_V_SPACE;
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
