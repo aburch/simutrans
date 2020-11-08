@@ -185,7 +185,7 @@ void halt_detail_t::update_components()
 			// fill buffer with halt detail
 			halt_detail_info();
 			cached_active_player = welt->get_active_player();
-			update_time = welt->get_ticks();
+			update_time = (uint32)welt->get_ticks();
 		}
 	}
 
