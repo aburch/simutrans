@@ -1092,7 +1092,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		txt_convoi_way_wear_factor.clear();
 		txt_convoi_way_wear_factor.printf("%s: %.4f", translator::translate("Way wear factor"), way_wear_factor);
 
-		if (total_pax > 0 || total_standing_pax > 0 || total_mail > 0)
+		if (!replace_frame && (total_pax > 0 || total_standing_pax > 0 || total_mail > 0))
 		{
 			bt_class_management.set_visible(true);
 		}
@@ -1102,9 +1102,9 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		draw_vehicle_bar_help(parent_pos+pos);
 	}
 
-	bt_outdated.pressed = show_outdated_vehicles;	// otherwise the button would not show depressed
-	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
-	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
+	bt_outdated.pressed = show_outdated_vehicles;   // otherwise the button would not show depressed
+	bt_obsolete.pressed = show_retired_vehicles;    // otherwise the button would not show depressed
+	bt_show_all.pressed = show_all;                 // otherwise the button would not show depressed
 	draw_vehicle_info_text(parent_pos+pos);
 	gui_container_t::draw(parent_pos);
 }
@@ -3194,34 +3194,34 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	display_proportional_clip_rgb(left, top, translator::translate("Vehicle bar shape legend:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	top += LINESPACE;
 	left += D_MARGIN_LEFT;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_head, 0, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 0, true);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_head, 0, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 0, true);
 	padding = display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_one_direction"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_head, 1, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, (vehicle_desc_t::can_be_head + vehicle_desc_t::can_be_tail), 1, true);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_head, 1, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, (vehicle_desc_t::can_be_head + vehicle_desc_t::can_be_tail), 1, true);
 	padding = max(padding, display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_cab_head"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 1, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 1, true);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 1, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::can_be_tail, 1, true);
 	padding = max(padding, display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_can_be_at_rear"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, 0, 0, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, 0, 0, true);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, 0, 0, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, 0, 0, true);
 	padding = max(padding, display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_intermediate"), ALIGN_LEFT, CITY_KI, true));
 
 	/*
 	top += LINESPACE;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_SAFETY, true, vehicle_desc_t::unknown_constraint, 0, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT * 2, top + 2, VEHICLE_BAR_HEIGHT * 2, COL_SAFETY, true, vehicle_desc_t::unknown_constraint, 0, true);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT * 2, COL_SAFETY, true, vehicle_desc_t::unknown_constraint, 0, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT * 2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT * 2, COL_SAFETY, true, vehicle_desc_t::unknown_constraint, 0, true);
 	padding = max(padding, display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT * 4 + 3, top, translator::translate("helptxt_unknown_constraint"), ALIGN_LEFT, CITY_KI, true));
 
 	top += LINESPACE;
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::fixed_coupling_prev, 0, false, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + 2, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::fixed_coupling_next, 0, true, false);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::fixed_coupling_prev, 0, false, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2, COL_SAFETY, true, vehicle_desc_t::fixed_coupling_next, 0, true, false);
 	padding = max(padding, display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_fixed_outside_depot"), ALIGN_LEFT, CITY_KI, true));
 	*/
 
@@ -3229,12 +3229,12 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	top = offset.y + D_V_SPACE + grid.y + LINESPACE;
 	left += padding + VEHICLE_BAR_HEIGHT * 4 + D_H_SPACE + D_MARGIN_LEFT;
 
-	display_fillbox_wh_clip_rgb(left+1, top+2, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_SAFETY, true);
+	display_fillbox_wh_clip_rgb(left+1, top+ FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_SAFETY, true);
 	display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT * 2 + 3, top, translator::translate("helptxt_powered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	top += LINESPACE;
-	display_fillbox_wh_clip_rgb(left+1, top + 2, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_SAFETY, true);
-	display_blend_wh_rgb(left+3, top + 3, VEHICLE_BAR_HEIGHT*2 - 6, VEHICLE_BAR_HEIGHT - 2, color_idx_to_rgb(COL_WHITE), 30);
+	display_fillbox_wh_clip_rgb(left+1, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2 - 2, VEHICLE_BAR_HEIGHT, COL_SAFETY, true);
+	display_blend_wh_rgb(left+3, top + FIXED_SYMBOL_YOFF + 1, VEHICLE_BAR_HEIGHT*2 - 6, VEHICLE_BAR_HEIGHT - 2, color_idx_to_rgb(COL_WHITE), 30);
 	display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*2 + 3, top, translator::translate("helptxt_unpowered_vehicle"), ALIGN_LEFT, CITY_KI, true);
 
 	if (skinverwaltung_t::upgradable) {
@@ -3255,8 +3255,8 @@ void gui_convoy_assembler_t::draw_vehicle_bar_help(scr_coord offset)
 	/*
 	top += LINESPACE*3;
 
-	display_veh_form_wh_clip_rgb(left, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_SAFETY, true, (vehicle_desc_t::permanent_coupling_next + vehicle_desc_t::fixed_coupling_next), 0, true, false);
-	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2 + 1, top + 2, VEHICLE_BAR_HEIGHT*2 - 1, COL_SAFETY, true, (vehicle_desc_t::permanent_coupling_prev + vehicle_desc_t::fixed_coupling_prev), 0, false, false);
+	display_veh_form_wh_clip_rgb(left, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2 - 1, COL_SAFETY, true, (vehicle_desc_t::permanent_coupling_next + vehicle_desc_t::fixed_coupling_next), 0, true, false);
+	display_veh_form_wh_clip_rgb(left + VEHICLE_BAR_HEIGHT*2 + 1, top + FIXED_SYMBOL_YOFF, VEHICLE_BAR_HEIGHT*2 - 1, COL_SAFETY, true, (vehicle_desc_t::permanent_coupling_prev + vehicle_desc_t::fixed_coupling_prev), 0, false, false);
 	display_proportional_clip_rgb(left + VEHICLE_BAR_HEIGHT*4 + 3, top, translator::translate("helptxt_permanent_couple"), ALIGN_LEFT, CITY_KI, true);
 	*/
 
