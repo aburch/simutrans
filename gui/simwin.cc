@@ -1641,7 +1641,7 @@ void win_display_flush(double konto)
 	}
 
 	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
+		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(D_MARGIN_LEFT,menu_height+D_MARGIN_TOP,disp_width-2*4,disp_height-menu_height-D_MARGIN_TOP-D_MARGIN_BOTTOM-win_get_statusbar_height()-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
 	}
 
 	{
