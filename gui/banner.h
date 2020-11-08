@@ -16,6 +16,7 @@
  * Class to generates the welcome screen with the scrolling
  * text to celebrate contributors.
  */
+
 class banner_t : public gui_frame_t, action_listener_t
 {
 private:

@@ -223,11 +223,6 @@ void banner_text_t::draw(scr_coord offset)
 			color = color_idx_to_rgb(colors[0]);
 		}
 
-		if (scrolltext[text_line + row * 2 + 1] == NULL)
-		{
-			break;
-		}
-
 		display_proportional_clip_rgb( left + L_BANNER_TEXT_INDENT,         cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
 		display_proportional_clip_rgb( left + width - L_BANNER_TEXT_INDENT, cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
 
