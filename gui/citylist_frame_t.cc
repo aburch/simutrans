@@ -187,6 +187,7 @@ citylist_frame_t::citylist_frame_t() :
 		// add button
 		buttons[i] = container_year.new_component<button_t>();
 		buttons[i]->init(button_t::box_state_automatic | button_t::flexible, hist_type[i]);
+		buttons[i]->set_tooltip(hist_type_tooltip[i]);
 		buttons[i]->background_color = color_idx_to_rgb(hist_type_color[i]);
 		buttons[i]->pressed = false;
 
