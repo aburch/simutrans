@@ -350,7 +350,9 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		}
 		accel_chart.set_abort_display_x(0);
 
-		while (i > 0)
+		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+		while (i > 0 && max_speed>0)
 		{
 			empty_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight, empty_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_min, sp_soll_min, akt_v_min);
 			dummy_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight+max_freight_weight, dummy_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_max, sp_soll_max, akt_v_max);
@@ -368,33 +370,32 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 
-
 		// force chart
-		uint32 empty_weight = convoy.get_vehicle_summary().weight;
-		const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-		const uint16 display_interval = (max_speed + SPEED_RECORDS - 1) / SPEED_RECORDS;
-		float32e8_t rolling_resistance = cnv->get_adverse_summary().fr;
-		te_curve_abort_x = (uint8)((max_speed + (display_interval - 1)) / display_interval) + 1;
-		force_chart.set_abort_display_x(te_curve_abort_x);
-		force_chart.set_dimension(te_curve_abort_x, 10000);
+		if (max_speed > 0) {
+			const uint16 display_interval = (max_speed + SPEED_RECORDS-1) / SPEED_RECORDS;
+			float32e8_t rolling_resistance = cnv->get_adverse_summary().fr;
+			te_curve_abort_x = (uint8)((max_speed + (display_interval-1)) / display_interval) + 1;
+			force_chart.set_abort_display_x(te_curve_abort_x);
+			force_chart.set_dimension(te_curve_abort_x, 10000);
 
-		if (env_t::left_to_right_graphs) {
-			force_chart.set_seed(display_interval * (SPEED_RECORDS - 1));
-			force_chart.set_x_axis_span(display_interval);
-			for (int i = 0; i < max_speed; i++) {
-				if (i % display_interval == 0) {
-					force_curves[SPEED_RECORDS - i / display_interval - 1][0] = cnv->get_force_summary(i * kmh2ms);
-					force_curves[SPEED_RECORDS - i / display_interval - 1][1] = cnv->calc_speed_holding_force(i * kmh2ms, rolling_resistance).to_sint32();
+			if (env_t::left_to_right_graphs) {
+				force_chart.set_seed(display_interval * (SPEED_RECORDS-1));
+				force_chart.set_x_axis_span(display_interval);
+				for (int i = 0; i < max_speed; i++) {
+					if (i % display_interval == 0) {
+						force_curves[SPEED_RECORDS-i / display_interval-1][0] = cnv->get_force_summary(i*kmh2ms);
+						force_curves[SPEED_RECORDS-i / display_interval-1][1] = cnv->calc_speed_holding_force(i*kmh2ms, rolling_resistance).to_sint32();
+					}
 				}
 			}
-		}
-		else {
-			force_chart.set_seed(0);
-			force_chart.set_x_axis_span(0 - display_interval);
-			for (int i = 0; i < max_speed; i++) {
-				if (i % display_interval == 0) {
-					force_curves[i / display_interval][0] = cnv->get_force_summary(i * kmh2ms);
-					force_curves[i / display_interval][1] = cnv->calc_speed_holding_force(i * kmh2ms, rolling_resistance).to_sint32();
+			else {
+				force_chart.set_seed(0);
+				force_chart.set_x_axis_span(0 - display_interval);
+				for (int i = 0; i < max_speed; i++) {
+					if (i % display_interval == 0) {
+						force_curves[i/display_interval][0] = cnv->get_force_summary(i*kmh2ms);
+						force_curves[i/display_interval][1] = cnv->calc_speed_holding_force(i*kmh2ms, rolling_resistance).to_sint32();
+					}
 				}
 			}
 		}
