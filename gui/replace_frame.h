@@ -23,9 +23,6 @@
 
 /**
  * Replace frame, makes convoys be marked for replacing.
- *
- * @author isidoro
- * @date Jan-09
  */
 class replace_frame_t : public gui_frame_t,
                         public action_listener_t
@@ -97,44 +94,24 @@ public:
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	void update_data();
 
 	replace_frame_t(convoihandle_t cnv, const char *name);
 
-	/**
-	 * Setzt die Fenstergroesse
-	 * @author (Mathew Hounsell)
-	 * @date   11-Mar-2003
-	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
-	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen for the Hilfe, oder NULL
-	 * @author Hj. Malthaner
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
 	 */
-	const char * get_help_filename() const {return "replace.txt";}
+	const char * get_help_filename() const OVERRIDE {return "replace.txt";}
 
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
-	/**
-	 * Zeichnet das Frame
-	 * @author Hansjörg Malthaner
-	 */
-	void draw(scr_coord pos, scr_size gr);
+	void draw(scr_coord pos, scr_size gr) OVERRIDE;
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
-	bool action_triggered( gui_action_creator_t *comp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra) OVERRIDE;
 
 	const convoihandle_t get_convoy() const { return cnv; }
 
