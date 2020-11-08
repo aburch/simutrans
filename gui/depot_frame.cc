@@ -47,6 +47,7 @@
 #include "../boden/wege/weg.h"
 
 #include "depot_frame.h"
+#include "convoi_detail_t.h"
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t( translator::translate(depot->get_name()), depot->get_owner()),
@@ -142,6 +143,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_sell.add_listener(this);
 	set_resale_value();
 	add_component(&bt_sell);
+
+	bt_details.init(button_t::roundbox, "Details");
+	bt_details.add_listener(this);
+	bt_details.set_tooltip("Open the convoy detail window");
+	bt_details.disable();
+	add_component(&bt_details);
 
 	scr_size size(0,0);
 	layout(&size);
@@ -259,6 +266,8 @@ void depot_frame_t::layout(scr_size *size)
 		line_button.get_size().w + 2 + proportional_string_width(translator::translate(lb_convoi_line.get_text_pointer())) + 4
 		);
 
+	const scr_coord_val BUTTON_WIDTH_DEPOT = max(D_BUTTON_WIDTH,(win_size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT - 4*D_H_SPACE) / 5);
+
 	/*
 	*	Structure of [CONVOI] is a image_list and an infos:
 	*
@@ -371,20 +380,23 @@ void depot_frame_t::layout(scr_size *size)
 	 * [ACTIONS]
 	 */
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
-	bt_start.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) / 4 - 3, D_BUTTON_HEIGHT));
+	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_start.set_text("Start");
 
-	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) / 4 + 1, ACTIONS_VSTART));
-	bt_schedule.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 2 / 4 - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) / 4 - 3, D_BUTTON_HEIGHT));
+	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + BUTTON_WIDTH_DEPOT + D_H_SPACE, ACTIONS_VSTART));
+	bt_schedule.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_schedule.set_text("Fahrplan");
 
-	bt_copy_convoi.set_pos(scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 2 / 4 + 2, ACTIONS_VSTART));
-	bt_copy_convoi.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 2 / 4 - 3, D_BUTTON_HEIGHT));
+	bt_copy_convoi.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) * 2, ACTIONS_VSTART));
+	bt_copy_convoi.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
 
-	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, ACTIONS_VSTART));
-	bt_sell.set_size(scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
+	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) * 3, ACTIONS_VSTART));
+	bt_sell.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	set_resale_value();
+
+	bt_details.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE) * 4, ACTIONS_VSTART));
+	bt_details.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
@@ -657,6 +669,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		else if(  comp == &bt_sell  ) {
 			depot->call_depot_tool('v', cnv, NULL);
 		}
+		else if (comp == &bt_details) {
+			create_win(20, 20, new convoi_detail_t(cnv), w_info, magic_convoi_detail + cnv.get_id());
+			return true;
+		}
 		else if(  comp == &bt_copy_convoi  )
 		{
 			if(  cnv.is_bound() && cnv->all_vehicles_are_buildable())
@@ -774,8 +790,13 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	bt_schedule.enable( action_allowed );
 	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
+	bt_details.enable(action_allowed);
 	line_button.enable( action_allowed );
-//	convoy_selector.
+
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	if (action_allowed && !cnv.is_bound()) {
+		bt_details.disable();
+	}
 	if(  !action_allowed  &&  ev->ev_class <= INFOWIN  ) {
 		return false;
 	}
