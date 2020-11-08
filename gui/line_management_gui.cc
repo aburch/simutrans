@@ -12,6 +12,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
+#include "../vehicle/simvehicle.h"
+
 #include "../convoihandle_t.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
@@ -33,31 +35,51 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Transported",
 	"Revenue",
 	"Operation",
+	"Road toll",
 	"Profit",
 	"Convoys",
 	"Distance",
-	"Maxspeed",
-	"Road toll"
+	"Maxspeed"
 };
 
-const uint8 cost_type_color[MAX_LINE_COST] =
+static const uint8 cost_type_color[MAX_LINE_COST] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
 	COL_REVENUE,
 	COL_OPERATION,
+	COL_TOLL,
 	COL_PROFIT,
 	COL_CONVOI_COUNT,
 	COL_DISTANCE,
-	COL_MAXSPEED,
-	COL_TOLL
+	COL_MAXSPEED
 };
 
-static const bool cost_type_money[MAX_LINE_COST] =
+static uint8 idx2cost[MAX_LINE_COST] =
 {
-	false, false, true, true, true, false, false, false, true
+	LINE_CAPACITY,
+	LINE_TRANSPORTED_GOODS,
+	LINE_REVENUE,
+	LINE_OPERATIONS,
+	LINE_WAYTOLL,
+	LINE_PROFIT,
+	LINE_CONVOIS,
+	LINE_DISTANCE,
+	LINE_MAXSPEED,
 };
 
+static const bool cost_type_money[ MAX_LINE_COST ] =
+{
+	false,
+	false,
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	false
+};
 
 
 line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_ ) :
@@ -101,8 +123,8 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	chart.set_min_size( scr_size( 0, CHART_HEIGHT ) );
 	container_stats.add_component( &chart );
 
-	container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
 	if(line.is_bound() ) {
+		container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
 		for(  int cost = 0;  cost < MAX_LINE_COST;  cost++  ) {
 			uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, cost, MAX_MONTHS, cost_type_money[ cost ], false, true, cost_type_money[ cost ] * 2 );
 
@@ -113,8 +135,8 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 
 			button_to_chart.append( b, &chart, curve );
 		}
+		container_stats.end_table();
 	}
-	container_stats.end_table();
 
 	switch_mode.add_tab( &container_convois, translator::translate( "cl_title" ) );
 
@@ -140,7 +162,6 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	new_component<gui_fill_t>();
 	container_convois.end_table();
 
-	scrolly_convois.set_maximize( true );
 	container_convois.add_component(&scrolly_convois);
 	
 	switch_mode.add_tab(&container_halts, translator::translate("hl_title"));
@@ -150,13 +171,17 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	container_halts.add_component(&scrolly_halts);
 	
 	if (line.is_bound() ) {
+		// title
+		set_name(line->get_name() );
+		win_set_magic(this, (ptrdiff_t)line.get_rep());
+		// schedule
 		scd.init( line->get_schedule(), player, convoihandle_t(), linehandle_t() );
 		// we use local buffer to prevent sudden death on line deletion
 		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
 		inp_name.set_text(line_name, sizeof(line_name));
-
-		set_name(line->get_name() );
+		// init_chart
+		init_chart();
 	}
 	old_convoi_count = old_halt_count = 0;
 
@@ -166,9 +191,32 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 }
 
 
+void line_management_gui_t::init_chart()
+{
+	if( line.is_bound() ) {
+		if( chart.get_curve_count() == 0 ) {
+			container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
+			for( int cost = 0; cost < MAX_LINE_COST; cost++ ) {
+				uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, idx2cost[cost], MAX_MONTHS, cost_type_money[ cost ], false, true, cost_type_money[ cost ] * 2 );
+
+				button_t *b = container_stats.new_component<button_t>();
+				b->init( button_t::box_state_automatic | button_t::flexible, cost_type[ cost ] );
+				b->background_color = color_idx_to_rgb( cost_type_color[ cost ] );
+				b->pressed = false;
+
+				button_to_chart.append( b, &chart, curve );
+			}
+			container_stats.end_table();
+			old_convoi_count = -1; // recalc!
+		}
+	}
+}
+
+
 void line_management_gui_t::draw(scr_coord pos, scr_size size)
 {
 	if(  line.is_bound()  ) {
+
 		bool is_change_allowed = player == welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 
 		bool has_changed = false; // then we need to recalc sizes ...
@@ -184,6 +232,7 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 				case 1: lb_convoi_count.set_text( "1 convoi" );
 					break;
 				default:
+					lb_convoi_count_text.clear();
 					lb_convoi_count_text.printf( translator::translate( "%d convois" ), old_convoi_count );
 					lb_convoi_count.set_text( lb_convoi_count_text );
 					break;
@@ -192,18 +241,26 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			bt_withdraw_line.enable( old_convoi_count != 0 );
 			// fill convoi container
 			scrolly_convois.clear_elements();
+			capacity = 0;
 			for( uint32 i = 0; i < line->count_convoys(); i++ ) {
+				convoihandle_t cnv = line->get_convoy( i );
 				if( i == 0 ) {
 					// just to mark the schedule on the minimap
-					minimap_t::get_instance()->set_selected_cnv( line->get_convoy( 0 ) );
+					minimap_t::get_instance()->set_selected_cnv( cnv );
 				}
-				scrolly_convois.new_component<gui_convoiinfo_t>( line->get_convoy( i ) );
+				scrolly_convois.new_component<gui_convoiinfo_t>( cnv );
+				for (unsigned i = 0; i<cnv->get_vehicle_count(); i++) {
+					capacity += cnv->get_vehikel( i )->get_cargo_max();
+				}
 			}
 			has_changed = true;
+
+			if( old_convoi_count>0 ) {
+				scrolly_convois.set_maximize( true );
+			}
 		}
 
-		capacity = line->get_finance_history( 0, LINE_CAPACITY );
-		load = line->get_finance_history( 0, LINE_TRANSPORTED_GOODS );
+		load = capacity - line->get_finance_history( 0, LINE_CAPACITY );
 		capacity_bar.set_base( capacity );
 
 		char profit_str[64];
@@ -263,6 +320,8 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	file->rdwr_long( halt_xoff );
 	file->rdwr_long( halt_yoff );
 	file->rdwr_byte( player_nr );
+	file->rdwr_str( old_line_name, lengthof( old_line_name ) );
+	file->rdwr_str( line_name, lengthof( line_name ) );
 
 	simline_t::rdwr_linehandle_t(file, line);
 	scd.rdwr( file );
@@ -271,16 +330,17 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		player = welt->get_player( player_nr );
 		if(  line.is_bound()  ) {
 			set_windowsize(size);
-			win_set_magic(this, (ptrdiff_t)line.get_rep());
 			set_windowsize( size );
+			// title
+			set_name(line->get_name() );
+			win_set_magic(this, (ptrdiff_t)line.get_rep());
+			// schedule
 			scrolly_convois.set_scroll_position( cont_xoff, cont_yoff );
 			scrolly_halts.set_scroll_position( halt_xoff, halt_yoff );
 
-			tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
-			tstrncpy(line_name, line->get_name(), sizeof(line_name));
 			inp_name.set_text(line_name, sizeof(line_name));
 
-			set_name(line->get_name() );
+			init_chart();
 		}
 		else {
 			line = linehandle_t();
@@ -288,6 +348,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 			dbg->error( "line_management_gui_t::rdwr", "Could not restore schedule window for line id %i", line.get_id() );
 		}
 	}
+
+	switch_mode.rdwr( file );
+	button_to_chart.rdwr( file );
 }
 
 

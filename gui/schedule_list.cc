@@ -45,65 +45,10 @@
 
 #include "minimap.h"
 
-
-static const char *cost_type[MAX_LINE_COST] =
-{
-	"Free Capacity",
-	"Transported",
-	"Revenue",
-	"Operation",
-	"Profit",
-	"Convoys",
-	"Distance",
-	"Maxspeed",
-	"Road toll"
-};
-
-const uint8 cost_type_color[MAX_LINE_COST] =
-{
-	COL_FREE_CAPACITY,
-	COL_TRANSPORTED,
-	COL_REVENUE,
-	COL_OPERATION,
-	COL_PROFIT,
-	COL_CONVOI_COUNT,
-	COL_DISTANCE,
-	COL_MAXSPEED,
-	COL_TOLL
-};
-
 static uint8 tabs_to_lineindex[9];
 static uint8 max_idx=0;
 
-static uint8 statistic[MAX_LINE_COST] = {
-	LINE_CAPACITY,
-	LINE_TRANSPORTED_GOODS,
-	LINE_REVENUE,
-	LINE_OPERATIONS,
-	LINE_PROFIT,
-	LINE_CONVOIS,
-	LINE_DISTANCE,
-	LINE_MAXSPEED,
-	LINE_WAYTOLL
-};
-
-static uint8 statistic_type[MAX_LINE_COST] = {
-	STANDARD,
-	STANDARD,
-	MONEY,
-	MONEY,
-	MONEY,
-	STANDARD,
-	STANDARD,
-	STANDARD,
-	MONEY
-};
-
 static int current_sort_mode = 0;
-
-#define SCL_HEIGHT (15*LINESPACE)
-#define RIGHT_COLUMN_OFFSET (D_MARGIN_LEFT+3*D_BUTTON_WIDTH+2*D_H_SPACE+2*D_H_SPACE)
-#define CHART_OFFSET (50) // Chart x offset to display y axis labels correctly
 
 /// selected tab per player
 static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -365,6 +310,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 		cont_yoff = scl.get_scroll_y();
 	}
 	size.rdwr( file );
+	tabs.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
 
 	file->rdwr_long( cont_xoff );
@@ -372,6 +318,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	// open dialogue
 	if(  file->is_loading()  ) {
 		set_windowsize( size );
+		build_line_list(tabs.get_active_tab_index());
 		resize( scr_coord(0,0) );
 		scl.set_scroll_position( cont_xoff, cont_yoff );
 	}
