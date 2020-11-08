@@ -306,7 +306,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 		if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+D_TITLEBAR_HEIGHT  ) {
 			const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 			if(  tipnr < (int)tool_icon_disp_end  ) {
-				win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, pos.y + TOOLTIP_MOUSE_OFFSET_Y + ((ydiff+1)*env_t::iconsize.h) + LINESPACE, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
+				win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, pos.y + TOOLTIP_MOUSE_OFFSET_Y + ((ydiff+1)*env_t::iconsize.h) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
 			}
 		}
 	}
