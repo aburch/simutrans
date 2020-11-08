@@ -66,23 +66,24 @@ banner_t::banner_t() : gui_frame_t("")
 {
 	set_table_layout(1,0);
 
-	new_component<gui_label_t>("This is Simutrans" SIM_VERSION_BUILD_STRING, SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>("This is an extended version of Simutrans", SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 
 #ifdef REVISION
-	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>("Version " VERSION_NUMBER " " EXTENDED_VERSION " ", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>(VERSION_DATE " #" QUOTEME(REVISION), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 #else
-	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>("Version " VERSION_NUMBER " " EXTENDED_VERSION " " VERSION_DATE, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 #endif
 
 	add_table(5,0);
 	{
-		new_component_span<gui_label_t>("The version is developed by", SYSCOL_TEXT_TITLE, gui_label_t::left, 5)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component_span<gui_label_t>("Simutrans-Extended is developed", SYSCOL_TEXT_TITLE, gui_label_t::left, 5)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 		new_component<gui_fill_t>();
 
 		add_table(1,0);
-		new_component<gui_label_t>("the simutrans team", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("under the Artistic Licence", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("based on Simutrans 84.22.1", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("by the Simutrans community", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("under the Artistic Licence; forked", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("from Simutrans-Standard " QUOTEME(SIM_VERSION_MAJOR), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 		end_table();
 
 		new_component<gui_fill_t>();
@@ -98,9 +99,9 @@ banner_t::banner_t() : gui_frame_t("")
 	{
 		new_component<gui_fill_t>();
 		add_table(1,0);
-		new_component<gui_label_t>("http://www.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("http://forum.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("http://wiki.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("www.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("forum.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("wiki.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 		end_table();
 		new_component<gui_fill_t>();
 	}
