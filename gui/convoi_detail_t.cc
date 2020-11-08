@@ -358,14 +358,14 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			dummy_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight+max_freight_weight, dummy_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_max, sp_soll_max, akt_v_max);
 			convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 			if (env_t::left_to_right_graphs) {
-				accel_curves[--i][0] = speed_to_kmh(akt_speed);
+				accel_curves[--i][0] = cnv->in_depot() ? 0 : speed_to_kmh(akt_speed);
 				accel_curves[i][1] = speed_to_kmh(akt_speed_min);
 				accel_curves[i][2] = speed_to_kmh(akt_speed_max);
 			}
 			else {
-				accel_curves[SPEED_RECORDS - i][0] = speed_to_kmh(akt_speed);
-				accel_curves[SPEED_RECORDS - i][1] = speed_to_kmh(akt_speed_min);
-				accel_curves[SPEED_RECORDS - i][2] = speed_to_kmh(akt_speed_max);
+				accel_curves[SPEED_RECORDS-i][0] = cnv->in_depot() ? 0 : speed_to_kmh(akt_speed);
+				accel_curves[SPEED_RECORDS-i][1] = speed_to_kmh(akt_speed_min);
+				accel_curves[SPEED_RECORDS-i][2] = speed_to_kmh(akt_speed_max);
 				i--;
 			}
 		}
