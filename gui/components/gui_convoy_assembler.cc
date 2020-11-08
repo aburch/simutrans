@@ -602,7 +602,7 @@ void gui_convoy_assembler_t::layout()
 	lb_livery_counter.set_pos(scr_coord(livery_counter_x, y));
 	lb_vehicle_filter.set_pos(scr_coord(column3_x, y));
 	lb_veh_action.set_pos(scr_coord(column4_x, y));
-	y += 4 + D_BUTTON_HEIGHT;
+	y += LINESPACE + D_V_SPACE;
 
 	// 1st row
 
@@ -2493,24 +2493,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		else
 		{
 			buf.printf("%s ", translator::translate("unpowered"));
-			linespace_skips += 2;
 		}
-		if (linespace_skips > 0)
-		{
-			for (int i = 0; i < linespace_skips; i++)
-			{
-				buf.append("\n");
-			}
-		}
-		linespace_skips = 0;
-
-		// Copyright information:
-		if (char const* const copyright = veh_type->get_copyright())
-		{
-			buf.printf(translator::translate("Constructed by %s"), copyright);
-		}
-		buf.append("\n");
-
 		display_multiline_text_rgb(pos.x + D_MARGIN_LEFT, pos.y + tabs.get_pos().y + tabs.get_size().h + (D_BUTTON_HEIGHT+D_V_SPACE)*3, buf, SYSCOL_TEXT);
 
 		buf.clear();
@@ -2731,6 +2714,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 
 		lines+=2;
+		// Copyright information:
+		if (char const* const copyright = veh_type->get_copyright())
+		{
+			buf.append("\n\n");
+			buf.printf(translator::translate("Constructed by %s"), copyright);
+			lines++;
+		}
 		display_multiline_text_rgb(pos.x + 335/*370*/, top, buf, SYSCOL_TEXT);
 		buf.clear();
 		top += lines * LINESPACE;
@@ -2750,9 +2740,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_convoi_count_fluctuation.set_visible(false);
 		}
 
-		const int MAX_ROWS = 15-lines; // Maximum display line of possession livery scheme or upgrade info
+		const uint8 MAX_ROWS = max(12-lines, 0); // Maximum display line of possession livery scheme or upgrade info
 		// livery counter and avairavle livery scheme list
-		if (veh_type->get_livery_count() > 0) {
+		if (veh_type->get_livery_count() > 0 && MAX_ROWS) {
 			// display the available number of liveries
 			txt_livery_count.clear();
 			txt_livery_count.printf("(%i)", veh_type->get_available_livery_count(welt));
@@ -2812,9 +2802,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_livery_counter.set_text(NULL);
 		}
 
+		/*
 		// upgrade info
 		sel_index = convoi.index_at(pos, x, y);
-		if (sel_index != -1) {
+		if (sel_index != -1 && MAX_ROWS) {
 			const uint16 month_now = welt->get_timeline_year_month();
 			const uint8 upgradable_state = veh_type->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 			if (upgradable_state)
@@ -2869,7 +2860,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					}
 				}
 			}
-		}
+		}*/
 	}
 	else {
 		// nothing select, initialize

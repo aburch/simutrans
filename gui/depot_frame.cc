@@ -268,7 +268,8 @@ void depot_frame_t::layout(scr_size *size)
 	* The image list is horizontally "condensed".
 	*/
 
-	const int ACTIONS_WIDTH = D_DEFAULT_WIDTH + D_BUTTON_WIDTH + D_H_SPACE;
+	// Vehicle parameter display for 2 columns.
+	const int ACTIONS_WIDTH = 335*2 + D_MARGINS_X;
 	const int ACTIONS_HEIGHT = D_BUTTON_HEIGHT;
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
