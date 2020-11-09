@@ -170,7 +170,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 				container_line.add_component(&line_label);
 				// goto line button
 				line_button.init( button_t::posbutton, NULL);
-				line_button.set_targetpos( koord(0,0) );
+				line_button.set_targetpos3d( koord3d::invalid );
 				line_button.add_listener( this );
 				line_bound = false;
 
@@ -241,10 +241,10 @@ void convoi_info_t::init(convoihandle_t cnv)
 
 	// tab panel: connections, chart panels
 	add_component(&switch_mode);
-	switch_mode.add_tab(&scroll_freight, translator::translate("Freight"));
+	switch_mode.add_tab(&scroll_freight, translator::translate("cd_payload_tab"));
 
 	container_freight.set_table_layout(1,0);
-	container_freight.add_table(2,1);
+	container_freight.add_table(3,1);
 	{
 		container_freight.new_component<gui_label_t>("loaded passenger/freight");
 		freight_sort_selector.clear_elements();
@@ -257,7 +257,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 		freight_sort_selector.set_highlight_color(1);
 		freight_sort_selector.add_listener(this);
 		container_freight.add_component(&freight_sort_selector);
-
+		container_freight.new_component<gui_fill_t>();
 	}
 	container_freight.end_table();
 	container_freight.add_component(&text);
@@ -499,7 +499,6 @@ void convoi_info_t::update_labels()
 			else
 			{
 				uint32 empty_weight = cnv->get_vehicle_summary().weight;
-				uint32 gross_weight = cnv->get_weight_summary().weight;
 
 				speed_bar.set_visible(true);
 				//use median speed to avoid flickering

@@ -19,32 +19,32 @@
 class sound_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-    scrollbar_t sound_volume_scrollbar;
-    scrollbar_t music_volume_scrollbar;
-    button_t sound_mute_button;
-    button_t music_mute_button;
-    button_t next_song_button;
-    button_t previous_song_button;
-    button_t shuffle_song_button;
-    gui_label_buf_t song_name_label;
+	scrollbar_t sound_volume_scrollbar;
+	scrollbar_t music_volume_scrollbar;
+	button_t sound_mute_button;
+	button_t music_mute_button;
+	button_t next_song_button;
+	button_t previous_song_button;
+	button_t shuffle_song_button;
+	gui_label_buf_t song_name_label;
 
-    void update_song_name();
+	void update_song_name();
 
 public:
 
-    /**
+	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
      */
 	const char * get_help_filename() const OVERRIDE {return "sound.txt";}
 
 
-    /**
+	/**
 	 * Constructor. Adds all necessary Subcomponents.
      */
     sound_frame_t();
 
-    /**
+	/**
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.

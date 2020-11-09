@@ -138,9 +138,9 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
-	* Set window size and adjust component sizes and/or positions accordingly
-	*/
-	virtual void set_windowsize(scr_size size) OVERRIDE;
+	 * Set window size and adjust component sizes and/or positions accordingly
+	 */
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -155,6 +155,8 @@ public:
 	 * called after renaming of line
 	 */
 	void update_data(linehandle_t changed_line);
+
+	void map_rotate90( sint16 ) OVERRIDE { update_lineinfo( line ); }
 
 	// following: rdwr stuff
 	void rdwr( loadsave_t *file ) OVERRIDE;

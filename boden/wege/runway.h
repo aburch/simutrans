@@ -30,9 +30,9 @@ public:
 
 	runway_t();
 
-	//inline waytype_t get_waytype() const {return air_wt;}
+	//inline waytype_t get_waytype() const OVERRIDE {return air_wt;}
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 };
 
 #endif

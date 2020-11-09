@@ -116,8 +116,7 @@ void button_t::set_typ(enum type t)
 
 		case box:
 			text_color = SYSCOL_COLORED_BUTTON_TEXT;
-			// fallthrough
-
+			/* FALLTHROUGH */
 		case roundbox:
 			set_size( scr_size(get_size().w, max(D_BUTTON_HEIGHT, LINESPACE)));
 			break;
@@ -126,6 +125,14 @@ void button_t::set_typ(enum type t)
 			break;
 	}
 	update_focusability();
+}
+
+
+void button_t::set_targetpos( const koord k )
+{
+	targetpos.x = k.x;
+	targetpos.y = k.y;
+	targetpos.z = welt->max_hgt( k );
 }
 
 
@@ -264,11 +271,9 @@ bool button_t::infowin_event(const event_t *ev)
 
 	if(IS_LEFTRELEASE(ev)) {
 		if(  (type & TYPE_MASK)==posbutton  ) {
-			koord k(targetpos.x,targetpos.y);
-			call_listeners( &k );
-
+			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( koord3d(k,welt->max_hgt(k)) );
+				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
 
 			}
 

@@ -145,10 +145,11 @@ bool dr_auto_scale(bool on_off )
 bool dr_os_init(const int* parameter)
 {
 	if(  SDL_Init( SDL_INIT_VIDEO ) != 0  ) {
-		fprintf( stderr, "Couldn't initialize SDL: %s\n", SDL_GetError() );
+		dbg->error("dr_os_init(SDL2)", "Could not initialize SDL: %s", SDL_GetError() );
 		return false;
 	}
-	printf("SDL Driver: %s\n", SDL_GetCurrentVideoDriver() );
+
+	dbg->message("dr_os_init(SDL2)", "SDL Driver: %s", SDL_GetCurrentVideoDriver() );
 
 	// disable event types not interested in
 #ifndef USE_SDL_TEXTEDITING
@@ -207,7 +208,8 @@ bool internal_create_surfaces(const bool, int w, int h )
 			formatStrBuilder += ", ";
 			formatStrBuilder += SDL_GetPixelFormatName(ri.texture_formats[j]);
 		}
-		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, formatStrBuilder.c_str() );
+		DBG_DEBUG( "internal_create_surfaces(SDL2)", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s",
+			ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, formatStrBuilder.c_str() );
 	}
 #endif
 
@@ -217,25 +219,26 @@ bool internal_create_surfaces(const bool, int w, int h )
 	}
 	renderer = SDL_CreateRenderer( window, -1, flags );
 	if(  renderer == NULL  ) {
-		dbg->warning( "internal_create_surfaces()", "Couldn't create accelerated renderer: %s", SDL_GetError() );
+		dbg->warning( "internal_create_surfaces(SDL2)", "Couldn't create accelerated renderer: %s", SDL_GetError() );
 
 		flags &= ~SDL_RENDERER_ACCELERATED;
 		flags |= SDL_RENDERER_SOFTWARE;
 		renderer = SDL_CreateRenderer( window, -1, flags );
 		if(  renderer == NULL  ) {
-			dbg->error( "internal_create_surfaces()", "No suitable SDL2 renderer found!" );
+			dbg->error( "internal_create_surfaces(SDL2)", "No suitable SDL2 renderer found!" );
 			return false;
 		}
-		dbg->warning( "internal_create_surfaces()", "Using fallback software renderer instead of accelerated: Performance may be low!");
+		dbg->warning( "internal_create_surfaces(SDL2)", "Using fallback software renderer instead of accelerated: Performance may be low!");
 	}
 
 	SDL_RendererInfo ri;
 	SDL_GetRendererInfo( renderer, &ri );
-	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(pixel_format) );
+	DBG_DEBUG( "internal_create_surfaces(SDL2)", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s",
+		ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(pixel_format) );
 
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, w, h );
 	if(  screen_tx == NULL  ) {
-		dbg->error( "internal_create_surfaces()", "Couldn't create texture: %s", SDL_GetError() );
+		dbg->error( "internal_create_surfaces(SDL2)", "Couldn't create texture: %s", SDL_GetError() );
 		return false;
 	}
 
@@ -243,16 +246,16 @@ bool internal_create_surfaces(const bool, int w, int h )
 	int bpp;
 	Uint32 rmask, gmask, bmask, amask;
 	if(  !SDL_PixelFormatEnumToMasks( pixel_format, &bpp, &rmask, &gmask, &bmask, &amask )  ) {
-		dbg->error( "internal_create_surfaces()", "Pixel format error. Couldn't generate masks: %s", SDL_GetError() );
+		dbg->error( "internal_create_surfaces(SDL2)", "Pixel format error. Couldn't generate masks: %s", SDL_GetError() );
 		return false;
 	} else if(  bpp != COLOUR_DEPTH  ||  amask != 0  ) {
-		dbg->error( "internal_create_surfaces()", "Pixel format error. Bpp got %d, needed %d. Amask got %d, needed 0.", bpp, COLOUR_DEPTH, amask );
+		dbg->error( "internal_create_surfaces(SDL2)", "Pixel format error. Bpp got %d, needed %d. Amask got %d, needed 0.", bpp, COLOUR_DEPTH, amask );
 		return false;
 	}
 
 	screen = SDL_CreateRGBSurface( 0, w, h, bpp, rmask, gmask, bmask, amask );
 	if(  screen == NULL  ) {
-		dbg->error( "internal_create_surfaces()", "Couldn't get the window surface: %s", SDL_GetError() );
+		dbg->error( "internal_create_surfaces(SDL2)", "Couldn't get the window surface: %s", SDL_GetError() );
 		return false;
  	}
 
@@ -278,14 +281,14 @@ int dr_os_open(int width, int height, int const fullscreen)
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP: SDL_WINDOW_RESIZABLE;
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags );
 	if(  window == NULL  ) {
-		fprintf( stderr, "Couldn't open the window: %s\n", SDL_GetError() );
+		dbg->error("dr_os_open(SDL2)", "Could not open the window: %s", SDL_GetError() );
 		return 0;
 	}
 
 	if(  !internal_create_surfaces( true, w, h )  ) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
+	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -341,7 +344,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h )
 			DBG_MESSAGE("dr_textur_resize(SDL2)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
 		}
 		else {
-			dbg->warning("dr_textur_resize(SDL2)", "screen is NULL. Good luck!");
+			dbg->error("dr_textur_resize(SDL2)", "screen is NULL. Good luck!");
 		}
 		fflush( NULL );
 	}

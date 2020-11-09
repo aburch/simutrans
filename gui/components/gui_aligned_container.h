@@ -1,5 +1,11 @@
-#ifndef gui_aligned_container_h
-#define gui_aligned_container_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_ALIGNED_CONTAINER_H
+#define GUI_COMPONENTS_GUI_ALIGNED_CONTAINER_H
+
 
 #include "gui_container.h"
 #include "../../tpl/vector_tpl.h"
@@ -84,12 +90,12 @@ public:
 	/**
 	 * Removes element.
 	 */
-	virtual void remove_component(gui_component_t *comp);
+	void remove_component(gui_component_t *comp) OVERRIDE;
 
 	/**
 	 * Appends new component to current table @r child.
 	 */
-	virtual void add_component(gui_component_t *comp);
+	void add_component(gui_component_t *comp) OVERRIDE;
 
 	/**
 	 * Appends new component to current table @r child.
@@ -135,7 +141,7 @@ public:
 	 * Removes all components in the Container.
 	 * Deletes owned components.
 	 */
-	virtual void remove_all();
+	void remove_all() OVERRIDE;
 
 	/**
 	 * Sets size of the table. Sets size of all its components.

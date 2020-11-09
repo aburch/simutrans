@@ -236,11 +236,11 @@ public:
 
 	const factory_supplier_desc_t *get_supplier(uint16 i) const
 	{
-		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
+		return i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
 	const factory_product_desc_t *get_product(uint16 i) const
 	{
-		return 0 <= i && i < product_count ? get_child<factory_product_desc_t>(2 + supplier_count + i) : 0;
+		return i < product_count ? get_child<factory_product_desc_t>(2 + supplier_count + i) : 0;
 	}
 	const field_group_desc_t *get_field_group() const {
 		if(!fields) {
@@ -275,7 +275,7 @@ public:
 
 	bool is_electricity_producer() const { return electricity_producer; }
 
-	const factory_desc_t *get_upgrades(uint16 i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
+	const factory_desc_t *get_upgrades(uint16 i) const { return (i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
 
 	sint32 get_upgrades_count() const { return upgrades; }
 

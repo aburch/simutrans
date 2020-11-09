@@ -40,7 +40,14 @@ uint32 simrand_plain();
 double perlin_noise_2D(const double x, const double y, const double persistence, const sint32 map_size = 512);
 
 // for network debugging, i.e. finding hidden simrands in wrong places
-enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
+enum {
+	INTERACTIVE_RANDOM = 1 << 0,
+	STEP_RANDOM        = 1 << 1,
+	SYNC_STEP_RANDOM   = 1 << 2,
+	LOAD_RANDOM        = 1 << 3,
+	MAP_CREATE_RANDOM  = 1 << 4
+};
+
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
 uint16 get_random_mode();
@@ -68,12 +75,11 @@ template<typename T, template<typename> class U> T const& pick_any_weighted(U<T>
 }
 
 
-/*
 // compute integer log10
 uint32 log10( uint32 v );
 
 uint32 log2( uint32 i );
-*/
+
 
 // compute integer sqrt
 uint32 sqrt_i32(uint32 num);

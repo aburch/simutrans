@@ -72,7 +72,7 @@ void gui_factory_storage_info_t::draw(scr_coord offset)
 					display_cylinderbar_wh_clip_rgb(pos.x + offset.x + left + 1, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, colored_width, 6, goods_color, true);
 					if (goods.get_in_transit()) {
 						const uint16 intransint_width = min(STORAGE_INDICATOR_WIDTH - colored_width, STORAGE_INDICATOR_WIDTH * (uint16)goods.get_in_transit() / storage_capacity);
-						display_fillbox_wh_clip_rgb(pos.x + offset.x + left + 1 + colored_width, pos.y + offset.y + yoff + 1, intransint_width, 6, COL_IN_TRANSIT, true);
+						display_fillbox_wh_clip_rgb(pos.x + offset.x + left + 1 + colored_width, pos.y + offset.y + yoff + GOODS_COLOR_BOX_YOFF + 1, intransint_width, 6, COL_IN_TRANSIT, true);
 					}
 				}
 				left += STORAGE_INDICATOR_WIDTH + 2 + D_H_SPACE;

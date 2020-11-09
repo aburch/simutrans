@@ -1081,7 +1081,7 @@ class monument_placefinder_t : public placefinder_t {
 	public:
 		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
+		bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -1164,7 +1164,7 @@ class townhall_placefinder_t : public placefinder_t {
 	public:
 		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
-		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const
+		bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) return false;
@@ -3433,7 +3433,7 @@ class building_place_with_road_finder: public building_placefinder_t
 			return dist;
 		}
 
-		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const
+		bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 		{
 			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 				return false;

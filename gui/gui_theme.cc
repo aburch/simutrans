@@ -185,7 +185,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_shadow_color                       = color_idx_to_rgb(MN_GREY0);
 
 	gui_color_loadingbar_inner             = color_idx_to_rgb(COL_GREY5);
-	gui_color_loadingbar_progress          = color_idx_to_rgb(COL_BLUE);
+	gui_color_loadingbar_progress          = color_idx_to_rgb(COL_SOFT_BLUE);
 
 	gui_color_obsolete                     = color_idx_to_rgb(COL_BLUE);
 	gui_color_empty                        = color_idx_to_rgb(COL_WHITE);

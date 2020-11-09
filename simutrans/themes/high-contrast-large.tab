@@ -70,7 +70,7 @@ gui_color_edit_text = #c98926
 gui_color_edit_text_selected = #FAFAFA
 gui_color_edit_text_disabled = #868c86
 gui_color_edit_background_selected = #5686a6
-gui_color_edit_beam = #333333
+gui_color_edit_beam = #ffffff
 
 gui_color_chart_background = #333333
 gui_color_chart_lines_zero = #FAFAFA
@@ -166,6 +166,7 @@ gui_color_button_text_offset = 5,0,5
 # next and prev arrows for scrolling appears
 toolbar_max_width = 0
 toolbar_max_height = 0
+
 ###################################pakstuff###################################
 
 # pak with the images for this theme

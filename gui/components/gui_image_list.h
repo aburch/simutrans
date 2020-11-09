@@ -96,7 +96,7 @@ public:
 	/**
 	 * Draw/record the picture
 	 */
-	virtual void draw(scr_coord offset) OVERRIDE;
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Looks for the image at given position.

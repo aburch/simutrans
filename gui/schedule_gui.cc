@@ -241,7 +241,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	scr_coord_val ypos = D_MARGIN_TOP;
 	if(  cnv.is_bound()  ) {
 		// things, only relevant to convois, like creating/selecting lines
-		bt_promote_to_line.init( button_t::roundbox, "promote to line", scr_coord( BUTTON3_X, ypos ) );
+		bt_promote_to_line.init( button_t::roundbox, "promote to line", scr_coord( BUTTON3_X, ypos ), D_BUTTON_SIZE );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
 		add_component(&bt_promote_to_line);

@@ -541,7 +541,7 @@ Airport
 Bandara
 All
 Semua
-all convoi tooltips
+always show all
 semua keterangan konvoi
 Allow city growth
 Ijinkan kota untuk berkembang
@@ -779,7 +779,7 @@ Consumed
 Dihabiskan
 convoi %d of %d
 Konvoi %d dari %d
-convoi error tooltips
+only error convoys
 keterangan kesalahan konvoi
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Konvoi telah dikirim\nke depot terdekat\nsesuai dengan jenisnya.\n

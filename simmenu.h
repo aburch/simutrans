@@ -72,7 +72,7 @@ enum {
 	TOOL_ERROR_MESSAGE,
 	TOOL_CHANGE_WATER_HEIGHT,
 	TOOL_SET_CLIMATE,
-	TOOL_BUILD_SIGNALBOX_DEPRECATED,
+	TOOL_ROTATE_BUILDING,
 	TOOL_REASSIGN_SIGNAL_DEPRECATED,
 	GENERAL_TOOL_STANDARD_COUNT,
 	// Extended entries from here:
@@ -173,10 +173,11 @@ enum {
 	DIALOG_SCENARIO_INFO,
 	DIALOG_LIST_DEPOT,
 	DIALOG_LIST_VEHICLE,
-	DIALOG_LIST_SIGNALBOX,
+	//DIALOG_SCRIPT_TOOL,
 	DIALOG_TOOL_STANDARD_COUNT,
 	// Extended entries from here:
-	DIALOG_TOOL_COUNT=0x0080,
+	DIALOG_LIST_SIGNALBOX =0x0080,
+	DIALOG_TOOL_COUNT,
 	DIALOG_TOOL = 0x4000
 };
 
@@ -287,13 +288,13 @@ public:
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_safe() const { return false; }
-	virtual bool is_move_network_save(player_t *) const { return true; }
+	virtual bool is_move_network_safe(player_t *) const { return true; }
 
 	// if is_work_network_safe()==false
-	// and is_work_here_network_save(...)==false
+	// and is_work_here_network_safe(...)==false
 	// then work-command is sent over network
 	virtual bool is_work_network_safe() const { return false; }
-	virtual bool is_work_here_network_save(player_t *, koord3d) { return false; }
+	virtual bool is_work_here_network_safe(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after(scr_coord pos, bool dirty) const;
@@ -384,7 +385,7 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 
-	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
+	bool is_work_here_network_safe(player_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed
@@ -475,8 +476,8 @@ private:
 	slist_tpl<tool_t *>all_tools[MAX_PLAYER_COUNT];
 public:
 	toolbar_last_used_t(uint16 const id, char const* const t, char const* const h) : toolbar_t(id,t,h) {}
-	static toolbar_last_used_t * last_used_tools;
-	void update(player_t *);    // just refresh content
+	static toolbar_last_used_t *last_used_tools;
+	void update(player_t *) OVERRIDE;	// just refresh content
 	void append(tool_t *, player_t *);
 	void clear();
 };

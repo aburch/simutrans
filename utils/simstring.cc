@@ -14,29 +14,8 @@
 static char thousand_sep = ',';
 static char fraction_sep = '.';
 static const char *large_number_string = "M";
-static double large_number_factor = 1e99;	// off
+static double large_number_factor = 1e99; // off
 static int thousand_sep_exponent = 3;
-
-
-
-// a single use number to string ...
-char *ntos(long number, const char *format)
-{
-	static char tempstring[32];
-	int r;
-
-	if (format) {
-		r = sprintf(tempstring, format, number);
-	}
-	else {
-		r = sprintf(tempstring, "%ld", number);
-	}
-	assert(r<16);(void)r;
-
-	return tempstring;
-}
-
-
 
 
 /**

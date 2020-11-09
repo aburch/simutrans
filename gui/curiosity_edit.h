@@ -31,7 +31,7 @@ private:
 
 	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i ) OVERRIDE;
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	curiosity_edit_frame_t(player_t* player);

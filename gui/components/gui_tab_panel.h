@@ -94,7 +94,7 @@ public:
 	/**
 	 * Returns true if the hosted component of the active tab is focusable
 	 */
-	virtual bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
+	bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
 
 	gui_component_t *get_focus() OVERRIDE { return get_aktives_tab()->get_focus(); }
 
@@ -102,10 +102,10 @@ public:
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 */
-	virtual scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
+	scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
 
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
 	// size of tab header
 	scr_size get_required_size() const { return required_size; }

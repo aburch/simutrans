@@ -95,7 +95,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
-	line_button.set_targetpos(koord(0,0));
+	line_button.set_targetpos3d(koord3d::invalid);
 	line_button.add_listener(this);
 	add_component(&line_button);
 
@@ -251,7 +251,7 @@ void depot_frame_t::layout(scr_size *size)
 	*
 	*  PREV and NEXT are small buttons - Label is adjusted to total width.
 	*/
-	const scr_coord_val SELECT_HEIGHT = 14;
+	const scr_coord_val SELECT_HEIGHT = D_BUTTON_HEIGHT;
 	const scr_coord_val selector_x = max(max(max(max(max(102, proportional_string_width(translator::translate("no convois")) + 4),
 		proportional_string_width(translator::translate("1 convoi")) + 4),
 		proportional_string_width(translator::translate("%d convois")) + 4),
@@ -268,7 +268,8 @@ void depot_frame_t::layout(scr_size *size)
 	* The image list is horizontally "condensed".
 	*/
 
-	const int ACTIONS_WIDTH = D_DEFAULT_WIDTH;
+	// Vehicle parameter display for 2 columns.
+	const int ACTIONS_WIDTH = 335*2 + D_MARGINS_X;
 	const int ACTIONS_HEIGHT = D_BUTTON_HEIGHT;
 	convoy_assembler.set_convoy_tabs_skip(ACTIONS_HEIGHT);
 
@@ -279,15 +280,15 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	const scr_coord_val MIN_DEPOT_FRAME_WIDTH = min(display_get_width(),                 max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH) );
-	const scr_coord_val     DEPOT_FRAME_WIDTH = min(display_get_width(), max(win_size.w, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
+	const scr_coord_val MIN_DEPOT_FRAME_WIDTH = ACTIONS_WIDTH;
+	const scr_coord_val     DEPOT_FRAME_WIDTH = max(win_size.w, ACTIONS_WIDTH);
 
 	/*
 	*  Now we can do the first vertical adjustment:
 	*/
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
-	const scr_coord_val ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height();
+	const scr_coord_val ASSEMBLER_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE;
+	const scr_coord_val ACTIONS_VSTART = ASSEMBLER_VSTART + convoy_assembler.get_convoy_height() + LINESPACE*5 + D_V_SPACE;
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel
@@ -333,8 +334,8 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	 * [SELECT ROUTE]:
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + selector_x + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT + (D_BUTTON_HEIGHT-D_POS_BUTTON_HEIGHT)/2));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + selector_x + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convoi_line.set_width( selector_x - line_button.get_size().w - 2 - D_H_SPACE );
 
 	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x*2, SELECT_VSTART + D_BUTTON_HEIGHT));

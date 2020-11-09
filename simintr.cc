@@ -88,13 +88,6 @@ void intr_refresh_display(bool dirty)
 }
 
 
-void interrupt_check()
-{
-	interrupt_check( "0" );
-}
-
-
-
 // debug version with caller information
 void interrupt_check(const char* caller_info)
 {
@@ -136,12 +129,6 @@ void intr_set_last_time(sint32 time)
 {
 	last_time = time;
 }
-
-sint32 intr_get_last_time()
-{
-	return last_time;
-}
-
 
 void intr_disable()
 {

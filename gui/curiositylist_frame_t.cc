@@ -26,7 +26,7 @@ const char* sort_text[curiositylist::SORT_MODES] = {
 
 class attraction_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:
-	attraction_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
+	attraction_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT) { }
 };
 
 curiositylist_frame_t::curiositylist_frame_t() :

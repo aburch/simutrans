@@ -41,7 +41,7 @@ private:
 
 	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i ) OVERRIDE;
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	factory_edit_frame_t(player_t* player);
@@ -61,7 +61,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 };
 
 #endif

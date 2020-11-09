@@ -52,7 +52,7 @@ void tool_selector_t::add_tool_selector(tool_t *tool_in)
 	// only for non-empty icons ...
 	tools.append(tool_in);
 
-	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2);	// to avoid zero or negative ww on posix (no graphic) backends
+	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2); // to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
 DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(  allow_break  &&  (ww<tool_icon_width
@@ -117,7 +117,7 @@ bool tool_selector_t::is_hit(int x, int y)
 
 bool tool_selector_t::infowin_event(const event_t *ev)
 {
-	if(  has_prev_next  &&  IS_LEFTDRAG(ev)  ||  is_dragging  ) {
+	if(  has_prev_next  &&  (IS_LEFTDRAG(ev)  ||  is_dragging)  ) {
 		if( !is_dragging ) {
 			old_offset = offset;
 		}
@@ -125,7 +125,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 		is_dragging = true;
 		offset = old_offset + scr_coord( ev->mx - ev->cx, 0 );
 		int xy = tool_icon_width*tool_icon_height;
-		if(  tool_icon_disp_start + xy >= tools.get_count()  &&  offset.x < 0  ) {
+		if(  tool_icon_disp_start + xy >= (int)tools.get_count()  &&  offset.x < 0  ) {
 			offset.x = 0;
 		}
 		if(  tool_icon_disp_start == 0  &&  offset.x > 0  ) {

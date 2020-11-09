@@ -156,7 +156,6 @@ public:
 	 * @return koord	returns def, if key is not found
 	 */
 	const koord &get_koord(const char *key, koord def);
-	const scr_coord &get_scr_coord(const char *key, scr_coord def);
 	const scr_size &get_scr_size(const char *key, scr_size def);
 
 	/**

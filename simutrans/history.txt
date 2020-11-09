@@ -8,6 +8,7 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 	ADD: Vehicle list as dialog tool 33 (to see also upcoming vehicles)
 	ADD: goods waiting bar with now configurable: gui_waitingbar_width
 	ADD: button to copy the last 20 messages to the clipboard
+	FIX: several list stored wrong coordinates after map rotation
 	ADD: more folders searched for fonts on non-windows systems
 	ADD: customisable loading bar colors with gui_color_loadingbar_inner and gui_color_loadingbar_progress
 	ADD: two more theme colors: gui_color_obsolete, gui_color_empty for lines and server
@@ -36,10 +37,12 @@ Release of 120.4 (r8588 on 17-Sep-2018):
 	OPT: significantly improved the performance of changing underground mode/slice when playing on very large maps
 	ADD: (THLeaderH) option to hide the revenue income messaging at stops
 	ADD: (THLeaderH) configurable height setting for extremely heigh maps (use at own risk)
+	FIX: different obj (ways, bridges, tunnels, ... ) with same name failed for checksum comparision
 
 
 Release of 120.3 (r8503 on 15-June-2018):
 	ADD: new blue-white theme
+	ADD: new general tool 40 which rotates buildings
 	ADD: scenario_info now dialog tool nummer 31
 	ADD: Support Truetype fonts on windows up to 19 pts. For MAC and Linux support there is a way needed to find the font path.
 	ADD: Server can be now started at the UI when loading a game.

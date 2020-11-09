@@ -80,7 +80,13 @@ public:
 	 */
 	void set_limits(sint32 _min, sint32 _max);
 
-	enum { AUTOLINEAR=0, PLAIN = 1, POWER2=-1, PROGRESS=-2 };
+	enum {
+		AUTOLINEAR = 0,
+		PLAIN      = 1,
+		POWER2     = -1,
+		PROGRESS   = -2
+	};
+
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
@@ -109,11 +115,19 @@ public:
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
+	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
+	void enable( bool yesno ) {
+		if( yesno && !gui_component_t::is_focusable() ) {
+			enable();
+		}
+		else if( !yesno  &&  gui_component_t::is_focusable() ) {
+			disable();
+		}
+	}
 
-	scr_size get_max_size() const;
+	scr_size get_max_size() const OVERRIDE;
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 };
 
 #endif

@@ -429,15 +429,15 @@ void signal_t::info(cbuffer_t & buf) const
 			buf.append(translator::translate("danger"));
 		}
 	}
-	buf.append(translator::translate("\n"));
-	if (get_state() == danger)
-	{
-	}
-	else
-	{
-		// Signal is not at danger! Display info about the reservation that is made through this signal
-	}
-	buf.append(translator::translate("\n"));
+	buf.append("\n");
+	//if (get_state() == danger)
+	//{
+	//}
+	//else
+	//{
+	//	// Signal is not at danger! Display info about the reservation that is made through this signal
+	//}
+	buf.append("\n");
 		// When the signal is at danger, we display some properties of the signal.
 		// Check wether this signal protects a junction otherwise count how far the next stop signal is
 		// However, display nothing for station signals, one train staffs and drive by sight, since the information would be very random dependent on where you put the signal and would not be very informative anyway.
@@ -729,15 +729,13 @@ void signal_t::info(cbuffer_t & buf) const
 	if (((desc->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == track_circuit_block || desc->get_working_method() == cab_signalling || desc->get_working_method() == moving_block)) && (desc->is_pre_signal()) == false)
 	{
 		buf.append(translator::translate("This signal creates directional reservations"));
-		buf.append(translator::translate("\n"));
-		buf.append(translator::translate("\n"));
+		buf.append("\n\n");
 	}
 
 	if (desc->get_double_block() == true)
 	{
 		buf.append(translator::translate("this_signal_will_not_clear_until_next_signal_is_clear"));
-		buf.append(translator::translate("\n"));
-		buf.append(translator::translate("\n"));
+		buf.append("\n\n");
 	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
@@ -780,10 +778,10 @@ void signal_t::info(cbuffer_t & buf) const
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
 	}
-	buf.append("\n");
 
 	if (desc->get_working_method() == moving_block)
 	{
+		buf.append("\n");
 		uint32 mdt_mbs = desc->get_max_distance_to_signalbox(); // Max distance to Moving Block Signal
 		buf.append(translator::translate("max_dist_between_signals"));
 		buf.append(": ");
@@ -815,169 +813,8 @@ void signal_t::info(cbuffer_t & buf) const
 				number_to_string(number_max_mov, max_dist_mov, n_max);
 				buf.append(number_max_mov);
 				buf.append("km");
-
 			}
 		}
-		buf.append("\n\n");
-	}
-
-	// "Controlled from signalbox" section. The "\n" is in this first section set before the entry to help accommodate the layout in the name, coordinates etc.
-	buf.append(translator::translate("Controlled from"));
-	buf.append(":");
-	koord3d sb = this->get_signalbox();
-	if(sb == koord3d::invalid)
-	{
-		buf.append("\n");
-		buf.append(translator::translate("keine"));
-		buf.append("\n");
-	}
-	else
-	{
-		const grund_t* gr = welt->lookup(sb);
-		if (gr)
-		{
-			const gebaeude_t* gb = gr->get_building();
-			if (gb)
-			{
-				uint8 textlines = 1; // to locate the clickable signalbox button
-				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
-				bool sb_underground = ground->get_hoehe() > sb.z;
-
-				char sb_coordinates[20];
-				sprintf(sb_coordinates, "<%i,%i>", sb.x, sb.y);
-				buf.printf("  %s", sb_coordinates);
-				if (sb_underground)
-				{
-					buf.printf(" (%s)", translator::translate("underground"));
-				}
-				char sb_name[1024] = { '\0' };
-				int max_width = 250;
-				int max_lines = 5; // Set a limit
-				sprintf(sb_name, "%s", translator::translate(gb->get_name()));
-
-				//sprintf(sb_name,"This is a very very long signal box name which is so long that no one remembers what it was actually called before the super long name of the signalbox got changed to its current slightly longer name which is still too long to display in only one line therefore splitting this very long signalbox name into several lines although maximum five lines which should suffice more than enough to guard against silly long signal box names");
-				int next_char_index = 0;
-
-				for (int l = 0; l < max_lines; l++)
-				{
-					textlines += 1;
-					char temp_name[1024] = { '\0' };
-					next_char_index = display_fit_proportional(sb_name, max_width, 0);
-
-					if (sb_name[next_char_index] == '\0')
-					{
-						buf.append("\n   ");
-						buf.append(sb_name);
-						break;
-					}
-					else
-					{
-						for (int i = 0; i < next_char_index; i++)
-						{
-							temp_name[i] = sb_name[i];
-						}
-						buf.append("\n   ");
-						buf.append(temp_name);
-						if (l + 1 == max_lines)
-						{
-							buf.append("...");
-						}
-
-						for (int i = 0; sb_name[i] != '\0'; i++)
-						{
-							sb_name[i] = sb_name[i + next_char_index];
-						}
-					}
-
-				}
-				buf.append("\n   ");
-
-				// Show the distance between the signal and its signalbox, along with the signals maximum range
-				const double km_to_signalbox = welt->tiles_to_km(shortest_distance(get_pos().get_2d(), sb.get_2d()));
-
-				if (km_to_signalbox < 1)
-				{
-					float m_to_signalbox = km_to_signalbox * 1000;
-					buf.append(m_to_signalbox);
-					buf.append("m");
-				}
-				else
-				{
-					uint n_actual;
-					if (km_to_signalbox < 20)
-					{
-						n_actual = 1;
-					}
-					else
-					{
-						n_actual = 0;
-					}
-					char number_actual[10];
-					number_to_string(number_actual, km_to_signalbox, n_actual);
-					buf.append(number_actual);
-					buf.append("km");
-				}
-
-				if (desc->get_working_method() != moving_block)
-				{
-					buf.append(" (");
-
-					uint32 mdt_sb = desc->get_max_distance_to_signalbox();
-
-					if (mdt_sb == 0)
-					{
-						buf.append(translator::translate("infinite_range"));
-					}
-					else
-					{
-						if (mdt_sb < 1000)
-						{
-							buf.printf("%s: ", translator::translate("max"));
-							buf.append(mdt_sb);
-							buf.append("m");
-						}
-
-						else
-						{
-							uint n_max;
-							const double max_dist = (double)mdt_sb / 1000;
-							if (max_dist < 20)
-							{
-								n_max = 1;
-							}
-							else
-							{
-								n_max = 0;
-							}
-							char number_max[10];
-							number_to_string(number_max, max_dist, n_max);
-							buf.printf("%s: ", translator::translate("max"));
-							buf.append(number_max);
-							buf.append("km");
-						}
-					}
-					buf.append(")");
-				}
-
-				this->textlines_in_signal_window = textlines;
-			}
-			else
-			{
-				buf.append("\n");
-				buf.append(translator::translate("keine"));
-				dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
-			}
-		}
-		else
-		{
-			buf.append("\n");
-			buf.append(translator::translate("keine"));
-			dbg->warning("signal_t::info()", "Signalbox could not be found from a signal on valid ground");
-		}
-	}
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 }
 

@@ -164,7 +164,7 @@ void gui_label_updown_t::draw(scr_coord offset)
 		text.append("-");
 	}
 	else{
-		text.append(value, align == money_right ? 2 : 0);
+		text.append(abs(value), align == money_right ? 2 : 0);
 	}
 
 	if (align == money_right) {
@@ -192,10 +192,10 @@ void gui_label_updown_t::draw(scr_coord offset)
 			display_proportional_clip_rgb(right.x, right.y, text, ALIGN_RIGHT, color, true);
 		}
 
-		display_fluctuation_triangle_rgb(right.x - LINEASCENT + 3, right.y + LINEASCENT/3, LINEASCENT*2/3, true, value);
+		display_fluctuation_triangle_rgb(right.x - LINEASCENT + 3, right.y + LINESPACE/6, LINEASCENT*2/3, true, value);
 	}
 	else {
-		display_fluctuation_triangle_rgb(pos.x + offset.x, pos.y + offset.y + LINEASCENT/3, LINEASCENT*2/3, true, value);
+		display_fluctuation_triangle_rgb(pos.x + offset.x, pos.y + offset.y + LINESPACE/6, LINEASCENT*2/3, true, value);
 		const scr_rect area(offset + pos + scr_coord(LINEASCENT,0), size);
 		int a = align == left ? ALIGN_LEFT : (align == right ? ALIGN_RIGHT : ALIGN_CENTER_H);
 		display_proportional_ellipsis_rgb(area, text, a | DT_CLIP, color, true);

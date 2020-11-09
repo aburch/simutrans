@@ -1463,7 +1463,7 @@ public:
 		if (ticks_per_world_month_shift >= base_bits_per_month)
 		{
 			const uint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+			return adjusted_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month);
 		}
 		else
 		{

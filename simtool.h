@@ -440,7 +440,6 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-/*
 class tool_rotate_building_t : public tool_t {
 private:
 	const char *tool_rotate_platform(koord3d);
@@ -452,7 +451,6 @@ public:
 	char const* work(player_t *, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };
-*/
 
 // builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t {
@@ -986,8 +984,8 @@ public:
 class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}
-	virtual void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
+	void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return !env_t::networkmode; }

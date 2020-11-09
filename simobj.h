@@ -194,12 +194,6 @@ public:
 	inline void set_yoff(sint8 yoff) {this->yoff = yoff; }
 
 	/**
-	 * Constructor to load object from file
-	 * @author Hj. Malthaner
-	 */
-	obj_t(loadsave_t *file);
-
-	/**
 	 * Constructor to set position of object
 	 * This does *not* add the object to the tile
 	 */
@@ -384,11 +378,10 @@ class obj_no_info_t : public obj_t
 public:
 #ifdef INLINE_OBJ_TYPE
 #else
-	inline obj_no_info_t(loadsave_t* file) : obj_t(file) {}
 	inline obj_no_info_t(const koord3d& pos) : obj_t(pos) {}
 #endif
 
-	void show_info() {}
+	void show_info() OVERRIDE {}
 
 protected:
 #ifdef INLINE_OBJ_TYPE

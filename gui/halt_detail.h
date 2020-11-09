@@ -133,12 +133,13 @@ private:
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
 	gui_container_t cont, cont_goods, cont_route;
-	gui_scrollpane_t scrolly, scrolly_pas, scrolly_goods, scrolly_route;
+	gui_scrollpane_t scrolly_pas, scrolly_goods, scrolly_route;
 	gui_label_t lb_selected_route_catg;
 	gui_heading_t lb_nearby_factory, lb_routes, lb_serve_catg, lb_serve_lines, lb_serve_convoys;
 
 	gui_halt_nearby_factory_info_t nearby_factory;
 	gui_tab_panel_t tabs;
+	gui_scrollpane_t scrolly;
 
 
 	// service tab stuffs

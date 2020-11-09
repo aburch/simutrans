@@ -1513,7 +1513,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave_warning = nosave = false;
 
-	dbg->error("karte_t::init()", "Creating factories ...");
+	dbg->message("karte_t::init()", "Creating factories ...");
 	factory_builder_t::new_world();
 
 	int consecutive_build_failures = 0;
@@ -4449,7 +4449,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	// Rotate cities first so that the private car routes can be removed
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->rotate90(cached_size.x);
+		i->rotate90(cached_size.y);
 	}
 
 	//rotate plans in parallel posix thread ...
@@ -10712,7 +10712,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
 {
 	const char *err = NULL;
-	if (!env_t::networkmode || tool->is_work_network_safe() || tool->is_work_here_network_save(player, pos)) {
+	if (!env_t::networkmode || tool->is_work_network_safe() || tool->is_work_here_network_safe(player, pos)) {
 		// do the work
 		tool->flags |= tool_t::WFL_LOCAL;
 		// check allowance by scenario

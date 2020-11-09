@@ -8,7 +8,6 @@
 
 
 #include "gui_frame.h"
-#include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
@@ -39,7 +38,7 @@ public:
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	bool has_min_sizer() const { return true; }
+	bool has_min_sizer() const OVERRIDE { return true; }
 };
 
 class signalboxlist_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
@@ -59,7 +58,7 @@ public:
 
 	void draw( scr_coord pos) OVERRIDE;
 
-	char const* get_text() const { return ""; /* label.buf().get_str(); */ }
+	char const* get_text() const OVERRIDE { return ""; /* label.buf().get_str(); */ }
 	bool infowin_event(const event_t *) OVERRIDE;
 	bool is_valid() const OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;

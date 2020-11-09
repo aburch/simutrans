@@ -37,7 +37,7 @@ public:
 
 	void set_gameinfo(gameinfo_t *gi) { this->gi = gi; }
 
-	void draw( scr_coord offset )
+	void draw( scr_coord offset ) OVERRIDE
 	{
 		if (gi) {
 			scr_coord p = get_pos() + offset;

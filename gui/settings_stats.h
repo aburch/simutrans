@@ -95,7 +95,7 @@ class settings_t;
 {\
 	width = max(width, proportional_string_width(t)+22);\
 	button_t *bt = new button_t();\
-	bt->init( button_t::square_automatic, (t), scr_coord( 0, ypos ) );\
+	bt->init( button_t::square, (t), scr_coord( 0, ypos ), scr_size( width, D_BUTTON_HEIGHT ) );\
 	bt->pressed = (a);\
 	button.append( bt );\
 	add_component( bt );\

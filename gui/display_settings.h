@@ -41,6 +41,9 @@ public:
 
 class map_settings_t : public gui_aligned_container_t, public action_listener_t
 {
+private:
+	gui_numberinput_t cursor_hide_range;
+	gui_combobox_t hide_buildings;
 public:
 	gui_numberinput_t
 		inp_underground_level,
@@ -48,6 +51,7 @@ public:
 		scrollspeed;
 	map_settings_t();
 	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
+	void draw(scr_coord offset) OVERRIDE;
 };
 
 class label_settings_t : public gui_aligned_container_t, public action_listener_t
@@ -57,17 +61,6 @@ private:
 public:
 	label_settings_t();
 	virtual bool action_triggered(gui_action_creator_t *comp, value_t v);
-	void draw(scr_coord offset) OVERRIDE;
-};
-
-class transparency_settings_t : public gui_aligned_container_t, public action_listener_t
-{
-private:
-	gui_numberinput_t cursor_hide_range;
-	gui_combobox_t hide_buildings;
-public:
-	transparency_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 	void draw(scr_coord offset) OVERRIDE;
 };
 
@@ -90,10 +83,9 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 private:
 	gui_settings_t gui_settings;
 	map_settings_t map_settings;
-	transparency_settings_t transparency_settings;
 	label_settings_t station_settings;
 	traffic_settings_t traffic_settings;
-	gui_scrollpane_t scrolly_gui, scrolly_map, scrolly_transparency, scrolly_station, scrolly_traffic;
+	gui_scrollpane_t scrolly_gui, scrolly_map, scrolly_station, scrolly_traffic;
 	gui_tab_panel_t tabs;
 
 public:

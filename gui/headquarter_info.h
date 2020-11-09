@@ -1,5 +1,10 @@
-#ifndef headquarter_info_h
-#define headquarter_info_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_HEADQUARTER_INFO_H
+#define GUI_HEADQUARTER_INFO_H
 
 
 #include "base_info.h"
@@ -23,9 +28,9 @@ class headquarter_info_t : public base_infowin_t, private action_listener_t
 public:
 	headquarter_info_t(player_t* player);
 
-	virtual void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	virtual bool action_triggered(gui_action_creator_t *comp, value_t extra);
+	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };
 
 #endif

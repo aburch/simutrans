@@ -24,7 +24,7 @@ class ai_building_place_with_road_finder : public building_placefinder_t  {
 public:
 	ai_building_place_with_road_finder(karte_t *welt) : building_placefinder_t(welt) {}
 	bool is_road_at(sint16 x, sint16 y) const;
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const;
+	bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE;
 };
 
 
@@ -59,13 +59,10 @@ public:
 	sint32 get_construction_speed() const { return construction_speed; }
 	virtual void set_construction_speed( sint32 newspeed ) { construction_speed = newspeed; }
 
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// return true, if there is already a connection
 	bool is_connected(const koord star_pos, const koord end_pos, const goods_desc_t *wtyp) const;
-
-	// prepares a general tool just like a human player work do
-	bool init_general_tool( int tool, const char *param );
 
 	// calls a general tool just like a human player work do
 	bool call_general_tool( int tool, koord k, const char *param );

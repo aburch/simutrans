@@ -42,16 +42,14 @@ sint16 halt_detail_t::tabstate = -1;
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	gui_frame_t(halt_->get_name(), halt_->get_owner()),
 	halt(halt_),
-	scrolly(&cont),
+	line_number(halt_),
 	pas(halt_),
 	goods(halt_),
-	route(halt_, selected_route_catg_index),
-	line_number(halt_),
 	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
-	scrolly_route(&route),
-	nearby_factory(halt_)
+	nearby_factory(halt_),
+	scrolly(&cont)
 {
 	if (halt.is_bound()) {
 		init();
@@ -496,7 +494,6 @@ void halt_detail_t::halt_detail_info()
 	}
 	buf.clear();
 
-	sint16 offset_x = 0;
 	sint16 offset_y = D_MARGIN_TOP;
 
 	// add lines that serve this stop
@@ -510,7 +507,7 @@ void halt_detail_t::halt_detail_info()
 				if (halt->registered_lines[i]->get_linetype() != lt) {
 					continue;
 				}
-				int offset_x = D_MARGIN_LEFT;
+				sint16 offset_x = D_MARGIN_LEFT;
 				if (!waytype_line_cnt) {
 					buf.append("\n");
 					offset_y += LINESPACE;
@@ -792,7 +789,6 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	bool is_operating;
 	bool overcrowded;
 	char transfer_time_as_clock[32];
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 	for (uint8 i=0; i<3; i++) {
 		is_operating = false;
 		overcrowded = false;
@@ -920,16 +916,14 @@ void halt_detail_t::set_windowsize(scr_size size)
 
 halt_detail_t::halt_detail_t():
 	gui_frame_t("", NULL),
-	scrolly(&cont),
-	scrolly_pas(&pas),
-	scrolly_goods(&goods),
-	scrolly_route(&route),
+	line_number(halthandle_t()),
 	pas(halthandle_t()),
 	goods(halthandle_t()),
-	nearby_factory(halthandle_t()),
 	txt_info(&buf),
-	route(halthandle_t(), goods_manager_t::INDEX_NONE),
-	line_number(halthandle_t())
+	scrolly_pas(&pas),
+	scrolly_goods(&goods),
+	nearby_factory(halthandle_t()),
+	scrolly(&cont)
 {
 	// just a dummy
 }
@@ -1077,7 +1071,6 @@ void halt_detail_pas_t::draw(scr_coord offset)
 	int x_size = get_size().w - 51 - pos.x;
 	int top = D_MARGIN_TOP;
 	offset.x += D_MARGIN_LEFT;
-	int left = 0;
 
 	if (halt.is_bound()) {
 		// Calculate width of class name cell
@@ -1494,8 +1487,6 @@ void gui_halt_nearby_factory_info_t::recalc_size()
 
 void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 {
-	clip_dimension const cd = display_get_clip_wh();
-
 	static cbuffer_t buf;
 	int xoff = pos.x;
 	int yoff = pos.y;

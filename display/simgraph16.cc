@@ -1119,7 +1119,7 @@ void set_zoom_factor(int z)
 	if ((base_tile_raster_width * zoom_num[z]) / zoom_den[z] > 4) {
 		zoom_factor = z;
 		tile_raster_width = (base_tile_raster_width * zoom_num[zoom_factor]) / zoom_den[zoom_factor];
-		fprintf(stderr, "set_zoom_factor() : set %d (%i/%i)\n", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor]);
+		dbg->message("set_zoom_factor()", "Zoom level now %d (%i/%i)", zoom_factor, zoom_num[zoom_factor], zoom_den[zoom_factor] );
 		rezoom();
 	}
 }
@@ -1889,15 +1889,6 @@ void display_fit_img_to_width(const image_id n, sint16 new_w)
 }
 
 
-/**
- * Retrieve brightness setting
- */
-int display_get_light()
-{
-	return light_level;
-}
-
-
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
@@ -2043,18 +2034,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	}
 
 	// convert to RGB xxx
-	recode();
-}
-
-
-/**
-* Set brightness setting
-* @author Hj. Malthaner
-*/
-void display_set_light(int new_light_level)
-{
-	light_level = new_light_level;
-	calc_base_pal_from_night_shift(night_shift);
 	recode();
 }
 
@@ -4181,7 +4160,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF_NOUSE)
 {
 	uint8 h = VEHICLE_BAR_HEIGHT;
-	uint8 width = (w + 1) * 0.9;
+	uint8 width = (uint8)((w + 1) * 0.9);
 	uint8 margin_left = w - width;
 
 	if (is_rightside) {
@@ -4502,8 +4481,6 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 /* display_calc_proportional_multiline_string_len_width
 * calculates the width and hieght of a box containing the text inside
 */
-/*
-// After incorporating r8930, it will be modified in r9042 as follows
 void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text, size_t len)
 {
 	const font_t* const fnt = &default_font;
@@ -4531,7 +4508,7 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 	xw = max( xw, width );
 	yh += LINESPACE;
 }
-*/
+
 
 
 /**
@@ -5096,9 +5073,9 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const PIXVAL colval, const bool dirty)
 {
 	double sqrt3 = sqrt(3);
-	for (uint x0 = 0; x0 <= int(0.99 + height * (sqrt3)); x0++)
+	for (uint16 x0 = 0; x0 <= (uint16)(0.99 + height * (sqrt3)); x0++)
 	{
-		display_vline_wh_rgb(x + x0, y + int(0.99 + x0 / sqrt3), height - int(0.99 + x0 / sqrt3) * 2, colval, dirty);
+		display_vline_wh_rgb(x + x0, y + (uint16)(0.99 + x0 / sqrt3), height - (uint16)(0.99 + x0 / sqrt3) * 2, colval, dirty);
 	}
 }
 
