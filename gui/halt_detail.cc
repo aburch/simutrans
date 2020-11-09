@@ -45,9 +45,11 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	line_number(halt_),
 	pas(halt_),
 	goods(halt_),
+	route(halt_, selected_route_catg_index),
 	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
+	scrolly_route(&route),
 	nearby_factory(halt_),
 	scrolly(&cont)
 {
@@ -919,9 +921,11 @@ halt_detail_t::halt_detail_t():
 	line_number(halthandle_t()),
 	pas(halthandle_t()),
 	goods(halthandle_t()),
+	route(halthandle_t(), goods_manager_t::INDEX_NONE),
 	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&goods),
+	scrolly_route(&route),
 	nearby_factory(halthandle_t()),
 	scrolly(&cont)
 {
@@ -1071,6 +1075,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 	int x_size = get_size().w - 51 - pos.x;
 	int top = D_MARGIN_TOP;
 	offset.x += D_MARGIN_LEFT;
+	sint16 left = 0;
 
 	if (halt.is_bound()) {
 		// Calculate width of class name cell
