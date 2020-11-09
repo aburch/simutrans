@@ -1910,6 +1910,29 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 					catg_xoff += display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
 					max_x = max(max_x, catg_xoff);
 				}
+#ifdef DEBUG
+				// Who offers the best service?
+				{
+					buf.clear();
+					player_t *victor = NULL;
+					linehandle_t preferred_line = halt->get_preferred_line(dest, i, goods_manager_t::get_classes_catg_index(i) - 1);
+					if (preferred_line.is_bound()) {
+						buf.printf(translator::translate(" DBG: Prefferd line : %s"), preferred_line->get_name());
+						victor = preferred_line->get_owner();
+					}
+					else {
+						convoihandle_t preferred_convoy = halt->get_preferred_convoy(dest, i, goods_manager_t::get_classes_catg_index(i) - 1);
+						if (preferred_convoy.is_bound()) {
+							buf.printf(translator::translate("  DBG: Prefferd convoy : %s"), preferred_convoy->get_name());
+							victor = preferred_convoy->get_owner();
+						}
+						else {
+							buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
+						}
+					}
+					catg_xoff += display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+1), true);
+				}
+#endif
 				yoff += LINESPACE;
 			}
 		}
