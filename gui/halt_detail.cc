@@ -1913,6 +1913,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 #ifdef DEBUG
 				// Who offers the best service?
 				{
+					// [best line]
 					buf.clear();
 					player_t *victor = NULL;
 					linehandle_t preferred_line = halt->get_preferred_line(dest, i, goods_manager_t::get_classes_catg_index(i) - 1);
@@ -1930,7 +1931,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 							buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
 						}
 					}
-					catg_xoff += display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+1), true);
+					display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+1), true);
 				}
 #endif
 				yoff += LINESPACE;
@@ -2051,6 +2052,31 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 			sint64 schedule_speed = kmh_from_meters_and_tenths((int)(km_to_halt * 1000), cnx->journey_time + cnx->waiting_time);
 			buf.printf(" (%2ukm/h) ", schedule_speed);
 			xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
+#endif
+
+#ifdef DEBUG
+			// Who offers the best service?
+			{
+				// [best line]
+				buf.clear();
+				player_t *victor = NULL;
+				linehandle_t preferred_line = halt->get_preferred_line(dest, selected_route_catg_index, goods_manager_t::get_classes_catg_index(selected_route_catg_index)-1);
+				if (preferred_line.is_bound()) {
+					buf.printf(translator::translate(" DBG: Prefferd line : %s"), preferred_line->get_name());
+					victor = preferred_line->get_owner();
+				}
+				else {
+					convoihandle_t preferred_convoy = halt->get_preferred_convoy(dest, selected_route_catg_index, goods_manager_t::get_classes_catg_index(selected_route_catg_index)-1);
+					if (preferred_convoy.is_bound()) {
+						buf.printf(translator::translate("  DBG: Prefferd convoy : %s"), preferred_convoy->get_name());
+						victor = preferred_convoy->get_owner();
+					}
+					else {
+						buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
+					}
+				}
+				display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1() + 1), true);
+			}
 #endif
 
 		}
