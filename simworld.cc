@@ -1596,10 +1596,15 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 				bool water[8];
 				// check whether nearby tiles are water
 				for(  int i = 0;  i < 8;  i++  ) {
-					grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
-					water[i] = (!gr2  ||  gr2->is_water());
+					if(  grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] )  ) {
+						if( gr2->hat_weg( water_wt ) ) {
+							// never ever make a beach near a river mound
+							neighbour_water = 8;
+							break;
+						}
+						water[i] = (!gr2  ||  gr2->is_water());
+					}
 				}
-
 				// make a count of nearby tiles - where tiles on opposite (+-1 direction) sides are water these count much more so we don't block straits
 				for(  int i = 0;  i < 8;  i++  ) {
 					if(  water[i]  ) {
@@ -1943,12 +1948,13 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
-	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
-		create_rivers( settings.get_river_number() );
-	}
-
 	if(  sets->get_lakeheight()>0  ) {
 		create_lakes( old_x, old_y, sets->get_lakeheight() );
+	}
+
+	// so at least some rivers end or start in lakes
+	if(  env_t::river_types > 0  &&  settings.get_river_number() > 0  ) {
+		create_rivers( settings.get_river_number() );
 	}
 
 	if (  old_x == 0  &&  old_y == 0  ) {
