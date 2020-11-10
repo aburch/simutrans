@@ -2262,48 +2262,57 @@ function check_way_line(start, end, wt, l, c) {
 			//gui.add_message_at(our_player, " ### check bridge " + coord3d_to_string(t), t)
 			st = 1
 		} else if ( t.get_way_dirs(wt) == 10 ) {
+			local check_tile_str = tile_x(t.x, t.y + 1, t.z)
+			local check_tile_stl = tile_x(t.x, t.y - 1, t.z)
 			// check left & right ground and empty
-			if ( !tile_x(t.x, t.y + 1, t.z).is_ground() && !tile_x(t.x, t.y - 1, t.z).is_ground() ) {
-				str = 0
-			} else if ( !tile_x(t.x, t.y + 1, t.z).is_empty() && !tile_x(t.x, t.y - 1, t.z).is_empty() ) {
-				stl = 0
-			} else {
+			if ( world.is_coord_valid(check_tile_str) ) {
 				// field right empty and ground
 				if ( tile_x(t.x, t.y + 1, t.z).is_ground() && tile_x(t.x, t.y + 1, t.z).is_empty() ) {
 					str++
 				} else {
 					str = 0
 				}
+			} else {
+				str = 0
+			}
+			if ( world.is_coord_valid(check_tile_stl) ) {
 				// field left empty and ground
 				if ( tile_x(t.x, t.y - 1, t.z).is_ground() && tile_x(t.x, t.y - 1, t.z).is_empty() ) {
 					stl++
 				} else {
 					stl = 0
 				}
+			} else {
+				stl = 0
 			}
 			// end diagonal way
 			dst = 0
 			dfcl = 0
 			dfcr = 0
 		} else if ( t.get_way_dirs(wt) == 5 ) {
-			// check left & right ground and empty
-			if ( !tile_x(t.x + 1, t.y, t.z).is_ground() && !tile_x(t.x - 1, t.y, t.z).is_ground() ) {
-				str = 0
-			} else if ( !tile_x(t.x + 1, t.y, t.z).is_empty() && !tile_x(t.x - 1, t.y, t.z).is_empty() ) {
-				stl = 0
-			} else {
+			// check left & right out of map and ground and empty
+			local check_tile_str = tile_x(t.x + 1, t.y, t.z)
+			local check_tile_stl = tile_x(t.x - 1, t.y, t.z)
+
+			if ( world.is_coord_valid(check_tile_str) ) {
 				// field right empty and ground
-				if ( tile_x(t.x + 1, t.y, t.z).is_ground() && tile_x(t.x + 1, t.y, t.z).is_empty() ) {
+				if ( check_tile_str.is_ground() && check_tile_str.is_empty() ) {
 					str++
 				} else {
 					str = 0
 				}
+			} else {
+				str = 0
+			}
+			if ( world.is_coord_valid(check_tile_stl) ) {
 				// field left empty and ground
-				if ( tile_x(t.x - 1, t.y, t.z).is_ground() && tile_x(t.x - 1, t.y, t.z).is_empty() ) {
+				if ( check_tile_stl.is_ground() && check_tile_stl.is_empty() ) {
 					stl++
 				} else {
 					stl = 0
 				}
+			} else {
+				stl = 0
 			}
 			// end diagonal way
 			dst = 0
@@ -2766,6 +2775,7 @@ function optimize_way_line(route, wt) {
 
 		local build_bridge = 0
 		local build_tunnel = 0
+		local build_tile = null
 
 		if ( tile_1.z == tile_2.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true ) && ( tile_1.is_tunnel() != true && tile_2.is_tunnel() != true ) ) {
 			if ( tile_1.get_slope() > 0 || tile_2.get_slope() > 0 || tile_3.get_slope() > 0 ) {
@@ -2786,7 +2796,9 @@ function optimize_way_line(route, wt) {
 				build_bridge = 1
 			}
 
-		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() != true && tile_2.is_bridge() != true && tile_3.is_bridge() != true ) ) {
+				build_tile = tile_2
+
+		} else if ( tile_1.z == tile_2.z == tile_3.z && ( tile_1.is_bridge() == false && tile_2.is_bridge() == false && tile_3.is_bridge() == false ) ) {
 			// slope down - flate - slope up -> bridge
 			// slope up - flate - slope down -> tunnel ( build_tunnel = 2 )
 			if ( (tile_1.get_slope() == 4 && tile_3.get_slope() == 36 && tile_1.y < tile_3.y) || (tile_1.get_slope() == 36 && tile_3.get_slope() == 4 && tile_1.y > tile_3.y)  ) {
@@ -2798,6 +2810,8 @@ function optimize_way_line(route, wt) {
 			} else if ( (tile_1.get_slope() == 12 && tile_3.get_slope() == 28 && tile_1.x > tile_3.x) || (tile_1.get_slope() == 28 && tile_3.get_slope() == 12 && tile_1.x < tile_3.x) ) {
 				build_bridge = 1
 			}
+
+			build_tile = tile_3
 
 		}
 
@@ -2816,11 +2830,11 @@ function optimize_way_line(route, wt) {
 				// terraform down
 				err = command_x.set_slope(our_player, tile_1, 83)
 					gui.add_message_at(our_player, " terraform tile_1: " + err, world.get_time())
-					::debug.pause()
+					//::debug.pause()
 				err = null
 				err = command_x.set_slope(our_player, tile_2, 83)
 					gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
-					::debug.pause()
+					//::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
 				command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 			} else if ( build_tunnel == 2 ) {
@@ -2833,10 +2847,10 @@ function optimize_way_line(route, wt) {
 			// slope down - slope up -> bridge
 			if ( build_bridge == 1 ) {
 				local err = remove_tile_to_empty(tile_2, wt, 0)
-				if ( err ) {
-					err = null
-					err = command_x.build_bridge(our_player, tile_1, tile_2, bridge_obj)
-				}
+					gui.add_message_at(our_player, " remove tile_2: " + err, world.get_time())
+				err = null
+				err = command_x.build_bridge(our_player, tile_1, build_tile, bridge_obj)
+					gui.add_message_at(our_player, " build bridge: " + err, world.get_time())
 			}
 
 

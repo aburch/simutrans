@@ -396,9 +396,12 @@ class industry_manager_t extends manager_t
 				local s_fields = check_way_line(start_l, end_l, cnv.get_waytype(), l, c)
 				local cc = 1
 
-				gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
-				if ( s_fields.len() == 0 ) {
-					s_fields = check_way_line(end_l, start_l, cnv.get_waytype(), l, c)
+				gui.add_message_at(our_player, "####### type(s_fields) " + type(s_fields), world.get_time())
+				if ( type(s_fields) == "array" ) {
+					gui.add_message_at(our_player, "####### s_fields.len() " + s_fields.len(), world.get_time())
+					if ( s_fields.len() == 0 ) {
+						s_fields = check_way_line(end_l, start_l, cnv.get_waytype(), l, c)
+					}
 				}
 
 				//gui.add_message_at(our_player, "####### s_fields " + s_fields, world.get_time())

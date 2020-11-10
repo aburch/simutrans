@@ -223,7 +223,7 @@ class road_connector_t extends manager_t
 			case 9: // build station extension
 				{
 					// optimize way line save in c_route
-					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null ) {
+					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
 						optimize_way_line(c_route, wt_road)
 					}

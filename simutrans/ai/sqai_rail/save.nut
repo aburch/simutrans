@@ -38,7 +38,10 @@ function saveinstance(classname, instance)
 		if (typeof(val) == "function") {
 			continue
 		}
-		t[key] <- instance[key]
+		// only save slots that are not equal to default values
+		if (val != instance[key]) {
+			t[key] <- instance[key]
+		}
 	}
 	return "::loadinstance(\"" + classname + "\", " + recursive_save(t, "\t\t\t", []) + ")"
 }
