@@ -44,14 +44,14 @@ void signalboxlist_stats_t::update_label()
 	label.update();
 
 	// connected / capacity
-	lb_connected.buf().printf("(%3d/%3d)",
+	lb_connected.buf().printf(" (%3d/%3d)",
 		sb->get_number_of_signals_controlled_from_this_box(),
 		sb->get_first_tile()->get_tile()->get_desc()->get_capacity());
 	lb_connected.update();
 
 	// region name (pos)
 	if (!welt->get_settings().regions.empty()) {
-		lb_region.buf().printf("%s ", welt->get_region_name(sb->get_pos().get_2d()).c_str());
+		lb_region.buf().printf("%s ", translator::translate(welt->get_region_name(sb->get_pos().get_2d()).c_str()));
 	}
 	lb_region.buf().printf("%s", sb->get_pos().get_2d().get_fullstr());
 	lb_region.update();
@@ -147,7 +147,7 @@ static const char *sort_text[SORT_MODES] = {
 };
 
 signalboxlist_frame_t::signalboxlist_frame_t(player_t *player) :
-	gui_frame_t( translator::translate("dp_title"), player ),
+	gui_frame_t( translator::translate("sb_title"), player ),
 	scrolly(gui_scrolled_list_t::windowskin, signalboxlist_stats_t::compare)
 {
 	this->player = player;
@@ -192,7 +192,6 @@ signalboxlist_frame_t::signalboxlist_frame_t(player_t *player) :
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
  */
 bool signalboxlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {

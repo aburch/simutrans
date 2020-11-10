@@ -24,7 +24,7 @@ public:
 		b->add_listener(this);
 	}
 
-	virtual bool action_triggered(gui_action_creator_t *comp, value_t)
+	bool action_triggered(gui_action_creator_t *comp, value_t) OVERRIDE
 	{
 		if (comp == button) {
 			update();

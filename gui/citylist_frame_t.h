@@ -15,7 +15,6 @@
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
 #include "components/gui_scrolled_list.h"
-#include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_combobox.h"
 
@@ -40,7 +39,6 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 	button_t sort_asc, sort_desc;
 	button_t	filter_within_network;
 
-    //gui_scrollpane_t scrolly;
 	gui_scrolled_list_t scrolly;
 
 	gui_aligned_container_t container_year, container_month;
@@ -62,27 +60,19 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
     static citylist_stats_t::sort_mode_t sortby;
 
  public:
-
     citylist_frame_t();
 
-   /**
-     * Draw new component. The values to be passed refer to the window
-     * i.e. It's the screen coordinates of the window where the
-     * component is displayed.
-     */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool has_min_sizer() const OVERRIDE {return true;}
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	*/
-	const char * get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "citylist_filter.txt"; }
 
-    static void set_sortierung(const citylist_stats_t::sort_mode_t& sm) { sortby = sm; }
+	static void set_sortierung(const citylist_stats_t::sort_mode_t& sm) { sortby = sm; }
 
-    bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 };
 
 #endif

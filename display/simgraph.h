@@ -181,10 +181,6 @@ void      display_set_actual_width(KOORD_VAL);
 // force a certain size on a image (for rescaling tool images)
 void display_fit_img_to_width(const image_id n, sint16 new_w);
 
-
-int display_get_light();
-void display_set_light(int new_light_level);
-
 void display_day_night_shift(int night);
 
 
@@ -357,8 +353,12 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
 #define proportional_string_len_width(text, len) display_calc_proportional_string_len_width(text, len)
+
 // length of a string in pixel
 int display_calc_proportional_string_len_width(const char* text, size_t len);
+
+// box which will contain the multi (or single) line of text
+void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *text, size_t len );
 
 /*
  * len parameter added - use -1 for previous behaviour.
@@ -373,7 +373,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 
 /*
- * Display a string that if abbreviated by the (language specific) ellipsis character if too wide
+ * Display a string that is abbreviated by the (language specific) ellipsis character if too wide
  * If enough space is given, it just display the full string
  * @returns screen_width
  */
@@ -394,6 +394,8 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const PIXVAL colval, const bool dirty);
 void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value=0);
+
+void display_right_triangle_rgb(KOORD_VAL x, KOORD_VAL y, KOORD_VAL height, const PIXVAL colval, const bool dirty);
 
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO, bool fit = false);
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF0 CLIP_NUM_DEFAULT_ZERO);

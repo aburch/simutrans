@@ -141,7 +141,7 @@ public:
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 */
-	virtual void set_windowsize(scr_size size) OVERRIDE;
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * show or hide the line selector combobox and its associated label
@@ -162,7 +162,7 @@ public:
 	// this constructor is only used during loading
 	schedule_gui_t();
 
-	virtual void rdwr( loadsave_t *file ) OVERRIDE;
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_schedule_rdwr_dummy; }
 };

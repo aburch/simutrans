@@ -74,7 +74,7 @@ static void MTgenerate()
 }
 
 
-// returns current seed value
+/* returns current seed value */
 uint32 get_random_seed()
 {
 #ifdef DISABLE_RANDOMNESS
@@ -101,12 +101,13 @@ uint32 simrand_plain()
 
 	/* Tempering */
 	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
+	y ^= (y <<  7) & 0x9d2c5680UL;
 	y ^= (y << 15) & 0xefc60000UL;
 	y ^= (y >> 18);
 
 	return y;
 }
+
 
 /* generates a random number on [0,max-1]-interval */
 #ifdef DEBUG_SIMRAND_CALLS
@@ -116,7 +117,8 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 {
 	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
-	if(max<=1) {	// may rather assert this?
+
+	if(max<=1) { // may rather assert this?
 		return 0;
 	}
 
@@ -246,7 +248,7 @@ uint16 get_random_mode()
 
 static uint32 async_rand_seed = 12345678+dr_time();
 
-// simpler simrand for anything not game critical (like UI)
+/* simpler simrand for anything not game critical (like UI) */
 uint32 sim_async_rand( uint32 max )
 {
 	if(  max==0  ) {
@@ -475,13 +477,11 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 		}
 	}
 
-    return total;
+	return total;
 }
 
 
-/*
-
-// compute integer log10
+/* compute integer log10 */
 uint32 log10(uint32 v)
 {
 	return ( (log2(v) + 1) * 1233) >> 12; // 1 / log_2(10) ~~ 1233 / 4096
@@ -506,57 +506,56 @@ uint32 log2(uint32 n)
 	return i | (n >> 1);
 }
 
-*/
 
-
-// compute integer sqrt
+/* compute integer sqrt */
 uint32 sqrt_i32(uint32 num)
 {
-	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-    uint32 res = 0;
-    uint32 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
+	// taken from https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+	uint32 res = 0;
+	uint32 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
 
-    // "bit" starts at the highest power of four <= the argument.
-    while(  bit > num  ) {
-        bit >>= 2;
-    }
+	// "bit" starts at the highest power of four <= the argument.
+	while(  bit > num  ) {
+		bit >>= 2;
+	}
 
-    while(  bit != 0  ) {
-        if(  num >= res + bit  ) {
-            num -= res + bit;
-            res = (res >> 1) + bit;
-        }
-        else {
-            res >>= 1;
-        }
-        bit >>= 2;
-    }
-    return res;
+	while(  bit != 0  ) {
+		if(  num >= res + bit  ) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		}
+		else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
 }
 
-// compute integer sqrt
+
+/* compute integer sqrt */
 uint64 sqrt_i64(uint64 num)
 {
 	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-    uint64 res = 0;
-    uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
+	uint64 res = 0;
+	uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
 
-    // "bit" starts at the highest power of four <= the argument.
-    while(  bit > num  ) {
-        bit >>= 2;
-    }
+	// "bit" starts at the highest power of four <= the argument.
+	while(  bit > num  ) {
+		bit >>= 2;
+	}
 
-    while(  bit != 0  ) {
-        if(  num >= res + bit  ) {
-            num -= res + bit;
-            res = (res >> 1) + bit;
-        }
-        else {
-            res >>= 1;
-        }
-        bit >>= 2;
-    }
-    return res;
+	while(  bit != 0  ) {
+		if(  num >= res + bit  ) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		}
+		else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
 }
 
 #endif

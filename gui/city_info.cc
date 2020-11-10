@@ -50,10 +50,10 @@ public:
 		minimaps_size = scr_size(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE); // default minimaps size
 		minimap2_offset = scr_coord(minimaps_size.w + D_H_SPACE, 0);
 	}
-	scr_size get_min_size() const { return scr_size(PAX_DEST_MIN_SIZE*2 + D_H_SPACE, PAX_DEST_MIN_SIZE); }
+	scr_size get_min_size() const OVERRIDE { return scr_size(PAX_DEST_MIN_SIZE*2 + D_H_SPACE, PAX_DEST_MIN_SIZE); }
 
 	// set size of minimap, decide for horizontal or vertical arrangement
-	void set_size(scr_size size)
+	void set_size(scr_size size) OVERRIDE
 	{
 		gui_world_component_t::set_size(size);
 		// calculate new minimaps size : expand horizontally or vertically ?
@@ -100,7 +100,7 @@ public:
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
 	// handle clicks into minimaps
-	bool infowin_event(const event_t *ev)
+	bool infowin_event(const event_t *ev) OVERRIDE
 	{
 		int my = ev->my;
 		if(  my > minimaps_size.h  &&  minimap2_offset.y > 0  ) {
@@ -127,7 +127,7 @@ public:
 		return false;
 	}
 	// draw both minimaps
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		const uint32 current_pax_destinations = city->get_pax_destinations_new_change();
 		if(  pax_destinations_last_change > current_pax_destinations  ) {
@@ -311,7 +311,9 @@ city_info_t::~city_info_t()
 // returns position of the city center on the map
 koord3d city_info_t::get_weltpos(bool)
 {
-	return welt->lookup_kartenboden( city->get_center() )->get_pos();
+	const grund_t* gr = welt->lookup_kartenboden(city->get_center());
+	const koord3d k = gr ? gr->get_pos() : koord3d::invalid;
+	return k;
 }
 
 

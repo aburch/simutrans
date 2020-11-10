@@ -301,7 +301,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 		char pos[13];
 		static char format_string[256];
 		char *cfmt = format_string;
-		static char buffer[16000];	// the longest possible buffer ...
+		static char buffer[16000]; // the longest possible buffer ...
 		int count = 0;
 		for(  ;  c  &&  count<9;  count++  ) {
 			sprintf( pos, "%%%i$", count+1 );

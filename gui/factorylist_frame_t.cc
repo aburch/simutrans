@@ -52,6 +52,8 @@ factorylist_frame_t::factorylist_frame_t() :
 				sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 			}
 			sortedby.set_selection(default_sortmode);
+			sortedby.set_width_fixed(true);
+			sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 			sortedby.add_listener(this);
 			add_component(&sortedby); // (2,1,1)
 
@@ -98,7 +100,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			freight_type_c.add_listener(this);
 			add_component(&freight_type_c); // (2,2,1)
 
-			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14));
+			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
 			btn_display_mode.add_listener(this);
 			add_component(&btn_display_mode); // (2,2,2)
 		}

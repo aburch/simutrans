@@ -1552,7 +1552,7 @@ aircraft_tab
 Грузовые
 airplane
 самолёт
-all convoi tooltips
+always show all
 Все значки над т/с
 allowed climates:\n
 Разные климаты:\n
@@ -1630,7 +1630,7 @@ construction speed
 Констр. скорость:
 convoi %d of %d
 т/с %d из %d
-convoi error tooltips
+only error convoys
 Значки ошибок над т/с
 convoi mouseover tooltips
 Значки над т/с у курсора

@@ -87,7 +87,6 @@ public:
 
 	/**
 	 * Appends a number. Buffer will be extended if it does not have enough capacity.
-	 * @author Hj. Malthaner
 	 */
 	void append(double n, int precision);
 

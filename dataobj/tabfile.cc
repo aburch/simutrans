@@ -115,7 +115,6 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	return ret;
 }
 
-
 const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 {
 	static scr_size ret;
@@ -837,6 +836,5 @@ void tabfile_t::format_key(char *key)
 			*t++ = *s;
 		}
 	}
-
 	*t = '\0';
 }

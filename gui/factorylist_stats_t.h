@@ -45,10 +45,12 @@ public:
 	 */
 	void recalc_size();
 
-	/**
-	* Draw the component
-	* @author Hj. Malthaner
-	*/
+/*	char const* get_text() const OVERRIDE { return fab->get_name(); }
+	bool infowin_event(const event_t *) OVERRIDE;
+	bool is_valid() const OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
+*/
+
 	void draw(scr_coord offset) OVERRIDE;
 };
 

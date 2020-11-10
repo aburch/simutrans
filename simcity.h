@@ -505,7 +505,7 @@ public:
 	// Not suitable for use in game computations because this is not network safe. For GUI only.
 	uint32 get_population_density() const
 	{
-		return city_history_month[0][HIST_CITICENS] / get_land_area();
+		return (uint32)(city_history_month[0][HIST_CITICENS] / get_land_area());
 	}
 
 	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITICENS]; }

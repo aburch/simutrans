@@ -21,7 +21,7 @@ static const char *sort_text[labellist::SORT_MODES] = {
 
 class label_sort_item_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 public:
-	label_sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(sort_text[i], SYSCOL_TEXT) { }
+	label_sort_item_t(uint8 i) : gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT) { }
 };
 
 labellist_frame_t::labellist_frame_t() :
@@ -37,6 +37,8 @@ labellist_frame_t::labellist_frame_t() :
 			sortedby.new_component<label_sort_item_t>(i);
 		}
 		sortedby.set_selection(default_sortmode);
+		sortedby.set_width_fixed(true);
+		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 

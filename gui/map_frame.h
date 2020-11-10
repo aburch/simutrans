@@ -116,7 +116,7 @@ public:
 
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	virtual uint32 get_rdwr_id() OVERRIDE { return magic_reliefmap; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_reliefmap; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

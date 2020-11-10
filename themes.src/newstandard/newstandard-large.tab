@@ -1,7 +1,7 @@
 # Default simutrans theme
 #
 # name of the theme (will be shown with file selector)
-name=Simutrans New (touch size)
+name=Simutrans New (large size)
 
 # show tooltips (default 1=show)
 show_tooltips = 1
@@ -24,11 +24,8 @@ tooltip_duration = 5000
 # Suggested values (155 is the default)
 # -- pak64, pak.german, pak128
 #cursor_overlay_color = 155
-# -- pak128.japan
-#cursor_overlay_color = 149
-
-# size of tools
-icon_width = 32
+# -- pak128.Britain
+cursor_overlay_color = 71
 
 # in default theme white text
 gui_text_highlight= #FFFFFF
@@ -41,7 +38,7 @@ gui_text_highlight= #FFFFFF
 
 # when moving, you can use windows to snap onto each other seamlessly
 # if you do not like it, set the catch radius to zero
-window_snap_distance = 8
+window_snap_distance = 12
 
 # show the windows close etc. buttons on the right (like windows 98)
 window_buttons_right = 0
@@ -53,21 +50,35 @@ second_open_closes_win = 0
 # This will be saved, but will be discarded when screen is resized
 remember_window_positions = 1
 
+# color used for the default titlebars
+default_window_title_color = #D74700
+
 # there are three different ways to indicate an active window
 
 # first: draw a frame with titlebar color around active window
 #window_frame_active = 0
 
-# second: draw the title with a different brightness (0: dark ... 6: bright)
-front_window_bar_color = 1
-bottom_window_bar_color = 3
+# second: draw the title with a dark overlay (0=none, 100=full black)
+#bottom_window_darkness = 25
 
 # third (best together with 2nd):use different text color for bar
 # some colors are 215-white, 240-black 208-214- all shades of gray
-front_window_text_color = 215
-bottom_window_text_color = 209
+front_window_text_color = #FFFFFF
+bottom_window_text_color = #DDDDDD
+
+# How much shade for player colors (7 brightest 0 darkest)
+gui_player_color_bright = 4
+gui_player_color_dark = 1
+
+# Color of load bar in loag game, load serve etc
+gui_color_loadingbar_progress = #3165BD
+#gui_color_loadingbar_inner = #000000
+
 
 ##################################size stuff##################################
+
+# size of tools
+icon_width = 48
 
 # use the larger Button height
 gui_button_height = 22
@@ -86,9 +97,9 @@ gui_titlebar_height = 22
 # if more tools than allowed by height,
 # next and prev arrows for scrolling appears
 toolbar_max_width = 0
-toolbar_max_height = 0
+toolbar_max_height = 3
 
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.newstandard.touch.pak
+themeimages=newstandard-large.pak

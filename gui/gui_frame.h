@@ -69,7 +69,10 @@ public:
 	 * Resize modes
 	 */
 	enum resize_modes {
-		no_resize = 0, vertical_resize = 1, horizontal_resize = 2, diagonal_resize = 3
+		no_resize         = 0,
+		vertical_resize   = 1,
+		horizontal_resize = 2,
+		diagonal_resize   = 3
 	};
 
 private:
@@ -130,7 +133,7 @@ public:
 	/**
 	 * sets the Name (Window title)
 	 */
-	void set_name(const char *name);
+	void set_name(const char *name) { this->name=name; }
 
 	/**
 	 * This returns an unique id (different from magic_reserved), if the dialogue can be saved.
@@ -246,7 +249,7 @@ public:
 	/**
 	 * Events are notified to GUI components via this method.
 	 */
-	virtual bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -268,7 +271,7 @@ public:
 	 */
 	void set_focus( gui_component_t *c ) { gui_aligned_container_t::set_focus(c); }
 
-	virtual gui_component_t *get_focus() { return gui_aligned_container_t::get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return gui_aligned_container_t::get_focus(); }
 };
 
 #endif

@@ -76,7 +76,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const = 0;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// text for the tabs is defaulted to the train names
 	virtual const char * get_electrics_name() { return "Electrics_tab"; };
@@ -178,13 +178,13 @@ public:
 	/**
 	 * Opens a new info window for that object.
 	 */
-	void show_info();
+	void show_info() OVERRIDE;
 
 	/**
 	 * Can object be removed?
 	 * @return NULL when OK, otherwise an error message
 	 */
-	virtual const char *  is_deletable(const player_t *player);
+	const char * is_deletable(const player_t *player) OVERRIDE;
 
 	/**
 	 * identifies the oldest vehicle of a certain type
@@ -263,7 +263,7 @@ public:
 	bahndepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::trainline; }
 
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehicle(vehicles,file); }
 
@@ -296,14 +296,14 @@ public:
 	tramdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::tramline; }
 
 	virtual waytype_t get_wegtyp() const {return tram_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
-	virtual obj_t::typ get_typ() const { return tramdepot; }
+	obj_t::typ get_typ() const OVERRIDE { return tramdepot; }
 #endif
-	//virtual const char *get_name() const {return "Tramdepot"; }
+	//const char *get_name() const OVERRIDE {return "Tramdepot"; }
 };
 
 class monoraildepot_t : public bahndepot_t
@@ -317,14 +317,14 @@ public:
 	monoraildepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::monorailline; }
 
 	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
-	virtual obj_t::typ get_typ() const { return monoraildepot; }
+	obj_t::typ get_typ() const OVERRIDE { return monoraildepot; }
 #endif
-	//virtual const char *get_name() const {return "Monoraildepot"; }
+	//const char *get_name() const OVERRIDE {return "Monoraildepot"; }
 };
 
 class maglevdepot_t : public bahndepot_t
@@ -338,14 +338,14 @@ public:
 	maglevdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::maglevline; }
 
 	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
-	virtual obj_t::typ get_typ() const { return maglevdepot; }
+	obj_t::typ get_typ() const OVERRIDE { return maglevdepot; }
 #endif
-	//virtual const char *get_name() const {return "Maglevdepot"; }
+	//const char *get_name() const OVERRIDE {return "Maglevdepot"; }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
@@ -359,14 +359,15 @@ public:
 	narrowgaugedepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::narrowgaugeline; }
 
 	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
-	virtual obj_t::typ get_typ() const { return narrowgaugedepot; }
+	obj_t::typ get_typ() const OVERRIDE { return narrowgaugedepot; }
 #endif
 	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
+	//const char *get_name() const OVERRIDE {return "Narrowgaugedepot"; }
 };
 
 /**
@@ -385,12 +386,12 @@ public:
 	strassendepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::truckline; }
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const {return strassendepot;}
+	obj_t::typ get_typ() const OVERRIDE { return strassendepot; }
 #endif
 	///**
 	// * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -401,7 +402,7 @@ public:
 	//int get_y_grid() const { return 24; }
 	//unsigned get_max_convoi_length() const { return 4; }
 
-	//const char *get_name() const {return "Strassendepot";}
+	//const char *get_name() const OVERRIDE {return "Strassendepot";}
 };
 
 
@@ -421,12 +422,12 @@ public:
 	schiffdepot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::shipline; }
 
 	virtual waytype_t get_wegtyp() const {return water_wt; }
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const {return schiffdepot;}
+	obj_t::typ get_typ() const OVERRIDE { return schiffdepot; }
 #endif
 	///**
 	// * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -437,7 +438,7 @@ public:
 	//int get_y_grid() const { return 46; }
 
 	//unsigned get_max_convoi_length() const { return 4; }
-	//const char *get_name() const {return "Schiffdepot";}
+	//const char *get_name() const OVERRIDE {return "Schiffdepot";}
 };
 
 
@@ -455,7 +456,7 @@ public:
 	airdepot_t(koord3d pos,player_t *player, const building_tile_desc_t *t) : depot_t(pos,player,t) {}
 #endif
 
-	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
+	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::airline; }
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
 	///**
@@ -469,9 +470,9 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const { return airdepot; }
+	obj_t::typ get_typ() const OVERRIDE { return airdepot; }
 #endif
-	//const char *get_name() const {return "Hangar";}
+	//const char *get_name() const OVERRIDE {return "Hangar";}
 };
 
 #endif

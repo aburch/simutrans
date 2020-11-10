@@ -77,7 +77,7 @@ public:
 		return scr_size( scr_size::inf.w, label.get_max_size().h );
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord pos = get_pos() + offset;
 		display_ddd_box_clip_rgb( pos.x, pos.y+D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4) );
@@ -92,7 +92,7 @@ public:
 class gui_scale_t : public gui_component_t
 {
 public:
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord pos = get_pos() + offset;
 		double bar_width = (double)get_size().w/(double)MAX_SEVERITY_COLORS;
@@ -191,18 +191,21 @@ map_frame_t::map_frame_t() :
 		// selections button
 		b_show_legend.init(button_t::roundbox_state, "Show legend");
 		b_show_legend.set_tooltip("Shows buttons on special topics.");
+		b_show_legend.set_size(D_BUTTON_SIZE);
 		b_show_legend.add_listener(this);
 		add_component(&b_show_legend);
 
 		// industry list button
 		b_show_directory.init(button_t::roundbox_state, "Show industry");
 		b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
+		b_show_directory.set_size(D_BUTTON_SIZE);
 		b_show_directory.add_listener(this);
 		add_component(&b_show_directory);
 
 		// scale button
 		b_show_scale.init(button_t::roundbox_state, "Show map scale");
 		b_show_scale.set_tooltip("Shows the color code for several selections.");
+		b_show_scale.set_size(D_BUTTON_SIZE);
 		b_show_scale.add_listener(this);
 		add_component(&b_show_scale);
 	}
@@ -223,6 +226,7 @@ map_frame_t::map_frame_t() :
 		sint16 zoom_in, zoom_out;
 		reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
 		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
+		zoom_value_label.set_width(proportional_string_width("10:1")); // This is intended that the selector size does not fluctuate in proportional fonts.
 		zoom_value_label.update();
 		add_component( &zoom_value_label );
 

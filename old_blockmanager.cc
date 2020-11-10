@@ -41,18 +41,18 @@ public:
 	/**
 	* return direction or the state of the traffic light
 	*/
-	ribi_t::ribi get_dir() const 	{ return dir; }
+	ribi_t::ribi get_dir() const { return dir; }
 
 	bool ist_blockiert() const {return blockend != 0;}
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const 	{ return type; }
+	obj_t::typ get_typ() const OVERRIDE { return type; }
 #endif
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	image_id get_image() const { return IMG_EMPTY; }
+	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 };
 
 

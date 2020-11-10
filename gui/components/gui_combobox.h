@@ -67,6 +67,8 @@ private:
 	 */
 	void reset_selected_item_name();
 
+	bool width_fixed = false;
+
 public:
 	gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp = 0);
 
@@ -81,7 +83,7 @@ public:
 	 * child classes like scrolled list of tabs should
 	 * return a child component.
 	 */
-	virtual gui_component_t *get_focus() { return this; }
+	gui_component_t *get_focus() OVERRIDE { return this; }
 
 	/**
 	 * Draw the component
@@ -138,9 +140,12 @@ public:
 	/**
 	* Set this component's position.
 	*/
-	virtual void set_pos(scr_coord pos_par) OVERRIDE;
+	void set_pos(scr_coord pos_par) OVERRIDE;
 
 	void set_size(scr_size size) OVERRIDE;
+
+	// In Extended, since often use a combo box instead of the toggle button, we need to allow the size to be fixed.
+	void set_width_fixed(bool yesno) { width_fixed = yesno; }
 
 	/**
 	 * called when the focus should be released
@@ -158,6 +163,15 @@ public:
 
 	void enable();
 	void disable();
+
+	void enable( bool yesno ) {
+		if( yesno && !is_focusable() ) {
+			enable();
+		}
+		else if( !yesno  &&  is_focusable() ) {
+			disable();
+		}
+	}
 
 	// save selection
 	void rdwr( loadsave_t *file );

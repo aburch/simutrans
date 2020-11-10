@@ -31,7 +31,7 @@ public:
 
 	bool has_sticky() const OVERRIDE { return false; }
 
-	virtual bool has_title() const OVERRIDE { return false; }
+	bool has_title() const OVERRIDE { return false; }
 
 	/**
 	* Window Title

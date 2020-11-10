@@ -441,7 +441,7 @@ void weg_t::rdwr(loadsave_t *file)
 	else if(file->is_loading() && file->get_extended_version() == 14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 24)
 	{
 		// Older version - estimate travel time statistics from deprecated stopped vehicle statistics
-		// Use 10 seconds as the base time to cross the way — the actual value is not important at all but the ratio is.
+		// Use 10 seconds as the base time to cross the way ? the actual value is not important at all but the ratio is.
 		uint32 mul = welt->get_seconds_to_ticks(10);
 
 		for (uint32 month = 0; month < MAX_WAY_STAT_MONTHS; month++)

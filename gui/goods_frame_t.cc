@@ -17,6 +17,7 @@
 #include "../simtypes.h"
 
 #include "../simcolor.h"
+#include "simwin.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
 
@@ -133,6 +134,8 @@ goods_frame_t::goods_frame_t() :
 			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 		}
 		sortedby.set_selection(default_sortmode);
+		sortedby.set_width_fixed(true);
+		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
 		add_component(&sortedby); // (1,1)
 
@@ -290,4 +293,41 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 void goods_frame_t::draw(scr_coord pos, scr_size size)
 {
 	gui_frame_t::draw(pos, size);
+}
+
+
+uint32 goods_frame_t::get_rdwr_id()
+{
+	return magic_goodslist;
+}
+
+
+void goods_frame_t::rdwr(loadsave_t *file)
+{
+	file->rdwr_short(distance);
+	file->rdwr_byte(comfort);
+	file->rdwr_byte(catering_level);
+	file->rdwr_long(vehicle_speed);
+	file->rdwr_byte(g_class);
+	file->rdwr_bool(sort_asc.pressed);
+	file->rdwr_bool(filter_goods_toggle.pressed);
+	uint8 s = default_sortmode;
+	file->rdwr_byte(s);
+	sint16 b = sortby;
+	file->rdwr_short(b);
+
+	if (file->is_loading()) {
+		sortedby.set_selection(s);
+		sortby = (sort_mode_t)b;
+		sortreverse = sort_asc.pressed;
+		sort_desc.pressed = !sort_asc.pressed;
+		sort_list();
+		distance_input.set_value(distance);
+		comfort_input.set_value(comfort);
+		catering_input.set_value(catering_level);
+		speed_input.set_value(vehicle_speed);
+		class_input.set_value(g_class);
+		filter_goods = filter_goods_toggle.pressed;
+		default_sortmode = s;
+	}
 }

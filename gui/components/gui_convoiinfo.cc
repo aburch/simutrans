@@ -22,7 +22,6 @@
 
 #include "../../utils/simstring.h"
 #include "../../utils/cbuffer_t.h"
-#include "../gui_frame.h"
 #include "../schedule_gui.h"
 
 

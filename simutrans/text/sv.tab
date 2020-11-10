@@ -39,7 +39,7 @@ Använd linje
 cl_btn_filter_disable
 av
 cl_btn_filter_enable
-på
+pE
 cl_btn_filter_settings
 inställningar
 cl_btn_sort_asc
@@ -79,7 +79,7 @@ Till fordonshall
 hl_btn_filter_disable
 av
 hl_btn_filter_enable
-på
+pE
 hl_btn_filter_settings
 inställningar
 hl_btn_sort_asc
@@ -133,9 +133,9 @@ Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
 A bridge must start on a way!
-Broar måste börja/sluta\ni änden av en befintlig \nväg eller på en tom \nsluttning!
+Broar måste börja/sluta\ni änden av en befintlig \nväg eller pEen tom \nsluttning!
 Autohalt muss auf\nStrasse liegen!\n
-Buss- och lastbilshållplatser måste ligga på en väg.\n
+Buss- och lastbilshållplatser måste ligga pEen väg.\n
 bridge is too high for its type!
 Dalen är för djup för\ndenna typ av bro!\n
 Bridge is too long for this type!\n
@@ -163,11 +163,11 @@ Bron är inte tom!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Denna kombination\nkan ej köra!\n
 Dock must be built on single slope!
-Hamnar måste byggas\npå en rak sluttning!
+Hamnar måste byggas\npEen rak sluttning!
 Fahrzeuge koennen so nicht entfernt werden
-Det går inte att ta bort\nfordon/fartyg på det här sättet!\n
+Det går inte att ta bort\nfordon/fartyg pEdet här sättet!\n
 Flugzeughalt muss auf\nRunway liegen!\n
-Flygplan kan bara\nlanda på flygplatser!\n
+Flygplan kan bara\nlanda pEflygplatser!\n
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Här kan man inte\nbygga den här flygplats-\nbyggnaden.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
@@ -183,15 +183,15 @@ Tappat anslutningen\till servern!
 Lost synchronisation\nwith server.
 Ej längre\nsynkroniserad\nmed servern!
 Maglevhalt muss auf\nMaglevschiene liegen!\n
-En magnetspårsstation måste placeras på magnetspår!
+En magnetspårsstation måste placeras pEmagnetspår!
 Monorailhalt muss auf\nMonorail liegen!\n
-Monorailhållplatser\nmåste placeras på monorail.
+Monorailhållplatser\nmåste placeras pEmonorail.
 Monorails are not available yet!
 Det går ännu inte att bygga monorail.
 Narrowgauge are not available yet!
 Smalspår finns ännu inte tillgängligt!
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
-Smalspårsstation måste\nligga på ett smalspår!\n
+Smalspårsstation måste\nligga pEett smalspår!\n
 No through station here!
 Här kan inte byggas någon hållplats.
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
@@ -201,13 +201,13 @@ Detta går inte!\nFordonets tidtabell kan\nför närvarande inte ändras.\nFörsök ig
 Not enough money!
 Pengarna räcker int\ntill för att bygga detta!
 On narrowgauge track only!\n
-En smalspårshållplats måste ligga på smalspår.
+En smalspårshållplats måste ligga pEsmalspår.
 Only one transformer per factory!
 Endast en transformatorstation vid varje fabrik!
 Planes are not available yet!
 Flygplan har ännu inte uppfunnits!
 Post muss neben\nHaltestelle\nliegen!\n
-En stationstillbyggnad (t ex\n\npostkontor, lager)\n\nmåste byggas på en fri\n\nyta i direkt anslutning\n\ntill en hållplats!
+En stationstillbyggnad (t ex\n\npostkontor, lager)\n\nmåste byggas pEen fri\n\nyta i direkt anslutning\n\ntill en hållplats!
 Protocoll error (expecting game)
 Protokollfel (spel förväntades)
 Schiffhalt muss im\nWasser liegen!\n
@@ -215,23 +215,23 @@ Fartygshållplatser\nmåste placeras\ni vatten!\n
 Server did not respond!
 Servern svarade inte!
 Terraforming not possible\nhere in underground view
-Det går inte att förändra\nlandskapet på detta sätt under jord.\n
+Det går inte att förändra\nlandskapet pEdetta sätt under jord.\n
 Upgrade must have\na higher level
-Kan enbart uppgraderas till högre nivå
+Kan enbart uppgraderas till högre nivE
 Zughalt muss auf\nSchiene liegen!\n
-Tåghållplatser\nmåste placeras\npå järnvägsspår!\n
+Tåghållplatser\nmåste placeras\npEjärnvägsspår!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Tangentbordshjälp</title>\n\n<h1><strong>Tangentbordshjälp</strong></h1>\n<p>\n<strong>Tangentbordshjälp</strong> visar vilka funktioner som aktiveras av tangentbordets olika tangenter.\n</p>\n<p>\n<strong>Tangentbordshjälp</strong> öppnas när en tangent som ej är kopplad till någon funktion trycks ner eller från<a href="general.txt">Allmän hjälp</a>.\n</p>\n<p>\nTangentnedtryckningar är skiftlägeskänsliga (använd [<em>Skift</em>] för stora bokstäver).\n</p>\n<p>\nExempel på tangenter som är kopplade till en viss funktion är:\n</p>\n<p>\n[<em>Piltangenterna</em>]: rulla spelplanen i tangentens riktning.<br>\n[<em>Bakåtsteg</em>]: stäng alla fönster, verktygsmenyer och hjälptexter som finns öppna på spelplanen.<br>\n[<em>Delete</em>] eller [<em>Escape</em>]: stäng det översta fönstret, verktygsmenyn eller hjälpfönster som finns öppet på spelplanen.<br>\n[<em>Enter</em>] eller [<em>Return</em>]: används för att bekräfta handlingar.<br>\n[<em>Page-Up</em>] eller [<em>></em>]: zooma in på spelplanen.<br>\n[<em>Page-Down</em>] eller [<em> mindre än-symbolen</em>]: zooma ut på spelplanen.\n[<em>F1</em>]: öppna <a href="general.txt">Simutrans-hjälpen</a>.<br></p>\n<p>\n[<em>1</em>]: rulla spelplanen mot söder.<br>\n[<em>2</em>]: rulla spelplanen mot sydöst.<br>\n[<em>3</em>]: rulla spelplanen mot öster.<br>\n[<em>4</em>]: rulla spelplanen mot sydväst.<br>\n[<em>6</em>]: rulla spelplanen mot nordöst.<br>\n[<em>7</em>]: rulla spelplanen mot väster.<br>\n[<em>8</em>]: rulla spelplanen mot nordväst.<br>\n[<em>9</em>]: rulla spelplanen mot norr.\n</p>\n<p>\n[<em>Skift</em>] + <a href="mouse.txt">mouse</a>: använd på <a href="map.txt">kartan</a> för att se länkar i <a href="industry_info.txt">industrinförsörjningskedjan</a>.<br>\n[<em>CTRL</em>] + verktyg: bygg (signaler & <a href="station.txt">Stationer</a>) på den övre nivån; eller bygg långsammare vägar and järnvägar över existerande; eller bygg rakare vägar och järnvägar.<br>\n[<em>CTRL</em>] + ([<em>
+<title>Tangentbordshjälp</title>\n\n<h1><strong>Tangentbordshjälp</strong></h1>\n<p>\n<strong>Tangentbordshjälp</strong> visar vilka funktioner som aktiveras av tangentbordets olika tangenter.\n</p>\n<p>\n<strong>Tangentbordshjälp</strong> öppnas när en tangent som ej är kopplad till någon funktion trycks ner eller från<a href="general.txt">Allmän hjälp</a>.\n</p>\n<p>\nTangentnedtryckningar är skiftlägeskänsliga (använd [<em>Skift</em>] för stora bokstäver).\n</p>\n<p>\nExempel pEtangenter som är kopplade till en viss funktion är:\n</p>\n<p>\n[<em>Piltangenterna</em>]: rulla spelplanen i tangentens riktning.<br>\n[<em>Bakåtsteg</em>]: stäng alla fönster, verktygsmenyer och hjälptexter som finns öppna pEspelplanen.<br>\n[<em>Delete</em>] eller [<em>Escape</em>]: stäng det översta fönstret, verktygsmenyn eller hjälpfönster som finns öppet pEspelplanen.<br>\n[<em>Enter</em>] eller [<em>Return</em>]: används för att bekräfta handlingar.<br>\n[<em>Page-Up</em>] eller [<em>></em>]: zooma in pEspelplanen.<br>\n[<em>Page-Down</em>] eller [<em> mindre än-symbolen</em>]: zooma ut pEspelplanen.\n[<em>F1</em>]: öppna <a href="general.txt">Simutrans-hjälpen</a>.<br></p>\n<p>\n[<em>1</em>]: rulla spelplanen mot söder.<br>\n[<em>2</em>]: rulla spelplanen mot sydöst.<br>\n[<em>3</em>]: rulla spelplanen mot öster.<br>\n[<em>4</em>]: rulla spelplanen mot sydväst.<br>\n[<em>6</em>]: rulla spelplanen mot nordöst.<br>\n[<em>7</em>]: rulla spelplanen mot väster.<br>\n[<em>8</em>]: rulla spelplanen mot nordväst.<br>\n[<em>9</em>]: rulla spelplanen mot norr.\n</p>\n<p>\n[<em>Skift</em>] + <a href="mouse.txt">mouse</a>: använd pE<a href="map.txt">kartan</a> för att se länkar i <a href="industry_info.txt">industrinförsörjningskedjan</a>.<br>\n[<em>CTRL</em>] + verktyg: bygg (signaler & <a href="station.txt">Stationer</a>) pEden övre nivån; eller bygg långsammare vägar and järnvägar över existerande; eller bygg rakare vägar och järnvägar.<br>\n[<em>CTRL</em>] + ([<em>
 Clear block reservation
 Visa/lös upp lagda tågvägar
 #____________________________________ki_text____________________________________
 #____________________________________ki_text____________________________________
 %s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-Nu kan turisterna\nåka i %s regi\nmellan %s\noch %s på (%i,%i).\n
+Nu kan turisterna\nåka i %s regi\nmellan %s\noch %s pE(%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s kör nu arbetare\nfrån %s\ntill fabriken %s\n på (%i,%i).\n
+%s kör nu arbetare\nfrån %s\ntill fabriken %s\n pE(%i,%i).\n
 %s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
 %s\nhar nu\n%i lastbilar i trafik mellan\n%s vid (%i,%i)\noch %s\nvid (%i,%i).
 %s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
@@ -277,9 +277,9 @@ Borgmästaren vägrar frysa mer:\nNytt rådhus byggt i %s\n när staden blev %i invå
 Bankrott:\n\nDu bist bankrott.\n
 Bankrutt:\n\nDu är bankrutt.\n
 Congratulation\nScenario was complete in\n%i months %i years.
-Gratulationer!\nDetta scenario har \nspelats klart på \n%i månader och %i år!
+Gratulationer!\nDetta scenario har \nspelats klart pE\n%i månader och %i år!
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
-Du har %d månader på dig att betala dina skulder.
+Du har %d månader pEdig att betala dina skulder.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomin är stark:\n%s nära %s utvidgar.\n%i nya fabriker har öppnat.
 New %s now available:\n%s\n
@@ -291,7 +291,7 @@ New vehicle now available:\n%s\n
 Now %u clients connected.
 Just nu %i spelare anslutna.
 On this map, you are not\nallowed to change player!\n
-Detta spel är låst.\nInga spelarbyten är tillåtna\npå denna karta.\n
+Detta spel är låst.\nInga spelarbyten är tillåtna\npEdenna karta.\n
 Production of %s has been stopped:\n%s\n
 %s av typen \n'%s'\ntillverkas inte längre.\n
 Remove vehicle from map. Use with care!
@@ -307,7 +307,7 @@ Spielstand wurde\ngeladen!\n
 Spielstand wurde\ngespeichert!\n
 \nSpelet har sparats!\n
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Du står i skuld!\n\nDu har %d månader på dig\natt återbetala din skuld.\n
+Du står i skuld!\n\nDu har %d månader pEdig\natt återbetala din skuld.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 I %s\ninvigs ett nytt\nmonument.\n%i åskådare deltar\ni festligheterna.
 #_________________________________program_text__________________________________
@@ -401,7 +401,7 @@ Fotgängare i städer
 6WORLD_CHOOSE
 Trafiktäthet:
 8WORLD_CHOOSE
-Skilj på dag och natt
+Skilj pEdag och natt
 Abfrage
 Granskningsverktyg
 Abnehmer
@@ -417,7 +417,7 @@ Transformatorstation
 Accelerate time
 Accelerera tidsförlopp
 Account above %s
-Mer än %s på kontot
+Mer än %s pEkontot
 Act. load: %u MW\n
 Förbrukning: %u MW\n
 Active player only
@@ -431,7 +431,7 @@ Lägg till server
 Add Stop
 Lägg till
 Add stops for backward travel
-Lägg till stopp på vägen tillbaka.
+Lägg till stopp pEvägen tillbaka.
 aircraft_tab
 Fraktflygplan
 airplane
@@ -440,7 +440,7 @@ Airport
 Flygplats
 All
 Alla
-all convoi tooltips
+always show all
 alla konvojtips alltid
 Allow city growth
 Tillåt stadstillväxt
@@ -453,7 +453,7 @@ Alters a schedule.
 Angenommene Waren
 --Varor som kan levereras hit
 anhaengen
-Häng på
+Häng pE
 Anhaenger_tab
 Släpvagnar
 Anheben
@@ -571,7 +571,7 @@ Statistik
 Choose direction
 Välj riktning
 Choose operation executed on clicking stored/new vehicles
-Välj vad som skall hända när du klickar på nya fordon eller fordon i fordonshall.
+Välj vad som skall hända när du klickar pEnya fordon eller fordon i fordonshall.
 chooses a random map
 Väljer slumpkarta.
 citicens
@@ -650,12 +650,12 @@ Constructed by %s
 Skapad av %s
 convoi %d of %d
 Konvoj %d från %d
-convoi error tooltips
+only error convoys
 alltid konvojfel
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Fordonet har skickats\ntill närmaste fordons-\nhall av lämplig typ.
 Convoi is sold when all wagons are empty.
-Konvojen kommer att tas bort så fort som den är tömd. Försäljningsvärdet kommer att tillgodogöras kassan.
+Konvojen kommer att tas bort sEfort som den är tömd. Försäljningsvärdet kommer att tillgodogöras kassan.
 convoi mouseover tooltips
 konvojstatus vid muspekning
 convoi passed last\nmonth %i\n
@@ -675,7 +675,7 @@ Kostnad för att ta bort
 Costs
 Kostnader
 Create a new line based on this schedule
-Skapa en ny linje baserad på denna tidtabell.
+Skapa en ny linje baserad pEdenna tidtabell.
 curiosity builder
 Bygg sevärdheter
 curlist_title
@@ -739,9 +739,9 @@ Välj ett värde mellan %i och %i.
 Error
 Ett fel har uppstått...
 Erzeuge neue Karte.\n
-Vänta,\nskapar en\nny karta...\n\n(Det här kan ta\nnågra minuter\npå stora kartor.)\n
+Vänta,\nskapar en\nny karta...\n\n(Det här kan ta\nnågra minuter\npEstora kartor.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
-Du håller redan på att\nsammanställa en tidtabell!
+Du håller redan pEatt\nsammanställa en tidtabell!
 Fabrikanschluss
 --Fabriker som har anslutning till denna hållplats
 Fabrikname
@@ -923,7 +923,7 @@ Infoga
 Insert stop before the current stop
 Infoga stopp före den valda hållplatsen
 Intercity road len:
-Längd på vägar mellan orter:
+Längd pEvägar mellan orter:
 Intro. date:
 Introduktion:
 invalid
@@ -1025,7 +1025,7 @@ Meddelandealternativ
 Maintenance
 Underhåll 
 make stop public (or join with public stop next) costs %i per tile and level
-Skapa eller anknyt till existerande allmän hållplats (%i$ per ruta och nivå)
+Skapa eller anknyt till existerande allmän hållplats (%i$ per ruta och nivE
 Manual (Human)
 Människa (utan AI)
 Manufactured:
@@ -1049,7 +1049,7 @@ Det får inte finnas mer än\n254 stopp i en tidtabell!\n
 maximum length of rivers
 Längsta flodlängd
 Maximum tile height difference reached.
-Höjdskillnaden\nmellan två rutor\nfår inte överstiga\ntvå steg.
+Höjdskillnaden\nmellan tvErutor\nfår inte överstiga\ntvEsteg.
 May
 Maj
 Median Citizen per town
@@ -1123,7 +1123,7 @@ Inga byggnader krympta
 no convois
 Inga konvojer
 No goods are loaded onto this convoi.
-Lasta inte på mer.
+Lasta inte pEmer.
 no goods waiting
 inga varor väntar
 no load
@@ -1131,7 +1131,7 @@ Ingen last
 No Route
 Ingen rutt
 No stop here!
-Verktyget går enbart att använda på hållplatser!
+Verktyget går enbart att använda pEhållplatser!
 No suitable ground!
 Olämplig mark!
 No terminal station here!
@@ -1369,7 +1369,7 @@ Visa allt
 show all building
 Visa alla byggnader
 Show also vehicles no longer in production.
-Visa också fordon som inte längre framställs.
+Visa ocksEfordon som inte längre framställs.
 Show also vehicles that do not match for current action.
 Visa även fordon som ej kan användas med vald handling.
 Show even servers with wrong version or pakset
@@ -1425,7 +1425,7 @@ Ljudvolym:
 special freight
 Specialfrakt
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Hastighetsbonus\npå väg %i km/t, järnväg %i km/t\nfartyg %i km/t, flygplan %i km/t.
+Hastighetsbonus\npEväg %i km/t, järnväg %i km/t\nfartyg %i km/t, flygplan %i km/t.
 Speedlimit
 Maxhastighet
 Speichern
@@ -1527,7 +1527,7 @@ Spårvagnar är ännu inte tillgängliga.
 Transferring game ...
 Överför spel...
 Transformer only next to factory!
-Transformatorer kan endast byggas\n på platt mark i anslutning\n till en industri!
+Transformatorer kan endast byggas\n pEplatt mark i anslutning\n till en industri!
 Translation
 Översättning 
 transparent station coverage
@@ -1541,9 +1541,9 @@ Trådbuss
 Truck
 Landsvägsfordon
 Tunnel muss an\neinfachem\nHang beginnen!\n
-Tunnlar måste\nbörja på raka\nsluttningar!\n
+Tunnlar måste\nbörja pEraka\nsluttningar!\n
 Tunnel must start on single way!
-Tunnel måste starta på en befintlig väg.
+Tunnel måste starta pEen befintlig väg.
 Tunnelboden
 Tunnel
 underground mode
@@ -1591,11 +1591,11 @@ Vagnar
 waiting
 väntar
 Waiting for clearance!
-Väntar på fri väg!
+Väntar pEfri väg!
 water
 vatten
 Water level
-Vattennivå
+VattennivE
 water vehicle
 Fartyg
 way %s cannot longer used:\n
@@ -1633,7 +1633,7 @@ Zoomar in
 zooming out
 Zoomar ut
 Zu nah am Kartenrand
-För nära\nkanten på spelplanen för att kunna\nbygga någonting.\n
+För nära\nkanten pEspelplanen för att kunna\nbygga någonting.\n
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &1_CITY_SYLL
@@ -1735,7 +1735,7 @@ min. restid
  mins. waiting)
 min. väntetid
 \n\nInterest on your debt is\naccumulating at %i %%
-\n\nRänta på din skuld\npåförs med %i %%
+\n\nRänta pEdin skuld\npåförs med %i %%
 \n\nYour credit rating is being affected.
 \n\nDin kreditvärdighet påverkas.
 \nCity: 
@@ -1773,17 +1773,17 @@ Privatbilar
 catering bonus\nfor travelling
 serveringsbonus\nför resa
 catering level 1
-serveringsnivå 1
+serveringsnivE1
 catering level 2
-serveringsnivå 2
+serveringsnivE2
 catering level 3
-serveringsnivå 3
+serveringsnivE3
 catering level 4
-serveringsnivå 4
+serveringsnivE4
 catering level 5
-serveringsnivå 5
+serveringsnivE5
 Catering level: %i\n
-Serveringsnivå: %i\n
+ServeringsnivE %i\n
 Centralised path searching
 Centraliserad vägsökning.
 chance\npercent
@@ -1791,7 +1791,7 @@ sannolikhet\nprocent
 Cities ignore height
 Städer ignorerar höjd
 Cities will be built all over the terrain, rather than preferring lower ground
-Städer kommer att byggas på alla typer av terräng istället för att företrädesvis byggas på lägre höjd
+Städer kommer att byggas pEalla typer av terräng istället för att företrädesvis byggas pElägre höjd
 City
 Stad
 city_threshold_size
@@ -1903,7 +1903,7 @@ Resmål
 Passengers %d %c, %d %c, %d no route, %d too slow
 Passagerare %d %c, %d %c, %d utan rutt, %d för långsam
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
-Fotgängare kommer att uppträda i närheten av hållplatser vid varje tillfälle då ett passagerarfordon släpper av passagerare där.
+Fotgängare kommer att uppträda i närheten av hållplatser vid varje tillfälle dEett passagerarfordon släpper av passagerare där.
 Pedestrians will appear randomly in towns.
 Fotgängare kommer att slumpmässigt uppträda i städer.
 percent
@@ -1937,7 +1937,7 @@ Ersätt alla likadana konvojer
 Replace all convoys like this belonging to this line
 Ersätt alla liknande konvojer som trafikerar denna linje
 replace all in line
-Ersätt alla på linjen
+Ersätt alla pElinjen
 Replace but stay
 Ersätt men behåll
 Replace cycle:
@@ -2109,7 +2109,7 @@ Passagerare %d %c, %d %c, %d utan rutt\n\nKapacitet: %i\n
 #-----------------------------
 #-- Signals working methods:--
 drive_by_sight
-Kör på sikt
+Kör pEsikt
 time_interval
 Tidsinterval
 absolute_block
@@ -2245,6 +2245,6 @@ Syd och väst
 east_and_west
 Öst och väst
 goto_signalbox
-Gå til ställverk
+GEtil ställverk
 LOCO_SYM
 L

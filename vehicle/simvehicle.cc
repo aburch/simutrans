@@ -269,8 +269,12 @@ void vehicle_base_t::leave_tile()
 	if(  gr  &&  gr->ist_uebergang()  ) {
 		crossing_t *cr = gr->find<crossing_t>(2);
 		grund_t *gr2 = welt->lookup(pos_next);
-		if(  gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()  ) {
-			cr->release_crossing(this);
+		if(cr) {
+			if(gr2==NULL  ||  gr2==gr  ||  !gr2->ist_uebergang()  ||  cr->get_logic()!=gr2->find<crossing_t>(2)->get_logic()) {
+				cr->release_crossing(this);
+			}
+		} else {
+			dbg->warning("vehicle_base_t::leave_tile()", "No crossing found at %s", gr->get_pos().get_str());
 		}
 	}
 
@@ -1078,7 +1082,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	bool other_classes_available = false;
-	uint8 goods_restriction = 0;
+	uint8 goods_restriction = goods_manager_t::INDEX_NONE;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
@@ -2140,12 +2144,6 @@ uint32 vehicle_t::get_cargo_weight() const
 		}
 	}
 	return weight;
-}
-
-
-const char *vehicle_t::get_cargo_name() const
-{
-	return get_cargo_type()->get_name();
 }
 
 
@@ -7083,7 +7081,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 			if(sch1->is_crossing())
 			{
-				gr->find<crossing_t>()->release_crossing(this);
+				crossing_t* cr = gr->find<crossing_t>();
+				if(cr) {
+					cr->release_crossing(this);
+				}
 			}
 		} // Unreserve
 
@@ -7325,7 +7326,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(sch1->is_crossing())
 					{
-						gr_this->find<crossing_t>()->release_crossing(this);
+						crossing_t* cr = gr_this->find<crossing_t>();
+						if(cr) {
+							cr->release_crossing(this);
+						}
 					}
 				}
 			}

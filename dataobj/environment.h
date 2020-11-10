@@ -46,7 +46,7 @@ public:
 	static std::string objfilename;
 
 	/// this the the preferred GUI theme at startup
-	static plainstring default_theme; // TODO: Implement the actual mechanism for themes from Standard. This is just for save compatibility at present.
+	static plainstring default_theme;
 
 	/**
 	 * @name Network-related settings

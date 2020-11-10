@@ -287,17 +287,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 
 	// normal buttons edit new remove
-	bt_new_line.init(button_t::roundbox, "New Line", scr_coord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_new_line.init(button_t::roundbox, "New Line", scr_coord(11, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), D_BUTTON_SIZE);
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
 
-	bt_edit_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_edit_line.init(button_t::roundbox, "Update Line", scr_coord(11+D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), D_BUTTON_SIZE);
 	bt_edit_line.set_tooltip("Modify the selected line");
 	bt_edit_line.add_listener(this);
 	bt_edit_line.disable();
 	add_component(&bt_edit_line);
 
-	bt_delete_line.init(button_t::roundbox, "Delete Line", scr_coord(11+2*D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_delete_line.init(button_t::roundbox, "Delete Line", scr_coord(11+2*D_BUTTON_WIDTH, 8+SCL_HEIGHT+D_BUTTON_HEIGHT ), D_BUTTON_SIZE);
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
@@ -305,19 +305,19 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 
 	int offset_y = D_MARGIN_TOP + D_BUTTON_HEIGHT*2 + LINESPACE*2;
-	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH, offset_y), D_BUTTON_SIZE);
 	bt_line_class_manager.set_tooltip("change_the_classes_for_the_entire_line");
 	bt_line_class_manager.set_visible(false);
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
 
-	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_times_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, offset_y), D_BUTTON_SIZE);
 	bt_times_history.set_tooltip("view_journey_times_history_of_this_line");
 	bt_times_history.set_visible(true);
 	bt_times_history.add_listener(this);
 	add_component(&bt_times_history);
 
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, offset_y), D_BUTTON_SIZE);
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
@@ -335,13 +335,13 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&livery_selector);
 
 	// sort button
-	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 3), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, (D_BUTTON_HEIGHT-D_ARROW_UP_HEIGHT)/2), D_ARROW_UP_SIZE);
 	sort_asc.set_tooltip(translator::translate("cl_btn_sort_asc"));
 	sort_asc.add_listener(this);
 	sort_asc.pressed = sortreverse;
 	cont_convoys.add_component(&sort_asc);
 
-	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH+2, 0), D_ARROW_DOWN_SIZE);
 	sort_desc.set_tooltip(translator::translate("cl_btn_sort_desc"));
 	sort_desc.add_listener(this);
 	sort_desc.pressed = !sortreverse;
@@ -373,7 +373,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// add filter buttons
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].init(button_t::box_state,cost_type[i],scr_coord(0,0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+		filterButtons[i].init(button_t::box_state,cost_type[i],scr_coord(0,0), D_BUTTON_SIZE);
 		filterButtons[i].add_listener(this);
 		filterButtons[i].background_color = color_idx_to_rgb(cost_type_color[i]);
 		cont_charts.add_component(filterButtons + i);

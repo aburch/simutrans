@@ -60,6 +60,7 @@
 #include "goods_frame_t.h"
 #include "loadfont_frame.h"
 #include "scenario_info.h"
+#include "depotlist_frame.h"
 
 #include "../simversion.h"
 
@@ -175,8 +176,7 @@ static int display_gadget_box(sint8 code,
 	if(  img != NULL  ) {
 
 		// Max Kielland: This center the gadget image and compensates for any left/top margins within the image to be backward compatible with older PAK sets.
-		display_color_img(img->imageid, x-img->x + D_GET_CENTER_ALIGN_OFFSET(img->w,D_GADGET_WIDTH), y, 0, false, false);
-
+		display_img_aligned(img->imageid, scr_rect(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT), ALIGN_CENTER_H | ALIGN_CENTER_V, true);
 	}
 	else {
 		const char *gadget_text = "#";
@@ -477,18 +477,6 @@ bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic )
 }
 
 
-// returns the window on this positions
-gui_frame_t *win_get_oncoord( const scr_coord pt )
-{
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(  wins[i].gui->is_hit( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
-			return wins[i].gui;
-		}
-	}
-	return NULL;
-}
-
-
 /**
  * Returns top window
  */
@@ -565,10 +553,10 @@ void rdwr_all_win(loadsave_t *file)
 				file->rdwr_long(id);
 				// create the matching
 				gui_frame_t *w = NULL;
-				switch(id) {
+				switch(magic_numbers(id)) {
 
 					// end of dialogues
-					case (uint32)magic_none: return;
+					case magic_none: return;
 
 					// actual dialogues to restore
 					case magic_convoi_info:    w = new convoi_info_t(); break;
@@ -598,6 +586,9 @@ void rdwr_all_win(loadsave_t *file)
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
 							w = tool_t::toolbar_tool[id-magic_toolbar]->get_tool_selector();
+						}
+						else if (id >= magic_depotlist && id < magic_depotlist + MAX_PLAYER_COUNT) {
+							w = new depotlist_frame_t(wl->get_player(id - magic_depotlist));
 						}
 						else {
 							dbg->error( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );
@@ -1549,12 +1540,6 @@ bool check_pos_win(event_t *ev)
 }
 
 
-void win_get_event(event_t* const ev)
-{
-	display_get_event(ev);
-}
-
-
 void win_poll_event(event_t* const ev)
 {
 	display_poll_event(ev);
@@ -1658,7 +1643,7 @@ void win_display_flush(double konto)
 	}
 
 	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
+		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(D_MARGIN_LEFT,menu_height+D_MARGIN_TOP,disp_width-2*4,disp_height-menu_height-D_MARGIN_TOP-D_MARGIN_BOTTOM-win_get_statusbar_height()-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
 	}
 
 	{
@@ -1675,7 +1660,7 @@ void win_display_flush(double konto)
 				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
+					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+1+LINESPACE/2,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1683,7 +1668,7 @@ void win_display_flush(double konto)
 			}
 			else if(!static_tooltip_text.empty()) {
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+7;
-				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+7,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
+				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+1+LINESPACE/2,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -1819,8 +1804,8 @@ void win_display_flush(double konto)
 		}
 	}
 #endif
-	scr_coord_val w_left = 20+display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
-	scr_coord_val w_right  = display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
+	/*scr_coord_val w_left  = 20 + */ display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	/*scr_coord_val w_right =      */ display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
 	/* Since the visual center (disp_width + ((w_left + 8) & 0xFFF0) - ((w_right + 8) & 0xFFF0)) / 2;
 	 * jump left and right with proportional fonts, we just take the actual cetner
 	 */

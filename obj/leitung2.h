@@ -115,22 +115,8 @@ public:
 	*/
 	void calc_neighbourhood();
 
-	/**
-	* Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-	* um das Aussehen des Dings an Boden und Umgebung anzupassen
-	*
-	* @author Hj. Malthaner
-	*/
-	virtual void finish_rd();
-
-	/**
-	* Speichert den Zustand des Objekts.
-	*
-	* @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-	* soll.
-	* @author Hj. Malthaner
-	*/
-	virtual void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
+	void finish_rd();
 
 	/**
 	 * @return NULL if OK, otherwise an error message

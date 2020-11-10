@@ -174,14 +174,6 @@ void grund_t::operator delete(void* p, size_t s)
 }
 
 
-grund_t::grund_t(loadsave_t *file)
-{
-	flags = 0;
-	back_imageid = 0;
-	rdwr(file);
-}
-
-
 void grund_t::rdwr(loadsave_t *file)
 {
 	koord k = pos.get_2d();

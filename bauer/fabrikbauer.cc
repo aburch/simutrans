@@ -30,6 +30,8 @@
 
 #include "../utils/cbuffer_t.h"
 
+#include "../descriptor/objversion.h"
+
 #include "../gui/karte.h"	// to update map after construction of new industry
 
 
@@ -115,7 +117,7 @@ class factory_site_searcher_t: public building_placefinder_t  {
 public:
 	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const
+	bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 	{
 		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
@@ -296,7 +298,7 @@ bool factory_builder_t::successfully_loaded()
 		}
 		checksum_t *chk = new checksum_t();
 		current->calc_checksum(chk);
-		pakset_info_t::append(current->get_name(), chk);
+		pakset_info_t::append(current->get_name(), obj_factory, chk);
 	}
 	return true;
 }

@@ -84,9 +84,9 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 	set_table_layout(8, 1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
-	b->set_targetpos(attraction->get_pos().get_2d());
+	b->set_targetpos3d(attraction->get_pos());
 
-	gui_aligned_container_t *table = add_table(2, 1);
+	add_table(2, 1);
 	{
 		add_component(&img_enabled[0]);
 		img_enabled[0].set_image(skinverwaltung_t::passengers->get_image_id(0), true);
@@ -133,7 +133,7 @@ curiositylist_stats_t::curiositylist_stats_t(gebaeude_t *att)
 		lb_region->buf().append(attraction->get_stadt()->get_name());
 	}
 	if (!welt->get_settings().regions.empty()) {
-		lb_region->buf().printf(" (%s)", welt->get_region_name(attraction->get_pos().get_2d()).c_str());
+		lb_region->buf().printf(" (%s)", translator::translate(welt->get_region_name(attraction->get_pos().get_2d()).c_str()));
 	}
 	lb_region->update();
 
