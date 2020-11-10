@@ -263,6 +263,8 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 		}
 		sortedby.set_selection(default_sortmode);
+		sortedby.set_width_fixed(true);
+		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 

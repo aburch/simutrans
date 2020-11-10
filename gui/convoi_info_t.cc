@@ -244,7 +244,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	switch_mode.add_tab(&scroll_freight, translator::translate("cd_payload_tab"));
 
 	container_freight.set_table_layout(1,0);
-	container_freight.add_table(3,1);
+	container_freight.add_table(2,1);
 	{
 		container_freight.new_component<gui_label_t>("loaded passenger/freight");
 		freight_sort_selector.clear_elements();
@@ -254,10 +254,10 @@ void convoi_info_t::init(convoihandle_t cnv)
 		}
 		freight_sort_selector.set_focusable(true);
 		freight_sort_selector.set_selection(env_t::default_sortmode);
-		freight_sort_selector.set_highlight_color(1);
+		freight_sort_selector.set_width_fixed(true);
+		freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH*2, D_EDIT_HEIGHT));
 		freight_sort_selector.add_listener(this);
 		container_freight.add_component(&freight_sort_selector);
-		container_freight.new_component<gui_fill_t>();
 	}
 	container_freight.end_table();
 	container_freight.add_component(&text);
