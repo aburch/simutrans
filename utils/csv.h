@@ -1,9 +1,14 @@
-/* csv.h
- *
- * CSV encoding/decoding class
- * Feb 2012
- * by Timothy Baldock <tb@entropy.me.uk>
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef UTILS_CSV_H
+#define UTILS_CSV_H
+
+
+#include "cbuffer_t.h"
+
 
 /*
 Provides functionality for building a buffer containing CSV
@@ -56,13 +61,6 @@ Field1 Header,Field2 Header
 field1 data,"field2, data"
 
  */
-
-
-#ifndef CSV_H
-#define CSV_H
-
-#include "cbuffer_t.h"
-
 class CSV_t {
 	// The raw data itself (stored encoded)
 	cbuffer_t contents;

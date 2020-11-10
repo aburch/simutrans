@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 2008 Dwachs
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * An input field for integer numbers (with arrow buttons for dec/inc)
- * @author Dwachs 2008
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "gui_numberinput.h"

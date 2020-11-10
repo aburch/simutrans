@@ -1,13 +1,11 @@
-/*//
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "simloadingscreen.h"
 
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "descriptor/image.h"
 #include "descriptor/skin_desc.h"
 #include "simskin.h"

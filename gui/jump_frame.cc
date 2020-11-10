@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * jumps to a position
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -41,8 +37,9 @@ jump_frame_t::jump_frame_t() :
 	jumpbutton.add_listener(this);
 	add_component(&jumpbutton);
 
-	set_focus(&input);
 	set_windowsize(scr_size(cursor.x + D_BUTTON_WIDTH + D_MARGIN_RIGHT, cursor.y + D_BUTTON_HEIGHT + D_MARGIN_BOTTOM + D_TITLEBAR_HEIGHT));
+
+	set_focus(&input);
 }
 
 

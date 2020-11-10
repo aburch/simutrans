@@ -1,5 +1,11 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef TPL_ORDERED_VECTOR_TPL_H
 #define TPL_ORDERED_VECTOR_TPL_H
+
 
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection).get_count(); enumerator++)
@@ -7,7 +13,7 @@
 
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < (collection)->get_count(); enumerator++)
-#endif 
+#endif
 
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -133,7 +139,7 @@ template<class T, class inttype> class ordered_vector_tpl
 		//Removes the element at the given pos.
 		void remove_at(inttype pos)
 		{
-			move_data(pos+1, count, -1); 
+			move_data(pos+1, count, -1);
 			count--;
 		}
 

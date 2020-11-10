@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) 1997 - 2002 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -10,7 +8,7 @@
 #include "../simmem.h"
 #include "../gui/simwin.h"
 #include "../simmenu.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"
@@ -174,7 +172,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	//add_component(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize(scr_size(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH + DIALOG_MIN_WIDTH*2, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));
 }
 
 

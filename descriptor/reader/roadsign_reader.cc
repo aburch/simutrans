@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 
 #include "../../obj/roadsign.h"
@@ -83,15 +88,15 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->signal_group = decode_uint32(p);
 				desc->base_maintenance = decode_uint32(p);
-				desc->max_distance_to_signalbox = decode_uint32(p); 
+				desc->max_distance_to_signalbox = decode_uint32(p);
 				desc->aspects = decode_uint8(p);
-				desc->has_call_on = decode_sint8(p); 
+				desc->has_call_on = decode_sint8(p);
 				desc->has_selective_choose = decode_sint8(p);
 				desc->working_method = (working_method_t)decode_uint8(p);
-				desc->permissive = decode_sint8(p); 
+				desc->permissive = decode_sint8(p);
 				desc->max_speed = kmh_to_speed(decode_uint32(p));
 				desc->base_way_only_cost = decode_uint32(p);
-				desc->upgrade_group = decode_uint8(p); 
+				desc->upgrade_group = decode_uint8(p);
 				desc->intermediate_block = decode_uint8(p);
 				desc->normal_danger = decode_uint8(p);
 			}
@@ -101,11 +106,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->base_maintenance = 0;
 				desc->max_distance_to_signalbox = 0;
 				desc->aspects = desc->is_choose_sign() ? 3 : 2;
-				desc->has_call_on = 0; 
+				desc->has_call_on = 0;
 				desc->has_selective_choose = 0;
 				desc->working_method = track_circuit_block;
-				desc->permissive = 0; 
-				desc->max_speed = kmh_to_speed(160); 
+				desc->permissive = 0;
+				desc->max_speed = kmh_to_speed(160);
 				desc->base_way_only_cost = desc->base_cost;
 				desc->upgrade_group = 0;
 				desc->intermediate_block = false;
@@ -117,7 +122,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				desc->double_block = false; 
+				desc->double_block = false;
 			}
 		}
 	}
@@ -179,11 +184,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->base_maintenance = 0;
 		desc->max_distance_to_signalbox = 0;
 		desc->aspects = desc->is_choose_sign() ? 3 : 2;
-		desc->has_call_on = 0; 
+		desc->has_call_on = 0;
 		desc->has_selective_choose = 0;
 		desc->working_method = track_circuit_block;
-		desc->permissive = 0; 
-		desc->max_speed = kmh_to_speed(160); 
+		desc->permissive = 0;
+		desc->max_speed = kmh_to_speed(160);
 		desc->base_way_only_cost = desc->base_cost;
 		desc->upgrade_group = 0;
 		desc->intermediate_block = false;

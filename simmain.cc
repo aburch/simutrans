@@ -1,9 +1,7 @@
-#if defined(_M_X64)  ||  defined(__x86_64__)
-#if __GNUC__
-#warning "Simutrans is preferably compiled as 32 bit binary!"
-#endif
-#endif
-
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include <stdio.h>
 #include <string>
@@ -34,7 +32,7 @@
 #include "simmenu.h"
 #include "siminteraction.h"
 
-#include "simsys.h"
+#include "sys/simsys.h"
 #include "display/simgraph.h"
 #include "simevent.h"
 
@@ -201,7 +199,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*quit)() )
 {
 	if(  display_get_width()==0  ) {
-		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
+		dbg->error( "modal_dialogue", "called without a display driver => nothing will be shown!" );
 		env_t::quit_simutrans = true;
 		// cannot handle this!
 		return;
@@ -220,11 +218,12 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		welt->reset_timer();
 
 		uint32 ms_pause = max( 25, 1000/env_t::fps );
-		uint32 last_step = dr_time()+ms_pause;
+		uint32 last_step = dr_time();
 		uint step_count = 5;
+
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			do {
-				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
+				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 				// no toolbar events
 				if(  ev.my < env_t::iconsize.h  ) {
@@ -241,20 +240,21 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 						}
 					}
 				}
-				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
+				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
 				check_pos_win(&ev);
 				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 					env_t::quit_simutrans = true;
 					break;
 				}
 				dr_sleep(5);
-			} while(  dr_time()<last_step  );
-			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
-			intr_disable();
+			} while(  dr_time() - last_step < ms_pause );
+
+			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
 			welt->sync_step( ms_pause, true, true );
-			intr_enable();
-			DBG_DEBUG4("zeige_banner", "calling welt->step");
+
 			if(  step_count--==0  ) {
+				DBG_DEBUG4("modal_dialogue", "calling welt->step");
+				intr_set_last_time(last_step); // do not call sync_step twice unless step takes too long
 				welt->step();
 				step_count = 5;
 			}
@@ -280,6 +280,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 					simgraph_resize( ev.mx, ev.my );
 					dr_prepare_flush();
 					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {
@@ -422,7 +423,7 @@ int simu_main(int argc, char** argv)
 		    "  http://forum.simutrans.com"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansjörg Malthaner et. al.\n"
+			"  by Hansjï¿½rg Malthaner et. al.\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -446,6 +447,7 @@ int simu_main(int argc, char** argv)
 			" -nosound            turns off ambient sounds\n"
 			" -objects DIR_NAME/  load the pakset in specified directory\n"
 			" -pause              starts game with paused after loading\n"
+			"                     a server will pause if there are no clients, even if this be not specified in simuconf.tab\n"
 			" -res N              starts in specified resolution: \n"
 			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 			" -screensize WxH     set screensize to width W and height H\n"
@@ -539,8 +541,8 @@ int simu_main(int argc, char** argv)
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
 	sprintf(path_to_simuconf, "config%csimuconf.tab", path_sep[0]);
-	if(simuconf.open(path_to_simuconf)) 
-	{		
+	if(simuconf.open(path_to_simuconf))
+	{
 		found_simuconf = true;
 	}
 	else
@@ -551,7 +553,7 @@ int simu_main(int argc, char** argv)
 		strcpy(backup_program_dir, env_t::program_dir);
 		strcpy( env_t::program_dir, "/usr/share/games/simutrans-ex/" );
         chdir( env_t::program_dir );
-		if(simuconf.open("config/simuconf.tab")) 
+		if(simuconf.open("config/simuconf.tab"))
 		{
 			found_simuconf = true;
 		}
@@ -643,7 +645,7 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	
+
 #ifdef DEBUG
 	const char xml_filename[32] = "settings-extended-debug.xml";
 #else
@@ -665,9 +667,9 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if(xml_settings_found)  
+	if(xml_settings_found)
 	{
-		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version 
+		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version
 			|| file.get_extended_version() > loadsave_t::int_version(EXTENDED_SAVEGAME_VERSION, NULL, NULL).extended_version
 			|| file.get_extended_revision() > EX_SAVE_MINOR)
 		{
@@ -675,7 +677,7 @@ int simu_main(int argc, char** argv)
 			file.close();
 			remove(xml_filename);
 		}
-		else 
+		else
 		{
 			found_settings = true;
 			env_t::rdwr(&file);
@@ -850,7 +852,7 @@ int simu_main(int argc, char** argv)
 
 	if (gimme_arg(argc, argv, "-autodpi", 0)) {
 		dr_auto_scale(true);
-		
+
 	}
 
 	int parameter[2];
@@ -1049,7 +1051,7 @@ int simu_main(int argc, char** argv)
 
 	dbg->important("Reading electricity consumption configuration ...");
 	stadt_t::electricity_consumption_init(env_t::objfilename);
-	
+
 	dbg->important("Reading menu configuration ...");
 	tool_t::init_menu();
 
@@ -1083,8 +1085,13 @@ int simu_main(int argc, char** argv)
 	std::string loadgame;
 
 	bool pause_after_load = false;
-	if (gimme_arg(argc, argv, "-pause", 0)) {
-		pause_after_load = true;
+	if(  gimme_arg(argc, argv, "-pause", 0)  ) {
+		if( env_t::server ) {
+			env_t::pause_server_no_clients = true;
+		}
+		else {
+			pause_after_load = true;
+		}
 	}
 
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
@@ -1394,7 +1401,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	// save setting ...
 	chdir( env_t::user_dir );
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR))
 	{
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);
@@ -1412,6 +1419,8 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	delete eventmanager;
 	eventmanager = 0;
+
+	translator::delete_all_lists();
 
 	network_core_shutdown();
 

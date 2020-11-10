@@ -1,13 +1,16 @@
 /*
- * a template class which implements a hashtable with pointer keys
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef ptrhashtable_tpl_h
-#define ptrhashtable_tpl_h
+#ifndef TPL_PTRHASHTABLE_TPL_H
+#define TPL_PTRHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include <stdint.h> // intptr_t (standard)
 #include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)
+
 
 /*
  * Define the key characteristics for hashing pointers. For hashing the
@@ -42,8 +45,8 @@ public:
 };
 
 
-/*
- * Ready to use class for hashing pointers.
+/**
+ * A template class which implements a hashtable with pointer keys
  */
 template<class key_t, class value_t>
 class ptrhashtable_tpl : public hashtable_tpl<key_t, value_t, ptrhash_tpl<key_t> >

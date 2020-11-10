@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Dialogue to set the overtaking_mode, when CTRL+clicking a way on toolbar
  * Used by tool_roadsign_t
  */
@@ -13,8 +18,8 @@
 
 #define L_DIALOG_WIDTH (200)
 
-overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = twoway_mode;
-char overtaking_mode_frame_t::mode_name[6][20] = {"halt mode", "oneway", "twoway", "only loading convoi", "prohibited", "inverted"};
+overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = invalid_mode;
+char overtaking_mode_frame_t::mode_name[MAX_OVERTAKING_MODE][96] = {"halt mode", "oneway", "twoway", "prohibited", "do not change the mode for existing ways"};
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_) :
 	gui_frame_t( translator::translate("set overtaking mode") )
@@ -46,7 +51,7 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	for(int i = 0 ; i < 6; i++){
+	for(int i = 0 ; i < MAX_OVERTAKING_MODE; i++){
 		mode_button[i].init( button_t::square_state, mode_name[i], cursor );
 		mode_button[i].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 		mode_button[i].add_listener(this);
@@ -58,9 +63,8 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	if(  overtaking_mode==halt_mode          ) mode_button[0].pressed = true;
 	if(  overtaking_mode==oneway_mode        ) mode_button[1].pressed = true;
 	if(  overtaking_mode==twoway_mode        ) mode_button[2].pressed = true;
-	if(  overtaking_mode==loading_only_mode  ) mode_button[3].pressed = true;
-	if(  overtaking_mode==prohibited_mode    ) mode_button[4].pressed = true;
-	if(  overtaking_mode==inverted_mode      ) mode_button[5].pressed = true;
+	if(  overtaking_mode==prohibited_mode    ) mode_button[3].pressed = true;
+	if(  overtaking_mode == invalid_mode     ) mode_button[4].pressed = true;
 
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
@@ -78,18 +82,16 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *comp, valu
 		overtaking_mode = twoway_mode;
 		num = 2;
 	}else if(  comp==&mode_button[3]  ) {
-		overtaking_mode = loading_only_mode;
-		num = 3;
-	}else if(  comp==&mode_button[4]  ) {
 		overtaking_mode = prohibited_mode;
+		num = 3;
+	}
+	else if (comp == &mode_button[4]) {
+		overtaking_mode = invalid_mode;
 		num = 4;
-	}else if(  comp==&mode_button[5]  ) {
-		overtaking_mode = inverted_mode;
-		num = 5;
 	}else{
 		return false;
 	}
-	for(int i = 0; i < 6; i++){
+	for(int i = 0; i < MAX_OVERTAKING_MODE; i++){
 		if(  num==i  ){
 			mode_button[i].pressed = true;
 		}else{

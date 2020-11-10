@@ -1,7 +1,6 @@
 /*
- * field, which can extend factories
- *
- * Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -20,7 +19,7 @@
 #include "field.h"
 
 
-field_t::field_t(koord3d p, player_t *player, const field_class_desc_t *desc, fabrik_t *fab) : 
+field_t::field_t(koord3d p, player_t *player, const field_class_desc_t *desc, fabrik_t *fab) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::field)
 #else

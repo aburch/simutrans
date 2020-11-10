@@ -1,3 +1,8 @@
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 # Makefile to build bundle applications for Mac OS X
 # bundle      makes a bundle designed to work on the system it was build on
 # bundle_dist makes a bundle, which should work on all supported systems (custom config needed)

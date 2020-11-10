@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simdebug_h
-#define simdebug_h
+#ifndef SIMDEBUG_H
+#define SIMDEBUG_H
 
 
  // do not check assertions
@@ -35,7 +33,7 @@ extern log_t *dbg;
 */
 void init_logging(const char *logname, bool force_flush, bool log_debug, const char *greeting, const char* syslogtag);
 
-#ifdef MSG_LEVEL
+#if defined(MSG_LEVEL) && MSG_LEVEL >= 1
 
 #if MSG_LEVEL >= 4
 #define DBG_DEBUG4 dbg->debug
@@ -47,7 +45,7 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 #define DBG_MESSAGE dbg->message
 #define DBG_DEBUG dbg->message
 
-#elif MSG_LEVEL >= 1
+#else // MSG_LEVEL >= 1
 #define DBG_DEBUG4(i,...) ;
 #define DBG_MESSAGE(i,...) ;
 #define DBG_DEBUG dbg->message
@@ -55,9 +53,6 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 #endif
 
 #elif defined(DEBUG)
-
-// default level in undefinded
-#define MSG_LEVEL (3)
 
 //#define DBG_MESSAGE(i,...) dbg->message(i,__VA_ARGS__)
 //#define DBG_DEBUG(i,...) dbg->message(i,__VA_ARGS__)

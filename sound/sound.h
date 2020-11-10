@@ -1,5 +1,10 @@
-#ifndef SOUND_H
-#define SOUND_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SOUND_SOUND_H
+#define SOUND_SOUND_H
 
 
 /**

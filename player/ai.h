@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Helper for all AIs
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef _AI_H
-#define _AI_H
+#ifndef PLAYER_AI_H
+#define PLAYER_AI_H
+
 
 #include "simplay.h"
 
@@ -31,7 +28,7 @@ class ai_building_place_with_road_finder : public building_placefinder_t  {
 public:
 	ai_building_place_with_road_finder(karte_t *welt) : building_placefinder_t(welt) {}
 	bool is_road_at(sint16 x, sint16 y) const;
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
+	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const;
 };
 
 
@@ -96,7 +93,7 @@ public:
 	halthandle_t get_halt( const koord haltpos ) const;
 
 	/**
-	 * Find the first water tile using line algorithm 
+	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
 	 **/
 	koord find_shore(koord start, koord end) const;

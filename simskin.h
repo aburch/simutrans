@@ -1,5 +1,11 @@
-#ifndef __SIMSKIN_H
-#define __SIMSKIN_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SIMSKIN_H
+#define SIMSKIN_H
+
 
 #include "simcolor.h"
 
@@ -124,6 +130,25 @@ public:
 	static const skin_desc_t *intown;
 	/// image to indicate that the vehicle has upgrade target
 	static const skin_desc_t *upgradable;
+	/// image to indicate that the line missing scheduled slot
+	static const skin_desc_t *missing_scheduled_slot;
+	/// image shown in display of travel time to the destination / lead time
+	static const skin_desc_t *travel_time;
+
+	/// images for the factory information
+	static const skin_desc_t *input_output;
+	static const skin_desc_t *in_transit;
+	static const skin_desc_t *ind_sector_symbol;
+
+	/// arrows representing the reverse order of the schedule
+	static const skin_desc_t *reverse_arrows;
+
+	/// image shown in display of waiting time at the station
+	static const skin_desc_t *waiting_time;
+	static const skin_desc_t *service_frequency;
+	/// image to indicate that the movement method is walking
+	static const skin_desc_t *on_foot;
+
 
 
 	/// @name cursors

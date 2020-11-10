@@ -1,9 +1,9 @@
-<title>Stop Details Help</title>
+<title>Stop details help</title>
 
-<h1><strong>Stop Details</strong></h1>
+<h1><strong>Stop details</strong></h1>
 
 <p>
-<strong>Stop Details</strong> provides more information about a <em>stop</em>.
+<strong>Stop details</strong> provides more information about a <em>stop</em>.
 </p>
 <p>
 <strong>Stop Details</strong> opens from the <em>Details</em> option button in the <a href="station.txt">stop information</a> window.
@@ -12,26 +12,39 @@
 If all items are not visible <a href="mouse.txt">re-size</a> <strong>Stop Details</strong>, or use the slider bars to scroll items.
 </p>
 <p>
-Information listd includes:<br>
-<em>Connected factories:</em> names and map co-ordinates (in brackets) of any <a href="industry_info.txt">industries</a> in the catchment area of the stop.<br>
+The window is oraganised into two parts: the upper part and a lower part. The lower part contains tabs for passengers/mail, frieght and services.
+</p>
+<p>
+At the top of the upper part of the window is information about the number of lines serving this stop of each type and owned by each player. Each transport type with lines serving this stop is shown with its symbol and next to it in coloured boxes are the number of lines of that type that serve this stop operated by the player whose primary colour corresponds to the colour of the box. For example, a picture of a 'bus next to the number 2 in a blue coloured box means that two road based lines operated by the player whose primary colour is blue serve this stop.
+</p>
+<p>
+At the bottom of the upper part of the window are three bars representing the quantity of passengers, mail and goods respectively waiting at this station, next to this information in numeric form. The bars and numbers show the number of passengers, mail and goods in comparison to the stop's capacity for each category.
+</p>
+<p>
+Also shown in the upper part of the window are the transfer and transshipment times. The transfer time is the time that it takes passengers, and the transshipment time is the time that it takes goods, to travel through the stop, i.e., to be ready to board a vehicle or leave the stop after having arrived.
+</p>
+<p>
+Under the <strong>Passengesr/mail</strong> tab is a table showing the various wealth categories of passengers and mail, how many are waiting and how many are transferring, as well as the totals of each and the stop's capacity for each. These are also represented in horizontal bar chart form, the smaller dark grey bars representing transfers, and the larger, coloured bars representing waiting passengers and mail.<br>
 <em>Tip</em>: Use the <a href="keys.txt">[v]</a> key to toggle the display of catchments area for all the stops in the game.
 </p>
 <p>
-<em>Goods needed by nearby industries:</em> types of
-<a href="goods_filter.txt">goods</a> required by <a href="industryinfo.txt">industries</a> in the catchment area of the stop.
+Under the <strong>Freight</strong> tab is a table of waiting and transshipping goods of each type with bar graphs showing the quantities visually; again, the small dark grey bars represent transshipping goods and the larger coloured bars represent waiting goods.
 </p>
 <p>
-<em>Lines serving this Stop:</em>
-<a href="linemanagement.txt">Lines</a> that use this Stop.<br>
-Lines are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to open that line in the <a href="linemanagement.txt">line management</a> window.
+Beneath the table there is a list of industries connected to this stop. Connected industries are industries that are close enough to this stop to transship goods directly to it without any intermediate transport. Click on the arrow box to the left of the name of the industry to show this in the main game window. To the right of the name of the industry are coloured squares representing the input and output goods respectively of that industry: mouse-over the squares to see what goods that each colour shown represents.<br>
+<em>Note</em>: The catchment area of goods and passengers is different. 
 </p>
 <p>
-<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing) by lines and convoys serving this stop. This is lised by the type of items (goods, mail and passnegers) that can be transported from here.<br>
+Beneath the list of industries there is a list of all the goods that are demanded by industries connected to this stop as well as the products produced by industries connected to this stop.
+</p>
+Under the <strong>services</strong> tab are listed the lines serving this stop (their names are given in the primary colour of the player operating them), organised by transport type.
+Lines are listed in alphabetical order, with capital letters before lower case letters.
+</p>
+<p>
+<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing/transshipping) by lines and convoys serving this stop. This is lised by the type of items (goods, mail and passnegers) that can be transported from here.<br>
 Stops are listed are listed in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to go to that stop in the main window.
 </p>
 <p>
 Beneath each stop listed, there is a display of the average <em>travelling and waiting time</em> from the present stop to each of the destinations. Goods and passengers will always try to find the shortest route (in terms of journey time: that is, total travelling time plus total waiting time) between their origin and destination stops. Some goods and all passengers will leave if they have to wait too long at any stop. 
 </p>
-<p>
-Also shown are the transfer and transshipment times. The transfer time is the time that it takes passengers, and the transshipment time is the time that it takes goods, to travel through the stop, i.e., to be ready to board a vehicle or leave the stop after having arrived.
-</p>
+

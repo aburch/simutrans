@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * The depot window, where to buy convois
- */
+#ifndef GUI_DEPOT_FRAME_H
+#define GUI_DEPOT_FRAME_H
 
-#ifndef gui_depot_frame2_t_h
-#define gui_depot_frame2_t_h
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
@@ -76,6 +71,8 @@ private:
 	button_t bt_destroy;
 	button_t bt_sell;
 
+	cbuffer_t txt_convoi_cost;
+
 	/**
 	 * buttons for new route-management
 	 * @author hsiegeln
@@ -85,6 +82,7 @@ private:
 	button_t bt_copy_convoi;
 //	button_t bt_apply_line;
 
+	// line selector stuff
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;
 	/// contains the current translation of "<clear schedule>"
@@ -99,6 +97,11 @@ private:
 	const char* line_separator;
 
 	gui_combobox_t line_selector;
+	button_t filter_btn_all_pas, filter_btn_all_mails, filter_btn_all_freights;
+	// rebuild the line selector
+	void build_line_list();
+	// pas=1, mail=2, freight=3
+	uint8 line_type_flags = 0;
 
 	gui_convoy_assembler_t convoy_assembler;
 
@@ -121,7 +124,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehicle_desc_t *info);
@@ -162,7 +165,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -183,17 +186,17 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "depot.txt";}
+	const char * get_help_filename() const OVERRIDE {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Volker Meyer
 	 */
-	bool has_next() const {return true;}
+	bool has_next() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool);
-	virtual bool is_weltpos();
+	virtual koord3d get_weltpos(bool) OVERRIDE;
+	virtual bool is_weltpos() OVERRIDE;
 
 	/**
 	 * Open dialog for schedule entry.
@@ -207,7 +210,7 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	// @author hsiegeln
 	void apply_line();
@@ -228,6 +231,8 @@ public:
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
+
+	void set_resale_value(uint32 nominal_cost = 0, sint64 resale_value = 0);
 };
 
 #endif

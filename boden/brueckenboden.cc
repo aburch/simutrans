@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simdebug.h"
 #include "../simworld.h"
 
@@ -16,6 +21,7 @@
 #include "brueckenboden.h"
 #include "wege/weg.h"
 
+#include "../vehicle/simvehicle.h"
 
 brueckenboden_t::brueckenboden_t(koord3d pos, int grund_hang, int weg_hang) : grund_t(pos)
 {
@@ -93,8 +99,27 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 void brueckenboden_t::rotate90()
 {
-	weg_hang = slope_t::rotate90( weg_hang );
-	grund_t::rotate90();
+	if( sint8 way_offset = get_weg_yoff() ) {
+		pos.rotate90( welt->get_size().y-1 );
+		slope = slope_t::rotate90( slope );
+		// since the y_off contains also the way height, we need to remove it before rotations and add it back afterwards
+		for( uint8 i = 0; i < objlist.get_top(); i++ ) {
+			obj_t * obj = obj_bei( i );
+			if(  !dynamic_cast<vehicle_base_t*>(obj)  ) {
+				obj->set_yoff( obj->get_yoff() + way_offset );
+				obj->rotate90();
+				obj->set_yoff( obj->get_yoff() - way_offset );
+			}
+			else {
+				// vehicle corrects its offset themselves
+				obj->rotate90();
+			}
+		}
+	}
+	else {
+		weg_hang = slope_t::rotate90( weg_hang );
+		grund_t::rotate90();
+	}
 }
 
 
@@ -109,7 +134,7 @@ sint8 brueckenboden_t::get_weg_yoff() const
 	}
 }
 
-void brueckenboden_t::info(cbuffer_t & buf, bool dummy) const
+void brueckenboden_t::info(cbuffer_t & buf) const
 {
 	const bruecke_t *bridge = find<bruecke_t>();
 	if(bridge  &&  bridge->get_desc()) {

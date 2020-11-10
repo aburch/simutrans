@@ -1,20 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- * Written (w) 2001 Markus Weber
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays a scrollable list of all stations of a player
- *
- * @author Markus Weber
- * @date 02-Jan-02
- */
+#ifndef GUI_HALT_LIST_FRAME_H
+#define GUI_HALT_LIST_FRAME_H
 
-#ifndef __halt_list_frame_h
-#define __halt_list_frame_h
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -28,6 +19,12 @@
 class player_t;
 class goods_desc_t;
 
+/*
+ * Displays a scrollable list of all stations of a player
+ *
+ * @author Markus Weber
+ * @date 02-Jan-02
+ */
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
 public:
@@ -109,7 +106,7 @@ public:
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const scr_coord size_change);
+	void resize(const scr_coord size_change) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -117,7 +114,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * This function refreshes the station-list
@@ -130,7 +127,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_help_filename() const {return "haltlist.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "haltlist.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

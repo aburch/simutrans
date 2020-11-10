@@ -1,5 +1,11 @@
-#ifndef obj_pillar_h
-#define obj_pillar_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef OBJ_PILLAR_H
+#define OBJ_PILLAR_H
+
 
 #include "../simobj.h"
 

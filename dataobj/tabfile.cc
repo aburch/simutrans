@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -87,7 +85,8 @@ void tabfileobj_t::clear()
 
 
 // private helps to get x y value pairs needed for koord etc.
-bool tabfileobj_t::get_x_y( const char *key, sint16 &x, sint16 &y )
+template<typename T>
+bool tabfileobj_t::get_x_y( const char *key, T &x, T &y )
 {
 	const char *value = get_string(key,NULL);
 	const char *tmp;
@@ -305,31 +304,66 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 
 				int parameters = 0;
 				int expansions = 0;
+				/*
+				@line, the whole parameter text (everything before =)
+				@delim, the whole value text (everything after =)
+				@parameters, number of fields enclosed by square brackets []
+				@expansions, number of expansions included in the value (text inside angle brackets <>)
+				@param, array containing the text inside each [] field
+				@expansion, array containing the text inside each <> field
+				 */
 				if(find_parameter_expansion(line, delim, &parameters, &expansions, param, expansion) > 0) {
 					int parameter_value[10][256];
 					int parameter_length[10];
-					int parameter_values[10];
-					int combinations=1;
+					int parameter_values[10]; // number of possible 'values' inside each [] field | e.g. [0-4]=5 / [n,s,w]=3
+					char parameter_name[256][6]; // non-numeric ribis strings for all parameter fields consecutively
+					bool parameter_ribi[10]; // true if parameters are ribi strings
 
+					int combinations=1;
+					int names = 0; // total number of ribi parameters
+
+					// analyse and obtain all parameter expansions
 					for(int i=0; i<parameters; i++) {
 						char *token_ptr;
 						parameter_length[i] = strcspn(param[i],"]");
 						parameter_values[i] = 0;
-						sprintf(buffer, "%.*s", parameter_length[i], param[i]);
+						parameter_ribi[i] = false;
 
-						parameter_value[i][parameter_values[i]++] = atoi(buffer);
+						sprintf(buffer, "%.*s", parameter_length[i], param[i]);
+						int name_length = strcspn(buffer,",");
+
+						int value = atoi(buffer);
+						if (value == 0 && (tolower(buffer[0]) == 'n' || tolower(buffer[0]) == 's' || tolower(buffer[0]) == 'e' || tolower(buffer[0]) == 'w')) {
+							sprintf(parameter_name[ names++ ], "%.*s", name_length, buffer);
+							parameter_ribi[i] = true;
+						}
+						parameter_value[i][parameter_values[i]++] = value;
 
 						token_ptr = strtok(buffer,"-,");
 						while (token_ptr != NULL && parameter_values[i]<256) {
 							switch(param[i][token_ptr-buffer-1]) {
 								case ',':
-									parameter_value[i][parameter_values[i]++] = atoi(token_ptr);
+									value = atoi(token_ptr);
+									if (parameter_ribi[i]) {
+										value = parameter_values[i];
+										sprintf(parameter_name[ names++ ], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										name_length += strcspn(buffer+name_length+1,",") + 1;
+									}
+									parameter_value[i][parameter_values[i]++] = value;
 								break;
 								case '-':
-									int start_range = parameter_value[i][parameter_values[i]-1];
-									int end_range = atoi(token_ptr);
-									for(int range=start_range; range<end_range; range++) {
-										parameter_value[i][parameter_values[i]++] = range+1;
+									if (parameter_ribi[i]) {
+										value = parameter_values[i];
+										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										name_length += strcspn(buffer+name_length+1,",") + 1;
+										parameter_value[i][parameter_values[i]++] = value;
+									}
+									else {
+										int start_range = parameter_value[i][parameter_values[i]-1];
+										int end_range = atoi(token_ptr);
+										for(int range=start_range; range<end_range; range++) {
+											parameter_value[i][parameter_values[i]++] = range+1;
+										}
 									}
 							}
 							token_ptr = strtok(NULL, "-,");
@@ -337,21 +371,33 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 						combinations*=parameter_values[i];
 					}
 
-					for(int i=0; i<combinations; i++) {
+					// start expansion of the parameter
+					for(int c=0; c<combinations; c++) {
+						int names = 0;
 						int combination[10];
 						if(parameters>0) {
+							// warp values around the number of parameters the expansion has
 							for(int j=0; j<parameters; j++) {
-								combination[j] = i;
+								combination[j] = c;
 								for(int k=0; k<j; k++) {
 									combination[j]/=parameter_values[k];
 								}
 								combination[j]%=parameter_values[j];
 							}
-							sprintf(line_expand, "%.*s%d", (int)(param[0] - line), line, parameter_value[0][combination[0]]);
-							for(int i=1; i<parameters; i++) {
-								char *prev_end = param[i-1]+parameter_length[i-1];
-								sprintf(buffer, "%.*s%d", (int)(param[i] - prev_end), prev_end, parameter_value[i][combination[i]]);
+							char* prev_end = line;
+							line_expand[0] = 0;
+							for (int i=0; i<parameters; i++) {
+								// if expanding non-numerical parameters
+								if (parameter_ribi[i]) {
+									sprintf(buffer, "%.*s%s", (int)(param[i]-prev_end), prev_end, parameter_name[ names + combination[i]]);
+									names += parameter_values[i];
+								}
+								// if expanding numerical parameters
+								else {
+									sprintf(buffer, "%.*s%d", (int)(param[i]-prev_end), prev_end, parameter_value[i][combination[i]]);
+								}
 								strcat(line_expand, buffer);
+								prev_end = param[i]+parameter_length[i];
 							}
 							strcat(line_expand, param[parameters-1]+parameter_length[parameters-1]);
 						}
@@ -359,6 +405,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							strcpy(line_expand, line);
 						}
 
+						// expand the value
 						if(expansions>0) {
 							int expansion_length[10];
 							int expansion_value[10];
@@ -370,7 +417,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								expansion_value[i] = calculate(buffer, parameter_value, parameters, combination);
 							}
 
-							sprintf(delim_expand, "%.*s%d", (int)(expansion[0] - delim), delim, expansion_value[0]);
+							sprintf(delim_expand, "%.*s%d", expansion[0]-delim, delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
 								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
@@ -382,6 +429,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							strcpy(delim_expand, delim);
 						}
 
+						printf("%s = %s\n", line_expand, delim_expand);
 						objinfo.put(line_expand, delim_expand);
 					}
 				}
@@ -420,7 +468,7 @@ bool tabfile_t::read_line(char *s, int size)
 }
 
 
-	
+
 int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *param_ptr[10], char *expansion_ptr[10])
 {
 	char *s;
@@ -483,17 +531,10 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 
 	// first remove any spaces
 	int j = 0;
-	bool buffer_initialised = false;
 	for(uint16 i = 0; i<=strlen(expression); i++) {
 		if(expression[i]!=' ') {
 			buffer[j++]=expression[i];
-			buffer_initialised = true;
 		}
-	}
-
-	if (!buffer_initialised)
-	{
-		buffer[0] = '\n';
 	}
 	strcpy(processed, buffer);
 
@@ -578,10 +619,10 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			if(expression_end==NULL) expression_end = expression_pos;
 
 			// construct expression with brackets around 'a operator b'
-			sprintf(buffer,"%.*s(%.*s%.*s)%s", (int)(expression_start - processed + 1), processed,
-				(int)(expression_ptr - expression_start - 1), expression_start + 1,
-				(int)(expression_end - expression_ptr), expression_ptr,
-				expression_end);
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",	expression_start-processed+1, processed,
+								expression_ptr-expression_start-1, expression_start+1,
+								expression_end-expression_ptr, expression_ptr,
+								expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;

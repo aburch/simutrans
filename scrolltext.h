@@ -1,4 +1,13 @@
-﻿/* prissi: first part is left, second part right side */
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCROLLTEXT_H
+#define SCROLLTEXT_H
+
+
+/* prissi: first part is left, second part right side */
 
 "","",
 "","",
@@ -47,10 +56,13 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Ranran", "UI features",
-" Freahk", "patch",
+" Freddy Hayward", "patches",
+" W. Lindley", "patches",
+" ceeac", "patches",
+" Freahk", "patches",
 " Progger", "patches",
 " Andrew Carlotti", "patches",
-" THLeaderH", "patch", 
+" THLeaderH", "patch",
 " TurfIt", "patch",
 " Phystam (ふぃすたむ)", "patches",
 " Toshio Kuratomi" "patches",
@@ -94,6 +106,8 @@
 "James E. Petts", "",
 "W. Lindley", "",
 "Junna","",
+"Freahk", "",
+"John Bridg", "",
 "Dr. Supergood","Pak128.Britain and Pak128.Britain-Ex",
 " Ves","",
 " Vladki","",
@@ -138,29 +152,29 @@
 "","",
 " freesound.org","",
 " Cafity","",
-" Riccardo Stecca","", 
-" Iwan 'qubodup' Gabovitch","", 
-" soundmary","", 
-" Kayyy","", 
+" Riccardo Stecca","",
+" Iwan 'qubodup' Gabovitch","",
+" soundmary","",
+" Kayyy","",
 " Gordon J.Cowan", "",
 " FF3170 of Youtube", "",
 " Ninebilly", "",
 " L. Walker 101", "",
-" Adam_N", "", 
-" Zabuhailo", "", 
-" Jessepash", "", 
+" Adam_N", "",
+" Zabuhailo", "",
+" Jessepash", "",
 " Bigpickle51", "",
-" Decembred", "", 
-" Kermite607", "", 
-" Ohrwurm", "", 
+" Decembred", "",
+" Kermite607", "",
+" Ohrwurm", "",
 " Vickyleao1", "",
 " Gareth Bull", "",
 " Colin Taft", "",
-" Tom Tait", "", 
-" YleArkisto of Youtube", "", 
-" Arnaud Coutancier", "", 
+" Tom Tait", "",
+" YleArkisto of Youtube", "",
+" Arnaud Coutancier", "",
 " Sandeep Kurissery", ""
-" The Bloke 33", "", 
+" The Bloke 33", "",
 " Multithunder 227", "",
 " ddub of Youtube", "",
 " hkmtrhah of Youtube", "",
@@ -169,10 +183,10 @@
 " Laurie (Calvertfilm of Youtube)", "",
 " Russell Thewils", "",
 " spompeytransportvideo of Youtube", "",
-" androo4519 of Youtube", "", 
+" androo4519 of Youtube", "",
 " Andy's Video (http://www.andysvideo.com/)", "",
 " Alessandro Camilo (https://www.youtube.com/watch?v=-6OXZHTsHDQ&lc=z12txfdxxunfzbw5m04cgv3oypiqjnerai4.1491534382911719)", "",
-" Panos G. of Youtube", "", 
+" Panos G. of Youtube", "",
 " johno4521 of Youtube", "",
 " Stuart (MyLoveOfRailways of Youtube)", "",
 " Treacher Rail of Youtube", "",
@@ -216,6 +230,7 @@
 " Phil Flyer of Youtube", "",
 " Henergy1994 of Youtube", "",
 " Eckletickle of Youtube", "",
+" BetterAircraftFabric of Youtube", "",
 "","",
 "Translation:","",
 "","",
@@ -377,3 +392,5 @@
 "","",
 "","",
 0
+
+#endif

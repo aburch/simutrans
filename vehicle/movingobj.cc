@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 2008 by Markus Pristovsek
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -149,7 +148,7 @@ void movingobj_t::calc_image()
 }
 
 
-movingobj_t::movingobj_t(loadsave_t *file) : 
+movingobj_t::movingobj_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_base_t(movingobj)
 #else
@@ -163,7 +162,7 @@ movingobj_t::movingobj_t(loadsave_t *file) :
 }
 
 
-movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) : 
+movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_base_t(movingobj, pos)
 #else
@@ -264,7 +263,7 @@ void movingobj_t::show_info()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void movingobj_t::info(cbuffer_t & buf, bool dummy) const
+void movingobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 

@@ -1,5 +1,10 @@
-#include <cmath>
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
+#include <cmath>
 #include "../../dataobj/tabfile.h"
 #include "../../utils/simstring.h"
 #include "obj_node.h"
@@ -35,7 +40,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 version     = 0x8006;
 
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
@@ -54,7 +59,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sint8 max_altitude			= obj.get_int("max_altitude",			0);
 	uint8 max_vehicles_on_tile	= obj.get_int("max_vehicles_on_tile",	251);
 	uint32 way_only_cost		= obj.get_int("way_only_cost", price);
-	uint8 upgrade_group			= obj.get_int("upgrade_group", 0); 
+	uint8 upgrade_group			= obj.get_int("upgrade_group", 0);
 
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
@@ -90,7 +95,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	// Prohibitive: way allows only vehicles with matching constraint:
 	// vehicles with matching constraint allowed on other sorts of way.
 	// @author: jamespetts
-	
+
 	uint8 permissive_way_constraints = 0;
 	uint8 prohibitive_way_constraints = 0;
 	char buf_permissive[60];
@@ -101,8 +106,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		sprintf(buf_permissive, "way_constraint_permissive[%d]", i);
 		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
 		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
-		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));	
-		
+		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
+
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{
@@ -133,8 +138,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8(outfp, max_vehicles_on_tile,		35);
 	node.write_uint32(outfp, wear_capacity,				36);
 	node.write_uint32(outfp, way_only_cost,				40);
-	node.write_uint8(outfp, upgrade_group,				44); 
-	node.write_uint32(outfp, monthly_base_wear, 		45); 
+	node.write_uint8(outfp, upgrade_group,				44);
+	node.write_uint32(outfp, monthly_base_wear, 		45);
 
 	static const char* const image_type[] = { "", "front" };
 

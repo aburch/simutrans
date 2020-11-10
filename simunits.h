@@ -1,11 +1,11 @@
-#ifndef simunits_h
-#define simunits_h
 /*
- * Copyright 2010 Nathanael C. Nerode
- * & Simutrans Contributors
- * This file is part of the Simutrans project and is available under the
- * Artistic License -- see license.txt
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef SIMUNITS_H
+#define SIMUNITS_H
+
 
 /*
  * This file is designed to contain the unit conversion routines
@@ -42,10 +42,10 @@
  *      -- you may also use karte_t::ticks_per_world_month_shift
  * 3 -- days -- derived from months
  * 4 -- years -- derived from months
- * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed 
+ * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed
  *      -- (express for journey, waiting, reversing, loading and spacing times in Extended)
  *      -- 100 km/h = (100 << 10) / 80 "yards"/tick = 1280 "yards"/tick. (see macro kmh_to_speed below)
- *      -- Assuming 1000 meters per tile, 1h = 104857600/1280 = 81920 ticks; 
+ *      -- Assuming 1000 meters per tile, 1h = 104857600/1280 = 81920 ticks;
  *      -- 3min = 81920/20 = 4096 ticks
  *      -- 30 * ( tenth of minute ) = 4096 ticks
  *      -- tenth of minute = 4096/30 ticks
@@ -149,7 +149,7 @@
 
 #define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
 
-// anything greater than 2097151 will give us overflow in kmh_to_speed. 
+// anything greater than 2097151 will give us overflow in kmh_to_speed.
 #define KMH_SPEED_UNLIMITED (300000)
 
 #ifdef UINT_MAX
@@ -209,7 +209,7 @@ extern const float32e8_t steps2yards;
 //}
 
 #define KMH_MIN 1
-extern const sint32 SPEED_MIN; 
+extern const sint32 SPEED_MIN;
 extern const float32e8_t V_MIN;
 #endif //ndef NETTOOL
 /*

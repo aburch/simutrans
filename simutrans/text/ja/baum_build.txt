@@ -1,0 +1,17 @@
+<title>植樹ツール</title>
+
+<h1><strong>植樹ツール</strong></h1>
+
+<p>
+<strong>植樹ツール</strong>ウィンドウでは個別の種類の樹木を植樹できます。基本的には景観用のツールで、公共事業以外のプレイヤーは使用できません。
+</p>
+<p>
+左には植樹可能な樹木のリストが表示されます。<strong>日本語名</strong>および<strong>原名</strong>の2つのタブによって、パックセットが指定する2つの名前を切り替えることができます。
+アイテムをクリックすることで個別の樹木の情報を見ることができます。植樹するには、樹木を選択したあとで植樹したい場所をクリックしてください。
+</p>
+<p>
+右に表示されるオプションは次の通りです。<br>
+<em>気候条件を無視する:</em> 通常その樹木が現れない気候の土地にも植樹できるようにします。<br>
+<em>ランダムな樹齢を使用:</em> 通常植樹時には苗を植えます。樹木が成長した後、一定期間で枯れますが、このオプションを有効した場合にはランダムに決定した樹齢の樹木を植えることができます。normally, when trees are planted, they are saplings. They will grow to maturity and then die over the course of many years. If this option is selected, however, the trees will appear at a random age, some young and some mature.<br>
+<em>回転:</em> 樹木アドオンが回転対応している場合に、樹木の向きを変更することができます。「ランダム」を指定すると、ランダムに向きを決定して植樹できます。<br>
+</p>

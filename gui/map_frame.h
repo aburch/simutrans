@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
- */
+#ifndef GUI_MAP_FRAME_H
+#define GUI_MAP_FRAME_H
 
-#ifndef gui_map_frame_h
-#define gui_map_frame_h
 
 #include "gui_frame.h"
 #include "../gui/simwin.h"
@@ -26,7 +21,7 @@
 
 class karte_ptr_t;
 
-#define MAP_MAX_BUTTONS (28)
+#define MAP_MAX_BUTTONS (29)
 
 /**
  * Minimap window
@@ -92,7 +87,9 @@ private:
 				b_show_directory,
 				b_overlay_networks,
 				b_overlay_networks_load_factor,
-				b_filter_factory_list;
+				b_filter_factory_list,
+				b_show_contour,
+				b_show_buildings;
 
 	gui_label_t zoom_label,
 				zoom_value_label,
@@ -119,14 +116,14 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "map.txt";}
+	const char * get_help_filename() const OVERRIDE {return "map.txt";}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.
@@ -134,9 +131,9 @@ public:
 	 */
 	map_frame_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	virtual uint32 get_rdwr_id() { return magic_reliefmap; }
+	virtual uint32 get_rdwr_id() OVERRIDE { return magic_reliefmap; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -145,14 +142,14 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 * @date   01-Jun-2002
 	 */
-	void resize(const scr_coord delta=scr_coord(0,0));
+	void resize(const scr_coord delta=scr_coord(0,0)) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -160,7 +157,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

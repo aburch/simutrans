@@ -1,5 +1,11 @@
-#ifndef __TUNNEL_READER_H
-#define __TUNNEL_READER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_READER_TUNNEL_READER_H
+#define DESCRIPTOR_READER_TUNNEL_READER_H
+
 
 #include "obj_reader.h"
 
@@ -14,6 +20,8 @@ class tunnel_reader_t : public obj_reader_t {
 
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
+
+	virtual bool successfully_loaded() const OVERRIDE;
 
 public:
 	static tunnel_reader_t*instance() { return &the_instance; }

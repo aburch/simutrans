@@ -1,5 +1,11 @@
-#ifndef SIMRANDOM_H
-#define SIMRANDOM_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_SIMRANDOM_H
+#define UTILS_SIMRANDOM_H
+
 
 #include <stddef.h>
 #include "../simtypes.h"

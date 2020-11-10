@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -78,7 +76,7 @@ void ware_t::rdwr(loadsave_t *file)
 		file->rdwr_long(max);
 	}
 
-	if(file->get_version()>=110005 && file->get_extended_version() < 12) 
+	if(file->get_version()>=110005 && file->get_extended_version() < 12)
 	{
 		// Was "to_factory" / "factory_going".
 		uint8 dummy;
@@ -113,7 +111,7 @@ void ware_t::rdwr(loadsave_t *file)
 	if(file->get_version() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
 	{
 		// save halt id directly
-		if(file->is_saving()) 
+		if(file->is_saving())
 		{
 			uint16 halt_id = ziel.is_bound() ? ziel.get_id() : 0;
 			file->rdwr_short(halt_id);
@@ -121,9 +119,9 @@ void ware_t::rdwr(loadsave_t *file)
 			file->rdwr_short(halt_id);
 			if(file->get_extended_version() >= 1)
 			{
-				halt_id = origin.is_bound() ? origin.get_id() : 0;	
+				halt_id = origin.is_bound() ? origin.get_id() : 0;
 				file->rdwr_short(halt_id);
-			}	
+			}
 		}
 
 		else
@@ -135,7 +133,7 @@ void ware_t::rdwr(loadsave_t *file)
 			zwischenziel.set_id(halt_id);
 			if(file->get_extended_version() >= 1)
 			{
-				file->rdwr_short(halt_id);			
+				file->rdwr_short(halt_id);
 				origin.set_id(halt_id);
 			}
 			else
@@ -144,9 +142,9 @@ void ware_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else 
+	else
 	{
-		if(file->is_saving()) 
+		if(file->is_saving())
 		{
 			koord ziel_koord = ziel.is_bound() ? ziel->get_basis_pos() : koord::invalid;
 			ziel_koord.rdwr(file);
@@ -154,24 +152,24 @@ void ware_t::rdwr(loadsave_t *file)
 			zwischenziel_koord.rdwr(file);
 			if(file->get_extended_version() >= 1)
 			{
-				koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
+				koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;
 				origin_koord.rdwr(file);
 			}
 		}
-		else 
+		else
 		{
 			koord ziel_koord(file);
 			ziel = haltestelle_t::get_halt_koord_index(ziel_koord);
 			koord zwischen_ziel_koord(file);
 			zwischenziel = haltestelle_t::get_halt_koord_index(zwischen_ziel_koord);
-		
+
 			if(file->get_extended_version() >= 1)
 			{
-				koord origin_koord;	
+				koord origin_koord;
 
 				origin_koord.rdwr(file);
 				if(file->get_extended_version() == 1)
-				{				
+				{
 					// Simutrans-Extended save version 1 had extra parameters
 					// such as "previous transfer" intended for use in the new revenue
 					// system. In the end, the system was designed differently, and
@@ -179,9 +177,9 @@ void ware_t::rdwr(loadsave_t *file)
 					koord dummy;
 					dummy.rdwr(file);
 				}
-			
+
 				origin = haltestelle_t::get_halt_koord_index(origin_koord);
-			
+
 			}
 			else
 			{
@@ -222,7 +220,7 @@ void ware_t::rdwr(loadsave_t *file)
 
 	if(file->get_extended_version() >= 10 && file->get_version() >= 111000)
 	{
-		if(file->is_saving()) 
+		if(file->is_saving())
 		{
 			uint16 halt_id = last_transfer.is_bound() ? last_transfer.get_id() : 0;
 			file->rdwr_short(halt_id);
@@ -248,7 +246,7 @@ void ware_t::rdwr(loadsave_t *file)
 
 	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 22))
 	{
-		file->rdwr_byte(g_class); 
+		file->rdwr_byte(g_class);
 	}
 	else
 	{

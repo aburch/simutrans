@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
 VERBOSE=0
 # Number of seconds to allow for server to start/stop
 startstopgracetime=5

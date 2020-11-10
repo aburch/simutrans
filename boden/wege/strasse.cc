@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Roads for Simutrans
  *
  * Revised January 2001
@@ -20,6 +25,7 @@
 #include "../../utils/cbuffer_t.h"
 #include "../../vehicle/simvehicle.h" /* for calc_direction */
 #include "../../obj/wayobj.h"
+#include "../../player/simplay.h"
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
@@ -83,12 +89,27 @@ void strasse_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);
 		sint8 ov = get_overtaking_mode();
+		if (file->is_loading() && file->get_extended_version() == 14 && (ov == 2 || ov == 4)) {
+			ov = twoway_mode; // loading_only_mode and inverted_mode has been removed
+		}
 		file->rdwr_byte(ov);
-		overtaking_mode_t nov = (overtaking_mode_t)ov;
-		set_overtaking_mode(nov);
+		switch ((sint32)ov) {
+		case halt_mode:
+		case oneway_mode:
+		case twoway_mode:
+		case prohibited_mode:
+		case invalid_mode:
+			overtaking_mode = (overtaking_mode_t)ov;
+			break;
+		default:
+			dbg->warning("strasse_t::rdwr", "Unrecognized overtaking mode %d, changed to invalid mode", (sint32)ov);
+			assert(file->is_loading());
+			overtaking_mode = invalid_mode;
+			break;
+		}
 	} else {
 		set_ribi_mask_oneway(ribi_t::none);
-		set_overtaking_mode(twoway_mode);
+		overtaking_mode = twoway_mode;
 	}
 
 	if(file->get_version()<89000) {
@@ -143,8 +164,24 @@ void strasse_t::rdwr(loadsave_t *file)
 		}
 #endif
 
-		if(old_max_speed>0) {
-			set_max_speed(old_max_speed);
+		if(old_max_speed > 0)
+		{
+			if (is_degraded() && old_max_speed == desc->get_topspeed())
+			{
+				// The maximum speed has to be reduced on account of the degridation.
+				if (get_remaining_wear_capacity() > 0)
+				{
+					set_max_speed(old_max_speed / 2);
+				}
+				else
+				{
+					set_max_speed(0);
+				}
+			}
+			else
+			{
+				set_max_speed(old_max_speed);
+			}
 		}
 		if(old_max_axle_load > 0)
 		{
@@ -164,28 +201,52 @@ void strasse_t::rdwr(loadsave_t *file)
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
+				uint32 gradient_speed = desc->get_topspeed_gradient_1();
+				if (is_degraded())
+				{
+					if (get_remaining_wear_capacity() > 0)
+					{
+						gradient_speed /= 2;
+					}
+					else
+					{
+						gradient_speed = 0;
+					}
+				}
 				if(bridge)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_1(), bridge->get_desc()->get_topspeed_gradient_1()));
+					set_max_speed(min(gradient_speed, bridge->get_desc()->get_topspeed_gradient_1()));
 				}
 				else if(tunnel)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_1(), tunnel->get_desc()->get_topspeed_gradient_1()));
+					set_max_speed(min(gradient_speed, tunnel->get_desc()->get_topspeed_gradient_1()));
 				}
 				else
 				{
-					set_max_speed(desc->get_topspeed_gradient_1());
+					set_max_speed(gradient_speed);
 				}
 			}
 			else
 			{
+				uint32 gradient_speed = desc->get_topspeed_gradient_2();
+				if (is_degraded())
+				{
+					if (get_remaining_wear_capacity() > 0)
+					{
+						gradient_speed /= 2;
+					}
+					else
+					{
+						gradient_speed = 0;
+					}
+				}
 				if(bridge)
 				{
-					set_max_speed( min(desc->get_topspeed_gradient_2(), bridge->get_desc()->get_topspeed_gradient_2()));
+					set_max_speed( min(gradient_speed, bridge->get_desc()->get_topspeed_gradient_2()));
 				}
 				else if(tunnel)
 				{
-					set_max_speed(min(desc->get_topspeed_gradient_2(), tunnel->get_desc()->get_topspeed_gradient_2()));
+					set_max_speed(min(gradient_speed, tunnel->get_desc()->get_topspeed_gradient_2()));
 				}
 				else
 				{
@@ -203,10 +264,25 @@ void strasse_t::rdwr(loadsave_t *file)
 				{
 					set_max_speed(min(desc->get_topspeed(), tunnel->get_desc()->get_topspeed()));
 				}
+			else if (old_max_speed == 0)
+			{
+				if (is_degraded())
+				{
+					// The maximum speed has to be reduced on account of the degridation.
+					if (get_remaining_wear_capacity() > 0)
+					{
+						set_max_speed(desc->get_topspeed() / 2);
+					}
+					else
+					{
+						set_max_speed(0);
+					}
+				}
 				else
 				{
 					set_max_speed(desc->get_topspeed());
 				}
+			}
 		}
 
 		if(hat_gehweg() && desc->get_wtyp() == road_wt)
@@ -216,8 +292,26 @@ void strasse_t::rdwr(loadsave_t *file)
 	}
 }
 
-void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
+void strasse_t::set_overtaking_mode(overtaking_mode_t o, player_t* calling_player)
 {
+	if (o == invalid_mode) { return; }
+	grund_t* gr = welt->lookup(get_pos());
+	if ((!calling_player || !calling_player->is_public_service()) && is_public_right_of_way() && gr && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+	{
+		return;
+	}
+	if (is_deletable(calling_player) == NULL)
+	{
+		overtaking_mode = o;
+	}
+}
+
+void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow, player_t* calling_player)
+{
+	if (is_deletable(calling_player) != NULL) {
+		return;
+	}
+
 	// assertion. @mask and @allow must be single or none.
 	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
 	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");

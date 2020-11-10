@@ -1,33 +1,25 @@
 <title>Prologue</title>
 
-<h1><strong>Welcome to Simutrans...</strong></h1>
+<h1><strong>Welcome to Simutrans-Extended</strong></h1>
 
 <p>
-Choose one, out of the many thousands, of Simutrans' lands. Then, put yourself in the shoes of a young entrepeneur with some money from your grandparents: eager to make them proud, with ambitions of establishing a successful transport company, your challenge now is to build a prospering enterprise.
+Essential to every functioning economy is transport, and essential to transport are the transport pioneers through the ages who forged roads, canals and railways through difficult terrain, established shipping routes accross the high seas, or built aircraft to transport people and goods through the skies at hitherto unprecedented speeds; pioneers such as the Duke of Bridgewater, whose eponymous canal triggered Britain's canal age, Isambard Kingdom Brunel, who drove a railway line from London to Bristol, or Frank Whittle who devised a new means of aerial propolusion that brought in the jet age.
 </p>
 <p>
-As time passes, develop your company into transport empire, keeping the economy running smoothly by delivering freight and satisifying the travel requirements of millions of passengers every month.<br>
-Transport passengers, mail and goods by rail, road, ship and even air.
+In Simutrans-Extended, you have the chance to be a transport pioneer yourself, connecting people and industry accross a virgin unconnected land of your own choosing, either alone, or with others from all over the world on one of Simutrans-Extended's persistent multi-player servers where game worlds last for real life years and game centuries.
 </p>
 <p>
-Every land has something different to offer. Take a good look at your surroundings...its future lies in your and your competitors' hands.
+Play thorough hundreds of years of transport history from 1750 to the present day, from sailing ships and horses to steam trains, motor cars and aircraft. Connect the world and and then keep your network up to date as cities grow, new industries spring up and old ones close down and new forms of transport replace the old, and, in online games, competitors change or improve their networks. Will your canals survive competition from railways? Will your railways survive competition from roads? Will your ships survive competition from aircraft? Will towns be clogged up with congestion or will skilful road design and good mass transit provision keep people and goods moving in even the densest of metropolises? 
 </p>
 <p>
-In the beginning, it maybe easier to start by supplying a power station with required goods. Then, connect other factories, maybe even using central hubs where goods are reloaded.<br>
-The disadvantage of only transporting goods is that towns and cities won't grow and new industries will not appear.
+Play big or play small - alone on a map size of your choosing, from the size of a small island to that of a whole country, or, in an online game, dominate a giant transport empire, or provide a small niche transport service to a particular locale. How you play is in your hands; but the rule of thumb is always: if it worked in the real world, it should work in Simutrans-Extended.
 </p>
 <p>
-Alternatively, you may immediately go for passenger (and mail) transportation. This is more challenging, as the inhabitants of this world want to travel to locations they choose. <br>
-Some need to go to factories for work, some want to go shopping at the large mall in the main town, and others sightseeing.
+Take passengers and mail to where they want to go and in good time; take goods to where they are called for according to the contracts between producers and consumers. Industries need workers, towns need working shops, shops need customers, customers need products to buy, and factories producing products need raw materials. Connect towns and industries and watch the world flourish from your efforts.
 </p>
 <p>
-If you don't offer a connection to their destination, they will not travel with you at all. You will need to build networks. When your networks are established, you will need to upgrade them to keep abreast of demand. So plan ahead.<br>
-If passengers like your service, towns will grow and new industries will be established and only then will the economy run smoothly.
+So long as your transport company remains solvent, you can carry on transporting people, mail and goods through the ages and into the future. 
 </p>
 <p>
-You can play as long as you like. Start in 1880 and finish in 2050. There will be new vehicles and buildings throughout this time.<br>
-Play against the AI or on your own. Only if you are in debt for three months, you are bankrupt and the game is over.
-</p>
-<p>
-The <strong>Simutrans-Team</strong> and the community wish you a great time here in Simutrans!
+May your transport company have a prosperous future and may the land that it serves flourish as a result.
 </p>

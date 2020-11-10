@@ -1,5 +1,11 @@
-#ifndef _EXPORT_BESCH_H__
-#define _EXPORT_BESCH_H__
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_EXPORT_DESC_H
+#define SCRIPT_API_EXPORT_DESC_H
+
 
 #include "../../squirrel/squirrel.h"
 

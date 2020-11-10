@@ -1,10 +1,10 @@
 /*
-* Copyright 2010 Simutrans contributors
-* Available under the Artistic License (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../descriptor/image.h"
 
 #include "simgraph.h"
@@ -17,12 +17,13 @@ KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
 
-									   /*
-									   * Hajo: mapping table for special-colors (AI player colors)
-									   * to actual output format - all day mode
-									   * 16 sets of 16 colors
-									   */
+/*
+ * Hajo: mapping table for special-colors (AI player colors)
+ * to actual output format - all day mode
+ * 16 sets of 16 colors
+ */
 PIXVAL specialcolormap_all_day[256];
+
 
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
@@ -33,9 +34,9 @@ void set_zoom_factor(int)
 {
 }
 
-int get_zoom_factor() 
-{ 
-	return zoom_factor; 
+int get_zoom_factor()
+{
+	return 1;
 }
 
 int zoom_factor_up()
@@ -109,7 +110,7 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 	return 0;
 }
 
-void register_image(struct image_t* image)
+void register_image(class image_t* image)
 {
 	image->imageid = 1;
 }
@@ -129,15 +130,15 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 	}
 }
 
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw)
 {
-	if (image < 2) {
-		// initialize offsets with dummy values
-		*xoff = 0;
-		*yoff = 0;
-		*xw = 0;
-		*yw = 0;
-	}
+    if (image < 2) {
+        // initialize offsets with dummy values
+        xoff = 0;
+        yoff = 0;
+        xw = 0;
+        yw = 0;
+    }
 }
 
 /*
@@ -175,14 +176,6 @@ void display_pop_clip_wh(CLIP_NUM_DEF_NOUSE0)
 }
 
 void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
-{
-}
-
-static inline void pixcopy(PIXVAL *, const PIXVAL *, const unsigned int)
-{
-}
-
-static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 {
 }
 
@@ -238,6 +231,13 @@ void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, in
 {
 }
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int, int)
+{
+}
+
+void display_color_img_with_tooltip(const image_id, KOORD_VAL, KOORD_VAL, sint8, const int, const int, const char* CLIP_NUM_DEF_NOUSE)
+{
+}
 
 void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 {
@@ -245,6 +245,18 @@ void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_C
 
 
 void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
+{
+}
+
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
+{
+}
+
+void display_colorbox_with_tooltip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, const char*)
+{
+}
+
+void display_veh_form_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, uint8, uint8, bool CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -257,6 +269,10 @@ void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL
 }
 
 void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const COLOR_VAL *)
+{
+}
+
+void display_filled_roundbox_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool)
 {
 }
 
@@ -407,6 +423,11 @@ void display_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
 
 void display_filled_circle_rgb(KOORD_VAL, KOORD_VAL, int, const PLAYER_COLOR_VAL)
 {
+}
+
+int display_fluctuation_triangle_rgb(KOORD_VAL, KOORD_VAL, uint8, const bool, sint64)
+{
+	return 0;
 }
 
 void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, KOORD_VAL, KOORD_VAL)

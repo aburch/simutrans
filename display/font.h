@@ -1,5 +1,11 @@
-#ifndef FONT_H
-#define FONT_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DISPLAY_FONT_H
+#define DISPLAY_FONT_H
+
 
 #include "../simtypes.h"
 

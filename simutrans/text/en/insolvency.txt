@@ -1,22 +1,27 @@
 <title>Insolvency Help</title>
 
 <h1><strong>Debt and Insolvency</strong></h1>
-
 <p>
-What happens when you go into the red depends on how a number of settings in the <strong>simuconf.tab</strong> file located in the /simutrans/config/ directory were set. This text explains the default settings: the comments in <strong>simuconf.tab</strong> explain all the permutations.
+Every player has a <em>credit limit</em>. As your net wealth and profit increases, so does your credit limit.
 </p>
 <p>
-Every player has a <em>credit limit</em>. That credit limit starts out at 10% of the starting cash balance. So, for example, if you had a starting cash balance of 300,000c, your credit limit would be 30,000c. As your net wealth and profit increases, so does your credit limit.
+You can spend money on transport infrastructure, buildings, earthworks, vehicles, etc., even if you have no cash to spare, provided that you remain wihtin your credit limit. You cannot spend money on anything that would mean going into debt beyond your credit limit (the one exception is the <a href="removal_tool.txt">remove tool</a>, which can be used all the time to take away costly infrastructure, even if using it would exceed your credit limit). 
 </p>
 <p>
-You can spend money on transport infrastructure, buildings, earthworks, vehicles, etc., even if you have no cash to spare, provided that you are still wihtin your credit limit. You cannot spend money on anything that would mean going into debt beyond your credit limit (the one exception is the <a href="removal_tool.txt">remove tool</a>, which can be used all the time to take away costly infrastructure, even if using it would exceed your credit limit). 
-</p>
-<p>
-Whilst you are in debt, you have to pay interest. The default amount is 10% per month, but this can be adjusted in <strong>simuconf.tab</strong>. Interest in Simutrans is compound interest: that means that you pay interest on the total amount that you owe, and any new interest payments are added to the sum of the debt.
+Whilst you are in debt, you have to pay interest. The default amount is 10% per month, but this can be adjusted in <strong>simuconf.tab</strong>. Interest in Simutrans-Extended is compound interest: that means that you pay interest on the total amount that you owe, and any new interest payments are added to the sum of the debt.
 </p>
 <p>
 If you are in debt for more than three consecutive months, your credit limit is slowly adversely affected: banks only want to lend money to people who will pay it back on time. Once you have cleared your debt, your credit limit will slowly recover - if you stay in the black.
 </p>
 <p>
-With the default settings, you cannot go into liquidiation as such, although there might become a time when there is no way that you can service your debt without spending on transport infrastructure that you cannot afford. However, with certain settings in <strong>simuconf.tab</strong>, if your debt exceeds your net wealth at the end of any month, you will be given a message telling you that you have gone bankrupt.
+If your debt exceeds your <em>solvency limit</em>, then you become <em>insolvent</em>. Insolvency in Simutrans-Extended takes two forms: <em>administration</em> and <em>liquidation</em>.
+</p>
+<p>
+When you first become insolvent, you go into <em>administration</em>. This is your final chance to save your company. You can continue to operate your company as normal in this period (subject to the credit limit), but you will be warned that you are in administration at the beginning of every month. Additionally, in a multi-player game, you can be <a href="takeover.txt">taken over</a> involuntarily by another company if you are in administration. You can leave administration by improving your credit balance so that it exceeds your solvency limit. 
+</p>
+<p>
+If you have been in administration for more than 12 months, you go into <em>liquidation</em>. For you, this is the end of the game. All of your vehicles will be sent back to their depots and you will permanently lose the ability to control your company. In a multi-player game, your company's assets remain available for a further 12 months to be purcahsed as a whole by way of a <a href="takeover.txt">takeover</a>, failing which they will all be scrapped and the liquidation of your company will be complete.
+</p>
+<p>
+Some of the behaviour defined here can be affected by settings in the <strong>simuconf.tab</strong> file located in the /simutrans/config/ directory. This text explains the default settings: the comments in <strong>simuconf.tab</strong> explain all the permutations.
 </p>

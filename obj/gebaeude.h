@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_gebaeude_h
-#define obj_gebaeude_h
+#ifndef OBJ_GEBAEUDE_H
+#define OBJ_GEBAEUDE_H
+
 
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"
 #include "../simcolor.h"
 #include "../tpl/minivec_tpl.h"
 #include "../simworld.h"
+#include "../bauer/goods_manager.h"
 
 class building_tile_desc_t;
 class fabrik_t;
@@ -29,19 +29,11 @@ class gebaeude_t : public obj_t, sync_steppable
 private:
 	const building_tile_desc_t *tile;
 
-	
-
 	/**
 	 * Time control for animation progress.
 	 * @author Hj. Malthaner
 	 */
 	uint16 anim_time;
-
-	/**
-	 * Current anim frame
-	 * @author Hj. Malthaner
-	 */
-	uint8 count;
 
 	/**
 	 * Is this a sync animated object?
@@ -54,7 +46,7 @@ private:
 	 * shall be displayed.
 	 * @author Hj. Malthaner
 	 */
-	uint8 zeige_baugrube:1;
+	uint8 show_construction:1;
 
 	/**
 	 * if true, this ptr union contains a factory pointer
@@ -70,13 +62,10 @@ private:
 
 	uint8 anim_frame;
 
-	/**
-	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
-	 * "Time at that was built the building" (Babelfish)
-	 * @author Hj. Malthaner
-	 */
-	sint64 purchase_time;
-	
+	sint64 construction_start;  // Time in ticks. "Pit" under-construction graphics handled by sync_step()
+    sint32 purchase_time;       // Date in months
+
+
 	/**
 	* either point to a factory or a city
 	* @author Hj. Malthaner
@@ -92,11 +81,11 @@ private:
 	 */
 	void init();
 
-	/** 
+	/**
 	 * Stores the dynamic population of this building:
 	 * either as visitor demand (commercial) or population
-	 * (residential). This is the fully adjusted figure, 
-	 * representing passengers to be generated or demanded 
+	 * (residential). This is the fully adjusted figure,
+	 * representing passengers to be generated or demanded
 	 * per game month.
 	 */
 	union people_t
@@ -111,18 +100,18 @@ private:
 		uint16 visitor_demand;
 	} adjusted_people;
 
-	/** 
+	/**
 	 * Stores the dynamic number of jobs in this building
-	 * at present. This is the fully adjusted figure, 
+	 * at present. This is the fully adjusted figure,
 	 * representing commuters to be demanded per game month.
 	 */
 	uint16 jobs;
 	uint16 adjusted_jobs;
 
-	/** 
+	/**
 	 * Stores the dynamic level of mail demand in this building
-	 * at present. This is the fully adjusted figure, 
-	 * representing packets of mail to be generated or demanded 
+	 * at present. This is the fully adjusted figure,
+	 * representing packets of mail to be generated or demanded
 	 * per game month.
 	 */
 	uint16 mail_demand;
@@ -150,13 +139,13 @@ private:
 	* multiplied by the number of ticks per month, subtracted
 	* from the creation time, to which is added the number
 	* of ticks per month whenever a commuter reaches this
-	* destination. Further, this value is set so that, 
+	* destination. Further, this value is set so that,
 	* whenever a number is added to it, it will never be less
 	* than that number plus the number of ticks per month
 	* multiplied by the number of available jobs minus
 	* the current time. This is intended to prevent more
 	* commuters going to this building each month than there
-	* are jobs available for them. 
+	* are jobs available for them.
 	* @author: jamespetts
 	*/
 	sint64 available_jobs_by_time;
@@ -188,7 +177,7 @@ public:
 #endif
 	virtual ~gebaeude_t();
 
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 	void add_alter(sint64 a);
 
@@ -196,13 +185,9 @@ public:
 	void set_stadt(stadt_t *s);
 
 	/**
-	 * Ein Gebaeude kann zu einer Fabrik gehören.
-	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-	 * wenn das Objekt zu keiner Fabrik gehört.
-	 *
-	 * A building can belong to a factory. 
-	 * return a pointer on the factory to that the object belongs or NULL,
-	 * if the object belongs to no factory. (Google)
+	 * A building can belong to a factory.
+	 * @return a pointer of the factory to which the object belongs; or NULL,
+	 * if the object does not belong to a factory.
 	 *
 	 * @author Hj. Malthaner
 	 */
@@ -217,30 +202,32 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const;
+	waytype_t get_waytype() const OVERRIDE;
 
-	image_id get_image() const;
-	image_id get_image(int nr) const;
-	image_id get_front_image() const;
+	image_id get_image() const OVERRIDE;
+	image_id get_image(int nr) const OVERRIDE;
+	image_id get_front_image() const OVERRIDE;
 	void mark_images_dirty() const;
 
-	image_id get_outline_image() const;
-	PLAYER_COLOR_VAL get_outline_colour() const;
+	image_id get_outline_image() const OVERRIDE;
+	PLAYER_COLOR_VAL get_outline_colour() const OVERRIDE;
 
 	// caches image at height 0
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool) { calc_image(); return true; }
+	bool check_season(const bool) OVERRIDE { calc_image(); return true; }
 
 	/**
-	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
+	 * @return Building's own name, or factory name (if building
+	 * belongs to a factory)
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *get_name() const;
+	virtual const char *get_name() const OVERRIDE;
+	const char* get_individual_name() const;
 
 	void get_description(cbuffer_t & buf) const;
 
@@ -257,15 +244,14 @@ public:
 	bool is_signalbox() const;
 
 	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
+	 * @return A description string, as might be displayed in an infobox
 	 * @author Hj. Malthaner
 	 */
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void get_class_percentage(cbuffer_t & buf) const;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	void display_coverage_radius(bool display);
 
@@ -273,17 +259,17 @@ public:
 	 * Play animations of animated buildings.
 	 * Count-down to replace construction site image by regular image.
 	 */
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	void set_tile( const building_tile_desc_t *t, bool start_with_construction );
 
 	const building_tile_desc_t *get_tile() const { return tile; }
 
-	virtual void show_info();
+	virtual void show_info() OVERRIDE;
 
-	void cleanup(player_t *player);
+	void cleanup(player_t *player) OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	// currently animated
 	bool is_sync() const { return sync; }
@@ -337,6 +323,8 @@ public:
 
 	bool get_is_factory() const { return is_factory; }
 
+        sint32 get_purchase_time() const { return purchase_time; }
+
 	/**
 	* Call this method when commuting passengers are sent to this building.
 	* Pass the number of passengers being sent.
@@ -344,7 +332,6 @@ public:
 	*/
 	void set_commute_trip(uint16 number);
 
-	uint16 get_population() const;
 	uint16 get_adjusted_population() const;
 
 	uint16 get_visitor_demand() const;
@@ -365,6 +352,9 @@ public:
 	 * @returns true if both building tiles are part of one (multi-tile) building.
 	 */
 	bool is_same_building(gebaeude_t* other) const;
+
+	// @returns whether it is within the player's network. helper function for making the list
+	bool is_within_players_network(const player_t* player, uint8 catg_index = goods_manager_t::INDEX_NONE) const;
 
 	/**
 	* Returns the number of jobs left in this building this month.
@@ -387,9 +377,11 @@ public:
 
 	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
 	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
-	
+
 	const minivec_tpl<const planquadrat_t*> &get_tiles() { return building_tiles; }
 	void set_building_tiles();
+
+	void connect_by_road_to_nearest_city();
 
 private:
 	// Calculate last 2 years(13-24 months) average percentage

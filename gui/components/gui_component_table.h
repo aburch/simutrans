@@ -1,32 +1,31 @@
 /*
- * Copyright (c) 2010 Bernd Gabriel
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_component_table_h
-#define gui_component_table_h
+#ifndef GUI_COMPONENTS_GUI_COMPONENT_TABLE_H
+#define GUI_COMPONENTS_GUI_COMPONENT_TABLE_H
+
 
 #include "gui_table.h"
 
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
 class gui_table_cell_list_t : public list_tpl<gui_component_t> {
 protected:
-	virtual gui_component_t *create_item() const { 
+	virtual gui_component_t *create_item() const {
 		// cannot create a default component, as gui_component_t is an abstract class.
 		return NULL;
 	}
 };
 
 /**
- * 
+ *
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
@@ -58,9 +57,9 @@ protected:
 	/**
 	 * init_cell() is called in change_size(), whenever a cell is added, e.g. during set_size().
 	 *
-	 * It has to initialize the content of this cell. 
+	 * It has to initialize the content of this cell.
 	 * The default implementation does nothing for cell(x,y) held in gui_cells[x][y].
-	 * The position of a cell is relative to its position in the grid. 
+	 * The position of a cell is relative to its position in the grid.
 	 * Position (0,0) shows the cell starting in the upper left corner of the cell.
 	 * The cell must not be wider than get_column_width() and not higher than get_row_height().
 	 * There is no clipping. If you'd like to merge cells, you resign a grid or override paint_grid().
@@ -70,14 +69,14 @@ protected:
 	/**
 	 * paint_cell() is called in draw(), whenever a cell has to be painted.
 	 *
-	 * It has to paint cell (x,y) at position offset. 
+	 * It has to paint cell (x,y) at position offset.
 	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
 	virtual void paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y);
 
 	/**
 	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().
-	 * It has to finalize the content of this cell. 
+	 * It has to finalize the content of this cell.
 	 * The default implementation deletes the component of cell (x,y), if there is one.
 	 */
 	virtual void remove_cell(coordinate_t x, coordinate_t y);

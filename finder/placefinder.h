@@ -1,14 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- *
- * Author: V. Meyer
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __PLACEFINDER_H
-#define __PLACEFINDER_H
+#ifndef FINDER_PLACEFINDER_H
+#define FINDER_PLACEFINDER_H
+
 
 #include "../dataobj/koord.h"
 class karte_t;
@@ -80,16 +77,16 @@ protected:
 	sint16 h;
 	sint16 max_radius;
 
-	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
+	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const;
 
-	virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const;
+	virtual bool is_tile_ok(koord pos, koord d, climate_bits cl, uint16 allowed_regions) const;
 
 	bool is_boundary_tile(koord d) const;
 
 	placefinder_t(karte_t *welt, sint16 _max_radius = - 1) { this->welt = welt; max_radius = _max_radius; }
 	virtual ~placefinder_t() {}
 public:
-	koord find_place(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);
+	koord find_place(koord start, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions, bool *r = NULL);
 };
 
 #endif

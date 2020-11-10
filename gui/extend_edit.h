@@ -1,5 +1,11 @@
-#ifndef gui_extend_edit_h
-#define gui_extend_edit_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_EXTEND_EDIT_H
+#define GUI_EXTEND_EDIT_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -33,8 +39,6 @@ class player_t;
  * @author Niels Roest
  * @author hsiegeln: major redesign
  */
-
-
 class extend_edit_gui_t :
 	public gui_frame_t,
 	public action_listener_t
@@ -65,7 +69,7 @@ protected:
 
 	bool is_show_trans_name;
 
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	virtual void fill_list( bool /* translate */ ) {}
 
@@ -79,7 +83,7 @@ public:
 	* @return true if such a button is needed
 	* @author Hj. Malthaner
 	*/
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

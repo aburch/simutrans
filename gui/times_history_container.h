@@ -1,5 +1,11 @@
-#ifndef times_history_container_h
-#define times_history_container_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_TIMES_HISTORY_CONTAINER_H
+#define GUI_TIMES_HISTORY_CONTAINER_H
+
 
 #include "components/gui_component.h"
 #include "gui_frame.h"
@@ -50,7 +56,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	inline void set_schedule(schedule_t *s) { schedule = s; }
 };

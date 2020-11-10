@@ -1,9 +1,17 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
+#ifndef GUI_COMPONENTS_GUI_CONTAINER_H
+#define GUI_COMPONENTS_GUI_CONTAINER_H
+
+
+#include "../../simdebug.h"
+#include "../../simevent.h"
+#include "../../tpl/slist_tpl.h"
+#include "gui_component.h"
+
 
 /**
  * A container for other gui_components. Is itself
@@ -12,16 +20,6 @@
  * @author Hj. Malthaner
  * @date 03-Mar-01
  */
-
-#ifndef gui_container_h
-#define gui_container_h
-
-
-#include "../../simdebug.h"
-#include "../../simevent.h"
-#include "../../tpl/slist_tpl.h"
-#include "gui_component.h"
-
 class gui_container_t : public gui_component_t
 {
 private:
@@ -65,7 +63,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	* Removes all Components in the Container.
@@ -77,7 +75,7 @@ public:
 	 * Returns true if any child component is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable();
+	virtual bool is_focusable() OVERRIDE;
 
 	/**
 	 * Activates this element.
@@ -92,14 +90,14 @@ public:
 	 * returns element that has the focus
 	 * that is: go down the hierarchy as much as possible
 	 */
-	virtual gui_component_t *get_focus();
+	virtual gui_component_t *get_focus() OVERRIDE;
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
+	virtual scr_coord get_focus_pos() OVERRIDE { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
 };
 
 #endif

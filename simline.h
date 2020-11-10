@@ -1,10 +1,11 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-#ifndef simline_h
-#define simline_h
+
+#ifndef SIMLINE_H
+#define SIMLINE_H
+
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
@@ -34,7 +35,8 @@ enum line_cost_t {
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
-	MAX_LINE_COST				// 12 | 9 | Total number of cost items
+	LINE_WAYTOLL,				// 12 | 8 |
+	MAX_LINE_COST				// 13 | 9 | Total number of cost items
 };
 
 class karte_ptr_t;
@@ -47,8 +49,12 @@ class simline_t {
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
-	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 3, line_overcrowded = 4, line_missing_scheduled_slots = 5, line_has_obsolete_vehicles = 6, line_has_obsolete_vehicles_with_upgrades = 7 };
-	
+	enum line_fireight_group { all_ftype = 0, all_pas = 1, all_mail = 2, all_freight = 3 };
+
+	enum states { line_normal_state = 0, line_no_convoys = 1, line_loss_making = 2, line_nothing_moved = 4, line_overcrowded = 8, line_missing_scheduled_slots = 16, line_has_obsolete_vehicles = 32, line_has_upgradeable_vehicles = 64	};
+
+	static const uint linetype_to_stationtype[simline_t::MAX_LINE_TYPE];
+
 protected:
 	schedule_t * schedule;
 	player_t *player;
@@ -87,7 +93,7 @@ private:
 
 	// The classes of passengers/mail carried by this line
 	// Cached to reduce recalculation times in the path
-	// explorer. 
+	// explorer.
 	vector_tpl<uint8> passenger_classes_carried;
 	vector_tpl<uint8> mail_classes_carried;
 
@@ -122,7 +128,7 @@ private:
 	// @author: suitougreentea
 	times_history_map journey_times_history;
 
-	states state;
+	uint8 state;
 
 public:
 	simline_t(player_t *player, linetype type);
@@ -163,8 +169,8 @@ public:
 	 * @author prissi
 	 */
 	uint8 get_state_color() const { return state_color; }
-
-	int get_state() const { return state; }
+	// This has multiple flags
+	uint8 get_state() const { return state; }
 
 	/*
 	 * return schedule of line
@@ -217,11 +223,11 @@ public:
 	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
 	sint64 get_stat_converted(int month, int cost_type) const;
 
-	void book(sint64 amount, line_cost_t cost_type) 
+	void book(sint64 amount, line_cost_t cost_type)
 	{
 		if(cost_type != LINE_AVERAGE_SPEED && cost_type != LINE_COMFORT)
 		{
-			financial_history[0][cost_type] += amount; 
+			financial_history[0][cost_type] += amount;
 		}
 		else
 		{
@@ -231,7 +237,7 @@ public:
 				rolling_average_count[cost_type] /= 2;
 				rolling_average[cost_type] /= 2;
 			}
-			rolling_average[cost_type] += (uint32)amount;			
+			rolling_average[cost_type] += (uint32)amount;
 			rolling_average_count[cost_type] ++;
 			const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
 			financial_history[0][cost_type] = tmp;
@@ -268,6 +274,7 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	player_t *get_owner() const {return player;}
+	void set_owner(player_t* value) { player = value; }
 
 	void recalc_status();
 
@@ -278,6 +285,20 @@ public:
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
 
 	inline times_history_map& get_journey_times_history() { return journey_times_history; }
+
+	image_id get_linetype_symbol() const
+	{
+		if (type == truckline && goods_catg_index.is_contained(goods_manager_t::INDEX_PAS)) {
+			return skinverwaltung_t::bushaltsymbol->get_image_id(0);
+		}
+		else {
+			return schedule->get_schedule_type_symbol();
+		}
+	}
+
+	inline char const *get_linetype_name() const {
+		return schedule_type_text[type];
+	}
 
 	sint64 calc_departures_scheduled();
 };

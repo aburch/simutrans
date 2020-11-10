@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Window with destination information for a stop
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "halt_detail.h"
@@ -144,7 +137,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	freight_selector_size.w = button_size.w+30;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
 	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max(freight_selector_size.w, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 
@@ -286,13 +278,13 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);
 
-		if(  toggler_departures.pressed  ) 
+		if(  toggler_departures.pressed  )
 		{
 			old_len = -1;
 		}
-		if(  old_len != freight_info.len()  ) 
+		if(  old_len != freight_info.len()  )
 		{
-			if(  toggler_departures.pressed  ) 
+			if(  toggler_departures.pressed  )
 			{
 				update_departures();
 				joined_buf.append( freight_info );
@@ -749,7 +741,7 @@ void halt_info_t::update_departures()
 
 		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(), halt);
 		delta_t = iter.value - cur_ticks;
-		
+
 		halt_info_t::dest_info_t next(next_halt, max(delta_t, 0l), cnv);
 
 		destinations.insert_ordered( next, compare_hi );
@@ -758,11 +750,11 @@ void halt_info_t::update_departures()
 	// now we build the string ...
 	joined_buf.clear();
 	//slist_tpl<halthandle_t> exclude;
-	if(  origins.get_count()>0  ) 
+	if(  origins.get_count()>0  )
 	{
 		joined_buf.append( " " );
 		joined_buf.append( translator::translate( "Arrivals from\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins ) 
+		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, origins )
 		{
 			//if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  )
 			//{
@@ -776,13 +768,13 @@ void halt_info_t::update_departures()
 	}
 
 	//exclude.clear();
-	if(  destinations.get_count()>0  ) 
+	if(  destinations.get_count()>0  )
 	{
-		
+
 		joined_buf.append( translator::translate( "Departures to\n" ) );
-		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations ) 
+		FOR( vector_tpl<halt_info_t::dest_info_t>, hi, destinations )
 		{
-			//if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) 
+			//if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  )
 			//{
 				char timebuf[32];
 				welt->sprintf_ticks(timebuf, sizeof(timebuf), hi.delta_ticks );
@@ -858,7 +850,7 @@ void halt_info_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 	const scr_coord_val client_width = get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
-		
+
 	input.set_width(client_width);
 
 	view.set_pos(scr_coord(D_MARGIN_LEFT + client_width - view.get_size().w, view.get_pos().y));
@@ -873,7 +865,7 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH + 40, D_BUTTON_HEIGHT));
 
-	// the buttons shall be placed above the "waiting" scroll area. Thus they will start at 
+	// the buttons shall be placed above the "waiting" scroll area. Thus they will start at
 	// scrolly.get_pos().y - <button height> - D_V_SPACE.
 	const scr_coord delta(0, scrolly.get_pos().y - freight_sort_selector.get_size().h - D_V_SPACE - freight_sort_selector.get_pos().y);
 

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __tabfile_h
-#define __tabfile_h
+#ifndef DATAOBJ_TABFILE_H
+#define DATAOBJ_TABFILE_H
+
 
 #include <stdio.h>
 
@@ -134,7 +133,8 @@ class tabfileobj_t {
 private:
 	stringhashtable_tpl<obj_info_t> objinfo;
 
-	bool get_x_y( const char *key, sint16 &x, sint16 &y );
+	template<typename T>
+	bool get_x_y( const char *key, T &x, T &y );
 
 public:
 	tabfileobj_t() { ; }

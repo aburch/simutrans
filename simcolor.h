@@ -1,9 +1,11 @@
 /*
- * all color related stuff
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simcolor_h
-#define simcolor_h
+#ifndef SIMCOLOR_H
+#define SIMCOLOR_H
+
 
 #define LIGHT_COUNT (15)
 
@@ -37,6 +39,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_LIGHT_YELLOW    (175)
 #define COL_LEMON_YELLOW    (31)
 #define COL_BRONZE          (24)
+#define COL_HORIZON_BLUE    (6)
 #define COL_DODGER_BLUE     (151)
 #define COL_BLUE            (147)
 #define COL_DARK_BLUE       (144)
@@ -45,6 +48,7 @@ typedef unsigned char COLOR_VAL;
 #define COL_GREEN           (140)
 #define COL_DARK_GREEN      (136)
 #define COL_LIGHT_GREEN     (143)
+#define COL_APRICOT         (95)
 #define COL_ORANGE          (155)
 #define COL_DARK_ORANGE     (153)
 #define COL_LIGHT_ORANGE    (158)
@@ -87,23 +91,23 @@ typedef unsigned char COLOR_VAL;
 #define COL_OPERATION       (132)
 #define COL_VEH_MAINTENANCE (135)
 #define COL_MAINTENANCE     COL_LIGHT_RED
-#define COL_TOLL            (157)
+#define COL_TOLL            COL_ORCHID
 #define COL_POWERLINES      (46)
-#define COL_OPS_PROFIT      (87)
+#define COL_CASH_FLOW       (102)
 #define COL_NEW_VEHICLES    COL_LIGHT_PURPLE
 #define COL_CONSTRUCTION    (110)
-#define COL_PROFIT          (6)
+#define COL_PROFIT          COL_HORIZON_BLUE
 #define COL_TRANSPORTED     COL_YELLOW
 #define COL_MAXSPEED        COL_TURQUOISE
 
 #define COL_CASH            (52)
 #define COL_VEHICLE_ASSETS  COL_MAGENTA
 #define COL_MARGIN          COL_LIGHT_YELLOW
-#define COL_WEALTH          (95)
+#define COL_WEALTH          COL_APRICOT
 
 #define COL_COUNVOI_COUNT   COL_VEHICLE_ASSETS
-#define COL_FREE_CAPACITY   COL_TOLL
-#define COL_DISTANCE        COL_OPS_PROFIT
+#define COL_FREE_CAPACITY   (157)
+#define COL_DISTANCE        (87)
 
 #define COL_CITICENS        COL_WHITE
 #define COL_GROWTH          (122)
@@ -125,10 +129,19 @@ typedef unsigned char COLOR_VAL;
 #define COL_INTEREST        (67)
 #define COL_SOFT_CREDIT_LIMIT COL_PURPLE
 #define COL_HARD_CREDIT_LIMIT 77
-#define COL_CAR_OWNERSHIP   (95)
+#define COL_CAR_OWNERSHIP   COL_APRICOT
 //#define COL_DISTANCE      (87)
 #define COL_STAFF_SHORTAGE COL_DARK_ORCHID
 
+// used in vehicle status
+#define COL_UPGRADEABLE       COL_PURPLE
+#define COL_OBSOLETE          COL_DARK_BLUE
+#define COL_OUT_OF_PRODUCTION COL_ROYAL_BLUE
+//#define COL_OVERCROWDED     COL_DARK_PURPLE
+
+// used in tilebar (and text)
+#define COL_ADDITIONAL COL_LIGHT_TURQUOISE
+#define COL_REDUCED    COL_LIGHT_ORANGE
 
 #define SYSCOL_TEXT                         gui_theme_t::gui_color_text
 #define SYSCOL_TEXT_HIGHLIGHT               gui_theme_t::gui_color_text_highlight

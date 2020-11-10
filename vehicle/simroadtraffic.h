@@ -1,5 +1,11 @@
-#ifndef _simmover_h
-#define _simmover_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef VEHICLE_SIMROADTRAFFIC_H
+#define VEHICLE_SIMROADTRAFFIC_H
+
 
 /**
  * Moving objects for Simutrans.
@@ -21,6 +27,7 @@
 
 class citycar_desc_t;
 class karte_t;
+
 
 /**
  * Base class for traffic participants with random movement
@@ -48,10 +55,10 @@ protected:
 	uint8 tiles_since_last_increment;
 
 protected:
-	virtual waytype_t get_waytype() const { return road_wt; }
+	virtual waytype_t get_waytype() const OVERRIDE { return road_wt; }
 
-	virtual grund_t* hop();
-	virtual void update_bookkeeping(uint32) {};
+	void hop(grund_t *gr) OVERRIDE;
+	virtual void update_bookkeeping(uint32) OVERRIDE {};
 
 #ifdef INLINE_OBJ_TYPE
 	road_user_t(typ type);
@@ -76,42 +83,33 @@ protected:
 public:
 	virtual ~road_user_t();
 
-	const char *get_name() const = 0;
-	//typ get_typ() const  = 0;
-
 	/**
 	 * Open a new observation window for the object.
 	 * @author Hj. Malthaner
 	 */
-	virtual void show_info();
+	virtual void show_info() OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// finalizes direction
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
 	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
-	const char * is_deletable(const player_t *) { return NULL; }
+	const char * is_deletable(const player_t *) OVERRIDE { return NULL; }
 };
 
 
-class private_car_t : public road_user_t, public overtaker_t
+class private_car_t : public road_user_t, public overtaker_t, public traffic_vehicle_t
 {
 private:
 
 	koord origin;
-
 	const citycar_desc_t *desc;
 
-	//route_t route;
-	//uint16 route_index;
-
 	// prissi: time to life in blocks
-#ifdef DESTINATION_CITYCARS
 	koord target;
-#endif
 	koord3d pos_next_next;
 
 	/**
@@ -122,14 +120,16 @@ private:
 
 	uint32 ms_traffic_jam;
 
-	grund_t* hop_check();
+	koord3d last_tile_marked_as_stopped;
+
+	grund_t* hop_check() OVERRIDE;
 
 	void calc_disp_lane();
 
 protected:
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 public:
 	private_car_t(loadsave_t *file);
@@ -142,23 +142,26 @@ public:
 
 	virtual ~private_car_t();
 
-	virtual void rotate90();
+	void rotate90() OVERRIDE;
 
 	static stringhashtable_tpl<const citycar_desc_t *> table;
 
 	const citycar_desc_t *get_desc() const { return desc; }
 
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
-	void hop(grund_t *gr);
+	void hop(grund_t *gr) OVERRIDE;
 	bool can_enter_tile(grund_t *gr);
 
-	void enter_tile(grund_t* gr);
+	void enter_tile(grund_t* gr) OVERRIDE;
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
 
-	const char *get_name() const {return "Verkehrsteilnehmer";}
+	uint32 get_max_speed() override;
+	inline sint32 get_max_power_speed() OVERRIDE {return get_max_speed();}
+
+	const char *get_name() const OVERRIDE {return "Verkehrsteilnehmer";}
 	//typ get_typ() const { return road_user; }
 
 	/**
@@ -167,10 +170,10 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf, bool dummy = false) const;
+	virtual void info(cbuffer_t & buf) const OVERRIDE;
 
 	// true, if this vehicle did not moved for some time
-	virtual bool is_stuck() { return current_speed==0;}
+	virtual bool is_stuck() OVERRIDE { return current_speed==0;}
 
 	/* this function builds the list of the allowed citycars
 	 * it should be called every month and in the beginning of a new game
@@ -184,17 +187,17 @@ public:
 
 	// since we must consider overtaking, we use this for offset calculation
 	void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
-	virtual overtaker_t *get_overtaker() { return this; }
+	virtual overtaker_t *get_overtaker() OVERRIDE { return this; }
 
 	// Overtaking for city cars
-	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other) OVERRIDE;
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
 
-	virtual void reflesh(sint8,sint8);
+	virtual void reflesh(sint8,sint8) OVERRIDE;
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

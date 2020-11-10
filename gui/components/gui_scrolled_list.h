@@ -1,16 +1,11 @@
 /*
- * Scrollable list.
- * Displays list, scrollbuttons up/down, dragbar.
- * Has a min and a max size, and can be displayed with any size in between.
- * Does ONLY cater for vertical offset (yet).
- * two possible types:
- * -list.      simply lists some items.
- * -selection. is a list, but additionally, one item can be selected.
- * @author Niels Roest, additions by Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_scrolled_list_h
-#define gui_scrolled_list_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+#define GUI_COMPONENTS_GUI_SCROLLED_LIST_H
+
 
 #include "gui_scrollbar.h"
 #include "action_listener.h"
@@ -20,6 +15,16 @@
 #include "../../utils/plainstring.h"
 #include "../../tpl/vector_tpl.h"
 
+/**
+ * Scrollable list of components that can be sorted, and has component selection.
+ * Displays list, scrollbuttons up/down, dragbar.
+ * Has a min and a max size, and can be displayed with any size in between.
+ * Does ONLY cater for vertical offset (yet).
+ * two possible types:
+ * -list.      simply lists some items.
+ * -selection. is a list, but additionally, one item can be selected.
+ * @author Niels Roest, additions by Hj. Malthaner
+ */
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
 	public action_listener_t,
@@ -56,13 +61,13 @@ public:
 	public:
 		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
 
-		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
-		virtual scr_coord_val get_height() const { return LINESPACE; }
+		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus ) OVERRIDE;
+		virtual scr_coord_val get_height() const OVERRIDE { return LINESPACE; }
 
 		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
 
-		virtual char const* get_text() const { return consttext; }
+		virtual char const* get_text() const OVERRIDE { return consttext; }
 		virtual void set_text(char const *) {}
 
 		virtual bool sort( vector_tpl<scrollitem_t *>&v, int, void * ) const OVERRIDE;
@@ -76,7 +81,7 @@ public:
 	public:
 		var_text_scrollitem_t(char const* const t, uint8 const col) : const_text_scrollitem_t(t,col), text(t) {}
 		virtual void set_text(char const *t) OVERRIDE { text = t; }
-		virtual bool is_editable() { return true; }
+		virtual bool is_editable() OVERRIDE { return true; }
 	};
 
 private:
@@ -149,7 +154,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord pos);
+	void draw(scr_coord pos) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

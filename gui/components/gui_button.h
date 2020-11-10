@@ -1,16 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
- */
+#ifndef GUI_COMPONENTS_GUI_BUTTON_H
+#define GUI_COMPONENTS_GUI_BUTTON_H
 
-#ifndef gui_button_h
-#define gui_button_h
 
 #include "gui_action_creator.h"
 #include "gui_component.h"
@@ -22,6 +17,8 @@ class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
+ *
+ * Defines all button types: Normal (roundbox), Checkboxes (square), Arrows, Scrollbars
  *
  * @author Hj. Malthaner, Niels Roest
  * @date December 2000
@@ -93,6 +90,8 @@ private:
 	button_t(const button_t&);        // forbidden
 	void operator =(const button_t&); // forbidden
 
+	image_id image;
+
 public:
 	COLOR_VAL background_color; //@author hsiegeln
 	COLOR_VAL text_color;
@@ -133,6 +132,8 @@ public:
 	 */
 	void set_tooltip(const char * tooltip);
 
+	void set_image(image_id b) { image = b; };
+
 	/**
 	 * @return true when x, y is within button area, i.e. the button was clicked
 	 * @return false when x, y is outside button area
@@ -146,7 +147,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 
@@ -155,7 +156,7 @@ public:
 	bool enabled() { return b_enabled; }
 
 	// Knightly : a button can only be focusable when it is enabled
-	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
 
 	void update_focusability();
 

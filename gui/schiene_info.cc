@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -67,7 +65,7 @@ void schiene_info_t::draw(scr_coord pos, scr_size size)
 
 
 	gui_frame_t::draw(pos, size);
-	
+
 	if (sch->is_reserved() || sch->is_reserved_directional() || sch->is_reserved_priority())
 	{
 		reserving_vehicle_button.set_visible(true);

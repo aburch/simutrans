@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include "../../simdebug.h"
 #include "../../simconst.h"
@@ -45,7 +50,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
-	
+
 	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
 	const bool extended = version > 0 ? v & EX_VER : false;
@@ -103,7 +108,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 
 		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
 	}
@@ -128,7 +133,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 	}
 	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
@@ -147,7 +152,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 	}
@@ -168,7 +173,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -190,7 +195,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -307,10 +312,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);		
-		desc->trailer_count = decode_uint8(p);		
+		desc->leader_count = decode_uint8(p);
+		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
@@ -420,7 +425,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->classes = 1;
 		}
-	
+
 		// Initialise the arrays
 		desc->capacity = new uint16[desc->classes];
 		desc->comfort = new uint8[desc->classes];
@@ -429,7 +434,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->capacity[i] = decode_uint16(p);
 		}
-		
+
 		if (!extended)
 		{
 			// The new Standard datum for loading times is read here.
@@ -459,14 +464,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->sound = decode_sint8(p);
 		}
-		desc->engine_type = decode_uint8(p);
+		desc->engine_type = (vehicle_desc_t::engine_t)decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 6)
+			if(extended_version < 7)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -482,7 +487,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else {
 					desc->can_lead_from_rear = decode_uint8(p);
 					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
-					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				for (uint32 i = 0; i < desc->classes; i++)
 				{
@@ -511,7 +515,6 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->can_be_at_rear = (bool)decode_uint8(p);
-					desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 					desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 				}
 				desc->increase_maintenance_after_years = decode_uint16(p);
@@ -527,7 +530,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(extended_version == 0)
 				{
 					desc->range = 0;
-					desc->way_wear_factor = UINT32_MAX_VALUE; 
+					desc->way_wear_factor = UINT32_MAX_VALUE;
 				}
 				else
 				{
@@ -549,6 +552,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				else
 				{
 					desc->mixed_load_prohibition = false;
+				}
+				if (extended && extended_version >= 6)
+				{
+					desc->override_way_speed = decode_uint8(p);
+				}
+				else
+				{
+					desc->override_way_speed = false;
 				}
 			}
 			else
@@ -614,7 +625,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	desc->len *= OBJECT_OFFSET_STEPS/CARUNITS_PER_TILE;
 
 	// before version 8 vehicles could only have one freight image in each direction
-	if(version<8) 
+	if(version<8)
 	{
 		desc->freight_image_type = 0;
 	}
@@ -634,7 +645,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		switch(desc->get_waytype())
 		{
-		default:	
+		default:
 		case tram_wt:
 		case road_wt:
 			desc->min_loading_time = desc->max_loading_time = 2000;
@@ -677,6 +688,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->basic_constraint_prev = vehicle_desc_t::unknown_constraint;
 		desc->basic_constraint_next = vehicle_desc_t::unknown_constraint;
 		desc->mixed_load_prohibition = false;
+		desc->override_way_speed = false;
 	}
 	desc->set_way_constraints(way_constraints);
 
@@ -693,8 +705,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// Convert flag
-	if (desc->can_lead_from_rear == true && desc->bidirectional == false){
-		desc->bidirectional = true;
+	if (version<11 || (version == 11 && extended && extended_version < 5)) {
+		if (desc->can_lead_from_rear == true && desc->bidirectional == false) {
+			desc->bidirectional = true;
+		}
 	}
 
 	if(desc->sound==LOAD_SOUND) {
@@ -741,6 +755,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		desc->len,
 		desc->is_tilting,
 		desc->mixed_load_prohibition,
+		desc->override_way_speed,
 		desc->catering_level,
 		desc->get_way_constraints().get_permissive(),
 		desc->get_way_constraints().get_prohibitive(),

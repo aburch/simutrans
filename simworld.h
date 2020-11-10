@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * zentrale Datenstruktur von Simutrans
- * Hj. Malthaner 1998
- */
+#ifndef SIMWORLD_H
+#define SIMWORLD_H
 
-#ifndef simworld_h
-#define simworld_h
 
 #include "simconst.h"
 #include "simtypes.h"
@@ -28,6 +22,7 @@
 #include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/rect.h"
 
 #include "simware.h"
 
@@ -39,7 +34,7 @@
 #define snprintf sprintf_s
 #else
 #define sprintf_s snprintf
-#endif 
+#endif
 
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"
@@ -71,12 +66,12 @@ class viewport_t;
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 //#define FORBID_MULTI_THREAD_PATH_EXPLORER
-#define MULTI_THREAD_PASSENGER_GENERATION 
+#define MULTI_THREAD_PASSENGER_GENERATION
 #ifndef FORBID_MULTI_THREAD_CONVOYS
 #define MULTI_THREAD_CONVOYS
 #endif
 #ifndef FORBID_MULTI_THREAD_PATH_EXPLORER
-#define MULTI_THREAD_PATH_EXPLORER 
+#define MULTI_THREAD_PATH_EXPLORER
 #endif
 #ifndef FORBID_MULTI_THREAD_ROUTE_UNRESERVER
 #define MULTI_THREAD_ROUTE_UNRESERVER
@@ -84,21 +79,21 @@ class viewport_t;
 #endif
 
 #ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-//#define FORBID_SYNC_OBJECTS 
-//#define FORBID_PRIVATE_CARS 
-//#define FORBID_PEDESTRIANS 
+//#define FORBID_SYNC_OBJECTS
+//#define FORBID_PRIVATE_CARS
+//#define FORBID_PEDESTRIANS
 //#define FORBID_CONGESTION_EFFECTS
 //#define DISABLE_JOB_EFFECTS
-//#define FORBID_PUBLIC_TRANSPORT 
-//#define FORBID_RETURN_TRIPS 
-//#define DISABLE_GLOBAL_WAITING_LIST 
+//#define FORBID_PUBLIC_TRANSPORT
+//#define FORBID_RETURN_TRIPS
+//#define DISABLE_GLOBAL_WAITING_LIST
 //#define FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE // Revised to work only in network mode for testing VS/GCC desync (May 2017)
-//#define FORBID_SWITCHING_TO_RETURN_ON_FOOT 
+//#define FORBID_SWITCHING_TO_RETURN_ON_FOOT
 //#define FORBID_SET_GENERATED_PASSENGERS
-//#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS  
-//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1 
-//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2 
-//#define FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS 
+//#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2
+//#define FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS
 #endif
 
 struct checklist_t
@@ -144,8 +139,8 @@ struct checklist_t
 			st == other.st &&
 			nfc == other.nfc &&
 			random_seed == other.random_seed &&
-			halt_entry == other.halt_entry && 
-			line_entry == other.line_entry && 
+			halt_entry == other.halt_entry &&
+			line_entry == other.line_entry &&
 			convoy_entry == other.convoy_entry
 			);
 	}
@@ -158,14 +153,14 @@ struct checklist_t
 // Private car ownership information.
 // @author: jamespetts
 // (But much of this code is adapted from the speed bonus code,
-// written by Prissi). 
+// written by Prissi).
 
-class car_ownership_record_t 
+class car_ownership_record_t
 {
 public:
 	sint64 year;
 	sint16 ownership_percent;
-	car_ownership_record_t( sint64 y = 0, sint16 ownership = 0 ) 
+	car_ownership_record_t( sint64 y = 0, sint16 ownership = 0 )
 	{
 		year = y * 12;
 		ownership_percent = ownership;
@@ -863,7 +858,7 @@ private:
 
 	/**
 	 * This contains all buildings in the world from which passenger
-	 * journeys ultimately start, weighted by their level. 
+	 * journeys ultimately start, weighted by their level.
 	 * @author: jamespetts
 	 */
 	weighted_vector_tpl <gebaeude_t *> passenger_origins;
@@ -887,7 +882,7 @@ private:
 	/**
 	 * This contains all buildings in the world to and from which mail
 	 * is delivered and generated respectively, weighted by their mail
-	 * level. 
+	 * level.
 	 * @author: jamespetts
 	 */
 	weighted_vector_tpl <gebaeude_t *> mail_origins_and_targets;
@@ -912,40 +907,47 @@ private:
 	//
 	// Vehicles use their waytypes. ignore_wt is used when
 	// the cooldown timer should not be used. noise_barrier_wt
-	// is used for industry; overheadlines_wt is used for 
+	// is used for industry; overheadlines_wt is used for
 	// crossings.
 	sint64 sound_cooldown_timer[noise_barrier_wt + 1];
 
-	// The number of operations to run in parallel. 
-	// This is important for multi-threading 
+	// The number of operations to run in parallel.
+	// This is important for multi-threading
 	// synchronisation over the network.
 	// -1: this is not in network mode: use the number of threads
 	// 0: this is the network server: broadcast the number of threads
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
 
-	// A helper method for use in init/new month
+	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;
 	bool path_explorer_working;
+	bool private_car_threads_working;
 public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
+	static simthread_barrier_t private_car_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	static pthread_mutex_t step_passengers_and_mail_mutex;
+	static bool private_car_route_mutex_initialised;
+	static pthread_mutex_t private_car_route_mutex;
 	void start_passengers_and_mail_threads();
 	void start_convoy_threads();
 	void start_path_explorer();
+	void start_private_car_threads(bool override_suspend = false);
 #else
 public:
 #endif
 	// These will do nothing if multi-threading is disabled.
 	void await_passengers_and_mail_threads();
 	void await_convoy_threads();
-	void await_path_explorer(); 
+	void await_path_explorer();
+	void await_private_car_threads(bool override_suspend = false);
+	void suspend_private_car_threads();
 	void await_all_threads();
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
@@ -959,13 +961,13 @@ private:
 	{
 		koord location;
 		uint16 type;
-		gebaeude_t* building; 
+		gebaeude_t* building;
 	};
 
 	/**
 	* Generates passengers and mail from all origin buildings
 	* to be distributed to all destination buildings
-	*/		 	
+	*/
 	void step_passengers_and_mail(uint32 delta_t);
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
@@ -984,10 +986,10 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static bool threads_initialised; 
-	
+	static bool threads_initialised;
+
 	// These are both intended to be arrays of vectors
-	static vector_tpl<private_car_t*> *private_cars_added_threaded; 
+	static vector_tpl<private_car_t*> *private_cars_added_threaded;
 	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
 
 	static thread_local uint32 passenger_generation_thread_number;
@@ -1146,6 +1148,19 @@ public:
 	void update_map();
 
 	/**
+	 * Recalcs images after change of underground mode.
+	 */
+	void update_underground();
+
+	/**
+	 * @brief Prepares an area of the map to be drawn.
+	 *
+	 * New area is the area that will be prepared. Old area is the area that was
+	 * already prepared. Only the difference between the two rects is prepared.
+	 */
+	void prepare_tiles(rect_t const& new_area, rect_t const& old_area);
+
+	/**
 	 * @returns true if world gets destroyed
 	 */
 	bool is_destroying() const { return destroying; }
@@ -1220,14 +1235,6 @@ public:
 	void rdwr_player_password_hashes(loadsave_t *file);
 	void remove_player(uint8 player_nr);
 
-	/**
-	 * Get the public service player whos domain of influence includes the ground gr.
-	 * If gr is NULL then the default public service player is returned.
-	 * @param gr the ground to lookup
-	 * @return a public service player
-	 */
-	player_t *get_public_player(grund_t const *const gr) const;
-	
 	/**
 	* Get the default public service player.
 	* @return the default public service player
@@ -1351,7 +1358,7 @@ public:
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 
-	/** 
+	/**
 	 * calc_adjusted_monthly_figure()
 	 *
 	 * NOTE: Avoid calling this from a method called from step(), as this is now more
@@ -1360,47 +1367,47 @@ public:
 	 * Quantities defined on a per month base must be adjusted according to the virtual
 	 * game speed defined by the ticks per month and meters per tile settings in simuconf.tab.
 	 *
-	 * NOTICE: Don't confuse, on the one hand, the game speed, represented by the number in the 
-	 * lower right hand corner, and, on the other hand, the ticks per month and meters per tile 
+	 * NOTICE: Don't confuse, on the one hand, the game speed, represented by the number in the
+	 * lower right hand corner, and, on the other hand, the ticks per month and meters per tile
 	 * settings.
 	 *
-	 * The first increases or decreases the speed of all things that happen in the game by the 
+	 * The first increases or decreases the speed of all things that happen in the game by the
 	 * same amount: the whole game is fast forwarded or slowed down.
 	 *
-	 * The second are very different: they alter the relative scale of the speed of the game, 
-	 * on the one hand, against the passing of time on the other. Increasing the speed using 
+	 * The second are very different: they alter the relative scale of the speed of the game,
+	 * on the one hand, against the passing of time on the other. Increasing the speed using
 	 * the ticks per month or metters per tile settings increases the number of months/years
 	 * that pass in comparison to everything else that  happens in the game.
 	 *
-	 * Example (for bits per month only): 
+	 * Example (for bits per month only):
 	 *
-	 * suppose that you have a railway between two towns: A and B, and one train on 
-	 * that railway. At a speed setting of 1.00 and a ticks per month setting of 18 (the default), 
-	 * suppose that your train goes between A and B ten times per month, which takes ten real minutes. 
-	 * At a speed setting of 2.00 and the same ticks per month setting, in ten real minutes, the train 
-	 * would travel between A and B twenty times, earning twice as much revenue, and costing twice as 
+	 * suppose that you have a railway between two towns: A and B, and one train on
+	 * that railway. At a speed setting of 1.00 and a ticks per month setting of 18 (the default),
+	 * suppose that your train goes between A and B ten times per month, which takes ten real minutes.
+	 * At a speed setting of 2.00 and the same ticks per month setting, in ten real minutes, the train
+	 * would travel between A and B twenty times, earning twice as much revenue, and costing twice as
 	 * much in maintenance, and two months would pass.
-	 * 
-	 * However, if, instead of increasing the time to 2.00, you reduced the ticks per month to 17 and 
-	 * left the game speed at 1.00, in ten minutes of real time, the train would still travel ten times 
-	 * between A and B and earn the same amount of revenue, and cost the same amount in maintenance as 
+	 *
+	 * However, if, instead of increasing the time to 2.00, you reduced the ticks per month to 17 and
+	 * left the game speed at 1.00, in ten minutes of real time, the train would still travel ten times
+	 * between A and B and earn the same amount of revenue, and cost the same amount in maintenance as
 	 * the first instance, but two game months would pass.
 	 *
-	 * It should be apparent from that description that the maintenance cost per month needs to be 
-	 * scaled with the proportion of months to ticks, since, were it not, lowering the ticks per month 
-	 * setting would mean that the fixed maintenance cost (the per month cost) would increase the 
-	 * monthly maintenance cost, but not the variable maintenance cost. Since changing the ticks per 
-	 * month setting is supposed to be cost-neutral, this cannot happen, so all costs that are 
-	 * calculated monthly have to be adjusted to take account of the ticks per month setting in order 
+	 * It should be apparent from that description that the maintenance cost per month needs to be
+	 * scaled with the proportion of months to ticks, since, were it not, lowering the ticks per month
+	 * setting would mean that the fixed maintenance cost (the per month cost) would increase the
+	 * monthly maintenance cost, but not the variable maintenance cost. Since changing the ticks per
+	 * month setting is supposed to be cost-neutral, this cannot happen, so all costs that are
+	 * calculated monthly have to be adjusted to take account of the ticks per month setting in order
 	 * to counteract its effect.
-	 * 
+	 *
 	 * James E. Petts
 	 *
 	 * same adjustment applies to production rates.
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	
+
 	// At all defaults, 1,000 meters per tile and 18 bits per month, we get 3.2 hours
 	// (that is, 3:12h) in a month, or 1/7.5th of a day. If we want to have raw numbers based on
 	// daily production for factories, daily electricity usage, daily passenger demand, etc. we
@@ -1412,50 +1419,50 @@ public:
 	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
-		const sint32 base_meters_per_tile = (sint32)get_settings().get_base_meters_per_tile(); 
+		const sint32 base_meters_per_tile = (sint32)get_settings().get_base_meters_per_tile();
 		const uint32 base_bits_per_month = (sint32)get_settings().get_base_bits_per_month();
 		const sint32 adjustment_factor = base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
-		
+
 		// Adjust for bits per month
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const sint32 adjusted_monthly_figure = (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month)); 
+			const sint32 adjusted_monthly_figure = (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month));
 			return adjusted_monthly_figure / adjustment_factor;
 		}
 		else
 		{
 			const sint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (sint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)); 
+			return (sint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift));
 		}
 	}
 
 	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
-		const sint64 base_meters_per_tile = (sint64)get_settings().get_base_meters_per_tile(); 
+		const sint64 base_meters_per_tile = (sint64)get_settings().get_base_meters_per_tile();
 		const sint64 base_bits_per_month = (sint64)get_settings().get_base_bits_per_month();
-		const sint64 adjustment_factor = base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();	
-		
+		const sint64 adjustment_factor = base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();
+
 		// Adjust for bits per month
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
 			if (nominal_monthly_figure < adjustment_factor)
 			{
-				// This situation can lead to loss of precision. 
+				// This situation can lead to loss of precision.
 				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
-				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
+				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
 			}
 			else
 			{
 				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month)));
 			}
-		} 
-		else 
-		{			
+		}
+		else
+		{
 			if (nominal_monthly_figure < adjustment_factor)
 			{
-				// This situation can lead to loss of precision. 
+				// This situation can lead to loss of precision.
 				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
 				return (adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
 			}
@@ -1478,7 +1485,7 @@ public:
 		if (ticks_per_world_month_shift >= base_bits_per_month)
 		{
 			const uint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+			return adjusted_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month);
 		}
 		else
 		{
@@ -1490,20 +1497,20 @@ public:
 	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
-		const uint32 base_meters_per_tile = get_settings().get_base_meters_per_tile(); 
+		const uint32 base_meters_per_tile = get_settings().get_base_meters_per_tile();
 		const uint32 base_bits_per_month =  get_settings().get_base_bits_per_month();
 		const uint32 adjustment_factor = base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
-		
+
 		// Adjust for bits per month
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const uint32 adjusted_monthly_figure = (uint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month)); 
+			const uint32 adjusted_monthly_figure = (uint32)(nominal_monthly_figure << (ticks_per_world_month_shift - base_bits_per_month));
 			return adjusted_monthly_figure / adjustment_factor;
 		}
 		else
 		{
 			const uint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (uint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)); 
+			return (uint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift));
 		}
 	}
 
@@ -1566,8 +1573,8 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 	}
-#ifndef NETTOOL	
-	/** 
+#ifndef NETTOOL
+	/**
 	* Reverse conversion of the above.
 	*/
 	inline sint64 get_seconds_to_ticks(uint32 seconds) const
@@ -1579,18 +1586,18 @@ public:
 
 		//return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
 
-		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile()); 
+		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile());
 	}
 #endif
 	/**
-	* Adds a single tile of a building to the relevant world list for passenger 
+	* Adds a single tile of a building to the relevant world list for passenger
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
 	void add_building_to_world_list(gebaeude_t *gb, bool ordered = false);
-	
+
 	/**
-	* Removes a single tile of a building to the relevant world list for passenger 
+	* Removes a single tile of a building to the relevant world list for passenger
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
@@ -1598,7 +1605,7 @@ public:
 
 	/**
 	* Updates the weight of a building in the world list if it changes its
-	* passenger/mail demand	
+	* passenger/mail demand
 	* @author: jamespetts
 	*/
 	void update_weight_of_building_in_world_list(gebaeude_t *gb);
@@ -1607,7 +1614,14 @@ public:
 	* Removes all references to a city from every building in
 	* the world. Used when deleting cities.
 	*/
-	void remove_all_building_references_to_city(stadt_t* city); 
+	void remove_all_building_references_to_city(stadt_t* city);
+
+	/// Returns the region of the selected co-ordinate.
+	uint8 get_region(koord k) const;
+	static uint8 get_region(koord k, settings_t const* const sets);
+
+	/// Returns the region name of the selected co-ordinate
+	std::string get_region_name(koord k) const;
 
 private:
 	/*
@@ -1644,7 +1658,7 @@ private:
 	 * They are conceptually constant
 	 * @author neroden
 	 */
-	void set_speed_factors() const 
+	void set_speed_factors() const
 	{
 		// effectively sets movement_denominator to 2^8 = 128
 		movement_denominator_shift = 8;
@@ -1686,7 +1700,7 @@ private:
 	* vector and dispatch all those cargoes
 	* that are ready.
 	*/
-	void check_transferring_cargoes(); 
+	void check_transferring_cargoes();
 
 	// Calculate the time that a ware packet is
 	// taken out of the waiting list.
@@ -1736,6 +1750,10 @@ public:
 		return (distance * unit_movement_numerator) >> movement_denominator_shift;
 	}
 
+	uint32 meters_from_yards(uint32 yards) const {
+		return (yards * get_settings().get_meters_per_tile()) >> YARDS_PER_TILE_SHIFT;
+	}
+
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
@@ -1762,7 +1780,7 @@ public:
 	 *
 	 * Is used to calculate seasonal images.
 	 *
-	 * Another ticks_bits_per_tag algorithm, I found repeatedly, 
+	 * Another ticks_bits_per_tag algorithm, I found repeatedly,
 	 * although ticks_bits_per_tag should be private property of karte_t.
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
@@ -1864,7 +1882,7 @@ public:
 	*/
 	void destroy_threads();
 
-	void clean_threads(vector_tpl<pthread_t>* thread); 
+	void clean_threads(vector_tpl<pthread_t>* thread);
 #endif
 
 	/**
@@ -2154,7 +2172,7 @@ public:
 	// Getter/setter methods for maintaining the industry density
 	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
 	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
-	
+
 	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }
 	inline void increase_actual_industry_density(uint32 value) { actual_industry_density += value; }
 
@@ -2340,9 +2358,12 @@ public:
 	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
+	 * New for January 2020: add the choice to select the rank. 1 is
+	 * the best; 2 the second best, and so forth.
+	 * @author: jamespetts
 	 */
-	stadt_t *find_nearest_city(koord k) const;
-	
+	stadt_t *find_nearest_city(koord k, uint32 rank = 1) const;
+
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.
 	stadt_t * get_city(koord pos) const;
@@ -2541,14 +2562,14 @@ public:
 	 * @return true, if square in place (i,j) with size w, h is constructible.
 	 * @author Hj. Malthaner
 	 */
-	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
+	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl, uint16 regions_allowed) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.
 	 * @note Only used for town creation at the moment.
 	 * @author Hj. Malthaner
 	 */
-	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const;
+	slist_tpl<koord> * find_squares(sint16 w, sint16 h, climate_bits cl, uint16 regions_allowed, sint16 old_x, sint16 old_y) const;
 
 	/**
 	 * Plays the sound when the position is inside the visible region.
@@ -2610,6 +2631,11 @@ public:
 	const checklist_t& get_last_checklist() const { return LCHKLST(sync_steps); }
 	uint32 get_last_checklist_sync_step() const { return sync_steps; }
 
+	void clear_checklist_history();
+	void clear_checklist_debug_sums();
+	void clear_checklist_rands();
+	void clear_all_checklists();
+
 	void command_queue_append(network_world_command_t*) const;
 
 	void clear_command_queue() const;
@@ -2622,10 +2648,10 @@ public:
 
 	/**
 	 * These methods return an estimated
-	 * road speed based on the average 
-	 * speed of road traffic and the 
+	 * road speed based on the average
+	 * speed of road traffic and the
 	 * speed limit of the appropriate type
-	 * of road. This is measured in 100ths 
+	 * of road. This is measured in 100ths
 	 * of a minute per tile.
 	 */
 	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }

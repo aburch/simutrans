@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -30,7 +28,7 @@ static pthread_mutex_t tunnel_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 #endif
 
 
-tunnel_t::tunnel_t(loadsave_t* const file) : 
+tunnel_t::tunnel_t(loadsave_t* const file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::tunnel)
 #else
@@ -76,11 +74,10 @@ void tunnel_t::calc_image()
 	if(desc)
 	{
 		grund_t *from = welt->lookup(get_pos());
-		image_id old_image = image;
 		slope_t::type hang = gr->get_grund_hang();
-		ribi_t::ribi ribi = gr->get_weg_ribi(desc->get_waytype());
 		ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(desc->get_waytype());
-		if(gr->ist_karten_boden()) 
+
+		if(gr->ist_karten_boden())
 		{
 			// Tunnel portal
 			broad_type = 0;
@@ -111,7 +108,7 @@ void tunnel_t::calc_image()
 			set_image( desc->get_background_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 			set_after_image( desc->get_foreground_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 		}
-		else 
+		else
 		{
 			// No portal. Determine whether to show the inside of the tunnel or nothing.
 			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level) || !desc->has_tunnel_internal_images())
@@ -193,7 +190,7 @@ void tunnel_t::finish_rd()
 		weg_t *weg = gr->get_weg(desc->get_waytype());
 		if(weg) {
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
-			if(hang != slope_t::flat) 
+			if(hang != slope_t::flat)
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
@@ -230,7 +227,7 @@ void tunnel_t::cleanup( player_t *player2 )
 		weg_t *weg = gr->get_weg( desc->get_waytype() );
 		if(weg)	{
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
-			if(hang != slope_t::flat) 
+			if(hang != slope_t::flat)
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
@@ -285,7 +282,7 @@ const char *tunnel_t::is_deletable(const player_t *player)
 }
 
 void tunnel_t::set_desc(const tunnel_desc_t *_desc)
-{ 
+{
 	const weg_t* way = welt->lookup(get_pos())->get_weg(get_desc()->get_waytype());
 	if(desc)
 	{
@@ -298,7 +295,7 @@ void tunnel_t::set_desc(const tunnel_desc_t *_desc)
 		}
 		player_t::add_maintenance(get_owner(), -old_maint, get_desc()->get_finance_waytype());
 	}
-	
+
 	desc = _desc;
 	// Add the new maintenance cost
 	sint32 maint = get_desc()->get_maintenance();

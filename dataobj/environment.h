@@ -1,5 +1,11 @@
-#ifndef dataobj_environment_h
-#define dataobj_environment_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_ENVIRONMENT_H
+#define DATAOBJ_ENVIRONMENT_H
+
 
 #include <string>
 #include "../simtypes.h"
@@ -288,6 +294,12 @@ public:
 	 */
 	static sint32 show_names;
 
+	/// Show convoy nameplates (line or convoy name).
+	static uint8 show_cnv_nameplates;
+
+	/// Show convoy loading gauge
+	static uint8 show_cnv_loadingbar;
+
 	/// if a schedule is open, show tiles which are used by it
 	static bool visualize_schedule;
 
@@ -373,7 +385,7 @@ public:
 
 	/// maximum length of city connections
 	static sint32 intercity_road_length;
-	
+
 	// Whether to generate a hilly landscape
 	// @author: jamespetts
 	static bool hilly;
@@ -435,6 +447,9 @@ public:
 	/// as if ctrl-key permanently pressed
 	/// cannot be used in network mode
 	static bool straight_way_without_control;
+
+	// Graphical offsets for reverseing vehicles
+	static sint8 reverse_base_offsets[8][3];
 
 	/// initialize with default values
 	static void init();

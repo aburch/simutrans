@@ -1,0 +1,21 @@
+# EditorConfig (see https://EditorConfig.org)
+
+[*]
+indent_style=tabs
+insert_final_newline=true
+trim_trailing_whitespace=true
+
+[*.{txt,tab}]
+trim_trailing_whitespace=false
+
+[*.rc]
+indent_style=spaces
+indent_size=1
+
+[*.{nsi,nsh}]
+indent_style=spaces
+indent_size=2
+
+[Makefile,*.mk]
+indent_style=spaces
+indent_size=2

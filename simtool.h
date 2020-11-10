@@ -1,11 +1,13 @@
 /*
- * New OO tool system
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMTOOL_H
 #define SIMTOOL_H
+
+
+/// New OO tool system
 
 #include "simtypes.h"
 #include "simworld.h"
@@ -94,7 +96,7 @@ public:
 	/**
 	 * @return true if this tool operates over the grid, not the map tiles.
 	 */
-	bool is_grid_tool() const {return true;}
+	bool is_grid_tool() const OVERRIDE {return true;}
 
 	bool update_pos_after_use() const OVERRIDE { return true; }
 };
@@ -230,9 +232,9 @@ private:
 class tool_plant_tree_t : public kartenboden_tool_t {
 public:
 	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
-	bool init(player_t*) { return baum_t::get_count() > 0; }
+	bool init(player_t*) OVERRIDE { return baum_t::get_count() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -272,11 +274,11 @@ protected:
 	bool look_toolbar = false;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
-	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
+	bool calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -321,7 +323,7 @@ private:
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		way_desc = NULL;
-		overtaking_mode = twoway_mode;
+		overtaking_mode = invalid_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -453,7 +455,7 @@ public:
 		koord3d signalbox;
 	} signal[MAX_PLAYER_COUNT];
 
-	void rotate90(sint16 y_diff);
+	void rotate90(sint16 y_diff) OVERRIDE;
 
 private:
 	static char toolstring[256];
@@ -506,7 +508,7 @@ private:
 	const char* tool_signalbox_aux(player_t* player, koord3d pos, const building_desc_t* desc, sint64 cost);
 public:
 	tool_signalbox_t() : tool_t(TOOL_BUILD_SIGNALBOX | GENERAL_TOOL) {}
-	const char *check_pos(player_t *, koord3d pos);
+	const char *check_pos(player_t *, koord3d pos) OVERRIDE;
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -597,8 +599,8 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Lock game"); }
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	// deactivate in network mode
-	bool init(player_t *) { return !env_t::networkmode; }
-	const char *work( player_t *, koord3d );
+	bool init(player_t *) OVERRIDE { return !env_t::networkmode; }
+	const char *work( player_t *, koord3d ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
@@ -615,9 +617,9 @@ public:
 class tool_forest_t : public two_click_tool_t {
 public:
 	tool_forest_t() : two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add forest"); }
-	bool init( player_t *player) { return  baum_t::get_count() > 0  &&  two_click_tool_t::init(player); }
+	bool init( player_t *player) OVERRIDE { return  baum_t::get_count() > 0  &&  two_click_tool_t::init(player); }
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -668,8 +670,8 @@ private:
 class tool_make_stop_public_t : public tool_t {
 public:
 	tool_make_stop_public_t() : tool_t(TOOL_MAKE_STOP_PUBLIC | GENERAL_TOOL) {}
-	bool init(player_t * );
-	bool exit(player_t *s ) { return init(s); }
+	bool init(player_t * ) OVERRIDE;
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
@@ -696,14 +698,14 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE { return welt->is_paused(); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if(  !env_t::networkmode  ) {
 			welt->set_fast_forward(0);
 			welt->set_pause( welt->is_paused()^1 );
 		}
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
 	bool is_work_network_save() const OVERRIDE { return !env_t::networkmode; }
 };
@@ -714,7 +716,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Fast forward"); }
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE { return welt->is_fast_forward(); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if(  !env_t::networkmode  ) {
 			if(  welt->is_fast_forward()  &&  env_t::simple_drawing_fast_forward  ) {
 				welt->set_dirty();
@@ -724,7 +726,7 @@ public:
 		}
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
 	bool is_work_network_save() const OVERRIDE { return !env_t::networkmode; }
 };
@@ -743,7 +745,7 @@ class tool_increase_industry_t : public tool_t {
 public:
 	tool_increase_industry_t() : tool_t(TOOL_INCREASE_INDUSTRY | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Increase Industry density"); }
-	bool init( player_t * );
+	bool init( player_t * ) OVERRIDE;
 };
 
 /* prissi: undo building */
@@ -761,7 +763,7 @@ class tool_switch_player_t : public tool_t {
 public:
 	tool_switch_player_t() : tool_t(TOOL_SWITCH_PLAYER | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Change player"); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		welt->switch_active_player( welt->get_active_player_nr()+1, true );
 		return false;
 	}
@@ -775,7 +777,7 @@ class tool_step_year_t : public tool_t {
 public:
 	tool_step_year_t() : tool_t(TOOL_STEP_YEAR | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Step timeline one year"); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		welt->step_year();
 		return false;
 	}
@@ -788,7 +790,7 @@ public:
 		int factor = atoi(default_param);
 		return factor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
-	bool init( player_t *player ) {
+	bool init( player_t *player ) OVERRIDE {
 		if(  !env_t::networkmode  ||  player->get_player_nr()==1  ) {
 			// in networkmode only for public player
 			welt->change_time_multiplier( atoi(default_param) );
@@ -821,12 +823,12 @@ public:
 	tool_show_coverage_t() : tool_t(TOOL_SHOW_COVERAGE | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show station coverage"); }
 	bool is_selected() const OVERRIDE { return env_t::station_coverage_show; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		env_t::station_coverage_show = !env_t::station_coverage_show;
 		welt->set_dirty();
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -836,12 +838,38 @@ public:
 	tool_show_signalbox_coverage_t() : tool_t(TOOL_SHOW_SIGNALBOX_COVERAGE | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show signalbox coverage"); }
 	bool is_selected() const OVERRIDE { return env_t::signalbox_coverage_show; }
-	bool init(player_t *) {
+	bool init(player_t *) OVERRIDE {
 		env_t::signalbox_coverage_show = !env_t::signalbox_coverage_show;
 		welt->set_dirty();
 		return false;
 	}
-	bool exit(player_t *s) { return init(s); }
+	bool exit(player_t *s) OVERRIDE { return init(s); }
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_convoy_nameplate_t : public tool_t {
+public:
+	tool_convoy_nameplate_t() : tool_t(TOOL_CONVOY_NAMEPLATES | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy nameplate display mode"); }
+	bool init(player_t *) OVERRIDE {
+		env_t::show_cnv_nameplates = (env_t::show_cnv_nameplates + 1) % 4;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_convoy_loadingbar_t : public tool_t {
+public:
+	tool_convoy_loadingbar_t() : tool_t(TOOL_CONVOY_LOADINGBAR | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the convoy loading bar display mode"); }
+	bool init(player_t *) OVERRIDE {
+		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % 4;
+		welt->set_dirty();
+		return false;
+	}
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -854,7 +882,7 @@ public:
 			(env_t::show_names>>2)==2 ? "hide station names" :
 			(env_t::show_names&1) ? "show waiting bars" : "show station names");
 	}
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if(  env_t::show_names>=11  ) {
 			if(  (env_t::show_names&3)==3  ) {
 				env_t::show_names = 0;
@@ -884,12 +912,12 @@ public:
 	tool_show_grid_t() : tool_t(TOOL_SHOW_GRID | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show grid"); }
 	bool is_selected() const OVERRIDE { return grund_t::show_grid; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		grund_t::toggle_grid();
 		welt->set_dirty();
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -899,8 +927,8 @@ public:
 	tool_show_trees_t() : tool_t(TOOL_SHOW_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("hide trees"); }
 	bool is_selected() const OVERRIDE {return env_t::hide_trees; }
-	bool init( player_t * );
-	bool exit(player_t *s ) { return init(s); }
+	bool init( player_t * ) OVERRIDE;
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -913,7 +941,7 @@ public:
 			env_t::hide_buildings==0 ? "hide city building" :
 			(env_t::hide_buildings==1) ? "hide all building" : "show all building");
 	}
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		env_t::hide_buildings ++;
 		if(env_t::hide_buildings>env_t::ALL_HIDDEN_BUILDING) {
 			env_t::hide_buildings = env_t::NOT_HIDE;
@@ -932,9 +960,9 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
-	bool init( player_t * );
+	bool init( player_t * ) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool exit(player_t * ) { return false; }
+	bool exit(player_t * ) OVERRIDE { return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -963,8 +991,8 @@ class tool_fill_trees_t : public tool_t {
 public:
 	tool_fill_trees_t() : tool_t(TOOL_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
-	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
-	bool init(player_t * ) {
+	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	bool init(player_t * ) OVERRIDE {
 		if(  baum_t::get_count() > 0  &&  default_param  ) {
 			baum_t::fill_trees( atoi(default_param) );
 		}
@@ -977,7 +1005,7 @@ class tool_daynight_level_t : public tool_t {
 public:
 	tool_daynight_level_t() : tool_t(TOOL_DAYNIGHT_LEVEL | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
-	bool init(player_t * );
+	bool init(player_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -986,8 +1014,8 @@ class tool_vehicle_tooltips_t : public tool_t {
 public:
 	tool_vehicle_tooltips_t() : tool_t(TOOL_VEHICLE_TOOLTIPS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
-	bool init( player_t * ) {
-		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%3;
+	bool init( player_t * ) OVERRIDE {
+		env_t::show_vehicle_states = (env_t::show_vehicle_states+1)%4;
 		welt->set_dirty();
 		return false;
 	}
@@ -1000,14 +1028,14 @@ public:
 	tool_toggle_pax_station_t() : tool_t(TOOL_TOOGLE_PAX | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("5LIGHT_CHOOSE"); }
 	bool is_selected() const OVERRIDE { return welt->get_settings().get_show_pax(); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if( !env_t::networkmode) {
 			settings_t& s = welt->get_settings();
 			s.set_show_pax(!s.get_show_pax());
 		}
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return false; }
 };
 
@@ -1016,14 +1044,14 @@ public:
 	tool_toggle_pedestrians_t() : tool_t(TOOL_TOOGLE_PEDESTRIANS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("6LIGHT_CHOOSE"); }
 	bool is_selected() const OVERRIDE { return welt->get_settings().get_random_pedestrians(); }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if( !env_t::networkmode) {
 			settings_t& s = welt->get_settings();
 			s.set_random_pedestrians(!s.get_random_pedestrians());
 		}
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return false; }
 };
 
@@ -1032,7 +1060,7 @@ public:
 	tool_toggle_reservation_t() : tool_t(TOOL_TOGGLE_RESERVATION | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show/hide block reservations"); }
 	bool is_selected() const OVERRIDE { return schiene_t::show_reservations; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		schiene_t::show_reservations ^= 1;
 		welt->set_dirty();
 		return false;
@@ -1046,7 +1074,7 @@ public:
 	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
 	bool is_selected() const OVERRIDE { return strasse_t::show_masked_ribi; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		if(  skinverwaltung_t::ribi_arrow  ) {
 			strasse_t::show_masked_ribi ^= 1;
 			welt->set_dirty();
@@ -1065,7 +1093,7 @@ public:
 	tool_view_owner_t() : tool_t(TOOL_VIEW_OWNER | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show/hide object owner"); }
 	bool is_selected() const OVERRIDE { return obj_t::show_owner; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		obj_t::show_owner ^= 1;
 		welt->set_dirty();
 		return false;
@@ -1079,12 +1107,12 @@ public:
 	tool_hide_under_cursor_t() : tool_t(TOOL_HIDE_UNDER_CURSOR | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("hide objects under cursor"); }
 	bool is_selected() const OVERRIDE { return env_t::hide_under_cursor; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		welt->set_dirty();
 		return false;
 	}
-	bool exit(player_t *s ) { return init(s); }
+	bool exit(player_t *s ) OVERRIDE { return init(s); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
@@ -1096,7 +1124,7 @@ public:
 	tool_traffic_level_t() : tool_t(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("6WORLD_CHOOSE"); }
 	bool is_selected() const OVERRIDE { return false; }
-	bool init( player_t * ) {
+	bool init( player_t * ) OVERRIDE {
 		assert(  default_param  );
 		sint16 level = min( max( atoi(default_param), 0), 16);
 		welt->get_settings().set_traffic_level(level);

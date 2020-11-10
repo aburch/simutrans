@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2007 prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef crossing_logic_h
-#define crossing_logic_h
+#ifndef DATAOBJ_CROSSING_LOGIC_H
+#define DATAOBJ_CROSSING_LOGIC_H
+
 
 #include "../simtypes.h"
 #include "../tpl/minivec_tpl.h"
@@ -50,7 +49,7 @@ public:
 	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	// recalcs the current state
 	void recalc_state();

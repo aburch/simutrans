@@ -1,10 +1,11 @@
 /*
- * Dialog for language change
- * @author Hj. Maltahner, Niels Roest, prissi
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_sprachen_h
-#define gui_sprachen_h
+#ifndef GUI_SPRACHEN_H
+#define GUI_SPRACHEN_H
+
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
@@ -16,6 +17,10 @@
 
 #include "../tpl/vector_tpl.h"
 
+/*
+ * Dialog for language change
+ * @author Hj. Maltahner, Niels Roest, prissi
+ */
 class sprachengui_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -49,7 +54,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "language.txt";}
+	const char *get_help_filename() const OVERRIDE {return "language.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

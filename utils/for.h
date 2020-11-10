@@ -1,5 +1,11 @@
-#ifndef FOR_H
-#define FOR_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_FOR_H
+#define UTILS_FOR_H
+
 
 #include <iterator>
 

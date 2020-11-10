@@ -1,11 +1,11 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simlinemgmt_h
-#define simlinemgmt_h
+#ifndef SIMLINEMGMT_H
+#define SIMLINEMGMT_H
+
 
 #include "linehandle_t.h"
 #include "simtypes.h"
@@ -32,6 +32,9 @@ public:
 	 * @author hsiegeln
 	 */
 	void delete_line(linehandle_t line);
+
+	/// Used for takeovers
+	void deregister_line(linehandle_t line);
 
 	/*
 	 * update a line -> apply updated schedule to all convoys
@@ -85,7 +88,7 @@ public:
 	 * fill the list with all lines of a certain type
 	 * type == simline_t::line will return all lines
 	 */
-	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
+	void get_lines(int type, vector_tpl<linehandle_t>* lines, uint8 freight_type_bits = 0, bool show_empty_line = false) const;
 
 	// Added by : Knightly
 	// Purpose	: Return all managed lines

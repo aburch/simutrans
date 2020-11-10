@@ -1,19 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Displays a scrollable list of all convois of a player
- *
- * @author Hj. Malthaner, Sort/Filtering by V. Meyer
- * @date 15-Jun-01
- */
+#ifndef GUI_CONVOI_FRAME_H
+#define GUI_CONVOI_FRAME_H
 
-#ifndef __convoi_frame_h
-#define __convoi_frame_h
 
 #include "convoi_filter_frame.h"
 #include "gui_frame.h"
@@ -23,17 +15,24 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
+#include "components/gui_convoiinfo.h"
 #include "../convoihandle_t.h"
 
 class player_t;
 class goods_desc_t;
 
+/*
+ * Displays a scrollable list of all convois of a player
+ *
+ * @author Hj. Malthaner, Sort/Filtering by V. Meyer
+ * @date 15-Jun-01
+ */
 class convoi_frame_t :
 	public gui_frame_t,
 	private action_listener_t  //28-Dec-01     Markus Weber    Added , private action_listener_t
 {
 public:
-	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
+	enum sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, SORT_MODES };
 
 private:
 	player_t *owner;
@@ -54,7 +53,8 @@ private:
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
-	gui_label_t filter_label;
+	gui_label_t mode_label;
+	button_t	display_mode;
 	button_t	filter_on;
 	button_t	filter_details;
 
@@ -85,6 +85,18 @@ private:
 
 	void sort_list();
 
+	inline uint8 get_cinfo_height(uint8 cl_display_mode)
+	{
+		switch (cl_display_mode) {
+		case gui_convoiinfo_t::cnvlist_formation:
+			return 55;
+		case gui_convoiinfo_t::cnvlist_payload:
+		case gui_convoiinfo_t::cnvlist_normal:
+		default:
+			return 40;
+		}
+	}
+
 public:
 	/**
 	 * Resorts convois
@@ -100,13 +112,13 @@ public:
 	 * gemeldet
 	 * @author V. Meyer
 	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	/**
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const scr_coord size_change);                       // 28-Dec-01        Markus Weber Added
+	void resize(const scr_coord size_change) OVERRIDE;                       // 28-Dec-01        Markus Weber Added
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -114,14 +126,14 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "convoi.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "convoi.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

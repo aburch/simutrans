@@ -1,8 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Intro and everything else
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simcolor.h"
@@ -10,7 +8,7 @@
 #include "../display/simimg.h"
 #include "../simworld.h"
 #include "../simskin.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simversion.h"
 #include "../display/simgraph.h"
 #include "../macros.h"
@@ -201,7 +199,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 		#include "../scrolltext.h"
 	};
 
-	const scr_coord_val text_line = (line / LINESPACE) * 2;
+	const scr_coord_val text_line = max(0, ((line / LINESPACE) * 2) - 1);
 	const scr_coord_val text_offset = line % LINESPACE;
 	const scr_coord_val left = pos.x + D_MARGIN_LEFT;
 	const scr_coord_val width = size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT;

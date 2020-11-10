@@ -1,0 +1,38 @@
+# Simutranslator settings for Simutrans-Extended texts
+# GUI improvements centered on the depot dialog
+#
+# Author: Ranran
+# Created: February 2020
+#
+obj=program_text
+name=Selectable livery schemes
+note=Label on the depot dialog
+-
+obj=program_text
+name=Starting acceleration:
+note=Label on the depot dialog
+-
+obj=program_text
+name=; %i km/h @ %.2f sec
+note=Tooltip text on the depot dialog which shows convoy starting acceleration
+-
+obj=program_text
+name=; %i km/h @ %.2f - %.2f sec
+note=Tooltip text on the depot dialog which shows convoy starting acceleration
+-
+obj=program_text
+name=; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+note=Tooltip text on the depot dialog which shows convoy starting acceleration
+-
+obj=program_text
+name=no power at all
+note=Tooltip text on the depot dialog which shows convoy starting acceleration. If convoy has no power.
+-
+obj=program_text
+name=(%.*ft laden)
+note=Weight display including convoy load on the depot dialog
+-
+obj=program_text
+name=(%.*f-%.*ft laden)
+note=Weight display including convoy load on the depot dialog
+-

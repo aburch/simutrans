@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
- /*
- * The citylist dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "citylist_frame_t.h"
@@ -34,6 +28,10 @@ bool citylist_frame_t::sortreverse = false;
  * @author Markus Weber
  */
 citylist::sort_mode_t citylist_frame_t::sortby = citylist::by_name;
+static uint8 default_sortmode = 0;
+
+// filter by within current player's network
+bool citylist_frame_t::filter_own_network = false;
 
 const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
 	"Name",
@@ -123,28 +121,49 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 citylist_frame_t::citylist_frame_t() :
 	gui_frame_t(translator::translate("City list")),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse),
+	stats(sortby,sortreverse, filter_own_network),
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
 	add_component(&sort_label);
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.set_pos(scr_coord(BUTTON1_X,40 - D_BUTTON_HEIGHT));
+	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE*4));
+
+	for (int i = 0; i < citylist::SORT_MODES; i++) {
+		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	sortedby.set_selection(default_sortmode);
+
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+	// sort ascend/descend button
+	sort_asc.init(button_t::arrowup_state, "", scr_coord(BUTTON1_X + D_BUTTON_WIDTH * 1.5 + D_H_SPACE, 40 - D_BUTTON_HEIGHT + 1), scr_size(D_ARROW_UP_WIDTH, D_ARROW_UP_HEIGHT));
+	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+	sort_asc.add_listener(this);
+	sort_asc.pressed = sortreverse;
+	add_component(&sort_asc);
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sort_desc.init(button_t::arrowdown_state, "", sort_asc.get_pos() + scr_coord(D_ARROW_UP_WIDTH + 2, 0), scr_size(D_ARROW_DOWN_WIDTH, D_ARROW_DOWN_HEIGHT));
+	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+	sort_desc.add_listener(this);
+	sort_desc.pressed = !sortreverse;
+	add_component(&sort_desc);
+
+	filter_within_network.init(button_t::square_state, "Within own network", scr_coord(sort_desc.get_pos() + scr_coord(D_ARROW_DOWN_WIDTH + 5, -14)));
+	filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
+	filter_within_network.add_listener(this);
+	filter_within_network.pressed = filter_own_network;
+	add_component(&filter_within_network);
+
+	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40 - D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_component(&show_stats);
 
 	// name buttons
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
@@ -200,15 +219,31 @@ citylist_frame_t::citylist_frame_t() :
 bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &sortedby) {
-		set_sortierung((citylist::sort_mode_t)((get_sortierung() + 1) % citylist::SORT_MODES));
-		sortedby.set_text(sort_text[get_sortierung()]);
-		stats.sort(get_sortierung(),get_reverse());
+		int tmp = sortedby.get_selection();
+		if (tmp >= 0 && tmp < sortedby.count_elements())
+		{
+			sortedby.set_selection(tmp);
+			set_sortierung((citylist::sort_mode_t)tmp);
+		}
+		else {
+			sortedby.set_selection(0);
+			set_sortierung(citylist::by_name);
+		}
+		default_sortmode = (uint8)tmp;
+		stats.sort(sortby,get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		set_reverse(!get_reverse());
-		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse());
+		stats.sort(sortby,get_reverse(), get_filter_own_network());
+		sort_asc.pressed = sortreverse;
+		sort_desc.pressed = !sortreverse;
+		stats.recalc_size();
+	}
+	else if (comp == &filter_within_network) {
+		filter_own_network = !filter_own_network;
+		filter_within_network.pressed = filter_own_network;
+		stats.sort(sortby, get_reverse(), get_filter_own_network());
 		stats.recalc_size();
 	}
 	else if(comp == &show_stats) {
@@ -251,6 +286,7 @@ void citylist_frame_t::resize(const scr_coord delta)
 	}
 	scrolly.set_pos( scr_coord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
 	scrolly.set_size(size);
+	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, scrolly.get_size().h));
 	set_dirty();
 }
 
@@ -262,5 +298,14 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::draw(pos,size);
 
-	display_proportional( pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	cbuffer_t buf;
+	uint16 left = D_H_SPACE;
+	left+=display_proportional( pos.x+left, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	left += D_H_SPACE;
+	display_fluctuation_triangle(pos.x + left, pos.y + 18, LINESPACE - 4, true, welt->get_finance_history_month(0, karte_t::WORLD_GROWTH));
+	left += 9;
+	buf.clear();
+	buf.append(welt->get_finance_history_month(0, karte_t::WORLD_GROWTH),0);
+	display_proportional(pos.x + left, pos.y + 18, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
 }

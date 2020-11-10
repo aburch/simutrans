@@ -963,12 +963,6 @@
     <ClCompile Include="gui\city_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simsys_opengl.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simsys_d.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils\dr_rdpng.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

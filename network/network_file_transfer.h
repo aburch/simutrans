@@ -1,5 +1,11 @@
-#ifndef NETWORK_FILE_TRANSFER_H
-#define NETWORK_FILE_TRANSFER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_FILE_TRANSFER_H
+#define NETWORK_NETWORK_FILE_TRANSFER_H
+
 
 /**
  * Contains functions to send & receive files over network

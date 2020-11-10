@@ -1,14 +1,11 @@
 /*
- * just displays a text, will be auto-translated
- *
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_gui_label_h
-#define gui_gui_label_h
+#ifndef GUI_COMPONENTS_GUI_LABEL_H
+#define GUI_COMPONENTS_GUI_LABEL_H
+
 
 #include "gui_component.h"
 #include "../../simcolor.h"
@@ -18,6 +15,7 @@
 
 /**
  * The label component
+ * just displays a text, will be auto-translated
  *
  * @author Hj. Malthaner
  * @date 04-Mar-01
@@ -109,7 +107,7 @@ public:
 	 */
 	void set_tooltip(const char * t);
 
-	align_t get_align() const { return align; } 
+	align_t get_align() const { return align; }
 };
 
 #endif

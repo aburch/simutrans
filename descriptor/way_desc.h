@@ -1,11 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __WAY_DESC_H
-#define __WAY_DESC_H
+#ifndef DESCRIPTOR_WAY_DESC_H
+#define DESCRIPTOR_WAY_DESC_H
+
 
 #include "image_list.h"
 #include "obj_base_desc.h"
@@ -148,28 +148,28 @@ public:
 		int const n = image_list_base_index(season, front) + 1;
 		int nr;
 		switch(slope) {
-			case 4:
+			case slope_t::north:
 				nr = 0;
 				break;
-			case 12:
+			case slope_t::west:
 				nr = 1;
 				break;
-			case 28:
+			case slope_t::east:
 				nr = 2;
 				break;
-			case 36:
+			case slope_t::south:
 				nr = 3;
 				break;
-			case 8:
+			case slope_t::north*2:
 				nr = 4;
 				break;
-			case 24:
+			case slope_t::west*2:
 				nr = 5;
 				break;
-			case 56:
+			case slope_t::east*2:
 				nr = 6;
 				break;
-			case 72:
+			case slope_t::south*2:
 				nr = 7;
 				break;
 			default:
@@ -262,7 +262,7 @@ public:
 			// This has a prohibitive constraint which the other does not have
 			return false;
 		}
-		// 
+		//
 		// Passed all the checks
 		return true;
 	}

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -41,7 +39,7 @@ void vehicle_builder_t::rdwr_speedbonus(loadsave_t *file)
 	{
 		uint32 count = 1;
 		file->rdwr_long(count);
-		
+
 		for(uint32 i=0; i<count; i++)
 		{
 			sint64 dummy = 0;
@@ -115,7 +113,7 @@ vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, 
 	{
 		v->set_current_livery("default");
 	}
-	
+
 	sint64 price = 0;
 
 	if(upgrade)
@@ -240,20 +238,23 @@ slist_tpl<vehicle_desc_t*> const & vehicle_builder_t::get_info(waytype_t typ)
  */
 const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
-	if(  (target_freight!=NULL  ||  target_weight!=0)  &&  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
+	if(  (target_freight!=NULL  ||  target_weight!=0)  &&  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  )
 	{
 		struct best_t {
 			uint32 power;
 			uint16 payload_per_maintenance;
 			long index;
 		} best, test;
+
+		best.power = 0;
+		best.payload_per_maintenance = 0;
 		best.index = -100000;
 
 		const vehicle_desc_t *desc = NULL;
-		FOR(slist_tpl<vehicle_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
+		FOR(slist_tpl<vehicle_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
 		{
 			// no constricts allow for rail vehicles concerning following engines
-			if(wt==track_wt  &&  !test_desc->can_follow_any()  ) 
+			if(wt==track_wt  &&  !test_desc->can_follow_any()  )
 			{
 				continue;
 			}
@@ -264,9 +265,9 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			}
 
 			// engine, but not allowed to lead a convoi, or no power at all or no electrics allowed
-			if(target_weight) 
+			if(target_weight)
 			{
-				if(test_desc->get_power()==0  ||  !test_desc->can_follow(NULL)  ||  (!include_electric  &&  test_desc->get_engine_type()==vehicle_desc_t::electric) ) 
+				if(test_desc->get_power()==0  ||  !test_desc->can_follow(NULL)  ||  (!include_electric  &&  test_desc->get_engine_type()==vehicle_desc_t::electric) )
 				{
 					continue;
 				}
@@ -278,14 +279,14 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 				continue;
 			}
 
-			if(  not_obsolete  &&  test_desc->is_retired(month_now)  ) 
+			if(  not_obsolete  &&  test_desc->is_retired(month_now)  )
 			{
 				// not using vintage cars here!
 				continue;
 			}
 
 			test.power = (test_desc->get_power() * test_desc->get_gear()) / 64;
-			if(target_freight) 
+			if(target_freight)
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
 				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  )
@@ -372,11 +373,11 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 	const vehicle_desc_t *desc = NULL;
 	sint32 desc_index =- 100000;
 
-	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
+	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  )
 	{
 		FOR(slist_tpl<vehicle_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
 		{
-			if(target_power>0  &&  test_desc->get_power()==0) 
+			if(target_power>0  &&  test_desc->get_power()==0)
 			{
 				continue;
 			}
@@ -419,7 +420,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 			}
 
 			uint32 power = (test_desc->get_power()*test_desc->get_gear())/64;
-			if(target_freight) 
+			if(target_freight)
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
 				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
@@ -428,11 +429,11 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 
 				sint32 difference=0;	// smaller is better
 				// assign this vehicle, if we have none found one yet, or we found only a too week one
-				if(  desc!=NULL  ) 
+				if(  desc!=NULL  )
 				{
 					// it is cheaper to run? (this is most important)
 					difference += (desc->get_total_capacity()*1000)/(1+desc->get_running_cost()) < (test_desc->get_total_capacity()*1000)/(1+test_desc->get_running_cost()) ? -20 : 20;
-					if(  target_weight>0  ) 
+					if(  target_weight>0  )
 					{
 						// it is strongere?
 						difference += (desc->get_power()*desc->get_gear())/64 < power ? -10 : 10;
@@ -450,7 +451,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 					}
 				}
 				// ok, final check
-				if(  desc==NULL  ||  difference<12    ) 
+				if(  desc==NULL  ||  difference<12    )
 				{
 					// then we want this vehicle!
 					desc = test_desc;

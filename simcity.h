@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simcity_h
-#define simcity_h
+#ifndef SIMCITY_H
+#define SIMCITY_H
+
 
 #include "dataobj/ribi.h"
 
@@ -29,6 +28,7 @@ class karte_ptr_t;
 class player_t;
 class fabrik_t;
 class rule_t;
+struct route_range_specification;
 
 // For private subroutines
 class building_desc_t;
@@ -41,6 +41,8 @@ class building_desc_t;
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
 #define PAX_DESTINATIONS_SIZE (256) // size of the minimap in the city window (sparse array)
+
+#define CITY_NAME_LABEL_WIDTH (126)	// size of
 
 enum city_cost {
 	HIST_CITICENS=0,		// total people
@@ -162,7 +164,6 @@ public:
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
-	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
@@ -289,13 +290,6 @@ private:
 
 	sint32 number_of_cars;
 
-	/**
-	* Will fill the world's hashtable of tiles
-	* belonging to cities with all the tiles of
-	* this city
-	*/
-	void check_city_tiles(bool del = false);
-
 public:
 
 	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
@@ -336,6 +330,8 @@ public:
 		city_history_month[0][HIST_MAIL_TRANSPORTED] += mail;
 	}
 
+/* end of history related things */
+
 	//@author: jamespetts
 	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
 
@@ -345,7 +341,14 @@ public:
 
 	void reset_tiles_for_all_buildings();
 
-	/* end of history related things */
+	/**
+	* Will fill the world's hashtable of tiles
+	* belonging to cities with all the tiles of
+	* this city
+	*/
+	void check_city_tiles(bool del = false);
+
+
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -431,7 +434,9 @@ private:
 	 * @author Hj. Malthaner, V. Meyer
 	 */
 	bool maybe_build_road(koord k, bool map_generation);
+protected:
 	bool build_road(const koord k, player_t *player, bool forced, bool map_generation);
+private:
 
 	void build(bool new_town, bool map_generation);
 
@@ -461,7 +466,7 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	bool check_road_connexions;
+	bool private_car_route_finding_in_progress = false;
 
 	sint32 traffic_level;
 	void calc_traffic_level();
@@ -628,7 +633,7 @@ public:
 
 	void step(uint32 delta_t);
 
-	void new_month(bool check);
+	void new_month();
 
 	void add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city);
 	void add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry);
@@ -670,6 +675,8 @@ private:
 		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
 	};
 
+	/// Calculate this town's level of congestion this month and update the statistics accordingly.
+	void calc_congestion();
 
 public:
 
@@ -689,6 +696,9 @@ public:
 
 	// Checks whether any given postition is within the city limits.
 	bool is_within_city_limits(koord k) const;
+
+	// Checks whether any builinding is within players network.
+	bool is_within_players_network(const player_t* player) const;
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
@@ -728,6 +738,9 @@ public:
 	void remove_connected_city(stadt_t* city);
 	void remove_connected_industry(fabrik_t* fab);
 	void remove_connected_attraction(gebaeude_t* attraction);
+
+	bool get_private_car_route_finding_in_progress() const { return private_car_route_finding_in_progress; }
+	void set_private_car_route_finding_in_progress(bool value) { private_car_route_finding_in_progress = value; }
 
 	// @author: jamespetts
 	// September 2010

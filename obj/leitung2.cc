@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -392,7 +390,7 @@ void print_power(cbuffer_t & buf, uint64 power_in_internal_units, const char *fm
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void leitung_t::info(cbuffer_t & buf, bool dummy) const
+void leitung_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
@@ -452,7 +450,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	uint32 value;
 
 	obj_t::rdwr(file);
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
 		value = 64; // The below might end up casting a 64-bit pointer to a 32-bit value, which is no good; it probably makes no difference, since the value is not used.
 		//value = (uint32)get_net(); //  This seems to be functionless, but should be preserved for compatibility. It likewise appears functionless in Standard.
@@ -479,7 +477,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else 
+	else
 	{
 		file->rdwr_long(value); // "value" is not hereafter used.
 		set_net(NULL);
@@ -505,33 +503,33 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	if(get_typ() == leitung) 
+	if(get_typ() == leitung)
 	{
 		/* ATTENTION: during loading this MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
 		 */
 		if(file->get_version() > 102002 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 		{
-			if(file->is_saving()) 
+			if(file->is_saving())
 			{
 				const char *s = desc->get_name();
 				file->rdwr_str(s);
 			}
-			else 
+			else
 			{
 				char bname[128];
 				file->rdwr_str(bname, lengthof(bname));
 				if(bname[0] == '~')
 				{
-					set_desc(way_builder_t::leitung_desc);					
+					set_desc(way_builder_t::leitung_desc);
 					return;
 				}
 
 				const way_desc_t *desc = way_builder_t::get_desc(bname);
-				if(desc==NULL) 
+				if(desc==NULL)
 				{
 					desc = way_builder_t::get_desc(translator::compatibility_name(bname));
-					if(desc==NULL) 
+					if(desc==NULL)
 					{
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						desc = way_builder_t::leitung_desc;
@@ -541,9 +539,9 @@ void leitung_t::rdwr(loadsave_t *file)
 				set_desc(desc);
 			}
 		}
-		else 
+		else
 		{
-			if (file->is_loading()) 
+			if (file->is_loading())
 			{
 				set_desc(way_builder_t::leitung_desc);
 			}
@@ -551,7 +549,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	else if(file->get_extended_version() >= 8 && (get_typ() == pumpe || get_typ() == senke))
 	{
-		// Must add dummy string here, or else the loading/saving will fail, 
+		// Must add dummy string here, or else the loading/saving will fail,
 		// since we do not know whether a leitung is a plain leitung, or a pumpe
 		// or a senke on *loading*, whereas we do on saving.
 		char dummy[2] = "~";
@@ -589,7 +587,7 @@ void pumpe_t::step_all(uint32 delta_t)
 	}
 }
 
-pumpe_t::pumpe_t(loadsave_t *file ) : 
+pumpe_t::pumpe_t(loadsave_t *file ) :
 #ifdef INLINE_OBJ_TYPE
 	leitung_t( obj_t::pumpe, koord3d::invalid, NULL )
 #else
@@ -602,7 +600,7 @@ pumpe_t::pumpe_t(loadsave_t *file ) :
 }
 
 
-pumpe_t::pumpe_t(koord3d pos, player_t *player) : 
+pumpe_t::pumpe_t(koord3d pos, player_t *player) :
 #ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::pumpe, pos, player)
 #else
@@ -696,7 +694,7 @@ void pumpe_t::finish_rd()
 }
 
 
-void pumpe_t::info(cbuffer_t & buf, bool dummy) const
+void pumpe_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
@@ -725,7 +723,7 @@ void senke_t::step_all(uint32 delta_t)
 }
 
 
-senke_t::senke_t(loadsave_t *file) : 
+senke_t::senke_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::senke, koord3d::invalid, NULL)
 #else
@@ -744,7 +742,7 @@ senke_t::senke_t(loadsave_t *file) :
 }
 
 
-senke_t::senke_t(koord3d pos, player_t *player, stadt_t* c) : 
+senke_t::senke_t(koord3d pos, player_t *player, stadt_t* c) :
 #ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::senke, pos, player)
 #else
@@ -798,7 +796,7 @@ void senke_t::step(uint32 delta_t)
 		return;
 	}
 
-	if(delta_t == 0) 
+	if(delta_t == 0)
 	{
 		return;
 	}
@@ -857,7 +855,7 @@ void senke_t::step(uint32 delta_t)
 		vector_tpl<senke_t*> checked_substations;
 		FOR(vector_tpl<senke_t*>, substation, *city_substations)
 		{
-			// Must use two passes here: first, check all those that don't have enough to supply 
+			// Must use two passes here: first, check all those that don't have enough to supply
 			// an equal share, then check those that do.
 
 			const powernet_t* net = substation->get_net();
@@ -914,9 +912,9 @@ void senke_t::step(uint32 delta_t)
 		shared_power_demand = get_net()->get_supply() - get_net()->get_demand();
 	}
 
-	// Add only this substation's share of the power. 
+	// Add only this substation's share of the power.
 	get_net()->add_demand(shared_power_demand);
-	
+
 	if(city && city->get_substations()->get_count() > 1)
 	{
 		if(power_demand == 0)
@@ -932,18 +930,18 @@ void senke_t::step(uint32 delta_t)
 	if(fab && !fab->get_city())
 	{
 		// The connected industry gets priority access to the power supply if there's a shortage.
-		// This should use 'min', but the current version of that in simtypes.h 
+		// This should use 'min', but the current version of that in simtypes.h
 		// would cast to signed int (12.05.10)  FIXME.
-		if(fab_power_demand < power_load) 
+		if(fab_power_demand < power_load)
 		{
 			fab_power_load = fab_power_demand;
-		} 
+		}
 		else
 		{
 			fab_power_load = power_load;
 		}
 		fab->add_power(fab_power_load);
-		if(fab_power_demand > fab_power_load) 
+		if(fab_power_demand > fab_power_load)
 		{
 			// this allows subsequently stepped senke to supply demand
 			// which this senke couldn't
@@ -961,14 +959,14 @@ void senke_t::step(uint32 delta_t)
 		{
 			//city_factories[i]->set_transformer_connected(this);
 			const uint32 current_factory_demand = (factory->step_power_demand() * load_proportion) / 100;
-			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
+			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand :
 				(
 					current_factory_demand
 					* ((municipal_power_load << 5)
 					/ municipal_power_demand
 				)) >> 5; // <<5 for same reasons as above, FIXME
 			factory->add_power(current_factory_load);
-			if (current_factory_demand > current_factory_load) 
+			if (current_factory_demand > current_factory_load)
 			{
 				// this allows subsequently stepped senke to supply demand
 				// which this senke could not demand
@@ -976,7 +974,7 @@ void senke_t::step(uint32 delta_t)
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
-		
+
 		uint32 adjusted_power_load;
 		uint32 adjusted_power_demand;
 
@@ -997,7 +995,7 @@ void senke_t::step(uint32 delta_t)
 		city->add_power_demand(adjusted_power_demand);
 	}
 	// Income
-	
+
 	max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
 	// modified by Phystam, in order to balance the cost/revenue
 	// 1st Feb. 2018
@@ -1018,15 +1016,15 @@ uint32 senke_t::get_power_load() const
 {
 	const uint32 net_demand = get_net()->get_demand();
 	uint32 pl;
-	if(  net_demand > 0  ) 
+	if(  net_demand > 0  )
 	{
 		pl = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
-		if(  pl > last_power_demand  ) 
+		if(  pl > last_power_demand  )
 		{
 			pl = last_power_demand;
 		}
 	}
-	else 
+	else
 	{
 		pl = 0;
 	}
@@ -1111,7 +1109,7 @@ void senke_t::finish_rd()
 
 void senke_t::check_industry_connexion()
 {
-	if(fab == NULL && city == NULL && get_net()) 
+	if(fab == NULL && city == NULL && get_net())
 	{
 		if(welt->lookup(get_pos())->ist_karten_boden()) {
 			// on surface, check around
@@ -1128,7 +1126,7 @@ void senke_t::check_industry_connexion()
 }
 
 
-void senke_t::info(cbuffer_t & buf, bool dummy) const
+void senke_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 

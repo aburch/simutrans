@@ -1,5 +1,11 @@
-#ifndef _API_COMMAND_H_
-#define _API_COMMAND_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_API_COMMAND_H
+#define SCRIPT_API_API_COMMAND_H
+
 
 #include "../api_param.h"
 #include "../../dataobj/koord3d.h"

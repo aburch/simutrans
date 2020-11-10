@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 /* completely overhauled by prissi Oct-2005 */
 
 #include <stdio.h>
@@ -125,7 +130,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 bool schedule_t::insert(const grund_t* gr, uint16 minimum_loading, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time, bool show_failure)
 {
 	// stored in minivec, so we have to avoid adding too many
-	if(entries.get_count() >= 254) 
+	if(entries.get_count() >= 254)
 	{
 		if(show_failure)
 		{
@@ -207,7 +212,7 @@ void schedule_t::cleanup()
 		// Schedules of just one entry are not allowed.
 		entries.clear();
 	}
-	
+
 	if(  entries.empty()  ) {
 		return; // nothing to check
 	}
@@ -315,7 +320,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			}
 			else
 			{
-				// Previous versions had minimum_loading as a uint8. 
+				// Previous versions had minimum_loading as a uint8.
 				uint8 old_ladegrad = (uint8)entries[i].minimum_loading;
 				file->rdwr_byte(old_ladegrad);
 				entries[i].minimum_loading = (uint16)old_ladegrad;
@@ -324,7 +329,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(entries[i].waiting_time_shift);
 
-				if(file->get_extended_version() >= 9 && file->get_version() >= 110006) 
+				if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
 				{
 					file->rdwr_short(entries[i].spacing_shift);
 				}
@@ -334,7 +339,7 @@ void schedule_t::rdwr(loadsave_t *file)
 					file->rdwr_byte(entries[i].reverse);
 					if(file->get_extended_revision() < 4 && file->get_extended_version() < 13 && entries[i].reverse)
 					{
-						// Older versions had true as a default: set to indeterminate. 
+						// Older versions had true as a default: set to indeterminate.
 						entries[i].reverse = -1;
 					}
 				}
@@ -432,9 +437,9 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 	while(  f1+f2<entries.get_count()+schedule->entries.get_count()  ) {
 
 		if(		f1<entries.get_count()  &&  f2<schedule->entries.get_count()
-			&& schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos 
-			&& schedule->entries[(uint16)f2].minimum_loading == entries[(uint16)f1].minimum_loading 
-			&& schedule->entries[(uint8)f2].waiting_time_shift == entries[(uint8)f1].waiting_time_shift 
+			&& schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos
+			&& schedule->entries[(uint16)f2].minimum_loading == entries[(uint16)f1].minimum_loading
+			&& schedule->entries[(uint8)f2].waiting_time_shift == entries[(uint8)f1].waiting_time_shift
 			&& schedule->entries[(uint8)f2].spacing_shift == entries[(uint8)f1].spacing_shift
 			&& schedule->entries[(uint8)f2].wait_for_time == entries[(uint8)f1].wait_for_time
 		  ) {
@@ -478,37 +483,37 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
  * @author yobbobandana
  */
 void schedule_t::increment_index(uint8 *index, bool *reversed) const {
-	if( !get_count() ) 
-	{ 
-		return; 
-	}
-	if( *reversed ) 
+	if( !get_count() )
 	{
-		if( *index != 0 ) 
+		return;
+	}
+	if( *reversed )
+	{
+		if( *index != 0 )
 		{
 			*index = *index - 1;
-		} 
-		else if( mirrored ) 
+		}
+		else if( mirrored )
 		{
 			*reversed = false;
 			*index = get_count()>1 ? 1 : 0;
-		} 
-		else 
+		}
+		else
 		{
 			*index = get_count()-1;
 		}
-	} 
-	else 
+	}
+	else
 	{
-		if( *index < get_count()-1 ) 
+		if( *index < get_count()-1 )
 		{
 			*index = *index + 1;
-		} 
-		else if( mirrored && get_count()>1 ) 
+		}
+		else if( mirrored && get_count()>1 )
 		{
 			*reversed = true;
 			*index = get_count()-2;
-		} 
+		}
 		else
 		{
 			*index = 0;
@@ -597,7 +602,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
-	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) 
+	FOR(minivec_tpl<schedule_entry_t>, const& i, entries)
 	{
 		buf.printf( "%s,%i,%i,%i,%i,%i|", i.pos.get_str(), i.minimum_loading, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse, (int)i.wait_for_time );
 	}

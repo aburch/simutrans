@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
 #include "environment.h"
 #include "loadsave.h"
@@ -90,6 +95,8 @@ bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 uint8 env_t::signalbox_coverage_show;
 sint32 env_t::show_names;
+uint8 env_t::show_cnv_nameplates;
+uint8 env_t::show_cnv_loadingbar;
 sint32 env_t::message_flags[4];
 uint32 env_t::water_animation;
 uint32 env_t::ground_object_probability;
@@ -182,6 +189,8 @@ void env_t::init()
 	signalbox_coverage_show = 0;
 
 	show_names = 3;
+	show_cnv_nameplates = 0;
+	show_cnv_loadingbar = 0;
 	player_finance_display_account = true;
 
 	water_animation = 250; // 250ms per wave stage
@@ -300,6 +309,14 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(signalbox_coverage_show);
 	}
 	file->rdwr_long( show_names );
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 22) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_byte(show_cnv_nameplates);
+	}
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 28) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_byte(show_cnv_loadingbar);
+	}
 
 	file->rdwr_bool( hide_with_transparency );
 	file->rdwr_byte( hide_buildings );
@@ -400,8 +417,8 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(hilly);
 		file->rdwr_bool(cities_ignore_height);
 	}
-	
-	if( file->get_extended_version() >= 9 || (file->get_extended_version() == 0 && file->get_version()>=102003)) 
+
+	if( file->get_extended_version() >= 9 || (file->get_extended_version() == 0 && file->get_version()>=102003))
 	{
 		file->rdwr_long( tooltip_delay );
 		file->rdwr_long( tooltip_duration );

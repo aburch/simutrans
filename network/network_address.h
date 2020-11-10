@@ -1,5 +1,11 @@
-#ifndef _NETWORK_ADDRESS_H_
-#define _NETWORK_ADDRESS_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_ADDRESS_H
+#define NETWORK_NETWORK_ADDRESS_H
+
 
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"
@@ -23,8 +29,6 @@ public:
 	net_address_t(uint32 ip_=0, uint32 mask_ = 0xffffffff);
 
 	net_address_t(const char *);
-
-	net_address_t(const net_address_t&);
 
 	bool matches(const net_address_t &other) const {
 		return (other.ip & mask)==(ip & mask);

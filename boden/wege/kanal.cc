@@ -1,8 +1,6 @@
 /*
- * Eine Sorte Water die zu einer Haltestelle gehört
- *
- * Revised January 2001
- * Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -44,13 +42,13 @@ void kanal_t::rdwr(loadsave_t *file)
 		return;
 	}
 
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 		if(file->get_extended_version() >= 12)
 		{
-			s = replacement_way ? replacement_way->get_name() : ""; 
+			s = replacement_way ? replacement_way->get_name() : "";
 			file->rdwr_str(s);
 		}
 	}

@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- *
- * Things on ways like catenary or something like this
- *
- * von prissi
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -52,7 +46,7 @@ const way_obj_desc_t *wayobj_t::default_oberleitung=NULL;
 
 stringhashtable_tpl<way_obj_desc_t *> wayobj_t::table;
 
-wayobj_t::wayobj_t(loadsave_t* const file) : 
+wayobj_t::wayobj_t(loadsave_t* const file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::wayobj)
 #else
@@ -64,7 +58,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 }
 
 
-wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_desc_t const* const b) : 
+wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_desc_t const* const b) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::wayobj, pos)
 #else
@@ -106,7 +100,7 @@ wayobj_t::~wayobj_t()
 				weg->reset_way_constraints();
 				sint32 max_speed;
 				const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
-				if(hang != slope_t::flat) 
+				if(hang != slope_t::flat)
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
@@ -126,12 +120,12 @@ wayobj_t::~wayobj_t()
 				{
 					max_speed = 50;
 				}
-				if(gr->get_typ()==grund_t::tunnelboden) 
+				if(gr->get_typ()==grund_t::tunnelboden)
 				{
 					tunnel_t *t = gr->find<tunnel_t>(1);
-					if(t) 
+					if(t)
 					{
-						if(hang != slope_t::flat) 
+						if(hang != slope_t::flat)
 						{
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
@@ -150,12 +144,12 @@ wayobj_t::~wayobj_t()
 						weg->add_way_constraints(t->get_desc()->get_way_constraints());
 					}
 				}
-				if(gr->get_typ()==grund_t::brueckenboden) 
+				if(gr->get_typ()==grund_t::brueckenboden)
 				{
 					bruecke_t *b = gr->find<bruecke_t>(1);
 					if(b)
 					{
-						if(hang != slope_t::flat) 
+						if(hang != slope_t::flat)
 						{
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
@@ -195,7 +189,7 @@ wayobj_t::~wayobj_t()
 					if( wo2 ) {
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
-						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nsew[i]) ); // This has the effect of looking for directions in front of this way object (the ~ combined with the ribi_t::backward). 
+						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nsew[i]) ); // This has the effect of looking for directions in front of this way object (the ~ combined with the ribi_t::backward).
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
 						wo2->set_flag(obj_t::dirty);
@@ -285,13 +279,13 @@ void wayobj_t::finish_rd()
 
 	// electrify a way if we are a catenary
 	if (desc->is_overhead_line())
-	{	
+	{
 		if(weg)
 		{
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
 			sint32 way_top_speed;
-			if(hang != slope_t::flat) 
+			if(hang != slope_t::flat)
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
@@ -315,7 +309,7 @@ void wayobj_t::finish_rd()
 			// Add the way constraints together.
 			weg->add_way_constraints(desc->get_way_constraints());
 		}
-		else 
+		else
 		{
 			dbg->warning("wayobj_t::finish_rd()","ground was not a way!");
 		}
@@ -378,6 +372,7 @@ void wayobj_t::calc_image()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
+		set_xoff( 0 );
 		if (get_desc()->is_noise_barrier()) {
 			dir |= (w->get_ribi_unmasked() | sec_way_ribi_unmasked);
 		} else {
@@ -448,7 +443,7 @@ void wayobj_t::calc_image()
 const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc)
 {
 	grund_t *gr=welt->lookup(pos);
-	if(gr) 
+	if(gr)
 	{
 		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {

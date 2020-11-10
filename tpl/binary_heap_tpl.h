@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef tpl_binary_heap_tpl_h
-#define tpl_binary_heap_tpl_h
+#ifndef TPL_BINARY_HEAP_TPL_H
+#define TPL_BINARY_HEAP_TPL_H
+
 
 #include "../simmem.h"
 
@@ -38,7 +37,7 @@ public:
 	binary_heap_tpl()
 	{
 		// This is called far too often in Extended
-		// for debug messages to be useful.	
+		// for debug messages to be useful.
 		//DBG_MESSAGE("binary_heap_tpl()","initialized");
 		nodes = MALLOCN(T, 4096);
 		node_size = 4096;

@@ -1,0 +1,63 @@
+<title>Signals working methods - Cab signalling</title>
+
+<h1>Signals working methods - Cab signalling</h1><br><br>
+
+<em>Cab signalling</em><br>
+Cab signalling technology is another big leap towards train safety, in that it does not relies on train drivers to spot the signals along the tracks, but the upcoming signals are presented to the driver directly inside the drivers cab. This has, among other things, the benefit of eliminating distant signals and multiple aspect signals altogether, as all that information is presented in the cab.<br>
+In Simutrans Extended, cab signalling works identically as to the <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> working method, but without the distant signals and the multiple aspect signals. Instead, the train will always know the state of the upcoming signal.<br>
+In Simutrans Extended, the cab signalling working method are modelled based on the international ETCS level 2 system.<br>
+<br>
+
+<em>How it works</em><br>
+* Cab signalling signals reserves the entire path up to the next signal.<br>
+* Trains will unreserve the path behind them, thus letting another train cross the track.<br>
+* When a reservation goes through a bidirectional signal, it will create a directional reservation from that point.<br>
+* When a train attempt to depart from a signal followed by a bidirectional signal, the train will not be released until the bidirectional signal can create a directional reservation.<br>
+* A directional reservation only reserves the direction of the track. Multiple trains can traverse it in this direction.<br>
+<br>
+In general, the only difference between cab signalling signals and track circuit block signals are:<br>
+* There are no distant signals.<br>
+* There are no multiple aspect signals.<br>
+* Sighting distance is unlimited.<br>
+<br>
+
+<em>Bidirectional signals and directional reservations</em><br>
+Directional reservations are created in exactly the same way as in track circuit block:<br>
+* With any of the cab signalling signals, when building the signal, press multiple times with the mouse, and the signal will toggle between "one way", "the other way" and "bidirectional".<br>
+* Reservations made up to such a signal will trigger a directional reservation from that point.<br>
+* Alternatively, build a "longblock signal". Directional reservations will be made when departing from that signal.<br>
+<br>
+
+<em>Best uses</em><br>
+In general, cab signalling can completely replace both absolute block and track circuit block signals:<br>
+* All signals are replaced with their cab signalling counterpart.<br>
+* All multiple aspects signals should be replaced with normal cab signalling stop signals.<br>
+* All distant signals can be removed.<br>
+* Place additional cab signals if density on the line should be increased.<br>
+<br>
+
+<em>Types of signals</em><br>
+These are the different cab signalling signals:<br>
+<br>
+
+- <it>Cab signalling stop signal</it><br>
+This is the standard stop signal and might also be called a "stop board".<br>
+<br>
+
+- <it>Cab signalling choose signal</it><br>
+Might also be called a "choose board".<br>
+This signal will let trains enter empty platforms, alternatively find free routes through a set of junctions.
+Read more about choose signals on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.<br>
+<br>
+
+- <it>Cab signalling permissive signal</it><br>
+This signal allows multiple signals to enter the same block.<br>
+More details about permissive signals on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.<br>
+<br>
+
+- <it>Cab signalling double block signal</it><br>
+This signal will only be clear if it can reserve two blocks.<br>
+More details about double block signals on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.<br>
+<br>
+
+

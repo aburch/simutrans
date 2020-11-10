@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simplan_h
-#define simplan_h
+#ifndef SIMPLAN_H
+#define SIMPLAN_H
+
 
 #include "halthandle_t.h"
 #include "boden/grund.h"
@@ -101,7 +100,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline grund_t *get_boden_in_hoehe(const sint16 z) const {
-		if(  ground_size == 1  ) 
+		if(  ground_size == 1  )
 		{
 			// must be valid ground at this point!
 		    return data.one->get_hoehe() == z ? data.one : NULL;
@@ -261,6 +260,17 @@ public:
 	void display_overlay(sint16 xpos, sint16 ypos) const;
 
 	static void toggle_horizontal_clip(CLIP_NUM_DEF0);
+
+	/**
+	 * @brief Update this square for underground view.
+	 *
+	 * Updates this square for underground view. This includes calculating
+	 * calculating new back will images as well as water depth texture.
+	 *
+	 * This method does not modify this square object, but does modify the
+	 * grounds it references.
+	 */
+	void update_underground() const;
 
 	bool is_being_deleted() const { return data.one == NULL; }
 };

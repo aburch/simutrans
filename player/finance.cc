@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -181,23 +181,6 @@ sint64 finance_t::get_maintenance_with_bits(transport_type tt) const
 	return world->calc_adjusted_monthly_figure( (sint64)maintenance[tt] );
 }
 
-
-/**
- * Simworld.cc will shut down and remove any player except the public player who
- * satisfies these conditions
- */
-bool finance_t::is_bankrupted() const
-{
-	// Must have no convois and no infrastructure as well as being "bust"
-	return (
-		account_balance < ( com_month[0][ATC_HARD_CREDIT_LIMIT] )  &&
-		veh_year[TT_ALL][0][ATV_INFRASTRUCTURE_MAINTENANCE] == 0  &&
-		maintenance[TT_ALL] == 0  &&
-		com_year[0][ATC_ALL_CONVOIS] == 0
-	);
-}
-
-
 void finance_t::new_month()
 {
 	// First, make sure everything is recorded right, before changing the month.
@@ -222,7 +205,7 @@ void finance_t::new_month()
 /**
  * Books interest expense or profit.
  */
-void finance_t::book_interest_monthly() 
+void finance_t::book_interest_monthly()
 {
 	// This handles both interest on cash balance and interest on loans.
 	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
@@ -236,7 +219,7 @@ void finance_t::book_interest_monthly()
 			// Credit interest rate is 1/4 of debt interest rate.
 			interest /= (float32e8_t)4;
 		}
-		// Apply to the current account balance, only if in debt. 
+		// Apply to the current account balance, only if in debt.
 		// Credit interest, which applied in earlier versions, unbalanced the game.
 		interest *= (float32e8_t)get_account_balance();
 		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
@@ -244,7 +227,7 @@ void finance_t::book_interest_monthly()
 		// This would require an account balance of over +-257 billion.
 		sint32 booked_interest = interest;*/
 
-		sint64 interest; 
+		sint64 interest;
 		if(get_account_balance() < 0)
 		{
 			interest = (interest_rate * get_account_balance()) / 1200ll;
@@ -292,7 +275,7 @@ void finance_t::calc_credit_limits()
  * Calculates a credit limit based on past year's profitability
  * (ability to cover interest costs).
  */
-sint64 finance_t::credit_limit_by_profits() const 
+sint64 finance_t::credit_limit_by_profits() const
 {
 	// The idea is that yearly profits should cover yearly interest
 	// Look back 12 months (full year's profit)
@@ -330,7 +313,7 @@ sint64 finance_t::credit_limit_by_profits() const
  * Calculates an asset-based credit limit.
  * Secured borrowing against assets.
  */
-sint64 finance_t::credit_limit_by_assets() const 
+sint64 finance_t::credit_limit_by_assets() const
 {
 	// Can borrow against potentially all assets.
 	sint64 hard_limit_by_assets = - get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
@@ -348,7 +331,7 @@ void finance_t::rdwr(loadsave_t *file)
 	if( file->get_version() < 112005 ) {
 		rdwr_compatibility(file);
 		if ( file->is_loading() ) {
-			// Loaded hard credit limit will be wrong, fix it quick to avoid bankruptcies
+			// Loaded hard credit limit will be wrong, fix it quick to avoid spurious insolvency
 			calc_credit_limits();
 		}
 		return;
@@ -520,6 +503,24 @@ transport_type finance_t::translate_waytype_to_tt(const waytype_t wt)
 		case ignore_wt:
 		case overheadlines_wt:
 		default:           return TT_OTHER;
+	}
+}
+
+waytype_t finance_t::translate_tt_to_waytype(const transport_type tt)
+{
+	switch (tt)
+	{
+		case TT_ROAD:			return road_wt;
+		case TT_RAILWAY:		return track_wt;
+		case TT_SHIP:			return water_wt;
+		case TT_MONORAIL:		return monorail_wt;
+		case TT_MAGLEV:			return maglev_wt;
+		case  TT_TRAM:			return tram_wt;
+		case TT_NARROWGAUGE:	return narrowgauge_wt;
+		case  TT_AIR:			return air_wt;
+		case TT_POWERLINE:		return powerline_wt;
+		case TT_OTHER:			return overheadlines_wt;
+		default:				return ignore_wt;
 	}
 }
 

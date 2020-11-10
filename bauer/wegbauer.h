@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simbau_h
-#define simbau_h
+#ifndef BAUER_WEGBAUER_H
+#define BAUER_WEGBAUER_H
+
 
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"
@@ -250,8 +249,8 @@ public:
 	way_builder_t(player_t *player);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
-	void calc_route(const koord3d &start3d, const koord3d &ziel);
-	void calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
+	bool calc_route(const koord3d &start3d, const koord3d &ziel);
+	bool calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
 
 	/* returns the amount needed to built this way
 	* author prissi
@@ -273,6 +272,8 @@ public:
 	void build();
 };
 
-ENUM_BITSET(way_builder_t::bautyp_t);
+
+ENUM_BITSET(way_builder_t::bautyp_t)
+
 
 #endif

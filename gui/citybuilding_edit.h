@@ -1,9 +1,11 @@
 /*
- * The citybuilding editor (urban buildings builder)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_citybuilding_edit_h
-#define gui_citybuilding_edit_h
+#ifndef GUI_CITYBUILDING_EDIT_H
+#define GUI_CITYBUILDING_EDIT_H
+
 
 #include "extend_edit.h"
 
@@ -13,6 +15,9 @@ class building_desc_t;
 class tool_build_house_t;
 
 
+/*
+ * The citybuilding editor (urban buildings builder)
+ */
 class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
 private:
@@ -33,9 +38,9 @@ private:
 	button_t bt_left_rotate, bt_right_rotate;
 	gui_label_t lb_rotation, lb_rotation_info;
 
-	void fill_list( bool translate );
+	void fill_list( bool translate ) OVERRIDE;
 
-	virtual void change_item_info( sint32 i );
+	virtual void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	citybuilding_edit_frame_t(player_t* player);
@@ -52,7 +57,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "citybuilding_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

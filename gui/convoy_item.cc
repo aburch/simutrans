@@ -1,5 +1,6 @@
 /*
- * Convoi information, name and status color
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "convoy_item.h"

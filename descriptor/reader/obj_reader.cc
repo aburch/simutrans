@@ -1,10 +1,15 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
 #include <string.h>
 
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../display/simimg.h"
-#include "../../simsys.h"
+#include "../../sys/simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
 

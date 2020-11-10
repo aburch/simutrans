@@ -21,7 +21,7 @@
 
 /*
 
-Comparing: sprintf, snprintf, spprintf 
+Comparing: sprintf, snprintf, spprintf
 
 sprintf  offers the ability to make a lot of failures since it does not know
          the size of the buffer it uses. Therefore usage of sprintf often
@@ -34,14 +34,14 @@ snprintf knows the buffers size and will not write behind it. But you will
          before beeing able to call the function. In other words you must
          be sure that you really know the maximum size of the buffer required.
          A bad thing is having a big maximum while in most cases you would
-         only need a small buffer. If the size of the resulting string is 
+         only need a small buffer. If the size of the resulting string is
          longer or equal to the buffer size than the buffer is not terminated.
 
 spprintf is the dynamical version of snprintf. It allocates the buffer in size
          as needed and allows a maximum setting as snprintf (turn this feature
          off by setting max_len to 0). spprintf is a little bit slower than
-         snprintf and offers possible memory leakes if you miss freeing the 
-         buffer allocated by the function. Therfore this function should be 
+         snprintf and offers possible memory leakes if you miss freeing the
+         buffer allocated by the function. Therfore this function should be
          used where either no maximum is known or the maximum is much bigger
          than normal size required. spprintf allways terminates the buffer.
 
@@ -56,14 +56,15 @@ Example:
                                |                                | if (!buffer)
                                |                                |   return OUT_OF_MEMORY
  // sprintf allways terminates | // manual termination of       | // spprintf allays terminates buffer
- // buffer                     | // buffer *IS* required        |   
-                               | buffer[MAX-1] = 0;             | 
+ // buffer                     | // buffer *IS* required        |
+                               | buffer[MAX-1] = 0;             |
  action_with_buffer(buffer);   | action_with_buffer(buffer);    | action_with_buffer(buffer);
                                |                                | efree(buffer);
 */
 
-#ifndef SNPRINTF_H
-#define SNPRINTF_H
+#ifndef UTILS_SNPRINTF_H
+#define UTILS_SNPRINTF_H
+
 
 BEGIN_EXTERN_C()
 PHPAPI int ap_php_snprintf(char *, size_t, const char *, ...) PHP_ATTRIBUTE_FORMAT(printf, 3, 4);

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdlib.h>
@@ -38,13 +36,9 @@
 
 #include "utils/cbuffer_t.h"
 
-#ifdef MULTI_THREAD
-#include "utils/simthread.h"
-static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 slist_tpl<depot_t *> depot_t::all_depots;
+
 
 #ifdef INLINE_OBJ_TYPE
 depot_t::depot_t(obj_t::typ type, loadsave_t *file) : gebaeude_t(type)
@@ -248,11 +242,11 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb)
 		{
 			if(cnv->get_vehicle(i)->get_desc()->get_upgrades(c) == vb)
 			{
-				vehicle_t* new_veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
+				vehicle_t* new_veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index());
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehicle(i)->get_desc()->get_trailer_count() == 1 && cnv->get_vehicle(i)->get_desc()->get_power() != 0)
 				{
-					// We need to upgrade tenders, too.	
+					// We need to upgrade tenders, too.
 					const vehicle_desc_t* new_desc = new_veh->get_desc()->get_trailer(0);
 					if (new_desc)
 					{
@@ -270,7 +264,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb)
 							cnv->get_vehicle(i + 1)->set_desc(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades(0));
 						}*/
 					}
-				}		
+				}
 				//Check whether this is a Garrett type vehicle (this is code for the exceptional case where a Garrett is upgraded to another Garrett)
 				if(cnv->get_vehicle(0)->get_desc()->get_power() == 0 && cnv->get_vehicle(0)->get_desc()->get_total_capacity() == 0)
 				{
@@ -279,17 +273,17 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb)
 					if(count > 0 && cnv->get_vehicle(1)->get_desc()->get_power() > 0 && cnv->get_vehicle(1)->get_desc()->get_trailer_count() > 0)
 					{
 						// Garrett detected - need to upgrade all three vehicles.
-						vehicle_t* new_veh_2 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
+						vehicle_t* new_veh_2 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true);
 						cnv->upgrade_vehicle(i + 1, new_veh_2);
-						vehicle_t* new_veh_3 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
+						vehicle_t* new_veh_3 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true);
 						cnv->upgrade_vehicle(i + 2, new_veh_3);
 					}
 				}
 				// Only upgrade one at a time.
 				// Could add UI feature in future to allow upgrading all at once.
-				return;					
-			}		
-		}				
+				return;
+			}
+		}
 	}
 }
 
@@ -341,7 +335,7 @@ vehicle_t* depot_t::find_oldest_newest(const vehicle_desc_t* desc, bool old, vec
 	vehicle_t* found_veh = NULL;
 	FOR(slist_tpl<vehicle_t*>, const veh, vehicles)
 	{
-		if(veh != NULL && veh->get_desc() == desc) 
+		if(veh != NULL && veh->get_desc() == desc)
 		{
 			// joy of XOR, finally a line where I could use it!
 			if(avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
@@ -414,10 +408,10 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		new_cnv->set_name(old_cnv->get_internal_name());
 		new_cnv->set_livery_scheme_index(old_cnv->get_livery_scheme_index());
 		int vehicle_count = old_cnv->get_vehicle_count();
-		for (int i = 0; i < vehicle_count; i++) 
+		for (int i = 0; i < vehicle_count; i++)
 		{
 			const vehicle_desc_t * info = old_cnv->get_vehicle(i)->get_desc();
-			if (info != NULL) 
+			if (info != NULL)
 			{
 				// search in depot for an existing vehicle of correct type
 				vehicle_t* new_vehicle = get_oldest_vehicle(info);
@@ -441,7 +435,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 						}
 
 						break; // ... and what happens with the first few vehicles, if you: return convoihandle_t();
-						
+
 					}
 					// buy new vehicle
 					new_vehicle = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info, false, old_cnv->get_livery_scheme_index());
@@ -460,7 +454,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				append_vehicle(new_cnv, new_vehicle, false, local_execution);
 			}
 		}
-		if (old_cnv->get_line().is_bound()) 
+		if (old_cnv->get_line().is_bound())
 		{
 			if(!new_cnv.is_bound())
 			{
@@ -469,9 +463,9 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 			new_cnv->set_line(old_cnv->get_line());
 			new_cnv->get_schedule()->set_current_stop( old_cnv->get_schedule()->get_current_stop() );
 		}
-		else 
+		else
 		{
-			if (old_cnv->get_schedule() != NULL) 
+			if (old_cnv->get_schedule() != NULL)
 			{
 				if(!new_cnv.is_bound())
 				{
@@ -479,7 +473,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 				new_cnv->set_schedule(old_cnv->get_schedule()->copy());
 			}
-		}	
+		}
 		if (new_cnv.is_bound())
 		{
 			new_cnv->set_name(old_cnv->get_internal_name());
@@ -495,7 +489,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 			}
 		}
-		
+
 		return new_cnv;
 	}
 	return convoihandle_t();
@@ -553,6 +547,12 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		return false;
 	}
 
+	if (cnv.is_bound() && cnv->front()->get_owner() == NULL)
+	{
+		// It it not clear why the version for this on loading does not work.
+		cnv->front()->set_owner(cnv->get_owner());
+		cnv->back()->set_owner(cnv->get_owner());
+	}
 	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
@@ -580,7 +580,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			}
 			if(power)
 			{
-				potential_convoy_t convoy(vehicle_types);	
+				potential_convoy_t convoy(vehicle_types);
 				const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 				const sint32 friction = convoy.get_current_friction();
 				//const double rolling_resistance = convoy.get_resistance_summary().to_double();
@@ -589,18 +589,18 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				speed = max_speed;
 			}
 
-			convoy_unpowered = !(power && speed); 
+			convoy_unpowered = !(power && speed);
 		}
 
 		// check if convoy is complete
 		if(convoy_unpowered || !cnv->pruefe_alle())
 		{
-			if (local_execution) 
+			if (local_execution)
 			{
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  cnv->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed()) != route_t::valid_route) {
+		else if(  !cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->has_tall_vehicles(), cnv->access_route())) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;
@@ -608,6 +608,10 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
+		}
+		else if (!(cnv->front()->get_desc()->get_basic_constraint_prev(cnv->front()->is_reversed()) & vehicle_desc_t::can_be_head)) {
+			// Is there a cab at the front end of convoy?
+			create_win(new news_img("Cannot start: no cab at the front of the convoy."), w_time_delete, magic_none);
 		}
 		else {
 			// convoi can start now
@@ -693,36 +697,42 @@ void depot_t::rdwr_vehicle(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 		}
 
 		DBG_MESSAGE("depot_t::vehicle_laden()","loading %d vehicles",count);
-		for(int i=0; i<count; i++) {
+		for (int i = 0; i < count; i++) {
 			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 
-			vehicle_t *v = NULL;
+			vehicle_t* v = NULL;
 			const bool first = false;
 			const bool last = false;
 
-			switch( typ ) {
-				case old_road_vehicle:
-				case road_vehicle: v = new road_vehicle_t(file, first, last);    break;
-				case old_waggon:
-				case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
-				case old_schiff:
-				case water_vehicle:    v = new water_vehicle_t(file, first, last);       break;
-				case old_aircraft:
-				case air_vehicle: v = new air_vehicle_t(file, first, last);  break;
-				case old_monorail_vehicle:
-				case monorail_vehicle: v = new monorail_rail_vehicle_t(file, first, last);  break;
-				case maglev_vehicle:   v = new maglev_rail_vehicle_t(file, first, last);  break;
-				case narrowgauge_vehicle: v = new narrowgauge_rail_vehicle_t(file, first, last);  break;
-				default:
-					dbg->fatal("depot_t::vehicle_laden()","invalid vehicle type $%X", typ);
+			switch (typ) {
+			case old_road_vehicle:
+			case road_vehicle: v = new road_vehicle_t(file, first, last);    break;
+			case old_waggon:
+			case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
+			case old_schiff:
+			case water_vehicle:    v = new water_vehicle_t(file, first, last);       break;
+			case old_aircraft:
+			case air_vehicle: v = new air_vehicle_t(file, first, last);  break;
+			case old_monorail_vehicle:
+			case monorail_vehicle: v = new monorail_rail_vehicle_t(file, first, last);  break;
+			case maglev_vehicle:   v = new maglev_rail_vehicle_t(file, first, last);  break;
+			case narrowgauge_vehicle: v = new narrowgauge_rail_vehicle_t(file, first, last);  break;
+			default:
+				dbg->fatal("depot_t::vehicle_laden()", "invalid vehicle type $%X", typ);
 			}
-			const vehicle_desc_t *desc = v->get_desc();
-			if(desc) {
-				DBG_MESSAGE("depot_t::vehicle_laden()","loaded %s", desc->get_name());
-				list.insert( v );
+			const vehicle_desc_t* desc = v->get_desc();
+			if (desc) {
+				DBG_MESSAGE("depot_t::vehicle_laden()", "loaded %s", desc->get_name());
+				list.insert(v);
 			}
 			else {
-				dbg->error("depot_t::vehicle_laden()","vehicle has no desc => ignored");
+				dbg->error("depot_t::vehicle_laden()", "vehicle has no desc => ignored");
+			}
+
+			if (v->get_owner() == NULL)
+			{
+				// Vehicles should not be unowned in depots; assume that the owner of the depot owns the vehicle.
+				v->set_owner(get_owner());
 			}
 		}
 	}
@@ -817,9 +827,10 @@ void depot_t::new_month()
 		get_owner()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
 	}
 
-	stadt_t* city = welt->get_city(get_pos().get_2d());
+	const planquadrat_t* tile = welt->access(get_pos().get_2d());
+	stadt_t* city = tile ? tile->get_city() : NULL;
 	if(city && get_stadt() == NULL)
-	{		
+	{
 		// The depot has joined a city by dint of growth.
 		set_stadt(city);
 		city->update_city_stats_with_building(this, false);
@@ -875,12 +886,13 @@ bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint16 trac
 	return true;
 }
 
-void depot_t::add_to_world_list(bool lock)
+void depot_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(this);
-	stadt_t* city = welt->get_city(get_pos().get_2d());
+	const planquadrat_t* tile = welt->access(get_pos().get_2d());
+	stadt_t* city = tile ? tile->get_city() : NULL;
 	if(city)
-	{		
+	{
 		set_stadt(city);
 		city->update_city_stats_with_building(this, false);
 	}

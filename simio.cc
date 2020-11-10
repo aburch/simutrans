@@ -1,6 +1,6 @@
 /*
- * Ein-/Ausgaberoutinen fuer Simutrans
- * Hj. Malthaner, 2000
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>

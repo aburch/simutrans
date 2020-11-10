@@ -1,5 +1,11 @@
-#ifndef _DYNAMIC_STRING_H_
-#define _DYNAMIC_STRING_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_DYNAMIC_STRING_H
+#define SCRIPT_DYNAMIC_STRING_H
+
 
 /** @file dynamic_string.h strings that can be asynchronously changed by scripts */
 

@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Info about the current game
  *
  * prissi
@@ -46,7 +51,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	city_count = welt->get_cities().get_count();
 	citizen_count = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, welt->get_cities()) {
-		citizen_count += i->get_einwohner();
+		citizen_count += i->get_city_population();
 	}
 
 	const int gr_x = welt->get_size().x;

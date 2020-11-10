@@ -1,9 +1,6 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- * New configurable OOP tool system
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -155,6 +152,8 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_FILL_TREES:        tool = new tool_fill_trees_t(); break;
 		case TOOL_DAYNIGHT_LEVEL:    tool = new tool_daynight_level_t(); break;
 		case TOOL_VEHICLE_TOOLTIPS:  tool = new tool_vehicle_tooltips_t(); break;
+		case TOOL_CONVOY_NAMEPLATES: tool = new tool_convoy_nameplate_t(); break;
+		case TOOL_CONVOY_LOADINGBAR: tool = new tool_convoy_loadingbar_t(); break;
 		case TOOL_TOOGLE_PAX:        tool = new tool_toggle_pax_station_t(); break;
 		case TOOL_TOOGLE_PEDESTRIANS:tool = new tool_toggle_pedestrians_t(); break;
 		case TOOL_TRAFFIC_LEVEL:     tool = new tool_traffic_level_t(); break;
@@ -1068,7 +1067,7 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		grund_t *gr = welt->lookup( pos );
 		delete z;
 		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t) unless it has vehicles on it
-		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle()) 
+		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle())
 		{
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;

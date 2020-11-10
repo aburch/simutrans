@@ -1,15 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/**
- * An adapter class to display info windows for ground (floor) objects
- *
- * @author Hj. Malthaner
- * @date 20-Nov-2001
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../display/simgraph.h"

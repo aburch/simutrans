@@ -1,14 +1,11 @@
 /*
- *  Copyright (c) 2006 by prissi
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  Module description:
- *      signs on roads and other ways
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __ROADSIGN_BESCH_H
-#define __ROADSIGN_BESCH_H
+#ifndef DESCRIPTOR_ROADSIGN_DESC_H
+#define DESCRIPTOR_ROADSIGN_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "image_list.h"
@@ -46,24 +43,24 @@ private:
 	 */
 	uint8 allow_underground;
 
-	// What group to which this signal belongs. 
+	// What group to which this signal belongs.
 	// This determines the signal boxes to which it can be linked.
 	uint32 signal_group;
 
-	// This determines how far that this can be placed from a signalbox. 
-	// Note that, of this figure and the radius of the signalbox, the 
+	// This determines how far that this can be placed from a signalbox.
+	// Note that, of this figure and the radius of the signalbox, the
 	// lowest value of the two determines whether the signal can be
 	// built. This value is in meters. 0 = unlimited.
 	uint32 max_distance_to_signalbox;
 
-	// The number of aspects that this signal can display. 
+	// The number of aspects that this signal can display.
 	// This should be a number between 1 (for a fixed sign
 	// board as in, e.g. ETRMS Level 2, and 5 for full 5
 	// aspect signalling. Default: 2). Relevant only for
 	// railway signals, not roadsigns (which are set to 0).
 	// Note that SIGN_PRE_SIGNAL should now be used *only*
 	// for signals that are purely pre-signals and have
-	// no stop/danger aspect. 
+	// no stop/danger aspect.
 	uint8 aspects;
 
 	// True if this is a signal with a call-on aspect.
@@ -74,8 +71,8 @@ private:
 	bool has_selective_choose;
 
 	// The working method that this signal engenders
-	// if passed. 
-	working_method_t working_method; 
+	// if passed.
+	working_method_t working_method;
 
 	// Whether this is a permissive signal.
 	bool permissive;
@@ -86,7 +83,7 @@ private:
 
 	// If this is true, even signals that would usually be normal
 	// clear (track circuit block and cab signalling: not time interval)
-	// will be normal danger. 
+	// will be normal danger.
 	bool normal_danger;
 
 	// Whether this signal will clear only if the next signal
@@ -94,7 +91,7 @@ private:
 	bool double_block;
 
 	// The maximum speed at which this signal may be approached.
-	// Used for system speeds. 
+	// Used for system speeds.
 	uint32 max_speed;
 
 public:
@@ -187,7 +184,7 @@ public:
 		chk->input(min_speed);
 		chk->input(allow_underground);
 		chk->input(signal_group);
-		chk->input(base_maintenance); 
+		chk->input(base_maintenance);
 		chk->input(max_distance_to_signalbox);
 		chk->input(aspects);
 		chk->input(has_call_on);
@@ -196,7 +193,7 @@ public:
 		chk->input(intermediate_block);
 		chk->input(normal_danger);
 		chk->input(max_speed);
-		chk->input(working_method); 
+		chk->input(working_method);
 	}
 };
 

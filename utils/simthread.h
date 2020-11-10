@@ -1,9 +1,15 @@
-#ifndef simthread_h
-#define simthread_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_SIMTHREAD_H
+#define UTILS_SIMTHREAD_H
+
 
 #ifdef MULTI_THREAD
 
-#if _XOPEN_SOURCE < 600 && !defined(__APPLE__)
+#if !defined(__APPLE__) && (!defined(_XOPEN_SOURCE) || _XOPEN_SOURCE < 600)
 // On Posix systems, this enables barriers.
 // On OS X, barriers are not supported anyway, and defining this would
 // cause PTHREAD_RECURSIVE_MUTEX_INITIALIZER to not get defined.

@@ -1,0 +1,17 @@
+<title>一覧表</title>
+
+<h1>一覧表</h1>
+
+<p>
+メインゲーム画面上部のメニューバーにあるリストアイコンから<strong>一覧表ツールバー</strong>を開くことができます。<br>
+一覧表ツールバーには以下の各種一覧表を開くためのアイコンが並んでいます。<br>
+────────────────────<br>
+■一覧表の種類<br>
+<a href="haltlist.txt"><em>駅一覧:</em></a> <a href="station.txt">駅</a>、乗り物が乗客や製品の積み降ろしをする場所<br>
+<a href="convoi.txt"><em>乗り物一覧:</em></a> 自動車・鉄道(<a href="convoiinfo.txt">編成</a>)・航空機・船舶<br>
+<a href="citylist_filter.txt"><em>街一覧:</em></a> <a href="citywindow.txt">市域</a> (市町村)<br>
+<a href="goods_filter.txt"><em>貨物一覧:</em></a> 旅客・郵便・製品の種類とそれぞれの運賃や重量<br>
+<a href="factorylist_filter.txt"><em>産業一覧:</em></a> <a href="industry_info.txt">産業</a> (サプライヤーと販売業)<br>
+<a href="curiositylist_filter.txt"><em>名所旧跡一覧:</em></a> 観光客の目的地<br>
+<a href="labellist_filter.txt"><em>マーカー一覧:</em></a> プレイヤーが設置したマーカー<br>
+</p>

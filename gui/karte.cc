@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
@@ -71,7 +76,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 {
 	//106, 2, 85, 86, 29, 30, 171, 71, 39, 132 // Original rainbow
 	//COL_DARK_PURPLE, 2, 85, 86, 171, 30, 29, 71, 39, 132 // Improved rainbow
-	COL_DARK_GREEN, COL_GREEN, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_DARK_ORANGE, COL_RED // Green/yellow/orange/red
+	COL_DARK_GREEN, 138, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_ORANGE_RED, COL_RED // Green/yellow/orange/red
 };
 
 // Way colours for the map
@@ -514,9 +519,10 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 			zoomed = true;
 		}
 		else {
-			// check here for maximum zoom-out, otherwise there will be integer overflows
-			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*welt->get_size_max()), 16);
+			// Ensure that zoom*x < INT32_MAX, for any x < welt->get_size_max();
+			// zoom*welt->get_size_max() < INT32_MAX <=> zoom < INT32_MAX/welt->get_size_max();
+			// hint: will only happen at maximum zoom level if the map is larger than
+			int max_zoom_in = min(16, INT32_MAX/welt->get_size_max());
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
@@ -637,7 +643,7 @@ uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundwa
  * Updated Map color(Kartenfarbe) an Position k
  * @author Hj. Malthaner
  */
-uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
+uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr, bool show_contour, bool show_buildings)
 {
 	uint8 color = COL_BLACK;
 
@@ -647,7 +653,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 		color = COL_PURPLE;
 	}else
 #endif
-	if(gr->get_halt().is_bound()) {
+	if(gr->get_halt().is_bound() && show_buildings) {
 		color = HALT_KENN;
 	}
 	else {
@@ -661,8 +667,30 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			case grund_t::monorailboden:
 				color = MONORAIL_KENN;
 				break;
-			case grund_t::fundament:
+			case grund_t::wasser:
 				{
+					// object at zero is either factory or boat
+					gebaeude_t *gb = gr->find<gebaeude_t>();
+					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
+					if(fab==NULL) {
+						sint16 height = corner_sw(gr->get_grund_hang());
+						if (show_contour) {
+							color = calc_hoehe_farbe(welt->lookup_hgt(gr->get_pos().get_2d()) + height, welt->get_water_hgt(gr->get_pos().get_2d()));
+						}
+						else {
+							color = map_type_color[MAX_MAP_TYPE_WATER - 1];
+						}
+						//color = COL_BLUE;	// water with boat?
+					}
+					else {
+						color = fab->get_kennfarbe();
+					}
+				}
+				break;
+			// normal ground ...
+			case grund_t::fundament:
+			default:
+				if(show_buildings && gr->get_typ() == grund_t::fundament){
 					// object at zero is either factory or house (or attraction ... )
 					gebaeude_t *gb = gr->find<gebaeude_t>();
 					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
@@ -673,25 +701,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						color = fab->get_kennfarbe();
 					}
 				}
-				break;
-			case grund_t::wasser:
-				{
-					// object at zero is either factory or boat
-					gebaeude_t *gb = gr->find<gebaeude_t>();
-					fabrik_t *fab = gb ? gb->get_fabrik() : NULL;
-					if(fab==NULL) {
-						sint16 height = (gr->get_grund_hang()%3);
-						color = calc_hoehe_farbe( welt->lookup_hgt( gr->get_pos().get_2d() ) + height, welt->get_water_hgt( gr->get_pos().get_2d() ) );
-						//color = COL_BLUE;	// water with boat?
-					}
-					else {
-						color = fab->get_kennfarbe();
-					}
-				}
-				break;
-			// normal ground ...
-			default:
-				if(gr->hat_wege()) {
+				else if(gr->hat_wege()) {
 					switch(gr->get_weg_nr(0)->get_waytype()) {
 						case road_wt: color = STRASSE_KENN; break;
 						case tram_wt:
@@ -709,10 +719,13 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					if(lt!=NULL) {
 						color = POWERLINE_KENN;
 					}
+					else if (!show_contour) {
+						color = map_type_color[MAX_MAP_TYPE_WATER];
+					}
 					else {
-						sint16 height = (gr->get_grund_hang()%3);
+						sint16 height = corner_sw(gr->get_grund_hang());
 						if(  gr->get_hoehe() > welt->get_groundwater()  ) {
-							color = calc_hoehe_farbe( gr->get_hoehe() + height, welt->get_groundwater() );
+							color = calc_hoehe_farbe(gr->get_hoehe() + height, welt->get_groundwater());
 						}
 						else {
 							color = calc_hoehe_farbe( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
@@ -738,35 +751,73 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 	if(plan==NULL  ||  plan->get_boden_count()==0) {
 		return;
 	}
-	const grund_t *gr=plan->get_boden_bei(plan->get_boden_count()-1);
+	// When displaying buildings, give priority to buildings over tunnels and bridges
+	const grund_t *gr = (show_buildings && plan->get_kartenboden()->get_typ() == grund_t::fundament)?
+		plan->get_kartenboden() : plan->get_boden_bei(plan->get_boden_count() - 1);
 
-	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle()  ) {
-		set_relief_farbe( k, VEHIKEL_KENN );
+	if(  mode!=MAP_PAX_DEST  &&  gr->get_convoi_vehicle() && (mode & MAP_CONVOYS)) {
+		set_relief_farbe(k, VEHIKEL_KENN);
 		return;
 	}
 
 	// first use ground color
-	set_relief_farbe( k, calc_relief_farbe(gr) );
+	set_relief_farbe(k, calc_relief_farbe(gr, show_contour, show_buildings));
 
+	bool any_suitable_stops = false;
+	uint16 min_tiles_to_halt = -1;
 	switch(mode&~MAP_MODE_FLAGS) {
-		// show passenger coverage
+		// show passenger/mail coverage
 		// display coverage
-		case MAP_PASSENGER:
-			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_pax_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_PAS, goods_manager_t::passengers->get_number_of_classes() - 1)->empty() ){
-					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
-				}
-			}
-			break;
+		case MAP_STATION_COVERAGE:
+			if(  plan->get_haltlist_count()>0 && gr->get_typ() == grund_t::fundament) {
+				const nearby_halt_t *const halt_list = plan->get_haltlist();
+				bool show_only_freight_station = (freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::mail && freight_type_group_index_showed_on_map != goods_manager_t::passengers);
+				for (int h = 0; h < plan->get_haltlist_count(); h++)
+				{
+					const halthandle_t halt = halt_list[h].halt;
+					// player filter
+					if(player_showed_on_map != -1 && (halt->get_owner() != welt->get_public_player() && welt->get_player(player_showed_on_map) != halt->get_owner()))
+					{
+						continue;
+					}
+					// station waytype compatible filter
+					if(transport_type_showed_on_map != simline_t::line && !(halt->get_station_type() & simline_t::linetype_to_stationtype[transport_type_showed_on_map]))
+					{
+						continue;
+					}
 
-		// show mail coverage
-		// display coverage
-		case MAP_MAIL:
-			if(  plan->get_haltlist_count()>0  ) {
-				halthandle_t halt = plan->get_haltlist()[0].halt;
-				if(  halt->get_mail_enabled()  &&  !halt->get_connexions(goods_manager_t::INDEX_MAIL, goods_manager_t::mail->get_number_of_classes() - 1)->empty()  ) {
-					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
+					// station handling freight type filter
+					if (freight_type_group_index_showed_on_map == goods_manager_t::none && halt->get_ware_enabled() == true)
+					{
+						// all freights but not pax or mail
+						;
+					}
+					else if(freight_type_group_index_showed_on_map != NULL && !halt->gibt_ab(freight_type_group_index_showed_on_map))
+					{
+						continue;
+					}
+
+					if (halt_list[h].distance!=0) {
+						// FIXME: Freight coverage is determined by Manhattan distance, not Chebyshev distance. - Ranran
+						uint16 cov;
+						if (!show_only_freight_station && (halt->get_pax_enabled() || halt->get_mail_enabled())) {
+							cov = welt->get_settings().get_station_coverage();
+						}
+						else if (halt->get_ware_enabled()) {
+							cov = welt->get_settings().get_station_coverage_factories();
+						}
+						else {
+							cov = 0;
+						}
+						if (cov == welt->get_settings().get_station_coverage() || (cov != welt->get_settings().get_station_coverage() && cov >= halt_list[h].distance)) {
+							any_suitable_stops = true;
+							min_tiles_to_halt = min(min_tiles_to_halt, halt_list[h].distance);
+						}
+					}
+				}
+				if (any_suitable_stops) {
+					uint16 sutation_coverage = show_only_freight_station ? welt->get_settings().get_station_coverage_factories() : welt->get_settings().get_station_coverage();
+					set_relief_farbe(k, calc_severity_color(min_tiles_to_halt, sutation_coverage * 2));
 				}
 			}
 			break;
@@ -823,24 +874,44 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				}
 			}
 			break;
-			
+
 		// Show condition
 		case MAP_CONDITION:
-			
+
 			uint32 condition_percent;
 			if(gr->hat_wege())
 			{
 				// maximum two ways for one ground
 				const weg_t *way = gr->get_weg_nr(0);
 				condition_percent = way->get_condition_percent();
-				if(const weg_t *second_way = gr->get_weg_nr(1))
+				if (way->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
+				else if(const weg_t *second_way = gr->get_weg_nr(1))
 				{
 					condition_percent = min(condition_percent, second_way->get_condition_percent());
 				}
 				const sint32 condition_percent_reciprocal = 100 - condition_percent;
 				set_relief_farbe(k, calc_severity_color(condition_percent_reciprocal, 100));
 			}
-			
+
+			break;
+
+		// Show congestion
+		case MAP_CONGESTION:
+			if (gr->hat_wege())
+			{
+				// This is only applicable to roads.
+				const weg_t* road = gr->get_weg(road_wt);
+				if (road)
+				{
+					// Because it is possible for congestion to be >100% (as 100% merely means that traffic
+					// takes 100% longer than the uncongested time to traverse the tile), set the colour range
+					// based on a maximum of 250% to allow more granularity in congested places.
+					set_relief_farbe(k, calc_severity_color(road->get_congestion_percentage(), 250));
+				}
+			}
 			break;
 
 		// show tracks: white: no electricity, red: electricity, yellow: signal
@@ -864,9 +935,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
 			{
-				sint32 speed=gr->get_max_speed();
-				if(speed) {
-					set_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
+				if (gr->hat_wege() && gr->get_weg_nr(0)->get_desc()->is_mothballed()) {
+					set_relief_farbe(k, MAP_COL_NODATA);
+					break;
+				}
+				const sint32 speed_factor = 450-gr->get_max_speed() > 0 ? 450 - gr->get_max_speed() : 0;
+				if(gr->get_max_speed()) {
+					set_relief_farbe(k, calc_severity_color(pow(speed_factor,2.0)/100, 2025));
 				}
 			}
 			break;
@@ -877,17 +952,21 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				if(gr->hat_wege())
 				{
 					const weg_t* way =  gr->get_weg_nr(0);
-					if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
+					if (way->get_desc()->is_mothballed()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+						break;
+					}
+					else if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
 					{
 						break;
 					}
 					if(gr->ist_bruecke())
 					{
-						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 350));
+						set_relief_farbe(k, calc_severity_color(350-way->get_bridge_weight_limit()>0 ? 350-way->get_bridge_weight_limit() : 0, 350));
 					}
 					else
 					{
-						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 30));
+						set_relief_farbe(k, calc_severity_color(30-way->get_max_axle_load()>0 ? 30-way->get_max_axle_load() : 0, 30));
 					}
 				}
 			}
@@ -898,7 +977,13 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
+					const uint64 demand = lt->get_net()->get_demand();
+					if (!lt->get_net()->get_demand() || !lt->get_net()->get_supply()) {
+						set_relief_farbe(k, MAP_COL_NODATA);
+					}
+					else if (demand) {
+						set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(), (sint32)lt->get_net()->get_supply()));
+					}
 				}
 			}
 			break;
@@ -1006,7 +1091,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 						}
 					}
-				
+
 				}
 			}
 			break;
@@ -1106,7 +1191,7 @@ void reliefkarte_t::calc_map()
 	}
 
 	// since we do iterate the factory info list, this must be done here
-	if(mode==MAP_FACTORIES) 
+	if(mode==MAP_FACTORIES)
 	{
 		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 			koord const pos = f->get_pos().get_2d();
@@ -1136,6 +1221,7 @@ reliefkarte_t::reliefkarte_t()
 	zoom_in = 1;
 	zoom_out = 1;
 	isometric = false;
+	show_contour = true;
 	mode = MAP_TOWN;
 	city = NULL;
 	cur_off = new_off = scr_coord(0,0);
@@ -1166,6 +1252,7 @@ void reliefkarte_t::init()
 	relief = NULL;
 	needs_redraw = true;
 	is_visible = false;
+	show_buildings = true;
 
 	calc_map_size();
 	max_building_level = max_cargo = max_passed = 0;
@@ -1295,7 +1382,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			stop_cache.clear();
 		}
 
-		if(  (mode^last_mode) & (MAP_PASSENGER|MAP_MAIL|MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
+		if(  (mode^last_mode) & (MAP_STATION_COVERAGE |MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
 			// rebuilt line display
 			last_schedule_counter = welt->get_schedule_counter()-1;
 		}
@@ -1656,7 +1743,13 @@ void reliefkarte_t::draw(scr_coord pos)
 				}
 
 				if(  stype & haltestelle_t::dock  ) {
-					display_harbor( temp_stop.x+diagonal_dist, temp_stop.y+diagonal_dist, color );
+					fabrik_t *fab = fabrik_t::get_fab(station->get_basis_pos());
+					if (fab && fab->get_sector() == fabrik_t::marine_resource && skinverwaltung_t::ind_sector_symbol) {
+						display_color_img(skinverwaltung_t::ind_sector_symbol->get_image_id(0), temp_stop.x + diagonal_dist+4, temp_stop.y + diagonal_dist+4, 0, false, false);
+					}
+					else {
+						display_harbor(temp_stop.x + diagonal_dist, temp_stop.y + diagonal_dist, color);
+					}
 				}
 			}
 		}
@@ -1769,6 +1862,22 @@ void reliefkarte_t::draw(scr_coord pos)
 
 	if(  mode & MAP_FACTORIES  ) {
 		FOR(  vector_tpl<fabrik_t*>,  const f,  welt->get_fab_list()  ) {
+			// filter check
+			if (freight_type_group_index_showed_on_map == goods_manager_t::passengers) {
+				if (!f->get_building()->get_adjusted_visitor_demand() && !f->get_building()->get_adjusted_jobs()) {
+					continue;
+				}
+			}
+			else if (freight_type_group_index_showed_on_map == goods_manager_t::mail) {
+				if(!f->get_building()->get_adjusted_mail_demand()) {
+					continue;
+				}
+			}
+			else if (
+				((freight_type_group_index_showed_on_map != NULL && freight_type_group_index_showed_on_map != goods_manager_t::none)
+					&& !f->has_goods_catg_demand(freight_type_group_index_showed_on_map->get_catg_index()))) {
+				continue;
+			}
 			// find top-left tile position
 			koord3d fab_tl_pos = f->get_pos();
 			if (grund_t *gr = welt->lookup(f->get_pos())) {
@@ -1903,11 +2012,8 @@ bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_cat
 		return false;
 	}
 	// NULL show all but obey modes
-	if(  mode & MAP_PASSENGER  ) {
+	if(  mode & MAP_STATION_COVERAGE  ) {
 		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
-	}
-	else if(  mode & MAP_MAIL  ) {
-		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
 	}
 	else if(  mode & MAP_FREIGHT  ) {
 		// all freights but not pax or mail

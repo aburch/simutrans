@@ -1,5 +1,11 @@
-#ifndef OBJ_VIEW_T_H
-#define OBJ_VIEW_T_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
+#define GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
+
 
 #include "gui_world_view_t.h"
 
@@ -14,7 +20,7 @@ private:
 	obj_t const *obj; /**< The object to display */
 
 protected:
-	koord3d get_location();
+	koord3d get_location() OVERRIDE;
 
 public:
 	obj_view_t(scr_size const size) :
@@ -26,7 +32,7 @@ public:
 
 	void set_obj( obj_t const *d ) { obj = d; }
 
-	void draw(scr_coord offset) { internal_draw(offset, obj); }
+	void draw(scr_coord offset) OVERRIDE { internal_draw(offset, obj); }
 
 	/**
 	 * resize window in response to a resize event

@@ -1,10 +1,11 @@
 /*
- * A class for distribution of tabs through the gui_component_t component.
- * @author Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_tab_panel_h
-#define gui_tab_panel_h
+#ifndef GUI_COMPONENTS_GUI_TAB_PANEL_H
+#define GUI_COMPONENTS_GUI_TAB_PANEL_H
+
 
 #include "../../display/simimg.h"
 
@@ -16,6 +17,10 @@
 
 class image_t;
 
+/*
+ * A class for distribution of tabs through the gui_component_t component.
+ * @author Hj. Malthaner
+ */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
 	public action_listener_t,
@@ -70,7 +75,7 @@ public:
 	 * Draw tabs
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Resizing must be propagated!
@@ -99,16 +104,16 @@ public:
 	 * Returns true if the hosted component of the active tab is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return get_aktives_tab()->is_focusable(); }
 
-	gui_component_t *get_focus() { return get_aktives_tab()->get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return get_aktives_tab()->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
+	virtual scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
 };
 
 #endif

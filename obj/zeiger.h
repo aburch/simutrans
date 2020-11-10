@@ -1,5 +1,11 @@
-#ifndef obj_zeiger_h
-#define obj_zeiger_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef OBJ_ZEIGER_H
+#define OBJ_ZEIGER_H
+
 
 #include "../simobj.h"
 #include "../simtypes.h"

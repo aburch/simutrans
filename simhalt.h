@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simhalt_h
-#define simhalt_h
+#ifndef SIMHALT_H
+#define SIMHALT_H
+
 
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
@@ -56,7 +55,7 @@
 // although the test was run at a time (March 2017) when there was another known bug, hard to find, causing
 // network desyncs when multiple clients connect to a server, so the test is not a perfect proof of being
 // network safe)
-// It is faster enabled than disabled. 
+// It is faster enabled than disabled.
 #define ALWAYS_CACHE_SERVICE_INTERVAL
 
 class cbuffer_t;
@@ -119,7 +118,7 @@ private:
 	 * @author prissi
 	 */
 	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
-	
+
 	/**
 	 * A list of lines and freight categories that have already been loaded with all available freight at the halt.
 	 * Reset each step.
@@ -185,7 +184,7 @@ private:
 
 	/* This is called by the path explorer
 	 * when this halt needs to re-route goods.
-	 * This cannot be done from within the 
+	 * This cannot be done from within the
 	 * path explorer when it is multi-threaded.
 	 */
 	vector_tpl<uint8> categories_to_refresh_next_step;
@@ -194,7 +193,7 @@ private:
 	* This is the list of passengers/mail/goods that
 	* have arrived at this stop but are in the process
 	* of transferring either to catch the next service,
-	* or walking/being carted to their ultimate 
+	* or walking/being carted to their ultimate
 	* destination.
 	*
 	* This is an array of these vectors: one per thread,
@@ -234,7 +233,7 @@ public:
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
 	static halthandle_t get_halt(const koord3d pos, const player_t *player );
-	static halthandle_t get_halt(const koord pos, const player_t *player );
+	static halthandle_t get_halt_2D(const koord pos, const player_t *player );
 
 //	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
@@ -430,7 +429,7 @@ private:
 	* 0 = North; 1 = South; 2 = East 3 = West
 	* Used for the time interval system
 	*/
-	sint64 train_last_departed[4]; 
+	sint64 train_last_departed[4];
 
 	/**
 	* Used for the time interval system
@@ -483,7 +482,7 @@ private:
 
 	// Store the service frequencies to all other halts so that this does not need to be
 	// recalculated frequently. These are used as proxies for waiting times when no
-	// recent (or any) waiting time data are available. 
+	// recent (or any) waiting time data are available.
 	koordhashtable_tpl<service_frequency_specifier, uint32> service_frequencies;
 
 	static const sint64 waiting_multiplication_factor = 3ll;
@@ -498,7 +497,7 @@ private:
 	sint64 inauguration_time;
 
 	/**
-	* Arrival times of convoys bound for this stop, estimated based on 
+	* Arrival times of convoys bound for this stop, estimated based on
 	* convoys' point to point timings, indexed by the convoy's ID
 	*/
 	arrival_times_map estimated_convoy_arrival_times;
@@ -519,7 +518,7 @@ private:
 
 public:
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, const uint8 g_class, uint8 max_classes, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
 	{
 		// swap the connexion hashtables
 		connexions_map *temp = connexions[category][g_class];
@@ -578,12 +577,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
-	void add_factory(fabrik_t* fab); 
+	void add_factory(fabrik_t* fab);
 	void remove_fabriken(fabrik_t *fab);
 
 	void rotate90( const sint16 y_size );
 
 	player_t *get_owner() const {return owner;}
+	void set_owner(player_t* value) { owner = value; }
 
 	// just for info so far
 	sint64 calc_maintenance() const;
@@ -714,6 +714,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
+	uint32 get_ware_summe(const goods_desc_t *warentyp, uint8 g_class) const;
+
+	uint32 get_leaving_goods_sum(const goods_desc_t *warentyp, uint8 g_class = 255) const;
+	uint32 get_transferring_goods_sum(const goods_desc_t *warentyp, uint8 g_class = 255) const;
 
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
@@ -782,8 +786,6 @@ public:
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
-
-	//void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
 	 * @param buf the buffer to fill
@@ -854,7 +856,7 @@ public:
 	 * called, if a line removes this stop from it's schedule
 	 * @author hsiegeln
 	 */
-	void remove_line(linehandle_t line);		
+	void remove_line(linehandle_t line);
 
 	/*
 	 * list of line ids that serve this stop
@@ -887,7 +889,7 @@ public:
 	// This is a selective clear of the service intervals:
 	// this will clear the service intervals to stops
 	// on this schedule only. To clear all service intervals,
-	// run service_intervals.clear(). 
+	// run service_intervals.clear().
 	void clear_service_intervals(schedule_t* sch);
 #endif
 
@@ -985,6 +987,8 @@ public:
 
 	bool check_access(const player_t* player) const;
 
+	bool has_available_network(const player_t* player, uint8 catg_index=goods_manager_t::INDEX_NONE) const;
+
 	bool has_no_control_tower() const;
 
 	/**
@@ -1016,7 +1020,7 @@ public:
 	void set_estimated_arrival_time(uint16 convoy_id, sint64 time);
 	void set_estimated_departure_time(uint16 convoy_id, sint64 time);
 
-	/** 
+	/**
 	* Removes a convoy from the time estimates.
 	* Used when deleting a convoy.
 	*/
@@ -1025,7 +1029,7 @@ public:
 	const arrival_times_map& get_estimated_convoy_arrival_times() { return estimated_convoy_arrival_times; }
 	const arrival_times_map& get_estimated_convoy_departure_times() { return estimated_convoy_departure_times; }
 
-	private: 
+	private:
 
 	sint32 translate_direction(ribi_t::ribi direction) const
 	{
@@ -1060,7 +1064,7 @@ public:
 	koord3d get_station_signal(uint32 value) const { return station_signals[value]; }
 	bool is_station_signal_contained(koord3d pos) const { return station_signals.is_contained(pos); }
 
-	void set_all_building_tiles(); 
+	void set_all_building_tiles();
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

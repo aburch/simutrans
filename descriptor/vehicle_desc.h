@@ -1,10 +1,12 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-#ifndef __VEHIKEL_BESCH_H
-#define __VEHIKEL_BESCH_H
+
+#ifndef DESCRIPTOR_VEHICLE_DESC_H
+#define DESCRIPTOR_VEHICLE_DESC_H
+
+
 #include <cstring>
 
 #include "obj_base_desc.h"
@@ -60,9 +62,9 @@ public:
 	 * Engine type
 	 * @author Hj. Malthaner
 	 */
-	enum engine_t {
-		 unknown=-1,
-		steam=0,
+	enum engine_t : uint8 {
+		unknown = 0xFF,
+		steam = 0,
 		diesel,
 		electric,
 		bio,
@@ -75,7 +77,7 @@ public:
 		MAX_TRACTION_TYPE
 	};
 
-	static const char* get_engine_type(engine_t e) 
+	static const char* get_engine_type(engine_t e)
 	{
 		switch(e)
 		{
@@ -136,22 +138,22 @@ private:
 	uint8 trailer_count;			// all defined trailer
 	uint8 upgrades;					// The number of vehicles that are upgrades of this vehicle.
 
-	uint8 engine_type;				// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	engine_t engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
 	uint8 freight_image_type;		// number of freight images (displayed for different goods)
 	uint8 livery_image_type;		// Number of different liveries (@author: jamespetts, April 2011)
-	
+
 	bool is_tilting;				// Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
-	
+
 	way_constraints_of_vehicle_t way_constraints;
 
 	uint8 catering_level;			// The level of catering. 0 for no catering. Higher numbers for better catering.
 
-	bool bidirectional;				// Whether must always travel in one direction
-	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in basic_constraint_next.
-	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the basic_constraint_next.
-	uint8 basic_constraint_prev;
-	uint8 basic_constraint_next;
+	bool bidirectional = false;		// Whether must always travel in one direction
+	bool can_lead_from_rear = false;	// Whether vehicle can lead a convoy when it is at the rear.            Ranran: This parameter is obsolete and is now included in basic_constraint_next.
+	bool can_be_at_rear = true;		// Whether the vehicle may be at the rear of a convoy (default = true). Ranran: It is used to read the old pak, and the flag takes over to the basic_constraint_next.
+	uint8 basic_constraint_prev = can_be_head;
+	uint8 basic_constraint_next = can_be_tail;
 
 	uint8 *comfort;					// How comfortable that a vehicle is for passengers. (Pointer to an array of comfort levels per class)
 
@@ -162,17 +164,17 @@ private:
 	  * board/alight; Max: if all passengers/goods
 	   * board/alight at once. Scaled linear
 	  * beween the two. Was just "loading_time"
-	  * before 10.0. 
+	  * before 10.0.
 	  * @author: jamespetts
 	  */
 	uint32 max_loading_time;
-	uint32 min_loading_time; 
+	uint32 min_loading_time;
 
 	/**
 	 * The raw values in seconds are
-	 * read from the .pak files in 
+	 * read from the .pak files in
 	 * vehicle_reader.cc, but the
-	 * scale is not available there, 
+	 * scale is not available there,
 	 * so they are stored here for
 	 * use in the set_scale() method
 	 * in simworld.cc
@@ -182,15 +184,15 @@ private:
 	uint16 min_loading_time_seconds;
 
 	bool available_only_as_upgrade; // If true, can not be bought as new: only upgraded.
-	
+
 	uint16 tractive_effort; // tractive effort / force in kN
-	uint16 brake_force;		// The brake force in kN 
+	uint16 brake_force;		// The brake force in kN
 							// (that is, vehicle brake force, not the force of the brakes on the wheels;
 							// this latter measure is commonly cited for deisel railway locomotives on
 							// Wikipedia, but is no use here).
 
 	float32e8_t air_resistance; // The "cf" value in physics calculations.
-	float32e8_t rolling_resistance; // The "fr" value in physics calculations. 
+	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	// they are arrays having one element per speed in m/s:
@@ -218,7 +220,7 @@ private:
 	uint16 range;
 
 	// The level of wear to which this vehicle subjects a way
-	// measured in Standard Axle loads (8t) * 10,000. 
+	// measured in Standard Axle loads (8t) * 10,000.
 	uint32 way_wear_factor;
 
 	// Whether this vehicle may be allowed to pass under
@@ -229,11 +231,15 @@ private:
 	// if true, can not mix another goods in the same car.  @Ranran, July 2019(v14.6)
 	bool mixed_load_prohibition;
 
+	// If true, the vehicle is not bound by the speed limit of the underlying way.
+	// This is intended for use with fly boats.
+	bool override_way_speed;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
-	int get_add_to_node() const 
-	{ 
+	int get_add_to_node() const
+	{
 		if(freight_image_type > 1 && livery_image_type > 1)
 		{
 			return 6;
@@ -242,8 +248,8 @@ private:
 		return livery_image_type > 0 ? 5 + i : 6;
 	}
 
-	// set basic constraint to the old version data. v14.6, 2019 @Ranran
-	inline void fix_basic_constraint();
+	// set basic constraint to the old version data. v14.8, 2020 @Ranran
+	void fix_basic_constraint();
 
 public:
 	// since we have a second constructor
@@ -261,16 +267,24 @@ public:
 		sound = -1;
 		wtyp = wtype;
 		axle_load = al;
-		weight = weight;
-		engine_type = (uint8)engine;
+		this->weight = weight;
+		engine_type = engine;
 		topspeed = speed;
-		mixed_load_prohibition = is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
+		mixed_load_prohibition = false;
+		override_way_speed = false;
+		is_tilting = false;
+		bidirectional = false;
+		can_lead_from_rear = false;
+		can_be_at_rear = false;
+		available_only_as_upgrade = false;
+		basic_constraint_prev = can_be_head;
+		basic_constraint_next = can_be_tail;
 		// These two lines are necessary for the building of way objects, so that they
-		// do not get stuck with constraints. 
+		// do not get stuck with constraints.
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
 #ifndef NETTOOL
-		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
+		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250);
 #endif
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
@@ -299,7 +313,7 @@ public:
 	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
 
 	// return a matching image
-	// Vehicles can have single liveries, multiple liveries, 
+	// Vehicles can have single liveries, multiple liveries,
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
 	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const char* livery_type = "default") const
@@ -319,7 +333,7 @@ public:
 			if(strcmp(livery_type, "default"))
 			{
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
-				for(uint8 i = 0; i < livery_image_type; i++) 
+				for(uint8 i = 0; i < livery_image_type; i++)
 				{
 					if(!strcmp(livery_type, get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text()))
 					{
@@ -331,8 +345,8 @@ public:
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
 			image_array_t const* const list2d = get_child<image_array_t>(4);
 			image=list2d->get_image(dir, livery_index);
-			
-			if(!image) 
+
+			if(!image)
 			{
 				if(dir>3)
 				{
@@ -350,7 +364,7 @@ public:
 			if(strcmp(livery_type, "default"))
 			{
 				// With the "default" livery, always select livery index 0
-				for(uint8 i = 0; i < livery_image_type; i++) 
+				for(uint8 i = 0; i < livery_image_type; i++)
 				{
 					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + upgrades + i)->get_text()))
 					{
@@ -362,8 +376,8 @@ public:
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
 			image = list2d->get_image(dir, livery_index);
-			
-			if(!image) 
+
+			if(!image)
 			{
 				if(dir>3)
 				{
@@ -379,11 +393,11 @@ public:
 			// more freight images and a freight: find the right one
 
 			sint8 goods_index = 0; // freight images: if not found use first freight
-			
-			for( uint8 i=0;  i<freight_image_type;  i++  ) 
+
+			for( uint8 i=0;  i<freight_image_type;  i++  )
 			{
-				
-				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
+
+				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i))
 				{
 					goods_index = i;
 					break;
@@ -393,7 +407,7 @@ public:
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
 			image=list2d->get_image(dir, goods_index);
-			if(!image) 
+			if(!image)
 			{
 				if(dir>3)
 				{
@@ -410,9 +424,9 @@ public:
 			sint8 goods_index = 0; // freight images: if not found use first freight
 			uint8 livery_index = 0;
 
-			for( uint8 i=0;  i<freight_image_type;  i++  ) 
+			for( uint8 i=0;  i<freight_image_type;  i++  )
 			{
-				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
+				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i))
 				{
 					goods_index = i;
 					break;
@@ -421,7 +435,7 @@ public:
 
 			if(strcmp(livery_type, "default"))
 			{
-				for(uint8 j = 0; j < livery_image_type; j++) 
+				for(uint8 j = 0; j < livery_image_type; j++)
 				{
 					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + freight_image_type + upgrades + j)->get_text()))
 					{
@@ -439,7 +453,7 @@ public:
 				return IMG_EMPTY;
 			}
 			image = list3d->get_image(dir, livery_index, goods_index);
-			if(!image) 
+			if(!image)
 			{
 				if(dir>3)
 				{
@@ -450,13 +464,13 @@ public:
 		}
 
 		// only try 1d freight image list for old style vehicles
-		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0) 
+		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0)
 		{
 			// Single freight image, single livery
 			list = get_child<image_list_t>(5);
 		}
 
-		if(!list) 
+		if(!list)
 		{
 			list = get_child<image_list_t>(4);
 			if(!list)
@@ -466,13 +480,13 @@ public:
 		}
 
 		image = list->get_image(dir);
-		if(!image) 
+		if(!image)
 		{
 			if(dir>3)
 			{
 				image = list->get_image(dir - 4);
 			}
-			if(!image) 
+			if(!image)
 			{
 				return IMG_EMPTY;
 			}
@@ -483,12 +497,12 @@ public:
 	bool check_livery(const char* name) const
 	{
 		// Note: this only checks empty images. The assumption is
-		// that a livery defined for empty images will also be 
+		// that a livery defined for empty images will also be
 		// defined for freight images. If that assumption is false,
 		// the default livery will be used for freight images.
 		if(livery_image_type > 0)
 		{
-			for(sint8 i = 0; i < livery_image_type; i++) 
+			for(sint8 i = 0; i < livery_image_type; i++)
 			{
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
 				const char* livery_name = get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text();
@@ -545,7 +559,7 @@ public:
 		if (basic_constraint_next & unconnectable && next_veh) {
 			return false;
 		}
-		if(trailer_count == 0) 
+		if(trailer_count == 0)
 		{
 			if(basic_constraint_next & can_be_tail)
 			{
@@ -591,10 +605,10 @@ public:
 				}
 			}
 		}
-		for( int i=0;  i<leader_count;  i++  ) 
+		for( int i=0;  i<leader_count;  i++  )
 		{
 			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + i);
-			if(veh==prev_veh) 
+			if(veh==prev_veh)
 			{
 				return true;
 			}
@@ -617,8 +631,9 @@ public:
 	}
 
 	int get_upgrades_count() const { return upgrades; }
-	// returns this vehicle has available upgrades @Ranran
-	bool has_available_upgrade(const uint16 month_now) const;
+	// returns this vehicle has available upgrades
+	// 1 = near future, 2 = already available          @Ranran
+	uint8 has_available_upgrade(const uint16 month_now, bool show_future = true) const;
 
 	bool can_follow_any() const { return trailer_count==0; }
 
@@ -687,19 +702,19 @@ public:
 	}
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_running_cost() and get_fixed_cost()
-	uint32 calc_running_cost(const class karte_t *welt, uint32 base_cost) const;	
+	uint32 calc_running_cost(const class karte_t *welt, uint32 base_cost) const;
 
 	float32e8_t get_power_force_ratio() const;
-	uint32 calc_max_force(const uint32 power) const { 
-		return power ? (uint32)(power / get_power_force_ratio() + float32e8_t::half) : 0; 
+	uint32 calc_max_force(const uint32 power) const {
+		return power ? (uint32)(power / get_power_force_ratio() + float32e8_t::half) : 0;
 	}
-	uint32 calc_max_power(const uint32 force) const { 
-		return force ? (uint32)(force * get_power_force_ratio()) : 0; 
+	uint32 calc_max_power(const uint32 force) const {
+		return force ? (uint32)(force * get_power_force_ratio()) : 0;
 	}
-	uint32 get_power() const { 
-		return power ? power : calc_max_power(tractive_effort); 
+	uint32 get_power() const {
+		return power ? power : calc_max_power(tractive_effort);
 	}
-	uint32 get_tractive_effort() const { 
+	uint32 get_tractive_effort() const {
 		return tractive_effort ? tractive_effort : calc_max_force(power);
 	}
 
@@ -708,8 +723,8 @@ public:
 	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
 
 	uint16 get_range() const { return range; }
-	
-	// returns bit flags of bidirectional and has power (v14.6 - 2019 @Ranran)
+
+	// returns bit flags of bidirectional and has power for drawing formation picture
 	uint8 get_interactivity() const;
 
 	/**
@@ -730,10 +745,16 @@ public:
 	*/
 	uint16 get_obsolete_year_month(const class karte_t *welt) const;
 
-	// true if future
-	bool is_future (const uint16 month_now) const
+	// Returns 2 in the near future. Use the judgment of 2 only when control the display of the future
+	uint8 is_future (const uint16 month_now) const
 	{
-		return month_now  &&  (intro_date > month_now);
+		return (!month_now || (intro_date - month_now <= 0)) ? 0 : (intro_date - month_now < 12) ? 2 : 1;
+	}
+
+
+	bool will_end_prodection_soon(const uint16 month_now) const
+	{
+		return month_now && (retire_date - month_now) < 12 && (retire_date - month_now) > 0;
 	}
 
 	/**
@@ -747,7 +768,7 @@ public:
 
 	/**
 	* @ Returns true if the vehicle is obsolete
-	* @author: 
+	* @author:
 	*/
 	bool is_obsolete (const uint16 month_now, const class karte_t* welt) const
 	{
@@ -766,15 +787,20 @@ public:
 	* eletric engines require an electrified way to run
 	* @author Hj. Malthaner
 	*/
-	uint16 get_engine_type() const { return engine_type; }
+	engine_t get_engine_type() const { return engine_type; }
 
 	/* @return the vehicles length in 1/8 of the normal len
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
 
+	/* Calculate the length of a group of vehicles considered as one group by the auto connect function.
+	 * Use the function of convoy_t for removal. Feb, 2020 @Ranran */
+	uint8 calc_auto_connection_length(bool rear_side) const;
+	uint8 get_auto_connection_vehicle_count(bool rear_side) const;
+
 	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
-	
+
 	/*Whether this is a tilting train (and can take coerners faster
 	*@author: jamespetts*/
 	bool get_tilting() const { return is_tilting;	}
@@ -803,10 +829,10 @@ public:
 
 	float32e8_t get_air_resistance() const { return air_resistance; }
 	float32e8_t get_rolling_resistance() const { return rolling_resistance; }
-	
+
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
-	
+
 	/*The level of catering provided by this vehicle (0 if none)
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
@@ -815,9 +841,10 @@ public:
 
 	bool get_is_tall() const { return is_tall; }
 	bool get_mixed_load_prohibition() const { return mixed_load_prohibition; }
+	bool get_override_way_speed() const { return override_way_speed; }
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
-	{ 
+	{
 		obj_desc_transport_related_t::set_scale(scale_factor);
 
 		upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
@@ -835,7 +862,7 @@ public:
 			min_loading_time = (uint32)seconds_to_ticks(min_loading_time_seconds, scale_factor);
 		}
 #endif
-		if(way_wear_factor == UINT32_MAX_VALUE) 
+		if(way_wear_factor == UINT32_MAX_VALUE)
 		{
 			// Uninitialised. Set it here, as cannot set it on reading because we need welt, and reading is static.
 			uint32 power;
@@ -855,17 +882,17 @@ public:
 				break;
 			case road_wt:
 			default:
-				power = way_wear_factor_road; 
+				power = way_wear_factor_road;
 				break;
 			};
 			if(power > 0)
 			{
 				uint32 axles = axle_load ? (weight / axle_load) / 1000 : 1; // Weight is in kg.
 				axles = max(axles, 1);
-			
+
 				float32e8_t adjusted_standard_axle((uint32)axle_load, (uint32)standard_axle_load);
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
-				float32e8_t adjusted_standard_axle_extra((uint32)weight % (uint32)axles); 
+				float32e8_t adjusted_standard_axle_extra((uint32)weight % (uint32)axles);
 				adjusted_standard_axle_extra /= float32e8_t((uint32)1000, (uint32)1);
 				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
 
@@ -901,7 +928,7 @@ public:
 				adjusted_standard_axle *= axles;
 				adjusted_standard_axle += adjusted_standard_axle_extra;
 
-				adjusted_standard_axle *= (uint32)10000; 			
+				adjusted_standard_axle *= (uint32)10000;
 
 				way_wear_factor = (uint32)adjusted_standard_axle.to_sint32();
 			}
@@ -913,7 +940,7 @@ public:
 	}
 
 	/**
-	 * Get effective force index. 
+	 * Get effective force index.
 	 * Steam engine's force depend on its speed.
 	 * Effective force in N: force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
@@ -921,7 +948,7 @@ public:
 	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
 
 	/**
-	 * Get effective power index. 
+	 * Get effective power index.
 	 * Steam engine's power depend on its speed.
 	 * Effective power in W: power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
@@ -937,7 +964,7 @@ public:
 			case track_wt:
 			case tram_wt:
 			case monorail_wt:		return 160L; //1.6 when read
-			
+
 			case narrowgauge_wt:	return 120L; //1.2 when read
 
 			case water_wt:			return 2500L; //25 when read
@@ -950,23 +977,23 @@ public:
 
 			default:				return 15L; //0.15 when read
 		};
-	}  
+	}
 
 	static uint32 get_rolling_default(sint8 waytype)
 	{
 		// See http://www.engineeringtoolbox.com/rolling-friction-resistance-d_1303.html
 		switch(waytype)
-		{			
+		{
 			case track_wt:
 			case monorail_wt:		return 15L; //0.0015 when read
 
-			case tram_wt:			return 60L; //0.006 when read						
+			case tram_wt:			return 60L; //0.006 when read
 
 			case narrowgauge_wt:	return 17L; //0.0017 when read
 
 			case air_wt:
 			case water_wt:			return 10L; //0.001 when read
-			
+
 			case maglev_wt:			return 13L; //0.0013 when read
 
 			default:

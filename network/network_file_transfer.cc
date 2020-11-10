@@ -1,16 +1,22 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "network_file_transfer.h"
+
 #include "../simdebug.h"
 #include "../simversion.h"
 #include "../simloadingscreen.h"
-
-#include <string.h>
-#include <errno.h>
 #include "../utils/cbuffer_t.h"
+#include "../simversion.h"
 
 #ifndef NETTOOL
 #include "../dataobj/translator.h"
 #endif
-#include "../simversion.h"
+
+#include <string.h>
+#include <errno.h>
 
 /*
  * Functions required by both Simutrans and Nettool
@@ -103,7 +109,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		uint32 len;
 		char filename[1024];
 		loadsave_t fd;
-		
+
 		socket_list_t::add_client(my_client_socket);
 		{
 			nwc_gameinfo_t nwgi;
@@ -227,7 +233,7 @@ const char *network_connect(const char *cp, karte_t *world)
 		// guaranteed individual file name ...
 		char filename[256];
 		sprintf( filename, "client%i-network.sve", network_get_client_id() );
-		if(  err = network_receive_file( my_client_socket, filename, len )  ) {
+		if(  (err = network_receive_file( my_client_socket, filename, len )) != NULL  ) {
 			goto end;
 		}
 		// Knightly : update iteration limits

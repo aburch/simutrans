@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -66,7 +64,7 @@ station_building_select_t::station_building_select_t(const building_desc_t *desc
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
 			scr_coord pos = img_offsets[j]+base_offsets[i+row*2];
-			if((height==rw*5)  &&  ((i&1  &&  desc->get_y(0)==1)  ||  (!i&1  &&  desc->get_x(0)==1))) {
+			if((height==rw*5)  &&  ((i&1  &&  desc->get_y(0)==1)  ||  (!(i&1)  &&  desc->get_x(0)==1))) {
 				pos.x = pos.x + x_diff;
 			}
 			img[i*4+j].set_pos( pos );

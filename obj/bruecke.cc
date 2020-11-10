@@ -1,7 +1,6 @@
 /*
- * Brueckenteile (sichtbar)
- *
- * Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simworld.h"
@@ -25,7 +24,7 @@ static pthread_mutex_t bridge_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 #endif
 
 
-bruecke_t::bruecke_t(loadsave_t* const file) : 
+bruecke_t::bruecke_t(loadsave_t* const file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke)
 #else
@@ -81,12 +80,13 @@ void bruecke_t::calc_image()
 			if(  display_image==IMG_EMPTY && desc->get_foreground( img, is_snow )==IMG_EMPTY  ) {
 				display_image=desc->get_background( single_img[img], is_snow );
 			}
-			
+
 			weg0->set_after_image(IMG_EMPTY);
 			if(desc->get_has_own_way_graphics())
 			{
 				weg0->set_image(IMG_EMPTY);
-				weg0->set_yoff(-gr->get_weg_yoff() );
+				weg0->set_yoff( -gr->get_weg_yoff() );
+				weg0->set_xoff( 0 );
 
 				weg0->set_flag(obj_t::dirty);
 				set_image(display_image);
@@ -96,14 +96,15 @@ void bruecke_t::calc_image()
 			{
 				if(slope)
 				{
-					weg0->set_yoff(-gr->get_weg_yoff() );
+					weg0->set_yoff( -gr->get_weg_yoff() );
+					weg0->set_xoff( 0 );
 					weg0->calc_image();
 					weg0->set_flag(obj_t::dirty);
 				}
 				set_image(display_image);
 				set_flag(obj_t::dirty);
-			}			
-			
+			}
+
 #ifdef MULTI_THREAD
 			unlock_mutex();
 			weg0->unlock_mutex();
@@ -114,7 +115,8 @@ void bruecke_t::calc_image()
 #endif
 				if(slope)
 				{
-					weg1->set_yoff(-gr->get_weg_yoff() );
+					weg1->set_yoff( -gr->get_weg_yoff() );
+					weg1->set_xoff( 0 );
 				}
 #ifdef MULTI_THREAD
 				weg1->unlock_mutex();
@@ -122,6 +124,7 @@ void bruecke_t::calc_image()
 			}
 		}
 		set_yoff( -gr->get_weg_yoff() );
+		set_xoff( 0 );
 	}
 }
 
@@ -217,7 +220,7 @@ void bruecke_t::finish_rd()
 	// change maintenance
 	if(desc->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(desc->get_waytype());
-		
+
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( desc->get_waytype() );
@@ -227,7 +230,7 @@ void bruecke_t::finish_rd()
 		const way_desc_t* way_desc = weg->get_desc();
 
 		const slope_t::type hang = gr->get_weg_hang();
-		if(hang != slope_t::flat) 
+		if(hang != slope_t::flat)
 		{
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
@@ -243,10 +246,9 @@ void bruecke_t::finish_rd()
 		{
 			weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 		}
+
 		weg->set_bridge_weight_limit(desc->get_max_weight());
-		
-		const weg_t* old_way = gr ? gr->get_weg(desc->get_wtyp()) : NULL;
-		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
+
 		// take ownership of way
 		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_maintenance(), desc->get_finance_waytype());
 		weg->set_owner(player);
@@ -276,36 +278,37 @@ void bruecke_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	// change maintenance, reset max-speed and y-offset
-	const grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
-		weg_t *weg = gr->get_weg( desc->get_waytype() );
-		if(weg) {
-			const way_desc_t* const way_desc = weg->get_desc();
+	if(  const grund_t *gr = welt->lookup(get_pos())  ) {
+		if(  weg_t *weg0 = gr->get_weg( desc->get_waytype() )  ) {
+			const way_desc_t* const way_desc = weg0->get_desc();
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
-			if(hang != slope_t::flat) 
+			if(hang != slope_t::flat)
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
+						weg0->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
+						weg0->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
+					weg0->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 				}
-			player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player,  way_desc->get_maintenance(), way_desc->get_finance_waytype());
 			// reset offsets
-			weg->set_yoff(0);
-			if (gr->get_weg_nr(1)) {
-				gr->get_weg_nr(1)->set_yoff(0);
+			weg0->set_xoff(0);
+			weg0->set_yoff(0);
+			if(  weg_t *weg1 = gr->get_weg_nr(1)  ) {
+				weg1->set_xoff(0);
+				weg1->set_yoff(0);
 			}
 		}
 	}
+
 	player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 	player_t::book_construction_costs( player2, -desc->get_value(), get_pos().get_2d(), desc->get_waytype() );
 }
@@ -335,13 +338,12 @@ void bruecke_t::rotate90()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *bruecke_t:: is_deletable(const player_t *player, bool allow_public)
+const char *bruecke_t:: is_deletable(const player_t *player)
 {
-	if(allow_public && get_owner() && get_owner()->is_public_service())
-	{
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  ) {
 		return NULL;
 	}
-	return obj_t:: is_deletable(player);
+	return obj_t::is_deletable(player);
 }
 
 #ifdef MULTI_THREAD

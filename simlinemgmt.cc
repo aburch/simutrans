@@ -1,7 +1,6 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <algorithm>
@@ -41,10 +40,19 @@ void simlinemgmt_t::add_line(linehandle_t new_line)
 
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
-	if (line.is_bound()) {
+	if (line.is_bound())
+	{
 		all_managed_lines.remove(line);
 		//destroy line object
 		delete line.get_rep();
+	}
+}
+
+void simlinemgmt_t::deregister_line(linehandle_t line)
+{
+	if (line.is_bound())
+	{
+		all_managed_lines.remove(line);
 	}
 }
 
@@ -53,7 +61,7 @@ void simlinemgmt_t::update_line(linehandle_t line, bool do_not_renew_stops)
 {
 	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
-	for(int i = 0; i<count; i++) 
+	for(int i = 0; i<count; i++)
 	{
 		const convoihandle_t cnv = line->get_convoy(i);
 		cnv->set_update_line(line);
@@ -222,12 +230,33 @@ linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player, schedule_t
 }
 
 
-void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
+void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines, uint8 freight_type_bits, bool show_empty_line) const
 {
 	lines->clear();
 	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
 		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
-			lines->append(line);
+			if (freight_type_bits && !(show_empty_line && !line->get_convoys().get_count())) {
+				if (freight_type_bits & (1 << simline_t::all_pas) && line->get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS)) {
+					lines->append(line);
+					continue;
+				}
+				if (freight_type_bits & (1 << simline_t::all_mail) && line->get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL)) {
+					lines->append(line);
+					continue;
+				}
+				if (freight_type_bits & (1 << simline_t::all_freight)) {
+					for (uint8 catg_index = goods_manager_t::INDEX_NONE + 1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
+					{
+						if (line->get_goods_catg_index().is_contained(catg_index)) {
+							lines->append(line);
+							break;
+						}
+					}
+				}
+			}
+			else {
+				lines->append(line);
+			}
 		}
 	}
 }

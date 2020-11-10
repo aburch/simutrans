@@ -1,0 +1,82 @@
+# Simutranslator settings for Simutrans-Extended texts
+# GUI improvements centered on new formation picture
+#
+# Author: Ranran
+# Created: January 2020
+#
+obj=help_text
+name=helptxt_can_be_at_rear
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=helptxt_intermediate
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=helptxt_powered_vehicle
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=helptxt_unpowered_vehicle
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=Select vehicles to make up a convoy
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=Vehicle bar shape legend:
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=Upgrade available
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=Upgrade is not available yet
+note=Explanation of symbols on the depot dialog
+-
+obj=help_text
+name=Upgrade will be available in the near future
+note=Explanation of symbols on the depot dialog
+-
+obj=program_text
+name=cd_spec_tab
+note=Tab label for vehicle specifications on Convoy detail dialog
+-
+obj=program_text
+name=cd_payload_tab
+note=Tab label for vehicle specifications on Convoy detail dialog
+-
+obj=program_text
+name=cd_maintenance_tab
+note=Tab label for vehicle specifications on Convoy detail dialog
+-
+obj=program_text
+name=No load setting
+note=
+-
+obj=program_text
+name=Applied livery scheme: %s
+note=
+-
+obj=program_text
+name=%i month
+note=
+-
+obj=program_text
+name=%i months
+note=
+-
+obj=program_text
+name=(mixed_load_prohibition)
+note=
+-
+obj=program_text
+name=Shunting. %s left
+note=
+-
+obj=program_text
+name=Changing direction. %s left
+note=
+-

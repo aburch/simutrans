@@ -1,14 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- */
-
-/*
- * Basic class of all visible things
- *
- * Hj. Maltahner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -157,7 +149,7 @@ player_t *obj_t::get_owner() const
  * we want to format it nicely,
  * with two linebreaks at the end => thus the little extra effort
  */
-void obj_t::info(cbuffer_t & buf, bool is_bridge) const
+void obj_t::info(cbuffer_t & buf) const
 {
 	char              translation[256];
 	char const* const owner =
@@ -235,10 +227,12 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		for(  int j=0;  image!=IMG_EMPTY;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
-				if(  obj_t::show_owner  ) {
-					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR); 			
+				if(  obj_t::show_owner && welt->get_player(owner_n))
+				{
+					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 				}
-				else {
+				else
+				{
 					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 				}
 			}
@@ -266,6 +260,10 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			// highlight this tile
 			display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
+		else if(  get_outline_colour()  ) {
+			// highlight this tile
+			display_blend(get_image(), xpos, start_ypos, owner_n, get_outline_colour() | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+		}
 	}
 }
 
@@ -275,11 +273,9 @@ void obj_t::rotate90()
 {
 	// most basic: rotate coordinate
 	pos.rotate90( welt->get_size().y-1 );
-	if(xoff!=0) {
-		sint8 new_dx = -2*yoff;
-		yoff = xoff/2;
-		xoff = new_dx;
-	}
+	sint8 new_dx = -2*yoff;
+	yoff = xoff/2;
+	xoff = new_dx;
 }
 
 
@@ -333,7 +329,7 @@ void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
 			vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this);
-			// vehicles need finer steps to appear smoother			
+			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}
 

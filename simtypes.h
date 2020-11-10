@@ -1,10 +1,11 @@
 /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #ifndef SIMTYPES_H
 #define SIMTYPES_H
+
 
 #include <climits>
 #include <stdlib.h>
@@ -31,25 +32,8 @@
 #	define NOT_REACHED
 #endif
 
-#define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
-
-#define CXX11(gcc_major, gcc_minor, msc_ver) ( \
-	__cplusplus >= 201103L || \
-	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
-	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
-)
-
-#if CXX11(4, 4, 0)
-#	define DELETED = delete
-#else
-#	define DELETED
-#endif
-
-#if CXX11(4, 7, 1400)
-#	define OVERRIDE override
-#else
-#	define OVERRIDE
-#endif
+#define DELETED = delete
+#define OVERRIDE override
 
 #define ENUM_BITSET(T) \
  static inline T operator ~ (T a) { return (T)~(unsigned)a; } \
@@ -130,9 +114,8 @@ enum systemtype_t {
 	 halt_mode         = -1, // vehicles can stop on passing lane
 	 oneway_mode       = 0,  // condition for one-way road
 	 twoway_mode       = 1,  // condition for two-way road
-	 loading_only_mode = 2,  // overtake a loading convoy only
+	 //loading_only_mode = 2,  // overtake a loading convoy only
 	 prohibited_mode   = 3,  // overtaking is completely forbidden
-	 inverted_mode     = 4,  // vehicles can go only on passing lane
 	 invalid_mode      = 63
  };
 

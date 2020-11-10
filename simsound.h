@@ -1,12 +1,11 @@
 /*
- * Description der Schnittstelle zum Soundsystem.
- * Hj. Malthaner, 1998, 2000
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simsound_h
-#define simsound_h
+#ifndef SIMSOUND_H
+#define SIMSOUND_H
+
 
 #include "simtypes.h"
 

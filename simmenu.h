@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2008 prissi
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- * New configurable OOP tool system
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simmenu_h
-#define simmenu_h
+#ifndef SIMMENU_H
+#define SIMMENU_H
+
 
 #include <string>
 #include "descriptor/sound_desc.h"
@@ -17,6 +15,8 @@
 
 #include "simtypes.h"
 #include "display/simimg.h"
+
+/// New configurable OOP tool system
 
 
 template<class T> class vector_tpl;
@@ -131,6 +131,8 @@ enum {
 	TOOL_RECOLOUR_TOOL,
 	TOOL_ACCESS_TOOL,
 	TOOL_SHOW_SIGNALBOX_COVERAGE,
+	TOOL_CONVOY_NAMEPLATES,
+	TOOL_CONVOY_LOADINGBAR,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -343,7 +345,7 @@ public:
 
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 
-	virtual void rotate90(sint16 y_diff) { return; }
+	virtual void rotate90(sint16) {}
 };
 
 /*

@@ -1,11 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __FABRIK_BESCH_H
-#define __FABRIK_BESCH_H
+#ifndef DESCRIPTOR_FACTORY_DESC_H
+#define DESCRIPTOR_FACTORY_DESC_H
+
 
 #include "obj_desc.h"
 #include "building_desc.h"
@@ -147,8 +147,8 @@ private:
 
 public:
 	goods_desc_t const* get_input_type() const { return get_child<goods_desc_t>(0); }
-	int get_capacity() const { return capacity; } 
-	int get_supplier_count() const { return supplier_count; } 
+	int get_capacity() const { return capacity; }
+	int get_supplier_count() const { return supplier_count; }
 	int get_consumption() const { return consumption; }
 	void calc_checksum(checksum_t *chk) const;
 };
@@ -210,13 +210,13 @@ public:
 	enum site_t { Land, Water, City };
 
 private:
-	site_t placement; 
-	uint16 productivity; 
+	site_t placement;
+	uint16 productivity;
 	sint32 range;
 	uint16 distribution_weight;	// probability of construction of this factory
 	uint8 color; //"identification colour code" (Babelfish)
-	uint16 supplier_count; 
-	uint16 product_count; 
+	uint16 supplier_count;
+	uint16 product_count;
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Extended only)
@@ -234,7 +234,9 @@ private:
 	uint16 pax_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
+	uint16 base_max_distance_to_supplier;
 	uint16 max_distance_to_consumer;
+	uint16 max_distance_to_supplier;
 	uint16 sound_id;
 	uint32 sound_interval;
 	uint8 field_output_divider; // The number by which the total production of all fields is divided.
@@ -247,7 +249,7 @@ public:
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const factory_supplier_desc_t *get_supplier(int i) const 
+	const factory_supplier_desc_t *get_supplier(int i) const
 	{
 		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
@@ -262,11 +264,13 @@ public:
 		return get_child<field_group_desc_t>(2 + supplier_count + product_count);
 	}
 
-	uint16 get_supplier_count() const { return supplier_count; } 
-	uint16 get_product_count() const { return product_count; } 
+	uint16 get_supplier_count() const { return supplier_count; }
+	uint16 get_product_count() const { return product_count; }
 
-	bool is_consumer_only() const { return product_count    == 0; }
+	bool is_consumer_only() const { return product_count  == 0; }
 	bool is_producer_only() const { return supplier_count == 0; }
+
+	bool get_accepts_these_goods(const goods_desc_t* input) const;
 
 	/* where to build */
 	site_t get_placement() const { return placement; }
@@ -276,7 +280,7 @@ public:
 
 	void set_productivity(int p) { productivity=p; }
 	int get_productivity() const { return productivity; }
-	sint32 get_range() const { return range; } 
+	sint32 get_range() const { return range; }
 
 	/* level for mail and passenger generation */
 	int get_pax_level() const { return pax_level; }
@@ -305,23 +309,32 @@ public:
 	// more effects when producing
 	sint16 get_sound() const { return sound_id; }
 	uint32 get_sound_interval_ms() const { return sound_interval; }
-	
+
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
+	uint16 get_max_distance_to_supplier() const { return max_distance_to_supplier;	}
 
 	uint8 get_field_output_divider() const { return field_output_divider; }
 
 	void set_scale(uint16 scale_factor)
 	{
-		if(base_max_distance_to_consumer < 65535)
+		if (base_max_distance_to_consumer < 65535)
 		{
 			uint32 mdc = (uint32)base_max_distance_to_consumer;
 			mdc *= 1000u;
 			mdc /= scale_factor;
 			max_distance_to_consumer = (uint16)mdc;
 		}
+		if(base_max_distance_to_supplier < 65535)
+		{
+			uint32 mds = (uint32)base_max_distance_to_supplier;
+			mds *= 1000u;
+			mds /= scale_factor;
+			max_distance_to_supplier = (uint16)mds;
+		}
 	}
 
 	void calc_checksum(checksum_t *chk) const;
+	bool get_accepts_these_goods(const goods_desc_t* input);
 };
 
 #endif

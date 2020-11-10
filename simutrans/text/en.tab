@@ -95,6 +95,8 @@ Prop-Latin1.bdf
 # They must be specified in hexadecimal
 # (i.e. with a max. in hex of 400)
 #
+# Region 0: Albion
+#
 %0_CITY_SYLL
 Gar
 %1_CITY_SYLL
@@ -1089,11 +1091,731 @@ Mous
 Les
 %24A_CITY_SYLL
 Bern
+%24B_CITY_SYLL
+Hedg
+%24C_CITY_SYLL
+Ac
+%24D_CITY_SYLL
+Ame
+%24E_CITY_SYLL
+Bew
+%24F_CITY_SYLL
+Bill
+%250_CITY_SYLL
+Haw
+%251_CITY_SYLL
+Boll
+%252_CITY_SYLL
+Bod
+%253_CITY_SYLL
+Kid
+%254_CITY_SYLL
+Ped
+%254_CITY_SYLL
+Pres
+%255_CITY_SYLL
+Var
+%256_CITY_SYLL
+Ket
+%257_CITY_SYLL
+Thor
+%258_CITY_SYLL
+Fel
+%259_CITY_SYLL
+Rut
+%25A_CITY_SYLL
+Wul
+#
+# Max: 400 (hex)
+#
+# Region 1: Northumberland
+#
+%0_CITY_SYLL[1]
+Thirl
+%1_CITY_SYLL[1]
+By
+%2_CITY_SYLL[1]
+Hawn
+%3_CITY_SYLL[1]
+Aiden
+%4_CITY_SYLL[1]
+Kirk
+%5_CITY_SYLL[1]
+Ingle
+%6_CITY_SYLL[1]
+Knap
+%7_CITY_SYLL[1]
+Boyn
+%8_CITY_SYLL[1]
+Skirl
+%9_CITY_SYLL[1]
+Sled
+%A_CITY_SYLL[1]
+Cow
+%B_CITY_SYLL[1]
+Whar
+%C_CITY_SYLL[1]
+Ack
+%D_CITY_SYLL[1]
+Lang
+%E_CITY_SYLL[1]
+Farl
+%F_CITY_SYLL[1]
+Gran
+%10_CITY_SYLL[1]
+Gan
+%11_CITY_SYLL[1]
+Sackle
+%12_CITY_SYLL[1]
+Mene
+%13_CITY_SYLL[1]
+Mein
+%14_CITY_SYLL[1]
+Nor
+%15_CITY_SYLL[1]
+Malt
+%16_CITY_SYLL[1]
+All
+%17_CITY_SYLL[1]
+Yeld
+%18_CITY_SYLL[1]
+Braw
+%19_CITY_SYLL[1]
+Mar
+%1A_CITY_SYLL[1]
+Pock
+%1B_CITY_SYLL[1]
+Kil
+%1C_CITY_SYLL[1]
+Otter
+%1D_CITY_SYLL[1]
+Cot
+%1E_CITY_SYLL[1]
+Red
+%1F_CITY_SYLL[1]
+Con
+%20_CITY_SYLL[1]
+Cleas
+%21_CITY_SYLL[1]
+Baff
+%22_CITY_SYLL[1]
+Braff
+%23_CITY_SYLL[1]
+Ingle
+%24_CITY_SYLL[1]
+Wal
+%25_CITY_SYLL[1]
+Bol
+%26_CITY_SYLL[1]
+Lang
+%27_CITY_SYLL[1]
+Ram
+%28_CITY_SYLL[1]
+Bed
+%29_CITY_SYLL[1]
+Baff
+%2A_CITY_SYLL[1]
+Trim
+%2B_CITY_SYLL[1]
+Fish
+%2C_CITY_SYLL[1]
+Corn
+%2D_CITY_SYLL[1]
+Carn
+%2E_CITY_SYLL[1]
+Win
+%2D_CITY_SYLL[1]
+Hed
+%30_CITY_SYLL[1]
+Shil
+%31_CITY_SYLL[1]
+Tan
+%32_CITY_SYLL[1]
+Blay
+%33_CITY_SYLL[1]
+Stan
+%34_CITY_SYLL[1]
+Whit
+%35_CITY_SYLL[1]
+Aln
+%36_CITY_SYLL[1]
+Nedd
+%37_CITY_SYLL[1]
+Mel
+%38_CITY_SYLL[1]
+Ash
+%39_CITY_SYLL[1]
+Mor
+%3A_CITY_SYLL[1]
+Widd
+%3B_CITY_SYLL[1]
+Biddle
+%3C_CITY_SYLL[1]
+Bolt
+%3D_CITY_SYLL[1]
+Den
+%3E_CITY_SYLL[1]
+Chil
+%3F_CITY_SYLL[1]
+Charl
+%40_CITY_SYLL[1]
+Dragon
+%41_CITY_SYLL[1]
+Alk
+%42_CITY_SYLL[1]
+Theal
+%43_CITY_SYLL[1]
+Rox
+%44_CITY_SYLL[1]
+Auk
+%45_CITY_SYLL[1]
+Ask
+%46_CITY_SYLL[1]
+Kel
+%47_CITY_SYLL[1]
+Scraw
+%48_CITY_SYLL[1]
+Brad
+%49_CITY_SYLL[1]
+Scramp
+%4A_CITY_SYLL[1]
+Apple
+#
+# Max: 400 (hex)
+#
+# Region 2: Caledonia
+#
+%0_CITY_SYLL[2]
+Glen
+%1_CITY_SYLL[2]
+Lith
+%2_CITY_SYLL[2]
+Dun
+%3_CITY_SYLL[2]
+Al
+%4_CITY_SYLL[2]
+Fal
+%5_CITY_SYLL[2]
+Kil
+%6_CITY_SYLL[2]
+Gar
+%7_CITY_SYLL[2]
+Ball
+%8_CITY_SYLL[2]
+Camp
+%9_CITY_SYLL[2]
+Muir
+%A_CITY_SYLL[2]
+Cauld
+%B_CITY_SYLL[2]
+Aber
+%C_CITY_SYLL[2]
+Kin
+%D_CITY_SYLL[2]
+Lang
+%E_CITY_SYLL[2]
+Inver
+%F_CITY_SYLL[2]
+Gran
+%10_CITY_SYLL[2]
+Clad
+%11_CITY_SYLL[2]
+Ard
+%12_CITY_SYLL[2]
+Stron
+%13_CITY_SYLL[2]
+Con
+%14_CITY_SYLL[2]
+Nor
+%15_CITY_SYLL[2]
+Fas
+%16_CITY_SYLL[2]
+Ell
+%17_CITY_SYLL[2]
+Ken
+%18_CITY_SYLL[2]
+Green
+%19_CITY_SYLL[2]
+Balin
+%1A_CITY_SYLL[2]
+Cam
+%1B_CITY_SYLL[2]
+Strath
+%1C_CITY_SYLL[2]
+Ben
+%1D_CITY_SYLL[2]
+Achna
+%1E_CITY_SYLL[2]
+Mull
+%1F_CITY_SYLL[2]
+Ball
+%20_CITY_SYLL[2]
+Gor
+%21_CITY_SYLL[2]
+Bot
+%22_CITY_SYLL[2]
+Ault
+%23_CITY_SYLL[2]
+Fann
+%24_CITY_SYLL[2]
+Scor
+%25_CITY_SYLL[2]
+Mel
+%26_CITY_SYLL[2]
+Pol
+%27_CITY_SYLL[2]
+Clach
+%28_CITY_SYLL[2]
+Cul
+%29_CITY_SYLL[2]
+Drum
+%2A_CITY_SYLL[2]
+Hand
+%2B_CITY_SYLL[2]
+Allna
+%2C_CITY_SYLL[2]
+Lath
+%2D_CITY_SYLL[2]
+Carn
+%2E_CITY_SYLL[2]
+Brae
+%2D_CITY_SYLL[2]
+Tanna
+%30_CITY_SYLL[2]
+Pit
+%31_CITY_SYLL[2]
+Gol
+%32_CITY_SYLL[2]
+Dol
+%33_CITY_SYLL[2]
+Dor
+%34_CITY_SYLL[2]
+Glan
+%35_CITY_SYLL[2]
+Edin
+%36_CITY_SYLL[2]
+Cruch
+%37_CITY_SYLL[2]
+Mel
+%38_CITY_SYLL[2]
+Tully
+%39_CITY_SYLL[2]
+Mor
+%3A_CITY_SYLL[2]
+Tan
+%3B_CITY_SYLL[2]
+Tully
+%3C_CITY_SYLL[2]
+Tull
+%3D_CITY_SYLL[2]
+Den
+%3E_CITY_SYLL[2]
+Tilly
+%3F_CITY_SYLL[2]
+Cal
+%40_CITY_SYLL[2]
+Noran
+%41_CITY_SYLL[2]
+Moran
+%42_CITY_SYLL[2]
+Doug
+%43_CITY_SYLL[2]
+Pick
+%44_CITY_SYLL[2]
+Clack
+%45_CITY_SYLL[2]
+Flin
+%46_CITY_SYLL[2]
+Kel
+%47_CITY_SYLL[2]
+Shann
+%48_CITY_SYLL[2]
+Car
+%49_CITY_SYLL[2]
+Caer
+%4A_CITY_SYLL[2]
+Tar
+#
+# Max: 400 (hex)
+#
+#
+# Region 3: Cambria
+#
+%0_CITY_SYLL[3]
+Tre
+%1_CITY_SYLL[3]
+Aber
+%2_CITY_SYLL[3]
+Porth
+%3_CITY_SYLL[3]
+Pen-y-
+%4_CITY_SYLL[3]
+Pen
+%5_CITY_SYLL[3]
+Llan
+%6_CITY_SYLL[3]
+Maes
+%7_CITY_SYLL[3]
+Gor
+%8_CITY_SYLL[3]
+Kid
+%9_CITY_SYLL[3]
+Te
+%A_CITY_SYLL[3]
+Caer
+%B_CITY_SYLL[3]
+Ponty
+%C_CITY_SYLL[3]
+Bryn
+%D_CITY_SYLL[3]
+Cwm
+%E_CITY_SYLL[3]
+Ystra
+%F_CITY_SYLL[3]
+Glam
+%10_CITY_SYLL[3]
+Moyl
+%11_CITY_SYLL[3]
+Moel
+%12_CITY_SYLL[3]
+Blaen
+%13_CITY_SYLL[3]
+Nar
+%14_CITY_SYLL[3]
+Nor
+%15_CITY_SYLL[3]
+Fas
+%16_CITY_SYLL[3]
+Borth
+%17_CITY_SYLL[3]
+Gog
+%18_CITY_SYLL[3]
+Dwy
+%19_CITY_SYLL[3]
+Col
+%1A_CITY_SYLL[3]
+Hen
+%1B_CITY_SYLL[3]
+Bod
+%1C_CITY_SYLL[3]
+Groes
+%1D_CITY_SYLL[3]
+Panty
+%1E_CITY_SYLL[3]
+Tyn
+%1F_CITY_SYLL[3]
+Laugh
+%20_CITY_SYLL[3]
+Beth
+%21_CITY_SYLL[3]
+Bro
+%22_CITY_SYLL[3]
+Tyl
+%23_CITY_SYLL[3]
+Pan
+%24_CITY_SYLL[3]
+Dol
+%25_CITY_SYLL[3]
+Cyn
+%26_CITY_SYLL[3]
+Llant
+%27_CITY_SYLL[3]
+Tro
+%28_CITY_SYLL[3]
+Tal
+%29_CITY_SYLL[3]
+Hen
+%2A_CITY_SYLL[3]
+Pwll
+#
+# Max: 400 (hex)
+#
+#
+# Region 4: Kernow
+#
+%0_CITY_SYLL[4]
+Tre
+%1_CITY_SYLL[4]
+Pol
+%2_CITY_SYLL[4]
+Porth
+%3_CITY_SYLL[4]
+Yel
+%4_CITY_SYLL[4]
+Pen
+%5_CITY_SYLL[4]
+Chad
+%6_CITY_SYLL[4]
+Call
+%7_CITY_SYLL[4]
+Lan
+%8_CITY_SYLL[4]
+Wade
+%9_CITY_SYLL[4]
+Blis
+%A_CITY_SYLL[4]
+Bod
+%B_CITY_SYLL[4]
+Dun
+%C_CITY_SYLL[4]
+Tal
+%D_CITY_SYLL[4]
+Port
+%E_CITY_SYLL[4]
+Fal
+%F_CITY_SYLL[4]
+Perran
+%10_CITY_SYLL[4]
+Zen
+%11_CITY_SYLL[4]
+Gwith
+%12_CITY_SYLL[4]
+Bot
+%13_CITY_SYLL[4]
+Cran
+%14_CITY_SYLL[4]
+Pad
+%15_CITY_SYLL[4]
+Wen
+%16_CITY_SYLL[4]
+Otter
+%17_CITY_SYLL[4]
+Wem
+%18_CITY_SYLL[4]
+Bant
+%19_CITY_SYLL[4]
+Lad
+%1A_CITY_SYLL[4]
+Tre
+%1B_CITY_SYLL[4]
+Pen
+%1C_CITY_SYLL[4]
+Crow
+%1D_CITY_SYLL[4]
+Tren
+%1E_CITY_SYLL[4]
+Car
+%1F_CITY_SYLL[4]
+Sith
+%20_CITY_SYLL[4]
+Cam
+%21_CITY_SYLL[4]
+Trun
+%22_CITY_SYLL[4]
+Cadg
+%23_CITY_SYLL[4]
+Pon
+%24_CITY_SYLL[4]
+Tra
+%25_CITY_SYLL[4]
+Gar
+%26_CITY_SYLL[4]
+Maen
+%27_CITY_SYLL[4]
+Phil
+%28_CITY_SYLL[4]
+Lam
+%29_CITY_SYLL[4]
+Tru
+%2A_CITY_SYLL[4]
+Gun
+%2B_CITY_SYLL[4]
+Trew
+%2C_CITY_SYLL[4]
+Trewn
+%2D_CITY_SYLL[4]
+Pre
+%2E_CITY_SYLL[4]
+Ros
+%2F_CITY_SYLL[4]
+Trega
+%30_CITY_SYLL[4]
+Trego
+%31_CITY_SYLL[4]
+Bos
+%32_CITY_SYLL[4]
+Tin
+%33_CITY_SYLL[4]
+Diz
+%34_CITY_SYLL[4]
+Iz
+%34_CITY_SYLL[4]
+Trey
+%35_CITY_SYLL[4]
+Goon
+%36_CITY_SYLL[4]
+Mith
+%37_CITY_SYLL[4]
+God
+%38_CITY_SYLL[4]
+Red
+%39_CITY_SYLL[4]
+Res
+#
+# Max: 400 (hex)
+#
+#
+# Region 5: Erin
+#
+%0_CITY_SYLL[5]
+Dan
+%1_CITY_SYLL[5]
+Kil
+%2_CITY_SYLL[5]
+Bally
+%3_CITY_SYLL[5]
+Ennis
+%4_CITY_SYLL[5]
+Balli
+%5_CITY_SYLL[5]
+Lough
+%6_CITY_SYLL[5]
+Glas
+%7_CITY_SYLL[5]
+Dalk
+%8_CITY_SYLL[5]
+Rath
+%9_CITY_SYLL[5]
+Sag
+%A_CITY_SYLL[5]
+Drim
+%B_CITY_SYLL[5]
+Drum
+%C_CITY_SYLL[5]
+Kin
+%D_CITY_SYLL[5]
+Bal
+%E_CITY_SYLL[5]
+Moy
+%F_CITY_SYLL[5]
+Garris
+%10_CITY_SYLL[5]
+Skr
+%11_CITY_SYLL[5]
+Ty
+%12_CITY_SYLL[5]
+Dul
+%13_CITY_SYLL[5]
+Dub
+%14_CITY_SYLL[5]
+Nav
+%15_CITY_SYLL[5]
+Cann
+%16_CITY_SYLL[5]
+Carn
+%17_CITY_SYLL[5]
+Ballin
+%18_CITY_SYLL[5]
+Don
+%19_CITY_SYLL[5]
+Gorm
+%1A_CITY_SYLL[5]
+Mon
+%1B_CITY_SYLL[5]
+Augua
+%1C_CITY_SYLL[5]
+Cool
+%1D_CITY_SYLL[5]
+Cully
+%1E_CITY_SYLL[5]
+Kill
+%1F_CITY_SYLL[5]
+Cloon
+%20_CITY_SYLL[5]
+Currag
+%21_CITY_SYLL[5]
+Ros
+%22_CITY_SYLL[5]
+Le
+%23_CITY_SYLL[5]
+Knock
+%24_CITY_SYLL[5]
+Door
+%25_CITY_SYLL[5]
+Abbey
+%26_CITY_SYLL[5]
+Fall
+%27_CITY_SYLL[5]
+Big
+%28_CITY_SYLL[5]
+Bel
+%29_CITY_SYLL[5]
+Ker
+%2A_CITY_SYLL[5]
+Gal
+%2B_CITY_SYLL[5]
+Clarin
+%2C_CITY_SYLL[5]
+Ard
+%2D_CITY_SYLL[5]
+Aill
+%2E_CITY_SYLL[5]
+Meg
+%2F_CITY_SYLL[5]
+Kils
+%30_CITY_SYLL[5]
+Lis
+%31_CITY_SYLL[5]
+Ennis
+%32_CITY_SYLL[5]
+Mal
+%33_CITY_SYLL[5]
+In
+%34_CITY_SYLL[5]
+Der
+%35_CITY_SYLL[5]
+Shr
+%36_CITY_SYLL[5]
+Mull
+%37_CITY_SYLL[5]
+Beal
+%38_CITY_SYLL[5]
+Tully
+%39_CITY_SYLL[5]
+Tar
+%3A_CITY_SYLL[5]
+Carrig
+%3B_CITY_SYLL[5]
+Dro
+%3C_CITY_SYLL[5]
+Tra
+%3D_CITY_SYLL[5]
+Bool
+%3E_CITY_SYLL[5]
+Calla
+%3F_CITY_SYLL[5]
+Gro
+%40_CITY_SYLL[5]
+Carra
+%41_CITY_SYLL[5]
+Clon
+%42_CITY_SYLL[5]
+Laur
+%43_CITY_SYLL[5]
+Bun
+%44_CITY_SYLL[5]
+Roch
+%45_CITY_SYLL[5]
+Tee
+%46_CITY_SYLL[5]
+Cor
+%47_CITY_SYLL[5]
+Clod
+%48_CITY_SYLL[5]
+Glan
+%49_CITY_SYLL[5]
+Tull
+%4A_CITY_SYLL[5]
+Crag
+#
+# Max: 400 (hex)
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
 # They must be specified in hexadecimal
 # (i.e. with a max. in hex of 200)
+# 
+# Region 0: Albion
 #
 &1_CITY_SYLL
 ington
@@ -1368,6 +2090,725 @@ age
 &87_CITY_SYLL
 tye
 #
+# Max: 200 (hex)
+#
+# Region 1: Northumberland
+# 
+&1_CITY_SYLL[1]
+thorpe
+&2_CITY_SYLL[1]
+ington
+&3_CITY_SYLL[1]
+lam
+&4_CITY_SYLL[1]
+dale
+&5_CITY_SYLL[1]
+endale
+&6_CITY_SYLL[1]
+ingham
+&7_CITY_SYLL[1]
+eydale
+&8_CITY_SYLL[1]
+y
+&9_CITY_SYLL[1]
+ton
+&A_CITY_SYLL[1]
+enton
+&B_CITY_SYLL[1]
+enthorpe
+&C_CITY_SYLL[1]
+enington
+&D_CITY_SYLL[1]
+moor
+&E_CITY_SYLL[1]
+mire
+&F_CITY_SYLL[1]
+with
+&10_CITY_SYLL[1]
+fold
+&11_CITY_SYLL[1]
+thwaite
+&12_CITY_SYLL[1]
+enthwaite
+&13_CITY_SYLL[1]
+well
+&14_CITY_SYLL[1]
+worth
+&15_CITY_SYLL[1]
+shaw
+&16_CITY_SYLL[1]
+enshaw
+&17_CITY_SYLL[1]
+field
+&18_CITY_SYLL[1]
+burn
+&19_CITY_SYLL[1]
+combe
+&1A_CITY_SYLL[1]
+forth
+&1B_CITY_SYLL[1]
+peth
+&1C_CITY_SYLL[1]
+wick
+&1D_CITY_SYLL[1]
+stone
+&1E_CITY_SYLL[1]
+bury
+&1F_CITY_SYLL[1]
+ton
+&20_CITY_SYLL[1]
+with
+&21_CITY_SYLL[1]
+by
+#
+# Max: 200 (hex)
+#
+# Region 2: Caledonia
+# 
+&1_CITY_SYLL[2]
+och
+&2_CITY_SYLL[2]
+drie
+&3_CITY_SYLL[2]
+kirk
+&4_CITY_SYLL[2]
+ock
+&5_CITY_SYLL[2]
+burn
+&6_CITY_SYLL[2]
+bell
+&7_CITY_SYLL[2]
+ish
+&8_CITY_SYLL[2]
+wood
+&9_CITY_SYLL[2]
+den
+&A_CITY_SYLL[2]
+ridge
+&B_CITY_SYLL[2]
+inch
+&C_CITY_SYLL[2]
+wood
+&D_CITY_SYLL[2]
+ross
+&E_CITY_SYLL[2]
+chie
+&F_CITY_SYLL[2]
+blane
+&10_CITY_SYLL[2]
+caber
+&11_CITY_SYLL[2]
+ie
+&12_CITY_SYLL[2]
+taggart
+&13_CITY_SYLL[2]
+burgh
+&14_CITY_SYLL[2]
+beg
+&15_CITY_SYLL[2]
+more
+&16_CITY_SYLL[2]
+oon
+&17_CITY_SYLL[2]
+craig
+&18_CITY_SYLL[2]
+burn
+&19_CITY_SYLL[2]
+breck
+&1A_CITY_SYLL[2]
+carry
+&1B_CITY_SYLL[2]
+peth
+&1C_CITY_SYLL[2]
+forth
+&1D_CITY_SYLL[2]
+gorm
+&1E_CITY_SYLL[2]
+neil
+&1F_CITY_SYLL[2]
+talloch
+&20_CITY_SYLL[2]
+breck
+&21_CITY_SYLL[2]
+ich
+&22_CITY_SYLL[2]
+avan
+&23_CITY_SYLL[2]
+cairn
+&24_CITY_SYLL[2]
+town
+&25_CITY_SYLL[2]
+var
+&26_CITY_SYLL[2]
+gloy
+&27_CITY_SYLL[2]
+ness
+&28_CITY_SYLL[2]
+gairn
+&29_CITY_SYLL[2]
+morack
+&2A_CITY_SYLL[2]
+ussie
+&2B_CITY_SYLL[2]
+achs
+&2C_CITY_SYLL[2]
+bae
+&2C_CITY_SYLL[2]
+alloch
+&2D_CITY_SYLL[2]
+mair
+&2E_CITY_SYLL[2]
+blade
+&2F_CITY_SYLL[2]
+salmond
+&30_CITY_SYLL[2]
+deen
+&31_CITY_SYLL[2]
+cardine
+&32_CITY_SYLL[2]
+logie
+&33_CITY_SYLL[2]
+buck
+&34_CITY_SYLL[2]
+syth
+&35_CITY_SYLL[2]
+bride
+&36_CITY_SYLL[2]
+gow
+&37_CITY_SYLL[2]
+dyce
+&38_CITY_SYLL[2]
+gussie
+#
+# Max: 200 (hex)
+#
+# Region 3: Cambria
+# 
+&1_CITY_SYLL[3]
+-y-Coed
+&2_CITY_SYLL[3]
+-y-Bryn
+&3_CITY_SYLL[3]
+-y-Fan
+&4_CITY_SYLL[3]
+waun
+&5_CITY_SYLL[3]
+gwyn
+&6_CITY_SYLL[3]
+-y-Bont
+&7_CITY_SYLL[3]
+owen
+&8_CITY_SYLL[3]
+lliw
+&9_CITY_SYLL[3]
+gwyn
+&A_CITY_SYLL[3]
+arthen
+&B_CITY_SYLL[3]
+rhyd
+&C_CITY_SYLL[3]
+fawr
+&D_CITY_SYLL[3]
+parc
+&E_CITY_SYLL[3]
+wyn
+&F_CITY_SYLL[3]
+-y-bwlch
+&10_CITY_SYLL[3]
+-y-Groes
+&11_CITY_SYLL[3]
+fod
+&12_CITY_SYLL[3]
+lech
+&13_CITY_SYLL[3]
+ycwm
+&14_CITY_SYLL[3]
+gaer
+&15_CITY_SYLL[3]
+lliw
+&16_CITY_SYLL[3]
+nydd
+&17_CITY_SYLL[3]
+avon
+&18_CITY_SYLL[3]
+nant
+&19_CITY_SYLL[3]
+dulais
+&1A_CITY_SYLL[3]
+mawr
+&1B_CITY_SYLL[3]
+teg
+&1C_CITY_SYLL[3]
+gwynfi
+&1D_CITY_SYLL[3]
+bach
+&1E_CITY_SYLL[3]
+coed
+&1F_CITY_SYLL[3]
+cawl
+&20_CITY_SYLL[3]
+arth
+&21_CITY_SYLL[3]
+banog
+&22_CITY_SYLL[3]
+orchy
+&23_CITY_SYLL[3]
+ryd
+&24_CITY_SYLL[3]
+dare
+&25_CITY_SYLL[3]
+bran
+&26_CITY_SYLL[3]
+gare
+&27_CITY_SYLL[3]
+-y-clawdd
+&28_CITY_SYLL[3]
+clawdd
+&29_CITY_SYLL[3]
+ellen
+&2A_CITY_SYLL[3]
+elli
+&2B_CITY_SYLL[3]
+goch
+&2C_CITY_SYLL[3]
+fan
+&2C_CITY_SYLL[3]
+og
+&2D_CITY_SYLL[3]
+aber
+&2E_CITY_SYLL[3]
+llwyd
+&2F_CITY_SYLL[3]
+fair
+&30_CITY_SYLL[3]
+-y-Gest
+&31_CITY_SYLL[3]
+madog
+&32_CITY_SYLL[3]
+ffordd
+&33_CITY_SYLL[3]
+nor
+&34_CITY_SYLL[3]
+wydd
+&35_CITY_SYLL[3]
+for
+&36_CITY_SYLL[3]
+rug
+&37_CITY_SYLL[3]
+-y-maen
+&38_CITY_SYLL[3]
+-y-foel
+&39_CITY_SYLL[3]
+carreg
+&3A_CITY_SYLL[3]
+ann
+&3B_CITY_SYLL[3]
+fach
+&3C_CITY_SYLL[3]
+clun
+&3D_CITY_SYLL[3]
+issilio
+&3E_CITY_SYLL[3]
+einon
+&3F_CITY_SYLL[3]
+heli
+&40_CITY_SYLL[3]
+llech
+&41_CITY_SYLL[3]
+loes
+&42_CITY_SYLL[3]
+wedd
+#
+# Max: 200 (hex)
+#
+# Region 4: Kernow
+# 
+&1_CITY_SYLL[4]
+withers
+&2_CITY_SYLL[4]
+pol
+&3_CITY_SYLL[4]
+ryn
+&4_CITY_SYLL[4]
+verva
+&5_CITY_SYLL[4]
+porth
+&6_CITY_SYLL[4]
+walloe
+&7_CITY_SYLL[4]
+sowes
+&8_CITY_SYLL[4]
+stow
+&9_CITY_SYLL[4]
+cowe
+&A_CITY_SYLL[4]
+lack
+&B_CITY_SYLL[4]
+nor
+&C_CITY_SYLL[4]
+lant
+&D_CITY_SYLL[4]
+ednack
+&E_CITY_SYLL[4]
+ian
+&F_CITY_SYLL[4]
+las
+&10_CITY_SYLL[4]
+ney
+&11_CITY_SYLL[4]
+davoe
+&12_CITY_SYLL[4]
+gle
+&13_CITY_SYLL[4]
+curno
+&14_CITY_SYLL[4]
+vescan
+&15_CITY_SYLL[4]
+with
+&16_CITY_SYLL[4]
+nack
+&17_CITY_SYLL[4]
+jack
+&18_CITY_SYLL[4]
+deen
+&19_CITY_SYLL[4]
+wyan
+&1A_CITY_SYLL[4]
+meor
+&1B_CITY_SYLL[4]
+val
+&1C_CITY_SYLL[4]
+ron
+&1D_CITY_SYLL[4]
+van
+&1E_CITY_SYLL[4]
+zion
+&1F_CITY_SYLL[4]
+near
+&20_CITY_SYLL[4]
+wheal
+&21_CITY_SYLL[4]
+leven
+&22_CITY_SYLL[4]
+gidden
+&23_CITY_SYLL[4]
+gowris
+&24_CITY_SYLL[4]
+arth
+&25_CITY_SYLL[4]
+boe
+&26_CITY_SYLL[4]
+garne
+&27_CITY_SYLL[4]
+dreth
+&28_CITY_SYLL[4]
+gwith
+&29_CITY_SYLL[4]
+zard
+&2A_CITY_SYLL[4]
+dannack
+&2B_CITY_SYLL[4]
+dhu
+&2C_CITY_SYLL[4]
+loe
+&2C_CITY_SYLL[4]
+neggy
+&2D_CITY_SYLL[4]
+thnoe
+&2E_CITY_SYLL[4]
+leath
+&2F_CITY_SYLL[4]
+lveor
+&30_CITY_SYLL[4]
+worthy
+&31_CITY_SYLL[4]
+warne
+&32_CITY_SYLL[4]
+voole
+&33_CITY_SYLL[4]
+withian
+&34_CITY_SYLL[4]
+mellin
+&35_CITY_SYLL[4]
+enowe
+&36_CITY_SYLL[4]
+coys
+&37_CITY_SYLL[4]
+win
+&38_CITY_SYLL[4]
+keard
+&39_CITY_SYLL[4]
+newan
+&3A_CITY_SYLL[4]
+gover
+&3B_CITY_SYLL[4]
+ithick
+&3C_CITY_SYLL[4]
+elash
+&3D_CITY_SYLL[4]
+inney
+&3E_CITY_SYLL[4]
+newth
+&3F_CITY_SYLL[4]
+glos
+&40_CITY_SYLL[4]
+geare
+&41_CITY_SYLL[4]
+glasta
+&42_CITY_SYLL[4]
+maine
+&43_CITY_SYLL[4]
+barwith
+&44_CITY_SYLL[4]
+know
+&45_CITY_SYLL[4]
+pethy
+&46_CITY_SYLL[4]
+walder
+&47_CITY_SYLL[4]
+veighan
+&48_CITY_SYLL[4]
+burgett
+&49_CITY_SYLL[4]
+lill
+&4A_CITY_SYLL[4]
+doggett
+&4B_CITY_SYLL[4]
+zeath
+&4C_CITY_SYLL[4]
+ver
+&4D_CITY_SYLL[4]
+vone
+&4E_CITY_SYLL[4]
+arnon
+&4F_CITY_SYLL[4]
+gurrian
+&50_CITY_SYLL[4]
+lyn
+&51_CITY_SYLL[4]
+sean
+&52_CITY_SYLL[4]
+havern
+&53_CITY_SYLL[4]
+ian
+&54_CITY_SYLL[4]
+rose
+&55_CITY_SYLL[4]
+straze
+&56_CITY_SYLL[4]
+worthal
+&57_CITY_SYLL[4]
+gony
+&58_CITY_SYLL[4]
+withick
+&59_CITY_SYLL[4]
+carrow
+&5A_CITY_SYLL[4]
+more
+&5B_CITY_SYLL[4]
+land
+#
+# Max: 200 (hex)
+#
+# Region 5: Erin
+# 
+&0_CITY_SYLL[5]
+lewey
+&1_CITY_SYLL[5]
+crenan
+&2_CITY_SYLL[5]
+keen
+&3_CITY_SYLL[5]
+agee
+&4_CITY_SYLL[5]
+e
+&5_CITY_SYLL[5]
+agh
+&5_CITY_SYLL[5]
+casslagh
+&6_CITY_SYLL[5]
+more
+&7_CITY_SYLL[5]
+hine
+&8_CITY_SYLL[5]
+kenny
+&9_CITY_SYLL[5]
+chary
+&A_CITY_SYLL[5]
+chary
+&B_CITY_SYLL[5]
+dowan
+&C_CITY_SYLL[5]
+dara
+&D_CITY_SYLL[5]
+gordon
+&E_CITY_SYLL[5]
+island
+&F_CITY_SYLL[5]
+derry
+&10_CITY_SYLL[5]
+burn
+&11_CITY_SYLL[5]
+lewey
+&12_CITY_SYLL[5]
+ness
+&13_CITY_SYLL[5]
+oo
+&14_CITY_SYLL[5]
+leagh
+&15_CITY_SYLL[5]
+halbert
+&16_CITY_SYLL[5]
+nahinch
+&17_CITY_SYLL[5]
+ough
+&18_CITY_SYLL[5]
+keel
+&19_CITY_SYLL[5]
+gassan
+&1A_CITY_SYLL[5]
+leer
+&1B_CITY_SYLL[5]
+leek
+&1C_CITY_SYLL[5]
+boyne
+&1D_CITY_SYLL[5]
+lyon
+&1E_CITY_SYLL[5]
+mines
+&1F_CITY_SYLL[5]
+volan
+&20_CITY_SYLL[5]
+roe
+&21_CITY_SYLL[5]
+bur
+&22_CITY_SYLL[5]
+an
+&23_CITY_SYLL[5]
+curra
+&24_CITY_SYLL[5]
+glen
+&25_CITY_SYLL[5]
+erin
+&26_CITY_SYLL[5]
+money
+&27_CITY_SYLL[5]
+tennel
+&28_CITY_SYLL[5]
+ogh
+&29_CITY_SYLL[5]
+garrett
+&2A_CITY_SYLL[5]
+water
+&2B_CITY_SYLL[5]
+murn
+&2C_CITY_SYLL[5]
+valloo
+&2E_CITY_SYLL[5]
+town
+&2F_CITY_SYLL[5]
+goat
+&30_CITY_SYLL[5]
+lare
+&31_CITY_SYLL[5]
+shane
+&32_CITY_SYLL[5]
+cormick
+&33_CITY_SYLL[5]
+van
+&34_CITY_SYLL[5]
+hard
+&35_CITY_SYLL[5]
+hack
+&36_CITY_SYLL[5]
+moylan
+&37_CITY_SYLL[5]
+ford
+&38_CITY_SYLL[5]
+hill
+&39_CITY_SYLL[5]
+shunnock
+&3A_CITY_SYLL[5]
+mahon
+&3B_CITY_SYLL[5]
+dwan
+&3C_CITY_SYLL[5]
+garvan
+&3D_CITY_SYLL[5]
+o
+&3E_CITY_SYLL[5]
+dine
+&3F_CITY_SYLL[5]
+garry
+&40_CITY_SYLL[5]
+kiddy
+&41_CITY_SYLL[5]
+mire
+&42_CITY_SYLL[5]
+brook
+&43_CITY_SYLL[5]
+andreen
+&44_CITY_SYLL[5]
+sey
+&45_CITY_SYLL[5]
+mount
+&46_CITY_SYLL[5]
+cullen
+&48_CITY_SYLL[5]
+murray
+&49_CITY_SYLL[5]
+een
+&4A_CITY_SYLL[5]
+griffin
+&4B_CITY_SYLL[5]
+michael
+&4C_CITY_SYLL[5]
+tera
+&4D_CITY_SYLL[5]
+way
+&4E_CITY_SYLL[5]
+lickey
+&4F_CITY_SYLL[5]
+mark
+&50_CITY_SYLL[5]
+try
+&51_CITY_SYLL[5]
+ka
+&52_CITY_SYLL[5]
+deen
+&53_CITY_SYLL[5]
+groom
+&54_CITY_SYLL[5]
+duff
+&55_CITY_SYLL[5]
+bunion
+&56_CITY_SYLL[5]
+kerry
+&57_CITY_SYLL[5]
+hahill
+&58_CITY_SYLL[5]
+quin
+&59_CITY_SYLL[5]
+rane
+&5A_CITY_SYLL[5]
+sheedy
+&5B_CITY_SYLL[5]
+ratty
+&5C_CITY_SYLL[5]
+lea
+&5D_CITY_SYLL[5]
+lee
+&5E_CITY_SYLL[5]
+a
+&5F_CITY_SYLL[5]
+mona
+&60_CITY_SYLL[5]
+keedy
+&61_CITY_SYLL[5]
+na
+#
+# Max: 200 (hex)
+#
 # Town name prefixes.
 # There can be up to 256 of these.
 # They must be specified in hexadecimal
@@ -1376,6 +2817,8 @@ tye
 # if the prefix is to be a separate word
 # (This is advised as the town name first
 # syllables all begin with capital letters)
+#
+# Region 0: Albion
 #
 &1_CITY_PREFIX
 Much 
@@ -1500,12 +2943,133 @@ Corn
 &3D_CITY_PREFIX
 Worth 
 #
+# Max: 50 (hex)
+#
+# Region 1: Northumberland
+#
+&1_CITY_PREFIX[1]
+Cold 
+&2_CITY_PREFIX[1]
+Little 
+&3_CITY_PREFIX[1]
+Great 
+&4_CITY_PREFIX[1]
+Sheriff 
+&5_CITY_PREFIX[1]
+Place 
+&6_CITY_PREFIX[1]
+Old 
+&7_CITY_PREFIX[1]
+Low  
+&8_CITY_PREFIX[1]
+Archdeacon 
+&9_CITY_PREFIX[1]
+Bishop 
+&A_CITY_PREFIX[1]
+Black 
+&B_CITY_PREFIX[1]
+Long 
+&C_CITY_PREFIX[1]
+Kirk 
+&D_CITY_PREFIX[1]
+New 
+#
+# Max: 50 (hex)
+#
+# Region 2: Caledonia
+#
+&1_CITY_PREFIX[2]
+Loch 
+&2_CITY_PREFIX[2]
+Glen 
+&3_CITY_PREFIX[2]
+Fort 
+&4_CITY_PREFIX[2]
+Castle 
+&5_CITY_PREFIX[2]
+Blair 
+&6_CITY_PREFIX[2]
+Ben 
+&7_CITY_PREFIX[2]
+Baile  
+&8_CITY_PREFIX[2]
+North 
+&9_CITY_PREFIX[2]
+Old 
+&A_CITY_PREFIX[2]
+Auld 
+&B_CITY_PREFIX[2]
+Long 
+&C_CITY_PREFIX[2]
+Kirk 
+&D_CITY_PREFIX[2]
+Muir of 
+&E_CITY_PREFIX[2]
+Nether 
+#
+# Max: 50 (hex)
+#
+# Region 3: Cambria
+#
+&1_CITY_PREFIX[3]
+Cefn 
+&2_CITY_PREFIX[3]
+Castell 
+&3_CITY_PREFIX[3]
+Ty 
+&4_CITY_PREFIX[3]
+Cwm 
+&5_CITY_PREFIX[3]
+Ystrad 
+&6_CITY_PREFIX[3]
+Capel 
+&7_CITY_PREFIX[3]
+Cross 
+#
+# Max: 50 (hex)
+#
+# Region 4: Kernow
+#
+&1_CITY_PREFIX[4]
+West 
+&2_CITY_PREFIX[4]
+Port 
+&3_CITY_PREFIX[4]
+St. Just in 
+&4_CITY_PREFIX[4]
+Porth 
+&5_CITY_PREFIX[4]
+Little 
+&6_CITY_PREFIX[4]
+Chapel 
+#
+# Max: 50 (hex)
+#
+# Region 5: Erin
+#
+&1_CITY_PREFIX[5]
+West 
+&2_CITY_PREFIX[5]
+Port 
+&3_CITY_PREFIX[5]
+Mount 
+&4_CITY_PREFIX[5]
+Castle 
+&5_CITY_PREFIX[5]
+Little 
+&6_CITY_PREFIX[5]
+Old 
+#
+# Max: 50 (hex)
+#
 # Town name suffixes.
 # There can be up to 256 of these.
 # They must be specified in hexadecimal
 # (i.e. with a max. in hex of 50)
 # Do not forget to add spaces before this
 # if the suffix is to be a separate word
+#
+# Region 0: Albion 
 #
 &1_CITY_SUFFIX
 wood
@@ -1641,7 +3205,125 @@ heath
  Mortimer
 &41_CITY_SUFFIX
  Hundred
+&42_CITY_SUFFIX
+ Lock
+&43_CITY_SUFFIX
+er's Lock
 # 
+# Max: 50 (hex)
+#
+# Region 1: Northumberland
+#
+&1_CITY_SUFFIX[1]
+ Agnes
+&2_CITY_SUFFIX[1]
+ Percy
+&3_CITY_SUFFIX[1]
+ Dale
+&4_CITY_SUFFIX[1]
+-le-Street
+&5_CITY_SUFFIX[1]
+ Hang
+&6_CITY_SUFFIX[1]
+ Moor
+&7_CITY_SUFFIX[1]
+ St. John
+&8_CITY_SUFFIX[1]
+ Dyke
+&9_CITY_SUFFIX[1]
+-on-the-Moor
+&A_CITY_SUFFIX[1]
+ All Saints
+&B_CITY_SUFFIX[1]
+ cum Fenby
+&C_CITY_SUFFIX[1]
+ le Clay
+&D_CITY_SUFFIX[1]
+ Fen
+# 
+# Max: 50 (hex)
+#
+# Region 2: Caledonia
+#
+&1_CITY_SUFFIX[2]
+ Agnes
+&2_CITY_SUFFIX[2]
+ Muir
+&3_CITY_SUFFIX[2]
+ Mor
+&4_CITY_SUFFIX[2]
+ Colpy
+&5_CITY_SUFFIX[2]
+green
+&6_CITY_SUFFIX[2]
+ Bridge
+# 
+# Max: 50 (hex)
+#
+# Region 3: Cambria
+#
+&1_CITY_SUFFIX[3]
+'r Cwm
+&2_CITY_SUFFIX[3]
+'r-Fan
+&3_CITY_SUFFIX[3]
+-ddu
+&4_CITY_SUFFIX[3]
+ Mawr
+&5_CITY_SUFFIX[3]
+-y-Coch
+&6_CITY_SUFFIX[3]
+-y-garth
+&7_CITY_SUFFIX[3]
+-fawr
+&8_CITY_SUFFIX[3]
+ Wells
+&9_CITY_SUFFIX[3]
+ Coch
+&A_CITY_SUFFIX[3]
+ Emlyn
+# 
+# Max: 50 (hex)
+#
+# Region 4: Kernow
+#
+&1_CITY_SUFFIX[4]
+ Mount
+&2_CITY_SUFFIX[4]
+ Bottom
+&3_CITY_SUFFIX[4]
+ St. Just
+&4_CITY_SUFFIX[4]
+ Bridge
+&5_CITY_SUFFIX[4]
+ Moor
+&6_CITY_SUFFIX[4]
+ Major
+&7_CITY_SUFFIX[4]
+ St. Day
+&8_CITY_SUFFIX[4]
+ St. Dennis
+&9_CITY_SUFFIX[4]
+ Downs
+&A_CITY_SUFFIX[4]
+ South
+&B_CITY_SUFFIX[4]
+ Minor
+&C_CITY_SUFFIX[4]
+ Green
+# 
+# Max: 50 (hex)
+#
+# Region 5: Erin
+#
+&1_CITY_SUFFIX[5]
+ West
+&2_CITY_SUFFIX[5]
+ Bridge
+# 
+# Max: 50 (hex)
+#
+#
 # Other strings
 # 
 %d buildings\n
@@ -1649,7 +3331,7 @@ heath
 %d convois
 %d convoys
 %d Einzelfahrzeuge im Depot
-%d vehicles are stored here.
+%d vehicles stored here.
 %i km/h (max. %ikm/h)
 %i km/h (max. %ikm/h)
 %s building %s %s
@@ -1829,7 +3511,7 @@ Available
 Bahndepot
 Rail depot
 Bankrott:\n\nDu bist bankrott.\n
-Bankrupt:\n\nYou are insolvent.\n
+This company has now been fully liquidated.\n
 battery
 Battery
 Baum
@@ -2008,6 +3690,18 @@ cl_btn_sort_name
 Name
 cl_btn_sort_type
 Type
+cl_btn_sort_loading_lvl
+Loading level
+cl_btn_sort_max_speed
+Max. speed
+cl_btn_sort_value
+Value
+cl_btn_sort_age
+Average age
+cl_btn_sort_schedule
+Next stop
+cl_btn_sort_power
+Power
 cl_title
 Vehicle List
 cl_txt_filter
@@ -2080,6 +3774,8 @@ Die Bruecke ist nicht frei!\n
 The bridge is not free
 Diese Zusammenstellung kann nicht fahren!\n
 Cannot start: either the vehicles are not properly assembled, or the convoy has not enough power.
+Cannot start: no cab at the front of the convoy.
+Cannot start: no cab at the front of the convoy.
 diesel
 diesel
 Direkt erreichbare Haltestellen
@@ -3046,6 +4742,8 @@ all convoi tooltips
 Full convoy tooltips
 convoi error tooltips
 Only error convoy tooltips
+own convoi tooltips
+Current player tooltips
 no buildings hidden
 Do not hide any buildings
 hide city building
@@ -3222,8 +4920,12 @@ Groundobj
 Ground object
 Movingobj
 Moving object
-On loan since %i month(s)
+You have been overdrawn\nfor %i months
 You have been overdrawn for %i months
+You have been overdrawn\nfor one month
+You have been overdrawn for one month.
+\n\nInterest on your debt is\naccumulating at %i %%
+\n\nInterest on your debt is accumulating at %i %%
 Loading. %s left!
 Loading: %s left
 Destroying map ...
@@ -3565,7 +5267,7 @@ Transfers
 with_wayobj
 with
 way_cannot_be_used_by_any_vehicle
-This way cannot be used by any vehicle!
+This way cannot be used by any vehicle.
 km/h
 km/h
 (speed_restricted_by_tunnel)
@@ -3573,9 +5275,11 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the asset)
+(The speed is limited by a way asset)
 (speed_restricted_by_city)
-(The speed is restricted by the city)
+(The speed is limited on account of being in a built-up area)
+(speed_restricted_by_degradation)
+(The speed is limited because this way is degraded)
 runway_36/18
 Runway 36/18
 runway_09/27
@@ -3733,19 +5437,19 @@ additional upgrades
 reassign_classes
 Reassign prices
 line_no_convoys
-This line has no convoys assigned
+This line has no convoys assigned to it
 line_loss_making
 This line made a loss last month
 line_nothing_moved
-This line did not move any good last month
+This line did not transport anything last month
 line_overcrowded
 This line is frequently overcrowded
 line_missing_scheduled_slots
-This line was missing scheduled slots last month
+This line missed scheduled slots last month
 line_has_obsolete_vehicles
-This line operates with obsolete vehicles
-line_has_obsolete_vehicles_with_upgrades
-This line has obsolete vehicles with upgrades
+This line has obsolete vehicles
+line_has_upgradeable_vehicles
+This line has vehicles to which upgrades are available
 staff_shortage
 Staff shortage
 reset_all_pass_classes
@@ -3806,12 +5510,12 @@ oneway
 One way
 twoway
 Two way (default)
-only loading convoi
-Overtake stationary only
+#only loading convoi
+#Overtake stationary only
 prohibited
 Overtaking prohibited
-inverted
-Opposite lane driving
+#inverted
+#Opposite lane driving
 has changed its colour scheme.
 has changed its colour scheme.
 Vehicle running costs per km
@@ -3906,6 +5610,10 @@ Within own network
 Within own network
 Show only connected to own transport network
 Show only connected to own transport network
+Show only connected to own passenger transportation network
+Show only connected to own passenger transportation network
+Show only cities within the active player's transportation network
+Show only cities within the current player's transportation network
 Fully stocked
 Fully stocked
 Power usage
@@ -3981,8 +5689,176 @@ Applied livery scheme: %s
 %i months
 %i months
 (mixed_load_prohibition)
-(Mixed load prohibition)
+(Cannot carry multiple types of goods simultaneously)
 Upgrade available
 Upgrade available
 Upgrade is not available yet
 Upgrade is not available yet
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
+No bridges over runways!
+Bridges cannnot be built over runways or taxiways.
+Selectable livery schemes
+Selectable livery schemes
+Starting acceleration:
+Starting acceleration:
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f - %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+(%.*ft laden)
+(%.*ft laden)
+(%.*f-%.*ft laden)
+(%.*f-%.*ft laden)
+overtaking
+Overtaking
+no power at all
+Entirely unpowered
+Show contour
+Show contour
+Show buildings
+Show buildings
+Color-coded terrain according to altitude.
+Color coded terrain according to altitude.
+Displays buildings in gray and stations in red and have priority over bridges and tunnels
+Displays buildings in grey and stations in red and have priority over bridges and tunnels
+map_btn_freight
+Freight
+Stop coverage
+Stop coverage
+Show the distance to the nearest station
+Show the distance to the nearest station
+Show convoys
+Show convoys
+map_btn_building_level
+Density
+cl_txt_mode
+Show:
+sort_pas_arrived
+Passengers arrived
+mouseover convoy name
+Mouse-over line name
+always show convoy name
+Always show line name
+no convoy nameplate
+Never show line name
+active player's line name
+Current player line name
+Productivity
+Productivity
+(Max. %d%%)
+(Max. %d%%)
+cl_btn_payload
+Payload
+cl_btn_formation
+Formation
+cl_btn_general
+Overview
+take_over
+Take over
+Takeover not permitted.
+Takeover not permitted.
+take_over_this_company
+Take over this company
+allow_takeover_of_your_company
+Allow takeover of this company
+allows_other_players_to_take_over_your_company
+Allow any other player to take over this company
+cancel_the_takeover_of_your_company
+Stops others from being able to take over this company unless it is insolvent
+available_company_takeovers:
+Companies available for takeover:
+is_available_for_take_over_by_another_company
+is now available for takeover.
+is_not_available_for_takeover_any_more
+is no longer available for takeover.
+has_taken_over
+has taken over
+in_administration_warning
+*** WARNING ***\n\nThis company is in administration. It can be taken over by another player at any time. It will be placed into liquidation if it has been in administration for more than 12 months.
+administration_duration
+This company has been in administration for
+in_liquidation_warning
+*** NOTICE ***\n\nThis company is in liquidation. It has permanently ceased trading and is controlled by the liquidators.
+liquidation_duration_remaining
+Its assets are available for other players to take over for another
+in_liquidation
+In liquidation
+in_administration
+In administration
+The maximum amount that can be borrowed without going bankrupt
+The maximum amount that can be borrowed without becoming insolvent
+other_player_in_administration
+is in administration and available for take-over.
+other_player_administration_duration
+It has been in administration for
+other_player_in_liquidation
+is in liquidation and is available for take-over without incurring liability for its debts.
+other_player_liquidation_duration
+It has been in liquidation for
+On loan since %i month(s)
+Overdrawn for the last %i month(s)
+filter_pas_line
+Show only passenger
+filter_mail_line
+Show only mail
+filter_freight_line
+Show only freight
+New shipping destination added to Factory %s
+%s now supplies its products to a new industry.
+Loading (%i->%i%%) Long Time
+Loading (%i->%i%%) (long wait)
+Vehicle %s wait loading too much!
+Vehicle %s has been loading for a long time.
+hlptxt_factory_connected
+Active
+symbol_help_txt_in_transit
+In transit
+symbol_help_txt_lead_time
+Lead time
+Suspension of new orders due to sufficient supply
+No shipments demanded: sufficient product en route and in stock
+Shipment has been suspended due to consumption demand
+No shipments demanded: sufficient product is in stock
+Shipment is suspended
+No shipments demanded
+do not change the mode for existing ways
+Keep mode for existing ways
+mouseover loading bar
+Mouse-over loading bar
+no convoy loading bar
+No loading bar
+active player's loading bar
+Current player loading bar
+always show loading bar
+Always show loading bar
+consumption %.1f%s/month
+%.1f%s/month
+consumption %u%s/month
+%u%s/month
+production %.1f%s/month
+%.1f%s/month
+production %u%s/month
+%u%s/month
+station_capacity_freight
+Freight capacity
+hd_wealth
+wealth
+hd_waiting
+waiting
+hd_transfers
+transfers
+hd_category
+category
+hd_transship
+transship
+City growth is restrained
+This city's growth is disabled.
+missing_connection
+Missing connexions to other industries
+fl_btn_storage
+Storage
+fl_btn_operation
+Operation rate

@@ -1,8 +1,7 @@
 /*
-  * @author: jamespetts, April 2011
-  * This file is part of the Simutrans project under the artistic licence.
-  * (see licence.txt)
-  */
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "livery_scheme.h"
 #include "loadsave.h"
@@ -56,7 +55,7 @@ void livery_scheme_t::rdwr(loadsave_t *file)
 
 	file->rdwr_short(count);
 
-	std::string n; 
+	std::string n;
 	uint16 date;
 
 	for(int i = 0; i < count; i ++)
@@ -71,7 +70,7 @@ void livery_scheme_t::rdwr(loadsave_t *file)
 			n = '\0';
 			date = 0;
 		}
-		
+
 		file->rdwr_string(n);
 		file->rdwr_short(date);
 
@@ -81,6 +80,6 @@ void livery_scheme_t::rdwr(loadsave_t *file)
 			liv.name = n;
 			liv.intro_date = date;
 			liveries.append(liv);
-		}	
+		}
 	}
 }

@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 2013 The Simutrans Community
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "viewport.h"
@@ -316,6 +315,7 @@ void viewport_t::rotate90( sint16 y_size )
 
 
 viewport_t::viewport_t( karte_t *world, const koord ij_off , sint16 x_off , sint16 y_off )
+	: prepared_rect()
 {
 	this->world = world;
 	assert(world);

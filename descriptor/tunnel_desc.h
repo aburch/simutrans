@@ -1,21 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  node structure:
- *  0   Name
- *  1   Copyright
- *  2   Image-list Background
- *  3   Image-list Foreground
- *  4   cursor(image 0) and icon (image 1)
- *[ 5   Image-list Background - snow ] (if present)
- *[ 6   Image-list Foreground - snow ] (if present)
- *[ 7 (or 5 if no snow image) underground way ] (if present)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __TUNNEL_BESCH_H
-#define __TUNNEL_BESCH_H
+#ifndef DESCRIPTOR_TUNNEL_DESC_H
+#define DESCRIPTOR_TUNNEL_DESC_H
+
 
 #include "../display/simimg.h"
 #include "../simtypes.h"
@@ -25,7 +15,17 @@
 #include "image_array.h"
 #include "way_desc.h"
 
-
+/*
+ * node structure:
+ *  0   Name
+ *  1   Copyright
+ *  2   Image-list Background
+ *  3   Image-list Foreground
+ *  4   cursor(image 0) and icon (image 1)
+ *[ 5   Image-list Background - snow ] (if present)
+ *[ 6   Image-list Foreground - snow ] (if present)
+ *[ 7 (or 5 if no snow image) underground way ] (if present)
+ */
 class tunnel_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class tunnel_reader_t;
 	friend class tunnel_builder_t;	// to convert the old tunnels to new ones
@@ -51,23 +51,23 @@ private:
 
 public:
 
-	/* 
+	/*
 	* Nodes:
-	* Data (0), 
-	* way (1), 
+	* Data (0),
+	* way (1),
 	* back portal images (normal) (2),
-	* front portal images (normal) (3), 
-	* cursor images (4), 
+	* front portal images (normal) (3),
+	* cursor images (4),
 	* back portal images (snow) (5),
-	* front portal images (snow) (6), 
-	* back underground flat (7), 
+	* front portal images (snow) (6),
+	* back underground flat (7),
 	* back underground slope (8),
-	* back underground diagonal (9), 
-	* front underground flat (10), 
-	* front underground slope (11), 
-	* front underground diagonal (12). 
+	* back underground diagonal (9),
+	* front underground flat (10),
+	* front underground slope (11),
+	* front underground diagonal (12).
 	*/
-	
+
 	const image_t *get_background(slope_t::type slope, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_of_seasons == 1 ? 5 : 2;
@@ -152,7 +152,7 @@ private:
 
 		image_id slope_img = get_child<image_list_t>(n)->get_image_id(nr);
 
-		if (nr > 3 && slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count() <= 4) 
+		if (nr > 3 && slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count() <= 4)
 		{
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
@@ -160,7 +160,7 @@ private:
 		}
 		return slope_img;
 	}
-	
+
 public:
 
 	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(4); }
@@ -172,11 +172,11 @@ public:
 	inline bool get_has_way() const { return has_way == 1 || has_way == 3; }
 
 	inline bool has_tunnel_internal_images() const { return has_way == 2 || has_way == 3;  }
-	
+
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
-	 * information on bitwise operations: 
+	 * information on bitwise operations:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */

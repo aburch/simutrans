@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __simtunnel_h
-#define __simtunnel_h
+#ifndef BAUER_TUNNELBAUER_H
+#define BAUER_TUNNELBAUER_H
+
 
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
@@ -40,6 +39,8 @@ public:
 	static koord3d find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel=true, const char** msg=NULL);
 
 	static void register_desc(tunnel_desc_t *desc);
+
+	static bool successfully_loaded();
 
 	static const tunnel_desc_t *get_desc(const char *);
 

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -185,7 +190,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 				}
 				else {
 					// found valid format
-					if (pos >= max_params) 
+					if (pos >= max_params)
 						error.printf("Too many parameters or illegal position %d not in supported range 0..%d.", pos, max_params - 1);
 					typemask[pos] = mask;
 					found++;
@@ -261,7 +266,6 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 			               i+1, translated, master, master_tm[i], translated_tm[i], master_tm,translated_tm);
 			return false;
 		}
-		i++;
 	}
 	return true;
 }
@@ -288,7 +292,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 	if(  const char *c=strstr( fmt, "%1$" )  ) {
 		// but they are requested here ...
 		// our routine can only handle max. 9 parameters
-		char pos[6];
+		char pos[13];
 		static char format_string[256];
 		char *cfmt = format_string;
 		static char buffer[16000];	// the longest possible buffer ...

@@ -17,4 +17,4 @@ Mail vehicles can be travelling post offices: vehicles in which mail is sorted o
 </p>
 <p>
 <em>Tip</em>: If you <a href="replace.txt">replace</a> older convoys with newer, faster ones, before you fit the newer ones with catering facilities, make sure that the journey time has not dropped so much that the passengers only need a lower level of catering, or no catering at all.
-</p>
+</p> 

@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Convoi details window
- */
+#ifndef GUI_CONVOI_DETAIL_T_H
+#define GUI_CONVOI_DETAIL_T_H
+
 
 #include "gui_frame.h"
 #include "components/gui_container.h"
@@ -22,6 +20,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
+#include "components/gui_convoy_formation.h"
 
 class scr_coord;
 
@@ -60,39 +59,24 @@ public:
 	void draw(scr_coord offset);
 };
 
-// content of convoy formation @Ranran
-class gui_convoy_formaion_t : public gui_container_t
-{
-private:
-	convoihandle_t cnv;
-
-	enum { OK=0, out_of_producton=1, obsolete=2, STAT_COLORS  };
-	uint8 status_to_color[STAT_COLORS] { COL_DARK_GREEN, COL_ROYAL_BLUE, COL_DARK_BLUE };
-
-public:
-	gui_convoy_formaion_t(convoihandle_t cnv);
-
-	void set_cnv(convoihandle_t c) { cnv = c; }
-
-	void draw(scr_coord offset);
-};
-
-// content of payload info tab @Ranran
+// content of payload info tab
 class gui_convoy_payload_info_t : public gui_container_t
 {
 private:
 	convoihandle_t cnv;
+	bool show_detail = true;
 
 public:
 	gui_convoy_payload_info_t(convoihandle_t cnv);
 
 	void set_cnv(convoihandle_t c) { cnv = c; }
+	void set_show_detail(bool yesno) { show_detail = yesno; }
 
 	void draw(scr_coord offset);
 	void display_loading_bar(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, uint16 loading, uint16 capacity, uint16 overcrowd_capacity);
 };
 
-// content of maintenance info tab @Ranran
+// content of maintenance info tab
 class gui_convoy_maintenance_info_t : public gui_container_t
 {
 private:
@@ -119,22 +103,27 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	convoihandle_t cnv;
+
+	gui_vehicleinfo_t veh_info;
+	gui_convoy_formation_t formation;
+	gui_container_t cont_payload;
+	gui_convoy_payload_info_t payload_info;
+	gui_convoy_maintenance_info_t maintenance;
 
 	gui_scrollpane_t scrolly;
 	gui_scrollpane_t scrolly_formation;
 	gui_scrollpane_t scrolly_payload_info;
 	gui_scrollpane_t scrolly_maintenance;
-	gui_vehicleinfo_t veh_info;
-	gui_convoy_formaion_t formation;
-	gui_convoy_payload_info_t payload_info;
-	gui_convoy_maintenance_info_t maintenance;
+
 	gui_tab_panel_t tabs;
 
-	convoihandle_t cnv;
-	button_t	sale_button;
-	button_t	withdraw_button;
-	button_t	retire_button;
-	button_t	class_management_button;
+	button_t sale_button;
+	button_t withdraw_button;
+	button_t retire_button;
+	button_t class_management_button;
+
+	button_t display_detail_button;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);
@@ -145,20 +134,20 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "convoidetail.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "convoidetail.txt"; }
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -170,7 +159,9 @@ public:
 	// this constructor is only used during loading
 	convoi_detail_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_convoi_detail; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_detail; }
 };
+
+#endif

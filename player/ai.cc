@@ -1,11 +1,7 @@
 /*
- * Copyright (c) 2008 Markus Pristovsek
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-
-/* Helper routines for AIs */
 
 #include "finance.h"
 #include "ai.h"
@@ -43,8 +39,8 @@ bool ai_building_place_with_road_finder::is_road_at(sint16 x, sint16 y) const {
 }
 
 
-bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-	if(building_placefinder_t::is_area_ok(pos, b, h, cl)) {
+bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const {
+	if(building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)) {
 		// check to not built on a road
 		int i, j;
 		for(j=pos.x; j<pos.x+b; j++) {
@@ -120,7 +116,7 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const good
 	ware_t ware(wtyp);
 	ware.set_zielpos(dest_pos);
 	ware.menge = 1;
-	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++) 
+	for (uint16 hh = 0; hh<start_plan->get_haltlist_count(); hh++)
 	{
 		if(start_list[hh].halt->find_route(ware) < UINT32_MAX_VALUE)
 		{
@@ -388,7 +384,7 @@ bool ai_t::built_update_headquarter()
 				}
 				if(st) {
 					bool is_rotate=desc->get_all_layouts()>1;
-					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), desc->get_allowed_region_bits(), &is_rotate);
 				}
 			}
 			const char *err=NOTICE_UNSUITABLE_GROUND;
@@ -413,7 +409,7 @@ bool ai_t::built_update_headquarter()
 
 
 /**
- * Find the last water tile using line algorithm 
+ * Find the last water tile using line algorithm
  * start MUST be on land!
  **/
 koord ai_t::find_shore(koord start, koord end) const

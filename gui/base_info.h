@@ -1,5 +1,11 @@
-#ifndef base_info_h_
-#define base_info_h_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_BASE_INFO_H
+#define GUI_BASE_INFO_H
+
 
 #include "gui_frame.h"
 #include "components/gui_fixedwidth_textarea.h"

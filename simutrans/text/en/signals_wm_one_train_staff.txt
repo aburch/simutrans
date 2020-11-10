@@ -1,0 +1,33 @@
+<title>Signals working methods - One train staff</title>
+
+<h1>Signals working methods - One train staff</h1><br><br>
+
+<em>One train staff</em><br>
+One train staff is a system in which there is one staff/stick and only the traindriver which physicaly posseses the staff may enter the track ahead. It is very simple in operation: When a train arrives at the one train staff cabinet, the driver opens the cabinet and checks wether the staff is there. If it is there, the driver grabs the staff and drives his train past the one train cabinet. If the staff is not there, the train will have to wait for whichever other train is in possesion of the staff to return to the location, in order to return the staff. This system must therefore have only one entry and exit point for all trains, or else the staff would be left in the wrong place. <br><br>
+
+<em>How it works</em><br>
+* When a train approaches the one train staff cabinet, it will come to a halt to check whether the staff is available inside the cabinet<br>
+* If the staff is in the cabinet, the train will grab it and reserve the entire route ahead of the train <br>
+* The train will now continue beyond the cabinet at full speed<br>
+* No signals whatsoever is needed beyond the cabinet. The train has clearance to go all the way to its turn around point and back again.<br>
+* If the train have stops at stations along the way, the reservation will be done through the stations until the turn around point.<br>
+* The entire reservation will be kept until the train arrives back at the same one train staff cabinet <br>
+* If two cabinets are placed next to each other on separate tracks they behave like one. That means that the train can pick up the staff from one of the cabinets and return to the other cabinet.<br>
+* When the train returns the staff to the cabinet, it will revert to the drive by sight working method by default.<br>
+<br>
+
+<em>Best uses</em><br>
+* Completely isolated railways, where only one train operates the entire network. The One train staff cabinet should be placed directly when the train leaves the depot, but before the junction that connects the depot to the layout. The cabinet is only passed when the train is departing from, or arriving at the depot.<br>
+* Dead end track sections with only one entry/exit point and only one train operating the dead end at a time. Two cabinets can then be placed next to each other on a passing loop so a train can wait for the staff to be available without blocking the exit point for the train exiting the one train staff section.<br>
+<br>
+
+<em>Pittfalls</em><br>
+The One train staff cabinet is very powerfull with its ability to grant permission for a large piece of track, but it is also very dangerous if the cabinet is placed wrongly. A train in possesion of the staff will ignore all other kinds of signals along the way.<br>
+It is not possible to create a "staff and ticket" system, where you have two cabinets on each side of a stretch of railwayline. You need <a href="signals_wm_token_block.txt"><em>Token block</em></a> or some of the other working methods for that.<br>
+<br>
+
+<em>Types of signals</em><br>
+This working method only uses one type of signal:<br>
+* <it>One train staff cabinet</it><br>
+
+<br><br>

@@ -1,5 +1,11 @@
-#ifndef _simstring_h
-#define _simstring_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_SIMSTRING_H
+#define UTILS_SIMSTRING_H
+
 
 #include <stddef.h>
 #include <string>

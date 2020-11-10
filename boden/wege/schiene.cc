@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Rails for Simutrans
  *
  * Revised January 2001
@@ -65,7 +70,7 @@ void schiene_t::cleanup(player_t *)
 
 void schiene_t::rotate90()
 {
-	direction = ribi_t::rotate90(direction); 
+	direction = ribi_t::rotate90(direction);
 	weg_t::rotate90();
 }
 
@@ -75,11 +80,11 @@ void schiene_t::show_info()
 }
 
 
-void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
+void schiene_t::info(cbuffer_t & buf) const
 {
-	weg_t::info(buf, is_bridge);
+	weg_t::info(buf);
 
-	schiene_t* sch = (schiene_t*)this;
+	const schiene_t* sch = static_cast<const schiene_t *>(this);
 
 	uint8 textlines = 1; // to locate the clickable button
 	if (reserved.is_bound())
@@ -107,11 +112,11 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		case monorail_wt:
 		case maglev_wt:
 			rail_vehicle = (rail_vehicle_t*)reserved->front();
+		default: break;
 		}
 
 		if (rail_vehicle)
 		{
-
 			buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 			textlines += 1;
 			buf.append("\n   ");
@@ -178,7 +183,6 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 #ifdef DEBUG_PBS
 		reserved->show_info();
 #endif
-
 	}
 	else
 	{
@@ -208,13 +212,13 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, bool check_directions_at_junctions)
 {
-	if (can_reserve(c, dir, t, check_directions_at_junctions)) 
+	if (can_reserve(c, dir, t, check_directions_at_junctions))
 	{
 		ribi_t::ribi old_direction = direction;
 		if ((type == block || type == stale_block) && t == directional && reserved.is_bound())
 		{
-			// Do not actually reserve here, as the directional reservation 
-			// is already done, but show that this is reservable. 
+			// Do not actually reserve here, as the directional reservation
+			// is already done, but show that this is reservable.
 			return true;
 		}
 		reserved = c;
@@ -313,17 +317,17 @@ void schiene_t::rdwr(loadsave_t *file)
 		set_electrify(dummy);
 	}
 
-	if(file->is_saving()) 
+	if(file->is_saving())
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 		if(file->get_extended_version() >= 12)
 		{
-			s = replacement_way ? replacement_way->get_name() : ""; 
+			s = replacement_way ? replacement_way->get_name() : "";
 			file->rdwr_str(s);
 		}
 	}
-	else 
+	else
 	{
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
@@ -343,7 +347,7 @@ void schiene_t::rdwr(loadsave_t *file)
 		uint32 old_bridge_weight_limit = get_bridge_weight_limit();
 		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		if(desc==NULL) {
-			int old_max_speed=get_max_speed();
+			sint32 old_max_speed=get_max_speed();
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_schiene;
@@ -359,8 +363,24 @@ void schiene_t::rdwr(loadsave_t *file)
 			replacement_way = loaded_replacement_way;
 		}
 #endif
-		if(old_max_speed>0) {
-			set_max_speed(old_max_speed);
+		if (old_max_speed > 0)
+		{
+			if (is_degraded() && old_max_speed == desc->get_topspeed())
+			{
+				// The maximum speed has to be reduced on account of the degridation.
+				if (get_remaining_wear_capacity() > 0)
+				{
+					set_max_speed(old_max_speed / 2);
+				}
+				else
+				{
+					set_max_speed(0);
+				}
+			}
+			else
+			{
+				set_max_speed(old_max_speed);
+			}
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 		if(old_max_axle_load > 0)
@@ -382,7 +402,7 @@ void schiene_t::rdwr(loadsave_t *file)
 		uint16 reserved_index = reserved.get_id();
 		if (file->is_saving())
 		{
-			// Do not save corrupt reservations. We cannot check this on loading, as 
+			// Do not save corrupt reservations. We cannot check this on loading, as
 			// there the convoys have not been loaded yet.
 			if (reserved.is_bound() && !is_type_rail_type(reserved->front()->get_waytype()))
 			{
@@ -390,7 +410,7 @@ void schiene_t::rdwr(loadsave_t *file)
 				reserved_index = 0;
 			}
 		}
-		file->rdwr_short(reserved_index); 
+		file->rdwr_short(reserved_index);
 		reserved.set_id(reserved_index);
 
 		uint8 t = (uint8)type;
@@ -399,6 +419,6 @@ void schiene_t::rdwr(loadsave_t *file)
 
 		uint8 d = (uint8)direction;
 		file->rdwr_byte(d);
-		direction = (ribi_t::ribi)d; 
+		direction = (ribi_t::ribi)d;
 	}
 }

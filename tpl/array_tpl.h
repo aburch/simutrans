@@ -1,5 +1,11 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef TPL_ARRAY_TPL_H
 #define TPL_ARRAY_TPL_H
+
 
 #include <typeinfo>
 #include "../simdebug.h"

@@ -1,0 +1,34 @@
+<title>Signals working methods - Token block</title>
+
+<h1>Signals working methods - Token block</h1><br><br>
+
+<em>Token block</em><br>
+Token block is a much more sophisticated system than the <a href="signals_wm_one_train_staff.txt"><em>One train staff</em></a> working method and can be used to control singletracked lines. In the real world, the train driver is required to hold a physical token before entering the section. The tokens are released from the cabinet at the signal, and there can only ever be one token released from any of the signals controlling the same area at the time, even though all the other signals might be full of tokens as well. When the train reaches the following signal, the initial token will be reinserted into the system, and another train might pick a token up at another point on the network. Note that any signal will work as a token collector, you dont need to have a token block signal to collect the tokens again.<br>
+Token block signal reservations will be done up to the next signal, not the next stop as most other working methods. This means that the reservation will continue through any scheduled stops if there are no signals on them. This makes this working method a very attractive working method when having small single track stops along a single track route.<br>
+<br>
+
+<em>How it works</em><br>
+* When a train approaches a token block signal, it will come to a halt to check whether a token is available from the signals token machine<br>
+* If a token is released, the train will grab it and continue beyond the signal<br>
+* The train will now reserve the entire route ahead up to the next signal (any signal) or drive by sight sign and drive at full speed. It will reserve through any scheduled stops as well<br>
+* The reservation will only be released when the train has passed the next signal.<br>
+* When reaching the next signal (or drive by sight sign) on its route, it will return the token and another token can be released for another train.<br>
+* The token will be returned when passing a signal of any type of working method.<br>
+<br>
+
+<em>Types of signals</em><br>
+There are no variations of the types of token block signals:<br>
+* <it>Token block signal</it><br>
+<br>
+
+<em>Best uses</em><br>
+* Token block signals are especially usefull on single track lines with multiple single track stops along the line.<br>
+* They are also usefull for networks with multiple exit and entry points and stops along the way.<br>
+* On lines with passing loops, make the passing loop twice the size of the largest train. Put an <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> signal at the middle of the passing loop and the token block at the end of the passing loop. This ensures that the token is released for the train in oposite direction.<br>
+<br>
+
+<em>Pittfalls</em><br>
+* Token block working method might lower the capacity of the track drasticly. Any lines that crosses a section with token block will also be blocked until the token block reservation is eventually released. Therefore use only token block for as short stretches as possible, and consider to use, for instance, absolute block signals when the token block functionality is not strictly needed.<br>
+* If token block signals are used to depart trains from the station, the same issue applies here: The junction tiles connecting the platforms to the line will be held in a token block reservation until the train has reached another signal. But those tiles might be needed for other trains operating on different lines etc. Consider to use a passing loop where trains get released from the station in absolute block and with the token block signal at the end of the passing loop, alternatively a double block signal at the platform ends and the token block signal at the beginning of the line.<br>
+<br>
+It is not possible to create bidirectional signals using token block signals, and directional reservations made by other signals will be terminated at the token block signal.<br><br>

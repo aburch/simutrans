@@ -1,5 +1,11 @@
-#ifndef _NETWORK_CMD_H_
-#define _NETWORK_CMD_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_CMD_H
+#define NETWORK_NETWORK_CMD_H
+
 
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"

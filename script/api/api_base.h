@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 // This file should not be compiled. It wont compile either.
 
 /** @file api_base.h documents base classes that are defined elsewhere. */

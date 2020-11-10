@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hj. Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "welt.h"
@@ -74,7 +72,10 @@ static const char *version_ex[] =
 	".11",
 	".12",
 	".13",
-	".14"
+	".14",
+	".15",
+	".16",
+	".17"
 };
 
 static const char *revision_ex[] =
@@ -106,7 +107,10 @@ static const char *revision_ex[] =
 	"24",
 	"25",
 	"26",
-	"27"
+	"27",
+	"28",
+	"29",
+	"30"
 };
 
 // just free memory
@@ -215,6 +219,10 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 
+#ifdef MULTI_THREAD
+	world()->await_private_car_threads();
+#endif
+
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_threshold_percentage", sets->get_city_threshold_percentage(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -224,6 +232,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	INIT_NUM( "max_route_tiles_to_process_in_a_step", sets->get_max_route_tiles_to_process_in_a_step(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
@@ -235,6 +244,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("max_diversion_tiles", sets->get_max_diversion_tiles(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("way_degradation_fraction", sets->get_way_degradation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("sighting_distance_meters", sets->get_sighting_distance_meters(), 0, 7500, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("tilting_min_radius_effect", sets->get_tilting_min_radius_effect(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("assumed_curve_radius_45_degrees", sets->get_assumed_curve_radius_45_degrees(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_speed_drive_by_sight_kmh", sets->get_max_speed_drive_by_sight_kmh(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("time_interval_seconds_to_clear", sets->get_time_interval_seconds_to_clear(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
@@ -242,7 +252,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("minimum_staffing_percentage_consumer_industry", sets->get_minimum_staffing_percentage_consumer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("minimum_staffing_percentage_full_production_producer_industry", sets->get_minimum_staffing_percentage_full_production_producer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
-	
+
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), gui_numberinput_t::PLAIN, 1000, 1, false);
 	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
@@ -258,6 +268,10 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("forge_cost_tram", sets->get_forge_cost_tram(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_narrowgauge", sets->get_forge_cost_narrowgauge(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_air", sets->get_forge_cost_air(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+
+	SEPERATOR;
+	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage);
+	INIT_NUM("auto_connect_industries_and_attractions_by_road", sets->auto_connect_industries_and_attractions_by_road, 0, 65535, gui_numberinput_t::PLAIN, false);
 
 	SEPERATOR;
 	INIT_NUM("parallel_ways_forge_cost_percentage_road", sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, gui_numberinput_t::PLAIN, false);
@@ -300,12 +314,20 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_default_increase_maintenance_after_years(air_wt), 0, 1000, 1), 0, row);
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "default_increase_maintenance_after_years_air"), 1, row);
 		INIT_TABLE_END(tbl);
-	}	
+	}
 
 	SEPERATOR;
 
 	INIT_NUM("path_explorer_time_midpoint", sets->get_path_explorer_time_midpoint(), 1, 2048, gui_numberinput_t::PLAIN, false);
-	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data()); 
+	INIT_BOOL("save_path_explorer_data", sets->get_save_path_explorer_data());
+
+	SEPERATOR;
+
+	INIT_BOOL("show_future_vehicle_information", sets->get_show_future_vehicle_info());
+
+	SEPERATOR;
+
+	INIT_NUM("industry_density_proportion_override", sets->get_industry_density_proportion_override(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
 
 	clear_dirty();
 	height = ypos;
@@ -315,6 +337,9 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 void settings_extended_general_stats_t::read(settings_t *sets)
 {
+#ifdef MULTI_THREAD
+	world()->await_private_car_threads();
+#endif
 	READ_INIT;
 
 	READ_NUM( sets->set_tpo_min_minutes );
@@ -329,6 +354,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step );
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -341,6 +367,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->way_degradation_fraction );
 	READ_NUM_VALUE( sets->sighting_distance_meters );
 	sets->sighting_distance_tiles = sets->sighting_distance_meters / sets->meters_per_tile;
+	READ_NUM_VALUE( sets->tilting_min_radius_effect );
 	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
 	READ_NUM_VALUE( sets->max_speed_drive_by_sight_kmh );
 	sets->max_speed_drive_by_sight = kmh_to_speed(sets->max_speed_drive_by_sight_kmh);
@@ -349,7 +376,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->town_road_speed_limit );
 	READ_NUM_VALUE(sets->minimum_staffing_percentage_consumer_industry);
 	READ_NUM_VALUE(sets->minimum_staffing_percentage_full_production_producer_industry);
-	
+
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
 	READ_NUM_VALUE(sets->jobs_per_level);
@@ -364,6 +391,9 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE(sets->forge_cost_tram);
 	READ_NUM_VALUE(sets->forge_cost_narrowgauge);
 	READ_NUM_VALUE(sets->forge_cost_air);
+
+	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage);
+	READ_NUM_VALUE(sets->auto_connect_industries_and_attractions_by_road);
 
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_road);
 	READ_NUM_VALUE(sets->parallel_ways_forge_cost_percentage_track);
@@ -394,11 +424,15 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
-	
-	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
-	READ_BOOL_VALUE(sets->save_path_explorer_data); 
 
-	path_explorer_t::set_absolute_limits_external(); 
+	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
+	READ_BOOL_VALUE(sets->save_path_explorer_data);
+
+	READ_BOOL_VALUE(sets->show_future_vehicle_info);
+
+	READ_NUM_VALUE(sets->industry_density_proportion_override);
+
+	path_explorer_t::set_absolute_limits_external();
 }
 
 
@@ -423,6 +457,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_commuting", sets->get_random_mode_commuting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_visiting", sets->get_random_mode_visiting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("tolerance_modifier_percentage", sets->get_tolerance_modifier_percentage(), 0, 8192, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 6, 4);
 		int row = 0;
@@ -432,12 +467,12 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(scr_coord(2, 3), "commuting"), 0, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_min_commuting_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_range_commuting_tolerance() / 10, 2, 9600, 1), 5, row);
-		row++; 
+		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_min_commuting_tolerance() / 10, 1, 5256000, 1), 4, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 3), sets->get_range_commuting_tolerance() / 10, 1, 5256000, 1), 5, row);
+		row++;
 		set_cell_component(tbl, new_label(scr_coord(2, 0), "visiting"), 0, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_min_visiting_tolerance() / 10, 2, 9600, 1), 4, row);
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_range_visiting_tolerance() / 10, 2, 9600, 1), 5, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_min_visiting_tolerance() / 10, 1, 5256000, 1), 4, row);
+		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_range_visiting_tolerance() / 10, 1, 5256000, 1), 5, row);
 		INIT_TABLE_END(tbl);
 	}
 	SEPERATOR;
@@ -520,8 +555,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
-	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
-	
+
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -531,6 +565,8 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 void settings_extended_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
+	(void)booliter;
+
 	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
 	READ_NUM_VALUE( sets->mail_packets_per_month_hundredths );
 	READ_NUM_VALUE( sets->passenger_routing_packet_size );
@@ -549,6 +585,7 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->min_wait_airport );
 	READ_NUM_VALUE( sets->random_mode_commuting );
 	READ_NUM_VALUE( sets->random_mode_visiting );
+	READ_NUM_VALUE( sets->tolerance_modifier_percentage );
 
 	READ_NUM_VALUE_TENTHS( (sets->min_commuting_tolerance) );
 	READ_NUM_VALUE_TENTHS( sets->range_commuting_tolerance);
@@ -583,7 +620,6 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
 	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
-	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
@@ -594,7 +630,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, valu
 {
 	assert( comp==&savegame || comp==&savegame_ex || comp ==&savegame_ex_rev); (void)comp;
 
-	if(  v.i==-1  ) 
+	if(  v.i==-1  )
 	{
 		if(comp==&savegame)
 		{
@@ -614,7 +650,7 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, valu
 
 /* Nearly automatic lists with controls:
  * BEWARE: The init exit pair MUST match in the same order or else!!!
- */ 
+ */
 void settings_general_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
@@ -668,7 +704,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	// comboboxes for Extended savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
+	for(  uint32 i=0;  i<lengthof(version_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -678,7 +714,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, SYSCOL_TEXT ) );
 		}
-		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  ) 
+		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  )
 		{
 			savegame_ex.set_selection( i );
 		}
@@ -695,7 +731,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 
 	savegame_ex_rev.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex_rev.set_size( scr_size(70,D_BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(revision_ex);  i++  ) 
+	for(  uint32 i=0;  i<lengthof(revision_ex);  i++  )
 	{
 		if(i == 0)
 		{
@@ -705,7 +741,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i], SYSCOL_TEXT ) );
 		}
-		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  ) 
+		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  )
 		{
 			savegame_ex_rev.set_selection( i );
 		}
@@ -763,12 +799,12 @@ void settings_general_stats_t::read(settings_t* const sets)
 	sets->calc_job_replenishment_ticks();
 
 	const int selected_ex = savegame_ex.get_selection();
-	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
+	if (selected_ex >= 0 &&  selected_ex < (sint32)lengthof(version_ex)) {
 		env_t::savegame_ex_version_str = version_ex[ selected_ex ];
 	}
 
 	const int selected_ex_rev = savegame_ex_rev.get_selection();
-	if (0 <= selected_ex  &&  selected_ex < lengthof(revision_ex)) {
+	if (selected_ex_rev >= 0 &&  selected_ex_rev < (sint32)lengthof(revision_ex)) {
 		env_t::savegame_ex_revision_str = revision_ex[ selected_ex_rev ];
 	}
 }
@@ -860,7 +896,7 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 void settings_routing_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
-	const uint32 old_route_steps = sets->max_route_steps;
+	const sint32 old_route_steps = sets->max_route_steps;
 	// routing of goods
 	READ_BOOL_VALUE( sets->separate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );
@@ -914,7 +950,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "min_factory_spacing", sets->get_min_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_factory_spacing_percent", sets->get_max_factory_spacing_percent(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_factory_spacing", sets->get_max_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_factory_spacing", sets->get_max_factory_spacing(), 1, 65535, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 2000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_underground_transformers", sets->get_allow_underground_transformers() );
 	INIT_NUM( "way_height_clearance", sets->get_way_height_clearance(), 1, 2, gui_numberinput_t::AUTOLINEAR, true );
@@ -1074,17 +1110,17 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_INIT
 	INIT_NUM_NEW( "height_map_conversion_version", env_t::pak_height_conversion_factor, 1, 2, 0, false );
 	SEPERATOR
-	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
-	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
+		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 		if(sets->get_climate_borders()[i+1]>arctic) {
 			arctic = sets->get_climate_borders()[i+1];
 		}

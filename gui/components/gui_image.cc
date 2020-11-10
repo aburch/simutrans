@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "gui_image.h"
 #include "../gui_frame.h"
 
@@ -17,7 +22,7 @@ void gui_image_t::set_size( scr_size size_par )
 	if( id  !=  IMG_EMPTY ) {
 
 		scr_coord_val x,y,w,h;
-		display_get_base_image_offset( id, &x, &y, &w, &h );
+		display_get_base_image_offset( id, x, y, w, h );
 
 		if( remove_enabled ) {
 			remove_offset = scr_coord(-x,-y);
@@ -54,7 +59,7 @@ void gui_image_t::draw( scr_coord offset ) {
 
 	if(  id!=IMG_EMPTY  ) {
 		scr_coord_val x,y,w,h;
-		display_get_base_image_offset( id, &x, &y, &w, &h );
+		display_get_base_image_offset( id, x, y, w, h );
 
 		switch (alignment) {
 

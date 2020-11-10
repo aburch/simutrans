@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "label_info.h"
@@ -69,8 +67,8 @@ bool label_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if(comp == &input  &&  welt->get_active_player()==label->get_owner()) {
 		// check owner to change text
-		grund_t *gd = welt->lookup(label->get_pos());
-		if(gd && ((gd->get_text() == NULL && edit_name) || strcmp(gd->get_text(), edit_name)))
+		const grund_t *ground = welt->lookup(label->get_pos());
+		if(ground && ((ground->get_text() == NULL && edit_name[0] != '\0') || strcmp(ground->get_text(), edit_name) != 0))
 		{
 			// text changed => call tool
 			cbuffer_t buf;

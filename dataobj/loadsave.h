@@ -1,12 +1,11 @@
 /*
-* Copyright (c) 1997 - 2001 Hansjörg Malthaner
-*
-* This file is part of the Simutrans project under the artistic licence.
-* (see licence.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
-#ifndef loadsave_h
-#define loadsave_h
+#ifndef DATAOBJ_LOADSAVE_H
+#define DATAOBJ_LOADSAVE_H
+
 
 #include <stdio.h>
 #include <string>
@@ -80,7 +79,7 @@ private:
 
 public:
 	struct combined_version { uint32 version; uint32 extended_version; uint32 extended_revision; };
-	
+
 	static mode_t save_mode;	// default to use for saving
 	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
 	static combined_version int_version(const char *version_text, int *mode, char *pak);

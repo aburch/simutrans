@@ -1,5 +1,11 @@
-#ifndef obj_wolke_t
-#define obj_wolke_t
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef OBJ_WOLKE_H
+#define OBJ_WOLKE_H
+
 
 #include "../descriptor/skin_desc.h"
 #include "../ifc/sync_steppable.h"

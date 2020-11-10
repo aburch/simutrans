@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "api.h"
 
 /** @file api_line.cc exports line related functions. */
@@ -166,8 +171,7 @@ void export_line(HSQUIRRELVM vm)
 	 * Get monthly statistics of income/loss due to way tolls.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	// LINE_WAYTOLL not in Extended. Possibly unsafe to just comment this out - ACarlotti
-	//register_method_fv(vm, &get_line_stat, "get_way_tolls",         freevariable<sint32>(LINE_WAYTOLL), true );
+	register_method_fv(vm, &get_line_stat, "get_way_tolls",         freevariable<sint32>(LINE_WAYTOLL), true );
 	/**
 	 * Exports list of convoys belonging to this line.
 	 * @typemask convoy_list_x()

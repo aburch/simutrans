@@ -1,5 +1,11 @@
-#ifndef _NETWORK_CMD_INGAME_H_
-#define _NETWORK_CMD_INGAME_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_CMD_INGAME_H
+#define NETWORK_NETWORK_CMD_INGAME_H
+
 
 #include "network_cmd.h"
 #include "memory_rw.h"
@@ -240,7 +246,7 @@ private:
 	struct client_entry_t {
 		uint32 client_id;
 		path_explorer_t::limit_set_t limit_set;
-		
+
 		client_entry_t() : client_id(0xFFFFFFFF) { }
 		client_entry_t(uint32 _client_id, path_explorer_t::limit_set_t &_limit_set) : client_id(_client_id), limit_set(_limit_set) { }
 	};

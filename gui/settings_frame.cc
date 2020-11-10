@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
 #include "../simcity.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../gui/simwin.h"
 
 #include "../dataobj/environment.h"

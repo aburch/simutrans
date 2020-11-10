@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -43,7 +43,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 }
 
 
-int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc)
+int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -56,12 +56,13 @@ int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset
 	new_curve.type = type;
 	new_curve.precision = precision;
 	new_curve.convert = proc;
+	new_curve.marker_type = marker_type;
 	curves.append(new_curve);
 	return curves.get_count();
 }
 
 
-uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc)
+uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	line_t new_line;
 	new_line.color = color;
@@ -71,6 +72,7 @@ uint32 gui_chart_t::add_line(int color, const sint64 *value, int times, bool sho
 	new_line.show_value = show_value;
 	new_line.precision = precision;
 	new_line.convert = proc;
+	new_line.marker_type = marker_type;
 	lines.append(new_line);
 	return lines.get_count();
 }
@@ -113,7 +115,7 @@ void gui_chart_t::draw(scr_coord offset)
 	offset += pos;
 
 	sint64 last_year=0, tmp=0;
-	char cmin[128] = "0", cmax[128] = "0", digit[8];
+	char cmin[128] = "0", cmax[128] = "0", digit[11];
 
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;
@@ -188,6 +190,7 @@ void gui_chart_t::draw(scr_coord offset)
 	// draw chart's curves
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if (c.show) {
+			double display_tmp;
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
 				//tmp=c.values[year*c.size+c.offset];
@@ -195,16 +198,45 @@ void gui_chart_t::draw(scr_coord offset)
 				// Knightly : convert value where necessary
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
+					display_tmp = tmp;
 				}
 				else if(  c.type!=0  ) {
+					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
+				else {
+					display_tmp = tmp;
+				}
+
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, c.color, true);
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*i - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
+				switch (c.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x+4, y+4, c.color);
+						display_direct_line(x+4, y, x, y+4, c.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
+						}
+						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, c.color, true);
+						break;
+					case none:
+						// display nothing
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, c.color, true);
+						break;
+				}
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
-					number_to_string(tooltip, (double)tmp, c.precision);
+					number_to_string(tooltip, display_tmp, c.precision);
 					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
 				}
 
@@ -221,12 +253,12 @@ void gui_chart_t::draw(scr_coord offset)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
 						if(  env_t::left_to_right_graphs  ) {
-							number_to_string(cmin, (double)tmp, c.precision);
+							number_to_string(cmin, display_tmp, c.precision);
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string(cmin, (double)tmp, c.precision);
+							number_to_string(cmin, display_tmp, c.precision);
 							display_proportional_clip(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
@@ -243,7 +275,31 @@ void gui_chart_t::draw(scr_coord offset)
 			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
 			for(  int t=0;  t<line.times;  ++t  ) {
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
+				scr_coord_val x = tmpx + factor * (size.w / (x_elements - 1))*t - 2;
+				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (int)(tmp / scale) - 2);
+				switch (line.marker_type)
+				{
+					case cross:
+						display_direct_line(x, y, x + 4, y + 4, line.color);
+						display_direct_line(x + 4, y, x, y + 4, line.color);
+						break;
+					case diamond:
+						for (int j = 0; j < 5; j++) {
+							display_vline_wh_clip(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
+						}
+						break;
+					case round_box:
+						display_filled_roundbox_clip(x, y, 5, 5, line.color, true);
+						break;
+					case none:
+						// display nothing
+						// Note. not recommended this option to "lines". Applying this to line only shows the label
+						break;
+					case square:
+					default:
+						display_fillbox_wh_clip(x, y, 5, 5, line.color, true);
+						break;
+				}
 
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
@@ -275,7 +331,7 @@ void gui_chart_t::draw(scr_coord offset)
 void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
 {
 	sint64 tmp=0;
-	sint64 min = 0, max = 0;
+	double min = 0, max = 0;
 	int precision = 0;
 
 	// first, check curves
@@ -289,6 +345,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				}
 				else if(  c.type!=0  ) {
 					tmp /= 100;
+					precision = 0;
 				}
 				if (min > tmp) {
 					min = tmp ;
@@ -317,17 +374,22 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
-	number_to_string(cmin, (double)min, precision);
-	number_to_string(cmax, (double)max, precision);
+	// max happend due to rounding errors
+	if (precision == 0 && min == max && min != 0.0) {
+		max += 1;
+	}
+
+	number_to_string(cmin, min, precision);
+	number_to_string(cmax, max, precision);
 
 	// scale: factor to calculate money with, to get y-pos offset
-	*scale = (float)(max - min) / (size.h-2);
+	*scale = (double)(max - min) / (size.h-2);
 	if(*scale==0.0) {
 		*scale = 1.0;
 	}
 
 	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(size.h - abs((int)(min / *scale )));
+	*baseline = (sint64)(size.h - labs((sint64)(min / *scale)));
 }
 
 

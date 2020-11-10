@@ -1,0 +1,2 @@
+<title></title>
+<!-- key.txtは使用されず、ja.tabによって翻訳が生成される -->

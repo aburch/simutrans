@@ -1,5 +1,11 @@
-#ifndef convoihandle_t_h
-#define convoihandle_t_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef CONVOIHANDLE_T_H
+#define CONVOIHANDLE_T_H
+
 
 #include "tpl/quickstone_tpl.h"
 

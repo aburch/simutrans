@@ -1,5 +1,11 @@
-#ifndef _NETWORK_PACKET_H
-#define _NETWORK_PACKET_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_NETWORK_PACKET_H
+#define NETWORK_NETWORK_PACKET_H
+
 
 #include "../simtypes.h"
 #include "memory_rw.h"

@@ -1,12 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *  Copyright 2013 James Petts, Nathanael Nerode (neroden)
- *
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __WARE_BESCH_H
-#define __WARE_BESCH_H
+#ifndef DESCRIPTOR_GOODS_DESC_H
+#define DESCRIPTOR_GOODS_DESC_H
+
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"
@@ -85,7 +84,7 @@ class goods_desc_t : public obj_named_desc_t {
 	*/
 	uint16 weight_per_unit;
 
-	/* 
+	/*
 	* The number of different classes in which this comes
 	* This is used only for passengers and mail
 	* @author: jamespetts, May 2017
@@ -173,7 +172,7 @@ public:
 		chk->input(catg);
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
-		chk->input(number_of_classes); 
+		chk->input(number_of_classes);
 	}
 
 	/**
@@ -189,18 +188,18 @@ public:
 	* whether to discard goods that have been waiting too long.
 	*/
 	uint16 get_speed_bonus() const { return speed_bonus; }
-	
+
 	/*
 	* This gets the total fare taking into account fare stages, comfort and catering, as well as the class
-	* in which this unit travelled (if relevant for mail and passengers). 
+	* in which this unit travelled (if relevant for mail and passengers).
 	* The old speed bonus is no longer used here.
-	* 
-	* NOTE: The g_class variable is *not* the class of these passengers/mail, but rather the class of 
+	*
+	* NOTE: The g_class variable is *not* the class of these passengers/mail, but rather the class of
 	* accommodation in which it/they travelled on its/their journey.
 	*
 	* In units of 1/4096 of a simcent, for computational precision
 	*
-	* This code is adapted from earlier code written by Neroden, which used the old speed 
+	* This code is adapted from earlier code written by Neroden, which used the old speed
 	* bonus system.
 	*/
 	sint64 get_total_fare(uint32 distance_meters, uint32 starting_distance = 0u, uint8 comfort = 0u, uint8 catering_level = 0u, uint8 g_class = 0u, sint64 journey_tenths = 0u) const;

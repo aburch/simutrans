@@ -1,15 +1,11 @@
 /*
- * Header for system independent event handling routines
- *
- * Hj. Malthaner
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
- */
+#ifndef SIMEVENT_H
+#define SIMEVENT_H
 
-#ifndef simevent_h
-#define simevent_h
 
 /* Messageverarbeitung */
 
@@ -207,7 +203,7 @@ int event_get_last_control_shift();
 unsigned int last_meta_event_get_class();
 
 /**
- *Get mouse pointer position.Implementation in simsys.cc
+ *Get mouse pointer position.Implementation in sys/simsys.cc
  */
 int get_mouse_x();
 int get_mouse_y();

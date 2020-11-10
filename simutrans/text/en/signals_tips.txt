@@ -1,0 +1,65 @@
+<title>Signals Top Tips</title>
+
+<h1>Signals Top Tips</h1><br><br>
+
+<em>Working method upgrade paths</em><br>
+Some of the working methods have their single nieche of operation within the signalling systems for their given time, but most of the working methods can benefit from being upgraded to a more advanced working method. In general, stations and junction areas benefits from hard block type reservations whereas lines benefits from as small and fluid blocks as possible.<br>
+This guide briefly touches upon the upgrade paths of certain working methods. Note that it is a very rough generalization and, especially with the earlier woring methods, dependent on the exact layouts. Also, most working methods can in fact be used in most situations, although less ideal. These upgrade paths are merely a recommendation:<br>
+<br>
+
+Stations and sidings:<br>
+<a href="signals_wm_time_interval.txt"><em>Time interval</em></a> -><br>
+<a href="signals_wm_time_interval_with_telegraph.txt"><em>Time interval with telegraph</em></a> -><br>
+<a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> -><br>
+<a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> -><br>
+<a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> -*<br>
+<br>
+
+Lines, double track:<br>
+<a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> -><br>
+<a href="signals_wm_time_interval.txt"><em>Time interval</em></a> -><br>
+<a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> -><br>
+<a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> -><br>
+<a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> -><br>
+<a href="signals_wm_moving_block.txt"><em>Moving block</em></a> -*<br>
+<br>
+
+Lines, single track:<br>
+<a href="signals_wm_time_interval_with_telegraph.txt"><em>Time interval with telegraph</em></a> -><br>
+<a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> -><br>
+<a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> -><br>
+<a href="signals_wm_moving_block.txt"><em>Moving block</em></a> -*<br>
+<br>
+
+Lines, single track (stops with no passing loops along the way):<br>
+<a href="signals_wm_time_interval_with_telegraph.txt"><em>Time interval with telegraph</em></a> -><br>
+<a href="signals_wm_token_block.txt"><em>Token block</em></a> -><br>
+<a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a> -><br>
+<a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> -><br>
+<a href="signals_wm_moving_block.txt"><em>Moving block</em></a> -*<br>
+<br>
+
+Dead ends (with or without stops along the way)<br>
+<a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> -><br>
+<a href="signals_wm_one_train_staff.txt"><em>One train staff</em></a> -*<br>
+<br>
+
+Single train layouts (complex or simple)<br>
+<a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a> -><br>
+<a href="signals_wm_one_train_staff.txt"><em>One train staff</em></a> -*<br>
+<br><br>
+
+<em>Easy signal spacing</em><br>
+To ensure a consistent spacing between signals, the <a href="signal_spacing.txt"><em>Signal spacing tool</em></a> should be considered. This is usefull for later era signalling systems, and especially usefull for moving block beacons where a to big gap between two signals will result in trains reverting to "drive by sight".<br>
+This tool is reached by holding down CTRL while clicking on the desired signal in the menu.<br>
+<br><br>
+
+<em>More efficient station throughoutput</em><br>
+For all stations with lines on both sides of the station, put "end of choose" signs on all outgoing lines as well as choose signals on all ingoing lines. This ensures that trains passing through the station (without stopping) can find a free path from the choose signal to the "end of choose" sign, thus not needing to wait for the default path to become clear.<br>
+<br><br>
+
+<em>Advanced station sidings</em><br>
+For stations with complex siding layouts, put a choose signal at each siding and each platform as well as "end of choose" signs at the start of each outgoing lines.<br>
+This will make trains find their way to empty platforms from sidings and vice versa, as well as allowing trains to find routes through siding layouts to the outgoing lines.<br>
+
+<br><br><br><br>

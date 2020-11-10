@@ -1,9 +1,6 @@
-﻿/*
- * Dialog window for defining a schedule
- *
- * Hj. Malthaner
- *
- * Juli 2000
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simline.h"
@@ -98,7 +95,7 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower )
 {
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
-	if(halt.is_bound()) 
+	if(halt.is_bound())
 	{
 		char modified_name[320];
 		if(no_control_tower)
@@ -242,9 +239,9 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		offset.y += D_V_SPACE;
 		koord last_stop_pos = schedule->entries[0].pos.get_2d();
 		double distance;
-		FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries) 
+		FOR(minivec_tpl<schedule_entry_t>, const& e, schedule->entries)
 		{
-			if (sel == 0) 
+			if (sel == 0)
 			{
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
 				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
@@ -254,10 +251,10 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 			{
 				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 				buf.printf(" %.1f%s", distance, "km");
-				
+
 				PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 				sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-				if (width < w) 
+				if (width < w)
 				{
 					width = w;
 				}
@@ -277,11 +274,11 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 				halthandle_t halt = welt->lookup(e.pos)->get_halt();
 				no_control_tower = halt.is_bound() && halt->has_no_control_tower();
 			}
-			
-			schedule_gui_t::gimme_stop_name(buf, player, e, no_control_tower);	
+
+			schedule_gui_t::gimme_stop_name(buf, player, e, no_control_tower);
 		}
 
-		if (sel == 0) 
+		if (sel == 0)
 		{
 			// highlight current entry (width is just wide enough, scrolly will do clipping)
 			display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
@@ -290,7 +287,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		buf.printf(" %.1f%s", distance, "km");
 		PLAYER_COLOR_VAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
-		if (width < w) 
+		if (width < w)
 		{
 			width = w;
 		}
@@ -382,7 +379,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		ypos += D_BUTTON_HEIGHT+1;
 
 		line_selector.set_pos(scr_coord(D_MARGIN_LEFT, ypos));
-		line_selector.set_size(scr_size(BUTTON4_X-D_MARGIN_LEFT, D_BUTTON_HEIGHT));
+		line_selector.set_size(scr_size(BUTTON4_X - D_BUTTON_HEIGHT*2, D_BUTTON_HEIGHT));
 		line_selector.set_max_size(scr_size(BUTTON4_X-D_MARGIN_LEFT, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
 		line_selector.set_highlight_color(player->get_player_color1() + 1);
 		line_selector.clear_elements();
@@ -390,6 +387,27 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		init_line_selector();
 		line_selector.add_listener(this);
 		add_component(&line_selector);
+
+		filter_btn_all_pas.init(button_t::roundbox_state, NULL, scr_coord(line_selector.get_pos() + scr_coord(line_selector.get_size().w, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+		filter_btn_all_pas.set_image(skinverwaltung_t::passengers->get_image_id(0));
+		filter_btn_all_pas.set_tooltip("filter_pas_line");
+		filter_btn_all_pas.disable();
+		filter_btn_all_pas.add_listener(this);
+		add_component(&filter_btn_all_pas);
+
+		filter_btn_all_mails.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_pas.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+		filter_btn_all_mails.set_image(skinverwaltung_t::mail->get_image_id(0));
+		filter_btn_all_mails.set_tooltip("filter_mail_line");
+		filter_btn_all_mails.disable();
+		filter_btn_all_mails.add_listener(this);
+		add_component(&filter_btn_all_mails);
+
+		filter_btn_all_freights.init(button_t::roundbox_state, NULL, scr_coord(filter_btn_all_mails.get_pos() + scr_coord(D_BUTTON_HEIGHT, 0)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
+		filter_btn_all_freights.set_image(skinverwaltung_t::goods->get_image_id(0));
+		filter_btn_all_freights.set_tooltip("filter_freight_line");
+		filter_btn_all_freights.disable();
+		filter_btn_all_freights.add_listener(this);
+		add_component(&filter_btn_all_freights);
 
 		ypos += D_BUTTON_HEIGHT + D_V_SPACE;
 	}
@@ -495,7 +513,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_width_by_len(3);
 			numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
-			numimp_spacing_shift.set_increment_mode( 1 ); 
+			numimp_spacing_shift.set_increment_mode( 1 );
 			numimp_spacing_shift.add_listener(this);
 			add_component(&numimp_spacing_shift);
 		}
@@ -555,6 +573,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 
 	mode = adding;
 	update_selection();
+
+	ypos += D_SCROLLBAR_HEIGHT;
 
 	set_windowsize( scr_size(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+(schedule->get_count()>0 ? min(15,schedule->get_count()) : 15)*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
 	set_min_windowsize( scr_size(BUTTON4_X + 35, ypos+D_BUTTON_HEIGHT+3*(LINESPACE+1)+D_TITLEBAR_HEIGHT) );
@@ -626,11 +646,11 @@ void schedule_gui_t::update_selection()
 			}
 			else if(!schedule->get_spacing())
 			{
-				// Cannot have wait for time without some spacing. 
+				// Cannot have wait for time without some spacing.
 				schedule->set_spacing(1);
 				numimp_spacing.set_value(1);
 			}
-			
+
 			if(  schedule->entries[current_stop].minimum_loading>0 || schedule->entries[current_stop].wait_for_time ) {
 				bt_wait_prev.enable();
 				lb_wait.set_color( SYSCOL_TEXT );
@@ -817,7 +837,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if (comp == &numimp_spacing) {
 		schedule->set_spacing(p.i);
 		update_selection();
-	} 
+	}
 	else if(comp == &numimp_spacing_shift) {
 		if (!schedule->empty()) {
 			if ( schedule->is_same_spacing_shift() ) {
@@ -829,13 +849,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			}
 			update_selection();
 		}
-	} 
+	}
 	else if (comp == &bt_mirror) {
 		schedule->set_mirrored(bt_mirror.pressed);
-	} 
+	}
 	else if (comp == &bt_bidirectional) {
 		schedule->set_bidirectional(bt_bidirectional.pressed);
-	} 
+	}
 	else if (comp == &bt_same_spacing_shift) {
 		schedule->set_same_spacing_shift(bt_same_spacing_shift.pressed);
 		if ( schedule->is_same_spacing_shift() ) {
@@ -843,7 +863,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 				schedule->entries[i].spacing_shift = schedule->entries[schedule->get_current_stop()].spacing_shift;
 			}
 		}
-	} 
+	}
 	else if(comp == &bt_wait_for_time)
 	{
 		if(!schedule->empty())
@@ -866,6 +886,21 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			new_line = linehandle_t();
 			line_selector.set_selection( 0 );
 		}
+	}
+	else if (comp == &filter_btn_all_pas) {
+		line_type_flags ^= (1 << simline_t::all_pas);
+		filter_btn_all_pas.pressed = line_type_flags & (1 << simline_t::all_pas);
+		init_line_selector();
+	}
+	else if (comp == &filter_btn_all_mails) {
+		line_type_flags ^= (1 << simline_t::all_mail);
+		filter_btn_all_mails.pressed = line_type_flags & (1 << simline_t::all_mail);
+		init_line_selector();
+	}
+	else if (comp == &filter_btn_all_freights) {
+		line_type_flags ^= (1 << simline_t::all_freight);
+		filter_btn_all_freights.pressed = line_type_flags & (1 << simline_t::all_freight);
+		init_line_selector();
 	}
 	else if(comp == &bt_promote_to_line) {
 		// update line schedule via tool!
@@ -901,7 +936,7 @@ void schedule_gui_t::init_line_selector()
 	int selection = 0;
 	vector_tpl<linehandle_t> lines;
 
-	player->simlinemgmt.get_lines(schedule->get_type(), &lines);
+	player->simlinemgmt.get_lines(schedule->get_type(), &lines, line_type_flags, true);
 
 	// keep assignment with identical schedules
 	if(  new_line.is_bound()  &&  !schedule->matches( welt, new_line->get_schedule() )  ) {
@@ -943,6 +978,21 @@ void schedule_gui_t::init_line_selector()
 
 void schedule_gui_t::draw(scr_coord pos, scr_size size)
 {
+	if (cnv.is_bound()) {
+		if (cnv->get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS)) {
+			filter_btn_all_pas.enable();
+		}
+		if (cnv->get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL)) {
+			filter_btn_all_mails.enable();
+		}
+		for (uint8 catg_index = goods_manager_t::INDEX_NONE + 1; catg_index < goods_manager_t::get_max_catg_index(); catg_index++)
+		{
+			if (cnv->get_goods_catg_index().is_contained(catg_index)) {
+				filter_btn_all_freights.enable();
+				break;
+			}
+		}
+	}
 	if(  player->simlinemgmt.get_line_count()!=old_line_count  ||  last_schedule_count!=schedule->get_count()  ) {
 		// lines added or deleted
 		init_line_selector();
@@ -973,10 +1023,10 @@ void schedule_gui_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
-	size = get_windowsize()-scr_size(0,16+1);
+	size = get_windowsize()-scr_size(0, D_SCROLLBAR_HEIGHT+D_V_SPACE);
 	scrolly.set_size(size-scr_size(0,scrolly.get_pos().y));
 
-	line_selector.set_max_size(scr_size(BUTTON4_X-D_MARGIN_LEFT, size.h-line_selector.get_pos().y -16-1));
+	line_selector.set_max_size(scr_size(BUTTON4_X-D_MARGIN_LEFT, size.h-line_selector.get_pos().y -D_SCROLLBAR_HEIGHT-D_MARGIN_BOTTOM));
 }
 
 

@@ -1,5 +1,11 @@
-#ifndef FACTORY_WRITER_H
-#define FACTORY_WRITER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_FACTORY_WRITER_H
+#define DESCRIPTOR_WRITER_FACTORY_WRITER_H
+
 
 #include <string>
 #include "obj_writer.h"
@@ -102,7 +108,7 @@ class factory_writer_t : public obj_writer_t {
 		virtual const char* get_type_name() const { return "factory"; }
 };
 
-class factory_upgrade_writer_t : public obj_writer_t 
+class factory_upgrade_writer_t : public obj_writer_t
 {
 	private:
 		static factory_upgrade_writer_t the_instance;

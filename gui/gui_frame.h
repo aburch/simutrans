@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * The window frame all dialogs are based
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
- */
+#ifndef GUI_GUI_FRAME_H
+#define GUI_GUI_FRAME_H
 
-#ifndef gui_gui_frame_h
-#define gui_gui_frame_h
 
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
@@ -24,7 +18,7 @@
 #include "gui_theme.h"
 
 // Floating cursor eases to place components on a frame with a fixed width.
-// It places components in a horizontal line one by one as long as the frame is 
+// It places components in a horizontal line one by one as long as the frame is
 // wide enough. If a component would exceed the maximum right coordinate, then
 // the floating cursor wraps the component into a new "line".
 class floating_cursor_t
@@ -49,14 +43,14 @@ public:
 	scr_coord next_pos(const scr_size& size);
 
 	/** new_line() starts a new line.
-	 * If next_pos() has not been called since construction or last new_line(), 
+	 * If next_pos() has not been called since construction or last new_line(),
 	 * the row_height is still 0 and thus will add a D_V_SPAVE to the y position only.
 	 */
 	void new_line();
 
 	inline scr_coord_val get_row_height() const { return row_height; }
 	inline const scr_coord& get_pos() const { return cursor; }
-};					   
+};
 
 class loadsave_t;
 class karte_ptr_t;

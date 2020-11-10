@@ -1,12 +1,6 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *  2006 completely changed by prissi and Kieron Green
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  Moduldescreibung:
- *      Calculates the ground for different levels using the textures here
- *
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -965,6 +959,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 			int slope = double_grounds ? dslope : slopetable[dslope];
 			final_tile = create_alpha_tile( light_map->get_image_ptr( slope ), dslope, all_rotations_slope[dslope] );
 			alpha_image[dslope] = final_tile->get_id();
+			ground_image_list.append( final_tile );
 		}
 		else {
 			alpha_image[dslope] = IMG_EMPTY;
@@ -983,11 +978,13 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 				// create alpha image
 				final_tile = create_alpha_tile( light_map->get_image_ptr( slope ), dslope, all_rotations_slope[double_corners] );
 				alpha_corners_image[dslope * 15 + corners - 1] = final_tile->get_id();
+				ground_image_list.append( final_tile );
 
 				double_corners = corners == 15 ? 80 : (1 - scorner_sw(corners)) + 3 * (1 - scorner_se(corners)) + 9 * (1 - scorner_ne(corners)) + 27 * (1 - scorner_nw(corners));
 				if(  all_rotations_beach[double_corners]  ) {
 					final_tile = create_alpha_tile( light_map->get_image_ptr( slope ), dslope, all_rotations_beach[double_corners] );
 					alpha_water_image[dslope * 15 + corners - 1] = final_tile->get_id();
+					ground_image_list.append( final_tile );
 				}
 			}
 			else {

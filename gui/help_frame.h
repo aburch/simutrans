@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_help_frame_h
-#define gui_help_frame_h
+#ifndef GUI_HELP_FRAME_H
+#define GUI_HELP_FRAME_H
+
 
 #include <string>
 
@@ -53,7 +52,7 @@ public:
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

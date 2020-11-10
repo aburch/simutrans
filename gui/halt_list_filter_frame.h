@@ -1,15 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Stations/stops list filter dialog
- * Displays filter settings for the halt list
- * @author V. Meyer
- */
+#ifndef GUI_HALT_LIST_FILTER_FRAME_H
+#define GUI_HALT_LIST_FILTER_FRAME_H
+
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
@@ -21,6 +17,11 @@
 
 class player_t;
 
+/*
+ * Stations/stops list filter dialog
+ * Displays filter settings for the halt list
+ * @author V. Meyer
+ */
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 private:
@@ -47,7 +48,7 @@ private:
 			}
 			return button_t::infowin_event(ev);
 		}
-		virtual void draw(scr_coord offset) {
+		virtual void draw(scr_coord offset) OVERRIDE {
 			if(ware_ab) {
 				pressed = parent->get_ware_filter_ab(ware_ab);
 			}
@@ -86,15 +87,15 @@ private:
 	button_t ware_keine_ab;
 	button_t ware_invers_ab;
 
-	gui_scrollpane_t ware_scrolly_ab;
 	gui_container_t ware_cont_ab;
+	gui_scrollpane_t ware_scrolly_ab;
 
 	button_t ware_alle_an;
 	button_t ware_keine_an;
 	button_t ware_invers_an;
 
-	gui_scrollpane_t ware_scrolly_an;
 	gui_container_t ware_cont_an;
+	gui_scrollpane_t ware_scrolly_an;
 
 public:
 	halt_list_filter_frame_t(player_t *player, halt_list_frame_t *main_frame);
@@ -117,7 +118,7 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -125,19 +126,21 @@ public:
 	 * component is displayed.
 	 * @author V. Meyer
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
     /**
      * resize window in response to a resize event
      */
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "haltlist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "haltlist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
+
+#endif

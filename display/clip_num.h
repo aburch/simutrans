@@ -1,5 +1,11 @@
-#ifndef clip_num_h
-#define clip_num_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DISPLAY_CLIP_NUM_H
+#define DISPLAY_CLIP_NUM_H
+
 
 #include "../simtypes.h"
 /**

@@ -1,5 +1,11 @@
-#ifndef scr_coord_h
-#define scr_coord_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DISPLAY_SCR_COORD_H
+#define DISPLAY_SCR_COORD_H
+
 
 #include <assert.h>
 #include "../dataobj/loadsave.h"
@@ -8,7 +14,7 @@
 class koord;
 
 // Screen coordinate type
-typedef sint16 scr_coord_val;
+typedef sint32 scr_coord_val;
 
 // Rectangle relations
 enum rect_relation_t { RECT_RELATION_INSIDE, RECT_RELATION_OVERLAP, RECT_RELATION_OUTSIDE };
@@ -32,8 +38,8 @@ public:
 	void rdwr(loadsave_t *file)
 	{
 		xml_tag_t k( file, "koord" );
-		file->rdwr_short(x);
-		file->rdwr_short(y);
+		file->rdwr_long(x);
+		file->rdwr_long(y);
 	}
 
 	const scr_coord& operator +=(const scr_coord& other ) {
@@ -109,7 +115,6 @@ public:
 	// Constructors
 	scr_size(  ) { w = h = 0; }
 	scr_size( scr_coord_val w_par, scr_coord_val h_par) { w = w_par; h = h_par; }
-	scr_size( const scr_size& size ) { w = size.w; h=size.h; }
 
 	operator scr_coord() const { return scr_coord(w,h); }
 
@@ -123,8 +128,8 @@ public:
 	void rdwr(loadsave_t *file)
 	{
 		xml_tag_t k( file, "koord" );
-		file->rdwr_short(w);
-		file->rdwr_short(h);
+		file->rdwr_long(w);
+		file->rdwr_long(h);
 	}
 
 	inline void clip_lefttop( scr_coord scr_lefttop )
@@ -154,8 +159,8 @@ public:
 	}
 
 	const scr_size& operator -=(const scr_size& other ) {
-		w += other.w;
-		h += other.h;
+		w -= other.w;
+		h -= other.h;
 		return *this;
 	}
 
@@ -166,8 +171,8 @@ public:
 	}
 
 	const scr_size& operator -=(const scr_coord& other ) {
-		w += other.x;
-		h += other.y;
+		w -= other.x;
+		h -= other.y;
 		return *this;
 	}
 

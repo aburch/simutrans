@@ -1,0 +1,61 @@
+<title>Signals working methods - Time interval with telegraph</title>
+
+<h1>Signals working methods - Time interval with telegraph</h1><br><br>
+
+<em>Time interval with telegraph</em><br>
+Time interval with telegraph working method is working very much in the same way as <a href="signals_wm_time_interval.txt"><em>Time interval</em></a> without the telegraph does. The main difference is that this working method can create directional reservations (via the Station signal), or reserve entire <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a>'s if there are junctions ahead. This makes it suitable for single line operation.<br>
+<br>
+
+<em>How it works</em><br>
+As stated above, this working method works mostly like the ordinary time interval working method, which has two fundamental different ways of operation: On lines they change states dependent on time, but with junctions anywhere between the signals, they work like absolute block signals. Note the difference from the ordinary time interval signals, that the junction can be anywhere in this working method, contrary to within sighting distance in ordinary time interval working method.<br>
+<br>
+Behavior of signals with no junctions before following signal:<br>
+* Signal will show CLEAR as default<br>
+* When a train passes the signal, the signal will be set to DANGER<br>
+* When 5 minutes have passed, the signal goes to CAUTION.<br>
+* Trains passing the signal at caution will continue in half line speed or half signal speed, whichever is highest.<br>
+* When 10 minutes have passed, the signal goes to CLEAR again.<br>
+* If two trains collide, they will perform an emergency stop which will last some minutes and revert to <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a><br>
+<br>
+Behavior of time interval signals with telegraph followed by a junction:<br>
+* If there is a junction anywhere before the next signal, the signal will never go beyond CAUTION.<br>
+* When there is a junction before the next signal, the signal will make an absolut block type reservation to the next signal. If it cannot do that, the signal will remain DANGER<br>
+* Even though the stretch is reserved with an absolute block type of reservation, the train will only run in half line speed or half signal speed (whichever is faster).<br>
+<br>
+
+<em>Types of signals</em><br>
+ - <it>Time interval with telegraph stop signal</it><br>
+The Time interval stop signal is also called a "Vane signal". This is the basic signal that follows the functionallity mentioned in the "how it works" section.<br>
+<br>
+ - <it>Time interval with telegraph choose signal</it><br>
+* A choose signal will reserve a block from the signal onto an empty platform, or a block from the signal to the "end of choose" sign on the other end of the station.<br>
+Read more about blocks and choose signals here: <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a><br>
+<br>
+ - <it>Time interval with telegraph distant signal</it><br>
+* A distant signal, might also be called a "Vane auxilliary signal", will alert the driver of the aspect of the upcoming signal.<br>
+<br>
+ - <it>Time interval with telegraph station signal</it><br>
+Time interval station signals work mostly like ordinary time interval signals, except it also is a station signal. Being a station signal, one single signal can handle the departure of all tracks in all directions and keep track of the time since the departure in all directions as well.<br>
+Additionally station signal features:<br>
+* Time interval with telegraph Station signals creates a directional reservation when departing a train.<br>
+* The signal will also go to clear even though there is a junction between it and the next signal. This means that trains can depart from a station at full speed instead of half speed as an ordinary time interval with telegraph signal would be commanded.<br>
+* Station signals can be placed both on platform tiles, where they will work for all platforms in both directions, or along the track, where they will work as a signal in both directions.<br>
+<br>
+
+<em>Best uses</em><br>
+* This working method can be used both on double track and single track layouts.<br>
+* Use the Time interval with telegraph station signal on stations. Its ability to create directional reservations makes it very effective for single track layouts where trains might be facing each other.<br>
+* For big stations, use the normal time interval with telegraph signals at the platforms and use its absolute block functions to get the trains from the platform to the correct line, before using the station signal as the last signal before the single tracked line.<br>
+<br>
+
+<em>Pittfalls</em><br>
+Even though signals communicate in this working method, it is still very easy to get a deadlock:<br>
+* Directional reservations will end on a signal if the signal is followed by a junction.<br>
+* Only the station signal will create directional reservations, so make sure that the last signal before the line is a station signal.<br>
+* Dont put time interval with telegraph signals along a single tracked line, as reservations will be made up to them, not through them (except when used in conjunction with a double block signal, see <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> fro more info).<br>
+
+dont put intermediate time interval with telegraph stations along the route, the trains will deadlock. Let the departure signal create an absolute block type reservation the entire way to the following signal.
+
+
+
+<br><br><br><br>

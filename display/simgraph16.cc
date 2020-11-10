@@ -1,7 +1,7 @@
 /*
-* Copyright 2010 Simutrans contributors
-* Available under the Artistic License (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../descriptor/image.h"
@@ -25,6 +25,8 @@
 #include "../utils/simstring.h"
 #include "simgraph.h"
 #include "../descriptor/vehicle_desc.h"
+#include "../gui/simwin.h"
+#include "../gui/gui_theme.h"
 
 
 #ifdef _MSC_VER
@@ -113,8 +115,8 @@ public:
 		if (steps == 0) {
 			return;
 		}
-		sdx = (dx << 16) / steps;
-		sdy = (dy << 16) / steps;
+		sdx = (dx * (1 << 16)) / steps;
+		sdy = (dy * (1 << 16)) / steps;
 		// to stay right from the line
 		// left border: xmin <= x
 		// right border: x < xmax
@@ -123,7 +125,7 @@ public:
 				inc = 1 << 16;
 			}
 			else {
-				inc = (dx << 16) / dy;
+				inc = (dx * (1 << 16)) / dy;
 			}
 		}
 		else if (dy < 0) {
@@ -131,7 +133,7 @@ public:
 				inc = 0; // (+1)-1 << 16;
 			}
 			else {
-				inc = (1 << 16) - (dx << 16) / dy;
+				inc = (1 << 16) - (dx * (1 << 16)) / dy;
 			}
 		}
 	}
@@ -152,11 +154,11 @@ public:
 		}
 		else if (dy != 0) {
 			// init Bresenham algorithm
-			const int t = ((y - y0) << 16) / sdy;
+			const int t = ((y - y0) * (1 << 16)) / sdy;
 			// sx >> 16 = x
 			// sy >> 16 = y
-			r.sx = t * sdx + inc + (x0 << 16);
-			r.sy = t * sdy + (y0 << 16);
+			r.sx = t * sdx + inc + (x0 * (1 << 16));
+			r.sy = t * sdy +       (y0 * (1 << 16));
 		}
 	}
 
@@ -169,11 +171,11 @@ public:
 				r.non_convex_active = false;
 				if (dy != 0) {
 					// init Bresenham algorithm
-					const int t = ((r.y - y0) << 16) / sdy;
+					const int t = ((r.y - y0) * (1 << 16)) / sdy;
 					// sx >> 16 = x
 					// sy >> 16 = y
-					r.sx = t * sdx + inc + (x0 << 16);
-					r.sy = t * sdy + (y0 << 16);
+					r.sx = t * sdx + inc + (x0 * (1 << 16));
+					r.sy = t * sdy +       (y0 * (1 << 16));
 					if (dy > 0) {
 						const int r_xmin = r.sx >> 16;
 						if (xmin < r_xmin) {
@@ -704,6 +706,16 @@ static const COLOR_VAL special_pal[224 * 3] =
 	165, 145, 218,
 	198, 191, 232,
 };
+
+
+/*
+ * Hajo: Zoom factor
+ */
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+static uint32 zoom_factor = ZOOM_NEUTRAL;
+static sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
+static sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
 
 /*
@@ -2112,13 +2124,13 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 
 
 // prissi: query un-zoomed offsets
-void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw)
 {
 	if (image < anz_images) {
-		*xoff = images[image].base_x;
-		*yoff = images[image].base_y;
-		*xw = images[image].base_w;
-		*yw = images[image].base_h;
+		xoff = images[image].base_x;
+		yoff = images[image].base_y;
+		xw = images[image].base_w;
+		yw = images[image].base_h;
 	}
 }
 
@@ -2835,6 +2847,13 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 	} // number ok
 }
 
+void display_color_img_with_tooltip(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const char *text  CLIP_NUM_DEF_NOUSE)
+{
+	display_color_img(n, xp, yp, player_nr_raw, daynight, dirty);
+	if (text && n < anz_images && ( xp <= get_mouse_x() && yp <= get_mouse_y() && (xp+ images[n].w) > get_mouse_x() && (yp+ images[n].h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + images[n].y + images[n].h + TOOLTIP_MOUSE_OFFSET_Y/2 + D_V_SPACE, text);
+	}
+}
 
 /**
 * draw unscaled images, replaces base color
@@ -3179,6 +3198,14 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 	}
 }
 
+void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL colval, int percent_blend_start, int percent_blend_end)
+{
+	uint8 transparency = 0;
+	for (int i = 0; i < h; i++) {
+		transparency = percent_blend_start + (percent_blend_end - percent_blend_start)/h*i;
+		display_blend_wh_rgb(xp, yp+i, w, 1, colval, transparency);
+	}
+}
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p  CLIP_NUM_DEF)
 {
@@ -3882,6 +3909,36 @@ void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_
 	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
 }
 
+void display_filled_roundbox_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty)
+{
+	display_fillbox_wh_clip(xp, yp+1, w, h-2, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp, w-2, 1, color, dirty);
+	display_fillbox_wh_clip(xp+1, yp + h-1, w-2, 1, color, dirty);
+}
+
+void display_cylinderbar_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
+{
+	display_fb_internal(xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_blend_wh(xp, yp, w, min(3,h/2), COL_WHITE, 15);
+	display_blend_wh(xp, yp + 1, w, 1, COL_WHITE, 15);
+	uint8 start = h * 2 / 3;
+	for (uint8 i = start; i < h; i++) {
+		display_blend_wh(xp, yp + i, w, 1, COL_BLACK, i*25/h);
+	}
+}
+
+
+void display_colorbox_with_tooltip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const char *text)
+{
+	display_ddd_box_clip(xp, yp, w, h, MN_GREY0, MN_GREY4);
+	//display_fb_internal(xp+1, yp+1, w-2, h-2, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy);
+	display_fillbox_wh_clip(xp + 1, yp + 1, w - 2, h - 2, color, dirty);
+	if (text && (xp <= get_mouse_x() && yp <= get_mouse_y() && (xp + w) > get_mouse_x() && (yp + h) > get_mouse_y())) {
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X + D_H_SPACE, yp + h + h/2 + TOOLTIP_MOUSE_OFFSET_Y / 2 + D_V_SPACE, text);
+	}
+}
+
+
 /**
 * Draw vertical line
 * @author Hj. Malthaner
@@ -3940,7 +3997,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 	}
 }
 
-void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF)
+void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVAL color, bool dirty, uint8 basic_constraint_flags, uint8 interactivity, bool is_rightside  CLIP_NUM_DEF_NOUSE)
 {
 	uint8 h = VEHICLE_BAR_HEIGHT;
 	uint8 width = (w + 1) * 0.9;
@@ -4606,7 +4663,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh(xpos - 2, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty, -1);
+	display_proportional(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty);
 }
 
 
@@ -4683,11 +4740,11 @@ void display_direct_line_rgb(const KOORD_VAL x, const KOORD_VAL y, const KOORD_V
 		steps = 1;
 	}
 
-	xs = (dx << 16) / steps;
-	ys = (dy << 16) / steps;
+	xs = (dx * (1 << 16)) / steps;
+	ys = (dy * (1 << 16)) / steps;
 
-	xp = x << 16;
-	yp = y << 16;
+	xp = x * (1 << 16);
+	yp = y * (1 << 16);
 
 	for (i = 0; i <= steps; i++) {
 #ifdef DEBUG_FLUSH_BUFFER
@@ -4718,11 +4775,11 @@ void display_direct_line_dotted_rgb(const KOORD_VAL x, const KOORD_VAL y, const 
 		steps = 1;
 	}
 
-	xs = (dx << 16) / steps;
-	ys = (dy << 16) / steps;
+	xs = (dx * (1 << 16)) / steps;
+	ys = (dy * (1 << 16)) / steps;
 
-	xp = x << 16;
-	yp = y << 16;
+	xp = x * (1 << 16);
+	yp = y * (1 << 16);
 
 	for (i = 0; i <= steps; i++) {
 		counter++;
@@ -4823,6 +4880,27 @@ void display_filled_circle_rgb(KOORD_VAL x0, KOORD_VAL  y0, int radius, const PI
 		display_fb_internal(x0 - y, y0 - x, y + y, 1, colval, false, CR0.clip_rect.x, CR0.clip_rect.xx, CR0.clip_rect.y, CR0.clip_rect.yy);
 	}
 	//	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+}
+
+
+int display_fluctuation_triangle_rgb(KOORD_VAL x, KOORD_VAL y, uint8 height, const bool dirty, sint64 value)
+{
+	if (!value) { return 0; } // nothing to draw
+	COLOR_VAL col = value > 0 ? COL_ADDITIONAL : COL_REDUCED-2;
+	uint8 width = height - height % 2;
+	for (uint i = 0; i < width; i++) {
+		uint8 h = height - 2 * abs(int(width / 2 - i));
+		KOORD_VAL y0 = value > 0 ? y + 2 + height - h : y+2;
+		KOORD_VAL y1 = value > 0 ? y0 - 1 : y + h +1;
+
+		if (h > 1) {
+			display_vline_wh_clip(x + i, y0, h - 1, col, dirty);
+		}
+		if (h > 0) {
+			display_blend_wh(x + i, y1, 1, 1, col, 50);
+		}
+	}
+	return width;
 }
 
 

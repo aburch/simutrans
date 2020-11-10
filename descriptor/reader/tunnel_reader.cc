@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 
 #include "../../simdebug.h"
@@ -26,6 +31,11 @@ void tunnel_reader_t::register_obj(obj_desc_t *&data)
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
 	pakset_info_t::append(desc->get_name(), chk);
+}
+
+bool tunnel_reader_t::successfully_loaded() const
+{
+	return tunnel_builder_t::successfully_loaded();
 }
 
 /**
@@ -121,7 +131,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
 			desc->number_of_seasons = decode_uint8(p);
-			
+
 			if(extended)
 			{
 				desc->axle_load = decode_uint32(p);
@@ -209,7 +219,7 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if( !extended && version < 5  ) {
 			desc->axle_load = 9999;
 		}
-		
+
 		if(extended_version < 1 || !extended)
 		{
 			desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
@@ -240,3 +250,4 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	return desc;
 }
+

@@ -1,9 +1,9 @@
-/* basic network functionality, borrowed from OpenTTD */
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
-#if defined(__amiga__)
-// warning: IPv6 will only work on Windows XP and up ...
-#define USE_IP4_ONLY
-#endif
+/* basic network functionality, borrowed from OpenTTD */
 
 #include <stdio.h>
 #include <stdlib.h>

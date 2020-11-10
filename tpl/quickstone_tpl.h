@@ -1,5 +1,11 @@
-#ifndef quickstone_tpl_h
-#define quickstone_tpl_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_QUICKSTONE_TPL_H
+#define TPL_QUICKSTONE_TPL_H
+
 
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -47,7 +53,7 @@ private:
 				return i;
 			}
 		}
-		
+
 		if (size < 65535)
 		{
 			// Enlarge the array before searching old handles.
@@ -191,8 +197,6 @@ public:
 		}
 	}
 
-	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry) {}
-
 	// returns true, if no handles left
 	static bool is_exhausted()
 	{
@@ -256,13 +260,13 @@ public:
 	 * @author Knightly
 	 */
 	template <class STORAGE>
-	void rdwr(STORAGE *store) 
-	{ 
-		store->rdwr_short(entry); 
+	void rdwr(STORAGE *store)
+	{
+		store->rdwr_short(entry);
 		if (entry > next && next < 65534)
 		{
 			// This makes sure that "next" always searches to the end of the array
-			// before returning to the beginning again. 
+			// before returning to the beginning again.
 			next = entry + 1;
 		}
 	}

@@ -1,5 +1,11 @@
-#ifndef obj_tunnel_h
-#define obj_tunnel_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef OBJ_TUNNEL_H
+#define OBJ_TUNNEL_H
+
 
 #include "../simobj.h"
 #include "../display/simimg.h"

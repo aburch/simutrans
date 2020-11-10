@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef onewaysign_info_t_h
-#define onewaysign_info_t_h
+#ifndef GUI_ONEWAYSIGN_INFO_H
+#define GUI_ONEWAYSIGN_INFO_H
+
 
 #include "../simconst.h"
 #include "obj_info.h"
@@ -34,7 +33,7 @@ class onewaysign_info_t : public obj_infowin_t, public action_listener_t
 		 * @return the filename for the helptext, or NULL
 		 * @author Hj. Malthaner
 		 */
-		const char *get_help_filename() const {return "onewaysign_info.txt";}
+		const char *get_help_filename() const OVERRIDE {return "onewaysign_info.txt";}
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

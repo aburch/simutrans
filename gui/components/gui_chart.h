@@ -1,10 +1,11 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_chart_h
-#define gui_chart_h
+#ifndef GUI_COMPONENTS_GUI_CHART_H
+#define GUI_COMPONENTS_GUI_CHART_H
+
 
 #include "../../simtypes.h"
 #include "gui_component.h"
@@ -21,6 +22,8 @@
 class gui_chart_t : public gui_component_t
 {
 public:
+	enum chart_marker_t { square = 0, cross, diamond, round_box, none };
+
 	/**
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
@@ -33,7 +36,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -63,9 +66,9 @@ public:
 	 * @returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);
+	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
-	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL);
+	uint32 add_line(int color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL, chart_marker_t marker=square);
 
 	void remove_curves() { curves.clear(); }
 
@@ -98,7 +101,7 @@ public:
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
-	
+
 	void set_ltr(bool yesno) { ltr = yesno; }
 
 	int get_curve_count() { return curves.get_count(); }
@@ -122,6 +125,7 @@ private:
 		int type; // 0 = standard, 1 = money
 		int precision;	// how many numbers ...
 		convert_proc convert;	// Knightly : procedure for converting supplied values before use
+		chart_marker_t marker_type;
 	};
 
 	/**
@@ -136,6 +140,7 @@ private:
 		bool show_value;			// whether to show the value as number on the chart
 		int precision;
 		convert_proc convert;	// Knightly : procedure for converting supplied value before use
+		chart_marker_t marker_type;
 	};
 
 	slist_tpl <curve_t> curves;

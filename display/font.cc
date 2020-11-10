@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -231,7 +236,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 #ifdef USE_FREETYPE
 #include "../gui/gui_theme.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

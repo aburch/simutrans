@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "vehicle_desc.h"
 #include "xref_desc.h"
 #include "../network/checksum.h"
@@ -13,15 +18,11 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 	}
 
 	// I am not obsolete --> no obsolescence cost increase.
-	uint16 months_after_retire = increase_maintenance_after_years * 12;
-	if(months_after_retire == 0)
-	{
-		months_after_retire = welt->get_settings().get_obsolete_running_cost_increase_phase_years() * 12;
-	}
+	const uint16 months_after_retire = get_obsolete_year_month(welt) - retire_date;
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
-	if (months_of_obsolescence <= 0)	
+	if (months_of_obsolescence <= 0)
 	{
-		return base_cost; 
+		return base_cost;
 	}
 
 	// I am obsolete --> obsolescence cost increase.
@@ -80,15 +81,15 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 	switch (get_waytype())
 	{
 		case track_wt:
-		case overheadlines_wt: 
-		case monorail_wt:      
+		case overheadlines_wt:
+		case monorail_wt:
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
 			if (topspeed && get_engine_type() == steam)
 			{
 				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
-				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
+				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due
 				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
@@ -98,11 +99,11 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 			return float32e8_t::ten;
 
 		//case water_wt:
-			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
+			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power.
 			//return float32e8_t(get_topspeed() * 10, 36);
 
-		case air_wt: 
-			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
+		case air_wt:
+			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power.
 			// We recommend for simutrans extended to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (topspeed)
 			{
@@ -116,11 +117,11 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 			* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
 			* This will enforce the player to make more use of slower freight engines.
 			*
-			* Example: 
+			* Example:
 			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
 			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
 			*
-			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
+			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340.
 			* In simutrans standard		these engines can be simulated by setting power to 2200, max speed to 140 resp. 100 and gear to 1.136 resp. 1.545.
 			*/
 			return float32e8_t::ten;
@@ -133,9 +134,9 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
  */
 void vehicle_desc_t::loaded()
 {
-	/** 
-	* Vehicles specify their (nominal) power. The formula 
-	* 
+	/**
+	* Vehicles specify their (nominal) power. The formula
+	*
 	* force = power / speed
 	*
 	* calculates the force, that results from the power at a given speed.
@@ -150,7 +151,7 @@ void vehicle_desc_t::loaded()
 	* Above this threshold the engine works as constant power engine.
 	*/
 
-	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
+	static const float32e8_t gear_factor((uint32)GEAR_FACTOR);
 	float32e8_t power_force_ratio = get_power_force_ratio();
 	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
 	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
@@ -201,7 +202,7 @@ void vehicle_desc_t::loaded()
  */
 uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
-	if (geared_force == 0) 
+	if (geared_force == 0)
 	{
 		// no force at all
 		return 0;
@@ -216,7 +217,7 @@ uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) con
  */
 uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
-	if (geared_power == 0) 
+	if (geared_power == 0)
 	{
 		// no power at all
 		return 0;
@@ -226,10 +227,10 @@ uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) con
 }
 
 uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
-{ 
+{
 	if(increase_maintenance_after_years)
 	{
-		return retire_date + (12 * increase_maintenance_after_years); 
+		return retire_date + (12 * increase_maintenance_after_years);
 	}
 	else
 	{
@@ -310,8 +311,52 @@ uint16 vehicle_desc_t::get_available_livery_count(karte_t *welt) const
 	return livery_count;
 }
 
+// calculation(auto connect) algorithm is based on tool_change_depot_t::init
+uint8 vehicle_desc_t::calc_auto_connection_length(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
 
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 len = next_veh ? next_veh->get_length(): 0;
 
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		len += next_veh->get_length();
+	}
+
+	return len;
+}
+
+uint8 vehicle_desc_t::get_auto_connection_vehicle_count(bool rear_side) const
+{
+	if ((rear_side && trailer_count != 1) || (!rear_side && leader_count != 1))
+	{
+		return 0;
+	}
+
+	slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+	const vehicle_desc_t *next_veh = rear_side ? get_trailer(0) : get_leader(0);
+	if (next_veh == NULL) { return 0; }
+	uint8 cnt=1;
+
+	while (((rear_side && next_veh->get_trailer_count() == 1 && next_veh->get_trailer(0) != NULL) ||
+		(!rear_side && next_veh->get_leader_count() == 1 && next_veh->get_leader(0) != NULL))
+		&& !new_vehicle_info.is_contained(next_veh)) {
+		next_veh = rear_side ? next_veh->get_trailer(0) : next_veh->get_leader(0);
+		new_vehicle_info.insert(next_veh);
+		cnt ++;
+	}
+
+	return cnt;
+}
 
 
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
@@ -320,7 +365,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(classes);
 	for(uint32 i = 0; i < classes; i ++)
 	{
-		chk->input(capacity[i]); 
+		chk->input(capacity[i]);
 	}
 	chk->input(weight);
 	chk->input(power);
@@ -330,7 +375,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(len);
 	chk->input(leader_count);
 	chk->input(trailer_count);
-	chk->input(engine_type);
+	chk->input((uint8)engine_type);
 	// freight
 	const xref_desc_t *xref = get_child<xref_desc_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
@@ -350,11 +395,14 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(upgrades);
 	chk->input(is_tilting ? 1 : 0);
 	chk->input(mixed_load_prohibition ? 1 : 0);
+	chk->input(override_way_speed ? 1 : 0);
+	chk->input(basic_constraint_prev);
+	chk->input(basic_constraint_next);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 	chk->input(bidirectional ? 1 : 0);
-	chk->input(can_lead_from_rear ? 1 : 0); // not used
-	chk->input(can_be_at_rear ? 1 : 0);
+	//chk->input(can_lead_from_rear ? 1 : 0); // not used
+	//chk->input(can_be_at_rear ? 1 : 0);
 	for (uint32 i = 0; i < classes; i++)
 	{
 		chk->input(comfort[i]);
@@ -379,23 +427,30 @@ uint8 vehicle_desc_t::get_interactivity() const
 	return flags;
 }
 
-bool vehicle_desc_t::has_available_upgrade(uint16 month_now) const
+uint8 vehicle_desc_t::has_available_upgrade(uint16 month_now, bool show_future) const
 {
+	uint8 upgrade_state = 0; // 1 = not available yet, 2 = already available
 	for (int i = 0; i < upgrades; i++)
 	{
+		if (show_future) {
+			upgrade_state = 1;
+		}
 		const vehicle_desc_t *upgrade_desc = get_upgrades(i);
 		if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
 		{
-			return true;
+			return 2;
+		}
+		else if(!show_future && upgrade_desc && upgrade_desc->is_future(month_now)==2) {
+			upgrade_state = 1;
 		}
 	}
-	return false;
+	return upgrade_state;
 }
 
 
 // The old pak doesn't have a basic constraint, so add a value referring to the constraint.
 // Note: This is ambiguous because it does not have data of cab and constraint[prev]=any.
-inline void vehicle_desc_t::fix_basic_constraint()
+void vehicle_desc_t::fix_basic_constraint()
 {
 	// front side
 	if (basic_constraint_prev & unknown_constraint) {

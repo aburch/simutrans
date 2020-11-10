@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"
@@ -147,7 +145,7 @@ void groundobj_t::calc_image()
 }
 
 
-groundobj_t::groundobj_t(loadsave_t *file) : 
+groundobj_t::groundobj_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::groundobj)
 #else
@@ -158,7 +156,7 @@ groundobj_t::groundobj_t(loadsave_t *file) :
 }
 
 
-groundobj_t::groundobj_t(koord3d pos, const groundobj_desc_t *b ) : 
+groundobj_t::groundobj_t(koord3d pos, const groundobj_desc_t *b ) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::groundobj, pos)
 #else
@@ -197,7 +195,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_desc_t *desc = desc_names.get(bname);
 		if (desc == NULL) {
-			desc = desc_names.get(translator::compatibility_name(bname));	
+			desc = desc_names.get(translator::compatibility_name(bname));
 		}
 		if (desc == NULL) {
 			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr(loadsave_t *file)");

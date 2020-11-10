@@ -1,6 +1,6 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 /*
@@ -50,7 +50,7 @@ signalbox_t::~signalbox_t()
 	{
 		player->set_selected_signalbox(NULL);
 	}
-	
+
 	// Delete all signals linked to this box
 	FOR(slist_tpl<koord3d>, k, signals)
 	{
@@ -80,34 +80,35 @@ signalbox_t::~signalbox_t()
 	}
 }
 
-void signalbox_t::add_to_world_list(bool lock)
+void signalbox_t::add_to_world_list(bool)
 {
 	welt->add_building_to_world_list(access_first_tile());
-	stadt_t* city = welt->get_city(get_pos().get_2d());
+	const planquadrat_t* tile = welt->access(get_pos().get_2d());
+	stadt_t* city = tile ? tile->get_city() : NULL;
 	if(city)
-	{		
+	{
 		set_stadt(city);
 		city->update_city_stats_with_building(this, false);
 	}
 }
 
-void signalbox_t::rdwr(loadsave_t *file) 
+void signalbox_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
-	
+
 	uint32 signals_count = signals.get_count();
-	file->rdwr_long(signals_count); 
+	file->rdwr_long(signals_count);
 	if(file->is_saving())
 	{
 		FOR(slist_tpl<koord3d>, k, signals)
 		{
-			k.rdwr(file); 
+			k.rdwr(file);
 		}
 	}
 	else // Loading
 	{
 		koord3d k;
-		for(sint32 i = 0; i < signals_count; i++)
+		for(uint32 i = 0; i < signals_count; i++)
 		{
 			k.rdwr(file);
 			signals.append(k);
@@ -122,25 +123,25 @@ void signalbox_t::rotate90()
 	FOR(slist_tpl<koord3d>, k, signals)
 	{
 		k.rotate90(welt->get_size().y-1);
-		temp_list.append(k); 
+		temp_list.append(k);
 	}
 
 	signals.clear();
-	signals.append_list(temp_list); 
+	signals.append_list(temp_list);
 }
 
 void signalbox_t::remove_signal(signal_t* s)
 {
 	koord3d k = s->get_pos();
-	signals.remove(k); 
+	signals.remove(k);
 }
 
 bool signalbox_t::add_signal(signal_t* s)
 {
 	if(can_add_signal(s) && can_add_more_signals())
 	{
-		signals.append(s->get_pos()); 
-		s->set_signalbox(get_pos()); 
+		signals.append(s->get_pos());
+		s->set_signalbox(get_pos());
 		return true;
 	}
 
@@ -169,7 +170,7 @@ bool signalbox_t::can_add_signal(const signal_t* s) const
 	{
 		return false;
 	}
-	
+
 	return can_add_signal(s->get_desc());
 }
 
@@ -185,7 +186,7 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 		return false;
 	}
 
-	if(!s->get_desc()->get_working_method() != moving_block)
+	if(s->get_desc()->get_working_method() == moving_block)
 	{
 		if(s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 		{
@@ -195,7 +196,7 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 
 	if(add_signal(s))
 	{
-		sb->remove_signal(s);  
+		sb->remove_signal(s);
 		return true;
 	}
 	else
@@ -226,11 +227,11 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 			signal_t* s = gr->find<signal_t>();
 			if(!s)
 			{
-				dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved"); 
+				dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved");
 				continue;
 			}
 
-			if(!s->get_desc()->get_working_method() != moving_block)
+			if(s->get_desc()->get_working_method() == moving_block)
 			{
 				if (s->get_desc()->get_max_distance_to_signalbox() != 0 && sb && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 				{
@@ -250,6 +251,6 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 		}
 	}
 
-	return koord(success, failure); 
+	return koord(success, failure);
 }
 

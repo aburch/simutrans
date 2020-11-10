@@ -1,10 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
- *
- * Author: V. Meyer
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -181,7 +177,7 @@ bool pos_list_wh_t::get_next_pos(koord &k)
  * Checks if all tiles are suitable for the building to be built
  * Includes boundary tiles around the building
  */
-bool placefinder_t::is_area_ok(koord pos, sint16 b, sint16 h,climate_bits cl) const
+bool placefinder_t::is_area_ok(koord pos, sint16 b, sint16 h,climate_bits cl, uint16 allowed_regions) const
 {
 	if(!welt->is_within_limits(pos)) {
 		return false;
@@ -191,7 +187,7 @@ bool placefinder_t::is_area_ok(koord pos, sint16 b, sint16 h,climate_bits cl) co
 	while(k.y-- > 0) {
 		k.x = b;
 		while(k.x-- > 0) {
-			if(!is_tile_ok(pos, k, cl)) {
+			if(!is_tile_ok(pos, k, cl, allowed_regions)) {
 				return false;
 			}
 		}
@@ -214,12 +210,12 @@ bool placefinder_t::is_boundary_tile(koord d) const
   * Checks if the tile is suitable for building, used by is_area_ok()
   * This function is replaced for building types that require rules
   */
-bool placefinder_t::is_tile_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
+bool placefinder_t::is_tile_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/, uint16 /*allowed_regions*/ ) const
 {
 	return true;
 }
 
-koord placefinder_t::find_place(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
+koord placefinder_t::find_place(koord start, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions, bool *r)
 {
 	sint16 radius = max_radius > 0 ? max_radius : welt->get_size_max();
 	pos_list_wh_t results_straight(radius, b, h);
@@ -235,20 +231,20 @@ koord placefinder_t::find_place(koord start, sint16 b, sint16 h, climate_bits cl
 		//
 		pos_list_wh_t results_rotated(radius, h, b);
 
-		if(is_area_ok(start, b, h, cl)) {
+		if(is_area_ok(start, b, h, cl, allowed_regions)) {
 			*r = false;
 			return start;
 		}
-		if(is_area_ok(start, h, b, cl)) {
+		if(is_area_ok(start, h, b, cl, allowed_regions)) {
 			*r = true;
 			return start;
 		}
 		while(results_straight.get_next_pos(rel1) && results_rotated.get_next_pos(rel2)) {
-			if(is_area_ok(start + rel1, b, h, cl)) {
+			if(is_area_ok(start + rel1, b, h, cl, allowed_regions)) {
 				*r = false;
 				return start + rel1;
 			}
-			if(is_area_ok(start + rel2, h, b, cl)) {
+			if(is_area_ok(start + rel2, h, b, cl, allowed_regions)) {
 				*r = true;
 				return start + rel2;
 			}
@@ -259,11 +255,11 @@ koord placefinder_t::find_place(koord start, sint16 b, sint16 h, climate_bits cl
 		//
 		// Search without rotated positions.
 		//
-		if(is_area_ok(start, b, h, cl)) {
+		if(is_area_ok(start, b, h, cl, allowed_regions)) {
 			return start;
 		}
 		while(results_straight.get_next_pos(rel1)) {
-			if(is_area_ok(start + rel1, b, h, cl)) {
+			if(is_area_ok(start + rel1, b, h, cl, allowed_regions)) {
 				if(r) {
 					*r = false;
 				}

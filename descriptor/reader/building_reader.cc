@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include "../../bauer/hausbauer.h"
@@ -240,7 +245,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	//HACK: I have no idea why the above does not work.
-	if (extended && (v == 49928 && version == 8) || (v == 49929 && version == 9))
+	if ((extended && (v == 49928 && version == 8)) || (v == 49929 && version == 9))
 	{
 		extended_version = 3;
 	}
@@ -257,7 +262,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand_and_production_capacity = 65535;
 	}
 
-	old_btyp::typ btyp;
+	old_btyp::typ btyp = old_btyp::unknown;
 
 	if (version == 8 || version == 9)
 	{
@@ -271,6 +276,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		if (extended_version >= 5)
+		{
+			desc->allowed_regions = decode_uint16(p);
+		}
+		else
+		{
+			desc->allowed_regions = 65535;
+		}
 		if (extended_version >= 3)
 		{
 			desc->enables = decode_uint16(p);
@@ -283,6 +296,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->enables = 65535;
 		}
+
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
@@ -294,7 +308,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->allow_underground = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version > 4)
+			if(extended_version > 5)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}
@@ -611,7 +625,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		desc->level = extended_version > 0 ? 1 : 4;
 	}
-	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) || version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0)
+	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) ||
+	        (version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0))
 	{
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;
@@ -643,6 +658,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			case old_btyp::wohnung:    desc->type = building_desc_t::city_res; break;
 			case old_btyp::gewerbe:    desc->type = building_desc_t::city_com; break;
 			case old_btyp::industrie:  desc->type = building_desc_t::city_ind; break;
+			case old_btyp::unknown:    desc->type = building_desc_t::unknown;  break;
 		}
 	}
 

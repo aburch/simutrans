@@ -1,13 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * The window frame all dialogs are based
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -27,7 +20,7 @@ floating_cursor_t::floating_cursor_t(const scr_coord& initial,	scr_coord_val min
 	: cursor(initial)
 	, left(min_left)
 	, right(max_right)
-	, row_height(0) 
+	, row_height(0)
 {}
 
 void floating_cursor_t::new_line()
@@ -211,5 +204,5 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 
 void  gui_frame_t::set_name(const char *name)
 {
-	this->name = translator::translate(name); 
+	this->name = translator::translate(name);
 }

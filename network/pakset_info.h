@@ -1,5 +1,11 @@
-#ifndef _PAKSET_INFO_H
-#define _PAKSET_INFO_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_PAKSET_INFO_H
+#define NETWORK_PAKSET_INFO_H
+
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "checksum.h"

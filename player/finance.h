@@ -1,10 +1,11 @@
 /*
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef finance_h
-#define finance_h
+#ifndef PLAYER_FINANCE_H
+#define PLAYER_FINANCE_H
+
 
 #include <assert.h>
 
@@ -92,13 +93,13 @@ enum transport_type {
  * - the data are concerning to whole company
  */
 enum accounting_type_common {
-	ATC_CASH = 0,		///< Cash
-	ATC_NETWEALTH,		///< Total Cash + Assets
-	ATC_ALL_CONVOIS,        ///< Convoy count
-	ATC_SCENARIO_COMPLETED, ///< Scenario success (only useful if there is one ... )
-	ATC_INTEREST,			/// interest received/paid
-	ATC_SOFT_CREDIT_LIMIT,		/// soft credit limit (player can't buy new stuff)
-	ATC_HARD_CREDIT_LIMIT,		/// hard credit limit (player loses)
+	ATC_CASH = 0,				///< Cash
+	ATC_NETWEALTH,				///< Total Cash + Assets
+	ATC_ALL_CONVOIS,			///< Convoy count
+	ATC_SCENARIO_COMPLETED,		///< Scenario success (only useful if there is one ... )
+	ATC_INTEREST,				/// interest received/paid
+	ATC_SOFT_CREDIT_LIMIT,		/// soft credit limit (player cannot spend money)
+	ATC_HARD_CREDIT_LIMIT,		/// hard credit limit (player is insolvent)
 	ATC_MAX
 };
 
@@ -448,9 +449,37 @@ public:
 
 	/**
 	 * This is a negative number.  Upon having an account balance more negative than this,
-	 * the player goes bankrupt and is shut down.
+	 * the player becomes insolvent.
 	 */
 	inline sint64 get_hard_credit_limit() const { return com_month[0][ATC_HARD_CREDIT_LIMIT]; }
+
+	/**
+	* Return the number of consecutiuve months for which this player has been insolvent, starting
+	* with the current month. If the player is not currently insolvent, 0 is returned. The maximum
+	* number returned is MAX_PLAYER_HISTORY_MONTHS.
+	*/
+	inline uint32 get_number_of_months_insolvent() const
+	{
+		if (account_balance >= com_month[0][ATC_HARD_CREDIT_LIMIT])
+		{
+			return 0;
+		}
+
+		uint32 months = 0;
+		for (uint32 i = 0; i < MAX_PLAYER_HISTORY_MONTHS; i++)
+		{
+			if (com_month[i][ATC_CASH] < com_month[i][ATC_HARD_CREDIT_LIMIT])
+			{
+				months++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return months;
+	}
 
 	/**
 	 * Recalculate credit limits.
@@ -549,11 +578,6 @@ public:
 	void increase_account_overdrawn() { account_overdrawn++; }
 
 	/**
-	 * returns true if company bankrupted
-	 */
-	bool is_bankrupted() const;
-
-	/**
 	 * Called at beginning of new month.
 	 */
 	void new_month();
@@ -601,6 +625,8 @@ public:
  	 * @author jk271
  	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
+
+	static waytype_t translate_tt_to_waytype(transport_type tt);
 
 	void update_assets(sint64 delta, waytype_t wt);
 

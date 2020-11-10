@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Factories builder dialog
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -37,10 +31,10 @@ char factory_edit_frame_t::param_str[256];
 
 static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
-	
+
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
-	
+
 }
 
 static bool compare_fabrik_desc_trans(const factory_desc_t* a, const factory_desc_t* b)

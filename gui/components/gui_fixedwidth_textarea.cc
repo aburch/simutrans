@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2010 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -30,7 +28,7 @@ void gui_fixedwidth_textarea_t::recalc_size()
 
 
 
-void gui_fixedwidth_textarea_t::set_width(const sint16 width)
+void gui_fixedwidth_textarea_t::set_width(const scr_coord_val width)
 {
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway

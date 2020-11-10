@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "onewaysign_info.h"
@@ -13,7 +11,7 @@
 #include "../simmenu.h"
 #include "../simworld.h"
 
-onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) :
+onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d) :
 	obj_infowin_t(s),
 	sign(s)
 {

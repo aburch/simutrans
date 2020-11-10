@@ -1,9 +1,6 @@
 /*
- * Dialogue to increase map size.
- *
- * Gerd Wachsmuth
- *
- * October 2008
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -69,7 +66,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	number_of_big_cities  = 0;
 	number_of_clusters = 0;
 	cluster_size = env_t::cluster_size;
-	
+
 	changed_number_of_towns = false;
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
 
@@ -212,7 +209,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 			inp_number_of_big_cities.set_value(0);
 		}
 		else {
-			inp_number_of_big_cities.set_limits(0, v.i); 
+			inp_number_of_big_cities.set_limits(0, v.i);
 		}
 
 		if ( number_of_big_cities > unsigned(v.i)) {
@@ -234,7 +231,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		uint32 saved_number_of_clusters  = env_t::number_of_clusters; env_t::number_of_clusters = number_of_clusters;
 		welt->enlarge_map(sets, NULL);
 		env_t::number_of_big_cities = saved_number_of_big_cities;
-		env_t::number_of_clusters = saved_number_of_clusters; 		
+		env_t::number_of_clusters = saved_number_of_clusters;
 	}
 	else {
 		return false;
@@ -322,7 +319,7 @@ void enlarge_map_frame_t::update_preview()
 		if (new_towns != 0 ) {
 			number_of_big_cities = 1;
 			inp_number_of_big_cities.set_value(1);
-			inp_number_of_big_cities.set_limits(1, new_towns); 
+			inp_number_of_big_cities.set_limits(1, new_towns);
 		}
 	}
 

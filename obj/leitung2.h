@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef obj_leitung_t
-#define obj_leitung_t
+#ifndef OBJ_LEITUNG2_H
+#define OBJ_LEITUNG2_H
 
 
 #include "../ifc/sync_steppable.h"
@@ -17,7 +15,7 @@
 #include "../tpl/slist_tpl.h"
 
 #define POWER_TO_MW (12)  // bitshift for converting internal power values to mW for display. This is equivalent to dividing by 5,000
-#define KW_DIVIDER (5) // Divider for converting internal power to kW for display. A bitshift will not suffice, so use a divider. 
+#define KW_DIVIDER (5) // Divider for converting internal power to kW for display. A bitshift will not suffice, so use a divider.
 
 class powernet_t;
 class player_t;
@@ -110,7 +108,7 @@ public:
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner
 	*/
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	ribi_t::ribi get_ribi() const { return ribi; }
 
@@ -179,13 +177,13 @@ public:
 	typ get_typ() const { return pumpe; }
 #endif
 
-	const char *get_name() const {return "Aufspanntransformator";}
+	const char *get_name() const OVERRIDE {return "Aufspanntransformator";}
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
-	void calc_image() {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {} // otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
@@ -200,7 +198,7 @@ public:
 	static slist_tpl<senke_t *> senke_list;
 
 private:
-	
+
 	sint32 einkommen;
 	sint32 max_einkommen;
 	sint32 delta_sum;
@@ -222,15 +220,15 @@ public:
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation
-	sync_result sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
-	const char *get_name() const {return "Abspanntransformator";}
+	const char *get_name() const OVERRIDE {return "Abspanntransformator";}
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void finish_rd();
+	void finish_rd() OVERRIDE;
 
-	void calc_image() {}	// otherwise it will change to leitung
+	void calc_image() OVERRIDE {}	// otherwise it will change to leitung
 
 	uint32 get_power_load() const;
 

@@ -1,5 +1,11 @@
-#ifndef _CHECKSUM_H_
-#define _CHECKSUM_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef NETWORK_CHECKSUM_H
+#define NETWORK_CHECKSUM_H
+
 
 #include "../utils/sha1.h"
 

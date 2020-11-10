@@ -1,0 +1,121 @@
+<title>マップエディタ</title>
+
+<h1><strong>マップエディタ</strong></h1>
+
+<p>
+マップエディタでは<strong>"通常プレイ"の範疇ではない</strong><em>ゲーム世界の編集とカスタマイズ</em>が可能です。<br>
+このため、マップエディタの使用は<a href="players.txt">公共プレイヤー</a><strong>に限定されています。</strong><br>
+通常プレイヤーの場合、マップエディタはツールバー上に表示されません。
+</p>
+<p>
+アイコンをマウスオーバーすると編集ツールの名前と詳細がツールチップで確認できます。
+</p>
+<p>
+────────────────────<br>
+マップエディタには以下のようなものがあります（ツールバー左から順）:
+</p>
+<p>
+<em>人口を増やす:</em>
+　<a href="citywindow.txt">街</a>の人口を100人増やし、必要に応じて建物を道路を建設します。<br>
+【使用方法】アイコンをクリックし（カーソルが赤い上向きの矢印に変わります）、市域の任意のマスをクリックします。<br>
+<br>
+
+<em>人口を減らす:</em>
+　<a href="citywindow.txt">街</a>の人口を100人減らします。<br>
+　建物や道路は撤去されず、元の人口に戻るまで新しい建物は建築されなくなります。<br>
+　（建物や道路を撤去する場合は撤去ツールを使用してください）<br>
+【使用方法】 アイコンをクリックし（カーソルが赤い下向きの矢印に変わります）、市域の任意のマスをクリックします。<br>
+<br>
+
+<em>新しい街を作る:</em>
+　新しい<a href="citywindow.txt">市域</a>を作ります。<br>
+　新しく設置される市域は非常に小さいですが、人口増加ツールを使用することで大きくできます。<br>
+　アイコンをマウスオーバーすると新しい街を設立するための費用が確認できます。<br>
+【使用方法】 click on the tool icon to select (the cursor changes to a picture of a city hall) then click anywhere above sea level in the main game window. The new city will be founded where the <br>
+<br>
+
+<em>ランダムに植樹:</em>
+　ランダムに樹木を植えます。<br>
+【使用方法】 アイコンをクリックし（カーソルが矢印の付いた木の絵に変わります）、任意のマスをクリックします。<br>
+　木は気候に適した種類の中からランダムで選ばれます。<br>
+　ドラッグ操作で複数の木を植えることができます。<br>
+<br>
+
+<em>森林を作成する:</em>
+　森林地帯を生成します。<br>
+【使用方法】 アイコンをクリックし（カーソルが矢印の付いた木の絵に変わります）、次に森林を生成したい範囲をドラッグで指定します。
+マウスボタンを離すと森林が生成されます。<br>
+<br>
+
+<em>市道の敷設:</em>
+　市道が建設できます。市道は他の道路同様、建物のある場所や水面や平でない斜面には建設できません。<br>
+　アイコンをマウスオーバーすると"公共プレイヤー"が負担する建設費と維持費、最高速度と重量制限が確認できます。<br>
+To build a city road: アイコンをクリックし（道路の絵に変わります）、then click and drag in the main game window to construct.
+A preview and cost estimate is shown: the road will be built when the mouse button is released.
+　マウスボタンを離すと敷設が実行されます。<a href="keys.txt">[ESC]</a>キーでキャンセルができます。<br>
+<em>（！）</em>ヒント:  Different types of roads may connect.
+Use bridges and tunnels to connect roads across rough terrain, or to avoid obstructions.
+　地形を改良して敷設する場合は<a href="slopetools.txt">スロープツール</a>を使用します。<br>
+　市道や障害物を撤去する場合は撤去ツールを使用します。<br>
+Use <a href="keys.txt">[Ctrl]</a> at the same time for extra functions.<br>
+<br>
+
+<em>Rivers:</em>
+　paksetが対応している場合、河川を作ることができます。<br>
+Hover the mouse cursor over an individual river to see information about that particular type of river.<br>
+　paksetが対応していない場合は河川類のアイコンは表示されません。<br>
+【使用方法】 click on the tool to select (the cursor changes to a picture of the selected river), and then click and drag in the main game window to construct the river. Release the mouse button when the preview shows the river in the correct place.
+<br><br>
+
+<em>産業チェーンを増やす:</em>
+increases the number of industries in the game by adding a new complete industry chain to the game.<br>
+　産業はランダムで選ばれます。（電力需要を満たすための電力設備を除く）<br>
+　ボタンを1回クリックするごとに産業チェーンが1つ追加されます。
+<br><br>
+
+<em>産業施設建設ツール:</em>
+opens a new window with detailed controls for adding industries to the game individually. ⇒<a href="factory_build.txt">詳細</a><br>
+<br>
+
+<em>産業チェーンを繋ぐ:</em>:
+　手動で個別の産業施設同士を提携関係にします。<br>
+　<a href="factory_build.txt">産業施設建設ツール</a>を使用して産業施設を建設した場合、初期状態では提携先がありません。<br>
+　資材の供給元や商品の出荷先との提携が必要なので、そのままでは稼働することはできません。<br>
+　Use the <em>link industries</em> tool to connect them. <br>
+【使用方法】 To use the tool, select the tool from the menu, click the first industry that you want to link in the main game window, then click the second. The industries will then be linked.
+<br><br>
+
+<em>ランドマーク建設ツール:</em>
+opens a new window with detailed controls for adding attractions to the game individually. ⇒<a href="curiosity_build.txt">詳細</a><br>
+<br>
+
+<em>市内建築物建設ツール:</em>
+opens a new window with detailed controls for adding city buildings to the game individually. ⇒<a href="citybuilding_build.txt">詳細</a><br>
+<br>
+
+<em>植樹ツール:</em>
+　木を個別に選択して植えることのできる専用画面を開きます。⇒<a href="baum_build.txt">詳細</a><br>
+<br>
+
+<em>プレイヤー変更の禁止【解除不可】:</em>
+　プレイヤーの変更やマップエディタの使用を<strong>恒久的に</strong>禁止します。<br>
+　アイコンをクリックで選択し、メインゲーム画面上の任意の場所を一度クリックしてください。<br>
+
+<strong>注意</strong>: ゲームの仕様上、一度変更すると元に戻すことはできません。<br>
+　It is designed to allow players to stop themselves from doing what might be considered cheating.
+　この変更は現在プレイ中のマップにのみ有効です。新しく開始するマップには適用されません。（ただし解除にはSimutrans本体の再起動が必要です）<br>
+<br><br>
+
+<em>1年進める:</em>
+　ゲーム内時間を一年飛ばします。<br>
+　<a href="new_world.txt">年代設定</a>をONにしてプレイしている場合、 時間の経過とともにさまざまな変化が起こります：<br>
+・新しい乗り物やインフラ設備が利用可能になる<br>
+・旧式の乗り物は陳腐化する（メンテナンス費用は陳腐化するほど増加します）<br>
+・
+the speed at which people and goods expect to be transported increases; the proportion of people who have access to private cars increases;
+・自家用車の利用率が上昇します<br>
+・都市の消費電力が増加し、新しい産業が生まれ、古い産業は閉鎖されます<br>
+<br>
+【使用方法】 click on the tool icon, no further confirmation is required (the date changes on left of the bottom bar under the main game window). 　 1回クリックするごとに日付はそのままで年が1年進みます。<br>
+　 進んだ時間を元に戻すことはできないので注意してください。
+</p>

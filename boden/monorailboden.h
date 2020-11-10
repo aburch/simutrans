@@ -1,5 +1,11 @@
-#ifndef monorailboden_h
-#define monorailboden_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_MONORAILBODEN_H
+#define BODEN_MONORAILBODEN_H
+
 
 #include "grund.h"
 

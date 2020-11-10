@@ -1,5 +1,11 @@
-#ifndef dataobj_settings_h
-#define dataobj_settings_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DATAOBJ_SETTINGS_H
+#define DATAOBJ_SETTINGS_H
+
 
 #include <string>
 #include "../simtypes.h"
@@ -7,6 +13,7 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
+#include "../dataobj/koord.h"
 
 /**
  * Game settings
@@ -27,13 +34,18 @@ struct road_timeline_t
 	uint16 intro;
 	uint16 retire;
 };
-
+struct region_definition_t
+{
+	std::string name;
+	koord top_left = koord::invalid;
+	koord bottom_right = koord::invalid;
+};
 
 template <class T>
-class vector_with_ptr_ownership_tpl : public vector_tpl<T*> 
+class vector_with_ptr_ownership_tpl : public vector_tpl<T*>
 {
 public:
-	vector_with_ptr_ownership_tpl(uint32 size = 0) : 
+	vector_with_ptr_ownership_tpl(uint32 size = 0) :
 		vector_tpl<T*>(size) {}
 
 	vector_with_ptr_ownership_tpl( vector_with_ptr_ownership_tpl const& src ) :
@@ -43,9 +55,9 @@ public:
 		}
 	}
 
-	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) { 
-		vector_with_ptr_ownership_tpl tmp(other); 
-		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) ); 
+	vector_with_ptr_ownership_tpl& operator=( vector_with_ptr_ownership_tpl const& other ) {
+		vector_with_ptr_ownership_tpl tmp(other);
+		swap( static_cast<vector_tpl<T*>&>(tmp), static_cast<vector_tpl<T*>&>(*this) );
 		return *this;
 	}
 
@@ -255,7 +267,19 @@ private:
 	// true, if the different capacities (passengers/mail/freight) are counted separately
 	bool separate_halt_capacities;
 
+	/// The set of livery schemes
 	vector_with_ptr_ownership_tpl<class livery_scheme_t> livery_schemes;
+
+	/// This is automatically set if the simuconf.tab region specifications are in absolute
+	/// rather than percentage terms. Stops regions from being modified when the map is resized
+	/// or a new map generated. Does not affect saved games.
+	bool absolute_regions = false;
+
+public:
+	/// The set of all regions
+	vector_tpl<region_definition_t> regions;
+
+private:
 
 	// Whether passengers might walk between stops en route.
 	// @author: jamespetts, August 2011
@@ -284,7 +308,7 @@ private:
 	 * built within city limits will on
 	 * building be classed as unowned so
 	 * that other players may use/modify
-	 * them. This will not affect other 
+	 * them. This will not affect other
 	 * ways built outside city limits
 	 * but which subsequently fall within
 	 * them.
@@ -302,9 +326,9 @@ private:
 	 */
 	uint32 reroute_check_interval_steps;
 
-	/** 
+	/**
 	 * The speed at which pedestrians walk in km/h.
-	 * Used in journey time calculations. 
+	 * Used in journey time calculations.
 	 * NOTE: The straight line distance is used
 	 * with this speed.
 	 */
@@ -320,17 +344,43 @@ private:
 	uint32 random_mode_commuting;
 	uint32 random_mode_visiting;
 
+	/**
+	* The number of private car routes tiles in a city to process
+	* in a single step. The higher the number, the more quickly
+	* that the private car routes update; the lower the number,
+	* the faster the performance. Reduce this number if momentary
+	* unresponsiveness be noticed frequently.
+	*/
+	uint32 max_route_tiles_to_process_in_a_step = 1024;
+
+	/**
+	* This modifies the base journey time tolerance for passenger
+	* trips to allow more fine grained control of the journey time
+	* tolernace algorithm. If this be set to zero, then the per
+	* building adjustment of journey time tolerance will be disabled.
+	* This only affects visiting passengers.
+	*/
+	uint32 tolerance_modifier_percentage = 100;
+
+	/**
+	* Setting this allows overriding of the calculated industry density
+	* proportion to (1) allow players the ability to control industry growth
+	* after map editing; and (2) correct errors/balance issues in server games.
+	* Setting this to 0, its default setting, will mean that it has no effect.
+	*/
+	uint32 industry_density_proportion_override = 0;
+
 public:
 	//Cornering settings
 	//@author: jamespetts
-	
+
 	//The array index corresponds
 	//to the waytype index.
 
 	sint32 corner_force_divider[10];
 
 	uint8 curve_friction_factor[10];
-	
+
 	sint32 tilting_min_radius_effect;
 
 	/* if set, goods will avoid being routed over overcrowded stops */
@@ -349,7 +399,7 @@ public:
 public:
 
 	uint16 meters_per_tile;
-	
+
 	uint32 base_meters_per_tile;
 	uint32 base_bits_per_month;
 	uint32 job_replenishment_per_hundredths_of_months;
@@ -420,16 +470,16 @@ public:
 	// The base comfort revenue table (comfort - tolerable comfort to percentage)
 	piecewise_linear_tpl<sint16, sint16, sint32> base_comfort_revenue;
 	// The comfort derating table (tenths of minutes to percentage)
-	piecewise_linear_tpl<uint16, uint8> comfort_derating;
+	piecewise_linear_tpl<uint16, uint8, uint32> comfort_derating;
 
 	// @author: neroden
 	// Tables 0 through 5 for catering revenue.
 	// One for each level -- so there are 6 of them total.
 	// Dontcha hate C array declaration style?
-	piecewise_linear_tpl<uint16, sint64> catering_revenues[6];
+	piecewise_linear_tpl<uint16, sint64, uint32> catering_revenues[6];
 
 	// Single table for TPO revenues.
-	piecewise_linear_tpl<uint16, sint64> tpo_revenues;
+	piecewise_linear_tpl<uint16, sint64, uint32> tpo_revenues;
 
 
 	//@author: jamespetts
@@ -445,7 +495,7 @@ public:
 	//@author: jamespetts
 	// Passenger routing settings
 	uint8 passenger_routing_packet_size;
-	
+
 	uint16 max_alternative_destinations_visiting;
 	uint16 max_alternative_destinations_commuting;
 
@@ -465,7 +515,7 @@ public:
 	//@author: jamespetts
 	// Insolvency and debt settings
 	uint8 interest_rate_percent;
-	bool allow_bankruptcy;
+	bool allow_insolvency;
 	bool allow_purchases_when_insolvent;
 
 	// Reversing settings
@@ -481,9 +531,9 @@ public:
 	uint16 road_reverse_time_seconds;
 
 	//@author: jamespetts
-	uint16 global_power_factor_percent; 
+	uint16 global_power_factor_percent;
 	uint16 global_force_factor_percent;
-	
+
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
 	uint8 enforce_weight_limits;
@@ -499,12 +549,12 @@ public:
 	 * @author: jamespetts, August 2011
 	 */
 	uint16 min_wait_airport;
-	
+
 private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
-	
+
 public:
 
 	// The ranges for the journey time tolerance for passengers.
@@ -513,7 +563,7 @@ public:
 	uint32 min_commuting_tolerance;
 	uint32 min_visiting_tolerance;
 	uint32 range_visiting_tolerance;
-	
+
 private:
 	/// what is the minimum clearance required under bridges
 	sint8 way_height_clearance;
@@ -608,8 +658,8 @@ public:
 
 	// The new (8.0) system for private cars checking
 	// whether their destination is reachable can have
-	// an adverse effect on performance. Allow it to 
-	// be disabled. 
+	// an adverse effect on performance. Allow it to
+	// be disabled.
 	bool assume_everywhere_connected_by_road;
 
 	uint16 default_increase_maintenance_after_years[17];
@@ -675,7 +725,7 @@ public:
 	uint32 way_wear_power_factor_rail_type;
 	uint16 standard_axle_load;
 	uint32 citycar_way_wear_factor;
-	
+
 	uint32 sighting_distance_meters;
 	uint16 sighting_distance_tiles;
 
@@ -695,9 +745,14 @@ public:
 	uint16 max_comfort_preference_percentage;
 
 	bool rural_industries_no_staff_shortage;
+	uint32 auto_connect_industries_and_attractions_by_road;
 
 	uint32 path_explorer_time_midpoint;
 	bool save_path_explorer_data;
+
+	// Whether players can know in advance the vehicle production end date and upgrade availability date
+	// If false, only information up to one year ahead
+	bool show_future_vehicle_info;
 
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -719,11 +774,14 @@ public:
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
-	void set_size_x(sint32 g) {size_x=g;}
-	void set_size_y(sint32 g) {size_y=g;}
-	void set_groesse(sint32 x, sint32 y) {size_x = x; size_y=y;}
+	void set_size_x(sint32 g);
+	void set_size_y(sint32 g);
+	void set_groesse(sint32 x, sint32 y, bool preserve_regions = false);
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
+
+	void reset_regions(sint32 old_x, sint32 old_y);
+	void rotate_regions(sint16 y_size);
 
 	sint32 get_map_number() const {return map_number;}
 
@@ -784,9 +842,11 @@ public:
 
 	sint16 get_winter_snowline() const {return winter_snowline;}
 
-	void rotate90() {
+	void rotate90()
+	{
 		rotation = (rotation+1)&3;
-		set_groesse( size_y, size_x );
+		set_groesse( size_y, size_x, true);
+		rotate_regions(size_y);
 	}
 	uint8 get_rotation() const { return rotation; }
 
@@ -844,7 +904,7 @@ public:
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
-	
+
 	uint32 get_base_meters_per_tile() const { return base_meters_per_tile; }
 	uint32 get_base_bits_per_month() const { return base_bits_per_month; }
 	uint32 get_job_replenishment_per_hundredths_of_months() const { return job_replenishment_per_hundredths_of_months; }
@@ -912,7 +972,7 @@ public:
 	void update_min_alternative_destinations_visiting(uint32 global_visitor_demand) { min_alternative_destinations_visiting = min_alternative_destinations_per_visitor_demand_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_visitor_demand_millionths * (uint64)global_visitor_demand) / 1000000ul) : min_alternative_destinations_visiting; }
 	uint16 get_min_alternative_destinations_commuting() const { return min_alternative_destinations_commuting; }
 	void update_min_alternative_destinations_commuting(uint32 global_jobs) { min_alternative_destinations_commuting = min_alternative_destinations_per_job_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_job_millionths * (uint64)global_jobs) / 1000000ul) : min_alternative_destinations_commuting; }
-	
+
 	uint32 get_max_alternative_destinations_per_job_millionths() const { return max_alternative_destinations_per_job_millionths; }
 	uint32 get_max_alternative_destinations_per_visitor_demand_millionths() const { return max_alternative_destinations_per_visitor_demand_millionths; }
 
@@ -923,16 +983,16 @@ public:
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
-	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
+	uint8 get_curve_friction_factor (waytype_t waytype) const { assert((int)waytype < 10); return curve_friction_factor[waytype]; }
 
-	sint32 get_corner_force_divider(waytype_t waytype) const { return corner_force_divider[waytype]; }
+	sint32 get_corner_force_divider(waytype_t waytype) const { assert((int)waytype < 10); return corner_force_divider[waytype]; }
 
 	sint32 get_tilting_min_radius_effect() const { return tilting_min_radius_effect; }
 
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 
 	uint8 get_interest_rate_percent() const { return interest_rate_percent; }
-	bool bankruptcy_allowed() const { return allow_bankruptcy; }
+	bool insolvency_allowed() const { return allow_insolvency; }
 	bool insolvent_purchases_allowed() const { return allow_purchases_when_insolvent; }
 
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
@@ -1062,11 +1122,11 @@ public:
 	sint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
 	void set_spacing_shift_divisor(sint16 s) { spacing_shift_divisor = s; }
 
-	class livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
+	class livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; }
 	vector_tpl<class livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
 
 	bool get_allow_routing_on_foot() const { return allow_routing_on_foot; }
-	void set_allow_routing_on_foot(bool value); 
+	void set_allow_routing_on_foot(bool value);
 
 	bool is_drive_left() const { return drive_on_left; }
 	bool is_signals_left() const { return signals_on_left; }
@@ -1094,6 +1154,10 @@ public:
 
 	uint32 get_random_mode_commuting() const { return random_mode_commuting; }
 	uint32 get_random_mode_visiting() const { return random_mode_visiting; }
+
+	uint32 get_tolerance_modifier_percentage() const { return tolerance_modifier_percentage; }
+
+	uint32 get_industry_density_proportion_override() const { return industry_density_proportion_override; }
 
 #ifndef NETTOOL
 	float32e8_t get_simtime_factor() const { return simtime_factor; }
@@ -1126,7 +1190,7 @@ public:
 	uint16 get_commuting_trip_chance_percent() const { return commuting_trip_chance_percent; }
 
 	// This is the number of ticks that must elapse before a single job is replenished.
-	sint64 get_job_replenishment_ticks() const { return job_replenishment_ticks; } 
+	sint64 get_job_replenishment_ticks() const { return job_replenishment_ticks; }
 	void calc_job_replenishment_ticks();
 
 	sint64 get_forge_cost_road() const { return forge_cost_road; }
@@ -1184,9 +1248,16 @@ public:
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
 
 	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
+	uint32 get_auto_connect_industries_and_attractions_by_road() const { return auto_connect_industries_and_attractions_by_road; }
 
 	uint32 get_path_explorer_time_midpoint() const { return path_explorer_time_midpoint; }
 	bool get_save_path_explorer_data() const { return save_path_explorer_data; }
+
+	bool get_show_future_vehicle_info() const { return show_future_vehicle_info; }
+	//void set_show_future_vehicle_info(bool yesno) { show_future_vehicle_info = yesno; }
+
+	uint32 get_max_route_tiles_to_process_in_a_step() const { return max_route_tiles_to_process_in_a_step; }
+	void set_max_route_tiles_to_process_in_a_step(uint32 value) { max_route_tiles_to_process_in_a_step = value; }
 };
 
-#endif 
+#endif

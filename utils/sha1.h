@@ -21,8 +21,9 @@
  *
  */
 
-#ifndef _SHA1_H_
-#define _SHA1_H_
+#ifndef UTILS_SHA1_H
+#define UTILS_SHA1_H
+
 
 #include "../simtypes.h"
 

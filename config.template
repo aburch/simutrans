@@ -1,11 +1,14 @@
 #
+# This file is part of the Simutrans-Extended project under the Artistic License.
+# (see LICENSE.txt)
+#
+
+#
 # to compile:
 # copy this file to config.default and adjust the settings
 #
 
-#BACKEND = allegro
 #BACKEND = gdi
-#BACKEND = opengl
 #BACKEND = sdl
 #BACKEND = sdl2
 #BACKEND = mixer_sdl
@@ -41,7 +44,6 @@ MULTI_THREAD = 1 # Enable multithreading
 #AV_FOUNDATION = 1  # Use AVFoundation instead of QTKit. If you are using macOS 10.12 or later, this must be enabled.
 
 # Define these as empty strings, if you don't have the respective config program
-#ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
 #SDL2_CONFIG    = sdl2-config
@@ -70,7 +72,6 @@ MULTI_THREAD = 1 # Enable multithreading
 # AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
 # AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
-# DESTINATION_CITYCARS: Citycars can have a destination (enabled automatically - cannot be disabled)
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C

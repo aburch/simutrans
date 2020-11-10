@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2013 The Simutrans Community
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef siminteraction_h
-#define siminteraction_h
+#ifndef SIMINTERACTION_H
+#define SIMINTERACTION_H
+
 
 class karte_ptr_t;
 class viewport_t;

@@ -1,11 +1,7 @@
 /*
-* Manages all gameplay-related messages of the games
-*
-* Copyright (c) 2005 Markus Pristovsek
-*
-* This file is part of the Simutrans project under the artistic license.
-* (see license.txt)
-*/
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
 
 #include "macros.h"
 #include "simdebug.h"
@@ -139,7 +135,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAY
 		}
 	}
 
-	// filter out AI messages for a similar area to recent activity messages 
+	// filter out AI messages for a similar area to recent activity messages
 	if (what == ai  &&  pos != koord::invalid) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
@@ -152,7 +148,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAY
 		}
 	}
 
-	// filter out AI messages for a similar area to recent activity messages 
+	// filter out AI messages for a similar area to recent activity messages
 	if (what == ai  &&  pos != koord::invalid) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {

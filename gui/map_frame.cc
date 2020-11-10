@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * [Mathew Hounsell] Min Size Button On Map Window 20030313
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -18,7 +12,7 @@
 
 #include "simwin.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
@@ -84,35 +78,35 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefkarte_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", reliefkarte_t::MAP_CITYLIMIT },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Convoys", "Show convoys", reliefkarte_t::MAP_CONVOYS },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "map_btn_freight", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Wear", "Show the condition of ways", reliefkarte_t::MAP_CONDITION },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Congestion", "Show how congested that roads are", reliefkarte_t::MAP_CONGESTION }, // TODO: Add translation text for this
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
 	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "map_btn_building_level", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Stop coverage", "Show the distance to the nearest station", reliefkarte_t::MAP_STATION_COVERAGE },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
+	{ COL_HORIZON_BLUE, COL_ROYAL_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY },
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_STAFF_FULFILLMENT },
-	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Mail delivery", "Show the success rate for mail delivery", reliefkarte_t::MAP_MAIL_DELIVERY }
+	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST }
 };
 
-#define MAP_TRANSPORT_TYPE_ITEMS (9)
 typedef struct {
 	const char * name;
 	simline_t::linetype line_type;
@@ -207,14 +201,30 @@ map_frame_t::map_frame_t() :
 	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
 	zoom_buttons[1].add_listener( this );
 	add_component( zoom_buttons+1 );
-	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE;
+	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE*2;
 
-	// rotate map 45° (isometric view)
+	// rotate map 45ï¿½ (isometric view)
 	b_rotate45.init( button_t::square_state, "isometric map", cursor);
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
 	b_rotate45.pressed = karte->isometric;
 	add_component(&b_rotate45);
+	cursor.x += b_rotate45.get_size().w + D_H_SPACE*2;
+
+	// show contour
+	b_show_contour.init(button_t::square_state, "Show contour", cursor);
+	b_show_contour.set_tooltip("Color-coded terrain according to altitude.");
+	b_show_contour.add_listener(this);
+	b_show_contour.pressed = karte->show_contour;
+	add_component(&b_show_contour);
+	cursor.x += b_show_contour.get_size().w + D_H_SPACE*2;
+
+	// show the building layer
+	b_show_buildings.init(button_t::square_state, "Show buildings", cursor);
+	b_show_buildings.set_tooltip("Displays buildings in gray and stations in red and have priority over bridges and tunnels.");
+	b_show_buildings.add_listener(this);
+	b_show_buildings.pressed = karte->show_buildings;
+	add_component(&b_show_buildings);
 
 	// align second row
 	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
@@ -324,7 +334,7 @@ map_frame_t::map_frame_t() :
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
 		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
-		filter_buttons[index].text_color = filter_buttons[index].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+		filter_buttons[index].text_color = SYSCOL_TEXT;
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
 	}
@@ -468,6 +478,18 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
 	}
+	else if (comp == &b_show_contour) {
+		// terrain heights color scale
+		reliefkarte_t::get_karte()->show_contour ^= 1;
+		b_show_contour.pressed = reliefkarte_t::get_karte()->show_contour;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
+	else if (comp == &b_show_buildings) {
+		// terrain heights color scale
+		reliefkarte_t::get_karte()->show_buildings ^= 1;
+		b_show_buildings.pressed = reliefkarte_t::get_karte()->show_buildings;
+		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+	}
 	else if(comp==&b_overlay_networks) {
 		b_overlay_networks.pressed ^= 1;
 		if(  b_overlay_networks.pressed  ) {
@@ -520,7 +542,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
 			filter_buttons[i].background_color = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
-			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
 	return true;
@@ -790,7 +811,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	if(scale_visible) {
 		if(!scale_text)
 		{
-			scale_text = new char[160]; 
+			scale_text = new char[160];
 		}
 		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
 		{
@@ -799,7 +820,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		}
 		else
 		{
-			// Otherwise, must use float	
+			// Otherwise, must use float
 			sprintf(scale_text, "%f %s %s", (1000.0 / welt->get_settings().get_meters_per_tile()), translator::translate("tiles"), translator::translate("per 1 km"));
 		}
 		tile_scale_label.set_text(scale_text, false);
@@ -890,7 +911,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)env_t::default_mapmode);
 		for (uint i=0;i<MAP_MAX_BUTTONS;i++) {
-			filter_buttons[i].pressed = i==env_t::default_mapmode;
+			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode) != 0;
 		}
 		if(  legend_visible!=show_legend_state  ) {
 			action_triggered( &b_show_legend, (long)0 );

@@ -1,12 +1,6 @@
 /*
- * Dialog to configure the generation of a new map
- *
- * Hj. Malthaner
- *
- * April 2000
- *
- * Max Kielland 2013
- * Added theme support
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "welt.h"
@@ -43,7 +37,7 @@
 
 #include "../display/simgraph.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../utils/simstring.h"
 #include "../utils/simrandom.h"
 
@@ -514,11 +508,11 @@ void welt_gui_t::resize_preview()
 
 	if(  world_aspect > 1.0  ) {
 		map_size.w = L_MAP_PREVIEW_WIDTH-2;
-		map_size.h = (scr_coord_val) max( (const int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.h = (scr_coord_val) max( (int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	else {
 		map_size.h = L_MAP_PREVIEW_HEIGHT-2;
-		map_size.w = (scr_coord_val) max( (const int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.w = (scr_coord_val) max( (int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	map.resize( map_size.w, map_size.h );
 }
@@ -564,7 +558,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			env_t::number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
-			
+
 		}
 		else {
 			inp_number_of_big_cities.set_limits(0, v.i);

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <stdio.h>
 #include "../../simdebug.h"
 #include "../../bauer/goods_manager.h"
@@ -25,7 +30,7 @@ void goods_reader_t::register_obj(obj_desc_t *&data)
 
 bool goods_reader_t::successfully_loaded() const
 {
-	return goods_manager_t::successfully_loaded(); 
+	return goods_manager_t::successfully_loaded();
 }
 
 
@@ -92,12 +97,12 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			if (extended_version >= 1)
 			{
-				desc->number_of_classes = decode_uint8(p); 
+				desc->number_of_classes = decode_uint8(p);
 			}
 			const uint8 fare_stages = decode_uint8(p);
 			if(fare_stages > 0)
 			{
-				// The base value is not used if fare stages are used. 
+				// The base value is not used if fare stages are used.
 				for(int i = 0; i < fare_stages; i ++)
 				{
 					const uint16 to_distance = decode_uint16(p);
@@ -133,14 +138,14 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if (!extended || extended_version < 1)
 	{
-		desc->number_of_classes = 1; 
+		desc->number_of_classes = 1;
 		desc->class_revenue_percentages.append(100);
 	}
 
 	DBG_DEBUG("goods_reader_t::read_node()", "version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
-		version, 
-		desc->base_values.get_count() > 0 ? desc->base_values[0].price : 0, 
-		desc->catg, 
+		version,
+		desc->base_values.get_count() > 0 ? desc->base_values[0].price : 0,
+		desc->catg,
 		desc->speed_bonus,
 		desc->weight_per_unit,
 		desc->color,

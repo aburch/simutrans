@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/** @file powernet.h Data structure to manage a net of powerlines - a powernet */
+#ifndef DATAOBJ_POWERNET_H
+#define DATAOBJ_POWERNET_H
 
-#ifndef powernet_t_h
-#define powernet_t_h
 
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
+
+
+/** @file powernet.h Data structure to manage a net of powerlines - a powernet */
 
 
 /**

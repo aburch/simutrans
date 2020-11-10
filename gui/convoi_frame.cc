@@ -1,16 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- * filtering added by Volker Meyer
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
- */
-
-/*
- * Displays a scrollable list of all convois of a player
- *
- * @author Hj. Malthaner, Sort/Filtering by V. Meyer
- * @date 15-Jun-01
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string.h>
@@ -36,14 +26,16 @@
  * All filter and sort settings are static, so the old settings are
  * used when the window is reopened.
  */
-convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::nach_name;
+convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::by_name;
 bool convoi_frame_t::sortreverse = false;
+static uint8 cl_display_mode = gui_convoiinfo_t::cnvlist_normal;
 
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
 	"cl_btn_sort_income",
 	"cl_btn_sort_type",
-	"cl_btn_sort_id"
+	"cl_btn_sort_id",
+	"cl_btn_sort_power"
 };
 
 
@@ -146,13 +138,13 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 
 	switch (sortby) {
 		default:
-		case nach_name:
+		case by_name:
 			result = strcmp(cnv1->get_internal_name(), cnv2->get_internal_name());
 			break;
-		case nach_gewinn:
+		case by_profit:
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
-		case nach_typ:
+		case by_type:
 			if(cnv1->get_vehicle_count()*cnv2->get_vehicle_count()>0) {
 				vehicle_t const* const tdriver1 = cnv1->front();
 				vehicle_t const* const tdriver2 = cnv2->front();
@@ -166,8 +158,11 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 				}
 			}
 			break;
-		case nach_id:
+		case by_id:
 			result = cnv1.get_id()-cnv2.get_id();
+			break;
+		case by_power:
+			result = cnv1->get_sum_power() - cnv2->get_sum_power();
 			break;
 	}
 	return sortreverse ? result > 0 : result < 0;
@@ -212,7 +207,7 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	owner(player),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
-	filter_label("Filter:")
+	mode_label("cl_txt_mode")
 {
 	name_filter = NULL;
 	filter_flags = 0;
@@ -221,8 +216,8 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
 	add_component(&sort_label);
 
-	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
-	add_component(&filter_label);
+	mode_label.set_pos(scr_coord(BUTTON3_X, 2));
+	add_component(&mode_label);
 
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
 	sortedby.add_listener(this);
@@ -233,7 +228,12 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	display_mode.init(button_t::roundbox, gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode], scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	display_mode.add_listener(this);
+	add_component(&display_mode);
+
+	filter_on.init(button_t::square, "cl_txt_filter", scr_coord(BUTTON4_X, 2));
+	filter_on.set_tooltip(translator::translate("cl_btn_filter_tooltip"));
 	filter_on.add_listener(this);
 	add_component(&filter_on);
 
@@ -270,7 +270,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 		return vscroll.infowin_event(ev);
 	}
 	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_windowsize().w-xr  ) {
-		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
+		int y = (ev->my-47)/get_cinfo_height(cl_display_mode) + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y]);
@@ -289,7 +289,7 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 {
 	if(  comp == &filter_on  ) {
 		filter_is_on = !filter_is_on;
-		filter_on.set_text( filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
+		filter_on.pressed = filter_is_on;
 		sort_list();
 	}
 	else if(  comp == &sortedby  ) {
@@ -299,6 +299,11 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 	else if(  comp == &sorteddir  ) {
 		set_reverse( !get_reverse() );
 		sort_list();
+	}
+	else if (comp == &display_mode) {
+		cl_display_mode = (cl_display_mode + 1) % gui_convoiinfo_t::DISPLAY_MODES;
+		display_mode.set_text(gui_convoiinfo_t::cnvlist_mode_button_texts[cl_display_mode]);
+		resize(scr_size(0, 0));
 	}
 	else if(  comp == &filter_details  ) {
 		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
@@ -315,8 +320,8 @@ void convoi_frame_t::resize(const scr_coord size_change)                        
 	scr_size size = get_windowsize()-scr_size(0,47);
 	vscroll.set_visible(false);
 	remove_component(&vscroll);
-	vscroll.set_knob( size.h/40, convois.get_count() );
-	if(  (sint32)convois.get_count()<=size.h/40  ) {
+	vscroll.set_knob( size.h/get_cinfo_height(cl_display_mode), convois.get_count() );
+	if(  (sint32)convois.get_count()<=size.h/get_cinfo_height(cl_display_mode)) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
@@ -332,6 +337,7 @@ void convoi_frame_t::resize(const scr_coord size_change)                        
 void convoi_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = win_get_magic( magic_convoi_list_filter+owner->get_player_nr() );
+	filter_on.pressed = filter_is_on;
 
 	gui_frame_t::draw(pos, size);
 
@@ -351,10 +357,11 @@ void convoi_frame_t::draw(scr_coord pos, scr_size size)
 
 		if(cnv.is_bound()) {
 			gui_convoiinfo_t ci(cnv);
+			ci.set_mode(cl_display_mode);
 			ci.draw( pos+scr_coord(4,yoffset) );
 		}
-		// full height of a convoi is 40 for all info
-		yoffset += 40;
+		// set convoi info height
+		yoffset += get_cinfo_height(cl_display_mode);
 	}
 
 	POP_CLIP();

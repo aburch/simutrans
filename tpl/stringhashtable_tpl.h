@@ -1,12 +1,18 @@
 /*
- * a template class which implements a hashtable with string keys
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef stringhashtable_tpl_h
-#define stringhashtable_tpl_h
+#ifndef TPL_STRINGHASHTABLE_TPL_H
+#define TPL_STRINGHASHTABLE_TPL_H
+
 
 #include "hashtable_tpl.h"
 #include <string.h>
+
+/*
+ * a template class which implements a hashtable with string keys
+ */
 
 /*
  * Define the key characteristics for hashing "const char *".

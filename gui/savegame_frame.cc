@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <string>
@@ -12,7 +10,7 @@
 
 #include "savegame_frame.h"
 #include "../pathes.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simdebug.h"
 #include "../gui/simwin.h"
 #include "../utils/simstring.h"
@@ -53,15 +51,15 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	only_directories(only_directories),
 	searchpath_defined(false),
 	fnlabel("Filename"),
-	use_table(use_table),
 	scrolly(use_table ? (gui_component_t*)&file_table : (gui_component_t*)&button_frame),
 	num_sections(0),
-	delete_enabled(delete_enabled)
+	delete_enabled(delete_enabled),
+	use_table(use_table)
 {
 	init(suffix, path);
 }
 
-void savegame_frame_t::init(const char *suffix, const char *path)
+void savegame_frame_t::init(const char *, const char *path)
 {
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP);
 
@@ -362,7 +360,7 @@ void savegame_frame_t::set_file_table_default_sort_order()
 }
 
 
-void savegame_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix ) 
+void savegame_frame_t::add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix )
 {
 	add_file(fullpath, filename, get_info(fullpath), not_cutting_suffix);
 }
@@ -537,7 +535,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
 	}
 	else if (component == &file_table) {
-		gui_table_event_t *event = (gui_table_event_t *) p.p;
+		const gui_table_event_t *event = (const gui_table_event_t *) p.p;
 		if (event->is_cell_hit) {
 			const event_t *ev = event->get_event();
 			if (file_table_button_pressed && event->cell != pressed_file_table_button) {
@@ -580,7 +578,7 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						//qsort();
 					}
 					break;
-				}			
+				}
 			}
 		}
 		else if (file_table_button_pressed) {
@@ -700,7 +698,7 @@ void savegame_frame_t::set_windowsize(scr_size size)
 		sint32 c = file_table.get_grid_size().get_x();
 		if (c > 0) {
 			c = c > 0 ? 1 : 0;
-			// "w" was formerly "x". This may need to be "h" instead, as the conversion is not clear. 
+			// "w" was formerly "x". This may need to be "h" instead, as the conversion is not clear.
 			sint16 x = scrolly.get_client().get_size().w - (file_table.get_table_width() - file_table.get_column_width(c));
 			file_table.get_column(c)->set_width(x);
 		}
@@ -786,7 +784,7 @@ void savegame_frame_t::set_filename(const char *file_name)
 	}
 }
 
-void savegame_frame_t::press_file_table_button(coordinates_t &cell)
+void savegame_frame_t::press_file_table_button(const coordinates_t &cell)
 {
 	pressed_file_table_button = cell;
 	file_table_button_pressed = true;
@@ -815,12 +813,12 @@ void savegame_frame_t::release_file_table_button()
 
 
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
+void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row)
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t&)row;
 	scr_size size = scr_size(get_width(), row.get_height());
 	scr_coord mouse(get_mouse_x() - offset.x, get_mouse_y() - offset.y);
-	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){ 
+	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){
 		btn.set_typ(button_t::roundbox);
 	}
 	else
@@ -837,7 +835,7 @@ void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordin
 // BG, 06.04.2010
 void gui_file_table_delete_column_t::paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row)
 {
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t&)row;
 	if (file_row.delete_enabled) {
 		gui_file_table_button_column_t::paint_cell(offset, x, y, row);
 	}
@@ -846,7 +844,7 @@ void gui_file_table_delete_column_t::paint_cell(const scr_coord& offset, coordin
 
 
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
+void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row)
 {
 	lbl.set_pos(scr_coord(2, 2));
 	lbl.set_size(scr_size(get_width() - 2, row.get_height() - 2));
@@ -855,9 +853,9 @@ void gui_file_table_label_column_t::paint_cell(const scr_coord& offset, coordina
 
 
 // BG, 26.03.2010
-const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const 
-{ 
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const
+{
+	const gui_file_table_row_t &file_row = (const gui_file_table_row_t &)row;
 	return file_row.text.c_str();
 }
 
@@ -870,10 +868,9 @@ void gui_file_table_action_column_t::paint_cell(const scr_coord& offset, coordin
 
 
 // BG, 26.03.2010
-time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const 
-{ 
- 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
-	return file_row.info.st_mtime;
+time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const
+{
+	return static_cast<const gui_file_table_row_t &>(row).info.st_mtime;
 }
 
 
@@ -975,7 +972,7 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
 	const int odd = max_size%2;
 
 	strncpy(dest,source,half-1);
-	strncpy(&dest[half-1],"...",3);
+	strncpy(&dest[half-1],"...",4);
 	strcpy(&dest[half+2],&source[orig_size-half+2-odd]);
 
 }

@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "../simworld.h"
 #include "../simhalt.h"
 #include "../simline.h"
@@ -100,7 +105,7 @@ void times_history_t::update_components()
 	else if (convoi.is_bound()) schedule = convoi->get_schedule();
 	else return;
 
-	const char *name;
+	const char *name = NULL;
 	title_buf.clear();
 	if (line.is_bound()) {
 		title_buf.append(translator::translate("line_times_history"));
@@ -121,7 +126,7 @@ void times_history_t::update_components()
 	update_time = welt->get_ticks();
 }
 
-bool times_history_t::action_triggered(gui_action_creator_t *comp, value_t extra)
+bool times_history_t::action_triggered(gui_action_creator_t *, value_t)
 {
 	return true;
 }
@@ -132,7 +137,7 @@ void times_history_t::draw(scr_coord pos, scr_size size)
 		if ((!line->get_schedule()->empty() && !line->get_schedule()->matches(welt, last_schedule))) {
 			register_containers();
 		}
-		if (line->get_name() != cached_name || 
+		if (line->get_name() != cached_name ||
 		    welt->get_ticks() - update_time > 10000) {
 			update_components();
 		}

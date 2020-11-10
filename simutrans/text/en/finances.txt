@@ -74,5 +74,8 @@ Values (click on name-button to view details on the graph), include:
 - <em>Credit limit</em> - is the amount of money that a player is entitled to borrow. See <a href="insolvency.txt">here</a> for more information on debt.
 </p>
 <p>
+- <em>Solvency limit</em> - is the amount of money that a player can be in debt without becoming <a href="insolvency.txt">insolvent</a>.
+</p>
+<p>
 <em>Tip</em>: Some costs, starting balance and finances in game can be changed in the simuconf.tab file, which is located in the /simutrans/config/ directory.
 </p>

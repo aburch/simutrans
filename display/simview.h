@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simview_h
-#define simview_h
+#ifndef DISPLAY_SIMVIEW_H
+#define DISPLAY_SIMVIEW_H
+
 
 class karte_t;
 class viewport_t;
@@ -35,6 +35,15 @@ public:
 	 * @see display_flush_buffer() for the consequences of setting screen areas dirty.
 	 */
 	void display(bool dirty);
+
+	/**
+	 * @brief Clears the prepared area of the view.
+	 *
+	 * Sets the prepared area of this view to no area. The entire view will have
+	 * to be reprepared on next display call. Intended when the entire world has
+	 * changed, eg switching underground mode or layer.
+	 */
+	void clear_prepared() const;
 
 	/**
 	 * Draws the simulated world in the specified rectangular area of the pixel buffer. This is a internal function of the class.

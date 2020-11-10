@@ -1,4 +1,9 @@
 /*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Water ground for Simutrans.
  * Revised January 2001
  * Hj. Malthaner
@@ -16,8 +21,6 @@
 
 int wasser_t::stage = 0;
 bool wasser_t::change_stage = false;
-
-
 
 // for animated waves
 void wasser_t::prepare_for_refresh()

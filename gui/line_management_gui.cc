@@ -1,7 +1,6 @@
 /*
- * part of the Simutrans project
- * @author hsiegeln
- * 01/12/2003
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../dataobj/schedule.h"
@@ -63,7 +62,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 						// what other stops are next to it in the schedule.
 						i.reverse = -1;
 					}
-					
+
 					// update all convoys of this line!
 					// update line schedule via tool!
 					tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );

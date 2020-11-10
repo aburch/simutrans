@@ -1,18 +1,10 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  BEWARE: non-standard node structure!
- *	0   Foreground-images
- *	1   Background-images
- *	2   Cursor/Icon (Hajo: 14-Feb-02: now also icon image)
- *	3   Foreground-images - snow
- *	4   Background-images - snow
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef __BRUECKE_BESCH_H
-#define __BRUECKE_BESCH_H
+#ifndef DESCRIPTOR_BRIDGE_DESC_H
+#define DESCRIPTOR_BRIDGE_DESC_H
 
 
 #include "skin_desc.h"
@@ -28,6 +20,15 @@
 class tool_t;
 class checksum_t;
 
+
+/*
+ *  BEWARE: non-standard node structure!
+ *  0   Foreground-images
+ *  1   Background-images
+ *  2   Cursor/Icon (Hajo: 14-Feb-02: now also icon image)
+ *  3   Foreground-images - snow
+ *  4   Background-images - snow
+ */
 class bridge_desc_t : public obj_desc_transport_infrastructure_t {
     friend class bridge_reader_t;
 
@@ -147,7 +148,7 @@ public:
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
-	 * information on bitwise operations: 
+	 * information on bitwise operations:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */

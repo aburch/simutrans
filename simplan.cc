@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "simdebug.h"
@@ -333,7 +331,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				}
 			}
 		}
-			
+
 		else // Loading
 		{
 			uint8 halt_list_count_from_file;
@@ -399,7 +397,7 @@ void planquadrat_t::correct_water()
 		sint8 disp_hn_se = max( gr->get_hoehe() + corner_se(slope), water_hgt );
 		sint8 disp_hn_ne = max( gr->get_hoehe() + corner_ne(slope), water_hgt );
 		sint8 disp_hn_nw = max( gr->get_hoehe() + corner_nw(slope), water_hgt );
-		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
+		const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 		gr->set_hoehe( disp_hneu );
 		gr->set_grund_hang( (slope_t::type)sneu );
 	}
@@ -413,7 +411,7 @@ void planquadrat_t::abgesenkt()
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
+		sint8 max_hgt = gr->get_hoehe() + (slope ? 1 : 0);		// only matters that not flat
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt <= welt->get_water_hgt( k )  &&  gr->get_typ() != grund_t::wasser  ) {
@@ -442,7 +440,7 @@ void planquadrat_t::angehoben()
 		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? (slope & 7 ? 1 : 2) : 0);
+		sint8 max_hgt = gr->get_hoehe() + (slope ? 1 : 0);		// only matters that not flat
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt > welt->get_water_hgt( k )  &&  gr->get_typ() == grund_t::wasser  ) {
@@ -514,7 +512,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	else {
 		// clip everything at the next tile above
 		if(  i < ground_size  ) {
-			
+
 			clip_dimension p_cr = display_get_clip_wh(CLIP_NUM_VAR);
 
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
@@ -644,7 +642,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
-					for(int halt_count = 0; halt_count < halt_list_count; halt_count++) 
+					for(int halt_count = 0; halt_count < halt_list_count; halt_count++)
 					{
 						if(halt_list[halt_count].halt->get_owner() == display_player)
 						{
@@ -697,16 +695,16 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	gr->display_overlay(xpos, ypos);
 	if (ground_size > 1) {
+		const sint16 raster_tile_width = get_tile_raster_width();
 		const sint8 h0 = gr->get_disp_height();
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			const sint16 yypos = ypos - tile_raster_scale_y((h - h0) * TILE_HEIGHT_STEP, raster_tile_width);
 			gr->display_overlay( xpos, yypos );
 		}
 	}
 }
-
 
 /**
  * Finds halt belonging to a player
@@ -771,9 +769,9 @@ void planquadrat_t::halt_list_insert_at(halthandle_t halt, uint8 pos, uint8 dist
  */
 void planquadrat_t::add_to_haltlist(halthandle_t halt)
 {
-	if(halt.is_bound()) 
+	if(halt.is_bound())
 	{
-		// Quick and dirty way to our 2d co-ordinates 
+		// Quick and dirty way to our 2d co-ordinates
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 		const koord halt_next_pos = halt->get_next_pos(pos, true);
 		// Must be koord_distance not shortest_distance as the coverage radii are square, not circular
@@ -782,9 +780,9 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		{
 			// Since only the first one gets all, we want the closest halt one to be first
 			halt_list_remove(halt);
-			
+
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
-			{			
+			{
 				if(halt_list[insert_pos].halt.is_bound() && koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance)
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
@@ -848,10 +846,22 @@ uint8 planquadrat_t::get_connected(halthandle_t halt) const
 {
 	for(uint8 i = 0; i < halt_list_count; i++)
 	{
-		if(halt_list[i].halt == halt) 
+		if(halt_list[i].halt == halt)
 		{
 			return halt_list[i].distance;
 		}
 	}
 	return 255;
+}
+
+void planquadrat_t::update_underground() const
+{
+	get_kartenboden()->check_update_underground();
+	// update tunnel tiles
+	for(unsigned int i=1; i<get_boden_count(); i++) {
+		grund_t *const gr = get_boden_bei(i);
+		if (gr->ist_tunnel()) {
+			gr->check_update_underground();
+		}
+	}
 }

@@ -1,11 +1,18 @@
-#ifndef labellist_frame_t_h
-#define labellist_frame_t_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_LABELLIST_FRAME_T_H
+#define GUI_LABELLIST_FRAME_T_H
+
 
 #include "../gui/gui_frame.h"
 #include "../gui/labellist_stats_t.h"
 #include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_combobox.h"
 
 
 /**
@@ -18,9 +25,9 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     static const char *sort_text[labellist::SORT_MODES];
 
     gui_label_t sort_label;
-    button_t	sortedby;
-    button_t	sorteddir;
-    button_t	filter;
+	gui_combobox_t	sortedby;
+	button_t sort_asc, sort_desc;
+	button_t	filter;
     labellist_stats_t stats;
 
     gui_scrollpane_t scrolly;
@@ -38,14 +45,14 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
     /**
      * Set the window associated helptext
      * @return the filename for the helptext, or NULL
      * @author V. Meyer
      */
-    const char * get_help_filename() const {return "labellist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
      /**
      * This function refreshes the station-list
@@ -53,7 +60,6 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
      */
     void display_list();
 
-    static labellist::sort_mode_t get_sortierung() { return sortby; }
     static void set_sortierung(const labellist::sort_mode_t sm) { sortby = sm; }
 
     static bool get_reverse() { return sortreverse; }
@@ -62,7 +68,7 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// rotated map need new info ...
-	void map_rotate90( sint16 ) { display_list(); }
+	void map_rotate90( sint16 ) OVERRIDE { display_list(); }
 };
 
 #endif

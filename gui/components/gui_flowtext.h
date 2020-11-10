@@ -1,5 +1,11 @@
-#ifndef GUI_COMPONENTS_FLOWTEXT_H
-#define GUI_COMPONENTS_FLOWTEXT_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_FLOWTEXT_H
+#define GUI_COMPONENTS_GUI_FLOWTEXT_H
+
 
 #include <string>
 
@@ -35,7 +41,7 @@ public:
 	 * Paints the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

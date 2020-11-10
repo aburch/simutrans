@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef simfab_h
-#define simfab_h
+#ifndef SIMFAB_H
+#define SIMFAB_H
+
 
 #include <algorithm>
 
@@ -21,6 +20,7 @@
 #include "halthandle_t.h"
 #include "simworld.h"
 #include "utils/plainstring.h"
+#include "bauer/goods_manager.h"
 
 
 class player_t;
@@ -33,7 +33,7 @@ class ware_t;
  * @author Knightly
  */
 #define MAX_MONTH                  (12)
-#define FAB_PRODUCTION              (0)
+#define FAB_PRODUCTION              (0) // total boost rate - it means productivity
 #define FAB_POWER                   (1)
 #define FAB_BOOST_ELECTRIC          (2)
 #define FAB_BOOST_PAX               (3)
@@ -155,10 +155,10 @@ public:
  * hergestellt oder verbraucht wird, 0 wenn gerade none
  * hergestellt oder verbraucht wird und > 0 sonst
  * (entspricht Vorrat/Verbrauch).
- * 
+ *
  * A class of factories in Simutrans.
- *  Factories produce and consume goods and supplies near bus stops. 
- * The query functions return -1 if a product is never produced or consumed, 
+ *  Factories produce and consume goods and supplies near bus stops.
+ * The query functions return -1 if a product is never produced or consumed,
  * 0 when nothing is manufactured or consumed and> 0 otherwise (equivalent to stocks / consumption).
  * @date 1998
  * @see haltestelle_t
@@ -176,7 +176,7 @@ public:
 private:
 
 	gebaeude_t* building;
-		
+
 	/**
 	 * Factory statistics
 	 * @author Knightly
@@ -198,7 +198,7 @@ private:
 
 	/**
 	 * Die möglichen Lieferziele
-	 * 
+	 *
 	 * The possible delivery targets
 	 * @author Hj. Malthaner
 	 */
@@ -434,7 +434,7 @@ private:
 	stadt_t* city;
 
 	// Check whether this factory is in a city: return NULL if not, or the city that it is in if so.
-	stadt_t* check_local_city(); 
+	stadt_t* check_local_city();
 
 	bool has_calculated_intransit_percentages;
 
@@ -504,9 +504,11 @@ public:
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
+	const vector_tpl<nearby_halt_t>& get_nearby_freight_halts() const { return nearby_freight_halts; }
+
 	/**
 	 * Recalculate nearby halts
-	 * These are stashed, so must be recalced 
+	 * These are stashed, so must be recalced
 	 * when halts are built or destroyed
 	 * @author neroden
 	 */
@@ -598,15 +600,15 @@ public:
 
 	/*
 	* This method is used when visiting passengers arrive at an
-	* end consumer industry. This logs their consumption of 
+	* end consumer industry. This logs their consumption of
 	* products sold at this end-consumer industry.
 	*/
-	void add_consuming_passengers(sint32 number_of_passengers); 
-	
+	void add_consuming_passengers(sint32 number_of_passengers);
+
 	/*
 	* Returns true if this industry has no stock left.
 	* If the industry has some types of stock left but not
-	* others, whether true or false is returned is random, 
+	* others, whether true or false is returned is random,
 	* weighted by the proportions of each.
 	* This is for use in determining whether passengers may
 	* travel to this destination.
@@ -657,7 +659,7 @@ public:
 
 	/**
 	 * gibt true zurueck wenn sich ein factory im feld befindet
-	 * 
+	 *
 	 * "gives true back if factory in the field is"
 	 *
 	 * @author Hj. Malthaner
@@ -675,7 +677,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
+	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase, bool from_saved = false);
 
 	sint16 get_rotate() const { return rotate; }
 
@@ -709,17 +711,26 @@ public:
 	sint32 get_base_production() const { return prodbase; }
 	void set_base_production(sint32 p, bool is_from_saved_game = false);
 
-	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16). 
+	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16).
 	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + (get_sector() == fabrik_t::end_consumer ? 0 : prodfactor_pax + prodfactor_mail))))) >> 8l; }
 
+	// returns the current productivity relative to 100
+	sint32 get_current_productivity() const { return welt->calc_adjusted_monthly_figure(prodbase) ? get_current_production() * 100 / welt->calc_adjusted_monthly_figure(prodbase) : 0; }
+	// returns the current productivity including the effect of staff shortage
+	sint32 get_actual_productivity() const { return status == inactive ? 0 : status >= staff_shortage ? get_current_productivity() * get_staffing_level_percentage() / 100 : get_current_productivity(); }
+
 	/* prissi: returns the status of the current factory */
-	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, staff_shortage, MAX_FAB_STATUS };
+	enum { nothing, good, water_resource, medium, water_resource_full, storage_full, inactive, shipment_stuck, material_shortage, no_material, bad, mat_overstocked, stuck, missing_connection, staff_shortage, MAX_FAB_STATUS };
 	static unsigned status_to_color[MAX_FAB_STATUS];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }
 	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
+
+	// return total storage occupancy for UI. should ignore the overflow of certain goods.
+	uint16 get_total_input_occupancy() const;
+	uint32 get_total_output_capacity() const;
 
 	/**
 	 * Crossconnects all factories
@@ -755,6 +766,8 @@ public:
 	// Determine shortage of staff for each industry type
 	bool chk_staff_shortage(uint8 abc, sint32 staffing_level_percentage) const;
 
+	sint32 get_staffing_level_percentage() const;
+
 	/**
 	 * Returns a list of goods produced by this factory.
 	 */
@@ -766,6 +779,8 @@ public:
 	inline uint32 get_base_mail_demand() const { return arrival_stats_mail.get_scaled_demand(); }
 
 	void calc_max_intransit_percentages();
+	uint16 get_max_intransit_percentage(uint32 index);
+
 	// Average journey time to delivery goods of this type
 	uint32 get_lead_time (const goods_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
@@ -778,7 +793,14 @@ public:
 	bool is_input_empty() const;
 
 	// check connected to public or current player stop
-	bool is_connect_own_network() const;
+    bool is_connected_to_network(player_t *player) const;
+
+	// Returns whether this factory has potential demand for passed goods category
+	bool has_goods_catg_demand(uint8 catg_index = goods_manager_t::INDEX_NONE) const;
+
+
+	// Returns the operating rate to basic production. (x 10)
+	uint32 calc_operation_rate(sint8 month) const;
 };
 
 #endif

@@ -1,5 +1,11 @@
-#ifndef DING_VIEW_T_H
-#define DING_VIEW_T_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_DING_VIEW_T_H
+#define GUI_COMPONENTS_DING_VIEW_T_H
+
 
 #include "../../simdings.h"
 #include "gui_world_view_t.h"

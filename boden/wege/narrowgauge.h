@@ -1,9 +1,10 @@
 /*
- * This file is part of the Simutrans project under the artistic licence.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef boden_wege_narrowgauge_h
-#define boden_wege_narrowgauge_h
+#ifndef BODEN_WEGE_NARROWGAUGE_H
+#define BODEN_WEGE_NARROWGAUGE_H
 
 
 #include "schiene.h"

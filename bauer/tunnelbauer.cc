@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include <stdio.h>
@@ -54,13 +52,6 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
-	// add the tool
-	tool_build_tunnel_t *tool = new tool_build_tunnel_t();
-	tool->set_icon( desc->get_cursor()->get_image_id(1) );
-	tool->cursor = desc->get_cursor()->get_image_id(0);
-	tool->set_default_param( desc->get_name() );
-	tool_t::general_tool.append( tool );
-	desc->set_builder( tool );
 	tunnel_by_name.put(desc->get_name(), desc);
 }
 
@@ -68,6 +59,23 @@ stringhashtable_tpl <tunnel_desc_t *> * tunnel_builder_t::get_all_tunnels()
 {
 	return &tunnel_by_name;
 }
+
+// to allow overlaying, the tool must be registered here!
+bool tunnel_builder_t::successfully_loaded()
+{
+	FOR( stringhashtable_tpl<tunnel_desc_t*>, & i, tunnel_by_name ) {
+		// add the tool
+		tunnel_desc_t* desc = i.value;
+		tool_build_tunnel_t *tool = new tool_build_tunnel_t();
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0);
+		tool->set_default_param( desc->get_name() );
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	return true;
+}
+
 
 const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 {
@@ -340,7 +348,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 /************************************** FIX ME ***************************************************
 ********************** THIS MUST BE RATHER A PROPERTY OF THE TUNNEL IN QUESTION ! ****************/
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
-	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
+	if(  (env_t::pak_height_conversion_factor == 1  &&  !is_one_high(slope))  ||  (env_t::pak_height_conversion_factor == 2  &&  is_one_high(slope))  ) {
 		return "Tunnel muss an\nsingleem\nHang beginnen!\n";
 	}
 
@@ -462,8 +470,6 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 
 	// Now we build the invisible part
 	while(pos.get_2d()!=end.get_2d()) {
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(waytyp != powerline_wt)
@@ -495,7 +501,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 			if(  waytyp==road_wt  ) {
 				strasse_t* str = (strasse_t*) weg;
 				assert(str);
-				str->set_overtaking_mode(overtaking_mode);
+				str->set_overtaking_mode(overtaking_mode, player);
 				str->set_ribi_mask_oneway(ribi_type(-zv));
 			}
 
@@ -514,6 +520,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 		pos = pos + zv;
 	}
 
@@ -541,10 +548,10 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	}
 	else {
 		// construct end tunnel tile
-		const grund_t* gr = welt->lookup(start);
-		const weg_t* old_way = gr ? gr->get_weg(waytyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
+
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+
 		if(waytyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
@@ -582,6 +589,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 		cost += desc->get_value();
+		cost += way_desc->get_value();
 	}
 
 	player_t::book_construction_costs(player, -cost, start.get_2d(), desc->get_waytype());
@@ -597,9 +605,6 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		ribi = alter_boden->get_weg_ribi_unmasked(desc->get_waytype()) | ribi_type(zv);
 	}
 
-	const grund_t* gr = welt->lookup(end);
-	const weg_t* old_way = gr ? gr->get_weg(way_desc->get_wtyp()) : NULL;
-	const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
 	tunnel->obj_add(new tunnel_t(end, player, desc));
 
@@ -651,7 +656,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		if(  desc->get_waytype()==road_wt  ) {
 			strasse_t* str = (strasse_t*)weg;
 			assert(weg);
-			str->set_overtaking_mode(overtaking_mode);
+			str->set_overtaking_mode(overtaking_mode, player);
 			if(  desc->get_waytype()==road_wt  &&  overtaking_mode<=oneway_mode  ) {
 				if(  beginning  ) {
 					str->set_ribi_mask_oneway(ribi_type(-zv));

@@ -22,3 +22,4 @@ Some items are not colour-coded and may not display in chosen colour. This depen
 <p>
 <em>Tip:</em> To change AI player colours, use the <a href="players.txt">Player List</a> or <a href="special.txt">P+ Change Player</a> to select the AI player first.
 </p>
+ 

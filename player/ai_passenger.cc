@@ -1,11 +1,7 @@
 /*
- * Copyright (c) 2008 Markus Pristovsek
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-
-/* simple passenger AI (not using trains, not pre-optimizednetwork) */
 
 #include "../simcity.h"
 #include "../simconvoi.h"
@@ -74,7 +70,7 @@ bool ai_passenger_t::set_active(bool new_state)
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if (halt->get_owner() == sim::up_cast<player_t const*>(this)) {
+		if (halt->get_owner() == this) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
 				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
@@ -103,7 +99,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat  ) {
 					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = shortest_distance( trypos, basis );
-					if (!obj || !obj->get_owner() || obj->get_owner() == sim::up_cast<player_t const*>(this)) {
+					if (!obj || !obj->get_owner() || obj->get_owner() == this) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_owner(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
@@ -204,7 +200,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 	halthandle_t start_connect_hub;
 	koord start_harbour = koord::invalid;
 	if(start_hub.is_bound()) {
-		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  ) 
+		if(  (start_hub->get_station_type()&haltestelle_t::dock)==0  )
 		{
 			start_connect_hub = start_hub;
 			start_hub = halthandle_t();
@@ -213,7 +209,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			FOR(haltestelle_t::connexions_map, & iter, *start_connect_hub->get_connexions(0, 0) )
 			{
 				halthandle_t const h = iter.key;
-				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  )
 				{
 					start_hub = h;
 					break;
@@ -244,7 +240,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			FOR(haltestelle_t::connexions_map, & iter, *end_connect_hub->get_connexions(0, 0) )
 			{
 				halthandle_t const h = iter.key;
-				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  )
 				{
 					start_hub = h;
 					break;
@@ -608,7 +604,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 					// malus for out of town
 					testdist += 5;
 				}
-				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES )  ) {
+				if(  testdist<bestdist  &&  welt->square_is_free( k, 3, 3, NULL, ALL_CLIMATES, 65535 )  ) {
 					bestpos = k;
 					bestdist = testdist;
 				}
@@ -677,7 +673,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 			FOR(haltestelle_t::connexions_map, & iter, *end_connect_hub->get_connexions(0, 0) )
 			{
 				halthandle_t const h = iter.key;
-				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  )
 				{
 					start_hub = h;
 					break;
@@ -716,7 +712,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 		}
 		if(!end_hub.is_bound()) {
 			end_hub = build_airport(end_stadt, end_airport, true);
-			if(!end_hub.is_bound()) 
+			if(!end_hub.is_bound())
 			{
 				if(start_hub->get_connexions(0, 0)->empty())
 				{
@@ -724,9 +720,9 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 					welt->lookup_kartenboden(start_hub->get_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::none );
 					koord center = start_hub->get_basis_pos() + koord( welt->lookup_kartenboden(start_hub->get_basis_pos())->get_weg_ribi_unmasked( air_wt ) );
 					// now the remaining taxi-/runways
-					for( sint16 y=center.y-1;  y<=center.y+1;  y++  ) 
+					for( sint16 y=center.y-1;  y<=center.y+1;  y++  )
 					{
-						for( sint16 x=center.x-1;  x<=center.x+1;  x++  ) 
+						for( sint16 x=center.x-1;  x<=center.x+1;  x++  )
 						{
 							welt->lookup_kartenboden(koord(x,y))->remove_everything_from_way( this, air_wt, ribi_t::none );
 						}
@@ -1239,7 +1235,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 			     !end_stadt  ||  !create_air_transport_vehicle( start_stadt, end_stadt )  ) {
 				state = NR_BAUE_CLEAN_UP;
 			}
-			else 
+			else
 			{
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->get_basis_pos(), 6);

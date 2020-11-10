@@ -1,5 +1,11 @@
-#ifndef DR_RDPNG_H
-#define DR_RDPNG_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef UTILS_DR_RDPNG_H
+#define UTILS_DR_RDPNG_H
+
 
 #ifdef __cplusplus
 extern "C" {

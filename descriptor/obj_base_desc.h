@@ -1,5 +1,11 @@
-#ifndef __OBJ_BASE_DESC_H
-#define __OBJ_BASE_DESC_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_OBJ_BASE_DESC_H
+#define DESCRIPTOR_OBJ_BASE_DESC_H
+
 
 #include "text_desc.h"
 
@@ -49,10 +55,10 @@ public:
 		return month_now==0  ||  (intro_date<=month_now  &&  retire_date>month_now);
 	}
 
-	/// @return true if this is still not available
-	bool is_future(const uint16 month_now) const
+	// Returns 2 in the near future. Use the judgment of 2 only when control the display of the future
+	uint8 is_future(const uint16 month_now) const
 	{
-		return month_now  &&  (intro_date > month_now);
+		return (!month_now || (intro_date - month_now <= 0)) ? 0 : (intro_date - month_now < 12) ? 2 : 1;
 	}
 
 	/// @return true if this is obsolete
@@ -88,10 +94,20 @@ protected:
 	uint8 upgrade_group;		///< The group of elevated ways between which this can be upgraded for the way only cost.
 
 public:
-	obj_desc_transport_related_t() : obj_desc_timelined_t(),
-		base_maintenance(0), base_cost(0), 
-               maintenance(0), price(0), axle_load(9999), wtyp(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0),
-               base_way_only_cost(0), way_only_cost(0) {}
+	obj_desc_transport_related_t() :
+		obj_desc_timelined_t(),
+		base_maintenance(0),
+		base_cost(0),
+		maintenance(0),
+		price(0),
+		wtyp(255),
+		axle_load(9999),
+		topspeed(0),
+		topspeed_gradient_1(0),
+		topspeed_gradient_2(0),
+		base_way_only_cost(0),
+		way_only_cost(0)
+	{}
 
 	inline sint32 get_base_maintenance() const { return base_maintenance; }
 	inline sint32 get_maintenance() const { return maintenance; }

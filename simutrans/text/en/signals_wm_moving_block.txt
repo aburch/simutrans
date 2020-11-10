@@ -1,0 +1,72 @@
+<title>Signals working methods - Moving block signalling</title>
+
+<h1>Signals working methods - Moving block signalling</h1><br><br>
+
+<em>Moving block signalling</em><br>
+The Moving block signalling system is the latest available signalling technology in the game, as it is in the real world. The moving block working method is modelled after the international ETCS level 3 system, and it completely revolutionizes the way the tracks are signalled.<br>
+The system works by always reserving the entire braking distance in front of the train. If the train travels fast, the reservation will be longer than if it travels slow. If a train catches up with a slower running train, it will reduce its speed to match that train. The choose signals, though, will work like ordinary <a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> choose signals, and reserve a block from the signal onto the platform or to the end of choose sign.<br>
+<br>
+Contrary to all other working methods, the "max distance" of a moving block signal is in relation to other moving block signals. That means that a train has to pass another signal within the max distance, otherwise it will revert to <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a>.<br>
+<br>
+
+Note that trains need to pass a moving block signal in order to switch working method to "Moving block". It is not sufficient to just have a moving block signal in the vicinity or on another track.<br>
+<br>
+
+<em>How it works</em><br>
+* When a train departs from a moving block signal, it will start by just reserving the first tile behind the signal.<br>
+* As the train accelerates, more tiles will get reserved by the train, until it has reached its full speed.<br>
+* When the train has reached full speed, its entire braking distance will be reserved in front of the train.<br>
+* If a tile cannot be reserved, the train will initiate braking so that it can stop within the reserved tiles.<br>
+* Moving block signals needs to be placed within the "max distance" of each other in order to function properly.<br>
+* If a train travels that max distance without encountering another signal, it will revert to drive by sight. It is not enough to pass near a moving block signal on another track. It has to pass the signal, facing the direction of travel, on its own track.<br>
+* Fundamentally, bidirectional signals work in the same way as in <a href="signals_wm_cab_signalling.txt"><em>Cab signalling</em></a> and <a href="signals_wm_track_circuit_block.txt"><em>Track circuit block</em></a>, although some circumstances makes it different (read "Bidirectional pittfalls" below)<br>
+<br>
+
+<em>Best uses</em><br>
+In general, moving block signalling can replace both cab signalling, absolute block and track circuit block signals. Note that in some cases it is still better with fixed blocks.<br>
+* Replace all signals on platforms and exit points with a moving block signal (unless fixed blocks are desired).<br>
+* Remove all signals along the line.<br>
+* Place a moving block signal every "max distance" along the line (use bidirectional moving block signals if it is single track line).<br>
+* Replace all choose signals with moving block choose signals.<br>
+* On junction gates where you only want one train at a time, consider use another working method (i.e. Cab signalling stop signal).<br>
+<br>
+
+<em>Pittfalls</em><br>
+There are some pittfalls with this working method, which shares the same nature as the drive by sight working method:<br>
+* If trains can drive in both directions on a piece of track, make sure there is a bidirectinal moving block signal to enforce a directional reservation.<br>
+* Especially on terminus stations, you might need block type reservations in order to avoid deadlocks. The moving block choose signal provides block reservations, but if you dont want a choose signal, use a block signal from another working method (i.e. Cab signalling stop signal).<br>
+<br>
+
+<em>Bidirectional pittfalls</em><br>
+* A bidirectional signal will only attempt to create a directional reservation when it is touched upon by a normal (red) reservation.<br>
+* This means that trains departing from holding points in moving block working method only will trigger the directional reservation when the train is within braking distance of the signal, as it is at this point the red reservation reaches the bidirectional signal.<br>
+* This situation can therefore cause a deadlock, since the same could have happened at the other end of the single traked line.<br>
+<br>
+
+To make sure this situation doesnt occour, do one of the following:<br>
+* Place a bidirectional moving block signal directly at the platform end / holding point.<br>
+* Place a fixed block signal at the platform end / holding point.<br>
+<br>
+
+<em>Types of signals</em><br>
+There are only two types of signals with the "Moving block" working method:<br>
+<br>
+- <it>Moving block signal</it><br>
+This is also called a "Moving block beacon", or "ETCS level 3 beacon". This signal should be spaced according to the signals "max distance" along the line in order to keep the trains in the moving block working method (Toptip: use the "set signal spacing" window).<br>
+<br>
+
+- <it>Moving block choose signal</it><br>
+This is also called a "Moving block choose beacon", or "ETCS level 3 choose beacon". This is the choose signal equelant of the moving block signal.<br>
+Choose signals behaves differently dependent on which condition is met:<br>
+* The scheduled destination of the train is reached.<br>
+* An "end of choose" sign is reached.<br>
+* Another choose signal is reached.<br>
+Read about choose signals on the <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> page.<br>
+
+<br>
+<br>
+<br>
+<br>
+
+
+

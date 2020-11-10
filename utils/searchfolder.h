@@ -1,13 +1,10 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- *
- *  Functionality:
- *      Searches a disk folder for files matching certain restrictions.
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-#ifndef __SEARCHFOLDER_H
-#define __SEARCHFOLDER_H
+
+#ifndef UTILS_SEARCHFOLDER_H
+#define UTILS_SEARCHFOLDER_H
 
 
 #include <string>
@@ -15,6 +12,7 @@
 
 
 /**
+ * Searches a disk folder for files matching certain restrictions.
  * @author Volker Meyer
  * @author Markohs
  */

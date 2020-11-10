@@ -1,5 +1,11 @@
-#ifndef GET_WAYTYPE_H
-#define GET_WAYTYPE_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_WRITER_GET_WAYTYPE_H
+#define DESCRIPTOR_WRITER_GET_WAYTYPE_H
+
 
 #include "../../simtypes.h"
 

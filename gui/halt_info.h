@@ -1,17 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-/*
- * Window with destination information for a stop
- * @author Hj. Malthaner
- */
+#ifndef GUI_HALT_INFO_H
+#define GUI_HALT_INFO_H
 
-#ifndef gui_halt_info_h
-#define gui_halt_info_h
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
@@ -99,7 +93,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "station.txt";}
+	const char * get_help_filename() const OVERRIDE {return "station.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -107,28 +101,28 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
-	virtual koord3d get_weltpos(bool);
+	virtual koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos();
+	virtual bool is_weltpos() OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
 	// this constructor is only used during loading
 	halt_info_t();
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_halt_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_halt_info; }
 };
 
 #endif

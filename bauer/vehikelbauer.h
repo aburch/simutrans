@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef vehicle_builder_t_h
-#define vehicle_builder_t_h
+#ifndef BAUER_VEHIKELBAUER_H
+#define BAUER_VEHIKELBAUER_H
 
 
 #include "../dataobj/koord3d.h"
@@ -34,7 +32,7 @@ class vehicle_builder_t
 {
 public:
 	// Retained for compatibility only
-	static void rdwr_speedbonus(loadsave_t *file); 
+	static void rdwr_speedbonus(loadsave_t *file);
 
 	static bool register_desc(vehicle_desc_t *desc);
 	static bool successfully_loaded();

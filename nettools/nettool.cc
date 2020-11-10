@@ -1,5 +1,9 @@
-/* nettool.cc
- *
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+/*
  * Network server control tool for Simutrans
  * Created April 2011
  * dwachs

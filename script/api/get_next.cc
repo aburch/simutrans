@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "get_next.h"
 
 SQInteger generic_get_next_f(HSQUIRRELVM vm, uint32 count, uint32 F(uint32) )

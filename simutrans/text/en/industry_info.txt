@@ -35,7 +35,7 @@ The name of selected industry is shown in the titlebar ofthe  <strong>Industry I
 Other information about selected industry and options include:
 </p>
 <p>
-<em>Production</em>: the maximum rate of goods that the industry will supply (if a supplier) or consume (if it is a consumer) in units per month/day (depending on the date settings). Supplying <a href="electricity.txt">electricity</a> to the industry increases the rate both of production and consumption, thereby giving the opportunity to transport more commodities to/from that industry.
+<em>Productivity</em>: the maximum rate of goods that the industry will supply (if a supplier) or consume (if it is a consumer) in units per month/day (depending on the date settings). Supplying <a href="electricity.txt">electricity</a> to the industry increases the rate both of production and consumption, thereby giving the opportunity to transport more commodities to/from that industry.
 </p>
 <p>
 The <em>Status colour bar</em> under the picture shows how and whether the industry is operating (also used in the <a href="factorylist_filter.txt">Industry List</a>):<br>

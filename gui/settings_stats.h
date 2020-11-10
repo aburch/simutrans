@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef settings_passenger_stats_h
-#define settings_passenger_stats_h
+#ifndef GUI_SETTINGS_STATS_H
+#define GUI_SETTINGS_STATS_H
+
 
 #include <math.h>
 

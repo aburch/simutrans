@@ -1,5 +1,11 @@
-#ifndef boden_wasser_h
-#define boden_wasser_h
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef BODEN_WASSER_H
+#define BODEN_WASSER_H
+
 
 #include "grund.h"
 

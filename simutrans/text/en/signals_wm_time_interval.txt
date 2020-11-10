@@ -1,0 +1,62 @@
+<title>Signals working methods - Time interval</title>
+
+<h1>Signals working methods - Time interval</h1><br><br>
+
+<em>Time interval</em><br>
+The Time interval working method works by telling the approaching train how long time ago the last train passed the signal. Principally there would sit a person in the signalbox which would be counting the minutes after a train had passed. Directly when a train passes, the signalman would set the stop signal, sometimes called a "Vane signal", to danger. Then he would count the minutes, and at the 5 minute mark he would go and set the signal to caution. When 10 minutes had passed, he would change the signal to clear.<br>
+It is a very simple and neat working method for double track lines to keep trains separated in the early years. However, if a train goes too slow, the train from behind might catch up to it and collide with it. That would result in an emergency stop that lasts for some minutes and they will then continue in drive by sight working method afterwards.<br>
+Trains passing a signal at caution will drive at either half line speed or half signal speed, whichever is highest.<br>
+<br>
+
+<em>How it works</em><br>
+Time interval signals work in two fundamental different ways: On lines they change states dependent on time, but with junctions within sighting distance, they work like <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> signals.<br>
+<br>
+Behavior of signals with no junctions before following signal:<br>
+* Time interval signal will show CLEAR as default<br>
+* When a train passes the signal, the signal will be set to DANGER<br>
+* When 5 minutes have passed, the signal goes to CAUTION.<br>
+* Trains passing the signal at caution will continue in half line speed or half signal speed, whichever is highest.<br>
+* When 10 minutes have passed, the signal goes to CLEAR again.<br>
+* If two trains collide, they will perform an emergency stop which will last some minutes and revert to <a href="signals_wm_drive_by_sight.txt"><em>Drive by sight</em></a><br>
+<br>
+Behavior of a signal with a junction before the next signal:<br>
+* When there is a junction before the next signal, the signal will never go beyond CAUTION.<br>
+* If the junction is within sighting distance, the signal will make an absolute block type reservation for the sighting distance. If it cannot do that, the signal will remain DANGER<br>
+<br>
+
+<em>Types of signals</em><br>
+There exists a few variations of time interval signals:<br><br>
+ - <it>Time interval stop signal</it><br>
+The Time interval stop signal is also called a "Vane signal". This is the basic signal that follows the functionallity mentioned in the "how it works" section.<br>
+<br>
+ - <it>Time interval station signal</it><br>
+Time interval station signals work mostly like ordinary time interval signals, except it also is a station signal. Being a station signal, one single signal can handle the departure of all tracks in all directions and keep track of the time since the departure in all directions as well.<br>
+It handles junctions differently:<br>
+* Time interval Station signals will go to clear even though there is a junction between it and the next signal. This means that trains can depart from a station at full speed instead of half speed as an ordinary time interval signal would command.<br>
+<br>
+ - <it>Time interval choose signal</it><br>
+* A choose signal will reserve a block from the signal onto an empty platform, or a block from the signal to the "end of choose" sign on the other end of the station.<br>
+Read more about blocks and choose signals here: <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a><br>
+<br>
+ - <it>Time interval distant signal</it><br>
+* A distant signal, might also be called a "Vane auxilliary signal", will alert the driver of the aspect of the upcoming signal.<br>
+<br>
+
+<em>Best uses</em><br>
+* Only use this working method on double track lines, or stations connected with double track lines.<br>
+* On double track lines with equally fast running trains, place the time interval signals so that the fastest train cannot catch up with the slowest running train without passing minimum one time interval signal first.<br>
+* Time interval Station signal are best used on simpler stations on double track lines. There can be many tracks in the stations, but if the station have many exits the station signal will still only depart a train every 5 minutes (in slow speed), even though a particular line have not had any trains for a while.<br>
+* To signal a larger station, a signal is needed for each "sighting distance" along the station exit. If the pakset sighting distance is 7 tiles, you need a signal every 7 tiles and a junction in between every signal. The signals will behave like <a href="signals_wm_absolute_block.txt"><em>Absolute block</em></a> signals.<br>
+* Trains should be spaced no less than 10 minutes apart. Any extra time adds to the reliability of the trains not catching up with each other. Dependent on the lenght of the line, the spacing of the signals and the speeds (and speed differences) of the trains, you might want to make sure that a train can run at half speed between two signals without having the following train come within the 10 minute buffer.<br>
+<br>
+
+<em>Pittfalls</em><br>
+* The lack of communication between signals makes it very prone to deadlock. Never use this working method on single track or networks where trains might be heading towards each other!<br>
+* If trains have too big a difference in speed, some fast trains might risk catching up with slower trains, potentially triggering an emergency stop.<br>
+* If trains are performing an emergency stop on a busy line, you might encounter an emergency stop knock on effect due to the following train still running in potential full speed towards the disaster area. If the spacing is too close, the following train might catch up with the emergency trains, which is slowly running in drive by sight, and a new emergency stop will happen. This might cascade through all trains passing the affected area.<br>
+<br>
+
+<em>Directional reservations</em><br>
+Time inteval signals cannot create directional reservations by itself, but directional reservations from other signals can run through time interval signals.<br>
+
+<br><br><br><br>

@@ -1,19 +1,18 @@
 /*
- * this is a scrolling area in which subcomponents are drawn
- *
- * Copyright (c) 1997 - 2001 Hansjorg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef gui_scrollpane_h
-#define gui_scrollpane_h
+#ifndef GUI_COMPONENTS_GUI_SCROLLPANE_H
+#define GUI_COMPONENTS_GUI_SCROLLPANE_H
 
 
 #include "gui_component.h"
 #include "gui_scrollbar.h"
 
+/*
+ * this is a scrolling area in which subcomponents are drawn
+ */
 class gui_scrollpane_t : public gui_component_t
 {
 private:
@@ -55,7 +54,7 @@ public:
 	 */
 	void set_scroll_position(int x, int y);
 
-	scr_rect get_client( void );
+	scr_rect get_client( void ) OVERRIDE;
 
 	int get_scroll_x() const;
 	int get_scroll_y() const;
@@ -72,7 +71,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; }
 
@@ -86,19 +85,19 @@ public:
 	 * Returns true if the hosted component is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable() { return comp->is_focusable(); }
+	virtual bool is_focusable() OVERRIDE { return comp->is_focusable(); }
 
 	/**
 	 * returns element that has the focus
 	 */
-	gui_component_t *get_focus() { return comp->get_focus(); }
+	gui_component_t *get_focus() OVERRIDE { return comp->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
+	virtual scr_coord get_focus_pos() OVERRIDE { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 };
 
 #endif

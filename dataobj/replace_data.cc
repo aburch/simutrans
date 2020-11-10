@@ -1,3 +1,8 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include "replace_data.h"
 
 #include "loadsave.h"
@@ -36,7 +41,7 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 	{
 		replacing_vehicles->append(copy_from->get_replacing_vehicle(i));
 	}
-		
+
 	number_of_convoys = copy_from->get_number_of_convoys();
 }
 
@@ -60,9 +65,9 @@ void replace_data_t::sprintf_replace(cbuffer_t &buf) const
 	buf.append(retain_in_depot ? "1" : "0");
 	buf.append(use_home_depot ? "1" : "0");
 	buf.append(allow_using_existing_vehicles ? "1" : "0");
-		
+
 	// Secondly, the number of convoys. Use leading zeros
-	// to keep a constant number of characters. 
+	// to keep a constant number of characters.
 	sint8 zeros = 0;
 	if(number_of_convoys < 10)
 	{
@@ -95,7 +100,7 @@ void replace_data_t::sprintf_replace(cbuffer_t &buf) const
 		buf.append(replacing_vehicles->get_element(n)->get_name());
 		buf.append("|");
 	}
-	// Terminating character	
+	// Terminating character
 	buf.append("~");
 }
 
@@ -125,18 +130,18 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 	// Thirdly, get the replacing vehicles.
 	replacing_vehicles->clear();
 
-	while(  *p  &&  *p!='|'  ) 
+	while(  *p  &&  *p!='|'  )
 	{
 		p++;
 	}
-	if(  *p!='|'  ) 
+	if(  *p!='|'  )
 	{
 		dbg->error( "replace_data_t::sscanf_replace()","incomplete entry termination!" );
 		return false;
 	}
 	p++;
 	// now scan the entries
-	while(*p!='~') 
+	while(*p!='~')
 	{
 		char vehicle_name[256];
 		uint8 n = 0;
@@ -145,9 +150,9 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 			vehicle_name[n++] = *p++;
 		}
 		vehicle_name[n] = '\0';
-		
+
 		const vehicle_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
-		if(desc == NULL) 
+		if(desc == NULL)
 		{
 			desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 		}
@@ -176,7 +181,7 @@ void replace_data_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(retain_in_depot);
 	file->rdwr_bool(use_home_depot);
 	file->rdwr_bool(allow_using_existing_vehicles);
-	
+
 	uint16 replacing_vehicles_count;
 
 	if(file->is_saving())
@@ -197,7 +202,7 @@ void replace_data_t::rdwr(loadsave_t *file)
 			char vehicle_name[256];
 			file->rdwr_str(vehicle_name, 256);
 			const vehicle_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
-			if(desc == NULL) 
+			if(desc == NULL)
 			{
 				desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 			}
@@ -216,7 +221,7 @@ void replace_data_t::rdwr(loadsave_t *file)
 const vehicle_desc_t*  replace_data_t::get_replacing_vehicle(uint16 number) const
 {
 	return replacing_vehicles->get_element(number);
-	
+
 }
 
 void replace_data_t::decrement_convoys(convoihandle_t cnv)
@@ -228,7 +233,7 @@ void replace_data_t::decrement_convoys(convoihandle_t cnv)
 
 	if(--number_of_convoys <= 0 && !clearing)
 	{
-		// See http://www.parashift.com/c++-faq-lite/freestore-mgmt.html#faq-16.15
+		// See https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
 		// When maintaining this code, ensure that the above criteria remain satisfied.
 		delete this;
 	}
@@ -253,8 +258,8 @@ void replace_data_t::add_vehicle(const vehicle_desc_t* vehicle, bool add_at_fron
 
 void replace_data_t::increment_convoys(convoihandle_t cnv)
 {
-	replacing_convoys->append(cnv); 
-	number_of_convoys ++; 
+	replacing_convoys->append(cnv);
+	number_of_convoys ++;
 }
 
 void replace_data_t::clear_all()

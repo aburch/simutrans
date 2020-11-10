@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef goods_manager_t_h
-#define goods_manager_t_h
+#ifndef BAUER_GOODS_MANAGER_H
+#define BAUER_GOODS_MANAGER_H
+
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -32,11 +31,11 @@ private:
 	static uint8 max_catg_index;
 
 public:
-	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 }; 
+	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
 
 	static const goods_desc_t *passengers;
 	static const goods_desc_t *mail;
-	static const goods_desc_t *none; 
+	static const goods_desc_t *none;
 
 	static bool successfully_loaded();
 	static bool register_desc(goods_desc_t *desc);
@@ -66,7 +65,13 @@ public:
 	static const goods_desc_t *get_info_catg_index(const uint8 catg_index);
 
 	// Number of classes for a given category index
-	static const uint8 get_classes_catg_index(const uint8 catg_index);
+	static uint8 get_classes_catg_index(const uint8 catg_index);
+
+	// @return translated class name
+	static const char * get_translated_wealth_name(const uint8 catg_index, const uint8 g_class);
+	// Currently there is no distinction in the name of class, but in case of distinction it is necessary to separate into the following
+	//static const char * get_translated_fare_class_name(const uint8 catg_index, const uint8 g_class);
+	//static const char * get_translated_accommodation_class_name(const uint8 catg_index, const uint8 g_class);
 
 	/*
 	 * allow to multiply all prices, 1000=1.0

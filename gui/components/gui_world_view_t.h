@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef world_view_t_h
-#define world_view_t_h
+#ifndef GUI_COMPONENTS_GUI_WORLD_VIEW_T_H
+#define GUI_COMPONENTS_GUI_WORLD_VIEW_T_H
+
 
 #include "gui_component.h"
 
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
+#include "../../dataobj/rect.h"
 
 class obj_t;
 
@@ -23,7 +23,34 @@ class obj_t;
 class world_view_t : public gui_world_component_t
 {
 private:
+	/**
+	 * @brief Contains a reference to every world_view_t object.
+	 *
+	 * Used to allow mass invalidating of all prepared area for cases such as
+	 * changing underground mode and snow levels.
+	 */
+	static vector_tpl<world_view_t *> view_list;
+
+	/**
+	 * @brief The prepared area of the view port.
+	 *
+	 * The area that has already been prepared for this view port. When the view
+	 * port is moved then only the new area not already prepared will be
+	 * prepared. If the view port is stationary no area will be prepared.
+	 */
+	rect_t prepared_rect;
+
+	/**
+	 * @brief The display area centered around the map origin.
+	 *
+	 * The area used by this view to display the world. It is centered around
+	 * the origin but can easilly be shifted to where the actual view is
+	 * focused.
+	 */
+	rect_t display_rect;
+
 	vector_tpl<koord> offsets; /**< Offsets are stored. */
+
 	sint16            raster;  /**< For this rastersize. */
 
 protected:
@@ -34,9 +61,22 @@ protected:
 	void calc_offsets(scr_size size, sint16 dy_off);
 
 public:
+	/**
+	 * @brief Clears all prepared area.
+	 *
+	 * Set prepared rect to have no area. Used when all views must be reprepared
+	 * such as changing underground mode or slice. This method is required
+	 * because object views use completly separate draw logic from the main map
+	 * view and must also have their prepared area invalidated for correct
+	 * graphic reproduction.
+	 */
+	static void invalidate_all();
+
 	world_view_t(scr_size size);
 
 	world_view_t();
+
+	~world_view_t();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

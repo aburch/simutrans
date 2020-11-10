@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef replace_frame_t_h
-#define replace_frame_t_h
+#ifndef GUI_REPLACE_FRAME_H
+#define GUI_REPLACE_FRAME_H
+
 
 #include "gui_frame.h"
 
@@ -95,14 +94,14 @@ public:
 	 * Do the dynamic dialog layout
 	 */
 	void layout(scr_size *size);
-	
+
 	/**
 	 * Update texts, image lists and buttons according to the current state.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
 	void update_data();
-	
+
 	replace_frame_t(convoihandle_t cnv, const char *name);
 
 	/**

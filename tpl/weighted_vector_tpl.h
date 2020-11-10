@@ -1,5 +1,11 @@
-#ifndef TPL_WEIGHTED_VECTOR_H
-#define TPL_WEIGHTED_VECTOR_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef TPL_WEIGHTED_VECTOR_TPL_H
+#define TPL_WEIGHTED_VECTOR_TPL_H
+
 
 #ifndef ITERATE
 #define ITERATE(collection,enumerator) for(uint32 enumerator = 0; enumerator < collection.get_count(); enumerator++)
@@ -7,7 +13,7 @@
 
 #ifndef ITERATE_PTR
 #define ITERATE_PTR(collection,enumerator) for(uint32 enumerator = 0; enumerator < collection->get_count(); enumerator++)
-#endif 
+#endif
 #include <cstddef>
 #include <iterator>
 
@@ -325,7 +331,7 @@ template<class T> class weighted_vector_tpl
 			bool any_to_remove = false;
 			for (uint32 i = 0; i < count; i++)
 			{
-				if(nodes != NULL && nodes[i].data == elem) 
+				if(nodes != NULL && nodes[i].data == elem)
 				{
 					any_to_remove = remove_at(i);
 					i--;
@@ -356,7 +362,7 @@ template<class T> class weighted_vector_tpl
 			total_weight = nodes[count].weight;
 			return nodes[count].data;
 		}
-		
+
 		T& operator [](uint32 i)
 		{
 			if (i >= count) dbg->fatal("weighted_vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);
@@ -445,16 +451,13 @@ template<class T> class weighted_vector_tpl
 
 		weighted_vector_tpl& operator=( weighted_vector_tpl const& other );
 
-	friend void swap<>(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
+		friend void swap(weighted_vector_tpl<T>&a, weighted_vector_tpl<T>&b)
+		{
+			sim::swap(a.nodes, b.nodes);
+			sim::swap(a.size, b.size);
+			sim::swap(a.count, b.count);
+			sim::swap(a.total_weight, b.total_weight);
+		}
 };
-
-
-template<class T> void swap(weighted_vector_tpl<T>& a, weighted_vector_tpl<T>& b)
-{
-	sim::swap(a.nodes, b.nodes);
-	sim::swap(a.size, b.size);
-	sim::swap(a.count, b.count);
-	sim::swap(a.total_weight, b.total_weight);
-}
 
 #endif

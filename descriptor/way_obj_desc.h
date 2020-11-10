@@ -1,13 +1,11 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- *
- *  Moduldescreibung:
- *       This files describes way objects like electrifications
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
-#ifndef __WAY_OBJ_BESCH_H
-#define __WAY_OBJ_BESCH_H
+
+#ifndef DESCRIPTOR_WAY_OBJ_DESC_H
+#define DESCRIPTOR_WAY_OBJ_DESC_H
+
 
 #include "image_list.h"
 #include "obj_base_desc.h"
@@ -176,7 +174,7 @@ public:
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
-	 * information on bitwise operations: 
+	 * information on bitwise operations:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */

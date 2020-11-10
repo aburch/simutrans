@@ -1,5 +1,11 @@
-#ifndef __VEHICLE_READER_H
-#define __VEHICLE_READER_H
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef DESCRIPTOR_READER_VEHICLE_READER_H
+#define DESCRIPTOR_READER_VEHICLE_READER_H
+
 
 #include "obj_reader.h"
 

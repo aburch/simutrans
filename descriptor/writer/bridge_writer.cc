@@ -1,5 +1,10 @@
-#include <cmath>
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #include <string>
+#include <cmath>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
@@ -95,7 +100,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 {
 	obj_node_t node(this, 38, &parent);
 
-	uint8  waytype_t					= get_waytype(obj.get("waytype"));
+	uint8  waytype_t				= get_waytype(obj.get("waytype"));
 	uint16 topspeed					= obj.get_int("topspeed", 999);
 	uint16 topspeed_gradient_1      = obj.get_int("topspeed_gradient_1", topspeed);
 	uint16 topspeed_gradient_2      = obj.get_int("topspeed_gradient_2", topspeed_gradient_1);
@@ -130,7 +135,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	// Prohibitive: way allows only vehicles with matching constraint:
 	// vehicles with matching constraint allowed on other sorts of way.
 	// @author: jamespetts
-	
+
 	uint8 permissive_way_constraints = 0;
 	uint8 prohibitive_way_constraints = 0;
 	char buf_permissive[60];
@@ -142,24 +147,24 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		sprintf(buf_prohibitive, "way_constraint_prohibitive[%d]", i);
 		uint8 tmp_permissive = (obj.get_int(buf_permissive, 255));
 		uint8 tmp_prohibitive = (obj.get_int(buf_prohibitive, 255));
-		
+
 		//Compress values into a single byte using bitwise OR.
 		if(tmp_permissive < 8)
 		{
-			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2, (double)tmp_permissive) : permissive_way_constraints | 1;
+			permissive_way_constraints = (tmp_permissive > 0) ? permissive_way_constraints | (uint8)pow(2.0, (double)tmp_permissive) : permissive_way_constraints | 1;
 		}
 		if(tmp_prohibitive < 8)
 		{
-			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
+			prohibitive_way_constraints = (tmp_prohibitive > 0) ? prohibitive_way_constraints | (uint8)pow(2.0, (double)tmp_prohibitive) : prohibitive_way_constraints | 1;
 		}
 	}
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversioned
 	uint16 version = 0x8009;
-	
+
 	// This is the overlay flag for Simutrans-Extended
-	// This sets the *second* highest bit to 1. 
+	// This sets the *second* highest bit to 1.
 	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*

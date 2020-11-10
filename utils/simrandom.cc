@@ -1,10 +1,16 @@
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
 #ifndef MAKEOBJ
+
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include "simrandom.h"
 #include "../dataobj/environment.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -118,13 +124,13 @@ uint32 simrand(const uint32 max, const char*)
 	uint32 result = simrand_plain() % max;
 	char buf[256];
 	sprintf(buf, "%s (%i); seed: (%u). rand %u, max %u", caller, get_random_seed(), thread_seed, result, max);
-	dbg->warning("simrand", buf);
+	dbg->message("simrand", buf);
 	return result;
 #endif
 
 #ifdef DEBUG_SIMRAND_CALLS_1
 	// Run the random number generator to change the seed,
-	// but do not use the number to ensure a consistent 
+	// but do not use the number to ensure a consistent
 	// code path for debugging.
 	simrand_plain();
 	return max - 1;
@@ -137,7 +143,7 @@ uint32 simrand(const uint32 max, const char*)
 #endif
 }
 
-/** 
+/**
  * Generates a random number on [0,max-1] interval with a normal distribution
  * See: http://forum.simutrans.com/index.php?topic=10953.0;all for details
  * Takes an exponent, but produces unreasonably low values with any number
@@ -154,7 +160,7 @@ uint32 simrand_normal(const uint32 max, uint32 exponent, const char*)
 #else
 	uint64 random_number = simrand(max, "simrand_normal");
 #endif
-	
+
 	if(exponent == 0)
 	{
 		// Non-normalised random number.
@@ -271,10 +277,10 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 static double int_noise(const sint32 x, const sint32 y)
 {
-	sint32 n = x + y*101 + noise_seed;
+	uint32 n = (uint32)x + (uint32)y*101U + noise_seed;
 
 	n = (n<<13) ^ n;
-	return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
+	return 1.0 - (double)((n * (n * n * 15731U + 789221U) + 1376312589U) & 0x7fffffff) / 1073741824.0;
 }
 
 
@@ -298,9 +304,9 @@ void init_perlin_map( sint32 w, sint32 h )
 
 		map_w = w+2;
 		map = new float[map_w*(h+2)];
-		for(  sint32 y=0;  y<h+2;  y++ ) 
+		for(  sint32 y=0;  y<h+2;  y++ )
 		{
-			for(  sint32 x=0;  x<map_w;  x++ ) 
+			for(  sint32 x=0;  x<map_w;  x++ )
 			{
 				map[x+(y*map_w)] = (float)int_noise( x-1, y-1 );
 			}
@@ -313,9 +319,9 @@ void init_perlin_map( sint32 w, sint32 h )
 								 int_noise(x, y-1) + int_noise(x, y+1) );*/
 		map_w = w+2;
 		map = new float[map_w*(h+2)];
-		for(  sint32 y=0;  y<h+2;  y++ ) 
+		for(  sint32 y=0;  y<h+2;  y++ )
 		{
-			for(  sint32 x=0;  x<map_w;  x++ ) 
+			for(  sint32 x=0;  x<map_w;  x++ )
 			{
 				map[x+(y*map_w)] = (float)( int_noise(x-1, y) + int_noise(x+1, y) +
 								 int_noise(x, y-1) + int_noise(x, y+1) );
@@ -436,9 +442,9 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	//static const double frequency_2[24] = {0.125, 0.25, 0.5, 1, 1.25, 1.5,  1.75, 2,  2.5, 3, 3.5, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32};
 	//static const double amplitude_2[24] = {-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10};
 
-	if(m < 768) 
+	if(m < 768)
 	{
-		for(i = 0; i < 6; i++) 
+		for(i = 0; i < 6; i++)
 		{
 		const double frequency = frequency_0[i];
 		const double amplitude = pow(p, amplitude_0[i]);
@@ -446,10 +452,10 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 			                            (y * frequency) / 64.0) * amplitude;
 		}
 		return total;
-	} 
+	}
 	else if(m < 2048)
 	{
-		for(i = 0; i < 8; i++) 
+		for(i = 0; i < 8; i++)
 		{
 			const double frequency = frequency_1[i];
 			const double amplitude = pow(p, amplitude_1[i]);
@@ -460,7 +466,7 @@ double perlin_noise_2D(const double x, const double y, const double p, const sin
 	}
 	else
 	{
-		for(i = 0; i < 16; i++) 
+		for(i = 0; i < 16; i++)
 		{
 			const double frequency = frequency_2[i];
 			const double amplitude = pow(p, amplitude_2[i]);

@@ -1,5 +1,11 @@
-#ifndef _API_OBJ_DESC_BASE_H_
-#define _API_OBJ_DESC_BASE_H_
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef SCRIPT_API_API_OBJ_DESC_BASE_H
+#define SCRIPT_API_API_OBJ_DESC_BASE_H
+
 
 /** @file api_obj_desc.h templates for transfer of desc-pointers */
 

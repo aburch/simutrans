@@ -1,11 +1,6 @@
 /*
- * way_desc.cc
- *
- * Copyright (c) 1997 - 2012 Hj. Malthaner and
- *        the simutrans development team
- *
- * This file is part of the Simutrans project under the artistic license.
- * (see license.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "way_desc.h"

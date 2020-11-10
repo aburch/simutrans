@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
 #include "../simdebug.h"
@@ -16,7 +14,7 @@
 
 #include "loadsave_frame.h"
 
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
@@ -32,7 +30,7 @@ class gui_loadsave_table_row_t : public gui_file_table_row_t
 	sve_info_t* svei;
 public:
 	//loadsave_t file;
-	const char* get_pak_extension() { return svei ? svei->pak.c_str() : ""; }
+	const char* get_pak_extension() const { return svei ? svei->pak.c_str() : ""; }
 	uint32 get_version() const { return svei ? svei->version : 0; }
 	uint32 get_extended_version() const { return svei ? svei->extended_version : 0; }
 
@@ -90,7 +88,7 @@ void sve_info_t::rdwr(loadsave_t *file)
 
 /**
  * Action that's started with a button click
- * @author Hansjörg Malthaner
+ * @author Hansjï¿½rg Malthaner
  */
 bool loadsave_frame_t::item_action(const char *filename)
 {
@@ -211,7 +209,7 @@ void loadsave_frame_t::set_file_table_default_sort_order()
 	file_table.set_row_sort_column_prio(3, 0);
 	file_table.set_row_sort_column_prio(2, 1);
 }
- 
+
 
 gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const char *buttontext) : gui_file_table_row_t(pathname, buttontext)
 {
@@ -250,7 +248,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 	}
 }
 
-gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
+gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150)
 {
 	strcpy(pak, env_t::objfilename.c_str());
 	pak[strlen(pak) - 1] = 0;
@@ -263,8 +261,8 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
  * Identical strings result to 0.
  * The result rates the number of identical characters.
  */
-sint32 strsim(const char a[], const char b[]) 
-{	
+sint32 strsim(const char a[], const char b[])
+{
 	int i = 0;
 	while (a[i] && b[i] && tolower(a[i]) == tolower(b[i])) i++;
 	if (tolower(a[i]) == tolower(b[i]))
@@ -291,8 +289,7 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 
 const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) const
 {
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	const char *pak = file_row.get_pak_extension();
+	const char *pak = static_cast<const gui_loadsave_table_row_t &>(row).get_pak_extension();
 	return strlen(pak) > 3 && (!STRNICMP(pak, "zip", 3) || !STRNICMP(pak, "xml", 3)) ? pak + 3 : pak;
 }
 
@@ -305,9 +302,8 @@ void gui_file_table_pak_column_t::paint_cell(const scr_coord& offset, coordinate
 
 sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
-	// file version 
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.get_version();
+	// file version
+	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_version();
 }
 
 
@@ -326,9 +322,8 @@ void gui_file_table_std_column_t::paint_cell(const scr_coord& offset, coordinate
 
 sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
-	// file version 
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.get_extended_version();
+	// file version
+	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_extended_version();
 }
 
 
@@ -347,55 +342,9 @@ void gui_file_table_exp_column_t::paint_cell(const scr_coord& offset, coordinate
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
 
-const char *loadsave_frame_t::get_info(const char *fname)
+const char *loadsave_frame_t::get_info(const char *)
 {
-	static char date[1024];
-	date[0] = 0;
-//	const char *pak_extension = NULL;
-//	// get file information
-//	struct stat  sb;
-//	if(stat( dr_utf8_to_system_filename(fname), &sb)!=0) {
-//		// file not found?
-//		return date;
-//	}
-//	// check hash table
-//	sve_info_t *svei = cached_info.get(fname);
-//	if (svei   &&  svei->file_size == sb.st_size  &&  svei->mod_time == sb.st_mtime) {
-//		// compare size and mtime
-//		// if both are equal then most likely the files are the same
-//		// no need to read the file for pak_extension
-//		pak_extension = svei->pak.c_str();
-//		svei->file_exists = true;
-//	}
-//	else {
-//		// read pak_extension from file
-//		loadsave_t test;
-//		test.rd_open(fname);
-//		// add pak extension
-//		pak_extension = test.get_pak_extension();
-//
-//		// now insert in hash_table
-//		sve_info_t *svei_new = new sve_info_t(pak_extension, sb.st_mtime, sb.st_size );
-//		// copy filename
-//		char *key = strdup(fname);
-//		sve_info_t *svei_old = cached_info.set(key, svei_new);
-//		if (svei_old) {
-//			delete svei_old;
-//		}
-//	}
-//
-//	// write everything in string
-//	// add pak extension
-//	size_t n = sprintf( date, "%s - ", pak_extension);
-//
-//	// add the time too
-//	struct tm *tm = localtime(&sb.st_mtime);
-//	if(tm) {
-//		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
-//	}
-//	else {
-//		tstrncpy(date, "??.??.???? ??:??", lengthof(date));
-//	}
+	static char date[1024] = { 0 };
 	return date;
 }
 

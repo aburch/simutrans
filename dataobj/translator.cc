@@ -1,9 +1,8 @@
-﻿/*
- * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+/*
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
+
 #include <string>
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +10,7 @@
 
 #include "../macros.h"
 #include "../simdebug.h"
-#include "../simsys.h"
+#include "../sys/simsys.h"
 #include "../simtypes.h"
 #include "../display/simgraph.h" // for unicode stuff
 #include "translator.h"
@@ -201,20 +200,29 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 static char pakset_path[256];
 
 // List of custom city and streetnames
-vector_tpl<char *> translator::city_name_list;
-vector_tpl<char *> translator::street_name_list;
-
+vector_tpl< vector_tpl<char*> > translator::city_name_list;
+vector_tpl < vector_tpl<char *> > translator::street_name_list;
+void translator::clear_custom_list(vector_tpl<vector_tpl<char *>>&name_list)
+{
+	FOR(vector_tpl<vector_tpl<char *>>, i, name_list) {
+		clear_custom_list(i);
+	}
+	name_list.clear();
+}
+void translator::clear_custom_list(vector_tpl<char *>&name_list)
+{
+	FOR(vector_tpl<char*>, const i, name_list) {
+		free(i);
+	}
+	name_list.clear();
+}
 
 // fills a list from a file with the given prefix followed by a language code
 void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const char *fileprefix )
 {
 	FILE *file;
 
-	// Clean up all names
-	FOR(vector_tpl<char*>, const i, name_list) {
-		free(i);
-	}
-	name_list.clear();
+	clear_custom_list(name_list);
 
 	// @author prissi: first try in pakset
 	{
@@ -279,128 +287,243 @@ void translator::init_custom_names(int lang)
 	// 1.) read list from file
 	// 2.) create random names (only for cities)
 
-	// try to read list
-	load_custom_list( lang, city_name_list, "citylist_" );
-	load_custom_list( lang, street_name_list, "streetlist_" );
+	// We have separate lists for each region
+	//@author: jamespetts, June 2020
 
-	if (city_name_list.empty()) {
-		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
-		// Hajo: try to read list failed, create random names
-		for(  uint i = 0;  i < 2048;  i++  ) {
-			char name[64];
-			sprintf( name, "%%%X_CITY_SYLL", i );
-			const char *s1 = translator::translate(name,lang);
-			if(s1==name) {
-				// name not available ...
-				continue;
+	// We do not know the number of regions here, so we have to assume the maximum of 16.
+
+	for (uint8 count = 0; count < 16; count++)
+	{
+		vector_tpl<char*> city_names_this_region;
+		vector_tpl<char*> street_names_this_region;
+
+		// try to read list
+		if (count == 0)
+		{
+			load_custom_list(lang, city_names_this_region, "citylist_");
+			load_custom_list(lang, street_names_this_region, "streetlist_");
+
+			if (city_names_this_region.empty())
+			{
+				load_custom_list(lang, city_names_this_region, "citylist[0]_");
 			}
-			// now add all second name extensions ...
-			const size_t l1 = strlen(s1);
-			for(  uint j = 0;  j < 1024;  j++  ) {
+			if (street_names_this_region.empty())
+			{
+				load_custom_list(lang, street_names_this_region, "streetlist[0]_");
+			}
+		}
+		else
+		{
+			char name_text[128];
+			sprintf(name_text, "citylist[%u]_", count);
+			load_custom_list(lang, city_names_this_region, name_text);
+			sprintf(name_text, "streetlist[%u]_", count);
+			load_custom_list(lang, street_names_this_region, name_text);
+		}
 
-				sprintf( name, "&%X_CITY_SYLL", j );
-				const char *s2 = translator::translate(name,lang);
-				if(s2==name) {
-					// name not available ...
-					continue;
-				}
-				const size_t l2 = strlen(s2);
-				char *const c = MALLOCN(char, l1 + l2 + 1);
-				sprintf(c, "%s%s", s1, s2);
-				city_name_list.append(c);
-				
-				// Now prefixes and suffixes. 
-				// Only add a random fraction of these, as
-				// it would be too repetative to have every
-				// prefix and suffix with every name.
-
-				// TODO: Add geographically specific 
-				// prefixes and suffixes (e.g. "-on-sea"
-				// appearing only where the town is
-				// actually by the sea). 
-
-				const uint32 random_percent = sim_async_rand(100);
-				
-				// TODO: Have these set from simuconf.tab
-				const uint32 prefix_probability = 5;
-				const uint32 suffix_probability = 5;
-
-				const uint32 max_prefixes_per_name = 5;
-				const uint32 max_suffixes_per_name = 5;
-
-				const bool allow_prefixes_and_suffixes_together = false;
-
-				uint32 prefixes_this_name = 0;
-				uint32 suffixes_this_name = 0;
-
-				if (random_percent <= prefix_probability)
+		if (city_names_this_region.empty()) {
+			DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
+			// Hajo: try to read list failed, create random names
+			for (uint i = 0; i < 2048; i++)
+			{
+				char name[64];
+				if (count == 0)
 				{
-					// Prefixes
-					for (uint32 p = 0; p < 256; p++)
+					sprintf(name, "%%%X_CITY_SYLL", i);
+				}
+				else
+				{
+					sprintf(name, "%%%X_CITY_SYLL[%u]", i, count);
+				}
+				const char* s1 = translator::translate(name, lang);
+				if (s1 == name)
+				{
+					if (count == 0)
 					{
-						sprintf(name, "&%X_CITY_PREFIX", p);
-						const char *s3 = translator::translate(name, lang);
-						const uint32 random_percent_prefix = sim_async_rand(100);
-						
-						if (s3 == name || random_percent_prefix > prefix_probability)
+						sprintf(name, "%%%X_CITY_SYLL[0]", i);
+						const char* s1 = translator::translate(name, lang);
+						if (s1 == name)
 						{
 							// name not available ...
 							continue;
 						}
-						const size_t l3 = strlen(s3);
-						char *const c2 = MALLOCN(char, l1 + l2 +l3 + 1);
-						sprintf(c2, "%s%s%s", s3, s1, s2);
-						city_name_list.append(c2);
-						if (prefixes_this_name++ > max_prefixes_per_name)
-						{
-							break;
-						}
+					}
+					else
+					{
+						// name not available ...
+						continue;
 					}
 				}
-
-				if (random_percent >= (100 - suffix_probability) && (random_percent >= prefix_probability || allow_prefixes_and_suffixes_together))
+				// now add all second name extensions ...
+				const size_t l1 = strlen(s1);
+				for (uint j = 0; j < 1024; j++)
 				{
-					// Suffixes
-					for (uint32 p = 0; p < 256; p++)
+					if (count == 0)
 					{
-						sprintf(name, "&%X_CITY_SUFFIX", p);
-						const char *s3 = translator::translate(name, lang);
-						const uint32 random_percent_suffix = sim_async_rand(100);
-
-						if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
+						sprintf(name, "&%X_CITY_SYLL", j);
+					}
+					else
+					{
+						sprintf(name, "&%X_CITY_SYLL[%u]", j, count);
+					}
+					const char* s2 = translator::translate(name, lang);
+					if (s2 == name)
+					{
+						if (count == 0)
 						{
-							// Name not available or the suffix is identical to the final syllable
-							// (This should avoid names such as Tarwoodwood). 
+							sprintf(name, "&%X_CITY_SYLL[0]", j);
+							const char* s2 = translator::translate(name, lang);
+							if (s2 == name)
+							{
+								// name not available ...
+								continue;
+							}
+						}
+						else
+						{
+							// name not available ...
 							continue;
 						}
+					}
+					const size_t l2 = strlen(s2);
+					char* const c = MALLOCN(char, l1 + l2 + 1);
+					sprintf(c, "%s%s", s1, s2);
+					city_names_this_region.append(c);
 
-						// Compare lower cases end parts without spaces with upper case end parts with spaces.
-						// This should avoid town names such as "Bumblewick Wick"
-						// First, remove the space
-						std::string spaceless_name = s3;
-						spaceless_name.erase(0, 1);
-						// Now perform case insensitive comparison. Different for Linux and Windows.
+					// Now prefixes and suffixes.
+					// Only add a random fraction of these, as
+					// it would be too repetative to have every
+					// prefix and suffix with every name.
+
+					// TODO: Add geographically specific
+					// prefixes and suffixes (e.g. "-on-sea"
+					// appearing only where the town is
+					// actually by the sea).
+
+					const uint32 random_percent = sim_async_rand(100);
+
+					// TODO: Have these set from simuconf.tab
+					const uint32 prefix_probability = 5;
+					const uint32 suffix_probability = 5;
+
+					const uint32 max_prefixes_per_name = 5;
+					const bool allow_prefixes_and_suffixes_together = false;
+
+					uint32 prefixes_this_name = 0;
+					uint32 suffixes_this_name = 0;
+
+					if (random_percent <= prefix_probability)
+					{
+						// Prefixes
+						for (uint32 p = 0; p < 256; p++)
+						{
+							if (count == 0)
+							{
+								sprintf(name, "&%X_CITY_PREFIX", p);
+							}
+							else
+							{
+								sprintf(name, "&%X_CITY_PREFIX[%u]", p, count);
+							}
+							const char* s3 = translator::translate(name, lang);
+							const uint32 random_percent_prefix = sim_async_rand(100);
+
+							if (s3 == name || random_percent_prefix > prefix_probability)
+							{
+								if (count == 0 && s3 == name)
+								{
+									sprintf(name, "&%X_CITY_PREFIX[0]", p);
+									const char* s3 = translator::translate(name, lang);
+									if (s3 == name)
+									{
+										// name not available ...
+										continue;
+									}
+								}
+								else
+								{
+									// name not available ...
+									continue;
+								}
+							}
+							const size_t l3 = strlen(s3);
+							char* const c2 = MALLOCN(char, l1 + l2 + l3 + 1);
+							sprintf(c2, "%s%s%s", s3, s1, s2);
+							city_names_this_region.append(c2);
+							if (prefixes_this_name++ > max_prefixes_per_name)
+							{
+								break;
+							}
+						}
+					}
+
+					if (random_percent >= (100 - suffix_probability) && (random_percent >= prefix_probability || allow_prefixes_and_suffixes_together))
+					{
+						// Suffixes
+						for (uint32 p = 0; p < 256; p++)
+						{
+							if (count == 0)
+							{
+								sprintf(name, "&%X_CITY_SUFFIX", p);
+							}
+							else
+							{
+								sprintf(name, "&%X_CITY_SUFFIX[%u]", p, count);
+							}
+
+							const char* s3 = translator::translate(name, lang);
+							const uint32 random_percent_suffix = sim_async_rand(100);
+
+							if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
+							{
+								if (count == 0 && s3 == name)
+								{
+									sprintf(name, "&%X_CITY_SUFFIX[0]", p);
+									const char* s3 = translator::translate(name, lang);
+									if (s3 == name)
+									{
+										// Name not available
+										continue;
+									}
+								}
+								else
+								{
+									// Name not available or the suffix is identical to the final syllable
+									// (This should avoid names such as Tarwoodwood).
+									continue;
+								}
+							}
+
+							// Compare lower cases end parts without spaces with upper case end parts with spaces.
+							// This should avoid town names such as "Bumblewick Wick"
+							// First, remove the space
+							std::string spaceless_name = s3;
+							spaceless_name.erase(0, 1);
+							// Now perform case insensitive comparison. Different for Linux and Windows.
 #ifdef _MSC_VER
-						if (stricmp(spaceless_name.c_str(), s2) == 0 || stricmp(s2, s3) == 0)
+							if (stricmp(spaceless_name.c_str(), s2) == 0 || stricmp(s2, s3) == 0)
 #else
-						if (strcasecmp(spaceless_name.c_str(), s2) == 0 || strcasecmp(s2, s3) == 0)
+							if (strcasecmp(spaceless_name.c_str(), s2) == 0 || strcasecmp(s2, s3) == 0)
 #endif
-						{
-							continue;
-						}
+							{
+								continue;
+							}
 
-						const size_t l3 = strlen(s3);
-						char *const c2 = MALLOCN(char, l1 + l2 + l3 + 1);
-						sprintf(c2, "%s%s%s", s1, s2, s3);
-						city_name_list.append(c2);
-						if (suffixes_this_name++ > max_prefixes_per_name)
-						{
-							break;
+							const size_t l3 = strlen(s3);
+							char* const c2 = MALLOCN(char, l1 + l2 + l3 + 1);
+							sprintf(c2, "%s%s%s", s1, s2, s3);
+							city_names_this_region.append(c2);
+							if (suffixes_this_name++ > max_prefixes_per_name)
+							{
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
+		city_name_list.append(city_names_this_region);
+		street_name_list.append(street_names_this_region);
 	}
 }
 
@@ -760,7 +883,7 @@ const char *translator::get_year_month(uint16 year_month)
 		case env_t::DATE_FMT_JAPANESE:
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
 		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
-			if (year_sym == "") {
+			if (strcmp(year_sym, "") == 0) {
 				year_sym = "/";
 				mon_sym = "";
 			}

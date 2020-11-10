@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic licence.
- * (see licence.txt)
+ * This file is part of the Simutrans-Extended project under the Artistic License.
+ * (see LICENSE.txt)
  */
 
-#ifndef message_frame_h
-#define message_frame_h
+#ifndef GUI_MESSAGE_FRAME_T_H
+#define GUI_MESSAGE_FRAME_T_H
+
 
 #include "../gui/simwin.h"
 
@@ -44,19 +43,19 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const {return "mailbox.txt";}
+	const char * get_help_filename() const OVERRIDE {return "mailbox.txt";}
 
 	/**
 	* resize window in response to a resize event
 	* @author Hj. Malthaner
 	*/
-	void resize(const scr_coord delta);
+	void resize(const scr_coord delta) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void rdwr(loadsave_t *);
+	void rdwr(loadsave_t *) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_messageframe; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_messageframe; }
 };
 
 #endif
