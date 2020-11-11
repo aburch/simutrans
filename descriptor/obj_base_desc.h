@@ -16,20 +16,24 @@ class tool_t;
  * Common base class for all object descriptors, which get their name and
  * copyright information from child 0 and 1
  */
-class obj_named_desc_t : public obj_desc_t {
-	public:
-		const char* get_name() const
-		{
-			return get_child<text_desc_t>(0)->get_text();
+class obj_named_desc_t : public obj_desc_t
+{
+public:
+	const char *get_name() const
+	{
+		return get_child<text_desc_t>(0)->get_text();
+	}
+
+	const char *get_copyright() const
+	{
+		const text_desc_t *const ts = get_child<text_desc_t>(1);
+		if (!ts) {
+			return 0;
 		}
 
-		const char* get_copyright() const
-		{
-			text_desc_t const* const ts = get_child<text_desc_t>(1);
-			if (!ts) return 0;
-			char const* const text = ts->get_text();
-			return text[0] != '\0' ? text : 0;
-		}
+		const char *const text = ts->get_text();
+		return text[0] != '\0' ? text : NULL;
+	}
 };
 
 /**
