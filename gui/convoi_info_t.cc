@@ -276,7 +276,7 @@ void convoi_info_t::init_line_selector()
 		if (!line.is_bound()) {
 			selection = 0;
 			offset = 2;
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<no line>"), SYSCOL_TEXT);
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<individual schedule>"), SYSCOL_TEXT);
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
 		}
 

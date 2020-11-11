@@ -101,7 +101,7 @@ void schedule_gui_t::init_line_selector()
 			selection = 0;
 			offset = 2;
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "<no line>" ), SYSCOL_TEXT );
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "<promotoe to line>" ), SYSCOL_TEXT );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "<promote to line>" ), SYSCOL_TEXT );
 		}
 
 		FOR( vector_tpl<linehandle_t>, other_line, lines ) {

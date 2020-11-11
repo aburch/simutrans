@@ -81,7 +81,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		// sort by what
 		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Name"), SYSCOL_TEXT) ;
 		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Revenue"), SYSCOL_TEXT) ;
-		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Free capacity"), SYSCOL_TEXT) ;
+		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Free Capacity"), SYSCOL_TEXT) ;
 		sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Number of convois"), SYSCOL_TEXT) ;
 		sort_type_c.set_selection(0);
 		sort_type_c.set_focusable( true );
