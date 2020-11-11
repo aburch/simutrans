@@ -598,6 +598,9 @@ void gui_schedule_t::draw(scr_coord pos)
 			if( ent.pos == current ) {
 				schedule->set_current_stop( idx );
 			}
+#else
+			(void)current;
+			(void)ent;
 #endif
 			if( is_all_same ) {
 				is_all_same = scd->entries[idx] == schedule->entries[idx];

@@ -2723,7 +2723,6 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	int n=0;
 	assert(is_within_limits(x,y));
 	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const uint8 old_slope = gr->get_grund_hang();
 	sint8 water_hgt = get_water_hgt_nocheck(x,y);
 	const sint8 h0 = gr->get_hoehe();
 	// old height
