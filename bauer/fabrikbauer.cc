@@ -117,7 +117,7 @@ class factory_site_searcher_t: public building_placefinder_t  {
 public:
 	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
+	bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 	{
 		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
