@@ -224,7 +224,7 @@ void banner_text_t::draw(scr_coord offset)
 			color = color_idx_to_rgb(colors[0]);
 		}
 
-		if (scrolltext[text_line + row * 2 + 1] == NULL)
+		if (scrolltext[text_line + row * 2] == NULL || scrolltext[text_line + row * 2 + 1] == NULL)
 		{
 			break;
 		}
