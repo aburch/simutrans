@@ -67,6 +67,8 @@ private:
 	 */
 	void reset_selected_item_name();
 
+	bool width_fixed = false;
+
 public:
 	gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp = 0);
 
@@ -141,6 +143,9 @@ public:
 	void set_pos(scr_coord pos_par) OVERRIDE;
 
 	void set_size(scr_size size) OVERRIDE;
+
+	// In Extended, since often use a combo box instead of the toggle button, we need to allow the size to be fixed.
+	void set_width_fixed(bool yesno) { width_fixed = yesno; }
 
 	/**
 	 * called when the focus should be released

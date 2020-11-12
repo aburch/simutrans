@@ -2727,7 +2727,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		// vehicle number fluctuation counter
 		if (vehicle_fluctuation != 0) {
-			const PIXVAL counter_col = vehicle_fluctuation > 0 ? COL_ADDITIONAL : COL_REDUCED_TEXT;
+			const PIXVAL counter_col = vehicle_fluctuation > 0 ? SYSCOL_UP_TRIANGLE : SYSCOL_DOWN_TRIANGLE;
 			sprintf(txt_convoi_count_fluctuation, "%s%i", vehicle_fluctuation > 0 ? "+" : "", vehicle_fluctuation);
 			lb_convoi_count_fluctuation.set_visible(true);
 			if (!txt_convoi_count.len()) {

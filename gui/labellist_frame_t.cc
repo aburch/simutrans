@@ -37,6 +37,8 @@ labellist_frame_t::labellist_frame_t() :
 			sortedby.new_component<label_sort_item_t>(i);
 		}
 		sortedby.set_selection(default_sortmode);
+		sortedby.set_width_fixed(true);
+		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 

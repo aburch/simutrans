@@ -191,21 +191,21 @@ map_frame_t::map_frame_t() :
 		// selections button
 		b_show_legend.init(button_t::roundbox_state, "Show legend");
 		b_show_legend.set_tooltip("Shows buttons on special topics.");
-		b_show_legend.set_size(scr_size(p_scrolly->get_min_size().w/3-D_H_SPACE, D_BUTTON_HEIGHT));
+		b_show_legend.set_size(D_BUTTON_SIZE);
 		b_show_legend.add_listener(this);
 		add_component(&b_show_legend);
 
 		// industry list button
 		b_show_directory.init(button_t::roundbox_state, "Show industry");
 		b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
-		b_show_directory.set_size(scr_size(p_scrolly->get_min_size().w/3-D_H_SPACE, D_BUTTON_HEIGHT));
+		b_show_directory.set_size(D_BUTTON_SIZE);
 		b_show_directory.add_listener(this);
 		add_component(&b_show_directory);
 
 		// scale button
 		b_show_scale.init(button_t::roundbox_state, "Show map scale");
 		b_show_scale.set_tooltip("Shows the color code for several selections.");
-		b_show_scale.set_size(scr_size(p_scrolly->get_min_size().w/3-D_H_SPACE, D_BUTTON_HEIGHT));
+		b_show_scale.set_size(D_BUTTON_SIZE);
 		b_show_scale.add_listener(this);
 		add_component(&b_show_scale);
 	}

@@ -45,7 +45,7 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 	else {
 		alert.set_image(IMG_EMPTY);
 	}
-	alert.set_rigid(false);
+	alert.set_rigid(true);
 	add_component(&alert); // (5,0)
 
 	fluctuation_city.set_show_border_value(false);

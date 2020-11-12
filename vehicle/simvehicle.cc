@@ -1082,7 +1082,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	bool other_classes_available = false;
-	uint8 goods_restriction = 0;
+	uint8 goods_restriction = goods_manager_t::INDEX_NONE;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();

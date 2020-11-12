@@ -349,7 +349,7 @@ void gui_combobox_t::set_pos(scr_coord pos_par)
 void gui_combobox_t::set_size(scr_size size)
 {
 	closed_size = size;
-	gui_component_t::set_size( size );
+	gui_component_t::set_size( scr_size( max(get_min_size().w, size.w),size.h) );
 
 	droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
 
@@ -367,6 +367,9 @@ void gui_combobox_t::set_size(scr_size size)
 */
 void gui_combobox_t::set_max_size(scr_size max)
 {
+	if (width_fixed) {
+		max = get_min_size();
+	}
 	max_size = max;
 	droplist.request_size( scr_size( size.w, max_size.h - closed_size.h ) );
 	if(  droplist.is_visible()  ) {
@@ -382,18 +385,25 @@ scr_size gui_combobox_t::get_min_size() const
 	scr_size sl = droplist.get_min_size();
 	scr_size br = bt_next.get_min_size();
 
+	if (width_fixed) {
+		return scr_size(size.w, max(max(bl.h, ti.h), br.h));
+	}
+
 	if (sl.w == scr_size::inf.w) {
 		// contains editable items, use min-width of input
 		return scr_size(bl.w + ti.w + br.w + D_H_SPACE, max(max(bl.h, ti.h), br.h));
 	}
 	else {
-		return scr_size(max(bl.w + br.w + D_H_SPACE, sl.w), max(max(bl.h, ti.h), br.h));
+		return scr_size(bl.w + sl.w + br.w + D_H_SPACE, max(max(bl.h, ti.h), br.h));
 	}
 }
 
 
 scr_size gui_combobox_t::get_max_size() const
 {
+	if (width_fixed) {
+		return get_min_size();
+	}
 	scr_size msize = get_min_size();
 	msize.w = droplist.get_max_size().w;
 
