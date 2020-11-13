@@ -178,10 +178,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 	int i=0;
 	FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
-		// just draw component, if here ...
-		if (i == active_tab) {
-			iter.component->draw(parent_pos + pos);
-		}
+
 		if(i>=offset_tab) {
 			// set clipping
 			PUSH_CLIP_FIT(xpos, ypos, xx, required_size.h);
@@ -229,6 +226,10 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		}
 	}
 	display_fillbox_wh_clip_rgb(text_x-4, ypos+required_size.h-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
+
+	// draw tab content after tab row
+	// (combobox may open to above, and tab row may draw into it)
+	get_aktives_tab()->draw(parent_pos + pos);
 
 	// now for tooltips ...
 	int my = get_mouse_y()-parent_pos.y-pos.y-6;
