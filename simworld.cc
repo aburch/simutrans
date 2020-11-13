@@ -714,7 +714,8 @@ void karte_t::create_rivers( sint16 number )
 	}
 
 	// create a vector of the highest points
-	vector_tpl<koord> water_tiles;
+	vector_tpl<koord> lake_tiles;
+	vector_tpl<koord> sea_tiles;
 	weighted_vector_tpl<koord> mountain_tiles;
 
 	sint8 last_height = 1;
@@ -729,7 +730,12 @@ void karte_t::create_rivers( sint16 number )
 			const sint8 h = gr->get_hoehe() - get_water_hgt_nocheck(k);
 			if(  gr->is_water()  ) {
 				// may be good to start a river here
-				water_tiles.append(k);
+				if( gr->get_hoehe() <= get_groundwater() ) { 
+					sea_tiles.append(k);
+				}
+				else {
+					lake_tiles.append(k);
+				}
 			}
 			else if(  h>=last_height  ||  koord_distance(last_koord,k)>simrand(max_dist)  ) {
 				// something worth to add here
@@ -743,6 +749,7 @@ void karte_t::create_rivers( sint16 number )
 			}
 		}
 	}
+	vector_tpl<koord> water_tiles( sea_tiles.empty() ? lake_tiles : sea_tiles );
 	if (water_tiles.empty()) {
 		dbg->message("karte_t::create_rivers()","There aren't any water tiles!\n");
 		return;
