@@ -86,6 +86,11 @@ DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)
 			climate_sounds[i] = get_sound_id( name );
 		}
 	}
+	else {
+		for(  int i=0;  i<MAX_CLIMATES;  i++  ) {
+			climate_sounds[i] = NO_SOUND;
+		}
+	}
 }
 
 
