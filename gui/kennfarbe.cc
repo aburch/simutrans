@@ -22,9 +22,12 @@ class choose_color_button_t : public button_t
 public:
 	choose_color_button_t() : button_t()
 	{
-		w = max(D_BUTTON_HEIGHT, display_get_char_width('X'));
+		w = max(D_BUTTON_HEIGHT, display_get_char_width('X') + gui_theme_t::gui_button_text_offset.w + gui_theme_t::gui_button_text_offset_right.x);
 	}
-	scr_size get_min_size() const OVERRIDE { return scr_size(w,w); }
+	scr_size get_min_size() const OVERRIDE
+	{
+		return scr_size(w, D_BUTTON_HEIGHT);
+	}
 };
 
 

@@ -25,11 +25,16 @@
  */
 class del_button_t : public button_t
 {
+	scr_coord_val w;
 public:
-	del_button_t() : button_t() { init(button_t::roundbox, "X"); }
+	del_button_t() : button_t()
+	{
+		init(button_t::roundbox, "X");
+		w = max(D_BUTTON_HEIGHT, display_get_char_width('X') + gui_theme_t::gui_button_text_offset.w + gui_theme_t::gui_button_text_offset_right.x);
+	}
 	scr_size get_min_size() const OVERRIDE
 	{
-		return scr_size(proportional_string_width("X")+ gui_theme_t::gui_button_text_offset.w + gui_theme_t::gui_button_text_offset_right.x, D_BUTTON_HEIGHT);
+		return scr_size(w, D_BUTTON_HEIGHT);
 	}
 };
 
