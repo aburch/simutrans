@@ -47,9 +47,13 @@ sint16 sound_desc_t::compatible_sound_id[MAX_OLD_SOUNDS]=
 };
 
 // sound with the names of climates and "beach" and "forest" are reserved for ambient noises
-sint16 sound_desc_t::beach_sound;
-sint16 sound_desc_t::forest_sound;
-sint16 sound_desc_t::climate_sounds[MAX_CLIMATES];
+sint16 sound_desc_t::beach_sound = NO_SOUND;
+sint16 sound_desc_t::forest_sound = NO_SOUND;
+sint16 sound_desc_t::climate_sounds[MAX_CLIMATES]=
+{
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
+	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND
+};
 
 
 /* init sounds */
@@ -84,11 +88,6 @@ DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)
 			char name[64];
 			sprintf( name, "%s.wav", ground_desc_t::get_climate_name_from_bit((climate)i) );
 			climate_sounds[i] = get_sound_id( name );
-		}
-	}
-	else {
-		for(  int i=0;  i<MAX_CLIMATES;  i++  ) {
-			climate_sounds[i] = NO_SOUND;
 		}
 	}
 }
