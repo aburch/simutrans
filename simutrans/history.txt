@@ -9,6 +9,7 @@
 	CHG: schedule/line now tab of convoi window instead independent window
 	CHG: new line list, overhauled convoi list
 	CHG: rivers now go to the sea and pass through lakes. A tiny stream becomes navigatavble after a lake or merging with another stream
+	FIX: MessageOptions can be three single images (id=0,1,2) instead of one large image
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
