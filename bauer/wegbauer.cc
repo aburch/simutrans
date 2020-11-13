@@ -2878,6 +2878,7 @@ void way_builder_t::build_river()
 
 		if(  gr->hat_weg(water_wt)  ) {
 			// not lowering exiting rivers
+			start_h = route[i].z;
 			can_lower = false;
 		}
 
@@ -2894,19 +2895,7 @@ void way_builder_t::build_river()
 			start_h++;
 		}
 	}
-#if 0
-	// second pass: remove all tiles that would result in diagonal slopes
-	for(  int i = end_n-2;  i > 2;  i--  ) {
-		// check if this will be a slope
-		if(  lower_tile[i]  &&  !ribi_t::is_straight(ribi_type(route[i+1]-route[i-1]))  ) {
-			if(  !lower_tile[i+1]  ||  route[i+1].z > route[i].z  ) {
-				lower_tile[i] = false;
-				DBG_MESSAGE( "not straight", route[i].get_str() );
-			}
-		}
-		i --;
-	}
-#endif
+
 	// now lower all tiles
 	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		if(  lower_tile[i]  ) { 
@@ -2916,6 +2905,7 @@ void way_builder_t::build_river()
 			}
 		}
 	}
+
 	// and raise all tiles that resulted in slopes on curves
 	for( uint32 i = end_n - 2; i > start_n+1;   i-- ) {
 		grund_t *gr = welt->lookup_kartenboden( route[i].get_2d() );
@@ -2928,7 +2918,7 @@ void way_builder_t::build_river()
 	}
 
 	// now build the river
-	uint32 last_water_tile = start_n;
+	uint32 last_common_water_tile = start_n;
 	grund_t *gr_first = NULL;
 	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
@@ -2940,29 +2930,29 @@ void way_builder_t::build_river()
 			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_type(route[i-1]-route[i]);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
-				weg_t *sch=weg_t::alloc(water_wt);
-				sch->set_desc(desc);
-				gr->neuen_weg_bauen(sch, ribi, NULL);
+				weg_t *river=weg_t::alloc(water_wt);
+				river->set_desc(desc);
+				gr->neuen_weg_bauen(river, ribi, NULL);
 			}
 			else {
-				last_water_tile = i;
+				last_common_water_tile = i;
 			}
 		}
 		else {
 			dynamic_cast<wasser_t *>(gr)->recalc_water_neighbours();
-			last_water_tile = i;
+			last_common_water_tile = i;
 		}
 	}
 	gr_first->calc_image(); // to calculate ribi of water tiles
 	
 	// we will make rivers gradually larger by stepping up their width
 	// Since we cannot quickly find out, if a lake has another influx, we just assume all rivers after a lake are navigatable
-	if(  env_t::river_types>1  &&  last_water_tile!=start_n) {
+	if(  env_t::river_types>1  ) {
 		// now all rivers will end in the sea (or a lake) and thus there must be a valid route!
 		// unless weare the first and there is no lake on the way.
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
-		if (to_the_sea.calc_route(welt, welt->lookup_kartenboden(route[last_water_tile].get_2d())->get_pos(), welt->lookup_kartenboden(route[0].get_2d())->get_pos(), &river_tester, 0, 0x7FFFFFFF)) {
+		if (to_the_sea.calc_route(welt, welt->lookup_kartenboden(route[last_common_water_tile].get_2d())->get_pos(), welt->lookup_kartenboden(route[0].get_2d())->get_pos(), &river_tester, 0, 0x7FFFFFFF)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
