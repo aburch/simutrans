@@ -50,7 +50,7 @@ static uint8 max_idx=0;
 
 #define MAX_SORT_IDX (4)
 static uint8 idx_to_sort_mode[MAX_SORT_IDX] = { line_scrollitem_t::SORT_BY_NAME, line_scrollitem_t::SORT_BY_PROFIT, line_scrollitem_t::SORT_BY_TRANSPORTED, line_scrollitem_t::SORT_BY_CONVOIS };
-static char *idx_to_sort_text[MAX_SORT_IDX] = { "Name", "Revenue", "Transported", "Number of convois" };
+static const char *idx_to_sort_text[MAX_SORT_IDX] = { "Name", "Revenue", "Transported", "Number of convois" };
 
 /// selected tab per player
 static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
