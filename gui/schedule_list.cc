@@ -225,10 +225,26 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &scl  ) {
 		if(  line_scrollitem_t *li=(line_scrollitem_t *)scl.get_element(v.i)  ) {
 			line = li->get_line();
+
+			gui_frame_t *line_info = win_get_magic( (ptrdiff_t)line.get_rep() );
+			// try to open to the right
+			scr_coord sc = win_get_pos( this );
+			scr_coord lc = sc;
+			lc.x += get_windowsize().w;
+			if( lc.x > display_get_width() ) {
+				lc.x = max( 0, display_get_width() - 100 );
+			}
+			if(  line_info  ) {
+				// close if open
+				destroy_win( line_info );
+//				top_win( line_info );
+//				win_set_pos( line_info, lc.x, lc.y );
+			}
+			else {
+				create_win( lc.x, lc.y, new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+			}
 		}
-		player->simlinemgmt.show_lineinfo( player, line );
-		selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] = line;
-		selected_line[player->get_player_nr()][0] = line; // keep these the same in overview
+		scl.set_selection( -1 );
 	}
 	else if(  comp == &inp_filter  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {

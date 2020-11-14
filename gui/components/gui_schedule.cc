@@ -594,6 +594,7 @@ void gui_schedule_t::draw(scr_coord pos)
 		int idx = 0;
 		bool is_allowed = player==welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 		bool is_all_same = scd->get_count()==schedule->get_count();
+		is_all_same &= scd->get_current_stop() == schedule->get_current_stop();
 		is_all_same &= !(convoi_mode.is_bound()  &&  line_mode.is_bound()  &&  line_mode != convoi_mode->get_line());
 		FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
 #if 0

@@ -29,6 +29,8 @@ public:
 		MAX_SORT_MODES
 	};
 	static sort_modes_t sort_mode;
+	// to update selected status
+	void draw( scr_coord offset ) OVERRIDE;
 	// normal items
 	line_scrollitem_t( linehandle_t l ) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, color_idx_to_rgb(COL_ORANGE) ) { line = l; }
 	PIXVAL get_color() const OVERRIDE;
