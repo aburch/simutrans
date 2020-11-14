@@ -190,8 +190,8 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_obsolete                     = color_idx_to_rgb(COL_BLUE);
 	gui_color_empty                        = color_idx_to_rgb(COL_WHITE);
 
-	gui_color_up_pointing_triangle         = COL_ADDITIONAL;
-	gui_color_down_pointing_triangle       = COL_REDUCED_TEXT;
+	gui_color_up_pointing_triangle         = color_idx_to_rgb(COL_LIGHT_TURQUOISE);
+	gui_color_down_pointing_triangle       = color_idx_to_rgb(COL_LIGHT_ORANGE-2);
 
 	env_t::gui_player_color_bright = 4;
 	env_t::gui_player_color_dark   = 1;

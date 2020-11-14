@@ -104,11 +104,6 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define COL_SAFETY          color_idx_to_rgb(COL_DARK_GREEN)
 #define COL_INACTIVE        color_idx_to_rgb(COL_GREY3)
 
-// used in tilebar (and text)
-#define COL_ADDITIONAL      color_idx_to_rgb(COL_LIGHT_TURQUOISE)
-#define COL_REDUCED         color_idx_to_rgb(COL_LIGHT_ORANGE)
-#define COL_REDUCED_TEXT    color_idx_to_rgb(COL_LIGHT_ORANGE-2)
-
 #define COL_IN_TRANSIT      color_idx_to_rgb(COL_YELLOW)
 #define COL_STAFF_SHORTAGE  color_idx_to_rgb(COL_DARK_ORCHID)
 
