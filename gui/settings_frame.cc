@@ -74,7 +74,6 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs_extended.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
 
 	reset_min_windowsize();
-	set_windowsize(get_min_windowsize() + general.get_min_size());
 	set_resizemode(diagonal_resize);
 }
 

@@ -207,7 +207,6 @@ add_executable(simutrans-extended
 	gui/components/gui_colorbox.cc
 	gui/components/gui_combobox.cc
 	gui/components/gui_component.cc
-	gui/components/gui_component_table.cc
 	gui/components/gui_container.cc
 	gui/components/gui_convoiinfo.cc
 	gui/components/gui_convoy_assembler.cc
