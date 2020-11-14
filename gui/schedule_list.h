@@ -44,6 +44,7 @@ private:
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 	bool is_matching_freight_catg( const minivec_tpl<uint8> &goods_catg_index );
 
+	uint8 current_sort_mode;
 	void build_line_list(int filter);
 
 	// last active line
