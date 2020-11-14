@@ -46,6 +46,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	add_component(&line_selector);
 
 	add_component( &scd );
+	scd.add_listener( this );
 
 	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
@@ -121,6 +122,8 @@ void schedule_gui_t::init_line_selector()
 		line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 		line_selector.sort( offset );
 		old_line_count = player->simlinemgmt.get_line_count();
+
+		scd.highlight_schedule( true );
 	}
 }
 

@@ -441,6 +441,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		mode = adding;
 		update_selection();
+		update_tool(true);
 	}
 	set_size(gui_aligned_container_t::get_min_size());
 }
