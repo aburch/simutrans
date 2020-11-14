@@ -531,6 +531,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 		}
 	}
 	end_table();
+	new_component<gui_empty_t>();
+
 	INIT_NUM_NEW( "climate area percentage", sets->get_patch_size_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR
@@ -550,7 +552,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	}
 	tree_generate.set_selection( sets->get_tree() );
 	tree_generate.set_focusable( false );
-	add_component( &tree_generate );
+	add_component( &tree_generate, 2);
 	INIT_NUM_NEW( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
 	INIT_NUM_NEW( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
 	INIT_NUM_NEW( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
