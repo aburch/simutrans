@@ -1161,7 +1161,7 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::debug();
 
 	if(  !overlaid_warning.empty()  ) {
-		overlaid_warning.append( "<p>Continue by ESC, SPACE, or BACKSPACE.<br>" );
+		overlaid_warning.append( translator::translate("<p>Continue by ESC, SPACE, or BACKSPACE.<br>") );
 		help_frame_t *win = new help_frame_t();
 		win->set_text( overlaid_warning.c_str() );
 		modal_dialogue( win, magic_pakset_info_t, NULL, wait_for_key );
