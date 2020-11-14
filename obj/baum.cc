@@ -311,8 +311,8 @@ bool baum_t::successfully_loaded()
 bool baum_t::register_desc(tree_desc_t *desc)
 {
 	// avoid duplicates with same name
-	if(desc_names.remove(desc->get_name())) {
-		dbg->warning( "baum_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+	if(  desc_names.remove(desc->get_name())  ) {
+		dbg->doubled( "baum_t", desc->get_name() );
 	}
 	desc_names.put(desc->get_name(), desc );
 	return true;

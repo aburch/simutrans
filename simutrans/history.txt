@@ -21,6 +21,7 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):
+	FIX: Make double pak warning translatable
 	ADD: Map number is shown in the enlarge map window.
 	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809
