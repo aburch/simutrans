@@ -95,6 +95,7 @@ void gui_scrolled_list_t::show_selection(int sel)
 void gui_scrolled_list_t::set_selection(int s)
 {
 	if (s<0  ||  ((uint32)s)>=item_list.get_count()) {
+		container.set_focus(NULL);
 		return;
 	}
 	gui_component_t* new_focus = item_list[s];
