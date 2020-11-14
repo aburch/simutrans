@@ -129,9 +129,9 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	set_table_layout(1, 0);
 	add_table(3, 2);
 	{
-		new_component<gui_label_t>("revenue of");
-		new_component<gui_label_t>("above\nminutes");
-		new_component<gui_label_t>("get\nrevenue $");
+		INIT_LB("revenue of");
+		INIT_LB("above\nminutes");
+		INIT_LB("get\nrevenue $");
 
 		INIT_NUM_RANGE("travelling post office", sets->get_tpo_min_minutes(), 0, 14400, sets->get_tpo_revenue(), 0, 10000);
 	}
@@ -359,19 +359,19 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 
 	add_table(3,0);
 	{
-		new_component<gui_label_t>("passenger\ndistribution");
+		INIT_LB("passenger\ndistribution");
 		// Note: "Waiting" here should be "journey time": these are translated in en.tab, but should be correct in other translations, too.
-		new_component<gui_label_t>("waiting\ntolerance\nmin. min");
-		new_component<gui_label_t>("waiting\ntolerance\nmax. min");
+		INIT_LB("waiting\ntolerance\nmin. min");
+		INIT_LB("waiting\ntolerance\nmax. min");
 
 		INIT_NUM_RANGE("commuting", sets->get_min_commuting_tolerance()/10, 1, 5256000, sets->get_range_commuting_tolerance()/10, 1, 5256000);
 		INIT_NUM_RANGE("visiting", sets->get_min_visiting_tolerance()/10, 1, 5256000, sets->get_range_visiting_tolerance()/10, 1, 5256000);
 
 		new_component_span<gui_divider_t>(3);
 
-		new_component<gui_label_t>("comfort expectance\nfor travelling");
-		new_component<gui_label_t>("duration\nin minutes");
-		new_component<gui_label_t>("min comfort\nrating");
+		INIT_LB("comfort expectance\nfor travelling");
+		INIT_LB("duration\nin minutes");
+		INIT_LB("min comfort\nrating");
 
 		INIT_NUM_RANGE("short time", sets->get_tolerable_comfort_short_minutes(), 0, 120, sets->get_tolerable_comfort_short(), 0, 255);
 		INIT_NUM_RANGE("median short time", sets->get_tolerable_comfort_median_short_minutes(), 0, 720, sets->get_tolerable_comfort_median_short(), 0, 255);
@@ -381,19 +381,19 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 
 		new_component_span<gui_divider_t>(3);
 
-		new_component<gui_label_t>("comfort impact\nlimitations");
-		new_component<gui_label_t>("differential");
-		new_component<gui_label_t>("percent");
+		INIT_LB("comfort impact\nlimitations");
+		INIT_LB("differential");
+		INIT_LB("percent");
 		INIT_NUM_RANGE("max luxury bonus", sets->get_max_luxury_bonus_differential(), 0, 250, sets->get_max_luxury_bonus_percent(), 0, 1000);
 		INIT_NUM_RANGE("max discomfort penalty", sets->get_max_discomfort_penalty_differential(), 0, 250, sets->get_max_discomfort_penalty_percent(), 0, 1000);
 
 		new_component_span<gui_divider_t>(3);
 
-		new_component<gui_label_t>("catering bonus\nfor travelling");
-		new_component<gui_label_t>("duration\nin minutes");
-		new_component<gui_label_t>("max catering\nrevenue $");
+		INIT_LB("catering bonus\nfor travelling");
+		INIT_LB("duration\nin minutes");
+		INIT_LB("max catering\nrevenue $");
 
-		new_component<gui_label_t>("min traveltime");
+		INIT_LB("min traveltime");
 		gui_numberinput_t *ni_mt = new_component<gui_numberinput_t>();
 		ni_mt->init(sets->get_catering_min_minutes(), 0, 14400);
 		numinp.append(ni_mt);
