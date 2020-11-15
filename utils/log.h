@@ -9,6 +9,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string>
 #include "../simtypes.h"
 
 
@@ -49,6 +50,8 @@ private:
 	 */
 	bool syslog;
 
+	std::string doublettes;
+
 public:
 	/**
 	 * writes important messages to stdout/logfile
@@ -70,6 +73,12 @@ public:
 	 * writes a warning into the log.
 	 */
 	void warning(const char *who, const char *format, ...);
+
+	/* special error handling for double objects */
+	void doubled( const char *what, const char *name );
+	bool had_overlaid() { return !doublettes.empty(); }
+	void clear_overlaid() { doublettes.clear(); }
+	std::string get_overlaid() { return doublettes; }
 
 	/**
 	 * writes an error into the log.

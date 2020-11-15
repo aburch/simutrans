@@ -30,7 +30,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	// Water level
 	new_component<gui_label_t>("Water level");
 
-	water_level.init( sets->get_groundwater(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.init( sets->get_groundwater(), -20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
 	water_level.add_listener( this );
 	add_component( &water_level );
 	//const gui_label_t& water_level_lbl = numberinput_lbl[labelnr];

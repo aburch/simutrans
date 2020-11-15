@@ -552,7 +552,6 @@ SOURCES += simunits.cc
 SOURCES += convoy.cc
 SOURCES += utils/float32e8_t.cc
 SOURCES += path_explorer.cc
-SOURCES += gui/components/gui_component_table.cc
 SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_convoy_assembler.cc
 SOURCES += gui/components/gui_convoy_label.cc

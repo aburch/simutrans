@@ -565,10 +565,8 @@ bool wayobj_t::successfully_loaded()
 bool wayobj_t::register_desc(way_obj_desc_t *desc)
 {
 	// avoid duplicates with same name
-	way_obj_desc_t *old_desc = table.get(desc->get_name());
-	if(old_desc) {
-		dbg->warning( "wayobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		table.remove(desc->get_name());
+	if(  way_obj_desc_t *old_desc = table.remove(desc->get_name())  ) {
+		dbg->doubled( "wayobj", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

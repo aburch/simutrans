@@ -1,6 +1,7 @@
 	FIX: Wrong tooltip when building something with the finance window opened.
 	ADD: map only moves when numlock off, new tool to move to map view (simple_tool[36]=,keybinding,-1|0)
 	ADD: new option in simuconf.tab "numpad_always_moves_map" regardsless of numlock state
+	FIX: MessageOptions can be three single images (id=0,1,2) instead of one large image
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
@@ -20,6 +21,7 @@ Release of 122.0 (r9274 on 10-Oct-2020):
 
 
 Release of 121.0 (r8870 on 1-Dec-2019):
+	FIX: Make double pak warning translatable
 	ADD: Map number is shown in the enlarge map window.
 	ADD: use animated water graphics on shores
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809

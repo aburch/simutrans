@@ -2287,7 +2287,6 @@
     <ClCompile Include="gui\components\gui_chart.cc" />
     <ClCompile Include="gui\components\gui_colorbox.cc" />
     <ClCompile Include="gui\components\gui_combobox.cc" />
-    <ClCompile Include="gui\components\gui_component_table.cc" />
     <ClCompile Include="gui\components\gui_convoy_assembler.cc" />
     <ClCompile Include="gui\components\gui_convoy_label.cc" />
     <ClCompile Include="gui\components\gui_divider.cc" />
@@ -2540,6 +2539,7 @@
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\rect.h" />
     <ClInclude Include="dataobj\settings.h" />
     <ClInclude Include="descriptor\image_array_3d.h" />
     <ClInclude Include="descriptor\obj_base_desc.h" />
@@ -2752,7 +2752,6 @@
     <ClInclude Include="gui\components\gui_chart.h" />
     <ClInclude Include="gui\components\gui_colorbox.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
-    <ClInclude Include="gui\components\gui_component_table.h" />
     <ClInclude Include="gui\components\gui_convoy_assembler.h" />
     <ClInclude Include="gui\components\gui_convoy_label.h" />
     <ClInclude Include="gui\components\gui_divider.h" />
