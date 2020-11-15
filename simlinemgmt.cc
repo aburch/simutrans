@@ -41,6 +41,9 @@ void simlinemgmt_t::add_line(linehandle_t new_line)
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
+		while(line->count_convoys() ) {
+			line->get_convoy(0)->set_line( linehandle_t() );
+		}
 		all_managed_lines.remove(line);
 		//destroy line object
 		delete line.get_rep();

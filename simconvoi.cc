@@ -3254,9 +3254,9 @@ sint64 convoi_t::get_purchase_cost() const
 */
 void convoi_t::set_line(linehandle_t org_line)
 {
-	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
+	// to remove a convoi from a line, call unset_line()
 	if(!org_line.is_bound()) {
-		return;
+		unset_line();
 	}
 	if(  line.is_bound()  ) {
 		unset_line();

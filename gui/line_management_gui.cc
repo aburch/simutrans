@@ -182,6 +182,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 		inp_name.set_text(line_name, sizeof(line_name));
 		// init_chart
 		init_chart();
+		bt_delete_line.enable();
 	}
 	old_convoi_count = old_halt_count = 0;
 
@@ -294,6 +295,9 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			set_name( line->get_name() );
 			welt->set_dirty();
 		}
+	}
+	else {
+		destroy_win( this );
 	}
 	gui_frame_t::draw(pos,size);
 }

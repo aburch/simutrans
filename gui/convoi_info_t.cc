@@ -287,6 +287,7 @@ void convoi_info_t::init_line_selector()
 					selection = line_selector.count_elements() - 1;
 					line = other_line;
 					scd.init( cnv->get_schedule(), cnv->get_owner(), cnv, line );
+					reset_min_windowsize();
 				}
 			}
 			else if (line == other_line) {
@@ -378,10 +379,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
 	if(!cnv.is_bound()) {
 		destroy_win(this);
+		return;
 	}
 
 	bool is_change_allowed = cnv->get_owner() == welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 
+	if(  line_selector.get_selection()>1  &&  !line.is_bound()  ) {
+		init_line_selector();
+	}
+	if(  line_selector.get_selection()==1  &&  !line.is_bound()  ) {
+		// catch new schedule if promoting to line
+		init_line_selector();
+		if( !line.is_bound() ) {
+			line_selector.set_selection(1);
+		}
+		else {
+//			line->add_convoy( cnv );
+			char id[16];
+			sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
+			cnv->call_convoi_tool('l', id);
+		}
+	}
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
 	go_home_button.enable(!route_search_in_progress && is_change_allowed);
@@ -545,9 +563,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			if(  line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 				line = li->get_line();
 				scd.init(line->get_schedule(), cnv->get_owner(), cnv, line);
+				reset_min_windowsize();
 			}
 			else if(  v.i==1  ) {
-				// update line schedule via tool!
+				// create line schedule via tool!
 				tool_t* tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
 				cbuffer_t buf;
 				buf.printf("c,0,%i,%ld,", (int)scd.get_schedule()->get_type(), (long)(intptr_t)cnv->get_schedule());

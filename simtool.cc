@@ -7002,7 +7002,7 @@ bool tool_change_line_t::init( player_t *player )
 
 		case 'd': // delete line
 			{
-				if (line.is_bound()  &&  line->count_convoys()==0) {
+				if (line.is_bound()) {
 					// close a schedule window, if still active
 					gui_frame_t *w = win_get_magic( (ptrdiff_t)line.get_rep() );
 					if(w) {
