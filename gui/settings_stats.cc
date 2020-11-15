@@ -63,6 +63,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
+	savegame.clear_elements();
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version[i]+2, SYSCOL_TEXT ) ;
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
@@ -512,6 +513,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	SEPERATOR
 	INIT_NUM_NEW( "Wind direction", sets->wind_direction, 0, 3, 1, true );
 	// combobox for climate generator
+	climate_generate.clear_elements();
 	for(  uint32 i=0;  i<lengthof(climate_generate_string);  i++  ) {
 		climate_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( climate_generate_string[i], SYSCOL_TEXT ) ;
 	}
@@ -547,6 +549,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	// the following are independent and thus need no listener
 	SEPERATOR
 	// combobox for trees generator
+	tree_generate.clear_elements();
 	for(  uint32 i=0;  i<lengthof(tree_generate_string);  i++  ) {
 		tree_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( tree_generate_string[i], SYSCOL_TEXT ) ;
 	}
