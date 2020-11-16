@@ -4716,7 +4716,10 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
-	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str )) {
+	const loadsave_t::mode_t mode = autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode;
+	const int save_level = autosave ? loadsave_t::autosave_level : loadsave_t::save_level;
+
+	if(  file.wr_open( savename.c_str(), mode, save_level, env_t::objfilename.c_str(), version_str ) != loadsave_t::FILE_STATUS_OK  ) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
@@ -5141,7 +5144,7 @@ bool karte_t::load(const char *filename)
 		name.append(filename);
 	}
 
-	if(!file.rd_open(name)) {
+	if(file.rd_open(name) != loadsave_t::FILE_STATUS_OK) {
 
 		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL )  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
@@ -5179,7 +5182,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 				char fn[256];
 				sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 				loadsave_t pwdfile;
-				if(  pwdfile.rd_open(fn)  ) {
+				if(  pwdfile.rd_open(fn) == loadsave_t::FILE_STATUS_OK  ) {
 					rdwr_player_password_hashes( &pwdfile );
 					// correct locking info
 					nwc_auth_player_t::init_player_lock_server(this);

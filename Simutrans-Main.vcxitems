@@ -237,6 +237,11 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\classify_file.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\checksum.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\memory_rw.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\network.cc" />
@@ -592,6 +597,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\simtestdriver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\sync_steppable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)music\music.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\classify_file.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\checksum.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\memory_rw.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)network\network.h" />

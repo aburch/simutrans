@@ -669,22 +669,24 @@ int simu_main(int argc, char** argv)
 	/*** End logging set up ***/
 
 	// now read last setting (might be overwritten by the tab-files)
-	loadsave_t file;
-	if(file.rd_open("settings.xml"))  {
-		if(  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL )  ) {
-			// too new => remove it
-			file.close();
-			dr_remove("settings.xml");
-		}
-		else {
-			found_settings = true;
-			env_t::rdwr(&file);
-			env_t::default_settings.rdwr(&file);
-			file.close();
-			// reset to false (otherwise these settings will persist)
-			env_t::default_settings.set_freeplay( false );
-			env_t::default_settings.set_allow_player_change( true );
-			env_t::server_announce = 0;
+	{
+		loadsave_t settings_file;
+		if(  settings_file.rd_open("settings.xml") == loadsave_t::FILE_STATUS_OK  )  {
+			if(  settings_file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL )  ) {
+				// too new => remove it
+				settings_file.close();
+				dr_remove("settings.xml");
+			}
+			else {
+				found_settings = true;
+				env_t::rdwr(&settings_file);
+				env_t::default_settings.rdwr(&settings_file);
+				settings_file.close();
+				// reset to false (otherwise these settings will persist)
+				env_t::default_settings.set_freeplay( false );
+				env_t::default_settings.set_allow_player_change( true );
+				env_t::server_announce = 0;
+			}
 		}
 	}
 
@@ -737,7 +739,7 @@ int simu_main(int argc, char** argv)
 		std::string fn = env_t::user_dir;
 		fn += "save/";
 		fn += filename;
-		if(  test.rd_open(fn.c_str())  ) {
+		if(  test.rd_open(fn.c_str()) == loadsave_t::FILE_STATUS_OK  ) {
 			// add pak extension
 			std::string pak_extension = test.get_pak_extension();
 			if(  pak_extension!="(unknown)"  ) {
@@ -1227,7 +1229,7 @@ int simu_main(int argc, char** argv)
 		static char servername[128];
 		sprintf( servername, "server%d-network.sve", env_t::server );
 		// try recover with the latest savegame
-		if(  file.rd_open(servername)  ) {
+		if(  file.rd_open(servername) == loadsave_t::FILE_STATUS_OK  ) {
 			// compare pakset (objfilename has trailing path separator, pak_extension not)
 			if (strstart(env_t::objfilename.c_str(), file.get_pak_extension())) {
 				// same pak directory - load this
@@ -1526,12 +1528,15 @@ int simu_main(int argc, char** argv)
 
 	intr_disable();
 
-	// save setting ...
-	dr_chdir( env_t::user_dir );
-	if(  file.wr_open("settings.xml",loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR)  ) {
-		env_t::rdwr(&file);
-		env_t::default_settings.rdwr(&file);
-		file.close();
+	// save settings
+	{
+		dr_chdir( env_t::user_dir );
+		loadsave_t settings_file;
+		if(  settings_file.wr_open("settings.xml",loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK  ) {
+			env_t::rdwr(&settings_file);
+			env_t::default_settings.rdwr(&settings_file);
+			settings_file.close();
+		}
 	}
 
 	destroy_all_win( true );

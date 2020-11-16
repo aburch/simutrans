@@ -113,9 +113,10 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 	}
 	else if(  comp==&revert_to_last_save  ) {
 		// load settings of last generated map
-		loadsave_t file;
 		dr_chdir( env_t::user_dir  );
-		if(  file.rd_open("default.sve")  ) {
+
+		loadsave_t file;
+		if(  file.rd_open("default.sve") == loadsave_t::FILE_STATUS_OK  ) {
 			sets->rdwr(&file);
 			file.close();
 		}

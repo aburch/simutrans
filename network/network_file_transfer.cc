@@ -141,16 +141,20 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		sprintf( filename, "client%i-network.sve", nwgi->len );
 		err = network_receive_file( my_client_socket, filename, len );
 
-		// now into gameinfo
-		if(  fd.rd_open( filename )  ) {
-			gameinfo_t *pgi = new gameinfo_t( &fd );
-			*gi = *pgi;
-			delete pgi;
-			fd.close();
-		}
-		else {
-			// some more insets, while things may have failed
-			err = fd.get_last_error() == loadsave_t::FILE_ERROR_FUTURE_VERSION ? "Server version too new" : "Server busy";
+		if (err == NULL) {
+			// now into gameinfo
+			const loadsave_t::file_status_t err_code = fd.rd_open( filename );
+
+			if(  err_code == loadsave_t::FILE_STATUS_OK  ) {
+				gameinfo_t *pgi = new gameinfo_t( &fd );
+				*gi = *pgi;
+				delete pgi;
+				fd.close();
+			}
+			else {
+				// some more insets, while things may have failed
+				err = (err_code == loadsave_t::FILE_STATUS_ERR_FUTURE_VERSION) ? "Server version too new" : "Server busy";
+			}
 		}
 		dr_remove( filename );
 end:

@@ -11,9 +11,12 @@
 #include <string>
 
 #include "../simtypes.h"
+#include "../io/classify_file.h"
+#include "../io/rdwr/rdwr_stream.h"
+
 
 class plainstring;
-struct file_descriptors_t;
+
 
 /**
  * This class replaces the FILE when loading and saving games.
@@ -25,6 +28,14 @@ struct file_descriptors_t;
  */
 class loadsave_t
 {
+private:
+	struct buf_t
+	{
+		size_t pos;
+		size_t len;
+		char *buf;
+	};
+
 public:
 	enum mode_t {
 		binary     = 0,
@@ -38,32 +49,25 @@ public:
 		xml_zstd   = xml | zstd
 	};
 
-	enum file_error_t {
-		FILE_ERROR_OK = 0,
-		FILE_ERROR_NOT_EXISTING,
-		FILE_ERROR_BZ_CORRUPT,
-		FILE_ERROR_GZ_CORRUPT,
-		FILE_ERROR_NO_VERSION,
-		FILE_ERROR_FUTURE_VERSION,
-		FILE_ERROR_UNSUPPORTED_COMPRESSION
+	enum file_status_t {
+		FILE_STATUS_OK = 0,
+		FILE_STATUS_ERR_NOT_EXISTING,
+		FILE_STATUS_ERR_CORRUPT,
+		FILE_STATUS_ERR_NO_VERSION,
+		FILE_STATUS_ERR_FUTURE_VERSION,
+		FILE_STATUS_ERR_UNSUPPORTED_COMPRESSION
 	};
 
-private:
-	file_error_t last_error;
+protected:
 	int mode; ///< See mode_t
-	bool saving;
 	bool buffered;
 	unsigned curr_buff;
-	unsigned buf_pos[2];
-	unsigned buf_len[2];
-	char* ls_buf[2];
-	uint32 version;         ///< savegame version
+	buf_t buff[2];
+
 	int ident;              // only for XML formatting
-	char pak_extension[64]; // name of the pak folder during savetime
+	file_info_t finfo;
 
-	std::string filename;   // the current name ...
-
-	file_descriptors_t *fd;
+	rdwr_stream_t *stream;
 
 	/// @sa putc
 	inline void lsputc(int c);
@@ -86,9 +90,11 @@ private:
 	 * Reads into buffer number @p buf_num.
 	 * @returns number of bytes read or -1 in case of error
 	 */
-	int fill_buffer(int buf_num);
+	size_t fill_buffer(int buf_num);
 
 	void flush_buffer(int buf_num);
+
+	bool is_xml() const { return mode&xml; }
 
 public:
 	static mode_t save_mode;     ///< default to use for saving
@@ -108,11 +114,14 @@ public:
 	loadsave_t();
 	~loadsave_t();
 
-	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, int level, const char *pak_extension, const char *savegame_version );
-	const char *close();
+	/// Open save file for reading. File format is detected automatically.
+	file_status_t rd_open(const char *filename);
 
-	file_error_t get_last_error() { return last_error; }
+	/// Open save file for writing.
+	file_status_t wr_open(const char *filename, mode_t mode, int level, const char *pak_extension, const char *savegame_version );
+
+	/// Close an open save file. Returns an error message if saving was unsuccessful, the empty string otherwise.
+	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
 	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
@@ -125,19 +134,15 @@ public:
 	bool is_eof();
 
 	void set_buffered(bool enable);
-	unsigned get_buf_pos(int buf_num) const { return buf_pos[buf_num]; }
-	bool is_loading() const { return !saving; }
-	bool is_saving() const { return saving; }
-	bool is_zipped() const { return mode&zipped; }
-	bool is_bzip2() const { return mode&bzip2; }
-	bool is_zstd() const { return mode&zstd; }
-	bool is_xml() const { return mode&xml; }
-	const char *get_pak_extension() const { return pak_extension; }
+	unsigned get_buf_pos(int buf_num) const { return buff[buf_num].pos; }
+	bool is_loading() const { return stream && !stream->is_writing(); }
+	bool is_saving() const { return stream && stream->is_writing(); }
+	const char *get_pak_extension() const { return finfo.pak_extension; }
 
-	uint32 get_version_int() const { return version; }
+	uint32 get_version_int() const { return finfo.version; }
 	inline bool is_version_atleast(uint32 major, uint32 save_minor) const { return !is_version_less(major, save_minor); }
-	inline bool is_version_less(uint32 major, uint32 save_minor)    const { return version <  major * 1000U + save_minor; }
-	inline bool is_version_equal(uint32 major, uint32 save_minor)   const { return version == major * 1000U + save_minor; }
+	inline bool is_version_less(uint32 major, uint32 save_minor)    const { return finfo.version <  major * 1000U + save_minor; }
+	inline bool is_version_equal(uint32 major, uint32 save_minor)   const { return finfo.version == major * 1000U + save_minor; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);
@@ -186,7 +191,6 @@ public:
 		}
 	}
 };
-
 
 
 // this produced semicautomatic hierarchies
