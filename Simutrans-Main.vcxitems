@@ -235,6 +235,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\checksum.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)network\memory_rw.cc" />
@@ -586,6 +587,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\simtestdriver.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\sync_steppable.h" />

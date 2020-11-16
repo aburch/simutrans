@@ -89,9 +89,10 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	part2.printf( "%s %4.1ft\n", translator::translate( "Weight:" ), veh->get_weight() / 1000.0 );
 	part2.printf( "%s %s - ", translator::translate( "Available:" ), translator::get_short_date( veh->get_intro_year_month() / 12, veh->get_intro_year_month() % 12 ) );
 	if( veh->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 ) {
-		part2.printf( "%s\n", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
+		part2.printf( "%s", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
 	}
 	if( char const* const copyright = veh->get_copyright() ) {
+		part2.append( "\n" );
 		part2.printf( translator::translate( "Constructed by %s" ), copyright );
 	}
 	int text2w, text2h;
@@ -152,7 +153,6 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	gui_frame_t( translator::translate("vh_title") ),
 	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare)
 {
-	current_wt = any_wt;
 	scrolly.set_cmp( vehiclelist_stats_t::compare );
 
 	set_table_layout(1,0);
@@ -214,42 +214,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	}
 	end_table();
 
-	max_idx = 0;
-	tabs_to_wt[max_idx++] = any_wt;
-	tabs.add_tab(&scrolly, translator::translate("All"));
-	// now add all specific tabs
-	if(  !vehicle_builder_t::get_info(maglev_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Maglev"), skinverwaltung_t::maglevhaltsymbol, translator::translate("Maglev"));
-		tabs_to_wt[max_idx++] = maglev_wt;
-	}
-	if(  !vehicle_builder_t::get_info(monorail_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Monorail"), skinverwaltung_t::monorailhaltsymbol, translator::translate("Monorail"));
-		tabs_to_wt[max_idx++] = monorail_wt;
-	}
-	if(  !vehicle_builder_t::get_info(track_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Train"), skinverwaltung_t::zughaltsymbol, translator::translate("Train"));
-		tabs_to_wt[max_idx++] = track_wt;
-	}
-	if(  !vehicle_builder_t::get_info(narrowgauge_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Narrowgauge"), skinverwaltung_t::narrowgaugehaltsymbol, translator::translate("Narrowgauge"));
-		tabs_to_wt[max_idx++] = narrowgauge_wt;
-	}
-	if(  !vehicle_builder_t::get_info(tram_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
-		tabs_to_wt[max_idx++] = tram_wt;
-	}
-	if(  !vehicle_builder_t::get_info(road_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
-		tabs_to_wt[max_idx++] = road_wt;
-	}
-	if(  !vehicle_builder_t::get_info(water_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Ship"), skinverwaltung_t::schiffshaltsymbol, translator::translate("Ship"));
-		tabs_to_wt[max_idx++] = water_wt;
-	}
-	if( !vehicle_builder_t::get_info(air_wt).empty()  ) {
-		tabs.add_tab(&scrolly, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
-		tabs_to_wt[max_idx++] = air_wt;
-	}
+	tabs.init_tabs(&scrolly);
 	tabs.add_listener(this);
 	add_component(&tabs);
 
@@ -287,11 +252,7 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		fill_list();
 	}
 	else if(comp == &tabs) {
-		int const tab = tabs.get_active_tab_index();
-		if(  current_wt != tabs_to_wt[ tab ]  ) {
-			current_wt = tabs_to_wt[ tab ];
-			fill_list();
-		}
+		fill_list();
 	}
 	return true;
 }
@@ -303,10 +264,10 @@ void vehiclelist_frame_t::fill_list()
 	vehiclelist_stats_t::img_width = 32; // reset col1 width
 	uint32 month = world()->get_current_month();
 	const goods_desc_t *ware = idx_to_ware[ max( 0, ware_filter.get_selection() ) ];
-	if(  current_wt == any_wt  ) {
+	if(  tabs.get_active_tab_waytype() == ignore_wt) {
 		// adding all vehiles, i.e. iterate over all available waytypes
-		for(  int i=1;  i<max_idx;  i++  ) {
-			FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
+		for(  int i=1;  i<tabs.get_count();  i++  ) {
+			FOR( slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs.get_tab_waytype(i)) ) {
 				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
 						if( ware ) {
@@ -324,7 +285,7 @@ void vehiclelist_frame_t::fill_list()
 		}
 	}
 	else {
-		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(current_wt)) {
+		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs.get_active_tab_waytype())) {
 			if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 				if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
 					if( ware ) {
@@ -345,5 +306,24 @@ void vehiclelist_frame_t::fill_list()
 	}
 	else {
 		scrolly.set_size( scrolly.get_size() );
+	}
+}
+
+void vehiclelist_frame_t::rdwr(loadsave_t* file)
+{
+	scr_size size = get_windowsize();
+
+	size.rdwr(file);
+	tabs.rdwr(file);
+	scrolly.rdwr(file);
+	ware_filter.rdwr(file);
+	sort_by.rdwr(file);
+	file->rdwr_bool(sorteddir.pressed);
+	file->rdwr_bool(bt_obsolete.pressed);
+	file->rdwr_bool(bt_future.pressed);
+
+	if (file->is_loading()) {
+		fill_list();
+		set_windowsize(size);
 	}
 }

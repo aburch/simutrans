@@ -12,7 +12,7 @@
 
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "components/gui_tab_panel.h"
+#include "components/gui_waytype_tab_panel.h"
 #include "components/gui_textinput.h"
 #include "../convoihandle_t.h"
 
@@ -55,7 +55,7 @@ private:
 	// scroll container of list of convois
 	gui_scrolled_convoy_list_t *scrolly;
 
-	gui_tab_panel_t tabs;
+	gui_waytype_tab_panel_t tabs;
 
 	// actual filter setting
 	const slist_tpl<const goods_desc_t *>*waren_filter;

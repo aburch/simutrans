@@ -61,6 +61,8 @@
 #include "loadfont_frame.h"
 #include "scenario_info.h"
 #include "depot_frame.h"
+#include "depotlist_frame.h"
+#include "vehiclelist_frame.h"
 
 #include "../simversion.h"
 
@@ -576,6 +578,8 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_scenario_info:  w = new scenario_info_t(); break;
 					case magic_depot:          w = new depot_frame_t(); break;
 					case magic_convoi_list:    w = new convoi_frame_t(); break;
+					case magic_depotlist:      w = new depotlist_frame_t(); break;
+					case magic_vehiclelist:    w = new vehiclelist_frame_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

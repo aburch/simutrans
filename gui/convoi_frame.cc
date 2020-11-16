@@ -47,9 +47,6 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_id"
 };
 
-static waytype_t tabs_to_waytype[9];
-
-
 /**
  * Scrolled list of gui_convoiinfo_ts.
  * Filters (by setting visibility) and sorts.
@@ -93,7 +90,7 @@ convoi_frame_t* gui_scrolled_convoy_list_t::main_static;
 
 bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 {
-	waytype_t wt = tabs_to_waytype[ tabs.get_active_tab_index() ];
+	waytype_t wt = tabs.get_active_tab_waytype();
 	if(  wt  &&  cnv->front()->get_desc()->get_waytype() != wt  ) {
 		// not the right kind of vehivle
 		return false;
@@ -212,11 +209,12 @@ convoi_frame_t::convoi_frame_t() :
 
 	set_table_layout(1,0);
 
-	add_table(4,2);
+	add_table(5,2);
 	{
 		new_component_span<gui_label_t>("cl_txt_sort", 2);
 		name_filter_input.set_text( name_filter, lengthof(name_filter) );
 		add_component(&name_filter_input,2);
+		new_component<gui_fill_t>();
 
 		sortedby.init(button_t::roundbox, sort_text[get_sortierung()]);
 		sortedby.add_listener(this);
@@ -230,49 +228,14 @@ convoi_frame_t::convoi_frame_t() :
 		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
 		filter_details.add_listener(this);
 		add_component(&filter_details);
+		new_component<gui_fill_t>();
 	}
 	end_table();
 
 	scrolly = new gui_scrolled_convoy_list_t(this);
 	scrolly->set_maximize( true );
 
-	tabs.add_tab(scrolly, translator::translate("All"));
-	uint8 max_idx = 0;
-	tabs_to_waytype[max_idx++] = ignore_wt;
-
-	// now add all specific tabs
-	if(  maglev_t::default_maglev  ) {
-		tabs.add_tab(scrolly, translator::translate("Maglev"), skinverwaltung_t::maglevhaltsymbol, translator::translate("Maglev"));
-		tabs_to_waytype[max_idx++] = maglev_wt;
-	}
-	if(  monorail_t::default_monorail  ) {
-		tabs.add_tab(scrolly, translator::translate("Monorail"), skinverwaltung_t::monorailhaltsymbol, translator::translate("Monorail"));
-		tabs_to_waytype[max_idx++] = monorail_wt;
-	}
-	if(  schiene_t::default_schiene  ) {
-		tabs.add_tab(scrolly, translator::translate("Train"), skinverwaltung_t::zughaltsymbol, translator::translate("Train"));
-		tabs_to_waytype[max_idx++] = track_wt;
-	}
-	if(  narrowgauge_t::default_narrowgauge  ) {
-		tabs.add_tab(scrolly, translator::translate("Narrowgauge"), skinverwaltung_t::narrowgaugehaltsymbol, translator::translate("Narrowgauge"));
-		tabs_to_waytype[max_idx++] = narrowgauge_wt;
-	}
-	if(  !vehicle_builder_t::get_info(tram_wt).empty()  ) {
-		tabs.add_tab(scrolly, translator::translate("Tram"), skinverwaltung_t::tramhaltsymbol, translator::translate("Tram"));
-		tabs_to_waytype[max_idx++] = tram_wt;
-	}
-	if(  strasse_t::default_strasse) {
-		tabs.add_tab(scrolly, translator::translate("Truck"), skinverwaltung_t::autohaltsymbol, translator::translate("Truck"));
-		tabs_to_waytype[max_idx++] = road_wt;
-	}
-	if(  !vehicle_builder_t::get_info(water_wt).empty()  ) {
-		tabs.add_tab(scrolly, translator::translate("Ship"), skinverwaltung_t::schiffshaltsymbol, translator::translate("Ship"));
-		tabs_to_waytype[max_idx++] = water_wt;
-	}
-	if(  runway_t::default_runway  ) {
-		tabs.add_tab(scrolly, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
-		tabs_to_waytype[max_idx++] = air_wt;
-	}
+	tabs.init_tabs(scrolly);
 	tabs.add_listener(this);
 	add_component(&tabs);
 
@@ -339,26 +302,26 @@ void convoi_frame_t::draw(scr_coord pos, scr_size size)
 
 void convoi_frame_t::rdwr( loadsave_t *file )
 {
-	sint32 cont_xoff = scrolly->get_scroll_x();
-	sint32 cont_yoff = scrolly->get_scroll_y();
-	uint8 tab_idx = tabs.get_active_tab_index();
 	scr_size size = get_windowsize();
 	uint8 player_nr = owner->get_player_nr();
 	sint16 sort_mode = sortby;
 
 	file->rdwr_byte( player_nr );
 	size.rdwr( file );
+	tabs.rdwr( file );
+	scrolly->rdwr( file );
 	file->rdwr_str( name_filter, lengthof( name_filter ) );
-	file->rdwr_byte( tab_idx );
 	file->rdwr_short( sort_mode );
 	file->rdwr_bool( sortreverse );
 	file->rdwr_long( filter_flags );
 	if( file->is_saving() ) {
 		uint8 good_nr = get_filter(convoi_filter_frame_t::ware_filter) ? waren_filter->get_count() : 0;
 		file->rdwr_byte( good_nr );
-		FOR( slist_tpl<const goods_desc_t *>, const i, *waren_filter ) {
-			uint8 catg_idx = i->get_catg_index();
-			file->rdwr_byte(catg_idx);
+		if (good_nr > 0) {
+			FOR( slist_tpl<const goods_desc_t *>, const i, *waren_filter ) {
+				uint8 catg_idx = i->get_catg_index();
+				file->rdwr_byte(catg_idx);
+			}
 		}
 	}
 	else {
@@ -379,9 +342,7 @@ void convoi_frame_t::rdwr( loadsave_t *file )
 		sortby = (sort_mode_t)sort_mode;
 		owner = welt->get_player( player_nr );
 		win_set_magic(this, magic_convoi_list+player_nr );
-		tabs.set_active_tab_index( tab_idx );
 		fill_list();
 		set_windowsize( size );
-		scrolly->set_scroll_position( cont_xoff, cont_yoff );
 	}
 }

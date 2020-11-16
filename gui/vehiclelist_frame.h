@@ -7,12 +7,13 @@
 #define GUI_VEHICLELIST_FRAME_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
-#include "components/gui_tab_panel.h"
+#include "components/gui_waytype_tab_panel.h"
 #include "components/gui_combobox.h"
 
 class vehicle_desc_t;
@@ -24,14 +25,13 @@ class vehiclelist_frame_t : public gui_frame_t, private action_listener_t
 private:
 	button_t sorteddir, bt_obsolete, bt_future;
 	gui_scrolled_list_t scrolly;
-	gui_tab_panel_t tabs;
+	gui_waytype_tab_panel_t tabs;
 	gui_combobox_t sort_by, ware_filter;
 	vector_tpl<const goods_desc_t *>idx_to_ware;
 
 	void fill_list();
 
-	waytype_t tabs_to_wt[ 9 ], current_wt;
-	int max_idx; // may waytypes available
+//	waytype_t current_wt;
 
 public:
 	vehiclelist_frame_t();
@@ -41,6 +41,10 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	bool has_min_sizer() const OVERRIDE { return true; }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_vehiclelist; }
 };
 
 
