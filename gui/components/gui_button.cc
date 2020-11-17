@@ -349,7 +349,8 @@ void button_t::draw(scr_coord offset)
 					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				else if(image) {
-					display_img_aligned(image, area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
+					const scr_rect img_area = pressed ? scr_rect(area.x, area.y+1, area.w, area.h) : area;
+					display_img_aligned(image, img_area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
