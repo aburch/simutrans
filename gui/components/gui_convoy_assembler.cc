@@ -2740,7 +2740,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_convoi_count_fluctuation.set_visible(false);
 		}
 
-		const uint8 MAX_ROWS = max(12-lines, 0); // Maximum display line of possession livery scheme or upgrade info
+		const uint8 MAX_ROWS = max(16-lines, 0); // Maximum display line of possession livery scheme or upgrade info
 		// livery counter and avairavle livery scheme list
 		if (veh_type->get_livery_count() > 0 && MAX_ROWS) {
 			// display the available number of liveries
