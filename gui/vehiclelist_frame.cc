@@ -105,7 +105,11 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	part2.clear();
 	part2.printf( "%s %4.1ft\n", translator::translate( "Weight:" ), veh->get_weight() / 1000.0 );
 	part2.printf( "%s %s - ", translator::translate( "Available:" ), translator::get_short_date( veh->get_intro_year_month() / 12, veh->get_intro_year_month() % 12 ) );
-	if( veh->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 ) {
+	if (veh->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 &&
+		(((!world()->get_settings().get_show_future_vehicle_info() && veh->will_end_prodection_soon(world()->get_timeline_year_month()))
+			|| world()->get_settings().get_show_future_vehicle_info()
+			|| veh->is_retired(world()->get_timeline_year_month()))))
+	{
 		part2.printf( "%s", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
 	}
 	if( char const* const copyright = veh->get_copyright() ) {
@@ -133,11 +137,24 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 
 	// first name
 	offset.x += img_width;
+	PIXVAL name_colval = SYSCOL_TEXT;
+	if (veh->is_future(month)) {
+		name_colval = SYSCOL_EMPTY;
+	}
+	else if (veh->is_available_only_as_upgrade()) {
+		name_colval = COL_UPGRADEABLE;
+	}
+	else if (veh->is_obsolete(month, world())) {
+		name_colval = COL_OBSOLETE;
+	}
+	else if (veh->is_retired(month)) {
+		name_colval = COL_OUT_OF_PRODUCTION;
+	}
 	int dx = display_proportional_rgb(
 		offset.x, offset.y,
 		translator::translate( veh->get_name(), world()->get_settings().get_name_language_id() ),
 		ALIGN_LEFT|DT_CLIP,
-		veh->is_future(month) ? SYSCOL_TEXT_HIGHLIGHT : (veh->is_available(month) ? SYSCOL_TEXT : gui_theme_t::gui_color_obsolete),
+		name_colval,
 		false
 	);
 	if( veh->get_power() > 0 ) {
@@ -277,14 +294,18 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		add_component( &ware_filter );
 
 		// next rows
-		new_component<gui_empty_t>();
+		add_component( &lb_count );
 		new_component<gui_empty_t>();
 
-		add_table(2, 1);
+		add_table(2, 2);
 		{
 			bt_obsolete.init( button_t::square_state, "Show obsolete" );
 			bt_obsolete.add_listener( this );
 			add_component( &bt_obsolete );
+
+			bt_outdated.init(button_t::square_state, "Show outdated");
+			bt_outdated.add_listener(this);
+			add_component(&bt_outdated);
 
 			bt_future.init( button_t::square_state, "Show future" );
 			bt_future.add_listener( this );
@@ -293,6 +314,10 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 				bt_future.pressed = false;
 				add_component( &bt_future );
 			}
+
+			bt_only_upgrade.init(button_t::square_state, "Show upgraded");
+			bt_only_upgrade.add_listener(this);
+			add_component(&bt_only_upgrade);
 		}
 		end_table();
 	}
@@ -367,6 +392,14 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		bt_obsolete.pressed ^= 1;
 		fill_list();
 	}
+	else if (comp == &bt_outdated) {
+		bt_outdated.pressed ^= 1;
+		fill_list();
+	}
+	else if (comp == &bt_only_upgrade) {
+		bt_only_upgrade.pressed ^= 1;
+		fill_list();
+	}
 	else if(comp == &tabs) {
 		int const tab = tabs.get_active_tab_index();
 		if(  current_wt != tabs_to_wt[ tab ]  ) {
@@ -381,6 +414,7 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 void vehiclelist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
+	count = 0;
 	vehiclelist_stats_t::img_width = 32; // reset col1 width
 	uint32 month = world()->get_current_month();
 	const goods_desc_t *ware = idx_to_ware[ max( 0, ware_filter.get_selection() ) ];
@@ -388,36 +422,56 @@ void vehiclelist_frame_t::fill_list()
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
-				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
-					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
-						if( ware ) {
-							const goods_desc_t *vware = veh->get_freight_type();
-							if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
-								scrolly.new_component<vehiclelist_stats_t>( veh );
-							}
-						}
-						else {
-							scrolly.new_component<vehiclelist_stats_t>( veh );
-						}
+				if (!bt_only_upgrade.pressed && veh->is_available_only_as_upgrade()) {
+					continue;
+				}
+				if (!bt_outdated.pressed && (veh->is_retired(month) && !veh->is_obsolete(month, world()))) {
+					continue;
+				}
+				if (!bt_obsolete.pressed && veh->is_obsolete(month, world())) {
+					continue;
+				}
+				if (!bt_future.pressed && veh->is_future(month)) {
+					continue;
+				}
+				if( ware ) {
+					const goods_desc_t *vware = veh->get_freight_type();
+					if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
+						scrolly.new_component<vehiclelist_stats_t>( veh );
+						count++;
 					}
+				}
+				else {
+					scrolly.new_component<vehiclelist_stats_t>( veh );
+					count++;
 				}
 			}
 		}
 	}
 	else {
 		FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(current_wt)) {
-			if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
-				if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
-					if( ware ) {
-						const goods_desc_t *vware = veh->get_freight_type();
-						if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
-							scrolly.new_component<vehiclelist_stats_t>( veh );
-						}
-					}
-					else {
-						scrolly.new_component<vehiclelist_stats_t>( veh );
-					}
+			if (!bt_only_upgrade.pressed && veh->is_available_only_as_upgrade()) {
+				continue;
+			}
+			if (!bt_outdated.pressed && (veh->is_retired(month) && !veh->is_obsolete(month, world()))) {
+				continue;
+			}
+			if (!bt_obsolete.pressed && veh->is_obsolete(month, world())) {
+				continue;
+			}
+			if (!bt_future.pressed && veh->is_future(month)) {
+				continue;
+			}
+			if( ware ) {
+				const goods_desc_t *vware = veh->get_freight_type();
+				if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
+					scrolly.new_component<vehiclelist_stats_t>( veh );
+					count++;
 				}
+			}
+			else {
+				scrolly.new_component<vehiclelist_stats_t>( veh );
+				count++;
 			}
 		}
 	}
@@ -427,4 +481,16 @@ void vehiclelist_frame_t::fill_list()
 	else {
 		scrolly.set_size( scrolly.get_size() );
 	}
+	switch (count) {
+		case 0:
+			lb_count.buf().printf(translator::translate("Vehicle not found"), count);
+			break;
+		case 1:
+			lb_count.buf().printf(translator::translate("One vehicle found"), count);
+			break;
+		default:
+			lb_count.buf().printf(translator::translate("%u vehicles found"), count);
+			break;
+	}
+	lb_count.update();
 }
