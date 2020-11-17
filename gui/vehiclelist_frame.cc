@@ -222,97 +222,120 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 
 	set_table_layout(1,0);
 
-	add_table(3,0);
+	add_table(2,0);
 	{
-		new_component<gui_label_t>( "hl_txt_sort" );
-		new_component<gui_empty_t>();
-		engine_filter.clear_elements();
-		engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
-		for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
-			engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
-		}
-		engine_filter.set_selection( 0 );
-		engine_filter.add_listener( this );
-		add_component( &engine_filter );
-
-		// second row
-		sort_by.clear_elements();
-		for(int i = 0; i < SORT_MODES; i++) {
-			sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
-		}
-		sort_by.set_selection( vehiclelist_stats_t::sort_mode );
-		sort_by.set_width_fixed( true );
-		sort_by.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
-		sort_by.add_listener( this );
-		add_component( &sort_by );
-
-		add_table(3, 1);
+		// left column
+		add_table(1, 3);
 		{
-			sort_asc.init(button_t::arrowup_state, "");
-			sort_asc.set_tooltip(translator::translate( "hl_btn_sort_asc" ));
-			sort_asc.add_listener(this);
-			sort_asc.pressed = vehiclelist_stats_t::reverse;
-			add_component(&sort_asc);
+			add_table(1, 2);
+			{
+				new_component<gui_label_t>( "hl_txt_sort" );
 
-			sort_desc.init(button_t::arrowdown_state, "");
-			sort_desc.set_tooltip(translator::translate( "hl_btn_sort_desc" ));
-			sort_desc.add_listener(this);
-			sort_desc.pressed = !vehiclelist_stats_t::reverse;
-			add_component(&sort_desc);
-			new_component<gui_margin_t>(LINESPACE);
+				add_table(4, 1);
+				{
+					sort_by.clear_elements();
+					for(int i = 0; i < SORT_MODES; i++) {
+						sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+					}
+					sort_by.set_selection( vehiclelist_stats_t::sort_mode );
+					sort_by.set_width_fixed( true );
+					sort_by.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+					sort_by.add_listener( this );
+					add_component( &sort_by );
+
+					sort_asc.init(button_t::arrowup_state, "");
+					sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+					sort_asc.add_listener(this);
+					sort_asc.pressed = vehiclelist_stats_t::reverse;
+					add_component(&sort_asc);
+
+					sort_desc.init(button_t::arrowdown_state, "");
+					sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+					sort_desc.add_listener(this);
+					sort_desc.pressed = !vehiclelist_stats_t::reverse;
+					add_component(&sort_desc);
+					new_component<gui_margin_t>(LINESPACE);
+				}
+				end_table();
+
+			}
+			end_table();
+
+			new_component<gui_empty_t>();
+
+			add_component( &lb_count );
 		}
 		end_table();
 
-		ware_filter.clear_elements();
-		ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
-		idx_to_ware.append( NULL );
-		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
-			const goods_desc_t *ware = goods_manager_t::get_info(i);
-			if(  ware == goods_manager_t::none  ) {
-				continue;
-			}
-			if(  ware->get_catg() == 0  ) {
-				ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_name()), SYSCOL_TEXT);
-				idx_to_ware.append( ware );
-			}
-		}
-		// now add other good categories
-		for(  int i=1;  i < goods_manager_t::get_max_catg_index();  i++  ) {
-			const goods_desc_t *ware = goods_manager_t::get_info_catg(i);
-			if(  ware->get_catg() != 0  ) {
-				ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_catg_name()), SYSCOL_TEXT);
-				idx_to_ware.append( ware );
-			}
-		}
-		ware_filter.set_selection( 0 );
-		ware_filter.add_listener( this );
-		add_component( &ware_filter );
-
-		// next rows
-		add_component( &lb_count );
-		new_component<gui_empty_t>();
-
-		add_table(2, 2);
+		// right column
+		add_table(1, 3);
 		{
-			bt_obsolete.init( button_t::square_state, "Show obsolete" );
-			bt_obsolete.add_listener( this );
-			add_component( &bt_obsolete );
+			add_table(2,1);
+			{
+				new_component<gui_label_t>("Filter:");
+				add_table(1, 2);
+				{
+					engine_filter.clear_elements();
+					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
+						engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
+					}
+					engine_filter.set_selection( 0 );
+					engine_filter.add_listener( this );
+					add_component( &engine_filter );
 
-			bt_outdated.init(button_t::square_state, "Show outdated");
-			bt_outdated.add_listener(this);
-			add_component(&bt_outdated);
-
-			bt_future.init( button_t::square_state, "Show future" );
-			bt_future.add_listener( this );
-			if (!welt->get_settings().get_show_future_vehicle_info()) {
-				bt_future.set_visible(false);
-				bt_future.pressed = false;
-				add_component( &bt_future );
+					ware_filter.clear_elements();
+					ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					idx_to_ware.append(NULL);
+					for (int i = 0; i < goods_manager_t::get_count(); i++) {
+						const goods_desc_t *ware = goods_manager_t::get_info(i);
+						if (ware == goods_manager_t::none) {
+							continue;
+						}
+						if (ware->get_catg() == 0) {
+							ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_name()), SYSCOL_TEXT);
+							idx_to_ware.append(ware);
+						}
+					}
+					// now add other good categories
+					for (int i = 1; i < goods_manager_t::get_max_catg_index(); i++) {
+						const goods_desc_t *ware = goods_manager_t::get_info_catg(i);
+						if (ware->get_catg() != 0) {
+							ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_catg_name()), SYSCOL_TEXT);
+							idx_to_ware.append(ware);
+						}
+					}
+					ware_filter.set_selection(0);
+					ware_filter.add_listener(this);
+					add_component(&ware_filter);
+				}
+				end_table();
 			}
+			end_table();
 
-			bt_only_upgrade.init(button_t::square_state, "Show upgraded");
-			bt_only_upgrade.add_listener(this);
-			add_component(&bt_only_upgrade);
+			add_table(2, 2);
+			{
+				bt_obsolete.init(button_t::square_state, "Show obsolete");
+				bt_obsolete.add_listener(this);
+				add_component(&bt_obsolete);
+
+				bt_outdated.init(button_t::square_state, "Show outdated");
+				bt_outdated.add_listener(this);
+				add_component(&bt_outdated);
+
+				bt_future.init(button_t::square_state, "Show future");
+				bt_future.add_listener(this);
+				if (!welt->get_settings().get_show_future_vehicle_info()) {
+					bt_future.set_visible(false);
+					bt_future.pressed = false;
+					add_component(&bt_future);
+				}
+
+				bt_only_upgrade.init(button_t::square_state, "Show upgraded");
+				bt_only_upgrade.add_listener(this);
+				add_component(&bt_only_upgrade);
+			}
+			end_table();
 		}
 		end_table();
 	}
