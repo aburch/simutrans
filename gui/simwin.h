@@ -168,6 +168,9 @@ bool destroy_win(const ptrdiff_t magic);
 
 void destroy_all_win(bool destroy_sticky);
 
+void rollup_all_win();
+void rolldown_all_win();
+
 bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
 void display_all_win();
 void win_rotate90( sint16 new_size );
