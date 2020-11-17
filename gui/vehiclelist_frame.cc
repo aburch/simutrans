@@ -218,19 +218,34 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	{
 		new_component<gui_label_t>( "hl_txt_sort" );
 		new_component<gui_empty_t>();
-		new_component<gui_empty_t>();
+		new_component<gui_label_t>( "Filter:" );
 		// second row
 		sort_by.clear_elements();
 		for(int i = 0; i < SORT_MODES; i++) {
 			sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 		}
 		sort_by.set_selection( vehiclelist_stats_t::sort_mode );
+		sort_by.set_width_fixed( true );
+		sort_by.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sort_by.add_listener( this );
 		add_component( &sort_by );
 
-		sorteddir.init( button_t::roundbox, vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc" );
-		sorteddir.add_listener( this );
-		add_component( &sorteddir );
+		add_table(3, 1);
+		{
+			sort_asc.init(button_t::arrowup_state, "");
+			sort_asc.set_tooltip(translator::translate( "hl_btn_sort_asc" ));
+			sort_asc.add_listener(this);
+			sort_asc.pressed = vehiclelist_stats_t::reverse;
+			add_component(&sort_asc);
+
+			sort_desc.init(button_t::arrowdown_state, "");
+			sort_desc.set_tooltip(translator::translate( "hl_btn_sort_desc" ));
+			sort_desc.add_listener(this);
+			sort_desc.pressed = !vehiclelist_stats_t::reverse;
+			add_component(&sort_desc);
+			new_component<gui_margin_t>(LINESPACE);
+		}
+		end_table();
 
 		ware_filter.clear_elements();
 		ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
@@ -258,18 +273,24 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		add_component( &ware_filter );
 
 		// next rows
-		bt_obsolete.init( button_t::square_state, "Show obsolete" );
-		bt_obsolete.add_listener( this );
-		add_component( &bt_obsolete );
+		new_component<gui_empty_t>();
+		new_component<gui_empty_t>();
 
-		bt_future.init( button_t::square_state, "Show future" );
-		bt_future.add_listener( this );
-		if (!welt->get_settings().get_show_future_vehicle_info()) {
-			bt_future.set_visible(false);
+		add_table(2, 1);
+		{
+			bt_obsolete.init( button_t::square_state, "Show obsolete" );
+			bt_obsolete.add_listener( this );
+			add_component( &bt_obsolete );
+
+			bt_future.init( button_t::square_state, "Show future" );
+			bt_future.add_listener( this );
+			if (!welt->get_settings().get_show_future_vehicle_info()) {
+				bt_future.set_visible(false);
+				bt_future.pressed = false;
+				add_component( &bt_future );
+			}
 		}
-		bt_future.pressed = false;
-		add_component( &bt_future, 2 );
-
+		end_table();
 	}
 	end_table();
 
@@ -325,17 +346,6 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
  */
 bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
-/*
-	if(comp == &sortedby) {
-		vehiclelist_stats_t::sort_mode = (vehiclelist_stats_t::sort_mode + 1) % SORT_MODES;
-		sortedby.set_text(sort_text[vehiclelist_stats_t::sort_mode]);
-		if( vehiclelist_stats_t::sort_mode == 0 ) {
-			fill_list();	// using sorting from vehikelbauer
-		}
-		else {
-			scrolly.sort( 0 );
-		}
-*/
 	if(comp == &sort_by) {
 		vehiclelist_stats_t::sort_mode = max(0,v.i);
 		fill_list();
@@ -343,10 +353,11 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 	else if(comp == &ware_filter) {
 		fill_list();
 	}
-	else if(comp == &sorteddir) {
+	else if (comp == &sort_asc || comp == &sort_desc) {
 		vehiclelist_stats_t::reverse = !vehiclelist_stats_t::reverse;
-		sorteddir.set_text( vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);
+		sort_asc.pressed = vehiclelist_stats_t::reverse;
+		sort_desc.pressed = !vehiclelist_stats_t::reverse;
 	}
 	else if(comp == &bt_obsolete) {
 		bt_obsolete.pressed ^= 1;
