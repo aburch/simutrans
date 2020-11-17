@@ -239,7 +239,15 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	{
 		new_component<gui_label_t>( "hl_txt_sort" );
 		new_component<gui_empty_t>();
-		new_component<gui_label_t>( "Filter:" );
+		engine_filter.clear_elements();
+		engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+		for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
+			engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
+		}
+		engine_filter.set_selection( 0 );
+		engine_filter.add_listener( this );
+		add_component( &engine_filter );
+
 		// second row
 		sort_by.clear_elements();
 		for(int i = 0; i < SORT_MODES; i++) {
@@ -379,6 +387,9 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		vehiclelist_stats_t::sort_mode = max(0,v.i);
 		fill_list();
 	}
+	else if(comp == &engine_filter) {
+		fill_list();
+	}
 	else if(comp == &ware_filter) {
 		fill_list();
 	}
@@ -422,6 +433,12 @@ void vehiclelist_frame_t::fill_list()
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
+				// engine type filter
+				if(engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type()+1) != engine_filter.get_selection()) {
+					continue;
+				}
+
+				// timeline status filter
 				if (!bt_only_upgrade.pressed && veh->is_available_only_as_upgrade()) {
 					continue;
 				}
@@ -434,6 +451,7 @@ void vehiclelist_frame_t::fill_list()
 				if (!bt_future.pressed && veh->is_future(month)) {
 					continue;
 				}
+				// goods category filter
 				if( ware ) {
 					const goods_desc_t *vware = veh->get_freight_type();
 					if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
@@ -450,6 +468,12 @@ void vehiclelist_frame_t::fill_list()
 	}
 	else {
 		FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(current_wt)) {
+			// engine type filter
+			if (engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
+				continue;
+			}
+
+			// timeline status filter
 			if (!bt_only_upgrade.pressed && veh->is_available_only_as_upgrade()) {
 				continue;
 			}
@@ -462,6 +486,7 @@ void vehiclelist_frame_t::fill_list()
 			if (!bt_future.pressed && veh->is_future(month)) {
 				continue;
 			}
+			// goods category filter
 			if( ware ) {
 				const goods_desc_t *vware = veh->get_freight_type();
 				if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {
@@ -484,12 +509,15 @@ void vehiclelist_frame_t::fill_list()
 	switch (count) {
 		case 0:
 			lb_count.buf().printf(translator::translate("Vehicle not found"), count);
+			lb_count.set_color(SYSCOL_EMPTY);
 			break;
 		case 1:
 			lb_count.buf().printf(translator::translate("One vehicle found"), count);
+			lb_count.set_color(SYSCOL_TEXT);
 			break;
 		default:
 			lb_count.buf().printf(translator::translate("%u vehicles found"), count);
+			lb_count.set_color(SYSCOL_TEXT);
 			break;
 	}
 	lb_count.update();

@@ -25,7 +25,7 @@ private:
 	button_t bt_obsolete, bt_outdated, bt_only_upgrade, bt_future, sort_asc, sort_desc;
 	gui_scrolled_list_t scrolly;
 	gui_tab_panel_t tabs;
-	gui_combobox_t sort_by, ware_filter;
+	gui_combobox_t sort_by, ware_filter, engine_filter;
 	vector_tpl<const goods_desc_t *>idx_to_ware;
 	gui_label_buf_t lb_count;
 
