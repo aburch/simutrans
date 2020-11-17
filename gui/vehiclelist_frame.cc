@@ -30,19 +30,6 @@ bool vehiclelist_stats_t::reverse = false;
 // for having uniform spaced columns
 int vehiclelist_stats_t::img_width = 100;
 
-static const char* engine_type_names[9] =
-{
-	"unknown",
-	"steam",
-	"diesel",
-	"electric",
-	"bio",
-	"sail",
-	"fuel_cell",
-	"hydrogene",
-	"battery"
-};
-
 
 vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 {
@@ -62,7 +49,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
 		const uint8 et = (uint8)veh->get_engine_type() + 1;
-		sprintf( str, " (%s)", translator::translate( engine_type_names[et] ) );
+		sprintf( str, " (%s)", translator::translate( vehicle_builder_t::engine_type_names[et] ) );
 		name_width += proportional_string_width( str );
 	}
 
@@ -160,7 +147,7 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	if( veh->get_power() > 0 ) {
 		char str[ 256 ];
 		const uint8 et = (uint8)veh->get_engine_type() + 1;
-		sprintf( str, " (%s)", translator::translate( engine_type_names[et] ) );
+		sprintf( str, " (%s)", translator::translate( vehicle_builder_t::engine_type_names[et] ) );
 		display_proportional_rgb( offset.x+dx, offset.y, str, ALIGN_LEFT|DT_CLIP, SYSCOL_TEXT, false );
 	}
 
