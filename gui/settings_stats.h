@@ -10,14 +10,12 @@
 #include <math.h>
 
 #include "../tpl/vector_tpl.h"
-#include "../tpl/array_tpl.h"
 #include "../utils/cbuffer_t.h"
 
 #include "components/gui_container.h"
 #include "components/gui_component.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"
-#include "components/gui_textarea.h"
 
 #include "components/action_listener.h"
 #include "components/gui_combobox.h"
