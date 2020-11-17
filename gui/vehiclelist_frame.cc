@@ -103,9 +103,10 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	part2.printf( "%s %4.1ft\n", translator::translate( "Weight:" ), veh->get_weight() / 1000.0 );
 	part2.printf( "%s %s - ", translator::translate( "Available:" ), translator::get_short_date( veh->get_intro_year_month() / 12, veh->get_intro_year_month() % 12 ) );
 	if( veh->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12 ) {
-		part2.printf( "%s\n", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
+		part2.printf( "%s", translator::get_short_date( veh->get_retire_year_month() / 12, veh->get_retire_year_month() % 12 ) );
 	}
 	if( char const* const copyright = veh->get_copyright() ) {
+		part2.append("\n");
 		part2.printf( translator::translate( "Constructed by %s" ), copyright );
 	}
 	int text2w, text2h;
