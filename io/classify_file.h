@@ -7,6 +7,7 @@
 #define IO_CLASSIFY_FILE_H
 
 
+#include "../unicode.h"
 #include "../simtypes.h"
 
 
@@ -48,12 +49,12 @@ ENUM_BITSET(file_info_t::file_type_t);
 
 /**
  * Classify a file.
- * @param path must be UTF-8 encoded.
+ * @param path must a valid system name, either a short name for windows or UTF8 for other plattforms
  * @param file_info_t If successfully classified, holds information about file format and version.
  *                    Must not be NULL.
  * @returns FILE_ERROR_OK iff successfully classified.
  */
-file_classify_status_t classify_file(const std::string &path, file_info_t *info);
+file_classify_status_t classify_file(const char *path, file_info_t *info);
 
 
 #endif

@@ -45,18 +45,18 @@ file_info_t::file_info_t(file_type_t file_type, uint32 version) :
 }
 
 
-file_classify_status_t classify_file(const std::string &path, file_info_t *info)
+file_classify_status_t classify_file(const char *path, file_info_t *info)
 {
 	if (!info) {
 		dbg->error("classify_file()", "Cannot classify file: info is NULL");
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
-	else if (path == "") {
+	else if (!path  ||  path == "") {
 		dbg->error("classify_file()", "Invalid path");
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
 
-	FILE *f = dr_fopen(path.c_str(), "rb");
+	FILE *f = dr_fopen((const char *)path, "rb");
 
 	if (!f) {
 		// Do not warn about this since we can also use this function to check whether a file exists
