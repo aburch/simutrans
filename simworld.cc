@@ -1955,7 +1955,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
-	if(  sets->get_lakeheight()>0  ) {
+	if(  sets->get_lakeheight() > get_groundwater()  ) {
 		create_lakes( old_x, old_y, sets->get_lakeheight() );
 	}
 
