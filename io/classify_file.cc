@@ -63,12 +63,15 @@ file_classify_status_t classify_file(const char *path, file_info_t *info)
 		return FILE_CLASSIFY_NOT_EXISTING;
 	}
 
-#if USE_ZSTD // otherwise we cannot read it
 	fseek(f, 0, SEEK_SET);
 	if (classify_as_zstd(f, info)) {
 		fclose(f);
 
+#if USE_ZSTD // otherwise we cannot read it
 		zstd_file_rdwr_stream_t s(path, false, 0);
+#else
+		dbg->fatal( "classify_file()", "Compiled without zstd support but zstd savegame!" );
+#endif
 		if (!classify_file_data(&s, info)) {
 			info->file_type = file_info_t::TYPE_RAW;
 			info->version = INVALID_FILE_VERSION;
@@ -77,7 +80,6 @@ file_classify_status_t classify_file(const char *path, file_info_t *info)
 
 		return FILE_CLASSIFY_OK;
 	}
-#endif
 
 	fseek(f, 0, SEEK_SET);
 	if (classify_as_bzip2(f, info)) {
