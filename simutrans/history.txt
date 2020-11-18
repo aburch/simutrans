@@ -11,6 +11,7 @@
 	CHG: rivers now go to the sea and pass through lakes. A tiny stream becomes navigatavble after a lake or merging with another stream
 	FIX: MessageOptions can be three single images (id=0,1,2) instead of one large image
 	FIX: Potential hang when loading zstd compressed save files when multi-threading is enabled
+	CHG: crossing speed is now the max speed. No crossing, if one speed higher than maxspeed
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

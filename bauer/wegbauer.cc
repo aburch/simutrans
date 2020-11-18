@@ -370,7 +370,7 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 		return false;
 	}
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month())!=NULL) {
+	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), desc ? desc->get_topspeed() : 0, w->get_max_speed(), welt->get_timeline_year_month())!=NULL) {
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends

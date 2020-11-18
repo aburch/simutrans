@@ -238,7 +238,7 @@ DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 
 const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
-	// mark if crossing possible
+	// mark if crossing possiblea
 	const waytype_t way0 = ns <  ow ? ns : ow;
 	const waytype_t way1 = ns >= ow ? ns : ow;
 	const crossing_desc_t *best = NULL;
@@ -250,24 +250,19 @@ const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const 
 			if(  !i->is_available(timeline_year_month)  ) {
 				continue;
 			}
-			// better matching speed => take this
-			if(  best  ) {
-				// match maxspeed of first way
-				uint8  const way0_nr = (way0 == ow);
-				sint32 const imax0   =    i->get_maxspeed(way0_nr);
-				sint32 const bmax0   = best->get_maxspeed(way0_nr);
-				if(  (imax0 < way_0_speed || bmax0 < imax0)  &&  (way_0_speed < bmax0  ||  imax0 < bmax0)  ) {
-					continue;
-				}
+			// match maxspeed of first way
+			uint8  const way0_nr = (way0 == ow);
+			sint32 const imax0   = i->get_maxspeed(way0_nr);
+			sint32 const bmax0   = best ? best->get_maxspeed(way0_nr) : 9999;
+			if(  imax0 >= way_0_speed   &&  imax0 < bmax0  ) {
 				// match maxspeed of second way
 				uint8  const way1_nr = (way1 == ow);
-				sint32 const imax1   =    i->get_maxspeed(way1_nr);
-				sint32 const bmax1   = best->get_maxspeed(way1_nr);
-				if(  (imax1 < way_1_speed  ||  bmax1 < imax1)  &&  (way_1_speed < bmax1  ||  imax1 < bmax1)  ) {
-					continue;
+				sint32 const imax1   = i->get_maxspeed(way1_nr);
+				sint32 const bmax1   = best ? best->get_maxspeed(way1_nr) : 9999;
+				if(  imax1 >= way_1_speed  &&  imax1 < bmax1  ) {
+					best = i;
 				}
 			}
-			best = i;
 		}
 	}
 	return best;

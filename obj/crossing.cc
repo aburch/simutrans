@@ -151,7 +151,7 @@ void crossing_t::rdwr(loadsave_t *file)
 		desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
 		if(desc==NULL) {
 			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
-			desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
+			desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 9999, 9999, 0);
 		}
 		if(desc==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
