@@ -51,7 +51,7 @@ file_classify_status_t classify_file(const char *path, file_info_t *info)
 		dbg->error("classify_file()", "Cannot classify file: info is NULL");
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
-	else if (!path  ||  path == "") {
+	else if(  !path  ||  !*path  ) {
 		dbg->error("classify_file()", "Invalid path");
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
@@ -69,16 +69,15 @@ file_classify_status_t classify_file(const char *path, file_info_t *info)
 
 #if USE_ZSTD // otherwise we cannot read it
 		zstd_file_rdwr_stream_t s(path, false, 0);
-#else
-		dbg->fatal( "classify_file()", "Compiled without zstd support but zstd savegame!" );
-#endif
 		if (!classify_file_data(&s, info)) {
 			info->file_type = file_info_t::TYPE_RAW;
 			info->version = INVALID_FILE_VERSION;
 			info->header_size = 0;
 		}
-
 		return FILE_CLASSIFY_OK;
+#else
+		dbg->fatal( "classify_file()", "Compiled without zstd support but zstd savegame!" );
+#endif
 	}
 
 	fseek(f, 0, SEEK_SET);
