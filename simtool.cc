@@ -3414,6 +3414,40 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 		return NULL;
 	}
 	else {
+		if(  grund_t *gr=welt->lookup( pos )  ) {
+			if(  !gr->is_visible()  ) {
+				// not visible
+				return "";
+			}
+			if( gr->ist_karten_boden() ) {
+				win_set_static_tooltip( translator::translate("No suitable ground!") );
+
+				slope_t::type sl = gr->get_grund_hang();
+				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
+					// cannot start a tunnel here, wrong slope
+					return "";
+				}
+				
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*2, 1 ) );
+					return NULL;
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player,pos, koord(sl), desc, true );
+				if(  end == koord3d::invalid  ||  end == pos  ) {
+					// no end found
+					return "";
+				}
+				// estimate costs for full tunnel
+				win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*koord_distance(pos,end), koord_distance(pos,end) ) );
+				return NULL;
+			}
+		}
 		return two_click_tool_t::check_pos(player, pos);
 	}
 }
