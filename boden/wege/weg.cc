@@ -419,7 +419,8 @@ void weg_t::calc_image()
 #endif
 		return; // otherwise crashing during enlargement
 	}
-	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
+	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  corner_se(from->get_grund_hang()) > 0
+		&&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		set_image(IMG_EMPTY);
 		set_foreground_image(IMG_EMPTY);
