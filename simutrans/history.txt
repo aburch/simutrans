@@ -12,6 +12,7 @@
 	FIX: MessageOptions can be three single images (id=0,1,2) instead of one large image
 	FIX: Potential hang when loading zstd compressed save files when multi-threading is enabled
 	CHG: crossing speed is now the max speed. No crossing, if one speed higher than maxspeed
+	ADD: construction cost tooltip also for normal tunnel construction (clicking on slopes)
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
