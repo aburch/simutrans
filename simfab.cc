@@ -2801,7 +2801,7 @@ void fabrik_t::new_month()
 		const sint32 upgrades_count = desc->get_upgrades_count();
 		if(upgrades_count > 0)
 		{
-			// This factory has some upgrades: consider upgrading.
+			// This factory has some upgrades; consider upgrading.
 			minivec_tpl<const factory_desc_t*> upgrade_list(upgrades_count);
 			const uint32 max_density = welt->get_target_industry_density() == 0 ? SINT32_MAX_VALUE : (welt->get_target_industry_density() * 150u) / 100u;
 			const uint32 adjusted_density = welt->get_actual_industry_density() - (100u / desc->get_distribution_weight());
