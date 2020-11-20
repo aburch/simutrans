@@ -32,7 +32,7 @@ jobs:
     - name: Rename result  
       run:  |
           ls *.zip >>/dev/stderr
-          echo ::set-env name=LATEST::$(ls *.zip)
+          echo "LATEST=$(ls *.zip)" >> $GITHUB_ENV
           mv sim*.zip simumac-nightly.zip
 
     - name: Update binaries of Nightly Release
