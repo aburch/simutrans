@@ -2863,7 +2863,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				}
 
 				// Now check, if we can built a tunnel here and display costs
-				koord3d end = tunnel_builder_t::find_end_pos(player,pos, koord(sl), desc, true );
+				koord3d end = tunnel_builder_t::find_end_pos(player,pos, koord(gr->get_grund_hang()), desc, true );
 				if(  end == koord3d::invalid  ||  end == pos  ) {
 					// no end found
 					return "";
@@ -2898,13 +2898,32 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 {
 	if( end == koord3d::invalid ) {
 		// Build tunnel mouths
-		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
-			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed() );
+		if(  grund_t *gr=welt->lookup( start )  ) {
+			if( gr->ist_karten_boden() ) {
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+				const char *err = NULL;
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*2, 1 ) );
+					return NULL;
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
+				if(  end == koord3d::invalid  ||  end == start  ) {
+					// no end found
+					return err;
+				}
+				if(  !player->can_afford((-(sint64)desc->get_price())*koord_distance(start,end))  ) {
+					return NOTICE_INSUFFICIENT_FUNDS;
+				}
+
+				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed() );
+			}
 		}
-		else {
-			return "";
-		}
+		return "Tunnel must start on single way!";
 	}
 	else {
 		// Build tunnels
