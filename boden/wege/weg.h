@@ -108,19 +108,6 @@ private:
 
 protected:
 
-	enum image_type {
-		image_flat,
-		image_slope,
-		image_diagonal,
-		image_switch
-	};
-
-	/**
-	 * initializes both front and back images
-	 * switch images are set in schiene_t::reserve
-	 */
-	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
-
 public:
 	weg_t(loadsave_t*) : obj_no_info_t() { init(); }
 	weg_t() : obj_no_info_t() { init(); }
@@ -136,6 +123,20 @@ public:
 	 * Actual image recalculation
 	 */
 	void calc_image() OVERRIDE;
+
+	enum image_type {
+		image_flat,
+		image_slope,
+		image_diagonal,
+		image_switch
+	};
+
+	/**
+	 * initializes both front and back images
+	 * switch images are set in schiene_t::reserve
+	 * needed by tunnel mouths
+	 */
+	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw = false);
 
 	/**
 	 * Called whenever the season or snowline height changes

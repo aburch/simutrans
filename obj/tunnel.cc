@@ -90,8 +90,25 @@ void tunnel_t::calc_image()
 			}
 		}
 
-		set_image( desc->get_background_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-		set_foreground_image( desc->get_foreground_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		if (weg_t* w = gr->get_weg_nr(0)) {
+			w->set_image(desc->get_background_id(hang, get_pos().z >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate, broad_type));
+			w->set_foreground_image(desc->get_foreground_id(hang, get_pos().z >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate, broad_type));
+			if (weg_t* w = gr->get_weg_nr(1)) {
+				if (corner_se(hang) > 0) {
+					w->set_image(IMG_EMPTY);
+					w->set_foreground_image(IMG_EMPTY);
+				}
+				else {
+					w->set_images(weg_t::image_flat, w->get_ribi_unmasked(), false);
+				}
+			}
+			set_image(IMG_EMPTY);
+			set_foreground_image(IMG_EMPTY);
+		}
+		else {
+			set_image(desc->get_background_id(hang, get_pos().z >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate, broad_type));
+			set_foreground_image(desc->get_foreground_id(hang, get_pos().z >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate, broad_type));
+		}
 	}
 	else {
 		set_image( IMG_EMPTY );

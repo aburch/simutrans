@@ -644,10 +644,12 @@ public:
 				// ways are ordered wrt to waytype
 				return NULL;
 			}
-			// try second way (if exists)
-			if (weg_t* const w = get_weg_nr(1)) {
-				if(w->get_waytype()==typ) {
-					return w;
+			if (flags & has_way2) {
+				// try second way (if exists)
+				if (weg_t* const w = get_weg_nr(1)) {
+					if (w->get_waytype() == typ) {
+						return w;
+					}
 				}
 			}
 		}
