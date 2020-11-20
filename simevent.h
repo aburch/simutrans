@@ -11,24 +11,28 @@
 
 /* Event Classes */
 
-#define EVENT_NONE                    0
-#define EVENT_KEYBOARD                1
-#define EVENT_STRING                  2 // instead of a single character a ev_ptr points to an utf8 string
-#define EVENT_CLICK                   3
-#define EVENT_DOUBLE_CLICK            4  // 2 consecutive sequences of click-release
-#define EVENT_TRIPLE_CLICK            5  // 3 consecutive sequences of click-release
-#define EVENT_RELEASE                 6
-#define EVENT_MOVE                    7
-#define EVENT_DRAG                    8
-#define EVENT_REPEAT                  9
+enum event_class_t
+{
+	EVENT_NONE           =   0,
+	EVENT_KEYBOARD       =   1,
+	EVENT_STRING         =   2,  ///< instead of a single character a ev_ptr points to an utf8 string
+	EVENT_CLICK          =   3,
+	EVENT_DOUBLE_CLICK   =   4,  ///< 2 consecutive sequences of click-release
+	EVENT_TRIPLE_CLICK   =   5,  ///< 3 consecutive sequences of click-release
+	EVENT_RELEASE        =   6,
+	EVENT_MOVE           =   7,
+	EVENT_DRAG           =   8,
+	EVENT_REPEAT         =   9,
 
-#define INFOWIN                      10  // window event, i.e. WIN_OPEN, WIN_CLOSE
-#define WINDOW_RESIZE                11
-#define WINDOW_MAKE_MIN_SIZE         12
-#define WINDOW_CHOOSE_NEXT           13
+	INFOWIN              =  10,  ///< window event, i.e. WIN_OPEN, WIN_CLOSE
+	WINDOW_RESIZE        =  11,
+	WINDOW_MAKE_MIN_SIZE =  12,
+	WINDOW_CHOOSE_NEXT   =  13,
 
-#define EVENT_SYSTEM                254
-#define IGNORE_EVENT                255
+	EVENT_SYSTEM         = 254,
+	IGNORE_EVENT         = 255
+};
+
 
 /* Event Codes */
 
@@ -104,37 +108,38 @@ enum {
 /* macros */
 #define IS_MOUSE(ev) ((ev)->ev_class >= EVENT_CLICK && (ev)->ev_class <= EVENT_DRAG)
 
-#define IS_LEFTCLICK(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTRELEASE(ev) ((ev)->ev_class == EVENT_RELEASE && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTDRAG(ev) ((ev)->ev_class == EVENT_DRAG && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTREPEAT(ev) ((ev)->ev_class == EVENT_REPEAT && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTDBLCLK(ev) ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTTPLCLK(ev) ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTCLICK(ev)              ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTRELEASE(ev)            ((ev)->ev_class == EVENT_RELEASE      && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTDRAG(ev)               ((ev)->ev_class == EVENT_DRAG         && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTREPEAT(ev)             ((ev)->ev_class == EVENT_REPEAT       && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTDBLCLK(ev)             ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
+#define IS_LEFTTPLCLK(ev)             ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
 
-#define IS_RIGHTCLICK(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTRELEASE(ev) ((ev)->ev_class == EVENT_RELEASE && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTDRAG(ev) ((ev)->ev_class == EVENT_DRAG && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTDBLCLK(ev) ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
-#define IS_RIGHTTPLCLK(ev) ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
+#define IS_RIGHTCLICK(ev)             ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_RIGHTBUTTON)
+#define IS_RIGHTRELEASE(ev)           ((ev)->ev_class == EVENT_RELEASE      && (ev)->ev_code == MOUSE_RIGHTBUTTON)
+#define IS_RIGHTDRAG(ev)              ((ev)->ev_class == EVENT_DRAG         && (ev)->ev_code == MOUSE_RIGHTBUTTON)
+#define IS_RIGHTDBLCLK(ev)            ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
+#define IS_RIGHTTPLCLK(ev)            ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_RIGHTBUTTON)
 
-#define IS_WINDOW_RESIZE(ev) ((ev)->ev_class == WINDOW_RESIZE) //19-may-02	markus weber	added
-#define IS_WINDOW_MAKE_MIN_SIZE(ev) ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE)
-#define IS_WINDOW_CHOOSE_NEXT(ev) ((ev)->ev_class == WINDOW_CHOOSE_NEXT)
+#define IS_WHEELUP(ev)                ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_WHEELUP)
+#define IS_WHEELDOWN(ev)              ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_WHEELDOWN)
 
-#define IS_WHEELUP(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELUP)
-#define IS_WHEELDOWN(ev) ((ev)->ev_class == EVENT_CLICK && (ev)->ev_code == MOUSE_WHEELDOWN)
+#define IS_WINDOW_RESIZE(ev)          ((ev)->ev_class == WINDOW_RESIZE)
+#define IS_WINDOW_MAKE_MIN_SIZE(ev)   ((ev)->ev_class == WINDOW_MAKE_MIN_SIZE)
+#define IS_WINDOW_CHOOSE_NEXT(ev)     ((ev)->ev_class == WINDOW_CHOOSE_NEXT)
 
 // This macro is to determine if the event should be also handled by children of containers.
 #define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE )
 
-#define IS_WINDOW_TOP(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_code == WIN_TOP)
+#define IS_WINDOW_TOP(ev)             ((ev)->ev_class == INFOWIN || (ev)->ev_code == WIN_TOP)
 
-#define IS_LEFT_BUTTON_PRESSED(ev) ((ev)->button_state&1)
-#define IS_RIGHT_BUTTON_PRESSED(ev) (((ev)->button_state&2)>>1)
-#define IS_MIDDLE_BUTTON_PRESSED(ev) (((ev)->button_state&4)>>2)
+#define IS_LEFT_BUTTON_PRESSED(ev)     ((ev)->button_state&1)
+#define IS_RIGHT_BUTTON_PRESSED(ev)   (((ev)->button_state&2)>>1)
+#define IS_MIDDLE_BUTTON_PRESSED(ev)  (((ev)->button_state&4)>>2)
 
-#define IS_SHIFT_PRESSED(ev) ((ev)->ev_key_mod&1u)
-#define IS_CONTROL_PRESSED(ev) (((ev)->ev_key_mod&2u)>>1)
+#define IS_SHIFT_PRESSED(ev)           ((ev)->ev_key_mod&1u)
+#define IS_CONTROL_PRESSED(ev)        (((ev)->ev_key_mod&2u)>>1)
+
 
 /**
  * Slight explanation of event_t structure:
@@ -151,46 +156,46 @@ enum {
  *                             code = mouse button
  * ev_class = EVENT_REPEAT:    code = button pressed
  */
-struct event_t {
-	unsigned int ev_class;
-	union {
+struct event_t
+{
+public:
+	event_t(event_class_t event_class = EVENT_NONE) :
+		ev_class(event_class),
+		ev_code(0),
+		mx(0), my(0),
+		cx(0), cy(0),
+		button_state(0),
+		ev_key_mod(0)
+	{ }
+
+public:
+	event_class_t ev_class;
+	union
+	{
 		unsigned int ev_code;
 		void *ev_ptr;
 	};
 
 	int mx, my;
 
-	/**
-	 * position of last mouse click
-	 */
+	/// position of last mouse click
 	int cx, cy;
 
-	/**
-	 * new window size for SYSTEM_RESIZE
-	 */
+	/// new window size for SYSTEM_RESIZE
 	int size_x, size_y;
 
-	/**
-	 * current mouse button state
-	 */
+	/// current mouse button state
 	int button_state;
 
-	/**
-	 * mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
-	 */
+	/// mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
 	unsigned int ev_key_mod;
-
-	event_t(unsigned int event_class = EVENT_NONE) : ev_class(event_class),
-		ev_code(0),
-		mx(0), my(0), cx(0), cy(0),
-		button_state(0), ev_key_mod(0)
-		{ }
 };
+
 
 /**
  * Translate event origin. Useful when transferring events to sub-components.
  */
-static inline void translate_event(event_t* const ev, int x, int y)
+static inline void translate_event(event_t *const ev, int x, int y)
 {
 	ev->mx += x;
 	ev->cx += x;
@@ -198,29 +203,21 @@ static inline void translate_event(event_t* const ev, int x, int y)
 	ev->cy += y;
 }
 
-/**
- * Return one event. Does *not* wait.
- */
+/// Return one event. Does *not* wait.
 void display_poll_event(event_t*);
 
-/**
- * Wait for one event, and return it.
- */
+/// Wait for one event, and return it.
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift();
-unsigned int last_meta_event_get_class();
+event_class_t last_meta_event_get_class();
 
-/**
- *Get mouse pointer position.Implementation in sys/simsys.cc
- */
+/// Get mouse pointer position. Implementation in simsys.cc
 int get_mouse_x();
 int get_mouse_y();
 
-/**
- * Adds new events to be processed.
- */
+/// Adds new events to be processed.
 void queue_event(event_t *event);
 
 #endif
