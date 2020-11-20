@@ -13,7 +13,7 @@ static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
 static int control_shift_state = 0; // none pressed
 static event_t meta_event(EVENT_NONE); // for storing meta-events like double-clicks and triple-clicks
-static unsigned int last_meta_class = EVENT_NONE;
+static event_class_t last_meta_class = EVENT_NONE;
 static slist_tpl<event_t *> queued_events;
 
 int event_get_last_control_shift()
@@ -24,7 +24,7 @@ int event_get_last_control_shift()
 }
 
 
-unsigned int last_meta_event_get_class()
+event_class_t last_meta_event_get_class()
 {
 	return last_meta_class;
 }

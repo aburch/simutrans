@@ -11,24 +11,28 @@
 
 /* Event Classes */
 
-#define EVENT_NONE                    0
-#define EVENT_KEYBOARD                1
-#define EVENT_STRING                  2 // instead of a single character a ev_ptr points to an utf8 string
-#define EVENT_CLICK                   3
-#define EVENT_DOUBLE_CLICK            4  // 2 consecutive sequences of click-release
-#define EVENT_TRIPLE_CLICK            5  // 3 consecutive sequences of click-release
-#define EVENT_RELEASE                 6
-#define EVENT_MOVE                    7
-#define EVENT_DRAG                    8
-#define EVENT_REPEAT                  9
+enum event_class_t
+{
+	EVENT_NONE           =   0,
+	EVENT_KEYBOARD       =   1,
+	EVENT_STRING         =   2,  ///< instead of a single character a ev_ptr points to an utf8 string
+	EVENT_CLICK          =   3,
+	EVENT_DOUBLE_CLICK   =   4,  ///< 2 consecutive sequences of click-release
+	EVENT_TRIPLE_CLICK   =   5,  ///< 3 consecutive sequences of click-release
+	EVENT_RELEASE        =   6,
+	EVENT_MOVE           =   7,
+	EVENT_DRAG           =   8,
+	EVENT_REPEAT         =   9,
 
-#define INFOWIN                      10  // window event, i.e. WIN_OPEN, WIN_CLOSE
-#define WINDOW_RESIZE                11
-#define WINDOW_MAKE_MIN_SIZE         12
-#define WINDOW_CHOOSE_NEXT           13
+	INFOWIN              =  10,  ///< window event, i.e. WIN_OPEN, WIN_CLOSE
+	WINDOW_RESIZE        =  11,
+	WINDOW_MAKE_MIN_SIZE =  12,
+	WINDOW_CHOOSE_NEXT   =  13,
 
-#define EVENT_SYSTEM                254
-#define IGNORE_EVENT                255
+	EVENT_SYSTEM         = 254,
+	IGNORE_EVENT         = 255
+};
+
 
 /* Event Codes */
 
@@ -155,7 +159,7 @@ enum {
 struct event_t
 {
 public:
-	event_t(unsigned int event_class = EVENT_NONE) :
+	event_t(event_class_t event_class = EVENT_NONE) :
 		ev_class(event_class),
 		ev_code(0),
 		mx(0), my(0),
@@ -165,7 +169,7 @@ public:
 	{ }
 
 public:
-	unsigned int ev_class;
+	event_class_t ev_class;
 	union
 	{
 		unsigned int ev_code;
@@ -207,7 +211,7 @@ void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
 int event_get_last_control_shift();
-unsigned int last_meta_event_get_class();
+event_class_t last_meta_event_get_class();
 
 /// Get mouse pointer position. Implementation in simsys.cc
 int get_mouse_x();
