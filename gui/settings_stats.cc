@@ -247,6 +247,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("tilting_min_radius_effect", sets->get_tilting_min_radius_effect(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("assumed_curve_radius_45_degrees", sets->get_assumed_curve_radius_45_degrees(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_speed_drive_by_sight_kmh", sets->get_max_speed_drive_by_sight_kmh(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("max_speed_drive_by_sight_tram_kmh", sets->get_max_speed_drive_by_sight_tram_kmh(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false); 
 	INIT_NUM("time_interval_seconds_to_clear", sets->get_time_interval_seconds_to_clear(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("time_interval_seconds_to_caution", sets->get_time_interval_seconds_to_caution(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
@@ -371,6 +372,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
 	READ_NUM_VALUE( sets->max_speed_drive_by_sight_kmh );
 	sets->max_speed_drive_by_sight = kmh_to_speed(sets->max_speed_drive_by_sight_kmh);
+	READ_NUM_VALUE( sets->max_speed_drive_by_sight_tram_kmh );
+	sets->max_speed_drive_by_sight_tram = kmh_to_speed(sets->max_speed_drive_by_sight_tram_kmh); 
 	READ_NUM_VALUE( sets->time_interval_seconds_to_clear );
 	READ_NUM_VALUE( sets->time_interval_seconds_to_caution );
 	READ_NUM_VALUE( sets->town_road_speed_limit );

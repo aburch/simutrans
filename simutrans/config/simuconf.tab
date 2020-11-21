@@ -781,9 +781,12 @@ sighting_distance_meters = 250
 
 # This is the maximum speed at which rail (including narrow gauge, monorail and maglev)
 # vehicles may travel in the drive by sight working method. 0 = as fast as they can
-# stop in time with no other limit. Note that this does not apply to trams.
+# stop in time with no other limit. 
+#
+# This is specified separately for trams.
 
 max_speed_drive_by_sight_kmh = 35
+max_speed_drive_by_sight_tram_kmh = 50
 
 # The following settings apply to time interval signalling only.
 #

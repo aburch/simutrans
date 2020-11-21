@@ -731,8 +731,11 @@ public:
 
 	uint32 assumed_curve_radius_45_degrees;
 
-	sint32 max_speed_drive_by_sight_kmh;
-	sint32 max_speed_drive_by_sight;
+	sint32 max_speed_drive_by_sight_kmh = 9999;
+	sint32 max_speed_drive_by_sight = SINT32_MAX_VALUE;
+
+	sint32 max_speed_drive_by_sight_tram_kmh = 9999;
+	sint32 max_speed_drive_by_sight_tram = SINT32_MAX_VALUE;
 
 	uint32 time_interval_seconds_to_clear;
 	uint32 time_interval_seconds_to_caution;
@@ -1236,6 +1239,8 @@ public:
 
 	sint32 get_max_speed_drive_by_sight_kmh() const { return max_speed_drive_by_sight_kmh; }
 	sint32 get_max_speed_drive_by_sight() const { return max_speed_drive_by_sight; }
+	sint32 get_max_speed_drive_by_sight_tram_kmh() const { return max_speed_drive_by_sight_tram_kmh; }
+	sint32 get_max_speed_drive_by_sight_tram() const { return max_speed_drive_by_sight_tram; }
 
 	uint32 get_time_interval_seconds_to_clear() const { return time_interval_seconds_to_clear; }
 	uint32 get_time_interval_seconds_to_caution() const { return time_interval_seconds_to_caution; }
