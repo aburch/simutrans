@@ -266,7 +266,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 {
 	// deativate buttons, if not curretn player
-	const bool activate = player != welt->get_active_player()  ||   welt->get_active_player()==welt->get_player( 1 );
+	const bool activate = player == welt->get_active_player()  ||   welt->get_active_player()==welt->get_player( 1 );
 	bt_new_line.enable( activate  &&  tabs.get_active_tab_index() > 0);
 
 	// if search string changed, update line selection

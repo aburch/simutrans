@@ -364,10 +364,12 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 		bt_return.add_listener(this);
 		add_component(&bt_return);
 
-		bt_mode.init(button_t::roundbox | button_t::flexible, bt_mode_text[mode]);
-		bt_mode.set_tooltip(bt_mode_tooltip[mode]);
-		bt_mode.add_listener(this);
-		add_component(&bt_mode);
+		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[0]), SYSCOL_TEXT );
+		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[1]), SYSCOL_TEXT );
+		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[2]), SYSCOL_TEXT );
+		cb_mode.set_selection( mode );
+		cb_mode.add_listener(this);
+		add_component(&cb_mode);
 	}
 	end_table();
 	new_component<gui_margin_t>();
@@ -436,7 +438,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		// not allow to change entries beyond waiting time
 		no_editing = (convoi_mode.is_bound() && line_mode.is_bound());
-		bt_mode.enable( !no_editing );
+		cb_mode.enable( !no_editing );
 		bt_return.enable( !no_editing );
 
 		mode = adding;
@@ -538,10 +540,8 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		v.p = NULL;
 		call_listeners(v);
 	}
-	else if (comp == &bt_mode) {
-		mode = (mode_t)((int)(mode+1) % MAX_MODE);
-		bt_mode.set_text( bt_mode_text[mode] );
-		bt_mode.set_tooltip( bt_mode_tooltip[mode] );
+	else if (comp == &cb_mode) {
+		mode = (mode_t)p.i;
 		update_tool(true);
 	}
 	else if(comp == &numimp_load) {
@@ -570,7 +570,8 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			if(  mode == removing  ) {
 				stats->highlight_schedule( false );
 				schedule->remove();
-				action_triggered( &bt_mode, value_t() );
+				cb_mode.set_selection( 0 );
+				mode = adding;
 			}
 			update_selection();
 		}
@@ -617,7 +618,7 @@ void gui_schedule_t::draw(scr_coord pos)
 		numimp_load.enable( is_allowed );
 		wait_load.enable( is_allowed );
 
-		bt_mode.enable( is_allowed );
+		cb_mode.enable( is_allowed );
 		bt_return.enable( is_allowed );
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
