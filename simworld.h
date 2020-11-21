@@ -1450,12 +1450,12 @@ public:
 			{
 				// This situation can lead to loss of precision.
 				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
+				return (adjusted_monthly_figure * (1ull << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
 			}
 			else
 			{
 				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month)));
+				return (adjusted_monthly_figure * (1ull << (ticks_per_world_month_shift - base_bits_per_month)));
 			}
 		}
 		else
