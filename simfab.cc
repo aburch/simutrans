@@ -3080,7 +3080,16 @@ void fabrik_t::recalc_factory_status()
 			break;
 		case end_consumer:
 		case power_plant:
-			if (!suppliers.get_count())
+			if (sector == power_plant && !desc->get_supplier_count()) {
+				// Power plants that do not require materials such as wind power generation
+				if (currently_producing) {
+					status = good;
+				}
+				else {
+					status = bad;
+				}
+			}
+			else if (!suppliers.get_count())
 			{
 				status = missing_connection;
 			}
