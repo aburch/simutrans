@@ -6652,7 +6652,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// TODO: Set this by reference to actual in-game data: currently using the speed of the fastest passenger carrying vehicle (Concorde), which is too fast for most cases.
 			if (implicit_minimum_speed_kmh > 2180)
 			{
-				route_status = too_slow;
+				// Do not set route status to too_slow, as this may be misleading:
+				// too_slow implies that the destination is reachable and that, by providing a faster service,
+				// players might be able to get these passengers to travel: this is not really the case in this instance.
 				skip_route_checks = true;
 			}
 
