@@ -100,7 +100,7 @@ void display_set_player_color_scheme(const int, const uint8, const uint8)
 {
 }
 
-void register_image(struct image_t* image)
+void register_image(image_t* image)
 {
 	image->imageid = 1;
 }
