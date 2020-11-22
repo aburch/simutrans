@@ -103,11 +103,6 @@ int dr_screenshot(const char *,int,int,int,int)
 	return -1;
 }
 
-static inline unsigned int ModifierKeys()
-{
-	return 0;
-}
-
 void GetEvents()
  {
 	if(  sigterm_received  ) {
