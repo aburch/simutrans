@@ -33,6 +33,7 @@ main_view_t::main_view_t(karte_t *welt)
 	assert(welt  &&  viewport);
 }
 
+#if COLOUR_DEPTH != 0
 static const sint8 hours2night[] =
 {
 	4,4,4,4,4,4,4,4,
@@ -42,6 +43,7 @@ static const sint8 hours2night[] =
 	0,0,0,0,0,0,0,1,
 	2,3,4,4,4,4,4,4
 };
+#endif
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
