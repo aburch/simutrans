@@ -6434,6 +6434,11 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 	sint64 workcost = 0;
 	uint32 distance = 0x7FFFFFFFu;
 
+	if( halt_be_merged_from == halt_be_merged_to ) {
+		// same halt => do nothing
+		win_set_static_tooltip( NULL );
+	}
+
 	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt_be_merged_from->get_tiles()) {
 		FOR(slist_tpl<haltestelle_t::tile_t>, const& j, halt_be_merged_to->get_tiles()) {
 			uint32 dist = koord_distance( i.grund->get_pos(), j.grund->get_pos() );
@@ -6465,6 +6470,11 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	halt_be_merged_to = haltestelle_t::get_halt(last_pos,player);
 	sint64 workcost = 0;
 	uint32 distance = 0x7FFFFFFFu;
+
+	if( halt_be_merged_from == halt_be_merged_to ) {
+		// same halt => do nothing
+		return NULL;
+	}
 
 	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt_be_merged_from->get_tiles()) {
 		FOR(slist_tpl<haltestelle_t::tile_t>, const& j, halt_be_merged_to->get_tiles()) {
