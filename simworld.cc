@@ -6642,17 +6642,31 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// This number may be very long.
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
 			car_minutes = UINT32_MAX_VALUE;
+			bool skip_route_checks = false;
+
+			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.	
+
+			const uint32 distance_to_destination_km = (straight_line_distance * get_settings().get_meters_per_tile()) / 1000u;
+			const uint32 implicit_minimum_speed_kmh = tolerance > 0 ? (distance_to_destination_km * 600) / tolerance : 0;
+
+			// TODO: Set this by reference to actual in-game data: currently using the speed of the fastest passenger carrying vehicle (Concorde), which is too fast for most cases.
+			if (implicit_minimum_speed_kmh > 2180)
+			{
+				route_status = too_slow;
+				skip_route_checks = true;
+			}
 
 			const bool can_walk = walking_time <= walking_tolerance;
 #ifdef MULTI_THREAD
-			if (!has_private_car && !can_walk && start_halts[passenger_generation_thread_number].empty())
+			if (skip_route_checks || (!has_private_car && !can_walk && start_halts[passenger_generation_thread_number].empty()))
 #else
-			if (!has_private_car && !can_walk && start_halts.empty())
+			if (skip_route_checks || (!has_private_car && !can_walk && start_halts.empty()))
 #endif
 			{
 				/**
 				* If the passengers have no private car, are not in reach of any public transport
-				* facilities and the journey is too long on foot, do not continue to check other things.
+				* facilities and the journey is too long on foot, or if the implicit minimum speed is too high,
+				* do not continue to check other things.
 				*/
 				if (n < destination_count + extend_count - 1)
 				{
