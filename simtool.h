@@ -791,8 +791,11 @@ class tool_step_year_t : public tool_t {
 public:
 	tool_step_year_t() : tool_t(TOOL_STEP_YEAR | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Step timeline one year"); }
-	bool init( player_t * ) OVERRIDE {
-		welt->step_year();
+	bool init( player_t *player ) OVERRIDE {
+		if(  !env_t::networkmode  ||  player->is_public_service()  ) {
+			// in networkmode only for public player
+			welt->step_year();
+		}
 		return false;
 	}
 };
