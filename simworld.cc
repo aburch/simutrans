@@ -6768,8 +6768,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 				uint32 best_start_halt = 0;
 				uint32 best_journey_time_including_crowded_halts = UINT32_MAX_VALUE;
+				uint32 current_stop_transfer_time = 0;
 
 				sint32 i = 0;
+
+
 #ifdef MULTI_THREAD
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, start_halts[passenger_generation_thread_number])
 #else
@@ -6777,11 +6780,32 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 				{
 					current_halt = nearby_halt.halt;
+					
 #ifdef MULTI_THREAD
-					current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+					// Start with the walking time to the start halt.
+					// Note that the walking time to the destination stop is already added by find_route.
+					current_journey_time = walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
 #else
-					current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);			
 #endif
+					if (current_journey_time < best_journey_time && ((current_journey_time < walking_time && walking_time < walking_time_preference_threshold) || current_journey_time < walking_time_preference_threshold) && current_journey_time < tolerance)
+					{
+						// Do not hit the database with a request if even walking to the local stop takes longer than the tolerance time, is worse than the best journey time or is worse than simply walking to the destination
+#ifdef MULTI_THREAD
+						const uint32 public_transport_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+#else
+						const uint32 public_transport_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+#endif
+						if (public_transport_journey_time < (UINT32_MAX_VALUE - current_journey_time))
+						{
+							current_journey_time += public_transport_journey_time;
+						}
+						else
+						{
+							current_journey_time = UINT32_MAX_VALUE;
+						}
+					}
+
 					// Because it is possible to walk between stops in the route finder, check to make sure that this is not an all walking journey.
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
@@ -6795,18 +6819,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						}
 					}
 
-
-					// Add walking time from the origin to the origin stop.
-					// Note that the walking time to the destination stop is already added by find_route.
-					if (current_journey_time < UINT32_MAX_VALUE)
-					{
-						// The above check is needed to prevent an overflow.
-#ifdef MULTI_THREAD
-						current_journey_time += walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
-#else
-						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
-#endif
-					}
 					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
 
