@@ -1394,7 +1394,7 @@ BGMの音量:
 mute sound
 ミュート
 Name
-名前
+都市名
 Narrowgauge
 ナローゲージ
 Narrowgauge are not available yet!
@@ -1589,8 +1589,6 @@ Power
 電力
 Power:
 出力：
-Power: %4d kW\n
-出力: %4d kW\n
 Powerlines
 高圧線
 Price
@@ -3877,3 +3875,5 @@ Power (MW)
 #郵便事業が行われている範囲を表示
 #Show passenger coverage/passenger network
 #旅客事業が行われている範囲を表示
+Power: %4d kW\n
+出力: %4d kW\n
