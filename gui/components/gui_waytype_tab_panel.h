@@ -26,7 +26,7 @@ public:
 
 	waytype_t get_active_tab_waytype() const { return tabs_to_waytype[get_active_tab_index()]; }
 
-	waytype_t get_tab_waytype(int i) const { return i<get_count() ? tabs_to_waytype[i] : invalid_wt; }
+	waytype_t get_tab_waytype(int i) const { return 0<=i  &&  (uint32)i<get_count() ? tabs_to_waytype[i] : invalid_wt; }
 };
 
 #endif
