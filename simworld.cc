@@ -6644,7 +6644,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			car_minutes = UINT32_MAX_VALUE;
 			bool skip_route_checks = false;
 
-			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.	
+			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.
 
 			const uint32 distance_to_destination_km = (straight_line_distance * get_settings().get_meters_per_tile()) / 1000u;
 			const uint32 implicit_minimum_speed_kmh = tolerance > 0 ? (distance_to_destination_km * 600) / tolerance : 0;
