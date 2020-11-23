@@ -6644,7 +6644,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			car_minutes = UINT32_MAX_VALUE;
 			bool skip_route_checks = false;
 
-			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.	
+			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.
 
 			const uint32 distance_to_destination_km = (straight_line_distance * get_settings().get_meters_per_tile()) / 1000u;
 			const uint32 implicit_minimum_speed_kmh = tolerance > 0 ? (distance_to_destination_km * 600) / tolerance : 0;
@@ -6796,13 +6796,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 				{
 					current_halt = nearby_halt.halt;
-					
+
 #ifdef MULTI_THREAD
 					// Start with the walking time to the start halt.
 					// Note that the walking time to the destination stop is already added by find_route.
 					current_journey_time = walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
 #else
-					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);			
+					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);
 #endif
 					if (current_journey_time < best_journey_time && ((current_journey_time < walking_time && walking_time < walking_time_preference_threshold) || current_journey_time < walking_time_preference_threshold) && current_journey_time < tolerance)
 					{
