@@ -12147,7 +12147,7 @@ void karte_t::calc_max_vehicle_speeds()
 			max_available_speed_air = max_available_speed_ground;
 		}
 
-		max_convoy_speed_air = min(max_convoy_speed_ground * 3, max_available_speed_air);
+		max_convoy_speed_air = min(max_convoy_speed_ground * 3, min(max_available_speed_air, 895));
 	}
 
 	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
