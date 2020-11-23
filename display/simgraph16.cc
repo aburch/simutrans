@@ -5448,9 +5448,9 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 	}
 	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
-		if (new_width != disp_width || disp_height != h) {
-			disp_width = new_width;
+		KOORD_VAL new_pitch = dr_textur_resize(&textur, w, h);
+		if(  new_pitch!=disp_width  ||  disp_height != h) {
+			disp_width = new_pitch;
 			disp_height = h;
 
 			free( tile_dirty_old );
