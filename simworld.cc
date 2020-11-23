@@ -12119,7 +12119,7 @@ void karte_t::calc_max_vehicle_speeds()
 		FOR(slist_tpl<vehicle_desc_t*>, const info, vehicle_builder_t::get_info((waytype_t)i))
 		{
 			const sint32 max_speed = speed_to_kmh(info->get_topspeed());
-			if (max_speed > max_available_speed_ground)
+			if (max_speed > max_available_speed_ground && info->get_power() > 0)
 			{
 				max_available_speed_ground = max_speed;
 			}
