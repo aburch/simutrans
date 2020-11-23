@@ -23,6 +23,22 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 
+
+const char* vehicle_builder_t::engine_type_names[11] =
+{
+  "unknown",
+  "steam",
+  "diesel",
+  "electric",
+  "bio",
+  "sail",
+  "fuel_cell",
+  "hydrogene",
+  "battery",
+  "petrol",
+  "turbine"
+};
+
 static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
