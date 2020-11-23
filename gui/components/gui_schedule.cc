@@ -346,14 +346,8 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 
 	// action button row
 	new_component<gui_margin_t>();
-	add_table( 4, 1 )->set_force_equal_columns( true );
+	add_table( 3, 1 )->set_force_equal_columns( true );
 	{
-		bt_apply.init(button_t::roundbox | button_t::flexible, "Apply schedule");
-		bt_apply.set_tooltip("Apply this schedule");
-		bt_apply.add_listener(this);
-		bt_apply.pressed = false;
-		add_component(&bt_apply);
-
 		bt_revert.init(button_t::roundbox | button_t::flexible, "Revert schedule");
 		bt_revert.set_tooltip("Revert to original schedule");
 		bt_revert.add_listener(this);
@@ -520,13 +514,7 @@ void gui_schedule_t::update_selection()
 
 bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-	if (comp == &bt_apply) {
-		// tell to apply to listener
-		value_t v;
-		v.p = schedule;
-		call_listeners(v);
-	}
-	else if (comp == &bt_revert) {
+	if (comp == &bt_revert) {
 		// revert changes and tell listener
 		if (schedule) {
 			stats->highlight_schedule(false);
@@ -612,7 +600,6 @@ void gui_schedule_t::draw(scr_coord pos)
 			}
 			idx++;
 		}
-		bt_apply.enable( !is_all_same && is_allowed );
 		bt_revert.enable( !is_all_same &&  is_allowed );
 
 		numimp_load.enable( is_allowed );

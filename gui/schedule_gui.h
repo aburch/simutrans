@@ -46,6 +46,8 @@ public:
 
 	bool action_triggered( gui_action_creator_t *comp, value_t p ) OVERRIDE;
 
+	bool infowin_event( const event_t *ev ) OVERRIDE;
+
 	void init_line_selector();
 };
 

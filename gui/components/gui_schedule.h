@@ -52,7 +52,7 @@ private:
 	gui_label_buf_t lb_waitlevel;
 
 	// always needed
-	button_t bt_apply, bt_revert, bt_return;
+	button_t bt_revert, bt_return;
 
 	gui_label_t lb_wait, lb_load;
 	gui_numberinput_t numimp_load;

@@ -197,36 +197,38 @@ bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p )
 			// revert
 			init_line_selector();
 		}
-		else {
-			// apply schedule
-			if(cnv.is_bound()) {
-				// do not send changes if the convoi is about to be deleted
-				if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
-					if (cnv->in_depot()) {
-						const grund_t* const ground = welt->lookup(cnv->get_home_depot());
-						if (ground) {
-							const depot_t* const depot = ground->get_depot();
-							if (depot) {
-								depot_frame_t* const frame = dynamic_cast<depot_frame_t*>(win_get_magic((ptrdiff_t)depot));
-								if (frame) {
-									frame->update_data();
-								}
+	}
+	return true;
+}
+
+bool schedule_gui_t::infowin_event(const event_t *ev)
+{
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
+		scd.highlight_schedule( false );
+
+		// apply schedule
+		if(cnv.is_bound()) {
+			// do not send changes if the convoi is about to be deleted
+			if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
+				if (cnv->in_depot()) {
+					const grund_t* const ground = welt->lookup(cnv->get_home_depot());
+					if (ground) {
+						const depot_t* const depot = ground->get_depot();
+						if (depot) {
+							depot_frame_t* const frame = dynamic_cast<depot_frame_t*>(win_get_magic((ptrdiff_t)depot));
+							if (frame) {
+								frame->update_data();
 							}
 						}
 					}
-					// if a line is selected
-					if (line.is_bound()) {
-						// if the selected line is different to the convoi's line, apply it
-						if (line != cnv->get_line()) {
-							char id[16];
-							sprintf(id, "%i,%i", line.get_id(), scd.get_schedule()->get_current_stop());
-							cnv->call_convoi_tool('l', id);
-						}
-						else {
-							cbuffer_t buf;
-							scd.get_schedule()->sprintf_schedule(buf);
-							cnv->call_convoi_tool('g', buf);
-						}
+				}
+				// if a line is selected
+				if (line.is_bound()) {
+					// if the selected line is different to the convoi's line, apply it
+					if (line != cnv->get_line()) {
+						char id[16];
+						sprintf(id, "%i,%i", line.get_id(), scd.get_schedule()->get_current_stop());
+						cnv->call_convoi_tool('l', id);
 					}
 					else {
 						cbuffer_t buf;
@@ -234,8 +236,14 @@ bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p )
 						cnv->call_convoi_tool('g', buf);
 					}
 				}
+				else {
+					cbuffer_t buf;
+					scd.get_schedule()->sprintf_schedule(buf);
+					cnv->call_convoi_tool('g', buf);
+				}
 			}
 		}
 	}
-	return true;
+
+	return gui_frame_t::infowin_event(ev);
 }

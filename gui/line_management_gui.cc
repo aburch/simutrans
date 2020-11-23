@@ -361,19 +361,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if( comp == &scd ) {
-		if( v.p ) {
-			// update line schedule via tool!
-			tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
-			cbuffer_t buf;
-			buf.printf( "g,%i,", line.get_id() );
-			scd.get_schedule()->sprintf_schedule( buf );
-			tool->set_default_param(buf);
-			world()->set_tool( tool, line->get_owner() );
-			// since init always returns false, it is safe to delete immediately
-			delete tool;
-			return true;
-		}
-		else {
+		if( !v.p ) {
 			// revert
 			scd.init( line->get_schedule(), player, convoihandle_t(), line );
 		}
@@ -448,3 +436,21 @@ void line_management_gui_t::rename_line()
 }
 
 
+bool line_management_gui_t::infowin_event( const event_t *ev )
+{
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+			// update line schedule via tool!
+			tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+			cbuffer_t buf;
+			buf.printf( "g,%i,", line.get_id() );
+			scd.get_schedule()->sprintf_schedule( buf );
+			tool->set_default_param( buf );
+			world()->set_tool( tool, line->get_owner() );
+			// since init always returns false, it is safe to delete immediately
+			delete tool;
+		}
+		scd.highlight_schedule( false );
+	}
+	return gui_frame_t::infowin_event( ev );
+}

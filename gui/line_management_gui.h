@@ -77,6 +77,8 @@ public:
 
 	const char *get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
 
+	bool infowin_event( const event_t *ev ) OVERRIDE;
+
 	uint32 get_rdwr_id() OVERRIDE { return magic_line_schedule_rdwr_dummy; }
 };
 

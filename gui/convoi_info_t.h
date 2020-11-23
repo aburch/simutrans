@@ -105,8 +105,11 @@ private:
 	gui_button_to_chart_array_t button_to_chart;
 
 	void init(convoihandle_t cnv);
+
+	void apply_schedule();
+
 public:
-	convoi_info_t(convoihandle_t cnv = convoihandle_t());
+	convoi_info_t(convoihandle_t cnv = convoihandle_t(), bool change_schedule = false);
 
 	virtual ~convoi_info_t();
 
@@ -143,6 +146,8 @@ public:
 	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info; }
 
 	void route_search_finished() { route_search_in_progress = false; }
+
+	void change_schedule();
 };
 
 #endif

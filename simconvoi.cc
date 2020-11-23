@@ -2737,7 +2737,12 @@ void convoi_t::open_schedule_window( bool show )
 
 	if(  show  ) {
 		// Open schedule dialog
-		create_win( new schedule_gui_t(schedule,get_owner(),self), w_info, (ptrdiff_t)schedule );
+		if( convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info + self.get_id() )) ) {
+			info->change_schedule();
+		}
+		else {
+			create_win( new convoi_info_t(self,true), w_info, (ptrdiff_t)schedule );
+		}
 		// TODO: what happens if no client opens the window??
 	}
 	schedule->start_editing();
