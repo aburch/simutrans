@@ -254,12 +254,12 @@ const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const 
 			uint8  const way0_nr = (way0 == ow);
 			sint32 const imax0   = i->get_maxspeed(way0_nr);
 			sint32 const bmax0   = best ? best->get_maxspeed(way0_nr) : 9999;
-			if(  imax0 >= way_0_speed   &&  imax0 < bmax0  ) {
+			if(  imax0 >= way_0_speed   &&  imax0 <= bmax0  ) {
 				// match maxspeed of second way
 				uint8  const way1_nr = (way1 == ow);
 				sint32 const imax1   = i->get_maxspeed(way1_nr);
 				sint32 const bmax1   = best ? best->get_maxspeed(way1_nr) : 9999;
-				if(  imax1 >= way_1_speed  &&  imax1 < bmax1  ) {
+				if(  imax1 >= way_1_speed  &&  imax1 <= bmax1  ) {
 					best = i;
 				}
 			}
