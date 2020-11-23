@@ -181,7 +181,15 @@ bool vehiclelist_stats_t::compare(const gui_component_t *aa, const gui_component
 		break;
 
 	case by_retire:
-		cmp = a->get_retire_year_month() - b->get_retire_year_month();
+		if (world()->get_settings().get_show_future_vehicle_info()) {
+			cmp = a->get_retire_year_month() - b->get_retire_year_month();
+		}
+		else {
+			uint32 month = world()->get_current_month();
+			int a_date = a->is_future(month) ? 65535 : a->get_retire_year_month();
+			int b_date = b->is_future(month) ? 65535 : b->get_retire_year_month();
+			cmp = a_date - b_date;
+		}
 		break;
 
 	case by_power:
@@ -328,9 +336,9 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 				bt_future.add_listener(this);
 				if (!welt->get_settings().get_show_future_vehicle_info()) {
 					bt_future.set_visible(false);
-					bt_future.pressed = false;
-					add_component(&bt_future);
 				}
+				bt_future.pressed = false;
+				add_component(&bt_future);
 
 				bt_only_upgrade.init(button_t::square_state, "Show upgraded");
 				bt_only_upgrade.add_listener(this);
@@ -416,6 +424,10 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 	}
 	else if (comp == &bt_outdated) {
 		bt_outdated.pressed ^= 1;
+		fill_list();
+	}
+	else if (comp == &bt_future) {
+		bt_future.pressed ^= 1;
 		fill_list();
 	}
 	else if (comp == &bt_only_upgrade) {
