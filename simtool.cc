@@ -3433,7 +3433,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				// first check for building portal only
 				if(  is_ctrl_pressed()  ) {
 					// estimate costs for tunnel portal
-					win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*2, 1 ) );
+					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", (-(sint64)desc->get_value())*2, welt->get_settings().get_meters_per_tile() ) );
 					return NULL;
 				}
 
@@ -3444,7 +3444,20 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 					return "";
 				}
 				// estimate costs for full tunnel
-				win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*koord_distance(pos,end), koord_distance(pos,end) ) );
+				if (!env_t::networkmode && way_desc == NULL)
+				{
+					// The last selected way will not have been set if this is not in network mode.
+					way_desc = tool_build_way_t::defaults[desc->get_waytype() & 63];
+				}
+
+				if (way_desc == NULL)
+				{
+					way_desc = way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
+				}
+
+				const uint32 distance = koord_distance(pos,end) * welt->get_settings().get_meters_per_tile();
+				const sint64 price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(pos, end);
+				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, koord_distance(pos, end)*koord_distance(pos, end)) );
 				return NULL;
 			}
 		}
@@ -3492,7 +3505,10 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 					// no end found
 					return err;
 				}
-				if(  !player->can_afford((-(sint64)desc->get_price())*koord_distance(start,end))  ) {
+				if (!is_ctrl_pressed()) {
+					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(start, end);
+				}
+				if(  !player->can_afford(price)  ) {
 					return NOTICE_INSUFFICIENT_FUNDS;
 				}
 
