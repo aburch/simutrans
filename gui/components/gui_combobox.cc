@@ -81,7 +81,7 @@ DBG_MESSAGE("event","HOWDY!");
 			return true;
 		}
 	}
-	else if(  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
+	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mx,ev->my)  ) {
 		// scroll the list
 		droplist.infowin_event(ev);
 		return true;
