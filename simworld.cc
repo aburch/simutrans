@@ -12142,8 +12142,14 @@ void karte_t::calc_max_vehicle_speeds()
 	
 	if (!aircraft_in_service)
 	{
+		if (max_available_speed_air = 0)
+		{
+			max_available_speed_air = max_available_speed_ground;
+		}
+
 		max_convoy_speed_air = min(max_convoy_speed_ground * 3, max_available_speed_air);
 	}
 
 	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
+	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground); 
 }
