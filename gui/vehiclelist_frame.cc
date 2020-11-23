@@ -106,7 +106,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	int text2w, text2h;
 	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2, part2.len() );
 	col2_width = text2w;
-	
+
 	height = max( height, max( text1h, text2h ) + LINESPACE );
 }
 
@@ -261,8 +261,9 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 			}
 			end_table();
 
-			new_component<gui_empty_t>();
+			new_component<gui_margin_t>(0,LINESPACE);
 
+			lb_count.set_size(scr_size(D_LABEL_WIDTH*1.5, D_LABEL_HEIGHT));
 			add_component( &lb_count );
 		}
 		end_table();
