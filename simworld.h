@@ -912,6 +912,11 @@ private:
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
 
+	// These two maximum speeds are calculated monthly from player vehicle
+	// statistics and available vehicle statistics combined.
+	sint32 max_convoy_speed_ground;
+	sint32 max_convoy_speed_air;
+
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
@@ -1428,12 +1433,12 @@ public:
 			{
 				// This situation can lead to loss of precision.
 				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
+				return (adjusted_monthly_figure * (1u << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
 			}
 			else
 			{
 				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month)));
+				return (adjusted_monthly_figure * (1u << (ticks_per_world_month_shift - base_bits_per_month)));
 			}
 		}
 		else
@@ -2649,6 +2654,8 @@ public:
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
+
+	void calc_max_vehicle_speeds();
 
 private:
 
