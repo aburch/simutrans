@@ -919,6 +919,11 @@ private:
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
 
+	// These two maximum speeds are calculated monthly from player vehicle
+	// statistics and available vehicle statistics combined.
+	sint32 max_convoy_speed_ground;
+	sint32 max_convoy_speed_air;
+
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
@@ -2724,6 +2729,8 @@ public:
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
+
+	void calc_max_vehicle_speeds();
 
 private:
 

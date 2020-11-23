@@ -5086,6 +5086,9 @@ void karte_t::new_month()
 		w->new_month();
 	}
 
+	// Update the maximum vehicle speed records to calibrate when passengers should not burden the journey time database.
+	calc_max_vehicle_speeds();
+
 	// recalc old settings (and maybe update the stops with the current values)
 	reliefkarte_t::get_karte()->new_month();
 
@@ -6649,8 +6652,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			const uint32 distance_to_destination_km = (straight_line_distance * get_settings().get_meters_per_tile()) / 1000u;
 			const uint32 implicit_minimum_speed_kmh = tolerance > 0 ? (distance_to_destination_km * 600) / tolerance : 0;
 
-			// TODO: Set this by reference to actual in-game data: currently using the speed of the fastest passenger carrying vehicle (Concorde), which is too fast for most cases.
-			if (implicit_minimum_speed_kmh > 2180)
+			if((tolerance > settings.get_min_wait_airport() && implicit_minimum_speed_kmh > max_convoy_speed_air) || implicit_minimum_speed_kmh > max_convoy_speed_ground)
 			{
 				// Do not set route status to too_slow, as this may be misleading:
 				// too_slow implies that the destination is reachable and that, by providing a faster service,
@@ -6801,30 +6803,54 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// Start with the walking time to the start halt.
 					// Note that the walking time to the destination stop is already added by find_route.
 					current_journey_time = walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
+					
 #else
 					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);
 #endif
-					if (current_journey_time < best_journey_time && ((current_journey_time < walking_time && walking_time < walking_time_preference_threshold) || current_journey_time < walking_time_preference_threshold) && current_journey_time < tolerance)
+					if (current_journey_time < best_journey_time && (current_journey_time < walking_time || !can_walk) && current_journey_time < tolerance)
 					{
-						// Do not hit the database with a request if even walking to the local stop takes longer than the tolerance time, is worse than the best journey time or is worse than simply walking to the destination
-#ifdef MULTI_THREAD
-						const uint32 public_transport_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
-#else
-						const uint32 public_transport_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
-#endif
-						if (public_transport_journey_time < (UINT32_MAX_VALUE - current_journey_time))
+						// Do not hit the database with a request if even walking to the local stop takes longer than the tolerance time, is worse than the best journey time, is worse than simply walking to the destination
+						// or if the impicit speed taking into account the time taken to walk to the origin stop.
+						const uint32 distance_this_origin_to_destination = shortest_distance(nearby_halt.halt->get_basis_pos(), current_destination.location);
+						const uint32 distance_this_origin_to_destination_km = (distance_this_origin_to_destination * get_settings().get_meters_per_tile()) / 1000u;
+						const uint32 origin_stop_specific_implicit_minimum_speed_kmh = tolerance > current_journey_time ? tolerance - current_journey_time > 0 ? (distance_this_origin_to_destination_km * 600) / tolerance : 0 : UINT32_MAX_VALUE;
+
+						if(!((tolerance > settings.get_min_wait_airport() && origin_stop_specific_implicit_minimum_speed_kmh > max_convoy_speed_air) || origin_stop_specific_implicit_minimum_speed_kmh > max_convoy_speed_ground))
 						{
-							current_journey_time += public_transport_journey_time;
+#ifdef MULTI_THREAD
+							const uint32 public_transport_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+#else
+							const uint32 public_transport_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+#endif
+							if (public_transport_journey_time < UINT32_MAX_VALUE)
+							{
+								if (public_transport_journey_time < (UINT32_MAX_VALUE - current_journey_time))
+								{
+									current_journey_time += public_transport_journey_time;
+								}
+								else
+								{
+									current_journey_time = UINT32_MAX_VALUE;
+								}
+							}
+							else
+							{
+								current_journey_time = UINT32_MAX_VALUE;
+							}
 						}
 						else
 						{
 							current_journey_time = UINT32_MAX_VALUE;
 						}
 					}
+					else
+					{
+						current_journey_time = UINT32_MAX_VALUE;
+					}
 
 					// Because it is possible to walk between stops in the route finder, check to make sure that this is not an all walking journey.
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
-					if (pax.get_ziel() == pax.get_zwischenziel())
+					if (current_journey_time < UINT32_MAX_VALUE && pax.get_ziel() == pax.get_zwischenziel())
 					{
 						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class())->get(pax.get_zwischenziel());
 
@@ -9952,6 +9978,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		sound_cooldown_timer[i] = 0;
 	}
 
+	calc_max_vehicle_speeds();
+
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
@@ -12049,4 +12077,73 @@ std::string karte_t::get_region_name(koord k) const
 	}
 
 	return settings.regions[region_number].name;
+}
+
+void karte_t::calc_max_vehicle_speeds()
+{
+	max_convoy_speed_ground = 0;
+	max_convoy_speed_air = 0;
+
+	bool aircraft_in_service = false;
+
+	// First, check maximum of players' convoys
+	for (uint32 i = convoi_array.get_count(); i-- != 0;)
+	{
+		convoihandle_t cnv = convoi_array[i];
+		const sint32 max_speed = speed_to_kmh(cnv->get_min_top_speed());
+		if (cnv->front()->get_waytype() == air_wt)
+		{		
+			aircraft_in_service = true;
+			if (max_speed > max_convoy_speed_air)
+			{
+				max_convoy_speed_air = max_speed;
+			}
+		}
+		else
+		{
+			if (max_speed > max_convoy_speed_ground)
+			{
+				max_convoy_speed_ground = max_speed;
+			}
+		}
+	}
+
+	// Secondly, check for maximum vehicle speeds to prevent anomalies
+	// especially at the beginning of a game.
+
+	sint32 max_available_speed_ground = 0;
+	sint32 max_available_speed_air = 0;
+
+	for (sint32 i = road_wt; i <= narrowgauge_wt; i++)
+	{
+		FOR(slist_tpl<vehicle_desc_t*>, const info, vehicle_builder_t::get_info((waytype_t)i))
+		{
+			const sint32 max_speed = speed_to_kmh(info->get_topspeed());
+			if (max_speed > max_available_speed_ground)
+			{
+				max_available_speed_ground = max_speed;
+			}
+		}
+	}
+
+	FOR(slist_tpl<vehicle_desc_t*>, const info, vehicle_builder_t::get_info(air_wt))
+	{
+		const sint32 max_speed = speed_to_kmh(info->get_topspeed());
+		if (max_speed > max_available_speed_air)
+		{
+			max_available_speed_air = max_speed;
+		}
+	}
+
+	if (convoi_array.empty())
+	{
+		max_convoy_speed_ground = max_available_speed_ground;
+	}
+	
+	if (!aircraft_in_service)
+	{
+		max_convoy_speed_air = min(max_convoy_speed_ground * 3, max_available_speed_air);
+	}
+
+	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
 }
