@@ -66,23 +66,21 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 		money_to_string( tmp, veh->get_value() / 100.0, false );
 		part1.printf( translator::translate( "Cost: %8s (%.2f$/km)\n" ), tmp, veh->get_running_cost() / 100.0 );
 	}
-	if( veh->get_capacity() > 0 ) { // must translate as "Capacity: %3d%s %s\n"
+	if( veh->get_total_capacity() > 0 || veh->get_overcrowded_capacity() ) { // must translate as "Capacity: %3d%s %s\n"
 		part1.append(" ");
-		part1.printf( translator::translate( "Capacity: %d%s %s\n" ),
-			veh->get_capacity(),
+		char capacity[32];
+		sprintf(capacity, veh->get_overcrowded_capacity() > 0 ? "%i (%i)" : "%i", v->get_total_capacity(), v->get_overcrowded_capacity());
+		part1.printf( translator::translate( "capacity: %s %s" ),
+			capacity,
 			translator::translate( veh->get_freight_type()->get_mass() ),
 			veh->get_freight_type()->get_catg() == 0 ? translator::translate( veh->get_freight_type()->get_name() ) : translator::translate( veh->get_freight_type()->get_catg_name() )
 		);
+		part1.append("\n");
 	}
 	part1.printf( " %s %3d km/h\n", translator::translate( "Max. speed:" ), veh->get_topspeed() );
 	if( veh->get_power() > 0 ) {
 		part1.append(" ");
-		if( veh->get_gear() != 64 ) {
-			part1.printf( "%s %4d kW (x%0.2f)\n", translator::translate( "Power:" ), veh->get_power(), veh->get_gear() / 64.0 );
-		}
-		else {
-			part1.printf( translator::translate( "Power: %4d kW\n" ), veh->get_power() );
-		}
+		part1.printf( translator::translate( "Power: %4d kW, %d kN\n" ), veh->get_power(), veh->get_tractive_effort());
 	}
 	int text1w, text1h;
 	display_calc_proportional_multiline_string_len_width( text1w, text1h, part1, part1.len() );
@@ -197,7 +195,7 @@ bool vehiclelist_stats_t::compare(const gui_component_t *aa, const gui_component
 		break;
 
 	case by_capacity:
-		cmp = a->get_capacity() - b->get_capacity();
+		cmp = a->get_total_capacity() - b->get_total_capacity();
 		break;
 
 	case by_name:
