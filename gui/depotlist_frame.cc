@@ -112,14 +112,14 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 	if (temp_w > name_width) {
 		name_width = temp_w;
 	}
-	lb_name.set_min_size(scr_size(name_width, D_LABEL_HEIGHT));
+	lb_name.set_fixed_width(name_width);
 	add_component(&lb_name);
 
 	lb_cnv_count.init(SYSCOL_TEXT, gui_label_t::right);
-	lb_cnv_count.set_min_size(scr_size(proportional_string_width(translator::translate("%d convois")), D_LABEL_HEIGHT));
+	lb_cnv_count.set_fixed_width(proportional_string_width(translator::translate("%d convois")));
 	add_component(&lb_cnv_count);
 	lb_vh_count.init(SYSCOL_TEXT, gui_label_t::right);
-	lb_vh_count.set_min_size(scr_size(proportional_string_width(translator::translate("%d vehicles")), D_LABEL_HEIGHT));
+	lb_vh_count.set_fixed_width(proportional_string_width(translator::translate("%d vehicles")));
 	add_component(&lb_vh_count);
 
 	lb_region.buf().printf( " %s ", depot->get_pos().get_2d().get_fullstr() );

@@ -33,8 +33,7 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 	electricity.set_rigid(true);
 	add_component(&electricity); // (2,0)
 
-	lb_name.set_min_size( scr_size( name_width, D_LABEL_HEIGHT ) );
-	//label.set_align(gui_label_t::right); // align::right breaks the layout
+	lb_name.set_fixed_width( name_width );
 	add_component(&lb_name); // (3,0)
 
 	add_component(&label); // (4,0)
