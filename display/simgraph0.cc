@@ -358,7 +358,7 @@ void simgraph_exit()
 	dr_os_close();
 }
 
-void simgraph_resize(KOORD_VAL, KOORD_VAL)
+void simgraph_resize(scr_size)
 {
 }
 

@@ -5210,18 +5210,18 @@ void simgraph_exit()
 
 /* changes display size
  */
-void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
+void simgraph_resize(scr_size new_window_size)
 {
-	disp_actual_width = max( 16, w );
-	if(  h<=0  ) {
-		h = 64;
+	disp_actual_width = max( 16, new_window_size.w );
+	if(  new_window_size.h<=0  ) {
+		new_window_size.h = 64;
 	}
 	// only resize, if internal values are different
-	if (disp_width != w || disp_height != h) {
-		KOORD_VAL new_pitch = dr_textur_resize(&textur, w, h);
-		if(  new_pitch!=disp_width  ||  disp_height != h) {
+	if (disp_width != new_window_size.w || disp_height != new_window_size.h) {
+		KOORD_VAL new_pitch = dr_textur_resize(&textur, new_window_size.w, new_window_size.h);
+		if(  new_pitch!=disp_width  ||  disp_height != new_window_size.h) {
 			disp_width = new_pitch;
-			disp_height = h;
+			disp_height = new_window_size.h;
 
 			free( tile_dirty_old );
 			free( tile_dirty);
