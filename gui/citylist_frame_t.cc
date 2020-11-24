@@ -173,7 +173,7 @@ citylist_frame_t::citylist_frame_t() :
 
 		if (!welt->get_settings().regions.empty()) {
 			//region_selector
-			region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All region"), SYSCOL_TEXT);
+			region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All regions"), SYSCOL_TEXT);
 
 			for (uint8 r = 0; r < welt->get_settings().regions.get_count(); r++) {
 				region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(welt->get_settings().regions[r].name.c_str()), SYSCOL_TEXT);
