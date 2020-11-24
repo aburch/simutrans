@@ -725,15 +725,13 @@ public:
 	uint8 get_interactivity() const;
 
 	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
+	 * @return introduction year
+	 */
 	uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
-	* @return time when no longer in production
-	* @author prissi
-	*/
+	 * @return time when no longer in production
+	 */
 	uint16 get_retire_year_month() const { return retire_date; }
 
 	/**
@@ -755,18 +753,16 @@ public:
 	}
 
 	/**
-	* @ Returns true if the vehicle is no longer in production
-	* @author: prissi
-	*/
+	 * @ Returns true if the vehicle is no longer in production
+	 */
 	bool is_retired (const uint16 month_now) const
 	{
 		return month_now  &&  (retire_date <= month_now);
 	}
 
 	/**
-	* @ Returns true if the vehicle is obsolete
-	* @author:
-	*/
+	 * @ Returns true if the vehicle is obsolete
+	 */
 	bool is_obsolete (const uint16 month_now, const class karte_t* welt) const
 	{
 		return month_now  &&  (get_obsolete_year_month(welt) <= month_now);

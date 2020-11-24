@@ -1432,7 +1432,6 @@ void haltestelle_t::step()
 
 /**
  * Called every month
- * @author Hj. Malthaner
  */
 void haltestelle_t::new_month()
 {

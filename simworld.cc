@@ -8262,8 +8262,6 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
 /**
  * Play a sound, but only if near enough.
  * Sounds are muted by distance and clipped completely if too far away.
- *
- * @author Hj. Malthaner
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t cooldown_type)
 {

@@ -217,7 +217,6 @@ void log_t::error(const char *who, const char *format, ...)
 
 /**
  * writes a warning into the log.
- * @author Hj. Malthaner
  */
 void log_t::doubled(const char *what, const char *name )
 {

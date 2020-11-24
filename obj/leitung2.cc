@@ -422,7 +422,6 @@ void leitung_t::finish_rd()
  *
  * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
  * soll.
- * @author Hj. Malthaner
  */
 void leitung_t::rdwr(loadsave_t *file)
 {

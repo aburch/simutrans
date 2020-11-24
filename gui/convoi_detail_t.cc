@@ -317,7 +317,6 @@ gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
 
 /*
  * Draw the component
- * @author Hj. Malthaner
  */
 void gui_vehicleinfo_t::draw(scr_coord offset)
 {

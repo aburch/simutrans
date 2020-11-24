@@ -645,7 +645,6 @@ bool stadt_t::bewerte_loc_has_public_road(const koord pos)
 * @param pos position to check
 * @param regel the rule to evaluate
 * @return true on match, false otherwise
-* @author Hj. Malthaner
 */
 
 bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
@@ -2435,7 +2434,6 @@ void stadt_t::rdwr(loadsave_t* file)
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknuepft werden muessen.
- * @author Hj. Malthaner
  */
 void stadt_t::finish_rd()
 {

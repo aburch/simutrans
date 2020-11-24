@@ -2505,7 +2505,6 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @author Hj. Malthaner
 	 */
 	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
 

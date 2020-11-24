@@ -714,7 +714,6 @@ image_id gebaeude_t::get_front_image() const
 }
 /**
 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
-* @author Hj. Malthaner
 */
 const char *gebaeude_t::get_name() const
 {

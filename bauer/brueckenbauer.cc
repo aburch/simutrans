@@ -118,7 +118,6 @@ stringhashtable_tpl<bridge_desc_t *> * bridge_builder_t::get_all_bridges()
 
 /**
  * Find a matching bridge
- * @author Hj. Malthaner
  */
 const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time, const uint16 max_weight)
 {

@@ -1466,7 +1466,6 @@ bool convoi_t::prepare_for_routing()
 /**
  * Berechne route von Start- zu Zielkoordinate
  * "Compute route from starting to goal coordinate" (Babelfish)
- * @author Hanjsörg Malthaner
  */
 bool convoi_t::drive_to()
 {

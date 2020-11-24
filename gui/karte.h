@@ -33,8 +33,6 @@ class goods_desc_t;
 /**
  * This class is used to render the relief map.
  * Implemented as singleton.
- *
- * @author Hj. Malthaner
  */
 class reliefkarte_t : public gui_component_t
 {
@@ -137,7 +135,6 @@ private:
 
 	/**
 	 * map mode: -1) normal; everything else: special map
-	 * @author hsiegeln
 	 */
 	static MAP_MODES mode;
 	static MAP_MODES last_mode;
@@ -199,20 +196,17 @@ public:
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
-	 * @author hsiegeln
 	 */
 	static PIXVAL calc_severity_color(sint32 amount, sint32 scale);
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
 	 * but using log scale
-	 * @author prissi
 	 */
 	static PIXVAL calc_severity_color_log(sint32 amount, sint32 scale);
 
 	/**
 	* returns a color based on the current high
-	* @author hsiegeln
 	*/
 	static PIXVAL calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
