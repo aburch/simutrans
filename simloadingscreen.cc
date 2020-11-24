@@ -114,7 +114,7 @@ void loadingscreen_t::set_progress( uint32 progress )
 	if(  ev->ev_class == EVENT_SYSTEM  ) {
 		if(  ev->ev_code == SYSTEM_RESIZE  ) {
 			// main window resized
-			simgraph_resize( ev->size_x, ev->size_y );
+			simgraph_resize( ev->new_window_size.w, ev->new_window_size.h );
 			display_fillbox_wh_rgb( 0, 0, ev->mx, ev->my, color_idx_to_rgb(COL_BLACK), true );
 			display_logo();
 			// queue the event anyway, so the viewport is correctly updated on world resume (screen will be resized again).

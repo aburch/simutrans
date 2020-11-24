@@ -7,10 +7,13 @@
 #define SYS_SIMSYS_H
 
 
-#include <stddef.h>
 #include "../simtypes.h"
+#include "../display/scr_coord.h"
+
 #include <zlib.h>
 #include <string>
+
+#include <cstddef>
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -54,10 +57,10 @@ struct sys_event_t
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
-	/**
-	 * new window size for SYSTEM_RESIZE
-	 */
-	int size_x, size_y;
+
+	/// new window size for SYSTEM_RESIZE
+	scr_size new_window_size;
+
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
