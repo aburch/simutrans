@@ -5063,10 +5063,10 @@ void display_show_load_pointer(int loading)
 /**
  * Initialises the graphics module
  */
-void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(scr_size window_size, int full_screen)
 {
-	disp_actual_width = width;
-	disp_height = height;
+	disp_actual_width = window_size.w;
+	disp_height = window_size.h;
 
 #ifdef MULTI_THREAD
 	pthread_mutex_init( &recode_img_mutex, NULL );
@@ -5083,7 +5083,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	}
 
 	// get real width from os-dependent routines
-	disp_width = dr_os_open(width, height, full_screen);
+	disp_width = dr_os_open(window_size.w, window_size.h, full_screen);
 	if(  disp_width>0  ) {
 		textur = dr_textur_init();
 
