@@ -689,7 +689,7 @@ vehicle_class_manager_t::~vehicle_class_manager_t()
 void vehicle_class_manager_t::rdwr(loadsave_t *file)
 {
 	// convoy data
-	if (file->get_version() <=112002) {
+	if (file->get_version_int() <=112002) {
 		// dummy data
 		koord3d cnv_pos( koord3d::invalid);
 		char name[128];

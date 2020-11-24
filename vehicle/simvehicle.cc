@@ -2551,7 +2551,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// since obj_t does no longer save positions
-	if(  file->get_version()>=101000  ) {
+	if(  file->get_version_int()>=101000  ) {
 		koord3d pos = get_pos();
 		pos.rdwr(file);
 		set_pos(pos);
@@ -2559,7 +2559,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
-	if(file->get_version()<86006) {
+	if(file->get_version_int()<86006) {
 		sint32 l;
 		file->rdwr_long(purchase_time);
 		file->rdwr_long(l);
@@ -2580,7 +2580,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	else {
 		// changed several data types to save runtime memory
 		file->rdwr_long(purchase_time);
-		if(file->get_version()<99018) {
+		if(file->get_version_int()<99018) {
 			file->rdwr_byte(dx);
 			file->rdwr_byte(dy);
 		}
@@ -2616,7 +2616,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// convert steps to position
-	if(file->get_version()<99018) {
+	if(file->get_version_int()<99018) {
 		sint8 ddx = get_xoff(), ddy = get_yoff() - hoff;
 		sint8 i=1;
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
@@ -2642,7 +2642,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// information about the target halt
-	if(file->get_version()>=88007) {
+	if(file->get_version_int()>=88007) {
 		bool target_info;
 		if(file->is_loading()) {
 			file->rdwr_bool(target_info);
@@ -2658,13 +2658,13 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			cnv = NULL;	// no reservation too
 		}
 	}
-	if((file->get_extended_version()==0 && file->get_version()<=112008) || file->get_extended_version()<14) {
+	if((file->get_extended_version()==0 && file->get_version_int()<=112008) || file->get_extended_version()<14) {
 		// Standard version number was increased in Extended without porting this change
 		koord3d pos_prev(koord3d::invalid);
 		pos_prev.rdwr(file);
 	}
 
-	if(file->get_version()<=99004) {
+	if(file->get_version_int()<=99004) {
 		koord3d dummy;
 		dummy.rdwr(file);	// current pos (is already saved as ding => ignore)
 	}
@@ -2808,14 +2808,14 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	delete[]fracht_count;
 
 	// skip first last info (the convoi will know this better than we!)
-	if(file->get_version()<88007) {
+	if(file->get_version_int()<88007) {
 		bool dummy = 0;
 		file->rdwr_bool(dummy);
 		file->rdwr_bool(dummy);
 	}
 
 	// koordinate of the last stop
-	if(file->get_version()>=99015) {
+	if(file->get_version_int()>=99015) {
 		// This used to be 2d, now it's 3d.
 		if(file->get_extended_version() < 12) {
 			if(file->is_saving()) {
@@ -2851,7 +2851,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		reversed = false;
 	}
 
-	if(  file->get_version()>=110000  ) {
+	if(  file->get_version_int()>=110000  ) {
 		bool hd = has_driven;
 		file->rdwr_bool( hd );
 		has_driven = hd;
@@ -2862,7 +2862,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 	{
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_short(direction_steps);
@@ -2895,7 +2895,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
+	if(file->get_extended_version() >= 9 && file->get_version_int() >= 110006)
 	{
 		file->rdwr_string(current_livery);
 	}

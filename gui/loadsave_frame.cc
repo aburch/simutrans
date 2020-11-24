@@ -225,7 +225,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 			}
 
 			// now insert in hash_table
-			svei = new sve_info_t(test.get_pak_extension(), info.st_mtime, info.st_size, test.get_version(), test.get_extended_version() );
+			svei = new sve_info_t(test.get_pak_extension(), info.st_mtime, info.st_size, test.get_version_int(), test.get_extended_version() );
 			// copy filename
 			char *key = strdup(pathname);
 			sve_info_t *svei_old = loadsave_frame_t::cached_info.set(key, svei);
@@ -271,7 +271,7 @@ const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) co
 sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version
-	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_version();
+	return (sint32)static_cast<const gui_loadsave_table_row_t &>(row).get_version_int();
 }*/
 
 
@@ -343,7 +343,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		pak_extension = test.get_pak_extension();
 
 		// now insert in hash_table
-		sve_info_t *svei_new = new sve_info_t(pak_extension.c_str(), sb.st_mtime, sb.st_size, test.get_version(), test.get_extended_version());
+		sve_info_t *svei_new = new sve_info_t(pak_extension.c_str(), sb.st_mtime, sb.st_size, test.get_version_int(), test.get_extended_version());
 		// copy filename
 		char *key = strdup(fname);
 		sve_info_t *svei_old = cached_info.set(key, svei_new);

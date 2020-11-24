@@ -532,7 +532,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 		ident = 1;
 	}
 
-	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL);
+	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL);
 	version = versions.version;
 	extended_version = versions.extended_version;
 	extended_revision = versions.extended_revision;
@@ -1477,7 +1477,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, c
 				std::strcpy(pak_extension_str,"(broken)");
 				version = 999999999;
 			}
-			return 0;
 		}
 	}
 	else {

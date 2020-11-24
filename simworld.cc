@@ -8968,7 +8968,7 @@ bool karte_t::load(const char *filename)
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_raw());
+DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 
 		load(&file);
 

@@ -327,7 +327,7 @@ sint64 finance_t::credit_limit_by_assets() const
 void finance_t::rdwr(loadsave_t *file)
 {
 	// detailed statistic were introduced in this version
-	if( file->get_version() < 112005 ) {
+	if( file->get_version_int() < 112005 ) {
 		rdwr_compatibility(file);
 		if ( file->is_loading() ) {
 			// Loaded hard credit limit will be wrong, fix it quick to avoid spurious insolvency
@@ -746,15 +746,15 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		}
 	}
 
-	if( ( file->get_version() < 112005 ) && ( ! file->is_loading() ) ) { // for saving of game in old format
+	if( ( file->get_version_int() < 112005 ) && ( ! file->is_loading() ) ) { // for saving of game in old format
 		export_to_cost_month( finance_history_month );
 		export_to_cost_year( finance_history_year );
 	}
-	if (file->get_version() < 84008) {
+	if (file->get_version_int() < 84008) {
 		// not so old save game
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<OLD_MAX_PLAYER_COST; cost_type++) {
-				if (file->get_version() < 84007) {
+				if (file->get_version_int() < 84007) {
 					// a cost_type has has been added. For old savegames we only have 9 cost_types, now we have 10.
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) {
@@ -768,7 +768,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 86000) {
+	else if (file->get_version_int() < 86000) {
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
@@ -781,7 +781,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 99011) {
+	else if (file->get_version_int() < 99011) {
 		// powerline category missing
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
@@ -794,7 +794,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (file->get_version() < 99017) {
+	else if (file->get_version_int() < 99017) {
 		// without detailed goo statistics
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<13; cost_type++) {
@@ -807,7 +807,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002 && file->get_extended_version() <= 1 ) {
+	else if(  file->get_version_int()<=102002 && file->get_extended_version() <= 1 ) {
 		// saved everything
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<18; cost_type++) {
@@ -820,7 +820,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002  ) {
+	else if(  file->get_version_int()<=102002  ) {
 		// saved everything
 		// Extended had INTEREST, CREDIT_LIMIT
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
@@ -838,7 +838,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=110006  && file->get_extended_version()==0  ) {
+	else if(  file->get_version_int()<=110006  && file->get_extended_version()==0  ) {
 		// only save what is needed
 		// no way tolls
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
@@ -860,7 +860,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 	 * As a result the logic for version <=110006 for extended can fall through to the
 	 * logic for version <= 112004
 	 */
-	else if (  file->get_version() <= 112004  && file->get_extended_version() == 0  ) {
+	else if (  file->get_version_int() <= 112004  && file->get_extended_version() == 0  ) {
 		// savegame version: now with toll
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<19;   cost_type++  ) {
@@ -877,7 +877,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() <= 112004  && file->get_extended_version() == 1  ) {
+	else if (  file->get_version_int() <= 112004  && file->get_extended_version() == 1  ) {
 		// is this combination even possible?  I doubt it
 		// no way tolls in extended despite being in standard
 		// no interest or credit limit in extended
@@ -896,7 +896,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() <= 112004 && file->get_extended_version() <= 10  ) {
+	else if (  file->get_version_int() <= 112004 && file->get_extended_version() <= 10  ) {
 		// Standard had way tolls, extended still didn't
 		// Extended also had INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
@@ -918,7 +918,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() <= 112004  ) {
+	else if (  file->get_version_int() <= 112004  ) {
 		// Extended version 11 with old save file format
 		// May happen in files saved with some development versions
 		// Extended has WAY_TOLLS, INTEREST, CREDIT_LIMIT
@@ -937,17 +937,17 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() >= 112005  ) {
+	else if (  file->get_version_int() >= 112005  ) {
 		// We should not get here in compatibility loading mode
 		assert(false);
 	}
 
-	if(  file->get_version()>102002  && file->get_extended_version() != 7  ) {
+	if(  file->get_version_int()>102002  && file->get_extended_version() != 7  ) {
 		file->rdwr_longlong(starting_money);
 	}
 
 	// we have to pay maintenance at the beginning of a month
-	if(file->get_version()<99018  &&  file->is_loading()) {
+	if(file->get_version_int()<99018  &&  file->is_loading()) {
 		finance_history_month[0][COST_MAINTENANCE] -= finance_history_month[1][COST_MAINTENANCE];
 		finance_history_year [0][COST_MAINTENANCE] -= finance_history_month[1][COST_MAINTENANCE];
 		set_account_balance(get_account_balance() - finance_history_month[1][COST_MAINTENANCE]);

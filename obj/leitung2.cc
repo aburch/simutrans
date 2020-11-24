@@ -443,7 +443,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		}
 		city_pos.rdwr(file);
 
-		if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version() >= 112006))
+		if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version_int() >= 112006))
 		{
 			if(get_typ() == senke)
 			{
@@ -472,7 +472,7 @@ void leitung_t::rdwr(loadsave_t *file)
 				city->add_substation((senke_t*)this);
 			}
 
-			if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version() >= 112006))
+			if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version_int() >= 112006))
 			{
 				uint32 lpd = 0;
 				file->rdwr_long(lpd);
@@ -489,7 +489,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		/* ATTENTION: during loading this MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
 		 */
-		if(file->get_version() > 102002 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
+		if(file->get_version_int() > 102002 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 		{
 			if(file->is_saving())
 			{
