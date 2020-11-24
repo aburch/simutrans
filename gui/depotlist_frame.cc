@@ -28,6 +28,7 @@ static char const* const depot_type_texts[] = { "Truck", "Train", "Ship", "Air",
 
 uint8 depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;
+uint16 depotlist_stats_t::name_width = 100;
 uint8 depotlist_frame_t::depot_type_filter_bits = 255;
 
 static karte_ptr_t welt;
@@ -103,14 +104,22 @@ depotlist_stats_t::depotlist_stats_t(depot_t *d)
 		new_component<gui_image_t>()->set_image(skinverwaltung_t::electricity->get_image_id(0), true);
 	}
 	else {
-		new_component<gui_empty_t>();
+		new_component<gui_margin_t>(skinverwaltung_t::electricity->get_image(0)->w);
 	}
 
 	lb_name.buf().append( translator::translate(depot->get_name()) );
-	lb_name.set_min_size(scr_size(LINEASCENT * 13, D_LABEL_HEIGHT));
+	const scr_coord_val temp_w = proportional_string_width( translator::translate(depot->get_name()) );
+	if (temp_w > name_width) {
+		name_width = temp_w;
+	}
+	lb_name.set_min_size(scr_size(name_width, D_LABEL_HEIGHT));
 	add_component(&lb_name);
 
+	lb_cnv_count.init(SYSCOL_TEXT, gui_label_t::right);
+	lb_cnv_count.set_min_size(scr_size(proportional_string_width(translator::translate("%d convois")), D_LABEL_HEIGHT));
 	add_component(&lb_cnv_count);
+	lb_vh_count.init(SYSCOL_TEXT, gui_label_t::right);
+	lb_vh_count.set_min_size(scr_size(proportional_string_width(translator::translate("%d vehicles")), D_LABEL_HEIGHT));
 	add_component(&lb_vh_count);
 
 	lb_region.buf().printf( " %s ", depot->get_pos().get_2d().get_fullstr() );
