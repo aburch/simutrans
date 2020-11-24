@@ -223,7 +223,7 @@ resolution dr_query_screen_resolution()
 }
 
 
-int dr_os_open(int const w, int const h, int const fullscreen)
+int dr_os_open(int const w, int const h, bool fullscreen)
 {
 	width = w;
 	height = h;
@@ -232,7 +232,7 @@ int dr_os_open(int const w, int const h, int const fullscreen)
 	install_keyboard();
 
 	set_color_depth(COLOUR_DEPTH);
-	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
+	if (set_gfx_mode(fullscreen ? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return 0;
 	}

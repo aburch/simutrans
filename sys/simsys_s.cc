@@ -190,7 +190,7 @@ resolution dr_query_screen_resolution()
 
 
 // open the window
-int dr_os_open(int w, int const h, int const fullscreen)
+int dr_os_open(int w, int const h, bool fullscreen)
 {
 #ifdef MULTI_THREAD
 	// init barrier
