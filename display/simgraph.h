@@ -131,7 +131,7 @@ int zoom_factor_down();
 /**
  * Initialises the graphics module
  */
-void simgraph_init(scr_size window_size, int fullscreen);
+void simgraph_init(scr_size window_size, bool fullscreen);
 int is_display_init();
 void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);

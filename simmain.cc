@@ -876,8 +876,8 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	DBG_MESSAGE("simu_main()", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
-	simgraph_init(scr_size(disp_width, disp_height), fullscreen);
+	DBG_MESSAGE("simu_main()", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, (int)fullscreen);
+	simgraph_init(scr_size(disp_width, disp_height), fullscreen != 0);
 	DBG_MESSAGE("simu_main()", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// now that the graphics system has already started

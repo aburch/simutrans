@@ -5063,7 +5063,7 @@ void display_show_load_pointer(int loading)
 /**
  * Initialises the graphics module
  */
-void simgraph_init(scr_size window_size, int full_screen)
+void simgraph_init(scr_size window_size, bool full_screen)
 {
 	disp_actual_width = window_size.w;
 	disp_height = window_size.h;
