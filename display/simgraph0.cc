@@ -375,7 +375,7 @@ void display_show_load_pointer(int)
 {
 }
 
-void simgraph_init(KOORD_VAL, KOORD_VAL, int)
+void simgraph_init(scr_size, int)
 {
 }
 
