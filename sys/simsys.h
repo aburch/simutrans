@@ -81,7 +81,7 @@ struct resolution
 };
 resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, int fullscreen);
+int dr_os_open(int w, int h, bool fullscreen);
 void dr_os_close();
 
 // returns the locale; NULL if unknown

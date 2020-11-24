@@ -152,7 +152,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 
 
 // open the window
-int dr_os_open(int const w, int const h, int fullscreen)
+int dr_os_open(int const w, int const h, bool fullscreen)
 {
 	MaxSize.right = ((w*x_scale)/32+15) & 0x7FF0;
 	MaxSize.bottom = (h*y_scale)/32;

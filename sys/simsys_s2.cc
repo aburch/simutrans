@@ -287,7 +287,7 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 
 
 // open the window
-int dr_os_open(int screen_width, int screen_height, int const fullscreen)
+int dr_os_open(int screen_width, int screen_height, bool fullscreen)
 {
 	// scale up
 	const int tex_w = SCREEN_TO_TEX_X(screen_width);

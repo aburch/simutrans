@@ -50,7 +50,7 @@ resolution dr_query_screen_resolution()
 }
 
 // open the window
-int dr_os_open(int, int, int)
+int dr_os_open(int, int, bool)
 {
 	return 1;
 }
