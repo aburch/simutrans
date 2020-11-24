@@ -43,7 +43,7 @@
 
 /* Global Variable for message processing */
 
-struct sys_event
+struct sys_event_t
 {
 	unsigned long type;
 	union {
@@ -60,7 +60,7 @@ struct sys_event
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
-extern struct sys_event sys_event;
+extern sys_event_t sys_event;
 
 extern char const PATH_SEPARATOR[];
 
