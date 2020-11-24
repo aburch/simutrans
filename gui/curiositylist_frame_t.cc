@@ -33,42 +33,64 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	attraction_count = 0;
 
 	set_table_layout(1, 0);
-	new_component<gui_label_t>("hl_txt_sort");
-
-	add_table(4, 1);
-	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
-		sortedby.new_component<attraction_item_t>(i);
-	}
-	sortedby.set_selection(curiositylist_stats_t::sort_mode);
-	sortedby.set_width_fixed(true);
-	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
-	sortedby.add_listener(this);
-	add_component(&sortedby);
-
-	// sort ascend/descend button
-	add_table(3, 1);
+	add_table(3, 2);
 	{
-		sort_asc.init(button_t::arrowup_state, "");
-		sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
-		sort_asc.add_listener(this);
-		sort_asc.pressed = curiositylist_stats_t::sortreverse;
-		add_component(&sort_asc);
+		// 1st row
+		new_component<gui_label_t>("hl_txt_sort");
+		new_component<gui_label_t>("Filter:");
 
-		sort_desc.init(button_t::arrowdown_state, "");
-		sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
-		sort_desc.add_listener(this);
-		sort_desc.pressed = !curiositylist_stats_t::sortreverse;
-		add_component(&sort_desc);
-		new_component<gui_margin_t>(10);
+		filter_within_network.init(button_t::square_state, "Within own network");
+		filter_within_network.set_tooltip("Show only connected to own passenger transportation network");
+		filter_within_network.add_listener(this);
+		filter_within_network.pressed = curiositylist_stats_t::filter_own_network;
+		add_component(&filter_within_network);
+
+		// 2nd row
+		add_table(3, 1);
+		{
+			for (int i = 0; i < curiositylist::SORT_MODES; i++) {
+				sortedby.new_component<attraction_item_t>(i);
+			}
+			sortedby.set_selection(curiositylist_stats_t::sort_mode);
+			sortedby.set_width_fixed(true);
+			sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			sortedby.add_listener(this);
+			add_component(&sortedby);
+
+			// sort ascend/descend button
+			sort_asc.init(button_t::arrowup_state, "");
+			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+			sort_asc.add_listener(this);
+			sort_asc.pressed = curiositylist_stats_t::sortreverse;
+			add_component(&sort_asc);
+
+			sort_desc.init(button_t::arrowdown_state, "");
+			sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+			sort_desc.add_listener(this);
+			sort_desc.pressed = !curiositylist_stats_t::sortreverse;
+			add_component(&sort_desc);
+		}
+		end_table();
+
+		new_component<gui_empty_t>();
+
+		if (!welt->get_settings().regions.empty()) {
+			//region_selector
+			region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All region"), SYSCOL_TEXT);
+
+			for (uint8 r = 0; r < welt->get_settings().regions.get_count(); r++) {
+				region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(welt->get_settings().regions[r].name.c_str()), SYSCOL_TEXT);
+			}
+			region_selector.set_selection(curiositylist_stats_t::region_filter);
+			region_selector.set_width_fixed(true);
+			region_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			region_selector.add_listener(this);
+			add_component(&region_selector);
+		}
+		else {
+			new_component<gui_empty_t>();
+		}
 	}
-	end_table();
-	new_component<gui_empty_t>();
-
-	filter_within_network.init(button_t::square_state, "Within own network");
-	filter_within_network.set_tooltip("Show only connected to own passenger transportation network");
-	filter_within_network.add_listener(this);
-	filter_within_network.pressed = curiositylist_stats_t::filter_own_network;
-	add_component(&filter_within_network);
 	end_table();
 
 	set_alignment(ALIGN_STRETCH_V | ALIGN_STRETCH_H);
@@ -88,6 +110,9 @@ void curiositylist_frame_t::fill_list()
 	attraction_count = world_attractions.get_count();
 
 	FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+		if (curiositylist_stats_t::region_filter && (curiositylist_stats_t::region_filter - 1) != welt->get_region(geb->get_pos().get_2d())) {
+			continue;
+		}
 		if (geb != NULL &&
 			geb->get_first_tile() == geb &&
 			geb->get_adjusted_visitor_demand() != 0) {
@@ -111,6 +136,10 @@ bool curiositylist_frame_t::action_triggered(gui_action_creator_t *comp, value_t
 	if (comp == &sortedby) {
 		curiositylist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
+	}
+	else if (comp == &region_selector) {
+		curiositylist_stats_t::region_filter = max(0, v.i);
+		fill_list();
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {
 		curiositylist_stats_t::sortreverse = !curiositylist_stats_t::sortreverse;

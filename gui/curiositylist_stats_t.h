@@ -31,9 +31,8 @@ private:
 	gui_label_t lb_name;
 
 public:
-	static uint8 sort_mode;
-	static bool sortreverse;
-	static bool filter_own_network;
+	static uint8 sort_mode, region_filter;
+	static bool sortreverse, filter_own_network;
 	static bool compare(const gui_component_t *a, const gui_component_t *b);
 
 	curiositylist_stats_t(gebaeude_t *att);

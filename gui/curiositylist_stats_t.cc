@@ -25,6 +25,7 @@
 #include "../simcity.h"
 
 uint8 curiositylist_stats_t::sort_mode = curiositylist::by_name;
+uint8 curiositylist_stats_t::region_filter = 0;
 bool curiositylist_stats_t::sortreverse = false;
 bool curiositylist_stats_t::filter_own_network = false;
 static karte_ptr_t welt;

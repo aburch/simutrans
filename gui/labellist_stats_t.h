@@ -26,7 +26,7 @@ private:
 
 	const label_t* get_label() const;
 public:
-	static uint8 sort_mode;
+	static uint8 sort_mode, region_filter;
 	static bool sortreverse, filter;
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );

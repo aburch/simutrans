@@ -16,6 +16,7 @@
 
 
 uint8 labellist_stats_t::sort_mode = labellist::by_name;
+uint8 labellist_stats_t::region_filter = 0;
 bool labellist_stats_t::sortreverse = false;
 bool labellist_stats_t::filter = false;
 
