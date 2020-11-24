@@ -294,9 +294,9 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			if(ev.ev_class==EVENT_SYSTEM) {
 				if (ev.ev_code==SYSTEM_RESIZE) {
 					// main window resized
-					simgraph_resize( ev.size_x, ev.size_y );
+					simgraph_resize( ev.new_window_size.w, ev.new_window_size.h );
 					dr_prepare_flush();
-					display_fillbox_wh_rgb( 0, 0, ev.size_x, ev.size_y, color_idx_to_rgb(COL_BLACK), true );
+					display_fillbox_wh_rgb( 0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true );
 					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
