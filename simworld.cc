@@ -6831,7 +6831,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// Start with the walking time to the start halt.
 					// Note that the walking time to the destination stop is already added by find_route.
 					current_journey_time = walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
-					
+
 #else
 					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);
 #endif
@@ -12213,7 +12213,7 @@ void karte_t::calc_max_vehicle_speeds()
 		convoihandle_t cnv = convoi_array[i];
 		const sint32 max_speed = speed_to_kmh(cnv->get_min_top_speed());
 		if (cnv->front()->get_waytype() == air_wt)
-		{		
+		{
 			aircraft_in_service = true;
 			if (max_speed > max_convoy_speed_air)
 			{
@@ -12260,7 +12260,7 @@ void karte_t::calc_max_vehicle_speeds()
 	{
 		max_convoy_speed_ground = max_available_speed_ground;
 	}
-	
+
 	if (!aircraft_in_service)
 	{
 		if (max_available_speed_air = 0)
@@ -12272,5 +12272,5 @@ void karte_t::calc_max_vehicle_speeds()
 	}
 
 	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
-	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground); 
+	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground);
 }

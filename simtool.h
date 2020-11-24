@@ -791,8 +791,11 @@ class tool_step_year_t : public tool_t {
 public:
 	tool_step_year_t() : tool_t(TOOL_STEP_YEAR | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Step timeline one year"); }
-	bool init( player_t * ) OVERRIDE {
-		welt->step_year();
+	bool init( player_t *player ) OVERRIDE {
+		if(  !env_t::networkmode  ||  player->is_public_service()  ) {
+			// in networkmode only for public player
+			welt->step_year();
+		}
 		return false;
 	}
 };
@@ -1149,6 +1152,17 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
+
+class tool_rollup_all_win_t : public tool_t {
+public:
+	tool_rollup_all_win_t() : tool_t(TOOL_ROLLUP_ALL_WIN | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Hide/open all windows"); }
+	bool is_selected() const OVERRIDE { return false; }
+	bool init( player_t * ) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 
 /******************************** Internal tools ***********/
 

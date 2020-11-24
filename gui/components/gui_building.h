@@ -1,5 +1,10 @@
-#ifndef GUI_BUILDING_H
-#define GUI_BUILDING_H
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_BUILDING_H
+#define GUI_COMPONENTS_GUI_BUILDING_H
 
 
 #include "gui_component.h"

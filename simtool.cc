@@ -3414,6 +3414,53 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 		return NULL;
 	}
 	else {
+		if(  grund_t *gr=welt->lookup( pos )  ) {
+			if(  !gr->is_visible()  ) {
+				// not visible
+				return "";
+			}
+			if( gr->ist_karten_boden() ) {
+				win_set_static_tooltip( translator::translate("No suitable ground!") );
+
+				slope_t::type sl = gr->get_grund_hang();
+				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
+					// cannot start a tunnel here, wrong slope
+					return "";
+				}
+
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", (-(sint64)desc->get_value())*2, welt->get_settings().get_meters_per_tile() ) );
+					return NULL;
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player,pos, koord(gr->get_grund_hang()), desc, true );
+				if(  end == koord3d::invalid  ||  end == pos  ) {
+					// no end found
+					return "";
+				}
+				// estimate costs for full tunnel
+				if (!env_t::networkmode && way_desc == NULL)
+				{
+					// The last selected way will not have been set if this is not in network mode.
+					way_desc = tool_build_way_t::defaults[desc->get_waytype() & 63];
+				}
+
+				if (way_desc == NULL)
+				{
+					way_desc = way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
+				}
+
+				const uint32 distance = koord_distance(pos,end) * welt->get_settings().get_meters_per_tile();
+				const sint64 price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(pos, end);
+				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, koord_distance(pos, end)*koord_distance(pos, end)) );
+				return NULL;
+			}
+		}
 		return two_click_tool_t::check_pos(player, pos);
 	}
 }
@@ -3439,13 +3486,36 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 {
 	if( end == koord3d::invalid ) {
 		// Build tunnel mouths
-		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
-			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );
+		if(  grund_t *gr=welt->lookup( start )  ) {
+			if( gr->ist_karten_boden() ) {
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+				const char *err = NULL;
+				sint64 price = 0;
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*2;
+					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, welt->get_settings().get_meters_per_tile()*2) );
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
+				if(  end == koord3d::invalid  ||  end == start  ) {
+					// no end found
+					return err;
+				}
+				if (!is_ctrl_pressed()) {
+					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(start, end);
+				}
+				if(  !player->can_afford(price)  ) {
+					return NOTICE_INSUFFICIENT_FUNDS;
+				}
+
+				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );
+			}
 		}
-		else {
-			return "";
-		}
+		return "Tunnel must start on single way!";
 	}
 	else {
 		// Build tunnels
@@ -8063,6 +8133,13 @@ bool tool_daynight_level_t::init( player_t * ) {
 			env_t::daynight_level = (env_t::daynight_level==0) ? level : 0;
 		}
 	}
+	return false;
+}
+
+
+
+bool tool_rollup_all_win_t::init( player_t * ) {
+	rollup_all_win();
 	return false;
 }
 

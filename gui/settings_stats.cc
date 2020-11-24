@@ -512,6 +512,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 
 	// combobox for savegame version
+	savegame.clear_elements();
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version[i]+2, SYSCOL_TEXT );
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
@@ -556,11 +557,10 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "world_maximum_height", sets->get_maximumheight(), 16, 127, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "world_minimum_height", sets->get_minimumheight(), -127, -12, gui_numberinput_t::AUTOLINEAR, false );
 
-	clear_dirty();
-
 	SEPERATOR
 
 	// comboboxes for Extended savegame version and revision
+	savegame_ex.clear_elements();
 	for(  uint32 i=0;  i<lengthof(version_ex);  i++  )
 	{
 		if(i == 0)
@@ -582,8 +582,8 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	add_component( &savegame_ex );
 	savegame_ex.add_listener( this );
 	INIT_LB( "savegame Extended version" );
-	clear_dirty();
 
+	savegame_ex_rev.clear_elements();
 	for(  uint32 i=0;  i<lengthof(revision_ex);  i++  )
 	{
 		if(i == 0)
