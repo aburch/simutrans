@@ -159,9 +159,8 @@ void convoi_info_t::init(convoihandle_t cnv)
 	{
 		container_schedule.new_component<gui_label_t>("Serves Line:");
 		line_selector.clear_elements();
-		init_line_selector();
-		line_selector.add_listener(this);
 		container_schedule.add_component(&line_selector);
+		line_selector.add_listener(this);
 		line_button.init( button_t::roundbox, "Update Line" );
 		line_button.set_tooltip("Modify the selected line");
 		line_button.add_listener(this);
@@ -170,6 +169,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_schedule.end_table();
 
 	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line() );
+	init_line_selector();
 	container_schedule.add_component(&scd);
 	scd.add_listener(this);
 
@@ -312,13 +312,18 @@ void convoi_info_t::init_line_selector()
 			selection = 0;
 			offset = 2;
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<individual schedule>"), SYSCOL_TEXT);
-			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
+			if(  !scd.get_schedule()->empty()  ) {
+				line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
+			}
+			else {
+				line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>("--------------------------------", SYSCOL_TEXT);
+			}
 		}
 
 		FOR(vector_tpl<linehandle_t>, other_line, lines) {
 			line_selector.new_component<line_scrollitem_t>(other_line);
 			if (!line.is_bound()) {
-				if (cnv->get_schedule()->matches(world(), other_line->get_schedule())) {
+				if (cnv->get_schedule()->matches(world(), other_line->get_schedule())  ) {
 					selection = line_selector.count_elements() - 1;
 					line = other_line;
 					scd.init( cnv->get_schedule(), cnv->get_owner(), cnv, line );
@@ -422,7 +427,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	if(  line_selector.get_selection()>1  &&  !line.is_bound()  ) {
 		init_line_selector();
 	}
-	if(  line_selector.get_selection()==1  &&  !line.is_bound()  ) {
+	if(  !scd.get_schedule()->empty()  &&  line_selector.get_selection()==1  &&  !line.is_bound()  ) {
 		// catch new schedule if promoting to line
 		init_line_selector();
 		if( !line.is_bound() ) {
@@ -434,6 +439,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
 			cnv->call_convoi_tool('l', id);
 		}
+	}
+	else if(  !scd.get_schedule()->empty()  &&  line_selector.get_element(1)->get_text()[0]=='-'  ) {
+		init_line_selector();
 	}
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
