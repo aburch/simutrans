@@ -220,7 +220,7 @@ void gui_convoiinfo_t::update_label()
 void gui_convoiinfo_t::draw(scr_coord offset)
 {
 /*
-//<<<<<<< HEAD
+//
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
 		// 2nd row
@@ -249,7 +249,7 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 
 		}
 	//}
-//======= */
+//*/
 	update_label();
 	gui_aligned_container_t::draw(offset);
 }

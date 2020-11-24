@@ -4818,6 +4818,8 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 		return 9999;
 	}
 
+	const koord to_pos = gr->get_pos().get_2d();
+
 	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
@@ -4840,6 +4842,12 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	if(welt->get_settings().get_enforce_weight_limits() == 3 || (welt->get_settings().get_enforce_weight_limits() == 1 && cnv && (cnv->get_highest_axle_load() > max_axle_load || (cnv->get_weight_summary().weight / 1000) > bridge_weight_limit) ) )
 	{
 		costs += 400;
+	}
+
+	// Slightly discourage passing signals from behind (opposite to the intended direction of travel)
+	if(w->get_signal(ribi_type(to_pos, from_pos)))
+	{
+		costs += 10;
 	}
 
 	if(w->is_diagonal())
@@ -6028,8 +6036,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(working_method == drive_by_sight)
 	{
-		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
-		if(max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
+		const sint32 max_speed_drive_by_sight = get_desc()->get_waytype() == tram_wt ? welt->get_settings().get_max_speed_drive_by_sight_tram() : welt->get_settings().get_max_speed_drive_by_sight();
+		if(max_speed_drive_by_sight)
 		{
 			cnv->set_maximum_signal_speed(max_speed_drive_by_sight);
 		}
