@@ -13,9 +13,6 @@
 #include "../obj/gebaeude.h"
 
 
-static uint8 default_sortmode = 0;
-
-
 const char* sort_text[curiositylist::SORT_MODES] = {
 	"hl_btn_sort_name",
 	"Passagierrate",
@@ -42,7 +39,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
 		sortedby.new_component<attraction_item_t>(i);
 	}
-	sortedby.set_selection(default_sortmode);
+	sortedby.set_selection(curiositylist_stats_t::sort_mode);
 	sortedby.set_width_fixed(true);
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 	sortedby.add_listener(this);
@@ -109,19 +106,10 @@ void curiositylist_frame_t::fill_list()
 /**
  * This method is called if an action is triggered
  */
-bool curiositylist_frame_t::action_triggered(gui_action_creator_t *comp, value_t /* */)
+bool curiositylist_frame_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
 	if (comp == &sortedby) {
-		int tmp = sortedby.get_selection();
-		if (tmp >= 0 && tmp < sortedby.count_elements())
-		{
-			sortedby.set_selection(tmp);
-		}
-		else {
-			sortedby.set_selection(0);
-		}
-		default_sortmode = (uint8)tmp;
-		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t)default_sortmode;
+		curiositylist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {

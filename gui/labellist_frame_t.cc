@@ -10,7 +10,6 @@
 #include "../obj/label.h"
 #include "../simworld.h"
 
-static uint8 default_sortmode = 0;
 
 static const char *sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -36,7 +35,7 @@ labellist_frame_t::labellist_frame_t() :
 		for (int i = 0; i < labellist::SORT_MODES; i++) {
 			sortedby.new_component<label_sort_item_t>(i);
 		}
-		sortedby.set_selection(default_sortmode);
+		sortedby.set_selection(labellist_stats_t::sort_mode);
 		sortedby.set_width_fixed(true);
 		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
@@ -113,19 +112,10 @@ uint32 labellist_frame_t::count_label()
 /**
  * This method is called if an action is triggered
  */
-bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
-		int tmp = sortedby.get_selection();
-		if (tmp >= 0 && tmp < sortedby.count_elements())
-		{
-			sortedby.set_selection(tmp);
-		}
-		else {
-			sortedby.set_selection(0);
-		}
-		default_sortmode = (uint8)tmp;
-		labellist_stats_t::sortby = (labellist::sort_mode_t)default_sortmode;
+		labellist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {

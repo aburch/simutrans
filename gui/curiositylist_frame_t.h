@@ -38,7 +38,7 @@ public:
 
 	bool has_min_sizer() const OVERRIDE {return true;}
 
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	bool action_triggered(gui_action_creator_t*, value_t v) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

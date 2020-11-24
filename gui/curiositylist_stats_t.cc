@@ -24,7 +24,7 @@
 
 #include "../simcity.h"
 
-curiositylist::sort_mode_t curiositylist_stats_t::sortby = curiositylist::by_name;
+uint8 curiositylist_stats_t::sort_mode = curiositylist::by_name;
 bool curiositylist_stats_t::sortreverse = false;
 bool curiositylist_stats_t::filter_own_network = false;
 static karte_ptr_t welt;
@@ -37,7 +37,7 @@ bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_compone
 	const gebaeude_t* b = cb->attraction;
 
 	int cmp = 0;
-	switch (sortby) {
+	switch ( sort_mode ) {
 		default: NOT_REACHED
 		case curiositylist::by_name:
 		{

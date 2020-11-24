@@ -30,7 +30,7 @@ public:
 
 	const char *get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
-	bool action_triggered( gui_action_creator_t *comp,value_t /* */) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp,value_t v) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
