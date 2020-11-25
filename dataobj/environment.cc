@@ -578,7 +578,7 @@ void env_t::rdwr(loadsave_t *file)
 	if (file->is_version_atleast(121, 1)) {
 		file->rdwr_long(sound_distance_scaling);
 	}
-	
+
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
 }
