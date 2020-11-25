@@ -81,7 +81,7 @@ bool obj_reader_t::load(const char *path, const char *message)
 	searchfolder_t find;
 	std::string name = find.complete(path, "dat");
 	size_t i;
-	const bool drawing=is_display_init();
+	const bool drawing = is_display_init();
 
 	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
