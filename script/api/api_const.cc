@@ -8,7 +8,7 @@
 /** @file api_const.cc exports constants */
 
 #include "../api_param.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../simmenu.h"
 #include "../../simunits.h"
 

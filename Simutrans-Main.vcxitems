@@ -34,7 +34,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)simmem.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simmenu.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simmesg.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)simobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simplan.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simskin.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)simsound.cc" />
@@ -265,6 +264,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\pillar.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\roadsign.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\signal.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)obj\simobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\tunnel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\wayobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)obj\wolke.cc" />
@@ -365,7 +365,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)simmem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simmenu.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simmesg.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)simobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simplan.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simskin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)simsound.h" />
@@ -627,6 +626,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\pillar.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\roadsign.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\signal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)obj\simobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\tunnel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\wayobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)obj\wolke.h" />

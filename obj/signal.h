@@ -9,7 +9,7 @@
 
 #include "roadsign.h"
 
-#include "../simobj.h"
+#include "simobj.h"
 
 
 /**

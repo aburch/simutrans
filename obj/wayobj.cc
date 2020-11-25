@@ -8,7 +8,7 @@
 #include "../boden/grund.h"
 #include "../simworld.h"
 #include "../display/simimg.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../player/simplay.h"
 #include "../simtool.h"
 

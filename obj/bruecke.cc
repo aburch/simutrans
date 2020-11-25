@@ -5,7 +5,7 @@
 
 #include "../simworld.h"
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../boden/grund.h"
 #include "../player/simplay.h"
 #include "../display/simimg.h"

@@ -12,7 +12,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../simdepot.h"
 #include "../../simworld.h"
 #include "../../boden/grund.h"

@@ -9,7 +9,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtypes.h"
@@ -18,7 +18,7 @@
 
 #include "../descriptor/tree_desc.h"
 
-#include "../obj/groundobj.h"
+#include "groundobj.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simrandom.h"

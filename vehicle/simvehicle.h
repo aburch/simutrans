@@ -8,7 +8,7 @@
 
 
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
 #include "../ifc/simtestdriver.h"

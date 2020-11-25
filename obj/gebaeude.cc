@@ -16,7 +16,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../bauer/hausbauer.h"
 #include "../gui/headquarter_info.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
 #include "../display/simgraph.h"

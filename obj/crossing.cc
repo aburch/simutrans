@@ -7,7 +7,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 #include "../descriptor/crossing_desc.h"

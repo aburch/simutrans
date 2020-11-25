@@ -7,7 +7,7 @@
 #define OBJ_TUNNEL_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 class tunnel_desc_t;

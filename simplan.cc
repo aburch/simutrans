@@ -4,7 +4,7 @@
  */
 
 #include "simdebug.h"
-#include "simobj.h"
+#include "obj/simobj.h"
 #include "simfab.h"
 #include "display/simgraph.h"
 #include "simmenu.h"

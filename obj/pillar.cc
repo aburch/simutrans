@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simmem.h"
 #include "../display/simimg.h"
 
@@ -17,8 +17,8 @@
 #include "../boden/grund.h"
 
 #include "../dataobj/loadsave.h"
-#include "../obj/pillar.h"
-#include "../obj/bruecke.h"
+#include "pillar.h"
+#include "bruecke.h"
 #include "../dataobj/environment.h"
 
 

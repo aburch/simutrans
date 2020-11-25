@@ -10,7 +10,7 @@
 /** @file api_param.h templates for transfer of function call parameters */
 
 #include "../squirrel/squirrel.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../simtypes.h"
 #include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer_t.h"

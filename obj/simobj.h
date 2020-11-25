@@ -3,20 +3,21 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMOBJ_H
-#define SIMOBJ_H
+#ifndef OBJ_SIMOBJ_H
+#define OBJ_SIMOBJ_H
 
 
-#include "simtypes.h"
-#include "display/clip_num.h"
-#include "display/simimg.h"
-#include "simcolor.h"
-#include "dataobj/koord3d.h"
+#include "../simtypes.h"
+#include "../display/clip_num.h"
+#include "../display/simimg.h"
+#include "../simcolor.h"
+#include "../dataobj/koord3d.h"
 
 
 class cbuffer_t;
 class karte_ptr_t;
 class player_t;
+
 
 /**
  * Base class of all objects on the map, obj == thing

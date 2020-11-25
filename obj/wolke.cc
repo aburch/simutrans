@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../utils/simrandom.h"
 #include "wolke.h"
 

@@ -7,7 +7,7 @@
 #define OBJ_DUMMY_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 

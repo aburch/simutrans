@@ -8,7 +8,7 @@
 
 
 #include "../ifc/sync_steppable.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simcolor.h"
 
 class building_tile_desc_t;

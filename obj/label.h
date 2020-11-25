@@ -7,7 +7,7 @@
 #define OBJ_LABEL_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 

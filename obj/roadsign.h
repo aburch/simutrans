@@ -7,7 +7,7 @@
 #define OBJ_ROADSIGN_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simtypes.h"
 #include "../descriptor/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"

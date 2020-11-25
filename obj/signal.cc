@@ -7,7 +7,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 #include "../display/simimg.h"

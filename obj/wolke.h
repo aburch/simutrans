@@ -7,7 +7,7 @@
 #define OBJ_WOLKE_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 
 #include "../descriptor/skin_desc.h"
 #include "../ifc/sync_steppable.h"

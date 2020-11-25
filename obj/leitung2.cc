@@ -15,7 +15,7 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "leitung2.h"
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../player/simplay.h"
 #include "../display/simimg.h"
 #include "../simfab.h"

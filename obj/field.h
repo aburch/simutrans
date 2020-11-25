@@ -7,7 +7,7 @@
 #define OBJ_FIELD_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 
 

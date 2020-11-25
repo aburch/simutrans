@@ -3,27 +3,29 @@
  * (see LICENSE.txt)
  */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "simdebug.h"
-#include "display/simimg.h"
-#include "simcolor.h"
-#include "display/simgraph.h"
-#include "display/viewport.h"
-#include "gui/simwin.h"
-#include "player/simplay.h"
 #include "simobj.h"
-#include "simworld.h"
-#include "obj/baum.h"
-#include "vehicle/simvehicle.h"
-#include "dataobj/translator.h"
-#include "dataobj/loadsave.h"
-#include "boden/grund.h"
-#include "gui/obj_info.h"
-#include "utils/cbuffer_t.h"
-#include "utils/simstring.h"
+
+#include "baum.h"
+
+#include "../boden/grund.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
+#include "../display/simgraph.h"
+#include "../display/simimg.h"
+#include "../display/viewport.h"
+#include "../player/simplay.h"
+#include "../gui/obj_info.h"
+#include "../gui/simwin.h"
+#include "../vehicle/simvehicle.h"
+#include "../simcolor.h"
+#include "../simdebug.h"
+#include "../simworld.h"
+#include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 
 /**

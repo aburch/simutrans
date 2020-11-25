@@ -12,7 +12,7 @@
 #include "simtypes.h"
 #include "simworld.h"
 #include "simmenu.h"
-#include "simobj.h"
+#include "obj/simobj.h"
 
 #include "boden/wege/schiene.h"
 

@@ -7,7 +7,7 @@
 #define OBJ_BAUM_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"

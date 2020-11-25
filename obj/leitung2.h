@@ -10,7 +10,7 @@
 #include "../ifc/sync_steppable.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/ribi.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../tpl/slist_tpl.h"
 
 // bitshift for converting internal power values to MW for display

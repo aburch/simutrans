@@ -10,7 +10,7 @@
 class karte_t;
 
 #include "../descriptor/bridge_desc.h"
-#include "../simobj.h"
+#include "simobj.h"
 
 /**
  * Bridges (visible)

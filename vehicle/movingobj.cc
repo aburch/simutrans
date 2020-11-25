@@ -8,7 +8,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtypes.h"

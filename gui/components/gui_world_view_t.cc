@@ -8,7 +8,7 @@
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
 #include "../../display/viewport.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../vehicle/simvehicle.h"

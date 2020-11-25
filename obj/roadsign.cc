@@ -7,7 +7,7 @@
 
 #include "../simunits.h"
 #include "../simdebug.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtool.h"

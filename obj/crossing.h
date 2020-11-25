@@ -7,7 +7,7 @@
 #define OBJ_CROSSING_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 
 #include "../simtypes.h"
 #include "../display/simimg.h"

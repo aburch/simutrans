@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
 

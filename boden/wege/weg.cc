@@ -20,7 +20,7 @@
 #include "../../simworld.h"
 #include "../../display/simimg.h"
 #include "../../simhalt.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../player/simplay.h"
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"

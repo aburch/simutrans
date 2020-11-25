@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
 #include "../gui/simwin.h"

@@ -8,7 +8,7 @@
 
 
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 
 
 /**

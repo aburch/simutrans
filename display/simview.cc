@@ -12,7 +12,7 @@
 
 #include "../simticker.h"
 #include "../simdebug.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../simconst.h"
 #include "../simplan.h"
 #include "../simmenu.h"
