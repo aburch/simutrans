@@ -339,8 +339,8 @@ scr_size gui_aligned_container_t::get_size(vector_tpl<scr_coord_val>& col_w, vec
 {
 	scr_coord_val sinf = scr_size::inf.w;
 	scr_size s = margin_tl + margin_br;
-	s.w += spacing.w * col_w.get_count();
-	s.h += spacing.h * row_h.get_count();
+	s.w += spacing.w * (col_w.get_count()-1);
+	s.h += spacing.h * (row_h.get_count()-1);
 
 	FOR(vector_tpl<scr_coord_val>, const w, col_w) {
 		if (s.w > sinf - w) {
