@@ -270,21 +270,6 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 }
 
 
-void checklist_t::rdwr(memory_rw_t *buffer)
-{
-	buffer->rdwr_long(random_seed);
-	buffer->rdwr_short(halt_entry);
-	buffer->rdwr_short(line_entry);
-	buffer->rdwr_short(convoy_entry);
-}
-
-
-int checklist_t::print(char *buffer, const char *entity) const
-{
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry);
-}
-
-
 void karte_t::recalc_season_snowline(bool set_pending)
 {
 	static const sint8 mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
@@ -730,7 +715,7 @@ void karte_t::create_rivers( sint16 number )
 			const sint8 h = gr->get_hoehe() - get_water_hgt_nocheck(k);
 			if(  gr->is_water()  ) {
 				// may be good to start a river here
-				if( gr->get_hoehe() <= get_groundwater() ) { 
+				if( gr->get_hoehe() <= get_groundwater() ) {
 					sea_tiles.append(k);
 				}
 				else {

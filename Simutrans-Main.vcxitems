@@ -329,6 +329,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)squirrel\squirrel\sqvm.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)sys\simsys.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\cbuffer_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)utils\checklist.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\csv.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\log.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\searchfolder.cc" />
@@ -698,6 +699,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)tpl\weighted_vector_tpl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\cbuffer_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\csv.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)utils\checklist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\log.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\searchfolder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1.h" />

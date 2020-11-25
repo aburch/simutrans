@@ -20,13 +20,16 @@
 #include "tpl/slist_tpl.h"
 
 #include "dataobj/settings.h"
-#include "utils/sha1_hash.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/rect.h"
 
-#include "simplan.h"
+#include "utils/checklist.h"
+#include "utils/sha1_hash.h"
 
+#include "simplan.h"
 #include "simdebug.h"
+
+
 
 struct sound_info;
 class stadt_t;
@@ -47,27 +50,6 @@ class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
-
-struct checklist_t
-{
-	uint32 random_seed;
-	uint16 halt_entry;
-	uint16 line_entry;
-	uint16 convoy_entry;
-
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
-
-	bool operator == (const checklist_t &other) const
-	{
-		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry );
-	}
-	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
-
-	void rdwr(memory_rw_t *buffer);
-	int print(char *buffer, const char *entity) const;
-};
 
 
 /**
