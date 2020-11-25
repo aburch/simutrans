@@ -447,7 +447,7 @@ void env_t::rdwr(loadsave_t *file)
 	file->rdwr_short( global_volume );
 	file->rdwr_short( midi_volume );
 	file->rdwr_bool( global_mute_sound );
-	if(  file->is_version_atleast( 121, 1 )  ) {
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
 		for( int i = 0; i <= 5; i++ ) {
 			file->rdwr_short( specific_volume[ i ] );
 		}
@@ -573,11 +573,9 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( env_t::numpad_always_moves_map );
 		file->rdwr_byte(freight_waiting_bar_level);
 		file->rdwr_bool(classes_waiting_bar);
-	}
-
-	if (file->is_version_atleast(121, 1)) {
 		file->rdwr_long(sound_distance_scaling);
 	}
+
 
 	// server settings are not saved, since they are server specific
 	// and could be different on different servers on the same computers
