@@ -318,15 +318,11 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	last_error = FILE_ERROR_OK; // no error
 
 	version = 0;
-<<<<<<< HEAD
-	mode = zipped;
 	extended_version = 0;
 	extended_revision = 0;
-=======
 	mode = binary;
 	saving = false;
 
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 	fd->fp = dr_fopen(filename_utf8, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
@@ -334,13 +330,10 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		return false;
 	}
 	// now check for BZ2 format
-<<<<<<< HEAD
+	//char buf[80];
 	char buf[512];
-	if(  fread( buf, 1, 512, fd->fp )==512  ) {
-=======
-	char buf[80];
+	//if(  fread( buf, 1, 512, fd->fp )==512  ) {
 	if(  fread( buf, 1, 2, fd->fp )==2  ) {
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
 		}
@@ -356,19 +349,9 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		fd->bzfp = BZ2_bzReadOpen( &fd->bse, fd->fp, 0, 0, NULL, 0 );
 		if(  fd->bse!=BZ_OK  ) {
 			MEMZERO(buf);
-<<<<<<< HEAD
-			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
-				// get the rest of the string
-				for (int i = sizeof(SAVEGAME_PREFIX); (uint8)buf[i - 1] >= 32 && i<511; i++) {
-					buf[i] = lsgetc();
-				}
-				ok = fd->bse==BZ_OK;
-			}
-=======
 			last_error = FILE_ERROR_BZ_CORRUPT;
 			close();
 			return false;
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 		}
 	}
 
@@ -403,10 +386,6 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			last_error = FILE_ERROR_GZ_CORRUPT;
 			return false;
 		}
-<<<<<<< HEAD
-		gzgets(fd->gzfp, buf, 512);
-=======
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
 	}
 
 	if(  read( buf, sizeof( SAVEGAME_PREFIX ) ) == sizeof( SAVEGAME_PREFIX )  ) {
@@ -541,11 +520,7 @@ void loadsave_t::rdwr_string(std::string &s) {
 }
 
 
-<<<<<<< HEAD
-bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *)
-=======
-bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const char *pak_extension, const char *savegame_version )
->>>>>>> 86b8d9e58... CHG: overhauled loadsave.cc to easier incorporate other comopressors like zstd
+bool loadsave_t::wr_open( const char *filename_utf8, mode_t m, int level, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *)
 {
 	mode = m;
 	last_error = FILE_ERROR_OK; // no error
