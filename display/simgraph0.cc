@@ -379,7 +379,7 @@ void simgraph_init(scr_size, bool)
 {
 }
 
-int is_display_init()
+bool is_display_init()
 {
 	return false;
 }

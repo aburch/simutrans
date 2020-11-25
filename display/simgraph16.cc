@@ -5409,7 +5409,7 @@ void simgraph_init(scr_size window_size, bool full_screen)
 /**
  * Check if the graphic module already was initialized.
  */
-int is_display_init()
+bool is_display_init()
 {
 	return textur != NULL  &&  default_font.is_loaded()  &&  images!=NULL;
 }
