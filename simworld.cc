@@ -8281,7 +8281,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_typ
 
 	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0)
 	{
-		const uint32 dist = koord_distance( k, zeiger->get_pos() );
+		uint32 dist = koord_distance( k, zeiger->get_pos() );
 		bool play = false;
 
 		if(dist < 96)
@@ -8326,11 +8326,6 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
-	if(env_t::networkmode && !env_t::server && savemode == loadsave_t::bzip2)
-	{
-		// Make local saving/loading faster in network mode.
-		savemode = loadsave_t::zipped;
-	}
 	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");

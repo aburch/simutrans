@@ -1519,7 +1519,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 
 	// save setting ...
 	dr_chdir( env_t::user_dir );
-	if(  file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)  ) {
+	if(  file.wr_open(xml_filename,loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)  ) {
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);
 		file.close();
