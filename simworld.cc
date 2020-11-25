@@ -5109,7 +5109,7 @@ void karte_t::new_month()
 
 		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
 			// switch off timeline after 2999, since everything retires
-			settings->set_use_timeline(0);
+			settings.set_use_timeline(0);
 			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
 		}
 	}

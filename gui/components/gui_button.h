@@ -44,6 +44,8 @@ public:
 		box_state        = box | state,
 		roundbox_state   = roundbox | state,
 		arrowright_state = arrowright | state,
+		arrowup_state    = arrowup | state,
+		arrowdown_state  = arrowdown | state,
 		automatic = 256,
 		square_automatic    = square_state | automatic,
 		box_state_automatic = box_state | automatic,
