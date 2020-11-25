@@ -574,6 +574,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			if( v.p == NULL ) {
 				// revert schedule
 				init_line_selector();
+				reset_min_windowsize();
 			}
 		}
 		else if (comp == &line_selector) {
@@ -600,6 +601,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 				line_selector.set_selection(0);
 				schedule_t *temp = scd.get_schedule()->copy();
 				scd.init(temp, cnv->get_owner(), cnv, line);
+				reset_min_windowsize();
 				delete temp;
 			}
 			return true;

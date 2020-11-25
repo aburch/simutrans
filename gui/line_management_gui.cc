@@ -364,6 +364,7 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 		if( !v.p ) {
 			// revert
 			scd.init( line->get_schedule(), player, convoihandle_t(), line );
+			reset_min_windowsize();
 		}
 		return true;
 	}

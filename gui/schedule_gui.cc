@@ -174,6 +174,7 @@ bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p )
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 			line = li->get_line();
 			scd.init( line->get_schedule(), player, cnv );
+			reset_min_windowsize();
 		}
 		else if(selection==0) {
 			// remove line
