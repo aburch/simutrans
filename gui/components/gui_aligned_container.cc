@@ -215,6 +215,7 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 	// second: all elements spanning more than one cell
 	for(int outer = 0; outer < 2; outer++) {
 		uint16 c = 0, r = 0;
+		bool wide_elements = false;
 		for(uint32 i = 0; i<components.get_count(); i++) {
 			gui_component_t* comp = components[i];
 			// fails if span is larger than remaining column space
@@ -242,9 +243,9 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 			if (!comp->is_visible()   &&  !comp->is_rigid()) {
 				continue; // not visible - no size reserved
 			}
-//			printf("outer %d, i %d, c %d, span %d\n", outer,i,c,span);
 
-			scr_size s = calc_max ? comp->get_max_size() : comp->get_min_size();
+			// only compute if necessary
+			scr_size s = outer == 0 ||  span>1 ? (calc_max ? comp->get_max_size() : comp->get_min_size()) : scr_size(0,0);
 
 			if (outer == 0) {
 
@@ -267,6 +268,7 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 					}
 				}
 				else {
+					wide_elements = true;
 					while (col_w.get_count() <= c % columns) {
 						col_w.append(0);
 					}
@@ -314,6 +316,10 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 				r++;
 			}
 
+		}
+		if (!wide_elements) {
+			// no elements spanning more than one column
+			break;
 		}
 	}
 
