@@ -203,7 +203,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	switch_mode.add_tab(&container_details, translator::translate("Vehicle details"));
 
 	container_details.set_table_layout(1,0);
-	
+
 	container_details.add_table(4, 1)->set_force_equal_columns(true);
 	{
 		no_load_button.init(button_t::roundbox | button_t::flexible, "no load");

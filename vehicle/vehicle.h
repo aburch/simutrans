@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef VEHICLE_SIMVEHICLE_H
-#define VEHICLE_SIMVEHICLE_H
+#ifndef VEHICLE_VEHICLE_H
+#define VEHICLE_VEHICLE_H
 
 
 #include "vehicle_base.h"

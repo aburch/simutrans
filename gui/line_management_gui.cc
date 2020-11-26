@@ -163,13 +163,13 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	container_convois.end_table();
 
 	container_convois.add_component(&scrolly_convois);
-	
+
 	switch_mode.add_tab(&container_halts, translator::translate("hl_title"));
 	container_halts.set_table_layout(1,0);
 
 	scrolly_halts.set_maximize( true );
 	container_halts.add_component(&scrolly_halts);
-	
+
 	if (line.is_bound() ) {
 		// title
 		set_name(line->get_name() );
