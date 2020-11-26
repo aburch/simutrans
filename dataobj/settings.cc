@@ -16,7 +16,7 @@
 #include "../descriptor/way_desc.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle_base.h"
 #include "../player/simplay.h"
 #include "loadsave.h"
 #include "tabfile.h"

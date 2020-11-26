@@ -7,7 +7,7 @@
 #define VEHICLE_SIMROADTRAFFIC_H
 
 
-#include "simvehicle.h"
+#include "vehicle_base.h"
 #include "overtaker.h"
 
 #include "../tpl/stringhashtable_tpl.h"

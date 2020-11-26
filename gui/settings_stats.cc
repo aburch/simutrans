@@ -10,7 +10,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle_base.h"
 #include "settings_stats.h"
 #include "components/gui_divider.h"
 

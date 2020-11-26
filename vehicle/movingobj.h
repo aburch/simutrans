@@ -13,7 +13,7 @@
 #include "../simcolor.h"
 #include "../ifc/sync_steppable.h"
 
-#include "simvehicle.h"
+#include "vehicle_base.h"
 
 
 /**

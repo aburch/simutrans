@@ -16,7 +16,7 @@
 #include "../player/simplay.h"
 #include "../gui/obj_info.h"
 #include "../gui/simwin.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle_base.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../simworld.h"

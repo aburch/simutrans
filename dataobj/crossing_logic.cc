@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle_base.h"
 #include "../simworld.h"
 #include "../simsound.h"
 

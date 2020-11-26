@@ -53,7 +53,9 @@
 
 #include "tpl/binary_heap_tpl.h"
 
+#include "vehicle/simvehicle.h"
 #include "vehicle/simpeople.h"
+
 
 karte_ptr_t haltestelle_t::welt;
 
