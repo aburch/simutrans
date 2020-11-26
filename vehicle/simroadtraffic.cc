@@ -36,6 +36,8 @@
 
 #include "../utils/cbuffer_t.h"
 
+#include "road_vehicle.h"
+
 
 /**********************************************************************************************************************/
 /* Road users (private cars and pedestrians) basis class from here on */

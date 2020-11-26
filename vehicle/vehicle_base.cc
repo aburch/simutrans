@@ -5,6 +5,7 @@
 
 #include "vehicle_base.h"
 
+#include "road_vehicle.h"
 #include "simroadtraffic.h"
 #include "simvehicle.h"
 

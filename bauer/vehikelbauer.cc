@@ -4,7 +4,6 @@
  */
 
 #include <algorithm>
-#include "../vehicle/simvehicle.h"
 #include "../player/simplay.h"
 #include "../simdebug.h"
 #include "../utils/simrandom.h"
@@ -21,6 +20,7 @@
 #include "vehikelbauer.h"
 
 #include "../tpl/stringhashtable_tpl.h"
+#include "../vehicle/road_vehicle.h"
 
 
 const char* vehicle_builder_t::engine_type_names[9] =

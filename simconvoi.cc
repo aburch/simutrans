@@ -48,13 +48,14 @@
 #include "obj/roadsign.h"
 #include "obj/wayobj.h"
 
-#include "vehicle/simroadtraffic.h"
-#include "vehicle/simvehicle.h"
-#include "vehicle/overtaker.h"
 
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
+
+#include "vehicle/overtaker.h"
+#include "vehicle/road_vehicle.h"
+#include "vehicle/simroadtraffic.h"
 
 
 /*
