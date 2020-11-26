@@ -560,6 +560,7 @@ SOURCES += vehicle/road_vehicle.cc
 SOURCES += vehicle/simroadtraffic.cc
 SOURCES += vehicle/simvehicle.cc
 SOURCES += vehicle/vehicle_base.cc
+SOURCES += vehicle/water_vehicle.cc
 
 
 ifeq ($(BACKEND),allegro)

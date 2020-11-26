@@ -57,6 +57,7 @@
 #include "vehicle/overtaker.h"
 #include "vehicle/road_vehicle.h"
 #include "vehicle/simroadtraffic.h"
+#include "vehicle/water_vehicle.h"
 
 
 /*
