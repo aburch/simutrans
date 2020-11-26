@@ -7,7 +7,7 @@
 #define VEHICLE_ROAD_VEHICLE_H
 
 
-#include "simvehicle.h"
+#include "vehicle.h"
 
 
 /**

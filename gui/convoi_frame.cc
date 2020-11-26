@@ -31,7 +31,7 @@
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 
  /**
  * All filter and sort settings are static, so the old settings are

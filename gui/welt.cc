@@ -29,7 +29,7 @@
 #include "../boden/wege/schiene.h"
 #include "../obj/baum.h"
 #include "../simcity.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 #include "../player/simplay.h"
 #include "../simconvoi.h"
 

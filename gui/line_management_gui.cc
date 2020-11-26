@@ -12,7 +12,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 
 #include "../convoihandle_t.h"
 #include "../simconvoi.h"

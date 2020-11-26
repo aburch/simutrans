@@ -7,7 +7,7 @@
 #define VEHICLE_AIR_VEHICLE_H
 
 
-#include "simvehicle.h"
+#include "vehicle.h"
 
 
 /**

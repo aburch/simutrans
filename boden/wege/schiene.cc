@@ -7,7 +7,7 @@
 
 #include "../../simconvoi.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehicle.h"
+#include "../../vehicle/vehicle.h"
 
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"

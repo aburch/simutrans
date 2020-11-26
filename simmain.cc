@@ -84,7 +84,7 @@
 #include "bauer/vehikelbauer.h"
 #include "script/script_tool_manager.h"
 
-#include "vehicle/simvehicle.h"
+#include "vehicle/vehicle.h"
 #include "vehicle/simroadtraffic.h"
 
 

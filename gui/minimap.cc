@@ -6,7 +6,7 @@
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"

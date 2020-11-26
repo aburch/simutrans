@@ -9,7 +9,7 @@
 
 #include "gui_convoiinfo.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehicle.h"
+#include "../../vehicle/vehicle.h"
 #include "../../simconvoi.h"
 #include "../../simcolor.h"
 #include "../../simhalt.h"

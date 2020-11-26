@@ -10,7 +10,7 @@
 #include "../simmesg.h"
 #include "../simconvoi.h"
 #include "../utils/cbuffer_t.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 
 sint32 records_t::get_record_speed( waytype_t w ) const
 {

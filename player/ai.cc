@@ -29,7 +29,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 
 
 /* The flesh for the place with road for headquarters searcher ... */

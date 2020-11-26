@@ -11,7 +11,7 @@
 #include "components/gui_textarea.h"
 
 #include "../simconvoi.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simware.h"

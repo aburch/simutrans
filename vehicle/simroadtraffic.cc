@@ -14,7 +14,7 @@
 #include "../simconvoi.h"
 
 #include "simroadtraffic.h"
-#include "simvehicle.h"
+#include "vehicle.h"
 
 #ifdef DESTINATION_CITYCARS
 // for final citycar destinations

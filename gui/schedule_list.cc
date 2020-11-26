@@ -20,7 +20,7 @@
 #include "../display/simgraph.h"
 #include "../simskin.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../utils/simstring.h"

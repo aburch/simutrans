@@ -53,7 +53,7 @@
 
 #include "tpl/binary_heap_tpl.h"
 
-#include "vehicle/simvehicle.h"
+#include "vehicle/vehicle.h"
 #include "vehicle/pedestrian.h"
 
 

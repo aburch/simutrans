@@ -15,7 +15,7 @@
 #include "gui/gui_theme.h"
 #include "player/simplay.h"
 #include "player/finance.h" // convert_money
-#include "vehicle/simvehicle.h"
+#include "vehicle/vehicle.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
 #include "simlinemgmt.h"

@@ -7,7 +7,7 @@
 
 #include "convoi_info_t.h"
 
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/vehicle.h"
 #include "../simcolor.h"
 #include "../display/viewport.h"
 #include "../simworld.h"

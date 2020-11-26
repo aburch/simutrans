@@ -7,7 +7,7 @@
 #define VEHICLE_WATER_VEHICLE_H
 
 
-#include "simvehicle.h"
+#include "vehicle.h"
 
 
 /**

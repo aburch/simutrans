@@ -7,7 +7,7 @@
 #define VEHICLE_RAIL_VEHICLE_H
 
 
-#include "simvehicle.h"
+#include "vehicle.h"
 
 
 /**
