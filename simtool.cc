@@ -3457,7 +3457,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 
 				const uint32 distance = koord_distance(pos,end) * welt->get_settings().get_meters_per_tile();
 				const sint64 price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(pos, end);
-				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, koord_distance(pos, end)*koord_distance(pos, end)) );
+				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, distance) );
 				return NULL;
 			}
 		}
