@@ -285,7 +285,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 				add_table(1, 2);
 				{
 					engine_filter.clear_elements();
-					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All traction types"), SYSCOL_TEXT);
 					for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
 						engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
 					}
@@ -295,7 +295,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 					add_component( &engine_filter );
 
 					ware_filter.clear_elements();
-					ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All freight types"), SYSCOL_TEXT);
 					idx_to_ware.append(NULL);
 					for (int i = 0; i < goods_manager_t::get_count(); i++) {
 						const goods_desc_t *ware = goods_manager_t::get_info(i);
