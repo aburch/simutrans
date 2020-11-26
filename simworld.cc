@@ -3943,7 +3943,7 @@ void karte_t::new_month()
 	if( !env_t::networkmode  &&  env_t::autosave>0  &&  last_month%env_t::autosave==0  &&  !win_get_magic(magic_welt_gui_t)  ) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", last_month+1 );
-		save( buf, loadsave_t::autosave_mode, env_t::savegame_version_str, true );
+		save( buf, true, env_t::savegame_version_str, true );
 	}
 }
 
