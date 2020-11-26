@@ -35,7 +35,10 @@ gui_tab_panel_t::gui_tab_panel_t() :
 void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_desc_t *desc, const char *tooltip )
 {
 	tabs.append( tab(c, desc?NULL:name, desc?desc->get_image(0):NULL, tooltip) );
-	set_size( get_size() );
+	// only call set_size, if size was already assigned
+	if (size.w > 0  && size.h > 0) {
+		set_size( get_size() );
+	}
 }
 
 
