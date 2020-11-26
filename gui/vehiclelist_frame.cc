@@ -289,6 +289,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 					for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
 						engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
 					}
+					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Trailers"), SYSCOL_TEXT);
 					engine_filter.set_selection( 0 );
 					engine_filter.add_listener( this );
 					add_component( &engine_filter );
@@ -457,8 +458,20 @@ void vehiclelist_frame_t::fill_list()
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
 				// engine type filter
-				if(engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type()+1) != engine_filter.get_selection()) {
-					continue;
+				switch (engine_filter.get_selection()) {
+					case 0:
+						/* do nothing */
+						break;
+					case (uint8)vehicle_desc_t::engine_t::MAX_TRACTION_TYPE+1:
+						if (veh->get_engine_type() != vehicle_desc_t::engine_t::unknown) {
+							continue;
+						}
+						break;
+					default:
+						if (((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
+							continue;
+						}
+						break;
 				}
 
 				// timeline status filter
@@ -492,8 +505,20 @@ void vehiclelist_frame_t::fill_list()
 	else {
 		FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(current_wt)) {
 			// engine type filter
-			if (engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
-				continue;
+			switch (engine_filter.get_selection()) {
+				case 0:
+					/* do nothing */
+					break;
+				case (uint8)vehicle_desc_t::engine_t::MAX_TRACTION_TYPE+1:
+					if (veh->get_engine_type() != vehicle_desc_t::engine_t::unknown) {
+						continue;
+					}
+					break;
+				default:
+					if (((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
+						continue;
+					}
+					break;
 			}
 
 			// timeline status filter
