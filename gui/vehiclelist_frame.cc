@@ -122,6 +122,14 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	display_get_base_image_offset(image, &x, &y, &w, &h );
 	display_base_img(image, offset.x - x, offset.y - y, world()->get_active_player_nr(), false, true);
 
+	const uint8 upgradable_state = veh->has_available_upgrade(month, world()->get_settings().get_show_future_vehicle_info());
+	// upgradable symbol
+	if (upgradable_state && skinverwaltung_t::upgradable) {
+		if (world()->get_settings().get_show_future_vehicle_info() || (!world()->get_settings().get_show_future_vehicle_info() && veh->is_future(month) != 2)) {
+			display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), offset.x+w-D_FIXED_SYMBOL_WIDTH, offset.y+h, 0, false, false);
+		}
+	}
+
 	// first name
 	offset.x += img_width;
 	PIXVAL name_colval = SYSCOL_TEXT;
