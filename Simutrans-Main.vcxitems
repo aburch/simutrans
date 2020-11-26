@@ -339,7 +339,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simstring.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simthread.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\movingobj.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simpeople.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simroadtraffic.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\simvehicle.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\vehicle_base.cc" />
@@ -710,7 +710,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simthread.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\movingobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\overtaker.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simpeople.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simroadtraffic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\simvehicle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\vehicle_base.h" />

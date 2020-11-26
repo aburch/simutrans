@@ -36,7 +36,7 @@
 
 #include "../vehicle/simvehicle.h"
 #include "../vehicle/simroadtraffic.h"
-#include "../vehicle/simpeople.h"
+#include "../vehicle/pedestrian.h"
 #include "../vehicle/movingobj.h"
 
 #include "../descriptor/building_desc.h"

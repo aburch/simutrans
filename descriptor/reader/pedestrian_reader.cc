@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-#include "../../vehicle/simpeople.h"
+#include "../../vehicle/pedestrian.h"
 #include "../pedestrian_desc.h"
 #include "../obj_node_info.h"
 #include "../intro_dates.h"

@@ -48,7 +48,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "../vehicle/simpeople.h"
+#include "../vehicle/pedestrian.h"
 
 #include "wege/kanal.h"
 #include "wege/maglev.h"

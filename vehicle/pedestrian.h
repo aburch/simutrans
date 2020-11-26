@@ -9,7 +9,9 @@
 
 #include "simroadtraffic.h"
 
+
 class pedestrian_desc_t;
+
 
 /**
  * Pedestrians also are road users.

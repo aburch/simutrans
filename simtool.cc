@@ -38,7 +38,7 @@
 
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
-#include "vehicle/simpeople.h"
+#include "vehicle/pedestrian.h"
 
 #include "gui/line_management_gui.h"
 #include "gui/tool_selector.h"
@@ -2852,7 +2852,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 					// cannot start a tunnel here, wrong slope
 					return "";
 				}
-				
+
 				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 
 				// first check for building portal only
