@@ -46,6 +46,7 @@ void gui_tab_panel_t::set_size(scr_size size)
 	gui_component_t::set_size(size);
 
 	required_size = scr_size( 8, required_size.h );
+	gui_component_t *last_component = NULL;
 	FOR(slist_tpl<tab>, & i, tabs) {
 		i.x_offset = required_size.w - 4;
 		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
@@ -53,8 +54,11 @@ void gui_tab_panel_t::set_size(scr_size size)
 		if (i.title) {
 			required_size.h = max(required_size.h, LINESPACE + D_V_SPACE);
 		}
-		i.component->set_pos(scr_coord(0, required_size.h));
-		i.component->set_size(get_size() - scr_size(0, required_size.h));
+		if (i.component != last_component) {
+			i.component->set_pos(scr_coord(0, required_size.h));
+			i.component->set_size(get_size() - scr_size(0, required_size.h));
+			last_component = i.component;
+		}
 	}
 
 	if(  required_size.w > size.w  ||  offset_tab > 0  ) {
@@ -70,11 +74,15 @@ scr_size gui_tab_panel_t::get_min_size() const
 {
 	scr_size t_size(0, required_size.h);
 	scr_size c_size(0, 0);
+	gui_component_t *last_component = NULL;
 	FOR(slist_tpl<tab>, const& iter, tabs) {
 		if (iter.title) {
 			t_size.h = max(t_size.h, LINESPACE + D_V_SPACE);
 		}
-		c_size.clip_lefttop( iter.component->get_min_size() );
+		if (iter.component != last_component) {
+			c_size.clip_lefttop( iter.component->get_min_size() );
+			last_component = iter.component;
+		}
 	}
 	return t_size + c_size;
 }
