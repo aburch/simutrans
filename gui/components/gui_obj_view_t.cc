@@ -4,7 +4,8 @@
  */
 
 #include "gui_obj_view_t.h"
-#include "../../vehicle/simvehicle.h"
+
+#include "../../vehicle/air_vehicle.h"
 
 
 obj_view_t::obj_view_t(obj_t const* d, scr_size const size) :

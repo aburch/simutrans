@@ -34,7 +34,7 @@
 
 #include "../player/simplay.h"
 
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/air_vehicle.h"
 #include "../vehicle/simroadtraffic.h"
 #include "../vehicle/pedestrian.h"
 #include "../vehicle/movingobj.h"

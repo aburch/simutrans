@@ -553,6 +553,7 @@ SOURCES += utils/sha1_hash.cc
 SOURCES += utils/simrandom.cc
 SOURCES += utils/simstring.cc
 SOURCES += utils/simthread.cc
+SOURCES += vehicle/air_vehicle.cc
 SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/pedestrian.cc
 SOURCES += vehicle/road_vehicle.cc

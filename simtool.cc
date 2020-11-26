@@ -36,7 +36,7 @@
 #include "descriptor/roadsign_desc.h"
 #include "descriptor/tunnel_desc.h"
 
-#include "vehicle/simvehicle.h"
+#include "vehicle/air_vehicle.h"
 #include "vehicle/simroadtraffic.h"
 #include "vehicle/pedestrian.h"
 

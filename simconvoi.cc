@@ -53,6 +53,7 @@
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
 
+#include "vehicle/air_vehicle.h"
 #include "vehicle/overtaker.h"
 #include "vehicle/road_vehicle.h"
 #include "vehicle/simroadtraffic.h"

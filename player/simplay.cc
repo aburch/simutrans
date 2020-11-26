@@ -49,7 +49,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../vehicle/simvehicle.h"
+#include "../vehicle/air_vehicle.h"
 
 #include "simplay.h"
 #include "finance.h"

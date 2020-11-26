@@ -20,8 +20,8 @@
 #include "vehikelbauer.h"
 
 #include "../tpl/stringhashtable_tpl.h"
+#include "../vehicle/air_vehicle.h"
 #include "../vehicle/road_vehicle.h"
-
 
 const char* vehicle_builder_t::engine_type_names[9] =
 {

@@ -338,6 +338,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simrandom.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simstring.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\simthread.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\air_vehicle.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\movingobj.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\road_vehicle.cc" />
@@ -709,6 +710,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simrandom.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simstring.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\simthread.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\air_vehicle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\movingobj.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\overtaker.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\pedestrian.h" />

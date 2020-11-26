@@ -11,13 +11,16 @@
 #include "../../obj/simobj.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../vehicle/simvehicle.h"
 #include "../../boden/grund.h"
 
 #include "../../dataobj/environment.h"
 #include "../../dataobj/koord3d.h"
 
+#include "../../vehicle/air_vehicle.h"
+
+
 vector_tpl<world_view_t *> world_view_t::view_list;
+
 
 void world_view_t::invalidate_all()
 {
