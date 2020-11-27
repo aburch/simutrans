@@ -22,7 +22,7 @@
 #include "../boden/wege/strasse.h"
 
 #include "../gui/tool_selector.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../descriptor/bridge_desc.h"
 #include "../descriptor/building_desc.h"
@@ -1328,7 +1328,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 			delete p;
 		}
 		// refresh map
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 
 	// finally delete the bridge ends (all are kartenboden)

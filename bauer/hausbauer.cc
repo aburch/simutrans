@@ -18,7 +18,7 @@
 #include "../obj/tunnel.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 #include "../simworld.h"
 #include "../gui/tool_selector.h"
 
@@ -712,7 +712,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				}
 			}
 			gr->calc_image();
-			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+			minimap_t::get_instance()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
 	// remove only once ...
@@ -884,7 +884,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	}
 
 	// update minimap
-	reliefkarte_t::get_karte()->calc_map_pixel(gb->get_pos().get_2d());
+	minimap_t::get_instance()->calc_map_pixel(gb->get_pos().get_2d());
 
 	return gb;
 }

@@ -335,7 +335,6 @@ class dialog_list_convoi_t : public tool_t {
 public:
 	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
 		create_win(new convoi_frame_t(player), w_info, magic_convoi_list + player->get_player_nr());
@@ -352,7 +351,6 @@ public:
 	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("dp_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depotlist + welt->get_active_player_nr()); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE{
 		create_win(new depotlist_frame_t(player), w_info, magic_depotlist + player->get_player_nr());
 		return false;
@@ -383,7 +381,6 @@ public:
 	dialog_list_signalbox_t() : tool_t(DIALOG_LIST_SIGNALBOX | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("sb_title"); }
 	bool is_selected() const OVERRIDE { return win_get_magic(magic_signalboxlist + welt->get_active_player_nr()); }
-	image_id get_icon(player_t*) const OVERRIDE { return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE {
 		create_win(new signalboxlist_frame_t(player), w_info, magic_signalboxlist + player->get_player_nr());
 		return false;

@@ -49,7 +49,7 @@
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
@@ -334,7 +334,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 	// if building was removed this is false!
 	if(bd) {
 		bd->calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 	return true;
 }
