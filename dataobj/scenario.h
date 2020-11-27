@@ -240,6 +240,12 @@ public:
 	bool is_scripted() const { return what_scenario == SCRIPTED  ||  what_scenario == SCRIPTED_NETWORK; }
 
 	/**
+	 * compiles and executes given string
+	 * @returns error msg (or NULL if succeeded)
+	 */
+	const char* eval_string(const char* squirrel_string) const;
+
+	/**
 	 * Get percentage of scenario completion. Does not call script to update this value.
 	 * On clients: call server for update via dynamic_string logic.
 	 * Returns percentage of scenario completion.

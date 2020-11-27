@@ -106,6 +106,7 @@
 #include "bauer/goods_manager.h"
 
 #include "descriptor/ground_desc.h"
+#include "descriptor/intro_dates.h"
 #include "descriptor/sound_desc.h"
 #include "descriptor/tunnel_desc.h"
 #include "descriptor/bridge_desc.h"
@@ -5105,6 +5106,12 @@ void karte_t::new_month()
 	last_month ++;
 	if( last_month > 11 ) {
 		last_month = 0;
+
+		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
+			// switch off timeline after 2999, since everything retires
+			settings.set_use_timeline(0);
+			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
+		}
 	}
 	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
 
@@ -5991,7 +5998,7 @@ void karte_t::step()
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
-		buf.printf("%d,", message_t::general | message_t::local_flag);
+		buf.printf("%d,", message_t::general | message_t::do_not_rdwr_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 		tmp_tool->set_default_param( buf );
@@ -8945,7 +8952,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  file.get_version_int()==-1  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
+		if(  file.get_version_int()==-0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -10554,15 +10561,29 @@ void karte_t::step_month( sint16 months )
 }
 
 
+sint32 karte_t::get_time_multiplier() const
+{
+	return step_mode==FAST_FORWARD ? env_t::max_acceleration : time_multiplier;
+}
+
+
+
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	time_multiplier += delta;
-	if(time_multiplier<=0) {
-		time_multiplier = 1;
+	if(  step_mode == FAST_FORWARD  ) {
+		if(  env_t::max_acceleration+delta > 2  ) {
+			env_t::max_acceleration += delta;
+		}
 	}
-	if(step_mode!=NORMAL) {
-		step_mode = NORMAL;
-		reset_timer();
+	else {
+		time_multiplier += delta;
+		if(time_multiplier<=0) {
+			time_multiplier = 1;
+		}
+		if(step_mode!=NORMAL) {
+			step_mode = NORMAL;
+			reset_timer();
+		}
 	}
 }
 
@@ -10700,7 +10721,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			// tell the player
 			cbuffer_t buf;
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
+			msg->add_message(buf, koord::invalid, message_t::ai | message_t::do_not_rdwr_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
 		}
 
 		// update menu entries
@@ -11268,6 +11289,14 @@ void karte_t::announce_server(int status)
 		cbuffer_t buf, altbuf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
 			// ipdate IP just in case
+			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
+				announce_server( 2 );
+				status = 0; // since starting with new IP
+				// if we had uPnP, we may need to drill another hole in the firewall again; the delay is no problem, since all clients will be lost anyway
+				char IP[256], altIP[256];
+				prepare_for_server( IP, altIP, env_t::server_port );
+			}
+			// now update DNS info
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}
@@ -11283,72 +11312,73 @@ void karte_t::announce_server(int status)
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
-#ifndef REVISION
-#	define REVISION 0
-#endif
-			// Simple revision used for matching (integer)
-			//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
-			buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
-			// Complex version string used for display
-			//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
-			// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
-			buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
-			// Pakset version
-			buf.append( "&pak=" );
-			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
-			char const* const copyright = ground_desc_t::outside->get_copyright();
-			if (copyright && STRICMP("none", copyright) != 0) {
-				// construct from outside object copyright string
-				encode_URI( buf, copyright );
-			}
-			else {
-				// construct from pak name
-				std::string pak_name = env_t::objfilename;
-				pak_name.erase( pak_name.length() - 1 );
-				encode_URI( buf, pak_name.c_str() );
-			}
-			// TODO - change this to be the start date of the current map
-			buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
-			// Add server name for listing
-			buf.append( "&name=" );
-			encode_URI( buf, env_t::server_name.c_str() );
-			// Add server comments for listing
-			buf.append( "&comments=" );
-			encode_URI( buf, env_t::server_comments.c_str() );
-			// Add server maintainer email for listing
-			buf.append( "&email=" );
-			encode_URI( buf, env_t::server_email.c_str() );
-			// Add server pakset URL for listing
-			buf.append( "&pakurl=" );
-			encode_URI( buf, env_t::server_pakurl.c_str() );
-			// Add server info URL for listing
-			buf.append( "&infurl=" );
-			encode_URI( buf, env_t::server_infurl.c_str() );
-
-			// Now add the game data part
-			uint8 active = 0, locked = 0;
-			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
-					active ++;
-					if(  players[i]->is_locked()  ) {
-						locked ++;
-					}
-				}
-			}
-			buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
-			buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
-			buf.printf( "&active=%u",    active );
-			buf.printf( "&locked=%u",    locked );
-			buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
-			buf.printf( "&towns=%u",     stadt.get_count() );
-			buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
-			buf.printf( "&factories=%u", fab_list.get_count() );
-			buf.printf( "&convoys=%u",   convoys().get_count());
-			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 		}
 		else {
 			buf.append( "&st=0" );
 		}
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		// Simple revision used for matching (integer)
+		//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
+		buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
+		// Complex version string used for display
+		//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
+		// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
+		buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
+		// Pakset version
+		buf.append( "&pak=" );
+		// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
+		char const* const copyright = ground_desc_t::outside->get_copyright();
+		if (copyright && STRICMP("none", copyright) != 0) {
+			// construct from outside object copyright string
+			encode_URI( buf, copyright );
+		}
+		else {
+			// construct from pak name
+			std::string pak_name = env_t::objfilename;
+			pak_name.erase( pak_name.length() - 1 );
+			encode_URI( buf, pak_name.c_str() );
+		}
+		// TODO - change this to be the start date of the current map
+		buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
+		// Add server name for listing
+		buf.append( "&name=" );
+		encode_URI( buf, env_t::server_name.c_str() );
+		// Add server comments for listing
+		buf.append( "&comments=" );
+		encode_URI( buf, env_t::server_comments.c_str() );
+		// Add server maintainer email for listing
+		buf.append( "&email=" );
+		encode_URI( buf, env_t::server_email.c_str() );
+		// Add server pakset URL for listing
+		buf.append( "&pakurl=" );
+		encode_URI( buf, env_t::server_pakurl.c_str() );
+		// Add server info URL for listing
+		buf.append( "&infurl=" );
+		encode_URI( buf, env_t::server_infurl.c_str() );
+
+		// Now add the game data part
+		uint8 active = 0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
+				active ++;
+				if(  players[i]->is_locked()  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
+		buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
+		buf.printf( "&active=%u",    active );
+		buf.printf( "&locked=%u",    locked );
+		buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
+		buf.printf( "&towns=%u",     stadt.get_count() );
+		buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
+		buf.printf( "&factories=%u", fab_list.get_count() );
+		buf.printf( "&convoys=%u",   convoys().get_count());
+		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
+
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
 
 		// Record time of this announce
@@ -12255,7 +12285,7 @@ void karte_t::calc_max_vehicle_speeds()
 
 	if (!aircraft_in_service)
 	{
-		if (max_available_speed_air = 0)
+		if (max_available_speed_air == 0)
 		{
 			max_available_speed_air = max_available_speed_ground;
 		}

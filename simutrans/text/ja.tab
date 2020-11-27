@@ -2313,8 +2313,12 @@ Airport too close to the edge
 滑走路がマップ端に近すぎます
 All hidden items (such as trees and buildings) will appear as transparent.
 樹木や建築物をシルエットとして表示します。
+All freight types
+全ての貨物タイプ
 All traction types
 全動力タイプ
+All regions
+全ての地域
 already_forged
 買収済
 alt_route
@@ -3955,6 +3959,8 @@ by_region
 地域
 Allowed regions:
 建設可能地域:
+Trailers
+被牽引車
 <p>Continue by ESC, SPACE, or BACKSPACE.<br>
 <p>[ESC] [SPACE] [BACKSPACE]、いずれかのキーでゲームを開始します。<br>
 #_______________________________unnecessary_text________________________________

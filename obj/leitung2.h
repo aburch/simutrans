@@ -55,7 +55,7 @@ protected:
 	/**
 	* Dient zur Neuberechnung des Bildes
 	*/
-	void calc_image();
+	void calc_image() OVERRIDE;
 
 	/**
 	* Use this value for scaling electricity consumption/demand
@@ -79,10 +79,10 @@ public:
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void cleanup(player_t *);
+	void cleanup(player_t *) OVERRIDE;
 
 	// for map rotation
-	void rotate90();
+	void rotate90() OVERRIDE;
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -93,12 +93,12 @@ public:
 	typ get_typ() const { return leitung; }
 #endif
 
-	const char *get_name() const {return "Leitung"; }
+	const char *get_name() const OVERRIDE {return "Leitung"; }
 
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return powerline_wt; }
+	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 
 	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
@@ -106,8 +106,8 @@ public:
 	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const {return is_crossing ? IMG_EMPTY : image;}
-	image_id get_front_image() const {return is_crossing ? image : IMG_EMPTY;}
+	image_id get_image() const OVERRIDE {return is_crossing ? IMG_EMPTY : image;}
+	image_id get_front_image() const OVERRIDE {return is_crossing ? image : IMG_EMPTY;}
 
 	/**
 	* Recalculates the images of all neighbouring
@@ -115,13 +115,13 @@ public:
 	*/
 	void calc_neighbourhood();
 
-	void rdwr(loadsave_t *file);
-	void finish_rd();
+	void rdwr(loadsave_t *file) OVERRIDE;
+	void finish_rd() OVERRIDE;
 
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 */
-	virtual const char *is_deletable(const player_t *player);
+	virtual const char *is_deletable(const player_t *player) OVERRIDE;
 
 	stadt_t *city;
 

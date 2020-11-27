@@ -32,7 +32,7 @@ private:
 
 public:
 	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_BY_REGION, SORT_MODES };
-	static sort_mode_t sort_mode;
+	static uint8 sort_mode, region_filter;
 	static bool sortreverse, filter_own_network;
 	static uint16 name_width;
 

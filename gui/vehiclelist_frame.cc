@@ -107,7 +107,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2, part2.len() );
 	col2_width = text2w;
 
-	height = max( height, max( text1h, text2h ) + LINESPACE );
+	height = max( height, max( text1h, text2h+LINESPACE ) + D_V_SPACE*2 );
 }
 
 
@@ -121,6 +121,14 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	const image_id image = veh->get_image_id( ribi_t::dir_south, veh->get_freight_type() );
 	display_get_base_image_offset(image, &x, &y, &w, &h );
 	display_base_img(image, offset.x - x, offset.y - y, world()->get_active_player_nr(), false, true);
+
+	const uint8 upgradable_state = veh->has_available_upgrade(month, world()->get_settings().get_show_future_vehicle_info());
+	// upgradable symbol
+	if (upgradable_state && skinverwaltung_t::upgradable) {
+		if (world()->get_settings().get_show_future_vehicle_info() || (!world()->get_settings().get_show_future_vehicle_info() && veh->is_future(month) != 2)) {
+			display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state-1), offset.x+w-D_FIXED_SYMBOL_WIDTH, offset.y+h, 0, false, false);
+		}
+	}
 
 	// first name
 	offset.x += img_width;
@@ -285,16 +293,17 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 				add_table(1, 2);
 				{
 					engine_filter.clear_elements();
-					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All traction types"), SYSCOL_TEXT);
 					for (int i = 0; i < vehicle_desc_t::MAX_TRACTION_TYPE; i++) {
 						engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)), SYSCOL_TEXT);
 					}
+					engine_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Trailers"), SYSCOL_TEXT);
 					engine_filter.set_selection( 0 );
 					engine_filter.add_listener( this );
 					add_component( &engine_filter );
 
 					ware_filter.clear_elements();
-					ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+					ware_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All freight types"), SYSCOL_TEXT);
 					idx_to_ware.append(NULL);
 					for (int i = 0; i < goods_manager_t::get_count(); i++) {
 						const goods_desc_t *ware = goods_manager_t::get_info(i);
@@ -457,8 +466,20 @@ void vehiclelist_frame_t::fill_list()
 		for(  int i=1;  i<max_idx;  i++  ) {
 			FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(tabs_to_wt[i])) {
 				// engine type filter
-				if(engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type()+1) != engine_filter.get_selection()) {
-					continue;
+				switch (engine_filter.get_selection()) {
+					case 0:
+						/* do nothing */
+						break;
+					case (uint8)vehicle_desc_t::engine_t::MAX_TRACTION_TYPE+1:
+						if (veh->get_engine_type() != vehicle_desc_t::engine_t::unknown) {
+							continue;
+						}
+						break;
+					default:
+						if (((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
+							continue;
+						}
+						break;
 				}
 
 				// timeline status filter
@@ -492,8 +513,20 @@ void vehiclelist_frame_t::fill_list()
 	else {
 		FOR(slist_tpl<vehicle_desc_t *>, const veh, vehicle_builder_t::get_info(current_wt)) {
 			// engine type filter
-			if (engine_filter.get_selection() > 0 && ((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
-				continue;
+			switch (engine_filter.get_selection()) {
+				case 0:
+					/* do nothing */
+					break;
+				case (uint8)vehicle_desc_t::engine_t::MAX_TRACTION_TYPE+1:
+					if (veh->get_engine_type() != vehicle_desc_t::engine_t::unknown) {
+						continue;
+					}
+					break;
+				default:
+					if (((uint8)veh->get_engine_type() + 1) != engine_filter.get_selection()) {
+						continue;
+					}
+					break;
 			}
 
 			// timeline status filter

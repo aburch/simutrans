@@ -968,3 +968,12 @@ bool scenario_t::set_completion(sint32 player_nr, sint32 percentage)
 	}
 	return true;
 }
+
+
+const char* scenario_t::eval_string(const char* squirrel_string) const
+{
+	if (what_scenario == SCRIPTED) {
+		return script->eval_string(squirrel_string);
+	}
+	return "";
+}

@@ -154,10 +154,9 @@ static void fill_event(event_t* const ev)
 			break;
 
 		case SIM_SYSTEM:
-			ev->ev_class = EVENT_SYSTEM;
-			ev->ev_code  = sys_event.code;
-			ev->size_x = sys_event.size_x;
-			ev->size_y = sys_event.size_y;
+			ev->ev_class        = EVENT_SYSTEM;
+			ev->ev_code         = sys_event.code;
+			ev->new_window_size = sys_event.new_window_size;
 			break;
 	}
 

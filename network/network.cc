@@ -933,7 +933,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 
 	externalAltIPAddress[0] = 0;
 #if 1
-	// use the same routine as later the abnnounce routine, otherwise update with dynamic IP fails
+	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
 		has_IP = true;

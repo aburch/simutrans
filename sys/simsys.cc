@@ -50,7 +50,7 @@
 
 
 
-struct sys_event sys_event;
+sys_event_t sys_event;
 
 
 #ifdef _WIN32

@@ -21,6 +21,8 @@
 #include <string.h>
 
 
+#define MAX_SAVED_MESSAGES (2000)
+
 karte_ptr_t message_t::welt;
 
 void message_t::node::rdwr(loadsave_t *file)
@@ -114,20 +116,19 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 {
 	DBG_MESSAGE("message_t::add_msg()", "%40s (at %i,%i)", text, pos.x, pos.y);
 
-	sint32 what = what_flags & ~local_flag;
-	sint32 art = (1 << what);
-	if (art&ignore_flags) {
+	sint32 what_bit = 1<<(what_flags & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag));
+	if(  what_bit&ignore_flags  ) {
 		// wants us to ignore this completely
 		return;
 	}
 
 	/* we will not add traffic jam messages two times to the list
-	* if it was within the last 20 messages
-	* or within last months
-	* and is not a general (BLACK) message
-	*/
-	if (what == traffic_jams) {
-		sint32 now = welt->get_current_month() - 2;
+	 * if it was within the last 20 messages
+	 * or within last months
+	 * and is not a general (BLACK) message
+	 */
+	if(  what_bit == (1<<traffic_jams)  ) {
+		sint32 now = welt->get_current_month()-2;
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
 			node const& n = *iter;
@@ -143,20 +144,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	}
 
 	// filter out AI messages for a similar area to recent activity messages
-	if (what == ai  &&  pos != koord::invalid) {
-		uint32 i = 0;
-		FOR(slist_tpl<node*>, const iter, list) {
-			node const& n = *iter;
-			if ((n.pos.x & 0xFFE0) == (pos.x & 0xFFE0) &&
-				(n.pos.y & 0xFFE0) == (pos.y & 0xFFE0)) {
-				return;
-			}
-			if (++i == 20) break;
-		}
-	}
-
-	// filter out AI messages for a similar area to recent activity messages
-	if (what == ai  &&  pos != koord::invalid) {
+	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  &&  env_t::networkmode  ) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
 			node const& n = *iter;
@@ -186,7 +174,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 
 	FLAGGED_PIXVAL colorval = n->get_player_color(welt);
 	// should we send this message to a ticker?
-	if (art&ticker_flags) {
+	if(  what_bit&ticker_flags  ) {
 		ticker::add_msg(text, pos, colorval);
 	}
 
@@ -194,15 +182,15 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 	list.insert(n);
 	char* p = list.front()->msg;
 
-	// if local flag is set and we are not current player, do not open windows
-	if ((art&(1 << ai)) == 0 && (color & PLAYER_FLAG) != 0 && welt->get_active_player_nr() != (color&(~PLAYER_FLAG))) {
+	// if we are not current player, do not open windows
+	if(  (what_bit&(1<<ai))==0  &&   (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
 		return;
 	}
 	// check if some window has focus
 	gui_frame_t *old_top = win_get_top();
 
 	// should we open a window?
-	if (art & (auto_win_flags | win_flags)) {
+	if (  what_bit & (auto_win_flags | win_flags)  ) {
 		news_window* news;
 		if (pos == koord::invalid) {
 			news = new news_img(p, image, colorval);
@@ -210,7 +198,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 		else {
 			news = new news_loc(p, pos, colorval);
 		}
-		wintype w_t = art & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
+		wintype w_t = what_bit & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
 
 		create_win(news, w_t, magic_none);
 	}
@@ -253,31 +241,41 @@ void message_t::rotate90(sint16 size_w)
 void message_t::rdwr(loadsave_t *file)
 {
 	uint16 msg_count;
-	if (file->is_saving()) {
-		if (env_t::server) {
-			// on server: do not save local messages
-			msg_count = 0;
+	if(  file->is_saving()  ) {
+		msg_count = 0;
+		if( env_t::server ) {
+			// do not save local messages and expired messages
+			uint32 current_time = world()->get_current_month();
 			FOR(slist_tpl<node*>, const i, list) {
-				if (!(i->type & local_flag)) {
-					if (++msg_count == 2000) break;
+				if( i->type & do_not_rdwr_flag  ||  (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+					continue;
 				}
+				if (++msg_count == MAX_SAVED_MESSAGES) break;
 			}
 			file->rdwr_short(msg_count);
 			FOR(slist_tpl<node*>, const i, list) {
 				if (msg_count == 0) break;
-				if (!(i->type & local_flag)) {
-					i->rdwr(file);
-					msg_count--;
+				if(  i->type & do_not_rdwr_flag  || (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+					continue;
 				}
+				i->rdwr(file);
+				msg_count --;
 			}
-			assert(msg_count == 0);
 		}
 		else {
-			msg_count = min(2000u, list.get_count());
-			file->rdwr_short(msg_count);
+			// do not save discardable messages (like changing player)
 			FOR(slist_tpl<node*>, const i, list) {
-				i->rdwr(file);
-				if (--msg_count == 0) break;
+				if (!(i->type & do_not_rdwr_flag)) {
+					if (++msg_count == MAX_SAVED_MESSAGES) break;
+				}
+			}
+			file->rdwr_short( msg_count );
+			FOR(slist_tpl<node*>, const i, list) {
+				if (msg_count == 0) break;
+				if(  !(i->type & do_not_rdwr_flag)  ) {
+					i->rdwr(file);
+					msg_count --;
+				}
 			}
 		}
 	}
