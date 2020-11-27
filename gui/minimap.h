@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_KARTE_H
-#define GUI_KARTE_H
+#ifndef GUI_MINIMAP_H
+#define GUI_MINIMAP_H
 
 
 #include "components/gui_component.h"
