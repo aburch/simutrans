@@ -12279,7 +12279,7 @@ void karte_t::calc_max_vehicle_speeds()
 
 	if (!aircraft_in_service)
 	{
-		if (max_available_speed_air = 0)
+		if (max_available_speed_air == 0)
 		{
 			max_available_speed_air = max_available_speed_ground;
 		}
