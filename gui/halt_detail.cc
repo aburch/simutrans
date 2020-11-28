@@ -1927,7 +1927,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 							buf.printf(translator::translate("  DBG: Prefferd convoy : %s"), preferred_convoy->get_name());
 							victor = preferred_convoy->get_owner();
 						}
-						else {
+						else if(!is_walking) {
 							buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
 						}
 					}
