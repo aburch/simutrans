@@ -21,7 +21,6 @@
  *         3 = Station type
  */
 citylist_stats_t::sort_mode_t citylist_frame_t::sortby = citylist_stats_t::SORT_BY_NAME;
-static uint8 default_sortmode = 0;
 
 
 const char *citylist_frame_t::sort_text[citylist_stats_t::SORT_MODES] = {
@@ -129,36 +128,67 @@ citylist_frame_t::citylist_frame_t() :
 	main.add_tab(&list, translator::translate("City list"));
 
 	list.set_table_layout(1, 0);
-	list.new_component<gui_label_t>("hl_txt_sort");
 
-	list.add_table(5, 0);
-	for (int i = 0; i < citylist_stats_t::SORT_MODES; i++) {
-		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+	list.add_table(3, 2);
+	{
+		// 1st row
+		list.new_component<gui_label_t>("hl_txt_sort");
+
+		list.new_component<gui_label_t>("Filter:");
+
+		filter_within_network.init(button_t::square_state, "Within own network");
+		filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
+		filter_within_network.add_listener(this);
+		filter_within_network.pressed = citylist_stats_t::filter_own_network;
+		list.add_component(&filter_within_network);
+
+		// 2nd row
+		list.add_table(3, 1);
+		{
+			for (int i = 0; i < citylist_stats_t::SORT_MODES; i++) {
+				sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+			}
+			sortedby.set_selection(citylist_stats_t::sort_mode);
+			sortedby.set_width_fixed(true);
+			sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			sortedby.add_listener(this);
+			list.add_component(&sortedby);
+
+			// sort ascend/descend button
+			sort_asc.init(button_t::arrowup_state, "");
+			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
+			sort_asc.add_listener(this);
+			sort_asc.pressed = citylist_stats_t::sortreverse;
+			list.add_component(&sort_asc);
+
+			sort_desc.init(button_t::arrowdown_state, "");
+			sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
+			sort_desc.add_listener(this);
+			sort_desc.pressed = !(citylist_stats_t::sortreverse);
+			list.add_component(&sort_desc);
+		}
+		list.end_table();
+
+		list.new_component<gui_empty_t>();
+
+		if (!welt->get_settings().regions.empty()) {
+			//region_selector
+			region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All regions"), SYSCOL_TEXT);
+
+			for (uint8 r = 0; r < welt->get_settings().regions.get_count(); r++) {
+				region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(welt->get_settings().regions[r].name.c_str()), SYSCOL_TEXT);
+			}
+			region_selector.set_selection(citylist_stats_t::region_filter);
+			region_selector.set_width_fixed(true);
+			region_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			region_selector.add_listener(this);
+			list.add_component(&region_selector);
+		}
+		else {
+			list.new_component<gui_empty_t>();
+		}
+
 	}
-	sortedby.set_selection(default_sortmode);
-	sortedby.add_listener(this);
-	list.add_component(&sortedby);
-
-	// sort ascend/descend button
-	sort_asc.init(button_t::arrowup_state, "");
-	sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
-	sort_asc.add_listener(this);
-	sort_asc.pressed = citylist_stats_t::sortreverse;
-	list.add_component(&sort_asc);
-
-	sort_desc.init(button_t::arrowdown_state, "");
-	sort_desc.set_tooltip(translator::translate("hl_btn_sort_desc"));
-	sort_desc.add_listener(this);
-	sort_desc.pressed = !(citylist_stats_t::sortreverse);
-	list.add_component(&sort_desc);
-	list.new_component<gui_margin_t>(LINESPACE);
-
-	filter_within_network.init(button_t::square_state, "Within own network");
-	filter_within_network.set_tooltip("Show only cities within the active player's transportation network");
-	filter_within_network.add_listener(this);
-	filter_within_network.pressed = citylist_stats_t::filter_own_network;
-	list.add_component(&filter_within_network);
-
 	list.end_table();
 
 	list.add_component(&scrolly);
@@ -187,6 +217,7 @@ citylist_frame_t::citylist_frame_t() :
 		// add button
 		buttons[i] = container_year.new_component<button_t>();
 		buttons[i]->init(button_t::box_state_automatic | button_t::flexible, hist_type[i]);
+		buttons[i]->set_tooltip(hist_type_tooltip[i]);
 		buttons[i]->background_color = color_idx_to_rgb(hist_type_color[i]);
 		buttons[i]->pressed = false;
 
@@ -233,6 +264,10 @@ void citylist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
 	FOR(const weighted_vector_tpl<stadt_t *>, city, world()->get_cities()) {
+		if (citylist_stats_t::region_filter && (citylist_stats_t::region_filter-1) != welt->get_region(city->get_pos())) {
+			continue;
+		}
+
 		if (!citylist_stats_t::filter_own_network ||
 			(citylist_stats_t::filter_own_network && city->is_within_players_network(welt->get_active_player()))) {
 			scrolly.new_component<citylist_stats_t>(city);
@@ -243,22 +278,15 @@ void citylist_frame_t::fill_list()
 }
 
 
-bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool citylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
-		int tmp = sortedby.get_selection();
-		if (tmp >= 0 && tmp < sortedby.count_elements())
-		{
-			sortedby.set_selection(tmp);
-			set_sortierung((citylist_stats_t::sort_mode_t)tmp);
-		}
-		else {
-			sortedby.set_selection(0);
-			set_sortierung(citylist_stats_t::SORT_BY_NAME);
-		}
-		default_sortmode = (uint8)tmp;
-		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(default_sortmode | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_MODES));
+		citylist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
+	}
+	else if (comp == &region_selector) {
+		citylist_stats_t::region_filter = max(0, v.i);
+		fill_list();
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {
 		citylist_stats_t::sortreverse = !citylist_stats_t::sortreverse;

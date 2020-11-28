@@ -934,6 +934,37 @@ void destroy_all_win(bool destroy_sticky)
 	}
 }
 
+void rollup_all_win()
+{
+	bool all_rolldown_flag = true; // If any dialog is open, all rolldown will not be performed
+	for (  sint32 curWin = 0; curWin < (sint32)wins.get_count(); curWin++  ) {
+		if (  !wins[curWin].rollup  ) {
+			wins[curWin].rollup = true;
+			gui_frame_t *gui = wins[curWin].gui;
+			scr_size size = gui->get_windowsize();
+			mark_rect_dirty_wc( wins[curWin].pos.x, wins[curWin].pos.y, wins[curWin].pos.x+size.w, wins[curWin].pos.y+size.h );
+			all_rolldown_flag = false;
+		}
+	}
+
+	if (  !all_rolldown_flag  ) {
+		wl->set_background_dirty();
+	}
+	else if (  wins.get_count()  ) {
+		rolldown_all_win();
+	}
+}
+
+void rolldown_all_win()
+{
+	for (  sint32 curWin = 0; curWin < (sint32)wins.get_count(); curWin++  ) {
+		wins[curWin].rollup = false;
+		gui_frame_t *gui = wins[curWin].gui;
+		scr_size size = gui->get_windowsize();
+		mark_rect_dirty_wc( wins[curWin].pos.x, wins[curWin].pos.y, wins[curWin].pos.x+size.w, wins[curWin].pos.y+size.h );
+	}
+}
+
 
 int top_win(int win, bool keep_state )
 {
@@ -1546,7 +1577,7 @@ void win_poll_event(event_t* const ev)
 	// main window resized
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE  ) {
 		// main window resized
-		simgraph_resize( ev->size_x, ev->size_y );
+		simgraph_resize( ev->new_window_size );
 		ticker::redraw();
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
@@ -1643,7 +1674,7 @@ void win_display_flush(double konto)
 	}
 
 	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
+		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(D_MARGIN_LEFT,menu_height+D_MARGIN_TOP,disp_width-2*4,disp_height-menu_height-D_MARGIN_TOP-D_MARGIN_BOTTOM-win_get_statusbar_height()-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
 	}
 
 	{

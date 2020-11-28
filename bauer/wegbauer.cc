@@ -60,7 +60,7 @@
 #include "../gui/messagebox.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-#include "../gui/karte.h"	// for debugging
+#include "../gui/minimap.h" // for debugging
 #include "../gui/tool_selector.h"
 #include "../gui/messagebox.h"
 
@@ -106,22 +106,6 @@ static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype
 
 bool way_builder_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<way_desc_t *>, & i, desc_table) {
-		way_desc_t *desc = (way_desc_t *)i.value;
-		if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
-			// add the tool
-			tool_build_way_t *tool = new tool_build_way_t();
-			tool->set_icon( desc->get_cursor()->get_image_id(1) );
-			tool->cursor = desc->get_cursor()->get_image_id(0);
-			tool->set_default_param(desc->get_name());
-			tool_t::general_tool.append( tool );
-			desc->set_builder( tool );
-		}
-		else {
-			desc->set_builder( NULL );
-		}
-	}
-
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
@@ -143,16 +127,25 @@ bool way_builder_t::successfully_loaded()
 
 bool way_builder_t::register_desc(way_desc_t *desc)
 {
-	DBG_DEBUG("way_builder_t::register_desc()", desc->get_name());
-	const way_desc_t *old_desc = desc_table.get(desc->get_name());
-	if(  old_desc  ) {
-		desc_table.remove(desc->get_name());
-		dbg->warning( "way_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+	if(  const way_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
+		dbg->doubled( "way", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
 
+	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
+		// add the tool
+		tool_build_way_t *tool = new tool_build_way_t();
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0);
+		tool->set_default_param(desc->get_name());
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	else {
+		desc->set_builder( NULL );
+	}
 	desc_table.put(desc->get_name(), desc);
 	return true;
 }
@@ -1713,7 +1706,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
 #ifdef DEBUG_ROUTES
-				if((step&1023)==0) {reliefkarte_t::get_karte()->calc_map();}
+				if((step&1023)==0) {minimap_t::get_instance()->calc_map();}
 #endif
 			}
 
@@ -2124,9 +2117,16 @@ void way_builder_t::build_tunnel_and_bridges()
 				continue;
 			}
 
-			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
-				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				bridge_builder_t::build( player_builder, route[i+1], bridge_desc, overtaking_mode);
+			if(start->get_grund_hang()==slope_t::flat  ||  start->get_grund_hang()==slope_type(zv*(-1))  ||  start->get_grund_hang()==2*slope_type(zv*(-1))) {
+				// code derived from simtool
+
+				sint8 bridge_height = 0;
+				const char *error;
+
+				koord3d end = bridge_builder_t::find_end_pos(player_builder, route[i], zv, bridge_desc, error, bridge_height, false, koord_distance(route[i], route[i+1]), false);
+				if (end == route[i+1]) {
+					bridge_builder_t::build_bridge( player_builder, route[i], route[i+1], zv, bridge_height, bridge_desc, way_builder_t::weg_search(bridge_desc->get_waytype(), bridge_desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode );
+				}
 			}
 			else {
 				// tunnel
@@ -2680,7 +2680,7 @@ void way_builder_t::build_road()
 			update_ribi_mask_oneway(str, i);
 			gr->calc_image();	// because it may be a crossing ...
 
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			minimap_t::get_instance()->calc_map_pixel(k);
 			player_t::book_construction_costs(player_builder, cost, k, road_wt);
 		}
 		welt->set_recheck_road_connexions();
@@ -2840,7 +2840,7 @@ void way_builder_t::build_track()
 			}
 
 			gr->calc_image();
-			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
+			minimap_t::get_instance()->calc_map_pixel( gr->get_pos().get_2d() );
 
 			if((i&3)==0)
 			{
@@ -2894,7 +2894,7 @@ void way_builder_t::build_powerline()
 			player_t::book_construction_costs(player_builder, cost, gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
 			lt->leitung_t::finish_rd();
-			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
+			minimap_t::get_instance()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
 		if((i&3)==0) {

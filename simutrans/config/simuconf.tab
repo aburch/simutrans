@@ -589,6 +589,10 @@ hide_keyboard = 0
 compass_screen_position = 0
 compass_map_position = 13
 
+# if set to 1 (default) teh numpad will alsoways move the map.
+# If active, this does not allow for number entry
+numpad_always_moves_map = 0
+
 # Should either account (default) or net wealth be shown below the screen?
 player_finance_display_account = 1
 
@@ -801,9 +805,12 @@ sighting_distance_meters = 250
 
 # This is the maximum speed at which rail (including narrow gauge, monorail and maglev)
 # vehicles may travel in the drive by sight working method. 0 = as fast as they can
-# stop in time with no other limit. Note that this does not apply to trams.
+# stop in time with no other limit. 
+#
+# This is specified separately for trams.
 
 max_speed_drive_by_sight_kmh = 35
+max_speed_drive_by_sight_tram_kmh = 50
 
 # The following settings apply to time interval signalling only.
 #
@@ -1058,6 +1065,9 @@ server_frames_between_checks = 32
 
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
 #server_dns = 127.0.0.1
+
+# alternative server name (an or IP6) Use only if server_dns is set!
+#server_altdns = fe80::1
 
 # Port address (usually set via command line)
 #server_port = 13353

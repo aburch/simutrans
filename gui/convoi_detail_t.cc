@@ -631,7 +631,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// upgradable symbol
 			if (upgradable_state && skinverwaltung_t::upgradable) {
 				if (welt->get_settings().get_show_future_vehicle_info() || (!welt->get_settings().get_show_future_vehicle_info() && v->get_desc()->is_future(month_now) != 2)) {
-					display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state - 1), pos.x + w + offset.x - LINESPACE, pos.y + offset.y + total_height + extra_y + h + LINESPACE, 0, false, false);
+					display_color_img(skinverwaltung_t::upgradable->get_image_id(upgradable_state - 1), pos.x + w + offset.x - D_FIXED_SYMBOL_WIDTH, pos.y + offset.y + total_height + extra_y + h + LINESPACE, 0, false, false);
 				}
 			}
 

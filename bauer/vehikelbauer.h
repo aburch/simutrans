@@ -26,6 +26,8 @@ template <class T> class slist_tpl;
 class vehicle_builder_t
 {
 public:
+	static const char *engine_type_names[11];
+
 	// Retained for compatibility only
 	static void rdwr_speedbonus(loadsave_t *file);
 

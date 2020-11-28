@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="besch\obj_besch_std_name.cc" />
     <ClCompile Include="besch\weg_besch.cc" />
+    <ClCompile Include="dataobj\rect.cc" />
     <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="display\font.cc" />
     <ClCompile Include="display\simgraph16.cc" />
@@ -431,6 +432,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\rect.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
     <ClInclude Include="display\simgraph.h" />

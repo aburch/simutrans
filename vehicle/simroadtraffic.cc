@@ -340,7 +340,7 @@ stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
 bool private_car_t::register_desc(const citycar_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
-		dbg->warning( "citycar_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "citycar", desc->get_name() );
 	}
 	table.put(desc->get_name(), desc);
 	return true;
@@ -485,7 +485,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month)
 				{
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, color_idx_to_rgb(COL_ORANGE) );
+					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams|message_t::expire_after_one_month_flag, color_idx_to_rgb(COL_ORANGE) );
 				}
 			}
 		}

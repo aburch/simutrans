@@ -18,7 +18,7 @@
 #include "../obj/tunnel.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 #include "../simworld.h"
 #include "../gui/tool_selector.h"
 
@@ -257,19 +257,40 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	const building_desc_t *old_desc = desc_names.get(desc->get_name());
 	if(old_desc) {
 		// do not overlay existing factories if the new one is not a factory
+		dbg->doubled( "building", desc->get_name() );
 		if (old_desc->is_factory()  &&  !desc->is_factory()) {
-			dbg->warning( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
+			dbg->error( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
 			delete desc;
 			return false;
 		}
-		dbg->warning( "hausbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		desc_names.remove(desc->get_name());
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
 
-	desc->set_builder(NULL);
+	// probably needs a tool if it has a cursor
+	const skin_desc_t *sd = desc->get_cursor();
+	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
+		tool_t *tool;
+		if(  desc->get_type()==building_desc_t::depot  ) {
+			tool = new tool_build_depot_t();
+		}
+		else if(  desc->get_type()==building_desc_t::headquarters  ) {
+			tool = new tool_headquarter_t();
+		}
+		else {
+			tool = new tool_build_station_t();
+		}
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0),
+		tool->set_default_param(desc->get_name());
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	else {
+		desc->set_builder( NULL );
+	}
 	desc_names.put(desc->get_name(), desc);
 
 	return true;
@@ -712,7 +733,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				}
 			}
 			gr->calc_image();
-			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+			minimap_t::get_instance()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
 	// remove only once ...
@@ -884,7 +905,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	}
 
 	// update minimap
-	reliefkarte_t::get_karte()->calc_map_pixel(gb->get_pos().get_2d());
+	minimap_t::get_instance()->calc_map_pixel(gb->get_pos().get_2d());
 
 	return gb;
 }

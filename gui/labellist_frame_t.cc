@@ -10,7 +10,6 @@
 #include "../obj/label.h"
 #include "../simworld.h"
 
-static uint8 default_sortmode = 0;
 
 static const char *sort_text[labellist::SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -29,20 +28,30 @@ labellist_frame_t::labellist_frame_t() :
 	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare)
 {
 	set_table_layout(1,0);
-	new_component<gui_label_t>("hl_txt_sort");
-
-	add_table(4,1);
+	add_table(3, 2);
 	{
-		for (int i = 0; i < labellist::SORT_MODES; i++) {
-			sortedby.new_component<label_sort_item_t>(i);
-		}
-		sortedby.set_selection(default_sortmode);
-		sortedby.add_listener(this);
-		add_component(&sortedby);
+		// 1st row
+		new_component<gui_label_t>("hl_txt_sort");
+		new_component<gui_label_t>("Filter:");
 
-		// sort ascend/descend button
+		filter.init( button_t::square_automatic, "Active player only");
+		filter.pressed = labellist_stats_t::filter;
+		filter.add_listener( this );
+		add_component(&filter);
+
+		// 2nd row
 		add_table(3, 1);
 		{
+			for (int i = 0; i < labellist::SORT_MODES; i++) {
+				sortedby.new_component<label_sort_item_t>(i);
+			}
+			sortedby.set_selection(labellist_stats_t::sort_mode);
+			sortedby.set_width_fixed(true);
+			sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			sortedby.add_listener(this);
+			add_component(&sortedby);
+
+			// sort ascend/descend button
 			sort_asc.init(button_t::arrowup_state, "");
 			sort_asc.set_tooltip(translator::translate("hl_btn_sort_asc"));
 			sort_asc.add_listener(this);
@@ -54,15 +63,27 @@ labellist_frame_t::labellist_frame_t() :
 			sort_desc.add_listener(this);
 			sort_desc.pressed = !labellist_stats_t::sortreverse;
 			add_component(&sort_desc);
-			new_component<gui_margin_t>(10);
 		}
 		end_table();
+
 		new_component<gui_empty_t>();
 
-		filter.init( button_t::square_automatic, "Active player only");
-		filter.pressed = labellist_stats_t::filter;
-		add_component(&filter);
-		filter.add_listener( this );
+		if (!welt->get_settings().regions.empty()) {
+			//region_selector
+			region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All regions"), SYSCOL_TEXT);
+
+			for (uint8 r = 0; r < welt->get_settings().regions.get_count(); r++) {
+				region_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(welt->get_settings().regions[r].name.c_str()), SYSCOL_TEXT);
+			}
+			region_selector.set_selection(labellist_stats_t::region_filter);
+			region_selector.set_width_fixed(true);
+			region_selector.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
+			region_selector.add_listener(this);
+			add_component(&region_selector);
+		}
+		else {
+			new_component<gui_empty_t>();
+		}
 	}
 	end_table();
 
@@ -80,6 +101,9 @@ void labellist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
 	FOR(slist_tpl<koord>, const& pos, welt->get_label_list()) {
+		if (labellist_stats_t::region_filter && (labellist_stats_t::region_filter - 1) != welt->get_region(pos)) {
+			continue;
+		}
 		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
 		const char* name = welt->lookup_kartenboden(pos)->get_text();
 		// some old version games don't have label nor name.
@@ -111,20 +135,15 @@ uint32 labellist_frame_t::count_label()
 /**
  * This method is called if an action is triggered
  */
-bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
-		int tmp = sortedby.get_selection();
-		if (tmp >= 0 && tmp < sortedby.count_elements())
-		{
-			sortedby.set_selection(tmp);
-		}
-		else {
-			sortedby.set_selection(0);
-		}
-		default_sortmode = (uint8)tmp;
-		labellist_stats_t::sortby = (labellist::sort_mode_t)default_sortmode;
+		labellist_stats_t::sort_mode = max(0, v.i);
 		scrolly.sort(0);
+	}
+	else if (comp == &region_selector) {
+		labellist_stats_t::region_filter = max(0, v.i);
+		fill_list();
 	}
 	else if (comp == &sort_asc || comp == &sort_desc) {
 		labellist_stats_t::sortreverse = !labellist_stats_t::sortreverse;

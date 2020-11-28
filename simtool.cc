@@ -47,7 +47,7 @@
 #include "gui/line_management_gui.h"
 #include "gui/tool_selector.h"
 #include "gui/station_building_select.h"
-#include "gui/karte.h"	// to update map after construction of new industry
+#include "gui/minimap.h" // to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/schedule_gui.h"
 #include "gui/player_frame_t.h"
@@ -1562,7 +1562,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				else {
 					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
-				reliefkarte_t::get_karte()->calc_map_pixel(k);
+				minimap_t::get_instance()->calc_map_pixel(k);
 
 				welt->calc_climate( k, true );
 			}
@@ -1896,7 +1896,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt->finish_rd();
 
 				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);
-				reliefkarte_t::get_karte()->calc_map();
+				minimap_t::get_instance()->calc_map();
 				return NULL;
 			}
 		}
@@ -2064,7 +2064,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 					}
 					if(  ok  ) {
 						welt->set_climate( k, cl, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -2081,7 +2081,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						welt->set_water_hgt( k, gr->get_pos().z );
 						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -3414,6 +3414,53 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 		return NULL;
 	}
 	else {
+		if(  grund_t *gr=welt->lookup( pos )  ) {
+			if(  !gr->is_visible()  ) {
+				// not visible
+				return "";
+			}
+			if( gr->ist_karten_boden() ) {
+				win_set_static_tooltip( translator::translate("No suitable ground!") );
+
+				slope_t::type sl = gr->get_grund_hang();
+				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
+					// cannot start a tunnel here, wrong slope
+					return "";
+				}
+
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", (-(sint64)desc->get_value())*2, welt->get_settings().get_meters_per_tile() ) );
+					return NULL;
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player,pos, koord(gr->get_grund_hang()), desc, true );
+				if(  end == koord3d::invalid  ||  end == pos  ) {
+					// no end found
+					return "";
+				}
+				// estimate costs for full tunnel
+				if (!env_t::networkmode && way_desc == NULL)
+				{
+					// The last selected way will not have been set if this is not in network mode.
+					way_desc = tool_build_way_t::defaults[desc->get_waytype() & 63];
+				}
+
+				if (way_desc == NULL)
+				{
+					way_desc = way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
+				}
+
+				const uint32 distance = koord_distance(pos,end) * welt->get_settings().get_meters_per_tile();
+				const sint64 price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(pos, end);
+				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, distance) );
+				return NULL;
+			}
+		}
 		return two_click_tool_t::check_pos(player, pos);
 	}
 }
@@ -3439,13 +3486,36 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 {
 	if( end == koord3d::invalid ) {
 		// Build tunnel mouths
-		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
-			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );
+		if(  grund_t *gr=welt->lookup( start )  ) {
+			if( gr->ist_karten_boden() ) {
+				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+				const char *err = NULL;
+				sint64 price = 0;
+
+				// first check for building portal only
+				if(  is_ctrl_pressed()  ) {
+					// estimate costs for tunnel portal
+					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*2;
+					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, welt->get_settings().get_meters_per_tile()*2) );
+				}
+
+				// Now check, if we can built a tunnel here and display costs
+				koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
+				if(  end == koord3d::invalid  ||  end == start  ) {
+					// no end found
+					return err;
+				}
+				if (!is_ctrl_pressed()) {
+					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(start, end);
+				}
+				if(  !player->can_afford(price)  ) {
+					return NOTICE_INSUFFICIENT_FUNDS;
+				}
+
+				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );
+			}
 		}
-		else {
-			return "";
-		}
+		return "Tunnel must start on single way!";
 	}
 	else {
 		// Build tunnels
@@ -3685,9 +3755,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	}
 	else {
 		// get a default vehicle
-		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 		test_driver_t* test_driver;
-
+		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
@@ -3696,8 +3765,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		else {
 			test_driver = new electron_t();
 		}
-		test_driver = scenario_checker_t::apply(test_driver, player, this);
 
+		test_driver = scenario_checker_t::apply(test_driver, player, this);
 		verbindung.calc_route(welt, start, end, test_driver, 0, 0, false, 0);
 		delete test_driver;
 	}
@@ -8068,6 +8137,13 @@ bool tool_daynight_level_t::init( player_t * ) {
 
 
 
+bool tool_rollup_all_win_t::init( player_t * ) {
+	rollup_all_win();
+	return false;
+}
+
+
+
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
 bool tool_make_stop_public_t::init( player_t *player )
@@ -9952,12 +10028,12 @@ bool tool_add_message_t::init(player_t *player)
 	if (*default_param) {
 		uint32 type = atoi(default_param);
 		const char* text = strchr(default_param, ',');
-		if ((type & ~message_t::local_flag) >= message_t::MAX_MESSAGE_TYPE || text == NULL) {
+		if ((type & ~message_t::playermsg_flag) >= message_t::MAX_MESSAGE_TYPE  ||  text == NULL) {
 			return false;
 
 		}
-		welt->get_message()->add_message(text + 1, koord::invalid, type,
-																		 type & message_t::local_flag ? color_idx_to_rgb(COL_BLACK) : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
+		welt->get_message()->add_message( text+1, koord::invalid, type,
+							    type & message_t::playermsg_flag ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 	}
 	return false;
 }

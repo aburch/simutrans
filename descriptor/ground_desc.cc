@@ -86,6 +86,7 @@ static image_t* create_textured_tile(const image_t* image_lightmap, const image_
 	assert(dest - image_dest->get_data() == (ptrdiff_t)image_dest->get_pic()->len);
 #else
 	(void)image_texture;
+	(void)binary;
 #endif
 	image_dest->register_image();
 	return image_dest;

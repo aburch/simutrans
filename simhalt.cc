@@ -49,7 +49,7 @@
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
@@ -334,7 +334,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 	// if building was removed this is false!
 	if(bd) {
 		bd->calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 	return true;
 }
@@ -1439,7 +1439,7 @@ void haltestelle_t::new_month()
 	if(  welt->get_active_player()==owner  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full|message_t::expire_after_one_month_flag, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -2369,19 +2369,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 			if(ware->menge > 0)
 			{
 				i++;
-				if (mixed_load_prohibition) {
-					// this vehicle only load with the same kind of goods initially loaded
-					if (!goods_restriction) {
-						goods_restriction = ware->get_index();
-					}
-					if (ware->get_index() == goods_restriction) {
-						goods_to_check.insert(ware);
-					}
-					else {
-						other_classes_available = true;
-					}
-				}
-				else if (ware->get_class() >= g_class)
+				if (ware->get_class() >= g_class)
 				{
 					// We know at this stage that we cannot load passengers of a *lower* class into higher class accommodation,
 					// but we cannot yet know whether or not to load passengers of a higher class into lower class accommodation.
@@ -2668,6 +2656,18 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 							// Wait for a better class of accommodation
 							schedule->increment_index(&index, &reverse);
 							other_classes_available = true;
+							continue;
+						}
+					}
+
+					if (mixed_load_prohibition) {
+						// this vehicle only load with the same kind of goods initially loaded
+						if (goods_restriction == goods_manager_t::INDEX_NONE) {
+							goods_restriction = next_to_load->get_index();
+						}
+						if (next_to_load->get_index() != goods_restriction) {
+							schedule->increment_index(&index, &reverse);
+							skipped = true;
 							continue;
 						}
 					}

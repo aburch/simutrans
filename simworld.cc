@@ -72,7 +72,7 @@
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 #include "gui/player_frame_t.h"
 #include "gui/components/gui_convoy_assembler.h"
 
@@ -106,6 +106,7 @@
 #include "bauer/goods_manager.h"
 
 #include "descriptor/ground_desc.h"
+#include "descriptor/intro_dates.h"
 #include "descriptor/sound_desc.h"
 #include "descriptor/tunnel_desc.h"
 #include "descriptor/bridge_desc.h"
@@ -271,7 +272,7 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 
    		world_thread_param[t].welt = this;
    		world_thread_param[t].thread_num = t;
-		world_thread_param[t].x_step = min( 64, max_x / env_t::num_threads );
+		world_thread_param[t].x_step = sync_x_steps ? min( 64, max_x / env_t::num_threads ) : max_x;
 		world_thread_param[t].x_world_max = max_x;
 		world_thread_param[t].y_min = (t * max_y) / env_t::num_threads;
 		world_thread_param[t].y_max = ((t + 1) * max_y) / env_t::num_threads;
@@ -474,7 +475,6 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			planquadrat_t *pl = access_nocheck(x,y);
-			grund_t *gr = pl->get_kartenboden();
 			koord k(x,y);
 			slope_t::type slope = calc_natural_slope(k);
 			sint8 height = min_hgt_nocheck(k);
@@ -489,17 +489,13 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 				slope = encode_corners(disp_hn_sw - height, disp_hn_se - height, disp_hn_ne - height, disp_hn_nw - height);
 			}
 
-			gr->set_pos( koord3d( k, height) );
-			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
-				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(gr->get_pos()), true /* do not calc_image for water tiles */ );
-			}
-			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
-				// water above ground => to ground
-				pl->kartenboden_setzen( new boden_t(gr->get_pos(), slope ) );
+			if(  max_hgt_nocheck(k) <= water_hgt  ) {
+				// create water
+				pl->kartenboden_setzen( new wasser_t(koord3d( k, height)), true /* do not calc_image for water tiles */ );
 			}
 			else {
-				gr->set_grund_hang( slope );
+				// create ground
+				pl->kartenboden_setzen( new boden_t(koord3d( k, height), slope ) );
 			}
 
 			if(  max_hgt_nocheck(k) > water_hgt  ) {
@@ -534,7 +530,8 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 	}
 
 	if(  xoff==0 && yoff==0  ) {
-		world_xy_loop(&karte_t::cleanup_grounds_loop, 0);
+//		world_xy_loop(&karte_t::cleanup_grounds_loop, 0);
+		cleanup_grounds_loop( 0, get_size().x, 0, get_size().y );
 	}
 	else {
 		cleanup_grounds_loop( 0, get_size().x, yoff, get_size().y );
@@ -771,7 +768,7 @@ void karte_t::init_tiles()
 	MEMZERON(water_hgts, x * y);
 
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
@@ -2384,6 +2381,72 @@ sint32 karte_t::get_parallel_operations() const
  * To start with every tile in the map is checked - but when we fail for
  * a tile then it is excluded from subsequent checks
  */
+sint8 *stage;
+sint8 *new_stage;
+sint8 *local_stage;
+sint8 *max_water_hgt;
+bool need_to_flood;
+sint8 h;
+
+void karte_t::create_lakes_loop(  sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max  )
+{
+	const sint8 max_lake_height = groundwater + 8;
+	const uint16 size_x = get_size().x;
+	const uint16 size_y = get_size().y;
+
+	if(  x_min < 1  ) x_min = 1;
+	//if(  y_min < 1  ) y_min = 1;
+	y_min++; // first row is barrier even if not at world edge
+	if(  x_max > size_x-1  ) x_max = size_x-1;
+	if(  y_max > size_y-1  ) y_max = size_y-1;
+
+	for(  uint16 y = y_min;  y < y_max;  y++  ) {
+		for(  uint16 x = x_min;  x < x_max;  x++  ) {
+			uint32 offset = array_koord(x,y);
+			if(  max_water_hgt[offset]==1  &&  stage[offset]==-1  ) {
+
+				sint8 hgt = lookup_hgt_nocheck( x, y );
+				const sint8 water_hgt = water_hgts[offset]; // optimised <- get_water_hgt_nocheck(x, y);
+				const sint8 new_water_hgt = max(hgt, water_hgt);
+				if(  new_water_hgt>max_lake_height  ) {
+					max_water_hgt[offset] = 0;
+				}
+				else if(  h>new_water_hgt  ) {
+					koord k(x,y);
+					if(  env_t::num_threads == 1  ) {
+						memcpy( new_stage, stage, sizeof(sint8) * size_x * size_y );
+					}
+					else {
+						memcpy( new_stage + sizeof(sint8) * array_koord(0,y_min), stage + sizeof(sint8) * array_koord(0,y_min), sizeof(sint8) * size_x * (y_max-y_min) );
+					}
+
+					if(  can_flood_to_depth(  k, h, new_stage, local_stage, x_min, x_max, y_min, y_max )  ) {
+						if(  env_t::num_threads == 1  ) {
+								sint8 *tmp_stage = new_stage;
+								new_stage = stage;
+								stage = tmp_stage;
+						}
+						else {
+								memcpy( stage + sizeof(sint8) * array_koord(0,y_min), new_stage + sizeof(sint8) * array_koord(0,y_min), sizeof(sint8) * size_x * (y_max-y_min) );
+						}
+						need_to_flood = true;
+					}
+					else {
+						for(  uint16 iy = y_min;  iy<y_max;  iy++  ) {
+							uint32 offset_end = array_koord(x_max,iy);
+							for(  uint32 local_offset = array_koord(x_min,iy);  local_offset<offset_end;  local_offset++  ) {
+								if(  local_stage[local_offset] > -1  ) {
+									max_water_hgt[local_offset] = 0;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void karte_t::create_lakes(  int xoff, int yoff  )
 {
 	if(  xoff > 0  ||  yoff > 0  ) {
@@ -2395,54 +2458,37 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 	const uint16 size_x = get_size().x;
 	const uint16 size_y = get_size().y;
 
-	sint8 *max_water_hgt = new sint8[size_x * size_y];
+	max_water_hgt = new sint8[size_x * size_y];
 	memset( max_water_hgt, 1, sizeof(sint8) * size_x * size_y );
 
-	sint8 *stage = new sint8[size_x * size_y];
-	sint8 *new_stage = new sint8[size_x * size_y];
-	sint8 *local_stage = new sint8[size_x * size_y];
+	stage = new sint8[size_x * size_y];
+	new_stage = new sint8[size_x * size_y];
+	local_stage = new sint8[size_x * size_y];
 
-	for(  sint8 h = groundwater+1; h<max_lake_height; h++  ) {
-		bool need_to_flood = false;
-		memset( stage, -1, sizeof(sint8) * size_x * size_y );
-		for(  uint16 y = 1;  y < size_y-1;  y++  ) {
-			for(  uint16 x = 1;  x < size_x-1;  x++  ) {
-				uint32 offset = array_koord(x,y);
-				if(  max_water_hgt[offset]==1  &&  stage[offset]==-1  ) {
+	for(  h = groundwater+1; h<max_lake_height; h++  ) {
+		need_to_flood = false;
 
-					sint8 hgt = lookup_hgt_nocheck( x, y );
-					const sint8 water_hgt = water_hgts[offset]; // optimised <- get_water_hgt_nocheck(x, y);
-					const sint8 new_water_hgt = max(hgt, water_hgt);
-					if(  new_water_hgt>max_lake_height  ) {
-						max_water_hgt[offset] = 0;
-					}
-					else if(  h>new_water_hgt  ) {
-						koord k(x,y);
-						memcpy( new_stage, stage, sizeof(sint8) * size_x * size_y );
-						if(can_flood_to_depth(  k, h, new_stage, local_stage )) {
-							sint8 *tmp_stage = new_stage;
-							new_stage = stage;
-							stage = tmp_stage;
-							need_to_flood = true;
-						}
-						else {
-							for(  uint16 iy = 1;  iy<size_y - 1;  iy++  ) {
-								uint32 offset_end = array_koord(size_x - 1,iy);
-								for(  uint32 local_offset = array_koord(0,iy);  local_offset<offset_end;  local_offset++  ) {
-									if(  local_stage[local_offset] > -1  ) {
-										max_water_hgt[local_offset] = 0;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+// run over seams first to separate regions
+		for(  int t = 1;  t < env_t::num_threads;  t++  ) {
+			if(  t==1  ) memset( stage, -1, sizeof(sint8) * size_x * size_y );
+			sint16 y_min = (t * size_y) / env_t::num_threads;
+			create_lakes_loop( 0, size_x, y_min - 1, y_min + 1 );
 		}
+
+		bool threaded_need_to_flood = need_to_flood;
+
+		if(need_to_flood) {
+			flood_to_depth(  h, stage  );
+			need_to_flood = false;
+		}
+
+		memset( stage, -1, sizeof(sint8) * size_x * size_y );
+		world_xy_loop(&karte_t::create_lakes_loop, 0);
+
 		if(need_to_flood) {
 			flood_to_depth(  h, stage  );
 		}
-		else {
+		else if(!threaded_need_to_flood) {
 			break;
 		}
 	}
@@ -2458,7 +2504,7 @@ void karte_t::create_lakes(  int xoff, int yoff  )
 }
 
 
-bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage  ) const
+bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max  ) const
 {
 	bool succeeded = true;
 	if(  k == koord::invalid  ) {
@@ -2479,15 +2525,16 @@ bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage
 		our_stage = new sint8[get_size().x * get_size().y];
 	}
 
-	memset( from_dir, -1, sizeof(sint8) * get_size().x * get_size().y );
-	memset( our_stage, -1, sizeof(sint8) * get_size().x * get_size().y );
+	memset( from_dir + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
+	memset( our_stage + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
+
 	uint32 offset = array_koord(k.x,k.y);
 	stage[offset]=0;
 	our_stage[offset]=0;
 	do {
 		for(  int i = our_stage[offset];  i < 8;  i++  ) {
 			koord k_neighbour = k + koord::neighbours[i];
-			if(  is_within_limits(k_neighbour)  ) {
+			if(  k_neighbour.x >= x_min  &&  k_neighbour.x<x_max  &&  k_neighbour.y >= y_min  &&  k_neighbour.y<y_max  ) {
 				const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
 
 				// already visited
@@ -2707,14 +2754,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	intr_disable();
 
-	bool reliefkarte = reliefkarte_t::is_visible;
+	bool minimap_was_visible = minimap_t::is_visible;
 
 	uint32 max_display_progress;
 
 	// If this is not called by karte_t::init
 	if(  old_x != 0  ) {
 		mute_sound(true);
-		reliefkarte_t::is_visible = false;
+		minimap_t::is_visible = false;
 
 		if(is_display_init()) {
 			display_show_pointer(false);
@@ -2833,20 +2880,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			raise_grid_to(old_x+1, old_y+1, h);
 			lower_grid_to(old_x+1, old_y+1, h);
 		}
-	}
-
-	if (  old_x > 0  &&  old_y > 0  ) {
-		// create grounds on new part
-		for (sint16 iy = 0; iy<new_size_y; iy++) {
-			for (sint16 ix = (iy>=old_y)?0:old_x; ix<new_size_x; ix++) {
-				koord k(ix,iy);
-				access_nocheck(k)->kartenboden_setzen( new boden_t( koord3d( ix, iy, max( min_hgt_nocheck(k), get_water_hgt_nocheck(k) ) ), 0 ) );
-			}
-		}
-	}
-	else {
-		world_xy_loop(&karte_t::create_grounds_loop, 0);
-		ls.set_progress(3);
 	}
 
 	// smooth the new part, reassign slopes on new part
@@ -3039,10 +3072,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 		mute_sound(false);
 
-		reliefkarte_t::is_visible = reliefkarte;
-		reliefkarte_t::get_karte()->init();
-		reliefkarte_t::get_karte()->calc_map();
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+		minimap_t::is_visible = minimap_was_visible;
+		minimap_t::get_instance()->init();
+		minimap_t::get_instance()->calc_map();
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 
 		set_dirty();
 		reset_timer();
@@ -4581,15 +4614,15 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	if( cached_grid_size.x != cached_grid_size.y ) {
 		// the map must be reinit
-		reliefkarte_t::get_karte()->init();
+		minimap_t::get_instance()->init();
 	}
 
 	//  rotate map search array
 	factory_builder_t::new_world();
 
 	// update minimap
-	if(reliefkarte_t::is_visible) {
-		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
+	if(minimap_t::is_visible) {
+		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
 	}
 
 	get_scenario()->rotate90( cached_size.x );
@@ -5105,6 +5138,12 @@ void karte_t::new_month()
 	last_month ++;
 	if( last_month > 11 ) {
 		last_month = 0;
+
+		if( current_month > DEFAULT_RETIRE_DATE * 12 ) {
+			// switch off timeline after 2999, since everything retires
+			settings.set_use_timeline(0);
+			dbg->warning( "karte_t::new_month()", "Timeline disabled after the year 2999" );
+		}
 	}
 	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
 
@@ -5114,8 +5153,11 @@ void karte_t::new_month()
 		w->new_month();
 	}
 
+	// Update the maximum vehicle speed records to calibrate when passengers should not burden the journey time database.
+	calc_max_vehicle_speeds();
+
 	// recalc old settings (and maybe update the stops with the current values)
-	reliefkarte_t::get_karte()->new_month();
+	minimap_t::get_instance()->new_month();
 
 	INT_CHECK("simworld 3042");
 
@@ -5988,7 +6030,7 @@ void karte_t::step()
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
-		buf.printf("%d,", message_t::general | message_t::local_flag);
+		buf.printf("%d,", message_t::general | message_t::do_not_rdwr_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 		tmp_tool->set_default_param( buf );
@@ -6670,17 +6712,32 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// This number may be very long.
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
 			car_minutes = UINT32_MAX_VALUE;
+			bool skip_route_checks = false;
+
+			// Make sure that the implicit minimum speed required to complete this journey within the journey time tolerance is possible.
+
+			const uint32 distance_to_destination_km = (straight_line_distance * get_settings().get_meters_per_tile()) / 1000u;
+			const uint32 implicit_minimum_speed_kmh = tolerance > 0 ? (distance_to_destination_km * 600) / tolerance : 0;
+
+			if((tolerance > settings.get_min_wait_airport() && implicit_minimum_speed_kmh > max_convoy_speed_air) || implicit_minimum_speed_kmh > max_convoy_speed_ground)
+			{
+				// Do not set route status to too_slow, as this may be misleading:
+				// too_slow implies that the destination is reachable and that, by providing a faster service,
+				// players might be able to get these passengers to travel: this is not really the case in this instance.
+				skip_route_checks = true;
+			}
 
 			const bool can_walk = walking_time <= walking_tolerance;
 #ifdef MULTI_THREAD
-			if (!has_private_car && !can_walk && start_halts[passenger_generation_thread_number].empty())
+			if (skip_route_checks || (!has_private_car && !can_walk && start_halts[passenger_generation_thread_number].empty()))
 #else
-			if (!has_private_car && !can_walk && start_halts.empty())
+			if (skip_route_checks || (!has_private_car && !can_walk && start_halts.empty()))
 #endif
 			{
 				/**
 				* If the passengers have no private car, are not in reach of any public transport
-				* facilities and the journey is too long on foot, do not continue to check other things.
+				* facilities and the journey is too long on foot, or if the implicit minimum speed is too high,
+				* do not continue to check other things.
 				*/
 				if (n < destination_count + extend_count - 1)
 				{
@@ -6796,8 +6853,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 				uint32 best_start_halt = 0;
 				uint32 best_journey_time_including_crowded_halts = UINT32_MAX_VALUE;
+				uint32 current_stop_transfer_time = 0;
 
 				sint32 i = 0;
+
+
 #ifdef MULTI_THREAD
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, start_halts[passenger_generation_thread_number])
 #else
@@ -6805,14 +6865,59 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 				{
 					current_halt = nearby_halt.halt;
+
 #ifdef MULTI_THREAD
-					current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+					// Start with the walking time to the start halt.
+					// Note that the walking time to the destination stop is already added by find_route.
+					current_journey_time = walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
+
 #else
-					current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+					current_journey_time = walking_time_tenths_from_distance(start_halts[i].distance);
 #endif
+					if (current_journey_time < best_journey_time && (current_journey_time < walking_time || !can_walk) && current_journey_time < tolerance)
+					{
+						// Do not hit the database with a request if even walking to the local stop takes longer than the tolerance time, is worse than the best journey time, is worse than simply walking to the destination
+						// or if the impicit speed taking into account the time taken to walk to the origin stop.
+						const uint32 distance_this_origin_to_destination = shortest_distance(nearby_halt.halt->get_basis_pos(), current_destination.location);
+						const uint32 distance_this_origin_to_destination_km = (distance_this_origin_to_destination * get_settings().get_meters_per_tile()) / 1000u;
+						const uint32 origin_stop_specific_implicit_minimum_speed_kmh = tolerance > current_journey_time ? tolerance - current_journey_time > 0 ? (distance_this_origin_to_destination_km * 600) / tolerance : 0 : UINT32_MAX_VALUE;
+
+						if(!((tolerance > settings.get_min_wait_airport() && origin_stop_specific_implicit_minimum_speed_kmh > max_convoy_speed_air) || origin_stop_specific_implicit_minimum_speed_kmh > max_convoy_speed_ground))
+						{
+#ifdef MULTI_THREAD
+							const uint32 public_transport_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+#else
+							const uint32 public_transport_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+#endif
+							if (public_transport_journey_time < UINT32_MAX_VALUE)
+							{
+								if (public_transport_journey_time < (UINT32_MAX_VALUE - current_journey_time))
+								{
+									current_journey_time += public_transport_journey_time;
+								}
+								else
+								{
+									current_journey_time = UINT32_MAX_VALUE;
+								}
+							}
+							else
+							{
+								current_journey_time = UINT32_MAX_VALUE;
+							}
+						}
+						else
+						{
+							current_journey_time = UINT32_MAX_VALUE;
+						}
+					}
+					else
+					{
+						current_journey_time = UINT32_MAX_VALUE;
+					}
+
 					// Because it is possible to walk between stops in the route finder, check to make sure that this is not an all walking journey.
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
-					if (pax.get_ziel() == pax.get_zwischenziel())
+					if (current_journey_time < UINT32_MAX_VALUE && pax.get_ziel() == pax.get_zwischenziel())
 					{
 						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index(), pax.get_class())->get(pax.get_zwischenziel());
 
@@ -6823,18 +6928,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						}
 					}
 
-
-					// Add walking time from the origin to the origin stop.
-					// Note that the walking time to the destination stop is already added by find_route.
-					if (current_journey_time < UINT32_MAX_VALUE)
-					{
-						// The above check is needed to prevent an overflow.
-#ifdef MULTI_THREAD
-						current_journey_time += walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
-#else
-						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
-#endif
-					}
 					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
 
@@ -8899,7 +8992,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version  ) {
+		if(  (sint32)file.get_version()==0  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -9297,8 +9390,8 @@ void karte_t::load(loadsave_t *file)
 	viewport->set_x_off(0);
 	viewport->set_y_off(0);
 
-	// Reliefkarte an neue welt anpassen
-	reliefkarte_t::get_karte()->init();
+	// minimap_was_visible an neue welt anpassen
+	minimap_t::get_instance()->init();
 
 	ls.set_max( get_size().y*2+256 );
 	init_tiles();
@@ -9499,10 +9592,10 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	// Reliefkarte an neue welt anpassen
+	// minimap_was_visible an neue welt anpassen
 	DBG_MESSAGE("karte_t::load()", "init relief");
 	win_set_world( this );
-	reliefkarte_t::get_karte()->init();
+	minimap_t::get_instance()->init();
 
 	sint32 fabs;
 	file->rdwr_long(fabs);
@@ -10026,6 +10119,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		sound_cooldown_timer[i] = 0;
 	}
 
+	calc_max_vehicle_speeds();
+
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
@@ -10337,17 +10432,6 @@ void karte_t::recalc_transitions(koord k)
 }
 
 
-void karte_t::create_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
-{
-	for(  int y = y_min;  y < y_max;  y++  ) {
-		for(  int x = x_min; x < x_max;  x++  ) {
-			koord k(x,y);
-			access_nocheck(k)->kartenboden_setzen( new boden_t( koord3d( x, y, max(min_hgt_nocheck(k),get_water_hgt_nocheck(k)) ), 0 ) );
-		}
-	}
-}
-
-
 uint8 karte_t::sp2num(player_t *player)
 {
 	if(  player==NULL  ) {
@@ -10506,15 +10590,29 @@ void karte_t::step_month( sint16 months )
 }
 
 
+sint32 karte_t::get_time_multiplier() const
+{
+	return step_mode==FAST_FORWARD ? env_t::max_acceleration : time_multiplier;
+}
+
+
+
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	time_multiplier += delta;
-	if(time_multiplier<=0) {
-		time_multiplier = 1;
+	if(  step_mode == FAST_FORWARD  ) {
+		if(  env_t::max_acceleration+delta > 2  ) {
+			env_t::max_acceleration += delta;
+		}
 	}
-	if(step_mode!=NORMAL) {
-		step_mode = NORMAL;
-		reset_timer();
+	else {
+		time_multiplier += delta;
+		if(time_multiplier<=0) {
+			time_multiplier = 1;
+		}
+		if(step_mode!=NORMAL) {
+			step_mode = NORMAL;
+			reset_timer();
+		}
 	}
 }
 
@@ -10652,7 +10750,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			// tell the player
 			cbuffer_t buf;
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
+			msg->add_message(buf, koord::invalid, message_t::ai | message_t::do_not_rdwr_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
 		}
 
 		// update menu entries
@@ -11220,6 +11318,14 @@ void karte_t::announce_server(int status)
 		cbuffer_t buf, altbuf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
 			// ipdate IP just in case
+			if(  status == 1  &&  (env_t::server_dns.compare( buf )  ||  env_t::server_alt_dns.compare( altbuf ))  ) {
+				announce_server( 2 );
+				status = 0; // since starting with new IP
+				// if we had uPnP, we may need to drill another hole in the firewall again; the delay is no problem, since all clients will be lost anyway
+				char IP[256], altIP[256];
+				prepare_for_server( IP, altIP, env_t::server_port );
+			}
+			// now update DNS info
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}
@@ -11235,72 +11341,73 @@ void karte_t::announce_server(int status)
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
-#ifndef REVISION
-#	define REVISION 0
-#endif
-			// Simple revision used for matching (integer)
-			//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
-			buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
-			// Complex version string used for display
-			//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
-			// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
-			buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
-			// Pakset version
-			buf.append( "&pak=" );
-			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
-			char const* const copyright = ground_desc_t::outside->get_copyright();
-			if (copyright && STRICMP("none", copyright) != 0) {
-				// construct from outside object copyright string
-				encode_URI( buf, copyright );
-			}
-			else {
-				// construct from pak name
-				std::string pak_name = env_t::objfilename;
-				pak_name.erase( pak_name.length() - 1 );
-				encode_URI( buf, pak_name.c_str() );
-			}
-			// TODO - change this to be the start date of the current map
-			buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
-			// Add server name for listing
-			buf.append( "&name=" );
-			encode_URI( buf, env_t::server_name.c_str() );
-			// Add server comments for listing
-			buf.append( "&comments=" );
-			encode_URI( buf, env_t::server_comments.c_str() );
-			// Add server maintainer email for listing
-			buf.append( "&email=" );
-			encode_URI( buf, env_t::server_email.c_str() );
-			// Add server pakset URL for listing
-			buf.append( "&pakurl=" );
-			encode_URI( buf, env_t::server_pakurl.c_str() );
-			// Add server info URL for listing
-			buf.append( "&infurl=" );
-			encode_URI( buf, env_t::server_infurl.c_str() );
-
-			// Now add the game data part
-			uint8 active = 0, locked = 0;
-			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
-					active ++;
-					if(  players[i]->is_locked()  ) {
-						locked ++;
-					}
-				}
-			}
-			buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
-			buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
-			buf.printf( "&active=%u",    active );
-			buf.printf( "&locked=%u",    locked );
-			buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
-			buf.printf( "&towns=%u",     stadt.get_count() );
-			buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
-			buf.printf( "&factories=%u", fab_list.get_count() );
-			buf.printf( "&convoys=%u",   convoys().get_count());
-			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 		}
 		else {
 			buf.append( "&st=0" );
 		}
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		// Simple revision used for matching (integer)
+		//buf.printf( "&rev=%d", atol( QUOTEME(REVISION) ) );
+		buf.printf("&rev=%d", strtol(QUOTEME(REVISION), NULL, 16));
+		// Complex version string used for display
+		//buf.printf( "&ver=Simutrans %s (#%s) built %s", QUOTEME(VERSION_NUMBER), QUOTEME(REVISION), QUOTEME(VERSION_DATE) );
+		// For some reason not yet clear, the above does not work. Attempt a simpler version for now, with only the revision.
+		buf.printf("&ver=%x", strtol(QUOTEME(REVISION), NULL, 16));
+		// Pakset version
+		buf.append( "&pak=" );
+		// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
+		char const* const copyright = ground_desc_t::outside->get_copyright();
+		if (copyright && STRICMP("none", copyright) != 0) {
+			// construct from outside object copyright string
+			encode_URI( buf, copyright );
+		}
+		else {
+			// construct from pak name
+			std::string pak_name = env_t::objfilename;
+			pak_name.erase( pak_name.length() - 1 );
+			encode_URI( buf, pak_name.c_str() );
+		}
+		// TODO - change this to be the start date of the current map
+		buf.printf( "&start=%u,%u", settings.get_starting_month() + 1, settings.get_starting_year() );
+		// Add server name for listing
+		buf.append( "&name=" );
+		encode_URI( buf, env_t::server_name.c_str() );
+		// Add server comments for listing
+		buf.append( "&comments=" );
+		encode_URI( buf, env_t::server_comments.c_str() );
+		// Add server maintainer email for listing
+		buf.append( "&email=" );
+		encode_URI( buf, env_t::server_email.c_str() );
+		// Add server pakset URL for listing
+		buf.append( "&pakurl=" );
+		encode_URI( buf, env_t::server_pakurl.c_str() );
+		// Add server info URL for listing
+		buf.append( "&infurl=" );
+		encode_URI( buf, env_t::server_infurl.c_str() );
+
+		// Now add the game data part
+		uint8 active = 0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
+				active ++;
+				if(  players[i]->is_locked()  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( "&time=%u,%u",   (get_current_month() % 12) + 1, get_current_month() / 12 );
+		buf.printf( "&size=%u,%u",   get_size().x, get_size().y );
+		buf.printf( "&active=%u",    active );
+		buf.printf( "&locked=%u",    locked );
+		buf.printf( "&clients=%u",   socket_list_t::get_playing_clients() );
+		buf.printf( "&towns=%u",     stadt.get_count() );
+		buf.printf( "&citizens=%u",  stadt.get_sum_weight() );
+		buf.printf( "&factories=%u", fab_list.get_count() );
+		buf.printf( "&convoys=%u",   convoys().get_count());
+		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
+
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
 
 		// Record time of this announce
@@ -12142,4 +12249,79 @@ std::string karte_t::get_region_name(koord k) const
 	}
 
 	return settings.regions[region_number].name;
+}
+
+void karte_t::calc_max_vehicle_speeds()
+{
+	max_convoy_speed_ground = 0;
+	max_convoy_speed_air = 0;
+
+	bool aircraft_in_service = false;
+
+	// First, check maximum of players' convoys
+	for (uint32 i = convoi_array.get_count(); i-- != 0;)
+	{
+		convoihandle_t cnv = convoi_array[i];
+		const sint32 max_speed = speed_to_kmh(cnv->get_min_top_speed());
+		if (cnv->front()->get_waytype() == air_wt)
+		{
+			aircraft_in_service = true;
+			if (max_speed > max_convoy_speed_air)
+			{
+				max_convoy_speed_air = max_speed;
+			}
+		}
+		else
+		{
+			if (max_speed > max_convoy_speed_ground)
+			{
+				max_convoy_speed_ground = max_speed;
+			}
+		}
+	}
+
+	// Secondly, check for maximum vehicle speeds to prevent anomalies
+	// especially at the beginning of a game.
+
+	sint32 max_available_speed_ground = 0;
+	sint32 max_available_speed_air = 0;
+
+	for (sint32 i = road_wt; i <= narrowgauge_wt; i++)
+	{
+		FOR(slist_tpl<vehicle_desc_t*>, const info, vehicle_builder_t::get_info((waytype_t)i))
+		{
+			const sint32 max_speed = speed_to_kmh(info->get_topspeed());
+			if (max_speed > max_available_speed_ground && info->get_power() > 0)
+			{
+				max_available_speed_ground = max_speed;
+			}
+		}
+	}
+
+	FOR(slist_tpl<vehicle_desc_t*>, const info, vehicle_builder_t::get_info(air_wt))
+	{
+		const sint32 max_speed = speed_to_kmh(info->get_topspeed());
+		if (max_speed > max_available_speed_air)
+		{
+			max_available_speed_air = max_speed;
+		}
+	}
+
+	if (convoi_array.empty())
+	{
+		max_convoy_speed_ground = max_available_speed_ground;
+	}
+
+	if (!aircraft_in_service)
+	{
+		if (max_available_speed_air == 0)
+		{
+			max_available_speed_air = max_available_speed_ground;
+		}
+
+		max_convoy_speed_air = min(max_convoy_speed_ground * 3, min(max_available_speed_air, 895));
+	}
+
+	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
+	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground);
 }

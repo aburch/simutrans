@@ -7,10 +7,13 @@
 #define SYS_SIMSYS_H
 
 
-#include <stddef.h>
 #include "../simtypes.h"
+#include "../display/scr_coord.h"
+
 #include <zlib.h>
 #include <string>
+
+#include <cstddef>
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -44,7 +47,7 @@
 
 /* Global Variable for message processing */
 
-struct sys_event
+struct sys_event_t
 {
 	unsigned long type;
 	union {
@@ -54,14 +57,14 @@ struct sys_event
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
-	/**
-	 * new window size for SYSTEM_RESIZE
-	 */
-	int size_x, size_y;
+
+	/// new window size for SYSTEM_RESIZE
+	scr_size new_window_size;
+
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
-extern struct sys_event sys_event;
+extern sys_event_t sys_event;
 
 extern char const PATH_SEPARATOR[];
 
@@ -78,7 +81,7 @@ struct resolution
 };
 resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, int fullscreen);
+int dr_os_open(int w, int h, bool fullscreen);
 void dr_os_close();
 
 // returns the locale; NULL if unknown

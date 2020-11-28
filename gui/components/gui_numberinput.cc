@@ -255,13 +255,16 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		sint32 new_value = value;
 
 		// mouse wheel -> fast increase / decrease
-		if(IS_WHEELUP(ev)){
-			new_value = get_next_value();
+		if (getroffen(ev->mx + pos.x, ev->my + pos.y)) {
+			if(IS_WHEELUP(ev)) {
+				new_value = get_next_value();
+				result = true;
+			}
+			else if(IS_WHEELDOWN(ev)){
+				new_value = get_prev_value();
+				result = true;
+			}
 		}
-		else if(IS_WHEELDOWN(ev)){
-			new_value = get_prev_value();
-		}
-
 		// catch non-number keys
 		if(  ev->ev_class == EVENT_KEYBOARD  ||  value==new_value  ) {
 			// assume false input

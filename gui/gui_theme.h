@@ -92,7 +92,7 @@ class image_t;
 #define D_TITLEBAR_HEIGHT      (gui_theme_t::gui_titlebar_height)
 #define D_DIVIDER_HEIGHT       (gui_theme_t::gui_divider_size.h)
 #define D_STATUSBAR_HEIGHT     (max(16,LINESPACE))                    // statusbar bottom of screen
-#define D_TAB_HEADER_HEIGHT      (gui_tab_panel_t::header_vsize)        // Tab page params (replace with real values from the skin images)
+#define D_TAB_HEADER_HEIGHT    (gui_tab_panel_t::header_vsize)        // Tab page params (replace with real values from the skin images)
 
 // Dialog borders
 #define D_MARGIN_LEFT          (gui_theme_t::gui_frame_left)
@@ -246,9 +246,10 @@ public:
 	static PIXVAL gui_color_loadingbar_inner;
 	static PIXVAL gui_color_loadingbar_progress;
 	static PIXVAL gui_color_obsolete;                     //@< Color for obsolete convois/server entries
+	static PIXVAL gui_color_out_of_production;            //@< (EX unique) Color for convoy that is no longer in production (but not obsolete)
 	static PIXVAL gui_color_empty;                        //@< Color for empty entries
-	static PIXVAL gui_color_up_pointing_triangle;         //@< Color to draw an upward triangle indicating an increase in the number
-	static PIXVAL gui_color_down_pointing_triangle;       //@< Color to draw an downward triangle indicating an decrease in the number
+	static PIXVAL gui_color_up_pointing_triangle;         //@< (EX unique) Color to draw an upward triangle indicating an increase in the number
+	static PIXVAL gui_color_down_pointing_triangle;       //@< (EX unique) Color to draw an downward triangle indicating an decrease in the number
 
 
 	/// @name GUI element sizes used by gui components

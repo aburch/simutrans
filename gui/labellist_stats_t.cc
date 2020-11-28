@@ -15,7 +15,8 @@
 #include "../dataobj/environment.h"
 
 
-labellist::sort_mode_t labellist_stats_t::sortby = labellist::by_name;
+uint8 labellist_stats_t::sort_mode = labellist::by_name;
+uint8 labellist_stats_t::region_filter = 0;
 bool labellist_stats_t::sortreverse = false;
 bool labellist_stats_t::filter = false;
 
@@ -27,7 +28,7 @@ bool labellist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 	const labellist_stats_t* b = dynamic_cast<const labellist_stats_t*>(bb);
 
 	int cmp = 0;
-	switch (sortby) {
+	switch ( sort_mode ) {
 		default: NOT_REACHED
 		case labellist::by_name:
 		{

@@ -35,7 +35,9 @@
 #include "line_item.h"
 
 #include "components/gui_button.h"
-#include "karte.h"
+#include "minimap.h"
+//#include "components/gui_image.h"
+//#include "components/gui_textarea.h"
 
 
 
@@ -125,7 +127,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 				buf.printf(" %.1f%s", distance, "km");
 
-				PIXVAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+				PIXVAL const c = sel == 0 ? color_idx_to_rgb(COL_WHITE) : SYSCOL_TEXT;
 				sint16 const w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 				if (width < w)
 				{
@@ -158,7 +160,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		}
 		distance = (double)(shortest_distance(last_stop_pos, schedule->entries[0].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000;
 		buf.printf(" %.1f%s", distance, "km");
-		PIXVAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+		PIXVAL c = sel == 0 ? color_idx_to_rgb(COL_WHITE) : SYSCOL_TEXT;
 		sint16 w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 		if (width < w)
 		{
@@ -203,7 +205,7 @@ schedule_gui_t::~schedule_gui_t()
 	if(  player  ) {
 		update_tool( false );
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+		minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 	}
 }
 
@@ -233,8 +235,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	}
 	else {
 		// set this schedule as current to show on minimap if possible
-		reliefkarte_t::get_karte()->set_current_cnv( cnv );
-		old_line = new_line = cnv_->get_line();
+		minimap_t::get_instance()->set_selected_cnv( cnv );
+		old_line = new_line = cnv->get_line();
 	}
 	old_line_count = 0;
 

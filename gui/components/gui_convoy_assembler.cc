@@ -40,20 +40,6 @@
 
 #include "../../dataobj/settings.h"
 
-static const char * engine_type_names [11] =
-{
-  "unknown",
-  "steam",
-  "diesel",
-  "electric",
-  "bio",
-  "sail",
-  "fuel_cell",
-  "hydrogene",
-  "battery",
-  "petrol",
-  "turbine"
-};
 
 #define COL_LACK_OF_MONEY color_idx_to_rgb(COL_DARK_ORANGE)
 #define COL_EXCEED_AXLE_LOAD_LIMIT color_idx_to_rgb(COL_GREY3)
@@ -2399,7 +2385,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		if (veh_type->get_power() > 0)
 		{
 			const uint8 et = (uint8)veh_type->get_engine_type() + 1;
-			buf.printf(" (%s)", translator::translate(engine_type_names[et]));
+			buf.printf(" (%s)", translator::translate( vehicle_builder_t::engine_type_names[et] ));
 		}
 		buf.append("\n");
 
@@ -2479,7 +2465,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				min_weight * 0.001f, max_speed, translator::translate("..."), max_weight * 0.001f, min_speed);
 			buf.append("\n");
 			const uint8 et = (uint8)veh_type->get_engine_type() + 1;
-			buf.printf(translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate(engine_type_names[et]), veh_type->get_power(), veh_type->get_tractive_effort());
+			buf.printf(translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate( vehicle_builder_t::engine_type_names[et] ), veh_type->get_power(), veh_type->get_tractive_effort());
 			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
 			{
 				buf.printf("%s %0.2f : 1", translator::translate("Gear:"), veh_type->get_gear() / 64.0);
@@ -2727,7 +2713,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		// vehicle number fluctuation counter
 		if (vehicle_fluctuation != 0) {
-			const PIXVAL counter_col = vehicle_fluctuation > 0 ? COL_ADDITIONAL : COL_REDUCED_TEXT;
+			const PIXVAL counter_col = vehicle_fluctuation > 0 ? SYSCOL_UP_TRIANGLE : SYSCOL_DOWN_TRIANGLE;
 			sprintf(txt_convoi_count_fluctuation, "%s%i", vehicle_fluctuation > 0 ? "+" : "", vehicle_fluctuation);
 			lb_convoi_count_fluctuation.set_visible(true);
 			if (!txt_convoi_count.len()) {
@@ -2740,7 +2726,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			lb_convoi_count_fluctuation.set_visible(false);
 		}
 
-		const uint8 MAX_ROWS = max(12-lines, 0); // Maximum display line of possession livery scheme or upgrade info
+		const uint8 MAX_ROWS = max(16-lines, 0); // Maximum display line of possession livery scheme or upgrade info
 		// livery counter and avairavle livery scheme list
 		if (veh_type->get_livery_count() > 0 && MAX_ROWS) {
 			// display the available number of liveries

@@ -54,6 +54,8 @@ void clear_command_queue()
 #define RET_ERR_STR { DWORD errnr = WSAGetLastError(); if( errnr!=0 ) FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM,NULL,errnr,MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
 #else
 #define RET_ERR_STR { err = err_str; return INVALID_SOCKET; }
+
+#include <signal.h>
 #endif
 
 
@@ -670,6 +672,12 @@ void network_send_server(network_command_t* nwc)
 bool network_send_data(SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms)
 {
 	count = 0;
+
+#if USE_WINSOCK == 0
+	// ignore SIGPIPE sent by send() function.
+	signal(SIGPIPE, SIG_IGN);
+#endif
+
 	while (count < size) {
 		int sent = send(dest, buf + count, size - count, 0);
 		if (sent == -1) {
@@ -706,6 +714,11 @@ bool network_send_data(SOCKET dest, const char *buf, const uint16 size, uint16 &
 		count += sent;
 		DBG_DEBUG4("network_send_data", "sent %d bytes to socket[%d]; size=%d, left=%d", count, dest, size, size - count);
 	}
+
+#if USE_WINSOCK == 0
+	signal(SIGPIPE, SIG_DFL);
+#endif
+
 	// we reach here only if data are sent completely
 	return true;
 }
@@ -920,7 +933,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 
 	externalAltIPAddress[0] = 0;
 #if 1
-	// use the same routine as later the abnnounce routine, otherwise update with dynamic IP fails
+	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
 		has_IP = true;

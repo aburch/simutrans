@@ -49,7 +49,7 @@
 #include "../obj/crossing.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../descriptor/citycar_desc.h"
 #include "../descriptor/goods_desc.h"
@@ -1082,7 +1082,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	bool other_classes_available = false;
-	uint8 goods_restriction = 0;
+	uint8 goods_restriction = goods_manager_t::INDEX_NONE;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
@@ -1653,8 +1653,8 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(last  &&  reliefkarte_t::is_visible) {
-			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	if(last  &&  minimap_t::is_visible) {
+			minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
 }
@@ -1665,8 +1665,9 @@ void vehicle_t::leave_tile()
 void vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_base_t::enter_tile(gr);
-	if(leading  &&  reliefkarte_t::is_visible  ) {
-		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );  //"Set relief colour" (Babelfish)
+
+	if(leading  &&  minimap_t::is_visible  ) {
+		minimap_t::get_instance()->calc_map_pixel( get_pos().get_2d() );
 	}
 }
 
@@ -3044,8 +3045,8 @@ bool vehicle_t::check_access(const weg_t* way) const
 vehicle_t::~vehicle_t()
 {
 	if(!welt->is_destroying()) {
-		// remove vehicle's marker from the relief map
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+		// remove vehicle's marker from the minimap
+		minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 	}
 
 	delete[] class_reassignments;
@@ -4818,6 +4819,8 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 		return 9999;
 	}
 
+	const koord to_pos = gr->get_pos().get_2d();
+
 	// add cost for going (with maximum speed, cost is 10)
 	const sint32 max_tile_speed = w->get_max_speed();
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
@@ -4829,9 +4832,9 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
 		// check if the slope is upwards, relative to the previous tile
-		from_pos -= gr->get_pos().get_2d();
+		const koord before_from_pos = from_pos - to_pos;
 		// 125 hardcoded, see get_cost_upslope()
-		costs += 125 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
+		costs += 125 * slope_t::get_sloping_upwards( gr->get_weg_hang(), before_from_pos.x, before_from_pos.y );
 	}
 
 	// Strongly prefer routes for which the vehicle is not overweight.
@@ -4840,6 +4843,12 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	if(welt->get_settings().get_enforce_weight_limits() == 3 || (welt->get_settings().get_enforce_weight_limits() == 1 && cnv && (cnv->get_highest_axle_load() > max_axle_load || (cnv->get_weight_summary().weight / 1000) > bridge_weight_limit) ) )
 	{
 		costs += 400;
+	}
+
+	// Slightly discourage passing signals from behind (opposite to the intended direction of travel)
+	if(w->get_signal(ribi_type(to_pos, from_pos)))
+	{
+		costs += 10;
 	}
 
 	if(w->is_diagonal())
@@ -6028,8 +6037,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(working_method == drive_by_sight)
 	{
-		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
-		if(max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
+		const sint32 max_speed_drive_by_sight = get_desc()->get_waytype() == tram_wt ? welt->get_settings().get_max_speed_drive_by_sight_tram() : welt->get_settings().get_max_speed_drive_by_sight();
+		if(max_speed_drive_by_sight)
 		{
 			cnv->set_maximum_signal_speed(max_speed_drive_by_sight);
 		}

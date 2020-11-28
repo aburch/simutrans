@@ -11,19 +11,28 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "message_option_t.h"
+#include "components/gui_image.h"
 
 
 message_option_t::message_option_t() :
-	gui_frame_t( translator::translate("Mailbox Options") ),
-	legend( skinverwaltung_t::message_options->get_image_id(0),0,0,true )
+	gui_frame_t( translator::translate("Mailbox Options") )
 {
 	set_table_layout(5,0);
 
-	// first row with monolithic images ...
+	// first row images
 	new_component_span<gui_empty_t>(2);
-	add_component( &legend, 3 );
+	if (skinverwaltung_t::message_options->get_count() >=3 ) {
+		// three single images
+		for(int i=0; i<3; i++) {
+			new_component<gui_image_t>(skinverwaltung_t::message_options->get_image_id(i), 0, 0, true);
+		}
+	}
+	else {
+		// one monolithic image
+		new_component_span<gui_image_t>(skinverwaltung_t::message_options->get_image_id(0), 0, 0, true, 3);
+	}
 
-	// The text is unfourtunately a single text, which we have to chop into pieces.
+	// The text is unfortunately a single text, which we have to chop into pieces.
 	const unsigned char *p = (const unsigned char *)translator::translate( "MessageOptionsText" );
 	welt->get_message()->get_message_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
