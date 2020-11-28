@@ -193,7 +193,7 @@ settings_t::settings_t() :
 	// read default from env_t
 	// should be set in simmain.cc (taken from pak-set simuconf.tab
 	way_height_clearance = env_t::default_settings.get_way_height_clearance();
-	if (way_height_clearance < 0 || way_height_clearance >2) {
+	if (way_height_clearance >2) {
 		// if outside bounds, then set to default = 1
 		way_height_clearance = 1;
 	}

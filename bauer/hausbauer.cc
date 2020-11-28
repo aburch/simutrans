@@ -269,7 +269,28 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 		delete old_desc;
 	}
 
-	desc->set_builder(NULL);
+	// probably needs a tool if it has a cursor
+	const skin_desc_t *sd = desc->get_cursor();
+	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
+		tool_t *tool;
+		if(  desc->get_type()==building_desc_t::depot  ) {
+			tool = new tool_build_depot_t();
+		}
+		else if(  desc->get_type()==building_desc_t::headquarters  ) {
+			tool = new tool_headquarter_t();
+		}
+		else {
+			tool = new tool_build_station_t();
+		}
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0),
+		tool->set_default_param(desc->get_name());
+		tool_t::general_tool.append( tool );
+		desc->set_builder( tool );
+	}
+	else {
+		desc->set_builder( NULL );
+	}
 	desc_names.put(desc->get_name(), desc);
 
 	return true;
