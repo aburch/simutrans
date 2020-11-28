@@ -111,9 +111,9 @@ void halt_detail_t::init()
 	// route tab components
 	uint y = D_V_SPACE;
 	cont_route.set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
-	bt_by_station.init(button_t::roundbox_state, "hd_btn_by_station", scr_coord(cont_route.get_size().w - D_BUTTON_WIDTH - D_H_SPACE, y), D_BUTTON_SIZE);
-	bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(bt_by_station.get_pos().x - D_BUTTON_WIDTH, y), D_BUTTON_SIZE);
-	y += D_BUTTON_HEIGHT;
+	bt_by_station.init(button_t::roundbox_state, "hd_btn_by_station", scr_coord(D_MARGIN_LEFT, y), D_BUTTON_SIZE);
+	bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(bt_by_station.get_pos().x + D_BUTTON_WIDTH, y), D_BUTTON_SIZE);
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 	lb_serve_catg.init("lb_served_goods_and_classes", scr_coord(D_MARGIN_LEFT, y),
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	bt_by_station.add_listener(this);
