@@ -8,6 +8,7 @@
 #include "../display/viewport.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
+#include "../utils/simstring.h"
 
 void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init)
 {
@@ -110,6 +111,12 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 						}
 						welt->get_viewport()->change_world_position( p );
 					}
+				}
+			}
+			else if (const char* func = strstart(link, "script:") ) {
+				const char* err = welt->get_scenario()->eval_string(func);
+				if (err  &&  strcmp(err, "suspended") != 0) {
+					dbg->warning("scenario_info_t::action_triggered", "error `%s' when evaluating: %s", err, func);
 				}
 			}
 			else {

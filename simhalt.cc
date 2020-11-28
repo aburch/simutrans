@@ -49,7 +49,7 @@
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
-#include "gui/karte.h"
+#include "gui/minimap.h"
 
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
@@ -334,7 +334,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 	// if building was removed this is false!
 	if(bd) {
 		bd->calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 	return true;
 }
@@ -1439,7 +1439,7 @@ void haltestelle_t::new_month()
 	if(  welt->get_active_player()==owner  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full|message_t::expire_after_one_month_flag, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 

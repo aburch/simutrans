@@ -73,6 +73,7 @@ private:
 public:
 	static uint8 sort_mode;
 	static bool reverse;
+	static uint16 name_width;
 
 	depotlist_stats_t(depot_t *);
 

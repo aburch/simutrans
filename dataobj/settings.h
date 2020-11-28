@@ -728,8 +728,11 @@ public:
 
 	uint32 assumed_curve_radius_45_degrees;
 
-	sint32 max_speed_drive_by_sight_kmh;
-	sint32 max_speed_drive_by_sight;
+	sint32 max_speed_drive_by_sight_kmh = 9999;
+	sint32 max_speed_drive_by_sight = SINT32_MAX_VALUE;
+
+	sint32 max_speed_drive_by_sight_tram_kmh = 9999;
+	sint32 max_speed_drive_by_sight_tram = SINT32_MAX_VALUE;
 
 	uint32 time_interval_seconds_to_clear;
 	uint32 time_interval_seconds_to_caution;
@@ -1219,8 +1222,8 @@ public:
 
 	uint32 get_max_diversion_tiles() const { return max_diversion_tiles; }
 
-	sint8 get_way_height_clearance() const { return way_height_clearance; }
-	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
+	uint8 get_way_height_clearance() const { return way_height_clearance; }
+	void set_way_height_clearance( uint8 n ) { way_height_clearance = n; }
 
 	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
 	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
@@ -1239,6 +1242,8 @@ public:
 
 	sint32 get_max_speed_drive_by_sight_kmh() const { return max_speed_drive_by_sight_kmh; }
 	sint32 get_max_speed_drive_by_sight() const { return max_speed_drive_by_sight; }
+	sint32 get_max_speed_drive_by_sight_tram_kmh() const { return max_speed_drive_by_sight_tram_kmh; }
+	sint32 get_max_speed_drive_by_sight_tram() const { return max_speed_drive_by_sight_tram; }
 
 	uint32 get_time_interval_seconds_to_clear() const { return time_interval_seconds_to_clear; }
 	uint32 get_time_interval_seconds_to_caution() const { return time_interval_seconds_to_caution; }

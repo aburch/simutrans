@@ -13,11 +13,8 @@ class bridge_reader_t : public obj_reader_t {
 	static bridge_reader_t the_instance;
 
 	bridge_reader_t() { register_reader(); }
-
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
-
-	virtual bool successfully_loaded() const OVERRIDE;
 
 public:
 	static bridge_reader_t*instance() { return &the_instance; }

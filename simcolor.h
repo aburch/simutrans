@@ -104,18 +104,13 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define COL_SAFETY          color_idx_to_rgb(COL_DARK_GREEN)
 #define COL_INACTIVE        color_idx_to_rgb(COL_GREY3)
 
-// used in tilebar (and text)
-#define COL_ADDITIONAL      color_idx_to_rgb(COL_LIGHT_TURQUOISE)
-#define COL_REDUCED         color_idx_to_rgb(COL_LIGHT_ORANGE)
-#define COL_REDUCED_TEXT    color_idx_to_rgb(COL_LIGHT_ORANGE-2)
-
 #define COL_IN_TRANSIT      color_idx_to_rgb(COL_YELLOW)
 #define COL_STAFF_SHORTAGE  color_idx_to_rgb(COL_DARK_ORCHID)
 
 // used in vehicle status
 #define COL_UPGRADEABLE       color_idx_to_rgb(COL_PURPLE)
 #define COL_OBSOLETE          SYSCOL_OBSOLETE
-#define COL_OUT_OF_PRODUCTION color_idx_to_rgb(COL_SOFT_BLUE)
+#define COL_OUT_OF_PRODUCTION SYSCOL_OUT_OF_PRODUCTION
 //#define COL_OVERCROWDED     color_idx_to_rgb(COL_DARK_PURPLE)
 
 // used in many dialogues' graphs
@@ -201,6 +196,7 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_LOADINGBAR_INNER             gui_theme_t::gui_color_loadingbar_inner
 #define SYSCOL_LOADINGBAR_PROGRESS          gui_theme_t::gui_color_loadingbar_progress
 #define SYSCOL_OBSOLETE                     gui_theme_t::gui_color_obsolete
+#define SYSCOL_OUT_OF_PRODUCTION            gui_theme_t::gui_color_out_of_production
 #define SYSCOL_EMPTY                        gui_theme_t::gui_color_empty
 #define SYSCOL_UP_TRIANGLE                  gui_theme_t::gui_color_up_pointing_triangle
 #define SYSCOL_DOWN_TRIANGLE                gui_theme_t::gui_color_down_pointing_triangle

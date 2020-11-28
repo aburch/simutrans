@@ -1070,7 +1070,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	//reliefkarte_t::get_karte()->calc_map();
+	// minimap_t::get_instance()->calc_map();
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 

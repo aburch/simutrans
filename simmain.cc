@@ -263,8 +263,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	}
 	else {
 		display_show_pointer(true);
-		show_pointer(1);
-		set_pointer(0);
+		display_show_load_pointer(0);
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {
 			// do not move, do not close it!
@@ -281,9 +280,9 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			if(ev.ev_class==EVENT_SYSTEM) {
 				if (ev.ev_code==SYSTEM_RESIZE) {
 					// main window resized
-					simgraph_resize( ev.size_x, ev.size_y );
+					simgraph_resize( ev.new_window_size );
 					dr_prepare_flush();
-					display_fillbox_wh_rgb( 0, 0, ev.size_x, ev.size_y, color_idx_to_rgb(COL_BLACK), true );
+					display_fillbox_wh_rgb( 0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true );
 					gui->draw(win_get_pos(gui), gui->get_windowsize());
 					dr_flush();
 				}
@@ -297,7 +296,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				check_pos_win(&ev);
 			}
 		}
-		set_pointer(1);
+		display_show_load_pointer(1);
 		dr_prepare_flush();
 		display_fillbox_wh_rgb( 0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true );
 		dr_flush();
@@ -320,6 +319,20 @@ static bool never_quit() { return false; }
 static bool empty_objfilename() { return !env_t::objfilename.empty(); }
 static bool no_language() { return translator::get_language()!=-1; }
 
+static bool wait_for_key()
+{
+	event_t ev;
+	display_poll_event(&ev);
+	if(  ev.ev_class==EVENT_KEYBOARD  ) {
+		if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
+			return true;
+		}
+	}
+	event_t *nev = new event_t();
+	*nev = ev;
+	queue_event(nev);
+	return false;
+}
 
 
 /**
@@ -445,7 +458,7 @@ int simu_main(int argc, char** argv)
 			" -fps COUNT          framerate (from 5 to 100)\n"
 			" -h | -help | --help displays this help\n"
 			" -lang CODE          starts with specified language\n"
-			" -load FILE[.sve]    loads game in file 'save/FILE.sve'\n"
+			" -load NAME          loads savegame with name 'NAME' from Simutrans 'save' directory\n"
 			" -log                enables logging to file 'simu.log'\n"
 #ifdef SYSLOG
 			" -syslog             enable logging to syslog\n"
@@ -880,9 +893,9 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
-	simgraph_init(disp_width, disp_height, fullscreen);
-	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
+	DBG_MESSAGE("simu_main()", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, (int)fullscreen);
+	simgraph_init(scr_size(disp_width, disp_height), fullscreen != 0);
+	DBG_MESSAGE("simu_main()", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// now that the graphics system has already started
 	// the saved colours can be converted to the system format
@@ -943,7 +956,7 @@ int simu_main(int argc, char** argv)
 	dr_chdir( env_t::program_dir );
 
 	// The loading screen needs to be initialized
-	show_pointer(1);
+	display_show_pointer(1);
 
 	// if no object files given, we ask the user
 	if(  env_t::objfilename.empty()  ) {
@@ -1119,9 +1132,16 @@ int simu_main(int argc, char** argv)
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::init_menu();
 
-	// loading all paks
+	// loading all objects in the pak
 	dbg->message("simmain()","Reading object data from %s...", env_t::objfilename.c_str());
-	obj_reader_t::load(env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
+	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
+	std::string overlaid_warning;	// more prominent handling of double objects
+	if(  dbg->had_overlaid()  ) {
+		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
+		overlaid_warning.append( env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
+		dbg->clear_overlaid();
+	}
+
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		dr_chdir( env_t::user_dir );
@@ -1130,10 +1150,22 @@ int simu_main(int argc, char** argv)
 			env_t::default_settings.set_with_private_paks( false );
 		}
 		dr_chdir( env_t::program_dir );
+		if(  dbg->had_overlaid()  ) {
+			overlaid_warning.append( translator::translate("<h1>Warning</h1><p><strong>addons for") + env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() );
+			dbg->clear_overlaid();
+		}
 	}
 	obj_reader_t::finish_rd();
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
+
+	if(  !overlaid_warning.empty()  ) {
+		overlaid_warning.append( translator::translate("<p>Continue by ESC, SPACE, or BACKSPACE.<br>") );
+		help_frame_t *win = new help_frame_t();
+		win->set_text( overlaid_warning.c_str() );
+		modal_dialogue( win, magic_pakset_info_t, NULL, wait_for_key );
+		destroy_all_win(true);
+	}
 
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::read_menu(env_t::objfilename);
@@ -1320,6 +1352,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		env_t::server_dns = ref_str;
 	}
 
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_altdns", 1)  ) {
+		env_t::server_alt_dns = ref_str;
+		DBG_DEBUG( "simmain()", "Server IP set to '%s'.", ref_str );
+	}
+
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_name", 1)  ) {
 		env_t::server_name = ref_str;
 	}
@@ -1328,12 +1365,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		env_t::server_admin_pw = ref_str;
 	}
 
+	if(  env_t::server_dns.empty()  &&  !env_t::server_alt_dns.empty()  ) {
+		dbg->warning( "simmain", "server_altdns but not server_dns set. Please use server_dns first!" );
+		env_t::server_dns = env_t::server_alt_dns;
+		env_t::server_alt_dns.clear();
+	}
+
 	dr_chdir(env_t::user_dir);
 
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
-
 
 	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
 		// create a default map
@@ -1421,8 +1463,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 	}
 #endif
 	display_show_pointer(true);
-	show_pointer(1);
-	set_pointer(0);
+	display_show_load_pointer(0);
 
 	welt->set_dirty();
 

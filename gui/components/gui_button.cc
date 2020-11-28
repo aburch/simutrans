@@ -27,9 +27,8 @@
 
 #include "../gui_frame.h"
 
-#define TYPE_MASK (127)
-#define STATE_BIT (128)
-#define AUTOMATIC_BIT (256)
+#define STATE_BIT (button_t::state)
+#define AUTOMATIC_BIT (button_t::automatic)
 
 #define get_state_offset() (b_enabled ? pressed : 2)
 
@@ -273,8 +272,7 @@ bool button_t::infowin_event(const event_t *ev)
 		if(  (type & TYPE_MASK)==posbutton  ) {
 			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
-				welt->get_viewport()->change_world_position( koord3d(targetpos.x,targetpos.y,targetpos.z) );
-
+				welt->get_viewport()->change_world_position( targetpos );
 			}
 
 		}
@@ -349,7 +347,8 @@ void button_t::draw(scr_coord offset)
 					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				else if(image) {
-					display_img_aligned(image, area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
+					const scr_rect img_area = pressed ? scr_rect(area.x, area.y+1, area.w, area.h) : area;
+					display_img_aligned(image, img_area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
@@ -377,7 +376,7 @@ void button_t::draw(scr_coord offset)
 			{
 				uint8 offset = get_state_offset();
 				if(  offset == 0  ) {
-					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.x,targetpos.y)  ) {
+					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.get_2d())  ) {
 						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
 					}
 				}
@@ -402,6 +401,8 @@ void button_t::draw(scr_coord offset)
 		case arrowdown:
 			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
+
+		default: ;
 	}
 
 	if(  translated_tooltip  &&  getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )  ) {

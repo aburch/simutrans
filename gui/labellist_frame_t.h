@@ -19,7 +19,7 @@
 class labellist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	gui_combobox_t	sortedby;
+	gui_combobox_t	sortedby, region_selector;
 	button_t	sort_asc, sort_desc;
 	button_t	filter;
 
@@ -30,7 +30,7 @@ public:
 
 	const char *get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
-	bool action_triggered( gui_action_creator_t *comp,value_t /* */) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp,value_t v) OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 

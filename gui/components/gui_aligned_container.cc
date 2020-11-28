@@ -215,6 +215,7 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 	// second: all elements spanning more than one cell
 	for(int outer = 0; outer < 2; outer++) {
 		uint16 c = 0, r = 0;
+		bool wide_elements = false;
 		for(uint32 i = 0; i<components.get_count(); i++) {
 			gui_component_t* comp = components[i];
 			// fails if span is larger than remaining column space
@@ -242,9 +243,9 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 			if (!comp->is_visible()   &&  !comp->is_rigid()) {
 				continue; // not visible - no size reserved
 			}
-//			printf("outer %d, i %d, c %d, span %d\n", outer,i,c,span);
 
-			scr_size s = calc_max ? comp->get_max_size() : comp->get_min_size();
+			// only compute if necessary
+			scr_size s = outer == 0 ||  span>1 ? (calc_max ? comp->get_max_size() : comp->get_min_size()) : scr_size(0,0);
 
 			if (outer == 0) {
 
@@ -267,6 +268,7 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 					}
 				}
 				else {
+					wide_elements = true;
 					while (col_w.get_count() <= c % columns) {
 						col_w.append(0);
 					}
@@ -315,6 +317,10 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 			}
 
 		}
+		if (!wide_elements) {
+			// no elements spanning more than one column
+			break;
+		}
 	}
 
 	if (force_equal_columns) {
@@ -333,31 +339,28 @@ scr_size gui_aligned_container_t::get_size(vector_tpl<scr_coord_val>& col_w, vec
 {
 	scr_coord_val sinf = scr_size::inf.w;
 	scr_size s = margin_tl + margin_br;
-	scr_coord_val space = 0; // no spacing before first element
-//	printf("col_w ");
+	s.w += spacing.w * max(col_w.get_count()-1, 0);
+	s.h += spacing.h * max(row_h.get_count()-1, 0);
+
 	FOR(vector_tpl<scr_coord_val>, const w, col_w) {
-//		printf("%d, ", w);
-		if (s.w > sinf - w - space) {
+		if (s.w > sinf - w) {
 			s.w = sinf;
+			break;
 		}
 		else {
-			s.w += w + space;
+			s.w += w;
 		}
-		space = spacing.w;
 	}
-//	printf("\nrow_h ");
-	space = 0;
+
 	FOR(vector_tpl<scr_coord_val>, const h, row_h) {
-//		printf("%d, ", h);
-		if (s.h > sinf - h - space) {
+		if (s.h > sinf - h) {
 			s.h = sinf;
+			break;
 		}
 		else {
-			s.h += h + space;
+			s.h += h;
 		}
-		space = spacing.h;
 	}
-//	printf("\n");
 	return s;
 }
 

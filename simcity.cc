@@ -26,7 +26,7 @@
 #include "simmesg.h"
 #include "simcolor.h"
 
-#include "gui/karte.h"
+#include "gui/minimap.h"
 #include "gui/city_info.h"
 
 #include "descriptor/building_desc.h"
@@ -1585,8 +1585,8 @@ stadt_t::~stadt_t()
 		factory->clear_city();
 	}
 
-	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
-		reliefkarte_t::get_karte()->set_city(NULL);
+	if(  minimap_t::get_instance()->is_city_selected(this)  ) {
+		minimap_t::get_instance()->set_selected_city(NULL);
 	}
 
 	// only if there is still a world left to delete from
@@ -4019,7 +4019,7 @@ void process_city_street(grund_t& gr, const way_desc_t* cr)
 		}
 	}
 	gr.calc_image();
-	reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
+	minimap_t::get_instance()->calc_map_pixel(gr.get_pos().get_2d());
 }
 
 /**
@@ -4697,7 +4697,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 					process_city_street(*gr, welt->get_city_road());
 				}
 				gr->calc_image();
-				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+				minimap_t::get_instance()->calc_map_pixel(gr->get_pos().get_2d());
 			}
 		}
 

@@ -105,7 +105,7 @@ void display_set_player_color_scheme(const int, const uint8, const uint8)
 {
 }
 
-void register_image(class image_t* image)
+void register_image(image_t* image)
 {
 	image->imageid = 1;
 }
@@ -379,11 +379,11 @@ void display_show_load_pointer(int)
 {
 }
 
-void simgraph_init(KOORD_VAL, KOORD_VAL, int)
+void simgraph_init(scr_size, bool)
 {
 }
 
-int is_display_init()
+bool is_display_init()
 {
 	return false;
 }
@@ -397,7 +397,7 @@ void simgraph_exit()
 	dr_os_close();
 }
 
-void simgraph_resize(KOORD_VAL, KOORD_VAL)
+void simgraph_resize(scr_size)
 {
 }
 

@@ -193,7 +193,7 @@ settings_t::settings_t() :
 	// read default from env_t
 	// should be set in simmain.cc (taken from pak-set simuconf.tab
 	way_height_clearance = env_t::default_settings.get_way_height_clearance();
-	if (way_height_clearance < 0 || way_height_clearance >2) {
+	if (way_height_clearance >2) {
 		// if outside bounds, then set to default = 1
 		way_height_clearance = 1;
 	}
@@ -529,9 +529,6 @@ settings_t::settings_t() :
 
 	sighting_distance_meters = 250;
 	assumed_curve_radius_45_degrees = 1000;
-
-	max_speed_drive_by_sight_kmh = 0;
-	max_speed_drive_by_sight = 0;
 
 	time_interval_seconds_to_clear = 600;
 	time_interval_seconds_to_caution = 300;
@@ -1734,6 +1731,11 @@ void settings_t::rdwr(loadsave_t *file)
 				max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 			}
 #endif
+			if ((file->get_extended_version() == 14 && file->get_extended_revision()) >= 31 || file->get_extended_version() >= 15)
+			{
+				file->rdwr_long(max_speed_drive_by_sight_tram);
+				max_speed_drive_by_sight_tram = kmh_to_speed(max_speed_drive_by_sight_tram);
+			}
 			if(file->get_extended_revision() >= 5 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_short(global_force_factor_percent);
@@ -2084,6 +2086,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 	if(  *contents.get("server_dns")  ) {
 		env_t::server_dns = ltrim(contents.get("server_dns"));
+	}
+	if(  *contents.get("server_altdns")  ) {
+		env_t::server_alt_dns = ltrim(contents.get("server_altdns"));
 	}
 	if(  *contents.get("server_name")  ) {
 		env_t::server_name = ltrim(contents.get("server_name"));
@@ -2777,6 +2782,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_speed_drive_by_sight_kmh = contents.get_int("max_speed_drive_by_sight_kmh", max_speed_drive_by_sight_kmh);
 	max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
+
+	max_speed_drive_by_sight_tram_kmh = contents.get_int("max_speed_drive_by_sight_tram_kmh", max_speed_drive_by_sight_tram_kmh);
+	max_speed_drive_by_sight_tram = kmh_to_speed(max_speed_drive_by_sight_tram_kmh);
 
 	time_interval_seconds_to_clear = contents.get_int("time_interval_seconds_to_clear", time_interval_seconds_to_clear);
 	time_interval_seconds_to_caution = contents.get_int("time_interval_seconds_to_caution", time_interval_seconds_to_caution);

@@ -1,5 +1,10 @@
-#ifndef GUI_BUTTON_TO_CHART
-#define GUI_BUTTON_TO_CHART
+/*
+ * This file is part of the Simutrans project under the Artistic License.
+ * (see LICENSE.txt)
+ */
+
+#ifndef GUI_COMPONENTS_GUI_BUTTON_TO_CHART_H
+#define GUI_COMPONENTS_GUI_BUTTON_TO_CHART_H
 
 
 #include "action_listener.h"

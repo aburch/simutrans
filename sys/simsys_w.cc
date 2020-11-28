@@ -152,7 +152,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 
 
 // open the window
-int dr_os_open(int const w, int const h, int fullscreen)
+int dr_os_open(int const w, int const h, bool fullscreen)
 {
 	MaxSize.right = ((w*x_scale)/32+15) & 0x7FF0;
 	MaxSize.bottom = (h*y_scale)/32;
@@ -608,14 +608,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 
-				sys_event.size_x = (LOWORD(lParam)*32)/x_scale;
-				if (sys_event.size_x <= 0) {
-					sys_event.size_x = 4;
+				sys_event.new_window_size.w = (LOWORD(lParam)*32)/x_scale;
+				if (sys_event.new_window_size.w <= 0) {
+					sys_event.new_window_size.w = 4;
 				}
 
-				sys_event.size_y = (HIWORD(lParam)*32)/y_scale;
-				if (sys_event.size_y <= 1) {
-					sys_event.size_y = 64;
+				sys_event.new_window_size.h = (HIWORD(lParam)*32)/y_scale;
+				if (sys_event.new_window_size.h <= 1) {
+					sys_event.new_window_size.h = 64;
 				}
 			}
 			break;

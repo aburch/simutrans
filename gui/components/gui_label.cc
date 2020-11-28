@@ -35,6 +35,13 @@ void gui_label_t::set_min_size(scr_size s)
 }
 
 
+void gui_label_t::set_fixed_width(const scr_coord_val width)
+{
+	set_min_size(scr_size(width, size.h));
+	fixed_width = width;
+}
+
+
 scr_size gui_label_t::get_min_size() const
 {
 	return scr_size( max(min_size.w, text ? display_calc_proportional_string_len_width(text,strlen(text)) : D_BUTTON_WIDTH), D_LABEL_HEIGHT );
@@ -42,6 +49,9 @@ scr_size gui_label_t::get_min_size() const
 
 scr_size gui_label_t::get_max_size() const
 {
+	if (fixed_width) {
+		return get_min_size();
+	}
 	return align == left  ? scr_size(max(get_min_size().w, size.w), get_min_size().h) : scr_size(scr_size::inf.w, get_min_size().h);
 }
 

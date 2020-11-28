@@ -2287,7 +2287,6 @@
     <ClCompile Include="gui\components\gui_chart.cc" />
     <ClCompile Include="gui\components\gui_colorbox.cc" />
     <ClCompile Include="gui\components\gui_combobox.cc" />
-    <ClCompile Include="gui\components\gui_component_table.cc" />
     <ClCompile Include="gui\components\gui_convoy_assembler.cc" />
     <ClCompile Include="gui\components\gui_convoy_label.cc" />
     <ClCompile Include="gui\components\gui_divider.cc" />
@@ -2320,7 +2319,6 @@
     <ClCompile Include="descriptor\reader\imagelist_reader.cc" />
     <ClCompile Include="gui\jump_frame.cc" />
     <ClCompile Include="boden\wege\kanal.cc" />
-    <ClCompile Include="gui\karte.cc" />
     <ClCompile Include="gui\kennfarbe.cc" />
     <ClCompile Include="dataobj\koord.cc" />
     <ClCompile Include="dataobj\koord3d.cc" />
@@ -2352,6 +2350,7 @@
     <ClCompile Include="gui\message_option_t.cc" />
     <ClCompile Include="gui\message_stats_t.cc" />
     <ClCompile Include="gui\messagebox.cc" />
+    <ClCompile Include="gui\minimap.cc" />
     <ClCompile Include="gui\money_frame.cc" />
     <ClCompile Include="boden\wege\monorail.cc" />
     <ClCompile Include="boden\monorailboden.cc" />
@@ -2540,6 +2539,7 @@
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\rect.h" />
     <ClInclude Include="dataobj\settings.h" />
     <ClInclude Include="descriptor\image_array_3d.h" />
     <ClInclude Include="descriptor\obj_base_desc.h" />
@@ -2752,7 +2752,6 @@
     <ClInclude Include="gui\components\gui_chart.h" />
     <ClInclude Include="gui\components\gui_colorbox.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
-    <ClInclude Include="gui\components\gui_component_table.h" />
     <ClInclude Include="gui\components\gui_convoy_assembler.h" />
     <ClInclude Include="gui\components\gui_convoy_label.h" />
     <ClInclude Include="gui\components\gui_divider.h" />
@@ -2792,7 +2791,6 @@
     <ClInclude Include="descriptor\intro_dates.h" />
     <ClInclude Include="gui\jump_frame.h" />
     <ClInclude Include="boden\wege\kanal.h" />
-    <ClInclude Include="gui\karte.h" />
     <ClInclude Include="gui\kennfarbe.h" />
     <ClInclude Include="dataobj\koord.h" />
     <ClInclude Include="dataobj\koord3d.h" />
@@ -2821,6 +2819,7 @@
     <ClInclude Include="gui\message_option_t.h" />
     <ClInclude Include="gui\message_stats_t.h" />
     <ClInclude Include="gui\messagebox.h" />
+    <ClInclude Include="gui\minimap.h" />
     <ClInclude Include="tpl\minivec_tpl.h" />
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />

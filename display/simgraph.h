@@ -146,11 +146,12 @@ int get_zoom_factor();
 /**
  * Initialises the graphics module
  */
-void simgraph_init(KOORD_VAL width, KOORD_VAL height, int fullscreen);
-int is_display_init();
+void simgraph_init(scr_size window_size, bool fullscreen);
+bool is_display_init();
 void simgraph_exit();
-void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
+void simgraph_resize(scr_size new_window_size);
 void reset_textur(void *new_textur);
+
 
 /**
  * Loads the font, returns the number of characters in it
