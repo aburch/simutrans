@@ -1116,13 +1116,13 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		left = D_MARGIN_LEFT;
 		const PIXVAL col_passenger = goods_manager_t::passengers->get_color();
 		if (halt->get_pax_enabled()) {
-			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, col_passenger, true, translator::translate("visitors"));
 			left += 10;
 			pas_info.clear();
 			pas_info.append(translator::translate("visitors"));
 			left += display_proportional_clip_rgb(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
 
-			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
 			left += 10;
 			pas_info.clear();
 			pas_info.append(translator::translate("commuters"));
@@ -1130,7 +1130,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 		}
 
 		if (halt->get_mail_enabled()) {
-			display_colorbox_with_tooltip(offset.x + left, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
+			display_colorbox_with_tooltip(offset.x + left, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
 			left += 10;
 			pas_info.clear();
 			pas_info.append(goods_manager_t::mail->get_name());
@@ -1231,7 +1231,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			if (halt->get_pax_enabled() && arround_population) {
 				// These are information about RES building
 				// visiting trip
-				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, col_passenger, true, translator::translate("visitors"));
+				display_colorbox_with_tooltip(offset.x, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, col_passenger, true, translator::translate("visitors"));
 				pas_info.clear();
 				pas_info.append(translator::translate("Visiting trip")); // Note: "Visiting" is used in chart button. "visiting" is used in cargo list
 				display_proportional_clip_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1244,7 +1244,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 				top += LINESPACE;
 
 				// commuting trip
-				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
+				display_colorbox_with_tooltip(offset.x, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, color_idx_to_rgb(COL_COMMUTER), true, translator::translate("commuters"));
 				pas_info.clear();
 				pas_info.append(translator::translate("Commuting trip")); // Note: "Commuting" is used in chart button. "commuting" is used in cargo list
 				display_proportional_clip_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1258,7 +1258,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			}
 
 			if (halt->get_mail_enabled()) {
-				display_colorbox_with_tooltip(offset.x, offset.y + top + 1, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
+				display_colorbox_with_tooltip(offset.x, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
 				pas_info.clear();
 				pas_info.append(translator::translate("hd_mailing"));
 				display_proportional_clip_rgb(offset.x + GOODS_SYMBOL_CELL_WIDTH, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -1840,7 +1840,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				uint16 catg_xoff = GOODS_SYMBOL_CELL_WIDTH;
 				// [goods catgory]
 				const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
-				display_color_img(info->get_catg_symbol(), offset.x + xoff, offset.y + yoff+1, 0, false, false);
+				display_color_img(info->get_catg_symbol(), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 				display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, info->get_catg_name(), ALIGN_LEFT, SYSCOL_TEXT, true);
 				// [travel time]
 				catg_xoff += D_BUTTON_WIDTH;
@@ -1850,7 +1850,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				if (is_walking) {
 					if (skinverwaltung_t::on_foot) {
 						buf.printf("%5s", travelling_time_as_clock);
-						display_color_img_with_tooltip(skinverwaltung_t::on_foot->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff, 0, false, false, translator::translate("Walking time"));
+						display_color_img_with_tooltip(skinverwaltung_t::on_foot->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate("Walking time"));
 						catg_xoff += GOODS_SYMBOL_CELL_WIDTH;
 					}
 					else {
@@ -1861,7 +1861,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				else {
 					if (skinverwaltung_t::travel_time) {
 						buf.printf("%5s", travelling_time_as_clock);
-						display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff, 0, false, false);
+						display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 						catg_xoff += GOODS_SYMBOL_CELL_WIDTH;
 					}
 					else {
@@ -1880,7 +1880,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				buf.clear();
 				if (!is_walking) {
 					if (skinverwaltung_t::waiting_time) {
-						display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff, 0, false, false);
+						display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 						catg_xoff += GOODS_SYMBOL_CELL_WIDTH;
 					}
 					if (cnx->waiting_time > 0) {
@@ -1978,7 +1978,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		xoff += proportional_string_width("000.00km");
 		display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_RIGHT, is_walking ? MN_GREY0 : SYSCOL_TEXT, true);
 		if (is_walking && skinverwaltung_t::on_foot) {
-			display_color_img(skinverwaltung_t::on_foot->get_image_id(0), offset.x + D_MARGIN_LEFT, offset.y + yoff, 0, false, false);
+			display_color_img(skinverwaltung_t::on_foot->get_image_id(0), offset.x + D_MARGIN_LEFT, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 		}
 		xoff += D_H_SPACE;
 
@@ -1992,7 +1992,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		if (is_walking) {
 			if (skinverwaltung_t::on_foot) {
 				buf.printf("%5s", travelling_time_as_clock);
-				display_color_img_with_tooltip(skinverwaltung_t::on_foot->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false, translator::translate("Walking time"));
+				display_color_img_with_tooltip(skinverwaltung_t::on_foot->get_image_id(0), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate("Walking time"));
 				xoff += GOODS_SYMBOL_CELL_WIDTH;
 			}
 			else {
@@ -2003,7 +2003,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		else {
 			if (skinverwaltung_t::travel_time) {
 				buf.printf("%5s", travelling_time_as_clock);
-				display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
+				display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 				xoff += GOODS_SYMBOL_CELL_WIDTH;
 			}
 			else {
@@ -2024,7 +2024,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		buf.clear();
 		if (!is_walking){
 			if (skinverwaltung_t::waiting_time) {
-				display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff, offset.y + yoff, 0, false, false);
+				display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 				xoff += GOODS_SYMBOL_CELL_WIDTH;
 			}
 			if (cnx->waiting_time > 0) {
