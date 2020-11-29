@@ -50,7 +50,9 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"origin (amount)",
 	"destination (detail)",
 	"wealth (detail)",
-	"wealth (via)"/*,
+	"wealth (via)",
+	"Line",
+	"Line to"/*,
 	"transferring time"*/
 };
 
@@ -237,9 +239,10 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	{
 		freight_sort_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
-	uint8 sortmode = env_t::default_sortmode < SORT_MODES ? env_t::default_sortmode: env_t::default_sortmode-2; // If sorting by accommodation in vehicles, we might want to sort by classes
-	freight_sort_selector.set_selection(sortmode);
-	halt->set_sortby(sortmode);
+	uint8 sort_mode = env_t::default_sortmode;
+	// 9 and 10 are sort modes for covonvoi, but 11 is for halt
+	halt->set_sortby(sort_mode >= by_line ? env_t::default_sortmode + 2 : env_t::default_sortmode);
+	freight_sort_selector.set_selection(sort_mode);
 	freight_sort_selector.set_focusable(true);
 	freight_sort_selector.set_highlight_color(1);
 	freight_sort_selector.set_pos(cursor);
@@ -839,16 +842,15 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
 		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
-	} else if (comp == &freight_sort_selector) { 	// @author hsiegeln sort button pressed // @author Ves: changed button to combobox
-
+	}
+	else if (comp == &freight_sort_selector) {
 		sint32 sort_mode = freight_sort_selector.get_selection();
-		if (sort_mode < 0)
-		{
+		if (sort_mode < 0 || sort_mode > SORT_MODES) {
 			freight_sort_selector.set_selection(0);
 			sort_mode = 0;
 		}
-		env_t::default_sortmode = (sort_mode_t)((int)(sort_mode) % (int)SORT_MODES);
-		halt->set_sortby(env_t::default_sortmode);
+		env_t::default_sortmode = (sort_mode_t)(int)(sort_mode) % SORT_MODES;
+		halt->set_sortby(sort_mode >= by_line ? env_t::default_sortmode+2 : env_t::default_sortmode);
 	} else  if (comp == &toggler) {
 		show_hide_statistics( toggler.pressed^1 );
 	}

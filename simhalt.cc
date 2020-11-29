@@ -500,6 +500,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	last_bar_count = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
+	resort_freight_info = true;
 	init_financial_history();
 
 	check_waiting = 0;
@@ -1439,7 +1440,7 @@ void haltestelle_t::new_month()
 	if(  welt->get_active_player()==owner  &&  status_color==color_idx_to_rgb(COL_RED)  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full|message_t::expire_after_one_month_flag, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner->get_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -1959,7 +1960,7 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
+	if(category >= goods_manager_t::get_max_catg_index() || connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		linehandle_t dummy;
 		return dummy;
@@ -1970,7 +1971,7 @@ linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 cate
 
 convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category, uint8 g_class) const
 {
-	if(connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
+	if(category >= goods_manager_t::get_max_catg_index() || connexions[category][g_class]->empty() || connexions[category][g_class]->get(transfer) == NULL)
 	{
 		convoihandle_t dummy;
 		return dummy;
@@ -3360,6 +3361,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
 			{
 				ware = tc.ware;
+				ware.set_last_transfer(self);
 				ware_transfers.append(ware);
 			}
 		}
