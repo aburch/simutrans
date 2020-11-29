@@ -49,7 +49,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
-	scrolly_route(&route),
+	scrolly_route(&cont_route),
 	nearby_factory(halt_),
 	scrolly(&cont)
 {
@@ -110,7 +110,7 @@ void halt_detail_t::init()
 
 	// route tab components
 	uint y = D_V_SPACE;
-	cont_route.set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
+
 	bt_by_station.init(button_t::roundbox_state, "hd_btn_by_station", scr_coord(D_MARGIN_LEFT, y), D_BUTTON_SIZE);
 	bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(bt_by_station.get_pos().x + D_BUTTON_WIDTH, y), D_BUTTON_SIZE);
 	y += D_BUTTON_HEIGHT+D_V_SPACE;
@@ -222,10 +222,11 @@ void halt_detail_t::init()
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
 	lb_selected_route_catg.set_pos(lb_routes.get_pos() + scr_coord(0, D_HEADING_HEIGHT+D_V_SPACE));
 	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
-	scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+	route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+	route.recalc_size();
 	cont_route.add_component(&lb_routes);
 	cont_route.add_component(&lb_selected_route_catg);
-	cont_route.add_component(&scrolly_route);
+	cont_route.add_component(&route);
 
 	// Adjust window to optimal size
 	set_tab_opened();
@@ -317,7 +318,7 @@ void halt_detail_t::update_components()
 			tabs.add_tab(&scrolly_goods, translator::translate("Freight"));
 		}
 		tabs.add_tab(&scrolly, translator::translate("Services"));
-		tabs.add_tab(&cont_route, translator::translate("Route_tab"));
+		tabs.add_tab(&scrolly_route, translator::translate("Route_tab"));
 		if (tabstate != -1) {
 			tabs.set_active_tab_index(old_tab);
 			tabstate = old_tab;
@@ -398,7 +399,6 @@ void halt_detail_t::update_components()
 						all_class_btn_pressed = true;
 						reset_class_buttons = true;
 						route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
-						route.recalc_size();
 					}
 					else if (selected_route_catg_index != catg_index) {
 						btn->pressed = false;
@@ -435,7 +435,6 @@ void halt_detail_t::update_components()
 							selected_route_catg_index = catg_index;
 							lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(selected_route_catg_index)->get_catg_name());
 							route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
-							route.recalc_size();
 						}
 						else if (selected_route_catg_index != catg_index) {
 							btn->pressed = false;
@@ -453,14 +452,8 @@ void halt_detail_t::update_components()
 			}
 		}
 	}
-
-	y = scrolly_route.get_pos().y;
-	scrolly_route.set_size(scr_size(tabs.get_size().w, tabs.get_size().h - scrolly_route.get_pos().y - D_TAB_HEADER_HEIGHT));
-	y += route.get_size().h;
-
-	if (y != cont_route.get_size().h) {
-		cont_route.set_size(scr_size(400, y));
-	}
+	route.recalc_size();
+	cont_route.set_size(scr_size(max(400, route.get_size().w), route.get_pos().y + route.get_size().h));
 
 	set_dirty();
 }
@@ -548,7 +541,6 @@ void halt_detail_t::halt_detail_info()
 		offset_y += LINESPACE;
 	}
 
-	// Knightly : add lineless convoys which serve this stop
 	buf.append("\n");
 	offset_y += LINESPACE;
 
@@ -634,7 +626,6 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 			list_by_station = false;
 			route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
 			open_close_catg_buttons();
-			set_tab_opened();
 		}
 	}
 	else if (comp == &bt_by_station) {
@@ -737,13 +728,12 @@ void halt_detail_t::open_close_catg_buttons()
 	// Shift the list position
 	if (list_by_station) {
 		lb_routes.set_pos(lb_serve_catg.get_pos());
-		scrolly_route.set_pos(scr_coord(0, lb_routes.get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE));
+		route.set_pos(scr_coord(0, lb_routes.get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE));
 	}
 	else {
 		lb_routes.set_pos(scr_coord(D_MARGIN_LEFT, routelist_default_pos_y));
-		scrolly_route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+		route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
 	}
-	route.recalc_size();
 }
 
 void halt_detail_t::set_tab_opened()
@@ -772,6 +762,8 @@ void halt_detail_t::set_tab_opened()
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + txt_info.get_size().h)));
 			break;
 		case 3: // route
+			route.recalc_size();
+			cont_route.set_size(scr_size(max(400, route.get_size().w), route.get_pos().y + D_TAB_HEADER_HEIGHT + route.get_size().h));
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_route.get_size().h)));
 			break;
 	}
@@ -1688,7 +1680,6 @@ gui_halt_route_info_t::gui_halt_route_info_t(const halthandle_t & halt, uint8 ca
 	this->halt = halt;
 	station_display_mode = station_mode;
 	build_halt_list(catg_index, selected_class, station_display_mode);
-	recalc_size();
 	line_selected = 0xFFFFFFFFu;
 }
 
@@ -1776,8 +1767,13 @@ bool gui_halt_route_info_t::infowin_event(const event_t * ev)
 
 void gui_halt_route_info_t::recalc_size()
 {
-	const int y_size = halt_list.get_count() ? halt_list.get_count() * (LINESPACE + 1) + D_MARGIN_BOTTOM : LINESPACE*2;
-	set_size(scr_size(400, y_size));
+	if (size==scr_size(0,0)) {
+		const scr_coord_val y_size = halt_list.get_count() ? halt_list.get_count() * (LINESPACE + 1) + D_MARGIN_BOTTOM : LINESPACE*2;
+		set_size(scr_size(400, y_size));
+	}
+	else {
+		set_size(size);
+	}
 }
 
 
