@@ -713,7 +713,8 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		reset_min_windowsize();
 		set_windowsize(size);
 		if( switch_mode.get_aktives_tab() == &container_schedule ) {
-			change_schedule();
+			value_t v( 1 );
+			action_triggered( &switch_mode, 1 );
 		}
 	}
 }
