@@ -726,7 +726,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 	if(file->is_loading()) {
 
 		sint32 max_object_index;
-		if(  file->get_version()<=110000  ) {
+		if(  file->get_version_int()<=110000  ) {
 			file->rdwr_long(max_object_index);
 			if(max_object_index>254) {
 				dbg->error("objlist_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
@@ -1022,7 +1022,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				||  (new_obj->get_typ()==obj_t::gebaeude  &&  ((gebaeude_t *)new_obj)->get_fabrik())
 				// things with convoi will not be saved
 				||  (new_obj->get_typ()>=66  &&  new_obj->get_typ()<82)
-				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->get_version()>=110001)
+				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->get_version_int()>=110001)
 			) {
 				// these objects are simply not saved
 			}
@@ -1032,7 +1032,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 		}
 		// now we know the number of stuff to save
 		max_object_index --;
-		if(  file->get_version()<=110000  ) {
+		if(  file->get_version_int()<=110000  ) {
 			file->rdwr_long( max_object_index );
 		}
 		else {

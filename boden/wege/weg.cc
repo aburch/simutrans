@@ -385,7 +385,7 @@ void weg_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "weg_t" );
 
 	// save owner
-	if(  file->get_version() >= 99006  ) {
+	if(  file->get_version_int() >= 99006  ) {
 		sint8 spnum=get_player_nr();
 		file->rdwr_byte(spnum);
 		set_player_nr(spnum);
@@ -403,7 +403,7 @@ void weg_t::rdwr(loadsave_t *file)
 	file->rdwr_short(dummy16);
 	max_speed=dummy16;
 
-	if(  file->get_version() >= 89000  ) {
+	if(  file->get_version_int() >= 89000  ) {
 		dummy8 = flags;
 		file->rdwr_byte(dummy8);
 		if(  file->is_loading()  ) {

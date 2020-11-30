@@ -17,8 +17,8 @@
 
 void way_obj_reader_t::register_obj(obj_desc_t *&data)
 {
-    way_obj_desc_t *desc = static_cast<way_obj_desc_t *>(data);
-    wayobj_t::register_desc(desc);
+	way_obj_desc_t *desc = static_cast<way_obj_desc_t *>(data);
+	wayobj_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
@@ -28,7 +28,7 @@ void way_obj_reader_t::register_obj(obj_desc_t *&data)
 
 bool way_obj_reader_t::successfully_loaded() const
 {
-    return wayobj_t::successfully_loaded();
+	return wayobj_t::successfully_loaded();
 }
 
 

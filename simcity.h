@@ -567,7 +567,6 @@ public:
 	/**
 	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
 	 * und nur noch die Datenstrukturenneu verknEft werden mEsen.
-	 * @author Hj. Malthaner
 	 */
 	void finish_rd();
 

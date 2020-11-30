@@ -139,11 +139,6 @@ public:
 
 	void init();
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
-	 */
 	const char * get_help_filename() const OVERRIDE { return "station_details.txt"; }
 
 	// Set window size and adjust component sizes and/or positions accordingly

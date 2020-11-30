@@ -759,7 +759,7 @@ private:
 	/**
 	 * Internal saving method.
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -2505,9 +2505,9 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @author Hj. Malthaner
+	 * @param idx t is the type of sound (for selective muting etc.)
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
+	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -2520,7 +2520,7 @@ public:
 	 * Saves the map to a file.
 	 * @param Filename name of the file to write.
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, const char* ex_revision, bool silent);
+	void save(const char *filename, bool autosave, const char *version, const char *ex_version, const char* ex_revision, bool silent);
 
 	/**
 	 * Loads a map from a file.

@@ -121,10 +121,10 @@ struct slope4_t {
 	*/
 	typedef sint8 type;
 
-#define scorner_sw(i) (i%2)    	// sw corner
-#define scorner_se(i) ((i/2)%2)	// se corner
-#define scorner_ne(i) ((i/4)%2)	// ne corner
-#define scorner_nw(i) (i/8)    	// nw corner
+	#define scorner_sw(i) (i%2)     // sw corner
+	#define scorner_se(i) ((i/2)%2) // se corner
+	#define scorner_ne(i) ((i/4)%2) // ne corner
+	#define scorner_nw(i) (i/8)     // nw corner
 	enum _corners {
 		corner_SW = 1,
 		corner_SE = 2,

@@ -150,7 +150,7 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return pumpe; }
+	typ get_typ() const OVERRIDE { return pumpe; }
 #endif
 
 	const char *get_name() const OVERRIDE {return "Aufspanntransformator";}

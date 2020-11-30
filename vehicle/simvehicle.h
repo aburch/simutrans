@@ -360,9 +360,8 @@ protected:
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
 	/**
-	* Previous position on our path
-	* @author Hj. Malthaner
-	*/
+	 * Previous position on our path
+	 */
 	koord3d pos_prev;
 
 	uint8 number_of_classes;

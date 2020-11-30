@@ -71,12 +71,12 @@ void ware_t::rdwr(loadsave_t *file)
 	sint32 amount = menge;
 	file->rdwr_long(amount);
 	menge = amount;
-	if(file->get_version()<99008) {
+	if(file->get_version_int()<99008) {
 		sint32 max;
 		file->rdwr_long(max);
 	}
 
-	if(file->get_version()>=110005 && file->get_extended_version() < 12)
+	if(file->get_version_int()>=110005 && file->get_extended_version() < 12)
 	{
 		// Was "to_factory" / "factory_going".
 		uint8 dummy;
@@ -84,7 +84,7 @@ void ware_t::rdwr(loadsave_t *file)
 	}
 
 	uint8 catg=0;
-	if(file->get_version()>=88005) {
+	if(file->get_version_int()>=88005) {
 		file->rdwr_byte(catg);
 	}
 
@@ -108,7 +108,7 @@ void ware_t::rdwr(loadsave_t *file)
 	}
 
 	// convert coordinate to halt indices
-	if(file->get_version() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
+	if(file->get_version_int() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
 	{
 		// save halt id directly
 		if(file->is_saving())
@@ -198,7 +198,7 @@ void ware_t::rdwr(loadsave_t *file)
 
 	if(file->get_extended_version() >= 2)
 	{
-		if(file->get_version() < 110007)
+		if(file->get_version_int() < 110007)
 		{
 			// Was accumulated distance
 			// (now handled in convoys)
@@ -218,7 +218,7 @@ void ware_t::rdwr(loadsave_t *file)
 		arrival_time = 0;
 	}
 
-	if(file->get_extended_version() >= 10 && file->get_version() >= 111000)
+	if(file->get_extended_version() >= 10 && file->get_version_int() >= 111000)
 	{
 		if(file->is_saving())
 		{

@@ -1395,7 +1395,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 void ai_goods_t::rdwr(loadsave_t *file)
 {
-	if(  file->get_version()<102002  ) {
+	if(  file->get_version_int()<102002  ) {
 		// due to an error the player was never saved correctly
 		player_t::rdwr(file);
 		return;
@@ -1406,7 +1406,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	ai_t::rdwr(file);
 
 	// then check, if we have to do something or the game is too old ...
-	if(file->get_version()<101000) {
+	if(file->get_version_int()<101000) {
 		// ignore saving, reinit on loading
 		if(  file->is_loading()  ) {
 			state = NR_INIT;
@@ -1430,7 +1430,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	file->rdwr_long(count_rail);
 	file->rdwr_long(count_road);
 	file->rdwr_long(count);
-	if(  file->get_version()<111001  ) {
+	if(  file->get_version_int()<111001  ) {
 		file->rdwr_bool(road_transport);
 		file->rdwr_bool(rail_transport);
 		file->rdwr_bool(ship_transport);
@@ -1519,7 +1519,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		}
 	}
 	// save harbour position
-	if(  file->get_version() > 110000  ) {
+	if(  file->get_version_int() > 110000  ) {
 		harbour.rdwr(file);
 	}
 }

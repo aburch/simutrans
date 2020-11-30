@@ -31,8 +31,6 @@ class goods_desc_t;
 /**
  * This class is used to render the actual minimap.
  * Implemented as singleton.
- *
- * @author Hj. Malthaner
  */
 class minimap_t : public gui_component_t
 {
@@ -142,7 +140,6 @@ private:
 	/**
 	 * 0: normal
 	 * everything else: special map
-	 * @author hsiegeln
 	 */
 	static MAP_DISPLAY_MODE mode;
 	static MAP_DISPLAY_MODE last_mode;

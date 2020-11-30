@@ -139,7 +139,11 @@ public:
 
 	bool is_signal_type() const
 	{
-		return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0;
+		return (flags&(
+				SIGN_SIGNAL |
+				SIGN_PRE_SIGNAL |
+				SIGN_LONGBLOCK_SIGNAL)
+			) != 0;
 	}
 
 	// This is currently the definition of a station signal

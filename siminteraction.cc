@@ -186,7 +186,7 @@ void interaction_t::interactive_event( const event_t &ev )
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace
-						sound_play(SFX_SELECT);
+						sound_play(SFX_SELECT,255,TOOL_SOUND);
 						destroy_all_win(false);
 					}
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
@@ -283,7 +283,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			viewport->change_world_position(cursor_pos, koord(0,0), s);
 
 			//and move cursor to the new position under the mouse
- 			move_cursor(ev);
+			move_cursor(ev);
 
 			world->set_dirty();
 		}
@@ -310,8 +310,8 @@ bool interaction_t::process_event(event_t &ev)
 			char fn[256];
 			sprintf(fn, "server%d-pwdhash.sve", env_t::server);
 			loadsave_t file;
-			if (file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
-				world->rdwr_player_password_hashes(&file);
+			if(file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
+				world->rdwr_player_password_hashes( &file );
 				file.close();
 			}
 
@@ -332,7 +332,7 @@ bool interaction_t::process_event(event_t &ev)
 			sprintf(fn, "server%d-restore.sve", env_t::server);
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
-			world->save(fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+			world->save( fn, false, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
 		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
@@ -346,7 +346,7 @@ bool interaction_t::process_event(event_t &ev)
 			pak_name.erase(pak_name.length() - 1);
 			pak_name.append(".sve");
 
-			world->save(pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+			world->save( pak_name.c_str(), true, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
 		destroy_all_win(true);

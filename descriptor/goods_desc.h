@@ -171,7 +171,6 @@ public:
 
 	/**
 	* @return speed bonus value of the good
-	* @author Hj. Malthaner
 	* Now deprecated for most purposes, retained just to check
 	* whether to discard goods that have been waiting too long.
 	*/

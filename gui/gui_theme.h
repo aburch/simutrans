@@ -251,6 +251,7 @@ public:
 	static PIXVAL gui_color_up_pointing_triangle;         //@< (EX unique) Color to draw an upward triangle indicating an increase in the number
 	static PIXVAL gui_color_down_pointing_triangle;       //@< (EX unique) Color to draw an downward triangle indicating an decrease in the number
 
+	/// @}
 
 	/// @name GUI element sizes used by gui components
 	/// @{

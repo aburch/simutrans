@@ -47,7 +47,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 #endif
 {
 	rdwr(file);
-	if(file->get_version()<88002) {
+	if(file->get_version_int()<88002) {
 		set_yoff(0);
 	}
 	all_depots.append(this);
@@ -62,7 +62,7 @@ depot_t::depot_t(obj_t::typ type, koord3d pos, player_t *player, const building_
     gebaeude_t(type, pos, player, t)
 #else
 depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
-    gebaeude_t(pos, player, t)
+	gebaeude_t(pos, player, t)
 #endif
 {
 	all_depots.append(this);
@@ -668,7 +668,7 @@ void depot_t::rdwr(loadsave_t *file)
 	gebaeude_t::rdwr(file);
 
 	rdwr_vehicle(vehicles, file);
-	if (file->get_version() < 81033) {
+	if (file->get_version_int() < 81033) {
 		// waggons are stored extra, just add them to vehicles
 		assert(file->is_loading());
 		rdwr_vehicle(vehicles, file);

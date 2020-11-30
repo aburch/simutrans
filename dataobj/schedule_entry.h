@@ -45,7 +45,6 @@ public:
 	/**
 	* maximum waiting time in 1/2^(16-n) parts of a month
 	* (only active if minimum_loading!=0)
-	* @author prissi
 	*/
 	sint8 waiting_time_shift;
 

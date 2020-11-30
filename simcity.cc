@@ -645,7 +645,6 @@ bool stadt_t::bewerte_loc_has_public_road(const koord pos)
 * @param pos position to check
 * @param regel the rule to evaluate
 * @return true on match, false otherwise
-* @author Hj. Malthaner
 */
 
 bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
@@ -984,7 +983,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		 return;
 	}
 
-	const uint32 std_ver = file->get_version();
+	const uint32 std_ver = file->get_version_int();
 	if( exp_ver == 0 && std_ver >= 112008 ) {
 		file->rdwr_long( cluster_factor );
 	}
@@ -1003,7 +1002,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
-	if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
+	if(file->get_extended_version() >= 12 || (file->get_version_int() >= 112007 && file->get_extended_version() >= 11))
 	{
 		file->rdwr_long(renovations_try);
 		file->rdwr_long(renovations_count);
@@ -1795,7 +1794,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	file->rdwr_long(arb);
 	file->rdwr_long(won);
 
-	if(  file->get_version()>=112009  ) {
+	if(  file->get_version_int()>=112009  ) {
 		// Must record the partial (less than 1 citizen) growth factor
 		// Otherwise we will get network desyncs
 		// Also allows accumulation of small growth factors
@@ -1805,7 +1804,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		unsupplied_city_growth = 0;
 	}
 	// old values zentrum_namen_cnt : aussen_namen_cnt
-	if(file->get_version()<99018) {
+	if(file->get_version_int()<99018) {
 		sint32 dummy=0;
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
@@ -1833,11 +1832,11 @@ void stadt_t::rdwr(loadsave_t* file)
 	const int adapted_max_city_history = file->get_extended_version() < 12 ? MAX_CITY_HISTORY + 1 : MAX_CITY_HISTORY;
 
 	// we probably need to load/save the city history
-	if (file->get_version() < 86000)
+	if (file->get_version_int() < 86000)
 	{
 		//DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
 	}
-	else if(file->get_version() < 99016)
+	else if(file->get_version_int() < 99016)
 	{
 		// 86.00.0 introduced city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
@@ -1885,7 +1884,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		// Extended version 3 extended it further, so skip the last step.
 		// For extended versions *before* 3, power history was treated as congestion
 		// (they are now separate), so that must be handled differently.
-		if (file->get_version() <= 120000)
+		if (file->get_version_int() <= 120000)
 		{
 			for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 			{
@@ -2019,7 +2018,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for(uint32 hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
 			{
-				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version() < 111001))
+				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version_int() < 111001))
 				{
 					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
 					city_history_year[year][hist_type] = 0;
@@ -2048,7 +2047,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for(uint hist_type = 0; hist_type < adapted_max_city_history; hist_type++)
 			{
-				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version() < 111001))
+				if(hist_type == HIST_PAS_WALKED && (file->get_extended_version() < 10 || file->get_version_int() < 111001))
 				{
 					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers.
 					city_history_month[month][hist_type] = 0;
@@ -2102,7 +2101,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// differential history
-	if (file->get_version() <= 120000 || (file->get_extended_version() > 0 && file->get_extended_version() < 25)) {
+	if (file->get_version_int() <= 120000 || (file->get_extended_version() > 0 && file->get_extended_version() < 25)) {
 		if (file->is_loading()) {
 			// Initalize differential statistics assuming a differential of 0.
 			city_growth_get_factors(city_growth_factor_previous, 0);
@@ -2128,28 +2127,28 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 
-	if(file->get_version()>99014  &&  file->get_version()<99016) {
+	if(file->get_version_int()>99014  &&  file->get_version_int()<99016) {
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
 	}
 
 	// since 102.2 there are static cities
-	if(file->get_version()>102001 ) {
+	if(file->get_version_int()>102001 ) {
 		file->rdwr_bool(allow_citygrowth);
 	}
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
 	// save townhall road position
-	if(file->get_version()>102002 && file->get_extended_version() != 7 ) {
+	if(file->get_version_int()>102002 && file->get_extended_version() != 7 ) {
 		townhall_road.rdwr(file);
 	}
 	else if(  file->is_loading()  ) {
 		townhall_road = koord::invalid;
 	}
 
-	if(file->get_version() >= 110005 && file->get_extended_version() < 12)
+	if(file->get_version_int() >= 110005 && file->get_extended_version() < 12)
 	{
 		// Old "factory_entry_t" code - deprecated, but must skip to the correct
 		// position in old saved game files. NOTE: There is *no* way to save in
@@ -2182,7 +2181,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	//target_factories_pax.rdwr( file );
 	//target_factories_mail.rdwr( file );
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000 && file->get_extended_version() < 13 && file->get_extended_revision() < 26)
+	if(file->get_extended_version() >=9 && file->get_version_int() >= 110000 && file->get_extended_version() < 13 && file->get_extended_revision() < 26)
 	{
 		// This load/save block has been moved upwards because it is necessary to load outgoing_private_cars before setting the growth factors, which is done above.
 		if ((file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 19)))
@@ -2203,7 +2202,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(incoming_private_cars);
 	}
 
-	if(file->is_saving() && file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->is_saving() && file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 	{
 		uint32 time;
 		koord k;
@@ -2307,7 +2306,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		connected_cities.clear();
 		connected_industries.clear();
 		connected_attractions.clear();
-		if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+		if(file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 		{
 			uint32 time;
 			koord k;
@@ -2435,7 +2434,6 @@ void stadt_t::rdwr(loadsave_t* file)
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknuepft werden muessen.
- * @author Hj. Malthaner
  */
 void stadt_t::finish_rd()
 {
@@ -4593,8 +4591,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
-	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
+	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential) ||
+	       (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
 		for(uint8 i=0; i<available_sizes.get_count(); i++) {
 			const koord dimension = available_sizes[(i+size_offset)%available_sizes.get_count()];
@@ -5369,13 +5367,13 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 						// The below code from Standard does not seem to exist in Extended
 						// (that is, the check_update_underground() logic.
 						/*
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(0, 1))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 0, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 0))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 0 ) ) ) {
 							bd_recalc->check_update_underground();
 						}
-						if (grund_t* bd_recalc = welt->lookup_kartenboden(k + koord(1, 1))) {
+						if( grund_t *bd_recalc = welt->lookup_kartenboden( k + koord( 1, 1 ) ) ) {
 							bd_recalc->check_update_underground();
 						}*/
 						bd->mark_image_dirty();

@@ -34,28 +34,41 @@ void sound_set_global_volume(int volume)
 }
 
 
+void sound_set_specific_volume( int volume, sound_type_t t)
+{
+	env_t::specific_volume[t] = volume;
+}
+
+
 int sound_get_global_volume()
 {
 	return env_t::global_volume;
 }
 
 
-void sound_set_mute(bool on)
+int sound_get_specific_volume( sound_type_t t )
 {
-	env_t::mute_sound = on;
+	return env_t::specific_volume[t];
+}
+
+
+void sound_set_mute(bool f)
+{
+	env_t::global_mute_sound = f;
 }
 
 
 bool sound_get_mute()
 {
-	return (  env_t::mute_sound  ||  SFX_CASH == NO_SOUND  );
+	return (  env_t::global_mute_sound  );
 }
 
 
-void sound_play(uint16 const idx, uint8 const volume)
+void sound_play(uint16 const idx, uint8 const v, sound_type_t t)
 {
-	if(  idx != (uint16)NO_SOUND  &&  !env_t::mute_sound  ) {
-		dr_play_sample(idx, volume * env_t::global_volume >> 8);
+	uint32 volume = v;
+	if(  idx != (uint16)NO_SOUND  &&  !env_t::global_mute_sound  ) {
+		dr_play_sample(idx, ( (volume  * env_t::global_volume * env_t::specific_volume[t] ) >> 16) );
 	}
 }
 

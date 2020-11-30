@@ -18,9 +18,9 @@
  *	... ...
  */
 class image_list_t : public obj_desc_t {
-    friend class imagelist_reader_t;
+	friend class imagelist_reader_t;
 
-    uint16  count;
+	uint16  count;
 
 public:
 	image_list_t() : count(0) {}

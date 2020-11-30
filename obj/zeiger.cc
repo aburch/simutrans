@@ -30,9 +30,9 @@ zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 
 zeiger_t::zeiger_t(koord3d pos, player_t *player) :
 #ifdef INLINE_OBJ_TYPE
-    obj_no_info_t(obj_t::zeiger, pos)
+	obj_no_info_t(obj_t::zeiger, pos)
 #else
-    obj_no_info_t(pos)
+	obj_no_info_t(pos)
 #endif
 {
 	set_owner( player );

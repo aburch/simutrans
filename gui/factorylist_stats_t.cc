@@ -119,8 +119,6 @@ class compare_factories
 
 /**
  * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
  */
 bool factorylist_stats_t::infowin_event(const event_t * ev)
 {
@@ -166,7 +164,6 @@ void factorylist_stats_t::recalc_size()
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void factorylist_stats_t::draw(scr_coord offset)
 {

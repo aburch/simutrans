@@ -34,7 +34,7 @@ void koord3d::rdwr(loadsave_t *file)
 	file->rdwr_short(v16);
 	y = v16;
 
-	if(file->get_version()<99005) {
+	if(file->get_version_int()<99005) {
 		file->rdwr_short(v16);
 		if(v16!=-1) {
 			z = (v16/16);
@@ -50,7 +50,7 @@ void koord3d::rdwr(loadsave_t *file)
 		z = v8;
 	}
 
-	if(  file->is_loading()  &&  file->get_version() < 112007  &&  x != -1  &&  y != -1  ) {
+	if(  file->is_loading()  &&  file->get_version_int() < 112007  &&  x != -1  &&  y != -1  ) {
 		// convert heights from old single height saved game
 		z *= env_t::pak_height_conversion_factor;
 	}
