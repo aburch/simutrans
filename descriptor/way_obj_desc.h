@@ -65,7 +65,7 @@ public:
 				255, 255, 255, 255, 255, 255, 255, 0,
 				255, 255, 255, 1, 255, 2, 3, 4
 			};
-			return imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) );
+			return ribi < 16 ? imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) )  : IMG_EMPTY;
 		}
 		// else return standard values
 		return imglist->get_image_id( ribi );

@@ -193,7 +193,7 @@ settings_t::settings_t() :
 	// read default from env_t
 	// should be set in simmain.cc (taken from pak-set simuconf.tab
 	way_height_clearance = env_t::default_settings.get_way_height_clearance();
-	if (way_height_clearance < 0 || way_height_clearance >2) {
+	if (way_height_clearance >2) {
 		// if outside bounds, then set to default = 1
 		way_height_clearance = 1;
 	}
@@ -2086,6 +2086,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 	if(  *contents.get("server_dns")  ) {
 		env_t::server_dns = ltrim(contents.get("server_dns"));
+	}
+	if(  *contents.get("server_altdns")  ) {
+		env_t::server_alt_dns = ltrim(contents.get("server_altdns"));
 	}
 	if(  *contents.get("server_name")  ) {
 		env_t::server_name = ltrim(contents.get("server_name"));

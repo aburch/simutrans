@@ -15,7 +15,9 @@
 
 bool citylist_stats_t::sortreverse = false;
 bool citylist_stats_t::filter_own_network = false;
-citylist_stats_t::sort_mode_t citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
+uint8 citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
+uint8 citylist_stats_t::region_filter = 0;
+
 uint16 citylist_stats_t::name_width = 100;
 
 static karte_ptr_t welt;

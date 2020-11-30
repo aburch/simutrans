@@ -287,7 +287,7 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 
 
 // open the window
-int dr_os_open(int screen_width, int screen_height, int const fullscreen)
+int dr_os_open(int screen_width, int screen_height, bool fullscreen)
 {
 	// scale up
 	const int tex_w = SCREEN_TO_TEX_X(screen_width);
@@ -544,8 +544,8 @@ static void internal_GetEvents(bool const wait)
 	switch(  event.type  ) {
 		case SDL_WINDOWEVENT: {
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
-				sys_event.size_x = SCREEN_TO_TEX_X(event.window.data1);
-				sys_event.size_y = SCREEN_TO_TEX_Y(event.window.data2);
+				sys_event.new_window_size.w = SCREEN_TO_TEX_X(event.window.data1);
+				sys_event.new_window_size.h = SCREEN_TO_TEX_Y(event.window.data2);
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 			}

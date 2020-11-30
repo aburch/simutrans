@@ -44,7 +44,7 @@
 #include "../obj/wayobj.h"
 
 #include "../gui/ground_info.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../tpl/inthashtable_tpl.h"
 
@@ -2087,7 +2087,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 		}
 
 		calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 
 		return costs;
 	}

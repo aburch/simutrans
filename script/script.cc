@@ -163,7 +163,7 @@ const char* script_vm_t::eval_string(const char* squirrel_string)
 	}
 	// execute
 	sq_pushroottable(vm);
-	sq_call_restricted(vm, 1, false, true);
+	sq_call_restricted(vm, 1, SQFalse, SQTrue, 100000);
 	sq_pop(vm, 1);
 	return get_error();
 }

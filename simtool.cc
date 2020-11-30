@@ -47,7 +47,7 @@
 #include "gui/line_management_gui.h"
 #include "gui/tool_selector.h"
 #include "gui/station_building_select.h"
-#include "gui/karte.h"	// to update map after construction of new industry
+#include "gui/minimap.h" // to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/schedule_gui.h"
 #include "gui/player_frame_t.h"
@@ -1562,7 +1562,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				else {
 					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
-				reliefkarte_t::get_karte()->calc_map_pixel(k);
+				minimap_t::get_instance()->calc_map_pixel(k);
 
 				welt->calc_climate( k, true );
 			}
@@ -1896,7 +1896,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt->finish_rd();
 
 				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);
-				reliefkarte_t::get_karte()->calc_map();
+				minimap_t::get_instance()->calc_map();
 				return NULL;
 			}
 		}
@@ -2064,7 +2064,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 					}
 					if(  ok  ) {
 						welt->set_climate( k, cl, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -2081,7 +2081,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						welt->set_water_hgt( k, gr->get_pos().z );
 						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						minimap_t::get_instance()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -3457,7 +3457,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 
 				const uint32 distance = koord_distance(pos,end) * welt->get_settings().get_meters_per_tile();
 				const sint64 price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(pos, end);
-				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, koord_distance(pos, end)*koord_distance(pos, end)) );
+				win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, distance) );
 				return NULL;
 			}
 		}
@@ -3755,9 +3755,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	}
 	else {
 		// get a default vehicle
-		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 		test_driver_t* test_driver;
-
+		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
@@ -3766,8 +3765,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		else {
 			test_driver = new electron_t();
 		}
-		test_driver = scenario_checker_t::apply(test_driver, player, this);
 
+		test_driver = scenario_checker_t::apply(test_driver, player, this);
 		verbindung.calc_route(welt, start, end, test_driver, 0, 0, false, 0);
 		delete test_driver;
 	}
@@ -10029,12 +10028,12 @@ bool tool_add_message_t::init(player_t *player)
 	if (*default_param) {
 		uint32 type = atoi(default_param);
 		const char* text = strchr(default_param, ',');
-		if ((type & ~message_t::local_flag) >= message_t::MAX_MESSAGE_TYPE || text == NULL) {
+		if ((type & ~message_t::playermsg_flag) >= message_t::MAX_MESSAGE_TYPE  ||  text == NULL) {
 			return false;
 
 		}
-		welt->get_message()->add_message(text + 1, koord::invalid, type,
-																		 type & message_t::local_flag ? color_idx_to_rgb(COL_BLACK) : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
+		welt->get_message()->add_message( text+1, koord::invalid, type,
+							    type & message_t::playermsg_flag ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 	}
 	return false;
 }

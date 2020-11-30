@@ -40,9 +40,9 @@ world_view_t::world_view_t(scr_size size ) :
 
 
 world_view_t::world_view_t() :
-	raster(get_base_tile_raster_width()),
 	prepared_rect(),
-	display_rect()
+	display_rect(),
+	raster(get_base_tile_raster_width())
 {
 	world_view_t::view_list.append(this);
 }

@@ -329,7 +329,7 @@ private:
 protected:
 	void hop(grund_t*) OVERRIDE;
 
-	virtual void update_bookkeeping(uint32 steps);
+	void update_bookkeeping(uint32 steps) OVERRIDE;
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
@@ -665,8 +665,8 @@ public:
 	uint16 get_accommodation_capacity(uint8 g_class, bool include_lower_classes = false) const;
 	uint16 get_fare_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
-	// BG, 06.06.2009: update player's fixed maintenance
-	void finish_rd();
+	// update player's fixed maintenance
+	void finish_rd() OVERRIDE;
 	void before_delete();
 
 	void set_current_livery(const char* liv) { current_livery = liv; }
@@ -767,10 +767,10 @@ protected:
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
 
-	void rdwr_from_convoi(loadsave_t *file);
+	void rdwr_from_convoi(loadsave_t *file) OVERRIDE;
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route) OVERRIDE;
 
 	// how expensive to go here (for way search)
 	int get_cost(const grund_t *, const sint32, koord) OVERRIDE;
@@ -915,7 +915,7 @@ protected:
 	// how expensive to go here (for way search)
 	int get_cost(const grund_t *, const sint32, koord) OVERRIDE { return 1; }
 
-	void calc_drag_coefficient(const grund_t *gr);
+	void calc_drag_coefficient(const grund_t *gr) OVERRIDE;
 
 	bool check_next_tile(const grund_t *bd) const OVERRIDE;
 

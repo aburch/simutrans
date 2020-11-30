@@ -461,7 +461,7 @@ private:
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -485,7 +485,7 @@ private:
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -780,6 +780,11 @@ private:
 	 * Will create rivers.
 	 */
 	void create_rivers(sint16 number);
+
+	/**
+	 * Will create lakes (multithreaded).
+	 */
+	void create_lakes_loop(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Will create lakes.
@@ -1338,7 +1343,7 @@ public:
 		}
 	}
 
-	sint32 get_time_multiplier() const { return time_multiplier; }
+	sint32 get_time_multiplier() const;
 	void change_time_multiplier( sint32 delta );
 
 	/**
@@ -1915,7 +1920,7 @@ private:
 	 * lakes are left where there is no drainage
 	 */
 	void drain_tile(koord k, sint8 water_height);
-	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage) const;
+	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16, sint16, sint16, sint16) const;
 
 public:
 	void flood_to_depth(sint8 new_water_height, sint8 *stage);
@@ -2451,11 +2456,6 @@ public:
 	 * Loop recalculating transitions - suitable for multithreading
 	 */
 	void recalc_transitions_loop(sint16, sint16, sint16, sint16);
-
-	/**
-	 * Loop creating grounds on all plans from height and water height - suitable for multithreading
-	 */
-	void create_grounds_loop(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Loop cleans grounds so that they have correct boden and slope - suitable for multithreading

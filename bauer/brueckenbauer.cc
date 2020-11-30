@@ -22,7 +22,7 @@
 #include "../boden/wege/strasse.h"
 
 #include "../gui/tool_selector.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../descriptor/bridge_desc.h"
 #include "../descriptor/building_desc.h"
@@ -56,23 +56,15 @@ void bridge_builder_t::register_desc(bridge_desc_t *desc)
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
-	desc_table.put(desc->get_name(), desc);
-}
 
-// to allow overlaying, the tool must be registered here!
-bool bridge_builder_t::successfully_loaded()
-{
-	FOR( stringhashtable_tpl<bridge_desc_t*>, & i, desc_table ) {
-		// add the tool
-		bridge_desc_t * desc = (bridge_desc_t *)i.value;
-		tool_build_bridge_t *tool = new tool_build_bridge_t();
-		tool->set_icon( desc->get_cursor()->get_image_id(1) );
-		tool->cursor = desc->get_cursor()->get_image_id(0);
-		tool->set_default_param(desc->get_name());
-		tool_t::general_tool.append( tool );
-		desc->set_builder( tool );
-	}
-	return true;
+	// add the tool
+	tool_build_bridge_t *tool = new tool_build_bridge_t();
+	tool->set_icon( desc->get_cursor()->get_image_id(1) );
+	tool->cursor = desc->get_cursor()->get_image_id(0);
+	tool->set_default_param(desc->get_name());
+	tool_t::general_tool.append( tool );
+	desc->set_builder( tool );
+	desc_table.put(desc->get_name(), desc);
 }
 
 
@@ -1329,7 +1321,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 			delete p;
 		}
 		// refresh map
-		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
+		minimap_t::get_instance()->calc_map_pixel(pos.get_2d());
 	}
 
 	// finally delete the bridge ends (all are kartenboden)

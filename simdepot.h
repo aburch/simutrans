@@ -267,7 +267,7 @@ public:
 
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehicle(vehicles,file); }
 
-	virtual waytype_t get_wegtyp() const {return track_wt;}
+	waytype_t get_wegtyp() const OVERRIDE {return track_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
 	virtual ding_t::typ get_typ() const {return bahndepot;}
@@ -298,7 +298,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::tramline; }
 
-	virtual waytype_t get_wegtyp() const {return tram_wt;}
+	waytype_t get_wegtyp() const OVERRIDE {return tram_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return tramdepot; }
@@ -319,7 +319,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::monorailline; }
 
-	virtual waytype_t get_wegtyp() const {return monorail_wt;}
+	waytype_t get_wegtyp() const OVERRIDE {return monorail_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return monoraildepot; }
@@ -340,7 +340,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::maglevline; }
 
-	virtual waytype_t get_wegtyp() const {return maglev_wt;}
+	waytype_t get_wegtyp() const OVERRIDE {return maglev_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return maglevdepot; }
@@ -361,7 +361,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::narrowgaugeline; }
 
-	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
+	waytype_t get_wegtyp() const OVERRIDE {return narrowgauge_wt;}
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return narrowgaugedepot; }
@@ -388,7 +388,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::truckline; }
 
-	virtual waytype_t get_wegtyp() const {return road_wt; }
+	waytype_t get_wegtyp() const OVERRIDE {return road_wt; }
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return strassendepot; }
@@ -424,7 +424,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::shipline; }
 
-	virtual waytype_t get_wegtyp() const {return water_wt; }
+	waytype_t get_wegtyp() const OVERRIDE {return water_wt; }
 #ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const OVERRIDE { return schiffdepot; }
@@ -458,7 +458,7 @@ public:
 
 	simline_t::linetype get_line_type() const OVERRIDE { return simline_t::airline; }
 
-	virtual waytype_t get_wegtyp() const { return air_wt; }
+	waytype_t get_wegtyp() const OVERRIDE { return air_wt; }
 	///**
 	// * Parameters to determine layout and behaviour of the depot_frame_t.
 	// */

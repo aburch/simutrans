@@ -7,6 +7,9 @@
 #define SIMEVENT_H
 
 
+#include "display/scr_coord.h"
+
+
 /* Messageverarbeitung */
 
 /* Event Classes */
@@ -182,7 +185,7 @@ public:
 	int cx, cy;
 
 	/// new window size for SYSTEM_RESIZE
-	int size_x, size_y;
+	scr_size new_window_size;
 
 	/// current mouse button state
 	int button_state;
