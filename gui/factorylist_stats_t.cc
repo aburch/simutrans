@@ -13,7 +13,6 @@
 #include "../simworld.h"
 #include "../simskin.h"
 #include "simwin.h"
-
 #include "gui_frame.h"
 #include "components/gui_button.h"
 
@@ -287,7 +286,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 					uint colored_with = fab->get_total_input_occupancy() * STORAGE_BAR_WIDTH / 100;
-					display_linear_gradient_wh_rgb(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
+					display_vlinear_gradient_wh_rgb(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
 
 					buf.printf("%4i", fab->get_total_in());
 					display_proportional_clip_rgb(xoff + offset_left + 14 + 40 + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -303,7 +302,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 					if (fab->get_total_output_capacity()) {
 						uint colored_with = fab->get_total_out() * STORAGE_BAR_WIDTH / fab->get_total_output_capacity();
-						display_linear_gradient_wh_rgb(xoff + offset_left + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
+						display_vlinear_gradient_wh_rgb(xoff + offset_left + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
 					}
 
 					buf.printf("%4i", fab->get_total_out());
