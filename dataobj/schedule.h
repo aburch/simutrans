@@ -80,6 +80,15 @@ public:
 
 	virtual waytype_t get_waytype() const = 0;
 
+	// remove this entry
+	void remove_entry( uint8 entry );
+
+	// move the entry to front (and wrap)
+	void move_entry_forward( uint8 entry );
+
+	// move the entry to back (and wrap)
+	void move_entry_backward( uint8 entry );
+
 	/**
 	 * Get current stop of the schedule.
 	 */

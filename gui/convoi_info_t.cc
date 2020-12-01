@@ -632,6 +632,13 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 		scd.highlight_schedule( false );
 	}
 
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+			cnv->call_convoi_tool( 's', "1" );
+			scd.highlight_schedule( true );
+		}
+	}
+
 	return gui_frame_t::infowin_event(ev);
 }
 
@@ -712,10 +719,6 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		reset_min_windowsize();
 		set_windowsize(size);
-		if( switch_mode.get_aktives_tab() == &container_schedule ) {
-			value_t v( 1 );
-			action_triggered( &switch_mode, 1 );
-		}
 	}
 }
 

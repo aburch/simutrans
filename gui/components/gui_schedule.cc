@@ -41,6 +41,10 @@
 
 static karte_ptr_t welt;
 
+#define DELETE_FLAG (0x8000)
+#define UP_FLAG (0x4000)
+#define DOWN_FLAG (0x2000)
+
 
 const char *gui_schedule_t::bt_mode_text[MAX_MODE] =
 {
@@ -60,14 +64,18 @@ const char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] =
 /**
  * One entry in the list of schedule entries.
  */
-class gui_schedule_entry_t : public gui_aligned_container_t, public gui_action_creator_t
+class gui_schedule_entry_t :
+	public gui_aligned_container_t,
+	public gui_action_creator_t,
+	public action_listener_t
 {
 	schedule_entry_t entry;
 	bool is_current;
 	uint number;
 	player_t* player;
-	gui_image_t arrow;
 	gui_label_buf_t stop;
+	button_t arrow, up, down, del;
+	gui_label_buf_t stop_extra;
 
 public:
 	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
@@ -76,20 +84,49 @@ public:
 		entry  = e;
 		number = n;
 		is_current = false;
-		set_table_layout(2,1);
+		set_table_layout(6,1);
 
+		arrow.init( button_t::posbutton_automatic, "" );
 		add_component(&arrow);
-		arrow.set_image(gui_theme_t::pos_button_img[0], true);
 
 		add_component(&stop);
+
+		up.init( button_t::arrowup, "" );
+		up.add_listener( this );
+		add_component( &up );
+
+		down.init( button_t::arrowdown, "" );
+		down.add_listener( this );
+		add_component( &down );
+
+		del.init( button_t::square_automatic, "" );
+		del.add_listener( this );
+		add_component( &del );
+
+		add_component(&stop_extra);
+
 		update_label();
 	}
 
 	void update_label()
 	{
+		arrow.set_targetpos3d(entry.pos);
 		stop.buf().printf("%i) ", number+1);
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
 		stop.update();
+		if(  entry.minimum_loading > 0  ) {
+			if(  entry.waiting_time_shift > 0  ) {
+				stop_extra.buf().printf("(%d %%, 1/%d)", (int)entry.minimum_loading, (int)(1<<(16-entry.waiting_time_shift)) );
+			}
+			else {
+				stop_extra.buf().printf("(%i %%)", entry.minimum_loading );
+			}
+		}
+		else {
+			stop_extra.buf().clear();
+		}
+		stop_extra.update();
+		list_dirty = false; // or the first mouseclick will be swallowed!
 	}
 
 	void draw(scr_coord offset) OVERRIDE
@@ -104,19 +141,39 @@ public:
 	void set_active(bool yesno)
 	{
 		is_current = yesno;
-		arrow.set_image(gui_theme_t::pos_button_img[yesno ? 1: 0], true);
 		stop.set_color(yesno ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
+		stop_extra.set_color(yesno ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
+	}
+
+	bool action_triggered( gui_action_creator_t *c, value_t v ) OVERRIDE
+	{
+		if( c == &up ) {
+			call_listeners( UP_FLAG | number );
+			return true;
+		}
+		if( c == &down ) {
+			call_listeners( DOWN_FLAG | number );
+			return true;
+		}
+		if( c == &del ) {
+			call_listeners( DELETE_FLAG | number );
+			return true;
+		}
 	}
 
 	bool infowin_event(const event_t *ev) OVERRIDE
 	{
-		if( ev->ev_class == EVENT_CLICK ) {
-			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
+		if( ev->ev_class == EVENT_RELEASE ) {
+			if(  IS_RIGHTRELEASE(ev)  ) {
 				// just center on it
 				welt->get_viewport()->change_world_position( entry.pos );
 			}
 			else {
-				call_listeners(number);
+				set_focus( this );
+				if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->cx, ev->cy ) ) {
+					// not handled, so we make i aktive
+					call_listeners( number );
+				}
 			}
 			return true;
 		}
@@ -127,7 +184,10 @@ public:
 /**
  * List of displayed schedule entries.
  */
-class schedule_gui_stats_t : public gui_aligned_container_t, action_listener_t, public gui_action_creator_t
+class schedule_gui_stats_t :
+	public gui_aligned_container_t,
+	public action_listener_t,
+	public gui_action_creator_t
 {
 	static cbuffer_t buf;
 
@@ -253,7 +313,26 @@ public:
 	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE
 	{
 		// has to be one of the entries
-		call_listeners(v);
+		if( v.i & DELETE_FLAG ) {
+			uint8 delete_stop = v.i & 0x00FF;
+			highlight_schedule( false );
+			schedule->remove_entry( delete_stop );
+			highlight_schedule( true );
+			call_listeners( schedule->get_current_stop() );
+		}
+		else if( v.i & UP_FLAG ) {
+			uint8 up_stop = v.i & 0x00FF;
+			schedule->move_entry_forward( up_stop );
+			call_listeners( schedule->get_current_stop() );
+		}
+		else if( v.i & DOWN_FLAG ) {
+			uint8 down_stop = v.i & 0x00FF;
+			schedule->move_entry_backward( down_stop );
+			call_listeners( schedule->get_current_stop() );
+		}
+		else {
+			call_listeners(v);
+		}
 		return true;
 	}
 };
@@ -555,12 +634,6 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 
 		if(  line >= 0 && line < schedule->get_count()  ) {
 			schedule->set_current_stop( line );
-			if(  mode == removing  ) {
-				stats->highlight_schedule( false );
-				schedule->remove();
-				cb_mode.set_selection( 0 );
-				mode = adding;
-			}
 			update_selection();
 		}
 	}
