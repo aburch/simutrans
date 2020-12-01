@@ -530,7 +530,7 @@ bool win_is_top(const gui_frame_t *ig)
 // save/restore all dialogues
 void rdwr_all_win(loadsave_t *file)
 {
-	if((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
+	if((file->get_extended_version() == 14 && file->get_extended_revision() >= 32) || file->get_extended_version() >= 15) {
 		if(  file->is_saving()  ) {
 			FOR(vector_tpl<simwin_t>, & i, wins) {
 				uint32 id = i.gui->get_rdwr_id();

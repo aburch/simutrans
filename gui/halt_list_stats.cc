@@ -52,7 +52,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 {
 	halt = h;
-	set_table_layout(3,2);
+	set_table_layout(3,3);
 	set_spacing(scr_size(D_H_SPACE, 0));
 
 	gotopos.set_typ(button_t::posbutton_automatic);
@@ -94,6 +94,8 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	add_component(&label_cargo);
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
+
+	new_component<gui_margin_t>(0,D_V_SPACE);
 }
 
 
