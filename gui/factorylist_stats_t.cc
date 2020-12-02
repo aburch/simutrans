@@ -159,7 +159,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 void factorylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(390, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
+	set_size( scr_size(390, fab_list.get_count() * (LINESPACE+1) ) );
 }
 
 
