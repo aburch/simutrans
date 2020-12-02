@@ -76,7 +76,7 @@ factorylist_frame_t::factorylist_frame_t() :
 		add_table(2, 1);
 		{
 			viewable_freight_types.append(NULL);
-			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All freight types"), SYSCOL_TEXT);
 			for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 				const int index = freight_type->get_catg_index();
