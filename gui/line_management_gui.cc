@@ -453,5 +453,12 @@ bool line_management_gui_t::infowin_event( const event_t *ev )
 		}
 		scd.highlight_schedule( false );
 	}
+
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+			scd.highlight_schedule( true );
+		}
+	}
+
 	return gui_frame_t::infowin_event( ev );
 }
