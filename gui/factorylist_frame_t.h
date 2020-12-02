@@ -15,6 +15,8 @@
 #include "../descriptor/goods_desc.h"
 #include "../bauer/goods_manager.h"
 
+#define FACTORYLIST_MODES 4
+
 /*
  * Factory list window
  */
@@ -22,6 +24,7 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
 	static const char *sort_text[factorylist::SORT_MODES];
+	static const char *display_mode_text[FACTORYLIST_MODES];
 
 	gui_combobox_t	sortedby;
 	gui_combobox_t	freight_type_c;
@@ -39,7 +42,7 @@ private:
 	static bool sortreverse;
 	static bool filter_own_network;
 	static uint8 filter_goods_catg;
-	static bool display_operation_stats;
+	static uint8 display_mode;
 
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 

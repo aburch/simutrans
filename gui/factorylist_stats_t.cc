@@ -8,6 +8,7 @@
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../simskin.h"
+#include "../simcity.h"
 #include "../simcolor.h"
 #include "../simfab.h"
 #include "../simworld.h"
@@ -165,7 +166,6 @@ void factorylist_stats_t::recalc_size()
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void factorylist_stats_t::draw(scr_coord offset)
 {
@@ -212,7 +212,8 @@ void factorylist_stats_t::draw(scr_coord offset)
 			offset_left += max(150, display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true));
 			buf.clear();
 
-			if (display_operation_stats) {
+			if (display_mode == 0) {
+				// [operation info]
 				// this month and last month operation rate
 				buf.printf("%3.1f - ", fab->get_stat_converted(0,FAB_PRODUCTION) / 100.0);
 				offset_left += proportional_string_width("0000.0 -");
@@ -265,8 +266,73 @@ void factorylist_stats_t::draw(scr_coord offset)
 						((staff_shortage_factor > (uint32)fab->get_staffing_level_percentage()) ? COL_STAFF_SHORTAGE : goods_manager_t::passengers->get_color()), true);
 				}
 			}
+			else if (display_mode == 2) {
+				// [demand info]
+				// input
+				uint has_input_output = 0;
+				FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
+					goods_desc_t const* const ware = i.get_typ();
+					if (skinverwaltung_t::input_output && !has_input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						offset_left += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
+					}
+					// input goods color square box
+					ware->get_name();
+					display_colorbox_with_tooltip(xoff + offset_left, yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+
+					has_input_output++;
+				}
+
+				if (has_input_output < 5) {
+					offset_left += has_input_output ? D_FIXED_SYMBOL_WIDTH * (5 - has_input_output) : D_FIXED_SYMBOL_WIDTH * 6 + D_V_SPACE;
+				}
+
+				// output
+				has_input_output = 0;
+				FOR(array_tpl<ware_production_t>, const& i, fab->get_output()) {
+					goods_desc_t const* const ware = i.get_typ();
+					if (skinverwaltung_t::input_output && !has_input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						offset_left += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
+					}
+					// output goods color square box
+					display_colorbox_with_tooltip(xoff + offset_left, yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+
+					has_input_output++;
+				}
+				if (fab->get_sector() == fabrik_t::power_plant) {
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+					display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+				}
+			}
+			else if (display_mode == 3) {
+				// [location info]
+				buf.clear();
+				const koord fab_pos = fab->get_pos().get_2d();
+				// pos
+				buf.append(fab->get_pos().get_2d().get_fullstr());
+				display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				buf.clear();
+
+				offset_left += proportional_string_width("(0000,0000) ");
+
+				// city
+				stadt_t* city = world()->get_city(fab_pos);
+				if (city) {
+					buf.printf("%s", city->get_name());
+				}
+
+				// region
+				if (!welt->get_settings().regions.empty()) {
+					buf.printf(" (%s)", translator::translate(welt->get_region_name(fab_pos).c_str()));
+				}
+				display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+			}
 			else {
-				// storage info
+				// [storage info]
 				// input storage
 				if (!fab->get_input().empty())
 				{

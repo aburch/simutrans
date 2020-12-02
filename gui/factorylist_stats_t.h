@@ -37,7 +37,7 @@ public:
 
 	void sort(factorylist::sort_mode_t sortby, bool sortreverse, bool own_network, uint8 goods_catg_index);
 
-	bool display_operation_stats = false;
+	uint8 display_mode = 0;
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**

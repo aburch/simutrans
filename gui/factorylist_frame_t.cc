@@ -12,10 +12,10 @@ bool factorylist_frame_t::sortreverse = false;
 factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 static uint8 default_sortmode = 0;
 
-bool factorylist_frame_t::display_operation_stats = false;
 // filter by within current player's network
 bool factorylist_frame_t::filter_own_network = false;
 uint8 factorylist_frame_t::filter_goods_catg = goods_manager_t::INDEX_NONE;
+uint8 factorylist_frame_t::display_mode = 0;
 
 const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Fabrikname",
@@ -29,6 +29,14 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Operation rate",
 	"by_region"
 };
+
+const char *factorylist_frame_t::display_mode_text[FACTORYLIST_MODES] = {
+	"fl_btn_operation",
+	"fl_btn_storage",
+	"fl_btn_demand",
+	"fl_btn_region"
+};
+
 
 factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
@@ -100,7 +108,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			freight_type_c.add_listener(this);
 			add_component(&freight_type_c); // (2,2,1)
 
-			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
+			btn_display_mode.init(button_t::roundbox, translator::translate(display_mode_text[display_mode]), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
 			btn_display_mode.add_listener(this);
 			add_component(&btn_display_mode); // (2,2,2)
 		}
@@ -152,10 +160,10 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 		display_list();
 	}
 	else if (comp == &btn_display_mode) {
-		display_operation_stats = !display_operation_stats;
-		btn_display_mode.pressed = display_operation_stats;
-		btn_display_mode.set_text(translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"));
-		stats.display_operation_stats = display_operation_stats;
+		display_mode = (++display_mode)%FACTORYLIST_MODES;
+		//btn_display_mode.pressed = display_operation_stats;
+		btn_display_mode.set_text(translator::translate(display_mode_text[display_mode]));
+		stats.display_mode = display_mode;
 	}
 	else if (comp == &freight_type_c) {
 		if (freight_type_c.get_selection() > 0) {
