@@ -45,7 +45,6 @@
 #include "gui/station_building_select.h"
 #include "gui/minimap.h" // to update map after construction of new industry
 #include "gui/depot_frame.h"
-#include "gui/schedule_gui.h"
 #include "gui/player_frame_t.h"
 #include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"

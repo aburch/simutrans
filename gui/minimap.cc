@@ -15,7 +15,6 @@
 #include "../simfab.h"
 #include "../simcity.h"
 #include "minimap.h"
-#include "schedule_gui.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"

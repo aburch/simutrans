@@ -25,7 +25,6 @@
 
 #include "gui/minimap.h"
 #include "gui/convoi_info_t.h"
-#include "gui/schedule_gui.h"
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 #include "gui/convoi_detail_t.h"

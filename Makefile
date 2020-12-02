@@ -408,7 +408,6 @@ SOURCES += gui/privatesign_info.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/scenario_info.cc
-SOURCES += gui/schedule_gui.cc
 SOURCES += gui/schedule_list.cc
 SOURCES += gui/script_tool_frame.cc
 SOURCES += gui/server_frame.cc

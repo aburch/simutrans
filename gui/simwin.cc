@@ -49,7 +49,6 @@
 #include "convoi_detail_t.h"
 #include "convoi_frame.h"
 #include "convoi_info_t.h"
-#include "schedule_gui.h"
 #include "line_management_gui.h"
 #include "schedule_list.h"
 #include "city_info.h"
@@ -567,7 +566,6 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_halt_info:      w = new halt_info_t(); break;
 					case magic_reliefmap:      w = new map_frame_t(); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(); break;
-					case magic_schedule_rdwr_dummy: w = new schedule_gui_t(); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(); break;
 					case magic_city_info_t:    w = new city_info_t(); break;
 					case magic_messageframe:   w = new message_frame_t(); break;

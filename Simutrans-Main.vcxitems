@@ -191,7 +191,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\savegame_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\scenario_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\scenario_info.cc" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)gui\schedule_gui.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\schedule_list.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\script_tool_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\server_frame.cc" />
@@ -552,7 +551,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\savegame_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\scenario_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\scenario_info.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)gui\schedule_gui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\schedule_list.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\server_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\settings_frame.h" />
