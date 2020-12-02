@@ -23,7 +23,7 @@ zlib_file_rdwr_stream_t::zlib_file_rdwr_stream_t(const std::string &filename, bo
 	else {
 		gzfp = dr_gzopen(filename.c_str(), "rb");
 	}
-
+	gzbuffer(gzfp, 65536);
 	status = STATUS_OK;
 }
 
