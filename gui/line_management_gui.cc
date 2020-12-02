@@ -358,6 +358,22 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 }
 
 
+void line_management_gui_t::apply_schedule()
+{
+	if( scd.has_pending_changes() && line.is_bound() && (player == welt->get_active_player() || welt->get_active_player()->is_public_service()) ) {
+		// update line schedule via tool!
+		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+		cbuffer_t buf;
+		buf.printf( "g,%i,", line.get_id() );
+		scd.get_schedule()->sprintf_schedule( buf );
+		tool->set_default_param( buf );
+		world()->set_tool( tool, line->get_owner() );
+		// since init always returns false, it is safe to delete immediately
+		delete tool;
+	}
+}
+
+
 bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if( comp == &scd ) {
@@ -367,6 +383,14 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 			reset_min_windowsize();
 		}
 		return true;
+	}
+	else if( comp == &switch_mode ) {
+		bool edit_schedule = switch_mode.get_aktives_tab() == &container_schedule;
+
+		scd.highlight_schedule( edit_schedule );
+		if(  !edit_schedule  ) {
+			apply_schedule();
+		}
 	}
 	else if(  comp == &inp_name  ) {
 		rename_line();
@@ -440,16 +464,8 @@ void line_management_gui_t::rename_line()
 bool line_management_gui_t::infowin_event( const event_t *ev )
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
-			// update line schedule via tool!
-			tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
-			cbuffer_t buf;
-			buf.printf( "g,%i,", line.get_id() );
-			scd.get_schedule()->sprintf_schedule( buf );
-			tool->set_default_param( buf );
-			world()->set_tool( tool, line->get_owner() );
-			// since init always returns false, it is safe to delete immediately
-			delete tool;
+		if(  scd.has_pending_changes()  ) {
+			apply_schedule();
 		}
 		scd.highlight_schedule( false );
 	}

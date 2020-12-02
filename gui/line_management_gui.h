@@ -65,6 +65,8 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 
 	void init_chart();
 
+	void apply_schedule();
+
 public:
 	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player_ = NULL);
 

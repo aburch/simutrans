@@ -261,6 +261,11 @@ convoi_info_t::~convoi_info_t()
 // apply new schedule
 void convoi_info_t::apply_schedule()
 {
+	if( !cnv.is_bound() || cnv->get_owner() != welt->get_active_player() || !welt->get_active_player()->is_public_service() ) {
+		// no change allowed
+		return;
+	}
+
 	// do not send changes if the convoi is about to be deleted
 	if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
 		if (cnv->in_depot()) {
@@ -524,7 +529,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			if( v.i == 1 ) {
 				cnv->call_convoi_tool( 's', "1" );
 			}
-			else {
+			else if(scd.has_pending_changes()) {
 				apply_schedule();
 			}
 		}
@@ -626,7 +631,7 @@ void convoi_info_t::change_schedule()
 bool convoi_info_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+		if(  scd.has_pending_changes()  ) {
 			apply_schedule();
 		}
 		scd.highlight_schedule( false );

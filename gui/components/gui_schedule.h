@@ -92,6 +92,9 @@ public:
 
 	void draw(scr_coord pos) OVERRIDE;
 
+	// true if the schedule has changed
+	bool has_pending_changes() { return bt_revert.enabled(); }
+
 	scr_size get_max_size() const OVERRIDE { return scr_size::inf; }
 
 	void set_size(scr_size size) OVERRIDE;
