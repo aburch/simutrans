@@ -37,18 +37,6 @@ class gui_schedule_t :
 	public action_listener_t
 {
 private:
-	enum mode_t {
-		adding = 0,
-		inserting,
-		removing,
-		MAX_MODE
-	};
-
-	mode_t mode;
-
-	static const char *bt_mode_text[ MAX_MODE ];
-	static const char *bt_mode_tooltip[ MAX_MODE ];
-
 	gui_label_buf_t lb_waitlevel;
 
 	// always needed
@@ -56,7 +44,7 @@ private:
 
 	gui_label_t lb_wait, lb_load;
 	gui_numberinput_t numimp_load;
-	gui_combobox_t wait_load, cb_mode;
+	gui_combobox_t wait_load;
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;

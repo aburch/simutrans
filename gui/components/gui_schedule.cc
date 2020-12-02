@@ -45,7 +45,7 @@ static karte_ptr_t welt;
 #define UP_FLAG (0x4000)
 #define DOWN_FLAG (0x2000)
 
-
+/* obsolete tooltips and texts
 const char *gui_schedule_t::bt_mode_text[MAX_MODE] =
 {
 	"Add Stop",
@@ -57,9 +57,8 @@ const char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] =
 {
 	"Appends stops at the end of the schedule",
 	"Insert stop before the current stop",
-	"Delete the current stop"
 };
-
+*/
 
 /**
  * One entry in the list of schedule entries.
@@ -101,6 +100,7 @@ public:
 
 		del.init( button_t::square_automatic, "" );
 		del.add_listener( this );
+		del.set_tooltip( "Delete the current stop" );
 		add_component( &del );
 
 		add_component(&stop_extra);
@@ -392,7 +392,6 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 	scrolly.set_maximize( true );
 	old_schedule = schedule = NULL;
 	player   = NULL;
-	mode = adding;
 
 	set_table_layout(3,0);
 
@@ -425,7 +424,7 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 
 	// action button row
 	new_component<gui_margin_t>();
-	add_table( 3, 1 )->set_force_equal_columns( true );
+	add_table( 3, 1 );
 	{
 		bt_revert.init(button_t::roundbox | button_t::flexible, "Revert schedule");
 		bt_revert.set_tooltip("Revert to original schedule");
@@ -437,12 +436,7 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 		bt_return.add_listener(this);
 		add_component(&bt_return);
 
-		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[0]), SYSCOL_TEXT );
-		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[1]), SYSCOL_TEXT );
-		cb_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(bt_mode_text[2]), SYSCOL_TEXT );
-		cb_mode.set_selection( mode );
-		cb_mode.add_listener(this);
-		add_component(&cb_mode);
+		new_component<gui_fill_t>();
 	}
 	end_table();
 	new_component<gui_margin_t>();
@@ -452,7 +446,6 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 	add_component(&scrolly,3);
 	stats->add_listener(this);
 
-	mode = adding;
 	current_schedule_rotation = welt->get_settings().get_rotation();
 
 	if (schedule_) {
@@ -511,10 +504,8 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		// not allow to change entries beyond waiting time
 		no_editing = (convoi_mode.is_bound() && line_mode.is_bound());
-		cb_mode.enable( !no_editing );
 		bt_return.enable( !no_editing );
 
-		mode = adding;
 		update_selection();
 		update_tool(true);
 	}
@@ -524,30 +515,8 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 void gui_schedule_t::update_tool(bool set)
 {
-	if(  !set  ||  mode==removing  ||  no_editing  ) {
-		// reset tools, if still selected ...
-		if(welt->get_tool(player->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_ADD]) {
-			if(tool_t::general_tool[TOOL_SCHEDULE_ADD]->get_default_param()==(const char *)schedule) {
-				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
-			}
-		}
-		else if(welt->get_tool(player->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_INS]) {
-			if(tool_t::general_tool[TOOL_SCHEDULE_INS]->get_default_param()==(const char *)schedule) {
-				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
-			}
-		}
-	}
-	else {
-		//  .. or set them again
-		if(mode==adding) {
-			tool_t::general_tool[TOOL_SCHEDULE_ADD]->set_default_param((const char *)schedule);
-			welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_ADD], player );
-		}
-		else if(mode==inserting) {
-			tool_t::general_tool[TOOL_SCHEDULE_INS]->set_default_param((const char *)schedule);
-			welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_INS], player );
-		}
-	}
+	tool_t::general_tool[TOOL_SCHEDULE_INS]->set_default_param((const char *)schedule);
+	welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_INS], player );
 }
 
 
@@ -602,14 +571,12 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		schedule = get_old_schedule()->copy();
 		stats->schedule = schedule;
+		stats->update_schedule();
 		update_selection();
+		update_tool(true);
 		value_t v;
 		v.p = NULL;
 		call_listeners(v);
-	}
-	else if (comp == &cb_mode) {
-		mode = (mode_t)p.i;
-		update_tool(true);
 	}
 	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
@@ -678,7 +645,6 @@ void gui_schedule_t::draw(scr_coord pos)
 		numimp_load.enable( is_allowed );
 		wait_load.enable( is_allowed );
 
-		cb_mode.enable( is_allowed );
 		bt_return.enable( is_allowed );
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
