@@ -949,9 +949,11 @@ bits_per_month = 20
 ################################# System settings #################################
 
 # compress savegames?
-# "binary" means uncompressed, "zipped" means compressed
+# "binary" means uncompressed, 
+# "zipped" means compressed
 # "bzip2" uses another compression algorithm
-# "zstd" may be available too
+# "zstd" may be available too: this can be much faster for larger games
+# when saving the path explorer data is enabled.
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
