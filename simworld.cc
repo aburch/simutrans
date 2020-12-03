@@ -9291,7 +9291,7 @@ void karte_t::load(loadsave_t *file)
 		string dummy;
 
 		if (read_progdir_simuconf) {
-			dr_chdir( env_t::program_dir );
+			dr_chdir( env_t::data_dir );
 			if(simuconf.open("config/simuconf.tab")) {
 				printf("parse_simuconf() in program dir (%s) for override of save file: ", "config/simuconf.tab");
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
@@ -9300,7 +9300,7 @@ void karte_t::load(loadsave_t *file)
 			dr_chdir( env_t::user_dir );
 		}
 		if (read_pak_simuconf) {
-			dr_chdir( env_t::program_dir );
+			dr_chdir( env_t::data_dir );
 			std::string pak_simuconf = env_t::objfilename + "config/simuconf.tab";
 			if(simuconf.open(pak_simuconf.c_str())) {
 				printf("parse_simuconf() in pak dir (%s) for override of save file: ", pak_simuconf.c_str() );
@@ -9474,7 +9474,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			stadt_t::cityrules_rdwr(file);
 			if (  !env_t::networkmode || env_t::server  ) {
 				if (pak_overrides) {
-					dr_chdir( env_t::program_dir );
+					dr_chdir( env_t::data_dir );
 					printf("stadt_t::cityrules_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str() );
 					stadt_t::cityrules_init( env_t::objfilename );
 					dr_chdir( env_t::user_dir );
@@ -9490,7 +9490,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 				{
 					if(pak_overrides)
 					{
-						dr_chdir(env_t::program_dir);
+						dr_chdir(env_t::data_dir);
 						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
 						privatecar_init(env_t::objfilename);
 						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
