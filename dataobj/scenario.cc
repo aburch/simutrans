@@ -152,7 +152,7 @@ bool scenario_t::load_script(const char* filename)
 	export_global_constants(script->get_vm());
 	// load scenario base definitions
 	char basefile[1024 + 24 + 1];
-	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
+	sprintf( basefile, "%sscript/scenario_base.nut", env_t::data_dir );
 	const char* err = script->call_script(basefile);
 	if (err) { // should not happen ...
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
@@ -195,7 +195,7 @@ void scenario_t::load_compatibility_script()
 	if (api_version != "*") {
 		// load scenario compatibility script
 		cbuffer_t buf;
-		buf.printf("%sscript/scenario_compat.nut", env_t::program_dir );
+		buf.printf("%sscript/scenario_compat.nut", env_t::data_dir );
 		if (const char* err = script->call_script((const char*)buf) ) {
 			dbg->warning("scenario_t::init", "error [%s] calling scenario_compat.nut", err);
 		}
