@@ -343,12 +343,39 @@ bool check_tool_availability(const tool_t *tool, uint64 time)
 }
 
 
-static utf32 str_to_key( const char *str )
+static utf32 str_to_key( const char *str, uint8 *modifier )
 {
+	*modifier = 0;	// default no modufier check
 	if(  str[1]==','  ||  str[1]<=' ') {
 		return (uint8)*str;
 	}
 	else {
+		// check for control char
+		if(str[0]=='^') {
+			if( str[1]==0  ||  str[1]=='^'  ) {
+				return str[1];
+			}
+			else {
+				*modifier = 2;
+				// only single character following =>make is 1..26 value
+				if(  isalpha( str[1] )  ) {
+					return tolower(str[1]) - 'a' + 1;
+				}
+				str++;
+			}
+		}
+		// add shift as requested modifier?
+		if(str[0]=='+') {
+			if(  str[ 1 ] == '+' ||  str[1]==0  ) {
+				return '+';
+			}
+			*modifier = 1;
+			str++;
+		}
+		// direct value (decimal)
+		if(str[0]=='#') {
+			return (str[1]=='#') ? str[1] : atoi(str+1);
+		}
 		// check for utf8
 		if(  127<(uint8)*str  ) {
 			size_t len = 0;
@@ -356,14 +383,6 @@ static utf32 str_to_key( const char *str )
 			if(str[len]==',') {
 				return c;
 			}
-		}
-		// control char
-		if(str[0]=='^') {
-			return (str[1]&(~32))-64;
-		}
-		// direct value (decimal)
-		if(str[0]=='#') {
-			return atoi(str+1);
 		}
 		// Function key?
 		if(str[0]=='F') {
@@ -393,8 +412,17 @@ static utf32 str_to_key( const char *str )
 			return SIM_KEY_END;
 		}
 		// END
-		if (strstart(str, "END")) {
-			return SIM_KEY_END;
+		if (strstart(str, "ESC")) {
+			// but currently fixed binding!
+			return SIM_KEY_ESCAPE;
+		}
+		if (strstart(str, "DEL")) {
+			// but currently fixed binding!
+			return SIM_KEY_DELETE;
+		}
+		if (strstart(str, "BACKSPACE")) {
+			// but currently fixed binding!
+			return SIM_KEY_BACKSPACE;
 		}
 		// NUMPAD
 		if(  const char *c=strstart(str, "NUM_")  ) {
@@ -552,7 +580,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					str++;
 				}
 				if(*str>=' ') {
-					tool->command_key = str_to_key(str);
+					tool->command_key = str_to_key(str,&(tool->command_flags));
 					char_to_tool.append(tool);
 				}
 			}
@@ -749,7 +777,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					addtool->icon = icon;
 				}
 				if(key_str!=NULL) {
-					addtool->command_key = str_to_key(key_str);
+					addtool->command_key = str_to_key(key_str,&(addtool->command_flags));
 					char_to_tool.append(addtool);
 				}
 				if(param_str!=NULL  &&  ((addtool->get_id() & TOOLBAR_TOOL) == 0)) {

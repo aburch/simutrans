@@ -161,8 +161,10 @@ void interaction_t::interactive_event( const event_t &ev )
 			// closing windows
 			case 27:
 			case 127:
-				// close topmost win
-				destroy_win( win_get_top() );
+				if( !IS_CONTROL_PRESSED( &ev ) && !IS_SHIFT_PRESSED( &ev ) ) {
+					// close topmost win
+					destroy_win( win_get_top() );
+				}
 				break;
 
 			case SIM_KEY_F1:
@@ -182,7 +184,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
 			case 8:
 			case 13:
-				if(  !IS_CONTROL_PRESSED(&ev)  ) {
+				if(  !IS_CONTROL_PRESSED(&ev)  &&  !IS_SHIFT_PRESSED(&ev)  ) {
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace
@@ -198,10 +200,12 @@ void interaction_t::interactive_event( const event_t &ev )
 				{
 					bool ok=false;
 					FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
-						if (i->command_key == ev.ev_code) {
-							world->set_tool(i, world->get_active_player());
-							ok = true;
-							break;
+						if(  i->command_key == ev.ev_code  ) {
+							if(  i->command_flags == 0  ||  (ev.ev_key_mod & 3) == i->command_flags  ) {
+								world->set_tool(i, world->get_active_player());
+								ok = true;
+								break;
+							}
 						}
 					}
 #ifdef STEAM_BUILT

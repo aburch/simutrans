@@ -227,6 +227,7 @@ public:
 	bool no_check()           const { return flags & WFL_NO_CHK; }
 	bool can_use_gui()        const { return is_local_execution()  &&  !is_scripted(); }
 
+	uint8  command_flags; // only shift and control
 	uint16 command_key;// key to toggle action for this function
 
 	static vector_tpl<tool_t *> general_tool;
