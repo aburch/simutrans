@@ -447,7 +447,7 @@ void env_t::rdwr(loadsave_t *file)
 	file->rdwr_short( global_volume );
 	file->rdwr_short( midi_volume );
 	file->rdwr_bool( global_mute_sound );
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() >= 15) {
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 32) || file->get_extended_version() >= 15) {
 		for( int i = 0; i <= 5; i++ ) {
 			file->rdwr_short( specific_volume[ i ] );
 		}

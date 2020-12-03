@@ -288,7 +288,7 @@ map_frame_t::map_frame_t() :
 	// freight combo for network overlay
 	{
 		viewable_freight_types.append(NULL);
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All freight types"), SYSCOL_TEXT) ;
 		viewable_freight_types.append(goods_manager_t::passengers);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
 		viewable_freight_types.append(goods_manager_t::mail);
