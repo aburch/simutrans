@@ -283,6 +283,10 @@ static utf32 str_to_key( const char *str )
 		if (strstart(str, "COMMA")) {
 			return ',';
 		}
+		// Scroll lock
+		if (strstart(str, "SCROLLLOCK")) {
+			return SIM_KEY_SCROLLLOCK;
+		}
 		// break/pause key
 		if (strstart(str, "PAUSE")) {
 			return SIM_KEY_PAUSE;
