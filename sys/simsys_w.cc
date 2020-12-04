@@ -664,6 +664,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			// do low level special stuff here
 			switch (wParam) {
+				case VK_SCROLL: sys_event.code = SIM_KEY_SCROLLLOCK; break;
 				case VK_PAUSE:  sys_event.code = SIM_KEY_PAUSE; break;
 				case VK_LEFT:   sys_event.code = SIM_KEY_LEFT;  break;
 				case VK_RIGHT:  sys_event.code = SIM_KEY_RIGHT; break;
