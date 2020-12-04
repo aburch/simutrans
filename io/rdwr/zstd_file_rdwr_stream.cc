@@ -30,7 +30,7 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 			return;
 		}
 
-		const size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_compressionLevel, compression_level );
+		size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_compressionLevel, compression_level );
 		if (ZSTD_isError(ret1)) {
 			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set compression level: %s", ZSTD_getErrorName(ret1));
 			status = STATUS_ERR_CORRUPT;
@@ -48,6 +48,15 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 		if (raw_file_rdwr_stream_t::write("ZD", 2) != 2) {
 			return;
 		}
+
+#if MULTI_THREAD
+		ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
+		if (ZSTD_isError(ret1)) {
+			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set wrokers: %s", ZSTD_getErrorName(ret1));
+			status = STATUS_ERR_CORRUPT;
+			return;
+		}
+#endif
 	}
 	else {
 		// decompressing
@@ -70,15 +79,6 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 	}
 
 	zbuff = xmalloc(ZSTD_FILE_BUF_SIZE);
-#if MULTI_THREAD
-	const size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
-	if (ZSTD_isError(ret1)) {
-		dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set wrokers: %s", ZSTD_getErrorName(ret1));
-		status = STATUS_ERR_CORRUPT;
-		return;
-	}
-
-#endif
 
 	if (writing) {
 		zin.src = NULL;
