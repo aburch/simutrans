@@ -18,6 +18,7 @@
 #include "../utils/simstring.h"
 #include "../vehicle/vehicle_base.h"
 #include "../player/simplay.h"
+#include "../sys/simsys.h"
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
@@ -988,7 +989,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::max_acceleration = contents.get_int( "fast_forward", env_t::max_acceleration );
 	env_t::fps = clamp( (uint32)contents.get_int( "frames_per_second", env_t::fps ), env_t::min_fps, env_t::max_fps );
 	env_t::ff_fps = clamp( (uint32)contents.get_int( "fast_forward_frames_per_second", env_t::ff_fps ), env_t::min_fps, env_t::max_fps );
-	env_t::num_threads = clamp( contents.get_int( "threads", env_t::num_threads ), 1, MAX_THREADS );
+	env_t::num_threads = clamp( (uint8)contents.get_int( "threads", env_t::num_threads ), (uint8)1, dr_get_max_threads() );
+	env_t::num_threads = min( env_t::num_threads, MAX_THREADS );
 	env_t::simple_drawing_default = contents.get_int( "simple_drawing_tile_size", env_t::simple_drawing_default );
 	env_t::simple_drawing_fast_forward = contents.get_int( "simple_drawing_fast_forward", env_t::simple_drawing_fast_forward );
 	env_t::visualize_schedule = contents.get_int( "visualize_schedule", env_t::visualize_schedule ) != 0;

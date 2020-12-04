@@ -49,7 +49,9 @@
 #	endif
 #endif
 
-
+#if __cplusplus >= 201103L
+#include <thread>
+#endif
 
 sys_event_t sys_event;
 
@@ -134,6 +136,26 @@ int get_mouse_y()
 	return sys_event.my;
 }
 
+
+
+uint8 dr_get_max_threads()
+{
+	uint8 max_threads = 0;
+
+#if __cplusplus >= 201103L
+	max_threads = std::thread::hardware_concurrency();
+#endif
+	if(max_threads==0) {
+#ifdef _WIN32
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		max_threads = (uint8)sysinfo.dwNumberOfProcessors;
+#else 
+		max_threads = sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+	}
+	return max(max_threads,1);
+}
 
 
 int dr_mkdir(char const* const path)

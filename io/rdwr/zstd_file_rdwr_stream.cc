@@ -5,6 +5,7 @@
 
 #include "zstd_file_rdwr_stream.h"
 
+#include "../../dataobj/environment.h"
 #include "../../simdebug.h"
 #include "../../simmem.h"
 
@@ -69,6 +70,15 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 	}
 
 	zbuff = xmalloc(ZSTD_FILE_BUF_SIZE);
+#if MULTI_THREAD
+	const size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
+	if (ZSTD_isError(ret1)) {
+		dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set wrokers: %s", ZSTD_getErrorName(ret1));
+		status = STATUS_ERR_CORRUPT;
+		return;
+	}
+
+#endif
 
 	if (writing) {
 		zin.src = NULL;

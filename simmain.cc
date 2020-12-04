@@ -1065,8 +1065,10 @@ int simu_main(int argc, char** argv)
 #ifdef MULTI_THREAD
 	// set number of threads
 	if(  const char *ref_str = gimme_arg(argc, argv, "-threads", 1)  ) {
-		int want_threads = atoi(ref_str);
-		env_t::num_threads = clamp(want_threads, 1, MAX_THREADS);
+		uint8 want_threads = atoi(ref_str);
+		env_t::num_threads = clamp( want_threads, (uint8)1u, dr_get_max_threads() );
+		env_t::num_threads = min( env_t::num_threads, MAX_THREADS );
+		dbg->message("simu_main()","Requested %d threads.", env_t::num_threads );
 	}
 #else
 	if(  env_t::num_threads > 1  ) {

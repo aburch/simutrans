@@ -416,7 +416,7 @@ static utf32 str_to_key( const char *str, uint8 *modifier )
 			// but currently fixed binding!
 			return SIM_KEY_ESCAPE;
 		}
-		if (strstart(str, "DEL")) {
+		if (strstart(str, "DELETE")) {
 			// but currently fixed binding!
 			return SIM_KEY_DELETE;
 		}

@@ -10,6 +10,7 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../sys/simsys.h"
 #include "../simmesg.h"
 
 #include "../utils/simrandom.h"
@@ -240,7 +241,7 @@ void env_t::init()
 	max_acceleration=50;
 
 #ifdef MULTI_THREAD
-	num_threads = 4;
+	num_threads = dr_get_max_threads();
 #else
 	num_threads = 1;
 #endif
