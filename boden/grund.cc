@@ -128,31 +128,25 @@ const char *grund_t::get_text() const
 }
 
 
-FLAGGED_PIXVAL grund_t::text_farbe() const
+const player_t* grund_t::get_label_owner() const
 {
+	const player_t* player = NULL;
 	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const player_t *player=halt->get_owner();
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
+		player=halt->get_owner();
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const player_t *player = obj_bei(0)->get_owner(); // for cityhall
+		player = obj_bei(0)->get_owner(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
 			player = l->get_owner();
 		}
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
 	}
-
-	return SYSCOL_TEXT_HIGHLIGHT;
+	return player;
 }
 
 
@@ -1661,6 +1655,26 @@ void grund_t::display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is
 }
 
 
+// display text label in player colors using different styles set by env_t::show_names
+void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty)
+{
+	sint16 pc = player ? player->get_player_color1()+4 : SYSCOL_TEXT_HIGHLIGHT;
+	switch( env_t::show_names >> 2 ) {
+		case 0:
+			display_ddd_proportional_clip( xpos, ypos, proportional_string_width(text)+7, 0, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 1:
+			display_outline_proportional_rgb( xpos, ypos-(LINESPACE/2), color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 2:
+			display_outline_proportional_rgb( xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2),   color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_ddd_box_clip_rgb(         xpos,                         ypos-(LINESPACE/2),   LINESPACE,   LINESPACE,   color_idx_to_rgb(pc-2), PLAYER_FLAG|color_idx_to_rgb(pc+2) );
+			display_fillbox_wh_rgb(           xpos+1,                       ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, color_idx_to_rgb(pc), dirty );
+			break;
+	}
+}
+
+
 void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 {
 	const bool dirty = get_flag(grund_t::dirty);
@@ -1674,21 +1688,10 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
-			FLAGGED_PIXVAL pc = text_farbe();
 
-			switch( env_t::show_names >> 2 ) {
-				case 0:
-					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 1:
-					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 2:
-					display_outline_proportional_rgb( new_xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
-					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
-					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
-					break;
-			}
+			const player_t* owner = get_label_owner();
+
+			display_text_label(new_xpos, ypos, text, owner, dirty);
 		}
 
 		// display station waiting information/status

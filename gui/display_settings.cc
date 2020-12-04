@@ -24,6 +24,9 @@
 #include "loadfont_frame.h"
 #include "simwin.h"
 
+// display text label in player colors
+void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty); // grund.cc
+
 enum {
 	IDBTN_SCROLL_INVERSE,
 	IDBTN_IGNORE_NUMLOCK,
@@ -62,23 +65,10 @@ public:
 	{
 		scr_coord p = pos + offset;
 
-		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+3) : color_idx_to_rgb(COL_ORANGE);
+		const player_t* player = welt->get_active_player();
 		const char *text = get_text_pointer();
-		switch( env_t::show_names>>2 ) {
-		case 0:
-			if(  env_t::show_names & 1  ) {
-				display_ddd_proportional_clip( p.x, p.y + get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
-			}
-			break;
-		case 1:
-			display_outline_proportional_rgb( p.x, p.y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
-			break;
-		case 2:
-			display_outline_proportional_rgb( p.x + LINESPACE + D_H_SPACE, p.y, color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, 1 );
-			display_ddd_box_clip_rgb(         p.x,                     p.y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-			display_fillbox_wh_clip_rgb(      p.x+1,                   p.y+1, LINESPACE-2, LINESPACE-2, pc,   true);
-			break;
-		}
+
+		display_text_label(p.x, p.y + get_size().h/2, text, player, true);
 	}
 
 	scr_size get_min_size() const OVERRIDE
