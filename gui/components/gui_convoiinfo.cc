@@ -193,7 +193,7 @@ void gui_convoiinfo_t::update_label()
 			switchable_label_value.set_visible(true);
 			break;
 		case 4: // Max speed
-			switchable_label_title.buf().printf("%s: ", translator::translate("Max. speed"));
+			switchable_label_title.buf().printf("%s ", translator::translate("Max. speed:"));
 			switchable_label_value.buf().printf("%3d km/h", speed_to_kmh(cnv->get_min_top_speed()));
 			switchable_label_title.set_visible(true);
 			switchable_label_value.set_visible(true);
