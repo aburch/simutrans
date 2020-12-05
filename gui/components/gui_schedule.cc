@@ -516,8 +516,23 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 void gui_schedule_t::update_tool(bool set)
 {
-	tool_t::general_tool[TOOL_SCHEDULE_INS]->set_default_param((const char *)schedule);
-	welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_INS], player );
+	if (set) {
+		tool_t::general_tool[TOOL_SCHEDULE_ADD]->set_default_param((const char *)schedule);
+		welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_ADD], player );
+	}
+	else {
+		// we have to reset the tool (in particular, when window closes)
+		if(welt->get_tool(player->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_ADD]) {
+			if(tool_t::general_tool[TOOL_SCHEDULE_ADD]->get_default_param()==(const char *)schedule) {
+				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
+			}
+		}
+		else if(welt->get_tool(player->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_INS]) {
+			if(tool_t::general_tool[TOOL_SCHEDULE_INS]->get_default_param()==(const char *)schedule) {
+				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
+			}
+		}
+	}
 }
 
 
