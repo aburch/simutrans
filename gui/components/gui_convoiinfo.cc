@@ -172,6 +172,7 @@ void gui_convoiinfo_t::update_label()
 		}
 	}
 
+	switchable_label_value.set_color(SYSCOL_TEXT);
 	switch (switch_label)
 	{
 		case 1: // Next stop
@@ -213,6 +214,9 @@ void gui_convoiinfo_t::update_label()
 		case 7: // average age(month)
 			switchable_label_title.buf().printf("%s: ", translator::translate("cl_btn_sort_age"));
 			switchable_label_value.buf().printf(cnv->get_average_age() == 1 ? translator::translate("%i month") : translator::translate("%i months"), cnv->get_average_age());
+			if (cnv->has_obsolete_vehicles()) {
+				switchable_label_value.set_color(SYSCOL_OBSOLETE);
+			}
 			switchable_label_title.set_visible(true);
 			switchable_label_value.set_visible(true);
 			break;
