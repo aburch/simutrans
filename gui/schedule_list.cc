@@ -941,6 +941,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			scr_size csize = cinfo->get_min_size();
 			cinfo->set_size(scr_size(400, csize.h-D_MARGINS_Y));
 			cinfo->set_mode(selected_cnvlist_mode[player->get_player_nr()]);
+			cinfo->set_switchable_label(sortby);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += csize.h - D_MARGIN_TOP-D_V_SPACE*2;
