@@ -21,6 +21,7 @@
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
 #include "../vehicle/simvehicle.h"
+#include "../simline.h"
 
  /**
  * All filter and sort settings are static, so the old settings are
@@ -33,10 +34,14 @@ static uint8 cl_display_mode = gui_convoy_formation_t::appearance;
 
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_name",
+	"Line",
 	"cl_btn_sort_income",
 	"cl_btn_sort_type",
 	"cl_btn_sort_id",
-	"cl_btn_sort_power"
+	"cl_btn_sort_max_speed",
+	"cl_btn_sort_power",
+	"cl_btn_sort_value",
+	"cl_btn_sort_age"
 };
 
 /**
@@ -181,6 +186,9 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 		case by_name:
 			result = strcmp(cnv1->get_internal_name(), cnv2->get_internal_name());
 			break;
+		case by_line:
+			result = cnv1->get_line().get_id() - cnv2->get_line().get_id();
+			break;
 		case by_profit:
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
@@ -201,8 +209,17 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 		case by_id:
 			result = cnv1.get_id()-cnv2.get_id();
 			break;
+		case by_max_speed:
+			result = cnv1->get_min_top_speed() - cnv2->get_min_top_speed();
+			break;
 		case by_power:
 			result = cnv1->get_sum_power() - cnv2->get_sum_power();
+			break;
+		case by_value:
+			result = cnv1->get_purchase_cost() - cnv2->get_purchase_cost();
+			break;
+		case by_age:
+			result = cnv1->get_average_age() - cnv2->get_average_age();
 			break;
 	}
 	return sortreverse ? result > 0 : result < 0;

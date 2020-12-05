@@ -26,7 +26,7 @@ class convoi_frame_t :
 	private action_listener_t
 {
 public:
-	enum sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, SORT_MODES };
+	enum sort_mode_t { by_name = 0, by_line, by_profit, by_type, by_id, by_max_speed, by_power, by_value, by_age, SORT_MODES };
 
 private:
 	player_t *owner;
