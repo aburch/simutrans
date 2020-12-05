@@ -33,12 +33,11 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	this->cnv = cnv;
 	this->show_line_name = show_line_name;
 
-	set_table_layout(2,1);
-	set_alignment(ALIGN_LEFT);
+	set_table_layout(1,2);
+	add_table(2, 1)->set_alignment(ALIGN_TOP);
 
 	add_table(1,4)->set_spacing(scr_size(D_H_SPACE, 0));
 	{
-		set_alignment(ALIGN_LEFT);
 		add_table(3, 1);
 		{
 			img_alert.set_image(IMG_EMPTY);
@@ -63,10 +62,10 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 
 		add_table(4,1);
 		{
-			new_component<gui_margin_t>(LINESPACE/3);
+			new_component<gui_margin_t>(LINESPACE/3, D_V_SPACE);
 			add_component(&switchable_label_title);
 			add_component(&switchable_label_value);
-			new_component<gui_fill_t>();
+			new_component<gui_empty_t>();
 		}
 		end_table();
 	}
@@ -78,7 +77,9 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 		new_component<gui_fill_t>();
 	}
 	end_table();
+	end_table();
 
+	new_component<gui_margin_t>(0, D_V_SPACE);
 
 	update_label();
 }
@@ -179,6 +180,7 @@ void gui_convoiinfo_t::update_label()
 			switchable_label_title.set_visible(true);
 			switchable_label_value.set_visible(true);
 			break;
+		case 0:
 		default:
 			switchable_label_title.set_visible(false);
 			switchable_label_value.set_visible(false);
@@ -219,37 +221,6 @@ void gui_convoiinfo_t::update_label()
  */
 void gui_convoiinfo_t::draw(scr_coord offset)
 {
-/*
-//<<<<<<< HEAD
-	clip_dimension clip = display_get_clip_wh();
-	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
-		// 2nd row
-		if (display_mode == cnvlist_normal) {
-		}
-		else if (display_mode == cnvlist_payload) {
-			payload.set_cnv(cnv);
-			payload.draw(pos + offset + scr_coord(0, LINESPACE + 4));
-		}
-
-		// 3rd row
-		w = D_MARGIN_LEFT;
-		if (display_mode == cnvlist_normal || display_mode == cnvlist_payload)
-		{
-			// only show assigned line, if there is one!
-			if (cnv->in_depot()) {
-			}
-			else if(!show_line_name && display_mode == cnvlist_payload){
-				// next stop
-				cbuffer_t info_buf;
-				info_buf.printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
-				const schedule_t *schedule = cnv->get_schedule();
-				schedule_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
-				display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			}
-
-		}
-	//}
-//======= */
 	update_label();
 	gui_aligned_container_t::draw(offset);
 }
