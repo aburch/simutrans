@@ -261,7 +261,7 @@ convoi_info_t::~convoi_info_t()
 // apply new schedule
 void convoi_info_t::apply_schedule()
 {
-	if( !cnv.is_bound() || cnv->get_owner() != welt->get_active_player() || !welt->get_active_player()->is_public_service() ) {
+	if( !cnv.is_bound() ||  (cnv->get_owner() != welt->get_active_player()  &&  !welt->get_active_player()->is_public_service())  ) {
 		// no change allowed
 		return;
 	}
