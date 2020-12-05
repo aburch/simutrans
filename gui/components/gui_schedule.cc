@@ -145,7 +145,7 @@ public:
 		stop_extra.set_color(yesno ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 	}
 
-	bool action_triggered( gui_action_creator_t *c, value_t v ) OVERRIDE
+	bool action_triggered( gui_action_creator_t *c, value_t ) OVERRIDE
 	{
 		if( c == &up ) {
 			call_listeners( UP_FLAG | number );
@@ -159,6 +159,7 @@ public:
 			call_listeners( DELETE_FLAG | number );
 			return true;
 		}
+		return false;
 	}
 
 	bool infowin_event(const event_t *ev) OVERRIDE
