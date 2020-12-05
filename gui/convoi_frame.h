@@ -27,6 +27,7 @@ class convoi_frame_t :
 {
 public:
 	enum sort_mode_t { by_name = 0, by_line, by_profit, by_type, by_id, by_max_speed, by_power, by_value, by_age, SORT_MODES };
+	static const uint8 sortmode_to_label[SORT_MODES];
 
 private:
 	player_t *owner;

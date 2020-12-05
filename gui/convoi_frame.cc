@@ -44,6 +44,7 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_age"
 };
 
+const uint8 convoi_frame_t::sortmode_to_label[SORT_MODES] = { 0,0,2,0,0,4,5,6,7 };
 /**
  * Scrolled list of gui_convoiinfo_ts.
  * Filters (by setting visibility) and sorts.
@@ -68,6 +69,7 @@ public:
 
 			a->set_visible( main->passes_filter(a->get_cnv()) );
 			a->set_mode(cl_display_mode);
+			a->set_switchable_label(convoi_frame_t::sortmode_to_label[default_sortmode]);
 		}
 		main_static = main;
 		gui_scrolled_list_t::sort(0);
