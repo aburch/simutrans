@@ -44,7 +44,7 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_age"
 };
 
-const uint8 convoi_frame_t::sortmode_to_label[SORT_MODES] = { 0,0,2,0,0,4,5,6,7 };
+const uint8 convoi_frame_t::sortmode_to_label[SORT_MODES] = { 0,1,2,0,0,4,5,6,7 };
 /**
  * Scrolled list of gui_convoiinfo_ts.
  * Filters (by setting visibility) and sorts.
