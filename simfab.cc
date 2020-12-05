@@ -1770,8 +1770,10 @@ sint8 fabrik_t::is_needed(const goods_desc_t *typ) const
 
 bool fabrik_t::is_active_lieferziel( koord k ) const
 {
-	assert( lieferziele.is_contained(k) );
-	return 0 < ( ( 1 << lieferziele.index_of(k) ) & lieferziele_active_last_month );
+	if ( lieferziele.is_contained(k) ) {
+		return 0 < ( ( 1 << lieferziele.index_of(k) ) & lieferziele_active_last_month );
+	}
+	return false;
 }
 
 sint32 fabrik_t::get_jit2_power_boost() const
