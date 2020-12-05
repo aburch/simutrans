@@ -5264,6 +5264,8 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 
 		tool_t::update_toolbars();
 		toolbar_last_used_t::last_used_tools->clear();
+
+		set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 	}
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
@@ -5892,9 +5894,6 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			create_win(win, w_info, magic_motd);
 		}
 	}
-
-	// since the UI may have another tool selected as last action ...
-	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
 	if(  file->is_version_atleast(102, 4)  ) {
 		if(  env_t::restore_UI  ) {
