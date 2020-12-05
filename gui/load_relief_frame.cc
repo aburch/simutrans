@@ -36,7 +36,7 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 	new_format.pressed = env_t::new_height_map_conversion;
 	bottom_left_frame.add_component( &new_format );
 
-	const std::string extra_path = env_t::program_dir + env_t::objfilename + "maps/";
+	const std::string extra_path = env_t::data_dir + env_t::objfilename + "maps/";
 	this->add_path(extra_path.c_str());
 
 	set_name(translator::translate("Lade Relief"));

@@ -339,10 +339,9 @@ public:
 	void show_info();
 
 	/**
-	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
-	* @return die Farbe des Beschreibungstexthintergrundes.
-	*/
-	FLAGGED_PIXVAL text_farbe() const;
+	 * @return player that owns the label to show it in player's colors
+	 */
+	const player_t* get_label_owner() const;
 
 	/**
 	 * Sets the label text (by copying it)

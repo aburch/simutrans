@@ -212,7 +212,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		//!< total people
+		WORLD_CITIZENS=0,		//!< total people
 		WORLD_JOBS,				//!< total jobs
 		WORLD_VISITOR_DEMAND,	//!< total visitor demand
 		WORLD_GROWTH,			//!< growth (just for convenience)
@@ -2133,7 +2133,7 @@ public:
 	uint8	calc_natural_slope( const koord k ) const;
 
 	// Getter/setter methods for maintaining the industry density
-	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
+	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITIZENS] * (sint64)industry_density_proportion) / 1000000ll; }
 	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
 
 	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }

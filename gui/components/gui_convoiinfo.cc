@@ -33,12 +33,11 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	this->cnv = cnv;
 	this->show_line_name = show_line_name;
 
-	set_table_layout(2,1);
-	set_alignment(ALIGN_LEFT);
+	set_table_layout(1,0);
+	add_table(2, 2)->set_alignment(ALIGN_TOP);
 
 	add_table(1,4)->set_spacing(scr_size(D_H_SPACE, 0));
 	{
-		set_alignment(ALIGN_LEFT);
 		add_table(3, 1);
 		{
 			img_alert.set_image(IMG_EMPTY);
@@ -63,10 +62,10 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 
 		add_table(4,1);
 		{
-			new_component<gui_margin_t>(LINESPACE/3);
+			new_component<gui_margin_t>(LINESPACE/3, LINEASCENT);
 			add_component(&switchable_label_title);
 			add_component(&switchable_label_value);
-			new_component<gui_fill_t>();
+			new_component<gui_empty_t>();
 		}
 		end_table();
 	}
@@ -79,6 +78,9 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, bool show_line_name):
 	}
 	end_table();
 
+	new_component<gui_margin_t>(100, D_V_SPACE);
+	new_component<gui_margin_t>(100, D_V_SPACE);
+	end_table();
 
 	update_label();
 }
@@ -172,19 +174,54 @@ void gui_convoiinfo_t::update_label()
 
 	switch (switch_label)
 	{
-		case 1:
-			switchable_label_title.buf().printf("%s: ", translator::translate("Gewinn")); // Profit
+		case 1: // Next stop
+		{
+			if (!cnv->in_depot()) {
+				switchable_label_title.buf().printf("%s: ", translator::translate("Fahrtziel"));
+				const schedule_t *schedule = cnv->get_schedule();
+				schedule_t::gimme_short_stop_name(switchable_label_value.buf(), world(), cnv->get_owner(), schedule, schedule->get_current_stop(), 50 - strlen(translator::translate("Fahrtziel")));
+				switchable_label_title.set_visible(true);
+				switchable_label_value.set_visible(true);
+			}
+			break;
+		}
+		case 2: // Profit
+			switchable_label_title.buf().printf("%s: ", translator::translate("Gewinn"));
 			switchable_label_value.buf().append_money(cnv->get_jahresgewinn() / 100.0);
 			switchable_label_value.set_color(cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS);
 			switchable_label_title.set_visible(true);
 			switchable_label_value.set_visible(true);
 			break;
+		case 4: // Max speed
+			switchable_label_title.buf().printf("%s ", translator::translate("Max. speed:"));
+			switchable_label_value.buf().printf("%3d km/h", speed_to_kmh(cnv->get_min_top_speed()));
+			switchable_label_title.set_visible(true);
+			switchable_label_value.set_visible(true);
+			break;
+		case 5: // Power
+			switchable_label_title.buf().printf("%s: ", translator::translate("Leistung"));
+			switchable_label_value.buf().printf("%4d kW, %d kN", cnv->get_sum_power()/1000, cnv->get_starting_force().to_sint32()/1000);
+			switchable_label_title.set_visible(true);
+			switchable_label_value.set_visible(true);
+			break;
+		case 6: // Value
+			switchable_label_title.buf().printf("%s: ", translator::translate("cl_btn_sort_value"));
+			switchable_label_value.buf().append_money(cnv->get_purchase_cost()/100.0);
+			switchable_label_title.set_visible(true);
+			switchable_label_value.set_visible(true);
+			break;
+		case 7: // average age(month)
+			switchable_label_title.buf().printf("%s: ", translator::translate("cl_btn_sort_age"));
+			switchable_label_value.buf().printf(cnv->get_average_age() == 1 ? translator::translate("%i month") : translator::translate("%i months"), cnv->get_average_age());
+			switchable_label_title.set_visible(true);
+			switchable_label_value.set_visible(true);
+			break;
+		case 0:
 		default:
 			switchable_label_title.set_visible(false);
 			switchable_label_value.set_visible(false);
 			break;
 	}
-	//switchable_label_title.buf().printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
 
 	switchable_label_title.update();
 	switchable_label_value.update();

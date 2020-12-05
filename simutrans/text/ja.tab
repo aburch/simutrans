@@ -1333,8 +1333,6 @@ Max Boost (%)
 増産能力 (%)
 Max income:
 最大収益：
-Max. speed
-最高速度
 Max. speed:
 最高速度:
 Maximum 254 stops\nin a schedule!\n
@@ -3664,9 +3662,9 @@ helptxt_can_be_at_rear
 helptxt_intermediate
 中間車両
 %i month
-車齢 %iヶ月
+%iヶ月
 %i months
-車齢 %iヶ月
+%iヶ月
 Upgrade available
 アップグレードが可能です
 Upgrade is not available yet

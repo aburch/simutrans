@@ -71,7 +71,7 @@
 uint32 weg_t::private_car_routes_currently_reading_element;
 
 // since we use 32 bit per growth steps, we use this variable to take care of the remaining sub citizen growth
-#define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
+#define CITYGROWTH_PER_CITIZEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
 
@@ -1247,8 +1247,8 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 
 	if(remove)
 	{
-		city_history_month[0][HIST_CITICENS] -= building->get_adjusted_population();
-		city_history_year[0][HIST_CITICENS]  -= building->get_adjusted_population();
+		city_history_month[0][HIST_CITIZENS] -= building->get_adjusted_population();
+		city_history_year[0][HIST_CITIZENS]  -= building->get_adjusted_population();
 
 		city_history_month[0][HIST_JOBS] -= building->get_adjusted_jobs();
 		city_history_year[0][HIST_JOBS]  -= building->get_adjusted_jobs();
@@ -1258,8 +1258,8 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 	}
 	else
 	{
-		city_history_month[0][HIST_CITICENS] += building->get_adjusted_population();
-		city_history_year[0][HIST_CITICENS]  += building->get_adjusted_population();
+		city_history_month[0][HIST_CITIZENS] += building->get_adjusted_population();
+		city_history_year[0][HIST_CITIZENS]  += building->get_adjusted_population();
 
 		city_history_month[0][HIST_JOBS] += building->get_adjusted_jobs();
 		city_history_year[0][HIST_JOBS]  += building->get_adjusted_jobs();
@@ -2096,8 +2096,8 @@ void stadt_t::rdwr(loadsave_t* file)
 	if(file->is_loading())
 	{
 		// These will be set later when buildings are added.
-		city_history_month[0][HIST_CITICENS] = 0;
-		city_history_year[0][HIST_CITICENS] = 0;
+		city_history_month[0][HIST_CITIZENS] = 0;
+		city_history_year[0][HIST_CITIZENS] = 0;
 	}
 
 	// differential history
@@ -2419,8 +2419,8 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		// These are recalculated when the buildings are added to the city, so reset these to avoid
 		// doubling these figures for every load/save cycle.
-		city_history_month[0][HIST_CITICENS] = 0;
-		city_history_year[0][HIST_CITICENS] = 0;
+		city_history_month[0][HIST_CITIZENS] = 0;
+		city_history_year[0][HIST_CITIZENS] = 0;
 
 		city_history_month[0][HIST_JOBS] = 0;
 		city_history_year[0][HIST_JOBS] = 0;
@@ -2607,7 +2607,7 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town, bool map_generat
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
 	if(  delta_citizen > 0  ) {
-		unsupplied_city_growth += delta_citizen * CITYGROWTH_PER_CITICEN;
+		unsupplied_city_growth += delta_citizen * CITYGROWTH_PER_CITIZEN;
 		step_grow_city(new_town, map_generation);
 	}
 	if(  delta_citizen < 0  ) {
@@ -2649,8 +2649,8 @@ void stadt_t::step(uint32 delta_t)
 
 	// update history (might be changed due to construction/destroying of houses)
 
-	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITICENS] - city_history_month[1][HIST_CITICENS];	// growth
-	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITICENS] - city_history_year[1][HIST_CITICENS];
+	city_history_month[0][HIST_GROWTH] = city_history_month[0][HIST_CITIZENS] - city_history_month[1][HIST_CITIZENS];	// growth
+	city_history_year[0][HIST_GROWTH] = city_history_year[0][HIST_CITIZENS] - city_history_year[1][HIST_CITIZENS];
 
 	city_history_month[0][HIST_BUILDING] = buildings.get_count();
 	city_history_year[0][HIST_BUILDING] = buildings.get_count();
@@ -2956,7 +2956,7 @@ void stadt_t::calc_growth()
 	}
 #endif
 	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
-	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITICEN / 16ll);
+	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITIZEN / 16ll);
 
 	// Growth is scaled down by month length.
 	// The result is that ~ the same monthly growth will occur independent of month length.
@@ -3092,9 +3092,9 @@ void stadt_t::step_grow_city(bool new_town, bool map_generation)
 	int num_tries = new_town ? 60 : 30;
 
 	// since we use internally a finer value ...
-	const sint64 growth_steps = unsupplied_city_growth / CITYGROWTH_PER_CITICEN;
+	const sint64 growth_steps = unsupplied_city_growth / CITYGROWTH_PER_CITIZEN;
 	if(  growth_steps > 0  ) {
-		unsupplied_city_growth %= CITYGROWTH_PER_CITICEN;
+		unsupplied_city_growth %= CITYGROWTH_PER_CITIZEN;
 	}
 
 	// Hajo: let city grow in steps of 1
@@ -3507,7 +3507,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;
-					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(desc->get_name()), 2), city_history_month[0][HIST_CITICENS]);
+					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(desc->get_name()), 2), city_history_month[0][HIST_CITIZENS]);
 					welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, desc->get_tile(0)->get_background(0, 0, 0));
 				}
 			}
@@ -5895,7 +5895,7 @@ uint32 stadt_t::get_power_demand() const
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
 
-	return (((city_history_month[0][HIST_CITICENS] + city_history_month[0][HIST_JOBS] + (city_history_month[0][HIST_VISITOR_DEMAND] / 4)) << POWER_TO_MW) * electricity_per_unit) / 100000;
+	return (((city_history_month[0][HIST_CITIZENS] + city_history_month[0][HIST_JOBS] + (city_history_month[0][HIST_VISITOR_DEMAND] / 4)) << POWER_TO_MW) * electricity_per_unit) / 100000;
 }
 
 void stadt_t::add_substation(senke_t* substation)
@@ -6130,7 +6130,7 @@ void stadt_t::calc_congestion()
 		// Old method - congestion density factor
 		const uint32 city_size = (ur.x - lo.x + 1) * (ur.y - lo.y + 1);
 		uint32 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
-		const uint32 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+		const uint32 population_density = (city_history_month[1][HIST_CITIZENS] * 10) / city_size;
 		congestion_density_factor *= 100;
 
 		uint32 cars_per_tile_base = 800;

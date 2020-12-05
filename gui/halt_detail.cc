@@ -278,7 +278,7 @@ void halt_detail_t::halt_detail_info()
 				if (!waytype_line_cnt) {
 					buf.append("\n");
 					offset_y += LINESPACE;
-					buf.append(" · ");
+					buf.append(" \xC2\xB7 ");
 					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
 					buf.append("\n");
 					offset_y += LINESPACE;
@@ -374,7 +374,7 @@ void halt_detail_t::halt_detail_info()
 		{
 			buf.append("\n");
 			offset_y += LINESPACE;
-			buf.append(" · ");
+			buf.append(" \xC2\xB7 ");
 			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );

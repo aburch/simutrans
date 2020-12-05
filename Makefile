@@ -191,9 +191,12 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
-ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
-  FLAGS      += -DUSE_ZSTD
-  LDFLAGS     += -lzstd
+
+ifdef USE_ZSTD
+  ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
+    FLAGS      += -DUSE_ZSTD
+    LDFLAGS     += -lzstd
+  endif
 endif
 
 ifneq ($(MULTI_THREAD),)
