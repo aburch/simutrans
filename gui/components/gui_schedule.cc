@@ -431,6 +431,7 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 		bt_revert.set_tooltip("Revert to original schedule");
 		bt_revert.add_listener(this);
 		bt_revert.pressed = false;
+		bt_revert.enable(false); // schedule was not changed yet
 		add_component(&bt_revert);
 
 		bt_return.init(button_t::roundbox | button_t::flexible, "Revert schedule");
