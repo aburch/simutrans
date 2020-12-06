@@ -55,6 +55,7 @@ public:
 	static bool reverse;
 
 	signalboxlist_stats_t(signalbox_t *);
+	static uint16 name_width;
 
 	void draw( scr_coord pos) OVERRIDE;
 
