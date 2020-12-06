@@ -28,10 +28,6 @@
 
 #include "../../tpl/vector_tpl.h"
 
-#include "../simwin.h"
-#include "../depot_frame.h"
-#include "../minimap.h"
-
 #include "gui_button.h"
 #include "gui_image.h"
 #include "gui_textarea.h"
@@ -263,7 +259,7 @@ public:
 		current_stop_mark->clear_flag( obj_t::highlight );
 	}
 
-	void update_schedule()
+	void update_schedule(bool highlight)
 	{
 		// compare schedules
 		bool ok = (last_schedule != NULL)  &&  last_schedule->entries.get_count() == schedule->entries.get_count();
@@ -300,13 +296,15 @@ public:
 			}
 			set_size(get_min_size());
 		}
-		highlight_schedule(true);
+		if (highlight) {
+			highlight_schedule(true);
+		}
 	}
 
 	void draw(scr_coord offset) OVERRIDE
 	{
 		if( schedule ) {
-			update_schedule();
+			update_schedule(true);
 		}
 		gui_aligned_container_t::draw(offset);
 	}
@@ -502,6 +500,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		stats->player = player;
 		stats->schedule = schedule;
+		stats->update_schedule(false);
 
 		numimp_load.set_value( schedule->get_current_entry().minimum_loading );
 
@@ -589,7 +588,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		schedule = get_old_schedule()->copy();
 		stats->schedule = schedule;
-		stats->update_schedule();
+		stats->update_schedule(true);
 		update_selection();
 		update_tool(true);
 		value_t v;
