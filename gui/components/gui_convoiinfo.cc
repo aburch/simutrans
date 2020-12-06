@@ -260,37 +260,6 @@ void gui_convoiinfo_t::update_label()
  */
 void gui_convoiinfo_t::draw(scr_coord offset)
 {
-/*
-//
-	clip_dimension clip = display_get_clip_wh();
-	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
-		// 2nd row
-		if (display_mode == cnvlist_normal) {
-		}
-		else if (display_mode == cnvlist_payload) {
-			payload.set_cnv(cnv);
-			payload.draw(pos + offset + scr_coord(0, LINESPACE + 4));
-		}
-
-		// 3rd row
-		w = D_MARGIN_LEFT;
-		if (display_mode == cnvlist_normal || display_mode == cnvlist_payload)
-		{
-			// only show assigned line, if there is one!
-			if (cnv->in_depot()) {
-			}
-			else if(!show_line_name && display_mode == cnvlist_payload){
-				// next stop
-				cbuffer_t info_buf;
-				info_buf.printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
-				const schedule_t *schedule = cnv->get_schedule();
-				schedule_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
-				display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			}
-
-		}
-	//}
-//*/
 	update_label();
 	gui_aligned_container_t::draw(offset);
 }
