@@ -457,9 +457,8 @@ gui_schedule_t::~gui_schedule_t()
 {
 	stats->highlight_schedule( false );
 	update_tool(false);
-	delete schedule;
 	delete stats;
-	old_schedule->finish_editing();
+	delete schedule;
 }
 
 void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, linehandle_t lin)
