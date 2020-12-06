@@ -10,7 +10,7 @@
 #include "../descriptor/building_desc.h"
 #include "../utils/simstring.h"
 
-enum sort_mode_t { by_type, by_coord, by_connected, by_capacity, by_radius, by_region, SORT_MODES };
+enum sort_mode_t { by_type, by_coord, by_connected, by_capacity, by_radius, by_region, by_built_in, SORT_MODES };
 
 int signalboxlist_stats_t::sort_mode = by_connected;
 bool signalboxlist_stats_t::reverse = false;
@@ -124,6 +124,9 @@ bool signalboxlist_stats_t::compare(const gui_component_t *aa, const gui_compone
 		case by_region:
 			cmp = welt->get_region(a->get_pos().get_2d()) - welt->get_region(b->get_pos().get_2d());
 			break;
+		case by_built_in:
+			cmp = a->get_first_tile()->get_purchase_time() - b->get_first_tile()->get_purchase_time();
+			break;
 	}
 	if (cmp == 0) {
 		cmp = koord_distance( a->get_pos(), koord( 0, 0 ) ) - koord_distance( b->get_pos(), koord( 0, 0 ) );
@@ -143,7 +146,8 @@ static const char *sort_text[SORT_MODES] = {
 	"sb_connected",
 	"Max. signals",
 	"Radius",
-	"by_region"
+	"by_region",
+	"Built in"
 };
 
 signalboxlist_frame_t::signalboxlist_frame_t(player_t *player) :
