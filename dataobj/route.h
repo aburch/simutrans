@@ -28,7 +28,13 @@ private:
 
 	enum overweight_type { not_overweight, cannot_route, slowly_only };
 public:
-	typedef enum { no_route = 0, valid_route = 1, valid_route_halt_too_short = 3, route_too_complex = 4, no_control_tower = 5 } route_result_t;
+	enum route_result_t {
+		no_route                   = 0,
+		valid_route                = 1,
+		valid_route_halt_too_short = 3,
+		route_too_complex          = 4,
+		no_control_tower           = 5
+	};
 
 	enum find_route_flags { none, private_car_checker, choose_signal, simple_cost };
 
