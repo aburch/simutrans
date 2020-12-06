@@ -534,7 +534,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		if( comp == &switch_mode ) {
 			scd.highlight_schedule( v.i == 1 );
 			if( v.i == 1 ) {
-				cnv->call_convoi_tool( 's', "1" );
+				cnv->call_convoi_tool( 's', "1" ); // set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
 			}
 			else if(scd.has_pending_changes()) {
 				apply_schedule();
