@@ -14,6 +14,7 @@ enum sort_mode_t { by_type, by_coord, by_connected, by_capacity, by_radius, by_r
 
 int signalboxlist_stats_t::sort_mode = by_connected;
 bool signalboxlist_stats_t::reverse = false;
+uint16 signalboxlist_stats_t::name_width = D_LABEL_WIDTH;
 
 static karte_ptr_t welt;
 
@@ -41,6 +42,10 @@ void signalboxlist_stats_t::update_label()
 	// name
 	cbuffer_t &buf = label.buf();
 	buf.append( translator::translate(sb->get_name()) );
+	const scr_coord_val temp_w = proportional_string_width(translator::translate(sb->get_name()));
+	if (temp_w > name_width) {
+		name_width = temp_w;
+	}
 	label.update();
 
 	// connected / capacity
@@ -61,7 +66,7 @@ void signalboxlist_stats_t::update_label()
 void signalboxlist_stats_t::set_size(scr_size size)
 {
 	gui_aligned_container_t::set_size(size);
-	label.set_size(scr_size(get_size().w - label.get_pos().x, label.get_size().h));
+	label.set_fixed_width(name_width);
 }
 
 
