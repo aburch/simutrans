@@ -217,7 +217,7 @@ void signalboxlist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
 	FOR(slist_tpl<signalbox_t*>, const sigb, signalbox_t::all_signalboxes) {
-		if(sigb->get_owner() == player ) {
+		if(sigb->get_owner() == player && sigb->get_first_tile() == sigb ) {
 			scrolly.new_component<signalboxlist_stats_t>( sigb );
 		}
 	}
