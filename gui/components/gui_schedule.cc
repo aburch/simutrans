@@ -381,7 +381,7 @@ void gui_schedule_t::highlight_schedule( bool hl )
 	update_tool(hl);
 }
 
-gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_, linehandle_t lin_) :
+gui_schedule_t::gui_schedule_t() :
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("month wait time"),
 	lb_load("Full load"),
@@ -448,10 +448,6 @@ gui_schedule_t::gui_schedule_t(schedule_t* schedule_, player_t* player_, convoih
 
 	current_schedule_rotation = welt->get_settings().get_rotation();
 
-	if (schedule_) {
-		init(schedule_, player_, cnv_, lin_);
-	}
-
 	scrolly.set_maximize(true);
 
 	set_size( gui_aligned_container_t::get_min_size() );
@@ -509,7 +505,6 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_return.enable( !no_editing );
 
 		update_selection();
-		update_tool(true);
 	}
 	set_size(gui_aligned_container_t::get_min_size());
 }

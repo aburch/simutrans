@@ -72,7 +72,7 @@ protected:
 	uint8 current_schedule_rotation;	// to detect the rotation of the map independently
 
 public:
-	gui_schedule_t(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t(), linehandle_t lin = linehandle_t() );
+	gui_schedule_t();
 
 	void init(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t(), linehandle_t lin = linehandle_t() );
 
