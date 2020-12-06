@@ -18,7 +18,7 @@ bool citylist_stats_t::filter_own_network = false;
 uint8 citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
 uint8 citylist_stats_t::region_filter = 0;
 
-uint16 citylist_stats_t::name_width = 100;
+uint16 citylist_stats_t::name_width = CITY_NAME_LABEL_WIDTH;
 
 static karte_ptr_t welt;
 
@@ -104,6 +104,7 @@ void citylist_stats_t::set_size(scr_size size)
 void citylist_stats_t::draw( scr_coord pos)
 {
 	update_label();
+	lb_name.set_fixed_width(name_width);
 	gui_aligned_container_t::draw(pos);
 }
 
