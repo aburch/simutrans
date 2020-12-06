@@ -49,8 +49,13 @@ void interrupt_check(const char* caller_info = "0");
 	#endif
 #endif
 
-// returns a time string in the desired format
-// Returns an empty string if called before the world model defining time is initalized.
-char const *tick_to_string( sint32 ticks, bool show_full );
+		// returns a time string in the desired format
+		// Returns an empty string if called before the world model defining time is initalized.
+char const *tick_to_string( uint32 ticks );
+
+// returns a time difference string in the desired format
+// assume the month has 31 days
+// round will reduce presion to qrater or less (depending on month length)
+char const *difftick_to_string( sint32 ticks, bool round );
 
 #endif

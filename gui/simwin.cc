@@ -1722,7 +1722,7 @@ void win_display_flush(double konto)
 		}
 	}
 
-	char const *time = tick_to_string( wl->get_ticks(), true );
+	char const *time = tick_to_string( wl->get_ticks() );
 
 	// statusbar background
 	KOORD_VAL const status_bar_height = win_get_statusbar_height();

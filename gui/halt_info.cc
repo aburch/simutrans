@@ -782,7 +782,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 			convoihandle_t cnv = line->get_convoy(j);
 			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_entry().pos, cnv->get_owner() ) == halt  ) {
 				halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
-				sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
+				sint32 delta_t = calc_ticks_until_arrival( cnv );
 				if(  prev_halt.is_bound()  ) {
 					dest_info_t prev( prev_halt, delta_t, cnv );
 					// smooth times a little
@@ -837,9 +837,13 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 		FOR( vector_tpl<dest_info_t>, hi, destinations ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-				lb->buf().printf("%s", tick_to_string( hi.delta_ticks, false ) );
+				if( hi.delta_ticks == 0 ) {
+					lb->buf().append( translator::translate( "now" ) );
+				}
+				else {
+					lb->buf().printf("%s", difftick_to_string( hi.delta_ticks, true ) );
+				}
 				lb->update();
-
 				insert_image(hi.cnv);
 
 				new_component<gui_label_t>(hi.halt->get_name() );
@@ -854,7 +858,12 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 		FOR( vector_tpl<dest_info_t>, hi, origins ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-				lb->buf().printf("%s", tick_to_string( hi.delta_ticks, false ) );
+				if( hi.delta_ticks == 0 ) {
+					lb->buf().append( translator::translate( "now" ) );
+				}
+				else {
+					lb->buf().printf("%s", difftick_to_string( hi.delta_ticks, true ) );
+				}
 				lb->update();
 
 				insert_image(hi.cnv);
