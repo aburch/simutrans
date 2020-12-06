@@ -266,6 +266,13 @@ void convoi_info_t::apply_schedule()
 		return;
 	}
 
+	// if convoy was sent to depot do not override schedule here
+	if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
+		if (gr->get_depot() != NULL) {
+			return;
+		}
+	}
+
 	// do not send changes if the convoi is about to be deleted
 	if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
 		if (cnv->in_depot()) {
