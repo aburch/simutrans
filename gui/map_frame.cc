@@ -158,6 +158,7 @@ map_frame_t::map_frame_t() :
 	karte->player_showed_on_map = -1;
 
 	p_scrolly = new gui_scrollpane_map_t( minimap_t::get_instance());
+	p_scrolly->set_maximize( true );
 	p_scrolly->set_min_width( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT );
 	// initialize scrollbar positions -- LATER
 	const scr_size size = karte->get_size();
