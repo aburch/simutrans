@@ -20,6 +20,19 @@
 class gui_halt_type_images_t;
 
 
+/**
+ * Helper class to show small three freight category waiting indicator
+ */
+class gui_mini_halt_waiting_indicator_t : public gui_container_t
+{
+	halthandle_t halt;
+public:
+	gui_mini_halt_waiting_indicator_t(halthandle_t h);
+
+	void draw(scr_coord offset);
+};
+
+
 class halt_list_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
