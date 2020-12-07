@@ -152,7 +152,7 @@ bool scenario_t::load_script(const char* filename)
 	export_global_constants(script->get_vm());
 	// load scenario base definitions
 	char basefile[1024 + 24 + 1];
-	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
+	sprintf( basefile, "%sscript/scenario_base.nut", env_t::data_dir );
 	const char* err = script->call_script(basefile);
 	if (err) { // should not happen ...
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
@@ -195,7 +195,7 @@ void scenario_t::load_compatibility_script()
 	if (api_version != "*") {
 		// load scenario compatibility script
 		cbuffer_t buf;
-		buf.printf("%sscript/scenario_compat.nut", env_t::program_dir );
+		buf.printf("%sscript/scenario_compat.nut", env_t::data_dir );
 		if (const char* err = script->call_script((const char*)buf) ) {
 			dbg->warning("scenario_t::init", "error [%s] calling scenario_compat.nut", err);
 		}
@@ -784,7 +784,7 @@ bool scenario_t::open_info_win() const
 void scenario_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(what_scenario);
-	if (file->get_version() <= 111004) {
+	if (file->get_version_int() <= 111004) {
 		uint32 city_nr = 0;
 		file->rdwr_long(city_nr);
 		sint64 factor = 0;
@@ -833,7 +833,7 @@ void scenario_t::rdwr(loadsave_t *file)
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
-					scenario_path = (env_t::program_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					scenario_path = (env_t::data_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);
@@ -880,7 +880,7 @@ void scenario_t::rdwr(loadsave_t *file)
 	}
 
 	// cached strings
-	if (file->get_version() >= 120003) {
+	if (file->get_version_int() >= 120003) {
 		dynamic_string::rdwr_cache(file);
 	}
 

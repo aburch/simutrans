@@ -16,7 +16,6 @@
 
 /**
  * Info window for tracks
- * @author Hj. Malthaner
  */
 class schiene_info_t : public obj_infowin_t, public action_listener_t
 {
@@ -25,7 +24,6 @@ class schiene_info_t : public obj_infowin_t, public action_listener_t
 	button_t reserving_vehicle_button;
 	/**
 	* Bound when this block was successfully reserved by the convoi
-	* @author prissi
 	*/
 	convoihandle_t cnv;
 protected:
@@ -35,11 +33,6 @@ protected:
  public:
 	schiene_info_t(schiene_t* const s);
 
-	/*
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
-	 */
 	const char *get_help_filename() const OVERRIDE { return "track_info.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

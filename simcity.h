@@ -45,7 +45,7 @@ class building_desc_t;
 #define CITY_NAME_LABEL_WIDTH (126)	// size of
 
 enum city_cost {
-	HIST_CITICENS=0,		// total people
+	HIST_CITIZENS=0,		// total people
 	HIST_JOBS,				// Total jobs
 	HIST_VISITOR_DEMAND,	// Total visitor demand
 	HIST_GROWTH,			// growth (just for convenience)
@@ -174,11 +174,11 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	uint32 pax_destinations_new_change;
 
-	koord pos;				// Gruendungsplanquadrat der City ("founding grid square" - Google)
-	koord townhall_road;	// road in front of townhall
-	koord lo, ur;			// max size of housing area
+	koord pos;             // Gruendungsplanquadrat der City ("founding grid square" - Google)
+	koord townhall_road;   // road in front of townhall
+	koord lo, ur;          // max size of housing area
 
-	bool allow_citygrowth;	// Whether growth is permitted (true by default)
+	bool allow_citygrowth; // Whether growth is permitted (true by default)
 
 	bool has_townhall;
 
@@ -505,10 +505,10 @@ public:
 	// Not suitable for use in game computations because this is not network safe. For GUI only.
 	uint32 get_population_density() const
 	{
-		return (uint32)(city_history_month[0][HIST_CITICENS] / get_land_area());
+		return (uint32)(city_history_month[0][HIST_CITIZENS] / get_land_area());
 	}
 
-	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITICENS]; }
+	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITIZENS]; }
 	sint32 get_city_jobs() const { return (sint32) city_history_month[0][HIST_JOBS]; }
 	sint32 get_city_visitor_demand() const { return (sint32) city_history_month[0][HIST_VISITOR_DEMAND]; }
 
@@ -568,7 +568,6 @@ public:
 	/**
 	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
 	 * und nur noch die Datenstrukturenneu verknÅEft werden mÅEsen.
-	 * @author Hj. Malthaner
 	 */
 	void finish_rd();
 

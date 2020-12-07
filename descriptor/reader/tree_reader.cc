@@ -17,10 +17,9 @@
 
 void tree_reader_t::register_obj(obj_desc_t *&data)
 {
-    tree_desc_t *desc = static_cast<tree_desc_t *>(data);
+	tree_desc_t *desc = static_cast<tree_desc_t *>(data);
 
-    baum_t::register_desc(desc);
-//    printf("...Tree %s loaded\n", desc->get_name());
+	baum_t::register_desc(desc);
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
 	pakset_info_t::append(desc->get_name(), get_type(), chk);
@@ -29,7 +28,7 @@ void tree_reader_t::register_obj(obj_desc_t *&data)
 
 bool tree_reader_t::successfully_loaded() const
 {
-    return baum_t::successfully_loaded();
+	return baum_t::successfully_loaded();
 }
 
 

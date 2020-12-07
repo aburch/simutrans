@@ -126,7 +126,7 @@ void crossing_t::rdwr(loadsave_t *file)
 	state = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
 	file->rdwr_byte(state);
 	file->rdwr_byte(ns);
-	if(file->get_version()<99016) {
+	if(file->get_version_int()<99016) {
 		uint32 ldummy=0;
 		uint8 bdummy=0;
 		file->rdwr_byte(bdummy);
@@ -146,10 +146,10 @@ void crossing_t::rdwr(loadsave_t *file)
 
 	file->rdwr_byte(w1);
 	file->rdwr_byte(w2);
-	if(  file->get_version()>=110000  ) {
+	if(  file->get_version_int()>=110000  ) {
 		file->rdwr_long( speedlimit0 );
 	}
-	if(  file->get_version()>=110001 || (file->get_version() >= 110000 && file->get_extended_version() >= 9)  ) {
+	if(  file->get_version_int()>=110001 || (file->get_version_int() >= 110000 && file->get_extended_version() >= 9)  ) {
 		file->rdwr_long( speedlimit1 );
 	}
 

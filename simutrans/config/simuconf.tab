@@ -34,7 +34,7 @@ userdir_overrides_savegame_settings = 0
 # Nothing means automatic selection
 # ATTENTION!
 # This will be only used if this file is located in the program directory at config/simuconf.tab!
-# and will be overwritten by the settings from simutrans/simuconf.tab in the user directory
+ simutrans/simuconf.tab in the user directory
 #
 #pak_file_path = pak/
 #pak_file_path = pak.german/
@@ -949,8 +949,11 @@ bits_per_month = 20
 ################################# System settings #################################
 
 # compress savegames?
-# "binary" means uncompressed, "zipped" means compressed
+# "binary" means uncompressed, 
+# "zipped" means compressed
 # "bzip2" uses another compression algorithm
+# "zstd" may be available too: this can be much faster for larger games
+# when saving the path explorer data is enabled.
 # other options are "xml", "xml_zipped" and "xml_bzip2"
 # xml detects more errors of broken savegames but files are much larger
 # bzip2 savegames are smaller than zipped but saving/loading takes longer
@@ -958,6 +961,13 @@ saveformat = zipped
 
 # Alternate format for faster autosaves
 autosaveformat = zipped
+
+# zip and zstd allow for finetuning their packaging versus speed with and additional
+# compression level parameter.
+# Zip form 1(fastest) to 9(smallest) with 6 a good compromise
+# zstd goes form -10 to 30 or so. Meaningful are mostly single digit values
+save_level = 3
+autosave_level = 1
 
 # autosave every x months (0=off)
 autosave = 0

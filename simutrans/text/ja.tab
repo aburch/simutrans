@@ -1333,8 +1333,6 @@ Max Boost (%)
 増産能力 (%)
 Max income:
 最大収益：
-Max. speed
-最高速度
 Max. speed:
 最高速度:
 Maximum 254 stops\nin a schedule!\n
@@ -1848,7 +1846,7 @@ Sound
 Sound settings
 サウンド設定
 Sound volume:
-効果音の音量:
+マスターボリューム
 special freight
 専用貨物
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
@@ -3660,9 +3658,9 @@ helptxt_can_be_at_rear
 helptxt_intermediate
 中間車両
 %i month
-車齢 %iヶ月
+%iヶ月
 %i months
-車齢 %iヶ月
+%iヶ月
 Upgrade available
 アップグレードが可能です
 Upgrade is not available yet
@@ -3959,6 +3957,24 @@ Trailers
 被牽引車
 <p>Continue by ESC, SPACE, or BACKSPACE.<br>
 <p>[ESC] [SPACE] [BACKSPACE]、いずれかのキーでゲームを開始します。<br>
+fl_btn_demand
+商品需要
+fl_btn_region
+所在地
+TOOL_SOUND
+ツール類の音量
+AMBIENT_SOUND
+環境音の音量
+CROSSING_SOUND
+踏切警報音の音量
+FACTORY_SOUND
+産業の稼働音の音量
+TRAFFIC_SOUND
+乗り物の音量
+CASH_SOUND
+キャッシュ音の音量
+Sound range:
+音の聞こえる範囲
 own convoi tooltips
 所有車両の状態を表示
 %s mins. travelling

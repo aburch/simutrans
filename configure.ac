@@ -31,6 +31,11 @@ AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
 
+# optional zstd
+AC_SEARCH_LIBS(ZSTD_CStreamInSize, zstd,
+	[AC_SUBST(zstd, 1)],
+	[AC_SUBST(zstd, 0)] )
+
 # hackish detection of OS ...
 if test "$ac_cv_header_windows_h" == yes
 then

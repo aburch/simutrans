@@ -212,7 +212,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		//!< total people
+		WORLD_CITIZENS=0,		//!< total people
 		WORLD_JOBS,				//!< total jobs
 		WORLD_VISITOR_DEMAND,	//!< total visitor demand
 		WORLD_GROWTH,			//!< growth (just for convenience)
@@ -759,7 +759,7 @@ private:
 	/**
 	 * Internal saving method.
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -2137,7 +2137,7 @@ public:
 	uint8	calc_natural_slope( const koord k ) const;
 
 	// Getter/setter methods for maintaining the industry density
-	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
+	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITIZENS] * (sint64)industry_density_proportion) / 1000000ll; }
 	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
 
 	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }
@@ -2509,9 +2509,9 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @author Hj. Malthaner
+	 * @param idx t is the type of sound (for selective muting etc.)
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
+	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -2524,7 +2524,7 @@ public:
 	 * Saves the map to a file.
 	 * @param Filename name of the file to write.
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, const char* ex_revision, bool silent);
+	void save(const char *filename, bool autosave, const char *version, const char *ex_version, const char* ex_revision, bool silent);
 
 	/**
 	 * Loads a map from a file.

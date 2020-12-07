@@ -936,7 +936,7 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 	size.rdwr( file );
 
 	// convoy data
-	if (file->get_version() <=112002) {
+	if (file->get_version_int() <=112002) {
 		// dummy data
 		uint8 player_nr = 0;
 		koord3d cnv_pos( koord3d::invalid);

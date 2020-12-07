@@ -89,6 +89,7 @@ enum {
 #define SIM_KEY_END                 276
 #define SIM_KEY_PGUP                277
 #define SIM_KEY_PGDN                278
+#define SIM_KEY_SCROLLLOCK          279
 
 /* Function keys */
 #define SIM_KEY_F1                  256

@@ -112,7 +112,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file, bool do_not_add_to_world_list) :
 		is_in_world_list = -1;
 	}
 	rdwr(file);
-	if (file->get_version()<88002) {
+	if (file->get_version_int()<88002) {
 		set_yoff(0);
 	}
 	if (tile  &&  tile->get_phases()>1) {
@@ -714,7 +714,6 @@ image_id gebaeude_t::get_front_image() const
 }
 /**
 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
-* @author Hj. Malthaner
 */
 const char *gebaeude_t::get_name() const
 {
@@ -1751,7 +1750,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if (file->get_version()<99006) {
+	if (file->get_version_int()<99006) {
 		// ignore the sync flag
 		uint8 dummy = sync;
 		file->rdwr_byte(dummy);
@@ -1765,7 +1764,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	}
 
 	// restore city pointer here
-	if (file->get_version() >= 99014 && !is_factory)
+	if (file->get_version_int() >= 99014 && !is_factory)
 	{
 		sint32 city_index = -1;
 		if (file->is_saving() && ptr.stadt != NULL)

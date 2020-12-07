@@ -386,8 +386,8 @@ public:
 		return false;
 	}
 	bool exit(player_t* player) OVERRIDE { destroy_win(magic_signalboxlist + player->get_player_nr()); return false; }
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_network_save() const { return true; }
+	bool is_work_network_save() const { return true; }
 };
 
 /* open the list of towns */

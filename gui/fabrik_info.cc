@@ -192,7 +192,6 @@ void fabrik_info_t::rename_factory()
 
 /**
  * Set window size and adjust component sizes and/or positions accordingly
- * @author Markus Weber
  */
 void fabrik_info_t::set_windowsize(scr_size size)
 {

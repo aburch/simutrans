@@ -282,7 +282,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 			// For each address in remote, try and connect
 			struct addrinfo *walk_remote;
-			for (walk_remote = remote; !connected && walk_remote != NULL; walk_remote = walk_remote->ai_next) {
+			for (  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
 				char ipstr_remote[INET6_ADDRSTRLEN];
 
 				// Validate remote address + get string representation for logging

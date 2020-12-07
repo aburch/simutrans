@@ -506,7 +506,7 @@ void halt_detail_t::halt_detail_info()
 				if (!waytype_line_cnt) {
 					buf.append("\n");
 					offset_y += LINESPACE;
-					buf.append(" · ");
+					buf.append(" \xC2\xB7 ");
 					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
 					buf.append("\n");
 					offset_y += LINESPACE;

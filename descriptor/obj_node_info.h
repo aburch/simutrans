@@ -19,9 +19,9 @@
  * Stored structure of a pak node inside the file.
  */
 struct obj_node_info_t {
-    uint32  type;
-    uint16  children;
-    uint32  size;
+	uint32  type;
+	uint16  children;
+	uint32  size;
 };
 
 #endif

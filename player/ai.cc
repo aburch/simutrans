@@ -578,7 +578,7 @@ void ai_t::rdwr(loadsave_t *file)
 {
 	player_t::rdwr(file);
 
-	if(  file->get_version()<111001  ) {
+	if(  file->get_version_int()<111001  ) {
 		// do not know about ai_t
 		return;
 	}

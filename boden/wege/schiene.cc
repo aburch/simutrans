@@ -295,12 +295,12 @@ void schiene_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
-	if(file->get_version()<99008) {
+	if(file->get_version_int()<99008) {
 		sint32 blocknr=-1;
 		file->rdwr_long(blocknr);
 	}
 
-	if(file->get_version()<89000) {
+	if(file->get_version_int()<89000) {
 		uint8 dummy;
 		file->rdwr_byte(dummy);
 		set_electrify(dummy);

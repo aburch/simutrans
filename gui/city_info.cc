@@ -204,14 +204,13 @@ void city_info_t::init()
 
 	set_table_layout(1,0);
 
+	// add city name input field
+	name_input.add_listener( this );
+	add_component(&name_input);
+
 	add_table(2,0)->set_alignment(ALIGN_TOP);
 	{
 		add_table(1,0)->set_spacing(scr_size(D_H_SPACE, 0));
-		// add city name input field
-		name_input.add_listener( this );
-		name_input.set_width(D_BUTTON_WIDTH*3/2);
-		add_component(&name_input);
-
 		add_component(&lb_size);
 		add_component(&lb_buildings);
 		add_component(&lb_border);

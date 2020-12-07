@@ -45,11 +45,6 @@ public:
 };
 
 
-/**
- *
- * @author Ranran
- * @date  January 2020
- */
 class gui_tile_occupancybar_t : public gui_component_t
 {
 private:
