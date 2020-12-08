@@ -386,9 +386,13 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 	}
 	else if( comp == &switch_mode ) {
 		bool edit_schedule = switch_mode.get_aktives_tab() == &container_schedule;
-
-		scd.highlight_schedule( edit_schedule );
-		if(  !edit_schedule  ) {
+		if( edit_schedule ) {
+			scd.init( line->get_schedule(), player, convoihandle_t(), line );
+			scd.highlight_schedule( true );
+			reset_min_windowsize();
+		}
+		else {
+			scd.highlight_schedule( false );
 			apply_schedule();
 		}
 	}
