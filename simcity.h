@@ -174,11 +174,11 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	uint32 pax_destinations_new_change;
 
-	koord pos;				// Gruendungsplanquadrat der City ("founding grid square" - Google)
-	koord townhall_road;	// road in front of townhall
-	koord lo, ur;			// max size of housing area
+	koord pos;             // Gruendungsplanquadrat der City ("founding grid square" - Google)
+	koord townhall_road;   // road in front of townhall
+	koord lo, ur;          // max size of housing area
 
-	bool allow_citygrowth;	// Whether growth is permitted (true by default)
+	bool allow_citygrowth; // Whether growth is permitted (true by default)
 
 	bool has_townhall;
 
