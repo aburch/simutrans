@@ -392,11 +392,10 @@ gui_schedule_t::gui_schedule_t() :
 	old_schedule = schedule = NULL;
 	player   = NULL;
 
-	set_table_layout(3,0);
+	set_table_layout(1,0);
 
-	new_component<gui_margin_t>();
 	// loading level and waiting time
-	add_table(2,2);
+	add_table(2,2)->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
 		add_component(&lb_load);
 
@@ -419,11 +418,9 @@ gui_schedule_t::gui_schedule_t() :
 		wait_load.set_rigid(true);
 	}
 	end_table();
-	new_component<gui_margin_t>();
 
 	// action button row
-	new_component<gui_margin_t>();
-	add_table( 3, 1 );
+	add_table( 3, 1 )->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
 		bt_revert.init(button_t::roundbox | button_t::flexible, "Revert schedule");
 		bt_revert.set_tooltip("Revert to original schedule");
@@ -439,11 +436,10 @@ gui_schedule_t::gui_schedule_t() :
 		new_component<gui_fill_t>();
 	}
 	end_table();
-	new_component<gui_margin_t>();
 
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_component(&scrolly,3);
+	add_component(&scrolly);
 	stats->add_listener(this);
 
 	current_schedule_rotation = welt->get_settings().get_rotation();

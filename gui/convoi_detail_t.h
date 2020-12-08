@@ -31,7 +31,7 @@ public:
 	};
 
 private:
-	gui_aligned_container_t container;
+	gui_aligned_container_t container_veh, container_txt;
 	gui_scrollpane_t scrolly;
 
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
@@ -52,6 +52,8 @@ public:
 	void update_labels();
 
 	void rdwr( loadsave_t *file );
+
+	bool is_marginless() const OVERRIDE { return true; }
 };
 
 #endif

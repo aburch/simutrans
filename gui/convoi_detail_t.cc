@@ -128,7 +128,7 @@ public:
 
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
-: scrolly(&container)
+: scrolly(&container_veh)
 {
 	if (cnv.is_bound()) {
 		init(cnv);
@@ -141,20 +141,27 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 	set_table_layout(1,0);
 
-	add_component(&label_power);
-	add_component(&label_odometer);
-	add_component(&label_length);
-	add_component(&label_resale);
-	add_component(&label_speed);
+	add_component( &container_txt );
+	container_txt.set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
+	container_txt.set_table_layout(1,0);
+
+	container_txt.add_component(&label_power);
+	container_txt.add_component(&label_odometer);
+	container_txt.add_component(&label_length);
+	container_txt.add_component(&label_resale);
+	container_txt.add_component(&label_speed);
 	add_component(&scrolly);
 
 	const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
 
-	container.set_table_layout(1,0);
+	container_veh.set_table_layout(1,0);
+	container_veh.new_component<gui_fill_t>();
 	for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
+		if(veh>0) {
+			container_veh.new_component<gui_divider_t>();
+		}
 		vehicle_t *v = cnv->get_vehikel(veh);
-		container.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
-		container.new_component<gui_divider_t>();
+		container_veh.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
 	}
 	update_labels();
 }
