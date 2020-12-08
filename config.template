@@ -101,4 +101,7 @@ USE_FREETYPE = 0
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
+# For compiling on Linux with SDL2, use -I/usr/include/SDL2
+# For compiling on Linux with Freetype 2, use -I/usr/include/freetype2
+# For compiling on Linux with miniupnpc, use -I/usr/includeude/miniupnpc
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11 
