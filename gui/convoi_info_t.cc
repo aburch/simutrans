@@ -261,8 +261,8 @@ convoi_info_t::~convoi_info_t()
 // apply new schedule
 void convoi_info_t::apply_schedule()
 {
-	if( !cnv.is_bound() ||  (cnv->get_owner() != welt->get_active_player()  &&  !welt->get_active_player()->is_public_service())  ) {
-		// no change allowed
+	if(  !cnv.is_bound()  ||  !cnv->get_state()==convoi_t::EDIT_SCHEDULE  ) {
+		// no change allowed (one can only enter this state when editing was allowed)
 		return;
 	}
 
@@ -445,8 +445,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		if( !line.is_bound() ) {
 			line_selector.set_selection(1);
 		}
-		else {
-//			line->add_convoy( cnv );
+		else if(is_change_allowed) {
 			char id[16];
 			sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
 			cnv->call_convoi_tool('l', id);
@@ -455,13 +454,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	else if(  !scd.get_schedule()->empty()  &&  line_selector.get_element(1)->get_text()[0]=='-'  ) {
 		init_line_selector();
 	}
+
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
 	go_home_button.enable(!route_search_in_progress && is_change_allowed);
-
 	if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
 		go_home_button.pressed = gr->get_depot() != NULL;
 	}
+
 	no_load_button.pressed = cnv->get_no_load();
 	no_load_button.enable(is_change_allowed);
 	withdraw_button.enable(is_change_allowed);
@@ -528,19 +528,22 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		cnv->set_sortby( env_t::default_sortmode );
 	}
 
-	// some actions only allowed, when I am the player
-	if(cnv.is_bound()  &&  (cnv->get_owner()==welt->get_active_player()  ||  welt->get_active_player()->is_public_service())  ) {
+	bool edit_allowed = (cnv.is_bound() && (cnv->get_owner() == welt->get_active_player() || welt->get_active_player()->is_public_service()));
 
-		if( comp == &switch_mode ) {
-			scd.highlight_schedule( v.i == 1 );
-			if( v.i == 1 ) {
-				cnv->call_convoi_tool( 's', "1" ); // set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
-			}
-			else if(scd.has_pending_changes()) {
-				apply_schedule();
+	if (comp == &switch_mode) {
+		scd.highlight_schedule(v.i == 1);
+		if (v.i == 1) {
+			if(edit_allowed) {
+				cnv->call_convoi_tool('s', "1"); // set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
 			}
 		}
+		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE) {
+			apply_schedule();
+		}
+	}
 
+	// some actions only allowed, when I am the player
+	if(edit_allowed) {
 
 		if(  comp == &no_load_button    &&    !route_search_in_progress  ) {
 			cnv->call_convoi_tool( 'n', NULL );
