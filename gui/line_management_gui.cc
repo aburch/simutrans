@@ -360,7 +360,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 
 void line_management_gui_t::apply_schedule()
 {
-	if( scd.has_pending_changes() && line.is_bound() && (player == welt->get_active_player() || welt->get_active_player()->is_public_service()) ) {
+	if(  scd.has_pending_changes()  &&  line.is_bound()  &&  (player == welt->get_active_player()  ||  welt->get_active_player()->is_public_service()) ) {
 		// update line schedule via tool!
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
@@ -468,7 +468,7 @@ void line_management_gui_t::rename_line()
 bool line_management_gui_t::infowin_event( const event_t *ev )
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		if(  scd.has_pending_changes()  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
 			apply_schedule();
 		}
 		scd.highlight_schedule( false );

@@ -638,9 +638,11 @@ void convoi_info_t::change_schedule()
 bool convoi_info_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		// always apply schedule here, to reset wait_lock for convoys in convoi_t::set_schedule
-		apply_schedule();
-		scd.highlight_schedule( false );
+		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+			// apply schedule here, to reset wait_lock for convoys in convoi_t::set_schedule
+			apply_schedule();
+		}
+		scd.highlight_schedule(false);
 	}
 
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
