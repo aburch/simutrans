@@ -599,22 +599,22 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 
 void gebaeude_t::calc_image()
 {
-	grund_t *gr = welt->lookup(get_pos());
+	grund_t *gr = welt->lookup( get_pos() );
 	// need no ground?
-	if (remove_ground  && gr && gr->get_typ() == grund_t::fundament) {
-		gr->set_image(IMG_EMPTY);
+	if(  remove_ground  &&  gr->get_typ() == grund_t::fundament  ) {
+		gr->set_image( IMG_EMPTY );
 	}
 
-	static uint8 effective_season[][5] = { { 0,0,0,0,0 },{ 0,0,0,0,1 },{ 0,0,0,0,1 },{ 0,1,2,3,2 },{ 0,1,2,3,4 } };  // season image lookup from [number of images] and [actual season/snow]
+	static uint8 effective_season[][5] = { {0,0,0,0,0}, {0,0,0,0,1}, {0,0,0,0,1}, {0,1,2,3,2}, {0,1,2,3,4} };  // season image lookup from [number of images] and [actual season/snow]
 
-	if ((gr && gr->ist_tunnel() && !gr->ist_karten_boden()) || tile->get_seasons() < 2) {
+	if(  (gr  &&  gr->ist_tunnel()  &&  !gr->ist_karten_boden())  ||  tile->get_seasons() < 2  ) {
 		season = 0;
 	}
-	else if (get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate) {
+	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
 		// snowy winter graphics
 		season = effective_season[tile->get_seasons() - 1][4];
 	}
-	else if (get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() - 1 && welt->get_season() == 0) {
+	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() - 1  &&  welt->get_season() == 0  ) {
 		// snowline crossing in summer
 		// so at least some weeks spring/autumn
 		season = effective_season[tile->get_seasons() - 1][welt->get_last_month() <= 5 ? 3 : 1];
@@ -623,13 +623,13 @@ void gebaeude_t::calc_image()
 		season = effective_season[tile->get_seasons() - 1][welt->get_season()];
 	}
 
-	background_animated = tile->is_background_animated(season);
+	background_animated = tile->is_background_animated( season );
 }
 
 
 image_id gebaeude_t::get_image() const
 {
-	if (env_t::hide_buildings != 0 && tile->has_image()) {
+	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
 		if (is_city_building()) {
 			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_image_id(0) : skinverwaltung_t::construction_site->get_image_id(0);
@@ -644,8 +644,8 @@ image_id gebaeude_t::get_image() const
 				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
 			else {
-				uint16 kind = skinverwaltung_t::construction_site->get_count() <= tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count() - 1 : tile->get_desc()->get_type();
-				return skinverwaltung_t::construction_site->get_image_id(kind);
+				uint16 kind=skinverwaltung_t::construction_site->get_count()<=tile->get_desc()->get_type() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_desc()->get_type();
+				return skinverwaltung_t::construction_site->get_image_id( kind );
 			}
 		}
 	}
@@ -655,16 +655,16 @@ image_id gebaeude_t::get_image() const
 		return skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {
-		return tile->get_background(anim_frame, 0, season);
+		return tile->get_background( anim_frame, 0, season );
 	}
 }
 
 
 image_id gebaeude_t::get_outline_image() const
 {
-	if (env_t::hide_buildings != 0 && env_t::hide_with_transparency && !show_construction) {
+	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !show_construction) {
 		// opaque houses
-		return tile->get_background(anim_frame, 0, season);
+		return tile->get_background( anim_frame, 0, season );
 	}
 	return IMG_EMPTY;
 }
@@ -676,7 +676,7 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 	uint8 colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_GREEN };
 	FLAGGED_PIXVAL disp_colour = 0;
 	if (env_t::hide_buildings != env_t::NOT_HIDE) {
-		if (is_city_building()) {
+		if(is_city_building()) {
 			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
@@ -694,7 +694,7 @@ image_id gebaeude_t::get_image(int nr) const
 		return IMG_EMPTY;
 	}
 	else {
-		return tile->get_background(anim_frame, nr, season);
+		return tile->get_background( anim_frame, nr, season );
 	}
 }
 
@@ -709,7 +709,7 @@ image_id gebaeude_t::get_front_image() const
 	}
 	else {
 		// Show depots, station buildings etc.
-		return tile->get_foreground(anim_frame, season);
+		return tile->get_foreground( anim_frame, season );
 	}
 }
 /**
@@ -722,13 +722,13 @@ const char *gebaeude_t::get_name() const
 	}
 
 	switch (tile->get_desc()->get_type()) {
-	case building_desc_t::attraction_city:   return "Besonderes Gebaeude";
-	case building_desc_t::attraction_land:   return "Sehenswuerdigkeit";
-	case building_desc_t::monument:           return "Denkmal";
-	case building_desc_t::townhall:           return "Rathaus";
-	case building_desc_t::signalbox:
-	case building_desc_t::depot:			  return tile->get_desc()->get_name();
-	default: break;
+				case building_desc_t::attraction_city:   return "Besonderes Gebaeude";
+				case building_desc_t::attraction_land:   return "Sehenswuerdigkeit";
+				case building_desc_t::monument:           return "Denkmal";
+				case building_desc_t::townhall:           return "Rathaus";
+				case building_desc_t::signalbox:
+				case building_desc_t::depot:			  return tile->get_desc()->get_name();
+				default: break;
 	}
 	return "Gebaeude";
 }
@@ -818,7 +818,7 @@ void gebaeude_t::show_info()
 	}
 
 	if (!tile->get_desc()->no_info_window()) {
-		if (!special || (env_t::townhall_info  &&  old_count == win_get_open_count())) {
+		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			access_first_tile()->obj_t::show_info();
 		}
@@ -2088,16 +2088,16 @@ void gebaeude_t::mark_images_dirty() const
 {
 	// remove all traces from the screen
 	image_id img;
-	if (show_construction ||
-		(!env_t::hide_with_transparency  &&
-			env_t::hide_buildings>(is_city_building() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))) {
+	if (  show_construction  ||
+			(!env_t::hide_with_transparency  &&
+				env_t::hide_buildings>(is_city_building() ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))  ) {
 		img = skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {
-		img = tile->get_background(anim_frame, 0, season);
+		img = tile->get_background( anim_frame, 0, season ) ;
 	}
-	for (int i = 0; img != IMG_EMPTY; img = get_image(++i)) {
-		mark_image_dirty(img, -(i*get_tile_raster_width()));
+	for(  int i=0;  img!=IMG_EMPTY;  img=get_image(++i)  ) {
+		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }
 

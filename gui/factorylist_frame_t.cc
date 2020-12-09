@@ -161,7 +161,6 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 	}
 	else if (comp == &btn_display_mode) {
 		display_mode = (++display_mode)%FACTORYLIST_MODES;
-		//btn_display_mode.pressed = display_operation_stats;
 		btn_display_mode.set_text(translator::translate(display_mode_text[display_mode]));
 		stats.display_mode = display_mode;
 	}
