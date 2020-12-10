@@ -18,9 +18,9 @@
 #include "components/gui_combobox.h"
 #include "components/gui_tab_panel.h"
 #include "components/action_listener.h"
-#include "../convoihandle_t.h"
-#include "../gui/simwin.h"
 #include "components/gui_convoy_formation.h"
+#include "../convoihandle_t.h"
+#include "simwin.h"
 
 class scr_coord;
 
@@ -107,16 +107,21 @@ private:
 	button_t retire_button;
 	button_t class_management_button;
 
-	//button_t display_detail_button;
+	gui_combobox_t overview_selctor;
+	gui_label_buf_t lb_vehicle_count, lb_working_method;
 
+	//button_t display_detail_button; // FIXME
+	bool has_min_sizer() const OVERRIDE { return true; }
+
+	void update_labels();
+
+	void init(convoihandle_t cnv);
 public:
-	convoi_detail_t(convoihandle_t cnv);
+	convoi_detail_t(convoihandle_t cnv = convoihandle_t());
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	const char * get_help_filename() const OVERRIDE {return "convoidetail.txt"; }
-
-	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -124,9 +129,6 @@ public:
 	 * called when convoi was renamed
 	 */
 	void update_data() { set_dirty(); }
-
-	// this constructor is only used during loading
-	convoi_detail_t();
 
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
