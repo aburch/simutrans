@@ -37,7 +37,6 @@ public:
 	scr_size draw_formation(scr_coord offset) const;
 	scr_size draw_vehicles(scr_coord offset, bool display_images) const;
 	scr_size draw_capacities(scr_coord offset) const;
-
 };
 
 #endif
