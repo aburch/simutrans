@@ -42,7 +42,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	scrolly_formation(&formation),
 	scrolly(&veh_info),
 	scrolly_payload_info(&payload_info),
-	scrolly_maintenance(&cont_maintenance)
+	scrolly_maintenance(&maintenance)
 {
 	if (cnv.is_bound()) {
 		init(cnv);
@@ -96,7 +96,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	add_component(&tabs);
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&cont_payload, translator::translate("cd_payload_tab"));
-	tabs.add_tab(&scrolly_maintenance,  translator::translate("cd_maintenance_tab"));
+	tabs.add_tab(&cont_maintenance,  translator::translate("cd_maintenance_tab"));
 	tabs.add_listener(this);
 
 	// content of payload info tab
@@ -169,7 +169,8 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	}
 	cont_maintenance.end_table();
 
-	cont_maintenance.add_component(&maintenance);
+	cont_maintenance.add_component(&scrolly_maintenance);
+	scrolly_maintenance.set_maximize(true);
 
 	update_labels();
 
