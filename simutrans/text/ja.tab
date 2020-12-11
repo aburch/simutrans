@@ -1467,8 +1467,8 @@ Object
 原名
 Oct.
 10月
-Odometer: %s km
-積算距離： %skm
+Odometer:
+積算距離：
 Ok
 OK
 Oktober
@@ -4011,3 +4011,5 @@ Power (MW)
 #旅客事業が行われている範囲を表示
 Power: %4d kW\n
 出力: %4d kW\n
+#Odometer: %s km
+#積算距離： %skm

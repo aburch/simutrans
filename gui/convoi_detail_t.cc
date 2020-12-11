@@ -43,7 +43,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	scrolly(&veh_info),
 	//scrolly_payload_info(&cont_payload), // This method cannot be used with new GUI engine
 	scrolly_payload_info(&payload_info),
-	scrolly_maintenance(&maintenance)
+	scrolly_maintenance(&cont_maintenance)
 {
 	if (cnv.is_bound()) {
 		init(cnv);
@@ -97,39 +97,44 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	add_component(&tabs);
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
-	tabs.add_tab(&scrolly_maintenance, translator::translate("cd_maintenance_tab"));
-
+	tabs.add_tab(&scrolly_maintenance,  translator::translate("cd_maintenance_tab"));
 	tabs.add_listener(this);
 
-	/*
-	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0), D_BUTTON_SIZE);
-	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
-	sale_button.add_listener(this);
-	add_component(&sale_button);
+	// maintenance
+	cont_maintenance.set_table_layout(1,0);
+	cont_maintenance.add_table(5,3)->set_spacing(scr_size(0, 0));
+	{
+		cont_maintenance.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT,0));
+		// 1st row
+		cont_maintenance.new_component<gui_label_t>("Restwert:");
+		cont_maintenance.add_component(&lb_value);
+		cont_maintenance.new_component<gui_fill_t>();
 
-	withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(BUTTON3_X, 0), D_BUTTON_SIZE);
-	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
-	withdraw_button.add_listener(this);
-	add_component(&withdraw_button);
+		retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
+		retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
+		retire_button.add_listener(this);
+		cont_maintenance.add_component(&retire_button);
 
-	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, D_BUTTON_HEIGHT), D_BUTTON_SIZE);
-	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
-	add_component(&retire_button);
-	retire_button.add_listener(this);
+		sale_button.init(button_t::roundbox, "Verkauf", scr_coord(0,0), D_BUTTON_SIZE);
+		sale_button.set_tooltip("Remove vehicle from map. Use with care!");
+		sale_button.add_listener(this);
+		cont_maintenance.add_component(&sale_button);
 
+		// 2nd row
+		cont_maintenance.new_component<gui_label_t>("Odometer:");
+		cont_maintenance.add_component(&lb_odometer);
+		cont_maintenance.new_component<gui_fill_t>();
 
-	scrolly_formation.set_pos(scr_coord(0, LINESPACE*4+D_V_SPACE));
-	scrolly_formation.set_show_scroll_x(true);
-	scrolly_formation.set_show_scroll_y(false);
-	scrolly_formation.set_scroll_discrete_x(false);
-	scrolly_formation.set_size_corner(false);
-	add_component(&scrolly_formation);
+		cont_maintenance.new_component<gui_empty_t>();
+		withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(0,0), D_BUTTON_SIZE);
+		withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
+		withdraw_button.add_listener(this);
+		cont_maintenance.add_component(&withdraw_button);
 
-	int header_height = D_TITLEBAR_HEIGHT + LINESPACE*7 + D_V_SPACE*2;
+	}
+	cont_maintenance.end_table();
 
-	scrolly.set_show_scroll_x(true);
-	*/
-
+	cont_maintenance.add_component(&maintenance);
 
 	// This method cannot be used with new GUI engine
 	/*
@@ -172,6 +177,19 @@ void convoi_detail_t::update_labels()
 
 	// update the convoy overview panel
 	formation.set_mode(overview_selctor.get_selection());
+
+	// contents of maintenance tab
+	char number[64];
+	number_to_string(number, (double)cnv->get_total_distance_traveled(), 0);
+	lb_odometer.buf().printf(" %s km", number);
+	lb_odometer.update();
+
+	// current resale value
+	money_to_string(number, cnv->calc_sale_value() / 100.0);
+	lb_value.buf().printf(" %s", number);
+	lb_value.update();
+
+
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, get_min_windowsize().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 	resize(scr_coord(0, 0));
 }
@@ -184,7 +202,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 	}
 	else {
 		bool any_class = false;
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); ++veh)
+		for (uint8 veh = 0; veh < cnv->get_vehicle_count(); ++veh)
 		{
 			vehicle_t* v = cnv->get_vehicle(veh);
 			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
@@ -392,7 +410,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			total_height += LINESPACE;
 		}
 
-		for (unsigned veh = 0; veh < vehicle_count; veh++) {
+		for (uint8 veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
 			vehicle_as_potential_convoy_t convoy(*v->get_desc());
 			const uint8 upgradable_state = v->get_desc()->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
@@ -647,7 +665,7 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 		}
 
 		static cbuffer_t freight_info;
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++) {
+		for (uint8 veh = 0; veh < cnv->get_vehicle_count(); veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
 			freight_info.clear();
 
@@ -900,20 +918,6 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 		}
 
 		// display total values
-		char number[64];
-		number_to_string(number, (double)cnv->get_total_distance_traveled(), 0);
-		buf.clear();
-		buf.printf(translator::translate("Odometer: %s km"), number);
-		display_proportional_clip_rgb(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-		total_height += LINESPACE;
-
-		// current resale value
-		money_to_string(number, cnv->calc_sale_value() / 100.0);
-		buf.clear();
-		buf.printf("%s %s", translator::translate("Restwert:"), number);
-		display_proportional_clip_rgb(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, MONEY_PLUS, true);
-		total_height += LINESPACE+D_V_SPACE;
-
 		if (vehicle_count > 1) {
 			// convoy maintenance
 			buf.clear();
@@ -1001,7 +1005,8 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 
 		total_height += LINESPACE;
 
-		for (unsigned veh = 0; veh < vehicle_count; veh++) {
+		char number[64];
+		for (uint8 veh = 0; veh < vehicle_count; veh++) {
 			vehicle_t *v = cnv->get_vehicle(veh);
 			const uint8 upgradable_state = v->get_desc()->has_available_upgrade(month_now, welt->get_settings().get_show_future_vehicle_info());
 
@@ -1151,7 +1156,7 @@ void gui_convoy_maintenance_info_t::draw(scr_coord offset)
 			{
 				int found = 0;
 				PIXVAL upgrade_state_color = COL_UPGRADEABLE;
-				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
+				for (uint8 i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
 					if (const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i)) {
 						if (!welt->get_settings().get_show_future_vehicle_info() && desc->is_future(month_now)==1) {

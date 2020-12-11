@@ -8,6 +8,7 @@
 
 
 #include "gui_frame.h"
+#include "components/gui_aligned_container.h"
 #include "components/gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
@@ -84,9 +85,17 @@ public:
 class convoi_detail_t : public gui_frame_t , private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
+	enum sort_mode_t {
+		by_destination = 0,
+		by_via         = 1,
+		by_amount_via  = 2,
+		by_amount      = 3,
+		SORT_MODES     = 4
+	};
 
 private:
+	gui_aligned_container_t cont_maintenance;
+
 	convoihandle_t cnv;
 
 	gui_vehicleinfo_t veh_info;
@@ -108,7 +117,7 @@ private:
 	button_t class_management_button;
 
 	gui_combobox_t overview_selctor;
-	gui_label_buf_t lb_vehicle_count, lb_working_method;
+	gui_label_buf_t lb_vehicle_count, lb_working_method, lb_odometer, lb_value;
 
 	//button_t display_detail_button; // FIXME
 	bool has_min_sizer() const OVERRIDE { return true; }
