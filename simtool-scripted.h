@@ -94,7 +94,7 @@ public:
 
 	const char *work(player_t* player, koord3d pos) OVERRIDE;
 
-	using exec_script_base_t::get_tooltip;
+	const char *get_tooltip(const player_t *pl) const OVERRIDE { return exec_script_base_t::get_tooltip(pl); }
 };
 
 class tool_exec_two_click_script_t : public two_click_tool_t, public exec_script_base_t {
@@ -126,7 +126,7 @@ public:
 
 	virtual image_id get_marker_image() const OVERRIDE;
 
-	using exec_script_base_t::get_tooltip;
+	const char *get_tooltip(const player_t *pl) const OVERRIDE { return exec_script_base_t::get_tooltip(pl); }
 };
 
 #endif
