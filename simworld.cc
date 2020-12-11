@@ -1747,6 +1747,7 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			}
 			break;
 		}
+		// fall-through
 	case 1:
 		// no humidity data or on request
 		baum_t::distribute_trees(3, xtop, ytop, xbottom, ybottom );
@@ -4652,7 +4653,7 @@ slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sin
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
 	koord start;
-	int last_y;
+	int last_y = -1;
 
 DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_size().x,get_size().y );
 	for(start.x=0; start.x<get_size().x-w; start.x++) {
