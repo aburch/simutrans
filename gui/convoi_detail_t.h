@@ -94,13 +94,12 @@ public:
 	};
 
 private:
-	gui_aligned_container_t cont_maintenance;
+	gui_aligned_container_t cont_maintenance, cont_payload;
 
 	convoihandle_t cnv;
 
 	gui_vehicleinfo_t veh_info;
 	gui_convoy_formation_t formation;
-	gui_container_t cont_payload;
 	gui_convoy_payload_info_t payload_info;
 	gui_convoy_maintenance_info_t maintenance;
 
@@ -115,11 +114,11 @@ private:
 	button_t withdraw_button;
 	button_t retire_button;
 	button_t class_management_button;
+	button_t display_detail_button;
 
 	gui_combobox_t overview_selctor;
-	gui_label_buf_t lb_vehicle_count, lb_working_method, lb_odometer, lb_value;
+	gui_label_buf_t lb_vehicle_count, lb_working_method, lb_loading_time, lb_catering_level, lb_odometer, lb_value;
 
-	//button_t display_detail_button; // FIXME
 	bool has_min_sizer() const OVERRIDE { return true; }
 
 	void update_labels();

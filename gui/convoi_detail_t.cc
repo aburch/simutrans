@@ -41,7 +41,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	maintenance(cnv),
 	scrolly_formation(&formation),
 	scrolly(&veh_info),
-	//scrolly_payload_info(&cont_payload), // This method cannot be used with new GUI engine
 	scrolly_payload_info(&payload_info),
 	scrolly_maintenance(&cont_maintenance)
 {
@@ -96,13 +95,49 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 	add_component(&tabs);
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
-	tabs.add_tab(&scrolly_payload_info, translator::translate("cd_payload_tab"));
+	tabs.add_tab(&cont_payload, translator::translate("cd_payload_tab"));
 	tabs.add_tab(&scrolly_maintenance,  translator::translate("cd_maintenance_tab"));
 	tabs.add_listener(this);
 
-	// maintenance
+	// content of payload info tab
+	cont_payload.set_table_layout(1,0);
+
+	if (cnv->get_vehicle_count() > 1) {
+		cont_payload.add_table(4,3)->set_spacing(scr_size(0,0));
+		{
+			cont_payload.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
+
+			cont_payload.new_component<gui_label_t>("Loading time:");
+			cont_payload.add_component(&lb_loading_time);
+			cont_payload.new_component<gui_margin_t>(D_H_SPACE*2);
+
+			// This method cannot be used with new GUI engine
+			display_detail_button.init(button_t::square_state, "Display loaded detail", scr_coord(0,0), scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
+			display_detail_button.set_tooltip("Displays detailed information of the vehicle's load.");
+			display_detail_button.add_listener(this);
+			display_detail_button.pressed = true;
+			cont_payload.add_component(&display_detail_button);
+			payload_info.set_show_detail(true);
+
+			if (cnv->get_catering_level(goods_manager_t::INDEX_PAS)) {
+				cont_payload.new_component<gui_label_t>("Catering level");
+				cont_payload.add_component(&lb_catering_level);
+				cont_payload.new_component<gui_margin_t>(D_H_SPACE*2);
+				cont_payload.new_component<gui_empty_t>();
+			}
+			if (cnv->get_catering_level(goods_manager_t::INDEX_MAIL)) {
+				cont_payload.new_component_span<gui_label_t>("traveling_post_office",4);
+			}
+		}
+		cont_payload.end_table();
+	}
+
+	cont_payload.add_component(&scrolly_payload_info);
+	scrolly_payload_info.set_maximize(true);
+
+	// content of maintenance tab
 	cont_maintenance.set_table_layout(1,0);
-	cont_maintenance.add_table(5,3)->set_spacing(scr_size(0, 0));
+	cont_maintenance.add_table(5,3)->set_spacing(scr_size(0,0));
 	{
 		cont_maintenance.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT,0));
 		// 1st row
@@ -136,19 +171,6 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 	cont_maintenance.add_component(&maintenance);
 
-	// This method cannot be used with new GUI engine
-	/*
-	if (cnv->get_vehicle_count() > 1) {
-		display_detail_button.init(button_t::square_state, "Display loaded detail", scr_coord(BUTTON3_X + D_BUTTON_SIZE.w/2, LINESPACE/2));
-		display_detail_button.set_tooltip("Displays detailed information of the vehicle's load.");
-		display_detail_button.add_listener(this);
-		display_detail_button.pressed = true;
-		cont_payload.add_component(&display_detail_button);
-	}
-	payload_info.set_show_detail(true);
-	cont_payload.add_component(&payload_info);*/
-
-
 	update_labels();
 
 	set_resizemode(diagonal_resize);
@@ -178,10 +200,28 @@ void convoi_detail_t::update_labels()
 	// update the convoy overview panel
 	formation.set_mode(overview_selctor.get_selection());
 
+	// contents of payload tab
+	{
+		// convoy min - max loading time
+		char min_loading_time_as_clock[32];
+		char max_loading_time_as_clock[32];
+		welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), cnv->calc_longest_min_loading_time());
+		welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), cnv->calc_longest_max_loading_time());
+		lb_loading_time.buf().printf(" %s - %s", min_loading_time_as_clock, max_loading_time_as_clock);
+		lb_loading_time.update();
+
+		// convoy (max) catering level
+		if (cnv->get_catering_level(goods_manager_t::INDEX_PAS)) {
+			lb_catering_level.buf().printf(": %i", cnv->get_catering_level(goods_manager_t::INDEX_PAS));
+			lb_catering_level.update();
+		}
+	}
+
 	// contents of maintenance tab
 	char number[64];
 	number_to_string(number, (double)cnv->get_total_distance_traveled(), 0);
-	lb_odometer.buf().printf(" %s km", number);
+	lb_odometer.buf().append(" ");
+	lb_odometer.buf().printf(translator::translate("%s km"), number);
 	lb_odometer.update();
 
 	// current resale value
@@ -236,8 +276,6 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		withdraw_button.pressed = cnv->get_withdraw();
 		retire_button.pressed = cnv->get_depot_when_empty();
 		class_management_button.pressed = win_get_magic(magic_class_manager);
-
-		cont_payload.set_size(payload_info.get_size());
 	}
 	update_labels();
 
@@ -273,12 +311,11 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp, value_t)
 			update_labels();
 			return true;
 		}
-		/*
 		else if (comp == &display_detail_button) {
 			display_detail_button.pressed = !display_detail_button.pressed;
 			payload_info.set_show_detail(display_detail_button.pressed);
 			return true;
-		}*/
+		}
 	}
 	return false;
 }
@@ -635,33 +672,6 @@ void gui_convoy_payload_info_t::draw(scr_coord offset)
 			buf.append(translator::translate("No load setting"));
 			display_proportional_clip_rgb(pos.x + offset.x + extra_w + 14, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
 			total_height += LINESPACE*1.5;
-		}
-
-		// display total values
-		if (cnv->get_vehicle_count() > 1) {
-			// convoy min - max loading time
-			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), cnv->calc_longest_min_loading_time());
-			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), cnv->calc_longest_max_loading_time());
-
-			buf.clear();
-			buf.printf("%s %s - %s", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
-			display_proportional_clip_rgb(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
-			total_height += LINESPACE;
-
-			// convoy (max) catering level
-			if (catering_level) {
-				buf.clear();
-				buf.printf(translator::translate("Catering level: %i"), catering_level);
-				display_proportional_clip_rgb(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
-				total_height += LINESPACE;
-			}
-			if (cnv->get_catering_level(goods_manager_t::INDEX_MAIL)) {
-				buf.clear();
-				buf.printf("%s", translator::translate("traveling_post_office"));
-				display_proportional_clip_rgb(pos.x + offset.x + extra_w, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, false);
-				total_height += LINESPACE;
-			}
-			total_height += LINESPACE;
 		}
 
 		static cbuffer_t freight_info;
