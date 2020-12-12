@@ -75,23 +75,16 @@ public:
  *   in order to be used elsewhere if needed (Jan-09).
  * The author markers of the original code have been preserved when
  *   possible.
- *
- * @author Hansjörg Malthaner
- * @date 22-Nov-01
  */
 class gui_convoy_assembler_t :
 	public gui_container_t,
 	public gui_action_creator_t,
 	public action_listener_t
 {
-	/* show retired vehicles (same for all depot)
-	* @author prissi
-	*/
+	// show retired vehicles (same for all depot)
 	static bool show_retired_vehicles;
 
-	/* show retired vehicles (same for all depot)
-	* @author prissi
-	*/
+	// show retired vehicles (same for all depot)
 	static bool show_all;
 
 	/* show outdated vehicles (same for all depot)
@@ -102,8 +95,6 @@ class gui_convoy_assembler_t :
 	/**
 	 * Parameters to determine layout and behaviour of convoy images.
 	 * Originally in simdepot.h.  Based in the code of:
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	static scr_coord get_placement(waytype_t wt);
 	static scr_coord get_grid(waytype_t wt);
@@ -242,8 +233,6 @@ class gui_convoy_assembler_t :
 	/**
 	 * A helper map to update loks_vec and waggons_Vec. All entries from
 	 * loks_vec and waggons_vec are referenced here.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	typedef ptrhashtable_tpl<vehicle_desc_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
 	vehicle_image_map vehicle_map;
@@ -262,7 +251,7 @@ class gui_convoy_assembler_t :
 	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	//static const sint16 VINFO_HEIGHT = 186 + 14;
-	const scr_coord_val VINFO_HEIGHT = 20 * LINESPACE + D_BUTTON_HEIGHT * 3 + D_EDIT_HEIGHT + 3 * D_V_SPACE;
+	const scr_coord_val VINFO_HEIGHT = 21 * LINESPACE + D_BUTTON_HEIGHT * 3 + D_EDIT_HEIGHT + 3 * D_V_SPACE;
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
@@ -287,32 +276,18 @@ public:
 	virtual ~gui_convoy_assembler_t();
 	/**
 	 * Create and fill loks_vec and waggons_vec.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	void build_vehicle_lists();
 
 	/**
 	 * Do the dynamic component layout
-	 * @author Volker Meyer
-	 * @date  18.06.2003
 	 */
 	void layout();
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
 	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
 	 */
 	void update_data();
 	void update_tabs();

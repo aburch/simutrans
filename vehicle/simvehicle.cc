@@ -49,7 +49,7 @@
 #include "../obj/crossing.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../descriptor/citycar_desc.h"
 #include "../descriptor/goods_desc.h"
@@ -1336,9 +1336,8 @@ void vehicle_t::remove_stale_cargo()
 
 void vehicle_t::play_sound() const
 {
-	if(desc->get_sound() >= 0 && !welt->is_fast_forward())
-	{
-		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), get_waytype());
+	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward()  ) {
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound(), TRAFFIC_SOUND, get_waytype() );
 	}
 }
 
@@ -1653,8 +1652,8 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(last  &&  reliefkarte_t::is_visible) {
-			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	if(last  &&  minimap_t::is_visible) {
+			minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
 }
@@ -1665,8 +1664,9 @@ void vehicle_t::leave_tile()
 void vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_base_t::enter_tile(gr);
-	if(leading  &&  reliefkarte_t::is_visible  ) {
-		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );  //"Set relief colour" (Babelfish)
+
+	if(leading  &&  minimap_t::is_visible  ) {
+		minimap_t::get_instance()->calc_map_pixel( get_pos().get_2d() );
 	}
 }
 
@@ -2551,7 +2551,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// since obj_t does no longer save positions
-	if(  file->get_version()>=101000  ) {
+	if(  file->get_version_int()>=101000  ) {
 		koord3d pos = get_pos();
 		pos.rdwr(file);
 		set_pos(pos);
@@ -2559,7 +2559,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
-	if(file->get_version()<86006) {
+	if(file->get_version_int()<86006) {
 		sint32 l;
 		file->rdwr_long(purchase_time);
 		file->rdwr_long(l);
@@ -2580,7 +2580,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	else {
 		// changed several data types to save runtime memory
 		file->rdwr_long(purchase_time);
-		if(file->get_version()<99018) {
+		if(file->get_version_int()<99018) {
 			file->rdwr_byte(dx);
 			file->rdwr_byte(dy);
 		}
@@ -2616,7 +2616,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// convert steps to position
-	if(file->get_version()<99018) {
+	if(file->get_version_int()<99018) {
 		sint8 ddx = get_xoff(), ddy = get_yoff() - hoff;
 		sint8 i=1;
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
@@ -2642,7 +2642,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 
 	// information about the target halt
-	if(file->get_version()>=88007) {
+	if(file->get_version_int()>=88007) {
 		bool target_info;
 		if(file->is_loading()) {
 			file->rdwr_bool(target_info);
@@ -2658,13 +2658,13 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			cnv = NULL;	// no reservation too
 		}
 	}
-	if((file->get_extended_version()==0 && file->get_version()<=112008) || file->get_extended_version()<14) {
+	if((file->get_extended_version()==0 && file->get_version_int()<=112008) || file->get_extended_version()<14) {
 		// Standard version number was increased in Extended without porting this change
 		koord3d pos_prev(koord3d::invalid);
 		pos_prev.rdwr(file);
 	}
 
-	if(file->get_version()<=99004) {
+	if(file->get_version_int()<=99004) {
 		koord3d dummy;
 		dummy.rdwr(file);	// current pos (is already saved as ding => ignore)
 	}
@@ -2808,14 +2808,14 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	delete[]fracht_count;
 
 	// skip first last info (the convoi will know this better than we!)
-	if(file->get_version()<88007) {
+	if(file->get_version_int()<88007) {
 		bool dummy = 0;
 		file->rdwr_bool(dummy);
 		file->rdwr_bool(dummy);
 	}
 
 	// koordinate of the last stop
-	if(file->get_version()>=99015) {
+	if(file->get_version_int()>=99015) {
 		// This used to be 2d, now it's 3d.
 		if(file->get_extended_version() < 12) {
 			if(file->is_saving()) {
@@ -2851,7 +2851,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		reversed = false;
 	}
 
-	if(  file->get_version()>=110000  ) {
+	if(  file->get_version_int()>=110000  ) {
 		bool hd = has_driven;
 		file->rdwr_bool( hd );
 		has_driven = hd;
@@ -2862,7 +2862,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 	{
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_short(direction_steps);
@@ -2895,7 +2895,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
+	if(file->get_extended_version() >= 9 && file->get_version_int() >= 110006)
 	{
 		file->rdwr_string(current_livery);
 	}
@@ -3044,8 +3044,8 @@ bool vehicle_t::check_access(const weg_t* way) const
 vehicle_t::~vehicle_t()
 {
 	if(!welt->is_destroying()) {
-		// remove vehicle's marker from the relief map
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+		// remove vehicle's marker from the minimap
+		minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 	}
 
 	delete[] class_reassignments;
@@ -4039,7 +4039,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 				convoi_t* const ocnv = car->get_convoi();
 				sint32 dummy;
-				if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, second_check_count + 1 )  ) {
+				if(  ocnv->get_state() == convoi_t::DRIVING && ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, second_check_count + 1 )  ) {
 					return true;
 				}
 			}
@@ -4503,7 +4503,7 @@ void road_vehicle_t::hop(grund_t* gr_to) {
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new truck_schedule_t();
+	return new truck_schedule_t();
 }
 
 
@@ -4639,7 +4639,7 @@ rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 	vehicle_t(pos, desc, player)
 #endif
 {
-    cnv = cn;
+	cnv = cn;
 	working_method = drive_by_sight;
 }
 
@@ -4694,7 +4694,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 				c->set_next_stop_index( max(route_index,1)-1 );
 				// need to reserve new route?
 				if(  !check_for_finish  &&  c->get_state()!=convoi_t::SELF_DESTRUCT  &&  (c->get_state()==convoi_t::DRIVING  ||  c->get_state()>=convoi_t::LEAVING_DEPOT)  ) {
-					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; 	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
+					sint32 num_index = cnv==(convoi_t *)1 ? 1001 : 0; // only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 					uint16 next_signal;
 					cnv = c;
 					if(  block_reserver(&r, max(route_index,1)-1, welt->get_settings().get_sighting_distance_tiles(), next_signal, num_index, true, false)  ) {
@@ -4828,7 +4828,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
-		// check if the slope is upwards, relative to the previous tile
+		// check if the slope is upwards relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
 		// 125 hardcoded, see get_cost_upslope()
 		costs += 125 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
@@ -4847,6 +4847,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 		// Diagonals are a *shorter* distance.
 		costs = (costs * 5) / 7; // was: costs /= 1.4
 	}
+
 
 	return costs;
 }
@@ -6028,8 +6029,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(working_method == drive_by_sight)
 	{
-		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
-		if(max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
+		const sint32 max_speed_drive_by_sight = get_desc()->get_waytype() == tram_wt ? welt->get_settings().get_max_speed_drive_by_sight_tram() : welt->get_settings().get_max_speed_drive_by_sight();
+		if(max_speed_drive_by_sight)
 		{
 			cnv->set_maximum_signal_speed(max_speed_drive_by_sight);
 		}
@@ -8340,7 +8341,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new ship_schedule_t();
+	return new ship_schedule_t();
 }
 
 

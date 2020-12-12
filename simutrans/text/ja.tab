@@ -1333,8 +1333,6 @@ Max Boost (%)
 増産能力 (%)
 Max income:
 最大収益：
-Max. speed
-最高速度
 Max. speed:
 最高速度:
 Maximum 254 stops\nin a schedule!\n
@@ -1394,7 +1392,7 @@ BGMの音量:
 mute sound
 ミュート
 Name
-都市名
+名前
 Narrowgauge
 ナローゲージ
 Narrowgauge are not available yet!
@@ -1469,8 +1467,8 @@ Object
 原名
 Oct.
 10月
-Odometer: %s km
-積算距離： %skm
+Odometer:
+積算距離：
 Ok
 OK
 Oktober
@@ -1589,8 +1587,6 @@ Power
 電力
 Power:
 出力：
-Power: %4d kW\n
-出力: %4d kW\n
 Powerlines
 高圧線
 Price
@@ -1850,7 +1846,7 @@ Sound
 Sound settings
 サウンド設定
 Sound volume:
-効果音の音量:
+マスターボリューム
 special freight
 専用貨物
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
@@ -2315,8 +2311,12 @@ Airport too close to the edge
 滑走路がマップ端に近すぎます
 All hidden items (such as trees and buildings) will appear as transparent.
 樹木や建築物をシルエットとして表示します。
+All freight types
+全ての貨物タイプ
 All traction types
 全動力タイプ
+All regions
+全ての地域
 already_forged
 買収済
 alt_route
@@ -3662,9 +3662,9 @@ helptxt_can_be_at_rear
 helptxt_intermediate
 中間車両
 %i month
-車齢 %iヶ月
+%iヶ月
 %i months
-車齢 %iヶ月
+%iヶ月
 Upgrade available
 アップグレードが可能です
 Upgrade is not available yet
@@ -3847,6 +3847,142 @@ do not change the mode for existing ways
 既存の制限を維持
 City growth is restrained
 「街を発展させる」オプションがオフにされています
+Select display font
+フォントの変更
+font size
+フォントサイズ
+Only full Unicode fonts
+Unicode対応フォントに限定
+Select a theme for display
+UIテーマの変更
+Theme selector
+テーマ選択
+vh_title
+車両一覧
+dp_title
+車庫一覧
+<h1>Error</h1><p><strong>
+<h1>Error:オブジェクトの重複</h1><p><strong>
+contains the following doubled objects:</strong><p>
+<br>オブジェクト名が重複しているため、一方が上書きされます。<br>※Onlineプレイでエラーを引き起こす可能性があります！</strong></p>
+Maximize height levels
+高さレベルを最大化する
+Show finances for transport type
+部門
+Copy to clipboard
+クリップボードにコピー
+Start this as a server
+サーバーモードで開始
+Map number: %d
+マップ番号： %d
+Hide/open all windows
+全てのウィンドウを隠す／開く
+Unsorted
+ソート無し
+Available:
+製造期間：
+Show future
+登場予定
+GUI settings
+GUI設定
+map view
+メイン画面設定
+Num pad keys always move map
+10キーでマップをスクロールする
+Simple drawing
+簡易描画
+transparencies
+透過表示設定
+traffic settings
+交通設定
+Convoi following mode
+編成追跡時のカメラ動作
+tooltip/coverage
+ツールチップ／有効範囲
+Grid
+タイル表示
+Brightness
+ブライトネス
+Map scroll
+マップのスクロール操作
+Station display
+駅関連の表示
+always show all
+全て
+only error convoys
+問題のある車両のみ
+only active player's
+所有編成のみ
+never show
+表示しない
+mouseover
+マウスオーバーで表示
+Convoy tooltips
+編成のツールチップ設定
+Nameplates
+路線名表示
+Loading bar
+積載率表示
+Tooltip
+ステータス表示
+Money message
+編成の収入表示
+The line name or convoy name is displayed above the convoy.
+編成の頭上に路線名または編成名を表示します。
+A loading rate bar is displayed above the convoy.
+編成の頭上に積載率を示すインジケーターを表示します。
+Income display displayed when convoy arrives at the stop.
+編成が駅に到着した時に収入を表示します。
+Divided by class
+クラス毎に分割表示
+Waiting bars are displayed separately for each class.
+待機バーを各クラス毎に分割して表示します。
+Unified
+全ての貨物をまとめて表示
+Divided by category
+「貨物カテゴリ」毎に分割
+Divided by goods
+「商品」毎に分割
+Select the behavior of the camera when the following convoy enters the tunnel.
+追跡中の編成がトンネルに入った時のカメラの挙動を選択することができます。
+do nothing
+何もしない
+sb_title
+信号扱所一覧
+sb_type
+種類
+sb_connected
+接続数
+by_region
+地域
+Allowed regions:
+建設可能地域:
+Trailers
+被牽引車
+<p>Continue by ESC, SPACE, or BACKSPACE.<br>
+<p>[ESC] [SPACE] [BACKSPACE]、いずれかのキーでゲームを開始します。<br>
+fl_btn_demand
+商品需要
+fl_btn_region
+所在地
+TOOL_SOUND
+ツール類の音量
+AMBIENT_SOUND
+環境音の音量
+CROSSING_SOUND
+踏切警報音の音量
+FACTORY_SOUND
+産業の稼働音の音量
+TRAFFIC_SOUND
+乗り物の音量
+CASH_SOUND
+キャッシュ音の音量
+Sound range:
+音の聞こえる範囲
+helptxt_filter_sb_has_vacant_slot
+信号機を追加接続可能な信号扱所のみを表示します
+Vacant slot
+追加接続可能
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -3877,3 +4013,7 @@ Power (MW)
 #郵便事業が行われている範囲を表示
 #Show passenger coverage/passenger network
 #旅客事業が行われている範囲を表示
+Power: %4d kW\n
+出力: %4d kW\n
+#Odometer: %s km
+#積算距離： %skm

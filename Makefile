@@ -191,6 +191,14 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
+
+ifdef USE_ZSTD
+  ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
+    FLAGS      += -DUSE_ZSTD
+    LDFLAGS     += -lzstd
+  endif
+endif
+
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
@@ -213,6 +221,9 @@ ifneq ($(WITH_REVISION),)
       REV = $(WITH_REVISION)
     else
       REV = $(shell git rev-parse --short=7 HEAD)
+    endif
+    ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
+      REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
     endif
     ifneq ($(REV),)
       CFLAGS  += -DREVISION="$(REV)"
@@ -391,7 +402,7 @@ SOURCES += gui/halt_list_stats.cc
 SOURCES += gui/headquarter_info.cc
 SOURCES += gui/help_frame.cc
 SOURCES += gui/jump_frame.cc
-SOURCES += gui/karte.cc
+SOURCES += gui/minimap.cc
 SOURCES += gui/kennfarbe.cc
 SOURCES += gui/label_info.cc
 SOURCES += gui/labellist_frame_t.cc
@@ -552,7 +563,6 @@ SOURCES += simunits.cc
 SOURCES += convoy.cc
 SOURCES += utils/float32e8_t.cc
 SOURCES += path_explorer.cc
-SOURCES += gui/components/gui_component_table.cc
 SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_convoy_assembler.cc
 SOURCES += gui/components/gui_convoy_label.cc

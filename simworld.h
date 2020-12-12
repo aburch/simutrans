@@ -212,7 +212,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,		//!< total people
+		WORLD_CITIZENS=0,		//!< total people
 		WORLD_JOBS,				//!< total jobs
 		WORLD_VISITOR_DEMAND,	//!< total visitor demand
 		WORLD_GROWTH,			//!< growth (just for convenience)
@@ -461,7 +461,7 @@ private:
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -485,7 +485,7 @@ private:
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
+	 * @note Clear tile, reset water/land type, calc minimap pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -759,7 +759,7 @@ private:
 	/**
 	 * Internal saving method.
 	 */
-	void save(loadsave_t *file,bool silent);
+	void save(loadsave_t *file, bool silent);
 
 	/**
 	 * Internal loading method.
@@ -780,6 +780,11 @@ private:
 	 * Will create rivers.
 	 */
 	void create_rivers(sint16 number);
+
+	/**
+	 * Will create lakes (multithreaded).
+	 */
+	void create_lakes_loop(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Will create lakes.
@@ -911,6 +916,11 @@ private:
 	// 0: this is the network server: broadcast the number of threads
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
+
+	// These two maximum speeds are calculated monthly from player vehicle
+	// statistics and available vehicle statistics combined.
+	sint32 max_convoy_speed_ground;
+	sint32 max_convoy_speed_air;
 
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
@@ -1333,7 +1343,7 @@ public:
 		}
 	}
 
-	sint32 get_time_multiplier() const { return time_multiplier; }
+	sint32 get_time_multiplier() const;
 	void change_time_multiplier( sint32 delta );
 
 	/**
@@ -1428,12 +1438,12 @@ public:
 			{
 				// This situation can lead to loss of precision.
 				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
+				return (adjusted_monthly_figure * (1u << (ticks_per_world_month_shift - base_bits_per_month))) / 100ll;
 			}
 			else
 			{
 				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-				return (adjusted_monthly_figure * (1 << (ticks_per_world_month_shift - base_bits_per_month)));
+				return (adjusted_monthly_figure * (1u << (ticks_per_world_month_shift - base_bits_per_month)));
 			}
 		}
 		else
@@ -1910,7 +1920,7 @@ private:
 	 * lakes are left where there is no drainage
 	 */
 	void drain_tile(koord k, sint8 water_height);
-	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage) const;
+	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16, sint16, sint16, sint16) const;
 
 public:
 	void flood_to_depth(sint8 new_water_height, sint8 *stage);
@@ -2123,7 +2133,7 @@ public:
 	uint8	calc_natural_slope( const koord k ) const;
 
 	// Getter/setter methods for maintaining the industry density
-	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITICENS] * (sint64)industry_density_proportion) / 1000000ll; }
+	inline uint32 get_target_industry_density() const { return ((uint32)finance_history_month[0][WORLD_CITIZENS] * (sint64)industry_density_proportion) / 1000000ll; }
 	inline uint32 get_actual_industry_density() const { return actual_industry_density; }
 
 	inline void decrease_actual_industry_density(uint32 value) { actual_industry_density -= value; }
@@ -2448,11 +2458,6 @@ public:
 	void recalc_transitions_loop(sint16, sint16, sint16, sint16);
 
 	/**
-	 * Loop creating grounds on all plans from height and water height - suitable for multithreading
-	 */
-	void create_grounds_loop(sint16, sint16, sint16, sint16);
-
-	/**
 	 * Loop cleans grounds so that they have correct boden and slope - suitable for multithreading
 	 */
 	void cleanup_grounds_loop(sint16, sint16, sint16, sint16);
@@ -2500,9 +2505,9 @@ public:
 	 * The sound plays lower when the position is outside the visible region.
 	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @author Hj. Malthaner
+	 * @param idx t is the type of sound (for selective muting etc.)
 	 */
-	bool play_sound_area_clipped(koord k, uint16 idx, waytype_t cooldown_type);
+	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t, waytype_t cooldown_type);
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -2515,7 +2520,7 @@ public:
 	 * Saves the map to a file.
 	 * @param Filename name of the file to write.
 	 */
-	void save(const char *filename, const loadsave_t::mode_t savemode, const char *version, const char *ex_version, const char* ex_revision, bool silent);
+	void save(const char *filename, bool autosave, const char *version, const char *ex_version, const char* ex_revision, bool silent);
 
 	/**
 	 * Loads a map from a file.
@@ -2649,6 +2654,8 @@ public:
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
+
+	void calc_max_vehicle_speeds();
 
 private:
 

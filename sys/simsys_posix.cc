@@ -50,7 +50,7 @@ resolution dr_query_screen_resolution()
 }
 
 // open the window
-int dr_os_open(int, int, int)
+int dr_os_open(int, int, bool)
 {
 	return 1;
 }
@@ -181,19 +181,19 @@ void dr_notify_input_pos(int, int)
 
 static void posix_sigterm(int)
 {
-	DBG_MESSAGE("Received SIGTERM", "exiting...");
+	DBG_MESSAGE("Received SIGTERM, exiting...");
 	sigterm_received = 1;
 }
 
 
 int main(int argc, char **argv)
- {
+{
 	signal( SIGTERM, posix_sigterm );
 #ifndef _MSC_VER
- 	gettimeofday(&first,NULL);
+	gettimeofday(&first,NULL);
 #endif
- 	return sysmain(argc, argv);
- }
+	return sysmain(argc, argv);
+}
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)

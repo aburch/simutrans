@@ -13,8 +13,6 @@
 /**
  * Class for aiport runaway in Simutrans.
  * speed >250 are for take of (maybe rather use system type in next release?)
- *
- * @author Hj. Malthaner
  */
 class runway_t : public schiene_t
 {
@@ -23,8 +21,6 @@ public:
 
 	/**
 	 * File loading constructor.
-	 *
-	 * @author Hj. Malthaner
 	 */
 	runway_t(loadsave_t *file);
 

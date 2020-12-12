@@ -44,7 +44,7 @@
 #include "../obj/wayobj.h"
 
 #include "../gui/ground_info.h"
-#include "../gui/karte.h"
+#include "../gui/minimap.h"
 
 #include "../tpl/inthashtable_tpl.h"
 
@@ -131,31 +131,25 @@ const char *grund_t::get_text() const
 }
 
 
-FLAGGED_PIXVAL grund_t::text_farbe() const
+const player_t* grund_t::get_label_owner() const
 {
+	const player_t* player = NULL;
 	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const player_t *player=halt->get_owner();
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
+		player=halt->get_owner();
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const player_t *player = obj_bei(0)->get_owner(); // for cityhall
+		player = obj_bei(0)->get_owner(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
 			player = l->get_owner();
 		}
-		if(player) {
-			return PLAYER_FLAG|color_idx_to_rgb(player->get_player_color1()+4);
-		}
 	}
-
-	return SYSCOL_TEXT_HIGHLIGHT;
+	return player;
 }
 
 
@@ -189,11 +183,11 @@ void grund_t::rdwr(loadsave_t *file)
 	uint8 climate_data = plan->get_climate() + (plan->get_climate_corners() << 4);
 
 	xml_tag_t g( file, "grund_t" );
-	if(file->get_version()<101000) {
+	if(file->get_version_int()<101000) {
 		pos.rdwr(file);
 		z_w = welt->get_groundwater();
 	}
-	else if(  file->get_version() < 112007  ) {
+	else if(  file->get_version_int() < 112007  ) {
 		file->rdwr_byte(z);
 		pos.z = get_typ() == grund_t::wasser ? welt->get_groundwater() : z;
 		z_w = welt->get_groundwater();
@@ -214,7 +208,7 @@ void grund_t::rdwr(loadsave_t *file)
 		plan->set_climate_corners((climate_data >> 4));
 	}
 
-	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
+	if(  file->is_loading()  &&  file->get_version_int() < 112007  ) {
 		// convert heights from old single height saved game - water already at correct height
 		pos.z = get_typ() == grund_t::wasser ? pos.z : pos.z * env_t::pak_height_conversion_factor;
 		z = z * env_t::pak_height_conversion_factor;
@@ -233,7 +227,7 @@ void grund_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()<99007) {
+	if(file->get_version_int()<99007) {
 		bool label;
 		file->rdwr_bool(label);
 		if(label) {
@@ -242,13 +236,13 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 
 	sint8 owner_n=-1;
-	if(file->get_version()<99005) {
+	if(file->get_version_int()<99005) {
 		file->rdwr_byte(owner_n);
 	}
 
-	if(file->get_version()>=88009) {
+	if(file->get_version_int()>=88009) {
 		uint8 sl = slope;
-		if(  file->get_version() < 112007  &&  file->is_saving()  ) {
+		if(  file->get_version_int() < 112007  &&  file->is_saving()  ) {
 			// truncate double slopes to single slopes, better than nothing
 			sl = min( corner_sw(slope), 1 ) + min( corner_se(slope), 1 ) * 2 + min( corner_ne(slope), 1 ) * 4 + min( corner_nw(slope), 1 ) * 8;
 		}
@@ -263,7 +257,7 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->is_loading()  ) {
-		if(  file->get_version() < 112007  ) {
+		if(  file->get_version_int() < 112007  ) {
 			// convert slopes from old single height saved game
 			slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
 		}
@@ -381,7 +375,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 					case water_wt:
 						// ignore old type dock ...
-						if(file->get_version()>=87000) {
+						if(file->get_version_int()>=87000) {
 							weg = new kanal_t(file);
 						}
 						else {
@@ -1757,6 +1751,26 @@ void grund_t::display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is
 }
 
 
+// display text label in player colors using different styles set by env_t::show_names
+void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player_t *player, bool dirty)
+{
+	sint16 pc = player ? player->get_player_color1()+4 : SYSCOL_TEXT_HIGHLIGHT;
+	switch( env_t::show_names >> 2 ) {
+		case 0:
+			display_ddd_proportional_clip( xpos, ypos, proportional_string_width(text)+7, 0, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 1:
+			display_outline_proportional_rgb( xpos, ypos-(LINESPACE/2), color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );
+			break;
+		case 2:
+			display_outline_proportional_rgb( xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/4),   color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_ddd_box_clip_rgb(         xpos,                         ypos-(LINESPACE/2),   LINESPACE,   LINESPACE,   color_idx_to_rgb(pc-2), PLAYER_FLAG|color_idx_to_rgb(pc+2) );
+			display_fillbox_wh_rgb(           xpos+1,                       ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, color_idx_to_rgb(pc), dirty );
+			break;
+	}
+}
+
+
 void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 {
 	const bool dirty = get_flag(grund_t::dirty);
@@ -1770,21 +1784,10 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			int new_xpos = xpos - (width-raster_tile_width)/2;
-			FLAGGED_PIXVAL pc = text_farbe();
 
-			switch( env_t::show_names >> 2 ) {
-				case 0:
-					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 1:
-					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/4), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
-					break;
-				case 2:
-					display_outline_proportional_rgb( new_xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/4), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
-					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
-					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
-					break;
-			}
+			const player_t* owner = get_label_owner();
+
+			display_text_label(new_xpos, ypos, text, owner, dirty);
 		}
 
 		// display station waiting information/status
@@ -2087,7 +2090,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 		}
 
 		calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+		minimap_t::get_instance()->calc_map_pixel(get_pos().get_2d());
 
 		return costs;
 	}

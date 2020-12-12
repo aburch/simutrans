@@ -28,11 +28,6 @@ class onewaysign_info_t : public obj_infowin_t, public action_listener_t
 	public:
 		onewaysign_info_t(roadsign_t* s, koord3d first_intersection);
 
-		/**
-		 * Set the window associated helptext
-		 * @return the filename for the helptext, or NULL
-		 * @author Hj. Malthaner
-		 */
 		const char *get_help_filename() const OVERRIDE {return "onewaysign_info.txt";}
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

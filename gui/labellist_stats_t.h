@@ -13,7 +13,7 @@
 
 
 namespace labellist {
-    enum sort_mode_t { by_name=0, by_koord, by_player, by_region, SORT_MODES };
+	enum sort_mode_t { by_name=0, by_koord, by_player, by_region, SORT_MODES };
 };
 
 class label_t;
@@ -26,7 +26,7 @@ private:
 
 	const label_t* get_label() const;
 public:
-	static labellist::sort_mode_t sortby;
+	static uint8 sort_mode, region_filter;
 	static bool sortreverse, filter;
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );

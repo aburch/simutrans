@@ -22,7 +22,6 @@
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
-// @author hsiegeln
 #include "../simline.h"
 #include "../simmenu.h"
 #include "messagebox.h"
@@ -615,7 +614,6 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 
 /**
  * This method is called if an action is triggered
- * @author Markus Weber
  */
 bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
@@ -737,7 +735,6 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t)
 
 /**
  * Set window size and adjust component sizes and/or positions accordingly
- * @author Markus Weber
  */
 void line_class_manager_t::set_windowsize(scr_size size)
 {
@@ -791,7 +788,7 @@ line_class_manager_t::~line_class_manager_t()
 void line_class_manager_t::rdwr(loadsave_t *file)
 {
 	// convoy data
-	if (file->get_version() <=112002) {
+	if (file->get_version_int() <=112002) {
 		// dummy data
 		koord3d line_pos( koord3d::invalid);
 		char name[128];

@@ -17,7 +17,7 @@
 #include "../tpl/array2d_tpl.h"
 
 #include "city_info.h"
-#include "karte.h"
+#include "minimap.h"
 #include "components/gui_button_to_chart.h"
 
 #include "../display/simgraph.h"
@@ -204,14 +204,13 @@ void city_info_t::init()
 
 	set_table_layout(1,0);
 
+	// add city name input field
+	name_input.add_listener( this );
+	add_component(&name_input);
+
 	add_table(2,0)->set_alignment(ALIGN_TOP);
 	{
 		add_table(1,0)->set_spacing(scr_size(D_H_SPACE, 0));
-		// add city name input field
-		name_input.add_listener( this );
-		name_input.set_width(D_BUTTON_WIDTH*3/2);
-		add_component(&name_input);
-
 		add_component(&lb_size);
 		add_component(&lb_buildings);
 		add_component(&lb_border);
@@ -366,7 +365,7 @@ void gui_city_minimap_t::init_pax_dest( array2d_tpl<PIXVAL> &pax_dest )
 	for(  sint16 y = 0;  y < minimaps_size.h;  y++  ) {
 		for(  sint16 x = 0;  x < minimaps_size.w;  x++  ) {
 			const grund_t *gr = welt->lookup_kartenboden( koord( (x * size_x) / minimaps_size.w, (y * size_y) / minimaps_size.h ) );
-			pax_dest.at(x,y) = reliefkarte_t::calc_relief_farbe(gr);
+			pax_dest.at(x,y) = minimap_t::calc_ground_color(gr);
 		}
 	}
 }
@@ -468,7 +467,7 @@ void city_info_t::map_rotate90( sint16 )
 bool city_info_t::infowin_event(const event_t *ev)
 {
 	if(  IS_WINDOW_TOP(ev)  ) {
-		reliefkarte_t::get_karte()->set_city( city );
+		minimap_t::get_instance()->set_selected_city( city );
 	}
 
 	return gui_frame_t::infowin_event(ev);

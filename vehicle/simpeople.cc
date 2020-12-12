@@ -36,7 +36,7 @@ static bool compare_fussgaenger_desc(const pedestrian_desc_t* a, const pedestria
 bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
-		dbg->warning( "pedestrian_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "pedestrian", desc->get_name() );
 	}
 	table.put(desc->get_name(), desc);
 	return true;
@@ -152,7 +152,7 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_version()<89004) {
+	if(file->get_version_int()<89004) {
 		time_to_life = pick_any(strecke);
 	}
 }

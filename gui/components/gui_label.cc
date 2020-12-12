@@ -16,11 +16,21 @@
  */
 
 static scr_coord_val separator_width = 0;
+static scr_coord_val large_money_width = 0;
 
 gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	align(align_), tooltip(NULL)
 {
 	separator_width = proportional_string_width( ",00$" );
+
+	if (get_large_money_string()) {
+		cbuffer_t buf;
+		buf.printf("%s$", get_large_money_string());
+		large_money_width = proportional_string_width((const char*) buf);
+	}
+	else {
+		large_money_width = 0;
+	}
 
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, scr_coord (0,0), color_, align_);
@@ -35,6 +45,13 @@ void gui_label_t::set_min_size(scr_size s)
 }
 
 
+void gui_label_t::set_fixed_width(const scr_coord_val width)
+{
+	set_min_size(scr_size(width, size.h));
+	fixed_width = width;
+}
+
+
 scr_size gui_label_t::get_min_size() const
 {
 	return scr_size( max(min_size.w, text ? display_calc_proportional_string_len_width(text,strlen(text)) : D_BUTTON_WIDTH), D_LABEL_HEIGHT );
@@ -42,6 +59,9 @@ scr_size gui_label_t::get_min_size() const
 
 scr_size gui_label_t::get_max_size() const
 {
+	if (fixed_width) {
+		return get_min_size();
+	}
 	return align == left  ? scr_size(max(get_min_size().w, size.w), get_min_size().h) : scr_size(scr_size::inf.w, get_min_size().h);
 }
 
@@ -72,18 +92,23 @@ void gui_label_t::draw(scr_coord offset)
 	if(  align == money_right) {
 		if(text) {
 			const char *separator = NULL;
-			const bool not_a_number = atol(text) == 0 && !isdigit(*text);
+			const bool not_a_number = atol(text)==0  &&  !isdigit(*text);
 
-			// position of separator
 			scr_coord right = pos + offset;
-			if (align == money_right) {
-				right.x += size.w - separator_width;
-			}
 
 			if(  !not_a_number  ) {
-				separator = strrchr(text, get_fraction_sep());
-				if(separator==NULL  &&  get_large_money_string()!=NULL) {
+				// find first letter of large_money_width in text
+				if (get_large_money_string()!=NULL) {
 					separator = strrchr(text, *(get_large_money_string()) );
+					if (separator) {
+						right.x += get_size().w - large_money_width;
+					}
+				}
+				// look for fraction_sep (e.g., comma)
+				if (separator==NULL) {
+					// everything else align at decimal separator
+					right.x += get_size().w - separator_width;
+					separator = strrchr(text, get_fraction_sep());
 				}
 			}
 
@@ -93,12 +118,8 @@ void gui_label_t::draw(scr_coord offset)
 					display_text_proportional_len_clip_rgb(right.x, right.y, text, ALIGN_RIGHT | DT_CLIP, color, true, separator-text );
 				}
 			}
-			else if (not_a_number) {
-				// normal text, correct for money decimals
-				display_proportional_clip_rgb(right.x+separator_width, right.y, text, ALIGN_RIGHT, color, true);
-			}
 			else {
-				// integer numbers without decimals, align at decimal separator
+				// integer or normal text
 				display_proportional_clip_rgb(right.x, right.y, text, ALIGN_RIGHT, color, true);
 			}
 		}

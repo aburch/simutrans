@@ -124,7 +124,7 @@ void gui_tile_occupancybar_t::draw(scr_coord offset)
 	}
 
 	const sint8 len_diff = new_length - current_length;
-	PIXVAL col = len_diff < 0 ? COL_REDUCED : COL_ADDITIONAL;
+	PIXVAL col = len_diff < 0 ? SYSCOL_DOWN_TRIANGLE : SYSCOL_UP_TRIANGLE;
 	uint8 last_tile_occupancy = max(current_length, new_length) % CARUNITS_PER_TILE ? max(current_length, new_length) % CARUNITS_PER_TILE : CARUNITS_PER_TILE;
 	const uint8 tiles = (max(current_length, new_length) + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 

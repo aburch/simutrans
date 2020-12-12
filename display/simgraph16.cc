@@ -1963,7 +1963,7 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], display_day_lights[i*3 + 2] );
 	}
 
 	// init with black for forbidden colors
@@ -5293,10 +5293,10 @@ void display_show_load_pointer(int loading)
 /**
  * Initialises the graphics module
  */
-void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
+void simgraph_init(scr_size window_size, bool full_screen)
 {
-	disp_actual_width = width;
-	disp_height = height;
+	disp_actual_width = window_size.w;
+	disp_height = window_size.h;
 
 #ifdef MULTI_THREAD
 	pthread_mutex_init(&recode_img_mutex, NULL);
@@ -5313,8 +5313,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	}
 
 	// get real width from os-dependent routines
-	disp_width = dr_os_open(width, height, full_screen);
-	if (disp_width>0) {
+	disp_width = dr_os_open(window_size.w, window_size.h, full_screen);
+	if(  disp_width>0  ) {
 		textur = dr_textur_init();
 
 		// init, load, and check fonts
@@ -5409,7 +5409,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 /**
  * Check if the graphic module already was initialized.
  */
-int is_display_init()
+bool is_display_init()
 {
 	return textur != NULL  &&  default_font.is_loaded()  &&  images!=NULL;
 }
@@ -5440,18 +5440,18 @@ void simgraph_exit()
 
 /* changes display size
  */
-void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
+void simgraph_resize(scr_size new_window_size)
 {
-	disp_actual_width = max(16, w);
-	if (h <= 0) {
-		h = 64;
+	disp_actual_width = max( 16, new_window_size.w );
+	if(  new_window_size.h<=0  ) {
+		new_window_size.h = 64;
 	}
 	// only resize, if internal values are different
-	if (disp_width != w || disp_height != h) {
-		KOORD_VAL new_width = dr_textur_resize(&textur, w, h);
-		if (new_width != disp_width || disp_height != h) {
-			disp_width = new_width;
-			disp_height = h;
+	if (disp_width != new_window_size.w || disp_height != new_window_size.h) {
+		KOORD_VAL new_pitch = dr_textur_resize(&textur, new_window_size.w, new_window_size.h);
+		if(  new_pitch!=disp_width  ||  disp_height != new_window_size.h) {
+			disp_width = new_pitch;
+			disp_height = new_window_size.h;
 
 			free( tile_dirty_old );
 			free( tile_dirty);

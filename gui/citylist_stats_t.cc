@@ -15,7 +15,10 @@
 
 bool citylist_stats_t::sortreverse = false;
 bool citylist_stats_t::filter_own_network = false;
-citylist_stats_t::sort_mode_t citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
+uint8 citylist_stats_t::sort_mode = citylist_stats_t::SORT_BY_NAME;
+uint8 citylist_stats_t::region_filter = 0;
+
+uint16 citylist_stats_t::name_width = CITY_NAME_LABEL_WIDTH;
 
 static karte_ptr_t welt;
 
@@ -32,8 +35,7 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 	electricity.set_rigid(true);
 	add_component(&electricity); // (2,0)
 
-	lb_name.set_min_size( scr_size( LINEASCENT*15, D_LABEL_HEIGHT ) );
-	//label.set_align(gui_label_t::right); // align::right breaks the layout
+	lb_name.set_fixed_width( name_width );
 	add_component(&lb_name); // (3,0)
 
 	add_component(&label); // (4,0)
@@ -65,10 +67,14 @@ void citylist_stats_t::update_label()
 		electricity.set_transparent(TRANSPARENT25_FLAG);
 	}
 
+	const scr_coord_val temp_w = proportional_string_width( city->get_name() );
+	if (temp_w > name_width) {
+		name_width = temp_w;
+	}
 	lb_name.buf().printf("%s ", city->get_name());
 	lb_name.update();
 
-	label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITICENS));
+	label.buf().printf("%8d ", city->get_finance_history_month(0, HIST_CITIZENS));
 	label.update();
 	//label.set_align(gui_label_t::left);
 
@@ -98,6 +104,7 @@ void citylist_stats_t::set_size(scr_size size)
 void citylist_stats_t::draw( scr_coord pos)
 {
 	update_label();
+	lb_name.set_fixed_width(name_width);
 	gui_aligned_container_t::draw(pos);
 }
 

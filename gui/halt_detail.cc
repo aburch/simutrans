@@ -278,7 +278,7 @@ void halt_detail_t::halt_detail_info()
 				if (!waytype_line_cnt) {
 					buf.append("\n");
 					offset_y += LINESPACE;
-					buf.append(" · ");
+					buf.append(" \xC2\xB7 ");
 					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
 					buf.append("\n");
 					offset_y += LINESPACE;
@@ -374,7 +374,7 @@ void halt_detail_t::halt_detail_info()
 		{
 			buf.append("\n");
 			offset_y += LINESPACE;
-			buf.append(" · ");
+			buf.append(" \xC2\xB7 ");
 			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
@@ -1083,30 +1083,30 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 			goods_desc_t const* const ware = i.get_typ();
 			if (skinverwaltung_t::input_output && !has_input_output) {
 				display_color_img(skinverwaltung_t::input_output->get_image_id(0), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
-				xoff += GOODS_SYMBOL_CELL_WIDTH;
+				xoff += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
 			}
 			// input goods color square box
 			ware->get_name();
 			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
-			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
+			xoff += D_FIXED_SYMBOL_WIDTH;
 
 			required_material.append_unique(ware);
 			has_input_output++;
 		}
 
 		if (has_input_output < 4) {
-			xoff += has_input_output ? (GOODS_SYMBOL_CELL_WIDTH - 2) * (4 - has_input_output) : (GOODS_SYMBOL_CELL_WIDTH - 2) * 5 + 2;
+			xoff += has_input_output ? D_FIXED_SYMBOL_WIDTH * (4 - has_input_output) : D_FIXED_SYMBOL_WIDTH * 5 + D_V_SPACE;
 		}
 		has_input_output = 0;
 		FOR(array_tpl<ware_production_t>, const& i, fab->get_output()) {
 			goods_desc_t const* const ware = i.get_typ();
 			if (skinverwaltung_t::input_output && !has_input_output) {
 				display_color_img(skinverwaltung_t::input_output->get_image_id(1), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
-				xoff += GOODS_SYMBOL_CELL_WIDTH;
+				xoff += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
 			}
 			// output goods color square box
 			display_colorbox_with_tooltip(offset.x + xoff, offset.y + yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
-			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
+			xoff += D_FIXED_SYMBOL_WIDTH;
 
 			if (!active_product.is_contained(ware)) {
 				if ((fab->get_status() % fabrik_t::no_material || fab->get_status() % fabrik_t::material_shortage) && !i.menge) {
@@ -1120,7 +1120,7 @@ void gui_halt_nearby_factory_info_t::draw(scr_coord offset)
 			has_input_output++;
 		}
 		if (fab->get_sector() == fabrik_t::power_plant) {
-			xoff += GOODS_SYMBOL_CELL_WIDTH - 2;
+			xoff += D_FIXED_SYMBOL_WIDTH;
 			display_color_img(skinverwaltung_t::electricity->get_image_id(0), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 		}
 

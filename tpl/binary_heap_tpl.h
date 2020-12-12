@@ -33,9 +33,6 @@ public:
 
 	binary_heap_tpl()
 	{
-		// This is called far too often in Extended
-		// for debug messages to be useful.
-		//DBG_MESSAGE("binary_heap_tpl()","initialized");
 		nodes = MALLOCN(T, 4096);
 		node_size = 4096;
 		node_count = 0;

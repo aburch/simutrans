@@ -50,7 +50,7 @@
 
 
 
-struct sys_event sys_event;
+sys_event_t sys_event;
 
 
 #ifdef _WIN32
@@ -987,16 +987,16 @@ void dr_fatal_notify(char const* const msg)
 
 /**
  * Open a program/starts a script to download pak sets from sourceforge
- * @param path_to_program : actual simutrans pakfile directory
+ * @param data_dir : actual simutrans pakfile directory
  * @return false, if nothing was downloaded
  */
-bool dr_download_pakset( const char *path_to_program, bool portable )
+bool dr_download_pakset( const char *data_dir, bool portable )
 {
 #ifdef _WIN32
 	std::string param(portable ? "/P /D=" : "/D=");
-	param.append(path_to_program);
+	param.append(data_dir);
 	U16View const wparam(param.c_str());
-	U16View const wpath_to_program(path_to_program);
+	U16View const wpath_to_program(data_dir);
 
 	SHELLEXECUTEINFOW shExInfo;
 	shExInfo.cbSize = sizeof(shExInfo);
@@ -1021,7 +1021,7 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	return true;
 #else
 	char command[2048];
-	sprintf(command, "%s/get_pak.sh %i", path_to_program, portable);
+	sprintf(command, "%s/get_pak.sh %i", data_dir, portable);
 	system( command );
 	return true;
 #endif

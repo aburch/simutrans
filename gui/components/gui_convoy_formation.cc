@@ -31,7 +31,6 @@ gui_convoy_formation_t::gui_convoy_formation_t(convoihandle_t cnv)
 void gui_convoy_formation_t::draw(scr_coord offset)
 {
 	if (cnv.is_bound()) {
-		scr_size size;
 		switch (mode)
 		{
 			case appearance:
@@ -148,7 +147,7 @@ scr_size gui_convoy_formation_t::draw_vehicles(scr_coord offset, bool display_im
 	p.y += get_size().h/2;
 	// we will use their images offsets and width to shift them to their correct position
 	// this should work with any vehicle size ...
-	scr_size s(0,0);
+	scr_size s(D_H_SPACE*2, D_V_SPACE*2);
 	for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 		scr_coord_val x, y, w, h;
 		const image_id image = cnv->get_vehicle(i)->get_loaded_image();
@@ -164,13 +163,13 @@ scr_size gui_convoy_formation_t::draw_vehicles(scr_coord offset, bool display_im
 
 scr_size gui_convoy_formation_t::draw_capacities(scr_coord offset) const
 {
+	uint16 top = 0;
+	uint16 left = 0;
 	if (cnv.is_bound()) {
 		convoi_t &convoy = *cnv.get_rep();
 
 		offset.y += 2; // margin top
 		offset.x += D_MARGIN_LEFT;
-		uint16 left = 0;
-		uint16 top = 0;
 		uint16 size_x = 0;
 		cbuffer_t buf;
 
@@ -235,7 +234,6 @@ scr_size gui_convoy_formation_t::draw_capacities(scr_coord offset) const
 			}
 		}
 	}
-	// dummy
-	scr_size size(400, LINESPACE * 3);
+	scr_size size(left, top+LINESPACE);
 	return size;
 }

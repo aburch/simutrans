@@ -121,7 +121,7 @@ enum {
 	TOOL_VIEW_OWNER,
 	TOOL_HIDE_UNDER_CURSOR,
 	TOOL_MOVE_MAP,
-	TOOL_SHOW_RIBI_DEPRECATED,
+	TOOL_ROLLUP_ALL_WIN,
 	TOOL_RECOLOUR_TOOL_DEPRECATED,
 	TOOL_ACCESS_TOOL_DEPRECATED,
 	SIMPLE_TOOL_STANDARD_COUNT,
@@ -240,6 +240,7 @@ public:
 	bool no_check()           const { return flags & WFL_NO_CHK; }
 	bool can_use_gui()        const { return is_local_execution() && !is_scripted(); }
 
+	uint8  command_flags; // only shift and control
 	uint16 command_key;// key to toggle action for this function
 
 	static vector_tpl<tool_t *> general_tool;

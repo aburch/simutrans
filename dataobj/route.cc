@@ -1070,7 +1070,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	//reliefkarte_t::get_karte()->calc_map();
+	// minimap_t::get_instance()->calc_map();
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 
@@ -1355,7 +1355,7 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
-	if(file->get_extended_version() >= 11 && file->get_version() >= 112003)
+	if(file->get_extended_version() >= 11 && file->get_version_int() >= 112003)
 	{
 		file->rdwr_long(max_axle_load);
 		file->rdwr_long(max_convoy_weight);

@@ -12,10 +12,10 @@ bool factorylist_frame_t::sortreverse = false;
 factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 static uint8 default_sortmode = 0;
 
-bool factorylist_frame_t::display_operation_stats = false;
 // filter by within current player's network
 bool factorylist_frame_t::filter_own_network = false;
 uint8 factorylist_frame_t::filter_goods_catg = goods_manager_t::INDEX_NONE;
+uint8 factorylist_frame_t::display_mode = 0;
 
 const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Fabrikname",
@@ -29,6 +29,14 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Operation rate",
 	"by_region"
 };
+
+const char *factorylist_frame_t::display_mode_text[FACTORYLIST_MODES] = {
+	"fl_btn_operation",
+	"fl_btn_storage",
+	"fl_btn_demand",
+	"fl_btn_region"
+};
+
 
 factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
@@ -76,7 +84,7 @@ factorylist_frame_t::factorylist_frame_t() :
 		add_table(2, 1);
 		{
 			viewable_freight_types.append(NULL);
-			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All freight types"), SYSCOL_TEXT);
 			for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 				const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 				const int index = freight_type->get_catg_index();
@@ -100,7 +108,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			freight_type_c.add_listener(this);
 			add_component(&freight_type_c); // (2,2,1)
 
-			btn_display_mode.init(button_t::roundbox, translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
+			btn_display_mode.init(button_t::roundbox, translator::translate(display_mode_text[display_mode]), scr_coord(BUTTON4_X, 14), D_BUTTON_SIZE);
 			btn_display_mode.add_listener(this);
 			add_component(&btn_display_mode); // (2,2,2)
 		}
@@ -111,12 +119,11 @@ factorylist_frame_t::factorylist_frame_t() :
 
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly); // (3,0)
+	scrolly.set_maximize(true);
 
 	display_list();
 
-	scrolly.set_maximize(true);
 	reset_min_windowsize();
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, get_min_windowsize().h));
 	set_resizemode(diagonal_resize);
 }
 
@@ -153,10 +160,9 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 		display_list();
 	}
 	else if (comp == &btn_display_mode) {
-		display_operation_stats = !display_operation_stats;
-		btn_display_mode.pressed = display_operation_stats;
-		btn_display_mode.set_text(translator::translate(display_operation_stats ? "fl_btn_operation" : "fl_btn_storage"));
-		stats.display_operation_stats = display_operation_stats;
+		display_mode = (++display_mode)%FACTORYLIST_MODES;
+		btn_display_mode.set_text(translator::translate(display_mode_text[display_mode]));
+		stats.display_mode = display_mode;
 	}
 	else if (comp == &freight_type_c) {
 		if (freight_type_c.get_selection() > 0) {
@@ -171,33 +177,15 @@ bool factorylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /
 }
 
 
-/*
-void factorylist_frame_t::fill_list()
-{
-	scrolly.clear_elements();
-	FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
-		scrolly.new_component<factorylist_stats_t>(fab) ;
-	}
-	scrolly.sort(0);
-	scrolly.set_size(scrolly.get_size());
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, min(scrolly.get_pos().y + scrolly.get_size().h + D_MARGIN_BOTTOM, D_DEFAULT_HEIGHT)));
-	set_dirty();
-	resize(scr_size(0, 0));
-}
-*/
-
 void factorylist_frame_t::display_list()
 {
 	stats.sort(sortby, get_reverse(), get_filter_own_network(), filter_goods_catg);
 	stats.recalc_size();
-/*
-	if(  world()->get_fab_list().get_count() != (uint32)scrolly.get_count()  ) {
-		fill_list();
-	}
+}
 
-	set_dirty();
-	resize(scr_size(0, 0));
+void factorylist_frame_t::draw(scr_coord pos, scr_size size)
+{
+	display_list();
 
-	gui_frame_t::draw(pos,size);
-*/
+	gui_frame_t::draw(pos, size);
 }

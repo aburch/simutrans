@@ -20,7 +20,7 @@ void dr_set_midi_volume(int)
  */
 int dr_load_midi(const char *)
 {
-    return -1;
+	return -1;
 }
 
 
@@ -45,7 +45,7 @@ void dr_stop_midi(void)
  */
 sint32 dr_midi_pos(void)
 {
-    return 0;
+	return 0;
 }
 
 

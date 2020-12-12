@@ -23,6 +23,22 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 
+
+const char* vehicle_builder_t::engine_type_names[11] =
+{
+  "unknown",
+  "steam",
+  "diesel",
+  "electric",
+  "bio",
+  "sail",
+  "fuel_cell",
+  "hydrogene",
+  "battery",
+  "petrol",
+  "turbine"
+};
+
 static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
@@ -135,10 +151,8 @@ bool vehicle_builder_t::register_desc(vehicle_desc_t *desc)
 {
 	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
-	vehicle_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
-	if(  old_desc  ) {
-		dbg->warning( "vehicle_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		name_fahrzeuge.remove( desc->get_name() );
+	if(  vehicle_desc_t *old_desc = name_fahrzeuge.remove( desc->get_name() )  ) {
+		dbg->doubled( "vehicle", desc->get_name() );
 		typ_fahrzeuge[idx].remove(old_desc);
 	}
 	name_fahrzeuge.put(desc->get_name(), desc);

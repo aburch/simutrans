@@ -164,7 +164,7 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	// play sound (if there and closing)
 	if(new_state==CROSSING_CLOSED  &&  desc->get_sound()>=0  &&  !welt->is_fast_forward()) {
-		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound(), overheadlines_wt);
+		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound(), CROSSING_SOUND, overheadlines_wt);
 	}
 
 	if(new_state!=state) {
@@ -223,7 +223,7 @@ void crossing_logic_t::register_desc(crossing_desc_t *desc)
 		for(uint8 i=0; i<vec.get_count(); i++) {
 			if (strcmp(vec[i]->get_name(), desc->get_name())==0) {
 				vec.remove_at(i);
-				dbg->warning( "crossing_logic_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+				dbg->doubled( "crossing", desc->get_name() );
 			}
 		}
 DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );

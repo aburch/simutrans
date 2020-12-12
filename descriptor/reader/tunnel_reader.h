@@ -21,8 +21,6 @@ class tunnel_reader_t : public obj_reader_t {
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
 
-	virtual bool successfully_loaded() const OVERRIDE;
-
 public:
 	static tunnel_reader_t*instance() { return &the_instance; }
 

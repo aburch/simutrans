@@ -47,7 +47,7 @@
 #include "../unicode.h"
 
 
-#include "karte.h"
+#include "minimap.h"
 
 uint16 schedule_list_gui_t::livery_scheme_index = 0;
 
@@ -430,16 +430,16 @@ bool schedule_list_gui_t::infowin_event(const event_t *ev)
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_CLOSE) {
 			// hide schedule on minimap (may not current, but for safe)
-			reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+			minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 		}
 		else if(  (ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)  &&  line.is_bound() ) {
 			if(  line->count_convoys()>0  ) {
 				// set this schedule as current to show on minimap if possible
-				reliefkarte_t::get_karte()->set_current_cnv( line->get_convoy(0) );
+				minimap_t::get_instance()->set_selected_cnv( line->get_convoy(0) );
 			}
 			else {
 				// set this schedule as current to show on minimap if possible
-				reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+				minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 			}
 		}
 	}
@@ -941,6 +941,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			scr_size csize = cinfo->get_min_size();
 			cinfo->set_size(scr_size(400, csize.h-D_MARGINS_Y));
 			cinfo->set_mode(selected_cnvlist_mode[player->get_player_nr()]);
+			cinfo->set_switchable_label(sortby);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += csize.h - D_MARGIN_TOP-D_V_SPACE*2;
@@ -1042,10 +1043,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// has this line a single running convoi?
 		if(  new_line.is_bound()  &&  new_line->count_convoys() > 0  ) {
 			// set this schedule as current to show on minimap if possible
-			reliefkarte_t::get_karte()->set_current_cnv( new_line->get_convoy(0) );
+			minimap_t::get_instance()->set_selected_cnv( new_line->get_convoy(0) );
 		}
 		else {
-			reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+			minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 		}
 
 		delete last_schedule;
@@ -1072,7 +1073,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		chart.set_visible(true);
 
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+		minimap_t::get_instance()->set_selected_cnv( convoihandle_t() );
 
 		delete last_schedule;
 		last_schedule = NULL;
@@ -1187,7 +1188,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	size.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
 	int chart_records = line_cost_t::MAX_LINE_COST;
-	if (file->get_version() < 112008) {
+	if (file->get_version_int() < 112008) {
 		chart_records = 8;
 	}
 	else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 25)) {

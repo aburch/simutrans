@@ -385,7 +385,7 @@ void weg_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "weg_t" );
 
 	// save owner
-	if(  file->get_version() >= 99006  ) {
+	if(  file->get_version_int() >= 99006  ) {
 		sint8 spnum=get_player_nr();
 		file->rdwr_byte(spnum);
 		set_player_nr(spnum);
@@ -403,7 +403,7 @@ void weg_t::rdwr(loadsave_t *file)
 	file->rdwr_short(dummy16);
 	max_speed=dummy16;
 
-	if(  file->get_version() >= 89000  ) {
+	if(  file->get_version_int() >= 89000  ) {
 		dummy8 = flags;
 		file->rdwr_byte(dummy8);
 		if(  file->is_loading()  ) {
@@ -1418,7 +1418,8 @@ void weg_t::calc_image()
 #endif
 		return;	// otherwise crashing during enlargement
 	}
-	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
+	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  corner_se(from->get_grund_hang()) > 0
+		&&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		// TODO: Consider special treatment of tunnel portal images here.
 		set_image(IMG_EMPTY);

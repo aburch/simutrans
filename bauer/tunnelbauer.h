@@ -38,8 +38,6 @@ public:
 
 	static void register_desc(tunnel_desc_t *desc);
 
-	static bool successfully_loaded();
-
 	static const tunnel_desc_t *get_desc(const char *);
 
 	static stringhashtable_tpl <tunnel_desc_t *> * get_all_tunnels();

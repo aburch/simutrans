@@ -711,7 +711,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	else {
 		lane_affinity = 4; // not applied
 	}
-	if(  file->get_version()<=102002  ) {
+	if(  file->get_version_int()<=102002  ) {
 		file->rdwr_byte(dummy);
 		if(  file->is_loading()  ) {
 			ticks_ns = ticks_ow = 16;
@@ -721,7 +721,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(ticks_ns);
 		file->rdwr_byte(ticks_ow);
 	}
-	if(  file->get_version()>=110007 || file->get_extended_version() >= 10 ) {
+	if(  file->get_version_int()>=110007 || file->get_extended_version() >= 10 ) {
 		file->rdwr_byte(ticks_offset);
 	}
 	else {
@@ -741,7 +741,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	dummy = dir;
 	file->rdwr_byte(dummy);
 	dir = dummy;
-	if(file->get_version()<89000) {
+	if(file->get_version_int()<89000) {
 		dir = ribi_t::backward(dir);
 	}
 
@@ -765,7 +765,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 			}
 		}
 		// init ownership of private ways signs
-		if(  file->get_version()<110007  &&  desc  &&  desc->is_private_way()  ) {
+		if(  file->get_version_int()<110007  &&  desc  &&  desc->is_private_way()  ) {
 			ticks_ns = 0xFD;
 			ticks_ow = 0xFF;
 		}
@@ -838,10 +838,8 @@ bool roadsign_t::successfully_loaded()
 bool roadsign_t::register_desc(roadsign_desc_t *desc)
 {
 	// avoid duplicates with same name
-	const roadsign_desc_t *old_desc = table.get(desc->get_name());
-	if(old_desc) {
-		dbg->warning( "roadsign_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		table.remove(desc->get_name());
+	if(const roadsign_desc_t *old_desc = table.remove(desc->get_name())) {
+		dbg->doubled( "roadsign", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

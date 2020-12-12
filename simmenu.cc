@@ -169,8 +169,8 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_VIEW_OWNER:           tool = new tool_view_owner_t();           break;
 		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
 		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
+		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
 		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
-		case TOOL_SHOW_RIBI_DEPRECATED:
 		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		case TOOL_RECOLOUR_TOOL_DEPRECATED:
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
@@ -180,7 +180,7 @@ tool_t *create_simple_tool(int toolnr)
 			dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 			return NULL;
 	}
-	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr >= TOOL_SHOW_RIBI_DEPRECATED &&  toolnr <= TOOL_ACCESS_TOOL_DEPRECATED));
+	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL)  ||  (toolnr == TOOL_RECOLOUR_TOOL_DEPRECATED ||  toolnr == TOOL_ACCESS_TOOL_DEPRECATED));
 	return tool;
 }
 
@@ -250,12 +250,39 @@ tool_t *create_tool(int toolnr)
 }
 
 
-static utf32 str_to_key( const char *str )
+static utf32 str_to_key( const char *str, uint8 *modifier )
 {
+	*modifier = 0;	// default no modufier check
 	if(  str[1]==','  ||  str[1]<=' ') {
 		return (uint8)*str;
 	}
 	else {
+		// check for control char
+		if(str[0]=='^') {
+			if( str[1]==0  ||  str[1]=='^'  ) {
+				return str[1];
+			}
+			else {
+				*modifier = 2;
+				// only single character following =>make is 1..26 value
+				if(  isalpha( str[1] )  ) {
+					return tolower(str[1]) - 'a' + 1;
+				}
+				str++;
+			}
+		}
+		// add shift as requested modifier?
+		if(str[0]=='+') {
+			if(  str[ 1 ] == '+' ||  str[1]==0  ) {
+				return '+';
+			}
+			*modifier = 1;
+			str++;
+		}
+		// direct value (decimal)
+		if(str[0]=='#') {
+			return (str[1]=='#') ? str[1] : atoi(str+1);
+		}
 		// check for utf8
 		if(  127<(uint8)*str  ) {
 			size_t len = 0;
@@ -263,14 +290,6 @@ static utf32 str_to_key( const char *str )
 			if(str[len]==',') {
 				return c;
 			}
-		}
-		// control char
-		if(str[0]=='^') {
-			return (str[1]&(~32))-64;
-		}
-		// direct value (decimal)
-		if(str[0]=='#') {
-			return atoi(str+1);
 		}
 		// Function key?
 		if(str[0]=='F') {
@@ -282,6 +301,10 @@ static utf32 str_to_key( const char *str )
 		// COMMA
 		if (strstart(str, "COMMA")) {
 			return ',';
+		}
+		// Scroll lock
+		if (strstart(str, "SCROLLLOCK")) {
+			return SIM_KEY_SCROLLLOCK;
 		}
 		// break/pause key
 		if (strstart(str, "PAUSE")) {
@@ -296,8 +319,17 @@ static utf32 str_to_key( const char *str )
 			return SIM_KEY_END;
 		}
 		// END
-		if (strstart(str, "END")) {
-			return SIM_KEY_END;
+		if (strstart(str, "ESC")) {
+			// but currently fixed binding!
+			return SIM_KEY_ESCAPE;
+		}
+		if (strstart(str, "DEL")) {
+			// but currently fixed binding!
+			return SIM_KEY_DELETE;
+		}
+		if (strstart(str, "BACKSPACE")) {
+			// but currently fixed binding!
+			return SIM_KEY_BACKSPACE;
 		}
 		// NUMPAD
 		if(  const char *c=strstart(str, "NUM_")  ) {
@@ -414,7 +446,7 @@ void tool_t::read_menu(const std::string &objfilename)
 			if(*str) {
 				// Check if tool is deprecated
 				if(  (  t==0  &&  i==TOOL_REASSIGN_SIGNAL_DEPRECATED  )
-				   || (  t==1  &&  i>= TOOL_SHOW_RIBI_DEPRECATED && i<=TOOL_ACCESS_TOOL_DEPRECATED  )  ) {
+				   || (  t==1  &&  ( i== TOOL_RECOLOUR_TOOL_DEPRECATED || i==TOOL_ACCESS_TOOL_DEPRECATED )  )  ) {
 					// Do not warn if new id also appears in menuconf:
 					char new_id[256];
 					sprintf( new_id, "%s[%i]", info[t].type, tool->get_id()&0xFFF );
@@ -490,7 +522,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					str++;
 				}
 				if(*str>=' ') {
-					tool->command_key = str_to_key(str);
+					tool->command_key = str_to_key(str,&(tool->command_flags));
 					char_to_tool.append(tool);
 				}
 			}
@@ -688,7 +720,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					addtool->icon = icon;
 				}
 				if(key_str!=NULL) {
-					addtool->command_key = str_to_key(key_str);
+					addtool->command_key = str_to_key(key_str,&(addtool->command_flags));
 					char_to_tool.append(addtool);
 				}
 				if(param_str!=NULL  &&  ((addtool->get_id() & TOOLBAR_TOOL) == 0)) {
