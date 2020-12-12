@@ -484,7 +484,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 	}
-	
+
 	update_labels();
 
 	// all gui stuff set => display it
