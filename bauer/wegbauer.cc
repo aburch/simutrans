@@ -1432,13 +1432,12 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 		}
 #endif
 	}
-  DBG_MESSAGE("way_builder_t::init_builder()",
-         "setting way type to %d, desc=%s, bridge_desc=%s, tunnel_desc=%s",
-         bautyp,
-         desc ? desc->get_name() : "NULL",
-         bridge_desc ? bridge_desc->get_name() : "NULL",
-         tunnel_desc ? tunnel_desc->get_name() : "NULL"
-         );
+	DBG_MESSAGE("way_builder_t::init_builder()", "setting way type to %d, desc=%s, bridge_desc=%s, tunnel_desc=%s",
+			bautyp,
+			desc ? desc->get_name() : "NULL",
+			bridge_desc ? bridge_desc->get_name() : "NULL",
+			tunnel_desc ? tunnel_desc->get_name() : "NULL"
+		);
 }
 
 

@@ -28,8 +28,9 @@
 class env_t
 {
 public:
-	/// points to the current simutrans data directory
-	static char program_dir[PATH_MAX];
+	/// Points to the current simutrans data directory. Usually this is the same directory
+	/// where the executable is located, unless -use_workdir is specified.
+	static char data_dir[PATH_MAX];
 
 	/// points to the current user directory for loading and saving
 	static const char *user_dir;
@@ -455,7 +456,12 @@ public:
 	/// @{
 
 	static sint16 global_volume, midi_volume;
-	static bool mute_sound, mute_midi, shuffle_midi;
+	static bool mute_midi, shuffle_midi;
+	static bool global_mute_sound;
+	static uint16 specific_volume[MAX_SOUND_TYPES];
+
+	/// how dast are distant sounds fading (1: very fast 25: very little)
+	static uint32 sound_distance_scaling;
 
 	/// @}
 

@@ -1963,7 +1963,7 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], 	display_day_lights[i*3 + 2] );
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], display_day_lights[i*3 + 2] );
 	}
 
 	// init with black for forbidden colors

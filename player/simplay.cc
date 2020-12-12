@@ -152,12 +152,8 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 			add_message(amount, pos);
 
 			// and same for sound too ...
-#ifdef GDI_SOUND
-			if(  amount>=10000  &&  !welt->is_fast_forward()) {
-#else
-			if (amount >= 10000 && !welt->is_fast_forward()) {
-#endif
-				welt->play_sound_area_clipped(pos, SFX_CASH, ignore_wt);
+			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
+				welt->play_sound_area_clipped(pos, SFX_CASH, CASH_SOUND, ignore_wt );
 			}
 		}
 	}
@@ -819,7 +815,7 @@ void player_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t sss( file, "spieler_t" );
 
-	if(file->get_version() < 112005) {
+	if(file->get_version_int() < 112005) {
 		sint64 konto = finance->get_account_balance();
 		file->rdwr_longlong(konto);
 		finance->set_account_balance(konto);
@@ -829,13 +825,13 @@ void player_t::rdwr(loadsave_t *file)
 		finance->set_account_overdrawn( account_overdrawn );
 	}
 
-	if(file->get_version()<101000) {
+	if(file->get_version_int()<101000) {
 		// ignore steps
 		sint32 ldummy=0;
 		file->rdwr_long(ldummy);
 	}
 
-	if(file->get_version()<99009) {
+	if(file->get_version_int()<99009) {
 		sint32 farbe;
 		file->rdwr_long(farbe);
 		player_color_1 = (uint8)farbe*2;
@@ -847,10 +843,10 @@ void player_t::rdwr(loadsave_t *file)
 	}
 
 	sint32 halt_count=0;
-	if(file->get_version()<99008) {
+	if(file->get_version_int()<99008) {
 		file->rdwr_long(halt_count);
 	}
-	if(file->get_version()<=112002) {
+	if(file->get_version_int()<=112002) {
 		sint32 haltcount = 0;
 		file->rdwr_long(haltcount);
 	}
@@ -861,7 +857,7 @@ void player_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(active);
 
 	// state is not saved anymore
-	if(file->get_version()<99014)
+	if(file->get_version_int()<99014)
 	{
 		sint32 ldummy=0;
 		file->rdwr_long(ldummy);
@@ -869,7 +865,7 @@ void player_t::rdwr(loadsave_t *file)
 	}
 
 	// the AI stuff is now saved directly by the different AI
-	if(  file->get_version()<101000)
+	if(  file->get_version_int()<101000)
 	{
 		sint32 ldummy = -1;
 		file->rdwr_long(ldummy);
@@ -893,7 +889,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// headquarters stuff
-	if (file->get_version() < 86004)
+	if (file->get_version_int() < 86004)
 	{
 		headquarter_level = 0;
 		headquarter_pos = koord::invalid;
@@ -910,11 +906,11 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// line management
-	if(file->get_version()>=88003) {
+	if(file->get_version_int()>=88003) {
 		simlinemgmt.rdwr(file,this);
 	}
 
-	if(file->get_version()>102002 && file->get_extended_version() != 7) {
+	if(file->get_version_int()>102002 && file->get_extended_version() != 7) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
 			file->rdwr_byte(pwd_hash[i]);
@@ -933,12 +929,12 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save the name too
-	if(file->get_version()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0))
+	if(file->get_version_int()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0))
 	{
 		file->rdwr_str( player_name_buf, lengthof(player_name_buf) );
 	}
 
-	if(file->get_version() >= 110007 && file->get_extended_version() >= 10)
+	if(file->get_version_int() >= 110007 && file->get_extended_version() >= 10)
 	{
 		// Save the colour
 		file->rdwr_byte(player_color_1);
@@ -954,7 +950,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save age
-	if(  file->get_version() >= 112002  && (file->get_extended_version() >= 11 || file->get_extended_version() == 0) ) {
+	if(  file->get_version_int() >= 112002  && (file->get_extended_version() >= 11 || file->get_extended_version() == 0) ) {
 		file->rdwr_short( player_age );
 	}
 
@@ -1182,19 +1178,19 @@ sint64 player_t::undo()
 void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 {
 	/* tools can return three kinds of messages
-	* NULL = success
-	* "" = failure, but just do not try again
-	* "bla" error message, which should be shown
-	*/
-	if (welt->get_active_player() == this) {
-		if (err == NULL) {
-			if (tool->ok_sound != NO_SOUND) {
-				sound_play(tool->ok_sound);
+	 * NULL = success
+	 * "" = failure, but just do not try again
+	 * "bla" error message, which should be shown
+	 */
+	if (welt->get_active_player()==this) {
+		if(err==NULL) {
+			if(tool->ok_sound!=NO_SOUND) {
+				sound_play(tool->ok_sound,255,TOOL_SOUND);
 			}
 		}
 		else if (*err != 0) {
 			// something went really wrong
-			sound_play(SFX_FAILURE);
+			sound_play( SFX_FAILURE, 255, TOOL_SOUND );
 			// look for coordinate in error message
 			// syntax: either @x,y or (x,y)
 			open_error_msg_win(err);

@@ -52,12 +52,9 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 {
 	halt = h;
-	set_table_layout(3,2);
+	set_table_layout(2,3);
 	set_spacing(scr_size(D_H_SPACE, 0));
 
-	gotopos.set_typ(button_t::posbutton_automatic);
-	gotopos.set_targetpos3d(halt->get_basis_pos3d());
-	add_component(&gotopos);
 
 	add_component(&indicator);
 	indicator.set_max_size(scr_size(D_INDICATOR_WIDTH,D_INDICATOR_HEIGHT));
@@ -71,9 +68,6 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 		img_types = new_component<gui_halt_type_images_t>(halt);
 	}
 	end_table();
-
-	// second row, skip posbutton
-	new_component<gui_empty_t>();
 
 	gui_aligned_container_t *table = add_table(3,1);
 	{
@@ -94,6 +88,8 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	add_component(&label_cargo);
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
+
+	new_component<gui_margin_t>(0,D_V_SPACE);
 }
 
 

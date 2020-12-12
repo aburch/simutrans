@@ -26,8 +26,7 @@ class vehicle_desc_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  */
-class depot_frame_t : public gui_frame_t,
-                      public action_listener_t
+class depot_frame_t : public gui_frame_t, public action_listener_t
 {
     friend class gui_convoy_assembler_t;
 
@@ -182,23 +181,12 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	/**
-	 * Draw the Frame
-	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	void apply_line();
 
 	void set_selected_line(linehandle_t line) { selected_line = line; }
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}

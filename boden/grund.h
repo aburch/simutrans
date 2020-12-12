@@ -183,7 +183,7 @@ protected:
 	objlist_t objlist;
 
 	/**
- 	 * Handle to halt built on this ground
+	 * Handle to halt built on this ground
 	 */
 	halthandle_t this_halt;
 
@@ -236,7 +236,14 @@ protected:
 	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
-	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ {
+		boden = 1,
+		wasser,
+		fundament,
+		tunnelboden,
+		brueckenboden,
+		monorailboden
+	};
 
 	grund_t(koord3d pos);
 
@@ -339,10 +346,9 @@ public:
 	void show_info();
 
 	/**
-	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
-	* @return die Farbe des Beschreibungstexthintergrundes.
-	*/
-	FLAGGED_PIXVAL text_farbe() const;
+	 * @return player that owns the label to show it in player's colors
+	 */
+	const player_t* get_label_owner() const;
 
 	/**
 	 * Sets the label text (by copying it)

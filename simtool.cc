@@ -2800,10 +2800,6 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		welt->mute_sound(true);
 		bauigel.build();
 		welt->mute_sound(false);
-		if(!is_shift_pressed())
-		{
-			sound_play(SFX_CASH);
-		}
 
 		return NULL;
 	}

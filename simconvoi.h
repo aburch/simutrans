@@ -34,7 +34,6 @@
 
 /*
  * Waiting time for infinite loading (ms)
- * @author Hj- Malthaner
  */
 #define WAIT_INFINITE 9223372036854775807ll
 #define MAX_MONTHS               12 // Max history

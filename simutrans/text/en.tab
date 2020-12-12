@@ -2418,6 +2418,8 @@ llech
 loes
 &42_CITY_SYLL[3]
 wedd
+&43_CITY_SYLL[3]
+garreg
 #
 # Max: 200 (hex)
 #
@@ -4736,14 +4738,12 @@ maximum length of rivers
 Max. river length
 Percent Electricity
 Electricity output (% demand):
-convoi mouseover tooltips
-Mouse-over convoy tooltips
 always show all
 Always show all
 only error convoys
-Only error convoy tooltips
+Only show errors
 only active player's
-Current player tooltips
+Only show the current player's
 no buildings hidden
 Do not hide any buildings
 hide city building
@@ -4813,7 +4813,7 @@ Destinations
 Passenger destinations
 Passenger destinations
 The main game window can be scrolled by right-clicking and dragging the ground.
-The main game window can be scrolled by right-clicking and dragging the ground.
+The main game window can be scrolled by clicking and dragging the ground.
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
 Pedestrians will appear randomly in towns.
@@ -5739,7 +5739,7 @@ Show:
 sort_pas_arrived
 Passengers arrived
 mouseover
-Mouse-over
+Show only when hovering the mouse
 always show convoy name
 Always show line name
 no convoy nameplate
@@ -5862,3 +5862,141 @@ fl_btn_storage
 Storage
 fl_btn_operation
 Operation rate
+Show finances for transport type
+Show finances for transport type
+Copy to clipboard
+Copy to clipboard
+Start this as a server
+Start this game as a server
+Map number: %d
+Map number: %d
+Maximize height levels
+Maximize height levels
+Select display font
+Select a font
+font size
+font size
+Only full Unicode fonts
+Only show full Unicode fonts
+Select a theme for display
+Select a theme
+Theme selector
+Theme selector
+vh_title
+Available vehicle list
+dp_title
+Depot list
+sb_title
+Signal box list
+Show finances for transport type
+Show finances for transport type
+<h1>Error</h1><p><strong>
+<h1>Error</h1><p><strong>
+contains the following doubled objects:</strong><p>
+contains the following doubled objects:</strong><p>
+show HQ
+Show HQ
+GUI settings
+GUI settings
+map view
+Map view
+Num pad keys always move map
+Numpad keys always move map
+Simple drawing
+Simple drawing
+transparencies
+Transparency settings
+traffic settings
+Vehicle display settings
+Convoi following mode
+Vehicle following mode
+TOOL_SOUND
+Interaction sounds
+AMBIENT_SOUND
+Ambient sounds
+CROSSING_SOUND
+Level crossing sounds
+FACTORY_SOUND
+Industry sounds
+TRAFFIC_SOUND
+Vehicle sounds
+CASH_SOUND
+Revenue sounds
+Sound range:
+Sound range:
+mute sound
+Mute sound
+sb_type
+Type
+sb_connected
+Signals in use
+by_region
+Region
+All regions
+All regions
+All freight types
+All freight types
+Trailers
+unpowered
+Allowed regions:
+Allowed regions:
+fl_btn_demand
+Demand
+fl_btn_region
+Region
+Vehicle not found
+No vehicles found
+One vehicle found
+One vehicle found
+%u vehicles found
+%u vehicles found
+<p>Continue by ESC, SPACE, or BACKSPACE.<br>
+<p>Continue by pressing ESC, SPACE, or BACKSPACE.<br>
+tooltip/coverage
+Tooltips/overlays
+Grid
+Grid
+Brightness
+Brightness
+Map scroll
+Map scrolling
+Station display
+Stop/station display
+always show all
+Always show all
+never show
+Never show
+Nameplates
+Names
+Loading bar
+Loading bar
+Tooltip
+Tooltip
+Money message
+Revenue just earned
+The line name or convoy name is displayed above the convoy.
+The line name or convoy name is displayed above the convoy.
+A loading rate bar is displayed above the convoy.
+A bar is displayed above the convoy showing how full that it is.
+Income display displayed when convoy arrives at the stop.
+The amount of revenue that this convoy has just earned is shown whenever it arrives at a stop.
+Divided by class
+Divided by class
+Waiting bars are displayed separately for each class.
+Waiting bars are displayed separately for each class.
+Unified
+Unified
+Divided by category
+Divided by category of goods
+Divided by goods
+Divided by type of goods
+Select the behavior of the camera when the following convoy enters the tunnel.
+Select the behavior of the camera when a convoy being followed convoy enters a tunnel.
+do nothing
+Do nothing
+waytype
+Transport mode
+convoys stored
+Convoys stored
+vehicles stored
+Vehicles stored

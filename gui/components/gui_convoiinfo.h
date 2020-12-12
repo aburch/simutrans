@@ -51,6 +51,7 @@ public:
 	void draw(scr_coord offset) OVERRIDE;
 
 	void set_mode(uint8 mode);
+	void set_switchable_label(uint8 label_mode = 0) { switch_label = label_mode; };
 	enum cl_sort_mode_t { by_name = 0, by_profit, by_type, by_id, by_power, CL_SORT_MODES };
 	//enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, /*by_power,*/ by_value, by_age, SORT_MODES };
 

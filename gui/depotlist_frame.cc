@@ -28,7 +28,7 @@ static char const* const depot_type_texts[] = { "Truck", "Train", "Ship", "Air",
 
 uint8 depotlist_stats_t::sort_mode = by_waytype;
 bool depotlist_stats_t::reverse = false;
-uint16 depotlist_stats_t::name_width = 100;
+uint16 depotlist_stats_t::name_width = D_LABEL_WIDTH;
 uint8 depotlist_frame_t::depot_type_filter_bits = 255;
 
 static karte_ptr_t welt;
@@ -426,6 +426,7 @@ void depotlist_frame_t::fill_list()
 	scrolly.set_size( scrolly.get_size());
 
 	last_depot_count = depot_t::get_depot_list().get_count();
+	resize(scr_coord(0, 0));
 }
 
 

@@ -7,11 +7,11 @@
 
 char *read_line(char *s, int size, FILE *file)
 {
-    char *r;
+	char *r;
 
-    do {
-	r = fgets(s, size, file);
-    } while(r != NULL && *s == '#');
+	do {
+		r = fgets(s, size, file);
+	} while(r != NULL && *s == '#');
 
-    return r;
+	return r;
 }

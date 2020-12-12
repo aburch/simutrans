@@ -187,13 +187,13 @@ static void posix_sigterm(int)
 
 
 int main(int argc, char **argv)
- {
+{
 	signal( SIGTERM, posix_sigterm );
 #ifndef _MSC_VER
- 	gettimeofday(&first,NULL);
+	gettimeofday(&first,NULL);
 #endif
- 	return sysmain(argc, argv);
- }
+	return sysmain(argc, argv);
+}
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)

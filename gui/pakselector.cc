@@ -12,7 +12,7 @@
 
 
 pakselector_t::pakselector_t() :
-	savegame_frame_t(NULL, true, env_t::program_dir, true),
+	savegame_frame_t( NULL, true, env_t::data_dir, true ),
 	notice_label(&notice_buffer)
 {
 	// remove unnecessary buttons
@@ -137,7 +137,7 @@ void pakselector_t::fill_list()
 			env_t::objfilename = (std::string)i.button->get_text() + "/";
 		}
 	}
-	dr_chdir(env_t::program_dir);
+	dr_chdir( env_t::data_dir );
 
 	if (entries.get_count() > this->num_sections + 1) {
 		// empty path as more than one pakset is present, user has to choose

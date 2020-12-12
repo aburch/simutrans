@@ -1355,7 +1355,7 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
-	if(file->get_extended_version() >= 11 && file->get_version() >= 112003)
+	if(file->get_extended_version() >= 11 && file->get_version_int() >= 112003)
 	{
 		file->rdwr_long(max_axle_load);
 		file->rdwr_long(max_convoy_weight);

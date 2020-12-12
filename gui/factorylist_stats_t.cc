@@ -8,12 +8,12 @@
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../simskin.h"
+#include "../simcity.h"
 #include "../simcolor.h"
 #include "../simfab.h"
 #include "../simworld.h"
 #include "../simskin.h"
 #include "simwin.h"
-
 #include "gui_frame.h"
 #include "components/gui_button.h"
 
@@ -119,8 +119,6 @@ class compare_factories
 
 /**
  * Events werden hiermit an die GUI-components
- * gemeldet
- * @author Hj. Malthaner
  */
 bool factorylist_stats_t::infowin_event(const event_t * ev)
 {
@@ -160,13 +158,12 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 void factorylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(390, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
+	set_size( scr_size(390, fab_list.get_count() * (LINESPACE+1) ) );
 }
 
 
 /**
  * Draw the component
- * @author Hj. Malthaner
  */
 void factorylist_stats_t::draw(scr_coord offset)
 {
@@ -196,15 +193,15 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 			// goto button
 			bool selected = sel == 0 || welt->get_viewport()->is_on_center(fab->get_pos());
-			display_img_aligned(gui_theme_t::pos_button_img[selected], scr_rect(offset.x + D_H_SPACE, yoff, D_POS_BUTTON_WIDTH, LINESPACE), ALIGN_CENTER_V | ALIGN_CENTER_H, true);
+			display_img_aligned(gui_theme_t::pos_button_img[selected], scr_rect(xoff - D_POS_BUTTON_WIDTH, yoff, D_POS_BUTTON_WIDTH, LINESPACE), ALIGN_CENTER_V | ALIGN_CENTER_H, true);
 			sel--;
 
 			// status bar
 			if (fab->get_status() >= fabrik_t::staff_shortage) {
-				display_ddd_box_clip_rgb(xoff + offset_left, yoff + 1, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
+				display_ddd_box_clip_rgb(xoff + offset_left, yoff + GOODS_COLOR_BOX_YOFF, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT + 2, COL_STAFF_SHORTAGE, COL_STAFF_SHORTAGE);
 			}
 			offset_left++;
-			display_fillbox_wh_clip_rgb(xoff+ offset_left, yoff+2, D_INDICATOR_WIDTH-2, D_INDICATOR_HEIGHT, indikatorfarbe, true);
+			display_fillbox_wh_clip_rgb(xoff+ offset_left, yoff + GOODS_COLOR_BOX_YOFF +1, D_INDICATOR_WIDTH-2, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 			offset_left += D_INDICATOR_WIDTH;
 
 			buf.clear();
@@ -213,7 +210,8 @@ void factorylist_stats_t::draw(scr_coord offset)
 			offset_left += max(150, display_proportional_clip_rgb(xoff + offset_left, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true));
 			buf.clear();
 
-			if (display_operation_stats) {
+			if (display_mode == 0) {
+				// [operation info]
 				// this month and last month operation rate
 				buf.printf("%3.1f - ", fab->get_stat_converted(0,FAB_PRODUCTION) / 100.0);
 				offset_left += proportional_string_width("0000.0 -");
@@ -232,10 +230,10 @@ void factorylist_stats_t::draw(scr_coord offset)
 				offset_left += D_V_SPACE;
 				if (fab->get_desc()->get_electric_boost()) {
 					if (fab->get_prodfactor_electric() > 0) {
-						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff, 0, false, true);
+						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, true);
 					}
 					else {
-						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
+						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
 					}
 				}
 				offset_left += 10;
@@ -266,8 +264,73 @@ void factorylist_stats_t::draw(scr_coord offset)
 						((staff_shortage_factor > (uint32)fab->get_staffing_level_percentage()) ? COL_STAFF_SHORTAGE : goods_manager_t::passengers->get_color()), true);
 				}
 			}
+			else if (display_mode == 2) {
+				// [demand info]
+				// input
+				uint has_input_output = 0;
+				FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
+					goods_desc_t const* const ware = i.get_typ();
+					if (skinverwaltung_t::input_output && !has_input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						offset_left += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
+					}
+					// input goods color square box
+					ware->get_name();
+					display_colorbox_with_tooltip(xoff + offset_left, yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+
+					has_input_output++;
+				}
+
+				if (has_input_output < 5) {
+					offset_left += has_input_output ? D_FIXED_SYMBOL_WIDTH * (5 - has_input_output) : D_FIXED_SYMBOL_WIDTH * 6 + D_V_SPACE;
+				}
+
+				// output
+				has_input_output = 0;
+				FOR(array_tpl<ware_production_t>, const& i, fab->get_output()) {
+					goods_desc_t const* const ware = i.get_typ();
+					if (skinverwaltung_t::input_output && !has_input_output) {
+						display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						offset_left += D_FIXED_SYMBOL_WIDTH + D_V_SPACE;
+					}
+					// output goods color square box
+					display_colorbox_with_tooltip(xoff + offset_left, yoff + GOODS_COLOR_BOX_YOFF, GOODS_COLOR_BOX_HEIGHT, GOODS_COLOR_BOX_HEIGHT, ware->get_color(), true, translator::translate(ware->get_name()));
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+
+					has_input_output++;
+				}
+				if (fab->get_sector() == fabrik_t::power_plant) {
+					offset_left += D_FIXED_SYMBOL_WIDTH;
+					display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+				}
+			}
+			else if (display_mode == 3) {
+				// [location info]
+				buf.clear();
+				const koord fab_pos = fab->get_pos().get_2d();
+				// pos
+				buf.append(fab->get_pos().get_2d().get_fullstr());
+				display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				buf.clear();
+
+				offset_left += proportional_string_width("(0000,0000) ");
+
+				// city
+				stadt_t* city = world()->get_city(fab_pos);
+				if (city) {
+					buf.printf("%s", city->get_name());
+				}
+
+				// region
+				if (!welt->get_settings().regions.empty()) {
+					buf.printf(" (%s)", translator::translate(welt->get_region_name(fab_pos).c_str()));
+				}
+				display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+			}
 			else {
-				// storage info
+				// [storage info]
 				// input storage
 				if (!fab->get_input().empty())
 				{
@@ -275,7 +338,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 					if (fab->get_total_transit())
 					{
 						if (skinverwaltung_t::in_transit) {
-							display_color_img(skinverwaltung_t::in_transit->get_image_id(0), xoff + offset_left, yoff, 0, false, false);
+							display_color_img(skinverwaltung_t::in_transit->get_image_id(0), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 						}
 						buf.printf("%i", fab->get_total_transit());
 						display_proportional_clip_rgb(xoff + offset_left + 14, yoff, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -284,7 +347,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 
 					// input
 					if (skinverwaltung_t::input_output) {
-						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff, 0, false, false);
+						display_color_img(skinverwaltung_t::input_output->get_image_id(0), xoff + offset_left + 14 + 32, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 					uint colored_with = fab->get_total_input_occupancy() * STORAGE_BAR_WIDTH / 100;
 					display_vlinear_gradient_wh_rgb(xoff + offset_left + 14 + 32 + 12, yoff + 2, colored_with, LINESPACE - 3, color_idx_to_rgb(colored_with == STORAGE_BAR_WIDTH ? COL_DARK_GREEN : COL_DARK_GREEN + 1), 10, 75);
@@ -298,7 +361,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 				// output storage
 				if (!fab->get_output().empty()) {
 					if (skinverwaltung_t::input_output) {
-						display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff, 0, false, false);
+						display_color_img(skinverwaltung_t::input_output->get_image_id(1), xoff + offset_left, yoff + FIXED_SYMBOL_YOFF, 0, false, false);
 					}
 
 					if (fab->get_total_output_capacity()) {
@@ -312,10 +375,10 @@ void factorylist_stats_t::draw(scr_coord offset)
 				}
 				else if (fab->get_sector() == fabrik_t::power_plant) {
 					if (fab->is_currently_producing()) {
-						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff, 0, false, true);
+						display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff + FIXED_SYMBOL_YOFF, 0, false, true);
 					}
 					else {
-						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
+						display_img_blend(skinverwaltung_t::electricity->get_image_id(0), xoff + offset_left+2, yoff + FIXED_SYMBOL_YOFF, TRANSPARENT50_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREY2), false, false);
 					}
 				}
 				offset_left += STORAGE_BAR_WIDTH + 14;

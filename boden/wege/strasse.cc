@@ -105,7 +105,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		overtaking_mode = twoway_mode;
 	}
 
-	if(file->get_version()<89000) {
+	if(file->get_version_int()<89000) {
 		bool gehweg;
 		file->rdwr_bool(gehweg);
 		set_gehweg(gehweg);

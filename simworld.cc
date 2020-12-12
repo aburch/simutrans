@@ -270,8 +270,8 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 			sem_init(&sems[t], 0, 0);
 		}
 
-   		world_thread_param[t].welt = this;
-   		world_thread_param[t].thread_num = t;
+		world_thread_param[t].welt = this;
+		world_thread_param[t].thread_num = t;
 		world_thread_param[t].x_step = sync_x_steps ? min( 64, max_x / env_t::num_threads ) : max_x;
 		world_thread_param[t].x_world_max = max_x;
 		world_thread_param[t].y_min = (t * max_y) / env_t::num_threads;
@@ -1021,7 +1021,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 #endif
 		for (unsigned i = 0; i < new_city_count; i++) {
 			stadt_t* s = new stadt_t(players[1], (*pos)[i], 1);
-			DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Erzeuge stadt %i with %ld inhabitants", i, (s->get_city_history_month())[HIST_CITICENS]);
+			DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Erzeuge stadt %i with %ld inhabitants", i, (s->get_city_history_month())[HIST_CITIZENS]);
 			if (s->get_buildings() > 0) {
 				add_city(s);
 			}
@@ -1091,14 +1091,14 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 	}
 
 	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
+	finance_history_year[0][WORLD_CITIZENS] = finance_history_month[0][WORLD_CITIZENS] = 0;
 	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
 	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
 
 	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt)
 	{
-		finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);
-		finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
+		finance_history_year[0][WORLD_CITIZENS] += city->get_finance_history_month(0, HIST_CITIZENS);
+		finance_history_month[0][WORLD_CITIZENS] += city->get_finance_history_year(0, HIST_CITIZENS);
 
 		finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
 		finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
@@ -3128,7 +3128,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
@@ -4302,7 +4302,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
-			sound_play(SFX_SELECT);
+			sound_play(SFX_SELECT,255,TOOL_SOUND);
 
 			// only exit, if it is not the same tool again ...
 
@@ -5125,7 +5125,7 @@ void karte_t::new_month()
 	update_history();
 
 	// advance history ...
-	last_month_bev = finance_history_month[0][WORLD_CITICENS];
+	last_month_bev = finance_history_month[0][WORLD_CITIZENS];
 	for(  int hist=0;  hist<karte_t::MAX_WORLD_COST;  hist++  ) {
 		for( int y=MAX_WORLD_HISTORY_MONTHS-1; y>0;  y--  ) {
 			finance_history_month[y][hist] = finance_history_month[y-1][hist];
@@ -5242,10 +5242,10 @@ void karte_t::new_month()
 	}
 	else
 	{
-		if (industry_density_proportion == 0 && finance_history_month[0][WORLD_CITICENS] > 0)
+		if (industry_density_proportion == 0 && finance_history_month[0][WORLD_CITIZENS] > 0)
 		{
 			// Set the industry density proportion for the first time when the number of citizens is populated.
-			industry_density_proportion = (uint32)(((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITICENS]);
+			industry_density_proportion = (uint32)(((sint64)actual_industry_density * 1000000ll) / finance_history_month[0][WORLD_CITIZENS]);
 		}
 	}
 	const uint32 target_industry_density = get_target_industry_density();
@@ -5349,7 +5349,7 @@ void karte_t::new_month()
 	if( !env_t::networkmode && env_t::autosave>0 && last_month%env_t::autosave==0 && !win_get_magic(magic_welt_gui_t) ) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", last_month+1 );
-		save( buf, loadsave_t::autosave_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, true );
+		save( buf, true, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, true );
 	}
 
 	recalc_passenger_destination_weights();
@@ -5836,14 +5836,14 @@ void karte_t::step()
 	rands[17] = get_random_seed();
 
 	// the inhabitants stuff
-	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
+	finance_history_year[0][WORLD_CITIZENS] = finance_history_month[0][WORLD_CITIZENS] = 0;
 	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
 	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
 
 	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt)
 	{
-		finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);
-		finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
+		finance_history_year[0][WORLD_CITIZENS] += city->get_finance_history_month(0, HIST_CITIZENS);
+		finance_history_month[0][WORLD_CITIZENS] += city->get_finance_history_year(0, HIST_CITIZENS);
 
 		finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
 		finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
@@ -7873,7 +7873,7 @@ void karte_t::restore_history()
 		sint64 total_mail = 1, trans_mail = 0;
 		sint64 total_goods = 1, supplied_goods = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-			bev            += i->get_finance_history_month(m, HIST_CITICENS);
+			bev            += i->get_finance_history_month(m, HIST_CITIZENS);
 			trans_pas      += i->get_finance_history_month(m, HIST_PAS_TRANSPORTED);
 			trans_pas      += i->get_finance_history_month(m, HIST_PAS_WALKED);
 			trans_pas      += i->get_finance_history_month(m, HIST_CITYCARS);
@@ -7889,7 +7889,7 @@ void karte_t::restore_history()
 			last_month_bev = bev;
 		}
 		finance_history_month[m][WORLD_GROWTH] = bev-last_month_bev;
-		finance_history_month[m][WORLD_CITICENS] = bev;
+		finance_history_month[m][WORLD_CITIZENS] = bev;
 		last_month_bev = bev;
 
 		// transportation ratio and total number
@@ -7919,7 +7919,7 @@ void karte_t::restore_history()
 		sint64 total_mail_year = 1, trans_mail_year = 0;
 		sint64 total_goods_year = 1, supplied_goods_year = 0;
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-			bev                 += i->get_finance_history_year(y, HIST_CITICENS);
+			bev                 += i->get_finance_history_year(y, HIST_CITIZENS);
 			trans_pas_year      += i->get_finance_history_year(y, HIST_PAS_TRANSPORTED);
 			trans_pas_year      += i->get_finance_history_year(y, HIST_PAS_WALKED);
 			trans_pas_year      += i->get_finance_history_year(y, HIST_CITYCARS);
@@ -7935,7 +7935,7 @@ void karte_t::restore_history()
 			bev_last_year = bev;
 		}
 		finance_history_year[y][WORLD_GROWTH] = bev-bev_last_year;
-		finance_history_year[y][WORLD_CITICENS] = bev;
+		finance_history_year[y][WORLD_CITIZENS] = bev;
 		bev_last_year = bev;
 
 		// transportation ratio and total number
@@ -7976,7 +7976,7 @@ void karte_t::update_history()
 	sint64 total_mail_year = 1, trans_mail_year = 0;
 	sint64 total_goods_year = 1, supplied_goods_year = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		bev							+= i->get_finance_history_month(0, HIST_CITICENS);
+		bev							+= i->get_finance_history_month(0, HIST_CITIZENS);
 		jobs						+= i->get_finance_history_month(0, HIST_JOBS);
 		visitor_demand				+= i->get_finance_history_month(0, HIST_VISITOR_DEMAND);
 		trans_pas					+= i->get_finance_history_month(0, HIST_PAS_TRANSPORTED);
@@ -7998,15 +7998,15 @@ void karte_t::update_history()
 	}
 
 	finance_history_month[0][WORLD_GROWTH] = bev - last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS]==0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITIZENS]==0 ? finance_history_month[0][WORLD_CITIZENS] : finance_history_year[1][WORLD_CITIZENS]);
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = bev;
+	finance_history_year[0][WORLD_CITIZENS] = finance_history_month[0][WORLD_CITIZENS] = bev;
 	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = jobs;
 	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = visitor_demand;
 	finance_history_month[0][WORLD_GROWTH] = bev - last_month_bev;
-	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITICENS] == 0 ? finance_history_month[0][WORLD_CITICENS] : finance_history_year[1][WORLD_CITICENS]);
+	finance_history_year[0][WORLD_GROWTH] = bev - (finance_history_year[1][WORLD_CITIZENS] == 0 ? finance_history_month[0][WORLD_CITIZENS] : finance_history_year[1][WORLD_CITIZENS]);
 
 	// transportation ratio and total number
 	finance_history_month[0][WORLD_PAS_RATIO] = (10000*trans_pas)/total_pas;
@@ -8301,10 +8301,8 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
 /**
  * Play a sound, but only if near enough.
  * Sounds are muted by distance and clipped completely if too far away.
- *
- * @author Hj. Malthaner
  */
-bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t cooldown_type)
+bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, sound_type_t type, waytype_t cooldown_type )
 {
 	if (cooldown_type < 0)
 	{
@@ -8322,7 +8320,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 
 	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0)
 	{
-		uint32 dist = shortest_distance(k, viewport->get_world_position());
+		uint32 dist = koord_distance( k, zeiger->get_pos() );
 		bool play = false;
 
 		if(dist < 96)
@@ -8332,12 +8330,11 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 			uint32 zoom_distance = get_zoom_factor() + 1;
 			dist += (zoom_distance * 2);
 
-			const uint8 sound_distance_scaling = 16; // TODO: Set this by simuconf.tab
-			const uint8 volume = (uint8)((255U * sound_distance_scaling) / (sound_distance_scaling + dist * dist));
+			uint8 const volume = (uint8)((255U * env_t::sound_distance_scaling) / (env_t::sound_distance_scaling + dist*dist));
 
 			if (volume)
 			{
-				sound_play(idx, volume);
+				sound_play(idx, volume, type);
 				play = true;
 			}
 		}
@@ -8360,7 +8357,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx, waytype_t
 }
 
 
-void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char *version_str, const char *ex_version_str, const char* ex_revision_str, bool silent )
+void karte_t::save(const char *filename, bool autosave, const char *version_str, const char *ex_version_str, const char* ex_revision_str, bool silent )
 {
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
@@ -8368,12 +8365,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
-	if(env_t::networkmode && !env_t::server && savemode == loadsave_t::bzip2)
-	{
-		// Make local saving/loading faster in network mode.
-		savemode = loadsave_t::zipped;
-	}
-	if(!file.wr_open( savename.c_str(), savemode, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
+	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
@@ -8472,7 +8464,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 	file->rdwr_long(last_year);
 
 	// rdwr cityrules (and associated settings) for networkgames
-	if(file->get_version()>102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
+	if(file->get_version_int()>102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
 	{
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
@@ -8484,7 +8476,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 				privatecar_rdwr(file);
 			}
 			stadt_t::electricity_consumption_rdwr(file);
-			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
+			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version_int()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
 			{
 				vehicle_builder_t::rdwr_speedbonus(file);
 			}
@@ -8512,7 +8504,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved cities ok");
 	}
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved tiles");
 
-	if(  file->get_version()<=102001  ) {
+	if(  file->get_version_int()<=102001  ) {
 		// not needed any more
 		for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
 			file->rdwr_byte(grid_hgts[j]);
@@ -8538,7 +8530,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved fabs");
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
 
 	// save number of convois
-	if(  file->get_version()>=101000  ) {
+	if(  file->get_version_int()>=101000  ) {
 		uint16 i=convoi_array.get_count();
 		file->rdwr_short(i);
 	}
@@ -8546,7 +8538,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
 		cnv->rdwr(file);
 	}
-	if(  file->get_version()<101000  ) {
+	if(  file->get_version_int()<101000  ) {
 		file->wr_obj_id("Ende Convois");
 	}
 	if(silent) {
@@ -8556,7 +8548,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.g
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 // **** REMOVE IF SOON! *********
-		if(file->get_version()<101000) {
+		if(file->get_version_int()<101000) {
 			if(  i<8  ) {
 				if(  players[i]  ) {
 					players[i]->rdwr(file);
@@ -8578,7 +8570,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.g
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved players");
 
 	// saving messages
-	if(  file->get_version()>=102005  ) {
+	if(  file->get_version_int()>=102005  ) {
 		msg->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
@@ -8589,7 +8581,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	dummy = viewport->get_world_position().y;
 	file->rdwr_long(dummy);
 
-	if(file->get_version() >= 99018)
+	if(file->get_version_int() >= 99018)
 	{
 		// Most recent Standard version is 99018
 
@@ -8630,13 +8622,13 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	{
 		file->rdwr_short(base_pathing_counter);
 	}
-	if(file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version() < 110006)
+	if(file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version_int() < 110006)
 	{
 		double old_proportion = (double)industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 10000.0;
 	}
-	else if(file->get_extended_version() >= 9 && file->get_version() >= 110006 && file->get_extended_version() < 11)
+	else if(file->get_extended_version() >= 9 && file->get_version_int() >= 110006 && file->get_extended_version() < 11)
 	{
 		// Versions before 10.16 used an excessively low (and therefore inaccurate) integer for the industry density proportion.
 		// Detect this by checking whether the highest bit is set (it will not be naturally, so will only be set if this is
@@ -8651,7 +8643,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		file->rdwr_long(industry_density_proportion);
 	}
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 	{
 		if(file->get_extended_version() < 11)
 		{
@@ -8770,7 +8762,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		}
 	}
 
-	if(  file->get_version() >= 112008  ) {
+	if(  file->get_version_int() >= 112008  ) {
 		xml_tag_t t( file, "motd_t" );
 
 		dr_chdir( env_t::user_dir );
@@ -8992,7 +8984,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  (sint32)file.get_version()==0  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version  ) {
+		if(  file.get_version_int()==-0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -9001,13 +8993,13 @@ bool karte_t::load(const char *filename)
 			create_win(new news_img("Kann Spielstand\nnicht laden.\n"), w_info, magic_none);
 		}
 	}
-	else if(file.get_version() < 84006) {
+	else if(file.get_version_int() < 84006) {
 		// too old
 		dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
 	else {
-DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
+DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 
 		load(&file);
 
@@ -9275,7 +9267,7 @@ void karte_t::load(loadsave_t *file)
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
-	dbg->warning("karte_t::load", "File version: %u, Extended version: %u, Extended revision: %u", file->get_version(), file->get_extended_version(), file->get_extended_revision());
+	dbg->warning("karte_t::load", "File version: %u, Extended version: %u, Extended revision: %u", file->get_version_int(), file->get_extended_version(), file->get_extended_revision());
 	// makes a copy:
 	settings = env_t::default_settings;
 	settings.rdwr(file);
@@ -9291,7 +9283,7 @@ void karte_t::load(loadsave_t *file)
 		string dummy;
 
 		if (read_progdir_simuconf) {
-			dr_chdir( env_t::program_dir );
+			dr_chdir( env_t::data_dir );
 			if(simuconf.open("config/simuconf.tab")) {
 				printf("parse_simuconf() in program dir (%s) for override of save file: ", "config/simuconf.tab");
 				settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
@@ -9300,7 +9292,7 @@ void karte_t::load(loadsave_t *file)
 			dr_chdir( env_t::user_dir );
 		}
 		if (read_pak_simuconf) {
-			dr_chdir( env_t::program_dir );
+			dr_chdir( env_t::data_dir );
 			std::string pak_simuconf = env_t::objfilename + "config/simuconf.tab";
 			if(simuconf.open(pak_simuconf.c_str())) {
 				printf("parse_simuconf() in pak dir (%s) for override of save file: ", pak_simuconf.c_str() );
@@ -9324,7 +9316,7 @@ void karte_t::load(loadsave_t *file)
 
 
 	// some functions (finish_rd) need to know what version was loaded
-	load_version.version = file->get_version();
+	load_version.version = file->get_version_int();
 	load_version.extended_version = file->get_extended_version();
 	load_version.extended_revision = file->get_extended_revision();
 
@@ -9363,7 +9355,7 @@ void karte_t::load(loadsave_t *file)
 	min_height = max_height = groundwater;
 	DBG_DEBUG("karte_t::load()","groundwater %i",groundwater);
 
-	if (file->get_version() < 112007) {
+	if (file->get_version_int() < 112007) {
 		// r7930 fixed a bug in init_height_to_climate
 		// recover old behavior to not mix up climate when loading old savegames
 		groundwater = settings.get_climate_borders()[0];
@@ -9417,7 +9409,7 @@ void karte_t::load(loadsave_t *file)
 	}
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
-	if(file->get_version()<86006) {
+	if(file->get_version_int()<86006) {
 		last_year += env_t::default_settings.get_starting_year();
 	}
 	// old game might have wrong month
@@ -9441,7 +9433,7 @@ DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
 
 DBG_MESSAGE("karte_t::load()", "init player");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  file->get_version()>=101000  ) {
+		if(  file->get_version_int()>=101000  ) {
 			// since we have different kind of AIs
 			delete players[i];
 			players[i] = NULL;
@@ -9460,7 +9452,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
-	if(file->get_version() > 102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) {
+	if(file->get_version_int() > 102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) {
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if(do_rdwr)
@@ -9474,7 +9466,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			stadt_t::cityrules_rdwr(file);
 			if (  !env_t::networkmode || env_t::server  ) {
 				if (pak_overrides) {
-					dr_chdir( env_t::program_dir );
+					dr_chdir( env_t::data_dir );
 					printf("stadt_t::cityrules_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str() );
 					stadt_t::cityrules_init( env_t::objfilename );
 					dr_chdir( env_t::user_dir );
@@ -9490,7 +9482,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 				{
 					if(pak_overrides)
 					{
-						dr_chdir(env_t::program_dir);
+						dr_chdir(env_t::data_dir);
 						printf("stadt_t::privatecar_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
 						privatecar_init(env_t::objfilename);
 						printf("stadt_t::electricity_consumption_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str());
@@ -9501,7 +9493,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 
 			// Finally speedbonus
-			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
+			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version_int()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
 			{
 				// Retained for save game compatibility with older games saved with versions that still had the speed bonus.
 				vehicle_builder_t::rdwr_speedbonus(file);
@@ -9531,7 +9523,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		ls.set_progress( y/2 );
 	}
 
-	if(file->get_version()<99005) {
+	if(file->get_version_int()<99005) {
 		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for (int y = 0; y <= get_size().y; y++) {
 			for (int x = 0; x <= get_size().x; x++) {
@@ -9542,7 +9534,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 		}
 	}
-	else if(  file->get_version()<=102001  )  {
+	else if(  file->get_version_int()<=102001  )  {
 		// hgt now bytes
 		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
 		for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
@@ -9550,7 +9542,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(file->get_version()<88009) {
+	if(file->get_version_int()<88009) {
 		DBG_MESSAGE("karte_t::load()","loading slopes from older version");
 		// Hajo: load slopes for older versions
 		// now part of the grund_t structure
@@ -9565,7 +9557,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(file->get_version()<=88000) {
+	if(file->get_version_int()<=88000) {
 		// because from 88.01.4 on the foundations are handled differently
 		for (int y = 0; y < get_size().y; y++) {
 			for (int x = 0; x < get_size().x; x++) {
@@ -9583,7 +9575,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 		}
 	}
 
-	if(  file->get_version() < 112007  ) {
+	if(  file->get_version_int() < 112007  ) {
 		// set climates
 		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
 			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
@@ -9618,7 +9610,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 
 	// load linemanagement status (and lines)
 	// @author hsiegeln
-	if (file->get_version() > 82003  &&  file->get_version()<88003) {
+	if (file->get_version_int() > 82003  &&  file->get_version_int()<88003) {
 		DBG_MESSAGE("karte_t::load()", "load linemanagement");
 		get_player(0)->simlinemgmt.rdwr(file, get_player(0));
 	}
@@ -9629,7 +9621,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	// (the players will be load later and overwrite some values,
 	//  like the total number of stops build (for the numbered station feature)
 	haltestelle_t::start_load_game();
-	if(file->get_version()>=99008) {
+	if(file->get_version_int()>=99008) {
 		sint32 halt_count;
 		file->rdwr_long(halt_count);
 		DBG_MESSAGE("karte_t::load()","%d halts loaded",halt_count);
@@ -9646,13 +9638,13 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	DBG_MESSAGE("karte_t::load()", "load convois");
 	uint16 convoi_nr = 65535;
 	uint16 max_convoi = 65535;
-	if(  file->get_version()>=101000  ) {
+	if(  file->get_version_int()>=101000  ) {
 		file->rdwr_short(convoi_nr);
 		max_convoi = convoi_nr;
 	}
 	while(  convoi_nr-->0  ) {
 
-		if(  file->get_version()<101000  ) {
+		if(  file->get_version_int()<101000  ) {
 			file->rd_obj_id(buf, 79);
 			if (strcmp(buf, "Ende Convois") == 0) {
 				break;
@@ -9696,7 +9688,7 @@ DBG_MESSAGE("karte_t::load()", "%d convois/trains loaded", convoi_array.get_coun
 DBG_MESSAGE("karte_t::load()", "players loaded");
 
 	// loading messages
-	if(  file->get_version()>=102005  ) {
+	if(  file->get_version_int()>=102005  ) {
 		msg->rdwr(file);
 	}
 	else if(  !env_t::networkmode  ) {
@@ -9724,7 +9716,7 @@ DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count
 
 	world_xy_loop(&karte_t::plans_finish_rd, SYNCX_FLAG);
 
-	if(  file->get_version() < 112007  ) {
+	if(  file->get_version_int() < 112007  ) {
 		// set transitions - has to be done after plans_finish_rd
 		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
@@ -9805,7 +9797,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 #endif
 
 	// load history/create world history
-	if(file->get_version()<99018) {
+	if(file->get_version_int()<99018) {
 		restore_history();
 	}
 	else
@@ -9838,11 +9830,11 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 				}
 			}
 		}
-		last_month_bev = finance_history_month[1][WORLD_CITICENS];
+		last_month_bev = finance_history_month[1][WORLD_CITIZENS];
 	}
 
 	// finally: do we run a scenario?
-	if(file->get_version()>=99018) {
+	if(file->get_version_int()>=99018) {
 		scenario->rdwr(file);
 	}
 
@@ -9867,13 +9859,13 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		file->rdwr_short(base_pathing_counter);
 	}
 
-	if((file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version() < 110006))
+	if((file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version_int() < 110006))
 	{
 		double old_proportion = industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 10000.0;
 	}
-	else if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
+	else if(file->get_extended_version() >= 9 && file->get_version_int() >= 110006)
 	{
 		if(file->get_extended_version() >= 11)
 		{
@@ -9905,10 +9897,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 				actual_industry_density += (100 / weight);
 			}
 		}
-		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITICENS];
+		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITIZENS];
 	}
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version_int() >= 110000)
 	{
 		if(file->get_extended_version() < 11)
 		{
@@ -9960,7 +9952,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		{
 			file->rdwr_long(actual_industry_density);
 		}
-		if(fab_list.empty() && file->get_version() < 111100)
+		if(fab_list.empty() && file->get_version_int() < 111100)
 		{
 			// Correct some older saved games where the actual industry density was over-stated.
 			actual_industry_density = 0;
@@ -10039,7 +10031,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	// show message about server
-	if(  file->get_version() >= 112008  ) {
+	if(  file->get_version_int() >= 112008  ) {
 		xml_tag_t t( file, "motd_t" );
 		char msg[32766];
 		file->rdwr_str( msg, 32766 );
@@ -10082,7 +10074,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	path_explorer_t::reset_must_refresh_on_loading();
 
 	// MUST be at the end of the load/save routine.
-	if(  file->get_version()>=102004  ) {
+	if(  file->get_version_int()>=102004  ) {
 		if(  env_t::restore_UI  ) {
 			file->rdwr_byte( active_player_nr );
 			active_player = players[active_player_nr];
@@ -10104,7 +10096,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);
 
 	// loading finished, reset savegame version to current
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
 	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list())
 	{
@@ -11143,7 +11135,7 @@ bool karte_t::interactive(uint32 quit_month)
 				if(  gr  ) {
 					sint16 id = get_sound_id(gr);
 					if(  id!=NO_SOUND  ) {
-						sound_play(id);
+						sound_play(id,255,AMBIENT_SOUND);
 					}
 				}
 				sound_wait_time *= 2;
@@ -12132,7 +12124,7 @@ bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
 
 sint64 karte_t::calc_monthly_job_demand() const
 {
-	sint64 value = (get_finance_history_month(0, karte_t::WORLD_CITICENS) * get_settings().get_commuting_trip_chance_percent()) / get_settings().get_passenger_trips_per_month_hundredths();
+	sint64 value = (get_finance_history_month(0, karte_t::WORLD_CITIZENS) * get_settings().get_commuting_trip_chance_percent()) / get_settings().get_passenger_trips_per_month_hundredths();
 	return value;
 }
 

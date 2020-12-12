@@ -941,6 +941,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			scr_size csize = cinfo->get_min_size();
 			cinfo->set_size(scr_size(400, csize.h-D_MARGINS_Y));
 			cinfo->set_mode(selected_cnvlist_mode[player->get_player_nr()]);
+			cinfo->set_switchable_label(sortby);
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += csize.h - D_MARGIN_TOP-D_V_SPACE*2;
@@ -1187,7 +1188,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	size.rdwr( file );
 	simline_t::rdwr_linehandle_t(file, line);
 	int chart_records = line_cost_t::MAX_LINE_COST;
-	if (file->get_version() < 112008) {
+	if (file->get_version_int() < 112008) {
 		chart_records = 8;
 	}
 	else if (file->get_extended_version() < 14 || (file->get_extended_version() == 14 && file->get_extended_revision() < 25)) {

@@ -19,8 +19,10 @@ class signalbox_t;
 class signalboxlist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
+	static bool filter_has_vacant_slot;
+
 	gui_combobox_t sortedby;
-	button_t sort_asc, sort_desc;
+	button_t sort_asc, sort_desc, filter_vacant_slot;
 	gui_scrolled_list_t scrolly;
 
 	uint32 last_signalbox_count;
@@ -45,7 +47,7 @@ class signalboxlist_stats_t : public gui_aligned_container_t, public gui_scrolle
 {
 private:
 	signalbox_t *sb;
-	gui_label_buf_t label, lb_connected, lb_region;
+	gui_label_buf_t label, lb_connected, lb_radius, lb_region;
 	button_t	gotopos;
 
 	void update_label();
@@ -55,6 +57,7 @@ public:
 	static bool reverse;
 
 	signalboxlist_stats_t(signalbox_t *);
+	static uint16 name_width;
 
 	void draw( scr_coord pos) OVERRIDE;
 
