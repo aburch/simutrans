@@ -52,14 +52,13 @@ void signalboxlist_stats_t::update_label()
 	label.update();
 
 	// connected / capacity
-	lb_connected.buf().printf(" (%3d/%3d)",
+	lb_connected.buf().printf(" %3d/%3d,",
 		sb->get_number_of_signals_controlled_from_this_box(),
 		sb->get_first_tile()->get_tile()->get_desc()->get_capacity());
 	lb_connected.update();
 
 	// signalbox radius
 	uint32 radius = sb->get_tile()->get_desc()->get_radius();
-	lb_radius.buf().append(", ");
 	if (radius == 0) {
 		lb_radius.buf().append(translator::translate("infinite_range"));
 	}
