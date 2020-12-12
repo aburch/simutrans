@@ -19,8 +19,10 @@ class signalbox_t;
 class signalboxlist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
+	static bool filter_has_vacant_slot;
+
 	gui_combobox_t sortedby;
-	button_t sort_asc, sort_desc;
+	button_t sort_asc, sort_desc, filter_vacant_slot;
 	gui_scrolled_list_t scrolly;
 
 	uint32 last_signalbox_count;

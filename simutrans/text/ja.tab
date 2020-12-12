@@ -3979,6 +3979,10 @@ CASH_SOUND
 キャッシュ音の音量
 Sound range:
 音の聞こえる範囲
+helptxt_filter_sb_has_vacant_slot
+信号機を追加接続可能な信号扱所のみを表示します
+Vacant slot
+追加接続可能
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
