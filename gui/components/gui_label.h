@@ -189,4 +189,35 @@ public:
 	void draw(scr_coord offset) OVERRIDE;
 };
 
+class gui_heading_t : public gui_component_t
+{
+private:
+	PIXVAL text_color;
+	PIXVAL frame_color;
+	uint8 style;
+
+	const char * text;	// only for direct access of non-translatable things. Do not use!
+	const char * tooltip;
+
+public:
+	gui_heading_t(const char* text = NULL, PIXVAL text_color = SYSCOL_TEXT_HIGHLIGHT, PIXVAL frame_color = SYSCOL_TEXT, uint8 style = 0);
+
+	void init(const char* text_par, scr_coord pos_par, PIXVAL color_par = SYSCOL_TEXT_HIGHLIGHT, PIXVAL frame_color_par = SYSCOL_TEXT, uint8 style_par = 0) {
+		set_pos(pos_par);
+		set_text(text_par);
+		set_text_color(color_par);
+		set_frame_color(frame_color_par);
+		set_style(style_par);
+	}
+
+	void draw(scr_coord offset) OVERRIDE;
+
+	void set_text(const char *text);
+
+	void set_text_color(PIXVAL col) { text_color = col; }
+	void set_frame_color(PIXVAL f_col) { frame_color = f_col; }
+	void set_style(uint8 s) { style = s; }
+	void set_tooltip(const char * t) { tooltip = t; };
+};
+
 #endif

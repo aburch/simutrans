@@ -2125,10 +2125,10 @@ Potenza utilizzata
 #_________________________________program_text__________________________________
  from %s
 da %s
- mins. travelling
- durata viaggio (minuti)
- mins. waiting)
- tempo attesa (minuti)
+%s mins. travelling
+%s durata viaggio (minuti)
+%s mins. waiting)
+%s tempo attesa (minuti)
  via %s
 via %s
 ; brakes from max. speed in %i - %i m
@@ -2905,7 +2905,7 @@ Visitor demand
 Visitatori richiesti
 Visitors this year:
 Visitatori quest'anno:
-waiting time unknown)
+waiting time unknown
 Tempo d'attesa sconosciuto
 waiting\ntolerance\nmax. min
 tolleranza\ndi attesa\nmax. (min)

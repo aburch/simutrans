@@ -1697,10 +1697,10 @@ Kauko
 #_________________________________program_text__________________________________
  from %s
  kohteesta %s
- mins. travelling
-min. matka-
- mins. waiting)
-min. odotusaika)
+%s mins. travelling
+%s min. matka-
+%s mins. waiting
+%s min. odotusaika
  via %s
  kautta %s
 \n\nInterest on your debt is\naccumulating at %i %%

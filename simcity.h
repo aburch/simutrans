@@ -513,6 +513,7 @@ public:
 	sint32 get_city_visitor_demand() const { return (sint32) city_history_month[0][HIST_VISITOR_DEMAND]; }
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
+	uint32 get_population_by_class(uint8 p_class);
 	sint32 get_unemployed() const { return bev - arb; }
 	sint32 get_homeless()   const { return bev - won; }
 

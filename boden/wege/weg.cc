@@ -712,11 +712,10 @@ void weg_t::info(cbuffer_t & buf) const
 	if (wtyp == air_wt && desc->get_styp() == type_runway)
 	{
 		runway_directions run_dirs = get_runway_directions();
-		const double km_per_tile = welt->get_settings().get_meters_per_tile();
 
 		if(run_dirs.runway_36_18)
 		{
-			const double runway_meters_36_18 = (double)get_runway_length(true) * km_per_tile;
+			const double runway_meters_36_18 = welt->tiles_to_km(get_runway_length(true))*1000.0;
 
 			buf.printf("%s: ", translator::translate("runway_36/18"));
 			buf.append(runway_meters_36_18);
@@ -725,7 +724,7 @@ void weg_t::info(cbuffer_t & buf) const
 		}
 		if(run_dirs.runway_9_27)
 		{
-			const double runway_meters_09_27 = (double)get_runway_length(false) * km_per_tile;
+			const double runway_meters_09_27 = welt->tiles_to_km(get_runway_length(false))*1000.0;
 
 			buf.printf("%s: ", translator::translate("runway_09/27"));
 			buf.append(runway_meters_09_27);

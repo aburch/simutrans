@@ -34,6 +34,7 @@ extern int default_font_linespace;
 #define D_FIXED_SYMBOL_WIDTH 12
 #define FIXED_SYMBOL_YOFF ((LINESPACE-D_FIXED_SYMBOL_WIDTH)/2)
 
+#define D_HEADING_HEIGHT (LINESPACE+4)
 #define GOODS_COLOR_BOX_HEIGHT 8
 #define GOODS_COLOR_BOX_YOFF ((LINESPACE-GOODS_COLOR_BOX_HEIGHT)/2)
 
@@ -271,8 +272,8 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 // blends a rectangular region
 void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend);
 
-void display_vlinear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend_start, int percent_blend_end);
-#define display_vlinear_gradiwnt_wh(xp,yp,w,h,color,percent_blend_start,percent_blend_end) display_vlinear_gradient_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend_start,percent_blend_end )
+void display_linear_gradient_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend_start, int percent_blend_end, bool horizontal=false);
+#define display_linear_gradient_wh(xp,yp,w,h,color,percent_blend_start,percent_blend_end,horizontal) display_linear_gradient_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],percent_blend_start,percent_blend_end,horizontal )
 
 void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
 
@@ -311,6 +312,7 @@ void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL tex
 void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len=-1);
 void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color, bool dirty);
 void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PIXVAL tl_color, PIXVAL rd_color);
+void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL text_color, PIXVAL frame_color, const char *text, int dirty, uint8 style);
 
 
 // unicode save moving in strings
