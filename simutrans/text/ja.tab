@@ -1467,8 +1467,8 @@ Object
 原名
 Oct.
 10月
-Odometer: %s km
-積算距離： %skm
+Odometer:
+積算距離：
 Ok
 OK
 Oktober
@@ -3975,6 +3975,10 @@ CASH_SOUND
 キャッシュ音の音量
 Sound range:
 音の聞こえる範囲
+helptxt_filter_sb_has_vacant_slot
+信号機を追加接続可能な信号扱所のみを表示します
+Vacant slot
+追加接続可能
 own convoi tooltips
 所有車両の状態を表示
 %s mins. travelling
@@ -4041,3 +4045,5 @@ Power (MW)
 #分待ち)
 Power: %4d kW\n
 出力: %4d kW\n
+#Odometer: %s km
+#積算距離： %skm

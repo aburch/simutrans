@@ -1068,8 +1068,8 @@ Number of rivers
 Количество рек
 Object
 Объект
-Odometer: %s km
-Одометр: %s км
+Odometer:
+Одометр:
 Ok
 OK
 Oktober
@@ -2662,3 +2662,5 @@ waiting time unknown
 время ожидания неизветно)
 LOCO_SYM
 L
+%s km
+%s км
