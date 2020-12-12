@@ -66,6 +66,7 @@ option(SIMUTRANS_VALGRIND_SUPPORT  "Add support for valgrind \"memcheck\" tool" 
 if (Freetype_FOUND)
 	option(SIMUTRANS_USE_FREETYPE "Enable TrueType font support using freetype library" OFF)
 endif (Freetype_FOUND)
+set(SIMUTRANS_USE_FREETYPE OFF)
 
 if (MiniUPNP_FOUND)
 	option(SIMUTRANS_USE_UPNP "Use MiniUPNP for easier server setup" ON)

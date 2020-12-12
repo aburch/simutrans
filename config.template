@@ -50,13 +50,13 @@ USE_FREETYPE = 0
 #USE_UPNP = 0
 
 # using zstd compression library
-#USE_ZSTD = 0
+USE_ZSTD = 1
 
 # Define these as empty strings, if you don't have the respective config program
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
 #SDL2_CONFIG    = sdl2-config
-#FREETYPE_CONFIG    = freetype-config
+#FREETYPE_CONFIG = freetype-config
 
 #VERBOSE = 1
 
@@ -101,4 +101,7 @@ USE_FREETYPE = 0
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
+# For compiling on Linux with SDL2, use -I/usr/include/SDL2
+# For compiling on Linux with Freetype 2, use -I/usr/include/freetype2
+# For compiling on Linux with miniupnpc, use -I/usr/includeude/miniupnpc
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11 
