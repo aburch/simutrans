@@ -1040,16 +1040,8 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 			else
 			{
-				uint n_max;
 				const double max_dist = (double)radius / 1000;
-				if (max_dist < 20)
-				{
-					n_max = 1;
-				}
-				else
-				{
-					n_max = 0;
-				}
+				const uint8 n_max = max_dist < 20 ? 1 : 0;
 				char number_max[10];
 				number_to_string(number_max, max_dist, n_max);
 				buf.append(number_max);

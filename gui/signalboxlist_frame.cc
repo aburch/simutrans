@@ -22,7 +22,7 @@ signalboxlist_stats_t::signalboxlist_stats_t(signalbox_t *sb)
 {
 	this->sb = sb;
 	// pos button
-	set_table_layout(5,1);
+	set_table_layout(6,1);
 	gotopos.set_typ(button_t::posbutton_automatic);
 	gotopos.set_targetpos(sb->get_pos().get_2d());
 	add_component(&gotopos);
@@ -30,6 +30,7 @@ signalboxlist_stats_t::signalboxlist_stats_t(signalbox_t *sb)
 	add_component(&label);
 
 	add_component(&lb_connected);
+	add_component(&lb_radius);
 	add_component(&lb_region);
 	new_component<gui_fill_t>();
 
@@ -53,6 +54,27 @@ void signalboxlist_stats_t::update_label()
 		sb->get_number_of_signals_controlled_from_this_box(),
 		sb->get_first_tile()->get_tile()->get_desc()->get_capacity());
 	lb_connected.update();
+
+	// signalbox radius
+	uint32 radius = sb->get_tile()->get_desc()->get_radius();
+	lb_radius.buf().append(", ");
+	if (radius == 0) {
+		lb_radius.buf().append(translator::translate("infinite_range"));
+	}
+	else if (radius < 1000)	{
+		lb_radius.buf().append(radius);
+		lb_radius.buf().append("m");
+	}
+	else {
+		const double max_dist = (double)radius / 1000;
+		const uint8 n_max = max_dist < 20 ? 1 : 0;
+		char number_max[10];
+		number_to_string(number_max, max_dist, n_max);
+		lb_radius.buf().append(number_max);
+		lb_radius.buf().append("km");
+	}
+	lb_radius.buf().append(" ");
+	lb_radius.update();
 
 	// region name (pos)
 	if (!welt->get_settings().regions.empty()) {
@@ -172,6 +194,8 @@ signalboxlist_frame_t::signalboxlist_frame_t(player_t *player) :
 			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 		}
 		sortedby.set_selection(signalboxlist_stats_t::sort_mode);
+		sortedby.set_width_fixed(true);
+		sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_EDIT_HEIGHT));
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 

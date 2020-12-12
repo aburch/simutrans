@@ -45,7 +45,7 @@ class signalboxlist_stats_t : public gui_aligned_container_t, public gui_scrolle
 {
 private:
 	signalbox_t *sb;
-	gui_label_buf_t label, lb_connected, lb_region;
+	gui_label_buf_t label, lb_connected, lb_radius, lb_region;
 	button_t	gotopos;
 
 	void update_label();
