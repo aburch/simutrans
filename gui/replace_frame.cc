@@ -278,6 +278,7 @@ void replace_frame_t::layout(scr_size *gr)
 	lb_money.set_pos(scr_coord(margin+(buttons_width*4),buttons_y));
 
 	current_y=buttons_y+D_BUTTON_HEIGHT+margin;
+	lb_money.set_pos(scr_coord(margin + (186 *2),current_y));
 	lb_replace_cycle.set_pos(scr_coord(fgr.w-250,current_y));
 	lb_replace.set_pos(scr_coord(fgr.w-150,current_y));
 

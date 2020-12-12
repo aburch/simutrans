@@ -224,13 +224,13 @@ private:
 	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) OVERRIDE;
-	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
 	virtual void update_freight_summary(freight_summary_t &freight) OVERRIDE;
 	virtual void update_weight_summary(weight_summary_t &weight);
 	virtual float32e8_t get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */) OVERRIDE;
-	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 public:
+	virtual void update_adverse_summary(adverse_summary_t &adverse) OVERRIDE;
+	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */) OVERRIDE;
 	virtual sint16 get_current_friction() OVERRIDE;
 
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary

@@ -219,6 +219,7 @@ private:
 		return get_force_summary(abs(speed));
 	}
 
+public:
 	/**
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 * Frs = Fr + Fs

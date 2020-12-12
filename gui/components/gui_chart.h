@@ -15,9 +15,9 @@
 #define STANDARD 0
 #define MONEY 1
 #define PERCENT 2
-//#define DISTANCE 3 //(km)
-//#define SPEED    4 //(km/h)
-//#define FORCE    5 //(kN)
+#define DISTANCE 3
+#define KMPH 4
+#define FORCE 5
 //#define KW       6
 
 /**
@@ -85,6 +85,11 @@ public:
 	 */
 	void set_seed(int seed) { this->seed = seed; }
 
+	// x-axis number increase factor. dx=2 then 0, 2, 4, 6...
+	void set_x_axis_span(sint32 dx = 1) { x_axis_span = dx; }
+	// X-axis boundary that aborts the curve drawing.
+	void set_abort_display_x(uint8 abort_x = 0) { abort_display_x = abort_x; }
+
 	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
 	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
@@ -122,8 +127,10 @@ private:
 	slist_tpl <curve_t> curves;
 
 	int x_elements, y_elements;
+	uint8 abort_display_x = 0;
 
 	int seed;
+	sint32 x_axis_span;
 
 	scr_coord tooltipcoord;
 
