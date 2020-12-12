@@ -426,6 +426,7 @@ void depotlist_frame_t::fill_list()
 	scrolly.set_size( scrolly.get_size());
 
 	last_depot_count = depot_t::get_depot_list().get_count();
+	resize(scr_coord(0, 0));
 }
 
 
