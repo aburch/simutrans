@@ -1249,8 +1249,10 @@ Number of rivers
 河流數量
 Object
 物件
-Odometer: %s km
-里程計： %s　公里
+Odometer:
+里程計：
+%s km
+%s　公里
 Ok
 確定
 Oktober
