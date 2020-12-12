@@ -11,9 +11,11 @@
 #include "../simconvoi.h"
 #include "../vehicle/simvehicle.h"
 #include "../simcolor.h"
+#include "../simunits.h"
 #include "../simworld.h"
 #include "../simline.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -27,6 +29,7 @@
 #include "simwin.h"
 #include "vehicle_class_manager.h"
 
+#include "../display/simgraph.h"
 
 
 #define LOADING_BAR_WIDTH 150
