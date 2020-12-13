@@ -11,6 +11,8 @@
 #include "simwin.h"
 
 #include "../simworld.h"
+#include "../display/viewport.h"
+#include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 
 static karte_ptr_t welt;
@@ -34,29 +36,10 @@ message_stats_t::message_stats_t(const message_t::node *m, uint32 sid) :
 	// text buffer
 	gui_label_buf_t *label = new_component<gui_label_buf_t>(msg->get_player_color(welt));
 
-	// now fill buffer
-	// add time
-	switch (env_t::show_month) {
-		case env_t::DATE_FMT_GERMAN:
-		case env_t::DATE_FMT_GERMAN_NO_SEASON:
-			label->buf().printf("(%d.%d) ", (msg->time%12)+1, msg->time/12 );
-			break;
+	// now fill buffer, first teh date
+	label->buf().printf( "(%s) ", translator::get_short_date( msg->time/12, msg->time%12 ) );
 
-		case env_t::DATE_FMT_MONTH:
-		case env_t::DATE_FMT_US:
-		case env_t::DATE_FMT_US_NO_SEASON:
-			label->buf().printf("(%d/%d) ", (msg->time%12)+1, msg->time/12 );
-			break;
-
-		case env_t::DATE_FMT_JAPANESE:
-		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-			label->buf().printf("(%d/%d) ", msg->time/12, (msg->time%12)+1 );
-			break;
-
-		default:;
-	}
-
-	// the text (without line break)
+	// then the text (without line break)
 	for(int j=0; ;  j++) {
 		char c = msg->msg[j];
 		if (c==0) {
@@ -96,6 +79,10 @@ bool message_stats_t::infowin_event(const event_t * ev)
 			news = new news_loc( msg->msg, msg->pos, msg->get_player_color(welt) );
 		}
 		create_win(-1, -1, news, w_info, magic_none);
+		swallowed = true;
+	}
+	else if(  !swallowed  &&  IS_RIGHTRELEASE(ev)  &&  msg->pos!=koord::invalid  ) {
+		welt->get_viewport()->change_world_position( msg->pos );
 		swallowed = true;
 	}
 	return swallowed;
