@@ -1915,13 +1915,13 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 					player_t *victor = NULL;
 					linehandle_t preferred_line = halt->get_preferred_line(dest, i, goods_manager_t::get_classes_catg_index(i) - 1);
 					if (preferred_line.is_bound()) {
-						buf.printf(translator::translate(" DBG: Prefferd line : %s"), preferred_line->get_name());
+						buf.printf(translator::translate(" DBG: Preferred line : %s"), preferred_line->get_name());
 						victor = preferred_line->get_owner();
 					}
 					else {
 						convoihandle_t preferred_convoy = halt->get_preferred_convoy(dest, i, goods_manager_t::get_classes_catg_index(i) - 1);
 						if (preferred_convoy.is_bound()) {
-							buf.printf(translator::translate("  DBG: Prefferd convoy : %s"), preferred_convoy->get_name());
+							buf.printf(translator::translate("  DBG: Preferred convoy : %s"), preferred_convoy->get_name());
 							victor = preferred_convoy->get_owner();
 						}
 						else if(!is_walking) {
@@ -2059,13 +2059,13 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 				player_t *victor = NULL;
 				linehandle_t preferred_line = halt->get_preferred_line(dest, selected_route_catg_index, goods_manager_t::get_classes_catg_index(selected_route_catg_index)-1);
 				if (preferred_line.is_bound()) {
-					buf.printf(translator::translate(" DBG: Prefferd line : %s"), preferred_line->get_name());
+					buf.printf(translator::translate(" DBG: Preferred line : %s"), preferred_line->get_name());
 					victor = preferred_line->get_owner();
 				}
 				else {
 					convoihandle_t preferred_convoy = halt->get_preferred_convoy(dest, selected_route_catg_index, goods_manager_t::get_classes_catg_index(selected_route_catg_index)-1);
 					if (preferred_convoy.is_bound()) {
-						buf.printf(translator::translate("  DBG: Prefferd convoy : %s"), preferred_convoy->get_name());
+						buf.printf(translator::translate("  DBG: Preferred convoy : %s"), preferred_convoy->get_name());
 						victor = preferred_convoy->get_owner();
 					}
 					else {
