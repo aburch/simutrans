@@ -27,10 +27,10 @@ karte_ptr_t message_t::welt;
 
 void message_t::node::rdwr(loadsave_t *file)
 {
-	if (file->get_version_int() < 120005) {
 	file->rdwr_str( msg, lengthof(msg) );
 	file->rdwr_long( type );
 	pos.rdwr( file );
+	if (file->get_version_int() < 120005) {
 		// color was 16bit, with 0x8000 indicating player colors
 		uint16 c = color & PLAYER_FLAG ? 0x8000 + (color&(~PLAYER_FLAG)) : MN_GREY0;
 		file->rdwr_short(c);

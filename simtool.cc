@@ -7473,8 +7473,8 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 						}
 					}
 					hq = gb;
-						welt->remove_building_from_world_list(gb);
 					if(  ok  ) {
+						welt->remove_building_from_world_list(gb);
 						// upgrade the tiles
 						koord k_hq = k - gb->get_tile()->get_offset();
 						for(  sint16 x = 0;  x < size.x;  x++  ) {
@@ -8698,7 +8698,8 @@ bool tool_change_convoi_t::init( player_t *player )
 	}
 
 	// first letter is now the actual command
-	case 'x': // self destruction ...
+	switch(  tool  ) {
+		case 'x': // self destruction ...
 		if (cnv.is_bound()) {
 			if (cnv->get_state() == convoi_t::INITIAL) {
 				// delete cnv in depot
@@ -8706,7 +8707,7 @@ bool tool_change_convoi_t::init( player_t *player )
 					if (depot_t *dep = gr->get_depot()) {
 						dep->disassemble_convoi(cnv, true);
 						return false;
-	switch(  tool  ) {
+
 					}
 				}
 			}
