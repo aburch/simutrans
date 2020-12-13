@@ -114,6 +114,7 @@ message_frame_t::message_frame_t() :
 void message_frame_t::fill_list()
 {
 	uint32 id = 0;
+	scrolly.clear_elements();
 	FOR( slist_tpl<message_t::node*>, const i, welt->get_message()->get_list() ) {
 		scrolly.new_component<message_stats_t>(i, id++);
 	}
@@ -198,7 +199,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 
 void message_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(welt->get_message()->get_list().get_count() != last_count) {
+	if(  welt->get_message()->get_list().get_count() != last_count  ) {
 		fill_list();
 	}
 	gui_frame_t::draw(pos, size);
