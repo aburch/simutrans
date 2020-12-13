@@ -12,6 +12,7 @@
 
 #include "../simworld.h"
 #include "../dataobj/environment.h"
+#include "../display/viewport.h"
 
 static karte_ptr_t welt;
 
@@ -99,6 +100,10 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		}
 		create_win(-1, -1, news, w_info, magic_none);
 		swallowed = true;
+	}
+	else if (!swallowed  &&  IS_RIGHTRELEASE(ev)  && msg->pos != koord::invalid) {
+		// just reposition
+		welt->get_viewport()->change_world_position(koord3d(msg->pos, welt->min_hgt(msg->pos)));
 	}
 	return swallowed;
 }
