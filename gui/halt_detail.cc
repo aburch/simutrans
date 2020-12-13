@@ -1838,7 +1838,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				// [goods catgory]
 				const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 				display_color_img(info->get_catg_symbol(), offset.x + xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
-				display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, info->get_catg_name(), ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, translator::translate(info->get_catg_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 				// [travel time]
 				catg_xoff += D_BUTTON_WIDTH;
 				buf.clear();
