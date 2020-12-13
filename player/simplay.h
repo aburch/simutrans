@@ -35,7 +35,15 @@ class finance_t;
 class player_t
 {
 public:
-	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
+	enum {
+		EMPTY        = 0,
+		HUMAN        = 1,
+		AI_GOODS     = 2,
+		AI_PASSENGER = 3,
+		AI_SCRIPTED  = 4,
+		MAX_AI,
+		PASSWORD_PROTECTED = 128
+	};
 
 protected:
 	char player_name_buf[256];
@@ -51,9 +59,10 @@ protected:
 	// when was the company founded
 	uint16 player_age;
 
+
 	/**
-	* Floating massages for all players here
-	*/
+	 * Floating massages for all players here
+	 */
 	class income_message_t {
 	public:
 		char str[33];
@@ -398,7 +407,7 @@ public:
 	 * is going to be deleted (flag==0)
 	 */
 	enum notification_factory_t {
-		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
+		notify_delete // notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
 	};
 	virtual void notify_factory(notification_factory_t, const fabrik_t*) {}
 
@@ -414,10 +423,12 @@ public:
 	 * Function for UNDO
 	 */
 	void init_undo(waytype_t t, unsigned short max );
+
 	/**
 	 * Function for UNDO
 	 */
 	void add_undo(koord3d k);
+
 	/**
 	 * Function for UNDO
 	 */
