@@ -96,7 +96,8 @@ void init_fab_map( karte_t *welt )
  */
 inline bool is_factory_at( sint16 x, sint16 y)
 {
-	return (fab_map[(fab_map_w*y)+(x/8)]&(1<<(x%8)))!=0;
+	uint32 idx = (fab_map_w*y)+(x/8);
+	return idx < fab_map.get_count()  &&  (fab_map[idx]&(1<<(x%8)))!=0;
 }
 
 
@@ -110,23 +111,35 @@ void factory_builder_t::new_world()
  * Searches for a suitable building site using find_place().
  * The site is chosen so that there is a street next to the building site.
  */
-class factory_place_with_road_finder: public building_placefinder_t  {
+class factory_site_searcher_t: public building_placefinder_t  {
 
+	factory_desc_t::site_t site;
 public:
-	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
+	factory_site_searcher_t(karte_t* welt, factory_desc_t::site_t site_) : building_placefinder_t(welt), site(site_) {}
 
-	bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
+	bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl, uint16 allowed_regions) const OVERRIDE
 	{
-		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl, allowed_regions)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl, allowed_regions)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
-		bool next_to_road = false;
+		uint16 mincond = 0;
+		uint16 condmet = 0;
+		switch(site) {
+			case factory_desc_t::forest:
+				mincond = w*h+w+h; // at least w*h+w+h trees, i.e. few tiles with more than one tree
+				break;
 
-		// For a 1x1, b=1 and h=1.  We want to go through a grid one larger on all sides
-		// than the factory, so go from pos - 1 to pos + b, pos - 1 to pos + h.
-		for (sint16 x = -1; x <= b; x++) {
-			for (sint16 y = -1;  y <= h; y++) {
+			case factory_desc_t::shore:
+			case factory_desc_t::river:
+			case factory_desc_t::City:
+			default:
+				mincond = 1;
+		}
+
+		// needs to run one tile wider than the factory on all sides
+		for (sint16 y = -1;  y <= h; y++) {
+			for (sint16 x = -1; x <= w; x++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
@@ -137,22 +150,57 @@ public:
 				if(  is_factory_at(k.x, k.y)  ) {
 					return false;
 				}
-				if (  -1 < x && x < b && -1 < y && y < h  ) {
+				if(  0 <= x  &&  x < w  &&  0 <= y  &&  y < h  ) {
 					// Inside the target for factory.
 					// Don't build under bridges, powerlines, etc.
-					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1))!=NULL  ) {
-						// something on top (monorail or powerlines)
+					// actual factorz tile: is there something top like elevated monorails?
+					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
+						// something on top (monorail or power lines)
 						return false;
 					}
+					// check for trees unless the map was generated without trees
+					if(  site==factory_desc_t::forest  &&  !welt->get_settings().get_no_trees()  &&  condmet < mincond  ) {
+						for(uint8 i=0; i< gr->get_top(); i++) {
+							if (gr->obj_bei(i)->get_typ() == obj_t::baum) {
+								condmet++;
+							}
+						}
+					}
 				}
-				else if (  !next_to_road  &&  ((-1 < x && x < b) || (-1 < y && y < h))  ) {
-					// Border (because previous clause didn't trigger) but not corner.
-					// Look for a road.
-					next_to_road = gr->hat_weg(road_wt);
+				else {
+					// border tile: check for road, shore, river
+					if(  condmet < mincond  &&  (-1==x  ||  x==w)  &&  (-1==y  ||  y==h)  ) {
+						switch (site) {
+							case factory_desc_t::City:
+								condmet += gr->hat_weg(road_wt);
+								break;
+							case factory_desc_t::shore:
+								condmet += welt->get_climate(k)==water_climate;
+								break;
+							case factory_desc_t::river:
+							if(  welt->get_settings().get_river_number() >0  ) {
+								weg_t* river = gr->get_weg(water_wt);
+								if (river  &&  river->get_desc()->get_styp()==type_river) {
+									condmet++;
+									printf("Found river near %s\n", pos.get_str());
+								}
+								break;
+							}
+							else {
+								// always succeeds on maps without river ...
+								condmet++;
+								break;
+							}
+							default: ;
+						}
+					}
 				}
 			}
 		}
-		return next_to_road;
+		if(  site==factory_desc_t::forest  &&  condmet>=3  ) {
+			dbg->message("", "found %d at %s", condmet, pos.get_str() );
+		}
+		return condmet >= mincond;
 	}
 };
 
@@ -304,10 +352,10 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 }
 
 
-bool factory_builder_t::check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl, uint16 regions_allowed)
+bool factory_builder_t::check_construction_site(koord pos, koord size, factory_desc_t::site_t site, bool is_factory, climate_bits cl, uint16 regions_allowed)
 {
 	// check for water (no shore in sight!)
-	if(water) {
+	if(site==factory_desc_t::Water) {
 		for(int y=0;y<size.y;y++) {
 			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
@@ -318,19 +366,16 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 		}
 	}
 	else {
-		// check on land
-		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl, regions_allowed)) {
-			return false;
+		if (is_factory  &&  site!=factory_desc_t::Land) {
+			return factory_site_searcher_t(welt, site).is_area_ok(pos, size.x, size.y, cl, regions_allowed);
 		}
-	}
-	// check for existing factories
-	if (is_fabrik) {
-		for(int y=0;y<size.y;y++) {
-			for(int x=0;x<size.x;x++) {
-				if (is_factory_at(pos.x + x, pos.y + y)){
-					return false;
-				}
+		else {
+			// check on land
+			// do not build too close or on an existing factory
+			if( is_factory_at(pos.x, pos.y)  ) {
+				return false;
 			}
+			return welt->square_is_free(pos, size.x, size.y, NULL, cl, regions_allowed);
 		}
 	}
 	// Check for runways
@@ -344,15 +389,20 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 }
 
 
-koord3d factory_builder_t::find_random_construction_site( koord pos, const int radius, koord size, bool wasser, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations )
+koord3d factory_builder_t::find_random_construction_site(koord pos, int radius, koord size, factory_desc_t::site_t site, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations)
 {
-	bool is_fabrik = desc->get_type() == building_desc_t::factory;
+	bool is_factory = desc->get_type()==building_desc_t::factory;
+	bool wasser = site == factory_desc_t::Water;
+
 	if(wasser) {
 		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
 		size += koord(6,6);
 	}
 
 	climate_bits climates = !ignore_climates ? desc->get_allowed_climate_bits() : ALL_CLIMATES;
+	if (ignore_climates  &&  site != factory_desc_t::Water) {
+		//site = factory_desc_t::Land;
+	}
 
 	uint32 diam   = 2*radius + 1;
 	uint32 area = diam * diam;
@@ -370,12 +420,19 @@ koord3d factory_builder_t::find_random_construction_site( koord pos, const int r
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
 		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
-		if(  factory_builder_t::check_construction_site(k, size, wasser, is_fabrik, climates, desc->get_allowed_region_bits())  ) {
+		if(  factory_builder_t::check_construction_site(k, size, site, is_factory, climates, desc->get_allowed_region_bits())  ) {
 			// then accept first hit
+			if (site != factory_desc_t::Water && site != factory_desc_t::Land) {
+				DBG_MESSAGE("factory_builder_t::find_random_construction_site","Found spot for %d at %s / %d\n", site, k.get_str(), max_iterations);
+			}
+			// we accept first hit
 			goto finish;
 		}
 	}
 	// nothing found
+	if (site != factory_desc_t::Water  &&  site != factory_desc_t::Land) {
+		DBG_MESSAGE("factory_builder_t::find_random_construction_site","No spot found for location %d of %s near %s / %d\n", site, desc->get_name(), pos.get_str(), max_iterations);
+	}
 	return koord3d::invalid;
 
 finish:
@@ -413,7 +470,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 		}
 
 		int	rotation=simrand(attraction->get_all_layouts()-1, "void factory_builder_t::distribute_attractions");
-		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
+		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation), factory_desc_t::Land, attraction, false, 0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
 			gebaeude_t* gb = hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
@@ -626,12 +683,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl, regions_allowed);
+		koord k = factory_site_searcher_t(welt, factory_desc_t::City).find_place(city->get_pos(), size.x, size.y, cl, regions_allowed);
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
+			k1 = factory_site_searcher_t(welt, factory_desc_t::City).find_place(city->get_pos(), size.y, size.x, cl, regions_allowed);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -861,10 +918,11 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 			int rotate = simrand(producer_d->get_building()->get_all_layouts()-1, "factory_builder_t::build_link");
 			koord3d parent_pos = our_fab->get_pos();
+			// ignore climates after 40 tries
 
 			INT_CHECK("fabrikbauer 697");
 			const int max_distance_to_consumer = producer_d->get_max_distance_to_consumer() == 0 ? max_factory_spacing_general : producer_d->get_max_distance_to_consumer();
-			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_distance_to_supplier, min(max_factory_spacing_general, max_distance_to_consumer)), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
+			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_distance_to_supplier, min(max_factory_spacing_general, max_distance_to_consumer)), producer_d->get_building()->get_size(rotate),producer_d->get_placement(), producer_d->get_building(), ignore_climates, 20000 );
 			if(  k == koord3d::invalid  ) {
 				// this factory cannot build in the desired vincinity
 				producer.remove( producer_d );
@@ -1222,14 +1280,14 @@ next_ware_check:
 				if(!in_city)
 				{
 					// find somewhere on the map
-					pos = find_random_construction_site( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, consumer->get_building()->get_size(rotation), consumer->get_placement()==factory_desc_t::Water, consumer->get_building(),ignore_climates,10000);
+					pos = find_random_construction_site( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, consumer->get_building()->get_size(rotation), consumer->get_placement(), consumer->get_building(),ignore_climates,10000);
 				}
 				else
 				{
 					// or within the city limit
 					const stadt_t *city = pick_any_weighted(welt->get_cities());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
-					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, consumer->get_building()->get_size(rotation), consumer->get_placement()==factory_desc_t::Water, consumer->get_building(), ignore_climates, 1000);
+					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, consumer->get_building()->get_size(rotation), consumer->get_placement(), consumer->get_building(), ignore_climates, 1000);
 				}
 
 				if(welt->lookup(pos))
