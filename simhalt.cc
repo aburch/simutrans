@@ -5664,7 +5664,8 @@ uint32 haltestelle_t::get_around_succeeded_visiting() const
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
 			if (gb) {
-				sum += gb->get_passengers_succeeded_visiting();
+				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
+				sum += min(gb->get_passengers_succeeded_visiting(), gb->get_passengers_generated_visiting());
 			}
 		}
 	}
@@ -5827,7 +5828,8 @@ uint32 haltestelle_t::get_around_mail_delivery_succeeded() const
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
 			if (gb) {
-				sum += gb->get_mail_delivery_succeeded();
+				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
+				sum += min(gb->get_mail_delivery_succeeded(), gb->get_mail_generated());
 			}
 		}
 	}
