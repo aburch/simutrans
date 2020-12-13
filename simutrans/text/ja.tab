@@ -4009,6 +4009,12 @@ hd_btn_by_station
 目的地別
 hd_btn_by_category
 貨物品目分類別
+Carrying out
+搬出中
+Undecided
+未定
+Line to
+運行系統（降車駅）
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
