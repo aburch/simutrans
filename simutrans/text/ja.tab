@@ -3981,9 +3981,9 @@ Vacant slot
 追加接続可能
 own convoi tooltips
 所有車両の状態を表示
-%s mins. travelling
-徒歩 %s分
 %s mins. walking
+徒歩 %s分
+%s mins. travelling
 所要 %s分
 %s mins. waiting
 待ち時間 %s分
