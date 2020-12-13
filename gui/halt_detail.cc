@@ -1059,7 +1059,8 @@ void halt_detail_pas_t::draw_class_table(scr_coord offset, const uint8 class_nam
 }
 
 
-#define DEMANDS_CELL_WIDTH (100)
+#define TOTAL_CELL_OFFSET_RIGHT (proportional_string_width(" (00.0%)"))
+#define DEMANDS_CELL_WIDTH (max(100, proportional_string_width(" 00000") + TOTAL_CELL_OFFSET_RIGHT))
 #define GENERATED_CELL_WIDTH (proportional_string_width(" 000,000,000"))
 void halt_detail_pas_t::draw(scr_coord offset)
 {
@@ -1194,14 +1195,14 @@ void halt_detail_pas_t::draw(scr_coord offset)
 
 			top += 4;
 			pas_info.clear();
-			pas_info.printf("%u          ", arround_population);
-			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			pas_info.printf("%u", arround_population);
+			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH - TOTAL_CELL_OFFSET_RIGHT + DEMANDS_CELL_WIDTH, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 			pas_info.clear();
-			pas_info.printf("%u          ", arround_visitor_demand);
-			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			pas_info.printf("%u", arround_visitor_demand);
+			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH - TOTAL_CELL_OFFSET_RIGHT + DEMANDS_CELL_WIDTH * 2 + 5, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 			pas_info.clear();
-			pas_info.printf("%u          ", arround_job_demand);
-			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			pas_info.printf("%u", arround_job_demand);
+			display_proportional_clip_rgb(offset.x + class_name_cell_width + GOODS_SYMBOL_CELL_WIDTH - TOTAL_CELL_OFFSET_RIGHT + DEMANDS_CELL_WIDTH * 3 + 5 + 4, offset.y + top, pas_info, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 			top += LINESPACE;
 		}
@@ -1279,7 +1280,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 
 			}
 		}
-		top += D_MARGIN_BOTTOM;
+		top += LINESPACE + D_MARGIN_BOTTOM;
 
 		scr_size size(max(x_size + pos.x, get_size().w), top);
 		if (size != get_size()) {
