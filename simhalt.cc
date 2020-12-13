@@ -5718,7 +5718,8 @@ uint32 haltestelle_t::get_around_succeeded_commuting() const
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
 			if (gb) {
-				sum += gb->get_passengers_succeeded_commuting();
+				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
+				sum += min(gb->get_passengers_succeeded_commuting(), gb->get_passengers_generated_commuting());
 			}
 		}
 	}
