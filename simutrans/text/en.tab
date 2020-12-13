@@ -6000,3 +6000,7 @@ convoys stored
 Convoys stored
 vehicles stored
 Vehicles stored
+Vacant slot
+Vacant slot(s)
+helptxt_filter_sb_has_vacant_slot
+Show only signalboxes that can control more signals than they are controlling at present.

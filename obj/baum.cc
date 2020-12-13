@@ -233,7 +233,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 		for(  pos.x=0;  pos.x<welt->get_size().x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
-				// plant spare trees, (those with low preffered density) or in an entirely tree climate
+				// plant spare trees, (those with low preferred density) or in an entirely tree climate
 				uint16 cl = 1 << welt->get_climate(pos);
 				settings_t const& s = welt->get_settings();
 				if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * density, "baum_t::fill_trees()") < 100)) {
