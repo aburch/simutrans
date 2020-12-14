@@ -33,7 +33,6 @@
 
 #include "../player/simplay.h"
 
-
 //#define CHART_HEIGHT (100)
 #define PAX_EVALUATIONS 5
 
@@ -293,7 +292,7 @@ gui_halt_waiting_indicator_t::gui_halt_waiting_indicator_t(halthandle_t h)
 			add_component(&lb_transfer_time[i]);
 
 			img_alert.set_image(skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image_id(2) : IMG_EMPTY, true);
-			img_alert.set_rigid(false);
+			img_alert.set_rigid(true);
 			img_alert.set_tooltip("No service");
 			img_alert.set_visible(false);
 			add_component(&img_alert);
