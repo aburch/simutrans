@@ -670,7 +670,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		replace_button.set_text(cnv->get_replace() ? "Replacing" : "Replace");
 		replace_button.enable();
 		reverse_button.pressed = cnv->get_reverse_schedule();
-		reverse_button.set_text(cnv->get_schedule()->is_mirrored() ? "Return path" : "reverse route");
+		reverse_button.set_text(cnv->get_schedule()->is_mirrored() ? "Return trip" : "reverse route");
 		reverse_button.set_tooltip(cnv->get_schedule()->is_mirrored() ? "during the return trip of the mirror schedule" : "When this is set, the vehicle will visit stops in reverse order.");
 		reverse_button.enable();
 		times_history_button.enable();

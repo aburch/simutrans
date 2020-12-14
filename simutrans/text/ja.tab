@@ -3983,6 +3983,10 @@ helptxt_filter_sb_has_vacant_slot
 信号機を追加接続可能な信号扱所のみを表示します
 Vacant slot
 追加接続可能
+Return trip
+復路行程
+during the return trip of the mirror schedule
+往復スケジュールの復路行程
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
