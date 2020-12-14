@@ -108,7 +108,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT );
 			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT );
 		}
-		assert(  player_t::MAX_AI==4  );
+		//assert(  player_t::MAX_AI==4  );
 
 		// When adding new players, activate the interface
 		player_select[i].set_selection(welt->get_settings().get_player_type(i));
