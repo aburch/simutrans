@@ -131,6 +131,8 @@ public:
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
+	bool has_min_sizer() const OVERRIDE { return true; }
+
 	bool is_weltpos() OVERRIDE;
 
 	koord3d get_weltpos( bool set ) OVERRIDE;
