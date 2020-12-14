@@ -71,8 +71,8 @@ player_t::player_t(uint8 nr) :
 	finance = new finance_t(this, welt);
 	player_nr = nr;
 	player_age = 0;
-	active = false;			// Don't start as an AI player
-	locked = false;			// allowed to change anything
+	active = false; // Don't start as an AI player
+	locked = false; // allowed to change anything
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
 	selected_signalbox = NULL;
@@ -274,7 +274,7 @@ void player_t::display_messages()
 
 		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
 
-		display_shadow_proportional_rgb(scr_pos.x, scr_pos.y, PLAYER_FLAG | color_idx_to_rgb(player_color_1+3), color_idx_to_rgb(COL_BLACK), m->str, true);
+		display_shadow_proportional_rgb( scr_pos.x, scr_pos.y, PLAYER_FLAG|color_idx_to_rgb(player_color_1+3), color_idx_to_rgb(COL_BLACK), m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
 			// very close to border => renew background
 			welt->set_background_dirty();
@@ -443,8 +443,7 @@ bool player_t::new_month()
 			}
 		}
 	}
-	else
-	{
+	else {
 		finance->set_account_overdrawn( 0 );
 	}
 
@@ -530,6 +529,7 @@ bool player_t::new_month()
 
 	// subtract maintenance after insolvency check
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
+
 	// company gets older ...
 	player_age ++;
 
@@ -1188,7 +1188,7 @@ void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 				sound_play(tool->ok_sound,255,TOOL_SOUND);
 			}
 		}
-		else if (*err != 0) {
+		else if(*err!=0) {
 			// something went really wrong
 			sound_play( SFX_FAILURE, 255, TOOL_SOUND );
 			// look for coordinate in error message

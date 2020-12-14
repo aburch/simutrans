@@ -187,7 +187,7 @@ class building_desc_t : public obj_desc_timelined_t {
 	flag_t flags;
 	uint16 level;               // or passengers;
 	uint8  layouts;             // 1 2, 4, 8  or 16
-	uint8  enables;             // if it is a stop, what is enabled ...
+	uint16 enables;             // if it is a stop, what is enabled ...
 	uint8  distribution_weight; // chance to build, special buildings, only other is weight factor
 
 

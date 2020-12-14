@@ -15,36 +15,11 @@
 
 #define L_PADDING_RIGHT (10)
 
-gui_textarea_t::gui_textarea_t(const char* text)
-{
-	buf = new cbuffer_t();
-	my_own_buf = true;
-	buf->append(text);
-	recalc_size();
-}
-
 gui_textarea_t::gui_textarea_t(cbuffer_t* buf_)
 {
-	buf = buf_;
-	my_own_buf = false;
-	recalc_size();
+	set_buf(buf_);
 }
 
-gui_textarea_t::~gui_textarea_t()
-{
-	if (my_own_buf) {
-		delete buf;
-	}
-}
-
-void gui_textarea_t::set_text(const char *const text)
-{
-	buf->clear();
-	if(text)
-	{
-		buf->append(text);
-	}
-}
 
 void gui_textarea_t::set_buf( cbuffer_t* buf_ )
 {
