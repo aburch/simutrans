@@ -20,6 +20,7 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_combobox.h"
+#include "components/gui_image.h"
 #include "../convoihandle_t.h"
 #include "simwin.h"
 
@@ -63,6 +64,7 @@ private:
 	gui_loadingbar_t loading_bar;
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
+	gui_image_t img_reverse_route;
 	gui_chart_t chart;
 	button_t button;
 	button_t follow_button;
