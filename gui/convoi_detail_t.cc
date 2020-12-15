@@ -231,7 +231,7 @@ void convoi_detail_t::update_labels()
 	lb_value.update();
 
 
-	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, get_min_windowsize().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, get_min_windowsize().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
 	resize(scr_coord(0, 0));
 }
 
