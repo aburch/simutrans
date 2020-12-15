@@ -164,10 +164,19 @@ void convoi_info_t::init(convoihandle_t cnv)
 				add_component(&route_bar);
 
 				add_component(&container_line,2);
-				container_line.set_table_layout(3,1);
+				container_line.set_table_layout(4,1);
 				container_line.add_component(&line_button);
 				container_line.new_component<gui_label_t>("Serves Line:");
 				container_line.add_component(&line_label);
+				if (skinverwaltung_t::reverse_arrows) {
+					img_reverse_route.set_image(cnv->get_schedule()->is_mirrored() ? skinverwaltung_t::reverse_arrows->get_image_id(0) : skinverwaltung_t::reverse_arrows->get_image_id(1), true);
+					img_reverse_route.set_visible(cnv->get_reverse_schedule());
+					img_reverse_route.set_rigid(true);
+					container_line.add_component(&img_reverse_route);
+				}
+				else {
+					container_line.new_component<gui_empty_t>();
+				}
 				// goto line button
 				line_button.init( button_t::posbutton, NULL);
 				line_button.set_targetpos3d( koord3d::invalid );
@@ -577,8 +586,14 @@ void convoi_info_t::update_labels()
 		scroll_freight.set_size( scroll_freight.get_size() );
 	}
 
+	if (skinverwaltung_t::reverse_arrows) {
+		img_reverse_route.set_image(cnv->get_schedule()->is_mirrored() ? skinverwaltung_t::reverse_arrows->get_image_id(0) : skinverwaltung_t::reverse_arrows->get_image_id(1), true);
+		img_reverse_route.set_visible(cnv->get_reverse_schedule());
+	}
+
 	// realign container - necessary if strings changed length
 	container_top->set_size( container_top->get_size() );
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, get_min_windowsize().w), D_TITLEBAR_HEIGHT + switch_mode.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
 }
 
 
@@ -655,6 +670,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		replace_button.set_text(cnv->get_replace() ? "Replacing" : "Replace");
 		replace_button.enable();
 		reverse_button.pressed = cnv->get_reverse_schedule();
+		reverse_button.set_text(cnv->get_schedule()->is_mirrored() ? "Return trip" : "reverse route");
+		reverse_button.set_tooltip(cnv->get_schedule()->is_mirrored() ? "during the return trip of the mirror schedule" : "When this is set, the vehicle will visit stops in reverse order.");
 		reverse_button.enable();
 		times_history_button.enable();
 	}
