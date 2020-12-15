@@ -4197,7 +4197,7 @@ New Vehicles
 no convois
 No convoys
 No goods are loaded onto this convoi.
-No goods will be loaded onto this convoi
+This convoy will only unload, not load, at stops.
 no goods waiting
 no goods waiting
 no load
@@ -6004,3 +6004,5 @@ Vacant slot
 Vacant slot(s)
 helptxt_filter_sb_has_vacant_slot
 Show only signalboxes that can control more signals than they are controlling at present.
+during the return trip of the mirror schedule
+This vehicle is on the return portion of a mirrored schedule
