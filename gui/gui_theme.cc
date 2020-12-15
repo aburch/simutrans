@@ -233,9 +233,9 @@ void gui_theme_t::init_gui_defaults()
 
 
 // helper for easier init
-void gui_theme_t::init_size_from_image(const image_t *image, scr_size &k)
+void gui_theme_t::init_size_from_image( const image_t *image, scr_size &k )
 {
-	if (image) {
+	if(  image  ) {
 		k = scr_size(image->x+image->w,image->y+image->h);
 	}
 }
