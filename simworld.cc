@@ -8379,7 +8379,10 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 		}
 		else {
 			const int renamed_correctly = dr_rename( savename.c_str(), filename );
-			assert(!renamed_correctly); 
+			if (renamed_correctly)
+			{
+				dbg->error("karte_t::save()", "cannot open file for renaming: error %u. check permissions.", renamed_correctly);
+			}
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
