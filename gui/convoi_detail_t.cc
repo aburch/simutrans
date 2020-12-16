@@ -35,14 +35,16 @@
 #define LOADING_BAR_WIDTH 150
 #define LOADING_BAR_HEIGHT 5
 #define CHART_HEIGHT (100)
+#define L_COL_ACCEL_FULL COL_ORANGE_RED
+#define L_COL_ACCEL_EMPTY COL_DODGER_BLUE
 
 class convoy_t;
 
 static const uint8 physics_curves_color[MAX_PHYSICS_CURVES] =
 {
 	COL_GREEN-1,
-	COL_DODGER_BLUE,
-	COL_ORANGE_RED,
+	L_COL_ACCEL_FULL,
+	L_COL_ACCEL_EMPTY,
 	COL_PURPLE+1,
 	COL_DARK_SLATEBLUE
 };
@@ -58,15 +60,15 @@ static const uint8 curves_type[MAX_PHYSICS_CURVES] =
 };
 
 static const gui_chart_t::chart_marker_t marker_type[MAX_PHYSICS_CURVES] = {
-	gui_chart_t::cross, gui_chart_t::diamond, gui_chart_t::square,
+	gui_chart_t::cross, gui_chart_t::square,gui_chart_t::diamond, 
 	gui_chart_t::diamond, gui_chart_t::cross
 };
 
 static const char curve_name[MAX_PHYSICS_CURVES][64] =
 {
 	"Acceleration(actual)",
-	"Acceleration(empty)",
 	"Acceleration(full load)",
+	"Acceleration(empty)",
 	"Tractive effort",
 	"Running resistance"
 };
@@ -104,7 +106,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	gui_frame_t::set_name(cnv->get_name());
 	gui_frame_t::set_owner(cnv->get_owner());
 
-	set_table_layout(1, 0);
+	set_table_layout(1,0);
 	add_table(3,2)->set_spacing(scr_size(0,0));
 	{
 		// 1st row
@@ -220,57 +222,59 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	cont_maintenance.add_component(&scrolly_maintenance);
 	scrolly_maintenance.set_maximize(true);
 
-	container_chart.set_table_layout(1, 0);
+	container_chart.set_table_layout(1,0);
 	container_chart.add_component(&switch_chart);
 
 	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"));
 	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"));
 
-	cont_accel.set_table_layout(1, 0);
+	cont_accel.set_table_layout(1,0);
 	cont_accel.add_component(&accel_chart);
 	accel_chart.set_dimension(SPEED_RECORDS, 10000);
 	accel_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	accel_chart.set_min_size(scr_size(0, CHART_HEIGHT));
 
-	cont_accel.add_table(4, 0);
-	for (int btn = 0; btn < MAX_ACCEL_CURVES; btn++) {
-		for (uint8 i = 0; i < SPEED_RECORDS; i++)
-		{
-			accel_curves[i][btn] = 0;
+	cont_accel.add_table(4,0);
+	{
+		for (uint8 btn = 0; btn < MAX_ACCEL_CURVES; btn++) {
+			for (uint8 i = 0; i < SPEED_RECORDS; i++) {
+				accel_curves[i][btn] = 0;
+			}
+			sint16 curve = accel_chart.add_curve(color_idx_to_rgb(physics_curves_color[btn]), (sint64*)accel_curves, MAX_ACCEL_CURVES, btn, SPEED_RECORDS, curves_type[btn], false, true, 1, NULL, marker_type[btn]);
+
+			button_t *b = cont_accel.new_component<button_t>();
+			b->init(button_t::box_state_automatic | button_t::flexible, curve_name[btn]);
+			b->background_color = color_idx_to_rgb(physics_curves_color[btn]);
+			b->set_tooltip(translator::translate(chart_help_text[btn]));
+			b->pressed = (cnv->in_depot() && btn == 2) ? true : false;
+
+			btn_to_accel_chart.append(b, &accel_chart, curve);
 		}
-		sint16 curve = accel_chart.add_curve(color_idx_to_rgb(physics_curves_color[btn]), (sint64*)accel_curves, MAX_ACCEL_CURVES, btn, SPEED_RECORDS, curves_type[btn], false, true, 0, NULL, marker_type[btn]);
-
-		button_t *b = cont_accel.new_component<button_t>();
-		b->init(button_t::box_state_automatic | button_t::flexible, curve_name[btn]);
-		b->background_color = color_idx_to_rgb(physics_curves_color[btn]);
-		b->set_tooltip(translator::translate(chart_help_text[btn]));
-		b->pressed = (cnv->in_depot() && btn == 2) ? true : false;
-
-		btn_to_accel_chart.append(b, &accel_chart, curve);
 	}
 	cont_accel.end_table();
 
-	cont_force.set_table_layout(1, 0);
+	cont_force.set_table_layout(1,0);
 	cont_force.add_component(&force_chart);
 	force_chart.set_dimension(SPEED_RECORDS, 10000);
 	force_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	force_chart.set_min_size(scr_size(0, CHART_HEIGHT));
 
-	cont_force.add_table(4, 0);
-	for (int btn = 0; btn < MAX_FORCE_CURVES; btn++) {
-		for (uint8 i = 0; i < SPEED_RECORDS; i++)
-		{
-			force_curves[i][btn] = 0;
+	cont_force.add_table(4,0);
+	{
+		for (uint8 btn = 0; btn < MAX_FORCE_CURVES; btn++) {
+			for (uint8 i = 0; i < SPEED_RECORDS; i++) {
+				force_curves[i][btn] = 0;
+			}
+			sint16 force_curve = force_chart.add_curve(color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES + btn]), (sint64*)force_curves, MAX_FORCE_CURVES, btn, SPEED_RECORDS, curves_type[MAX_ACCEL_CURVES + btn], false, true, 3, NULL, marker_type[MAX_ACCEL_CURVES + btn]);
+
+			button_t *bf = cont_force.new_component<button_t>();
+			bf->init(button_t::box_state_automatic | button_t::flexible, curve_name[MAX_ACCEL_CURVES + btn]);
+			bf->background_color = color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES + btn]);
+			bf->set_tooltip(translator::translate(chart_help_text[MAX_ACCEL_CURVES + btn]));
+			bf->pressed = false;
+
+			btn_to_force_chart.append(bf, &force_chart, force_curve);
 		}
-		sint16 force_curve = force_chart.add_curve(color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES+btn]), (sint64*)force_curves, MAX_FORCE_CURVES, btn, SPEED_RECORDS, curves_type[MAX_ACCEL_CURVES+btn], false, true, 0, NULL, marker_type[MAX_ACCEL_CURVES+btn]);
-
-		button_t *bf = cont_force.new_component<button_t>();
-		bf->init(button_t::box_state_automatic | button_t::flexible, curve_name[MAX_ACCEL_CURVES+btn]);
-		bf->background_color = color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES+btn]);
-		bf->set_tooltip(translator::translate(chart_help_text[MAX_ACCEL_CURVES+btn]));
-		bf->pressed = false;
-
-		btn_to_force_chart.append(bf, &force_chart, force_curve);
 	}
 	cont_force.end_table();
 
@@ -291,12 +295,16 @@ void convoi_detail_t::update_labels()
 
 	vehicle_t* v1 = cnv->get_vehicle(0);
 
-	if (v1->get_waytype() == track_wt || v1->get_waytype() == maglev_wt || v1->get_waytype() == tram_wt || v1->get_waytype() == narrowgauge_wt || v1->get_waytype() == monorail_wt)
-	{
-		// Current working method
-		rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
-		rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehicle(cnv->get_vehicle_count() - 1);
-		lb_working_method.buf().printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method())));
+	if (v1->get_waytype() == track_wt || v1->get_waytype() == maglev_wt || v1->get_waytype() == tram_wt || v1->get_waytype() == narrowgauge_wt || v1->get_waytype() == monorail_wt) {
+		if (cnv->in_depot()) {
+			lb_working_method.buf().append("");
+		}
+		else {
+			// Current working method
+			rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
+			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehicle(cnv->get_vehicle_count() - 1);
+			lb_working_method.buf().printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method())));
+		}
 	}
 	else if (uint16 minimum_runway_length = cnv->get_vehicle(0)->get_desc()->get_minimum_runway_length()) {
 		// for air vehicle
@@ -325,17 +333,18 @@ void convoi_detail_t::update_labels()
 	}
 
 	// contents of maintenance tab
-	char number[64];
-	number_to_string(number, (double)cnv->get_total_distance_traveled(), 0);
-	lb_odometer.buf().append(" ");
-	lb_odometer.buf().printf(translator::translate("%s km"), number);
-	lb_odometer.update();
+	{
+		char number[64];
+		number_to_string(number, (double)cnv->get_total_distance_traveled(), 0);
+		lb_odometer.buf().append(" ");
+		lb_odometer.buf().printf(translator::translate("%s km"), number);
+		lb_odometer.update();
 
-	// current resale value
-	money_to_string(number, cnv->calc_sale_value() / 100.0);
-	lb_value.buf().printf(" %s", number);
-	lb_value.update();
-
+		// current resale value
+		money_to_string(number, cnv->calc_sale_value() / 100.0);
+		lb_value.buf().printf(" %s", number);
+		lb_value.update();
+	}
 
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, get_min_windowsize().w), D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT + D_MARGIN_TOP));
 	resize(scr_coord(0, 0));
@@ -445,14 +454,14 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			dummy_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight+max_freight_weight, dummy_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_max, sp_soll_max, akt_v_max);
 			convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 			if (env_t::left_to_right_graphs) {
-				accel_curves[--i][0] = cnv->in_depot() ? 0 : speed_to_kmh(akt_speed);
-				accel_curves[i][1] = speed_to_kmh(akt_speed_min);
-				accel_curves[i][2] = speed_to_kmh(akt_speed_max);
+				accel_curves[--i][0] = cnv->in_depot() ? 0 : akt_speed;
+				accel_curves[i][1] = akt_speed_max;
+				accel_curves[i][2] = akt_speed_min;
 			}
 			else {
-				accel_curves[SPEED_RECORDS-i][0] = cnv->in_depot() ? 0 : speed_to_kmh(akt_speed);
-				accel_curves[SPEED_RECORDS-i][1] = speed_to_kmh(akt_speed_min);
-				accel_curves[SPEED_RECORDS-i][2] = speed_to_kmh(akt_speed_max);
+				accel_curves[SPEED_RECORDS-i][0] = cnv->in_depot() ? 0 : akt_speed;
+				accel_curves[SPEED_RECORDS-i][1] = akt_speed_max;
+				accel_curves[SPEED_RECORDS-i][2] = akt_speed_min;
 				i--;
 			}
 		}
