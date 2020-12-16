@@ -8990,6 +8990,7 @@ bool karte_t::load(const char *filename)
 
 		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
+			dbg->warning("karte_t::load()", "Version is %u (Ex %u)", loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version, loadsave_t::int_version(SAVEGAME_VER_NR, NULL).extended_version);
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
