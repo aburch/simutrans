@@ -3987,6 +3987,16 @@ Return trip
 復路行程
 during the return trip of the mirror schedule
 往復スケジュールの復路行程
+cd_physics_tab
+性能曲線
+v-t graph
+v-tグラフ(加速曲線)
+f-v graph
+f-vグラフ(力行曲線)
+Running resistance
+走行抵抗
+helptxt_starting_acceleration
+性能指標の1つで速度0km/hの時の加速度
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

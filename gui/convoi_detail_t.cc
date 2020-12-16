@@ -83,6 +83,57 @@ static char const* const chart_help_text[] =
 };
 
 
+// helper class
+gui_acceleration_label_t::gui_acceleration_label_t(convoihandle_t c)
+{
+	cnv = c;
+}
+
+void gui_acceleration_label_t::draw(scr_coord offset)
+{
+	scr_coord_val total_x=D_H_SPACE;
+	cbuffer_t buf;
+	lazy_convoy_t &convoy = *cnv.get_rep();
+	const sint32 friction = convoy.get_current_friction();
+	const uint32 starting_acceleration = convoy.calc_acceleration(weight_summary_t(cnv->get_weight_summary().weight, friction), 0);
+	const uint32 starting_acceleration_max = convoy.calc_acceleration(weight_summary_t(cnv->get_vehicle_summary().weight, friction), 0);
+	const uint32 starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(cnv->get_vehicle_summary().weight + cnv->get_freight_summary().max_freight_weight, friction), 0);
+
+	buf.clear();
+	if (starting_acceleration_min == starting_acceleration_max) {
+		buf.printf("%.2f km/h/s", (double)starting_acceleration_min / 100.0);
+		total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, buf, ALIGN_LEFT, starting_acceleration_min == 0 ? COL_DANGER : SYSCOL_TEXT, true);
+	}
+	else {
+		if (!cnv->in_depot()) {
+			// show actual value
+			buf.printf("%.2f km/h/s", (double)starting_acceleration / 100.0);
+			total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			total_x += D_H_SPACE;
+			total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, "(", ALIGN_LEFT, SYSCOL_TEXT, true);
+		}
+		buf.clear();
+		buf.printf("%.2f", (double)starting_acceleration_min / 100.0);
+		total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, buf, ALIGN_LEFT, color_idx_to_rgb(L_COL_ACCEL_FULL-1), true);
+
+		total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, " - ", ALIGN_LEFT, SYSCOL_TEXT, true);
+		buf.clear();
+		buf.printf("%.2f km/h/s", (double)starting_acceleration_max / 100.0);
+		total_x += display_proportional_clip_rgb(pos.x+offset.x+total_x, pos.y+offset.y, buf, ALIGN_LEFT, color_idx_to_rgb(L_COL_ACCEL_EMPTY-1), true);
+		if (!cnv->in_depot()) {
+			total_x += display_proportional_clip_rgb(pos.x + offset.x + total_x, pos.y + offset.y, ")", ALIGN_LEFT, SYSCOL_TEXT, true);
+		}
+	}
+
+	scr_size size(total_x + D_H_SPACE, LINEASCENT);
+	if (size != get_size()) {
+		set_size(size);
+	}
+	gui_container_t::draw(offset);
+}
+
+
+// main class
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv) :
 	gui_frame_t(""),
 	formation(cnv),
@@ -147,7 +198,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	tabs.add_tab(&scrolly, translator::translate("cd_spec_tab"));
 	tabs.add_tab(&cont_payload, translator::translate("cd_payload_tab"));
 	tabs.add_tab(&cont_maintenance,  translator::translate("cd_maintenance_tab"));
-	tabs.add_tab(&container_chart, translator::translate("cd_physics_chart_tab"));
+	tabs.add_tab(&container_chart, translator::translate("cd_physics_tab"));
 	tabs.add_listener(this);
 
 	// content of payload info tab
@@ -223,6 +274,14 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	scrolly_maintenance.set_maximize(true);
 
 	container_chart.set_table_layout(1,0);
+	container_chart.add_table(3,0)->set_spacing(scr_size(0,1));
+	{
+		container_chart.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT,0));
+		container_chart.new_component<gui_label_t>("Starting acceleration:")->set_tooltip("helptxt_starting_acceleration");
+		lb_acceleration = container_chart.new_component<gui_acceleration_label_t>(cnv);
+		container_chart.new_component<gui_fill_t>();
+	}
+	container_chart.end_table();
 	container_chart.add_component(&switch_chart);
 
 	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"));
@@ -632,16 +691,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// current brake force
 			buf.clear();
 			buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
-			display_proportional_clip_rgb(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			total_height += LINESPACE;
-
-			// starting acceleration
-			lazy_convoy_t &convoy = *cnv.get_rep();
-			const sint32 friction = convoy.get_current_friction();
-			const float32e8_t starting_acceleration = convoy.calc_acceleration(weight_summary_t(cnv->get_weight_summary().weight, friction), 0);
-			const float32e8_t starting_acceleration_min = convoy.calc_acceleration(weight_summary_t(cnv->get_sum_weight(), friction), 0);
-			buf.clear();
-			buf.printf("%s %.2f km/h/s (%.2f km/h/s)", translator::translate("Starting acceleration:"), starting_acceleration.to_double() / 1000.0, starting_acceleration_min.to_double() / 1000.0);
 			display_proportional_clip_rgb(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			total_height += LINESPACE;
 
