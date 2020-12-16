@@ -49,8 +49,8 @@
 #	endif
 #endif
 
-#if __cplusplus >= 201103L
-#include <thread>
+#ifdef MULTI_THREAD
+#include <pthread.h>
 #endif
 
 sys_event_t sys_event;
@@ -141,8 +141,9 @@ int get_mouse_y()
 uint8 dr_get_max_threads()
 {
 	uint8 max_threads = 0;
-
-#if __cplusplus >= 201103L
+#ifdef MULTITHREAD
+#if 0
+	// does not work when crosscompile with mingw!
 	max_threads = std::thread::hardware_concurrency();
 #endif
 	if(max_threads==0) {
@@ -150,10 +151,11 @@ uint8 dr_get_max_threads()
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
 		max_threads = (uint8)sysinfo.dwNumberOfProcessors;
-#else 
+#else
 		max_threads = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 	}
+#endif
 	return max(max_threads,1);
 }
 
