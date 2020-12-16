@@ -215,7 +215,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_edit_size                = scr_size(92,max(LINESPACE+2, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT) ));
 	gui_gadget_size              = scr_size(16,16);
 	gui_indicator_size           = scr_size(20,4);
-	gui_focus_offset             = scr_size(1,1);
+	gui_focus_offset             = scr_coord(1,1);
 
 	gui_titlebar_height  = 16;
 	gui_frame_left       = 10;
@@ -233,9 +233,9 @@ void gui_theme_t::init_gui_defaults()
 
 
 // helper for easier init
-void gui_theme_t::init_size_from_image(const image_t *image, scr_size &k)
+void gui_theme_t::init_size_from_image( const image_t *image, scr_size &k )
 {
-	if (image) {
+	if(  image  ) {
 		k = scr_size(image->x+image->w,image->y+image->h);
 	}
 }
@@ -485,11 +485,11 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	int *button_text_offsets = contents.get_ints("gui_button_text_offset");
 	if(  color_button_text_offsets[0] > 2  ) {
 		gui_theme_t::gui_color_button_text_offset = scr_size(color_button_text_offsets[1], color_button_text_offsets[2]);
-		gui_theme_t::gui_color_button_text_offset_right = scr_size(color_button_text_offsets[3], 0);
+		gui_theme_t::gui_color_button_text_offset_right = scr_coord(color_button_text_offsets[3], 0);
 	}
 	if(  button_text_offsets[0] > 2  ) {
 		gui_theme_t::gui_button_text_offset = scr_size(button_text_offsets[1], button_text_offsets[2]);
-		gui_theme_t::gui_button_text_offset_right = scr_size(button_text_offsets[3], 0);
+		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[3], 0);
 	}
 	delete [] color_button_text_offsets;
 	delete [] button_text_offsets;

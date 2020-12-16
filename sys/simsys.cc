@@ -243,7 +243,7 @@ int dr_rename(const char *existing_utf8, const char *new_utf8)
 		}
 	}
 
-	return success ? 0 : -1;
+	return success ? 0 : errno;
 #else
 	remove(new_utf8);
 	return rename(existing_utf8, new_utf8);

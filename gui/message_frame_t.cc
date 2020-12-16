@@ -116,6 +116,7 @@ message_frame_t::message_frame_t() :
 void message_frame_t::fill_list()
 {
 	uint32 id = 0;
+	scrolly.clear_elements();
 	FOR( slist_tpl<message_t::node*>, const i, welt->get_message()->get_list() ) {
 		scrolly.new_component<message_stats_t>(i, id++);
 	}
@@ -158,7 +159,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 	if(  comp==&copy_bt  ) {
 		cbuffer_t clipboard;
 		const sint32 message_type = tab_categories[ tabs.get_active_tab_index() ];
-		int count = 20;	// just copy the last 20
+		int count = 20; // just copy the last 20
 		FOR( slist_tpl<message_t::node*>, const i, welt->get_message()->get_list() ) {
 			if( i->get_type_shifted() & message_type ) {
 				// add them to clipboard
@@ -200,7 +201,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 
 void message_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(welt->get_message()->get_list().get_count() != last_count) {
+	if(  welt->get_message()->get_list().get_count() != last_count  ) {
 		fill_list();
 	}
 	gui_frame_t::draw(pos, size);

@@ -255,7 +255,7 @@ PIXVAL server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Convoys"), gi.get_convoi_count() );
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
-	revision.buf().printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
+	revision.buf().printf( "%s %x", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 	revision.set_color( engine_match ? SYSCOL_TEXT : MONEY_MINUS );
 	revision.update();
 

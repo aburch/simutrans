@@ -3158,7 +3158,7 @@ void settings_t::rotate_regions(sint16 y_size)
 	{
 		region.top_left.rotate90(y_size);
 		region.bottom_right.rotate90(y_size);
-		temp_regions.append(region); 
+		temp_regions.append(region);
 	}
 
 	regions.clear();
