@@ -263,7 +263,7 @@ void gui_chart_t::draw(scr_coord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
-						number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len - (c.suffix != NULL));
+						number_to_string_fit(cmin, display_tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
 						if (c.suffix) {
 							strcat(cmin, c.suffix);
 						}
@@ -318,18 +318,19 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 			}
 		}
 	}
+
 	// max happend due to rounding errors
 	if( precision == 0   &&  min == max ) {
 		max += 1;
 	}
 
-	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len - (min_suffix != 0));
-	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len - (max_suffix != 0));
-	if (min_suffix) {
-		strcat(cmin, min_suffix);
+	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
+	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
+	if(  min_suffix  ) {
+		strcat( cmin, min_suffix );
 	}
-	if (max_suffix) {
-		strcat(cmax, max_suffix);
+	if(  max_suffix  ) {
+		strcat( cmax, max_suffix );
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
