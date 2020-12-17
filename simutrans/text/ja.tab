@@ -4009,6 +4009,10 @@ hd_btn_by_station
 目的地別
 hd_btn_by_category
 貨物品目分類別
+Return trip
+復路行程
+during the return trip of the mirror schedule
+往復スケジュールの復路行程
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

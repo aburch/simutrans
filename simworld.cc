@@ -8362,7 +8362,14 @@ void karte_t::save(const char *filename, bool autosave, const char *version_str,
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
 	std::string savename = filename;
-	savename[savename.length()-1] = '_';
+	if (!env_t::networkmode || env_t::server)
+	{
+		// There are some problems with re-naming this temporary file.
+		// Corruption is less of an issue when a client is saving a game from a network server,
+		// so abandon this security in this instance to prevent the problems with re-naming causing
+		// problems. This can be reversed if those problems be ever solved. 
+		savename[savename.length() - 1] = '_';
+	}
 
 	display_show_load_pointer( true );
 	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
@@ -8378,7 +8385,14 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 			create_win( new news_img(err_str), w_time_delete, magic_none);
 		}
 		else {
-			dr_rename( savename.c_str(), filename );
+			if (!env_t::networkmode || env_t::server)
+			{
+				const int renamed_correctly = dr_rename(savename.c_str(), filename);
+				if (renamed_correctly)
+				{
+					dbg->error("karte_t::save()", "cannot open file for renaming: error %u. check permissions.", renamed_correctly);
+				}
+			}
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
@@ -8984,8 +8998,9 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  file.get_version_int()==-0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
+		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
+			dbg->warning("karte_t::load()", "Version is %u (Ex %u)", loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version, loadsave_t::int_version(SAVEGAME_VER_NR, NULL).extended_version);
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
@@ -9234,7 +9249,6 @@ void karte_t::load(loadsave_t *file)
 			tool->cleanup();
 		}
 	}
-
 	destroy_all_win(true);
 
 	clear_random_mode(~LOAD_RANDOM);
@@ -9242,9 +9256,6 @@ void karte_t::load(loadsave_t *file)
 	destroy();
 
 	loadingscreen_t ls(translator::translate("Loading map ..."), 1, true, true );
-
-	clear_random_mode(~LOAD_RANDOM);
-	set_random_mode(LOAD_RANDOM);
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
@@ -9255,7 +9266,6 @@ void karte_t::load(loadsave_t *file)
 #endif
 
 	tile_counter = 0;
-
 	simloops = 60;
 
 	// zum laden vorbereiten -> tablele loeschen

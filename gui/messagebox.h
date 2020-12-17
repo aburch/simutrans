@@ -45,7 +45,7 @@ class news_img : public news_window
 {
 public:
 	news_img(const char* text);
-	news_img(const char* text, image_id image, FLAGGED_PIXVAL color=env_t::default_window_title_color);
+	news_img(const char* text, image_id image, FLAGGED_PIXVAL color = env_t::default_window_title_color);
 
 private:
 	void init(image_id image);
