@@ -210,6 +210,10 @@ void gui_chart_t::draw(scr_coord offset)
 					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
+				else if(  c.type == FORCE  ) {
+					display_tmp = tmp*0.001;
+					tmp /= 1000;
+				}
 				else {
 					display_tmp = tmp;
 				}
@@ -240,6 +244,11 @@ void gui_chart_t::draw(scr_coord offset)
 						display_fillbox_wh_clip_rgb(x, y, 5, 5, c.color, true);
 						break;
 					}
+				}
+
+				// Change digits after drawing a line to smooth the curve of the physics chart
+				if (c.type == KMPH) {
+					display_tmp = (double)speed_to_kmh(tmp*10)/10.0;
 				}
 
 				// display tooltip?
@@ -292,6 +301,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	const char* min_suffix = NULL;
 	const char* max_suffix = NULL;
 	int precision = 0;
+	bool convert_kmph=false;
 
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
@@ -303,6 +313,14 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				}
 				else if(  c.type == MONEY || c.type == PERCENT  ) {
 					tmp /= 100;
+					precision = 0;
+				}
+				else if (  c.type == KMPH  ) {
+					convert_kmph = true;
+					precision = 0;
+				}
+				else if (  c.type == FORCE  ) {
+					tmp /= 1000;
 					precision = 0;
 				}
 				if (min > tmp) {
@@ -324,8 +342,10 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		max += 1;
 	}
 
-	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
-	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
+	// if accel chart => Drawing accuracy hack: simspeed to integer km/h. (Do not rewrite min max for scaling)
+	number_to_string_fit(cmin, convert_kmph ? speed_to_kmh((int)min) : (double)min, precision, maximum_axis_len - (min_suffix != 0));
+	number_to_string_fit(cmax, convert_kmph ? speed_to_kmh((int)max) : (double)max, precision, maximum_axis_len - (max_suffix != 0));
+
 	if(  min_suffix  ) {
 		strcat( cmin, min_suffix );
 	}

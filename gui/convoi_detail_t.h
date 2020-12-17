@@ -32,6 +32,47 @@ class scr_coord;
 #define MAX_PHYSICS_CURVES (MAX_ACCEL_CURVES+MAX_FORCE_CURVES)
 #define SPEED_RECORDS 25
 
+
+// helper class to show the colored acceleration text
+class gui_acceleration_label_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+public:
+	gui_acceleration_label_t(convoihandle_t cnv);
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); };
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+class gui_acceleration_time_label_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+public:
+	gui_acceleration_time_label_t(convoihandle_t cnv);
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); };
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+class gui_acceleration_dist_label_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+public:
+	gui_acceleration_dist_label_t(convoihandle_t cnv);
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); };
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
 /**
  * One element of the vehicle list display
  */
@@ -128,10 +169,15 @@ private:
 	button_t display_detail_button;
 
 	gui_combobox_t overview_selctor;
-	gui_label_buf_t lb_vehicle_count, lb_working_method, lb_loading_time, lb_catering_level, lb_odometer, lb_value;
+	gui_label_buf_t
+		lb_vehicle_count, lb_working_method, // for main frame
+		lb_loading_time, lb_catering_level,  // for payload tab
+		lb_odometer, lb_value;               // for maintenance tab
+	gui_acceleration_label_t      *lb_acceleration;
+	gui_acceleration_time_label_t *lb_acc_time;
+	gui_acceleration_dist_label_t *lb_acc_distance;
 
 	gui_button_to_chart_array_t btn_to_accel_chart, btn_to_force_chart; //button_to_chart
-	//button_t display_detail_button;
 
 	sint64 accel_curves[SPEED_RECORDS][MAX_ACCEL_CURVES];
 	sint64 force_curves[SPEED_RECORDS][MAX_FORCE_CURVES];
