@@ -675,7 +675,7 @@ public:
 
 	/// @returns total amount of the good waiting at this halt.
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
-	uint32 get_ware_summe(const goods_desc_t *warentyp, uint8 g_class) const;
+	uint32 get_ware_summe(const goods_desc_t *warentyp, uint8 g_class, bool chk_only_commuter = false) const;
 
 	uint32 get_leaving_goods_sum(const goods_desc_t *warentyp, uint8 g_class = 255) const;
 	uint32 get_transferring_goods_sum(const goods_desc_t *warentyp, uint8 g_class = 255) const;
@@ -859,6 +859,21 @@ public:
 
 	/* marks a coverage area */
 	void mark_unmark_coverage(const bool mark, const bool factories = false) const;
+
+	uint32 get_around_population(uint8 g_class = 255) const;
+	uint32 get_around_visitor_demand(uint8 g_class = 255) const;
+	uint32 get_around_job_demand(uint8 g_class = 255) const;
+
+	uint32 get_around_visitor_generated() const;
+	uint32 get_around_succeeded_visiting() const;
+	uint32 get_around_commuter_generated() const;
+	uint32 get_around_succeeded_commuting() const;
+	// Returns the current number of workers, but overflows are truncated per building.
+	uint32 get_around_employee_factor() const;
+
+	uint32 get_around_mail_demand() const;
+	uint32 get_around_mail_generated() const;
+	uint32 get_around_mail_delivery_succeeded() const;
 
 	// @author: jamespetts
 	// Returns the percentage of unhappy people

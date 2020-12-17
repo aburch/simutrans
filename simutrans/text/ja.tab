@@ -2203,10 +2203,6 @@ Zu nah am Kartenrand
 %1.2f$/月
  from %s
  (%sから)
- mins. travelling
-分所要
- mins. waiting)
-分待ち)
  via %s
 %s 経由
 brakes from max. speed in %i - %i m
@@ -3519,7 +3515,7 @@ Wait for time
 ダイヤを設定する
 Waiting for schedule. %s left
 発車時刻まで 残り%s
-waiting time unknown)
+waiting time unknown
 待ち時間不明)
 waiting\ntolerance\nmax. min
 最大許容待機時間(分)
@@ -3977,10 +3973,46 @@ helptxt_filter_sb_has_vacant_slot
 信号機を追加接続可能な信号扱所のみを表示します
 Vacant slot
 追加接続可能
+own convoi tooltips
+所有車両の状態を表示
+%s mins. walking
+徒歩 %s分
+%s mins. travelling
+所要 %s分
+%s mins. waiting
+待ち時間 %s分
+Route_tab
+接続駅
+lb_served_goods_and_classes
+取扱い貨物品目分類
+Around passenger demands
+駅周辺の旅客需要
+Transportation status around this stop
+駅周辺の輸送状況
+hd_generated
+需要
+Success rate
+達成率
+Visiting trip
+訪問移動
+Commuting trip
+通勤移動
+hd_mailing
+郵送
+hd_btn_by_station
+目的地別
+hd_btn_by_category
+貨物品目分類別
 Return trip
 復路行程
 during the return trip of the mirror schedule
 往復スケジュールの復路行程
+Carrying out
+搬出中
+Undecided
+未定
+Line to
+運行系統（降車駅）
 Power: %4d kW\n
 出力: %4d kW\n
 cd_physics_tab
@@ -4051,6 +4083,10 @@ Power (MW)
 #郵便事業が行われている範囲を表示
 #Show passenger coverage/passenger network
 #旅客事業が行われている範囲を表示
+# mins. travelling
+#分所要
+# mins. waiting)
+#分待ち)
 #Odometer: %s km
 #積算距離： %skm
 #; %i km/h @ %.2f sec

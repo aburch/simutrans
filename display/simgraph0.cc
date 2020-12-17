@@ -225,7 +225,7 @@ void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, in
 {
 }
 
-void display_vlinear_gradient_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int, int)
+void display_linear_gradient_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int, int, bool)
 {
 }
 
@@ -335,6 +335,10 @@ void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, cons
 }
 
 void display_shadow_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int, sint32)
+{
+}
+
+void display_heading_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int, uint8)
 {
 }
 

@@ -2688,12 +2688,6 @@ void convoi_t::start()
 		no_load = false;
 		depot_when_empty = false;
 
-		// if the schedule is mirrored, convoys starting
-		// reversed should go directly to the end.
-		if( schedule->is_mirrored() && reverse_schedule ) {
-			schedule->advance_reverse();
-		}
-
 		state = ROUTING_1;
 
 		// recalc weight and image
@@ -3702,6 +3696,15 @@ void convoi_t::vorfahren()
 		}
 		else {
 			ziel_erreicht();
+		}
+	}
+
+	// override reversed schedule status for the first and last stops of a mirrored schedule
+	if(schedule->is_mirrored()) {
+		if(schedule->get_current_stop() == 0) {
+			set_reverse_schedule(true);
+		} else if(schedule->get_current_stop() == schedule->get_count()-1) {
+			set_reverse_schedule(false);
 		}
 	}
 

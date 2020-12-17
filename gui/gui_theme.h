@@ -28,6 +28,8 @@ class image_t;
 #define D_BUTTON_SIZE          (gui_theme_t::gui_button_size  )
 #define D_BUTTON_WIDTH         (gui_theme_t::gui_button_size.w)
 #define D_BUTTON_HEIGHT        (gui_theme_t::gui_button_size.h)
+#define D_WIDE_BUTTON_SIZE     (scr_size(D_BUTTON_WIDTH*3/2,D_BUTTON_HEIGHT))
+#define D_WIDE_BUTTON_WIDTH    (D_BUTTON_WIDTH*3/2)
 
 #define D_FILTER_BUTTON_SIZE   (gui_theme_t::gui_color_button_size  )
 #define D_FILTER_BUTTON_WIDTH  (gui_theme_t::gui_color_button_size.w)
