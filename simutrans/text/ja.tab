@@ -4004,13 +4004,13 @@ distance_required_to_top_speed:
 helptxt_starting_acceleration
 性能指標の1つで速度0km/hの時の加速度
 helptxt_actual_acceleration
-積載重量や勾配等の現在の状況を反映した加速グラフ
+積載重量や勾配等の現在の状況を反映した加速グラフを表示します
 Acceleration graph when nothing is loaded on the convoy
-無積載時の平坦な直線における加速グラフ
+無積載時の平坦な直線における加速グラフを表示します
 helptxt_vt_graph_full_load
-最大積載時の平坦な直線における加速グラフ
+最大積載時の平坦な直線における加速グラフを表示します
 helptxt_fv_graph_tractive_effort
-速度と牽引力（加速力）の関係を表すグラフ
+速度と牽引力（加速力）の関係を表すグラフを表示します
 Total force acting in the opposite direction of the convoy
 乗り物の進行方向と逆向きに働く力（空気抵抗や転がり抵抗）の合計
 helptxt_acceleration_time
