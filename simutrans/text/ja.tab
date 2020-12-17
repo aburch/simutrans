@@ -3981,9 +3981,9 @@ Vacant slot
 追加接続可能
 own convoi tooltips
 所有車両の状態を表示
-%s mins. travelling
-徒歩 %s分
 %s mins. walking
+徒歩 %s分
+%s mins. travelling
 所要 %s分
 %s mins. waiting
 待ち時間 %s分
@@ -4013,6 +4013,12 @@ Return trip
 復路行程
 during the return trip of the mirror schedule
 往復スケジュールの復路行程
+Carrying out
+搬出中
+Undecided
+未定
+Line to
+運行系統（降車駅）
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n

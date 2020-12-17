@@ -42,6 +42,37 @@ public:
 };
 
 /**
+ * Helper class to draw freight type capacity bar
+ */
+class gui_halt_capacity_bar_t : public gui_container_t
+{
+	halthandle_t halt;
+	uint8 freight_type;
+public:
+	gui_halt_capacity_bar_t(halthandle_t h, uint8 ft);
+
+	void draw(scr_coord offset);
+};
+
+/**
+ * Helper class to show three freight category waiting indicator
+ */
+class gui_halt_waiting_indicator_t : public gui_aligned_container_t
+{
+	halthandle_t halt;
+	gui_image_t img_alert;
+	gui_halt_capacity_bar_t *capacity_bar[3];
+	gui_label_buf_t lb_waiting[3];
+	gui_label_buf_t lb_capacity[3];
+	gui_label_buf_t lb_transfer_time[3];
+public:
+	gui_halt_waiting_indicator_t(halthandle_t h);
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+
+/**
  * Main class: the station info window.
  * Window with destination information for a stop
  */

@@ -217,7 +217,11 @@ public:
 	void set_text_color(PIXVAL col) { text_color = col; }
 	void set_frame_color(PIXVAL f_col) { frame_color = f_col; }
 	void set_style(uint8 s) { style = s; }
-	void set_tooltip(const char * t) { tooltip = t; };
+	void set_tooltip(const char * t) { tooltip = t; }
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
 
 #endif

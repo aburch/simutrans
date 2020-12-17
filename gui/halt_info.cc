@@ -33,13 +33,13 @@
 
 #include "../player/simplay.h"
 
-
 //#define CHART_HEIGHT (100)
 #define PAX_EVALUATIONS 5
 
 #define L_BUTTON_WIDTH button_size.w
 #define L_CHART_INDENT (66)
 
+#define HALT_CAPACITY_BAR_WIDTH 100
 
 static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Zielort",
@@ -160,6 +160,227 @@ void gui_halt_type_images_t::draw(scr_coord offset)
 	haltestelle_t::stationtyp const halttype = halt->get_station_type();
 	for(uint i=0; i < lengthof(symbols); i++) {
 		img_transport[i].set_visible( (halttype & symbols[i].type) != 0);
+	}
+	gui_aligned_container_t::draw(offset);
+}
+
+gui_halt_capacity_bar_t::gui_halt_capacity_bar_t(halthandle_t h, uint8 ft)
+{
+	if (ft > 2) { return; }
+	freight_type = ft;
+	halt = h;
+}
+
+void gui_halt_capacity_bar_t::draw(scr_coord offset)
+{
+	uint32 wainting_sum = 0;
+	uint32 transship_in_sum = 0;
+	uint32 leaving_sum = 0;
+	bool overcrowded = false;
+	const uint32 capacity= halt->get_capacity(freight_type);
+	if (!capacity) { return; }
+	switch (freight_type) {
+		case 0:
+			wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
+			overcrowded = halt->is_overcrowded(goods_manager_t::INDEX_PAS);
+			transship_in_sum = halt->get_transferring_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_PAS)) - halt->get_leaving_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
+			break;
+		case 1:
+			wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
+			overcrowded = halt->is_overcrowded(goods_manager_t::INDEX_MAIL);
+			transship_in_sum = halt->get_transferring_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL)) - halt->get_leaving_goods_sum(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
+			break;
+		case 2:
+			for (uint8 g1 = 0; g1 < goods_manager_t::get_max_catg_index(); g1++) {
+				if (g1 == goods_manager_t::INDEX_PAS || g1 == goods_manager_t::INDEX_MAIL)
+				{
+					continue;
+				}
+				const goods_desc_t *wtyp = goods_manager_t::get_info(g1);
+				switch (g1) {
+				case 0:
+					wainting_sum += halt->get_ware_summe(wtyp);
+					break;
+				default:
+					const uint8 count = goods_manager_t::get_count();
+					for (uint32 g2 = 3; g2 < count; g2++) {
+						goods_desc_t const* const wtyp2 = goods_manager_t::get_info(g2);
+						if (wtyp2->get_catg_index() != g1) {
+							continue;
+						}
+						wainting_sum += halt->get_ware_summe(wtyp2);
+						transship_in_sum += halt->get_transferring_goods_sum(wtyp2, 0);
+						leaving_sum += halt->get_leaving_goods_sum(wtyp2, 0);
+					}
+					break;
+				}
+			}
+			overcrowded = ((wainting_sum + transship_in_sum) > capacity);
+			transship_in_sum -= leaving_sum;
+			break;
+		default:
+			return;
+	}
+	display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, HALT_CAPACITY_BAR_WIDTH + 2, GOODS_COLOR_BOX_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+	display_fillbox_wh_clip_rgb(pos.x+offset.x + 1, pos.y+offset.y + 1, HALT_CAPACITY_BAR_WIDTH, GOODS_COLOR_BOX_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), true);
+	// transferring (to this station) bar
+	display_fillbox_wh_clip_rgb(pos.x+offset.x + 1, pos.y+offset.y + 1, min(100, (transship_in_sum + wainting_sum) * 100 / capacity), 6, color_idx_to_rgb(MN_GREY1), true);
+
+	const PIXVAL col = overcrowded ? color_idx_to_rgb(COL_OVERCROWD) : COL_CLEAR;
+	uint8 waiting_factor = min(100, wainting_sum * 100 / capacity);
+
+	display_cylinderbar_wh_clip_rgb(pos.x+offset.x + 1, pos.y+offset.y + 1, HALT_CAPACITY_BAR_WIDTH * waiting_factor / 100, 6, col, true);
+
+	set_size(scr_size(HALT_CAPACITY_BAR_WIDTH+2, GOODS_COLOR_BOX_HEIGHT));
+	gui_container_t::draw(offset);
+}
+
+#define L_WAITING_CELL_WIDTH (proportional_string_width(" 0000000"))
+#define L_CAPACITY_CELL_WIDTH (proportional_string_width("000000"))
+gui_halt_waiting_indicator_t::gui_halt_waiting_indicator_t(halthandle_t h)
+{
+	halt = h;
+
+	set_table_layout(10,0);
+	set_alignment(ALIGN_LEFT | ALIGN_CENTER_V);
+	set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
+	set_spacing(scr_size(D_H_SPACE, 1));
+
+	bool served = false;
+	for (uint8 i = 0; i < 3; i++) {
+		switch (i) {
+			case 0:
+				served = halt->get_pax_enabled();  break;
+			case 1:
+				served = halt->get_mail_enabled(); break;
+			case 2:
+				served = halt->get_ware_enabled(); break;
+			default:
+				served = false; break;
+		}
+
+		if (served) {
+			switch (i) {
+				case 0:
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::passengers->get_image_id(0), true);
+					break;
+				case 1:
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::mail->get_image_id(0), true);
+					break;
+				case 2:
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::goods->get_image_id(0), true);
+					break;
+				default:
+					continue;
+			}
+
+			// waiting bar
+			capacity_bar[i] = new_component<gui_halt_capacity_bar_t>(halt, i);
+
+			// capacity (text)
+			lb_waiting[i].set_align(gui_label_t::right);
+			lb_waiting[i].set_fixed_width(L_WAITING_CELL_WIDTH);
+			add_component(&lb_waiting[i]);
+			new_component<gui_label_t>("/");
+			lb_capacity[i].set_align(gui_label_t::right);
+			lb_capacity[i].set_fixed_width(L_CAPACITY_CELL_WIDTH);
+			add_component(&lb_capacity[i]);
+			new_component<gui_margin_t>(D_H_SPACE);
+
+			new_component<gui_label_t>(i==2 ? "Transfer time: " : "Transshipment time: ");
+			lb_transfer_time[i].set_fixed_width(L_WAITING_CELL_WIDTH);
+			add_component(&lb_transfer_time[i]);
+
+			img_alert.set_image(skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image_id(2) : IMG_EMPTY, true);
+			img_alert.set_rigid(true);
+			img_alert.set_tooltip("No service");
+			img_alert.set_visible(false);
+			add_component(&img_alert);
+			new_component<gui_fill_t>();
+		}
+	}
+}
+
+void gui_halt_waiting_indicator_t::draw(scr_coord offset)
+{
+	uint32 wainting_sum;
+	bool is_operating;
+	bool served;
+	//PIXVAL goods_colval;
+	char transfer_time_as_clock[32];
+	for (uint8 i = 0; i < 3; i++) {
+		switch (i) {
+			case 0:
+				served = halt->get_pax_enabled();  break;
+			case 1:
+				served = halt->get_mail_enabled(); break;
+			case 2:
+				served = halt->get_ware_enabled(); break;
+			default:
+				served = false; break;
+		}
+		if (served) {
+			is_operating = false;
+			wainting_sum = 0;
+			switch (i) {
+				case 0:
+					wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
+					is_operating = halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
+					break;
+				case 1:
+					wainting_sum = halt->get_ware_summe(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
+					is_operating = halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
+					break;
+				case 2:
+					for (uint8 g1 = 0; g1 < goods_manager_t::get_max_catg_index(); g1++) {
+						if (g1 == goods_manager_t::INDEX_PAS || g1 == goods_manager_t::INDEX_MAIL)
+						{
+							continue;
+						}
+						const goods_desc_t *wtyp = goods_manager_t::get_info(g1);
+						if (!is_operating)
+						{
+							is_operating = halt->gibt_ab(wtyp);
+						}
+						switch (g1) {
+						case 0:
+							wainting_sum += halt->get_ware_summe(wtyp);
+							break;
+						default:
+							const uint8 count = goods_manager_t::get_count();
+							for (uint32 g2 = 3; g2 < count; g2++) {
+								goods_desc_t const* const wtyp2 = goods_manager_t::get_info(g2);
+								if (wtyp2->get_catg_index() != g1) {
+									continue;
+								}
+								wainting_sum += halt->get_ware_summe(wtyp2);
+							}
+							break;
+						}
+					}
+					break;
+				default:
+					continue;
+			}
+			lb_waiting[i].buf().append(wainting_sum);
+			lb_waiting[i].update();
+			lb_capacity[i].buf().append(halt->get_capacity(i));
+			lb_capacity[i].update();
+
+			if (i == 2) {
+				world()->sprintf_time_tenths(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transshipment_time()));
+			}
+			else {
+				world()->sprintf_time_tenths(transfer_time_as_clock, sizeof(transfer_time_as_clock), (halt->get_transfer_time()));
+			}
+			lb_transfer_time[i].buf().append(transfer_time_as_clock);
+			lb_transfer_time[i].update();
+			lb_transfer_time[i].set_color(is_operating ? SYSCOL_TEXT : color_idx_to_rgb(MN_GREY0));
+
+			if (!is_operating && skinverwaltung_t::alerts) {
+				img_alert.set_visible(true);
+			}
+		}
 	}
 	gui_aligned_container_t::draw(offset);
 }

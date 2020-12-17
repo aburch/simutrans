@@ -20,10 +20,12 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
-#include "../gui/simwin.h"
 #include "../simfab.h"
+#include "simwin.h"
+#include "halt_info.h"
 
 class player_t;
+class gui_halt_waiting_indicator_t;
 
 
 // tab1 - pax and mail
@@ -130,6 +132,7 @@ private:
 	cbuffer_t buf;
 
 	gui_halthandled_lines_t line_number;
+	gui_halt_waiting_indicator_t *waiting_bar;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
 	gui_container_t cont, cont_goods, cont_route;
@@ -169,7 +172,7 @@ private:
 	void set_tab_opened();
 
 public:
-	halt_detail_t(halthandle_t halt);
+	halt_detail_t(halthandle_t halt = halthandle_t());
 
 	~halt_detail_t();
 
@@ -192,9 +195,6 @@ public:
 
 	// only defined to update schedule, if changed
 	void draw( scr_coord pos, scr_size size ) OVERRIDE;
-
-	// this constructor is only used during loading
-	halt_detail_t();
 
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
