@@ -47,6 +47,32 @@ public:
 	void draw(scr_coord offset) OVERRIDE;
 };
 
+class gui_acceleration_time_label_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+public:
+	gui_acceleration_time_label_t(convoihandle_t cnv);
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); };
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+class gui_acceleration_dist_label_t : public gui_container_t
+{
+private:
+	convoihandle_t cnv;
+public:
+	gui_acceleration_dist_label_t(convoihandle_t cnv);
+
+	scr_size get_min_size() const OVERRIDE { return get_size(); };
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
 /**
  * One element of the vehicle list display
  */
@@ -148,6 +174,8 @@ private:
 		lb_loading_time, lb_catering_level,  // for payload tab
 		lb_odometer, lb_value;               // for maintenance tab
 	gui_acceleration_label_t      *lb_acceleration;
+	gui_acceleration_time_label_t *lb_acc_time;
+	gui_acceleration_dist_label_t *lb_acc_distance;
 
 	gui_button_to_chart_array_t btn_to_accel_chart, btn_to_force_chart; //button_to_chart
 

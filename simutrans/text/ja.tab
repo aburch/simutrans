@@ -3735,12 +3735,6 @@ Selectable livery schemes
 選択可能な塗装スキーム
 Starting acceleration:
 起動加速度:
-; %i km/h @ %.2f sec
-，%i km/h @ %.2f 秒
-; %i km/h @ %.2f - %.2f sec
-，%i km/h @ %.2f - %.2f 秒
-; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
-，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
 (%.*ft laden)
 (満載時 %.*ft)
 (%.*f-%.*ft laden)
@@ -3987,16 +3981,46 @@ Return trip
 復路行程
 during the return trip of the mirror schedule
 往復スケジュールの復路行程
+Power: %4d kW\n
+出力: %4d kW\n
 cd_physics_tab
 性能曲線
 v-t graph
 v-tグラフ(加速曲線)
 f-v graph
 f-vグラフ(力行曲線)
+Acceleration(actual)
+加速度（リアルタイム）
+Acceleration(full load)
+加速度（満載時）
+Acceleration(empty)
+加速度（空車時）
 Running resistance
 走行抵抗
+time_to_top_speed:
+加速時間:
+distance_required_to_top_speed:
+加速距離:
 helptxt_starting_acceleration
 性能指標の1つで速度0km/hの時の加速度
+helptxt_actual_acceleration
+積載重量や勾配等の現在の状況を反映した加速グラフ
+Acceleration graph when nothing is loaded on the convoy
+無積載時の平坦な直線における加速グラフ
+helptxt_vt_graph_full_load
+最大積載時の平坦な直線における加速グラフ
+helptxt_fv_graph_tractive_effort
+速度と牽引力（加速力）の関係を表すグラフ
+Total force acting in the opposite direction of the convoy
+乗り物の進行方向と逆向きに働く力（空気抵抗や転がり抵抗）の合計
+helptxt_acceleration_time
+平坦な直線で最高速度に到達するまでに要する時間
+helptxt_acceleration_distance
+平坦な直線で最高速度に到達するまでに要する距離
+Unreachable
+N/A
+%.2f sec
+%.2f 秒
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -4027,7 +4051,11 @@ Power (MW)
 #郵便事業が行われている範囲を表示
 #Show passenger coverage/passenger network
 #旅客事業が行われている範囲を表示
-Power: %4d kW\n
-出力: %4d kW\n
 #Odometer: %s km
 #積算距離： %skm
+#; %i km/h @ %.2f sec
+#，%i km/h @ %.2f 秒
+#; %i km/h @ %.2f - %.2f sec
+#，%i km/h @ %.2f - %.2f 秒
+#; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
+#，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
