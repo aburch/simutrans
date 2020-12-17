@@ -27,9 +27,9 @@ karte_ptr_t message_t::welt;
 
 void message_t::node::rdwr(loadsave_t *file)
 {
-	file->rdwr_str(msg, lengthof(msg));
-	file->rdwr_long(type);
-	pos.rdwr(file);
+	file->rdwr_str( msg, lengthof(msg) );
+	file->rdwr_long( type );
+	pos.rdwr( file );
 	if (file->get_version_int() < 120005) {
 		// color was 16bit, with 0x8000 indicating player colors
 		uint16 c = color & PLAYER_FLAG ? 0x8000 + (color&(~PLAYER_FLAG)) : MN_GREY0;
@@ -37,10 +37,10 @@ void message_t::node::rdwr(loadsave_t *file)
 		color = c & 0x8000 ? PLAYER_FLAG + (c&(~0x8000)) : color_idx_to_rgb(c);
 	}
 	else {
-		file->rdwr_long(color);
+		file->rdwr_long( color );
 	}
-	file->rdwr_long(time);
-	if (file->is_loading()) {
+	file->rdwr_long( time );
+	if(  file->is_loading()  ) {
 		image = IMG_EMPTY;
 	}
 }
@@ -50,9 +50,9 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 {
 	// correct for player color
 	FLAGGED_PIXVAL colorval = color;
-	if (color&PLAYER_FLAG) {
+	if(  color&PLAYER_FLAG  ) {
 		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
-		colorval = player ? PLAYER_FLAG + color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_dark) : color_idx_to_rgb(MN_GREY0);
+		colorval = player ? PLAYER_FLAG+color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_dark) : color_idx_to_rgb(MN_GREY0);
 	}
 	return colorval;
 }
@@ -60,12 +60,12 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 
 message_t::message_t()
 {
-	ticker_flags = 0xFF7F;	// everything on the ticker only
+	ticker_flags = 0xFF7F; // everything on the ticker only
 	win_flags = 0;
 	auto_win_flags = 0;
 	ignore_flags = 0;
-	win_flags = 256 + 8;
-	auto_win_flags = 128 + 512;
+	win_flags = 256+8;
+	auto_win_flags = 128+512;
 }
 
 
@@ -85,7 +85,7 @@ void message_t::clear()
 
 
 /* get flags for message routing */
-void message_t::get_message_flags(sint32 *t, sint32 *w, sint32 *a, sint32 *i)
+void message_t::get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32 *i)
 {
 	*t = ticker_flags;
 	*w = win_flags;
@@ -96,7 +96,7 @@ void message_t::get_message_flags(sint32 *t, sint32 *w, sint32 *a, sint32 *i)
 
 
 /* set flags for message routing */
-void message_t::set_message_flags(sint32 t, sint32 w, sint32 a, sint32 i)
+void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 {
 	ticker_flags = t;
 	win_flags = w;
@@ -114,7 +114,7 @@ void message_t::set_message_flags(sint32 t, sint32 w, sint32 a, sint32 i)
  */
 void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
 {
-	DBG_MESSAGE("message_t::add_msg()", "%40s (at %i,%i)", text, pos.x, pos.y);
+DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	sint32 what_bit = 1<<(what_flags & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag));
 	if(  what_bit&ignore_flags  ) {
@@ -133,9 +133,9 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 		FOR(slist_tpl<node*>, const iter, list) {
 			node const& n = *iter;
 			if (n.time >= now &&
-				strcmp(n.msg, text) == 0 &&
-				(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
-				(n.pos.y & 0xFFF0) == (pos.y & 0xFFF0)) {
+					strcmp(n.msg, text) == 0 &&
+					(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
+					(n.pos.y & 0xFFF0) == (pos.y & 0xFFF0)) {
 				// we had exactly this message already
 				return;
 			}
@@ -200,7 +200,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 		}
 		wintype w_t = what_bit & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
 
-		create_win(news, w_t, magic_none);
+		create_win(  news, w_t, magic_none );
 	}
 
 	// restore focus
@@ -215,11 +215,11 @@ koord message_t::get_coord_from_text(const char* text)
 	koord pos(koord::invalid);
 	const char *str = text;
 	// scan until either @ or ( are found
-	while (*(str += strcspn(str, "@("))) {
+	while( *(str += strcspn(str, "@(")) ) {
 		str += 1;
-		int x = -1, y = -1;
+		int x=-1, y=-1;
 		if (sscanf(str, "%d,%d", &x, &y) == 2) {
-			if (welt->is_within_limits(x, y)) {
+			if (welt->is_within_limits(x,y)) {
 				pos.x = x;
 				pos.y = y;
 				break; // success
@@ -230,7 +230,7 @@ koord message_t::get_coord_from_text(const char* text)
 }
 
 
-void message_t::rotate90(sint16 size_w)
+void message_t::rotate90( sint16 size_w )
 {
 	FOR(slist_tpl<node*>, const i, list) {
 		i->pos.rotate90(size_w);
@@ -238,7 +238,7 @@ void message_t::rotate90(sint16 size_w)
 }
 
 
-void message_t::rdwr(loadsave_t *file)
+void message_t::rdwr( loadsave_t *file )
 {
 	uint16 msg_count;
 	if(  file->is_saving()  ) {
@@ -252,7 +252,7 @@ void message_t::rdwr(loadsave_t *file)
 				}
 				if (++msg_count == MAX_SAVED_MESSAGES) break;
 			}
-			file->rdwr_short(msg_count);
+			file->rdwr_short( msg_count );
 			FOR(slist_tpl<node*>, const i, list) {
 				if (msg_count == 0) break;
 				if(  i->type & do_not_rdwr_flag  || (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
@@ -283,7 +283,7 @@ void message_t::rdwr(loadsave_t *file)
 		// loading
 		clear();
 		file->rdwr_short(msg_count);
-		while ((msg_count--)>0) {
+		while(  (msg_count--)>0  ) {
 			node *n = new node();
 			n->rdwr(file);
 			list.append(n);

@@ -54,7 +54,7 @@ protected:
 	const char *get_info(const char *fname) OVERRIDE;
 
 	// sort with respect to info, which is date
-	bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
+	bool compare_items ( const dir_entry_t & entry, const char *info, const char *) OVERRIDE;
 
 	bool check_file( const char *filename, const char *suffix ) OVERRIDE;
 

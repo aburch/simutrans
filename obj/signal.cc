@@ -655,8 +655,7 @@ void signal_t::info(cbuffer_t & buf) const
 				}
 
 				// Convert the tiles counted to actual distance
-				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-				const double distance_km = (double)tiles * km_per_tile;
+				const double distance_km = welt->tiles_to_km(tiles);
 				char distance[20];
 
 				if (distance_km < 1)

@@ -42,6 +42,37 @@ public:
 };
 
 /**
+ * Helper class to draw freight type capacity bar
+ */
+class gui_halt_capacity_bar_t : public gui_container_t
+{
+	halthandle_t halt;
+	uint8 freight_type;
+public:
+	gui_halt_capacity_bar_t(halthandle_t h, uint8 ft);
+
+	void draw(scr_coord offset);
+};
+
+/**
+ * Helper class to show three freight category waiting indicator
+ */
+class gui_halt_waiting_indicator_t : public gui_aligned_container_t
+{
+	halthandle_t halt;
+	gui_image_t img_alert;
+	gui_halt_capacity_bar_t *capacity_bar[3];
+	gui_label_buf_t lb_waiting[3];
+	gui_label_buf_t lb_capacity[3];
+	gui_label_buf_t lb_transfer_time[3];
+public:
+	gui_halt_waiting_indicator_t(halthandle_t h);
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
+
+/**
  * Main class: the station info window.
  * Window with destination information for a stop
  */
@@ -102,7 +133,7 @@ private:
 	void show_hide_departures( bool show );
 
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_class_detail = 7, by_class_via = 8, SORT_MODES = 9 };
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_class_detail = 7, by_class_via = 8, by_line = 9, by_line_via = 10, SORT_MODES = 11 };
 //	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_transfer_time = 7, SORT_MODES = 8 };
 
 	halt_info_t(halthandle_t halt);

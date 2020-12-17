@@ -1577,6 +1577,10 @@ public:
 		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile());
 	}
 #endif
+	inline double tiles_to_km(uint32 tiles) const
+	{
+		return (double)tiles * get_settings().get_meters_per_tile() / 1000.0;
+	}
 	/**
 	* Adds a single tile of a building to the relevant world list for passenger
 	* and mail generation purposes

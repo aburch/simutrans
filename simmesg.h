@@ -40,28 +40,29 @@ public:
 	};
 
 	enum msg_typ {
-		general = 0,
-		ai = 1,
-		city = 2,
-		problems = 3,
-		industry = 4,
-		chat = 5,
-		new_vehicle = 6,
-		full = 7,
-		warnings = 8,
+		general      = 0,
+		ai           = 1,
+		city         = 2,
+		problems     = 3,
+		industry     = 4,
+		chat         = 5,
+		new_vehicle  = 6,
+		full         = 7,
+		warnings     = 8,
 		traffic_jams = 9,
-		scenario = 10,
+		scenario     = 10,
 		MAX_MESSAGE_TYPE,
-		expire_after_one_month_flag = 0x2000u,
-		do_not_rdwr_flag = 0x4000u,
-		playermsg_flag = 0x8000u
+
+		expire_after_one_month_flag = 1 << 13,
+		do_not_rdwr_flag            = 1 << 14,
+		playermsg_flag              = 1 << 15
 	};
 
-	void add_message(const char *text, koord pos, uint16 what, FLAGGED_PIXVAL color = SYSCOL_TEXT, image_id image = IMG_EMPTY);
+	void add_message( const char *text, koord pos, uint16 what, FLAGGED_PIXVAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );
 
 	/* determines, which message is displayed where */
-	void get_message_flags(sint32 *t, sint32 *w, sint32 *a, sint32  *i);
-	void set_message_flags(sint32, sint32, sint32, sint32);
+	void get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32  *i);
+	void set_message_flags( sint32, sint32, sint32, sint32 );
 
 	message_t();
 	~message_t();
@@ -82,14 +83,14 @@ public:
 
 	void clear();
 
-	void rotate90(sint16 size_w);
+	void rotate90( sint16 size_w );
 
-	void rdwr(loadsave_t *file);
+	void rdwr( loadsave_t *file );
 
 	/**
-	* Returns first valid coordinate from text (or koord::invalid if none is found).
-	* syntax: either @x,y or (x,y)
-	*/
+	 * Returns first valid coordinate from text (or koord::invalid if none is found).
+	 * syntax: either @x,y or (x,y)
+	 */
 	static koord get_coord_from_text(const char* text);
 };
 
