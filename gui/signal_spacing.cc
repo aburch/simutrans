@@ -21,9 +21,7 @@ bool signal_spacing_frame_t::backward = false;
 koord3d signal_spacing_frame_t::signalbox = koord3d::invalid;
 
 signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roadsign_t* tool_) :
-	gui_frame_t( translator::translate("set signal spacing") ),
-	signal_label("signal spacing"),
-	meter_label("m")
+	gui_frame_t( translator::translate("set signal spacing") )
 {
 	player = player_;
 	tool = tool_;
@@ -31,12 +29,16 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 
 	set_table_layout(3,0);
 
-	add_component( &signal_label );
+	new_component<gui_label_t>("signal spacing");
 	new_component<gui_fill_t>();
 
+	add_table(2,1);
 	signal_spacing_inp.add_listener(this);
-	signal_spacing_inp.init(signal_spacing, 1, 50, 1, true, 3);
+	signal_spacing_meter = signal_spacing * welt->get_settings().get_meters_per_tile();
+	signal_spacing_inp.init(signal_spacing_meter, 1*welt->get_settings().get_meters_per_tile(), 128*welt->get_settings().get_meters_per_tile(), welt->get_settings().get_meters_per_tile(), true, 4);
 	add_component( &signal_spacing_inp );
+	new_component<gui_label_t>("m");
+	end_table();
 
 	remove_button.init( button_t::square_state, "remove interm. signals");
 	remove_button.add_listener(this);
