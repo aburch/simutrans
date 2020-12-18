@@ -210,8 +210,7 @@ void gui_chart_t::draw(scr_coord offset)
 					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
-				else if(  c.type == FORCE  ) {
-					display_tmp = tmp*0.001;
+				else if (c.type == FORCE) {
 					tmp /= 1000;
 				}
 				else {
@@ -249,6 +248,9 @@ void gui_chart_t::draw(scr_coord offset)
 				// Change digits after drawing a line to smooth the curve of the physics chart
 				if (c.type == KMPH) {
 					display_tmp = (double)speed_to_kmh(tmp*10)/10.0;
+				}
+				else if (c.type == FORCE) {
+					display_tmp = tmp * 0.001;
 				}
 
 				// display tooltip?
