@@ -995,7 +995,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			display_colorbox_with_tooltip(offset.x + left, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
 			left += 10;
 			pas_info.clear();
-			pas_info.append(goods_manager_t::mail->get_name());
+			pas_info.append( translator::translate(goods_manager_t::mail->get_name()) );
 			left += display_proportional_clip_rgb(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
 		}
 
