@@ -15,6 +15,7 @@
 	ADD: construction cost tooltip also for normal tunnel construction (clicking on slopes)
 	FIX: Graphical glitches when resizing SDL2 window with -autodpi
 	ADD: special key "SCORLLOCK", "DELETE", ESCAPE", BACKSAPCE" and "+" sign for shift as modifer in tools key binding
+	ADD: waiting time in schedules is now entered in days hours minutes (but old games will still have the old steps)
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

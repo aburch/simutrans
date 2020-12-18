@@ -13,6 +13,7 @@
 #include "../display/simimg.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/int_math.h"
 #include "../gui/messagebox.h"
 #include "../descriptor/building_desc.h"
 #include "../boden/grund.h"
@@ -215,23 +216,52 @@ void schedule_t::move_entry_forward( uint8 cur )
 	if( entries.get_count() <= 2 ) {
 		return;
 	}
-	// so we have something to do
-	uint8 new_cur = (cur + entries.get_count() - 1) % entries.get_count();
-	schedule_entry_t cur_entry = entries[ cur ];
-	entries.remove_at( cur );
-	if ( cur==0 ) {
-		current_stop = (current_stop + entries.get_count() - 1) % entries.get_count();
-		entries.append( cur_entry );
+	// check if we are part of a departure group
+	uint8 cur_end = cur;
+	while(  entries[cur].minimum_loading > 100  &&  cur > 0  ) {
+		if(  entries[cur-1].minimum_loading <= 100  ||  entries[cur-1].pos != entries[cur].pos  ) {
+			break;
+		}
+		cur--;
+	}
+	while(  entries[cur_end].minimum_loading > 100  &&  cur_end < entries.get_count()  ) {
+		if(  entries[cur_end+1].minimum_loading <= 100  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
+			break;
+		}
+		cur_end++;
+	}
+	// now we have the actual start: still something to do?
+	if(  cur == 0  &&  cur_end == entries.get_count()  ) {
+		// no, just a single entry
+		return;
+	}
+	sint16 delta = 0;
+	if( cur == 0 ) {
+		// just append everything
+		for(  uint8 i=0;  i <= cur_end;  i++  ) {
+			entries.append( entries[ 0 ] );
+			entries.remove_at( 0 );
+		}
+		delta = entries.get_count() - 1 - cur_end;
 	}
 	else {
-		if( current_stop == cur ) {
-			current_stop = new_cur;
+		// find the entry point
+		uint8 new_cur = (cur + entries.get_count() - 1) % entries.get_count();
+		while(  entries[new_cur].minimum_loading > 100  &&  new_cur > 0  ) {
+			if(  entries[new_cur-1].minimum_loading <= 100  ||  entries[new_cur-1].pos != entries[new_cur].pos  ) {
+				break;
+			}
+			new_cur--;
 		}
-		else if( current_stop == new_cur ) {
-			current_stop++;
+		// now move all old and insert at new position
+		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
+			entries.insert_at( new_cur, entries[ cur+i ] );
+			entries.remove_at( cur+i+1 );
 		}
-		entries.insert_at( new_cur, cur_entry );
+		delta = (sint16)new_cur - cur;
 	}
+
+	current_stop = (current_stop + delta) % entries.get_count();
 	make_current_stop_valid();
 }
 
@@ -242,23 +272,54 @@ void schedule_t::move_entry_backward( uint8 cur )
 	if( entries.get_count() <= 2 ) {
 		return;
 	}
-	// so we have something to do
-	uint8 new_cur = (cur + 1) % entries.get_count();
-	schedule_entry_t cur_entry = entries[ cur ];
-	entries.remove_at( cur );
-	if ( new_cur==0 ) {
-		entries.insert_at( 0, cur_entry );
-		current_stop = (current_stop + 1) % entries.get_count();
+	// check if we are part of a departure group
+	uint8 cur_end = cur;
+	while(  entries[cur].minimum_loading > 100  &&  cur > 0  ) {
+		if(  entries[cur-1].minimum_loading <= 100  ||  entries[cur-1].pos != entries[cur].pos  ) {
+			break;
+		}
+		cur--;
+	}
+	while(  entries[cur_end].minimum_loading > 100  &&  cur_end < entries.get_count()  ) {
+		if(  entries[cur_end+1].minimum_loading <= 100  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
+			break;
+		}
+		cur_end++;
+	}
+	// now we have the actual start: still something to do?
+	if(  cur == 0  &&  cur_end == entries.get_count()  ) {
+		// no, just a single entry
+		return;
+	}
+
+	// find the entry point
+	uint8 new_cur = (cur_end + 1) % entries.get_count();
+	while(  entries[new_cur].minimum_loading > 100  &&  new_cur <= entries.get_count()  ) {
+		if(  entries[new_cur+1].minimum_loading <= 100  ||  entries[new_cur+1].pos != entries[new_cur].pos  ) {
+			break;
+		}
+		new_cur++;
+	}
+
+	sint16 delta = (new_cur - (sint16)cur);
+	;
+
+	if(  new_cur+1 > entries.get_count()  ||  new_cur == 0  ) {
+		// insert at front
+		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
+			entries.insert_at( 0, entries[ cur_end-i ] );
+			entries.remove_at( cur_end-i+1 );
+		}
 	}
 	else {
-		if( current_stop == cur ) {
-			current_stop = new_cur;
+		// now move all to new position afterwards
+		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
+			entries.insert_at( new_cur+1-i, entries[ cur_end-i ] );
+			entries.remove_at( cur_end-i );
 		}
-		else if( current_stop == new_cur ) {
-			current_stop --;
-		}
-		entries.insert_at( new_cur, cur_entry );
 	}
+
+	current_stop = (current_stop + delta) % entries.get_count();
 	make_current_stop_valid();
 }
 
@@ -307,12 +368,34 @@ void schedule_t::rdwr(loadsave_t *file)
 		for(  uint8 i=0;  i<size;  i++  ) {
 			if(entries.get_count()<=i) {
 				entries.append( schedule_entry_t() );
-				entries[i] .waiting_time_shift = 0;
+				entries[i] .waiting_time = 0;
 			}
 			entries[i].pos.rdwr(file);
 			file->rdwr_byte(entries[i].minimum_loading);
 			if(file->is_version_atleast(99, 18)) {
-				file->rdwr_byte(entries[i].waiting_time_shift);
+				if( file->is_version_atleast( 122, 1 ) ) {
+					file->rdwr_short(entries[i].waiting_time);
+				}
+				else if(file->is_loading()) {
+					uint8 wl=0;
+					file->rdwr_byte(wl);
+					if( entries[i].minimum_loading <= 100 ) {
+						if( wl > 0 ) {
+							// old value: maximum waiting time in 1/2^(16-n) parts of a month
+							entries[ i ].waiting_time = 65535u / (1 << (16u - wl));
+						}
+					}
+					else if( entries[i].minimum_loading > 100 ) {
+						entries[ i ].waiting_time = wl << 8;
+					}
+				}
+				else {
+					uint8 wl = entries[ i ].waiting_time >> 8;	// loosing precision, but what can we do ...
+					if( entries[ i ].minimum_loading <= 100  &&  entries[ i ].waiting_time > 0  ) {
+						wl = log2( (uint32)entries[ i ].waiting_time )+1;
+					}
+					file->rdwr_byte(wl);
+				}
 			}
 		}
 	}
@@ -480,7 +563,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.printf("%u|%d|", current_stop, (int)get_type());
 	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
-		buf.printf("%s,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time_shift);
+		buf.printf("%s,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time);
 	}
 }
 

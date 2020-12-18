@@ -350,6 +350,7 @@ SOURCES += gui/components/gui_speedbar.cc
 SOURCES += gui/components/gui_tab_panel.cc
 SOURCES += gui/components/gui_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
+SOURCES += gui/components/gui_timeinput.cc
 SOURCES += gui/components/gui_waytype_tab_panel.cc
 SOURCES += gui/components/gui_world_view_t.cc
 SOURCES += gui/convoi_detail_t.cc

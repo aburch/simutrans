@@ -84,9 +84,11 @@ public:
 	void remove_entry( uint8 entry );
 
 	// move the entry to front (and wrap)
+	// you must use this function so all groups of departue entries are moved together
 	void move_entry_forward( uint8 entry );
 
 	// move the entry to back (and wrap)
+	// you must use this function so all groups of departue entries are moved together
 	void move_entry_backward( uint8 entry );
 
 	/**
@@ -108,8 +110,19 @@ public:
 
 	/// advance current_stop by one
 	void advance() {
-		if(  !entries.empty()  ) {
-			current_stop = (current_stop+1)%entries.get_count();
+		if( !entries.empty() ) {
+			if( entries[ current_stop ].minimum_loading > 100 ) {
+				// skip the whole departure group
+				for( uint8 next_stop = (current_stop + 1) % entries.get_count(); next_stop != current_stop; next_stop = (next_stop + 1) % entries.get_count() ) {
+					if( entries[ next_stop ].pos != entries[ current_stop ].pos ) {
+						current_stop = next_stop;
+						break;
+					}
+				}
+			}
+			else {
+				current_stop = (current_stop+1)%entries.get_count();
+			}
 		}
 	}
 
@@ -159,7 +172,7 @@ public:
 	bool matches(karte_t *welt, const schedule_t *schedule);
 
 	/**
-	 * Compare this schedule with another, ignoring order and exact positions and waypoints.
+	 * Compare this schedule with another, ignoring order and exact positions and waypoints, wazting/scheduling.
 	 */
 	bool similar( const schedule_t *schedule, const player_t *player );
 

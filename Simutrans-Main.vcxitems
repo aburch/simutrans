@@ -233,6 +233,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_timeinput.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\classify_file.cc" />
@@ -596,6 +597,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textarea.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_textinput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_timeinput.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_waytype_tab_panel.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\components\gui_world_view_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ifc\simtestdriver.h" />
@@ -706,6 +708,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\csv.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\checklist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\log.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)utils\int_math.hh" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\searchfolder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)utils\sha1_hash.h" />

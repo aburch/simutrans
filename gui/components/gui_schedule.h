@@ -14,6 +14,8 @@
 #include "gui_action_creator.h"
 #include "gui_combobox.h"
 #include "gui_scrollpane.h"
+#include "gui_scrolled_list.h"
+#include "gui_timeinput.h"
 #include "action_listener.h"
 
 #include "../../convoihandle_t.h"
@@ -37,17 +39,19 @@ class gui_schedule_t :
 	public action_listener_t
 {
 private:
-	gui_label_buf_t lb_waitlevel;
-
 	// always needed
-	button_t bt_revert, bt_return;
+	button_t bt_revert, bt_return, bt_add_scheduling;
 
-	gui_label_t lb_wait, lb_load;
+	gui_label_t lb_wait;
 	gui_numberinput_t numimp_load;
-	gui_combobox_t wait_load;
+	gui_combobox_t departure_or_load;
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
+
+	gui_aligned_container_t *loading_details;
+
+	gui_timeinput_t departure;
 
 	bool make_return; // either reverting line or add mirror
 	bool no_editing; // if convoi schedule is part of a line, if has to be removed from it

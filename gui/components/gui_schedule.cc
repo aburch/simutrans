@@ -5,6 +5,7 @@
 
 #include "../../simline.h"
 #include "../../simcolor.h"
+#include "../../simintr.h"
 #include "../../simhalt.h"
 #include "../../simworld.h"
 #include "../../simmenu.h"
@@ -31,6 +32,7 @@
 #include "gui_button.h"
 #include "gui_image.h"
 #include "gui_textarea.h"
+#include "gui_timeinput.h"
 #include "gui_component.h"
 
 #include "gui_schedule.h"
@@ -54,6 +56,8 @@ const char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] =
 	"Appends stops at the end of the schedule",
 	"Insert stop before the current stop",
 };
+
+"month wait time"
 */
 
 /**
@@ -73,7 +77,7 @@ class gui_schedule_entry_t :
 	gui_label_buf_t stop_extra;
 
 public:
-	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
+	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, schedule_t *f, uint n)
 	{
 		player = pl;
 		entry  = e;
@@ -86,13 +90,19 @@ public:
 
 		add_component(&stop);
 
-		up.init( button_t::arrowup, "" );
-		up.add_listener( this );
-		add_component( &up );
+		if(  n > 0  &&  e.minimum_loading > 100  &&  f->entries[n-1].pos == e.pos  ) {
+			// this is part of a departure group, so we cannot move this entry up or down
+			new_component_span<gui_empty_t>(2);
+		}
+		else {
+			up.init( button_t::arrowup, "" );
+			up.add_listener( this );
+			add_component( &up );
 
-		down.init( button_t::arrowdown, "" );
-		down.add_listener( this );
-		add_component( &down );
+			down.init( button_t::arrowdown, "" );
+			down.add_listener( this );
+			add_component( &down );
+		}
 
 		del.init( button_t::square_automatic, "" );
 		del.add_listener( this );
@@ -110,13 +120,16 @@ public:
 		stop.buf().printf("%i) ", number+1);
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
 		stop.update();
-		if(  entry.minimum_loading > 0  ) {
-			if(  entry.waiting_time_shift > 0  ) {
-				stop_extra.buf().printf("(%d %%, 1/%d)", (int)entry.minimum_loading, (int)(1<<(16-entry.waiting_time_shift)) );
+		if(  entry.minimum_loading > 0  &&  entry.minimum_loading <= 100  ) {
+			if(  entry.waiting_time > 0  ) {
+				stop_extra.buf().printf("(%d%%, %s)", (int)entry.minimum_loading,  difftick_to_string( entry.get_waiting_ticks(), false ) );
 			}
 			else {
-				stop_extra.buf().printf("(%i %%)", entry.minimum_loading );
+				stop_extra.buf().printf("(%i%%)", entry.minimum_loading );
 			}
+		}
+		else if(entry.minimum_loading>100) {	// part of a departure
+			stop_extra.buf().append( difftick_to_string( entry.get_waiting_ticks(), false ) );
 		}
 		else {
 			stop_extra.buf().clear();
@@ -283,7 +296,7 @@ public:
 			}
 			else {
 				for(uint i=0; i<schedule->entries.get_count(); i++) {
-					entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], i));
+					entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], schedule, i));
 					entries.back()->add_listener( this );
 				}
 				entries[ schedule->get_current_stop() ]->set_active(true);
@@ -382,9 +395,7 @@ void gui_schedule_t::highlight_schedule( bool hl )
 }
 
 gui_schedule_t::gui_schedule_t() :
-	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	lb_wait("month wait time"),
-	lb_load("Full load"),
+	lb_wait("Full load"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -395,9 +406,10 @@ gui_schedule_t::gui_schedule_t() :
 	set_table_layout(1,0);
 
 	// loading level and waiting time
-	add_table(2,2)->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
+	loading_details = add_table( 3, 1 );
+	loading_details->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
-		add_component(&lb_load);
+		add_component(&lb_wait);
 
 		numimp_load.set_width( 60 );
 		numimp_load.set_value( 0 );
@@ -406,16 +418,9 @@ gui_schedule_t::gui_schedule_t() :
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 
-		add_component(&lb_wait);
-
-		add_component(&wait_load);
-		wait_load.add_listener(this);
-
-		wait_load.new_component<gui_waiting_time_item_t>(0);
-		for(sint8 w = 7; w<=16; w++) {
-			wait_load.new_component<gui_waiting_time_item_t>(w);
-		}
-		wait_load.set_rigid(true);
+		departure.set_rigid(true);
+		departure.add_listener(this);
+		add_component(&departure);
 	}
 	end_table();
 
@@ -530,38 +535,46 @@ void gui_schedule_t::update_tool(bool set)
 void gui_schedule_t::update_selection()
 {
 	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
-	wait_load.disable();
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
-			lb_load.set_color( SYSCOL_TEXT );
-			numimp_load.enable();
-			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 
-			sint8 wait = 0;
-			if(  schedule->entries[current_stop].minimum_loading>0  ) {
-				lb_wait.set_color( SYSCOL_TEXT );
-				wait_load.enable();
+			departure_or_load.set_visible(true);
+			numimp_load.set_visible(false);
+			bt_add_scheduling.set_visible(false);
+			lb_wait.set_visible(true);
+			departure.set_visible(true);
 
-				wait = schedule->entries[current_stop].waiting_time_shift;
+			if( schedule->entries[ current_stop ].minimum_loading < 100 ) {
+				numimp_load.enable();
+				numimp_load.set_visible(true);
+				numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
+			}
+			else {
+				numimp_load.disable();
+				numimp_load.set_value( 0 );
+				numimp_load.set_visible(false);
+				bt_add_scheduling.set_visible(true);
 			}
 
-			for(int i=0; i<wait_load.count_elements(); i++) {
-				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
-					if (item->get_wait_shift() == wait) {
-						wait_load.set_selection(i);
-						break;
-					}
-				}
+			if(  schedule->entries[current_stop].minimum_loading > 0  ) { 
+				departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
+			}
+			else {
+				lb_wait.set_visible(false);
+				departure.set_visible(false);
 			}
 
 		}
 		else {
-			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
-			numimp_load.disable();
-			numimp_load.set_value( 0 );
+			departure_or_load.set_visible(false);
+			numimp_load.set_visible(false);
+			bt_add_scheduling.set_visible(false);
+			numimp_load.set_visible(false);
+			lb_wait.set_visible(false);
+			departure.set_visible(false);
 		}
 	}
 }
@@ -591,12 +604,10 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			update_selection();
 		}
 	}
-	else if(comp == &wait_load) {
+	else if(comp == &departure) {
 		if(!schedule->empty()) {
-			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_selected_item())) {
-				schedule->entries[schedule->get_current_stop()].waiting_time_shift = item->get_wait_shift();
-				update_selection();
-			}
+			schedule->entries[schedule->get_current_stop()].waiting_time = p.i;
+			update_selection();
 		}
 	}
 	else if(comp == &bt_return) {
@@ -649,9 +660,10 @@ void gui_schedule_t::draw(scr_coord pos)
 		}
 		bt_revert.enable( !is_all_same &&  is_allowed );
 
+		departure_or_load.enable( is_allowed );
 		numimp_load.enable( is_allowed );
-		wait_load.enable( is_allowed );
-
+		bt_add_scheduling.enable( is_allowed );
+		departure.enable( is_allowed );
 		bt_return.enable( is_allowed );
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
@@ -666,10 +678,9 @@ void gui_schedule_t::set_size(scr_size size)
 {
 	gui_aligned_container_t::set_size(size);
 	size = get_size();
-	// manually enlarge size of wait_load combobox
-	wait_load.set_size( scr_size(numimp_load.get_size().w, wait_load.get_size().h) );
+
 	// make scrolly take all of space
-	scrolly.set_size( scr_size(scrolly.get_size().w, get_size().h - scrolly.get_pos().y - D_MARGIN_BOTTOM));
+	scrolly.set_size( scr_size(scrolly.get_size().w, get_size().h - scrolly.get_pos().y));
 }
 
 
@@ -678,6 +689,7 @@ void gui_schedule_t::rdwr(loadsave_t *file)
 	// convoy data
 	convoi_t::rdwr_convoihandle_t(file, convoi_mode);
 	simline_t::rdwr_linehandle_t(file, line_mode);
+	departure.rdwr( file );
 
 	if(  file->is_loading()  ) {
 		uint16 schedule_type, player_nr;
@@ -707,6 +719,7 @@ void gui_schedule_t::rdwr(loadsave_t *file)
 		load_schedule->rdwr( file );
 		init(load_schedule, player, convoi_mode, line_mode);
 		delete load_schedule;
+		get_min_size();
 		set_size(size);
 	}
 	else {

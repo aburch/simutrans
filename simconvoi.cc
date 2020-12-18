@@ -2526,8 +2526,8 @@ void convoi_t::rdwr(loadsave_t *file)
 	// waiting time left ...
 	if(file->is_version_atleast(99, 17)) {
 		if(file->is_saving()) {
-			if(  has_schedule  &&  schedule->get_current_entry().waiting_time_shift > 0  ) {
-				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) - welt->get_ticks();
+			if(  has_schedule  &&  schedule->get_current_entry().waiting_time > 0  ) {
+				uint32 diff_ticks = arrived_time + schedule->get_current_entry().get_waiting_ticks() - welt->get_ticks();
 				file->rdwr_long(diff_ticks);
 			}
 			else {
@@ -2538,7 +2538,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		else {
 			uint32 diff_ticks = 0;
 			file->rdwr_long(diff_ticks);
-			arrived_time = has_schedule ? welt->get_ticks() - (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) + diff_ticks : 0;
+			arrived_time = has_schedule ? welt->get_ticks() - schedule->get_current_entry().get_waiting_ticks() + diff_ticks : 0;
 		}
 	}
 
@@ -2996,7 +2996,7 @@ station_tile_search_ready: ;
 
 	// loading is finished => maybe drive on
 	if(  loading_level >= loading_limit  ||  no_load
-		||  (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time > (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) ) ) {
+		||  (schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks()  )  ) {
 
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty

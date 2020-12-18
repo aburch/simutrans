@@ -8,6 +8,8 @@
 
 
 #include "koord3d.h"
+#include "../tpl/minivec_tpl.h"
+#include "../simworld.h"
 
 /**
  * A schedule entry.
@@ -17,10 +19,10 @@ struct schedule_entry_t
 public:
 	schedule_entry_t() {}
 
-	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time_shift) :
+	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time) :
 		pos(pos),
 		minimum_loading(minimum_loading),
-		waiting_time_shift(waiting_time_shift)
+		waiting_time(waiting_time)
 	{}
 
 	/**
@@ -31,19 +33,25 @@ public:
 	/**
 	 * Wait for % load at this stops
 	 * (ignored on waypoints)
+	 * If this value is greater than 100, waiting_time_shift contains a departure time
 	 */
 	uint8 minimum_loading;
 
 	/**
-	 * maximum waiting time in 1/2^(16-n) parts of a month
 	 * (only active if minimum_loading!=0)
+	 * contains a departing time in ticks, relative to the length of the month
+	 * The actual tick value is waiting_time << (tick_bit_per_month-16)
 	 */
-	sint8 waiting_time_shift;
+	uint16 waiting_time;
+
+	sint32 get_waiting_ticks() const {
+		return (sint32)((world()->ticks_per_world_month_shift >= 16) ? ((uint32)waiting_time << (world()->ticks_per_world_month_shift - 16)) : ((uint32)waiting_time >> (16 - world()->ticks_per_world_month_shift)));
+	}
 };
 
 inline bool operator ==(const schedule_entry_t &a, const schedule_entry_t &b)
 {
-	return a.pos == b.pos  &&  a.minimum_loading == b.minimum_loading  &&  a.waiting_time_shift == b.waiting_time_shift;
+	return a.pos == b.pos  &&  a.minimum_loading == b.minimum_loading  &&  a.waiting_time == b.waiting_time;
 }
 
 
