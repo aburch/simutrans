@@ -403,8 +403,8 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	container_chart.end_table();
 	container_chart.add_component(&switch_chart);
 
-	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"));
-	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"));
+	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"), NULL, translator::translate("helptxt_v-t_graph"));
+	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"), NULL, translator::translate("helptxt_f-v_graph"));
 
 	cont_accel.set_table_layout(1,0);
 	cont_accel.add_component(&accel_chart);
