@@ -615,7 +615,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		sint32 sp_soll = 0;
 		sint32 sp_soll_min = 0;
 		sint32 sp_soll_max = 0;
-		uint8 i = SPEED_RECORDS - 1;
+		int i = SPEED_RECORDS - 1;
 		long delta_t = 1000;
 		sint32 delta_s = (welt->get_settings().ticks_to_seconds(delta_t)).to_sint32();
 		accel_curves[i][1] = akt_speed;
