@@ -210,9 +210,6 @@ void gui_chart_t::draw(scr_coord offset)
 					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
-				else if (c.type == FORCE) {
-					tmp /= 1000;
-				}
 				else {
 					display_tmp = tmp;
 				}
@@ -303,7 +300,9 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	const char* min_suffix = NULL;
 	const char* max_suffix = NULL;
 	int precision = 0;
-	bool convert_kmph=false;
+
+	bool convert_kmph = false; // for speed chart. Converts the scale from simspeed to km/h.
+	bool convert_n_to_kn = false; // for force chart
 
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
@@ -322,8 +321,8 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 					precision = 0;
 				}
 				else if (  c.type == FORCE  ) {
-					tmp /= 1000;
-					precision = 0;
+					convert_n_to_kn = true;
+					// precision does not need to be changed. The running resistance is so small (in kN) that we need to display the decimal point.
 				}
 				if (min > tmp) {
 					min = tmp ;
@@ -345,8 +344,8 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	}
 
 	// if accel chart => Drawing accuracy hack: simspeed to integer km/h. (Do not rewrite min max for scaling)
-	number_to_string_fit(cmin, convert_kmph ? speed_to_kmh((int)min) : (double)min, precision, maximum_axis_len - (min_suffix != 0));
-	number_to_string_fit(cmax, convert_kmph ? speed_to_kmh((int)max) : (double)max, precision, maximum_axis_len - (max_suffix != 0));
+	number_to_string_fit(cmin, convert_kmph ? speed_to_kmh((int)min) : convert_n_to_kn ? min/1000.0 : (double)min, precision, maximum_axis_len - (min_suffix != 0));
+	number_to_string_fit(cmax, convert_kmph ? speed_to_kmh((int)max) : convert_n_to_kn ? max/1000.0 : (double)max, precision, maximum_axis_len - (max_suffix != 0));
 
 	if(  min_suffix  ) {
 		strcat( cmin, min_suffix );
