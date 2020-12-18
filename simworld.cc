@@ -3130,6 +3130,9 @@ karte_t::karte_t() :
 	// for new world just set load version to current savegame version
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
+
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 
@@ -10107,6 +10110,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// loading finished, reset savegame version to current
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
+
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
 
 	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list())
 	{
