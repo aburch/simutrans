@@ -261,7 +261,7 @@ convoi_info_t::~convoi_info_t()
 // apply new schedule
 void convoi_info_t::apply_schedule()
 {
-	if(  !cnv.is_bound()  ||  !cnv->get_state()==convoi_t::EDIT_SCHEDULE  ) {
+	if(  (!cnv.is_bound())  ||  cnv->get_state()!=convoi_t::EDIT_SCHEDULE  ) {
 		// no change allowed (one can only enter this state when editing was allowed)
 		return;
 	}
