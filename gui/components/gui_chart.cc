@@ -183,11 +183,12 @@ void gui_chart_t::draw(scr_coord offset)
 	int tooltip_n=-1;
 	int ttcx = tooltipcoord.x-chart_offset.x;
 	if(  ttcx>0  &&  ttcx<chart_size.w  ) {
+		const uint8 temp_x = abort_display_x ? (env_t::left_to_right_graphs ? abort_display_x : x_elements-abort_display_x) : x_elements;
 		if(env_t::left_to_right_graphs) {
-			tooltip_n = x_elements-1-(ttcx*x_elements+4)/(chart_size.w|1);
+			tooltip_n = x_elements-1-(ttcx*temp_x+4)/(chart_size.w|1);
 		}
 		else {
-			tooltip_n = (ttcx*x_elements+4)/(chart_size.w|1);
+			tooltip_n = (ttcx*temp_x+4)/(chart_size.w|1);
 		}
 	}
 
@@ -256,12 +257,12 @@ void gui_chart_t::draw(scr_coord offset)
 					if (c.suffix) {
 						strcat(tooltip, c.suffix);
 					}
-					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
+					win_set_tooltip( get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i > start && i < end) {
-					display_direct_line_rgb(tmpx + factor * (chart_size.w / (x_elements - 1))*(i - start - 1),
+					display_direct_line_rgb(tmpx + factor * (chart_size.w / (x_elements - 1))*(i-start-1),
 						(scr_coord_val)( offset.y+baseline-(int)(last_year/scale) ),
 						tmpx+factor*(chart_size.w / (x_elements - 1))*(i - start),
 						(scr_coord_val)( offset.y+baseline-(int)(tmp/scale) ),
