@@ -5,16 +5,14 @@
 
 #include "network_file_transfer.h"
 #include "../simdebug.h"
-#include "../simversion.h"
 #include "../simloadingscreen.h"
+#include "../sys/simsys.h"
 
 #include <string.h>
 #include <errno.h>
-
 #include "../utils/cbuffer_t.h"
 
 #ifndef NETTOOL
-#include "../sys/simsys.h"
 #include "../dataobj/translator.h"
 #else
 #define dr_remove remove
@@ -52,7 +50,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 					fd_set fds;
 					FD_ZERO(&fds);
 					FD_SET(s,&fds);
-					struct timeval tv;	// 10 s timeout
+					struct timeval tv; // 10 s timeout
 					tv.tv_sec = 10000 / 1000;
 					tv.tv_usec = (10000 % 1000) * 1000ul;
 					// can we read?
@@ -101,8 +99,6 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 #include "../simworld.h"
 #include "../utils/simstring.h"
 
-#include "../sys/simsys.h"
-
 
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
@@ -117,7 +113,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		char filename[PATH_MAX];
 		loadsave_t fd;
 
-		socket_list_t::add_client(my_client_socket);
+		socket_list_t::add_client( my_client_socket );
 		{
 			nwc_gameinfo_t nwgi;
 			nwgi.rdwr();
@@ -127,7 +123,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			}
 		}
 		// wait for join command (tolerate some wrong commands)
-		nwc = network_check_activity( NULL, 10000 );	// 10s should be enough for reply ...
+		nwc = network_check_activity( NULL, 10000 ); // 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
@@ -156,8 +152,8 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			// some more insets, while things may have failed
 			err = fd.get_last_error() == loadsave_t::FILE_ERROR_FUTURE_VERSION ? "Server version too new" : "Server busy";
 		}
-	end:
-		remove( filename );
+		dr_remove( filename );
+end:
 		socket_list_t::remove_client( my_client_socket );
 	}
 	network_close_socket( my_client_socket );
@@ -360,7 +356,7 @@ const char *network_http_post( const char *address, const char *name, const char
 		unsigned int pos = 0;
 		sint32 length = 0;
 
-		// TODO better handling of error message from listing server		// TODO
+		// TODO better handling of error message from listing server // TODO
 
 		while(1) {
 			// Returns number of bytes received

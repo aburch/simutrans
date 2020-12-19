@@ -1882,10 +1882,11 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		// [avarage speed]
 		buf.clear();
 		sint64 average_speed = kmh_from_meters_and_tenths((int)(km_to_halt*1000), cnx->journey_time);
-		buf.printf(" (%2ukm/h) ", average_speed);
+		buf.printf(" (%2ukm/h)", average_speed);
 		xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
 #endif
 
+		xoff += D_H_SPACE*2;
 		// [waiting time]
 		buf.clear();
 		if (!is_walking){
