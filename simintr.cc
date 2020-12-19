@@ -211,7 +211,6 @@ char const *tick_to_string( uint32 ticks )
 
 char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 {
-	static sint32 tage_per_month = 31;
 	static char time [128];
 
 	time[0] = 0;
@@ -231,7 +230,7 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 		sprintf( days, "%+i ", num_days );
 	}
 
-	uint32 tage, hours, minuten;
+	uint32 hours, minuten;
 	if (env_t::show_month > env_t::DATE_FMT_MONTH) {
 		hours = (((sint64)ticks*31) >> (welt_modell->ticks_per_world_month_shift-16));
 		minuten = (((hours*3) % 8192)*60)/8192;

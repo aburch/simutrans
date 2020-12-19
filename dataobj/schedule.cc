@@ -205,7 +205,7 @@ void schedule_t::remove_entry( uint8 delete_enty )
 	if( current_stop > delete_enty ) {
 		current_stop--;
 	}
-	bool ok = entries.remove_at(delete_enty);
+	entries.remove_at(delete_enty);
 	make_current_stop_valid();
 }
 
