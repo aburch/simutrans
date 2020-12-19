@@ -9,7 +9,7 @@
 #include "../simtypes.h"
 
 
-inline int log2(sint64 n)
+inline int log2(uint64 n)
 {
 #define S(k) if (n >= (UINT64_C(1) << k)) { i += k; n >>= k; }
 
