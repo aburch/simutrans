@@ -49,6 +49,12 @@ const scripted_tool_info_t* script_tool_manager_t::get_script_info(const char* p
 		info->title    = contents.get_string("title", path);
 		info->menu_arg = contents.get_string("menu", "");
 		info->tooltip  = contents.get_string("tooltip", "");
+		info->cursor_area = contents.get_koord("cursor_area", koord(1,1));
+		info->cursor_offset = contents.get_koord("cursor_offset", koord(0,0));
+		if(  info->cursor_area.x<1  ||  info->cursor_area.y<1  ) {
+			dbg->warning("script_tool_manager_t::get_script_info()", "The cursor area of scripted tool %s must have at least 1 tile length. Sanitized to (1,1).", info->title.c_str());
+			info->cursor_area = koord(1,1);
+		}
 
 		const char* skin_name = contents.get_string("icon", "");
 		info->desc   = skinverwaltung_t::get_extra(skin_name, strlen(skin_name), skinverwaltung_t::cursor);

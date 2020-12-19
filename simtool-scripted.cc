@@ -220,6 +220,15 @@ tool_exec_script_t::tool_exec_script_t(const scripted_tool_info_t *info) : tool_
 bool tool_exec_script_t::init(player_t* player)
 {
 	bool res = false;
+	cursor_area = get_cursor_area();
+	cursor_offset = get_cursor_offset();
+	// rotate area and offset
+	for(uint8 i=0;  i<world()->get_settings().get_rotation();  i++) {
+		koord old_area = cursor_area;
+		koord old_offset = cursor_offset;
+		cursor_area = koord(old_area.y, old_area.x);
+		cursor_offset = koord(old_area.y-1-old_offset.y, old_offset.x);
+	}
 	return init_vm(player)  &&  call_function(script_vm_t::FORCE, "init", player, res)== NULL  &&  res;
 }
 

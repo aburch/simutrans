@@ -35,12 +35,16 @@ struct scripted_tool_info_t {
 	const skin_desc_t* desc; ///< skin object used for cursor (0), icon (1), and maybe marker (2)
 	bool restart;            ///< true, if script vm has to be restarted after work()
 	bool is_one_click;       ///< true, if tool is one-click (otherwise needs two clicks/coordinates to work)
+	koord cursor_area;       ///< size of cursor defined in tool_t
+	koord cursor_offset;     ///< cursor offset defined in tool_t
 	/// sets default values
 	scripted_tool_info_t()
 	{
 		desc = NULL;
 		restart = true;
 		is_one_click = true;
+		cursor_area = koord(1,1);
+		cursor_offset = koord(0,0);
 	}
 };
 
@@ -77,6 +81,8 @@ public:
 	void step(player_t* player);
 
 	const char *get_tooltip(const player_t *) const { return info ? info->tooltip.c_str() : ""; }
+	koord get_cursor_area() const { return info->cursor_area; }
+	koord get_cursor_offset() const { return info->cursor_offset; }
 };
 
 
