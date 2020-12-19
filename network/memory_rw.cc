@@ -23,6 +23,7 @@ memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
 
 void memory_rw_t::rdwr(void *data, uint32 len)
 {
+	assert(data);
 	if(  len+index>max_size  ) {
 		len = max_size-index;
 		overflow = true;

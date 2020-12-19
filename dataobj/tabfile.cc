@@ -395,6 +395,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 					for(int c=0; c<combinations; c++) {
 						int names = 0;
 						int combination[10];
+						assert(parameters < 10); // make compiler happy
 						if(parameters>0) {
 							// warp values around the number of parameters the expansion has
 							for(int j=0; j<parameters; j++) {
