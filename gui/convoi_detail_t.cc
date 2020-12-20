@@ -470,6 +470,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 
 	update_labels();
 
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, tabs.get_pos().y + container_chart.get_size().h));
 	set_resizemode(diagonal_resize);
 }
 
