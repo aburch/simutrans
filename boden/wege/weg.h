@@ -114,6 +114,9 @@ public:
 		}
 	};
 
+	static void add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal);
+	static void apply_travel_time_updates();
+
 private:
 	/**
 	* array for statistical values

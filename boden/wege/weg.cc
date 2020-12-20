@@ -57,6 +57,7 @@ static pthread_mutexattr_t mutex_attributes;
  */
 vector_tpl <weg_t *> alle_wege;
 
+static slist_tpl<std::tuple<weg_t*, uint32, uint32>> pending_road_travel_time_updates;
 /**
  * Get list of all ways
  */
@@ -1958,4 +1959,19 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 	(void)error;
 #endif
 
+}
+void weg_t::add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal) {
+	pending_road_travel_time_updates.append(std::make_tuple(w, actual, ideal));
+}
+
+void weg_t::apply_travel_time_updates() {
+	while(!pending_road_travel_time_updates.empty() ) {
+		weg_t* str;
+		uint32 actual;
+		uint32 ideal;
+		std::tie(str, actual, ideal) = pending_road_travel_time_updates.remove_first();
+		if(str) {
+			str->update_travel_times(actual,ideal);
+		}
+	}
 }

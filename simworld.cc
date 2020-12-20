@@ -5770,7 +5770,10 @@ void karte_t::step()
 	}
 #endif
 
+	weg_t::apply_travel_time_updates();
+
 	rands[16] = get_random_seed();
+
 
 	INT_CHECK("karte_t::step 3c");
 
