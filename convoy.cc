@@ -290,21 +290,22 @@ sint32 convoy_t::calc_min_braking_distance(const settings_t &settings, const wei
 }
 
 
-uint32 convoy_t::calc_acceleration(const weight_summary_t &weight, sint32 speed)
+float32e8_t convoy_t::calc_acceleration(const weight_summary_t &weight, sint32 speed)
 {
-	return ((get_force_summary(speed * kmh2ms) - calc_speed_holding_force(speed * kmh2ms, get_adverse_summary().fr))/g_accel).to_sint32() * 1000 / 28.35 / weight.weight * 100;
+	const float32e8_t Frs = g_accel * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	return (get_force_summary(speed * kmh2ms) - calc_speed_holding_force(speed * kmh2ms, Frs)) * 3600 / weight.weight;
 }
 
 double convoy_t::calc_acceleration_time(const weight_summary_t &weight, sint32 speed)
 {
 	if (!weight.weight || !speed) { return 0.0; }
-	double total_sec = 0;
+	float32e8_t total_sec = 0;
 	for (int i = 1; i < speed; i++) {
 		if (!calc_acceleration(weight, i)) { return 0.0; /* given speed error */ }
-		const double delta_t = (double)100.0 / calc_acceleration(weight, i);
+		const float32e8_t delta_t = 1000 / calc_acceleration(weight, i);
 		total_sec += delta_t;
 	}
-	return total_sec;
+	return total_sec.to_double();
 }
 
 uint32 convoy_t::calc_acceleration_distance(const weight_summary_t &weight, sint32 speed)
@@ -313,8 +314,8 @@ uint32 convoy_t::calc_acceleration_distance(const weight_summary_t &weight, sint
 	uint64 travel_distance = 0;
 	for (int i = 1; i < speed; i++) {
 		if (!calc_acceleration(weight, i)) { return 0; /* given speed error */ }
-		const double delta_t = (double)100.0 / calc_acceleration(weight, i);
-		travel_distance += delta_t * (i - 0.5) * 1000 / 3600 * 100; // [cm]
+		const float32e8_t delta_t = 1000 / calc_acceleration(weight, i);
+		travel_distance += delta_t * (i - 1/2) * 1000 / 3600 * 100; // [cm]
 	}
 	return travel_distance/100; // in meter
 }
