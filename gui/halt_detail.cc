@@ -9,7 +9,6 @@
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simhalt.h"
-#include "../simline.h"
 #include "../simconvoi.h"
 
 #include "../descriptor/goods_desc.h"
@@ -20,11 +19,10 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/koord.h"
 
-#include "../player/simplay.h"
-
 #include "../utils/simstring.h"
 
 #include "halt_detail.h"
+#include "components/gui_label.h"
 
 
 #define GOODS_SYMBOL_CELL_WIDTH 14
@@ -44,13 +42,13 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	line_number(halt_),
 	pas(halt_),
 	goods(halt_),
+	cont_service(halt_),
 	route(halt_, selected_route_catg_index),
-	txt_info(&buf),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
+	scrolly_service(&cont_service),
 	scrolly_route(&cont_route),
-	nearby_factory(halt_),
-	scrolly(&cont)
+	nearby_factory(halt_)
 {
 	if (halt.is_bound()) {
 		init();
@@ -74,18 +72,6 @@ void halt_detail_t::init()
 	add_component(&line_number);
 	waiting_bar = new_component<gui_halt_waiting_indicator_t>(halt);
 
-
-	lb_serve_lines.init("Lines serving this stop", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
-		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	cont.add_component(&lb_serve_lines);
-	lb_serve_convoys.init("Lineless convoys serving this stop", scr_coord(D_MARGIN_LEFT, LINESPACE*4),
-		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	lb_serve_convoys.set_visible(false);
-	cont.add_component(&lb_serve_convoys);
-
-	cont.add_component(&txt_info);
-	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
-
 	tabs.set_pos(scr_coord(0, LINESPACE*4 + D_MARGIN_TOP + D_V_SPACE));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
@@ -95,9 +81,6 @@ void halt_detail_t::init()
 	cashed_size_y = 0;
 	show_pas_info = false;
 	show_freight_info = false;
-
-	scrolly.set_pos(scr_coord(0, 0));
-	scrolly.set_show_scroll_x(true);
 
 	lb_nearby_factory.init("Fabrikanschluss"/* (en)Connected industries */, scr_coord(D_MARGIN_LEFT, 0),
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
@@ -246,29 +229,6 @@ void halt_detail_t::init()
 
 halt_detail_t::~halt_detail_t()
 {
-	while(!linelabels.empty()) {
-		gui_label_t *l = linelabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!linebuttons.empty()) {
-		button_t *b = linebuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!convoylabels.empty()) {
-		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!convoybuttons.empty()) {
-		button_t *b = convoybuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!label_names.empty()) {
-		free(label_names.remove_first());
-	}
 	while (!catg_buttons.empty()) {
 		button_t *b = catg_buttons.remove_first();
 		cont_route.remove_component(b);
@@ -324,7 +284,7 @@ void halt_detail_t::update_components()
 		if (show_freight_info) {
 			tabs.add_tab(&scrolly_goods, translator::translate("Freight"));
 		}
-		tabs.add_tab(&scrolly, translator::translate("Services"));
+		tabs.add_tab(&scrolly_service, translator::translate("Services"));
 		tabs.add_tab(&scrolly_route, translator::translate("Route_tab"));
 		if (tabstate != -1) {
 			tabs.set_active_tab_index(old_tab);
@@ -342,7 +302,6 @@ void halt_detail_t::update_components()
 			halt->registered_convoys.get_count() != cached_convoy_count ||
 			welt->get_ticks() - update_time > 10000) {
 			// fill buffer with halt detail
-			halt_detail_info();
 			cached_active_player = welt->get_active_player();
 			update_time = (uint32)welt->get_ticks();
 		}
@@ -466,167 +425,11 @@ void halt_detail_t::update_components()
 	set_dirty();
 }
 
-void halt_detail_t::halt_detail_info()
-{
-	if (!halt.is_bound()) {
-		return;
-	}
-
-	while(!linelabels.empty()) {
-		gui_label_t *l = linelabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!linebuttons.empty()) {
-		button_t *b = linebuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!convoylabels.empty()) {
-		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!convoybuttons.empty()) {
-		button_t *b = convoybuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!label_names.empty()) {
-		free(label_names.remove_first());
-	}
-	buf.clear();
-
-	sint16 offset_y = D_MARGIN_TOP;
-
-	// add lines that serve this stop
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-	if(  !halt->registered_lines.empty()  ) {
-		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
-			uint waytype_line_cnt = 0;
-			for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
-				if (halt->registered_lines[i]->get_linetype() != lt) {
-					continue;
-				}
-				sint16 offset_x = D_MARGIN_LEFT;
-				if (!waytype_line_cnt) {
-					buf.append("\n");
-					offset_y += LINESPACE;
-					buf.append(" \xC2\xB7 ");
-					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
-					buf.append("\n");
-					offset_y += LINESPACE;
-				}
-
-				// Line buttons only if owner ...
-				if (welt->get_active_player() == halt->registered_lines[i]->get_owner()) {
-					button_t *b = new button_t();
-					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y), scr_size(D_POS_BUTTON_SIZE) );
-					b->set_targetpos(koord(-1, i));
-					b->add_listener(this);
-					linebuttons.append(b);
-					cont.add_component(b);
-				}
-				offset_x += D_BUTTON_HEIGHT+D_H_SPACE;
-				// Line labels with color of player
-				label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
-				l->set_pos( scr_coord(offset_x, offset_y) );
-				linelabels.append( l );
-				cont.add_component( l );
-				buf.append("\n");
-				offset_y += LINESPACE;
-				waytype_line_cnt++;
-			}
-		}
-	}
-	else {
-		buf.append(" ");
-		buf.append( translator::translate("keine") );
-		buf.append("\n");
-		offset_y += LINESPACE;
-	}
-
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-	lb_serve_convoys.set_visible(true);
-	lb_serve_convoys.set_pos(scr_coord(D_MARGIN_LEFT, offset_y));
-	buf.append("\n\n");
-	offset_y += LINESPACE*2;
-
-	if(  !halt->registered_convoys.empty()  ) {
-		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
-			// Convoy buttons
-			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y), scr_size(D_POS_BUTTON_SIZE) );
-			b->set_targetpos( koord(-2, i) );
-			b->add_listener( this );
-			convoybuttons.append( b );
-			cont.add_component( b );
-
-			// Line labels with color of player
-			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_convoys[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
-			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
-			convoylabels.append( l );
-			cont.add_component( l );
-			buf.append("\n");
-			offset_y += LINESPACE;
-		}
-	}
-	else {
-		buf.append(" ");
-		buf.append( translator::translate("keine") );
-		buf.append("\n");
-		offset_y += LINESPACE;
-	}
-
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-		// If it is a special freight, we display the name of the good, otherwise the name of the category.
-		//buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
-
-	txt_info.recalc_size();
-	cont.set_size( txt_info.get_size() );
-
-	// ok, we have now this counter for pending updates
-	cached_line_count = halt->registered_lines.get_count();
-	cached_convoy_count = halt->registered_convoys.get_count();
-}
-
 
 
 bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 {
-	if( comp != &tabs && extra.i & ~1  ) {
-		koord k = *(const koord *)extra.p;
-		if(  k.x==-1  ) {
-			// Line button pressed.
-			uint16 j=k.y;
-			if(  j < halt->registered_lines.get_count()  ) {
-				linehandle_t line=halt->registered_lines[j];
-				player_t *player=welt->get_active_player();
-				if(  player==line->get_owner()  ) {
-					// Change player => change marked lines
-					player->simlinemgmt.show_lineinfo(player,line);
-					welt->set_dirty();
-				}
-			}
-		}
-		else if(  k.x==-2  ) {
-			// Knightly : lineless convoy button pressed
-			uint16 j = k.y;
-			if(  j<halt->registered_convoys.get_count()  ) {
-				convoihandle_t convoy = halt->registered_convoys[j];
-				convoy->show_info();
-			}
-		}
-	}
-	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
+	if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
 		set_tab_opened();
 	}
 	else if (comp == &bt_by_category) {
@@ -767,7 +570,7 @@ void halt_detail_t::set_tab_opened()
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_goods.get_size().h)));
 			break;
 		case 2: // info
-			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + txt_info.get_size().h)));
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_service.get_size().h)));
 			break;
 		case 3: // route
 			route.recalc_size();
@@ -798,15 +601,11 @@ void halt_detail_t::rdwr(loadsave_t *file)
 {
 	koord3d halt_pos;
 	scr_size size = get_windowsize();
-	sint32 xoff = scrolly.get_scroll_x();
-	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		halt_pos = halt->get_basis_pos3d();
 	}
 	halt_pos.rdwr( file );
 	size.rdwr( file );
-	file->rdwr_long( xoff );
-	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
 		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
@@ -814,7 +613,6 @@ void halt_detail_t::rdwr(loadsave_t *file)
 		halt_detail_t *w = new halt_detail_t(halt);
 		create_win(pos.x, pos.y, w, w_info, magic_halt_detail + halt.get_id());
 		w->set_windowsize( size );
-		w->scrolly.set_scroll_position( xoff, yoff );
 		destroy_win( this );
 	}
 }
@@ -1524,6 +1322,132 @@ bool gui_halt_nearby_factory_info_t::infowin_event(const event_t * ev)
 	}
 	return false;
 }
+
+
+gui_halt_service_info_t::gui_halt_service_info_t(halthandle_t halt)
+	: scrolly(&container)
+{
+	if (halt.is_bound()) {
+		init(halt);
+	}
+}
+
+void gui_halt_service_info_t::init(halthandle_t halt)
+{
+	this->halt = halt;
+	cached_line_count = 0xFFFFFFFFul;
+	cached_convoy_count = 0xFFFFFFFFul;
+
+	update_connections(halt);
+}
+
+void gui_halt_service_info_t::draw(scr_coord offset)
+{
+
+	update_connections(halt);
+
+	scrolly.set_size(scrolly.get_size());
+
+	gui_aligned_container_t::draw(offset);
+}
+
+void gui_halt_service_info_t::update_connections(halthandle_t h)
+{
+	if (!halt.is_bound()) {
+		// first call, or invalid handle
+		remove_all();
+		return;
+	}
+
+	if (halt->registered_lines.get_count() == cached_line_count && halt->registered_convoys.get_count() == cached_convoy_count) {
+		// all current, so do nothing
+		return;
+	}
+
+	// update connections from here
+	remove_all();
+
+	set_table_layout(1, 0);
+	set_margin(scr_size(D_MARGIN_LEFT, D_V_SPACE), scr_size(D_MARGIN_RIGHT, D_V_SPACE));
+
+	// add lines that serve this stop
+	new_component<gui_heading_t>("Lines serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
+	add_table(2,0)->set_spacing(scr_size(D_H_SPACE, 2));
+	if (halt->registered_lines.empty()) {
+		insert_show_nothing();
+	}
+	else {
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint waytype_line_cnt = 0;
+			for (uint32 i = 0; i < halt->registered_lines.get_count(); i++) {
+				if (halt->registered_lines[i]->get_linetype() != lt) {
+					continue;
+				}
+				// Linetype if it is the first
+				if (!waytype_line_cnt) {
+					new_component<gui_empty_t>(); new_component<gui_margin_t>(0,D_V_SPACE);
+
+					new_component<gui_image_t>()->set_image(halt->registered_lines[i]->get_linetype_symbol(), true);
+					new_component<gui_label_t>(translator::translate(halt->registered_lines[i]->get_linetype_name()));
+				}
+
+				// Line buttons only if owner ...
+				new_component<gui_line_button_t>(halt->registered_lines[i]);
+
+				// Line labels with color of player
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+				lb->buf().append(halt->registered_lines[i]->get_name());
+				lb->update();
+				waytype_line_cnt++;
+			}
+		}
+	}
+	end_table();
+
+	// add lineless convoys which serve this stop
+	new_component<gui_margin_t>(0, D_V_SPACE);
+	new_component<gui_heading_t>("Lineless convoys serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1() + 2), 1);
+	add_table(2, 0)->set_spacing(scr_size(D_H_SPACE, 2));
+	if (halt->registered_convoys.empty()) {
+		insert_show_nothing();
+	}
+	else {
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint lineless_convoy_cnt = 0;
+			for (uint32 i = 0; i < halt->registered_convoys.get_count(); ++i) {
+				const convoihandle_t cnv = halt->registered_convoys[i];
+				if (cnv->get_schedule()->get_type() != lt) {
+					continue;
+				}
+				// Linetype if it is the first
+				if (!lineless_convoy_cnt) {
+					new_component<gui_empty_t>(); new_component<gui_margin_t>(0, D_V_SPACE);
+
+					new_component<gui_image_t>()->set_image(cnv->get_schedule()->get_schedule_type_symbol(), true);
+					new_component<gui_label_t>(translator::translate(cnv->get_schedule()->get_schedule_type_name()));
+				}
+
+				// Convoy buttons
+				new_component<gui_convoi_button_t>(cnv);
+
+				// Line labels with color of player
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(cnv->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+				lb->buf().append(cnv->get_name());
+				lb->update();
+
+				lineless_convoy_cnt++;
+			}
+		}
+	}
+	end_table();
+
+	// ok, we have now this counter for pending updates
+	cached_line_count = halt->registered_lines.get_count();
+	cached_convoy_count = halt->registered_convoys.get_count();
+
+	set_size(get_min_size());
+}
+
 
 
 class RelativeDistanceOrdering
