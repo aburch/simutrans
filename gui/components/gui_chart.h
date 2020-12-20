@@ -11,7 +11,7 @@
 #include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
-// NOTE: KMPH hacks drawing accuracy and should not be mixed with other types
+// NOTE: KMPH and FORCE hacks drawing accuracy and should not be mixed with other types
 // CURVE TYPES
 #define STANDARD 0
 #define MONEY 1

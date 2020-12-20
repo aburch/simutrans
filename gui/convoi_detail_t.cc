@@ -42,6 +42,7 @@ class convoy_t;
 
 static const uint8 physics_curves_color[MAX_PHYSICS_CURVES] =
 {
+	COL_WHITE,
 	COL_GREEN-1,
 	L_COL_ACCEL_FULL,
 	L_COL_ACCEL_EMPTY,
@@ -55,17 +56,19 @@ static const uint8 curves_type[MAX_PHYSICS_CURVES] =
 	KMPH,
 	KMPH,
 	KMPH,
+	KMPH,
 	FORCE,
 	FORCE
 };
 
 static const gui_chart_t::chart_marker_t marker_type[MAX_PHYSICS_CURVES] = {
-	gui_chart_t::cross, gui_chart_t::square,gui_chart_t::diamond,
+	gui_chart_t::none, gui_chart_t::cross, gui_chart_t::square, gui_chart_t::diamond,
 	gui_chart_t::diamond, gui_chart_t::cross
 };
 
 static const char curve_name[MAX_PHYSICS_CURVES][64] =
 {
+	"",
 	"Acceleration(actual)",
 	"Acceleration(full load)",
 	"Acceleration(empty)",
@@ -75,6 +78,7 @@ static const char curve_name[MAX_PHYSICS_CURVES][64] =
 
 static char const* const chart_help_text[] =
 {
+	"",
 	"helptxt_actual_acceleration",
 	"Acceleration graph when nothing is loaded on the convoy",
 	"helptxt_vt_graph_full_load",
@@ -179,7 +183,7 @@ void gui_acceleration_time_label_t::draw(scr_coord offset)
 
 	buf.clear();
 	buf.printf(translator::translate("@ %d km/h"), min_speed);
-	total_x += display_proportional_clip_rgb(pos.x + offset.x + total_x, pos.y + offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	total_x += display_proportional_clip_rgb(pos.x + offset.x + total_x, pos.y + offset.y, buf, ALIGN_LEFT, color_idx_to_rgb(COL_WHITE), true);
 
 	scr_size size(total_x + D_H_SPACE, LINEASCENT);
 	if (size != get_size()) {
@@ -399,8 +403,8 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	container_chart.end_table();
 	container_chart.add_component(&switch_chart);
 
-	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"));
-	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"));
+	switch_chart.add_tab(&cont_accel, translator::translate("v-t graph"), NULL, translator::translate("helptxt_v-t_graph"));
+	switch_chart.add_tab(&cont_force, translator::translate("f-v graph"), NULL, translator::translate("helptxt_f-v_graph"));
 
 	cont_accel.set_table_layout(1,0);
 	cont_accel.add_component(&accel_chart);
@@ -414,15 +418,20 @@ void convoi_detail_t::init(convoihandle_t cnv)
 			for (uint8 i = 0; i < SPEED_RECORDS; i++) {
 				accel_curves[i][btn] = 0;
 			}
-			sint16 curve = accel_chart.add_curve(color_idx_to_rgb(physics_curves_color[btn]), (sint64*)accel_curves, MAX_ACCEL_CURVES, btn, SPEED_RECORDS, curves_type[btn], false, true, 1, NULL, marker_type[btn]);
+			sint16 curve = accel_chart.add_curve(color_idx_to_rgb(physics_curves_color[btn]), (sint64*)accel_curves, MAX_ACCEL_CURVES, btn, SPEED_RECORDS, curves_type[btn], false, true, btn==0 ? 0:1, NULL, marker_type[btn]);
 
 			button_t *b = cont_accel.new_component<button_t>();
 			b->init(button_t::box_state_automatic | button_t::flexible, curve_name[btn]);
 			b->background_color = color_idx_to_rgb(physics_curves_color[btn]);
 			b->set_tooltip(translator::translate(chart_help_text[btn]));
-			b->pressed = (cnv->in_depot() && btn == 2) ? true : false;
+			// always show the max speed reference line and the full load acceleration graph is displayed by default
+			b->pressed = (btn == 0) || (cnv->in_depot() && btn == 2);
+			b->set_visible(btn!=0);
 
 			btn_to_accel_chart.append(b, &accel_chart, curve);
+			if (b->pressed) {
+				accel_chart.show_curve(btn);
+			}
 		}
 	}
 	cont_accel.end_table();
@@ -445,7 +454,10 @@ void convoi_detail_t::init(convoihandle_t cnv)
 			bf->init(button_t::box_state_automatic | button_t::flexible, curve_name[MAX_ACCEL_CURVES + btn]);
 			bf->background_color = color_idx_to_rgb(physics_curves_color[MAX_ACCEL_CURVES + btn]);
 			bf->set_tooltip(translator::translate(chart_help_text[MAX_ACCEL_CURVES + btn]));
-			bf->pressed = false;
+			bf->pressed = (btn == 0);
+			if (bf->pressed) {
+				force_chart.show_curve(btn);
+			}
 
 			btn_to_force_chart.append(bf, &force_chart, force_curve);
 		}
@@ -578,10 +590,10 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 	}
 
 	if (tabs.get_active_tab_index()==3) {
-		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
+		// common existing_convoy_t for acceleration curve and weight/speed info.
 		convoi_t &convoy = *cnv.get_rep();
 
-		// create dummy convoy and calcurate theoretical acceleration curve - Ranran, Jan, 2020
+		// create dummy convoy and calcurate theoretical acceleration curve
 		vector_tpl<const vehicle_desc_t*> vehicles;
 		for (uint8 i = 0; i < cnv->get_vehicle_count(); i++)
 		{
@@ -592,8 +604,8 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		const sint32 min_weight = dummy_convoy.get_vehicle_summary().weight;
 		const sint32 max_freight_weight = dummy_convoy.get_freight_summary().max_freight_weight;
 
-		const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
-		const int akt_speed_soll_ = dummy_convoy.get_vehicle_summary().max_sim_speed;
+		const sint32 akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
+		const sint32 akt_speed_soll_ = dummy_convoy.get_vehicle_summary().max_sim_speed;
 		float32e8_t akt_v = 0;
 		float32e8_t akt_v_min = 0;
 		float32e8_t akt_v_max = 0;
@@ -606,9 +618,9 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		int i = SPEED_RECORDS - 1;
 		long delta_t = 1000;
 		sint32 delta_s = (welt->get_settings().ticks_to_seconds(delta_t)).to_sint32();
-		accel_curves[i][0] = akt_speed;
-		accel_curves[i][1] = akt_speed_min;
-		accel_curves[i][2] = akt_speed_max;
+		accel_curves[i][1] = akt_speed;
+		accel_curves[i][2] = akt_speed_min;
+		accel_curves[i][3] = akt_speed_max;
 
 		if (env_t::left_to_right_graphs) {
 			accel_chart.set_seed(delta_s * (SPEED_RECORDS - 1));
@@ -628,30 +640,34 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			dummy_convoy.calc_move(welt->get_settings(), delta_t, weight_summary_t(min_weight+max_freight_weight, dummy_convoy.get_current_friction()), akt_speed_soll_, akt_speed_soll_, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed_max, sp_soll_max, akt_v_max);
 			convoy.calc_move(welt->get_settings(), delta_t, akt_speed_soll, akt_speed_soll, SINT32_MAX_VALUE, SINT32_MAX_VALUE, akt_speed, sp_soll, akt_v);
 			if (env_t::left_to_right_graphs) {
-				accel_curves[--i][0] = cnv->in_depot() ? 0 : akt_speed;
-				accel_curves[i][1] = akt_speed_max;
-				accel_curves[i][2] = akt_speed_min;
+				accel_curves[--i][1] = cnv->in_depot() ? 0 : akt_speed;
+				accel_curves[i][2] = akt_speed_max;
+				accel_curves[i][3] = akt_speed_min;
 			}
 			else {
-				accel_curves[SPEED_RECORDS-i][0] = cnv->in_depot() ? 0 : akt_speed;
-				accel_curves[SPEED_RECORDS-i][1] = akt_speed_max;
-				accel_curves[SPEED_RECORDS-i][2] = akt_speed_min;
+				accel_curves[SPEED_RECORDS-i][1] = cnv->in_depot() ? 0 : akt_speed;
+				accel_curves[SPEED_RECORDS-i][2] = akt_speed_max;
+				accel_curves[SPEED_RECORDS-i][3] = akt_speed_min;
 				i--;
 			}
+		}
+		// for max speed reference line
+		for (i = 0; i < SPEED_RECORDS; i++) {
+			accel_curves[i][0] = empty_convoy.get_vehicle_summary().max_sim_speed;
 		}
 
 		// force chart
 		if (max_speed > 0) {
 			const uint16 display_interval = (max_speed + SPEED_RECORDS-1) / SPEED_RECORDS;
 			float32e8_t rolling_resistance = cnv->get_adverse_summary().fr;
-			te_curve_abort_x = (uint8)((max_speed + (display_interval-1)) / display_interval) + 1;
+			te_curve_abort_x = (uint8)((max_speed + (display_interval-1)) / display_interval);
 			force_chart.set_abort_display_x(te_curve_abort_x);
 			force_chart.set_dimension(te_curve_abort_x, 10000);
 
 			if (env_t::left_to_right_graphs) {
 				force_chart.set_seed(display_interval * (SPEED_RECORDS-1));
 				force_chart.set_x_axis_span(display_interval);
-				for (int i = 0; i < max_speed; i++) {
+				for (i = 0; i < max_speed; i++) {
 					if (i % display_interval == 0) {
 						force_curves[SPEED_RECORDS-i / display_interval-1][0] = cnv->get_force_summary(i*kmh2ms);
 						force_curves[SPEED_RECORDS-i / display_interval-1][1] = cnv->calc_speed_holding_force(i*kmh2ms, rolling_resistance).to_sint32();
