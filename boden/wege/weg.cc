@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <tuple>
 
 #include "../../tpl/slist_tpl.h"
 
@@ -1974,4 +1975,8 @@ void weg_t::apply_travel_time_updates() {
 			str->update_travel_times(actual,ideal);
 		}
 	}
+}
+
+void weg_t::clear_travel_time_updates() {
+	pending_road_travel_time_updates.clear();
 }
