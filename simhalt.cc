@@ -2292,7 +2292,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 			// muss an factory geliefert werden
 			liefere_an_fabrik(ware);
 		}
-		else if(  ware.get_desc() == goods_manager_t::passengers  ) {
+		else if(  ware.is_passenger()  ) {
 			// arriving passenger may create pedestrians
 			if(  welt->get_settings().get_show_pax()  ) {
 				int menge = ware.menge;
