@@ -660,7 +660,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		if (max_speed > 0) {
 			const uint16 display_interval = (max_speed + SPEED_RECORDS-1) / SPEED_RECORDS;
 			float32e8_t rolling_resistance = cnv->get_adverse_summary().fr;
-			te_curve_abort_x = (uint8)((max_speed + (display_interval-1)) / display_interval) + 1;
+			te_curve_abort_x = (uint8)((max_speed + (display_interval-1)) / display_interval);
 			force_chart.set_abort_display_x(te_curve_abort_x);
 			force_chart.set_dimension(te_curve_abort_x, 10000);
 
