@@ -6042,3 +6042,45 @@ Undecided
 Undecided
 Line to
 Line to
+cd_physics_tab
+Performance
+time_to_top_speed
+Acceleration time
+Starting acceleration:
+Starting acceleration:
+distance_required_to_top_speed:
+Acceleration distance
+v-t graph
+Speed/time chart
+f-v graph
+Force/speed chart
+helptxt_v-t_graph
+A graph showing the relationship between these vehicles' rate of acceleration over time at various states of loading.
+helptxt_f-v_graph
+A graph showing the tractive effort and running resistance of these vehicles as their speed increases. 
+helptxt_starting_acceleration
+The rate of acceleration of these vehicles in kilometers per hour per second when it begins accelerating. Black: current; red: fully loaded; blue: empty.
+helptxt_acceleration_time
+The amount of time that these vehicles will take to reach their top speed. Red: fully loaded; blue: empty. The top speed is shown in white.
+helptxt_acceleration_distance
+The distance before these vehicles will reach their top speed. Red: fully loaded; blue: empty.
+Acceleration(actual)
+Acceleration (actual)
+Acceleration(full load)
+Acceleration (full load)
+Acceleration(empty)
+Acceleration (empty)
+Tractive effort
+Tractive effort
+Running resistance
+Running resistance
+helptxt_actual_acceleration
+The rate of acceleration at the current level of loading
+Acceleration graph when nothing is loaded on the convoy
+The rate of acceleration with no payload
+helptxt_vt_graph_full_load
+The rate of acceleration when fully loaded
+helptxt_fv_graph_tractive_effort
+The tractive effort (force) exerted by these vehicles at any given rate of speed up to the maximum
+Total force acting in the opposite direction of the convoy
+The resistance acting on these vehicles at any given rate of speed up to the maximum
