@@ -1554,7 +1554,9 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 			if (!connexions->empty()) {
 				FOR(connexions_map_single_remote, &iter, *connexions) {
 					halthandle_t a_halt = iter.key;
-					halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+					if (a_halt.is_bound()) {
+						halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+					}
 				}
 			}
 		}
@@ -1578,7 +1580,9 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 		if (!connexions->empty()) {
 			FOR(connexions_map_single_remote, &iter, *connexions) {
 				halthandle_t a_halt = iter.key;
-				halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+				if (a_halt.is_bound()) {
+					halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+				}
 			}
 		}
 	}
