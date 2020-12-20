@@ -9487,7 +9487,6 @@ bool tool_change_player_t::init( player_t *player_in)
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'c': // change player color
-			//  unused
 			if(  player  &&  player==player_in  ) {
 				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
