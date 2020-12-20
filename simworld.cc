@@ -3130,6 +3130,9 @@ karte_t::karte_t() :
 	// for new world just set load version to current savegame version
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
+
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 
@@ -8998,9 +9001,9 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
+		if(file.get_version_int() == 0 || file.get_version_int() > loadsave_t::int_version(env_t::savegame_version_str, NULL).version) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
-			dbg->warning("karte_t::load()", "Version is %u (Ex %u)", loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version, loadsave_t::int_version(SAVEGAME_VER_NR, NULL).extended_version);
+			dbg->warning("karte_t::load()", "Version is %u (Ex %u.%u)", file.get_version_int(), file.get_extended_version(), file.get_extended_revision());
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
@@ -10107,6 +10110,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// loading finished, reset savegame version to current
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
+
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
 
 	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list())
 	{

@@ -15,6 +15,7 @@
 #include "../descriptor/goods_desc.h"
 #include "../bauer/goods_manager.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/koord.h"
@@ -531,7 +532,7 @@ void halt_detail_t::halt_detail_info()
 				offset_x += D_BUTTON_HEIGHT+D_H_SPACE;
 				// Line labels with color of player
 				label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
+				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
 				l->set_pos( scr_coord(offset_x, offset_y) );
 				linelabels.append( l );
 				cont.add_component( l );
@@ -568,7 +569,7 @@ void halt_detail_t::halt_detail_info()
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_convoys[i]->get_owner()->get_player_color1()+0) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_convoys[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
 			cont.add_component( l );
@@ -994,7 +995,7 @@ void halt_detail_pas_t::draw(scr_coord offset)
 			display_colorbox_with_tooltip(offset.x + left, offset.y + top + GOODS_COLOR_BOX_YOFF, 8, 8, goods_manager_t::mail->get_color(), true, goods_manager_t::mail->get_name());
 			left += 10;
 			pas_info.clear();
-			pas_info.append(goods_manager_t::mail->get_name());
+			pas_info.append( translator::translate(goods_manager_t::mail->get_name()) );
 			left += display_proportional_clip_rgb(offset.x + left, offset.y + top, pas_info, ALIGN_LEFT, SYSCOL_TEXT, true) + D_H_SPACE * 2;
 		}
 
@@ -1687,7 +1688,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 		xoff += D_H_SPACE;
 
 		// [stop name]
-		display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, dest->get_owner()->get_player_color1(), true);
+		display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, color_idx_to_rgb(dest->get_owner()->get_player_color1()+env_t::gui_player_color_dark), true);
 
 		//TODO: set pos button here
 
@@ -1796,7 +1797,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 							buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
 						}
 					}
-					display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+1), true);
+					display_proportional_clip_rgb(offset.x + xoff + catg_xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+env_t::gui_player_color_dark), true);
 				}
 #endif
 				yoff += LINESPACE;
@@ -1848,7 +1849,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		xoff += D_H_SPACE;
 
 		// [name]
-		xoff += max(display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, dest->get_owner()->get_player_color1(), true), D_BUTTON_WIDTH * 2);
+		xoff += max(display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, color_idx_to_rgb(dest->get_owner()->get_player_color1()+env_t::gui_player_color_dark), true), D_BUTTON_WIDTH * 2);
 
 		// [travel time]
 		buf.clear();
@@ -1881,10 +1882,11 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		// [avarage speed]
 		buf.clear();
 		sint64 average_speed = kmh_from_meters_and_tenths((int)(km_to_halt*1000), cnx->journey_time);
-		buf.printf(" (%2ukm/h) ", average_speed);
+		buf.printf(" (%2ukm/h)", average_speed);
 		xoff += display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, MN_GREY0, true);
 #endif
 
+		xoff += D_H_SPACE*2;
 		// [waiting time]
 		buf.clear();
 		if (!is_walking){
@@ -1940,7 +1942,7 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 						buf.append(" DBG: Preferred convoy : ** NOT FOUND! **");
 					}
 				}
-				display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1() + 1), true);
+				display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, buf, ALIGN_LEFT, victor == NULL ? COL_DANGER : color_idx_to_rgb(victor->get_player_color1()+env_t::gui_player_color_dark), true);
 			}
 #endif
 
