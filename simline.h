@@ -282,6 +282,8 @@ public:
 
 	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
+	sint64 get_service_frequency();
+
 	image_id get_linetype_symbol() const
 	{
 		if (type == truckline && goods_catg_index.is_contained(goods_manager_t::INDEX_PAS)) {
