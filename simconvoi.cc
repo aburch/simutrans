@@ -6168,7 +6168,7 @@ station_tile_search_ready: ;
 	{
 		wait_lock = 0;
 	}
-	else
+	else if(state != WAITING_FOR_CLEARANCE && state != WAITING_FOR_CLEARANCE_ONE_MONTH && state != WAITING_FOR_CLEARANCE_TWO_MONTHS) // Do not add extra delay if the convoy has already decided to depart and is just waiting for clearance.
 	{
 		if (loading_limit > 0 && !wait_for_time)
 		{
