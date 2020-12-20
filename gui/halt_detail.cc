@@ -1372,7 +1372,7 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 
 	// add lines that serve this stop
 	new_component<gui_heading_t>("Lines serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	add_table(2,0)->set_spacing(scr_size(D_H_SPACE, 2));
+	add_table(6,0)->set_spacing(scr_size(D_H_SPACE, 2));
 	if (halt->registered_lines.empty()) {
 		insert_show_nothing();
 	}
@@ -1380,24 +1380,58 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
 			uint waytype_line_cnt = 0;
 			for (uint32 i = 0; i < halt->registered_lines.get_count(); i++) {
-				if (halt->registered_lines[i]->get_linetype() != lt) {
+				const linehandle_t line = halt->registered_lines[i];
+				if (line->get_linetype() != lt) {
 					continue;
 				}
 				// Linetype if it is the first
 				if (!waytype_line_cnt) {
-					new_component<gui_empty_t>(); new_component<gui_margin_t>(0,D_V_SPACE);
+					new_component_span<gui_empty_t>(5); new_component<gui_margin_t>(0, D_V_SPACE);
 
-					new_component<gui_image_t>()->set_image(halt->registered_lines[i]->get_linetype_symbol(), true);
-					new_component<gui_label_t>(translator::translate(halt->registered_lines[i]->get_linetype_name()));
+					new_component<gui_image_t>()->set_image(line->get_linetype_symbol(), true);
+					new_component_span<gui_label_t>(translator::translate(line->get_linetype_name()),5);
+
 				}
 
 				// Line buttons only if owner ...
-				new_component<gui_line_button_t>(halt->registered_lines[i]);
+				new_component<gui_line_button_t>(line);
 
 				// Line labels with color of player
-				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
-				lb->buf().append(halt->registered_lines[i]->get_name());
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(line->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+				lb->buf().append(line->get_name());
 				lb->update();
+
+				new_component<gui_empty_t>();
+				if (!skinverwaltung_t::service_frequency) {
+					new_component<gui_empty_t>();
+				}
+				else {
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::service_frequency->get_image_id(0), true);
+				}
+				const sint64 service_frequency = line->get_service_frequency();
+				gui_label_buf_t *lb_frequency = new_component<gui_label_buf_t>();
+				if (service_frequency) {
+					char as_clock[32];
+					world()->sprintf_ticks(as_clock, sizeof(as_clock), service_frequency);
+					lb_frequency->buf().printf(" %s", as_clock);
+					if (line->get_state() & simline_t::line_missing_scheduled_slots) {
+						lb_frequency->set_color(color_idx_to_rgb(COL_DARK_TURQUOISE));
+					}
+				}
+				else {
+					lb_frequency->buf().append("--:--:--");
+					lb_frequency->set_color(COL_INACTIVE);
+				}
+				lb_frequency->set_fixed_width( proportional_string_width("--:--:--") );
+				lb_frequency->set_align(gui_label_t::right);
+				lb_frequency->update();
+
+				// convoy count
+				gui_label_buf_t *lb_convoy_count = new_component<gui_label_buf_t>();
+				lb_convoy_count->buf().printf(translator::translate("%d convois"), line->get_convoys().get_count());
+				lb_convoy_count->set_color(line->has_overcrowded() ? color_idx_to_rgb(COL_DARK_PURPLE) : SYSCOL_TEXT);
+				lb_convoy_count->update();
+
 				waytype_line_cnt++;
 			}
 		}
@@ -1407,7 +1441,7 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 	// add lineless convoys which serve this stop
 	new_component<gui_margin_t>(0, D_V_SPACE);
 	new_component<gui_heading_t>("Lineless convoys serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1() + 2), 1);
-	add_table(2, 0)->set_spacing(scr_size(D_H_SPACE, 2));
+	add_table(6, 0)->set_spacing(scr_size(D_H_SPACE, 2));
 	if (halt->registered_convoys.empty()) {
 		insert_show_nothing();
 	}
@@ -1421,10 +1455,10 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 				}
 				// Linetype if it is the first
 				if (!lineless_convoy_cnt) {
-					new_component<gui_empty_t>(); new_component<gui_margin_t>(0, D_V_SPACE);
+					new_component_span<gui_empty_t>(5); new_component<gui_margin_t>(0, D_V_SPACE);
 
 					new_component<gui_image_t>()->set_image(cnv->get_schedule()->get_schedule_type_symbol(), true);
-					new_component<gui_label_t>(translator::translate(cnv->get_schedule()->get_schedule_type_name()));
+					new_component_span<gui_label_t>(translator::translate(cnv->get_schedule()->get_schedule_type_name()),5);
 				}
 
 				// Convoy buttons
@@ -1435,11 +1469,36 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 				lb->buf().append(cnv->get_name());
 				lb->update();
 
+				new_component<gui_empty_t>();
+				if (!skinverwaltung_t::service_frequency) {
+					new_component<gui_empty_t>();
+				}
+				else {
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::service_frequency->get_image_id(0), true);
+				}
+				const sint64 average_round_trip_time = cnv->get_average_round_trip_time();
+				gui_label_buf_t *lb_triptime = new_component<gui_label_buf_t>();
+				if (average_round_trip_time) {
+					char as_clock[32];
+					world()->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
+					lb_triptime->buf().printf(" %s", as_clock);
+				}
+				else {
+					lb_triptime->buf().append("--:--:--");
+					lb_triptime->set_color(COL_INACTIVE);
+				}
+				lb_triptime->set_fixed_width(proportional_string_width("--:--:--"));
+				lb_triptime->set_align(gui_label_t::right);
+				lb_triptime->update();
+
+				new_component<gui_empty_t>();
+
 				lineless_convoy_cnt++;
 			}
 		}
 	}
 	end_table();
+	new_component<gui_margin_t>(0, D_MARGIN_BOTTOM);
 
 	// ok, we have now this counter for pending updates
 	cached_line_count = halt->registered_lines.get_count();
