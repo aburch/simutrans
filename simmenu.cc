@@ -116,6 +116,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
 		case TOOL_ROTATE_BUILDING:		tool = new tool_rotate_building_t(); break;
+		case TOOL_REASSIGN_SIGNAL_DEPRECATED:
 		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;

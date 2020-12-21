@@ -8385,7 +8385,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 		// There are some problems with re-naming this temporary file.
 		// Corruption is less of an issue when a client is saving a game from a network server,
 		// so abandon this security in this instance to prevent the problems with re-naming causing
-		// problems. This can be reversed if those problems be ever solved. 
+		// problems. This can be reversed if those problems be ever solved.
 		savename[savename.length() - 1] = '_';
 	}
 
