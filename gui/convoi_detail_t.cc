@@ -43,7 +43,7 @@ public:
 		set_alignment(ALIGN_TOP | ALIGN_LEFT);
 
 		// image
-		new_component<gui_image_t>(v->get_loaded_image())->enable_offset_removal(true);
+		new_component<gui_image_t>(v->get_loaded_image(), v->get_owner()->get_player_nr())->enable_offset_removal(true);
 		add_table(1,0);
 		{
 			// name
