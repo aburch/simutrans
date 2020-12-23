@@ -31,9 +31,7 @@ public:
 private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
-#ifdef USE_DIFFERENT_WIND
-	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
-#endif
+
 	// only used for route search and approach vectors of get_ribi() (do not need saving)
 	koord3d search_start;
 	koord3d search_end;

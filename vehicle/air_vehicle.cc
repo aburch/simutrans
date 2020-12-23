@@ -285,13 +285,8 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 
 	state = taxiing_to_halt; // only used for search
 
-#ifdef USE_DIFFERENT_WIND
-	approach_dir = get_approach_ribi( start, ziel ); // reverse
-	//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
-#else
-	approach_dir = ribi_t::southwest; // reverse
+	approach_dir =  ~welt->get_settings().get_approach_dir(); // reverse
 	//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
-#endif
 	route_t end_route;
 
 	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::all, welt->get_settings().get_max_choose_route_steps() )) {
@@ -820,22 +815,6 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(takeoff);
 }
 
-
-#ifdef USE_DIFFERENT_WIND
-// well lots of code to make sure, we have at least two different directions for the runway search
-uint8 air_vehicle_t::get_approach_ribi( koord3d start, koord3d ziel )
-{
-	uint8 dir = ribi_type(start, ziel); // reverse
-	// make sure, there are at last two directions to choose, or you might en up with not route
-	if(ribi_t::is_single(dir)) {
-		dir |= (dir<<1);
-		if(dir>16) {
-			dir += 1;
-		}
-	}
-	return dir&0x0F;
-}
-#endif
 
 
 void air_vehicle_t::hop(grund_t* gr)
