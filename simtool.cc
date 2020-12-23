@@ -2905,18 +2905,20 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 				// first check for building portal only
 				if(  is_ctrl_pressed()  ) {
 					// estimate costs for tunnel portal
-					win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", (-(sint64)desc->get_price())*2, 1 ) );
-					return NULL;
+					if(  !player->can_afford((-(sint64)desc->get_price())*2)  ) {
+						return NOTICE_INSUFFICIENT_FUNDS;
+					}
 				}
-
-				// Now check, if we can built a tunnel here and display costs
-				koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
-				if(  end == koord3d::invalid  ||  end == start  ) {
-					// no end found
-					return err;
-				}
-				if(  !player->can_afford((-(sint64)desc->get_price())*koord_distance(start,end))  ) {
-					return NOTICE_INSUFFICIENT_FUNDS;
+				else {
+					// Now check, if we can built a tunnel here and display costs
+					koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
+					if(  end == koord3d::invalid  ||  end == start  ) {
+						// no end found
+						return err;
+					}
+					if(  !player->can_afford((-(sint64)desc->get_price())*koord_distance(start,end))  ) {
+						return NOTICE_INSUFFICIENT_FUNDS;
+					}
 				}
 
 				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed() );
