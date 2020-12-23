@@ -680,6 +680,7 @@ void karte_t::destroy()
 	world_attractions.clear();
 	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
+	weg_t::clear_travel_time_updates();
 	weg_t::clear_list_of__ways();
 	DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 
@@ -3130,6 +3131,9 @@ karte_t::karte_t() :
 	// for new world just set load version to current savegame version
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
+
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 
@@ -4201,6 +4205,21 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 					player->set_active(true);
 					settings.set_player_active(player_nr, player->is_active());
 				}
+			}
+			return true;
+		}
+		case toggle_player_active: {
+			// range check, player existent?
+			if (  player_nr <=1  ||  player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)==NULL ) {
+				return false;
+			}
+			// only public player can (de)activate other players
+			if ( !public_player_unlocked ) {
+				return false;
+			}
+			if (exec) {
+				player_t *player = get_player(player_nr);
+				player->set_active(param != 0);
 			}
 			return true;
 		}
@@ -5767,7 +5786,10 @@ void karte_t::step()
 	}
 #endif
 
+	weg_t::apply_travel_time_updates();
+
 	rands[16] = get_random_seed();
+
 
 	INT_CHECK("karte_t::step 3c");
 
@@ -8998,9 +9020,9 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  file.get_version_int()==0  ||  file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version  ) {
+		if(file.get_version_int() == 0 || file.get_version_int() > loadsave_t::int_version(env_t::savegame_version_str, NULL).version) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
-			dbg->warning("karte_t::load()", "Version is %u (Ex %u)", loadsave_t::int_version(SAVEGAME_VER_NR, NULL).version, loadsave_t::int_version(SAVEGAME_VER_NR, NULL).extended_version);
+			dbg->warning("karte_t::load()", "Version is %u (Ex %u.%u)", file.get_version_int(), file.get_extended_version(), file.get_extended_revision());
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
 		else {
@@ -10107,6 +10129,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// loading finished, reset savegame version to current
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
+
+	load_version.extended_version = EX_VERSION_MAJOR;
+	load_version.extended_revision = EX_VERSION_MINOR;
 
 	FOR(slist_tpl<depot_t *>, const dep, depot_t::get_depot_list())
 	{

@@ -1541,6 +1541,10 @@ public:
 	/// @returns true if @p a is closer to the origin than @p b, otherwise false.
 	bool operator()(const halthandle_t &a, const halthandle_t &b) const
 	{
+		if (!a.is_bound() || !b.is_bound())
+		{
+			return false;
+		}
 		return koord_distance(m_origin, a->get_basis_pos()) < koord_distance(m_origin, b->get_basis_pos());
 	}
 };
@@ -1825,7 +1829,12 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 	uint8 g_class = goods_manager_t::get_classes_catg_index(selected_route_catg_index) - 1;
 
 	uint32 sel = line_selected;
-	FORX(const vector_tpl<halthandle_t>, const dest, halt_list, yoff += LINESPACE + 1) {
+	FORX(const vector_tpl<halthandle_t>, const dest, halt_list, yoff += LINESPACE + 1)
+	{
+		if (!dest.is_bound())
+		{
+			continue;
+		}
 		xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 		haltestelle_t::connexion* cnx = halt->get_connexions(selected_route_catg_index, g_class)->get(dest);
 

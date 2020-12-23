@@ -219,6 +219,7 @@ private:
 		return get_force_summary(abs(speed));
 	}
 
+public:
 	/**
 	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
 	 * Frs = Fr + Fs
@@ -341,7 +342,7 @@ public:
 
 	// acceleration
 	// starting acceleration sets speed to 0
-	uint32 calc_acceleration(const weight_summary_t &weight, sint32 speed);
+	float32e8_t calc_acceleration(const weight_summary_t &weight, sint32 speed);
 
 	double calc_acceleration_time(const weight_summary_t &weight, sint32 speed);
 	uint32 calc_acceleration_distance(const weight_summary_t &weight, sint32 speed);

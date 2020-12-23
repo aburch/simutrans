@@ -41,6 +41,8 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/schedule.h"
 
+#include "../network/network_socket_list.h"
+
 #include "../obj/bruecke.h"
 #include "../obj/gebaeude.h"
 #include "../obj/leitung2.h"
@@ -517,6 +519,11 @@ bool player_t::new_month()
 			}
 			// never changed convoi, never built => abandoned
 			if(  abandoned  ) {
+				if (env_t::server) {
+					// server: unlock this player for all clients
+					socket_list_t::unlock_player_all(player_nr, true);
+				}
+				// clients: local unlock
 				pwd_hash.clear();
 				if (ss != player_t::in_liquidation)
 				{

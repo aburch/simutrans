@@ -36,6 +36,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 	show_y_axis = true;
 	ltr = false;
 	x_elements = 0;
+	x_axis_span = 1;
 	min_size = scr_size(0,0);
 
 	// transparent by default
@@ -72,6 +73,9 @@ uint32 gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int 
 	switch (type) {
 		case MONEY:   new_curve.suffix = "$"; break;
 		case PERCENT: new_curve.suffix = "%"; break;
+		case DISTANCE:   new_curve.suffix = "km"; break;
+		case FORCE:   new_curve.suffix = "kN"; break;
+		case KMPH:   new_curve.suffix = "km/h"; break;
 		default:      new_curve.suffix = NULL; break;
 	}
 	new_curve.precision = precision;
@@ -164,7 +168,8 @@ void gui_chart_t::draw(scr_coord offset)
 		const PIXVAL line_color = (i%2) ? SYSCOL_CHART_LINES_ODD : SYSCOL_CHART_LINES_EVEN;
 		if(  show_x_axis  ) {
 			// display x-axis
-			sprintf( digit, "%i", abs(seed - j) );
+			int val = (abort_display_x && env_t::left_to_right_graphs) ? (abort_display_x - j - 1) * x_axis_span : seed - (j*x_axis_span);
+			sprintf(digit, "%i", abs(val));
 			scr_coord_val x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
 			if(  x > x_last  ) {
 				x_last = x + display_proportional_clip_rgb( x, offset.y + chart_size.h + 6, digit, ALIGN_LEFT, line_color, true );
@@ -178,11 +183,12 @@ void gui_chart_t::draw(scr_coord offset)
 	int tooltip_n=-1;
 	int ttcx = tooltipcoord.x-chart_offset.x;
 	if(  ttcx>0  &&  ttcx<chart_size.w  ) {
+		const uint8 temp_x = abort_display_x ? (env_t::left_to_right_graphs ? abort_display_x : x_elements-abort_display_x) : x_elements;
 		if(env_t::left_to_right_graphs) {
-			tooltip_n = x_elements-1-(ttcx*x_elements+4)/(chart_size.w|1);
+			tooltip_n = x_elements-1-(ttcx*temp_x+4)/(chart_size.w|1);
 		}
 		else {
-			tooltip_n = (ttcx*x_elements+4)/(chart_size.w|1);
+			tooltip_n = (ttcx*temp_x+4)/(chart_size.w|1);
 		}
 	}
 
@@ -190,8 +196,10 @@ void gui_chart_t::draw(scr_coord offset)
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if (c.show) {
 			double display_tmp;
+			int start = abort_display_x ? (env_t::left_to_right_graphs ? c.elements - abort_display_x : 0) : 0;
+			int end = abort_display_x ? (env_t::left_to_right_graphs ? c.elements : abort_display_x) : c.elements;
 			// for each curve iterate through all elements and display curve
-			for (int i=0;i<c.elements;i++) {
+			for (int i = start; i < end; i++) {
 
 				tmp = c.values[i*c.size+c.offset];
 				// convert value where necessary
@@ -199,7 +207,7 @@ void gui_chart_t::draw(scr_coord offset)
 					tmp = c.convert(tmp);
 					display_tmp = tmp;
 				}
-				else if(  c.type!=0  ) {
+				else if(  c.type == MONEY || c.type == PERCENT  ) {
 					display_tmp = tmp*0.01;
 					tmp /= 100;
 				}
@@ -208,17 +216,18 @@ void gui_chart_t::draw(scr_coord offset)
 				}
 
 				// display marker(box) for financial value
-				scr_coord_val x = tmpx + factor * (chart_size.w / (x_elements - 1))*i - 2;
-				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
-				switch (c.marker_type)
-				{
+				if (i < end) {
+					scr_coord_val x = tmpx + factor * (chart_size.w / (x_elements - 1))*(i - start) - 2;
+					scr_coord_val y = (scr_coord_val)(offset.y + baseline - (long)(tmp / scale) - 2);
+					switch (c.marker_type)
+					{
 					case cross:
-						display_direct_line_rgb(x, y, x+4, y+4, c.color);
-						display_direct_line_rgb(x+4, y, x, y+4, c.color);
+						display_direct_line_rgb(x, y, x + 4, y + 4, c.color);
+						display_direct_line_rgb(x + 4, y, x, y + 4, c.color);
 						break;
 					case diamond:
 						for (int j = 0; j < 5; j++) {
-							display_vline_wh_clip_rgb(x+j, y + abs(2 - j), 5-2*abs(2-j), c.color, false);
+							display_vline_wh_clip_rgb(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), c.color, false);
 						}
 						break;
 					case round_box:
@@ -231,6 +240,15 @@ void gui_chart_t::draw(scr_coord offset)
 					default:
 						display_fillbox_wh_clip_rgb(x, y, 5, 5, c.color, true);
 						break;
+					}
+				}
+
+				// Change digits after drawing a line to smooth the curve of the physics chart
+				if (c.type == KMPH) {
+					display_tmp = (double)speed_to_kmh(tmp*10)/10.0;
+				}
+				else if (c.type == FORCE) {
+					display_tmp = tmp * 0.001;
 				}
 
 				// display tooltip?
@@ -239,18 +257,18 @@ void gui_chart_t::draw(scr_coord offset)
 					if (c.suffix) {
 						strcat(tooltip, c.suffix);
 					}
-					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
+					win_set_tooltip( get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
-				if (i>0) {
-					display_direct_line_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*(i-1),
+				if (i > start && i < end) {
+					display_direct_line_rgb(tmpx + factor * (chart_size.w / (x_elements - 1))*(i-start-1),
 						(scr_coord_val)( offset.y+baseline-(int)(last_year/scale) ),
-						tmpx+factor*(chart_size.w / (x_elements - 1))*(i),
+						tmpx+factor*(chart_size.w / (x_elements - 1))*(i - start),
 						(scr_coord_val)( offset.y+baseline-(int)(tmp/scale) ),
 						c.color);
 				}
-				else {
+				else if (i == 0 && !abort_display_x || abort_display_x && i == start) {
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
@@ -284,6 +302,9 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	const char* max_suffix = NULL;
 	int precision = 0;
 
+	bool convert_kmph = false; // for speed chart. Converts the scale from simspeed to km/h.
+	bool convert_n_to_kn = false; // for force chart
+
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
 			for(  int i=0;  i<c.elements;  i++  ) {
@@ -292,9 +313,17 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
 				}
-				else if(  c.type!=0  ) {
+				else if(  c.type == MONEY || c.type == PERCENT  ) {
 					tmp /= 100;
 					precision = 0;
+				}
+				else if (  c.type == KMPH  ) {
+					convert_kmph = true;
+					precision = 0;
+				}
+				else if (  c.type == FORCE  ) {
+					convert_n_to_kn = true;
+					// precision does not need to be changed. The running resistance is so small (in kN) that we need to display the decimal point.
 				}
 				if (min > tmp) {
 					min = tmp ;
@@ -315,8 +344,10 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		max += 1;
 	}
 
-	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
-	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
+	// if accel chart => Drawing accuracy hack: simspeed to integer km/h. (Do not rewrite min max for scaling)
+	number_to_string_fit(cmin, convert_kmph ? speed_to_kmh((int)min) : convert_n_to_kn ? min/1000.0 : (double)min, precision, maximum_axis_len - (min_suffix != 0));
+	number_to_string_fit(cmax, convert_kmph ? speed_to_kmh((int)max) : convert_n_to_kn ? max/1000.0 : (double)max, precision, maximum_axis_len - (max_suffix != 0));
+
 	if(  min_suffix  ) {
 		strcat( cmin, min_suffix );
 	}

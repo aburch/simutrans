@@ -8707,7 +8707,6 @@ bool tool_change_convoi_t::init( player_t *player )
 					if (depot_t *dep = gr->get_depot()) {
 						dep->disassemble_convoi(cnv, true);
 						return false;
-
 					}
 				}
 			}
@@ -9487,12 +9486,6 @@ bool tool_change_player_t::init( player_t *player_in)
 
 	// ok now do our stuff
 	switch(  tool  ) {
-		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (player_in==welt->get_public_player()  ||  !env_t::networkmode)  ) {
-				player->set_active(state);
-				welt->get_settings().set_player_active(id, player->is_active());
-			}
-			break;
 		case 'c': // change player color
 			if(  player  &&  player==player_in  ) {
 				int c1, c2, dummy;
@@ -9536,6 +9529,9 @@ bool tool_change_player_t::init( player_t *player_in)
 			}
 			break;
 
+		case 'a': // WAS: activate/deactivate AI
+			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
+			break;
 	}
 
 	// update the window

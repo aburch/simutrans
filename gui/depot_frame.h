@@ -61,6 +61,7 @@ private:
 	button_t bt_schedule;
 	button_t bt_destroy;
 	button_t bt_sell;
+	button_t bt_details;
 
 	cbuffer_t txt_convoi_cost;
 

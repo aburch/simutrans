@@ -277,6 +277,7 @@ convoi_t::~convoi_t()
 	assert(self.is_bound());
 	assert(vehicle_count==0);
 
+	destroy_win( magic_convoi_detail + self.get_id() );
 	close_windows();
 
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
@@ -327,7 +328,6 @@ void convoi_t::close_windows()
 {
 	// close windows
 	destroy_win( magic_convoi_info+self.get_id() );
-	destroy_win( magic_convoi_detail+self.get_id() );
 	destroy_win( magic_replace+self.get_id() );
 }
 
@@ -6168,7 +6168,7 @@ station_tile_search_ready: ;
 	{
 		wait_lock = 0;
 	}
-	else
+	else if(state != WAITING_FOR_CLEARANCE && state != WAITING_FOR_CLEARANCE_ONE_MONTH && state != WAITING_FOR_CLEARANCE_TWO_MONTHS) // Do not add extra delay if the convoy has already decided to depart and is just waiting for clearance.
 	{
 		if (loading_limit > 0 && !wait_for_time)
 		{
