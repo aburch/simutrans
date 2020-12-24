@@ -39,8 +39,6 @@
 #define L_BUTTON_WIDTH button_size.w
 #define L_CHART_INDENT (66)
 
-#define HALT_CAPACITY_BAR_WIDTH 100
-
 static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Zielort",
 	"via",
@@ -240,8 +238,16 @@ void gui_halt_capacity_bar_t::draw(scr_coord offset)
 gui_halt_waiting_indicator_t::gui_halt_waiting_indicator_t(halthandle_t h)
 {
 	halt = h;
+	init();
+}
 
-	set_table_layout(10,0);
+void gui_halt_waiting_indicator_t::init()
+{
+	remove_all();
+	if(!halt.is_bound()) {
+		return;
+	}
+	set_table_layout(10, 0);
 	set_alignment(ALIGN_LEFT | ALIGN_CENTER_V);
 	set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
 	set_spacing(scr_size(D_H_SPACE, 1));
@@ -299,6 +305,11 @@ gui_halt_waiting_indicator_t::gui_halt_waiting_indicator_t(halthandle_t h)
 			new_component<gui_fill_t>();
 		}
 	}
+}
+
+void gui_halt_waiting_indicator_t::update()
+{
+	init();
 }
 
 void gui_halt_waiting_indicator_t::draw(scr_coord offset)
@@ -382,6 +393,7 @@ void gui_halt_waiting_indicator_t::draw(scr_coord offset)
 			}
 		}
 	}
+	set_size(get_size());
 	gui_aligned_container_t::draw(offset);
 }
 

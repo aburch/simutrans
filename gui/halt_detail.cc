@@ -302,6 +302,7 @@ bool halt_detail_t::is_weltpos()
 void halt_detail_t::update_components()
 {
 	line_number.draw(scr_coord(0,0));
+	waiting_bar->update();
 	bool reset_tab = false;
 	int old_tab = tabs.get_active_tab_index();
 	if (!show_pas_info && (halt->get_pax_enabled() || halt->get_mail_enabled())) {
