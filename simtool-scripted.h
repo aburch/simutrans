@@ -55,8 +55,6 @@ private:
 
 	void load_script(const char* path, player_t* player);
 protected:
-
-	void init_images(tool_t *tool) const;
 	/// the vm, will be initialized in init()
 	script_vm_t *script;
 	/// starts vm, sets our_player, returns true if successful
@@ -74,6 +72,8 @@ public:
 
 	void set_info(const scripted_tool_info_t *i);
 	const scripted_tool_info_t* get_info() const { return info; };
+
+	void init_images(tool_t *tool) const;
 
 	const char* get_menu_arg() const { return info ? info->menu_arg.c_str() : ""; }
 

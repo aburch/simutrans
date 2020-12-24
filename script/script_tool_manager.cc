@@ -80,6 +80,7 @@ tool_t* script_tool_manager_t::load_tool(char const* path, tool_t* tool)
 		exec_script_base_t* esb = dynamic_cast<exec_script_base_t*>(tool);
 		assert(esb);
 		esb->set_info(info);
+		esb->init_images(tool);
 	}
 	else {
 		// create new tool
