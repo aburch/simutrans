@@ -50,7 +50,6 @@ static const uint8 physics_curves_color[MAX_PHYSICS_CURVES] =
 	COL_DARK_SLATEBLUE
 };
 
-// TODO: Add definitions for SPEED and FORCE
 static const uint8 curves_type[MAX_PHYSICS_CURVES] =
 {
 	KMPH,
@@ -542,53 +541,48 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 {
 	if(!cnv.is_bound()) {
 		destroy_win(this);
+		return;
 	}
-	else {
-		bool any_class = false;
-		for (uint8 veh = 0; veh < cnv->get_vehicle_count(); ++veh)
-		{
-			vehicle_t* v = cnv->get_vehicle(veh);
-			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-			{
-				if (v->get_desc()->get_total_capacity() > 0)
-				{
-					any_class = true;
-				}
-			}
-		}
 
-		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
-			withdraw_button.enable();
-			sale_button.enable();
-			retire_button.enable();
-			if (any_class)
+	bool any_class = false;
+	for (uint8 veh = 0; veh < cnv->get_vehicle_count(); ++veh)
+	{
+		vehicle_t* v = cnv->get_vehicle(veh);
+		if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+		{
+			if (v->get_desc()->get_total_capacity() > 0)
 			{
-				class_management_button.enable();
-			}
-			else
-			{
-				class_management_button.disable();
+				any_class = true;
 			}
 		}
-		else {
-			withdraw_button.disable();
-			sale_button.disable();
-			retire_button.disable();
+	}
+
+	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
+		withdraw_button.enable();
+		sale_button.enable();
+		retire_button.enable();
+		if (any_class)
+		{
+			class_management_button.enable();
+		}
+		else
+		{
 			class_management_button.disable();
 		}
-		withdraw_button.pressed = cnv->get_withdraw();
-		retire_button.pressed = cnv->get_depot_when_empty();
-		class_management_button.pressed = win_get_magic(magic_class_manager);
-	}
-
-	if (cnv->in_depot()) {
-		retire_button.disable();
-		withdraw_button.disable();
+		if (cnv->in_depot()) {
+			retire_button.disable();
+			withdraw_button.disable();
+		}
 	}
 	else {
-		retire_button.enable();
-		withdraw_button.enable();
+		withdraw_button.disable();
+		sale_button.disable();
+		retire_button.disable();
+		class_management_button.disable();
 	}
+	withdraw_button.pressed = cnv->get_withdraw();
+	retire_button.pressed = cnv->get_depot_when_empty();
+	class_management_button.pressed = win_get_magic(magic_class_manager);
 
 	if (tabs.get_active_tab_index()==3) {
 		// common existing_convoy_t for acceleration curve and weight/speed info.
@@ -816,7 +810,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.clear();
 			// NOTE: These value needs to be modified because these are multiplied by "gear"
 			buf.printf(translator::translate("%s %4d kW, %d kN"), translator::translate("Power:"), cnv->get_sum_power() / 1000, cnv->get_starting_force().to_sint32() / 1000);
-			// TODO: Add the acceleration info here - Ranran
+
 			display_proportional_clip_rgb(pos.x + offset.x + D_MARGIN_LEFT, pos.y + offset.y + total_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			total_height += LINESPACE;
 
