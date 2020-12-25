@@ -28,6 +28,9 @@ private:
 	// the input field
 	gui_label_t time_out;
 
+	// entry displayed for 
+	const char *null_text;
+
 	// arrow buttons for increasing / decr.
 	button_t bt_left, bt_right;
 
@@ -41,12 +44,14 @@ private:
 	bool b_enabled;
 
 public:
-	gui_timeinput_t();
+	gui_timeinput_t(const char *null_text);
 
 	void set_size(scr_size size) OVERRIDE;
 
 	sint32 get_ticks() const { return ticks; }
 	void set_ticks(uint16);
+
+	void set_null_text( const char *t ) { null_text = t; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

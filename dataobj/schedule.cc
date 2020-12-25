@@ -218,14 +218,14 @@ void schedule_t::move_entry_forward( uint8 cur )
 	}
 	// check if we are part of a departure group
 	uint8 cur_end = cur;
-	while(  entries[cur].minimum_loading > 100  &&  cur > 0  ) {
-		if(  entries[cur-1].minimum_loading <= 100  ||  entries[cur-1].pos != entries[cur].pos  ) {
+	while(  entries[cur].is_absolute_departure()  &&  cur > 0  ) {
+		if(  entries[cur-1].is_absolute_departure()  ||  entries[cur-1].pos != entries[cur].pos  ) {
 			break;
 		}
 		cur--;
 	}
-	while(  entries[cur_end].minimum_loading > 100  &&  cur_end < entries.get_count()  ) {
-		if(  entries[cur_end+1].minimum_loading <= 100  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
+	while(  entries[cur_end].is_absolute_departure()  &&  cur_end < entries.get_count()  ) {
+		if(  !entries[cur_end+1].is_absolute_departure()  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
 			break;
 		}
 		cur_end++;
@@ -247,8 +247,8 @@ void schedule_t::move_entry_forward( uint8 cur )
 	else {
 		// find the entry point
 		uint8 new_cur = (cur + entries.get_count() - 1) % entries.get_count();
-		while(  entries[new_cur].minimum_loading > 100  &&  new_cur > 0  ) {
-			if(  entries[new_cur-1].minimum_loading <= 100  ||  entries[new_cur-1].pos != entries[new_cur].pos  ) {
+		while(  entries[new_cur].is_absolute_departure()  &&  new_cur > 0  ) {
+			if(  !entries[new_cur-1].is_absolute_departure()  ||  entries[new_cur-1].pos != entries[new_cur].pos  ) {
 				break;
 			}
 			new_cur--;
@@ -274,14 +274,14 @@ void schedule_t::move_entry_backward( uint8 cur )
 	}
 	// check if we are part of a departure group
 	uint8 cur_end = cur;
-	while(  entries[cur].minimum_loading > 100  &&  cur > 0  ) {
-		if(  entries[cur-1].minimum_loading <= 100  ||  entries[cur-1].pos != entries[cur].pos  ) {
+	while(  entries[cur].is_absolute_departure()  &&  cur > 0  ) {
+		if(  !entries[cur-1].is_absolute_departure()  ||  entries[cur-1].pos != entries[cur].pos  ) {
 			break;
 		}
 		cur--;
 	}
-	while(  entries[cur_end].minimum_loading > 100  &&  cur_end < entries.get_count()  ) {
-		if(  entries[cur_end+1].minimum_loading <= 100  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
+	while(  entries[cur_end].is_absolute_departure()  &&  cur_end < entries.get_count()  ) {
+		if(  !entries[cur_end+1].is_absolute_departure()  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
 			break;
 		}
 		cur_end++;
@@ -294,8 +294,8 @@ void schedule_t::move_entry_backward( uint8 cur )
 
 	// find the entry point
 	uint8 new_cur = (cur_end + 1) % entries.get_count();
-	while(  entries[new_cur].minimum_loading > 100  &&  new_cur <= entries.get_count()  ) {
-		if(  entries[new_cur+1].minimum_loading <= 100  ||  entries[new_cur+1].pos != entries[new_cur].pos  ) {
+	while(  entries[new_cur].is_absolute_departure()  &&  new_cur <= entries.get_count()  ) {
+		if(  !entries[new_cur+1].is_absolute_departure()  ||  entries[new_cur+1].pos != entries[new_cur].pos  ) {
 			break;
 		}
 		new_cur++;
@@ -386,6 +386,7 @@ void schedule_t::rdwr(loadsave_t *file)
 						}
 					}
 					else if( entries[i].minimum_loading > 100 ) {
+						// hack to store absolute departure times in old games
 						entries[ i ].waiting_time = wl << 8;
 					}
 				}

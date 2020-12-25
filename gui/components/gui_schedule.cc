@@ -86,22 +86,25 @@ public:
 		set_table_layout(6,1);
 
 		arrow.init( button_t::posbutton_automatic, "" );
-		add_component(&arrow);
 
-		add_component(&stop);
+		up.init( button_t::arrowup, "" );
+		up.add_listener( this );
 
-		if(  n > 0  &&  e.minimum_loading > 100  &&  f->entries[n-1].pos == e.pos  ) {
+		down.init( button_t::arrowdown, "" );
+		down.add_listener( this );
+
+		if(  n > 0  &&  e.is_absolute_departure()  &&  f->entries[n-1].pos == e.pos  ) {
 			// this is part of a departure group, so we cannot move this entry up or down
-			new_component_span<gui_empty_t>(2);
+			new_component<gui_empty_t>(&arrow);
+			add_component(&stop);
+			new_component<gui_empty_t>(&up);
+			new_component<gui_empty_t>(&down);
 		}
 		else {
-			up.init( button_t::arrowup, "" );
-			up.add_listener( this );
-			add_component( &up );
-
-			down.init( button_t::arrowdown, "" );
-			down.add_listener( this );
-			add_component( &down );
+			add_component(&arrow);
+			add_component(&stop);
+			add_component(&up);
+			add_component(&down);
 		}
 
 		del.init( button_t::square_automatic, "" );
@@ -349,32 +352,6 @@ public:
 	}
 };
 
-/**
- * Entries in the waiting-time selection.
- */
-class gui_waiting_time_item_t : public gui_scrolled_list_t::const_text_scrollitem_t
-{
-private:
-	cbuffer_t buf;
-	sint8 wait;
-
-public:
-	gui_waiting_time_item_t(sint8 w) : gui_scrolled_list_t::const_text_scrollitem_t(NULL, SYSCOL_TEXT)
-	{
-		wait = w;
-		if (wait == 0) {
-			buf.append(translator::translate("off"));
-		}
-		else {
-			buf.printf("1/%d",  1<<(16 - wait) );
-		}
-	}
-
-	char const* get_text() const OVERRIDE { return buf; }
-
-	sint8 get_wait_shift() const { return wait; }
-};
-
 cbuffer_t schedule_gui_stats_t::buf;
 
 schedule_t *gui_schedule_t::get_old_schedule() const
@@ -395,9 +372,10 @@ void gui_schedule_t::highlight_schedule( bool hl )
 }
 
 gui_schedule_t::gui_schedule_t() :
-	lb_wait("Full load"),
-	stats(new schedule_gui_stats_t() ),
-	scrolly(stats)
+	lb_wait( "Full load" ),
+	stats( new schedule_gui_stats_t() ),
+	scrolly( stats ),
+	departure( NULL )
 {
 	scrolly.set_maximize( true );
 	old_schedule = schedule = NULL;
@@ -538,43 +516,31 @@ void gui_schedule_t::update_selection()
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
+
+		loading_details->remove_all();
+		loading_details->remove_component( &bt_add_scheduling );
+		loading_details->remove_component( &departure );
+		loading_details->remove_component( &numimp_load );
 		const uint8 current_stop = schedule->get_current_stop();
+
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 
-			departure_or_load.set_visible(true);
-			numimp_load.set_visible(false);
-			bt_add_scheduling.set_visible(false);
-			lb_wait.set_visible(true);
-			departure.set_visible(true);
-
-			if( schedule->entries[ current_stop ].minimum_loading < 100 ) {
-				numimp_load.enable();
-				numimp_load.set_visible(true);
+			loading_details->add_component( &lb_wait );
+			if( schedule->entries[ current_stop ].is_absolute_departure() ) {
+				loading_details->add_component( &departure );
+				loading_details->remove_component( &bt_add_scheduling );
+			}
+			else {
+				loading_details->add_component( &numimp_load );
 				numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
+				loading_details->add_component( &departure );
 			}
-			else {
-				numimp_load.disable();
-				numimp_load.set_value( 0 );
-				numimp_load.set_visible(false);
-				bt_add_scheduling.set_visible(true);
-			}
-
-			if(  schedule->entries[current_stop].minimum_loading > 0  ) { 
-				departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
-			}
-			else {
-				lb_wait.set_visible(false);
-				departure.set_visible(false);
-			}
-
+			departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
+			loading_details->set_size( loading_details->get_size() );
 		}
 		else {
-			departure_or_load.set_visible(false);
-			numimp_load.set_visible(false);
-			bt_add_scheduling.set_visible(false);
-			numimp_load.set_visible(false);
-			lb_wait.set_visible(false);
-			departure.set_visible(false);
+			// waypoint
+			loading_details->new_component<gui_empty_t>( &numimp_load );
 		}
 	}
 }

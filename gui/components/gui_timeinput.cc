@@ -17,8 +17,9 @@
 scr_coord_val gui_timeinput_t::text_width;
 
 
-gui_timeinput_t::gui_timeinput_t() :
-	gui_component_t(true)
+gui_timeinput_t::gui_timeinput_t(const char *null_text_) :
+	gui_component_t(true),
+	null_text(null_text_)
 {
 	text_width = proportional_string_width("+30 23:55h");
 
@@ -70,8 +71,13 @@ scr_size gui_timeinput_t::get_min_size() const
 void gui_timeinput_t::set_ticks( uint16 new_ticks )
 {
 	sint32 disp_ticks = (world()->ticks_per_world_month_shift >= 16) ? (new_ticks << (world()->ticks_per_world_month_shift - 16)) : (new_ticks >> (16 - world()->ticks_per_world_month_shift));
-	// since the routine expect the relative ticks to the current value
-	tstrncpy( textbuffer, difftick_to_string( disp_ticks, false ), lengthof(textbuffer) );
+
+	if(  disp_ticks == 0  &&  null_text  ) {
+		tstrncpy( textbuffer, translator::translate(null_text), lengthof(textbuffer) );
+	}
+	else {
+		tstrncpy( textbuffer, difftick_to_string( disp_ticks, false ), lengthof(textbuffer) );
+	}
 
 	time_out.set_color( b_enabled ? SYSCOL_EDIT_TEXT : SYSCOL_EDIT_TEXT_DISABLED );
 	ticks = new_ticks;
