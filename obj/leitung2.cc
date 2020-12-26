@@ -342,14 +342,6 @@ void leitung_t::calc_image()
 	}
 }
 
-image_id leitung_t::get_image() const
-{
-	grund_t *gr = welt->lookup(get_pos());
-	if (gr == NULL || gr->ist_bruecke() || is_crossing) {
-		return IMG_EMPTY;
-	}
-	return image;
-}
 
 /**
  * Recalculates the images of all neighbouring
