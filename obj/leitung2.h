@@ -106,7 +106,7 @@ public:
 	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const OVERRIDE {return is_crossing ? IMG_EMPTY : image;}
+	image_id get_image() const OVERRIDE;
 	image_id get_front_image() const OVERRIDE {return is_crossing ? image : IMG_EMPTY;}
 
 	/**
