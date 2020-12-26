@@ -341,15 +341,35 @@ void leitung_t::calc_image()
 		mark_image_dirty(old_image,0);
 	}
 }
-
+/*
 image_id leitung_t::get_image() const
 {
+	if (is_crossing)
+	{
+		return IMG_EMPTY;
+	}
+	
 	grund_t *gr = welt->lookup(get_pos());
-	if (gr == NULL || gr->ist_bruecke() || is_crossing) {
+	 if(gr == NULL || gr->ist_bruecke()) {
 		return IMG_EMPTY;
 	}
 	return image;
 }
+
+image_id leitung_t::get_front_image() const
+{
+	if (is_crossing)
+	{
+		return IMG_EMPTY;
+	}
+	
+	grund_t *gr = welt->lookup(get_pos());
+	 if(gr == NULL || gr->ist_bruecke()) {
+		return IMG_EMPTY;
+	}
+	return image;
+}
+*/
 
 /**
  * Recalculates the images of all neighbouring
