@@ -104,9 +104,6 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	/**
-	 * Draw the component
-	 */
 	void draw(scr_coord offset) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

@@ -13,7 +13,7 @@
 #include "gui_label.h"
 #include "gui_button.h"
 #include "gui_component.h"
-#include "gui_scrolled_list.h"
+#include "gui_numberinput.h"
 
 
 /**
@@ -21,8 +21,7 @@
  * The actual input is 0...65535, which is minute precision and then shifted by bit_shift_per_month-16
  */
 class gui_timeinput_t :
-	public gui_action_creator_t,
-	public gui_scrolled_list_t::scrollitem_t
+	public gui_numberinput_t
 {
 private:
 	// the input field
@@ -30,11 +29,6 @@ private:
 
 	// entry displayed for 
 	const char *null_text;
-
-	// arrow buttons for increasing / decr.
-	button_t bt_left, bt_right;
-
-	uint16 ticks;
 
 	char textbuffer[64];
 
@@ -46,27 +40,12 @@ private:
 public:
 	gui_timeinput_t(const char *null_text);
 
-	void set_size(scr_size size) OVERRIDE;
-
-	sint32 get_ticks() const { return ticks; }
-	void set_ticks(uint16);
+	sint32 get_ticks() { return get_value(); }
+	void set_ticks(uint16 t) { set_value(t); }
 
 	void set_null_text( const char *t ) { null_text = t; }
 
-	bool infowin_event(event_t const*) OVERRIDE;
-
-	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
-	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
-	bool enabled() const { return b_enabled; }
-	bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
-	void enable( bool yesno ) {
-		if( yesno && !gui_component_t::is_focusable() ) {
-			enable();
-		}
-		else if( !yesno  &&  gui_component_t::is_focusable() ) {
-			disable();
-		}
-	}
+	void rdwr( loadsave_t *file );
 
 	void draw(scr_coord offset) OVERRIDE;
 
@@ -74,11 +53,9 @@ public:
 
 	scr_size get_min_size() const OVERRIDE;
 
-	char const *get_text() const OVERRIDE { return textbuffer; }
+	scr_size get_size() const OVERRIDE;
 
-	void rdwr( loadsave_t *file );
-
-	static bool compare( const gui_component_t *a, const gui_component_t *b );
+	void set_size(scr_size) OVERRIDE;
 };
 
 #endif
