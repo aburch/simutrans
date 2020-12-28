@@ -589,7 +589,7 @@ hide_keyboard = 0
 compass_screen_position = 0
 compass_map_position = 13
 
-# if set to 1 (default) teh numpad will alsoways move the map.
+# If set to 1 (default) the numpad will always move the map.
 # If active, this does not allow for number entry
 numpad_always_moves_map = 0
 
