@@ -350,7 +350,7 @@ bool interaction_t::process_event( event_t &ev )
 			pak_name.erase( pak_name.length()-1 );
 			pak_name.append( ".sve" );
 
-			world->save( pak_name.c_str(), true, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+			world->save( pak_name.c_str(), true, SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
 		destroy_all_win(true);
