@@ -111,14 +111,14 @@ void interaction_t::move_cursor( const event_t &ev )
 		if(  (ev.button_state&7)==0  ) {
 			// time, since mouse got here
 			world->set_mouse_rest_time(dr_time());
-			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL);	// 13s no movement: play sound
+			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL); // 13s no movement: play sound
 		}
 	}
 }
 
 
 void interaction_t::interactive_event( const event_t &ev )
- {
+{
 	if(ev.ev_class == EVENT_KEYBOARD) {
 		DBG_MESSAGE("interaction_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, (ev.ev_code>=32  &&  ev.ev_code<=126) ? ev.ev_code : '?' );
 
@@ -295,14 +295,14 @@ void interaction_t::interactive_event( const event_t &ev )
 }
 
 
-bool interaction_t::process_event(event_t &ev)
+bool interaction_t::process_event( event_t &ev )
 {
-	if (ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT) {
+	if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 		// quit the program if this window is closed
 		env_t::quit_simutrans = true;
 
 		// we may be requested to save the game before exit
-		if (env_t::server  &&  env_t::server_save_game_on_quit) {
+		if(  env_t::server  &&  env_t::server_save_game_on_quit  ) {
 
 			// to ensure only one attempt is made
 			env_t::server_save_game_on_quit = false;
@@ -312,7 +312,7 @@ bool interaction_t::process_event(event_t &ev)
 
 			// first save password hashes
 			char fn[256];
-			sprintf(fn, "server%d-pwdhash.sve", env_t::server);
+			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 			loadsave_t file;
 			if(file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
 				world->rdwr_player_password_hashes( &file );
@@ -322,10 +322,10 @@ bool interaction_t::process_event(event_t &ev)
 			// remove passwords before transfer on the server and set default client mask
 			// they will be restored in karte_t::load
 			uint16 unlocked_players = 0;
-			for (int i = 0; i<PLAYER_UNOWNED; i++) {
+			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 				player_t *player = world->get_player(i);
-				if (player == NULL || player->access_password_hash().empty()) {
-					unlocked_players |= (1 << i);
+				if(  player==NULL  ||  player->access_password_hash().empty()  ) {
+					unlocked_players |= (1<<i);
 				}
 				else {
 					player->access_password_hash().clear();
@@ -333,22 +333,22 @@ bool interaction_t::process_event(event_t &ev)
 			}
 
 			// save game
-			sprintf(fn, "server%d-restore.sve", env_t::server);
+			sprintf( fn, "server%d-restore.sve", env_t::server );
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
 			world->save( fn, false, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
-		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
+		else if(  env_t::reload_and_save_on_quit  &&  !env_t::networkmode  ) {
 			// save current game, if not online
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
 
 			// construct from pak name an autosave if requested
-			std::string pak_name("autosave-");
-			pak_name.append(env_t::objfilename);
-			pak_name.erase(pak_name.length() - 1);
-			pak_name.append(".sve");
+			std::string pak_name( "autosave-" );
+			pak_name.append( env_t::objfilename );
+			pak_name.erase( pak_name.length()-1 );
+			pak_name.append( ".sve" );
 
 			world->save( pak_name.c_str(), true, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
@@ -357,13 +357,13 @@ bool interaction_t::process_event(event_t &ev)
 		return true;
 	}
 
-	if (ev.ev_class == IGNORE_EVENT) {
+	if(ev.ev_class==IGNORE_EVENT) {
 		// ignore it
 		return false;
 	}
 
 	DBG_DEBUG4("interaction_t::process_event", "calling check_pos_win");
-	if (check_pos_win(&ev)) {
+	if(check_pos_win(&ev)){
 		// The event is shallowed by the GUI, next.
 		return false;
 	}
@@ -374,30 +374,30 @@ bool interaction_t::process_event(event_t &ev)
 
 	static bool left_drag = false;
 
-	if (IS_RIGHTCLICK(&ev)) {
+	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
 	}
-	else if (IS_RIGHTRELEASE(&ev)) {
+	else if(IS_RIGHTRELEASE(&ev)) {
 		display_show_pointer(true);
 	}
-	else if (IS_RIGHTDRAG(&ev)) {
+	else if(IS_RIGHTDRAG(&ev)) {
 		// unset following
-		world->get_viewport()->set_follow_convoi(convoihandle_t());
+		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 	}
-	else if ((left_drag || world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL)) && IS_LEFTDRAG(&ev)) {
+	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
 		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual difference
-		* => move the map */
-		if (!left_drag) {
+		 * => move the map */
+		if(  !left_drag  ) {
 			display_show_pointer(false);
 			left_drag = true;
 		}
-		world->get_viewport()->set_follow_convoi(convoihandle_t());
+		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 		ev.ev_code = EVENT_NONE;
 	}
 
-	if (IS_LEFTRELEASE(&ev) && left_drag) {
+	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
 		// show the mouse and swallow this event if we were dragging before
 		ev.ev_code = EVENT_NONE;
 		display_show_pointer(true);
@@ -408,7 +408,7 @@ bool interaction_t::process_event(event_t &ev)
 	DBG_DEBUG4("interaction_t::process_event", "check if cursor needs movement");
 
 
-	if ((ev.ev_class == EVENT_DRAG  &&  ev.ev_code == MOUSE_LEFTBUTTON) || (ev.button_state == 0 && ev.ev_class == EVENT_MOVE) || ev.ev_class == EVENT_RELEASE) {
+	if( (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 		move_cursor(ev);
 	}
 
