@@ -46,10 +46,6 @@ extern char **__argv;
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
-#include "../simmem.h"
-#include "../simversion.h"
-#include "../simevent.h"
-#include "../macros.h"
 
 
 /*
