@@ -17,7 +17,6 @@ jobs:
   sim-linux-sdl2mixer:
     name: Linux (SDL2_mixer, freetype)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -44,7 +43,6 @@ jobs:
   sim-linux-posix:
     name: Linux (headless)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,7 +69,6 @@ jobs:
   sim-linux-debug-sdl2:
     name: Linux (Debug SDL2, single threaded)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -98,7 +95,6 @@ jobs:
   makeobj-linux:
     name: Linux Makeobj
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -124,7 +120,6 @@ jobs:
   nettool-linux:
     name: Linux Nettool
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -149,7 +144,6 @@ jobs:
   sim-mac-sdl2:
     name: macOS (SDL2)
     runs-on: macOS-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -179,7 +173,6 @@ jobs:
   sim-mac-headless:
     name: macOS (headless)
     runs-on: macOS-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -202,7 +195,6 @@ jobs:
   makeobj-mac:
     name: macOS Makeobj
     runs-on: macOS-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -224,7 +216,6 @@ jobs:
   nettool-mac:
     name: macOS Nettool
     runs-on: macOS-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -246,7 +237,6 @@ jobs:
   sim-mingw-sdl2:
     name: Windows (MinGW, SDL2)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
@@ -273,7 +263,6 @@ jobs:
   sim-mingw-gdi:
     name: Windows (MinGW, GDI)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
@@ -300,7 +289,6 @@ jobs:
   sim-mingw-posix:
     name: Windows (MinGW, headless)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
@@ -327,7 +315,6 @@ jobs:
   makeobj-mingw:
     name: Windows Makeobj (MinGW)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
@@ -353,7 +340,6 @@ jobs:
   nettool-mingw:
     name: Windows Nettool (MinGW)
     runs-on: ubuntu-latest
-    needs: [check-code-formatting]
     container:
       image: ceeac/simutrans-build-env:mingw-sdl2
     steps:
@@ -379,7 +365,6 @@ jobs:
   sim-windows-gdi:
     name: Windows (MSVC, GDI)
     runs-on: windows-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -410,7 +395,6 @@ jobs:
   sim-windows-sdl2mixer:
     name: Windows (MSVC, SDL2_mixer)
     runs-on: windows-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -443,7 +427,6 @@ jobs:
   sim-windows-headless:
     name: Windows (MSVC, headless, zstd, UPNP)
     runs-on: windows-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -476,7 +459,6 @@ jobs:
   makeobj-windows:
     name: Windows Makeobj (MSVC)
     runs-on: windows-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -509,7 +491,6 @@ jobs:
   nettool-windows:
     name: Windows Nettool (MSVC)
     runs-on: windows-latest
-    needs: [check-code-formatting]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
