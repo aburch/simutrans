@@ -63,7 +63,7 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 
 	sint32 capacity, load;
 
-	void init_chart();
+	void init();
 
 	void apply_schedule();
 

@@ -123,21 +123,6 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	chart.set_min_size( scr_size( 0, CHART_HEIGHT ) );
 	container_stats.add_component( &chart );
 
-	if(line.is_bound() ) {
-		container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
-		for(  int cost = 0;  cost < MAX_LINE_COST;  cost++  ) {
-			uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, cost, MAX_MONTHS, cost_type_money[ cost ], false, true, cost_type_money[ cost ] * 2 );
-
-			button_t *b = container_stats.new_component<button_t>();
-			b->init( button_t::box_state_automatic | button_t::flexible, cost_type[ cost ] );
-			b->background_color = color_idx_to_rgb( cost_type_color[ cost ] );
-			b->pressed = false;
-
-			button_to_chart.append( b, &chart, curve );
-		}
-		container_stats.end_table();
-	}
-
 	switch_mode.add_tab( &container_convois, translator::translate( "cl_title" ) );
 
 	container_convois.set_table_layout( 1, 0 );
@@ -171,18 +156,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	container_halts.add_component(&scrolly_halts);
 
 	if (line.is_bound() ) {
-		// title
-		set_name(line->get_name() );
-		win_set_magic(this, (ptrdiff_t)line.get_rep());
-		// schedule
-		scd.init( line->get_schedule(), player, convoihandle_t(), linehandle_t() );
-		// we use local buffer to prevent sudden death on line deletion
-		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
-		tstrncpy(line_name, line->get_name(), sizeof(line_name));
-		inp_name.set_text(line_name, sizeof(line_name));
-		// init_chart
-		init_chart();
-		bt_delete_line.enable();
+		init();
 	}
 	old_convoi_count = old_halt_count = 0;
 
@@ -192,9 +166,20 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 }
 
 
-void line_management_gui_t::init_chart()
+void line_management_gui_t::init()
 {
 	if( line.is_bound() ) {
+		// title
+		set_name(line->get_name() );
+		// schedule
+		scd.init( line->get_schedule(), player, convoihandle_t(), linehandle_t() );
+		// we use local buffer to prevent sudden death on line deletion
+		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
+		tstrncpy(line_name, line->get_name(), sizeof(line_name));
+		inp_name.set_text(line_name, sizeof(line_name));
+
+		bt_delete_line.enable();
+		// init_chart
 		if( chart.get_curve_count() == 0 ) {
 			container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
 			for( int cost = 0; cost < MAX_LINE_COST; cost++ ) {
@@ -335,16 +320,12 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		if(  line.is_bound()  ) {
 			set_windowsize(size);
 			set_windowsize( size );
-			// title
-			set_name(line->get_name() );
 			win_set_magic(this, (ptrdiff_t)line.get_rep());
-			// schedule
+
 			scrolly_convois.set_scroll_position( cont_xoff, cont_yoff );
 			scrolly_halts.set_scroll_position( halt_xoff, halt_yoff );
 
-			inp_name.set_text(line_name, sizeof(line_name));
-
-			init_chart();
+			init();
 		}
 		else {
 			line = linehandle_t();
