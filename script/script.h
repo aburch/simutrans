@@ -109,6 +109,16 @@ public:
 		do_function_call();
 	}
 
+#undef push_param
+#define push_param(TYPE, arg) \
+	if (SQ_SUCCEEDED(script_api::param<TYPE>::push(job, arg))) { \
+			nparam++; \
+	} \
+	else { \
+		/* cleanup */ \
+		sq_pop(job, nparam+1); \
+		return "error pushing argument"; \
+	}
 	/**
 	 * calls scripted function
 	 *
@@ -122,22 +132,22 @@ public:
 	template<class R, class A1>
 	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1) {
 		prep_function_call();
-		script_api::param<A1>::push(job, arg1); nparam++;
+		push_param(A1, arg1);
 		do_function_call();
 	}
 	template<class R, class A1, class A2>
 	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2) {
 		prep_function_call();
-		script_api::param<A1>::push(job, arg1); nparam++;
-		script_api::param<A2>::push(job, arg2); nparam++;
+		push_param(A1, arg1);
+		push_param(A2, arg2);
 		do_function_call();
 	}
 	template<class R, class A1, class A2, class A3>
 	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2, A3 arg3) {
 		prep_function_call();
-		script_api::param<A1>::push(job, arg1); nparam++;
-		script_api::param<A2>::push(job, arg2); nparam++;
-		script_api::param<A3>::push(job, arg3); nparam++;
+		push_param(A1, arg1);
+		push_param(A2, arg2);
+		push_param(A3, arg3);
 		do_function_call();
 	}
 

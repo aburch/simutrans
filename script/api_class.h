@@ -76,6 +76,25 @@ namespace script_api {
 	 */
 	SQInteger prepare_constructor(HSQUIRRELVM vm, const char* classname);
 
+#undef push_param
+#define push_param(TYPE, arg) \
+	if (SQ_SUCCEEDED(script_api::param<TYPE>::push(vm, arg))) { \
+			nparam++; \
+	} \
+	else { \
+		/* cleanup */ \
+		sq_pop(vm, nparam+1); \
+		return -1;  \
+	}
+
+#define call_constructor() \
+	bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, nparam, true, false)); \
+	sq_remove(vm, ok ? -2 : -1); /* remove closure */ \
+	if (!ok) { \
+		return sq_raise_error(vm, "Call to constructor of %s failed", classname); \
+	} \
+	return 1;
+
 	/**
 	 * Function to create & push instances of squirrel classes.
 	 * @param classname name of squirrel class
@@ -85,9 +104,8 @@ namespace script_api {
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 1, true, false));
-		sq_remove(vm, ok ? -2 : -1); // remove closure
-		return ok ? 1 : -1;
+		int nparam = 1;
+		call_constructor();
 	}
 
 	template<class A1>
@@ -96,10 +114,9 @@ namespace script_api {
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		param<A1>::push(vm, a1);
-		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 2, true, false));
-		sq_remove(vm, ok ? -2 : -1); // remove closure
-		return ok ? 1 : -1;
+		int nparam = 1;
+		push_param(A1, a1);
+		call_constructor();
 	}
 
 	template<class A1, class A2>
@@ -108,11 +125,10 @@ namespace script_api {
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		param<A1>::push(vm, a1);
-		param<A2>::push(vm, a2);
-		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 3, true, false));
-		sq_remove(vm, ok ? -2 : -1); // remove closure
-		return ok ? 1 : -1;
+		int nparam = 1;
+		push_param(A1, a1);
+		push_param(A2, a2);
+		call_constructor();
 	}
 
 	template<class A1, class A2, class A3>
@@ -121,12 +137,11 @@ namespace script_api {
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		param<A1>::push(vm, a1);
-		param<A2>::push(vm, a2);
-		param<A3>::push(vm, a3);
-		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 4, true, false));
-		sq_remove(vm, ok ? -2 : -1); // remove closure
-		return ok ? 1 : -1;
+		int nparam = 1;
+		push_param(A1, a1);
+		push_param(A2, a2);
+		push_param(A3, a3);
+		call_constructor();
 	}
 
 	template<class A1, class A2, class A3, class A4>
@@ -135,13 +150,12 @@ namespace script_api {
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		param<A1>::push(vm, a1);
-		param<A2>::push(vm, a2);
-		param<A3>::push(vm, a3);
-		param<A4>::push(vm, a4);
-		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, 5, true, false));
-		sq_remove(vm, ok ? -2 : -1); // remove closure
-		return ok ? 1 : -1;
+		int nparam = 1;
+		push_param(A1, a1);
+		push_param(A2, a2);
+		push_param(A3, a3);
+		push_param(A4, a4);
+		call_constructor();
 	}
 
 	/**
