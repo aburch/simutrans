@@ -154,7 +154,7 @@ void export_scripted_tools(HSQUIRRELVM vm)
 		return ""; \
 	}
 #define check_error() \
-	if (err  &&  strcmp(err, "suspended")==0) {\
+	if (err  &&  strcmp(err, "suspended")) {\
 		dbg->warning("tool_exec_script_t::call_function", "error calling %s: %s", function, err);\
 	}
 
