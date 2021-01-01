@@ -533,10 +533,10 @@ void weg_t::rdwr(loadsave_t *file)
 					FOR(private_car_route_map, element, private_car_routes[i])
 					{
 						koord destination = element.key;
-						koord3d next_tile = element.value;
+						uint8 next_tile = element.value;
 
 						destination.rdwr(file);
-						next_tile.rdwr(file);
+						file->rdwr_byte(next_tile);
 					}
 				}
 			}
@@ -550,9 +550,16 @@ void weg_t::rdwr(loadsave_t *file)
 					{
 						koord destination;
 						destination.rdwr(file);
-						koord3d next_tile;
-						next_tile.rdwr(file);
-						bool put_succeeded = private_car_routes[i].put(destination, next_tile);
+						bool put_succeeded = false;
+						if(file->get_extended_version()==14 && file->get_extended_revision() < 33) {
+							koord3d next_tile;
+							next_tile.rdwr(file);
+							put_succeeded = private_car_routes[i].put(destination, get_pos().int_from_neighbour(next_tile));
+						} else {
+							uint8 next_tile;
+							file->rdwr_byte(next_tile);
+							put_succeeded = private_car_routes[i].put(destination, next_tile);
+						}
 						assert(put_succeeded);
 						(void)put_succeeded;
 					}
@@ -1880,7 +1887,7 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 	assert(error == 0);
 	(void)error;
 #endif
-	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile);
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, get_pos().int_from_neighbour(next_tile));
 
 	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
@@ -1932,7 +1939,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
-				next_tile = w->private_car_routes[routes_index].get(destination);
+				next_tile = get_pos().neighbour_from_int(w->private_car_routes[routes_index].get(destination));
 				w->remove_private_car_route(destination, reading_set);
 			}
 		}
@@ -1979,4 +1986,8 @@ void weg_t::apply_travel_time_updates() {
 
 void weg_t::clear_travel_time_updates() {
 	pending_road_travel_time_updates.clear();
+}
+
+koord3d weg_t::get_next_on_private_car_route_to(koord dest) const {
+	return private_car_routes[private_car_routes_currently_reading_element].is_contained(dest) ? get_pos().neighbour_from_int(private_car_routes[private_car_routes_currently_reading_element].get(dest)) : koord3d();
 }

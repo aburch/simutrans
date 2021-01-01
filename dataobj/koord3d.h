@@ -39,6 +39,9 @@ public:
 	void rdwr(loadsave_t* file);
 
 	static const koord3d invalid;
+	koord3d neighbour_from_int(uint8 i) const;
+
+	uint8 int_from_neighbour(koord3d k) const;
 
 //	const koord& get_2d() const { return *this; }
 	koord get_2d() const { return koord(x,y); }

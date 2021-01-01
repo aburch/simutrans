@@ -11,7 +11,15 @@
 
 
 const koord3d koord3d::invalid(-1, -1, -1);
+koord3d koord3d::neighbour_from_int(uint8 i) const {
+	assert(i<=124);
+	return koord3d(x+(i%5)-2,y+(i%25)/5-2,z+(i/25)-2);
+}
 
+uint8 koord3d::int_from_neighbour(koord3d k) const {
+	assert(-2 <= k.x-x && k.x-x <= 2 && -2 <= k.y-y && k.y-y <= 2 && -2 <= k.z-z && k.z-z <= 2);
+	return (k.x-x+2) + 5*(k.y-y+2) + 25*(k.z-z+2);
+}
 
 void koord3d::rotate90( sint16 y_diff )
 {
