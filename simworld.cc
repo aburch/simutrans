@@ -6032,7 +6032,7 @@ void karte_t::calc_climate(koord k, bool recalc)
 			if( beach ) {
 				pl->set_climate( desert_climate );
 			}
-			else if(  default_cl>water_climate  &&  default_cl<=arctic_climate  &&  settings.get_climate_borders(default_cl,false)<=gr->get_pos().z  &&  settings.get_climate_borders(default_cl,true)>=gr->get_pos().z  ) {
+			else if(  default_cl>water_climate  &&  default_cl<=arctic_climate  &&  settings.get_climate_borders(default_cl,false)<=gr->get_pos().z  &&  settings.get_climate_borders(default_cl,true)>gr->get_pos().z  ) {
 				// if possible keep (or revert) to original climate
 				pl->set_climate( default_cl );
 			}
@@ -6292,7 +6292,7 @@ void karte_t::calc_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 							allowed.clear();
 							sint8 hgt = lookup_hgt_nocheck( x, y );
 							for( int cl=1;  cl<MAX_CLIMATES;  cl++ ) {
-								if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt <= settings.get_climate_borders( cl, 1 )  ) {
+								if(  hgt >= settings.get_climate_borders( cl, 0 )  &&  hgt < settings.get_climate_borders( cl, 1 )  ) {
 									allowed.append(cl);
 								}
 							}
