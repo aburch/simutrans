@@ -152,7 +152,7 @@ private:
 			vector_tpl<connection_cluster_t*> connection_clusters;
 			uint32 usage_level;			// number of connection clusters used
 			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
-			typedef  inthashtable_tpl<uint16, connection_cluster_t*, N_BAGS_SMALL> cluster_map_type;
+			typedef  inthashtable_tpl<uint16, connection_cluster_t*, N_BAGS_LARGE> cluster_map_type;
 			cluster_map_type cluster_map;
 
 		public:

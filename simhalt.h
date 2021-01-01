@@ -302,7 +302,7 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*, N_BAGS_LARGE> connexions_map;
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*, N_BAGS_MEDIUM> connexions_map;
 
 	struct waiting_time_set
 	{
