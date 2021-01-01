@@ -56,7 +56,7 @@ const char *translator::lang_info::translate(const char *text) const
 /* Made to be dynamic, allowing any number of languages to be loaded */
 static translator::lang_info langs[40];
 static translator::lang_info *current_langinfo = langs;
-static stringhashtable_tpl<const char*> compatibility;
+static stringhashtable_tpl<const char*, N_BAGS_LARGE> compatibility;
 
 
 translator translator::single_instance;
@@ -528,7 +528,7 @@ void translator::init_custom_names(int lang)
 /* now on to the translate stuff */
 
 
-static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>* table, bool language_is_utf, bool file_is_utf, bool language_is_latin2 )
+static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*, N_BAGS_LARGE>* table, bool language_is_utf, bool file_is_utf, bool language_is_latin2 )
 {
 	char buffer1 [4096];
 	char buffer2 [4096];

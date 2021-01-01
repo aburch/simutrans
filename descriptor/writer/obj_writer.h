@@ -11,19 +11,20 @@
 #include <string>
 #include "../intro_dates.h"
 #include "../objversion.h"
+#include "../../macros.h"
 
 
 class obj_node_t;
 struct obj_node_info_t;
 class tabfileobj_t;
-template<class X> class stringhashtable_tpl;
-template<class key, class X> class inthashtable_tpl;
+template<class X, size_t n_bags> class stringhashtable_tpl;
+template<class key, class X, size_t n_bags> class inthashtable_tpl;
 
 
 class obj_writer_t {
 private:
-	static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
-	static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
+	static stringhashtable_tpl<obj_writer_t*, N_BAGS_LARGE>* writer_by_name;
+	static inthashtable_tpl<obj_type, obj_writer_t*, N_BAGS_LARGE>* writer_by_type;
 
 	static int default_image_size;
 

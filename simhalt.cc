@@ -62,13 +62,13 @@ karte_ptr_t haltestelle_t::welt;
 
 vector_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
-stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
+stringhashtable_tpl<halthandle_t, N_BAGS_LARGE> haltestelle_t::all_names;
 
 vector_tpl<lines_loaded_t> haltestelle_t::lines_loaded;
 
 uint8 haltestelle_t::pedestrian_limit = 0;
 // hash table only used during loading
-inthashtable_tpl<sint32,halthandle_t> *haltestelle_t::all_koords = NULL;
+inthashtable_tpl<sint32,halthandle_t,N_BAGS_LARGE> *haltestelle_t::all_koords = NULL;
 // since size_x*size_y < 0x1000000, we have just to shift the high bits
 #define get_halt_key(k,width) ( ((k).x*(width)+(k).y) /*+ ((k).z << 25)*/ )
 
@@ -104,7 +104,7 @@ static vector_tpl<linehandle_t>stale_lines;
 
 void haltestelle_t::start_load_game()
 {
-	all_koords = new inthashtable_tpl<sint32,halthandle_t>;
+	all_koords = new inthashtable_tpl<sint32,halthandle_t,N_BAGS_LARGE>;
 }
 
 
@@ -1744,7 +1744,7 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 
 uint32 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category, uint8 g_class)
 {
-	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = waiting_times[category][g_class];
+	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set, N_BAGS_SMALL> * const wt = waiting_times[category][g_class];
 	if(wt->is_contained((halt.get_id())))
 	{
 		fixed_list_tpl<uint32, 32> times = waiting_times[category][g_class]->get(halt.get_id()).times;

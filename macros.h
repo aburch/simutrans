@@ -9,6 +9,10 @@
 
 #include "simtypes.h"
 
+#define N_BAGS_SMALL 11
+#define N_BAGS_MEDIUM 37
+#define N_BAGS_LARGE 101
+
 // Ensures that the argument has array type.
 template<typename T, size_t N>
 static inline size_t lengthof(T (&)[N]) { return N; }

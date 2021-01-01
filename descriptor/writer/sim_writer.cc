@@ -35,8 +35,8 @@
  * may be also instantiated in the class itself. Therefore, all classes MUST be declared here to force
  * the linking and raise an error if we lack any of them.
  */
-stringhashtable_tpl<obj_writer_t*>* obj_writer_t::writer_by_name = NULL;
-inthashtable_tpl<obj_type, obj_writer_t*>* obj_writer_t::writer_by_type = NULL;
+stringhashtable_tpl<obj_writer_t*, N_BAGS_LARGE>* obj_writer_t::writer_by_name = NULL;
+inthashtable_tpl<obj_type, obj_writer_t*, N_BAGS_LARGE>* obj_writer_t::writer_by_type = NULL;
 
 text_writer_t text_writer_t::the_instance;
 image_writer_t image_writer_t::the_instance;

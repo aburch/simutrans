@@ -42,7 +42,7 @@
 
 const roadsign_desc_t *roadsign_t::default_signal = NULL;
 
-stringhashtable_tpl<roadsign_desc_t *> roadsign_t::table;
+stringhashtable_tpl<roadsign_desc_t *, N_BAGS_MEDIUM> roadsign_t::table;
 vector_tpl<roadsign_desc_t*> roadsign_t::list;
 
 
@@ -827,7 +827,7 @@ bool roadsign_t::successfully_loaded()
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
 	}
 
-	FOR (stringhashtable_tpl<roadsign_desc_t *>, const &i, table) {
+	for (auto const &i : table) {
 		roadsign_t::list.append(i.value);
 	}
 
@@ -882,7 +882,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	vector_tpl<const roadsign_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table) {
+	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
 
 		bool allowed_given_current_signalbox;
@@ -941,7 +941,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table) {
+	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_flags()==flag  ) {
 			return desc;
@@ -955,7 +955,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 	const uint16 time = welt->get_timeline_year_month();
 	const roadsign_desc_t* best_candidate = NULL;
 
-	FOR(stringhashtable_tpl<roadsign_desc_t *>, const& i, table)
+	for(auto const& i : table)
 	{
 		roadsign_desc_t const* const new_roadsign_type = i.value;
 		if(new_roadsign_type->is_available(time)

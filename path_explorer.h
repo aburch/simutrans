@@ -97,7 +97,7 @@ private:
 		friend class path_explorer_t;
 
 	protected:
-		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexion_table_map;
+		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexion_table_map;
 		// structure for storing connexion hashtable and serving transport counter
 		struct connexion_list_entry_t
 		{
@@ -153,7 +153,7 @@ private:
 			vector_tpl<connection_cluster_t*> connection_clusters;
 			uint32 usage_level;			// number of connection clusters used
 			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
-			typedef  inthashtable_tpl<uint16, connection_cluster_t*> cluster_map_type;
+			typedef  inthashtable_tpl<uint16, connection_cluster_t*, N_BAGS_SMALL> cluster_map_type;
 			cluster_map_type cluster_map;
 
 		public:

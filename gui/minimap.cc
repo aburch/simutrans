@@ -157,7 +157,7 @@ bool minimap_t::LineSegmentOrdering::operator()(const minimap_t::line_segment_t&
 
 
 static uint8 colore_idx = 0;
-static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
+static inthashtable_tpl< int, slist_tpl<schedule_t *>, N_BAGS_LARGE> waypoint_hash;
 
 
 // add the schedule to the map (if there is a valid one)

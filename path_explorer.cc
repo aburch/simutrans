@@ -17,7 +17,7 @@
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
-typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
 
 
 // #define DEBUG_EXPLORER_SPEED
@@ -960,7 +960,7 @@ void path_explorer_t::compartment_t::step()
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint32 accumulated_journey_time;
-			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
+			haltestelle_t::connexions_map *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
 			start = dr_time();	// start timing. Note that this was originally dr_time()
@@ -2045,7 +2045,7 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 	{
 		// Note that the connexion_tables created here will be
 		// swapped with connexion_tables created/stored in halts.
-		connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+		connexion_list[i].connexion_table = new haltestelle_t::connexions_map ();
 		connexion_list[i].serving_transport = 0;
 	}
 }

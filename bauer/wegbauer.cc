@@ -81,9 +81,9 @@ karte_ptr_t way_builder_t::welt;
 
 const way_desc_t *way_builder_t::leitung_desc = NULL;
 
-static stringhashtable_tpl <way_desc_t *> desc_table;
+static stringhashtable_tpl <way_desc_t *, N_BAGS_LARGE> desc_table;
 
-stringhashtable_tpl <way_desc_t *> * way_builder_t::get_all_ways()
+stringhashtable_tpl <way_desc_t *, N_BAGS_LARGE> * way_builder_t::get_all_ways()
 {
 	return &desc_table;
 }
@@ -155,7 +155,7 @@ const vector_tpl<const way_desc_t *>&  way_builder_t::get_way_list(const waytype
 	static vector_tpl<const way_desc_t *> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<way_desc_t*>, & i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if (test->get_wtyp() == wtyp  &&  test->get_styp() == styp  &&  test->is_available(time) && test->get_builder()) {
 			dummy.append(test);
@@ -175,7 +175,7 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 {
 	const way_desc_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==type_tram  &&  wtyp==tram_wt))
@@ -206,9 +206,9 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 {
 	const way_desc_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	FOR(stringhashtable_tpl<way_desc_t*>, const& iter, desc_table)
+	for(auto const& i : desc_table)
 	{
-		const way_desc_t* const test = iter.value;
+		const way_desc_t* const test = i.value;
 		if(((test->get_wtyp() == wtyp
 			&& (test->get_styp() == system_type ||
 				 system_type == type_all)) ||
@@ -252,9 +252,9 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 
 const way_desc_t *way_builder_t::way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type)
 {
-	FOR(stringhashtable_tpl<way_desc_t*>, const& iter, desc_table)
+	for(auto const& i : desc_table)
 	{
-		const way_desc_t* const test = iter.value;
+		const way_desc_t* const test = i.value;
 		if(test->get_wtyp() == wtyp && (test->get_styp()==system_type || system_type==type_all) && test->is_mothballed())
 		{
 			return test;
@@ -267,7 +267,7 @@ const way_desc_t *way_builder_t::way_search_mothballed(const waytype_t wtyp, con
 const way_desc_t *way_builder_t::get_earliest_way(const waytype_t wtyp)
 {
 	const way_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_intro_year_month()<desc->get_intro_year_month())  ) {
 			desc = test;
@@ -281,7 +281,7 @@ const way_desc_t *way_builder_t::get_earliest_way(const waytype_t wtyp)
 const way_desc_t *way_builder_t::get_latest_way(const waytype_t wtyp)
 {
 	const way_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_retire_year_month()>desc->get_retire_year_month())  ) {
 			desc = test;
@@ -298,7 +298,7 @@ bool way_builder_t::waytype_available( const waytype_t wtyp, uint16 time )
 		return true;
 	}
 
-	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
 			return true;
@@ -332,7 +332,7 @@ void way_builder_t::new_month()
 	if(current_month!=0) {
 		// check, what changed
 		slist_tpl <const way_desc_t *> matching;
-		FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+		for(auto const& i : desc_table) {
 			way_desc_t const* const desc = i.value;
 			cbuffer_t buf;
 
@@ -382,7 +382,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 	// list of matching types (sorted by speed)
 	vector_tpl<way_desc_t*> matching;
 
-	FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t* const desc = i.value;
 		if (  desc->get_styp()==styp &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  &&  desc->is_available(time)  ) {
 				matching.append(desc);

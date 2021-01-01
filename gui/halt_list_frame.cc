@@ -152,7 +152,7 @@ static bool passes_filter_type(haltestelle_t const& s)
 	return false;
 }
 
-typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
 
 static bool passes_filter_special(haltestelle_t & s)
 {

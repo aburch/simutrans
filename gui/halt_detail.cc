@@ -389,7 +389,7 @@ void halt_detail_t::update_components()
 			uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i + 1 : i;
 			btn->disable();
 			if (halt->is_enabled(catg_index)) {
-				typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+				typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
 				// check station handled goods category
 				if (catg_index == goods_manager_t::INDEX_PAS || catg_index == goods_manager_t::INDEX_MAIL)
 				{
@@ -1567,7 +1567,7 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 		(!station_display_mode && (!halt->is_enabled(catg_index) || catg_index == goods_manager_t::INDEX_NONE || catg_index >= goods_manager_t::get_max_catg_index()))) {
 		return;
 	}
-	typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+	typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
 
 	if (station_display_mode) {
 		// all connected stations
@@ -1703,7 +1703,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 
 		yoff += LINESPACE;
 
-		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
+		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
 		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 			haltestelle_t::connexion* cnx = halt->get_connexions(i, goods_manager_t::get_classes_catg_index(i) - 1)->get(dest);
 			if (cnx) {

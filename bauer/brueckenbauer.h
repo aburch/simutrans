@@ -109,7 +109,7 @@ public:
 
 	static bool laden_erfolgreich();
 
-	static stringhashtable_tpl<bridge_desc_t *> * get_all_bridges();
+	static stringhashtable_tpl<bridge_desc_t *, N_BAGS_MEDIUM> * get_all_bridges();
 
 
 	/**

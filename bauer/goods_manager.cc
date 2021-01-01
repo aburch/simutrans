@@ -12,7 +12,7 @@
 #include "../dataobj/translator.h"
 
 
-stringhashtable_tpl<const goods_desc_t *> goods_manager_t::desc_names;
+stringhashtable_tpl<const goods_desc_t *, N_BAGS_MEDIUM> goods_manager_t::desc_names;
 
 vector_tpl<goods_desc_t *> goods_manager_t::goods;
 

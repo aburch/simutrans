@@ -2768,7 +2768,7 @@ bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 }
 
 tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
-	FOR(stringhashtable_tpl<way_desc_t *>, const& i, *(way_builder_t::get_all_ways())) {
+	for(auto const& i : *(way_builder_t::get_all_ways())) {
 		way_desc_t const* const cand = i.value;
 		if(  cand==desc  &&  cand->get_builder()  ) {
 			return dynamic_cast<tool_build_way_t*> (cand->get_builder());

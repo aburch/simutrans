@@ -44,7 +44,7 @@ karte_ptr_t bridge_builder_t::welt;
 
 
 /// All bridges hashed by name
-static stringhashtable_tpl<bridge_desc_t *> desc_table;
+static stringhashtable_tpl<bridge_desc_t *, N_BAGS_MEDIUM> desc_table;
 
 
 void bridge_builder_t::register_desc(bridge_desc_t *desc)
@@ -80,7 +80,8 @@ bool bridge_builder_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	FOR(stringhashtable_tpl<bridge_desc_t*>, const& i, desc_table) {
+
+	for(auto & i : desc_table) {
 		bridge_desc_t const* const desc = i.value;
 
 		if(desc && desc->get_waytype() == track_wt) {
@@ -103,7 +104,7 @@ bool bridge_builder_t::laden_erfolgreich()
 }
 
 
-stringhashtable_tpl<bridge_desc_t *> * bridge_builder_t::get_all_bridges()
+stringhashtable_tpl<bridge_desc_t *, N_BAGS_MEDIUM> * bridge_builder_t::get_all_bridges()
 {
 	return &desc_table;
 }
@@ -115,7 +116,7 @@ const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const s
 {
 	const bridge_desc_t *find_desc=NULL;
 
-	FOR(stringhashtable_tpl<bridge_desc_t*>, const& i, desc_table) {
+	for(auto const & i : desc_table) {
 		bridge_desc_t const* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
 			if(find_desc==NULL  ||
@@ -155,7 +156,7 @@ void bridge_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t
 	vector_tpl<const bridge_desc_t*> matching(desc_table.get_count());
 
 	// list of matching types (sorted by speed)
-	FOR(stringhashtable_tpl<bridge_desc_t*>, const& i, desc_table) {
+	for(auto const & i : desc_table) {
 		bridge_desc_t const* const b = i.value;
 		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
 			matching.insert_ordered( b, compare_bridges);
