@@ -97,11 +97,10 @@ private:
 		friend class path_explorer_t;
 
 	protected:
-		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexion_table_map;
 		// structure for storing connexion hashtable and serving transport counter
 		struct connexion_list_entry_t
 		{
-			connexion_table_map *connexion_table;
+			haltestelle_t::connexions_map *connexion_table;
 			uint8 serving_transport;
 		};
 

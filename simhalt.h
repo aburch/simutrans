@@ -302,7 +302,7 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*, N_BAGS_SMALL> connexions_map;
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*, N_BAGS_LARGE> connexions_map;
 
 	struct waiting_time_set
 	{
@@ -495,7 +495,7 @@ private:
 
 public:
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, const uint8 g_class, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, haltestelle_t::connexions_map* &cxns)
 	{
 		// swap the connexion hashtables
 		connexions_map *temp = connexions[category][g_class];

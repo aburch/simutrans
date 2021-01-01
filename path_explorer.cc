@@ -17,8 +17,6 @@
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
-typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*, N_BAGS_SMALL> connexions_map_single_remote;
-
 
 // #define DEBUG_EXPLORER_SPEED
 // #define DEBUG_COMPARTMENT_STEP
@@ -200,7 +198,7 @@ void path_explorer_t::rdwr(loadsave_t* file)
 			uint32 connexion_table_count = compartment_t::connexion_list[i].connexion_table->get_count();
 			file->rdwr_long(connexion_table_count);
 
-			FOR(compartment_t::connexion_table_map, iter, *compartment_t::connexion_list[i].connexion_table)
+			for(auto iter : *compartment_t::connexion_list[i].connexion_table)
 			{
 				tmp_idx = iter.key.get_id();
 				file->rdwr_short(tmp_idx);
@@ -1433,7 +1431,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class)))
+				for(auto const& connexions_iter : *(current_halt->get_connexions(catg, g_class)))
 				{
 					reachable_halt = connexions_iter.key;
 
