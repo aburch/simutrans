@@ -220,6 +220,17 @@ void gui_convoiinfo_t::update_label()
 			switchable_label_title.set_visible(true);
 			switchable_label_value.set_visible(true);
 			break;
+		case 8: //range
+			switchable_label_title.buf().printf("%s: ", translator::translate("cl_btn_range"));
+			if (!cnv->get_min_range()) {
+				switchable_label_value.buf().append(translator::translate("unlimited"));
+			}
+			else {
+				switchable_label_value.buf().printf("%u km", cnv->get_min_range());
+			}
+			switchable_label_title.set_visible(true);
+			switchable_label_value.set_visible(true);
+			break;
 		case 0:
 		default:
 			switchable_label_title.set_visible(false);
