@@ -277,6 +277,10 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 			else if (outer == 1 &&  span > 1) {
 				// elements spanning more than one cell
 				uint16 c0 = c+1 - span;
+				while (col_w.get_count() <= c0 % columns) {
+					dbg->message("gui_aligned_container_t::compute_sizes", "only %u of %u needed columns, adding another.", col_w.get_count(), (c0 % columns)+1);
+					col_w.append(0);
+				}
 				// find place taken by those columns
 				scr_coord_val w = col_w[c0 % columns];
 				for(uint16 j=(c0+1) % columns; j<=c % columns; j++) {
