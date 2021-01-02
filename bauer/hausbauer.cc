@@ -55,7 +55,7 @@ vector_tpl<const building_desc_t *> hausbauer_t::unbuilt_monuments;
  * List of all registered house descriptors.
  * Allows searching for a desc by its name
  */
-static stringhashtable_tpl<building_desc_t *> desc_names;
+static stringhashtable_tpl<building_desc_t *, N_BAGS_MEDIUM> desc_names;
 
 const building_desc_t *hausbauer_t::elevated_foundation_desc = NULL;
 
@@ -141,7 +141,7 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 
 bool hausbauer_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<building_desc_t *>, & i, desc_names) {
+	for(auto const& i : desc_names) {
 		building_desc_t *const desc = i.value;
 
 		// now insert the besch into the correct list.

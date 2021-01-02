@@ -29,7 +29,7 @@
 
 vector_tpl<const groundobj_desc_t *> groundobj_t::groundobj_typen(0);
 
-stringhashtable_tpl<groundobj_desc_t *> groundobj_t::desc_names;
+stringhashtable_tpl<groundobj_desc_t *, N_BAGS_MEDIUM> groundobj_t::desc_names;
 
 
 bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
@@ -41,11 +41,11 @@ bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b
 bool groundobj_t::successfully_loaded()
 {
 	groundobj_typen.resize(desc_names.get_count());
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_names) {
+	for(auto const& i : desc_names) {
 		groundobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_names) {
+	for(auto const& i : desc_names) {
 		i.value->index = groundobj_typen.index_of(i.value);
 	}
 

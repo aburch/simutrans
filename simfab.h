@@ -260,7 +260,7 @@ private:
 
 	// The adjusted "max intransit percentage" for each type of input goods
 	// indexed against the catg of each "input" (the input goods).
-	inthashtable_tpl<uint8, uint16> max_intransit_percentages;
+	inthashtable_tpl<uint8, uint16, N_BAGS_SMALL> max_intransit_percentages;
 
 	/// Accumulated time since last production
 	sint32 delta_sum;

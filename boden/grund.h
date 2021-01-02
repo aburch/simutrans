@@ -764,7 +764,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	bool removing_way_would_disrupt_public_right_of_way(waytype_t wt);
 	bool removing_road_would_break_monument_loop();
 
-	typedef koordhashtable_tpl<koord, bool> road_network_plan_t;
+	typedef koordhashtable_tpl<koord, bool, N_BAGS_SMALL> road_network_plan_t;
 	/**
 	 * Check whether building a road would result in a 2x2 square
 	 * of road tiles.

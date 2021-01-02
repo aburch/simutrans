@@ -101,7 +101,7 @@ public:
 
 	/* the static routines */
 private:
-	static stringhashtable_tpl<way_obj_desc_t *> table;
+	static stringhashtable_tpl<way_obj_desc_t *, N_BAGS_MEDIUM> table;
 
 public:
 	static const way_obj_desc_t *default_oberleitung;
@@ -122,7 +122,7 @@ public:
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 
-	static stringhashtable_tpl<way_obj_desc_t *>* get_all_wayobjects() { return &table; }
+	static stringhashtable_tpl<way_obj_desc_t *, N_BAGS_MEDIUM>* get_all_wayobjects() { return &table; }
 };
 
 #endif

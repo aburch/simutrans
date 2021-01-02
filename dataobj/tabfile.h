@@ -113,7 +113,7 @@ private:
  */
 class tabfileobj_t {
 private:
-	stringhashtable_tpl<obj_info_t> objinfo;
+	stringhashtable_tpl<obj_info_t, N_BAGS_LARGE> objinfo;
 
 	template<class I>
 	bool get_x_y( const char *key, I &x, I &y );

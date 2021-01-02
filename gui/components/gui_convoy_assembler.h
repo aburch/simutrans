@@ -233,7 +233,7 @@ class gui_convoy_assembler_t :
 	 * A helper map to update loks_vec and waggons_Vec. All entries from
 	 * loks_vec and waggons_vec are referenced here.
 	 */
-	typedef ptrhashtable_tpl<vehicle_desc_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
+	typedef ptrhashtable_tpl<vehicle_desc_t const*, gui_image_list_t::image_data_t*, N_BAGS_LARGE> vehicle_image_map;
 	vehicle_image_map vehicle_map;
 
 	/**

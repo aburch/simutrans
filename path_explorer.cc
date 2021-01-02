@@ -17,8 +17,6 @@
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
-typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
-
 
 // #define DEBUG_EXPLORER_SPEED
 // #define DEBUG_COMPARTMENT_STEP
@@ -200,7 +198,7 @@ void path_explorer_t::rdwr(loadsave_t* file)
 			uint32 connexion_table_count = compartment_t::connexion_list[i].connexion_table->get_count();
 			file->rdwr_long(connexion_table_count);
 
-			FOR(compartment_t::connexion_table_map, iter, *compartment_t::connexion_list[i].connexion_table)
+			for(auto iter : *compartment_t::connexion_list[i].connexion_table)
 			{
 				tmp_idx = iter.key.get_id();
 				file->rdwr_short(tmp_idx);
@@ -960,7 +958,7 @@ void path_explorer_t::compartment_t::step()
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint32 accumulated_journey_time;
-			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
+			haltestelle_t::connexions_map *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
 			start = dr_time();	// start timing. Note that this was originally dr_time()
@@ -1433,7 +1431,7 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// iterate over the connexions of the current halt
-				FOR(connexions_map_single_remote, const& connexions_iter, *(current_halt->get_connexions(catg, g_class)))
+				for(auto const& connexions_iter : *(current_halt->get_connexions(catg, g_class)))
 				{
 					reachable_halt = connexions_iter.key;
 
@@ -2045,7 +2043,7 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 	{
 		// Note that the connexion_tables created here will be
 		// swapped with connexion_tables created/stored in halts.
-		connexion_list[i].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+		connexion_list[i].connexion_table = new haltestelle_t::connexions_map ();
 		connexion_list[i].serving_transport = 0;
 	}
 }

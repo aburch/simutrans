@@ -18,7 +18,7 @@ class pakset_info_t
 	 * checksums of all desc's
 	 * since their names are unique we can index them by name
 	 */
-	static stringhashtable_tpl<checksum_t*> info;
+	static stringhashtable_tpl<checksum_t*, N_BAGS_LARGE> info;
 
 	/**
 	 * pakset checksum
@@ -27,7 +27,7 @@ class pakset_info_t
 
 public:
 	static const checksum_t& get_pakset_checksum() { return general; }
-	static const stringhashtable_tpl<checksum_t*>& get_info() { return info; }
+	static const stringhashtable_tpl<checksum_t*, N_BAGS_LARGE>& get_info() { return info; }
 
 	static void calculate_checksum();
 	static checksum_t* get_checksum() { return &general; }

@@ -64,10 +64,10 @@
 
 #include "../simversion.h"
 
-class inthashtable_tpl<ptrdiff_t,scr_coord> old_win_pos;
+class inthashtable_tpl<ptrdiff_t,scr_coord, N_BAGS_MEDIUM> old_win_pos;
 
 // hash-table: magic number to windowsize
-class inthashtable_tpl<ptrdiff_t, scr_size> saved_windowsizes;
+class inthashtable_tpl<ptrdiff_t, scr_size, N_BAGS_MEDIUM> saved_windowsizes;
 
 #define dragger_size 12
 
@@ -430,7 +430,7 @@ void rdwr_win_settings(loadsave_t *file)
 		} while (magic != magic_none);
 	}
 	else {
-		typedef inthashtable_tpl<ptrdiff_t, scr_size> stupid_table_t;
+		typedef inthashtable_tpl<ptrdiff_t, scr_size, N_BAGS_MEDIUM> stupid_table_t;
 		FOR(stupid_table_t, it, saved_windowsizes) {
 			sint64 m = it.key;
 			file->rdwr_longlong(m);

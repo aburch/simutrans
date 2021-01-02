@@ -10,7 +10,7 @@
 #include "slist_tpl.h"
 #include "../macros.h"
 
-#define STHT_BAGSIZE 101
+#define STHT_BAGSIZE 3
 #define STHT_BAG_COUNTER_T uint8
 
 
@@ -19,7 +19,7 @@
  * like the hash generation is implemented by the third template parameter
  * hash_t (see ifc/hash_tpl.h)
  */
-template<class key_t, class value_t, class hash_t>
+template<class key_t, class value_t, class hash_t, size_t n_bags>
 class hashtable_tpl
 {
 protected:
@@ -32,7 +32,7 @@ protected:
 	};
 
 	// the entires in the lists are sorted according to their keys
-	slist_tpl <node_t> bags[STHT_BAGSIZE];
+	slist_tpl <node_t> bags[n_bags];
 	uint32 count;
 
 /*
@@ -48,7 +48,7 @@ public:
 public:
 	STHT_BAG_COUNTER_T get_hash(const key_t key) const
 	{
-		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % STHT_BAGSIZE);
+		return (STHT_BAG_COUNTER_T)(hash_t::hash(key) % n_bags);
 	}
 
 	class iterator
@@ -201,7 +201,7 @@ public:
 
 	void clear()
 	{
-		for(STHT_BAG_COUNTER_T i=0; i<STHT_BAGSIZE; i++) {
+		for(STHT_BAG_COUNTER_T i=0; i<n_bags; i++) {
 			bags[i].clear();
 		}
 		count = 0;
@@ -382,7 +382,7 @@ public:
 
 	value_t remove_first()
 	{
-		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
+		for(STHT_BAG_COUNTER_T i = 0; i < n_bags; i++) {
 			if(  !bags[i].empty()  ) {
 				count --;
 				return bags[i].remove_first().value;
@@ -394,7 +394,7 @@ public:
 
 	void dump_stats()
 	{
-		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
+		for(STHT_BAG_COUNTER_T i = 0; i < n_bags; i++) {
 			printf("Bag %d contains %ud elements\n", i, bags[i].get_count());
 
 			FORT(slist_tpl<node_t>, const& node, bags[i]) {

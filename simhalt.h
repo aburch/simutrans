@@ -102,13 +102,13 @@ private:
 	/**
 	 * finds a stop by its name
 	 */
-	static stringhashtable_tpl<halthandle_t> all_names;
+	static stringhashtable_tpl<halthandle_t, N_BAGS_LARGE> all_names;
 
 	/**
 	 * Finds a stop by coordinate.
 	 * only used during loading.
 	 */
-	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
+	static inthashtable_tpl<sint32,halthandle_t, N_BAGS_LARGE> *all_koords;
 
 	/**
 	 * A list of lines and freight categories that have already been loaded with all available freight at the halt.
@@ -302,7 +302,7 @@ public:
 
 	bool is_within_walking_distance_of(halthandle_t halt) const;
 
-	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*> connexions_map;
+	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*, N_BAGS_MEDIUM> connexions_map;
 
 	struct waiting_time_set
 	{
@@ -310,7 +310,7 @@ public:
 		uint8 month;
 	};
 
-	typedef inthashtable_tpl<uint32, waiting_time_set > waiting_time_map;
+	typedef inthashtable_tpl<uint32, waiting_time_set, N_BAGS_SMALL> waiting_time_map;
 
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
@@ -342,7 +342,7 @@ public:
 	bool is_using() const;
 
 
-	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
+	typedef inthashtable_tpl<uint16, sint64, N_BAGS_SMALL> arrival_times_map;
 #ifdef MULTI_THREAD
 	uint32 get_transferring_cargoes_count() const;
 #else
@@ -460,7 +460,7 @@ private:
 	// Store the service frequencies to all other halts so that this does not need to be
 	// recalculated frequently. These are used as proxies for waiting times when no
 	// recent (or any) waiting time data are available.
-	koordhashtable_tpl<service_frequency_specifier, uint32> service_frequencies;
+	koordhashtable_tpl<service_frequency_specifier, uint32, N_BAGS_SMALL> service_frequencies;
 
 	static const sint64 waiting_multiplication_factor = 3ll;
 	static const sint64 waiting_tolerance_ratio = 50ll;
@@ -495,7 +495,7 @@ private:
 
 public:
 	// Added by : Knightly
-	void swap_connexions(const uint8 category, const uint8 g_class, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	void swap_connexions(const uint8 category, const uint8 g_class, haltestelle_t::connexions_map* &cxns)
 	{
 		// swap the connexion hashtables
 		connexions_map *temp = connexions[category][g_class];

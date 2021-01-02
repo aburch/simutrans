@@ -39,7 +39,7 @@
 #include <stdarg.h>
 
 // cache the scenario text files
-static plainstringhashtable_tpl<plainstring> cached_text_files;
+static plainstringhashtable_tpl<plainstring, N_BAGS_MEDIUM> cached_text_files;
 
 
 scenario_t::scenario_t(karte_t *w) :

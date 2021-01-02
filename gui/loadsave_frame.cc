@@ -30,7 +30,7 @@
 #include "../utils/simstring.h"
 
 
-stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
+stringhashtable_tpl<sve_info_t *, N_BAGS_LARGE> loadsave_frame_t::cached_info;
 
 
 sve_info_t::sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 extended_version)
@@ -382,7 +382,7 @@ loadsave_frame_t::~loadsave_frame_t()
 	{
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);
-		FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {
+		for(auto const& i : cached_info) {
 			// save only existing files
 			if (i.value->file_exists) {
 				xml_tag_t t(&file, "save_game_info");

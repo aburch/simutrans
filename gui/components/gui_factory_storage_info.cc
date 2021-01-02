@@ -602,9 +602,8 @@ void gui_factory_nearby_halt_info_t::draw(scr_coord offset)
 				{
 					continue;
 				}
-				typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 				uint8 g_class = goods_manager_t::get_classes_catg_index(i) - 1;
-				connexions_map_single_remote *connexions = halt->get_connexions(i, g_class);
+				haltestelle_t::connexions_map *connexions = halt->get_connexions(i, g_class);
 
 				if (!connexions->empty())
 				{

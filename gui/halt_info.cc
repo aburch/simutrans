@@ -965,7 +965,7 @@ void halt_info_t::update_departures()
 
 	const sint64 cur_ticks = welt->get_ticks();
 
-	typedef inthashtable_tpl<uint16, sint64> const arrival_times_map; // Not clear why this has to be redefined here.
+	typedef inthashtable_tpl<uint16, sint64, N_BAGS_SMALL> const arrival_times_map; // Not clear why this has to be redefined here.
 	const arrival_times_map& arrival_times = halt->get_estimated_convoy_arrival_times();
 	const arrival_times_map& departure_times = halt->get_estimated_convoy_departure_times();
 

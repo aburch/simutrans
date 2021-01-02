@@ -28,7 +28,7 @@ private:
 	image_id image;
 
 	/// table to lookup object based on name
-	static stringhashtable_tpl<groundobj_desc_t *> desc_names;
+	static stringhashtable_tpl<groundobj_desc_t *, N_BAGS_MEDIUM> desc_names;
 
 	/// all such objects
 	static vector_tpl<const groundobj_desc_t *> groundobj_typen;

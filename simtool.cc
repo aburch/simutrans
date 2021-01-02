@@ -2768,7 +2768,7 @@ bool tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 }
 
 tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
-	FOR(stringhashtable_tpl<way_desc_t *>, const& i, *(way_builder_t::get_all_ways())) {
+	for(auto const& i : *(way_builder_t::get_all_ways())) {
 		way_desc_t const* const cand = i.value;
 		if(  cand==desc  &&  cand->get_builder()  ) {
 			return dynamic_cast<tool_build_way_t*> (cand->get_builder());
@@ -3491,21 +3491,20 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 				// first check for building portal only
 				if(  is_ctrl_pressed()  ) {
 					// estimate costs for tunnel portal
-					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*2;
-					win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", price, welt->get_settings().get_meters_per_tile()*2) );
+					if(  !player->can_afford((-(sint64)desc->get_value())*2)  ) {
+						return NOTICE_INSUFFICIENT_FUNDS;
+					}
 				}
-
-				// Now check, if we can built a tunnel here and display costs
-				koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
-				if(  end == koord3d::invalid  ||  end == start  ) {
-					// no end found
-					return err;
-				}
-				if (!is_ctrl_pressed()) {
-					price = ((-(sint64)desc->get_value()) - way_desc->get_value())*koord_distance(start, end);
-				}
-				if(  !player->can_afford(price)  ) {
-					return NOTICE_INSUFFICIENT_FUNDS;
+				else {
+					// Now check, if we can built a tunnel here and display costs
+					koord3d end = tunnel_builder_t::find_end_pos(player, start, koord(gr->get_grund_hang()), desc, true, &err );
+					if(  end == koord3d::invalid  ||  end == start  ) {
+						// no end found
+						return err;
+					}
+					if(  !player->can_afford((-(sint64)desc->get_value())*koord_distance(start,end))  ) {
+						return NOTICE_INSUFFICIENT_FUNDS;
+					}
 				}
 
 				return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );

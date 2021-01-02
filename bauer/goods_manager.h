@@ -18,7 +18,7 @@ class goods_desc_t;
 class goods_manager_t
 {
 private:
-	static stringhashtable_tpl<const goods_desc_t *> desc_names;
+	static stringhashtable_tpl<const goods_desc_t *, N_BAGS_MEDIUM> desc_names;
 	static vector_tpl<goods_desc_t *> goods;
 
 	static goods_desc_t *load_passengers;

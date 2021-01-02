@@ -39,7 +39,7 @@
 
 karte_ptr_t tunnel_builder_t::welt;
 
-static stringhashtable_tpl<tunnel_desc_t *> tunnel_by_name;
+static stringhashtable_tpl<tunnel_desc_t *, N_BAGS_MEDIUM> tunnel_by_name;
 
 
 void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
@@ -61,7 +61,7 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 	tunnel_by_name.put(desc->get_name(), desc);
 }
 
-stringhashtable_tpl <tunnel_desc_t *> * tunnel_builder_t::get_all_tunnels()
+stringhashtable_tpl <tunnel_desc_t *, N_BAGS_MEDIUM> * tunnel_builder_t::get_all_tunnels()
 {
 	return &tunnel_by_name;
 }
@@ -79,7 +79,7 @@ const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, con
 {
 	const tunnel_desc_t *find_desc = NULL;
 
-	FOR(stringhashtable_tpl<tunnel_desc_t*>, const& i, tunnel_by_name) {
+	for(auto const & i: tunnel_by_name) {
 		tunnel_desc_t* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  ) {
 			if(  desc->is_available(time)  ) {
@@ -122,7 +122,7 @@ void tunnel_builder_t::fill_menu(tool_selector_t* tool_selector, const waytype_t
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_desc_t*> matching(tunnel_by_name.get_count());
 
-	FOR(stringhashtable_tpl<tunnel_desc_t*>, const& i, tunnel_by_name) {
+	for(auto const & i : tunnel_by_name) {
 		tunnel_desc_t* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
 			matching.insert_ordered(desc, compare_tunnels);

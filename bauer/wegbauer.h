@@ -54,7 +54,7 @@ public:
 
 	static const way_desc_t *get_desc(const char *way_name,const uint16 time=0);
 
-	static stringhashtable_tpl <way_desc_t *> * get_all_ways();
+	static stringhashtable_tpl <way_desc_t *, N_BAGS_LARGE> * get_all_ways();
 
 	static const way_desc_t *get_earliest_way(const waytype_t wtyp);
 

@@ -152,8 +152,6 @@ static bool passes_filter_type(haltestelle_t const& s)
 	return false;
 }
 
-typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
-
 static bool passes_filter_special(haltestelle_t & s)
 {
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::spezial_filter)) return true;
@@ -184,7 +182,7 @@ static bool passes_filter_special(haltestelle_t & s)
 			if(!s.get_connexions(i, g_class)->empty())
 			{
 				// There might be a walking connexion here - do not count a walking connexion.
-				FOR(connexions_map_single_remote, &c, *s.get_connexions(i, g_class) )
+				for(auto &c : *s.get_connexions(i, g_class) )
 				{
 					if(c.value->best_line.is_bound() || c.value->best_convoy.is_bound())
 					{

@@ -268,7 +268,7 @@ private:
 	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); UINT32_MAX_VALUE = unreachable.
-	typedef koordhashtable_tpl<koord, uint32> connexion_map;
+	typedef koordhashtable_tpl<koord, uint32, N_BAGS_MEDIUM> connexion_map;
 	connexion_map connected_cities;
 	connexion_map connected_industries;
 	connexion_map connected_attractions;

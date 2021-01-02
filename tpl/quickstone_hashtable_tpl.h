@@ -48,8 +48,8 @@ public:
  * a template class which implements a hashtable with quickstone keys
  * adapted from the pointer hashtable by jamespetts
  */
-template<class key_t, class value_t>
-class quickstone_hashtable_tpl : public hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t> >
+template<class key_t, class value_t, size_t n_bags>
+class quickstone_hashtable_tpl : public hashtable_tpl<quickstone_tpl<key_t>, value_t, quickstone_hash_tpl<key_t>, n_bags>
 {
 };
 
