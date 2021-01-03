@@ -72,6 +72,24 @@ class road_connector_t extends manager_t
 				{
 					sleep()
 					local d = pl.get_current_cash();
+
+
+					local calc_route = test_route(our_player, c_start, c_end, planned_way)
+					//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
+					if ( calc_route == "No route" ) {
+						return error_handler()
+					}
+					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + (planned_station.get_cost()*2) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
+					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + (planned_station.get_maintenance()*2) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
+					build_cost = build_cost/100
+					cost_monthly = (cost_monthly/100)+pl.get_maintenance()[0]
+					if ( (pl.get_cash()[0]-build_cost) < (cost_monthly*4) ) {
+						//gui.add_message_at(pl, "Way construction cost to height", world.get_time())
+						//gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
+						return error_handler()
+					}
+
 					local err = construct_road(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if (err && c_start.len()>0  &&  c_end.len()>0) {
@@ -225,7 +243,9 @@ class road_connector_t extends manager_t
 					// optimize way line save in c_route
 					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
-						optimize_way_line(c_route, wt_road)
+						if (our_player.get_current_cash() > 5000000) {
+							//optimize_way_line(c_route, wt_road)
+						}
 					}
 				}
 		}
@@ -262,7 +282,9 @@ class road_connector_t extends manager_t
 				f_name[1] = "station"
 			}
 		}
-		gui.add_message_at(pl, pl.get_name() + " build road line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		local msgtext = format(translate("%s build road line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(cs), f_name[1], coord_to_string(ce))
+		//gui.add_message_at(pl, pl.get_name() + " build road line from " + f_name[0] + " (" + coord_to_string(cs) + ") to " + f_name[1] + " (" + coord_to_string(ce) + ")", c_start)
+		gui.add_message_at(pl, msgtext, c_start)
 
 		return r_t(RT_TOTAL_SUCCESS)
 	}

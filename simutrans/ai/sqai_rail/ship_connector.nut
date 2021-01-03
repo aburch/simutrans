@@ -275,7 +275,9 @@ class ship_connector_t extends manager_t
 					f_name[1] = "station"
 				}
 			}
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start[0]) + ") to " + f_name[1] + " (" + coord_to_string(c_end[0]) + ")", c_start[0])
+			local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start[0]), f_name[1], coord_to_string(c_end[0]))
+			//gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start[0]) + ") to " + f_name[1] + " (" + coord_to_string(c_end[0]) + ")", c_start[0])
+			gui.add_message_at(pl, msgtext, c_start[0])
 		} else {
 			local st = halt_x.get_halt(c_start, pl)
 			local f_name = ["", ""]
@@ -296,7 +298,9 @@ class ship_connector_t extends manager_t
 					f_name[1] = "station"
 				}
 			}
-			gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
+			local msgtext = format(translate("%s build ship line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(c_start), f_name[1], coord_to_string(c_end))
+			//gui.add_message_at(pl, pl.get_name() + " build ship line from " + f_name[0] + " (" + coord_to_string(c_start) + ") to " + f_name[1] + " (" + coord_to_string(c_end) + ")", c_start)
+			gui.add_message_at(pl, msgtext, c_start)
 		}
 
 		return r_t(RT_TOTAL_SUCCESS)

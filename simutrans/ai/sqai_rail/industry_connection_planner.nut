@@ -239,6 +239,23 @@ class industry_connection_planner_t extends manager_t
 			planned_way = best_way
 		}
 
+		local planned_bridge = { cost = 0, montly_cost = 0 }
+		if (wt != wt_water && wt != wt_air) {
+			/* plan build route */
+			local p_start = ::finder.find_station_place(fsrc, fdest)
+			local p_end   = ::finder.find_station_place(fdest, p_start, true)
+			local calc_route = test_route(our_player, p_start, p_end, planned_way)
+			//gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens, world.get_time())
+			//gui.add_message_at(our_player, "distance " + distance, world.get_time())
+			if ( calc_route == "No route" ) {
+				//
+			} else {
+				cnv_valuator.distance = calc_route.routes.len() + calc_route.bridge_lens
+				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
+				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+			}
+		}
+
 		// valuate again with best way
 		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
@@ -332,7 +349,7 @@ class industry_connection_planner_t extends manager_t
 		} while(a > 0)
 
 		// build cost for way, stations and depot
-		local build_cost = r.distance * planned_way.get_cost() + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost()
+		local build_cost = (r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 
@@ -380,12 +397,15 @@ class industry_connection_planner_t extends manager_t
 			}
 		}
 
+
 		// factory distance direct
 		local f_dist = abs(fsrc.x - fdest.x) + abs(fsrc.y - fdest.y)
 		// + 22% for long distance
 		local f_dist_long = f_dist + (f_dist / 100 * 22)
 		// + 35% for short distance
 		local f_dist_short = f_dist + (f_dist / 100 * 35)
+		// cash buffer up to first ingestion - %
+		local cash_buffer = 0
 
     // higt distance
 		if  ( r.distance > 350 ) {
@@ -393,22 +413,28 @@ class industry_connection_planner_t extends manager_t
 				case wt_rail:
 					if ( f_dist_long < r.distance ) {
 				  	r.points += 10
+						cash_buffer = 20
 					} else {
 						r.points += 20
+						cash_buffer = 10
 					}
 			    break
 				case wt_road:
 					if ( f_dist_long < r.distance ) {
 				  	r.points -= 20
+						cash_buffer = 20
 					} else {
 						r.points -= 10
+						cash_buffer = 20
 					}
 			    break
 				case wt_water:
 					if ( f_dist_long < r.distance ) {
 				  	r.points -= 20
+						cash_buffer = 20
 					} else {
 						r.points += 0
+						cash_buffer = 20
 					}
 			    break
 			}
@@ -419,22 +445,28 @@ class industry_connection_planner_t extends manager_t
 				case wt_rail:
 					if ( f_dist_short < r.distance ) {
 				  	r.points -= 20
+						cash_buffer = 5
 					} else {
 						r.points -= 10
+						cash_buffer = 10
 					}
 			    break
 				case wt_road:
 					if ( f_dist_short < r.distance ) {
 				  	r.points += 25
+						cash_buffer = 5
 					} else {
 						r.points += 10
+						cash_buffer = 10
 					}
 			    break
 				case wt_water:
 					if ( f_dist_short < r.distance ) {
 				  	r.points -= 20
+						cash_buffer = 5
 					} else {
 						r.points -= 10
+						cash_buffer = 10
 					}
 			    break
 			}
@@ -474,8 +506,17 @@ class industry_connection_planner_t extends manager_t
 
 		// successfull - complete report
 		r.cost_fix     = build_cost
-		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance()
+		r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
 		r.gain_per_m  -= r.cost_monthly
+
+		sleep()
+		// capital check
+		local cash = our_player.get_cash()[0] - r.cost_fix
+		local m = r.cost_fix/100*cash_buffer
+		if ( (cash-m) < 0 ) {
+			r.points -= 50
+		}
+
 
 		// successfull - complete report
 		r.action = cn
@@ -580,6 +621,29 @@ class industry_connection_planner_t extends manager_t
 	}
 
 }
+
+	/*
+	 *
+	 *
+	 */
+	function test_route(pl, starts, ends, way)
+	{
+		local as = astar_builder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		as.bridger = pontifex(pl, way)
+		if (as.bridger.bridge == null) {
+			as.bridger = null
+		}
+
+		local res = as.search_route(starts, ends, 0)
+
+		if ("err" in res) {
+			return res.err
+		}
+		return res
+	}
 
 /**
 	* check links factory src to factory dest
