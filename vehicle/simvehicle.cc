@@ -82,7 +82,7 @@ void traffic_vehicle_t::flush_travel_times(strasse_t* str)
 {
 	if(get_max_speed() && str->get_max_speed() && dist_travelled_since_last_hop > (128 << YARDS_PER_VEHICLE_STEP_SHIFT))
 	{
-		str->update_travel_times(world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
+		weg_t::add_travel_time_update(str, world()->get_ticks() - time_at_last_hop, dist_travelled_since_last_hop / min(get_max_speed(), kmh_to_speed(str->get_max_speed())));
 	}
 	reset_measurements();
 }

@@ -51,11 +51,11 @@ public:
 /*
  * Ready to use class for hashing strings.
  */
-template <class value_t>class stringhashtable_tpl :
-	public hashtable_tpl<const char *, value_t, stringhash_t>
+template <class value_t, size_t n_bags>class stringhashtable_tpl :
+	public hashtable_tpl<const char *, value_t, stringhash_t, n_bags>
 {
 public:
-	stringhashtable_tpl() : hashtable_tpl<const char *, value_t, stringhash_t>() {}
+	stringhashtable_tpl() : hashtable_tpl<const char *, value_t, stringhash_t, n_bags>() {}
 private:
 	stringhashtable_tpl(const stringhashtable_tpl&);
 	stringhashtable_tpl& operator=( stringhashtable_tpl const&);

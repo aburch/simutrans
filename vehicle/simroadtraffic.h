@@ -132,7 +132,7 @@ public:
 
 	void rotate90() OVERRIDE;
 
-	static stringhashtable_tpl<const citycar_desc_t *> table;
+	static stringhashtable_tpl<const citycar_desc_t *, N_BAGS_MEDIUM> table;
 
 	const citycar_desc_t *get_desc() const { return desc; }
 

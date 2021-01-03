@@ -46,7 +46,7 @@ private:
 	};
 
 	/// Table of all factories that can be built
-	static stringhashtable_tpl<const factory_desc_t *> desc_table;
+	static stringhashtable_tpl<const factory_desc_t *, N_BAGS_MEDIUM> desc_table;
 
 	/// @returns the number of producers producing @p ware
 	static int count_producers(const goods_desc_t *ware, uint16 timeline);
@@ -59,7 +59,7 @@ private:
 
 public:
 	/// This is only for the set_scale function in simworld.cc
-	static stringhashtable_tpl<factory_desc_t *> modifiable_table;
+	static stringhashtable_tpl<factory_desc_t *, N_BAGS_MEDIUM> modifiable_table;
 
 	/// Registers the factory description so the factory can be built in-game.
 	static void register_desc(factory_desc_t *desc);
@@ -83,7 +83,7 @@ public:
 	static const factory_desc_t * get_desc(const char *fabtype);
 
 	/// @returns the table containing all factory descriptions
-	static const stringhashtable_tpl<const factory_desc_t*>& get_factory_table() { return desc_table; }
+	static const stringhashtable_tpl<const factory_desc_t*, N_BAGS_MEDIUM>& get_factory_table() { return desc_table; }
 
 	/**
 	 * @param electric true to limit search to electricity producers only

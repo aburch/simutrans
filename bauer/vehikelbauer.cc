@@ -39,7 +39,7 @@ const char* vehicle_builder_t::engine_type_names[11] =
   "turbine"
 };
 
-static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
+static stringhashtable_tpl< vehicle_desc_t*, N_BAGS_SMALL> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))

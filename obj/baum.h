@@ -43,7 +43,7 @@ private:
 	// one bit free ;)
 
 	// static for administration
-	static stringhashtable_tpl<const tree_desc_t *> desc_names;
+	static stringhashtable_tpl<const tree_desc_t *, N_BAGS_SMALL> desc_names;
 	static vector_tpl<const tree_desc_t *> tree_list;
 	static weighted_vector_tpl<uint32>* tree_list_per_climate;
 

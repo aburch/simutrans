@@ -1239,7 +1239,7 @@ public:
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call=false);
 
-	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3 };
+	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3, toggle_player_active=4 };
 	/**
 	 * @param exec If false checks whether execution is allowed, if true executes tool.
 	 * @returns Whether execution is allowed.

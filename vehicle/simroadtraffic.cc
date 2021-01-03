@@ -335,7 +335,7 @@ void road_user_t::finish_rd()
 
 
 static weighted_vector_tpl<const citycar_desc_t*> liste_timeline;
-stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
+stringhashtable_tpl<const citycar_desc_t *, N_BAGS_MEDIUM> private_car_t::table;
 
 bool private_car_t::register_desc(const citycar_desc_t *desc)
 {
@@ -382,7 +382,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 //DBG_DEBUG("private_car_t::build_timeline_list()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		FOR(stringhashtable_tpl<citycar_desc_t const*>, const& i, table) {
+		for(auto const& i : table) {
 			citycar_desc_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();

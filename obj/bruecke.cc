@@ -128,6 +128,15 @@ void bruecke_t::calc_image()
 }
 
 
+image_id bruecke_t::get_image() const
+{
+	grund_t *gr = welt->lookup(get_pos());
+	if (!gr || desc->get_waytype() == powerline_wt && gr->ist_bruecke()) {
+		return IMG_EMPTY;
+	}
+	return image;
+}
+
 image_id bruecke_t::get_front_image() const
 {
 	grund_t *gr=welt->lookup(get_pos());

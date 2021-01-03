@@ -262,6 +262,7 @@ bool halt_detail_t::is_weltpos()
 void halt_detail_t::update_components()
 {
 	line_number.draw(scr_coord(0,0));
+	waiting_bar->update();
 	bool reset_tab = false;
 	int old_tab = tabs.get_active_tab_index();
 	if (!show_pas_info && (halt->get_pax_enabled() || halt->get_mail_enabled())) {
@@ -347,7 +348,6 @@ void halt_detail_t::update_components()
 			uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i + 1 : i;
 			btn->disable();
 			if (halt->is_enabled(catg_index)) {
-				typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 				// check station handled goods category
 				if (catg_index == goods_manager_t::INDEX_PAS || catg_index == goods_manager_t::INDEX_MAIL)
 				{
@@ -379,7 +379,7 @@ void halt_detail_t::update_components()
 							cl_btn->disable();
 							continue;
 						}
-						connexions_map_single_remote *connexions = halt->get_connexions(catg_index, cl);
+						haltestelle_t::connexions_map *connexions = halt->get_connexions(catg_index, cl);
 						if (!connexions->empty())
 						{
 							cl_btn->enable();
@@ -391,7 +391,7 @@ void halt_detail_t::update_components()
 				}
 				else {
 					uint8 g_class = goods_manager_t::get_classes_catg_index(catg_index) - 1;
-					connexions_map_single_remote *connexions = halt->get_connexions(catg_index, g_class);
+					haltestelle_t::connexions_map *connexions = halt->get_connexions(catg_index, g_class);
 					if (!connexions->empty())
 					{
 						btn->enable();
@@ -1523,6 +1523,10 @@ public:
 	/// @returns true if @p a is closer to the origin than @p b, otherwise false.
 	bool operator()(const halthandle_t &a, const halthandle_t &b) const
 	{
+		if (!a.is_bound() || !b.is_bound())
+		{
+			return false;
+		}
 		return koord_distance(m_origin, a->get_basis_pos()) < koord_distance(m_origin, b->get_basis_pos());
 	}
 };
@@ -1545,14 +1549,13 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 		(!station_display_mode && (!halt->is_enabled(catg_index) || catg_index == goods_manager_t::INDEX_NONE || catg_index >= goods_manager_t::get_max_catg_index()))) {
 		return;
 	}
-	typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
 	if (station_display_mode) {
 		// all connected stations
 		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
-			connexions_map_single_remote *connexions = halt->get_connexions(i, goods_manager_t::get_classes_catg_index(i) - 1);
+			haltestelle_t::connexions_map *connexions = halt->get_connexions(i, goods_manager_t::get_classes_catg_index(i) - 1);
 			if (!connexions->empty()) {
-				FOR(connexions_map_single_remote, &iter, *connexions) {
+				for(auto &iter : *connexions) {
 					halthandle_t a_halt = iter.key;
 					if (a_halt.is_bound()) {
 						halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
@@ -1576,9 +1579,9 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 		}
 
 
-		connexions_map_single_remote *connexions = halt->get_connexions(selected_route_catg_index, selected_class);
+		haltestelle_t::connexions_map *connexions = halt->get_connexions(selected_route_catg_index, selected_class);
 		if (!connexions->empty()) {
-			FOR(connexions_map_single_remote, &iter, *connexions) {
+			for(auto &iter : *connexions) {
 				halthandle_t a_halt = iter.key;
 				if (a_halt.is_bound()) {
 					halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
@@ -1685,7 +1688,6 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 
 		yoff += LINESPACE;
 
-		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 			haltestelle_t::connexion* cnx = halt->get_connexions(i, goods_manager_t::get_classes_catg_index(i) - 1)->get(dest);
 			if (cnx) {
@@ -1811,7 +1813,12 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 	uint8 g_class = goods_manager_t::get_classes_catg_index(selected_route_catg_index) - 1;
 
 	uint32 sel = line_selected;
-	FORX(const vector_tpl<halthandle_t>, const dest, halt_list, yoff += LINESPACE + 1) {
+	FORX(const vector_tpl<halthandle_t>, const dest, halt_list, yoff += LINESPACE + 1)
+	{
+		if (!dest.is_bound())
+		{
+			continue;
+		}
 		xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 		haltestelle_t::connexion* cnx = halt->get_connexions(selected_route_catg_index, g_class)->get(dest);
 

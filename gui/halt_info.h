@@ -28,6 +28,8 @@
 
 //class gui_departure_board_t;
 
+#define HALT_CAPACITY_BAR_WIDTH 100
+
 /**
  * Helper class to show type symbols (train, bus, etc)
  */
@@ -52,6 +54,9 @@ public:
 	gui_halt_capacity_bar_t(halthandle_t h, uint8 ft);
 
 	void draw(scr_coord offset);
+
+	scr_size get_min_size() const OVERRIDE { return scr_size(HALT_CAPACITY_BAR_WIDTH + 2, GOODS_COLOR_BOX_HEIGHT); }
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
 
 /**
@@ -65,8 +70,12 @@ class gui_halt_waiting_indicator_t : public gui_aligned_container_t
 	gui_label_buf_t lb_waiting[3];
 	gui_label_buf_t lb_capacity[3];
 	gui_label_buf_t lb_transfer_time[3];
+
+	void init();
 public:
 	gui_halt_waiting_indicator_t(halthandle_t h);
+
+	void update();
 
 	void draw(scr_coord offset) OVERRIDE;
 };

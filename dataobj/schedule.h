@@ -437,6 +437,6 @@ public:
     uint32 get_average_seconds() const;
 };
 
-typedef koordhashtable_tpl<departure_point_t, times_history_data_t> times_history_map;
+typedef koordhashtable_tpl<departure_point_t, times_history_data_t, N_BAGS_SMALL> times_history_map;
 
 #endif

@@ -51,7 +51,7 @@ public:
 	struct lang_info {
 		const char* translate(const char* text) const;
 
-		stringhashtable_tpl<const char*> texts;
+		stringhashtable_tpl<const char*, N_BAGS_LARGE> texts;
 		const char *name;
 		const char *iso;
 		const char *iso_base;

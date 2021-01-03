@@ -114,6 +114,10 @@ public:
 		}
 	};
 
+	static void add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal);
+	static void apply_travel_time_updates();
+	static void clear_travel_time_updates();
+
 private:
 	/**
 	* array for statistical values
@@ -244,7 +248,8 @@ public:
 	minivec_tpl<gebaeude_t*> connected_buildings;
 
 	// Likewise, out of caution, put this here for the same reason.
-	typedef koordhashtable_tpl<koord, koord3d> private_car_route_map;
+	// n_bags must be fairly low as there are 2 maps per way and usually zero elements per way, up to ~150 in high cases and ~1500 in highest cases
+	typedef koordhashtable_tpl<koord, koord3d, N_BAGS_SMALL> private_car_route_map;
 	//typedef std::unordered_map<koord, koord3d> private_car_route_map_2;
 	private_car_route_map private_car_routes[2];
 	//private_car_route_map_2 private_car_routes_std[2];

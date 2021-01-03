@@ -18,7 +18,7 @@ class pedestrian_desc_t;
 class pedestrian_t : public road_user_t
 {
 private:
-	static stringhashtable_tpl<const pedestrian_desc_t *> table;
+	static stringhashtable_tpl<const pedestrian_desc_t *, N_BAGS_SMALL> table;
 
 private:
 	const pedestrian_desc_t *desc;

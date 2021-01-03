@@ -342,7 +342,6 @@ void leitung_t::calc_image()
 	}
 }
 
-
 /**
  * Recalculates the images of all neighbouring
  * powerlines and the powerline itself

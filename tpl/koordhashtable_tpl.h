@@ -47,8 +47,8 @@ public:
 /*
  * Ready to use class for hashing 2d koord types.
  */
-template<class key_t, class value_t>
-class koordhashtable_tpl : public hashtable_tpl<key_t, value_t, koordhash_tpl<key_t> >
+template<class key_t, class value_t, size_t n_bags>
+class koordhashtable_tpl : public hashtable_tpl<key_t, value_t, koordhash_tpl<key_t>, n_bags>
 {
 };
 

@@ -23,7 +23,7 @@ static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000
 
 static weighted_vector_tpl<const pedestrian_desc_t*> pedestrian_list; // All pedestrians
 static weighted_vector_tpl<const pedestrian_desc_t*> current_pedestrians; // Only those allowed on the current timeline
-stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
+stringhashtable_tpl<const pedestrian_desc_t *, N_BAGS_SMALL> pedestrian_t::table;
 
 
 static bool compare_fussgaenger_desc(const pedestrian_desc_t* a, const pedestrian_desc_t* b)
@@ -51,11 +51,11 @@ bool pedestrian_t::successfully_loaded()
 	}
 	else {
 		vector_tpl<const pedestrian_desc_t*> temp_liste(0);
-		FOR(stringhashtable_tpl<pedestrian_desc_t const*>, const& i, table) {
+		for(auto const& i : table) {
 			// just entered them sorted
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
-		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
+		for(auto const i : temp_liste) {
 			pedestrian_list.append(i, i->get_distribution_weight());
 		}
 	}

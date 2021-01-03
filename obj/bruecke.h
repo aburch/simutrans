@@ -49,7 +49,7 @@ public:
 	const bridge_desc_t *get_desc() const { return desc; }
 
 	inline void set_image( image_id b ) { image = b; }
-	image_id get_image() const OVERRIDE { return image; }
+	image_id get_image() const OVERRIDE;
 
 	image_id get_front_image() const OVERRIDE;
 

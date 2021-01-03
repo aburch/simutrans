@@ -22,8 +22,8 @@ extern int __argc;
 extern char **__argv;
 #endif
 
-//#include "simsys_w32_png.h"
-//#include "simsys.h"
+#include "simsys_w32_png.h"
+#include "simsys.h"
 
 #include "../macros.h"
 #include "../simconst.h"
@@ -46,12 +46,6 @@ extern char **__argv;
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
-#include "../simmem.h"
-#include "simsys_w32_png.h"
-#include "simsys.h"
-#include "../simversion.h"
-#include "../simevent.h"
-#include "../macros.h"
 
 
 /*
@@ -75,7 +69,7 @@ volatile HDC hdc = NULL;
 
 #ifdef MULTI_THREAD
 
-HANDLE	hFlushThread=0;
+HANDLE hFlushThread=0;
 CRITICAL_SECTION redraw_underway;
 
 // forward deceleration
@@ -147,7 +141,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	delete[] wSIM_TITLE;
 
 	ShowWindow(hwnd, SW_SHOW);
-	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
+	SetTimer( hwnd, 0, 1111, NULL ); // HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
 }
 
 
@@ -268,20 +262,20 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	int img_w = w;
 	int img_h = h;
 
-	if(  w > MaxSize.right  ||  h >= MaxSize.bottom  ) {
+	if(  w > (MaxSize.right/x_scale)*32  ||  h >= (MaxSize.bottom/y_scale)*32  ) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = (w * 32) / x_scale;
-		MaxSize.bottom = ((h + 1) * 32) / y_scale;
+		MaxSize.right = (w*32)/x_scale;
+		MaxSize.bottom = ((h+1)*32)/y_scale;
 		AllDibData = MALLOCN(PIXVAL, img_w * img_h);
 		*textur = (unsigned short*)AllDibData;
 	}
 
 	AllDib->bmiHeader.biWidth  = img_w;
 	AllDib->bmiHeader.biHeight = img_h;
-	WindowSize.right = (w * 32) / x_scale;
-	WindowSize.bottom = (h * 32) / y_scale;
+	WindowSize.right           = (w*32)/x_scale;
+	WindowSize.bottom          = (h*32)/y_scale;
 
 #ifdef MULTI_THREAD
 	LeaveCriticalSection( &redraw_underway );
@@ -473,9 +467,9 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	static utf8 *u8buf = NULL;
 	static size_t u8bufsize;
 
-	static int last_mb = 0;	// last mouse button state
+	static int last_mb = 0; // last mouse button state
 	switch (msg) {
-		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
+		case WM_TIMER: // dummy timer even to keep windows thinking we are still active
 			return 0;
 
 		case WM_ACTIVATE: // may check, if we have to restore color depth
@@ -1053,7 +1047,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	}
 
 #ifdef MULTI_THREAD
-	if(	hFlushThread ) {
+	if(  hFlushThread ) {
 		TerminateThread( hFlushThread, 0 );
 	}
 #endif

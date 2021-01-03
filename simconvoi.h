@@ -54,7 +54,7 @@ class departure_point_t;
 * The table of point-to-point average journey times.
 * @author jamespetts
 */
-typedef koordhashtable_tpl<id_pair, average_tpl<uint32> > journey_times_map;
+typedef koordhashtable_tpl<id_pair, average_tpl<uint32>, N_BAGS_SMALL> journey_times_map;
 
 #ifdef MULTI_THREAD
 struct route_range_specification
@@ -561,7 +561,7 @@ private:
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.
 	 */
-	typedef koordhashtable_tpl<departure_point_t, departure_data_t> departure_map;
+	typedef koordhashtable_tpl<departure_point_t, departure_data_t, N_BAGS_SMALL> departure_map;
 	departure_map departures;
 
 	/*
@@ -575,7 +575,7 @@ private:
 	 * via D has elapsed. The key is the ID for the pair of stops, and
 	 * the value is the last departure time booked between those stops.
 	 */
-	typedef koordhashtable_tpl<id_pair, sint64> departure_time_map;
+	typedef koordhashtable_tpl<id_pair, sint64, N_BAGS_SMALL> departure_time_map;
 	departure_time_map departures_already_booked;
 
 	/**
@@ -584,7 +584,7 @@ private:
 	* convoy will arrive at each stop in its schedule by concatenating
 	* strings of these and adding the waiting time for each stop.
 	*/
-	typedef koordhashtable_tpl<departure_point_t, average_tpl<uint16> > timings_map;
+	typedef koordhashtable_tpl<departure_point_t, average_tpl<uint16>, N_BAGS_SMALL> timings_map;
 	timings_map journey_times_between_schedule_points;
 
 	// @author: suitougreentea

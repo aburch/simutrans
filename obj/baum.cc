@@ -85,7 +85,7 @@ weighted_vector_tpl<uint32>* baum_t::tree_list_per_climate = NULL;
 /*
  * Diese Tabelle ermoeglicht das Auffinden einer Description durch ihren Namen
  */
-stringhashtable_tpl<const tree_desc_t *> baum_t::desc_names;
+stringhashtable_tpl<const tree_desc_t *, N_BAGS_SMALL> baum_t::desc_names;
 
 
 // total number of trees
@@ -258,7 +258,7 @@ bool baum_t::successfully_loaded()
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 	}
 
-	FOR(stringhashtable_tpl<tree_desc_t const*>, const& i, desc_names) {
+	for(auto const& i : desc_names) {
 		tree_list.insert_ordered(i.value, compare_tree_desc);
 		if(  tree_list.get_count()==255  ) {
 			dbg->error( "baum_t::successfully_loaded()", "Maximum tree count exceeded! (max 255 instead of %i)", desc_names.get_count() );

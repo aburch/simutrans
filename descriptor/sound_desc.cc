@@ -34,7 +34,7 @@ public:
 };
 
 
-static stringhashtable_tpl<sound_ids *> name_sound;
+static stringhashtable_tpl<sound_ids *, N_BAGS_MEDIUM> name_sound;
 static bool sound_on=false;
 static std::string sound_path;
 

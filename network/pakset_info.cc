@@ -9,7 +9,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../utils/simstring.h"
 
-stringhashtable_tpl<checksum_t*> pakset_info_t::info;
+stringhashtable_tpl<checksum_t*, N_BAGS_LARGE> pakset_info_t::info;
 checksum_t pakset_info_t::general;
 
 void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
@@ -26,7 +26,7 @@ void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
 
 void pakset_info_t::debug()
 {
-	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+	for(auto const& i : info) {
 		(void)i;
 		DBG_MESSAGE("pakset_info_t::debug", "%.30s -> sha1 = %s", i.key, i.value->get_str());
 	}
@@ -55,7 +55,7 @@ void pakset_info_t::calculate_checksum()
 
 	// first sort all the desc's
 	vector_tpl<entry_t> sorted(info.get_count());
-	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+	for(auto const& i : info) {
 		sorted.insert_ordered(entry_t(i.key, i.value), entry_cmp);
 	}
 	// now loop

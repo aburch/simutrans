@@ -5361,7 +5361,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(journey_distance > 0 && state == LOADING)
 	{
 		arrival_time = welt->get_ticks();
-		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
+		inthashtable_tpl<uint16, sint64, N_BAGS_SMALL> best_times_in_schedule; // Key: halt ID; value: departure time.
 		FOR(departure_map, const& iter, departures)
 		{
 			const sint64 journey_time_ticks = arrival_time - iter.value.departure_time;
@@ -5459,7 +5459,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			book(average_speed, CONVOI_AVERAGE_SPEED);
 
-			typedef inthashtable_tpl<uint16, sint64> int_map;
+			typedef inthashtable_tpl<uint16, sint64, N_BAGS_SMALL> int_map;
 			FOR(int_map, const& iter, best_times_in_schedule)
 			{
 				id_pair pair(iter.key, this_halt_id);

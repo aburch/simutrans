@@ -33,7 +33,7 @@ class marker_t {
 	int cached_size_x;
 
 	/// hashtable to mark non-ground tiles (bridges, tunnels)
-	ptrhashtable_tpl <const grund_t *, bool> more;
+	ptrhashtable_tpl <const grund_t *, bool, N_BAGS_LARGE> more;
 
 	/**
 	 * Initializes marker. Set all tiles to not marked.

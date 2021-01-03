@@ -205,8 +205,8 @@ public:
 };
 
 
-stringhashtable_tpl<const factory_desc_t *> factory_builder_t::desc_table;
-stringhashtable_tpl<factory_desc_t *> factory_builder_t::modifiable_table;
+stringhashtable_tpl<const factory_desc_t *, N_BAGS_MEDIUM> factory_builder_t::desc_table;
+stringhashtable_tpl<factory_desc_t *, N_BAGS_MEDIUM> factory_builder_t::modifiable_table;
 
 
 /**
@@ -227,8 +227,7 @@ const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, clim
 	// get a random city factory
 	weighted_vector_tpl<const factory_desc_t *> consumer;
 
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table)
-	{
+	for(auto const& i : desc_table) {
 		factory_desc_t const* const current = i.value;
 		// only insert end consumers, if applicable, with the requested input goods.
 		if (  current->is_consumer_only()  &&
@@ -281,7 +280,7 @@ DBG_DEBUG("factory_builder_t::register_desc()","Correction for old factory: Incr
 
 bool factory_builder_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		factory_desc_t const* const current = i.value;
 		if(  field_group_desc_t * fg = const_cast<field_group_desc_t *>(current->get_field_group())  ) {
 			// initialize weighted vector for the field class indices
@@ -309,7 +308,7 @@ int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline
 	int anzahl=0;
 
 	// iterate over all factories and check if they produce this good...
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+	for(auto const& t : desc_table) {
 		factory_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_product_count(); i++) {
 			const factory_product_desc_t *product = tmp->get_product(i);
@@ -331,7 +330,7 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 {
 	// find all producers
 	producer.clear();
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+	for(auto const t : desc_table) {
 		factory_desc_t const* const tmp = t.value;
 		if (  tmp->get_distribution_weight()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_product_count();  i++  ) {
@@ -611,7 +610,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 		const goods_desc_t *ware = desc->get_supplier(i)->get_input_type();
 
 		// unfortunately, for every for iteration we have to check all factories ...
-		FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+		for(auto const& t : desc_table) {
 			factory_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_product_count(); i++) {
@@ -1331,9 +1330,8 @@ bool factory_builder_t::power_stations_available()
 {
 	weighted_vector_tpl<const factory_desc_t*> power_stations;
 
-	FOR(stringhashtable_tpl<const factory_desc_t *>, const& iter, desc_table)
-	{
-		const factory_desc_t* current = iter.value;
+	for(auto const& i : desc_table) {
+		const factory_desc_t* current = i.value;
 		if(!current->is_electricity_producer()
 			|| (welt->use_timeline()
 				&& (current->get_building()->get_intro_year_month() > welt->get_timeline_year_month()

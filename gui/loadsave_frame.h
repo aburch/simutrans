@@ -51,7 +51,7 @@ private:
 
 	button_t easy_server; // only active on loading savegames
 
-	static stringhashtable_tpl<sve_info_t *> cached_info;
+	static stringhashtable_tpl<sve_info_t *, N_BAGS_LARGE> cached_info;
 
 protected:
 	/**

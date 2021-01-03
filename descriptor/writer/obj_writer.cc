@@ -24,8 +24,8 @@ int obj_writer_t::default_image_size = 64;
 void obj_writer_t::register_writer(bool main_obj)
 {
 	if (!writer_by_name) {
-		writer_by_name = new stringhashtable_tpl<obj_writer_t*>;
-		writer_by_type = new inthashtable_tpl<obj_type, obj_writer_t*>;
+		writer_by_name = new stringhashtable_tpl<obj_writer_t*, N_BAGS_LARGE>;
+		writer_by_type = new inthashtable_tpl<obj_type, obj_writer_t*, N_BAGS_LARGE>;
 	}
 	if (main_obj) {
 		writer_by_name->put(get_type_name(), this);
@@ -118,7 +118,7 @@ void obj_writer_t::show_capabilites()
 
 	while (true) {
 		const char *max_s = "zzz";
-		FOR(stringhashtable_tpl<obj_writer_t*>, const& i, *writer_by_name) {
+		for(auto const& i : *writer_by_name) {
 			if(  STRICMP(i.key, min_s) > 0  &&  STRICMP(i.key, max_s) < 0   ) {
 				max_s = i.key;
 			}

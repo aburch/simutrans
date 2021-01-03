@@ -184,7 +184,7 @@ static std::string last_network_game;
 
 karte_t* karte_t::world = NULL;
 
-stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
+stringhashtable_tpl<karte_t::missing_level_t, N_BAGS_MEDIUM>missing_pak_names;
 
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"
@@ -680,6 +680,7 @@ void karte_t::destroy()
 	world_attractions.clear();
 	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
+	weg_t::clear_travel_time_updates();
 	weg_t::clear_list_of__ways();
 	DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 
@@ -3235,40 +3236,40 @@ void karte_t::set_scale()
 	}
 
 	// Ways
-	stringhashtable_tpl <way_desc_t *> * ways = way_builder_t::get_all_ways();
+	stringhashtable_tpl <way_desc_t *, N_BAGS_LARGE> * ways = way_builder_t::get_all_ways();
 
 	if(ways != NULL)
 	{
-		FOR(stringhashtable_tpl<way_desc_t *>, & info, *ways)
+		for(auto & info : *ways)
 		{
 			info.value->set_scale(scale_factor);
 		}
 	}
 
 	// Tunnels
-	stringhashtable_tpl <tunnel_desc_t *> * tunnels = tunnel_builder_t::get_all_tunnels();
+	stringhashtable_tpl <tunnel_desc_t *, N_BAGS_MEDIUM> * tunnels = tunnel_builder_t::get_all_tunnels();
 
 	if(tunnels != NULL)
 	{
-		FOR(stringhashtable_tpl<tunnel_desc_t *>, & info, *tunnels)
+		for(auto & info : *tunnels)
 		{
 			info.value->set_scale(scale_factor);
 		}
 	}
 
 	// Bridges
-	stringhashtable_tpl <bridge_desc_t *> * bridges = bridge_builder_t::get_all_bridges();
+	stringhashtable_tpl <bridge_desc_t *, N_BAGS_MEDIUM> * bridges = bridge_builder_t::get_all_bridges();
 
 	if(bridges != NULL)
 	{
-		FOR(stringhashtable_tpl<bridge_desc_t *>, & info, *bridges)
+		for(auto & info : *bridges)
 		{
 			info.value->set_scale(scale_factor);
 		}
 	}
 
 	// Way objects
-	FOR(stringhashtable_tpl<way_obj_desc_t *>, & info, *wayobj_t::get_all_wayobjects())
+	for(auto & info : *wayobj_t::get_all_wayobjects())
 	{
 		info.value->set_scale(scale_factor);
 	}
@@ -3287,7 +3288,7 @@ void karte_t::set_scale()
 	}
 
 	// Industries
-	FOR(stringhashtable_tpl<factory_desc_t*>, & info, factory_builder_t::modifiable_table)
+	for(auto & info : factory_builder_t::modifiable_table)
 	{
 		info.value->set_scale(scale_factor);
 	}
@@ -4207,6 +4208,21 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 			}
 			return true;
 		}
+		case toggle_player_active: {
+			// range check, player existent?
+			if (  player_nr <=1  ||  player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)==NULL ) {
+				return false;
+			}
+			// only public player can (de)activate other players
+			if ( !public_player_unlocked ) {
+				return false;
+			}
+			if (exec) {
+				player_t *player = get_player(player_nr);
+				player->set_active(param != 0);
+			}
+			return true;
+		}
 		case toggle_freeplay: {
 			// only public player can change freeplay mode
 			if (!public_player_unlocked  ||  !settings.get_allow_player_change()) {
@@ -4737,7 +4753,7 @@ stadt_t *karte_t::find_nearest_city(const koord k, uint32 rank) const
 	stadt_t *best = NULL;	// within city limits
 	rank = max(rank, 1);
 
-	inthashtable_tpl<uint32, stadt_t*> distances;
+	inthashtable_tpl<uint32, stadt_t*, N_BAGS_MEDIUM> distances;
 	slist_tpl<uint32> ordered_distances;
 
 	if(  is_within_limits(k)  ) {
@@ -5770,7 +5786,10 @@ void karte_t::step()
 	}
 #endif
 
+	weg_t::apply_travel_time_updates();
+
 	rands[16] = get_random_seed();
+
 
 	INT_CHECK("karte_t::step 3c");
 
@@ -8370,7 +8389,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 		// There are some problems with re-naming this temporary file.
 		// Corruption is less of an issue when a client is saving a game from a network server,
 		// so abandon this security in this instance to prevent the problems with re-naming causing
-		// problems. This can be reversed if those problems be ever solved. 
+		// problems. This can be reversed if those problems be ever solved.
 		savename[savename.length() - 1] = '_';
 	}
 
@@ -9085,7 +9104,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 
 				cbuffer_t paklog;
 				paklog.append( "\n" );
-				FOR(stringhashtable_tpl<missing_level_t>, const& i, missing_pak_names) {
+				for(auto const& i : missing_pak_names) {
 					if (i.value <= MISSING_ERROR) {
 						error_paks.append(translator::translate(i.key));
 						error_paks.append("<br>\n");
@@ -11450,7 +11469,7 @@ void karte_t::set_citycar_speed_average()
 	}
 	sint32 vehicle_speed_sum = 0;
 	sint32 count = 0;
-	FOR(stringhashtable_tpl<const citycar_desc_t *>, const& iter, private_car_t::table)
+	for(auto const& iter : private_car_t::table)
 	{
 		// Take into account the *distribution_weight* of vehicles, too: fewer people have sports cars than Minis.
 		vehicle_speed_sum += (speed_to_kmh(iter.value->get_topspeed())) * iter.value->get_distribution_weight();
@@ -11512,11 +11531,11 @@ sint32 karte_t::calc_generic_road_time_per_tile(const way_desc_t* desc)
 void karte_t::calc_max_road_check_depth()
 {
 	sint32 max_road_speed = 0;
-	stringhashtable_tpl <way_desc_t *> * ways = way_builder_t::get_all_ways();
+	stringhashtable_tpl <way_desc_t *, N_BAGS_LARGE> * ways = way_builder_t::get_all_ways();
 
 	if(ways != NULL)
 	{
-		FOR(stringhashtable_tpl <way_desc_t *>, const& iter, *ways)
+		for(auto const& iter : *ways)
 		{
 			if(iter.value->get_wtyp() != road_wt || iter.value->get_intro_year_month() > current_month || iter.value->get_retire_year_month() > current_month)
 			{

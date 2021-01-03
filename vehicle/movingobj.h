@@ -34,7 +34,7 @@ private:
 	koord3d pos_next_next;
 
 	/// static table to find desc by name
-	static stringhashtable_tpl<groundobj_desc_t *> desc_names;
+	static stringhashtable_tpl<groundobj_desc_t *, N_BAGS_MEDIUM> desc_names;
 
 	/// static vector for fast lookup of desc
 	static vector_tpl<const groundobj_desc_t *> movingobj_typen;
