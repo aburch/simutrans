@@ -25,7 +25,7 @@ class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 public:
-	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, by_power, by_value, by_age, SORT_MODES };
+	enum sort_mode_t { by_name = 0, by_schedule, by_profit, by_loading_lvl, by_max_speed, by_power, by_value, by_age, by_range, SORT_MODES };
 private:
 	player_t *player, *old_player;
 

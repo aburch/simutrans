@@ -41,10 +41,11 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_max_speed",
 	"cl_btn_sort_power",
 	"cl_btn_sort_value",
-	"cl_btn_sort_age"
+	"cl_btn_sort_age",
+	"cl_btn_sort_range"
 };
 
-const uint8 convoi_frame_t::sortmode_to_label[SORT_MODES] = { 0,1,2,0,0,4,5,6,7 };
+const uint8 convoi_frame_t::sortmode_to_label[SORT_MODES] = { 0,1,2,0,0,4,5,6,7,8 };
 /**
  * Scrolled list of gui_convoiinfo_ts.
  * Filters (by setting visibility) and sorts.
@@ -222,6 +223,9 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			break;
 		case by_age:
 			result = cnv1->get_average_age() - cnv2->get_average_age();
+			break;
+		case by_range:
+			result = cnv1->get_min_range() - cnv2->get_min_range();
 			break;
 	}
 	return sortreverse ? result > 0 : result < 0;

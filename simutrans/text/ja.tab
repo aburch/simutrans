@@ -49,6 +49,8 @@ cl_btn_sort_schedule
 次の停車駅
 cl_btn_sort_power
 出力
+cl_btn_sort_range
+航続距離
 clf_btn_alle
 全選択
 clf_btn_invers
@@ -3093,8 +3095,6 @@ Rail
 鉄道
 Range
 航続距離
-range
-連続走行/航行可能距離
 Re-route goods:
 経路の再探索:
 Read-only option : need to be set in simuconf.tab
