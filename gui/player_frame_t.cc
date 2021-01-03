@@ -109,7 +109,6 @@ ki_kontroll_t::ki_kontroll_t() :
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay, 5 );
 
-	update_income();
 	update_data(); // calls reset_min_windowsize
 
 	set_windowsize(get_min_windowsize());
@@ -302,6 +301,9 @@ void ki_kontroll_t::update_data()
 			ai_income[i]->set_visible(false);
 		}
 	}
+
+	update_income();
+
 	reset_min_windowsize();
 }
 
@@ -316,6 +318,7 @@ void ki_kontroll_t::update_income()
 			if (i != 1 && !welt->get_settings().is_freeplay() && player->get_finance()->get_history_com_year(0, ATC_NETWEALTH) < 0) {
 				ai_income[i]->set_color( MONEY_MINUS );
 				ai_income[i]->buf().append(translator::translate("Company bankrupt"));
+				ai_income[i]->set_align(gui_label_t::left);
 			}
 			else {
 				double account=player->get_account_balance_as_double();
@@ -323,6 +326,7 @@ void ki_kontroll_t::update_income()
 				money_to_string(str, account );
 				ai_income[i]->buf().append(str);
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
+				ai_income[i]->set_align(gui_label_t::money_right);
 			}
 		}
 		ai_income[i]->update();
