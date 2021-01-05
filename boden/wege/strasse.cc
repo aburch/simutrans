@@ -61,6 +61,12 @@ strasse_t::strasse_t(loadsave_t *file) : weg_t(road_wt)
 	rdwr(file);
 }
 
+strasse_t::strasse_t(loadsave_t *file, koord3d __rescue_pos__) : weg_t(road_wt)
+{
+	set_pos(__rescue_pos__);
+	rdwr(file);
+}
+
 
 strasse_t::strasse_t() : weg_t(road_wt)
 {

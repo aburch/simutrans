@@ -551,10 +551,17 @@ void weg_t::rdwr(loadsave_t *file)
 						koord destination;
 						destination.rdwr(file);
 						bool put_succeeded = false;
-						if(file->get_extended_version()==14 && file->get_extended_revision() < 33) {
+						if(file->get_extended_version()==14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 33) {
 							koord3d next_tile;
 							next_tile.rdwr(file);
-							put_succeeded = private_car_routes[i].put(destination, get_pos().int_from_neighbour(next_tile));
+							uint8 int_rep = get_pos().int_from_neighbour(next_tile);
+							if(int_rep <= 126) {
+								put_succeeded = private_car_routes[i].put(destination, int_rep);
+							}
+							else {
+								fprintf(stderr,"discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i), int rep %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, int_rep);
+								put_succeeded = true;
+							}
 						} else {
 							uint8 next_tile;
 							file->rdwr_byte(next_tile);
