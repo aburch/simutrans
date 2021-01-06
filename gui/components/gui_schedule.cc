@@ -518,7 +518,6 @@ void gui_schedule_t::update_selection()
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 
 		loading_details->remove_all();
-		loading_details->remove_component( &bt_add_scheduling );
 		loading_details->remove_component( &departure );
 		loading_details->remove_component( &numimp_load );
 		const uint8 current_stop = schedule->get_current_stop();
@@ -528,7 +527,6 @@ void gui_schedule_t::update_selection()
 			loading_details->add_component( &lb_wait );
 			if( schedule->entries[ current_stop ].is_absolute_departure() ) {
 				loading_details->add_component( &departure );
-				loading_details->remove_component( &bt_add_scheduling );
 			}
 			else {
 				loading_details->add_component( &numimp_load );
@@ -628,7 +626,6 @@ void gui_schedule_t::draw(scr_coord pos)
 
 		departure_or_load.enable( is_allowed );
 		numimp_load.enable( is_allowed );
-		bt_add_scheduling.enable( is_allowed );
 		departure.enable( is_allowed );
 		bt_return.enable( is_allowed );
 	}

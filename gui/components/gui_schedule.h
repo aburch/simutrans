@@ -40,7 +40,7 @@ class gui_schedule_t :
 {
 private:
 	// always needed
-	button_t bt_revert, bt_return, bt_add_scheduling;
+	button_t bt_revert, bt_return;
 
 	gui_label_t lb_wait;
 	gui_numberinput_t numimp_load;
