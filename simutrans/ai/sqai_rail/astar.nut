@@ -457,6 +457,7 @@ class astar_builder extends astar
 		search()
 
 		local bridge_tiles = 0
+		local count_tree = 0
 
 		if (route.len() > 0) {
 			remove_field( route[0] )
@@ -505,6 +506,10 @@ class astar_builder extends astar
 								remove_wayline(route, (i - 1), way.get_waytype())
 							}
 
+						} else if ( build_route == 0 ) {
+							if ( tile_x(route[i].x, route[i].y, route[i].z).find_object(mo_tree) != null ) {
+								count_tree++
+							}
 						}
 					}
 				}
@@ -544,7 +549,7 @@ class astar_builder extends astar
 					return { err =  err }
 				}
 			}
-			return { start = route[route.len()-1], end = route[0], routes = route, bridge_lens = bridge_tiles, bridge_obj = bridger.bridge }
+			return { start = route[route.len()-1], end = route[0], routes = route, bridge_lens = bridge_tiles, bridge_obj = bridger.bridge, tiles_tree = count_tree }
 		}
 		print("No route found")
 		return { err =  "No route" }

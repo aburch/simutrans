@@ -240,6 +240,7 @@ class industry_connection_planner_t extends manager_t
 		}
 
 		local planned_bridge = { cost = 0, montly_cost = 0 }
+		local tree_cost = 0 // cost remove tree
 		if (wt != wt_water && wt != wt_air) {
 			/* plan build route */
 			local p_start = ::finder.find_station_place(fsrc, fdest)
@@ -253,6 +254,7 @@ class industry_connection_planner_t extends manager_t
 				cnv_valuator.distance = calc_route.routes.len() + calc_route.bridge_lens
 				planned_bridge.cost = calc_route.bridge_lens * calc_route.bridge_obj.get_cost()
 				planned_bridge.montly_cost = calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance()
+				tree_cost = calc_route.tiles_tree * 300
 			}
 		}
 
@@ -349,7 +351,7 @@ class industry_connection_planner_t extends manager_t
 		} while(a > 0)
 
 		// build cost for way, stations and depot
-		local build_cost = (r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost
+		local build_cost = (r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost + tree_cost
 		// build cost / 13 months
 		//build_cost = build_cost / 13
 
