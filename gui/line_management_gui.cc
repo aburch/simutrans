@@ -195,6 +195,8 @@ void line_management_gui_t::init()
 			container_stats.end_table();
 			old_convoi_count = -1; // recalc!
 		}
+		// start editing
+		scd.highlight_schedule(switch_mode.get_aktives_tab() == &container_schedule);
 	}
 }
 
