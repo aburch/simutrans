@@ -251,6 +251,12 @@ bool is_traffic_light(const roadsign_desc_t *d)
 }
 
 
+sint64 tree_get_price()
+{
+	return -welt->get_settings().cst_remove_tree;
+}
+
+
 void export_goods_desc(HSQUIRRELVM vm)
 {
 	/**
@@ -399,6 +405,12 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * Object descriptors for trees.
 	 */
 	begin_desc_class(vm, "tree_desc_x", "obj_desc_x", (GETDESCFUNC)param<const tree_desc_t*>::getfunc());
+
+	/**
+	 * Returns price to fell one tree.
+	 * @returns price (should be positive)
+	 */
+	STATIC register_method(vm, tree_get_price, "get_price", false, true);
 	end_class(vm);
 
 	/**
