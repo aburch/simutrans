@@ -374,6 +374,11 @@ const char* can_set_slope(player_t* pl, koord3d pos, my_slope_t slope)
 	return tool_setslope_t::tool_set_slope_work(pl, pos, slope, false /* compatibility */, true /* check */);
 }
 
+sint64 set_slope_get_price(my_slope_t slope)
+{
+	return slope == RESTORE_SLOPE ? -welt->get_settings().cst_alter_land : -welt->get_settings().cst_set_slope;
+}
+
 call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t* sign)
 {
 	if (sign == NULL) {
@@ -525,6 +530,11 @@ void export_commands(HSQUIRRELVM vm)
 	 * @returns null (if allowed) or an error message otherwise
 	 */
 	STATIC register_method(vm, can_set_slope, "can_set_slope", false, true);
+	/**
+	 * Costs of using @ref set_slope.
+	 * @returns cost
+	 */
+	STATIC register_method(vm, set_slope_get_price, "slope_get_price", false, true);
 	/**
 	 * Build signal / road-sign. If such a sign already exists then change its direction.
 	 * @param pl player to pay for the work

@@ -10,7 +10,7 @@
  * @section api-trunk Current trunk
  *
  * - Feature: scripted tools
- * - Added @ref tree_desc_x::get_price
+ * - Added @ref tree_desc_x::get_price, @ref command_x::slope_get_price
  * - Added @ref debug::pause, @ref debug::set_pause_on_error
  * - Added more tool ids
  * - Added @ref convoy_x::is_waiting, @ref convoy_x::is_loading

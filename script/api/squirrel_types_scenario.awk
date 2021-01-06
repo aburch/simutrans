@@ -127,6 +127,7 @@ BEGIN {
 	export_types["vehicle_desc_x::get_weight"] = "integer()"
 	export_types["vehicle_desc_x::get_length"] = "integer()"
 	export_types["vehicle_desc_x::is_coupling_allowed"] = "bool(vehicle_desc_x, vehicle_desc_x)"
+	export_types["tree_desc_x::get_price"] = "integer()"
 	export_types["building_desc_x::is_attraction"] = "bool()"
 	export_types["building_desc_x::get_maintenance"] = "integer()"
 	export_types["building_desc_x::get_cost"] = "integer()"
@@ -404,5 +405,6 @@ BEGIN {
 	export_types["command_x::set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::restore_slope"] = "string(player_x, coord3d)"
 	export_types["command_x::can_set_slope"] = "string(player_x, coord3d, slope)"
+	export_types["command_x::slope_get_price"] = "integer(slope)"
 	export_types["command_x::build_sign_at"] = "string(player_x, coord3d, sign_desc_x)"
 }
