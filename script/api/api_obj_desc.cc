@@ -320,7 +320,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_local_method(vm, &get_scaled_maintenance, "get_maintenance");
 	/**
-	 * @returns cost [in 1/100 credits] to buy or build on piece or tile of this thing.
+	 * @returns cost [in 1/100 credits] to buy or build one piece or tile of this thing.
 	 */
 	register_method(vm, &obj_desc_transport_related_t::get_price, "get_cost");
 	/**
@@ -695,7 +695,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &roadsign_desc_t::is_end_choose_signal, "is_end_choose_signal");
 	/**
-	 * Returns a list with available bridge types.
+	 * Returns a list with available sign types.
 	 * @param wt waytype
 	 */
 	STATIC register_method(vm, roadsign_t::get_available_signs, "get_available_signs", false, true);
