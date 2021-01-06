@@ -311,6 +311,8 @@ public:
 				last_schedule = schedule->copy();
 			}
 			set_size(get_min_size());
+
+			call_listeners( schedule->get_current_stop() );
 		}
 		if (highlight) {
 			highlight_schedule(true);
@@ -512,35 +514,34 @@ void gui_schedule_t::update_tool(bool set)
 
 void gui_schedule_t::update_selection()
 {
-	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
+	// set all elements invisible first
+	lb_wait.set_visible(false);
+	numimp_load.set_visible(false);
+	departure.set_visible(false);
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 
-		loading_details->remove_all();
-		loading_details->remove_component( &departure );
-		loading_details->remove_component( &numimp_load );
 		const uint8 current_stop = schedule->get_current_stop();
 
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 
-			loading_details->add_component( &lb_wait );
-			if( schedule->entries[ current_stop ].is_absolute_departure() ) {
-				loading_details->add_component( &departure );
-			}
-			else {
-				loading_details->add_component( &numimp_load );
+			lb_wait.set_visible(true);
+// 			if( schedule->entries[ current_stop ].is_absolute_departure() ) {
+// 				departure.set_visible(true);
+// 			}
+// 			else {
+				numimp_load.set_visible(true);
 				numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
-				loading_details->add_component( &departure );
-			}
+				departure.set_visible(true);
+// 			}
 			departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
-			loading_details->set_size( loading_details->get_size() );
 		}
 		else {
 			// waypoint
-			loading_details->new_component<gui_empty_t>( &numimp_load );
 		}
 	}
+	loading_details->set_size( loading_details->get_min_size() );
 }
 
 
