@@ -116,7 +116,7 @@ public:
 	 * Helper function for baue_hierachie(): builds the connections (chain) for one single product)
 	 * @returns number of factories built
 	 */
-	static int build_chain_link(const fabrik_t* our_fab, const factory_desc_t* info, int supplier_nr, player_t* player, bool no_new_industries = false);
+	static int build_chain_link(const fabrik_t* origin_fab, const factory_desc_t* info, int supplier_nr, player_t* player, bool no_new_industries = false);
 
 	/**
 	 * This function is called whenever it is time for industry growth.

@@ -445,18 +445,18 @@ void fabrik_info_t::update_components()
 	}
 
 	// consumers
-	if (fab->get_lieferziele().get_count() != old_consumers_count) {
+	if (fab->get_consumers().get_count() != old_consumers_count) {
 		lb_consumers.set_pos(scr_coord(D_H_SPACE, y));
 		all_consumers.recalc_size();
-		if (fab->get_lieferziele().get_count()) {
+		if (fab->get_consumers().get_count()) {
 			lb_consumers.set_visible(true);
 		}
 		all_consumers.set_pos(scr_coord(0, y+LINESPACE));
 
-		old_consumers_count = fab->get_lieferziele().get_count();
+		old_consumers_count = fab->get_consumers().get_count();
 	}
-	if (fab->get_lieferziele().get_count()) {
-		y += (fab->get_lieferziele().get_count()+2) * (LINESPACE+1);
+	if (fab->get_consumers().get_count()) {
+		y += (fab->get_consumers().get_count() + 2) * (LINESPACE + 1);
 	}
 
 	// connected stops
