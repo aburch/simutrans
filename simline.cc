@@ -1037,3 +1037,32 @@ sint64 simline_t::get_stat_converted(int month, int cost_type) const
 	}
 	return value;
 }
+
+sint64 simline_t::get_service_frequency()
+{
+	sint64 total_trip_times = 0;
+	sint64 convoys_with_trip_data = 0;
+	for (int i = 0; i < line_managed_convoys.get_count(); i++) {
+		convoihandle_t const cnv = line_managed_convoys[i];
+		if (!cnv->in_depot()) {
+			total_trip_times += cnv->get_average_round_trip_time();
+			if (cnv->get_average_round_trip_time()) {
+				convoys_with_trip_data++;
+			}
+		}
+	}
+
+	sint64 service_frequency = convoys_with_trip_data ? total_trip_times / convoys_with_trip_data : 0; // In ticks.
+	if (line_managed_convoys.get_count()) {
+		service_frequency /= line_managed_convoys.get_count();
+	}
+	const int spacing = schedule->get_spacing();
+	if (line_managed_convoys.get_count() && spacing > 0)
+	{
+		// Check whether the spacing setting affects things.
+		sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)spacing;
+		const uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
+		service_frequency = max(spacing_time, service_frequency);
+	}
+	return service_frequency;
+}

@@ -9,7 +9,6 @@
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simhalt.h"
-#include "../simline.h"
 #include "../simconvoi.h"
 
 #include "../descriptor/goods_desc.h"
@@ -20,11 +19,10 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/koord.h"
 
-#include "../player/simplay.h"
-
 #include "../utils/simstring.h"
 
 #include "halt_detail.h"
+#include "components/gui_label.h"
 
 
 #define GOODS_SYMBOL_CELL_WIDTH 14
@@ -44,13 +42,13 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	line_number(halt_),
 	pas(halt_),
 	goods(halt_),
-	route(halt_, selected_route_catg_index),
-	txt_info(&buf),
+	cont_service(halt_),
+	destinations(halt_, selected_route_catg_index),
 	scrolly_pas(&pas),
 	scrolly_goods(&cont_goods),
-	scrolly_route(&cont_route),
-	nearby_factory(halt_),
-	scrolly(&cont)
+	scrolly_service(&cont_service),
+	scrolly_route(&cont_desinations),
+	nearby_factory(halt_)
 {
 	if (halt.is_bound()) {
 		init();
@@ -74,18 +72,6 @@ void halt_detail_t::init()
 	add_component(&line_number);
 	waiting_bar = new_component<gui_halt_waiting_indicator_t>(halt);
 
-
-	lb_serve_lines.init("Lines serving this stop", scr_coord(D_MARGIN_LEFT, D_V_SPACE),
-		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	cont.add_component(&lb_serve_lines);
-	lb_serve_convoys.init("Lineless convoys serving this stop", scr_coord(D_MARGIN_LEFT, LINESPACE*4),
-		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	lb_serve_convoys.set_visible(false);
-	cont.add_component(&lb_serve_convoys);
-
-	cont.add_component(&txt_info);
-	txt_info.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
-
 	tabs.set_pos(scr_coord(0, LINESPACE*4 + D_MARGIN_TOP + D_V_SPACE));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + tabs.get_pos().y + D_TAB_HEADER_HEIGHT));
 
@@ -95,9 +81,6 @@ void halt_detail_t::init()
 	cashed_size_y = 0;
 	show_pas_info = false;
 	show_freight_info = false;
-
-	scrolly.set_pos(scr_coord(0, 0));
-	scrolly.set_show_scroll_x(true);
 
 	lb_nearby_factory.init("Fabrikanschluss"/* (en)Connected industries */, scr_coord(D_MARGIN_LEFT, 0),
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
@@ -116,124 +99,154 @@ void halt_detail_t::init()
 	cont_goods.add_component(&nearby_factory);
 
 	// route tab components
-	uint y = D_V_SPACE;
+	cont_route.set_table_layout(1,0);
+	cont_route.add_table(3, 1);
+	{
+		cont_route.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(0, 0));
 
-	bt_by_station.init(button_t::roundbox_state, "hd_btn_by_station", scr_coord(D_MARGIN_LEFT, y), D_WIDE_BUTTON_SIZE);
-	bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(bt_by_station.get_pos().x + D_WIDE_BUTTON_WIDTH, y), D_WIDE_BUTTON_SIZE);
-	y += D_BUTTON_HEIGHT+D_V_SPACE;
-	lb_serve_catg.init("lb_served_goods_and_classes", scr_coord(D_MARGIN_LEFT, y),
+		bt_by_station.init(button_t::roundbox_state, "hd_btn_by_station", scr_coord(0, 0), D_WIDE_BUTTON_SIZE);
+		bt_by_category.init(button_t::roundbox_state, "hd_btn_by_category", scr_coord(0, 0), D_WIDE_BUTTON_SIZE);
+		bt_by_station.add_listener(this);
+		bt_by_category.add_listener(this);
+		bt_by_station.pressed = false;
+		bt_by_category.pressed = true;
+		cont_route.add_component(&bt_by_station);
+		cont_route.add_component(&bt_by_category);
+		cont_route.new_component<gui_fill_t>();
+	}
+	cont_route.end_table();
+	lb_serve_catg.init("lb_served_goods_and_classes", scr_coord(0, 0),
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	bt_by_station.add_listener(this);
-	bt_by_category.add_listener(this);
-	bt_by_station.pressed = false;
-	bt_by_category.pressed = true;
-	cont_route.add_component(&bt_by_station);
-	cont_route.add_component(&bt_by_category);
 	cont_route.add_component(&lb_serve_catg);
-	y += D_HEADING_HEIGHT + D_V_SPACE*2;
 
-	uint16 freight_btn_offset_x = D_MARGIN_LEFT;
-	uint8 row = 2;
-	for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
-		if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none) {
-			continue;
-		}
-		switch (i)
+
+
+	// goods button table
+	cont_route.add_table(2,0);
+	uint8 classes;
+	// * passenger
+	// ** catg button
+	button_t *bp = new button_t();
+	bp->init(button_t::roundbox_state, NULL);
+	bp->set_image(goods_manager_t::get_info_catg_index(goods_manager_t::INDEX_PAS)->get_catg_symbol());
+	bp->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(goods_manager_t::INDEX_PAS)->get_catg_name()));
+	bp->add_listener(this);
+	catg_buttons.append(bp);
+	cont_route.add_component(bp);
+	// *** class buttons
+	classes = goods_manager_t::passengers->get_number_of_classes();
+	// Button is not required if there is only one class
+	if (classes > 0) {
+		cont_route.add_table(classes, 1)->set_spacing(scr_size(0, 0));
 		{
-			case goods_manager_t::INDEX_PAS:
-				row = 0;
-				if (goods_manager_t::passengers->get_number_of_classes() > 1) {
-					// Button is not required if there is only one class
-					for (uint8 c = 0; c < goods_manager_t::passengers->get_number_of_classes(); c++) {
-						button_t *cb = new button_t();
-						char *class_name = new char[32]();
-						if (class_name != nullptr)
-						{
-							sprintf(class_name, "p_class[%u]", goods_manager_t::passengers->get_number_of_classes()-c-1);
-							pass_class_name_untranslated[c] = class_name;
-						}
-						cb->init(button_t::roundbox_state, translator::translate(pass_class_name_untranslated[c]),
-							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::passengers->get_number_of_classes() - c-1), y),
-							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-						cb->disable();
-						cb->add_listener(this);
-						cont_route.add_component(cb);
-						pas_class_buttons.append(cb);
-					}
+			for (uint8 c = 0; c < classes; c++) {
+				button_t *cb = new button_t();
+				char *class_name = new char[32]();
+				if (class_name != nullptr)
+				{
+					sprintf(class_name, "p_class[%u]", c);
+					pass_class_name_untranslated[c] = class_name;
 				}
-				break;
-			case goods_manager_t::INDEX_MAIL:
-				row = 1;
-				if (goods_manager_t::mail->get_number_of_classes() > 1) {
-					// Button is not required if there is only one class
-					for (uint8 c = 0; c < goods_manager_t::mail->get_number_of_classes(); c++) {
-						button_t *cb = new button_t();
-						char *class_name = new char[32]();
-						if (class_name != nullptr)
-						{
-							sprintf(class_name, "m_class[%u]", goods_manager_t::mail->get_number_of_classes() - c - 1);
-							mail_class_name_untranslated[c] = class_name;
-						}
-						cb->init(button_t::roundbox_state, translator::translate(mail_class_name_untranslated[c]),
-							scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH + CLASS_TEXT_BUTTON_WIDTH * (goods_manager_t::mail->get_number_of_classes() - c - 1), y + D_BUTTON_HEIGHT),
-							scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-						cb->disable();
-						cb->add_listener(this);
-						cont_route.add_component(cb);
-						mail_class_buttons.append(cb);
-					}
-				}
-				break;
-			default:
-				if (row < 2) { row = 2; }
-				if (freight_btn_offset_x > D_DEFAULT_WIDTH - GOODS_TEXT_BUTTON_WIDTH){
-					row++;
-					freight_btn_offset_x = D_MARGIN_LEFT;
-				}
-				break;
-		}
-		// make goods category buttons
-		button_t *b = new button_t();
-		if (goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == IMG_EMPTY || goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == skinverwaltung_t::goods->get_image_id(0)) {
-			// category text button (pakset does not have symbol)
-			b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, y + D_BUTTON_HEIGHT * row), scr_size(GOODS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-			if (row > 1) {
-				freight_btn_offset_x += GOODS_TEXT_BUTTON_WIDTH;
+				cb->init(button_t::roundbox_state, class_name, scr_coord(0, 0), scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				cb->disable();
+				cb->add_listener(this);
+				cont_route.add_component(cb);
+				pas_class_buttons.append(cb);
 			}
 		}
-		else {
-			// category symbol button
-			b->set_typ(button_t::roundbox_state);
-			b->set_text(NULL);
-			b->set_image(goods_manager_t::get_info_catg_index(i)->get_catg_symbol());
-			if (row > 1) {
-				// freight category button
-				b->set_size(scr_size(CATG_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-				b->set_pos(scr_coord(freight_btn_offset_x + WARE_TYPE_IMG_BUTTON_WIDTH, y + D_BUTTON_HEIGHT * row));
-				freight_btn_offset_x += CATG_IMG_BUTTON_WIDTH;
-			}
-			else {
-				// pas/mail category button
-				b->set_size(scr_size(WARE_TYPE_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-				b->set_pos(scr_coord(freight_btn_offset_x, y + D_BUTTON_HEIGHT * row));
-			}
-		}
-		b->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(i)->get_catg_name()));
-		b->add_listener(this);
-		catg_buttons.append(b);
-		cont_route.add_component(b);
+		cont_route.end_table();
+	}
+	else {
+		cont_route.new_component<gui_empty_t>();
 	}
 
-	routelist_default_pos_y = y + D_BUTTON_HEIGHT * (row + 2) + D_V_SPACE;
-	lb_routes.init("Direkt erreichbare Haltestellen", scr_coord(D_MARGIN_LEFT, routelist_default_pos_y),
+	// * mail
+	// ** catg button
+	button_t *bm = new button_t();
+	bm->init(button_t::roundbox_state, NULL);
+	bm->set_image(goods_manager_t::get_info_catg_index(goods_manager_t::INDEX_MAIL)->get_catg_symbol());
+	bm->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(goods_manager_t::INDEX_MAIL)->get_catg_name()));
+	bm->add_listener(this);
+	catg_buttons.append(bm);
+	cont_route.add_component(bm);
+	// *** class buttons
+	classes = goods_manager_t::mail->get_number_of_classes();
+	// Button is not required if there is only one class
+	if (classes > 0) {
+		cont_route.add_table(classes, 1)->set_spacing(scr_size(0, 0));
+		{
+			for (uint8 c = 0; c < classes; c++) {
+				button_t *cb = new button_t();
+				char *class_name = new char[32]();
+				if (class_name != nullptr)
+				{
+					sprintf(class_name, "m_class[%u]", c);
+					mail_class_name_untranslated[c] = class_name;
+				}
+				cb->init(button_t::roundbox_state, class_name, scr_coord(0, 0), scr_size(CLASS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				cb->disable();
+				cb->add_listener(this);
+				cont_route.add_component(cb);
+				mail_class_buttons.append(cb);
+			}
+		}
+		cont_route.end_table();
+	}
+	else {
+		cont_route.new_component<gui_empty_t>();
+	}
+
+	// *goods
+	// ** freight group image
+	cont_route.new_component<gui_empty_t>();
+	// *** catg buttons
+	cont_route.add_table(8, 0)->set_spacing(scr_size(0, 0));
+	{
+		uint8 cnt = 0;
+		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+			if (goods_manager_t::get_info_catg_index(i) == goods_manager_t::none
+				|| i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL) {
+				continue;
+			}
+			// make goods category buttons
+			button_t *b = new button_t();
+			if (goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == IMG_EMPTY || goods_manager_t::get_info_catg_index(i)->get_catg_symbol() == skinverwaltung_t::goods->get_image_id(0)) {
+				// category text button (pakset does not have symbol)
+				b->init(button_t::roundbox_state, goods_manager_t::get_info_catg_index(i)->get_catg_name(), scr_coord(0,0), scr_size(GOODS_TEXT_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+			}
+			else {
+				// category symbol button
+				b->init(button_t::roundbox_state, NULL, scr_coord(0,0), scr_size(CATG_IMG_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+				b->set_image(goods_manager_t::get_info_catg_index(i)->get_catg_symbol());
+			}
+			b->set_tooltip(translator::translate(goods_manager_t::get_info_catg_index(i)->get_catg_name()));
+			b->add_listener(this);
+			catg_buttons.append(b);
+			cont_route.add_component(b);
+			cnt++;
+		}
+
+		if (!cnt) {
+			cont_route.new_component<gui_empty_t>();
+		}
+	}
+	cont_route.end_table();
+
+	cont_route.end_table(); // button table end
+
+	lb_routes.init("Direkt erreichbare Haltestellen", scr_coord(0, 0),
 		color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
-	lb_selected_route_catg.set_pos(lb_routes.get_pos() + scr_coord(0, D_HEADING_HEIGHT+D_V_SPACE));
-	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
-	route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
-	route.recalc_size();
 	cont_route.add_component(&lb_routes);
-	cont_route.add_component(&lb_selected_route_catg);
-	cont_route.add_component(&route);
+	cont_route.add_component(&scrolly_route);
+
+	// list (inside the scroll panel)
+	lb_selected_route_catg.set_pos(scr_coord(0, D_V_SPACE));
+	lb_selected_route_catg.set_size(D_BUTTON_SIZE);
+	destinations.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+	destinations.recalc_size();
+	cont_desinations.add_component(&lb_selected_route_catg);
+	cont_desinations.add_component(&destinations);
+
 
 	// Adjust window to optimal size
 	set_tab_opened();
@@ -246,42 +259,19 @@ void halt_detail_t::init()
 
 halt_detail_t::~halt_detail_t()
 {
-	while(!linelabels.empty()) {
-		gui_label_t *l = linelabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!linebuttons.empty()) {
-		button_t *b = linebuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!convoylabels.empty()) {
-		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!convoybuttons.empty()) {
-		button_t *b = convoybuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!label_names.empty()) {
-		free(label_names.remove_first());
-	}
 	while (!catg_buttons.empty()) {
 		button_t *b = catg_buttons.remove_first();
-		cont_route.remove_component(b);
+		cont_desinations.remove_component(b);
 		delete b;
 	}
 	while (!pas_class_buttons.empty()) {
 		button_t *b = pas_class_buttons.remove_first();
-		cont_route.remove_component(b);
+		cont_desinations.remove_component(b);
 		delete b;
 	}
 	while (!mail_class_buttons.empty()) {
 		button_t *b = mail_class_buttons.remove_first();
-		cont_route.remove_component(b);
+		cont_desinations.remove_component(b);
 		delete b;
 	}
 }
@@ -325,8 +315,8 @@ void halt_detail_t::update_components()
 		if (show_freight_info) {
 			tabs.add_tab(&scrolly_goods, translator::translate("Freight"));
 		}
-		tabs.add_tab(&scrolly, translator::translate("Services"));
-		tabs.add_tab(&scrolly_route, translator::translate("Route_tab"));
+		tabs.add_tab(&scrolly_service, translator::translate("Services"));
+		tabs.add_tab(&cont_route, translator::translate("Route_tab"));
 		if (tabstate != -1) {
 			tabs.set_active_tab_index(old_tab);
 			tabstate = old_tab;
@@ -343,7 +333,6 @@ void halt_detail_t::update_components()
 			halt->registered_convoys.get_count() != cached_convoy_count ||
 			welt->get_ticks() - update_time > 10000) {
 			// fill buffer with halt detail
-			halt_detail_info();
 			cached_active_player = welt->get_active_player();
 			update_time = (uint32)welt->get_ticks();
 		}
@@ -394,7 +383,6 @@ void halt_detail_t::update_components()
 				{
 					btn->enable();
 					bool all_class_btn_pressed = false;
-					bool reset_class_buttons = false;
 					if (!chk_pressed) {
 						// Initialization
 						btn->pressed = true;
@@ -404,18 +392,14 @@ void halt_detail_t::update_components()
 						selected_class = goods_manager_t::get_info_catg_index(catg_index)->get_number_of_classes() - 1;
 						lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(selected_route_catg_index)->get_catg_name());
 						all_class_btn_pressed = true;
-						reset_class_buttons = true;
-						route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
+						destinations.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
 					}
 					else if (selected_route_catg_index != catg_index) {
 						btn->pressed = false;
-						reset_class_buttons = true;
 					}
-					uint8 cl = goods_manager_t::get_info_catg_index(catg_index)->get_number_of_classes() - 1;
-					FORX(slist_tpl<button_t *>, cl_btn, catg_index == goods_manager_t::INDEX_PAS ? pas_class_buttons : mail_class_buttons, cl--) {
-						if (reset_class_buttons) {
-							cl_btn->pressed = all_class_btn_pressed;
-						}
+					uint8 cl = 0;
+					FORX(slist_tpl<button_t *>, cl_btn, catg_index == goods_manager_t::INDEX_PAS ? pas_class_buttons : mail_class_buttons, cl++) {
+						cl_btn->pressed = selected_class >= cl;
 						if (btn->enabled() == false) {
 							cl_btn->disable();
 							continue;
@@ -441,7 +425,7 @@ void halt_detail_t::update_components()
 							chk_pressed = true;
 							selected_route_catg_index = catg_index;
 							lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(selected_route_catg_index)->get_catg_name());
-							route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
+							destinations.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
 						}
 						else if (selected_route_catg_index != catg_index) {
 							btn->pressed = false;
@@ -459,187 +443,32 @@ void halt_detail_t::update_components()
 			}
 		}
 	}
-	route.recalc_size();
-	cont_route.set_size(scr_size(max(400, route.get_size().w), route.get_pos().y + route.get_size().h));
+	destinations.recalc_size();
+	cont_desinations.set_size(scr_size(max(get_windowsize().w, destinations.get_size().w), destinations.get_pos().y + destinations.get_size().h));
+
 	resize(scr_coord(0, 0));
 
 	set_dirty();
-}
-
-void halt_detail_t::halt_detail_info()
-{
-	if (!halt.is_bound()) {
-		return;
-	}
-
-	while(!linelabels.empty()) {
-		gui_label_t *l = linelabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!linebuttons.empty()) {
-		button_t *b = linebuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!convoylabels.empty()) {
-		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_component( l );
-		delete l;
-	}
-	while(!convoybuttons.empty()) {
-		button_t *b = convoybuttons.remove_first();
-		cont.remove_component( b );
-		delete b;
-	}
-	while(!label_names.empty()) {
-		free(label_names.remove_first());
-	}
-	buf.clear();
-
-	sint16 offset_y = D_MARGIN_TOP;
-
-	// add lines that serve this stop
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-	if(  !halt->registered_lines.empty()  ) {
-		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
-			uint waytype_line_cnt = 0;
-			for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
-				if (halt->registered_lines[i]->get_linetype() != lt) {
-					continue;
-				}
-				sint16 offset_x = D_MARGIN_LEFT;
-				if (!waytype_line_cnt) {
-					buf.append("\n");
-					offset_y += LINESPACE;
-					buf.append(" \xC2\xB7 ");
-					buf.append(translator::translate(halt->registered_lines[i]->get_linetype_name()));
-					buf.append("\n");
-					offset_y += LINESPACE;
-				}
-
-				// Line buttons only if owner ...
-				if (welt->get_active_player() == halt->registered_lines[i]->get_owner()) {
-					button_t *b = new button_t();
-					b->init(button_t::posbutton, NULL, scr_coord(offset_x, offset_y), scr_size(D_POS_BUTTON_SIZE) );
-					b->set_targetpos(koord(-1, i));
-					b->add_listener(this);
-					linebuttons.append(b);
-					cont.add_component(b);
-				}
-				offset_x += D_BUTTON_HEIGHT+D_H_SPACE;
-				// Line labels with color of player
-				label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-				gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
-				l->set_pos( scr_coord(offset_x, offset_y) );
-				linelabels.append( l );
-				cont.add_component( l );
-				buf.append("\n");
-				offset_y += LINESPACE;
-				waytype_line_cnt++;
-			}
-		}
-	}
-	else {
-		buf.append(" ");
-		buf.append( translator::translate("keine") );
-		buf.append("\n");
-		offset_y += LINESPACE;
-	}
-
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-	lb_serve_convoys.set_visible(true);
-	lb_serve_convoys.set_pos(scr_coord(D_MARGIN_LEFT, offset_y));
-	buf.append("\n\n");
-	offset_y += LINESPACE*2;
-
-	if(  !halt->registered_convoys.empty()  ) {
-		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
-			// Convoy buttons
-			button_t *b = new button_t();
-			b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y), scr_size(D_POS_BUTTON_SIZE) );
-			b->set_targetpos( koord(-2, i) );
-			b->add_listener( this );
-			convoybuttons.append( b );
-			cont.add_component( b );
-
-			// Line labels with color of player
-			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_convoys[i]->get_owner()->get_player_color1()+env_t::gui_player_color_dark) );
-			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
-			convoylabels.append( l );
-			cont.add_component( l );
-			buf.append("\n");
-			offset_y += LINESPACE;
-		}
-	}
-	else {
-		buf.append(" ");
-		buf.append( translator::translate("keine") );
-		buf.append("\n");
-		offset_y += LINESPACE;
-	}
-
-	buf.append("\n");
-	offset_y += LINESPACE;
-
-		// If it is a special freight, we display the name of the good, otherwise the name of the category.
-		//buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
-
-	txt_info.recalc_size();
-	cont.set_size( txt_info.get_size() );
-
-	// ok, we have now this counter for pending updates
-	cached_line_count = halt->registered_lines.get_count();
-	cached_convoy_count = halt->registered_convoys.get_count();
 }
 
 
 
 bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 {
-	if( comp != &tabs && extra.i & ~1  ) {
-		koord k = *(const koord *)extra.p;
-		if(  k.x==-1  ) {
-			// Line button pressed.
-			uint16 j=k.y;
-			if(  j < halt->registered_lines.get_count()  ) {
-				linehandle_t line=halt->registered_lines[j];
-				player_t *player=welt->get_active_player();
-				if(  player==line->get_owner()  ) {
-					// Change player => change marked lines
-					player->simlinemgmt.show_lineinfo(player,line);
-					welt->set_dirty();
-				}
-			}
-		}
-		else if(  k.x==-2  ) {
-			// Knightly : lineless convoy button pressed
-			uint16 j = k.y;
-			if(  j<halt->registered_convoys.get_count()  ) {
-				convoihandle_t convoy = halt->registered_convoys[j];
-				convoy->show_info();
-			}
-		}
-	}
-	else if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
+	if (tabstate != tabs.get_active_tab_index() || get_windowsize().h == get_min_windowsize().h) {
 		set_tab_opened();
 	}
 	else if (comp == &bt_by_category) {
 		if (list_by_station) {
 			list_by_station = false;
-			route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
+			destinations.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
 			open_close_catg_buttons();
 		}
 	}
 	else if (comp == &bt_by_station) {
 		if (!list_by_station) {
 			list_by_station = true;
-			route.build_halt_list(goods_manager_t::INDEX_NONE, 0, list_by_station);
+			destinations.build_halt_list(goods_manager_t::INDEX_NONE, 0, list_by_station);
 			open_close_catg_buttons();
 		}
 	}
@@ -648,7 +477,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 		uint8 cl = 0;
 		FORX(slist_tpl<button_t *>, btn, catg_buttons,i++) {
 			bool flag_all_classes_btn_on = false;
-			bool flag_upper_classes_btn_on = false;
+			bool flag_upper_classes_btn_off = false;
 			uint8 catg_index = i >= goods_manager_t::INDEX_NONE ? i + 1 : i;
 			if (comp == btn) {
 				selected_class = 0;
@@ -660,37 +489,37 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *comp, value_t extra)
 				btn->pressed = true; // Don't release when press the same button
 				selected_route_catg_index = catg_index;
 				lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(catg_index)->get_catg_name());
-				route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
-				route.recalc_size();
+				destinations.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
+				destinations.recalc_size();
 			}
 			if (catg_index == goods_manager_t::INDEX_PAS || catg_index == goods_manager_t::INDEX_MAIL)
 			{
-				cl = goods_manager_t::get_info_catg_index(i)->get_number_of_classes()-1;
-				FORX(slist_tpl<button_t *>, cl_btn, catg_index == goods_manager_t::INDEX_PAS ? pas_class_buttons : mail_class_buttons, cl--) {
+				cl = 0;
+				FORX(slist_tpl<button_t *>, cl_btn, catg_index == goods_manager_t::INDEX_PAS ? pas_class_buttons : mail_class_buttons, cl++) {
 					if (flag_all_classes_btn_on) {
 						cl_btn->pressed = true;
 						continue;
 					}
 					if (comp == cl_btn) {
-						flag_upper_classes_btn_on = true;
+						flag_upper_classes_btn_off = true;
 						selected_class = cl;
 						if (btn->pressed == false) {
 							btn->pressed = true;
 							selected_route_catg_index = catg_index;
 							cl_btn->pressed = true;
 						}
-						else if(flag_upper_classes_btn_on) {
-							cl_btn->pressed = true;
+						else if(flag_upper_classes_btn_off) {
+							cl_btn->pressed = false;
 						}
 						lb_selected_route_catg.set_text(goods_manager_t::get_info_catg_index(catg_index)->get_catg_name());
-						route.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
-						route.recalc_size();
+						destinations.build_halt_list(selected_route_catg_index, selected_class, list_by_station);
+						destinations.recalc_size();
 					}
 					else if(btn->pressed == false){
 						cl_btn->pressed = false;
 					}
 					else{
-						cl_btn->pressed = flag_upper_classes_btn_on;
+						cl_btn->pressed = flag_upper_classes_btn_off;
 					}
 				}
 			}
@@ -735,13 +564,13 @@ void halt_detail_t::open_close_catg_buttons()
 	}
 	// Shift the list position
 	if (list_by_station) {
-		lb_routes.set_pos(lb_serve_catg.get_pos());
-		route.set_pos(scr_coord(0, lb_routes.get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE));
+		destinations.set_pos(scr_coord(0, 0));
 	}
 	else {
-		lb_routes.set_pos(scr_coord(D_MARGIN_LEFT, routelist_default_pos_y));
-		route.set_pos(scr_coord(0, lb_selected_route_catg.get_pos().y + D_BUTTON_HEIGHT));
+		destinations.set_pos(scr_coord(0, D_BUTTON_HEIGHT+D_V_SPACE));
 	}
+	cont_route.set_size(scr_size(cont_route.get_size().w, scrolly_route.get_pos().y + scrolly_route.get_size().h));
+	cont_desinations.set_size(scr_size(max(get_windowsize().w, destinations.get_size().w), destinations.get_pos().y + destinations.get_size().h));
 }
 
 void halt_detail_t::set_tab_opened()
@@ -767,11 +596,12 @@ void halt_detail_t::set_tab_opened()
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_goods.get_size().h)));
 			break;
 		case 2: // info
-			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + txt_info.get_size().h)));
+			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_service.get_size().h)));
 			break;
 		case 3: // route
-			route.recalc_size();
-			cont_route.set_size(scr_size(max(400, route.get_size().w), route.get_pos().y + D_TAB_HEADER_HEIGHT + route.get_size().h));
+			destinations.recalc_size();
+			cont_desinations.set_size(scr_size(max(get_windowsize().w, destinations.get_size().w), destinations.get_pos().y + destinations.get_size().h));
+			cont_route.set_size(scr_size(cont_route.get_size().w, scrolly_route.get_pos().y + scrolly_route.get_size().h));
 			set_windowsize(scr_size(get_windowsize().w, min(display_get_height() - margin_above_tab, margin_above_tab + cont_route.get_size().h)));
 			break;
 	}
@@ -798,15 +628,11 @@ void halt_detail_t::rdwr(loadsave_t *file)
 {
 	koord3d halt_pos;
 	scr_size size = get_windowsize();
-	sint32 xoff = scrolly.get_scroll_x();
-	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		halt_pos = halt->get_basis_pos3d();
 	}
 	halt_pos.rdwr( file );
 	size.rdwr( file );
-	file->rdwr_long( xoff );
-	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
 		halt = welt->lookup( halt_pos )->get_halt();
 		// now we can open the window ...
@@ -814,7 +640,6 @@ void halt_detail_t::rdwr(loadsave_t *file)
 		halt_detail_t *w = new halt_detail_t(halt);
 		create_win(pos.x, pos.y, w, w_info, magic_halt_detail + halt.get_id());
 		w->set_windowsize( size );
-		w->scrolly.set_scroll_position( xoff, yoff );
 		destroy_win( this );
 	}
 }
@@ -1526,6 +1351,199 @@ bool gui_halt_nearby_factory_info_t::infowin_event(const event_t * ev)
 }
 
 
+gui_halt_service_info_t::gui_halt_service_info_t(halthandle_t halt)
+	: scrolly(&container)
+{
+	if (halt.is_bound()) {
+		init(halt);
+	}
+}
+
+void gui_halt_service_info_t::init(halthandle_t halt)
+{
+	this->halt = halt;
+	cached_line_count = 0xFFFFFFFFul;
+	cached_convoy_count = 0xFFFFFFFFul;
+
+	update_connections(halt);
+}
+
+void gui_halt_service_info_t::draw(scr_coord offset)
+{
+
+	update_connections(halt);
+
+	scrolly.set_size(scrolly.get_size());
+
+	gui_aligned_container_t::draw(offset);
+}
+
+void gui_halt_service_info_t::update_connections(halthandle_t h)
+{
+	if (!halt.is_bound()) {
+		// first call, or invalid handle
+		remove_all();
+		return;
+	}
+
+	if (halt->registered_lines.get_count() == cached_line_count && halt->registered_convoys.get_count() == cached_convoy_count) {
+		// all current, so do nothing
+		return;
+	}
+
+	// update connections from here
+	remove_all();
+
+	set_table_layout(1, 0);
+	set_margin(scr_size(D_MARGIN_LEFT, D_V_SPACE), scr_size(D_MARGIN_RIGHT, D_V_SPACE));
+
+	// add lines that serve this stop
+	new_component<gui_heading_t>("Lines serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), 1);
+	add_table(6,0)->set_spacing(scr_size(D_H_SPACE, 2));
+	if (halt->registered_lines.empty()) {
+		insert_show_nothing();
+	}
+	else {
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint waytype_line_cnt = 0;
+			for (uint32 i = 0; i < halt->registered_lines.get_count(); i++) {
+				const linehandle_t line = halt->registered_lines[i];
+				if (line->get_linetype() != lt) {
+					continue;
+				}
+				// Linetype if it is the first
+				if (!waytype_line_cnt) {
+					new_component_span<gui_empty_t>(5); new_component<gui_margin_t>(0, D_V_SPACE);
+
+					new_component<gui_image_t>()->set_image(line->get_linetype_symbol(), true);
+					new_component_span<gui_label_t>(translator::translate(line->get_linetype_name()),5);
+
+				}
+
+				// Line buttons only if owner ...
+				new_component<gui_line_button_t>(line);
+
+				// Line labels with color of player
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(line->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+				lb->buf().append(line->get_name());
+				lb->update();
+
+				new_component<gui_empty_t>();
+				if (!skinverwaltung_t::service_frequency) {
+					new_component<gui_empty_t>();
+				}
+				else {
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::service_frequency->get_image_id(0), true);
+				}
+				const sint64 service_frequency = line->get_service_frequency();
+				gui_label_buf_t *lb_frequency = new_component<gui_label_buf_t>();
+				if (service_frequency) {
+					char as_clock[32];
+					world()->sprintf_ticks(as_clock, sizeof(as_clock), service_frequency);
+					lb_frequency->buf().printf(" %s", as_clock);
+					if (line->get_state() & simline_t::line_missing_scheduled_slots) {
+						lb_frequency->set_color(color_idx_to_rgb(COL_DARK_TURQUOISE));
+					}
+				}
+				else {
+					lb_frequency->buf().append("--:--:--");
+					lb_frequency->set_color(COL_INACTIVE);
+				}
+				lb_frequency->set_fixed_width( proportional_string_width("--:--:--") );
+				lb_frequency->set_align(gui_label_t::right);
+				lb_frequency->update();
+
+				// convoy count
+				gui_label_buf_t *lb_convoy_count = new_component<gui_label_buf_t>();
+				if (line->get_convoys().get_count() == 1) {
+					lb_convoy_count->buf().append(translator::translate("1 convoi"));
+				}
+				else if(line->get_convoys().get_count()) {
+					lb_convoy_count->buf().printf(translator::translate("%d convois"), line->get_convoys().get_count());
+				}
+				else {
+					lb_convoy_count->buf().append(translator::translate("no convois")); // error
+				}
+				lb_convoy_count->set_color(line->has_overcrowded() ? color_idx_to_rgb(COL_DARK_PURPLE) : SYSCOL_TEXT);
+				lb_convoy_count->update();
+
+				waytype_line_cnt++;
+			}
+		}
+	}
+	end_table();
+
+	// add lineless convoys which serve this stop
+	new_component<gui_margin_t>(0, D_V_SPACE);
+	new_component<gui_heading_t>("Lineless convoys serving this stop", color_idx_to_rgb(halt->get_owner()->get_player_color1()), color_idx_to_rgb(halt->get_owner()->get_player_color1() + 2), 1);
+	add_table(6, 0)->set_spacing(scr_size(D_H_SPACE, 2));
+	if (halt->registered_convoys.empty()) {
+		insert_show_nothing();
+	}
+	else {
+		for (uint8 lt = 1; lt < simline_t::MAX_LINE_TYPE; lt++) {
+			uint lineless_convoy_cnt = 0;
+			for (uint32 i = 0; i < halt->registered_convoys.get_count(); ++i) {
+				const convoihandle_t cnv = halt->registered_convoys[i];
+				if (cnv->get_schedule()->get_type() != lt) {
+					continue;
+				}
+				// Linetype if it is the first
+				if (!lineless_convoy_cnt) {
+					new_component_span<gui_empty_t>(5); new_component<gui_margin_t>(0, D_V_SPACE);
+
+					new_component<gui_image_t>()->set_image(cnv->get_schedule()->get_schedule_type_symbol(), true);
+					new_component_span<gui_label_t>(translator::translate(cnv->get_schedule()->get_schedule_type_name()),5);
+				}
+
+				// Convoy buttons
+				new_component<gui_convoi_button_t>(cnv);
+
+				// Line labels with color of player
+				gui_label_buf_t *lb = new_component<gui_label_buf_t>(PLAYER_FLAG | color_idx_to_rgb(cnv->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+				lb->buf().append(cnv->get_name());
+				lb->update();
+
+				new_component<gui_empty_t>();
+				if (!skinverwaltung_t::service_frequency) {
+					new_component<gui_empty_t>();
+				}
+				else {
+					new_component<gui_image_t>()->set_image(skinverwaltung_t::service_frequency->get_image_id(0), true);
+				}
+				const sint64 average_round_trip_time = cnv->get_average_round_trip_time();
+				gui_label_buf_t *lb_triptime = new_component<gui_label_buf_t>();
+				if (average_round_trip_time) {
+					char as_clock[32];
+					world()->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
+					lb_triptime->buf().printf(" %s", as_clock);
+				}
+				else {
+					lb_triptime->buf().append("--:--:--");
+					lb_triptime->set_color(COL_INACTIVE);
+				}
+				lb_triptime->set_fixed_width(proportional_string_width("--:--:--"));
+				lb_triptime->set_align(gui_label_t::right);
+				lb_triptime->update();
+
+				new_component<gui_empty_t>();
+
+				lineless_convoy_cnt++;
+			}
+		}
+	}
+	end_table();
+	new_component<gui_margin_t>(0, D_MARGIN_BOTTOM);
+
+	// ok, we have now this counter for pending updates
+	cached_line_count = halt->registered_lines.get_count();
+	cached_convoy_count = halt->registered_convoys.get_count();
+
+	set_size(get_min_size());
+}
+
+
+
 class RelativeDistanceOrdering
 {
 private:
@@ -1574,7 +1592,9 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 			if (!connexions->empty()) {
 				for(auto &iter : *connexions) {
 					halthandle_t a_halt = iter.key;
-					halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+					if (a_halt.is_bound()) {
+						halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+					}
 				}
 			}
 		}
@@ -1598,7 +1618,9 @@ void gui_halt_route_info_t::build_halt_list(uint8 catg_index, uint8 g_class, boo
 		if (!connexions->empty()) {
 			for(auto &iter : *connexions) {
 				halthandle_t a_halt = iter.key;
-				halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+				if (a_halt.is_bound()) {
+					halt_list.insert_unique_ordered(a_halt, RelativeDistanceOrdering(halt->get_basis_pos()));
+				}
 			}
 		}
 	}
@@ -1665,8 +1687,8 @@ void gui_halt_route_info_t::draw(scr_coord offset)
 void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 {
 	static cbuffer_t buf;
-	int xoff = pos.x;
-	int yoff = pos.y;
+	int xoff = 0;
+	int yoff = 0;
 	int max_x = D_DEFAULT_WIDTH;
 
 	FOR(const vector_tpl<halthandle_t>, const dest, halt_list) {
@@ -1809,7 +1831,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 	}
 	yoff += D_MARGIN_BOTTOM;
 
-	set_size(scr_size(max_x, yoff - pos.y));
+	set_size(scr_size(max_x, yoff));
 }
 
 void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
