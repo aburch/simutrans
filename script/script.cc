@@ -192,6 +192,8 @@ const char* script_vm_t::eval_string(const char* squirrel_string)
 		return NULL;
 	}
 	HSQUIRRELVM &job = thread;
+	// log string
+	printfunc(job, "String to compile:\n%s\n<<<\n", squirrel_string);
 	// compile string
 	if (!SQ_SUCCEEDED(sq_compilebuffer(job, squirrel_string, strlen(squirrel_string), "userdefinedstringmethod", true))) {
 		set_error("Error compiling string buffer");

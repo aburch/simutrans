@@ -190,6 +190,10 @@ void repair_table_keys(plainstring &str)
 		else if (first_digit == NULL  &&  *p != ' '  &&  *p != '\t') {
 			first_digit = line;
 		}
+		// some keys contained broken umlauts
+		if (equal == NULL  &&  *p < 0) {
+			*p = '_';
+		}
 		p++;
 	}
 }
@@ -242,7 +246,7 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 			// restore persistent data
 			const char* err = script->eval_string(str);
 			if (err  &&  strcmp(err, "Error compiling string buffer")==0) {
-				// sqai produced invalid table keys up to r9007
+				// sqai produced invalid table keys up to r9007 (and later as well... )
 				repair_table_keys(str);
 				dbg->warning("ai_scripted_t::rdwr", "repaired persistent ai data: %s", str.c_str());
 				// close error message

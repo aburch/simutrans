@@ -852,7 +852,7 @@ static SQInteger string_find(HSQUIRRELVM v)
 
 static char toalnum(char c)
 {
-	return isalnum(c) ? c : '_';
+	return isalnum(c)  &&  c >=0  ? c : '_';
 }
 
 STRING_TOFUNCZ(tolower)
