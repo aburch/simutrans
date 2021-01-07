@@ -75,6 +75,7 @@ BEGIN {
 	export_types["factory_x::get_consumers"] = "array<coord>()"
 	export_types["factory_x::get_suppliers"] = "array<coord>()"
 	export_types["factory_x::get_name"] = "string()"
+	export_types["factory_x::get_raw_name"] = "string()"
 	export_types["factory_x::set_name"] = "string(string)"
 	export_types["factory_x::get_production"] = "array<integer>()"
 	export_types["factory_x::get_power"] = "array<integer>()"

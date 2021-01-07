@@ -119,6 +119,12 @@ call_tool_init factory_set_name(fabrik_t *fab, const char* name)
 }
 
 
+const char* fabrik_get_raw_name(fabrik_t *fab)
+{
+	return fab->get_desc()->get_name();
+}
+
+
 SQInteger ware_production_get_production(HSQUIRRELVM vm)
 {
 	fabrik_t* fab = param<fabrik_t*>::get(vm, 1);
@@ -248,6 +254,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns name
 	 */
 	register_method(vm, &fabrik_t::get_name, "get_name");
+
+	/**
+	 * Get untranslated name of factory.
+	 * @returns name
+	 */
+	register_method(vm, &fabrik_get_raw_name, "get_raw_name", true);
 
 	/**
 	 * Change name.

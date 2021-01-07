@@ -10,6 +10,7 @@
  * @section api-trunk Current trunk
  *
  * - Feature: scripted tools
+ * - Added @ref factory_x::get_raw_name
  * - Added @ref tree_desc_x::get_price, @ref command_x::slope_get_price
  * - Added @ref debug::pause, @ref debug::set_pause_on_error
  * - Added more tool ids
