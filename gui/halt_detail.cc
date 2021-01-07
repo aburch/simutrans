@@ -1455,7 +1455,15 @@ void gui_halt_service_info_t::update_connections(halthandle_t h)
 
 				// convoy count
 				gui_label_buf_t *lb_convoy_count = new_component<gui_label_buf_t>();
-				lb_convoy_count->buf().printf(translator::translate("%d convois"), line->get_convoys().get_count());
+				if (line->get_convoys().get_count() == 1) {
+					lb_convoy_count->buf().append(translator::translate("1 convoi"));
+				}
+				else if(line->get_convoys().get_count()) {
+					lb_convoy_count->buf().printf(translator::translate("%d convois"), line->get_convoys().get_count());
+				}
+				else {
+					lb_convoy_count->buf().append(translator::translate("no convois")); // error
+				}
 				lb_convoy_count->set_color(line->has_overcrowded() ? color_idx_to_rgb(COL_DARK_PURPLE) : SYSCOL_TEXT);
 				lb_convoy_count->update();
 
@@ -1679,7 +1687,6 @@ void gui_halt_route_info_t::draw(scr_coord offset)
 void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 {
 	static cbuffer_t buf;
-	//offset += pos;
 	int xoff = 0;
 	int yoff = 0;
 	int max_x = D_DEFAULT_WIDTH;
