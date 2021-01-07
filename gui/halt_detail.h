@@ -213,7 +213,8 @@ private:
 	gui_halt_waiting_indicator_t *waiting_bar;
 	halt_detail_pas_t pas;
 	halt_detail_goods_t goods;
-	gui_container_t cont_goods, cont_route;
+	gui_container_t cont_goods, cont_desinations;
+	gui_aligned_container_t cont_route;
 	gui_halt_service_info_t cont_service;
 	gui_scrollpane_t scrolly_pas, scrolly_goods, scrolly_service, scrolly_route;
 	gui_label_t lb_selected_route_catg;
@@ -223,7 +224,7 @@ private:
 	gui_tab_panel_t tabs;
 
 	// route tab stuffs
-	gui_halt_route_info_t route;
+	gui_halt_route_info_t destinations;
 	bool list_by_station = false;
 	button_t bt_by_category, bt_by_station;
 	slist_tpl<button_t *>catg_buttons, pas_class_buttons, mail_class_buttons;
