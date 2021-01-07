@@ -5555,7 +5555,7 @@ uint32 haltestelle_t::get_around_population(uint8 g_class) const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += (g_class == 255) ? gb->get_adjusted_population() : gb->get_adjusted_population_by_class(g_class);
 			}
 		}
@@ -5582,7 +5582,7 @@ uint32 haltestelle_t::get_around_visitor_demand(uint8 g_class) const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += (g_class == 255) ? gb->get_adjusted_visitor_demand() : gb->get_adjusted_visitor_demand_by_class(g_class);
 			}
 		}
@@ -5609,7 +5609,7 @@ uint32 haltestelle_t::get_around_job_demand(uint8 g_class) const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += (g_class == 255) ? gb->get_adjusted_jobs() : gb->get_adjusted_jobs_by_class(g_class);
 			}
 		}
@@ -5636,7 +5636,7 @@ uint32 haltestelle_t::get_around_visitor_generated() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += gb->get_passengers_generated_visiting();
 			}
 		}
@@ -5663,7 +5663,7 @@ uint32 haltestelle_t::get_around_succeeded_visiting() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
 				sum += min(gb->get_passengers_succeeded_visiting(), gb->get_passengers_generated_visiting());
 			}
@@ -5691,7 +5691,7 @@ uint32 haltestelle_t::get_around_commuter_generated() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += gb->get_passengers_generated_commuting();
 			}
 		}
@@ -5718,7 +5718,7 @@ uint32 haltestelle_t::get_around_succeeded_commuting() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
 				sum += min(gb->get_passengers_succeeded_commuting(), gb->get_passengers_generated_commuting());
 			}
@@ -5746,7 +5746,7 @@ uint32 haltestelle_t::get_around_employee_factor() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += gb->get_adjusted_jobs() - max(gb->check_remaining_available_jobs(),0);
 			}
 		}
@@ -5773,7 +5773,7 @@ uint32 haltestelle_t::get_around_mail_demand() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += gb->get_adjusted_mail_demand();
 			}
 		}
@@ -5800,7 +5800,7 @@ uint32 haltestelle_t::get_around_mail_generated() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				sum += gb->get_mail_generated();
 			}
 		}
@@ -5827,7 +5827,7 @@ uint32 haltestelle_t::get_around_mail_delivery_succeeded() const
 	for (int y = ul.y; y < lr.y; y++) {
 		for (int x = ul.x; x < lr.x; x++) {
 			gebaeude_t* const gb = welt->access_nocheck(x, y)->get_kartenboden()->find<gebaeude_t>();
-			if (gb) {
+			if (gb && gb == gb->get_first_tile()) {
 				// Must not exceed 100%! That is, the number of successes <= the number of generations must be, in any buildings
 				sum += min(gb->get_mail_delivery_succeeded(), gb->get_mail_generated());
 			}
