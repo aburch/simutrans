@@ -270,7 +270,7 @@ void gui_factory_connection_stat_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
 	if (fab) {
-		uint lines = is_input_display ? fab->get_suppliers().get_count() : fab->get_lieferziele().get_count();
+		uint lines = is_input_display ? fab->get_suppliers().get_count() : fab->get_consumers().get_count();
 		set_size(scr_size(400, lines * (LINESPACE + 1)));
 	}
 	else {
@@ -291,7 +291,7 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 	double distance;
 	char distance_display[10];
 
-	fab_list = is_input_display ? fab->get_suppliers() : fab->get_lieferziele();
+	fab_list = is_input_display ? fab->get_suppliers() : fab->get_consumers();
 
 
 	uint32 sel = line_selected;
@@ -300,8 +300,8 @@ void gui_factory_connection_stat_t::draw(scr_coord offset)
 
 		if (target_fab) {
 			const bool is_active = is_input_display ?
-				target_fab->is_active_lieferziel(fab->get_pos().get_2d()) :
-				fab->is_active_lieferziel(k);
+								   target_fab->is_consumer_active_at(fab->get_pos().get_2d()) :
+								   fab->is_consumer_active_at(k);
 			const bool is_connected_to_own_network = fab->is_connected_to_network(welt->get_active_player()) && target_fab->is_connected_to_network(welt->get_active_player());
 			const bool is_within_own_network = target_fab->is_connected_to_network(welt->get_active_player());
 			xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;

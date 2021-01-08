@@ -263,5 +263,5 @@ void gui_heading_t::set_text(const char *text)
 
 scr_size gui_heading_t::get_min_size() const
 {
-	return scr_size(min(D_DEFAULT_WIDTH, get_size().w), D_EDIT_HEIGHT);
+	return scr_size(min(D_DEFAULT_WIDTH, get_size().w), D_HEADING_HEIGHT);
 }

@@ -4794,7 +4794,7 @@ void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text
 void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL text_color, PIXVAL frame_color, const char *text, int dirty, uint8 style)
 {
 	if (h < LINESPACE) { h = LINESPACE; }
-	if (style > 2/* max styles */) { style = 0; }
+	if (style > 3/* max styles */) { style = 0; }
 	uint8 border_left_width=0;
 	uint8 padding_left=h;
 	switch (style)
@@ -4812,6 +4812,11 @@ void display_heading_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, P
 		case 2:
 			border_left_width = h / 3;
 			padding_left = border_left_width*2;
+			break;
+		case 3:
+			display_right_triangle_rgb(xp+1, yp + (h-LINEASCENT*2/3)/2+1, (uint8)(LINEASCENT*2/3), SYSCOL_TEXT_SHADOW, dirty);
+			display_right_triangle_rgb(xp,   yp + (h-LINEASCENT*2/3)/2,   (uint8)(LINEASCENT*2/3), frame_color, dirty);
+			padding_left = (uint8)(h-LINEASCENT*2/3) + D_V_SPACE;
 			break;
 		default:
 			break;
