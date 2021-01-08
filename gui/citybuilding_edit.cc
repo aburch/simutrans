@@ -191,7 +191,8 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			buf.append("\n\n");
 			buf.append( translator::translate( desc->get_name() ) );
 
-			buf.printf("\n%s: %d\n", translator::translate("Population"), desc->get_type() == building_desc_t::city_res ? desc->get_population_and_visitor_demand_capacity() : 0);
+			buf.printf("\n%s: %d\n", translator::translate("Level"), desc->get_level());
+			buf.printf("%s: %d\n", translator::translate("Population"), desc->get_type() == building_desc_t::city_res ? desc->get_population_and_visitor_demand_capacity() : 0);
 			buf.printf("%s: %d\n", translator::translate("Visitor demand"), desc->get_type() == building_desc_t::city_res ? 0 : desc->get_population_and_visitor_demand_capacity());
 			buf.printf("%s: %d\n", translator::translate("Jobs"), desc->get_employment_capacity());
 			buf.printf("%s: %d\n", translator::translate("Mail demand/output"), desc->get_mail_demand_and_production_capacity());
