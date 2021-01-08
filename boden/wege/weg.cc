@@ -555,11 +555,11 @@ void weg_t::rdwr(loadsave_t *file)
 							koord3d next_tile;
 							next_tile.rdwr(file);
 							uint8 int_rep = get_pos().int_from_neighbour(next_tile);
-							if(int_rep <= 126) {
+							if(int_rep <= 125) {
 								put_succeeded = private_car_routes[i].put(destination, int_rep);
 							}
 							else {
-								fprintf(stderr,"discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i), int rep %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, int_rep);
+								fprintf(stderr,"discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i) as %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, int_rep);
 								put_succeeded = true;
 							}
 						} else {

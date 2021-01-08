@@ -9260,7 +9260,6 @@ void karte_t::load(loadsave_t *file)
 	if(  env_t::networkmode  ) {
 		clear_all_checklists();
 	}
-
 	char buf[80];
 
 	intr_disable();
