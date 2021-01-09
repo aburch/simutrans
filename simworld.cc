@@ -3051,10 +3051,6 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 			if(  player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)  ) {
 				return false;
 			}
-			// only server can start scripted AI
-			if(  param == player_t::AI_SCRIPTED  &&  env_t::networkmode  &&  env_t::server == 0) {
-				return false;
-			}
 			if(exec) {
 				init_new_player( player_nr, (uint8) param );
 				// activate/deactivate AI immediately

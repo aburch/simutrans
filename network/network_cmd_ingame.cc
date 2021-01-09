@@ -877,6 +877,10 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
 		// not sent by server, clear flag
 		scripted_call = false;
+		// only server can start scripted AI for now
+		if (cmd == karte_t::new_player  &&  param == player_t::AI_SCRIPTED) {
+			return NULL;
+		}
 	}
 
 	if (!welt->change_player_tool(cmd, player_nr, param, info.is_player_unlocked(1)  ||  scripted_call, false)) {
