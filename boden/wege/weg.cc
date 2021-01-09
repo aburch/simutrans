@@ -1946,7 +1946,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
-				next_tile = get_pos().neighbour_from_int(w->private_car_routes[routes_index].get(destination));
+				next_tile = w->get_pos().neighbour_from_int(w->private_car_routes[routes_index].get(destination));
 				w->remove_private_car_route(destination, reading_set);
 			}
 		}
