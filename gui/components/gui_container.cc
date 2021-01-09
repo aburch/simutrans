@@ -69,10 +69,15 @@ bool gui_container_t::infowin_event(const event_t *ev)
 	bool swallowed = false;
 	gui_component_t *new_focus = comp_focus;
 
+	// unfocus invisible focused component
+	if (comp_focus  &&  !comp_focus->is_visible()) {
+		new_focus = NULL;
+	}
+
 	// need to change focus?
 	if(  ev->ev_class==EVENT_KEYBOARD  ) {
 
-		if(  comp_focus  ) {
+		if(  comp_focus  &&  comp_focus->is_visible()  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -comp_focus->get_pos().x, -comp_focus->get_pos().y);
 			swallowed = comp_focus->infowin_event(&ev2);
@@ -132,7 +137,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 		const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
 		// Handle the focus!
-		if(  comp_focus  ) {
+		if(  comp_focus  &&  comp_focus->is_visible()  ) {
 			gui_component_t *const comp = comp_focus;
 			event_t ev2 = *ev;
 			translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
