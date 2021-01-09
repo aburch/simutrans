@@ -1052,7 +1052,7 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					// Check whether the private car is allowed on the subsequent way's direction
-					const koord3d pos_next_next_next = weg->get_next_on_private_car_route_to(check_target);
+					const koord3d pos_next_next_next = next_way->get_next_on_private_car_route_to(check_target);
 					if (pos_next_next_next != koord3d::invalid)
 					{
 						const ribi_t::ribi dir_next_next = ribi_type(pos_next_next, pos_next_next_next);
