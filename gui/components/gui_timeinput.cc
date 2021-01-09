@@ -20,7 +20,7 @@ scr_coord_val gui_timeinput_t::text_width;
 gui_timeinput_t::gui_timeinput_t(const char *null_text_) :
 	null_text(null_text_)
 {
-	text_width = proportional_string_width("+30 23:55h");
+	text_width = proportional_string_width("+30 23:55am ");
 
 	set_ticks( 0 );
 	repeat_steps = 0;

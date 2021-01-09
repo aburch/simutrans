@@ -46,8 +46,6 @@ static karte_ptr_t welt;
 /* obsolete tooltips and texts
 const char *gui_schedule_t::bt_mode_text[MAX_MODE] =
 {
-	"Add Stop",
-	"Ins Stop",
 	"Del Stop"
 };
 
@@ -407,6 +405,12 @@ gui_schedule_t::gui_schedule_t() :
 	// action button row
 	add_table( 3, 1 )->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
+		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Ins Stop"), SYSCOL_TEXT);
+		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Add Stop"), SYSCOL_TEXT);
+		insert_mode.set_selection( 0 );
+		insert_mode.add_listener(this);
+		add_component(&insert_mode);
+
 		bt_revert.init(button_t::roundbox | button_t::flexible, "Revert schedule");
 		bt_revert.set_tooltip("Revert to original schedule");
 		bt_revert.add_listener(this);
@@ -417,8 +421,6 @@ gui_schedule_t::gui_schedule_t() :
 		bt_return.init(button_t::roundbox | button_t::flexible, "Revert schedule");
 		bt_return.add_listener(this);
 		add_component(&bt_return);
-
-		new_component<gui_fill_t>();
 	}
 	end_table();
 
@@ -493,8 +495,9 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 void gui_schedule_t::update_tool(bool set)
 {
 	if (set) {
-		tool_t::general_tool[TOOL_SCHEDULE_ADD]->set_default_param((const char *)schedule);
-		welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_ADD], player );
+		uint16 toolnr = insert_mode.get_selection() == 0 ? TOOL_SCHEDULE_INS : TOOL_SCHEDULE_ADD;
+		tool_t::general_tool[toolnr]->set_default_param((const char *)schedule);
+		welt->set_tool(tool_t::general_tool[toolnr], player );
 	}
 	else {
 		// we have to reset the tool (in particular, when window closes)
@@ -586,6 +589,9 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			schedule->set_current_stop( line );
 			update_selection();
 		}
+	}
+	else if( comp == &insert_mode ) {
+		update_tool( true );
 	}
 	return true;
 }

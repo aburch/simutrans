@@ -44,7 +44,7 @@ private:
 
 	gui_label_t lb_wait;
 	gui_numberinput_t numimp_load;
-	gui_combobox_t departure_or_load;
+	gui_combobox_t departure_or_load, insert_mode;
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
