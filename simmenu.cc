@@ -951,10 +951,10 @@ void toolbar_t::update(player_t *player)
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				}
 				else if (char const* const c = strstart(param, "scripts(")) {
-					const char* end = strchr(c, ')');
+					const char* end = strchr(c, '\0');
 					char buf[1000];
 					size_t len = end ? min(lengthof(buf)-1, end-c) : lengthof(buf)-1;
-					tstrncpy(buf, c, len+1);
+					tstrncpy(buf, c, len);
 					script_tool_manager_t::fill_menu(tool_selector, buf, get_sound(c));
 				}
 				else if (param[0] == '-') {
