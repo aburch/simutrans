@@ -22,6 +22,7 @@
 #include "display/viewport.h"
 
 #include "obj/baum.h"
+#include "obj/groundobj.h"
 
 #include "player/simplay.h"
 
@@ -239,6 +240,18 @@ public:
 	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
 	bool init(player_t*) OVERRIDE { return baum_t::get_count() > 0; }
+	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+};
+
+class tool_plant_groundobj_t : public kartenboden_tool_t {
+public:
+	tool_plant_groundobj_t() : kartenboden_tool_t(TOOL_PLANT_GROUNDOBJ | GENERAL_TOOL) {}
+	image_id get_icon(player_t *) const OVERRIDE { return groundobj_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant groundobj" ); }
+	bool init(player_t*) OVERRIDE { return groundobj_t::get_count() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;

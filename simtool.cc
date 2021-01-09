@@ -2158,6 +2158,62 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 	return NULL;
 }
 
+char const* tool_plant_groundobj_t::move(player_t* const player, uint16 const b, koord3d const pos)
+{
+	if (b==0) {
+		return NULL;
+	}
+	if (env_t::networkmode) {
+		// queue tool for network
+		nwc_tool_t *nwc = new nwc_tool_t(player, this, pos, welt->get_steps(), welt->get_map_counter(), false);
+		network_send_server(nwc);
+		return NULL;
+	}
+	else {
+		return work( player, pos );
+	}
+}
+
+
+const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
+{
+	koord k(pos.get_2d());
+
+	grund_t *gr = welt->lookup_kartenboden(k);
+	if(gr) {
+
+		const groundobj_desc_t *desc = NULL;
+		bool check_climates = true;
+		if(default_param==NULL  ||  strlen(default_param)==0) {
+			desc = groundobj_t::random_groundobj_for_climate( welt->get_climate( k ) );
+			if (desc == NULL) {
+				return NULL;
+			}
+		}
+		else {
+			check_climates = default_param[0]=='0';
+			desc = groundobj_t::find_groundobj(default_param+3);
+		}
+
+		// disable placing groundobj on slopes unless they have extra phases (=moving or for slopes)
+		if( !(gr->get_grund_hang() == sint8(0))  &&  desc->get_phases() == 2 ) {
+			return NULL;
+		}
+
+		// check funds
+		sint64 const cost = -desc->get_price();
+		if(  !player->can_afford(cost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
+		if(desc  &&  groundobj_t::plant_groundobj_on_coordinate( k, desc, check_climates ) ) {
+			player_t::book_construction_costs(player, cost, k, ignore_wt);
+			return NULL;
+		}
+		return "";
+	}
+	return NULL;
+}
+
 
 
 /**

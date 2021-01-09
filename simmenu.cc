@@ -122,6 +122,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_MERGE_STOP:                  tool = new tool_merge_stop_t();          break;
 		case TOOL_EXEC_SCRIPT:                 tool = new tool_exec_script_t();         break;
 		case TOOL_EXEC_TWO_CLICK_SCRIPT:       tool = new tool_exec_two_click_script_t(); break;
+		case TOOL_PLANT_GROUNDOBJ:             tool = new tool_plant_groundobj_t();     break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
@@ -226,6 +227,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_LIST_DEPOT:      tool = new dialog_list_depot_t();      break;
 		case DIALOG_LIST_VEHICLE:    tool = new dialog_list_vehicle_t();    break;
 		case DIALOG_SCRIPT_TOOL:     tool = new dialog_script_tool_t();     break;
+		case DIALOG_EDIT_GROUNDOBJ:  tool = new dialog_edit_groundobj_t();  break;
 		default:
 			dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 			return NULL;

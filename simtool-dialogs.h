@@ -17,6 +17,7 @@
 #include "gui/curiosity_edit.h"
 #include "gui/citybuilding_edit.h"
 #include "gui/baum_edit.h"
+#include "gui/groundobj_edit.h"
 #include "gui/jump_frame.h"
 #include "gui/optionen.h"
 #include "gui/map_frame.h"
@@ -517,6 +518,24 @@ public:
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_edit_tree); return false; }
+	bool is_init_network_safe() const OVERRIDE{ return true; }
+	bool is_work_network_safe() const OVERRIDE{ return true; }
+};
+
+/* groundobj placing dialog */
+class dialog_edit_groundobj_t : public tool_t {
+public:
+	dialog_edit_groundobj_t() : tool_t(DIALOG_EDIT_GROUNDOBJ | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("groundobj builder"); }
+	image_id get_icon(player_t *) const OVERRIDE { return groundobj_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_groundobj); }
+	bool init(player_t* player) OVERRIDE{
+		if (!is_selected()) {
+			create_win(new groundobj_edit_frame_t(player), w_info, magic_edit_groundobj);
+		}
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_edit_groundobj); return false; }
 	bool is_init_network_safe() const OVERRIDE{ return true; }
 	bool is_work_network_safe() const OVERRIDE{ return true; }
 };

@@ -155,6 +155,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\factorylist_stats_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\goods_frame_t.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\goods_stats_t.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)gui\groundobj_edit.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\ground_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\gui_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)gui\gui_theme.cc" />
@@ -517,6 +518,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\factorylist_stats_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\goods_frame_t.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\goods_stats_t.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)gui\groundobj_edit.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\ground_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\gui_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)gui\gui_theme.h" />
