@@ -136,7 +136,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 				// if scripted ai without script -> open script selector window
 				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
-				if (ai  &&  !ai->has_script()) {
+				if (ai  &&  !ai->has_script()  &&  (!env_t::networkmode  ||  env_t::server)) {
 					create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
 				}
 			}
@@ -159,7 +159,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			player_get_finances[i].pressed = false;
 			// if scripted ai without script -> open script selector window
 			ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
-			if (ai  &&  !ai->has_script()) {
+			if (ai  &&  !ai->has_script()  &&  (!env_t::networkmode  ||  env_t::server)) {
 				create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
 			}
 			else {
