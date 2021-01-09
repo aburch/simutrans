@@ -112,6 +112,8 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
+
+	static const stringhashtable_tpl<const way_obj_desc_t *>& get_list() { return table; }
 };
 
 #endif

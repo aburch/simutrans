@@ -167,6 +167,7 @@ BEGIN {
 	export_types["sign_desc_x::is_longblock_signal"] = "bool()"
 	export_types["sign_desc_x::is_end_choose_signal"] = "bool()"
 	export_types["sign_desc_x::get_available_signs"] = "array<sign_desc_x>(way_types)"
+	export_types["wayobj_desc_x::is_overhead_line"] = "bool()"
 	export_types["gui::add_message_at"] = "void(player_x, string, coord)"
 	export_types["halt_x::is_valid"] = "bool()"
 	export_types["halt_x::get_name"] = "string()"
@@ -249,6 +250,7 @@ BEGIN {
 	export_types["powerline_x::get_factory"] = "factory_x()"
 	export_types["field_x::is_deletable"] = "bool()"
 	export_types["field_x::get_factory"] = "factory_x()"
+	export_types["wayobj_x::get_desc"] = "wayobj_desc_x()"
 	export_types["player_x::is_valid"] = "bool()"
 	export_types["player_x::get_headquarter_level"] = "integer()"
 	export_types["player_x::get_headquarter_pos"] = "coord()"
@@ -390,4 +392,5 @@ BEGIN {
 	export_types["command_x::can_set_slope"] = "string(player_x, coord3d, slope)"
 	export_types["command_x::slope_get_price"] = "integer(slope)"
 	export_types["command_x::build_sign_at"] = "string(player_x, coord3d, sign_desc_x)"
+	export_types["command_x::build_wayobj"] = "string(player_x, coord3d, coord3d, wayobj_desc_x)"
 }

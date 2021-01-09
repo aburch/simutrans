@@ -16,8 +16,10 @@
 #include "../../descriptor/vehicle_desc.h"
 #include "../../descriptor/goods_desc.h"
 #include "../../descriptor/way_desc.h"
+#include "../../descriptor/way_obj_desc.h"
 #include "../../obj/baum.h"
 #include "../../obj/roadsign.h"
+#include "../../obj/wayobj.h"
 #include "../../squirrel/sq_extensions.h"
 
 using namespace script_api;
@@ -35,6 +37,7 @@ implement_desc_param(vehicle_desc_t, "vehicle_desc_x", &vehicle_builder_t::get_i
 implement_desc_param(tunnel_desc_t, "tunnel_desc_x", &tunnel_builder_t::get_desc);
 implement_desc_param(bridge_desc_t, "bridge_desc_x", &bridge_builder_t::get_desc);
 implement_desc_param(roadsign_desc_t, "sign_desc_x", &roadsign_t::find_desc);
+implement_desc_param(way_obj_desc_t, "wayobj_desc_x", &wayobj_t::find_desc);
 
 /**
  * Macro to get the implementation of get method based on unique tag.

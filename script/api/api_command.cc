@@ -21,6 +21,7 @@
 #include "../../descriptor/bridge_desc.h"
 #include "../../descriptor/building_desc.h"
 #include "../../descriptor/roadsign_desc.h"
+#include "../../descriptor/way_obj_desc.h"
 
 #include <memory> // auto_ptr
 
@@ -290,6 +291,16 @@ call_tool_work build_way(player_t* pl, koord3d start, koord3d end, const way_des
 	return call_tool_work(TOOL_BUILD_WAY | GENERAL_TOOL, way->get_name(), (straight ? 2 : 0) + (keep_city_roads ? 1 : 0), pl, start, end);
 }
 
+
+call_tool_work build_wayobj(player_t* pl, koord3d start, koord3d end, const way_obj_desc_t* wayobj)
+{
+	if (wayobj == NULL) {
+		return call_tool_work("No wayobj provided");
+	}
+	return call_tool_work(TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wayobj->get_name(), 0, pl, start, end);
+}
+
+
 typedef call_tool_work(*bsr_type)(player_t*, koord3d, const building_desc_t*, my_ribi_t);
 
 call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, my_ribi_t rotation)
@@ -542,6 +553,14 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param sign type of road-sign or signal to be built
 	 */
 	STATIC register_method(vm, build_sign_at, "build_sign_at", false, true);
+	/**
+	 * Build way-object.
+	 * @param pl player to pay for the work
+	 * @param start coordinate, where work begins
+	 * @param end   coordinate, where work ends
+	 * @param wayobj type of wayobj to be built
+	 */
+	STATIC register_method(vm, build_wayobj, "build_wayobj", false, true);
 
 	end_class(vm);
 }
