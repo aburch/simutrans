@@ -187,6 +187,16 @@ public:
 
 	void * operator new(size_t s);
 	void operator delete(void *p);
+
+	typedef enum : uint8 {
+		end_of_route = 125,
+		no_route = 126,
+		invalid_route = 255,
+	} private_car_route_neighbour_t;
+
+	static koord3d neighbour_from_int(koord3d from, uint8 i);
+
+	static uint8 int_from_neighbour(koord3d from, koord3d to);
 };
 
 #endif
