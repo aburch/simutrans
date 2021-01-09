@@ -533,10 +533,10 @@ void weg_t::rdwr(loadsave_t *file)
 					FOR(private_car_route_map, element, private_car_routes[i])
 					{
 						koord destination = element.key;
-						uint8 next_tile = element.value;
+						uint8 next_tile_neighbour = element.value;
 
 						destination.rdwr(file);
-						file->rdwr_byte(next_tile);
+						file->rdwr_byte(next_tile_neighbour);
 					}
 				}
 			}
@@ -550,22 +550,21 @@ void weg_t::rdwr(loadsave_t *file)
 					{
 						koord destination;
 						destination.rdwr(file);
-						bool put_succeeded = false;
+						bool put_succeeded = true;
 						if(file->get_extended_version()==14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 33) {
 							koord3d next_tile;
 							next_tile.rdwr(file);
-							uint8 int_rep = private_car_t::int_from_neighbour(get_pos(), next_tile);
-							if(int_rep <= 125) {
-								put_succeeded = private_car_routes[i].put(destination, int_rep);
+							uint8 next_tile_neighbour = private_car_t::int_from_neighbour(get_pos(), next_tile);
+							if(next_tile_neighbour <= private_car_t::end_of_route) {
+								put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
 							}
 							else {
-								fprintf(stderr,"discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i) as %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, int_rep);
-								put_succeeded = true;
+								dbg->warning("weg_t::rdwr","discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i) as %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, next_tile_neighbour);
 							}
 						} else {
-							uint8 next_tile;
-							file->rdwr_byte(next_tile);
-							put_succeeded = private_car_routes[i].put(destination, next_tile);
+							uint8 next_tile_neighbour;
+							file->rdwr_byte(next_tile_neighbour);
+							put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
 						}
 						assert(put_succeeded);
 						(void)put_succeeded;
