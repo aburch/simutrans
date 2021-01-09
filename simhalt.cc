@@ -5022,7 +5022,6 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			else {
 				continue; // ignore freight none
 			}
-			;
 		}
 		if (i==goods_manager_t::INDEX_PAS && !get_pax_enabled() || i==goods_manager_t::INDEX_MAIL && !get_mail_enabled() || i>goods_manager_t::INDEX_NONE && !get_ware_enabled()) {
 			continue;
@@ -5124,8 +5123,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 			total_ware = 0; // category total
 			// first, count category waiting total
 			if (gibt_ab(goods_manager_t::get_info_catg_index(i))) {
-				const uint8  cnt = goods_manager_t::get_count();
-				for (uint8 j = 3; j < cnt; j++) {
+				for (uint8 j = 3; j < goods_manager_t::get_count(); j++) {
 					goods_desc_t const* const wtyp2 = goods_manager_t::get_info(j);
 					if (wtyp2->get_catg_index() != i) {
 						continue;
@@ -5145,8 +5143,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 				else {
 					v = (v / 4) + 2;
 				}
-				const uint8  cnt = goods_manager_t::get_count();
-				for (uint8 j = 3; j < cnt; j++) {
+				for (uint8 j = 3; j < goods_manager_t::get_count(); j++) {
 					goods_desc_t const* const wtyp2 = goods_manager_t::get_info(j);
 					if (wtyp2->get_catg_index() != i) {
 						continue;
