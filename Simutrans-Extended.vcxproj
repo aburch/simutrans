@@ -2275,6 +2275,7 @@
     <ClCompile Include="descriptor\reader\good_reader.cc" />
     <ClCompile Include="gui\goods_frame_t.cc" />
     <ClCompile Include="gui\goods_stats_t.cc" />
+    <ClCompile Include="gui\groundobj_edit.cc" />
     <ClCompile Include="gui\ground_info.cc" />
     <ClCompile Include="descriptor\reader\ground_reader.cc" />
     <ClCompile Include="descriptor\reader\groundobj_reader.cc" />
@@ -2736,6 +2737,7 @@
     <ClInclude Include="descriptor\writer\good_writer.h" />
     <ClInclude Include="gui\goods_frame_t.h" />
     <ClInclude Include="gui\goods_stats_t.h" />
+    <ClInclude Include="gui\groundobj_edit.h" />
     <ClInclude Include="gui\ground_info.h" />
     <ClInclude Include="descriptor\reader\ground_reader.h" />
     <ClInclude Include="descriptor\writer\ground_writer.h" />

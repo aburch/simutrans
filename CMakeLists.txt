@@ -255,6 +255,7 @@ add_executable(simutrans-extended
 	gui/goods_frame_t.cc
 	gui/goods_stats_t.cc
 	gui/ground_info.cc
+	gui/groundobj_edit.cc
 	gui/gui_frame.cc
 	gui/gui_theme.cc
 	gui/halt_detail.cc

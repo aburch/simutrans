@@ -116,6 +116,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
 		case TOOL_ROTATE_BUILDING:		tool = new tool_rotate_building_t(); break;
+		case TOOL_PLANT_GROUNDOBJ:             tool = new tool_plant_groundobj_t();     break;
 		case TOOL_REASSIGN_SIGNAL_DEPRECATED:
 		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
@@ -225,6 +226,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_LIST_DEPOT:     tool = new dialog_list_depot_t(); break;
 		case DIALOG_LIST_VEHICLE:   tool = new dialog_list_vehicle_t(); break;
 		case DIALOG_LIST_SIGNALBOX: tool = new dialog_list_signalbox_t(); break;
+		case DIALOG_EDIT_GROUNDOBJ: tool = new dialog_edit_groundobj_t();  break;
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}
