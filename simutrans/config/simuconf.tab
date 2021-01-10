@@ -786,7 +786,7 @@ citycar_way_wear_factor = 2
 # Default: 1024
 # Setting to 0 means that all routes will be processed in
 # a step regardless of number.
-max_route_tiles_to_process_in_a_step = 1024
+max_route_tiles_to_process_in_a_step = 8192
 
 # If the following setting is set to 1, private cars will assume
 # that they can reach anywhere on the map irrespective of the actual
