@@ -628,6 +628,7 @@ public:
 	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
 
 	sint16 get_rotate() const { return rotate; }
+	void set_rotate( uint8 r ) { rotate = r; }
 
 	/* field generation code
 	 * spawns a field for sure if probability>=1000

@@ -4817,7 +4817,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
 				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
 					grund_t *gr = welt->lookup( gb->get_pos()+k );
-					if(  !gr  ) {
+					if(  !gr  ||  gr->hat_wege()  ) {
 						return "Cannot rotate this building!";
 					}
 					const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
@@ -4829,6 +4829,9 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 						return "Cannot rotate this building!";
 					}
 				}
+			}
+			if( fabrik_t *fab=gb->get_fabrik() ) {
+				fab->set_rotate( (fab->get_rotate() + 3) % fab->get_desc()->get_building()->get_all_layouts() );
 			}
 			// ok, we can rotate it
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
