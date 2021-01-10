@@ -2781,6 +2781,13 @@ void fabrik_t::new_month()
 
 	calc_max_intransit_percentages();
 
+	// Check whether we have any missing links
+	if (status == missing_connection)
+	{
+		remove_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+		remove_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
+	}
+
 	// Check to see whether factory is obsolete.
 	// If it is, give it a distribution_weight of being closed down.
 	// @author: jamespetts
