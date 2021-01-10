@@ -135,6 +135,9 @@ public:
 	/// pause server if no client connected
 	static bool pause_server_no_clients;
 
+	/// The server will run the path explorer and private car route finder when paused if this is set.
+	static bool server_runs_background_tasks_when_paused;
+
 	/// nickname of player
 	static std::string nickname;
 

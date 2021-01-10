@@ -5562,6 +5562,58 @@ void karte_t::set_schedule_counter()
 	schedule_counter++;
 }
 
+void karte_t::pause_step()
+{
+	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
+	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
+	const sint32 parallel_operations = get_parallel_operations();
+
+	if (cities_awaiting_private_car_route_check.empty())
+	{
+		weg_t::swap_private_car_routes_currently_reading_element();
+		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
+		{
+			cities_awaiting_private_car_route_check.append(i);
+		}
+	}
+
+#ifdef MULTI_THREAD
+		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
+		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
+		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		//cities_to_process = 1;
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		start_private_car_threads();
+#else
+		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		for (sint32 j = 0; j < cities_to_process; j++)
+		{
+			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+			city->check_all_private_car_routes();
+		}
+#endif
+
+#ifdef MULTI_THREAD_PATH_EXPLORER
+	// Stop the path explorer before we use its results.
+	await_path_explorer();
+#else
+	// Knightly : calling global path explorer
+	path_explorer_t::step();
+#endif
+
+#ifdef MULTI_THREAD
+	await_private_car_threads();
+#endif
+
+	weg_t::apply_travel_time_updates();
+
+#ifdef MULTI_THREAD_PATH_EXPLORER
+	// Start the path explorer ready for the next step. This can be very
+	// computationally intensive, but intermittently so.
+	start_path_explorer();
+#endif
+}
+
 void karte_t::step()
 {
 	rands[8] = get_random_seed();
@@ -5990,7 +6042,7 @@ void karte_t::step()
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
-	// This is not the computationally intensive bit of the path explorer. // Loss of synchronisation suspected to be in a block of code starting here.
+	// This is not the computationally intensive bit of the path explorer. 
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(false);
@@ -11210,10 +11262,18 @@ bool karte_t::interactive(uint32 quit_month)
 		// time for the next step?
 		uint32 time = dr_time(); // - (env_t::server ? 0 : 5000);
 		if ((sint32)next_step_time - (sint32)time <= 0) {
-			if (step_mode&PAUSE_FLAG) {
-				// only update display
-				sync_step( 0, false, true );
-				idle_time = 100;
+			if (step_mode&PAUSE_FLAG)
+			{
+					sync_step(0, false, true);
+					if (env_t::server && env_t::server_runs_background_tasks_when_paused && socket_list_t::get_playing_clients() == 0)
+					{
+						pause_step();
+					}
+					else
+					{
+						// only update display
+						idle_time = 100;
+					}
 			}
 			else if (env_t::networkmode && !env_t::server && sync_steps >= sync_steps_barrier) {
 				sync_step(0, false, true);
@@ -11241,7 +11301,6 @@ bool karte_t::interactive(uint32 quit_month)
 						next_step_time += fix_ratio_frame_time - nst_diff;
 						ms_difference -= nst_diff;
 					}
-
 					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever Nth frame (default: every 4th - can be set in simuconf.tab)

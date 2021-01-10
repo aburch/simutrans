@@ -114,7 +114,9 @@ static const char *revision_ex[] =
 	"29",
 	"30",
 	"31",
-	"32"
+	"32",
+	"33",
+	"34"
 };
 
 
@@ -224,6 +226,11 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 	SEPERATOR;
 
+	INIT_BOOL("pause_server_no_clients", env_t::pause_server_no_clients); 
+	INIT_BOOL("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused); 
+
+	SEPERATOR;
+
 	INIT_BOOL("show_future_vehicle_information", sets->get_show_future_vehicle_info());
 
 	SEPERATOR;
@@ -328,6 +335,9 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 
 	READ_NUM_VALUE(sets->path_explorer_time_midpoint);
 	READ_BOOL_VALUE(sets->save_path_explorer_data);
+
+	READ_BOOL_VALUE(env_t::pause_server_no_clients);
+	READ_BOOL_VALUE(env_t::server_runs_background_tasks_when_paused); 
 
 	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 

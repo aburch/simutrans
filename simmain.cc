@@ -1219,6 +1219,11 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
+	if (gimme_arg(argc, argv, "-run-background-tasks", 0))
+	{
+		env_t::server_runs_background_tasks_when_paused = true;
+	}
+
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
 		cbuffer_t buf;
 		dr_chdir( env_t::user_dir );

@@ -1100,6 +1100,10 @@ server_frames_between_checks = 32
 # Pause server when no clients are connected
 pause_server_no_clients = 0
 
+# Run background tasks (the path explorer and private car
+# route finder) when the server is paused.
+server_runs_background_tasks_when_paused = 0
+
 # Nickname when joining network games
 #nickname = John Doe
 

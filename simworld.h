@@ -2365,6 +2365,9 @@ public:
 	 */
 	void step();
 
+	/// Tasks undertaken by a server when paused
+	void pause_step();
+
 //private:
 	inline planquadrat_t *access_nocheck(int i, int j) const {
 		return &plan[i + j*cached_grid_size.x];
