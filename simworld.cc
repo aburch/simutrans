@@ -7426,7 +7426,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		case too_slow:
 			if(city && wtyp == goods_manager_t::passengers)
 			{
-				if(car_minutes >= best_journey_time)
+				if(car_minutes >= best_journey_time && best_journey_time < UINT32_MAX_VALUE)
 				{
 					city->merke_passagier_ziel(best_bad_destination, color_idx_to_rgb(COL_PURPLE));
 				}
