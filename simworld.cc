@@ -7030,7 +7030,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(has_private_car)
 			{
 				// time_per_tile here is in 100ths of minutes per tile.
-				// 1/100th of a minute per tile = km/h * 6.
 				time_per_tile = UINT32_MAX_VALUE;
 				switch(current_destination.type)
 				{
