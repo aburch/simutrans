@@ -668,20 +668,59 @@ bool
 fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 {
 	remove_consumer(pos);
-	if(consumers.get_count() < 1)
+	vector_tpl<const goods_desc_t*> available_consumers(desc->get_product_count());
+	for (const auto consumer : consumers)
+	{
+		const fabrik_t* consumer_factory = fabrik_t::get_fab(consumer);
+		for (uint32 i = 0; i < consumer_factory->get_desc()->get_supplier_count(); i++)
+		{
+			const goods_desc_t* product = consumer_factory->get_desc()->get_supplier(i)->get_input_type();
+			available_consumers.append_unique(product);
+		}
+	}
+
+	vector_tpl<const goods_desc_t*> unfulfilled_requirements;
+	// Check to ensure that all supply types are still connected
+	for (const auto output_type : output)
+	{
+		bool fulfilled = false;
+		for (const auto available_consumer_type : available_consumers)
+		{
+			if (available_consumer_type == output_type.get_typ())
+			{
+				fulfilled = true;
+				break;
+			}
+		}
+		if (!fulfilled)
+		{
+			unfulfilled_requirements.append(output_type.get_typ());
+		}
+	}
+
+	if (!unfulfilled_requirements.empty())
 	{
 		// If there are no consumers left, industry is orphaned.
 		// Reconnect or close.
 
-		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect. 
 
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
 			fabrik_t* fab = welt->get_fab_list()[i];
 			if(add_customer(fab))
 			{
-				//Only reconnect one.
-				return false;
+				// Check which consumer, if any, that we are still short of.
+				for (uint32 i = 0; i < fab->get_desc()->get_supplier_count(); i++)
+				{
+					const goods_desc_t* product = fab->get_desc()->get_supplier(i)->get_input_type();
+					unfulfilled_requirements.remove(product);
+				}
+				if (unfulfilled_requirements.empty())
+				{
+					// Keep connecting until we are not short of anything
+					return false;
+				}
 			}
 		}
 		return true;
@@ -693,20 +732,60 @@ bool
 fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 {
 	remove_supplier(pos);
-	if(suppliers.empty())
+
+	vector_tpl<const goods_desc_t*> available_inputs(desc->get_supplier_count());
+	for (const auto supplier : suppliers)
 	{
-		// If there are no suppliers left, industry is orphaned.
+		const fabrik_t* supplier_factory = fabrik_t::get_fab(supplier);
+		for (uint32 i = 0; i < supplier_factory->get_desc()->get_product_count(); i++)
+		{
+			const factory_product_desc_t* product = supplier_factory->get_desc()->get_product(i);
+			available_inputs.append_unique(product->get_output_type());
+		}
+	}
+
+	vector_tpl<const goods_desc_t*> unfulfilled_requirements; 
+	// Check to ensure that all supply types are still connected
+	for (const auto input_type : input)
+	{
+		bool fulfilled = false;
+		for (const auto available_supply_type : available_inputs)
+		{
+			if (available_supply_type == input_type.get_typ())
+			{
+				fulfilled = true;
+				break;
+			}
+		}
+		if (!fulfilled)
+		{
+			unfulfilled_requirements.append(input_type.get_typ()); 
+		}
+	}
+
+	if(!unfulfilled_requirements.empty())
+	{
+		// If there are any missing supplies, the industry is orphaned.
 		// Reconnect or close.
 
-		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect.
 
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
 			fabrik_t* fab = welt->get_fab_list()[i];
 			if(add_supplier(fab))
 			{
-				//Only reconnect one.
-				return false;
+				// Check which supplies, if any, that we are still short of.
+				for (uint32 i = 0; i < fab->get_desc()->get_product_count(); i++)
+				{
+					const factory_product_desc_t* product = fab->get_desc()->get_product(i);
+					unfulfilled_requirements.remove(product->get_output_type());
+				}
+				if (unfulfilled_requirements.empty())
+				{
+					// Keep connecting until we are not short of anything
+					return false;
+				}
 			}
 		}
 		return true;
