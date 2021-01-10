@@ -113,7 +113,8 @@ static const char *revision_ex[] =
 	"28",
 	"29",
 	"30",
-	"31"
+	"31",
+	"32"
 };
 
 
