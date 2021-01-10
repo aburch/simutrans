@@ -667,7 +667,11 @@ void fabrik_t::remove_consumer(koord pos)
 bool
 fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 {
-	remove_consumer(pos);
+	if (pos != koord::invalid)
+	{
+		remove_consumer(pos);
+	}
+
 	vector_tpl<const goods_desc_t*> available_consumers(desc->get_product_count());
 	for (const auto consumer : consumers)
 	{
@@ -731,7 +735,10 @@ fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 bool
 fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 {
-	remove_supplier(pos);
+	if (pos != koord::invalid)
+	{
+		remove_supplier(pos);
+	}
 
 	vector_tpl<const goods_desc_t*> available_inputs(desc->get_supplier_count());
 	for (const auto supplier : suppliers)
@@ -2940,6 +2947,7 @@ void fabrik_t::new_month()
 
 					// The upgraded factory might not have the same inputs as its predecessor.
 					// Remove redundant inputs
+					bool remove_supplier_checked = false;
 					FOR(vector_tpl<koord>, k, suppliers)
 					{
 						fabrik_t* supplier = fabrik_t::get_fab(k);
@@ -2955,8 +2963,15 @@ void fabrik_t::new_month()
 						if(!match)
 						{
 							remove_supplier(k);
+							remove_supplier_checked = true;
 						}
 					}
+
+					if (!remove_supplier_checked)
+					{
+						remove_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+					}
+					remove_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
 
 					// Missing inputs are checked in increase_industry_density
 
