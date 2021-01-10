@@ -925,6 +925,9 @@ private:
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
+	/// To prevent pause_step constantly re-checking the private car routes when not necessary.
+	bool private_car_route_check_complete = false;
+
 #ifdef MULTI_THREAD
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;

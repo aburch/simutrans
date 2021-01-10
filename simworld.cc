@@ -5568,15 +5568,18 @@ void karte_t::pause_step()
 	// This is computationally intensive, but intermittently. The computational intensity increases exponentially with the size of the map.
 	const sint32 parallel_operations = get_parallel_operations();
 
-	if (cities_awaiting_private_car_route_check.empty())
+	if (!private_car_route_check_complete && cities_awaiting_private_car_route_check.empty())
 	{
 		weg_t::swap_private_car_routes_currently_reading_element();
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 		{
 			cities_awaiting_private_car_route_check.append(i);
 		}
+		private_car_route_check_complete = true;
 	}
 
+	if (!private_car_route_check_complete)
+	{
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
@@ -5592,6 +5595,7 @@ void karte_t::pause_step()
 			city->check_all_private_car_routes();
 		}
 #endif
+	}
 
 #ifdef MULTI_THREAD_PATH_EXPLORER
 	// Stop the path explorer before we use its results.
@@ -10697,6 +10701,10 @@ void karte_t::change_time_multiplier(sint32 delta)
 
 void karte_t::set_pause(bool p)
 {
+	if (p)
+	{
+		private_car_route_check_complete = false;
+	}
 	bool pause = step_mode&PAUSE_FLAG;
 	if(p!=pause) {
 		step_mode ^= PAUSE_FLAG;
