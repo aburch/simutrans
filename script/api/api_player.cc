@@ -77,7 +77,7 @@ namespace script_api {
 
 	transport_type param<transport_type>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		return (transport_type) max(param<uint16>::get(vm, index), TT_MAX-1);
+		return (transport_type) min(param<uint16>::get(vm, index), TT_MAX-1);
 	}
 };
 
