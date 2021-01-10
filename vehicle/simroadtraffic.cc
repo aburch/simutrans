@@ -1016,7 +1016,7 @@ grund_t* private_car_t::hop_check()
 
 		if (found_route)
 		{
-			pos_next_next = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
+			pos_next_next = weg->get_next_on_private_car_route_to(check_target);
 
 			// Check whether we are at the end of the route (i.e. the destination)
 			if ((current_city == destination_city) && pos_next_next == koord3d::invalid)
@@ -1052,7 +1052,7 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					// Check whether the private car is allowed on the subsequent way's direction
-					const koord3d pos_next_next_next = next_way->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
+					const koord3d pos_next_next_next = next_way->get_next_on_private_car_route_to(check_target);
 					if (pos_next_next_next != koord3d::invalid)
 					{
 						const ribi_t::ribi dir_next_next = ribi_type(pos_next_next, pos_next_next_next);
@@ -1789,4 +1789,27 @@ void *private_car_t::operator new(size_t /*s*/)
 void private_car_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(private_car_t),p);
+}
+koord3d private_car_t::neighbour_from_int(koord3d from, uint8 i) {
+	if(i==end_of_route) {
+		return koord3d::invalid;
+	} else if (i==no_route) {
+		return koord3d();
+	} else {
+		return koord3d(from.x+(i%5)-2,from.y+(i%25)/5-2,from.z+(i/25)-2);
+	}
+}
+
+uint8 private_car_t::int_from_neighbour(koord3d from, koord3d to) {
+	if(-2 <= to.x-from.x && to.x-from.x <= 2
+	   && -2 <= to.y-from.y && to.y-from.y <= 2
+	   && -2 <= to.z-from.z && to.z-from.z <= 2) {
+		return (to.x-from.x+2) + 5*(to.y-from.y+2) + 25*(to.z-from.z+2);
+	} else if(to==koord3d::invalid){
+		return end_of_route;
+	} else if (to==koord3d()){
+		return no_route;
+	} else {
+		return invalid_route;
+	}
 }

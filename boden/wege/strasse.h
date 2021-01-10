@@ -40,6 +40,7 @@ public:
 	//minivec_tpl<gebaeude_t*> connected_buildings;
 
 	strasse_t(loadsave_t *file);
+	strasse_t(loadsave_t *file, koord3d __rescue_pos__);
 	strasse_t();
 
 	//inline waytype_t get_waytype() const {return road_wt;}

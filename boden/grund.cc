@@ -331,7 +331,11 @@ void grund_t::rdwr(loadsave_t *file)
 						break;
 
 					case road_wt:
-						weg = new strasse_t(file);
+						if(file->get_extended_version()==14 && file->get_extended_revision()>=19 && file->get_extended_revision()<33) {
+							weg = new strasse_t(file, get_pos());
+						} else {
+							weg = new strasse_t(file);
+						}
 						break;
 
 					case monorail_wt:

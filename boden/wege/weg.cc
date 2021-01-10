@@ -533,10 +533,10 @@ void weg_t::rdwr(loadsave_t *file)
 					FOR(private_car_route_map, element, private_car_routes[i])
 					{
 						koord destination = element.key;
-						koord3d next_tile = element.value;
+						uint8 next_tile_neighbour = element.value;
 
 						destination.rdwr(file);
-						next_tile.rdwr(file);
+						file->rdwr_byte(next_tile_neighbour);
 					}
 				}
 			}
@@ -550,9 +550,22 @@ void weg_t::rdwr(loadsave_t *file)
 					{
 						koord destination;
 						destination.rdwr(file);
-						koord3d next_tile;
-						next_tile.rdwr(file);
-						bool put_succeeded = private_car_routes[i].put(destination, next_tile);
+						bool put_succeeded = true;
+						if(file->get_extended_version()==14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 33) {
+							koord3d next_tile;
+							next_tile.rdwr(file);
+							uint8 next_tile_neighbour = private_car_t::int_from_neighbour(get_pos(), next_tile);
+							if(next_tile_neighbour <= private_car_t::end_of_route) {
+								put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
+							}
+							else {
+								dbg->warning("weg_t::rdwr","discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i) as %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, next_tile_neighbour);
+							}
+						} else {
+							uint8 next_tile_neighbour;
+							file->rdwr_byte(next_tile_neighbour);
+							put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
+						}
 						assert(put_succeeded);
 						(void)put_succeeded;
 					}
@@ -1880,7 +1893,7 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 	assert(error == 0);
 	(void)error;
 #endif
-	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, next_tile);
+	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, private_car_t::int_from_neighbour(get_pos(),next_tile));
 
 	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
@@ -1932,7 +1945,7 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
-				next_tile = w->private_car_routes[routes_index].get(destination);
+				next_tile = private_car_t::neighbour_from_int(w->get_pos(),w->private_car_routes[routes_index].get(destination));
 				w->remove_private_car_route(destination, reading_set);
 			}
 		}
@@ -1979,4 +1992,8 @@ void weg_t::apply_travel_time_updates() {
 
 void weg_t::clear_travel_time_updates() {
 	pending_road_travel_time_updates.clear();
+}
+
+koord3d weg_t::get_next_on_private_car_route_to(koord dest) const {
+	return private_car_routes[private_car_routes_currently_reading_element].is_contained(dest) ? private_car_t::neighbour_from_int(get_pos(),private_car_routes[private_car_routes_currently_reading_element].get(dest)) : koord3d();
 }
