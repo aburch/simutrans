@@ -465,7 +465,41 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 
 sync_result private_car_t::sync_step(uint32 delta_t)
 {
-	time_to_life -= delta_t;
+	bool slow_destruction = false;
+	if (time_to_life > 0 && time_to_life - delta_t < 10000 && target != koord::invalid)
+	{
+		// Postpone time based destruction of a private car if it is not in its destination city yet.
+		planquadrat_t* tile = welt->access(origin);
+		const stadt_t* origin_city = tile ? tile->get_city() : NULL;
+		if (origin_city)
+		{
+			tile = welt->access(target);
+			const stadt_t* destination_city = tile ? tile->get_city() : NULL;
+			if (!destination_city)
+			{
+				// Be slower to remove a vehicle bound for an attraction or industry until it actually reaches there (handled elsewhere)
+				slow_destruction = true;
+			}
+			else if (origin_city != destination_city)
+			{
+				// Be slower to remove a vehicle bound for a city until it is somewhere in the city
+				const planquadrat_t* this_tile = welt->access(get_pos().get_2d());
+				const stadt_t* this_city = this_tile ? this_tile->get_city() : NULL;
+				if (!this_city || this_city != destination_city)
+				{
+					slow_destruction = true;
+				}
+			}
+		}
+	}
+	if (slow_destruction)
+	{
+		time_to_life -= (delta_t / 3);
+	}
+	else
+	{
+		time_to_life -= delta_t;
+	}
 	if(  time_to_life<=0 ) {
 		return SYNC_DELETE;
 	}
@@ -917,7 +951,7 @@ void private_car_t::enter_tile(grund_t* gr)
 {
 	// Destination city car code revived from an older version of Simutrans.
 	// (Thanks to Prissi for finding this older code).
-	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
+	if(target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
 		uint32 number = 2;
@@ -1033,12 +1067,13 @@ grund_t* private_car_t::hop_check()
 				pos_next_next = koord3d::invalid;
 
 				// We also need to invalidate the route.
+				/*
 				const planquadrat_t* tile = welt->access(origin);
 				stadt_t* origin_city = tile ? tile->get_city() : NULL;
 				if (origin_city)
 				{
 					//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
-				}
+				}*/
 			}
 			else
 			{
