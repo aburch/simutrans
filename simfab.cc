@@ -664,8 +664,7 @@ void fabrik_t::remove_consumer(koord pos)
 	consumers.remove(pos);
 }
 
-bool
-fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
+bool fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 {
 	if (pos != koord::invalid)
 	{
@@ -732,8 +731,7 @@ fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 	return false;
 }
 
-bool
-fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
+bool fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 {
 	if (pos != koord::invalid)
 	{
@@ -2782,10 +2780,11 @@ void fabrik_t::new_month()
 	calc_max_intransit_percentages();
 
 	// Check whether we have any missing links
+	bool must_close = false;
 	if (status == missing_connection)
 	{
-		remove_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
-		remove_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
+		must_close = disconnect_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+		must_close |= disconnect_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
 	}
 
 	// Check to see whether factory is obsolete.
@@ -2795,7 +2794,7 @@ void fabrik_t::new_month()
 	const uint16 timeline_month = welt->get_timeline_year_month(); // This will be 0 if timeline is disabled.
 	const uint16 retire_month = desc->get_building()->get_retire_year_month();
 	const uint32 latest_retire_month = retire_month + (12 * welt->get_settings().get_factory_max_years_obsolete());
-	if(timeline_month > retire_month && (latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month, "void fabrik_t::new_month()") == 0))
+	if(must_close || (timeline_month > retire_month && (latest_retire_month <= timeline_month || simrand(latest_retire_month - timeline_month, "void fabrik_t::new_month()") == 0)))
 	{
 		char buf[256];
 
@@ -2859,7 +2858,7 @@ void fabrik_t::new_month()
 
 				const uint32 probability = simrand(101, "void fabrik_t::new_month()");
 
-				if(upgrade_chance_percent > probability)
+				if (upgrade_chance_percent > probability)
 				{
 					// Upgrade
 					uint32 total_density = 0;
@@ -2884,14 +2883,14 @@ void fabrik_t::new_month()
 					// Base production is randomised, so is an instance value. Must re-set from the type.
 					prodbase = desc->get_productivity() + simrand(desc->get_range(), "void fabrik_t::new_month()");
 					// Re-add the fields
-					for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
+					for (uint16 i = 0; i < adjusted_number_of_fields; i++)
 					{
 						add_random_field(10000u);
 					}
 					// Re-set the expansion counter: an upgraded factory may expand further.
 					times_expanded = 0;
 					// Re-calculate production/consumption
-					if(desc->get_placement() == 2 && city && desc->get_product_count() == 0)
+					if (desc->get_placement() == 2 && city && desc->get_product_count() == 0)
 					{
 						// City consumer industries set their consumption rates by the relative size of the city
 						const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
@@ -2903,11 +2902,11 @@ void fabrik_t::new_month()
 						{
 							stadt_t* const c = *i;
 							const sint64 pop = c->get_finance_history_month(0, HIST_CITIZENS);
-							if(pop > biggest_city_population)
+							if (pop > biggest_city_population)
 							{
 								biggest_city_population = pop;
 							}
-							else if(pop < smallest_city_population || smallest_city_population == -1)
+							else if (pop < smallest_city_population || smallest_city_population == -1)
 							{
 								smallest_city_population = pop;
 							}
@@ -2916,11 +2915,11 @@ void fabrik_t::new_month()
 						const sint64 this_city_population = city->get_finance_history_month(0, HIST_CITIZENS);
 						sint32 production;
 
-						if(this_city_population == biggest_city_population)
+						if (this_city_population == biggest_city_population)
 						{
 							production = desc->get_range();
 						}
-						else if(this_city_population == smallest_city_population)
+						else if (this_city_population == smallest_city_population)
 						{
 							production = 0;
 						}
@@ -2931,7 +2930,7 @@ void fabrik_t::new_month()
 						}
 						prodbase = desc->get_productivity() + production;
 					}
-					else if(desc->get_placement() == 2 && !city && desc->get_product_count() == 0)
+					else if (desc->get_placement() == 2 && !city && desc->get_product_count() == 0)
 					{
 						prodbase = desc->get_productivity();
 					}
@@ -2945,62 +2944,66 @@ void fabrik_t::new_month()
 					slist_tpl<const goods_desc_t*> input_products;
 
 					// create input information
-					input.resize(desc->get_supplier_count() );
-					for(  int g=0;  g<desc->get_supplier_count();  ++g  ) {
-						const factory_supplier_desc_t *const input_fac = desc->get_supplier(g);
-						input[g].set_typ( input_fac->get_input_type() );
+					input.resize(desc->get_supplier_count());
+					for (int g = 0; g < desc->get_supplier_count(); ++g) {
+						const factory_supplier_desc_t* const input_fac = desc->get_supplier(g);
+						input[g].set_typ(input_fac->get_input_type());
 						input_products.append(input_fac->get_input_type());
 					}
 
 					// The upgraded factory might not have the same inputs as its predecessor.
 					// Remove redundant inputs
-					bool remove_supplier_checked = false;
+					bool disconnect_supplier_checked = false;
+					bool must_close = false;
 					FOR(vector_tpl<koord>, k, suppliers)
 					{
 						fabrik_t* supplier = fabrik_t::get_fab(k);
 						bool match = false;
 						FOR(array_tpl<ware_production_t>, sw, supplier->get_output())
 						{
-							if(input_products.is_contained(sw.get_typ()))
+							if (input_products.is_contained(sw.get_typ()))
 							{
 								match = true;
 								break;
 							}
 						}
-						if(!match)
+						if (!match)
 						{
-							remove_supplier(k);
-							remove_supplier_checked = true;
+							must_close = disconnect_supplier(k);
+							disconnect_supplier_checked = true;
 						}
 					}
 
-					if (!remove_supplier_checked)
+					if (!disconnect_supplier_checked)
 					{
-						remove_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+						must_close = disconnect_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
 					}
-					remove_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
+					must_close |= disconnect_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
 
 					// Missing inputs are checked in increase_industry_density
 
-					// create output information
-					output.resize( desc->get_product_count() );
-					for(  uint g=0;  g<desc->get_product_count();  ++g  ) {
-						const factory_product_desc_t *const product = desc->get_product(g);
-						output[g].set_typ( product->get_output_type() );
-					}
+					if (!must_close)
+					{
+						// create output information
+						output.resize(desc->get_product_count());
+						for (uint g = 0; g < desc->get_product_count(); ++g) {
+							const factory_product_desc_t* const product = desc->get_product(g);
+							output[g].set_typ(product->get_output_type());
+						}
 
-					recalc_storage_capacities();
-					adjust_production_for_fields();
-					// Re-calculate electricity conspumption, mail and passenger demand, etc.
-					update_scaled_electric_amount();
-					update_scaled_pax_demand();
-					update_scaled_mail_demand();
-					update_prodfactor_pax();
-					update_prodfactor_mail();
-					welt->increase_actual_industry_density(100 / new_type->get_distribution_weight());
-					sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
-					welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_image_id(0));
-					return;
+						recalc_storage_capacities();
+						adjust_production_for_fields();
+						// Re-calculate electricity conspumption, mail and passenger demand, etc.
+						update_scaled_electric_amount();
+						update_scaled_pax_demand();
+						update_scaled_mail_demand();
+						update_prodfactor_pax();
+						update_prodfactor_mail();
+						welt->increase_actual_industry_density(100 / new_type->get_distribution_weight());
+						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
+						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_image_id(0));
+						return;
+					}
 				}
 			}
 		}
