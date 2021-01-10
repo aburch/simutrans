@@ -54,10 +54,10 @@ void sqstd_printcallstack(HSQUIRRELVM v)
 					pf(v,_SC("- - - [%s] \"%s\"\n"),name,s);
 					break;
 				case OT_TABLE:
-					pf(v,_SC("- - - [%s] TABLE\n"),name);
+					pf(v,_SC("- - - [%s] TABLE (%d entries)\n"),name, sq_getsize(v, -1));
 					break;
 				case OT_ARRAY:
-					pf(v,_SC("- - - [%s] ARRAY\n"),name);
+					pf(v,_SC("- - - [%s] ARRAY (%d entries)\n"),name, sq_getsize(v, -1));
 					break;
 				case OT_CLOSURE:
 					pf(v,_SC("- - - [%s] CLOSURE\n"),name);
