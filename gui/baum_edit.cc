@@ -31,8 +31,12 @@ tool_plant_tree_t baum_edit_frame_t::baum_tool;
 cbuffer_t baum_edit_frame_t::param_str;
 
 
-
 static bool compare_tree_desc(const tree_desc_t* a, const tree_desc_t* b)
+{
+	int diff = strcmp( a->get_name(), b->get_name() );
+	return diff < 0;
+}
+static bool compare_tree_desc_name(const tree_desc_t* a, const tree_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	if(diff ==0) {
@@ -46,27 +50,32 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("baum builder"), player_),
 	tree_list(16)
 {
-	bt_timeline.set_text( "Random age" );
-	bt_obsolete.set_visible(false);
+	cont_timeline.set_visible(false);
+
+	bt_randomage.init( button_t::square_state, "Random age");
+	bt_randomage.add_listener(this);
+	bt_randomage.pressed = true;
+	cont_options.add_component(&bt_randomage);
 
 	desc = NULL;
 	baum_tool.set_default_param(NULL);
 
-	fill_list( is_show_trans_name );
+	fill_list();
 
-	cont_left.add_component(&tree_image);
+	cont_scrolly.add_component(&tree_image);
 	building_image.set_visible(false);
 }
 
 
 
 // fill the current tree_list
-void baum_edit_frame_t::fill_list( bool translate )
+void baum_edit_frame_t::fill_list()
 {
 	tree_list.clear();
+	const bool is_sortedbyname = get_sortedby()==gui_sorting_item_t::BY_NAME_TRANSLATED;
 	FOR(vector_tpl<tree_desc_t const*>, const i, baum_t::get_all_desc()) {
-		if (i) {
-			tree_list.insert_ordered(i, compare_tree_desc);
+		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
+			tree_list.insert_ordered(i, is_sortedbyname ? compare_tree_desc_name : compare_tree_desc);
 		}
 	}
 
@@ -74,7 +83,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<tree_desc_t const*>, const i, tree_list) {
-		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
+		char const* const name = get_sortedby()==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, SYSCOL_TEXT);
 		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
@@ -84,6 +93,14 @@ void baum_edit_frame_t::fill_list( bool translate )
 	change_item_info( scl.get_selection() );
 }
 
+bool baum_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t e)
+{
+	if(  comp==&bt_randomage  ) {
+		bt_randomage.pressed ^= 1;
+		change_item_info( scl.get_selection() );
+	}
+	return extend_edit_gui_t::action_triggered(comp,e);
+}
 
 
 void baum_edit_frame_t::change_item_info(sint32 entry)
@@ -124,7 +141,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		tree_image.set_image(desc->get_image_id( 0, 3 ), true);
 
 		param_str.clear();
-		param_str.printf( "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, desc->get_name() );
+		param_str.printf( "%i%i,%s", bt_climates.pressed, bt_randomage.pressed, desc->get_name() );
 		baum_tool.set_default_param(param_str);
 		baum_tool.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
 		welt->set_tool( &baum_tool, player );

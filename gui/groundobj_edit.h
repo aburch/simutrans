@@ -20,19 +20,16 @@ class tool_plant_groundobj_t;
 class groundobj_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	enum {BY_NAME, BY_TRANSLATION, BY_COST };
-
 	static tool_plant_groundobj_t groundobj_tool;
 	static cbuffer_t param_str;
 
 	const groundobj_desc_t *desc;
 
 	gui_image_t groundobj_image;
-	gui_combobox_t cb_sortedby;
 
 	vector_tpl<const groundobj_desc_t *>groundobj_list;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
 
 	void change_item_info( sint32 i ) OVERRIDE;
 

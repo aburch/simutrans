@@ -31,6 +31,7 @@
 tool_plant_groundobj_t groundobj_edit_frame_t::groundobj_tool;
 cbuffer_t groundobj_edit_frame_t::param_str;
 
+
 static bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
@@ -58,41 +59,36 @@ groundobj_edit_frame_t::groundobj_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("groundobj builder"), player_),
 	groundobj_list(16)
 {
-//	cont_timeline.set_visible(false);
-	new_component_span<gui_label_t>( "Sort by", 2 );
-
-	cb_sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Object"), SYSCOL_TEXT);
-	cb_sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Translation"), SYSCOL_TEXT);
-	cb_sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("cost for removal"), SYSCOL_TEXT);
-	cb_sortedby.set_selection( 0 );
-	cb_sortedby.add_listener(this);
-	add_component(&cb_sortedby);
+	cont_timeline.set_visible(false);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_REMOVAL);
 
 	desc = NULL;
 	groundobj_tool.set_default_param(NULL);
 
-	fill_list( is_show_trans_name );
+	fill_list();
 
-	cont_right.add_component(&groundobj_image);
+	cont_scrolly.add_component(&groundobj_image);
 	building_image.set_visible(false);
 }
 
 
 // fill the current groundobj_list
-void groundobj_edit_frame_t::fill_list( bool translate )
+void groundobj_edit_frame_t::fill_list()
 {
 	groundobj_list.clear();
-	const uint8 sortedby = cb_rotation.get_selection();
+	const uint8 sortedby = get_sortedby();
 	FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_t::get_all_desc()) {
-		switch(sortedby) {
-			case BY_TRANSLATION:
-				groundobj_list.insert_ordered( i, compare_groundobj_desc_name );
-				break;
-			case BY_COST:
-				groundobj_list.insert_ordered( i, compare_groundobj_desc_cost );
-				break;
-			default:
-				groundobj_list.insert_ordered( i, compare_groundobj_desc );
+		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
+			switch(sortedby) {
+				case gui_sorting_item_t::BY_NAME_TRANSLATED:
+					groundobj_list.insert_ordered( i, compare_groundobj_desc_name );
+					break;
+				case gui_sorting_item_t::BY_REMOVAL:
+					groundobj_list.insert_ordered( i, compare_groundobj_desc_cost );
+					break;
+				default:
+					groundobj_list.insert_ordered( i, compare_groundobj_desc );
+			}
 		}
 	}
 
@@ -100,7 +96,7 @@ void groundobj_edit_frame_t::fill_list( bool translate )
 	scl.clear_elements();
 	scl.set_selection(-1);
 	FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_list) {
-		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
+		char const* const name = sortedby==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, SYSCOL_TEXT);
 		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
@@ -151,8 +147,8 @@ void groundobj_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf( "\n%s\n", translator::translate("Can be overgrown") );
 		}
 		buf.printf("\n%s ", translator::translate("cost for removal"));
-		buf.append_money( desc->get_price()/100.0 );
-		buf.append("$\n");
+		buf.append_money( convert_money( desc->get_price() ) );
+		buf.append("\n");
 
 		if (char const* const maker = desc->get_copyright()) {
 			buf.append("\n");

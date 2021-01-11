@@ -39,7 +39,7 @@ private:
 
 	gui_numberinput_t inp_production;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
 
 	void change_item_info( sint32 i ) OVERRIDE;
 

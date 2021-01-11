@@ -29,7 +29,9 @@ private:
 
 	vector_tpl<const tree_desc_t *>tree_list;
 
-	void fill_list( bool translate ) OVERRIDE;
+	button_t bt_randomage;
+
+	void fill_list() OVERRIDE;
 
 	void change_item_info( sint32 i ) OVERRIDE;
 
@@ -47,6 +49,8 @@ public:
 	* @return the filename for the helptext, or NULL
 	*/
 	const char* get_help_filename() const OVERRIDE { return "baum_build.txt"; }
+
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
 #endif

@@ -134,6 +134,8 @@ public:
 	C* new_component_span(uint span) { C* comp = new C(); take_component(comp, span); return comp; }
 	template<class C, class A1>
 	C* new_component_span(const A1& a1, uint span) { C* comp = new C(a1); take_component(comp, span); return comp; }
+	template<class C, class A1, class A2>
+	C* new_component_span(const A1& a1, const A2& a2, uint span) { C* comp = new C(a1, a2); take_component(comp, span); return comp; }
 	template<class C, class A1, class A2, class A3>
 	C* new_component_span(const A1& a1, const A2& a2, const A3& a3, uint span) { C* comp = new C(a1, a2, a3); take_component(comp, span); return comp; }
 	template<class C, class A1, class A2, class A3, class A4>
