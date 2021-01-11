@@ -258,6 +258,15 @@ void building_info_t::update_near_by_halt()
 	bool any_operating_stops_mail = false;
 	uint16 max_walking_time;
 
+	// header
+	if (plan->get_haltlist_count()>0) {
+		cont_near_by_halt.new_component<gui_margin_t>(8);
+		cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::passengers->get_image_id(0), true);
+		cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::mail->get_image_id(0), true);
+		cont_near_by_halt.new_component_span<gui_empty_t>(3);
+		cont_near_by_halt.new_component<gui_empty_t>();
+	}
+
 	for (int h = 0; h < plan->get_haltlist_count(); h++) {
 		const halthandle_t halt = halt_list[h].halt;
 		if (!halt->is_enabled(goods_manager_t::passengers) && !halt->is_enabled(goods_manager_t::mail)) {
@@ -280,12 +289,12 @@ void building_info_t::update_near_by_halt()
 		if (halt->is_enabled(goods_manager_t::passengers)) {
 			if (halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_PAS))) {
 				any_operating_stops_passengers = true;
-				// If it is crowded, display the overcrowding icon
-				cont_near_by_halt.new_component<gui_image_t>()->set_image((halt->is_overcrowded(goods_manager_t::INDEX_PAS) && skinverwaltung_t::pax_evaluation_icons) ? skinverwaltung_t::pax_evaluation_icons->get_image_id(1) : skinverwaltung_t::passengers->get_image_id(0), true);
+				// If it is crowded, display the overcrowding color
+				cont_near_by_halt.new_component<gui_colorbox_t>()->init(halt->is_overcrowded(goods_manager_t::INDEX_PAS) ? color_idx_to_rgb(COL_OVERCROWD) : color_idx_to_rgb(COL_GREEN), scr_size(10,D_INDICATOR_HEIGHT), true, false);
 			}
 			else {
-				// If there is an attribute but the service does not provide it, an alert icon will be displayed
-				cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image_id(2) : skinverwaltung_t::passengers->get_image_id(0), true);
+				// there is an attribute but the service does not provide it
+				cont_near_by_halt.new_component<gui_colorbox_t>()->init(COL_INACTIVE, scr_size(10, D_INDICATOR_HEIGHT), true, false);
 			}
 		}
 		else {
@@ -294,11 +303,11 @@ void building_info_t::update_near_by_halt()
 		if (halt->is_enabled(goods_manager_t::mail)) {
 			if (halt->gibt_ab(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL))) {
 				any_operating_stops_mail = true;
-				cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::mail->get_image_id(0), true);
+				cont_near_by_halt.new_component<gui_colorbox_t>()->init(halt->is_overcrowded(goods_manager_t::INDEX_MAIL) ? color_idx_to_rgb(COL_OVERCROWD) : color_idx_to_rgb(COL_GREEN), scr_size(10, D_INDICATOR_HEIGHT), true, false);
 			}
 			else {
-				// If there is an attribute but the service does not provide it, an alert icon will be displayed
-				cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image_id(2) : skinverwaltung_t::mail->get_image_id(0), true);
+				// there is an attribute but the service does not provide it
+				cont_near_by_halt.new_component<gui_colorbox_t>()->init(COL_INACTIVE, scr_size(10, D_INDICATOR_HEIGHT), true, false);
 			}
 		}
 		else {
@@ -323,32 +332,48 @@ void building_info_t::update_near_by_halt()
 		lb_wt->update();
 		cont_near_by_halt.new_component<gui_fill_t>();
 	}
+	// footer
+	if (plan->get_haltlist_count() > 0) {
+		cont_near_by_halt.new_component<gui_margin_t>(8);
+		if (skinverwaltung_t::alerts && !any_operating_stops_passengers) {
+			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+		}
+		else {
+			cont_near_by_halt.new_component<gui_empty_t>();
+		}
+		if (skinverwaltung_t::alerts && !any_operating_stops_mail) {
+			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(2), true);
+		}
+		else {
+			cont_near_by_halt.new_component<gui_empty_t>();
+		}
+		cont_near_by_halt.new_component_span<gui_empty_t>(3);
+		cont_near_by_halt.new_component<gui_empty_t>();
+	}
 
 	if (!any_operating_stops_passengers) {
-		cont_near_by_halt.new_component_span<gui_margin_t>((D_H_SPACE,D_V_SPACE), 6);
+		cont_near_by_halt.new_component_span<gui_margin_t>((D_H_SPACE,D_V_SPACE), 7);
 		cont_near_by_halt.new_component<gui_empty_t>();
 		if (skinverwaltung_t::alerts) {
-			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(3), true);
+			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(2), true);
 		}
 		else {
 			cont_near_by_halt.new_component<gui_empty_t>();
 		}
+		cont_near_by_halt.new_component_span<gui_label_t>("No passenger service", 4);
 		cont_near_by_halt.new_component<gui_empty_t>();
-		cont_near_by_halt.new_component_span<gui_label_t>("No passenger service", 3);
-		cont_near_by_halt.new_component<gui_fill_t>();
 	}
 	if (!any_operating_stops_mail) {
-		cont_near_by_halt.new_component_span<gui_margin_t>((D_H_SPACE, D_V_SPACE), 6);
-		cont_near_by_halt.new_component<gui_empty_t>();
+		cont_near_by_halt.new_component_span<gui_margin_t>((D_H_SPACE, D_V_SPACE), 7);
 		cont_near_by_halt.new_component<gui_empty_t>();
 		if (skinverwaltung_t::alerts) {
-			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(3), true);
+			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::alerts->get_image_id(2), true);
 		}
 		else {
 			cont_near_by_halt.new_component<gui_empty_t>();
 		}
-		cont_near_by_halt.new_component_span<gui_label_t>("No mail service", 3);
-
+		cont_near_by_halt.new_component_span<gui_label_t>("No mail service", 4);
+		cont_near_by_halt.new_component<gui_empty_t>();
 	}
 
 	reset_min_windowsize();
