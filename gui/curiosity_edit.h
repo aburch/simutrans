@@ -29,7 +29,8 @@ private:
 	button_t bt_land_attraction;
 	button_t bt_monuments;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
+	void put_item_in_list(const building_desc_t* desc );
 
 	void change_item_info( sint32 i ) OVERRIDE;
 
