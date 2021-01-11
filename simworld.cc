@@ -8897,6 +8897,18 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		path_explorer_t::rdwr(file);
 	}
 
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
+	{
+		uint32 count = cities_awaiting_private_car_route_check.get_count();
+		file->rdwr_long(count);
+
+		for (auto city : cities_awaiting_private_car_route_check)
+		{
+			koord location = city->get_center();
+			location.rdwr(file); 
+		}
+	}
+
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
@@ -9007,7 +9019,6 @@ bool karte_t::load(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 	loadsave_t file;
-	cities_awaiting_private_car_route_check.clear();
 	time_interval_signals_to_check.clear();
 
 	// clear hash table with missing paks (may cause some small memory loss though)
@@ -10160,6 +10171,21 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	path_explorer_t::reset_must_refresh_on_loading();
+
+	cities_awaiting_private_car_route_check.clear();
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
+	{
+		uint32 count = 0;
+		file->rdwr_long(count);
+
+		for (uint32 i = 0; i < count; i++)
+		{
+			koord location;
+			location.rdwr(file);
+			stadt_t* city = get_city(location);
+			cities_awaiting_private_car_route_check.append(city); 
+		}
+	}
 
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version_int()>=102004  ) {
