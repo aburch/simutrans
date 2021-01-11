@@ -1506,6 +1506,12 @@ void convoi_t::betrete_depot(depot_t *dep)
 
 void convoi_t::start()
 {
+	if(  state == EDIT_SCHEDULE  &&  schedule  &&  schedule->is_editing_finished()  ) {
+		// go to defined starting state
+		wait_lock = 0;
+		step();
+	}
+
 	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving

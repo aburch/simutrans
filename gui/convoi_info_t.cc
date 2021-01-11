@@ -124,6 +124,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 			add_component(&target_label);
 			add_component(&route_bar);
 			end_table();
+			add_component( &line_label );
 		}
 		end_table();
 
@@ -407,6 +408,9 @@ void convoi_info_t::update_labels()
 		line_label.buf().append(cnv->get_line()->get_name());
 		line_label.set_color(cnv->get_line()->get_state_color());
 	}
+	else {
+		line_label.buf().clear();
+	}
 	line_label.update();
 
 	// buffer update now only when needed by convoi itself => dedicated buffer for this
@@ -454,6 +458,10 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 	else if(  !scd.get_schedule()->empty()  &&  line_selector.get_element(1)->get_text()[0]=='-'  ) {
 		init_line_selector();
 	}
+	else if(  old_line_count != cnv->get_owner()->simlinemgmt.get_line_count()  ) {
+		// line added or removed
+		init_line_selector();
+	}
 
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 
@@ -474,6 +482,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 	route_bar.set_base(cnv->get_route()->get_count()-1);
 	cnv_route_index = cnv->front()->get_route_index() - 1;
+
+	if( line.is_bound() ) {
+
+	}
+	else {
+	}
 
 	// all gui stuff set => display it
 	gui_frame_t::draw(pos, size);

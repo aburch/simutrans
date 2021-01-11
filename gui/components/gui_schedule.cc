@@ -407,7 +407,7 @@ gui_schedule_t::gui_schedule_t() :
 	{
 		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Ins Stop"), SYSCOL_TEXT);
 		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Add Stop"), SYSCOL_TEXT);
-		insert_mode.set_selection( 0 );
+		insert_mode.set_selection( 1 );
 		insert_mode.add_listener(this);
 		add_component(&insert_mode);
 
