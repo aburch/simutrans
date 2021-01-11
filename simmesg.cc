@@ -116,7 +116,7 @@ void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAG
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
-	sint32 what_bit = 1<<(what_flags & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag));
+	sint32 what_bit = 1<<(what_flags & MESSAGE_TYPE_MASK);
 	if(  what_bit&ignore_flags  ) {
 		// wants us to ignore this completely
 		return;

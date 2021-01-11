@@ -34,7 +34,7 @@ public:
 
 		void rdwr(loadsave_t *file);
 
-		uint32 get_type_shifted() const { return 1<<(type & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag)); }
+		uint32 get_type_shifted() const { return 1<<(type & MESSAGE_TYPE_MASK); }
 
 		FLAGGED_PIXVAL get_player_color(karte_t*) const;
 	};
@@ -52,6 +52,7 @@ public:
 		traffic_jams = 9,
 		scenario     = 10,
 		MAX_MESSAGE_TYPE,
+		MESSAGE_TYPE_MASK = 0xf,
 
 		expire_after_one_month_flag = 1 << 13,
 		do_not_rdwr_flag            = 1 << 14,
