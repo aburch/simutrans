@@ -264,7 +264,6 @@ void building_info_t::update_near_by_halt()
 			continue; // Exclude freight stations as this is not for a factory window
 		}
 		// distance
-		//const uint32 distance = shortest_distance(tile->get_pos().get_2d(), halt->get_basis_pos()) * world()->get_settings().get_meters_per_tile();
 		const uint32 distance = halt_list[h].distance * world()->get_settings().get_meters_per_tile();
 		gui_label_buf_t *l = cont_near_by_halt.new_component<gui_label_buf_t>();
 		if (distance < 1000) {
@@ -361,9 +360,15 @@ void building_info_t::draw(scr_coord pos, scr_size size)
 	buf.clear();
 	tile->info(buf);
 
-	update_stats();
-	update_near_by_halt();
-
+	switch (tabs.get_active_tab_index())
+	{
+		case 0:
+			update_stats(); break;
+		case 1:
+			update_near_by_halt(); break;
+		default:
+			break;
+	}
 	if (get_embedded() == NULL) {
 		// no building anymore, destroy window
 		destroy_win(this);
