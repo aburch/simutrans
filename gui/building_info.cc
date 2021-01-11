@@ -38,7 +38,7 @@ scrolly_signalbox(&cont_signalbox_info, true)
 
 	cont_stats.set_table_layout(1, 0);
 	cont_stats.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
-	cont_near_by_halt.set_table_layout(6, 0);
+	cont_near_by_halt.set_table_layout(7,0);
 	cont_near_by_halt.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
 
 	if (tile->is_signalbox()) {
@@ -322,6 +322,7 @@ void building_info_t::update_near_by_halt()
 		gui_label_buf_t *lb_wt = cont_near_by_halt.new_component<gui_label_buf_t>();
 		lb_wt->buf().printf("%s %s", skinverwaltung_t::on_foot ? "" : ":", walking_time_as_clock);
 		lb_wt->update();
+		cont_near_by_halt.new_component<gui_fill_t>();
 	}
 
 	if (!any_operating_stops_passengers) {
@@ -335,6 +336,7 @@ void building_info_t::update_near_by_halt()
 		}
 		cont_near_by_halt.new_component<gui_empty_t>();
 		cont_near_by_halt.new_component_span<gui_label_t>("No passenger service", 3);
+		cont_near_by_halt.new_component<gui_fill_t>();
 	}
 	if (!any_operating_stops_mail) {
 		cont_near_by_halt.new_component_span<gui_margin_t>((D_H_SPACE, D_V_SPACE), 6);
@@ -367,6 +369,6 @@ void building_info_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 		return;
 	}
-
+		cont_near_by_halt.new_component<gui_fill_t>();
 	base_infowin_t::draw(pos, size);
 }
