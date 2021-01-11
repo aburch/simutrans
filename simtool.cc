@@ -4104,7 +4104,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			}
 
 			if (gr->get_hoehe() != pos.z) {
-				return NOTICE_UNSUITABLE_GROUND;
+				last_error = NOTICE_UNSUITABLE_GROUND;
 				break;
 			}
 
