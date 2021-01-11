@@ -51,11 +51,11 @@ gui_sorting_item_t::gui_sorting_item_t(uint8 s) : gui_scrolled_list_t::const_tex
 	switch(sorted_by) {
 		case BY_NAME_TRANSLATED:     text = translator::translate("Translation"); break;
 		case BY_NAME_OBJECT:         text = translator::translate("Object"); break;
-		case BY_LEVEL_PAX:           text = translator::translate("pax level"); break;
-		case BY_LEVEL_MAIL:          text = translator::translate("mail level"); break;
+		case BY_LEVEL_PAX:           text = translator::translate("Pax level"); break;
+		case BY_LEVEL_MAIL:          text = translator::translate("Mail level"); break;
 		case BY_DATE_INTRO:          text = translator::translate("Intro. date"); break;
 		case BY_DATE_RETIRE:         text = translator::translate("Retire Date"); break;
-		case BY_SIZE:                text = translator::translate("size (area)"); break;
+		case BY_SIZE:                text = translator::translate("Size (area)"); break;
 		case BY_COST:                text = translator::translate("Price"); break;
 		case BY_GOODS_NUMBER:        text = translator::translate("Goods"); break;
 		case BY_REMOVAL:             text = translator::translate("cost for removal"); break;
@@ -126,7 +126,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	bt_timeline.add_listener(this);
 	cont_timeline.add_component(&bt_timeline, 4);
 
-	bt_timeline_custom.init( button_t::square_state, "Available at custom date:");
+	bt_timeline_custom.init( button_t::square_state, "Available at custom date");
 	bt_timeline_custom.add_listener(this);
 	cont_timeline.add_component(&bt_timeline_custom, 4);
 
