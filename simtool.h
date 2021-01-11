@@ -1129,12 +1129,13 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
-// internal tool: send message
+// internal tool: send message, with additional coordinate information
 class tool_add_message_t : public tool_t {
 public:
-	tool_add_message_t() : tool_t(TOOL_ADD_MESSAGE | SIMPLE_TOOL) {}
-	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	tool_add_message_t() : tool_t(TOOL_ADD_MESSAGE | GENERAL_TOOL) {}
+	const char *work( player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	// work is not safe, has to be send over network
 };
 
 #endif

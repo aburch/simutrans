@@ -3116,7 +3116,7 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 	}
 	// check for password-protected players
 	if(  (!tool_in->is_init_network_safe()  ||  !tool_in->is_work_network_safe())  &&  needs_check  &&
-		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
+		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE | GENERAL_TOOL))  &&
 		 player  &&  player->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(player), w_info, magic_pwd_t + player->get_player_nr() );
@@ -4261,10 +4261,11 @@ void karte_t::step()
 		cbuffer_t buf;
 		buf.printf("%d,", message_t::general | message_t::do_not_rdwr_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
-		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 		tmp_tool->set_default_param( buf );
-		set_tool( tmp_tool, NULL );
-		// since init always returns false, it is safe to delete immediately
+		bool suspended;
+		call_work(tmp_tool, get_active_player(), koord3d::invalid, suspended);
+		// work is done (or command sent), it is safe to delete immediately
 		delete tmp_tool;
 	}
 

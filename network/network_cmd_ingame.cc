@@ -257,10 +257,10 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 		}
 		default: return;
 	}
-	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 	tmp_tool->set_default_param( buf );
 	// queue tool for network
-	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), true);
+	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), false);
 	network_send_server(nwc);
 	// since init always returns false, it is safe to delete immediately
 	delete tmp_tool;
@@ -1094,7 +1094,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		// check whether player is authorized do this
 		socket_info_t const& info = socket_list_t::get_client(our_client_id);
 		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
-			if (tool_id == (TOOL_ADD_MESSAGE|SIMPLE_TOOL)) {
+			if (tool_id == (TOOL_ADD_MESSAGE | GENERAL_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
 			else {
@@ -1205,7 +1205,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		}
 		err = tool->work( player, pos );
 		// only local players get the callback
-		if (local  &&  callback_id == 0) {
+		if (local  &&  callback_id == 0  &&  player) {
 			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {

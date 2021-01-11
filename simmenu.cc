@@ -123,6 +123,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_EXEC_SCRIPT:                 tool = new tool_exec_script_t();         break;
 		case TOOL_EXEC_TWO_CLICK_SCRIPT:       tool = new tool_exec_two_click_script_t(); break;
 		case TOOL_PLANT_GROUNDOBJ:             tool = new tool_plant_groundobj_t();     break;
+		case TOOL_ADD_MESSAGE:                 tool = new tool_add_message_t();         break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
@@ -169,12 +170,12 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_CHANGE_TRAFFIC_LIGHT: tool = new tool_change_traffic_light_t(); break;
 		case TOOL_CHANGE_CITY:          tool = new tool_change_city_t();          break;
 		case TOOL_RENAME:               tool = new tool_rename_t();               break;
-		case TOOL_ADD_MESSAGE:          tool = new tool_add_message_t();          break;
 		case TOOL_TOGGLE_RESERVATION:   tool = new tool_toggle_reservation_t();   break;
 		case TOOL_VIEW_OWNER:           tool = new tool_view_owner_t();           break;
 		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
 		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
 		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
+		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case UNUSED_WKZ_PWDHASH_TOOL:
 			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);
 			return NULL;
