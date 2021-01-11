@@ -47,8 +47,8 @@ scrolly_signalbox(&cont_signalbox_info, true)
 	init_class_table();
 	init_stats_table();
 	update_near_by_halt();
+	tile->info(buf);
 	recalc_size();
-	set_min_windowsize(scr_size(get_min_windowsize().w, tabs.get_pos().y));
 	set_resizemode(vertical_resize);
 	set_windowsize(scr_size(get_min_windowsize().w, textarea.get_size().h + cont_stats.get_size().h + D_MARGINS_Y*2 + D_V_SPACE*2 + D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT));
 }
@@ -399,6 +399,5 @@ void building_info_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 		return;
 	}
-		cont_near_by_halt.new_component<gui_fill_t>();
 	base_infowin_t::draw(pos, size);
 }
