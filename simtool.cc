@@ -4832,7 +4832,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 				}
 			}
 			if( fabrik_t *fab=gb->get_fabrik() ) {
-				fab->set_rotate( (fab->get_rotate() + 3) % fab->get_desc()->get_building()->get_all_layouts() );
+				fab->set_rotate( (fab->get_rotate() + 1) % fab->get_desc()->get_building()->get_all_layouts() );
 			}
 			// ok, we can rotate it
 			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
