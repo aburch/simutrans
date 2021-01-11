@@ -66,16 +66,16 @@ void building_info_t::init_class_table()
 	const bool show_job_info   = (tile->get_adjusted_jobs() && !show_population);
 	const bool show_visitor_demands = (tile->get_adjusted_visitor_demand() && !show_population);
 	if (show_population) {
-		cont_stats.new_component<gui_heading_t>("residents_wealth", SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("residents_wealth", SYSCOL_TEXT, get_titlecolor(), 1);
 	}
 	else if (show_visitor_demands && show_job_info) {
-		cont_stats.new_component<gui_heading_t>("wealth_of_visitors_/_commuters", SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("wealth_of_visitors_/_commuters", SYSCOL_TEXT, get_titlecolor(), 1);
 	}
 	else if (show_job_info){
-		cont_stats.new_component<gui_heading_t>("wealth_of_commuters", SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("wealth_of_commuters", SYSCOL_TEXT, get_titlecolor(), 1);
 	}
 	else if (show_visitor_demands) {
-		cont_stats.new_component<gui_heading_t>("wealth_of_visitors",  SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("wealth_of_visitors",  SYSCOL_TEXT, get_titlecolor(), 1);
 	}
 	else {
 		return; // no demand
@@ -111,7 +111,7 @@ void building_info_t::init_stats_table()
 	scr_coord_val value_cell_width = max(proportional_string_width(translator::translate("This Year")), proportional_string_width(translator::translate("Last Year")));
 
 	if (tile->get_tile()->get_desc()->get_type() != building_desc_t::city_res || tile->get_adjusted_mail_demand()) {
-		cont_stats.new_component<gui_heading_t>("Trip data", SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("Trip data", SYSCOL_TEXT, get_titlecolor(), 1);
 		cont_stats.add_table(5,0);
 		{
 			// header
@@ -162,7 +162,7 @@ void building_info_t::init_stats_table()
 	}
 
 	if (tile->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
-		cont_stats.new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, SYSCOL_STATUSBAR_BACKGROUND, 1);
+		cont_stats.new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, get_titlecolor(), 1);
 		cont_stats.add_table(5, 0);
 		{
 			// header
