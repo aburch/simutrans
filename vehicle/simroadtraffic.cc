@@ -527,7 +527,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 	}
 	else
 	{
-		if(ms_traffic_jam == 2147483647)
+		if(ms_traffic_jam == SINT32_MAX_VALUE)
 		{
 			ms_traffic_jam = 0;
 			// If this is the first step, get the car moving at a sensible speed as soon as possible.
@@ -1790,14 +1790,19 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  is_overtaking() && caut->is_overtaking()  ){
 					continue;
 				}
-				if(  !is_overtaking() && !(caut->is_overtaking())  ){
+				// The below code seems to serve no useful function and enables "car traps".
+				// A vehicle should not be allowed into an overtaking tile if there is another
+				// vehicle there whatever direction that it is going in.
+				/*
+				if(  !is_overtaking() && !(caut->is_overtaking())  )
+				{
 					//Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = caut->get_direction();
 					if(  ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
-				}
+				}*/
 				// speed zero check must be done by parent function.
 				return v;
 			}
