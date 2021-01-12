@@ -8896,6 +8896,18 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 	{
 		path_explorer_t::rdwr(file);
 	}
+	
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
+	{
+		uint32 count = cities_awaiting_private_car_route_check.get_count();
+		file->rdwr_long(count);
+
+		for (auto city : cities_awaiting_private_car_route_check)
+		{
+			koord location = city->get_center();
+			location.rdwr(file); 
+		}
+	}
 
 	// MUST be at the end of the load/save routine.
 	// save all open windows (upon request)
@@ -8995,6 +9007,7 @@ void karte_t::switch_server( bool start_server, bool port_forwarding )
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::load(const char *filename)
 {
+	dbg->message("karte_t::load", "suspending private car threads");
 #ifdef MULTI_THREAD
 	suspend_private_car_threads(); // Necessary here to prevent thread deadlocks.
 #endif
@@ -9006,13 +9019,12 @@ bool karte_t::load(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 	loadsave_t file;
-	cities_awaiting_private_car_route_check.clear();
 	time_interval_signals_to_check.clear();
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();
 
-	DBG_MESSAGE("karte_t::load", "loading game from '%s'", filename);
+	dbg->message("karte_t::load", "loading game from '%s'", filename);
 
 	// reloading same game? Remember pos
 	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_world_position() : koord::invalid;
@@ -9117,6 +9129,10 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 					// correct locking info
 					nwc_auth_player_t::init_player_lock_server(this);
 					pwdfile.close();
+				}
+				else
+				{
+					dbg->warning("karte_t::load()", "Could not load %s. Passwords will be reset", fn);
 				}
 			}
 		}
@@ -10159,6 +10175,21 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 
 	path_explorer_t::reset_must_refresh_on_loading();
+
+	cities_awaiting_private_car_route_check.clear();
+	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
+	{
+		uint32 count = 0;
+		file->rdwr_long(count);
+
+		for (uint32 i = 0; i < count; i++)
+		{
+			koord location;
+			location.rdwr(file);
+			stadt_t* city = get_city(location);
+			cities_awaiting_private_car_route_check.append(city); 
+		}
+	}
 
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version_int()>=102004  ) {
