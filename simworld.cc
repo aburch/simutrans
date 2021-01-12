@@ -8896,7 +8896,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 	{
 		path_explorer_t::rdwr(file);
 	}
-
+	
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
 	{
 		uint32 count = cities_awaiting_private_car_route_check.get_count();
