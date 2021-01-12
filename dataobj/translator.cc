@@ -123,10 +123,6 @@ static bool is_unicode_file(FILE* f)
 
 
 
-// the bytes in an UTF sequence have always the format 10xxxxxx
-static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
-
-
 // recodes string to put them into the tables
 static char *recode(const char *src, bool translate_from_utf, bool translate_to_utf, bool is_latin2 )
 {
