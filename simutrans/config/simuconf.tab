@@ -786,7 +786,7 @@ citycar_way_wear_factor = 2
 # Default: 1024
 # Setting to 0 means that all routes will be processed in
 # a step regardless of number.
-max_route_tiles_to_process_in_a_step = 1024
+max_route_tiles_to_process_in_a_step = 8192
 
 # If the following setting is set to 1, private cars will assume
 # that they can reach anywhere on the map irrespective of the actual
@@ -1099,6 +1099,10 @@ server_frames_between_checks = 32
 
 # Pause server when no clients are connected
 pause_server_no_clients = 0
+
+# Run background tasks (the path explorer and private car
+# route finder) when the server is paused.
+server_runs_background_tasks_when_paused = 0
 
 # Nickname when joining network games
 #nickname = John Doe
