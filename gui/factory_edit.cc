@@ -64,7 +64,7 @@ static bool compare_factory_desc_level_mail(const factory_desc_t* a, const facto
 static bool compare_factory_desc_date_intro(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = a->get_building()->get_intro_year_month() - b->get_building()->get_intro_year_month();
-	if ( diff = 0) {
+	if ( diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
@@ -72,7 +72,7 @@ static bool compare_factory_desc_date_intro(const factory_desc_t* a, const facto
 static bool compare_factory_desc_date_retire(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = a->get_building()->get_retire_year_month() - b->get_building()->get_retire_year_month();
-	if ( diff = 0) {
+	if ( diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
