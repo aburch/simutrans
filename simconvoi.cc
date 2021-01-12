@@ -3532,7 +3532,7 @@ PIXVAL convoi_t::get_status_color() const
 }
 
 
-// returns tiles needed for this convoi
+// returns station tiles needed for this convoi
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 carunits=0;
@@ -3542,9 +3542,10 @@ uint16 convoi_t::get_tile_length() const
 	// the last vehicle counts differently in stations and for reserving track
 	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
 	//     see at the end of vehicle_t::hop()
+//	carunits += max(CARUNITS_PER_TILE/2, fahr[anz_vehikel-1]->get_desc()->get_length());
 	// (2) for length of convoi for loading in stations the length of the last vehicle matters
 	//     see convoi_t::hat_gehalten
-	carunits += max(CARUNITS_PER_TILE/2, fahr[anz_vehikel-1]->get_desc()->get_length());
+	carunits += fahr[anz_vehikel-1]->get_desc()->get_length();
 
 	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 	return tiles;

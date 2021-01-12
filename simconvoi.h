@@ -770,7 +770,7 @@ public:
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;
 
-	// returns tiles needed for this convoi
+	// returns station tiles needed for this convoi
 	uint16 get_tile_length() const;
 
 	bool has_obsolete_vehicles() const { return has_obsolete; }
