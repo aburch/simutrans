@@ -256,7 +256,6 @@ void building_info_t::update_near_by_halt()
 	const nearby_halt_t *const halt_list = plan->get_haltlist();
 	bool any_operating_stops_passengers = false;
 	bool any_operating_stops_mail = false;
-	uint16 max_walking_time;
 
 	// header
 	if (plan->get_haltlist_count()>0) {
