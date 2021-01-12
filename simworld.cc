@@ -9130,6 +9130,10 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 					nwc_auth_player_t::init_player_lock_server(this);
 					pwdfile.close();
 				}
+				else
+				{
+					dbg->warning("karte_t::load()", "Could not load %s. Passwords will be reset", fn);
+				}
 			}
 		}
 		else if(  env_t::networkmode  ) {
