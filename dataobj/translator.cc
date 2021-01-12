@@ -342,7 +342,7 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 
 void translator::load_language_file(FILE* file)
 {
-	char buffer1 [256];
+	char buffer1[256];
 	bool file_is_utf = is_unicode_file(file);
 
 	// Read language name
@@ -360,9 +360,12 @@ void translator::load_language_file(FILE* file)
 			if(  strcmp(buffer1,"PROP_FONT_FILE") == 0  ) {
 				fgets_line( buffer1, sizeof(buffer1), file );
 				// HACK: so we guess about latin2 from the font name!
-				langs[single_instance.lang_count].is_latin2_based = strcmp( buffer1, "prop-latin2.fnt" ) == 0;
+				char file_lower[256];
+				strcpy( file_lower, buffer1 );
+				strlwr( file_lower );
+				langs[single_instance.lang_count].is_latin2_based = strstr( buffer1, "latin2" )!=0;
 				// we must register now a unicode font
-				langs[single_instance.lang_count].texts.set( "PROP_FONT_FILE", "cyr.bdf" );
+				langs[single_instance.lang_count].texts.set( "PROP_FONT_FILE", langs[single_instance.lang_count].is_latin2_based ? "cyr.bdf" : strdup(buffer1) );
 				break;
 			}
 		}
@@ -559,6 +562,10 @@ void translator::set_language(const char *iso)
 			set_language(i);
 			return;
 		}
+	}
+	// if the request language does not exist
+	if( single_instance.current_lang == -1 ) {
+		set_language(0);
 	}
 }
 
