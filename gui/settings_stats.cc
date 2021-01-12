@@ -227,8 +227,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 	SEPERATOR;
 
-	INIT_BOOL("pause_server_no_clients", env_t::pause_server_no_clients); 
-	INIT_BOOL("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused); 
+	INIT_BOOL("pause_server_no_clients", env_t::pause_server_no_clients);
+	INIT_BOOL("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused);
 
 	SEPERATOR;
 
@@ -338,7 +338,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_BOOL_VALUE(sets->save_path_explorer_data);
 
 	READ_BOOL_VALUE(env_t::pause_server_no_clients);
-	READ_BOOL_VALUE(env_t::server_runs_background_tasks_when_paused); 
+	READ_BOOL_VALUE(env_t::server_runs_background_tasks_when_paused);
 
 	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 
