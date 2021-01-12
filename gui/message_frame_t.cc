@@ -139,7 +139,6 @@ void message_frame_t::filter_list(sint32 type)
 			// message type filtering controls visibility
 			if (a) {
 				a->set_visible(type == -1  ||  a->get_msg()->get_type_shifted() & type);
-				if (i<5) printf("filter %d, msg type %d, & %d\n", type, a->get_msg()->get_type_shifted(),a->get_msg()->get_type_shifted() & type);
 			}
 		}
 		message_type = type;
