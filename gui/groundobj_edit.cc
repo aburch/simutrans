@@ -67,8 +67,16 @@ groundobj_edit_frame_t::groundobj_edit_frame_t(player_t* player_) :
 
 	fill_list();
 
+	// since we do not have a building image, we have to add the image again ourselves ...
+	cont_scrolly.remove_all();
+	cont_scrolly.set_table_layout(2, 0);
+	cont_scrolly.set_margin(scr_size(0, D_V_SPACE), scr_size(0, D_V_SPACE));
+	// add object description
+	cont_scrolly.add_component(&info_text, 2);
+	// add object image
 	cont_scrolly.add_component(&groundobj_image);
-	building_image.set_visible(false);
+	cont_scrolly.new_component<gui_fill_t>(true, false);
+	cont_scrolly.new_component_span<gui_fill_t>(false, true, 2);
 }
 
 
