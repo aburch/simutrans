@@ -7,11 +7,14 @@
 #include "../simmenu.h"
 #include "../simplan.h"
 #include "../simworld.h"
+#include "../simsignalbox.h"
 
 #include "../descriptor/building_desc.h"
 #include "../display/viewport.h"
 #include "../obj/gebaeude.h"
+#include "../obj/signal.h"
 #include "../player/simplay.h"
+# include "../utils/simstring.h"
 
 #include "building_info.h"
 #include "simwin.h"
@@ -43,6 +46,54 @@ scrolly_signalbox(&cont_signalbox_info, true)
 
 	if (tile->is_signalbox()) {
 		tabs.add_tab(&scrolly_signalbox, translator::translate("Signalbox info."));
+		tabs.set_active_tab_index(2);
+		cont_signalbox_info.set_table_layout(1,0);
+		cont_signalbox_info.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
+		cont_signalbox_info.add_table(3,0);
+		{
+			if( owner == welt->get_active_player() ) {
+				cont_signalbox_info.new_component<gui_label_t>("Fixed Costs");
+				gui_label_buf_t *lb_sb_fixedcost = cont_signalbox_info.new_component<gui_label_buf_t>();
+				sint64 maintenance = tile->get_tile()->get_desc()->get_maintenance();
+				if (maintenance == PRICE_MAGIC)
+				{
+					maintenance = tile->get_tile()->get_desc()->get_level() * welt->get_settings().maint_building;
+				}
+				char maintenance_number[64];
+				money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(maintenance) / 100.0);
+				lb_sb_fixedcost->buf().append(maintenance_number);
+				lb_sb_fixedcost->update();
+				cont_signalbox_info.new_component<gui_fill_t>();
+			}
+
+			cont_signalbox_info.new_component<gui_label_t>("Radius");
+			gui_label_buf_t *lb_sb_radius = cont_signalbox_info.new_component<gui_label_buf_t>();
+			const uint32 radius = tile->get_tile()->get_desc()->get_radius();
+			if (!radius) {
+				lb_sb_radius->buf().append(translator::translate("infinite_range"));
+			}
+			else if (radius < 1000) {
+				lb_sb_radius->buf().printf("%im", radius);
+			}
+			else {
+				const uint8 digit = radius < 20000 ? 1 : 0;
+				lb_sb_radius->buf().append((double)radius / 1000.0, digit);
+				lb_sb_radius->buf().append("km");
+			}
+			lb_sb_radius->update();
+			cont_signalbox_info.new_component<gui_fill_t>();
+
+			cont_signalbox_info.new_component<gui_label_t>("Signals");
+			cont_signalbox_info.add_component(&lb_signals);
+			cont_signalbox_info.new_component<gui_fill_t>();
+		}
+		cont_signalbox_info.end_table();
+
+		signal_table.set_table_layout(4,0);
+		cont_signalbox_info.add_component(&signal_table);
+
+		update_signalbox_info();
+		tabs.set_active_tab_index(2);
 	}
 	init_class_table();
 	init_stats_table();
@@ -378,6 +429,53 @@ void building_info_t::update_near_by_halt()
 	reset_min_windowsize();
 }
 
+void building_info_t::update_signalbox_info() {
+	const signalbox_t *sb = static_cast<const signalbox_t *>(tile->get_first_tile());
+	lb_signals.buf().printf("%d/%d", sb->get_number_of_signals_controlled_from_this_box(), tile->get_tile()->get_desc()->get_capacity());
+	lb_signals.update();
+
+	signal_table.remove_all();
+	cont_signalbox_info.set_visible(false);
+	if (sb->get_number_of_signals_controlled_from_this_box() > 0) {
+		signal_table.set_margin(scr_size(D_MARGIN_LEFT, 0), scr_size(0, 0));
+		// connected signal list
+		const slist_tpl<koord3d> &signals = sb->get_signal_list();
+		FOR(slist_tpl<koord3d>, k, signals){
+			grund_t* gr = welt->lookup(k);
+			if (!gr) {
+				continue;
+			}
+			signal_t* s = gr->find<signal_t>();
+			if (!s) {
+				continue;
+			}
+
+			const uint32 distance = shortest_distance(tile->get_pos().get_2d(), k.get_2d()) * welt->get_settings().get_meters_per_tile();
+			gui_label_buf_t *lb = signal_table.new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+			if (distance<1000) {
+				lb->buf().printf("%um", distance);
+			}
+			else if(distance<20000) {
+				lb->buf().printf("%.1fkm", (double)distance/1000.0);
+			}
+			else {
+				lb->buf().printf("%ukm", distance/1000);
+			}
+			lb->update();
+
+			lb = signal_table.new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::centered);
+			lb->buf().printf("(%s)", k.get_str());
+			lb->update();
+
+			signal_table.new_component<gui_label_t>(translator::translate(s->get_desc()->get_name()));
+
+			signal_table.new_component<gui_fill_t>();
+		}
+
+		cont_signalbox_info.set_visible(true);
+	}
+	reset_min_windowsize();
+}
 
 void building_info_t::draw(scr_coord pos, scr_size size)
 {
@@ -390,6 +488,8 @@ void building_info_t::draw(scr_coord pos, scr_size size)
 			update_stats(); break;
 		case 1:
 			update_near_by_halt(); break;
+		case 2:
+			update_signalbox_info(); break;
 		default:
 			break;
 	}

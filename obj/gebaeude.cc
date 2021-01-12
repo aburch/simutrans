@@ -1022,35 +1022,6 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 		}
 
-		if (tile->get_desc()->is_signalbox())
-		{
-			const signalbox_t *sb = static_cast<const signalbox_t *>(get_first_tile());
-			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity());
-
-			buf.printf("%s: ", translator::translate("radius"));
-			uint32 radius = tile->get_desc()->get_radius();
-			if (radius == 0)
-			{
-				buf.append(translator::translate("infinite_range"));
-			}
-			else if (radius < 1000)
-
-			{
-				buf.append(radius);
-				buf.append("m");
-			}
-
-			else
-			{
-				const double max_dist = (double)radius / 1000;
-				const uint8 n_max = max_dist < 20 ? 1 : 0;
-				char number_max[10];
-				number_to_string(number_max, max_dist, n_max);
-				buf.append(number_max);
-				buf.append("km");
-			}
-			buf.append("\n\n");
-		}
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
 			buf.printf("%s: %d\n", translator::translate("citicens"), get_adjusted_population());
