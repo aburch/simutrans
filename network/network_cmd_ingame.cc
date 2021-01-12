@@ -720,6 +720,10 @@ void nwc_sync_t::do_command(karte_t *welt)
 			welt->rdwr_player_password_hashes( &file );
 			file.close();
 		}
+		else
+		{
+			dbg->warning("nwc_sync_t::do_command", "Could not save %s. Passwords may be reset on loading game.", fn); 
+		}
 
 		// remove passwords before transfer on the server and set default client mask
 		// they will be restored in karte_t::load
