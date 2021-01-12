@@ -212,6 +212,18 @@ static char *load_text(char const* const filename )
 			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
 				is_latin |= strchr( buf, 0xF8 )!=NULL; // "o-umlaut, is forbidden for unicode
 			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xFE )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xFA )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF3 )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF1 )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
 			if(  is_latin  ) {
 				// we need to translate charwise ...
 				utf8 *buf2 = MALLOCN(utf8, len*2 + 1); //assume the worst
