@@ -21,6 +21,28 @@
 class gebaeude_t;
 class player_t;
 
+class gui_building_stats_t : public gui_aligned_container_t
+{
+	const gebaeude_t *tile;
+	PIXVAL frame_color;
+	gui_label_buf_t p_class_names[5];
+	gui_label_buf_t lb_visitor_arrivals[2], lb_commuter_arrivals[2], lb_mail_sent[2]; // for trip record
+	gui_label_buf_t lb_commuting_success_rate[2], lb_visiting_success_rate[2], lb_mail_success_rate[2]; // for achievement rate
+
+
+public:
+	gui_building_stats_t(const gebaeude_t* gb, PIXVAL col);
+
+	void init(const gebaeude_t* gb, PIXVAL col);
+
+	void init_class_table();
+	void init_stats_table();
+
+	void update_stats();
+
+	void draw(scr_coord offset) OVERRIDE;
+};
+
 class building_info_t : public base_infowin_t
 {
 	cbuffer_t building_tooltip;
@@ -28,17 +50,12 @@ class building_info_t : public base_infowin_t
 	player_t *owner;
 	location_view_t building_view;
 	// UI TODO: A dedicated tab is added to the signal box
-	gui_aligned_container_t cont_stats, cont_near_by_halt, cont_signalbox_info, signal_table;
+	gui_aligned_container_t cont_near_by_halt, cont_signalbox_info, signal_table;
+	gui_building_stats_t cont_stats;
 	gui_scrollpane_t scrolly_stats, scrolly_near_by_halt, scrolly_signalbox;
 	gui_tab_panel_t tabs;
-	gui_label_buf_t p_class_names[5];
-	gui_label_buf_t lb_commuting_success_rate[2], lb_visiting_success_rate[2], lb_mail_success_rate[2]; // for achievement rate
-	gui_label_buf_t lb_visitor_arrivals[2], lb_commuter_arrivals[2], lb_mail_sent[2]; // for trip record
 	gui_label_buf_t lb_signals;
 
-	void init_class_table();
-	void init_stats_table();
-	void update_stats();
 	void update_near_by_halt();
 	void update_signalbox_info();
 public:
