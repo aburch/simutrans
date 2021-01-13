@@ -73,7 +73,7 @@ void gui_label_t::draw(scr_coord offset)
 	if(  align == money_right) {
 		if(text) {
 			const char *separator = NULL;
-			const bool not_a_number = atol(text)==0  &&  !isdigit(*text);
+			const bool not_a_number = atol(text)==0  &&  !isdigit(*text)  &&  *text != '-';
 
 			scr_coord right = pos + offset;
 
