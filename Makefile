@@ -194,9 +194,8 @@ endif
 
 ifdef USE_ZSTD
   ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
-    FLAGS   += -DUSE_ZSTD
-    LDFLAGS += -lzstd
-    SOURCES += io/rdwr/zstd_file_rdwr_stream.cc
+    FLAGS      += -DUSE_ZSTD
+    LDFLAGS     += -lzstd
   endif
 endif
 
@@ -450,11 +449,6 @@ SOURCES += gui/vehiclelist_frame.cc
 SOURCES += gui/obj_info.cc
 SOURCES += gui/vehicle_class_manager.cc
 SOURCES += gui/welt.cc
-SOURCES += io/classify_file.cc
-SOURCES += io/rdwr/bzip2_file_rdwr_stream.cc
-SOURCES += io/rdwr/raw_file_rdwr_stream.cc
-SOURCES += io/rdwr/rdwr_stream.cc
-SOURCES += io/rdwr/zlib_file_rdwr_stream.cc
 SOURCES += network/checksum.cc
 SOURCES += network/memory_rw.cc
 SOURCES += network/network.cc

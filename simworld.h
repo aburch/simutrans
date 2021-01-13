@@ -2172,7 +2172,7 @@ public:
 	 * File version used when loading (or current if generated)
 	 * @note Useful for finish_rd
 	 */
-	extended_version_t load_version;
+	loadsave_t::combined_version load_version;
 
 	/**
 	 * Checks if the planquadrat (tile) at coordinate (x,y)

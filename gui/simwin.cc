@@ -1587,12 +1587,12 @@ void win_poll_event(event_t* const ev)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
 		dr_chdir( env_t::user_dir );
 		loadsave_t dlg;
-		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, 1, "temp", SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR ) == loadsave_t::FILE_STATUS_OK   ) {
+		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, 1, "temp", SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR )  ) {
 			// save all
 			rdwr_all_win( &dlg );
 			dlg.close();
 			destroy_all_win( true );
-			if(  dlg.rd_open( "dlgpos.xml" ) == loadsave_t::FILE_STATUS_OK  ) {
+			if(  dlg.rd_open( "dlgpos.xml" )  ) {
 				// and reload them ...
 				rdwr_all_win( &dlg );
 			}
