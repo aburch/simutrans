@@ -93,8 +93,6 @@ static bool compare_factory_desc_size(const factory_desc_t* a, const factory_des
 }
 static bool compare_factory_desc_goods_number(const factory_desc_t* a, const factory_desc_t* b)
 {
-	koord a_koord = a->get_building()->get_size();
-	koord b_koord = b->get_building()->get_size();
 	int diff = a->get_product_count() - b->get_product_count();
 	if(  diff==0  ) {
 		//same number of products - go by number of required goods
