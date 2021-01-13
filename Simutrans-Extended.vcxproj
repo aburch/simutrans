@@ -1932,6 +1932,12 @@
     <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
+    <ClCompile Include="io\classify_file.cc" />
+    <ClCompile Include="io\rdwr\bzip2_file_rdwr_stream.cc" />
+    <ClCompile Include="io\rdwr\raw_file_rdwr_stream.cc" />
+    <ClCompile Include="io\rdwr\rdwr_stream.cc" />
+    <ClCompile Include="io\rdwr\zlib_file_rdwr_stream.cc" />
+    <ClCompile Include="io\rdwr\zstd_file_rdwr_stream.cc" />
     <ClCompile Include="sys\clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
@@ -2587,6 +2593,12 @@
     <ClInclude Include="gui\times_history_container.h" />
     <ClInclude Include="gui\times_history_entry.h" />
     <ClInclude Include="gui\vehicle_class_manager.h" />
+    <ClInclude Include="io\classify_file.h" />
+    <ClInclude Include="io\rdwr\bzip2_file_rdwr_stream.h" />
+    <ClInclude Include="io\rdwr\raw_file_rdwr_stream.h" />
+    <ClInclude Include="io\rdwr\rdwr_stream.h" />
+    <ClInclude Include="io\rdwr\zlib_file_rdwr_stream.h" />
+    <ClInclude Include="io\rdwr\zstd_file_rdwr_stream.h" />
     <ClInclude Include="network\checksum.h" />
     <ClInclude Include="network\memory_rw.h" />
     <ClInclude Include="network\network.h" />
