@@ -2065,7 +2065,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::network_frames_per_step = contents.get_int("server_frames_per_step", env_t::network_frames_per_step );
 	env_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", env_t::server_sync_steps_between_checks );
 	env_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", env_t::pause_server_no_clients );
-	env_t::server_runs_background_tasks_when_paused = contents.get_int("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused);
+	env_t::server_runs_background_tasks_when_paused = contents.get_int("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused); 
 	env_t::server_save_game_on_quit = contents.get_int("server_save_game_on_quit", env_t::server_save_game_on_quit );
 	env_t::reload_and_save_on_quit = contents.get_int("reload_and_save_on_quit", env_t::reload_and_save_on_quit );
 
