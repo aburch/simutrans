@@ -247,6 +247,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	const fabrik_t* destination_industry;
 	const gebaeude_t* destination_attraction;
 	const stadt_t* destination_city;
+	const stadt_t* current_city;
 	stadt_t* origin_city = NULL;
 	bool reached_target = false;
 
@@ -296,9 +297,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				// line distance.
 				reached_target = true;
 				const koord3d k = gr->get_pos();
-				destination_city = welt->access(k.get_2d())->get_city();
-				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
+				current_city = welt->access(k.get_2d())->get_city();
+				if(current_city && current_city->get_townhall_road() == k.get_2d())
 				{
+					destination_city = current_city;
 					// This is a city destination.
 					if(origin_city && start.get_2d() == k.get_2d())
 					{
@@ -423,75 +425,79 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		// Relax the route here if this is a private car route checker, as we may find many destinations.
 		if (reached_target && flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
 		{
-			route.clear();
-			ANode* original_tmp = tmp;
-			//route.resize(tmp->count + 16);
-
 			// There may be multiple objects at this location (a townhall road might share a tile with an industry or attraction).
 			// Make sure to capture all objects.
 			const koord industry_destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : koord::invalid;
 			const koord attraction_destination_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
 			const koord city_destination_pos = destination_city ? destination_city->get_townhall_road() : koord::invalid;
 
-			koord3d previous = koord3d::invalid;
-			weg_t* w;
-			while (tmp != NULL)
+			//if (destination_city || !current_city)
+			if(true)
 			{
-				private_car_route_step_counter++;
-				w = tmp->gr->get_weg(road_wt);
+				route.clear();
+				ANode* original_tmp = tmp;
+				//route.resize(tmp->count + 16);
 
-				if (w)
+				koord3d previous = koord3d::invalid;
+				weg_t* w;
+				while (tmp != NULL)
 				{
-					// The route is added here in a different array index to the set of routes
-					// that are currently being read.
+					private_car_route_step_counter++;
+					w = tmp->gr->get_weg(road_wt);
 
-					// Also, the route is iterated here *backwards*.
-
-					if (industry_destination_pos != koord::invalid)
+					if (w)
 					{
-						w->add_private_car_route(industry_destination_pos, previous);
+						// The route is added here in a different array index to the set of routes
+						// that are currently being read.
+
+						// Also, the route is iterated here *backwards*.
+
+						if (industry_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(industry_destination_pos, previous);
+						}
+
+						if (attraction_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(attraction_destination_pos, previous);
+						}
+
+						if (city_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(city_destination_pos, previous);
+						}
 					}
 
-					if (attraction_destination_pos != koord::invalid)
-					{
-						w->add_private_car_route(attraction_destination_pos, previous);
-					}
+					// Old route storage - we probably no longer need this.
+					//route.store_at(tmp->count, tmp->gr->get_pos());
 
-					if (city_destination_pos != koord::invalid)
-					{
-						w->add_private_car_route(city_destination_pos, previous);
-					}
+					previous = tmp->gr->get_pos();
+					tmp = tmp->parent;
 				}
-
-				// Old route storage - we probably no longer need this.
-				//route.store_at(tmp->count, tmp->gr->get_pos());
-
-				previous = tmp->gr->get_pos();
-				tmp = tmp->parent;
-			}
 
 #ifdef MULTI_THREAD
-			uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
-			if (env_t::server && welt->is_paused())
-			{
-				max_steps *= 8;
-			}
-			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
-			{
-				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
-				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
-
-				// It is intentional to have two barriers here.
-				simthread_barrier_wait(&karte_t::private_car_barrier);
-				if (!suspend_private_car_routing)
+				uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
+				if (env_t::server && welt->is_paused())
 				{
-					simthread_barrier_wait(&karte_t::private_car_barrier);
+					max_steps *= 128;
 				}
-				private_car_route_step_counter = 0;
-			}
-#endif
-			tmp = original_tmp;
+				if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
+				{
+					// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
+					// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
 
+					// It is intentional to have two barriers here.
+					simthread_barrier_wait(&karte_t::private_car_barrier);
+					if (!suspend_private_car_routing)
+					{
+						simthread_barrier_wait(&karte_t::private_car_barrier);
+					}
+					private_car_route_step_counter = 0;
+				}
+#endif
+				tmp = original_tmp;
+
+			}
 		}
 
 		// testing all four possible directions
