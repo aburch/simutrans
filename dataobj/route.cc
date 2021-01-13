@@ -474,7 +474,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
 			if (env_t::server && welt->is_paused())
 			{
-				max_steps *= 4;
+				max_steps *= 8;
 			}
 			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
 			{
