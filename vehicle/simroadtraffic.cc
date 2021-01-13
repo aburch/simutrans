@@ -905,6 +905,16 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		}
 	}
 
+	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
+	const ribi_t::ribi ribi = str->get_ribi() & (~ribi_t::backward(direction90));
+	const bool dead_end = ribi == 0;
+
+	if (str->get_overtaking_mode() == oneway_mode && dead_end)
+	{
+		// Do not allow entry to one way dead ends.
+		return false;
+	}
+
 	// If this car is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 	if(  is_overtaking()  &&  str->get_overtaking_mode() == prohibited_mode  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
@@ -1102,14 +1112,16 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					pos_next_next = koord3d::invalid;
-
+					// City route checking is too slow for this to be effective.
+					/*
 					// We also need to invalidate the route.
 					const planquadrat_t* tile = welt->access(origin);
 					stadt_t* origin_city = tile ? tile->get_city() : NULL;
 					if (origin_city)
 					{
-						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+						welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
 					}
+					*/
 				}
 				else
 				{
@@ -1790,19 +1802,15 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  is_overtaking() && caut->is_overtaking()  ){
 					continue;
 				}
-				// The below code seems to serve no useful function and enables "car traps".
-				// A vehicle should not be allowed into an overtaking tile if there is another
-				// vehicle there whatever direction that it is going in.
-				/*
 				if(  !is_overtaking() && !(caut->is_overtaking())  )
 				{
-					//Prohibit going on passing lane when facing traffic exists.
+					// Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = caut->get_direction();
-					if(  ribi_t::backward(get_direction()) == other_direction  ) {
+					if( ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
-				}*/
+				}
 				// speed zero check must be done by parent function.
 				return v;
 			}
