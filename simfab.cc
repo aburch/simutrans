@@ -3413,66 +3413,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 	buf.clear();
 	if (building)
 	{
-		// Class entries:
-		building->get_class_percentage(buf);
-		buf.append("\n");
-		if (building->get_adjusted_visitor_demand() > 0)
-		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
-		}
-		if (building->get_adjusted_jobs() > 0)
-		{
-			buf.printf("%s", translator::translate("Commuters this year:"));
-			if (building->get_passengers_succeeded_commuting() != 65535)
-			{
-				buf.printf(" %i", building->get_passengers_succeeded_commuting());
-			}
-			else {
-				buf.printf(" 0");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0)
-		{
-			buf.printf("%s", translator::translate("Mail sent this year:"));
-			if (building->get_mail_delivery_success_percent_this_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
-		{
-			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
-		}
-		else {
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
-		{
-			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
-		}
-		else {
-			buf.printf("\n");
-		}
-		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
-		{
-			buf.printf("%s", translator::translate("Mail sent last year:"));
-			if (building->get_mail_delivery_success_percent_last_year() < 65535)
-			{
-				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
-			}
-			else {
-				buf.printf(" 0 (0%%)");
-			}
-			buf.printf("\n");
-		}
-		else {
-			buf.printf("\n");
-		}
 		buf.printf("\n");
 		buf.printf("%s: %s\n", translator::translate("Built in"), translator::get_year_month(building->get_purchase_time()));
 		buf.printf("\n");
