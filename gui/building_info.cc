@@ -24,14 +24,14 @@
 
 gui_building_stats_t::gui_building_stats_t(const gebaeude_t* gb, PIXVAL color)
 {
-	tile = NULL;
+	building = NULL;
 	init(gb, color);
 }
 
 void gui_building_stats_t::init(const gebaeude_t* gb, PIXVAL color)
 {
 	if (gb != NULL) {
-		tile = gb;
+		building = gb;
 		frame_color = color;
 
 		set_table_layout(1, 0);
@@ -45,9 +45,9 @@ void gui_building_stats_t::init(const gebaeude_t* gb, PIXVAL color)
 void gui_building_stats_t::init_class_table()
 {
 	scr_coord_val value_cell_width = max(proportional_string_width(" 888.8%"), 60);
-	const bool show_population = tile->get_tile()->get_desc()->get_type() == building_desc_t::city_res;
-	const bool show_job_info   = (tile->get_adjusted_jobs() && !show_population);
-	const bool show_visitor_demands = (tile->get_adjusted_visitor_demand() && !show_population);
+	const bool show_population = building->get_tile()->get_desc()->get_type() == building_desc_t::city_res;
+	const bool show_job_info   = (building->get_adjusted_jobs() && !show_population);
+	const bool show_visitor_demands = (building->get_adjusted_visitor_demand() && !show_population);
 	if (show_population) {
 		new_component<gui_heading_t>("residents_wealth", SYSCOL_TEXT, frame_color, 1);
 	}
@@ -75,13 +75,13 @@ void gui_building_stats_t::init_class_table()
 		new_component<gui_label_t>(p_class_names[c]);
 
 		if (show_population) {
-			new_component<gui_data_bar_t>()->init(tile->get_adjusted_population_by_class(c), tile->get_adjusted_population(), value_cell_width, color_idx_to_rgb(COL_DARK_GREEN+1), false, true);
+			new_component<gui_data_bar_t>()->init(building->get_adjusted_population_by_class(c), building->get_adjusted_population(), value_cell_width, color_idx_to_rgb(COL_DARK_GREEN+1), false, true);
 		}
 		if (show_visitor_demands) {
-			new_component<gui_data_bar_t>()->init(tile->get_adjusted_visitor_demand_by_class(c), tile->get_adjusted_visitor_demand(), value_cell_width, goods_manager_t::passengers->get_color(), false, true);
+			new_component<gui_data_bar_t>()->init(building->get_adjusted_visitor_demand_by_class(c), building->get_adjusted_visitor_demand(), value_cell_width, goods_manager_t::passengers->get_color(), false, true);
 		}
 		if (show_job_info) {
-			new_component<gui_data_bar_t>()->init(tile->get_adjusted_jobs_by_class(c), tile->get_adjusted_jobs(), value_cell_width, color_idx_to_rgb(COL_COMMUTER-1), false, true);
+			new_component<gui_data_bar_t>()->init(building->get_adjusted_jobs_by_class(c), building->get_adjusted_jobs(), value_cell_width, color_idx_to_rgb(COL_COMMUTER-1), false, true);
 		}
 		new_component<gui_fill_t>();
 	}
@@ -93,7 +93,7 @@ void gui_building_stats_t::init_stats_table()
 {
 	scr_coord_val value_cell_width = max(proportional_string_width(translator::translate("This Year")), proportional_string_width(translator::translate("Last Year")));
 
-	if (tile->get_tile()->get_desc()->get_type() != building_desc_t::city_res || tile->get_adjusted_mail_demand()) {
+	if (building->get_tile()->get_desc()->get_type() != building_desc_t::city_res || building->get_adjusted_mail_demand()) {
 		new_component<gui_heading_t>("Trip data", SYSCOL_TEXT, frame_color, 1);
 		add_table(5,0);
 		{
@@ -104,9 +104,9 @@ void gui_building_stats_t::init_stats_table()
 			new_component<gui_label_t>("Last Year");
 			new_component<gui_fill_t>();
 
-			if (tile->get_tile()->get_desc()->get_type() != building_desc_t::city_res) {
+			if (building->get_tile()->get_desc()->get_type() != building_desc_t::city_res) {
 				// Buildings other than houses -> display arrival data
-				if (tile->get_adjusted_visitor_demand()) {
+				if (building->get_adjusted_visitor_demand()) {
 					new_component<gui_colorbox_t>(goods_manager_t::passengers->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
 					new_component<gui_label_t>("Visitor arrivals");
 					lb_visitor_arrivals[0].set_fixed_width(value_cell_width);
@@ -128,7 +128,7 @@ void gui_building_stats_t::init_stats_table()
 				add_component(&lb_commuter_arrivals[1]);
 				new_component<gui_fill_t>();
 			}
-			if (tile->get_adjusted_mail_demand()) {
+			if (building->get_adjusted_mail_demand()) {
 				new_component<gui_colorbox_t>(goods_manager_t::mail->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
 				new_component<gui_label_t>("hd_mailing");
 				lb_mail_sent[0].set_fixed_width(value_cell_width);
@@ -144,7 +144,7 @@ void gui_building_stats_t::init_stats_table()
 		new_component<gui_margin_t>(0, D_V_SPACE);
 	}
 
-	if (tile->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+	if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
 		new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, frame_color, 1);
 		add_table(5, 0);
 		{
@@ -176,7 +176,7 @@ void gui_building_stats_t::init_stats_table()
 			new_component<gui_fill_t>();
 
 			// show only if this building has mail demands
-			if(tile->get_adjusted_mail_demand()) {
+			if(building->get_adjusted_mail_demand()) {
 				new_component<gui_colorbox_t>(goods_manager_t::mail->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
 				new_component<gui_label_t>("hd_mailing");
 				lb_mail_success_rate[0].set_fixed_width(value_cell_width);
@@ -196,36 +196,36 @@ void gui_building_stats_t::init_stats_table()
 
 void gui_building_stats_t::update_stats()
 {
-	if (tile->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
-		lb_visiting_success_rate[0].buf().printf( tile->get_passenger_success_percent_this_year_visiting()<65535 ? "%u%%" : "-",  tile->get_passenger_success_percent_this_year_visiting());
-		lb_visiting_success_rate[1].buf().printf( tile->get_passenger_success_percent_last_year_visiting()<65535 ? "%u%%" : "-",  tile->get_passenger_success_percent_last_year_visiting());
-		lb_commuting_success_rate[0].buf().printf(tile->get_passenger_success_percent_this_year_commuting()<65535 ? "%u%%" : "-", tile->get_passenger_success_percent_this_year_commuting());
-		lb_commuting_success_rate[1].buf().printf(tile->get_passenger_success_percent_last_year_commuting()<65535 ? "%u%%" : "-", tile->get_passenger_success_percent_last_year_commuting());
+	if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+		lb_visiting_success_rate[0].buf().printf( building->get_passenger_success_percent_this_year_visiting()<65535 ? "%u%%" : "-",  building->get_passenger_success_percent_this_year_visiting());
+		lb_visiting_success_rate[1].buf().printf( building->get_passenger_success_percent_last_year_visiting()<65535 ? "%u%%" : "-",  building->get_passenger_success_percent_last_year_visiting());
+		lb_commuting_success_rate[0].buf().printf(building->get_passenger_success_percent_this_year_commuting()<65535 ? "%u%%" : "-", building->get_passenger_success_percent_this_year_commuting());
+		lb_commuting_success_rate[1].buf().printf(building->get_passenger_success_percent_last_year_commuting()<65535 ? "%u%%" : "-", building->get_passenger_success_percent_last_year_commuting());
 		lb_visiting_success_rate[0].update();
 		lb_visiting_success_rate[1].update();
 		lb_commuting_success_rate[0].update();
 		lb_commuting_success_rate[1].update();
 	}
 	else {
-		if (tile->get_adjusted_visitor_demand()) {
-			lb_visitor_arrivals[0].buf().printf(tile->get_passengers_succeeded_visiting() < 65535 ? "%u" : "-", tile->get_passengers_succeeded_visiting());
-			lb_visitor_arrivals[1].buf().printf(tile->get_passenger_success_percent_last_year_visiting() < 65535 ? "%u" : "-", tile->get_passenger_success_percent_last_year_visiting());
+		if (building->get_adjusted_visitor_demand()) {
+			lb_visitor_arrivals[0].buf().printf(building->get_passengers_succeeded_visiting() < 65535 ? "%u" : "-", building->get_passengers_succeeded_visiting());
+			lb_visitor_arrivals[1].buf().printf(building->get_passenger_success_percent_last_year_visiting() < 65535 ? "%u" : "-", building->get_passenger_success_percent_last_year_visiting());
 			lb_visitor_arrivals[0].update();
 			lb_visitor_arrivals[1].update();
 		}
-		lb_commuter_arrivals[0].buf().printf(tile->get_passengers_succeeded_commuting() < 65535 ? "%u" : "-", tile->get_passengers_succeeded_commuting());
-		lb_commuter_arrivals[1].buf().printf(tile->get_passenger_success_percent_last_year_commuting() < 65535 ? "%u" : "-", tile->get_passenger_success_percent_last_year_commuting());
+		lb_commuter_arrivals[0].buf().printf(building->get_passengers_succeeded_commuting() < 65535 ? "%u" : "-", building->get_passengers_succeeded_commuting());
+		lb_commuter_arrivals[1].buf().printf(building->get_passenger_success_percent_last_year_commuting() < 65535 ? "%u" : "-", building->get_passenger_success_percent_last_year_commuting());
 		lb_commuter_arrivals[0].update();
 		lb_commuter_arrivals[1].update();
 	}
 
-	if (tile->get_adjusted_mail_demand()) {
-		lb_mail_success_rate[0].buf().printf(tile->get_mail_delivery_success_percent_this_year()<65535 ? "%u%%" : "-", tile->get_mail_delivery_success_percent_this_year());
-		lb_mail_success_rate[1].buf().printf(tile->get_mail_delivery_success_percent_last_year()<65535 ? "%u%%" : "-", tile->get_mail_delivery_success_percent_last_year());
+	if (building->get_adjusted_mail_demand()) {
+		lb_mail_success_rate[0].buf().printf(building->get_mail_delivery_success_percent_this_year()<65535 ? "%u%%" : "-", building->get_mail_delivery_success_percent_this_year());
+		lb_mail_success_rate[1].buf().printf(building->get_mail_delivery_success_percent_last_year()<65535 ? "%u%%" : "-", building->get_mail_delivery_success_percent_last_year());
 		lb_mail_success_rate[0].update();
 		lb_mail_success_rate[1].update();
-		lb_mail_sent[0].buf().printf(tile->get_mail_delivery_succeeded() < 65535 ? "%u" : "-", tile->get_mail_delivery_succeeded());
-		lb_mail_sent[1].buf().printf(tile->get_mail_delivery_succeeded_last_year() < 65535 ? "%u" : "-", tile->get_mail_delivery_succeeded_last_year());
+		lb_mail_sent[0].buf().printf(building->get_mail_delivery_succeeded() < 65535 ? "%u" : "-", building->get_mail_delivery_succeeded());
+		lb_mail_sent[1].buf().printf(building->get_mail_delivery_succeeded_last_year() < 65535 ? "%u" : "-", building->get_mail_delivery_succeeded_last_year());
 		lb_mail_sent[0].update();
 		lb_mail_sent[1].update();
 	}
@@ -233,7 +233,7 @@ void gui_building_stats_t::update_stats()
 
 void gui_building_stats_t::draw(scr_coord offset)
 {
-	if (tile) {
+	if (building) {
 		update_stats();
 		gui_aligned_container_t::draw(offset);
 	}
@@ -247,9 +247,9 @@ scrolly_near_by_halt(&cont_near_by_halt, true),
 scrolly_signalbox(&cont_signalbox_info, true)
 {
 	this->owner = owner;
-	tile = gb->get_first_tile();
+	building = gb->get_first_tile();
 
-	building_view.set_location(tile->get_pos());
+	building_view.set_location(building->get_pos());
 	set_embedded(&building_view);
 
 	add_table(1,0)->set_margin(scr_size(0,0), scr_size(0, 0));
@@ -261,7 +261,7 @@ scrolly_signalbox(&cont_signalbox_info, true)
 	cont_near_by_halt.set_table_layout(7,0);
 	cont_near_by_halt.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
 
-	if (tile->is_signalbox()) {
+	if (building->is_signalbox()) {
 		tabs.add_tab(&scrolly_signalbox, translator::translate("Signalbox info."));
 		tabs.set_active_tab_index(2);
 		cont_signalbox_info.set_table_layout(1,0);
@@ -271,10 +271,10 @@ scrolly_signalbox(&cont_signalbox_info, true)
 			if( owner == welt->get_active_player() ) {
 				cont_signalbox_info.new_component<gui_label_t>("Fixed Costs");
 				gui_label_buf_t *lb_sb_fixedcost = cont_signalbox_info.new_component<gui_label_buf_t>();
-				sint64 maintenance = tile->get_tile()->get_desc()->get_maintenance();
+				sint64 maintenance = building->get_tile()->get_desc()->get_maintenance();
 				if (maintenance == PRICE_MAGIC)
 				{
-					maintenance = tile->get_tile()->get_desc()->get_level() * welt->get_settings().maint_building;
+					maintenance = building->get_tile()->get_desc()->get_level() * welt->get_settings().maint_building;
 				}
 				char maintenance_number[64];
 				money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(maintenance) / 100.0);
@@ -285,7 +285,7 @@ scrolly_signalbox(&cont_signalbox_info, true)
 
 			cont_signalbox_info.new_component<gui_label_t>("Radius");
 			gui_label_buf_t *lb_sb_radius = cont_signalbox_info.new_component<gui_label_buf_t>();
-			const uint32 radius = tile->get_tile()->get_desc()->get_radius();
+			const uint32 radius = building->get_tile()->get_desc()->get_radius();
 			if (!radius) {
 				lb_sb_radius->buf().append(translator::translate("infinite_range"));
 			}
@@ -313,7 +313,7 @@ scrolly_signalbox(&cont_signalbox_info, true)
 		tabs.set_active_tab_index(2);
 	}
 	update_near_by_halt();
-	tile->info(buf);
+	building->info(buf);
 	recalc_size();
 	set_resizemode(vertical_resize);
 	set_windowsize(scr_size(get_min_windowsize().w, textarea.get_size().h + cont_stats.get_size().h + D_MARGINS_Y*2 + D_V_SPACE*2 + D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT));
@@ -321,14 +321,14 @@ scrolly_signalbox(&cont_signalbox_info, true)
 
 bool building_info_t::is_weltpos()
 {
-	return (welt->get_viewport()->is_on_center(tile->get_pos()));
+	return (welt->get_viewport()->is_on_center(building->get_pos()));
 }
 
 void building_info_t::update_near_by_halt()
 {
 	cont_near_by_halt.remove_all();
 	// List of stops potentially within walking distance.
-	const planquadrat_t* plan = welt->access(tile->get_pos().get_2d());
+	const planquadrat_t* plan = welt->access(building->get_pos().get_2d());
 	const nearby_halt_t *const halt_list = plan->get_haltlist();
 	bool any_operating_stops_passengers = false;
 	bool any_operating_stops_mail = false;
@@ -455,8 +455,8 @@ void building_info_t::update_near_by_halt()
 }
 
 void building_info_t::update_signalbox_info() {
-	const signalbox_t *sb = static_cast<const signalbox_t *>(tile->get_first_tile());
-	lb_signals.buf().printf("%d/%d", sb->get_number_of_signals_controlled_from_this_box(), tile->get_tile()->get_desc()->get_capacity());
+	const signalbox_t *sb = static_cast<const signalbox_t *>(building->get_first_tile());
+	lb_signals.buf().printf("%d/%d", sb->get_number_of_signals_controlled_from_this_box(), building->get_tile()->get_desc()->get_capacity());
 	lb_signals.update();
 
 	signal_table.remove_all();
@@ -475,7 +475,7 @@ void building_info_t::update_signalbox_info() {
 				continue;
 			}
 
-			const uint32 distance = shortest_distance(tile->get_pos().get_2d(), k.get_2d()) * welt->get_settings().get_meters_per_tile();
+			const uint32 distance = shortest_distance(building->get_pos().get_2d(), k.get_2d()) * welt->get_settings().get_meters_per_tile();
 			gui_label_buf_t *lb = signal_table.new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
 			if (distance<1000) {
 				lb->buf().printf("%um", distance);
@@ -505,7 +505,7 @@ void building_info_t::update_signalbox_info() {
 void building_info_t::draw(scr_coord pos, scr_size size)
 {
 	buf.clear();
-	tile->info(buf);
+	building->info(buf);
 
 	switch (tabs.get_active_tab_index())
 	{

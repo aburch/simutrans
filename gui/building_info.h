@@ -23,7 +23,7 @@ class player_t;
 
 class gui_building_stats_t : public gui_aligned_container_t
 {
-	const gebaeude_t *tile;
+	const gebaeude_t *building;
 	PIXVAL frame_color;
 	gui_label_buf_t p_class_names[5];
 	gui_label_buf_t lb_visitor_arrivals[2], lb_commuter_arrivals[2], lb_mail_sent[2]; // for trip record
@@ -46,7 +46,7 @@ public:
 class building_info_t : public base_infowin_t
 {
 	cbuffer_t building_tooltip;
-	const gebaeude_t *tile;
+	const gebaeude_t *building;
 	player_t *owner;
 	location_view_t building_view;
 	// UI TODO: A dedicated tab is added to the signal box
@@ -63,7 +63,7 @@ public:
 
 	const char *get_help_filename() const OVERRIDE { return "building_info.txt"; }
 
-	koord3d get_weltpos(bool) OVERRIDE { return tile->get_pos(); }
+	koord3d get_weltpos(bool) OVERRIDE { return building->get_pos(); }
 
 	bool is_weltpos() OVERRIDE;
 
