@@ -500,3 +500,8 @@ void building_info_t::draw(scr_coord pos, scr_size size)
 	}
 	base_infowin_t::draw(pos, size);
 }
+
+void building_info_t::map_rotate90(sint16 new_ysize)
+{
+	building_view.map_rotate90(new_ysize);
+}
