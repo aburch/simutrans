@@ -193,10 +193,10 @@ uint32 baum_t::create_forest(koord new_center, koord wh, sint16 xtop, sint16 yto
 			const sint32 x_tree_pos = (j-(wh.x>>1));
 			const sint32 y_tree_pos = (i-(wh.y>>1));
 
-			if( xtop > x_tree_pos  ||  x_tree_pos >= xbottom ) {
+			if( xtop > (xpos_f + x_tree_pos)  ||  (xpos_f + x_tree_pos) >= xbottom ) {
 				continue;
 			}
-			if( ytop > y_tree_pos  ||  y_tree_pos >= ybottom ) {
+			if( ytop > (ypos_f + y_tree_pos)  ||  (ypos_f + y_tree_pos) >= ybottom ) {
 				continue;
 			}
 

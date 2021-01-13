@@ -220,8 +220,6 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 		return time;
 	}
 
-	assert( env_t::show_month > env_t::DATE_FMT_MONTH );
-
 	// suppress as much as possible, assuming this is an relative offset to the current month
 	sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : 31) ) >> welt_modell->ticks_per_world_month_shift;
 	char days[64];
@@ -240,7 +238,6 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 		hours = (ticks * 24) >> welt_modell->ticks_per_world_month_shift;
 		minuten = ((ticks * 24 * 60) >> welt_modell->ticks_per_world_month_shift) % 60;
 	}
-
 
 	// maybe round minutes
 	if( round_to_quaters ) {
