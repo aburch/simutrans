@@ -195,6 +195,7 @@ add_executable(simutrans-extended
 	gui/banner.cc
 	gui/base_info.cc
 	gui/baum_edit.cc
+	gui/building_info.cc
 	gui/citybuilding_edit.cc
 	gui/city_info.cc
 	gui/citylist_frame_t.cc

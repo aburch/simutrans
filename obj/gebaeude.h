@@ -230,8 +230,6 @@ public:
 	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
-	void get_class_percentage(cbuffer_t & buf) const;
-
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	void display_coverage_radius(bool display);

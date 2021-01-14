@@ -61,6 +61,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod(&prod_buf),
 	txt(&info_buf),
 	storage(fab_),
+	container_details(gb, get_titlecolor()),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
 	all_suppliers(fab_, true),
@@ -475,10 +476,6 @@ void fabrik_info_t::update_components()
 		container_info.set_size(scr_size(400, y));
 	}
 
-	// details tab
-	txt.recalc_size();
-	container_details.set_size(scr_size(D_BUTTON_WIDTH * 3, txt.get_size().h));
-
 	set_dirty();
 }
 
@@ -501,6 +498,7 @@ fabrik_info_t::fabrik_info_t() :
 	prod(&prod_buf),
 	txt(&info_buf),
 	storage(NULL),
+	container_details(NULL, get_titlecolor()),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
 	all_suppliers(NULL, true),
@@ -564,6 +562,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			goods_chart.set_factory(fab);
 			chart.set_factory(fab);
 
+			container_details.init(gb, get_titlecolor());
 			init(fab, gb);
 			scrolly_info.set_scroll_amount_y(scroll_y);
 			scrolly_info.set_scroll_position(scroll_x, scroll_y);

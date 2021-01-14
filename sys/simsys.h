@@ -24,7 +24,7 @@
 
 /* Variable for message processing */
 
-/* Klassen */
+/* Classes */
 
 #define SIM_NOEVENT         0
 #define SIM_MOUSE_BUTTONS   1
@@ -108,7 +108,7 @@ bool dr_cantrash();
 int dr_remove(const char *path);
 
 // rename a file and delete eventually existing file new_utf8
-int dr_rename(const char *existing_utf8, const char *new_utf8);
+int dr_rename( const char *existing_utf8, const char *new_utf8 );
 
 // Functions the same as chdir except path must be UTF-8 encoded.
 int dr_chdir(const char *path);
@@ -139,8 +139,8 @@ void dr_textur(int xp, int yp, int w, int h);
 int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
-void dr_prepare_flush();	// waits, if previous update not yet finished
-void dr_flush();	// copy to screen (eventually multithreaded)
+void dr_prepare_flush(); // waits, if previous update not yet finished
+void dr_flush();         // copy to screen (eventually multithreaded)
 
 /**
  * Transform a 24 bit RGB color into the system format.

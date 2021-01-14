@@ -24,7 +24,7 @@ public:
 	}
 
 	scr_size get_min_size() const OVERRIDE { return textarea->get_min_size(); }
-	scr_size get_max_size() const OVERRIDE { return textarea->get_max_size(); }
+	scr_size get_max_size() const OVERRIDE { return textarea->get_min_size(); }
 
 	void set_size(scr_size size) OVERRIDE
 	{

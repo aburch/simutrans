@@ -2243,16 +2243,12 @@ brakes from max. speed in %i m
 \n必須:
 \nNetwork ID:
 \nネットワークID:
-\nNo postboxes within walking distance
-\n徒歩圏内に郵便ポスト/郵便局はありません。
 \nOrigin: %s\nDestination: %s
 \n出発地: %s\n目的地: %s
 %_stronger
 % 改善
 %_weaker
 % 悪化
-%i_more_stops,_max_walking_time:_%s
-その他に%iヵ所の停留所/駅があり、最も遠い停留所/駅へは%s掛かります。
 %s has built a new %s in %s.
 %sは新たに%sを%sに建設しました。
 %s has built a new %s near %s.
@@ -2935,8 +2931,6 @@ Next Month:
 来月:
 NO CONTROL TOWER
 空港管制塔なし
-No passenger stops within walking distance\n
-徒歩圏内に旅客駅/停留所はありません。\n
 No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n
 適切な車庫が見つかりません。\手動でn車庫へ編成を送る必要があります。\n%s\n
 no_cargo_capacity
@@ -3007,14 +3001,6 @@ partly_forged
 一部買収済
 Passenger destinations
 旅客の目的地
-Passenger success rate last year (local):
-昨年の移動成功率(通勤):
-Passenger success rate last year (non-local):
-昨年の移動成功率(旅行):
-Passenger success rate this year (local):
-今年の移動成功率(通勤):
-Passenger success rate this year (non-local):
-今年の移動成功率(旅行):
 passenger_routing_packet_size
 旅客経路計算時のパケットサイズ
 passenger\ndistribution
@@ -4057,6 +4043,14 @@ Unreachable
 N/A
 %.2f sec
 %.2f 秒
+Visitor arrivals
+訪問者到着数
+Commuter arrivals
+通勤者到着数
+Statistics
+統計データ
+Signalbox info.
+信号扱所情報
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
@@ -4101,3 +4095,17 @@ Power: %4d kW\n
 #，%i km/h @ %.2f - %.2f 秒
 #; %i km/h @ %.2f sec -  %i km/h @ %.2f sec
 #，%i km/h @ %.2f 秒 -  %i km/h @ %.2f 秒
+#%i_more_stops,_max_walking_time:_%s
+#その他に%iヵ所の停留所/駅があり、最も遠い停留所/駅へは%s掛かります。
+#No passenger stops within walking distance\n
+#徒歩圏内に旅客駅/停留所はありません。\n
+#\nNo postboxes within walking distance
+#\n徒歩圏内に郵便ポスト/郵便局はありません。
+#Passenger success rate last year (local):
+#昨年の移動成功率(通勤):
+#Passenger success rate last year (non-local):
+#昨年の移動成功率(旅行):
+#Passenger success rate this year (local):
+#今年の移動成功率(通勤):
+#Passenger success rate this year (non-local):
+#今年の移動成功率(旅行):
