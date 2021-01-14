@@ -2493,6 +2493,7 @@ void haltestelle_t::change_owner( player_t *player )
 	owner = player;
 	rebuild_connections();
 	rebuild_linked_connections();
+	rebuild_connected_components();
 
 	// tell the world of it ...
 	if(  player == welt->get_public_player()  &&  env_t::networkmode  ) {
@@ -2547,6 +2548,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	recalc_station_type();
 	rebuild_connections();
 	rebuild_linked_connections();
+	rebuild_connected_components();
 }
 
 
