@@ -49,7 +49,6 @@ class building_info_t : public base_infowin_t
 	const gebaeude_t *building;
 	player_t *owner;
 	location_view_t building_view;
-	// UI TODO: A dedicated tab is added to the signal box
 	gui_aligned_container_t cont_near_by_halt, cont_signalbox_info, signal_table;
 	gui_building_stats_t cont_stats;
 	gui_scrollpane_t scrolly_stats, scrolly_near_by_halt, scrolly_signalbox;
