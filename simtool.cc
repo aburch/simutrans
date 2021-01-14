@@ -619,6 +619,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if(gb != NULL  &&  (type == obj_t::gebaeude  ||  type == obj_t::undefined)) {
+		gb = gb->get_first_tile();
 		msg = gb->is_deletable(player);
 		if(msg) {
 			return false;
@@ -1711,8 +1712,11 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
+	if(  gb==NULL  ){
+		return "";
+	}
 	gb = gb->get_first_tile();
-	if(  gb== NULL  ||  !gb->is_city_building()  ||  !player_t::check_owner(gb->get_owner(),player)  ) {
+	if(  !gb->is_city_building()  ||  !player_t::check_owner(gb->get_owner(),player)  ) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
@@ -1721,6 +1725,7 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 		return "";
 	}
 
+	pos = gb->get_pos();
 	player_t *old_owner = gb->get_owner();
 	const building_tile_desc_t *tile  = gb->get_tile();
 	const building_desc_t * bdsc = tile->get_desc();
@@ -1736,7 +1741,7 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 				if(  gb_part  &&  gb_part->get_tile()->get_desc()==bdsc  &&  player_t::check_owner(gb_part->get_owner(),player)  ) {
 					sint32 const maint = welt->get_settings().maint_building * bdsc->get_level();
 					player_t::add_maintenance(old_owner, -maint, gb->get_waytype());
-					player_t::add_maintenance(player,        +maint, gb->get_waytype());
+					player_t::add_maintenance(player, +maint, gb->get_waytype());
 					gb->set_owner(player);
 					player_t::book_construction_costs(player, -maint, k + pos.get_2d(), gb->get_waytype());
 				}
