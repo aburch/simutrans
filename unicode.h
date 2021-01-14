@@ -18,6 +18,9 @@ typedef unsigned short utf16;
 
 extern utf32 const UNICODE_NUL;
 
+// the bytes in a sequence have always the format 10xxxxxx
+inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
+
 /**
  * UTF-8 string decoder that can be used to iterate through all code points.
  */

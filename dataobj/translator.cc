@@ -124,10 +124,6 @@ static bool is_unicode_file(FILE* f)
 
 
 
-// the bytes in an UTF sequence have always the format 10xxxxxx
-static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
-
-
 // recodes string to put them into the tables
 static char *recode(const char *src, bool translate_from_utf, bool translate_to_utf, bool is_latin2 )
 {
@@ -576,10 +572,7 @@ void translator::load_language_file(FILE* file)
 			if(  strcmp(buffer1,"PROP_FONT_FILE") == 0  ) {
 				fgets_line( buffer1, sizeof(buffer1), file );
 				// HACK: so we guess about latin2 from the font name!
-				char file_lower[256];
-				strcpy( file_lower, buffer1 );
-				strlwr( file_lower );
-				langs[single_instance.lang_count].is_latin2_based = strstr( buffer1, "latin2" )!=0;
+				langs[single_instance.lang_count].is_latin2_based = STRNICMP( buffer1+5, "latin2", 6 )==0;
 				// we must register now a unicode font
 				langs[single_instance.lang_count].texts.set( "PROP_FONT_FILE", langs[single_instance.lang_count].is_latin2_based ? "cyr.bdf" : strdup(buffer1) );
 				break;
