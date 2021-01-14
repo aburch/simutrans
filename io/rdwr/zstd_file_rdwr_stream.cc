@@ -29,7 +29,9 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 			status = STATUS_ERR_CORRUPT;
 			return;
 		}
-
+#if ZSTD_VERSION_MAJOR<=1  &&  ZSTD_VERSION_MINOR<=3
+		ZSTD_initCStream( compression_context, compression_level );
+#else
 		size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_compressionLevel, compression_level );
 		if (ZSTD_isError(ret1)) {
 			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set compression level: %s", ZSTD_getErrorName(ret1));
@@ -44,19 +46,19 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 // 			return;
 // 		}
 
+#if MULTI_THREAD
+		ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
+		if (ZSTD_isError(ret1)) {
+			// since compression should continue anyway, do not stop!
+			dbg->warning("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set workers: %s", ZSTD_getErrorName(ret1));
+		}
+#endif
+
+#endif
 		// the additional magic for zstd
 		if (raw_file_rdwr_stream_t::write("ZD", 2) != 2) {
 			return;
 		}
-
-#if MULTI_THREAD
-		ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
-		if (ZSTD_isError(ret1)) {
-			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set wrokers: %s", ZSTD_getErrorName(ret1));
-			status = STATUS_ERR_CORRUPT;
-			return;
-		}
-#endif
 	}
 	else {
 		// decompressing
@@ -118,7 +120,7 @@ zstd_file_rdwr_stream_t::~zstd_file_rdwr_stream_t()
 		size_t ret;
 		do {
 			zout.pos = 0;
-			ret = ZSTD_compressStream2( compression_context, &zout, &zin, ZSTD_e_end  );
+			ret = ZSTD_endStream( compression_context, &zout );
 			if (ZSTD_isError(ret)) {
 				dbg->error("zstd_file_rdwr_stream_t::~zstd_file_rdwr_stream_t", "Error flushing stream: %s", ZSTD_getErrorName(ret));
 			}
@@ -194,7 +196,7 @@ size_t zstd_file_rdwr_stream_t::write(const void *buf, size_t len)
 	while(  zin.pos < zin.size  ) {
 		zout.pos = 0;
 
-		const size_t ret = ZSTD_compressStream2( compression_context, &zout, &zin, ZSTD_e_continue );
+		const size_t ret = ZSTD_compressStream( compression_context, &zout, &zin );
 		if (ZSTD_isError(ret)) {
 			dbg->error("zstd_file_rdwr_stream_t::write", "Error during compression: %s", ZSTD_getErrorName(ret));
 			status = STATUS_ERR_CORRUPT;
