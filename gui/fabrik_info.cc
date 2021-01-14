@@ -562,8 +562,8 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			goods_chart.set_factory(fab);
 			chart.set_factory(fab);
 
-			init(fab, gb);
 			container_details.init(gb, get_titlecolor());
+			init(fab, gb);
 			scrolly_info.set_scroll_amount_y(scroll_y);
 			scrolly_info.set_scroll_position(scroll_x, scroll_y);
 			set_tab_opened();
