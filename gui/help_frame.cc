@@ -440,8 +440,8 @@ std::string help_frame_t::extract_title( const char *htmllines )
 				// convert to UTF if needed
 				if(  !convert_to_utf  &&  *c >= 0x80  ) {
 					size_t len;
-					utf32 cc = utf8_decoder_t::decode(c, len);
-					convert_to_utf = (len == 1);
+					utf8_decoder_t::decode(c, len);
+					convert_to_utf = (len <= 1);
 				}
 				if (convert_to_utf) {
 					if (translator::get_lang()->is_latin2_based) {
