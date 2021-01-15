@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.5.6"
+ai.version <- "0.5.7"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -112,7 +112,7 @@ function init_tree()
 	}
 
 	if (!("station_manager" in persistent)) {
-		persistent.station_manager <- freight_station_manager_t()
+		persistent.station_manager <- freight_station_manager_t(1)
 	}
 }
 

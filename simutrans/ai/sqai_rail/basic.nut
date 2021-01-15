@@ -195,6 +195,7 @@ class manager_t extends node_seq_t
 				}
 			}
 		}
+
 		//		gui.add_message_at(our_player, "world.get_time().next_month_ticks " + world.get_time().next_month_ticks, world.get_time())
 		//		gui.add_message_at(our_player, "world.get_time().ticks " + world.get_time().ticks, world.get_time())
 		//		gui.add_message_at(our_player, "world.get_time().ticks_per_month " + world.get_time().ticks_per_month/400, world.get_time())
@@ -220,12 +221,12 @@ class manager_t extends node_seq_t
 		for(local j=0; j<reports.len(); j++) {
 			local test = reports[j]
 			// check account balance
-			if (!is_cash_available(test.cost_fix + test.cost_monthly) || our_player.get_current_cash() < 50000) {
+			if (!is_cash_available(test.cost_fix + test.cost_monthly) ) {
 				// too expensive
 				continue
 			}
 
-			if ( test.points <= 0 ) {
+			if ( test.points <= 30 ) {
 				continue
 			}
 

@@ -224,7 +224,7 @@ class astar_route_finder extends astar
 	{
 		base.constructor()
 		wt = wt_
-		if ( [wt_all, wt_invalid, wt_water].find(wt) ) {
+		if ( [wt_all, wt_invalid, wt_water, wt_air].find(wt) ) {
 			throw("Using this waytype is going to be inefficient. Use at own risk.")
 		}
 	}
@@ -442,6 +442,12 @@ class astar_builder extends astar
 
 	function search_route(start, end, build_route = 1)
 	{
+
+		if ( start.len() == 0 || end.len() == 0 ) {
+			gui.add_message_at(our_player, " *** invalid tile : start or end ", world.get_time())
+			return { err =  "No route" }
+		}
+
 		prepare_search()
 		foreach (e in end) {
 			targets.append(e);
@@ -515,11 +521,34 @@ class astar_builder extends astar
 				}
 				else if (route[i-1].flag == 1) {
 					// plan build bridge
+
+					//
+						if ( route[i-1].x == route[i].x ) {
+							if ( route[i-1].y > route[i].y ) {
+								bridge_tiles += (route[i-1].y - route[i].y + 1)
+							} else {
+								bridge_tiles += (route[i].y - route[i-1].y + 1)
+							}
+						} else if ( route[i-1].y == route[i].y ) {
+							if ( route[i-1].x > route[i].x ) {
+								bridge_tiles += (route[i-1].x - route[i].x + 1)
+							} else {
+								bridge_tiles += (route[i].x - route[i-1].x + 1)
+							}
+						}
+
+
 					if ( build_route == 1 ) {
 						// check ground under bridge
 						// check_ground() return true build bridge
 						// check_ground() return false no build bridge
-						local build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+
+						local build_bridge = true
+						// check whether the ground can be adjusted and no bridge is necessary
+						// bridge len <= 4 tiles
+						if ( bridge_tiles < 5 ) {
+							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+						}
 
 						if ( build_bridge ) {
 							err = command_x.build_bridge(our_player, route[i-1], route[i], bridger.bridge)
@@ -530,19 +559,6 @@ class astar_builder extends astar
 						}
 
 					} else if ( build_route == 0 ) {
-						if ( route[i-1].x == route[i].x ) {
-							if ( route[i-1].y > route[i].y ) {
-								bridge_tiles += (route[i-1].y - route[i].y + 1)
-							} else {
-								bridge_tiles += (route[i].y - route[i-1].y + 1)
-							}
-						} else if ( route[i-1].y == route[i].y ) {
-              if ( route[i-1].x > route[i].x ) {
-                bridge_tiles += (route[i-1].x - route[i].x + 1)
-              } else {
-                bridge_tiles += (route[i].x - route[i-1].x + 1)
-              }
-						}
 					}
 				}
 				if (err) {
@@ -883,7 +899,7 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
  * in case of success, the value of starts_field maybe changed
  *
  */
-function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1){
+function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1) {
 
 		// print messages box
 		// 1
@@ -1298,7 +1314,7 @@ function build_station(tiles, station_obj) {
 }
 
 /**
-  * find signal tool
+	* find signal tool
 	*
 	* sig_type	= signal type (is_signal, is_presignal ... )
 	* wt				= waytype
@@ -3264,7 +3280,7 @@ function destroy_line(line_obj) {
 		}
 	}
 
-	// remove road line
+	// remove water line
 	if ( wt == wt_water ) {
 		local tool = command_x(tool_remover)
 

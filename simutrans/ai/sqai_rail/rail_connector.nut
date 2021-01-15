@@ -81,13 +81,14 @@ class rail_connector_t extends manager_t
 					local st_lenght = 0
 					local d = pl.get_cash()[0]
 					local err = null
-					// check place stations
+
+					// test route for calculate cost
 					local calc_route = test_route(our_player, c_start, c_end, planned_way)
-					gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
 					if ( calc_route == "No route" ) {
 						return error_handler()
 					} else {
+						//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
 						local s = calc_route.routes.len()-3
 						t_start = calc_route.routes.slice(s)
 						t_start.reverse()
@@ -142,17 +143,42 @@ class rail_connector_t extends manager_t
 					local build_cost = (calc_route.routes.len() * planned_way.get_cost()) + ((st_lenght*2)*planned_station.get_cost()) + planned_depot.get_cost() + (calc_route.bridge_lens * calc_route.bridge_obj.get_cost())
 					local cost_monthly = (calc_route.routes.len() * planned_way.get_maintenance()) + ((st_lenght*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + (calc_route.bridge_lens * calc_route.bridge_obj.get_maintenance())
 					build_cost = build_cost/100
-					build_cost = build_cost + (calc_route.tiles_tree * 300)
+
+					build_cost = build_cost + (calc_route.tiles_tree * ((tree_desc_x.get_price()/100)*2))
+
+					//gui.add_message_at(pl, "tree remove cost: " + tree_desc_x.get_price(), world.get_time())
+					//gui.add_message_at(pl, "terraform cost: " + command_x.slope_get_price(82), world.get_time())
+
+					// terraform cost
+  				local terraform_cost = command_x.slope_get_price(82)/100
+					build_cost += st_lenght*terraform_cost
+
+					//gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + (cost_monthly/100), world.get_time())
 					cost_monthly = (cost_monthly/100)+(pl.get_current_maintenance()/100)
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " build cost: " + build_cost + " montly cost: " + cost_monthly, world.get_time())
-					gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " maintenance: " + pl.get_current_maintenance(), world.get_time())
+					//gui.add_message_at(pl, "cash: " + pl.get_current_cash() + " current_maintenance(): " + pl.get_current_maintenance() + " get_maintenance()[0]: " + (-pl.get_maintenance()[0]), world.get_time())
+					//gui.add_message_at(pl, " montly cost new: " + cost_monthly, world.get_time())
 
 					sleep()
-					if ( (pl.get_current_cash()-build_cost) < (cost_monthly*4)+15000 ) {
+					// if combined station from ship
+					local cash = pl.get_current_cash()
+					local st_dock = search_station(t_start[0], wt_water, 1)
+					if ( st_dock ) {
+						local st = halt_x.get_halt(st_dock[0], our_player)
+						if ( st ) {
+							local fl_st = st.get_factory_list()
+							if ( fl_st.len() == 0 ) {
+								cash = our_player.get_current_net_wealth() - build_cost
+								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
+							} else {
+
+							}
+						}
+					}
+
+					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
-						//gui.add_message_at(pl, "Way construction cost to height", world.get_time())
-						//gui.add_message_at(pl, "cash: " + pl.get_cash()[0] + " build cost: " + build_cost, world.get_time())
+						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}
 
@@ -356,9 +382,19 @@ class rail_connector_t extends manager_t
 					// optimize way line save in c_route
 					if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
 						// tile c_start ans c_end have station
-						if (our_player.get_current_cash() > 5000000) {
-							optimize_way_line(c_route, wt_rail)
+						if (our_player.get_current_cash() > 50000) {
+							//optimize_way_line(c_route, wt_rail)
 						}
+
+						// rename line
+						local line_name = c_line.get_name()
+						local str_search = ") " + translate("Line")
+						local st_names = c_line.get_schedule().entries
+						if ( line_name.find(str_search) != null ) {
+							local new_name = translate("Train") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+							c_line.set_name(new_name)
+						}
+
 					}
 				}
 

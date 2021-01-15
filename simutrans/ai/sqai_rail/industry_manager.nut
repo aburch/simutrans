@@ -227,8 +227,16 @@ class industry_manager_t extends manager_t
 		}
 
 		sleep()
-		if (our_player.get_current_cash() > 5000000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
+		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
+
+			local entries = cnv.get_schedule().entries
+			local start = null
+			local end = null
+			if ( entries.len() >= 2 ) {
+				start = tile_x(entries[0].x, entries[0].y, entries[0].z)
+				end = tile_x(entries[entries.len()-1].x, entries[entries.len()-1].y, entries[entries.len()-1].z)
+			}
 
 			local asf = astar_route_finder(cnv.get_waytype())
 			local result = asf.search_route([start], [end])
@@ -390,7 +398,7 @@ class industry_manager_t extends manager_t
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")
 
-		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2) {
+		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid() ) {
 
 			// stations distance
 			local l = abs(start_l.x - end_l.x) + abs(start_l.y - end_l.y)
@@ -435,16 +443,20 @@ class industry_manager_t extends manager_t
 				 *
 				 */
 				local build_double_ways = false
-				if ( s_fields != true ) {
+				if ( s_fields != true && c > 0 && s_fields.len() > 0 ) {
 					local obj_sign = find_signal("is_signal", cnv.get_waytype())
 					local way_obj = s_fields[0].find_object(mo_way).get_desc()
 
 					local build_cost = s_fields.len()*(obj_sign.get_cost()*2)
 					build_cost += s_fields.len()*(way_obj.get_cost()*8)
 
-					// terraform factor
-					build_cost = build_cost*10
-					if ( build_cost < our_player.get_current_cash() ) {
+					// terraform 4 fields
+					build_cost = build_cost+(command_x.slope_get_price(82)*4)
+
+					// count double ways
+					build_cost = build_cost*c
+
+					if ( build_cost/100 < (our_player.get_current_cash()+(our_player.get_current_maintenance()/100*5)) ) {
 						build_double_ways = true
 					}
 

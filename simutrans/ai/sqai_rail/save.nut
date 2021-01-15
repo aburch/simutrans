@@ -22,6 +22,7 @@ function loadinstance(classname, table)
 	}
 	else if (classname == "freight_station_manager_t" ) {
 		station_manager = new_instance
+		station_manager.repair_keys()
 	}
 	else if (classname == "ship_connector_t") {
 		new_instance.repair_keys()
