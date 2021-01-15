@@ -14,27 +14,20 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "../bauer/hausbauer.h"
+#include "../bauer/wegbauer.h"
+#include "../bauer/tunnelbauer.h"
+#include "../bauer/brueckenbauer.h"
 #include "../simworld.h"
 #include "../simobj.h"
 #include "../simfab.h"
-#include "../display/simimg.h"
-#include "../display/simgraph.h"
 #include "../simhalt.h"
 #include "../gui/simwin.h"
 #include "../simcity.h"
 #include "../player/simplay.h"
 #include "../simdebug.h"
 #include "../simintr.h"
-#include "../simskin.h"
 #include "../simsignalbox.h"
-#include "../utils/simstring.h"
 
-#include "../boden/grund.h"
-#include "../boden/wege/strasse.h"
-
-#include "../bauer/wegbauer.h"
-#include "../bauer/tunnelbauer.h"
-#include "../bauer/brueckenbauer.h"
 
 #include "../descriptor/building_desc.h"
 #include "../descriptor/intro_dates.h"
@@ -927,74 +920,63 @@ gebaeude_t* gebaeude_t::access_first_tile()
 
 void gebaeude_t::get_description(cbuffer_t & buf) const
 {
-	if (is_factory && ptr.fab != NULL)
-	{
+	if(is_factory  &&  ptr.fab != NULL) {
 		buf.append(ptr.fab->get_name());
 	}
-	else if (show_construction)
-	{
+	else if(show_construction) {
 		buf.append(translator::translate("Baustelle"));
 		buf.append("\n");
 	}
-	else
-	{
+	else {
 		const char *desc = tile->get_desc()->get_name();
-		if (desc != NULL)
-		{
+		if(desc != NULL) {
 			const char *trans_desc = translator::translate(desc);
-			if (trans_desc == desc)
-			{
+			if(trans_desc==desc) {
 				// no description here
-				switch (tile->get_desc()->get_type()) {
-				case building_desc_t::city_res:
-					trans_desc = translator::translate("residential house");
-					break;
-				case building_desc_t::city_ind:
-					trans_desc = translator::translate("industrial building");
-					break;
-				case building_desc_t::city_com:
-					trans_desc = translator::translate("shops and stores");
-					break;
-				default:
-					// use file name
-					break;
+				switch(tile->get_desc()->get_type()) {
+					case building_desc_t::city_res:
+						trans_desc = translator::translate("residential house");
+						break;
+					case building_desc_t::city_ind:
+						trans_desc = translator::translate("industrial building");
+						break;
+					case building_desc_t::city_com:
+						trans_desc = translator::translate("shops and stores");
+						break;
+					default:
+						// use file name
+						break;
 				}
 				buf.append(trans_desc);
 			}
-			else
-			{
+			else {
 				// since the format changed, we remove all but double newlines
-				char *text = new char[strlen(trans_desc) + 1];
+				char *text = new char[strlen(trans_desc)+1];
 				char *dest = text;
 				const char *src = trans_desc;
-				while (*src != 0)
-				{
+				while(  *src!=0  ) {
 					*dest = *src;
-					if (src[0] == '\n')
-					{
-						if (src[1] == '\n')
-						{
-							src++;
+					if(src[0]=='\n') {
+						if(src[1]=='\n') {
+							src ++;
 							dest++;
 							*dest = '\n';
 						}
-						else
-						{
+						else {
 							*dest = ' ';
 						}
 					}
-					src++;
-					dest++;
+					src ++;
+					dest ++;
 				}
 				// remove double line breaks at the end
 				*dest = 0;
-				while (dest>text  &&  *--dest == '\n')
-				{
+				while( dest>text  &&  *--dest=='\n'  ) {
 					*dest = 0;
 				}
 
 				buf.append(text);
-				delete[] text;
+				delete [] text;
 			}
 		}
 		else
