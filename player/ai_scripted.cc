@@ -7,6 +7,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
 #include "../gui/simwin.h"
 #include "../gui/player_frame_t.h"
 
@@ -49,6 +50,9 @@ const char* ai_scripted_t::init( const char *ai_base, const char *ai_name_)
 		script = NULL;
 		return "Loading ai script failed";
 	}
+
+	// load translations
+	translator::load_files_from_folder( ai_path.c_str(), "scenario" );
 
 	// set the standard name
 	buf.clear();
