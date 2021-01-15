@@ -78,7 +78,12 @@ void gui_building_stats_t::init_class_table()
 			new_component<gui_data_bar_t>()->init(building->get_adjusted_population_by_class(c), building->get_adjusted_population(), value_cell_width, color_idx_to_rgb(COL_DARK_GREEN+1), false, true);
 		}
 		if (show_visitor_demands) {
-			new_component<gui_data_bar_t>()->init(building->get_adjusted_visitor_demand_by_class(c), building->get_adjusted_visitor_demand(), value_cell_width, goods_manager_t::passengers->get_color(), false, true);
+			// NOTE: Jobs and residents are indivisible numbers, but demand is not.
+			// So get_adjusted_visitor_demand_by_class should not be used here
+			// Calculate how much each class is as a percentage of the total amount
+			// Remember, each class proportion is *cumulative* with all previous class proportions.
+			const uint16 class_proportion = (c == 0) ? building->get_tile()->get_desc()->get_class_proportion(c) : building->get_tile()->get_desc()->get_class_proportion(c)- building->get_tile()->get_desc()->get_class_proportion(c-1);
+			new_component<gui_data_bar_t>()->init(class_proportion, building->get_tile()->get_desc()->get_class_proportions_sum(), value_cell_width, goods_manager_t::passengers->get_color(), false, true);
 		}
 		if (show_job_info) {
 			new_component<gui_data_bar_t>()->init(building->get_adjusted_jobs_by_class(c), building->get_adjusted_jobs(), value_cell_width, color_idx_to_rgb(COL_COMMUTER-1), false, true);
