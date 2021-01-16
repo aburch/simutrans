@@ -12455,3 +12455,8 @@ void karte_t::calc_max_vehicle_speeds()
 	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
 	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground);
 }
+
+uint32 karte_t::get_cities_awaiting_private_car_route_check_count() const
+{
+	return cities_awaiting_private_car_route_check.get_count(); 
+}

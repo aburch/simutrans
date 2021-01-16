@@ -1162,6 +1162,8 @@ public:
 	 */
 	bool is_destroying() const { return destroying; }
 
+	uint32 get_cities_awaiting_private_car_route_check_count() const;
+
 #ifdef MULTI_THREAD
 	/**
 	* @returns true if threads are being terminated
