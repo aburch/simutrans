@@ -5715,7 +5715,7 @@ void karte_t::step()
 		if (cities_awaiting_private_car_route_check.empty())
 		{
 			weg_t::swap_private_car_routes_currently_reading_element();
-			dbg->message("karte_t::step", "Refreshed private car routes"); 
+			dbg->message("karte_t::step", "Refreshed private car routes");
 			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 			{
 				cities_awaiting_private_car_route_check.append(i);
@@ -6045,7 +6045,7 @@ void karte_t::step()
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
-	// This is not the computationally intensive bit of the path explorer. 
+	// This is not the computationally intensive bit of the path explorer.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(false);
@@ -8900,7 +8900,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 	{
 		path_explorer_t::rdwr(file);
 	}
-	
+
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
 	{
 		uint32 count = cities_awaiting_private_car_route_check.get_count();
@@ -8909,7 +8909,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		for (auto city : cities_awaiting_private_car_route_check)
 		{
 			koord location = city->get_center();
-			location.rdwr(file); 
+			location.rdwr(file);
 		}
 	}
 
@@ -10191,7 +10191,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			koord location;
 			location.rdwr(file);
 			stadt_t* city = get_city(location);
-			cities_awaiting_private_car_route_check.append(city); 
+			cities_awaiting_private_car_route_check.append(city);
 		}
 	}
 

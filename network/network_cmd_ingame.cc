@@ -722,7 +722,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 		else
 		{
-			dbg->warning("nwc_sync_t::do_command", "Could not save %s. Passwords may be reset on loading game.", fn); 
+			dbg->warning("nwc_sync_t::do_command", "Could not save %s. Passwords may be reset on loading game.", fn);
 		}
 
 		// remove passwords before transfer on the server and set default client mask
