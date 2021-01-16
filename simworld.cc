@@ -2148,6 +2148,7 @@ void karte_t::init_threads()
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
 	const bool one_private_car_thread = env_t::networkmode;
+	//const bool one_private_car_thread = false; // For TESTing only
 
 	simthread_barrier_init(&private_car_barrier, NULL, one_private_car_thread ? 2 : parallel_operations + 1);
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.

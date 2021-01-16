@@ -706,6 +706,10 @@ void weg_t::info(cbuffer_t & buf) const
 					buf.append(translator::translate(building->get_individual_name()));
 #endif
 				}
+				else
+				{
+					dbg->message("weg_t::info()", "Building that is a destination of a road route not found");
+				}
 
 				const stadt_t* city = welt->get_city(route.key);
 				if (city && route.key == city->get_townhall_road())
