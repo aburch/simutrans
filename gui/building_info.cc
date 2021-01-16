@@ -35,7 +35,7 @@ void gui_building_stats_t::init(const gebaeude_t* gb, PIXVAL color)
 		frame_color = color;
 
 		set_table_layout(1, 0);
-		set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
+		set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(0, 0));
 
 		init_class_table();
 		init_stats_table();
@@ -49,16 +49,16 @@ void gui_building_stats_t::init_class_table()
 	const bool show_job_info   = (building->get_adjusted_jobs() && !show_population);
 	const bool show_visitor_demands = (building->get_adjusted_visitor_demand() && !show_population);
 	if (show_population) {
-		new_component<gui_heading_t>("residents_wealth", SYSCOL_TEXT, frame_color, 1);
+		new_component<gui_heading_t>("residents_wealth", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
 	}
 	else if (show_visitor_demands && show_job_info) {
-		new_component<gui_heading_t>("wealth_of_visitors_/_commuters", SYSCOL_TEXT, frame_color, 1);
+		new_component<gui_heading_t>("wealth_of_visitors_/_commuters", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
 	}
 	else if (show_job_info){
-		new_component<gui_heading_t>("wealth_of_commuters", SYSCOL_TEXT, frame_color, 1);
+		new_component<gui_heading_t>("wealth_of_commuters", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
 	}
 	else if (show_visitor_demands) {
-		new_component<gui_heading_t>("wealth_of_visitors",  SYSCOL_TEXT, frame_color, 1);
+		new_component<gui_heading_t>("wealth_of_visitors",  SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
 	}
 	else {
 		return; // no demand
@@ -99,8 +99,8 @@ void gui_building_stats_t::init_stats_table()
 	scr_coord_val value_cell_width = max(proportional_string_width(translator::translate("This Year")), proportional_string_width(translator::translate("Last Year")));
 
 	if (building->get_tile()->get_desc()->get_type() != building_desc_t::city_res || building->get_adjusted_mail_demand()) {
-		new_component<gui_heading_t>("Trip data", SYSCOL_TEXT, frame_color, 1);
-		add_table(5,0);
+		new_component<gui_heading_t>("Trip data", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
+		add_table(5,0)->set_spacing(scr_size(D_H_SPACE, D_V_SPACE/2));
 		{
 			// header
 			new_component<gui_margin_t>(8);
@@ -150,8 +150,8 @@ void gui_building_stats_t::init_stats_table()
 	}
 
 	if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
-		new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, frame_color, 1);
-		add_table(5, 0);
+		new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
+		add_table(5,0)->set_spacing(scr_size(D_H_SPACE, D_V_SPACE/2));
 		{
 			// header
 			new_component<gui_margin_t>(8);
@@ -264,13 +264,13 @@ scrolly_signalbox(&cont_signalbox_info, true)
 	end_table();
 
 	cont_near_by_halt.set_table_layout(7,0);
-	cont_near_by_halt.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
+	cont_near_by_halt.set_margin(scr_size(0, D_V_SPACE), scr_size(0, 0));
 
 	if (building->is_signalbox()) {
 		tabs.add_tab(&scrolly_signalbox, translator::translate("Signalbox info."));
 		tabs.set_active_tab_index(2);
 		cont_signalbox_info.set_table_layout(1,0);
-		cont_signalbox_info.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_MARGIN_RIGHT, 0));
+		cont_signalbox_info.set_margin(scr_size(D_H_SPACE, D_V_SPACE), scr_size(D_H_SPACE, 0));
 		cont_signalbox_info.add_table(3,0);
 		{
 			if( owner == welt->get_active_player() ) {
@@ -320,7 +320,7 @@ scrolly_signalbox(&cont_signalbox_info, true)
 	update_near_by_halt();
 	building->info(buf);
 	recalc_size();
-	set_resizemode(vertical_resize);
+	set_resizemode(diagonal_resize);
 	set_windowsize(scr_size(get_min_windowsize().w, textarea.get_size().h + cont_stats.get_size().h + D_MARGINS_Y*2 + D_V_SPACE*2 + D_TITLEBAR_HEIGHT + D_TAB_HEADER_HEIGHT));
 }
 
