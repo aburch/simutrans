@@ -1950,8 +1950,22 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
+#if 0
+#ifdef MULTI_THREAD
+				int error = pthread_mutex_lock(&private_car_store_route_mutex);
+				assert(error == 0);
+				(void)error;
+#endif
+#endif
 				next_tile = private_car_t::neighbour_from_int(w->get_pos(),w->private_car_routes[routes_index].get(destination));
 				w->remove_private_car_route(destination, reading_set);
+#if 0
+#ifdef MULTI_THREAD
+				error = pthread_mutex_unlock(&private_car_store_route_mutex);
+				assert(error == 0);
+				(void)error;
+#endif
+#endif
 			}
 		}
 		if (this_tile == next_tile)
@@ -1964,19 +1978,19 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 
 void weg_t::remove_private_car_route(koord destination, bool reading_set)
 {
-	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
 	(void)error;
 #endif
+	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 	private_car_routes[routes_index].remove(destination);
-	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
 	(void)error;
 #endif
+	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 }
 void weg_t::add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal) {
 	pending_road_travel_time_updates.append(std::make_tuple(w, actual, ideal));
