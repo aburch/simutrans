@@ -1029,7 +1029,7 @@ grund_t* private_car_t::hop_check()
 		// call to get_neighbour() in the heuristic mode.
 
 		// The target is an individual tile. If we are going to a destination in
-		// a city, then we need the route to the city, not the tile.
+		// a city, then we may need the route to the city, not the tile.
 
 		const grund_t* gr_check = welt->lookup_kartenboden(target);
 		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
@@ -1048,12 +1048,12 @@ grund_t* private_car_t::hop_check()
 		found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
 		if (!found_route)
 		{
-			if (!current_city || current_city != destination_city)
+			if (destination_city && (!current_city || current_city != destination_city))
 			{
 				// Only follow a route inside a city if:
 				// (1) we are not in our destination city; or
 				// (2) there is a route to the individual destination building in the city.
-				check_target = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+				check_target = destination_city->get_townhall_road();
 				found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
 			}
 		}
