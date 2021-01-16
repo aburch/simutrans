@@ -472,6 +472,13 @@ settings_t::settings_t() :
 
 	max_route_tiles_to_process_in_a_step = 2048;
 
+	max_route_tiles_to_process_in_a_step_paused_background = 65535;
+
+	do_not_record_private_car_routes_to_city_attractions = false;
+	do_not_record_private_car_routes_to_city_industries = false;
+	do_not_record_private_car_routes_to_distant_non_consumer_industries = false;
+	do_not_record_private_car_routes_to_city_buildings = true;
+
 	for(uint8 i = 0; i < 17; i ++)
 	{
 		if(i != road_wt)
@@ -1900,6 +1907,15 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(world_maximum_height);
 			file->rdwr_byte(world_minimum_height);
 		}
+
+		if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 36) || file->get_extended_version() >= 15)
+		{
+			file->rdwr_long(max_route_tiles_to_process_in_a_step_paused_background);
+			file->rdwr_long(do_not_record_private_car_routes_to_city_attractions);
+			file->rdwr_long(do_not_record_private_car_routes_to_city_industries);
+			file->rdwr_bool(do_not_record_private_car_routes_to_distant_non_consumer_industries);
+			file->rdwr_bool(do_not_record_private_car_routes_to_city_buildings);
+		}
 		// otherwise the default values of the last one will be used
 	}
 
@@ -2805,10 +2821,16 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
 
+	do_not_record_private_car_routes_to_city_attractions = contents.get_int("do_not_record_private_car_routes_to_city_attractions", do_not_record_private_car_routes_to_city_attractions);
+	do_not_record_private_car_routes_to_city_industries = contents.get_int("do_not_record_private_car_routes_to_city_industries", do_not_record_private_car_routes_to_city_industries);
+	do_not_record_private_car_routes_to_distant_non_consumer_industries = contents.get_int("do_not_record_private_car_routes_to_distant_non_consumer_industries", do_not_record_private_car_routes_to_distant_non_consumer_industries); 
+	do_not_record_private_car_routes_to_city_buildings = contents.get_int("do_not_record_private_car_routes_to_city_buildings", do_not_record_private_car_routes_to_city_buildings);
+
 	uint32 max_routes_to_process_in_a_step = contents.get_int("max_routes_to_process_in_a_step", 0);
 	const uint32 old_max_route_tiles_extrapolated = max_routes_to_process_in_a_step * 1024;
 	const uint32 max_route_tiles_default = old_max_route_tiles_extrapolated ? old_max_route_tiles_extrapolated : max_route_tiles_to_process_in_a_step;
 	max_route_tiles_to_process_in_a_step = contents.get_int("max_route_tiles_to_process_in_a_step", max_route_tiles_default);
+	max_route_tiles_to_process_in_a_step_paused_background = contents.get_int("max_route_tiles_to_process_in_a_step_paused_background", max_route_tiles_to_process_in_a_step_paused_background); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

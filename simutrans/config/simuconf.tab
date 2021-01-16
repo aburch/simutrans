@@ -777,27 +777,6 @@ citycar_way_wear_factor = 2
 # default: asphalt_road
 # (old, 102.2.2 and before) city_road_type = city_road
 
-# How many private car routes tiles to process in a step.
-# With a higher number, routing data in game will be updated
-# more frequently. With a lower number, responsiveness will
-# be improved. Turn this down if there are frequent moments
-# of unresponsiveness.
-# 
-# Default: 1024
-# Setting to 0 means that all routes will be processed in
-# a step regardless of number.
-max_route_tiles_to_process_in_a_step = 8192
-
-# If the following setting is set to 1, private cars will assume
-# that they can reach anywhere on the map irrespective of the actual
-# road network. Private cars will not follow routes, but will drive
-# around semi-randomly at all times.
-#
-# Enabling this might improve performance on slow systems.
-# 
-# Default: 0
-assume_everywhere_connected_by_road = 0
-
 # This is the distance in meters at which train drivers can see signals ahead.
 # Trains have to brake in time for signals which might be at danger, so this
 # distance affects train speed. 
@@ -858,6 +837,89 @@ disable_make_way_public = 0
 # This setting alters the revenue for electricity transmission.
 # The figure is a percentage of the default revenue. Default: 100.
 power_revenue_factor_percentage = 100
+
+############################## Private car settings ##############################
+
+# How many private car routes tiles to process in a step.
+# With a higher number, routing data in game will be updated
+# more frequently. With a lower number, responsiveness will
+# be improved. Turn this down if there are frequent moments
+# of unresponsiveness.
+# 
+# Default: 1024
+# Setting to 0 means that all routes will be processed in
+# a step regardless of number of tiles
+max_route_tiles_to_process_in_a_step = 8192
+
+# How many private car tiles to process in a step on a server
+# which is paused and on which processing background tasks
+# while paused is enabled.
+#
+# This setting only affects the game when running as a server.
+#
+# Default: 65535
+# Setting to 0 means that all routes will be processed in
+# a step regardless of number of tiles.
+max_route_tiles_to_process_in_a_step_paused_background = 65535
+
+# If the following setting is set to 1, private cars will assume
+# that they can reach anywhere on the map irrespective of the actual
+# road network. Private cars will not follow routes, but will drive
+# around semi-randomly at all times.
+#
+# Enabling this might improve performance on slow systems.
+# 
+# Default: 0
+assume_everywhere_connected_by_road = 0
+
+# The following settings adjust the recording of private car routes.
+# These are the routes encoded on the in-game roads that private cars
+# follow when going from place to place. Without private car routes
+# written into the world, private cars will move on the basis of
+# a heuristic algorithm estimating which is the best way of getting
+# to their destination, but this will often lead to wrong turns.
+#
+# However, properly writing these data can take a large amount of
+# memory on a large map (and memory consumption of this increases
+# exponentially with the number of cities). Thus, these settings
+# are intended to allow fine tuning of how much in the way of 
+# route data are stored.
+#
+# The first two settings relate to whether private car route
+# finding should not make individual routes to town industries
+# and attractions. If these are enabled (a non-zero value),
+# private cars headed to industries and attractions will instead
+# use the route to the town in which the industry/attraction is
+# located and move heuristically on entering the town. 
+# The number represents the minimum visitor demand (adjusted
+# for scale - i.e., the numbers shown in game, rather than in
+# the .dat files for the pakset) for an in-town industry/attraction
+# before it is allowed to have its own route. This allows load 
+# balancing for high demand town buildings with different access
+# routes without consuming large amounts of memory with routes to
+# large numbers of lower demand buildings. 
+
+do_not_record_private_car_routes_to_city_attractions = 0
+do_not_record_private_car_routes_to_city_industries = 0
+
+# The next setting deals with private car routes to industries out
+# of town. Cars will not be able to route to these by using the route
+# to the town, so not having a private car route for these is more
+# of a problem. However, if this is set to any non-zero value,
+# no private car route to a non-consumer industry too far away
+# to be within the maximum journey time tolerance of the fastest
+# private car journey possible will be recorded. This may be
+# a problem if private vans (industry owned goods transport)
+# should ever be introduced, but that is not an issue at present.
+
+do_not_record_private_car_routes_to_distant_non_consumer_industries = 0
+
+# The next setting, if set to zero (default: 1) allows the private
+# car route finder to record a route to each individual city building.
+# WARNING: This has not been tested. This may result in very large
+# memory consumption. Turn this to zero at your own risk.
+
+do_not_record_private_car_routes_to_city_buildings = 1
 
 ############################### Landscape settings ###############################
 #  please be careful in changing them, I spent lot of time finding optimals.
