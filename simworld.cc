@@ -1656,7 +1656,7 @@ void *check_road_connexions_threaded(void *args)
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
-			karte_t::cities_to_process--;
+			
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 			(void)error;
@@ -1667,6 +1667,10 @@ void *check_road_connexions_threaded(void *args)
 			}
 
 			city->check_all_private_car_routes();
+
+			error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+			karte_t::cities_to_process--;
+			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 
 			simthread_barrier_wait(&karte_t::private_car_barrier);
 		}
@@ -2143,11 +2147,7 @@ void karte_t::init_threads()
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
-#ifdef DEBUG
-	const bool one_private_car_thread = true;
-#else
 	const bool one_private_car_thread = env_t::networkmode;
-#endif
 
 	simthread_barrier_init(&private_car_barrier, NULL, one_private_car_thread ? 2 : parallel_operations + 1);
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
@@ -5715,7 +5715,7 @@ void karte_t::step()
 	{
 		const sint32 parallel_operations = get_parallel_operations();
 
-		if (cities_awaiting_private_car_route_check.empty())
+		if (cities_awaiting_private_car_route_check.empty() && cities_to_process == 0)
 		{
 			weg_t::swap_private_car_routes_currently_reading_element();
 			dbg->message("karte_t::step", "Refreshed private car routes"); 
@@ -5730,7 +5730,10 @@ void karte_t::step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		if (cities_to_process == 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
+		{
+			cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		}
 		start_private_car_threads();
 #else
 		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
