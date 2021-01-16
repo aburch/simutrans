@@ -50,6 +50,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 {
 	set_table_layout(2,0);
 	set_alignment(ALIGN_TOP | ALIGN_LEFT);
+	set_margin(scr_size(0,D_MARGIN_TOP), scr_size(0,0));
 
 	add_component(&generaltext);
 	generaltext.add_listener(this);
@@ -544,5 +545,5 @@ void help_frame_t::resize(const scr_coord delta)
 		helptext.set_pos( generaltext.get_pos() + scr_size( generalwidth, 0 ) );
 	}
 
-	helptext.set_size( get_client_windowsize() - scr_size( generalwidth, 0) -scr_size(D_MARGIN_RIGHT,D_MARGIN_BOTTOM) );
+	helptext.set_size( get_client_windowsize() - scr_size( generalwidth, 0) -scr_size(0,D_MARGIN_BOTTOM) );
 }
