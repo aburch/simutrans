@@ -61,7 +61,7 @@ sint32 env_t::server_frames_ahead = 4;
 sint32 env_t::additional_client_frames_behind = 4;
 sint32 env_t::network_frames_per_step = 4;
 uint32 env_t::server_sync_steps_between_checks = 24;
-bool env_t::pause_server_no_clients = false; 
+bool env_t::pause_server_no_clients = false;
 bool env_t::server_runs_background_tasks_when_paused = false;
 
 std::string env_t::nickname = "";
