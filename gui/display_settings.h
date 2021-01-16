@@ -35,6 +35,7 @@ private:
 		status_label,
 
 		reading_index_label,
+		cities_awaiting_private_car_route_check_label,
 		cities_to_process_label;
 
 public:

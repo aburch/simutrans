@@ -1164,6 +1164,8 @@ public:
 
 	uint32 get_cities_awaiting_private_car_route_check_count() const;
 
+	uint32 get_cities_to_process() const { return cities_to_process; }
+
 #ifdef MULTI_THREAD
 	/**
 	* @returns true if threads are being terminated

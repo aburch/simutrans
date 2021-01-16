@@ -5587,7 +5587,10 @@ void karte_t::pause_step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		if (cities_to_process <= 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
+		{
+			cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		}
 		start_private_car_threads();
 #else
 		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
@@ -5716,7 +5719,7 @@ void karte_t::step()
 	{
 		const sint32 parallel_operations = get_parallel_operations();
 
-		if (cities_awaiting_private_car_route_check.empty() && cities_to_process == 0)
+		if (cities_awaiting_private_car_route_check.empty() && cities_to_process <= 0)
 		{
 			weg_t::swap_private_car_routes_currently_reading_element();
 			dbg->message("karte_t::step", "Refreshed private car routes"); 
@@ -5731,7 +5734,7 @@ void karte_t::step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		if (cities_to_process == 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
+		if (cities_to_process <= 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
 		{
 			cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		}
@@ -8913,6 +8916,8 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			koord location = city->get_center();
 			location.rdwr(file); 
 		}
+
+		file->rdwr_long(cities_to_process); 
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -10195,6 +10200,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			stadt_t* city = get_city(location);
 			cities_awaiting_private_car_route_check.append(city); 
 		}
+
+		file->rdwr_long(cities_to_process);
 	}
 
 	// MUST be at the end of the load/save routine.

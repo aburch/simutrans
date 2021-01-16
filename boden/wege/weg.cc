@@ -1903,6 +1903,7 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
+	(void)error;
 #endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	calc_image();
@@ -1976,7 +1977,6 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 	assert(error == 0);
 	(void)error;
 #endif
-
 }
 void weg_t::add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal) {
 	pending_road_travel_time_updates.append(std::make_tuple(w, actual, ideal));
