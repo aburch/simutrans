@@ -3486,7 +3486,6 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 			if( gr->ist_karten_boden() ) {
 				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 				const char *err = NULL;
-				sint64 price = 0;
 
 				// first check for building portal only
 				if(  is_ctrl_pressed()  ) {
