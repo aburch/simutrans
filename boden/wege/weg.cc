@@ -1978,17 +1978,21 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 
 void weg_t::remove_private_car_route(koord destination, bool reading_set)
 {
+#if 1
 #ifdef MULTI_THREAD
 	int error = pthread_mutex_lock(&private_car_store_route_mutex);
 	assert(error == 0);
 	(void)error;
 #endif
+#endif
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 	private_car_routes[routes_index].remove(destination);
+#if 1
 #ifdef MULTI_THREAD
 	error = pthread_mutex_unlock(&private_car_store_route_mutex);
 	assert(error == 0);
 	(void)error;
+#endif
 #endif
 	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 }
