@@ -456,7 +456,7 @@ settings_t::settings_t() :
 	capital_threshold_percentage = 0;
 	city_threshold_percentage = 0;
 
-	power_revenue_factor_percentage=100;
+	power_revenue_factor_percentage = 100;
 
 	allow_making_public = true;
 
@@ -469,15 +469,6 @@ settings_t::settings_t() :
 	tolerance_modifier_percentage = 100;
 
 	industry_density_proportion_override = 0;
-
-	max_route_tiles_to_process_in_a_step = 2048;
-
-	max_route_tiles_to_process_in_a_step_paused_background = 65535;
-
-	private_car_route_to_attraction_visitor_demand_threshold = 0;
-	private_car_route_to_industry_visitor_demand_threshold = 0;
-	do_not_record_private_car_routes_to_distant_non_consumer_industries = false;
-	do_not_record_private_car_routes_to_city_buildings = true;
 
 	for(uint8 i = 0; i < 17; i ++)
 	{

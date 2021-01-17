@@ -898,6 +898,8 @@ assume_everywhere_connected_by_road = 0
 # balancing for high demand town buildings with different access
 # routes without consuming large amounts of memory with routes to
 # large numbers of lower demand buildings. 
+# 
+# Default (for each): 120
 
 private_car_route_to_attraction_visitor_demand_threshold = 0
 private_car_route_to_industry_visitor_demand_threshold = 0
@@ -911,13 +913,17 @@ private_car_route_to_industry_visitor_demand_threshold = 0
 # private car journey possible will be recorded. This may be
 # a problem if private vans (industry owned goods transport)
 # should ever be introduced, but that is not an issue at present.
+#
+# Default: 1
 
-do_not_record_private_car_routes_to_distant_non_consumer_industries = 0
+do_not_record_private_car_routes_to_distant_non_consumer_industries = 1
 
 # The next setting, if set to zero (default: 1) allows the private
 # car route finder to record a route to each individual city building.
 # WARNING: This has not been tested. This may result in very large
 # memory consumption. Turn this to zero at your own risk.
+# 
+# Default: 1
 
 do_not_record_private_car_routes_to_city_buildings = 1
 

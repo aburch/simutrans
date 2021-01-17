@@ -5731,8 +5731,13 @@ void karte_t::step()
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
-		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
-		//cities_to_process = 1;
+
+		// Also, processing multiple cities when mutli-threaded is not network safe. The reasons for this are unclear, but this remains so even after
+		// the implementation of rwlocks for the private car routing data in January 2021. It is suspected that hte route finding algorithm is not
+		// deterministic for any given starting point, but investigations have so far not revealed whether this is the real problem or how or in what way(s) that
+		// this is not deterministic.
+
+		// For this reason, multi-threading is disabled when using network mode with clients connected until the problem can be solved.
 		if (cities_to_process <= 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
 		{
 			cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);

@@ -348,7 +348,7 @@ private:
 	* the faster the performance. Reduce this number if momentary
 	* unresponsiveness be noticed frequently.
 	*/
-	uint32 max_route_tiles_to_process_in_a_step = 1024;
+	uint32 max_route_tiles_to_process_in_a_step = 8192;
 
 	/**
 	* Same as max_route_tiles_to_process_in_a_step, but this is the number
@@ -367,9 +367,9 @@ private:
 	* The numbers represent the maximum visitor demand threshold for the destination
 	* to which this rule applies. If 0, the rule does not apply. 
 	*/
-	uint32 private_car_route_to_attraction_visitor_demand_threshold = 0;
-	uint32 private_car_route_to_industry_visitor_demand_threshold = 0;
-	bool do_not_record_private_car_routes_to_distant_non_consumer_industries = false;
+	uint32 private_car_route_to_attraction_visitor_demand_threshold = 120;
+	uint32 private_car_route_to_industry_visitor_demand_threshold = 120;
+	bool do_not_record_private_car_routes_to_distant_non_consumer_industries = true;
 	bool do_not_record_private_car_routes_to_city_buildings = true;
 
 	/**
