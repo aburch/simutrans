@@ -455,6 +455,12 @@ bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t 
 			return false;
 		}
 
+		if (forbid_crossings && !(w->get_owner() == NULL && w->is_degraded() == true))
+		{
+			// Do not allow crossings where the forbid crossings flag has been set except where the way to be crossed is unowned and degraded.
+			return false;
+		}
+
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends

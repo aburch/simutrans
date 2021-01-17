@@ -1890,7 +1890,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 
 	// Next, find the nearest city
 	const uint32 rank_max = welt->get_settings().get_auto_connect_industries_and_attractions_by_road();
-	const uint32 max_road_length = env_t::networkmode ? 2048 : (uint32)env_t::intercity_road_length; // The env_t:: settings are not transmitted with network games so may diverge between client and server.
+	const uint32 max_road_length = env_t::networkmode ? 8192 : (uint32)env_t::intercity_road_length; // The env_t:: settings are not transmitted with network games so may diverge between client and server.
 	for (uint32 rank = 1; rank <= rank_max; rank++)
 	{
 		const stadt_t* city = welt->find_nearest_city(get_pos().get_2d(), rank);
@@ -1919,10 +1919,11 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 		builder.set_keep_city_roads(true);
 		builder.set_build_sidewalk(false);
 		builder.set_overtaking_mode(invalid_mode);
+		builder.set_forbid_crossings(true); // Building crossings on industry roads can disrupt player railways.
 
 		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
 
-		builder.calc_route(start, end3d);
+		builder.calc_route(end3d, start); // Start and end are inverted so as to produce cleaner routes: starting in the town and moving outwards means that the line of existing roads can be followed as far as possible. 
 		if (builder.get_count() > 1)
 		{
 			builder.build();
