@@ -1478,6 +1478,10 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
+	if (ev->ev_code == WIN_TOP) {
+		update_data();
+	}
+
 	if(  swallowed  &&  get_focus()==&name_filter_input  &&  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  ) {
 		depot_t::update_all_win();
 	}
