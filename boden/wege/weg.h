@@ -209,7 +209,7 @@ private:
 	bool degraded:1;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_t private_car_store_route_mutex;
+	pthread_rwlock_t private_car_store_route_rwlock;
 #endif
 
 protected:
