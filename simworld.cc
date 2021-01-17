@@ -5568,6 +5568,7 @@ void karte_t::pause_step()
 
 	if (!private_car_route_check_complete && cities_awaiting_private_car_route_check.empty())
 	{
+		suspend_private_car_threads();
 		weg_t::swap_private_car_routes_currently_reading_element();
 		dbg->message("karte_t::step", "Refreshed private car routes (while paused)");
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
@@ -5718,6 +5719,7 @@ void karte_t::step()
 
 		if (cities_awaiting_private_car_route_check.empty() && cities_to_process <= 0)
 		{
+			suspend_private_car_threads();
 			weg_t::swap_private_car_routes_currently_reading_element();
 			dbg->message("karte_t::step", "Refreshed private car routes");
 			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
