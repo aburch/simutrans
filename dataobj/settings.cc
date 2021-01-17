@@ -474,8 +474,8 @@ settings_t::settings_t() :
 
 	max_route_tiles_to_process_in_a_step_paused_background = 65535;
 
-	do_not_record_private_car_routes_to_city_attractions = false;
-	do_not_record_private_car_routes_to_city_industries = false;
+	private_car_route_to_attraction_visitor_demand_threshold = 0;
+	private_car_route_to_industry_visitor_demand_threshold = 0;
 	do_not_record_private_car_routes_to_distant_non_consumer_industries = false;
 	do_not_record_private_car_routes_to_city_buildings = true;
 
@@ -1911,8 +1911,8 @@ void settings_t::rdwr(loadsave_t *file)
 		if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 36) || file->get_extended_version() >= 15)
 		{
 			file->rdwr_long(max_route_tiles_to_process_in_a_step_paused_background);
-			file->rdwr_long(do_not_record_private_car_routes_to_city_attractions);
-			file->rdwr_long(do_not_record_private_car_routes_to_city_industries);
+			file->rdwr_long(private_car_route_to_attraction_visitor_demand_threshold);
+			file->rdwr_long(private_car_route_to_industry_visitor_demand_threshold);
 			file->rdwr_bool(do_not_record_private_car_routes_to_distant_non_consumer_industries);
 			file->rdwr_bool(do_not_record_private_car_routes_to_city_buildings);
 		}
@@ -2821,8 +2821,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
 
-	do_not_record_private_car_routes_to_city_attractions = contents.get_int("do_not_record_private_car_routes_to_city_attractions", do_not_record_private_car_routes_to_city_attractions);
-	do_not_record_private_car_routes_to_city_industries = contents.get_int("do_not_record_private_car_routes_to_city_industries", do_not_record_private_car_routes_to_city_industries);
+	private_car_route_to_attraction_visitor_demand_threshold = contents.get_int("private_car_route_to_attraction_visitor_demand_threshold", private_car_route_to_attraction_visitor_demand_threshold);
+	private_car_route_to_industry_visitor_demand_threshold = contents.get_int("private_car_route_to_industry_visitor_demand_threshold", private_car_route_to_industry_visitor_demand_threshold);
 	do_not_record_private_car_routes_to_distant_non_consumer_industries = contents.get_int("do_not_record_private_car_routes_to_distant_non_consumer_industries", do_not_record_private_car_routes_to_distant_non_consumer_industries); 
 	do_not_record_private_car_routes_to_city_buildings = contents.get_int("do_not_record_private_car_routes_to_city_buildings", do_not_record_private_car_routes_to_city_buildings);
 

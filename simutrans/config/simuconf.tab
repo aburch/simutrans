@@ -899,8 +899,8 @@ assume_everywhere_connected_by_road = 0
 # routes without consuming large amounts of memory with routes to
 # large numbers of lower demand buildings. 
 
-do_not_record_private_car_routes_to_city_attractions = 0
-do_not_record_private_car_routes_to_city_industries = 0
+private_car_route_to_attraction_visitor_demand_threshold = 0
+private_car_route_to_industry_visitor_demand_threshold = 0
 
 # The next setting deals with private car routes to industries out
 # of town. Cars will not be able to route to these by using the route

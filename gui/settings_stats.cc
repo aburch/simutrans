@@ -354,8 +354,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 
 	READ_NUM_VALUE(sets->industry_density_proportion_override);
 
-	READ_NUM_VALUE(sets->do_not_record_private_car_routes_to_city_attractions);
-	READ_NUM_VALUE(sets->do_not_record_private_car_routes_to_city_industries);
+	READ_NUM_VALUE(sets->private_car_route_to_attraction_visitor_demand_threshold);
+	READ_NUM_VALUE(sets->private_car_route_to_industry_visitor_demand_threshold);
 	READ_BOOL_VALUE(sets->do_not_record_private_car_routes_to_distant_non_consumer_industries);
 	READ_BOOL_VALUE(sets->do_not_record_private_car_routes_to_city_buildings); 
 

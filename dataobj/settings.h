@@ -367,8 +367,8 @@ private:
 	* The numbers represent the maximum visitor demand threshold for the destination
 	* to which this rule applies. If 0, the rule does not apply. 
 	*/
-	uint32 do_not_record_private_car_routes_to_city_attractions = 0;
-	uint32 do_not_record_private_car_routes_to_city_industries = 0;
+	uint32 private_car_route_to_attraction_visitor_demand_threshold = 0;
+	uint32 private_car_route_to_industry_visitor_demand_threshold = 0;
 	bool do_not_record_private_car_routes_to_distant_non_consumer_industries = false;
 	bool do_not_record_private_car_routes_to_city_buildings = true;
 
@@ -1295,10 +1295,10 @@ public:
 	uint32 get_max_route_tiles_to_process_in_a_step_paused_background() const { return max_route_tiles_to_process_in_a_step_paused_background; }
 	void set_max_route_tiles_to_process_in_a_step_paused_background(uint32 value) { max_route_tiles_to_process_in_a_step_paused_background = value; }
 
-	uint32 get_do_not_record_private_car_routes_to_city_attractions() const { return do_not_record_private_car_routes_to_city_attractions; }
-	void set_do_not_record_private_car_routes_to_city_attractions(uint32 value) { do_not_record_private_car_routes_to_city_attractions = value; }
-	uint32 get_do_not_record_private_car_routes_to_city_industries() const { return do_not_record_private_car_routes_to_city_industries; }
-	void set_do_not_record_private_car_routes_to_city_industries(uint32 value) { do_not_record_private_car_routes_to_city_industries = value; }
+	uint32 get_do_not_record_private_car_routes_to_city_attractions() const { return private_car_route_to_attraction_visitor_demand_threshold; }
+	void set_do_not_record_private_car_routes_to_city_attractions(uint32 value) { private_car_route_to_attraction_visitor_demand_threshold = value; }
+	uint32 get_do_not_record_private_car_routes_to_city_industries() const { return private_car_route_to_industry_visitor_demand_threshold; }
+	void set_do_not_record_private_car_routes_to_city_industries(uint32 value) { private_car_route_to_industry_visitor_demand_threshold = value; }
 	bool get_do_not_record_private_car_routes_to_distant_non_consumer_industries() const { return do_not_record_private_car_routes_to_distant_non_consumer_industries; }
 	void set_do_not_record_private_car_routes_to_distant_non_consumer_industries(bool value) { do_not_record_private_car_routes_to_distant_non_consumer_industries = value; }
 	bool get_do_not_record_private_car_routes_to_city_buildings() const { return do_not_record_private_car_routes_to_city_buildings; }
