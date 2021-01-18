@@ -1045,7 +1045,7 @@ grund_t* private_car_t::hop_check()
 		// We need to check here, as the hashtable will give us a 0,0,0 koord rather
 		// than koord::invalid if this be not contained in the hashtable.
 		bool found_route = false;
-		found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
+		found_route = weg->has_private_car_route(check_target);
 		if (!found_route)
 		{
 			if (destination_city && (!current_city || current_city != destination_city))
@@ -1054,7 +1054,7 @@ grund_t* private_car_t::hop_check()
 				// (1) we are not in our destination city; or
 				// (2) there is a route to the individual destination building in the city.
 				check_target = destination_city->get_townhall_road();
-				found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
+				found_route = weg->has_private_car_route(check_target);
 			}
 		}
 

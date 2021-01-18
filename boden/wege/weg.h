@@ -18,7 +18,7 @@
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/minivec_tpl.h"
-#include "../../tpl/koordhashtable_tpl.h"
+#include "../../tpl/ordered_vector_tpl.h"
 #include "../../simskin.h"
 
 #ifdef MULTI_THREAD
@@ -249,15 +249,16 @@ public:
 
 	// Likewise, out of caution, put this here for the same reason.
 	// n_bags must be fairly low as there are 2 maps per way and usually zero elements per way, up to ~150 in high cases and ~1500 in highest cases
-	typedef koordhashtable_tpl<koord, uint8, N_BAGS_SMALL> private_car_route_map;
+	typedef ordered_vector_tpl<koord, uint32> private_car_route_map;
 	//typedef std::unordered_map<koord, koord3d> private_car_route_map_2;
-	private_car_route_map private_car_routes[2];
+	private_car_route_map private_car_routes[2][5];
 	//private_car_route_map_2 private_car_routes_std[2];
 	static uint32 private_car_routes_currently_reading_element;
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
 	void add_private_car_route(koord dest, koord3d next_tile);
-	koord3d get_next_on_private_car_route_to(koord dest) const;
+	bool has_private_car_route(koord dest) const;
+	koord3d get_next_on_private_car_route_to(koord dest, bool reading_set=true) const;
 private:
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
 	void remove_private_car_route(koord dest, bool reading_set = false);
@@ -507,6 +508,8 @@ public:
 		}
 		return (combined_actual * 100u / combined_ideal) - 100u;
 	}
+
+	uint8 get_map_idx(const koord3d &next_tile) const;
 };
 
 
