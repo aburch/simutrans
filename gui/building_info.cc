@@ -149,7 +149,7 @@ void gui_building_stats_t::init_stats_table()
 		new_component<gui_margin_t>(0, D_V_SPACE);
 	}
 
-	if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+	if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res || building->get_adjusted_mail_demand()) {
 		new_component<gui_heading_t>("Success rate", SYSCOL_TEXT, frame_color, 1)->set_width(D_DEFAULT_WIDTH-D_MARGINS_X-D_H_SPACE);
 		add_table(5,0)->set_spacing(scr_size(D_H_SPACE, D_V_SPACE/2));
 		{
@@ -160,25 +160,27 @@ void gui_building_stats_t::init_stats_table()
 			new_component<gui_label_t>("Last Year");
 			new_component<gui_fill_t>();
 
-			new_component<gui_colorbox_t>(goods_manager_t::passengers->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
-			new_component<gui_label_t>("Visiting trip");
-			lb_visiting_success_rate[0].set_fixed_width(value_cell_width);
-			lb_visiting_success_rate[1].set_fixed_width(value_cell_width);
-			lb_visiting_success_rate[0].set_align(gui_label_t::right);
-			lb_visiting_success_rate[1].set_align(gui_label_t::right);
-			add_component(&lb_visiting_success_rate[0]);
-			add_component(&lb_visiting_success_rate[1]);
-			new_component<gui_fill_t>();
+			if (building->get_tile()->get_desc()->get_type() == building_desc_t::city_res) {
+				new_component<gui_colorbox_t>(goods_manager_t::passengers->get_color())->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
+				new_component<gui_label_t>("Visiting trip");
+				lb_visiting_success_rate[0].set_fixed_width(value_cell_width);
+				lb_visiting_success_rate[1].set_fixed_width(value_cell_width);
+				lb_visiting_success_rate[0].set_align(gui_label_t::right);
+				lb_visiting_success_rate[1].set_align(gui_label_t::right);
+				add_component(&lb_visiting_success_rate[0]);
+				add_component(&lb_visiting_success_rate[1]);
+				new_component<gui_fill_t>();
 
-			new_component<gui_colorbox_t>(color_idx_to_rgb(COL_COMMUTER))->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
-			new_component<gui_label_t>("Commuting trip");
-			lb_commuting_success_rate[0].set_fixed_width(value_cell_width);
-			lb_commuting_success_rate[1].set_fixed_width(value_cell_width);
-			lb_commuting_success_rate[0].set_align(gui_label_t::right);
-			lb_commuting_success_rate[1].set_align(gui_label_t::right);
-			add_component(&lb_commuting_success_rate[0]);
-			add_component(&lb_commuting_success_rate[1]);
-			new_component<gui_fill_t>();
+				new_component<gui_colorbox_t>(color_idx_to_rgb(COL_COMMUTER))->set_size(scr_size(LINESPACE/2 + 2, LINESPACE/2 + 2));
+				new_component<gui_label_t>("Commuting trip");
+				lb_commuting_success_rate[0].set_fixed_width(value_cell_width);
+				lb_commuting_success_rate[1].set_fixed_width(value_cell_width);
+				lb_commuting_success_rate[0].set_align(gui_label_t::right);
+				lb_commuting_success_rate[1].set_align(gui_label_t::right);
+				add_component(&lb_commuting_success_rate[0]);
+				add_component(&lb_commuting_success_rate[1]);
+				new_component<gui_fill_t>();
+			}
 
 			// show only if this building has mail demands
 			if(building->get_adjusted_mail_demand()) {
