@@ -9,6 +9,7 @@
 #include "../simworld.h"
 #include "../simsignalbox.h"
 
+#include "../dataobj/environment.h"
 #include "../descriptor/building_desc.h"
 #include "../display/viewport.h"
 #include "../obj/gebaeude.h"
@@ -397,7 +398,7 @@ void building_info_t::update_near_by_halt()
 		}
 
 		// station name with owner color
-		cont_near_by_halt.new_component<gui_label_t>(halt->get_name(), color_idx_to_rgb(halt->get_owner()->get_player_color1()+2), gui_label_t::left);
+		cont_near_by_halt.new_component<gui_label_t>(halt->get_name(), color_idx_to_rgb(halt->get_owner()->get_player_color1()+env_t::gui_player_color_dark), gui_label_t::left);
 
 		if (skinverwaltung_t::on_foot) {
 			cont_near_by_halt.new_component<gui_image_t>()->set_image(skinverwaltung_t::on_foot->get_image_id(0), true);
