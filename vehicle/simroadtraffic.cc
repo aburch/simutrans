@@ -1142,6 +1142,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 
+	bool city_exit_u_turn = false;
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
@@ -1149,7 +1150,7 @@ grund_t* private_car_t::hop_check()
 		// so we can check for valid directions
 		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::backward(direction90));
 
-		// cul de sac: return
+		// cul-de-sac: return
 		if(ribi==0) {
 			pos_next_next = get_pos();
 			return can_enter_tile(from) ? from : NULL;
@@ -1157,6 +1158,7 @@ grund_t* private_car_t::hop_check()
 
 		static weighted_vector_tpl<koord3d> poslist(4);
 		poslist.clear();
+
 		bool city_exit = false;
 		for (uint32 n = 0; n < 2; n++)
 		{
@@ -1234,6 +1236,7 @@ grund_t* private_car_t::hop_check()
 									{
 										const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 										poslist.append(gr_backwards->get_pos(), dist);
+										city_exit_u_turn = true;
 										continue;
 									}
 								}
@@ -1269,7 +1272,7 @@ grund_t* private_car_t::hop_check()
 		{
 			pos_next_next = get_pos();
 		}
-		if(can_enter_tile(from)) {
+		if(city_exit_u_turn || can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -1279,7 +1282,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 	else {
-		if(from  &&  can_enter_tile(from)) {
+		if(from  &&  (city_exit_u_turn || can_enter_tile(from))) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
