@@ -465,7 +465,41 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 
 sync_result private_car_t::sync_step(uint32 delta_t)
 {
-	time_to_life -= delta_t;
+	bool slow_destruction = false;
+	if (time_to_life > 0 && time_to_life - delta_t < 10000 && target != koord::invalid)
+	{
+		// Postpone time based destruction of a private car if it is not in its destination city yet.
+		planquadrat_t* tile = welt->access(origin);
+		const stadt_t* origin_city = tile ? tile->get_city() : NULL;
+		if (origin_city)
+		{
+			tile = welt->access(target);
+			const stadt_t* destination_city = tile ? tile->get_city() : NULL;
+			if (!destination_city)
+			{
+				// Be slower to remove a vehicle bound for an attraction or industry until it actually reaches there (handled elsewhere)
+				slow_destruction = true;
+			}
+			else if (origin_city != destination_city)
+			{
+				// Be slower to remove a vehicle bound for a city until it is somewhere in the city
+				const planquadrat_t* this_tile = welt->access(get_pos().get_2d());
+				const stadt_t* this_city = this_tile ? this_tile->get_city() : NULL;
+				if (!this_city || this_city != destination_city)
+				{
+					slow_destruction = true;
+				}
+			}
+		}
+	}
+	if (slow_destruction)
+	{
+		time_to_life -= (delta_t / 3);
+	}
+	else
+	{
+		time_to_life -= delta_t;
+	}
 	if(  time_to_life<=0 ) {
 		return SYNC_DELETE;
 	}
@@ -493,7 +527,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 	}
 	else
 	{
-		if(ms_traffic_jam == 2147483647)
+		if(ms_traffic_jam == SINT32_MAX_VALUE)
 		{
 			ms_traffic_jam = 0;
 			// If this is the first step, get the car moving at a sensible speed as soon as possible.
@@ -871,6 +905,16 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		}
 	}
 
+	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
+	const ribi_t::ribi ribi = str->get_ribi() & (~ribi_t::backward(direction90));
+	const bool dead_end = ribi == 0;
+
+	if (str->get_overtaking_mode() == oneway_mode && dead_end)
+	{
+		// Do not allow entry to one way dead ends.
+		return false;
+	}
+
 	// If this car is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 	if(  is_overtaking()  &&  str->get_overtaking_mode() == prohibited_mode  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
@@ -917,7 +961,7 @@ void private_car_t::enter_tile(grund_t* gr)
 {
 	// Destination city car code revived from an older version of Simutrans.
 	// (Thanks to Prissi for finding this older code).
-	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
+	if(target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
 		uint32 number = 2;
@@ -985,7 +1029,7 @@ grund_t* private_car_t::hop_check()
 		// call to get_neighbour() in the heuristic mode.
 
 		// The target is an individual tile. If we are going to a destination in
-		// a city, then we need the route to the city, not the tile.
+		// a city, then we may need the route to the city, not the tile.
 
 		const grund_t* gr_check = welt->lookup_kartenboden(target);
 		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
@@ -1004,19 +1048,19 @@ grund_t* private_car_t::hop_check()
 		found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
 		if (!found_route)
 		{
-			if (!current_city || current_city != destination_city)
+			if (destination_city && (!current_city || current_city != destination_city))
 			{
 				// Only follow a route inside a city if:
 				// (1) we are not in our destination city; or
 				// (2) there is a route to the individual destination building in the city.
-				check_target = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+				check_target = destination_city->get_townhall_road();
 				found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
 			}
 		}
 
 		if (found_route)
 		{
-			pos_next_next = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
+			pos_next_next = weg->get_next_on_private_car_route_to(check_target);
 
 			// Check whether we are at the end of the route (i.e. the destination)
 			if ((current_city == destination_city) && pos_next_next == koord3d::invalid)
@@ -1033,12 +1077,13 @@ grund_t* private_car_t::hop_check()
 				pos_next_next = koord3d::invalid;
 
 				// We also need to invalidate the route.
+				/*
 				const planquadrat_t* tile = welt->access(origin);
 				stadt_t* origin_city = tile ? tile->get_city() : NULL;
 				if (origin_city)
 				{
 					//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
-				}
+				}*/
 			}
 			else
 			{
@@ -1052,7 +1097,7 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					// Check whether the private car is allowed on the subsequent way's direction
-					const koord3d pos_next_next_next = next_way->private_car_routes[weg_t::private_car_routes_currently_reading_element].get(check_target);
+					const koord3d pos_next_next_next = next_way->get_next_on_private_car_route_to(check_target);
 					if (pos_next_next_next != koord3d::invalid)
 					{
 						const ribi_t::ribi dir_next_next = ribi_type(pos_next_next, pos_next_next_next);
@@ -1067,14 +1112,16 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					pos_next_next = koord3d::invalid;
-
+					// City route checking is too slow for this to be effective.
+					/*
 					// We also need to invalidate the route.
 					const planquadrat_t* tile = welt->access(origin);
 					stadt_t* origin_city = tile ? tile->get_city() : NULL;
 					if (origin_city)
 					{
-						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+						welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
 					}
+					*/
 				}
 				else
 				{
@@ -1095,6 +1142,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 
+	bool city_exit_u_turn = false;
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
@@ -1102,7 +1150,7 @@ grund_t* private_car_t::hop_check()
 		// so we can check for valid directions
 		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::backward(direction90));
 
-		// cul de sac: return
+		// cul-de-sac: return
 		if(ribi==0) {
 			pos_next_next = get_pos();
 			return can_enter_tile(from) ? from : NULL;
@@ -1110,6 +1158,7 @@ grund_t* private_car_t::hop_check()
 
 		static weighted_vector_tpl<koord3d> poslist(4);
 		poslist.clear();
+
 		bool city_exit = false;
 		for (uint32 n = 0; n < 2; n++)
 		{
@@ -1187,6 +1236,7 @@ grund_t* private_car_t::hop_check()
 									{
 										const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 										poslist.append(gr_backwards->get_pos(), dist);
+										city_exit_u_turn = true;
 										continue;
 									}
 								}
@@ -1222,7 +1272,7 @@ grund_t* private_car_t::hop_check()
 		{
 			pos_next_next = get_pos();
 		}
-		if(can_enter_tile(from)) {
+		if(city_exit_u_turn || can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -1232,7 +1282,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 	else {
-		if(from  &&  can_enter_tile(from)) {
+		if(from  &&  (city_exit_u_turn || can_enter_tile(from))) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -1755,10 +1805,11 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  is_overtaking() && caut->is_overtaking()  ){
 					continue;
 				}
-				if(  !is_overtaking() && !(caut->is_overtaking())  ){
-					//Prohibit going on passing lane when facing traffic exists.
+				if(  !is_overtaking() && !(caut->is_overtaking())  )
+				{
+					// Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = caut->get_direction();
-					if(  ribi_t::backward(get_direction()) == other_direction  ) {
+					if( ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
@@ -1789,4 +1840,27 @@ void *private_car_t::operator new(size_t /*s*/)
 void private_car_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(private_car_t),p);
+}
+koord3d private_car_t::neighbour_from_int(koord3d from, uint8 i) {
+	if(i==end_of_route) {
+		return koord3d::invalid;
+	} else if (i==no_route) {
+		return koord3d();
+	} else {
+		return koord3d(from.x+(i%5)-2,from.y+(i%25)/5-2,from.z+(i/25)-2);
+	}
+}
+
+uint8 private_car_t::int_from_neighbour(koord3d from, koord3d to) {
+	if(-2 <= to.x-from.x && to.x-from.x <= 2
+	   && -2 <= to.y-from.y && to.y-from.y <= 2
+	   && -2 <= to.z-from.z && to.z-from.z <= 2) {
+		return (to.x-from.x+2) + 5*(to.y-from.y+2) + 25*(to.z-from.z+2);
+	} else if(to==koord3d::invalid){
+		return end_of_route;
+	} else if (to==koord3d()){
+		return no_route;
+	} else {
+		return invalid_route;
+	}
 }

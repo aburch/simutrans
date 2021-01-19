@@ -209,7 +209,7 @@ private:
 	bool degraded:1;
 
 #ifdef MULTI_THREAD
-	pthread_mutex_t private_car_store_route_mutex;
+	pthread_rwlock_t private_car_store_route_rwlock;
 #endif
 
 protected:
@@ -249,7 +249,7 @@ public:
 
 	// Likewise, out of caution, put this here for the same reason.
 	// n_bags must be fairly low as there are 2 maps per way and usually zero elements per way, up to ~150 in high cases and ~1500 in highest cases
-	typedef koordhashtable_tpl<koord, koord3d, N_BAGS_SMALL> private_car_route_map;
+	typedef koordhashtable_tpl<koord, uint8, N_BAGS_SMALL> private_car_route_map;
 	//typedef std::unordered_map<koord, koord3d> private_car_route_map_2;
 	private_car_route_map private_car_routes[2];
 	//private_car_route_map_2 private_car_routes_std[2];
@@ -257,6 +257,7 @@ public:
 	static uint32 get_private_car_routes_currently_writing_element() { return private_car_routes_currently_reading_element == 1 ? 0 : 1; }
 
 	void add_private_car_route(koord dest, koord3d next_tile);
+	koord3d get_next_on_private_car_route_to(koord dest) const;
 private:
 	/// Set the boolean value to true to modify the set currently used for reading (this must ONLY be done when this is called from a single threaded part of the code).
 	void remove_private_car_route(koord dest, bool reading_set = false);

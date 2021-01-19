@@ -143,7 +143,7 @@ public:
 	/// Current limit on cargo in transit, depending on suppliers mean distance.
 	sint32 max_transit;
 
-	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+	uint32 index_offset; // used for haltlist and consumers searches in verteile_waren to produce round robin results
 };
 
 
@@ -187,8 +187,8 @@ private:
 	void book_weighted_sums(sint64 delta_time);
 
 	/// Possible destinations for produced goods
-	vector_tpl <koord> lieferziele;
-	uint32 lieferziele_active_last_month;
+	vector_tpl <koord> consumers;
+	uint32 consumers_active_last_month;
 
 	/**
 	 * suppliers to this factory
@@ -458,8 +458,8 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; } // "Delivery destinations" (Google)
-	bool is_active_lieferziel( koord k ) const;
+	const vector_tpl<koord>& get_consumers() const { return consumers; } // "Delivery destinations" (Google)
+	bool is_consumer_active_at(koord consumer_pos ) const;
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
@@ -490,8 +490,8 @@ public:
 	/**
 	 * Adds a new delivery goal
 	 */
-	void add_lieferziel(koord ziel);
-	void rem_lieferziel(koord pos);
+	void add_consumer(koord ziel);
+	void remove_consumer(koord pos);
 
 	bool disconnect_consumer(koord pos);
 	bool disconnect_supplier(koord pos);
@@ -500,15 +500,15 @@ public:
 	 * adds a supplier
 	 */
 	void  add_supplier(koord pos);
-	void  rem_supplier(koord pos);
+	void  remove_supplier(koord pos);
 
 	/**
 	 * @return menge der ware typ ("quantity of the goods type")
 	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
 	 *   sonst die gelagerte menge ("otherwise the stored quantity")
 	 */
-	sint32 input_vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp ("Inventories of product")
-	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
+	sint32 count_input_stock(const goods_desc_t *ware);
+	sint32 count_output_stock(const goods_desc_t *ware);
 
 	/**
 	* returns all power and consume it to prevent multiple pumpes

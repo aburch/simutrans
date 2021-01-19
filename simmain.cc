@@ -672,7 +672,7 @@ int simu_main(int argc, char** argv)
 #else
 	const char xml_filename[26] = "settings-extended.xml";
 #endif
-	bool xml_settings_found = file.rd_open(xml_filename);
+	bool xml_settings_found = file.rd_open(xml_filename) == loadsave_t::FILE_STATUS_OK;
 	if(!xml_settings_found)
 	{
 		// Again, attempt to use the Debian directory.
@@ -680,7 +680,7 @@ int simu_main(int argc, char** argv)
 		strcpy(backup_data_dir, env_t::data_dir);
 		strcpy( env_t::data_dir, "/usr/share/games/simutrans-extended/" );
 		dr_chdir( env_t::data_dir );
-		xml_settings_found = file.rd_open(xml_filename);
+		xml_settings_found = file.rd_open(xml_filename) == loadsave_t::FILE_STATUS_OK;
 		if(!xml_settings_found)
 		{
 			 strcpy(env_t::data_dir, backup_data_dir);
@@ -759,7 +759,7 @@ int simu_main(int argc, char** argv)
 		std::string fn = env_t::user_dir;
 		fn += "save/";
 		fn += filename;
-		if(  test.rd_open(fn.c_str())  ) {
+		if(  test.rd_open(fn.c_str()) == loadsave_t::FILE_STATUS_OK  ) {
 			// add pak extension
 			std::string pak_extension = test.get_pak_extension();
 			if(  pak_extension!="(unknown)"  ) {
@@ -1219,6 +1219,11 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
+	if (gimme_arg(argc, argv, "-run-background-tasks", 0))
+	{
+		env_t::server_runs_background_tasks_when_paused = true;
+	}
+
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
 		cbuffer_t buf;
 		dr_chdir( env_t::user_dir );
@@ -1244,7 +1249,7 @@ int simu_main(int argc, char** argv)
 		static char servername[128];
 		sprintf( servername, "server%d-network.sve", env_t::server );
 		// try recover with the latest savegame
-		if(  file.rd_open(servername)  ) {
+		if(  file.rd_open(servername) == loadsave_t::FILE_STATUS_OK  ) {
 			// compare pakset (objfilename has trailing path separator, pak_extension not)
 			if (strstart(env_t::objfilename.c_str(), file.get_pak_extension())) {
 				// same pak directory - load this
@@ -1549,7 +1554,7 @@ int simu_main(int argc, char** argv)
 
 	// save setting ...
 	dr_chdir( env_t::user_dir );
-	if(  file.wr_open(xml_filename,loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)  ) {
+	if(  file.wr_open(xml_filename,loadsave_t::xml,0,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)==loadsave_t::FILE_STATUS_OK   ) {
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);
 		file.close();

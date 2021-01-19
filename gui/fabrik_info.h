@@ -9,6 +9,7 @@
 
 #include "../gui/simwin.h"
 
+#include "building_info.h"
 #include "factory_chart.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
@@ -78,7 +79,8 @@ private:
 
 	gui_factory_storage_info_t storage;
 
-	gui_container_t container_info, container_details;
+	gui_container_t container_info;
+	gui_building_stats_t container_details;
 	gui_scrollpane_t scrolly_info, scrolly_details;
 	gui_factory_connection_stat_t all_suppliers, all_consumers;
 	gui_label_t lb_suppliers, lb_consumers, lb_nearby_halts;

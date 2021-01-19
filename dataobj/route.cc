@@ -244,9 +244,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	const grund_t* gr = NULL;
 	sint32 bridge_tile_count = 0;
 
-	const fabrik_t* destination_industry;
+	fabrik_t* destination_industry;
 	const gebaeude_t* destination_attraction;
 	const stadt_t* destination_city;
+	const stadt_t* current_city;
 	stadt_t* origin_city = NULL;
 	bool reached_target = false;
 
@@ -260,6 +261,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	}
 
 	uint32 private_car_route_step_counter = 0;
+
+	fixed_list_tpl<koord, 8> destinations_already_processed; // We use a fixed list because alomst inevitably with a Dikejstra search, finding another tile of the same destination will be shortly after the last one.
 
 	do
 	{
@@ -296,9 +299,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				// line distance.
 				reached_target = true;
 				const koord3d k = gr->get_pos();
-				destination_city = welt->access(k.get_2d())->get_city();
-				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
+				current_city = welt->access(k.get_2d())->get_city();
+				if(current_city && current_city->get_townhall_road() == k.get_2d())
 				{
+					destination_city = current_city;
 					// This is a city destination.
 					if(origin_city && start.get_2d() == k.get_2d())
 					{
@@ -421,72 +425,133 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		}
 
 		// Relax the route here if this is a private car route checker, as we may find many destinations.
-		if (reached_target && flags == private_car_checker && (destination_attraction || destination_industry || destination_city))
+		if (reached_target && flags == private_car_checker && ((destination_attraction || destination_industry || destination_city) || !welt->get_settings().get_do_not_record_private_car_routes_to_city_buildings()))
 		{
-			route.clear();
-			ANode* original_tmp = tmp;
-			//route.resize(tmp->count + 16);
-
 			// There may be multiple objects at this location (a townhall road might share a tile with an industry or attraction).
 			// Make sure to capture all objects.
 			const koord industry_destination_pos = destination_industry ? destination_industry->get_pos().get_2d() : koord::invalid;
 			const koord attraction_destination_pos = destination_attraction ? destination_attraction->get_first_tile()->get_pos().get_2d() : koord::invalid;
 			const koord city_destination_pos = destination_city ? destination_city->get_townhall_road() : koord::invalid;
+			sint32 max_commuting_distance_road_tiles = SINT32_MAX_VALUE;
+			sint32 straight_line_tiles = 0;
 
-			koord3d previous = koord3d::invalid;
-			weg_t* w;
-			while (tmp != NULL)
+			if (welt->get_settings().get_do_not_record_private_car_routes_to_distant_non_consumer_industries() && destination_industry && origin_city && !destination_industry->get_desc()->is_consumer_only())
 			{
-				private_car_route_step_counter++;
-				w = tmp->gr->get_weg(road_wt);
+				// If this setting be activated, only allow routes to be recorded to non-consumer industries within reasonable commuting distance
+				// NOTE: If and when the private van feature be introduced, enabling this setting will be highly undesirable.
+				const uint32 meters_per_tile = welt->get_settings().get_meters_per_tile();
+				const uint32 max_commuting_tolerance = welt->get_settings().get_range_commuting_tolerance() + welt->get_settings().get_min_commuting_tolerance();
+				const uint32 average_private_car_speed = welt->get_citycar_speed_average();
+				const uint32 max_commuting_distance_road_km = (average_private_car_speed * max_commuting_tolerance) / 600u; // Dividing by 600 to convert tenths of minutes to hours
+				max_commuting_distance_road_tiles = (max_commuting_distance_road_km * 1000u) / meters_per_tile;
+				straight_line_tiles = shortest_distance(industry_destination_pos, origin_city->get_townhall_road()) - (origin_city->get_max_dimension() + 2); 
+			}
 
-				if (w)
+			if (destination_city ||
+				((!current_city && (straight_line_tiles < max_commuting_distance_road_tiles) ||
+				(destination_attraction && welt->get_settings().get_do_not_record_private_car_routes_to_city_attractions() < destination_attraction->get_adjusted_visitor_demand()) ||
+				(destination_industry && welt->get_settings().get_do_not_record_private_car_routes_to_city_industries() < destination_industry->get_building()->get_adjusted_visitor_demand())) ||
+				(!destination_industry && !destination_attraction && !welt->get_settings().get_do_not_record_private_car_routes_to_city_buildings())))
+			{
+				route.clear();
+				ANode* original_tmp = tmp;
+				//route.resize(tmp->count + 16);
+
+				const koord this_destination = industry_destination_pos != koord::invalid ? industry_destination_pos : attraction_destination_pos;
+
+				// Often, industries and attractions have more than one road tile
+				// that triggers that reached_target flag. This would result in
+				// wasteful duplication of route writing without this check.
+				// NOTE: This feature may well be what makes the private car route
+				// finding system unable to run in more than one background thread
+				// without losing synchronisation in a multi-player game.
+				// Is there an algorithm somewhere that will give only one reached_target
+				// road tile for each building (and will work no matter where the
+				// road tile near the building is)?
+				bool fresh_destination = true;
+				for (uint32 i = 0; i < destinations_already_processed.get_count(); i++)
 				{
-					// The route is added here in a different array index to the set of routes
-					// that are currently being read.
-
-					// Also, the route is iterated here *backwards*.
-
-					if (industry_destination_pos != koord::invalid)
+					if (destinations_already_processed[i] == this_destination && this_destination != koord::invalid)
 					{
-						w->add_private_car_route(industry_destination_pos, previous);
-					}
-
-					if (attraction_destination_pos != koord::invalid)
-					{
-						w->add_private_car_route(attraction_destination_pos, previous);
-					}
-
-					if (city_destination_pos != koord::invalid)
-					{
-						w->add_private_car_route(city_destination_pos, previous);
+						fresh_destination = false;
+						break;
 					}
 				}
 
-				// Old route storage - we probably no longer need this.
-				//route.store_at(tmp->count, tmp->gr->get_pos());
+				if (this_destination != koord::invalid)
+				{
+					destinations_already_processed.add_to_tail(this_destination);
+				}
 
-				previous = tmp->gr->get_pos();
-				tmp = tmp->parent;
-			}
+				koord3d previous = koord3d::invalid;
+				weg_t* w;
+				while (fresh_destination && tmp != NULL)
+				{
+					private_car_route_step_counter++;
+					w = tmp->gr->get_weg(road_wt);
+
+					if (w)
+					{
+						// The route is added here in a different array index to the set of routes
+						// that are currently being read.
+
+						// Also, the route is iterated here *backwards*.
+
+						if (industry_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(industry_destination_pos, previous);
+						}
+
+						if (attraction_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(attraction_destination_pos, previous);
+						}
+
+						if (city_destination_pos != koord::invalid)
+						{
+							w->add_private_car_route(city_destination_pos, previous);
+						}
+					}
+
+					// Old route storage - we probably no longer need this.
+					//route.store_at(tmp->count, tmp->gr->get_pos());
+
+					previous = tmp->gr->get_pos();
+					tmp = tmp->parent;
+				}
 
 #ifdef MULTI_THREAD
-			const uint32 max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
-			if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
-			{
-				// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
-				// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
-
-				// It is intentional to have two barriers here.
-				simthread_barrier_wait(&karte_t::private_car_barrier);
-				if (!suspend_private_car_routing)
+				uint32 max_steps; 
+				if (env_t::server && welt->is_paused())
 				{
-					simthread_barrier_wait(&karte_t::private_car_barrier);
+					max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step_paused_background();
 				}
-				private_car_route_step_counter = 0;
-			}
+				else
+				{
+					max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step();
+				}
+
+				if (max_steps && !suspend_private_car_routing && private_car_route_step_counter >= max_steps)
+				{
+					// Halt this mid step if there are too many routes being calculated so as not to make the game unresponsive.
+					// On a Ryzen 3900x, calculating all routes from one city on a 600 city map can take ~4 seconds.
+
+					// It is intentional to have two barriers here.
+					simthread_barrier_wait(&karte_t::private_car_barrier);
+					if (!suspend_private_car_routing)
+					{
+						simthread_barrier_wait(&karte_t::private_car_barrier);
+					}
+					private_car_route_step_counter = 0;
+				}
 #endif
-			tmp = original_tmp;
+				tmp = original_tmp;
+
+			}
+			else
+			{
+				uint32 a = 1 + 1;
+			}
 
 		}
 

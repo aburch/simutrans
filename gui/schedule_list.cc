@@ -143,7 +143,8 @@ const char *schedule_list_gui_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_max_speed",
 	"cl_btn_sort_power",
 	"cl_btn_sort_value",
-	"cl_btn_sort_age"
+	"cl_btn_sort_age",
+	"cl_btn_sort_range"
 };
 
 schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :

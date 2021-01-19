@@ -32,7 +32,11 @@ private:
 		fill_path_matrix_label,
 		explore_path_label,
 		reroute_goods_label,
-		status_label;
+		status_label,
+
+		reading_index_label,
+		cities_awaiting_private_car_route_check_label,
+		cities_to_process_label;
 
 public:
 	gui_settings_t();

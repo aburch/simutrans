@@ -61,6 +61,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	prod(&prod_buf),
 	txt(&info_buf),
 	storage(fab_),
+	container_details(gb, get_titlecolor()),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
 	all_suppliers(fab_, true),
@@ -445,18 +446,18 @@ void fabrik_info_t::update_components()
 	}
 
 	// consumers
-	if (fab->get_lieferziele().get_count() != old_consumers_count) {
+	if (fab->get_consumers().get_count() != old_consumers_count) {
 		lb_consumers.set_pos(scr_coord(D_H_SPACE, y));
 		all_consumers.recalc_size();
-		if (fab->get_lieferziele().get_count()) {
+		if (fab->get_consumers().get_count()) {
 			lb_consumers.set_visible(true);
 		}
 		all_consumers.set_pos(scr_coord(0, y+LINESPACE));
 
-		old_consumers_count = fab->get_lieferziele().get_count();
+		old_consumers_count = fab->get_consumers().get_count();
 	}
-	if (fab->get_lieferziele().get_count()) {
-		y += (fab->get_lieferziele().get_count()+2) * (LINESPACE+1);
+	if (fab->get_consumers().get_count()) {
+		y += (fab->get_consumers().get_count() + 2) * (LINESPACE + 1);
 	}
 
 	// connected stops
@@ -474,10 +475,6 @@ void fabrik_info_t::update_components()
 	if (y != container_info.get_size().h) {
 		container_info.set_size(scr_size(400, y));
 	}
-
-	// details tab
-	txt.recalc_size();
-	container_details.set_size(scr_size(D_BUTTON_WIDTH * 3, txt.get_size().h));
 
 	set_dirty();
 }
@@ -501,6 +498,7 @@ fabrik_info_t::fabrik_info_t() :
 	prod(&prod_buf),
 	txt(&info_buf),
 	storage(NULL),
+	container_details(NULL, get_titlecolor()),
 	scrolly_info(&container_info),
 	scrolly_details(&container_details),
 	all_suppliers(NULL, true),
@@ -564,6 +562,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			goods_chart.set_factory(fab);
 			chart.set_factory(fab);
 
+			container_details.init(gb, get_titlecolor());
 			init(fab, gb);
 			scrolly_info.set_scroll_amount_y(scroll_y);
 			scrolly_info.set_scroll_position(scroll_x, scroll_y);

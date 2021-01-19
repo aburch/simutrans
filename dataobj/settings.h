@@ -348,7 +348,29 @@ private:
 	* the faster the performance. Reduce this number if momentary
 	* unresponsiveness be noticed frequently.
 	*/
-	uint32 max_route_tiles_to_process_in_a_step = 1024;
+	uint32 max_route_tiles_to_process_in_a_step = 8192;
+
+	/**
+	* Same as max_route_tiles_to_process_in_a_step, but this is the number
+	* used when running as a server when paused because no clients are 
+	* connected and configured to run background tasks while paused.
+	*/
+	uint32 max_route_tiles_to_process_in_a_step_paused_background = 65535;
+
+	/**
+	* These settings allow fine tuning the private car routing algorithm
+	* apropos how many routes are recorded. On larger maps, recording
+	* private car routes can take up a large amount of memory, so it
+	* can be useful to be able to disable some sorts of private car route
+	* recording.
+	*
+	* The numbers represent the maximum visitor demand threshold for the destination
+	* to which this rule applies. If 0, the rule does not apply. 
+	*/
+	uint32 private_car_route_to_attraction_visitor_demand_threshold = 120;
+	uint32 private_car_route_to_industry_visitor_demand_threshold = 120;
+	bool do_not_record_private_car_routes_to_distant_non_consumer_industries = true;
+	bool do_not_record_private_car_routes_to_city_buildings = true;
 
 	/**
 	* This modifies the base journey time tolerance for passenger
@@ -1270,6 +1292,17 @@ public:
 
 	uint32 get_max_route_tiles_to_process_in_a_step() const { return max_route_tiles_to_process_in_a_step; }
 	void set_max_route_tiles_to_process_in_a_step(uint32 value) { max_route_tiles_to_process_in_a_step = value; }
+	uint32 get_max_route_tiles_to_process_in_a_step_paused_background() const { return max_route_tiles_to_process_in_a_step_paused_background; }
+	void set_max_route_tiles_to_process_in_a_step_paused_background(uint32 value) { max_route_tiles_to_process_in_a_step_paused_background = value; }
+
+	uint32 get_do_not_record_private_car_routes_to_city_attractions() const { return private_car_route_to_attraction_visitor_demand_threshold; }
+	void set_do_not_record_private_car_routes_to_city_attractions(uint32 value) { private_car_route_to_attraction_visitor_demand_threshold = value; }
+	uint32 get_do_not_record_private_car_routes_to_city_industries() const { return private_car_route_to_industry_visitor_demand_threshold; }
+	void set_do_not_record_private_car_routes_to_city_industries(uint32 value) { private_car_route_to_industry_visitor_demand_threshold = value; }
+	bool get_do_not_record_private_car_routes_to_distant_non_consumer_industries() const { return do_not_record_private_car_routes_to_distant_non_consumer_industries; }
+	void set_do_not_record_private_car_routes_to_distant_non_consumer_industries(bool value) { do_not_record_private_car_routes_to_distant_non_consumer_industries = value; }
+	bool get_do_not_record_private_car_routes_to_city_buildings() const { return do_not_record_private_car_routes_to_city_buildings; }
+	void set_do_not_record_private_car_routes_to_city_buildings(bool value) { do_not_record_private_car_routes_to_city_buildings = value; }
 };
 
 #endif

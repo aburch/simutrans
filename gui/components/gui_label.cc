@@ -92,7 +92,7 @@ void gui_label_t::draw(scr_coord offset)
 	if(  align == money_right) {
 		if(text) {
 			const char *separator = NULL;
-			const bool not_a_number = atol(text)==0  &&  !isdigit(*text);
+			const bool not_a_number = atol(text)==0  &&  !isdigit(*text)  &&  *text != '-';
 
 			scr_coord right = pos + offset;
 
@@ -221,6 +221,39 @@ void gui_label_updown_t::draw(scr_coord offset)
 		int a = align == left ? ALIGN_LEFT : (align == right ? ALIGN_RIGHT : ALIGN_CENTER_H);
 		display_proportional_ellipsis_rgb(area, text, a | DT_CLIP, color, true);
 	}
+
+	if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
+		const scr_coord_val by = offset.y + pos.y;
+		const scr_coord_val bh = size.h;
+
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+	}
+}
+
+
+void gui_data_bar_t::draw(scr_coord offset)
+{
+	if (max == 0) { return; }
+	size.w = fixed_width;
+	cbuffer_t text;
+	text.clear();
+	uint32 tmp = 10000 * value / max;
+	if (show_value) {
+		text.append(value);
+	}
+	if (show_percentage) {
+		if (show_value) {
+			text.append(" (");
+		}
+		text.printf(show_digit ? "%4.1f%%" : "%3.0f%%", tmp/100.0);
+		if (show_value) {
+			text.append(")");
+		}
+	}
+	const scr_coord_val color_bar_width = (tmp+99)*size.w/10000;
+	display_linear_gradient_wh_rgb(pos.x + offset.x, pos.y + offset.y, color_bar_width, size.h, bar_color, 70, 15, true);
+	const scr_rect area(offset + pos, size);
+	display_proportional_ellipsis_rgb(area, text, ALIGN_RIGHT | DT_CLIP, color, true);
 
 	if (tooltip  &&  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)) {
 		const scr_coord_val by = offset.y + pos.y;

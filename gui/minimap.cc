@@ -1399,7 +1399,7 @@ const fabrik_t* minimap_t::draw_factory_connections(const PIXVAL colour, const s
 	const fabrik_t* const fab = get_factory_near( last_world_pos, true );
 	if(fab) {
 		scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() ) + pos;
-		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
+		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_consumers();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {

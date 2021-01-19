@@ -168,6 +168,26 @@ gui_settings_t::gui_settings_t()
 		status_label.set_color(SYSCOL_TEXT_TITLE);
 		status_label.update();
 		add_component(&status_label);
+
+		// Private cars hereafter
+
+		new_component<gui_label_t>("Private car routes reading index:");
+		reading_index_label.buf().printf("-");
+		reading_index_label.set_color(SYSCOL_TEXT_TITLE);
+		reading_index_label.update();
+		add_component(&reading_index_label); 
+
+		new_component<gui_label_t>("Cities awaiting private car route check:");
+		cities_awaiting_private_car_route_check_label.buf().printf("-");
+		cities_awaiting_private_car_route_check_label.set_color(SYSCOL_TEXT_TITLE);
+		cities_awaiting_private_car_route_check_label.update();
+		add_component(&cities_awaiting_private_car_route_check_label);
+
+		new_component<gui_label_t>("Cities to process this step for private car routes:");
+		cities_to_process_label.buf().printf("-");
+		cities_to_process_label.set_color(SYSCOL_TEXT_TITLE);
+		cities_to_process_label.update();
+		add_component(&cities_to_process_label);
 	}
 	end_table();
 }
@@ -229,6 +249,15 @@ void gui_settings_t::draw(scr_coord offset)
 
 	reroute_goods_label.buf().printf("%lu", path_explorer_t::get_limit_reroute_goods());
 	reroute_goods_label.update();
+
+	reading_index_label.buf().printf("%lu", weg_t::private_car_routes_currently_reading_element);
+	reading_index_label.update();
+
+	cities_awaiting_private_car_route_check_label.buf().printf("%lu", world()->get_cities_awaiting_private_car_route_check_count());
+	cities_awaiting_private_car_route_check_label.update();
+
+	cities_to_process_label.buf().printf("%i", world()->get_cities_to_process());
+	cities_to_process_label.update();
 
 	// All components are updated, now draw them...
 	gui_aligned_container_t::draw(offset);

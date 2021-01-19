@@ -17,6 +17,7 @@
 #include "../utils/simstring.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
+#include "../unicode.h"
 #include "../player/simplay.h"
 #include "tool_selector.h"
 
@@ -49,6 +50,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 {
 	set_table_layout(2,0);
 	set_alignment(ALIGN_TOP | ALIGN_LEFT);
+	set_margin(scr_size(0,D_MARGIN_TOP), scr_size(0,0));
 
 	add_component(&generaltext);
 	generaltext.add_listener(this);
@@ -218,6 +220,18 @@ static char *load_text(char const* const filename )
 			bool is_latin = strchr( buf, 0xF6 )!=NULL; // "o-umlaut, is forbidden for unicode
 			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
 				is_latin |= strchr( buf, 0xF8 )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xFE )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xFA )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF3 )!=NULL; // "o-umlaut, is forbidden for unicode
+			}
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF1 )!=NULL; // "o-umlaut, is forbidden for unicode
 			}
 			if(  is_latin  ) {
 				// we need to translate charwise ...
@@ -418,6 +432,7 @@ std::string help_frame_t::extract_title( const char *htmllines )
 {
 	const uint8 *start = (const uint8 *)strstr( htmllines, "<title>" );
 	const uint8 *end = (const uint8 *)strstr( htmllines, "</title>" );
+	bool convert_to_utf = false;
 	uint8 title_form_html[1024];
 	if(  start  &&  end  &&  (size_t)(end-start)<lengthof(title_form_html)  ) {
 		uint8 *dest = title_form_html;
@@ -430,7 +445,27 @@ std::string help_frame_t::extract_title( const char *htmllines )
 			}
 			// skip tabs and newlines
 			if(  *c>=32  ) {
-				*dest++ = *c++;
+				// convert to UTF if needed
+				if(  !convert_to_utf  &&  *c >= 0x80  ) {
+					size_t len;
+					utf8_decoder_t::decode(c, len);
+					convert_to_utf = (len <= 1);
+				}
+				if (convert_to_utf) {
+					if (translator::get_lang()->is_latin2_based) {
+						dest += utf16_to_utf8(latin2_to_unicode(*c), dest);
+					}
+					else {
+						dest += utf16_to_utf8(*c, dest);
+					}
+					c++;
+				}
+				else {
+					size_t len;
+					utf32 cc = utf8_decoder_t::decode(c, len);
+					dest += utf16_to_utf8(cc, dest);
+					c += len;
+				}
 			}
 			else {
 				// avoid double spaces
@@ -517,5 +552,5 @@ void help_frame_t::resize(const scr_coord delta)
 		helptext.set_pos( generaltext.get_pos() + scr_size( generalwidth, 0 ) );
 	}
 
-	helptext.set_size( get_client_windowsize() - scr_size( generalwidth, 0) -scr_size(D_MARGIN_RIGHT,D_MARGIN_BOTTOM) );
+	helptext.set_size( get_client_windowsize() - scr_size( generalwidth, 0) -scr_size(0,D_MARGIN_BOTTOM) );
 }

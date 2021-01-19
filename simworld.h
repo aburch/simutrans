@@ -925,6 +925,9 @@ private:
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
+	/// To prevent pause_step constantly re-checking the private car routes when not necessary.
+	bool private_car_route_check_complete = false;
+
 #ifdef MULTI_THREAD
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;
@@ -1158,6 +1161,10 @@ public:
 	 * @returns true if world gets destroyed
 	 */
 	bool is_destroying() const { return destroying; }
+
+	uint32 get_cities_awaiting_private_car_route_check_count() const;
+
+	uint32 get_cities_to_process() const { return cities_to_process; }
 
 #ifdef MULTI_THREAD
 	/**
@@ -2169,7 +2176,7 @@ public:
 	 * File version used when loading (or current if generated)
 	 * @note Useful for finish_rd
 	 */
-	loadsave_t::combined_version load_version;
+	extended_version_t load_version;
 
 	/**
 	 * Checks if the planquadrat (tile) at coordinate (x,y)
@@ -2364,6 +2371,9 @@ public:
 	 * Tasks that are more time-consuming, like route search of vehicles and production of factories.
 	 */
 	void step();
+
+	/// Tasks undertaken by a server when paused
+	void pause_step();
 
 //private:
 	inline planquadrat_t *access_nocheck(int i, int j) const {
@@ -2663,7 +2673,7 @@ public:
 
 private:
 
-	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(city_road); }
+	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(NULL); }
 	void calc_generic_road_time_per_tile_intercity();
 	void calc_max_road_check_depth();
 

@@ -195,6 +195,7 @@ add_executable(simutrans-extended
 	gui/banner.cc
 	gui/base_info.cc
 	gui/baum_edit.cc
+	gui/building_info.cc
 	gui/citybuilding_edit.cc
 	gui/city_info.cc
 	gui/citylist_frame_t.cc
@@ -316,6 +317,11 @@ add_executable(simutrans-extended
 	gui/vehiclelist_frame.cc
 	gui/vehicle_class_manager.cc
 	gui/welt.cc
+	io/rdwr/bzip2_file_rdwr_stream.cc
+	io/rdwr/raw_file_rdwr_stream.cc
+	io/rdwr/rdwr_stream.cc
+	io/rdwr/zlib_file_rdwr_stream.cc
+	io/classify_file.cc
 	network/checksum.cc
 	network/memory_rw.cc
 	network/network_address.cc
@@ -522,6 +528,7 @@ if (SIMUTRANS_USE_UPNP)
 endif (SIMUTRANS_USE_UPNP)
 
 if (SIMUTRANS_USE_ZSTD)
+	target_sources(simutrans-extended PRIVATE io/rdwr/zstd_file_rdwr_stream.cc)
 	target_compile_definitions(simutrans-extended PRIVATE USE_ZSTD=1)
 	target_link_libraries(simutrans-extended PRIVATE ZSTD::ZSTD)
 endif (SIMUTRANS_USE_ZSTD)
