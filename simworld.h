@@ -1163,8 +1163,9 @@ public:
 	bool is_destroying() const { return destroying; }
 
 	uint32 get_cities_awaiting_private_car_route_check_count() const;
-
+#ifndef NETTOOL
 	uint32 get_cities_to_process() const { return cities_to_process; }
+#endif
 
 #ifdef MULTI_THREAD
 	/**
