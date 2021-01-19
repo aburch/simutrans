@@ -17,6 +17,7 @@
 	ADD: special key "SCORLLOCK", "DELETE", ESCAPE", BACKSAPCE" and "+" sign for shift as modifer in tools key binding
 	ADD: waiting time in schedules is now entered in days hours minutes (but old games will still have the old steps)
 	ADD: (Leartin) groundobj editor and totally overhauled edit windows
+	FIX: Fatal error when querying servers running very old versions
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

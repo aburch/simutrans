@@ -419,7 +419,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 				}
 				else {
 					item->set_color( MONEY_MINUS );
-					update_error( "Server did not respond!" );
+					update_error( err );
 				}
 				display_show_load_pointer(0);
 			}
