@@ -5725,6 +5725,7 @@ void karte_t::step()
 			for(auto w : weg_t::get_alle_wege()) {
 				for(auto & l : w->private_car_routes[weg_t::get_private_car_routes_currently_writing_element()]) {
 					l.clear();
+					l.resize(0);
 				}
 			}
 			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
