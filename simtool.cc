@@ -3486,7 +3486,6 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 			if( gr->ist_karten_boden() ) {
 				const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 				const char *err = NULL;
-				sint64 price = 0;
 
 				// first check for building portal only
 				if(  is_ctrl_pressed()  ) {
@@ -4862,7 +4861,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			}
 
 			if (gr->get_hoehe() != pos.z) {
-				return NOTICE_UNSUITABLE_GROUND;
+				last_error = NOTICE_UNSUITABLE_GROUND;
 				break;
 			}
 
@@ -4918,8 +4917,8 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			halt = test_halt[i];
 			koord last_k = k + dx*len;
 			// layout: north 2, west 3, south 0, east 1
-			static const uint8 nsew_to_layout[4] = { 2, 0, 1, 3 };
-			layout = nsew_to_layout[i];
+			static const uint8 nesw_to_layout[4] = { 2, 1, 0, 3 };
+			layout = nesw_to_layout[i];
 			if(  layout>=2  ) {
 				// reverse construction in these directions
 				bau_pos = welt->lookup_kartenboden(last_k)->get_pos();

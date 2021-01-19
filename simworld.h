@@ -925,6 +925,9 @@ private:
 	/// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
+	/// To prevent pause_step constantly re-checking the private car routes when not necessary.
+	bool private_car_route_check_complete = false;
+
 #ifdef MULTI_THREAD
 	bool passengers_and_mail_threads_working;
 	bool convoy_threads_working;
@@ -2365,6 +2368,9 @@ public:
 	 */
 	void step();
 
+	/// Tasks undertaken by a server when paused
+	void pause_step();
+
 //private:
 	inline planquadrat_t *access_nocheck(int i, int j) const {
 		return &plan[i + j*cached_grid_size.x];
@@ -2663,7 +2669,7 @@ public:
 
 private:
 
-	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(city_road); }
+	void calc_generic_road_time_per_tile_city() { generic_road_time_per_tile_city = calc_generic_road_time_per_tile(NULL); }
 	void calc_generic_road_time_per_tile_intercity();
 	void calc_max_road_check_depth();
 

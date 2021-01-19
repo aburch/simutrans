@@ -1854,13 +1854,13 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 		{
 			continue;
 		}
-		xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 		haltestelle_t::connexion* cnx = halt->get_connexions(selected_route_catg_index, g_class)->get(dest);
+		xoff = D_POS_BUTTON_WIDTH + D_H_SPACE;
 
 		// [distance]
 		buf.clear();
 		const double km_to_halt = welt->tiles_to_km(shortest_distance(halt->get_next_pos(dest->get_basis_pos()), dest->get_next_pos(halt->get_basis_pos())));
-		const bool is_walking = halt->is_within_walking_distance_of(dest) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound();
+		const bool is_walking = cnx ? halt->is_within_walking_distance_of(dest) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound() : halt->is_within_walking_distance_of(dest);
 		if (km_to_halt < 1000.0) {
 			buf.printf("%.2fkm", km_to_halt);
 		}
@@ -1879,6 +1879,10 @@ void gui_halt_route_info_t::draw_list_by_catg(scr_coord offset)
 
 		// [name]
 		xoff += max(display_proportional_clip_rgb(offset.x + xoff, offset.y + yoff, dest->get_name(), ALIGN_LEFT, color_idx_to_rgb(dest->get_owner()->get_player_color1()+env_t::gui_player_color_dark), true), D_BUTTON_WIDTH * 2);
+
+		if (!cnx) {
+			continue; // After that, it will not be displayed until the connection data is updated.
+		}
 
 		// [travel time]
 		buf.clear();

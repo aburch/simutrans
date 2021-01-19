@@ -5,11 +5,7 @@
 
 #include "../simdebug.h"
 
-// This gets us the max for a signed 32-bit int.  Hopefully.
-#define MAXINT INT_MAX
-
 #include <sys/stat.h>
-//#include <ctype.h>
 
 #include "loadsave_frame.h"
 
@@ -53,12 +49,8 @@ void sve_info_t::rdwr(loadsave_t *file)
 {
 	const char *s = strdup(pak.c_str());
 	file->rdwr_str(s);
-	if (file->is_loading() && s) {
-		pak = s;
-	}
-	if (s)
-	{
-		free(const_cast<char *>(s));
+	if (file->is_loading()) {
+		pak = s ? s : "<unknown pak>";
 	}
 	file->rdwr_longlong(mod_time);
 	file->rdwr_long(file_size);
@@ -147,10 +139,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 		/* We rename the old cache file and remove any incomplete read version.
 		 * Upon an error the cache will be rebuilt then next time.
 		 */
-		remove( SAVE_PATH_X "_load_cached_exp.xml" );
-		rename( SAVE_PATH_X "_cached_exp.xml", SAVE_PATH_X "_load_cached_exp.xml" );
-		const char *cache_file = SAVE_PATH_X "_load_cached_exp.xml";
-		if (file.rd_open(cache_file) && file.get_extended_version() == EX_VERSION_MAJOR) {
+		dr_rename( SAVE_PATH_X "_cached_exp.xml", SAVE_PATH_X "_load_cached_exp.xml" );
+		if(  file.rd_open(SAVE_PATH_X "_load_cached_exp.xml")  ) {
 			// ignore comment
 			const char *text=NULL;
 			file.rdwr_str(text);

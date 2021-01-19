@@ -69,10 +69,10 @@ public:
 	{
 		// Convert UTF-8 to UTF-16.
 		int const size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, u8str, -1, NULL, 0);
-		if (size == 0) {
+		if(size == 0) {
 			// It should never fail, since all file IO UTF8 comes either via keyborad input or filenames, i.e. a win32 api.
 			// log may not even initialising at this point, so we just fail.
-			dr_fatal_notify("Unknown unicode character encountered!");
+			dr_fatal_notify( "Unknown unicode character encountered!" );
 			exit(0);
 		}
 		LPWSTR const u16str = new WCHAR[size];
@@ -134,6 +134,7 @@ int get_mouse_y()
 }
 
 
+
 int dr_mkdir(char const* const path)
 {
 #ifdef _WIN32
@@ -141,20 +142,21 @@ int dr_mkdir(char const* const path)
 	int const result = CreateDirectoryW(U16View(path), NULL) ? 0 : -1;
 
 	// Translate error.
-	if (result != 0) {
+	if(result != 0) {
 		DWORD const error = GetLastError();
 		if(error == ERROR_ALREADY_EXISTS) {
 			errno = EEXIST;
 		} else if(error == ERROR_PATH_NOT_FOUND) {
 			errno = ENOENT;
 		}
-}
+	}
 
 	return result;
 #else
 	return mkdir(path, 0777);
 #endif
 }
+
 
 
 bool dr_movetotrash(const char *path)
@@ -174,7 +176,7 @@ bool dr_movetotrash(const char *path)
 	FileOp.wFunc = FO_DELETE;
 	FileOp.pFrom = full_wpath;
 	FileOp.pTo = NULL;
-	FileOp.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
+	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
 
 	// Perform operation.
 	int success = SHFileOperationW(&FileOp);
@@ -187,7 +189,6 @@ bool dr_movetotrash(const char *path)
 #else
 	return remove(path);
 #endif
-
 }
 
 
@@ -210,7 +211,7 @@ int dr_remove(const char *path)
 	bool success = DeleteFileW(U16View(path));
 
 	// Translate error.
-	if (!success) {
+	if(!success) {
 		DWORD error = GetLastError();
 		if(error == ERROR_FILE_NOT_FOUND) {
 			errno = ENOENT;
@@ -234,7 +235,7 @@ int dr_rename(const char *existing_utf8, const char *new_utf8)
 	bool success = MoveFileExW(U16View(existing_utf8), U16View(new_utf8), MOVEFILE_REPLACE_EXISTING);
 
 	// Translate error.
-	if (!success) {
+	if(!success) {
 		DWORD error = GetLastError();
 		if (error == ERROR_FILE_NOT_FOUND) {
 			errno = ENOENT;
@@ -245,8 +246,8 @@ int dr_rename(const char *existing_utf8, const char *new_utf8)
 
 	return success ? 0 : errno;
 #else
-	remove(new_utf8);
-	return rename(existing_utf8, new_utf8);
+	remove( new_utf8 );
+	return rename( existing_utf8, new_utf8 );
 #endif
 }
 
@@ -257,7 +258,7 @@ int dr_chdir(const char *path)
 	bool success = SetCurrentDirectoryW(U16View(path));
 
 	// Translate error.
-	if (!success) {
+	if(!success) {
 		DWORD error = GetLastError();
 		if (error == ERROR_FILE_NOT_FOUND) {
 			errno = ENOENT;
@@ -280,7 +281,7 @@ char *dr_getcwd(char *buf, size_t size)
 	DWORD success = GetCurrentDirectoryW(wsize, wpath);
 
 	// Translate error.
-	if (!success) {
+	if(!success) {
 		delete[] wpath;
 		return NULL;
 	}
@@ -288,7 +289,7 @@ char *dr_getcwd(char *buf, size_t size)
 	// Convert UTF-16 to UTF-8.
 	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, wpath, -1, buf, (int)size, NULL, NULL);
 	delete[] wpath;
-	if (convert_size == 0) {
+	if(convert_size == 0) {
 		return NULL;
 	}
 
@@ -298,7 +299,7 @@ char *dr_getcwd(char *buf, size_t size)
 #endif
 }
 
-FILE *dr_fopen(const char *filename, const char *mode)
+FILE *dr_fopen (const char *filename, const char *mode)
 {
 #ifdef _WIN32
 	return _wfopen(U16View(filename), U16View(mode));
@@ -331,28 +332,28 @@ char const *dr_query_homedir()
 
 #if defined _WIN32
 	WCHAR whomedir[MAX_PATH];
-	if (FAILED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, whomedir))) {
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, whomedir))) {
 		DWORD len = sizeof(whomedir);
 		HKEY hHomeDir;
-		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS) {
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS) {
 			return NULL;
 		}
 		LONG const status = RegQueryValueExW(hHomeDir, L"Personal", NULL, NULL, (LPBYTE)whomedir, &len);
 		RegCloseKey(hHomeDir);
-		if (status != ERROR_SUCCESS) {
+		if(status != ERROR_SUCCESS) {
 			return NULL;
 		}
 	}
 
 	// Convert UTF-16 to UTF-8.
 	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, whomedir, -1, buffer, sizeof(buffer), NULL, NULL);
-	if (convert_size == 0) {
+	if(convert_size == 0) {
 		return NULL;
 	}
 
 	// Append Simutrans folder.
 	char const foldername[] = "Simutrans";
-	if (lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1) {
+	if(lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1){
 		return NULL;
 	}
 	strcat(buffer, PATH_SEPARATOR);
@@ -367,8 +368,7 @@ char const *dr_query_homedir()
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
-
-	// create other subdirectories
+	// create directory and subdirectories
 	dr_mkdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
 
@@ -385,13 +385,13 @@ const char *dr_query_fontpath(int which)
 	}
 
 	WCHAR fontdir[MAX_PATH];
-	if (FAILED(SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, fontdir))) {
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, fontdir))) {
 		wcscpy(fontdir, L"C:\\Windows\\Fonts");
 	}
 
 	// Convert UTF-16 to UTF-8.
 	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, fontdir, -1, buffer, sizeof(buffer), NULL, NULL);
-	if (convert_size == 0) {
+	if(convert_size == 0) {
 		return 0;
 	}
 
@@ -969,7 +969,7 @@ const char *dr_get_locale_string()
 		code[i] = tolower(ptr[i]);
 		code[i+1] = 0;
 	}
-	setlocale( LC_ALL, "C" );	// or the number output may be broken
+	setlocale( LC_ALL, "C" ); // or the number output may be broken
 	return code[0] ? code : NULL;
 }
 #endif
@@ -1035,14 +1035,14 @@ int sysmain(int const argc, char** const argv)
 	// It is unlikely this loop will ever run more than once in practice but is required to cover flaws with the API.
 	size_t buffersize = MAX_PATH;
 	WCHAR *wpathname;
-	while (true) {
+	while(true) {
 		wpathname = new WCHAR[buffersize];
 		DWORD result = GetModuleFileNameW(GetModuleHandleW(0), wpathname, buffersize);
-		if (result < buffersize || buffersize >= 1 << 16) {
+		if(result < buffersize  ||  buffersize >= 1 << 16) {
 			break;
 		}
 		delete[] wpathname;
-		buffersize <<= 1;
+		buffersize<<= 1;
 	}
 
 	// Convert UTF-16 to UTF-8
