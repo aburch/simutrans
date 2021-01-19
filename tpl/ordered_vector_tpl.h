@@ -105,7 +105,7 @@ template<class T, class inttype> class ordered_vector_tpl
 		 * Insert only if elem isn't yet contained.
 		 * Returns false if elem already contained.
 		 */
-		bool insert_unique(T elem, inttype i = 1)
+		bool insert_unique(T elem, inttype i = 0)
 		{
 			if(  count == size  ) {
 				if(  i == 0  ) {
