@@ -1831,10 +1831,6 @@ void settings_t::rdwr(loadsave_t *file)
 			else
 			{
 				file->rdwr_long(max_route_tiles_to_process_in_a_step);
-				if (file->get_extended_revision() == 36 && max_route_tiles_to_process_in_a_step == 1024 && env_t::server)
-				{
-					max_route_tiles_to_process_in_a_step = 16384; // TEMPORARY for the Bridgewater-Brunel server only
-				}
 			}
 		}
 
@@ -1906,10 +1902,6 @@ void settings_t::rdwr(loadsave_t *file)
 		if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 36) || file->get_extended_version() >= 15)
 		{
 			file->rdwr_long(max_route_tiles_to_process_in_a_step_paused_background);
-			if (file->get_extended_revision() == 36 && env_t::server)
-			{
-				max_route_tiles_to_process_in_a_step_paused_background = 65535; // TEMPORARY for the Bridgewater-Brunel server only
-			}
 			file->rdwr_long(private_car_route_to_attraction_visitor_demand_threshold);
 			file->rdwr_long(private_car_route_to_industry_visitor_demand_threshold);
 			file->rdwr_bool(do_not_record_private_car_routes_to_distant_non_consumer_industries);
