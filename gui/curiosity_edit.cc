@@ -29,16 +29,17 @@ cbuffer_t curiosity_edit_frame_t::param_str;
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
-	int diff = strcmp(a->get_name(), b->get_name());
+	int diff = strcmp( a->get_name(), b->get_name() );
 	return diff < 0;
 }
 
 
 static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
-	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
 }
+
 
 
 curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
@@ -92,7 +93,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_city)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered( desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -101,7 +102,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_land)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered( desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -110,7 +111,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::monument)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered( desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -122,9 +123,9 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		PIXVAL color;
 		switch (i->get_type()) {
-		case building_desc_t::attraction_city: color = color_idx_to_rgb(COL_BLUE);       break;
-		case building_desc_t::attraction_land: color = color_idx_to_rgb(COL_DARK_GREEN); break;
-		default:                            color = color_idx_to_rgb(COL_BLACK);      break;
+			case building_desc_t::attraction_city: color = color_idx_to_rgb(COL_BLUE);       break;
+			case building_desc_t::attraction_land: color = color_idx_to_rgb(COL_DARK_GREEN); break;
+			default:                               color = color_idx_to_rgb(COL_BLACK);      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);

@@ -31,13 +31,7 @@ cbuffer_t citybuilding_edit_frame_t::param_str;
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
-	int diff = strcmp(a->get_name(), b->get_name());
-	return diff < 0;
-}
-
-static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
-{
-	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
+	int diff = a->get_level()-b->get_level();
 	if(  diff==0  ) {
 		diff = a->get_type()-b->get_type();
 	}
@@ -46,6 +40,21 @@ static bool compare_building_desc_trans(const building_desc_t* a, const building
 	}
 	return diff < 0;
 }
+
+
+static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
+	if(  diff==0  ) {
+		diff = a->get_type()-b->get_type();
+	}
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
+
+
 
 citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("citybuilding builder"), player_),
@@ -99,7 +108,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_res)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -108,7 +117,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_com)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -117,7 +126,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_ind)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
+				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
 			}
 		}
 	}
@@ -129,9 +138,9 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		PIXVAL color;
 		switch (i->get_type()) {
-		case building_desc_t::city_res: color = color_idx_to_rgb(COL_BLUE);       break;
-		case building_desc_t::city_com: color = color_idx_to_rgb(COL_DARK_GREEN); break;
-			default:					color = SYSCOL_TEXT;    break;
+			case building_desc_t::city_res: color = color_idx_to_rgb(COL_BLUE);       break;
+			case building_desc_t::city_com: color = color_idx_to_rgb(COL_DARK_GREEN); break;
+			default:                        color = SYSCOL_TEXT;                      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);

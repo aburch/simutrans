@@ -33,10 +33,8 @@ cbuffer_t factory_edit_frame_t::param_str;
 
 static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
-
-	int diff = strcmp(a->get_name(), b->get_name());
+	int diff = strcmp( a->get_name(), b->get_name() );
 	return diff < 0;
-
 }
 
 static bool compare_factory_desc_trans(const factory_desc_t* a, const factory_desc_t* b)
@@ -103,7 +101,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 				if(city_chain) {
 					if (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only()) {
-						factory_list.insert_ordered(desc, translate?compare_factory_desc_trans:compare_fabrik_desc);
+						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 					}
 				}
 				if(land_chain) {
@@ -112,7 +110,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					factory_list.insert_ordered(desc, translate?compare_factory_desc_trans:compare_fabrik_desc);
+					factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 				}
 			}
 		}
@@ -192,7 +190,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				}
 			}
 			production = (uint32)welt->calc_adjusted_monthly_figure(production);
-			inp_production.set_value(production);
+			inp_production.set_value( production);
 
 			// show produced goods
 			buf.clear();
