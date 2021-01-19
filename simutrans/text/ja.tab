@@ -4043,6 +4043,10 @@ Unreachable
 N/A
 %.2f sec
 %.2f 秒
+Travel time and travel speed
+所要時間と表定速度
+Route average waiting time and speed evaluation
+平均待機時間。カッコ内は起点駅到着時からこの目的地までの平均移動時間を速度換算したもの
 Visitor arrivals
 訪問者到着数
 Commuter arrivals
