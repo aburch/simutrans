@@ -45,8 +45,8 @@ static bool compare_factory_desc_name(const factory_desc_t* a, const factory_des
 }
 static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factory_desc_t* b)
 {
-	int diff = (a->get_pax_demand()  != 65535 ? a->get_pax_demand()  : a->get_pax_level())
-	          -(b->get_pax_demand()  != 65535 ? b->get_pax_demand()  : b->get_pax_level());
+	int diff = (a->get_building()->get_population_and_visitor_demand_capacity()  != 65535 ? a->get_building()->get_population_and_visitor_demand_capacity() : a->get_building()->get_population_and_visitor_demand_capacity())
+	         - (b->get_building()->get_population_and_visitor_demand_capacity()  != 65535 ? b->get_building()->get_population_and_visitor_demand_capacity() : b->get_building()->get_population_and_visitor_demand_capacity());
 	if ( diff == 0 ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
@@ -54,8 +54,8 @@ static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factor
 }
 static bool compare_factory_desc_level_mail(const factory_desc_t* a, const factory_desc_t* b)
 {
-	int diff = (a->get_mail_demand()  != 65535 ? a->get_mail_demand()  : a->get_pax_level()>>2)
-	          -(b->get_mail_demand()  != 65535 ? b->get_mail_demand()  : b->get_pax_level()>>2);
+	int diff = (a->get_building()->get_mail_demand_and_production_capacity() != 65535 ? a->get_building()->get_mail_demand_and_production_capacity() : a->get_building()->get_mail_demand_and_production_capacity())
+		     - (b->get_building()->get_mail_demand_and_production_capacity() != 65535 ? b->get_building()->get_mail_demand_and_production_capacity() : b->get_building()->get_mail_demand_and_production_capacity());
 	if ( diff == 0 ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
@@ -349,9 +349,9 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			factory_desc_t const& f = *factory_list[entry];
-			buf.printf( translator::translate("Passenger Demand %d\n"), f.get_pax_demand()  != 65535 ? f.get_pax_demand()  : f.get_pax_level());
-			buf.printf( translator::translate("Mail Demand %d\n"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
+			buf.printf("%s: %d\n", translator::translate("Visitor demand"), desc->get_population_and_visitor_demand_capacity() == 65535 ? 0 : desc->get_population_and_visitor_demand_capacity());
+			buf.printf("%s: %d\n", translator::translate("Jobs"), desc->get_employment_capacity());
+			buf.printf("%s: %d\n", translator::translate("Mail demand/output"), desc->get_mail_demand_and_production_capacity() == 65535 ? 0 : desc->get_mail_demand_and_production_capacity());
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
 			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
