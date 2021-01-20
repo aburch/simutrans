@@ -51,8 +51,9 @@ gui_sorting_item_t::gui_sorting_item_t(uint8 s) : gui_scrolled_list_t::const_tex
 	switch(sorted_by) {
 		case BY_NAME_TRANSLATED:     text = translator::translate("Translation"); break;
 		case BY_NAME_OBJECT:         text = translator::translate("Object"); break;
-		case BY_LEVEL_PAX:           text = translator::translate("Pax level"); break;
-		case BY_LEVEL_MAIL:          text = translator::translate("Mail level"); break;
+		case BY_LEVEL_PAX:           text = translator::translate("Level"); break;
+		case BY_JOBS:                text = translator::translate("Jobs"); break;
+		case BY_LEVEL_MAIL:          text = translator::translate("Mail demand/output"); break;
 		case BY_DATE_INTRO:          text = translator::translate("Intro. date"); break;
 		case BY_DATE_RETIRE:         text = translator::translate("Retire Date"); break;
 		case BY_SIZE:                text = translator::translate("Size (area)"); break;

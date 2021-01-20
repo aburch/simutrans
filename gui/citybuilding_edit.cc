@@ -50,13 +50,19 @@ static bool compare_building_desc_level_pax(const building_desc_t* a, const buil
 	}
 	return diff < 0;
 }
+static bool compare_building_desc_jobs(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = a->get_employment_capacity() - b->get_employment_capacity();
+	if (diff == 0) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
 static bool compare_building_desc_level_mail(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = a->get_mail_level() - b->get_mail_level();
 	if(  diff==0  ) {
-		diff = a->get_type()-b->get_type();
-		// TODO: check this behavior
-		//diff = strcmp(a->get_name(), b->get_name());
+		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
@@ -118,6 +124,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 
 	// add to sorting selection
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_JOBS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_RETIRE);
@@ -150,6 +157,7 @@ void citybuilding_edit_frame_t::put_item_in_list( const building_desc_t* desc )
 		switch(sortedby) {
 			case gui_sorting_item_t::BY_NAME_TRANSLATED:     building_list.insert_ordered( desc, compare_building_desc_name );           break;
 			case gui_sorting_item_t::BY_LEVEL_PAX:           building_list.insert_ordered( desc, compare_building_desc_level_pax );      break;
+			case gui_sorting_item_t::BY_JOBS:                building_list.insert_ordered(desc, compare_building_desc_jobs);             break;
 			case gui_sorting_item_t::BY_LEVEL_MAIL:          building_list.insert_ordered( desc, compare_building_desc_level_mail );     break;
 			case gui_sorting_item_t::BY_DATE_INTRO:          building_list.insert_ordered( desc, compare_building_desc_date_intro );     break;
 			case gui_sorting_item_t::BY_DATE_RETIRE:         building_list.insert_ordered( desc, compare_building_desc_date_retire );    break;

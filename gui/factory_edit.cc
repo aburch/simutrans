@@ -52,6 +52,15 @@ static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factor
 	}
 	return diff < 0;
 }
+static bool compare_factory_desc_jobs(const factory_desc_t* a, const factory_desc_t* b)
+{
+	int diff = (a->get_building()->get_employment_capacity() != 65535 ? a->get_building()->get_employment_capacity() : a->get_building()->get_employment_capacity())
+		     - (b->get_building()->get_employment_capacity() != 65535 ? b->get_building()->get_employment_capacity() : b->get_building()->get_employment_capacity());
+	if (diff == 0) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
 static bool compare_factory_desc_level_mail(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = (a->get_building()->get_mail_demand_and_production_capacity() != 65535 ? a->get_building()->get_mail_demand_and_production_capacity() : a->get_building()->get_mail_demand_and_production_capacity())
@@ -125,6 +134,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 	// add to sorting selection
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_JOBS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_RETIRE);
@@ -180,6 +190,7 @@ void factory_edit_frame_t::fill_list()
 					switch(sortedby) {
 						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
 						case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
+						case gui_sorting_item_t::BY_JOBS:                factory_list.insert_ordered(desc, compare_factory_desc_jobs);             break;
 						case gui_sorting_item_t::BY_LEVEL_MAIL:          factory_list.insert_ordered( desc, compare_factory_desc_level_mail );     break;
 						case gui_sorting_item_t::BY_DATE_INTRO:          factory_list.insert_ordered( desc, compare_factory_desc_date_intro );     break;
 						case gui_sorting_item_t::BY_DATE_RETIRE:         factory_list.insert_ordered( desc, compare_factory_desc_date_retire );    break;
