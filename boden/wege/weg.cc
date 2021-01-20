@@ -1915,8 +1915,6 @@ void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 		}
 		map[map_idx].insert_unique(destination);
 	}
-
-	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
 	error = pthread_rwlock_unlock(&private_car_store_route_rwlock);
 	assert(error == 0);
@@ -2024,7 +2022,6 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 			break;
 		}
 	}
-	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 #ifdef MULTI_THREAD
 	error = pthread_rwlock_unlock(&private_car_store_route_rwlock);
 	assert(error == 0);
