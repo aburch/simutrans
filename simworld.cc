@@ -5721,7 +5721,7 @@ void karte_t::step()
 		{
 			suspend_private_car_threads();
 			weg_t::swap_private_car_routes_currently_reading_element();
-			fprintf(stderr,"karte_t::step: Refreshed private car routes\n");
+			dbg->message("karte_t::step", "Refreshed private car routes");
 			for(auto w : weg_t::get_alle_wege()) {
 				for(auto & l : w->private_car_routes[weg_t::get_private_car_routes_currently_writing_element()]) {
 					l.clear();
