@@ -2406,7 +2406,7 @@ const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
 		}
 
 		// check funds
-		sint64 const cost = -desc->get_price();
+		sint64 const cost = -desc->get_value();
 		if(  !player->can_afford(cost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}

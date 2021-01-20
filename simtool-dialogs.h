@@ -523,7 +523,7 @@ public:
 /* groundobj placing dialog */
 class dialog_edit_groundobj_t : public tool_t {
 public:
-	dialog_edit_groundobj_t() : tool_t(DIALOG_EDIT_GROUNDOBJ | DIALOGE_TOOL) {}
+	dialog_edit_groundobj_t() : tool_t(DIALOG_EDIT_GROUNDOBJ | DIALOG_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("groundobj builder"); }
 	image_id get_icon(player_t *) const OVERRIDE { return groundobj_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_groundobj); }

@@ -30,7 +30,7 @@
 vector_tpl<const groundobj_desc_t *> groundobj_t::groundobj_typen(0);
 weighted_vector_tpl<uint32>* groundobj_t::groundobj_list_per_climate = NULL;
 
-stringhashtable_tpl<groundobj_desc_t *, N_BAGS_MEDIUM> groundobj_t::desc_names;
+stringhashtable_tpl<groundobj_desc_t *, N_BAGS_MEDIUM> groundobj_t::desc_table;
 
 
 bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
@@ -87,16 +87,16 @@ bool groundobj_t::plant_groundobj_on_coordinate(koord pos, const groundobj_desc_
 
 bool groundobj_t::successfully_loaded()
 {
-	groundobj_typen.resize(desc_names.get_count());
-	for(auto const& i : desc_names) {
+	groundobj_typen.resize(desc_table.get_count());
+	for(auto const& i : desc_table) {
 		groundobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	for(auto const& i : desc_names) {
+	for(auto const& i : desc_table) {
 		i.value->index = groundobj_typen.index_of(i.value);
 	}
 
-	if(desc_names.empty()) {
+	if(desc_table.empty()) {
 		groundobj_typen.append( NULL );
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
 	}
@@ -119,10 +119,10 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 {
 	assert(desc->get_speed()==0);
 	// remove duplicates
-	if(  desc_names.remove( desc->get_name() )  ) {
+	if(  desc_table.remove( desc->get_name() )  ) {
 		dbg->doubled( "groundobj", desc->get_name() );
 	}
-	desc_names.put(desc->get_name(), desc );
+	desc_table.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -134,13 +134,13 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, slope_t::type slope  )
 {
 	// none there
-	if(  desc_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		return NULL;
 	}
 
 	int weight = 0;
 	FOR(  vector_tpl<groundobj_desc_t const*>,  const i,  groundobj_typen  ) {
-		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
@@ -150,7 +150,7 @@ const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits c
 		const int w=simrand(weight, "const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, slope_t::type slope  )");
 		weight = 0;
 		FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_typen) {
-			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
 					return i;
@@ -205,7 +205,7 @@ void groundobj_t::calc_image()
 	if(desc->get_phases()>1) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	image = get_desc()->get_image_nr( season, phase );
+	image = get_desc()->get_image_id( season, phase );
 }
 
 
@@ -257,9 +257,9 @@ void groundobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		groundobj_desc_t *desc = desc_names.get(bname);
+		groundobj_desc_t *desc = desc_table.get(bname);
 		if (desc == NULL) {
-			desc = desc_names.get(translator::compatibility_name(bname));
+			desc = desc_table.get(translator::compatibility_name(bname));
 		}
 		if (desc == NULL) {
 			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr(loadsave_t *file)");

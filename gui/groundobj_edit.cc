@@ -47,7 +47,7 @@ static bool compare_groundobj_desc_name(const groundobj_desc_t* a, const groundo
 }
 static bool compare_groundobj_desc_cost(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
-	int diff = a->get_price() - b->get_price();
+	int diff = a->get_value() - b->get_value();
 	if(diff ==0) {
 		diff = strcmp( a->get_name(), b->get_name() );
 	}
@@ -155,7 +155,7 @@ void groundobj_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf( "\n%s\n", translator::translate("Can be overgrown") );
 		}
 		buf.printf("\n%s ", translator::translate("cost for removal"));
-		buf.append_money( convert_money( desc->get_price() ) );
+		buf.append_money( convert_money( desc->get_value() ) );
 		buf.append("\n");
 
 		if (char const* const maker = desc->get_copyright()) {
