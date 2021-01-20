@@ -18,24 +18,23 @@
  * or move around the map (water_t=only on water, air_t=everywhere)
  * They are removable with certain costs.
  *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Image-list 2d
+ * Child nodes:
+ *  0   Name
+ *  1   Copyright
+ *  2   Image-array
  */
-
-
-class groundobj_desc_t : public obj_named_desc_t {
+class groundobj_desc_t : public obj_named_desc_t
+{
 	friend class groundobj_reader_t;
 	friend class groundobj_t;
 	friend class movingobj_t;
 
 	climate_bits allowed_climates;
-	uint16 distribution_weight;
-	uint8  number_of_seasons;
-	sint32  speed;
-	uint16 index;
-	bool  trees_on_top;
+	uint16       distribution_weight;
+	uint8        number_of_seasons;
+	sint32       speed;
+	uint16       index;
+	bool         trees_on_top;
 	waytype_t    wtyp;
 	sint32       price;
 
@@ -54,14 +53,14 @@ public:
 		return get_child<image_array_t>(2)->get_image(phase, season);
 	}
 
-	image_id get_image_nr(uint8 season, uint16 phase) const {
+	image_id get_image_id(uint8 season, uint16 phase) const {
 		const image_t *image = get_child<image_array_t>(2)->get_image(phase, season);
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	// moving stuff should have eight
 	// otherwise up to 16 for all slopes are ok
-	// if anzahl==1, this will not appear on slopes
+	// if count==1, this will not appear on slopes
 	uint16 get_phases() const
 	{
 		return get_child<image_array_t>(2)->get_count();
