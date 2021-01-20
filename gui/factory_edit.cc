@@ -43,19 +43,19 @@ static bool compare_factory_desc_name(const factory_desc_t* a, const factory_des
 	}
 	return diff < 0;
 }
-static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factory_desc_t* b)
+static bool compare_factory_desc_visitor_demands(const factory_desc_t* a, const factory_desc_t* b)
 {
-	int diff = (a->get_building()->get_population_and_visitor_demand_capacity()  != 65535 ? a->get_building()->get_population_and_visitor_demand_capacity() : a->get_building()->get_population_and_visitor_demand_capacity())
-	         - (b->get_building()->get_population_and_visitor_demand_capacity()  != 65535 ? b->get_building()->get_population_and_visitor_demand_capacity() : b->get_building()->get_population_and_visitor_demand_capacity());
-	if ( diff == 0 ) {
+	int diff = (a->get_building()->get_population_and_visitor_demand_capacity() != 65535 ? a->get_building()->get_population_and_visitor_demand_capacity() : 0)
+		     - (b->get_building()->get_population_and_visitor_demand_capacity() != 65535 ? b->get_building()->get_population_and_visitor_demand_capacity() : 0);
+	if (diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
 static bool compare_factory_desc_jobs(const factory_desc_t* a, const factory_desc_t* b)
 {
-	int diff = (a->get_building()->get_employment_capacity() != 65535 ? a->get_building()->get_employment_capacity() : a->get_building()->get_employment_capacity())
-		     - (b->get_building()->get_employment_capacity() != 65535 ? b->get_building()->get_employment_capacity() : b->get_building()->get_employment_capacity());
+	int diff = (a->get_building()->get_employment_capacity() != 65535 ? a->get_building()->get_employment_capacity() : 0)
+		     - (b->get_building()->get_employment_capacity() != 65535 ? b->get_building()->get_employment_capacity() : 0);
 	if (diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
@@ -63,8 +63,8 @@ static bool compare_factory_desc_jobs(const factory_desc_t* a, const factory_des
 }
 static bool compare_factory_desc_level_mail(const factory_desc_t* a, const factory_desc_t* b)
 {
-	int diff = (a->get_building()->get_mail_demand_and_production_capacity() != 65535 ? a->get_building()->get_mail_demand_and_production_capacity() : a->get_building()->get_mail_demand_and_production_capacity())
-		     - (b->get_building()->get_mail_demand_and_production_capacity() != 65535 ? b->get_building()->get_mail_demand_and_production_capacity() : b->get_building()->get_mail_demand_and_production_capacity());
+	int diff = (a->get_building()->get_mail_demand_and_production_capacity() != 65535 ? a->get_building()->get_mail_demand_and_production_capacity() : 0)
+		     - (b->get_building()->get_mail_demand_and_production_capacity() != 65535 ? b->get_building()->get_mail_demand_and_production_capacity() : 0);
 	if ( diff == 0 ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
@@ -133,7 +133,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	cb_climates.new_component<gui_climates_item_t>(climate::water_climate);
 
 	// add to sorting selection
-	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_VISITOR_DEMANDS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_JOBS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
@@ -189,8 +189,8 @@ void factory_edit_frame_t::fill_list()
 				||  (!city_chain  &&  !land_chain) ) {
 					switch(sortedby) {
 						case gui_sorting_item_t::BY_NAME_TRANSLATED:     factory_list.insert_ordered( desc, compare_factory_desc_name );           break;
-						case gui_sorting_item_t::BY_LEVEL_PAX:           factory_list.insert_ordered( desc, compare_factory_desc_level_pax );      break;
-						case gui_sorting_item_t::BY_JOBS:                factory_list.insert_ordered(desc, compare_factory_desc_jobs);             break;
+						case gui_sorting_item_t::BY_VISITOR_DEMANDS:     factory_list.insert_ordered( desc, compare_factory_desc_visitor_demands); break;
+						case gui_sorting_item_t::BY_JOBS:                factory_list.insert_ordered( desc, compare_factory_desc_jobs);            break;
 						case gui_sorting_item_t::BY_LEVEL_MAIL:          factory_list.insert_ordered( desc, compare_factory_desc_level_mail );     break;
 						case gui_sorting_item_t::BY_DATE_INTRO:          factory_list.insert_ordered( desc, compare_factory_desc_date_intro );     break;
 						case gui_sorting_item_t::BY_DATE_RETIRE:         factory_list.insert_ordered( desc, compare_factory_desc_date_retire );    break;
@@ -361,7 +361,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			buf.append("\n");
 
 			buf.printf("%s: %d\n", translator::translate("Visitor demand"), desc->get_population_and_visitor_demand_capacity() == 65535 ? 0 : desc->get_population_and_visitor_demand_capacity());
-			buf.printf("%s: %d\n", translator::translate("Jobs"), desc->get_employment_capacity());
+			buf.printf("%s: %d\n", translator::translate("Jobs"), desc->get_employment_capacity() == 65535 ? 0 : desc->get_employment_capacity());
 			buf.printf("%s: %d\n", translator::translate("Mail demand/output"), desc->get_mail_demand_and_production_capacity() == 65535 ? 0 : desc->get_mail_demand_and_production_capacity());
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);

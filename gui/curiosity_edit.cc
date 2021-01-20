@@ -40,10 +40,11 @@ static bool compare_building_desc_name(const building_desc_t* a, const building_
 	}
 	return diff < 0;
 }
-static bool compare_building_desc_level_pax(const building_desc_t* a, const building_desc_t* b)
+static bool compare_building_desc_visitor_demands(const building_desc_t* a, const building_desc_t* b)
 {
-	int diff = a->get_level() - b->get_level();
-	if(  diff==0  ) {
+	int diff = (a->get_population_and_visitor_demand_capacity() != 65535 ? a->get_population_and_visitor_demand_capacity() : 0)
+	         - (b->get_population_and_visitor_demand_capacity() != 65535 ? b->get_population_and_visitor_demand_capacity() : 0);
+	if (diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
@@ -120,7 +121,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	cont_filter.add_component(&bt_monuments);
 
 	// add to sorting selection
-	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_VISITOR_DEMANDS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_JOBS);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
@@ -155,8 +156,8 @@ void curiosity_edit_frame_t::put_item_in_list( const building_desc_t* desc )
 		// timeline allows for this, and so does climates setting
 		switch(sortedby) {
 			case gui_sorting_item_t::BY_NAME_TRANSLATED:     building_list.insert_ordered( desc, compare_building_desc_name );           break;
-			case gui_sorting_item_t::BY_LEVEL_PAX:           building_list.insert_ordered( desc, compare_building_desc_level_pax );      break;
-			case gui_sorting_item_t::BY_JOBS:                building_list.insert_ordered (desc, compare_building_desc_jobs);            break;
+			case gui_sorting_item_t::BY_VISITOR_DEMANDS:     building_list.insert_ordered( desc, compare_building_desc_visitor_demands); break;
+			case gui_sorting_item_t::BY_JOBS:                building_list.insert_ordered( desc, compare_building_desc_jobs );           break;
 			case gui_sorting_item_t::BY_LEVEL_MAIL:          building_list.insert_ordered( desc, compare_building_desc_level_mail );     break;
 			case gui_sorting_item_t::BY_DATE_INTRO:          building_list.insert_ordered( desc, compare_building_desc_date_intro );     break;
 			case gui_sorting_item_t::BY_DATE_RETIRE:         building_list.insert_ordered( desc, compare_building_desc_date_retire );    break;
