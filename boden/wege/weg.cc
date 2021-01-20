@@ -50,6 +50,7 @@
 #include "../../utils/simthread.h"
 static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 static pthread_mutexattr_t mutex_attributes;
+static pthread_rwlockattr_t rwlock_attributes;
 #endif
 
 
@@ -349,7 +350,11 @@ void weg_t::init()
 	replacement_way = NULL;
 #ifdef MULTI_THREAD
 	pthread_mutexattr_init(&mutex_attributes);
-	pthread_mutex_init(&private_car_store_route_mutex, &mutex_attributes);
+	//int error = pthread_rwlockattr_init(&rwlock_attributes);
+	//assert(error == 0);
+	//int error = pthread_rwlock_init(&private_car_store_route_rwlock, &rwlock_attributes);
+	//assert(error == 0);
+	private_car_store_route_rwlock = PTHREAD_RWLOCK_INITIALIZER;
 #endif
 }
 
@@ -377,7 +382,7 @@ weg_t::~weg_t()
 		}
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_destroy(&private_car_store_route_mutex);
+	pthread_rwlock_destroy(&private_car_store_route_rwlock);
 #endif
 }
 
@@ -528,15 +533,12 @@ void weg_t::rdwr(loadsave_t *file)
 			{
 				for (uint32 i = 0; i < route_array_number; i++)
 				{
-					uint32 private_car_routes_count = private_car_routes[i].get_count();
-					file->rdwr_long(private_car_routes_count);
-					FOR(private_car_route_map, element, private_car_routes[i])
-					{
-						koord destination = element.key;
-						uint8 next_tile_neighbour = element.value;
-
-						destination.rdwr(file);
-						file->rdwr_byte(next_tile_neighbour);
+					for(uint32 j=0; j<5; j++) {
+						uint32 private_car_routes_count = private_car_routes[i][j].get_count();
+						file->rdwr_long(private_car_routes_count);
+						for(uint32 k=0; k<private_car_routes_count; k++) {
+							private_car_routes[i][j][k].rdwr(file);
+						}
 					}
 				}
 			}
@@ -544,35 +546,39 @@ void weg_t::rdwr(loadsave_t *file)
 			{
 				for (uint32 i = 0; i < route_array_number; i++)
 				{
-					uint32 private_car_routes_count = 0;
-					file->rdwr_long(private_car_routes_count);
-					for (uint32 j = 0; j < private_car_routes_count; j++)
-					{
-						koord destination;
-						destination.rdwr(file);
-						bool put_succeeded = true;
-						if(file->get_extended_version()==14 && file->get_extended_revision() >= 19 && file->get_extended_revision() < 33) {
-							koord3d next_tile;
-							next_tile.rdwr(file);
-							uint8 next_tile_neighbour = private_car_t::int_from_neighbour(get_pos(), next_tile);
-							if(next_tile_neighbour <= private_car_t::end_of_route) {
-								put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
-							}
-							else {
-								dbg->warning("weg_t::rdwr","discarding private car route from (%i,%i,%i) to (%i,%i) via (%i,%i,%i) as %u\n", get_pos().x,get_pos().y,get_pos().z, destination.x, destination.y, next_tile.x,next_tile.y,next_tile.z, next_tile_neighbour);
+					// Unfortunately, the way private car routes are stored has changed a number of times in an effort to save memory.
+					if((file->get_extended_version()==14 && file->get_extended_revision() >= 19) || file->get_extended_version() > 14) {
+						if(file->get_extended_version() == 14 && file->get_extended_revision() < 37) {
+							uint32 private_car_routes_count = 0;
+							file->rdwr_long(private_car_routes_count);
+							for (uint32 j = 0; j < private_car_routes_count; j++) {
+								koord destination;
+								destination.rdwr(file);
+								if (file->get_extended_revision() < 33) {
+									// Koord3d representation
+									koord3d next_tile;
+									next_tile.rdwr(file);
+									private_car_routes[i][get_map_idx(next_tile)].insert_unique(destination);
+								} else {
+									// Integer-neighbour representation
+									uint8 next_tile_neighbour;
+									file->rdwr_byte(next_tile_neighbour);
+									private_car_routes[i][get_map_idx(private_car_t::neighbour_from_int(get_pos(), next_tile_neighbour))].insert_unique(destination);
+								}
 							}
 						} else {
-							uint8 next_tile_neighbour;
-							file->rdwr_byte(next_tile_neighbour);
-							put_succeeded = private_car_routes[i].put(destination, next_tile_neighbour);
+							// Container membership representation
+							for(uint8 j=0; j<5; j++) {
+								uint32 private_car_routes_count = 0;
+								file->rdwr_long(private_car_routes_count);
+								private_car_routes[i][j].resize(private_car_routes_count);
+								for(uint32 k=0; k<private_car_routes_count; k++) {
+									koord dest; dest.rdwr(file);
+									private_car_routes[i][j].insert_unique(dest);
+								}
+							}
 						}
-						assert(put_succeeded);
-						(void)put_succeeded;
 					}
-				}
-				if (route_array_number == 1)
-				{
-					private_car_routes[1].clear();
 				}
 			}
 		}
@@ -693,28 +699,33 @@ void weg_t::info(cbuffer_t & buf) const
 
 			uint32 cities_count = 0;
 			uint32 buildings_count = 0;
-			FOR(private_car_route_map, const& route, private_car_routes[private_car_routes_currently_reading_element])
-			{
-
-				const grund_t* gr = welt->lookup_kartenboden(route.key);
-				const gebaeude_t* building = gr ? gr->get_building() : NULL;
-				if (building)
-				{
-					buildings_count++;
+			for(uint8 i=0;i<5;i++) {
+				for(uint32 j=0;j<private_car_routes[private_car_routes_currently_reading_element][i].get_count();j++){
+					const koord dest = private_car_routes[private_car_routes_currently_reading_element][i][j];
+					const grund_t* gr = welt->lookup_kartenboden(dest);
+					const gebaeude_t* building = gr ? gr->get_building() : NULL;
+					if (building)
+					{
+						buildings_count++;
 #ifdef DEBUG
-					buf.append("\n");
-					buf.append(translator::translate(building->get_individual_name()));
+						buf.append("\n");
+						buf.append(translator::translate(building->get_individual_name()));
 #endif
-				}
+					}
+					else
+					{
+						dbg->message("weg_t::info()", "Building that is a destination of a road route not found");
+					}
 
-				const stadt_t* city = welt->get_city(route.key);
-				if (city && route.key == city->get_townhall_road())
-				{
-					cities_count++;
+					const stadt_t* city = welt->get_city(dest);
+					if (city && dest == city->get_townhall_road())
+					{
+						cities_count++;
 #ifdef DEBUG
-					buf.append("\n");
-					buf.append(city->get_name());
+						buf.append("\n");
+						buf.append(city->get_name());
 #endif
+					}
 				}
 			}
 #ifdef DEBUG
@@ -1889,41 +1900,74 @@ signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 void weg_t::add_private_car_route(koord destination, koord3d next_tile)
 {
 #ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&private_car_store_route_mutex);
+	int error = pthread_rwlock_wrlock(&private_car_store_route_rwlock);
 	assert(error == 0);
 	(void)error;
 #endif
-	private_car_routes[get_private_car_routes_currently_writing_element()].set(destination, private_car_t::int_from_neighbour(get_pos(),next_tile));
+	auto map = private_car_routes[get_private_car_routes_currently_writing_element()];
+	const uint8 map_idx = get_map_idx(next_tile);
+
+	if(!map[map_idx].contains(destination)) {
+		for(uint8 i=0;i<5;i++) {
+			if(i != map_idx && map[i].remove(destination)) {
+				break;
+			}
+		}
+		map[map_idx].insert_unique(destination);
+	}
 
 	//private_car_routes_std[get_private_car_routes_currently_writing_element()].emplace(destination, next_tile); // Old performance test - but this was worse than the Simutrans type
 #ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&private_car_store_route_mutex);
+	error = pthread_rwlock_unlock(&private_car_store_route_rwlock);
 	assert(error == 0);
+	(void)error;
 #endif
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	calc_image();
 #endif
 }
 
+uint8 weg_t::get_map_idx(const koord3d &next_tile) const {
+	const ribi_t::ribi dir = ribi_type(get_pos(), next_tile);
+	if(next_tile != koord3d::invalid) {
+		for (uint8 j = 0; j < 4; j++) {
+			if (dir == ribi_t::nsew[j]) {
+				return j;
+			}
+		}
+	}
+	return (uint8) 4;
+}
+
 void weg_t::delete_all_routes_from_here(bool reading_set)
 {
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 
-	if (!private_car_routes[routes_index].empty())
-	{
-		vector_tpl<koord> destinations_to_delete;
-		FOR(private_car_route_map, const& route, private_car_routes[routes_index])
-		{
-			koord dest = route.key;
-			destinations_to_delete.append(dest);
+	vector_tpl<koord> destinations_to_delete;
+#ifdef MULTI_THREAD
+		int error = pthread_rwlock_rdlock(&private_car_store_route_rwlock);
+		assert(error == 0);
+		(void)error;
+#endif
+	for(uint8 i=0;i<5;i++) {
+		auto &map = private_car_routes[routes_index][i];
+		if (!map.is_empty()) {
+			for(uint32 j=0; j<map.get_count();j++) {
+				destinations_to_delete.append(map[j]);
+			}
 		}
+	}
+#ifdef MULTI_THREAD
+		error = pthread_rwlock_unlock(&private_car_store_route_rwlock);
+		assert(error == 0);
+		(void)error;
+#endif
 
 		FOR(vector_tpl<koord>, dest, destinations_to_delete)
 		{
 			// This must be done in a two stage process to avoid memory corruption as the delete_route_to function will affect the very hashtable being iterated.
 			delete_route_to(dest, reading_set);
 		}
-	}
 #ifdef DEBUG_PRIVATE_CAR_ROUTES
 	calc_image();
 #endif
@@ -1945,7 +1989,17 @@ void weg_t::delete_route_to(koord destination, bool reading_set)
 			weg_t* const w = gr->get_weg(road_wt);
 			if (w)
 			{
-				next_tile = private_car_t::neighbour_from_int(w->get_pos(),w->private_car_routes[routes_index].get(destination));
+#ifdef MULTI_THREAD
+				int error = pthread_rwlock_rdlock(&w->private_car_store_route_rwlock);
+				assert(error == 0);
+				(void)error;
+#endif
+				next_tile = w->get_next_on_private_car_route_to(destination, reading_set);
+#ifdef MULTI_THREAD
+				error = pthread_rwlock_unlock(&w->private_car_store_route_rwlock);
+				assert(error == 0);
+				(void)error;
+#endif
 				w->remove_private_car_route(destination, reading_set);
 			}
 		}
@@ -1961,20 +2015,25 @@ void weg_t::remove_private_car_route(koord destination, bool reading_set)
 {
 	const uint32 routes_index = reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element();
 #ifdef MULTI_THREAD
-	int error = pthread_mutex_lock(&private_car_store_route_mutex);
+	int error = pthread_rwlock_wrlock(&private_car_store_route_rwlock);
 	assert(error == 0);
 	(void)error;
 #endif
-	private_car_routes[routes_index].remove(destination);
+	for(uint8 i=0;i<5;i++) {
+		if(private_car_routes[routes_index][i].remove(destination)) {
+			break;
+		}
+	}
 	//private_car_routes_std[routes_index].erase(destination); // Old test - but this was much slower than the Simutrans hashtable.
 #ifdef MULTI_THREAD
-	error = pthread_mutex_unlock(&private_car_store_route_mutex);
+	error = pthread_rwlock_unlock(&private_car_store_route_rwlock);
 	assert(error == 0);
 	(void)error;
 #endif
-
 }
-void weg_t::add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal) {
+
+void weg_t::add_travel_time_update(weg_t* w, uint32 actual, uint32 ideal)
+{
 	pending_road_travel_time_updates.append(std::make_tuple(w, actual, ideal));
 }
 
@@ -1994,6 +2053,23 @@ void weg_t::clear_travel_time_updates() {
 	pending_road_travel_time_updates.clear();
 }
 
-koord3d weg_t::get_next_on_private_car_route_to(koord dest) const {
-	return private_car_routes[private_car_routes_currently_reading_element].is_contained(dest) ? private_car_t::neighbour_from_int(get_pos(),private_car_routes[private_car_routes_currently_reading_element].get(dest)) : koord3d();
+koord3d weg_t::get_next_on_private_car_route_to(koord dest, bool reading_set) const {
+	auto map = private_car_routes[reading_set ? private_car_routes_currently_reading_element : get_private_car_routes_currently_writing_element()];
+	for(uint8 i=0; i<5; i++) {
+		if(map[i].contains(dest)) {
+			if(i<4) {
+				grund_t* to;
+				if(welt->lookup(get_pos())->get_neighbour(to, waytype_t::road_wt,ribi_t::nsew[i])) {
+					return to->get_pos();
+				}
+			} else {
+				return koord3d::invalid;
+			}
+		}
+	}
+	return koord3d();
+}
+
+bool weg_t::has_private_car_route(koord dest) const {
+	return get_next_on_private_car_route_to(dest) != koord3d();
 }

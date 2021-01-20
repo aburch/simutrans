@@ -1162,6 +1162,11 @@ public:
 	 */
 	bool is_destroying() const { return destroying; }
 
+	uint32 get_cities_awaiting_private_car_route_check_count() const;
+#ifndef NETTOOL
+	uint32 get_cities_to_process() const { return cities_to_process; }
+#endif
+
 #ifdef MULTI_THREAD
 	/**
 	* @returns true if threads are being terminated
@@ -2172,7 +2177,7 @@ public:
 	 * File version used when loading (or current if generated)
 	 * @note Useful for finish_rd
 	 */
-	loadsave_t::combined_version load_version;
+	extended_version_t load_version;
 
 	/**
 	 * Checks if the planquadrat (tile) at coordinate (x,y)

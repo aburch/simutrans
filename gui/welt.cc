@@ -593,7 +593,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		welt->set_pause(false);
 		// save setting ...
 		loadsave_t file;
-		if(file.wr_open("default.sve",loadsave_t::binary,0,"settings only",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
+		if(file.wr_open("default.sve",loadsave_t::binary,0,"settings only",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR) == loadsave_t::FILE_STATUS_OK) {
 			// save default setting
 			env_t::default_settings.rdwr(&file);
 			welt->set_scale();

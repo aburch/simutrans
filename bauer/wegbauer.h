@@ -153,6 +153,12 @@ private:
 	 */
 	bool mark_way_for_upgrade_only;
 
+	/**
+	* If set, the way builder will not build crossings over
+	* ways other than unowned and fully degraded ways.
+	*/
+	bool forbid_crossings = false;
+
 	bool build_sidewalk;
 
 	uint32 maximum;    // hoechste Suchtiefe
@@ -224,6 +230,8 @@ public:
 	 * Always keep city roads (for AI)
 	 */
 	void set_keep_city_roads(bool yesno) { keep_existing_city_roads = yesno; }
+
+	void set_forbid_crossings(bool value) { forbid_crossings = value; }
 
 	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
 
