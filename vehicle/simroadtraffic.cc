@@ -905,6 +905,16 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 		}
 	}
 
+	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
+	const ribi_t::ribi ribi = str->get_ribi() & (~ribi_t::backward(direction90));
+	const bool dead_end = ribi == 0;
+
+	if (str->get_overtaking_mode() == oneway_mode && dead_end)
+	{
+		// Do not allow entry to one way dead ends.
+		return false;
+	}
+
 	// If this car is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 	if(  is_overtaking()  &&  str->get_overtaking_mode() == prohibited_mode  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
@@ -1019,7 +1029,7 @@ grund_t* private_car_t::hop_check()
 		// call to get_neighbour() in the heuristic mode.
 
 		// The target is an individual tile. If we are going to a destination in
-		// a city, then we need the route to the city, not the tile.
+		// a city, then we may need the route to the city, not the tile.
 
 		const grund_t* gr_check = welt->lookup_kartenboden(target);
 		const gebaeude_t* gb = gr_check ? gr_check->get_building() : NULL;
@@ -1035,16 +1045,16 @@ grund_t* private_car_t::hop_check()
 		// We need to check here, as the hashtable will give us a 0,0,0 koord rather
 		// than koord::invalid if this be not contained in the hashtable.
 		bool found_route = false;
-		found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
+		found_route = weg->has_private_car_route(check_target);
 		if (!found_route)
 		{
-			if (!current_city || current_city != destination_city)
+			if (destination_city && (!current_city || current_city != destination_city))
 			{
 				// Only follow a route inside a city if:
 				// (1) we are not in our destination city; or
 				// (2) there is a route to the individual destination building in the city.
-				check_target = destination_city ? destination_city->get_townhall_road() : koord::invalid;
-				found_route = weg->private_car_routes[weg_t::private_car_routes_currently_reading_element].is_contained(check_target);
+				check_target = destination_city->get_townhall_road();
+				found_route = weg->has_private_car_route(check_target);
 			}
 		}
 
@@ -1102,14 +1112,16 @@ grund_t* private_car_t::hop_check()
 				if (!direction_allowed)
 				{
 					pos_next_next = koord3d::invalid;
-
+					// City route checking is too slow for this to be effective.
+					/*
 					// We also need to invalidate the route.
 					const planquadrat_t* tile = welt->access(origin);
 					stadt_t* origin_city = tile ? tile->get_city() : NULL;
 					if (origin_city)
 					{
-						//welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
+						welt->add_queued_city(origin_city); // Prioritise re-checking this city even if already re-checked in this cycle.
 					}
+					*/
 				}
 				else
 				{
@@ -1130,6 +1142,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 
+	bool city_exit_u_turn = false;
 	// next tile unknown => find next tile
 	if(pos_next_next==koord3d::invalid) {
 
@@ -1137,7 +1150,7 @@ grund_t* private_car_t::hop_check()
 		// so we can check for valid directions
 		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::backward(direction90));
 
-		// cul de sac: return
+		// cul-de-sac: return
 		if(ribi==0) {
 			pos_next_next = get_pos();
 			return can_enter_tile(from) ? from : NULL;
@@ -1145,6 +1158,7 @@ grund_t* private_car_t::hop_check()
 
 		static weighted_vector_tpl<koord3d> poslist(4);
 		poslist.clear();
+
 		bool city_exit = false;
 		for (uint32 n = 0; n < 2; n++)
 		{
@@ -1222,6 +1236,7 @@ grund_t* private_car_t::hop_check()
 									{
 										const uint32 dist = 8192 / max(1, shortest_distance(to->get_pos().get_2d(), target));
 										poslist.append(gr_backwards->get_pos(), dist);
+										city_exit_u_turn = true;
 										continue;
 									}
 								}
@@ -1257,7 +1272,7 @@ grund_t* private_car_t::hop_check()
 		{
 			pos_next_next = get_pos();
 		}
-		if(can_enter_tile(from)) {
+		if(city_exit_u_turn || can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -1267,7 +1282,7 @@ grund_t* private_car_t::hop_check()
 		}
 	}
 	else {
-		if(from  &&  can_enter_tile(from)) {
+		if(from  &&  (city_exit_u_turn || can_enter_tile(from))) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -1790,19 +1805,15 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  is_overtaking() && caut->is_overtaking()  ){
 					continue;
 				}
-				// The below code seems to serve no useful function and enables "car traps".
-				// A vehicle should not be allowed into an overtaking tile if there is another
-				// vehicle there whatever direction that it is going in.
-				/*
 				if(  !is_overtaking() && !(caut->is_overtaking())  )
 				{
-					//Prohibit going on passing lane when facing traffic exists.
+					// Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = caut->get_direction();
-					if(  ribi_t::backward(get_direction()) == other_direction  ) {
+					if( ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
-				}*/
+				}
 				// speed zero check must be done by parent function.
 				return v;
 			}

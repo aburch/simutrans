@@ -1751,7 +1751,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				else {
 					if (skinverwaltung_t::travel_time) {
 						buf.printf("%5s", travelling_time_as_clock);
-						display_color_img(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						display_color_img_with_tooltip(skinverwaltung_t::travel_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate("Travel time and travel speed"));
 						catg_xoff += GOODS_SYMBOL_CELL_WIDTH;
 					}
 					else {
@@ -1770,7 +1770,7 @@ void gui_halt_route_info_t::draw_list_by_dest(scr_coord offset)
 				buf.clear();
 				if (!is_walking) {
 					if (skinverwaltung_t::waiting_time) {
-						display_color_img(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false);
+						display_color_img_with_tooltip(skinverwaltung_t::waiting_time->get_image_id(0), offset.x + xoff + catg_xoff, offset.y + yoff + FIXED_SYMBOL_YOFF, 0, false, false, translator::translate("Route average waiting time and speed evaluation"));
 						catg_xoff += GOODS_SYMBOL_CELL_WIDTH;
 					}
 					if (cnx->waiting_time > 0) {

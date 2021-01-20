@@ -117,7 +117,9 @@ static const char *revision_ex[] =
 	"32",
 	"33",
 	"34",
-	"35"
+	"35",
+	"36",
+	"37"
 };
 
 
@@ -157,7 +159,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
-	INIT_NUM( "max_route_tiles_to_process_in_a_step", sets->get_max_route_tiles_to_process_in_a_step(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM( "max_route_tiles_to_process_in_a_step", sets->get_max_route_tiles_to_process_in_a_step(), 0, 262140, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM( "max_route_tiles_to_process_in_a_step_paused_background", sets->get_max_route_tiles_to_process_in_a_step_paused_background(), 0, 262140, gui_numberinput_t::AUTOLINEAR, false)
 	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
@@ -227,8 +230,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 
 	SEPERATOR;
 
-	INIT_BOOL("pause_server_no_clients", env_t::pause_server_no_clients); 
-	INIT_BOOL("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused); 
+	INIT_BOOL("pause_server_no_clients", env_t::pause_server_no_clients);
+	INIT_BOOL("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused);
 
 	SEPERATOR;
 
@@ -237,6 +240,13 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	SEPERATOR;
 
 	INIT_NUM("industry_density_proportion_override", sets->get_industry_density_proportion_override(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false);
+
+	SEPERATOR;
+
+	INIT_NUM("do_not_record_private_car_routes_to_city_attractions", sets->get_do_not_record_private_car_routes_to_city_attractions(), 0, 65535, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("do_not_record_private_car_routes_to_city_industries", sets->get_do_not_record_private_car_routes_to_city_industries(), 0, 65535, gui_numberinput_t::PLAIN, false);
+	INIT_BOOL("do_not_record_private_car_routes_to_distant_non_consumer_industries ", sets->get_do_not_record_private_car_routes_to_distant_non_consumer_industries());
+	INIT_BOOL("do_not_record_private_car_routes_to_city_buildings", sets->get_do_not_record_private_car_routes_to_city_buildings()); 
 
 	INIT_END
 }
@@ -262,6 +272,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step );
+	READ_NUM( sets->set_max_route_tiles_to_process_in_a_step_paused_background );
 	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
@@ -338,11 +349,16 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_BOOL_VALUE(sets->save_path_explorer_data);
 
 	READ_BOOL_VALUE(env_t::pause_server_no_clients);
-	READ_BOOL_VALUE(env_t::server_runs_background_tasks_when_paused); 
+	READ_BOOL_VALUE(env_t::server_runs_background_tasks_when_paused);
 
 	READ_BOOL_VALUE(sets->show_future_vehicle_info);
 
 	READ_NUM_VALUE(sets->industry_density_proportion_override);
+
+	READ_NUM_VALUE(sets->private_car_route_to_attraction_visitor_demand_threshold);
+	READ_NUM_VALUE(sets->private_car_route_to_industry_visitor_demand_threshold);
+	READ_BOOL_VALUE(sets->do_not_record_private_car_routes_to_distant_non_consumer_industries);
+	READ_BOOL_VALUE(sets->do_not_record_private_car_routes_to_city_buildings); 
 
 	path_explorer_t::set_absolute_limits_external();
 }

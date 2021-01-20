@@ -456,7 +456,7 @@ settings_t::settings_t() :
 	capital_threshold_percentage = 0;
 	city_threshold_percentage = 0;
 
-	power_revenue_factor_percentage=100;
+	power_revenue_factor_percentage = 100;
 
 	allow_making_public = true;
 
@@ -469,8 +469,6 @@ settings_t::settings_t() :
 	tolerance_modifier_percentage = 100;
 
 	industry_density_proportion_override = 0;
-
-	max_route_tiles_to_process_in_a_step = 2048;
 
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1833,6 +1831,10 @@ void settings_t::rdwr(loadsave_t *file)
 			else
 			{
 				file->rdwr_long(max_route_tiles_to_process_in_a_step);
+				if (file->get_extended_revision() == 36 && max_route_tiles_to_process_in_a_step == 1024 && env_t::server)
+				{
+					max_route_tiles_to_process_in_a_step = 16384; // TEMPORARY for the Bridgewater-Brunel server only
+				}
 			}
 		}
 
@@ -1899,6 +1901,19 @@ void settings_t::rdwr(loadsave_t *file)
 		if( (file->get_extended_version() == 14 && file->get_extended_revision() >= 32) || file->get_extended_version() > 14) {
 			file->rdwr_byte(world_maximum_height);
 			file->rdwr_byte(world_minimum_height);
+		}
+
+		if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 36) || file->get_extended_version() >= 15)
+		{
+			file->rdwr_long(max_route_tiles_to_process_in_a_step_paused_background);
+			if (file->get_extended_revision() == 36 && env_t::server)
+			{
+				max_route_tiles_to_process_in_a_step_paused_background = 65535; // TEMPORARY for the Bridgewater-Brunel server only
+			}
+			file->rdwr_long(private_car_route_to_attraction_visitor_demand_threshold);
+			file->rdwr_long(private_car_route_to_industry_visitor_demand_threshold);
+			file->rdwr_bool(do_not_record_private_car_routes_to_distant_non_consumer_industries);
+			file->rdwr_bool(do_not_record_private_car_routes_to_city_buildings);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -2065,7 +2080,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::network_frames_per_step = contents.get_int("server_frames_per_step", env_t::network_frames_per_step );
 	env_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", env_t::server_sync_steps_between_checks );
 	env_t::pause_server_no_clients = contents.get_int("pause_server_no_clients", env_t::pause_server_no_clients );
-	env_t::server_runs_background_tasks_when_paused = contents.get_int("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused); 
+	env_t::server_runs_background_tasks_when_paused = contents.get_int("server_runs_background_tasks_when_paused", env_t::server_runs_background_tasks_when_paused);
 	env_t::server_save_game_on_quit = contents.get_int("server_save_game_on_quit", env_t::server_save_game_on_quit );
 	env_t::reload_and_save_on_quit = contents.get_int("reload_and_save_on_quit", env_t::reload_and_save_on_quit );
 
@@ -2805,10 +2820,16 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	show_future_vehicle_info = contents.get_int("show_future_vehicle_information", show_future_vehicle_info);
 
+	private_car_route_to_attraction_visitor_demand_threshold = contents.get_int("private_car_route_to_attraction_visitor_demand_threshold", private_car_route_to_attraction_visitor_demand_threshold);
+	private_car_route_to_industry_visitor_demand_threshold = contents.get_int("private_car_route_to_industry_visitor_demand_threshold", private_car_route_to_industry_visitor_demand_threshold);
+	do_not_record_private_car_routes_to_distant_non_consumer_industries = contents.get_int("do_not_record_private_car_routes_to_distant_non_consumer_industries", do_not_record_private_car_routes_to_distant_non_consumer_industries); 
+	do_not_record_private_car_routes_to_city_buildings = contents.get_int("do_not_record_private_car_routes_to_city_buildings", do_not_record_private_car_routes_to_city_buildings);
+
 	uint32 max_routes_to_process_in_a_step = contents.get_int("max_routes_to_process_in_a_step", 0);
 	const uint32 old_max_route_tiles_extrapolated = max_routes_to_process_in_a_step * 1024;
 	const uint32 max_route_tiles_default = old_max_route_tiles_extrapolated ? old_max_route_tiles_extrapolated : max_route_tiles_to_process_in_a_step;
 	max_route_tiles_to_process_in_a_step = contents.get_int("max_route_tiles_to_process_in_a_step", max_route_tiles_default);
+	max_route_tiles_to_process_in_a_step_paused_background = contents.get_int("max_route_tiles_to_process_in_a_step_paused_background", max_route_tiles_to_process_in_a_step_paused_background); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

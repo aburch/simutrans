@@ -1656,7 +1656,7 @@ void *check_road_connexions_threaded(void *args)
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
-			karte_t::cities_to_process--;
+			
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 			(void)error;
@@ -1667,6 +1667,10 @@ void *check_road_connexions_threaded(void *args)
 			}
 
 			city->check_all_private_car_routes();
+
+			error = pthread_mutex_lock(&karte_t::private_car_route_mutex);
+			karte_t::cities_to_process--;
+			error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 
 			simthread_barrier_wait(&karte_t::private_car_barrier);
 		}
@@ -2143,11 +2147,8 @@ void karte_t::init_threads()
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
-#ifdef DEBUG
-	const bool one_private_car_thread = true;
-#else
-	const bool one_private_car_thread = env_t::networkmode;
-#endif
+	//const bool one_private_car_thread = env_t::networkmode;
+	const bool one_private_car_thread = false; // Because we allow servers to run private car threading in the background when no clients are connected, we should now always allow multiple thread instances here.
 
 	simthread_barrier_init(&private_car_barrier, NULL, one_private_car_thread ? 2 : parallel_operations + 1);
 	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
@@ -3130,9 +3131,6 @@ karte_t::karte_t() :
 
 	// for new world just set load version to current savegame version
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
-
-	load_version.extended_version = EX_VERSION_MAJOR;
-	load_version.extended_revision = EX_VERSION_MINOR;
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
@@ -5570,7 +5568,9 @@ void karte_t::pause_step()
 
 	if (!private_car_route_check_complete && cities_awaiting_private_car_route_check.empty())
 	{
+		suspend_private_car_threads();
 		weg_t::swap_private_car_routes_currently_reading_element();
+		dbg->message("karte_t::step", "Refreshed private car routes (while paused)");
 		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 		{
 			cities_awaiting_private_car_route_check.append(i);
@@ -5585,7 +5585,10 @@ void karte_t::pause_step()
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
 		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
 		//cities_to_process = 1;
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		if (cities_to_process <= 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
+		{
+			cities_to_process = min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		}
 		start_private_car_threads();
 #else
 		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
@@ -5714,9 +5717,17 @@ void karte_t::step()
 	{
 		const sint32 parallel_operations = get_parallel_operations();
 
-		if (cities_awaiting_private_car_route_check.empty())
+		if (cities_awaiting_private_car_route_check.empty() && cities_to_process <= 0)
 		{
+			suspend_private_car_threads();
 			weg_t::swap_private_car_routes_currently_reading_element();
+			fprintf(stderr,"karte_t::step: Refreshed private car routes\n");
+			for(auto w : weg_t::get_alle_wege()) {
+				for(auto & l : w->private_car_routes[weg_t::get_private_car_routes_currently_writing_element()]) {
+					l.clear();
+					l.resize(0);
+				}
+			}
 			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
 			{
 				cities_awaiting_private_car_route_check.append(i);
@@ -5726,9 +5737,17 @@ void karte_t::step()
 #ifdef MULTI_THREAD
 		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		// There can be many mutex clashes with this; however, processing only one city at a time can make it take an unfeasible amount of time to refresh all routes.
-		//cities_to_process = stadt.get_count() > 64 ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
-		//cities_to_process = 1;
-		cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+
+		// Also, processing multiple cities when mutli-threaded is not network safe. The reasons for this are unclear, but this remains so even after
+		// the implementation of rwlocks for the private car routing data in January 2021. It is suspected that hte route finding algorithm is not
+		// deterministic for any given starting point, but investigations have so far not revealed whether this is the real problem or how or in what way(s) that
+		// this is not deterministic.
+
+		// For this reason, multi-threading is disabled when using network mode with clients connected until the problem can be solved.
+		if (cities_to_process <= 0 || cities_awaiting_private_car_route_check.get_count() > parallel_operations - 1)
+		{
+			cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
+		}
 		start_private_car_threads();
 #else
 		const sint32 cities_to_process = env_t::networkmode ? 1 : min(cities_awaiting_private_car_route_check.get_count(), parallel_operations - 1);
@@ -6046,7 +6065,7 @@ void karte_t::step()
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
-	// This is not the computationally intensive bit of the path explorer. 
+	// This is not the computationally intensive bit of the path explorer.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(false);
@@ -8449,7 +8468,12 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	}
 
 	display_show_load_pointer( true );
-	if(!file.wr_open( savename.c_str(), autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode, autosave ? loadsave_t::autosave_level : loadsave_t::save_level, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
+
+	const loadsave_t::mode_t mode = autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode;
+	const int level = autosave ? loadsave_t::autosave_level : loadsave_t::save_level;
+	loadsave_t::file_status_t status = file.wr_open( savename.c_str(), mode, level, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str );
+
+	if(status != loadsave_t::FILE_STATUS_OK) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
@@ -8896,7 +8920,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 	{
 		path_explorer_t::rdwr(file);
 	}
-	
+
 	if (file->get_extended_version() >= 15 || (file->get_extended_version() == 14 && file->get_extended_revision() >= 35))
 	{
 		uint32 count = cities_awaiting_private_car_route_check.get_count();
@@ -8905,8 +8929,10 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		for (auto city : cities_awaiting_private_car_route_check)
 		{
 			koord location = city->get_center();
-			location.rdwr(file); 
+			location.rdwr(file);
 		}
+
+		file->rdwr_long(cities_to_process); 
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -9085,7 +9111,7 @@ bool karte_t::load(const char *filename)
 		name.append(filename);
 	}
 
-	if(!file.rd_open(name)) {
+	if(file.rd_open(name) != loadsave_t::FILE_STATUS_OK) {
 
 		if(file.get_version_int() == 0 || file.get_version_int() > loadsave_t::int_version(env_t::savegame_version_str, NULL).version) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
@@ -9124,7 +9150,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %u", file.get_version_int());
 				char fn[256];
 				sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 				loadsave_t pwdfile;
-				if(  pwdfile.rd_open(fn)  ) {
+				if(  pwdfile.rd_open(fn) == loadsave_t::FILE_STATUS_OK  ) {
 					rdwr_player_password_hashes( &pwdfile );
 					// correct locking info
 					nwc_auth_player_t::init_player_lock_server(this);
@@ -10187,8 +10213,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			koord location;
 			location.rdwr(file);
 			stadt_t* city = get_city(location);
-			cities_awaiting_private_car_route_check.append(city); 
+			cities_awaiting_private_car_route_check.append(city);
 		}
+
+		file->rdwr_long(cities_to_process);
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -12448,4 +12476,9 @@ void karte_t::calc_max_vehicle_speeds()
 
 	max_convoy_speed_ground = max(max_convoy_speed_ground, min(max_available_speed_ground / 3, 250));
 	max_convoy_speed_air = max(max_convoy_speed_air, max_convoy_speed_ground);
+}
+
+uint32 karte_t::get_cities_awaiting_private_car_route_check_count() const
+{
+	return cities_awaiting_private_car_route_check.get_count(); 
 }
