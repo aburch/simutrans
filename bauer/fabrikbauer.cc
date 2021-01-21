@@ -1133,14 +1133,13 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 			missing_goods.clear();
 		} // All industries
 
-		int missing_goods_index = 0;
-
 		// ok, found consumer
 		if(!force_add_consumer && !unlinked_consumers.empty())
 		{
 			for(auto unlinked_consumer : unlinked_consumers)
 			{
-				for(int i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++)
+				uint16 missing_goods_index = 0;
+				for(uint16 i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++)
 				{
 					goods_desc_t const* const w = unlinked_consumer->get_desc()->get_supplier(i)->get_input_type();
 					for(uint32 j = 0; j < unlinked_consumer->get_suppliers().get_count(); j++)
@@ -1161,7 +1160,7 @@ next_ware_check:
 					;
 				}
 
-				// first: do we have to continue unfinished factory chains?
+				// First: do we have to continue unfinished factory chains?
 				if(missing_goods_index < unlinked_consumer->get_desc()->get_supplier_count())
 				{
 					int org_rotation = -1;
