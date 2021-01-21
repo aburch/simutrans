@@ -1034,7 +1034,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// In the future, the building of pure consumer industries other than power stations should be part of
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
-	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
+	bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
 
 	weighted_vector_tpl<const goods_desc_t*> oversupplied_goods;
 
@@ -1048,7 +1048,10 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 		for(auto fab : welt->get_fab_list())
 		{
 			// First, re-link industries as necessary without building new.
-			fab->disconnect_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+			if (fab->disconnect_supplier(koord::invalid)) // This does not remove anything, but checks for missing suppliers
+			{
+				force_add_consumer = false;
+			}
 			fab->disconnect_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
 
 			sint32 available_for_consumption;
