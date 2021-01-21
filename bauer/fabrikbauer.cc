@@ -1045,9 +1045,12 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 		slist_tpl<fabrik_t*> unlinked_consumers;
 		slist_tpl<const goods_desc_t*> missing_goods;
 
-
-		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
+		for(auto fab : welt->get_fab_list())
 		{
+			// First, re-link industries as necessary without building new.
+			fab->disconnect_supplier(koord::invalid); // This does not remove anything, but checks for missing suppliers
+			fab->disconnect_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
+
 			sint32 available_for_consumption;
 			sint32 consumption_level;
 			for(uint16 l = 0; l < fab->get_desc()->get_supplier_count(); l ++)
@@ -1062,7 +1065,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				available_for_consumption = 0;
 
-				FOR(vector_tpl<koord>, supplier_koord, suppliers)
+				for(auto supplier_koord : suppliers)
 				{
 					if (available_for_consumption >= consumption_level)
 					{
@@ -1135,7 +1138,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 		// ok, found consumer
 		if(!force_add_consumer && !unlinked_consumers.empty())
 		{
-			FOR(slist_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
+			for(auto unlinked_consumer : unlinked_consumers)
 			{
 				for(int i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++)
 				{
@@ -1214,7 +1217,7 @@ next_ware_check:
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
-	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list())
+	for(auto const fab : welt->get_fab_list())
 	{
 		if(fab->get_desc()->is_electricity_producer())
 		{
