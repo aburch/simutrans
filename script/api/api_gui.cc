@@ -41,13 +41,13 @@ call_tool_work add_ai_message_at(player_t *player, const char* text, koord pos)
 	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, koord3d(pos, 0));
 }
 
-call_tool_init add_scenario_message(player_t* player, const char* text)
+call_tool_work add_scenario_message(player_t* player, const char* text)
 {
 	// build param string (see tool_add_message_t::init)
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::scenario, text);
 
-	return call_tool_init(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player());
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player(), koord3d::invalid);
 }
 
 void_t open_info_win_client(const char* tab, uint8 player_nr)

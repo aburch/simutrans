@@ -173,7 +173,7 @@ BEGIN {
 	export_types["gui::open_info_win_at"] = "void(string)"
 	export_types["gui::open_info_win_client"] = "void(string, integer)"
 	export_types["gui::add_message_at"] = "string(string, coord)"
-	export_types["gui::add_message"] = "void(player_x, string)"
+	export_types["gui::add_message"] = "string(player_x, string)"
 	export_types["halt_x::is_valid"] = "bool()"
 	export_types["halt_x::get_name"] = "string()"
 	export_types["halt_x::set_name"] = "void(string)"
