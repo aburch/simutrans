@@ -2909,7 +2909,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				win_set_static_tooltip( translator::translate("No suitable ground!") );
 
 				slope_t::type sl = gr->get_grund_hang();
-				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
+				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl )  ||  (env_t::pak_height_conversion_factor == 1  &&  !is_one_high(sl))  ||  (env_t::pak_height_conversion_factor == 2  &&  is_one_high(sl))  ) {
 					// cannot start a tunnel here, wrong slope
 					return "";
 				}

@@ -379,17 +379,20 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 	}
 
 	// check ownership
-	if (const grund_t *gr_end = welt->lookup(end)) {
-		if (weg_t *weg_end = gr_end->get_weg(wegtyp)) {
+	const grund_t *end_gr = welt->lookup(end);
+	if (end_gr) {
+		if (weg_t *weg_end = end_gr->get_weg(wegtyp)) {
 			if (weg_end->is_deletable(player)!=NULL) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+			if(  full_tunnel  &&  end_gr->get_typ() == grund_t::tunnelboden  ) {
+				full_tunnel = false;
 			}
 		}
 	}
 
 	// Begin and end found, we can build
 
-	const grund_t *end_gr = welt->lookup(end);
 	slope_t::type end_slope = slope_type(-zv) * env_t::pak_height_conversion_factor;
 	if(  full_tunnel  &&  (!end_gr  ||  end_gr->get_grund_hang()!=end_slope)  ) {
 		// end slope not at correct height - we have already checked in find_end_pos that we can change this
