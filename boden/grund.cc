@@ -2485,13 +2485,17 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 	if(neighbouring_grounds.get_count() > 1)
 	{
 		// It is necessary to do this to simulate the way not being there for testing purposes.
+		grund_t* way_gr = welt->lookup(w->get_pos());
+
+		// Original basic algorithm
 		koord3d start = koord3d::invalid;
 		koord3d end;
 		vehicle_desc_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehicle_desc_t::petrol, w->get_max_axle_load());
 		minivec_tpl<route_t> diversionary_routes;
 		uint32 successful_diversions = 0;
 		uint32 necessary_diversions = 0;
-		FOR(minivec_tpl<grund_t*>, const& gr, neighbouring_grounds)
+
+		for(auto const gr : neighbouring_grounds)
 		{
 			end = start;
 			start = gr->get_pos();
@@ -2531,7 +2535,194 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 
 		if(successful_diversions < necessary_diversions)
 		{
-			return true;
+			// If the original basic algorithm does not succeed, try the between intersections algorithm instead.
+
+			// First, find the set of connected intersections
+			// One for each direction.	
+			minivec_tpl<grund_t*> intersections;
+			for (auto const gr : neighbouring_grounds)
+			{
+				bool intersection_or_end_found_this_direction = false;
+				uint32 impassible_points_this_direction = 0;
+				grund_t* to = gr;
+				grund_t* from = way_gr;
+				grund_t* to_check;
+				while (!intersection_or_end_found_this_direction && intersections.get_count() <= 4)
+				{
+					// Check whether the immediately adjacent tile is an intersection.
+					const weg_t* this_way = to->get_weg(wt);
+					if (this_way->is_junction())
+					{
+						intersections.append_unique(to);
+						break;
+					}
+
+					// Otherwise, check recursively.
+					// We can now assume that there is only one valid direction from here.
+					bool found_valid_way = false;
+					for (int n = 0; n < 4; n++)
+					{
+						if (w->get_waytype() == water_wt && to->get_neighbour(to_check, invalid_wt, ribi_t::nsew[n]) && to_check->get_typ() == grund_t::wasser)
+						{
+							// This is a water waytype and we have reached open water. Treat open water as akin to an intersection.
+							intersections.append_unique(to_check);
+							intersection_or_end_found_this_direction = true;
+							break;
+						}
+						else if (to->get_neighbour(to_check, w->get_waytype(), ribi_t::nsew[n]))
+						{
+							if (to_check == from)
+							{
+								continue;
+							}
+
+							else
+							{
+								found_valid_way = true;
+								break;
+							}
+						}
+					}
+
+					if (!found_valid_way)
+					{
+						break;
+					}
+
+					from = to;
+					to = to_check;
+
+					weg_t* way = to->get_weg(w->get_waytype());
+
+					if (way && way->get_max_speed() > 0)
+					{
+						if (way->is_junction())
+						{
+							intersections.append_unique(to);
+							intersection_or_end_found_this_direction = true;
+							continue;
+						}
+						if (w->get_waytype() == road_wt)
+						{
+							// Check for connected industry or attraction.
+							if (!way->connected_buildings.empty())
+							{
+								for (auto const building : way->connected_buildings)
+								{
+									if (building->is_attraction() || building->get_is_factory())
+									{
+										// Treat as intersection
+										intersections.append_unique(to);
+										intersection_or_end_found_this_direction = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						break;
+					}
+
+				} // Loop for continuing in each direction
+
+			} // All directions
+
+			if (intersections.get_count() < 2)
+			{
+				// We cannot test the distance between < 2 points
+				return true;
+			}
+
+			// First, check the distance using the existing route.
+			
+			vehicle_t* diversion_checker = vehicle_builder_t::build(start, welt->get_public_player(), NULL, &diversion_check_type);
+			diversion_checker->set_flag(obj_t::not_on_map);
+			diversion_checker->set_owner(welt->get_public_player());
+			test_driver_t* driver = diversion_checker;
+			driver = public_driver_t::apply(driver);
+			const way_desc_t* default_road = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+			if (default_road == NULL) // If, for some reason, the default road is not defined
+			{
+				default_road = w->get_desc();
+			}
+			const uint32 default_road_axle_load = default_road->get_axle_load();
+			const sint32 default_road_speed = default_road->get_topspeed();
+			const uint32 max_axle_load = w->get_waytype() == road_wt ? min(default_road_axle_load, w->get_max_axle_load()) : w->get_max_axle_load();
+			const sint32 max_speed = w->get_waytype() == road_wt ? min(default_road_speed, w->get_max_speed()) : w->get_max_speed();
+			const uint32 bridge_weight_limit = gr->ist_bruecke() ? w->get_bridge_weight_limit() : 0;
+			const uint32 bridge_weight = max_axle_load * (w->get_waytype() == road_wt ? 2 : 1);  // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
+
+			for (uint32 i = 0; i < intersections.get_count() - 1; i++)
+			{
+				route_t existing_route;
+				route_t existing_route_2;
+				start = intersections[i]->get_pos();
+				end = way_gr->get_pos();
+				existing_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+				start = end;
+				end = intersections[i + 1]->get_pos();
+				existing_route_2.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+				existing_route.append(&existing_route_2);
+
+				route_t diversionary_route;
+				start = intersections[i]->get_pos();
+				const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles(), bridge_weight_limit, w->get_pos(), (uint8)'\017', route_t::simple_cost) == route_t::valid_route;
+				if (!(route_good && diversionary_route.get_count() < existing_route.get_count() + welt->get_settings().get_max_diversion_tiles()))
+				{
+					return true;
+				}
+				diversionary_routes.append(diversionary_route);
+			}
+
+			if(intersections.get_count() >= 3)
+			{
+				// It is necessary to check beyond the recursion pattern above
+				route_t existing_route;
+				route_t existing_route_2;
+				start = intersections[0]->get_pos();
+				end = way_gr->get_pos();
+				existing_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+				start = end;
+				end = intersections[2]->get_pos();
+				existing_route_2.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+				existing_route.append(&existing_route_2);
+
+				route_t diversionary_route;
+				start = intersections[0]->get_pos();
+				const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles(), bridge_weight_limit, w->get_pos(), (uint8)'\017', route_t::simple_cost) == route_t::valid_route;
+				if (!(route_good && diversionary_route.get_count() < existing_route.get_count() + welt->get_settings().get_max_diversion_tiles()))
+				{
+					return true;
+				}
+				diversionary_routes.append(diversionary_route);
+			}
+			if (intersections.get_count() == 4)
+			{
+				for (uint32 i = 0; i < 2; i++)
+				{
+					// It is necessary to check beyond the recursion pattern above
+					route_t existing_route;
+					route_t existing_route_2;
+					start = intersections[i == 0 ? 0 : 1]->get_pos();
+					end = way_gr->get_pos();
+					existing_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+					start = end;
+					end = intersections[3]->get_pos();
+					existing_route_2.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight);
+					existing_route.append(&existing_route_2);
+
+					route_t diversionary_route;
+					start = intersections[i == 0 ? 0 : 1]->get_pos();
+					const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles(), bridge_weight_limit, w->get_pos(), (uint8)'\017', route_t::simple_cost) == route_t::valid_route;
+					if (!(route_good && diversionary_route.get_count() < existing_route.get_count() + welt->get_settings().get_max_diversion_tiles()))
+					{
+						return true;
+					}
+					diversionary_routes.append(diversionary_route);
+				}
+			}
 		}
 
 		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
@@ -2544,6 +2735,14 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 					way->set_public_right_of_way();
 				}
 			}
+		}
+	}
+	else
+	{
+		// This is a dead end. Check whether it connects to anything.
+		if (!w->connected_buildings.empty())
+		{
+			return true;
 		}
 	}
 	return false;
