@@ -368,7 +368,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 	// check ownership
 	const grund_t *end_gr = welt->lookup(end);
 	if (end_gr) {
-		if (weg_t *weg_end = end_gr->get_weg(wegtyp)) {
+		if (weg_t *weg_end = end_gr->get_weg(waytyp)) {
 			if (weg_end->is_deletable(player)!=NULL) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
