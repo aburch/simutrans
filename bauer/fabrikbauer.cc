@@ -1034,7 +1034,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	// In the future, the building of pure consumer industries other than power stations should be part of
 	// the city growth system and taken out of this entirely. That would leave this system free to complete
 	// industry chains as needed.
-	const bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
+	bool force_add_consumer = force_consumer == 2 || (force_consumer == 0 && 75 > simrand(100, "factory_builder_t::increase_industry_density()"));
 
 	weighted_vector_tpl<const goods_desc_t*> oversupplied_goods;
 
@@ -1045,9 +1045,15 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 		slist_tpl<fabrik_t*> unlinked_consumers;
 		slist_tpl<const goods_desc_t*> missing_goods;
 
-
-		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
+		for(auto fab : welt->get_fab_list())
 		{
+			// First, re-link industries as necessary without building new.
+			if (fab->disconnect_supplier(koord::invalid)) // This does not remove anything, but checks for missing suppliers
+			{
+				force_add_consumer = false;
+			}
+			fab->disconnect_consumer(koord::invalid); // This does not remove anything, but checks for missing consumers
+
 			sint32 available_for_consumption;
 			sint32 consumption_level;
 			for(uint16 l = 0; l < fab->get_desc()->get_supplier_count(); l ++)
@@ -1062,7 +1068,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				available_for_consumption = 0;
 
-				FOR(vector_tpl<koord>, supplier_koord, suppliers)
+				for(auto supplier_koord : suppliers)
 				{
 					if (available_for_consumption >= consumption_level)
 					{
@@ -1130,14 +1136,13 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 			missing_goods.clear();
 		} // All industries
 
-		int missing_goods_index = 0;
-
 		// ok, found consumer
 		if(!force_add_consumer && !unlinked_consumers.empty())
 		{
-			FOR(slist_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
+			for(auto unlinked_consumer : unlinked_consumers)
 			{
-				for(int i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++)
+				uint16 missing_goods_index = 0;
+				for(uint16 i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++)
 				{
 					goods_desc_t const* const w = unlinked_consumer->get_desc()->get_supplier(i)->get_input_type();
 					for(uint32 j = 0; j < unlinked_consumer->get_suppliers().get_count(); j++)
@@ -1158,7 +1163,7 @@ next_ware_check:
 					;
 				}
 
-				// first: do we have to continue unfinished factory chains?
+				// First: do we have to continue unfinished factory chains?
 				if(missing_goods_index < unlinked_consumer->get_desc()->get_supplier_count())
 				{
 					int org_rotation = -1;
@@ -1214,7 +1219,7 @@ next_ware_check:
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
-	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list())
+	for(auto const fab : welt->get_fab_list())
 	{
 		if(fab->get_desc()->is_electricity_producer())
 		{

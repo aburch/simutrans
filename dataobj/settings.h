@@ -348,7 +348,7 @@ private:
 	* the faster the performance. Reduce this number if momentary
 	* unresponsiveness be noticed frequently.
 	*/
-	uint32 max_route_tiles_to_process_in_a_step = 8192;
+	uint32 max_route_tiles_to_process_in_a_step = 16384;
 
 	/**
 	* Same as max_route_tiles_to_process_in_a_step, but this is the number

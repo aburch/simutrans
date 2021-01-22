@@ -107,6 +107,8 @@ enum magic_numbers {
 	magic_motd,
 	magic_factory_info, // only used to load/save
 	magic_font,
+	magic_edit_groundobj,
+
 	// magic numbers with big jumps between them
 	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,

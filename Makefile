@@ -391,6 +391,7 @@ SOURCES += gui/schedule_gui.cc
 SOURCES += gui/goods_frame_t.cc
 SOURCES += gui/goods_stats_t.cc
 SOURCES += gui/ground_info.cc
+SOURCES += gui/groundobj_edit.cc
 SOURCES += gui/gui_frame.cc
 SOURCES += gui/gui_theme.cc
 SOURCES += gui/halt_detail.cc
