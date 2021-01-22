@@ -2667,7 +2667,6 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						}
 						if (next_to_load->get_index() != goods_restriction) {
 							schedule->increment_index(&index, &reverse);
-							skipped = true;
 							continue;
 						}
 					}
