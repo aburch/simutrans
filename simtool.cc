@@ -2523,21 +2523,8 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const way_desc_t *desc = way_builder_t::get_desc(default_param,0);
-	image_id image = icon;
-	bool is_tram = false;
-	if(  desc  ) {
-		is_tram = (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram);
-		if(  image ==  IMG_EMPTY  ) {
-			image = desc->get_cursor()->get_image_id(1);
-		}
-		if(  !desc->is_available( world()->get_timeline_year_month() )  ) {
-			return IMG_EMPTY;
-		}
-	}
-	if(  grund_t::underground_mode==grund_t::ugm_all && !is_tram ) {
-		return IMG_EMPTY;
-	}
-	return image;
+	bool const elevated = desc ? desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt : false;
+	return (grund_t::underground_mode == grund_t::ugm_all && elevated) ? IMG_EMPTY : icon;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
@@ -3475,7 +3462,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				win_set_static_tooltip( translator::translate("No suitable ground!") );
 
 				slope_t::type sl = gr->get_grund_hang();
-				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
+				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl )  ||  (env_t::pak_height_conversion_factor == 1  &&  !is_one_high(sl))  ||  (env_t::pak_height_conversion_factor == 2  &&  is_one_high(sl))  ) {
 					// cannot start a tunnel here, wrong slope
 					return "";
 				}

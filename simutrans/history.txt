@@ -7,6 +7,7 @@
 	ADD: special key "SCORLLOCK", "DELETE", ESCAPE", BACKSAPCE" and "+" sign for shift as modifer in tools key binding
 	ADD: (Leartin) groundobj editor
 	ADD: (Leartin) groundobj editor and totally overhauled edit windows
+	FIX: tunnel can now also connect to sidewards tunnel (as originally inteded by the code)
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
