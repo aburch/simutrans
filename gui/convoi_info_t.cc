@@ -267,7 +267,7 @@ convoi_info_t::~convoi_info_t()
 // apply new schedule
 void convoi_info_t::apply_schedule()
 {
-	if(  (!cnv.is_bound())  ||  cnv->get_state()!=convoi_t::EDIT_SCHEDULE  ) {
+	if(  (!cnv.is_bound())  ||  (cnv->get_state()!=convoi_t::EDIT_SCHEDULE  &&  cnv->get_state()!=convoi_t::INITIAL)  ) {
 		// no change allowed (one can only enter this state when editing was allowed)
 		return;
 	}
@@ -554,11 +554,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	if (comp == &switch_mode) {
 		scd.highlight_schedule(v.i == 1);
 		if (v.i == 1) {
-			if(edit_allowed) {
-				cnv->call_convoi_tool('s', "1"); // set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
+			if(edit_allowed  &&  !cnv->in_depot()) {
+				// if not in depot:
+				// set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
+				cnv->call_convoi_tool('s', "1");
 			}
 		}
-		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE) {
+		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE  ||  cnv->get_state()==convoi_t::INITIAL) {
 			apply_schedule();
 		}
 	}
@@ -574,7 +576,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		if(  comp == &go_home_button  &&  !route_search_in_progress  ) {
 			// limit update to certain states that are considered to be safe for schedule updates
 			int state = cnv->get_state();
-			if(state==convoi_t::EDIT_SCHEDULE) {
+			if(state==convoi_t::EDIT_SCHEDULE  ||  cnv->get_state()==convoi_t::INITIAL) {
 				return true;
 			}
 
