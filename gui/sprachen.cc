@@ -11,6 +11,7 @@
 #include "../simskin.h"
 #include "../descriptor/skin_desc.h"
 #include "sprachen.h"
+#include "simwin.h"
 #include "components/gui_image.h"
 #include "components/gui_divider.h"
 
@@ -194,6 +195,7 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 			b->pressed = true;
 			translator::set_language(buttons[i].id);
 			init_font_from_lang(true);
+			destroy_all_win( true );
 		}
 		else {
 			b->pressed = false;
