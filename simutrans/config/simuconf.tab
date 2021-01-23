@@ -846,10 +846,10 @@ power_revenue_factor_percentage = 100
 # be improved. Turn this down if there are frequent moments
 # of unresponsiveness.
 # 
-# Default: 1024
+# Default: 16384
 # Setting to 0 means that all routes will be processed in
 # a step regardless of number of tiles
-max_route_tiles_to_process_in_a_step = 8192
+max_route_tiles_to_process_in_a_step = 65535
 
 # How many private car tiles to process in a step on a server
 # which is paused and on which processing background tasks
@@ -860,7 +860,7 @@ max_route_tiles_to_process_in_a_step = 8192
 # Default: 65535
 # Setting to 0 means that all routes will be processed in
 # a step regardless of number of tiles.
-max_route_tiles_to_process_in_a_step_paused_background = 65535
+max_route_tiles_to_process_in_a_step_paused_background = 262140
 
 # If the following setting is set to 1, private cars will assume
 # that they can reach anywhere on the map irrespective of the actual
