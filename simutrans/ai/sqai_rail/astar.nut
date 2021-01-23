@@ -3008,8 +3008,9 @@ function optimize_way_line(route, wt) {
 					//gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
 					//::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
-				if ( way_obj.is_retired(world.get_time()) ) {
-					wac_obj = find_object("way", wt, speed)
+				local txt_way = way_obj.is_available(world.get_time())
+				if ( !way_obj.is_available(world.get_time()) ) {
+					way_obj = find_object("way", wt, speed)
 				}
 				err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 				if (err != null ) {
