@@ -55,6 +55,14 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
  */
 bool gui_combobox_t::infowin_event(const event_t *ev)
 {
+	if( !(bt_next.enabled() || bt_prev.enabled()) ) {
+		// no infowind events if disabled
+		if(  droplist.is_visible()  ) {
+			close_box();
+		}
+		return false;
+	}
+
 	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
 		if(  bt_prev.getroffen(ev->cx, ev->cy)  ) {
@@ -191,7 +199,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	else {
 		// finally handle textinput
 		gui_scrolled_list_t::scrollitem_t *item = droplist.get_selected_item();
-		if(  item==NULL  ||  item->is_editable()) {
+		if(  item==NULL  ||  item->is_editable()  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
 			return textinp.infowin_event(ev);
