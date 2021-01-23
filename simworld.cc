@@ -5568,13 +5568,8 @@ void karte_t::pause_step()
 
 	if (!private_car_route_check_complete && cities_awaiting_private_car_route_check.empty())
 	{
-		suspend_private_car_threads();
-		weg_t::swap_private_car_routes_currently_reading_element();
-		dbg->message("karte_t::step", "Refreshed private car routes (while paused)");
-		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
-		{
-			cities_awaiting_private_car_route_check.append(i);
-		}
+		refresh_private_car_routes();
+		dbg->message("karte_t::pause_step", "Refreshed private car routes");
 		private_car_route_check_complete = true;
 	}
 
@@ -5719,19 +5714,8 @@ void karte_t::step()
 
 		if (cities_awaiting_private_car_route_check.empty() && cities_to_process <= 0)
 		{
-			suspend_private_car_threads();
-			weg_t::swap_private_car_routes_currently_reading_element();
+			refresh_private_car_routes();
 			dbg->message("karte_t::step", "Refreshed private car routes");
-			for(auto w : weg_t::get_alle_wege()) {
-				for(auto & l : w->private_car_routes[weg_t::get_private_car_routes_currently_writing_element()]) {
-					l.clear();
-					l.resize(0);
-				}
-			}
-			FOR(weighted_vector_tpl<stadt_t*>, const i, stadt)
-			{
-				cities_awaiting_private_car_route_check.append(i);
-			}
 		}
 
 #ifdef MULTI_THREAD
@@ -6142,6 +6126,24 @@ void karte_t::step()
 
 	DBG_DEBUG4("karte_t::step", "end");
 	rands[26] = get_random_seed();
+}
+
+void karte_t::refresh_private_car_routes() {
+	suspend_private_car_threads();
+	weg_t::swap_private_car_routes_currently_reading_element();
+	clear_private_car_routes();
+	for(auto & city : stadt) {
+		cities_awaiting_private_car_route_check.insert(city);
+	}
+}
+
+void karte_t::clear_private_car_routes() {
+	for(auto & w : weg_t::get_alle_wege()) {
+		for(auto & l : w->private_car_routes[weg_t::get_private_car_routes_currently_writing_element()]) {
+			l.clear();
+			l.resize(0);
+		}
+	}
 }
 
 void karte_t::step_time_interval_signals()
