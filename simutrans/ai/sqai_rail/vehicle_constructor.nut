@@ -25,6 +25,9 @@ class vehicle_constructor_t extends node_t
 
 		c_wt = p_convoy.veh[0].get_waytype()
 
+		//local wt_name = ["", "road", "rail", "water"]
+		//gui.add_message_at(our_player, "convoy " + p_convoy.veh[0].get_name() + " - " + wt_name[c_wt], world.get_time())
+
 		switch(phase) {
 			case 0: // create the convoy (and the first vehicles)
 				{

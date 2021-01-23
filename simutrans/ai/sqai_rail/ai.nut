@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.5.7"
+ai.version <- "0.5.8"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -155,11 +155,24 @@ function step()
 	if (s._step > s._next_construction_step) {
 		local r = factorysearcher.get_report()
 
+
 		if (r   &&  r.action) {
 			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
+		} else {
+			if ( r && r.action && r.retire_time < world.get_time() ) {
+				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+				return r_t(RT_TOTAL_FAIL)
+			}
+			if ( r && r.action && r.retire_obj.year <= world.get_time().year ) {
+				if ( r.retire_obj.month <= world.get_time().month ) {
+					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+					return r_t(RT_TOTAL_FAIL)
+				}
+			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
+
 	}
 }
 

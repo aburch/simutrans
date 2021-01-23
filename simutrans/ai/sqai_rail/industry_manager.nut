@@ -17,6 +17,8 @@ class industry_link_t
 
 	double_ways_count = 0 // count of double way build
 	double_ways_build = 0 // double way build: 0 = no ; 1 = yes
+	optimize_way_line = 0 // is way line optimize: 0 = no ; 1 = yes
+	destroy_line_month = null // test month save
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -217,8 +219,11 @@ class industry_manager_t extends manager_t
 			local profit_count = line.get_profit()
 			//if ( cnv.get_distance_traveled_total() < 3 ) { return }
 			if ( (profit_count[4] < 0 || profit_count[4] == 0) && profit_count[3] == 0 && profit_count[2] == 0 && profit_count[1] == 0 && profit_count[0] == 0 ) {
-				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 ) {
-					destroy_line(line)
+				if ( cnv.get_distance_traveled_total() > 1 && cnv.get_distance_traveled_total() < 25 && cnv.get_loading_level() == 0 && link.destroy_line_month != world.get_time().month ) {
+					local erreg = destroy_line(line)
+					if ( erreg == false ) {
+						link.destroy_line_month = world.get_time().month
+					}
 				} else {
 					//gui.add_message_at(our_player, "return cnv/line new " + line.get_name(), world.get_time())
 				}
@@ -256,8 +261,16 @@ class industry_manager_t extends manager_t
 				}
 				sleep()
 			}
-			// optimize way line befor build double ways
-			optimize_way_line(nexttile, cnv.get_waytype())
+
+
+
+			if ( link.optimize_way_line == 0 ) {
+				// optimize way line befor build double ways
+				optimize_way_line(nexttile, cnv.get_waytype())
+				link.optimize_way_line = 1
+			} else {
+
+			}
 		}
 
 		if (cnv.is_withdrawn()) {
@@ -388,6 +401,8 @@ class industry_manager_t extends manager_t
 				// stucked road vehicles destroy
 				if ( c.get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && c.is_loading() == false && c.get_waytype() == wt_road && cnv_count > 1) {
 					//gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())
+					local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
 					c.destroy(our_player)
 					cnv_count--
 					//remove_cnv++
@@ -609,15 +624,18 @@ class industry_manager_t extends manager_t
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
-			cnv_empty_stopped.destroy(our_player)
-			dbgprint("==> destroy empty convoy")
-			if ( print_message_box == 1 ) {
-				gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
-				gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
-			}
+			if ( cnv_empty_stopped.is_valid() ) {
+				cnv_empty_stopped.destroy(our_player)
+				dbgprint("==> destroy empty convoy")
+				if ( print_message_box == 1 ) {
+					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
+					gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> destroy empty convoy", world.get_time())
+				}
 
-			local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
-			gui.add_message_at(our_player, msgtext, world.get_time())
+				local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
+				gui.add_message_at(our_player, msgtext, world.get_time())
+
+			}
 		}
 		dbgprint("")
 

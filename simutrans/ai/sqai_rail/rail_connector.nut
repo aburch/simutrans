@@ -79,13 +79,13 @@ class rail_connector_t extends manager_t
 					local t_start = []
 					local t_end = []
 					local st_lenght = 0
-					local d = pl.get_cash()[0]
+					local d = pl.get_current_cash()
 					local err = null
 
 					// test route for calculate cost
 					local calc_route = test_route(our_player, c_start, c_end, planned_way)
 					//gui.add_message_at(our_player, "distance " + distance, world.get_time())
-					if ( calc_route == "No route" ) {
+					if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
 						return error_handler()
 					} else {
 						//gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
@@ -101,6 +101,7 @@ class rail_connector_t extends manager_t
 							a -= 16
 							st_lenght += 1
 						} while(a > 0)
+						local text = planned_way
 						err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
 						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {
@@ -167,7 +168,7 @@ class rail_connector_t extends manager_t
 						if ( st ) {
 							local fl_st = st.get_factory_list()
 							if ( fl_st.len() == 0 ) {
-								cash = our_player.get_current_net_wealth() - build_cost
+								cash = our_player.get_current_net_wealth()
 								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
 							} else {
 

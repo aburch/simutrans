@@ -104,7 +104,7 @@ class road_connector_t extends manager_t
 						if ( st ) {
 							local fl_st = st.get_factory_list()
 							if ( fl_st.len() == 0 ) {
-								cash = our_player.get_current_net_wealth() - r.cost_fix
+								cash = our_player.get_current_net_wealth()
 								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
 							} else {
 

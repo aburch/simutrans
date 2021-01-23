@@ -215,18 +215,20 @@ class industry_connection_planner_t extends manager_t
 			local best = null
 
 			foreach(way in way_list) {
-				cnv_valuator.way_maintenance = way.get_maintenance()
-				cnv_valuator.way_max_speed   = way.get_topspeed()
+				if ( !way.is_retired(world.get_time()) ) {
+					cnv_valuator.way_maintenance = way.get_maintenance()
+					cnv_valuator.way_max_speed   = way.get_topspeed()
 
-				local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
-				if (best == null  ||  test > best) {
-					best = test
-					// max track speed 160
-					if (cnv_valuator.way_max_speed < 161 && wt == wt_rail ) {
-						best_way = way
-					}
-					else {
-						best_way = way
+					local test = cnv_valuator.valuate_monthly_transport(planned_convoy)
+					if (best == null  ||  test > best) {
+						best = test
+						// max track speed 160
+						if (cnv_valuator.way_max_speed < 161 && wt == wt_rail ) {
+							best_way = way
+						}
+						else {
+							best_way = way
+						}
 					}
 				}
 			}
@@ -443,6 +445,10 @@ class industry_connection_planner_t extends manager_t
 			if ( wt == wt_road ) {
 				bridge_year_factor = 3
 			}
+		} else if ( world.get_time().year < 1930 ) {
+			if ( wt == wt_road ) {
+				bridge_year_factor = 2
+			}
 		}
 
     // higt distance
@@ -481,6 +487,12 @@ class industry_connection_planner_t extends manager_t
 						cash_buffer = 20
 					}
 			    break
+			}
+
+			if ( r.distance > 450 ) {
+				r.points -= 10
+			} else if ( r.distance > 550 ) {
+				r.points -= 20
 			}
 		}
 		// low distance
@@ -601,6 +613,53 @@ class industry_connection_planner_t extends manager_t
 		if ( (cash-m) < 0 ) {
 			r.points -= 50
 		}
+
+		// set retire time for report
+		r.retire_time = world.get_time().next_month_ticks + world.get_time().ticks_per_month - 1
+/*
+		local txt_message = "Retire: Station " + planned_station.get_retire_date().month + "." + planned_station.get_retire_date().year
+		if ( wt != wt_water && wt != wt_air ) {
+			txt_message += ", Way " + planned_way.get_retire_date().month + "." + planned_way.get_retire_date().year
+		}
+		txt_message += ", Depot " + planned_depot.get_retire_date().month + "." + planned_depot.get_retire_date().year
+		gui.add_message_at(our_player, txt_message, world.get_time())
+		txt_message = "Convoy "
+		for ( local i = 0; i < planned_convoy.veh.len(); i++ ) {
+			txt_message += " - " + planned_convoy.veh[i].get_retire_date().month + "." + planned_convoy.veh[i].get_retire_date().year
+		}
+		gui.add_message_at(our_player, txt_message, world.get_time())
+*/
+		// retire station
+		local min_retire_year = planned_station.get_retire_date().year
+		local min_retire_month = planned_station.get_retire_date().month
+		// retire way
+		if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().year < min_retire_year ) {
+			min_retire_year = planned_way.get_retire_date().year
+			min_retire_month = planned_way.get_retire_date().month
+		} else if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().year == min_retire_year && planned_way.get_retire_date().month < min_retire_month ) {
+			min_retire_year = planned_way.get_retire_date().year
+			min_retire_month = planned_way.get_retire_date().month
+		}
+		// retire depot
+		if ( planned_depot.get_retire_date().year < min_retire_year ) {
+			min_retire_year = planned_depot.get_retire_date().year
+			min_retire_month = planned_depot.get_retire_date().month
+		} else if ( planned_depot.get_retire_date().year == min_retire_year && planned_depot.get_retire_date().month < min_retire_month ) {
+			min_retire_year = planned_depot.get_retire_date().year
+			min_retire_month = planned_depot.get_retire_date().month
+		}
+		// retire vehicle convoy
+		for ( local i = 0; i < planned_convoy.veh.len(); i++ ) {
+			if ( planned_convoy.veh[i].get_retire_date().year < min_retire_year ) {
+				min_retire_year = planned_convoy.veh[i].get_retire_date().year
+				min_retire_month = planned_convoy.veh[i].get_retire_date().month
+			} else if ( planned_convoy.veh[i].get_retire_date().year == min_retire_year && planned_convoy.veh[i].get_retire_date().month < min_retire_month ) {
+				min_retire_year = planned_convoy.veh[i].get_retire_date().year
+				min_retire_month = planned_convoy.veh[i].get_retire_date().month
+			}
+		}
+		//gui.add_message_at(our_player, "retire " + min_retire_month + "." + min_retire_year, world.get_time())
+		r.retire_obj = { month = min_retire_month, year = min_retire_year }
 
 /*		gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 		if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }

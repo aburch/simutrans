@@ -626,10 +626,11 @@ function check_ground(pos_s, pos_e, way) {
 			// find z coord
 			z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
 			if ( !z.is_empty() || !z.is_ground() ) {
-				//gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
+				gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
 				return true
 			} else if ( (pos_s.z-2) <= z.z && z.get_slope() > 0 ) {
 				terraform_tiles.append(z)
+				gui.add_message_at(our_player, "check_ground - terraform_tiles.append(z) " + coord_to_string(z), z)
 			}
 		}
 
@@ -1349,6 +1350,9 @@ function find_object(obj, wt, speed) {
 		case "tunnel":
 			list = tunnel_desc_x.get_available_tunnels(wt)
 			break
+		case "way":
+			list = way_desc_x.get_available_ways(wt, st_flat)
+			break
 	}
 
 	local len = list.len()
@@ -1360,25 +1364,31 @@ function find_object(obj, wt, speed) {
 	if (len>0) {
 		obj_desc = list[0]
 
-		for(local i=1; i<len; i++) {
-			local b = list[i]
-			local o = 1
-			if ( obj == "bridge" && b.get_max_length() < min_len ) {
-				o = 0
-			}
-			if ( o == 1 ) {
-				if (obj_desc.get_topspeed() < speed) {
-					if (b.get_topspeed() > obj_desc.get_topspeed()) {
-						obj_desc = b
+			for(local i=1; i<len; i++) {
+				local b = list[i]
+				local o = 1
+				if ( obj == "bridge" && b.get_max_length() < min_len ) {
+					o = 0
+				}
+
+				if ( obj == "way" && obj_desc.is_retired(world.get_time()) ) {
+					o = 0
+				}
+
+				if ( o == 1 ) {
+					if (obj_desc.get_topspeed() < speed) {
+						if (b.get_topspeed() > obj_desc.get_topspeed()) {
+							obj_desc = b
+						}
+					}
+					else {
+						if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
+							obj_desc = b
+						}
 					}
 				}
-				else {
-					if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
-						obj_desc = b
-					}
-				}
+
 			}
-		}
 	}
 
 	return obj_desc
@@ -2998,6 +3008,9 @@ function optimize_way_line(route, wt) {
 					//gui.add_message_at(our_player, " terraform tile_2: " + err, world.get_time())
 					//::debug.pause()
 				local way_obj = tile_4.find_object(mo_way).get_desc()
+				if ( way_obj.is_retired(world.get_time()) ) {
+					wac_obj = find_object("way", wt, speed)
+				}
 				err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
 				if (err != null ) {
 					gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
@@ -3111,17 +3124,24 @@ function destroy_line(line_obj) {
 		}
 		if ( wt != wt_water && combined_s > 1 && start_line_count > 1 ) {
 			gui.add_message_at(our_player, "return start combined station, more lines ", world.get_time())
-			return
+			return false
 		}
 		cnv.destroy(our_player)
 	}
 	// sleep - convoys are destroyed when simulation continues
 	sleep()
 
-	//::debug.pause()
-	// destroy line
-	line_obj.destroy(our_player)
-	//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
+	// check convoy count
+	cnv_list = line_obj.get_convoy_list()
+	if ( cnv_list.get_count() == 0 ) {
+		//::debug.pause()
+		// destroy line
+		line_obj.destroy(our_player)
+		//industry_manager.access_link(fsrc, fdest, freight).remove_line(c_line)
+	} else {
+		gui.add_message_at(our_player, " --> ERROR not all convoys delete from line ", world.get_time())
+	}
+
 	sleep()
 
 	start_line_count = start_h.get_line_list().get_count()
@@ -3154,7 +3174,7 @@ function destroy_line(line_obj) {
 	local treeway_tile_s = null
 	local treeway_tile_e = null
 
-	if ( wt != wt_water ) {
+	if ( wt != wt_water && wt != wt_air ) {
 		//gui.add_message_at(our_player, " search way line ", world.get_time())
 		local asf = astar_route_finder(wt)
 		wayline = asf.search_route([start_l], [end_l])

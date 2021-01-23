@@ -74,6 +74,13 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 			return r_t(RT_TOTAL_FAIL)
 		}
 
+		// check build cost
+		if ( wt == wt_rail && rprt_rail.cost_fix > our_player.get_current_cash() ) {
+			return r_t(RT_TOTAL_FAIL)
+		} else if ( wt == wt_road && rprt_road.cost_fix > our_player.get_current_cash() ) {
+			return r_t(RT_TOTAL_FAIL)
+		}
+
 		marine.search_route(fsrc,fdest)
 
 		local route = marine.route
