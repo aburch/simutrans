@@ -366,7 +366,8 @@ weg_t::~weg_t()
 #ifdef MULTI_THREAD
 		welt->await_private_car_threads();
 #endif
-		delete_all_routes_from_here();
+		// This is possibly unnecessary and may lead to crashes
+		//delete_all_routes_from_here();
 
 		alle_wege.remove(this);
 		player_t *player = get_owner();
