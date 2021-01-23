@@ -2683,6 +2683,10 @@ private:
 	uint32 get_next_command_step();
 
 	void get_nearby_halts_of_tiles(const minivec_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+
+	void refresh_private_car_routes();
+
+	static void clear_private_car_routes() ;
 };
 
 
