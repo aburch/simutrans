@@ -6133,7 +6133,7 @@ void karte_t::refresh_private_car_routes() {
 	weg_t::swap_private_car_routes_currently_reading_element();
 	clear_private_car_routes();
 	for(auto & city : stadt) {
-		cities_awaiting_private_car_route_check.append(city);
+		cities_awaiting_private_car_route_check.insert(city);
 	}
 }
 
