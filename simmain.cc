@@ -1167,7 +1167,7 @@ int simu_main(int argc, char** argv)
 	// load tool scripts
 	dbg->message("simu_main()","Reading tool scripts ...");
 	dr_chdir( env_t::data_dir );
-	script_tool_manager_t::load_scripts((env_t::objfilename + "tool/").c_str());
+	script_tool_manager_t::load_scripts((env_t::data_dir + env_t::objfilename + "tool/").c_str());
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		dr_chdir( env_t::user_dir );
 		script_tool_manager_t::load_scripts(("addons/" + env_t::objfilename + "tool/").c_str());
