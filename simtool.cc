@@ -1073,6 +1073,10 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		const uint8 max_hdiff = ground_desc_t::double_grounds ?  2 : 1;
 
+		if(new_slope==ALL_DOWN_SLOPE  &&  pos.z-1<welt->get_minimumheight() ) {
+			return "Maximum tile height difference reached.";
+		}
+
 		// at least a pixel away from the border?
 		if(  pos.z < water_hgt  &&  !gr1->ist_tunnel()  ) {
 			return "Maximum tile height difference reached.";

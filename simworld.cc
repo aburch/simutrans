@@ -2696,6 +2696,11 @@ const char* karte_t::can_lower_to(const player_t* player, sint16 x, sint16 y, si
 	assert(is_within_limits(x,y));
 
 	const sint8 hneu = min( min( hsw, hse ), min( hne, hnw ) );
+
+	if( hneu < get_minimumheight() ) {
+		return "Maximum tile height difference reached.";
+	}
+
 	// water heights
 	// check if need to lower water height for higher neighbouring tiles
 	for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
