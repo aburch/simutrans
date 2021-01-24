@@ -87,7 +87,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 		if(  strstart(iter->get_tool_selector()->get_help_filename(),"list.txt" )  ) {
 			continue;
 		}
-		add_helpfile( toolbars, iter->get_tool_selector()->get_name(), iter->get_tool_selector()->get_help_filename(), false, 0 );
+		add_helpfile( toolbars, translator::translate(iter->get_tool_selector()->get_internal_name()), iter->get_tool_selector()->get_help_filename(), false, 0 );
 		if(  strstart(iter->get_tool_selector()->get_help_filename(),"railtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
 			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );

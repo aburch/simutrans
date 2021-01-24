@@ -9,6 +9,7 @@
 #include "../pathes.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
+#include "../simmenu.h"
 #include "../descriptor/skin_desc.h"
 #include "sprachen.h"
 #include "simwin.h"
@@ -196,6 +197,7 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 			translator::set_language(buttons[i].id);
 			init_font_from_lang(true);
 			destroy_all_win( true );
+			tool_t::update_toolbars();
 		}
 		else {
 			b->pressed = false;
