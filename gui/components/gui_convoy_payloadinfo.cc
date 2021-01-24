@@ -132,12 +132,13 @@ void gui_loadingbar_t::draw(scr_coord offset)
 
 	display_ddd_box_clip_rgb(offset.x, offset.y, size.w, LOADINGBAR_HEIGHT, color_idx_to_rgb(MN_GREY2), color_idx_to_rgb(MN_GREY0));
 	sint32 colored_width = cnv->get_loading_level() > 100 ? size.w-2 : cnv->get_loading_level()*(size.w-2)/100;
+	const scr_coord_val bg_width = cnv->get_loading_limit()*(size.w-2)/100;
 
-	if (cnv->get_loading_limit() && cnv->get_state() == convoi_t::LOADING) {
-		display_fillbox_wh_clip_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, true);
+	if (bg_width>0 && cnv->get_state() == convoi_t::LOADING) {
+		display_fillbox_wh_clip_rgb(offset.x+1, offset.y+1, bg_width, LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, true);
 	}
-	else if (cnv->get_loading_limit()) {
-		display_blend_wh_rgb(offset.x+1, offset.y+1, cnv->get_loading_limit(), LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, 60);
+	else if (bg_width > 0) {
+		display_blend_wh_rgb(offset.x+1, offset.y+1, bg_width, LOADINGBAR_HEIGHT - 2, COL_IN_TRANSIT, 60);
 	}
 	else {
 		display_blend_wh_rgb(offset.x+1, offset.y+1, size.w-2, LOADINGBAR_HEIGHT - 2, color_idx_to_rgb(MN_GREY2), colored_width ? 65 : 40);
