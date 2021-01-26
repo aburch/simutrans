@@ -360,16 +360,19 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 
 	// Search tunnel end and check intermediate tiles
 	const char *err = NULL;
-	koord3d end = find_end_pos(player, gr->get_pos(), zv, desc, full_tunnel, &err);
-	if (err) {
-		return err;
-	}
+	koord3d end = koord3d::invalid;
 
 	if (!full_tunnel) {
 		// if there is no tunnel behind set end to start position
 		const grund_t *gr_end = welt->lookup(end);
 		if (gr_end == NULL  ||  !gr_end->ist_tunnel()) {
 			end = gr->get_pos();
+		}
+	}
+	else {
+		end = find_end_pos(player, gr->get_pos(), zv, desc, full_tunnel, &err);
+		if (err) {
+			return err;
 		}
 	}
 

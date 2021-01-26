@@ -232,10 +232,10 @@ void interaction_t::interactive_event( const event_t &ev )
 			bool suspended = false; // true if execution was suspended, i.e. sent to server
 			tool_t *tool = world->get_tool(world->get_active_player_nr());
 			player_t *player = world->get_active_player();
-			// first check for visibility etc
+			tool->flags = event_get_last_control_shift();
+			// first check for visibility etc (needs already right flags)
 			const char *err = tool->check_pos( player, pos );
 			if (err==NULL) {
-				tool->flags = event_get_last_control_shift();
 				err = world->call_work(tool, player, pos, suspended);
 			}
 			if (!suspended) {
