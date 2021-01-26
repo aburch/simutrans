@@ -627,7 +627,7 @@ sint16 vehicle_base_t::get_hoff(const sint16 raster_width) const
 /* true, if one could pass through this field
  * also used for citycars, thus defined here
  */
-vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar, sint8 lane_on_the_tile )
+vehicle_base_t *vehicle_base_t::get_blocking_vehicle(const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar, sint8 lane_on_the_tile )
 {
 	bool cnv_overtaking = false; //whether this convoi is on passing lane.
 	if(  cnv  ) {
@@ -3809,7 +3809,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
-		// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
+		// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, get_blocking_vehicle cannot recognize vehicles on the traffic lane of the next tile.
 		//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
 		const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 		if( current_str && current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
@@ -3826,7 +3826,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi curr_90direction = calc_direction(get_pos(), pos_next);
 		ribi_t::ribi next_direction   = calc_direction(get_pos(), next);
 		ribi_t::ribi next_90direction = calc_direction(pos_next, next);
-		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
+		obj = get_blocking_vehicle(gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane);
 
 		// do not block intersections
 		const bool drives_on_left = welt->get_settings().is_drive_left();
@@ -3924,7 +3924,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				next                 = r.at(test_index + 1u);
 				next_direction   = calc_direction(r.at(test_index - 1u), next);
 				next_90direction = calc_direction(r.at(test_index),      next);
-				obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile );
+				obj = get_blocking_vehicle(gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile);
 			}
 			else {
 				next                 = r.at(test_index);
@@ -3932,7 +3932,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
 					// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 					// preserves old bus terminal behaviour
-					obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::none, NULL, lane_of_the_tile );
+					obj = get_blocking_vehicle(gr, cnv, curr_direction, next_90direction, ribi_t::none, NULL, lane_of_the_tile);
 				}
 			}
 
