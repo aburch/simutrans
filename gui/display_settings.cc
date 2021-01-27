@@ -175,7 +175,7 @@ gui_settings_t::gui_settings_t()
 		reading_index_label.buf().printf("-");
 		reading_index_label.set_color(SYSCOL_TEXT_TITLE);
 		reading_index_label.update();
-		add_component(&reading_index_label); 
+		add_component(&reading_index_label);
 
 		new_component<gui_label_t>("Cities awaiting private car route check:");
 		cities_awaiting_private_car_route_check_label.buf().printf("-");

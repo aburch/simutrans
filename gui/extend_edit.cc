@@ -186,7 +186,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_options.add_component(&bt_climates);
 
 	//setting scrollable content box
-	scrolly.set_visible(true);	
+	scrolly.set_visible(true);
 	scrolly.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 }
 

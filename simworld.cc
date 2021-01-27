@@ -1656,7 +1656,7 @@ void *check_road_connexions_threaded(void *args)
 		{
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
-			
+
 			int error = pthread_mutex_unlock(&karte_t::private_car_route_mutex);
 			assert(error == 0);
 			(void)error;
@@ -8934,7 +8934,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			location.rdwr(file);
 		}
 
-		file->rdwr_long(cities_to_process); 
+		file->rdwr_long(cities_to_process);
 	}
 
 	// MUST be at the end of the load/save routine.
@@ -12482,5 +12482,5 @@ void karte_t::calc_max_vehicle_speeds()
 
 uint32 karte_t::get_cities_awaiting_private_car_route_check_count() const
 {
-	return cities_awaiting_private_car_route_check.get_count(); 
+	return cities_awaiting_private_car_route_check.get_count();
 }
