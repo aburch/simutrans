@@ -1923,7 +1923,7 @@ void gebaeude_t::connect_by_road_to_nearest_city()
 
 		koord3d end3d = welt->lookup_kartenboden(end)->get_pos();
 
-		builder.calc_route(end3d, start); // Start and end are inverted so as to produce cleaner routes: starting in the town and moving outwards means that the line of existing roads can be followed as far as possible. 
+		builder.calc_route(end3d, start); // Start and end are inverted so as to produce cleaner routes: starting in the town and moving outwards means that the line of existing roads can be followed as far as possible.
 		if (builder.get_count() > 1)
 		{
 			builder.build();

@@ -2814,14 +2814,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	private_car_route_to_attraction_visitor_demand_threshold = contents.get_int("private_car_route_to_attraction_visitor_demand_threshold", private_car_route_to_attraction_visitor_demand_threshold);
 	private_car_route_to_industry_visitor_demand_threshold = contents.get_int("private_car_route_to_industry_visitor_demand_threshold", private_car_route_to_industry_visitor_demand_threshold);
-	do_not_record_private_car_routes_to_distant_non_consumer_industries = contents.get_int("do_not_record_private_car_routes_to_distant_non_consumer_industries", do_not_record_private_car_routes_to_distant_non_consumer_industries); 
+	do_not_record_private_car_routes_to_distant_non_consumer_industries = contents.get_int("do_not_record_private_car_routes_to_distant_non_consumer_industries", do_not_record_private_car_routes_to_distant_non_consumer_industries);
 	do_not_record_private_car_routes_to_city_buildings = contents.get_int("do_not_record_private_car_routes_to_city_buildings", do_not_record_private_car_routes_to_city_buildings);
 
 	uint32 max_routes_to_process_in_a_step = contents.get_int("max_routes_to_process_in_a_step", 0);
 	const uint32 old_max_route_tiles_extrapolated = max_routes_to_process_in_a_step * 1024;
 	const uint32 max_route_tiles_default = old_max_route_tiles_extrapolated ? old_max_route_tiles_extrapolated : max_route_tiles_to_process_in_a_step;
 	max_route_tiles_to_process_in_a_step = contents.get_int("max_route_tiles_to_process_in_a_step", max_route_tiles_default);
-	max_route_tiles_to_process_in_a_step_paused_background = contents.get_int("max_route_tiles_to_process_in_a_step_paused_background", max_route_tiles_to_process_in_a_step_paused_background); 
+	max_route_tiles_to_process_in_a_step_paused_background = contents.get_int("max_route_tiles_to_process_in_a_step_paused_background", max_route_tiles_to_process_in_a_step_paused_background);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

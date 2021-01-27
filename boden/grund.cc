@@ -2538,7 +2538,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			// If the original basic algorithm does not succeed, try the between intersections algorithm instead.
 
 			// First, find the set of connected intersections
-			// One for each direction.	
+			// One for each direction.
 			minivec_tpl<grund_t*> intersections;
 			for (auto const gr : neighbouring_grounds)
 			{
@@ -2636,7 +2636,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			}
 
 			// First, check the distance using the existing route.
-			
+
 			vehicle_t* diversion_checker = vehicle_builder_t::build(start, welt->get_public_player(), NULL, &diversion_check_type);
 			diversion_checker->set_flag(obj_t::not_on_map);
 			diversion_checker->set_owner(welt->get_public_player());

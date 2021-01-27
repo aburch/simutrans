@@ -444,7 +444,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				const uint32 average_private_car_speed = welt->get_citycar_speed_average();
 				const uint32 max_commuting_distance_road_km = (average_private_car_speed * max_commuting_tolerance) / 600u; // Dividing by 600 to convert tenths of minutes to hours
 				max_commuting_distance_road_tiles = (max_commuting_distance_road_km * 1000u) / meters_per_tile;
-				straight_line_tiles = shortest_distance(industry_destination_pos, origin_city->get_townhall_road()) - (origin_city->get_max_dimension() + 2); 
+				straight_line_tiles = shortest_distance(industry_destination_pos, origin_city->get_townhall_road()) - (origin_city->get_max_dimension() + 2);
 			}
 
 			if (destination_city ||
@@ -521,7 +521,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				}
 
 #ifdef MULTI_THREAD
-				uint32 max_steps; 
+				uint32 max_steps;
 				if (env_t::server && welt->is_paused())
 				{
 					max_steps = welt->get_settings().get_max_route_tiles_to_process_in_a_step_paused_background();

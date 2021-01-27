@@ -352,7 +352,7 @@ private:
 
 	/**
 	* Same as max_route_tiles_to_process_in_a_step, but this is the number
-	* used when running as a server when paused because no clients are 
+	* used when running as a server when paused because no clients are
 	* connected and configured to run background tasks while paused.
 	*/
 	uint32 max_route_tiles_to_process_in_a_step_paused_background = 65535;
@@ -365,7 +365,7 @@ private:
 	* recording.
 	*
 	* The numbers represent the maximum visitor demand threshold for the destination
-	* to which this rule applies. If 0, the rule does not apply. 
+	* to which this rule applies. If 0, the rule does not apply.
 	*/
 	uint32 private_car_route_to_attraction_visitor_demand_threshold = 120;
 	uint32 private_car_route_to_industry_visitor_demand_threshold = 120;
