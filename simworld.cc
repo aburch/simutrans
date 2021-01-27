@@ -157,12 +157,12 @@ bool karte_t::threads_initialised = false;
 thread_local uint32 karte_t::passenger_generation_thread_number;
 thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
 
-sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
 
 vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
+sint32 karte_t::cities_to_process = 0;
 #ifdef MULTI_THREAD
 vector_tpl<nearby_halt_t> *karte_t::start_halts;
 vector_tpl<halthandle_t> *karte_t::destination_list;
@@ -6129,7 +6129,9 @@ void karte_t::step()
 }
 
 void karte_t::refresh_private_car_routes() {
+#ifdef MULTI_THREAD
 	suspend_private_car_threads();
+#endif
 	weg_t::swap_private_car_routes_currently_reading_element();
 	clear_private_car_routes();
 	for(auto & city : stadt) {

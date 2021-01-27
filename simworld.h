@@ -982,6 +982,7 @@ private:
 
 	destination find_destination(trip_type trip, uint8 g_class);
 
+	static sint32 cities_to_process;
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);
 	friend void *unreserve_route_threaded(void* args);
@@ -989,7 +990,6 @@ private:
 	friend void *step_convoys_threaded(void* args);
 	friend void *path_explorer_threaded(void* args);
 	friend void *step_individual_convoy_threaded(void* args);
-	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
 	static bool threads_initialised;
