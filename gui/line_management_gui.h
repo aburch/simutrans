@@ -19,6 +19,7 @@
 #include "components/gui_scrolled_list.h"
 #include "components/gui_speedbar.h"
 #include "components/gui_tab_panel.h"
+#include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 
 #include "../linehandle_t.h"
@@ -49,6 +50,9 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 	gui_scrolled_list_t scrolly_convois, scrolly_halts;
 
 	gui_aligned_container_t container_schedule, container_stats, container_convois, container_halts;
+
+	cbuffer_t loading_text;
+	gui_textarea_t loading_info;
 
 	player_t *player;
 

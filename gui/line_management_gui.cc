@@ -84,6 +84,7 @@ static const bool cost_type_money[ MAX_LINE_COST ] =
 
 line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_ ) :
 	gui_frame_t( translator::translate( "Fahrplan" ), player_ ),
+	loading_info( &loading_text ),
 	scrolly_convois( gui_scrolled_list_t::windowskin ),
 	scrolly_halts( gui_scrolled_list_t::windowskin )
 {
@@ -102,7 +103,8 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	add_component( &capacity_bar, 2 );
 	new_component<gui_fill_t>();
 
-	add_component( &lb_profit_value, 3 );
+	add_component( &lb_profit_value );
+	add_component( &loading_info, 2 );
 
 	// tab panel: connections, chart panels, details
 	add_component( &switch_mode, 3 );
@@ -229,7 +231,6 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			bt_withdraw_line.enable( old_convoi_count != 0 );
 			// fill convoi container
 			scrolly_convois.clear_elements();
-			capacity = 0;
 			for( uint32 i = 0; i < line->count_convoys(); i++ ) {
 				convoihandle_t cnv = line->get_convoy( i );
 				if( i == 0 ) {
@@ -237,9 +238,6 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 					minimap_t::get_instance()->set_selected_cnv( cnv );
 				}
 				scrolly_convois.new_component<gui_convoiinfo_t>( cnv );
-				for (unsigned i = 0; i<cnv->get_vehicle_count(); i++) {
-					capacity += cnv->get_vehikel( i )->get_cargo_max();
-				}
 			}
 			has_changed = true;
 
@@ -248,8 +246,29 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 
-		load = capacity - line->get_finance_history( 0, LINE_CAPACITY );
+		capacity = 0;
+		load = 0;
+		for( uint32 i = 0; i < line->count_convoys(); i++ ) {
+			convoihandle_t cnv = line->get_convoy( i );
+			for (unsigned i = 0; i<cnv->get_vehicle_count(); i++) {
+				capacity += cnv->get_vehikel(i)->get_cargo_max();
+				load += cnv->get_vehikel( i )->get_total_cargo();
+			}
+		}
 		capacity_bar.set_base( capacity );
+
+		// we check if cap is zero, since theoretically a
+		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
+		// and we do not like to divide by zero, do we?
+		sint32 loadfactor = 0;
+		if (capacity > 0) {
+			loadfactor = (load * 100) / capacity;
+		}
+
+		char ctmp[ 20 ];
+		number_to_string(ctmp, capacity, 2);
+		loading_text.clear();
+		loading_text.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
 
 		char profit_str[64];
 		money_to_string( profit_str, line->get_finance_history( 0, LINE_PROFIT )/100.0, true );
