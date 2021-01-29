@@ -561,7 +561,6 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		stats->schedule = schedule;
 		stats->update_schedule(true);
 		update_selection();
-		update_tool(true);
 		value_t v;
 		v.p = NULL;
 		call_listeners(v);
@@ -590,9 +589,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			update_selection();
 		}
 	}
-	else if( comp == &insert_mode ) {
-		update_tool( true );
-	}
+	update_tool( true );
 	return true;
 }
 

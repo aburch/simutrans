@@ -316,39 +316,37 @@ void convoi_info_t::init_line_selector()
 
 		cnv->get_owner()->simlinemgmt.get_lines(cnv->get_schedule()->get_type(), &lines);
 
-		// keep assignment with identical schedules
-		if (line.is_bound() && !cnv->get_schedule()->matches(world(), line->get_schedule())) {
-			if (old_line.is_bound() && cnv->get_schedule()->matches(world(), old_line->get_schedule())) {
-				line = old_line;
-			}
-			else {
-				line = linehandle_t();
+		bool is_bound = line.is_bound();
+		bool new_bound = false;
+		FOR(vector_tpl<linehandle_t>, other_line, lines) {
+			if( scd.get_schedule()->matches( world(), other_line->get_schedule() ) ) {
+				if(  line != other_line  ) {
+					line = other_line;
+					reset_min_windowsize();
+					scd.init( scd.get_schedule(), cnv->get_owner(), cnv, line );
+				}
+				new_bound = true;
+				break;
 			}
 		}
-		int offset = 0;
+		if(  !new_bound  &&  line.is_bound()  ) {
+			// remove linehandle from schedule
+			line = linehandle_t();
+			scd.init( scd.get_schedule(), cnv->get_owner(), cnv, line );
+		}
+
+		int offset = 2;
 		if (!line.is_bound()) {
 			selection = 0;
-			offset = 2;
+			offset = 3;
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<individual schedule>"), SYSCOL_TEXT);
-			if(  !scd.get_schedule()->empty()  ) {
-				line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
-			}
-			else {
-				line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>("--------------------------------", SYSCOL_TEXT);
-			}
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("<promote to line>"), SYSCOL_TEXT);
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>("--------------------------------", SYSCOL_TEXT);
 		}
 
 		FOR(vector_tpl<linehandle_t>, other_line, lines) {
 			line_selector.new_component<line_scrollitem_t>(other_line);
-			if (!line.is_bound()) {
-				if (cnv->get_schedule()->matches(world(), other_line->get_schedule())  ) {
-					selection = line_selector.count_elements() - 1;
-					line = other_line;
-					scd.init( cnv->get_schedule(), cnv->get_owner(), cnv, line );
-					reset_min_windowsize();
-				}
-			}
-			else if (line == other_line) {
+			if (line == other_line) {
 				selection = line_selector.count_elements() - 1;
 			}
 		}
@@ -357,6 +355,7 @@ void convoi_info_t::init_line_selector()
 		line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 		line_selector.sort(offset);
 		old_line_count = cnv->get_owner()->simlinemgmt.get_line_count();
+		old_schedule_count = scd.get_schedule()->get_count();
 	}
 }
 
@@ -455,18 +454,17 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		if( !line.is_bound() ) {
 			line_selector.set_selection(1);
 		}
-		else if(is_change_allowed) {
-			char id[16];
-			sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
-			cnv->call_convoi_tool('l', id);
-		}
+		reset_min_windowsize();
 	}
-	else if(  !scd.get_schedule()->empty()  &&  line_selector.get_element(1)->get_text()[0]=='-'  ) {
+	else if(  old_schedule_count != scd.get_schedule()->get_count()  ) {
+		// entry added or removed
 		init_line_selector();
+		reset_min_windowsize();
 	}
 	else if(  old_line_count != cnv->get_owner()->simlinemgmt.get_line_count()  ) {
 		// line added or removed
 		init_line_selector();
+		reset_min_windowsize();
 	}
 
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
@@ -610,6 +608,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		}
 		else if (comp == &scd) {
 			if( v.p == NULL ) {
+				scd.init( cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line() );
 				// revert schedule
 				init_line_selector();
 				reset_min_windowsize();
@@ -739,7 +738,6 @@ void convoi_info_t::rdwr(loadsave_t *file)
 
 	// schedule stuff
 	simline_t::rdwr_linehandle_t(file, line);
-	simline_t::rdwr_linehandle_t(file, old_line);
 	scd.rdwr(file);
 
 	// button-to-chart array

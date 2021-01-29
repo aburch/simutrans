@@ -74,7 +74,8 @@ private:
 	gui_combobox_t line_selector;
 	// to add new lines automatically
 	uint32 old_line_count;
-	linehandle_t line, old_line;
+	uint8 old_schedule_count;
+	linehandle_t line;
 	gui_schedule_t scd;
 
 
