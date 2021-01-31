@@ -18,7 +18,7 @@
 	ADD: waiting time in schedules is now entered in days hours minutes (but old games will still have the old steps)
 	ADD: (Leartin) groundobj editor and totally overhauled edit windows
 	FIX: Fatal error when querying servers running very old versions
-	FIX: tunnel can now also connect to sidewards tunnel (as originally inteded by the code)
+	FIX: tunnel can now also connect to sidewards tunnel (as originally intended by the code)
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

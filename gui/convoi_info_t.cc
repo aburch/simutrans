@@ -671,7 +671,7 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 	}
 
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
-		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  &&  !cnv->in_depot()  ) {
 			cnv->call_convoi_tool( 's', "1" );
 			scd.highlight_schedule( true );
 		}
