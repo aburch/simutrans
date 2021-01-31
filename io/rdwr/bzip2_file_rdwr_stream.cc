@@ -35,7 +35,10 @@ bzip2_file_rdwr_stream_t::~bzip2_file_rdwr_stream_t()
 	if (is_writing()) {
 		// BZLIB seems to eat the last byte if it is at an odd position
 		// => we just write a dummy zero padding byte
-		write( "", 1 );
+		if (status == STATUS_OK) {
+			write( "", 1 );
+		}
+
 		BZ2_bzWriteClose( &bse, bzfp, 0, NULL, NULL );
 	}
 	else {
@@ -68,8 +71,13 @@ size_t bzip2_file_rdwr_stream_t::write(const void* buf, size_t len)
 	assert(bse==BZ_OK);
 
 	BZ2_bzWrite( &bse, bzfp, const_cast<void *>(buf), len);
-	assert(bse==BZ_OK);
 
-	return len;
+	if (bse == BZ_OK) {
+		return len;
+	}
+	else {
+		status = STATUS_ERR_FULL;
+		return 0;
+	}
 }
 
