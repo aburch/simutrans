@@ -283,6 +283,13 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						// ignore special keys not handled so far
 						break;
 					}
+					else if (ev->ev_code>=SIM_KEY_NUMPAD_BASE  &&  ev->ev_code<=SIM_KEY_NUMPAD_BASE+9) {
+						// ignore numpad keys if numlock is off
+						// Could also return false here to move the map diagonally but this does not work for 2/4/6/8
+						// (SIM_KEY_LEFT/_RIGHT moves the cursor already)
+						break;
+					}
+
 					// insert letters, numbers, and special characters
 
 					// first check if it is necessary to remove selected text portion
