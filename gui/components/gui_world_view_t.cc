@@ -67,8 +67,9 @@ bool world_view_t::infowin_event(const event_t* ev)
 		if (welt->is_within_limits(pos.get_2d())) {
 			welt->get_viewport()->change_world_position(pos);
 		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
 
