@@ -357,9 +357,9 @@ draw_outside_tile = 0
 compass_screen_position = 0
 compass_map_position = 13
 
-# if set to 1 (default) teh numpad will alsoways move the map.
-# If active, this does not allow for number entry
-numpad_always_moves_map = 0
+# if set to 1 (default) the numpad will always move the map.
+# if set to 0, it will always produce numbers
+numpad_always_moves_map = 1
 
 ###################################money stuff##################################
 #

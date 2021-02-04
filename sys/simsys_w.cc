@@ -635,7 +635,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			sint16 code = lParam >> 16;
 			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
-				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
+				if(  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput())  ) { // numlock off?
 					switch( code ) {
 						case 0x47: code = SIM_KEY_UPLEFT; break;
 						case 0x48: code = SIM_KEY_UP; break;
@@ -686,8 +686,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		{
 			sint16 code = lParam >> 16;
 			if(  code >= 0x47  &&  code <= 0x52  &&  code != 0x4A  &&  code != 0x4e  ) {
-				if(  env_t::numpad_always_moves_map  ||  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ) { // numlock off?
-					// we handled numpad keys already above ...
+				if(  (GetKeyState( VK_NUMLOCK ) & 1) == 0  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput())  ) { // numlock off?
+					// we handled this numpad keys already above ...
 					sys_event.type = SIM_NOEVENT;
 					sys_event.code = 0;
 					break;

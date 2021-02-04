@@ -605,7 +605,7 @@ static void internal_GetEvents(bool const wait)
 #else
 			const bool key_numlock = (SDL_GetModState() & KMOD_NUM);
 #endif
-			const bool numlock = key_numlock  &&  !env_t::numpad_always_moves_map;
+			const bool numlock = key_numlock  ||  (env_t::numpad_always_moves_map  &&  !win_is_textinput());
 			sys_event.key_mod = ModifierKeys();
 			SDL_Keycode sym = event.key.keysym.sym;
 			bool np = false; // to indicate we converted a numpad key
@@ -634,16 +634,16 @@ static void internal_GetEvents(bool const wait)
 				case SDLK_F13:        code = SIM_KEY_F13;                   break;
 				case SDLK_F14:        code = SIM_KEY_F14;                   break;
 				case SDLK_F15:        code = SIM_KEY_F15;                   break;
-				case SDLK_KP_0:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+0); break;
-				case SDLK_KP_1:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+1); break;
-				case SDLK_KP_2:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+2); break;
-				case SDLK_KP_3:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+3); break;
-				case SDLK_KP_4:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+4); break;
-				case SDLK_KP_5:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+5); break;
-				case SDLK_KP_6:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+6); break;
-				case SDLK_KP_7:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+7); break;
-				case SDLK_KP_8:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+8); break;
-				case SDLK_KP_9:       np = true; code = (numlock ? 0 : SIM_KEY_NUMPAD_BASE+9); break;
+				case SDLK_KP_0:       np = true; code = (numlock ? '0' : SIM_KEY_NUMPAD_BASE); break;
+				case SDLK_KP_1:       np = true; code = (numlock ? '1' : SIM_KEY_DOWNLEFT); break;
+				case SDLK_KP_2:       np = true; code = (numlock ? '2' : SIM_KEY_DOWN); break;
+				case SDLK_KP_3:       np = true; code = (numlock ? '3' : SIM_KEY_DOWNRIGHT); break;
+				case SDLK_KP_4:       np = true; code = (numlock ? '4' : SIM_KEY_LEFT); break;
+				case SDLK_KP_5:       np = true; code = (numlock ? '5' : SIM_KEY_CENTER); break;
+				case SDLK_KP_6:       np = true; code = (numlock ? '6' : SIM_KEY_RIGHT); break;
+				case SDLK_KP_7:       np = true; code = (numlock ? '7' : SIM_KEY_UPLEFT); break;
+				case SDLK_KP_8:       np = true; code = (numlock ? '8' : SIM_KEY_UP); break;
+				case SDLK_KP_9:       np = true; code = (numlock ? '9' : SIM_KEY_UPRIGHT); break;
 				case SDLK_KP_ENTER:   code = SIM_KEY_ENTER;                 break;
 				case SDLK_LEFT:       code = SIM_KEY_LEFT;                  break;
 				case SDLK_PAGEDOWN:   code = '<';                           break;
@@ -663,7 +663,7 @@ static void internal_GetEvents(bool const wait)
 					break;
 				}
 			}
-			ignore_previous_number = (np  &&   key_numlock  &&  env_t::numpad_always_moves_map);
+			ignore_previous_number = (np  &&  key_numlock);
 			sys_event.type    = SIM_KEYBOARD;
 			sys_event.code    = code;
 			break;

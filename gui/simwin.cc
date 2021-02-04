@@ -497,6 +497,15 @@ gui_component_t *win_get_focus()
 }
 
 
+bool win_is_textinput()
+{
+	if(  gui_component_t *comp = win_get_focus()  ) {
+		return dynamic_cast<gui_textinput_t *>(comp) || dynamic_cast<gui_combobox_t *>(comp)  ||  dynamic_cast<gui_numberinput_t *>(comp);
+	}
+	return false;
+}
+
+
 int win_get_open_count()
 {
 	return wins.get_count();

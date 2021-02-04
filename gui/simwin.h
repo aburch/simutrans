@@ -148,6 +148,9 @@ gui_frame_t *win_get_top();
 // returns the focused component of the top window
 gui_component_t *win_get_focus();
 
+// true, if the focus is currently in a text field
+bool win_is_textinput();
+
 int win_get_open_count();
 
 // returns the window (if open) otherwise zero
