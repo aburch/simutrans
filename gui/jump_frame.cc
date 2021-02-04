@@ -8,6 +8,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../display/viewport.h"
+#include "../obj/zeiger.h"
 #include "jump_frame.h"
 #include "components/gui_divider.h"
 
@@ -50,7 +51,9 @@ bool jump_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		koord my_pos;
 		sscanf(buf, "%hd,%hd", &my_pos.x, &my_pos.y);
 		if(welt->is_within_limits(my_pos)) {
-			welt->get_viewport()->change_world_position(koord3d(my_pos,welt->min_hgt(my_pos)));
+			koord3d k( my_pos, welt->min_hgt( my_pos ) );
+			welt->get_viewport()->change_world_position(k);
+			welt->get_zeiger()->change_pos( k );
 		}
 	}
 	return true;

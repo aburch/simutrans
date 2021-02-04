@@ -19,6 +19,7 @@
 	ADD: (Leartin) groundobj editor and totally overhauled edit windows
 	FIX: Fatal error when querying servers running very old versions
 	FIX: tunnel can now also connect to sidewards tunnel (as originally intended by the code)
+	ADD: target tile for jumping to a position (via pos button, window icon or jump dialog) will be marked with the current cursor
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

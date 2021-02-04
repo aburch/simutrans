@@ -24,6 +24,7 @@
 #include "../../simworld.h"
 #include "../../boden/grund.h"
 #include "../../display/viewport.h"
+#include "../../obj/zeiger.h"
 
 #include "../gui_frame.h"
 
@@ -265,6 +266,7 @@ bool button_t::infowin_event(const event_t *ev)
 			call_listeners( &targetpos );
 			if (type == posbutton_automatic) {
 				welt->get_viewport()->change_world_position( targetpos );
+				welt->get_zeiger()->change_pos( targetpos );
 			}
 
 		}

@@ -1500,6 +1500,7 @@ bool check_pos_win(event_t *ev)
 										koord3d k = wins[i].gui->get_weltpos(true);
 										if(  k!=koord3d::invalid  ) {
 											wl->get_viewport()->change_world_position( k );
+											wl->get_zeiger()->change_pos( k );
 										}
 									}
 									break;
