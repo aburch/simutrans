@@ -2285,7 +2285,7 @@ const char *tool_schedule_ins_t::work( player_t *player, koord3d pos )
 /* way construction */
 const way_desc_t *tool_build_way_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool remember ) const
+const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month) const
 {
 	const way_desc_t *desc = default_param ? way_builder_t::get_desc(default_param,0) :NULL;
 	if(  desc==NULL  &&  default_param  ) {
@@ -2303,8 +2303,6 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 				delete w;
 			}
 		}
-	}
-	if(  desc  &&  remember  ) {
 	}
 	return desc;
 }
@@ -2331,7 +2329,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
 {
-	const way_desc_t *desc = get_desc(welt->get_timeline_year_month(),false);
+	const way_desc_t *desc = get_desc(welt->get_timeline_year_month());
 	if (desc == NULL) {
 		return "";
 	}
@@ -2356,7 +2354,7 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 			// no chance to guess anything sensible
 			return NULL;
 		}
-		const way_desc_t* test_desc = get_desc(0, false);
+		const way_desc_t* test_desc = get_desc(0);
 		if (test_desc) {
 			return test_desc->get_name();
 		}
@@ -2373,7 +2371,7 @@ bool tool_build_way_t::is_selected() const
 		return false;
 	}
 	tool_build_way_t const* const selected = dynamic_cast<tool_build_way_t const*>(tool);
-	return (selected  &&  selected->get_desc(welt->get_timeline_year_month(),false) == get_desc(welt->get_timeline_year_month(),false));
+	return (selected  &&  selected->get_desc(welt->get_timeline_year_month()) == get_desc(welt->get_timeline_year_month()));
 }
 
 bool tool_build_way_t::init( player_t *player )
@@ -2384,7 +2382,7 @@ bool tool_build_way_t::init( player_t *player )
 	}
 
 	// now get current desc
-	desc = get_desc( welt->get_timeline_year_month(), can_use_gui() );
+	desc = get_desc( welt->get_timeline_year_month());
 	if(  desc  &&  desc->get_cursor()->get_image_id(0) != IMG_EMPTY  ) {
 		cursor = desc->get_cursor()->get_image_id(0);
 	}
@@ -2397,7 +2395,7 @@ bool tool_build_way_t::init( player_t *player )
 
 waytype_t tool_build_way_t::get_waytype() const
 {
-	const way_desc_t *desc = get_desc( welt->get_timeline_year_month(), false );
+	const way_desc_t *desc = get_desc( welt->get_timeline_year_month());
 	if (desc) {
 		return desc->is_tram() ? tram_wt : desc->get_wtyp();
 	}
@@ -2591,7 +2589,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 
 /* city road construction */
-const way_desc_t *tool_build_cityroad::get_desc(uint16,bool) const
+const way_desc_t *tool_build_cityroad::get_desc(uint16) const
 {
 	return welt->get_city_road();
 }

@@ -288,7 +288,7 @@ private:
 protected:
 	const way_desc_t *desc;
 
-	virtual way_desc_t const* get_desc(uint16, bool) const;
+	virtual way_desc_t const* get_desc(uint16 timeline_year_month) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 	void start_at( koord3d &new_start ) OVERRIDE;
 
@@ -310,7 +310,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 public:
 	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
-	way_desc_t const* get_desc(uint16, bool) const OVERRIDE;
+	way_desc_t const* get_desc(uint16) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_safe() const OVERRIDE { return true; }
