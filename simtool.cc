@@ -2305,12 +2305,6 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 		}
 	}
 	if(  desc  &&  remember  ) {
-		if(  desc->get_styp() == type_tram  ) {
-			defaults[ tram_wt ] = desc;
-		}
-		else {
-			defaults[desc->get_wtyp()&63] = desc;
-		}
 	}
 	return desc;
 }
@@ -2529,6 +2523,16 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		welt->mute_sound(true);
 		bauigel.build();
 		welt->mute_sound(false);
+
+		// set default newly constructed type
+		if (can_use_gui()) {
+			if(  desc->get_styp() == type_tram  ) {
+				defaults[ tram_wt ] = desc;
+			}
+			else {
+				defaults[desc->get_wtyp()&63] = desc;
+			}
+		}
 
 		return NULL;
 	}
