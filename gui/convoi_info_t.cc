@@ -316,7 +316,6 @@ void convoi_info_t::init_line_selector()
 
 		cnv->get_owner()->simlinemgmt.get_lines(cnv->get_schedule()->get_type(), &lines);
 
-		bool is_bound = line.is_bound();
 		bool new_bound = false;
 		FOR(vector_tpl<linehandle_t>, other_line, lines) {
 			if( scd.get_schedule()->matches( world(), other_line->get_schedule() ) ) {

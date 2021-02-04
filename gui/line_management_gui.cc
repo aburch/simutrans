@@ -84,9 +84,9 @@ static const bool cost_type_money[ MAX_LINE_COST ] =
 
 line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_ ) :
 	gui_frame_t( translator::translate( "Fahrplan" ), player_ ),
-	loading_info( &loading_text ),
 	scrolly_convois( gui_scrolled_list_t::windowskin ),
-	scrolly_halts( gui_scrolled_list_t::windowskin )
+	scrolly_halts( gui_scrolled_list_t::windowskin ),
+	loading_info( &loading_text )
 {
 	set_table_layout( 3, 0 );
 	line = line_;
