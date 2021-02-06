@@ -1319,9 +1319,9 @@ int simu_main(int argc, char** argv)
 	}
 
 	// restore previous sound settings ...
-	sound_set_shuffle_midi( env_t::shuffle_midi!=0 );
 	sound_set_mute(  env_t::global_mute_sound  ||  sound_get_mute() );
 	midi_set_mute(  env_t::mute_midi  ||  midi_get_mute() );
+	sound_set_shuffle_midi( env_t::shuffle_midi!=0 );
 	sound_set_global_volume( env_t::global_volume );
 	sound_set_midi_volume( env_t::midi_volume );
 	if(  !midi_get_mute()  ) {
