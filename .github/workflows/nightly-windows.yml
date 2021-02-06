@@ -33,10 +33,10 @@ jobs:
         shell: msys2 {0}
 
       - name: Update binaries of Nightly Release
-        uses: meeDamian/github-release@2.0
+        uses: svenstaro/upload-release-action@v1-release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./simuwin-gdi32-nightly.zip
+          asset_name: simuwin-gdi32-nightly.zip
           tag: Nightly
-          files: simuwin-gdi32-nightly.zip
-          allow_override: true
-          gzip: false
+          overwrite: true

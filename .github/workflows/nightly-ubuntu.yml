@@ -23,11 +23,9 @@ jobs:
       run: |
         autoconf 
         ./configure
-        revision="$(git log -1 --grep 'git-svn-id: svn://servers.simutrans.org@' --pretty=format:%B | tail -1 | sed -n 's%.*simutrans.org@\([0-9]*\).*%\1%p')"
-        echo "FLAGS = -DREVISION=$revision " >>config.default
+        echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
         echo "STATIC = 1" >>config.default
         cat config.default >>/dev/stderr
-        echo "revision=$revision" >> $GITHUB_ENV
 
     - name: make
       run: make
@@ -38,12 +36,12 @@ jobs:
     - name: Rename result
       run:  mv simu*.zip simulinux-x64-nightly.zip
 
-    - name: Update binaries
-      uses: meeDamian/github-release@2.0
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v1-release
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./simulinux-x64-nightly.zip
+        asset_name: simulinux-x64-nightly.zip
         tag: Nightly
-        name: Nightly built Ubuntu r${{ env.revision }}
-        files: simulinux-x64-nightly.zip
-        allow_override: true
-        gzip: false
+        overwrite: true   
+
