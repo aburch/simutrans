@@ -35,11 +35,11 @@ jobs:
           echo "LATEST=$(ls *.zip)" >> $GITHUB_ENV
           mv sim*.zip simumac-nightly.zip
 
-    - name: Update binaries of Nightly Release
-      uses: svenstaro/upload-release-action@v1-release
+    - name: Update binaries
+      uses: meeDamian/github-release@2.0
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./simumac-nightly.zip
-        asset_name: simumac-nightly.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
         tag: Nightly
-        overwrite: true   
+        files: simumac-nightly.zip
+        allow_override: true
+        gzip: false
