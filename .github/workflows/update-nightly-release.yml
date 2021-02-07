@@ -1,0 +1,30 @@
+name: Update tag
+
+on: [push]
+
+jobs:
+  update-nightly:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v1
+
+    - name: detect revision
+      run: |
+        revision="$(git log -1 --pretty=%b | sed -n 's%.*servers.simutrans.org@\([0-9]*\).*%\1%p')"
+        echo "revision=$revision" >> $GITHUB_ENV
+
+    - name: set current head to nightly
+      uses: richardsimko/update-tag@v1
+      with:
+          tag_name: Nightly
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: rename the release to include revision
+      uses: meeDamian/github-release@2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: Nightly
+        name: Nightly built r${{ env.revision }}
+        allow_override: true

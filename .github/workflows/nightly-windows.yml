@@ -1,4 +1,4 @@
-name: Nightly Built Windows
+name: Nightly Build Windows
 
 on: [push]
 

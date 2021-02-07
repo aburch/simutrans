@@ -1,4 +1,4 @@
-name: Nightly built Ubuntu
+name: Nightly build Ubuntu
 
 on: [push]
 
@@ -6,13 +6,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
 
     - name: install_dependencies
       run: |
-        sudo apt-get -y update 
+        sudo apt-get -y update
         sudo apt-get -ym install libsdl2-dev
         sudo apt-get -ym install libfreetype6-dev
         sudo apt-get -ym install libminiupnpc-dev
@@ -21,7 +21,7 @@ jobs:
 
     - name: setup
       run: |
-        autoconf 
+        autoconf
         ./configure
         echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
         echo "STATIC = 1" >>config.default
@@ -43,5 +43,5 @@ jobs:
         file: ./simulinux-x64-nightly.zip
         asset_name: simulinux-x64-nightly.zip
         tag: Nightly
-        overwrite: true   
+        overwrite: true
 
