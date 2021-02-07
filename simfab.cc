@@ -769,7 +769,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	delta_menge = 0;
 	menge_remainder = 0;
 	total_input = total_transit = total_output = 0;
-	status = nothing;
+	status = STATUS_NOTHING;
 	currently_producing = false;
 	transformer = NULL;
 	last_sound_ms = welt->get_ticks();
@@ -801,7 +801,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 	currently_producing = false;
 	transformer = NULL;
 	total_input = total_transit = total_output = 0;
-	status = nothing;
+	status = STATUS_NOTHING;
 	lieferziele_active_last_month = 0;
 
 	// create input information
@@ -2751,7 +2751,7 @@ void fabrik_t::recalc_factory_status()
 
 	// one ware missing, but producing
 	if(  status_ein & FL_WARE_FEHLT_WAS  &&  !output.empty()  &&  haltcount > 0  ) {
-		status = bad;
+		status = STATUS_BAD;
 		return;
 	}
 
@@ -2786,21 +2786,21 @@ void fabrik_t::recalc_factory_status()
 
 		if(  output.empty()  ) {
 			// does also not produce anything
-			status = nothing;
+			status = STATUS_NOTHING;
 		}
 		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  ) {
-			status = inactive; // not connected?
+			status = STATUS_INACTIVE; // not connected?
 			if(haltcount>0) {
 				if(status_aus&FL_WARE_ALLEUEBER75) {
-					status = bad; // connect => needs better service
+					status = STATUS_BAD; // connect => needs better service
 				}
 				else {
-					status = medium; // connect => needs better service for at least one product
+					status = STATUS_MEDIUM; // connect => needs better service for at least one product
 				}
 			}
 		}
 		else {
-			status = good;
+			status = STATUS_GOOD;
 		}
 	}
 	else if(  output.empty()  ) {
@@ -2808,41 +2808,41 @@ void fabrik_t::recalc_factory_status()
 
 		if(status_ein&FL_WARE_ALLELIMIT) {
 			// we assume not served
-			status = bad;
+			status = STATUS_BAD;
 		}
 		else if(status_ein&FL_WARE_LIMIT) {
 			// served, but still one at limit
-			status = medium;
+			status = STATUS_MEDIUM;
 		}
 		else if(status_ein&FL_WARE_ALLENULL) {
-			status = inactive; // assume not served
+			status = STATUS_INACTIVE; // assume not served
 			if(haltcount>0) {
 				// there is a halt => needs better service
-				status = bad;
+				status = STATUS_BAD;
 			}
 		}
 		else {
-			status = good;
+			status = STATUS_GOOD;
 		}
 	}
 	else {
 		// produces and consumes
 		if((status_ein&FL_WARE_ALLELIMIT)!=0  &&  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
-			status = bad;
+			status = STATUS_BAD;
 		}
 		else if((status_ein&FL_WARE_ALLELIMIT)!=0  ||  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
-			status = medium;
+			status = STATUS_MEDIUM;
 		}
 		else if((status_ein&FL_WARE_ALLENULL)!=0  &&  (status_aus&FL_WARE_ALLENULL)!=0) {
 			// not producing
-			status = inactive;
+			status = STATUS_INACTIVE;
 		}
 		else if(haltcount>0  &&  ((status_ein&FL_WARE_ALLENULL)!=0  ||  (status_aus&FL_WARE_ALLENULL)!=0)) {
 			// not producing but out of supply
-			status = medium;
+			status = STATUS_MEDIUM;
 		}
 		else {
-			status = good;
+			status = STATUS_GOOD;
 		}
 	}
 }

@@ -799,7 +799,7 @@ void ai_goods_t::step()
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
 				FOR(  slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()  ) {
 					// consumer and not completely overcrowded
-					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
+					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::STATUS_BAD  ) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(  missing>0  ) {
 							start_fabs.append( fab, 100/(missing+1)+1 );

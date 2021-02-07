@@ -667,11 +667,11 @@ public:
 
 	/* returns the status of the current factory, as well as output */
 	enum {
-		bad,
-		medium,
-		good,
-		inactive,
-		nothing
+		STATUS_BAD,
+		STATUS_MEDIUM,
+		STATUS_GOOD,
+		STATUS_INACTIVE,
+		STATUS_NOTHING
 	};
 	static uint8 status_to_color[5];
 
