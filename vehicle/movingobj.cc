@@ -231,7 +231,13 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 		use_calc_height = true;
 	}
-	weg_next = 0;
+
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(weg_next);
+	}
+	else if (file->is_loading()) {
+		weg_next = 0;
+	}
 }
 
 
