@@ -11,7 +11,7 @@ jobs:
 
     - name: detect revision
       run: |
-        revision="$(git log -1 --pretty=%b | sed -n 's%.*servers.simutrans.org@\([0-9]*\).*%\1%p')"
+        revision="$(git log -1 --pretty=%b | grep 'git-svn-id' | sed -ne 's%.*simutrans/trunk@\([0-9]*\).*%\1%p')"
         echo "revision=$revision" >> $GITHUB_ENV
 
     - name: set current head to nightly
@@ -26,5 +26,5 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: Nightly
-        name: Nightly built r${{ env.revision }}
+        name: Nightly build r${{ env.revision }}
         allow_override: true
