@@ -1282,6 +1282,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
+
 	// save townhall road position
 	if(file->is_version_atleast(102, 3)) {
 		townhall_road.rdwr(file);
@@ -1293,6 +1294,17 @@ void stadt_t::rdwr(loadsave_t* file)
 	// data related to target factories
 	target_factories_pax.rdwr( file );
 	target_factories_mail.rdwr( file );
+
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(step_count);
+		file->rdwr_long(next_step);
+		file->rdwr_long(next_growth_step);
+	}
+	else if (file->is_loading()) {
+		step_count = 0;
+		next_step = 0;
+		next_growth_step = 0;
+	}
 
 	if(file->is_loading()) {
 		// Due to some bugs in the special buildings/town hall
@@ -1309,10 +1321,6 @@ void stadt_t::rdwr(loadsave_t* file)
 
 void stadt_t::finish_rd()
 {
-	step_count = 0;
-	next_step = 0;
-	next_growth_step = 0;
-
 	// there might be broken savegames
 	if (!name) {
 		set_name( "simcity" );
@@ -1358,10 +1366,8 @@ void stadt_t::finish_rd()
 			}
 		}
 	}
-	recalc_city_size();
 
-	next_step = 0;
-	next_growth_step = 0;
+	recalc_city_size();
 
 	// resolve target factories
 	target_factories_pax.resolve_factories();
@@ -1489,14 +1495,14 @@ void stadt_t::step(uint32 delta_t)
 		step_interval = 1;
 	}
 
-	while(stadt_t::city_growth_step < next_growth_step) {
+	while(next_growth_step > stadt_t::city_growth_step) {
 		calc_growth();
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
 	}
 
 	// create passenger rate proportional to town size
-	while(step_interval < next_step) {
+	while(next_step > step_interval) {
 		step_passagiere();
 		step_count++;
 		next_step -= step_interval;
@@ -1547,8 +1553,8 @@ void stadt_t::roll_history()
 		city_history_year[0][HIST_BUILDING] = buildings.get_count();
 		city_history_year[0][HIST_GOODS_NEEDED] = 0;
 	}
-
 }
+
 
 void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const {
 	// optimize view of history for convenience
@@ -1558,16 +1564,18 @@ void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACT
 	uint32 index = 0;
 
 	// passenger growth factors
-	factors[index].demand = h[HIST_PAS_GENERATED];
+	factors[index  ].demand   = h[HIST_PAS_GENERATED];
 	factors[index++].supplied = h[HIST_PAS_TRANSPORTED] + h[HIST_PAS_WALKED];
 
 	// mail growth factors
-	factors[index].demand = h[HIST_MAIL_GENERATED];
+	factors[index  ].demand   = h[HIST_MAIL_GENERATED];
 	factors[index++].supplied = h[HIST_MAIL_TRANSPORTED] + h[HIST_MAIL_WALKED];
 
 	// goods growth factors
-	factors[index].demand = h[HIST_GOODS_NEEDED];
+	factors[index  ].demand   = h[HIST_GOODS_NEEDED];
 	factors[index++].supplied = h[HIST_GOODS_RECEIVED];
+
+	assert(index == GROWTH_FACTOR_NUMBER);
 }
 
 sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
@@ -1591,9 +1599,9 @@ sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 		total += weight[i];
 
 		// Compute the differentials.
-		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
-		city_growth_factor_previous[i].demand = growthfactors[i].demand;
+		sint64 const had = growthfactors[i].demand   - city_growth_factor_previous[i].demand;
 		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].demand   = growthfactors[i].demand;
 		city_growth_factor_previous[i].supplied = growthfactors[i].supplied;
 
 		// If we had anything to satisfy add it to weighting otherwise skip.
@@ -1649,9 +1657,9 @@ void stadt_t::city_growth_monthly(uint32 const month)
 	// Perform roll over.
 	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
 		// Compute the differentials.
-		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
-		city_growth_factor_previous[i].demand = -had;
+		sint64 const had = growthfactors[i].demand   - city_growth_factor_previous[i].demand;
 		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].demand   = -had;
 		city_growth_factor_previous[i].supplied = -got;
 	}
 }
