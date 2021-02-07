@@ -89,6 +89,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	loading_info( &loading_text )
 {
 	set_table_layout( 3, 0 );
+	set_alignment(ALIGN_TOP);
 	line = line_;
 	player = player_;
 
@@ -105,6 +106,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 
 	add_component( &lb_profit_value );
 	add_component( &loading_info, 2 );
+	loading_text.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), 0, 0, 0);
 
 	// tab panel: connections, chart panels, details
 	add_component( &switch_mode, 3 );
