@@ -765,9 +765,6 @@ fabrik_t::fabrik_t(loadsave_t* file)
 		}
 	}
 
-	delta_sum = 0;
-	delta_menge = 0;
-	menge_remainder = 0;
 	total_input = total_transit = total_output = 0;
 	status = STATUS_NOTHING;
 	currently_producing = false;
@@ -1172,7 +1169,19 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	// pos will be assigned after call to hausbauer_t::build
 	file->rdwr_byte(rotate);
 
-	// now rebuilt information for received goods
+	// production delta sums for JIT2
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(delta_sum);
+		file->rdwr_long(delta_menge);
+		file->rdwr_long(menge_remainder);
+	}
+	else if (file->is_loading()) {
+		delta_sum = 0;
+		delta_menge = 0;
+		menge_remainder = 0;
+	}
+
+	// now rebuild information for received goods
 	file->rdwr_long(input_count);
 	if(  file->is_loading()  ) {
 		input.resize( input_count );
@@ -1863,9 +1872,10 @@ void fabrik_t::step(uint32 delta_t)
 	/// Compute base production.
 	{
 		// Calculate actual production. A remainder is used for extra precision.
+		const uint32 remainder_bits = (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits);
 		const uint64 want_prod_long = (uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder;
-		prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
-		menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1 ));
+		prod = (uint32)(want_prod_long >> remainder_bits);
+		menge_remainder = (uint32)(want_prod_long & ((1 << remainder_bits) - 1 ));
 	}
 
 	/// Perform the control logic.

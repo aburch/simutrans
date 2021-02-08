@@ -311,7 +311,7 @@ private:
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/// Accumulated time since last production
-	sint32 delta_sum;
+	uint32 delta_sum;
 	uint32 delta_menge;
 
 	// production remainder when scaled to PRODUCTION_DELTA_T. added back next step to eliminate cumulative error
