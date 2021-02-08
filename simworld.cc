@@ -5613,9 +5613,6 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	win_set_world( this );
 	minimap_t::get_instance()->init();
 
-	// tick all power nets so that they update with loaded power
-	powernet_t::step_all(1);
-
 	// load factories
 	sint32 fabs;
 	file->rdwr_long(fabs);
@@ -5736,6 +5733,9 @@ DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count
 	ls.set_progress( (get_size().y*3)/2+256 );
 
 	world_xy_loop(&karte_t::plans_finish_rd, SYNCX_FLAG);
+
+	// update power nets with correct power
+	powernet_t::step_all(1);
 
 	if(  file->is_version_less(112, 7)  ) {
 		// set transitions - has to be done after plans_finish_rd

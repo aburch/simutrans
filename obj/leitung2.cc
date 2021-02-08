@@ -537,6 +537,7 @@ void pumpe_t::rdwr(loadsave_t * file) {
 	}
 }
 
+
 void pumpe_t::finish_rd()
 {
 	leitung_t::finish_rd();
@@ -561,20 +562,20 @@ void pumpe_t::finish_rd()
 
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &pumpe_list_mutex );
-#endif
 	pumpe_list.insert( this );
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &pumpe_list_mutex );
-#endif
-#ifdef MULTI_THREAD
+
 	pthread_mutex_lock( &calc_image_mutex );
-#endif
 	set_image(skinverwaltung_t::pumpe->get_image_id(0));
 	is_crossing = false;
-#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &calc_image_mutex );
+#else
+	pumpe_list.insert( this );
+	set_image(skinverwaltung_t::pumpe->get_image_id(0));
+	is_crossing = false;
 #endif
 }
+
 
 void pumpe_t::info(cbuffer_t & buf) const
 {
@@ -625,6 +626,7 @@ void senke_t::step_all(uint32 delta_t)
 		}
 	}
 }
+
 
 senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
@@ -790,6 +792,7 @@ sync_result senke_t::sync_step(uint32 delta_t)
 	return SYNC_OK;
 }
 
+
 void senke_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "senke_t" );
@@ -800,6 +803,19 @@ void senke_t::rdwr(loadsave_t *file)
 	if(  file->is_version_atleast(120, 4)  ) {
 		file->rdwr_longlong((sint64 &)energy_acc);
 		file->rdwr_long(power_demand);
+	}
+	else if (file->is_loading()) {
+		energy_acc = 0;
+		power_demand = 0;
+	}
+
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(delta_sum);
+		file->rdwr_long(next_t);
+	}
+	else if (file->is_loading()) {
+		delta_sum = 0;
+		next_t = 0;
 	}
 }
 
