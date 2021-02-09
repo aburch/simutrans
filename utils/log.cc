@@ -363,14 +363,14 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 
 
 // create a logfile for log_debug=true
-log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool log_console, const char *greeting, const char* syslogtag )
+log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool log_console, const char *greeting, const char* syslogtag ) :
+	log(NULL),
+	tee(NULL),
+	force_flush(force_flush), // if true will always flush when an entry is written to the log
+	log_debug(log_debug),
+	tag(NULL),
+	syslog(false)
 {
-	log = NULL;
-	syslog = false;
-	this->force_flush = force_flush; /* if true will always flush when */
-	                                 /* an entry is written to the log */
-	this->log_debug = log_debug;
-
 	if(logfilename == NULL) {
 		log = NULL;                       /* not a log */
 		tee = NULL;
