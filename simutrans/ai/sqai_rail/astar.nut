@@ -3182,22 +3182,27 @@ function destroy_line(line_obj) {
 
 		local i = 0
 
-		foreach(node in wayline.routes) {
-			local tile = tile_x(node.x, node.y, node.z)
-			//nexttile.append(tile)
-			// check route to treeways
-			// one treeway ( depot ) then no split line way
-			if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
-				treeways++
-				if ( i == 0 ) {
-					treeway_tile_e = tile
-					treeway_tile_s = tile
-					i++
-				} else {
-					treeway_tile_s = tile
+		if ("err" in wayline) {
+			gui.add_message_at(our_player, "ERROR search way line for remove", world.get_time())
+		} else {
+			foreach(node in wayline.routes) {
+				local tile = tile_x(node.x, node.y, node.z)
+				//nexttile.append(tile)
+				// check route to treeways
+				// one treeway ( depot ) then no split line way
+				if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
+					treeways++
+					if ( i == 0 ) {
+						treeway_tile_e = tile
+						treeway_tile_s = tile
+						i++
+					} else {
+						treeway_tile_s = tile
+					}
 				}
 			}
 		}
+
 	}
 
 	// world.get_convoy_list()

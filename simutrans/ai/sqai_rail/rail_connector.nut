@@ -48,7 +48,12 @@ class rail_connector_t extends manager_t
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
 			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
-			return r_t(RT_TOTAL_FAIL)
+			return r_t(RT_TOTAL_FAIL) //
+		} else {
+			gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
+			if ( !check_factory_link_line(fsrc, fdest, freight) ) {
+				return r_t(RT_TOTAL_FAIL)
+			}
 		}
 
 		local err = null
@@ -110,18 +115,19 @@ class rail_connector_t extends manager_t
 								// station start ok
 								err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
 								err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
+								local tool = command_x(tool_remove_way)
 								if ( err == null ) {
 									err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
 									if ( err == true ) {
 										// station end ok
 										// remove track -> error by build
-										remove_tile_to_empty(t_start, wt_rail, 1)
-										remove_tile_to_empty(t_end, wt_rail, 1)
+										tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 									} else {
 										// failed station place end
 										// remove start and end
-										remove_tile_to_empty(t_start, wt_rail, 1)
-										remove_tile_to_empty(t_end, wt_rail, 1)
+										tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 										return error_handler()
 									}
 								} else {

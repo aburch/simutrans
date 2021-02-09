@@ -465,6 +465,10 @@ class industry_connection_planner_t extends manager_t
 					if ( planned_bridge.tiles > 30 ) {
 						r.points -= (25*bridge_year_factor)
 					}
+					if ( planned_convoy.max_speed < 50 ) {
+						//gui.add_message_at(our_player, "wt_rail planned_convoy.max_speed " + planned_convoy.max_speed, world.get_time())
+						r.points -= 20
+					}
 			    break
 				case wt_road:
 					if ( f_dist_long < r.distance ) {
@@ -476,6 +480,10 @@ class industry_connection_planner_t extends manager_t
 					}
 					if ( planned_bridge.tiles > 15 ) {
 						r.points -= (32*bridge_year_factor)
+					}
+					if ( planned_convoy.max_speed < 40 ) {
+						//gui.add_message_at(our_player, "wt_road planned_convoy.max_speed " + planned_convoy.max_speed, world.get_time())
+						r.points -= 20
 					}
 			    break
 				case wt_water:
