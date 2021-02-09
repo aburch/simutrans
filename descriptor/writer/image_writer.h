@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "obj_writer.h"
 #include "../objversion.h"
+#include "../../io/raw_image.h"
 
 
 class obj_node_t;
@@ -22,9 +23,7 @@ class image_writer_t : public obj_writer_t {
 		static image_writer_t the_instance;
 
 		static std::string last_img_file;
-		static unsigned char* block;
-		static unsigned width;
-		static unsigned height;
+		static raw_image_t input_img;
 		static int img_size; // default 64
 
 		image_writer_t() { register_writer(false); }

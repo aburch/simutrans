@@ -7,7 +7,7 @@ is free in Version 7.0 or up) or some GCC variant including clang.
 
 To compile you will need the following libraries:
 libz (http://www.zlib.net/)
-libpng (http://www.libpng.org/pub/png/) for makeobj
+libpng (http://www.libpng.org/pub/png/)
 libbz2.lib (compile from source from http://www.bzip.org/downloads.html)
 
 The following are also recommendend, but optional
@@ -44,7 +44,7 @@ mingw-w64-i686-libpng (for makeobj)
 mingw-w64-i686-pkg-config (for makeobj)
 
 For all other systems, it is recommended you get latest GCC 3.46 or higher
-and matching zlib, libbzip2, and libpng and SDL or SDL2 libbrary. For linux
+and matching zlib, libbzip2, and libpng and SDL or SDL2 library. For linux
 systems you may have to use tools like apt-get, yast2, yum, ...
 
 Typical package names are (ending may be also -devel)

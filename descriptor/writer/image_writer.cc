@@ -13,9 +13,9 @@
 #include "obj_pak_exception.h"
 #include "../image.h"
 #include "../../macros.h"
-#include "../../utils/dr_rdpng.h"
 #include "../../utils/simstring.h"
 #include "../../simdebug.h"
+#include "../../io/raw_image.h"
 
 
 struct dimension
@@ -31,9 +31,7 @@ static int special_hist[SPECIAL];
 
 std::string image_writer_t::last_img_file;
 
-unsigned image_writer_t::width;
-unsigned image_writer_t::height;
-unsigned char* image_writer_t::block = NULL;
+raw_image_t image_writer_t::input_img;
 int image_writer_t::img_size = 64;
 
 
@@ -47,10 +45,35 @@ void image_writer_t::dump_special_histogramm()
 
 uint32 image_writer_t::block_getpix(int x, int y)
 {
-	return (image_writer_t::block[y * width * 4 + x * 4 + 0]<<24) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 1] << 16) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 2] <<  8) +
-		(image_writer_t::block[y * width * 4 + x * 4 + 3] <<  0);
+	const uint8 *pixel_data = input_img.access_pixel(x, y);
+
+	switch (input_img.get_format()) {
+		case raw_image_t::FMT_GRAY8: {
+			const uint8 gray_level = pixel_data[0];
+			return
+				gray_level <<  0 |
+				gray_level <<  8 |
+				gray_level << 16;
+		}
+		case raw_image_t::FMT_RGBA8888: {
+			const uint32 pixel =
+				(pixel_data[2] <<  0) + // B
+				(pixel_data[1] <<  8) + // G
+				(pixel_data[0] << 16) + // R
+				(pixel_data[3] << 24);  // A
+
+			// invert alpha channel, we want 0 == opaque
+			return pixel ^ 0xFF000000;
+		}
+		case raw_image_t::FMT_RGB888: {
+			return
+				(pixel_data[2] <<  0) | // B
+				(pixel_data[1] <<  8) | // G
+				(pixel_data[0] << 16);  // R
+		}
+		default:
+			dbg->fatal("image_writer_t::block_getpix", "Unsupported input image format");
+	}
 }
 
 
@@ -106,13 +129,11 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 }
 
 
-
 // true if transparent
 inline bool is_transparent( const uint32 pix )
 {
 	return (pix & 0x00FFFFFF) == SPECIAL_TRANSPARENT  ||  (pix >= ALPHA_THRESHOLD);
 }
-
 
 
 static void init_dim(uint32 *image, dimension *dim, int img_size)
@@ -241,20 +262,31 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 }
 
 
-
-bool image_writer_t::block_load(const char* fname)
+bool image_writer_t::block_load(const char *fname)
 {
-	// The last png-file is cached
-	if(  last_img_file == fname  ||  load_block(&block, &width, &height, fname, img_size)  ) {
+	// The last image file is cached
+	// Note that this method accepts any file name if the content has a supported format,
+	// even though makeobj only supports image file names with a ".png" suffix.
+	// See image_writer_t::write_obj for details.
+	if(  last_img_file == fname  ) {
+		return true;
+	}
+	else if (input_img.read_from_file(fname)) {
+		if ((input_img.get_width()%img_size != 0) || (input_img.get_height()%img_size != 0)) {
+			dbg->error("image_writer_t::block_load", "Cannot load image file '%s': "
+				"Size not divisible by %d.", fname, img_size);
+			last_img_file = "";
+			return false;
+		}
+
 		last_img_file = fname;
 		return true;
 	}
-	else {
-		last_img_file = "";
-		return false;
-	}
-}
 
+	// error message is handled by image_writer_t::write_obj
+	last_img_file = "";
+	return false;
+}
 
 
 /* the syntax for image the string is
@@ -303,7 +335,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		}
 		numkey = numkey.substr( i+1, std::string::npos );
 
-		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) +  ".png";
+		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) + ".png";
 
 		row = atoi(numkey.c_str());
 
@@ -331,10 +363,10 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		}
 
 		if (col == -1) {
-			col = row % (width / img_size);
-			row = row / (width / img_size);
+			col = row % (input_img.get_width()  / img_size);
+			row = row / (input_img.get_height() / img_size);
 		}
-		if (col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
+		if (col >= (int)(input_img.get_width() / img_size) || row >= (int)(input_img.get_height() / img_size)) {
 			char reason[1024];
 			sprintf(reason, "invalid image number in %s.%s", imagekey.c_str(), numkey.c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);

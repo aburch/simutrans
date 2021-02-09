@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include "simsys.h"
-#include "simsys_w32_png.h"
 
 #include "../macros.h"
 #include "../simevent.h"
@@ -319,23 +318,6 @@ void dr_prepare_flush()
 void dr_flush()
 {
 	display_flush_buffer();
-}
-
-/**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h)
-{
-#ifdef WIN32
-	if(  dr_screenshot_png(filename, max(w,width-1), h, width, ((short unsigned int *)texture_map)+x+y*width, 16)  ) {
-		return 1;
-	}
-#endif
-	PALETTE pal;
-	get_palette(pal);
-	return save_bitmap(filename, texture_map, pal) == 0 ? 1 : -1;
 }
 
 

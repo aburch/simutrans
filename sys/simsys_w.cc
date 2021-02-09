@@ -22,7 +22,6 @@ extern int __argc;
 extern char **__argv;
 #endif
 
-#include "simsys_w32_png.h"
 #include "simsys.h"
 
 #include "../macros.h"
@@ -398,52 +397,6 @@ void move_pointer(int x, int y)
 void set_pointer(int loading)
 {
 	SetCursor(LoadCursor(NULL, loading != 0 ? IDC_WAIT : IDC_ARROW));
-}
-
-
-/**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h)
-{
-#if defined RGB555
-	int const bpp = 15;
-#else
-	int const bpp = COLOUR_DEPTH;
-#endif
-	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
-		// not successful => save full screen as BMP
-		if (FILE* const fBmp = dr_fopen(filename, "wb")) {
-			BITMAPFILEHEADER bf;
-
-			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
-			LONG const old_width = AllDib->bmiHeader.biWidth;
-			AllDib->bmiHeader.biWidth  = display_get_width() - 1;
-			AllDib->bmiHeader.biHeight = WindowSize.bottom   + 1;
-
-			bf.bfType = 0x4d42; //"BM"
-			bf.bfReserved1 = 0;
-			bf.bfReserved2 = 0;
-			bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(DWORD)*3;
-			bf.bfSize      = (bf.bfOffBits + AllDib->bmiHeader.biHeight * AllDib->bmiHeader.biWidth * 2L + 3L) / 4L;
-			fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
-			fwrite(AllDib, sizeof(AllDib->bmiHeader) + sizeof(*AllDib->bmiColors) * 3, 1, fBmp);
-
-			for (LONG i = 0; i < AllDib->bmiHeader.biHeight; ++i) {
-				// row must be always even number of pixel
-				fwrite(AllDibData + (AllDib->bmiHeader.biHeight - 1 - i) * old_width, (AllDib->bmiHeader.biWidth + 1) & 0xFFFE, 2, fBmp);
-			}
-			AllDib->bmiHeader.biWidth = old_width;
-
-			fclose(fBmp);
-		}
-		else {
-			return -1;
-		}
-	}
-	return 0;
 }
 
 

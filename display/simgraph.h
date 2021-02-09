@@ -365,7 +365,7 @@ void display_swap_clip_wh(CLIP_NUM_DEF0);
 void display_pop_clip_wh(CLIP_NUM_DEF0);
 
 
-void display_snapshot( int x, int y, int w, int h );
+bool display_snapshot( const scr_rect &area );
 
 #if COLOUR_DEPTH != 0
 extern uint8 display_day_lights[  LIGHT_COUNT * 3];

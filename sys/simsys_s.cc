@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 #include "simsys.h"
-#include "simsys_w32_png.h"
 
 #include "../macros.h"
 #include "../simversion.h"
@@ -420,23 +419,6 @@ void move_pointer(int x, int y)
 void set_pointer(int loading)
 {
 	SDL_SetCursor(loading ? hourglass : arrow);
-}
-
-
-/**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h)
-{
-#ifdef WIN32
-	if(  dr_screenshot_png(filename, w, h, width, ((unsigned short *)(screen->pixels))+x+y*width, screen->format->BitsPerPixel )  ) {
-		return 1;
-	}
-#endif
-	(void)(x+y+w+h);
-	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
 

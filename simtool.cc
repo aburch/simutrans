@@ -6835,20 +6835,24 @@ bool tool_quit_t::init( player_t * )
 
 bool tool_screenshot_t::init( player_t * )
 {
-	if(  is_ctrl_pressed()  ) {
-		if(  const gui_frame_t * topwin = win_get_top()  ) {
-			const scr_coord k = win_get_pos(topwin);
-			const scr_size size = topwin->get_windowsize();
-			display_snapshot( k.x, k.y, size.w, size.h );
-		}
-		else {
-			display_snapshot( 0, 0, display_get_width(), display_get_height() );
-		}
+	bool ok;
+	const scr_rect screen_area = scr_rect(0, 0, display_get_width(), display_get_height());
+	const gui_frame_t *topwin = win_get_top();
+
+	if(  is_ctrl_pressed()  &&  topwin != NULL  ) {
+		ok = display_snapshot( scr_rect(win_get_pos(topwin), topwin->get_windowsize()) );
 	}
 	else {
-		display_snapshot( 0, 0, display_get_width(), display_get_height() );
+		ok = display_snapshot( screen_area );
 	}
-	create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+
+	if (ok) {
+		create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
+	}
+	else {
+		create_win( new news_img("Could not\ncreate screenshot!\n"), w_time_delete, magic_none);
+	}
+
 	return false;
 }
 

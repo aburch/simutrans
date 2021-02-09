@@ -105,8 +105,9 @@ void register_image(image_t* image)
 	image->imageid = 1;
 }
 
-void display_snapshot(int, int, int, int)
+bool display_snapshot(const scr_rect &)
 {
+	return false;
 }
 
 void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)

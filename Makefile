@@ -56,7 +56,6 @@ else ifeq ($(OSTYPE),mingw)
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
   LDFLAGS   += -pthread
-  SOURCES   += sys/simsys_w32_png.cc
   CFLAGS    += -Wno-deprecated-copy -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
 
@@ -80,7 +79,7 @@ else
   SOURCES += sys/clipboard_internal.cc
 endif
 
-LIBS += -lbz2 -lz
+LIBS += -lbz2 -lz -lpng
 
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
@@ -442,6 +441,10 @@ SOURCES += gui/trafficlight_info.cc
 SOURCES += gui/vehiclelist_frame.cc
 SOURCES += gui/welt.cc
 SOURCES += io/classify_file.cc
+SOURCES += io/raw_image.cc
+SOURCES += io/raw_image_bmp.cc
+SOURCES += io/raw_image_png.cc
+SOURCES += io/raw_image_ppm.cc
 SOURCES += io/rdwr/bzip2_file_rdwr_stream.cc
 SOURCES += io/rdwr/raw_file_rdwr_stream.cc
 SOURCES += io/rdwr/rdwr_stream.cc

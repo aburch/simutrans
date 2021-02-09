@@ -98,11 +98,6 @@ void set_pointer(int)
 {
 }
 
-int dr_screenshot(const char *,int,int,int,int)
-{
-	return -1;
-}
-
 void GetEvents()
 {
 	if(  sigterm_received  ) {

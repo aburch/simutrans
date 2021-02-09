@@ -36,9 +36,6 @@ public:
 private:
 	sint8 rgb_to_height( const int r, const int g, const int b );
 
-	const char *read_bmp(FILE *file, sint8 groundwater, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values);
-	const char *read_ppm(FILE *file, sint8 groundwater, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values);
-
 private:
 	const sint8 min_allowed_height;
 	const sint8 max_allowed_height;

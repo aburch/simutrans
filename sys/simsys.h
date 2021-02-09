@@ -170,13 +170,6 @@ void dr_sleep(uint32 millisec);
 void dr_fatal_notify(char const* msg);
 
 /**
- * Some wrappers can save screenshots.
- * @return 1 on success, 0 if not implemented for a particular wrapper and -1
- *         in case of error.
- */
-int dr_screenshot(const char *filename, int x, int y, int w, int h);
-
-/**
  * Copy text to the clipboard
  * @param source : pointer to the start of the source text
  * @param length : number of character bytes to copy
