@@ -52,6 +52,9 @@ USE_FREETYPE = @freetype@
 # using zstd compression
 USE_ZSTD = @zstd@
 
+# using FluidSynth for MIDI playback (SDL2 backend needed for Linux/MacOS, SDL2 or GDI for MinGW)
+USE_FLUIDSYNTH_MIDI = @fluidsynth@
+
 # use static linking (to be at least somewhat portable)
 STATIC = 1
 

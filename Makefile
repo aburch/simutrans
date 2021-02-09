@@ -57,7 +57,7 @@ else ifeq ($(OSTYPE),mingw)
   endif
   LDFLAGS   += -pthread
   SOURCES   += sys/simsys_w32_png.cc
-  CFLAGS    += -Wno-deprecated-copy -Wno-c++11-narrowing -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
+  CFLAGS    += -Wno-deprecated-copy -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
 
   # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
@@ -174,6 +174,21 @@ ifdef USE_ZSTD
   endif
 endif
 
+ifdef USE_FLUIDSYNTH_MIDI
+  ifeq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
+    CFLAGS  += -DUSE_FLUIDSYNTH_MIDI
+    SOURCES += music/fluidsynth.cc
+    SOURCES += gui/loadsoundfont_frame.cc
+    LDFLAGS += -lfluidsynth
+    ifeq ($(OSTYPE),mingw)
+      # fluidsynth.pc doesn't properly list dependant libraries, unable to use pkg-config. Manually listed below. Only valid for fluidsynth built with options: "-DBUILD_SHARED_LIBS=0 -Denable-aufile=0 -Denable-dbus=0 -Denable-ipv6=0 -Denable-jack=0 -Denable-ladspa=0 -Denable-midishare=0 -Denable-opensles=0 -Denable-oboe=0 -Denable-oss=0 -Denable-readline=0 -Denable-winmidi=0 -Denable-waveout=0 -Denable-libsndfile=0 -Denable-network=0 -Denable-pulseaudio=0 Denable-dsound=1 -Denable-sdl2=0"
+      LDFLAGS += -lglib-2.0 -lintl -liconv -ldsound -lole32
+    endif
+  endif
+else
+  USE_FLUIDSYNTH_MIDI = 0
+endif
+
 ifdef PROFILE
   ifeq ($(shell expr $(PROFILE) \>= 1), 1)
     CFLAGS   += -pg -DPROFILE
@@ -223,6 +238,7 @@ ifdef WITH_REVISION
     endif
   endif
 endif
+
 
 CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -ansi -Wstrict-prototypes -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
@@ -582,9 +598,11 @@ endif
 
 ifeq ($(BACKEND),gdi)
   SOURCES += sys/simsys_w.cc
-  SOURCES += music/w32_midi.cc
   SOURCES += sound/win32_sound_xa.cc
-	LDFLAGS += -lxaudio2_8
+  LDFLAGS += -lxaudio2_8
+  ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
+    SOURCES += music/w32_midi.cc
+  endif
 endif
 
 ifeq ($(BACKEND),sdl)
@@ -636,20 +654,26 @@ ifeq ($(BACKEND),sdl2)
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
       SOURCES += sound/AVF_core-audio_sound.mm
-      SOURCES += music/AVF_core-audio_midi.mm
       LIBS    += -framework Foundation -framework AVFoundation
+      ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
+        SOURCES += music/AVF_core-audio_midi.mm
+      endif
     else
       # Core Audio (Quicktime) base sound system routines
       SOURCES += sound/core-audio_sound.mm
-      SOURCES += music/core-audio_midi.mm
       LIBS    += -framework Foundation -framework QTKit
+      ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
+        SOURCES += music/core-audio_midi.mm
+      endif
     endif
   else
     SOURCES   += sound/sdl2_sound.cc
-    ifneq ($(OSTYPE),mingw)
-      SOURCES += music/no_midi.cc
-    else
-      SOURCES += music/w32_midi.cc
+    ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
+      ifneq ($(OSTYPE),mingw)
+        SOURCES += music/no_midi.cc
+      else
+        SOURCES += music/w32_midi.cc
+      endif
     endif
   endif
 

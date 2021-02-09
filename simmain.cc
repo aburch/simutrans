@@ -22,6 +22,7 @@
 #include "display/simview.h"
 #include "gui/simwin.h"
 #include "gui/gui_theme.h"
+#include "gui/messagebox.h"
 #include "simhalt.h"
 #include "display/simimg.h"
 #include "simcolor.h"
@@ -696,9 +697,14 @@ int simu_main(int argc, char** argv)
 		if(simuconf.open(path_to_simuconf)) {
 			// we do not allow to change the global font name
 			std::string old_fontname = env_t::fontname;
+			std::string old_soundfont_filename = env_t::soundfont_filename;
 			printf("parse_simuconf() at config/simuconf.tab: ");
 			env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
 			simuconf.close();
+			if(  (old_soundfont_filename.length() > 0)  &&  (strcmp( old_soundfont_filename.c_str(), "Error" ) != 0)  ) {
+				// We had a valid soundfont saved by the user, let's restore it
+				env_t::soundfont_filename = old_soundfont_filename;
+			}
 			env_t::fontname = old_fontname;
 		}
 	}
@@ -1297,16 +1303,22 @@ int simu_main(int argc, char** argv)
 		dbg->message("simu_main()","Reading midi data ...");
 		char pak_dir[PATH_MAX];
 		sprintf( pak_dir, "%s%s", env_t::data_dir, env_t::objfilename.c_str() );
-		if(  !midi_init(pak_dir)  ) {
-			if(  !midi_init(env_t::user_dir)  ) {
-				if(  !midi_init(env_t::data_dir)  ) {
-					dbg->message("simu_main()","Midi disabled ...");
-				}
-			}
+		if(  midi_init( pak_dir )  ||  midi_init( env_t::user_dir )  ||  midi_init( env_t::data_dir )  ) {
+			midi_set_mute( false );
+		}
+		else {
+			midi_set_mute( true );
+			dbg->message("simu_main()","Midi disabled ...");
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
 			midi_set_mute(true);
 		}
+#ifdef USE_FLUIDSYNTH_MIDI
+		// Audio is ok, but we failed to find a soundfont
+		if(  strcmp( env_t::soundfont_filename.c_str(), "Error" ) == 0  ) {
+			midi_set_mute( true );
+		}
+#endif
 	}
 	else {
 		dbg->message("simu_main()","Midi disabled ...");
@@ -1484,6 +1496,11 @@ int simu_main(int argc, char** argv)
 	if(  !env_t::networkmode  &&  !env_t::server  &&  new_world  ) {
 		welt->get_message()->clear();
 	}
+#ifdef USE_FLUIDSYNTH_MIDI
+	if(  strcmp( env_t::soundfont_filename.c_str(), "Error" ) == 0  ) {
+		create_win( 0,0, new news_img("No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu."), w_info, magic_none );
+	}
+#endif
 	while(  !env_t::quit_simutrans  ) {
 		// play next tune?
 		check_midi();

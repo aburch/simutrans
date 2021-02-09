@@ -60,6 +60,11 @@ then
 		[AC_SUBST(freetype, 1)],
 		[AC_SUBST(freetype, 0)],
 		-lpng -lharfbuzz -lgraphite2 -lfreetype )
+	# optional fluidsynth
+	AC_SEARCH_LIBS(new_fluid_settings, fluidsynth,
+		[AC_SUBST(fluidsynth, 1)],
+		[AC_SUBST(fluidsynth, 0)],
+		-lglib-2.0 -lintl -liconv -ldsound -lole32)
 else
 	# optional upnp
 	AC_SEARCH_LIBS(upnpDiscover, miniupnpc,
@@ -70,6 +75,10 @@ else
 		[AC_SUBST(freetype, 1)],
 		[AC_SUBST(freetype, 0)],
 		-lpng )
+	# optional fluidsynth
+	AC_SEARCH_LIBS(new_fluid_settings, fluidsynth,
+		[AC_SUBST(fluidsynth, 1)],
+		[AC_SUBST(fluidsynth, 0)] )
 	if uname | grep "Darwin"
 	then
 		AC_LANG_PUSH(Objective C++)

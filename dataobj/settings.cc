@@ -1565,6 +1565,11 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );
 
+	// FluidSynth MIDI parameters
+	if(  *contents.get("soundfont_filename")  ) {
+		env_t::soundfont_filename = ltrim(contents.get("soundfont_filename"));
+	}
+
 	printf("Reading simuconf.tab successful!\n" );
 }
 

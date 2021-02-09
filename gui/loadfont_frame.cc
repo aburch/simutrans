@@ -101,7 +101,7 @@ bool loadfont_frame_t::compare_items ( const dir_entry_t & entry, const char *in
 
 /**
  * CHECK FILE
- * Check if a file name qualifies to be added tot he item list.
+ * Check if a file name qualifies to be added to the item list.
  */
 bool loadfont_frame_t::check_file(const char *filename, const char *)
 {

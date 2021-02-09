@@ -445,8 +445,10 @@ public:
 	/// how dast are distant sounds fading (1: very fast 25: very little)
 	static uint32 sound_distance_scaling;
 
-	/// @}
+	// FluidSynth MIDI parameters
+	static std::string soundfont_filename;
 
+	/// @}
 
 	/// if true this will show a softkeyboard only when editing text
 	/// default is off

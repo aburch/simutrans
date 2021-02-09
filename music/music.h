@@ -55,4 +55,12 @@ sint32 dr_midi_pos();
  */
 void dr_destroy_midi();
 
+
+/**
+ * Load a soundfont. Only available if we are using FluidSynth.
+ */
+#ifdef USE_FLUIDSYNTH_MIDI
+bool dr_load_sf(const char * filename);
+#endif
+
 #endif

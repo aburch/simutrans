@@ -58,6 +58,9 @@
 #include "themeselector.h"
 #include "goods_frame_t.h"
 #include "loadfont_frame.h"
+#ifdef USE_FLUIDSYNTH_MIDI
+#include "loadsoundfont_frame.h"
+#endif
 #include "scenario_info.h"
 #include "depot_frame.h"
 #include "depotlist_frame.h"
@@ -582,6 +585,9 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_factory_info:   w = new fabrik_info_t(); break;
 					case magic_goodslist:      w = new goods_frame_t(); break;
 					case magic_font:           w = new loadfont_frame_t(); break;
+#ifdef USE_FLUIDSYNTH_MIDI
+					case magic_soundfont:      w = new loadsoundfont_frame_t(); break;
+#endif
 					case magic_scenario_info:  w = new scenario_info_t(); break;
 					case magic_depot:          w = new depot_frame_t(); break;
 					case magic_convoi_list:    w = new convoi_frame_t(); break;

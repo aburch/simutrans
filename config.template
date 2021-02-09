@@ -42,13 +42,16 @@
 #MULTI_THREAD = 1 # Enable multithreading
 
 # using freetype for Truetype font support
-USE_FREETYPE = 0
+#USE_FREETYPE = 0
 
 # using UPnP for easy server hosting behind routers
 #USE_UPNP = 0
 
 # using zstd compression library
 #USE_ZSTD = 0
+
+# using FluidSynth for MIDI playback (SDL2 backend needed for Linux/MacOS, SDL2 or GDI for MinGW)
+#USE_FLUIDSYNTH_MIDI = 1
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
@@ -60,7 +63,7 @@ USE_FREETYPE = 0
 #VERBOSE = 1
 
 # Use static libraries instead
-# STATIC = 1
+#STATIC = 1
 
 # The following useful conditional compilation flags exist
 #
