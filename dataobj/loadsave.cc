@@ -568,8 +568,12 @@ void loadsave_t::flush_buffer(int buf_num)
 	pthread_mutex_lock(&loadsave_mutex);
 #endif
 
-	const size_t sz = stream->write(buff[buf_num].buf, buff[buf_num].pos);
-	assert(sz == buff[buf_num].pos);
+	// Cannot abort the saving process, so just ignore any further flushes
+	// if the previous flush has failed.
+	// loadsave_t::close() handles propagation of the error message.
+	if (stream->get_status() == rdwr_stream_t::STATUS_OK) {
+		stream->write(buff[buf_num].buf, buff[buf_num].pos);
+	}
 	buff[buf_num].pos = 0;
 
 #ifdef MULTI_THREAD
