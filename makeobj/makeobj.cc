@@ -106,7 +106,6 @@ int main(int argc, char* argv[])
 				return 1;
 			}
 
-			// image_writer_t::dump_special_histogramm();
 			return 0;
 		}
 	}

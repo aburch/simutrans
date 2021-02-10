@@ -26,21 +26,11 @@ struct dimension
 	int ymax;
 };
 
-static int special_hist[SPECIAL];
-
 
 std::string image_writer_t::last_img_file;
 
 raw_image_t image_writer_t::input_img;
 int image_writer_t::img_size = 64;
-
-
-void image_writer_t::dump_special_histogramm()
-{
-	for(int i = 0; i < SPECIAL; i++) {
-		printf("%2d) 0x%06x : %d\n", i, image_t::rgbtab[i], special_hist[i]);
-	}
-}
 
 
 uint32 image_writer_t::block_getpix(int x, int y)
