@@ -8,6 +8,7 @@
 #include "../simworld.h"
 #include "../simevent.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../descriptor/ground_desc.h"
 
@@ -130,14 +131,23 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	bt_timeline_custom.add_listener(this);
 	cont_timeline.add_component(&bt_timeline_custom, 4);
 
-	cont_timeline.new_component<gui_label_t>("Month");
+	// respect year/month order according to language settings
+	bool year_month_order = (  env_t::show_month == env_t::DATE_FMT_JAPANESE || env_t::show_month == env_t::DATE_FMT_JAPANESE_NO_SEASON  );
+
+	if( !year_month_order ) { // month first then year
+		cont_timeline.new_component<gui_label_t>("Month");
+		cont_timeline.add_component(&ni_timeline_month);
+	}
+	cont_timeline.new_component<gui_label_t>("Year");
+	cont_timeline.add_component(&ni_timeline_year);
+	if( year_month_order ) { // year first then month
+		cont_timeline.new_component<gui_label_t>("Month");
+		cont_timeline.add_component(&ni_timeline_month);
+	}
 	ni_timeline_month.init( (sint32)(welt->get_current_month()%12+1), 1, 12, 1, true );
 	ni_timeline_month.add_listener(this);
-	cont_timeline.add_component(&ni_timeline_month);
-	cont_timeline.new_component<gui_label_t>("Year");
 	ni_timeline_year.init( (sint32)(welt->get_current_month()/12), 0, 2999, 1, false );
 	ni_timeline_year.add_listener(this);
-	cont_timeline.add_component(&ni_timeline_year);
 
 	bt_obsolete.init( button_t::square_state, "Show obsolete");
 	bt_obsolete.add_listener(this);
@@ -174,7 +184,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_options.add_component(&bt_climates);
 
 	//setting scrollable content box
-	scrolly.set_visible(true);	
+	scrolly.set_visible(true);
 	scrolly.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 }
 
