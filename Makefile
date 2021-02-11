@@ -3,25 +3,32 @@
 # (see LICENSE.txt)
 #
 
+# Define variables here to force them as simple flavor. -> Faster parallel builds.
+FLAGS :=
+CFLAGS :=
+LDFLAGS :=
+LIBS :=
+SOURCES :=
+STATIC := 0
+
+
 CFG ?= default
 -include config.$(CFG)
+
 
 HOSTCC  ?=$(CC)
 HOSTCXX ?=$(CXX)
 
-PROFILE       ?= 0
-STATIC        ?= 0
-AV_FOUNDATION ?= 0
-
-ALLEGRO_CONFIG  ?= allegro-config
-SDL_CONFIG      ?= sdl-config
-SDL2_CONFIG     ?= pkg-config sdl2
+ALLEGRO_CONFIG   ?= allegro-config
+SDL_CONFIG       ?= sdl-config
+SDL2_CONFIG      ?= pkg-config sdl2
 #SDL2_CONFIG     ?= sdl2-config
-FREETYPE_CONFIG ?= freetype-config
-#FREETYPE_CONFIG ?= pkg-config freetype2
+FREETYPE_CONFIG  ?= pkg-config freetype2
+#FREETYPE_CONFIG ?= freetype-config
 
-BACKENDS      = allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
-OSTYPES       = amiga beos freebsd haiku linux mingw mac openbsd
+BACKENDS  := allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
+OSTYPES   := amiga beos freebsd haiku linux mac mingw openbsd
+
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -32,9 +39,9 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
 endif
 
 ifeq ($(BACKEND),posix)
-  COLOUR_DEPTH = 0
+  COLOUR_DEPTH := 0
 else
-  COLOUR_DEPTH = 16
+  COLOUR_DEPTH := 16
 endif
 
 ifeq ($(OSTYPE),amiga)
@@ -96,6 +103,7 @@ endif
 
 ifdef DEBUG
   MSG_LEVEL ?= 3
+  PROFILE ?= 0
 
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
     CFLAGS   += -g -DDEBUG
@@ -127,7 +135,7 @@ ifdef USE_FREETYPE
       CFLAGS += $(shell $(FREETYPE_CONFIG) --cflags)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
         # since static is not supported by slightly old freetype versions
-        FTF = $(shell $(FREETYPE_CONFIG) --libs --static)
+        FTF := $(shell $(FREETYPE_CONFIG) --libs --static)
         ifneq ($(FTF),)
           LDFLAGS += $(FTF)
         else
@@ -167,7 +175,7 @@ endif
 
 ifdef USE_ZSTD
   ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
-    FLAGS   += -DUSE_ZSTD
+    CFLAGS  += -DUSE_ZSTD
     LDFLAGS += -lzstd
     SOURCES += io/rdwr/zstd_file_rdwr_stream.cc
   endif
@@ -185,7 +193,7 @@ ifdef USE_FLUIDSYNTH_MIDI
     endif
   endif
 else
-  USE_FLUIDSYNTH_MIDI = 0
+  USE_FLUIDSYNTH_MIDI := 0
 endif
 
 ifdef PROFILE
@@ -217,17 +225,17 @@ endif
 ifdef WITH_REVISION
   ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
-      REV = $(WITH_REVISION)
+      REV := $(WITH_REVISION)
     else
       $(info Query SVN revision ...)
-      REV = $(shell svnversion)
+      REV := $(shell svnversion)
       $(info Revision is $(REV))
     endif
     # we can query the svn directly, should the folder is not an svn (like on github)
     ifeq ($(REV),)
       ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
         $(info Query SVN revision with SVN directly...)
-        REV = $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
+        REV := $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
          $(info Revision is $(REV))
       endif
     endif
@@ -611,6 +619,7 @@ endif
 ifeq ($(BACKEND),sdl)
   SOURCES += sys/simsys_s.cc
   ifeq ($(OSTYPE),mac)
+    AV_FOUNDATION ?= 0
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
       SOURCES += sound/AVF_core-audio_sound.mm
@@ -654,6 +663,7 @@ endif
 ifeq ($(BACKEND),sdl2)
   SOURCES += sys/simsys_s2.cc
   ifeq ($(OSTYPE),mac)
+    AV_FOUNDATION ?= 0
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
       SOURCES += sound/AVF_core-audio_sound.mm

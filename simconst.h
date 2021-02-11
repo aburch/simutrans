@@ -27,9 +27,6 @@
 /* crossconnect industry and half heights like openTTD */
 //#define OTTD_LIKE
 
-/* single height is only 8 pixel (default 16) */
-//#define HALF_HEIGHT
-
 /* construct automatic bridges also as active player */
 //#define AUTOMATIC_BRIDGES
 

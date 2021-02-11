@@ -8,67 +8,67 @@
 # copy this file to config.default and adjust the settings
 #
 
-#BACKEND = allegro
-#BACKEND = gdi
-#BACKEND = sdl
-#BACKEND = sdl2
-#BACKEND = mixer_sdl
-#BACKEND = mixer_sdl2
-#BACKEND = posix
+#BACKEND := allegro
+#BACKEND := gdi
+#BACKEND := sdl2
+#BACKEND := posix
 
-#OSTYPE = amiga
-#OSTYPE = beos
-#OSTYPE = cygwin
-#OSTYPE = freebsd
-#OSTYPE = haiku
-#OSTYPE = linux
-#OSTYPE = mingw
-#OSTYPE = mac
+#OSTYPE := amiga
+#OSTYPE := beos
+#OSTYPE := freebsd
+#OSTYPE := haiku
+#OSTYPE := linux
+#OSTYPE := mac
+#OSTYPE := mingw
+#OSTYPE := openbsd
 
-#DEBUG = 1    # Level 1-3, higher number means more debug-friendly but slower, see Makefile
-#MSG_LEVEL = 1 # Level 1-4, more runtime debug messages (without only warnings and errors)
-#OPTIMISE = 1 # Add umpteen optimisation flags
-#PROFILE = 1  # Enable profiling
-#PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
+#DEBUG := 1    # Level 1-3, higher number means more debug-friendly but slower, see Makefile
+#MSG_LEVEL := 3 # Level 1-4, more runtime debug messages (without only warnings and errors)
+#OPTIMISE := 1 # Add umpteen optimisation flags
+#PROFILE := 1  # Enable profiling
+#PROFILE := 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-#STATIC = 1   # Enable static linkage, currently mingw only
-#AV_FOUNDATION = 1  # Use AVFoundation instead of QTKit. If you are using macOS 10.12 or later, this must be enabled.
+#STATIC := 1   # Enable static linkage, Freetype and SDL only for non-MinGW OSTYPE.
+#AV_FOUNDATION := 1  # Use AVFoundation instead of QTKit. If you are building on macOS 10.12 or later, this must be enabled.
 
-#WITH_REVISION = 1 # adds the revision from svn; required for networkgames
+#WITH_REVISION := 1 # adds the revision from svn; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
 
-#WIN32_CONSOLE = 1 # adds a console for windows debugging
+#WIN32_CONSOLE := 1 # adds a console for windows debugging
 
-#MULTI_THREAD = 1 # Enable multithreading
+#MULTI_THREAD := 1 # Enable multithreading
 
 # using freetype for Truetype font support
-#USE_FREETYPE = 0
+#USE_FREETYPE := 1
 
 # using UPnP for easy server hosting behind routers
-#USE_UPNP = 0
+#USE_UPNP := 1
 
 # using zstd compression library
-#USE_ZSTD = 0
+#USE_ZSTD := 1
 
 # using FluidSynth for MIDI playback (SDL2 backend needed for Linux/MacOS, SDL2 or GDI for MinGW)
-#USE_FLUIDSYNTH_MIDI = 1
+#USE_FLUIDSYNTH_MIDI := 1
 
 # Define these as empty strings, if you don't have the respective config program
-#ALLEGRO_CONFIG = allegro-config
-#PNG_CONFIG     = pkg-config libpng
-#SDL_CONFIG     = sdl-config
-#SDL2_CONFIG    = sdl2-config
-#FREETYPE_CONFIG    = freetype-config
+#ALLEGRO_CONFIG :=
+#PNG_CONFIG     :=
+#SDL_CONFIG     :=
+#SDL2_CONFIG    :=
+#FREETYPE_CONFIG :=
 
-#VERBOSE = 1
+# Or define as the config program if you do
+#ALLEGRO_CONFIG := allegro-config
+#PNG_CONFIG     := pkg-config libpng
+#SDL_CONFIG     := sdl-config
+#SDL2_CONFIG    := sdl2-config
+#FREETYPE_CONFIG := freetype-config
 
-# Use static libraries instead
-#STATIC = 1
+#VERBOSE := 1
 
 # The following useful conditional compilation flags exist
 #
 # Needed to compile:
-# USE_C: no assembler for copying (required for not using GCC on x86)
 # SIM_BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
 # NO_INTPTR_T: must be set if intptr_t is not available
 #
@@ -86,24 +86,22 @@
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
 # AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
 # AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
-# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
-#    target (undefined means no limit)
-# USE_DIFFERENT_WIND: different airplane approach directions over the map
+# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a target (undefined means no limit)
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
 #
 # In order to use the flags, add a line like this: (-Dxxx)
-# FLAGS = -DUSE_C
+# FLAGS := -DREVISION="1234"
 
 # Output directories:
 #
 # use this put objects file in same directory, where the sources are (not recommended):
 # ... otherwise defaults to 'build/default')
 #
-# BUILDDIR = $(shell pwd)
+# BUILDDIR := $(shell pwd)
 #
 # use this to specify the target directory for the executable:
 # .. otherwise defaults to BUILDDIR
 #
-# MAKEOBJ_PROGDIR = $(shell pwd)
-# NETTOOL_PROGDIR = $(shell pwd)
-# PROGDIR  = $(shell pwd)
+# MAKEOBJ_PROGDIR := $(shell pwd)
+# NETTOOL_PROGDIR := $(shell pwd)
+# PROGDIR  := $(shell pwd)
