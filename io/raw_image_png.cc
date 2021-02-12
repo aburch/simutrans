@@ -295,7 +295,9 @@ bool raw_image_t::write_png(const char *file_name) const
 	case FMT_GRAY8:
 		{
 			for (uint32 y = 0; y < height; ++y) {
-				png_write_row(png_ptr, access_pixel(0, y));
+				// hack to compile with old libpng versions that take a png_bytep instead of a png_const_bytep
+				const uint8 *row = access_pixel(0, y);
+				png_write_row(png_ptr, const_cast<png_bytep>(row));
 			}
 		}
 		break;
