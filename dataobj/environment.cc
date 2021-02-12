@@ -75,11 +75,7 @@ uint16 env_t::specific_volume[MAX_SOUND_TYPES];
 
 std::string env_t::soundfont_filename = "";
 bool env_t::global_mute_sound = false;
-#ifdef __APPLE__
-bool env_t::mute_midi = true;
-#else
 bool env_t::mute_midi = false;
-#endif
 bool env_t::shuffle_midi = true;
 sint16 env_t::window_snap_distance = 8;
 scr_size env_t::iconsize( 32, 32 );
