@@ -368,8 +368,10 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 	tee(NULL),
 	force_flush(force_flush), // if true will always flush when an entry is written to the log
 	log_debug(log_debug),
-	tag(NULL),
-	syslog(false)
+	tag(NULL)
+#ifdef SYSLOG
+	, syslog(false)
+#endif
 {
 	if(logfilename == NULL) {
 		log = NULL;                       /* not a log */
