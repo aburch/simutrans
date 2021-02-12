@@ -177,6 +177,8 @@ bool dr_init_midi()
 
 #ifdef _WIN32
 	std::string fluidsynth_driver = "dsound";
+#elif __APPLE__
+	std::string fluidsynth_driver = "coreaudio";
 #else
 	std::string fluidsynth_driver = "sdl2";
 
