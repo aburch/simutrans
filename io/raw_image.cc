@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <stdlib.h>
 
 
 raw_image_t::raw_image_t()
