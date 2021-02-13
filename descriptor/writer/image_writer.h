@@ -43,6 +43,10 @@ class image_writer_t : public obj_writer_t {
 	private:
 		bool block_load(const char* fname);
 
+		/// Loads @ref input_img with the contents of @p fname, ignores case of @p filename.
+		/// @returns true on success
+		bool load_image_from_file(const char *fname);
+
 		/**
 		 * Encodes an image into a sprite data structure, considers
 		 * special colors.

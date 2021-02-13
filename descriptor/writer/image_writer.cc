@@ -17,6 +17,11 @@
 #include "../../simdebug.h"
 #include "../../io/raw_image.h"
 
+#ifndef _WIN32
+#include <dirent.h>
+#include <sys/types.h>
+#endif
+
 
 struct dimension
 {
@@ -261,7 +266,7 @@ bool image_writer_t::block_load(const char *fname)
 	if(  last_img_file == fname  ) {
 		return true;
 	}
-	else if (input_img.read_from_file(fname)) {
+	else if (load_image_from_file(fname)) {
 		if ((input_img.get_width()%img_size != 0) || (input_img.get_height()%img_size != 0)) {
 			dbg->error("image_writer_t::block_load", "Cannot load image file '%s': "
 				"Size not divisible by %d.", fname, img_size);
@@ -275,6 +280,61 @@ bool image_writer_t::block_load(const char *fname)
 
 	// error message is handled by image_writer_t::write_obj
 	last_img_file = "";
+	return false;
+}
+
+
+bool image_writer_t::load_image_from_file(const char* fname)
+{
+	if (input_img.read_from_file(fname)) {
+		return true;
+	}
+
+	// Not an exact match, try to case-insensitive search.
+#ifndef _WIN32
+	std::string actual_path;
+	size_t len = strlen(fname);
+	actual_path.reserve(len);
+	const char * sep_beg = fname;
+	const char * sep_end = sep_beg + strspn(sep_beg, "/");
+	if (sep_end == sep_beg) {
+		// relative
+		actual_path = "./";
+	}
+
+	char const * end = fname + len;
+
+	std::string name;
+	while (true) {
+		actual_path.insert(actual_path.end(), sep_beg, sep_end);
+		sep_beg = sep_end + strcspn(sep_end, "/");
+		if (sep_beg == sep_end) {
+			break;
+		}
+		name.assign(sep_end, sep_beg);
+		DIR * dir = opendir(actual_path.c_str());
+		if (!dir) {
+			break;
+		}
+		struct dirent * ent = NULL;
+		while ((ent = readdir(dir)) != NULL) {
+			if (!STRICMP(ent->d_name, name.c_str())) {
+				actual_path += ent->d_name;
+				break;
+			}
+		}
+		closedir(dir);
+		if (!ent) {
+			break;
+		}
+
+		if (sep_beg == end) {
+			return input_img.read_from_file(actual_path.c_str());
+		}
+		sep_end = sep_beg + strspn(sep_beg, "/");
+	}
+#endif
+
 	return false;
 }
 
