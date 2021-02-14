@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <stdlib.h>
+
 #include "raw_image.h"
 
 #include "../sys/simsys.h"
