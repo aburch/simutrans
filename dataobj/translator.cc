@@ -139,7 +139,12 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 
 	do {
 		if (*src =='\\') {
-			src +=2;
+			if (*(src + 1) == 0) {
+				// backslash at end of line -> corrupted
+				break;
+			}
+
+			src += 2;
 			*dst++ = c = '\n';
 		}
 		else {
