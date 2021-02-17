@@ -555,6 +555,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 				// if not in depot:
 				// set state to EDIT_SCHEDULE, calls cnv->schedule->start_editing(), reset in gui_schedule_t::~gui_schedule_t
 				cnv->call_convoi_tool('s', "1");
+				scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line());
+				reset_min_windowsize();
+
 			}
 		}
 		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE  ||  cnv->get_state()==convoi_t::INITIAL) {

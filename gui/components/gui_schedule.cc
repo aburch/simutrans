@@ -488,6 +488,10 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 
 		update_selection();
 	}
+	else {
+		schedule->set_current_stop(schedule_->get_current_stop());
+		update_selection();
+	}
 	set_size(gui_aligned_container_t::get_min_size());
 }
 
