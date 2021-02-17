@@ -1000,13 +1000,12 @@ const char *dr_get_locale_string()
 #endif
 
 
-
 void dr_fatal_notify(char const* const msg)
 {
+	fprintf(stderr, "dr_fatal_notify: ERROR: %s\n", msg);
+
 #ifdef _WIN32
 	MessageBoxA(0, msg, "Fatal Error", MB_ICONEXCLAMATION);
-#else
-	fputs(msg, stderr);
 #endif
 }
 

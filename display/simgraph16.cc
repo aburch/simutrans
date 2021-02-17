@@ -5092,13 +5092,11 @@ void simgraph_init(scr_size window_size, bool full_screen)
 		// init, load, and check fonts
 		if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
 			dr_fatal_notify( "No fonts found!" );
-			fprintf(stderr, "Error: No fonts found!");
 			exit(-1);
 		}
 	}
 	else {
-		dr_fatal_notify( "Error: can't open window!" );
-		fprintf(stderr, "Error: can't open window!");
+		dr_fatal_notify( "Cannot open window!" );
 		exit(-1);
 	}
 
