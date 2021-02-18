@@ -169,7 +169,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 				if (mask == ' ') {
 					// broken format string
 				}
-				else {
+				else if (pos < max_params) {
 					// found valid format
 					typemask[pos] = mask;
 					found++;
