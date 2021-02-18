@@ -784,15 +784,15 @@ void karte_t::create_rivers( sint16 number )
 }
 
 
-void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y )
+void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y)
 {
-	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+	DBG_DEBUG("karte_t::distribute_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(new_city_count, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_city_count = stadt.get_count();
 		new_city_count = pos->get_count();
-		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
+		DBG_DEBUG("karte_t::distribute_cities()", "Creating cities: %d", new_city_count);
 
 		// if we could not generate enough positions ...
 		settings.set_city_count(old_city_count);
@@ -807,7 +807,7 @@ void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_c
 #endif
 			for(  int i=0;  i<new_city_count;  i++  ) {
 				stadt_t* s = new stadt_t(players[1], (*pos)[i], 1 );
-				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
+				DBG_DEBUG("karte_t::distribute_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
 				if (s->get_buildings() > 0) {
 					add_city(s);
 				}
@@ -822,7 +822,7 @@ void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_c
 
 			delete pos;
 #ifdef DEBUG
-			dbg->message("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
+			dbg->message("karte_t::distribute_cities()","took %lu ms for all towns", dr_time()-tbegin );
 #endif
 
 			uint32 game_start = current_month;
@@ -1115,8 +1115,12 @@ void karte_t::distribute_groundobjs_cities(int new_city_count, sint32 new_mean_c
 		delete pos;
 		settings.set_city_count( stadt.get_count() ); // new number of towns (if we did not find enough positions)
 	}
+}
 
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+
+void karte_t::distribute_groundobjs(sint16 old_x, sint16 old_y)
+{
+DBG_DEBUG("karte_t::distribute_groundobj()","distributing groundobjs");
 	if(  env_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
@@ -1146,8 +1150,12 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 			}
 		}
 	}
+}
 
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
+
+void karte_t::distribute_movingobjs(sint16 old_x, sint16 old_y)
+{
+DBG_DEBUG("karte_t::distribute_movingobj()","distributing movingobjs");
 	if(  env_t::moving_object_probability > 0  ) {
 		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
 		koord k;
@@ -1998,6 +2006,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 	}
 
+	distribute_cities( sets->get_city_count(), sets->get_mean_citizen_count(), old_x, old_y );
+
 	if( old_x == 0   &&  old_y == 0 ) {
 		distribute_trees_region( 0, 0, new_size_x, new_size_y );
 	}
@@ -2024,7 +2034,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 	}
 
-	distribute_groundobjs_cities( sets->get_city_count(), sets->get_mean_citizen_count(), old_x, old_y );
+	distribute_groundobjs(old_x, old_y);
+	distribute_movingobjs(old_x, old_y);
 
 	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
 	factory_builder_t::new_world();
