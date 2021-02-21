@@ -253,8 +253,8 @@ private:
 	/**
 	 * Table for fast conversion from height to climate.
 	 */
-	uint8 height_to_climate[128];
-	uint8 num_climates_at_height[128];
+	uint8 height_to_climate[256];
+	uint8 num_climates_at_height[256];
 
 	/**
 	* Contains the intended climate for a tile
