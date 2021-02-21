@@ -81,7 +81,7 @@ void baum_edit_frame_t::fill_list()
 {
 	tree_list.clear();
 	const bool is_sortedbyname = get_sortedby()==gui_sorting_item_t::BY_NAME_TRANSLATED;
-	FOR(vector_tpl<tree_desc_t const*>, const i, baum_t::get_all_desc()) {
+	FOR(vector_tpl<tree_desc_t const*>, const i, tree_builder_t::get_all_desc()) {
 		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
 			tree_list.insert_ordered(i, is_sortedbyname ? compare_tree_desc_name : compare_tree_desc);
 		}

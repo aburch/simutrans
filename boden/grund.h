@@ -275,7 +275,14 @@ public:
 	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
 	* Updates season and or snowline dependent objects
 	*/
-	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_image_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
+	void check_season_snowline(const bool season_change, const bool snowline_change)
+	{
+		if(  snowline_change  ) {
+			calc_image_internal( snowline_change );
+		}
+
+		objlist.check_season( season_change  &&  !snowline_change );
+	}
 
 	/**
 	 * Updates images after change of underground mode.

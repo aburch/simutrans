@@ -29,7 +29,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 			sint32 age;
 			file->rdwr_long( age );
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
-			if (id < baum_t::get_count() && baum_t::get_all_desc()[id]) {
+			if (tree_builder_t::get_desc_by_id(id) != NULL) {
 				baum_t *tree = new baum_t( get_pos(), (uint8)id, age, slope );
 				objlist.add( tree );
 			}

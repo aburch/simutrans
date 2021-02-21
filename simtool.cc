@@ -2151,18 +2151,20 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 		bool check_climates = true;
 		bool random_age = false;
 		if(default_param==NULL  ||  strlen(default_param)==0) {
-			desc = baum_t::random_tree_for_climate( welt->get_climate( k ) );
+			desc = tree_builder_t::random_tree_for_climate( welt->get_climate( k ) );
 		}
 		else {
 			// parse default_param: bbdesc_nr b=1 ignore climate b=1 random age
 			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
-			desc = baum_t::find_tree(default_param+3);
+			desc = tree_builder_t::find_tree(default_param+3);
 		}
-		if(desc  &&  baum_t::plant_tree_on_coordinate( k, desc, check_climates, random_age )  ) {
+
+		if(desc  &&  tree_builder_t::plant_tree_on_coordinate( k, desc, check_climates, random_age )  ) {
 			player_t::book_construction_costs(player, cost, k, ignore_wt);
 			return NULL;
 		}
+
 		return "";
 	}
 	return NULL;
@@ -6116,7 +6118,7 @@ const char *tool_forest_t::do_work( player_t *player, const koord3d &start, cons
 	nw.x = min(start.x, end.x)+(wh.x/2);
 	nw.y = min(start.y, end.y)+(wh.y/2);
 
-	sint64 costs = baum_t::create_forest( nw, wh, 0, 0, welt->get_size().x, welt->get_size().y );
+	sint64 costs = tree_builder_t::create_forest( nw, wh, 0, 0, welt->get_size().x, welt->get_size().y );
 	player_t::book_construction_costs(player, costs * welt->get_settings().cst_remove_tree, end.get_2d(), ignore_wt);
 
 	return NULL;

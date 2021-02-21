@@ -47,6 +47,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\fabrikbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\goods_manager.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\hausbauer.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)bauer\tree_builder.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\tunnelbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\vehikelbauer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)bauer\wegbauer.cc" />
@@ -392,6 +393,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\fabrikbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\goods_manager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\hausbauer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)bauer\tree_builder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\tunnelbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\vehikelbauer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)bauer\wegbauer.h" />

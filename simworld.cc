@@ -1739,26 +1739,26 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 									number_to_plant++;
 								}
 							}
-							baum_t::plant_tree_on_coordinate(pos, get_settings().get_max_no_of_trees_on_square(), number_to_plant);
+
+							tree_builder_t::plant_tree_on_coordinate(pos, get_settings().get_max_no_of_trees_on_square(), number_to_plant);
 						}
 						else if(humidity_map.at(pos.x,pos.y)>75) {
 							// plant spare trees, (those with low preffered density) or in an entirely tree climate
 							uint16 cl = 1 << get_climate(pos);
 							settings_t const& s = get_settings();
 							if ((cl & s.get_no_tree_climates()) == 0 && ((cl & s.get_tree_climates()) != 0 || simrand(s.get_forest_inverse_spare_tree_density() * /*dichte*/3) < 100)) {
-								baum_t::plant_tree_on_coordinate(pos, 1, 1);
+								tree_builder_t::plant_tree_on_coordinate(pos, 1, 1);
 							}
 						}
 					}
 				}
-
 			}
 			break;
 		}
 		// fall-through
 	case 1:
 		// no humidity data or on request
-		baum_t::distribute_trees(3, xtop, ytop, xbottom, ybottom );
+		tree_builder_t::distribute_trees(3, xtop, ytop, xbottom, ybottom );
 		break;
 	case 0:
 		// no trees
