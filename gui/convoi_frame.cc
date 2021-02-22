@@ -47,6 +47,13 @@ const char *convoi_frame_t::sort_text[SORT_MODES] = {
 	"cl_btn_sort_id"
 };
 
+const slist_tpl<const goods_desc_t*>* convoi_frame_t::waren_filter = NULL;
+waytype_t convoi_frame_t::current_wt = waytype_t::ignore_wt;
+uint32 convoi_frame_t::filter_flags = 0;
+char convoi_frame_t::last_name_filter[256] = "";
+char convoi_frame_t::name_filter[256] = "";
+
+
 /**
  * Scrolled list of gui_convoiinfo_ts.
  * Filters (by setting visibility) and sorts.
@@ -90,8 +97,7 @@ convoi_frame_t* gui_scrolled_convoy_list_t::main_static;
 
 bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 {
-	waytype_t wt = tabs.get_active_tab_waytype();
-	if(  wt  &&  cnv->front()->get_desc()->get_waytype() != wt  ) {
+	if(current_wt &&  cnv->front()->get_desc()->get_waytype() != current_wt  ) {
 		// not the right kind of vehivle
 		return false;
 	}
@@ -170,6 +176,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 void convoi_frame_t::fill_list()
 {
 	last_world_convois = welt->convoys().get_count();
+	current_wt = tabs.get_active_tab_waytype();
 
 	const bool all = owner->get_player_nr() == 1;
 	scrolly->clear_elements();
@@ -204,8 +211,6 @@ convoi_frame_t::convoi_frame_t() :
 	gui_frame_t( translator::translate("cl_title"), welt->get_active_player())
 {
 	owner = welt->get_active_player();
-	last_name_filter[0] = name_filter[0] = 0;
-	filter_flags = 0;
 
 	set_table_layout(1,0);
 
@@ -236,6 +241,12 @@ convoi_frame_t::convoi_frame_t() :
 	scrolly->set_maximize( true );
 
 	tabs.init_tabs(scrolly);
+	for(  int i = 0;  i < tabs.get_count();  i++  ) {
+		if(current_wt == tabs.get_tab_waytype(i)) {
+			tabs.set_active_tab_index(i);
+			break;
+		}
+	}
 	tabs.add_listener(this);
 	add_component(&tabs);
 

@@ -49,7 +49,7 @@ private:
 	button_t sorteddir;
 	button_t filter_details;
 
-	char name_filter[256], last_name_filter[256];
+	static char name_filter[256], last_name_filter[256];
 	gui_textinput_t name_filter_input;
 
 	// scroll container of list of convois
@@ -58,8 +58,9 @@ private:
 	gui_waytype_tab_panel_t tabs;
 
 	// actual filter setting
-	const slist_tpl<const goods_desc_t *>*waren_filter;
-	uint32 filter_flags;
+	static const slist_tpl<const goods_desc_t *>*waren_filter;
+	static uint32 filter_flags;
+	static waytype_t current_wt;
 
 	bool get_filter(uint32 filter) { return (filter_flags & filter) != 0; }
 	void set_filter(uint32 filter, bool on) { filter_flags = on ? (filter_flags | filter) : (filter_flags & ~filter); }
