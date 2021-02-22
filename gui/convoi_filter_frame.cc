@@ -124,6 +124,24 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 }
 
 
+void convoi_filter_frame_t::init(uint32 filter_flags, const slist_tpl<const goods_desc_t*>* wares)
+{
+	for (int i = 0; i < FILTER_BUTTONS; i++) {
+		set_filter(filter_buttons_types[i], filter_flags & filter_buttons_types[i]);
+		filter_buttons[i].pressed = get_filter(filter_buttons_types[i]);
+	}
+	if (&active_ware != wares) {
+		active_ware.clear();
+		FOR(slist_tpl<ware_item_t*>, wi, all_ware) {
+			wi->pressed = wares->is_contained(wi->ware);
+			if (wi->pressed) {
+				active_ware.append(wi->ware);
+			}
+		}
+	}
+}
+
+
 /**
  * This method is called if an action is triggered
  */

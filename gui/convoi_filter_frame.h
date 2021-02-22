@@ -118,6 +118,8 @@ public:
 	 */
 	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent);
 
+	void init(uint32 filter_flags, const slist_tpl<const goods_desc_t*>* wares);
+
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
