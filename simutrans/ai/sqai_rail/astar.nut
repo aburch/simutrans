@@ -1371,23 +1371,20 @@ function find_object(obj, wt, speed) {
 					o = 0
 				}
 
-				if ( obj == "way" && obj_desc.is_retired(world.get_time()) ) {
+				if ( obj == "way" && !obj_desc.is_available(world.get_time()) ) {
 					o = 0
 				}
 
 				if ( o == 1 ) {
-					if (obj_desc.get_topspeed() < speed) {
-						if (b.get_topspeed() > obj_desc.get_topspeed()) {
+					if (obj_desc.get_topspeed() <= speed) {
+						if (b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
 							obj_desc = b
-						}
-					}
-					else {
-						if (speed < b.get_topspeed() && max_speed > b.get_topspeed() && b.get_topspeed() > obj_desc.get_topspeed()) {
+						} else {
 							obj_desc = b
+							break
 						}
 					}
 				}
-
 			}
 	}
 

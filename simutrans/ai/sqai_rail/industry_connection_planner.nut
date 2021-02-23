@@ -638,36 +638,23 @@ class industry_connection_planner_t extends manager_t
 		gui.add_message_at(our_player, txt_message, world.get_time())
 */
 		// retire station
-		local min_retire_year = planned_station.get_retire_date().year
-		local min_retire_month = planned_station.get_retire_date().month
+		local min_retire = planned_station.get_retire_date().raw
 		// retire way
-		if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().year < min_retire_year ) {
-			min_retire_year = planned_way.get_retire_date().year
-			min_retire_month = planned_way.get_retire_date().month
-		} else if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().year == min_retire_year && planned_way.get_retire_date().month < min_retire_month ) {
-			min_retire_year = planned_way.get_retire_date().year
-			min_retire_month = planned_way.get_retire_date().month
+		if ( ( wt != wt_water && wt != wt_air ) && planned_way.get_retire_date().raw < min_retire ) {
+			min_retire = planned_way.get_retire_date().raw
 		}
 		// retire depot
-		if ( planned_depot.get_retire_date().year < min_retire_year ) {
-			min_retire_year = planned_depot.get_retire_date().year
-			min_retire_month = planned_depot.get_retire_date().month
-		} else if ( planned_depot.get_retire_date().year == min_retire_year && planned_depot.get_retire_date().month < min_retire_month ) {
-			min_retire_year = planned_depot.get_retire_date().year
-			min_retire_month = planned_depot.get_retire_date().month
+		if ( planned_depot.get_retire_date().raw < min_retire ) {
+			min_retire = planned_depot.get_retire_date().raw
 		}
 		// retire vehicle convoy
 		for ( local i = 0; i < planned_convoy.veh.len(); i++ ) {
-			if ( planned_convoy.veh[i].get_retire_date().year < min_retire_year ) {
-				min_retire_year = planned_convoy.veh[i].get_retire_date().year
-				min_retire_month = planned_convoy.veh[i].get_retire_date().month
-			} else if ( planned_convoy.veh[i].get_retire_date().year == min_retire_year && planned_convoy.veh[i].get_retire_date().month < min_retire_month ) {
-				min_retire_year = planned_convoy.veh[i].get_retire_date().year
-				min_retire_month = planned_convoy.veh[i].get_retire_date().month
+			if ( planned_convoy.veh[i].get_retire_date().raw < min_retire ) {
+				min_retire = planned_convoy.veh[i].get_retire_date().raw
 			}
 		}
 		//gui.add_message_at(our_player, "retire " + min_retire_month + "." + min_retire_year, world.get_time())
-		r.retire_obj = { month = min_retire_month, year = min_retire_year }
+		r.retire_obj = min_retire
 
 /*		gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
 		if ( calc_route != null && calc_route != "No route" ) { gui.add_message_at(our_player, "calc_route: way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time()) }

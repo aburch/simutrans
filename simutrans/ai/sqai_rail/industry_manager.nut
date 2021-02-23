@@ -15,10 +15,12 @@ class industry_link_t
 	state = 0
 	lines = null   // array<line_x>
 
-	double_ways_count = 0 // count of double way build
-	double_ways_build = 0 // double way build: 0 = no ; 1 = yes
-	optimize_way_line = 0 // is way line optimize: 0 = no ; 1 = yes
-	destroy_line_month = null // test month save
+	double_ways_count		= 0 // count of double way build
+	double_ways_build		= 0 // double way build: 0 = no ; 1 = yes
+	optimize_way_line		= 0 // is way line optimize: 0 = no ; 1 = yes
+	destroy_line_month	= null // test month save
+	line_way_speed			= 0 // save way speed for line
+	build_line					= 0 // create line
 
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
@@ -196,6 +198,13 @@ class industry_manager_t extends manager_t
 	function check_link_line(link, line)
 	{
 
+		// set first run as line build time
+		if ( link.build_line == 0 ) {
+  		link.build_line = world.get_time()
+		}
+
+		//
+
 		local  print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
@@ -203,15 +212,91 @@ class industry_manager_t extends manager_t
 		// find convoy
 		local cnv = null
 		local cnv_count = 0
+		local cnv_max_speed = 0
 		{
 			local list = line.get_convoy_list()
 			cnv_count = list.get_count()
 			if (cnv_count == 0) {
 				// 0 convoy destroy line
-				if ( line.get_owner().nr == our_player.nr ) { destroy_line(line) }
+				if ( line.get_owner().nr == our_player.nr ) {
+					destroy_line(line)
+					sleep()
+				}
 				return
 			}
-			cnv = list[0]
+			for ( local i = 0; i < cnv_count; i++ ) {
+				if ( !list[i].is_withdrawn() ) {
+					cnv = list[i]
+					break
+				}
+			}
+			// check speed from convoys
+			local a = convoy_max_speed(list[0])
+			local cnv_retired = []
+
+			// check cnv is retired
+			if ( list[0].has_obsolete_vehicles() && !list[0].is_withdrawn() ) {
+				//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+				cnv_retired.append(list[0])
+			}
+
+			local speed_count = 1
+			for ( local i = 1; i < cnv_count; i++ ) {
+				local s = convoy_max_speed(list[i])
+
+				if ( a == s ) {
+					speed_count++
+				} else if ( a < s && cnv_max_speed == 0 ) {
+					cnv_max_speed = s
+				}
+				// check cnv is retired
+				if ( list[i].has_obsolete_vehicles() && !list[i].is_withdrawn() ) {
+					gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
+					cnv_retired.append(list[i])
+				}
+			}
+			//gui.add_message_at(our_player, " max speed " + cnv_max_speed, world.get_time())
+
+			if ( speed_count < cnv_count ) {
+				// update convoys - retire slower convoys
+				local k = 0
+				for ( local i = 0; i < cnv_count; i++ ) {
+					if ( convoy_max_speed(list[i]) < cnv_max_speed && !list[i].is_withdrawn() ) {
+						list[i].toggle_withdraw(our_player)
+						k++
+					}
+				}
+				if ( k > 0 ) {
+					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
+
+					return
+
+				}
+			}
+
+			if ( cnv_retired.len() > 0 && cnv_retired.len() < cnv_count ) {
+				// update convoys - retire retired convoys
+				local k = 0
+				for ( local i = 0; i < cnv_retired.len(); i++ ) {
+					if ( !cnv_retired[i].is_withdrawn() ) {
+						cnv_retired[i].toggle_withdraw(our_player)
+						k++
+					}
+				}
+				if ( k > 0 ) {
+					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					gui.add_message_at(our_player, msgtext, world.get_time())
+
+					return
+
+				}
+			} else if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
+				//gui.add_message_at(our_player, "*** cnv_upgrade = 1 -> line " + line.get_name(), world.get_time())
+				// create new convoy before retire retired convoy
+				upgrade_link_line(link, line)
+				return
+			}
 		}
 
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -234,9 +319,9 @@ class industry_manager_t extends manager_t
 		sleep()
 		if ( !cnv.is_valid() ) { return }
 
-		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
-			local nexttile = [] //[tile_x(start.x, start.y, start.z)]
-
+		// find route
+		local nexttile = []
+		if (cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			local entries = cnv.get_schedule().entries
 			local start = null
 			local end = null
@@ -263,9 +348,10 @@ class industry_manager_t extends manager_t
 				}
 				sleep()
 			}
+		}
 
 
-
+		if (our_player.get_current_cash() > 50000 && cnv.get_waytype() != wt_water && cnv.get_waytype() != wt_air) {
 			if ( link.optimize_way_line == 0 ) {
 				// optimize way line befor build double ways
 				optimize_way_line(nexttile, cnv.get_waytype())
@@ -275,20 +361,72 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-		if (cnv.is_withdrawn()) {
+		// way speed
+		if ( cnv_max_speed > link.line_way_speed && nexttile.len() > 3 ) {
+
+			local way_speed = 500
+			local upgrade_tiles = 0
+			for ( local i = 0; i < nexttile.len(); i++ ) {
+				local tile_way = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z).find_object(mo_way)
+				if ( (tile_way.get_owner().nr == our_player_nr || tile_way.get_owner().nr == 1) ) {
+					upgrade_tiles++
+					if ( tile_way.get_desc().get_topspeed() < way_speed ) {
+						way_speed = tile_way.get_desc().get_topspeed()
+					}
+				}
+
+			}
+			link.line_way_speed = way_speed
+			//gui.add_message_at(our_player, way_speed + " way speed line " + line.get_name(), world.get_time())
+			gui.add_message_at(our_player, upgrade_tiles + " possible tiles for upgrading ", world.get_time())
+			//gui.add_message_at(our_player, " cnv max speed " + cnv_max_speed, world.get_time())
+
+			// upgrade way
+			local way_obj = find_object("way", cnv.get_waytype(), cnv_max_speed)
+			//gui.add_message_at(our_player, " way max speed new " + way_obj.get_topspeed(), world.get_time())
+
+			if ( cnv_max_speed >= way_speed && upgrade_tiles > 2 ) {
+				local costs = (upgrade_tiles*(way_obj.get_cost()/100))
+				if ( our_player.get_current_cash() > costs ) {
+					for ( local i = 1; i < nexttile.len(); i++ ) {
+						local tile_way_1 = tile_x(nexttile[i-1].x, nexttile[i-1].y, nexttile[i-1].z)
+						local tile_way_2 = tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)
+						if ( (tile_way_2.find_object(mo_way).get_owner().nr == our_player_nr || tile_way_2.find_object(mo_way).get_owner().nr == 1) && tile_way_2.find_object(mo_way).get_desc().get_topspeed() < way_obj.get_topspeed() ) {
+							command_x.build_way(our_player, tile_way_1, tile_way_2, way_obj, true)
+						}
+					}
+				}
+
+				local start_l = nexttile[nexttile.len()-1]
+				local end_l = nexttile[0]
+
+				local msgtext = format(translate("%s extends the route from %s (%s) to %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+				gui.add_message_at(our_player, msgtext, start_l)
+				//gui.add_message_at(our_player, " upgrade way ", world.get_time())
+
+				link.line_way_speed = way_obj.get_topspeed()
+			} else {
+				// set new way speed by not upgrade way
+				link.line_way_speed = way_obj.get_topspeed()
+			}
+
+		}
+
+		if (cnv.is_valid() && cnv.is_withdrawn()) {
 			// come back later
 			return
 		}
 
 		// try to upgrade
-		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
+/*		if (cnv.has_obsolete_vehicles() &&  link.next_check < world.get_time().ticks) {
 			link.next_check = world.get_time().next_month_ticks
 			if (upgrade_link_line(link, line)) {
 				// update successful
+				gui.add_message_at(our_player, "*** upgrade_link_line -> line " + line.get_name(), world.get_time())
 				return
 			}
 		}
-
+*/
 		local lf = link.freight
 		// capacity of convoy
 		local capacity = 0
@@ -414,8 +552,9 @@ class industry_manager_t extends manager_t
 			if ( message_show > 0 ) {
 				local msgtext = format(translate("%s removes convoys from line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
-				message_show = 0
+				return true
 			}
+
 		}
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")
@@ -524,7 +663,7 @@ class industry_manager_t extends manager_t
 					return
 				}
 			} else if (cnv.get_waytype() == wt_rail && (cnv_count > c || c == 0) ) {
-				return
+				return null
 			}
 
 			cnv_count = link.double_ways_count + 1
@@ -564,6 +703,11 @@ class industry_manager_t extends manager_t
 				local dist = 0
 				local entries = cnv.get_schedule().entries
 				dist = abs(entries[0].x - entries[1].x) + abs(entries[0].y - entries[1].y)
+
+				if (wt == wt_road && dist > 40) {
+					cnv_valuator.max_cnvs = dist - 20
+				}
+
 				// add 10% from distance
 				dist += dist / 100 * 10
 
@@ -622,7 +766,7 @@ class industry_manager_t extends manager_t
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())
 				gui.add_message_at(our_player, msgtext, world.get_time())
-
+				return true
 			}
 		}
 
@@ -653,6 +797,7 @@ class industry_manager_t extends manager_t
 	 */
 	function upgrade_link_line(link, line)
 	{
+		gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
 		// find convoy
 		local cnv = null
 		{
@@ -691,7 +836,7 @@ class industry_manager_t extends manager_t
 			}
 		}
 
-		local wt = wt
+		//local wt = wt
 		// TODO do something smarter
 		prototyper.min_speed  = 1
 		prototyper.max_vehicles = get_max_convoi_length(wt)
@@ -767,6 +912,39 @@ class industry_manager_t extends manager_t
 	{
 		link_iterator = null // wont save
 		return ::saveinstance("industry_manager_t", this)
+	}
+
+}
+
+function convoy_max_speed(cnv) {
+	// convoy_x::calc_max_speed	(	integer power, integer weight, integer speed_limit )
+
+	local pwr = 0
+	local weight = 0
+	local m_speed = 500
+
+	local veh_list = cnv.get_vehicles()
+
+	for (local i = 0; i < veh_list.len(); i++) {
+		pwr += veh_list[i].get_power()
+		weight += veh_list[i].get_weight() + (veh_list[i].get_capacity()*veh_list[i].get_freight().get_weight_per_unit())
+		if ( m_speed > veh_list[i].get_topspeed() ) {
+			m_speed = veh_list[i].get_topspeed()
+		}
+	}
+
+	local a = cnv.calc_max_speed(pwr, weight, m_speed)
+	return a
+}
+
+function convoy_is_retired(cnv) {
+
+	local veh_list = cnv.get_vehicles()
+
+	for (local i = 0; i < veh_list.len(); i++) {
+		if ( veh_list[i].is_retired(world.get_time()) ) {
+			return true
+		}
 	}
 
 }

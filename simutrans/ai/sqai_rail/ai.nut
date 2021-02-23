@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.5.9"
+ai.version <- "0.6.1"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -164,11 +164,9 @@ function step()
 				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
 				return r_t(RT_TOTAL_FAIL)
 			}
-			if ( r && r.action && r.retire_obj.year <= world.get_time().year ) {
-				if ( r.retire_obj.month <= world.get_time().month ) {
+			if ( r && r.action && r.retire_obj <= world.get_time().raw ) {
 					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
 					return r_t(RT_TOTAL_FAIL)
-				}
 			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
