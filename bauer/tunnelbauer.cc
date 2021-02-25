@@ -797,8 +797,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(pos, gr->get_grund_hang());
-		gr_new->take_obj_from( gr );
-		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
+		welt->access(pos.get_2d())->kartenboden_setzen(gr_new);
 
 		if(gr_new->get_leitung()) {
 			gr_new->get_leitung()->finish_rd();

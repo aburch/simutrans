@@ -1150,12 +1150,17 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 						// now remove ribi (or full way)
 						w->set_ribi( (~ribi_t::backward( ribi_t::nesw[i] )) & w->get_ribi_unmasked() );
 						if(  w->get_ribi_unmasked() == 0  ) {
-							// nowthing left => then remove completel
+							// nowthing left => then remove completly
+							koord3d prev_pos = prev->get_pos();
 							prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
 							prev->weg_entfernen( wegtyp, true );
 							if(  prev->get_typ() == grund_t::monorailboden  ) {
 								welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
 								delete prev;
+							}
+							else if(  prev->get_typ() == grund_t::tunnelboden  &&  !prev->hat_wege()  ) {
+								grund_t* gr_new = new boden_t(prev->get_pos(), prev->get_grund_hang());
+								welt->access(prev->get_pos().get_2d())->kartenboden_setzen(gr_new);
 							}
 						}
 						else {

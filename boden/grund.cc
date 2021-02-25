@@ -2083,14 +2083,6 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 						gr->calc_image(); // to recalculate ribis
 					}
 				}
-				// make tunnel portals to normal ground
-				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
-					// remove remaining objs
-					obj_loesche_alle( player );
-					// set to normal ground
-					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
-					// now this is already deleted !
-				}
 			}
 		}
 		else {

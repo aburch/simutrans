@@ -745,6 +745,11 @@ DBG_MESSAGE("tool_remover()", "removing way");
 		// tunnel without way: delete anything else
 		if(  !gr->hat_wege()  ) {
 			gr->obj_loesche_alle(player);
+			if (gr->get_typ() == boden_t::tunnelboden && gr->ist_karten_boden()) {
+				grund_t* gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
+				welt->access(gr_new->get_pos().get_2d())->kartenboden_setzen(gr_new);
+				gr = gr_new;
+			}
 		}
 	}
 
@@ -3372,6 +3377,12 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 				}
 				else {
 					can_delete &= gr->remove_everything_from_way(player,wt,rem);
+					if (gr->get_typ() == grund_t::tunnelboden  &&  !gr->hat_wege()  ) {
+						// tunnel portal has been removed
+						grund_t* gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
+						welt->access(gr->get_pos().get_2d())->kartenboden_setzen(gr_new);
+						gr = gr_new;
+					}
 				}
 			}
 			else {
