@@ -568,20 +568,6 @@ void setup_logging(int argc, char **argv)
 
 int simu_main(int argc, char** argv)
 {
-	static const sint16 resolutions[][2] = {
-		{  640,  480 },
-		{  800,  600 },
-		{ 1024,  768 },
-		{ 1280, 1024 },
-		{  704,  560 } // try to force window mode with allegro
-	};
-
-	sint16 disp_width = 0;
-	sint16 disp_height = 0;
-	sint16 fullscreen = false;
-
-	uint32 quit_month = 0x7FFFFFFFu;
-
 	std::set_new_handler(sim_new_handler);
 
 	env_t::init();
@@ -697,6 +683,10 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+
+	sint16 disp_width = 0;
+	sint16 disp_height = 0;
+	sint16 fullscreen = false;
 
 	// continue parsing
 	dr_chdir( env_t::data_dir );
@@ -817,6 +807,14 @@ int simu_main(int argc, char** argv)
 		show_sizes();
 	}
 #endif
+
+	static const sint16 resolutions[][2] = {
+		{  640,  480 },
+		{  800,  600 },
+		{ 1024,  768 },
+		{ 1280, 1024 },
+		{  704,  560 } // try to force window mode with allegro
+	};
 
 	// likely only the program without graphics was downloaded
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {
@@ -1446,6 +1444,9 @@ int simu_main(int argc, char** argv)
 
 	welt->set_fast_forward(false);
 	baum_t::recalc_outline_color();
+
+	uint32 quit_month = 0x7FFFFFFFu;
+
 #if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
