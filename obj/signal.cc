@@ -26,7 +26,7 @@ signal_t::signal_t(loadsave_t *file) :
 	if(desc==NULL) {
 		desc = roadsign_t::default_signal;
 	}
-	state = rot;
+	state = STATE_RED;
 }
 
 

@@ -47,9 +47,9 @@ protected:
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
 	enum signalstate {
-		rot          = 0,
-		gruen        = 1,
-		naechste_rot = 2
+		STATE_RED    = 0,
+		STATE_GREEN  = 1,
+		STATE_YELLOW = 2  // next state is red
 	};
 
 	/**
