@@ -2614,7 +2614,7 @@ void convoi_t::open_info_window()
 		}
 	}
 	else {
-		if(  env_t::verbose_debug  ) {
+		if(  env_t::verbose_debug >= log_t::LEVEL_ERROR  ) {
 			dump();
 		}
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );

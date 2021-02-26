@@ -523,12 +523,13 @@ void setup_logging(int argc, char **argv)
 	const char* cli_syslog_tag = NULL;
 #endif
 
-	env_t::verbose_debug = 0;
+	env_t::verbose_debug = log_t::LEVEL_FATAL;
+
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
 		const char *s = gimme_arg(argc, argv, "-debug", 1);
-		int level = 4;
+		log_t::level_t level = log_t::LEVEL_DEBUG;
 		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
-			level = atoi(s);
+			level = (log_t::level_t)clamp(atoi(s), (int)log_t::LEVEL_FATAL, (int)log_t::LEVEL_DEBUG);
 		}
 		env_t::verbose_debug = level;
 	}

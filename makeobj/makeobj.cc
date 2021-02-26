@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 
-int debuglevel = 2;
+#include "../utils/log.h"
+
+log_t::level_t debuglevel = log_t::LEVEL_WARN;
 
 #include "../simdebug.h"
 #include "../simtypes.h"
@@ -30,21 +32,21 @@ int main(int argc, char* argv[])
 	argv++, argc--;
 
 	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n", "makeobj");
-	debuglevel = 2; // only warnings and errorsS
+	debuglevel = log_t::LEVEL_WARN; // only warnings and errors
 
 	while(  argc  &&  (  !STRICMP(argv[0], "quiet")  ||  !STRICMP(argv[0], "verbose")  ||  !STRICMP(argv[0], "debug")  )  ) {
 
 		if (argc && !STRICMP(argv[0], "debug")) {
 			argv++, argc--;
-			debuglevel = 4; // everything
+			debuglevel = log_t::LEVEL_DEBUG; // everything
 		}
 		else if (argc && !STRICMP(argv[0], "verbose")) {
 			argv++, argc--;
-			debuglevel = 3; // only messages errors
+			debuglevel = log_t::LEVEL_MSG; // only messages errors
 		}
 		else if (argc && !STRICMP(argv[0], "quiet")) {
 			argv++, argc--;
-			debuglevel = 1; // only fatal errors
+			debuglevel = log_t::LEVEL_ERROR; // only fatal errors
 		}
 	}
 

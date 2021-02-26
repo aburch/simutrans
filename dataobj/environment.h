@@ -16,6 +16,8 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
+#include "../utils/log.h"
+
 
 #define TILE_HEIGHT_STEP (env_t::pak_tile_height_step)
 
@@ -421,12 +423,9 @@ public:
 	/// @}
 
 
-	/**
-	* Produce more debug info:
-	* can be set by command-line switch '-debug'
-	*/
-	static uint8 verbose_debug;
-
+	/// Produce more debug info:
+	/// can be set by command-line switch '-debug'
+	static log_t::level_t verbose_debug;
 
 	/// do autosave every month?
 	static sint32 autosave;
