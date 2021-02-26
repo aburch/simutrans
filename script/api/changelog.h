@@ -10,6 +10,7 @@
  * @section api-trunk Current trunk
  *
  * - Feature: scripted tools
+ * - Added @ref way_x::get_max_speed
  * - Added @ref wayobj_desc_x, @ref wayobj_x, @ref command_x::build_wayobj to work with way-objects
  * - Added @ref factory_x::get_raw_name
  * - Added @ref tree_desc_x::get_price, @ref command_x::slope_get_price

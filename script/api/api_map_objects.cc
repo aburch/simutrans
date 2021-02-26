@@ -637,6 +637,12 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &weg_t::get_desc, "get_desc");
+	/**
+	 * Returns maximal allowed speed on this way.
+	 * Takes limits from crossings, overhead-wires, bridges, etc, into account.
+	 * @returns max speed in kmh.
+	 */
+	register_method(vm, &weg_t::get_max_speed, "get_max_speed");
 	end_class(vm);
 
 

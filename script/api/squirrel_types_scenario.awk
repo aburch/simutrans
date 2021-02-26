@@ -246,6 +246,7 @@ BEGIN {
 	export_types["way_x::has_wayobj"] = "bool()"
 	export_types["way_x::is_crossing"] = "bool()"
 	export_types["way_x::get_desc"] = "way_desc_x()"
+	export_types["way_x::get_max_speed"] = "integer()"
 	export_types["label_x::create"] = "string(coord, player_x, string)"
 	export_types["label_x::set_text"] = "void(string)"
 	export_types["label_x::get_text"] = "string()"
