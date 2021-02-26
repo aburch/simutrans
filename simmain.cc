@@ -555,10 +555,10 @@ void setup_logging(int argc, char **argv)
 			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
 			logname = temp_log_name;
 		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version, NULL );
+		init_logging( logname, true, true, version, NULL );
 	}
 	else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version, NULL );
+		init_logging( "stderr", true, true, version, NULL );
 	}
 	else {
 		init_logging(NULL, false, false, version, NULL);
