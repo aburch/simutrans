@@ -415,7 +415,6 @@ static void ask_language()
 }
 
 
-
 /**
  * This function will be set in the main function as the handler the runtime environment will
  * call in the case it lacks memory for new()
@@ -434,6 +433,135 @@ static const char *gimme_arg(int argc, char *argv[], const char *arg, int off)
 		}
 	}
 	return NULL;
+}
+
+
+void print_help()
+{
+	printf(
+		"\n"
+		"---------------------------------------\n"
+		"  Simutrans " VERSION_NUMBER "\n"
+		"  released " VERSION_DATE "\n"
+		"  developed\n"
+		"  by the Simutrans team.\n"
+		"\n"
+		"  Send feedback and questions to:\n"
+		"  <markus@pristovsek.de>\n"
+		"\n"
+		"  Based on Simutrans 0.84.21.2\n"
+		"  by Hansjörg Malthaner et. al.\n"
+		"---------------------------------------\n"
+		"command line parameters available: \n"
+		" -addons             loads also addons (with -objects)\n"
+		" -async              asynchronous images, only for SDL\n"
+		" -use_hw             hardware double buffering, only for SDL\n"
+		" -debug NUM          enables debugging (1..5)\n"
+		" -easyserver         set up every for server (query own IP, port forwarding)\n"
+		" -freeplay           play with endless money\n"
+		" -fullscreen         starts simutrans in fullscreen mode\n"
+		" -fps COUNT          framerate (from 5 to 100)\n"
+		" -h | -help | --help displays this help\n"
+		" -lang CODE          starts with specified language\n"
+		" -load NAME          loads savegame with name 'NAME' from Simutrans 'save' directory\n"
+		" -log                enables logging to file 'simu.log'\n"
+#ifdef SYSLOG
+		" -syslog             enable logging to syslog\n"
+		"                     mutually exclusive with -log\n"
+		" -tag TAG            sets syslog tag (default 'simutrans')\n"
+#endif
+		" -mute               mute all sounds\n"
+		" -noaddons           does not load any addon (default)\n"
+		" -nomidi             turns off background music\n"
+		" -nosound            turns off ambient sounds\n"
+		" -objects DIR_NAME/  load the pakset in specified directory\n"
+		" -pause              starts game with paused after loading\n"
+		"                     a server will pause if there are no clients\n"
+		" -res N              starts in specified resolution: \n"
+		"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
+		" -screensize WxH     set screensize to width W and height H\n"
+		" -server [PORT]      starts program as server (for network game)\n"
+		"                     without port specified uses 13353\n"
+		" -announce           Enable server announcements\n"
+		" -autodpi            Scale for high DPI screens\n"
+		" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
+		" -server_name NAME   Name of server for announcements\n"
+		" -server_admin_pw PW password for server administration\n"
+		" -singleuser         Save everything in data directory (portable version)\n"
+#ifdef DEBUG
+		" -sizes              Show current size of some structures\n"
+#endif
+		" -startyear N        start in year N\n"
+		" -theme N            user directory containing theme files\n"
+#ifdef MULTI_THREAD
+		" -threads N          use N threads if possible\n"
+#endif
+		" -timeline           enables timeline\n"
+#if defined DEBUG || defined PROFILE
+		" -times              does some simple profiling\n"
+		" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
+#endif
+		" -use_workdir        Use current directory as data directory. If this parameter is\n"
+		"                     not present, uses the directory where the executable is located\n"
+	);
+}
+
+
+void setup_logging(int argc, char **argv)
+{
+#ifdef REVISION
+	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+#else
+	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n";
+#endif
+
+#ifdef SYSLOG
+	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
+	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
+#else
+	bool cli_syslog_enabled = false;
+	const char* cli_syslog_tag = NULL;
+#endif
+
+	env_t::verbose_debug = 0;
+	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
+		const char *s = gimme_arg(argc, argv, "-debug", 1);
+		int level = 4;
+		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
+			level = atoi(s);
+		}
+		env_t::verbose_debug = level;
+	}
+
+	if (  cli_syslog_enabled  ) {
+		printf("syslog enabled\n");
+		if (  cli_syslog_tag  ) {
+			printf("Init logging with syslog tag: %s\n", cli_syslog_tag);
+			init_logging( "syslog", true, true, version, cli_syslog_tag );
+		}
+		else {
+			printf("Init logging with default syslog tag\n");
+			init_logging( "syslog", true, true, version, "simutrans" );
+		}
+	}
+	else if (gimme_arg(argc, argv, "-log", 0)) {
+		dr_chdir( env_t::user_dir );
+		char temp_log_name[256];
+		const char *logname = "simu.log";
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			const char *p = gimme_arg(argc, argv, "-server", 1);
+			int portadress = p ? atoi( p ) : 13353;
+			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
+			logname = temp_log_name;
+		}
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version, NULL );
+	}
+	else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version, NULL );
+	}
+	else {
+		init_logging(NULL, false, false, version, NULL);
+	}
 }
 
 
@@ -462,72 +590,7 @@ int simu_main(int argc, char** argv)
 			gimme_arg(argc, argv, "-?",     0) ||
 			gimme_arg(argc, argv, "-help",  0) ||
 			gimme_arg(argc, argv, "--help", 0)) {
-		printf(
-			"\n"
-			"---------------------------------------\n"
-			"  Simutrans " VERSION_NUMBER "\n"
-			"  released " VERSION_DATE "\n"
-			"  developed\n"
-			"  by the Simutrans team.\n"
-			"\n"
-			"  Send feedback and questions to:\n"
-			"  <markus@pristovsek.de>\n"
-			"\n"
-			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansjörg Malthaner et. al.\n"
-			"---------------------------------------\n"
-			"command line parameters available: \n"
-			" -addons             loads also addons (with -objects)\n"
-			" -async              asynchronous images, only for SDL\n"
-			" -use_hw             hardware double buffering, only for SDL\n"
-			" -debug NUM          enables debugging (1..5)\n"
-			" -easyserver         set up every for server (query own IP, port forwarding)\n"
-			" -freeplay           play with endless money\n"
-			" -fullscreen         starts simutrans in fullscreen mode\n"
-			" -fps COUNT          framerate (from 5 to 100)\n"
-			" -h | -help | --help displays this help\n"
-			" -lang CODE          starts with specified language\n"
-			" -load NAME          loads savegame with name 'NAME' from Simutrans 'save' directory\n"
-			" -log                enables logging to file 'simu.log'\n"
-#ifdef SYSLOG
-			" -syslog             enable logging to syslog\n"
-			"                     mutually exclusive with -log\n"
-			" -tag TAG            sets syslog tag (default 'simutrans')\n"
-#endif
-			" -mute               mute all sounds\n"
-			" -noaddons           does not load any addon (default)\n"
-			" -nomidi             turns off background music\n"
-			" -nosound            turns off ambient sounds\n"
-			" -objects DIR_NAME/  load the pakset in specified directory\n"
-			" -pause              starts game with paused after loading\n"
-			"                     a server will pause if there are no clients\n"
-			" -res N              starts in specified resolution: \n"
-			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
-			" -screensize WxH     set screensize to width W and height H\n"
-			" -server [PORT]      starts program as server (for network game)\n"
-			"                     without port specified uses 13353\n"
-			" -announce           Enable server announcements\n"
-			" -autodpi            Scale for high DPI screens\n"
-			" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
-			" -server_name NAME   Name of server for announcements\n"
-			" -server_admin_pw PW password for server administration\n"
-			" -singleuser         Save everything in data directory (portable version)\n"
-#ifdef DEBUG
-			" -sizes              Show current size of some structures\n"
-#endif
-			" -startyear N        start in year N\n"
-			" -theme N            user directory containing theme files\n"
-#ifdef MULTI_THREAD
-			" -threads N          use N threads if possible\n"
-#endif
-			" -timeline           enables timeline\n"
-#if defined DEBUG || defined PROFILE
-			" -times              does some simple profiling\n"
-			" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
-#endif
-			" -use_workdir        Use current directory as data directory. If this parameter is\n"
-			"                     not present, uses the directory where the executable is located\n"
-		);
+		print_help();
 		return EXIT_SUCCESS;
 	}
 
@@ -610,64 +673,7 @@ int simu_main(int argc, char** argv)
 	dr_mkdir(SAVE_PATH);
 	dr_mkdir(SCREENSHOT_PATH);
 
-
-#ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
-#else
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n";
-#endif
-
-
-	/*** Begin logging set up ***/
-
-#ifdef SYSLOG
-	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
-	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
-#else
-	bool cli_syslog_enabled = false;
-	const char* cli_syslog_tag = NULL;
-#endif
-
-	env_t::verbose_debug = 0;
-	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
-		const char *s = gimme_arg(argc, argv, "-debug", 1);
-		int level = 4;
-		if(s!=NULL  &&  s[0]>='0'  &&  s[0]<='9'  ) {
-			level = atoi(s);
-		}
-		env_t::verbose_debug = level;
-	}
-
-	if (  cli_syslog_enabled  ) {
-		printf("syslog enabled\n");
-		if (  cli_syslog_tag  ) {
-			printf("Init logging with syslog tag: %s\n", cli_syslog_tag);
-			init_logging( "syslog", true, true, version, cli_syslog_tag );
-		}
-		else {
-			printf("Init logging with default syslog tag\n");
-			init_logging( "syslog", true, true, version, "simutrans" );
-		}
-	}
-	else if (gimme_arg(argc, argv, "-log", 0)) {
-		dr_chdir( env_t::user_dir );
-		char temp_log_name[256];
-		const char *logname = "simu.log";
-		if(  gimme_arg(argc, argv, "-server", 0)  ) {
-			const char *p = gimme_arg(argc, argv, "-server", 1);
-			int portadress = p ? atoi( p ) : 13353;
-			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
-			logname = temp_log_name;
-		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version, NULL );
-	}
-	else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version, NULL );
-	}
-	else {
-		init_logging(NULL, false, false, version, NULL);
-	}
-	/*** End logging set up ***/
+	setup_logging(argc, argv);
 
 	// now read last setting (might be overwritten by the tab-files)
 	{
