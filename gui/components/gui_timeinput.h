@@ -27,7 +27,7 @@ private:
 	// the input field
 	gui_label_t time_out;
 
-	// entry displayed for 
+	// entry displayed for
 	const char *null_text;
 
 	char textbuffer[64];

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef IO_IMG_RAW_IMAGE_H
-#define IO_IMG_RAW_IMAGE_H
+#ifndef IO_RAW_IMAGE_H
+#define IO_RAW_IMAGE_H
 
 
 #include "../simtypes.h"

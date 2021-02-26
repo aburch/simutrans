@@ -3,8 +3,9 @@
  * (see LICENSE.txt)
  */
 
-#ifndef UTILS_MATH_H
-#define UTILS_MATH_H
+#ifndef UTILS_INT_MATH_H
+#define UTILS_INT_MATH_H
+
 
 #include "../simtypes.h"
 

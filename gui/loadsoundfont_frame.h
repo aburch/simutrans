@@ -6,6 +6,7 @@
 #ifndef GUI_LOADSOUNDFONT_FRAME_H
 #define GUI_LOADSOUNDFONT_FRAME_H
 
+
 #include "simwin.h"
 #include "savegame_frame.h"
 
