@@ -227,6 +227,7 @@ class astar_route_finder extends astar
 		if ( [wt_all, wt_invalid, wt_water, wt_air].find(wt) ) {
 			throw("Using this waytype is going to be inefficient. Use at own risk.")
 		}
+		cost_curve = cost_straight
 	}
 
 	function process_node(cnode)
@@ -249,7 +250,7 @@ class astar_route_finder extends astar
 					local move = cnode.is_straight_move(d)  ?  cost_straight  :  cost_curve
 					local dist   = estimate_distance(to)
 					local cost   = cnode.cost + move
-					local weight = cost + dist
+					local weight = cost //+ dist
 					local node = ab_node(to, cnode, cost, dist, d)
 
 					add_to_open(node, weight)
@@ -270,7 +271,7 @@ class astar_route_finder extends astar
 		foreach (s in start)
 		{
 			local dist = estimate_distance(s)
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0, 0), dist+1)
 		}
 
 		search()
@@ -457,7 +458,7 @@ class astar_builder extends astar
 		foreach (s in start)
 		{
 			local dist = estimate_distance(s)
-			add_to_open(ab_node(s, null, 1, dist+1, dist, 0), dist+1)
+			add_to_open(ab_node(s, null, 1, dist+1, 0, 0), dist+1)
 		}
 
 		search()
@@ -1356,13 +1357,40 @@ function find_object(obj, wt, speed) {
 	}
 
 	local len = list.len()
-	local max_speed = 120
+
+	// sort objects by speed
+	{
+		local obj_list = []
+		for(local i=0; i<len; i++) {
+			obj_list.append(list[i].get_topspeed())
+		}
+		obj_list.sort()
+
+		local sort_obj_list = []
+
+		for(local i=0; i<len; i++) {
+			//gui.add_message_at(our_player,i + " obj " + obj_list[i] , world.get_time())
+			for (local j=0; j<len; j++) {
+				if ( obj_list[i] == list[j].get_topspeed() ) {
+					sort_obj_list.append(list[j])
+				}
+			}
+		}
+		list.clear()
+		list = sort_obj_list.slice(0)
+		/*for(local i=0; i<len; i++) {
+			gui.add_message_at(our_player,i + " obj " + list[i].get_name() + " speed " + list[i].get_topspeed(), world.get_time())
+		}*/
+	}
+
+	local max_speed = 160
 	local min_len = 5
 
 	local obj_desc = null
 
 	if (len>0) {
 		obj_desc = list[0]
+		//gui.add_message_at(our_player,"0  obj_desc " + obj_desc.get_name(), world.get_time())
 
 			for(local i=1; i<len; i++) {
 				local b = list[i]
@@ -1377,10 +1405,13 @@ function find_object(obj, wt, speed) {
 
 				if ( o == 1 ) {
 					if (obj_desc.get_topspeed() <= speed) {
-						if (b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
+						if ( b.get_topspeed() > obj_desc.get_topspeed() && b.get_topspeed() <= speed ) {
 							obj_desc = b
+							if ( obj_desc.get_topspeed() == speed ) { break }
 						} else {
+							if ( obj_desc.get_topspeed() >= speed ) { break }
 							obj_desc = b
+							//gui.add_message_at(our_player, i + " break obj_desc " + obj_desc.get_name(), world.get_time())
 							break
 						}
 					}
@@ -1525,6 +1556,9 @@ function build_double_track(start_field, wt) {
 
 	//local way_list = way_desc_x.get_available_ways(wt, st_flat)
 	local way_obj = start_field.find_object(mo_way).get_desc() //way_list[0]
+	if ( !way_obj.is_available(world.get_time()) ) {
+		way_obj = find_object("way", wt, way_obj.get_topspeed())
+	}
 
 	local b_player = our_player //way_obj.get_owner()
 
