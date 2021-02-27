@@ -955,31 +955,16 @@ int simu_main(int argc, char** argv)
 	display_show_pointer(1);
 
 	// if no object files given, we ask the user
-	if(  env_t::objfilename.empty()  ) {
+	while (  env_t::objfilename.empty()  ) {
 		ask_objfilename();
+
 		if(  env_t::quit_simutrans  ) {
 			simgraph_exit();
 			return EXIT_SUCCESS;
 		}
-		if(  env_t::objfilename.empty()  ) {
+		else if (env_t::objfilename.empty()) {
 			// try to download missing paks
 			install_objfilename(); // all other
-			ask_objfilename();
-			if(  env_t::quit_simutrans  ) {
-				simgraph_exit();
-				return EXIT_SUCCESS;
-			}
-			// still nothing?
-			if(  env_t::objfilename.empty()  ) {
-				// nothing to be loaded => exit
-				dr_fatal_notify(
-					"*** No pak set found ***\n"
-					"\n"
-					"Most likely, you have no pak set installed.\n"
-					"Please download and install a pak set (graphics).\n");
-				simgraph_exit();
-				return EXIT_FAILURE;
-			}
 		}
 	}
 
