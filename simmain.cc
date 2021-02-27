@@ -979,7 +979,7 @@ int simu_main(int argc, char** argv)
 		if(  !f  ) {
 			cbuffer_t errmsg;
 			errmsg.printf(
-				"The file 'ground.Outside.pak was not found in\n"
+				"The file 'ground.Outside.pak' was not found in\n"
 				"'%s%s'.\n"
 				"This file is required for a valid pak set (graphics).\n"
 				"Please install and select a valid pak set.",
