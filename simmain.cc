@@ -977,11 +977,15 @@ int simu_main(int argc, char** argv)
 
 		FILE* const f = dr_fopen(buf, "r");
 		if(  !f  ) {
-			dr_fatal_notify(
-				"*** No pak set found ***\n"
-				"\n"
-				"Most likely, you have no pak set installed.\n"
-				"Please download and install a pak set (graphics).\n");
+			cbuffer_t errmsg;
+			errmsg.printf(
+				"The file 'ground.Outside.pak was not found in\n"
+				"'%s%s'.\n"
+				"This file is required for a valid pak set (graphics).\n"
+				"Please install and select a valid pak set.",
+				env_t::data_dir, env_t::objfilename.c_str());
+
+			dr_fatal_notify(errmsg);
 			simgraph_exit();
 			return EXIT_FAILURE;
 		}
