@@ -331,9 +331,11 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 
 // some routines for the modal display
 static bool never_quit() { return false; }
-static bool empty_objfilename() { return !env_t::objfilename.empty() ||  pakinstaller_t::finish_install; }
 static bool no_language() { return translator::get_language()!=-1; }
+#if COLOUR_DEPTH != 0
+static bool empty_objfilename() { return !env_t::objfilename.empty() ||  pakinstaller_t::finish_install; }
 static bool finish_install() { return pakinstaller_t::finish_install; }
+#endif
 
 static bool wait_for_key()
 {
@@ -351,6 +353,7 @@ static bool wait_for_key()
 }
 
 
+#if COLOUR_DEPTH != 0
 /**
  * Show pak installer
  */
@@ -370,7 +373,6 @@ static void install_objfilename()
 	modal_dialogue(sel, magic_none, NULL, finish_install);
 #endif
 }
-
 
 
 /**
@@ -393,7 +395,7 @@ static void ask_objfilename()
 		delete sel;
 	}
 }
-
+#endif
 
 
 /**
@@ -954,6 +956,7 @@ int simu_main(int argc, char** argv)
 	// The loading screen needs to be initialized
 	display_show_pointer(1);
 
+#if COLOUR_DEPTH != 0
 	// if no object files given, we ask the user
 	while (  env_t::objfilename.empty()  ) {
 		ask_objfilename();
@@ -967,6 +970,18 @@ int simu_main(int argc, char** argv)
 			install_objfilename(); // all other
 		}
 	}
+#else
+	// headless server
+	if(  env_t::objfilename.empty()  ) {
+		dr_fatal_notify(
+			"*** No pak set found ***\n"
+			"\n"
+			"Please install a pak set and select it using the '-objects'\n"
+			"command line parameter or the 'pak_file_path' simuconf.tab entry.");
+		simgraph_exit();
+		return EXIT_FAILURE;
+	}
+#endif
 
 	// check for valid pak path
 	{
