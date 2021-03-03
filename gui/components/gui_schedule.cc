@@ -105,7 +105,9 @@ public:
 			add_component(&down);
 		}
 
-		del.init( button_t::square_automatic, "" );
+		del.init( button_t::imagebox, NULL );
+		del.set_image( skinverwaltung_t::gadget->get_image_id(SKIN_GADGET_CLOSE) );
+		del.set_size( gui_theme_t::gui_arrow_left_size );
 		del.add_listener( this );
 		del.set_tooltip( "Delete the current stop" );
 		add_component( &del );
@@ -174,21 +176,20 @@ public:
 
 	bool infowin_event(const event_t *ev) OVERRIDE
 	{
-		if( ev->ev_class == EVENT_RELEASE ) {
-			if(  IS_RIGHTRELEASE(ev)  ) {
-				// just center on it
-				welt->get_viewport()->change_world_position( entry.pos );
-			}
-			else {
-				set_focus( this );
-				if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->cx, ev->cy ) ) {
-					// not handled, so we make i aktive
-					call_listeners( number );
-				}
+		if(  IS_RIGHTRELEASE(ev)  ) {
+			// just center on it
+			welt->get_viewport()->change_world_position( entry.pos );
+			return true;
+		}
+		else if(ev->button_state==1  ){
+			set_focus( this );
+			if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->cx, ev->cy ) ) {
+				// not handled, so we make i aktive
+				call_listeners( number );
 			}
 			return true;
 		}
-		return false;
+		return gui_aligned_container_t::infowin_event(ev);
 	}
 };
 

@@ -114,6 +114,10 @@ void button_t::set_typ(enum type t)
 			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
 
+		case imagebox:
+			img = IMG_EMPTY;
+			break;
+
 		default:
 			break;
 	}
@@ -174,6 +178,16 @@ scr_size button_t::get_min_size() const
 			size.w = max(size.w, w);
 			return size;
 		}
+
+		case imagebox: {
+			KOORD_VAL x = 0, y = 0, w = 0, h = 0;
+			display_get_image_offset(img, &x, &y, &w, &h);
+			scr_size size(gui_theme_t::gui_pos_button_size);
+			size.w = max(size.w, w+2);
+			size.h = max(size.h, h+2);
+			return size;
+		}
+
 		default:
 			return gui_component_t::get_min_size();
 	}
@@ -344,6 +358,15 @@ void button_t::draw(scr_coord offset)
 			}
 			break;
 
+		case imagebox:
+			display_img_stretch(gui_theme_t::button_tiles[get_state_offset()], area);
+			display_img_stretch_blend(gui_theme_t::button_color_tiles[b_enabled && pressed], area, (pressed ? text_color: background_color) | TRANSPARENT75_FLAG | OUTLINE_FLAG);
+			display_img_aligned(img, area, ALIGN_CENTER_H | ALIGN_CENTER_V, true);
+			if (win_get_focus() == this) {
+				draw_focus_rect(area);
+			}
+			break;
+
 		case square: // checkbox with text
 			{
 				display_img_aligned( gui_theme_t::check_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
@@ -410,6 +433,7 @@ void button_t::update_focusability()
 			break;
 
 		// those cannot receive focus ...
+		case imagebox:
 		case arrowleft:
 		case repeatarrowleft:
 		case arrowright:
