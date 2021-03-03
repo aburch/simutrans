@@ -372,19 +372,6 @@ public:
 		return value_t();
 	}
 
-	void dump_stats()
-	{
-		for(STHT_BAG_COUNTER_T i = 0; i < STHT_BAGSIZE; i++) {
-			printf("Bag %d contains %ud elements\n", i, bags[i].get_count());
-
-			FORT(slist_tpl<node_t>, const& node, bags[i]) {
-				printf(" ");
-				hash_t::dump(node.key);
-				printf("\n");
-			}
-		}
-	}
-
 	uint32 get_count() const
 	{
 		return count;

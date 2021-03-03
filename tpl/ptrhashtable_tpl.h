@@ -32,11 +32,6 @@ public:
 		return (uint32)(size_t)key;
 	}
 
-	static void dump(const key_t key)
-	{
-		printf("%p", (void *)key);
-	}
-
 	static diff_type comp(key_t key1, key_t key2)
 	{
 		return (cast_ptr_to_t)key1 - (cast_ptr_to_t)key2;
