@@ -1150,8 +1150,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 						// now remove ribi (or full way)
 						w->set_ribi( (~ribi_t::backward( ribi_t::nesw[i] )) & w->get_ribi_unmasked() );
 						if(  w->get_ribi_unmasked() == 0  ) {
-							// nowthing left => then remove completly
-							koord3d prev_pos = prev->get_pos();
+							// nothing left => then remove completly
 							prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
 							prev->weg_entfernen( wegtyp, true );
 							if(  prev->get_typ() == grund_t::monorailboden  ) {
