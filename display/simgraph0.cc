@@ -341,8 +341,9 @@ void display_show_load_pointer(int)
 {
 }
 
-void simgraph_init(scr_size, bool)
+bool simgraph_init(scr_size, bool)
 {
+	return true;
 }
 
 bool is_display_init()

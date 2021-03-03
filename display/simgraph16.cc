@@ -5065,7 +5065,7 @@ void display_show_load_pointer(int loading)
 /**
  * Initialises the graphics module
  */
-void simgraph_init(scr_size window_size, bool full_screen)
+bool simgraph_init(scr_size window_size, bool full_screen)
 {
 	disp_actual_width = window_size.w;
 	disp_height = window_size.h;
@@ -5086,18 +5086,17 @@ void simgraph_init(scr_size window_size, bool full_screen)
 
 	// get real width from os-dependent routines
 	disp_width = dr_os_open(window_size.w, window_size.h, full_screen);
-	if(  disp_width>0  ) {
-		textur = dr_textur_init();
-
-		// init, load, and check fonts
-		if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
-			dr_fatal_notify( "No fonts found!" );
-			exit(-1);
-		}
-	}
-	else {
+	if(  disp_width<=0  ) {
 		dr_fatal_notify( "Cannot open window!" );
-		exit(-1);
+		return false;
+	}
+
+	textur = dr_textur_init();
+
+	// init, load, and check fonts
+	if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
+		dr_fatal_notify("No fonts found!");
+		return false;
 	}
 
 	// allocate dirty tile flags
@@ -5171,8 +5170,7 @@ void simgraph_init(scr_size window_size, bool full_screen)
 		}
 	}
 
-	printf("Init done.\n");
-	fflush(NULL);
+	return true;
 }
 
 
