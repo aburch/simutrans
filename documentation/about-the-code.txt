@@ -8,7 +8,7 @@ It starts all with karte_t, which holds an array of planquadrat_t (a 2D coordina
 
 Each stuff can have three periodic calls: for very regularly and fast actions which require exclusive access on the map (moving cars, collision avoidance) there is sync_step, called before every frame. Slower actions like route_finding, way building etc. is done in step(), where the map can change in between slightly. Some objects (most notable trees) require seasonal changes, which are covered by the relatively new action method of check_season();
 
-The program was developed by a single person most of the time, so sometimes the documentation might not be as good as it could be. So if you find something out about a section of code please document it. But other than that, most of Simutrans is quite compartmentalised and separate from other modules. Therefore it is, in my humble opinion, best to just work locally on one issue, and submit a patch. You will get some critical reception in the forum http://forum.simutrans.com.
+The program was developed by a single person most of the time, so sometimes the documentation might not be as good as it could be. So if you find something out about a section of code please document it. But other than that, most of Simutrans is quite compartmentalised and separate from other modules. Therefore it is, in my humble opinion, best to just work locally on one issue, and submit a patch. You will get some critical reception in the forum at https://forum.simutrans.com.
 
 
 How the UI works

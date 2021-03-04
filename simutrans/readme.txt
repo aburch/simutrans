@@ -309,7 +309,7 @@ only supported on Linux/X-Windows.
 If you run into problems, or if you have questions, please visit the
 feedback forum:
 
-http://forum.simutrans.com/
+https://forum.simutrans.com/
 
 
 
@@ -325,7 +325,7 @@ if you send reports by email.
 There are some Simutrans related web pages, you may want to visit them:
 
 The official Simutrans home page:
-http://www.simutrans.com
+https://www.simutrans.com
 
 This readme file was written by Hansjörg Malthaner, November 2000,
 Updated 8-Sep-2010 by Markus Pristovsek

@@ -10,7 +10,7 @@ Have lots of fun playing Simutrans!
 
 The version is built by Markus Pristovsek. All complains, or any other
 comments please report at:
-	http://forum.simutrans.com
+	https://forum.simutrans.com
 
 The source code from the program is available under the Artistic License.
 This is a written permission as demanded for above for every right granted

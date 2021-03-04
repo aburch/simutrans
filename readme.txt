@@ -6,23 +6,21 @@ you have many options, either using Microsoft Visual C++ Express (which
 is free in Version 7.0 or up) or some GCC variant including clang.
 
 To compile you will need the following libraries:
-libz (http://www.zlib.net/)
+libz (https://www.zlib.net/)
 libpng (http://www.libpng.org/pub/png/)
-libbz2.lib (compile from source from http://www.bzip.org/downloads.html)
+libbz2.lib (compile from source from https://sourceware.org/bzip2/downloads.html)
 
 The following are also recommendend, but optional
-libfreetype (http://www.freetype.org/)
-libminiupnpc (http://miniupnp.free.fr/)
+libfreetype (https://www.freetype.org/)
+libminiupnpc (http://miniupnp.free.fr/ or https://miniupnp.tuxfamily.org/)
 
 For the recommended SDL2-support you need
-libSDL2 [better than libSDL] (http://www.libsdl.org/)
-libSDL_mixer (link from the same page)
+libSDL2 [better than libSDL] (https://libsdl.org/)
+libSDL_mixer (https://www.libsdl.org/projects/SDL_mixer/)
 
 The link for allegro lib is (but the allegro backend has not been
 tested for a long time):
-http://www.talula.demon.co.uk/allegro/
-or
-http://alleg.sourceforge.net/index.de.html
+https://liballeg.org/old.html
 
 To make life easier, you can follow the instructions to compile OpenTTD:
 http://wiki.openttd.org/Category:Compiling_OpenTTD
@@ -63,7 +61,7 @@ manually (via FLAGS = -I/dwonloadeddir -L/downloadeddir). However, simutrans
 has a Haikuporter package, which may build the lastest version.
 
 A subversion will be also a good idea. You can find some of them on:
-http://subversion.tigris.org/
+https://subversion.apache.org/
 or you some other client.
 
 Check out the latest source from the SVN or check out a certain revision.
