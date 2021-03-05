@@ -241,7 +241,7 @@ convoi_frame_t::convoi_frame_t() :
 	scrolly->set_maximize( true );
 
 	tabs.init_tabs(scrolly);
-	for(  int i = 0;  i < tabs.get_count();  i++  ) {
+	for(  uint32 i = 0;  i < tabs.get_count();  i++  ) {
 		if(current_wt == tabs.get_tab_waytype(i)) {
 			tabs.set_active_tab_index(i);
 			break;

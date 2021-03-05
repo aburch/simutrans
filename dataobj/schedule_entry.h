@@ -44,8 +44,9 @@ public:
 	 */
 	uint16 waiting_time;
 
-	sint32 get_waiting_ticks() const {
-		return (sint32)((world()->ticks_per_world_month_shift >= 16) ? ((uint32)waiting_time << (world()->ticks_per_world_month_shift - 16)) : ((uint32)waiting_time >> (16 - world()->ticks_per_world_month_shift)));
+	uint32 get_waiting_ticks() const {
+		return  world()->ticks_per_world_month_shift >= 16  ? (uint32)waiting_time << (world()->ticks_per_world_month_shift - 16)
+		                                                    : (uint32)waiting_time >> (16 - world()->ticks_per_world_month_shift);
 	}
 
 	// true if this is an absolute dparture time and not maximum waiting time
