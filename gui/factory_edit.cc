@@ -197,8 +197,8 @@ void factory_edit_frame_t::fill_list()
 	scl.set_selection(-1);
 	FOR(vector_tpl<factory_desc_t const*>, const i, factory_list) {
 		PIXVAL const color =
-			i->is_consumer_only() ? color_idx_to_rgb(COL_BLUE)       :
-			i->is_producer_only() ? color_idx_to_rgb(COL_DARK_GREEN) :
+			i->is_consumer_only() ? color_idx_to_rgb(COL_DARK_BLUE + env_t::gui_player_color_dark) :
+			i->is_producer_only() ? color_idx_to_rgb(40 + env_t::gui_player_color_dark)            :
 			SYSCOL_TEXT;
 		char const* const name = get_sortedby()==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);
