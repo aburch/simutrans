@@ -1060,12 +1060,11 @@ void display_win(int win)
 	}
 	// mark top window, if requested
 	if(env_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
-		const int y_off = wins[win].flags.title ? 0 : D_TITLEBAR_HEIGHT;
 		if(!wins[win].rollup) {
-			display_ddd_box_clip_rgb( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, size.h+2 - y_off, title_color, title_color); //, wins[win].dirty | wins[win].gui->is_dirty() );
+			display_ddd_box_clip_rgb( wins[win].pos.x-1, wins[win].pos.y-1, size.w+2, size.h+2, title_color, title_color);
 		}
 		else {
-			display_ddd_box_clip_rgb( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, D_TITLEBAR_HEIGHT + 2 - y_off, title_color, title_color); //, wins[win].dirty | wins[win].gui->is_dirty() );
+			display_ddd_box_clip_rgb( wins[win].pos.x-1, wins[win].pos.y-1, size.w+2, D_TITLEBAR_HEIGHT + 2, title_color, title_color);
 		}
 	}
 	if(!wins[win].rollup) {
