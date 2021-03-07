@@ -1381,8 +1381,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	// time stuff
 	bits_per_month = contents.get_int( "bits_per_month", bits_per_month );
 	use_timeline = contents.get_int( "use_timeline", use_timeline );
-	starting_year = contents.get_int( "starting_year", starting_year );
-	starting_month = contents.get_int( "starting_month", starting_month + 1 ) - 1;
+	starting_year = clamp(contents.get_int( "starting_year", starting_year ), 0, 0x7FFF);
+	starting_month = clamp(contents.get_int( "starting_month", starting_month + 1 ) - 1, 0, 11);
 
 	env_t::height_conv_mode = (env_t::height_conversion_mode)::clamp<int>(contents.get_int("new_height_map_conversion", (int)env_t::height_conv_mode ), 0, env_t::NUM_HEIGHT_CONV_MODES-1);
 
