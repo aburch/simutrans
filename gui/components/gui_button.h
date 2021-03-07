@@ -93,12 +93,11 @@ private:
 	 * direct access provided to avoid translations
 	 */
 	const char *text;
-
 	const char *translated_text;
-	union {
-		koord3d targetpos;
-		image_id img;
-	};
+
+	koord3d targetpos;
+	image_id img;
+
 	// any click will go to this world
 	static karte_ptr_t welt;
 
