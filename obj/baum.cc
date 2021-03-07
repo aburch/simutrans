@@ -51,7 +51,7 @@ baum_t::baum_t(koord3d pos) :
 }
 
 
-baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
+baum_t::baum_t(koord3d pos, uint8 type, uint16 age, uint8 slope ) :
 	obj_t(pos),
 	geburt(welt->get_current_month() - age), // might underflow
 	tree_id(type),
@@ -80,11 +80,12 @@ void baum_t::rdwr(loadsave_t *file)
 
 	obj_t::rdwr(file);
 
-	sint32 alter = (welt->get_current_month() - geburt)<<18;
-	file->rdwr_long(alter);
+	uint32 age = get_age() << 18;
+	file->rdwr_long(age);
 
-	// after loading, calculate new
-	geburt = welt->get_current_month() - (alter>>18);
+	// after loading, calculate anew
+	age &= 0xFFF << 18;
+	geburt = welt->get_current_month() - (age>>18);
 
 	if(file->is_loading()) {
 		char buf[128];
@@ -193,12 +194,7 @@ void baum_t::recalc_outline_color()
 bool baum_t::check_season(const bool)
 {
 	// take care of birth/death and seasons
-	sint32 age = (welt->get_current_month() - geburt);
-
-	// attention: integer underflow (geburt is 16bit, month 32bit);
-	while(  age < 0  ) {
-		age += 1 << 16;
-	}
+	const uint16 age = get_age();
 
 	if(  age >= baum_t::SPAWN_PERIOD_START  &&  age < baum_t::SPAWN_PERIOD_START + baum_t::SPAWN_PERIOD_LENGTH  ) {
 		// only in this month a tree can span new trees
@@ -247,7 +243,6 @@ void baum_t::rotate90()
 	set_xoff( -2 * old_yoff );
 	set_yoff( old_xoff/2 - zoff);
 }
-
 
 
 void baum_t::recalc_off()
@@ -307,7 +302,7 @@ void baum_t::info(cbuffer_t &buf) const
 	buf.append( translator::translate(get_desc()->get_name()) );
 	buf.append( "\n" );
 
-	const uint32 age = get_age();
+	const int age = (int)get_age();
 	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );
 
 	if (char const* const maker = get_desc()->get_copyright()) {
@@ -324,14 +319,9 @@ void baum_t::cleanup(player_t *player)
 }
 
 
-uint32 baum_t::get_age() const
+uint16 baum_t::get_age() const
 {
-	sint32 age = welt->get_current_month() - geburt;
-	if (age<0) {
-		// correct underflow, geburt is 16bit
-		age += 1 << 16;
-	}
-	return age;
+	return (welt->get_current_month() - (uint32)geburt) % (1<<12);
 }
 
 

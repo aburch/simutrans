@@ -28,7 +28,7 @@ class baum_t : public obj_t
 	friend class tree_builder_t;
 
 public:
-	static const uint16 AGE_LIMIT = 704; // in months (58 years 8 months)
+	static const uint16 AGE_LIMIT = 704; // in months (58 years 8 months). Must be smaller than 4095.
 	static const uint16 SPAWN_PERIOD_START = 512;
 	static const uint16 SPAWN_PERIOD_LENGTH = 4;
 
@@ -43,7 +43,7 @@ private:
 
 	uint8 season:3;
 
-	/// z-offset, max TILE_HEIGHT_STEP ie 4 bits
+	/// z-offset, max TILE_HEIGHT_STEP i.e. 4 bits
 	uint8 zoff:4;
 
 	// one bit free ;)
@@ -53,7 +53,10 @@ public:
 	/// Otherwise I suggest use the plant tree function (@see tree_builder_t)
 	baum_t(loadsave_t *file);
 	baum_t(koord3d pos);
-	baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope);
+
+	/// @param age Must be smaller than 4095
+	baum_t(koord3d pos, uint8 type, uint16 age, uint8 slope );
+
 	baum_t(koord3d pos, const tree_desc_t *desc);
 
 public:
@@ -108,8 +111,8 @@ public:
 	void set_desc(const tree_desc_t *desc) { tree_id = tree_builder_t::get_id_by_desc(desc); }
 	uint16 get_desc_id() const { return tree_id; }
 
-	/// @returns the age of the tree, in months.
-	uint32 get_age() const;
+	/// @returns age of the tree in months, between 0 and 4095
+	uint16 get_age() const;
 
 public:
 	void *operator new(size_t s);
