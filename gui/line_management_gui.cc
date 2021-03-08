@@ -159,6 +159,8 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	scrolly_halts.set_maximize( true );
 	container_halts.add_component(&scrolly_halts);
 
+	switch_mode.set_active_tab_index(1);
+
 	if (line.is_bound() ) {
 		init();
 	}
