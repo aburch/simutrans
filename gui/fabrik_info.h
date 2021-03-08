@@ -74,6 +74,8 @@ public:
 
 	void init(fabrik_t* fab, const gebaeude_t* gb);
 
+	fabrik_t* get_factory() { return fab; }
+
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL

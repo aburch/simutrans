@@ -152,7 +152,9 @@ gui_component_t *win_get_focus();
 // true, if the focus is currently in a text field
 bool win_is_textinput();
 
-int win_get_open_count();
+uint32 win_get_open_count();
+
+gui_frame_t* win_get_index(uint32 i);
 
 // returns the window (if open) otherwise zero
 gui_frame_t *win_get_magic(ptrdiff_t magic);

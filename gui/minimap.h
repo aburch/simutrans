@@ -146,7 +146,7 @@ private:
 
 	const fabrik_t* get_factory_near(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_factory_connections(PIXVAL colour, scr_coord pos) const;
+	const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, bool supplier_link, const scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;

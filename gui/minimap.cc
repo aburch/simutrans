@@ -14,6 +14,8 @@
 #include "../boden/grund.h"
 #include "../simfab.h"
 #include "../simcity.h"
+#include "fabrik_info.h"
+#include "simwin.h"
 #include "minimap.h"
 
 #include "../dataobj/translator.h"
@@ -1169,17 +1171,17 @@ const fabrik_t* minimap_t::get_factory_near( const koord, bool enlarge ) const
 
 
 // helper function for redraw: factory connections
-const fabrik_t* minimap_t::draw_factory_connections(const PIXVAL colour, const scr_coord pos) const
+const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, bool supplier_link, const scr_coord pos) const
 {
-	const fabrik_t* const fab = get_factory_near( last_world_pos, true );
 	if(fab) {
+		PIXVAL color = supplier_link ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE);
 		scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() ) + pos;
-		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
+		const vector_tpl<koord>& lieferziele = supplier_link ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
 				const scr_coord end = map_to_screen_coord( lieferziel ) + pos;
-				display_direct_line_rgb(fabpos.x, fabpos.y, end.x, end.y, colour);
+				display_direct_line_rgb(fabpos.x, fabpos.y, end.x, end.y, color);
 				display_fillbox_wh_clip_rgb(end.x, end.y, 3, 3, ((world->get_ticks() >> 10) & 1) == 0 ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE), true);
 
 				scr_coord boxpos = end + scr_coord(10, 0);
@@ -1757,11 +1759,11 @@ void minimap_t::draw(scr_coord pos)
 
 	if(  !showing_schedule  ) {
 		// Add factory name tooltips and draw factory connections, if on a factory
-		const fabrik_t* const fab = (mode & MAP_FACTORIES)
-			? draw_factory_connections(event_get_last_control_shift() & 1 ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE), pos)
-			: get_factory_near( last_world_pos, false );
-
+		const fabrik_t* const fab = get_factory_near(last_world_pos, (mode & MAP_FACTORIES));
 		if(fab) {
+			if (mode & MAP_FACTORIES) {
+				draw_factory_connections(fab,event_get_last_control_shift() & 1, pos);
+			}
 			scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() );
 			scr_coord boxpos = fabpos + scr_coord(10, 0);
 			const char * name = translator::translate(fab->get_name());
@@ -1770,6 +1772,17 @@ void minimap_t::draw(scr_coord pos)
 			boxpos += pos;
 			display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
 		}
+
+		for (int i = 0; i < win_get_open_count(); i++) {
+			gui_frame_t *g = win_get_index(i);
+			if(g->get_rdwr_id()== magic_factory_info) {
+				// is a factory info window
+				const fabrik_t * const fab = dynamic_cast<fabrik_info_t *>(g)->get_factory();
+				draw_factory_connections(fab, true, pos);
+				draw_factory_connections(fab, false, pos);
+			}
+		}
+
 	}
 }
 

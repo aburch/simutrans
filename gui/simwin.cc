@@ -511,9 +511,18 @@ bool win_is_textinput()
 }
 
 
-int win_get_open_count()
+uint32 win_get_open_count()
 {
 	return wins.get_count();
+}
+
+
+gui_frame_t* win_get_index(uint32 i)
+{
+	if (i < wins.get_count()) {
+		return wins[i].gui;
+	}
+	return NULL;
 }
 
 
