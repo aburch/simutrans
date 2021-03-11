@@ -150,7 +150,7 @@ int midi_init(const char *directory)
 
 				if(  len > 1  ) {
 					full_path = std::string(directory) + buf;
-					printf("  Reading MIDI file '%s' - %s", full_path.c_str(), title);
+					dbg->message("midi_init()", "  Reading MIDI file '%s' - %s", full_path.c_str(), title);
 					max_midi = dr_load_midi(full_path.c_str());
 
 					if(  max_midi >= 0  ) {

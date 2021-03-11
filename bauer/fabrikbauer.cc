@@ -177,7 +177,7 @@ public:
 								weg_t* river = gr->get_weg(water_wt);
 								if (river  &&  river->get_desc()->get_styp()==type_river) {
 									condmet++;
-									printf("Found river near %s\n", pos.get_str());
+									DBG_DEBUG("factory_site_searcher_t::is_area_ok()", "Found river near %s", pos.get_str());
 								}
 								break;
 							}
@@ -438,7 +438,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 	}
 
 	// very fast, so we do not bother updating progress bar
-	printf("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
+	dbg->message("factory_builder_t::distribute_attractions()", "Distributing %i tourist attractions", max_number);
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {

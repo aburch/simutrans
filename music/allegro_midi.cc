@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include "music.h"
 
+#include "../simdebug.h"
+
+
 static int midi_number = -1;
 
 MIDI *midi_samples[MAX_MIDI];
@@ -61,7 +64,7 @@ void dr_play_midi(int key)
 			play_midi(midi_samples[key], false);
 		}
 		else {
-			printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
+			dbg->warning("dr_play_midi(allegro)", "Unable to play MIDI %d", key);
 		}
 	}
 }

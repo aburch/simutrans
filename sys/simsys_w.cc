@@ -173,7 +173,7 @@ int dr_os_open(int const w, int const h, bool fullscreen)
 			if(  COLOUR_DEPTH<32  ) {
 				settings.dmBitsPerPel = 32;
 			}
-			printf( "dr_os_open()::Could not reduce color depth to 16 Bit in fullscreen." );
+			dbg->warning("dr_os_open(w32)", "Could not reduce color depth to 16 Bit in fullscreen." );
 		}
 		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
 			ChangeDisplaySettings( NULL, 0 );

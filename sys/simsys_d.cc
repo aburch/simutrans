@@ -14,6 +14,7 @@
 #include "../simevent.h"
 #include "../display/simgraph.h"
 #include "../simversion.h"
+#include "../simdebug.h"
 
 #include <allegro.h>
 
@@ -227,17 +228,16 @@ int dr_os_open(int const w, int const h, bool fullscreen)
 	width = w;
 	height = h;
 
-
 	install_keyboard();
 
 	set_color_depth(COLOUR_DEPTH);
 	if (set_gfx_mode(fullscreen ? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
-		fprintf(stderr, "Error: %s\n", allegro_error);
+		dbg->error("dr_os_open(allegro)", "Cannot set_gfx_mode: %s", allegro_error);
 		return 0;
 	}
 
 	if (install_mouse() < 0) {
-		fprintf(stderr, "Cannot init. mouse: no driver ?");
+		dbg->error("dr_os_open(allegro)", "Cannot initialize mouse: no driver?");
 		return 0;
 	}
 
@@ -250,7 +250,6 @@ int dr_os_open(int const w, int const h, bool fullscreen)
 	sys_event.my = mouse_y;
 
 	set_window_title(SIM_TITLE);
-
 	return w;
 }
 
@@ -271,8 +270,7 @@ unsigned short* dr_textur_init()
 {
 	texture_map = create_bitmap(width, height);
 	if (texture_map == NULL) {
-		printf("Error: can't create double buffer bitmap, aborting!");
-		exit(1);
+		dbg->fatal("dr_textur_init(allegro)", "Cannot create double buffer bitmap, aborting!");
 	}
 
 //	return reinterpret_cast<unsigned short*>(texture_map->line[0]);
@@ -420,23 +418,22 @@ END_OF_FUNCTION(timer_callback)
 
 static void simtimer_init()
 {
-	printf("Installing timer...\n");
+	dbg->message("simtimer_init(allegro)", "Installing timer...");
 
 	LOCK_VARIABLE(milli_counter);
 	LOCK_FUNCTION(timer_callback);
 
-	printf("Preparing timer ...\n");
+	dbg->message("simtimer_init(allegro)", "Preparing timer...");
 
 	install_timer();
 
-	printf("Starting timer...\n");
+	dbg->message("simtimer_init(allegro)", "Starting timer...");
 
 	if (install_int(timer_callback, 5) == 0) {
-		printf("Timer installed.\n");
+		dbg->message("simtimer_init(allegro)", "Timer installed.");
 	}
 	else {
-		dr_fatal_notify("Error: Timer not available, aborting.\n");
-		exit(1);
+		dbg->fatal("simtimer_init(allegro)", "Timer not available, aborting.");
 	}
 }
 

@@ -220,7 +220,7 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 		// load persistent data
 		plainstring str;
 		file->rdwr_str(str);
-		dbg->warning("ai_scripted_t::rdwr", "loaded persistent ai data: %s", str.c_str());
+		dbg->message("ai_scripted_t::rdwr", "loaded persistent ai data: %s", str.c_str());
 
 		if (env_t::networkmode  &&  !env_t::server) {
 			// scripted players run on server only, for now at least

@@ -11,6 +11,8 @@
 #include "../utils/plainstring.h"
 #include "music.h"
 #include "../simsound.h"
+#include "../simdebug.h"
+
 
 // native win32 midi playing routines
 
@@ -43,7 +45,6 @@ void dr_set_midi_volume(int vol)
 
 int dr_load_midi(const char *filename)
 {
-		//   printf("dr_load_midi(%s)\n", filename);
 	if(midi_number < MAX_MIDI-1) {
 		const int i = midi_number + 1;
 
@@ -80,18 +81,17 @@ void dr_play_midi(int key)
 
 		if (key >= 0 && key <= midi_number) {
 			sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key].c_str());
-			printf("MCI string: %s\n", str);
+			dbg->debug("dr_play_midi(w32)", "MCI string: %s", str);
 
 			if (mciSendStringA(str, NULL, 0, NULL) != 0) {
-				printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
+				dbg->warning("dr_play_midi(w32)", "Unable to load MIDI %d", key);
 			}
-			else {
-				if (mciSendStringA("play SimuMIDI", retstr, 200, NULL) != 0)
-					printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
-				}
+			else if (mciSendStringA("play SimuMIDI", retstr, 200, NULL) != 0) {
+				dbg->warning("dr_play_midi(w32)", "Unable to play MIDI %d - %s\n", key, retstr);
 			}
+		}
 		else {
-				printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
+			dbg->warning("dr_play_midi(w32)", "Unable to play MIDI %d", key);
 		}
 	}
 }

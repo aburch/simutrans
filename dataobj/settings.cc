@@ -1288,7 +1288,6 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 			else {
 				startingmoneyperyear[ k ].interpol = false;
 			}
-			//			printf("smpy[%d] year=%d money=%lld\n",k,startingmoneyperyear[k].year,startingmoneyperyear[k].money);
 			j++;
 		}
 		else {
@@ -1569,8 +1568,6 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	if(  *contents.get("soundfont_filename")  ) {
 		env_t::soundfont_filename = ltrim(contents.get("soundfont_filename"));
 	}
-
-	printf("Reading simuconf.tab successful!\n" );
 }
 
 // colour stuff can only be parsed when the graphic system has already started

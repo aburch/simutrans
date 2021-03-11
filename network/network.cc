@@ -457,7 +457,7 @@ bool network_init_server( int port )
 		dbg->fatal( "network_init_server()", "Unable to add any server sockets!" );
 	}
 	else {
-		printf("Server started, added %d server sockets\n", socket_list_t::get_server_sockets());
+		dbg->message("network_init_server", "Server started, added %d server sockets", socket_list_t::get_server_sockets());
 	}
 
 #endif

@@ -439,7 +439,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 {
 	ground_desc_t::world = world;
 
-	printf("Calculating textures ...");
+	DBG_DEBUG("ground_desc_t::init_ground_textures()", "Calculating ground textures ...");
 
 	// free old ones
 	if(image_offset!=IMG_EMPTY) {
@@ -916,7 +916,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 	}
 #endif
 	//dbg->message("ground_desc_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->imageid);
-	printf("done\n");
+	DBG_DEBUG("ground_desc_t::init_ground_textures()", "Init ground textures successful");
 }
 
 

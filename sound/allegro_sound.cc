@@ -6,11 +6,12 @@
 #include <allegro.h>
 #include <stdio.h>
 #include "sound.h"
+#include "../simdebug.h"
 
 // #define DIGMID_SUPPORT   // for Simutrans to work with DIGMID, define this
 
 
-static int sound_ok = 0;
+static bool sound_ok = false;
 
 static int sample_number = 0;
 static SAMPLE * sound_samples[1024];
@@ -27,24 +28,23 @@ bool dr_init_sound()
 	if(sound_ok) {
 		return sound_ok; // already initialized
 	}
-	int voices = detect_digi_driver(DIGI_AUTODETECT);
+
+	const int voices = detect_digi_driver(DIGI_AUTODETECT);
 
 	if(voices > 0) {
-		int ok;
-
 		// assume: all ok, override on error
-		sound_ok = 1;
+		sound_ok = true;
 
-		fprintf(stderr, "Message: %d voices available\n", voices);
+		dbg->message("dr_init_sound(allegro)", "%d voices available", voices);
 
 #ifndef DIGMID_SUPPORT
 		reserve_voices(MIN(voices,4), 0);
 #endif
 
-		ok = install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL); /***** OCR *****/
+		const int ok = install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL); /***** OCR *****/
 		if(ok == -1) {
-			fprintf(stderr, "Error: %s\n", allegro_error);
-			sound_ok = 0;
+			dbg->warning("dr_init_sound(allegro)", "Failed to install_sound: %s", allegro_error);
+			sound_ok = false;
 		}
 
 		voice[0] = -1;
@@ -53,10 +53,12 @@ bool dr_init_sound()
 		voice[3] = -1;
 
 		set_volume(255, 128);
-	} else {
-		fprintf(stderr, "Warning: No sound available!\n");
-		sound_ok = 0;
 	}
+	else {
+		dbg->warning("dr_init_sound(allegro)", "No sound available!");
+		sound_ok = false;
+	}
+
 	return sound_ok;
 }
 
