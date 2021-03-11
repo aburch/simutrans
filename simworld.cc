@@ -4788,139 +4788,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 
 	file->set_buffered(true);
 
-	// do not set value for empty player
-	uint8 old_players[MAX_PLAYER_COUNT];
-	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		old_players[i] = settings.get_player_type(i);
-		if(  players[i]==NULL  ) {
-			settings.set_player_type(i, player_t::EMPTY);
-		}
-	}
-
-	settings.rdwr(file);
-
-	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		settings.set_player_type(i, old_players[i]);
-	}
-
-	if (file->is_version_atleast(122, 1)) {
-		simrand_rdwr(file);
-	}
-
-	file->rdwr_long(ticks);
-	file->rdwr_long(last_month);
-	file->rdwr_long(last_year);
-
-	// rdwr satic states
-	senke_t::static_rdwr(file);
-
-	// rdwr cityrules for networkgames
-	if(file->is_version_atleast(102, 3)) {
-		bool do_rdwr = env_t::networkmode;
-		file->rdwr_bool(do_rdwr);
-		if (do_rdwr) {
-			stadt_t::cityrules_rdwr(file);
-			if(file->is_version_atleast(102, 4)) {
-				vehicle_builder_t::rdwr_speedbonus(file);
-			}
-		}
-	}
-
-	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->rdwr(file);
-		if(silent) {
-			INT_CHECK("saving");
-		}
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved cities ok");
-
-	for(int j=0; j<get_size().y; j++) {
-		for(int i=0; i<get_size().x; i++) {
-			plan[i+j*cached_grid_size.x].rdwr(file, koord(i,j) );
-		}
-		if(silent) {
-			INT_CHECK("saving");
-		}
-		else {
-			ls->set_progress(j);
-		}
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved tiles");
-
-	if(  file->is_version_less(102, 2)  ) {
-		// not needed any more
-		for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
-			file->rdwr_byte(grid_hgts[j]);
-		}
-	DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved hgt");
-	}
-
-	// save default climate amp
-	if(  file->is_version_atleast( 121, 1 )  ) {
-		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
-			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
-				file->rdwr_byte( climate_map.at(x,y) );
-			}
-		}
-	}
-	DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved default climates");
-
-	sint32 fabs = fab_list.get_count();
-	file->rdwr_long(fabs);
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
-		f->rdwr(file);
-		if(silent) {
-			INT_CHECK("saving");
-		}
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved fabs");
-
-	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
-	file->rdwr_long(haltcount);
-	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
-		s->rdwr(file);
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
-
-	// save number of convois
-	if(  file->is_version_atleast(101, 0)  ) {
-		uint16 i=convoi_array.get_count();
-		file->rdwr_short(i);
-	}
-	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
-		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
-		cnv->rdwr(file);
-	}
-	if(  file->is_version_less(101, 0)  ) {
-		file->wr_obj_id("Ende Convois");
-	}
-	if(silent) {
-		INT_CHECK("saving");
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
-
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-// **** REMOVE IF SOON! *********
-		if(file->is_version_less(101, 0)) {
-			if(  i<8  ) {
-				if(  players[i]  ) {
-					players[i]->rdwr(file);
-				}
-				else {
-					// simulate old ones ...
-					player_t *player = new player_t( i );
-					player->rdwr(file);
-					delete player;
-				}
-			}
-		}
-		else {
-			if(  players[i]  ) {
-				players[i]->rdwr(file);
-			}
-		}
-	}
-DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved players");
+	rdwr_gamestate(file, ls);
 
 	// saving messages
 	if(  file->is_version_atleast(102, 5)  ) {
@@ -5342,8 +5210,6 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 
 void karte_t::load(loadsave_t *file)
 {
-	char buf[80];
-
 	intr_disable();
 	dbg->message("karte_t::load()", "Prepare for loading" );
 
@@ -5363,358 +5229,12 @@ void karte_t::load(loadsave_t *file)
 	tile_counter = 0;
 	simloops = 60;
 
-	// zum laden vorbereiten -> tabelle loeschen
-	powernet_t::new_world();
-	pumpe_t::new_world();
-	senke_t::new_world();
-	script_api::new_world();
-
 	file->set_buffered(true);
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::load", "Fileversion: %u", file->get_version_int());
-	settings = env_t::default_settings;
-	settings.rdwr(file);
 
-	loaded_rotation = settings.get_rotation();
-
-	// some functions (finish_rd) need to know what version was loaded
-	load_version = file->get_version_int();
-
-	if (file->is_version_atleast(122, 1)) {
-		// rdwr the entire RNG sate
-		simrand_rdwr(file);
-	}
-
-	if(  env_t::networkmode  ) {
-		// To have games synchronized, transfer random counter too
-		// Superseded by simrand_rdwr in newer versions
-		if (file->is_version_less(122, 1)) {
-			setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
-		}
-
-		translator::init_custom_names(settings.get_name_language_id());
-	}
-
-	if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-		if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
-			// not locked => eventually switch off timeline settings, if explicitly stated
-			settings.set_use_timeline(env_t::default_settings.get_use_timeline());
-			DBG_DEBUG("karte_t::load", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
-		}
-	}
-	if (settings.get_beginner_mode()) {
-		goods_manager_t::set_multiplier(settings.get_beginner_price_factor());
-	}
-	else {
-		goods_manager_t::set_multiplier( 1000 );
-	}
-
-	world_maximum_height = settings.get_maximumheight();
-	world_minimum_height = settings.get_minimumheight();
-
-	groundwater = (sint8)(settings.get_groundwater());
-	min_height = max_height = groundwater;
-	DBG_DEBUG("karte_t::load()","groundwater %i",groundwater);
-
-	if(  file->is_version_less(112, 7)  ) {
-		// r7930 fixed a bug in init_height_to_climate
-		// recover old behavior to not mix up climate when loading old savegames
-		groundwater = settings.get_climate_borders(0,0);
-		init_height_to_climate();
-		groundwater = settings.get_groundwater();
-	}
-	else {
-		init_height_to_climate();
-	}
-
-	// just an initialisation for the loading
-	season = (2+last_month/3)&3; // summer always zero
-	snowline = settings.get_winter_snowline() + groundwater;
-
-	DBG_DEBUG("karte_t::load", "settings loaded (size %i,%i) timeline=%i beginner=%i", settings.get_size_x(), settings.get_size_y(), settings.get_use_timeline(), settings.get_beginner_mode());
-
-	// wird gecached, um den Pointerzugriff zu sparen, da
-	// die size _sehr_ oft referenziert wird
-	cached_grid_size.x = settings.get_size_x();
-	cached_grid_size.y = settings.get_size_y();
-	cached_size_max = max(cached_grid_size.x,cached_grid_size.y);
-	cached_size.x = cached_grid_size.x-1;
-	cached_size.y = cached_grid_size.y-1;
-	viewport->set_x_off(0);
-	viewport->set_y_off(0);
-
-	// Update minimap for new world
-	minimap_t::get_instance()->init();
-
-	ls.set_max( get_size().y*2+256 );
-	init_tiles();
-
-
-	// reinit pointer with new pointer object and old values
-	zeiger = new zeiger_t(koord3d::invalid, NULL );
-
-	hausbauer_t::new_world();
-	factory_builder_t::new_world();
-
-DBG_DEBUG("karte_t::load", "init felder ok");
-
-	file->rdwr_long(ticks);
-	file->rdwr_long(last_month);
-	file->rdwr_long(last_year);
-	if(file->is_version_less(86, 6)) {
-		last_year += env_t::default_settings.get_starting_year();
-	}
-	// old game might have wrong month
-	last_month %= 12;
-	// set the current month count
-	set_ticks_per_world_month_shift(settings.get_bits_per_month());
-	current_month = last_month + (last_year*12);
-	season = (2+last_month/3)&3; // summer always zero
-	next_month_ticks = ( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
-	last_step_ticks = ticks;
-	steps = 0;
-	network_frame_count = 0;
-	sync_steps = 0;
-	sync_steps_barrier = sync_steps;
-	step_mode = PAUSE_FLAG;
-
-DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
-	recalc_average_speed(); // resets timeline
-	koord::locality_factor = settings.get_locality_factor( last_year ); // resets weight factor
-	// recalc_average_speed may have opened message windows
-	destroy_all_win(true);
-
-DBG_MESSAGE("karte_t::load()", "init player");
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  file->is_version_atleast(101, 0)  ) {
-			// since we have different kind of AIs
-			delete players[i];
-			players[i] = NULL;
-			init_new_player(i, settings.player_type[i]);
-		}
-		else if(i<8) {
-			// get the old player ...
-			if(  players[i]==NULL  ) {
-				init_new_player( i, (i==3) ? player_t::AI_PASSENGER : player_t::AI_GOODS );
-			}
-			settings.player_type[i] = players[i]->get_ai_id();
-		}
-	}
-	// so far, player 1 will be active (may change in future)
-	active_player = players[0];
-	active_player_nr = 0;
-
-	// rdwr static states
-	senke_t::static_rdwr(file);
-
-	// rdwr cityrules, speedbonus for networkgames
-	if(file->is_version_atleast(102, 3)) {
-		bool do_rdwr = env_t::networkmode;
-		file->rdwr_bool(do_rdwr);
-		if (do_rdwr) {
-			stadt_t::cityrules_rdwr(file);
-			if(file->is_version_atleast(102, 4)) {
-				vehicle_builder_t::rdwr_speedbonus(file);
-			}
-		}
-	}
-	DBG_DEBUG("karte_t::load", "init %i cities", settings.get_city_count());
-	stadt.clear();
-	stadt.resize(settings.get_city_count());
-	for (int i = 0; i < settings.get_city_count(); ++i) {
-		stadt_t *s = new stadt_t(file);
-		stadt.append( s, s->get_einwohner());
-	}
-
-	DBG_MESSAGE("karte_t::load()","loading blocks");
-	old_blockmanager_t::rdwr(this, file);
-
-	DBG_MESSAGE("karte_t::load()","loading tiles");
-	for (int y = 0; y < get_size().y; y++) {
-		for (int x = 0; x < get_size().x; x++) {
-			plan[x+y*cached_grid_size.x].rdwr(file, koord(x,y) );
-		}
-		if(file->is_eof()) {
-			dbg->fatal("karte_t::load()","Savegame file mangled (too short)!");
-		}
-		ls.set_progress( y/2 );
-	}
-
-	if(file->is_version_less(99, 5)) {
-		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
-		for (int y = 0; y <= get_size().y; y++) {
-			for (int x = 0; x <= get_size().x; x++) {
-				sint32 hgt;
-				file->rdwr_long(hgt);
-				// old height step was 16!
-				set_grid_hgt(x, y, hgt/16 );
-			}
-		}
-	}
-	else if(  file->is_version_less(102, 2)  )  {
-		// hgt now bytes
-		DBG_MESSAGE("karte_t::load()","loading grid for older versions");
-		for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
-			file->rdwr_byte(grid_hgts[i]);
-		}
-	}
-
-	if(file->is_version_less(88, 9)) {
-		DBG_MESSAGE("karte_t::load()","loading slopes from older version");
-		// load slopes for older versions
-		// now part of the grund_t structure
-		for (int y = 0; y < get_size().y; y++) {
-			for (int x = 0; x < get_size().x; x++) {
-				sint8 slope;
-				file->rdwr_byte(slope);
-				// convert slopes from old single height saved game
-				slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
-				access_nocheck(x, y)->get_kartenboden()->set_grund_hang(slope);
-			}
-		}
-	}
-
-	if(file->is_version_less(88, 1)) {
-		// because from 88.01.4 on the foundations are handled differently
-		for (int y = 0; y < get_size().y; y++) {
-			for (int x = 0; x < get_size().x; x++) {
-				koord k(x,y);
-				grund_t *gr = access_nocheck(x, y)->get_kartenboden();
-				if(  gr->get_typ()==grund_t::fundament  ) {
-					gr->set_hoehe( max_hgt_nocheck(k) );
-					gr->set_grund_hang( slope_t::flat );
-					// transfer object to on new grund
-					for(  int i=0;  i<gr->get_top();  i++  ) {
-						gr->obj_bei(i)->set_pos( gr->get_pos() );
-					}
-				}
-			}
-		}
-	}
-
-	// init climates and default climate map
-	DBG_MESSAGE("karte_t::load()", "init climates");
-	climate_map.resize( get_size().x, get_size().y );
-	if(  file->is_version_atleast( 121, 1 )  ) {
-		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
-			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
-				file->rdwr_byte( climate_map.at(x,y) );
-			}
-		}
-	}
-	else if(  file->is_version_less(112, 7)  ) {
-		// distribute climates
-		calc_climate_map_region(0,0,get_size().x,get_size().y);
-	}
-	else {
-		for(  sint16 y = 0;  y < get_size().y;  y++  ) {
-			for(  sint16 x = 0;  x < get_size().x;  x++  ) {
-				climate_map.at(x,y) = access(x,y)->get_climate();
-				if( climate_map.at( x, y ) > arctic_climate ) {
-					dbg->warning( "karte_t::load()", "Wrong climate %i at (%i%i) set to temperate", climate_map.at( x, y ), x, y );
-					climate_map.at( x, y ) = temperate_climate;
-				}
-			}
-		}
-	}
-
-	// Update minimap for new world
-	DBG_MESSAGE("karte_t::load()", "init minimap");
-	win_set_world( this );
-	minimap_t::get_instance()->init();
-
-	// load factories
-	sint32 fabs;
-	file->rdwr_long(fabs);
-	DBG_MESSAGE("karte_t::load()", "prepare for %i factories", fabs);
-
-	for(sint32 i = 0; i < fabs; i++) {
-		// list in gleicher reihenfolge wie vor dem speichern wieder aufbauen
-		fabrik_t *fab = new fabrik_t(file);
-		if(fab->get_desc()) {
-			fab_list.append( fab );
-		}
-		else {
-			dbg->error("karte_t::load()","Unknown factory skipped!");
-			delete fab;
-		}
-		if(i&7) {
-			ls.set_progress( get_size().y/2+(128*i)/fabs );
-		}
-	}
-
-	// load linemanagement status (and lines)
-	if (file->is_version_atleast(82, 4)  &&  file->is_version_less(88, 3)) {
-		DBG_MESSAGE("karte_t::load()", "load linemanagement");
-		get_player(0)->simlinemgmt.rdwr(file, get_player(0));
-	}
-	// end load linemanagement
-
-	DBG_MESSAGE("karte_t::load()", "load stops");
-	// now load the stops
-	// (the players will be load later and overwrite some values,
-	//  like the total number of stops build (for the numbered station feature)
-	haltestelle_t::start_load_game();
-	if(file->is_version_atleast(99, 8)) {
-		sint32 halt_count;
-		file->rdwr_long(halt_count);
-		DBG_MESSAGE("karte_t::load()","%d halts loaded",halt_count);
-		for(int i=0; i<halt_count; i++) {
-			halthandle_t halt = haltestelle_t::create( file );
-			if(!halt->existiert_in_welt()) {
-				dbg->warning("karte_t::load()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
-			}
-			ls.set_progress( get_size().y/2+128+(get_size().y*i)/(2*halt_count) );
-		}
-	}
-
-	DBG_MESSAGE("karte_t::load()", "load convois");
-	uint16 convoi_nr = 65535;
-	uint16 max_convoi = 65535;
-	if(  file->is_version_atleast(101, 0)  ) {
-		file->rdwr_short(convoi_nr);
-		max_convoi = convoi_nr;
-	}
-	while(  convoi_nr-->0  ) {
-
-		if(  file->is_version_less(101, 0)  ) {
-			file->rd_obj_id(buf, 79);
-			if (strcmp(buf, "Ende Convois") == 0) {
-				break;
-			}
-		}
-		convoi_t *cnv = new convoi_t(file);
-		convoi_array.append(cnv->self);
-
-		if(cnv->in_depot()) {
-			grund_t * gr = lookup(cnv->get_pos());
-			depot_t *dep = gr ? gr->get_depot() : 0;
-			if(dep) {
-				cnv->betrete_depot(dep);
-			}
-			else {
-				dbg->error("karte_t::load()", "no depot for convoi, blocks may now be wrongly reserved!");
-				cnv->destroy();
-			}
-		}
-		else {
-			sync.add( cnv );
-		}
-		if(  (convoi_array.get_count()&7) == 0  ) {
-			ls.set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
-		}
-	}
-DBG_MESSAGE("karte_t::load()", "%d convois/trains loaded", convoi_array.get_count());
-
-	// now the player can be loaded
-	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  players[i]  ) {
-			players[i]->rdwr(file);
-		}
-		ls.set_progress( (get_size().y*3)/2+128+8*i );
-	}
-DBG_MESSAGE("karte_t::load()", "players loaded");
+	rdwr_gamestate(file, &ls);
 
 	// loading messages
 	if(  file->is_version_atleast(102, 5)  ) {
@@ -5840,7 +5360,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		haltestelle_t::step_all();
 	} while (  haltestelle_t::get_rerouting_status()==RECONNECTING  );
 #ifdef DEBUG
-	dbg->message("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
+	dbg->message("karte_t::load()", "for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
 #if 0
@@ -5928,6 +5448,522 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL );
 
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
+}
+
+
+void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
+{
+	uint8 old_players[MAX_PLAYER_COUNT];
+
+	if (file->is_loading()) {
+		// zum laden vorbereiten -> tabelle loeschen
+		powernet_t::new_world();
+		pumpe_t::new_world();
+		senke_t::new_world();
+		script_api::new_world();
+
+		settings = env_t::default_settings;
+	}
+	else {
+		// do not set value for empty player
+
+		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			old_players[i] = settings.get_player_type(i);
+			if(  players[i]==NULL  ) {
+				settings.set_player_type(i, player_t::EMPTY);
+			}
+		}
+	}
+
+	settings.rdwr(file);
+
+	if (file->is_loading()) {
+		// some functions (finish_rd) need to know what version was loaded
+		load_version = file->get_version_int();
+		loaded_rotation = settings.get_rotation();
+	}
+	else {
+		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			settings.set_player_type(i, old_players[i]);
+		}
+	}
+
+	if (file->is_version_atleast(122, 1)) {
+		// rdwr the entire RNG sate
+		simrand_rdwr(file);
+	}
+
+	if (file->is_loading()) {
+		if(  env_t::networkmode  ) {
+			// To have games synchronized, transfer random counter too
+			// Superseded by simrand_rdwr in newer versions
+			if (file->is_version_less(122, 1)) {
+				setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
+			}
+
+			translator::init_custom_names(settings.get_name_language_id());
+		}
+
+		if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
+			if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
+				// not locked => eventually switch off timeline settings, if explicitly stated
+				settings.set_use_timeline(env_t::default_settings.get_use_timeline());
+				DBG_DEBUG("karte_t::rdwr_gamestate()", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
+			}
+		}
+		if (settings.get_beginner_mode()) {
+			goods_manager_t::set_multiplier(settings.get_beginner_price_factor());
+		}
+		else {
+			goods_manager_t::set_multiplier( 1000 );
+		}
+
+		world_maximum_height = settings.get_maximumheight();
+		world_minimum_height = settings.get_minimumheight();
+
+		groundwater = (sint8)(settings.get_groundwater());
+		min_height = max_height = groundwater;
+		DBG_DEBUG("karte_t::rdwr_gamestate()","groundwater %i",groundwater);
+
+		if(  file->is_version_less(112, 7)  ) {
+			// r7930 fixed a bug in init_height_to_climate
+			// recover old behavior to not mix up climate when loading old savegames
+			groundwater = settings.get_climate_borders(0,0);
+			init_height_to_climate();
+			groundwater = settings.get_groundwater();
+		}
+		else {
+			init_height_to_climate();
+		}
+
+		// just an initialisation for the loading
+		season = (2+last_month/3)&3; // summer always zero
+		snowline = settings.get_winter_snowline() + groundwater;
+
+		DBG_DEBUG("karte_t::rdwr_gamestate()", "settings loaded (size %i,%i) timeline=%i beginner=%i", settings.get_size_x(), settings.get_size_y(), settings.get_use_timeline(), settings.get_beginner_mode());
+
+		// wird gecached, um den Pointerzugriff zu sparen, da
+		// die size _sehr_ oft referenziert wird
+		cached_grid_size.x = settings.get_size_x();
+		cached_grid_size.y = settings.get_size_y();
+		cached_size_max = max(cached_grid_size.x,cached_grid_size.y);
+		cached_size.x = cached_grid_size.x-1;
+		cached_size.y = cached_grid_size.y-1;
+		viewport->set_x_off(0);
+		viewport->set_y_off(0);
+
+		// Update minimap for new world
+		minimap_t::get_instance()->init();
+
+		ls->set_max( get_size().y*2+256 );
+		init_tiles();
+
+		// reinit pointer with new pointer object and old values
+		zeiger = new zeiger_t(koord3d::invalid, NULL );
+
+		hausbauer_t::new_world();
+		factory_builder_t::new_world();
+
+	DBG_DEBUG("karte_t::rdwr_gamestate()", "init felder ok");
+	}
+
+	file->rdwr_long(ticks);
+	file->rdwr_long(last_month);
+	file->rdwr_long(last_year);
+
+	if (file->is_loading()) {
+		if(file->is_version_less(86, 6)) {
+			last_year += env_t::default_settings.get_starting_year();
+		}
+		// old game might have wrong month
+		last_month %= 12;
+		// set the current month count
+		set_ticks_per_world_month_shift(settings.get_bits_per_month());
+		current_month = last_month + (last_year*12);
+		season = (2+last_month/3)&3; // summer always zero
+		next_month_ticks = ( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
+		last_step_ticks = ticks;
+		steps = 0;
+		network_frame_count = 0;
+		sync_steps = 0;
+		sync_steps_barrier = sync_steps;
+		step_mode = PAUSE_FLAG;
+
+	DBG_MESSAGE("karte_t::rdwr_gamestate()","savegame loading at tick count %i",ticks);
+		recalc_average_speed(); // resets timeline
+		koord::locality_factor = settings.get_locality_factor( last_year ); // resets weight factor
+		// recalc_average_speed may have opened message windows
+		destroy_all_win(true);
+
+	DBG_MESSAGE("karte_t::rdwr_gamestate()", "init player");
+		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+			if(  file->is_version_atleast(101, 0)  ) {
+				// since we have different kind of AIs
+				delete players[i];
+				players[i] = NULL;
+				init_new_player(i, settings.player_type[i]);
+			}
+			else if(i<8) {
+				// get the old player ...
+				if(  players[i]==NULL  ) {
+					init_new_player( i, (i==3) ? player_t::AI_PASSENGER : player_t::AI_GOODS );
+				}
+				settings.player_type[i] = players[i]->get_ai_id();
+			}
+		}
+		// so far, player 1 will be active (may change in future)
+		active_player = players[0];
+		active_player_nr = 0;
+	}
+
+	// rdwr static states
+	senke_t::static_rdwr(file);
+
+	// rdwr cityrules, speedbonus for network games
+	if(file->is_version_atleast(102, 3)) {
+		bool do_rdwr = env_t::networkmode;
+		file->rdwr_bool(do_rdwr);
+		if (do_rdwr) {
+			stadt_t::cityrules_rdwr(file);
+			if(file->is_version_atleast(102, 4)) {
+				vehicle_builder_t::rdwr_speedbonus(file);
+			}
+		}
+	}
+
+	// rdwr cities
+	if (file->is_loading()) {
+		DBG_DEBUG("karte_t::rdwr_gamestate()", "init %i cities", settings.get_city_count());
+		stadt.clear();
+		stadt.resize(settings.get_city_count());
+		for (int i = 0; i < settings.get_city_count(); ++i) {
+			stadt_t *s = new stadt_t(file);
+			stadt.append( s, s->get_einwohner());
+		}
+	}
+	else {
+		FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+			i->rdwr(file);
+			if(!ls) {
+				INT_CHECK("saving");
+			}
+		}
+
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved cities ok");
+	}
+
+	// import rail blocks from old saves
+	if (file->is_loading()) {
+		DBG_MESSAGE("karte_t::rdwr_gamestate()","loading blocks");
+		old_blockmanager_t::rdwr(this, file);
+	}
+
+	// rdwr tiles
+	if (file->is_loading()) {
+		DBG_MESSAGE("karte_t::rdwr_gamestate()","loading tiles");
+
+		for (int y = 0; y < get_size().y; y++) {
+			for (int x = 0; x < get_size().x; x++) {
+				plan[x+y*cached_grid_size.x].rdwr(file, koord(x,y) );
+			}
+			if(file->is_eof()) {
+				dbg->fatal("karte_t::rdwr_gamestate()","Savegame file mangled (too short)!");
+			}
+			ls->set_progress( y/2 );
+		}
+	}
+	else {
+		for(int j=0; j<get_size().y; j++) {
+			for(int i=0; i<get_size().x; i++) {
+				plan[i+j*cached_grid_size.x].rdwr(file, koord(i,j) );
+			}
+			if(!ls) {
+				INT_CHECK("saving");
+			}
+			else {
+				ls->set_progress(j);
+			}
+		}
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved tiles");
+	}
+
+	// rdwr terrain
+	if (file->is_loading()) {
+		if(file->is_version_less(99, 5)) {
+			DBG_MESSAGE("karte_t::rdwr_gamestate()","loading grid for older versions");
+			for (int y = 0; y <= get_size().y; y++) {
+				for (int x = 0; x <= get_size().x; x++) {
+					sint32 hgt;
+					file->rdwr_long(hgt);
+					// old height step was 16!
+					set_grid_hgt(x, y, hgt/16 );
+				}
+			}
+		}
+		else if(  file->is_version_less(102, 2)  )  {
+			// hgt now bytes
+			DBG_MESSAGE("karte_t::rdwr_gamestate()","loading grid for older versions");
+			for( sint32 i=0;  i<(get_size().y+1)*(sint32)(get_size().x+1);  i++  ) {
+				file->rdwr_byte(grid_hgts[i]);
+			}
+		}
+
+		if(file->is_version_less(88, 9)) {
+			DBG_MESSAGE("karte_t::rdwr_gamestate()","loading slopes from older version");
+			// load slopes for older versions
+			// now part of the grund_t structure
+			for (int y = 0; y < get_size().y; y++) {
+				for (int x = 0; x < get_size().x; x++) {
+					sint8 slope;
+					file->rdwr_byte(slope);
+					// convert slopes from old single height saved game
+					slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
+					access_nocheck(x, y)->get_kartenboden()->set_grund_hang(slope);
+				}
+			}
+		}
+
+		if(file->is_version_less(88, 1)) {
+			// because from 88.01.4 on the foundations are handled differently
+			for (int y = 0; y < get_size().y; y++) {
+				for (int x = 0; x < get_size().x; x++) {
+					koord k(x,y);
+					grund_t *gr = access_nocheck(x, y)->get_kartenboden();
+					if(  gr->get_typ()==grund_t::fundament  ) {
+						gr->set_hoehe( max_hgt_nocheck(k) );
+						gr->set_grund_hang( slope_t::flat );
+						// transfer object to on new grund
+						for(  int i=0;  i<gr->get_top();  i++  ) {
+							gr->obj_bei(i)->set_pos( gr->get_pos() );
+						}
+					}
+				}
+			}
+		}
+	}
+	else {
+		if(  file->is_version_less(102, 2)  ) {
+			// not needed any more
+			for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
+				file->rdwr_byte(grid_hgts[j]);
+			}
+			DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved hgt");
+		}
+	}
+
+	// rdwr climate map
+	if (file->is_loading()) {
+		// init climates and default climate map
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "init climates");
+		climate_map.resize( get_size().x, get_size().y );
+		if(  file->is_version_atleast( 121, 1 )  ) {
+			for(  sint16 y = 0;  y < get_size().y;  y++  ) {
+				for(  sint16 x = 0;  x < get_size().x;  x++  ) {
+					file->rdwr_byte( climate_map.at(x,y) );
+				}
+			}
+		}
+		else if(  file->is_version_less(112, 7)  ) {
+			// distribute climates
+			calc_climate_map_region(0,0,get_size().x,get_size().y);
+		}
+		else {
+			for(  sint16 y = 0;  y < get_size().y;  y++  ) {
+				for(  sint16 x = 0;  x < get_size().x;  x++  ) {
+					climate_map.at(x,y) = access(x,y)->get_climate();
+					if( climate_map.at( x, y ) > arctic_climate ) {
+						dbg->warning( "karte_t::rdwr_gamestate()", "Wrong climate %i at (%i%i) set to temperate", climate_map.at( x, y ), x, y );
+						climate_map.at( x, y ) = temperate_climate;
+					}
+				}
+			}
+		}
+	}
+	else {
+		// save default climate amp
+		if(  file->is_version_atleast( 121, 1 )  ) {
+			for(  sint16 y = 0;  y < get_size().y;  y++  ) {
+				for(  sint16 x = 0;  x < get_size().x;  x++  ) {
+					file->rdwr_byte( climate_map.at(x,y) );
+				}
+			}
+		}
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved default climates");
+	}
+
+	if (file->is_loading()) {
+		// Update minimap for new world
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "init minimap");
+		win_set_world( this );
+		minimap_t::get_instance()->init();
+	}
+
+	// rdwr factories
+	if (file->is_loading()) {
+		// load factories
+		sint32 fabs;
+		file->rdwr_long(fabs);
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "Prepare for %i factories", fabs);
+
+		for(sint32 i = 0; i < fabs; i++) {
+			// list in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+			fabrik_t *fab = new fabrik_t(file);
+			if(fab->get_desc()) {
+				fab_list.append( fab );
+			}
+			else {
+				dbg->error("karte_t::rdwr_gamestate()","Unknown factory skipped!");
+				delete fab;
+			}
+			if(i&7) {
+				ls->set_progress( get_size().y/2+(128*i)/fabs );
+			}
+		}
+	}
+	else {
+		sint32 fabs = fab_list.get_count();
+		file->rdwr_long(fabs);
+		FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+			f->rdwr(file);
+			if(!ls) {
+				INT_CHECK("saving");
+			}
+		}
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved fabs");
+	}
+
+	// import line management from old saves
+	if (file->is_loading()) {
+		// load linemanagement status (and lines)
+		if (file->is_version_atleast(82, 4)  &&  file->is_version_less(88, 3)) {
+			DBG_MESSAGE("karte_t::rdwr_gamestate()", "load linemanagement");
+			get_player(0)->simlinemgmt.rdwr(file, get_player(0));
+		}
+		// end load linemanagement
+	}
+
+	// rdwr stops
+	if (file->is_loading()) {
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "load stops");
+		// now load the stops
+		// (the players will be load later and overwrite some values,
+		//  like the total number of stops build (for the numbered station feature)
+		haltestelle_t::start_load_game();
+		if(file->is_version_atleast(99, 8)) {
+			sint32 halt_count;
+			file->rdwr_long(halt_count);
+			DBG_MESSAGE("karte_t::rdwr_gamestate()","%d halts loaded",halt_count);
+			for(int i=0; i<halt_count; i++) {
+				halthandle_t halt = haltestelle_t::create( file );
+				if(!halt->existiert_in_welt()) {
+					dbg->warning("karte_t::rdwr_gamestate()", "could not restore stop near %i,%i", halt->get_init_pos().x, halt->get_init_pos().y );
+				}
+				ls->set_progress( get_size().y/2+128+(get_size().y*i)/(2*halt_count) );
+			}
+		}
+	}
+	else {
+		sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
+		file->rdwr_long(haltcount);
+		FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
+			s->rdwr(file);
+		}
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved stops");
+	}
+
+	// rdwr convois
+	if (file->is_loading()) {
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "load convois");
+		uint16 convoi_nr = 65535;
+		uint16 max_convoi = 65535;
+		if(  file->is_version_atleast(101, 0)  ) {
+			file->rdwr_short(convoi_nr);
+			max_convoi = convoi_nr;
+		}
+
+		char buf[80];
+		while(  convoi_nr-->0  ) {
+			if(  file->is_version_less(101, 0)  ) {
+				file->rd_obj_id(buf, 79);
+				if (strcmp(buf, "Ende Convois") == 0) {
+					break;
+				}
+			}
+			convoi_t *cnv = new convoi_t(file);
+			convoi_array.append(cnv->self);
+
+			if(cnv->in_depot()) {
+				grund_t * gr = lookup(cnv->get_pos());
+				depot_t *dep = gr ? gr->get_depot() : 0;
+				if(dep) {
+					cnv->betrete_depot(dep);
+				}
+				else {
+					dbg->error("karte_t::rdwr_gamestate()", "no depot for convoi, blocks may now be wrongly reserved!");
+					cnv->destroy();
+				}
+			}
+			else {
+				sync.add( cnv );
+			}
+			if(  (convoi_array.get_count()&7) == 0  ) {
+				ls->set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );
+			}
+		}
+	DBG_MESSAGE("karte_t::rdwr_gamestate()", "%d convois/trains loaded", convoi_array.get_count());
+	}
+	else {
+		// save number of convois
+		if(  file->is_version_atleast(101, 0)  ) {
+			uint16 i=convoi_array.get_count();
+			file->rdwr_short(i);
+		}
+		FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
+			// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
+			cnv->rdwr(file);
+		}
+		if(  file->is_version_less(101, 0)  ) {
+			file->wr_obj_id("Ende Convois");
+		}
+		if(!ls) {
+			INT_CHECK("saving");
+		}
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved %i convois",convoi_array.get_count());
+	}
+
+	// rdwr players
+	if (file->is_loading()) {
+		// now the player can be loaded
+		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+			if(  players[i]  ) {
+				players[i]->rdwr(file);
+			}
+			ls->set_progress( (get_size().y*3)/2+128+8*i );
+		}
+	DBG_MESSAGE("karte_t::rdwr_gamestate()", "players loaded");
+	}
+	else { // saving
+		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+	// **** REMOVE IF SOON! *********
+			if(file->is_version_less(101, 0)) {
+				if(  i<8  ) {
+					if(  players[i]  ) {
+						players[i]->rdwr(file);
+					}
+					else {
+						// simulate old ones ...
+						player_t *player = new player_t( i );
+						player->rdwr(file);
+						delete player;
+					}
+				}
+			}
+			else if(  players[i]  ) {
+				players[i]->rdwr(file);
+			}
+		}
+	DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved players");
+	}
 }
 
 

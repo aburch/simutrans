@@ -30,7 +30,6 @@
 #include "simdebug.h"
 
 
-
 struct sound_info;
 class stadt_t;
 class fabrik_t;
@@ -50,6 +49,7 @@ class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
+class loadingscreen_t;
 
 
 /**
@@ -643,6 +643,8 @@ private:
 	 * Internal loading method.
 	 */
 	void load(loadsave_t *file);
+
+	void rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls);
 
 	/**
 	 * Removes all objects, deletes all data structures and frees all accessible memory.
