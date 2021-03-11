@@ -116,10 +116,10 @@ public:
 	scr_coord_val w;
 	scr_coord_val h;
 
+public:
 	// Constructors
 	scr_size(  ) { w = h = 0; }
 	scr_size( scr_coord_val w_par, scr_coord_val h_par) { w = w_par; h = h_par; }
-	scr_size( const scr_size& size ) { w = size.w; h=size.h; }
 
 	operator scr_coord() const { return scr_coord(w,h); }
 
