@@ -1593,7 +1593,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 			if(  gr->is_water()  &&  gr->get_hoehe()==groundwater  &&  gr->kann_alle_obj_entfernen(NULL)==NULL) {
 				koord k( ix, iy );
 				uint8 neighbour_water = 0;
-				bool water[8];
+				bool water[8] = {};
 				// check whether nearby tiles are water
 				for(  int i = 0;  i < 8;  i++  ) {
 					if(  grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] )  ) {
@@ -1605,6 +1605,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 						water[i] = (!gr2  ||  gr2->is_water());
 					}
 				}
+
 				// make a count of nearby tiles - where tiles on opposite (+-1 direction) sides are water these count much more so we don't block straits
 				for(  int i = 0;  i < 8;  i++  ) {
 					if(  water[i]  ) {
