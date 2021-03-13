@@ -111,10 +111,10 @@ void gui_textarea_t::draw(scr_coord offset)
 				x_size = px_len;
 			}
 
-			buf = next + 1;
 			new_lines += LINESPACE;
-		} while(  next != NULL  &&  *buf!=0  );
+		} while(  next != NULL  &&  (buf = next+1, *buf!=0)  );
 	}
+
 	scr_size size( max( x_size + L_PADDING_RIGHT, get_size().w ), new_lines );
 	if(  size!=get_size()  ) {
 		set_size(size);
