@@ -60,6 +60,7 @@ public:
 server_frame_t::server_frame_t() :
 	gui_frame_t( translator::translate("Game info") ),
 	gi(welt),
+	custom_valid(false),
 	serverlist( gui_scrolled_list_t::listskin, gui_scrolled_list_t::scrollitem_t::compare ),
 	game_text(&buf)
 {
