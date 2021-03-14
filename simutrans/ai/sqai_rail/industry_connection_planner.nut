@@ -799,8 +799,8 @@ function check_factory_links(f_src, f_dest, good) {
 					gui.add_message_at(player_x(1), "--> good: " + good, world.get_time())
 				}
 
-		local fs = fsrc.get_tile_list()
-		local fd = fdest.get_tile_list()
+		local fs = f_src.get_tile_list()
+		local fd = f_dest.get_tile_list()
 
 		local print_status = 0
 

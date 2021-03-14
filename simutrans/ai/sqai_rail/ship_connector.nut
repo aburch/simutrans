@@ -49,7 +49,7 @@ class ship_connector_t extends manager_t
 		local fd = fdest.get_tile_list()
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			//gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL)
 		}
 
@@ -109,12 +109,27 @@ class ship_connector_t extends manager_t
 					local key
 					local err = null
 					{
-						key = coord3d_to_key(c_start[0])
-						if (key in c_harbour_tiles) {
-							err = build_harbour(c_harbour_tiles[key], c_start)
-						}
-					}
+						//if ( tile_x(c_start.x, c_start.y, c_start.z).is_empty() ) {
 
+						key = coord3d_to_key(c_start[0])
+
+						if (key in c_harbour_tiles) {
+							if ( c_harbour_tiles[key].get_halt() && c_harbour_tiles[key].get_halt().get_owner().nr == our_player_nr && c_harbour_tiles[key].find_object(mo_building) && c_harbour_tiles[key].find_object(mo_building).get_desc().get_type()==building_desc_x.station ) {
+								gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(c_harbour_tiles[key]) + " station exists", c_harbour_tiles[key])
+								// to do search new field
+								//c_start.clear()
+								//c_start = find_anchorage(c_harbour_tiles[key],  planned_station, planned_harbour_flat, c_harbour_tiles)
+								return r_t(RT_TOTAL_FAIL)
+							} else {
+								err = build_harbour(c_harbour_tiles[key], c_start)
+							}
+						}
+
+						/*key = coord3d_to_key(c_start[0])
+						if (key in c_harbour_tiles) {
+
+						}*/
+					}
 					// check station connection to factory or combined station
 
 
@@ -489,6 +504,7 @@ class ship_connector_t extends manager_t
 		print("Place harbour at " + coord3d_to_string(tile) + " to access " + coord3d_to_string(water) )
 
 		if ( tile.get_halt() && tile.get_halt().get_owner().nr == our_player_nr && tile.find_object(mo_building) && tile.find_object(mo_building).get_desc().get_type()==building_desc_x.station ) {
+			//
 			gui.add_message_at(our_player, "Cannot place any harbour at " + coord_to_string(tile) + " station exists", tile)
 			// to do search new field
 

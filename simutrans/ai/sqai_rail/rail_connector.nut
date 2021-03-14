@@ -47,11 +47,13 @@ class rail_connector_t extends manager_t
 		local s_dest = null
 
 		if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-			gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+			//gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
 			return r_t(RT_TOTAL_FAIL) //
 		} else {
-			gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
-			if ( !check_factory_link_line(fsrc, fdest, freight) ) {
+			//gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
+			local st_dock = search_station(c_start, wt_water, 1)
+			if ( !check_factory_link_line(fsrc, fdest, freight) && !st_dock ) {
+				//gui.add_message_at(pl, " st_dock " + st_dock, world.get_time())
 				return r_t(RT_TOTAL_FAIL)
 			}
 		}
@@ -106,11 +108,16 @@ class rail_connector_t extends manager_t
 							a -= 16
 							st_lenght += 1
 						} while(a > 0)
-						local text = planned_way
+
+						if ( !planned_way.is_available(world.get_time()) ) {
+							planned_way = find_object("way", wt_rail, planned_way.get_topspeed())
+						}
+
 						err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
 						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {
 							err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
+							gui.add_message_at(pl, "check_station " + err, t_start[0])
 							if ( err == true ) {
 								// station start ok
 								err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
@@ -125,25 +132,36 @@ class rail_connector_t extends manager_t
 										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 									} else {
 										// failed station place end
-										// remove start and end
-										tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+										local a = 0
+										for ( local i = 0; i < t_start.len(); i++ ) {
+											if ( tile_x(t_start[0].x, t_start[0].y, t_start[0].z).find_object(mo_building) != null ) {
+												a++
+											}
+										}
+
+										if ( a == 0 ) {
+											// remove start by not exists stations
+											tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+										}
+										// remove end
 										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 										return error_handler()
 									}
 								} else {
-									// remove start and end
+									// remove start
 								}
 							} else {
 								// failed station place start
 								// remove start
+								//::debug.pause()
 								remove_tile_to_empty(t_start, wt_rail, 1)
 								return error_handler()
 							}
 						} else {
-							// remove start
+							// no built way start -> remove start
 							remove_tile_to_empty(t_start, wt_rail, 1)
 						}
-						//gui.add_message_at(pl, "plan station start " + t_start[2] + " - plan station end " + t_end[0], t_start[2])
+						gui.add_message_at(pl, "plan station start " + t_start[0] + " - plan station end " + t_end[0], t_start[2])
 					}
 
 					sleep()
@@ -169,13 +187,14 @@ class rail_connector_t extends manager_t
 					// if combined station from ship
 					local cash = pl.get_current_cash()
 					local st_dock = search_station(t_start[0], wt_water, 1)
+					gui.add_message_at(our_player, "search_station(t_start[0], wt_water, 1) " + st_dock + " t_start[0] " + coord3d_to_string(t_start[0]), world.get_time())
 					if ( st_dock ) {
 						local st = halt_x.get_halt(st_dock[0], our_player)
 						if ( st ) {
 							local fl_st = st.get_factory_list()
 							if ( fl_st.len() == 0 ) {
 								cash = our_player.get_current_net_wealth()
-								//gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + our_player.get_current_net_wealth(), world.get_time())
+								gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
 							} else {
 
 							}
@@ -185,7 +204,7 @@ class rail_connector_t extends manager_t
 					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
-						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
+						gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}
 
