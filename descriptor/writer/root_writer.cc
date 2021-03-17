@@ -48,7 +48,6 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 		if (!outfp) {
 			dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
-			exit(3);
 		}
 		printf("writing file %s\n", filename);
 		write_header(outfp);
@@ -87,8 +86,8 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						outfp = fopen(name.c_str(), "wb");
 						if (!outfp) {
 							dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
-							exit(3);
 						}
+
 						printf("   writing file %s\n", name.c_str());
 						write_header(outfp);
 

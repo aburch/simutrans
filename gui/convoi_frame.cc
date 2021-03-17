@@ -333,7 +333,7 @@ void convoi_frame_t::rdwr( loadsave_t *file )
 		file->rdwr_byte( good_nr );
 		if (good_nr > 0) {
 			FOR( slist_tpl<const goods_desc_t *>, const i, *waren_filter ) {
-				char *name = (char *)i->get_name();
+				char *name = const_cast<char *>(i->get_name());
 				file->rdwr_str(name,256);
 			}
 		}
