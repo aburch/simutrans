@@ -1562,7 +1562,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	world_minimum_height = clamp(contents.get_int("world_minimum_height",world_minimum_height), -127, -12);
 
 	// Default pak file path
-	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );
+	objfilename = ltrim(contents.get_string("pak_file_path", objfilename.c_str() ) );
 
 	// FluidSynth MIDI parameters
 	if(  *contents.get("soundfont_filename")  ) {

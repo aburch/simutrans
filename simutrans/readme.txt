@@ -251,7 +251,8 @@ incompatible sound drivers. This is a problem especially in 64 bit Linux.
 -singleuser
 
 Will not search for files in your home directory. Simutrans will
-write all files in its program directory, which must not be write
+write all files in its data directory (usually the same directory
+as the directory containing the executable), which must not be write
 protected.
 
 

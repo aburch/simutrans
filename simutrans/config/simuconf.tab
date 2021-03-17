@@ -27,12 +27,12 @@
 #
 # Do not delete these comment line! (Needed for installer)
 
-# Default pak file path
-# which graphics you want to play?
+# Default pak file path - which graphics set you want to play with?
 # Nothing means automatic selection
+#
 # ATTENTION!
-# This will be only used if this file is located in the program directory at config/simuconf.tab!
-# and will be overwritten by the settings from simutrans/simuconf.tab in the user directory
+# This value will only be used if this file is located in the data directory at config/simuconf.tab
+# and will be overwritten by the settings from simutrans/simuconf.tab in the user directory.
 #
 #pak_file_path = pak/
 #pak_file_path = pak.german/
@@ -601,7 +601,7 @@ bits_per_month = 20
 
 # Set this for playing MIDI music with your preferred soundfont.
 # Need Fluidsynth support.
-# A recommended lightweight (30 MB) soundfont is PCLite: 
+# A recommended lightweight (30 MB) soundfont is PCLite:
 #   http://www.personalcopy.com/sfarkfonts1.htm
 #   https://src.fedoraproject.org/repo/pkgs/PersonalCopy-Lite-soundfont/PCLite.sf2/629732b7552c12a8fae5b046d306273a/
 # But there are many more, including greater quality ones.
