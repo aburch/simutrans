@@ -249,6 +249,13 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
 		return bt_right.infowin_event(&ev2);
 	}
+	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
+		// losing focus
+		set_value( get_text_value() );
+		// just to be sure, value may be the same
+		call_listeners(value_t(value));
+		return false;
+	}
 	else {
 		// since button have different callback ...
 		bool result = false;
@@ -322,15 +329,6 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 
 		return result;
 	}
-
-	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
-		// loosing focus ...
-		set_value( get_text_value() );
-		// just to be sure: call listener (value may be same)
-		call_listeners(value_t(value));
-	}
-
-	return false;
 }
 
 
