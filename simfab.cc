@@ -2647,10 +2647,10 @@ void fabrik_t::verteile_waren(const uint32 product)
 								if(  demand < w.max  &&  w.demand_buffer >= w.max  ) {
 									fab->inactive_demands++;
 								}
-							}
 
-							// refund successful
-							break;
+								// refund successful
+								break;
+							}
 						}
 					}
 				}
