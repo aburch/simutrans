@@ -242,7 +242,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -265,7 +265,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -287,7 +287,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -306,7 +306,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -324,7 +324,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates = (climate_bits)(decode_uint16(p) & ALL_CLIMATES);
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -341,7 +341,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = decode_uint8(p);
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -358,7 +358,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -375,7 +375,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint8(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint8(p);
 		desc->distribution_weight = decode_uint8(p);
@@ -397,7 +397,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts = decode_uint32(p);
-		desc->allowed_climates = (climate_bits)0xFFFE; // all but water
+		desc->allowed_climates = all_but_water_climate; // all but water
 		desc->enables = 0x80;
 		desc->flags = (building_desc_t::flag_t)decode_uint32(p);
 		desc->distribution_weight = 100;
