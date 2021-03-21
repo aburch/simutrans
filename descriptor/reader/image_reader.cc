@@ -134,15 +134,32 @@ adjust_image:
 		// find left border
 		uint16 left = 255;
 		uint16 *dest = desc->data;
+		uint16 *end  = desc->data + desc->len;
+
 		for( uint8 y=0;  y<desc->h;  y++  ) {
-			if(*dest<left) {
-				left = *dest;
+			if (dest >= end) {
+				delete desc;
+				return NULL;
 			}
+			left = min(left, *dest);
+
 			// skip rest of the line
 			do {
 				dest++;
+
+				if (dest >= end) {
+					delete desc;
+					return NULL;
+				}
+
 				dest += *dest + 1;
-			} while (*dest);
+
+				if (dest >= end) {
+					delete desc;
+					return NULL;
+				}
+			} while (*dest != 0);
+
 			dest++; // skip trailing zero
 		}
 
@@ -150,6 +167,7 @@ adjust_image:
 			dbg->warning( "image_reader_t::read_node()","left(%i)<x(%i) (may be intended)", left, desc->x );
 		}
 
+		/// No need to check for valid dest pointer here, the code has the same structure as above
 		dest = desc->data;
 		for( uint8 y=0;  y<desc->h;  y++  ) {
 			*dest -= left;
@@ -157,7 +175,7 @@ adjust_image:
 			do {
 				dest++;
 				dest += *dest + 1;
-			} while (*dest);
+			} while (*dest != 0);
 			dest++; // skip trailing zero
 		}
 	}
