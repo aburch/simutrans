@@ -10,6 +10,9 @@
 #include "obj_reader.h"
 
 
+class image_t;
+
+
 class image_reader_t : public obj_reader_t {
 	static image_reader_t the_instance;
 
@@ -20,6 +23,9 @@ public:
 	obj_type get_type() const OVERRIDE { return obj_image; }
 	char const* get_type_name() const OVERRIDE { return "image"; }
 	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+
+private:
+	bool image_has_valid_data(image_t *img) const;
 };
 
 #endif

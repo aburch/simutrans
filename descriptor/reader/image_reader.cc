@@ -115,6 +115,11 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 #if COLOUR_DEPTH == 0
 adjust_image:
+	if (!image_has_valid_data(desc)) {
+		delete desc;
+		return NULL;
+	}
+
 	// reset image parameters, but only for non-empty images
 	if(  desc->h > 0  ) {
 		desc->h = 1;
@@ -127,6 +132,11 @@ adjust_image:
 	}
 	desc->x = 0;
 	desc->y = 0;
+#else
+	if (!image_has_valid_data(desc)) {
+		delete desc;
+		return NULL;
+	}
 #endif
 
 	// check for left corner
@@ -217,4 +227,34 @@ adjust_image:
 	}
 
 	return desc;
+}
+
+
+#define TRANSPARENT_RUN (0x8000u)
+
+bool image_reader_t::image_has_valid_data(image_t *image_in) const
+{
+	PIXVAL *src = image_in->data;
+	PIXVAL *end = image_in->data + image_in->len;
+
+	for( int y = 0;  y < image_in->h;  ++y  ) {
+		// decode line
+		uint16 runlen = *src++;
+		do {
+			if (src >= end) {
+				return false;
+			}
+
+			runlen = *src++ & ~TRANSPARENT_RUN;
+			src += runlen;
+
+			if (src >= end) {
+				return false;
+			}
+
+			runlen = *src++;
+		} while(  runlen!=0  ); // end of row: runlen == 0
+	}
+
+	return src == end;
 }
