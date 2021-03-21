@@ -13,6 +13,7 @@
 #include "../obj_node_info.h"
 #include "tree_reader.h"
 #include "../../network/pakset_info.h"
+#include "../../tpl/array_tpl.h"
 
 
 void tree_reader_t::register_obj(obj_desc_t *&data)
@@ -34,19 +35,18 @@ bool tree_reader_t::successfully_loaded() const
 
 obj_desc_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	tree_desc_t *desc = new tree_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	tree_desc_t *desc = new tree_desc_t();
+
 	if(version==2) {
 		// Versioned node, version 2
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
