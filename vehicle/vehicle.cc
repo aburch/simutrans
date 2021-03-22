@@ -66,7 +66,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					if (!(water_wt == get_waytype()  &&  gr->is_water())) { // ships on the open sea are valid
+					if (!(water_wt == get_waytype()  &&  gr  &&  gr->is_water())) { // ships on the open sea are valid
 						pos_next = r.at(route_index + 1U);
 					}
 				}

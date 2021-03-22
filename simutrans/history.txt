@@ -21,6 +21,7 @@
 	FIX: tunnel can now also connect to sidewards tunnel (as originally intended by the code)
 	ADD: target tile for jumping to a position (via pos button, window icon or jump dialog) will be marked with the current cursor
 	FIX: Crash when height difference between climate border and groundwater is >127
+	FIX: Crash on reload after lowering canal with a ship on a nearby tile
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
