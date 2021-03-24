@@ -125,8 +125,6 @@ enum magic_numbers {
 // Holding time for auto-closing windows
 #define MESG_WAIT 80
 
-void init_map_win();
-
 // windows with a valid id can be saved and restored
 void rdwr_all_win(loadsave_t *file);
 
