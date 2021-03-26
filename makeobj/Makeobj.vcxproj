@@ -45,7 +45,8 @@
       <DisableSpecificWarnings>4250;4373;4800;4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlibstat.lib;libbz2.lib;libpng16.lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -113,7 +114,6 @@
     <ClCompile Include="..\descriptor\writer\way_writer.cc" />
     <ClCompile Include="..\descriptor\writer\way_obj_writer.cc" />
     <ClCompile Include="..\descriptor\writer\xref_writer.cc" />
-    <ClCompile Include="..\utils\dr_rdpng.cc" />
     <ClCompile Include="..\utils\log.cc" />
     <ClCompile Include="..\utils\searchfolder.cc" />
     <ClCompile Include="..\utils\simstring.cc" />
@@ -200,7 +200,6 @@
     <ClInclude Include="..\tpl\slist_tpl.h" />
     <ClInclude Include="..\tpl\vector_tpl.h" />
     <ClInclude Include="..\tpl\weighted_vector_tpl.h" />
-    <ClInclude Include="..\utils\dr_rdpng.h" />
     <ClInclude Include="..\utils\for.h" />
     <ClInclude Include="..\utils\log.h" />
     <ClInclude Include="..\utils\searchfolder.h" />
