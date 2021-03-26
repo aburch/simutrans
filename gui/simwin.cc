@@ -826,8 +826,10 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 static void process_kill_list()
 {
 	FOR(vector_tpl<simwin_t>, & i, kill_list) {
-		wins.remove(i);
-		destroy_framed_win(&i);
+		if (inside_event_handling != i.gui) {
+			wins.remove(i);
+			destroy_framed_win(&i);
+		}
 	}
 	kill_list.clear();
 }
