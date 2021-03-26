@@ -104,7 +104,7 @@ class gui_halt_detail_t : public gui_aligned_container_t
 		{
 			player_t *player = welt->get_active_player();
 			if(  player == line->get_owner()  ) {
-				player->simlinemgmt.show_lineinfo(player, line);
+				player->simlinemgmt.show_lineinfo(player, line, 3);
 			}
 			return true;
 		}

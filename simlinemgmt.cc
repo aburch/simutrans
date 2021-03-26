@@ -224,7 +224,7 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 }
 
 
-void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
+void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line, int which_tab)
 {
 	if( line.is_bound() ) {
 		gui_frame_t *line_info = win_get_magic( (ptrdiff_t)line.get_rep() );
@@ -232,7 +232,7 @@ void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
 			top_win( line_info );
 		}
 		else {
-			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+			create_win( new line_management_gui_t(line, player, which_tab), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 }

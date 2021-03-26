@@ -82,7 +82,7 @@ static const bool cost_type_money[ MAX_LINE_COST ] =
 };
 
 
-line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_ ) :
+line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_, int active_tab) :
 	gui_frame_t( translator::translate( "Fahrplan" ), player_ ),
 	scrolly_convois( gui_scrolled_list_t::windowskin ),
 	scrolly_halts( gui_scrolled_list_t::windowskin ),
@@ -159,7 +159,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	scrolly_halts.set_maximize( true );
 	container_halts.add_component(&scrolly_halts);
 
-	switch_mode.set_active_tab_index(1);
+	switch_mode.set_active_tab_index(active_tab);
 
 	if (line.is_bound() ) {
 		init();

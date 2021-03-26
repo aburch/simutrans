@@ -1304,7 +1304,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &line_button  ) {
 			if(  cnv.is_bound()  ) {
-				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
+				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line(), 0 );
 				welt->set_dirty();
 			}
 		}

@@ -7233,7 +7233,7 @@ bool tool_change_line_t::init( player_t *player )
 
 				line->get_schedule()->finish_editing(); // just in case ...
 				if(  can_use_gui()  ) {
-					player->simlinemgmt.show_lineinfo( player, line );
+					player->simlinemgmt.show_lineinfo( player, line, 0 );
 				}
 			}
 			break;
@@ -7461,7 +7461,7 @@ bool tool_change_depot_t::init( player_t *player )
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
 			if(  can_use_gui()  ) {
-				player->simlinemgmt.show_lineinfo( player, selected_line );
+				player->simlinemgmt.show_lineinfo( player, selected_line, 0 );
 			}
 
 			if(  depot_frame  ) {

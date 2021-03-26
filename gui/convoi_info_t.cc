@@ -524,14 +524,14 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		// open selected line as schedule
 		if( line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) ) {
 			if(  li->get_line().is_bound()  ) {
-				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), li->get_line() );
+				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), li->get_line(), 0 );
 			}
 		}
 	}
 	else if(  comp == &line_button2  ) {
 		// open selected line as schedule
 		if( cnv->get_line().is_bound() ) {
-			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
+			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line(), 3 );
 		}
 	}
 	else if(  comp == &input  ) {

@@ -87,7 +87,7 @@ public:
 	/**
 	 * Will open the line management window and offer information about the line
 	 */
-	void show_lineinfo(player_t *player, linehandle_t line);
+	void show_lineinfo(player_t *player, linehandle_t line, int which_tab );
 
 	vector_tpl<linehandle_t> const& get_line_list() const { return all_managed_lines; }
 
