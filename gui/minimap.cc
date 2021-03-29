@@ -1458,17 +1458,10 @@ void minimap_t::draw(scr_coord pos)
 		}
 		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
-					stop_cache.append( halt );
-				}
-				else {
-					// good transfer?
-					bool transfer = false;
-					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
-						transfer = halt->is_transfer( i );
-					}
-					if(  transfer  ) {
-						stop_cache.append( halt );
+				for (int catg = goods_manager_t::INDEX_PAS; catg != goods_manager_t::get_max_catg_index(); ++catg) {
+					if (catg != goods_manager_t::INDEX_NONE && halt->is_transfer(catg)) {
+						stop_cache.append(halt);
+						break;
 					}
 				}
 			}
