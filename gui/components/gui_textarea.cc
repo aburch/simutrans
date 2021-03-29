@@ -61,14 +61,15 @@ scr_size gui_textarea_t::calc_size() const
 
 		do {
 			next = strchr(buf, '\n');
-			const size_t len = next != NULL ? next - buf : -1;
-			int px_len = display_calc_proportional_string_len_width(buf, len);
+			const size_t len = next ? next-buf : 0;
+			const int px_len = display_calc_proportional_string_len_width(buf, len);
+
 			if(px_len>x_size) {
 				x_size = px_len;
 			}
-			buf = next + 1;
+
 			new_lines += LINESPACE;
-		} while(  next != NULL  &&  *buf!=0  );
+		} while(  next != NULL  &&  (buf = next+1, *buf!=0)  );
 	}
 	return scr_size( x_size + L_PADDING_RIGHT, new_lines );
 }

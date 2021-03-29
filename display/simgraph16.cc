@@ -4648,9 +4648,8 @@ int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *buf, PIXVAL
 			if(  px_len>max_px_len  ) {
 				max_px_len = px_len;
 			}
-			buf = next + 1;
 			y += LINESPACE;
-		} while (next != NULL);
+		} while (buf = (next ? next+1 : NULL), buf != NULL);
 	}
 	return max_px_len;
 }
