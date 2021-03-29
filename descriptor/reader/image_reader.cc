@@ -115,11 +115,6 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 #if COLOUR_DEPTH == 0
 adjust_image:
-	if (!image_has_valid_data(desc)) {
-		delete desc;
-		return NULL;
-	}
-
 	// reset image parameters, but only for non-empty images
 	if(  desc->h > 0  ) {
 		desc->h = 1;
