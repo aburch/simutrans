@@ -15,6 +15,8 @@
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
 
+#include "../../simintr.h"
+
 using namespace script_api;
 
 static char buf[40];
@@ -35,7 +37,13 @@ static plainstring integer_to_string(sint64 f)
 static plainstring money_to_string_intern(sint64 m)
 {
 	money_to_string(buf, m, false);
+
 	return buf;
+}
+
+static plainstring difftick_to_string_intern(sint32 f )
+{
+	return difftick_to_string( f, false );
 }
 
 static plainstring koord_to_string_intern(koord k)
@@ -100,6 +108,11 @@ void export_string_methods(HSQUIRRELVM vm)
 	 * @returns month name in language of server
 	 */
 	register_method(vm, &translator::get_month_name, "get_month_name");
+
+	/**
+	 * Translates difference of ticks to string.
+	 */
+	register_method(vm, &difftick_to_string_intern, "difftick_to_string");
 }
 
 
