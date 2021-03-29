@@ -141,7 +141,7 @@ int get_mouse_y()
 uint8 dr_get_max_threads()
 {
 	uint8 max_threads = 0;
-#ifdef MULTITHREAD
+#ifdef MULTI_THREAD
 #if 0
 	// does not work when crosscompile with mingw!
 	max_threads = std::thread::hardware_concurrency();
