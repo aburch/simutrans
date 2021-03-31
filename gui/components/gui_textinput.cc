@@ -321,7 +321,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						letter[1] = 0;
 					}
 
-					size_t num_letter = strlen(letter);
+					const size_t num_letter = strlen(letter);
 
 					if(len+num_letter>=max) {
 						// too many chars ...
@@ -330,8 +330,9 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 					// insert into text?
 					if (head_cursor_pos < len) {
-						for(  sint64 pos=len+num_letter;  pos>=(sint64)head_cursor_pos;  pos--  ) {
-							text[pos] = text[pos-num_letter];
+						// copy the trailing '\0' too
+						for(  sint64 pos=len;  pos>=(sint64)head_cursor_pos;  pos--  ) {
+							text[pos+num_letter] = text[pos];
 						}
 						memcpy( text+head_cursor_pos, letter, num_letter );
 					}
