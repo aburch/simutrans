@@ -944,6 +944,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 
 
 nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0),
+	init(false),
 	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	tool = NULL;
