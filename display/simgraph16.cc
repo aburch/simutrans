@@ -788,7 +788,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 // ----------------------------------- clipping routines ------------------------------------------
 
 
-sint16 display_get_width()
+KOORD_VAL display_get_width()
 {
 	return disp_actual_width;
 }
@@ -801,7 +801,7 @@ void display_set_actual_width(KOORD_VAL w)
 }
 
 
-sint16 display_get_height()
+KOORD_VAL display_get_height()
 {
 	return disp_height;
 }
