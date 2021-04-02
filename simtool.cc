@@ -369,7 +369,7 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 		const uint8 max_stages = 4;
 		for(uint8 stage = 0; stage<max_stages; stage++) {
 
-			int old_count = win_get_open_count();
+			uint32 old_count = win_get_open_count();
 
 			switch (reverse ? max_stages-1-stage: stage) {
 				case 0: { // halts

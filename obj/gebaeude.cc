@@ -535,8 +535,9 @@ void gebaeude_t::show_info()
 		ptr.fab->open_info_window();
 		return;
 	}
-	int old_count = win_get_open_count();
-	bool special = is_headquarter() || is_townhall();
+
+	const uint32 old_count = win_get_open_count();
+	const bool special = is_headquarter() || is_townhall();
 
 	if(is_headquarter()) {
 		create_win( new headquarter_info_t(get_owner()), w_info, magic_headquarter+get_owner()->get_player_nr() );
