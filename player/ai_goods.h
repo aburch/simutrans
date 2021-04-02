@@ -75,8 +75,8 @@ private:
 		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const goods_desc_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
 		void rdwr( loadsave_t *file );
 
-		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
-		bool operator == (const fabconnection_t & k) { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
+		bool operator != (const fabconnection_t & k) const { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
+		bool operator == (const fabconnection_t & k) const { return fab1 == k.fab1 && fab2 == k.fab2 && ware == k.ware; }
 //		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
 	};
 
