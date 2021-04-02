@@ -263,7 +263,7 @@ tool_t *create_tool(int toolnr)
  */
 void general_tool_get_desc_builder(uint16 id, const char *param_str, const obj_desc_timelined_t* &desc, tool_t* &tool)
 {
-	if (  id & (SIMPLE_TOOL | DIALOGE_TOOL) ) {
+	if (  id & ((uint16)SIMPLE_TOOL | (uint16)DIALOGE_TOOL) ) {
 		return;
 	}
 	id = id & (~GENERAL_TOOL);
