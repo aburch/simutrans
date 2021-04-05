@@ -449,6 +449,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 {
 	if( old_schedule != schedule_ ) {
 
+		schedule_t* first_schedule = old_schedule;
 		if( old_schedule ) {
 			stats->highlight_schedule( false );
 			update_tool( false );
@@ -457,14 +458,13 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		}
 
 		// initialization
-		this->old_schedule = schedule_;
 		this->convoi_mode = cnv;
 		this->line_mode = lin;
 		this->player = player;
 		current_schedule_rotation = welt->get_settings().get_rotation();
 
 		// prepare editing
-		schedule = old_schedule->copy();
+		schedule = schedule_->copy();
 
 		make_return = (schedule->get_waytype() == road_wt || schedule->get_waytype() == air_wt || schedule->get_waytype() == water_wt);
 		if(  make_return  ) {
@@ -488,6 +488,8 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		bt_return.enable( !no_editing );
 
 		update_selection();
+
+		this->old_schedule = schedule_;
 	}
 	else {
 		schedule->set_current_stop(schedule_->get_current_stop());
@@ -594,7 +596,10 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			update_selection();
 		}
 	}
-	update_tool( true );
+	// do not reset tool during initialisation
+	if (old_schedule) {
+		update_tool(true);
+	}
 	return true;
 }
 
