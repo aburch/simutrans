@@ -448,8 +448,6 @@ gui_schedule_t::~gui_schedule_t()
 void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, linehandle_t lin)
 {
 	if( old_schedule != schedule_ ) {
-
-		schedule_t* first_schedule = old_schedule;
 		if( old_schedule ) {
 			stats->highlight_schedule( false );
 			update_tool( false );
