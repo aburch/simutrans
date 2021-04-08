@@ -214,7 +214,8 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
 		// and we do not like to divide by zero, do we?
 		if(capacity > 0) {
-			colore_idx = severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity];
+			const uint32 load_idx = clamp(load * MAX_SEVERITY_COLORS / capacity, 0, MAX_SEVERITY_COLORS-1);
+			colore_idx = severity_color[MAX_SEVERITY_COLORS-1 - load_idx];
 		}
 		else {
 			colore_idx = severity_color[MAX_SEVERITY_COLORS-1];
