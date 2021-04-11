@@ -1388,8 +1388,8 @@ int simu_main(int argc, char** argv)
 
 	// set the frame per second
 	if(  const char *ref_str = gimme_arg(argc, argv, "-fps", 1)  ) {
-		int want_refresh = atoi(ref_str);
-		env_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
+		const int want_refresh = atoi(ref_str);
+		env_t::fps = clamp(want_refresh, (int)env_t::min_fps, (int)env_t::max_fps);
 	}
 
 	// query server stuff
