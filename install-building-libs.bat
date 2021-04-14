@@ -4,6 +4,7 @@
 @echo then run bootstrap-vcpkg.bat before running this script
 @echo from the vcpgk folder!
 @pause
+vcpkg integrate install
 vcpkg install freetype
 vcpkg install miniupnpc
 vcpkg install pthreads
