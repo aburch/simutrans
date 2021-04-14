@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+
 char *read_line(char *s, int size, FILE *file)
 {
 	char *r;
