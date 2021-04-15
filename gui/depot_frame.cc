@@ -1554,7 +1554,7 @@ void depot_frame_t::open_schedule_editor()
 
 	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
-			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
+			create_win( new line_management_gui_t( selected_line, depot->get_owner(), 0 ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule
 			// this can happen locally, since any update of the schedule is done during closing window

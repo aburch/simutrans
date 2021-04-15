@@ -81,6 +81,8 @@ static const bool cost_type_money[ MAX_LINE_COST ] =
 	false
 };
 
+// statistics as first default to open
+static int default_opening_tab = 1;
 
 line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* player_, int active_tab) :
 	gui_frame_t( translator::translate( "Fahrplan" ), player_ ),
@@ -159,6 +161,9 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	scrolly_halts.set_maximize( true );
 	container_halts.add_component(&scrolly_halts);
 
+	if (active_tab < 0) {
+		active_tab = default_opening_tab;
+	}
 	switch_mode.set_active_tab_index(active_tab);
 
 	if (line.is_bound() ) {
@@ -398,6 +403,7 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 			reset_min_windowsize();
 		}
 		else {
+			default_opening_tab = v.i;
 			scd.highlight_schedule( false );
 			apply_schedule();
 		}

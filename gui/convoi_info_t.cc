@@ -531,7 +531,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if(  comp == &line_button2  ) {
 		// open selected line as schedule
 		if( cnv->get_line().is_bound() ) {
-			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line(), 3 );
+			cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line(), -1 );
 		}
 	}
 	else if(  comp == &input  ) {

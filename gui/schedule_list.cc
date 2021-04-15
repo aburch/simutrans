@@ -123,7 +123,12 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 		bt_new_line.init( button_t::roundbox, "New Line" );
 		bt_new_line.add_listener(this);
-		add_component(&bt_new_line,2);
+		add_component(&bt_new_line);
+
+		bt_delete_line.init(button_t::roundbox, "Delete Line");
+		bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
+		bt_delete_line.add_listener(this);
+		add_component(&bt_delete_line);
 	}
 	end_table();
 
@@ -205,6 +210,15 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		delete tmp_tool;
 		depot_t::update_all_win();
 	}
+	else if(  comp == &bt_delete_line  ) {
+		vector_tpl<sint32> sel = scl.get_selections();
+		FOR(vector_tpl<sint32>, i, sel) {
+			linehandle_t line = ((line_scrollitem_t*)scl.get_element(i))->get_line();
+			if (line->count_convoys()==0) {
+				// delete this line
+			}
+		}
+	}
 	else if(  comp == &tabs  ) {
 		int const tab = tabs.get_active_tab_index();
 		uint8 old_selected_tab = selected_tab[player->get_player_nr()];
@@ -241,7 +255,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 //				win_set_pos( line_info, lc.x, lc.y );
 			}
 			else {
-				create_win( lc.x, lc.y, new line_management_gui_t(line, player, 1), w_info, (ptrdiff_t)line.get_rep() );
+				create_win( lc.x, lc.y, new line_management_gui_t(line, player, -1), w_info, (ptrdiff_t)line.get_rep() );
 			}
 		}
 		scl.set_selection( -1 );
@@ -275,6 +289,17 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 		build_line_list(tabs.get_active_tab_index());
 		strcpy( old_schedule_filter, schedule_filter );
 	}
+
+	vector_tpl<sint32> sel = scl.get_selections();
+	bool can_delete = sel.get_count()>0;
+	FOR(vector_tpl<sint32>, i, sel) {
+		linehandle_t line = ((line_scrollitem_t *)scl.get_element(i))->get_line();
+		if (line->count_convoys() > 0) {
+			can_delete = false;
+			break;
+		}
+	}
+	bt_delete_line.enable(can_delete);
 
 	gui_frame_t::draw(pos, size);
 }
