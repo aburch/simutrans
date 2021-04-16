@@ -682,7 +682,23 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			y = k->y;
 		}
 	}
-
+	// make sure window is on screen
+	if(  x < -1  ||  x+gui->get_windowsize().w > display_get_width()  ) {
+		if(gui->get_windowsize().w > display_get_width()) {
+			x = 0;
+		}
+		else {
+			x = clamp(x, 0, display_get_width()-gui->get_windowsize().w);
+		}
+	}
+	if(  y<-1  ||  y + gui->get_windowsize().h>display_get_height()  ) {
+		if (gui->get_windowsize().h > display_get_height()-env_t::iconsize.h) {
+			x = 0;
+		}
+		else {
+			y = clamp(y, env_t::iconsize.h, display_get_width() - gui->get_windowsize().h);
+		}
+	}
 	/* if there are too many handles (likely in large games)
 	 * we search for any error/news message at the bottom of the stack and delete it
 	 * => newer information might be more important ...
