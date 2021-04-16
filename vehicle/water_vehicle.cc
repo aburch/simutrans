@@ -10,6 +10,8 @@
 #include "../bauer/vehikelbauer.h"
 #include "../obj/crossing.h"
 #include "../dataobj/schedule.h"
+#include "../obj/roadsign.h"
+#include "../simconvoi.h"
 
 
 water_vehicle_t::water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
