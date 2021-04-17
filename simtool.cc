@@ -2251,6 +2251,10 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 		if(!schedule->is_stop_allowed(bd)) {
 			return schedule->get_error_msg();
 		}
+		// stored in minivec, so we have to avoid adding too many
+		if(  schedule->entries.get_count()>=254  ) {
+			return "Maximum 254 stops\nin a schedule!\n";
+		}
 		// and check for ownership
 		if(  !bd->is_halt()  ) {
 			weg_t *w = bd->get_weg( schedule->get_waytype() );

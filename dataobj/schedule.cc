@@ -116,45 +116,27 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 
 bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time )
 {
-	// stored in minivec, so we have to avoid adding too many
-	if(  entries.get_count()>=254  ) {
-		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
+	// too many stops or wrong kind of stop
+	if (entries.get_count()>=254  ||  !is_stop_allowed(gr)) {
 		return false;
 	}
 
-	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time));
-		current_stop ++;
-		make_current_stop_valid();
-		return true;
-	}
-	else {
-		// too many stops or wrong kind of stop
-		create_win( new news_img(get_error_msg()), w_time_delete, magic_none);
-		return false;
-	}
+	entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time));
+	current_stop ++;
+	make_current_stop_valid();
+	return true;
 }
 
 
 
 bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time)
 {
-	// stored in minivec, so we have to avoid adding too many
-	if(entries.get_count()>=254) {
-		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
+	// too many stops or wrong kind of stop
+	if (entries.get_count()>=254  ||  !is_stop_allowed(gr)) {
 		return false;
 	}
-
-	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time), 4);
-		return true;
-	}
-	else {
-		DBG_MESSAGE("schedule_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
-		// error
-		create_win( new news_img(get_error_msg()), w_time_delete, magic_none);
-		return false;
-	}
+	entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time), 4);
+	return true;
 }
 
 
