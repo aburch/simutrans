@@ -114,7 +114,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift )
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time )
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
@@ -123,7 +123,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 	}
 
 	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift));
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time));
 		current_stop ++;
 		make_current_stop_valid();
 		return true;
@@ -137,7 +137,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
@@ -146,7 +146,7 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 	}
 
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift), 4);
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time), 4);
 		return true;
 	}
 	else {

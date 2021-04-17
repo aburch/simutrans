@@ -19,7 +19,7 @@ struct schedule_entry_t
 public:
 	schedule_entry_t() {}
 
-	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time) :
+	schedule_entry_t(koord3d const& pos, uint8 const minimum_loading, uint16 const waiting_time) :
 		pos(pos),
 		minimum_loading(minimum_loading),
 		waiting_time(waiting_time)
