@@ -384,6 +384,51 @@ void map_frame_t::update_buttons()
 }
 
 
+
+static bool compare_factories(const factory_desc_t const* a, const factory_desc_t const* b)
+{
+	if (a->get_supplier_count() == 0) {
+		// a source
+		if (b->get_supplier_count() > 0) {
+			return true;
+		}
+		else {
+			// both producer, sort by name
+			return strcmp(translator::translate(a->get_name()), translator::translate(b->get_name())) < 0;
+		}
+	}
+	else {
+		// a not source
+		if (b->get_supplier_count() == 0) {
+			// b source, in front
+			return false;
+		}
+		else {
+			if (a->get_product_count() == 0) {
+				// a consumer
+				if (b->get_product_count() > 0) {
+					// b factory, in front
+					return false;
+				}
+				else {
+					// both consumer, sort by name
+					return strcmp(translator::translate(a->get_name()), translator::translate(b->get_name())) < 0;
+				}
+			}
+			else {
+				// a factory
+				if (b->get_product_count() == 0) {
+					// b producer to end
+					return true;
+				}
+			}
+		}
+	}
+	// both factory, sort by name
+	return strcmp(translator::translate(a->get_name()), translator::translate(b->get_name())) < 0;
+}
+
+
 void map_frame_t::update_factory_legend()
 {
 	directory_container.remove_all();
@@ -395,7 +440,7 @@ void map_frame_t::update_factory_legend()
 		if(  filter_factory_list  ) {
 			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 				if(  f->get_desc()->get_distribution_weight() > 0  ) {
-					factory_types.append_unique(f->get_desc());
+					factory_types.insert_unique_ordered(f->get_desc(), compare_factories);
 				}
 			}
 		}
@@ -403,10 +448,12 @@ void map_frame_t::update_factory_legend()
 			FOR(stringhashtable_tpl<factory_desc_t const*>, i, factory_builder_t::get_factory_table()) {
 				factory_desc_t const* const d = i.value;
 				if (d->get_distribution_weight() > 0) {
-					factory_types.append_unique(d);
+					factory_types.insert_unique_ordered(d, compare_factories);
 				}
 			}
 		}
+		// now sort
+		
 		// add corresponding legend entries
 		FOR(vector_tpl<const factory_desc_t*>, f, factory_types) {
 			directory_container.new_component<legend_entry_t>(f->get_name(), f->get_color());
