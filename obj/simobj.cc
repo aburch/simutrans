@@ -316,7 +316,7 @@ void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos + yoff);
 
 		// too close to border => set dirty to be sure (smoke, skyscrapers, birds, or the like)
-		KOORD_VAL xbild, ybild, wbild, hbild;
+		scr_coord_val xbild, ybild, wbild, hbild;
 		display_get_image_offset( image, &xbild, &ybild, &wbild, &hbild );
 		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
 		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {

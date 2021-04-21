@@ -538,11 +538,11 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 scr_coord minimap_t::map_to_screen_coord(const koord &k) const
 {
 	assert(zoom_in ==1 || zoom_out ==1 );
-	sint32 x = (sint32)k.x * zoom_in;
-	sint32 y = (sint32)k.y * zoom_in;
+	scr_coord_val x = (scr_coord_val)k.x * zoom_in;
+    scr_coord_val y = (scr_coord_val)k.y * zoom_in;
 	if(isometric) {
 		// 45 rotate view
-		sint32 xrot = (sint32)world->get_size().y * zoom_in + x - y - 1;
+		scr_coord_val xrot = (scr_coord_val)world->get_size().y * zoom_in + x - y - 1;
 		y = ( x + y )/2;
 		x = xrot;
 	}
@@ -576,7 +576,7 @@ bool minimap_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( 32767 / (2*world->get_size_max()), 16);
+			int max_zoom_in = min( ((1<<31) - 1) / (2*world->get_size_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;

@@ -102,7 +102,7 @@ void gui_textarea_t::draw(scr_coord offset)
 			int px_len;
 			if (  -LINESPACE <= draw_y  &&  draw_y <= display_get_height() + LINESPACE) {
 				// draw when in screen area
-				px_len = display_text_proportional_len_clip_rgb((KOORD_VAL)x, (KOORD_VAL)draw_y, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
+				px_len = display_text_proportional_len_clip_rgb(x, draw_y, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
 			}
 			else {
 				// track required length when out of screen area

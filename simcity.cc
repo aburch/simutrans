@@ -3223,8 +3223,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	// since we handle buildings larger than (1x1) we test all periphery
 	koord lu = k - koord( 1, 1 );
 	koord rd = k + minsize;
-	for( KOORD_VAL x = lu.x; x<=rd.x; x++ ) {
-		for( KOORD_VAL y = lu.y; y<=rd.y; y++ ) {
+	for( sint16 x = lu.x; x<=rd.x; x++ ) {
+		for( sint16 y = lu.y; y<=rd.y; y++ ) {
 			if(  koord(x,y)!=k  ) {
 				if(  grund_t *gr = welt->lookup_kartenboden(x,y)  ) {
 					if(  gebaeude_t const* const testgb = gr->find<gebaeude_t>()  ) {

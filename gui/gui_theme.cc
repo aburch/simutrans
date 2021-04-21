@@ -83,20 +83,20 @@ scr_size gui_theme_t::gui_label_size;
 scr_size gui_theme_t::gui_edit_size;
 scr_size gui_theme_t::gui_gadget_size;
 scr_size gui_theme_t::gui_indicator_size;
-KOORD_VAL gui_theme_t::gui_waitingbar_width;
+scr_coord_val gui_theme_t::gui_waitingbar_width;
 
 scr_coord gui_theme_t::gui_focus_offset;
 scr_coord gui_theme_t::gui_button_text_offset_right;
 scr_coord gui_theme_t::gui_color_button_text_offset_right;
 
-KOORD_VAL gui_theme_t::gui_titlebar_height;
-KOORD_VAL gui_theme_t::gui_frame_left;
-KOORD_VAL gui_theme_t::gui_frame_top;
-KOORD_VAL gui_theme_t::gui_frame_right;
-KOORD_VAL gui_theme_t::gui_frame_bottom;
-KOORD_VAL gui_theme_t::gui_hspace;
-KOORD_VAL gui_theme_t::gui_vspace;
-KOORD_VAL gui_theme_t::gui_filelist_vspace;
+scr_coord_val gui_theme_t::gui_titlebar_height;
+scr_coord_val gui_theme_t::gui_frame_left;
+scr_coord_val gui_theme_t::gui_frame_top;
+scr_coord_val gui_theme_t::gui_frame_right;
+scr_coord_val gui_theme_t::gui_frame_bottom;
+scr_coord_val gui_theme_t::gui_hspace;
+scr_coord_val gui_theme_t::gui_vspace;
+scr_coord_val gui_theme_t::gui_filelist_vspace;
 
 /* those are the 3x3 images which are used for stretching
  * also 1x3 and 3x1 subsets are possible

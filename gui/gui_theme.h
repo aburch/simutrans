@@ -270,17 +270,17 @@ public:
 	static scr_coord gui_color_button_text_offset_right; // extra right offset for the text (in case of asymmetric or buttons with color on the right)
 	static scr_coord gui_button_text_offset_right;       // extra right offset for the text (in case of asymmetric or buttons with checkmark on the right)
 
-	static KOORD_VAL gui_titlebar_height;
-	static KOORD_VAL gui_frame_left;
-	static KOORD_VAL gui_frame_top;
-	static KOORD_VAL gui_frame_right;
-	static KOORD_VAL gui_frame_bottom;
-	static KOORD_VAL gui_hspace;
-	static KOORD_VAL gui_vspace;
-	static KOORD_VAL gui_waitingbar_width;
+	static scr_coord_val gui_titlebar_height;
+	static scr_coord_val gui_frame_left;
+	static scr_coord_val gui_frame_top;
+	static scr_coord_val gui_frame_right;
+	static scr_coord_val gui_frame_bottom;
+	static scr_coord_val gui_hspace;
+	static scr_coord_val gui_vspace;
+	static scr_coord_val gui_waitingbar_width;
 
 	// one special entries, since there are lot of lists with files/fonts/paks/... where zero spacing could fit more entires on the screen
-	static KOORD_VAL gui_filelist_vspace;
+	static scr_coord_val gui_filelist_vspace;
 	/// @}
 
 	// those are the 3x3 images which are used for stretching

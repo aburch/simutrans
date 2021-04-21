@@ -211,8 +211,8 @@ void main_view_t::display(bool force_dirty)
 		}
 
 		// set parameter for each thread
-		const KOORD_VAL wh_x = disp_width / env_t::num_threads;
-		KOORD_VAL lt_x = 0;
+		const scr_coord_val wh_x = disp_width / env_t::num_threads;
+		scr_coord_val lt_x = 0;
 		for(  int t = 0;  t < env_t::num_threads - 1;  t++  ) {
 			ka[t].show_routine = this;
 			ka[t].lt_cl = koord( lt_x, menu_height );
@@ -573,7 +573,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 }
 
 
-void main_view_t::display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty )
+void main_view_t::display_background( scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, bool dirty )
 {
 	if(  !(env_t::draw_earth_border  &&  env_t::draw_outside_tile)  ) {
 		display_fillbox_wh_rgb(xp, yp, w, h, env_t::background_color, dirty );

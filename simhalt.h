@@ -114,7 +114,7 @@ private:
 
 	PIXVAL status_color, last_status_color;
 	sint16 last_bar_count;
-	vector_tpl<KOORD_VAL> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
+	vector_tpl<scr_coord_val> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, mail, goods
 	uint8 overcrowded[256/8]; ///< bit field for each goods type (max 256)
 
@@ -382,7 +382,7 @@ public:
 	/**
 	 * Draws some nice colored bars giving some status information
 	 */
-	void display_status(KOORD_VAL xpos, KOORD_VAL ypos);
+	void display_status(sint16 xpos, sint16 ypos);
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die

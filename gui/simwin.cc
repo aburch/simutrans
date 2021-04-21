@@ -1769,10 +1769,10 @@ void win_display_flush(double konto)
 	char const *time = tick_to_string( wl->get_ticks() );
 
 	// statusbar background
-	KOORD_VAL const status_bar_height = win_get_statusbar_height();
-	KOORD_VAL const status_bar_y = disp_height - status_bar_height;
-	KOORD_VAL const status_bar_text_y = status_bar_y + (status_bar_height - LINESPACE) / 2;
-	KOORD_VAL const status_bar_icon_y = status_bar_y + (status_bar_height - 15) / 2;
+	scr_coord_val const status_bar_height = win_get_statusbar_height();
+	scr_coord_val const status_bar_y = disp_height - status_bar_height;
+	scr_coord_val const status_bar_text_y = status_bar_y + (status_bar_height - LINESPACE) / 2;
+	scr_coord_val const status_bar_icon_y = status_bar_y + (status_bar_height - 15) / 2;
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh_rgb(0, status_bar_y - 1, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
 	display_fillbox_wh_rgb(0, status_bar_y, disp_width, status_bar_height, SYSCOL_STATUSBAR_BACKGROUND, false);
