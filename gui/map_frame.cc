@@ -385,7 +385,7 @@ void map_frame_t::update_buttons()
 
 
 
-static bool compare_factories(const factory_desc_t const* a, const factory_desc_t const* b)
+static bool compare_factories(const factory_desc_t *const a, const factory_desc_t *const b)
 {
 	if (a->get_supplier_count() == 0) {
 		// a source
