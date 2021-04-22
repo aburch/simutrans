@@ -218,7 +218,6 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 				// delete this line via tool
 				tool_t* tmp_tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
 				cbuffer_t buf;
-				int type = line->get_linetype();
 				buf.printf("d,%i", line.get_id());
 				tmp_tool->set_default_param(buf);
 				welt->set_tool(tmp_tool, player);
