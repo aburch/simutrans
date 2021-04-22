@@ -74,12 +74,12 @@ bool display_load_font(const char*, bool)
 	return true;
 }
 
-sint16 display_get_width()
+scr_coord_val display_get_width()
 {
 	return 0;
 }
 
-sint16 display_get_height()
+scr_coord_val display_get_height()
 {
 	return 0;
 }
