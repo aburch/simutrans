@@ -122,29 +122,56 @@ class rail_connector_t extends manager_t
 								// station start ok
 								err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
 								err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
-								local tool = command_x(tool_remove_way)
+								//local tool = command_x(tool_remove_way)
 								if ( err == null ) {
 									err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
 									if ( err == true ) {
 										// station end ok
 										// remove track -> error by build
-										tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
-										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+										for ( local i = 0; i < t_start.len(); i++ ) {
+											if ( !dir.is_threeway(tile_x(t_start[i].x, t_start[i].y, t_start[i].z).get_way_dirs(wt_rail)) ) {
+												remove_tile_to_empty(t_start[i], wt_rail, 0)
+											}
+											if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
+												remove_tile_to_empty(t_end[i], wt_rail, 0)
+											}
+										}
+										//tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+										//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 									} else {
 										// failed station place end
 										local a = 0
 										for ( local i = 0; i < t_start.len(); i++ ) {
-											if ( tile_x(t_start[0].x, t_start[0].y, t_start[0].z).find_object(mo_building) != null ) {
+											if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_building) != null ) {
 												a++
 											}
 										}
 
 										if ( a == 0 ) {
 											// remove start by not exists stations
-											tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
+											for ( local i = 0; i < t_start.len(); i++ ) {
+												if ( !dir.is_threeway(tile_x(t_start[i].x, t_start[i].y, t_start[i].z).get_way_dirs(wt_rail)) ) {
+													remove_tile_to_empty(t_start[i], wt_rail, 0)
+												}
+											}
+											//tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
 										}
 										// remove end
-										tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+										a = 0
+										for ( local i = 0; i < t_end.len(); i++ ) {
+											if ( tile_x(t_end[i].x, t_end[i].y, t_end[i].z).find_object(mo_building) != null ) {
+												a++
+											}
+										}
+
+										if ( a == 0 ) {
+											for ( local i = 0; i < t_end.len(); i++ ) {
+												if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
+													remove_tile_to_empty(t_end[i], wt_rail, 0)
+												}
+											}
+											//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
+										}
 										return error_handler()
 									}
 								} else {

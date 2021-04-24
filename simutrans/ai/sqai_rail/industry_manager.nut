@@ -308,7 +308,7 @@ class industry_manager_t extends manager_t
 									freight = good_list_out[0]
 								} else {
 									// more output goods - check good to f_dest
-									good_list_in.clear()
+									local good_list_in = []
 									foreach(good, islot in f_dest[0].input) {
 										good_list_in.append(good)
 									}
@@ -398,6 +398,15 @@ class industry_manager_t extends manager_t
 				//gui.add_message_at(our_player, " retired convoy " + list[i].get_name(), world.get_time())
 				cnv_retired.append(list[0])
 			}
+
+			local veh_count_line = line.get_convoy_count()
+			local new_cnv_add_line = false
+			if ( veh_count_line[0] > veh_count_line[1] ) {
+				// not remove cnv from line by add cnv this month
+				new_cnv_add_line = true
+				//gui.add_message_at(our_player, "####### cnv new this month ", world.get_time())
+			}
+ 			//&& !new_cnv_add_line
 
 			local speed_count = 1
 			for ( local i = 1; i < cnv_count; i++ ) {
@@ -900,7 +909,12 @@ class industry_manager_t extends manager_t
 				local freight = lf.get_name()
 				local prototyper = prototyper_t(wt, freight)
 
-				prototyper.min_speed = 1
+				local proto_speed = cnv_max_speed - 30
+				if ( proto_speed < 1 ) {
+					prototyper.min_speed = 1
+				} else {
+					prototyper.min_speed = proto_speed
+				}
 
 				prototyper.max_vehicles = get_max_convoi_length(wt)
 
@@ -1054,8 +1068,16 @@ class industry_manager_t extends manager_t
 				return true
 			}
 		}
-
-		if (!freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && link.next_vehicle_check < world.get_time().ticks ) {
+/*
+		local veh_count_line = line.get_convoy_count()
+		local new_cnv_add_line = false
+		if ( veh_count_line[0] > veh_count_line[1] ) {
+			// not remove cnv from line by add cnv this month
+			new_cnv_add_line = true
+			//gui.add_message_at(our_player, "####### cnv new this month ", world.get_time())
+		} //!new_cnv_add_line  &&
+*/
+		if ( !freight_available  &&  cnv_count>1  &&  2*cc_empty >= cnv_count  &&  cnv_empty_stopped && link.next_vehicle_check < world.get_time().ticks ) {
 			// freight, lots of empty and of stopped vehicles
 			// -> something is blocked, maybe we block our own supply?
 			// delete one convoy
