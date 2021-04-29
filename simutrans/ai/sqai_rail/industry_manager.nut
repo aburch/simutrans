@@ -435,7 +435,7 @@ class industry_manager_t extends manager_t
 					}
 				}
 				if ( k > 0 ) {
-					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					local msgtext = format(translate("vehicles of the line %s were retired"), k, line.get_name())
 					gui.add_message_at(our_player, msgtext, world.get_time())
 
 					return
@@ -457,7 +457,7 @@ class industry_manager_t extends manager_t
 					}
 				}
 				if ( k > 0 ) {
-					local msgtext = format(translate("%d convoys of the line %s were retired"), k, line.get_name())
+					local msgtext = format(translate("vehicles of the line %s were retired"), k, line.get_name())
 					gui.add_message_at(our_player, msgtext, world.get_time())
 
 					return
@@ -910,6 +910,7 @@ class industry_manager_t extends manager_t
 				local prototyper = prototyper_t(wt, freight)
 
 				local proto_speed = cnv_max_speed - 30
+				if ( proto_speed >= 100 ) { proto_speed = 60 }
 				if ( proto_speed < 1 ) {
 					prototyper.min_speed = 1
 				} else {
