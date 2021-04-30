@@ -47,6 +47,9 @@
 # using zstd compression library
 #USE_ZSTD := 1
 
+# enable link time optimizations
+#LTO := 1
+
 # using FluidSynth for MIDI playback (SDL2 backend needed for Linux/MacOS, SDL2 or GDI for MinGW)
 #USE_FLUIDSYNTH_MIDI := 1
 
