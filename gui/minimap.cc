@@ -576,7 +576,7 @@ bool minimap_t::change_zoom_factor(bool magnify)
 		else {
 			// check here for maximum zoom-out, otherwise there will be integer overflows
 			// with large maps as we calculate with sint16 coordinates ...
-			int max_zoom_in = min( ((1<<31) - 1) / (2*world->get_size_max()), 16);
+			const int max_zoom_in = min( INT_MAX / (2*world->get_size_max()), 16);
 			if(  zoom_in < max_zoom_in  ) {
 				zoom_in++;
 				zoomed = true;
