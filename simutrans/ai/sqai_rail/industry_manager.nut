@@ -435,7 +435,7 @@ class industry_manager_t extends manager_t
 					}
 				}
 				if ( k > 0 ) {
-					local msgtext = format(translate("vehicles of the line %s were retired"), k, line.get_name())
+					local msgtext = format(translate("vehicles of the line %s were retired"), line.get_name())
 					gui.add_message_at(our_player, msgtext, world.get_time())
 
 					return
