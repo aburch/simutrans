@@ -76,7 +76,7 @@ else ifeq ($(OSTYPE),mingw)
   else
     LDFLAGS += -mwindows
   endif
-elif ifeq ($(OSTYPE),linux)
+else ifeq ($(OSTYPE),linux)
   LD_FLAGS += "-Wl,-Bstatic"
 endif
 
