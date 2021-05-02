@@ -172,14 +172,28 @@ int tabfileobj_t::get_int(const char *key, int def)
 	if(!value) {
 		return def;
 	}
-	else {
-		// skip spaces/tabs
-		while ( *value>0  &&  *value<=32  ) {
-			value ++;
-		}
-		// this inputs also hex correct
-		return strtol( value, NULL, 0 );
+
+	// skip spaces/tabs
+	while ( *value>0  &&  *value<=32  ) {
+		value ++;
 	}
+
+	// this inputs also hex correct
+	return strtol( value, NULL, 0 );
+}
+
+
+int tabfileobj_t::get_int_clamped(const char *key, int def, int min_value, int max_value)
+{
+	const int int_value = get_int(key, def);
+	const int clamped_value = clamp(int_value, min_value, max_value);
+
+	if (clamped_value != int_value) {
+		dbg->warning("tabfileobj_t::get_int_clamped()", "Value %d for key %s out of range %d..%d, resetting to %d",
+			int_value, key, min_value, max_value, clamped_value);
+	}
+
+	return clamped_value;
 }
 
 
