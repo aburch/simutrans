@@ -433,7 +433,7 @@ static void display_thick_line( scr_coord_val x1, scr_coord_val y1, scr_coord_va
 }
 
 
-static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offset, scr_coord end, uint8 end_offset, bool diagonal, PIXVAL colore )
+static void line_segment_draw( waytype_t type, scr_coord start, const uint8 start_offset, scr_coord end, const uint8 end_offset, bool start_diagonal, const PIXVAL colore )
 {
 	// airplanes are different, so we must check for them first
 	if(  type ==  air_wt  ) {
@@ -442,23 +442,7 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 		draw_bezier_rgb( start.x + 1, start.y + 1, end.x + 1, end.y + 1, 50, 50, 50, 50, colore, 5, 5 );
 	}
 	else {
-		// add offsets
-		start.x += start_offset*3;
-		end.x += end_offset*3;
-		start.y += start_offset*3;
-		end.y += end_offset*3;
-		// due to isometric drawing, order may be swapped
-		if(  start.x > end.x  ) {
-			// but we need start.x <= end.x!
-			scr_coord temp = start;
-			start = end;
-			end = temp;
-			uint8 temp_offset = start_offset;
-			start_offset = end_offset;
-			end_offset = temp_offset;
-			diagonal ^= 1;
-		}
-		// now determine line style
+		// determine line style
 		uint8 thickness = 3;
 		bool dotted = false;
 		switch(  type  ) {
@@ -480,55 +464,45 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 				thickness = 3;
 				dotted = true;
 		}
-		// start.x is always <= end.x ...
-		const int delta_y = end.y-start.y;
-		if(  (start.x-end.x)*delta_y == 0  ) {
-			// horizontal/vertical line
-			display_thick_line( start.x, start.y, end.x, end.y, colore, dotted, 5, 3, thickness );
+
+		// move to the correct locations
+		start.x += 3*start_offset;
+		start.y += 3*start_offset;
+		end.x	+= 3*end_offset;
+		end.y	+= 3*end_offset;
+
+		scr_coord delta = end-start;
+
+		// Reduce diagonal line overlap: Genereally respect the requested start_diagonal.
+		// In case of NW to SE lines, ignore the requested diagonal, if either start or end of the line has index 0
+		if(sgn(delta.x) * sgn(delta.y) == 1){
+			if(end_offset){
+				start_diagonal = true;
+			}
+			if(start_offset){
+				start_diagonal = false;
+			}
 		}
-		else {
-			// two segment
-			scr_coord mid;
-			int signum_y = delta_y/abs(delta_y);
-			// diagonal line to right bottom
-			if(  delta_y > 0  ) {
-				if(  end_offset  &&  !diagonal  ) {
-					// start with diagonal to avoid parallel lines
-					diagonal = true;
-				}
-				if(  start_offset  &&  diagonal  ) {
-					// end with diagonal to avoid parallel lines
-					diagonal = false;
-				}
-			}
-			// now draw a two segment line
-			if(  diagonal  ) {
-				// start with diagonal
-				if(  abs(delta_y) > end.x-start.x  ) {
-					mid.x = end.x;
-					mid.y = start.y + (end.x-start.x)*signum_y;
-				}
-				else {
-					mid.x = start.x + abs(delta_y);
-					mid.y = end.y;
-				}
-				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
-				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
-			}
-			else {
-				// end with diagonal
-				const int delta_y = end.y-start.y;
-				if(  abs(delta_y) > end.x-start.x  ) {
-					mid.x = start.x;
-					mid.y = end.y - (end.x-start.x)*signum_y;
-				}
-				else {
-					mid.x = end.x - abs(delta_y);
-					mid.y = start.y;
-				}
-				display_thick_line( start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness );
-				display_thick_line( mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness );
-			}
+
+
+		// We always start straight, then diagonal. If the other way round is desired, simply swap start and end.
+		if(start_diagonal ){
+			delta = delta*-1;
+			const scr_coord tmp = start;
+			start=end;
+			end=tmp;
+		}
+
+		const int d = min(abs(delta.x),abs(delta.y));//pick absolute of smallest component
+		const scr_coord diag = scr_coord(d*sgn(delta.x),d*sgn(delta.y));
+
+		const scr_coord mid=end-diag;
+
+		if(start!=mid) {
+			display_thick_line(start.x, start.y, mid.x, mid.y, colore, dotted, 5, 3, thickness);
+		}
+		if(mid!=end) {
+			display_thick_line(mid.x, mid.y, end.x, end.y, colore, dotted, 5, 3, thickness);
 		}
 	}
 }
