@@ -42,7 +42,7 @@ private:
 	// always needed
 	button_t bt_revert, bt_return;
 
-	gui_label_t lb_wait;
+	gui_label_t lb_wait, lb_departure_time;
 	gui_numberinput_t numimp_load;
 	gui_combobox_t departure_or_load, insert_mode;
 

@@ -385,7 +385,7 @@ gui_schedule_t::gui_schedule_t() :
 	set_table_layout(1,0);
 
 	// loading level and waiting time
-	loading_details = add_table( 3, 1 );
+	loading_details = add_table( 4, 1 );
 	loading_details->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
 		add_component(&lb_wait);
@@ -396,6 +396,8 @@ gui_schedule_t::gui_schedule_t() :
 		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
+
+		add_component(&lb_departure_time);
 
 		departure.set_rigid(true);
 		departure.add_listener(this);
@@ -526,6 +528,7 @@ void gui_schedule_t::update_selection()
 	lb_wait.set_visible(false);
 	numimp_load.set_visible(false);
 	departure.set_visible(false);
+	lb_departure_time.set_visible(false);
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -535,14 +538,11 @@ void gui_schedule_t::update_selection()
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 
 			lb_wait.set_visible(true);
-// 			if( schedule->entries[ current_stop ].is_absolute_departure() ) {
-// 				departure.set_visible(true);
-// 			}
-// 			else {
-				numimp_load.set_visible(true);
-				numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
-				departure.set_visible(true);
-// 			}
+			lb_departure_time.set_visible(true);
+			lb_departure_time.set_text(schedule->entries[current_stop].minimum_loading > 0 ? "Depart after" : "Depart at");
+			numimp_load.set_visible(true);
+			numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
+			departure.set_visible(true);
 			departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
 		}
 		else {

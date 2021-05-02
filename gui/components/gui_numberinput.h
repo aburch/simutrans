@@ -27,6 +27,8 @@ class gui_numberinput_t :
 private:
 	bool check_value(sint32 _value);
 
+	scr_coord_val max_numbertext_width;
+
 	// more sophisticated increase routines
 	static sint8 percent[7];
 	sint32 get_prev_value();
