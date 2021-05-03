@@ -175,6 +175,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
 		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
 		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
+		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t();			  break;
 		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case UNUSED_WKZ_PWDHASH_TOOL:
 			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);

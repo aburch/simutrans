@@ -1129,6 +1129,13 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
+// internal tool: change player colours
+class tool_recolour_t : public tool_t {
+public:
+	tool_recolour_t() : tool_t(TOOL_RECOLOUR_TOOL | SIMPLE_TOOL) {}
+	virtual bool init(player_t * ) OVERRIDE;
+	virtual bool is_init_network_save() const { return false; }
+};
 // internal tool: send message, with additional coordinate information
 class tool_add_message_t : public tool_t {
 public:
