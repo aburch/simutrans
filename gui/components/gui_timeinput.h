@@ -44,7 +44,7 @@ public:
 
 	scr_size get_min_size() const;
 
-	void enable(bool b) { b_enabled = true;  }
+	void enable(bool b) { b_enabled = b;  }
 };
 
 #endif
