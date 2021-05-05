@@ -1346,19 +1346,20 @@ void objlist_t::check_season(const bool calc_only_season_change)
 		}
 	}
 	else {
-		// only here delete list is needed!
-		slist_tpl<obj_t *> to_remove;
+		// copy object pointers to check them
+		vector_tpl<obj_t*> list;
 
 		for(  uint8 i = 0;  i < top;  i++  ) {
-			obj_t *check_obj = obj.some[i];
+			list.append(obj.some[i]);
+		}
+		// now work on the copied list
+		// check_season may change this list (by planting new trees)
+		for(  uint8 i = 0, end = list.get_count();  i < end;  i++  ) {
+			obj_t *check_obj = list[i];
 			if(  !check_obj->check_season( calc_only_season_change )  ) {
-				to_remove.insert( check_obj );
+				delete check_obj;
 			}
 		}
 
-		// delete all objects, which do not want to step any more
-		while(  !to_remove.empty()  ) {
-			delete to_remove.remove_first();
-		}
 	}
 }
