@@ -46,10 +46,11 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 				// create empty table
 				sq_newtable(vm);
 			}
-			// set max value
-			set_slot(vm, "max_storage", prodslot[p].max >> fabrik_t::precision_bits, -1);
+			sint64 factor = io == 0 ? desc->get_supplier(p)->get_consumption() : desc->get_product(p)->get_factor();
+			// set max value - see fabrik_t::info_prod
+			set_slot(vm, "max_storage", convert_goods( (sint64)prodslot[p].max * factor), -1);
 			// production/consumption scaling
-			set_slot(vm, "scaling", io == 0 ? (sint64)desc->get_supplier(p)->get_consumption() : (sint64)desc->get_product(p)->get_factor(), -1);
+			set_slot(vm, "scaling", factor, -1);
 			// put class into table
 			sq_newslot(vm, -3, false);
 		}
