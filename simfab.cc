@@ -2911,8 +2911,8 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			else {
 				buf.printf("%s %u/%u%s",
 					translator::translate(type->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32) convert_goods( (sint64)output[index].menge * pfactor),
+					(uint32) convert_goods( (sint64)output[index].max * pfactor),
 					translator::translate(type->get_mass())
 				);
 
@@ -2958,10 +2958,10 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			else if(  welt->get_settings().get_factory_maximum_intransit_percentage()  ) {
 				buf.printf("%s %u/%i(%i)/%u%s, %s%s%u%%",
 					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32) convert_goods( (sint64)input[index].menge * pfactor),
 					input[index].get_in_transit(),
 					input[index].max_transit,
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32) convert_goods( (sint64)input[index].max * pfactor),
 					translator::translate(input[index].get_typ()->get_mass()),
 					cat_name, cat_seperator,
 					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
@@ -2970,9 +2970,9 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			else {
 				buf.printf("%s %u/%i/%u%s, %s%s%u%%",
 					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32) convert_goods( (sint64)input[index].menge * pfactor),
 					input[index].get_in_transit(),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32) convert_goods( (sint64)input[index].max * pfactor),
 					translator::translate(input[index].get_typ()->get_mass()),
 					cat_name, cat_seperator,
 					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
