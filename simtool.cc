@@ -7894,7 +7894,7 @@ bool tool_rename_t::init(player_t *player)
 	return false;
 }
 
-bool tool_recolour_t::init(player_t *sp)
+bool tool_recolour_t::init(player_t *)
 {
 	uint16 id = 0;
 

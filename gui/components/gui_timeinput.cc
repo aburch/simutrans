@@ -15,7 +15,7 @@
 #include "../../dataobj/environment.h"
 
 
-gui_timeinput_t::gui_timeinput_t(const char *null_text_)
+gui_timeinput_t::gui_timeinput_t(const char *)
 {
 	const int max_days = env_t::show_month == env_t::DATE_FMT_MONTH ? 3 : 31;
 	const scr_coord_val min_button_width = D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 3 * D_H_SPACE + proportional_string_width("30");
@@ -79,7 +79,7 @@ void gui_timeinput_t::set_ticks(uint16 t)
 
 
 
-bool gui_timeinput_t::action_triggered(gui_action_creator_t* comp, value_t /* */)
+bool gui_timeinput_t::action_triggered(gui_action_creator_t*, value_t)
 {
 	uint16 t = get_ticks();
 	call_listeners(t);
