@@ -567,7 +567,7 @@ const char * depot_t::is_deletable(const player_t *player)
 	}
 
 	FOR(slist_tpl<convoihandle_t>, const c, convois) {
-		if (c->get_vehicle_count() > 0) {
+		if (c.is_bound() && c->get_vehicle_count() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
 	}
