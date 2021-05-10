@@ -112,12 +112,6 @@ namespace script_api
 	void new_world();
 };
 
-// advance 201 ms per sync_step in fast forward mode
-#define MAGIC_STEP (201)
-
-// frame per second for fast forward
-#define FF_PPS (10)
-
 
 static uint32 last_clients = -1;
 static uint8 last_active_player_nr = 0;

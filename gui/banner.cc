@@ -22,12 +22,8 @@
 #include "server_frame.h"
 #include "components/gui_image.h"
 
-#define L_LINESPACE_EXTRA_2  ( LINESPACE + 2 )
-#define L_LINESPACE_EXTRA_5  ( LINESPACE + 5 )
-#define L_LINESPACE_EXTRA_7  ( LINESPACE + 7 )
 
 // Local adjustments
-#define L_TEXT_INDENT        ( 24 )                            // Shadow text indent
 #define L_BANNER_ROWS        ( 5 )                             // Rows of scroll text
 #define L_BANNER_TEXT_INDENT ( 4 )                             // Scroll text padding (left/right)
 #define L_BANNER_HEIGHT      ( L_BANNER_ROWS * LINESPACE + 2 ) // Banner control height in pixels

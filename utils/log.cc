@@ -12,8 +12,6 @@
 #include <syslog.h>
 #endif
 
-#define NO_LOG_EXTERNALS
-
 #include "log.h"
 #include "../simdebug.h"
 #include "../sys/simsys.h"

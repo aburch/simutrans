@@ -3,9 +3,6 @@
  * (see LICENSE.txt)
  */
 
-#ifndef _SIM_DEBUG
-#define _SIM_DEBUG
-
 #include <assert.h>
 #include <stdlib.h>
 
@@ -38,7 +35,5 @@ extern "C" void __cxa_pure_virtual()
 {
 	dbg->fatal("unknown", "pure virtual function call");
 }
-
-#endif
 
 #endif
