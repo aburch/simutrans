@@ -42,7 +42,7 @@ public:
 
 	void draw(scr_coord offset) OVERRIDE;
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
 	void enable(bool b) { b_enabled = b;  }
 };
