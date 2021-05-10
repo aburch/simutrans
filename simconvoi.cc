@@ -1359,19 +1359,18 @@ void convoi_t::step()
 			wait_lock = max( wait_lock, 25000 );
 			break;
 
-		// action soon needed
+		// Same as waiting for free way
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			wait_lock = max( wait_lock, 500 );
-			break;
 
 		// waiting for free way, not too heavy, not to slow
 		case CAN_START_ONE_MONTH:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
 		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
-			wait_lock = 2500;
+			// to avoid having a convoi stuck at a heavy traffic intersection/signal, the waiting time is randomized
+			wait_lock = simrand(5000)+1;
 			break;
 		default: ;
 	}
