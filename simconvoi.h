@@ -90,6 +90,12 @@ private:
 	 */
 	sint32 wait_lock;
 
+	/**
+	 * The convoi is gradually loaded for each vehicle, i.e. there is a constant loadin speed.
+	 * Hence the tick value
+	 */
+	uint32 last_load_tick;
+
 	states state;
 	// 32 bytes (state is int is 4 byte)
 

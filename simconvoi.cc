@@ -2853,7 +2853,7 @@ void convoi_t::calc_gewinn()
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
-
+	
 	// now find out station length
 	uint16 vehicles_loading = 0;
 	if(  gr->is_water()  ) {
@@ -2939,8 +2939,17 @@ station_tile_search_ready: ;
 	uint32 time = WTT_LOADING; // min time for loading/unloading
 	sint64 gewinn = 0;
 
+	uint32 current_tick = welt->get_ticks();
+	if (fahr[0]->last_stop_pos != fahr[0]->get_pos()) {
+		// first stop here, so no time passed yet
+		last_load_tick = current_tick;
+	}
+	const uint32 loading_ms = current_tick - last_load_tick;
+	last_load_tick = last_load_tick;
+
 	// cargo type of previous vehicle that could not be filled
 	const goods_desc_t* cargo_type_prev = NULL;
+	bool wants_more = false;
 
 	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
@@ -2954,13 +2963,19 @@ station_tile_search_ready: ;
 			v->last_stop_pos = v->get_pos();
 		}
 
-		uint16 amount = v->unload_cargo(halt, next_depot  );
+		// has no freight ...
+		if (fahr[i]->get_cargo_max() == 0) {
+			continue;
+		}
 
-		if(  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
-			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
-			if (amount>0  ||  cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
+		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / v->get_desc()->get_loading_time() + 1;
+		uint16 amount = v->unload_cargo(halt, next_depot, max_amount );
+
+		if(  max_amount>amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
+			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot)
+			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
-				amount += v->load_cargo(halt, destination_halts);
+				amount += v->load_cargo(halt, destination_halts, max_amount-amount);
 			}
 			if (v->get_total_cargo() < v->get_cargo_max()) {
 				// not full
@@ -2969,11 +2984,12 @@ station_tile_search_ready: ;
 		}
 
 		if(  amount  ) {
-			time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}
+
+		wants_more |= (amount == max_amount)  &&  (v->get_total_cargo() < v->get_cargo_max());
 	}
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {
@@ -3003,6 +3019,12 @@ station_tile_search_ready: ;
 		book(gewinn, CONVOI_REVENUE);
 	}
 
+	wait_lock = WTT_LOADING;
+	if (wants_more) {
+		// not yet fully unloaded/loaded
+		return;
+	}
+
 	// loading is finished => maybe drive on
 	if(  loading_level >= loading_limit  ||  no_load
 		||  (schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks()  )  ) {
@@ -3026,10 +3048,8 @@ station_tile_search_ready: ;
 		loading_limit = 0;
 	}
 
-	INT_CHECK( "convoi_t::hat_gehalten" );
+	INT_CHECK("convoi_t::hat_gehalten");
 
-	// at least wait the minimum time for loading
-	wait_lock = time;
 }
 
 

@@ -244,13 +244,13 @@ public:
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
 	 */
-	uint16 unload_cargo(halthandle_t halt, bool all );
+	uint16 unload_cargo(halthandle_t halt, bool all, uint16 max_amount );
 
 	/**
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts);
+	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts, uint16 max_amount );
 
 	/**
 	* Remove freight that no longer can reach it's destination

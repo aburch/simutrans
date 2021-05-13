@@ -84,7 +84,7 @@ void vehicle_t::set_convoi(convoi_t *c)
  * Unload freight to halt
  * @return sum of unloaded goods
  */
-uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
+uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all, uint16 max_amount )
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 	if(  !halt.is_bound()  ) {
@@ -94,8 +94,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 	if(  halt->is_enabled( get_cargo_type() )  ) {
 		if(  !fracht.empty()  ) {
 
-			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end;  ) {
-				const ware_t& tmp = *i;
+			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end  &&  max_amount > 0;  ) {
+				ware_t& tmp = *i;
 
 				halthandle_t end_halt = tmp.get_ziel();
 				halthandle_t via_halt = tmp.get_zwischenziel();
@@ -111,15 +111,14 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 				}
 				else if(  end_halt == halt || via_halt == halt  ||  unload_all  ) {
 
-//					printf("Liefere %d %s nach %s via %s an %s\n",
-//						tmp->menge,
-//						tmp->name(),
-//						end_halt->get_name(),
-//						via_halt->get_name(),
-//						halt->get_name());
-
 					// here, only ordinary goods should be processed
-					int menge = halt->liefere_an(tmp);
+					uint32 org_menge = tmp.menge;
+					if (tmp.menge > max_amount) {
+						tmp.menge = max_amount;
+					}
+					// since the max capacity of a vehicle is and uint16
+					uint16 menge = (uint16)halt->liefere_an(tmp);
+					max_amount -= menge;
 					sum_menge += menge;
 					total_freight -= menge;
 					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
@@ -130,7 +129,11 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 						sum_delivered += menge;
 					}
 
-					i = fracht.erase( i );
+					// in case of partial unlaoding
+					tmp.menge = org_menge-tmp.menge;
+					if (tmp.menge == 0) {
+						i = fracht.erase(i);
+					}
 				}
 				else {
 					++i;
@@ -162,14 +165,14 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
  * Load freight from halt
  * @return amount loaded
  */
-uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts)
+uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts, uint16 max_amount )
 {
 	if(  !halt.is_bound()  ||  !halt->gibt_ab(desc->get_freight_type())  ) {
 		return 0;
 	}
 
 	const uint16 total_freight_start = total_freight;
-	const uint16 capacity_left = desc->get_capacity() - total_freight;
+	const uint16 capacity_left = min(desc->get_capacity() - total_freight, max_amount);
 	if (capacity_left > 0) {
 
 		slist_tpl<ware_t> freight_add;
