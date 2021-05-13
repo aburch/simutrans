@@ -1363,6 +1363,10 @@ void convoi_t::step()
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
+			// unless a longer wait is requested
+			if (wait_lock > 2500) {
+				break;
+			}
 
 		// waiting for free way, not too heavy, not to slow
 		case CAN_START_ONE_MONTH:
