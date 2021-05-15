@@ -164,6 +164,10 @@ avoid_overcrowding = 0
 # do not create goods/passenger/mail when the only route is over an overcrowded stop
 no_routing_over_overcrowded = 0
 
+# if 1, a late convoi with s set departure time will depart without finishing unloading or loading
+# 0 means departure after finishing to load/unload
+departures_on_time = 0
+
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 

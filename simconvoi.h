@@ -380,6 +380,10 @@ private:
 	uint32 move_to(uint16 start_index);
 
 public:
+	uint32 get_arrival_ticks() const { return arrived_time; }
+
+	uint32 get_departure_ticks() const;
+
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
 	*/

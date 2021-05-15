@@ -1361,6 +1361,8 @@ void convoi_t::step()
 
 		// Same as waiting for free way
 		case ROUTING_1:
+			// immediate start required
+			if (wait_lock == 0) break;
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
 			// unless a longer wait is requested
@@ -2845,6 +2847,24 @@ void convoi_t::calc_gewinn()
 }
 
 
+
+uint32 convoi_t::get_departure_ticks() const
+{
+	// we need to make it this complicated, otherwise times versus the end of a month could be missed
+	uint32 arrived_month_tick = arrived_time & ~(welt->ticks_per_world_month - 1);
+	uint32 arrived_ticks = arrived_time - arrived_month_tick;
+	uint32 departure_ticks = schedule->get_current_entry().get_waiting_ticks();
+	// if there is less than half a month to wait we will assume we arrived early, else we this we are late ...
+	if (arrived_ticks > departure_ticks &&  // we are late
+		(arrived_ticks - departure_ticks) > (welt->ticks_per_world_month / 2)) {
+		// but we are more than half a month later => assume the departure is scheduled for next month
+		arrived_month_tick += welt->ticks_per_world_month;
+	}
+	return arrived_month_tick + departure_ticks;
+}
+
+
+
 /**
  * convoi an haltestelle anhalten
  *
@@ -3019,9 +3039,36 @@ station_tile_search_ready: ;
 		book(gewinn, CONVOI_REVENUE);
 	}
 
+	// if we check here we will continue loading even if the departure is delayed
 	wait_lock = WTT_LOADING;
-	if (wants_more) {
+	if (wants_more  &&  !welt->get_settings().get_departures_on_time()  ) {
 		// not yet fully unloaded/loaded
+		return;
+	}
+
+	// find out if there is a times departure pending => depart
+	if(  schedule->get_current_entry().minimum_loading == 0  &&  schedule->get_current_entry().waiting_time > 0  ) {
+
+		if(  welt->get_ticks() > get_departure_ticks()  ) {
+
+			// add available capacity after loading(!) to statistics
+			for (unsigned i = 0; i < anz_vehikel; i++) {
+				book(get_vehikel(i)->get_cargo_max() - get_vehikel(i)->get_total_cargo(), CONVOI_CAPACITY);
+			}
+
+			// Advance schedule
+			schedule->advance();
+			state = ROUTING_1;
+			loading_limit = 0;
+			wait_lock = 0;
+		}
+
+		// else continue loading (even if full until departure time reached)
+		return;
+	}
+
+	if (wants_more) {
+		// not yet fully unloaded/loaded => continue loading
 		return;
 	}
 

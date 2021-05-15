@@ -42,7 +42,8 @@ static char const* const version[] =
 	"0.120.2",
 	"0.120.3",
 	"0.120.4",
-	"0.120.5"
+	"0.120.5",
+	"122.0"
 };
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
@@ -84,6 +85,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", env_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
+	INIT_BOOL( "departures_on_time", sets->get_departures_on_time() );
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
@@ -128,6 +130,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( env_t::show_names );
 
+	READ_BOOL_VALUE( sets->departures_on_time );
 	READ_NUM_VALUE( sets->bits_per_month );
 	READ_NUM_VALUE( sets->use_timeline );
 	READ_NUM_VALUE_NEW( sets->starting_year );

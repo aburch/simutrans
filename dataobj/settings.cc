@@ -293,6 +293,8 @@ settings_t::settings_t() :
 
 	used_vehicle_reduction = 0;
 
+	departures_on_time = false;
+
 	// some network thing to keep client in sync
 	random_counter = 0; // will be set when actually saving
 	frames_per_second = 20;
@@ -901,7 +903,8 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
-			file->rdwr_byte( wind_direction );
+			file->rdwr_byte(wind_direction);
+			file->rdwr_bool(departures_on_time);
 		}
 		else if( file->is_loading() ) {
 			climate_generator = HEIGHT_BASED;
@@ -1226,6 +1229,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	factory_arrival_periods              = contents.get_int_clamped( "factory_arrival_periods",      factory_arrival_periods,              1, 16 );
 	factory_maximum_intransit_percentage = contents.get_int_clamped( "maximum_intransit_percentage", factory_maximum_intransit_percentage, 0, 0x7FFF );
 	factory_enforce_demand               = contents.get_int( "factory_enforce_demand",       factory_enforce_demand ) != 0;
+
+	departures_on_time = contents.get_int("departures_on_time", departures_on_time ) != 0;
 
 	tourist_percentage = contents.get_int_clamped( "tourist_percentage", tourist_percentage, 0, 100 );
 

@@ -5,6 +5,7 @@
 
 #include "vehicle.h"
 
+#include "../simintr.h"
 #include "../simworld.h"
 #include "../simware.h"
 #include "../simconvoi.h"
@@ -1162,7 +1163,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 
 			case convoi_t::LOADING:
 				if(  state>=3  ) {
-					sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					if(  cnv->get_schedule()->get_current_entry().minimum_loading == 0  &&  cnv->get_schedule()->get_current_entry().waiting_time >0  ) {
+						// is on a schedule
+						sprintf(tooltip_text, translator::translate("Loading (%i%%) departure %s!"), cnv->get_loading_level(), tick_to_string(cnv->get_departure_ticks(),true));
+					}
+					else {
+						sprintf(tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					}
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;

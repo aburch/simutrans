@@ -678,6 +678,32 @@ const char *translator::get_short_date(uint16 year, uint16 month)
 }
 
 
+const char* translator::get_month_date(uint16 month, uint16 day)
+{
+	char const* const month_ = get_month_name(month);
+	char const* const day_sym = strcmp("DAY_SYMBOL", translate("DAY_SYMBOL")) ? translate("DAY_SYMBOL") : "";
+	static char date[256];
+	switch (env_t::show_month) {
+	case env_t::DATE_FMT_GERMAN:
+	case env_t::DATE_FMT_GERMAN_NO_SEASON:
+		sprintf(date, "%d. %s ", day, month_);
+		break;
+	case env_t::DATE_FMT_US:
+	case env_t::DATE_FMT_US_NO_SEASON:
+		sprintf(date, "%s %d ", month_, day);
+		break;
+	case env_t::DATE_FMT_JAPANESE:
+	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		sprintf(date, "%s %d%s", month_, day, day_sym);
+		break;
+	case env_t::DATE_FMT_SEASON:
+	case env_t::DATE_FMT_MONTH:
+		sprintf(date, "%s, ", month_);
+		break;
+	}
+	return date;
+}
+
 /* get a name for a non-matching object */
 const char *translator::compatibility_name(const char *str)
 {
