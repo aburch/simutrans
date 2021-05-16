@@ -160,7 +160,17 @@ private:
 	uint8 max_no_of_trees_on_square;
 	uint16 tree_climates;
 	uint16 no_tree_climates;
-	uint16 tree;
+
+public:
+	enum tree_distribution_t
+	{
+		TREE_DIST_NONE     = 0,
+		TREE_DIST_RANDOM   = 1,
+		TREE_DIST_RAINFALL = 2,
+		TREE_DIST_COUNT
+	};
+private:
+	uint16 tree_distribution;
 
 	sint8 lake_height; //relative to sea height
 
@@ -575,8 +585,8 @@ public:
 	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
 	uint16 get_tree_climates() const { return tree_climates; }
 	uint16 get_no_tree_climates() const { return no_tree_climates; }
-	uint16 get_tree() const { return tree; }
-	void set_tree(uint16 i) { tree = i; }
+	tree_distribution_t get_tree_distribution() const { return (tree_distribution_t)tree_distribution; }
+	void set_tree_distribution(tree_distribution_t value) { tree_distribution = value; }
 
 	void set_default_climates();
 	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }

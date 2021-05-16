@@ -2142,7 +2142,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
 		// check if trees are allowed
-		if(  welt->get_settings().get_tree()==0  &&  !player->is_public_service()  ) {
+		if(  welt->get_settings().get_tree_distribution()==settings_t::TREE_DIST_NONE  &&  !player->is_public_service()  ) {
 			return NOTICE_NO_TREES;
 		}
 

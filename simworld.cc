@@ -1716,8 +1716,8 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 {
 	// now distribute trees
 	DBG_DEBUG("karte_t::init()","distributing trees");
-	switch (settings.get_tree()) {
-	case 2:
+	switch (settings.get_tree_distribution()) {
+	case settings_t::TREE_DIST_RAINFALL:
 		if( humidity_map.get_height() != 0 ) {
 			koord pos;
 			for(  pos.y=ytop;  pos.y<ybottom;  pos.y++  ) {
@@ -1751,11 +1751,11 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			break;
 		}
 		// fall-through
-	case 1:
+	case settings_t::TREE_DIST_RANDOM:
 		// no humidity data or on request
 		tree_builder_t::distribute_trees(3, xtop, ytop, xbottom, ybottom );
 		break;
-	case 0:
+	case settings_t::TREE_DIST_NONE:
 		// no trees
 		break;
 	}

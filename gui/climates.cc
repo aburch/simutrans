@@ -135,7 +135,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
-		tree.set_selection( sets->get_tree() );
+		tree.set_selection( sets->get_tree_distribution() );
 		add_component( &tree );
 		tree.add_listener( this );
 
@@ -176,7 +176,8 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	if(comp==&tree) {
-		sets->set_tree((sint16)v.i);
+		const settings_t::tree_distribution_t value = (settings_t::tree_distribution_t)clamp(v.i, (long)settings_t::TREE_DIST_NONE, (long)settings_t::TREE_DIST_COUNT-1);
+		sets->set_tree_distribution(value);
 	}
 	if(comp==&wind_dir) {
 		sets->wind_direction = v.i;
@@ -210,13 +211,13 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		if( sets->get_climate_generator()==settings_t::HEIGHT_BASED ) {
 
 			// disable rainfall tree generation
-			if( sets->get_tree()==2 ) {
-				sets->set_tree(1);
+			if( sets->get_tree_distribution()==settings_t::TREE_DIST_RAINFALL ) {
+				sets->set_tree_distribution(settings_t::TREE_DIST_RANDOM);
 			}
 			tree.clear_elements();
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
-			tree.set_selection( sets->get_tree() );
+			tree.set_selection( sets->get_tree_distribution() );
 
 			// enable climate height selection
 			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {
@@ -231,7 +232,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
-			tree.set_selection( sets->get_tree() );
+			tree.set_selection( sets->get_tree_distribution() );
 
 			// disable climate height selection (except arctic which is used for snowline)
 			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {

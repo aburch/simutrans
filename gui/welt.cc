@@ -344,7 +344,7 @@ void welt_gui_t::update_memory(gui_label_buf_t *label, const settings_t* sets)
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +
-			sizeof(baum_t)*(sets->get_tree()>0) + /* only one since a lot will be water */
+			sizeof(baum_t)*(sets->get_tree_distribution()!=settings_t::TREE_DIST_NONE) + /* only one since a lot will be water */
 			sizeof(void*)*2
 		) * (uint64)sx * (uint64)sy
 	) / (1024ll * 1024ll);

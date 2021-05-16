@@ -87,7 +87,7 @@ settings_t::settings_t() :
 	max_no_of_trees_on_square = 3;         // Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 	tree_climates = 0;                     // bit set, if this climate is to be covered with trees entirely
 	no_tree_climates = 0;                  // bit set, if this climate is to be void of random trees
-	tree = 1;                              // 0=no trees may be useful for low end engines, 1=random, 2=rainfall
+	tree_distribution = TREE_DIST_RANDOM;  // 0=no trees may be useful for low end engines, 1=random, 2=rainfall
 
 	lake_height = 8;                       // lakes will be generated below this height above groundwater
 
@@ -776,10 +776,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( max_no_of_trees_on_square );
 			file->rdwr_short( tree_climates );
 			file->rdwr_short( no_tree_climates );
-			bool no_trees = (tree==0);
+			bool no_trees = (tree_distribution==TREE_DIST_NONE);
 			file->rdwr_bool( no_trees );
 			if(  file->is_loading()  ) {
-				tree = no_trees ? 0 : 1;
+				tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 			}
 			file->rdwr_long( minimum_city_distance );
 			file->rdwr_long( industry_increase );
@@ -867,16 +867,16 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(  file->is_version_atleast(122,0) ) {
 			file->rdwr_byte(lake_height);
-			file->rdwr_short(tree);
+			file->rdwr_short(tree_distribution);
 		}
 		else if(  file->is_version_atleast(120, 2) ) {
 			bool this_lake = lake_height > 0;
 			file->rdwr_bool(this_lake);
-			bool no_trees = (tree==0);
+			bool no_trees = (tree_distribution==TREE_DIST_NONE);
 			file->rdwr_bool( no_trees );
 			if( file->is_loading() ) {
 				lake_height = this_lake ? 8 : 0;
-				tree = no_trees ? 0 : 1;
+				tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 			}
 		}
 		if(  file->is_version_atleast(120, 2) ) {
@@ -998,7 +998,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::ff_fps                      = contents.get_int_clamped( "fast_forward_frames_per_second", env_t::ff_fps,                    env_t::min_fps, env_t::max_fps );
 	env_t::num_threads                 = contents.get_int_clamped( "threads",                        env_t::num_threads,               1, min(dr_get_max_threads(), MAX_THREADS) );
 	env_t::simple_drawing_default      = contents.get_int_clamped( "simple_drawing_tile_size",       env_t::simple_drawing_default,    2, 256 );
-	
+
 	env_t::simple_drawing_fast_forward = contents.get_int( "simple_drawing_fast_forward", env_t::simple_drawing_fast_forward ) != 0;
 	env_t::visualize_schedule          = contents.get_int( "visualize_schedule",          env_t::visualize_schedule ) != 0;
 
@@ -1407,12 +1407,13 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	no_tree_climates                  = contents.get_int_clamped( "no_tree_climates",                  no_tree_climates,                  0,  0xFFFF );
 
 	if (contents.get("no_trees")) {
-		tree = !contents.get_int("no_trees", !tree);
+		const bool no_trees = contents.get_int("no_trees", tree_distribution == TREE_DIST_NONE);
+		tree_distribution = no_trees ? TREE_DIST_NONE : TREE_DIST_RANDOM;
 	}
 
-	tree        = contents.get_int_clamped( "tree_distribution", tree, 0, 2 );
-	lake_height = (contents.get_int("no_lakes", (lake_height == 0) )) ? 0 : 8;
-	lake_height = contents.get_int_clamped("lake_height", lake_height, 0, INT_MAX );
+	tree_distribution = contents.get_int_clamped( "tree_distribution", tree_distribution, TREE_DIST_NONE, TREE_DIST_COUNT-1 );
+	lake_height       = (contents.get_int("no_lakes", (lake_height == 0) )) ? 0 : 8;
+	lake_height       = contents.get_int_clamped("lake_height", lake_height, 0, INT_MAX );
 
 	// these are pak specific; the diagonal length affect travelling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int_clamped("diagonal_multiplier", pak_diagonal_multiplier, 1, INT_MAX );
@@ -1436,7 +1437,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	electric_promille              = contents.get_int_clamped("electric_promille",                 electric_promille,              0, 1000 );
 
 	crossconnect_factories         = contents.get_int("crossconnect_factories", crossconnect_factories ) != 0;
-	
+
 	env_t::just_in_time = contents.get_int_clamped("just_in_time", env_t::just_in_time, 0, 2);
 	just_in_time = env_t::just_in_time;
 
@@ -1589,7 +1590,7 @@ void settings_t::parse_colours(tabfile_t& simuconf)
 	env_t::tooltip_textcolor          = contents.get_color("tooltip_text_color",         env_t::tooltip_textcolor,          &env_t::tooltip_textcolor_rgb );
 	env_t::cursor_overlay_color       = contents.get_color("cursor_overlay_color",       env_t::cursor_overlay_color,       &env_t::cursor_overlay_color_rgb );
 	env_t::background_color           = contents.get_color("background_color",           env_t::background_color,           &env_t::background_color_rgb );
-	
+
 	env_t::bottom_window_darkness = contents.get_int("env_t::bottom_window_darkness", env_t::bottom_window_darkness);
 }
 

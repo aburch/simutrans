@@ -556,7 +556,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	for(  uint32 i=0;  i<lengthof(tree_generate_string);  i++  ) {
 		tree_generate.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( tree_generate_string[i], SYSCOL_TEXT ) ;
 	}
-	tree_generate.set_selection( sets->get_tree() );
+	tree_generate.set_selection( sets->get_tree_distribution() );
 	tree_generate.set_focusable( false );
 	add_component( &tree_generate, 2);
 	INIT_NUM_NEW( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
@@ -574,7 +574,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 void settings_climates_stats_t::read(settings_t* const sets)
 {
 	sets->climate_generator = (settings_t::climate_generate_t)max( 0, climate_generate.get_selection() );
-	sets->tree = max( 0, tree_generate.get_selection() );
+	sets->tree_distribution = ::clamp(tree_generate.get_selection(), (int)settings_t::TREE_DIST_NONE, (int)settings_t::TREE_DIST_COUNT-1 );
 	READ_INIT
 	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
 	READ_NUM_VALUE_NEW( sets->groundwater );
