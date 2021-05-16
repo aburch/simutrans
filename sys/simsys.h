@@ -10,7 +10,9 @@
 #include "../simtypes.h"
 #include "../display/scr_coord.h"
 
+#ifndef NETTOOL
 #include <zlib.h>
+#endif
 
 #include <cstddef>
 
@@ -118,8 +120,10 @@ char *dr_getcwd(char *buf, size_t size);
 // Functions the same as fopen except filename must be UTF-8 encoded.
 FILE *dr_fopen(const char *filename, const char *mode);
 
+#ifndef NETTOOL
 // Functions the same as gzopen except path must be UTF-8 encoded.
 gzFile dr_gzopen(const char *path, const char *mode);
+#endif
 
 // Functions the same as stat except path must be UTF-8 encoded.
 int dr_stat(const char *path, struct stat *buf);
