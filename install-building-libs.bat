@@ -5,12 +5,14 @@
 @echo from the vcpgk folder!
 @pause
 vcpkg integrate install
+@rem 32 bit builds
 vcpkg install freetype:x86-windows-static
 vcpkg install miniupnpc:x86-windows-static
 vcpkg install pthreads:x86-windows-static
 vcpkg install zstd:x86-windows-static
-vcpkg install freetype:w64-windows-static
-vcpkg install miniupnpc:w64-windows-static
-vcpkg install pthreads:w64-windows-static
-vcpkg install zstd:w64-windows-static
+@rem 64 bit builds
+vcpkg install freetype:x64-windows-static
+vcpkg install miniupnpc:x64-window-static
+vcpkg install pthreads:x64-windows-static
+vcpkg install zstd:x64-windows-static
 @pause
