@@ -254,7 +254,7 @@ public:
 
 	virtual ~player_t();
 
-	static sint32 add_maintenance(player_t *player, sint32 const change, waytype_t const wt=ignore_wt)
+	static inline sint64 add_maintenance(player_t *player, sint64 const change, waytype_t const wt=ignore_wt)
 	{
 		if(player) {
 			return player->add_maintenance(change, wt);
