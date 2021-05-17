@@ -391,8 +391,8 @@ public:
 
 	// init without screen parameters ...
 	void parse_simuconf(tabfile_t& simuconf) {
-		sint16 idummy;
-		bool bdummy;
+		sint16 idummy = 0;
+		bool bdummy = false;
 		std::string sdummy;
 
 		parse_simuconf(simuconf, idummy, idummy, bdummy, sdummy);
