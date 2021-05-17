@@ -158,6 +158,7 @@ void convoi_t::init(player_t *player)
 	sp_soll = 0;
 
 	next_stop_index = 65535;
+	last_load_tick = 0;
 
 	line_update_pending = linehandle_t();
 
@@ -2757,6 +2758,7 @@ void convoi_t::open_schedule_window( bool show )
 			top_win(info);
 		}
 		else {
+			create_schedule();
 			create_win( new convoi_info_t(self,true), w_info, magic );
 		}
 		// TODO: what happens if no client opens the window??
@@ -2962,7 +2964,7 @@ station_tile_search_ready: ;
 	sint64 gewinn = 0;
 
 	uint32 current_tick = welt->get_ticks();
-	if (fahr[0]->last_stop_pos != fahr[0]->get_pos()) {
+	if (fahr[0]->last_stop_pos != fahr[0]->get_pos()  ||  last_load_tick==0) {
 		// first stop here, so no time passed yet
 		last_load_tick = current_tick;
 	}
