@@ -5,8 +5,12 @@
 @echo from the vcpgk folder!
 @pause
 vcpkg integrate install
-vcpkg install freetype
-vcpkg install miniupnpc
-vcpkg install pthreads
-vcpkg install zstd
+vcpkg install freetype:x86-windows-static
+vcpkg install miniupnpc:x86-windows-static
+vcpkg install pthreads:x86-windows-static
+vcpkg install zstd:x86-windows-static
+vcpkg install freetype:w64-windows-static
+vcpkg install miniupnpc:w64-windows-static
+vcpkg install pthreads:w64-windows-static
+vcpkg install zstd:w64-windows-static
 @pause
