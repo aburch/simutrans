@@ -2967,7 +2967,7 @@ station_tile_search_ready: ;
 		last_load_tick = current_tick;
 	}
 	const uint32 loading_ms = current_tick - last_load_tick;
-	last_load_tick = last_load_tick;
+	last_load_tick = current_tick;
 
 	// cargo type of previous vehicle that could not be filled
 	const goods_desc_t* cargo_type_prev = NULL;

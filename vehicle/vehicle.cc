@@ -110,14 +110,14 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all, uint16 max_am
 					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
 					i = fracht.erase( i );
 				}
-				else if(  end_halt == halt || via_halt == halt  ||  unload_all  ) {
+				else if(  end_halt == halt  ||  via_halt == halt  ||  unload_all  ) {
 
 					// here, only ordinary goods should be processed
 					uint32 org_menge = tmp.menge;
 					if (tmp.menge > max_amount) {
 						tmp.menge = max_amount;
 					}
-					// since the max capacity of a vehicle is and uint16
+					// since the max capacity of a vehicle is an uint16
 					uint16 menge = (uint16)halt->liefere_an(tmp);
 					max_amount -= menge;
 					sum_menge += menge;
