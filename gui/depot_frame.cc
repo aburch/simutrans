@@ -1558,15 +1558,7 @@ void depot_frame_t::open_schedule_editor()
 		}
 		else { // edit individual schedule
 			// this can happen locally, since any update of the schedule is done during closing window
-			schedule_t *schedule = cnv->create_schedule();
-			assert(schedule!=NULL);
-			gui_frame_t *schedulewin = win_get_magic( (ptrdiff_t)schedule );
-			if(  schedulewin == NULL  ) {
-				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
-			}
-			else {
-				top_win( schedulewin );
-			}
+			cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
 		}
 	}
 	else {

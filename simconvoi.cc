@@ -2749,13 +2749,15 @@ void convoi_t::open_schedule_window( bool show )
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_direction();
 
+	ptrdiff_t magic = (ptrdiff_t)(magic_convoi_info + self.get_id());
 	if(  show  ) {
 		// Open schedule dialog
-		if( convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info + self.get_id() )) ) {
+		if(  convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic )) ) {
 			info->change_schedule();
+			top_win(info);
 		}
 		else {
-			create_win( new convoi_info_t(self,true), w_info, (ptrdiff_t)schedule );
+			create_win( new convoi_info_t(self,true), w_info, magic );
 		}
 		// TODO: what happens if no client opens the window??
 	}
