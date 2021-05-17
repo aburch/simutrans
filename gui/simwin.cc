@@ -422,9 +422,11 @@ void rdwr_win_settings(loadsave_t *file)
 {
 	if (file->is_loading()) {
 		saved_windowsizes.clear();
-		sint64 magic;
+		ptrdiff_t magic;
 		do {
-			file->rdwr_longlong(magic);
+			sint64 rd_magic;
+			file->rdwr_longlong(rd_magic);
+			magic = (ptrdiff_t)rd_magic;
 			if (magic != magic_none) {
 				scr_size s;
 				file->rdwr_long(s.w);
@@ -1915,7 +1917,7 @@ bool win_change_zoom_factor(bool magnify)
 }
 
 
-void win_load_font(const char *fname, uint16 fontsize)
+void win_load_font(const char *fname, uint8 fontsize)
 {
 	bool force_reload = fontsize != env_t::fontsize;
 	env_t::fontsize = fontsize;

@@ -578,7 +578,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	}
 	else if(comp == &departure) {
 		if(!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].waiting_time = p.i;
+			schedule->entries[schedule->get_current_stop()].waiting_time = (uint16)p.i;
 			update_selection();
 		}
 	}

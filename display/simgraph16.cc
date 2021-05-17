@@ -4360,7 +4360,7 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 	}
 	else {
 		text += len;
-		byte_length = len;
+		byte_length = (uint8)len;
 		pixel_width = default_font.get_glyph_advance(char_code);
 	}
 	return char_code;
@@ -4435,7 +4435,7 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 
 	size_t len = 0;
 	char_code = utf8_decoder_t::decode((utf8 const *)text, len);
-	byte_length = len;
+	byte_length = (uint8)len;
 	pixel_width = default_font.get_glyph_advance(char_code);
 
 	return char_code;

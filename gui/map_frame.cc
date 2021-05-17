@@ -93,7 +93,7 @@ public:
 		double bar_width = (double)get_size().w/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh_clip_rgb(pos.x + (i*bar_width), pos.y+2,  bar_width+1, 7, minimap_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
+			display_fillbox_wh_clip_rgb(pos.x + (scr_coord_val)(i*bar_width), pos.y+2, (scr_coord_val)bar_width+1, 7, minimap_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
 		}
 	}
 	scr_size get_min_size() const OVERRIDE

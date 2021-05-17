@@ -141,7 +141,7 @@ uint16 get_random_mode()
 }
 
 
-static uint32 async_rand_seed = 12345678 + time( NULL ); // Do not use dr_time(). It returns 0 on program startup for some platforms (SDL).
+static uint32 async_rand_seed = 12345678 + (uint32)time( NULL ); // Do not use dr_time(). It returns 0 on program startup for some platforms (SDL).
 
 /* simpler simrand for anything not game critical (like UI) */
 uint32 sim_async_rand( uint32 max )

@@ -116,8 +116,8 @@ void gui_chart_t::draw(scr_coord offset)
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;
 
-	float scale = 0;
-	float* pscale = &scale;
+	double scale = 0;
+	double* pscale = &scale;
 
 	// calc baseline and scale
 	calc_gui_chart_values(pbaseline, pscale, cmin, cmax, 18);
@@ -251,7 +251,7 @@ void gui_chart_t::draw(scr_coord offset)
 }
 
 
-void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax, int maximum_axis_len) const
+void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *cmin, char *cmax, int maximum_axis_len) const
 {
 	sint64 tmp=0;
 	double min = 0, max = 0;

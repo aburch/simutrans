@@ -333,7 +333,7 @@ void set_defaults_general_tool(tool_t *tool, const char *param_str)
  * will still be applied - show buttons with icons regardless of
  * whether the objects they build are available or not.
  */
-bool check_tool_availability(const tool_t *tool, uint64 time)
+bool check_tool_availability(const tool_t *tool, uint16 time)
 {
 	if (  tool  ==  NULL  ) {
 		return true;

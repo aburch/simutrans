@@ -282,7 +282,7 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 	}
 	// Hide building
 	if( &hide_buildings == comp ) {
-		env_t::hide_buildings = v.i;
+		env_t::hide_buildings = (uint8)v.i;
 		world()->set_dirty();
 	}
 	return true;
@@ -407,15 +407,15 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 	}
 	// Convoy tooltip
 	if( &convoy_tooltip == comp ) {
-		env_t::show_vehicle_states = v.i;
+		env_t::show_vehicle_states = (uint8)v.i;
 	}
 
 	if( &follow_mode == comp ) {
-		env_t::follow_convoi_underground = v.i;
+		env_t::follow_convoi_underground = (uint8)v.i;
 	}
 
 	if( &money_booking == comp ) {
-		env_t::show_money_message = v.i;
+		env_t::show_money_message = (sint8)v.i;
 	}
 	return true;
 }

@@ -512,7 +512,7 @@ public:
 	image_id get_icon(player_t *) const OVERRIDE { return tree_builder_t::has_trees() ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_tree); }
 	bool init(player_t* player) OVERRIDE{
-		if (tree_builder_t::has_trees() > 0 && !is_selected()) {
+		if(  tree_builder_t::has_trees()  && !is_selected()  ) {
 			create_win(new baum_edit_frame_t(player), w_info, magic_edit_tree);
 		}
 		return false;

@@ -28,7 +28,6 @@ static IXAudio2MasteringVoice* pMasterVoice = NULL;
  */
 bool dr_init_sound()
 {
-    HRESULT hr;
     if( XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR) < 0) {
         return false;
     }

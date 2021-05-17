@@ -176,8 +176,8 @@ uint16 groundobj_t::random_groundobj_for_climate_intern(climate cl)
 void groundobj_t::calc_image()
 {
 	const groundobj_desc_t *desc=get_desc();
-	const sint16 seasons = desc->get_seasons()-1;
-	uint8 season=0;
+	const uint8 seasons = desc->get_seasons()-1;
+	uint8 season = 0;
 
 	// two possibilities
 	switch(seasons) {

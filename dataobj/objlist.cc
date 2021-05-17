@@ -234,13 +234,11 @@ objlist_t::~objlist_t()
 }
 
 
-void objlist_t::set_capacity(uint16 new_cap)
+void objlist_t::set_capacity(uint16 req_cap)
 {
 	// DBG_MESSAGE("objlist_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
-	if(new_cap>=255) {
-		new_cap = 254;
-	}
+	const uint8 new_cap = req_cap >= 255 ? 254 : (uint8)req_cap;
 
 	// a single object is stored differentially
 	if(new_cap==0) {

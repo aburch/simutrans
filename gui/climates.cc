@@ -180,10 +180,10 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->set_tree_distribution(value);
 	}
 	if(comp==&wind_dir) {
-		sets->wind_direction = v.i;
+		sets->wind_direction = (ribi_t::ribi)v.i;
 	}
 	else if(comp==&lake) {
-		sets->lake_height = (sint16)v.i;
+		sets->lake_height = (sint8)v.i;
 	}
 	else if(comp==&water_level) {
 		sets->groundwater = (sint16)v.i;
@@ -253,31 +253,31 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		river_min.set_limits(0,max(16,v.i)-16);
 	}
 	else if(comp==&moistering) {
-		sets->moisture = (sint16)v.i;
+		sets->moisture = (sint8)v.i;
 	}
 	else if(comp==&moistering_water) {
-		sets->moisture_water = (sint16)v.i;
+		sets->moisture_water = (sint8)v.i;
 	}
 	else if(comp==&humidities[0]) {
-		sets->desert_humidity = (sint16)v.i;
+		sets->desert_humidity = (sint8)v.i;
 	}
 	else if(comp==&humidities[1]) {
-		sets->tropic_humidity = (sint16)v.i;
+		sets->tropic_humidity = (sint8)v.i;
 	}
 	else if(comp==&snowline_winter) {
-		sets->winter_snowline = (sint16)v.i;
+		sets->winter_snowline = (sint8)v.i;
 	}
 	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
 	else if(comp==&snowline_summer) {
 		// set artic borders
-		sets->patch_size_percentage = (sint16)v.i;
+		sets->patch_size_percentage = (sint8)v.i;
 	}
 
 	// Update temperature borders
 	for(  int i=0;  i<5;  i++  ) {
-		sets->climate_temperature_borders[i] = temperatures[i].get_value();
+		sets->climate_temperature_borders[i] = (sint8)temperatures[i].get_value();
 	}
 
 	// Update height borders
@@ -286,8 +286,8 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		climate_borders_ui[i][0].set_value( climate_borders_ui[i][0].get_value() );
 		climate_borders_ui[i][1].set_limits( climate_borders_ui[i][0].get_value(), 127 );
 		climate_borders_ui[i][1].set_value( climate_borders_ui[i][1].get_value() );
-		sets->climate_borders[i+1][0] = climate_borders_ui[i][0].get_value();
-		sets->climate_borders[i+1][1] = climate_borders_ui[i][1].get_value();
+		sets->climate_borders[i+1][0] = (sint8)climate_borders_ui[i][0].get_value();
+		sets->climate_borders[i+1][1] = (sint8)climate_borders_ui[i][1].get_value();
 	}
 
 	return true;

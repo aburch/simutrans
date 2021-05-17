@@ -128,7 +128,7 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 		gui_aligned_container_t::clear_dirty();
 	}
 	event_t ev2 = *ev;
-	translate_event(&ev2, 0, -has_title()*D_TITLEBAR_HEIGHT);
+	translate_event(&ev2, 0, -(int)has_title()*D_TITLEBAR_HEIGHT);
 	return gui_aligned_container_t::infowin_event(&ev2);
 }
 

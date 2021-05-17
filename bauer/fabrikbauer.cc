@@ -54,7 +54,7 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 	koord3d      const& pos     = fab->get_pos();
 	sint16       const  spacing = welt->get_settings().get_min_factory_spacing();
 	building_desc_t const& bdsc  = *fab->get_desc()->get_building();
-	sint16       const  rotate  = fab->get_rotate();
+	uint8        const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
 	sint16       const  start_x = max(0, pos.x - spacing);
 	sint16       const  end_y   = min(welt->get_size().y - 1, pos.y + bdsc.get_y(rotate) + spacing);
@@ -988,7 +988,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 	}
 
 	// first: do we have to continue unfinished factory chains?
-	if(  !ware_needed.empty()  ) {
+	if(  !ware_needed.empty()  && last_built_consumer  ) {
 
 		int org_rotation = -1;
 		// rotate until we can save it if one of the factories is non-rotate-able ...

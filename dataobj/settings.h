@@ -387,7 +387,16 @@ public:
 	void copy_city_road(settings_t const& other);
 
 	// init from this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
+	void parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, bool& fullscreen, std::string& objfilename);
+
+	// init without screen parameters ...
+	void parse_simuconf(tabfile_t& simuconf) {
+		sint16 idummy;
+		bool bdummy;
+		std::string sdummy;
+
+		parse_simuconf(simuconf, idummy, idummy, bdummy, sdummy);
+	}
 
 	void parse_colours(tabfile_t& simuconf);
 
@@ -422,7 +431,7 @@ public:
 	sint8 get_maximumheight() const { return world_maximum_height; }
 	sint8 get_minimumheight() const { return world_minimum_height; }
 
-	sint16 get_groundwater() const {return groundwater;}
+	sint8 get_groundwater() const {return (sint8)groundwater;}
 
 	double get_max_mountain_height() const {return max_mountain_height;}
 
@@ -589,7 +598,7 @@ public:
 	void set_tree_distribution(tree_distribution_t value) { tree_distribution = value; }
 
 	void set_default_climates();
-	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return climate_borders[climate][start_end]; }
+	sint8 get_climate_borders( sint8 climate, sint8 start_end ) const { return (sint8)climate_borders[climate][start_end]; }
 
 	sint8 get_tropic_humidity() const { return tropic_humidity; }
 	sint8 get_desert_humidity() const { return desert_humidity; }

@@ -2700,7 +2700,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		for (size_t i = 0; i != n; ++i) {
+		for (uint16 i = 0; i != n; ++i) {
 			if(max_loaded_waren[i]>0  &&  i!=goods_manager_t::INDEX_NONE) {
 				ware_t ware(goods_manager_t::get_info(i));
 				ware.menge = max_loaded_waren[i];

@@ -201,7 +201,7 @@ void win_redraw_world();
 /**
  * Loads new font. Notifies gui's, world.
  */
-void win_load_font(const char *fname, uint16 fontsize);
+void win_load_font(const char *fname, uint8 fontsize);
 
 /**
  * Sets the tooltip to display.
