@@ -180,7 +180,6 @@ public:
 	 * Adds construction cost to finance stats.
 	 * @param amount sum of money
 	 * @param wt way type, e.g. tram_wt
-	 * @param utyp used for distinguishing transport type of building for accounting purposes, used with buildings only.
 	 */
 	inline void book_construction_costs(const sint64 amount, const waytype_t wt) {
 		transport_type tt = translate_waytype_to_tt(wt);
@@ -202,7 +201,6 @@ public:
 	 * Adds maintenance into/from finance stats.
 	 * @param change monthly maintenance cost difference
 	 * @param wt - waytype for accounting purposes
-	 * @param utyp - used for distinguishing of transport type of buildings. Used with buildings only.
 	 */
 	inline sint64 book_maintenance(sint64 change, waytype_t const wt)
 	{

@@ -33,7 +33,7 @@ private:
 
 public:
 	/**
-	* @param cnv, the handler for the Convoi to be displayed.
+	* @param cnv the handle for the Convoi to be displayed.
 	*/
 	gui_convoiinfo_t(convoihandle_t cnv);
 

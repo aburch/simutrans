@@ -69,7 +69,7 @@ void pillar_t::calc_image()
 
 
 /**
- * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
+ * Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  */
 void pillar_t::show_info()

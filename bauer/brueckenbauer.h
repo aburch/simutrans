@@ -75,7 +75,6 @@ public:
 	 *
 	 * @param player the player wanting to build the bridge
 	 * @param end the position of the ramp
-	 * @param zv direction the bridge will face
 	 * @param desc the bridge description.
 	 */
 	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc);
@@ -142,7 +141,6 @@ public:
 	 * Fill menu with icons for all ways of the given waytype
 	 * @param tool_selector gui object of the toolbar
 	 * @param wtyp way type
-	 * @param welt the current world
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 

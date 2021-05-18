@@ -520,7 +520,7 @@ void help_frame_t::add_helpfile( cbuffer_t &section, const char *titlename, cons
 
 /**
  * Called upon link activation
- * @param the hyper ref of the link
+ * @param extra the name of the help file
  */
 bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {

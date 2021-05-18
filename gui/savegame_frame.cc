@@ -593,9 +593,6 @@ void savegame_frame_t::set_filename(const char *file_name)
  * letter is present it is translated to upper case
  *
  * @param path  A pointer to the path string. This string is modified.
- *
- * @return      The function is not returning anything per say, but the
- *              contents of the path parameter has been modified on return.
  */
 void savegame_frame_t::cleanup_path(char *path)
 {

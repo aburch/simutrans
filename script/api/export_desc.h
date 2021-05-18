@@ -16,7 +16,7 @@
  *
  * Defines constructor. Call has to be complemented by call to end_class.
  * @param name name of new class
- * @param base name of base class (or NULL)
+ * @param parent name of base class (or NULL)
  * @param func function pointer to a function that retrieves pointer-to-desc by name
  */
 void begin_desc_class(HSQUIRRELVM vm, const char* name, const char* parent, const void* (*func)(const char*));

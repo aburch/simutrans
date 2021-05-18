@@ -80,8 +80,7 @@ protected:
 
 public:
 	/**
-	 s et_*
-	 * @param name, Window title
+	 * @param name Window title
 	 * @param player owner for color
 	 */
 	gui_frame_t(const char *name, const player_t *player=NULL);

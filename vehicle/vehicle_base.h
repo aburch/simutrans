@@ -150,9 +150,9 @@ public:
 	/**
 	 * Vehicle movement: enter tile, add this to the ground.
 	 * @pre position (obj_t::pos) needs to be updated prior to calling this functions
-	 * @return pointer to ground (never NULL)
+	 * @param gr pointer to ground (never NULL)
 	 */
-	virtual void enter_tile(grund_t*);
+	virtual void enter_tile(grund_t *gr);
 
 	/**
 	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.

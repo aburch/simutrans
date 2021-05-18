@@ -16,7 +16,7 @@
 
 
 /**
- * @param comp, the scrolling component
+ * @param comp the scrolling component
  */
 gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool b_scroll_y) :
 	scroll_x(scrollbar_t::horizontal),

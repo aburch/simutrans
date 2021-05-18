@@ -20,7 +20,7 @@ class plainstring;
 
 /**
  * This class replaces the FILE when loading and saving games.
- * </p>
+ *
  * Can now read and write 3 formats: text, binary and zipped
  * Input format is automatically detected.
  * Output format has a default, changeable with set_savemode, but can be

@@ -66,7 +66,7 @@ private:
 	/**
 	 * Adds one entry to the list.
 	 * @param path Qualified path to the directory of the entry.
-	 * @param filename Filename of the file to add.
+	 * @param entry Filename of the file to add.
 	 * @param prepend Add the full path to the file or just the file name.
 	 */
 	void add_entry(const std::string &path, const char *entry, const bool prepend );

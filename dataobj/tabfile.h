@@ -57,7 +57,7 @@ public:
 	 * Read an entire object from the open file.
 	 *
 	 * @return bool false, if empty object or eof
-	 * @param &objinfo  will receive the object info
+	 * @param[out] objinfo  will receive the object info
 	 */
 	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
 

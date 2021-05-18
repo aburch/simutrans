@@ -66,7 +66,6 @@ template<class desc_t> bool successfully_loaded(special_obj_tpl<desc_t> const* s
 /**
  * Shows debug messages showing which descriptors lack definition.
  * @param so List to check.
- * @param count Number of elements to check.
  */
 template<class desc_t> void warn_missing_objects(special_obj_tpl<desc_t> const* so)
 {

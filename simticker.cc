@@ -34,10 +34,10 @@ struct node {
 
 
 static slist_tpl<node> list;
-static koord default_pos = koord::invalid; // world position of newest message
-static bool redraw_all = false;    //< true, if also trigger background need redraw
-static int next_pos;               //< Next x offset of new message. Always greater or equal to display_width
-static int dx_since_last_draw = 0; //< Increased during update(); positive values move messages to the left
+static koord default_pos = koord::invalid; ///< world position of newest message
+static bool redraw_all = false;            ///< true, if also trigger background need redraw
+static int next_pos;                       ///< Next x offset of new message. Always greater or equal to display_width
+static int dx_since_last_draw = 0;         ///< Increased during update(); positive values move messages to the left
 
 
 bool ticker::empty()

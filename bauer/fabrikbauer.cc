@@ -93,7 +93,7 @@ void init_fab_map( karte_t *welt )
  * @param x,y world position, needs to be valid coordinates
  * @returns true, if factory coordinate
  */
-inline bool is_factory_at( sint16 x, sint16 y)
+inline bool is_factory_at(sint16 x, sint16 y)
 {
 	uint32 idx = (fab_map_w*y)+(x/8);
 	return idx < fab_map.get_count()  &&  (fab_map[idx]&(1<<(x%8)))!=0;

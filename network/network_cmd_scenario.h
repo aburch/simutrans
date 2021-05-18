@@ -44,7 +44,7 @@ public:
 	/**
 	 * Callback method: sends answer back to client.
 	 * @param function result of this function is returned
-	 * @param client to send result to
+	 * @param client_id to send result to
 	 * @returns dummy boolean value
 	 */
 	static bool record_result(const char* function, plainstring result, uint32 client_id);

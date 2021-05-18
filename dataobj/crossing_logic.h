@@ -51,7 +51,7 @@ public:
 	crossing_logic_t( const crossing_desc_t *desc );
 
 	/**
-	 * @return string (only used for debug at the moment)
+	 * @param[out] buf string (only used for debug at the moment)
 	 */
 	void info(cbuffer_t & buf) const;
 

@@ -63,8 +63,8 @@ ENUM_BITSET(file_info_t::file_type_t);
 /**
  * Classify a save file.
  * @param path must a valid system name, either a short name for windows or UTF8 for other plattforms
- * @param file_info_t If successfully classified, holds information about file format and version.
- *                    Must not be NULL.
+ * @param info If successfully classified, holds information about file format and version.
+ *             Must not be NULL.
  * @returns FILE_CLASSIFY_OK iff successfully classified.
  */
 file_classify_status_t classify_save_file(const char *path, file_info_t *info);
@@ -72,8 +72,8 @@ file_classify_status_t classify_save_file(const char *path, file_info_t *info);
 /**
  * Classify an image file.
  * @param path must a valid system name, either a short name for windows or UTF8 for other plattforms
- * @param file_info_t If successfully classified, holds information about file format and version.
- *                    Must not be NULL.
+ * @param info If successfully classified, holds information about file format and version.
+ *             Must not be NULL.
  * @returns FILE_CLASSIFY_OK iff successfully classified.
  */
 file_classify_status_t classify_image_file(const char *path, file_info_t *info);

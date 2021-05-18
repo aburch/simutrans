@@ -155,7 +155,7 @@ public:
 	 * Registers a c++ function to be available as callback.
 	 * A callback is called when a function call got suspended, resumed, and returned something.
 	 * @tparam F function signature
-	 * @param F function pointer
+	 * @param funcptr function pointer
 	 * @param name register callback under this name
 	 */
 	template<typename F>

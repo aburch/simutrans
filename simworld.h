@@ -71,12 +71,10 @@ class karte_t
 
 public:
 	/**
-	 * Height of a point of the map with "perlin noise"
-	 *
-	 * @param frequency in 0..1.0 roughness, the higher the rougher
-	 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+	 * Height of a point of the map with "perlin noise".
+	 * Uses map roughness and mountain height from @p sets.
 	 */
-	static sint32 perlin_hoehe(settings_t const*, koord k, koord size);
+	static sint32 perlin_hoehe(settings_t const *sets, koord k, koord size);
 
 	/**
 	 * Loops over tiles setting heights from perlin noise
@@ -329,7 +327,7 @@ private:
 	 * @param keep_water returns false if water tiles would be raised above water
 	 * @param hsw desired height of sw-corner
 	 * @param hse desired height of se-corner
-	 * @param hse desired height of ne-corner
+	 * @param hne desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
@@ -353,7 +351,7 @@ private:
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner
 	 * @param hse desired height of se-corner
-	 * @param hse desired height of ne-corner
+	 * @param hne desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
@@ -1361,7 +1359,7 @@ public:
 	  * Initialize map.
 	  * @param sets Game settings.
 	  */
-	void init(settings_t*, sint8 const* heights);
+	void init(settings_t *sets, sint8 const* heights);
 
 	void init_tiles();
 
@@ -1723,9 +1721,9 @@ public:
 	/**
 	 * Plays the sound when the position is inside the visible region.
 	 * The sound plays lower when the position is outside the visible region.
-	 * @param pos Position at which the event took place.
+	 * @param k Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @param idx t is the type of sound (for selective muting etc.)
+	 * @param t is the type of sound (for selective muting etc.)
 	 */
 	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t) const;
 
@@ -1738,13 +1736,13 @@ public:
 
 	/**
 	 * Saves the map to a file.
-	 * @param Filename name of the file to write.
+	 * @param filename name of the file to write.
 	 */
 	void save(const char *filename, bool autosave, const char *version, bool silent);
 
 	/**
 	 * Loads a map from a file.
-	 * @param Filename name of the file to read.
+	 * @param filename name of the file to read.
 	 */
 	bool load(const char *filename);
 
@@ -1752,7 +1750,7 @@ public:
 	 * Creates a map from a heightfield.
 	 * @param sets game settings.
 	 */
-	void load_heightfield(settings_t*);
+	void load_heightfield(settings_t *sets);
 
 	/**
 	 * Stops simulation and optionally closes the game.

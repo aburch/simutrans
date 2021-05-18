@@ -649,15 +649,14 @@ public:
 	void open_info_window();
 
 	/**
-	* @return a description string for the object, der z.B. in einem
+	* @param[out] buf a description string for the object, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
 	* @see simwin
 	*/
 	void info(cbuffer_t & buf) const;
 
 	/**
-	* @param buf the buffer to fill
-	* @return Freight description text (buf)
+	* @param[out] buf Filled with freight description
 	*/
 	void get_freight_info(cbuffer_t & buf);
 	void set_sortby(uint8 order);

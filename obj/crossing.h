@@ -54,7 +54,7 @@ public:
 	const crossing_desc_t *get_desc() const { return desc; }
 
 	/**
-	 * @return string (only used for debug at the moment)
+	 * @param[out] buf string (only used for debug at the moment)
 	 */
 	void info(cbuffer_t & buf) const OVERRIDE;
 

@@ -842,7 +842,7 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 /**
  * Tries to find a matching house desc from @p list.
  * This method will never return NULL if there is at least one valid entry in the list.
- * @param level the minimum level of the house/station
+ * @param start_level the minimum level of the house/station
  * @param cl allowed climates
  */
 static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int start_level, uint16 time, climate cl, uint32 clusters, koord minsize, koord maxsize )

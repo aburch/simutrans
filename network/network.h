@@ -106,8 +106,8 @@ network_command_t* network_check_activity(karte_t *welt, int timeout);
  *    return true if connection is still open and sending can be continued later
  *
  * @param buf the data
- * @param count length of buffer and number of bytes to be sent
- * @param sent number of bytes sent
+ * @param size length of buffer and number of bytes to be sent
+ * @param[out] count number of bytes actually sent
  * @param timeout_ms time-out in milliseconds
  */
 bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms );

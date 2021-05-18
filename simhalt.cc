@@ -2334,8 +2334,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 
 /**
- * @param buf the buffer to fill
- * @return Goods description text (buf)
+ * @param[out] buf Goods description text (buf)
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {

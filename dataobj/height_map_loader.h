@@ -24,7 +24,8 @@ public:
 	 *
 	 * @param filename the file to load the height data from.
 	 * @param[out] hfield 2d array of height values.
-	 * @param[out] ww,hh width and height of @p hfield. On failure, these values are undefined.
+	 * @param[out] ww width of @p hfield. On failure, this value is undefined.
+	 * @param[out] hh height of @p hfield. On failure, this value is undefined.
 	 * @param update_only_values When true, do not allocate the height field; instead, only update @p ww and @p hh
 	 *
 	 * @return true on success, false on failure. On success, @p hfield contains
