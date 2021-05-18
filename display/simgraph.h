@@ -173,29 +173,29 @@ void display_scroll_band( const scr_coord_val start_y, const scr_coord_val x_off
 void display_set_player_color_scheme(const int player, const uint8 col1, const uint8 col2 );
 
 // only used for GUI, display image inside a rect
-void display_img_aligned( const image_id n, scr_rect area, int align, const int dirty);
+void display_img_aligned( const image_id n, scr_rect area, int align, const bool dirty);
 
 // display image with day and night change
-void display_img_aux(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_img_aux(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF);
 
 /**
  * draws the images with alpha, either blended or as outline
  */
-void display_rezoomed_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_rezoomed_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 #define ALPHA_RED 0x1
 #define ALPHA_GREEN 0x2
 #define ALPHA_BLUE 0x4
 
-void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 // display image with color (if there) and optional day and night change
-void display_color_img(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_color_img(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 // display unzoomed image
-void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 typedef image_id stretch_map_t[3][3];
 
@@ -206,13 +206,13 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area );
 void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, FLAGGED_PIXVAL color );
 
 // display unzoomed image with alpha, either blended or as outline
-void display_base_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
-void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_base_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const sint8 player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 // pointer to image display procedures
-typedef void (*display_image_proc)(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
-typedef void (*display_blend_proc)(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
-typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+typedef void (*display_image_proc)(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const bool daynight, const bool dirty  CLIP_NUM_DEF);
+typedef void (*display_blend_proc)(const image_id n, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF);
+typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, scr_coord_val xp, scr_coord_val yp, const signed char player_nr, const FLAGGED_PIXVAL color_index, const bool daynight, const bool dirty  CLIP_NUM_DEF);
 
 // variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;

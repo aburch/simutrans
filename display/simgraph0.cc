@@ -164,15 +164,15 @@ void display_scroll_band(const scr_coord_val, const scr_coord_val, const scr_coo
 {
 }
 
-void display_img_aux(const image_id, scr_coord_val, scr_coord_val, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_img_aux(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_color_img(const image_id, scr_coord_val, scr_coord_val, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_color_img(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img(const image_id, scr_coord_val, scr_coord_val, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_base_img(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -188,19 +188,19 @@ void display_img_stretch_blend( const stretch_map_t &, scr_rect, FLAGGED_PIXVAL)
 {
 }
 
-void display_rezoomed_img_blend(const image_id, scr_coord_val, scr_coord_val, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_blend(const image_id, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_blend(const image_id, scr_coord_val, scr_coord_val, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_blend(const image_id, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const signed char, const FLAGGED_PIXVAL, const int, int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -400,7 +400,7 @@ void display_progress(int, int)
 {
 }
 
-void display_img_aligned( const image_id, scr_rect, int, int )
+void display_img_aligned( const image_id, scr_rect, int, bool )
 {
 }
 
