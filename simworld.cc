@@ -1758,6 +1758,9 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 	case settings_t::TREE_DIST_NONE:
 		// no trees
 		break;
+	case settings_t::TREE_DIST_COUNT:
+		assert(false); // should not happen
+		break;
 	}
 }
 

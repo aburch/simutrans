@@ -197,6 +197,7 @@ sint32 building_desc_t::get_price(karte_t *world) const
 					case water_wt:       return -s.cst_multiply_dock * get_level();
 					case air_wt:         return -s.cst_multiply_airterminal * get_level();
 					case 0:              return -s.cst_multiply_post * get_level();
+					default:             return 0;
 				}
 			case depot:
 				switch(get_extra()) {

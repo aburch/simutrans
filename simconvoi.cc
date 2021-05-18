@@ -1354,7 +1354,7 @@ void convoi_t::step()
 		// just waiting for action here
 		case INITIAL:
 			welt->sync.remove(this);
-			/* FALLTHROUGH */
+			// FALLTHROUGH
 		case EDIT_SCHEDULE:
 		case NO_ROUTE:
 			wait_lock = max( wait_lock, 25000 );
@@ -1364,12 +1364,14 @@ void convoi_t::step()
 		case ROUTING_1:
 			// immediate start required
 			if (wait_lock == 0) break;
+			// FALLTHROUGH
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
 			// unless a longer wait is requested
 			if (wait_lock > 2500) {
 				break;
 			}
+			// FALLTHROUGH
 
 		// waiting for free way, not too heavy, not to slow
 		case CAN_START_ONE_MONTH:
