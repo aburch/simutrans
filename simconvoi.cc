@@ -2992,6 +2992,8 @@ station_tile_search_ready: ;
 			continue;
 		}
 
+		uint32 min_loading_step_time = v->get_desc()->get_loading_time() / v->get_cargo_max() + 1;
+		time = max(time, min_loading_step_time);
 		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / v->get_desc()->get_loading_time() + 1;
 		uint16 amount = v->unload_cargo(halt, next_depot, max_amount );
 
@@ -3043,8 +3045,9 @@ station_tile_search_ready: ;
 		book(gewinn, CONVOI_REVENUE);
 	}
 
+	wait_lock = time;
+
 	// if we check here we will continue loading even if the departure is delayed
-	wait_lock = WTT_LOADING;
 	if (wants_more  &&  !welt->get_settings().get_departures_on_time()  ) {
 		// not yet fully unloaded/loaded
 		return;
