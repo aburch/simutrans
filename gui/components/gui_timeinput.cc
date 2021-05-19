@@ -45,13 +45,6 @@ gui_timeinput_t::gui_timeinput_t(const char *)
 }
 
 
-scr_size gui_timeinput_t::get_min_size() const
-{
-	const int min_button_width = D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2 * D_H_SPACE + proportional_string_width("30");
-	return scr_size(3 * min_button_width + 2 * D_H_SPACE, D_EDIT_HEIGHT);
-}
-
-
 sint32 gui_timeinput_t::get_ticks()
 {
 	sint32 dms = days.get_value() * 24 * 60 + hours.get_value() * 60 + minutes.get_value();
