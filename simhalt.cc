@@ -277,23 +277,23 @@ void haltestelle_t::recalc_basis_pos()
 	koord cent;
 	cent = koord((sint16)(cent_x/level_sum),(sint16)(cent_y/level_sum));
 
+	// save old name
+	plainstring name = get_name();
+	// clear name at old place (and the book-keeping)
+	set_name(NULL);
+
 	if ( level_sum > 0 ) {
 		grund_t *new_center = get_ground_closest_to( cent );
 		if(  new_center != tiles.front().grund  &&  new_center->get_text()==NULL  ) {
-			// move the name to new center, if there is not yet a name on it
-			new_center->set_text( tiles.front().grund->get_text() );
-
-			// all_names contains pointers to ground-texts
-			// we need to adjust them
-			all_names.remove(tiles.front().grund->get_text());
-			all_names.set(new_center->get_text(), self);
-
-			tiles.front().grund->set_text(NULL);
+			// move to new center, if there is not yet a name on it
 			tiles.remove( new_center );
 			tiles.insert( new_center );
 			init_pos = new_center->get_pos().get_2d();
 		}
 	}
+	// .. and set name again (and do all the book-keeping)
+	set_name(name);
+
 	return;
 }
 
