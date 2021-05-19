@@ -67,10 +67,10 @@ template<class D> struct access_objs {
 				// object or tile disappeared: clear userpointer
 				sq_setinstanceup(vm, index, NULL);
 			}
-			sq_raise_error(vm, "Object of type %s vanished from (%s).", param<D>::squirrel_type, pos.get_str());
+			sq_raise_error(vm, "Object of type %s vanished from (%s).", param<D*>::squirrel_type(), pos.get_str());
 		}
 		else {
-			sq_raise_error(vm, "Object is not of type %s.", param<D>::squirrel_type);
+			sq_raise_error(vm, "Object is not of type %s.", param<D*>::squirrel_type);
 		}
 		return NULL;
 	}
