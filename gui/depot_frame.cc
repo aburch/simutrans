@@ -1570,8 +1570,6 @@ void depot_frame_t::open_schedule_editor()
 void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 {
 	cbuffer_t buf;
-	const scr_size size = get_windowsize();
-	PUSH_CLIP(pos.x, pos.y, size.w-1, size.h-1);
 
 	gui_component_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1630,7 +1628,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 				break;
 			}
 		}
-		display_proportional_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_clip_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
 	}
 
 	if(  veh_type  ) {
@@ -1720,8 +1718,6 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		txt_convoi_number.clear();
 		new_vehicle_length_sb = 0;
 	}
-
-	POP_CLIP();
 }
 
 
