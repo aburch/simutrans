@@ -119,6 +119,12 @@ gui_color_loadingbar_inner = #D6ECF7
 gui_player_color_dark = 1	
 gui_player_color_bright = 3
 
+# make the chat window transparent in network games
+gui_chat_window_network_transparency = 25
+
+# if defined, use plain color for chat window in network games
+gui_color_chat_window_network_transparency = #D6ECF7
+
 ##################################size stuff##################################
 
 # force main menu icon size

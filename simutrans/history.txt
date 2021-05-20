@@ -27,6 +27,7 @@
 	CHG: gradual unloading and loading if loading_time of a vehicle > 2000
 	CHG: schedule with load level zero and waiting time will force daparture at eaxactly this time
 	ADD: new parameter in simuconf.tab "departure_on_time" If 1 then convoi departs if if not finished loading and unloading
+	ADD: chat window transparency in network mode now controlled by theme: gui_color_chat_window_network_transparency and gui_chat_window_network_transparency
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

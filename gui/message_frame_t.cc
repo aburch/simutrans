@@ -100,8 +100,8 @@ message_frame_t::message_frame_t() :
 	add_component(&tabs);
 
 	set_resizemode(diagonal_resize);
-	if(  env_t::networkmode  ) {
-		set_transparent( env_t::chat_window_transparency, color_idx_to_rgb(COL_WHITE) );
+	if(  env_t::networkmode  && env_t::chat_window_transparency!=100  ) {
+		set_transparent( 100-env_t::chat_window_transparency, gui_theme_t::gui_color_chat_window_network_transparency );
 	}
 
 	fill_list();

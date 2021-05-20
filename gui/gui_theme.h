@@ -245,7 +245,8 @@ public:
 	static PIXVAL gui_color_loadingbar_progress;
 	static PIXVAL gui_color_obsolete;                     //@< Color for obsolete convois/server entries
 	static PIXVAL gui_color_empty;                        //@< Color for empty entries
-														  /// @}
+	static PIXVAL gui_color_chat_window_network_transparency; //@< Color if chat window is transparent in network mode
+	/// @}
 
 	/// @name GUI element sizes used by gui components
 	/// @{
@@ -305,7 +306,6 @@ public:
 	static image_id pos_button_img[3];
 
 	static bool gui_drop_shadows;
-
 
 public:
 	// default dimensions and colors

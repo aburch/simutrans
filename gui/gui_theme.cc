@@ -59,6 +59,7 @@ PIXVAL gui_theme_t::gui_shadow_color;
 PIXVAL gui_theme_t::gui_color_loadingbar_inner;
 PIXVAL gui_theme_t::gui_color_loadingbar_progress;
 PIXVAL gui_theme_t::gui_color_obsolete;
+PIXVAL gui_theme_t::gui_color_chat_window_network_transparency;
 PIXVAL gui_theme_t::gui_color_empty;
 
 /**
@@ -214,6 +215,8 @@ void gui_theme_t::init_gui_defaults()
 	gui_divider_size.h   = D_V_SPACE*2;
 
 	gui_drop_shadows     = false;
+
+	gui_color_chat_window_network_transparency = color_idx_to_rgb(COL_WHITE);
 }
 
 
@@ -522,6 +525,7 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	gui_theme_t::gui_color_loadingbar_progress          = (PIXVAL)contents.get_color("gui_color_loadingbar_progress", SYSCOL_LOADINGBAR_PROGRESS);
 	gui_theme_t::gui_color_obsolete                     = (PIXVAL)contents.get_color("gui_color_obsolete", SYSCOL_OBSOLETE);
 	gui_theme_t::gui_color_empty                        = (PIXVAL)contents.get_color("gui_color_empty", SYSCOL_EMPTY);
+	gui_theme_t::gui_color_chat_window_network_transparency = (PIXVAL)contents.get_color("gui_color_chat_window_network_transparency", gui_color_chat_window_network_transparency);
 
 	gui_theme_t::gui_waitingbar_width = (uint32)contents.get_int("gui_waitingbar_width", gui_theme_t::gui_waitingbar_width);
 
@@ -555,6 +559,8 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	env_t::tooltip_duration =     contents.get_int("tooltip_duration",           env_t::tooltip_duration );
 	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
+
+	env_t::chat_window_transparency =   100 - contents.get_int("gui_chat_window_network_transparency", 100 - env_t::chat_window_transparency);
 
 	if(  toolbar_last_used_t::last_used_tools  &&  init_tools  ) {
 		// only re-init if already inited
