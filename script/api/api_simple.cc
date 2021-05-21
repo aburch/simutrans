@@ -120,8 +120,12 @@ template<int idx> SQInteger coord_to_ribi(HSQUIRRELVM vm)
 
 SQInteger ribi_to_coord(HSQUIRRELVM vm)
 {
-	uint8 ribi = param<uint8>::get(vm, 2);
-	koord k( (ribi_t::ribi)ribi);
+	const uint8 ribi = param<uint8>::get(vm, 2);
+	if ((ribi & ~(uint8)ribi_t::all) != 0) {
+		return sq_raise_error(vm, "Invalid dir %hhu (valid values are 0..15)", ribi);
+	}
+
+	koord k( (ribi_t::ribi)ribi );
 	return push_instance(vm, "coord", k.x, k.y);
 }
 
