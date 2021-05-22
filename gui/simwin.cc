@@ -65,6 +65,7 @@
 #include "depot_frame.h"
 #include "depotlist_frame.h"
 #include "vehiclelist_frame.h"
+#include "display_settings.h"
 
 #include "../simversion.h"
 
@@ -126,8 +127,8 @@ static void display_win(int win);
 
 
 // tooltip data
-static int tooltip_xpos = 0;
-static int tooltip_ypos = 0;
+static scr_coord_val tooltip_xpos = 0;
+static scr_coord_val tooltip_ypos = 0;
 static const char * tooltip_text = 0;
 static std::string static_tooltip_text;
 
@@ -606,6 +607,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_convoi_list:    w = new convoi_frame_t(); break;
 					case magic_depotlist:      w = new depotlist_frame_t(); break;
 					case magic_vehiclelist:    w = new vehiclelist_frame_t(); break;
+					case magic_color_gui_t:    w = new color_gui_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
@@ -660,7 +662,53 @@ int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
 }
 
 
-int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
+/* tries to get a window on the screen
+ * without titlebar hidden by any menubar/satus bar elements
+ */
+void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, bool move_topleft )
+{
+	scr_coord_val add_menuwidth = env_t::iconsize.w;
+	scr_coord_val add_menuheight = env_t::iconsize.h;
+
+	scr_rect clip_rr(0, add_menuheight, display_get_width(), display_get_height() - add_menuwidth - win_get_statusbar_height());
+	switch (env_t::menupos) {
+	case MENU_TOP:
+		// rect default
+		break;
+	case MENU_BOTTOM:
+		clip_rr = scr_rect(0, 0, display_get_width(), display_get_height() - add_menuheight - win_get_statusbar_height());
+		break;
+	case MENU_LEFT:
+		clip_rr = scr_rect(add_menuwidth, 0, display_get_width() - add_menuwidth, display_get_height() - win_get_statusbar_height());
+		break;
+	case MENU_RIGHT:
+		clip_rr = scr_rect(0, 0, display_get_width() - add_menuheight, display_get_height() - win_get_statusbar_height());
+		break;
+	}
+
+
+	// should we move to be fully on screen?
+	if (move_topleft) {
+		if (x + wh.w > clip_rr.x + clip_rr.w) {
+			x = clip_rr.x + clip_rr.w - wh.w;
+		}
+		if (y + wh.h > clip_rr.y + clip_rr.h) {
+			y = clip_rr.y + clip_rr.h - wh.h;
+		}
+	}
+	// now do not hide titlebar by menubar
+	if (x < clip_rr.x) {
+		x = clip_rr.x;
+	}
+	if (y < clip_rr.y) {
+		y = clip_rr.y;
+	}
+}
+
+
+
+
+int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -684,26 +732,11 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			y = k->y;
 		}
 	}
-	// make sure window is on screen
-	if(  x < -1  ||  x+gui->get_windowsize().w > display_get_width()  ) {
-		if(gui->get_windowsize().w > display_get_width()) {
-			x = 0;
-		}
-		else {
-			x = clamp(x, 0, display_get_width()-gui->get_windowsize().w);
-		}
-	}
-	if(  y<-1  ||  y + gui->get_windowsize().h>display_get_height()  ) {
-		if (gui->get_windowsize().h > display_get_height()-env_t::iconsize.h) {
-			x = 0;
-		}
-		else {
-			y = clamp(y, env_t::iconsize.h, display_get_width() - gui->get_windowsize().h);
-		}
-	}
+
 	/* if there are too many handles (likely in large games)
 	 * we search for any error/news message at the bottom of the stack and delete it
 	 * => newer information might be more important ...
+	 * This is a stopgap to avoid simutrans to freeze due to many error etc windows
 	 */
 	if(  wins.get_count()==MAX_WIN  ) {
 		// we try to remove one of the lowest news windows (magic_none)
@@ -725,8 +758,6 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 
 		wins.append( simwin_t() );
 		simwin_t& win = wins.back();
-
-		sint16 const menu_height = env_t::iconsize.h;
 
 		// Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
@@ -772,6 +803,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			// not stored, take current
 			stored = gui->get_windowsize();
 		}
+
 		// use default width
 		stored.clip_lefttop(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 		// clip to display size
@@ -791,39 +823,16 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 			inside_event_handling = old;
 		}
 
-		scr_size size = gui->get_windowsize();
+		// try to go next to mouse bar
+		if (x == -1) {
+			move_to_full_view = true;
+			x = get_mouse_x() - gui->get_windowsize().w / 2;
+			y = get_mouse_y() - gui->get_windowsize().h / 2;
+		}
 
-		if(x == -1) {
-			// try to keep the toolbar below all other toolbars
-			y = menu_height;
-			if(wt & w_no_overlap) {
-				for( uint32 i=0;  i<wins.get_count()-1;  i++  ) {
-					if(wins[i].wt & w_no_overlap) {
-						if(wins[i].pos.y>=y) {
-							sint16 lower_y = wins[i].pos.y + wins[i].gui->get_windowsize().h;
-							if(lower_y >= y) {
-								y = lower_y;
-							}
-						}
-					}
-				}
-				// right aligned
-//				x = max( 0, display_get_width()-size.w );
-				// but we go for left
-				x = 0;
-				y = min( y, display_get_height()-size.h );
-			}
-			else {
-				x = min(get_mouse_x() - size.w/2, display_get_width()-size.w);
-				y = min(get_mouse_y() - size.h-env_t::iconsize.h, display_get_height()-size.h);
-			}
-		}
-		if(x<0) {
-			x = 0;
-		}
-		if(y<menu_height) {
-			y = menu_height;
-		}
+		// make sure window is on screen
+		win_clamp_xywh_position(x, y, gui->get_windowsize(), move_to_full_view);
+
 		win.pos = scr_coord(x,y);
 		win.dirty = true;
 		return wins.get_count();
@@ -1295,8 +1304,7 @@ void move_win(int win, event_t *ev)
 	}
 
 	// CLIP(wert,min,max)
-	to_pos.x = clamp( to_pos.x, 8-to_size.x, display_get_width()-16 );
-	to_pos.y = clamp( to_pos.y, env_t::iconsize.h, display_get_height() - D_TITLEBAR_HEIGHT - win_get_statusbar_height() - TICKER_HEIGHT);
+	win_clamp_xywh_position(to_pos.x, to_pos.y, wins[win].gui->get_windowsize(), false);
 
 	// delta is actual window movement.
 	const scr_coord delta = to_pos - from_pos;
@@ -1426,11 +1434,14 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// click in main menu?
+	scr_coord menuoffset((env_t::menupos == MENU_RIGHT) * (display_get_width() - env_t::iconsize.w), (env_t::menupos == MENU_BOTTOM) * (display_get_height() - env_t::iconsize.h - win_get_statusbar_height()) - D_TITLEBAR_HEIGHT);
 	if (!tool_t::toolbar_tool.empty()  &&
-			tool_t::toolbar_tool[0]->get_tool_selector()  &&
-			env_t::iconsize.h > y  &&
-			ev->ev_class != EVENT_KEYBOARD) {
+		tool_t::toolbar_tool[0]->get_tool_selector()  &&
+		tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y)  &&
+		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&
+		ev->ev_class != EVENT_KEYBOARD) {
 		event_t wev = *ev;
+		translate_event(&wev, -menuoffset.x, -menuoffset.y);
 		inside_event_handling = tool_t::toolbar_tool[0];
 		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event( &wev );
 		inside_event_handling = NULL;
@@ -1670,15 +1681,39 @@ void win_display_flush(double konto)
 {
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_height = display_get_height();
-	const sint16 menu_height = env_t::iconsize.h;
 
 	// display main menu
 	tool_selector_t *main_menu = tool_t::toolbar_tool[0]->get_tool_selector();
-	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
+	scr_coord menu_pos(0,0);
+	scr_size menu_size(disp_width, env_t::iconsize.h);
+	scr_rect clip_rr(0, env_t::iconsize.h, disp_width, disp_height - env_t::iconsize.h);
+	switch (env_t::menupos) {
+	case MENU_TOP:
+		// pos default (see above)
+		// size default
+		// rect default
+		break;
+	case MENU_BOTTOM:
+		menu_pos = scr_coord(0, disp_height - env_t::iconsize.h - win_get_statusbar_height());
+		// size default
+		clip_rr = scr_rect(0, 0, disp_width, disp_height - env_t::iconsize.h);
+		break;
+	case MENU_LEFT:
+		// pos default (see above)
+		menu_size = scr_size(env_t::iconsize.w, disp_height-win_get_statusbar_height() - show_ticker*TICKER_HEIGHT);
+		clip_rr = scr_rect(env_t::iconsize.h, 0, disp_width - env_t::iconsize.w, disp_height);
+		break;
+	case MENU_RIGHT:
+		menu_pos.x = disp_width - env_t::iconsize.w;
+		menu_size = scr_size(env_t::iconsize.w, disp_height - win_get_statusbar_height() - show_ticker*TICKER_HEIGHT);
+		clip_rr = scr_rect(0, 0, disp_width - env_t::iconsize.w, disp_height);
+		break;
+	}
+
 	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_image_id(0) != IMG_EMPTY  ) {
 		const image_id back_img = skinverwaltung_t::toolbar_background->get_image_id(0);
 		scr_coord_val w = env_t::iconsize.w;
-		scr_rect row = scr_rect( 0, 0, disp_width, menu_height );
+		scr_rect row = scr_rect( menu_pos, menu_size );
 		display_fit_img_to_width( back_img, w );
 		// tile it wide
 		while(  w <= row.w  ) {
@@ -1695,38 +1730,36 @@ void win_display_flush(double konto)
 		}
 	}
 	else {
-		display_fillbox_wh_rgb( 0, 0, disp_width, menu_height, color_idx_to_rgb(MN_GREY2), false );
+		display_fillbox_wh_rgb( menu_pos.x, menu_pos.y, menu_size.w, menu_size.h, color_idx_to_rgb(MN_GREY2), false );
 	}
 	// .. extra logic to enable tooltips
-	tooltip_element = menu_height > get_mouse_y() ? main_menu : NULL;
+	tooltip_element = main_menu->is_hit( get_mouse_x()-menu_pos.x, get_mouse_y()-menu_pos.y) ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
-	main_menu->draw( scr_coord(0,-D_TITLEBAR_HEIGHT), scr_size(disp_width,menu_height) );
+	menu_pos.y -= D_TITLEBAR_HEIGHT;
+	main_menu->draw(menu_pos, menu_size);
 	inside_event_handling = old_inside_event_handling;
 
-	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
+	display_set_clip_wh(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h);
 
-	show_ticker = false;
-	ticker::draw();
-	if (ticker::empty()) {
-		// set dirty background for removing ticker
-		if(wl) {
-			wl->set_background_dirty();
+	if(show_ticker  ||  !ticker::empty()) {
+		if (!show_ticker  ||  wl->is_dirty()) {
+			ticker::redraw();
 		}
+		show_ticker = !ticker::empty();
+		ticker::draw();
 	}
 	else {
-		show_ticker = true;
-		// need to adapt tooltip_y coordinates
-		tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
+		show_ticker = false;
 	}
 
 	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(D_MARGIN_LEFT,menu_height+D_MARGIN_TOP,disp_width-2*4,disp_height-menu_height-D_MARGIN_TOP-D_MARGIN_BOTTOM-win_get_statusbar_height()-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
+		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( wl->get_settings().get_rotation() ), scr_rect(D_MARGIN_LEFT, env_t::iconsize.h+D_MARGIN_TOP,disp_width-2*4,disp_height- env_t::iconsize.h -D_MARGIN_TOP-D_MARGIN_BOTTOM-win_get_statusbar_height()-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
 	}
 
 	{
 		// clip windows to avoid drawing into menu, ticker, or status-bar
-		PUSH_CLIP(0, menu_height, display_get_width(), display_get_height() - menu_height - (TICKER_HEIGHT)*show_ticker - win_get_statusbar_height() );
+		PUSH_CLIP(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h - (TICKER_HEIGHT)*show_ticker - win_get_statusbar_height() );
 
 		display_all_win();
 		remove_old_win();
@@ -1738,7 +1771,7 @@ void win_display_flush(double konto)
 				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+1+LINESPACE/2,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
+					display_ddd_proportional_clip(tooltip_xpos, tooltip_ypos, width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1746,7 +1779,10 @@ void win_display_flush(double konto)
 			}
 			else if(!static_tooltip_text.empty()) {
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+7;
-				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+1+LINESPACE/2,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
+				scr_coord_val x = get_mouse_x();
+				scr_coord_val y = get_mouse_y();
+				win_clamp_xywh_position(x, y, scr_size(width, LINESPACE + 2), true);
+				display_ddd_proportional_clip(x, y, width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -1875,10 +1911,10 @@ void win_display_flush(double konto)
 		}
 	}
 #endif
-	/*scr_coord_val w_left  = 20 + */ display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
-	/*scr_coord_val w_right =      */ display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
+	display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
 	/* Since the visual center (disp_width + ((w_left + 8) & 0xFFF0) - ((w_right + 8) & 0xFFF0)) / 2;
-	 * jump left and right with proportional fonts, we just take the actual cetner
+	 * jumps left and right with proportional fonts, we just take the actual center
 	 */
 	scr_coord_val middle = disp_width / 2;
 
@@ -1944,10 +1980,10 @@ void win_load_font(const char *fname, uint8 fontsize)
  * Has to be called from within gui_frame_t::draw
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner, const void *const group)
+void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, const void *const owner, const void *const group)
 {
 	// check whether the right window will set the tooltip
-	if (inside_event_handling != tooltip_element) {
+	if(inside_event_handling != tooltip_element  ) {
 		return;
 	}
 	// must be set every time as win_display_flush() will reset them
@@ -1982,6 +2018,12 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 			// no owner to associate with a group even if the group is valid
 			tooltip_group = 0;
 		}
+	}
+
+	if (text) {
+		scr_size tt_size = scr_size(proportional_string_width(text), LINESPACE + 2);
+		win_clamp_xywh_position(xpos, ypos, tt_size, true);
+		ypos += LINESPACE / 2 + 1;
 	}
 
 	tooltip_xpos = xpos;

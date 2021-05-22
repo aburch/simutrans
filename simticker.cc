@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "dataobj/koord.h"
+#include "dataobj/environment.h"
 #include "simdebug.h"
 #include "simticker.h"
 #include "display/simgraph.h"
@@ -21,8 +22,6 @@
 #define X_SPACING (18)  // spacing between messages, in pixels
 
 uint16 win_get_statusbar_height(); // simwin.h
-
-uint16 TICKER_YPOS_BOTTOM;
 
 struct node {
 	char msg[256];
@@ -142,20 +141,20 @@ void ticker::update()
 
 void ticker::draw()
 {
+	const int start_y = display_get_height() - TICKER_HEIGHT - win_get_statusbar_height() - (env_t::menupos == MENU_BOTTOM) * env_t::iconsize.h;
 	if (redraw_all) {
 		redraw();
 		return;
 	}
 	else if (list.empty()) {
 		// ticker not visible
+
+		// mark everything at the bottom as dirty to clear also tooltips and compass
+		mark_rect_dirty_wc(0, start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
 		return;
 	}
 
-	TICKER_YPOS_BOTTOM = TICKER_HEIGHT + win_get_statusbar_height();
-
-	const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 	const int width = display_get_width();
-
 	if (width <= 0) {
 		return;
 	}
@@ -181,18 +180,14 @@ void ticker::redraw()
 {
 	set_redraw_all(false);
 	dx_since_last_draw = 0;
+	const int start_y = display_get_height() - TICKER_HEIGHT - win_get_statusbar_height() - ((env_t::menupos == MENU_BOTTOM) * env_t::iconsize.h);
 
 	if (list.empty()) {
-		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
-
 		// mark everything at the bottom as dirty to clear also tooltips and compass
 		mark_rect_dirty_wc(0, start_y-128, display_get_width(), start_y + 128 +TICKER_HEIGHT);
 		return;
 	}
 
-	TICKER_YPOS_BOTTOM = TICKER_HEIGHT + win_get_statusbar_height();
-
-	const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 	const int width = display_get_width();
 
 	// just draw the ticker in its colour ... (to be sure ... )

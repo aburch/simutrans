@@ -976,6 +976,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::window_frame_active       = contents.get_int( "window_frame_active",       env_t::window_frame_active       ) != 0;
 	env_t::second_open_closes_win    = contents.get_int( "second_open_closes_win",    env_t::second_open_closes_win    ) != 0;
 	env_t::remember_window_positions = contents.get_int( "remember_window_positions", env_t::remember_window_positions ) != 0;
+	env_t::menupos                   = contents.get_int("menubar_position",           env_t::menupos);
 
 	env_t::show_tooltips      = contents.get_int( "show_tooltips", env_t::show_tooltips   ) != 0;
 

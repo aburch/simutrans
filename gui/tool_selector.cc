@@ -116,24 +116,43 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 		}
 		// currently only drag in x directions
 		is_dragging = true;
-		offset = old_offset + scr_coord( ev->mx - ev->cx, 0 );
+		offset = old_offset + (tool_icon_height == 1 ? scr_coord(ev->mx - ev->cx, 0) : scr_coord(0, ev->my - ev->cy));
 		int xy = tool_icon_width*tool_icon_height;
-		if(  tool_icon_disp_start + xy >= (int)tools.get_count()  &&  offset.x < 0  ) {
-			offset.x = 0;
+		if(  tool_icon_height == 1  &&  tool_icon_disp_start + xy >= (int)tools.get_count()  ) {
+			// we have to take into account that the height is not a full icon
+			tool_icon_disp_start = max(0, (int)tools.get_count() - xy);
+			offset.x = -min(-offset.x, env_t::iconsize.w-(get_windowsize().w % env_t::iconsize.w));
 		}
-		if(  tool_icon_disp_start == 0  &&  offset.x > 0  ) {
-			offset.x = 0;
+		if(  tool_icon_width == 1  &&  tool_icon_disp_start + xy >= (int)tools.get_count()  ) {
+			// we have to take into account that the height is not a full icon
+			tool_icon_disp_start = max(0, (int)tools.get_count() - xy);
+			offset.y = -min( -offset.y, (get_windowsize().h-D_TITLEBAR_HEIGHT) % env_t::iconsize.h);
 		}
-		if(  offset.x > 0  ) {
+		if(  tool_icon_disp_start == 0  &&  (offset.x > 0  ||  offset.y > 0)  ) {
+			offset.x = 0;
+			offset.y = 0;
+		}
+		if (offset.x > 0) {
 			// we must change the old offset, since the mouse starting point changed!
 			old_offset.x -= env_t::iconsize.w;
 			offset.x -= env_t::iconsize.w;
-			tool_icon_disp_start --;
+			tool_icon_disp_start--;
 		}
-		if(  offset.x <= -env_t::iconsize.w  ) {
+		if (offset.x <= -env_t::iconsize.w) {
 			old_offset.x += env_t::iconsize.w;
 			offset.x += env_t::iconsize.w;
-			tool_icon_disp_start ++;
+			tool_icon_disp_start++;
+		}
+		if (offset.y > 0) {
+			// we must change the old offset, since the mouse starting point changed!
+			old_offset.y -= env_t::iconsize.h;
+			offset.y -= env_t::iconsize.h;
+			tool_icon_disp_start--;
+		}
+		if (offset.y <= -env_t::iconsize.h) {
+			old_offset.y += env_t::iconsize.h;
+			offset.y += env_t::iconsize.h;
+			tool_icon_disp_start++;
 		}
 		if(  !IS_LEFTRELEASE(ev)  &&  ev->button_state != 1 ) {
 			is_dragging = false;
@@ -141,30 +160,38 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 	}
 
 	// offsets sanity check
-	while( offset.x < -env_t::iconsize.w ) {
+	while (offset.x < -env_t::iconsize.w) {
 		offset.x += env_t::iconsize.w;
 	}
-	while( offset.x > 0  ) {
+	while (offset.x > 0) {
 		offset.x -= env_t::iconsize.w;
+	}
+	while (offset.y < -env_t::iconsize.h) {
+		offset.y += env_t::iconsize.h;
+	}
+	while (offset.y > 0) {
+		offset.y -= env_t::iconsize.h;
 	}
 	if( tool_icon_disp_start > tool_icon_disp_end ) {
 		tool_icon_disp_start = 0;
 		offset.x = 0;
+		offset.y = 0;
 	}
 	int xy = tool_icon_width*tool_icon_height;
-	tool_icon_disp_end = min(tool_icon_disp_start+xy+(offset.x!=0), tools.get_count());
+	tool_icon_disp_end = (tool_icon_height == 1) ? min(tool_icon_disp_start+xy+(offset.x!=0), tools.get_count()) : min(tool_icon_disp_start + xy + (offset.y != 0), tools.get_count());
 
 	if(IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev)) {
 		if( is_dragging ) {
 			is_dragging = false;
-			if( abs(old_offset.x - offset.x) > 2   ||  ev->cx-ev->mx != offset.x  ) {
+			if( abs(old_offset.x - offset.x) > 2   ||  abs(old_offset.y - offset.y) > 2  ||  ev->cx-ev->mx != offset.x  ||  ev->cx - ev->my != offset.y  ) {
 				// we did dragg sucesfully before, so no tool selection!
 				return true;
 			}
 		}
-		// tooltips?
+
+		// No dragging => Next check tooltips
 		const int x = (ev->mx-offset.x) / env_t::iconsize.w;
-		const int y = (ev->my-D_TITLEBAR_HEIGHT-offset.y) / env_t::iconsize.h;
+		const int y = (ev->my-offset.y-D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
 
 		const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
 		if( wz_idx>=0  &&  wz_idx < (int)tools.get_count()  ) {
@@ -205,13 +232,13 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 		if(ev->ev_code==NEXT_WINDOW) {
 			assert( xy >= tool_icon_width );
 			tool_icon_disp_start += xy;
-			if(  tool_icon_disp_start + xy >= (int)tools.get_count() ) {
-				tool_icon_disp_start = tools.get_count() - xy;
+			if(  tool_icon_disp_start + xy > (int)tools.get_count() ) {
+				tool_icon_disp_start = tools.get_count() - xy -1;
 			}
 			offset = scr_coord( 0, 0 );
 		}
 		else {
-			if(  tool_icon_disp_start >= xy  ) {
+			if(  tool_icon_disp_start > xy  ) {
 				tool_icon_disp_start -= xy;
 			}
 			else {
@@ -220,7 +247,6 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 			offset = scr_coord( 0, 0 );
 		}
 		tool_icon_disp_end = min(tool_icon_disp_start+xy, tools.get_count());
-//		set_windowsize( scr_size( tool_icon_width*env_t::iconsize.w, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*env_t::iconsize.h+D_TITLEBAR_HEIGHT ) );
 		dirty = true;
 	}
 	return false;
@@ -231,20 +257,37 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 {
 	CLIP_NUM_PDECL CLIP_NUM_VAR CLIP_NUM_DEFAULT_ZERO;
 	player_t *player = welt->get_active_player();
-	display_push_clip_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, sz.w, sz.h CLIP_NUM_PAR );
 
 	if( toolbar_id == 0 ) {
+		set_windowsize(sz);
 		// sanity checks for main menu
-		tool_icon_width = (display_get_width() + env_t::iconsize.w - 1) / env_t::iconsize.w;
-		allow_break = false;
-		tool_icon_height = 1; // only single row for title bar
-		has_prev_next = tool_icon_width < tools.get_count();
-		if( tool_icon_disp_start > tool_icon_disp_end ) {
-			tool_icon_disp_start = 0;
+		if(env_t::menupos==MENU_TOP || env_t::menupos == MENU_BOTTOM) {
+			offset.y = 0;
+			allow_break = false;
+			tool_icon_width = (display_get_width() + env_t::iconsize.w - 1) / env_t::iconsize.w;
+			tool_icon_height = 1; // only single row for title bar
+			has_prev_next = tool_icon_width < tools.get_count();
+			if (tool_icon_disp_start > tool_icon_disp_end) {
+				tool_icon_disp_start = 0;
+			}
+			tool_icon_disp_end = min(tool_icon_disp_start + tool_icon_width + (offset.x != 0), tools.get_count());
 		}
-		tool_icon_disp_end = min(tool_icon_disp_start+tool_icon_width+(offset.x!=0), tools.get_count());
+		else {
+			offset.x = 0;
+			allow_break = false;
+			tool_icon_width = 1;
+			// only single column for title bar
+			tool_icon_height = (display_get_height() - win_get_statusbar_height() + env_t::iconsize.h - 1) / env_t::iconsize.h;
+			set_windowsize(scr_size(env_t::iconsize.w, display_get_height() - win_get_statusbar_height()));
+			has_prev_next = tool_icon_height < tools.get_count();
+			if (tool_icon_disp_start > tool_icon_disp_end) {
+				tool_icon_disp_start = 0;
+			}
+			tool_icon_disp_end = min(tool_icon_disp_start + tool_icon_height + (offset.y != 0), tools.get_count());
+		}
 	}
 
+	display_push_clip_wh(pos.x, pos.y + D_TITLEBAR_HEIGHT, sz.w, sz.h CLIP_NUM_PAR);
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(player);
 		const scr_coord draw_pos = pos + offset + scr_coord(( (i-tool_icon_disp_start)%(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.w, D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.h);
@@ -273,7 +316,6 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tools[i].selected = tools[i].tool->is_selected();
 		}
 	}
-	display_pop_clip_wh(CLIP_NUM_VAR);
 
 	if( is_dragging ) {
 		mark_rect_dirty_wc(pos.x, pos.y+D_TITLEBAR_HEIGHT, pos.x+sz.w, pos.y+sz.h+D_TITLEBAR_HEIGHT );
@@ -284,22 +326,32 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 	}
 
 	if(  offset.x != 0  ||  tool_icon_disp_start > 0  ) {
-		display_color_img( gui_theme_t::arrow_button_left_img[0], pos.x, pos.y+D_TITLEBAR_HEIGHT, 0, false, false );
+		display_color_img(gui_theme_t::arrow_button_left_img[0], pos.x, pos.y + D_TITLEBAR_HEIGHT, 0, false, false);
 	}
-	if(  tool_icon_disp_end < tools.get_count()  ||  offset.x+tool_icon_width*env_t::iconsize.w < sz.w  ) {
-		display_color_img( gui_theme_t::arrow_button_right_img[0], pos.x+sz.w-D_ARROW_LEFT_WIDTH, pos.y+D_TITLEBAR_HEIGHT, 0, false, false );
+	if(  offset.y != 0  ||  tool_icon_disp_start > 0  ) {
+		display_color_img(gui_theme_t::arrow_button_up_img[0], pos.x, pos.y + D_TITLEBAR_HEIGHT, 0, false, false);
 	}
+	if(  tool_icon_height == 1  &&  (tool_icon_disp_start+tool_icon_width < tools.get_count()  ||  (-offset.x) < env_t::iconsize.w*tool_icon_width-get_windowsize().w)  ) {
+		display_color_img( gui_theme_t::arrow_button_right_img[0], pos.x+sz.w-D_ARROW_UP_WIDTH, pos.y+D_TITLEBAR_HEIGHT, 0, false, false );
+	}
+	if(  tool_icon_width == 1  &&  (tool_icon_disp_start+tool_icon_height < tools.get_count()  ||  (-offset.y) < env_t::iconsize.h*tool_icon_height-get_windowsize().h)  ) {
+		display_color_img(gui_theme_t::arrow_button_down_img[0], pos.x+sz.w-D_ARROW_DOWN_WIDTH, pos.y+D_TITLEBAR_HEIGHT+sz.h-D_ARROW_DOWN_HEIGHT, 0, false, false);
+	}
+	display_pop_clip_wh(CLIP_NUM_VAR);
 
 	if(  !is_dragging  ) {
 		// tooltips?
 		const sint16 mx = get_mouse_x();
 		const sint16 my = get_mouse_y();
-		const sint16 xdiff = (mx - pos.x) / env_t::iconsize.w;
-		const sint16 ydiff = (my - pos.y - D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
-		if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+D_TITLEBAR_HEIGHT  ) {
-			const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
-			if(  tipnr < (int)tool_icon_disp_end  ) {
-				win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, pos.y + TOOLTIP_MOUSE_OFFSET_Y + ((ydiff+1)*env_t::iconsize.h) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
+		if(  is_hit(mx-pos.x, my-pos.y)  ) {
+			const sint16 xdiff = (mx - pos.x) / env_t::iconsize.w;
+			const sint16 ydiff = (my - pos.y-D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
+			if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  ) {
+				const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
+				if(  tipnr < (int)tool_icon_disp_end  ) {
+					const char* tipstr = tools[tipnr].tool->get_tooltip(welt->get_active_player());
+					win_set_tooltip(mx+TOOLTIP_MOUSE_OFFSET_X, my+TOOLTIP_MOUSE_OFFSET_Y, tipstr, tools[tipnr].tool, this);
+				}
 			}
 		}
 	}

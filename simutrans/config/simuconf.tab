@@ -365,6 +365,9 @@ compass_map_position = 13
 # if set to 0, it will always produce numbers
 numpad_always_moves_map = 1
 
+# Position of the main menu bar (0=top, 1=left, 2=bottom, 3=right)
+#menubar_position = 0
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files

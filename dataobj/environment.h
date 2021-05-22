@@ -21,6 +21,7 @@
 
 #define TILE_HEIGHT_STEP (env_t::pak_tile_height_step)
 
+enum { MENU_LEFT, MENU_TOP, MENU_RIGHT, MENU_BOTTOM };
 
 /**
  * Class to save all environment parameters, ie everything that changes
@@ -33,6 +34,8 @@ public:
 	/// Points to the current simutrans data directory. Usually this is the same directory
 	/// where the executable is located, unless -use_workdir is specified.
 	static char data_dir[PATH_MAX];
+
+	static sint16 menupos;
 
 	/// points to the current user directory for loading and saving
 	static const char *user_dir;

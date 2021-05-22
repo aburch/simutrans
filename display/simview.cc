@@ -101,11 +101,26 @@ void main_view_t::display(bool force_dirty)
 	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
-	const sint16 menu_height = env_t::iconsize.h;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
 	const sint16 disp_height = display_get_height() - win_get_statusbar_height() - (!ticker::empty() ? TICKER_HEIGHT : 0);
-	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
+
+	scr_rect clip_rr(0, env_t::iconsize.w, disp_width, disp_height - env_t::iconsize.h);
+	switch (env_t::menupos) {
+	case MENU_TOP:
+		// rect default
+		break;
+	case MENU_BOTTOM:
+		clip_rr = scr_rect(0, 0, disp_width, disp_height - env_t::iconsize.h + 1);
+		break;
+	case MENU_LEFT:
+		clip_rr = scr_rect(env_t::iconsize.w, 0, disp_width - env_t::iconsize.w, disp_height);
+		break;
+	case MENU_RIGHT:
+		clip_rr = scr_rect(0, 0, disp_width - env_t::iconsize.w, disp_height);
+		break;
+	}
+	display_set_clip_wh(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h);
 
 	// redraw everything?
 	force_dirty = force_dirty || welt->is_dirty();
@@ -116,7 +131,7 @@ void main_view_t::display(bool force_dirty)
 		force_dirty = false;
 	}
 
-	const int dpy_width = disp_width/IMG_SIZE + 2;
+	const int dpy_width = clip_rr.w/IMG_SIZE + 2;
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
 	const int i_off = viewport->get_world_position().x + viewport->get_viewport_ij_offset().x;
@@ -151,11 +166,11 @@ void main_view_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if( grund_t::underground_mode ) {
-		display_fillbox_wh_rgb(0, menu_height, disp_width, disp_height-menu_height, color_idx_to_rgb(COL_BLACK), force_dirty);
+		display_fillbox_wh_rgb(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h, color_idx_to_rgb(COL_BLACK), force_dirty);
 	}
 	else if( welt->is_background_dirty()  &&  outside_visible  ) {
 		// we check if background will be visible, no need to clear screen if it's not.
-		display_background(0, menu_height, disp_width, disp_height-menu_height, force_dirty);
+		display_background(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h, force_dirty);
 		welt->unset_background_dirty();
 		// reset
 		outside_visible = false;
@@ -166,13 +181,13 @@ void main_view_t::display(bool force_dirty)
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
 	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->min_height)*TILE_HEIGHT_STEP, IMG_SIZE )
-					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
+					+ 4*(clip_rr.y-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 	// prepare view
 	rect_t const world_rect(koord(0, 0), welt->get_size());
 
 	koord const estimated_min(((y_min+(-2-((y_min+dpy_width) & 1))) >> 1) + i_off,
-		((y_min-(disp_width - const_x_off) / (IMG_SIZE/2) - 1) >> 1) + j_off);
+		((y_min-(clip_rr.w - const_x_off) / (IMG_SIZE/2) - 1) >> 1) + j_off);
 
 	sint16 const worst_case_mountain_extra = (welt->max_height - welt->min_height) / 2;
 	koord const estimated_max((((dpy_height+4*4)+(disp_width - const_x_off) / (IMG_SIZE/2) - 1) >> 1) + i_off + worst_case_mountain_extra,
@@ -211,12 +226,12 @@ void main_view_t::display(bool force_dirty)
 		}
 
 		// set parameter for each thread
-		const scr_coord_val wh_x = disp_width / env_t::num_threads;
-		scr_coord_val lt_x = 0;
+		const scr_coord_val wh_x = clip_rr.w / env_t::num_threads;
+		scr_coord_val lt_x = clip_rr.x;
 		for(  int t = 0;  t < env_t::num_threads - 1;  t++  ) {
 			ka[t].show_routine = this;
-			ka[t].lt_cl = koord( lt_x, menu_height );
-			ka[t].wh_cl = koord( wh_x, disp_height - menu_height );
+			ka[t].lt_cl = koord( lt_x, clip_rr.y );
+			ka[t].wh_cl = koord( wh_x, clip_rr.h );
 			ka[t].lt = ka[t].lt_cl - koord( IMG_SIZE/2, 0 ); // process tiles IMG_SIZE/2 outside clipping range for correct tree display at thread seams
 			ka[t].wh = ka[t].wh_cl + koord( IMG_SIZE, 0 );
 			ka[t].y_min = y_min;
@@ -234,18 +249,18 @@ void main_view_t::display(bool force_dirty)
 
 		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % num_threads != 0)
 		clear_all_poly_clip( env_t::num_threads - 1 );
-		display_set_clip_wh( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, env_t::num_threads - 1 );
-		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, env_t::num_threads - 1 );
+		display_set_clip_wh( lt_x, clip_rr.y, clip_rr.w, clip_rr.h, env_t::num_threads - 1 );
+		display_region( koord( lt_x - IMG_SIZE / 2, clip_rr.y ), koord( clip_rr.w - lt_x + IMG_SIZE, clip_rr.h ), y_min, dpy_height + 4 * 4, false, true, env_t::num_threads - 1 );
 
 		simthread_barrier_wait( &display_barrier_end );
 
 		clear_all_poly_clip( 0 );
-		display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
+		display_set_clip_wh(clip_rr.x, clip_rr.y, clip_rr.w, clip_rr.h);
 	}
 	else {
 		// slow serial way of display
 		clear_all_poly_clip( 0 );
-		display_region( koord( 0, menu_height ), koord( disp_width, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, false, 0 );
+		display_region( koord(clip_rr.x, clip_rr.y), koord(clip_rr.w, clip_rr.h), y_min, dpy_height + 4 * 4, false, false, 0 );
 	}
 #else
 	clear_all_poly_clip();
@@ -268,7 +283,7 @@ void main_view_t::display(bool force_dirty)
 				if(plan  &&  plan->get_kartenboden()) {
 					const grund_t *gr = plan->get_kartenboden();
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP, IMG_SIZE);
-					if(  yypos-IMG_SIZE<disp_real_height  &&  yypos+IMG_SIZE>=menu_height  ) {
+					if(  yypos-IMG_SIZE < clip_rr.get_bottom()  &&  yypos+IMG_SIZE>=clip_rr.y  ) {
 						plan->display_overlay( xpos, yypos );
 						plotted = true;
 					}

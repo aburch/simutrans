@@ -74,6 +74,8 @@ public:
 	// untranslated title
 	const char *get_internal_name() const {return title;}
 
+	virtual bool has_title() const { return toolbar_id!=0; }
+
 	const char *get_help_filename() const OVERRIDE {return help_file;}
 
 	FLAGGED_PIXVAL get_titlecolor() const OVERRIDE { return env_t::default_window_title_color; }

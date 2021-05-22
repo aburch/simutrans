@@ -225,7 +225,10 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	env_t::autosave = 0;
 
 	event_t ev;
-	create_win( (display_get_width()-gui->get_windowsize().w)/2, (display_get_height()-gui->get_windowsize().h)/2, gui, w_info, magic );
+	scr_coord_val x = (display_get_width() - gui->get_windowsize().w) / 2;
+	scr_coord_val y = (display_get_height() - gui->get_windowsize().h) / 2;
+	win_clamp_xywh_position(x, y, gui->get_windowsize(), true);
+	create_win( x, y, gui, w_info, magic );
 
 	if(  welt  ) {
 		welt->set_pause( false );
@@ -240,13 +243,16 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			do {
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
-				// no toolbar events
-				if(  ev.my < env_t::iconsize.h  ) {
-					ev.my = env_t::iconsize.h;
-				}
-				if(  ev.cy < env_t::iconsize.h  ) {
-					ev.cy = env_t::iconsize.h;
-				}
+				x = ev.mx;
+				y = ev.my;
+				win_clamp_xywh_position(x, y, scr_size(1, 1), false );
+				ev.mx = x;
+				ev.my = y;
+				x = ev.cx;
+				y = ev.cy;
+				win_clamp_xywh_position(x, y, scr_size(1, 1), false);
+				ev.cx = x;
+				ev.cy = y;
 				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
 					if(  gui_frame_t *win = win_get_top()  ) {
 						if(  const char *helpfile = win->get_help_filename()  ) {
