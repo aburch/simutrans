@@ -285,7 +285,7 @@ bool button_t::infowin_event(const event_t *ev)
 		pressed = (ev->button_state==1);
 		if (type == sortarrow) {
 			tooltip = pressed ? "cl_btn_sort_desc" : "cl_btn_sort_asc";
-			translated_tooltip = translator::translate();
+			translated_tooltip = translator::translate(tooltip);
 		}
 	}
 
