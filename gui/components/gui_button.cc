@@ -118,6 +118,14 @@ void button_t::set_typ(enum type t)
 			img = IMG_EMPTY;
 			break;
 
+		case sortarrow:
+		{
+			const uint8 block_height = 2;
+			const uint8 bars_height = uint8((size.h-block_height-4)/4) * block_height*2 + block_height;
+			set_size( scr_size(max(D_BUTTON_HEIGHT, (gui_theme_t::gui_color_button_text_offset.w+4)*2 + 6/*arrow width(5)+margin(1)*/+block_height + (bars_height-2)/2), max(D_BUTTON_HEIGHT, LINESPACE)) );
+			break;
+		}
+
 		default:
 			break;
 	}
@@ -186,6 +194,13 @@ scr_size button_t::get_min_size() const
 			size.w = max(size.w, w+2);
 			size.h = max(size.h, h+2);
 			return size;
+		}
+
+		case sortarrow:
+		{
+			const uint8 block_height = 2;
+			const uint8 bars_height = uint8((size.h-block_height-4)/4) * block_height*2 + block_height;
+			return scr_size( max( D_BUTTON_HEIGHT, (gui_theme_t::gui_color_button_text_offset.w+4)*2 + 6/*arrow width(5)+margin(1)*/+block_height + (bars_height-2)/2 ), max(D_BUTTON_HEIGHT, LINESPACE) );
 		}
 
 		default:
@@ -367,6 +382,36 @@ void button_t::draw(scr_coord offset)
 			}
 			break;
 
+		case sortarrow:
+			{
+				display_img_stretch(gui_theme_t::button_tiles[0], area);
+
+				const uint8 block_height = 2;
+				const uint8 bars_height = uint8((size.h-block_height-4)/4)*block_height*2 + block_height;
+				scr_rect area_drawing(area.x, area.y, 6/*arrow width(5)+margin(1)*/+block_height+(bars_height-2)/2, bars_height);
+				area_drawing.set_pos(gui_theme_t::gui_color_button_text_offset + area.get_pos() + scr_coord(4/*left margin*/,D_GET_CENTER_ALIGN_OFFSET(bars_height,size.h)));
+
+				// draw an arrow
+				display_fillbox_wh_clip_rgb(area_drawing.x+2, area_drawing.y, 1, bars_height, SYSCOL_BUTTON_TEXT, false);
+				if (pressed) {
+					// desc
+					display_fillbox_wh_clip_rgb(area_drawing.x+1, area_drawing.y+1, 3, 1, SYSCOL_BUTTON_TEXT, false);
+					display_fillbox_wh_clip_rgb(area_drawing.x,   area_drawing.y+2, 5, 1, SYSCOL_BUTTON_TEXT, false);
+					for (uint8 row=0; row*4<bars_height; row++) {
+						display_fillbox_wh_clip_rgb(area_drawing.x + 6/*arrow width(5)+margin(1)*/, area_drawing.y + bars_height - block_height - row*block_height*2, block_height*(row+1), block_height, SYSCOL_BUTTON_TEXT, false);
+					}
+				}
+				else {
+					// asc
+					display_fillbox_wh_clip_rgb(area_drawing.x+1, area_drawing.y+bars_height-2, 3, 1, SYSCOL_BUTTON_TEXT, false);
+					display_fillbox_wh_clip_rgb(area_drawing.x,   area_drawing.y+bars_height-3, 5, 1, SYSCOL_BUTTON_TEXT, false);
+					for (uint8 row=0; row*4<bars_height; row++) {
+						display_fillbox_wh_clip_rgb(area_drawing.x + 6/*arrow width(5)+margin(1)*/, area_drawing.y + row*block_height*2, block_height*(row+1), block_height, SYSCOL_BUTTON_TEXT, false);
+					}
+				}
+			}
+			break;
+
 		case square: // checkbox with text
 			{
 				display_img_aligned( gui_theme_t::check_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
@@ -434,6 +479,7 @@ void button_t::update_focusability()
 
 		// those cannot receive focus ...
 		case imagebox:
+		case sortarrow:
 		case arrowleft:
 		case repeatarrowleft:
 		case arrowright:
