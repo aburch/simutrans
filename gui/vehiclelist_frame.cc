@@ -172,7 +172,8 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 		sort_by.add_listener( this );
 		add_component( &sort_by );
 
-		sorteddir.init( button_t::roundbox, vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc" );
+		sorteddir.init( button_t::sortarrow_state, NULL );
+		sorteddir.pressed = vehiclelist_stats_t::reverse;
 		sorteddir.add_listener( this );
 		add_component( &sorteddir );
 
@@ -242,6 +243,7 @@ bool vehiclelist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		vehiclelist_stats_t::reverse = !vehiclelist_stats_t::reverse;
 		sorteddir.set_text( vehiclelist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 		scrolly.sort(0);
+		sorteddir.pressed = vehiclelist_stats_t::reverse;
 	}
 	else if(comp == &bt_obsolete) {
 		bt_obsolete.pressed ^= 1;
