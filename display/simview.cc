@@ -264,7 +264,7 @@ void main_view_t::display(bool force_dirty)
 	}
 #else
 	clear_all_poly_clip();
-	display_region( koord( 0, menu_height ), koord( disp_width, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false );
+	display_region(koord(clip_rr.x, clip_rr.y), koord(clip_rr.w, clip_rr.h), y_min, dpy_height + 4 * 4, false );
 #endif
 
 	// and finally overlays (station coverage and signs)

@@ -23,8 +23,6 @@
 #include "../utils/cbuffer_t.h"
 
 
-static bool passes_filter(haltestelle_t const& s); // see below
-
 /**
  * Scrolled list of halt_list_stats_ts.
  * Filters (by setting visibility) and sorts.
@@ -36,13 +34,6 @@ public:
 
 	void sort()
 	{
-		// set visibility according to filter
-		for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ++iter) {
-			halt_list_stats_t *a = dynamic_cast<halt_list_stats_t*>(*iter);
-
-			a->set_visible( passes_filter(*a->get_halt()) );
-		}
-
 		gui_scrolled_list_t::sort(0);
 	}
 
@@ -77,7 +68,7 @@ bool halt_list_frame_t::sortreverse = false;
  */
 int halt_list_frame_t::filter_flags = 0;
 
-char halt_list_frame_t::name_filter_value[64] = "";
+char halt_list_frame_t::name_filter[256] = "";
 
 slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_ab;
 slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_an;
@@ -126,29 +117,62 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 }
 
 
-static bool passes_filter_name(haltestelle_t const& s)
+halt_list_frame_t::halt_list_frame_t(player_t *player) :
+	gui_frame_t( translator::translate("hl_title"), player)
 {
-	if (!halt_list_frame_t::get_filter(halt_list_frame_t::name_filter)) return true;
+	m_player = player;
+	filter_frame = NULL;
 
-	return utf8caseutf8(s.get_name(), halt_list_frame_t::access_name_filter());
+	set_table_layout(1, 0);
+
+	add_table(5, 2);
+	{
+		new_component_span<gui_label_t>("hl_txt_sort", 2);
+		name_filter_input.set_text(name_filter, lengthof(name_filter));
+		add_component(&name_filter_input, 2);
+		new_component<gui_fill_t>();
+
+		sortedby.set_unsorted(); // do not sort
+		for (size_t i = 0; i < lengthof(sort_text); i++) {
+			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+		}
+		sortedby.set_selection(get_sortierung());
+		sortedby.add_listener(this);
+		add_component(&sortedby);
+
+		sorteddir.init(button_t::sortarrow_automatic, NULL);
+		sorteddir.add_listener(this);
+		sorteddir.pressed = get_reverse();
+		add_component(&sorteddir);
+
+		new_component<gui_label_t>("hl_txt_filter:", ALIGN_RIGHT);
+		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
+		filter_details.add_listener(this);
+		add_component(&filter_details);
+		new_component<gui_fill_t>();
+	}
+	end_table();
+
+	scrolly = new gui_scrolled_halt_list_t();
+	scrolly->set_maximize(true);
+
+	tabs.init_tabs(scrolly);
+	tabs.add_listener(this);
+	add_component(&tabs);
+
+	sort_list();
+
+	set_resizemode(diagonal_resize);
+	set_resizemode(diagonal_resize);
+	reset_min_windowsize();
 }
 
 
-static bool passes_filter_type(haltestelle_t const& s)
+halt_list_frame_t::~halt_list_frame_t()
 {
-	if (!halt_list_frame_t::get_filter(halt_list_frame_t::typ_filter)) return true;
-
-	haltestelle_t::stationtyp const t = s.get_station_type();
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::frachthof_filter)       && t & haltestelle_t::loadingbay)      return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::bahnhof_filter)         && t & haltestelle_t::railstation)     return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::bushalt_filter)         && t & haltestelle_t::busstop)         return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::airport_filter)         && t & haltestelle_t::airstop)         return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::dock_filter)            && t & haltestelle_t::dock)            return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::monorailstop_filter)    && t & haltestelle_t::monorailstop)    return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::maglevstop_filter)      && t & haltestelle_t::maglevstop)      return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::narrowgaugestop_filter) && t & haltestelle_t::narrowgaugestop) return true;
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::tramstop_filter)        && t & haltestelle_t::tramstop)        return true;
-	return false;
+	if(filter_frame) {
+		destroy_win(filter_frame);
+	}
 }
 
 
@@ -164,7 +188,7 @@ static bool passes_filter_special(haltestelle_t const& s)
 	}
 
 	if (halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter)) {
-		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i){
+		for (uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i) {
 			if (!s.get_connections(i).empty()) return false; // only display stations with NO connection
 		}
 		return true;
@@ -190,9 +214,11 @@ static bool passes_filter_out(haltestelle_t const& s)
 
 		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == goods_manager_t::mail) {
+		}
+		else if (ware == goods_manager_t::mail) {
 			if (s.get_mail_enabled()) return true;
-		} else if (ware != goods_manager_t::none) {
+		}
+		else if (ware != goods_manager_t::none) {
 			// Sigh - a doubly nested loop per halt
 			// Fortunately the number of factories and their number of outputs
 			// is limited (usually 1-2 factories and 0-1 outputs per factory)
@@ -249,91 +275,50 @@ static bool passes_filter_in(haltestelle_t const& s)
  */
 static bool passes_filter(haltestelle_t const& s)
 {
-	if (halt_list_frame_t::get_filter(halt_list_frame_t::any_filter)) {
-		if (!passes_filter_name(s))    return false;
-		if (!passes_filter_type(s))    return false;
-		if (!passes_filter_special(s)) return false;
-		if (!passes_filter_out(s))     return false;
-		if (!passes_filter_in(s))      return false;
-	}
+	if (!passes_filter_special(s)) return false;
+	if (!passes_filter_out(s))     return false;
+	if (!passes_filter_in(s))      return false;
 	return true;
-}
-
-
-halt_list_frame_t::halt_list_frame_t(player_t *player) :
-	gui_frame_t( translator::translate("hl_title"), player)
-{
-	m_player = player;
-	filter_frame = NULL;
-
-	set_table_layout(1,0);
-
-	add_table(4,2);
-	{
-		new_component_span<gui_label_t>("hl_txt_sort", 2);
-		new_component_span<gui_label_t>("hl_txt_filter", 2);
-
-
-		sortedby.init(button_t::roundbox, sort_text[get_sortierung()]);
-		sortedby.add_listener(this);
-		add_component(&sortedby);
-
-
-		sorteddir.init(button_t::roundbox, get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		sorteddir.add_listener(this);
-		add_component(&sorteddir);
-
-		filter_on.init(button_t::roundbox, get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
-		filter_on.add_listener(this);
-		add_component(&filter_on);
-
-		filter_details.init(button_t::roundbox, "hl_btn_filter_settings");
-		filter_details.add_listener(this);
-		add_component(&filter_details);
-	}
-	end_table();
-
-	scrolly = new_component<gui_scrolled_halt_list_t>();
-	scrolly->set_maximize( true );
-
-	fill_list();
-
-	set_resizemode(diagonal_resize);
-	set_resizemode(diagonal_resize);
-	reset_min_windowsize();
-}
-
-
-halt_list_frame_t::~halt_list_frame_t()
-{
-	if(filter_frame) {
-		destroy_win(filter_frame);
-	}
 }
 
 
 /**
 * This function refreshes the station-list
 */
-void halt_list_frame_t::fill_list()
+void halt_list_frame_t::sort_list()
 {
 	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count(); // count of stations
 
+	haltestelle_t::stationtyp current_type = haltestelle_t::invalid;
+	switch(tabs.get_active_tab_waytype()) {
+		case air_wt:         current_type = haltestelle_t::airstop; break;
+		case road_wt:        current_type = haltestelle_t::loadingbay; break;
+		case track_wt:       current_type = haltestelle_t::railstation; break;
+		case water_wt:       current_type = haltestelle_t::dock; break;
+		case monorail_wt:    current_type = haltestelle_t::monorailstop; break;
+		case maglev_wt:      current_type = haltestelle_t::maglevstop; break;
+		case tram_wt:        current_type = haltestelle_t::tramstop; break;
+		case narrowgauge_wt: current_type = haltestelle_t::narrowgaugestop; break;
+		default: break;
+	}
+
 	scrolly->clear_elements();
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner() == m_player  ) {
-			scrolly->new_component<halt_list_stats_t>(halt) ;
+		if (halt->get_owner() != m_player) {
+			continue;
+		}
+		if (name_filter[0] != 0  &&  !utf8caseutf8(halt->get_name(), name_filter)) {
+			// not the right name
+			continue;
+		}
+		if (current_type != 0  &&  (halt->get_station_type() & current_type) == 0) {
+			continue;
+		}
+		if(  passes_filter(*halt.get_rep())  ) {
+			scrolly->new_component<halt_list_stats_t>(halt);
 		}
 	}
-	sort_list();
-}
-
-
-void halt_list_frame_t::sort_list()
-{
 	scrolly->sort();
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 }
 
 
@@ -353,12 +338,7 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
  */
 bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if (  comp == &filter_on  ) {
-		set_filter(any_filter, !get_filter(any_filter));
-		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
-		sort_list();
-	}
-	else if (  comp == &sortedby  ) {
+	if (  comp == &sortedby  ) {
 		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		sort_list();
 	}
@@ -383,9 +363,10 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = filter_frame != NULL;
 
-	if(  last_world_stops != haltestelle_t::get_alle_haltestellen().get_count()  ) {
+	if(  last_world_stops != haltestelle_t::get_alle_haltestellen().get_count()  ||  strcmp(last_name_filter, name_filter)  ) {
 		// some deleted/ added => resort
-		fill_list();
+		strcpy(last_name_filter, name_filter);
+		sort_list();
 	}
 
 	gui_frame_t::draw(pos, size);

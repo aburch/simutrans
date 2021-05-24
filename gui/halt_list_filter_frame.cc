@@ -11,39 +11,17 @@
 #include "../dataobj/translator.h"
 
 const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
-	"hlf_chk_name_filter",
+	"hlf_chk_spezial_filter",
 	"hlf_chk_waren_annahme",
 	"hlf_chk_waren_abgabe",
-	"hlf_chk_type_filter",
-	"hlf_chk_frachthof",
-	"hlf_chk_bushalt",
-	"hlf_chk_bahnhof",
-	"hlf_chk_tramstop",
-	"hlf_chk_anleger",
-	"hlf_chk_airport",
-	"hlf_chk_monorailstop",
-	"hlf_chk_maglevstop",
-	"hlf_chk_narrowgaugestop",
-	"hlf_chk_spezial_filter",
 	"hlf_chk_overflow",
 	"hlf_chk_keine_verb"
 };
 
 halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[FILTER_BUTTONS] = {
-	halt_list_frame_t::name_filter,
+	halt_list_frame_t::spezial_filter,
 	halt_list_frame_t::ware_an_filter,
 	halt_list_frame_t::ware_ab_filter,
-	halt_list_frame_t::typ_filter,
-	halt_list_frame_t::frachthof_filter,
-	halt_list_frame_t::bushalt_filter,
-	halt_list_frame_t::bahnhof_filter,
-	halt_list_frame_t::tramstop_filter,
-	halt_list_frame_t::dock_filter,
-	halt_list_frame_t::airport_filter,
-	halt_list_frame_t::monorailstop_filter,
-	halt_list_frame_t::maglevstop_filter,
-	halt_list_frame_t::narrowgaugestop_filter,
-	halt_list_frame_t::spezial_filter,
 	halt_list_frame_t::ueberfuellt_filter,
 	halt_list_frame_t::ohneverb_filter
 };
@@ -60,39 +38,25 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	for(  int i=0;  i<FILTER_BUTTONS;  i++  ) {
 		filter_buttons[i].init(button_t::square, filter_buttons_text[i]);
 		filter_buttons[i].add_listener(this);
-		if(  filter_buttons_types[i] < halt_list_frame_t::sub_filter  ) {
-			filter_buttons[i].background_color = SYSCOL_TEXT_HIGHLIGHT;
-		}
 	}
 
 	set_table_layout( 1, 0 );
 
-	tabs.add_tab( &name_filter, translator::translate( filter_buttons_text[0] ) );
+	tabs.add_tab( &special_filter, translator::translate( filter_buttons_text[0] ) );
 	tabs.add_tab( &accepts_filter, translator::translate( filter_buttons_text[1] ) );
 	tabs.add_tab( &sends_filter, translator::translate( filter_buttons_text[2] ) );
 	add_component( &tabs );
 
 	// first column
-	name_filter.set_table_layout(2,0);
+	special_filter.set_table_layout(2,0);
 	{
-		// name filter
-		name_filter.add_component(filter_buttons + 0, 2);
+		special_filter.add_component(filter_buttons + 0,2);
 
-		name_filter.new_component<gui_label_t>("  ");
-		name_filter_input.set_text(main_frame->access_name_filter(), 30);
-		name_filter_input.add_listener(this);
-		name_filter.add_component(&name_filter_input);
+		special_filter.new_component<gui_empty_t>();
+		special_filter.add_component(filter_buttons + 3);
 
-		// type and special buttons
-		for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
-			if (i==3 || i==13) {
-				name_filter.add_component(filter_buttons + i, 2);
-			}
-			else {
-				name_filter.new_component<gui_empty_t>();
-				name_filter.add_component(filter_buttons + i);
-			}
-		}
+		special_filter.new_component<gui_empty_t>();
+		special_filter.add_component(filter_buttons + 4);
 	}
 
 	// second columns: accepted cargo types

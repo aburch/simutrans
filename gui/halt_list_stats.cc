@@ -72,7 +72,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	// second row, skip posbutton
 	new_component<gui_empty_t>();
 
-	gui_aligned_container_t *table = add_table(4,1);
+	add_table(4,1);
 	{
 		add_component(&img_enabled[0]);
 		img_enabled[0].set_image(skinverwaltung_t::passengers->get_image_id(0), true);

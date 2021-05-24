@@ -8,9 +8,13 @@
 
 
 #include "gui_frame.h"
+#include "../simhalt.h"
 #include "halt_list_stats.h"
-#include "components/gui_button.h"
 #include "components/action_listener.h"
+#include "components/gui_button.h"
+#include "components/gui_combobox.h"
+#include "components/gui_textinput.h"
+#include "components/gui_waytype_tab_panel.h"
 #include "../tpl/vector_tpl.h"
 
 class player_t;
@@ -31,26 +35,11 @@ public:
 	};
 
 	enum filter_flag_t {
-		any_filter             = 1 << 0,
-		name_filter            = 1 << 1,
-		typ_filter             = 1 << 2,
-		spezial_filter         = 1 << 3,
-		ware_ab_filter         = 1 << 4,
-		ware_an_filter         = 1 << 5,
-
-		sub_filter             = 1 << 6,
-		// Start sub-filter from here!
-		frachthof_filter       = 1 << 6,
-		bahnhof_filter         = 1 << 7,
-		bushalt_filter         = 1 << 8,
-		dock_filter            = 1 << 9,
-		airport_filter         = 1 << 10,
-		ueberfuellt_filter     = 1 << 11,
-		ohneverb_filter        = 1 << 12,
-		monorailstop_filter    = 1 << 13,
-		maglevstop_filter      = 1 << 14,
-		narrowgaugestop_filter = 1 << 15,
-		tramstop_filter        = 1 << 16
+		spezial_filter         = 1 << 1,
+		ware_ab_filter         = 1 << 2,
+		ware_an_filter         = 1 << 3,
+		ueberfuellt_filter     = 1 << 4,
+		ohneverb_filter        = 1 << 5
 	};
 
 private:
@@ -63,11 +52,17 @@ private:
 	/*
 	 * All gui elements of this dialog:
 	 */
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
-	button_t filter_on;
 	button_t filter_details;
 	gui_scrolled_halt_list_t *scrolly;
+
+	static char name_filter[256];
+	char last_name_filter[256];
+	gui_textinput_t name_filter_input;
+
+	gui_waytype_tab_panel_t tabs;
+	static haltestelle_t::stationtyp current_type;
 
 	/*
 	 * Child window, if open
@@ -83,13 +78,8 @@ private:
 
 	static int filter_flags;
 
-	static char name_filter_value[64];
-
 	static slist_tpl<const goods_desc_t *> waren_filter_ab;
 	static slist_tpl<const goods_desc_t *> waren_filter_an;
-
-	/// refill the list of halt info elements
-	void fill_list();
 
 public:
 
@@ -132,8 +122,6 @@ public:
 	static bool get_filter(filter_flag_t filter) { return (filter_flags & filter) != 0; }
 	static void set_filter(filter_flag_t filter, bool on) { filter_flags = on ? (filter_flags | filter) : (filter_flags & ~filter); }
 
-	static char *access_name_filter() { return name_filter_value; }
-
 	static bool get_ware_filter_ab(const goods_desc_t *ware) { return waren_filter_ab.is_contained(ware); }
 	static void set_ware_filter_ab(const goods_desc_t *ware, int mode);
 	static void set_alle_ware_filter_ab(int mode);
@@ -146,7 +134,7 @@ public:
 
 	bool has_min_sizer() const OVERRIDE {return true;}
 
-	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+	void map_rotate90( sint16 ) OVERRIDE { sort_list(); }
 };
 
 #endif
