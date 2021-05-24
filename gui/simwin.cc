@@ -52,6 +52,7 @@
 #include "line_management_gui.h"
 #include "schedule_list.h"
 #include "city_info.h"
+#include "citylist_frame_t.h"
 #include "message_frame_t.h"
 #include "message_option_t.h"
 #include "fabrik_info.h"
@@ -609,6 +610,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_depotlist:      w = new depotlist_frame_t(); break;
 					case magic_vehiclelist:    w = new vehiclelist_frame_t(); break;
 					case magic_halt_list:      w = new halt_list_frame_t(); break;
+					case magic_citylist_frame_t: w = new citylist_frame_t(); break;
 					case magic_color_gui_t:    w = new color_gui_t(); break;
 
 					default:

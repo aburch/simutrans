@@ -7,6 +7,7 @@
 #define GUI_CITYLIST_FRAME_T_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "citylist_stats_t.h"
 #include "components/action_listener.h"
@@ -34,10 +35,14 @@ private:
 	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
 	static const uint8 hist_type_type[karte_t::MAX_WORLD_COST];
 
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 	button_t filter_by_owner;
 	gui_combobox_t filterowner;
+
+	static char name_filter[256];
+	char last_name_filter[256];
+	gui_textinput_t name_filter_input;
 
 	gui_scrolled_list_t scrolly;
 
@@ -72,6 +77,10 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_citylist_frame_t; }
 };
 
 #endif
