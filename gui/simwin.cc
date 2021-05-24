@@ -676,7 +676,7 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 		// rect default
 		break;
 	case MENU_BOTTOM:
-		clip_rr = scr_rect(0, 0, display_get_width(), display_get_height() - add_menuheight - win_get_statusbar_height());
+		clip_rr = scr_rect(0, win_get_statusbar_height(), display_get_width(), display_get_height() - add_menuheight);
 		break;
 	case MENU_LEFT:
 		clip_rr = scr_rect(add_menuwidth, 0, display_get_width() - add_menuwidth, display_get_height() - win_get_statusbar_height());
@@ -1434,7 +1434,7 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// click in main menu?
-	scr_coord menuoffset((env_t::menupos == MENU_RIGHT) * (display_get_width() - env_t::iconsize.w), (env_t::menupos == MENU_BOTTOM) * (display_get_height() - env_t::iconsize.h - win_get_statusbar_height()) - D_TITLEBAR_HEIGHT);
+	scr_coord menuoffset((env_t::menupos == MENU_RIGHT) * (display_get_width() - env_t::iconsize.w), (env_t::menupos == MENU_BOTTOM) * (display_get_height() - env_t::iconsize.h) - D_TITLEBAR_HEIGHT);
 	if (!tool_t::toolbar_tool.empty()  &&
 		tool_t::toolbar_tool[0]->get_tool_selector()  &&
 		tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y)  &&
@@ -1694,9 +1694,9 @@ void win_display_flush(double konto)
 		// rect default
 		break;
 	case MENU_BOTTOM:
-		menu_pos = scr_coord(0, disp_height - env_t::iconsize.h - win_get_statusbar_height());
+		menu_pos = scr_coord(0, disp_height - env_t::iconsize.h);
 		// size default
-		clip_rr = scr_rect(0, 0, disp_width, disp_height - env_t::iconsize.h);
+		clip_rr = scr_rect(0, win_get_statusbar_height(), disp_width, disp_height - env_t::iconsize.h);
 		break;
 	case MENU_LEFT:
 		// pos default (see above)
@@ -1808,17 +1808,18 @@ void win_display_flush(double konto)
 
 	// statusbar background
 	scr_coord_val const status_bar_height = win_get_statusbar_height();
-	scr_coord_val const status_bar_y = disp_height - status_bar_height;
+	scr_coord_val const status_bar_y =env_t::menupos == MENU_BOTTOM ? 0 : disp_height - status_bar_height;
 	scr_coord_val const status_bar_text_y = status_bar_y + (status_bar_height - LINESPACE) / 2;
 	scr_coord_val const status_bar_icon_y = status_bar_y + (status_bar_height - 15) / 2;
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh_rgb(0, status_bar_y - 1, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
+	display_fillbox_wh_rgb(0, env_t::menupos == MENU_BOTTOM ? status_bar_height : status_bar_y - 1, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
 	display_fillbox_wh_rgb(0, status_bar_y, disp_width, status_bar_height, SYSCOL_STATUSBAR_BACKGROUND, false);
 
-	bool tooltip_check = get_mouse_y() > status_bar_y;
+	bool tooltip_check = env_t::menupos == MENU_BOTTOM ? get_mouse_y() < status_bar_height : get_mouse_y() > status_bar_y;
 	if(  tooltip_check  ) {
 		tooltip_xpos = get_mouse_x();
-		tooltip_ypos = status_bar_y-10-TICKER_HEIGHT*show_ticker;
+		tooltip_ypos = env_t::menupos == MENU_BOTTOM ? status_bar_height + 10 + TICKER_HEIGHT * show_ticker : status_bar_y - 10 - TICKER_HEIGHT * show_ticker;
 	}
 
 	// season color

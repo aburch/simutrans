@@ -141,7 +141,7 @@ void ticker::update()
 
 void ticker::draw()
 {
-	const int start_y = display_get_height() - TICKER_HEIGHT - win_get_statusbar_height() - (env_t::menupos == MENU_BOTTOM) * env_t::iconsize.h;
+	const int start_y = env_t::menupos == MENU_BOTTOM ? win_get_statusbar_height() : display_get_height() - TICKER_HEIGHT - win_get_statusbar_height();
 	if (redraw_all) {
 		redraw();
 		return;
@@ -150,7 +150,7 @@ void ticker::draw()
 		// ticker not visible
 
 		// mark everything at the bottom as dirty to clear also tooltips and compass
-		mark_rect_dirty_wc(0, start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
+		mark_rect_dirty_wc(0, env_t::menupos == MENU_BOTTOM ? 0 : start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
 		return;
 	}
 
@@ -180,11 +180,11 @@ void ticker::redraw()
 {
 	set_redraw_all(false);
 	dx_since_last_draw = 0;
-	const int start_y = display_get_height() - TICKER_HEIGHT - win_get_statusbar_height() - ((env_t::menupos == MENU_BOTTOM) * env_t::iconsize.h);
+	const int start_y = env_t::menupos == MENU_BOTTOM ? win_get_statusbar_height() : display_get_height() - TICKER_HEIGHT - win_get_statusbar_height();
 
 	if (list.empty()) {
 		// mark everything at the bottom as dirty to clear also tooltips and compass
-		mark_rect_dirty_wc(0, start_y-128, display_get_width(), start_y + 128 +TICKER_HEIGHT);
+		mark_rect_dirty_wc(0, env_t::menupos == MENU_BOTTOM ? 0 : start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
 		return;
 	}
 

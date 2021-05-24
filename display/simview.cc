@@ -111,7 +111,7 @@ void main_view_t::display(bool force_dirty)
 		// rect default
 		break;
 	case MENU_BOTTOM:
-		clip_rr = scr_rect(0, 0, disp_width, disp_height - env_t::iconsize.h + 1);
+		clip_rr = scr_rect(0, win_get_statusbar_height() + (!ticker::empty() ? TICKER_HEIGHT : 0), disp_width, disp_height - env_t::iconsize.h + 1);
 		break;
 	case MENU_LEFT:
 		clip_rr = scr_rect(env_t::iconsize.w, 0, disp_width - env_t::iconsize.w, disp_height);
