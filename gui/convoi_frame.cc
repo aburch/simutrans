@@ -194,8 +194,7 @@ void convoi_frame_t::fill_list()
 void convoi_frame_t::sort_list()
 {
 	scrolly->sort();
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
+	sortedby.set_selection(sortby);
 }
 
 
@@ -221,12 +220,17 @@ convoi_frame_t::convoi_frame_t() :
 		add_component(&name_filter_input,2);
 		new_component<gui_fill_t>();
 
-		sortedby.init(button_t::roundbox, sort_text[get_sortierung()]);
+		sortedby.set_unsorted(); // do not sort
+		for(  int i=0;  i < lengthof(sort_text);  i++  ) {
+			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]),SYSCOL_TEXT);
+		}
+		sortedby.set_selection(get_sortierung());
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 
-		sorteddir.init(button_t::roundbox, get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
+		sorteddir.init(button_t::sortarrow_automatic, NULL);
 		sorteddir.add_listener(this);
+		sorteddir.pressed = get_reverse();
 		add_component(&sorteddir);
 
 		new_component<gui_label_t>("Filter:",ALIGN_RIGHT);
@@ -303,6 +307,7 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 void convoi_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = win_get_magic( magic_convoi_list_filter+owner->get_player_nr() );
+	sorteddir.pressed = get_reverse();
 
 	if (last_world_convois != welt->convoys().get_count()  ||  strcmp(last_name_filter,name_filter)) {
 		strcpy( last_name_filter, name_filter );

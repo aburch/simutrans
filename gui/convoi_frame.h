@@ -12,8 +12,9 @@
 
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "components/gui_waytype_tab_panel.h"
+#include "components/gui_combobox.h"
 #include "components/gui_textinput.h"
+#include "components/gui_waytype_tab_panel.h"
 #include "../convoihandle_t.h"
 
 class player_t;
@@ -45,7 +46,7 @@ private:
 	uint32 last_world_convois;
 
 	// these are part of the top UI
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 	button_t filter_details;
 

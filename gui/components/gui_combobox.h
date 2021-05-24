@@ -161,6 +161,9 @@ public:
 		}
 	}
 
+	// default comoboboxes are sorted!
+	void set_unsorted() { droplist.set_cmp(NULL); }
+
 	// save selection
 	void rdwr( loadsave_t *file );
 };
