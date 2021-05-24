@@ -71,7 +71,7 @@ private:
 	cbuffer_t speed_message;
 	vector_tpl<const goods_desc_t*> good_list;
 
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 
 	gui_numberinput_t speed;
