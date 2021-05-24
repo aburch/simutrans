@@ -117,8 +117,7 @@ enum magic_numbers {
 	magic_script_error         = magic_toolbar              + 0x100,
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
-	magic_halt_list_t,
-	magic_depotlist   = magic_halt_list_t + MAX_PLAYER_COUNT,
+	magic_depotlist   = magic_depot + MAX_PLAYER_COUNT,
 	magic_vehiclelist = magic_depotlist   + MAX_PLAYER_COUNT,
 	magic_max
 };

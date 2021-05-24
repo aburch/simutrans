@@ -72,15 +72,7 @@ public:
 
 	void sort()
 	{
-/*
-		// set visibility according to filter
-		for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ++iter) {
-			gui_convoiinfo_t *a = dynamic_cast<gui_convoiinfo_t*>(*iter);
-
-			a->set_visible( main->passes_filter(a->get_cnv()) );
-		}
-
-*/		main_static = main;
+		main_static = main;
 		gui_scrolled_list_t::sort(0);
 	}
 
@@ -363,6 +355,7 @@ void convoi_frame_t::rdwr( loadsave_t *file )
 		sortby = (sort_mode_t)sort_mode;
 		owner = welt->get_player( player_nr );
 		win_set_magic(this, magic_convoi_list+player_nr );
+		current_wt = tabs.get_active_tab_waytype();
 		fill_list();
 		set_windowsize( size );
 	}

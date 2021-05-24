@@ -9,6 +9,7 @@
 #include "halt_list_frame.h"
 #include "halt_list_filter_frame.h"
 
+#include "../player/simplay.h"
 #include "../simhalt.h"
 #include "../simware.h"
 #include "../simfab.h"
@@ -66,7 +67,7 @@ bool halt_list_frame_t::sortreverse = false;
 /**
  * Default filter: no Oil rigs!
  */
-int halt_list_frame_t::filter_flags = 0;
+uint8 halt_list_frame_t::filter_flags = 0;
 
 char halt_list_frame_t::name_filter[256] = "";
 
@@ -117,10 +118,10 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 }
 
 
-halt_list_frame_t::halt_list_frame_t(player_t *player) :
-	gui_frame_t( translator::translate("hl_title"), player)
+halt_list_frame_t::halt_list_frame_t() :
+	gui_frame_t( translator::translate("hl_title"), welt->get_active_player())
 {
-	m_player = player;
+	m_player = welt->get_active_player();
 	filter_frame = NULL;
 
 	set_table_layout(1, 0);
@@ -145,7 +146,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 		sorteddir.pressed = get_reverse();
 		add_component(&sorteddir);
 
-		new_component<gui_label_t>("hl_txt_filter:", ALIGN_RIGHT);
+		new_component<gui_label_t>("Filter:", ALIGN_RIGHT);
 		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
 		filter_details.add_listener(this);
 		add_component(&filter_details);
@@ -342,7 +343,10 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		sort_list();
 	}
-	else if (  comp == &sorteddir  ) {
+	else if (comp == &tabs) {
+		sort_list();
+	}
+	else if (comp == &sorteddir) {
 		set_reverse(!get_reverse());
 		sort_list();
 	}
@@ -429,5 +433,72 @@ void halt_list_frame_t::set_alle_ware_filter_an(int mode)
 		for(unsigned int i = 0; i<goods_manager_t::get_count(); i++) {
 			set_ware_filter_an(goods_manager_t::get_info(i), mode);
 		}
+	}
+}
+
+
+void halt_list_frame_t::rdwr(loadsave_t* file)
+{
+	scr_size size = get_windowsize();
+	uint8 player_nr = m_player->get_player_nr();
+	sint16 sort_mode = sortby;
+
+	file->rdwr_byte(player_nr);
+	size.rdwr(file);
+	tabs.rdwr(file);
+	scrolly->rdwr(file);
+	file->rdwr_str(name_filter, lengthof(name_filter));
+	file->rdwr_short(sort_mode);
+	file->rdwr_bool(sortreverse);
+	file->rdwr_byte(filter_flags);
+	if (file->is_saving()) {
+		uint8 good_nr = waren_filter_ab.get_count();
+		file->rdwr_byte(good_nr);
+		if (good_nr > 0) {
+			FOR(slist_tpl<const goods_desc_t*>, const i, waren_filter_ab) {
+				char* name = const_cast<char*>(i->get_name());
+				file->rdwr_str(name, 256);
+			}
+		}
+		good_nr = waren_filter_an.get_count();
+		file->rdwr_byte(good_nr);
+		if (good_nr > 0) {
+			FOR(slist_tpl<const goods_desc_t*>, const i, waren_filter_an) {
+				char* name = const_cast<char*>(i->get_name());
+				file->rdwr_str(name, 256);
+			}
+		}
+	}
+	else {
+		// restore warenfilter
+		uint8 good_nr;
+		file->rdwr_byte(good_nr);
+		if (good_nr > 0) {
+			waren_filter_ab.clear();
+			for (sint16 i = 0; i < good_nr; i++) {
+				char name[256];
+				file->rdwr_str(name, lengthof(name));
+				if (const goods_desc_t* gd = goods_manager_t::get_info(name)) {
+					waren_filter_ab.append(gd);
+				}
+			}
+		}
+		file->rdwr_byte(good_nr);
+		if (good_nr > 0) {
+			waren_filter_an.clear();
+			for (sint16 i = 0; i < good_nr; i++) {
+				char name[256];
+				file->rdwr_str(name, lengthof(name));
+				if (const goods_desc_t* gd = goods_manager_t::get_info(name)) {
+					waren_filter_an.append(gd);
+				}
+			}
+		}
+
+		sortby = (sort_mode_t)sort_mode;
+		m_player = welt->get_player(player_nr);
+		win_set_magic(this, magic_halt_list + player_nr);
+		sort_list();
+		set_windowsize(size);
 	}
 }
