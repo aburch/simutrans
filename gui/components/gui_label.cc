@@ -96,11 +96,17 @@ void gui_label_t::draw(scr_coord offset)
 			if(separator) {
 				display_proportional_clip_rgb(right.x, right.y, separator, ALIGN_LEFT, color, true);
 				if(  separator!=text  ) {
+					if (shadowed) {
+						display_text_proportional_len_clip_rgb(right.x+1, right.y+1, text, ALIGN_RIGHT | DT_CLIP, color_shadow, true, separator - text);
+					}
 					display_text_proportional_len_clip_rgb(right.x, right.y, text, ALIGN_RIGHT | DT_CLIP, color, true, separator-text );
 				}
 			}
 			else {
 				// integer or normal text
+				if (shadowed) {
+					display_proportional_clip_rgb(right.x + 1, right.y + 1, text, ALIGN_RIGHT | DT_CLIP, color_shadow, true);
+				}
 				display_proportional_clip_rgb(right.x, right.y, text, ALIGN_RIGHT, color, true);
 			}
 		}
