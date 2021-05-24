@@ -53,6 +53,7 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 {
 	halt = h;
 	set_table_layout(3,2);
+	set_spacing(scr_size(0, 0));
 
 	gotopos.set_typ(button_t::posbutton_automatic);
 	gotopos.set_targetpos3d(halt->get_basis_pos3d());
@@ -113,6 +114,8 @@ void halt_list_stats_t::draw(scr_coord offset)
 
 	label_name.buf().append(halt->get_name());
 	label_name.update();
+	label_name.set_color(halt->get_status_farbe());
+	label_name.set_shadow(COL_BLACK,true);
 
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
