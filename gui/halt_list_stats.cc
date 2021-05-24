@@ -110,7 +110,7 @@ void halt_list_stats_t::draw(scr_coord offset)
 	label_name.buf().append(halt->get_name());
 	label_name.update();
 	label_name.set_color(halt->get_status_farbe());
-	label_name.set_shadow(COL_BLACK,true);
+	label_name.set_shadow(SYSCOL_TEXT,true);
 
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
