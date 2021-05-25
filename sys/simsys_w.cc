@@ -853,8 +853,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	if(  update_mouse  ) {
 		sys_event.key_mod = ModifierKeys();
 		sys_event.mb = last_mb = (wParam&3);
-		sys_event.mx      = (LOWORD(lParam) * 32)/x_scale;
-		sys_event.my      = (HIWORD(lParam) * 32)/y_scale;
+		sint16 x = LOWORD(lParam);
+		sys_event.mx      = (x * 32l)/x_scale;
+		sint16 y = HIWORD(lParam);
+		sys_event.my      = (y * 32l)/y_scale;
 	}
 
 

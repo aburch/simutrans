@@ -55,9 +55,9 @@ struct sys_event_t
 		unsigned long code;
 		void *ptr;
 	};
-	int mx;                  /* es sind negative Koodinaten mgl */
-	int my;
-	int mb;
+	sint32 mx;                  /* es sind negative Koodinaten mgl */
+	sint32 my;
+	uint16 mb;
 
 	/// new window size for SYSTEM_RESIZE
 	scr_size new_window_size;
