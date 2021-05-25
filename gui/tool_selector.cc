@@ -268,10 +268,16 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tool_icon_height = 1; // only single row for title bar
 			set_windowsize(sz);
 			// check for too large values (acter changing width etc.)
-			scr_coord_val wx = (tools.get_count() - tool_icon_disp_start + 1) * env_t::iconsize.w + offset.x;
-			if (wx < display_get_width()) {
-				tool_icon_disp_start = tool_icon_disp_end < tool_icon_width ? 0 : tool_icon_disp_end - tool_icon_width;
-				offset.x = display_get_width() - (tools.get_count() - tool_icon_disp_start) * env_t::iconsize.w;
+			if (  display_get_width() >= tools.get_count() * env_t::iconsize.w  ) {
+				tool_icon_disp_start = 0;
+				offset.x = 0;
+			}
+			else {
+				scr_coord_val wx = (tools.get_count() - tool_icon_disp_start + 1) * env_t::iconsize.w + offset.x;
+				if (wx < display_get_width()) {
+					tool_icon_disp_start = tool_icon_disp_end < tool_icon_height ? 0 : tool_icon_disp_end - tool_icon_width;
+					offset.x = display_get_width() - (tools.get_count() - tool_icon_disp_start) * env_t::iconsize.w;
+				}
 			}
 			has_prev_next = tools.get_count() * env_t::iconsize.w > sz.w;
 		}
@@ -283,11 +289,17 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tool_icon_height = (display_get_height() - win_get_statusbar_height() + env_t::iconsize.h - 1) / env_t::iconsize.h;
 			set_windowsize(scr_size(env_t::iconsize.w, display_get_height() - win_get_statusbar_height()));
 			
-			scr_coord_val hx = (tools.get_count() - tool_icon_disp_start + 1) * env_t::iconsize.h + offset.y;
-			if (hx < display_get_height()) {
-				tool_icon_disp_end = tools.get_count();
-				tool_icon_disp_start = tool_icon_disp_end < tool_icon_height ? 0 : tool_icon_disp_end - tool_icon_height;
-				offset.y = display_get_height() - (tools.get_count() - tool_icon_disp_start) * env_t::iconsize.h;
+			if ( display_get_height() >= tools.get_count() * env_t::iconsize.h  ) {
+				tool_icon_disp_start = 0;
+				offset.y = 0;
+			}
+			else {
+				scr_coord_val hx = (tools.get_count() - tool_icon_disp_start + 1) * env_t::iconsize.h + offset.y;
+				if (hx < display_get_height()) {
+					tool_icon_disp_end = tools.get_count();
+					tool_icon_disp_start = tool_icon_disp_end < tool_icon_height ? 0 : tool_icon_disp_end - tool_icon_height;
+					offset.y = display_get_height() - (tools.get_count() - tool_icon_disp_start) * env_t::iconsize.h;
+				}
 			}
 
 			has_prev_next = tools.get_count() * env_t::iconsize.h > sz.h;
