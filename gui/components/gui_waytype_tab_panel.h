@@ -8,6 +8,7 @@
 
 
 #include "../../simtypes.h"
+#include "../../simhalt.h"
 #include "gui_tab_panel.h"
 
 // panel that show the available waytypes
@@ -25,6 +26,10 @@ public:
 	void init_tabs(gui_component_t *c);
 
 	waytype_t get_active_tab_waytype() const { return tabs_to_waytype[get_active_tab_index()]; }
+
+	void set_active_tab_waytype(waytype_t wt);
+
+	haltestelle_t::stationtyp get_active_tab_stationtype() const;
 
 	waytype_t get_tab_waytype(int i) const { return 0<=i  &&  (uint32)i<get_count() ? tabs_to_waytype[i] : invalid_wt; }
 };

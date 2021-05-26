@@ -7,6 +7,7 @@
 #include "gui_waytype_tab_panel.h"
 
 #include "../../simskin.h"
+#include "../../simhalt.h"
 
 #include "../../bauer/vehikelbauer.h"
 
@@ -25,8 +26,8 @@
 
 void gui_waytype_tab_panel_t::init_tabs(gui_component_t* c)
 {
-	add_tab(c, translator::translate("All"));
 	uint8 max_idx = 0;
+	add_tab(c, translator::translate("All"));
 	tabs_to_waytype[max_idx++] = ignore_wt;
 
 	// now add all specific tabs
@@ -61,5 +62,35 @@ void gui_waytype_tab_panel_t::init_tabs(gui_component_t* c)
 	if (runway_t::default_runway) {
 		add_tab(c, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
 		tabs_to_waytype[max_idx++] = air_wt;
+	}
+}
+
+
+void gui_waytype_tab_panel_t::set_active_tab_waytype(waytype_t wt)
+{
+	for(int i=0;  i < get_count();  i++  ) {
+		if (wt == tabs_to_waytype[i]) {
+			set_active_tab_index(i);
+			return;
+		}
+	}
+	// assume invalid type
+	set_active_tab_index(0);
+}
+
+
+haltestelle_t::stationtyp gui_waytype_tab_panel_t::get_active_tab_stationtype() const
+{
+	switch(get_active_tab_waytype()) {
+		case air_wt:         return haltestelle_t::airstop; break;
+		case road_wt:        return haltestelle_t::loadingbay; break;
+		case track_wt:       return haltestelle_t::railstation; break;
+		case water_wt:       return haltestelle_t::dock; break;
+		case monorail_wt:    return haltestelle_t::monorailstop; break;
+		case maglev_wt:      return haltestelle_t::maglevstop; break;
+		case tram_wt:        return haltestelle_t::tramstop; break;
+		case narrowgauge_wt: return haltestelle_t::narrowgaugestop; break;
+		default:             return haltestelle_t::invalid;
+
 	}
 }
