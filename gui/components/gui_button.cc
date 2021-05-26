@@ -284,7 +284,7 @@ bool button_t::infowin_event(const event_t *ev)
 	if(  (type & STATE_BIT) == 0  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
 		pressed = (ev->button_state==1);
 		if (type == sortarrow) {
-			tooltip = pressed ? "cl_btn_sort_desc" : "cl_btn_sort_asc";
+			tooltip = pressed ? "hl_btn_sort_desc" : "hl_btn_sort_asc";
 			translated_tooltip = translator::translate(tooltip);
 		}
 	}

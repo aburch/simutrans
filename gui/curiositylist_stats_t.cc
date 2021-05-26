@@ -37,6 +37,13 @@ bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_compone
 	int cmp = 0;
 	switch (sortby) {
 		default: NOT_REACHED
+
+		case curiositylist::by_paxlevel:
+			if (a->get_passagier_level() != b->get_passagier_level()) {
+				cmp = a->get_passagier_level() - b->get_passagier_level();
+				break;
+			}
+
 		case curiositylist::by_name:
 		{
 			const char* a_name = translator::translate(a->get_tile()->get_desc()->get_name());
@@ -44,10 +51,6 @@ bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_compone
 			cmp = STRICMP(a_name, b_name);
 			break;
 		}
-
-		case curiositylist::by_paxlevel:
-			cmp = a->get_passagier_level() - b->get_passagier_level();
-			break;
 	}
 	return sortreverse ? cmp > 0 : cmp < 0;
 }

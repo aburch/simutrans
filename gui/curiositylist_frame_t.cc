@@ -13,7 +13,10 @@
 #include "../simworld.h"
 #include "../player/simplay.h"
 #include "../obj/gebaeude.h"
+#include "../descriptor/building_desc.h"
 
+
+char curiositylist_frame_t::name_filter[256];
 
 const char* sort_text[curiositylist::SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -34,32 +37,44 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	attraction_count = 0;
 
 	set_table_layout(1,0);
-	new_component<gui_label_t>("hl_txt_sort");
+	add_table(5, 2);
+	{
+		new_component_span<gui_label_t>("hl_txt_sort", 2);
+		name_filter_input.set_text(name_filter, lengthof(name_filter));
+		add_component(&name_filter_input, 2);
+		new_component<gui_fill_t>();
 
-	add_table(4,0);
-	sortedby.init(button_t::roundbox, sort_text[curiositylist_stats_t::sortby]);
-	sortedby.add_listener(this);
-	add_component(&sortedby);
+		sortedby.set_unsorted(); // do not sort
+		for (int i = 0; i < lengthof(sort_text); i++) {
+			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+		}
+		sortedby.set_selection(curiositylist_stats_t::sortby);
+		sortedby.add_listener(this);
+		add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, curiositylist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
+		sorteddir.init(button_t::sortarrow_state, NULL);
+		sorteddir.add_listener(this);
+		sorteddir.pressed = curiositylist_stats_t::sortby;
+		add_component(&sorteddir);
 
-	filter_by_owner.init( button_t::square_automatic, "Served by" );
-	filter_by_owner.add_listener(this);
-	filter_by_owner.set_tooltip( "At least one tile is connected to one stop" );
-	add_component(&filter_by_owner);
+		filter_by_owner.init(button_t::square_automatic, "Served by");
+		filter_by_owner.add_listener(this);
+		filter_by_owner.set_tooltip("At least one tile is connected to one stop");
+		add_component(&filter_by_owner);
 
-	for( int i = 0; i < MAX_PLAYER_COUNT; i++ ) {
-		if( player_t *pl=welt->get_player(i) ) {
-			filterowner.new_component<playername_const_scroll_item_t>(pl);
-			if( pl == welt->get_active_player() ) {
-				filterowner.set_selection( filterowner.count_elements()-1 );
+		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if (player_t* pl = welt->get_player(i)) {
+				filterowner.new_component<playername_const_scroll_item_t>(pl);
+				if (pl == welt->get_active_player()) {
+					filterowner.set_selection(filterowner.count_elements() - 1);
+				}
 			}
 		}
+		filterowner.add_listener(this);
+		add_component(&filterowner);
+
+		new_component<gui_fill_t>();
 	}
-	filterowner.add_listener(this);
-	add_component(&filterowner);
 	end_table();
 
 	set_alignment(ALIGN_STRETCH_V | ALIGN_STRETCH_H);
@@ -83,8 +98,15 @@ void curiositylist_frame_t::fill_list()
 		if (geb != NULL &&
 			geb->get_first_tile() == geb &&
 			geb->get_passagier_level() != 0) {
-			if( pl == NULL || geb->is_within_players_network( pl ) ) {
-				scrolly.new_component<curiositylist_stats_t>(geb) ;
+
+			if(  pl == NULL  ||  geb->is_within_players_network( pl )   ) {
+				curiositylist_stats_t* cs = new curiositylist_stats_t(geb);
+				if (name_filter[0] == 0 || utf8caseutf8(cs->get_text(), name_filter)) {
+					scrolly.take_component(cs);
+				}
+				else {
+					delete cs;
+				}
 			}
 		}
 	}
@@ -93,19 +115,15 @@ void curiositylist_frame_t::fill_list()
 }
 
 
-/**
- * This method is called if an action is triggered
- */
-bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
+bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
 	if(comp == &sortedby) {
-		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t) ((curiositylist_stats_t::sortby + 1) % curiositylist::SORT_MODES);
-		sortedby.set_text(sort_text[curiositylist_stats_t::sortby]);
+		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t)v.i;
 		scrolly.sort(0);
 	}
 	else if(comp == &sorteddir) {
 		curiositylist_stats_t::sortreverse = !curiositylist_stats_t::sortreverse;
-		sorteddir.set_text( curiositylist_stats_t::sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		sorteddir.pressed = curiositylist_stats_t::sortreverse;
 		scrolly.sort(0);
 	}
 	else if(comp == &filterowner) {
@@ -120,12 +138,30 @@ bool curiositylist_frame_t::action_triggered( gui_action_creator_t *comp,value_t
 }
 
 
-
 void curiositylist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(  world()->get_attractions().get_count() != attraction_count  ) {
+	if(  world()->get_attractions().get_count() != attraction_count  ||  strcmp(last_name_filter, name_filter)  ) {
+		strcpy(last_name_filter, name_filter);
 		fill_list();
 	}
 
 	gui_frame_t::draw(pos,size);
+}
+
+
+void curiositylist_frame_t::rdwr(loadsave_t* file)
+{
+	scr_size size = get_windowsize();
+	sint16 sort_mode = curiositylist_stats_t::sortby;
+
+	size.rdwr(file);
+	scrolly.rdwr(file);
+	file->rdwr_str(name_filter, lengthof(name_filter));
+	file->rdwr_short(sort_mode);
+	file->rdwr_bool(curiositylist_stats_t::sortreverse);
+	if (file->is_loading()) {
+		curiositylist_stats_t::sortby = (curiositylist::sort_mode_t)sort_mode;
+		fill_list();
+		set_windowsize(size);
+	}
 }

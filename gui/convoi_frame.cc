@@ -349,9 +349,7 @@ void convoi_frame_t::rdwr( loadsave_t *file )
 			}
 			waren_filter = &waren_filter_rd;
 		}
-	}
 
-	if( file->is_loading() ) {
 		sortby = (sort_mode_t)sort_mode;
 		owner = welt->get_player( player_nr );
 		win_set_magic(this, magic_convoi_list+player_nr );

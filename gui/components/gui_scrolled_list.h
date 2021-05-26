@@ -146,6 +146,9 @@ public:
 	void new_component(const A1& a1, const A2& a2, const A3& a3) { container.new_component<C>(a1, a2, a3)->set_focusable(true); }
 	template<class C, class A1, class A2, class A3, class A4>
 	void new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4) { container.new_component<C>(a1, a2, a3, a4)->set_focusable(true); }
+
+	void take_component(gui_component_t* comp) { container.take_component(comp, 1); }
+
 	/**
 	 * Sorts the list.
 	 * Calls the virtual method scrollitem_t::sort of element at position @p offset.

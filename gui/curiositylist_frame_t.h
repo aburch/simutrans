@@ -7,6 +7,7 @@
 #define GUI_CURIOSITYLIST_FRAME_T_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_scrolled_list.h"
@@ -20,7 +21,7 @@
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 	gui_scrolled_list_t scrolly;
 	gui_aligned_container_t list;
@@ -30,6 +31,10 @@ private:
 	uint32 attraction_count;
 
 	void fill_list();
+
+	static char name_filter[256];
+	char last_name_filter[256];
+	gui_textinput_t name_filter_input;
 
 public:
 	curiositylist_frame_t();
@@ -43,6 +48,10 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_curiositylist; }
 };
 
 #endif
