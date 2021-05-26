@@ -101,7 +101,7 @@ void curiositylist_frame_t::fill_list()
 
 			if(  pl == NULL  ||  geb->is_within_players_network( pl )   ) {
 				curiositylist_stats_t* cs = new curiositylist_stats_t(geb);
-				if (name_filter[0] == 0 || utf8caseutf8(cs->get_text(), name_filter)) {
+				if(  name_filter[0] == 0 ||  utf8caseutf8(cs->get_text(), name_filter)  ) {
 					scrolly.take_component(cs);
 				}
 				else {
