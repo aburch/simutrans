@@ -29,6 +29,7 @@ public:
 		MAX_SORT_MODES
 	};
 	static sort_modes_t sort_mode;
+	static bool sort_reverse;
 	// to update selected status
 	void draw( scr_coord offset ) OVERRIDE;
 	// normal items

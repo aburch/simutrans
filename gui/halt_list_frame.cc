@@ -290,18 +290,7 @@ void halt_list_frame_t::sort_list()
 {
 	last_world_stops = haltestelle_t::get_alle_haltestellen().get_count(); // count of stations
 
-	haltestelle_t::stationtyp current_type = haltestelle_t::invalid;
-	switch(tabs.get_active_tab_waytype()) {
-		case air_wt:         current_type = haltestelle_t::airstop; break;
-		case road_wt:        current_type = haltestelle_t::loadingbay; break;
-		case track_wt:       current_type = haltestelle_t::railstation; break;
-		case water_wt:       current_type = haltestelle_t::dock; break;
-		case monorail_wt:    current_type = haltestelle_t::monorailstop; break;
-		case maglev_wt:      current_type = haltestelle_t::maglevstop; break;
-		case tram_wt:        current_type = haltestelle_t::tramstop; break;
-		case narrowgauge_wt: current_type = haltestelle_t::narrowgaugestop; break;
-		default: break;
-	}
+	haltestelle_t::stationtyp current_type = tabs.get_active_tab_stationtype();
 
 	scrolly->clear_elements();
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {

@@ -52,7 +52,7 @@ void line_scrollitem_t::draw( scr_coord offset )
 // static helper function for sorting lineintems
 
 line_scrollitem_t::sort_modes_t line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
-
+bool line_scrollitem_t::sort_reverse;
 
 bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {
@@ -66,17 +66,17 @@ bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t
 			case SORT_BY_NAME: // default
 				break;
 			case SORT_BY_ID:
-				return (a->get_line().get_id() - b->get_line().get_id())<0;
+				return ((a->get_line().get_id() - b->get_line().get_id())<0) ^ sort_reverse;
 			case SORT_BY_PROFIT:
-				return (a->get_line()->get_finance_history(1,LINE_PROFIT) - b->get_line()->get_finance_history(1,LINE_PROFIT))<0;
+				return ((a->get_line()->get_finance_history(1,LINE_PROFIT) - b->get_line()->get_finance_history(1,LINE_PROFIT))<0 ) ^ sort_reverse;
 			case SORT_BY_TRANSPORTED:
-				return (a->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS) - b->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS))<0;
+				return ((a->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS) - b->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS))<0) ^ sort_reverse;
 			case SORT_BY_CONVOIS:
-				return (a->get_line()->get_finance_history(1,LINE_CONVOIS) - b->get_line()->get_finance_history(1,LINE_CONVOIS))<0;
+				return ((a->get_line()->get_finance_history(1,LINE_CONVOIS) - b->get_line()->get_finance_history(1,LINE_CONVOIS))<0) ^ sort_reverse;
 			case SORT_BY_DISTANCE:
 				// normalizing to the number of convoys to get the fastest ones ...
-				return (a->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,a->get_line()->get_finance_history(1,LINE_CONVOIS)) -
-						b->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,b->get_line()->get_finance_history(1,LINE_CONVOIS)) )<0;
+				return ((a->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,a->get_line()->get_finance_history(1,LINE_CONVOIS)) -
+						b->get_line()->get_finance_history(1,LINE_DISTANCE)/max(1,b->get_line()->get_finance_history(1,LINE_CONVOIS)) )<0) ^ sort_reverse;
 			default: break;
 		}
 		// default sorting ...
@@ -101,8 +101,8 @@ bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t
 		bint = atoi( btxt+1 );
 	}
 	if(  aint!=bint  ) {
-		return (aint-bint)<0;
+		return ((aint-bint)<0) ^ sort_reverse;
 	}
 	// otherwise: sort by name
-	return strcmp(atxt, btxt)<0;
+	return (strcmp(atxt, btxt)<0) ^ sort_reverse;
 }

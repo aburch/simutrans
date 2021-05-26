@@ -95,7 +95,7 @@ simline_t::linetype simline_t::waytype_to_linetype(const waytype_t wt)
 		case tram_wt: return simline_t::tramline;
 		case narrowgauge_wt: return simline_t::narrowgaugeline;
 		case air_wt: return simline_t::airline;
-		default: return simline_t::MAX_LINE_TYPE;
+		default: return simline_t::line;
 	}
 }
 
