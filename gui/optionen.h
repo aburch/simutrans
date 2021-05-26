@@ -7,9 +7,10 @@
 #define GUI_OPTIONEN_H
 
 
+#include "simwin.h"
+#include "gui_frame.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
-#include "gui_frame.h"
 
 
 /*
@@ -32,6 +33,10 @@ class optionen_gui_t : public gui_frame_t, action_listener_t
 		const char * get_help_filename() const OVERRIDE {return "options.txt";}
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+		void rdwr(loadsave_t* file) OVERRIDE {};
+
+		uint32 get_rdwr_id() OVERRIDE { return magic_optionen_gui_t; }
 };
 
 #endif
