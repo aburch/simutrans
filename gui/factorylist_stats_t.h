@@ -46,7 +46,7 @@ private:
 
 	void update_label();
 public:
-	static int sort_mode;
+	static sint16 sort_mode;
 	static bool reverse;
 
 	factorylist_stats_t(fabrik_t *);
