@@ -45,8 +45,6 @@
 
 #include "minimap.h"
 
-static uint8 max_idx=0;
-
 #define MAX_SORT_IDX (4)
 static uint8 idx_to_sort_mode[MAX_SORT_IDX] = { line_scrollitem_t::SORT_BY_NAME, line_scrollitem_t::SORT_BY_PROFIT, line_scrollitem_t::SORT_BY_TRANSPORTED, line_scrollitem_t::SORT_BY_CONVOIS };
 static const char *idx_to_sort_text[MAX_SORT_IDX] = { "Name", "Revenue", "Transported", "Number of convois" };
@@ -164,7 +162,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 {
 	if(  comp == &bt_new_line  ) {
 		// create typed line
-		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
+		assert(  tabs.get_active_tab_index() > 0  );
 		// update line schedule via tool!
 		tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
