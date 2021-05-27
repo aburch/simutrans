@@ -58,7 +58,8 @@ void button_t::init(enum type type_par, const char *text_par, scr_coord pos_par,
 	b_no_translate = ( type_par==posbutton );
 
 	set_typ(type_par);
-	set_text(text_par);
+
+set_text(text_par);
 	set_pos(pos_par);
 	if(  size_par != scr_size::invalid  ) {
 		set_size(size_par);
@@ -123,6 +124,7 @@ void button_t::set_typ(enum type t)
 			const uint8 block_height = 2;
 			const uint8 bars_height = uint8((size.h-block_height-4)/4) * block_height*2 + block_height;
 			set_size( scr_size(max(D_BUTTON_HEIGHT, (gui_theme_t::gui_color_button_text_offset.w+4)*2 + 6/*arrow width(5)+margin(1)*/+block_height + (bars_height-2)/2), max(D_BUTTON_HEIGHT, LINESPACE)) );
+			b_no_translate = false;
 			break;
 		}
 
@@ -283,10 +285,6 @@ bool button_t::infowin_event(const event_t *ev)
 	// update the button pressed state only when mouse positions are within boundary or when it is mouse release
 	if(  (type & STATE_BIT) == 0  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
 		pressed = (ev->button_state==1);
-		if (type == sortarrow) {
-			tooltip = pressed ? "hl_btn_sort_desc" : "hl_btn_sort_asc";
-			translated_tooltip = translator::translate(tooltip);
-		}
 	}
 
 	// make sure that the button will take effect only when the mouse positions are within the component's boundary
@@ -404,6 +402,7 @@ void button_t::draw(scr_coord offset)
 					for (uint8 row=0; row*4<bars_height; row++) {
 						display_fillbox_wh_clip_rgb(area_drawing.x + 6/*arrow width(5)+margin(1)*/, area_drawing.y + bars_height - block_height - row*block_height*2, block_height*(row+1), block_height, SYSCOL_BUTTON_TEXT, false);
 					}
+					tooltip = "hl_btn_sort_desc";
 				}
 				else {
 					// asc
@@ -412,6 +411,11 @@ void button_t::draw(scr_coord offset)
 					for (uint8 row=0; row*4<bars_height; row++) {
 						display_fillbox_wh_clip_rgb(area_drawing.x + 6/*arrow width(5)+margin(1)*/, area_drawing.y + row*block_height*2, block_height*(row+1), block_height, SYSCOL_BUTTON_TEXT, false);
 					}
+					tooltip = "hl_btn_sort_asc";
+				}
+
+				if(  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)  ) {
+					translated_tooltip = translator::translate(tooltip);
 				}
 			}
 			break;
