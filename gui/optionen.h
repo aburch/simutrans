@@ -34,7 +34,7 @@ class optionen_gui_t : public gui_frame_t, action_listener_t
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-		void rdwr(loadsave_t* file) OVERRIDE {}
+		void rdwr(loadsave_t *) OVERRIDE {}
 
 		uint32 get_rdwr_id() OVERRIDE { return magic_optionen_gui_t; }
 };
