@@ -524,8 +524,8 @@ static void internal_GetEvents(bool const wait)
 	switch(  event.type  ) {
 		case SDL_WINDOWEVENT: {
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
-				sys_event.new_window_size.w = SCREEN_TO_TEX_X(event.window.data1);
-				sys_event.new_window_size.h = SCREEN_TO_TEX_Y(event.window.data2);
+				sys_event.new_window_size_w = SCREEN_TO_TEX_X(event.window.data1);
+				sys_event.new_window_size_h = SCREEN_TO_TEX_Y(event.window.data2);
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 			}

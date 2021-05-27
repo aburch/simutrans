@@ -8,7 +8,6 @@
 
 
 #include "../simtypes.h"
-#include "../display/scr_coord.h"
 
 #ifndef NETTOOL
 #include <zlib.h>
@@ -60,7 +59,8 @@ struct sys_event_t
 	uint16 mb;
 
 	/// new window size for SYSTEM_RESIZE
-	scr_size new_window_size;
+	uint16 new_window_size_w;
+	uint16 new_window_size_h;
 
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
