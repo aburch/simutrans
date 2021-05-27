@@ -148,11 +148,13 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		}
 		// we do a sorted verctor of names ...
 		vector_tpl<const char *> missing, different;
+
 		// show progress bar
-		uint32 num_paks = addons.get_count()+1;
+		const uint32 num_paks = addons.get_count()+1;
 		uint32 progress = 0;
 #define MAX_WRONG_PAKS 10
-		uint16 wrong_paks=0;
+		uint16 wrong_paks = 0;
+
 		if(num_paks>0) {
 			loadingscreen_t ls(translator::translate("Comparing pak files ..."), num_paks );
 			// communication loop
@@ -237,14 +239,12 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 				}
 
 				// update progress bar
-				if( num_paks > 0 ) {
-					ls.set_progress(progress);
-				}
+				ls.set_progress(progress);
 				delete nwi;
 
 			} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
-
 		}
+
 		// now report the result
 		msg.append("<title>");
 		msg.append(translator::translate("Pakset differences"));

@@ -263,9 +263,8 @@ void objlist_t::set_capacity(uint16 req_cap)
 		}
 		capacity = top;
 	}
-	// a single object is stored differentially
-	else if(capacity<=1  &&  new_cap>1) {
-		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
+	else if(capacity<=1) {
+		// this means we extend from 0 or 1 elements to more than 1
 		obj_t *tmp=obj.one;
 		obj.some = dl_alloc(new_cap);
 		MEMZERON(obj.some, new_cap);
