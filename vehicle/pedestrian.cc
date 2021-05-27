@@ -292,7 +292,7 @@ void pedestrian_t::hop(grund_t *gr)
 	// randomized offset
 	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : simrand(4);
 
-	ribi_t::ribi new_direction;
+	ribi_t::ribi new_direction = ribi_t::none;
 	for(uint r = 0; r < 4; r++) {
 		new_direction = ribi_t::nesw[ (r+offset) & 3];
 

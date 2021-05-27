@@ -177,8 +177,8 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						// Ctrl key pressed -> skip over to the start of the previous word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
-							uint8 byte_length;
-							uint8 pixel_width;
+							uint8 byte_length = 0;
+							uint8 pixel_width = 0;
 							// first skip over all contiguous space characters to the left
 							while(  head_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)==SIM_KEY_SPACE  ) {
 								head_cursor_pos -= byte_length;
@@ -206,8 +206,8 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						// Ctrl key pressed -> skip over to the start of the next word (as delimited by space(s))
 						if(  IS_CONTROL_PRESSED(ev)  ) {
 							const char* tmp_text = text + head_cursor_pos;
-							uint8 byte_length;
-							uint8 pixel_width;
+							uint8 byte_length = 0;
+							uint8 pixel_width = 0;
 							// first skip over all contiguous non-space characters to the right
 							while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
 								head_cursor_pos += byte_length;

@@ -292,7 +292,9 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
-	uint16 dummy, next_next_signal;
+	uint16 dummy;
+	uint16 next_next_signal = INVALID_INDEX;
+
 	if(schedule_index >= cnv->get_schedule()->get_count()) {
 		schedule_index = 0;
 	}

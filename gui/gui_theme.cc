@@ -261,7 +261,7 @@ void gui_theme_t::init_gui_from_images()
 			button_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_image_id( i*9+j );
 		}
 	}
-	image_id has_second_mask;
+	image_id has_second_mask = 0xFFFF;
 	for(  int i=0;  i<2;  i++  ) {
 		has_second_mask = 0xFFFF;
 		for(  int j=0;  j<9;  j++  ) {
