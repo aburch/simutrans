@@ -68,7 +68,7 @@ void gui_waytype_tab_panel_t::init_tabs(gui_component_t* c)
 
 void gui_waytype_tab_panel_t::set_active_tab_waytype(waytype_t wt)
 {
-	for(int i=0;  i < get_count();  i++  ) {
+	for(uint32 i=0;  i < get_count();  i++  ) {
 		if (wt == tabs_to_waytype[i]) {
 			set_active_tab_index(i);
 			return;

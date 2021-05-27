@@ -32,7 +32,7 @@ labellist_frame_t::labellist_frame_t() :
 		new_component<gui_fill_t>();
 
 		sortedby.set_unsorted(); // do not sort
-		for (int i = 0; i < lengthof(sort_text); i++) {
+		for (size_t i = 0; i < lengthof(sort_text); i++) {
 			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 		}
 		sortedby.set_selection(labellist_stats_t::sortby);

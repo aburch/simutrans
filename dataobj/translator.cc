@@ -431,7 +431,7 @@ bool translator::load(const string &path_to_pakset)
 			load_language_file(file);
 			fclose(file);
 			single_instance.lang_count++;
-			if (single_instance.lang_count == lengthof(langs)) {
+			if (single_instance.lang_count == (int)lengthof(langs)) {
 				if (++i != end) {
 					// some languages were not loaded, let the user know what happened
 					dbg->warning("translator::load()", "some languages were not loaded, limit reached");

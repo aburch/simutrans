@@ -268,7 +268,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tool_icon_height = 1; // only single row for title bar
 			set_windowsize(sz);
 			// check for too large values (acter changing width etc.)
-			if (  display_get_width() >= tools.get_count() * env_t::iconsize.w  ) {
+			if (  display_get_width() >= (int)tools.get_count() * env_t::iconsize.w  ) {
 				tool_icon_disp_start = 0;
 				offset.x = 0;
 			}
@@ -279,7 +279,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 					offset.x = display_get_width() - (tools.get_count() - tool_icon_disp_start) * env_t::iconsize.w;
 				}
 			}
-			has_prev_next = tools.get_count() * env_t::iconsize.w > sz.w;
+			has_prev_next = (int)tools.get_count() * env_t::iconsize.w > sz.w;
 		}
 		else {
 			offset.x = 0;
@@ -288,8 +288,8 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			// only single column for title bar
 			tool_icon_height = (display_get_height() - win_get_statusbar_height() + env_t::iconsize.h - 1) / env_t::iconsize.h;
 			set_windowsize(scr_size(env_t::iconsize.w, display_get_height() - win_get_statusbar_height()));
-			
-			if ( display_get_height() >= tools.get_count() * env_t::iconsize.h  ) {
+
+			if ( display_get_height() >= (int)tools.get_count() * env_t::iconsize.h  ) {
 				tool_icon_disp_start = 0;
 				offset.y = 0;
 			}
@@ -302,7 +302,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 				}
 			}
 
-			has_prev_next = tools.get_count() * env_t::iconsize.h > sz.h;
+			has_prev_next = (int)tools.get_count() * env_t::iconsize.h > sz.h;
 		}
 	}
 
