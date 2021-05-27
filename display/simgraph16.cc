@@ -25,6 +25,9 @@
 #include "../utils/simstring.h"
 #include "../io/raw_image.h"
 
+#include "../gui/simwin.h"
+#include "../dataobj/environment.h"
+
 #include "simgraph.h"
 
 
@@ -5069,16 +5072,20 @@ void display_flush_buffer()
 	{
 		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
 	};
+
 #ifdef USE_SOFTPOINTER
 	ex_ord_update_mx_my();
+
+	const scr_coord_val ticker_ypos_bottom = display_get_height() - win_get_statusbar_height() - (env_t::menupos == MENU_BOTTOM) * env_t::iconsize.h;
+	const scr_coord_val ticker_ypos_top = ticker_ypos_bottom - TICKER_HEIGHT;
 
 	// use mouse pointer image if available
 	if (softpointer != -1 && standard_pointer >= 0) {
 		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true  CLIP_NUM_DEFAULT);
 
 		// if software emulated mouse pointer is over the ticker, redraw it totally at next occurs
-		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= disp_height-TICKER_YPOS_BOTTOM &&
-		   sys_event.my <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= ticker_ypos_top &&
+		   sys_event.my <= ticker_ypos_bottom) {
 			ticker::set_redraw_all(true);
 		}
 	}
@@ -5090,8 +5097,7 @@ void display_flush_buffer()
 		display_direct_line_rgb( sys_event.mx, sys_event.my-2, sys_event.mx, sys_event.my+2, color_idx_to_rgb(COL_BLACK) );
 
 		// if crosshair is over the ticker, redraw it totally at next occurs
-		if(!ticker::empty() && sys_event.my+2 >= disp_height-TICKER_YPOS_BOTTOM &&
-		   sys_event.my-2 <= disp_height-TICKER_YPOS_BOTTOM+TICKER_HEIGHT) {
+		if(!ticker::empty() && sys_event.my+2 >= ticker_ypos_top && sys_event.my-2 <= ticker_ypos_bottom) {
 			ticker::set_redraw_all(true);
 		}
 	}

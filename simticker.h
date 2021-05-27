@@ -13,8 +13,6 @@
 // ticker height
 #define TICKER_HEIGHT (LINESPACE+3)
 
-// ticker vertical position from bottom of screen
-extern uint16 TICKER_YPOS_BOTTOM;
 
 class koord;
 
