@@ -266,7 +266,8 @@ public:
 	tool_schedule_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+//	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_work_here_network_safe(player_t*, koord3d) OVERRIDE { return true; }
 };
 
 class tool_schedule_ins_t : public tool_t {
@@ -274,7 +275,8 @@ public:
 	tool_schedule_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+//	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_work_here_network_safe(player_t*, koord3d) OVERRIDE { return true; }
 };
 
 class tool_build_way_t : public two_click_tool_t {

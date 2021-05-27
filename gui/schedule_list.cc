@@ -257,6 +257,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	// deativate buttons, if not curretn player
 	const bool activate = player == welt->get_active_player()  ||   welt->get_active_player()==welt->get_player( 1 );
 	bt_new_line.enable( activate  &&  tabs.get_active_tab_index() > 0);
+	bt_delete_line.enable(activate);
 
 	// if search string changed, update line selection
 	if(  old_line_count != player->simlinemgmt.get_line_count()  ||  strcmp( old_schedule_filter, schedule_filter )  ) {
@@ -266,13 +267,16 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	}
 
 	vector_tpl<sint32> sel = scl.get_selections();
-	bool can_delete = sel.get_count()>0;
-	FOR(vector_tpl<sint32>, i, sel) {
-		linehandle_t line = ((line_scrollitem_t *)scl.get_element(i))->get_line();
-		if (line->count_convoys() > 0) {
-			can_delete = false;
-			break;
+	bool can_delete = sel.get_count() > 0  &&  activate;
+	if (can_delete) {
+		FOR(vector_tpl<sint32>, i, sel) {
+			linehandle_t line = ((line_scrollitem_t*)scl.get_element(i))->get_line();
+			if (line->count_convoys() > 0) {
+				can_delete = false;
+				break;
+			}
 		}
+
 	}
 	bt_delete_line.enable(can_delete);
 

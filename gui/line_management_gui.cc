@@ -216,9 +216,16 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 {
 	if(  line.is_bound()  ) {
 
-		bool is_change_allowed = player == welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
+		player_t *ap = welt->get_active_player();
+		bool is_change_allowed = player == ap  &&  !welt->get_active_player()->is_locked();
 
 		bool has_changed = false; // then we need to recalc sizes ...
+
+		if (!is_change_allowed) {
+			bt_delete_line.enable(false);
+		}
+		bt_withdraw_line.enable(is_change_allowed);
+		bt_find_convois.enable(is_change_allowed);
 
 		if(  line->count_convoys() != old_convoi_count  ) {
 
@@ -237,8 +244,9 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 					break;
 			}
 
-			bt_withdraw_line.enable( old_convoi_count != 0 );
-			// fill convoi container
+			bt_withdraw_line.enable(is_change_allowed  &&  old_convoi_count != 0 );
+
+				// fill convoi container
 			scrolly_convois.clear_elements();
 			for( uint32 i = 0; i < line->count_convoys(); i++ ) {
 				convoihandle_t cnv = line->get_convoy( i );
