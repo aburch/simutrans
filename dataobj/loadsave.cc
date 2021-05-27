@@ -198,17 +198,29 @@ int loadsave_t::autosave_level = 1;
 
 void NORETURN loadsave_t::fatal(const char* who, const char* format, ...)
 {
-	char formatbuffer[512];
+	va_list argptr;
+	va_start(argptr, format);
+
+	static char formatbuffer[512];
+	const char* fn = filename.c_str();
 	sprintf(formatbuffer,
 		"FATAL ERROR during rading of \"%s\"\n"
-		"The file has been renamed to \"%s-error\"\n"
+		"The file has been renamed to \"%s-error\"\n\n"
+		"%s: %s\n"
 		"\n"
 		"Aborting program execution ...\n"
 		"Please try to restart Simutrans again!\n",
-		filename.c_str(), filename.c_str(),
+		fn, fn,
 		who, format);
+
+	static char buffer[8192];
+	vsprintf(buffer, formatbuffer, argptr);
+	va_end(argptr);
+
 	close();
-	dr_rename(filename.c_str(), (filename+"-error").c_str());
+	std::string fn_new = filename + "-error";
+	dr_remove(fn_new.c_str());
+	dr_rename(fn, fn_new.c_str());
 	dbg->custom_fatal(formatbuffer);
 }
 
