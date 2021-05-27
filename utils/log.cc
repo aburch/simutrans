@@ -292,11 +292,9 @@ void log_t::custom_fatal(char *buffer)
 	}
 
 #if defined MAKEOBJ
-	(void)n;
 	exit(1);
 #elif defined NETTOOL
 	// no display available
-	(void)n;
 	puts( buffer );
 	abort();
 #else
