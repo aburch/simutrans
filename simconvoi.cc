@@ -2638,7 +2638,7 @@ void convoi_t::info(cbuffer_t & buf) const
 
 		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_topspeed(), get_running_cost() / 100.0);
 		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_power);
-		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_weight, sum_gesamtweight - sum_weight);
+		buf.printf(" %s: %ld (%ld) t\n", translator::translate("Gewicht"), (long)sum_weight, (long)(sum_gesamtweight - sum_weight));
 		buf.printf(" %s: ", translator::translate("Gewinn"));
 		money_to_string(tmp, (double)jahresgewinn);
 		buf.append(tmp);
@@ -2728,7 +2728,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 void convoi_t::open_schedule_window( bool show )
 {
-	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
+	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %hu, State = %d, Lock = %d", self.get_id(), (int)state, wait_lock);
 
 	// manipulation of schedule not allowed while:
 	// - just starting
@@ -2879,7 +2879,7 @@ uint32 convoi_t::get_departure_ticks() const
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
-	
+
 	// now find out station length
 	uint16 vehicles_loading = 0;
 	if(  gr->is_water()  ) {

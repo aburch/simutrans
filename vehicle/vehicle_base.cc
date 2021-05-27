@@ -196,7 +196,7 @@ void vehicle_base_t::leave_tile()
 			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->access( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
-					dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
+					dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, k.x, k.y);
 					ok = true;
 				}
 			}

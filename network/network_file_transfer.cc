@@ -30,7 +30,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 	// ok, we have a socket to connect
 	dr_remove(save_as);
 
-	DBG_MESSAGE("network_receive_file", "File size %li", length );
+	DBG_MESSAGE("network_receive_file", "File size %i", length );
 
 	if(length>0) {
 #ifndef NETTOOL // no display, no translator available

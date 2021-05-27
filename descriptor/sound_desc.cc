@@ -129,15 +129,17 @@ bool sound_desc_t::register_desc(sound_desc_t *desc)
 	if(  !sound_on  ) {
 		return false;
 	}
+
 	// register, if not there (all done by this one here)
 	desc->sound_id = get_sound_id( desc->get_name() );
 	if(desc->sound_id!=NO_SOUND) {
 		if(desc->nr>=0  &&  desc->nr<=8) {
 			compatible_sound_id[desc->nr] = desc->sound_id;
-DBG_MESSAGE("sound_desc_t::get_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", desc->get_name(), desc->sound_id, desc->nr );
+DBG_MESSAGE("sound_desc_t::register_desc", "Successfully registered sound %s internal id %i as compatible sound %i", desc->get_name(), desc->sound_id, desc->nr );
 			return true;
 		}
 	}
-	dbg->warning("sound_desc_t::get_sound_id()","failed to register sound %s internal id %i", desc->get_name() );
+
+	dbg->warning("sound_desc_t::register_desc", "Failed to register sound %s internal id %i", desc->get_name(), desc->sound_id);
 	return false;
 }

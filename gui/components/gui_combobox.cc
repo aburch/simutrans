@@ -213,9 +213,10 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 bool gui_combobox_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
 	if (  comp == &droplist  ) {
-DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
+		const int selection = (int)p.i;
+DBG_MESSAGE("gui_combobox_t::infowin_event()", "scroll selected %i", selection);
 		finish = true;
-		set_selection(p.i);
+		set_selection(selection);
 	}
 	else if (  comp == &textinp  ) {
 		rename_selected_item();

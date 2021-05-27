@@ -113,7 +113,7 @@ roadsign_t::~roadsign_t()
 				}
 			}
 			else {
-				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", desc->get_wtyp() );
+				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", this, desc->get_wtyp() );
 			}
 		}
 	}

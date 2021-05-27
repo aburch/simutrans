@@ -56,7 +56,7 @@ void network_command_t::rdwr()
 		ready = true;
 	}
 	packet->rdwr_long(our_client_id);
-	dbg->message("network_command_t::rdwr", "%s packet_id=%d, client_id=%ld", packet->is_saving() ? "write" : "read", id, our_client_id);
+	dbg->message("network_command_t::rdwr", "%s packet_id=%d, client_id=%u", packet->is_saving() ? "write" : "read", id, our_client_id);
 }
 
 

@@ -738,7 +738,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append("\n");
 		if(get_owner()==NULL) {
 			const sint32 v = (sint32)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_desc()->get_level() + 1) / 100 );
-			buf.printf("\n%s: %ld$\n", translator::translate("Wert"), v);
+			buf.printf("\n%s: %d$\n", translator::translate("Wert"), v);
 		}
 
 		if (char const* const maker = tile->get_desc()->get_copyright()) {

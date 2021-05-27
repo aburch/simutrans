@@ -705,7 +705,7 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 				tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 				// can we write?
 				if(  select( FD_SETSIZE, NULL, &fds, NULL, &tv )!=1  ) {
-					dbg->warning("network_send_data", "could not write to [%s]", dest);
+					dbg->warning("network_send_data", "could not write to socket [%d]", dest);
 					return false;
 				}
 			}
