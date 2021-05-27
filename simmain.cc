@@ -691,7 +691,6 @@ int simu_main(int argc, char** argv)
 			if(  settings_file.get_version_int()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL )  ) {
 				// too new => remove it
 				settings_file.close();
-				dr_remove("settings.xml");
 			}
 			else {
 				found_settings = true;

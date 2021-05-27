@@ -93,6 +93,16 @@ public:
 	void NORETURN fatal(const char* who, const char* format, ...);
 
 	/**
+	 * writes an error into the log, aborts the program, use own messsgae.
+	 */
+	void NORETURN custom_fatal(char* error_str);
+
+	/**
+	 * writes an error into the log, aborts the program.
+	 */
+	void NORETURN custom_fatal(const char* error_str);
+
+	/**
 	 * writes to log using va_lists
 	 */
 	void vmessage(const char *what, const char *who, const char *format,  va_list args );

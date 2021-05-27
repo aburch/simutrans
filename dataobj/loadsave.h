@@ -29,6 +29,9 @@ class plainstring;
 class loadsave_t
 {
 private:
+	// during reading, a fatal error will rename the file to "oldnam"-error, so one can try again
+	void NORETURN fatal(const char* who, const char* format, ...);
+
 	struct buf_t
 	{
 		size_t pos;
@@ -66,6 +69,7 @@ protected:
 
 	int ident;              // only for XML formatting
 	file_info_t finfo;
+	std::string filename;
 
 	rdwr_stream_t *stream;
 

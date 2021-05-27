@@ -34,6 +34,9 @@ extern "C" void __cxa_pure_virtual()
 #endif
 {
 	dbg->fatal("unknown", "pure virtual function call");
+#ifdef _MSC_VER
+	return -1;
+#endif
 }
 
 #endif

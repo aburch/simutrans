@@ -245,23 +245,31 @@ void log_t::doubled(const char *what, const char *name )
 /**
  * writes an error into the log, aborts the program.
  */
-void log_t::fatal(const char *who, const char *format, ...)
+void log_t::fatal(const char* who, const char* format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
 
 	static char formatbuffer[512];
-	sprintf( formatbuffer,
+	sprintf(formatbuffer,
 		"FATAL ERROR: %s - %s\n"
 		"Aborting program execution ...\n"
 		"\n"
 		"For help with this error or to file a bug report please see the Simutrans forum at\n"
 		"https://forum.simutrans.com\n",
-		who, format );
+		who, format);
 
 	static char buffer[8192];
-	int n = vsprintf( buffer, formatbuffer, argptr );
+	vsprintf(buffer, formatbuffer, argptr);
+	va_end(argptr);
 
+	custom_fatal(buffer);
+}
+
+
+
+void log_t::custom_fatal(char *buffer)
+{
 	if(  log  ) {
 		fputs( buffer, log );
 		if (  force_flush  ) {
@@ -283,8 +291,6 @@ void log_t::fatal(const char *who, const char *format, ...)
 		fputs( buffer, stderr );
 	}
 
-	va_end(argptr);
-
 #if defined MAKEOBJ
 	(void)n;
 	exit(1);
@@ -301,7 +307,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 		// show notification
 		destroy_all_win( true );
 
-		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
+		strcat( buffer, "PRESS ANY KEY\n" );
 		fatal_news* sel = new fatal_news(buffer);
 
 		scr_coord xy( display_get_width()/2 - sel->get_windowsize().w/2, display_get_height()/2 - sel->get_windowsize().h/2 );
