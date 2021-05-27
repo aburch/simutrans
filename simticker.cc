@@ -160,14 +160,14 @@ void ticker::draw()
 	}
 
 	// do partial redraw
-	display_scroll_band( start_y+1, dx_since_last_draw, TICKER_HEIGHT-1 );
-	display_fillbox_wh_rgb(width-dx_since_last_draw-6, start_y+1, dx_since_last_draw+6, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+	display_scroll_band( start_y, dx_since_last_draw, TICKER_HEIGHT );
+	display_fillbox_wh_rgb(width-dx_since_last_draw-6, start_y, dx_since_last_draw+6, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 
 	// ok, ready for the text
-	PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT-1 );
+	PUSH_CLIP( 0, start_y, width - 1, TICKER_HEIGHT );
 	FOR(slist_tpl<node>, & n, list) {
 		if (n.xpos < width) {
-			display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
 		}
 	}
 	POP_CLIP();
@@ -191,10 +191,10 @@ void ticker::redraw()
 	const int width = display_get_width();
 
 	// just draw the ticker in its colour ... (to be sure ... )
-	display_fillbox_wh_rgb(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
+	display_fillbox_wh_rgb(0, start_y, width, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 	FOR(slist_tpl<node>, & n, list) {
 		if (n.xpos < width) {
-			display_proportional_clip_rgb(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
 		}
 	}
 }

@@ -10,8 +10,8 @@
 #include "simcolor.h"
 #include "display/simgraph.h"
 
-// ticker height
-#define TICKER_HEIGHT (LINESPACE+3)
+#define TICKER_V_SPACE (2) // Vertical offset of ticker text
+#define TICKER_HEIGHT  (LINESPACE+2*TICKER_V_SPACE)
 
 
 class koord;
