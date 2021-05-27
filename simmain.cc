@@ -985,7 +985,7 @@ int simu_main(int argc, char** argv)
 
 #if COLOUR_DEPTH != 0
 	// if no object files given, we ask the user
-	while (  env_t::objfilename.empty()  ) {
+	for(  int retries=0;  env_t::objfilename.empty()  &&  retries < 2;  retries++  ) {
 		ask_objfilename();
 
 		if(  env_t::quit_simutrans  ) {
