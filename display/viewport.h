@@ -113,7 +113,7 @@ private:
 	 */
 	void update_cached_values() {
 		cached_aggregated_off = -ij_off-view_ij_off;
-	};
+	}
 
 public:
 

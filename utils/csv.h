@@ -94,7 +94,7 @@ class CSV_t {
 
 public:
 	/* Constructors */
-	CSV_t() : lines(1), offset(0), first_field(true) {};
+	CSV_t() : lines(1), offset(0), first_field(true) {}
 	CSV_t( const char * );
 
 

@@ -68,7 +68,7 @@ public:
 	bonus_record_t( sint32 y=0, sint32 kmh=0 ) {
 		year = y*12;
 		speed = kmh;
-	};
+	}
 	void rdwr(loadsave_t *file) {
 		file->rdwr_long(year);
 		file->rdwr_long(speed);

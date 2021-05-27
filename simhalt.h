@@ -217,7 +217,7 @@ public:
 		convoihandle_t reservation;
 	};
 
-	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
+	const slist_tpl<tile_t> &get_tiles() const { return tiles; }
 
 	/**
 	 * directly reachable halt with its connection weight

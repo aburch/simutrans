@@ -81,7 +81,7 @@ public:
 		return NULL;
 	}
 
-	bool has_broad_portals() const { return (broad_portals != 0); };
+	bool has_broad_portals() const { return (broad_portals != 0); }
 };
 
 #endif

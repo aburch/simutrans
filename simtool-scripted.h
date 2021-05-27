@@ -71,7 +71,7 @@ public:
 	virtual ~exec_script_base_t();
 
 	void set_info(const scripted_tool_info_t *i);
-	const scripted_tool_info_t* get_info() const { return info; };
+	const scripted_tool_info_t* get_info() const { return info; }
 
 	void init_images(tool_t *tool) const;
 

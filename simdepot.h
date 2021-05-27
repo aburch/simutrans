@@ -69,7 +69,7 @@ public:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// text for the tabs is defaulted to the train names
-	virtual const char * get_electrics_name() { return "Electrics_tab"; };
+	virtual const char * get_electrics_name() { return "Electrics_tab"; }
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
