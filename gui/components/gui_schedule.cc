@@ -43,21 +43,6 @@ static karte_ptr_t welt;
 #define UP_FLAG (0x4000)
 #define DOWN_FLAG (0x2000)
 
-/* obsolete tooltips and texts
-const char *gui_schedule_t::bt_mode_text[MAX_MODE] =
-{
-	"Del Stop"
-};
-
-const char *gui_schedule_t::bt_mode_tooltip[MAX_MODE] =
-{
-	"Appends stops at the end of the schedule",
-	"Insert stop before the current stop",
-};
-
-"month wait time"
-*/
-
 /**
  * One entry in the list of schedule entries.
  */
