@@ -688,13 +688,13 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 		// rect default
 		break;
 	case MENU_BOTTOM:
-		clip_rr = scr_rect(0, win_get_statusbar_height(), display_get_width(), display_get_height() - add_menuheight);
+		clip_rr = scr_rect(0, win_get_statusbar_height(), display_get_width(), clip_rr.h );
 		break;
 	case MENU_LEFT:
 		clip_rr = scr_rect(add_menuwidth, 0, display_get_width() - add_menuwidth, display_get_height() - win_get_statusbar_height());
 		break;
 	case MENU_RIGHT:
-		clip_rr = scr_rect(0, 0, display_get_width() - add_menuheight, display_get_height() - win_get_statusbar_height());
+		clip_rr = scr_rect(0, 0, display_get_width() - add_menuwidth, display_get_height() - win_get_statusbar_height());
 		break;
 	}
 
