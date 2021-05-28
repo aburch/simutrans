@@ -2728,7 +2728,7 @@ void fabrik_t::new_month()
 // static !
 uint8 fabrik_t::status_to_color[5] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YELLOW, COL_WHITE };
 
-#define FL_WARE_NULL           1
+//#define FL_WARE_NULL         1
 #define FL_WARE_ALLENULL       2
 #define FL_WARE_LIMIT          4
 #define FL_WARE_ALLELIMIT      8
