@@ -4821,7 +4821,7 @@ int display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *buf
 				max_px_len = px_len;
 			}
 			y += LINESPACE;
-		} while (buf = (next ? next+1 : NULL), buf != NULL);
+		} while ((void)(buf = (next ? next+1 : NULL)), buf != NULL);
 	}
 	return max_px_len;
 }

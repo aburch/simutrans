@@ -69,7 +69,7 @@ scr_size gui_textarea_t::calc_size() const
 			}
 
 			new_lines += LINESPACE;
-		} while(  next != NULL  &&  (buf = next+1, *buf!=0)  );
+		} while(  next != NULL  &&  ((void)(buf = next+1), *buf!=0)  );
 	}
 	return scr_size( x_size + L_PADDING_RIGHT, new_lines );
 }
@@ -113,7 +113,7 @@ void gui_textarea_t::draw(scr_coord offset)
 			}
 
 			new_lines += LINESPACE;
-		} while(  next != NULL  &&  (buf = next+1, *buf!=0)  );
+		} while(  next != NULL  &&  ((void)(buf = next+1), *buf!=0)  );
 	}
 
 	scr_size size( max( x_size + L_PADDING_RIGHT, get_size().w ), new_lines );
