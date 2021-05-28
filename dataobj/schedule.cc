@@ -283,7 +283,6 @@ void schedule_t::move_entry_backward( uint8 cur )
 	}
 
 	sint16 delta = (new_cur - (sint16)cur);
-	;
 
 	if(  new_cur+1 > entries.get_count()  ||  new_cur == 0  ) {
 		// insert at front

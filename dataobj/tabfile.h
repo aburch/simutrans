@@ -119,7 +119,7 @@ private:
 	bool get_x_y( const char *key, I &x, I &y );
 
 public:
-	tabfileobj_t() { ; }
+	tabfileobj_t() { }
 	~tabfileobj_t() { clear(); }
 
 	/**

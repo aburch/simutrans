@@ -252,7 +252,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 			tool = new tool_build_station_t();
 		}
 		tool->set_icon( desc->get_cursor()->get_image_id(1) );
-		tool->cursor = desc->get_cursor()->get_image_id(0),
+		tool->cursor = desc->get_cursor()->get_image_id(0);
 		tool->set_default_param(desc->get_name());
 		tool_t::general_tool.append( tool );
 		desc->set_builder( tool );
