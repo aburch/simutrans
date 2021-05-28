@@ -37,6 +37,8 @@ public:
 
 	static sint16 menupos;
 
+	static bool reselect_closes_tool;
+
 	/// points to the current user directory for loading and saving
 	static const char *user_dir;
 

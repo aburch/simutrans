@@ -198,11 +198,20 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 			// change tool
 			tool_t *tool = tools[wz_idx].tool;
 			if(IS_LEFTRELEASE(ev)) {
-				welt->set_tool( tool, welt->get_active_player() );
+				if(  env_t::reselect_closes_tool  &&  tool  &&  tool->is_selected() ) {
+					// ->exit triggers tool_selector_t::infowin_event in the closing toolbar,
+					// which resets active tool to query tool
+					if( tool->exit( welt->get_active_player() ) ) {
+						welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_active_player() );
+					}
+				}
+				else {
+					welt->set_tool( tool, welt->get_active_player() );
+				}
 			}
 			else {
 				// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
-				if (tool  &&  tool->is_selected()  ) {
+				if(  tool  &&  tool->is_selected()  ) {
 					// ->exit triggers tool_selector_t::infowin_event in the closing toolbar,
 					// which resets active tool to query tool
 					if(  tool->exit(welt->get_active_player())  ) {

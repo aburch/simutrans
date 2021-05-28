@@ -103,6 +103,10 @@ gui_settings_t::gui_settings_t()
 	}
 	add_component(&toolbar_pos);
 
+	reselect_closes_tool.init( button_t::square_state, "Reselect closes tools" );
+	reselect_closes_tool.pressed = env_t::reselect_closes_tool;
+	add_component( &reselect_closes_tool, 2 );
+	
 	// Frame time label
 	new_component<gui_label_t>("Frame time:");
 	frame_time_value_label.buf().printf(" 9999 ms");
@@ -459,6 +463,7 @@ color_gui_t::color_gui_t() :
 		buttons[ i ].add_listener( this );
 	}
 	gui_settings.toolbar_pos.add_listener(this);
+	gui_settings.reselect_closes_tool.add_listener(this);
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
@@ -485,6 +490,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t )
 		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
 		queue_event(ev);
 
+		return true;
+	}
+
+	if(  comp == &gui_settings.reselect_closes_tool  ) {
+		env_t::reselect_closes_tool = !env_t::reselect_closes_tool;
+		gui_settings.reselect_closes_tool.pressed = env_t::reselect_closes_tool;
 		return true;
 	}
 

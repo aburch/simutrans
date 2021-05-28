@@ -368,6 +368,9 @@ numpad_always_moves_map = 1
 # Position of the main menu bar (0=top, 1=left, 2=bottom, 3=right)
 #menubar_position = 0
 
+# 1=selecting a tool again will close it (0=will be topped/reinit)
+#reselect_closes_tool = 1
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files

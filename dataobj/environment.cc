@@ -17,6 +17,7 @@
 void rdwr_win_settings(loadsave_t *file); // simwin
 
 sint16 env_t::menupos = MENU_TOP;
+bool env_t::reselect_closes_tool = true;
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
@@ -544,6 +545,7 @@ void env_t::rdwr(loadsave_t *file)
 
 		file->rdwr_short(env_t::menupos);
 		env_t::menupos &= 3;
+		file->rdwr_bool( reselect_closes_tool );
 	}
 
 	// server settings are not saved, since they are server specific
