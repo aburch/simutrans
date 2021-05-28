@@ -427,7 +427,7 @@ static void ask_language()
  * This function will be set in the main function as the handler the runtime environment will
  * call in the case it lacks memory for new()
  */
-static void sim_new_handler()
+NORETURN static void sim_new_handler()
 {
 	dbg->fatal("sim_new_handler()", "OUT OF MEMORY");
 }

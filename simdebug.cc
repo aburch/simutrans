@@ -30,7 +30,7 @@ void init_logging(const char* logname, bool force_flush, bool log_debug, const c
 #ifdef _MSC_VER
 int __cdecl _purecall()
 #else
-extern "C" void __cxa_pure_virtual()
+extern "C" NORETURN void __cxa_pure_virtual()
 #endif
 {
 	dbg->fatal("unknown", "pure virtual function call");
