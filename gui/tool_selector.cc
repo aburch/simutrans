@@ -306,7 +306,6 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 		}
 	}
 
-	display_push_clip_wh(pos.x, pos.y + D_TITLEBAR_HEIGHT, sz.w, sz.h CLIP_NUM_PAR);
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(player);
 		const scr_coord draw_pos = pos + offset + scr_coord(( (i-tool_icon_disp_start)%(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.w, D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.h);
@@ -356,7 +355,6 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 	if(  tool_icon_width == 1  &&  (tool_icon_disp_start+tool_icon_height < tools.get_count()  ||  (-offset.y) < env_t::iconsize.h*tool_icon_height-get_windowsize().h)  ) {
 		display_color_img(gui_theme_t::arrow_button_down_img[0], pos.x+sz.w-D_ARROW_DOWN_WIDTH, pos.y+D_TITLEBAR_HEIGHT+sz.h-D_ARROW_DOWN_HEIGHT, 0, false, false);
 	}
-	display_pop_clip_wh(CLIP_NUM_VAR);
 
 	if(  !is_dragging  ) {
 		// tooltips?
