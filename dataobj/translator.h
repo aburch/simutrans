@@ -128,6 +128,7 @@ public:
 	static const char *get_date(uint16 year, uint16 month, uint16 day, char const* season);
 	static const char* get_short_date(uint16 year, uint16 month);
 	static const char* get_month_date(uint16 month, uint16 day);
+	static const char* get_day_date( uint16 day );
 };
 
 #endif

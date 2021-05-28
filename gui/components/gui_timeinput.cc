@@ -47,7 +47,7 @@ gui_timeinput_t::gui_timeinput_t(const char *)
 
 sint32 gui_timeinput_t::get_ticks()
 {
-	sint32 dms = days.get_value() * 24 * 60 + hours.get_value() * 60 + minutes.get_value();
+	sint32 dms = (days.get_value()-b_absolute) * 24 * 60 + hours.get_value() * 60 + minutes.get_value();
 	if (dms == 0) {
 		return 0;
 	}
@@ -59,13 +59,17 @@ sint32 gui_timeinput_t::get_ticks()
 
 
 
-void gui_timeinput_t::set_ticks(uint16 t)
+void gui_timeinput_t::set_ticks(uint16 t,bool absolute)
 {
 	sint32 ticks = t;
+	b_absolute = absolute;
+
+	days.set_limits( 0+absolute, 30+absolute );
+
 	// this is actually ticks*daylength*24*60/65536 but to avoid overflow the factor 32 was removed from both)
 	sint32 new_dms = (ticks * (env_t::show_month == env_t::DATE_FMT_MONTH ? 3 : 31) * 3 * 15) / (2048);
 
-	days.set_value(new_dms / (24 * 60));
+	days.set_value(new_dms / (24 * 60)+absolute);
 	hours.set_value((new_dms / 60) % 24);
 	minutes.set_value(new_dms % 60);
 }
@@ -92,6 +96,7 @@ void gui_timeinput_t::draw(scr_coord offset)
 void gui_timeinput_t::rdwr( loadsave_t *file )
 {
 	uint16 ticks=get_ticks();
-	file->rdwr_short(ticks);
-	set_ticks(ticks);
+	file->rdwr_short( ticks );
+	file->rdwr_bool( b_absolute );
+	set_ticks(ticks,b_absolute);
 }

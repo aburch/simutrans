@@ -51,7 +51,7 @@ void interrupt_check(const char* caller_info = "0");
 
 // returns a time string in the desired format
 // Returns an empty string if called before the world model defining time is initalized.
-// reutrns a shorter date (without season and yeear if second parameter true)
+// reutrns a shorter date (without season and year if second parameter true)
 char const *tick_to_string( uint32 ticks, bool omit_season_year=false );
 
 // returns a time difference string in the desired format

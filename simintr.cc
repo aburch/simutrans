@@ -190,21 +190,21 @@ char const *tick_to_string( uint32 ticks, bool only_DDMMHHMM )
 	//DBG_MESSAGE("env_t::show_month","%d",env_t::show_month);
 	// since seasons 0 is always summer for backward compatibility
 	char const* const date = only_DDMMHHMM ?
-		translator::get_month_date(month, tage) :
+		translator::get_day_date(tage) :
 		translator::get_date(year, month, tage, translator::translate(seasons[welt_modell->get_season()]));
 	switch (env_t::show_month) {
 	case env_t::DATE_FMT_US:
 	case env_t::DATE_FMT_US_NO_SEASON: {
 		uint32 hours_ = hours % 12;
 		if (hours_ == 0) hours_ = 12;
-		sprintf(time, "%s %2d:%02d%s", date, hours_, minuten, hours < 12 ? "am" : "pm");
+		sprintf(time, "%s%2d:%02d%s", date, hours_, minuten, hours < 12 ? "am" : "pm");
 		break;
 	}
 	case env_t::DATE_FMT_SEASON:
 		sprintf(time, "%s", date);
 		break;
 	default:
-		sprintf(time, "%s %2d:%02dh", date, hours, minuten);
+		sprintf(time, "%s%2d:%02dh", date, hours, minuten);
 		break;
 	}
 	return time;

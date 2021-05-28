@@ -221,7 +221,7 @@ void NORETURN loadsave_t::fatal(const char* who, const char* format, ...)
 	std::string fn_new = filename + "-error";
 	dr_remove(fn_new.c_str());
 	dr_rename(fn, fn_new.c_str());
-	dbg->custom_fatal(formatbuffer);
+	dbg->custom_fatal(buffer);
 }
 
 

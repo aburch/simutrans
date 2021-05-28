@@ -629,28 +629,28 @@ const char *translator::get_date(uint16 year, uint16 month, uint16 day, char con
 	static char date[256];
 	switch(env_t::show_month) {
 		case env_t::DATE_FMT_GERMAN:
-			sprintf(date, "%s %d. %s %d%s", season, day, month_, year, year_sym);
+			sprintf(date, "%s %d. %s %d%s ", season, day, month_, year, year_sym);
 			break;
 		case env_t::DATE_FMT_GERMAN_NO_SEASON:
-			sprintf(date, "%d. %s %d%s", day, month_, year, year_sym);
+			sprintf(date, "%d. %s %d%s ", day, month_, year, year_sym);
 			break;
 		case env_t::DATE_FMT_US:
-			sprintf(date, "%s %s %d %d%s", season, month_, day, year, year_sym);
+			sprintf(date, "%s %s %d %d%s ", season, month_, day, year, year_sym);
 			break;
 		case env_t::DATE_FMT_US_NO_SEASON:
-			sprintf(date, "%s %d %d%s", month_, day, year, year_sym);
+			sprintf(date, "%s %d %d%s ", month_, day, year, year_sym);
 			break;
 		case env_t::DATE_FMT_JAPANESE:
-			sprintf(date, "%s %d%s %s %d%s", season, year, year_sym, month_, day, day_sym);
+			sprintf(date, "%s %d%s %s %d%s ", season, year, year_sym, month_, day, day_sym);
 			break;
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-			sprintf(date, "%d%s %s %d%s", year, year_sym, month_, day, day_sym);
+			sprintf(date, "%d%s %s %d%s ", year, year_sym, month_, day, day_sym);
 			break;
 		case env_t::DATE_FMT_MONTH:
-			sprintf(date, "%s, %s %d%s", month_, season, year, year_sym);
+			sprintf(date, "%s, %s %d%s ", month_, season, year, year_sym);
 			break;
 		case env_t::DATE_FMT_SEASON:
-			sprintf(date, "%s %d%s", season, year, year_sym);
+			sprintf(date, "%s %d%s ", season, year, year_sym);
 			break;
 	}
 	return date;
@@ -678,30 +678,58 @@ const char *translator::get_short_date(uint16 year, uint16 month)
 }
 
 
-const char* translator::get_month_date(uint16 month, uint16 day)
+const char* translator::get_month_date( uint16 month, uint16 day )
 {
-	char const* const month_ = get_month_name(month);
-	char const* const day_sym = strcmp("DAY_SYMBOL", translate("DAY_SYMBOL")) ? translate("DAY_SYMBOL") : "";
+	char const* const month_ = get_month_name( month );
+	char const* const day_sym = strcmp( "DAY_SYMBOL", translate( "DAY_SYMBOL" ) )?translate( "DAY_SYMBOL" ):"";
 	static char date[256];
-	switch (env_t::show_month) {
+	switch( env_t::show_month ) {
 	case env_t::DATE_FMT_GERMAN:
 	case env_t::DATE_FMT_GERMAN_NO_SEASON:
-		sprintf(date, "%d. %s ", day, month_);
+		sprintf( date, "%d. %s ", day, month_ );
 		break;
 	case env_t::DATE_FMT_US:
 	case env_t::DATE_FMT_US_NO_SEASON:
-		sprintf(date, "%s %d ", month_, day);
+		sprintf( date, "%s %d ", month_, day );
 		break;
 	case env_t::DATE_FMT_JAPANESE:
 	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-		sprintf(date, "%s %d%s", month_, day, day_sym);
+		sprintf( date, "%s %d%s", month_, day, day_sym );
 		break;
 	case env_t::DATE_FMT_SEASON:
 	case env_t::DATE_FMT_MONTH:
-		sprintf(date, "%s, ", month_);
+		sprintf( date, "%s, ", month_ );
 		break;
 	}
 	return date;
+}
+
+
+const char* translator::get_day_date(uint16 day)
+{
+	char const* const day_sym = strcmp("ORDINAL_DAR_SYMBOL", translate("ORDINAL_DAR_SYMBOL")) ? translate("ORDINAL_DAR_SYMBOL") : "th ";
+	static char date[256];
+	switch( env_t::show_month ) {
+	case env_t::DATE_FMT_GERMAN:
+	case env_t::DATE_FMT_GERMAN_NO_SEASON:
+		sprintf( date, "%d%s", day, day_sym );
+		return translator::translate( date );
+		break;
+	case env_t::DATE_FMT_US:
+	case env_t::DATE_FMT_US_NO_SEASON:
+		sprintf( date, "%d%s", day, day_sym );
+		return translator::translate( date );
+		break;
+	case env_t::DATE_FMT_JAPANESE:
+	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		sprintf( date, "%d%s", day, day_sym );
+		return translator::translate( date );
+		break;
+	case env_t::DATE_FMT_SEASON:
+	case env_t::DATE_FMT_MONTH:
+		break;
+	}
+	return "";
 }
 
 /* get a name for a non-matching object */

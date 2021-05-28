@@ -28,13 +28,13 @@ class gui_timeinput_t :
 private:
 	gui_numberinput_t days, hours, minutes;
 
-	bool b_enabled;
+	bool b_enabled, b_absolute;
 
 public:
 	gui_timeinput_t(const char *null_text);
 
 	sint32 get_ticks();
-	void set_ticks(uint16 t);
+	void set_ticks(uint16 t,bool absolute);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

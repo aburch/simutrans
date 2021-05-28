@@ -108,19 +108,24 @@ public:
 		stop.buf().printf("%i) ", number+1);
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
 		stop.update();
-		if(  entry.minimum_loading > 0  &&  entry.minimum_loading <= 100  ) {
-			if(  entry.waiting_time > 0  ) {
-				stop_extra.buf().printf("(%d%%, %s)", (int)entry.minimum_loading,  difftick_to_string( entry.get_waiting_ticks(), false ) );
+		if(  haltestelle_t::get_halt( entry.pos, player ).is_bound()  ) {
+			if(  entry.minimum_loading > 0  &&  entry.minimum_loading <= 100  ) {
+				if( entry.waiting_time > 0 ) {
+					// relative waiting time
+					stop_extra.buf().printf( "(%d%% %s%s)", (int)entry.minimum_loading, translator::translate( "in " ), difftick_to_string( entry.get_waiting_ticks(), false ) );
+				}
+				else {
+					stop_extra.buf().printf( "(%i%%)", entry.minimum_loading );
+				}
+			}
+			else if(  entry.minimum_loading == 0  &&  entry.waiting_time > 0  ) {
+				// absolute departure time
+				stop_extra.buf().append( translator::translate( "on the " ) );
+				stop_extra.buf().append( tick_to_string( entry.get_waiting_ticks(), true ) );
 			}
 			else {
-				stop_extra.buf().printf("(%i%%)", entry.minimum_loading );
+				stop_extra.buf().clear();
 			}
-		}
-		else if(entry.minimum_loading>100) {	// part of a departure
-			stop_extra.buf().append( difftick_to_string( entry.get_waiting_ticks(), false ) );
-		}
-		else {
-			stop_extra.buf().clear();
 		}
 		stop_extra.update();
 		list_dirty = false; // or the first mouseclick will be swallowed!
@@ -524,11 +529,11 @@ void gui_schedule_t::update_selection()
 
 			lb_wait.set_visible(true);
 			lb_departure_time.set_visible(true);
-			lb_departure_time.set_text(schedule->entries[current_stop].minimum_loading > 0 ? "Depart after" : "Depart at");
+			lb_departure_time.set_text(schedule->entries[current_stop].minimum_loading > 0 ? "Depart after" : "Depart on");
 			numimp_load.set_visible(true);
 			numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
 			departure.set_visible(true);
-			departure.set_ticks( schedule->entries[ current_stop ].waiting_time );
+			departure.set_ticks( schedule->entries[ current_stop ].waiting_time, schedule->entries[current_stop].minimum_loading == 0 );
 		}
 		else {
 			// waypoint
