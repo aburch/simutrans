@@ -187,7 +187,7 @@ bool dr_auto_scale(bool)
  * Hier sind die Basisfunktionen zur Initialisierung der Schnittstelle untergebracht
  * -> init,open,close
  */
-bool dr_os_init(int const* parameter)
+bool dr_os_init(const int *)
 {
 	if (allegro_init() != 0) {
 		dr_fatal_notify("Could not init Allegro.\n");
@@ -325,7 +325,7 @@ void move_pointer(int x, int y)
 }
 
 
-void set_pointer(int loading)
+void set_pointer(int)
 {
 	// not supported
 }
@@ -395,7 +395,7 @@ void GetEventsNoWait()
 }
 
 
-void show_pointer(int yesno)
+void show_pointer(int)
 {
 }
 
