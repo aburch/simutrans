@@ -71,7 +71,7 @@ private:
 	gui_combobox_t convoy_tooltip, money_booking, follow_mode;
 public:
 	traffic_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v );
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
 
 /**
