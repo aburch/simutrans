@@ -264,9 +264,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 
 void tool_selector_t::draw(scr_coord pos, scr_size sz)
 {
-	CLIP_NUM_PDECL CLIP_NUM_VAR CLIP_NUM_DEFAULT_ZERO;
 	player_t *player = welt->get_active_player();
-
 
 	if( toolbar_id == 0 ) {
 		// checks for main menu (since it can change during changing layout)
