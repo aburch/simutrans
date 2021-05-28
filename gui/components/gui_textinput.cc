@@ -659,7 +659,6 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 	else {
 		return gui_textinput_t::infowin_event( ev );
 	}
-	return false;
 }
 
 

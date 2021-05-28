@@ -37,7 +37,6 @@ void schedule_t::copy_from(const schedule_t *src)
 	// make sure, we can access both
 	if(  src==NULL  ) {
 		dbg->fatal("schedule_t::copy_to()","cannot copy from NULL");
-		return;
 	}
 	entries.clear();
 	FOR(minivec_tpl<schedule_entry_t>, const& i, src->entries) {

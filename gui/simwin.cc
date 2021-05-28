@@ -971,7 +971,6 @@ bool destroy_win(const gui_frame_t *gui)
 				destroy_framed_win(&win);
 			}
 			return true;
-			break;
 		}
 	}
 	return false;

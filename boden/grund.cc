@@ -1811,9 +1811,9 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
 			if(flags&has_way2) {
-				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
-				return 0;
+				dbg->fatal("grund_t::neuen_weg_bauen()","cannot build more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
 			}
+
 			// add the way
 			objlist.add( weg );
 			weg->set_ribi(ribi);

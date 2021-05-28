@@ -101,6 +101,4 @@ sint8 height_map_loader_t::rgb_to_height(const int r, const int g, const int b)
 	default:
 		dbg->fatal("height_map_loader_t::rgb_to_height", "Unhandled height conversion mode %d", conv_mode);
 	}
-
-	return 0;
 }

@@ -220,5 +220,4 @@ sint32 building_desc_t::get_price(karte_t *world) const
 	else {
 		return price;
 	}
-	return 0;
 }

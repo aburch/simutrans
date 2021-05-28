@@ -82,14 +82,14 @@ void gui_waytype_tab_panel_t::set_active_tab_waytype(waytype_t wt)
 haltestelle_t::stationtyp gui_waytype_tab_panel_t::get_active_tab_stationtype() const
 {
 	switch(get_active_tab_waytype()) {
-		case air_wt:         return haltestelle_t::airstop; break;
-		case road_wt:        return haltestelle_t::loadingbay; break;
-		case track_wt:       return haltestelle_t::railstation; break;
-		case water_wt:       return haltestelle_t::dock; break;
-		case monorail_wt:    return haltestelle_t::monorailstop; break;
-		case maglev_wt:      return haltestelle_t::maglevstop; break;
-		case tram_wt:        return haltestelle_t::tramstop; break;
-		case narrowgauge_wt: return haltestelle_t::narrowgaugestop; break;
+		case air_wt:         return haltestelle_t::airstop;
+		case road_wt:        return haltestelle_t::loadingbay;
+		case track_wt:       return haltestelle_t::railstation;
+		case water_wt:       return haltestelle_t::dock;
+		case monorail_wt:    return haltestelle_t::monorailstop;
+		case maglev_wt:      return haltestelle_t::maglevstop;
+		case tram_wt:        return haltestelle_t::tramstop;
+		case narrowgauge_wt: return haltestelle_t::narrowgaugestop;
 		default:             return haltestelle_t::invalid;
 
 	}

@@ -280,7 +280,6 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	if (!cityconf.open((user_dir+"cityrules.tab").c_str())) {
 		if (!cityconf.open((objfilename+"config/cityrules.tab").c_str())) {
 			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
-			return false;
 		}
 	}
 

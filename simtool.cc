@@ -4369,7 +4369,6 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	else {
 		// something wrong with station number of layouts
 		dbg->fatal( "tool_station_t::tool_station_aux", "%s has wrong number of layouts (must be 2,4,8,16!)", desc->get_name() );
-		return p_error;
 	}
 
 	if(  desc->get_all_layouts() == 8  ||  desc->get_all_layouts() == 16  ) {

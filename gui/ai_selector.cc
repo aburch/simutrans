@@ -53,8 +53,6 @@ bool ai_selector_t::item_action(const char *fullpath)
 		create_win(new news_img(err), w_info, magic_none);
 		return false; // keep window open
 	}
-
-	return true;
 }
 
 
