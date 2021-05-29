@@ -714,17 +714,17 @@ const char* translator::get_day_date(uint16 day)
 	case env_t::DATE_FMT_GERMAN_NO_SEASON:
 		sprintf( date, "%d%s", day, day_sym );
 		return translator::translate( date );
-		break;
+
 	case env_t::DATE_FMT_US:
 	case env_t::DATE_FMT_US_NO_SEASON:
 		sprintf( date, "%d%s", day, day_sym );
 		return translator::translate( date );
-		break;
+
 	case env_t::DATE_FMT_JAPANESE:
 	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
 		sprintf( date, "%d%s", day, day_sym );
 		return translator::translate( date );
-		break;
+
 	case env_t::DATE_FMT_SEASON:
 	case env_t::DATE_FMT_MONTH:
 		break;
