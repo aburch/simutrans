@@ -341,7 +341,7 @@ loadsave_t::file_status_t loadsave_t::rd_open(const char *filename_utf8)
 #if USE_ZSTD
 		stream = new zstd_file_rdwr_stream_t(filename_utf8, false, 0); break;
 #else
-		dbg->error("loadsave_t::rd_open", "Unsupported save file compression 'zstd'"); break;
+		dbg->warning("loadsave_t::rd_open", "Cannot read from '%s': Unsupported save file compression 'zstd'", filename_utf8);
 		return FILE_STATUS_ERR_UNSUPPORTED_COMPRESSION;
 #endif
 
