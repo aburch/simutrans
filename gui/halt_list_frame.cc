@@ -141,7 +141,7 @@ halt_list_frame_t::halt_list_frame_t() :
 		sortedby.add_listener(this);
 		add_component(&sortedby);
 
-		sorteddir.init(button_t::sortarrow_automatic, NULL);
+		sorteddir.init(button_t::sortarrow_state, NULL);
 		sorteddir.add_listener(this);
 		sorteddir.pressed = get_reverse();
 		add_component(&sorteddir);
@@ -337,6 +337,7 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 	}
 	else if (comp == &sorteddir) {
 		set_reverse(!get_reverse());
+		sorteddir.pressed = get_reverse();
 		sort_list();
 	}
 	else if (  comp == &filter_details  ) {
