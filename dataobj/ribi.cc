@@ -10,12 +10,8 @@
 #include "koord.h"
 #include "koord3d.h"
 
-const ribi_t::ribi ribi_t::nesw[4] = {
-	north,
-	east,
-	south,
-	west
-};
+// since we have now a dummy function instead an array
+const ribi_t::_nesw ribi_t::nesw;;
 
 // same like the layouts of buildings
 const ribi_t::ribi ribi_t::layout_to_ribi[4] = {
