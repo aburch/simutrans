@@ -50,6 +50,10 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 			gui.add_message_at(our_player, " **** rprt_road - gain_per_m : " + rprt_road.gain_per_m + " # distance : " + rprt_road.distance, world.get_time())
 		}
 
+		if (rprt_water == null ) {
+			return failed()
+			//rprt_water = report_t()
+		}
 		// find flat harbour building
 		local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
 		rprt_water.action.planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, rprt_water.action.planned_convoy.capacity)
@@ -365,6 +369,8 @@ class amphibious_pathfinder_t extends astar
 
 		for(local d0 = 1; d0<16; d0*=2) {
 			for (local d = d0; d <= 3*d0; d+=2*d0) {
+
+				if ( d > 15 ) { d = 15 }
 
 				local c = pos + dir.to_coord(d)
 
