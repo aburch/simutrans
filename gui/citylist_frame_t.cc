@@ -102,24 +102,11 @@ citylist_frame_t::citylist_frame_t() :
 
 	list.set_table_layout(1,0);
 
-	list.add_table(5, 0);
-	list.new_component_span<gui_label_t>("hl_txt_sort",2);
+	list.add_table(3, 3);
+	list.new_component<gui_label_t>("Filter:");
 	name_filter_input.set_text(name_filter, lengthof(name_filter));
-	list.add_component(&name_filter_input, 2);
+	list.add_component(&name_filter_input);
 	list.new_component<gui_fill_t>();
-
-	sortedby.set_unsorted(); // do not sort
-	for (size_t i = 0; i < lengthof(sort_text); i++) {
-		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
-	}
-	sortedby.set_selection(citylist_stats_t::sort_mode & 0x1F);
-	sortedby.add_listener(this);
-	list.add_component(&sortedby);
-
-	sorteddir.init(button_t::sortarrow_state, NULL);
-	sorteddir.pressed = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
-	sorteddir.add_listener(this);
-	list.add_component(&sorteddir);
 
 	filter_by_owner.init( button_t::square_automatic, "Served by" );
 	filter_by_owner.add_listener(this);
@@ -137,6 +124,22 @@ citylist_frame_t::citylist_frame_t() :
 	filterowner.add_listener(this);
 	list.add_component(&filterowner);
 	list.new_component<gui_fill_t>();
+
+
+	list.new_component<gui_label_t>("hl_txt_sort");
+	sortedby.set_unsorted(); // do not sort
+	for (size_t i = 0; i < lengthof(sort_text); i++) {
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+	}
+	sortedby.set_selection(citylist_stats_t::sort_mode & 0x1F);
+	sortedby.add_listener(this);
+	list.add_component(&sortedby);
+
+	sorteddir.init(button_t::sortarrow_state, NULL);
+	sorteddir.pressed = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
+	sorteddir.add_listener(this);
+	list.add_component(&sorteddir);
+
 
 	list.end_table();
 	list.add_component(&scrolly);

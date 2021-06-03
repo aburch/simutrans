@@ -126,13 +126,17 @@ halt_list_frame_t::halt_list_frame_t() :
 
 	set_table_layout(1, 0);
 
-	add_table(5, 2);
+	add_table(4, 2);
 	{
-		new_component_span<gui_label_t>("hl_txt_sort", 2);
+		new_component<gui_label_t>("Filter:", 2);
 		name_filter_input.set_text(name_filter, lengthof(name_filter));
-		add_component(&name_filter_input, 2);
+		add_component(&name_filter_input);
+		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
+		filter_details.add_listener(this);
+		add_component(&filter_details);
 		new_component<gui_fill_t>();
 
+		new_component_span<gui_label_t>("hl_txt_sort", 1);
 		sortedby.set_unsorted(); // do not sort
 		for (size_t i = 0; i < lengthof(sort_text); i++) {
 			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
@@ -146,10 +150,6 @@ halt_list_frame_t::halt_list_frame_t() :
 		sorteddir.pressed = get_reverse();
 		add_component(&sorteddir);
 
-		new_component<gui_label_t>("Filter:", ALIGN_RIGHT);
-		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
-		filter_details.add_listener(this);
-		add_component(&filter_details);
 		new_component<gui_fill_t>();
 	}
 	end_table();

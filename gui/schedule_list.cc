@@ -70,16 +70,51 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	set_table_layout(1,0);
 
-	add_table(3,0);
+	add_table(4,0);
 	{
 		// below line list: line filter
-		new_component_span<gui_label_t>( "Line Filter", 2 );
-
+		new_component<gui_label_t>("Filter:");
 		inp_filter.set_text( schedule_filter, lengthof( schedule_filter ) );
 		inp_filter.add_listener( this );
-		add_component( &inp_filter );
+		add_component( &inp_filter, 2 );
+		new_component<gui_fill_t>();
+
+		// freight type filter
+		new_component<gui_empty_t>();
+		viewable_freight_types.append(NULL);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+		viewable_freight_types.append(goods_manager_t::passengers);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Passagiere"), SYSCOL_TEXT);
+		viewable_freight_types.append(goods_manager_t::mail);
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Post"), SYSCOL_TEXT);
+		viewable_freight_types.append(goods_manager_t::none); // for all freight ...
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Fracht"), SYSCOL_TEXT);
+		for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+			const goods_desc_t* freight_type = goods_manager_t::get_info_catg(i);
+			const int index = freight_type->get_catg_index();
+			if (index == goods_manager_t::INDEX_NONE || freight_type->get_catg() == 0) {
+				continue;
+			}
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
+			viewable_freight_types.append(freight_type);
+		}
+		for (int i = 0; i < goods_manager_t::get_count(); i++) {
+			const goods_desc_t* ware = goods_manager_t::get_info(i);
+			if (ware->get_catg() == 0 && ware->get_index() > 2) {
+				// Special freight: Each good is special
+				viewable_freight_types.append(ware);
+				freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_name()), SYSCOL_TEXT);
+			}
+		}
+		freight_type_c.set_selection(0);
+		freight_type_c.set_focusable(true);
+		freight_type_c.add_listener(this);
+		add_component(&freight_type_c, 2);
+		new_component<gui_fill_t>();
+
 
 		// sort by what
+		new_component<gui_label_t>("hl_txt_sort");
 		for( int i=0; i<MAX_SORT_IDX;  i++ ) {
 			sort_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(idx_to_sort_text[i]), SYSCOL_TEXT) ;
 		}
@@ -93,49 +128,19 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		sorteddir.pressed = line_scrollitem_t::sort_reverse;
 		add_component(&sorteddir);
 
-		// freight type filter
-		viewable_freight_types.append(NULL);
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
-		viewable_freight_types.append(goods_manager_t::passengers);
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passagiere"), SYSCOL_TEXT) ;
-		viewable_freight_types.append(goods_manager_t::mail);
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Post"), SYSCOL_TEXT) ;
-		viewable_freight_types.append(goods_manager_t::none); // for all freight ...
-		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Fracht"), SYSCOL_TEXT) ;
-		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
-			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
-			const int index = freight_type->get_catg_index();
-			if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
-				continue;
-			}
-			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
-			viewable_freight_types.append(freight_type);
-		}
-		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
-			const goods_desc_t *ware = goods_manager_t::get_info(i);
-			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
-				// Special freight: Each good is special
-				viewable_freight_types.append(ware);
-				freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate(ware->get_name()), SYSCOL_TEXT) ;
-			}
-		}
-		freight_type_c.set_selection(0);
-		freight_type_c.set_focusable( true );
-		freight_type_c.add_listener( this );
-		add_component(&freight_type_c);
-
-		gui_aligned_container_t* t = new_component_span<gui_aligned_container_t>(2, 1, 2);
-		{
-			bt_new_line.init(button_t::roundbox, "New Line");
-			bt_new_line.add_listener(this);
-			t->add_component(&bt_new_line);
-
-			bt_delete_line.init(button_t::roundbox, "Delete Line");
-			bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
-			bt_delete_line.add_listener(this);
-			t->add_component(&bt_delete_line);
-		}
 		new_component<gui_fill_t>();
+
+		// line control buttons
+		bt_new_line.init(button_t::roundbox, "New Line");
+		bt_new_line.add_listener(this);
+		add_component(&bt_new_line);
+
+		bt_delete_line.init(button_t::roundbox, "Delete Line");
+		bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
+		bt_delete_line.add_listener(this);
+		add_component(&bt_delete_line);
+
+		new_component_span<gui_fill_t>(2);
 
 	}
 	end_table();
