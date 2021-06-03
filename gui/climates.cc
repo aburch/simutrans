@@ -265,9 +265,6 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->tropic_humidity = (sint8)v.i;
 	}
 	else if(comp==&snowline_winter) {
-		sets->winter_snowline = (sint8)v.i;
-	}
-	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
 	else if(comp==&snowline_summer) {
