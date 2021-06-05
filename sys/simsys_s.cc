@@ -485,8 +485,8 @@ static void internal_GetEvents(bool const wait)
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
 			sys_event.code = SYSTEM_RESIZE;
-			sys_event.new_window_size.w = event.resize.w;
-			sys_event.new_window_size.h = event.resize.h;
+			sys_event.new_window_size_w = event.resize.w;
+			sys_event.new_window_size_h = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
 			break;
 
