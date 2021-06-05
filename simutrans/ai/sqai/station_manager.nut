@@ -21,18 +21,20 @@ class freight_station_t
 class freight_station_manager_t extends node_t
 {
 	freight_station_list = null
+	use_raw_names = 0 /// repair old savegames: use untranslated factory name as key
 
-	constructor()
+	constructor(urn)
 	{
 		base.constructor("freight_station_manager_t")
 		freight_station_list = {}
 		::station_manager = this
+		use_raw_names = urn
 	}
 
 	/// Generate unique key from link data
 	static function key(factory)
 	{
-		return (factory.get_name() + coord_to_string(factory)).toalnum()
+		return (factory.get_raw_name() + coord_to_string(factory)).toalnum()
 	}
 
 	/**
@@ -51,5 +53,20 @@ class freight_station_manager_t extends node_t
 			res = fs
 		}
 		return res
+	}
+
+	/// Repair list: use untranslated factory names
+	function repair_keys()
+	{
+		if (use_raw_names == 1) {
+			return
+		}
+		local fsl = {}
+		foreach(val in freight_station_list) {
+			local rkey = key(val.factory)
+			fsl[rkey] <- val
+		}
+		freight_station_list = fsl
+		use_raw_names = 1
 	}
 }
