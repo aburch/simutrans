@@ -12,7 +12,7 @@ vcpkg install pthreads:x86-windows-static
 vcpkg install zstd:x86-windows-static
 @rem 64 bit builds
 vcpkg install freetype:x64-windows-static
-vcpkg install miniupnpc:x64-window-static
+vcpkg install miniupnpc:x64-windows-static
 vcpkg install pthreads:x64-windows-static
 vcpkg install zstd:x64-windows-static
 @pause

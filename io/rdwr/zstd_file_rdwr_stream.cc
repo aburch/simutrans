@@ -9,6 +9,7 @@
 #include "../../simdebug.h"
 #include "../../simmem.h"
 
+#include <zstd.h>
 
 #define ZSTD_FILE_BUF_SIZE (1 << 20) // 1MiB
 

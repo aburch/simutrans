@@ -13,7 +13,7 @@
 
 
 #if !USE_ZSTD
-#  error "Cannot use zstd_file_rdwr_stream_t: zstd not enabled"
+#pragma message( "warning: Cannot use zstd_file_rdwr_stream_t: zstd not enabled")
 #endif
 
 
