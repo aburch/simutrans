@@ -509,6 +509,7 @@ void print_help()
 		" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
 		" -server_name NAME   Name of server for announcements\n"
 		" -server_admin_pw PW password for server administration\n"
+		" -set_workdir WD     Use WD as directory containing all data.\n"
 		" -singleuser         Save everything in data directory (portable version)\n"
 #ifdef DEBUG
 		" -sizes              Show current size of some structures\n"
@@ -609,7 +610,18 @@ int simu_main(int argc, char** argv)
 #else
 	// If use_workdir is given, use cwd as data dir, otherwise use the directory
 	// where the executable is located
-	if (args.has_arg("-use_workdir"))
+	if( const char *p = args.gimme_arg( "-set_workdir", 1 ) ) {
+		if(  dr_chdir( p )  ) {
+			dbg->fatal( "Path not found for -set_work \"%s\"",  p);
+		}
+		else {
+			tstrncpy( env_t::data_dir, p, lengthof( env_t::data_dir ) );
+			if( env_t::data_dir[strlen( p )-1]!=PATH_SEPARATOR[0] ) {
+				strcat( env_t::data_dir, PATH_SEPARATOR );
+			}
+		}
+	}
+	else if (args.has_arg("-use_workdir"))
 #endif
 	{
 		// save the current directories
