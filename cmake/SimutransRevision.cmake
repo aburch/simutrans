@@ -25,8 +25,7 @@ if (GIT_FOUND)
 endif ()
 
 if ( NOT SIMUTRANS_WC_REVISION AND Subversion_FOUND )
-	execute_process(WORKING_DIRECTORY ${SOURCE_DIR} COMMAND ${SVN_EXECUTABLE} svn info --show-item revision RESULT_VARIABLE res_var OUTPUT_VARIABLE SIMUTRANS_WC_REVISION)
-	message( ${SOURCE_DIR} )
+	execute_process(WORKING_DIRECTORY ${SOURCE_DIR} COMMAND svn info --show-item revision RESULT_VARIABLE res_var OUTPUT_VARIABLE SIMUTRANS_WC_REVISION)
 	if ( NOT ${res_var} EQUAL 0 )
 		# SVN not found => no result
 		unset(SIMUTRANS_WC_REVISION)
