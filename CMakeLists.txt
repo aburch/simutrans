@@ -44,14 +44,15 @@ find_package(MiniUPNP)
 find_package(ZSTD)
 #find_package(ZLIB REQUIRED)
 if (MSVC)
-find_package(SDL2)
-find_package(Freetype)
-find_package(FluidSynth)
+	find_package(SDL2)
+	find_package(Freetype)
+	find_package(FluidSynth)
 else ()
-find_package(PkgConfig MODULE REQUIRED)
-pkg_check_modules(SDL2 IMPORTED_TARGET sdl2)
-pkg_check_modules(Freetype IMPORTED_TARGET freetype2)
-pkg_check_modules(FluidSynth IMPORTED_TARGET fluidsynth)
+	find_package(PkgConfig MODULE REQUIRED)
+	pkg_check_modules(SDL2 IMPORTED_TARGET sdl2)
+	pkg_check_modules(Freetype IMPORTED_TARGET freetype2)
+#	pkg_check_modules(FluidSynth IMPORTED_TARGET fluidsynth)
+	pkg_check_modules(FluidSynth IMPORTED_TARGET fluidsynth>=2.1.0)
 endif ()
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
@@ -82,6 +83,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
 #
 # sources
 #
+if ($<CONFIG:Release> OR $<CONFIG:MinSizeRel>)
+	add_executable(simutrans WIN32 MACOSX_BUNDLE)
+else ()
+	add_executable(simutrans)
+endif ()
 include(SimutransSourceList)
 
 #
@@ -96,10 +102,10 @@ if (${VS} EQUAL 0)
 else ()
 # using custom target svnhear that is always built to update the revision.h file using cmake script
 add_custom_target(svnheader ALL DEPENDS svn_header)
-add_custom_command(OUTPUT svn_header ${CMAKE_SOURCE_DIR}/revision.h COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/revisiom.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
+add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
+set_source_files_properties(${CMAKE_SOURCE_DIR}/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
 add_dependencies(simutrans svnheader)
-target_compile_definitions(simutrans PRIVATE REVISION_FROM_FILE)
+
 
 endif ()
 
@@ -205,12 +211,6 @@ if ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 	endif (SIMUTRANS_USE_FLUIDSYNTH_MIDI)
 endif ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 
-if (WIN32)
-	if($<CONFIG:Release>)
-		add_executable(simutrans WIN32)
-	endif ()
-endif ()
-
 
 #
 # compile options
@@ -233,7 +233,7 @@ endif ()
 
 target_compile_options(simutrans PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
 
-target_compile_definitions(simutrans PRIVATE $<IF:$<CONFIG:Debug>,DEBUG=1,NDEBUG>)
+target_compile_definitions(simutrans PRIVATE $<IF:$<CONFIG:Debug>,DEBUG=1,>)
 target_compile_definitions(simutrans PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_LEVEL})
 
 if (SIMUTRANS_AUTOJOIN_PUBLIC)

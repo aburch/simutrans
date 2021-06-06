@@ -13,14 +13,15 @@ endif (Subversion_FOUND OR Git_FOUND)
 
 # We have to try Git first because Subversion_WC_INFO does not fail silently if
 # this repository is not a Subversion repository
+# assume this is from aburch/simutrans!
 if (GIT_FOUND)
-	execute_process(WORKING_DIRECTORY ${SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} svn info RESULT_VARIABLE res_var OUTPUT_VARIABLE SIMUTRANS_GIT_WC_REVISION)
+	execute_process(WORKING_DIRECTORY ${SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} log -1 RESULT_VARIABLE res_var OUTPUT_VARIABLE SIMUTRANS_GIT_WC_REVISION)
 	if ( ${res_var} EQUAL 0 )
-        message( "git svn ok:" ${SIMUTRANS_GIT_WC_REVISION})
+		message( "git log -1 ok:" ${SIMUTRANS_GIT_WC_REVISION})
 		string( REGEX REPLACE "\n" " " TEMP1 ${SIMUTRANS_GIT_WC_REVISION})
-		string( REGEX REPLACE "^.*Revision: " "" TEMP2 ${TEMP1})
-		string( REGEX REPLACE " Node.*$" "" SIMUTRANS_WC_REVISION ${TEMP2})
-    endif()
+		string( REGEX REPLACE "^.*trunk\@" "" TEMP2 ${TEMP1})
+		string( REGEX REPLACE " .*$" "" SIMUTRANS_WC_REVISION ${TEMP2})
+	endif()
 endif ()
 
 if ( NOT SIMUTRANS_WC_REVISION AND Subversion_FOUND )
@@ -30,8 +31,7 @@ if ( NOT SIMUTRANS_WC_REVISION AND Subversion_FOUND )
 		string( REGEX REPLACE "\n" " " TEMP1 ${SIMUTRANS_GIT_WC_REVISION})
 		string( REGEX REPLACE "^.*Revision: " "" TEMP2 ${TEMP1})
 		string( REGEX REPLACE " .*$" "" SIMUTRANS_WC_REVISION ${TEMP2})
-    endif()
-#	Subversion_WC_INFO(.. simutrans)
+	endif()
 endif ()
 
 if (SIMUTRANS_WC_REVISION)

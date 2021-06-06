@@ -9,6 +9,10 @@
 #endif
 #endif
 
+#if defined(_MSC_VER)  &&  defined(DEBUG)
+// Console window on MSVC debug builds
+#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
+#endif
 
 #include <stdio.h>
 #include <string>

@@ -1,4 +1,4 @@
-add_executable(simutrans
+target_sources(simutrans PRIVATE 
 		${CMAKE_SOURCE_DIR}/revision.h
 		bauer/brueckenbauer.cc
 		bauer/fabrikbauer.cc
