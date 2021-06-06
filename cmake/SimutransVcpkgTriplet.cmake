@@ -9,8 +9,10 @@ if (MSVC AND DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 	set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif ()
 
-# to built static libaries on windows, we need to modify the VCPKG triplet (if given)
-if (DEFINED CMAKE_TOOLCHAIN_FILE)
+
+# to built static libaries on vcpkg (exists on Linux too), we need to modify the VCPKG triplet (only if vcpkg)
+STRING(TOLOWER "${CMAKE_TOOLCHAIN_FILE}" CMAKE_TOOLCHAIN_FILE_LC)
+if (CMAKE_TOOLCHAIN_FILE_LC MATCHES ".*vcpkg.cmake")
 	if (CMAKE_GENERATOR MATCHES "Visual Studio.*" AND "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
 		# default is 32bit for now
 		message( WARNING "No architecture givem => assume x86 build")
