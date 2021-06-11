@@ -36,8 +36,16 @@ static const char * default_sf[] = {
 	"/usr/share/sounds/sf2/TimGM6mb.sf2",
 	"/usr/share/sounds/sf2/FluidR3_GS.sf2",
 
+	/* Android */
+	"TimGM6mb.sf2",
+
 	nullptr
 };
+
+#ifdef __ANDROID__
+/* Fluidsynth on Android is too old and does not export some functions */
+extern "C" int fluid_synth_all_notes_off(fluid_synth_t* synth, int chan);
+#endif
 
 
 /**

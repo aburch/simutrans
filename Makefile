@@ -5,8 +5,8 @@
 
 # Define variables here to force them as simple flavor. -> Faster parallel builds.
 FLAGS :=
-CFLAGS :=
-LDFLAGS :=
+CFLAGS ?=
+LDFLAGS ?=
 LIBS :=
 SOURCES :=
 STATIC := 0
@@ -642,7 +642,9 @@ ifeq ($(BACKEND),sdl)
   else
     SOURCES   += sound/sdl_sound.cc
     ifneq ($(OSTYPE),mingw)
-      SOURCES += music/no_midi.cc
+      ifeq ($(USE_FLUIDSYNTH_MIDI), 0)
+        SOURCES += music/no_midi.cc
+      endif
     else
       SOURCES += music/w32_midi.cc
     endif
