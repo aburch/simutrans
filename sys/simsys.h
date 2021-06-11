@@ -213,6 +213,9 @@ void dr_stop_textinput();
  */
 void dr_notify_input_pos(int x, int y);
 
+///  returns current two byte languange ID
+const char* dr_get_locale();
+
 int sysmain(int argc, char** argv);
 
 #endif

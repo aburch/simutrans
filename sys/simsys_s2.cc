@@ -787,6 +787,20 @@ void dr_notify_input_pos(int x, int y)
 	SDL_SetTextInputRect( &rect );
 }
 
+
+
+const char* dr_get_locale()
+{
+	static char LanguageCode[3] = "";
+	SDL_Locale *loc = SDL_GetPreferredLocales();
+	if( loc ) {
+		strncpy( LanguageCode, loc->language, 2 );
+		LanguageCode[2] = 0;
+	}
+	return LanguageCode;
+}
+
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main

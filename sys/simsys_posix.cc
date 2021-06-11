@@ -181,6 +181,12 @@ static void posix_sigterm(int)
 }
 
 
+const char* dr_get_locale()
+{
+	return "";
+}
+
+
 int main(int argc, char **argv)
 {
 	signal( SIGTERM, posix_sigterm );

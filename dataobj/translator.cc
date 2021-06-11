@@ -534,18 +534,19 @@ int translator::get_language(const char *iso)
 }
 
 
-void translator::set_language(const char *iso)
+bool translator::set_language(const char *iso)
 {
 	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
 		const char *iso_base = langs[i].iso_base;
 		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
 			set_language(i);
-			return;
+			return true;
 		}
 	}
 	// if the request language does not exist
 	if( single_instance.current_lang == -1 ) {
 		set_language(0);
+		return false;
 	}
 }
 

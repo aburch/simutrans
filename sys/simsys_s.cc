@@ -685,6 +685,12 @@ void dr_notify_input_pos(int, int)
 {
 }
 
+const char* dr_get_locale()
+{
+	// Has nothing for this
+	return "";
+}
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main

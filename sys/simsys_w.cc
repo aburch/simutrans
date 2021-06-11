@@ -967,6 +967,14 @@ int main()
 #endif
 
 
+const char* dr_get_locale()
+{
+	static char LanguageCode[5]="";
+	GetLocaleInfoA( GetUserDefaultUILanguage(), LOCALE_SISO639LANGNAME, LanguageCode, lengthof( LanguageCode ) );
+	return LanguageCode;
+}
+
+	
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;
