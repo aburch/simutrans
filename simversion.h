@@ -6,8 +6,10 @@
 #ifndef SIMVERSION_H
 #define SIMVERSION_H
 
+#ifndef REVISION
 // include external generated revision file
 #include "revision.h"
+#endif
 
 #define SIM_BUILD_NIGHTLY           0
 #define SIM_BUILD_RELEASE_CANDIDATE 1

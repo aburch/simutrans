@@ -249,6 +249,8 @@ ifdef WITH_REVISION
 
     ifneq ($(REV),)
       CFLAGS  += -DREVISION=$(REV)
+    else
+      echo "#define REVISION\n" >revision.h
     endif
   endif
 endif
@@ -769,7 +771,11 @@ CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
 ifeq ($(OSTYPE),mingw)
   SOURCES += simres.rc
-  WINDRES ?= windres
+  ifneq ($(REV),)
+    WINDRES ?= windres -DREVISION=$(REV)
+  else
+    WINDRES ?= windres -DREVISION 
+  endif
 endif
 
 CCFLAGS  += $(CFLAGS)
