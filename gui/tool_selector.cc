@@ -333,7 +333,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 
 		// if there's no image we simply skip, button will be transparent showing toolbar background
 		if(  icon_img != IMG_EMPTY  ) {
-			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
+			bool tool_dirty = dirty  ||  (tools[i].tool->is_selected() ^ tools[i].selected);
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, player->get_player_nr(), false, tool_dirty);
 			tools[i].tool->draw_after( draw_pos, tool_dirty);
