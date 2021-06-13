@@ -118,7 +118,7 @@ server_frame_t::server_frame_t() :
 	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
 	add_component( &pak_version );
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 	add_component( &pakset_checksum );
 #endif
 	new_component<gui_divider_t>();
@@ -262,7 +262,7 @@ PIXVAL server_frame_t::update_info()
 	pak_version.set_text( gi.get_pak_name() );
 	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_OBSOLETE );
 
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 	pakset_checksum.buf().printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
 	pakset_checksum.update();
 	pakset_checksum.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );

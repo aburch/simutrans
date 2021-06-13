@@ -30,7 +30,11 @@ TEST_BIG_ENDIAN(SIMUTRANS_BIG_ENDIAN)
 if (MINGW)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ON)
 	set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
-endif()
+endif ()
+
+if (APPLE)
+	link_directories(/usr/local/lib)
+endif ()
 
 
 #
@@ -81,13 +85,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
 
 #
 # sources
-if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-message("DO DEBUG")
-	add_executable(simutrans)
-else ()
-message("DO RELEASE")
-	add_executable(simutrans WIN32 MACOSX_BUNDLE)
+#
+add_executable(simutrans MACOSX_BUNDLE)
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set_target_properties(simutrans PROPERTIES WIN32_EXECUTABLE 1)
 endif ()
+
 include(SimutransSourceList)
 
 #
@@ -110,7 +113,7 @@ add_dependencies(simutrans svnheader)
 endif ()
 
 #
-# Libaries
+# Libraries
 #
 
 target_link_libraries(simutrans PRIVATE PNG::PNG)
@@ -137,11 +140,14 @@ endif (SIMUTRANS_MULTI_THREAD)
 
 if (SIMUTRANS_BACKEND STREQUAL "sdl2")
 	target_sources(simutrans PRIVATE display/simgraph16.cc sys/simsys_s2.cc sound/sdl2_sound.cc)
+	target_include_directories(simutrans PRIVATE ${SDL2_INCLUDE_DIRS})
 	if (MINGW)
 		target_link_libraries(simutrans PRIVATE ${SDL2_STATIC_LIBRARIES})
+	elseif (APPLE)
+		target_link_libraries(simutrans PRIVATE ${SDL2_LIBRARIES})
 	else ()
-		target_link_libraries(simutrans PRIVATE SDL2::SDL2)
-	endif (MINGW)
+		target_link_libraries(simutrans PRIVATE SDL2::SDL2)	
+	endif ()
 	target_compile_definitions(simutrans PRIVATE COLOUR_DEPTH=16)
 
 elseif (SIMUTRANS_BACKEND STREQUAL "gdi")
@@ -169,9 +175,11 @@ if (SIMUTRANS_USE_FREETYPE)
 	target_include_directories(simutrans PRIVATE ${Freetype_INCLUDE_DIRS})
 	if (MINGW)
 		target_link_libraries(simutrans PRIVATE ${Freetype_STATIC_LIBRARIES})
+	elseif (APPLE)
+		target_link_libraries(simutrans PRIVATE ${SDL2_LIBRARIES})
 	else ()
 		target_link_libraries(simutrans PRIVATE Freetype::Freetype)
-	endif (MINGW)
+	endif ()
 	target_compile_definitions(simutrans PRIVATE USE_FREETYPE=1)
 endif (SIMUTRANS_USE_FREETYPE)
 
@@ -234,6 +242,8 @@ endif ()
 target_compile_options(simutrans PRIVATE ${SIMUTRANS_COMMON_COMPILE_OPTIONS})
 
 target_compile_definitions(simutrans PRIVATE $<IF:$<CONFIG:Debug>,DEBUG=1,>)
+target_compile_definitions(simutrans PRIVATE $<IF:$<CONFIG:Release>,NDEBUG=1,>)
+
 target_compile_definitions(simutrans PRIVATE MSG_LEVEL=${SIMUTRANS_MSG_LEVEL})
 
 if (SIMUTRANS_AUTOJOIN_PUBLIC)
@@ -260,11 +270,17 @@ if (APPLE)
 	target_compile_definitions(simutrans PRIVATE ALT_SDL_DIR=1)
 endif (APPLE)
 
+#
+# Package
+#
+if (APPLE)
+	include(MacBundle)
+endif ()
 
 #
 # Installation
 #
-install(TARGETS simutrans RUNTIME DESTINATION simutrans)
+install(TARGETS simutrans RUNTIME DESTINATION simutrans BUNDLE DESTINATION simutrans)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans/" DESTINATION "simutrans")
 
@@ -276,13 +292,14 @@ install(FILES get_pak.sh DESTINATION "simutrans"
 )
 
 
+
 #
 # Nettool/Makeobj
 #
 if (PNG_FOUND)
-	add_subdirectory(makeobj)
+	add_subdirectory(makeobj EXCLUDE_FROM_ALL)
 endif ()
 
-add_subdirectory(nettools)
+add_subdirectory(nettools EXCLUDE_FROM_ALL)
 
 

@@ -8,7 +8,7 @@
 #include "rdwr/bzip2_file_rdwr_stream.h"
 #include "rdwr/raw_file_rdwr_stream.h"
 #include "rdwr/zlib_file_rdwr_stream.h"
-#if USE_ZSTD
+#ifdef USE_ZSTD
 #include "rdwr/zstd_file_rdwr_stream.h"
 #endif
 

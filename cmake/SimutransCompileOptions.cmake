@@ -46,9 +46,13 @@ option(DEBUG_FLUSH_BUFFER "Highlite areas changes since last redraw" OFF)
 option(ENABLE_WATERWAY_SIGNS "Allow private signs on watersways" OFF)
 option(AUTOJOIN_PUBLIC "Join when making things public" OFF)
 
+if(NOT SIMUTRANS_DEBUG_LEVEL)
+	set(SIMUTRANS_DEBUG_LEVEL $<CONFIG:Debug>)
+endif ()
+
 if(NOT SIMUTRANS_MSG_LEVEL)
 	set(SIMUTRANS_MSG_LEVEL 3 CACHE STRING "Message verbosity level")
-endif()
+endif ()
 set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4)
 
 
@@ -98,10 +102,15 @@ if (MSVC)
 		/wd4250  # C4250: same name in derived class belong to derived class (silly)
 		/wd26812 # Prefer 'enum class' over 'enum' (silly)
 		/wd26451 # Arithmetic overflow: Using operator 'operator' on a size-a byte value and then casting the result to a size-b byte value. (widely used in finances)
-		/MT # static multithreded libaries
+		/wdD9025
+#		/MT # static multithreded libaries
 		/MP # parallel builds
 	)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+
+	foreach(CompilerFlag ${CompilerFlags})
+		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+	endforeach()
 
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
