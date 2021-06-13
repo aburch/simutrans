@@ -29,7 +29,7 @@ uint32 dr_time(void)
 
 int main(int argc, char* argv[])
 {
-	argv++, argc--;
+	argv++; argc--;
 
 	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n", "makeobj");
 	debuglevel = log_t::LEVEL_WARN; // only warnings and errors
@@ -37,15 +37,15 @@ int main(int argc, char* argv[])
 	while(  argc  &&  (  !STRICMP(argv[0], "quiet")  ||  !STRICMP(argv[0], "verbose")  ||  !STRICMP(argv[0], "debug")  )  ) {
 
 		if (argc && !STRICMP(argv[0], "debug")) {
-			argv++, argc--;
+			argv++; argc--;
 			debuglevel = log_t::LEVEL_DEBUG; // everything
 		}
 		else if (argc && !STRICMP(argv[0], "verbose")) {
-			argv++, argc--;
+			argv++; argc--;
 			debuglevel = log_t::LEVEL_MSG; // only messages errors
 		}
 		else if (argc && !STRICMP(argv[0], "quiet")) {
-			argv++, argc--;
+			argv++; argc--;
 			debuglevel = log_t::LEVEL_ERROR; // only fatal errors
 		}
 	}
@@ -56,19 +56,19 @@ int main(int argc, char* argv[])
 	}
 
 	if (argc && !STRICMP(argv[0], "capabilities")) {
-		argv++, argc--;
+		argv++; argc--;
 		root_writer_t::instance()->capabilites();
 		return 0;
 	}
 
 	if (argc && !STRICMP(argv[0], "pak")) {
-		argv++, argc--;
+		argv++; argc--;
 
 		try {
 			const char* dest;
 			if (argc) {
 				dest = argv[0];
-				argv++, argc--;
+				argv++; argc--;
 			}
 			else {
 				dest = "./";
@@ -83,20 +83,20 @@ int main(int argc, char* argv[])
 	}
 
 	if (argc && STRNICMP(argv[0], "pak", 3) == 0) {
-		int img_size = atoi(argv[0] + 3);
+		const int img_size = atoi(argv[0] + 3);
 
 		if (img_size >= 16 && img_size < 32766) {
 			dbg->message( "Image size", "Now set to %dx%d", img_size, img_size );
 
 			obj_writer_t::set_img_size(img_size);
 
-			argv++, argc--;
+			argv++; argc--;
 
 			try {
 				const char* dest;
 				if (argc) {
 					dest = argv[0];
-					argv++, argc--;
+					argv++; argc--;
 				}
 				else {
 					dest = "./";
@@ -113,14 +113,14 @@ int main(int argc, char* argv[])
 	}
 
 	if (argc && !STRICMP(argv[0], "expand")) {
-		argv++, argc--;
+		argv++; argc--;
 
 		try {
 			const char* dest;
 
 			if (argc) {
 				dest = argv[0];
-				argv++, argc--;
+				argv++; argc--;
 			}
 			else {
 				dest = "./";
@@ -138,25 +138,25 @@ int main(int argc, char* argv[])
 
 	if (argc > 1) {
 		if (!STRICMP(argv[0], "dump")) {
-			argv++, argc--;
+			argv++; argc--;
 			root_writer_t::instance()->dump(argc, argv);
 			return 0;
 		}
 		if (!STRICMP(argv[0], "list")) {
-			argv++, argc--;
+			argv++; argc--;
 			root_writer_t::instance()->list(argc, argv);
 			return 0;
 		}
 		if (!STRICMP(argv[0], "extract")) {
-			argv++, argc--;
+			argv++; argc--;
 			root_writer_t::instance()->uncopy(argv[0]);
 			return 0;
 		}
 		if (!STRICMP(argv[0], "merge")) {
-			argv++, argc--;
+			argv++; argc--;
 			try {
 				const char* dest = argv[0];
-				argv++, argc--;
+				argv++; argc--;
 				root_writer_t::instance()->copy(dest, argc, argv);
 			}
 			catch (const obj_pak_exception_t& e) {
