@@ -82,7 +82,6 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 waytype2 = get_waytype(obj.get("waytype[1]"));
 	if(waytype1==waytype2) {
 		dbg->fatal( "Crossing", "Identical ways (%s) cannot cross (check waytypes)!", obj.get("waytype[0]") );
-		exit(1);
 	}
 	node.write_uint8(fp, waytype1, 2);
 	node.write_uint8(fp, waytype2, 3);
@@ -91,13 +90,11 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uv16 = obj.get_int("speed[0]", 0);
 	if(uv16==0) {
 		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
-		exit(1);
 	}
 	node.write_uint16(fp, uv16, 4);
 	uv16 = obj.get_int("speed[1]", 0);
 	if(uv16==0) {
 		dbg->fatal( "Crossing", "A maxspeed MUST be given for both ways!");
-		exit(1);
 	}
 	node.write_uint16(fp, uv16, 6);
 
@@ -144,7 +141,6 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// these must exists!
 	if (openkeys_ns.empty() || openkeys_ew.empty()) {
 		dbg->fatal( "Crossing", "Missing images (at least one openimage! (but %i and %i found)!)", openkeys_ns.get_count(), openkeys_ew.get_count() );
-		exit(1);
 	}
 	write_list(fp, node, openkeys_ns);
 	write_list(fp, node, openkeys_ew);

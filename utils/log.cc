@@ -292,7 +292,7 @@ void log_t::custom_fatal(char *buffer)
 	}
 
 #if defined MAKEOBJ
-	exit(1);
+	exit(EXIT_FAILURE);
 #elif defined NETTOOL
 	// no display available
 	puts( buffer );

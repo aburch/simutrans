@@ -292,7 +292,6 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	}
 	if (!outfp) {
 		dbg->fatal( "Merge", "Cannot open destination file %s", name);
-		exit(3);
 	}
 	fclose(outfp);
 	if (remove(name) != 0) {
@@ -363,7 +362,6 @@ void root_writer_t::uncopy(const char* name)
 
 	if (!infp) {
 		dbg->fatal( "Unmerge", "Cannot open archive file %s\n", name);
-		exit(3);
 	}
 
 	if (skip_header(infp)) {
@@ -501,7 +499,6 @@ void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
 
 		if (!outfp) {
 			dbg->fatal( "Write dat", "Cannot create destination file %s", filename );
-			exit(3);
 		}
 		printf("writing file %s\n", filename);
 	}
@@ -537,7 +534,6 @@ void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
 					outfp = fopen(name.c_str(), "wb");
 					if (!outfp) {
 						dbg->fatal( "Write pak", "Cannot create destination file %s", name.c_str() );
-						exit(3);
 					}
 					printf("   writing file %s\n", name.c_str());
 				}
