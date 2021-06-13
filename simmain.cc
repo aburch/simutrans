@@ -612,11 +612,16 @@ int simu_main(int argc, char** argv)
 #ifdef __BEOS__
 	if (1) // since BeOS only supports relative paths ...
 #else
-	// If use_workdir is given, use cwd as data dir, otherwise use the directory
-	// where the executable is located
+	// 3 possibilities:
+	//  * -set_workdir : Use the specified directory as data dir
+	//  * -use_workdir : Use the current directory as data dir
+	//  * otherwise    : Use the directory where the executable is located
 	if( const char *p = args.gimme_arg( "-set_workdir", 1 ) ) {
 		if(  dr_chdir( p )  ) {
-			dbg->fatal( "Path not found for -set_work \"%s\"",  p);
+			cbuffer_t errmsg;
+			errmsg.printf("Path not found for -set_workdir \"%s\"",  p);
+			dr_fatal_notify(errmsg);
+			return EXIT_FAILURE;
 		}
 		else {
 			tstrncpy( env_t::data_dir, p, lengthof( env_t::data_dir ) );
