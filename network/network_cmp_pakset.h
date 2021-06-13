@@ -29,7 +29,6 @@ public:
 
 	bool execute(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_pakset_info_t";}
 
 	enum {
 		CL_INIT       = 0, // client want pakset info

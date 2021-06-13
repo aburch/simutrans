@@ -22,7 +22,6 @@ public:
 	nwc_scenario_t() : network_command_t(NWC_SCENARIO), what(UNKNOWN), won(0), lost(0), function(NULL), result(NULL)  { }
 	bool execute(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_scenario_t";}
 
 	enum {
 		UNKNOWN,
@@ -67,7 +66,6 @@ public:
 	void do_command(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
 	network_broadcast_world_command_t* clone(karte_t *) OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_scenario_rules_t";}
 
 	scenario_t::forbidden_t *rule;
 	bool forbid;

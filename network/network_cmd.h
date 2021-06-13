@@ -51,9 +51,10 @@ protected:
 	// ready for sending
 	bool   ready;
 public:
-	network_command_t(uint16 /*id*/);
+	network_command_t(uint16 id);
 	network_command_t();
 	virtual ~network_command_t();
+
 	// receive: calls rdwr from packet
 	// return true on success
 	bool receive(packet_t *p);
@@ -74,9 +75,9 @@ public:
 	// if returns true this can be deleted afterwards
 	virtual bool execute(karte_t *) { return true;}
 
-	virtual const char* get_name() { return "network_command_t";}
-
 	uint16 get_id() { return id;}
+
+	const char *get_name() const { return id_to_string(id); }
 
 	SOCKET get_sender();
 
@@ -89,6 +90,8 @@ public:
 	// creates an instance:
 	// gets the nwc-id from the packet, and reads its data
 	static network_command_t* read_from_packet(packet_t *p);
+
+	static const char *id_to_string(uint16 id);
 };
 
 
@@ -132,8 +135,6 @@ public:
 #endif
 
 	void rdwr() OVERRIDE;
-
-	const char* get_name() OVERRIDE { return "nwc_service_t";}
 };
 
 
@@ -153,7 +154,7 @@ public:
 	bool execute(karte_t *) OVERRIDE;
 #endif
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_auth_player_t";}
+
 	pwd_hash_t hash;
 	uint16 player_unlocked;
 	uint8  player_nr;

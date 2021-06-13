@@ -557,7 +557,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			network_command_t *nwc = socket_list_t::get_client(client_id).receive_nwc();
 			if (nwc) {
 				received_command_queue.append(nwc);
-				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender );
+				dbg->warning( "network_check_activity()", "received cmd %s (id %d) from socket[%d]", nwc->get_name(), nwc->get_id(), sender );
 			}
 			// errors are caught and treated in socket_info_t::receive_nwc
 		}

@@ -7138,13 +7138,13 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 	// want to execute something in the past?
 	if (nwc->get_sync_step() < sync_steps) {
 		if (!nwc->ignore_old_events()) {
-			dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%d) in the past", nwc->get_id());
+			dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%s) in the past", nwc->get_name());
 			network_disconnect();
 		}
 	}
 	// check map counter
 	else if (nwc->get_map_counter() != map_counter) {
-		dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%d) from another world", nwc->get_id());
+		dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%s) from another world", nwc->get_name());
 	}
 	// check random counter?
 	else if(  nwc->get_id()==NWC_CHECK  ) {
