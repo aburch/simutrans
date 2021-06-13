@@ -68,6 +68,7 @@ static display_region_param_t ka[MAX_THREADS];
 void *display_region_thread( void *ptr )
 {
 	display_region_param_t *view = reinterpret_cast<display_region_param_t *>(ptr);
+
 	while(true) {
 		simthread_barrier_wait( &display_barrier_start ); // wait for all to start
 		clear_all_poly_clip( view->thread_num );
@@ -75,7 +76,6 @@ void *display_region_thread( void *ptr )
 		view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, false, true, view->thread_num );
 		simthread_barrier_wait( &display_barrier_end ); // wait for all to finish
 	}
-	return ptr;
 }
 
 /* The following mutex is only needed for smart cursor */
