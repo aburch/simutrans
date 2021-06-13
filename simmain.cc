@@ -543,8 +543,8 @@ void setup_logging(const args_t &args)
 #endif
 
 #ifdef SYSLOG
-	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
-	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
+	bool cli_syslog_enabled = args.has_arg("-syslog");
+	const char* cli_syslog_tag = args.gimme_arg("-tag", 1);
 #else
 	bool cli_syslog_enabled = false;
 	const char* cli_syslog_tag = NULL;
