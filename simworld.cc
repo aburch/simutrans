@@ -3111,7 +3111,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 void karte_t::set_tool( tool_t *tool_in, player_t *player )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
-		dbg->warning("karte_t::set_tool", "Ignored tool %i during loading.", tool_in->get_id() );
+		dbg->warning("karte_t::set_tool", "Ignored tool %s during loading.", tool_in->get_name() );
 		return;
 	}
 	bool needs_check = !tool_in->no_check();
