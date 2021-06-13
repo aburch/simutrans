@@ -543,11 +543,13 @@ bool translator::set_language(const char *iso)
 			return true;
 		}
 	}
+
 	// if the request language does not exist
 	if( single_instance.current_lang == -1 ) {
 		set_language(0);
-		return false;
 	}
+
+	return false;
 }
 
 
