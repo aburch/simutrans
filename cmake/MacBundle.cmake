@@ -25,6 +25,9 @@ set_target_properties(simutrans PROPERTIES
 	MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION}
 )
 
+# Change the install directory from /usr/local to the build directory, so it's easier to package.
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
+
 install(CODE "
 	include(BundleUtilities)
 	fixup_bundle(\"${CMAKE_BINARY_DIR}/simutrans/simutrans.app\" \"\" \"\") 

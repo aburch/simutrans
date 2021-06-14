@@ -12,34 +12,24 @@ jobs:
 
     - name: install_dependencies
       run: | 
-        #curl http://www.libsdl.org/release/SDL2-2.0.10.dmg > SDL2-2.0.10.dmg
-        #hdiutil attach SDL2-2.0.10.dmg >>/dev/stderr
-        #sudo cp -R -v /Volumes/SDL2/SDL2.framework /Library/Frameworks/
-        #sudo ls /Library/Frameworks/ >>/dev/stderr
-        #hdiutil eject /Volumes/SDL2 >>/dev/stderr 
-        brew install autoconf automake freetype libpng pkg-config sdl2
+        brew install cmake pkg-config libpng sdl2 freetype fluidsynth
 
     - name: build
       run: |
-        autoreconf -ivf
-        ./configure CC=clang
-        make BACKEND=sdl2 MULTI_THREAD=1 OPTIMISE=1 OSTYPE=mac USE_FREETYPE=1 USE_UPNP=0 USE_ZSTD=0 AV_FOUNDATION=1
-        make OSX/getversion
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --target install
 
     - name: distribute
-      run: sh ./distribute.sh
-
-    - name: Rename result  
-      run:  |
-          ls *.zip >>/dev/stderr
-          echo "LATEST=$(ls *.zip)" >> $GITHUB_ENV
-          mv sim*.zip simumac-nightly.zip
+      run: |
+        cd build
+        zip -r simumac-nightly.zip simutrans
 
     - name: Update binaries of Nightly Release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./simumac-nightly.zip
+        file: build/simumac-nightly.zip
         asset_name: simumac-nightly.zip
         tag: Nightly
         overwrite: true   
