@@ -73,7 +73,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	slist_tpl<string> keys;
 	string str;
 
-	for (int i = 0; i < 24; i++) {
+	for (int i = 0; i < 32; i++) {
 		char buf[40];
 
 		sprintf(buf, "image[%i]", i);

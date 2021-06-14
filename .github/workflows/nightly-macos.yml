@@ -12,11 +12,12 @@ jobs:
 
     - name: install_dependencies
       run: | 
-        brew install cmake pkg-config libpng sdl2 freetype fluidsynth
+        brew install cmake pkg-config libpng sdl2 freetype fluidsynth zstd
 
     - name: build
       run: |
-        mkdir build && cd build
+        mkdir build
+        cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
         cmake --build . --target install
 

@@ -38,6 +38,7 @@ protected:
 	uint8 preview:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
+        uint8 ticks_yellow_ns, ticks_yellow_ow;
 	uint8 ticks_offset;
 
 	sint8 after_yoffset, after_xoffset;
@@ -110,16 +111,32 @@ public:
 	void set_ticks_ns(uint8 ns) {
 		ticks_ns = ns;
 		// To prevent overflow in ticks_offset when rotating
-		if (ticks_ow > 256-ticks_ns) {
-			ticks_ow = 256-ticks_ns;
+		if (ticks_ow > 256-ticks_ns - ticks_yellow_ns - ticks_yellow_ow ) {
+			ticks_ow = 256-ticks_ns-ticks_yellow_ns-ticks_yellow_ow;
 		}
 	}
 	uint8 get_ticks_ow() const { return ticks_ow; }
 	void set_ticks_ow(uint8 ow) {
 		ticks_ow = ow;
 		// To prevent overflow in ticks_offset when rotating
-		if (ticks_ns > 256-ticks_ow) {
-			ticks_ns = 256-ticks_ow;
+		if (ticks_ns > 256-ticks_ow - ticks_yellow_ns-ticks_yellow_ow ) {
+			ticks_ns = 256-ticks_ow-ticks_yellow_ns-ticks_yellow_ow;
+		}
+	}
+	uint8 get_ticks_yellow_ns() const { return ticks_yellow_ns; }
+	void set_ticks_yellow_ns(uint8 yellow) {
+		ticks_yellow_ns = yellow;
+		// To prevent overflow in ticks_offset when rotating
+		if (ticks_yellow_ns > 256-ticks_ns - ticks_ow - ticks_yellow_ow) {
+		  ticks_yellow_ns = 256-ticks_ns-ticks_ow-ticks_yellow_ow;
+		}
+	}
+	uint8 get_ticks_yellow_ow() const { return ticks_yellow_ow; }
+	void set_ticks_yellow_ow(uint8 yellow) {
+		ticks_yellow_ow = yellow;
+		// To prevent overflow in ticks_offset when rotating
+		if (ticks_yellow_ow > 256-ticks_ns - ticks_ow - ticks_yellow_ns) {
+		  ticks_yellow_ow = 256-ticks_ns-ticks_ow-ticks_yellow_ns;
 		}
 	}
 	uint8 get_ticks_offset() const { return ticks_offset; }
