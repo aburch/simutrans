@@ -7,10 +7,6 @@ include(FindSubversion)
 include(FindGit)
 
 
-if (Subversion_FOUND OR Git_FOUND)
-	option(SIMUTRANS_WITH_REVISION "Build executable with SVN/git revision information" ON)
-endif (Subversion_FOUND OR Git_FOUND)
-
 # We have to try Git first because Subversion_WC_INFO does not fail silently if
 # this repository is not a Subversion repository
 # assume this is from aburch/simutrans!
