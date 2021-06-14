@@ -220,7 +220,7 @@ void sound_frame_t::draw(scr_coord pos, scr_size size)
 	// update song name label
 	update_song_name();
 #ifdef USE_FLUIDSYNTH_MIDI
-	if(  !strcmp(env_t::soundfont_filename.c_str(), "Error") == 0  ){
+	if(  strcmp(env_t::soundfont_filename.c_str(), "Error") != 0  ){
 		music_mute_button.enable( true );
 	}
 #endif
