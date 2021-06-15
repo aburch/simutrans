@@ -3,7 +3,11 @@
  * (see LICENSE.txt)
  */
 
+#ifndef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>

@@ -119,7 +119,6 @@ endif ()
 target_link_libraries(simutrans PRIVATE PNG::PNG)
 
 if (WIN32)
-#	set(CMAKE_RC_COMPILER_INIT windres)
 	target_sources(simutrans PRIVATE simres.rc)
 	target_sources(simutrans PRIVATE sys/clipboard_w32.cc)
 	target_link_libraries(simutrans PRIVATE ws2_32 winmm)
@@ -128,9 +127,18 @@ if (WIN32)
 	set(BACKUP_SOUND sound/win32_sound_xa.cc)
 	set(BACKUP_MUSIC music/w32_midi.cc)
 else ()
-	target_sources(simutrans PRIVATE sys/clipboard_internal.cc)
-	set(BACKUP_SOUND sound/no_sound.cc)
-	set(BACKUP_MUSIC music/no_midi.cc)
+	if (SIMUTRANS_BACKEND STREQUAL "sdl2")
+		target_sources(simutrans PRIVATE sys/clipboard_s2.cc)
+	else ()
+		target_sources(simutrans PRIVATE sys/clipboard_internal.cc)
+	endif ()
+	if (APPLE)
+		set(BACKUP_SOUND sound/AVF_core-audio_sound.mm sound/core-audio_sound.mm)
+		set(BACKUP_MUSIC music/AVF_core-audio_midi.mm music/core-audio_midi.mm)
+	else ()
+		set(BACKUP_SOUND sound/no_sound.cc)
+		set(BACKUP_MUSIC music/no_midi.cc)
+	endif ()
 endif ()
 
 if (SIMUTRANS_MULTI_THREAD)
@@ -194,6 +202,7 @@ endif (SIMUTRANS_USE_UPNP)
 
 if (SIMUTRANS_USE_ZSTD)
 	target_sources(simutrans PRIVATE io/rdwr/zstd_file_rdwr_stream.cc)
+	target_include_directories(simutrans PRIVATE ${ZSTD_INCLUDE_DIRS})
 	target_compile_definitions(simutrans PRIVATE USE_ZSTD=1)
 	if (MSVC)
 		target_link_libraries(simutrans PRIVATE zstd::libzstd_static)
@@ -286,17 +295,33 @@ endif ()
 #
 # Installation
 #
-install(TARGETS simutrans RUNTIME DESTINATION simutrans BUNDLE DESTINATION simutrans)
+install(TARGETS simutrans RUNTIME DESTINATION "${CMAKE_BINARY_DIR}/simutrans/" BUNDLE DESTINATION "${CMAKE_BINARY_DIR}/simutrans/")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans/" DESTINATION "simutrans")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans" DESTINATION "${CMAKE_BINARY_DIR}")
 
-install(FILES get_pak.sh DESTINATION "simutrans"
-	PERMISSIONS
-		OWNER_READ OWNER_WRITE OWNER_EXECUTE
-		GROUP_READ GROUP_EXECUTE
-		WORLD_READ WORLD_EXECUTE
-)
+install(CODE "execute_process(COMMAND sh ../get_lang_files.sh WORKING_DIRECTORY \${CMAKE_BINARY_DIR})")
 
+if (NOT WIN32)
+	install(FILES get_pak.sh DESTINATION "${CMAKE_BINARY_DIR}/simutrans/"
+		PERMISSIONS
+			OWNER_READ OWNER_WRITE OWNER_EXECUTE
+			GROUP_READ GROUP_EXECUTE
+			WORLD_READ WORLD_EXECUTE
+	)
+else ()
+	# NSIS missing
+	install(CODE "execute_process(COMMAND NSIS WORKING_DIRECTORY \${CMAKE_SOURCE_DIR}/nsis)")
+endif ()
+
+if (APPLE)
+	# install pak64 with the bundle
+	install(CODE
+	"file(STRINGS  ${CMAKE_SOURCE_DIR}/paksetinfo.h URLpak64 REGEX \"/pak64/\")
+	 string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
+	 string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
+	 execute_process(COMMAND sh ../../get_pak.sh \${URLpak64} WORKING_DIRECTORY \${CMAKE_BINARY_DIR}/simutrans)
+	")
+endif()
 
 
 #

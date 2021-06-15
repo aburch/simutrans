@@ -5,7 +5,12 @@
 
 /// sdl-sound without SDL_mixer.dll
 
+#ifndef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"

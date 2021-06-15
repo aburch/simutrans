@@ -17,6 +17,9 @@ if (GIT_FOUND)
 		string( REGEX REPLACE "[\t\r\n]" " " TEMP1 ${SIMUTRANS_RAW_WC_REVISION})
 		string( REGEX REPLACE "^.*trunk\@" "" TEMP2 ${TEMP1})
 		string( REGEX REPLACE " .*$" "" SIMUTRANS_WC_REVISION ${TEMP2})
+		if(SIMUTRANS_WC_REVISION MATCHES "commit")
+			unset(SIMUTRANS_WC_REVISION)
+		endif()
 	endif()
 endif ()
 
@@ -40,6 +43,8 @@ else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
 		"will be unavailable.")
-	file(WRITE ${SOURCE_DIR}/revision.h "#define REVISION \n")
+	if (NOT EXISTS ${SOURCE_DIR}/revision.h)
+		file(WRITE ${SOURCE_DIR}/revision.h "#define REVISION \n")
+	endif ()
 endif ()
 
