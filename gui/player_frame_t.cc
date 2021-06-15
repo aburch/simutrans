@@ -54,7 +54,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].init(button_t::square_state, "");
 			player_active[i-2].add_listener(this);
 			player_active[i-2].set_rigid(true);
-			add_component( player_active+i-2 );
+			add_component( player_active+(i-2) );
 		}
 		else {
 			new_component<gui_empty_t>();
