@@ -101,15 +101,12 @@ if (${VS} EQUAL 0)
 	# using a script for MSVC project files
 	file(WRITE ${CMAKE_SOURCE_DIR}/revision.h "#define REVISION \n")
 	add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo revision.jse COMMENT "Find SVN revision")
-
 else ()
-# using custom target svnhear that is always built to update the revision.h file using cmake script
-add_custom_target(svnheader ALL DEPENDS svn_header)
-add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
-add_dependencies(simutrans svnheader)
-
-
+	# using custom target svnhear that is always built to update the revision.h file using cmake script
+	add_custom_target(svnheader ALL DEPENDS svn_header)
+	add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
+	set_source_files_properties(${CMAKE_SOURCE_DIR}/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
+	add_dependencies(simutrans svnheader)
 endif ()
 
 #
@@ -299,8 +296,18 @@ install(TARGETS simutrans RUNTIME DESTINATION "${CMAKE_BINARY_DIR}/simutrans/" B
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans" DESTINATION "${CMAKE_BINARY_DIR}")
 
-install(CODE "execute_process(COMMAND sh ../get_lang_files.sh WORKING_DIRECTORY \${CMAKE_BINARY_DIR})")
+# download language files
+if (MSVC)
+	# MSVC has no variable on teh install target path at execution time, which is why we expand the directories at creation time!
+	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/get_lang_files.ps1 WORKING_DIRECTORY ${simutrans_BINARY_DIR})")
+	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+		install(CODE "execute_process(COMMAND powershell -Command \"Remove-Item \'${simutrans_BINARY_DIR}/simutrans/simutrans.pdb\')")
+	endif ()
+else ()
+	install(CODE "execute_process(COMMAND sh ../get_lang_files.sh WORKING_DIRECTORY \${CMAKE_BINARY_DIR})")
+endif ()
 
+# pak installer
 if (NOT WIN32)
 	install(FILES get_pak.sh DESTINATION "${CMAKE_BINARY_DIR}/simutrans/"
 		PERMISSIONS
@@ -313,14 +320,28 @@ else ()
 	install(CODE "execute_process(COMMAND NSIS WORKING_DIRECTORY \${CMAKE_SOURCE_DIR}/nsis)")
 endif ()
 
-if (APPLE)
-	# install pak64 with the bundle
-	install(CODE
-	"file(STRINGS  ${CMAKE_SOURCE_DIR}/paksetinfo.h URLpak64 REGEX \"/pak64/\")
-	 string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
-	 string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
-	 execute_process(COMMAND sh ../../get_pak.sh \${URLpak64} WORKING_DIRECTORY \${CMAKE_BINARY_DIR}/simutrans)
-	")
+# install pak if needed
+if (SIMUTRANS_INSTALL_PAK64)
+	if (MSVC)
+		install(CODE
+		"if(NOT EXISTS ${simutrans_BINARY_DIR}/simutrans/pak)
+		execute_process(COMMAND powershell -Command \"Remove-Item \'${simutrans_BINARY_DIR}/simutrans/pak\' -Recurse\" WORKING_DIRECTORY ${simutrans_BINARY_DIR})
+		file(STRINGS ${CMAKE_SOURCE_DIR}/paksetinfo.h URLpak64 REGEX \"/pak64/\")
+		string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
+		string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
+		message(\"install pak to \" ${simutrans_BINARY_DIR})
+		execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/get_pak.ps1 \${URLpak64} WORKING_DIRECTORY ${simutrans_BINARY_DIR}/simutrans)
+		endif ()
+		")
+	else ()
+		# install pak64 with the bundle
+		install(CODE
+		"file(STRINGS  ${CMAKE_SOURCE_DIR}/paksetinfo.h URLpak64 REGEX \"/pak64/\")
+		 string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
+		 string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
+		 execute_process(COMMAND sh ../../get_pak.sh \${URLpak64} WORKING_DIRECTORY \${CMAKE_BINARY_DIR}/simutrans)
+		")
+	endif ()
 endif()
 
 
