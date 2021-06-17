@@ -3458,7 +3458,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		halthandle_t list[16];
 		const uint8 count = plan->get_haltlist_count();
 		assert(count<16);
-		assert((count > 0) == (plan->get_haltlist() != NULL));
+		assert((count == 0) || (plan->get_haltlist() != NULL));
 
 		if (count > 0) {
 			memcpy( list, plan->get_haltlist(), count*sizeof(halthandle_t) );
