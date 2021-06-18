@@ -6797,6 +6797,24 @@ bool tool_show_underground_t::init( player_t * )
 	return needs_click;
 }
 
+
+bool tool_show_underground_t::exit( player_t* )
+{
+	if(  grund_t::underground_mode != grund_t::ugm_none  ) {
+
+		// reset no normal view on deselect
+		grund_t::underground_mode = grund_t::ugm_none;
+
+		// renew toolbar
+		tool_t::update_toolbars();
+
+		// recalc all images on map
+		welt->update_underground();
+	}
+	return false;
+}
+
+
 const char *tool_show_underground_t::work( player_t *player, koord3d pos)
 {
 	koord3d zpos = welt->get_zeiger()->get_pos();
