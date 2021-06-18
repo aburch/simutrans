@@ -315,7 +315,14 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(player);
-		const scr_coord draw_pos = pos + offset + scr_coord(( (i-tool_icon_disp_start)%(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.w, D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.h);
+#if COLOUR_DEPTH != 0
+		const scr_coord_val additional_xoffset = ( (i-tool_icon_disp_start)%(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.w;
+		const scr_coord_val additional_yoffset = D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/(tool_icon_width+(offset.x!=0)) )*env_t::iconsize.h;
+#else
+		const scr_coord_val additional_xoffset = 0;
+		const scr_coord_val additional_yoffset = 0;
+#endif
+		const scr_coord draw_pos = pos + offset + scr_coord(additional_xoffset, additional_yoffset);
 		const char *param = tools[i].tool->get_default_param();
 
 		// we don't draw in main menu as it is already made in simwin.cc
