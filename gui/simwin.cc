@@ -1647,6 +1647,7 @@ void win_poll_event(event_t* const ev)
 		// main window resized
 		simgraph_resize( ev->new_window_size );
 		ticker::redraw();
+		tool_t::update_toolbars();
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
 		ev->ev_class = EVENT_NONE;
