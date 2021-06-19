@@ -6803,7 +6803,7 @@ bool tool_show_underground_t::exit( player_t* )
 	if(  grund_t::underground_mode != grund_t::ugm_none  ) {
 
 		// reset no normal view on deselect
-		grund_t::underground_mode = grund_t::ugm_none;
+		grund_t::set_underground_mode( grund_t::ugm_none, 0 );
 
 		// renew toolbar
 		tool_t::update_toolbars();
