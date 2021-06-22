@@ -15,4 +15,5 @@
  */
 waytype_t get_waytype(char const* waytype);
 
+
 #endif

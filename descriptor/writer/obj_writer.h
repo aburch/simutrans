@@ -20,7 +20,8 @@ template<class X> class stringhashtable_tpl;
 template<class key, class X> class inthashtable_tpl;
 
 
-class obj_writer_t {
+class obj_writer_t
+{
 private:
 	static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
 	static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
@@ -58,5 +59,6 @@ public:
 
 	static void set_img_size(int img_size) { obj_writer_t::default_image_size = img_size; }
 };
+
 
 #endif

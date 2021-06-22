@@ -18,40 +18,39 @@ class obj_node_t;
 struct dimension;
 
 
-class image_writer_t : public obj_writer_t {
-	private:
-		static image_writer_t the_instance;
+class image_writer_t : public obj_writer_t
+{
+private:
+	static image_writer_t the_instance;
 
-		static std::string last_img_file;
-		static raw_image_t input_img;
-		static int img_size; // default 64
+	static std::string last_img_file;
+	static raw_image_t input_img;
+	static int img_size; // default 64
 
-		image_writer_t() { register_writer(false); }
+	image_writer_t() { register_writer(false); }
 
-		static uint32 block_getpix(int x, int y);
+	static uint32 block_getpix(int x, int y);
 
-	public:
-		static image_writer_t* instance() { return &the_instance; }
+public:
+	static image_writer_t* instance() { return &the_instance; }
 
-		static void set_img_size(int _img_size) { img_size = _img_size; }
+	static void set_img_size(int _img_size) { img_size = _img_size; }
 
-		virtual obj_type get_type() const { return obj_image; }
-		virtual const char* get_type_name() const { return "image"; }
+	virtual obj_type get_type() const { return obj_image; }
+	virtual const char* get_type_name() const { return "image"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
+	void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
 
-	private:
-		bool block_load(const char* fname);
+private:
+	bool block_load(const char* fname);
 
-		/// Loads @ref input_img with the contents of @p fname, ignores case of @p filename.
-		/// @returns true on success
-		bool load_image_from_file(const char *fname);
+	/// Loads @ref input_img with the contents of @p fname, ignores case of @p filename.
+	/// @returns true on success
+	bool load_image_from_file(const char *fname);
 
-		/**
-		 * Encodes an image into a sprite data structure, considers
-		 * special colors.
-		 */
-		static uint16* encode_image(int x, int y, dimension* dim, int* len);
+	/// Encodes an image into a sprite data structure, considers
+	/// special colors.
+	static uint16 *encode_image(int x, int y, dimension* dim, int* len);
 };
 
 #endif
