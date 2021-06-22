@@ -124,6 +124,7 @@ adjust_image:
 	}
 	if(  desc->len > 0  ) {
 		desc->len = 4;
+		memset(desc->data, 0, desc->len*sizeof(PIXVAL));
 	}
 	desc->x = 0;
 	desc->y = 0;
