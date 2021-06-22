@@ -8,9 +8,11 @@
 
 
 #include <string>
-#include <stdio.h>
+#include <cstdio>
+
 #include "obj_writer.h"
 #include "../objversion.h"
+
 
 struct obj_node_info_t;
 
@@ -30,9 +32,11 @@ private:
 
 public:
 	void capabilites();
+
 	static root_writer_t* instance() { return &the_instance; }
-	virtual obj_type get_type() const { return obj_root; }
-	virtual const char* get_type_name() const { return "root"; }
+
+	obj_type get_type() const OVERRIDE { return obj_root; }
+	const char *get_type_name() const OVERRIDE { return "root"; }
 
 	void write(const char* name, int argc, char* argv[]);
 	void dump(int argc, char* argv[]);
@@ -62,5 +66,6 @@ private:
 	bool do_dump(const char* open_file_name);
 	bool do_list(const char* open_file_name);
 };
+
 
 #endif

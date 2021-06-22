@@ -23,8 +23,8 @@ private:
 public:
 	static factory_field_class_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_ffldclass; }
-	virtual const char* get_type_name() const { return "factory field class"; }
+	obj_type get_type() const OVERRIDE { return obj_ffldclass; }
+	const char* get_type_name() const OVERRIDE { return "factory field class"; }
 
 	void write_obj(FILE* fp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight);
 };
@@ -40,10 +40,10 @@ private:
 public:
 	static factory_field_group_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_ffield; }
-	virtual const char* get_type_name() const { return "factory field"; }
+	obj_type get_type() const OVERRIDE { return obj_ffield; }
+	const char *get_type_name() const OVERRIDE { return "factory field"; }
 
-	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj) OVERRIDE;
 };
 
 
@@ -57,10 +57,10 @@ private:
 public:
 	static factory_smoke_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_fsmoke; }
-	virtual const char* get_type_name() const { return "factory smoke"; }
+	obj_type get_type() const OVERRIDE { return obj_fsmoke; }
+	const char *get_type_name() const OVERRIDE { return "factory smoke"; }
 
-	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj) OVERRIDE;
 };
 
 
@@ -74,8 +74,8 @@ private:
 public:
 	static factory_product_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_fproduct; }
-	virtual const char* get_type_name() const { return "factory product"; }
+	obj_type get_type() const OVERRIDE { return obj_fproduct; }
+	const char* get_type_name() const OVERRIDE { return "factory product"; }
 
 	void write_obj(FILE* outfp, obj_node_t& parent, int capacity, int factor, const char* warename);
 };
@@ -91,8 +91,8 @@ private:
 public:
 	static factory_supplier_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_fsupplier; }
-	virtual const char* get_type_name() const { return "factory supplier"; }
+	obj_type get_type() const OVERRIDE { return obj_fsupplier; }
+	const char* get_type_name() const OVERRIDE { return "factory supplier"; }
 
 	void write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int consumption, const char* warename);
 };
@@ -106,13 +106,13 @@ private:
 	factory_writer_t() { register_writer(true); }
 
 protected:
-	virtual std::string get_node_name(FILE* fp) const;
+	std::string get_node_name(FILE* fp) const OVERRIDE;
 
 public:
-	virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj) OVERRIDE;
 
-	virtual obj_type get_type() const { return obj_factory; }
-	virtual const char* get_type_name() const { return "factory"; }
+	obj_type get_type() const OVERRIDE { return obj_factory; }
+	const char* get_type_name() const OVERRIDE { return "factory"; }
 };
 
 

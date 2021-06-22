@@ -18,14 +18,14 @@
 class skin_writer_t : public obj_writer_t
 {
 protected:
-	virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }
+	std::string get_node_name(FILE* fp) const OVERRIDE { return name_from_next_node(fp); }
 
 public:
-	virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj) OVERRIDE;
 	void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj, const slist_tpl<std::string>& imagekeys);
 
-	virtual obj_type get_type() const = 0;
-	virtual const char* get_type_name() const = 0;
+	obj_type get_type() const OVERRIDE = 0;
+	const char* get_type_name() const OVERRIDE = 0;
 };
 
 
@@ -39,8 +39,8 @@ private:
 public:
 	static menuskin_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_menu; }
-	virtual const char* get_type_name() const { return "menu"; }
+	obj_type get_type() const OVERRIDE { return obj_menu; }
+	const char* get_type_name() const OVERRIDE { return "menu"; }
 };
 
 
@@ -54,8 +54,8 @@ private:
 public:
 	static cursorskin_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_cursor; }
-	virtual const char* get_type_name() const { return "cursor"; }
+	obj_type get_type() const OVERRIDE { return obj_cursor; }
+	const char* get_type_name() const OVERRIDE { return "cursor"; }
 };
 
 
@@ -69,8 +69,8 @@ private:
 public:
 	static symbolskin_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_symbol; }
-	virtual const char* get_type_name() const { return "symbol"; }
+	obj_type get_type() const OVERRIDE { return obj_symbol; }
+	const char* get_type_name() const OVERRIDE { return "symbol"; }
 };
 
 
@@ -84,8 +84,8 @@ private:
 public:
 	static smoke_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_smoke; }
-	virtual const char* get_type_name() const { return "smoke"; }
+	obj_type get_type() const OVERRIDE { return obj_smoke; }
+	const char* get_type_name() const OVERRIDE { return "smoke"; }
 };
 
 
@@ -99,8 +99,8 @@ private:
 public:
 	static field_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_field; }
-	virtual const char* get_type_name() const { return "field"; }
+	obj_type get_type() const OVERRIDE { return obj_field; }
+	const char* get_type_name() const OVERRIDE { return "field"; }
 };
 
 
@@ -117,8 +117,8 @@ private:
 public:
 	static miscimages_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_miscimages; }
-	virtual const char* get_type_name() const { return "misc"; }
+	obj_type get_type() const OVERRIDE { return obj_miscimages; }
+	const char* get_type_name() const OVERRIDE { return "misc"; }
 };
 
 

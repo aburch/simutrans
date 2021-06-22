@@ -25,10 +25,10 @@ private:
 public:
 	static text_writer_t* instance() { return &the_instance; }
 
-	virtual obj_type get_type() const { return obj_text; }
-	virtual const char* get_type_name() const { return "text"; }
+	obj_type get_type() const OVERRIDE { return obj_text; }
+	const char* get_type_name() const OVERRIDE { return "text"; }
 
-	void dump_node(FILE* infp, const obj_node_info_t& node);
+	void dump_node(FILE* infp, const obj_node_info_t& node) OVERRIDE;
 	void write_obj(FILE* fp, obj_node_t& parent, const char* text);
 };
 

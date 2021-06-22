@@ -36,8 +36,8 @@ public:
 
 	static void set_img_size(int _img_size) { img_size = _img_size; }
 
-	virtual obj_type get_type() const { return obj_image; }
-	virtual const char* get_type_name() const { return "image"; }
+	obj_type get_type() const OVERRIDE { return obj_image; }
+	const char* get_type_name() const OVERRIDE { return "image"; }
 
 	void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
 

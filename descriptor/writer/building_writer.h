@@ -30,8 +30,8 @@ public:
 	);
 
 protected:
-	virtual obj_type get_type() const { return obj_tile; }
-	virtual const char *get_type_name() const { return "tile"; }
+	obj_type get_type() const OVERRIDE { return obj_tile; }
+	const char *get_type_name() const OVERRIDE { return "tile"; }
 };
 
 
@@ -43,14 +43,14 @@ private:
 	building_writer_t() { register_writer(true); }
 
 public:
-	virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }
+	std::string get_node_name(FILE* fp) const OVERRIDE { return name_from_next_node(fp); }
 
 	static building_writer_t* instance() { return &the_instance; }
 
-	virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
+	virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj) OVERRIDE;
 
-	virtual obj_type get_type() const { return obj_building; }
-	virtual const char* get_type_name() const { return "building"; }
+	obj_type get_type() const OVERRIDE { return obj_building; }
+	const char* get_type_name() const OVERRIDE { return "building"; }
 };
 
 
