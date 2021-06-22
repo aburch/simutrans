@@ -974,7 +974,7 @@ const char* dr_get_locale()
 	return LanguageCode;
 }
 
-	
+
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	WNDCLASSW wc;

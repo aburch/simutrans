@@ -478,7 +478,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		else {
 		  new_state = 3;
 		}
-		
+
 		if(state!=new_state) {
 			state = new_state;
 			switch(new_state) {
