@@ -52,6 +52,7 @@
 #include "gui/script_tool_frame.h"
 
 #include "obj/baum.h"
+#include "obj/groundobj.h"
 
 
 class player_t;
