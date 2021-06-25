@@ -1833,8 +1833,16 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 
 const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	int value = 0;
+	if (!default_param || sscanf(default_param, "%d", &value) != 1) {
+		return "";
+	}
+	else if (value < water_climate || value >= MAX_CLIMATES) {
+		return "";
+	}
+
 	int n = 0; // tiles altered
-	climate cl = (climate) atoi(default_param);
+	climate cl = (climate)value;
 	koord k1, k2;
 	if(  end == koord3d::invalid  ) {
 		k1.x = k2.x = start.x;
