@@ -83,7 +83,7 @@ haltestelle_t::stationtyp gui_waytype_tab_panel_t::get_active_tab_stationtype() 
 {
 	switch(get_active_tab_waytype()) {
 		case air_wt:         return haltestelle_t::airstop;
-		case road_wt:        return haltestelle_t::loadingbay;
+		case road_wt:        return haltestelle_t::loadingbay | haltestelle_t::busstop;
 		case track_wt:       return haltestelle_t::railstation;
 		case water_wt:       return haltestelle_t::dock;
 		case monorail_wt:    return haltestelle_t::monorailstop;
