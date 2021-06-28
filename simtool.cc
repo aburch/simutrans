@@ -1765,9 +1765,15 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
  */
 bool tool_change_city_size_t::init( player_t * )
 {
-	cursor = atoi(default_param)>0 ? tool_t::general_tool[TOOL_RAISE_LAND]->cursor : tool_t::general_tool[TOOL_LOWER_LAND]->cursor;
+	int delta = 0;
+	if (!default_param || sscanf(default_param, "%d", &delta) != 1) {
+		return false;
+	}
+
+	cursor = delta > 0 ? tool_t::general_tool[TOOL_RAISE_LAND]->cursor : tool_t::general_tool[TOOL_LOWER_LAND]->cursor;
 	return true;
 }
+
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
