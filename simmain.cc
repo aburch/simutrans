@@ -991,6 +991,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 	// specified themes not found => try default themes
+#if COLOUR_DEPTH != 0
 	if(  !themes_ok  ) {
 		dr_chdir( env_t::data_dir );
 		dr_chdir( "themes" );
@@ -1004,7 +1005,6 @@ int simu_main(int argc, char** argv)
 	// The loading screen needs to be initialized
 	display_show_pointer(1);
 
-#if COLOUR_DEPTH != 0
 	// if no object files given, we ask the user
 	for(  int retries=0;  env_t::objfilename.empty()  &&  retries < 2;  retries++  ) {
 		ask_objfilename();
@@ -1250,6 +1250,7 @@ int simu_main(int argc, char** argv)
 	dr_chdir( env_t::data_dir );
 	tool_t::read_menu(env_t::objfilename);
 
+#if COLOUR_DEPTH != 0
 	// reread theme
 	dr_chdir( env_t::user_dir );
 	dr_chdir( "themes" );
@@ -1260,8 +1261,8 @@ int simu_main(int argc, char** argv)
 		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 	}
+#endif
 	dr_chdir( env_t::data_dir );
-
 
 	if(  translator::get_language()==-1  ) {
 		// try current language
