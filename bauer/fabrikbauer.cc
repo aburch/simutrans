@@ -771,18 +771,17 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	// search if there already is one or two (cross-connect everything if possible)
 	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
-		if ((lcount != 0 || consumption <= 0) && lcount < lfound + 1) break;
+		if (  (lcount != 0  ||  consumption <= 0)  &&  lcount < lfound + 1  )
+			break;
 
 		// connect to an existing one if this is a producer
-		if(fab->vorrat_an(ware) > -1) {
+		if(  fab->vorrat_an(ware) > -1  ) {
 
-			// for sources (oil fields, forests ... ) prefer those with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
-
-			if(distance>6) {//  &&  distance < simrand(welt->get_size().x+welt->get_size().y)) {
-				// ok, this would match
-				// but can she supply enough?
+			if(  distance > welt->get_settings().get_min_factory_spacing()  &&  distance <= DISTANCE  ) {
+				// ok, this would match but can she supply enough?
 
 				// now guess how much this factory can supply
 				const factory_desc_t* const fd = fab->get_desc();
