@@ -30,6 +30,7 @@
 	ADD: chat window transparency in network mode now controlled by theme: gui_color_chat_window_network_transparency and gui_chat_window_network_transparency
 	CHG: search dialoges now consistent design, text search, preserved during saveload
 	ADD: reselect a tool will close it (new default, set by reselect_closes_tool in menuconf.tab)
+	FIX: Grid height not restored when removing building on a raised tile
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
@@ -106,7 +107,7 @@ Release of 121.0 (r8870 on 1-Dec-2019):
 Release of 120.4.1 (r8600 on 23-Sep-2018):
 	FIX: wrong graphics with greedy block signals
 	FIX: world minimum height could not be set
-	FIX: location forest could not work with factories smaller than 3x3, since not enough inner tiles were iterated 
+	FIX: location forest could not work with factories smaller than 3x3, since not enough inner tiles were iterated
 
 
 Release of 120.4 (r8588 on 17-Sep-2018):
