@@ -5403,10 +5403,16 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 
 bool tool_build_depot_t::init( player_t *player )
 {
-	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
+	if (default_param == NULL) {
+		return false;
+	}
+
+	const building_tile_desc_t *tile_desc = hausbauer_t::find_tile(default_param, 0);
+	building_desc_t const* desc = tile_desc ? tile_desc->get_desc() : NULL;
 	if (desc == NULL) {
 		return false;
 	}
+
 	// no depots for player 1
 	if(player!=welt->get_public_player()) {
 		cursor = desc->get_cursor()->get_image_id(0);
