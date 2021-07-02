@@ -5500,11 +5500,15 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
  */
 bool tool_build_house_t::init( player_t * )
 {
+	if (default_param && strlen(default_param) < 3) {
+		return false;
+	}
+
 	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		const building_tile_desc_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
-			int rotation = (default_param[1]-'0') % tile->get_desc()->get_all_layouts();
+			const int rotation = (default_param[1]-'0') % tile->get_desc()->get_all_layouts();
 			cursor_area = tile->get_desc()->get_size(rotation);
 		}
 	}
