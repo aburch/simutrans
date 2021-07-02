@@ -1020,6 +1020,7 @@ int simu_main(int argc, char** argv)
 	}
 #else
 	// headless server
+	dr_chdir( env_t::data_dir );
 	if(  env_t::objfilename.empty()  ) {
 		dr_fatal_notify(
 			"*** No pak set found ***\n"
