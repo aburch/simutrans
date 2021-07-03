@@ -97,7 +97,9 @@ private:
 	uint32 last_load_tick;
 
 	states state;
-	// 32 bytes (state is int is 4 byte)
+
+	// if state == LOADING, this is true while unloading
+	bool unloading_state;
 
 	/**
 	* holds id of line with pending update
@@ -433,6 +435,8 @@ public:
 	* true if in waiting state (maybe also due to starting)
 	*/
 	bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_TWO_MONTHS)  &&  state!=SELF_DESTRUCT; }
+
+	bool is_unloading() { return state==LOADING  &&  unloading_state; }
 
 	/**
 	* reset state to no error message

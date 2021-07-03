@@ -141,6 +141,7 @@ void convoi_t::init(player_t *player)
 	next_wolke = 0;
 
 	state = INITIAL;
+	unloading_state = false;
 
 	*name_and_id = 0;
 	name_offset = 0;
@@ -2597,6 +2598,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		reserve_route();
 		recalc_catg_index();
+		unloading_state = false;
 	}
 }
 
@@ -2961,6 +2963,7 @@ station_tile_search_ready: ;
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
+	unloading_state = true;
 	uint32 time = WTT_LOADING; // min time for loading/unloading
 	sint64 gewinn = 0;
 
@@ -3003,6 +3006,7 @@ station_tile_search_ready: ;
 			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
 				amount += v->load_cargo(halt, destination_halts, max_amount-amount);
+				unloading_state &= amount==0;
 			}
 			if (v->get_total_cargo() < v->get_cargo_max()) {
 				// not full
