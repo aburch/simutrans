@@ -404,9 +404,8 @@ void display_img_aligned( const image_id, scr_rect, int, bool )
 {
 }
 
-scr_coord_val display_proportional_ellipsis_rgb( scr_rect, const char *, int, PIXVAL, bool, bool, PIXVAL)
+void display_proportional_ellipsis_rgb( scr_rect, const char *, int, PIXVAL, bool, bool, PIXVAL)
 {
-	return 0;
 }
 
 image_id get_image_count()

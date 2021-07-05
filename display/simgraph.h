@@ -331,12 +331,9 @@ int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, con
 #define display_proportional_clip_rgb(          x, y, txt, align, color, dirty)       display_text_proportional_len_clip_rgb( x, y, txt, align | DT_CLIP, color, dirty, -1 )
 
 
-/*
- * Display a string that is abbreviated by the (language specific) ellipsis character if too wide
- * If enough space is given, it just display the full string
- * @returns screen_width
- */
-scr_coord_val display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty, bool shadowed = false, PIXVAL shadow_color = 0 );
+/// Display a string that is abbreviated by the (language specific) ellipsis character if too wide
+/// If enough space is given, it just display the full string
+void display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty, bool shadowed = false, PIXVAL shadow_color = 0 );
 
 void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, scr_coord_val width, scr_coord_val hgt, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
