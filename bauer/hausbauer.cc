@@ -478,7 +478,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, const building_desc_t* desc, void* param)
+gebaeude_t* hausbauer_t::build(player_t* player, koord pos, int org_layout, const building_desc_t* desc, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -487,6 +487,31 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 	uint8 layout = desc->adjust_layout(org_layout);
 	dim = desc->get_size(org_layout);
 	bool needs_ground_recalc = false;
+
+	sint8 base_h = -128;
+	if( dim.y+dim.x > 2 ) {
+		for( k.y = 0; k.y < dim.y; k.y++ ) {
+			for( k.x = 0; k.x < dim.x; k.x++ ) {
+				if( grund_t* gr = welt->lookup_kartenboden( pos + k ) ) {
+					base_h = max( base_h, gr->get_hoehe() );
+					if( gr->get_hoehe()!=base_h  &&  welt->lookup( koord3d( pos+k, base_h ) ) ) {
+						// there is already a ground here!
+						dbg->error("hausbauer_t::build","Will create new ground at (%s) where there is ground above!", pos.get_str() );
+					}
+				}
+				else {
+					return NULL;
+				}
+			}
+		}
+	}
+	else {
+		// single tile
+		grund_t* gr = welt->lookup_kartenboden( pos + k );
+		base_h = gr->get_hoehe() + +slope_t::max_diff( gr->get_grund_hang() );
+
+	}
+	// now we must raise all grounds to base_h during construction
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
@@ -503,7 +528,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			gebaeude_t *gb = new gebaeude_t(pos + k, player, tile);
+			gebaeude_t *gb = new gebaeude_t(koord3d(pos + k,base_h), player, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -517,7 +542,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				gb->add_alter(10000);
 			}
 
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
+			grund_t *gr = welt->lookup_kartenboden(pos + k);
 			if(gr->is_water()) {
 				gr->obj_add(gb);
 			}
@@ -546,9 +571,9 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				}
 
 				// build new foundation
-				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat;
-				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
-				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
+				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat  ||  gr->get_hoehe()!=base_h;
+				grund_t *gr2 = new fundament_t( koord3d(pos+k,base_h), slope_t::flat);
+				welt->access(pos+k)->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::build()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
@@ -558,10 +583,10 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 					gr->obj_add(keptobjs[i]);
 				}
 
-				if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_image();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_image();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_image();
+				if(needs_ground_recalc  &&  welt->is_within_limits(pos+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+					welt->lookup_kartenboden(pos+k+koord(1,0))->calc_image();
+					welt->lookup_kartenboden(pos+k+koord(0,1))->calc_image();
+					welt->lookup_kartenboden(pos+k+koord(1,1))->calc_image();
 				}
 			}
 			gb->set_pos( gr->get_pos() );

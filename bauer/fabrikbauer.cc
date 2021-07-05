@@ -454,7 +454,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation), factory_desc_t::Land, attraction, false, 0x0FFFFFFF); // so far -> land only
 		if(welt->lookup(pos)) {
 			// space found, build attraction
-			hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
+			hausbauer_t::build(welt->get_public_player(), pos.get_2d(), rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
 		}

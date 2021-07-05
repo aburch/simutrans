@@ -3887,7 +3887,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		rotation %= desc->get_all_layouts();
 	}
 
-	hausbauer_t::build(halt->get_owner(), pos-offsets, rotation, desc, &halt);
+	hausbauer_t::build(halt->get_owner(), pos.get_2d()-offsets, rotation, desc, &halt);
 
 	sint32     const  factor = desc->get_x() * desc->get_y();
 	sint64     cost = -desc->get_price(welt) * factor;
@@ -3980,8 +3980,8 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	// remove everything from tile
 	gr->obj_loesche_alle(player);
 
+	koord bau_pos = k;
 	int layout = 0;
-	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
 	koord dx2;
 	switch(hang) {
 		case slope_t::south:
@@ -3998,13 +3998,13 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		case slope_t::north*2:
 			layout = 2;
 			dx2 = koord::west;
-			bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+			bau_pos = last_k;
 			break;
 		case slope_t::west:
 		case slope_t::west*2:
 			layout = 3;
 			dx2 = koord::north;
-			bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+			bau_pos = last_k;
 			break;
 	}
 
@@ -4097,7 +4097,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const building_desc_t *desc, sint8 rotation)
 {
 	// the cursor cannot be outside the map from here on
-	koord k = pos.get_2d();
+	const koord k = pos.get_2d();
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
@@ -4195,12 +4195,12 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	// remove everything from tile
 	gr->obj_loesche_alle(player);
 
-	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
 	koord dx = koord::invalid;
 	koord last_k;
 	uint8 layout = 0; // building orientation
 	halthandle_t halt;
 
+	koord bau_pos = k;
 	for(  uint8 i=0;  i<4;  i++  ) {
 		if(  water_dir & ribi_t::nesw[i]  ) {
 			dx = koord::nesw[i];
@@ -4211,7 +4211,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			layout = nesw_to_layout[i];
 			if(  layout>=2  ) {
 				// reverse construction in these directions
-				bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+				bau_pos = last_k;
 			}
 			if (rotation == layout) {
 				// desired rotation works
@@ -5474,7 +5474,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(pos.get_2d());
 					if(hausbauer_t::elevated_foundation_desc  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
-						hausbauer_t::build(player, bd->get_pos(), 0, hausbauer_t::elevated_foundation_desc );
+						hausbauer_t::build(player, pos.get_2d(), 0, hausbauer_t::elevated_foundation_desc );
 					}
 				}
 				return err;
@@ -5576,7 +5576,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	// Place found...
 	if(hat_platz) {
 		player_t *gb_player = desc->is_city_building() ? NULL : welt->get_public_player();
-		gebaeude_t *gb = hausbauer_t::build(gb_player, gr->get_pos(), rotation, desc);
+		gebaeude_t *gb = hausbauer_t::build(gb_player, k, rotation, desc);
 		if(gb) {
 			// building successful
 			if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
@@ -6042,7 +6042,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 
 			if(ok) {
 				// then built it
-				hq = hausbauer_t::build(player, gr->get_pos(), rotate, desc, NULL);
+				hq = hausbauer_t::build(player, k, rotate, desc, NULL);
 				stadt_t *city = welt->find_nearest_city( k );
 				if(city) {
 					city->add_gebaeude_to_stadt( hq );
