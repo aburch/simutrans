@@ -97,9 +97,7 @@ private:
 	uint32 last_load_tick;
 
 	states state;
-
-	// if state == LOADING, this is true while unloading
-	bool unloading_state;
+	// 32 bytes (state is int is 4 byte)
 
 	/**
 	* holds id of line with pending update
@@ -139,6 +137,9 @@ private:
 	 * The slowdown is done by the vehicle routines
 	 */
 	uint16 next_stop_index;
+
+	// if state == LOADING, this is true while unloading
+	bool unloading_state;
 
 	sint32 speed_limit;
 	// needed for speed control/calculation

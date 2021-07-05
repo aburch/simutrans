@@ -1174,9 +1174,9 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 						sprintf( tooltip_text, translator::translate( "Loading (%i%%)!" ), cnv->get_loading_level(), cnv->get_loading_limit() );
 					}
 					else {
-					sprintf( tooltip_text, translator::translate( "Loading (%i->%i%%)!" ), cnv->get_loading_level(), cnv->get_loading_limit() );
+						sprintf( tooltip_text, translator::translate( "Loading (%i->%i%%)!" ), cnv->get_loading_level(), cnv->get_loading_limit() );
 					}
-				color = color_idx_to_rgb(COL_YELLOW);
+					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
 
