@@ -62,7 +62,7 @@ struct sys_event_t
 	uint16 new_window_size_w;
 	uint16 new_window_size_h;
 
-	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
+	unsigned int key_mod; /* key mod, like ALT, CTRL, SHIFT */
 };
 
 extern sys_event_t sys_event;

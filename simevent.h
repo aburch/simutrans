@@ -108,6 +108,10 @@ enum {
 #define SIM_KEY_F14                 269
 #define SIM_KEY_F15                 270
 
+#define SIM_MOD_NONE   0
+#define SIM_MOD_SHIFT  (1u << 0)
+#define SIM_MOD_CTRL   (1u << 1)
+
 
 /* macros */
 #define IS_MOUSE(ev) ((ev)->ev_class >= EVENT_CLICK && (ev)->ev_class <= EVENT_DRAG)
@@ -141,8 +145,8 @@ enum {
 #define IS_RIGHT_BUTTON_PRESSED(ev)   (((ev)->button_state&2)>>1)
 #define IS_MIDDLE_BUTTON_PRESSED(ev)  (((ev)->button_state&4)>>2)
 
-#define IS_SHIFT_PRESSED(ev)           ((ev)->ev_key_mod&1u)
-#define IS_CONTROL_PRESSED(ev)        (((ev)->ev_key_mod&2u)>>1)
+#define IS_SHIFT_PRESSED(ev)          (((ev)->ev_key_mod&SIM_MOD_SHIFT) != 0)
+#define IS_CONTROL_PRESSED(ev)        (((ev)->ev_key_mod&SIM_MOD_CTRL ) != 0)
 
 
 /**
@@ -169,7 +173,7 @@ public:
 		mx(0), my(0),
 		cx(0), cy(0),
 		button_state(0),
-		ev_key_mod(0)
+		ev_key_mod(SIM_MOD_NONE)
 	{ }
 
 public:

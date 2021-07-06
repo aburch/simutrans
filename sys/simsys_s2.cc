@@ -465,14 +465,14 @@ void set_pointer(int loading)
 
 static inline unsigned int ModifierKeys()
 {
-	SDL_Keymod mod = SDL_GetModState();
+	const SDL_Keymod mod = SDL_GetModState();
 
 	return
-		(mod & KMOD_SHIFT ? 1 : 0)
-		| (mod & KMOD_CTRL ? 2 : 0)
+		  ((mod & KMOD_SHIFT) ? SIM_MOD_SHIFT : SIM_MOD_NONE)
+		| ((mod & KMOD_CTRL)  ? SIM_MOD_CTRL  : SIM_MOD_NONE)
 #ifdef __APPLE__
 		// Treat the Command key as a control key.
-		| (mod & KMOD_GUI ? 2 : 0)
+		| ((mod & KMOD_GUI)   ? SIM_MOD_CTRL  : SIM_MOD_NONE)
 #endif
 		;
 }
@@ -640,7 +640,7 @@ static void internal_GetEvents(bool const wait)
 				case SDLK_SCROLLLOCK: code = SIM_KEY_SCROLLLOCK;            break;
 				default: {
 					// Handle CTRL-keys. SDL_TEXTINPUT event handles regular input
-					if(  (sys_event.key_mod & 2)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {
+					if(  (sys_event.key_mod & SIM_MOD_CTRL)  &&  SDLK_a <= sym  &&  sym <= SDLK_z  ) {
 						code = event.key.keysym.sym & 31;
 					}
 					else {

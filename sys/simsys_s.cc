@@ -431,8 +431,8 @@ static inline unsigned int ModifierKeys()
 	SDLMod mod = SDL_GetModState();
 
 	return
-		(mod & KMOD_SHIFT ? 1 : 0) |
-		(mod & KMOD_CTRL  ? 2 : 0);
+		((mod & KMOD_SHIFT) ? SIM_MOD_SHIFT : SIM_MOD_NONE) |
+		((mod & KMOD_CTRL)  ? SIM_MOD_CTRL  : SIM_MOD_NONE);
 }
 
 

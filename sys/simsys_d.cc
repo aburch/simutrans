@@ -333,11 +333,11 @@ void set_pointer(int)
 
 static inline int recalc_keys()
 {
-	int mod = key_shifts;
+	const int mod = key_shifts;
 
 	return
-		(mod & KB_SHIFT_FLAG ? 1 : 0) |
-		(mod & KB_CTRL_FLAG  ? 2 : 0);
+		((mod & KB_SHIFT_FLAG) ? SIM_MOD_SHIFT : SIM_MOD_NONE) |
+		((mod & KB_CTRL_FLAG)  ? SIM_MOD_CTRL  : SIM_MOD_NONE);
 }
 
 
