@@ -3031,6 +3031,10 @@ station_tile_search_ready: ;
 	if(  changed_loading_level  ) {
 		calc_loading();
 	}
+	else {
+		// nothing to unload or load: waiting for cargo
+		unloading_state = false;
+	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
 
 	// update statistics of average speed
