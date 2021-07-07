@@ -523,18 +523,24 @@ class astar_builder extends astar
 				else if (route[i-1].flag == 1) {
 					// plan build bridge
 
+					local b_tiles = 0
+
 					//
 						if ( route[i-1].x == route[i].x ) {
 							if ( route[i-1].y > route[i].y ) {
-								bridge_tiles += (route[i-1].y - route[i].y + 1)
+								b_tiles = (route[i-1].y - route[i].y + 1)
+								bridge_tiles += b_tiles
 							} else {
-								bridge_tiles += (route[i].y - route[i-1].y + 1)
+								b_tiles = (route[i].y - route[i-1].y + 1)
+								bridge_tiles += b_tiles
 							}
 						} else if ( route[i-1].y == route[i].y ) {
 							if ( route[i-1].x > route[i].x ) {
-								bridge_tiles += (route[i-1].x - route[i].x + 1)
+								b_tiles = (route[i-1].x - route[i].x + 1)
+								bridge_tiles += b_tiles
 							} else {
-								bridge_tiles += (route[i].x - route[i-1].x + 1)
+								b_tiles = (route[i].x - route[i-1].x + 1)
+								bridge_tiles += b_tiles
 							}
 						}
 
@@ -547,8 +553,9 @@ class astar_builder extends astar
 						local build_bridge = true
 						// check whether the ground can be adjusted and no bridge is necessary
 						// bridge len <= 4 tiles
-						if ( bridge_tiles < 5 ) {
+						if ( b_tiles < 5 ) {
 							build_bridge = check_ground(tile_x(route[i-1].x, route[i-1].y, route[i-1].z), tile_x(route[i].x, route[i].y, route[i].z), way)
+							//gui.add_message_at(our_player, "check_ground(pos_s, pos_e) --- " + build_bridge, route[i-1])
 						}
 
 						if ( build_bridge ) {
@@ -561,6 +568,7 @@ class astar_builder extends astar
 
 					} else if ( build_route == 0 ) {
 					}
+
 				}
 				if (err) {
 					return { err =  err }
@@ -626,12 +634,25 @@ function check_ground(pos_s, pos_e, way) {
 		for ( local i = 0; i < f_count; i++ ) {
 			// find z coord
 			z = square_x(t_tile[i].x, t_tile[i].y).get_ground_tile()
-			if ( !z.is_empty() || !z.is_ground() ) {
-				gui.add_message_at(our_player, "check_ground - !z.is_empty() || !z.is_ground() " + coord_to_string(z), z)
+
+			// removed objects for empty tiles
+			local tile_tree = z.find_object(mo_tree)
+			local tile_groundobj = z.find_object(mo_groundobj)
+			local tile_moving_object = z.find_object(mo_moving_object)
+
+				//gui.add_message_at(our_player, "check_ground bridge - tile_tree = " + tile_tree + " || tile_groundobj = " + tile_groundobj + " tile_moving_object = " + tile_moving_object, z)
+
+			if ( !z.is_ground() ) {
+				// tile is water
 				return true
-			} else if ( (pos_s.z-2) <= z.z && z.get_slope() > 0 ) {
+			} else if ( ( !z.is_empty() && !( tile_tree != null || tile_groundobj != null || tile_moving_object != null ) ) ) {
+				// tiles not free -> build bridge
+				//gui.add_message_at(our_player, "check_ground bridge - !z.is_empty() = " + !z.is_empty() + " || !z.is_ground() = " + !z.is_ground() + " tile = " + coord_to_string(z), z)
+				return true
+			} else if ( ((pos_s.z-2) == z.z || (pos_s.z-1) == z.z) && z.get_slope() > 0 ) {
+				// tiles free no build bridges -> terraform
 				terraform_tiles.append(z)
-				gui.add_message_at(our_player, "check_ground - terraform_tiles.append(z) " + coord_to_string(z), z)
+				//gui.add_message_at(our_player, "check_ground bridge - terraform_tiles.append(z) " + coord_to_string(z), z)
 			}
 		}
 
@@ -3497,6 +3518,7 @@ function destroy_line(line_obj, good) {
 		}
 	}
 	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+	return true
 }
 
 /*

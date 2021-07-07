@@ -27,7 +27,9 @@ function loadinstance(classname, table)
 	else if (classname == "ship_connector_t") {
 		new_instance.repair_keys()
 	}
-
+	else if (classname == "industry_link_t") {
+		new_instance.update_lines()
+	}
 	return new_instance
 }
 

@@ -186,19 +186,20 @@ class manager_t extends node_seq_t
 		world.get_time().ticks
 		world.get_time().ticks_per_month
 		world.get_time().next_month_ticks
-		*/
-		if ( our_player.nr == 2 && world.get_time().ticks > ( world.get_time().next_month_ticks - world.get_time().ticks_per_month ) && world.get_time().ticks < ( world.get_time().next_month_ticks - world.get_time().ticks_per_month + 3500 ) ) {
+		*/ //our_player.nr == 2 &&
+		if ( world.get_time().ticks > ( world.get_time().next_month_ticks - world.get_time().ticks_per_month ) && world.get_time().ticks < ( world.get_time().next_month_ticks - world.get_time().ticks_per_month + 4000 ) ) {
 				//local operating_profit = our_player.get_operating_profit()
 				//local net_wealth = our_player.get_net_wealth()
 				//gui.add_message_at(our_player, our_player.get_name() + " - last month: operating profit " + operating_profit[1] + " net wealth " + net_wealth[1], world.get_time())
 			for ( local i = 0; i <= 14; i++ ) {
-				if ( player_x(i).is_valid() ) {
+				if ( player_x(i).is_valid() && our_player.nr == i ) {
 					local operating_profit = player_x(i).get_operating_profit()
 					local net_wealth = player_x(i).get_net_wealth()
 					gui.add_message_at(player_x(i), player_x(i).get_name() + " - last month: operating profit " + operating_profit[1] + " net wealth " + net_wealth[1], world.get_time())
 				}
 			}
 		}
+
 
 		//		gui.add_message_at(our_player, "world.get_time().next_month_ticks " + world.get_time().next_month_ticks, world.get_time())
 		//		gui.add_message_at(our_player, "world.get_time().ticks " + world.get_time().ticks, world.get_time())
