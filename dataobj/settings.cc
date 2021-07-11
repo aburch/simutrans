@@ -919,6 +919,10 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		// otherwise the default values of the last one will be used
 	}
+	// sometimes broken savegames could have no legal direction for take off ...
+	if( !ribi_t::is_single( wind_direction ) ) {
+		wind_direction = ribi_t::west;
+	}
 }
 
 

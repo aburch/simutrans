@@ -230,7 +230,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
-	if(leading  &&  cnv) {
+ 	if(leading  &&  cnv) {
 		// free target reservation
 		if(  target_halt.is_bound() ) {
 			if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
