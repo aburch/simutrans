@@ -18,7 +18,7 @@
 
 #include "../display/simgraph.h"
 
-static const char *wind_dir_text[4] = { "West", "North", "East", "South" };
+static const char *wind_dir_text[4] = { "North", "East", "South", "West" };
 
 /**
  * set the climate borders
@@ -62,8 +62,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		wind_dir.set_focusable( false );
 		for( int i = 0; i < 4; i++ ) {
 			wind_dir.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( wind_dir_text[i] ), SYSCOL_TEXT );
+			if ((1 << i) == sets->wind_direction) {
+				wind_dir.set_selection(i);
+			}
 		}
-		wind_dir.set_selection( sets->wind_direction );
 		add_component( &wind_dir );
 		wind_dir.add_listener( this );
 	}
@@ -180,7 +182,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->set_tree_distribution(value);
 	}
 	if(comp==&wind_dir) {
-		sets->wind_direction = (ribi_t::ribi)v.i;
+		sets->wind_direction = (ribi_t::ribi)(1 << v.i);
 	}
 	else if(comp==&lake) {
 		sets->lake_height = (sint8)v.i;
