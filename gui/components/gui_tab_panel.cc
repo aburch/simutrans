@@ -52,7 +52,6 @@ void gui_tab_panel_t::set_size(scr_size size)
 	gui_component_t *last_component = NULL;
 	FOR(slist_tpl<tab>, & i, tabs) {
 		i.x_offset = required_size.w - 4;
-		sint16 width;
 		if( i.title ) {
 			i.width = D_H_SPACE + proportional_string_width( i.title );
 			required_size.h = max( required_size.h, LINESPACE + D_V_SPACE );
@@ -260,8 +259,6 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		int i=0;
 		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
 			if(  i>=offset_tab  ) {
-				char const* const text = iter.title;
-
 				if(text_x <= mx && text_x+iter.width > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
 					win_set_tooltip(get_mouse_x() + 16, ypos + required_size.h + 12, iter.tooltip, &iter, this);
