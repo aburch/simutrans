@@ -71,7 +71,7 @@ bool loadsave_frame_t::item_action(const char *filename)
 			welt->switch_server( false, true );
 		}
 		else if(  env_t::server  ) {
-			welt->announce_server(0);
+			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 		}
 		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}

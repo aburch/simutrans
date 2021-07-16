@@ -707,12 +707,19 @@ private:
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
+	enum server_announce_type_t
+	{
+		SERVER_ANNOUNCE_HELLO     = 0, ///< my server is now up
+		SERVER_ANNOUNCE_HEARTBEAT = 1, ///< my server is still up
+		SERVER_ANNOUNCE_GOODBYE   = 2, ///< my server is now down
+	};
+
 	/**
 	 * Announce server and current state to listserver.
 	 * @param status Specifies what information should be announced
 	 * or offline (the latter only in cases where it is shutting down)
 	 */
-	void announce_server(int status);
+	void announce_server(server_announce_type_t status);
 
 	/// cache the current maximum and minimum height on the map
 	sint8 max_height, min_height;

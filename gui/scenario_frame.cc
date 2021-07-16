@@ -66,7 +66,7 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 		tool_t::update_toolbars();
 		if(  env_t::server  ) {
-			welt->announce_server(0);
+			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 		}
 	}
 	else {
