@@ -151,10 +151,10 @@ static world_thread_param_t world_thread_param[MAX_THREADS];
 void *karte_t::world_xy_loop_thread(void *ptr)
 {
 	world_thread_param_t *param = reinterpret_cast<world_thread_param_t *>(ptr);
-	while(true) {
-		if(param->keep_running) {
-			simthread_barrier_wait( &world_barrier_start ); // wait for all to start
-		}
+
+	bool keep_running = false;
+	do {
+		simthread_barrier_wait( &world_barrier_start ); // wait for all to start
 
 		sint16 x_min = 0;
 		sint16 x_max = param->x_step;
@@ -174,13 +174,14 @@ void *karte_t::world_xy_loop_thread(void *ptr)
 			x_max = min(x_max + param->x_step, param->x_world_max);
 		}
 
-		if(param->keep_running) {
-			simthread_barrier_wait( &world_barrier_end ); // wait for all to finish
-		}
-		else {
-			return NULL;
-		}
-	}
+		// the main thread writes to param->keep_running between world_barrier_end and world_barrier_start
+		// so we have to copy the old value
+		keep_running = param->keep_running;
+
+		simthread_barrier_wait( &world_barrier_end ); // wait for all to finish
+	} while (keep_running);
+
+	return NULL;
 }
 #endif
 
@@ -237,13 +238,8 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 		pthread_attr_destroy( &attr );
 	}
 
-	// and start processing
-	simthread_barrier_wait( &world_barrier_start );
-
-	// the last we can run ourselves
+	// and start processing; the last we can run ourselves
 	world_xy_loop_thread(&world_thread_param[env_t::num_threads-1]);
-
-	simthread_barrier_wait( &world_barrier_end );
 
 	// return from thread
 	for(  int t = 0;  t < env_t::num_threads - 1;  t++  ) {
