@@ -961,7 +961,7 @@ const char *dr_get_locale_string()
 	}
 	return NULL;
 }
-#elif __HAIKU__
+#elif defined(__HAIKU__) && __HAIKU__
 #include <Message.h>
 #include <LocaleRoster.h>
 
