@@ -79,8 +79,9 @@ protected:
 	/// @sa getc
 	inline int lsgetc();
 
-	size_t write(const void * buf, size_t len);
 	size_t read(void *buf, size_t len);
+	size_t write(const void *buf, size_t len);
+	void write_indent();
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 

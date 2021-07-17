@@ -612,6 +612,15 @@ void loadsave_t::flush_buffer(int buf_num)
 }
 
 
+void loadsave_t::write_indent()
+{
+	static const int max_indent = 64;
+	static const char spaces[max_indent] = "                                                               ";
+
+	write(spaces, min(indent, max_indent) );
+}
+
+
 size_t loadsave_t::read(void *buf, size_t len)
 {
 	if (!buffered) {
@@ -847,7 +856,7 @@ void loadsave_t::rdwr_bool(bool &i)
 	else {
 		// bool xml
 		if(is_saving()) {
-			write( "                                                                ", min(64,indent) );
+			write_indent();
 			if(  i  ) {
 				write( "<bool>true</bool>\n", sizeof("<bool>true</bool>\n")-1 );
 			}
@@ -1002,7 +1011,7 @@ void loadsave_t::rdwr_str(const char *&s)
 	else {
 		// use CDATA tag: <![CDATA[%s]]>
 		if(is_saving()) {
-			write( "                                                                ", min(64,indent) );
+			write_indent();
 			write( "<![CDATA[", 9 );
 			if(s) {
 				write( s, strlen(s) );
@@ -1052,7 +1061,7 @@ void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 		// use CDATA tag: <![CDATA[%s]]>
 		char *s = result_buffer;
 		if(is_saving()) {
-			write( "                                                                ", min(64,indent) );
+			write_indent();
 			write( "<![CDATA[", 9 );
 			if(s) {
 				write( s, strlen(s) );
@@ -1139,7 +1148,7 @@ void loadsave_t::start_tag(const char *tag)
 {
 	if(  is_xml()  ) {
 		if(is_saving()) {
-			write( "                                                                ", min(64,indent) );
+			write_indent();
 			write( "<", 1 );
 			write( tag, strlen(tag) );
 			write( ">\n", 2 );
@@ -1164,7 +1173,7 @@ void loadsave_t::end_tag(const char *tag)
 	if(  is_xml()  ) {
 		if(is_saving()) {
 			indent --;
-			write( "                                                                ", min(64,indent) );
+			write_indent();
 			write( "</", 2 );
 			write( tag, strlen(tag) );
 			write( ">\n", 2 );
