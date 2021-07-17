@@ -717,9 +717,10 @@ plainstring scenario_t::load_language_file(const char* filename)
 		if(len>0) {
 			char* const buf = MALLOCN(char, len + 1);
 			fseek(file,0,SEEK_SET);
-			fread(buf, 1, len, file);
-			buf[len] = '\0';
-			text = buf;
+			if (fread(buf, 1, len, file) == (size_t)len) {
+				buf[len] = '\0';
+				text = buf;
+			}
 			free(buf);
 		}
 		fclose(file);

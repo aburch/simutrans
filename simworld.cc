@@ -4818,9 +4818,12 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		if(  FILE *fmotd = dr_fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
 			struct stat st;
 			stat( env_t::server_motd_filename.c_str(), &st );
+
 			sint32 len = min( 32760, st.st_size+1 );
 			char *motd = (char *)malloc( len );
-			fread( motd, len-1, 1, fmotd );
+			if (fread( motd, len-1, 1, fmotd ) != 1) {
+				len = 1;
+			}
 			fclose( fmotd );
 			motd[len-1] = 0;
 			file->rdwr_str( motd, len );

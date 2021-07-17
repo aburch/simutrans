@@ -489,14 +489,18 @@ void help_frame_t::add_helpfile( cbuffer_t &section, const char *titlename, cons
 	if(  titlename == NULL  &&  file  ) {
 		// get the title from the helpfile
 		char htmlline[1024];
-		fread( htmlline, lengthof(htmlline)-1, 1, file );
-		filetitle = extract_title( htmlline );
-		if(  filetitle.empty()  ) {
-			// no idea how to generate the right name ...
-			titlename = filename;
+		if (fread( htmlline, lengthof(htmlline)-1, 1, file ) == 1) {
+			filetitle = extract_title( htmlline );
+			if(  filetitle.empty()  ) {
+				// no idea how to generate the right name ...
+				titlename = filename;
+			}
+			else {
+				titlename = filetitle.c_str();
+			}
 		}
 		else {
-			titlename = filetitle.c_str();
+			titlename = filename;
 		}
 	}
 	else {

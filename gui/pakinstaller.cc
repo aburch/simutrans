@@ -66,8 +66,11 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 #endif
 		param.append(pakinfo[i*2]);
 		param.append("\"");
-		system( param );
+
+		const int retval = system( param );
+		dbg->debug("pakinstaller_t::action_triggered", "Command '%s' returned %d", param.get_str(), retval);
 	}
+
 	FOR(vector_tpl<sint32>, i, obsolete_paks.get_selections()) {
 		cbuffer_t param;
 #ifdef _WIN32
@@ -77,8 +80,11 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 #endif
 		param.append(pakinfo[i*2+20]);
 		param.append("\"");
-		system( param );
+
+		const int retval = system( param );
+		dbg->debug("pakinstaller_t::action_triggered", "Command '%s' returned %d", param.get_str(), retval);
 	}
+
 	finish_install = true;
 	return false;
 }

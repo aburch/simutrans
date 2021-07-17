@@ -121,9 +121,13 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 			bool is_unicode = false;
 			uint32 numchars=0;
 			test = fopen( filename, "r" );
-			while(  !feof(test)) {
+
+			while(  !feof(test)  ) {
 				char str[1024];
-				fgets( str, lengthof(str), test);
+				if (fgets( str, lengthof(str), test) == NULL) {
+					break;
+				}
+
 				if(  STRNICMP(str,"CHARSET_REGISTRY", 16 )==0  ) {
 					is_unicode = strstr( str, "ISO10646" );
 				}

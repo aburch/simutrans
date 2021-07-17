@@ -26,8 +26,8 @@
 #include "../pathes.h"
 #include "../simevent.h"
 #include "../utils/simstring.h"
+#include "../simdebug.h"
 #include "../simevent.h"
-
 
 #ifdef _WIN32
 #	include <locale>
@@ -1047,9 +1047,10 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 	(void)portable;
 
 	char command[2048];
-	chdir( data_dir );
+	dr_chdir( data_dir );
 	sprintf(command, "%s/get_pak.sh", data_dir);
-	system( command );
+	const int retval = system( command );
+	dbg->debug("dr_download_pakset", "Command '%s' returned %d", command, retval);
 	return true;
 #endif
 }

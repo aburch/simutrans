@@ -12,12 +12,15 @@
 #include "../obj_node_info.h"
 
 
-obj_desc_t * text_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *text_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	text_desc_t* desc = new(node.size) text_desc_t();
+	text_desc_t *desc = new(node.size) text_desc_t();
 
 	// Read data
-	fread(desc->text, node.size, 1, fp);
+	if (fread(desc->text, node.size, 1, fp) != 1) {
+		delete desc;
+		return NULL;
+	}
 
 //	DBG_DEBUG("text_reader_t::read_node()", "%s",desc->get_text() );
 

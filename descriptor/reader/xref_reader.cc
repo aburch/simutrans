@@ -11,16 +11,24 @@
 #include "../obj_node_info.h"
 
 
-obj_desc_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	xref_desc_t* desc = new(node.size - 4 - 1) xref_desc_t();
-
 	char buf[4 + 1];
-	fread(buf, 1, 5, fp);
-	char* p = buf;
+	if (fread(buf, 1, 5, fp) != 5) {
+		return NULL;
+	}
+
+	const uint32 name_len = node.size - 4 - 1;
+	char *p = buf;
+	xref_desc_t* desc = new(name_len) xref_desc_t();
+
 	desc->type = static_cast<obj_type>(decode_uint32(p));
 	desc->fatal = (decode_uint8(p) != 0);
-	fread(desc->name, 1, node.size - 4 - 1, fp);
+
+	if (fread(desc->name, 1, name_len, fp) != name_len) {
+		delete desc;
+		return NULL;
+	}
 
 //	DBG_DEBUG("xref_reader_t::read_node()", "%s",desc->get_text() );
 
@@ -34,7 +42,8 @@ void xref_reader_t::register_obj(obj_desc_t *&data)
 
 	if (desc->name[0] != '\0' || desc->fatal) {
 		xref_to_resolve(desc->type, desc->name, &data, desc->fatal);
-	} else {
+	}
+	else {
 		delete data;
 		data = NULL;
 	}
