@@ -81,6 +81,9 @@ static const bool cost_type_money[ MAX_LINE_COST ] =
 	false
 };
 
+// which buttons as defualt in statistic
+static bool cost_type_default[MAX_LINE_COST] = { 0,0,0,0,0,0,0,0,0 };
+
 // statistics as first default to open
 static int default_opening_tab = 1;
 
@@ -194,12 +197,13 @@ void line_management_gui_t::init()
 		if( chart.get_curve_count() == 0 ) {
 			container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
 			for( int cost = 0; cost < MAX_LINE_COST; cost++ ) {
-				uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, idx2cost[cost], MAX_MONTHS, cost_type_money[ cost ], false, true, cost_type_money[ cost ] * 2 );
+				uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, idx2cost[cost], MAX_MONTHS, cost_type_money[ cost ], cost_type_default[cost], true, cost_type_money[ cost ] * 2 );
 
 				button_t *b = container_stats.new_component<button_t>();
 				b->init( button_t::box_state_automatic | button_t::flexible, cost_type[ cost ] );
 				b->background_color = color_idx_to_rgb( cost_type_color[ cost ] );
-				b->pressed = false;
+				b->pressed = cost_type_default[cost];
+				b->add_listener( this );
 
 				button_to_chart.append( b, &chart, curve );
 			}
@@ -454,6 +458,15 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 						cnv->call_convoi_tool('l', id);
 					}
 				}
+			}
+		}
+	}
+	else {
+		const vector_tpl<gui_button_to_chart_t*> &l = button_to_chart.list();
+		for( int i = 0; i<l.get_count(); i++ ) {
+			if( comp == l[i]->get_button() ) {
+				cost_type_default[i] = l[i]->get_button()->pressed;
+				break;
 			}
 		}
 	}
