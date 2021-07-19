@@ -463,7 +463,7 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 	}
 	else {
 		const vector_tpl<gui_button_to_chart_t*> &l = button_to_chart.list();
-		for( int i = 0; i<l.get_count(); i++ ) {
+		for( uint32 i = 0; i<l.get_count(); i++ ) {
 			if( comp == l[i]->get_button() ) {
 				cost_type_default[i] = l[i]->get_button()->pressed;
 				break;

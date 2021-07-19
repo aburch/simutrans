@@ -472,7 +472,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		else if(  ticks < ticks_ow+ticks_yellow_ow  ) {
 		  new_state = 2;
 		}
-		else if(  ticks < ticks_ow+ticks_yellow_ow+ticks_ns  ) {
+		else if(  ticks < (uint32)ticks_ow+ticks_yellow_ow+ticks_ns  ) {
 		  new_state = 1;
 		}
 		else {
