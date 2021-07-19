@@ -253,7 +253,7 @@ ifneq ($(REV),)
   CFLAGS  += -DREVISION=$(REV)
   DUMMY := $(shell rm -f revision.h)
 else
-  DUMMY := $(shell echo '\#define REVISION\n' > revision.h)
+  DUMMY := $(shell echo '\#define REVISION' > revision.h)
 endif
 
 
