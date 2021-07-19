@@ -253,7 +253,9 @@ ifneq ($(REV),)
   CFLAGS  += -DREVISION=$(REV)
   DUMMY := $(shell rm -f revision.h)
 else
-  DUMMY := $(shell echo '\#define REVISION' > revision.h)
+  ifeq ("$(wildcard revision.h)","")
+    DUMMY := $(shell echo '\#define REVISION' > revision.h)
+  endif
 endif
 
 
