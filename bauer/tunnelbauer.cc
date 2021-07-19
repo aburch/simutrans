@@ -482,7 +482,6 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -531,7 +530,6 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -589,12 +587,10 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
-			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		else {
-			// subtract twice maintenance: once for the already existing powerline
-			// once since leitung_t::finish_rd will add it again
-			player_t::add_maintenance( player, -2*lt->get_desc()->get_maintenance(), powerline_wt );
+			// subtract maintenance once since leitung_t::finish_rd will add it again
+			player_t::add_maintenance( player, -1*lt->get_desc()->get_maintenance(), powerline_wt );
 		}
 		lt->finish_rd();
 	}

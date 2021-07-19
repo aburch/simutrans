@@ -31,6 +31,8 @@ protected:
 	// powerline over ways
 	bool is_crossing:1;
 
+	bool is_transformer:1;
+
 	// direction of the next pylon
 	ribi_t::ribi ribi:4;
 
@@ -114,6 +116,11 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 */
 	const char *is_deletable(const player_t *player) OVERRIDE;
+
+	/**
+	 * @return maintenance of this object (powerline or transformer)
+	 */
+	sint64 get_maintenance() const;
 };
 
 

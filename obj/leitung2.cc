@@ -103,6 +103,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 	image = IMG_EMPTY;
 	set_net(NULL);
 	ribi = ribi_t::none;
+	is_transformer = false;
 	rdwr(file);
 }
 
@@ -113,6 +114,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	set_net(NULL);
 	set_owner( player );
 	set_desc(way_builder_t::leitung_desc);
+	is_transformer = false;
 }
 
 
@@ -154,9 +156,7 @@ leitung_t::~leitung_t()
 		if(neighbours==0) {
 			delete net;
 		}
-		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_owner(), -desc->get_maintenance(), powerline_wt);
-		}
+		player_t::add_maintenance(get_owner(), -get_maintenance(), powerline_wt);
 	}
 }
 
@@ -358,7 +358,7 @@ void leitung_t::finish_rd()
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 
-	player_t::add_maintenance(get_owner(), desc->get_maintenance(), powerline_wt);
+	player_t::add_maintenance(get_owner(), get_maintenance(), powerline_wt);
 }
 
 void leitung_t::rdwr(loadsave_t *file)
@@ -420,6 +420,17 @@ const char *leitung_t::is_deletable(const player_t *player)
 }
 
 
+sint64 leitung_t::get_maintenance() const
+{
+	if (!is_transformer) {
+		return desc->get_maintenance();
+	}
+	else {
+		return -welt->get_settings().cst_maintain_transformer;
+	}
+}
+
+
 /************************************ from here on pump (source) stuff ********************************************/
 
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
@@ -443,6 +454,7 @@ pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
 	power_supply = 0;
+	is_transformer = true;
 	rdwr( file );
 }
 
@@ -451,6 +463,7 @@ pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
 	power_supply = 0;
+	is_transformer = true;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
@@ -465,7 +478,6 @@ pumpe_t::~pumpe_t()
 		net->sub_supply(power_supply);
 	}
 	pumpe_list.remove( this );
-	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 void pumpe_t::step(uint32 delta_t)
@@ -541,7 +553,6 @@ void pumpe_t::rdwr(loadsave_t * file) {
 void pumpe_t::finish_rd()
 {
 	leitung_t::finish_rd();
-	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -635,6 +646,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
+	is_transformer = true;
 
 	rdwr( file );
 
@@ -649,6 +661,7 @@ senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
+	is_transformer = true;
 
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 
@@ -670,7 +683,6 @@ senke_t::~senke_t()
 		net->sub_demand(power_demand);
 	}
 	senke_list.remove( this );
-	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 void senke_t::step(uint32 delta_t)
@@ -822,7 +834,6 @@ void senke_t::rdwr(loadsave_t *file)
 void senke_t::finish_rd()
 {
 	leitung_t::finish_rd();
-	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
