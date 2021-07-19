@@ -28,7 +28,8 @@ template <class T> class slist_tpl;
 
 enum way_statistics {
 	WAY_STAT_GOODS   = 0, ///< number of goods transported over this way
-	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
+	WAY_STAT_CONVOIS = 1, ///< number of convois that passed this way
+	WAY_STAT_MAX
 };
 
 
@@ -236,6 +237,7 @@ public:
 	*/
 	int get_statistics(int type) const { return statistics[1][type]; }
 
+	sint64 get_stat(int month, int stat_type) const { assert(stat_type<WAY_STAT_MAX  &&  0<=month  &&  month<MAX_WAY_STAT_MONTHS); return statistics[month][stat_type]; }
 	/**
 	* new month
 	*/

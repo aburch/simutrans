@@ -29,6 +29,7 @@
  * - Added @ref command_x::build_road
  * - Added fields: @ref field_x
  * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
+ * - Added @ref way_x::get_transported_goods, @ref way_x::get_convoys_passed
  *
  * @section api-121 Release 120.1
  *
