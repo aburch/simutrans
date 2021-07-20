@@ -458,7 +458,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	}
 
 	// citycar? (we allow always)
-	if (type == obj_t::road_vehicle  ||  type == obj_t::undefined) {
+	if (type == obj_t::road_user  ||  type == obj_t::undefined) {
 		if (private_car_t* citycar = gr->find<private_car_t>()) {
 			delete citycar;
 			return true;
