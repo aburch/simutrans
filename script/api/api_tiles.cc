@@ -148,6 +148,9 @@ void export_tiles(HSQUIRRELVM vm)
 	register_method(vm, &grund_t::suche_obj, "find_object");
 	/**
 	 * Remove object of given type from the tile.
+	 * Type @p type must be one of the following: ::mo_label, ::mo_pedestrian, ::mo_city_car, ::mo_powerline, ::mo_transformer_s,
+	 *  ::mo_transformer_c, ::mo_signal, ::mo_roadsign, ::mo_wayobj, ::mo_tunnel, ::mo_bridge, ::mo_field, ::mo_building, ::mo_depot_rail.
+	 * Setting @p type to ::mo_depot_rail deletes depots of every type.
 	 * @param pl player that pays for removal
 	 * @param type object type
 	 * @returns null upon success, an error message otherwise
