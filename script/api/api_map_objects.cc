@@ -459,6 +459,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * Constructor. Implemented by derived classes.
 	 * Fails if no object of precisely the requested type is on the tile.
+	 * If there is more than one object of this type on the tile then it will return the first.
 	 * @param x
 	 * @param y
 	 * @param z

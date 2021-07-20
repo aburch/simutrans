@@ -17,6 +17,7 @@
 
 namespace script_api {
 	declare_enum_param(grund_t::flag_values, uint8, "flags");
+	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
 };
 
 using namespace script_api;
@@ -220,7 +221,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns true if there is are two ways on the tile
 	 */
 	register_method<bool (grund_t::*)() const>(vm, &grund_t::has_two_ways, "has_two_ways");
-
+	/**
+	 * Returns way_x object on this tile of way type @p wt if present
+	 * @param wt waytype
+	 * @returns way object or null
+	 */
+	register_method(vm, &grund_t::get_weg, "get_way");
 	/**
 	 * Return directions in which ways on this tile go. One-way signs are ignored here.
 	 * @param wt waytype
@@ -249,6 +255,11 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @return neighbour tile or null
 	 */
 	register_method(vm, &get_neighbour, "get_neighbour", true);
+	/**
+	 * Returns depot_x object on this tile if any depot is present.
+	 * @returns depot object or null
+	 */
+	register_method(vm, &grund_t::get_depot, "get_depot");
 	/**
 	 * Checks whether player can delete all objects on the tile.
 	 * @param pl player
