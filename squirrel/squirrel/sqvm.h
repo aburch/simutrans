@@ -2,14 +2,15 @@
 #ifndef _SQVM_H_
 #define _SQVM_H_
 
-#include <stdarg.h>
 #include "sqopcodes.h"
 #include "sqobject.h"
 #define MAX_NATIVE_CALLS 100
 #define MIN_STACK_OVERHEAD 15
 
 #define SQ_SUSPEND_FLAG -666
+#define SQ_TAILCALL_FLAG -777
 #define DONT_FALL_BACK 666
+//#define EXISTS_FALL_BACK -1
 
 #define GET_FLAG_RAW                0x00000001
 #define GET_FLAG_DO_NOT_RAISE_ERROR 0x00000002
@@ -56,7 +57,8 @@ public:
 	bool Init(SQVM *friendvm, SQInteger stacksize);
 	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL, SQBool can_suspend = false);
 	//starts a native call return when the NATIVE closure returns
-	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval,bool &suspend);
+	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval, SQInt32 target, bool &suspend,bool &tailcall);
+	bool TailCall(SQClosure *closure, SQInteger firstparam, SQInteger nparams);
 	//starts a SQUIRREL call in the same "Execution loop"
 	bool StartCall(SQClosure *closure, SQInteger target, SQInteger nargs, SQInteger stackbase, bool tailcall);
 	bool CreateClassInstance(SQClass *theclass, SQObjectPtr &inst, SQObjectPtr &constructor);

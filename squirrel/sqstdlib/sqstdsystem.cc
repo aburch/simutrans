@@ -19,6 +19,10 @@
 #define scremove remove
 #define screname rename
 #endif
+#ifdef IOS
+	#include <spawn.h>
+	extern char **environ;
+#endif
 
 static SQInteger _system_getenv(HSQUIRRELVM v)
 {
@@ -35,7 +39,13 @@ static SQInteger _system_system(HSQUIRRELVM v)
 {
 	const SQChar *s;
 	if(SQ_SUCCEEDED(sq_getstring(v,2,&s))){
+	#ifdef IOS
+		pid_t pid;
+		posix_spawn(&pid, s, NULL, NULL, NULL, environ);
+		sq_pushinteger(v, 0);
+	#else
 		sq_pushinteger(v,scsystem(s));
+	#endif
 		return 1;
 	}
 	return sq_throwerror(v,_SC("wrong param"));
@@ -119,15 +129,14 @@ static SQInteger _system_date(HSQUIRRELVM v)
 
 #define _DECL_FUNC(name,nparams,pmask) {_SC(#name),_system_##name,nparams,pmask}
 static const SQRegFunction systemlib_funcs[]={
+	_DECL_FUNC(getenv,2,_SC(".s")),
+	_DECL_FUNC(system,2,_SC(".s")),
 	_DECL_FUNC(clock,0,NULL),
 	_DECL_FUNC(time,1,NULL),
 	_DECL_FUNC(date,-1,_SC(".nn")),
-	{NULL,(SQFUNCTION)0,0,NULL},
-	// will not export these functions
-	_DECL_FUNC(getenv,2,_SC(".s")),
-	_DECL_FUNC(system,2,_SC(".s")),
 	_DECL_FUNC(remove,2,_SC(".s")),
 	_DECL_FUNC(rename,3,_SC(".ss")),
+	{NULL,(SQFUNCTION)0,0,NULL}
 };
 #undef _DECL_FUNC
 

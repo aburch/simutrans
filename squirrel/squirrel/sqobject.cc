@@ -43,7 +43,7 @@ const SQChar *IdType2Name(SQObjectType type)
 
 const SQChar *GetTypeName(const SQObjectPtr &obj1)
 {
-	return IdType2Name(sqtype(obj1));
+	return IdType2Name(sq_type(obj1));
 }
 
 SQString *SQString::Create(SQSharedState *ss,const SQChar *s,SQInteger len)
@@ -72,7 +72,7 @@ SQInteger SQString::Next(const SQObjectPtr &refpos, SQObjectPtr &outkey, SQObjec
 
 SQUnsignedInteger TranslateIndex(const SQObjectPtr &idx)
 {
-	switch(sqtype(idx)){
+	switch(sq_type(idx)){
 		case OT_NULL:
 			return 0;
 		case OT_INTEGER:
@@ -139,7 +139,7 @@ bool SQGenerator::Yield(SQVM *v,SQInteger target)
 
 	_stack.resize(size);
 	SQObject _this = v->_stack[v->_stackbase];
-	_stack._vals[0] = ISREFCOUNTED(sqtype(_this)) ? SQObjectPtr(_refcounted(_this)->GetWeakRef(sqtype(_this))) : _this;
+	_stack._vals[0] = ISREFCOUNTED(sq_type(_this)) ? SQObjectPtr(_refcounted(_this)->GetWeakRef(sq_type(_this))) : _this;
 	for(SQInteger n =1; n<target; n++) {
 		_stack._vals[n] = v->_stack[v->_stackbase+n];
 	}
@@ -191,7 +191,7 @@ bool SQGenerator::Resume(SQVM *v,SQObjectPtr &dest)
 		et._stacksize += newbase;
 	}
 	SQObject _this = _stack._vals[0];
-	v->_stack[v->_stackbase] = sqtype(_this) == OT_WEAKREF ? _weakref(_this)->_obj : _this;
+	v->_stack[v->_stackbase] = sq_type(_this) == OT_WEAKREF ? _weakref(_this)->_obj : _this;
 
 	for(SQInteger n = 1; n<size; n++) {
 		v->_stack[v->_stackbase+n] = _stack._vals[n];
@@ -285,7 +285,7 @@ bool SafeWrite(HSQUIRRELVM v,SQWRITEFUNC write,SQUserPointer up,SQUserPointer de
 	return true;
 }
 
-bool SafeRead(HSQUIRRELVM v,SQWRITEFUNC read,SQUserPointer up,SQUserPointer dest,SQInteger size)
+bool SafeRead(HSQUIRRELVM v,SQREADFUNC read,SQUserPointer up,SQUserPointer dest,SQInteger size)
 {
 	if(size && read(up,dest,size) != size) {
 		v->Raise_Error(_SC("io error, read function failure, the origin stream could be corrupted/trucated"));
@@ -299,7 +299,7 @@ bool WriteTag(HSQUIRRELVM v,SQWRITEFUNC write,SQUserPointer up,SQUnsignedInteger
 	return SafeWrite(v,write,up,&tag,sizeof(tag));
 }
 
-bool CheckTag(HSQUIRRELVM v,SQWRITEFUNC read,SQUserPointer up,SQUnsignedInteger32 tag)
+bool CheckTag(HSQUIRRELVM v,SQREADFUNC read,SQUserPointer up,SQUnsignedInteger32 tag)
 {
 	SQUnsignedInteger32 t;
 	_CHECK_IO(SafeRead(v,read,up,&t,sizeof(t)));
@@ -312,9 +312,9 @@ bool CheckTag(HSQUIRRELVM v,SQWRITEFUNC read,SQUserPointer up,SQUnsignedInteger3
 
 bool WriteObject(HSQUIRRELVM v,SQUserPointer up,SQWRITEFUNC write,SQObjectPtr &o)
 {
-	SQUnsignedInteger32 _type = (SQUnsignedInteger32)sqtype(o);
+	SQUnsignedInteger32 _type = (SQUnsignedInteger32)sq_type(o);
 	_CHECK_IO(SafeWrite(v,write,up,&_type,sizeof(_type)));
-	switch(sqtype(o)){
+	switch(sq_type(o)){
 	case OT_STRING:
 		_CHECK_IO(SafeWrite(v,write,up,&_string(o)->_len,sizeof(SQInteger)));
 		_CHECK_IO(SafeWrite(v,write,up,_stringval(o),sq_rsl(_string(o)->_len)));
