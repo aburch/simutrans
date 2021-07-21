@@ -1,4 +1,4 @@
-How to compile
+ How to compile
 --------------
 
 Congratulations, you checked out the simutrans source. To compile it,
