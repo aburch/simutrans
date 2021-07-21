@@ -32,7 +32,7 @@ MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to
 be done on the command line).
 
 The packages needed for MSYS2 are
-make
+make 
 mingw-w64-i686-gcc
 mingw-w64-i686-SDL (Only if you want an SDL build OR for sound on SDL2)
 mingw-w64-i686-SDL2 (Only if you want an SDL2 build)
