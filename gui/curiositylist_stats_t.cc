@@ -43,7 +43,7 @@ bool curiositylist_stats_t::compare(const gui_component_t *aa, const gui_compone
 				cmp = a->get_passagier_level() - b->get_passagier_level();
 				break;
 			}
-
+		// fall-through
 		case curiositylist::by_name:
 		{
 			const char* a_name = translator::translate(a->get_tile()->get_desc()->get_name());

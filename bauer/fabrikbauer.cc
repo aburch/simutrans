@@ -779,7 +779,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 		// connect to an existing one if this is a producer
 		if(  fab->vorrat_an(ware) > -1  ) {
 
-			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
+			const int distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 			if(  distance > welt->get_settings().get_min_factory_spacing()  &&  distance <= DISTANCE  ) {
 				// ok, this would match but can she supply enough?
 
