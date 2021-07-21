@@ -1,0 +1,600 @@
+diff --git b/simutrans/trunk/squirrel/sqstdlib/sqstdaux.cc a/simutrans/trunk/squirrel/sqstdlib/sqstdaux.cc
+index e569acfcf..0d196d9d7 100644
+--- b/simutrans/trunk/squirrel/sqstdlib/sqstdaux.cc
++++ a/simutrans/trunk/squirrel/sqstdlib/sqstdaux.cc
+@@ -23,13 +23,14 @@ void sqstd_printcallstack(HSQUIRRELVM v)
+ 			const SQChar *src=_SC("unknown");
+ 			if(si.funcname)fn=si.funcname;
+ 			if(si.source)src=si.source;
+-			pf(v,_SC("*FUNCTION [%s()] %s line [%d]\n"),fn,src,si.line);
+-			level++;
++			pf(v,_SC("<em>* FUNCTION [%s()] <br>* %s"), fn,src);
++			if (si.line > 0) {
++				pf(v,_SC("* line [%d]"),si.line);
+ 			}
+-		level=0;
+-		pf(v,_SC("\nLOCALS\n"));
++			pf(v,_SC("</em>\n"));
++
++			pf(v,_SC("- - LOCALS\n"));
+ 
+-		for(level=0;level<10;level++){
+ 			seq=0;
+ 			while((name = sq_getlocal(v,level,seq)))
+ 			{
+@@ -37,63 +38,83 @@ void sqstd_printcallstack(HSQUIRRELVM v)
+ 				switch(sq_gettype(v,-1))
+ 				{
+ 				case OT_NULL:
+-					pf(v,_SC("[%s] NULL\n"),name);
++					pf(v,_SC("- - - [%s] NULL\n"),name);
+ 					break;
+ 				case OT_INTEGER:
+ 					sq_getinteger(v,-1,&i);
+-					pf(v,_SC("[%s] %d\n"),name,i);
++					pf(v,_SC("- - - [%s] %d\n"),name,i);
+ 					break;
+ 				case OT_FLOAT:
+ 					sq_getfloat(v,-1,&f);
+-					pf(v,_SC("[%s] %.14g\n"),name,f);
++					pf(v,_SC("- - - [%s] %.14g\n"),name,f);
+ 					break;
+ 				case OT_USERPOINTER:
+-					pf(v,_SC("[%s] USERPOINTER\n"),name);
++					pf(v,_SC("- - - [%s] USERPOINTER\n"),name);
+ 					break;
+ 				case OT_STRING:
+ 					sq_getstring(v,-1,&s);
+-					pf(v,_SC("[%s] \"%s\"\n"),name,s);
++					pf(v,_SC("- - - [%s] \"%s\"\n"),name,s);
+ 					break;
+ 				case OT_TABLE:
+-					pf(v,_SC("[%s] TABLE\n"),name);
++					pf(v,_SC("- - - [%s] TABLE (%d entries)\n"),name, sq_getsize(v, -1));
+ 					break;
+ 				case OT_ARRAY:
+-					pf(v,_SC("[%s] ARRAY\n"),name);
++					pf(v,_SC("- - - [%s] ARRAY (%d entries)\n"),name, sq_getsize(v, -1));
+ 					break;
+ 				case OT_CLOSURE:
+-					pf(v,_SC("[%s] CLOSURE\n"),name);
++					pf(v,_SC("- - - [%s] CLOSURE\n"),name);
+ 					break;
+ 				case OT_NATIVECLOSURE:
+-					pf(v,_SC("[%s] NATIVECLOSURE\n"),name);
++					pf(v,_SC("- - - [%s] NATIVECLOSURE\n"),name);
+ 					break;
+ 				case OT_GENERATOR:
+-					pf(v,_SC("[%s] GENERATOR\n"),name);
++					pf(v,_SC("- - - [%s] GENERATOR\n"),name);
+ 					break;
+ 				case OT_USERDATA:
+-					pf(v,_SC("[%s] USERDATA\n"),name);
++					pf(v,_SC("- - - [%s] USERDATA\n"),name);
+ 					break;
+ 				case OT_THREAD:
+-					pf(v,_SC("[%s] THREAD\n"),name);
++					pf(v,_SC("- - - [%s] THREAD\n"),name);
+ 					break;
+ 				case OT_CLASS:
+-					pf(v,_SC("[%s] CLASS\n"),name);
++					pf(v,_SC("- - - [%s] CLASS\n"),name);
+ 					break;
+ 				case OT_INSTANCE:
+-					pf(v,_SC("[%s] INSTANCE\n"),name);
++				{
++					// try to obtain class name
++					sq_getclass(v, -1);
++					sq_pushnull(v);
++					if (SQ_SUCCEEDED(sq_getattributes(v, -2))) {
++						// stack: instance, class, attributes
++						sq_pushstring(v, "classname", -1);
++						if (SQ_SUCCEEDED(sq_get(v, -2))) {
++							const char* cn;
++							if (SQ_SUCCEEDED(sq_getstring(v, -1, &cn))) {
++								pf(v,_SC("- - - [%s] INSTANCE(%s)\n"),name, cn);
++								sq_pop(v, 3);
+ 								break;
++							}
++						}
++						sq_poptop(v);
++					}
++					sq_poptop(v);
++					pf(v,_SC("- - - [%s] INSTANCE\n"),name);
++					break;
++				}
+ 				case OT_WEAKREF:
+-					pf(v,_SC("[%s] WEAKREF\n"),name);
++					pf(v,_SC("- - - [%s] WEAKREF\n"),name);
+ 					break;
+ 				case OT_BOOL:{
+ 					SQBool bval;
+ 					sq_getbool(v,-1,&bval);
+-					pf(v,_SC("[%s] %s\n"),name,bval == SQTrue ? _SC("true"):_SC("false"));
++					pf(v,_SC("- - - [%s] %s\n"),name,bval == SQTrue ? _SC("true"):_SC("false"));
+ 							 }
+ 					break;
+ 				default: assert(0); break;
+ 				}
+ 				sq_pop(v,1);
+ 			}
++			level++;
+ 		}
+ 	}
+ }
+@@ -102,16 +123,18 @@ static SQInteger _sqstd_aux_printerror(HSQUIRRELVM v)
+ {
+ 	SQPRINTFUNCTION pf = sq_geterrorfunc(v);
+ 	if(pf) {
++		pf(v,_SC("<error>"));
+ 		const SQChar *sErr = 0;
+ 		if(sq_gettop(v)>=1) {
+ 			if(SQ_SUCCEEDED(sq_getstring(v,2,&sErr)))	{
+-				pf(v,_SC("\nAN ERROR HAS OCCURRED [%s]\n"),sErr);
++				pf(v,_SC("\n<st>Error: [%s]</st>\n"),sErr);
+ 			}
+ 			else{
+-				pf(v,_SC("\nAN ERROR HAS OCCURRED [unknown]\n"));
++				pf(v,_SC("\n<st>Error: [unknown]</st>\n"));
+ 			}
+ 			sqstd_printcallstack(v);
+ 		}
++		pf(v,_SC("</error>"));
+ 	}
+ 	return 0;
+ }
+@@ -120,7 +143,9 @@ void _sqstd_compiler_error(HSQUIRRELVM v,const SQChar *sErr,const SQChar *sSourc
+ {
+ 	SQPRINTFUNCTION pf = sq_geterrorfunc(v);
+ 	if(pf) {
++		pf(v,_SC("<error>"));
+ 		pf(v,_SC("%s line = (%d) column = (%d) : error %s\n"),sSource,line,column,sErr);
++		pf(v,_SC("</error>"));
+ 	}
+ }
+ 
+diff --git b/simutrans/trunk/squirrel/sqstdlib/sqstdblob.cc a/simutrans/trunk/squirrel/sqstdlib/sqstdblob.cc
+index 13d68f0c0..dac94cc62 100644
+--- b/simutrans/trunk/squirrel/sqstdlib/sqstdblob.cc
++++ a/simutrans/trunk/squirrel/sqstdlib/sqstdblob.cc
+@@ -185,22 +185,6 @@ static const SQRegFunction _blob_methods[] = {
+ 
+ //GLOBAL FUNCTIONS
+ 
+-static SQInteger _g_blob_casti2f(HSQUIRRELVM v)
+-{
+-	SQInteger i;
+-	sq_getinteger(v,2,&i);
+-	sq_pushfloat(v,*((const SQFloat *)&i));
+-	return 1;
+-}
+-
+-static SQInteger _g_blob_castf2i(HSQUIRRELVM v)
+-{
+-	SQFloat f;
+-	sq_getfloat(v,2,&f);
+-	sq_pushinteger(v,*((const SQInteger *)&f));
+-	return 1;
+-}
+-
+ static SQInteger _g_blob_swap2(HSQUIRRELVM v)
+ {
+ 	SQInteger i;
+@@ -231,8 +215,6 @@ static SQInteger _g_blob_swapfloat(HSQUIRRELVM v)
+ 
+ #define _DECL_GLOBALBLOB_FUNC(name,nparams,typecheck) {_SC(#name),_g_blob_##name,nparams,typecheck}
+ static const SQRegFunction bloblib_funcs[]={
+-	_DECL_GLOBALBLOB_FUNC(casti2f,2,_SC(".n")),
+-	_DECL_GLOBALBLOB_FUNC(castf2i,2,_SC(".n")),
+ 	_DECL_GLOBALBLOB_FUNC(swap2,2,_SC(".n")),
+ 	_DECL_GLOBALBLOB_FUNC(swap4,2,_SC(".n")),
+ 	_DECL_GLOBALBLOB_FUNC(swapfloat,2,_SC(".n")),
+diff --git b/simutrans/trunk/squirrel/squirrel.h a/simutrans/trunk/squirrel/squirrel.h
+index 65df9c5bb..2fb201356 100644
+--- b/simutrans/trunk/squirrel/squirrel.h
++++ a/simutrans/trunk/squirrel/squirrel.h
+@@ -60,7 +60,7 @@ struct SQDelegable;
+ struct SQOuter;
+ 
+ #ifdef _UNICODE
+-#define SQUNICODE
++// #define SQUNICODE
+ #endif
+ 
+ #include "sqconfig.h"
+@@ -398,10 +399,10 @@ SQUIRREL_API void sq_setnativedebughook(HSQUIRRELVM v,SQDEBUGHOOK hook);
+ #define SQ_FAILED(res) (res<0)
+ #define SQ_SUCCEEDED(res) (res>=0)
+ 
+-#ifdef __GNUC__
+-# define SQ_UNUSED_ARG(x) x __attribute__((__unused__))
++#ifdef XX__GNUC__
++# define SQ_UNUSED_ARG(x) __attribute__((unused)) x
+ #else
+-# define SQ_UNUSED_ARG(x) x
++# define SQ_UNUSED_ARG(x)
+ #endif
+ 
+ #ifdef __cplusplus
+diff --git b/simutrans/trunk/squirrel/squirrel/sqapi.cc a/simutrans/trunk/squirrel/squirrel/sqapi.cc
+index 4ab6f00ba..a19cd0e39 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqapi.cc
++++ a/simutrans/trunk/squirrel/squirrel/sqapi.cc
+@@ -1078,8 +1078,10 @@ SQRESULT sq_rawget(HSQUIRRELVM v,SQInteger idx)
+ 		v->Pop();
+ 		return sq_throwerror(v,_SC("rawget works only on array/table/instance and class"));
+ 	}
++	// modified: call Raise_IdxError
++	v->Raise_IdxError(v->GetUp(-1));
+ 	v->Pop();
+-	return sq_throwerror(v,_SC("the index doesn't exist"));
++	return SQ_ERROR;
+ }
+ 
+ SQRESULT sq_getstackobj(HSQUIRRELVM v,SQInteger idx,HSQOBJECT *po)
+@@ -1172,20 +1174,33 @@ SQRESULT sq_resume(HSQUIRRELVM v,SQBool retval,SQBool raiseerror)
+ 	return sq_throwerror(v,_SC("only generators can be resumed"));
+ }
+ 
++/* modified for our purposes to handle suspended scripts */
+ SQRESULT sq_call(HSQUIRRELVM v,SQInteger params,SQBool retval,SQBool raiseerror)
+ {
+ 	SQObjectPtr res;
+-	if(!v->Call(v->GetUp(-(params+1)),params,v->_top-params,res,raiseerror?true:false)){
+-		v->Pop(params); //pop args
+-		return SQ_ERROR;
++
++	if(v->_suspended) {
++		v->Pop(params);//pop closure and args
++		return sq_throwerror(v,_SC("script took to long"));
++	}
++	// we can suspend call only when vm is not already running (thus when we are not called from squirrel)
++	if(v->Call(v->GetUp(-(params+1)),params,v->_top-params,res,raiseerror?true:false, sq_getvmstate(v)==SQ_VMSTATE_IDLE)){
++
++		if(!v->_suspended) {
++			v->Pop(params);//pop closure and args
++		}
++		if(retval){
++			v->Push(res); return SQ_OK;
+ 		}
+-	if(!v->_suspended)
+-		v->Pop(params); //pop args
+-	if(retval)
+-		v->Push(res); // push result
+ 		return SQ_OK;
+ 	}
++	else {
++		v->Pop(params);
++		return SQ_ERROR; // sq_throwerror(v,_SC("call failed"));
++	}
++}
+ 
++/* TODO check whether this works with our suspend logic; wont be missed
+ SQRESULT sq_tailcall(HSQUIRRELVM v, SQInteger nparams)
+ {
+ 	SQObjectPtr &res = v->GetUp(-(nparams + 1));
+@@ -1204,6 +1219,7 @@ SQRESULT sq_tailcall(HSQUIRRELVM v, SQInteger nparams)
+ 	}
+ 	return SQ_TAILCALL_FLAG;
+ }
++*/
+ 
+ SQRESULT sq_suspendvm(HSQUIRRELVM v)
+ {
+@@ -1223,7 +1239,7 @@ SQRESULT sq_wakeupvm(HSQUIRRELVM v,SQBool wakeupret,SQBool retval,SQBool raiseer
+ 		v->Pop();
+ 	} else if(target != -1) { v->GetAt(v->_stackbase+v->_suspended_target).Null(); }
+ 	SQObjectPtr dummy;
+-	if(!v->Execute(dummy,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM)) {
++	if(!v->Execute(dummy,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM, true /*can_suspend*/)) {
+ 		return SQ_ERROR;
+ 	}
+ 	if(retval)
+diff --git b/simutrans/trunk/squirrel/squirrel/sqbaselib.cc a/simutrans/trunk/squirrel/squirrel/sqbaselib.cc
+index aa9f07d5e..130f2a191 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqbaselib.cc
++++ a/simutrans/trunk/squirrel/squirrel/sqbaselib.cc
+@@ -955,9 +955,14 @@ static SQInteger string_find(HSQUIRRELVM v)
+ 	return 1; \
+ }
+ 
++static char toalnum(char c)
++{
++	return isalnum(c)  &&  c >=0  ? c : '_';
++}
+ 
+ STRING_TOFUNCZ(tolower)
+ STRING_TOFUNCZ(toupper)
++STRING_TOFUNCZ(toalnum)
+ 
+ const SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
+ 	{_SC("len"),default_delegate_len,1, _SC("s")},
+@@ -968,6 +973,7 @@ const SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
+ 	{_SC("find"),string_find,-2, _SC("s s n")},
+ 	{_SC("tolower"),string_tolower,-1, _SC("s n n")},
+ 	{_SC("toupper"),string_toupper,-1, _SC("s n n")},
++	{_SC("toalnum"),string_toalnum,1, _SC("s")},
+ 	{_SC("weakref"),obj_delegate_weakref,1, NULL },
+ 	{NULL,(SQFUNCTION)0,0,NULL}
+ };
+@@ -990,11 +996,13 @@ static SQInteger closure_pcall(HSQUIRRELVM v)
+ 
+ static SQInteger closure_call(HSQUIRRELVM v)
+ {
++	/* has to wait until sq_tailcall is enabled
+ 	SQObjectPtr &c = stack_get(v, -1);
+ 	if (sq_type(c) == OT_CLOSURE && (_closure(c)->_function->_bgenerator == false))
+ 	{
+ 		return sq_tailcall(v, sq_gettop(v) - 1);
+ 	}
++	*/
+ 	return SQ_SUCCEEDED(sq_call(v, sq_gettop(v) - 1, SQTrue, SQTrue)) ? 1 : SQ_ERROR;
+ }
+ 
+diff --git b/simutrans/trunk/squirrel/squirrel/sqcompiler.cc a/simutrans/trunk/squirrel/squirrel/sqcompiler.cc
+index 3f23b9054..774d9cfbe 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqcompiler.cc
++++ a/simutrans/trunk/squirrel/squirrel/sqcompiler.cc
+@@ -940,6 +940,19 @@ public:
+ 		 SQInteger stackbase = _fs->PopTarget();
+ 		 SQInteger closure = _fs->PopTarget();
+ 		 _fs->AddInstruction(_OP_CALL, _fs->PushTarget(), closure, stackbase, nargs);
++#if 0
++		 /*
++		  * disabled as it breaks existing scripts like
++		  *
++		  * local a = []
++		  * local b = a.len()
++		  * // open some new block
++		  * {
++		  *        local c = 0
++		  * }
++		  *
++		  * see https://github.com/albertodemichelis/squirrel/issues/177
++		  */
+ 		 if (_token == '{')
+ 		 {
+ 			 SQInteger retval = _fs->TopTarget();
+@@ -964,6 +977,7 @@ public:
+ 			 }
+ 			 Lex();
+ 		 }
++#endif
+ 	}
+ 	void ParseTableOrClass(SQInteger separator,SQInteger terminator)
+ 	{
+diff --git b/simutrans/trunk/squirrel/squirrel/sqdebug.cc a/simutrans/trunk/squirrel/squirrel/sqdebug.cc
+index 06fcf4ddb..dcf35c090 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqdebug.cc
++++ a/simutrans/trunk/squirrel/squirrel/sqdebug.cc
+@@ -60,9 +60,14 @@ void SQVM::Raise_Error(const SQChar *s, ...)
+ {
+ 	va_list vl;
+ 	va_start(vl, s);
++	Raise_Error_vl(s, vl);
++	va_end(vl);
++}
++
++void SQVM::Raise_Error_vl(const SQChar *s, va_list vl)
++{
+ 	SQInteger buffersize = (SQInteger)scstrlen(s)+(NUMBER_MAX_CHAR*2);
+ 	scvsprintf(_sp(sq_rsl(buffersize)),buffersize, s, vl);
+-	va_end(vl);
+ 	_lasterror = SQString::Create(_ss(this),_spval,-1);
+ }
+ 
+diff --git b/simutrans/trunk/squirrel/squirrel/sqopcodes.h a/simutrans/trunk/squirrel/squirrel/sqopcodes.h
+index a74893ede..4cffe1393 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqopcodes.h
++++ a/simutrans/trunk/squirrel/squirrel/sqopcodes.h
+@@ -99,7 +99,7 @@ enum SQOpcode
+ 	_OP_THROW=				0x39,
+ 	_OP_NEWSLOTA=			0x3A,
+ 	_OP_GETBASE=			0x3B,
+-	_OP_CLOSE=			  0x3C
++	_OP_CLOSE=				0x3C,
+ };
+ 
+ struct SQInstructionDesc {
+@@ -110,7 +110,8 @@ struct SQInstruction
+ {
+ 	SQInstruction(){};
+ 	SQInstruction(SQOpcode _op,SQInteger a0=0,SQInteger a1=0,SQInteger a2=0,SQInteger a3=0)
+-	{   op = (unsigned char)_op;
++	{
++		op = (unsigned char)_op;
+ 		_arg0 = (unsigned char)a0;_arg1 = (SQInt32)a1;
+ 		_arg2 = (unsigned char)a2;_arg3 = (unsigned char)a3;
+ 	}
+diff --git b/simutrans/trunk/squirrel/squirrel/sqvm.cc a/simutrans/trunk/squirrel/squirrel/sqvm.cc
+index 61a65d877..82085aad2 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqvm.cc
++++ a/simutrans/trunk/squirrel/squirrel/sqvm.cc
+@@ -126,6 +126,10 @@ SQVM::SQVM(SQSharedState *ss)
+ 	ci = NULL;
+ 	_releasehook = NULL;
+ 	INIT_CHAIN();ADD_TO_CHAIN(&_ss(this)->_gc_chain,this);
++	_ops_remaining = 0;
++	_ops_total = 0;
++	_ops_grace_amount = 500;
++	_throw_if_no_ops = true;
+ }
+ 
+ void SQVM::Finalize()
+@@ -386,8 +388,9 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
+ 	{
+ 		paramssize--;
+ 		if (nargs < paramssize) {
+-			Raise_Error(_SC("wrong number of parameters (%d passed, at least %d required)"),
+-			  (int)nargs, (int)paramssize);
++			const SQChar *src = sq_type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
++			const SQChar *name = sq_type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
++			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
+ 			return false;
+ 		}
+ 
+@@ -413,8 +416,9 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
+ 			}
+ 		}
+ 		else {
+-			Raise_Error(_SC("wrong number of parameters (%d passed, %d required)"),
+-			  (int)nargs, (int)paramssize);
++			const SQChar *src = sq_type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
++			const SQChar *name = sq_type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
++			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
+ 			return false;
+ 		}
+ 	}
+@@ -679,7 +683,8 @@ bool SQVM::IsFalse(SQObjectPtr &o)
+ 	return false;
+ }
+ extern SQInstructionDesc g_InstrDesc[];
+-bool SQVM::Execute(SQObjectPtr &closure, SQInteger nargs, SQInteger stackbase,SQObjectPtr &outres, SQBool raiseerror,ExecutionType et)
++
++bool SQVM::Execute(SQObjectPtr &closure, SQInteger nargs, SQInteger stackbase,SQObjectPtr &outres, SQBool raiseerror,ExecutionType et, SQBool can_suspend)
+ {
+ 	if ((_nnativecalls + 1) > MAX_NATIVE_CALLS) { Raise_Error(_SC("Native stack overflow")); return false; }
+ 	_nnativecalls++;
+@@ -717,6 +722,26 @@ exception_restore:
+ 	{
+ 		for(;;)
+ 		{
++			_ops_total++;
++			_ops_remaining --;
++			if (_ops_remaining < 0) {
++				// suspend vm
++				if (can_suspend  &&  !_throw_if_no_ops) {
++					_suspended = SQTrue;
++					_suspended_root = ci->_root;
++					_suspended_traps = traps;
++					_suspended_target = -1;
++					return true;
++				}
++				else {
++					// throw error (if within unsuspendable function give some grace opcodes)
++					if (_throw_if_no_ops  ||  (_ops_remaining + _ops_grace_amount < 0) ) {
++						Raise_Error(_SC("script took too long: remain = %d grac = %d"), _ops_remaining, _ops_grace_amount);
++						SQ_THROW();
++					}
++				}
++			}
++
+ 			const SQInstruction &_i_ = *ci->_ip++;
+ 			//dumpstack(_stackbase);
+ 			//scprintf("\n[%d] %s %d %d %d %d\n",ci->_ip-_closure(ci->_closure)->_function->_instructions,g_InstrDesc[_i_.op].name,arg0,arg1,arg2,arg3);
+@@ -730,7 +755,11 @@ exception_restore:
+ #else
+ 				TARGET = (SQInteger)((SQInt32)arg1); continue;
+ #endif
+-			case _OP_LOADFLOAT: TARGET = *((const SQFloat *)&arg1); continue;
++			case _OP_LOADFLOAT:
++				SQFloat v;
++				memcpy(&v, &arg1, sizeof(SQFloat));
++				TARGET = v;
++				continue;
+ 			case _OP_DLOAD: TARGET = ci->_literals[arg1]; STK(arg2) = ci->_literals[arg3];continue;
+ 			case _OP_TAILCALL:{
+ 				SQObjectPtr &t = STK(arg1);
+@@ -932,7 +961,7 @@ exception_restore:
+ 					break;
+ 				case AAT_FLOAT:
+ 					val._type = OT_FLOAT;
+-					val._unVal.fFloat = *((const SQFloat *)&arg1);
++					memcpy(&val._unVal.fFloat, &arg1, sizeof(SQFloat));
+ 					break;
+ 				case AAT_BOOL:
+ 					val._type = OT_BOOL;
+@@ -1165,7 +1194,8 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
+ 	if(nparamscheck && (((nparamscheck > 0) && (nparamscheck != nargs)) ||
+ 		((nparamscheck < 0) && (nargs < (-nparamscheck)))))
+ 	{
+-		Raise_Error(_SC("wrong number of parameters"));
++		const SQChar *src = sq_type(nclosure->_name) == OT_STRING?_stringval(nclosure->_name):NULL;
++		Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s"), nargs, nparamscheck, src);
+ 		return false;
+ 	}
+ 
+@@ -1577,14 +1607,14 @@ bool SQVM::DeleteSlot(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr
+ 	return true;
+ }
+ 
+-bool SQVM::Call(SQObjectPtr &closure,SQInteger nparams,SQInteger stackbase,SQObjectPtr &outres,SQBool raiseerror)
++bool SQVM::Call(SQObjectPtr &closure,SQInteger nparams,SQInteger stackbase,SQObjectPtr &outres,SQBool raiseerror, SQBool can_suspend)
+ {
+ #ifdef _DEBUG
+ SQInteger prevstackbase = _stackbase;
+ #endif
+ 	switch(sq_type(closure)) {
+ 	case OT_CLOSURE:
+-		return Execute(closure, nparams, stackbase, outres, raiseerror);
++		return Execute(closure, nparams, stackbase, outres, raiseerror, ET_CALL, can_suspend);
+ 		break;
+ 	case OT_NATIVECLOSURE:{
+ 		bool dummy;
+diff --git b/simutrans/trunk/squirrel/squirrel/sqvm.h a/simutrans/trunk/squirrel/squirrel/sqvm.h
+index c82e44c26..e768220e0 100644
+--- b/simutrans/trunk/squirrel/squirrel/sqvm.h
++++ a/simutrans/trunk/squirrel/squirrel/sqvm.h
+@@ -55,7 +55,7 @@ public:
+ 	SQVM(SQSharedState *ss);
+ 	~SQVM();
+ 	bool Init(SQVM *friendvm, SQInteger stacksize);
+-	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL);
++	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL, SQBool can_suspend = false);
+ 	//starts a native call return when the NATIVE closure returns
+ 	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval, SQInt32 target, bool &suspend,bool &tailcall);
+ 	bool TailCall(SQClosure *closure, SQInteger firstparam, SQInteger nparams);
+@@ -63,7 +63,8 @@ public:
+ 	bool StartCall(SQClosure *closure, SQInteger target, SQInteger nargs, SQInteger stackbase, bool tailcall);
+ 	bool CreateClassInstance(SQClass *theclass, SQObjectPtr &inst, SQObjectPtr &constructor);
+ 	//call a generic closure pure SQUIRREL or NATIVE
+-	bool Call(SQObjectPtr &closure, SQInteger nparams, SQInteger stackbase, SQObjectPtr &outres,SQBool raiseerror);
++	// @param can_suspend is by default FALSE, only set it to true if you handle the case that vm is suspended after call.
++	bool Call(SQObjectPtr &closure, SQInteger nparams, SQInteger stackbase, SQObjectPtr &outres,SQBool raiseerror, SQBool can_suspend = false);
+ 	SQRESULT Suspend();
+ 
+ 	void CallDebugHook(SQInteger type,SQInteger forcedline=0);
+@@ -85,6 +86,7 @@ public:
+ 
+ 
+ 	void Raise_Error(const SQChar *s, ...);
++	void Raise_Error_vl(const SQChar *s, va_list vl);
+ 	void Raise_Error(const SQObjectPtr &desc);
+ 	void Raise_IdxError(const SQObjectPtr &o);
+ 	void Raise_CompareError(const SQObject &o1, const SQObject &o2);
+@@ -177,6 +179,11 @@ public:
+ 	SQBool _suspended_root;
+ 	SQInteger _suspended_target;
+ 	SQInteger _suspended_traps;
++
++	SQInteger _ops_remaining;    /// number of ops the vm can do till break
++	SQInteger _ops_grace_amount; /// raise error if _ops_remaining is less than  -_ops_grace_amount for pure native calls
++	SQInteger _ops_total;        /// total number of ops performed
++	bool _throw_if_no_ops;       /// is no-ops an error or can call suspended? default: true
+ };
+ 
+ struct AutoDec{
+diff --git b/simutrans/trunk/squirrel/update_squirrel.sh a/simutrans/trunk/squirrel/update_squirrel.sh
+index e3f41794c..a23dc59be 100755
+--- b/simutrans/trunk/squirrel/update_squirrel.sh
++++ a/simutrans/trunk/squirrel/update_squirrel.sh
+@@ -41,11 +41,11 @@ for i in *.h; do gawk -f ../update_squirrel.awk "$i" > temp; mv temp "$i"; done
+ cd ..
+ 
+ cd ..
+-git diff -w --ignore-blank-lines --ignore-space-at-eol -b -R > update_squirrel.diff
+-#
+-# git checkout -- squirrel/squirrel
+-# git checkout -- squirrel/sqstdlib
+-# git checkout -- squirrel/sq*.h
+-# git checkout -- simutrans/license_squirrel.txt
+-#
+-# patch --ignore-whitespace -p3 < update_squirrel.diff
++git diff -w --ignore-blank-lines --ignore-space-at-eol -b > update_squirrel.diff
++
++git checkout -- squirrel/squirrel
++git checkout -- squirrel/sqstdlib
++git checkout -- squirrel/sq*.h
++git checkout -- simutrans/license_squirrel.txt
++
++patch --ignore-whitespace -p3 < update_squirrel.diff
