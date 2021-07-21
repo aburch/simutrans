@@ -90,10 +90,7 @@ namespace script_api {
 #define call_constructor() \
 	bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, nparam, true, false)); \
 	sq_remove(vm, ok ? -2 : -1); /* remove closure */ \
-	if (!ok) { \
-		return sq_raise_error(vm, "Call to constructor of %s failed", classname); \
-	} \
-	return 1;
+	return ok ? 1 : -1;
 
 	/**
 	 * Function to create & push instances of squirrel classes.
