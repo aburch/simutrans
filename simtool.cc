@@ -2173,7 +2173,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 
 		const tree_desc_t *desc = NULL;
 		bool check_climates = true;
-		bool random_age = false;
+		bool random_age = true;
 		if(default_param==NULL  ||  strlen(default_param)==0) {
 			desc = tree_builder_t::random_tree_for_climate( welt->get_climate( k ) );
 		}
