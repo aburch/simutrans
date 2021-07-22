@@ -287,6 +287,7 @@ BEGIN {
 	export_types["player_x::get_current_net_wealth"] = "integer()"
 	export_types["player_x::get_current_maintenance"] = "integer()"
 	export_types["player_x::create_line"] = "void(way_types)"
+	export_types["player_x::get_type"] = "integer()"
 	export_types["::load_language_file"] = "string(string)"
 	export_types["::forbid_tool"] = "void(integer, integer)"
 	export_types["::allow_tool"] = "void(integer, integer)"

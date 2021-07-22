@@ -282,6 +282,7 @@ BEGIN {
 	export_types["player_x::get_current_net_wealth"] = "integer()"
 	export_types["player_x::get_current_maintenance"] = "integer()"
 	export_types["player_x::create_line"] = "void(way_types)"
+	export_types["player_x::get_type"] = "integer()"
 	export_types["coord3d::get_halt"] = "halt_x(player_x)"
 	export_types["settings::get_industry_increase_every"] = "integer()"
 	export_types["settings::set_industry_increase_every"] = "void(integer)"

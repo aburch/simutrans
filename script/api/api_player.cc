@@ -303,6 +303,10 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * @ingroup game_cmd
 	 */
 	register_method(vm, &player_create_line, "create_line", true);
+	/**
+	 * Returns player type: 1 = human, 2,3 = old c++ AI, 4 = scripted AI
+	 */
+	register_method(vm, &player_t::get_ai_id, "get_type");
 
 	end_class(vm);
 }
