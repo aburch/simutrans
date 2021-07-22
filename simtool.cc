@@ -2174,21 +2174,27 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 		const tree_desc_t *desc = NULL;
 		bool check_climates = true;
 		bool random_age = true;
-		if(default_param==NULL  ||  strlen(default_param)==0) {
-			desc = tree_builder_t::random_tree_for_climate( welt->get_climate( k ) );
+		if(default_param==NULL  ||  strlen(default_param)==0  ) {
+			// just a random tree to the limit
+			if( tree_builder_t::plant_tree_on_coordinate( k, welt->get_settings().get_max_no_of_trees_on_square(), 1 )  ) {
+				player_t::book_construction_costs( player, cost, k, ignore_wt );
+				return NULL;
+			}
 		}
 		else {
 			// parse default_param: bbdesc_nr b=1 ignore climate b=1 random age
 			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
-			desc = tree_builder_t::find_tree(default_param+3);
+			desc = tree_builder_t::find_tree( default_param+3 );
+			if( !desc ) {
+				desc = tree_builder_t::random_tree_for_climate( welt->get_climate( k ) );
+			}
+			if( desc  &&  tree_builder_t::plant_tree_on_coordinate( k, desc, check_climates, random_age ) ) {
+				player_t::book_construction_costs( player, cost, k, ignore_wt );
+				return NULL;
+			}
 		}
-
-		if(desc  &&  tree_builder_t::plant_tree_on_coordinate( k, desc, check_climates, random_age )  ) {
-			player_t::book_construction_costs(player, cost, k, ignore_wt);
-			return NULL;
-		}
-
+	
 		return "";
 	}
 	return NULL;
