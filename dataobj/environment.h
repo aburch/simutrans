@@ -172,6 +172,9 @@ public:
 	/// open only one info window per click on a map-square
 	static bool single_info;
 
+	///  linelist enforcing single line GUI
+	static bool single_line_gui;
+
 	/// for schedules with rails hide the back ticket button
 	static bool hide_rail_return_ticket;
 

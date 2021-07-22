@@ -28,7 +28,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_delete_line;
+	button_t bt_new_line, bt_delete_line, bt_single_line;
 	gui_scrolled_list_t scl;
 	gui_textinput_t inp_filter;
 	button_t filterButtons[MAX_LINE_COST];

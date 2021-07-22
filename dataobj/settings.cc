@@ -970,6 +970,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::ground_info    = contents.get_int( "ground_info",        env_t::ground_info    ) != 0;
 	env_t::townhall_info  = contents.get_int( "townhall_info",      env_t::townhall_info  ) != 0;
 	env_t::single_info    = contents.get_int( "only_single_info",   env_t::single_info    ) != 0;
+	env_t::single_line_gui = contents.get_int( "single_line_gui",  env_t::single_line_gui ) != 0;
 
 	env_t::compass_map_position    = contents.get_int( "compass_map_position",    env_t::compass_map_position );
 	env_t::compass_screen_position = contents.get_int( "compass_screen_position", env_t::compass_screen_position );

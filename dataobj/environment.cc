@@ -117,6 +117,7 @@ bool env_t::tree_info;
 bool env_t::ground_info;
 bool env_t::townhall_info;
 bool env_t::single_info;
+bool env_t::single_line_gui;
 bool env_t::window_buttons_right;
 bool env_t::second_open_closes_win;
 bool env_t::remember_window_positions;
@@ -176,7 +177,6 @@ uint32 env_t::default_ai_construction_speed;
 bool env_t::hide_keyboard = false;
 
 
-
 // Define default settings.
 void env_t::init()
 {
@@ -214,6 +214,7 @@ void env_t::init()
 	ground_info = false;
 	townhall_info = false;
 	single_info = true;
+	single_line_gui = false;
 
 	window_buttons_right = false;
 	window_frame_active = false;
@@ -534,6 +535,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( gui_player_color_dark );
 		file->rdwr_byte( gui_player_color_bright );
 	}
+
 	if( file->is_version_atleast( 122, 1 ) ) {
 		file->rdwr_bool( env_t::numpad_always_moves_map );
 
@@ -546,6 +548,8 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_short(env_t::menupos);
 		env_t::menupos &= 3;
 		file->rdwr_bool( reselect_closes_tool );
+
+		file->rdwr_bool( single_line_gui );
 	}
 
 	// server settings are not saved, since they are server specific
