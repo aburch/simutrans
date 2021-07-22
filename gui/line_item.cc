@@ -8,9 +8,11 @@
 #include "simwin.h"
 #include "line_item.h"
 #include "../simline.h"
+#include "../dataobj/schedule.h"
 #include "../simmenu.h"
 #include "../simworld.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 
 
 const char* line_scrollitem_t::get_text() const
@@ -45,6 +47,29 @@ void line_scrollitem_t::set_text(char const* const t)
 void line_scrollitem_t::draw( scr_coord offset )
 {
 	selected = win_get_magic( (ptrdiff_t)line.get_rep() );
+
+	static char infotext[256];
+	if( getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y ) ) {
+		char convoi_tmp[128];
+		const char * convoicount;
+		// update convoi info
+		switch( line->count_convoys() ) {
+		case 0: convoicount = translator::translate( "no convois" );
+			break;
+		case 1: convoicount = translator::translate( "1 convoi" );
+			break;
+		default:
+			sprintf( convoi_tmp, translator::translate( "%d convois" ), line->count_convoys() );
+			convoicount = convoi_tmp;
+			break;
+		}
+
+		char profit_str[64];
+		money_to_string( profit_str, line->get_finance_history( 0, LINE_PROFIT )/100.0, true );
+
+		sprintf( infotext, "%s, %s %s", convoicount, translator::translate( "Gewinn" ), get_text() );
+		win_set_tooltip( get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, get_mouse_y() + TOOLTIP_MOUSE_OFFSET_Y, infotext, profit_str );
+	}
 
 	gui_scrolled_list_t::const_text_scrollitem_t::draw( offset );
 }
@@ -108,3 +133,4 @@ bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t
 	// otherwise: sort by name
 	return (strcmp(atxt, btxt)<0) ^ sort_reverse;
 }
+
