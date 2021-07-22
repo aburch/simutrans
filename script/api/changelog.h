@@ -31,6 +31,7 @@
  * - Added powerlines: @ref powerline_x, @ref transformer_x, @ref factory_x::get_transformer, @ref factory_x::is_transformer_connected
  * - Added @ref way_x::get_transported_goods, @ref way_x::get_convoys_passed
  * - Added @ref tile_x::get_way, @ref tile_x::get_depot
+ * - Added @ref get_pakset_name
  *
  * @section api-121 Release 120.1
  *

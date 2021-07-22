@@ -379,6 +379,7 @@ BEGIN {
 	export_types["world::get_year_transported_goods"] = "array<integer>()"
 	export_types["world::use_timeline"] = "bool()"
 	export_types["attraction_list_x::_get"] = "building_x(integer)"
+	export_types["::get_pakset_name"] = "string()"
 	export_types["simple_heap_x::clear"] = "void()"
 	export_types["simple_heap_x::len"] = "integer()"
 	export_types["simple_heap_x::is_empty"] = "bool()"
