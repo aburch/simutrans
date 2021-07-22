@@ -2996,9 +2996,9 @@ station_tile_search_ready: ;
 			continue;
 		}
 
-		uint32 min_loading_step_time = (uint32)welt->scale_with_month_length(v->get_desc()->get_loading_time()) / v->get_cargo_max() + 1;
+		uint32 min_loading_step_time = v->get_desc()->get_loading_time() / v->get_cargo_max() + 1;
 		time = max(time, min_loading_step_time);
-		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / (uint32)welt->scale_with_month_length(v->get_desc()->get_loading_time()) + 1;
+		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / ((uint32)v->get_desc()->get_loading_time() + 1);
 		uint16 amount = v->unload_cargo(halt, next_depot, max_amount );
 
 		if(  max_amount>amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
