@@ -1390,7 +1390,7 @@ function find_signal(sig_type, wt) {
 /**
 	* find object tool
 	*
-	* obj		= object type ( bridge, tunnel )
+	* obj		= object type ( bridge, tunnel, way )
 	* wt		= waytype
 	* speed	= speed
 	*/
@@ -3253,8 +3253,10 @@ function destroy_line(line_obj, good) {
 
 	if (cnv_list.get_count() > 0 ) {
 		foreach(cnv in cnv_list) {
-			depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
-			gui.add_message_at(our_player, "depot " + coord3d_to_string(depot), world.get_time())
+			if ( depot == null ) {
+				depot = tile_x(cnv.get_home_depot().x, cnv.get_home_depot().y, cnv.get_home_depot().z)
+				gui.add_message_at(our_player, "depot " + coord3d_to_string(depot), world.get_time())
+			}
 			// mark convoy for destroying
 			if ( cnv.get_distance_traveled_total() < 3 ) {
 				gui.add_message_at(our_player, "return cnv/line new", world.get_time())
@@ -3297,8 +3299,9 @@ function destroy_line(line_obj, good) {
 	local treeways = 0
 	local double_ways = 0
 	// way station to next treeway by road
-	local treeway_tile_s = null
-	local treeway_tile_e = null
+	local treeway_tile_s = [null, null]
+	local treeway_tile_e = [null, null]
+
 	//
 	local double_way_tiles = []
 
@@ -3309,45 +3312,69 @@ function destroy_line(line_obj, good) {
 
 		local i = 0
 
-		depot = search_depot(start_l, wt, 15)
+		if ( check_home_depot(depot, wt) )  {
+			// todo check vehicles in depot
+			remove_tile_to_empty(depot, wt, 0)
+		}
+		//depot = search_depot(start_l, wt, 15)
 
 		if ("err" in wayline) {
 			gui.add_message_at(our_player, "ERROR search way line for remove", world.get_time())
 		} else {
 			local sig_tile = 0
+			local t_t = 0
 			foreach(node in wayline.routes) {
 				local tile = tile_x(node.x, node.y, node.z)
 				//nexttile.append(tile)
 				// check route to treeways
+
+				// treeway tile other player, set next tile for remove
+				if ( t_t == 1 ) {
+					treeway_tile_s[1] = tile
+					t_t = 0
+
+				}
+
 				// one treeway ( depot ) then no split line way
 				if ( dir.is_threeway(tile.get_way_dirs(wt)) ) {
 					if ( treeways == 0 ) {
-						treeway_tile_e = tile
-						treeway_tile_s = tile
+						treeway_tile_e[0] = tile
+						treeway_tile_s[0] = tile
 					} else {
 						//
 						if ( !(depot == false) && !(depot == null) ) {
 							if ( tile.x == depot.x || tile.y == depot.y ) {
 								depot_t = tile
 							} else {
-								treeway_tile_s = tile
+								treeway_tile_s[0] = tile
 							}
 						} else {
-							treeway_tile_s = tile
+							treeway_tile_s[0] = tile
 						}
 
 					}
 					treeways++
+					t_t = 1
 				}
+
+				// treeway tile other player, set next tile for remove
+				if ( treeway_tile_e[0] == null ) {
+					treeway_tile_e[1] = tile
+				}
+
 				// test signals by rail
 				if ( tile.find_object(mo_signal) != null && wt == wt_rail ) {
-					double_way_tiles.append(treeway_tile_s)
+					double_way_tiles.append(treeway_tile_s[0])
 					sig_tile = 1
 					double_ways++
-				}else if ( dir.is_threeway(tile.get_way_dirs(wt)) && sig_tile == 1 ) {
+				}else if ( dir.is_threeway(tile.get_way_dirs(wt)) && sig_tile == 1 && wt == wt_rail ) {
 					double_way_tiles.append(tile)
 					sig_tile = 0
 				}
+			}
+			if ( wt == wt_rail ) {
+				gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
+				gui.add_message_at(our_player, " double_way_tiles.get_count() " + double_way_tiles.len(), world.get_time())
 			}
 		}
 
@@ -3383,17 +3410,22 @@ function destroy_line(line_obj, good) {
 				remove_all = 1
 			}
 
+			// remove depot
+			if ( check_home_depot(depot, wt) ) {
+				remove_tile_to_empty(depot, wt, 0)
+			}
+
 			// remove way from start to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, start_l, treeway_tile_s, "" + wt_rail)
-				remove_tile_to_empty(depot, wt, 0)
-				remove_tile_to_empty(depot_t, wt, 0)
+				tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_rail)
+				//remove_tile_to_empty(depot, wt, 0)
+				//remove_tile_to_empty(depot_t, wt, 0)
 			}
 			// remove way from end to first treeway
 			if ( treeways > 1 && combined_s == 1 && combined_e == 1 && end_line_count == 0 && remove_all == 0 ) {
 				// remove station and way to next treeway
-				tool.work(our_player, end_l, treeway_tile_e, "" + wt_rail)
+				tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_rail)
 			}
 			// remove double ways by rail
 			if ( double_ways > 0 ) {
@@ -3409,12 +3441,29 @@ function destroy_line(line_obj, good) {
 			}
 		}
 
+		if ( start_f.len() > 0 && combined_s > 1 && start_line_count > 0 ) {
+			// check lines befor remove start
+			local lines = start_h.get_line_list()
+			local i = 1
+			foreach(line in lines) {
+				if ( line.get_waytype() == wt_rail ) { i++ }
+			}
+			remove_all = i
+		}
+
+		if ( end_f.len() > 0 && combined_e > 1 && end_line_count > 0 ) {
+			// check lines befor remove end
+			local lines = end_h.get_line_list()
+			local i = 1
+			foreach(line in lines) {
+				if ( line.get_waytype() == wt_rail ) { i++ }
+			}
+			remove_all = i
+		}
+
+
 		// remove rail line way by single halt and no more treeways
-		if ( ( treeways == 1 && combined_s == 1 && combined_e == 1 && start_line_count == 0 && end_line_count == 0) || remove_all == 1 ) {
-			// remove depot
-			/*if ( check_home_depot(depot, wt) ) {
-				remove_tile_to_empty(depot, wt, 0)
-			}*/
+		if ( remove_all == 1 ) {
 			// remove line way
 			local tool = command_x(tool_remove_way)
 			tool.work(our_player, start_l, end_l, "" + wt_rail)
@@ -3434,6 +3483,9 @@ function destroy_line(line_obj, good) {
 		start_line_count = start_h.get_line_list().get_count()
 		end_line_count = end_h.get_line_list().get_count()
 
+		gui.add_message_at(our_player, " treeway_tile_s " + treeway_tile_s[0] + "  " + treeway_tile_s[1], world.get_time())
+		gui.add_message_at(our_player, " treeway_tile_e " + treeway_tile_e[0] + "  " + treeway_tile_e[1], world.get_time())
+
 		local tool = command_x(tool_remove_way)
 		if ( start_line_count == 0 ) {
 			// remove combined waytype halt water - not road
@@ -3449,7 +3501,13 @@ function destroy_line(line_obj, good) {
 				}
 			}
 			// remove station and way to next treeway
-			tool.work(our_player, start_l, treeway_tile_s, "" + wt_road)
+			// treeway tile check player
+			if ( treeway_tile_s[0].find_object(mo_way).get_owner() == our_player ) {
+				tool.work(our_player, start_l, treeway_tile_s[0], "" + wt_road)
+			} else {
+				tool.work(our_player, start_l, treeway_tile_s[1], "" + wt_road)
+				remove_tile_to_empty(treeway_tile_s[1], wt, 0)
+			}
 		}
 
 		if ( end_line_count == 0 ) {
@@ -3466,7 +3524,13 @@ function destroy_line(line_obj, good) {
 				}
 			}
 			// remove station and way to next treeway
-			tool.work(our_player, end_l, treeway_tile_e, "" + wt_road)
+			// treeway tile check player
+			if ( treeway_tile_e[0].find_object(mo_way).get_owner() == our_player ) {
+				tool.work(our_player, end_l, treeway_tile_e[0], "" + wt_road)
+			} else {
+				tool.work(our_player, end_l, treeway_tile_e[1], "" + wt_road)
+				remove_tile_to_empty(treeway_tile_e[1], wt, 0)
+			}
 		}
 	}
 
@@ -3476,7 +3540,11 @@ function destroy_line(line_obj, good) {
 
 		// remove depot
 		if ( check_home_depot(depot, wt) ) {
-			tool.work(our_player, depot)
+			err = depot.remove_object(our_player, mo_depot_rail)
+			if ( err != null ) {
+				gui.add_message_at(our_player, "####### depot remove " + depot + ": " + err, home_depot)
+			}
+			//tool.work(our_player, depot)
 		}
 
 		// remove way line and station by 0 lines connected
@@ -3518,6 +3586,7 @@ function destroy_line(line_obj, good) {
 		}
 	}
 	gui.add_message_at(our_player, "+ destroy_line(line_obj) finish line " + line_name, world.get_time())
+	::debug.pause()
 	return true
 }
 
@@ -3572,7 +3641,7 @@ function test_halt_waytypes(tile) {
 function check_home_depot(tile, wt) {
 
 	// load vehicle list
-	local list = []
+	local list = world.get_convoy_list_x()
 
 	foreach(cnv in list) {
 		if ( tile.x == cnv.get_home_depot().x && tile.y == cnv.get_home_depot().y && tile.z == cnv.get_home_depot().z ) {
@@ -3581,5 +3650,138 @@ function check_home_depot(tile, wt) {
 	}
 
 	return true
+
+}
+
+/*
+ * check stations to valid link
+ *
+ *
+ *
+ *
+ */
+function check_stations_connections() {
+	//gui.add_message_at(our_player, "####### check_stations_connections()" , world.get_time())
+
+	::debug.set_pause_on_error(true)
+
+	local haltlist = []
+	// list player halts
+	foreach(halt in halt_list_x()) {
+		if (halt.get_owner().nr == our_player_nr) {  // && halt.get_type == wt
+			haltlist.append(halt)
+		}
+	}
+
+	// halt no lines and convoys
+	local halt_unused = []
+
+	// test factory connection
+	foreach(halt in haltlist) {
+
+		local s = halt.get_name()
+
+		local halt_factory_connect = halt.get_factory_list().len()
+		local halt_lines = halt.get_line_list()
+		local halt_cnv = halt.get_convoy_list()
+
+		//if ( halt_lines.get_count() == 1 ) { gui.add_message_at(our_player, "####### halt_lines[0]: " + halt_lines[0].get_name(), world.get_time()) }
+
+		//local tool = command_x(tool_remover)
+
+		if ( halt_lines.get_count() == 0 && halt_cnv.get_count() == 0 ) {
+
+			//gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
+
+
+			// halt no lines and convoys - remove
+			local t = halt.get_tile_list()
+			for ( local i = 0; i < t.len(); i++ ) {
+				if ( t[i].has_way(wt_rail) ) {
+					// remove way by wt_rail from halt tiles
+					remove_tile_to_empty(t, wt_rail, 1)
+				} else {
+					t[i].remove_object(our_player, mo_building)
+				}
+			}
+		} else if ( halt_factory_connect == 0 && halt_lines.get_count() < 2 ) {
+
+			local line_list = player_x(our_player.nr).get_line_list()
+			foreach(line in line_list) {
+				//gui.add_message_at(player_x(our_player.nr), "####### line check " + line.get_name(), world.get_time())
+				if ( halt_lines[0].id == line.id ) {
+					halt_lines = line
+					break
+				}
+			}
+
+			//gui.add_message_at(our_player, "####### halt name: " + halt.get_name(), world.get_time())
+
+			local home_depot = null
+			local wt = null
+
+			// combined station not finish
+			if ( halt_cnv.get_count() > 0 ) {
+				// remove convoys from halt
+				local j = halt_cnv.get_count()
+				home_depot = halt_cnv[0].get_home_depot()
+				wt = halt_cnv[0].get_waytype()
+				for ( local i = 0; i < j; i++ ) {
+					halt_cnv[i].destroy(our_player)
+				}
+			} else if ( halt.get_line_list().get_count() == 1 ) {
+				// remove convoys from line
+				halt_cnv = halt_lines.get_convoy_list()
+				wt = halt_cnv[0].get_waytype()
+				home_depot = halt_cnv[0].get_home_depot()
+				local j = halt_cnv.get_count()
+				for ( local i = 0; i < j; i++ ) {
+					halt_cnv[i].destroy(our_player)
+				}
+				sleep()
+				// remove line
+				//gui.add_message_at(our_player, "####### remove line " + halt_lines.get_name(), world.get_time())
+				local err = null
+				err = halt_lines.destroy(our_player)
+				if ( err != null ) {
+					//gui.add_message_at(our_player, "####### err: " + err, world.get_time())
+				}
+				sleep()
+				// halt remove
+				local t = halt.get_tile_list()
+
+				for ( local i = 0; i < t.len(); i++ ) {
+					if ( wt == wt_rail ) {
+						remove_tile_to_empty(t, wt, 1)
+					} else {
+						t[i].remove_object(our_player, mo_building)
+					}
+				}
+				// check depot
+				if ( check_home_depot(home_depot, wt) )  {
+					// todo check vehicles in depot
+					local tile = tile_x(home_depot.x, home_depot.y, home_depot.z)
+					local err = null
+					if ( wt == wt_water ) {
+						// remove depot ship
+						err = tile.remove_object(our_player, mo_depot_rail)
+						if ( err != null ) {
+							gui.add_message_at(our_player, "####### depot remove " + home_depot + ": " + err, home_depot)
+						//gui.add_message_at(our_player, "####### tile.find_object(mo_depot_water) " + tile.find_object(mo_depot_water), home_depot)
+						}
+						//::debug.pause()
+						//remove_tile_to_empty(tile, wt, 0)
+					} else {
+						// remove depot road/rail and way
+						err = remove_tile_to_empty(tile, wt, 0)
+					}
+				}
+			}
+
+		}
+
+	}
+
+
 
 }

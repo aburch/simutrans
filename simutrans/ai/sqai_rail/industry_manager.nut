@@ -195,7 +195,9 @@ class industry_manager_t extends manager_t
 	function link_iteration()
 	{
 		foreach(link in link_list) {
-			check_link(link)
+			if (!check_link(link)) {
+				continue
+			}
 			yield link
 		}
 	}
@@ -204,6 +206,7 @@ class industry_manager_t extends manager_t
 	 * Check link:
 	 * - if state is st_missing set state to st_free after some time
 	 * - for working links see after their lines
+	 * - returns true if some work was done
 	 */
 	function check_link(link)
 	{
@@ -211,12 +214,12 @@ class industry_manager_t extends manager_t
 			case industry_link_t.st_free:
 			case industry_link_t.st_planned:
 			case industry_link_t.st_failed:
-				return
+				return false
 			case industry_link_t.st_built:
-				if (link.lines.len()==0) return
+				if (link.lines.len()==0) return false
 				break
 			case industry_link_t.st_missing:
-				if (link.next_check >= world.get_time().ticks) return
+				if (link.next_check >= world.get_time().ticks) return false
 				// try to plan again
 				link.state = industry_link_t.st_free
 				break
@@ -243,10 +246,17 @@ class industry_manager_t extends manager_t
   	if ( yt.slice(-1) == "0" && world.get_time().month == 3 && mnt_ticks > world.get_time().ticks ) {
 			// in april
 			//gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
-				check_pl_lines()
-			//::debug.pause()
+			check_pl_lines()
+			//::debug.pause(),
 		}
 
+		mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1000
+  	if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
+			// in may
+			// check unused halts
+			check_stations_connections()
+		}
+		return true
 	}
 
 	/**
@@ -398,6 +408,8 @@ class industry_manager_t extends manager_t
 	function check_link_line(link, line)
 	{
 
+		::debug.set_pause_on_error(true)
+
 		// set first run as line build time
 		/*if ( line.build_line == 0 ) {
   		line.build_line = world.get_time()
@@ -408,7 +420,7 @@ class industry_manager_t extends manager_t
 
 		//
 
-		local  print_message_box = 0
+		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
 		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
@@ -424,6 +436,7 @@ class industry_manager_t extends manager_t
 					if ( erreg == false ) {
 						line.destroy_line_month = world.get_time().month
 					} else if ( erreg == true ) {
+						link.state = 4
 						return
 					}
 				} else {
@@ -642,7 +655,7 @@ class industry_manager_t extends manager_t
 					if ( tile_way.get_desc().get_topspeed() < way_speed ) {
 						way_speed = tile_way.get_desc().get_topspeed()
 					}
-						if ( tile_way.get_desc().get_topspeed() == 45 ) {
+						if ( tile_way.get_desc().get_topspeed() == 45 && print_message_box == 1 ) {
 							gui.add_message_at(our_player, way_speed + " way speed tile " + coord3d_to_string(tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z)), tile_x(nexttile[i].x, nexttile[i].y, nexttile[i].z))
 						}
 				}
@@ -995,13 +1008,13 @@ class industry_manager_t extends manager_t
 				local expand_station = []
 				local station_count = 0
 				if ( wt == wt_rail ) {
-					for ( local i = 0; i < 5; i++ ) {
+					for ( local i = 0; i < 6; i++ ) {
 						if ( nexttile[i].find_object(mo_building) ) {
 							station_count++
 						}
 					}
 					//prototyper.max_length = station_count
-					gui.add_message_at(our_player, "###---- check stations field : " + station_count, nexttile[0])
+					local a = station_count
 					if ( station_count < 6 ) {
 						// check expand station
 						// built cnv to new length end expand station befor create cnv
@@ -1023,7 +1036,10 @@ class industry_manager_t extends manager_t
 								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
-						gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
+						if ( a < station_count ) {
+							gui.add_message_at(our_player, "###---- check stations field : " + a, nexttile[0])
+							gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
+						}
 					}
 					prototyper.max_length = station_count
 				} else {
@@ -1031,14 +1047,22 @@ class industry_manager_t extends manager_t
 				}
 
 				if ( wt == wt_road && check_good_quantity(start_l, end_l, lf, line) ) {
-					line.next_vehicle_check = world.get_time().next_month_ticks
+					line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
 					return true
 				}
 
 				local cnv_valuator = valuator_simple_t()
 				cnv_valuator.wt = wt
 				cnv_valuator.freight = freight
-				cnv_valuator.volume = line.get_transported_goods().reduce(max)
+
+				local fd = link.f_dest
+				local fs = link.f_src
+				local freight_input = fd.input[freight].get_base_consumption()
+				local freight_output = fs.output[freight].get_base_production()
+				prototyper.volume = min(freight_input, freight_output)
+
+				//cnv_valuator.volume = line.get_transported_goods().reduce(max)
+
 				cnv_valuator.max_cnvs = 200
 				// no signals and double tracks - limit 1 convoy for rail
 				if (wt == wt_rail) {
@@ -1098,8 +1122,40 @@ class industry_manager_t extends manager_t
 				}
 				if ( depot == null || depot == false ) {
 					//depot = cnv.get_home_depot()
-					gui.add_message_at(our_player, "##-ERROR-##--> not depot found", world.get_time())
-					return false
+					local c = cnv.get_home_depot()
+					depot = tile_x(c.x, c.y, c.z)
+					if ( depot.get_depot() == null ) {
+						local way_tile = [null, null, null, null]
+						way_tile[0] = tile_x(depot.x-1, depot.y, depot.z)
+						way_tile[1] = tile_x(depot.x+1, depot.y, depot.z)
+						way_tile[2] = tile_x(depot.x, depot.y-1, depot.z)
+						way_tile[3] = tile_x(depot.x, depot.y+1, depot.z)
+						for ( local i = 0; i < 4; i++ ) {
+							if ( way_tile[i].find_object(mo_way) != null ) {
+								local way_obj = find_object("way", cnv.get_waytype(), cnv.get_speed())
+								local depot_obj = building_desc_x.get_available_stations(building_desc_x.depot, wt, {})
+								local err = command_x.build_way(our_player, depot, way_tile[i], way_obj, true)
+								if ( err == null ) {
+									err = command_x.build_depot(our_player, depot, depot_obj[0] )
+								} else {
+									gui.add_message_at(our_player, "##-ERROR-##--> not depot found", depot)
+									return false
+								}
+								break
+							}
+						}
+
+					}
+					//if ( wt = wt_road ) {
+						//local err = construct_road_to_depot(pl, c_route[i], planned_way) //c_start
+						//if (err) {
+						//	print("Failed to build depot access from " + coord_to_string(c_start))
+						//	return false
+						//}
+
+					//}
+
+
 				}
 
 
@@ -1108,8 +1164,15 @@ class industry_manager_t extends manager_t
 				c.p_depot  = depot_x(depot.x, depot.y, depot.z)
 				c.p_line   = line
 				c.p_convoy = proto
-				c.p_count  = 1
+				if ( wt == wt_road ) {
+					// by road add 3 vehicles
+					c.p_count  = 3
+				} else {
+					c.p_count  = 1
+				}
+
 				append_child(c)
+
 				dbgprint("==> build additional convoy")
 				if ( print_message_box == 1 ) {
 					gui.add_message_at(our_player, "####### cnv_count " + cnv_count, world.get_time())
@@ -1129,18 +1192,19 @@ class industry_manager_t extends manager_t
 					//local k = c.p_convoy.get_tile_length()
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
-					if ( st_lenght == 4 && expand_station.len() == 4 ) {
+					if ( st_lenght > station_count ) {
 						// expand station to 4 tiles
 						for ( local i = 0; i < 2; i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
-					} else if ( st_lenght == 5 && expand_station.len() > 2 ) {
+						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+					} /*else if ( st_lenght == 5 && expand_station.len() > 2 ) {
 						// expand station to 5 tiles
 						for ( local i = 0; i < expand_station.len(); i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
-					}
-
+						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+					}*/
 				}
 
 				local msgtext = format(translate("%s build additional convoy to line: %s"), our_player.get_name(), line.get_name())

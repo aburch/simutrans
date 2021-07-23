@@ -120,6 +120,8 @@ class road_connector_t extends manager_t
 
 					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						//gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
+						industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+
 						return error_handler()
 					}
 

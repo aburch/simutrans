@@ -416,7 +416,7 @@ class industry_connection_planner_t extends manager_t
 		if ( freight_input > 2250 || freight_output > 1700 ) {
 			switch (wt) {
 				case wt_rail:
-				  r.points += 15
+				  r.points += 22
 			    break
 				case wt_road:
 				  r.points -= 15
@@ -462,7 +462,7 @@ class industry_connection_planner_t extends manager_t
 						r.points += 20
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 30 ) {
+					if ( planned_bridge.tiles > 25 ) {
 						r.points -= (25*bridge_year_factor)
 					}
 					if ( planned_convoy.max_speed < 50 ) {
@@ -472,7 +472,7 @@ class industry_connection_planner_t extends manager_t
 			    break
 				case wt_road:
 					if ( f_dist_long < r.distance ) {
-				  	r.points -= 20
+				  	r.points -= 25
 						cash_buffer = 20
 					} else {
 						r.points -= 10
@@ -546,7 +546,7 @@ class industry_connection_planner_t extends manager_t
 		if  ( r.distance > 120 && r.distance < 350 ) {
 			switch (wt) {
 				case wt_rail:
-					if ( planned_bridge.tiles > 30 ) {
+					if ( planned_bridge.tiles > 25 ) {
 						r.points -= (15*bridge_year_factor)
 					}
 			    break
@@ -565,7 +565,7 @@ class industry_connection_planner_t extends manager_t
     if ( g > 32 ) {
 			switch (wt) {
 				case wt_rail:
-					r.points += 16
+					r.points += 22
 			    break
 				case wt_road:
         	r.points -= 8
@@ -579,10 +579,10 @@ class industry_connection_planner_t extends manager_t
     if ( g < 20 ) {
 			switch (wt) {
 				case wt_rail:
-					r.points -= 8
+					r.points -= 12
 			    break
 				case wt_road:
-          r.points += 12
+          r.points += 14
 			    break
 				case wt_water:
 

@@ -231,6 +231,7 @@ class rail_connector_t extends manager_t
 					if ( (cash-build_cost) < (cost_monthly*4) ) {
 						remove_tile_to_empty(t_start, wt_rail, 1)
 						remove_tile_to_empty(t_end, wt_rail, 1)
+						industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
 						gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
 						return error_handler()
 					}
