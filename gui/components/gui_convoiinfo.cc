@@ -42,7 +42,8 @@ public:
 		// we will use their images offsets and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		scr_size s(0,0);
-		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
+		unsigned count = cnv.is_bound() ? cnv->get_vehicle_count() : 0;
+		for(unsigned i=0; i<count; i++) {
 			scr_coord_val x, y, w, h;
 			const image_id image = cnv->get_vehikel(i)->get_loaded_image();
 			display_get_base_image_offset(image, &x, &y, &w, &h );
