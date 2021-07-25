@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.7.3"
+ai.version <- "0.7.4"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -218,4 +218,19 @@ function save()
 	print("save used " + (toc-tic) + " ops, remaining = " + rem)
 
 	return str
+}
+
+/**
+ * returns pakset name (lower case)
+ *
+ *
+ */
+function get_set_name()
+{
+	local pakset = get_pakset_name()  // full string from ground.outside.pak
+	local s = pakset.find(" ")
+	pakset = pakset.slice(0, s)
+	pakset = pakset.tolower()
+
+	return pakset
 }

@@ -249,6 +249,16 @@ class rail_connector_t extends manager_t
 						if ( print_message_box == 1 ) {
 							gui.add_message_at(pl, "Build rail from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time())
 						}
+						// test connect in double way
+						local asf = astar_route_finder(wt_rail)
+						// check start -> end
+						local wayline = asf.search_route([c_start], [c_end])
+						check_doubleway_in_line(wayline, wt_rail)
+						// check end -> start
+						wayline.clear()
+						wayline = asf.search_route([c_end], [c_start])
+						check_doubleway_in_line(wayline, wt_rail)
+
 					}
 					phase ++
 				}
