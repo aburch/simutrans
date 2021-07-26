@@ -67,7 +67,7 @@ void line_scrollitem_t::draw( scr_coord offset )
 		char profit_str[64];
 		money_to_string( profit_str, line->get_finance_history( 0, LINE_PROFIT )/100.0, true );
 
-		sprintf( infotext, "%s, %s %s", convoicount, translator::translate( "Gewinn" ), get_text() );
+		sprintf( infotext, "%s, %s %s", convoicount, translator::translate( "Gewinn" ), profit_str );
 		win_set_tooltip( get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, get_mouse_y() + TOOLTIP_MOUSE_OFFSET_Y, infotext, profit_str );
 	}
 
