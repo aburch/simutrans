@@ -1702,6 +1702,35 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			}
 		}
 	}
+	if( schiene_t::show_reservations &&  hat_wege()  ) {
+		if( weg_t* w = get_weg_nr( 0 ) ) {
+			if( w->has_signal() ) {
+				// display arrow here
+				PIXVAL c1 = color_idx_to_rgb( COL_GREEN+2 );
+				PIXVAL c2 = color_idx_to_rgb( COL_GREEN );
+
+				ribi_t::ribi mask = w->get_ribi_maske();
+				if( !mask ) {
+					mask = w->get_ribi_unmasked();
+				}
+
+				if( signal_t* sig = find<signal_t>() ) {
+					if( sig->get_state()==roadsign_t::signalstate::STATE_RED ) {
+						c1 = color_idx_to_rgb( COL_ORANGE+2 );
+						c2 = color_idx_to_rgb( COL_ORANGE );
+					}
+				}
+				display_signal_direction_rgb( xpos, ypos + tile_raster_scale_y( w->get_yoff(), get_current_tile_raster_width() ),
+					w->get_ribi_unmasked(), mask, c1, c2, w->is_diagonal() );
+			}
+			else if( w->get_ribi_maske() ) {
+				PIXVAL c1 = color_idx_to_rgb( COL_BLUE+2 );
+				PIXVAL c2 = color_idx_to_rgb( COL_BLUE );
+				display_signal_direction_rgb( xpos, ypos + tile_raster_scale_y( w->get_yoff(), get_current_tile_raster_width() ),
+					w->get_ribi_unmasked(), w->get_ribi_maske(), c1, c2, w->is_diagonal() );
+			}
+		}
+	}
 	clear_flag(grund_t::dirty);
 }
 

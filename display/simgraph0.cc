@@ -392,6 +392,10 @@ void display_right_triangle_rgb(scr_coord_val, scr_coord_val, scr_coord_val, con
 {
 }
 
+void display_signal_direction_rgb(scr_coord_val, scr_coord_val, uint8, uint8, uint8, bool )
+{
+}
+
 void display_set_progress_text(const char *)
 {
 }

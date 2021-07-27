@@ -30,6 +30,8 @@
 
 #include "simgraph.h"
 
+#include "../obj/roadsign.h" // for signal status indicator
+
 
 #ifdef _MSC_VER
 #	include <io.h>
@@ -4982,6 +4984,97 @@ void display_filled_circle_rgb( scr_coord_val x0, scr_coord_val  y0, int radius,
 		display_fb_internal( x0-y, y0-x, y+y, 1, colval, false, CR0.clip_rect.x, CR0.clip_rect.xx, CR0.clip_rect.y, CR0.clip_rect.yy );
 	}
 //	mark_rect_dirty_wc( x0-radius, y0-radius, x0+radius+1, y0+radius+1 );
+}
+
+
+
+void display_signal_direction_rgb(scr_coord_val x, scr_coord_val y, uint8 way_dir, uint8 sig_dir, PIXVAL col1, PIXVAL col1_dark, bool is_diagonal )
+{
+	uint8 width  = is_diagonal ? current_tile_raster_width/6*0.353 :current_tile_raster_width/6;
+	const uint8 height = is_diagonal ?current_tile_raster_width/6*0.353 :current_tile_raster_width/12;
+	const uint8 thickness = max( current_tile_raster_width/36, 2);
+
+	x += current_tile_raster_width/2;
+	y += (current_tile_raster_width*9)/16;
+
+	if (is_diagonal) {
+
+		if (way_dir == ribi_t::northeast || way_dir == ribi_t::southwest) {
+			// vertical
+			x += (way_dir==ribi_t::northeast) ?current_tile_raster_width/4 : (-current_tile_raster_width/4);
+			y += current_tile_raster_width/16;
+			width = width<<2; // 4x
+
+			// upper
+			for (uint8 xoff = 0; xoff < width/2; xoff++) {
+				const uint8 yoff = (uint8)((xoff+1)/2);
+				// up
+				if (sig_dir & ribi_t::east || sig_dir & ribi_t::south) {
+					display_vline_wh_clip_rgb(x + xoff, y+yoff, width/4 - yoff, col1, true);
+					display_vline_wh_clip_rgb(x-xoff-1, y+yoff, width/4 - yoff, col1, true);
+				}
+				// down
+				if (sig_dir & ribi_t::west || sig_dir & ribi_t::north) {
+					display_vline_wh_clip_rgb(x + xoff, y+current_tile_raster_width/6,              width/4-yoff, col1,      true);
+					display_vline_wh_clip_rgb(x + xoff, y+current_tile_raster_width/6+width/4-yoff, thickness,    col1_dark, true);
+					display_vline_wh_clip_rgb(x-xoff-1, y+current_tile_raster_width/6,              width/4-yoff, col1,      true);
+					display_vline_wh_clip_rgb(x-xoff-1, y+current_tile_raster_width/6+width/4-yoff, thickness,    col1_dark, true);
+				}
+			}
+			// up
+			if (sig_dir & ribi_t::east || sig_dir & ribi_t::south) {
+				display_fillbox_wh_clip_rgb(x - width/2, y + width/4, width, thickness, col1_dark, true);
+			}
+		}
+		else {
+			// horizontal
+			y -= current_tile_raster_width/12;
+			if (way_dir == ribi_t::southeast) {
+				y += current_tile_raster_width/4;
+			}
+
+			for (uint8 xoff = 0; xoff < width*2; xoff++) {
+				const uint8 h = width*2 - (scr_coord_val)(xoff + 1);
+				// left
+				if (sig_dir & ribi_t::north || sig_dir & ribi_t::east) {
+					display_vline_wh_clip_rgb(x - xoff - width*2, y + (scr_coord_val)((xoff+1)/2),   h, col1, true);
+					display_vline_wh_clip_rgb(x - xoff - width*2, y + (scr_coord_val)((xoff+1)/2)+h, thickness, col1_dark, true);
+				}
+				// right
+				if (sig_dir & ribi_t::south || sig_dir & ribi_t::west) {
+					display_vline_wh_clip_rgb(x + xoff + width*2, y + (scr_coord_val)((xoff+1)/2),   h, col1, true);
+					display_vline_wh_clip_rgb(x + xoff + width*2, y + (scr_coord_val)((xoff+1)/2)+h, thickness, col1_dark, true);
+				}
+			}
+		}
+	}
+	else {
+		if (sig_dir & ribi_t::south) {
+			// upper right
+			for (uint8 xoff = 0; xoff < width; xoff++) {
+				display_vline_wh_clip_rgb(x + xoff, y, (scr_coord_val)(xoff/2) + 1, col1, true);
+				display_vline_wh_clip_rgb(x + xoff, y + (scr_coord_val)(xoff/2) + 1, thickness, col1_dark, true);
+			}
+		}
+		if (sig_dir & ribi_t::east) {
+			for (uint8 xoff = 0; xoff < width; xoff++) {
+				display_vline_wh_clip_rgb(x - xoff - 1, y, (scr_coord_val)(xoff/2) + 1, col1, true);
+				display_vline_wh_clip_rgb(x - xoff - 1, y + (scr_coord_val)(xoff/2) + 1, thickness, col1_dark, true);
+			}
+		}
+		if (sig_dir & ribi_t::west) {
+			for (uint8 xoff = 0; xoff < width; xoff++) {
+				display_vline_wh_clip_rgb(x + xoff, y + height*2 - (scr_coord_val)(xoff/2) + 1, (scr_coord_val)(xoff/2) + 1, col1, true);
+				display_vline_wh_clip_rgb(x + xoff, y + height*2 + 1, thickness, col1_dark, true);
+			}
+		}
+		if (sig_dir & ribi_t::north) {
+			for (uint8 xoff = 0; xoff < width; xoff++) {
+				display_vline_wh_clip_rgb(x - xoff - 1, y + height*2 - (scr_coord_val)(xoff/2) + 1, (scr_coord_val)(xoff/2) + 1, col1, true);
+				display_vline_wh_clip_rgb(x - xoff - 1, y + height*2 + 1, thickness, col1_dark, true);
+			}
+		}
+	}
 }
 
 

@@ -32,6 +32,7 @@
 	ADD: reselect a tool will close it (new default, set by reselect_closes_tool in menuconf.tab)
 	FIX: Grid height not restored when removing building on a raised tile
 	CHG: maintenance of powerline tunnel/underground transformer maintenance is now maintenance of powerline + that of tunnel
+	ADD: reservation overlay now also shows single way directions and signal states (inspired from ranran)
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
