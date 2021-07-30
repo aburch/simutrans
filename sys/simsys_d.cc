@@ -341,7 +341,6 @@ static inline int recalc_keys()
 }
 
 
-
 static void internalGetEvents()
 {
 	if (event_top_mark != event_bot_mark) {
@@ -416,6 +415,7 @@ void timer_callback()
 }
 END_OF_FUNCTION(timer_callback)
 
+
 static void simtimer_init()
 {
 	dbg->message("simtimer_init(allegro)", "Installing timer...");
@@ -449,17 +449,27 @@ void dr_sleep(uint32 usec)
 	rest(usec);
 }
 
+
 void dr_start_textinput()
 {
 }
+
 
 void dr_stop_textinput()
 {
 }
 
+
 void dr_notify_input_pos(int, int)
 {
 }
+
+
+const char *dr_get_locale()
+{
+	return "";
+}
+
 
 int main(int argc, char **argv)
 {
