@@ -81,7 +81,7 @@ public:
 	// stuff for UI saving
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	const char *get_help_filename() const OVERRIDE { return "linemanagement.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "linedetails.txt"; }
 
 	bool infowin_event( const event_t *ev ) OVERRIDE;
 
