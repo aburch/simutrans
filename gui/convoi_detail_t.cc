@@ -30,7 +30,7 @@ class gui_vehicleinfo_t : public gui_aligned_container_t
 {
 	vehicle_t *v;
 	cbuffer_t freight_info;
-	gui_label_buf_t label_resale, label_friction;
+	gui_label_buf_t label_resale, label_friction, label_freight_summary;
 	gui_textarea_t freight;
 
 public:
@@ -77,13 +77,7 @@ public:
 			// friction
 			add_component(&label_friction);
 			if(v->get_cargo_max() > 0) {
-				// freight type
-				goods_desc_t const& g    = *v->get_cargo_type();
-				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
-				gui_label_buf_t* l = new_component<gui_label_buf_t>();
-				l->buf().printf("%u/%u%s %s", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
-				l->update();
-				// freight
+				add_component( &label_freight_summary );
 				add_component(&freight);
 			}
 		}
@@ -109,6 +103,12 @@ public:
 		label_friction.buf().printf( "%s %i", translator::translate("Friction:"), v->get_frictionfactor() );
 		label_friction.update();
 		if(v->get_cargo_max() > 0) {
+			// freight type
+			goods_desc_t const& g = *v->get_cargo_type();
+			char const* const  name = translator::translate( g.get_catg() == 0?g.get_name():g.get_catg_name() );
+			label_freight_summary.buf().printf( "%u/%u%s %s", v->get_total_cargo(), v->get_cargo_max(), translator::translate( v->get_cargo_mass() ), name );
+			label_freight_summary.update();
+
 			freight_info.clear();
 			v->get_cargo_info(freight_info);
 		}
