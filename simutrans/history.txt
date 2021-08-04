@@ -29,6 +29,7 @@
 	ADD: new parameter in simuconf.tab "departure_on_time" If 1 then convoi departs if if not finished loading and unloading
 	ADD: chat window transparency in network mode now controlled by theme: gui_color_chat_window_network_transparency and gui_chat_window_network_transparency
 	CHG: search dialoges now consistent design, text search, preserved during saveload
+	ADD: menubar can be now top bottom left or right
 	ADD: reselect a tool will close it (new default, set by reselect_closes_tool in menuconf.tab)
 	FIX: Grid height not restored when removing building on a raised tile
 	CHG: maintenance of powerline tunnel/underground transformer maintenance is now maintenance of powerline + that of tunnel

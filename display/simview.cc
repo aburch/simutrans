@@ -273,10 +273,11 @@ void main_view_t::display(bool force_dirty)
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 		plotted = false;
 
-		for(sint16 x=-2-((y+dpy_width) & 1); (x*(IMG_SIZE/2) + const_x_off)<disp_width; x+=2) {
-			const int i = ((y+x) >> 1) + i_off;
-			const int j = ((y-x) >> 1) + j_off;
-			const int xpos = x*(IMG_SIZE/2) + const_x_off;
+		for( sint16 x = -2-((y+dpy_width) & 1); (x*(IMG_SIZE/2) + const_x_off)<clip_rr.x+clip_rr.w; x += 2 ) {
+
+			const sint16 i = ((y + x) >> 1) + i_off;
+			const sint16 j = ((y - x) >> 1) + j_off;
+			const sint16 xpos = x * (IMG_SIZE / 2) + const_x_off;
 
 			if(  xpos+IMG_SIZE>0  ) {
 				const planquadrat_t *plan=welt->access(i,j);
@@ -375,7 +376,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 	const int const_x_off = viewport->get_x_off();
 	const int const_y_off = viewport->get_y_off();
 
-	const int dpy_width = display_get_width() / IMG_SIZE + 2;
+	const int dpy_width = wh.x / IMG_SIZE + 2;
 
 	// to save calls to grund_t::get_disp_height
 	const sint8 hmax_ground = (grund_t::underground_mode == grund_t::ugm_level) ? grund_t::underground_level : 127;
