@@ -12,6 +12,7 @@
 
 class field_class_desc_t;
 
+
 // new reader for field class desc
 class factory_field_class_reader_t : public obj_reader_t
 {
