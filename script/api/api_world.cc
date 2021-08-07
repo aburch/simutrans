@@ -12,6 +12,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simworld.h"
+#include "../../simversion.h"
 #include "../../player/simplay.h"
 #include "../../obj/gebaeude.h"
 #include "../../descriptor/ground_desc.h"
@@ -121,6 +122,11 @@ SQInteger world_get_size(HSQUIRRELVM vm)
 const char* get_pakset_name()
 {
 	return ground_desc_t::outside->get_copyright();
+}
+
+const char* get_version_number()
+{
+	return VERSION_NUMBER;
 }
 
 void export_world(HSQUIRRELVM vm, bool scenario)
@@ -363,4 +369,9 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * Returns pakset name as set in ground.outside.pak
 	 */
 	register_method(vm, get_pakset_name, "get_pakset_name");
+
+	/**
+	 * Returns simutrans version number
+	 */
+	register_method(vm, get_version_number, "get_version_number");
 }
