@@ -24,7 +24,8 @@ protected:
 public:
 	static tunnel_reader_t*instance() { return &the_instance; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_tunnel; }
 	char const* get_type_name() const OVERRIDE { return "tunnel"; }

@@ -15,7 +15,7 @@
 
 class skin_reader_t : public obj_reader_t {
 public:
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;

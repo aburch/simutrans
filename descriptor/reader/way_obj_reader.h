@@ -21,11 +21,8 @@ protected:
 public:
 	static way_obj_reader_t*instance() { return &the_instance; }
 
-	/**
-	 * Read a way-object info node. Does version check and
-	 * compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_way_obj; }
 	char const* get_type_name() const OVERRIDE { return "way-object"; }

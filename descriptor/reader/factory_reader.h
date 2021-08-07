@@ -22,7 +22,8 @@ class factory_field_class_reader_t : public obj_reader_t {
 public:
 	static factory_field_class_reader_t *instance() { return &the_instance; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_ffldclass; }
 	char const* get_type_name() const OVERRIDE { return "factory field class"; }
@@ -42,7 +43,8 @@ protected:
 public:
 	static factory_field_group_reader_t *instance() { return &the_instance; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_ffield; }
 	char const* get_type_name() const OVERRIDE { return "factory field"; }
@@ -71,7 +73,8 @@ class factory_supplier_reader_t : public obj_reader_t {
 public:
 	static factory_supplier_reader_t*instance() { return &the_instance; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_fsupplier; }
 	char const* get_type_name() const OVERRIDE { return "factory supplier"; }
@@ -85,11 +88,8 @@ class factory_product_reader_t : public obj_reader_t {
 public:
 	static factory_product_reader_t*instance() { return &the_instance; }
 
-	/**
-	 * Read a factory product node. Does version check and
-	 * compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_fproduct; }
 	char const* get_type_name() const OVERRIDE { return "factory product"; }
@@ -108,7 +108,8 @@ public:
 
 	static factory_reader_t*instance() { return &the_instance; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
 	obj_type get_type() const OVERRIDE { return obj_factory; }
 	char const* get_type_name() const OVERRIDE { return "factory"; }

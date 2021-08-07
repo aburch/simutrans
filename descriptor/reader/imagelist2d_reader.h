@@ -20,7 +20,7 @@ public:
 	obj_type get_type() const OVERRIDE { return obj_imagelist2d; }
 	char const* get_type_name() const OVERRIDE { return "imagelist2d"; }
 
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
 
 #endif
