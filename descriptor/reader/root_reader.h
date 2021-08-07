@@ -9,20 +9,18 @@
 
 #include "obj_reader.h"
 
-class root_reader_t : public obj_reader_t {
-	static root_reader_t the_instance;
 
-	root_reader_t() { register_reader(); }
+class root_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(root_reader_t, obj_root, "root");
+
 public:
-	static root_reader_t*instance() { return &the_instance; }
-
 	/// @copydoc obj_reader_t::read_node
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
-	obj_type get_type() const OVERRIDE { return obj_root; }
-	char const* get_type_name() const OVERRIDE { return "root"; }
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
 };
+
 
 #endif

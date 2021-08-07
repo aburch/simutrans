@@ -9,12 +9,13 @@
 
 #include "obj_reader.h"
 
+
 class tunnel_desc_t;
 
-class tunnel_reader_t : public obj_reader_t {
-	static tunnel_reader_t the_instance;
 
-	tunnel_reader_t() { register_reader(); }
+class tunnel_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(tunnel_reader_t, obj_tunnel, "tunnel");
 
 	static void convert_old_tunnel(tunnel_desc_t *desc);
 
@@ -22,13 +23,9 @@ protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
 
 public:
-	static tunnel_reader_t*instance() { return &the_instance; }
-
 	/// @copydoc obj_reader_t::read_node
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
-
-	obj_type get_type() const OVERRIDE { return obj_tunnel; }
-	char const* get_type_name() const OVERRIDE { return "tunnel"; }
 };
+
 
 #endif

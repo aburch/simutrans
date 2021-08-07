@@ -62,6 +62,15 @@ inline uint32 decode_uint32(char * &data)
 #define decode_sint32(data)  (sint32)decode_uint32(data)
 
 
+#define OBJ_READER_DEF(classname, ty, ty_name) \
+	public: \
+		classname() { register_reader(); } \
+		obj_type get_type() const OVERRIDE { return ty; } \
+		const char *get_type_name() const OVERRIDE { return ty_name; } \
+		static classname *instance() { return &the_instance; } \
+	private: \
+		static classname the_instance
+
 
 class obj_reader_t
 {

@@ -13,7 +13,8 @@
 #include "obj_reader.h"
 
 
-class skin_reader_t : public obj_reader_t {
+class skin_reader_t : public obj_reader_t
+{
 public:
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
@@ -25,91 +26,58 @@ protected:
 };
 
 
-class menuskin_reader_t : public skin_reader_t {
-	static menuskin_reader_t the_instance;
+class menuskin_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(menuskin_reader_t, obj_menu, "menu");
 
-	menuskin_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::menu; }
-public:
-	static menuskin_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_menu; }
-	char const* get_type_name() const OVERRIDE { return "menu"; }
 };
 
 
-class cursorskin_reader_t : public skin_reader_t {
-	static cursorskin_reader_t the_instance;
+class cursorskin_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(cursorskin_reader_t, obj_cursor, "cursor");
 
-	cursorskin_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::cursor; }
-public:
-	static cursorskin_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_cursor; }
-	char const* get_type_name() const OVERRIDE { return "cursor"; }
-
 };
 
 
-class symbolskin_reader_t : public skin_reader_t {
-	static symbolskin_reader_t the_instance;
+class symbolskin_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(symbolskin_reader_t, obj_symbol, "symbol");
 
-	symbolskin_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::symbol; }
-public:
-	static symbolskin_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_symbol; }
-	char const* get_type_name() const OVERRIDE { return "symbol"; }
-
 };
 
 
-class fieldskin_reader_t : public skin_reader_t {
-	static fieldskin_reader_t the_instance;
+class fieldskin_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(fieldskin_reader_t, obj_field, "field");
 
-	fieldskin_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::nothing; }
-public:
-	static fieldskin_reader_t *instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_field; }
-	char const* get_type_name() const OVERRIDE { return "field"; }
 };
 
 
-class smoke_reader_t : public skin_reader_t {
-	static smoke_reader_t the_instance;
+class smoke_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(smoke_reader_t, obj_smoke, "smoke");
 
-	smoke_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::nothing; }
-
-public:
-	static smoke_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_smoke; }
-	char const* get_type_name() const OVERRIDE { return "smoke"; }
-
 };
 
 
-class miscimages_reader_t : public skin_reader_t {
-	static miscimages_reader_t the_instance;
+class miscimages_reader_t : public skin_reader_t
+{
+	OBJ_READER_DEF(miscimages_reader_t, obj_miscimages, "misc");
 
-	miscimages_reader_t() { register_reader(); }
 protected:
 	skinverwaltung_t::skintyp_t get_skintype() const OVERRIDE { return skinverwaltung_t::misc; }
-public:
-	static miscimages_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_miscimages; }
-	char const* get_type_name() const OVERRIDE { return "misc"; }
 };
+
 
 #endif
