@@ -15,6 +15,7 @@ class imagelist_reader_t : public obj_reader_t
 	OBJ_READER_DEF(imagelist_reader_t, obj_imagelist, "imagelist");
 
 public:
+	/// @copydoc obj_reader_t::read_node
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
 

@@ -33,7 +33,8 @@ class factory_field_group_reader_t : public obj_reader_t
 	static field_class_desc_t* incomplete_field_class_desc;
 
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
 
 public:
 	/// @copydoc obj_reader_t::read_node
@@ -75,7 +76,9 @@ class factory_reader_t : public obj_reader_t
 	OBJ_READER_DEF(factory_reader_t, obj_factory, "factory");
 
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
+
 	bool successfully_loaded() const OVERRIDE;
 
 public:

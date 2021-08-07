@@ -15,7 +15,9 @@ class vehicle_reader_t : public obj_reader_t
 	OBJ_READER_DEF(vehicle_reader_t, obj_vehicle, "vehicle");
 
 protected:
+	/// @copydoc obj_reader_t::register_obj
 	void register_obj(obj_desc_t*&) OVERRIDE;
+
 	bool successfully_loaded() const OVERRIDE;
 
 public:

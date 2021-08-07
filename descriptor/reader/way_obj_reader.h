@@ -15,7 +15,8 @@ class way_obj_reader_t : public obj_reader_t
 	OBJ_READER_DEF(way_obj_reader_t, obj_way_obj, "way-object");
 
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
 
 	bool successfully_loaded() const OVERRIDE;
 

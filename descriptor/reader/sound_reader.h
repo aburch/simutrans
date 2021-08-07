@@ -15,7 +15,8 @@ class sound_reader_t : public obj_reader_t
 	OBJ_READER_DEF(sound_reader_t, obj_sound, "sound");
 
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
 
 public:
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;

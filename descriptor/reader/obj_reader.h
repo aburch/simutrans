@@ -108,7 +108,9 @@ protected:
 	/// @returns The descriptor on success, or NULL on failure
 	virtual obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) = 0;
 
-	virtual void register_obj(obj_desc_t *&/*data*/) {}
+	/// Register descriptor so the object described by the descriptor can be built in-game.
+	virtual void register_obj(obj_desc_t *&/*desc*/) {}
+
 	virtual bool successfully_loaded() const { return true; }
 
 	void register_reader();

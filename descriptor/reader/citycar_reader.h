@@ -15,7 +15,9 @@ class citycar_reader_t : public obj_reader_t
 	OBJ_READER_DEF(citycar_reader_t, obj_citycar, "citycar");
 
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
+
 	bool successfully_loaded() const OVERRIDE;
 
 public:

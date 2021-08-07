@@ -15,7 +15,9 @@ class roadsign_reader_t : public obj_reader_t
 	OBJ_READER_DEF(roadsign_reader_t, obj_roadsign, "roadsign");
 
 protected:
+	/// @copydoc obj_reader_t::register_obj
 	void register_obj(obj_desc_t*&) OVERRIDE;
+
 	bool successfully_loaded() const OVERRIDE;
 
 public:
