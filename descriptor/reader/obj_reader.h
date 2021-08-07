@@ -111,6 +111,8 @@ protected:
 	/// Register descriptor so the object described by the descriptor can be built in-game.
 	virtual void register_obj(obj_desc_t *&/*desc*/) {}
 
+	/// Does post-loading checks.
+	/// @returns true if everything ok
 	virtual bool successfully_loaded() const { return true; }
 
 	void register_reader();

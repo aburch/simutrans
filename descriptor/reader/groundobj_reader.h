@@ -15,10 +15,11 @@ class groundobj_reader_t : public obj_reader_t
 	OBJ_READER_DEF(groundobj_reader_t, obj_groundobj, "groundobj");
 
 protected:
-	bool successfully_loaded() const OVERRIDE;
-
 	/// @copydoc obj_reader_t::register_obj
 	void register_obj(obj_desc_t*&) OVERRIDE;
+
+	/// @copydoc obj_reader_t::successfully_loaded
+	bool successfully_loaded() const OVERRIDE;
 
 public:
 	/// @copydoc obj_reader_t::read_node

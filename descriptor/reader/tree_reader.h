@@ -15,6 +15,7 @@ class tree_reader_t : public obj_reader_t
 	OBJ_READER_DEF(tree_reader_t, obj_tree, "tree");
 
 protected:
+	/// @copydoc obj_reader_t::successfully_loaded
 	bool successfully_loaded() const OVERRIDE;
 
 	/// @copydoc obj_reader_t::register_obj

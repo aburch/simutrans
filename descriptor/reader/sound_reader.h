@@ -19,6 +19,7 @@ protected:
 	void register_obj(obj_desc_t *&desc) OVERRIDE;
 
 public:
+	/// @copydoc obj_reader_t::read_node
 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
 
