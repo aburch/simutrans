@@ -59,13 +59,15 @@ halt_list_stats_t::halt_list_stats_t(halthandle_t h)
 	gotopos.set_targetpos3d(halt->get_basis_pos3d());
 	add_component(&gotopos);
 
-	add_table(2,1);
+	add_table(3,1);
 	{
 		add_component(&label_name);
 		label_name.buf().append(halt->get_name());
 		label_name.update();
 
 		img_types = new_component<gui_halt_type_images_t>(halt);
+
+		add_component(&label_capacity);
 	}
 	end_table();
 
@@ -111,6 +113,9 @@ void halt_list_stats_t::draw(scr_coord offset)
 	label_name.update();
 	label_name.set_color(halt->get_status_farbe());
 	label_name.set_shadow(SYSCOL_TEXT,true);
+
+	label_name.buf().clear();
+	label_capacity.buf().printf( translator::translate( "Halt capacity %d|%d|%d" ), halt->get_capacity( 0 ), halt->get_capacity( 1 ), halt->get_capacity( 2 ) );
 
 	halt->get_short_freight_info( label_cargo.buf() );
 	label_cargo.update();
