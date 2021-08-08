@@ -175,7 +175,12 @@ void convoi_detail_t::update_labels()
 	label_odometer.update();
 	label_power.buf().printf( translator::translate("Leistung: %d kW"), cnv->get_sum_power() );
 	label_power.update();
-	label_length.buf().printf("%s %i %s %i", translator::translate("Vehicle count:"), cnv->get_vehicle_count(), translator::translate("Station tiles:"), cnv->get_tile_length());
+	if( cnv->get_vehicle_count()>0  &&  cnv->get_vehikel( 0 )->get_desc()->get_waytype()==water_wt ) {
+		label_length.buf().printf( "%s %i", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count() );
+	}
+	else {
+		label_length.buf().printf( "%s %i %s %i", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count(), translator::translate( "Station tiles:" ), cnv->get_tile_length() );
+	}
 	label_length.update();
 	label_resale.buf().printf("%s ", translator::translate("Restwert:"));
 	label_resale.buf().append_money( cnv->calc_restwert() / 100.0 );
