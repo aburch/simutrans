@@ -53,11 +53,11 @@ void gui_tab_panel_t::set_size(scr_size size)
 	FOR(slist_tpl<tab>, & i, tabs) {
 		i.x_offset = required_size.w - 4;
 		if( i.title ) {
-			i.width = D_H_SPACE + proportional_string_width( i.title );
+			i.width = D_H_SPACE*2 + proportional_string_width( i.title );
 			required_size.h = max( required_size.h, LINESPACE + D_V_SPACE );
 		}
 		else if( i.img ) {
-			i.width = 2 + i.img->get_pic()->w;
+			i.width = max( 2 + i.img->get_pic()->w, D_H_SPACE*2+IMG_WIDTH );;
 			required_size.h = max( required_size.h, i.img->get_pic()->h + D_V_SPACE );
 		}
 		else {
@@ -214,7 +214,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				display_vline_wh_clip_rgb(text_x+iter.width-1, ypos+3, required_size.h-4, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip_rgb(text_x+D_H_SPACE/2, text_y+2, text, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip_rgb(text_x+D_H_SPACE, text_y+2, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + required_size.h / 2 - iter.img->get_pic()->h / 2 + 1;
@@ -231,7 +231,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				display_vline_wh_clip_rgb(text_x+iter.width-1, ypos+1, required_size.h-2, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip_rgb(text_x+D_H_SPACE/2, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+					display_proportional_clip_rgb(text_x+D_H_SPACE, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + required_size.h / 2 - iter.img->get_pic()->h / 2 - 1;
