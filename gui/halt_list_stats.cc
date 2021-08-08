@@ -114,7 +114,7 @@ void halt_list_stats_t::draw(scr_coord offset)
 	label_name.set_color(halt->get_status_farbe());
 	label_name.set_shadow(SYSCOL_TEXT,true);
 
-	label_name.buf().clear();
+	label_capacity.buf().clear();
 	label_capacity.buf().printf( translator::translate( "Halt capacity %d|%d|%d" ), halt->get_capacity( 0 ), halt->get_capacity( 1 ), halt->get_capacity( 2 ) );
 
 	halt->get_short_freight_info( label_cargo.buf() );
