@@ -2368,7 +2368,8 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 					buf.append(", ");
 				}
 
-				buf.printf("%d%s %s", summe, translator::translate(wtyp->get_mass()), translator::translate(wtyp->get_name()));
+				int max = get_capacity( i>2?2:i );
+				buf.printf("%d(%d)%s %s", summe, max, translator::translate(wtyp->get_mass()), translator::translate(wtyp->get_name()));
 
 				got_one = true;
 			}

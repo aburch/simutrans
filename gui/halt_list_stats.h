@@ -26,7 +26,7 @@ private:
 	halthandle_t halt;
 
 public:
-	gui_label_buf_t label_name, label_cargo, label_capacity;
+	gui_label_buf_t label_name, label_cargo;
 	gui_image_t img_enabled[3];
 	gui_halt_type_images_t *img_types;
 	gui_colorbox_t indicator;
