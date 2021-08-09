@@ -815,6 +815,16 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 				}
 				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 				if(  next_halt.is_bound()  ) {
+					if( cnv->get_schedule()->get_current_entry().get_absolute_departures() ) {
+						delta_t = cnv->get_departure_ticks( welt->get_ticks()+delta_t )-welt->get_ticks();
+					}
+					else if( cnv->get_schedule()->get_current_entry().waiting_time > 0 ) {
+						// waiting for load with max time
+						delta_t += cnv->get_schedule()->get_current_entry().get_waiting_ticks();
+					}
+					else {
+						delta_t += 2000;
+					}
 					dest_info_t next( next_halt, delta_t+2000, cnv );
 					destinations.insert_ordered( next, compare_hi );
 				}

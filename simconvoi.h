@@ -385,7 +385,9 @@ private:
 public:
 	uint32 get_arrival_ticks() const { return arrived_time; }
 
-	uint32 get_departure_ticks() const;
+	uint32 get_departure_ticks(uint32) const;
+
+	uint32 get_departure_ticks() const { return get_departure_ticks(arrived_time); }
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht

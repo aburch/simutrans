@@ -2855,11 +2855,11 @@ void convoi_t::calc_gewinn()
 
 
 
-uint32 convoi_t::get_departure_ticks() const
+uint32 convoi_t::get_departure_ticks(uint32 ticks_at_arrival) const
 {
 	// we need to make it this complicated, otherwise times versus the end of a month could be missed
-	uint32 arrived_month_tick = arrived_time & ~(welt->ticks_per_world_month - 1);
-	uint32 arrived_ticks = arrived_time - arrived_month_tick;
+	uint32 arrived_month_tick = ticks_at_arrival & ~(welt->ticks_per_world_month - 1);
+	uint32 arrived_ticks = ticks_at_arrival - arrived_month_tick;
 	uint32 delta = schedule->get_current_entry().get_absolute_departures();
 	uint32 departure_ticks = schedule->get_current_entry().get_waiting_ticks();
 
