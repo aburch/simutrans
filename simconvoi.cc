@@ -1182,10 +1182,15 @@ void convoi_t::step()
 		check_pending_updates();
 	}
 
+	if( state==LOADING ) {
+		// handled seperately, since otherwise departues are delayed
+		laden();
+	}
+
 	switch(state) {
 
 		case LOADING:
-			laden();
+			// handled above
 			break;
 
 		case DUMMY4:

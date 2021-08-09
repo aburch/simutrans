@@ -62,6 +62,8 @@ class gui_departure_board_t : public gui_aligned_container_t
 	vector_tpl<dest_info_t> destinations;
 	vector_tpl<dest_info_t> origins;
 
+	static button_t absolute_times;
+
 	uint32 calc_ticks_until_arrival( convoihandle_t cnv );
 
 	void insert_image(convoihandle_t cnv);
@@ -75,12 +77,17 @@ public:
 	{
 		next_refresh = -1;
 		set_table_layout(3,0);
+		add_component( &absolute_times );
+		absolute_times.init( button_t::square_automatic, "Absolute times" );
 	}
 
 	void update_departures(halthandle_t halt);
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
+
+button_t gui_departure_board_t::absolute_times;
+
 
 // all connections
 class gui_halt_detail_t : public gui_aligned_container_t
@@ -858,6 +865,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 
 	// fill the board
 	remove_all();
+	add_component( &absolute_times,3 );
 	slist_tpl<halthandle_t> exclude;
 	if(  destinations.get_count()>0  ) {
 		new_component_span<gui_label_t>("Departures to\n", 3);
@@ -869,7 +877,12 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 					lb->buf().append( translator::translate( "now" ) );
 				}
 				else {
-					lb->buf().printf("%s", difftick_to_string( hi.delta_ticks, true ) );
+					if( absolute_times.pressed ) {
+						lb->buf().printf( "%s", tick_to_string( welt->get_ticks()+hi.delta_ticks, true ) );
+					}
+					else {
+						lb->buf().printf( "%s", difftick_to_string( hi.delta_ticks, true ) );
+					}
 				}
 				lb->update();
 				insert_image(hi.cnv);
@@ -890,7 +903,12 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 					lb->buf().append( translator::translate( "now" ) );
 				}
 				else {
-					lb->buf().printf("%s", difftick_to_string( hi.delta_ticks, true ) );
+					if( absolute_times.pressed ) {
+						lb->buf().printf( "%s", tick_to_string( welt->get_ticks()+hi.delta_ticks, true ) );
+					}
+					else {
+						lb->buf().printf( "%s", difftick_to_string( hi.delta_ticks, true ) );
+					}
 				}
 				lb->update();
 
