@@ -33,7 +33,7 @@ public:
 	/**
 	 * Wait for % load at this stops
 	 * (ignored on waypoints)
-	 * If this value is greater than 100, waiting_time_shift contains a departure time
+	 * If this value is greater than 100, waiting_time_shift contains the first departure time, for 100-minimum loading times per month
 	 */
 	uint8 minimum_loading;
 
@@ -50,7 +50,7 @@ public:
 	}
 
 	// true if this is an absolute dparture time and not maximum waiting time
-	bool is_absolute_departure() const { return minimum_loading >= 100; }
+	uint8 get_absolute_departures() const { return minimum_loading > 100 ? minimum_loading - 100 : 0; }
 };
 
 inline bool operator ==(const schedule_entry_t &a, const schedule_entry_t &b)

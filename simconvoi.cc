@@ -2860,14 +2860,18 @@ uint32 convoi_t::get_departure_ticks() const
 	// we need to make it this complicated, otherwise times versus the end of a month could be missed
 	uint32 arrived_month_tick = arrived_time & ~(welt->ticks_per_world_month - 1);
 	uint32 arrived_ticks = arrived_time - arrived_month_tick;
+	uint32 delta = schedule->get_current_entry().get_absolute_departures();
 	uint32 departure_ticks = schedule->get_current_entry().get_waiting_ticks();
-	// if there is less than half a month to wait we will assume we arrived early, else we this we are late ...
-	if (arrived_ticks > departure_ticks &&  // we are late
-		(arrived_ticks - departure_ticks) > (welt->ticks_per_world_month / 2)) {
-		// but we are more than half a month later => assume the departure is scheduled for next month
-		arrived_month_tick += welt->ticks_per_world_month;
+
+	// there could be more than one departure per month => find the next one
+	for( uint i = 0; i<delta; i++ ) {
+		uint32 next_depature_slot = departure_ticks + (i*(welt->ticks_per_world_month/delta));
+		if( next_depature_slot > arrived_ticks ) {
+			return arrived_month_tick+next_depature_slot;
+		}
 	}
-	return arrived_month_tick + departure_ticks;
+	// nothing there => depart slot is first one in next month
+	return arrived_month_tick+welt->ticks_per_world_month+departure_ticks;
 }
 
 
@@ -3063,7 +3067,7 @@ station_tile_search_ready: ;
 	}
 
 	// find out if there is a times departure pending => depart
-	if(  schedule->get_current_entry().minimum_loading == 0  &&  schedule->get_current_entry().waiting_time > 0  ) {
+	if(  schedule->get_current_entry().get_absolute_departures()  ) {
 
 		if(  welt->get_ticks() > get_departure_ticks()  ) {
 

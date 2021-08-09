@@ -76,19 +76,10 @@ public:
 		down.init( button_t::arrowdown, "" );
 		down.add_listener( this );
 
-		if(  n > 0  &&  e.is_absolute_departure()  &&  f->entries[n-1].pos == e.pos  ) {
-			// this is part of a departure group, so we cannot move this entry up or down
-			new_component<gui_empty_t>(&arrow);
-			add_component(&stop);
-			new_component<gui_empty_t>(&up);
-			new_component<gui_empty_t>(&down);
-		}
-		else {
-			add_component(&arrow);
-			add_component(&stop);
-			add_component(&up);
-			add_component(&down);
-		}
+		add_component(&arrow);
+		add_component(&stop);
+		add_component(&up);
+		add_component(&down);
 
 		del.init( button_t::imagebox, NULL );
 		del.set_image( skinverwaltung_t::gadget->get_image_id(SKIN_GADGET_CLOSE) );
@@ -109,7 +100,7 @@ public:
 		schedule_t::gimme_stop_name(stop.buf(), welt, player, entry, -1);
 		stop.update();
 		if(  haltestelle_t::get_halt( entry.pos, player ).is_bound()  ) {
-			if(  entry.minimum_loading > 0  &&  entry.minimum_loading <= 100  ) {
+			if(  !entry.get_absolute_departures()  ) {
 				if( entry.waiting_time > 0 ) {
 					// relative waiting time
 					stop_extra.buf().printf( "(%d%% %s%s)", (int)entry.minimum_loading, translator::translate( "in " ), difftick_to_string( entry.get_waiting_ticks(), false ) );
@@ -118,13 +109,16 @@ public:
 					stop_extra.buf().printf( "(%i%%)", entry.minimum_loading );
 				}
 			}
-			else if(  entry.minimum_loading == 0  &&  entry.waiting_time > 0  ) {
-				// absolute departure time
-				stop_extra.buf().append( translator::translate( "on the " ) );
-				stop_extra.buf().append( tick_to_string( entry.get_waiting_ticks(), true ) );
-			}
 			else {
-				stop_extra.buf().clear();
+				// absolute departure time
+				uint16 i = 0;
+				uint32 starttick = entry.get_waiting_ticks();
+				uint32 delta = welt->ticks_per_world_month/entry.get_absolute_departures();
+				stop_extra.buf().append( tick_to_string( starttick, true ) );
+				while( ++i < entry.get_absolute_departures() ) {
+					stop_extra.buf().append( ", " );
+					stop_extra.buf().append( tick_to_string( starttick+i*delta, true ) );
+				}
 			}
 		}
 		stop_extra.update();
@@ -363,7 +357,6 @@ void gui_schedule_t::highlight_schedule( bool hl )
 }
 
 gui_schedule_t::gui_schedule_t() :
-	lb_wait( "Full load" ),
 	stats( new schedule_gui_stats_t() ),
 	scrolly( stats ),
 	departure( NULL )
@@ -378,12 +371,12 @@ gui_schedule_t::gui_schedule_t() :
 	loading_details = add_table( 4, 1 );
 	loading_details->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
-		add_component(&lb_wait);
+		add_component(&cb_wait);
+		cb_wait.add_listener( this );
+		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Full load" ), SYSCOL_TEXT );
+		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Monthly departures" ), SYSCOL_TEXT );
 
 		numimp_load.set_width( 60 );
-		numimp_load.set_value( 0 );
-		numimp_load.set_limits( 0, 100 );
-		numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 
@@ -392,6 +385,8 @@ gui_schedule_t::gui_schedule_t() :
 		departure.set_rigid(true);
 		departure.add_listener(this);
 		add_component(&departure);
+
+		new_component<gui_fill_t>();
 	}
 	end_table();
 
@@ -515,7 +510,7 @@ void gui_schedule_t::update_tool(bool set)
 void gui_schedule_t::update_selection()
 {
 	// set all elements invisible first
-	lb_wait.set_visible(false);
+	cb_wait.set_visible(false);
 	numimp_load.set_visible(false);
 	departure.set_visible(false);
 	lb_departure_time.set_visible(false);
@@ -527,13 +522,29 @@ void gui_schedule_t::update_selection()
 
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 
-			lb_wait.set_visible(true);
-			lb_departure_time.set_visible(true);
-			lb_departure_time.set_text(schedule->entries[current_stop].minimum_loading > 0 ? "Depart after" : "Depart on");
-			numimp_load.set_visible(true);
-			numimp_load.set_value( schedule->entries[ current_stop ].minimum_loading );
-			departure.set_visible(true);
-			departure.set_ticks( schedule->entries[ current_stop ].waiting_time, schedule->entries[current_stop].minimum_loading == 0 );
+			cb_wait.set_visible(true);
+			if( schedule->entries[current_stop].get_absolute_departures() ) {
+				cb_wait.set_selection( 1 );
+				numimp_load.set_visible( true );
+				numimp_load.set_value( schedule->entries[current_stop].get_absolute_departures() );
+				numimp_load.set_limits( 1, 100 );
+				numimp_load.set_increment_mode( 1 );
+				lb_departure_time.set_visible( true );
+				lb_departure_time.set_text( "on the " );
+				departure.set_visible( true );
+				departure.set_ticks( schedule->entries[current_stop].waiting_time, true);
+			}
+			else {
+				cb_wait.set_selection( 0 );
+				numimp_load.set_visible( true );
+				numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
+				numimp_load.set_limits( 0, 100 );
+				numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
+				lb_departure_time.set_text( "Depart after" );
+				lb_departure_time.set_visible( true );
+				departure.set_visible( true );
+				departure.set_ticks( schedule->entries[current_stop].waiting_time, false );
+			}
 		}
 		else {
 			// waypoint
@@ -560,15 +571,39 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		v.p = NULL;
 		call_listeners(v);
 	}
-	else if(comp == &numimp_load) {
+	else if( comp == &cb_wait) {
+		if(  p.i==1  &&  schedule->entries[schedule->get_current_stop()].get_absolute_departures()==0  ) {
+			// absolute departure mode
+			schedule->entries[schedule->get_current_stop()].minimum_loading = 101;
+		}
+		if(  p.i==0  &&  schedule->entries[schedule->get_current_stop()].get_absolute_departures()  ) {
+			schedule->entries[schedule->get_current_stop()].minimum_loading = 0;
+		}
+		update_selection();
+	}
+	else if( comp == &numimp_load ) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_current_stop()].minimum_loading = (uint8)p.i;
+			if( schedule->entries[schedule->get_current_stop()].minimum_loading <=100 ) {
+				schedule->entries[schedule->get_current_stop()].minimum_loading = min( (uint8)p.i, 100 );
+			}
+			else {
+				schedule->entries[schedule->get_current_stop()].minimum_loading = max( 101, (uint8)p.i+100 );
+				// clip waiting time to 1/nth of the month
+				if( schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100) ) {
+					schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100);
+				}
+			}
 			update_selection();
 		}
 	}
 	else if(comp == &departure) {
 		if(!schedule->empty()) {
 			schedule->entries[schedule->get_current_stop()].waiting_time = (uint16)p.i;
+			// clip waiting time to 1/nth of the month if absolute departure time
+			uint16 wt = schedule->entries[schedule->get_current_stop()].minimum_loading;
+			if( wt>100  &&  schedule->entries[schedule->get_current_stop()].waiting_time>65535/(wt-100) ) {
+				schedule->entries[schedule->get_current_stop()].waiting_time = 65535/(wt-100);
+			}
 			update_selection();
 		}
 	}
@@ -626,7 +661,7 @@ void gui_schedule_t::draw(scr_coord pos)
 		}
 		bt_revert.enable( !is_all_same &&  is_allowed );
 
-		departure_or_load.enable( is_allowed );
+		cb_wait.enable( is_allowed );
 		numimp_load.enable( is_allowed );
 		departure.enable( is_allowed );
 		bt_return.enable( is_allowed );

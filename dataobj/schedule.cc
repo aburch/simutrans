@@ -197,52 +197,19 @@ void schedule_t::move_entry_forward( uint8 cur )
 	if( entries.get_count() <= 2 ) {
 		return;
 	}
-	// check if we are part of a departure group
-	uint8 cur_end = cur;
-	while(  entries[cur].is_absolute_departure()  &&  cur > 0  ) {
-		if(  entries[cur-1].is_absolute_departure()  ||  entries[cur-1].pos != entries[cur].pos  ) {
-			break;
-		}
-		cur--;
-	}
-	while(  entries[cur_end].is_absolute_departure()  &&  cur_end < entries.get_count()  ) {
-		if(  !entries[cur_end+1].is_absolute_departure()  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
-			break;
-		}
-		cur_end++;
-	}
-	// now we have the actual start: still something to do?
-	if(  cur == 0  &&  cur_end == entries.get_count()  ) {
-		// no, just a single entry
-		return;
-	}
-	sint16 delta = 0;
-	if( cur == 0 ) {
+	// not last entry
+	if( cur < entries.get_count()-1 ) {
 		// just append everything
-		for(  uint8 i=0;  i <= cur_end;  i++  ) {
-			entries.append( entries[ 0 ] );
-			entries.remove_at( 0 );
-		}
-		delta = entries.get_count() - 1 - cur_end;
+		entries.insert_at( cur+2, entries[ cur ] );
+		entries.remove_at( cur+1 );
 	}
 	else {
-		// find the entry point
-		uint8 new_cur = (cur + entries.get_count() - 1) % entries.get_count();
-		while(  entries[new_cur].is_absolute_departure()  &&  new_cur > 0  ) {
-			if(  !entries[new_cur-1].is_absolute_departure()  ||  entries[new_cur-1].pos != entries[new_cur].pos  ) {
-				break;
-			}
-			new_cur--;
-		}
-		// now move all old and insert at new position
-		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
-			entries.insert_at( new_cur, entries[ cur+i ] );
-			entries.remove_at( cur+i+1 );
-		}
-		delta = (sint16)new_cur - cur;
+		// last entry, just append everything
+		entries.insert_at( 0, entries[cur] );
+		entries.remove_at( cur+1 );
 	}
 
-	current_stop = (current_stop + delta) % entries.get_count();
+	current_stop = (current_stop + 1) % entries.get_count();
 	make_current_stop_valid();
 }
 
@@ -253,53 +220,19 @@ void schedule_t::move_entry_backward( uint8 cur )
 	if( entries.get_count() <= 2 ) {
 		return;
 	}
-	// check if we are part of a departure group
-	uint8 cur_end = cur;
-	while(  entries[cur].is_absolute_departure()  &&  cur > 0  ) {
-		if(  !entries[cur-1].is_absolute_departure()  ||  entries[cur-1].pos != entries[cur].pos  ) {
-			break;
-		}
-		cur--;
-	}
-	while(  entries[cur_end].is_absolute_departure()  &&  cur_end < entries.get_count()  ) {
-		if(  !entries[cur_end+1].is_absolute_departure()  ||  entries[cur_end+1].pos != entries[cur_end].pos  ) {
-			break;
-		}
-		cur_end++;
-	}
-	// now we have the actual start: still something to do?
-	if(  cur == 0  &&  cur_end == entries.get_count()  ) {
-		// no, just a single entry
-		return;
-	}
 
-	// find the entry point
-	uint8 new_cur = (cur_end + 1) % entries.get_count();
-	while(  entries[new_cur].is_absolute_departure()  &&  new_cur <= entries.get_count()  ) {
-		if(  !entries[new_cur+1].is_absolute_departure()  ||  entries[new_cur+1].pos != entries[new_cur].pos  ) {
-			break;
-		}
-		new_cur++;
-	}
-
-	sint16 delta = (new_cur - (sint16)cur);
-
-	if(  new_cur+1 > entries.get_count()  ||  new_cur == 0  ) {
-		// insert at front
-		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
-			entries.insert_at( 0, entries[ cur_end-i ] );
-			entries.remove_at( cur_end-i+1 );
-		}
+	if( cur==0 ) {
+		//first entry
+		entries.append( entries[0] );
+		entries.remove_at( 0 );
 	}
 	else {
 		// now move all to new position afterwards
-		for(  uint8 i=0;  i <= cur_end-cur;  i++  ) {
-			entries.insert_at( new_cur+1-i, entries[ cur_end-i ] );
-			entries.remove_at( cur_end-i );
-		}
+		entries.insert_at( cur-1, entries[ cur ] );
+		entries.remove_at( cur+1 );
 	}
 
-	current_stop = (current_stop + delta) % entries.get_count();
+	current_stop = (current_stop + entries.get_count() - 1 ) % entries.get_count();
 	make_current_stop_valid();
 }
 
@@ -615,9 +548,6 @@ void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* 
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
 	if(halt.is_bound()) {
-		if (entry.minimum_loading != 0  &&  max_chars <= 0) {
-			buf.printf("%d%% ", entry.minimum_loading);
-		}
 		p = halt->get_name();
 	}
 	else {

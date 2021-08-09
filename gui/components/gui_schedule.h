@@ -42,9 +42,9 @@ private:
 	// always needed
 	button_t bt_revert, bt_return;
 
-	gui_label_t lb_wait, lb_departure_time;
+	gui_label_t lb_departure_time;
 	gui_numberinput_t numimp_load;
-	gui_combobox_t departure_or_load, insert_mode;
+	gui_combobox_t cb_wait, insert_mode;
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;

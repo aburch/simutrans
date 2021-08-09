@@ -764,26 +764,24 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 			continue;
 		}
 		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
-		if(  next_halt.is_bound()  ) {
 
+		if(  next_halt.is_bound()  ) {
 			uint32 delta_ticks = 0;
-			if(  cnv->get_schedule()->get_current_entry().waiting_time > 0  ) {
-				if(  cnv->get_schedule()->get_current_entry().minimum_loading == 0  ) {
-					// absolute schedule
-					delta_ticks = cnv->get_departure_ticks();
-				}
-				else {
-					// waiting for load with max time
-					delta_ticks = cnv->get_arrival_ticks() + cnv->get_schedule()->get_current_entry().get_waiting_ticks();
-				}
-				// avoid overflow when departure time has passed but convoi si still loading etc.
-				uint32 ct = welt->get_ticks();
-				if (ct > delta_ticks) {
-					delta_ticks = 0;
-				}
-				else {
-					delta_ticks -= ct;
-				}
+			if(  cnv->get_schedule()->get_current_entry().get_absolute_departures()  ) {
+				// absolute schedule
+				delta_ticks = cnv->get_departure_ticks();
+			}
+			else if(  cnv->get_schedule()->get_current_entry().waiting_time > 0  ) {
+				// waiting for load with max time
+				delta_ticks = cnv->get_arrival_ticks() + cnv->get_schedule()->get_current_entry().get_waiting_ticks();
+			}
+			// avoid overflow when departure time has passed but convoi is still loading etc.
+			uint32 ct = welt->get_ticks();
+			if (ct > delta_ticks) {
+				delta_ticks = 0;
+			}
+			else {
+				delta_ticks -= ct;
 			}
 			dest_info_t next( next_halt, delta_ticks, cnv );
 			destinations.append_unique( next );
