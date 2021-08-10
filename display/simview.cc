@@ -94,11 +94,12 @@ static bool can_multithreading = true;
 
 void main_view_t::display(bool force_dirty)
 {
+	const uint32 rs = get_random_seed();
+
 #if COLOUR_DEPTH != 0
 	DBG_DEBUG4("main_view_t::display", "starting ...");
 	display_set_image_proc(true);
 
-	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
 	const sint16 IMG_SIZE = get_tile_raster_width();
@@ -354,6 +355,7 @@ void main_view_t::display(bool force_dirty)
 
 #else
 	(void)force_dirty;
+	(void)rs;
 #endif
 }
 
