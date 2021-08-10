@@ -9,10 +9,6 @@
 
 #include "simcolor.h"
 
-// Max Kielland
-// Classic helper macro to transform a #define value into a "string"
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
 
 // For test purposes themes can be disabled or an alternative theme.tab file can be used.
 //  -1 = No theme, use internal fallback
