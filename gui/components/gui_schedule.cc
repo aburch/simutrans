@@ -527,7 +527,7 @@ void gui_schedule_t::update_selection()
 				cb_wait.set_selection( 1 );
 				numimp_load.set_visible( true );
 				numimp_load.set_value( schedule->entries[current_stop].get_absolute_departures() );
-				numimp_load.set_limits( 1, 100 );
+				numimp_load.set_limits( 1, 154 );
 				numimp_load.set_increment_mode( 1 );
 				lb_departure_time.set_visible( true );
 				lb_departure_time.set_text( "on the " );
@@ -587,7 +587,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				schedule->entries[schedule->get_current_stop()].minimum_loading = min( (uint8)p.i, 100 );
 			}
 			else {
-				schedule->entries[schedule->get_current_stop()].minimum_loading = max( 101, (uint8)p.i+100 );
+				schedule->entries[schedule->get_current_stop()].minimum_loading = max( 101, min(255,(uint8)p.i+100) );
 				// clip waiting time to 1/nth of the month
 				if( schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100) ) {
 					schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100);
