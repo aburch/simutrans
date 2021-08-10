@@ -2973,7 +2973,7 @@ station_tile_search_ready: ;
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
 	unloading_state = true;
-	uint32 time = WTT_LOADING; // min time for loading/unloading
+	uint32 time = 0; // min time for loading/unloading
 	sint64 gewinn = 0;
 
 	uint32 current_tick = welt->get_ticks();
@@ -3066,15 +3066,20 @@ station_tile_search_ready: ;
 	wait_lock = time;
 
 	// if we check here we will continue loading even if the departure is delayed
-	if (wants_more  &&  !welt->get_settings().get_departures_on_time()  ) {
+	if (wants_more  &&  !welt->get_settings().get_departures_on_time()) {
 		// not yet fully unloaded/loaded
+		if( time == 0 ) {
+			wait_lock = WTT_LOADING;
+		}
 		return;
 	}
 
 	// find out if there is a times departure pending => depart
 	if(  schedule->get_current_entry().get_absolute_departures()  ) {
 
-		if(  welt->get_ticks() > get_departure_ticks()  ) {
+		uint32 dt = get_departure_ticks();
+		uint32 ct = welt->get_ticks();
+		if(  ct > dt ) {
 
 			// add available capacity after loading(!) to statistics
 			for (unsigned i = 0; i < anz_vehikel; i++) {
@@ -3086,6 +3091,10 @@ station_tile_search_ready: ;
 			state = ROUTING_1;
 			loading_limit = 0;
 			wait_lock = 0;
+		}
+		else if(wait_lock==0) {
+			// no loading time imposed, make sure we do not wait too long if the departure is imminent
+			wait_lock = min( WTT_LOADING, dt-ct );
 		}
 
 		// else continue loading (even if full until departure time reached)
