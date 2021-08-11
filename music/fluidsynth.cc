@@ -174,14 +174,25 @@ bool dr_load_sf(const char * filename){
 }
 
 
+static void fluid_log(int level, const char *message, void *)
+{
+	switch (level) {
+	case FLUID_PANIC: dbg->fatal("FluidSynth", "%s", message);
+	case FLUID_ERR:   dbg->error("FluidSynth", "%s", message);   break;
+	case FLUID_WARN:  dbg->warning("FluidSynth", "%s", message); break;
+	case FLUID_INFO:  dbg->message("FluidSynth", "%s", message); break;
+	case FLUID_DBG:   dbg->debug("FluidSynth", "%s", message);   break;
+	}
+}
+
+
 bool dr_init_midi()
 {
-	if(  !(settings = new_fluid_settings())  ) {
-		dbg->warning("dr_init_midi()", "FluidSynth: MIDI settings failed.");
-		return false;
-	}
-	fluid_settings_setint( settings, "synth.cpu-cores", env_t::num_threads );
-	fluid_settings_setstr( settings, "synth.midi-bank-select", "gm" );
+	fluid_set_log_function(FLUID_PANIC, fluid_log, NULL);
+	fluid_set_log_function(FLUID_ERR,   fluid_log, NULL);
+	fluid_set_log_function(FLUID_WARN,  fluid_log, NULL);
+	fluid_set_log_function(FLUID_INFO,  fluid_log, NULL);
+	fluid_set_log_function(FLUID_DBG,   fluid_log, NULL);
 
 #ifdef _WIN32
 	std::string fluidsynth_driver = "dsound";
@@ -197,6 +208,14 @@ bool dr_init_midi()
 		}
 	}
 #endif
+
+	if(  !(settings = new_fluid_settings())  ) {
+		dbg->warning("dr_init_midi()", "FluidSynth: MIDI settings failed.");
+		return false;
+	}
+
+	fluid_settings_setint( settings, "synth.cpu-cores", env_t::num_threads );
+	fluid_settings_setstr( settings, "synth.midi-bank-select", "gm" );
 
 	if(  fluid_settings_setstr( settings, "audio.driver", fluidsynth_driver.c_str() ) != FLUID_OK  ) {
 		dbg->warning("dr_init_midi()", "FluidSynth: Set MIDI driver %s failed.", fluidsynth_driver.c_str());
