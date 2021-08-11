@@ -590,7 +590,7 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				schedule->entries[schedule->get_current_stop()].minimum_loading = max( 101, min(255,(uint8)p.i+100) );
 				// clip waiting time to 1/nth of the month
 				if( schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100) ) {
-					schedule->entries[schedule->get_current_stop()].waiting_time>65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100);
+					schedule->entries[schedule->get_current_stop()].waiting_time=65535/(schedule->entries[schedule->get_current_stop()].minimum_loading-100);
 				}
 			}
 			update_selection();
