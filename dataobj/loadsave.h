@@ -167,8 +167,9 @@ public:
 	// s is a malloc-ed string (will be freed and newly allocated on load time!)
 	void rdwr_str(const char *&s);
 
-	// s is a buf of size given
-	void rdwr_str(char* s, size_t size);
+	/// @p s is a buf of size given
+	/// @p size includes space for the trailing 0
+	void rdwr_str(char *s, size_t size);
 
 	/**
 	 * Read/Write plainstring.

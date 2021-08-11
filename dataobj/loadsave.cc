@@ -36,6 +36,9 @@
 // buffer size for read/write - bzip2 gains up to 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
 #define LS_BUF_SIZE (1 << 20) // 1 MiB
 
+#define LS_MAX_STRING_LEN  (0x7FFF)
+#define LS_STRING_BUF_SIZE (0x8000) // includes the trailing 0
+
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 
@@ -973,7 +976,7 @@ void loadsave_t::rdwr_str(const char *&s)
 	if(!is_xml()) {
 		sint16 size;
 		if(is_saving()) {
-			size = s ? (sint16)min(32767,strlen(s)) : 0;
+			size = s ? (sint16)min(LS_MAX_STRING_LEN,strlen(s)) : 0;
 #ifdef SIM_BIG_ENDIAN
 			{
 				uint16 ii = endian(size);
@@ -1019,8 +1022,8 @@ void loadsave_t::rdwr_str(const char *&s)
 			write( "]]>\n", 4 );
 		}
 		else {
-			char buffer[4096];
-			rdwr_str( buffer, 4096 );
+			char buffer[LS_STRING_BUF_SIZE];
+			rdwr_str( buffer, LS_STRING_BUF_SIZE );
 			if(s) {
 				free(const_cast<char *>(s));
 			}
@@ -1036,7 +1039,7 @@ void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 	if(!is_xml()) {
 		uint16 len;
 		if(is_saving()) {
-			len = (uint16)min(32767,strlen(result_buffer));
+			len = (uint16)min(LS_MAX_STRING_LEN,strlen(result_buffer));
 #ifdef SIM_BIG_ENDIAN
 			{
 				sint16 ii = endian(len);
@@ -1106,7 +1109,7 @@ void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 				}
 			}
 			else {
-				static char temp[32767];
+				static char temp[LS_STRING_BUF_SIZE + 3];
 				char *s = temp;
 				for(  size_t i=0;  i<size+3;  i++  ) {
 					*s++ = lsgetc();
