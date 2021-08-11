@@ -530,7 +530,7 @@ void gui_schedule_t::update_selection()
 				numimp_load.set_limits( 1, 154 );
 				numimp_load.set_increment_mode( 1 );
 				lb_departure_time.set_visible( true );
-				lb_departure_time.set_text( "on the " );
+				lb_departure_time.set_text( "on the" );
 				departure.set_visible( true );
 				departure.set_ticks( schedule->entries[current_stop].waiting_time, true);
 			}
