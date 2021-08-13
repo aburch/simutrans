@@ -237,8 +237,9 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 		hours = ((hours*3) / 8192)%24;
 	}
 	else {
-		hours = (ticks * 24) >> welt_modell->ticks_per_world_month_shift;
-		minuten = ((ticks * 24 * 60) >> welt_modell->ticks_per_world_month_shift) % 60;
+		hours = ((sint64)ticks * 3) >> (welt_modell->ticks_per_world_month_shift-16);
+		minuten = (((hours*3) % 8192)*60)/8192;
+		hours = ((hours*3) / 8192)%24;
 	}
 
 	// maybe round minutes
