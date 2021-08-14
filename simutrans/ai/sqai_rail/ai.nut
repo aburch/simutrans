@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.7.4"
+ai.version <- "0.7.5"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -66,19 +66,14 @@ possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Tr
  */
 function start(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
+	init(pl_nr)
+	// set a funny name
 
 	if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
 		player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
 	}
-	our_player = player_x(our_player_nr)
 
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
-	// set pause by script error
-	debug.set_pause_on_error(true)
-
-	init_tree()
 }
 
 /**
@@ -121,18 +116,23 @@ function init_tree()
  */
 function resume_game(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
-	our_player    = player_x(our_player_nr)
-
-	init_tree()
+	init(pl_nr)
 
 	s = persistent.s
 }
 
-function init()
+function init(pl_nr)
 {
+	debug.set_pause_on_error(true)
+
+	our_player_nr = pl_nr
+	our_player    = player_x(our_player_nr)
+
+	srand(our_player_nr * 4711)
+
 	annotate_classes() // sets class name as attribute for all known classes (save.nut)
+
+	init_tree()
 }
 
 /**
@@ -218,6 +218,31 @@ function save()
 	print("save used " + (toc-tic) + " ops, remaining = " + rem)
 
 	return str
+}
+
+/**
+ * Returns random number rand with 0 <= rand < upper
+ */
+function myrand(upper)
+{
+	if (upper <= 1) {
+		return upper-1
+	}
+	local rem = (RAND_MAX % upper) + 1
+	local r
+	do {
+		r = rand()
+	} while (r > RAND_MAX - rem)
+	return r % upper
+}
+
+/**
+ * Returns ticks for today + @p m months
+ */
+function today_plus_months(m)
+{
+	local time = world.get_time()
+	return time.ticks + m * time.ticks_per_month
 }
 
 /**

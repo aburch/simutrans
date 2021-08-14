@@ -9,6 +9,7 @@ class factorysearcher_t extends manager_t
 	froot = null    // factory_x, complete this tree
 	method = -1
 	factory_iterator = null
+	factory_list     = null
 
 	constructor()
 	{
@@ -33,12 +34,33 @@ class factorysearcher_t extends manager_t
 
 	function factory_iteration()
 	{
-		local list = factory_list_x()
-		foreach(factory in list) {
+		factory_list = []
+		// copy list of end-consumers
+		foreach(factory in factory_list_x()) {
 			if (factory.output.len() == 0) {
-				yield factory
+				factory_list.append(factory)
 			}
 		}
+		// shuffle
+		for(local i=0; i<factory_list.len(); i++) {
+			local j = myrand(factory_list.len())
+			// swap
+			local f = factory_list[i]
+			factory_list[i] = factory_list[j]
+			factory_list[j] = f
+		}
+		// now iterate
+		foreach (factory in factory_list) {
+			yield factory
+		}
+	}
+
+	function _save()
+	{
+		// dont save the list, generate new one
+		factory_iterator = null
+		factory_list     = null
+		return base._save()
 	}
 
 	function work()
@@ -94,20 +116,16 @@ class factorysearcher_t extends manager_t
 		}
 		else {
 			// demand-driven method
-
-			// plan root tree
-			if (froot  &&  plan_increase_consumption(froot) <= 0) {
-				froot = null
+			if (froot == null) {
+				froot = get_next_end_consumer()
 			}
 
-			// determine new root
-			if (froot == null) {
-				local fab
-				if (fab = get_next_end_consumer()) {
-					local n = plan_increase_consumption(fab)
-
-					return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
+			if (froot) {
+				local n = plan_increase_consumption(froot)
+				if (n==0  &&  count_missing_factories(froot) <= 0) {
+					froot = null
 				}
+				return r_t( n>0  ? RT_PARTIAL_SUCCESS : RT_SUCCESS)
 			}
 		}
 		return r_t(RT_SUCCESS)

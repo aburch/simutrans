@@ -37,7 +37,7 @@ class vehicle_constructor_t extends node_t
 					// it should be the last in the list
 					local cnv_list = p_depot.get_convoy_list()
 
-					local trythis = cnv_list[cnv_list.len()-1]
+					local trythis = cnv_list.top()
 					if (check_convoy(trythis)) {
 						c_cnv = trythis
 					}

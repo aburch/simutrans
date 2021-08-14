@@ -53,7 +53,7 @@ class industry_link_t
 	// next check needed if ticks > next_check
 	// state == st_missing: check availability again
 	// state == st_build: check for possible upgrades
-	next_check = 0 // only set for st_missing, next time availability has to be checked
+	next_check = 0 // if world.get_time().ticks > next_check then state is set to free (for state == failed, missing)
 
 	static st_free    = 0 /// not registered
 	static st_planned = 1 /// link is planned
@@ -137,17 +137,20 @@ class industry_manager_t extends manager_t
 			link_list[k] <- l
 		}
 
-		if (state == industry_link_t.st_built) {
-			link_list[k].next_check = world.get_time().next_month_ticks
+		switch(state) {
+			case industry_link_t.st_built:
+				link_list[k].next_check = today_plus_months(1)
 
-			local text = ""
-			text = "Transport " + translate(fre) + " from "
-			text += coord(src.x, src.y).href(src.get_name()) + " to "
-			text += coord(des.x, des.y).href(des.get_name()) + "<br>"
-		}
-
-		if (state == industry_link_t.st_missing) {
-			link_list[k].next_check = world.get_time().next_month_ticks
+				local text = ""
+				text = "Transport " + translate(fre) + " from "
+				text += coord(src.x, src.y).href(src.get_name()) + " to "
+				text += coord(des.x, des.y).href(des.get_name()) + "<br>"
+				break
+			case industry_link_t.st_missing:
+				link_list[k].next_check = today_plus_months(3)
+				break
+			case industry_link_t.st_failed:
+				link_list[k].next_check = today_plus_months(12)
 		}
 	}
 
@@ -206,23 +209,24 @@ class industry_manager_t extends manager_t
 	 * Check link:
 	 * - if state is st_missing set state to st_free after some time
 	 * - for working links see after their lines
-	 * - returns true if some work was done
+	 * - @returns true if some work was done
 	 */
 	function check_link(link)
 	{
 		switch(link.state) {
 			case industry_link_t.st_free:
 			case industry_link_t.st_planned:
-			case industry_link_t.st_failed:
 				return false
 			case industry_link_t.st_built:
 				if (link.lines.len()==0) return false
 				break
+			case industry_link_t.st_failed:
 			case industry_link_t.st_missing:
 				if (link.next_check >= world.get_time().ticks) return false
 				// try to plan again
 				link.state = industry_link_t.st_free
-				break
+				link.next_check = 0
+				return false
 		}
 
 		// iterate through all lines
@@ -250,6 +254,7 @@ class industry_manager_t extends manager_t
 			//::debug.pause(),
 		}
 
+		// check all 5 years ( year xxx0 and xxx5 )
 		mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1000
   	if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
 			// in may
@@ -423,7 +428,9 @@ class industry_manager_t extends manager_t
 		local print_message_box = 0
 
 		dbgprint("Check line " + line.get_name())
-		//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		if ( our_player.nr == 3 && print_message_box == 5 ) {
+			gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+		}
 
 		local line_new = 0
 		if ( line.get_owner().nr == our_player.nr ) {
@@ -568,8 +575,11 @@ class industry_manager_t extends manager_t
 			} else if ( cnv_retired.len() == 1 && cnv_retired.len() == cnv_count ) {
 				//gui.add_message_at(our_player, "*** cnv_upgrade = 1 -> line " + line.get_name(), world.get_time())
 				// create new convoy before retire retired convoy
-				upgrade_link_line(link, line, cnv_max_speed)
-				return
+				link.next_check = today_plus_months(1)
+				if ( upgrade_link_line(link, line, cnv_max_speed) ) {
+					// update successful
+					return
+				}
 			}
 		}
 
@@ -725,12 +735,15 @@ class industry_manager_t extends manager_t
 
 		if (cnv.is_valid() && cnv.is_withdrawn()) {
 			// come back later
+			if ( print_message_box > 0 ) {
+				gui.add_message_at(our_player, "cnv.is_valid() && cnv.is_withdrawn() ", world.get_time())
+			}
 			return
 		}
 
 		// try to upgrade
 /*		if (cnv.has_obsolete_vehicles() &&  link.next_check < world.get_time().ticks) {
-			link.next_check = world.get_time().next_month_ticks
+			link.next_check = today_plus_months(1)
 			if (upgrade_link_line(link, line)) {
 				// update successful
 				gui.add_message_at(our_player, "*** upgrade_link_line -> line " + line.get_name(), world.get_time())
@@ -870,6 +883,9 @@ class industry_manager_t extends manager_t
 		dbgprint("Line:  loading = " + cc_load + ", stopped = " + cc_stop + ", new = " + cc_new + ", empty = " + cc_empty)
 		dbgprint("")
 
+		if ( print_message_box > 0 ) {
+			gui.add_message_at(our_player, "freight_available " + freight_available + " cc_new " + cc_new + " cc_stop " + cc_stop + " cnv.is_valid() " + cnv.is_valid(), world.get_time())
+		}
 		if (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid() ) {
 
 			// stations distance
@@ -987,7 +1003,7 @@ class industry_manager_t extends manager_t
 
 				local wt = cnv.get_waytype()
 
-				if ( print_message_box == 1 ) {
+				if ( print_message_box >= 1 ) {
 					gui.add_message_at(our_player, "###---- check convoys line : " + line.get_name(), world.get_time())
 				}
 
@@ -1439,7 +1455,10 @@ function check_good_quantity(start_l, end_l, good, line) {
 				//gui.add_message_at(our_player, "*** good halt src " + good_src + " " + line.get_name(), world.get_time())
 				//gui.add_message_at(our_player, "*** islot.good " + translate(islot.good) + " factory " + f_dest[0].get_name() + " input storage [" + max_storage + "]", world.get_time())
 
-				if ( (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) || it[0] > max_storage ) {
+				if ( st[0] < (max_storage/10) ) {
+					return false
+				} else if ( (st[0] + it[0] > max_storage && (max_storage/5) < st[0]) || it[0] > max_storage ) {
+					//
 					//gui.add_message_at(our_player, "*** good quantity [" + (st[0] + it[0]) + "] > factory " + f_dest[0].get_name() + " input storage [" + max_storage + "] " + line.get_name(), world.get_time())
 					return true
 

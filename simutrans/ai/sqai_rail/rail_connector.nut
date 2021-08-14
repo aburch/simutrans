@@ -117,7 +117,9 @@ class rail_connector_t extends manager_t
 						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {
 							err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
-							gui.add_message_at(pl, "check_station " + err, t_start[0])
+							if ( err == false ) {
+								gui.add_message_at(pl, "check_station " + err, t_start[0])
+							}
 							if ( err == true ) {
 								// station start ok
 								err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
@@ -608,7 +610,7 @@ class depot_pathfinder extends astar_builder
 					return { err =  err }
 				}
 			}
-			return { start = route[ route.len()-1], end = route[0] }
+			return { start = route.top(), end = route[0] }
 		}
 		print("No route found")
 		return { err =  "No route" }
