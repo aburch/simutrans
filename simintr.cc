@@ -231,13 +231,25 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 	}
 
 	uint32 hours, minuten;
-	if (env_t::show_month > env_t::DATE_FMT_MONTH) {
-		hours = (((sint64)ticks*31) >> (welt_modell->ticks_per_world_month_shift-16));
+	if( env_t::show_month > env_t::DATE_FMT_MONTH ) {
+		if( welt_modell->ticks_per_world_month_shift>=16 ) {
+			hours = (((sint64)ticks*31) >> (welt_modell->ticks_per_world_month_shift-16));
+		}
+		else {
+			hours = (((sint64)ticks*31) << (16-welt_modell->ticks_per_world_month_shift));
+		}
 		minuten = (((hours*3) % 8192)*60)/8192;
 		hours = ((hours*3) / 8192)%24;
 	}
 	else {
-		hours = ((sint64)ticks * 3) >> (welt_modell->ticks_per_world_month_shift-16);
+		if( welt_modell->ticks_per_world_month_shift>=16 ) {
+			uint32 precision = round_to_quaters ? 0 : 15;
+			hours = (((sint64)ticks * 3) >> (welt_modell->ticks_per_world_month_shift-16)) + precision;
+		}
+		else {
+			uint32 precision = round_to_quaters ? 0 : 15 >> (16-welt_modell->ticks_per_world_month_shift);
+			hours = (((sint64)ticks * 3) << (16-welt_modell->ticks_per_world_month_shift)) + precision;
+		}
 		minuten = (((hours*3) % 8192)*60)/8192;
 		hours = ((hours*3) / 8192)%24;
 	}
