@@ -378,7 +378,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 	const int const_x_off = viewport->get_x_off();
 	const int const_y_off = viewport->get_y_off();
 
-	const int dpy_width = wh.x / IMG_SIZE + 2;
+	const int dpy_width = display_get_width() / IMG_SIZE + 2;
 
 	// to save calls to grund_t::get_disp_height
 	const sint8 hmax_ground = (grund_t::underground_mode == grund_t::ugm_level) ? grund_t::underground_level : 127;
