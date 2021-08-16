@@ -291,16 +291,10 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 	switch(env_t::show_month) {
 	case env_t::DATE_FMT_GERMAN:
 	case env_t::DATE_FMT_GERMAN_NO_SEASON:
-		sprintf(time, "%s%2d:%02dh", days, hours, minuten);
-		break;
-
 	case env_t::DATE_FMT_US:
 	case env_t::DATE_FMT_US_NO_SEASON: {
-		uint32 hours_ = hours % 12;
-		if (hours_ == 0) hours_ = 12;
-		sprintf(time, "%s%2d:%02d%s", days, hours_, minuten, hours < 12 ? "am" : "pm");
+		sprintf(time, "%s%2d:%02dh", days, hours, minuten);
 		break;
-	}
 
 	case env_t::DATE_FMT_JAPANESE:
 	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
