@@ -1270,6 +1270,10 @@ int simu_main(int argc, char** argv)
 		if(  !translator::set_language( dr_get_locale()  ) ) {
 			ask_language();
 		}
+		else {
+			// init with matching font
+			sprachengui_t::init_font_from_lang( true );
+		}
 	}
 
 	bool new_world = true;

@@ -804,8 +804,8 @@ const char* dr_get_locale()
 	}
 #elif defined(_WIN32)
 	GetLocaleInfoA( GetUserDefaultUILanguage(), LOCALE_SISO639LANGNAME, LanguageCode, lengthof( LanguageCode ) );
-	return LanguageCode;
 #endif
+	DBG_MESSAGE( "dr_get_locale()", "%2s", LanguageCode );
 	return LanguageCode;
 }
 
