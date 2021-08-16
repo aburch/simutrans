@@ -292,7 +292,7 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 	case env_t::DATE_FMT_GERMAN:
 	case env_t::DATE_FMT_GERMAN_NO_SEASON:
 	case env_t::DATE_FMT_US:
-	case env_t::DATE_FMT_US_NO_SEASON: {
+	case env_t::DATE_FMT_US_NO_SEASON:
 		sprintf(time, "%s%2d:%02dh", days, hours, minuten);
 		break;
 
