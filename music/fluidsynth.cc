@@ -173,7 +173,7 @@ bool dr_load_sf(const char * filename){
 	return false;
 }
 
-
+#ifndef __ANDROID__
 static void fluid_log(int level, const char *message, void *)
 {
 	switch (level) {
@@ -184,15 +184,32 @@ static void fluid_log(int level, const char *message, void *)
 	case FLUID_DBG:   dbg->debug("FluidSynth", "%s", message);   break;
 	}
 }
+#endif
 
 
 bool dr_init_midi()
 {
+#ifdef __ANDROID__
+	if( !(settings = new_fluid_settings()) ) {
+		dbg->warning( "dr_init_midi()", "FluidSynth: MIDI settings failed." );
+		return false;
+	}
+
+	std::string fluidsynth_driver = "sdl2";
+
+	if( !SDL_WasInit( SDL_INIT_AUDIO ) ) {
+		if( SDL_InitSubSystem( SDL_INIT_AUDIO ) != 0 ) {
+			dbg->warning( "dr_init_midi()", "FluidSynth: SDL_INIT_AUDIO failed." );
+			return false;
+		}
+	}
+#else
 	fluid_set_log_function(FLUID_PANIC, fluid_log, NULL);
 	fluid_set_log_function(FLUID_ERR,   fluid_log, NULL);
 	fluid_set_log_function(FLUID_WARN,  fluid_log, NULL);
 	fluid_set_log_function(FLUID_INFO,  fluid_log, NULL);
 	fluid_set_log_function(FLUID_DBG,   fluid_log, NULL);
+#endif
 
 #ifdef _WIN32
 	std::string fluidsynth_driver = "dsound";
@@ -213,6 +230,7 @@ bool dr_init_midi()
 		dbg->warning("dr_init_midi()", "FluidSynth: MIDI settings failed.");
 		return false;
 	}
+#endif
 
 	fluid_settings_setint( settings, "synth.cpu-cores", env_t::num_threads );
 	fluid_settings_setstr( settings, "synth.midi-bank-select", "gm" );
