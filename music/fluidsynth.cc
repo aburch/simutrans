@@ -224,7 +224,6 @@ bool dr_init_midi()
 			return false;
 		}
 	}
-#endif
 
 	if(  !(settings = new_fluid_settings())  ) {
 		dbg->warning("dr_init_midi()", "FluidSynth: MIDI settings failed.");
