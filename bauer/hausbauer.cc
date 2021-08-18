@@ -781,18 +781,26 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 
 const building_tile_desc_t *hausbauer_t::find_tile(const char *name, int org_idx)
 {
-	int idx = org_idx;
-	const building_desc_t *desc = desc_table.get(name);
-	if(desc) {
-		const int size = desc->get_y()*desc->get_x();
-		if(  idx >= desc->get_all_layouts()*size  ) {
-			idx %= desc->get_all_layouts()*size;
-			DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
-		}
-		return desc->get_tile(idx);
+	if (org_idx < 0) {
+		return NULL;
 	}
-//	DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);
-	return NULL;
+
+	const building_desc_t *desc = desc_table.get(name);
+
+	if(!desc) {
+		// DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);
+		return NULL;
+	}
+
+	const int size = desc->get_y()*desc->get_x();
+	int idx = org_idx;
+
+	if(  idx >= desc->get_all_layouts()*size  ) {
+		idx %= desc->get_all_layouts()*size;
+		DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
+	}
+
+	return desc->get_tile(idx);
 }
 
 
