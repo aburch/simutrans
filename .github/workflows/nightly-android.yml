@@ -6,15 +6,6 @@ env:
 
 on:
   push:
-    
-  workflow_dispatch:
-    inputs:
-      paksetLink:
-        description: 'Link to embedded default pakset'
-        default: 'https://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip'
-      paksetFile:
-        description: 'Matching pakset file name'
-        default: 'simupak64-122-0.zip'
 
 jobs:
   build:
@@ -98,16 +89,9 @@ jobs:
     # the content of actions/checkout is a git repo so it is not compatible
     - name: Setup Android SDL working folder to host Simutrans (latest)
       working-directory: /android-sdl
-      if: ${{ github.event.inputs.revision == '' }}
       run: |
         svn checkout svn://servers.simutrans.org/simutrans/trunk project/jni/application/simutrans/simutrans
-    
-    - name: Setup Android SDL working folder to host Simutrans (target revision)
-      working-directory: /android-sdl
-      if: ${{ github.event.inputs.revision != '' }}
-      run: |
-        svn checkout -r ${{ github.event.inputs.revision }} svn://servers.simutrans.org/simutrans/trunk project/jni/application/simutrans/simutrans
-    
+
     # End of environment setup (dependencies installed, source code at correct location)
     # Start of package customization
     - name: Add default pakset
