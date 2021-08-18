@@ -464,7 +464,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 							strcpy(delim_expand, delim);
 						}
 
-						printf("%s = %s\n", line_expand, delim_expand);
+						dbg->message("tabfile_t::read", "Parameter expansion %s = %s\n", line_expand, delim_expand);
 						objinfo.put(line_expand, delim_expand);
 						if (fp != NULL) {
 							fprintf(fp, "%s=%s\n", line_expand, delim_expand);
@@ -549,7 +549,7 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 		else if (!isalpha(*s) && !isdigit(*s) && *s != '_' && *s != '.') {
 			// only allow [a-zA-Z0-9_.] in keys ('.' is required for city rules)
 			dbg->error("tabfile_t::find_parameter_expansion",
-				"Found invalid character %c in key of parameter expansion (Only alphanumeric characters, '.' and '_' allowed)", *s);
+				"Found invalid character '%c' in key of parameter expansion (Only alphanumeric characters, '.' and '_' allowed)", *s);
 			return 0;
 		}
 	}
