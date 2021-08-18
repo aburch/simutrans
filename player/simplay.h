@@ -27,8 +27,12 @@ class tool_t;
 class finance_t;
 
 
+#define HUMAN_PLAYER_NR  (0)
+#define PUBLIC_PLAYER_NR (1)
+
+
 /**
- * Class to hold informations about one player/company. AI players are derived from this class.
+ * Class to hold information about one player/company. AI players are derived from this class.
  */
 class player_t
 {
