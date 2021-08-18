@@ -252,7 +252,9 @@ public:
 	static void init_menu();
 	static void exit_menu();
 
-	static void read_menu(const std::string &objfilename);
+	/// Read tool, toolbar configuration and tool shortcuts from @p menuconf
+	/// @param menuconf Path to file to read
+	static bool read_menu(const std::string &menuconf);
 
 	static uint16 const dummy_id = 0xFFFFU;
 

@@ -937,7 +937,6 @@ int simu_main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	DBG_MESSAGE("simu_main()", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
-
 	// now that the graphics system has already started
 	// the saved colours can be converted to the system format
 	env_t_rgb_to_system_colors();
@@ -1249,7 +1248,14 @@ int simu_main(int argc, char** argv)
 
 	dbg->message("simu_main()","Reading menu configuration ...");
 	dr_chdir( env_t::data_dir );
-	tool_t::read_menu(env_t::objfilename);
+	if (!tool_t::read_menu(env_t::objfilename + "config/menuconf.tab")) {
+		// Fatal error while reading menuconf.tab, we cannot continue!
+		dbg->fatal(
+			"Could not read %s%sconfig/menuconf.tab.\n"
+			"This file is required for a valid pak set (graphics).\n"
+			"Please install and select a valid pak set.",
+			env_t::data_dir, env_t::objfilename.c_str());
+	}
 
 #if COLOUR_DEPTH != 0
 	// reread theme

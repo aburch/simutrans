@@ -618,13 +618,14 @@ static bool compare_tool(tool_t const* const a, tool_t const* const b)
 
 
 // read a tab file to add images, cursors and sound to the tools
-void tool_t::read_menu(const std::string &objfilename)
+bool tool_t::read_menu(const std::string &menuconf_path)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
+
 	// only use pak specific menus, since otherwise images may be missing
-	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
-		dbg->fatal("tool_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
+	if (!menuconf.open(menuconf_path.c_str())) {
+		return false;
 	}
 
 	tabfileobj_t contents;
@@ -852,7 +853,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: General tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)GENERAL_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "simple_tool[")) {
@@ -868,7 +869,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: Simple tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)SIMPLE_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "dialog_tool[")) {
@@ -884,7 +885,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: Dialog tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)DIALOGE_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "toolbar[")) {
@@ -895,20 +896,24 @@ void tool_t::read_menu(const std::string &objfilename)
 						addtool = toolbar_last_used_t::last_used_tools;
 					}
 					else {
-						dbg->fatal( "Error in menuconf: toolbar cannot call main toolbar", "%s", toolname );
+						dbg->error( "Error in menuconf: toolbar cannot call main toolbar", "%s", toolname );
+						return false;
 					}
 				}
+
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
 						param_str = "Unnamed toolbar";
-						dbg->warning( "tool_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
+						dbg->warning( "tool_t::read_menu()", "Missing title for toolbar[%hhu]", toolnr);
 					}
+
 					char *c = strdup(param_str);
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') {
 						*c++ = '\0';
 					}
+
 					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c);
 					toolbar_tool.append(tb);
 					addtool = tb;
@@ -920,6 +925,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
+
 			if(addtool) {
 				if(icon!=IMG_EMPTY) {
 					addtool->icon = icon;
@@ -939,6 +945,7 @@ void tool_t::read_menu(const std::string &objfilename)
 
 	// sort characters
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
+	return true;
 }
 
 
