@@ -202,6 +202,7 @@ bool dr_init_midi()
 	std::string fluidsynth_driver = "coreaudio";
 #else
 	std::string fluidsynth_driver = "sdl2";
+#endif
 
 	if(  !SDL_WasInit(SDL_INIT_AUDIO)  ) {
 		if(  SDL_InitSubSystem( SDL_INIT_AUDIO ) != 0  ) {
