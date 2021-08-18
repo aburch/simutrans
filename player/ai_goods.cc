@@ -1475,6 +1475,7 @@ bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const goods_desc_
 void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 {
 	koord3d k3d;
+
 	if(file->is_saving()) {
 		k3d = fab1->get_pos();
 		k3d.rdwr(file);

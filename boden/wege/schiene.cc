@@ -26,7 +26,13 @@ bool schiene_t::show_reservations = false;
 schiene_t::schiene_t() : weg_t()
 {
 	reserved = convoihandle_t();
-	set_desc(schiene_t::default_schiene);
+
+	if (schiene_t::default_schiene) {
+		set_desc(schiene_t::default_schiene);
+	}
+	else {
+		dbg->fatal("schiene_t::schiene_t()", "No rail way available!");
+	}
 }
 
 
@@ -138,21 +144,26 @@ void schiene_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 
-		int old_max_speed=get_max_speed();
+		int old_max_speed = get_max_speed();
 		const way_desc_t *desc = way_builder_t::get_desc(bname);
+
 		if(desc==NULL) {
 			int old_max_speed=get_max_speed();
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_schiene;
+				if (!desc) {
+					dbg->fatal("schiene_t::rdwr", "Trying to load train tracks but pakset has none!");
+				}
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
-			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
+			dbg->warning("schiene_t::rdwr()", "Unknown rail '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
+
 		set_desc(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
+//		DBG_MESSAGE("schiene_t::rdwr","track %s at (%s) max_speed %i", bname, get_pos().get_str(), old_max_speed);
 	}
 }

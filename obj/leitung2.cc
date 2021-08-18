@@ -395,6 +395,10 @@ void leitung_t::rdwr(loadsave_t *file)
 					if(desc==NULL) {
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 						desc = way_builder_t::leitung_desc;
+
+						if (!desc) {
+							dbg->fatal("leitung_t::rdwr", "Trying to load powerline but pakset has none!");
+						}
 					}
 					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}

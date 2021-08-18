@@ -114,6 +114,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
+
 	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {
 		max_speed = 50;
 	}
