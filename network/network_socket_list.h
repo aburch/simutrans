@@ -176,13 +176,6 @@ public:
 	}
 
 	/**
-	 * @return for client returns socket of connection to server
-	 */
-	static SOCKET get_server_connection_socket() {
-		return get_socket(0);
-	}
-
-	/**
 	 * unlocks/locks player for all clients, except client number except_client
 	 */
 	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client = list.get_count());
