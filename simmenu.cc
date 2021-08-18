@@ -319,10 +319,10 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_HIDE_UNDER_CURSOR:    tool = new tool_hide_under_cursor_t();    break;
 		case TOOL_MOVE_MAP:             tool = new tool_move_map_t();             break;
 		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
-		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t();			  break;
+		case TOOL_RECOLOUR_TOOL:        tool = new tool_recolour_t();             break;
 		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case UNUSED_WKZ_PWDHASH_TOOL:
-			dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr);
+			dbg->warning("create_simple_tool()", "Deprecated tool [%i] requested", toolnr);
 			return NULL;
 		default:
 			dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
@@ -591,6 +591,12 @@ void tool_t::init_menu()
 		general_tool.append(tool);
 	}
 	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
+		// To squelch warning on startup
+		if( i == UNUSED_TOOL_ADD_MESSAGE || i == UNUSED_WKZ_PWDHASH_TOOL) {
+			simple_tool.append(NULL);
+			continue;
+		}
+
 		tool_t *tool = create_simple_tool( i );
 		simple_tool.append(tool);
 	}
@@ -665,7 +671,11 @@ bool tool_t::read_menu(const std::string &menuconf_path)
 			tool_t *tool = info[t].tools[i];
 
 			if (!tool) {
-				dbg->warning("tool_t::read_menu", "Ignoring deprecated %s[%i] (%s)", info[t].type, i, tool_t::id_to_string((1<<(t+12)) | i));
+				if (str && strcmp(str, "") != 0) {
+					// this key is present in the tab file
+					dbg->warning("tool_t::read_menu", "Ignoring deprecated %s[%i] (%s)", info[t].type, i, tool_t::id_to_string((1<<(t+12)) | i));
+				}
+
 				continue;
 			}
 
