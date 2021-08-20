@@ -78,7 +78,7 @@ jobs:
     - name: Checkout lib Android SDL by pelya (hard coded version)
       working-directory: /android-sdl
       run: |
-        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin c470f348c4d7afdbdffce4cfebe5265bd798f699 && git reset --hard FETCH_HEAD
+        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin 22e2154d7e0105a06b067751c2f7ab4c134a9f1b && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl
@@ -104,8 +104,8 @@ jobs:
     - name: (Temporary) Patch Android SDL and replace version
       working-directory: /android-sdl
       run: |
-        cp -r $GITHUB_WORKSPACE/.github/android/*.patch .
-        git apply *.patch
+        if [ -f $GITHUB_WORKSPACE/.github/android/*.patch ]; then cp -r $GITHUB_WORKSPACE/.github/android/*.patch .; fi;
+        if [ -f *.patch ]; then git apply *.patch; fi;
         sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(svnversion project/jni/application/simutrans/simutrans)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
         sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(svnversion project/jni/application/simutrans/simutrans)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
 
