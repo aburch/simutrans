@@ -44,7 +44,7 @@ void vehicle_base_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_diag
 {
 	diagonal_multiplier = (uint16)multiplier;
 	diagonal_vehicle_steps_per_tile = (uint8)(130560u/diagonal_multiplier) + 1;
-	old_diagonal_vehicle_steps_per_tile = (uint8)(130560u/std::max(old_diagonal_multiplier, 1u)) + 1;
+	old_diagonal_vehicle_steps_per_tile = (uint8)(130560u/max(old_diagonal_multiplier, 1u)) + 1;
 }
 
 
