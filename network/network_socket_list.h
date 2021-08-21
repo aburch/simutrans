@@ -45,25 +45,29 @@ public:
 };
 
 
-class socket_info_t : public connection_info_t {
+class socket_info_t : public connection_info_t
+{
+public:
+	enum connection_state_t
+	{
+		inactive  = 0, ///< client disconnected
+		server    = 1, ///< server socket
+		connected = 2, ///< connection established but client does not participate in the game yet
+		playing   = 3, ///< client actively plays
+		has_left  = 4, ///< was playing but left
+		admin     = 5  ///< admin connection
+	};
+
 private:
 	packet_t *packet;
 	slist_tpl<packet_t *> send_queue;
 
+public:
+	connection_state_t state;
+	SOCKET socket;
+	uint16 player_unlocked;
 
 public:
-	enum {
-		inactive  = 0, // client disconnected
-		server    = 1, // server socket
-		connected = 2, // connection established but client does not participate in the game yet
-		playing   = 3, // client actively plays
-		has_left  = 4, // was playing but left
-		admin     = 5  // admin connection
-	};
-	uint8 state;
-
-	SOCKET socket;
-
 	socket_info_t() : connection_info_t(), packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), player_unlocked(0) {}
 
 	~socket_info_t();
@@ -95,8 +99,6 @@ public:
 	 */
 	void rdwr(packet_t *p);
 
-
-	uint16 player_unlocked;
 	/**
 	 * human players on this connection can play with in-game companies/players?
 	 */
@@ -187,7 +189,7 @@ public:
 	 */
 	static void send_all(network_command_t* nwc, bool only_playing_clients, uint8 player_nr = PLAYER_UNOWNED);
 
-	static void change_state(uint32 id, uint8 new_state);
+	static void change_state(uint32 id, socket_info_t::connection_state_t new_state);
 
 	/**
 	 * rdwr client-list information to packet
@@ -195,7 +197,7 @@ public:
 	static void rdwr(packet_t *p, vector_tpl<socket_info_t*> *writeto=&list);
 
 private:
-	static void book_state_change(uint8 state, sint8 incr);
+	static void book_state_change(socket_info_t::connection_state_t state, sint8 incr);
 
 public: // from now stuff to deal with fd_set's
 
