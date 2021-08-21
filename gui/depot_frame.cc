@@ -1108,7 +1108,7 @@ void depot_frame_t::update_data()
 			else {
 				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
 				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
-				max_kmh =   cnv->get_min_top_speed();
+				max_kmh =   speed_to_kmh(cnv->get_min_top_speed());
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
 
