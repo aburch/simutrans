@@ -742,7 +742,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		// ok, now sending game
 		// this sends nwc_game_t
-		const char *err = network_send_file( client_id, fn );
+		const char *err = network_send_file( socket_list_t::get_socket(client_id), fn );
 		if (err) {
 			dbg->warning("nwc_sync_t::do_command","send game failed with: %s", err);
 		}

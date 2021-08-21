@@ -22,13 +22,13 @@ class gameinfo_t;
 const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
 // connects to server at (cp), receives game, save to client%i-network.sve
-const char* network_connect(const char *cp, karte_t *world);
+const char *network_connect(const char *cp, karte_t *world);
 
-// sending file over network
-const char *network_send_file( uint32 client_id, const char *filename );
+/// Send file over network
+const char *network_send_file(const SOCKET dst_sock, const char *filename);
 
-// receive file (directly to disk)
-char const* network_receive_file(SOCKET const s, char const* const save_as, const sint32 length, const sint32 timeout=10000 );
+/// Receive file (directly to disk)
+const char *network_receive_file(const SOCKET src_sock, const char *const save_as, const sint32 length, const sint32 timeout=10000);
 
 /**
  * Use HTTP POST request to submit poststr to an HTTP server
