@@ -61,9 +61,12 @@
 #	define GET_LAST_ERROR() (errno)
 #endif
 
+#include "../tpl/vector_tpl.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
+
+
 // version of network protocol code
 #define NETWORK_VERSION (1)
 
@@ -79,7 +82,7 @@ void network_set_socket_nodelay( SOCKET sock );
 SOCKET network_open_address(char const* cp, char const*& err);
 
 // if successful, starts a server on this port
-bool network_init_server( int port );
+bool network_init_server( int port, const vector_tpl<std::string> &listen_addrs );
 
 /**
  * returns pointer to command or NULL
