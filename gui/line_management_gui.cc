@@ -451,7 +451,7 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 		FOR(vector_tpl<convoihandle_t>, cnv, welt->convoys()) {
 			if(  cnv->get_owner()==player  ) {
 				if(  !cnv->get_line().is_bound()  ) {
-					if(  cnv->get_schedule()->matches( welt, line->get_schedule() )  ) {
+					if(  line->get_schedule()->matches( welt, cnv->get_schedule() )  ) {
 						// same schedule, and no line =< add to line
 						char id[16];
 						sprintf(id, "%i,%i", line.get_id(), cnv->get_schedule()->get_current_stop());
