@@ -15,6 +15,9 @@
 #include "../../simworld.h"
 #include "../../boden/wasser.h"
 
+#include "../../simconvoi.h"
+#include "../../vehicle/vehicle.h"
+
 namespace script_api {
 	declare_enum_param(grund_t::flag_values, uint8, "flags");
 	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
@@ -105,6 +108,25 @@ vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
 		const halthandle_t* haltlist = plan->get_haltlist();
 		for(uint8 i=0, end = plan->get_haltlist_count(); i < end; i++) {
 			list.append(haltlist[i]);
+		}
+	}
+	return list;
+}
+
+vector_tpl<convoihandle_t> const get_convoy_list(koord3d pos)
+{
+	static vector_tpl<convoihandle_t> list;
+	list.clear();
+
+	if( grund_t* gr = welt->lookup( pos ) ) {
+		for( uint8 n = 0; n<gr->get_top(); n++) {
+			obj_t* obj = gr->obj_bei( n );
+			if( vehicle_t* veh = dynamic_cast<vehicle_t*>(obj) ) {
+				convoihandle_t cnv;
+				if( veh->get_convoi() ) {
+					list.append_unique( veh->get_convoi()->self );
+				}
+			}
 		}
 	}
 	return list;
@@ -283,6 +305,12 @@ void export_tiles(HSQUIRRELVM vm)
 	/// Mark tile.
 	register_method_fv(vm, &grund_t::set_flag, "mark", freevariable<uint8>(grund_t::marked));
 	//@}
+
+	/**
+	 * @return convoy list by tile
+	 */
+	register_method(vm, &get_convoy_list, "get_convoys", true);
+
 #ifdef SQAPI_DOC // document members
 	/**
 	 * List to iterate through all objects on this tile.
