@@ -61,6 +61,10 @@ private:
 
 	gui_scrollpane_t scroll_info;
 
+	button_t highlight_suppliers;
+	button_t highlight_consumers;
+
+
 	void rename_factory();
 
 	void update_components();
@@ -103,6 +107,8 @@ public:
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_factory_info; }
+
+	void highlight(vector_tpl<koord> fab_koords, bool marking);
 };
 
 #endif

@@ -101,6 +101,12 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	input.set_text( fabname, lengthof(fabname) );
 	input.add_listener(this);
 	add_component(&input);
+	highlight_suppliers.set_text("Suppliers");
+	highlight_suppliers.set_typ(button_t::roundbox_state);
+	highlight_suppliers.add_listener(this);
+	highlight_consumers.set_text("Abnehmer");
+	highlight_consumers.set_typ(button_t::roundbox_state);
+	highlight_consumers.add_listener(this);
 
 	// top part: production number & details, boost indicators, factory view
 	add_table(6,0)->set_alignment(ALIGN_LEFT | ALIGN_TOP);
@@ -144,6 +150,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	switch_mode.add_tab(&scroll_info, translator::translate("Connections"));
 
 	// connection information
+	
 	container_info.set_table_layout(1,0);
 	container_info.add_component(&all_suppliers);
 	container_info.add_component(&all_consumers);
@@ -200,6 +207,12 @@ fabrik_info_t::~fabrik_info_t()
 {
 	rename_factory();
 	fabname[0] = 0;
+	if (highlight_consumers.pressed) {
+		highlight(fab->get_lieferziele(), false);
+	}
+	if (highlight_suppliers.pressed) {
+		highlight(fab->get_suppliers(), false);
+	}
 }
 
 
@@ -257,6 +270,16 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	if(  comp == &input  ) {
 		rename_factory();
 	}
+	else if (comp == &highlight_consumers)
+	{
+		highlight_consumers.pressed ^= 1;
+		highlight(fab->get_lieferziele(), highlight_consumers.pressed);
+	}
+	else if (comp == &highlight_suppliers)
+	{
+		highlight_suppliers.pressed ^= 1;
+		highlight(fab->get_suppliers(), highlight_suppliers.pressed);
+	}
 	return true;
 }
 
@@ -293,7 +316,8 @@ void fabrik_info_t::update_components()
 		all_consumers.remove_all();
 		all_consumers.set_table_layout(1,0);
 		all_consumers.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
-		all_consumers.new_component<gui_label_t>("Abnehmer");
+		all_consumers.add_component(&highlight_consumers);
+
 
 		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
 			all_consumers.new_component<gui_factory_connection_t>(fab, k, false);
@@ -305,7 +329,7 @@ void fabrik_info_t::update_components()
 		all_suppliers.remove_all();
 		all_suppliers.set_table_layout(1,0);
 		all_suppliers.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
-		all_suppliers.new_component<gui_label_t>("Suppliers");
+		all_suppliers.add_component(&highlight_suppliers);
 
 		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
 			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
@@ -382,5 +406,34 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 	if(  file->is_loading()  ) {
 		reset_min_windowsize();
 		set_windowsize(size);
+	}
+}
+
+void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking) {
+
+	fab_koords.append(fab->get_pos().get_2d());
+
+	for (int i = 0; i < fab_koords.get_count(); i++) {
+		vector_tpl<koord> fab_tiles;
+		fab->get_fab(fab_koords[i])->get_tile_list(fab_tiles);
+
+		for (int y = 0; y < fab_tiles.get_count(); y++)
+		{
+			if (grund_t* const gr = welt->lookup(koord3d(fab_tiles[y], 0)))
+			{
+				for (uint idx = 0; idx < gr->get_top(); idx++) {
+					obj_t* obj = gr->obj_bei(idx);
+					if (marking) {
+						if (!obj->is_moving()) {
+							obj->set_flag(obj_t::highlight);
+						}
+					}
+					else {
+						obj->clear_flag(obj_t::highlight);
+					}
+				}
+				gr->set_flag(grund_t::dirty);
+			}
+		}
 	}
 }
