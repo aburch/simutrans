@@ -7,7 +7,7 @@
 
 #include "convoi_info_t.h"
 
-#include "../vehicle/vehicle.h"
+#include "../vehicle/rail_vehicle.h"
 #include "../simcolor.h"
 #include "../display/viewport.h"
 #include "../simworld.h"
@@ -202,7 +202,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	container_stats.end_table();
 
-
 	cnv->set_sortby( env_t::default_sortmode );
 
 	// convoy details in tab
@@ -243,8 +242,13 @@ void convoi_info_t::init(convoihandle_t cnv)
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
 	speed_bar.add_color_value(&mean_convoi_speed, color_idx_to_rgb(COL_GREEN));
+
 	// we update this ourself!
 	route_bar.init(&cnv_route_index, 0);
+	if( cnv->get_vehicle_count()>0  &&  dynamic_cast<rail_vehicle_t *>(cnv->front()) ) {
+		// only for trains etc.
+		route_bar.set_reservation( &next_reservation_index );
+	}
 	route_bar.set_height(9);
 
 	update_labels();
@@ -441,6 +445,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 		return;
 	}
+	next_reservation_index = cnv->get_next_reservation_index();
 
 	bool is_change_allowed = cnv->get_owner() == welt->get_active_player()  &&  !welt->get_active_player()->is_locked();
 

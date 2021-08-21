@@ -55,6 +55,7 @@ private:
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
+	sint32 next_reservation_index;
 	gui_chart_t chart;
 
 	gui_tab_panel_t switch_mode;

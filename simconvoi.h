@@ -780,7 +780,7 @@ public:
 	/* including this route_index, the route was reserved the last time
 	 * currently only used for tracks
 	 */
-	uint16 get_next_reservation_index() const {return next_reservation_index;}
+	uint16 &get_next_reservation_index() { return next_reservation_index; }
 	void set_next_reservation_index(uint16 n);
 
 	/* the current state of the convoi */
