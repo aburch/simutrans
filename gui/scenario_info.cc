@@ -6,6 +6,7 @@
 #include "scenario_info.h"
 #include "../simworld.h"
 #include "../display/viewport.h"
+#include "../obj/zeiger.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -122,6 +123,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 							p = welt->lookup_kartenboden(k)->get_pos();
 						}
 						welt->get_viewport()->change_world_position( p );
+						welt->get_zeiger()->change_pos( p );
 					}
 				}
 			}
