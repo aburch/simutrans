@@ -438,6 +438,15 @@ public:
 	 */
 	const char* is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot);
 
+	/**
+	 * Called when player click link in scenario windows, after position changed.
+	 *
+	 * @param pos coordinate go to in link
+	 *
+	 * @return an error message otherwise or null
+	 */
+	const char* jump_to_link_executed(koord3d pos);
+
 	/// @return debug dump of forbidden tools
 	const char* get_forbidden_text();
 	/// @}

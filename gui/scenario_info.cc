@@ -5,6 +5,7 @@
 
 #include "scenario_info.h"
 #include "../simworld.h"
+#include "../simtool.h"
 #include "../display/viewport.h"
 #include "../obj/zeiger.h"
 #include "../dataobj/scenario.h"
@@ -124,6 +125,10 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 						}
 						welt->get_viewport()->change_world_position( p );
 						welt->get_zeiger()->change_pos( p );
+						const char* err = welt->get_scenario()->jump_to_link_executed(p);
+						if (err) {
+							open_error_msg_win(err);
+						}
 					}
 				}
 			}

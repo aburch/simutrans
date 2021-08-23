@@ -277,6 +277,18 @@ register_function("is_schedule_allowed");
 register_function("is_convoy_allowed");
 
 /**
+ * Called when player click link in scenario windows.
+ *
+ * @param pos coordinate go to in link
+ *
+ * @return null if allowed, an error message otherwise
+ * @typemask string(coord3d)
+ * @ingroup scen_skel
+ * @ingroup quick_return_func
+ */
+register_function("jump_to_link_executed");
+
+/**
  * Initializes the tool.
  * @returns true upon success.
  *
