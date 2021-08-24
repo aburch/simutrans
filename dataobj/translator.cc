@@ -550,6 +550,14 @@ bool translator::set_language(const char *iso)
 
 	// if the request language does not exist
 	if( single_instance.current_lang == -1 ) {
+		for( int i = 0; i < single_instance.lang_count; i++ ) {
+			const char* iso_base = langs[i].iso_base;
+			if( iso_base[0] == 'e'  &&  iso_base[1] == 'n' ) {
+				set_language( i );
+				return false;
+			}
+		}
+		// not even english found ...
 		set_language(0);
 	}
 

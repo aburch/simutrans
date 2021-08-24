@@ -1273,7 +1273,8 @@ int simu_main(int argc, char** argv)
 
 	if(  translator::get_language()==-1  ) {
 		// try current language
-		if(  !translator::set_language( dr_get_locale()  ) ) {
+		const char *loc = dr_get_locale();
+		if(  !*loc  ||  !translator::set_language(loc)  ) {
 			ask_language();
 		}
 		else {
