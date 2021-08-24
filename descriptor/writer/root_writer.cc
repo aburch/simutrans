@@ -49,7 +49,10 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 		if (!outfp) {
 			dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
 		}
-		printf("writing file %s\n", filename);
+
+		if (debuglevel >= log_t::LEVEL_WARN) {
+			printf("Writing file %s\n", filename);
+		}
 		write_header(outfp);
 
 		node = new obj_node_t(this, 0, NULL);
@@ -65,7 +68,9 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 			if (infile.open(i)) {
 				tabfileobj_t obj;
 
-				printf("   reading file %s\n", i);
+				if (debuglevel >= log_t::LEVEL_WARN) {
+					printf("   Reading file %s\n", i);
+				}
 
 				inpath = arg;
 				string::size_type n = inpath.rfind('/');
@@ -88,9 +93,11 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 							dbg->fatal( "Write pak", "Cannot create destination file %s", filename );
 						}
 
-						printf("   writing file %s\n", name.c_str());
-						write_header(outfp);
+						if (debuglevel >= log_t::LEVEL_WARN) {
+							printf("   Writing file %s\n", name.c_str());
+						}
 
+						write_header(outfp);
 						node = new obj_node_t(this, 0, NULL);
 					}
 					obj_writer_t::write(outfp, *node, obj);
@@ -500,7 +507,10 @@ void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
 		if (!outfp) {
 			dbg->fatal( "Write dat", "Cannot create destination file %s", filename );
 		}
-		printf("writing file %s\n", filename);
+
+		if (debuglevel >= log_t::LEVEL_WARN) {
+			printf("Writing file %s\n", filename);
+		}
 	}
 
 	for(  int i=0;  i==0  ||  i<argc;  i++  ) {
@@ -514,7 +524,9 @@ void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
 			if (infile.open(i)) {
 				tabfileobj_t obj;
 
-				printf("   reading file %s\n", i);
+				if (debuglevel >= log_t::LEVEL_WARN) {
+					printf("   Reading file %s\n", i);
+				}
 
 				inpath = arg;
 				string::size_type n = inpath.rfind('/');
@@ -535,9 +547,14 @@ void root_writer_t::expand_dat(const char* filename, int argc, char* argv[])
 					if (!outfp) {
 						dbg->fatal( "Write pak", "Cannot create destination file %s", name.c_str() );
 					}
-					printf("   writing file %s\n", name.c_str());
+
+					if (debuglevel >= log_t::LEVEL_WARN) {
+						printf("   Writing file %s\n", name.c_str());
+					}
+
 				}
-					// fprintf(outfp, "# Expanded file by makeobj\n");
+
+				// fprintf(outfp, "# Expanded file by makeobj\n");
 				while(infile.read(obj, outfp)) {
 					fprintf(outfp, "---\n");
 				}

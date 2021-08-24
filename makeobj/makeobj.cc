@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 {
 	argv++; argc--;
 
-	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n", "makeobj");
+	init_logging("stderr", true, true, "", "makeobj");
 	debuglevel = log_t::LEVEL_WARN; // only warnings and errors
 
 	while(  argc  &&  (  !STRICMP(argv[0], "quiet")  ||  !STRICMP(argv[0], "verbose")  ||  !STRICMP(argv[0], "debug")  )  ) {
@@ -50,8 +50,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(  debuglevel>1  ) {
-		puts( "\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n" );
+	if(  debuglevel>=log_t::LEVEL_WARN  ) {
+		puts( "Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher" );
 		puts( "(c) 2002-2012 V. Meyer, Hj. Malthaner, M. Pristovsek & Simutrans development team\n" );
 	}
 
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 	}
 
 	puts(
-		"\n   Usage: MakeObj [QUIET] [DEBUG] <Command> <params>\n"
+		"\n   Usage: MakeObj [QUIET|VERBOSE|DEBUG] <Command> <params>\n"
 		"\n"
 		"      MakeObj CAPABILITIES\n"
 		"         Gives the list of objects, this program can read\n"
@@ -191,10 +191,10 @@ int main(int argc, char* argv[])
 		"      with a trailing slash a directory is searched rather than a file\n"
 		"      default for PAK is PAK ./ ./\n"
 		"\n"
-		"      with QUIET as first arg copyright message will be omitted\n"
+		"      with QUIET as first arg status and copyright messages are omitted\n"
 		"\n"
 		"      with VERBOSE as first arg also unused lines\n"
-		"      and unassinged entrys are printed\n"
+		"      and unassigned entries are printed\n"
 		"\n"
 		"      DEBUG dumps extended information about the pak process.\n"
 		"          Source: interpreted line from .dat file\n"

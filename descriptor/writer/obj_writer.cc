@@ -43,14 +43,18 @@ void obj_writer_t::write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	obj_writer_t *writer = writer_by_name->get(type);
 	if (!writer) {
-		printf("skipping unknown %s object %s\n", type, name);
+		printf("Skipping unknown %s object %s\n", type, name);
 		return;
 	}
 	// now get the image size
 	image_writer_t::set_img_size(obj.get_int("cell_size",default_image_size));
 
 	last_name = name;
-	printf("      packing %s.%s\n", type, name);
+
+	if (debuglevel >= log_t::LEVEL_WARN) {
+		printf("      packing %s.%s\n", type, name);
+	}
+
 	writer->write_obj(fp, parent, obj);
 }
 
