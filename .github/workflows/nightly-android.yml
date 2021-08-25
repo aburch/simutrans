@@ -78,7 +78,7 @@ jobs:
     - name: Checkout lib Android SDL by pelya (hard coded version)
       working-directory: /android-sdl
       run: |
-        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin 22e2154d7e0105a06b067751c2f7ab4c134a9f1b && git reset --hard FETCH_HEAD
+        git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin 4bc45825086deecb8f55f424d9125591d0e7a59b && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl

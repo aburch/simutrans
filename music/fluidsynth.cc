@@ -188,13 +188,11 @@ static void fluid_log(int level, const char *message, void *)
 
 bool dr_init_midi()
 {
-#ifndef __ANDROID__
 	fluid_set_log_function(FLUID_PANIC, fluid_log, NULL);
 	fluid_set_log_function(FLUID_ERR,   fluid_log, NULL);
 	fluid_set_log_function(FLUID_WARN,  fluid_log, NULL);
 	fluid_set_log_function(FLUID_INFO,  fluid_log, NULL);
 	fluid_set_log_function(FLUID_DBG,   fluid_log, NULL);
-#endif
 
 #ifdef _WIN32
 	std::string fluidsynth_driver = "dsound";
