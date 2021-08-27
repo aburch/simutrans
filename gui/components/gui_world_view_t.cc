@@ -9,6 +9,7 @@
 #include "../../simworld.h"
 #include "../../display/viewport.h"
 #include "../../obj/simobj.h"
+#include "../../obj/zeiger.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../boden/grund.h"
@@ -66,6 +67,7 @@ bool world_view_t::infowin_event(const event_t* ev)
 		koord3d const& pos = get_location();
 		if (welt->is_within_limits(pos.get_2d())) {
 			welt->get_viewport()->change_world_position(pos);
+			welt->get_zeiger()->change_pos( pos );
 		}
 		return true;
 	}
