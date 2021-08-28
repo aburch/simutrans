@@ -72,6 +72,12 @@ private:
 	void add_entry(const std::string &path, const char *entry, const bool prepend );
 
 	/**
+	 * Checks if @p fn matches @p pattern, case insensitive.
+	 * @param pattern may start with an * as a wildcard that matches 0 or more characters.
+	 */
+	bool filename_matches_pattern(const char *fn, const char *pattern);
+
+	/**
 	 * Clears the search results.
 	 */
 	void clear_list();

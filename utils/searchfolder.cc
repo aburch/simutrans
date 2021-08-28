@@ -83,12 +83,12 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 #endif
 
 	if(extension.empty()) {
-		//path=name;
+		// Look for all files in a directory
 		name = std::string("*");
 		ext = std::string("");
 	}
 	else if(path[path.size() - 1] == '/') {
-		// Look for a directory
+		// Look for files with a specific extension in a directory
 		name = "*";
 		ext = std::string(".") + extension;
 	}
@@ -97,13 +97,13 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 		int dot = path.rfind('.');
 
 		if(dot == -1 || dot < slash) {
-			// Look for a file with default extension
+			// Look for a specific file with default extension
+			ext = std::string(".") + extension;
 			name = path.substr(slash + 1, std::string::npos);
 			path = path.substr(0, slash + 1);
-			ext = std::string(".") + extension;
 		}
 		else {
-			// Look for a file with own extension
+			// e.g. path = foo/bar.baz, ignore @p extension
 			ext = path.substr(dot, std::string::npos);
 			name = path.substr(slash + 1, dot - slash - 1);
 			path = path.substr(0, slash + 1);
@@ -125,20 +125,17 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 		return files.get_count();
 	}
 
-	lookfor = ext;
+	lookfor = name + ext;
 	do {
 		// Convert entry name.
 		int const entry_name_size = WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, NULL, 0, NULL, NULL );
 		char *const entry_name = new char[entry_name_size];
 		WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, entry_name_size, NULL, NULL );
 
-		size_t entry_len = strlen(entry_name);
-		if(  lookfor.empty()  ||  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
-			if(only_directories) {
-				if ((entry.attrib & _A_SUBDIR)==0) {
-					delete[] entry_name;
-					continue;
-				}
+		if(  filename_matches_pattern(entry_name, lookfor.c_str()) ) {
+			if(only_directories && ((entry.attrib & _A_SUBDIR)==0)) {
+				delete[] entry_name;
+				continue;
 			}
 			add_entry(path,entry_name,prepend_path);
 		}
@@ -146,22 +143,22 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	} while(_wfindnext(hfind, &entry) == 0 );
 	_findclose(hfind);
 #else
+	assert(path.empty() || path[path.length()-1] == '/');
 	lookfor = path + ".";
 
 	if (DIR* const dir = opendir(lookfor.c_str())) {
-		lookfor = (name == "*") ? ext : name + ext;
+		lookfor = name + ext;
 
 		while (dirent const* const entry = readdir(dir)) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-				int entry_len = strlen(entry->d_name);
-				if (strcasecmp(entry->d_name + entry_len - lookfor.size(), lookfor.c_str()) == 0) {
-					add_entry(path,entry->d_name,prepend_path);
+				if (filename_matches_pattern(entry->d_name, lookfor.c_str())) {
+					add_entry(path, entry->d_name, prepend_path);
 				}
 			}
 		}
 		closedir(dir);
 	}
-	(void) only_directories;
+	(void)only_directories;
 #endif
 	return files.get_count();
 }
@@ -202,4 +199,29 @@ searchfolder_t::~searchfolder_t()
 		free(i);
 	}
 	files.clear();
+}
+
+
+bool searchfolder_t::filename_matches_pattern(const char *fn, const char *pattern)
+{
+	const size_t pattern_len = strlen(pattern);
+	const size_t fn_len = strlen(fn);
+
+	if (pattern_len == 0) {
+		return fn_len == 0;
+	}
+
+	const bool match_suffix = pattern[0] == '*';
+
+	if (match_suffix) {
+		if (fn_len < pattern_len-1) {
+			return false;
+		}
+
+		const size_t match_off = fn_len - (pattern_len-1);
+		return STRICMP(fn+match_off, pattern+1) == 0;
+	}
+	else {
+		return STRICMP(fn, pattern) == 0;
+	}
 }
