@@ -2194,7 +2194,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 				return NULL;
 			}
 		}
-	
+
 		return "";
 	}
 	return NULL;
@@ -2954,7 +2954,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				if(  sl == slope_t::flat  ||  !slope_t::is_way( sl ) ) {
 					// cannot start a tunnel here, wrong slope
 					return "";
-				} 
+				}
 
 				if(  env_t::pak_height_conversion_factor != slope_t::max_diff(sl)  ) {
 					win_set_static_tooltip( translator::translate("The gradient does not fit a tunnel") );
@@ -6467,6 +6467,14 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
 	// target halt must exist
 	halthandle_t halt = haltestelle_t::get_halt(p,player);
+	if (!halt.is_bound() && player == welt->get_public_player()) {
+		// public player can make halts of other players public
+		grund_t *gr = welt->lookup(p);
+		if (gr) {
+			halt = gr->get_halt();
+		}
+	}
+
 	if(  !halt.is_bound()  ) {
 		if(welt->get_settings().get_disable_make_way_public()) {
 			return NOTICE_DISABLED_PUBLIC_WAY;
