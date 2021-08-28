@@ -65,15 +65,13 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 static uint32 get_cluster_data(tabfileobj_t& obj)
 {
 	uint32 clusters = 0;
-	int* ints = obj.get_ints("clusters");
+	vector_tpl<int> ints = obj.get_ints("clusters");
 
-	for(  int i = 1;  i <= ints[0];  i++  ) {
+	for(  uint32 i = 0;  i < ints.get_count();  i++  ) {
 		if(  ints[i] >= 1  &&  ints[i] <= 32  ) { // Sanity check
 			clusters |= 1<<(ints[i]-1);
 		}
 	}
-	delete [] ints;
-
 	return clusters;
 }
 
@@ -88,13 +86,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	koord size(1, 1);
 	uint8 layouts = 0;
 
-	int* ints = obj.get_ints("dims");
+	vector_tpl<int> ints = obj.get_ints("dims");
 
-	switch (ints[0]) {
+	switch (ints.get_count()) {
 		default:
-		case 3: layouts   = ints[3]; /* FALLTHROUGH */
-		case 2: size.y = ints[2]; /* FALLTHROUGH */
-		case 1: size.x = ints[1]; /* FALLTHROUGH */
+		case 3: layouts = ints[2]; /* FALLTHROUGH */
+		case 2: size.y  = ints[1]; /* FALLTHROUGH */
+		case 1: size.x  = ints[0]; /* FALLTHROUGH */
 		case 0: break;
 	}
 	if (layouts == 0) {
@@ -103,7 +101,6 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (size.x*size.y == 0) {
 		dbg->fatal("building_writer_t::write_obj", "Cannot create a building with zero size (%i,%i)", size.x, size.y);
 	}
-	delete [] ints;
 
 	building_desc_t::btype     type             = building_desc_t::unknown;
 	uint32                     extra_data       = 0;

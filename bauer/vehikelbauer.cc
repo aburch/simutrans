@@ -106,17 +106,18 @@ bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
 	 * must be increasing order!
 	 */
 	for(  int j=0;  j<8;  j++  ) {
-		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
-		if((tracks[0]&1)==1) {
+		vector_tpl<int> tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
+
+		if((tracks.get_count() % 2) != 0) {
 			dbg->warning( "vehicle_builder_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
-			tracks[0]--;
+			tracks.pop_back();
 		}
-		speedbonus[j].resize( tracks[0]/2 );
-		for(  int i=1;  i<tracks[0];  i+=2  ) {
+
+		speedbonus[j].resize( tracks.get_count()/2 );
+		for(  uint32 i=0;  i<tracks.get_count();  i+=2  ) {
 			bonus_record_t b( tracks[i], tracks[i+1] );
 			speedbonus[j].append( b );
 		}
-		delete [] tracks;
 	}
 
 	return true;

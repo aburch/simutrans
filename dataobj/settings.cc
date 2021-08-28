@@ -938,17 +938,17 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	for( int i = 0; i < LIGHT_COUNT; i++ ) {
 		char str[ 256 ];
 		sprintf( str, "special_color[%i]", i );
-		int *c = contents.get_ints( str );
-		if( c[ 0 ] >= 6 ) {
+		const vector_tpl<int> c = contents.get_ints( str );
+
+		if( c.get_count() >= 6 ) {
 			// now update RGB values
 			for( int j = 0; j < 3; j++ ) {
-				display_day_lights[ i * 3 + j ] = c[ j + 1 ];
+				display_day_lights[ i * 3 + j ] = c[ j ];
 			}
 			for( int j = 0; j < 3; j++ ) {
-				display_night_lights[ i * 3 + j ] = c[ j + 4 ];
+				display_night_lights[ i * 3 + j ] = c[ j + 3 ];
 			}
 		}
-		delete[] c;
 	}
 #endif
 
@@ -1281,21 +1281,24 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	for( int i = 0; i < 10; i++ ) {
 		char name[ 32 ];
 		sprintf( name, "starting_money[%i]", i );
-		sint64 *test = contents.get_sint64s( name );
-		if( (test[ 0 ] > 1) && (test[ 0 ] <= 3) ) {
+		const vector_tpl<sint64> test = contents.get_sint64s( name );
+
+		if( (test.get_count() > 1) && (test.get_count() <= 3) ) {
 			// insert sorted by years
 			int k = 0;
 			for( k = 0; k < i; k++ ) {
-				if( startingmoneyperyear[ k ].year > test[ 1 ] ) {
+				if( startingmoneyperyear[ k ].year > test[ 0 ] ) {
 					for( int l = j; l >= k; l-- )
 						memcpy( &startingmoneyperyear[ l + 1 ], &startingmoneyperyear[ l ], sizeof( yearmoney ) );
 					break;
 				}
 			}
-			startingmoneyperyear[ k ].year = (sint16)test[ 1 ];
-			startingmoneyperyear[ k ].money = test[ 2 ];
-			if( test[ 0 ] == 3 ) {
-				startingmoneyperyear[ k ].interpol = test[ 3 ] != 0;
+
+			startingmoneyperyear[ k ].year = (sint16)test[ 0 ];
+			startingmoneyperyear[ k ].money = test[ 1 ];
+
+			if( test.get_count() == 3 ) {
+				startingmoneyperyear[ k ].interpol = test[ 2 ] != 0;
 			}
 			else {
 				startingmoneyperyear[ k ].interpol = false;
@@ -1305,8 +1308,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		else {
 			// invalid entry
 		}
-		delete[] test;
 	}
+
 	// at least one found => use this now!
 	if( j > 0 && startingmoneyperyear[ 0 ].money > 0 ) {
 		starting_money = 0;
@@ -1327,32 +1330,34 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	for( int i = 0; i < 10; i++ ) {
 		char name[ 256 ];
 		sprintf( name, "locality_factor[%i]", i );
-		sint64 *test = contents.get_sint64s( name );
+
+		const vector_tpl<sint64> test = contents.get_sint64s( name );
+
 		// two arguments, and then factor natural number
-		if( test[ 0 ] == 2 ) {
-			if( test[ 2 ] <= 0 ) {
-				dbg->error( "Parameter in simuconf.tab wrong!", "locality_factor second value must be larger than zero!" );
-			}
-			else {
-				// insert sorted by years
-				int k = 0;
-				for( k = 0; k < i; k++ ) {
-					if( locality_factor_per_year[ k ].year > test[ 1 ] ) {
-						for( int l = j; l >= k; l-- )
-							memcpy( &locality_factor_per_year[ l + 1 ], &locality_factor_per_year[ l ], sizeof( yearly_locality_factor_t ) );
-						break;
-					}
-				}
-				locality_factor_per_year[ k ].year = (sint16)test[ 1 ];
-				locality_factor_per_year[ k ].factor = (uint32)test[ 2 ];
-				j++;
-			}
+		if( test.get_count() != 2 ) {
+			// invalid entry
+			dbg->warning("settings_t::parse_simuconf", "Parameter locality_factor[%i] has wrong syntax (Parameter ignored)", i);
+		}
+		else if( test[ 1 ] <= 0 ) {
+			dbg->warning("settings_t::parse_simuconf", "Parameter locality_factor[%i] second value must be larger than zero! (Parameter ignored)", i );
 		}
 		else {
-			// invalid entry
+			// insert sorted by years
+			int k = 0;
+			for( k = 0; k < i; k++ ) {
+				if( locality_factor_per_year[ k ].year > test[ 0 ] ) {
+					for( int l = j; l >= k; l-- )
+						memcpy( &locality_factor_per_year[ l + 1 ], &locality_factor_per_year[ l ], sizeof( yearly_locality_factor_t ) );
+					break;
+				}
+			}
+			locality_factor_per_year[ k ].year = (sint16)test[ 0 ];
+			locality_factor_per_year[ k ].factor = (uint32)test[ 1 ];
+			j++;
 		}
-		delete[] test;
+
 	}
+
 	// add default, if nothing found
 	if( j == 0 && locality_factor_per_year[ 0 ].factor == 0 ) {
 		locality_factor_per_year[ 0 ].year = 0;

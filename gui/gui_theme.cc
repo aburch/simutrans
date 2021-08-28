@@ -469,18 +469,17 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	gui_theme_t::gui_pos_button_size.h = (uint32)contents.get_int("gui_posbutton_height", gui_theme_t::gui_pos_button_size.h );
 
 	// read ../dataobj/tabfile.h for clarification of this area
-	int *color_button_text_offsets = contents.get_ints("gui_color_button_text_offset");
-	int *button_text_offsets = contents.get_ints("gui_button_text_offset");
-	if(  color_button_text_offsets[0] > 2  ) {
-		gui_theme_t::gui_color_button_text_offset = scr_size(color_button_text_offsets[1], color_button_text_offsets[2]);
-		gui_theme_t::gui_color_button_text_offset_right = scr_coord(color_button_text_offsets[3], 0);
+	vector_tpl<int> color_button_text_offsets = contents.get_ints("gui_color_button_text_offset");
+	if(  color_button_text_offsets.get_count() > 2  ) {
+		gui_theme_t::gui_color_button_text_offset = scr_size(color_button_text_offsets[0], color_button_text_offsets[1]);
+		gui_theme_t::gui_color_button_text_offset_right = scr_coord(color_button_text_offsets[2], 0);
 	}
-	if(  button_text_offsets[0] > 2  ) {
-		gui_theme_t::gui_button_text_offset = scr_size(button_text_offsets[1], button_text_offsets[2]);
-		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[3], 0);
+
+	vector_tpl<int> button_text_offsets = contents.get_ints("gui_button_text_offset");
+	if(  button_text_offsets.get_count() > 2  ) {
+		gui_theme_t::gui_button_text_offset = scr_size(button_text_offsets[0], button_text_offsets[1]);
+		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[2], 0);
 	}
-	delete [] color_button_text_offsets;
-	delete [] button_text_offsets;
 
 	// default iconsize (square for now)
 	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );

@@ -216,71 +216,68 @@ sint64 tabfileobj_t::get_int64(const char *key, sint64 def)
 }
 
 
-int *tabfileobj_t::get_ints(const char *key)
+vector_tpl<int> tabfileobj_t::get_ints(const char *key)
 {
 	const char *value = get_string(key,NULL);
 	const char *tmp;
-	int         count = 1;
-	int         *result;
+	int         count = 0;
+	vector_tpl<int> result;
 
 	if(!value) {
-		result = new int[1];
-		result[0] = 0;
 		return result;
 	}
+
 	// Determine number
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
 			count++;
 		}
 	}
-	// Create result vector and fill
-	result = new int[count + 1];
 
-	result[0] = count;
-	count = 1;
-	result[count++] = strtol( value, NULL, 0 );
+	// Create result vector and fill
+	result.resize(count);
+	result.append(strtol( value, NULL, 0 ));
+
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
 			// skip spaces/tabs
 			do {
 				tmp ++;
 			} while ( *tmp>0  &&  *tmp<=32  );
+
 			// this inputs also hex correct
-			result[count++] = strtol( tmp, NULL, 0 );
+			result.append(strtol( tmp, NULL, 0 ));
 		}
 	}
 	return result;
 }
 
 
-sint64 *tabfileobj_t::get_sint64s(const char *key)
+vector_tpl<sint64> tabfileobj_t::get_sint64s(const char *key)
 {
 	const char *value = get_string(key,NULL);
 	const char *tmp;
-	int         count = 1;
-	sint64         *result;
+	int         count = 0;
+	vector_tpl<sint64> result;
 
 	if(!value) {
-		result = new sint64[1];
-		result[0] = 0;
 		return result;
 	}
+
 	// Determine number
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
 			count++;
 		}
 	}
-	// Create result vector and fill
-	result = new sint64[count + 1];
 
-	result[0] = count;
-	count = 1;
-	result[count++] = atosint64(value);
+	// Create result vector and fill
+	result.resize(count);
+	result.append(atosint64(value));
+
 	for(tmp = value; *tmp; tmp++) {
 		if(*tmp == ',') {
-			result[count++] = atosint64(tmp + 1);
+			result.append(atosint64(tmp + 1));
 		}
 	}
 	return result;

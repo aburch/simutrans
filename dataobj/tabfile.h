@@ -11,11 +11,14 @@
 
 #include "../simcolor.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
+
 
 class tabfileobj_t;
 class koord;
 class scr_coord;
 class scr_size;
+
 
 class obj_info_t
 {
@@ -182,13 +185,10 @@ public:
 
 	/**
 	 * Parses a value with the format "<num 1>,<num 2>,..,<num N>"
-	 * and returns an allocated int[N + 1] with
-	 * N at pos. 0, <num 1> at pos 1, etc.
-	 * Do not forget to "delete []" the returned value.
-	 * @return at least an int[1], never NULL.
+	 * and returns a vector with these values.
 	 */
-	int *get_ints(const char *key);
-	sint64 *get_sint64s(const char *key);
+	vector_tpl<int> get_ints(const char *key);
+	vector_tpl<sint64> get_sint64s(const char *key);
 };
 
 #endif
