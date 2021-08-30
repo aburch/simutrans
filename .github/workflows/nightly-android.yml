@@ -1,9 +1,5 @@
 name: Nightly build Android
 
-env:
-  DEFAULT_PAKSETLINK: 'https://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip'
-  DEFAULT_PAKSETFILE: 'simupak64-122-0.zip'
-
 on:
   push:
 
@@ -78,7 +74,7 @@ jobs:
     - name: Checkout lib Android SDL by pelya (hard coded version)
       working-directory: /android-sdl
       run: |
-        git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin 4bc45825086deecb8f55f424d9125591d0e7a59b && git reset --hard FETCH_HEAD
+        git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin 0a516df844a2ffba02a81ecadd2849f957b38180 && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl
@@ -93,12 +89,6 @@ jobs:
         svn checkout svn://servers.simutrans.org/simutrans/trunk project/jni/application/simutrans/simutrans
 
     # End of environment setup (dependencies installed, source code at correct location)
-    # Start of package customization
-    - name: Add default pakset
-      working-directory: /android-sdl
-      run: |
-        wget ${{ github.event.inputs.paksetLink || env.DEFAULT_PAKSETLINK }}
-        unzip ./${{ github.event.inputs.paksetFile || env.DEFAULT_PAKSETFILE }} -d project/jni/application/simutrans/simutrans/
 
     # some temporary changes to Android SDL are stored in <repo>/.github/android
     - name: (Temporary) Patch Android SDL and replace version
