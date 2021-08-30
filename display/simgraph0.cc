@@ -392,7 +392,7 @@ void display_right_triangle_rgb(scr_coord_val, scr_coord_val, scr_coord_val, con
 {
 }
 
-void display_signal_direction_rgb( scr_coord_val, scr_coord_val, uint8, uint8, PIXVAL, PIXVAL, bool )
+void display_signal_direction_rgb( scr_coord_val, scr_coord_val, uint8, uint8, PIXVAL, PIXVAL, bool, uint8 )
 {
 }
 
