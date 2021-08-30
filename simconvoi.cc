@@ -3010,15 +3010,20 @@ station_tile_search_ready: ;
 		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / ((uint32)v->get_desc()->get_loading_time() + 1) + 1;
 		uint16 amount = v->unload_cargo(halt, next_depot, max_amount );
 
-		if(  max_amount>amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
+		if( amount > 0 ) {
+			// could unload something, so we are open for new stuff
+			cargo_type_prev = NULL;
+		}
+
+		if(  max_amount > amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
 			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot)
 			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
 				amount += v->load_cargo(halt, destination_halts, max_amount-amount);
 				unloading_state &= amount==0;
 			}
-			if (v->get_total_cargo() < v->get_cargo_max()) {
-				// not full
+			if (v->get_total_cargo() < v->get_cargo_max()  &&  amount < max_amount  ) {
+				// not full, but running out of goods
 				cargo_type_prev = v->get_cargo_type();
 			}
 		}
