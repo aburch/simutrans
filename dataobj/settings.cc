@@ -1334,7 +1334,10 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 		const vector_tpl<sint64> test = contents.get_sint64s( name );
 
 		// two arguments, and then factor natural number
-		if( test.get_count() != 2 ) {
+		if( test.empty() ) {
+			continue;
+		}
+		else if( test.get_count() != 2 ) {
 			// invalid entry
 			dbg->warning("settings_t::parse_simuconf", "Parameter locality_factor[%i] has wrong syntax (Parameter ignored)", i);
 		}
