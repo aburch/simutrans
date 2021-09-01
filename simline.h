@@ -143,7 +143,7 @@ public:
 	 * get name of line
 	 */
 	char const* get_name() const { return name; }
-	void set_name(const char *str) { name = str; }
+	void set_name(const char *str);
 
 	/*
 	 * load or save the line
