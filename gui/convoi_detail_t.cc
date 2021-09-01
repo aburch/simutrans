@@ -57,8 +57,11 @@ public:
 			add_component(&label_resale);
 			// max income
 			sint64 max_income = - v->get_operating_cost();
-			if(v->get_cargo_max() > 0) {
-				max_income += (v->get_cargo_max() * ware_t::calc_revenue(v->get_cargo_type(), v->get_waytype(), cnv_kmh) )/3000;
+
+			// cnv_kmh == SPEED_UNLIMITED means that meaningful revenue
+			// cannot be calculated yet (e.g. vehicle in depot or stopped at station)
+			if(v->get_cargo_max() > 0 && cnv_kmh != SPEED_UNLIMITED) {
+				max_income += (v->get_cargo_max() * ware_t::calc_revenue(v->get_cargo_type(), v->get_waytype(), cnv_kmh))/3000;
 			}
 			add_table(2,1);
 			{
