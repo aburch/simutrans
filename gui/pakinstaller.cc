@@ -94,6 +94,41 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 #include <zip.h>
 #include <fstream>
 
+ // linux/android specific, function to create folder makes use of opendir (linux system call) and mkdir (via system)
+#include <dirent.h>
+#include <errno.h>
+
+static bool create_folder_if_required(const char* extracted_path) {
+	char extracted_folder_name[FILENAME_MAX];
+	strcpy(extracted_folder_name, extracted_path);
+	char * last_occurence = strrchr(extracted_folder_name, '/');
+	if (last_occurence != NULL) {
+		last_occurence[0] = '\0';
+	}
+	else {
+		dbg->debug(__FUNCTION__, "Error searching for path? %s", extracted_folder_name);
+		return false;
+	}
+
+	DIR* dir = opendir(extracted_folder_name);
+	if (dir) {
+		closedir(dir);
+	}
+	else if (ENOENT == errno) {
+		cbuffer_t param;
+		param.append("mkdir -p ");
+		param.append(extracted_folder_name);
+		const int retval = system( param );
+		dbg->debug(__FUNCTION__, "- - Created folder %s, ret %d", extracted_folder_name, retval);
+	}
+	else {
+		dbg->debug(__FUNCTION__, "Error checking directory");
+		return false;
+	}
+
+	return true;
+}
+
 static void read_zip(const char* outfilename) {
 	zip_t * zip_archive;
 	int err;
@@ -131,27 +166,19 @@ static void read_zip(const char* outfilename) {
 				dbg->debug(__FUNCTION__, "unexpected content size in file %s (index %d) of zip_archive; is %d, should be %d: %s", st.name, idx, read_size, st.size);
 			}
 			else {
-				// example of path:
-				// simutrans/pak64.german/tool/check_passenger_stops/cursor.script_tool_check_pass.pak
-				// For android platform, the simutrans/ at the start must be removed.
-#ifdef __ANDROID__
-				const char* target_filename = st.name + 10;
-#else
-				const char* target_filename = st.name;
-#endif
+				// path may start with simutrans/, in which case it can be removed safely
+				bool start_with_simutrans = strncmp(st.name, "simutrans/", 10) == 0;
+				const char* target_filename = start_with_simutrans ? st.name + 10 : st.name;
 
 				char extracted_path[FILENAME_MAX];
 				sprintf(extracted_path, "%s%s", env_t::data_dir, target_filename);
-
 				dbg->debug(__FUNCTION__, "- %s: %d", extracted_path, st.size);
-				if (st.size == 0) { // likely a directory
-					cbuffer_t param;
-					param.append("mkdir ");
-					param.append(extracted_path);
-					const int retval = system( param );
-					dbg->debug(__FUNCTION__, "Creating folder %s, ret %d", extracted_path, retval);
-				} 
-				else if(!std::ofstream(extracted_path).write(contents, st.size)) {
+
+				if (!create_folder_if_required(extracted_path)) {
+					continue;
+				}
+
+				if(st.size > 0 && !std::ofstream(extracted_path).write(contents, st.size)) {
 					dbg->debug(__FUNCTION__, "Error writing file");
 				}
 			}
@@ -174,7 +201,17 @@ static CURLcode curl_download_file(CURL *curl, const char* target_file, const ch
 	CURLcode res;
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	char cabundle_path[FILENAME_MAX];
+	sprintf(cabundle_path, "%s%s", env_t::data_dir, "cacert.pem");
+	FILE *cabundle_file;
+	if ((cabundle_file = fopen(cabundle_path, "r"))) {
+		fclose(cabundle_file);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+		curl_easy_setopt(curl, CURLOPT_CAINFO, cabundle_path);
+	} else {
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		dbg->warning(__FUNCTION__, "ssl certificate authority bundle not found at %s; https calls will not be validated; this may be a security concern", cabundle_path);
+	}
 	curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_data);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
