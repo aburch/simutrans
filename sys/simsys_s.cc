@@ -129,10 +129,53 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
+// When using -autodpi, attempt to scale things on screen to this DPI value
+#define TARGET_DPI (96)
+
+#define SCALE_SHIFT_X 5
+#define SCALE_SHIFT_Y 5
+
+#define SCALE_NEUTRAL_X (1 << SCALE_SHIFT_X)
+#define SCALE_NEUTRAL_Y (1 << SCALE_SHIFT_Y)
+
+sint32 x_scale = SCALE_NEUTRAL_X;
+sint32 y_scale = SCALE_NEUTRAL_Y;
+
+#define SCREEN_RESCALE_X(x) (((x) * SCALE_NEUTRAL_X) / x_scale)
+#define SCREEN_RESCALE_Y(y) (((y) * SCALE_NEUTRAL_Y) / y_scale)
+
 // no autoscaling yet
 bool dr_auto_scale(bool)
 {
+#ifdef __ANDROID__
+	// SDL 1.2 does not support scaling, but the libSDL Android rendering layer 
+	// can stretch a rendered screensize to fit the full screen.
+	// Hence zoom scaling is achieved by rendering a lower resolution;
+	// dr_query_screen_resolution will therefore return a smaller resolution.
+
+	// SDL 1.2 does not provide device dpi retrieval; this number is based
+	// on average dpi of medium-end smartphones on market
+	const int DEVICE_DPI = 400;
+	
+	// Touch screen UX best practice recommends button size of 42px at dpi 96 (~11 mm)
+	// non-large themes have button size of 32px at dpi 96
+	// large-theme have button size of 48px at dpi 96
+	// However, default target DPI of 96 is fine for computer screen, 
+	// but not for mobile devices. A target dpi of 96 with a 6 inch screen
+	// does not give enough resolution to display information, hence we must 
+	// target a higher dpi such as 192 to have enough screen estate, and 
+	// reach playable resolution. At 192 dpi, buttons are best in the 
+	// range 64-96 px so a new theme is preferrable. 
+	const int MOBILE_TARGET_DPI = TARGET_DPI * 2;
+	
+	x_scale = SCALE_NEUTRAL_X * DEVICE_DPI / MOBILE_TARGET_DPI;
+	y_scale = SCALE_NEUTRAL_Y * DEVICE_DPI / MOBILE_TARGET_DPI;
 	return false;
+#else
+	x_scale = SCALE_NEUTRAL_X;
+	y_scale = SCALE_NEUTRAL_Y;
+	return false;
+#endif
 }
 
 /*
@@ -184,6 +227,10 @@ resolution dr_query_screen_resolution()
 		res.h = 560;
 	}
 #endif
+#ifdef __ANDROID__
+	res.w = SCREEN_RESCALE_X(res.w);
+	res.h = SCREEN_RESCALE_Y(res.h);
+#endif
 	return res;
 }
 
@@ -211,12 +258,14 @@ int dr_os_open(int w, int const h, bool fullscreen)
 
 	Uint32 flags = async_blit ? SDL_ASYNCBLIT : 0;
 
+#ifndef __ANDROID__ // Android does not support video mode with w above max screen width
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	w = (w + 15) & 0x7FF0;
 	if(  w<=0  ) {
 		w = 16;
 	}
+#endif
 
 	width = w;
 	height = h;
