@@ -8,6 +8,7 @@
 
 #include "settings.h"
 #include "environment.h"
+#include "../pathes.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -952,11 +953,14 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	}
 #endif
 
-	//check for fontname, must be a valid name!
-	std::string fname = trim( contents.get_string( "fontname", env_t::fontname.c_str() ) );
-	if( FILE* f = fopen( fname.c_str(), "r" ) ) {
-		fclose( f );
-		env_t::fontname = fname;
+	// check for fontname, must be a valid name!
+	if( !env_t::fontname.compare( FONT_PATH_X "prop.fnt" ) ) {
+		// will be only changed if default!
+		std::string fname = trim( contents.get_string( "fontname", env_t::fontname.c_str() ) );
+		if( FILE* f = fopen( fname.c_str(), "r" ) ) {
+			fclose( f );
+			env_t::fontname = fname;
+		}
 	}
 	env_t::fontsize  = contents.get_int( "fontsize", env_t::fontsize );
 

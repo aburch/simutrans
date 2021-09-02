@@ -1182,7 +1182,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// simgraph_init loads default fonts, now we need to load (if not set otherwise)
-	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
+//	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 	dr_chdir(env_t::data_dir);
 
 	dbg->message("simu_main()","Reading city configuration ...");
@@ -1273,13 +1273,18 @@ int simu_main(int argc, char** argv)
 
 	if(  translator::get_language()==-1  ) {
 		// try current language
-		const char *loc = dr_get_locale();
-		if(  !*loc  ||  !translator::set_language(loc)  ) {
-			ask_language();
+		const char* loc = dr_get_locale();
+		if(  loc==NULL  ||  !translator::set_language( loc )  ) {
+			loc = dr_get_locale_string();
+			if(  loc==NULL  ||  !translator::set_language( loc )  ) {
+				ask_language();
+			}
+			else {
+				sprachengui_t::init_font_from_lang();
+			}
 		}
 		else {
-			// init with matching font
-			sprachengui_t::init_font_from_lang( true );
+			sprachengui_t::init_font_from_lang();
 		}
 	}
 
@@ -1570,7 +1575,7 @@ int simu_main(int argc, char** argv)
 
 	// simgraph_init loads default fonts, now we need to load
 	// the real fonts for the current language, if not set otherwise
-	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
+	sprachengui_t::init_font_from_lang();
 
 	if(   !(env_t::reload_and_save_on_quit  &&  !new_world)  ) {
 		destroy_all_win(true);

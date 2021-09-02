@@ -34,6 +34,8 @@ private:
 	 */
 	static translator single_instance;
 
+	static uint32 guess_highest_unicode(int lang);
+
 	/* Methods related to loading a language file into memory */
 	static void load_language_file(FILE* file);
 	static void load_language_iso(const std::string &iso);
@@ -52,6 +54,7 @@ public:
 		const char *iso;
 		const char *iso_base;
 		bool is_latin2_based;
+		uint32 highest_character;
 		uint8 ellipsis_width;
 	};
 

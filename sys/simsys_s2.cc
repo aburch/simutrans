@@ -801,12 +801,11 @@ const char* dr_get_locale()
 	if( loc ) {
 		strncpy( LanguageCode, loc->language, 2 );
 		LanguageCode[2] = 0;
+		DBG_MESSAGE( "dr_get_locale()", "%2s", LanguageCode );
+		return LanguageCode;
 	}
-#elif defined(_WIN32)
-	GetLocaleInfoA( GetUserDefaultUILanguage(), LOCALE_SISO639LANGNAME, LanguageCode, lengthof( LanguageCode ) );
 #endif
-	DBG_MESSAGE( "dr_get_locale()", "%2s", LanguageCode );
-	return LanguageCode;
+	return NULL,
 }
 
 

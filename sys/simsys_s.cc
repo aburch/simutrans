@@ -736,14 +736,7 @@ void dr_notify_input_pos(int, int)
 
 const char* dr_get_locale()
 {
-#ifdef _WIN32
-	static char LanguageCode[5] = "";
-	GetLocaleInfoA( GetUserDefaultUILanguage(), LOCALE_SISO639LANGNAME, LanguageCode, lengthof( LanguageCode ) );
-	return LanguageCode;
-#else
-	// Has nothing for this
-	return "";
-#endif
+	return NULL;
 }
 
 #ifdef _MSC_VER

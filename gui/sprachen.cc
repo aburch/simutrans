@@ -34,8 +34,10 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
  * Causes the required fonts for currently selected
  * language to be loaded
  */
-void sprachengui_t::init_font_from_lang(bool reload_font)
+void sprachengui_t::init_font_from_lang()
 {
+	bool reload_font = !has_character( translator::get_lang()->highest_character );
+
 	// the real fonts for the current language
 	std::string old_font = env_t::fontname;
 
@@ -196,21 +198,17 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		if(b == comp) {
 			b->pressed = true;
 
-			static const char *default_name = "PROP_FONT_FILE";
-
-			const char *prop_font_file_old = translator::translate(default_name);
-
-			translator::set_language(buttons[i].id);
-			const char *prop_font_file_new = translator::translate(default_name);
-
-			// choose bdf font if default file names do not match (or are not translated)
-			bool reload_font = prop_font_file_old == default_name  ||  prop_font_file_new == default_name  ||  strcmp(prop_font_file_new, prop_font_file_old) != 0;
-
-			init_font_from_lang(reload_font);
+			translator::set_language( buttons[i].id );
+			init_font_from_lang();
 			destroy_all_win( true );
 
+			event_t* ev = new event_t();
+			ev->ev_class = EVENT_SYSTEM;
+			ev->ev_code = SYSTEM_RELOAD_WINDOWS;
+			queue_event( ev );
+
 			if (world()) {
-				// no need to update non-existent toolbars
+				// must not update non-existent toolbars
 				tool_t::update_toolbars();
 			}
 		}
