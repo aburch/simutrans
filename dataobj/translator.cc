@@ -380,7 +380,7 @@ static translator::lang_info* get_lang_by_iso(const char *iso)
 }
 
 
-static uint32 get_highest_character( utf8* str )
+static uint32 get_highest_character( const utf8 *str )
 {
 	size_t len = 0;
 	uint32 max_char = 0, symbol;
@@ -400,11 +400,11 @@ uint32 translator::guess_highest_unicode(int n)
 	const char* T1 = langs[n].texts.get( "Bruecke muss an\neinfachem\nHang beginnen!\n" );
 	uint32 max_char = 0xDF;
 	if( T1 ) {
-		max_char = get_highest_character( (utf8*)T1 );
+		max_char = get_highest_character( (const utf8 *)T1 );
 	}
 	const char* T2 = langs[n].texts.get( "Start" );
 	if( T2 ) {
-		uint32 max_char2 = get_highest_character( (utf8*)T2 );
+		uint32 max_char2 = get_highest_character( (const utf8 *)T2 );
 		max_char = max( max_char, max_char2 );
 	}
 	return max_char;
