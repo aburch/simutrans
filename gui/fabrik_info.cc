@@ -150,7 +150,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 	switch_mode.add_tab(&scroll_info, translator::translate("Connections"));
 
 	// connection information
-	
+
 	container_info.set_table_layout(1,0);
 	container_info.add_component(&all_suppliers);
 	container_info.add_component(&all_consumers);
@@ -413,11 +413,11 @@ void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking) {
 
 	fab_koords.append(fab->get_pos().get_2d());
 
-	for (int i = 0; i < fab_koords.get_count(); i++) {
+	for (uint i = 0; i < fab_koords.get_count(); i++) {
 		vector_tpl<koord> fab_tiles;
 		fab->get_fab(fab_koords[i])->get_tile_list(fab_tiles);
 
-		for (int y = 0; y < fab_tiles.get_count(); y++)
+		for (uint y = 0; y < fab_tiles.get_count(); y++)
 		{
 			if (grund_t* const gr = welt->lookup(koord3d(fab_tiles[y], 0)))
 			{

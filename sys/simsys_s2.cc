@@ -795,8 +795,8 @@ void dr_notify_input_pos(int x, int y)
 
 const char* dr_get_locale()
 {
-	static char LanguageCode[5] = "";
 #if SDL_VERSION_ATLEAST(2, 0, 14)
+	static char LanguageCode[5] = "";
 	SDL_Locale *loc = SDL_GetPreferredLocales();
 	if( loc ) {
 		strncpy( LanguageCode, loc->language, 2 );
