@@ -106,52 +106,48 @@ void sdl_sound_callback(void *, Uint8 * stream, int len)
  */
 bool dr_init_sound()
 {
-	int sound_ok = 0;
-	if(use_sound!=0) {
-		return use_sound; // avoid init twice
+	// avoid init twice
+	if (use_sound != 0) {
+		return use_sound > 0;
 	}
-	use_sound = 1;
 
 	// initialize SDL sound subsystem
-	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
-
-		// open an audio channel
-		SDL_AudioSpec desired;
-
-		desired.freq = 22050;
-		desired.channels = 1;
-		desired.format = AUDIO_S16SYS;
-		desired.samples = 1024;
-		desired.userdata = NULL;
-
-		desired.callback = sdl_sound_callback;
-
-		if(  (audio_device = SDL_OpenAudioDevice( NULL, 0, &desired, &output_audio_format, SDL_AUDIO_ALLOW_ANY_CHANGE ))  ) {
-			// allow any change as loaded .wav files are converted to output format upon loading
-
-			int i;
-
-			// finished initializing
-			sound_ok = 1;
-
-			for (i = 0; i < CHANNELS; i++)
-			channels[i].sample = 255;
-
-			// start playing sounds
-			SDL_PauseAudioDevice(audio_device, 0);
-
-		}
-		else {
-			dbg->error("dr_init_sound()", "Could not open required audio channel. Muting");
-			SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		}
-	}
-	else {
-		dbg->error("dr_init_sound()", "Could not initialize sound system. Muting");
+	if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) == -1) {
+		dbg->error("dr_init_sound(SDL2)", "Could not initialize sound system. Muting.");
+		use_sound = -1;
+		return false;
 	}
 
-	use_sound = sound_ok ? 1: -1;
-	return sound_ok;
+	// open an audio channel
+	SDL_AudioSpec desired;
+
+	desired.freq     = 22050;
+	desired.channels = 1;
+	desired.format   = AUDIO_S16SYS;
+	desired.samples  = 1024;
+	desired.userdata = NULL;
+	desired.callback = sdl_sound_callback;
+
+	// allow any change as loaded .wav files are converted to output format upon loading
+	audio_device = SDL_OpenAudioDevice( NULL, 0, &desired, &output_audio_format, SDL_AUDIO_ALLOW_ANY_CHANGE );
+
+	if(  !audio_device  ) {
+		dbg->error("dr_init_sound(SDL2)", "Could not open required audio channel. Muting.");
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		use_sound = -1;
+		return false;
+	}
+
+	// finished initializing
+	for (int i = 0; i < CHANNELS; i++) {
+		channels[i].sample = 255;
+	}
+
+	// start playing sounds
+	SDL_PauseAudioDevice(audio_device, 0);
+
+	use_sound = 1;
+	return true;
 }
 
 
