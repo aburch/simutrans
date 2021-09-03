@@ -223,11 +223,25 @@ map_settings_t::map_settings_t()
 	scrollspeed.add_listener( this );
 	add_component( &scrollspeed );
 
-	// Toggle simple drawing for debugging
 #ifdef DEBUG
+	// Toggle simple drawing for debugging
 	buttons[IDBTN_SIMPLE_DRAWING].init(button_t::square_state, "Simple drawing");
 	add_component(buttons+IDBTN_SIMPLE_DRAWING, 2);
 #endif
+
+	// Set date format
+	new_component<gui_label_t>( "Date format" );
+	time_setting.set_focusable( false );
+	uint8 old_show_month = env_t::show_month;
+	sint32 current_tick = world()->get_ticks();
+	for( env_t::show_month = 0; env_t::show_month<8; env_t::show_month++ ) {
+		tstrncpy( time_str[env_t::show_month], tick_to_string( current_tick ), 64 );
+		time_setting.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( time_str[env_t::show_month], SYSCOL_TEXT );
+	}
+	env_t::show_month = old_show_month;
+	time_setting.set_selection( old_show_month );
+	add_component( &time_setting );
+	time_setting.add_listener( this );
 
 	end_table();
 }
@@ -239,17 +253,21 @@ bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		env_t::daynight_level = (sint8)v.i;
 	}
 	// Scroll speed edit
-	if( &scrollspeed == comp ) {
+	else if( &scrollspeed == comp ) {
 		env_t::scroll_multi = (sint16)(buttons[ IDBTN_SCROLL_INVERSE ].pressed ? -v.i : v.i);
 	}
 	// underground slice edit
-	if( comp == &inp_underground_level ) {
+	else if( comp == &inp_underground_level ) {
 		if( grund_t::underground_mode == grund_t::ugm_level ) {
 			grund_t::underground_level = inp_underground_level.get_value();
 
 			// calc new images
 			world()->update_underground();
 		}
+	}
+	else if( comp == &time_setting ) {
+		env_t::show_month = v.i;
+		return true;
 	}
 	return true;
 }

@@ -32,18 +32,21 @@ public:
 	button_t toolbar_pos, reselect_closes_tool;
 
 	gui_settings_t();
-	virtual void draw( scr_coord offset ) OVERRIDE;
+	void draw( scr_coord offset ) OVERRIDE;
 };
 
 class map_settings_t : public gui_aligned_container_t, public action_listener_t
 {
+private:
+	char time_str[8][64];
+	gui_combobox_t time_setting;
 public:
 	gui_numberinput_t
 		inp_underground_level,
 		brightness,
 		scrollspeed;
 	map_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
 
 class station_settings_t : public gui_aligned_container_t
@@ -60,7 +63,7 @@ private:
 	gui_combobox_t hide_buildings;
 public:
 	transparency_settings_t();
-	virtual bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
+	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 	void draw(scr_coord offset) OVERRIDE;
 };
 
