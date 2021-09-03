@@ -304,6 +304,16 @@ transparency_settings_t::transparency_settings_t()
 	cursor_hide_range.add_listener( this );
 	add_component( &cursor_hide_range );
 
+	new_component<gui_label_t>( "Industry overlay" )->set_tooltip( translator::translate( "Display bars above factory to show the status" ) );
+	factory_tooltip.set_focusable( false );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Do not show" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "On mouseover" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Served by me" ), SYSCOL_TEXT );
+	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show always" ), SYSCOL_TEXT );
+	factory_tooltip.set_selection( env_t::show_factory_storage_bar );
+	add_component( &factory_tooltip );
+	factory_tooltip.add_listener( this );
+
 	end_table();
 }
 
@@ -317,6 +327,12 @@ bool transparency_settings_t::action_triggered( gui_action_creator_t *comp, valu
 	if( &hide_buildings == comp ) {
 		env_t::hide_buildings = (uint8)v.i;
 		world()->set_dirty();
+	}
+	if( comp == &factory_tooltip ) {
+		env_t::show_factory_storage_bar = (uint8)v.i;
+		world()->set_dirty();
+
+		return true;
 	}
 	return true;
 }
@@ -354,15 +370,6 @@ station_settings_t::station_settings_t()
 	}
 	end_table();
 	new_component<gui_empty_t>();
-
-	new_component<gui_label_t>( "Industry overlay" )->set_tooltip( translator::translate( "Display bars above factory to show the status" ) );
-	factory_tooltip.set_focusable( false );
-	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Do not show" ), SYSCOL_TEXT );
-	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "On mouseover" ), SYSCOL_TEXT );
-	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Served by me" ), SYSCOL_TEXT );
-	factory_tooltip.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Show always" ), SYSCOL_TEXT );
-	factory_tooltip.set_selection( env_t::show_factory_storage_bar );
-	add_component( &factory_tooltip );
 
 	// Show waiting bars checkbox
 	buttons[ IDBTN_SHOW_WAITING_BARS ].init( button_t::square_state, "show waiting bars" );
@@ -492,7 +499,6 @@ color_gui_t::color_gui_t() :
 	}
 	gui_settings.toolbar_pos.add_listener( this );
 	gui_settings.reselect_closes_tool.add_listener(this);
-	station_settings.factory_tooltip.add_listener( this );
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
@@ -502,14 +508,7 @@ color_gui_t::color_gui_t() :
 
 bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
-	// Hide building
-	if(  comp == &station_settings.factory_tooltip  ) {
-		env_t::show_factory_storage_bar = (uint8)v.i;
-		world()->set_dirty();
-
-		return true;
-	}
-	else if(  comp == &gui_settings.toolbar_pos  ) {
+	if(  comp == &gui_settings.toolbar_pos  ) {
 		env_t::menupos++;
 		env_t::menupos &= 3;
 		switch (env_t::menupos) {

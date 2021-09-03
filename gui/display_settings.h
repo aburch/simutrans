@@ -52,7 +52,6 @@ public:
 class station_settings_t : public gui_aligned_container_t
 {
 public:
-	gui_combobox_t factory_tooltip;
 	station_settings_t();
 };
 
@@ -61,6 +60,7 @@ class transparency_settings_t : public gui_aligned_container_t, public action_li
 private:
 	gui_numberinput_t cursor_hide_range;
 	gui_combobox_t hide_buildings;
+	gui_combobox_t factory_tooltip;
 public:
 	transparency_settings_t();
 	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
