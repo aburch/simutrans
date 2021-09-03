@@ -808,6 +808,19 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_show_factory_storage_t : public tool_t {
+public:
+	tool_show_factory_storage_t() : tool_t(TOOL_SHOW_FACTORY_STORAGE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("switch the industry storage display mode"); }
+	bool init(player_t *) OVERRIDE {
+		env_t::show_factory_storage_bar = (env_t::show_factory_storage_bar+1) % 4;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 class tool_show_name_t : public tool_t {
 public:
 	tool_show_name_t() : tool_t(TOOL_SHOW_NAME | SIMPLE_TOOL) {}

@@ -800,8 +800,9 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 	delta_menge = 0;
 	menge_remainder = 0;
 	activity_count = 0;
-	currently_producing = false;
+	currently_requiring_power = false;
 	transformer = NULL;
+	currently_producing = false;
 	total_input = total_transit = total_output = 0;
 	status = STATUS_NOTHING;
 	lieferziele_active_last_month = 0;
@@ -1179,7 +1180,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long(delta_menge);
 		file->rdwr_long(menge_remainder);
 		file->rdwr_long(prodfactor_electric);
-		file->rdwr_bool(currently_producing);
+		file->rdwr_bool(currently_requiring_power);
 		file->rdwr_long(total_input);
 		file->rdwr_long(total_transit);
 		file->rdwr_long(total_output);
@@ -1190,7 +1191,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		delta_menge = 0;
 		menge_remainder = 0;
 		prodfactor_electric = 0;
-		currently_producing = false;
+		currently_requiring_power = false;
 		total_input = 0;
 		total_transit = 0;
 		total_output = 0;
@@ -1904,6 +1905,7 @@ void fabrik_t::step(uint32 delta_t)
 		switch(  control_type  ) {
 			case CL_PROD_CLASSIC: {
 				// Classic producer logic.
+				currently_requiring_power = false;
 				currently_producing = false;
 
 				// produces something
@@ -1929,7 +1931,8 @@ void fabrik_t::step(uint32 delta_t)
 							output[product].menge += p;
 							output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 							// if less than 3/4 filled we neary always consume power
-							currently_producing |= (output[product].menge*4 < output[product].max*3);
+							currently_requiring_power |= (output[product].menge*4 < output[product].max*3);
+							currently_producing = true;
 						}
 						else {
 							output[product].book_stat((sint64)(output[product].max - 1 - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
@@ -1946,7 +1949,7 @@ void fabrik_t::step(uint32 delta_t)
 					break;
 				}
 
-				currently_producing = true;
+				currently_requiring_power = false;
 
 				for(  uint32 product = 0;  product < output.get_count();  product++  ) {
 					prod_comp = output[product].max - output[product].menge;
@@ -1963,13 +1966,11 @@ void fabrik_t::step(uint32 delta_t)
 					prod_delta = work_scale_production(prod, work_fact);
 
 					// Cannot produce more than can be stored.
-					if(  prod_delta >= prod_comp  ) {
+					if(  prod_delta > prod_comp  ) {
 						prod_delta = prod_comp;
-						inactive_outputs++;
-						if(  inactive_outputs == output.get_count()  ) {
-							currently_producing = false;
-						}
 					}
+
+					currently_requiring_power = (prod_delta>0);
 
 					delta_menge += prod_delta;
 					output[product].menge += prod_delta;
@@ -1977,6 +1978,7 @@ void fabrik_t::step(uint32 delta_t)
 
 					work += work_fact;
 				}
+				currently_producing = currently_requiring_power;
 
 				// normalize work with respect to output number
 				work /= output.get_count();
@@ -1985,6 +1987,7 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_FACT_CLASSIC: {
 				// Classic factory logic, work and want determined by the maximum output production rate.
+				currently_requiring_power = false;
 				currently_producing = false;
 
 				// ok, calulate maximum allowed consumption.
@@ -2022,7 +2025,8 @@ void fabrik_t::step(uint32 delta_t)
 								output[product].menge += p;
 								output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 								// if less than 3/4 filled we neary always consume power
-								currently_producing |= (output[product].menge*4 < output[product].max*3);
+								currently_requiring_power |= (output[product].menge*4 < output[product].max*3);
+								currently_producing = true;
 							}
 							else {
 								output[product].book_stat((sint64)(output[product].max - 1 - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
@@ -2053,6 +2057,8 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_FACT_MANY: {
 				// Logic for a factory with many outputs. Work and want are based on weighted output rate so is more complicated.
+				currently_requiring_power = false;
+				currently_producing = false;
 				if(  inactive_outputs == output.get_count()  ) {
 					break;
 				}
@@ -2074,10 +2080,6 @@ void fabrik_t::step(uint32 delta_t)
 
 					}
 					cons_comp *= output.get_count();
-
-					if(  !no_input  ) {
-						currently_producing = true;
-					}
 
 					for(  uint32 product = 0;  product < output.get_count();  product++  ) {
 						prod_comp = output[product].max - output[product].menge;
@@ -2121,12 +2123,15 @@ void fabrik_t::step(uint32 delta_t)
 						if(  prod_delta == prod_comp  ) {
 							inactive_outputs++;
 							if(  inactive_outputs == output.get_count()  ) {
-								currently_producing = false;
+								currently_requiring_power = false;
 							}
 						}
 
 						// credit output work done
 						work += prod_delta;
+
+						currently_requiring_power = true;
+						currently_producing = true;
 
 						// Produce output
 						delta_menge += prod_delta;
@@ -2153,7 +2158,7 @@ void fabrik_t::step(uint32 delta_t)
 
 						// register inactive inputs
 						if(  input[index].menge <= 0  ) {
-							currently_producing = false;
+							currently_requiring_power = false;
 							input[index].menge = 0;
 							inactive_inputs ++;
 						}
@@ -2165,6 +2170,7 @@ void fabrik_t::step(uint32 delta_t)
 				uint32 power = 0;
 
 				// Classic consumer logic.
+				currently_requiring_power = false;
 				currently_producing = false;
 
 				if(  desc->is_electricity_producer()  ) {
@@ -2182,6 +2188,7 @@ void fabrik_t::step(uint32 delta_t)
 					if(  (uint32)input[index].menge > v + 1  ) {
 						input[index].menge -= v;
 						input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+						currently_requiring_power = true;
 						currently_producing = true;
 						if(  desc->is_electricity_producer()  ) {
 							// power station => produce power
@@ -2211,6 +2218,8 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_CONS_MANY: {
 				// Consumer logic for many inputs. Work done is based on the average consumption of all inputs.
+				currently_requiring_power = false;
+				currently_producing = false;
 
 				// always consume prod
 				want = prod;
@@ -2220,13 +2229,14 @@ void fabrik_t::step(uint32 delta_t)
 					break;
 				}
 
-				currently_producing = true;
-
 				for(  uint32 index = 0;  index < input.get_count();  index++  ) {
+
 					// Only process active inputs;
 					if(  input[index].menge <= 0  ) {
 						continue;
 					}
+					currently_requiring_power = true;
+					currently_producing = true;
 
 					sint32 const consumption_prod = work_scale_production(prod, input[index].calculate_demand_production_rate());
 
@@ -2245,7 +2255,7 @@ void fabrik_t::step(uint32 delta_t)
 					if(  input[index].menge <= 0  ) {
 						inactive_inputs++;
 						if(  inactive_inputs == input.get_count()  ) {
-							currently_producing = false;
+							currently_requiring_power = false;
 						}
 					}
 				}
@@ -2265,6 +2275,7 @@ void fabrik_t::step(uint32 delta_t)
 				// A simple no input electricity producer, like a solar array.
 
 				// always maximum work
+				currently_requiring_power = true;
 				currently_producing = true;
 				work = 1 << WORK_BITS;
 				delta_menge += prod;
@@ -2277,11 +2288,12 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_ELEC_CLASSIC: {
 				// Classic no input power producer.
-				currently_producing = false;
+				currently_requiring_power = false;
 				work = 1 << WORK_BITS;
 
 				// power station? => produce power
 				if(  desc->is_electricity_producer()  ) {
+					currently_requiring_power = true;
 					currently_producing = true;
 					set_power_supply((uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS ));
 				}
@@ -2289,6 +2301,8 @@ void fabrik_t::step(uint32 delta_t)
 			}
 			case CL_NONE:
 			default: {
+				currently_producing = false;
+				currently_requiring_power = false;
 				// None always produces maximum for whatever reason. Also default.
 				work = 1 << WORK_BITS;
 				break;
@@ -2354,7 +2368,7 @@ void fabrik_t::step(uint32 delta_t)
 		case BL_CLASSIC: {
 			// draw a fixed amount of power when working sufficiently, otherwise draw no power
 			if(  !desc->is_electricity_producer()  ) {
-				if(  currently_producing  ) {
+				if(  currently_requiring_power  ) {
 					set_power_demand(scaled_electric_demand);
 				}
 				else {
@@ -3293,3 +3307,80 @@ sint32 fabrik_t::calculate_work_rate_ramp(sint32 const amount, sint32 const mini
 	}
 	return production_rate;
 }
+
+
+/**
+ * Draws some nice colored bars giving some status information
+ */
+void fabrik_t::display_status(sint16 xpos, sint16 ypos)
+{
+	const sint16 count = input.get_count()+output.get_count();
+
+	ypos -= D_LABEL_HEIGHT / 2 + D_WAITINGBAR_WIDTH;
+	xpos -= (count * D_WAITINGBAR_WIDTH - get_tile_raster_width()) / 2;
+
+	if( input.get_count() ) {
+		if(  currently_producing  ) {
+			display_ddd_box_clip_rgb(xpos-2,  ypos-1, D_WAITINGBAR_WIDTH*input.get_count()+4, 6, color_idx_to_rgb(10), color_idx_to_rgb(12));
+		}
+		display_fillbox_wh_clip_rgb(xpos-1, ypos, D_WAITINGBAR_WIDTH*input.get_count()+2, 4, color_idx_to_rgb(150), true);
+
+		int i = 0;
+		FORX(array_tpl<ware_production_t>, const& goods, input, i++) {
+			if (!desc->get_supplier(i)) {
+				continue;
+			}
+			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
+			//const sint64 max_transit      = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const PIXVAL goods_color = goods.get_typ()->get_color();
+
+			const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity))+2;
+
+			if(  currently_producing  ) {
+				display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
+				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
+				display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
+			}
+			else {
+				display_blend_wh_rgb( xpos+1, ypos-v-1, D_WAITINGBAR_WIDTH-2, v, goods_color, 60);
+				mark_rect_dirty_wc( xpos+1, ypos-v-1, xpos+D_WAITINGBAR_WIDTH-1, ypos-1 );
+			}
+
+			xpos += D_WAITINGBAR_WIDTH;
+		}
+		xpos += 4;
+	}
+
+	if( output.get_count() ) {
+		if(  currently_producing  ) {
+			display_ddd_box_clip_rgb(xpos-2,  ypos-1, D_WAITINGBAR_WIDTH*output.get_count()+4, 6, color_idx_to_rgb(10), color_idx_to_rgb(12));
+		}
+		display_fillbox_wh_clip_rgb(xpos-1, ypos, D_WAITINGBAR_WIDTH*output.get_count()+2, 4, color_idx_to_rgb(COL_ORANGE), true);
+
+		int i = 0;
+		FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
+			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
+			const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const PIXVAL goods_color  = goods.get_typ()->get_color();
+
+			const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity)) + 2;
+
+			// the blended bars are too faint for me
+			if(  currently_producing  ) {
+				display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
+				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
+				display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
+			}
+			else {
+				display_blend_wh_rgb( xpos+1, ypos-v-1, D_WAITINGBAR_WIDTH-2, v, goods_color, 60);
+				mark_rect_dirty_wc( xpos+1, ypos-v-1, xpos+D_WAITINGBAR_WIDTH-1, ypos-1 );
+			}
+
+			xpos += D_WAITINGBAR_WIDTH;
+		}
+	}
+}
+

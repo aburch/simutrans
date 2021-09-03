@@ -49,6 +49,7 @@ public:
 class station_settings_t : public gui_aligned_container_t
 {
 public:
+	gui_combobox_t factory_tooltip;
 	station_settings_t();
 };
 

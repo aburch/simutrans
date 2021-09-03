@@ -326,6 +326,9 @@ public:
 	 */
 	static sint32 show_names;
 
+	/// Show factory storage bar
+	static uint8 show_factory_storage_bar;
+
 	/// if a schedule is open, show tiles which are used by it
 	static bool visualize_schedule;
 

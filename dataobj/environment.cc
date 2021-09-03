@@ -115,6 +115,7 @@ uint32 env_t::moving_object_probability;
 bool env_t::road_user_info;
 bool env_t::tree_info;
 bool env_t::ground_info;
+uint8 env_t::show_factory_storage_bar;
 bool env_t::townhall_info;
 bool env_t::single_info;
 bool env_t::single_line_gui;
@@ -230,6 +231,7 @@ void env_t::init()
 	savegame_version_str = SAVEGAME_VER_NR;
 
 	show_month = DATE_FMT_US;
+	show_factory_storage_bar = 0;
 
 	intercity_road_length = 200;
 
@@ -550,6 +552,8 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( reselect_closes_tool );
 
 		file->rdwr_bool( single_line_gui );
+
+		file->rdwr_byte( show_factory_storage_bar );
 	}
 
 	// server settings are not saved, since they are server specific

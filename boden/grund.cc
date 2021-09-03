@@ -16,6 +16,7 @@
 #include "../player/simplay.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simfab.h"
 
 #include "../bauer/wegbauer.h"
 
@@ -40,6 +41,7 @@
 #include "../obj/signal.h"
 #include "../obj/tunnel.h"
 #include "../obj/wayobj.h"
+#include "../obj/zeiger.h"
 
 #include "../gui/ground_info.h"
 #include "../gui/minimap.h"
@@ -1702,6 +1704,36 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			}
 		}
 	}
+
+	if( env_t::show_factory_storage_bar ) {
+		if( gebaeude_t *gb=find<gebaeude_t>() ) {
+			if(  fabrik_t* fab = gb->get_fabrik()  ) {
+				if( env_t::show_factory_storage_bar == 1  &&  welt->get_zeiger()->get_pos() == get_pos() ) {
+					const sint16 raster_tile_width = get_tile_raster_width();
+					const char* text = fab->get_name();
+					const int width = proportional_string_width( text )+7;
+					sint16 new_xpos = xpos - (width-raster_tile_width)/2;
+					sint16 new_ypos = ypos + raster_tile_width/2;
+					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
+					// ... and status
+					fab->display_status( xpos, new_ypos );
+				}
+				else if(  gb->get_first_tile() == gb  ) {
+					if(  env_t::show_factory_storage_bar == 3  ||  (env_t::show_factory_storage_bar == 2  &&  fab->is_within_players_network( welt->get_active_player() ))  ) {
+						// name of factory
+						const char* text = fab->get_name();
+						const sint16 raster_tile_width = get_tile_raster_width();
+						const sint16 width = proportional_string_width( text )+7;
+						sint16 new_xpos = xpos - (width-raster_tile_width)/2;
+						display_text_label( new_xpos, ypos, text, fab->get_owner(), dirty );
+						// ... and status
+						fab->display_status( xpos, ypos );
+					}
+				}
+			}
+		}
+	}
+
 	if( schiene_t::show_reservations &&  hat_wege()  ) {
 		if( weg_t* w = get_weg_nr( 0 ) ) {
 			if( w->has_signal() ) {

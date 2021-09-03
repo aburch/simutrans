@@ -1,4 +1,5 @@
 /*
+/*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -324,6 +325,9 @@ private:
 	leitung_t *transformer;
 
 	// true, if the factory did produce enough in the last step to require power
+	bool currently_requiring_power;
+
+	// there is input or output and we do something with it ...
 	bool currently_producing;
 
 	uint32 last_sound_ms;
@@ -562,7 +566,7 @@ public:
 	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
 
 	// true, if there was production requiring power in the last step
-	bool is_currently_producing() const { return currently_producing; }
+	bool is_currently_producing() const { return currently_requiring_power; }
 
 	/**
 	 * True if a transformer is connected to this factory.
@@ -679,6 +683,11 @@ public:
 	uint32 get_total_in() const { return total_input; }
 	uint32 get_total_transit() const { return total_transit; }
 	uint32 get_total_out() const { return total_output; }
+
+	/**
+	 * Draws some nice colored bars giving some status information
+	 */
+	void display_status(sint16 xpos, sint16 ypos);
 
 	/**
 	 * Crossconnects all factories
