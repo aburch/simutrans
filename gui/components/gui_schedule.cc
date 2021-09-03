@@ -60,7 +60,7 @@ class gui_schedule_entry_t :
 	gui_label_buf_t stop_extra;
 
 public:
-	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, schedule_t *f, uint n)
+	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
 	{
 		player = pl;
 		entry  = e;
@@ -282,7 +282,7 @@ public:
 			}
 			else {
 				for(uint i=0; i<schedule->entries.get_count(); i++) {
-					entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], schedule, i));
+					entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], i));
 					entries.back()->add_listener( this );
 				}
 				entries[ schedule->get_current_stop() ]->set_active(true);
