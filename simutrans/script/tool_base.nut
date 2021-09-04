@@ -42,3 +42,20 @@ function step()
 {
 	// do not implement
 }
+
+// check whether all functions support the flags parameter
+function correct_missing_flags_argument()
+{
+	if (work.getinfos().parameters.len() == 3) {
+		work_old <- work
+		work = function(player, pos, flags) { return work_old(player, pos) }
+	}
+	if (do_work.getinfos().parameters.len() == 4) {
+		do_work_old <- do_work
+		do_work = function(player, pos, flags) { return do_work_old(player, pos) }
+	}
+	if (mark_tiles.getinfos().parameters.len() == 4) {
+		mark_tiles_old <- mark_tiles
+		mark_tiles = function(player, pos, flags) { mark_tiles_old(player, pos) }
+	}
+}

@@ -134,6 +134,14 @@ void export_global_constants(HSQUIRRELVM vm)
 	end_enum();
 
 	/**
+	 * Flags for scripted tools.
+	 */
+	begin_enum("tool_flags");
+	enum_slot(vm, "shift_pressed", tool_t::WFL_SHIFT);
+	enum_slot(vm, "ctrl_pressed",  tool_t::WFL_CTRL);
+	end_enum();
+
+	/**
 	 * Constants for different way types.
 	 */
 	begin_enum("way_types");

@@ -9,6 +9,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Changed scripted tools: work, do_work, mark_tiles have additional parameter to send state of ctrl/shift keys
  * - Added @ref way_x::get_max_speed
  * - Added @ref wayobj_desc_x, @ref wayobj_x, @ref command_x::build_wayobj to work with way-objects
  * - Added @ref factory_x::get_raw_name
