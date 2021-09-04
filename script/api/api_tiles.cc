@@ -113,19 +113,17 @@ vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
 	return list;
 }
 
-vector_tpl<convoihandle_t> const get_convoy_list(koord3d pos)
+vector_tpl<convoihandle_t> const get_convoy_list(grund_t* gr)
 {
 	static vector_tpl<convoihandle_t> list;
 	list.clear();
 
-	if( grund_t* gr = welt->lookup( pos ) ) {
-		for( uint8 n = 0; n<gr->get_top(); n++) {
-			obj_t* obj = gr->obj_bei( n );
-			if( vehicle_t* veh = dynamic_cast<vehicle_t*>(obj) ) {
-				convoihandle_t cnv;
-				if( veh->get_convoi() ) {
-					list.append_unique( veh->get_convoi()->self );
-				}
+	for( uint8 n = 0; n<gr->get_top(); n++) {
+		obj_t* obj = gr->obj_bei( n );
+		if( vehicle_t* veh = dynamic_cast<vehicle_t*>(obj) ) {
+			convoihandle_t cnv;
+			if( veh->get_convoi() ) {
+				list.append_unique( veh->get_convoi()->self );
 			}
 		}
 	}

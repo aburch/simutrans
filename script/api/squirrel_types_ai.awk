@@ -342,6 +342,7 @@ BEGIN {
 	export_types["tile_x::is_marked"] = "bool()"
 	export_types["tile_x::unmark"] = "void()"
 	export_types["tile_x::mark"] = "void()"
+	export_types["tile_x::get_convoys"] = "array<convoy_x>()"
 	export_types["square_x::is_valid"] = "bool()"
 	export_types["square_x::get_halt"] = "halt_x()"
 	export_types["square_x::get_player_halt"] = "halt_x(player_x)"
