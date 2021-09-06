@@ -67,6 +67,7 @@ public:
 	typ get_typ() const OVERRIDE { return baum; }
 
 	/// @copydoc obj_t::rdwr
+	/// @deprecated Only used for loading old saves that did save tree offsets
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/// @copydoc obj_t::finish_rd

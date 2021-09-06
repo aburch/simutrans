@@ -5609,6 +5609,12 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		active_player_nr = 0;
 	}
 
+	// rdwr tree ID mapping to restore tree IDs
+	if (file->is_version_atleast(122, 2)) {
+		DBG_MESSAGE("karte_t::rdwr_gamestate()", "rdwr tree IDs");
+		tree_builder_t::rdwr_tree_ids(file);
+	}
+
 	// rdwr static states
 	senke_t::static_rdwr(file);
 

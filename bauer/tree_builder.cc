@@ -26,6 +26,7 @@ static const uint8 tree_age_index[(baum_t::AGE_LIMIT >> 6) + 1] =
 vector_tpl<const tree_desc_t *> tree_builder_t::tree_list(0);
 weighted_vector_tpl<uint8> tree_builder_t::tree_list_per_climate[MAX_CLIMATES];
 stringhashtable_tpl<const tree_desc_t *> tree_builder_t::desc_table;
+vector_tpl<plainstring> tree_builder_t::loaded_tree_names;
 
 
 /// Quick lookup of an image, assuring always five seasons and five ages.
@@ -343,3 +344,33 @@ bool tree_builder_t::spawn_tree_near(const baum_t *tree, int radius)
 	return plant_tree_on_coordinate(k, tree->get_desc(), true, false);
 }
 
+
+void tree_builder_t::rdwr_tree_ids(loadsave_t *file)
+{
+	xml_tag_t tag(file, "tree_ids");
+
+	uint8 num_trees = tree_list.get_count()-1;
+	file->rdwr_byte(num_trees);
+
+	if (file->is_loading()) {
+		loaded_tree_names.clear();
+		plainstring str;
+
+		for (uint8 i = 0; i < num_trees; ++i) {
+			file->rdwr_str(str);
+			loaded_tree_names.append(str);
+		}
+	}
+	else {
+		for (uint8 i = 0; i < num_trees; ++i) {
+			plainstring str = tree_list[i]->get_name();
+			file->rdwr_str(str);
+		}
+	}
+}
+
+
+const char *tree_builder_t::get_loaded_desc_name(uint8 loaded_id)
+{
+	return (loaded_id < loaded_tree_names.get_count()) ? loaded_tree_names[loaded_id].c_str() : NULL;
+}

@@ -1077,7 +1077,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				||  (new_obj->get_typ()==obj_t::gebaeude  &&  ((gebaeude_t *)new_obj)->get_fabrik())
 				// things with convoi will not be saved
 				||  (new_obj->get_typ()>=66  &&  new_obj->get_typ()<82)
-				||  (env_t::server  &&  new_obj->get_typ()==obj_t::baum  &&  file->is_version_atleast(110, 1))
+				||  (new_obj->get_typ()==obj_t::baum  &&  file->is_version_atleast(110, 1)  && (env_t::server  ||  file->is_version_atleast(122, 2))) // trees are saved from boden_t
 			) {
 				// these objects are simply not saved
 			}
