@@ -618,6 +618,9 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			schedule->set_current_stop( line );
 			update_selection();
 		}
+		else if (schedule->empty()) {
+			update_selection();
+		}
 	}
 	// do not reset tool during initialisation
 	if (old_schedule) {
