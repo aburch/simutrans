@@ -3316,7 +3316,7 @@ void fabrik_t::display_status(sint16 xpos, sint16 ypos)
 {
 	const sint16 count = input.get_count()+output.get_count();
 
-	ypos -= D_LABEL_HEIGHT / 2 + D_WAITINGBAR_WIDTH;
+	ypos += -D_WAITINGBAR_WIDTH - LINESPACE/6;
 	xpos -= (count * D_WAITINGBAR_WIDTH - get_tile_raster_width()) / 2;
 
 	if( input.get_count() ) {

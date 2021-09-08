@@ -1666,13 +1666,14 @@ void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player
 			display_ddd_proportional_clip( xpos, ypos, proportional_string_width(text)+7, 0, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
 			break;
 		case 1:
-			display_outline_proportional_rgb( xpos, ypos-(LINESPACE/2), color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_outline_proportional_rgb( xpos, ypos, color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );
 			break;
-		case 2:
-			display_outline_proportional_rgb( xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2),   color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
-			display_ddd_box_clip_rgb(         xpos,                         ypos-(LINESPACE/2),   LINESPACE,   LINESPACE,   color_idx_to_rgb(pc-2), PLAYER_FLAG|color_idx_to_rgb(pc+2) );
-			display_fillbox_wh_rgb(           xpos+1,                       ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, color_idx_to_rgb(pc), dirty );
+		case 2: {
+			display_outline_proportional_rgb( xpos + LINESPACE + D_H_SPACE, ypos,   color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_ddd_box_clip_rgb(         xpos,                         ypos,   LINESPACE,   LINESPACE,   color_idx_to_rgb(pc-2), PLAYER_FLAG|color_idx_to_rgb(pc+2) );
+			display_fillbox_wh_rgb(           xpos+1,                       ypos+1, LINESPACE-2, LINESPACE-2, color_idx_to_rgb(pc), dirty );
 			break;
+		}
 	}
 }
 
@@ -1713,10 +1714,11 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 					const char* text = fab->get_name();
 					const int width = proportional_string_width( text )+7;
 					sint16 new_xpos = xpos - (width-raster_tile_width)/2;
-					sint16 new_ypos = ypos + raster_tile_width/2;
-					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
+					sint16 new_ypos = ypos + 5;
+//					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
 					// ... and status
 					fab->display_status( xpos, new_ypos );
+					win_set_tooltip( new_xpos, ypos, fab->get_name(), NULL, NULL );
 				}
 				else if(  gb->get_first_tile() == gb  ) {
 					if(  env_t::show_factory_storage_bar == 3  ||  (env_t::show_factory_storage_bar == 2  &&  fab->is_within_players_network( welt->get_active_player() ))  ) {

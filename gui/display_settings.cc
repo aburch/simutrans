@@ -69,7 +69,7 @@ public:
 		const player_t* player = welt->get_active_player();
 		const char *text = get_text_pointer();
 
-		display_text_label(p.x, p.y + get_size().h/2, text, player, true);
+		display_text_label(p.x, p.y, text, player, true);
 	}
 
 	scr_size get_min_size() const OVERRIDE

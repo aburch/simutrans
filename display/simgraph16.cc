@@ -4757,9 +4757,9 @@ void display_ddd_box_rgb(scr_coord_val x1, scr_coord_val y1, scr_coord_val w, sc
 void display_outline_proportional_rgb(scr_coord_val xpos, scr_coord_val ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - LINESPACE) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - LINESPACE) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - LINESPACE) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos - 1, ypos    , text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + 1, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
 }
 
 
@@ -4789,22 +4789,23 @@ void display_ddd_box_clip_rgb(scr_coord_val x1, scr_coord_val y1, scr_coord_val 
 /**
  * display text in 3d box with clipping
  */
-void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, scr_coord_val width, scr_coord_val hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
+void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, scr_coord_val width, scr_coord_val , FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
 {
-	const int halfheight = LINESPACE / 2 + 1;
+	const int vpadding = LINESPACE / 7;
+	const int hpadding = LINESPACE / 4;
 
 	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
 	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
 
-	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, halfheight * 2 + 2, ddd_color, dirty CLIP_NUM_PAR );
+	display_fillbox_wh_clip_rgb( xpos+1, ypos - vpadding + 1, width+2*hpadding-2, LINESPACE+2*vpadding-2, ddd_color, dirty CLIP_NUM_PAR);
 
-	display_fillbox_wh_clip_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, lighter, dirty );
-	display_fillbox_wh_clip_rgb( xpos - 1, ypos + halfheight - hgt,     width - 2, 1, darker,  dirty );
+	display_fillbox_wh_clip_rgb( xpos, ypos - vpadding, width + 2*hpadding - 2, 1, lighter, dirty );
+	display_fillbox_wh_clip_rgb( xpos, ypos + LINESPACE + vpadding - 1, width + 2*hpadding - 2, 1, darker,  dirty );
 
-	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
-	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
+	display_vline_wh_clip_rgb( xpos, ypos - vpadding - 1, LINESPACE + vpadding * 2 - 1, lighter, dirty );
+	display_vline_wh_clip_rgb( xpos + width + 2*hpadding, ypos - vpadding - 1, LINESPACE + vpadding * 2 - 1, darker,  dirty );
 
-	display_text_proportional_len_clip_rgb( xpos + 2, ypos - 5 + (12 - LINESPACE) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
+	display_text_proportional_len_clip_rgb( xpos+hpadding, ypos+1, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
 }
 
 
