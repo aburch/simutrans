@@ -1722,24 +1722,14 @@ void win_display_flush(double konto)
 			break;
 	}
 
+	display_set_clip_wh( menu_pos.x, menu_pos.y, menu_size.w, menu_size.h );
+
 	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_image_id(0) != IMG_EMPTY  ) {
 		const image_id back_img = skinverwaltung_t::toolbar_background->get_image_id(0);
-		scr_coord_val w = env_t::iconsize.w;
-		scr_rect row = scr_rect( menu_pos, menu_size );
-		display_fit_img_to_width( back_img, w );
-		// tile it wide
-		while(  w <= row.w  ) {
-			display_color_img( back_img, row.x, row.y, 0, false, true );
-			row.x += w;
-			row.w -= w;
-		}
-		// for the rest we have to clip the rectangle
-		if(  row.w > 0  ) {
-			clip_dimension const cl = display_get_clip_wh();
-			display_set_clip_wh( cl.x, cl.y, max(0, min(row.get_right(), cl.xx) - cl.x), cl.h );
-			display_color_img( back_img, row.x, row.y, 0, false, true );
-			display_set_clip_wh( cl.x, cl.y, cl.w, cl.h );
-		}
+		display_fit_img_to_width( back_img, env_t::iconsize.w );
+
+		stretch_map_t imag = { {IMG_EMPTY, IMG_EMPTY, IMG_EMPTY}, {IMG_EMPTY, back_img, IMG_EMPTY}, {IMG_EMPTY, IMG_EMPTY, IMG_EMPTY} };
+		display_img_stretch(imag, scr_rect(menu_pos, menu_size));
 	}
 	else {
 		display_fillbox_wh_rgb( menu_pos.x, menu_pos.y, menu_size.w, menu_size.h, color_idx_to_rgb(MN_GREY2), false );
@@ -1748,7 +1738,6 @@ void win_display_flush(double konto)
 	tooltip_element = main_menu->is_hit( get_mouse_x()-menu_pos.x, get_mouse_y()-menu_pos.y) ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
-	display_set_clip_wh( menu_pos.x, menu_pos.y, menu_size.w, menu_size.h );
 	menu_pos.y -= D_TITLEBAR_HEIGHT;
 	main_menu->draw(menu_pos, menu_size);
 	inside_event_handling = old_inside_event_handling;

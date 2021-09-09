@@ -2760,7 +2760,7 @@ void display_img_aux(const image_id n, scr_coord_val xp, scr_coord_val yp, const
 
 
 // local helper function for tiles buttons
-static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_rect row )
+static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_rect row, FLAGGED_PIXVAL)
 {
 	if(  i1!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i1].w;
@@ -2793,72 +2793,76 @@ static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_
 	}
 }
 
-
-// this displays a 3x3 array of images to fit the scr_rect
-void display_img_stretch( const stretch_map_t &imag, scr_rect area )
+static scr_coord_val get_img_width(image_id img)
 {
-	scr_coord_val h_top = 0, h_bottom = 0;
-	scr_coord_val w_left = 0;
+	return img != IMG_EMPTY ? images[ img ].w : 0;
+}
+static scr_coord_val get_img_height(image_id img)
+{
+	return img != IMG_EMPTY ? images[ img ].h : 0;
+}
 
-	if(  imag[0][0]!=IMG_EMPTY  ) {
-		h_top = images[ imag[0][0] ].h;
-		w_left = images[ imag[0][0] ].w;
-	}
-	if(  imag[0][2]!=IMG_EMPTY  ) {
-		h_bottom = images[ imag[0][2] ].h;
-	}
+typedef void (*DISP_THREE_ROW_FUNC)(image_id, image_id, image_id, scr_rect, FLAGGED_PIXVAL);
 
-	// center vertically?
-	if(  imag[0][1] == IMG_EMPTY  &&  imag[2][1] == IMG_EMPTY  ) {
-		scr_coord_val h = h_top;
-		if(  imag[1][0]!=IMG_EMPTY  ) {
-			h = max( h, images[ imag[1][0] ].h );
-		}
+/**
+ * Base method to display a 3x3 array of images to fit the scr_rect.
+ * Special cases:
+ * - if images[*][1] are empty, display images[*][0] vertically aligned
+ * - if images[1][*] are empty, display images[0][*] horizontally aligned
+ */
+static void display_img_stretch_intern( const stretch_map_t &imag, scr_rect area, DISP_THREE_ROW_FUNC display_three_image_rowf, FLAGGED_PIXVAL color)
+{
+	scr_coord_val h_top    = max(max( get_img_height(imag[0][0]), get_img_height(imag[1][0])), get_img_height(imag[2][0]));
+	scr_coord_val h_middle = max(max( get_img_height(imag[0][1]), get_img_height(imag[1][1])), get_img_height(imag[2][1]));
+	scr_coord_val h_bottom = max(max( get_img_height(imag[0][2]), get_img_height(imag[1][2])), get_img_height(imag[2][2]));
+
+	// center vertically if images[*][1] are empty, display images[*][0]
+	if(  imag[0][1] == IMG_EMPTY  &&  imag[1][1] == IMG_EMPTY  &&  imag[2][1] == IMG_EMPTY  ) {
+		scr_coord_val h = max(h_top, get_img_height(imag[1][1]));
 		// center vertically
 		area.y += (area.h-h)/2;
 	}
 
-	// center horizontcally?
-	if(  imag[1][0] == IMG_EMPTY  &&  imag[1][2] == IMG_EMPTY  ) {
-		scr_coord_val w = w_left;
-		if(  imag[0][1]!=IMG_EMPTY  ) {
-			w = max( w, images[ imag[0][1] ].w );
-		}
+	// center horizontally if images[1][*] are empty, display images[0][*]
+	if(  imag[1][0] == IMG_EMPTY  &&  imag[1][1] == IMG_EMPTY  &&  imag[1][2] == IMG_EMPTY  ) {
+		scr_coord_val w_left = max(max( get_img_width(imag[0][0]), get_img_width(imag[0][1])), get_img_width(imag[0][2]));
 		// center vertically
-		area.x += (area.w-w)/2;
+		area.x += (area.w-w_left)/2;
 	}
 
 	// top row
-	display_three_image_row( imag[0][0], imag[1][0], imag[2][0], area );
+	display_three_image_rowf( imag[0][0], imag[1][0], imag[2][0], area, color);
 
 	// bottom row
-	if(  imag[0][2]!=IMG_EMPTY  ) {
+	if(  h_bottom > 0  ) {
 		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
-		display_three_image_row( imag[0][2], imag[1][2], imag[2][2], row );
+		display_three_image_rowf( imag[0][2], imag[1][2], imag[2][2], row, color);
 	}
 
 	// now stretch the middle
-	if(  imag[0][1]!=IMG_EMPTY  ||  imag[1][1]!=IMG_EMPTY  ) {
-		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
+	if(  h_middle > 0  ) {
+		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom);
 		// tile it wide
-		scr_coord_val h = imag[0][1]!=IMG_EMPTY ? images[imag[0][1]].h : imag[1][1]!=IMG_EMPTY;
-		while(  h <= row.h  ) {
-			display_three_image_row( imag[0][1], imag[1][1], imag[2][1], row );
-			row.y += h;
-			row.h -= h;
+		while(  h_middle <= row.h  ) {
+			display_three_image_rowf( imag[0][1], imag[1][1], imag[2][1], row, color);
+			row.y += h_middle;
+			row.h -= h_middle;
 		}
 		// for the rest we have to clip the rectangle
 		if(  row.h > 0  ) {
 			clip_dimension const cl = display_get_clip_wh();
 			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );
-			display_three_image_row( imag[0][1], imag[1][1], imag[2][1], row );
+			display_three_image_rowf( imag[0][1], imag[1][1], imag[2][1], row, color);
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 	}
 }
 
+void display_img_stretch( const stretch_map_t &imag, scr_rect area)
+{
+	display_img_stretch_intern(imag, area, display_three_image_row, 0);
+}
 
-// local helper function for tiles buttons
 static void display_three_blend_row( image_id i1, image_id i2, image_id i3, scr_rect row, FLAGGED_PIXVAL color )
 {
 	if(  i1!=IMG_EMPTY  ) {
@@ -2896,51 +2900,7 @@ static void display_three_blend_row( image_id i1, image_id i2, image_id i3, scr_
 // this displays a 3x3 array of images to fit the scr_rect like above, but blend the color
 void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, FLAGGED_PIXVAL color )
 {
-	scr_coord_val h_top = 0, h_bottom = 0;
-	if(  imag[0][0]!=IMG_EMPTY  ) {
-		h_top = images[ imag[0][0] ].h;
-	}
-	if(  imag[0][2]!=IMG_EMPTY  ) {
-		h_bottom = images[ imag[0][2] ].h;
-	}
-
-	// center vertically?
-	if(  imag[0][1] == IMG_EMPTY  ) {
-		scr_coord_val h = h_top;
-		if(  imag[1][0]!=IMG_EMPTY  ) {
-			h = max( h, images[ imag[1][0] ].h );
-		}
-		// center vertically
-		area.y += (area.h-h)/2;
-	}
-
-	// top row
-	display_three_blend_row( imag[0][0], imag[1][0], imag[2][0], area, color );
-
-	// bottom row
-	if(  imag[0][2]!=IMG_EMPTY  ) {
-		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
-		display_three_blend_row( imag[0][2], imag[1][2], imag[2][2], row, color );
-	}
-
-	// now stretch the middle
-	if(  imag[0][1]!=IMG_EMPTY  ) {
-		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
-		// tile it wide
-		scr_coord_val h = images[imag[0][1]].h;
-		while(  h <= row.h  ) {
-			display_three_blend_row( imag[0][1], imag[1][1], imag[2][1], row, color );
-			row.y += h;
-			row.h -= h;
-		}
-		// for the rest we have to clip the rectangle
-		if(  row.h > 0  ) {
-			clip_dimension const cl = display_get_clip_wh();
-			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );
-			display_three_blend_row( imag[0][1], imag[1][1], imag[2][1], row, color );
-			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
-		}
-	}
+	display_img_stretch_intern(imag, area, display_three_blend_row, color);
 }
 
 
