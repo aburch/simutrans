@@ -1700,26 +1700,26 @@ void win_display_flush(double konto)
 	scr_size menu_size(disp_width, env_t::iconsize.h);
 	scr_rect clip_rr(0, env_t::iconsize.h, disp_width, disp_height - env_t::iconsize.h);
 	switch (env_t::menupos) {
-	case MENU_TOP:
-		// pos default (see above)
-		// size default
-		// rect default
-		break;
-	case MENU_BOTTOM:
-		menu_pos = scr_coord(0, disp_height - env_t::iconsize.h);
-		// size default
-		clip_rr.y = 0;
-		break;
-	case MENU_LEFT:
-		// pos default (see above)
-		menu_size = scr_size(env_t::iconsize.w, disp_height-win_get_statusbar_height()-show_ticker*TICKER_HEIGHT);
-		clip_rr = scr_rect(env_t::iconsize.h, 0, disp_width - env_t::iconsize.w, disp_height);
-		break;
-	case MENU_RIGHT:
-		menu_pos.x = disp_width - env_t::iconsize.w;
-		menu_size = scr_size(env_t::iconsize.w, disp_height - win_get_statusbar_height()-show_ticker*TICKER_HEIGHT );
-		clip_rr = scr_rect(0, 0, disp_width - env_t::iconsize.w, disp_height);
-		break;
+		case MENU_TOP:
+			// pos default (see above)
+			// size default
+			// rect default
+			break;
+		case MENU_BOTTOM:
+			menu_pos = scr_coord(0, disp_height - env_t::iconsize.h);
+			// size default
+			clip_rr.y = 0;
+			break;
+		case MENU_LEFT:
+			// pos default (see above)
+			menu_size = scr_size(env_t::iconsize.w, disp_height-win_get_statusbar_height()-show_ticker*TICKER_HEIGHT);
+			clip_rr = scr_rect(env_t::iconsize.h, 0, disp_width - env_t::iconsize.w, disp_height);
+			break;
+		case MENU_RIGHT:
+			menu_pos.x = disp_width - env_t::iconsize.w;
+			menu_size = scr_size(env_t::iconsize.w, disp_height - win_get_statusbar_height()-show_ticker*TICKER_HEIGHT );
+			clip_rr = scr_rect(0, 0, disp_width - env_t::iconsize.w, disp_height);
+			break;
 	}
 
 	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_image_id(0) != IMG_EMPTY  ) {
