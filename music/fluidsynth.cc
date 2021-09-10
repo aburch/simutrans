@@ -22,24 +22,23 @@ fluid_audio_driver_t* adriver;
 fluid_player_t* player;
 
 // Predefined list of paths to search for soundfonts
-static const char * default_sf[] = {
-	/* RedHat/Fedora/Arch preferred */
-	"/usr/share/soundfonts/sf2/default.sf2",
-	"/usr/share/soundfonts/sf2/freepats-general-midi.sf2",
-	"/usr/share/soundfonts/FluidR3_GM.sf2",
+static const char * default_sf_paths[] = {
+	/* RedHat/Fedora/Arch path */
+	"/usr/share/soundfonts/sf2/",
+	/* Debian/Ubuntu/OpenSUSE path */
+	"/usr/share/sounds/sf2/",
+	NULL
+};
 
-	/* Debian/Ubuntu/OpenSUSE preferred */
-	"/usr/share/sounds/sf2/default.sf2",
-	"/usr/share/sounds/sf2/FluidR3_GM.sf2",
-
-	/* Debian/Ubuntu/OpenSUSE alternatives */
-	"/usr/share/sounds/sf2/TimGM6mb.sf2",
-	"/usr/share/sounds/sf2/FluidR3_GS.sf2",
-
-	/* Android */
+// Soundfonts included on linux distros or bundled with Simutrans
+static const char * default_sf_names[] = {
+	"default.sf2",
+	"freepats-general-midi.sf2",
+	"PCLite.sf2",
 	"TimGM6mb.sf2",
-
-	nullptr
+	"FluidR3_GM.sf2",
+	"FluidR3_GS.sf2",
+	NULL
 };
 
 #ifdef __ANDROID__
@@ -238,10 +237,20 @@ bool dr_init_midi()
 	if(  dr_load_sf( env_t::soundfont_filename.c_str() ) || dr_load_sf( ((std::string)env_t::data_dir + "music/" + env_t::soundfont_filename).c_str() )  ) {
 		return true;
 	}
-	// Then predefined list of soundfonts
-	for(  int i = 0;  default_sf[i];  i++  ) {
-		if(  dr_load_sf( default_sf[i] )  ) {
+
+	// Bundled soundfonts second
+	for(  int i = 0;  default_sf_names[i];  i++  ) {
+		if(  dr_load_sf( ((std::string)env_t::data_dir + "music/" + (std::string)default_sf_names[i] ).c_str() )  ) {
 			return true;
+		}
+	}
+
+	// System soundfonts at last
+	for(  int i = 0;  default_sf_paths[i];  i++  ) {
+		for(  int i = 0; default_sf_names[i]; i++  ){
+			if(  dr_load_sf(  ((std::string)default_sf_paths[i] + (std::string)default_sf_names[i]).c_str()  )  ) {
+				return true;
+			}
 		}
 	}
 
