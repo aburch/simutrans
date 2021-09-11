@@ -1007,6 +1007,10 @@ void dr_fatal_notify(char const* const msg)
 #ifdef _WIN32
 	MessageBoxA(0, msg, "Fatal Error", MB_ICONEXCLAMATION);
 #endif
+
+#ifdef __ANDROID__
+	dbg->error(__FUNCTION__, msg);
+#endif
 }
 
 /**

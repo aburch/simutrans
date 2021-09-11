@@ -37,6 +37,12 @@
 #endif
 #endif
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#include "cbuffer_t.h"
+#define  LOG_TAG    "com.simutrans"
+#endif
+
 /**
  * writes a debug message into the log.
  */
@@ -73,6 +79,14 @@ void log_t::debug(const char *who, const char *format, ...)
 			sprintf( buffer, "Debug: %s\t%s", who, format );
 			vsyslog( LOG_DEBUG, buffer, argptr );
 		}
+		va_end( argptr );
+#endif
+
+#ifdef __ANDROID__
+		va_start(argptr, format);
+		cbuffer_t buffer;
+		buffer.printf("Debug: %s\t%s", who, format);
+		__android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, buffer, argptr);
 		va_end( argptr );
 #endif
 	}
@@ -117,6 +131,14 @@ void log_t::message(const char *who, const char *format, ...)
 		}
 		va_end( argptr );
 #endif
+
+#ifdef __ANDROID__
+		va_start(argptr, format);
+		cbuffer_t buffer;
+		buffer.printf("Message: %s\t%s", who, format);
+		__android_log_vprint(ANDROID_LOG_INFO, LOG_TAG, buffer, argptr);
+		va_end( argptr );
+#endif
 	}
 }
 
@@ -157,6 +179,14 @@ void log_t::warning(const char *who, const char *format, ...)
 			sprintf( buffer, "Warning: %s\t%s", who, format );
 			vsyslog( LOG_WARNING, buffer, argptr );
 		}
+		va_end( argptr );
+#endif
+
+#ifdef __ANDROID__
+		va_start(argptr, format);
+		cbuffer_t buffer;
+		buffer.printf("Debug: %s\t%s", who, format);
+		__android_log_vprint(ANDROID_LOG_WARN, LOG_TAG, buffer, argptr);
 		va_end( argptr );
 #endif
 	}
@@ -206,6 +236,14 @@ void log_t::error(const char *who, const char *format, ...)
 			sprintf( buffer, "ERROR: %s\t%s", who, format );
 			vsyslog( LOG_ERR, buffer, argptr );
 		}
+		va_end( argptr );
+#endif
+
+#ifdef __ANDROID__
+		va_start(argptr, format);
+		cbuffer_t buffer;
+		buffer.printf("ERROR: %s\t%s", who, format);
+		__android_log_vprint(ANDROID_LOG_ERROR, LOG_TAG, buffer, argptr);
 		va_end( argptr );
 #endif
 	}
