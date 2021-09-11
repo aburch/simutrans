@@ -278,7 +278,6 @@ void savegame_frame_t::list_filled( void )
 {
 	uint cols = (delete_enabled ? 1 : 0) + 1 + (label_enabled ? 1 : 0);
 	button_frame.set_table_layout(1,0);
-	button_frame.add_table(cols,0);
 	button_frame.add_table(cols,0)->set_spacing(scr_size(D_H_SPACE,D_FILELIST_V_SPACE)); // change space between entries to zero to see more on screen
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
