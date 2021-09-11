@@ -577,6 +577,12 @@ static void internal_GetEvents(bool const wait)
 		case SDL_FINGERDOWN: {
 			// just reset scroll state
 			dLastDist = 0.0;
+			sys_event.type = SIM_MOUSE_BUTTONS;
+			sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
+			sys_event.mx = (event.tfinger.x+event.tfinger.dx)* screen->w;
+			sys_event.my = (event.tfinger.y+event.tfinger.dy)* screen->h;
+			sys_event.mb = 1;
+			sys_event.key_mod = ModifierKeys();
 			break;
 		}
 		case SDL_FINGERMOTION: {
@@ -587,6 +593,7 @@ static void internal_GetEvents(bool const wait)
 				sys_event.type = SIM_MOUSE_MOVE;
 				sys_event.code = SIM_MOUSE_MOVED;
 				sys_event.mb = 1;
+				sys_event.key_mod = ModifierKeys();
 			}
 			break;
 		}
