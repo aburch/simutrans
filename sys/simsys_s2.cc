@@ -40,6 +40,9 @@ extern char **__argv;
 #else
 #endif
 
+// threshold for zooming in/out with multitouch
+#define DELTA_PINCH (0.033)
+
 static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************
 	0x30, 0x06, //   **         **
@@ -179,12 +182,12 @@ bool dr_os_init(const int* parameter)
 #ifndef USE_SDL_TEXTEDITING
 	SDL_EventState( SDL_TEXTEDITING, SDL_DISABLE );
 #endif
-	SDL_EventState( SDL_FINGERDOWN, SDL_DISABLE );
-	SDL_EventState( SDL_FINGERUP, SDL_DISABLE );
-	SDL_EventState( SDL_FINGERMOTION, SDL_DISABLE );
+	SDL_EventState( SDL_FINGERDOWN, SDL_ENABLE );
+	SDL_EventState( SDL_FINGERUP, SDL_ENABLE );
+	SDL_EventState( SDL_FINGERMOTION, SDL_ENABLE );
 	SDL_EventState( SDL_DOLLARGESTURE, SDL_DISABLE );
 	SDL_EventState( SDL_DOLLARRECORD, SDL_DISABLE );
-	SDL_EventState( SDL_MULTIGESTURE, SDL_DISABLE );
+	SDL_EventState( SDL_MULTIGESTURE, SDL_ENABLE );
 	SDL_EventState( SDL_CLIPBOARDUPDATE, SDL_DISABLE );
 	SDL_EventState( SDL_DROPFILE, SDL_DISABLE );
 
@@ -493,6 +496,7 @@ static void internal_GetEvents(bool const wait)
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
 	static bool composition_is_underway = false;
 	static bool ignore_previous_number = false;
+	static double dLastDist = 0.0;
 
 	SDL_Event event;
 	event.type = 1;
@@ -568,6 +572,44 @@ static void internal_GetEvents(bool const wait)
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = event.wheel.y > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
+			break;
+		}
+		case SDL_FINGERDOWN: {
+			// just reset scroll state
+			dLastDist = 0.0;
+			break;
+		}
+		case SDL_FINGERMOTION: {
+			// move whatever
+			if( screen ) {
+				sys_event.mx = (event.tfinger.x+event.tfinger.dx)* screen->w;
+				sys_event.my = (event.tfinger.y+event.tfinger.dy)* screen->h;
+				sys_event.type = SIM_MOUSE_MOVE;
+				sys_event.code = SIM_MOUSE_MOVED;
+				sys_event.mb = 1;
+			}
+			break;
+		}
+		case SDL_MULTIGESTURE: {
+			if( event.mgesture.numFingers == 2 ) {
+				// any multitouch is intepreted as pinch zoom
+
+				dLastDist += event.mgesture.dDist;
+				dbg->message( "dDist", "%g \t %g", event.mgesture.dDist, dLastDist );
+				if( dLastDist<-DELTA_PINCH ) {
+					sys_event.type = SIM_MOUSE_BUTTONS;
+					sys_event.code = SIM_MOUSE_WHEELDOWN;
+					sys_event.key_mod = ModifierKeys();
+					dLastDist += DELTA_PINCH;
+				}
+				else if( dLastDist>DELTA_PINCH ) {
+					sys_event.type = SIM_MOUSE_BUTTONS;
+					sys_event.code = SIM_MOUSE_WHEELUP;
+					sys_event.key_mod = ModifierKeys();
+					dLastDist -= DELTA_PINCH;
+				}
+
+			}
 			break;
 		}
 		case SDL_KEYDOWN: {

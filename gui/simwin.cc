@@ -1409,6 +1409,15 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 }
 
 
+bool last_drag_is_caught = false;
+
+// since check_pos_win is processed before i.e. scrolling map
+// we do not want to catch the mouse, if we use it already 
+void catch_dragging()
+{
+	last_drag_is_caught = true;
+}
+
 /*
  * main window event handler
  */
@@ -1419,8 +1428,20 @@ bool check_pos_win(event_t *ev)
 
 	bool swallowed = false;
 
-	const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
-	const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
+	const int x = ev->ev_class==EVENT_MOVE?ev->mx:ev->cx;
+	const int y = ev->ev_class==EVENT_MOVE?ev->my:ev->cy;
+
+	if( last_drag_is_caught ) {
+		if( ev->ev_class == EVENT_DRAG ) {
+			// somebody else drags already => do nothing
+			return false;
+		}
+		if( ev->ev_class == EVENT_RELEASE ) {
+			// we will handle dragging events again after this
+			last_drag_is_caught = false;
+			return false;
+		}
+	}
 
 	// for the moment, no none events
 	if (ev->ev_class == EVENT_NONE) {

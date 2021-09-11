@@ -41,9 +41,9 @@ void interaction_t::move_view( const event_t &ev )
 
 	// move the mouse pointer back to starting location => infinite mouse movement
 	if(  (ev.mx - ev.cx) != 0  ||  (ev.my-ev.cy) !=0  ) {
-#if defined(__BEOS__) || defined(__ANDROID__)
 		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
-#else
+#if 0
+		// move pointer catches the mouse inside the windows but is incompatible with any touch based scolling
 		move_pointer(ev.cx, ev.cy);
 #endif
 	}
@@ -383,6 +383,7 @@ bool interaction_t::process_event( event_t &ev )
 	else if(IS_RIGHTDRAG(&ev)) {
 		// unset following
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
+		catch_dragging();
 		move_view(ev);
 	}
 	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
@@ -393,6 +394,7 @@ bool interaction_t::process_event( event_t &ev )
 			left_drag = true;
 		}
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
+		catch_dragging();
 		move_view(ev);
 		ev.ev_code = EVENT_NONE;
 	}

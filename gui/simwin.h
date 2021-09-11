@@ -136,6 +136,9 @@ void win_clamp_xywh_position(scr_coord_val &x, scr_coord_val &y, scr_size wh, bo
 int create_win(gui_frame_t*, wintype, ptrdiff_t magic);
 int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t*, wintype, ptrdiff_t magic, bool move_to_show_full=false);
 
+// call to avoid the main menu getting mouse events while dragging 
+void catch_dragging();
+
 bool check_pos_win(event_t*);
 
 bool win_is_open(gui_frame_t *ig );
