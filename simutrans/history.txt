@@ -37,6 +37,7 @@
 	CHG: absolute departure time can be also more than once per month (repeats the time in equal intervals)
 	FIX: Public player cannot make halts of other players public
 	CHG: Smaller file sizes (~20% for forested maps) for single player saves
+	CHG: Simutrans now allows more than one file per languange. The file must just ending in XX.tab, where XX is the language code
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):

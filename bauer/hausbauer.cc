@@ -163,7 +163,7 @@ bool hausbauer_t::successfully_loaded()
 				break;
 			case building_desc_t::city_com:
 				if(  desc->get_x()*desc->get_y() > 9  ) {
-					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%sx%i)", desc->get_name(), desc->get_x(), desc->get_y() );
+					dbg->fatal( "hausbauer_t::successfully_loaded()", "maximum city building size (3x3) but %s is (%ix%i)", desc->get_name(), desc->get_x(), desc->get_y() );
 				}
 				if(  desc->get_x()*desc->get_y() > largest_city_building_area  ) {
 					largest_city_building_area = desc->get_x()*desc->get_y();
