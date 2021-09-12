@@ -323,13 +323,9 @@ void hausbauer_t::new_world()
 void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
-	const building_desc_t *bdsc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
 
 	// get start position and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_desc()->get_size( layout );
-	koord k;
 
 	if(  tile->get_desc()->get_type() == building_desc_t::headquarters  ) {
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
@@ -339,7 +335,6 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	}
 
 	// iterate over all places to check if there is already an open window
-	gebaeude_t* first_tile = NULL;
 	static vector_tpl<grund_t *> gb_tiles;
 	gb->get_tile_list( gb_tiles );
 

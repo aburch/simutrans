@@ -1413,7 +1413,7 @@ void win_set_pos(gui_frame_t *gui, int x, int y)
 bool last_drag_is_caught = false;
 
 // since check_pos_win is processed before i.e. scrolling map
-// we do not want to catch the mouse, if we use it already 
+// we do not want to catch the mouse, if we use it already
 void catch_dragging()
 {
 	last_drag_is_caught = true;
@@ -1670,7 +1670,7 @@ void win_poll_event(event_t* const ev)
 		simgraph_resize( ev->new_window_size );
 		ticker::redraw();
 		tool_t::update_toolbars();
-		for( int i = 0; i<wins.get_count(); i++ ) {
+		for( uint i = 0; i<wins.get_count(); i++ ) {
 			scr_coord_val x = wins[i].pos.x;
 			scr_coord_val y = wins[i].pos.y;
 			win_clamp_xywh_position( x, y, wins[i].gui->get_min_windowsize(), true );
