@@ -365,7 +365,7 @@ compass_map_position = 13
 # if set to 0, it will always produce numbers
 numpad_always_moves_map = 1
 
-# Position of the main menu bar (0=top, 1=left, 2=bottom, 3=right)
+# Position of the main menu bar (0=left, 1=top[default], 2=right, 3=bottom)
 #menubar_position = 0
 
 # 1=selecting a tool again will close it (0=will be topped/reinit)
