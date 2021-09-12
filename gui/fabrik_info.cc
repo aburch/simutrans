@@ -414,14 +414,13 @@ void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking)
 	fab_koords.append(fab->get_pos().get_2d());
 
 	for (uint i = 0; i < fab_koords.get_count(); i++) {
-		vector_tpl<koord3d> fab_tiles;
+		vector_tpl<grund_t*> fab_tiles;
 		if(grund_t *gr = welt->lookup_kartenboden(fab_koords[i])) {
 			if(gebaeude_t *gb=gr->find<gebaeude_t>() ) {
 				gb->get_tile_list(fab_tiles);
-				FOR( vector_tpl<koord3d>, pos, fab_tiles ) {
-					// no need for check, we jsut did before ...
-					grund_t* gr = welt->lookup( pos );
-					gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+				FOR( vector_tpl<grund_t*>, gr, fab_tiles ) {
+					// no need for check, we just did before ...
+					gebaeude_t* gb = gr->find<gebaeude_t>();
 					if( marking ) {
 						gb->set_flag( obj_t::highlight );
 					}

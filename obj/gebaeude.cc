@@ -529,7 +529,7 @@ bool gebaeude_t::is_city_building() const
 }
 
 
-uint32 gebaeude_t::get_tile_list( vector_tpl<koord3d> &list ) const
+uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
 {
 	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
 	const koord3d pos0 = get_pos() - get_tile()->get_offset(); // get origin
@@ -542,7 +542,7 @@ uint32 gebaeude_t::get_tile_list( vector_tpl<koord3d> &list ) const
 			if( grund_t* gr = welt->lookup( pos0+k ) ) {
 				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
 					if( is_same_building( add_gb ) ) {
-						list.append( pos0+k );
+						list.append( gr );
 					}
 				}
 			}
@@ -575,11 +575,10 @@ void gebaeude_t::show_info()
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// iterate over all places to check if there is already an open window
 			gebaeude_t * first_tile = NULL;
-			static vector_tpl<koord3d> gb_tiles;
+			static vector_tpl<grund_t *> gb_tiles;
 			get_tile_list( gb_tiles );
-			FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 				// no need for check, we jsut did before ...
-				grund_t* gr = welt->lookup( pos );
 				gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
 				if( win_get_magic( (ptrdiff_t)gb ) ) {
 					// already open
@@ -608,11 +607,11 @@ bool gebaeude_t::is_within_players_network(const player_t* player) const
 	}
 
 	// normal building: iterate over all tiles
-	vector_tpl<koord3d> gb_tiles;
+	vector_tpl<grund_t*> gb_tiles;
 	get_tile_list( gb_tiles );
-	FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 		// no need for check, we jsut did before ...
-		if( const planquadrat_t* plan = welt->access( pos.get_2d()) ) {
+		if( const planquadrat_t* plan = welt->access( gr->get_pos().get_2d()) ) {
 			if( plan->get_haltlist_count() > 0 ) {
 				const halthandle_t* const halt_list = plan->get_haltlist();
 				for( int h = 0; h < plan->get_haltlist_count(); h++ ) {
@@ -645,19 +644,18 @@ bool gebaeude_t::is_same_building(const gebaeude_t* other) const
 
 gebaeude_t* gebaeude_t::get_first_tile()
 {
-	const building_desc_t* const building_desc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
+	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset(); // get origin
 	koord k;
-	for(k.x=0; k.x<building_desc->get_x(layout); k.x++) {
-		for(k.y=0; k.y<building_desc->get_y(layout); k.y++) {
-			const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-			if (tile==NULL  ||  !tile->has_image()) {
-				continue;
-			}
-			if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
-				gebaeude_t *gb = gr->find<gebaeude_t>();
-				if (gb  &&  gb->get_tile() == tile) {
-					return gb;
+
+	// add all tiles
+	for( k.y = 0; k.y < size.y; k.y++ ) {
+		for( k.x = 0; k.x < size.x; k.x++ ) {
+			if( grund_t* gr = welt->lookup( pos0+k ) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+					if( is_same_building( add_gb ) ) {
+						return add_gb;
+					}
 				}
 			}
 		}

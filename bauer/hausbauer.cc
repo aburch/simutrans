@@ -340,14 +340,13 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 
 	// iterate over all places to check if there is already an open window
 	gebaeude_t* first_tile = NULL;
-	static vector_tpl<koord3d> gb_tiles;
+	static vector_tpl<grund_t *> gb_tiles;
 	gb->get_tile_list( gb_tiles );
 
 	// then remove factory
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
-		FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
-			grund_t *gr = welt->lookup(pos);
+		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 			gebaeude_t *gb_part = gr->find<gebaeude_t>();
 			gb_part->set_fab( NULL );
 			planquadrat_t *plan = welt->access( pos.get_2d() );
@@ -379,8 +378,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	}
 
 	// delete our house only
-	FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
-		grund_t* gr = welt->lookup( pos );
+	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 		gebaeude_t* gb_part = gr->find<gebaeude_t>();
 		gb_part->cleanup( player );
 		delete gb_part;

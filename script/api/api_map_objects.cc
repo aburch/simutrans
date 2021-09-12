@@ -448,9 +448,9 @@ vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
 	return v;
 }
 
-vector_tpl<koord3d> const& get_tile_list( gebaeude_t *gb )
+vector_tpl<grund_t*> const& get_tile_list( gebaeude_t *gb )
 {
-	static vector_tpl<koord3d> list;
+	static vector_tpl<grund_t*> list;
 	gb->get_tile_list( list );
 	return list;
 }
