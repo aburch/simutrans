@@ -475,7 +475,7 @@ pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_transformer_connected(NULL);
+		fab->remove_transformer_connected(this);
 		fab = NULL;
 	}
 	if(  net != NULL  ) {
@@ -542,7 +542,8 @@ sint32 pumpe_t::get_power_consumption() const
 	return p->get_normal_demand();
 }
 
-void pumpe_t::rdwr(loadsave_t * file) {
+void pumpe_t::rdwr(loadsave_t * file)
+{
 	xml_tag_t d( file, "pumpe_t" );
 
 	leitung_t::rdwr(file);
@@ -571,7 +572,7 @@ void pumpe_t::finish_rd()
 		}
 		if(  fab  ) {
 			// only add when factory there
-			fab->set_transformer_connected(this);
+			fab->add_transformer_connected(this);
 		}
 	}
 
@@ -680,7 +681,7 @@ senke_t::~senke_t()
 
 	welt->sync.remove( this );
 	if(fab!=NULL) {
-		fab->set_transformer_connected(NULL);
+		fab->remove_transformer_connected(this);
 		fab = NULL;
 	}
 	if(  net != NULL  ) {
@@ -851,7 +852,7 @@ void senke_t::finish_rd()
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
-			fab->set_transformer_connected(this);
+			fab->add_transformer_connected(this);
 		}
 	}
 

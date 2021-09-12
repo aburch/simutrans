@@ -574,7 +574,8 @@ void gebaeude_t::show_info()
 	if(!tile->get_desc()->no_info_window()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// iterate over all places to check if there is already an open window
-			vector_tpl<koord3d> gb_tiles;
+			gebaeude_t * first_tile = NULL;
+			static vector_tpl<koord3d> gb_tiles;
 			get_tile_list( gb_tiles );
 			FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
 				// no need for check, we jsut did before ...
@@ -584,9 +585,12 @@ void gebaeude_t::show_info()
 					// already open
 					return;
 				}
+				if( first_tile==0 ) {
+					first_tile = gb;
+				}
 			}
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-			get_first_tile()->obj_t::show_info();
+			first_tile->obj_t::show_info();
 		}
 	}
 }
@@ -604,24 +608,16 @@ bool gebaeude_t::is_within_players_network(const player_t* player) const
 	}
 
 	// normal building: iterate over all tiles
-	const building_desc_t* const building_desc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
-	koord k;
-	for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
-		for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
-			// check for hole in the building ...
-			const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-			if (tile == NULL || !tile->has_image()) {
-				continue;
-			}
-			// now search for stops serving this tile
-			if(  const planquadrat_t *plan = welt->access( get_pos().get_2d() - get_tile()->get_offset() + k )  ) {
-				if(  plan->get_haltlist_count() > 0   ) {
-					const halthandle_t *const halt_list = plan->get_haltlist();
-					for(  int h = 0;  h < plan->get_haltlist_count();  h++  ) {
-						if(  halt_list[h].is_bound()  &&  (halt_list[h]->get_pax_enabled()  || halt_list[h]->get_mail_enabled() )  &&  halt_list[h]->has_available_network(player)  ) {
-							return true;
-						}
+	vector_tpl<koord3d> gb_tiles;
+	get_tile_list( gb_tiles );
+	FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+		// no need for check, we jsut did before ...
+		if( const planquadrat_t* plan = welt->access( pos.get_2d()) ) {
+			if( plan->get_haltlist_count() > 0 ) {
+				const halthandle_t* const halt_list = plan->get_haltlist();
+				for( int h = 0; h < plan->get_haltlist_count(); h++ ) {
+					if( halt_list[h].is_bound()  &&  (halt_list[h]->get_pax_enabled()  || halt_list[h]->get_mail_enabled())  &&  halt_list[h]->has_available_network( player ) ) {
+						return true;
 					}
 				}
 			}

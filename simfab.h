@@ -321,7 +321,7 @@ private:
 	uint8 activity_count;
 
 	// The adjacent connected transformer, if any.
-	leitung_t *transformer;
+	vector_tpl<leitung_t *>transformers;
 
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_requiring_power;
@@ -570,14 +570,15 @@ public:
 	/**
 	 * True if a transformer is connected to this factory.
 	 */
-	bool is_transformer_connected() const { return transformer != NULL; }
+	bool is_transformer_connected() const { return !transformers.empty(); }
 
-	leitung_t* get_transformer() { return transformer; }
+	vector_tpl<leitung_t*> const &get_transformers() { return transformers; }
 
 	/**
 	 * Connect transformer to this factory.
 	 */
-	void set_transformer_connected(leitung_t *transformer) { this->transformer = transformer; }
+	void add_transformer_connected(leitung_t *transformer) { transformers.append_unique(transformer); }
+	void remove_transformer_connected( leitung_t* transformer ) { transformers.remove( transformer ); }
 
 	/**
 	 * @return 1 wenn consumption,

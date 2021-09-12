@@ -26,6 +26,7 @@
 #include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
+#include "../simfab.h"
 #include "../simhalt.h"
 #include "../utils/simrandom.h"
 #include "../simtool.h"
@@ -337,29 +338,23 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 		unbuilt_monuments.append_unique(tile->get_desc());
 	}
 
+	// iterate over all places to check if there is already an open window
+	gebaeude_t* first_tile = NULL;
+	static vector_tpl<koord3d> gb_tiles;
+	gb->get_tile_list( gb_tiles );
+
 	// then remove factory
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
-		// first remove fabrik_t pointers
-		for(k.y = 0; k.y < size.y; k.y ++) {
-			for(k.x = 0; k.x < size.x; k.x ++) {
-				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-				// for buildings with holes the hole could be on a different height ->gr==NULL
-				if (gr) {
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					if(gb_part) {
-						// there may be buildings with holes, so we only remove our building!
-						if(gb_part->get_tile()  ==  bdsc->get_tile(layout, k.x, k.y)) {
-							gb_part->set_fab( NULL );
-							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
-								halthandle_t halt = plan->get_haltlist()[i];
-								halt->remove_fabriken( fab );
-								plan->remove_from_haltlist( halt );
-							}
-						}
-					}
-				}
+		FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+			grund_t *gr = welt->lookup(pos);
+			gebaeude_t *gb_part = gr->find<gebaeude_t>();
+			gb_part->set_fab( NULL );
+			planquadrat_t *plan = welt->access( pos.get_2d() );
+			for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
+				halthandle_t halt = plan->get_haltlist()[i];
+				halt->remove_fabriken( fab );
+				plan->remove_from_haltlist( halt );
 			}
 		}
 		// tell players of the deletion
@@ -370,109 +365,73 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 			}
 		}
 		// remove all transformers
-		for(k.y = -1; k.y < size.y+1;  k.y ++) {
-			for(k.x = -1; k.x < size.x+1;  k.x ++) {
-				grund_t *gr = NULL;
-				if (0<=k.x  &&  k.x<size.x  &&  0<=k.y  &&  k.y<size.y) {
-					// look below factory
-					gr = welt->lookup(koord3d(k,-1) + pos);
-				}
-				else {
-					// find transformers near factory
-					gr = welt->lookup_kartenboden(k + pos.get_2d());
-				}
-				if (gr) {
-					senke_t *sk = gr->find<senke_t>();
-					if (  sk  &&  sk->get_factory()==fab  ) {
-						sk->mark_image_dirty(sk->get_image(), 0);
-						delete sk;
-					}
-					pumpe_t* pp = gr->find<pumpe_t>();
-					if (  pp  &&  pp->get_factory()==fab  ) {
-						pp->mark_image_dirty(pp->get_image(), 0);
-						delete pp;
-					}
-					// remove tunnel
-					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
-						if (tunnel_t *t = gr->find<tunnel_t>()) {
-							t->cleanup( t->get_owner() );
-							delete t;
-						}
-						const koord p = gr->get_pos().get_2d();
-						welt->lookup_kartenboden(p)->clear_flag(grund_t::marked);
-						// remove ground
-						welt->access(p)->boden_entfernen(gr);
-						delete gr;
-					}
-				}
+		while(1) {
+			vector_tpl<leitung_t*>const& trans = fab->get_transformers();
+			if( trans.empty() ) {
+				break;
 			}
+			leitung_t* sk = trans[0];
+			sk->mark_image_dirty( sk->get_image(), 0 );
+			delete sk;
 		}
 		// cleared transformers successfully, now remove factory.
 		welt->rem_fab(fab);
 	}
 
 	// delete our house only
-	for(k.y = 0; k.y < size.y; k.y ++) {
-		for(k.x = 0; k.x < size.x; k.x ++) {
-			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-			if(gr) {
-				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				// there may be buildings with holes, so we only remove our building!
-				if(  gb_part  &&  gb_part->get_tile()==bdsc->get_tile(layout, k.x, k.y)  ) {
-					// ok, now we can go on with deletion
-					gb_part->cleanup( player );
-					delete gb_part;
-					// if this was a station building: delete ground
-					if(gr->get_halt().is_bound()) {
-						haltestelle_t::remove(player, gr->get_pos());
-					}
-					// and maybe restore land below
-					if(gr->get_typ()==grund_t::fundament) {
-						const koord newk = k+pos.get_2d();
-						sint8 new_hgt;
-						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
-						// test for ground at new height
-						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
-						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
-							// and for ground above new sloped tile
-							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
-						}
-						bool ground_recalc = true;
-						if(  gr2  &&  gr2!=gr  ) {
-							// there is another ground below or above
-							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), slope_t::flat ) );
-							ground_recalc = false;
-						}
-						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
-							wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
-							welt->access(newk)->kartenboden_setzen( sea );
-							welt->calc_climate( newk, true );
-							sea->recalc_water_neighbours();
-						}
-						else {
-							if(  gr->get_grund_hang() == new_slope  && new_hgt == pos.z  ) {
-								ground_recalc = false;
-							}
-							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
-							// climate is stored in planquadrat, and hence automatically preserved
-						}
-						// there might be walls from foundations left => thus some tiles may need to be redrawn
-						if(ground_recalc) {
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
-								gr->calc_image();
-							}
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
-								gr->calc_image();
-							}
-							welt->set_grid_hgt( newk, new_hgt+corner_nw(new_slope) );
-						}
-					}
-					else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
-						sea->recalc_water_neighbours();
-					}
-				}
+	FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+		grund_t* gr = welt->lookup( pos );
+		gebaeude_t* gb_part = gr->find<gebaeude_t>();
+		gb_part->cleanup( player );
+		delete gb_part;
+		// if this was a station building: delete ground
+		if(gr->get_halt().is_bound()) {
+			haltestelle_t::remove(player, pos);
+		}
+		// and maybe restore land below
+		if(gr->get_typ()==grund_t::fundament) {
+			const koord newk = pos.get_2d();
+			sint8 new_hgt;
+			const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+			// test for ground at new height
+			const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+			if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
+				// and for ground above new sloped tile
+				gr2 = welt->lookup(koord3d(newk, new_hgt+1));
 			}
+			bool ground_recalc = true;
+			if(  gr2  &&  gr2!=gr  ) {
+				// there is another ground below or above
+				// => do not change height, keep foundation
+				welt->access(newk)->kartenboden_setzen( new boden_t( pos, slope_t::flat ) );
+				ground_recalc = false;
+			}
+			else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
+				wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
+				welt->access(newk)->kartenboden_setzen( sea );
+				welt->calc_climate( newk, true );
+				sea->recalc_water_neighbours();
+			}
+			else {
+				if(  gr->get_grund_hang() == new_slope  &&  new_hgt == pos.z  ) {
+					ground_recalc = false;
+				}
+				welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
+				// climate is stored in planquadrat, and hence automatically preserved
+			}
+			// there might be walls from foundations left => thus some tiles may need to be redrawn
+			if(ground_recalc) {
+				if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
+					gr->calc_image();
+				}
+				if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
+					gr->calc_image();
+				}
+				welt->set_grid_hgt( newk, new_hgt+corner_nw(new_slope) );
+			}
+		}
+		else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
+			sea->recalc_water_neighbours();
 		}
 	}
 }

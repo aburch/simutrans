@@ -113,6 +113,10 @@ vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
 	return square_get_halt_list(plan);
 }
 
+ leitung_t* factory_get_transformer( fabrik_t* fab )
+ {
+	 return fab->get_transformers().empty() ? NULL :fab->get_transformers().front();
+ }
 
 call_tool_init factory_set_name(fabrik_t *fab, const char* name)
 {
@@ -355,7 +359,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get connected transformer (if any).
 	 * @returns transformer
 	 */
-	register_method(vm, &fabrik_t::get_transformer, "get_transformer");
+	register_method(vm, factory_get_transformer, "get_transformer");
 	/**
 	 * @returns number of fields belonging to this factory
 	 */

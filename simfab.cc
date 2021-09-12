@@ -744,11 +744,11 @@ void fabrik_t::rem_lieferziel(koord ziel)
 
 fabrik_t::fabrik_t(loadsave_t* file)
 {
-	transformer = NULL;
 	owner = NULL;
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
 	pos = koord3d::invalid;
+	transformers.clear();
 
 	rdwr(file);
 
@@ -779,7 +779,6 @@ fabrik_t::fabrik_t(loadsave_t* file)
 
 fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_desc, sint32 initial_prod_base) :
 	desc(factory_desc),
-	transformer(NULL),
 	pos(pos_)
 {
 	this->pos.z = welt->max_hgt(pos.get_2d());
@@ -801,7 +800,6 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 	menge_remainder = 0;
 	activity_count = 0;
 	currently_requiring_power = false;
-	transformer = NULL;
 	currently_producing = false;
 	total_input = total_transit = total_output = 0;
 	status = STATUS_NOTHING;
@@ -1619,9 +1617,15 @@ uint32 fabrik_t::scale_output_production(const uint32 product, uint32 menge) con
 	return menge;
 }
 
+
+/************** TODO: properly handle more than one transformer! *******************************/
+
 void fabrik_t::set_power_supply(uint32 supply)
 {
-	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if( transformers.empty() ) {
+		return;
+	}
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return;
 	}
@@ -1630,7 +1634,10 @@ void fabrik_t::set_power_supply(uint32 supply)
 
 uint32 fabrik_t::get_power_supply() const
 {
-	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if( transformers.empty() ) {
+		return 0;
+	}
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return 0;
 	}
@@ -1639,7 +1646,10 @@ uint32 fabrik_t::get_power_supply() const
 
 sint32 fabrik_t::get_power_consumption() const
 {
-	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if( transformers.empty() ) {
+		return 0;
+	}
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return 0;
 	}
@@ -1648,7 +1658,10 @@ sint32 fabrik_t::get_power_consumption() const
 
 void fabrik_t::set_power_demand(uint32 demand)
 {
-	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if( transformers.empty() ) {
+		return;
+	}
+	senke_t *const trans = dynamic_cast<senke_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return;
 	}
@@ -1657,7 +1670,10 @@ void fabrik_t::set_power_demand(uint32 demand)
 
 uint32 fabrik_t::get_power_demand() const
 {
-	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if( transformers.empty() ) {
+		return 0;
+	}
+	senke_t *const trans = dynamic_cast<senke_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return 0;
 	}
@@ -1666,7 +1682,10 @@ uint32 fabrik_t::get_power_demand() const
 
 sint32 fabrik_t::get_power_satisfaction() const
 {
-	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if( transformers.empty() ) {
+		return 0;
+	}
+	senke_t *const trans = dynamic_cast<senke_t *>(transformers.front());
 	if(  trans == NULL  ) {
 		return 0;
 	}
