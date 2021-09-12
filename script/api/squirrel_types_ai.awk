@@ -230,6 +230,7 @@ BEGIN {
 	export_types["building_x::get_mail_level"] = "integer()"
 	export_types["building_x::get_desc"] = "building_desc_x()"
 	export_types["building_x::is_same_building"] = "bool(building_x)"
+	export_types["building_x::get_coord_list"] = "array<coord3d>()"
 	export_types["depot_x::append_vehicle"] = "void(player_x, convoy_x, vehicle_desc_x)"
 	export_types["depot_x::start_convoy"] = "void(player_x, convoy_x)"
 	export_types["depot_x::start_all_convoys"] = "void(player_x)"
