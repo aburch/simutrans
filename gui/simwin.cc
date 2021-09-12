@@ -1794,7 +1794,10 @@ void win_display_flush(double konto)
 				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
-					display_ddd_proportional_clip(tooltip_xpos, tooltip_ypos, width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
+					scr_coord_val x = tooltip_xpos;
+					scr_coord_val y = tooltip_ypos;
+					win_clamp_xywh_position( x, y, scr_size( width, (LINESPACE*9)/7 ), true );
+					display_ddd_proportional_clip( x, y, width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1804,7 +1807,7 @@ void win_display_flush(double konto)
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+7;
 				scr_coord_val x = get_mouse_x();
 				scr_coord_val y = get_mouse_y();
-				win_clamp_xywh_position(x, y, scr_size(width, LINESPACE + 2), true);
+				win_clamp_xywh_position(x, y, scr_size(width, (LINESPACE*9)/7), true);
 				display_ddd_proportional_clip(x, y, width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
