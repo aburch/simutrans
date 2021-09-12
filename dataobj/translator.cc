@@ -419,8 +419,12 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 	//read now the basic language infos
 	FOR(searchfolder_t, const& i, folder) {
 		string const fileName(i);
-		size_t pstart = fileName.rfind('/') + 1;
-		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
+		size_t pstart = fileName.rfind('.');
+		if( pstart<2 ) {
+			// too short
+			continue;
+		}
+		const string iso = fileName.substr(pstart-2, 2);
 
 		lang_info* lang = get_lang_by_iso(iso.c_str());
 		if (lang != NULL) {
