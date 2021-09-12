@@ -397,7 +397,7 @@ private:
 	 * Updates city limits: tile at @p pos belongs to city.
 	 * @warning Do not call this during multithreaded loading!
 	 */
-	void pruefe_grenzen(koord pos);
+	void pruefe_grenzen(koord pos, koord extend);
 
 public:
 	bool is_within_players_network( const player_t* player ) const;

@@ -1741,28 +1741,18 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 		return "";
 	}
 
-	pos = gb->get_pos();
-	player_t *old_owner = gb->get_owner();
-	const building_tile_desc_t *tile  = gb->get_tile();
-	const building_desc_t * bdsc = tile->get_desc();
-	koord size = bdsc->get_size( tile->get_layout() );
+	player_t* old_owner = gb->get_owner();
+	const building_desc_t* bdsc = gb->get_tile()->get_desc();
 
-	koord k;
-	for(k.y = 0; k.y < size.y; k.y ++) {
-		for(k.x = 0; k.x < size.x; k.x ++) {
-			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-			if(gr) {
-				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				// there may be buildings with holes
-				if(  gb_part  &&  gb_part->get_tile()->get_desc()==bdsc  &&  player_t::check_owner(gb_part->get_owner(),player)  ) {
-					sint32 const maint = welt->get_settings().maint_building * bdsc->get_level();
-					player_t::add_maintenance(old_owner, -maint, gb->get_waytype());
-					player_t::add_maintenance(player, +maint, gb->get_waytype());
-					gb->set_owner(player);
-					player_t::book_construction_costs(player, -maint, k + pos.get_2d(), gb->get_waytype());
-				}
-			}
-		}
+	vector_tpl<grund_t*> gb_tiles;
+	gb->get_tile_list( gb_tiles );
+	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+		gebaeude_t* gb_part = gr->find<gebaeude_t>();
+		sint32 const maint = welt->get_settings().maint_building * bdsc->get_level();
+		player_t::add_maintenance( old_owner, -maint, gb_part->get_waytype() );
+		player_t::add_maintenance( player, +maint, gb_part->get_waytype() );
+		gb_part->set_owner( player );
+		player_t::book_construction_costs( player, -maint, gr->get_pos().get_2d(), gb_part->get_waytype() );
 	}
 	return NULL;
 }
@@ -4873,41 +4863,28 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 				return "Cannot rotate this building!";
 			}
 
-			gb = gb->get_first_tile();
 			uint8 layout = gb->get_tile()->get_layout();
 			uint8 newlayout = (layout+1+rotate180) % desc->get_all_layouts();
 
+			vector_tpl<grund_t*> gb_tiles;
+			gb->get_tile_list( gb_tiles );
+
 			// first test if all tiles are present (check for holes)
-			koord k;
-			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
-				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
-					grund_t *gr = welt->lookup( gb->get_pos()+k );
-					if(  !gr  ||  gr->hat_wege()  ) {
-						return "Cannot rotate this building!";
-					}
-					const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
-					gebaeude_t *gbt = gr->find<gebaeude_t>();
-					if(  tile==NULL  &&  gbt  ) {
-						return "Cannot rotate this building!";
-					}
-					if(  tile  &&  gbt==NULL  ) {
-						return "Cannot rotate this building!";
-					}
-				}
+			if( gb_tiles.get_count()<desc->get_x( layout )*desc->get_y( layout ) ) {
+				// there are holes ...
+				return "Cannot rotate this building!";
 			}
-			if( fabrik_t *fab=gb->get_fabrik() ) {
+
+			if( fabrik_t* fab = gb->get_fabrik() ) {
 				fab->set_rotate( (fab->get_rotate() + 1) % fab->get_desc()->get_building()->get_all_layouts() );
 			}
+
 			// ok, we can rotate it
-			for(k.x=0; k.x<desc->get_x(layout); k.x++) {
-				for(k.y=0; k.y<desc->get_y(layout); k.y++) {
-					grund_t *gr = welt->lookup( gb->get_pos()+k );
-					// there could be still holes, so the if is needed
-					if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-						const building_tile_desc_t *tile = desc->get_tile(newlayout, k.x, k.y);
-						gb->set_tile( tile, false );
-					}
-				}
+			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+				gebaeude_t* gb_part = gr->find<gebaeude_t>();
+				koord k = gr->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d();
+				const building_tile_desc_t* tile = desc->get_tile( newlayout, k.x, k.y );
+				gb_part->set_tile( tile, false );
 			}
 		}
 	}

@@ -540,7 +540,7 @@ uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
 	for( k.y = 0; k.y < size.y; k.y++ ) {
 		for( k.x = 0; k.x < size.x; k.x++ ) {
 			if( grund_t* gr = welt->lookup( pos0+k ) ) {
-				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+				if( gebaeude_t* const add_gb = gr->find<gebaeude_t>() ) {
 					if( is_same_building( add_gb ) ) {
 						list.append( gr );
 					}
@@ -579,7 +579,7 @@ void gebaeude_t::show_info()
 			get_tile_list( gb_tiles );
 			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 				// no need for check, we jsut did before ...
-				gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if( win_get_magic( (ptrdiff_t)gb ) ) {
 					// already open
 					return;

@@ -575,44 +575,29 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 // this function adds houses to the city house list
 void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
+	static vector_tpl<grund_t*> gb_tiles;
 	if (gb != NULL) {
-		const building_tile_desc_t* tile  = gb->get_tile();
-		koord size = tile->get_desc()->get_size(tile->get_layout());
-		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
-		koord k;
-
-		// add all tiles
-		for (k.y = 0; k.y < size.y; k.y++) {
-			for (k.x = 0; k.x < size.x; k.x++) {
-				if (gebaeude_t* const add_gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
-					if (gb->is_same_building(add_gb)) {
-
-						if(  ordered  ) {
-							buildings.insert_ordered(add_gb, tile->get_desc()->get_level() + 1, compare_gebaeude_pos);
-						}
-						else {
-							buildings.append(add_gb, tile->get_desc()->get_level() + 1);
-						}
-
-						add_gb->set_stadt(this);
-						if (add_gb->get_tile()->get_desc()->is_townhall()) {
-							has_townhall = true;
-						}
-					}
-					else {
-						// found tile of another building, ignore it
-					}
-				}
+		uint16 level = gb->get_tile()->get_desc()->get_level()+1;
+		gb->get_tile_list( gb_tiles );
+		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+			gebaeude_t* add_gb = gr->find<gebaeude_t>();
+			if( ordered ) {
+				buildings.insert_ordered( add_gb, level, compare_gebaeude_pos );
+			}
+			else {
+				buildings.append( add_gb, level );
+			}
+			add_gb->set_stadt( this );
+			if( add_gb->get_tile()->get_desc()->is_townhall() ) {
+				has_townhall = true;
 			}
 		}
 		// no update of city limits
 		// as has_low_density may depend on the order the buildings list is filled
 		if (!ordered) {
 			// check borders
-			pruefe_grenzen(pos);
-			if(size!=koord(1,1)) {
-				pruefe_grenzen(pos+size-koord(1,1));
-			}
+			koord size = gb_tiles.back()->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d()+koord( 1, 1 );
+			pruefe_grenzen(pos, size);
 		}
 	}
 }
@@ -635,7 +620,7 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-void stadt_t::pruefe_grenzen(koord k)
+void stadt_t::pruefe_grenzen(koord k, koord size)
 {
 	// WARNING: do not call this during multithreaded loading,
 	// as has_low_density may depend on the order the buildings list is filled
@@ -653,18 +638,18 @@ void stadt_t::pruefe_grenzen(koord k)
 		if(has_low_density)  {
 			// wide borders again ..
 			lo -= koord(2,2);
-			ur += koord(2,2);
+			ur += koord(2,2) + size;
 		}
 	}
 	// now just add single coordinates
 	if(  has_low_density  ) {
 		lo.clip_max(k-koord(2,2));
-		ur.clip_min(k+koord(2,2));
+		ur.clip_min(k+koord(2,2)+size);
 	}
 	else {
 		// first grow within ...
 		lo.clip_max(k);
-		ur.clip_min(k);
+		ur.clip_min(k+size);
 	}
 
 	lo.clip_min(koord(0,0));

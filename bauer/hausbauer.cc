@@ -347,7 +347,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
-			gebaeude_t *gb_part = gr->find<gebaeude_t>();
+			gebaeude_t* gb_part = gr->find<gebaeude_t>();
 			gb_part->set_fab( NULL );
 			planquadrat_t *plan = welt->access( pos.get_2d() );
 			for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
