@@ -72,6 +72,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
 #include "dataobj/tabfile.h"
+#include "dataobj/scenario.h"
 #include "dataobj/settings.h"
 #include "dataobj/translator.h"
 #include "network/pakset_info.h"
@@ -505,6 +506,7 @@ void print_help()
 		"                     a server will pause if there are no clients\n"
 		" -res N              starts in specified resolution: \n"
 		"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
+		" -scenario NAME      Load scenario NAME\n"
 		" -screensize WxH     set screensize to width W and height H\n"
 		" -server [PORT]      starts program as server (for network game)\n"
 		"                     without port specified uses 13353\n"
@@ -1483,7 +1485,25 @@ int simu_main(int argc, char** argv)
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 ); // allow all
 
-	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
+	scenario_t *scen = NULL;
+	if(  const char *scen_name = args.gimme_arg("-scenario", 1)  ) {
+		scen = new scenario_t(welt);
+
+		intr_set(welt, view);
+		win_set_world(welt);
+
+		const char *err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		if(  err  ) {
+			dbg->error("simu_main()", "Could not load scenario %s%s: %s", env_t::objfilename.c_str(), scen_name, err);
+			delete scen;
+			scen = NULL;
+		}
+		else {
+			new_world = false;
+		}
+	}
+
+	if(  scen == NULL && (loadgame==""  ||  !welt->load(loadgame.c_str()))  ) {
 		// create a default map
 		DBG_MESSAGE("simu_main()", "Init with default map (failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...
@@ -1517,9 +1537,13 @@ int simu_main(int argc, char** argv)
 		if(  (args.has_arg("-freeplay"))  ) {
 			welt->get_settings().set_freeplay( true );
 		}
-		// just init view (world was loaded from file)
-		intr_set(welt, view);
-		win_set_world(welt);
+
+		if (scen == NULL) {
+			// just init view (world was loaded from file)
+			intr_set(welt, view);
+			win_set_world(welt);
+		}
+
 		tool_t::toolbar_tool[0]->init(welt->get_active_player());
 	}
 
