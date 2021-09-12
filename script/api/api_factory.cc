@@ -359,7 +359,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get connected transformer (if any).
 	 * @returns transformer
 	 */
-	register_method(vm, factory_get_transformer, "get_transformer");
+	register_method(vm, factory_get_transformer, "get_transformer", true);
 	/**
 	 * @returns number of fields belonging to this factory
 	 */

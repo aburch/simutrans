@@ -575,7 +575,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns coord for all tiles
 	 */
-	register_method( vm, &get_tile_list, "get_tile_list" );
+	register_method( vm, &get_tile_list, "get_tile_list", true );
 	/**
 	 * @returns true if both building tiles are part of one (multi-tile) building
 	 */
