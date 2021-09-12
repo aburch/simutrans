@@ -124,6 +124,10 @@ public:
 
 	bool is_city_building() const;
 
+	/// fills vector with a list of all tiles with this building
+	/// @return number of actual tiles
+	uint32 get_tile_list( vector_tpl<koord3d>& list ) const;
+
 	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 

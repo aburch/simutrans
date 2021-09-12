@@ -3234,16 +3234,21 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 
 void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 {
-	tile_list.clear();
+	gebaeude_t *gb = welt->lookup( pos )->find<gebaeude_t>();
+	koord size = get_desc()->get_building()->get_size( gb->get_tile()->get_layout() );
+	const koord3d pos0 = gb->get_pos() - gb->get_tile()->get_offset(); // get origin
+	koord k;
 
-	koord pos_2d = pos.get_2d();
-	koord size = this->get_desc()->get_building()->get_size(this->get_rotate());
-	koord test;
-	// Which tiles belong to the fab?
-	for( test.x = 0; test.x < size.x; test.x++ ) {
-		for( test.y = 0; test.y < size.y; test.y++ ) {
-			if( fabrik_t::get_fab( pos_2d+test ) == this ) {
-				tile_list.append( pos_2d+test );
+	tile_list.clear();
+	// add all tiles
+	for( k.y = 0; k.y < size.y; k.y++ ) {
+		for( k.x = 0; k.x < size.x; k.x++ ) {
+			if( grund_t* gr = welt->lookup( pos0+k ) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+					if( add_gb->get_fabrik()==this ) {
+						tile_list.append( (pos0+k).get_2d() );
+					}
+				}
 			}
 		}
 	}

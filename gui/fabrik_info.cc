@@ -409,30 +409,27 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 	}
 }
 
-void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking) {
-
+void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking)
+{
 	fab_koords.append(fab->get_pos().get_2d());
 
 	for (uint i = 0; i < fab_koords.get_count(); i++) {
-		vector_tpl<koord> fab_tiles;
-		fab->get_fab(fab_koords[i])->get_tile_list(fab_tiles);
-
-		for (uint y = 0; y < fab_tiles.get_count(); y++)
-		{
-			if (grund_t* const gr = welt->lookup(koord3d(fab_tiles[y], 0)))
-			{
-				for (uint idx = 0; idx < gr->get_top(); idx++) {
-					obj_t* obj = gr->obj_bei(idx);
-					if (marking) {
-						if (!obj->is_moving()) {
-							obj->set_flag(obj_t::highlight);
-						}
+		vector_tpl<koord3d> fab_tiles;
+		if(grund_t *gr = welt->lookup_kartenboden(fab_koords[i])) {
+			if(gebaeude_t *gb=gr->find<gebaeude_t>() ) {
+				gb->get_tile_list(fab_tiles);
+				FOR( vector_tpl<koord3d>, pos, fab_tiles ) {
+					// no need for check, we jsut did before ...
+					grund_t* gr = welt->lookup( pos );
+					gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+					if( marking ) {
+						gb->set_flag( obj_t::highlight );
 					}
 					else {
-						obj->clear_flag(obj_t::highlight);
+						gb->clear_flag( obj_t::highlight );
 					}
+					gr->set_flag( grund_t::dirty );
 				}
-				gr->set_flag(grund_t::dirty);
 			}
 		}
 	}

@@ -31,6 +31,7 @@
 // for depot tools
 #include "../../simconvoi.h"
 #include "../../simmenu.h"
+#include "../../descriptor/building_desc.h"
 #include "../../descriptor/vehicle_desc.h"
 
 
@@ -447,6 +448,13 @@ vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
 	return v;
 }
 
+vector_tpl<koord3d> const& get_tile_list( gebaeude_t *gb )
+{
+	static vector_tpl<koord3d> list;
+	gb->get_tile_list( list );
+	return list;
+}
+
 void export_map_objects(HSQUIRRELVM vm)
 {
 	/**
@@ -564,6 +572,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &gebaeude_t::get_tile, "get_desc");
+	/**
+	 * @returns coord for all tiles
+	 */
+	register_method( vm, &get_tile_list, "get_tile_list" );
 	/**
 	 * @returns true if both building tiles are part of one (multi-tile) building
 	 */

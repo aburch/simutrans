@@ -529,6 +529,31 @@ bool gebaeude_t::is_city_building() const
 }
 
 
+uint32 gebaeude_t::get_tile_list( vector_tpl<koord3d> &list ) const
+{
+	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset(); // get origin
+	koord k;
+
+	list.clear();
+	// add all tiles
+	for( k.y = 0; k.y < size.y; k.y++ ) {
+		for( k.x = 0; k.x < size.x; k.x++ ) {
+			if( grund_t* gr = welt->lookup( pos0+k ) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+					if( is_same_building( add_gb ) ) {
+						list.append( pos0+k );
+					}
+				}
+			}
+		}
+	}
+	return list.get_count();
+}
+
+
+
+
 void gebaeude_t::show_info()
 {
 	if(get_fabrik()) {
@@ -549,24 +574,15 @@ void gebaeude_t::show_info()
 	if(!tile->get_desc()->no_info_window()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// iterate over all places to check if there is already an open window
-			const building_desc_t* const building_desc = tile->get_desc();
-			const uint8 layout = tile->get_layout();
-			koord k;
-			for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
-				for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
-					const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-					if (tile == NULL || !tile->has_image()) {
-						continue;
-					}
-					if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k)) {
-						gebaeude_t *gb = gr->find<gebaeude_t>();
-						if (gb  &&  gb->get_tile() == tile) {
-							if (win_get_magic((ptrdiff_t)gb)) {
-								// already open
-								return;
-							}
-						}
-					}
+			vector_tpl<koord3d> gb_tiles;
+			get_tile_list( gb_tiles );
+			FOR( vector_tpl<koord3d>, pos, gb_tiles ) {
+				// no need for check, we jsut did before ...
+				grund_t* gr = welt->lookup( pos );
+				gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+				if( win_get_magic( (ptrdiff_t)gb ) ) {
+					// already open
+					return;
 				}
 			}
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
