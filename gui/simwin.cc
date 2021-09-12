@@ -648,7 +648,7 @@ void rdwr_all_win(loadsave_t *file)
 				p.rdwr(file);
 				uint8 win_type;
 				file->rdwr_byte( win_type );
-				create_win( p.x, p.y, w, (wintype)win_type, id );
+				create_win( p.x, p.y, w, (wintype)win_type, id, true );
 				bool sticky, rollup;
 				file->rdwr_bool( sticky );
 				file->rdwr_bool( rollup );
@@ -844,6 +844,7 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 
 		// make sure window is on screen
 		win_clamp_xywh_position(x, y, gui->get_windowsize(), move_to_full_view);
+
 
 		win.pos = scr_coord(x,y);
 		win.dirty = true;
@@ -1669,6 +1670,13 @@ void win_poll_event(event_t* const ev)
 		simgraph_resize( ev->new_window_size );
 		ticker::redraw();
 		tool_t::update_toolbars();
+		for( int i = 0; i<wins.get_count(); i++ ) {
+			scr_coord_val x = wins[i].pos.x;
+			scr_coord_val y = wins[i].pos.y;
+			win_clamp_xywh_position( x, y, wins[i].gui->get_min_windowsize(), true );
+			wins[i].pos.x = x;
+			wins[i].pos.y = y;
+		}
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
 		ev->ev_class = EVENT_NONE;
