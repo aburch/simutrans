@@ -3354,22 +3354,24 @@ void fabrik_t::display_status(sint16 xpos, sint16 ypos)
 			if (!desc->get_supplier(i)) {
 				continue;
 			}
-			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
 			//const sint64 max_transit      = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-			const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
 			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-			const PIXVAL goods_color = goods.get_typ()->get_color();
+			
+			if (storage_capacity) {
+				const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+				const PIXVAL goods_color = goods.get_typ()->get_color();
+				const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity)) + 2;
 
-			const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity))+2;
-
-			if(  currently_producing  ) {
-				display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
-				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
-				display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
-			}
-			else {
-				display_blend_wh_rgb( xpos+1, ypos-v-1, D_WAITINGBAR_WIDTH-2, v, goods_color, 60);
-				mark_rect_dirty_wc( xpos+1, ypos-v-1, xpos+D_WAITINGBAR_WIDTH-1, ypos-1 );
+				if (currently_producing) {
+					display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
+					display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
+					display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
+				}
+				else {
+					display_blend_wh_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, 60);
+					mark_rect_dirty_wc(xpos + 1, ypos - v - 1, xpos + D_WAITINGBAR_WIDTH - 1, ypos - 1);
+				}
 			}
 
 			xpos += D_WAITINGBAR_WIDTH;
@@ -3385,22 +3387,26 @@ void fabrik_t::display_status(sint16 xpos, sint16 ypos)
 
 		int i = 0;
 		FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
+
 			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
-			const uint32 stock_quantity   = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-			const PIXVAL goods_color  = goods.get_typ()->get_color();
 
-			const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity)) + 2;
+			if (storage_capacity) {
+				const uint32 stock_quantity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.menge * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
+				const PIXVAL goods_color = goods.get_typ()->get_color();
 
-			// the blended bars are too faint for me
-			if(  currently_producing  ) {
-				display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
-				display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
-				display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
-			}
-			else {
-				display_blend_wh_rgb( xpos+1, ypos-v-1, D_WAITINGBAR_WIDTH-2, v, goods_color, 60);
-				mark_rect_dirty_wc( xpos+1, ypos-v-1, xpos+D_WAITINGBAR_WIDTH-1, ypos-1 );
+				const uint16 v = min(25, (uint16)(25 * stock_quantity / storage_capacity)) + 2;
+
+				// the blended bars are too faint for me
+				if (currently_producing) {
+					display_fillbox_wh_clip_rgb(xpos, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY4), true);
+					display_fillbox_wh_clip_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, true);
+					display_fillbox_wh_clip_rgb(xpos + D_WAITINGBAR_WIDTH - 1, ypos - v - 1, 1, v, color_idx_to_rgb(COL_GREY1), true);
+				}
+				else {
+					display_blend_wh_rgb(xpos + 1, ypos - v - 1, D_WAITINGBAR_WIDTH - 2, v, goods_color, 60);
+					mark_rect_dirty_wc(xpos + 1, ypos - v - 1, xpos + D_WAITINGBAR_WIDTH - 1, ypos - 1);
+				}
 			}
 
 			xpos += D_WAITINGBAR_WIDTH;
