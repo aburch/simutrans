@@ -1663,7 +1663,7 @@ void display_text_label(sint16 xpos, sint16 ypos, const char* text, const player
 	sint16 pc = player ? player->get_player_color1()+4 : SYSCOL_TEXT_HIGHLIGHT;
 	switch( env_t::show_names >> 2 ) {
 		case 0:
-			display_ddd_proportional_clip( xpos, ypos, proportional_string_width(text)+7, 0, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
+			display_ddd_proportional_clip( xpos, ypos, color_idx_to_rgb(pc), color_idx_to_rgb(COL_BLACK), text, dirty );
 			break;
 		case 1:
 			display_outline_proportional_rgb( xpos, ypos, color_idx_to_rgb(pc+3), color_idx_to_rgb(COL_BLACK), text, dirty );

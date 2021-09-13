@@ -4749,10 +4749,12 @@ void display_ddd_box_clip_rgb(scr_coord_val x1, scr_coord_val y1, scr_coord_val 
 /**
  * display text in 3d box with clipping
  */
-void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, scr_coord_val width, scr_coord_val , FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
+void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
 {
 	const int vpadding = LINESPACE / 7;
 	const int hpadding = LINESPACE / 4;
+
+	scr_coord_val width = proportional_string_width(text);
 
 	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
 	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);

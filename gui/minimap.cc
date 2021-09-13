@@ -1160,9 +1160,9 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 
 				scr_coord boxpos = end + scr_coord(10, 0);
 				const char * name = translator::translate(fab2->get_name());
-				int name_width = proportional_string_width(name)+8;
+				int name_width = proportional_string_width(name)+(LINESPACE/2);
 				boxpos.x = clamp( boxpos.x, pos.x, pos.x+get_size().w-name_width );
-				display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, color_idx_to_rgb(5), color_idx_to_rgb(COL_WHITE), name, true);
+				display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(5), color_idx_to_rgb(COL_WHITE), name, true);
 			}
 		}
 	}
@@ -1587,7 +1587,7 @@ void minimap_t::draw(scr_coord pos)
 	if(  display_station.is_bound()  ) {
 		scr_coord temp_stop = map_to_screen_coord( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
-		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
+		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
 	}
 	max_waiting_change = new_max_waiting_change; // update waiting tendencies
 
@@ -1734,10 +1734,10 @@ void minimap_t::draw(scr_coord pos)
 			scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() );
 			scr_coord boxpos = fabpos + scr_coord(10, 0);
 			const char * name = translator::translate(fab->get_name());
-			int name_width = proportional_string_width(name)+8;
+			int name_width = proportional_string_width(name)+(LINESPACE/2);
 			boxpos.x = clamp( boxpos.x, 0, 0+get_size().w-name_width );
 			boxpos += pos;
-			display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
+			display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
 		}
 
 		for (uint32 i = 0; i < win_get_open_count(); i++) {

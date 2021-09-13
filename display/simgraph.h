@@ -335,7 +335,7 @@ int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, con
 /// If enough space is given, it just display the full string
 void display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty, bool shadowed = false, PIXVAL shadow_color = 0 );
 
-void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, scr_coord_val width, scr_coord_val hgt, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 
 int display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *inbuf, PIXVAL color);

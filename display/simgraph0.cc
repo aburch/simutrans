@@ -316,7 +316,7 @@ void display_ddd_box_clip_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_c
 {
 }
 
-void display_ddd_proportional_clip(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int  CLIP_NUM_DEF_NOUSE)
+void display_ddd_proportional_clip(scr_coord_val, scr_coord_val, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
