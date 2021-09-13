@@ -247,8 +247,8 @@ bool dr_init_midi()
 
 	// System soundfonts at last
 	for(  int i = 0;  default_sf_paths[i];  i++  ) {
-		for(  int i = 0; default_sf_names[i]; i++  ){
-			if(  dr_load_sf(  ((std::string)default_sf_paths[i] + (std::string)default_sf_names[i]).c_str()  )  ) {
+		for(  int j = 0; default_sf_names[j]; j++  ){
+			if(  dr_load_sf(  ((std::string)default_sf_paths[i] + (std::string)default_sf_names[j]).c_str()  )  ) {
 				return true;
 			}
 		}
