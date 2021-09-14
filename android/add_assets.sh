@@ -7,9 +7,27 @@
 
 echo "Adding assets"
 
-[ -e ../simutrans/pak ] || (wget --retry-connrefused --show-progress -nc https://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip && unzip -n simupak64-122-0.zip -d ..)
-[ -e ../simutrans/pak64.german ] || (wget --retry-connrefused --show-progress -nc http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip && unzip -n pak64.german_0-122-0-0-2_full.zip -d ..)
-[ -e ../simutrans/music/TimGM6mb.sf2 ] || (wget --retry-connrefused --show-progress -nc https://sourceforge.net/p/mscore/code/HEAD/tree/trunk/mscore/share/sound/TimGM6mb.sf2?format=raw -O TimGM6mb.sf2 && cp ./TimGM6mb.sf2 ../simutrans/music/TimGM6mb.sf2)
-[ -e ../simutrans/font/RobotoCondensed-Regular.ttf ] || (wget --retry-connrefused --show-progress -nc https://fonts.google.com/download?family=Roboto%20Condensed -O Roboto_Condensed.zip && unzip -n Roboto_Condensed.zip -d ../simutrans/font)
-[ -e ../simutrans/font/Roboto-Regular.ttf ] || (wget --retry-connrefused --show-progress -nc https://fonts.google.com/download?family=Roboto -O Roboto.zip && unzip -n Roboto.zip -d ../simutrans/font)
-[ -e ../simutrans/cacert.pem ] || cp ./cacert.pem ../simutrans/cacert.pem
+download_with_retry() {
+  echo 'START ' $1
+  RESULT=-1
+  RETRY=5
+  while [ $RESULT -ne 0 ] && [ $RETRY -ne 0 ]
+  do
+    wget --show-progress $1 -O $2
+    RESULT=$?
+    RETRY=$((RETRY-1))
+  done
+  if [ $RETRY -eq 0 ]
+    then 
+      exit 1
+  fi
+}
+
+[ -e ../simutrans/pak ] || (download_with_retry https://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip simupak64-122-0.zip && unzip -n simupak64-122-0.zip -d ..) || exit 1
+[ -e ../simutrans/pak64.german ] || (download_with_retry http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip pak64.german_0-122-0-0-2_full.zip && unzip -n pak64.german_0-122-0-0-2_full.zip -d ..) || exit 1
+[ -e ../simutrans/music/TimGM6mb.sf2 ] || (download_with_retry https://sourceforge.net/p/mscore/code/HEAD/tree/trunk/mscore/share/sound/TimGM6mb.sf2?format=raw TimGM6mb.sf2 && cp ./TimGM6mb.sf2 ../simutrans/music/TimGM6mb.sf2) || exit 1
+[ -e ../simutrans/font/RobotoCondensed-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto%20Condensed Roboto_Condensed.zip && unzip -n Roboto_Condensed.zip -d ../simutrans/font) || exit 1
+[ -e ../simutrans/font/Roboto-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto Roboto.zip && unzip -n Roboto.zip -d ../simutrans/font) || exit 1
+[ -e ../simutrans/cacert.pem ] || cp ./cacert.pem ../simutrans/cacert.pem || exit 1
+
+echo 'Done adding assets'
