@@ -136,7 +136,7 @@ static void show_sizes()
 // render tests ...
 static void show_times(karte_t *welt, main_view_t *view)
 {
-	intr_set(welt, view);
+	intr_set_view(view);
 	welt->set_fast_forward(true);
 	intr_disable();
 
@@ -1489,7 +1489,7 @@ int simu_main(int argc, char** argv)
 	if(  const char *scen_name = args.gimme_arg("-scenario", 1)  ) {
 		scen = new scenario_t(welt);
 
-		intr_set(welt, view);
+		intr_set_view(view);
 		win_set_world(welt);
 
 		const char *err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
@@ -1506,11 +1506,14 @@ int simu_main(int argc, char** argv)
 	if(  scen == NULL && (loadgame==""  ||  !welt->load(loadgame.c_str()))  ) {
 		// create a default map
 		DBG_MESSAGE("simu_main()", "Init with default map (failing will be a pak error!)");
-		// no autosave on initial map during the first six month ...
+
+		// no autosave on initial map during the first six months
 		loadgame = "";
 		new_world = true;
+
 		sint32 old_autosave = env_t::autosave;
 		env_t::autosave = false;
+
 		settings_t sets;
 		sets.copy_city_road( env_t::default_settings );
 		sets.set_default_climates();
@@ -1521,15 +1524,19 @@ int simu_main(int argc, char** argv)
 		sets.set_tourist_attractions(1);
 		sets.set_traffic_level(7);
 		welt->init(&sets,0);
+
 		//  start in June ...
-		intr_set(welt, view);
+		intr_set_view(view);
 		win_set_world(welt);
+
 		tool_t::toolbar_tool[0]->init(welt->get_active_player());
+
 		welt->set_fast_forward(true);
 		welt->sync_step(5000,true,false);
 		welt->step_month(5);
 		welt->step();
 		welt->step();
+
 		env_t::autosave = old_autosave;
 	}
 	else {
@@ -1540,7 +1547,7 @@ int simu_main(int argc, char** argv)
 
 		if (scen == NULL) {
 			// just init view (world was loaded from file)
-			intr_set(welt, view);
+			intr_set_view(view);
 			win_set_world(welt);
 		}
 

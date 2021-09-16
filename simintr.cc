@@ -118,7 +118,7 @@ void interrupt_check(const char* caller_info)
 }
 
 
-void intr_set(karte_t *, main_view_t *view)
+void intr_set_view(main_view_t *view)
 {
 	main_view = view;
 	last_time = dr_time();

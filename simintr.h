@@ -25,7 +25,7 @@ void set_frame_time(uint32 ms);
 
 void intr_refresh_display(bool dirty);
 
-void intr_set(karte_t *welt, main_view_t *view);
+void intr_set_view(main_view_t *view);
 
 void intr_set_last_time(uint32 time);
 
