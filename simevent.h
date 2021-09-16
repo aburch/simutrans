@@ -167,14 +167,14 @@ enum {
 struct event_t
 {
 public:
-	event_t(event_class_t event_class = EVENT_NONE) :
-		ev_class(event_class),
-		ev_code(0),
-		mx(0), my(0),
-		cx(0), cy(0),
-		button_state(0),
-		ev_key_mod(SIM_MOD_NONE)
-	{ }
+	event_t(event_class_t event_class = EVENT_NONE);
+
+public:
+	/**
+	 * Move event origin. Useful when transferring events to sub-components.
+	 * @param delta position of new origin relative to the old origin.
+	 */
+	void move_origin(scr_coord delta);
 
 public:
 	event_class_t ev_class;
@@ -199,17 +199,6 @@ public:
 	unsigned int ev_key_mod;
 };
 
-
-/**
- * Translate event origin. Useful when transferring events to sub-components.
- */
-static inline void translate_event(event_t *const ev, int x, int y)
-{
-	ev->mx += x;
-	ev->cx += x;
-	ev->my += y;
-	ev->cy += y;
-}
 
 /// Return one event. Does *not* wait.
 void display_poll_event(event_t*);

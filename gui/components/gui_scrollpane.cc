@@ -143,12 +143,12 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 	bool swallow = false;
 	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -scroll_y.get_pos().x, -scroll_y.get_pos().y);
+		ev2.move_origin(scroll_y.get_pos());
 		return scroll_y.infowin_event(&ev2);
 	}
 	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
+		ev2.move_origin(scroll_x.get_pos());
 		return scroll_x.infowin_event(&ev2);
 	}
 	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<=size.w  &&  ev->my<=size.h)  ) {
@@ -156,7 +156,8 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 
 		// translate according to scrolled position
 		event_t ev2 = *ev;
-		translate_event(&ev2, scroll_x.get_knob_offset() - comp->get_pos().x, scroll_y.get_knob_offset() - comp->get_pos().y);
+		const scr_coord offset(scroll_x.get_knob_offset(), scroll_y.get_knob_offset());
+		ev2.move_origin(comp->get_pos() - offset);
 
 		gui_component_t *focused = get_focus();
 		// hand event to component

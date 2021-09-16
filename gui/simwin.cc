@@ -1473,11 +1473,14 @@ bool check_pos_win(event_t *ev)
 		tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y)  &&
 		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&
 		ev->ev_class != EVENT_KEYBOARD) {
+
 		event_t wev = *ev;
-		translate_event(&wev, -menuoffset.x, -menuoffset.y);
+		wev.move_origin(menuoffset);
+
 		inside_event_handling = tool_t::toolbar_tool[0];
 		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event( &wev );
 		inside_event_handling = NULL;
+
 		// swallow event
 		return true;
 	}
@@ -1642,7 +1645,7 @@ bool check_pos_win(event_t *ev)
 						is_resizing = -1;
 						// click in Window
 						event_t wev = *ev;
-						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+						wev.move_origin(wins[i].pos);
 						wins[i].gui->infowin_event( &wev );
 					}
 				}

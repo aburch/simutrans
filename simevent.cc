@@ -16,6 +16,27 @@ static event_t meta_event(EVENT_NONE); // for storing meta-events like double-cl
 static event_class_t last_meta_class = EVENT_NONE;
 static slist_tpl<event_t *> queued_events;
 
+
+event_t::event_t(event_class_t event_class) :
+	ev_class(event_class),
+	ev_code(0),
+	mx(0), my(0),
+	cx(0), cy(0),
+	button_state(0),
+	ev_key_mod(SIM_MOD_NONE)
+{
+}
+
+
+void event_t::move_origin(scr_coord delta)
+{
+	mx -= delta.x;
+	cx -= delta.x;
+	my -= delta.y;
+	cy -= delta.y;
+}
+
+
 int event_get_last_control_shift()
 {
 	// shift = 1

@@ -114,7 +114,7 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 
 	if(IS_WINDOW_RESIZE(ev)) {
 		scr_coord delta (  resize_mode & horizontal_resize ? ev->mx - ev->cx : 0,
-		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
+		                   resize_mode & vertical_resize   ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;  // don't pass to children!
 	}
@@ -127,8 +127,9 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 		dirty = true;
 		gui_aligned_container_t::clear_dirty();
 	}
+
 	event_t ev2 = *ev;
-	translate_event(&ev2, 0, -(int)has_title()*D_TITLEBAR_HEIGHT);
+	ev2.move_origin(scr_coord(0, (int)has_title()*D_TITLEBAR_HEIGHT));
 	return gui_aligned_container_t::infowin_event(&ev2);
 }
 

@@ -243,12 +243,12 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 	// buttons pressed
 	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
+		ev2.move_origin(bt_left.get_pos());
 		return bt_left.infowin_event(&ev2);
 	}
 	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
+		ev2.move_origin(bt_right.get_pos());
 		return bt_right.infowin_event(&ev2);
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
@@ -313,7 +313,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 			}
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
-				translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
+				ev2.move_origin(textinp.get_pos());
 				result = textinp.infowin_event(&ev2);
 				new_value = get_text_value();
 			}

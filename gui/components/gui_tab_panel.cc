@@ -116,12 +116,12 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		// buttons pressed
 		if(  left.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, -left.get_pos().x, -left.get_pos().y);
+			ev2.move_origin(left.get_pos());
 			return left.infowin_event(&ev2);
 		}
 		else if(  right.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, -right.get_pos().x, -right.get_pos().y);
+			ev2.move_origin(right.get_pos());
 			return right.infowin_event(&ev2);
 		}
 	}
@@ -165,7 +165,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
 		// active tab was hit
 		event_t ev2 = *ev;
-		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y );
+		ev2.move_origin(get_aktives_tab()->get_pos());
 		return get_aktives_tab()->infowin_event(&ev2);
 	}
 	return false;

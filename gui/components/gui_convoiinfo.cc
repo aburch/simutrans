@@ -118,7 +118,8 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 	if(cnv.is_bound()) {
 		// check whether some child must handle this!
 		event_t ev2 = *ev;
-		translate_event(&ev2, -container_next_halt->get_pos().x, -container_next_halt->get_pos().y);
+		ev2.move_origin(container_next_halt->get_pos());
+
 		if( container_next_halt->infowin_event( &ev2 ) ) {
 			return true;
 		}

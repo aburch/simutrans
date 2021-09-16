@@ -595,7 +595,7 @@ void map_frame_t::zoom(bool magnify)
 bool map_frame_t::infowin_event(const event_t *ev)
 {
 	event_t ev2 = *ev;
-	translate_event(&ev2, -scrolly.get_pos().x, -scrolly.get_pos().y-D_TITLEBAR_HEIGHT);
+	ev2.move_origin(scrolly.get_pos() + scr_coord(0, D_TITLEBAR_HEIGHT));
 
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
