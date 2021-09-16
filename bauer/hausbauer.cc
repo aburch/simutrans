@@ -324,9 +324,6 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
 
-	// get start position and size
-	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-
 	if(  tile->get_desc()->get_type() == building_desc_t::headquarters  ) {
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
 	}
@@ -342,15 +339,18 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+			const koord3d pos = gr->get_pos();
+			planquadrat_t *plan = welt->access( pos.get_2d() );
 			gebaeude_t* gb_part = gr->find<gebaeude_t>();
 			gb_part->set_fab( NULL );
-			planquadrat_t *plan = welt->access( pos.get_2d() );
+
 			for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
 				halthandle_t halt = plan->get_haltlist()[i];
 				halt->remove_fabriken( fab );
 				plan->remove_from_haltlist( halt );
 			}
 		}
+
 		// tell players of the deletion
 		for(uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
 			player_t *player = welt->get_player(i);
@@ -358,6 +358,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 				player->notify_factory(player_t::notify_delete, fab);
 			}
 		}
+
 		// remove all transformers
 		while(1) {
 			vector_tpl<leitung_t*>const& trans = fab->get_transformers();
@@ -374,24 +375,30 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 
 	// delete our house only
 	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+		const koord3d pos = gr->get_pos();
 		gebaeude_t* gb_part = gr->find<gebaeude_t>();
 		gb_part->cleanup( player );
 		delete gb_part;
+
 		// if this was a station building: delete ground
 		if(gr->get_halt().is_bound()) {
 			haltestelle_t::remove(player, pos);
 		}
+
 		// and maybe restore land below
 		if(gr->get_typ()==grund_t::fundament) {
 			const koord newk = pos.get_2d();
 			sint8 new_hgt;
 			const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+
 			// test for ground at new height
 			const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+
 			if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
 				// and for ground above new sloped tile
 				gr2 = welt->lookup(koord3d(newk, new_hgt+1));
 			}
+
 			bool ground_recalc = true;
 			if(  gr2  &&  gr2!=gr  ) {
 				// there is another ground below or above
@@ -412,6 +419,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 				welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
 				// climate is stored in planquadrat, and hence automatically preserved
 			}
+
 			// there might be walls from foundations left => thus some tiles may need to be redrawn
 			if(ground_recalc) {
 				if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
