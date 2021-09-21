@@ -117,6 +117,8 @@ if (MSVC)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 	add_definitions(-DNOMINMAX)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
+	
+	add_link_options(/LARGEADDRESSAWARE)
 
 else (MSVC) # Assume GCC/Clang
 	SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS
@@ -140,6 +142,8 @@ else (MSVC) # Assume GCC/Clang
 		-Wno-cast-align              # for squirrel
 		-Wno-return-std-move         # for squirrel
 	)
+
+	add_link_options(-Wl,--large-address-aware)
 
 	if (SIMUTRANS_PROFILE)
 		SIMUTRANS_CHECK_CXX_COMPILER_FLAGS(SIMUTRANS_COMMON_COMPILE_OPTIONS

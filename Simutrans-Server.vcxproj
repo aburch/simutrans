@@ -125,6 +125,9 @@
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</MultiProcessorCompilation>
     </ClCompile>
+    <Link>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LargeAddressAware>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Stable'">
     <ClCompile>
@@ -142,6 +145,8 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LargeAddressAware>
+      <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
