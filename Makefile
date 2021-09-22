@@ -62,7 +62,10 @@ else ifeq ($(OSTYPE),mingw)
     CFLAGS  += -static
     LDFLAGS += -static-libgcc -static-libstdc++ -static
   endif
-  LDFLAGS   += -pthread -Wl,--large-address-aware
+  ifeq ($(MINGW_PACKAGE_PREFIX),mingw-w64-i686)
+    LDFLAGS   += -Wl,--large-address-aware
+  endif
+  LDFLAGS   += -pthread
   CFLAGS    += -Wno-deprecated-copy -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
   LIBS      += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
 
