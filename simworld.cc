@@ -6443,6 +6443,24 @@ void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbotto
 }
 
 
+
+void karte_t::get_height_slope_from_grid(koord k, sint8 &hgt, uint8 &slope)
+{
+	if(  (k.x | k.y | (cached_grid_size.x - k.x-1) | (cached_grid_size.y - k.y-1)) >= 0  ) {
+		// inside map, so without further checks
+		sint8 h_n = lookup_hgt_nocheck(k.x, k.y);
+		sint8 h_w = lookup_hgt_nocheck(k.x, k.y+1);
+		sint8 h_s = lookup_hgt_nocheck(k.x+1, k.y+1);
+		sint8 h_e = lookup_hgt_nocheck(k.x+1, k.y);
+		hgt = min(min(h_n, h_e), min(h_s, h_w));
+		slope = slope_t::northwest * (h_n - hgt);
+		slope |= slope_t::northeast * (h_e - hgt);
+		slope |= slope_t::southeast * (h_s - hgt);
+		slope |= slope_t::southwest * (h_w - hgt);
+	}
+}
+
+
 // fills array with neighbour heights
 void karte_t::get_neighbour_heights(const koord k, sint8 neighbour_height[8][4]) const
 {

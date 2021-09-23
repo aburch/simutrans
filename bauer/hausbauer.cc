@@ -373,6 +373,8 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 		welt->rem_fab(fab);
 	}
 
+	vector_tpl<boden_t*>recalc_boden;
+
 	// delete our house only
 	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
 		const koord3d pos = gr->get_pos();
@@ -389,7 +391,8 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 		if(gr->get_typ()==grund_t::fundament) {
 			const koord newk = pos.get_2d();
 			sint8 new_hgt;
-			const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+			uint8 new_slope;
+			welt->get_height_slope_from_grid(newk, new_hgt, new_slope);
 
 			// test for ground at new height
 			const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
@@ -397,44 +400,56 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 			if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
 				// and for ground above new sloped tile
 				gr2 = welt->lookup(koord3d(newk, new_hgt+1));
+				if(  gr==0  && slope_t::max_diff(new_slope) == 2  ) {
+					gr2 = welt->lookup(koord3d(newk, new_hgt + 2));
+				}
 			}
 
-			bool ground_recalc = true;
 			if(  gr2  &&  gr2!=gr  ) {
 				// there is another ground below or above
 				// => do not change height, keep foundation
 				welt->access(newk)->kartenboden_setzen( new boden_t( pos, slope_t::flat ) );
-				ground_recalc = false;
-			}
-			else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
-				wasser_t* sea = new wasser_t( koord3d( newk, new_hgt) );
-				welt->access(newk)->kartenboden_setzen( sea );
-				welt->calc_climate( newk, true );
-				sea->recalc_water_neighbours();
 			}
 			else {
-				if(  gr->get_grund_hang() == new_slope  &&  new_hgt == pos.z  ) {
-					ground_recalc = false;
-				}
-				welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
-				// climate is stored in planquadrat, and hence automatically preserved
-			}
-
-			// there might be walls from foundations left => thus some tiles may need to be redrawn
-			if(ground_recalc) {
-				if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
-					gr->calc_image();
-				}
-				if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
-					gr->calc_image();
-				}
-				welt->set_grid_hgt( newk, new_hgt+corner_nw(new_slope) );
+				boden_t* bd = new boden_t(koord3d(newk, new_hgt), new_slope);
+				welt->access(newk)->kartenboden_setzen(bd);
+				recalc_boden.append(bd);
 			}
 		}
 		else if (wasser_t* sea = dynamic_cast<wasser_t*>(gr)) {
 			sea->recalc_water_neighbours();
 		}
 	}
+
+	FOR(vector_tpl<boden_t *>, gr, recalc_boden) {
+		// the grid height might not be fully appropriate, so now we checlk for superflous walls
+		const koord newk = gr->get_pos().get_2d();
+		sint8 new_hgt = gr->get_pos().z;
+		const uint8 new_slope = welt->recalc_natural_slope(newk, new_hgt);
+		
+		if (new_hgt < welt->get_water_hgt(newk) || (new_hgt == welt->get_water_hgt(newk) && new_slope == slope_t::flat)) {
+			wasser_t* sea = new wasser_t(koord3d(newk, new_hgt));
+			welt->access(newk)->kartenboden_setzen(sea);
+			welt->calc_climate(newk, true);
+			sea->recalc_water_neighbours();
+		}
+		else {
+			boden_t* bd = new boden_t(koord3d(newk, new_hgt), new_slope);
+			welt->access(newk)->kartenboden_setzen(bd);
+			recalc_boden.append(bd);
+			// climate is stored in planquadrat, and hence automatically preserved
+		}
+
+		// there might be walls from foundations left => thus some tiles may need to be redrawn
+		if (grund_t* gr = welt->lookup_kartenboden(newk + koord::east)) {
+			gr->calc_image();
+		}
+		if (grund_t* gr = welt->lookup_kartenboden(newk + koord::south)) {
+			gr->calc_image();
+		}
+		welt->set_grid_hgt(newk, gr->get_pos().z + corner_nw(new_slope));
+	}
+
 }
 
 

@@ -1608,6 +1608,7 @@ public:
 
 	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
 
+	void get_height_slope_from_grid(koord k, sint8 &hgt, uint8 &slope);
 
 private:
 	/**
