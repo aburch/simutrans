@@ -2775,7 +2775,7 @@ void way_builder_t::build_powerline()
 			// modernize the network
 			if(lt->get_typ() == obj_t::leitung  && (!keep_existing_faster_ways  ||  lt->get_desc()->get_topspeed() < desc->get_topspeed())  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_owner(),  lt->get_desc()->get_maintenance(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_maintenance(), powerline_wt );
 			}
 		}
 		if (build_powerline) {
