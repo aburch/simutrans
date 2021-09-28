@@ -125,8 +125,11 @@ sint32 x_scale = SCALE_NEUTRAL_X;
 sint32 y_scale = SCALE_NEUTRAL_Y;
 
 // When using -autodpi, attempt to scale things on screen to this DPI value
+#ifdef __ANDROID__
+#define TARGET_DPI (192)
+#else
 #define TARGET_DPI (96)
-
+#endif
 
 // screen -> texture coords
 #define SCREEN_TO_TEX_X(x) (((x) * SCALE_NEUTRAL_X) / x_scale)
