@@ -7487,9 +7487,9 @@ void karte_t::announce_server(server_announce_type_t status)
 
 		// Always send dns and port as these are used as the unique identifier for the server
 		cbuffer_t buf;
-		buf.append( "&dns=" );
+		buf.append( "&dns=127.0.0.1&alt_dns=::1&ddns=" );
 		encode_URI( buf, env_t::server_dns.c_str() );
-		buf.append( "&alt_dns=" );
+		buf.append( "&alt_ddns=" );
 		encode_URI( buf, env_t::server_alt_dns.c_str() );
 		buf.printf( "&port=%u", env_t::server );
 		// Always send announce interval to allow listing server to predict next announce

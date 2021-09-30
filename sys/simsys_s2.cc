@@ -533,7 +533,7 @@ static void internal_GetEvents(bool const wait)
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch(  event.type  ) {
-		case SDL_WINDOWEVENT: {
+		case SDL_WINDOWEVENT:
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
 				sys_event.new_window_size_w = SCREEN_TO_TEX_X(event.window.data1);
 				sys_event.new_window_size_h = SCREEN_TO_TEX_Y(event.window.data2);
@@ -542,8 +542,8 @@ static void internal_GetEvents(bool const wait)
 			}
 			// Ignore other window events.
 			break;
-		}
-		case SDL_MOUSEBUTTONDOWN: {
+		
+		case SDL_MOUSEBUTTONDOWN:
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			switch(  event.button.button  ) {
 				case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
@@ -557,8 +557,8 @@ static void internal_GetEvents(bool const wait)
 			sys_event.mb      = conv_mouse_buttons( SDL_GetMouseState(0, 0) );
 			sys_event.key_mod = ModifierKeys();
 			break;
-		}
-		case SDL_MOUSEBUTTONUP: {
+
+		case SDL_MOUSEBUTTONUP:
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			switch(  event.button.button  ) {
 				case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTUP;  break;
@@ -570,14 +570,14 @@ static void internal_GetEvents(bool const wait)
 			sys_event.mb      = conv_mouse_buttons( SDL_GetMouseState(0, 0) );
 			sys_event.key_mod = ModifierKeys();
 			break;
-		}
-		case SDL_MOUSEWHEEL: {
+
+		case SDL_MOUSEWHEEL:
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = event.wheel.y > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
 			break;
-		}
-		case SDL_FINGERDOWN: {
+
+		case SDL_FINGERDOWN:
 			// just reset scroll state
 			dLastDist = 0.0;
 			sys_event.type = SIM_MOUSE_BUTTONS;
@@ -587,8 +587,8 @@ static void internal_GetEvents(bool const wait)
 			sys_event.mb = 1;
 			sys_event.key_mod = ModifierKeys();
 			break;
-		}
-		case SDL_FINGERMOTION: {
+
+		case SDL_FINGERMOTION:
 			// move whatever
 			if( screen ) {
 				sys_event.mx = (event.tfinger.x+event.tfinger.dx)* screen->w;
@@ -599,8 +599,8 @@ static void internal_GetEvents(bool const wait)
 				sys_event.key_mod = ModifierKeys();
 			}
 			break;
-		}
-		case SDL_MULTIGESTURE: {
+
+		case SDL_MULTIGESTURE:
 			if( event.mgesture.numFingers == 2 ) {
 				// any multitouch is intepreted as pinch zoom
 
@@ -620,8 +620,17 @@ static void internal_GetEvents(bool const wait)
 				}
 
 			}
+			else if (event.mgesture.numFingers == 3  &&  screen) {
+				// any three finger touch is scrolling the map
+				sys_event.mx = event.mgesture.x * screen->w;
+				sys_event.my = event.mgesture.y * screen->h;
+				sys_event.type = SIM_MOUSE_MOVE;
+				sys_event.code = SIM_MOUSE_MOVED;
+				sys_event.mb = 2;
+				sys_event.key_mod = ModifierKeys();
+			}
 			break;
-		}
+
 		case SDL_KEYDOWN: {
 			// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
 			// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
