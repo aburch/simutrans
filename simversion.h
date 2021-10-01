@@ -74,7 +74,7 @@
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-#define ANNOUNCE_SERVER /*"simutrans-forum.de:3000"*/ "localhost:3000"
+#define ANNOUNCE_SERVER "servers.simutrans.org:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
