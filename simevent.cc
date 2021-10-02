@@ -64,6 +64,14 @@ void change_drag_start(scr_coord_val x, scr_coord_val y)
 }
 
 
+// since finger events work with absolute coordinates
+void set_click_xy(scr_coord_val x, scr_coord_val y)
+{
+	cx = x;
+	cy = y;
+}
+
+
 static void fill_event(event_t* const ev)
 {
 	// variables for detecting double-clicks and triple-clicks

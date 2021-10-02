@@ -206,6 +206,7 @@ void display_poll_event(event_t*);
 /// Wait for one event, and return it.
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
+void set_click_xy(scr_coord_val x, scr_coord_val y);
 
 int event_get_last_control_shift();
 event_class_t last_meta_event_get_class();
