@@ -52,10 +52,10 @@ function correct_missing_flags_argument()
 	}
 	if (do_work.getinfos().parameters.len() == 4) {
 		do_work_old <- do_work
-		do_work = function(player, pos, flags) { return do_work_old(player, pos) }
+		do_work = function(player, start, end, flags) { return do_work_old(player, start, end) }
 	}
 	if (mark_tiles.getinfos().parameters.len() == 4) {
 		mark_tiles_old <- mark_tiles
-		mark_tiles = function(player, pos, flags) { mark_tiles_old(player, pos) }
+		mark_tiles = function(player, start, end, flags) { mark_tiles_old(player, start, end) }
 	}
 }
