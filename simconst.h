@@ -15,6 +15,13 @@
 // color depth (default assumes RGB565), undefine only for rgb555 builds!
 //#define RGB555
 
+// some clients had no goof IP6 support (or maybe useful for debugging)
+//#define USE_IP4_ONLY
+
+// server can try a lookup of the own name (may get wrong one if more than one IP for this host)
+//#define LOOKUP_OWN_IP_NAME
+
+
 // number of player
 #define MAX_PLAYER_COUNT (16)
 #define PLAYER_UNOWNED (15)

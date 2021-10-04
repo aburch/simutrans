@@ -833,7 +833,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 {
 	myIPaddr.clear();
 	altIPaddr.clear();
-	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router and we can get IP6 too)
+	// query for IP (faster than asking router using uPnP and we can get IP6 too)
 	const char *err = network_http_get( QUERY_ADDR_IP, QUERY_ADDR_URL, altIPaddr );
 	// if we have a dual stack system, IP6 should be preferred, i.e. we have now the IP6
 	if(  err==NULL  &&  strstr(altIPaddr,":")  ) {
@@ -850,7 +850,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 		altIPaddr.clear();
 	}
 
-#if 0
+#ifdef LOOKUP_OWN_IP_NAME
 	// enable to try to get a symbolic name for IPv4
 	if(  !err  ) {
 		struct sockaddr_in sin;
@@ -868,6 +868,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 		}
 	}
 #endif
+
 	return err==NULL;
 }
 
@@ -932,7 +933,6 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	freeUPNPDevlist(devlist);
 
 	externalAltIPAddress[0] = 0;
-#if 1
 	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
@@ -942,41 +942,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 			strcpy( externalAltIPAddress, altIPaddr );
 		}
 	}
-#else
-	// now we have (or have not) the IPv4 at this point (due to the protocol), we check for IP6 too or try to get at least an IP addr
-	cbuffer_t myIPaddr;
-	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
-	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
-	if(  !err  ) {
-		if(  has_IP  ) {
-			if(  strcmp(externalIPAddress, myIPaddr.get_str())!=0  ) {
-				strcpy( externalAltIPAddress, myIPaddr.get_str() );
-			}
-		}
-		else {
-			strcpy( externalIPAddress, myIPaddr.get_str() );
-			has_IP = true;
-		}
-	}
 
-	// we have an external IP, let's find if we have a DNS name for it
-	if (!network_initialize()) {
-		return has_IP;
-	}
-
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family      = AF_INET;
-	sin.sin_addr.s_addr = inet_addr(externalIPAddress);
-	sin.sin_port        = 0; // If 0, port is chosen by system
-	char hostname[1024];
-	hostname[0] = 0;
-
-	int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, 0, 0);
-	if(  !failed  &&  *hostname  ) {
-		strcpy( externalIPAddress, hostname );
-	}
-#endif
 	return has_IP;
 }
 
@@ -1019,14 +985,18 @@ void remove_port_forwarding( int port )
 
 bool prepare_for_server(char *externalIPAddress, char *, int)
 {
-	cbuffer_t myIPaddr;
-	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
-	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
-	if(  !err  ) {
-		strcpy( externalIPAddress, myIPaddr.get_str() );
-		return true;
+	externalAltIPAddress[0] = 0;
+	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
+	cbuffer_t myIPaddr, altIPaddr;
+	if (get_external_IP(myIPaddr, altIPaddr)) {
+		has_IP = true;
+		strcpy(externalIPAddress, myIPaddr);
+		if (altIPaddr.len()) {
+			strcpy(externalAltIPAddress, altIPaddr);
+		}
 	}
-	return false;
+
+	return has_IP;
 }
 
 void remove_port_forwarding( int )
