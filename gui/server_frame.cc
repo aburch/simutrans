@@ -421,6 +421,11 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			if(  item->online()  ) {
 				display_show_load_pointer(1);
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
+				if(  err  &&  *((server_scrollitem_t*)serverlist.get_element(p.i))->get_altdns()  ) {
+					item->set_color(MONEY_MINUS);
+					update_error(err);
+					err = network_gameinfo(((server_scrollitem_t*)serverlist.get_element(p.i))->get_altdns(), &gi);
+				}
 				if(  err == NULL  ) {
 					item->set_color( update_info() );
 				}

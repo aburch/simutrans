@@ -175,8 +175,13 @@ uint16 env_t::compass_screen_position;
 
 uint32 env_t::default_ai_construction_speed;
 
-bool env_t::hide_keyboard = false;
 
+#ifdef __ANDROID__
+// autoshow keyboard on textinput
+bool env_t::hide_keyboard = true;
+#else
+bool env_t::hide_keyboard = false;
+#endif
 
 // Define default settings.
 void env_t::init()
