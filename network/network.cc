@@ -983,20 +983,20 @@ void remove_port_forwarding( int port )
 #else
 // or we just get only our IP and hope we are not behind a router ...
 
-bool prepare_for_server(char *externalIPAddress, char *, int)
+bool prepare_for_server(char* externalIPAddress, char* externalAltIPAddress, int port)
 {
 	externalAltIPAddress[0] = 0;
 	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if (get_external_IP(myIPaddr, altIPaddr)) {
-		has_IP = true;
 		strcpy(externalIPAddress, myIPaddr);
 		if (altIPaddr.len()) {
 			strcpy(externalAltIPAddress, altIPaddr);
 		}
+		return true;
 	}
 
-	return has_IP;
+	return false;
 }
 
 void remove_port_forwarding( int )
