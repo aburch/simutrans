@@ -361,6 +361,8 @@ bool server_frame_t::update_serverlist ()
 			}
 		}
 
+		serverdns2.clear();
+
 		// Fifth field is server online/offline status (use for colour-coding)
 		cbuffer_t serverstatus;
 		ret = csvdata.get_next_field( serverstatus );
@@ -369,6 +371,10 @@ bool server_frame_t::update_serverlist ()
 		uint32 status = 0;
 		if(  ret > 0  ) {
 			status = atol( serverstatus.get_str() );
+
+			// sixth field on new list the alt dns, if there is one
+			ret = csvdata.get_next_field(serverdns2);
+			dbg->message("server_frame_t::update_serverlist", "altdns: %s", serverdns2.get_str());
 		}
 
 		// Only show offline servers if the checkbox is set
@@ -377,7 +383,7 @@ bool server_frame_t::update_serverlist ()
 			if(  pakset  &&  !strstart( serverpakset.get_str(), pakset )  ) {
 				color = SYSCOL_OBSOLETE;
 			}
-			serverlist.new_component<server_scrollitem_t>( servername, serverdns, status, color ) ;
+			serverlist.new_component<server_scrollitem_t>( servername, serverdns, serverdns2, status, color );
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 

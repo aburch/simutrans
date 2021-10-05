@@ -53,11 +53,26 @@ private:
 	private:
 		cbuffer_t servername;
 		cbuffer_t serverdns;
+		cbuffer_t server_altdns;
 		bool status;
 	public:
-		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, PIXVAL col) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
+		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, const cbuffer_t& altdns, bool status, PIXVAL col) :
+			gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ),
+			servername( name ), serverdns( dns ),
+			server_altdns(altdns),
+			status( status )
+		{
+			servername.append( " (" );
+			servername.append( serverdns.get_str() );
+			if (  server_altdns.len() > 0  ) {
+				servername.append(" or ");
+				servername.append(server_altdns.get_str());
+			}
+			servername.append(")");
+		}
 		char const* get_text () const OVERRIDE { return servername.get_str(); }
-		char const* get_dns () const { return serverdns.get_str(); }
+		char const* get_dns() const { return serverdns.get_str(); }
+		char const* get_altdns() const { return server_altdns.get_str(); }
 		void set_text (char const* newtext) OVERRIDE { servername.clear(); servername.append( newtext ); serverdns.clear(); serverdns.append( newtext ); }
 		bool online () { return status; }
 	};
