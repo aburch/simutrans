@@ -444,7 +444,7 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 {
 	// Traffic density edit
 	if( &traffic_density == comp ) {
-		if( !env_t::networkmode || world()->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || world()->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			static char level[ 16 ];
 			sprintf( level, "%li", v.i );
 			tool_t::simple_tool[ TOOL_TRAFFIC_LEVEL & 0xFFF ]->set_default_param( level );
@@ -547,12 +547,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		env_t::scroll_multi = -env_t::scroll_multi;
 		break;
 	case IDBTN_PEDESTRIANS_AT_STOPS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
 		}
 		break;
 	case IDBTN_PEDESTRIANS_IN_TOWNS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == 1 ) {
+		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PEDESTRIANS & 0xFFF ], welt->get_active_player() );
 		}
 		break;

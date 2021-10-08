@@ -170,7 +170,7 @@ void convoi_frame_t::fill_list()
 	last_world_convois = welt->convoys().get_count();
 	current_wt = tabs.get_active_tab_waytype();
 
-	const bool all = owner->get_player_nr() == 1;
+	const bool all = owner->is_public_service();
 	scrolly->clear_elements();
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(  all  ||  cnv->get_owner()==owner  ) {
