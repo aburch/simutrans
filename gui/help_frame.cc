@@ -326,11 +326,11 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
 			cbuffer_t c;
 			char str[16];
-			if(  i->command_flags&2  ) {
+			if(  i->command_flags & SIM_MOD_CTRL  ) {
 				c.append( translator::translate( "[CTRL]" ) );
 				c.append( " + " );
 			}
-			if(  i->command_flags&1  ) {
+			if(  i->command_flags & SIM_MOD_SHIFT  ) {
 				c.append( translator::translate( "[SHIFT]" ) );
 				c.append( " + " );
 			}
