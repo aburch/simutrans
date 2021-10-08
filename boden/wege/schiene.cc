@@ -167,3 +167,13 @@ void schiene_t::rdwr(loadsave_t *file)
 //		DBG_MESSAGE("schiene_t::rdwr","track %s at (%s) max_speed %i", bname, get_pos().get_str(), old_max_speed);
 	}
 }
+
+
+FLAGGED_PIXVAL schiene_t::get_outline_colour() const
+{
+	if (!show_reservations || !reserved.is_bound()) {
+		return 0;
+	}
+
+	return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED);
+}

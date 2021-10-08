@@ -85,7 +85,7 @@ public:
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
 	 */
-	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE { return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED) : 0;}
+	FLAGGED_PIXVAL get_outline_colour() const OVERRIDE;
 
 	/*
 	 * to show reservations if needed
