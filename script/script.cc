@@ -71,7 +71,7 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	if (strcmp(s, "<error>")==0) {
 		// start of error message
 		buf.clear();
-		buf.printf("<st>An error occured within a script!</st><br>\n");
+		buf.printf("<st>An error occurred within a script!</st><br>\n");
 	}
 	else if (strcmp(s, "</error>")==0) {
 		// end of error message

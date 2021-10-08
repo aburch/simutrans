@@ -79,7 +79,7 @@ static loadsave_param_t ls;
  * repeat                                                            (error handling)
  *                                                           if readdata_flag < 0
  *                                                         <------ end thread
- *                                                           if error occured during previous fill_buffer
+ *                                                           if error occurred during previous fill_buffer
  *                                                                 readdata_flag = -1
  *                                          (join threads) <------ end thread
  *                                                           repeat
@@ -105,7 +105,7 @@ void *load_thread( void *ptr )
 			break;
 		}
 		if (bytes_read == 0) {
-			// nothing read into buffer, or error occured
+			// nothing read into buffer, or error occurred
 			// flag error to main thread
 			readdata_flag = -1;
 			pthread_mutex_unlock(&readdata_mutex);

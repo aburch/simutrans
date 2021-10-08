@@ -55,7 +55,7 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 {
 	if (v.error) {
-		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
 	}
 	// create tool, if necessary, delete on exit
 	std::auto_ptr<tool_t> our_tool;
@@ -182,7 +182,7 @@ tool_t * call_tool_base_t::create_tool()
 SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 {
 	if (v.error) {
-		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occurred");
 	}
 	// create tool, if necessary, delete on exit
 	std::auto_ptr<tool_t> our_tool;
