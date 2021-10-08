@@ -3587,7 +3587,7 @@ void convoi_t::unregister_stops()
 void convoi_t::set_next_stop_index(uint16 n)
 {
 	// stop at station or signals, not at waypoints
-	if(  n==INVALID_INDEX  ) {
+	if(  n==route_t::INVALID_INDEX  ) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t const* const gr = welt->lookup(route.back());
 		if(  gr  &&  gr->is_halt()  ) {
@@ -3604,7 +3604,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 void convoi_t::set_next_reservation_index(uint16 n)
 {
 	// stop at station or signals, not at waypoints
-	if(  n==INVALID_INDEX  ) {
+	if(  n==route_t::INVALID_INDEX  ) {
 		n = route.get_count()-1;
 	}
 	next_reservation_index = n;

@@ -13,15 +13,20 @@
 
 #include "../tpl/vector_tpl.h"
 
+
 class karte_t;
 class test_driver_t;
 class grund_t;
+
 
 /**
  * Route, e.g. for vehicles
  */
 class route_t
 {
+public:
+	static const uint16 INVALID_INDEX = 0xFFFA;
+
 private:
 	/**
 	 * The actual route search

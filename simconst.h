@@ -101,8 +101,6 @@
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 
-#define INVALID_INDEX (65530u)
-
 // offsets for mouse pointer
 #define Z_PLAN (4)
 #define Z_GRID (0)
