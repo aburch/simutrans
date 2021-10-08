@@ -867,8 +867,8 @@ static void process_kill_list()
 {
 	FOR(vector_tpl<simwin_t>, & i, kill_list) {
 		if (inside_event_handling != i.gui) {
-			wins.remove(i);
 			destroy_framed_win(&i);
+			wins.remove(i);
 		}
 	}
 	kill_list.clear();

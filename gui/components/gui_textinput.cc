@@ -483,6 +483,11 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 		return true;
 	}
+	else if(  ev->ev_class == INFOWIN   &&  ev->ev_code == WIN_CLOSE  &&  focus_received  ) {
+		// release focus on close and close keyboard
+		dr_stop_textinput();
+		focus_received = false;
+	}
 	return false;
 }
 
