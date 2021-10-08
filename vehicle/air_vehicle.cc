@@ -975,7 +975,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 		display_swap_clip_wh(CLIP_NUM_VAR);
 		// will be dirty
 		// the aircraft!!!
-		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/  CLIP_NUM_PAR);
+		display_color( image, xpos, ypos, get_owner_nr(), true, true/*get_flag(obj_t::dirty)*/  CLIP_NUM_PAR);
 #ifndef MULTI_THREAD
 		vehicle_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
 #endif

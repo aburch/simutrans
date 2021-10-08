@@ -81,7 +81,7 @@ protected:
 	obj_t();
 
 	// since we often need access during loading
-	void set_player_nr(uint8 o) { owner_n = o; }
+	void set_owner_nr(uint8 value) { owner_n = value; }
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
@@ -92,7 +92,7 @@ protected:
 
 public:
 	// needed for drawing images
-	sint8 get_player_nr() const { return owner_n; }
+	sint8 get_owner_nr() const { return owner_n; }
 
 	/**
 	 * sets owner of object

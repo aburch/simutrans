@@ -169,9 +169,9 @@ void weg_t::rdwr(loadsave_t *file)
 
 	// save owner
 	if(  file->is_version_atleast(99, 6)  ) {
-		sint8 spnum=get_player_nr();
+		sint8 spnum=get_owner_nr();
 		file->rdwr_byte(spnum);
-		set_player_nr(spnum);
+		set_owner_nr(spnum);
 	}
 
 	// all connected directions
@@ -557,7 +557,7 @@ void weg_t::finish_rd()
 // players can remove public owned ways
 const char *weg_t::is_deletable(const player_t *player)
 {
-	if(  get_player_nr()==PUBLIC_PLAYER_NR  ) {
+	if(  get_owner_nr()==PUBLIC_PLAYER_NR  ) {
 		return NULL;
 	}
 	return obj_t::is_deletable(player);

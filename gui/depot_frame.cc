@@ -132,7 +132,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [CONVOI]
 	*/
-	convoi.set_player_nr(depot->get_player_nr());
+	convoi.set_player_nr(depot->get_owner_nr());
 	convoi.add_listener(this);
 
 	cont_convoi.add_component(&lb_convoi_number);
@@ -195,16 +195,16 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [PANEL]
 	*/
-	pas.set_player_nr(depot->get_player_nr());
+	pas.set_player_nr(depot->get_owner_nr());
 	pas.add_listener(this);
 
-	electrics.set_player_nr(depot->get_player_nr());
+	electrics.set_player_nr(depot->get_owner_nr());
 	electrics.add_listener(this);
 
-	loks.set_player_nr(depot->get_player_nr());
+	loks.set_player_nr(depot->get_owner_nr());
 	loks.add_listener(this);
 
-	waggons.set_player_nr(depot->get_player_nr());
+	waggons.set_player_nr(depot->get_owner_nr());
 	waggons.add_listener(this);
 
 	add_component(&tabs);
