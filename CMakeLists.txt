@@ -278,6 +278,10 @@ if (SIMUTRANS_USE_IP4_ONLY)
 	target_compile_definitions(simutrans PRIVATE USE_IP4_ONLY=1)
 endif ()
 
+if (SIMUTRANS_STEAM_BUILT)
+	target_compile_definitions(simutrans PRIVATE STEAM_BUILT=1)
+endif ()
+
 if (APPLE)
 	target_compile_definitions(simutrans PRIVATE ALT_SDL_DIR=1)
 endif (APPLE)
