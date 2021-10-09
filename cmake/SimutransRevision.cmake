@@ -22,11 +22,17 @@ if (Git_FOUND)
 
 		if(SIMUTRANS_WC_REVISION MATCHES "commit")
 			unset(SIMUTRANS_WC_REVISION)
+		else ()
+			execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
+				COMMAND "${GIT_EXECUTABLE}" describe --always
+				RESULT_VARIABLE res_var
+				OUTPUT_VARIABLE SIMUTRANS_WC_HASH
+			)
 		endif()
 	endif()
 endif ()
 
-if ( NOT SIMUTRANS_WC_REVISION AND Subversion_FOUND )
+if (NOT SIMUTRANS_WC_REVISION AND Subversion_FOUND)
 	execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
 		COMMAND svn info --show-item revision
 		RESULT_VARIABLE res_var
@@ -43,7 +49,7 @@ endif ()
 # Fallback for git commits not submitted to svn (e.g. when using git-svn)
 if (NOT SIMUTRANS_WC_REVISION AND Git_FOUND)
 	execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
-		COMMAND "${GIT_EXECUTABLE}" describe --tags --always
+		COMMAND "${GIT_EXECUTABLE}" rev-list --count --first-parent HEAD
 		RESULT_VARIABLE res_var
 		OUTPUT_VARIABLE SIMUTRANS_WC_REVISION
 		OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -52,17 +58,30 @@ if (NOT SIMUTRANS_WC_REVISION AND Git_FOUND)
 	if (res_var)
 		# not a git repository
 		unset(SIMUTRANS_WC_REVISION)
+	else ()
+		# the number of commit +326 equals the revision ...
+		MATH(EXPR res_var "${res_var}+326")
+
+		execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
+			COMMAND "${GIT_EXECUTABLE}" describe --always
+			RESULT_VARIABLE res_var
+			OUTPUT_VARIABLE SIMUTRANS_WC_HASH
+		)
 	endif ()
 endif ()
 
 if (SIMUTRANS_WC_REVISION)
 	# write a file with the SVNVERSION define
-	file(WRITE revision.h.txt "#define REVISION ${SIMUTRANS_WC_REVISION}\n")
+	if (NOT SIMUTRANS_WC_HASH)
+		set(SIMUTRANS_WC_HASH "0")
+	endif ()
+	file(WRITE revision.h.txt "#define REVISION ${SIMUTRANS_WC_REVISION}\n#define GIT_HASH 0x${SIMUTRANS_WC_HASH}\n")
+
 	# copy the file to the final header only if the version changes
 	# reduces needless rebuilds
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different revision.h.txt "${SOURCE_DIR}/revision.h")
 
-	message(STATUS "Compiling Simutrans revision ${SIMUTRANS_WC_REVISION} ...")
+	message(STATUS "Compiling Simutrans revision ${SIMUTRANS_WC_REVISION} with hash ${SIMUTRANS_WC_HASH} ...")
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
