@@ -200,7 +200,9 @@ bool dr_os_init(const int* parameter)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	SDL_StartTextInput();
+	if (env_t::hide_keyboard) {
+		SDL_StartTextInput();
+	}
 
 	atexit( SDL_Quit ); // clean up on exit
 	return true;
