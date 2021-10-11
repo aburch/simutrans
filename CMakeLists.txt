@@ -34,6 +34,7 @@ endif ()
 
 if (APPLE)
 	link_directories(/usr/local/lib)
+	set(CMAKE_EXE_LINKER_FLAGS "-framework Cocoa")
 endif ()
 
 
@@ -130,6 +131,7 @@ else ()
 		target_sources(simutrans PRIVATE sys/clipboard_internal.cc)
 	endif ()
 	if (APPLE)
+		target_sources(simutrans PRIVATE OSX/translocation.m)
 		set(BACKUP_SOUND sound/AVF_core-audio_sound.mm sound/core-audio_sound.mm)
 		set(BACKUP_MUSIC music/AVF_core-audio_midi.mm music/core-audio_midi.mm)
 	else ()

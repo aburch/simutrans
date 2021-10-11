@@ -867,7 +867,7 @@ static void process_kill_list()
 {
 	FOR(vector_tpl<simwin_t>, & i, kill_list) {
 		if (inside_event_handling != i.gui) {
-			destroy_framed_win(&i);
+			destroy_framed_win(&i); // we call this first, otherwise the focus may not be recognized
 			wins.remove(i);
 		}
 	}
