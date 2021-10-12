@@ -387,15 +387,14 @@ public:
 	void copy_city_road(settings_t const& other);
 
 	// init from this file ...
-	void parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, bool& fullscreen, std::string& objfilename);
+	void parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16& fullscreen, std::string& objfilename);
 
 	// init without screen parameters ...
 	void parse_simuconf(tabfile_t& simuconf) {
 		sint16 idummy = 0;
-		bool bdummy = false;
 		std::string sdummy;
 
-		parse_simuconf(simuconf, idummy, idummy, bdummy, sdummy);
+		parse_simuconf(simuconf, idummy, idummy, idummy, sdummy);
 	}
 
 	void parse_colours(tabfile_t& simuconf);

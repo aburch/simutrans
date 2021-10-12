@@ -65,6 +65,8 @@ struct sys_event_t
 	unsigned int key_mod; /* key mod, like ALT, CTRL, SHIFT */
 };
 
+enum { WINDOWED, FULLSCREEN, BORDERLESS };
+
 extern sys_event_t sys_event;
 
 extern char const PATH_SEPARATOR[];
@@ -82,7 +84,7 @@ struct resolution
 };
 resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, bool fullscreen);
+int dr_os_open(int w, int h, sint16 fullscreen);
 void dr_os_close();
 
 // returns the locale; NULL if unknown
@@ -215,6 +217,20 @@ void dr_notify_input_pos(int x, int y);
 
 ///  returns current two byte languange ID
 const char* dr_get_locale();
+
+/** 
+ * @return
+ *  0: if windowed
+ *  1: if fullscreen
+ *  2: if borderless fullscreen
+ */
+sint16 dr_get_fullscreen();
+
+/** 
+ * Toggle between borderless and windowed mode
+ * @return the fullscreen state after the toggle
+ */
+sint16 dr_toggle_borderless();
 
 int sysmain(int argc, char** argv);
 

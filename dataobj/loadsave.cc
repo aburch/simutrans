@@ -206,7 +206,7 @@ void NORETURN loadsave_t::fatal(const char* who, const char* format, ...)
 	static char formatbuffer[512];
 	const char* fn = filename.c_str();
 	sprintf(formatbuffer,
-		"FATAL ERROR during rading of \"%s\"\n"
+		"FATAL ERROR during reading of \"%s\"\n"
 		"The file has been renamed to \"%s-error\"\n\n"
 		"%s: %s\n"
 		"\n"

@@ -482,6 +482,7 @@ void print_help()
 		"command line parameters available: \n"
 		" -addons             loads also addons (with -objects)\n"
 		" -async              asynchronous images, only for SDL\n"
+		" -borderless         emulate fullscreen as borderless window\n"
 		" -use_hw             hardware double buffering, only for SDL\n"
 		" -debug NUM          enables debugging (1..5)\n"
 		" -easyserver         set up every for server (query own IP, port forwarding)\n"
@@ -730,7 +731,7 @@ int simu_main(int argc, char** argv)
 
 	sint16 disp_width = 0;
 	sint16 disp_height = 0;
-	bool fullscreen = false;
+	sint16 fullscreen = WINDOWED;
 
 	// continue parsing
 	dr_chdir( env_t::data_dir );
@@ -888,7 +889,15 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	fullscreen |= args.has_arg("-fullscreen");
+	if ( !fullscreen ) {
+		fullscreen = args.has_arg("-fullscreen") ? FULLSCREEN : WINDOWED;
+	}
+	if ( !fullscreen ) {
+		fullscreen = args.has_arg("-borderless") ? BORDERLESS : WINDOWED;
+	}
+	if ( !fullscreen ) {
+		fullscreen = env_t::fullscreen;
+	}
 
 	if(args.has_arg("-screensize")) {
 		const char* res_str = args.gimme_arg("-screensize", 1);
@@ -933,8 +942,8 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	DBG_MESSAGE("simu_main()", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, (int)fullscreen);
-	if (!simgraph_init(scr_size(disp_width, disp_height), fullscreen != 0)) {
+	DBG_MESSAGE("simu_main()", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
+	if (!simgraph_init(scr_size(disp_width, disp_height), fullscreen)) {
 		dbg->error("simu_main()", "Failed to initialize graphics system.");
 		return EXIT_FAILURE;
 	}

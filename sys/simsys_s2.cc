@@ -108,6 +108,7 @@ static SDL_Surface *screen;
 
 static int sync_blit = 0;
 static int use_dirty_tiles = 1;
+static sint16 fullscreen = WINDOWED;
 
 static SDL_Cursor *arrow;
 static SDL_Cursor *hourglass;
@@ -299,17 +300,20 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 
 
 // open the window
-int dr_os_open(int screen_width, int screen_height, bool fullscreen)
+int dr_os_open(int screen_width, int screen_height, sint16 fs)
 {
 	// scale up
 	const int tex_w = SCREEN_TO_TEX_X(screen_width);
 	const int tex_h = SCREEN_TO_TEX_Y(screen_height);
 
+	fullscreen = fs ? BORDERLESS : WINDOWED;	// SDL2 has no real fullscreen mode
+
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	const int tex_pitch = max((tex_w + 15) & 0x7FF0, 16);
 
-	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP: SDL_WINDOW_RESIZABLE;
+	// SDL2 only works with borderless fullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
+	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI; // apparently needed for Apple retina displays
 
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, flags );
@@ -941,6 +945,24 @@ const char* dr_get_locale()
 	return NULL;
 }
 
+sint16 dr_get_fullscreen()
+{
+	return fullscreen ? BORDERLESS : WINDOWED;
+}
+
+sint16 dr_toggle_borderless()
+{
+
+	if ( fullscreen ) {
+		SDL_SetWindowFullscreen(window, 0);
+		fullscreen = WINDOWED;
+	}
+	else {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		fullscreen = BORDERLESS;
+	}
+	return fullscreen;
+}
 
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable

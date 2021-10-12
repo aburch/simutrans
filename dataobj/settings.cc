@@ -928,7 +928,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, bool &fullscreen, std::string& objfilename )
+void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16& disp_height, sint16 &fullscreen, std::string& objfilename )
 {
 	tabfileobj_t contents;
 
@@ -1573,7 +1573,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	 */
 	disp_width  = contents.get_int_clamped("display_width",  disp_width,  0, 0x7FFF );
 	disp_height = contents.get_int_clamped("display_height", disp_height, 0, 0x7FFF );
-	fullscreen  = contents.get_int("fullscreen", fullscreen ) != 0;
+	fullscreen  = contents.get_int("fullscreen", fullscreen );
 
 	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
 

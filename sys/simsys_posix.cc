@@ -50,7 +50,7 @@ resolution dr_query_screen_resolution()
 }
 
 // open the window
-int dr_os_open(int, int, bool)
+int dr_os_open(int, int, sint16)
 {
 	return 1;
 }
@@ -186,6 +186,15 @@ const char* dr_get_locale()
 	return "";
 }
 
+sint16 dr_get_fullscreen()
+{
+	return 0;
+}
+
+sint16 dr_toggle_borderless()
+{
+	return 0;
+}
 
 int main(int argc, char **argv)
 {

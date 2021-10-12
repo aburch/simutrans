@@ -23,6 +23,7 @@ static void simtimer_init();
 
 static int width  = 800;
 static int height = 600;
+static sint16 fullscreen = WINDOWED;
 
 
 /* event-handling */
@@ -223,10 +224,11 @@ resolution dr_query_screen_resolution()
 }
 
 
-int dr_os_open(int const w, int const h, bool fullscreen)
+int dr_os_open(int const w, int const h, sint16 fs)
 {
 	width = w;
 	height = h;
+	fullscreen = fs;
 
 	install_keyboard();
 
@@ -470,6 +472,15 @@ const char *dr_get_locale()
 	return "";
 }
 
+sint16 get_fullscreen()
+{
+	return fullscreen;
+}
+
+sint16 toggle_borderless()
+{
+	return fullscreen;
+}
 
 int main(int argc, char **argv)
 {

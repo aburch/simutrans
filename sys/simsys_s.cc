@@ -78,6 +78,7 @@ static Uint8 blank_cursor[] = {
 static SDL_Surface *screen;
 static int width = 16;
 static int height = 16;
+static sint16 fullscreen = WINDOWED;
 
 // switch on is a little faster (<3%)
 static int async_blit = 0;
@@ -236,7 +237,7 @@ resolution dr_query_screen_resolution()
 
 
 // open the window
-int dr_os_open(int w, int const h, bool fullscreen)
+int dr_os_open(int w, int const h, sint16 fs)
 {
 #ifdef MULTI_THREAD
 	// init barrier
@@ -269,6 +270,7 @@ int dr_os_open(int w, int const h, bool fullscreen)
 
 	width = w;
 	height = h;
+	fullscreen = fs;
 
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 	if(  use_hw  ) {
@@ -737,6 +739,16 @@ void dr_notify_input_pos(int, int)
 const char* dr_get_locale()
 {
 	return NULL;
+}
+
+sint16 get_fullscreen()
+{
+	return fullscreen;
+}
+
+sint16 toggle_borderless()
+{
+	return fullscreen;
 }
 
 #ifdef _MSC_VER

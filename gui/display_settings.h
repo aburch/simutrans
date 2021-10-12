@@ -29,7 +29,7 @@ private:
 		simloops_value_label;
 
 public:
-	button_t toolbar_pos, reselect_closes_tool;
+	button_t toolbar_pos, reselect_closes_tool, fullscreen, borderless;
 
 	gui_settings_t();
 	void draw( scr_coord offset ) OVERRIDE;

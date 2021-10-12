@@ -17,6 +17,7 @@
 void rdwr_win_settings(loadsave_t *file); // simwin
 
 sint16 env_t::menupos = MENU_TOP;
+sint16 env_t::fullscreen = WINDOWED;
 bool env_t::reselect_closes_tool = true;
 
 sint8 env_t::pak_tile_height_step = 16;
@@ -559,6 +560,8 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( single_line_gui );
 
 		file->rdwr_byte( show_factory_storage_bar );
+ 
+		file->rdwr_short( fullscreen );
 	}
 
 	// server settings are not saved, since they are server specific
