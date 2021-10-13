@@ -741,12 +741,12 @@ const char* dr_get_locale()
 	return NULL;
 }
 
-sint16 get_fullscreen()
+sint16 dr_get_fullscreen()
 {
 	return fullscreen;
 }
 
-sint16 toggle_borderless()
+sint16 dr_toggle_borderless()
 {
 	return fullscreen;
 }
