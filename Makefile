@@ -19,14 +19,13 @@ CFG ?= default
 HOSTCC  ?=$(CC)
 HOSTCXX ?=$(CXX)
 
-ALLEGRO_CONFIG   ?= allegro-config
 SDL_CONFIG       ?= sdl-config
 SDL2_CONFIG      ?= pkg-config sdl2
 #SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG  ?= pkg-config freetype2
 #FREETYPE_CONFIG ?= freetype-config
 
-BACKENDS  := allegro gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
+BACKENDS  := gdi sdl sdl2 mixer_sdl mixer_sdl2 posix
 OSTYPES   := amiga beos freebsd haiku linux mac mingw openbsd
 
 
@@ -610,21 +609,6 @@ SOURCES += vehicle/vehicle.cc
 SOURCES += vehicle/vehicle_base.cc
 SOURCES += vehicle/water_vehicle.cc
 
-
-ifeq ($(BACKEND),allegro)
-  SOURCES += sys/simsys_d.cc
-  SOURCES += sound/allegro_sound.cc
-  SOURCES += music/allegro_midi.cc
-  ifeq ($(ALLEGRO_CONFIG),)
-    ALLEGRO_CFLAGS  :=
-    ALLEGRO_LDFLAGS := -lalleg
-  else
-    ALLEGRO_CFLAGS  := $(shell $(ALLEGRO_CONFIG) --cflags)
-    ALLEGRO_LDFLAGS := $(shell $(ALLEGRO_CONFIG) --libs)
-  endif
-  CFLAGS += $(ALLEGRO_CFLAGS) -DUSE_SOFTPOINTER
-  LIBS   += $(ALLEGRO_LDFLAGS)
-endif
 
 ifeq ($(BACKEND),gdi)
   SOURCES += sys/simsys_w.cc
