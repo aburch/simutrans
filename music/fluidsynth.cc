@@ -24,7 +24,7 @@ fluid_player_t* player;
 // Predefined list of paths to search for soundfonts
 static const char * default_sf_paths[] = {
 	/* RedHat/Fedora/Arch path */
-	"/usr/share/soundfonts/sf2/",
+	"/usr/share/soundfonts/",
 	/* Debian/Ubuntu/OpenSUSE path */
 	"/usr/share/sounds/sf2/",
 	NULL
