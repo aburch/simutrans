@@ -1,5 +1,4 @@
-// from https://github.com/objective-see/TaskExplorer.git see https://www.synack.com/blog/untranslocating-apps/
-// The original code is under GPL V3, most of the code is taken from Consts.h and Utilities.m
+// See https://www.synack.com/blog/untranslocating-apps/ and its implementation in TaskExplorer
 
 #import <dlfcn.h>
 #import "translocation.h"
