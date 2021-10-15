@@ -107,6 +107,7 @@ gui_settings_t::gui_settings_t()
 
 	fullscreen.init( button_t::square_state, "Fullscreen (changed after restart)" );
 	fullscreen.pressed = ( dr_get_fullscreen() == FULLSCREEN );
+	fullscreen.enable(dr_has_fullscreen());
 	add_component( &fullscreen, 2 );
 
 	borderless.init( button_t::square_state, "Borderless (disabled on fullscreen)" );

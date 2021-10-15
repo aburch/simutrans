@@ -218,7 +218,10 @@ void dr_notify_input_pos(int x, int y);
 ///  returns current two byte languange ID
 const char* dr_get_locale();
 
-/** 
+/// true, if there is a hardware fullcreen mode
+bool dr_has_fullscreen();
+
+/**
  * @return
  *  0: if windowed
  *  1: if fullscreen

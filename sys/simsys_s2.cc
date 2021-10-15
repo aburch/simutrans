@@ -945,6 +945,11 @@ const char* dr_get_locale()
 	return NULL;
 }
 
+bool dr_has_fullscreen()
+{
+	return false;
+}
+
 sint16 dr_get_fullscreen()
 {
 	return fullscreen ? BORDERLESS : WINDOWED;

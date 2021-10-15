@@ -692,8 +692,9 @@ void stadt_t::recalc_city_size()
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
 		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			koord const& gb_pos = i->get_pos().get_2d();
+			koord const& gb_size = i->get_tile()->get_desc()->get_size(i->get_tile()->get_layout());
 			lo.clip_max(gb_pos);
-			ur.clip_min(gb_pos);
+			ur.clip_min(gb_pos + gb_size);
 		}
 	}
 

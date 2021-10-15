@@ -382,6 +382,11 @@ void dr_textur(int xp, int yp, int w, int h)
 	}
 }
 
+bool dr_has_fullscreen()
+{
+	return true;
+}
+
 sint16 dr_get_fullscreen()
 {
 	return fullscreen;

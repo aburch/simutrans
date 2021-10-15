@@ -186,6 +186,11 @@ const char* dr_get_locale()
 	return "";
 }
 
+bool dr_has_fullscreen()
+{
+	return false;
+}
+
 sint16 dr_get_fullscreen()
 {
 	return 0;
