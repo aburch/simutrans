@@ -397,10 +397,12 @@ sint16 dr_toggle_borderless()
 	if (fullscreen == WINDOWED) {
 		SetWindowLongPtr(hwnd, GWL_STYLE, WS_EX_TOPMOST);
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_SHOWWINDOW);
+		fullscreen = BORDERLESS;
 	}
 	else if (fullscreen == BORDERLESS) {
 		SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_SHOWWINDOW);
+		fullscreen = WINDOWED;
 	}
 	return fullscreen;
 }
