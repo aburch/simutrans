@@ -622,11 +622,13 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 
 void stadt_t::pruefe_grenzen(koord k, koord size)
 {
+	recalc_city_size();
+#if 0
 	// WARNING: do not call this during multithreaded loading,
 	// as has_low_density may depend on the order the buildings list is filled
 	if(  has_low_density  ) {
 		// has extra wide borders => change density calculation
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_density);
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-2)*abs(ur.y-lo.y-2)+1) > min_building_density);
 		if(!has_low_density)  {
 			// full recalc needed due to map borders ...
 			recalc_city_size();
@@ -654,6 +656,7 @@ void stadt_t::pruefe_grenzen(koord k, koord size)
 
 	lo.clip_min(koord(0,0));
 	ur.clip_max(koord(welt->get_size().x-1,welt->get_size().y-1));
+#endif
 }
 
 
