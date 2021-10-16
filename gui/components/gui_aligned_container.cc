@@ -102,18 +102,18 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 	for(uint32 i = 0; i<components.get_count()  &&  !col_minw.empty(); i++) {
 		gui_component_t* comp = components[i];
 
-		uint16 rr = rows    ? r % rows    : r;
+		const uint16 rr = rows    ? r % rows    : r;
 		if (rr >= row_minh.get_count()) {
 			// no more visible elements coming
 			break;
 		}
 
 		scr_size cell_size(0,0);
+		const uint16 cc = c;
 
 		// compute cell size taking
 		// cells spanning more than one column into account
 		do {
-			uint16 cc = c;
 			// maybe no visible cells in this row anymore
 			if (cc < col_minw.get_count()) {
 				cell_size.w += col_minw[cc];
@@ -177,16 +177,30 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 //			 max_size.w, max_size.h
 //		);
 
+		// marginless component - extend to full width/height
 		if( comp->is_marginless() ) {
-			// marginless component
-			comp->set_pos(c_pos+delta-scr_coord(margin_tl.w,0));
-			comp->set_size( scr_size( max( comp_size.w, cell_size.w ), comp_size.h ) + scr_coord( margin_tl.w, 0 ) + margin_br + extra );
-		}
-		else {
-			comp->set_pos(c_pos + delta);
-			comp->set_size(comp_size);
+			if (cc == 0) {
+				// first element in columns
+				delta.x      = -c_pos.x;
+				comp_size.w +=  c_pos.x;
+			}
+			if (columns  &&  (c % columns) == 0) {
+				// last element in column
+				comp_size.w = new_size.w - (c_pos.x + delta.x);
+			}
+			if (rr == 0) {
+				// element in first row
+				delta.y      = -c_pos.y;
+				comp_size.h +=  c_pos.y;
+			}
+			if (rr == row_minh.get_count()-1) {
+				// element in last row
+				comp_size.h = new_size.h - (c_pos.y + delta.y);
+			}
 		}
 
+		comp->set_pos(c_pos + delta);
+		comp->set_size(comp_size);
 
 		c++;
 		if (columns  &&  (c % columns) == 0) {

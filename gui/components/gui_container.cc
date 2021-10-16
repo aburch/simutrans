@@ -280,7 +280,8 @@ void gui_container_t::draw(scr_coord offset)
 #ifdef SHOW_BBOX
 			if (dynamic_cast<gui_container_t*>(c) == NULL) {
 				scr_coord c_pos = screen_pos + c->get_pos();
-				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(COL_YELLOW),color_idx_to_rgb(COL_YELLOW));
+				int color = c->is_marginless() ? COL_BLUE : COL_YELLOW;
+				display_ddd_box_clip_rgb(shorten(c_pos.x), shorten(c_pos.y), shorten(c->get_size().w), shorten(c->get_size().h), color_idx_to_rgb(color),color_idx_to_rgb(color));
 			}
 #endif
 			c->draw(screen_pos);
