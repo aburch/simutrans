@@ -5,7 +5,6 @@
 
 #include <string.h>
 
-#include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../simwin.h"
 #include "../../dataobj/translator.h"

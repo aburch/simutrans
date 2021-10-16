@@ -4,14 +4,11 @@
  */
 
 #include "gui_timeinput.h"
-#include "../gui_frame.h"
 #include "../simwin.h"
 #include "../../display/simgraph.h"
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
-#include "../../utils/simstring.h"
-#include "../../simintr.h"
-#include "../../simworld.h"
+#include "../../simevent.h"
 #include "../../dataobj/environment.h"
 
 
