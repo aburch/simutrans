@@ -80,7 +80,6 @@ class inthashtable_tpl<ptrdiff_t,scr_coord> old_win_pos;
 // hash-table: magic number to windowsize
 class inthashtable_tpl<ptrdiff_t, scr_size> saved_windowsizes;
 
-#define dragger_size 12
 
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
@@ -363,7 +362,8 @@ static void win_draw_window_dragger(scr_coord pos, scr_size size)
 		display_color_img( dragger->get_id(), pos.x-dragger->get_pic()->w, pos.y-dragger->get_pic()->h, 0, false, false);
 	}
 	else {
-		for(  int x=0;  x<dragger_size;  x++  ) {
+		int dragger_size = min(D_DRAGGER_WIDTH, D_DRAGGER_HEIGHT);
+		for(  int x=1;  x<dragger_size;  x++  ) {
 			display_fillbox_wh_clip_rgb( pos.x-x, pos.y-dragger_size+x, x, 1, color_idx_to_rgb((x & 1) ? COL_BLACK : MN_GREY4), true);
 		}
 	}
@@ -1634,8 +1634,8 @@ bool check_pos_win(event_t *ev)
 
 					// resizer hit ?
 					const bool canresize = is_resizing>=0  ||
-												(ev->cx > wins[i].pos.x + size.w - dragger_size  &&
-												 ev->cy > wins[i].pos.y + size.h - dragger_size);
+												(ev->cx > wins[i].pos.x + size.w - D_DRAGGER_WIDTH  &&
+												 ev->cy > wins[i].pos.y + size.h - D_DRAGGER_HEIGHT);
 
 					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_frame_t::no_resize) {
 						resize_win( i, ev );

@@ -69,6 +69,10 @@ class image_t;
 #define D_GADGET_WIDTH         (gui_theme_t::gui_gadget_size.w)
 #define D_GADGET_HEIGHT        (gui_theme_t::gui_gadget_size.h)
 
+#define D_DRAGGER_SIZE         (gui_theme_t::gui_dragger_size  )
+#define D_DRAGGER_WIDTH        (gui_theme_t::gui_dragger_size.w)
+#define D_DRAGGER_HEIGHT       (gui_theme_t::gui_dragger_size.h)
+
 #define D_INDICATOR_BOX_SIZE   (gui_theme_t::gui_indicator_size  )
 #define D_INDICATOR_BOX_HEIGHT (gui_theme_t::gui_indicator_size.h)
 #define D_INDICATOR_BOX_WIDTH  (gui_theme_t::gui_indicator_size.w)
@@ -267,6 +271,7 @@ public:
 	static scr_size gui_edit_size;
 	static scr_size gui_indicator_size;
 	static scr_size gui_gadget_size;
+	static scr_size gui_dragger_size;
 	static scr_coord gui_focus_offset;
 	static scr_coord gui_color_button_text_offset_right; // extra right offset for the text (in case of asymmetric or buttons with color on the right)
 	static scr_coord gui_button_text_offset_right;       // extra right offset for the text (in case of asymmetric or buttons with checkmark on the right)

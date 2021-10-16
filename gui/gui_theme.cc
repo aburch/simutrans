@@ -83,6 +83,7 @@ scr_size gui_theme_t::gui_min_scrollbar_size;
 scr_size gui_theme_t::gui_label_size;
 scr_size gui_theme_t::gui_edit_size;
 scr_size gui_theme_t::gui_gadget_size;
+scr_size gui_theme_t::gui_dragger_size;
 scr_size gui_theme_t::gui_indicator_size;
 scr_coord_val gui_theme_t::gui_waitingbar_width;
 
@@ -363,7 +364,10 @@ void gui_theme_t::init_gui_from_images()
 	}
 
 	// gadgets
-	init_size_from_image( skinverwaltung_t::gadget->get_image( SKIN_GADGET_CLOSE ), gui_gadget_size );
+	gui_dragger_size = gui_scrollbar_size;
+	if (skinverwaltung_t::gadget) {
+		init_size_from_image( skinverwaltung_t::gadget->get_image( SKIN_GADGET_CLOSE ), gui_gadget_size );
+	}
 }
 
 
@@ -463,6 +467,13 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 	// since scrollbar must have a certain size
 	gui_theme_t::gui_scrollbar_size.w = max( gui_min_scrollbar_size.w, (uint32)contents.get_int("gui_scrollbar_width",  gui_theme_t::gui_scrollbar_size.w ) );
 	gui_theme_t::gui_scrollbar_size.h = max( gui_min_scrollbar_size.h, (uint32)contents.get_int("gui_scrollbar_height", gui_theme_t::gui_scrollbar_size.h ) );
+
+	// dragger size must be as large as scrollbar size
+	if (skinverwaltung_t::gadget) {
+		init_size_from_image( skinverwaltung_t::gadget->get_image( SKIN_WINDOW_RESIZE), gui_dragger_size );
+		gui_dragger_size.clip_lefttop(scr_coord(gui_scrollbar_size.w, gui_scrollbar_size.h));
+	}
+	printf("dragger %d %d\n", gui_dragger_size.w, gui_dragger_size.h);
 
 	// in practice, posbutton min height better is LINESPACE
 	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
