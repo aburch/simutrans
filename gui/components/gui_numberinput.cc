@@ -60,7 +60,7 @@ scr_size gui_numberinput_t::get_max_size() const
 scr_size gui_numberinput_t::get_min_size() const
 {
 	return scr_size(max_numbertext_width + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2*D_H_SPACE,
-					max(LINESPACE+4, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT)));
+					max(LINESPACE+4, max( max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT), D_EDIT_HEIGHT)) );
 }
 
 void gui_numberinput_t::set_value(sint32 new_value)
