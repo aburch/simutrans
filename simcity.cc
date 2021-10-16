@@ -622,8 +622,14 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 
 void stadt_t::pruefe_grenzen(koord k, koord size)
 {
+#if 1
+	/* somehow we sometimes end up during growth with a high density
+	 * city that is not recognized as such (happens more frequently with pak64.japan)
+	 * Therefore, we just recalc the borders each time; building events
+	 * are few, and the penalty is not strong.
+	 */
 	recalc_city_size();
-#if 0
+#else
 	// WARNING: do not call this during multithreaded loading,
 	// as has_low_density may depend on the order the buildings list is filled
 	if(  has_low_density  ) {

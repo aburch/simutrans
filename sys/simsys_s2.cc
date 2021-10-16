@@ -514,6 +514,7 @@ static void internal_GetEvents(bool const wait)
 	static bool ignore_previous_number = false;
 	static int previous_multifinger_touch = 0;
 	static bool in_finger_handling = false;
+	static SDL_FingerID FirstFingerId = 0;
 	static bool previous_mouse_down = false;
 	static double dLastDist = 0.0;
 
@@ -617,25 +618,24 @@ static void internal_GetEvents(bool const wait)
 			/* just reset scroll state, since another finger may touch down next
 			 * The button down events will be from fingr move and the coordinate will be set from mouse up: enough
 			 */
-			if(previous_multifinger_touch==0) {
+			DBG_MESSAGE("SDL_FINGERDOWN", "fingerID=%x FirstFingerId=%x Finger %i", (int)event.tfinger.fingerId, (int)FirstFingerId, SDL_GetNumTouchFingers(event.tfinger.touchId));
+			if (!in_finger_handling) {
 				dLastDist = 0.0;
+				FirstFingerId = event.tfinger.fingerId;
+				DBG_MESSAGE("SDL_FINGERDOWN", "FirstfingerID=%x", FirstFingerId);
+				in_finger_handling = true;
+			}
+			else if (FirstFingerId != event.tfinger.fingerId) {
+				previous_multifinger_touch = 2;
 			}
 			previous_mouse_down = false;
-			if (in_finger_handling) {
-				// take care of fingers down ...
-				if (previous_multifinger_touch == 0) {
-					previous_multifinger_touch = 2;
-				}
-				else {
-					previous_multifinger_touch++;
-				}
-			}
-			in_finger_handling = true;
 			break;
 
 		case SDL_FINGERMOTION:
+			DBG_MESSAGE("SDL_FINGERMOTION", "fingerID=%x FirstFingerId=%x Finger %i", (int)event.tfinger.fingerId, (int)FirstFingerId, SDL_GetNumTouchFingers(event.tfinger.touchId));
 			// move whatever
-			if( screen &&  previous_multifinger_touch==0) {
+			if(  screen  &&  previous_multifinger_touch==0  &&  FirstFingerId==event.tfinger.fingerId) {
+				DBG_MESSAGE("SDL_FINGERMOTION", "handling it!");
 				if (dLastDist == 0.0) {
 					// not yet a finger down event before => we send one
 					dLastDist = 1e-99;
@@ -657,32 +657,36 @@ static void internal_GetEvents(bool const wait)
 			break;
 
 		case SDL_FINGERUP:
-			if (screen) {
-				if (previous_multifinger_touch == 0) {
-					if (dLastDist == 0.0) {
-						// not yet moved -> set click origin or click will be at last position ...
-						set_click_xy(
-							SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w),
-							SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h)
-						);
-						dLastDist = fabs(event.tfinger.x + event.tfinger.dx) + fabs(event.tfinger.x + event.tfinger.dx);
+			DBG_MESSAGE("SDL_FINGERUP", "fingerID=%x FirstFingerId=%x Finger %i", (int)event.tfinger.fingerId, (int)FirstFingerId, (int)SDL_GetNumTouchFingers(event.tfinger.touchId));
+			if (screen  &&  in_finger_handling) {
+				DBG_MESSAGE("SDL_FINGERUP", "Finger %i, previous_multifinger_touch = %i", SDL_GetNumTouchFingers(event.tfinger.touchId), previous_multifinger_touch);
+				if (FirstFingerId==event.tfinger.fingerId) {
+					if(!previous_multifinger_touch) {
+						if (dLastDist == 0.0) {
+							// not yet moved -> set click origin or click will be at last position ...
+							set_click_xy(
+								SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w),
+								SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h)
+							);
+							dLastDist = fabs(event.tfinger.x + event.tfinger.dx) + fabs(event.tfinger.x + event.tfinger.dx);
+						}
+						sys_event.type = SIM_MOUSE_BUTTONS;
+						sys_event.code = SIM_MOUSE_LEFTUP;
+						sys_event.mb = 0;
+						sys_event.mx = SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w);
+						sys_event.my = SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h);
+						sys_event.key_mod = ModifierKeys();
+						DBG_MESSAGE("SDL_FINGERUP", "Actual FIngerup event send");
 					}
-					sys_event.type = SIM_MOUSE_BUTTONS;
-					sys_event.code = SIM_MOUSE_LEFTUP;
-					sys_event.mb = 0;
-					sys_event.mx = SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w);
-					sys_event.my = SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h);
-					sys_event.key_mod = ModifierKeys();
-					in_finger_handling = false;
+					previous_multifinger_touch = 0;
+					in_finger_handling = 0;
+					FirstFingerId = 0xFFFF;
 				}
-				else {
-					previous_multifinger_touch--;
-				}
-				in_finger_handling = previous_multifinger_touch>0;
 			}
 			break;
 
 		case SDL_MULTIGESTURE:
+			DBG_MESSAGE("SDL_FINGERUP", "Finger %i", SDL_GetNumTouchFingers(event.tfinger.touchId));
 			in_finger_handling = true;
 			if( event.mgesture.numFingers == 2 ) {
 				// any multitouch is intepreted as pinch zoom
@@ -699,6 +703,7 @@ static void internal_GetEvents(bool const wait)
 					sys_event.key_mod = ModifierKeys();
 					dLastDist -= DELTA_PINCH;
 				}
+				previous_multifinger_touch = 2;
 			}
 			else if (event.mgesture.numFingers == 3  &&  screen) {
 				// any three finger touch is scrolling the map
@@ -712,8 +717,8 @@ static void internal_GetEvents(bool const wait)
 					// just started scrolling
 					set_click_xy(sys_event.mx, sys_event.my);
 				}
+				previous_multifinger_touch = 3;
 			}
-			previous_multifinger_touch = event.mgesture.numFingers;
 			break;
 
 		case SDL_KEYDOWN: {
