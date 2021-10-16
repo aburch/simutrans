@@ -18,7 +18,6 @@
 gui_timeinput_t::gui_timeinput_t(const char *)
 {
 	const int max_days = env_t::show_month == env_t::DATE_FMT_MONTH ? 3 : 31;
-	const scr_coord_val min_button_width = D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 3 * D_H_SPACE + proportional_string_width("30");
 
 	set_table_layout(4, 1);
 	set_alignment(ALIGN_LEFT | ALIGN_TOP);
@@ -26,18 +25,15 @@ gui_timeinput_t::gui_timeinput_t(const char *)
 
 	days.init(0, 0, max_days);
 	days.add_listener(this);
-	days.set_size(scr_size(min_button_width, D_EDIT_HEIGHT));
 	add_component(&days);
 
 	hours.init(0, 0, 23);
-	hours.set_size(scr_size(min_button_width, D_EDIT_HEIGHT));
 	hours.add_listener(this);
 	add_component(&hours);
 
 	new_component<gui_label_t>(":");
 
 	minutes.init(0, 0, 59);
-	minutes.set_size(scr_size(min_button_width, D_EDIT_HEIGHT));
 	minutes.add_listener(this);
 	add_component(&minutes);
 
