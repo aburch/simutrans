@@ -42,7 +42,8 @@ class gui_scrolled_list_t :
 public:
 	enum type {
 		windowskin,
-		listskin
+		listskin,
+		transparent
 	};
 
 	/**
@@ -114,6 +115,8 @@ protected:
 	void cleanup_elements();
 
 public:
+	virtual void set_skin_type(enum type t) { this->type = t; }
+
 	void set_cmp(item_compare_func cmp) { compare = cmp; }
 
 	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);

@@ -102,6 +102,7 @@ message_frame_t::message_frame_t() :
 	set_resizemode(diagonal_resize);
 	if(  env_t::networkmode  && env_t::chat_window_transparency!=100  ) {
 		set_transparent( 100-env_t::chat_window_transparency, gui_theme_t::gui_color_chat_window_network_transparency );
+		scrolly.set_skin_type(gui_scrolled_list_t::transparent);
 	}
 
 	fill_list();

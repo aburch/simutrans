@@ -303,6 +303,9 @@ void gui_scrolled_list_t::draw(scr_coord offset)
 			case listskin:
 				display_img_stretch( gui_theme_t::listbox, rect);
 				break;
+			case transparent:
+				break;
+
 		}
 	}
 
