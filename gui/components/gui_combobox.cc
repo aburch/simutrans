@@ -361,7 +361,7 @@ void gui_combobox_t::set_size(scr_size size)
 
 	droplist.request_size(scr_size(this->size.w, droplist.get_size().h));
 
-	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
+	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - D_H_SPACE, closed_size.h ) );
 	set_pos(get_pos());
 
 	bt_prev.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
