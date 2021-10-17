@@ -303,7 +303,7 @@ void vehicle_t::play_sound() const
  * Sets route_index, pos_next, steps_next.
  * If @p recalc is true this sets position and recalculates/resets movement parameters.
  */
-void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
+void vehicle_t::initialise_journey(route_t::index_t start_route_index, bool recalc)
 {
 	route_index = start_route_index+1;
 	check_for_finish = false;

@@ -263,7 +263,7 @@ void convoi_t::unreserve_route()
 		rail_vehicle_t* lok = dynamic_cast<rail_vehicle_t*>(fahr[0]);
 		if (lok) {
 			// free all reserved blocks
-			uint16 dummy;
+			route_t::index_t dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
 		}
 	}
@@ -276,7 +276,7 @@ void convoi_t::unreserve_route()
 void convoi_t::reserve_route()
 {
 	if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ) {
-		for(  int idx = back()->get_route_index();  idx < next_reservation_index  /*&&  idx < route.get_count()*/;  idx++  ) {
+		for(  route_t::index_t idx = back()->get_route_index();  idx < next_reservation_index  /*&&  idx < route.get_count()*/;  idx++  ) {
 			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
 				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
 					sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
@@ -292,7 +292,7 @@ void convoi_t::reserve_route()
  * Convoy stills needs to be pushed that the convoy is right on track.
  * @returns length of convoy minus last vehicle
  */
-uint32 convoi_t::move_to(uint16 const start_index)
+uint32 convoi_t::move_to(route_t::index_t const start_index)
 {
 	steps_driven = -1;
 	koord3d k = route.at(start_index);
@@ -475,9 +475,9 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		}
 		else {
 			// since start may have been changed
-			uint16 start_index = max(1,fahr[anz_vehikel-1]->get_route_index())-1;
+			route_t::index_t start_index = max(1,fahr[anz_vehikel-1]->get_route_index())-1;
 			if (start_index > route.get_count()) {
-				dbg->error( "convoi_t::finish_rd()", "Routeindex of last vehicle of (%s) too large!", get_name() );
+				dbg->error( "convoi_t::finish_rd()", "Routeindex of last vehicle of (%s) too large (%hu > %hu)!", get_name(), start_index, route.get_count() );
 				start_index = 0;
 			}
 
@@ -1012,16 +1012,19 @@ bool convoi_t::drive_to()
 		if (dynamic_cast<rail_vehicle_t*>(fahr[0])!=NULL  &&  anz_vehikel > 1) {
 			// route-index points to next position in route
 			// it is completely off when convoi leaves depot
-			uint16 index0 = min(fahr[0]->get_route_index()-1, route.get_count());
+			route_t::index_t index0 = min(fahr[0]->get_route_index()-1, route.get_count());
+
 			for(uint8 i=1; i<anz_vehikel; i++) {
-				uint16 index1 = fahr[i]->get_route_index();
-				for(uint16 j = index1; j<index0; j++) {
+				const route_t::index_t index1 = fahr[i]->get_route_index();
+
+				for(route_t::index_t j = index1; j<index0; j++) {
 					// unreserve track on tiles between wagons
 					grund_t *gr = welt->lookup(route.at(j));
 					if (schiene_t *track = (schiene_t *)gr->get_weg( front()->get_waytype() ) ) {
 						track->unreserve(self);
 					}
 				}
+
 				index0 = min(index1-1, route.get_count());
 			}
 		}
@@ -2003,7 +2006,7 @@ bool convoi_t::can_go_alte_richtung()
 
 		// this is such awkward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = v->get_pos();
-		for( int idx=0;  idx<=length;  idx++  ) {
+		for( route_t::index_t idx = 0;  idx<=length;  idx++  ) {
 			if(route.at(idx)==vehicle_start_pos) {
 				// set route index, no recalculations necessary
 				v->initialise_journey(idx, false );
@@ -3584,7 +3587,7 @@ void convoi_t::unregister_stops()
 
 // set next stop before breaking will occur (or route search etc.)
 // currently only used for tracks
-void convoi_t::set_next_stop_index(uint16 n)
+void convoi_t::set_next_stop_index(route_t::index_t n)
 {
 	// stop at station or signals, not at waypoints
 	if(  n==route_t::INVALID_INDEX  ) {
@@ -3601,7 +3604,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 /* including this route_index, the route was reserved the last time
  * currently only used for tracks
  */
-void convoi_t::set_next_reservation_index(uint16 n)
+void convoi_t::set_next_reservation_index(route_t::index_t n)
 {
 	// stop at station or signals, not at waypoints
 	if(  n==route_t::INVALID_INDEX  ) {
@@ -3714,7 +3717,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		uint16 idx = fahr[0]->get_route_index();
+		route_t::index_t idx = fahr[0]->get_route_index();
 		const sint32 tiles = other_speed == 0 ? 2 : (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
 		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
@@ -3775,7 +3778,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
-	unsigned int route_index = fahr[0]->get_route_index()+1;
+	route_t::index_t route_index = fahr[0]->get_route_index()+1;
 	koord3d pos = fahr[0]->get_pos();
 	koord3d pos_prev = route_index > 2 ? route.at(route_index-2) : pos;
 	koord3d pos_next;

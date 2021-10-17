@@ -136,7 +136,7 @@ private:
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
 	 */
-	uint16 next_stop_index;
+	route_t::index_t next_stop_index;
 
 	// if state == LOADING, this is true while unloading
 	bool unloading_state;
@@ -263,7 +263,7 @@ private:
 	 * this give the index until which the route has been reserved. It is used for
 	 * restoring reservations after loading a game.
 	 */
-	uint16 next_reservation_index;
+	route_t::index_t next_reservation_index;
 
 	/**
 	 * Time when convoi arrived at the current stop
@@ -380,7 +380,7 @@ private:
 	 */
 	void unregister_stops();
 
-	uint32 move_to(uint16 start_index);
+	uint32 move_to(route_t::index_t start_index);
 
 public:
 	uint32 get_arrival_ticks() const { return arrived_time; }
@@ -774,14 +774,14 @@ public:
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
 	 */
-	uint16 get_next_stop_index() const {return next_stop_index;}
-	void set_next_stop_index(uint16 n);
+	route_t::index_t get_next_stop_index() const { return next_stop_index; }
+	void set_next_stop_index(route_t::index_t n);
 
 	/* including this route_index, the route was reserved the last time
 	 * currently only used for tracks
 	 */
-	uint16 &get_next_reservation_index() { return next_reservation_index; }
-	void set_next_reservation_index(uint16 n);
+	route_t::index_t get_next_reservation_index() { return next_reservation_index; }
+	void set_next_reservation_index(route_t::index_t n);
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;

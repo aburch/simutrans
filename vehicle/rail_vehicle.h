@@ -22,11 +22,11 @@ protected:
 
 	void enter_tile(grund_t*) OVERRIDE;
 
-	bool is_signal_clear(uint16 start_index, sint32 &restart_speed);
-	bool is_pre_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_priority_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_longblock_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
-	bool is_choose_signal_clear(signal_t *sig, uint16 start_index, sint32 &restart_speed);
+	bool is_signal_clear(route_t::index_t start_index, sint32 &restart_speed);
+	bool is_pre_signal_clear(signal_t *sig, route_t::index_t start_index, sint32 &restart_speed);
+	bool is_priority_signal_clear(signal_t *sig, route_t::index_t start_index, sint32 &restart_speed);
+	bool is_longblock_signal_clear(signal_t *sig, route_t::index_t start_index, sint32 &restart_speed);
+	bool is_choose_signal_clear(signal_t *sig, route_t::index_t start_index, sint32 &restart_speed);
 
 public:
 	waytype_t get_waytype() const OVERRIDE { return track_wt; }
@@ -47,7 +47,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
+	bool block_reserver(const route_t *route, route_t::index_t start_index, route_t::index_t &next_signal, route_t::index_t &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
 
 	void leave_tile() OVERRIDE;
 

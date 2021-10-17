@@ -25,7 +25,9 @@ class grund_t;
 class route_t
 {
 public:
-	static const uint16 INVALID_INDEX = 0xFFFA;
+	typedef uint16 index_t;
+
+	static const index_t INVALID_INDEX = 0xFFFA;
 
 private:
 	/**

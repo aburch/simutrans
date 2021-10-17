@@ -13,6 +13,7 @@
 #include "../descriptor/vehicle_desc.h"
 #include "../ifc/simtestdriver.h"
 #include "../tpl/slist_tpl.h"
+#include "../dataobj/route.h"
 
 
 class schedule_t;
@@ -62,10 +63,8 @@ protected:
 	*/
 	sint16 current_friction;
 
-	/**
-	* Current index on the route
-	*/
-	uint16 route_index;
+	/// Current index on the route
+	route_t::index_t route_index;
 
 	uint16 total_freight; // since the sum is needed quite often, it is cached
 	slist_tpl<ware_t> fracht;   // list of goods being transported
@@ -121,7 +120,7 @@ public:
 	void get_smoke(bool yesno ) { smoke = yesno;}
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
-	uint16 get_route_index() const {return route_index;}
+	route_t::index_t get_route_index() const { return route_index; }
 
 	/**
 	* Get the base image.
@@ -153,7 +152,7 @@ public:
 	 * Sets route_index, pos_next, steps_next.
 	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
 	 */
-	void initialise_journey( uint16 start_route_index, bool recalc );
+	void initialise_journey( route_t::index_t start_route_index, bool recalc );
 
 	vehicle_t();
 	vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player);
