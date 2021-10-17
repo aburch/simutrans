@@ -1573,7 +1573,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	 */
 	disp_width  = contents.get_int_clamped("display_width",  disp_width,  0, 0x7FFF );
 	disp_height = contents.get_int_clamped("display_height", disp_height, 0, 0x7FFF );
-	fullscreen  = contents.get_int("fullscreen", fullscreen );
+	fullscreen  = contents.get_int_clamped("fullscreen", fullscreen, 0, 2 );
 
 	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
 
