@@ -757,6 +757,11 @@ int simu_main(int argc, char** argv)
 		env_t::default_settings.set_freeplay( true );
 	}
 
+#ifdef __ANDROID__
+	// always save and reload on Android
+	env_t::reload_and_save_on_quit = true;
+#endif
+
 	// now set the desired objectfilename (override all previous settings)
 	if(  const char *fn = args.gimme_arg("-objects", 1)  ) {
 		env_t::objfilename = fn;
