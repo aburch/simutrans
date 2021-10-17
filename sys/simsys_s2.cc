@@ -153,6 +153,7 @@ bool dr_auto_scale(bool on_off )
 		if(  SDL_GetDisplayDPI( 0, NULL, &hdpi, &vdpi )==0  ) {
 			x_scale = ((sint64)hdpi * SCALE_NEUTRAL_X + 1) / TARGET_DPI;
 			y_scale = ((sint64)vdpi * SCALE_NEUTRAL_Y + 1) / TARGET_DPI;
+			DBG_MESSAGE("auto_dpi_scaling","x=%i, y=%i", x_scale, y_scale);
 			return true;
 		}
 		return false;
@@ -219,8 +220,8 @@ resolution dr_query_screen_resolution()
 	SDL_DisplayMode mode;
 	SDL_GetCurrentDisplayMode( 0, &mode );
 	DBG_MESSAGE("dr_query_screen_resolution(SDL2)", "screen resolution width=%d, height=%d", mode.w, mode.h );
-	res.w = mode.w;
-	res.h = mode.h;
+	res.w = SCREEN_TO_TEX_X(mode.w);
+	res.h = SCREEN_TO_TEX_Y(mode.h);
 	return res;
 }
 
@@ -303,8 +304,11 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 int dr_os_open(int screen_width, int screen_height, sint16 fs)
 {
 	// scale up
-	const int tex_w = SCREEN_TO_TEX_X(screen_width);
-	const int tex_h = SCREEN_TO_TEX_Y(screen_height);
+	resolution res = dr_query_screen_resolution();
+	const int tex_w = max( res.w, SCREEN_TO_TEX_X(screen_width) );
+	const int tex_h = max( res.h, SCREEN_TO_TEX_Y(screen_height) );
+
+	DBG_MESSAGE("dr_os_open()", "Screen requested %i,%i, available max %i,%i", tex_w, tex_h, res.w, res.h);
 
 	fullscreen = fs ? BORDERLESS : WINDOWED;	// SDL2 has no real fullscreen mode
 
@@ -619,6 +623,13 @@ static void internal_GetEvents(bool const wait)
 			 * The button down events will be from fingr move and the coordinate will be set from mouse up: enough
 			 */
 			DBG_MESSAGE("SDL_FINGERDOWN", "fingerID=%x FirstFingerId=%x Finger %i", (int)event.tfinger.fingerId, (int)FirstFingerId, SDL_GetNumTouchFingers(event.tfinger.touchId));
+			{
+				int mx = SCREEN_TO_TEX_X((event.tfinger.x) * screen->w);
+				int my = SCREEN_TO_TEX_Y((event.tfinger.y) * screen->h);
+				int tx = event.tfinger.x * display_get_width();
+				int ty = event.tfinger.y * display_get_height();
+				DBG_MESSAGE("SDL_FINGERDOWN", "screencood (%x,%i), texturecord (%i,%i)", mx, my, tx, ty );
+			}
 			if (!in_finger_handling) {
 				dLastDist = 0.0;
 				FirstFingerId = event.tfinger.fingerId;
@@ -641,14 +652,14 @@ static void internal_GetEvents(bool const wait)
 					dLastDist = 1e-99;
 					sys_event.type = SIM_MOUSE_BUTTONS;
 					sys_event.code = SIM_MOUSE_LEFTBUTTON;
-					sys_event.mx = SCREEN_TO_TEX_X((event.tfinger.x) * screen->w);
-					sys_event.my = SCREEN_TO_TEX_Y((event.tfinger.y) * screen->h);
+					sys_event.mx = event.tfinger.x * display_get_width();
+					sys_event.my = event.tfinger.y * display_get_height();
 				}
 				else {
 					sys_event.type = SIM_MOUSE_MOVE;
 					sys_event.code = SIM_MOUSE_MOVED;
-					sys_event.mx = SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w);
-					sys_event.my = SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h);
+					sys_event.mx = event.tfinger.x * display_get_width();
+					sys_event.my = event.tfinger.y * display_get_height();
 				}
 				sys_event.mb = 1;
 				sys_event.key_mod = ModifierKeys();
@@ -665,16 +676,16 @@ static void internal_GetEvents(bool const wait)
 						if (dLastDist == 0.0) {
 							// not yet moved -> set click origin or click will be at last position ...
 							set_click_xy(
-								SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w),
-								SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h)
+								(event.tfinger.x + event.tfinger.dx) * display_get_width(),
+								(event.tfinger.y + event.tfinger.dy) * display_get_height()
 							);
 							dLastDist = fabs(event.tfinger.x + event.tfinger.dx) + fabs(event.tfinger.x + event.tfinger.dx);
 						}
 						sys_event.type = SIM_MOUSE_BUTTONS;
 						sys_event.code = SIM_MOUSE_LEFTUP;
 						sys_event.mb = 0;
-						sys_event.mx = SCREEN_TO_TEX_X((event.tfinger.x + event.tfinger.dx) * screen->w);
-						sys_event.my = SCREEN_TO_TEX_Y((event.tfinger.y + event.tfinger.dy) * screen->h);
+						sys_event.mx = (event.tfinger.x + event.tfinger.dx) * display_get_width();
+						sys_event.my = (event.tfinger.y + event.tfinger.dy) * display_get_height();
 						sys_event.key_mod = ModifierKeys();
 						DBG_MESSAGE("SDL_FINGERUP", "Actual FIngerup event send");
 					}
