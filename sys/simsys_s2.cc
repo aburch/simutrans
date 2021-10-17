@@ -143,6 +143,9 @@ sint32 y_scale = SCALE_NEUTRAL_Y;
 #define TEX_TO_SCREEN_Y(y) (((y) * y_scale) / SCALE_NEUTRAL_Y)
 
 
+bool has_soft_keyboard = false;
+
+
 // no autoscaling yet
 bool dr_auto_scale(bool on_off )
 {
@@ -197,6 +200,12 @@ bool dr_os_init(const int* parameter)
 	SDL_EventState( SDL_MULTIGESTURE, SDL_ENABLE );
 	SDL_EventState( SDL_CLIPBOARDUPDATE, SDL_DISABLE );
 	SDL_EventState( SDL_DROPFILE, SDL_DISABLE );
+
+	has_soft_keyboard = SDL_HasScreenKeyboardSupport();
+	if (has_soft_keyboard  &&  !env_t::hide_keyboard) {
+		env_t::hide_keyboard = true;
+	}
+	SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
 	sync_blit = parameter[0];  // hijack SDL1 -async flag for SDL2 vsync
 	use_dirty_tiles = !parameter[1]; // hijack SDL1 -use_hw flag to turn off dirty tile updates (force fullscreen updates)
@@ -305,8 +314,8 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 {
 	// scale up
 	resolution res = dr_query_screen_resolution();
-	const int tex_w = max( res.w, SCREEN_TO_TEX_X(screen_width) );
-	const int tex_h = max( res.h, SCREEN_TO_TEX_Y(screen_height) );
+	const int tex_w = min( res.w, SCREEN_TO_TEX_X(screen_width) );
+	const int tex_h = min( res.h, SCREEN_TO_TEX_Y(screen_height) );
 
 	DBG_MESSAGE("dr_os_open()", "Screen requested %i,%i, available max %i,%i", tex_w, tex_h, res.w, res.h);
 
@@ -935,6 +944,7 @@ void dr_stop_textinput()
 {
 	if(  env_t::hide_keyboard  ) {
 	    SDL_StopTextInput();
+		SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 	}
 }
 

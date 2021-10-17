@@ -193,7 +193,7 @@ void env_t::init()
 	message_flags[2] = 0x0080;
 	message_flags[3] = 0;
 
-	night_shift = false;
+	night_shift = true;
 
 	hide_with_transparency = true;
 	hide_trees = false;
@@ -243,9 +243,10 @@ void env_t::init()
 
 	river_types = 0;
 
-
 	// autosave every x months (0=off)
 	autosave = 0;
+
+	reload_and_save_on_quit = true;
 
 	// default: make 25 frames per second (if possible) and 10 for faster fast forward
 	fps = 25;
