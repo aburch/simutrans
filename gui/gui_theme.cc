@@ -473,7 +473,6 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 		init_size_from_image( skinverwaltung_t::gadget->get_image( SKIN_WINDOW_RESIZE), gui_dragger_size );
 		gui_dragger_size.clip_lefttop(scr_coord(gui_scrollbar_size.w, gui_scrollbar_size.h));
 	}
-	printf("dragger %d %d\n", gui_dragger_size.w, gui_dragger_size.h);
 
 	// in practice, posbutton min height better is LINESPACE
 	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
