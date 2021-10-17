@@ -1,0 +1,55 @@
+#
+# CI for running tests
+#
+
+on: [push]
+name: Automated Tests
+
+jobs:
+  run-tests-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -ym install libbz2-dev zlib1g-dev libpng-dev autoconf clang-10 ccache moreutils
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.ccache
+        key: ccache:${{ github.job }}:${{ github.ref }}:${{ github.sha }}
+        restore-keys: |
+          ccache:${{ github.job }}:${{ github.ref }}
+          ccache:${{ github.job }}
+    - name: Configure Simutrans Build
+      run: |
+        autoconf
+        CC="ccache clang" CXX="ccache clang++" ./configure
+        echo "FLAGS += -fsanitize=address,undefined -fno-sanitize-recover=all -fno-sanitize=shift,function" >> config.default
+        echo "LDFLAGS += -fsanitize=address,undefined" >> config.default
+    - name: Build Simutrans
+      run: |
+        CC="ccache clang" CXX="ccache clang++" make -j$(nproc)
+    - name: Install pak64
+      run: |
+        pushd simutrans
+        printf '1\ni\ny\n' | ../get_pak.sh
+        popd
+    - name: Link tests as scenario
+      run: |
+        mkdir -p ./simutrans/pak/scenario
+        ln -sT $GITHUB_WORKSPACE/tests ./simutrans/pak/scenario/automated-tests
+    - name: Create simuconf
+      run: |
+        mkdir -p ~/simutrans/
+        echo "frames_per_second = 100"              >> ~/simutrans/simuconf.tab
+        echo "fast_forward_frames_per_second = 100" >> ~/simutrans/simuconf.tab
+    - name: Run tests
+      run: |
+        export ASAN_OPTIONS="print_stacktrace=1 abort_on_error=1 detect_leaks=0"
+        export UBSAN_OPTIONS="print_stacktrace=1 abort_on_error=1"
+        cp scripts/run-automated-tests.sh .
+        chmod +x run-automated-tests.sh
+        ./run-automated-tests.sh
