@@ -52,4 +52,5 @@ jobs:
         export UBSAN_OPTIONS="print_stacktrace=1 abort_on_error=1"
         cp scripts/run-automated-tests.sh .
         chmod +x run-automated-tests.sh
+        ulimit -St 600 # 10 minutes ought to be enough for anybody.
         ./run-automated-tests.sh
