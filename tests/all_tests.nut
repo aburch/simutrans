@@ -63,7 +63,7 @@ all_tests <- [
 	test_dir_is_straight,
 	test_dir_double,
 	test_dir_backward,
-	test_dir_to_slope
+	test_dir_to_slope,
 	test_dir_to_coord,
 	test_factory_build_pp,
 	test_factory_build_with_fields,
@@ -98,7 +98,7 @@ all_tests <- [
 	test_powerline_connect,
 	test_powerline_bridge,
 	test_powerline_build_transformer,
-	test_powerline_build_over_transformer
+	test_powerline_build_over_transformer,
 	test_powerline_build_transformer_multiple,
 	test_powerline_ways,
 	test_reservation_clear_ground,
