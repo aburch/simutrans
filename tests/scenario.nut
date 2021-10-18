@@ -37,9 +37,10 @@ function run_all_tests()
 	print("== Running tests ... =======================================")
 	print("============================================================")
 
-	foreach (i,test_fun in all_tests) {
-		print("Running test " + (num_tests_done+1) + "/" + num_tests + "...")
-		test_fun() // run the test
+	foreach (i,test_func in all_tests) {
+		local func_name = test_func.getinfos().name
+		print("[" + (num_tests_done+1) + "/" + num_tests + "] " + func_name)
+		test_func() // run the test
 		++num_tests_done
 	}
 
