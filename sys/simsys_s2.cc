@@ -768,6 +768,7 @@ static void internal_GetEvents(bool const wait)
 			bool np = false; // to indicate we converted a numpad key
 
 			switch(  sym  ) {
+				case SDLK_AC_BACK:
 				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
 				case SDLK_TAB:        code = SIM_KEY_TAB;                   break;
 				case SDLK_RETURN:     code = SIM_KEY_ENTER;                 break;
