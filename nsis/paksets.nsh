@@ -35,9 +35,9 @@ SectionGroupEnd
 Section "pak64.german (Freeware) for 122" pak64german
   AddSize 22460
   StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-1_full.zip"
-  StrCpy $archievename "pak64.german_0-123-0-0-2_full.zip"
+  StrCpy $archievename "pak64.german_0-123-0-0-1_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.123.0.0.2"
+  StrCpy $VersionString "pak64.german 0.123.0.0.1"
   Call DownloadInstallZip
 SectionEnd
 
