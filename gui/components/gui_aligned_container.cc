@@ -61,9 +61,11 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 //	}
 //	printf("\n");
 
-	if (min_size.h > new_size.h  ||  min_size.w > new_size.w) {
-		dbg->warning("gui_aligned_container_t::set_size", "new size (%d,%d) smaller than min size (%d,%d)", new_size.w, new_size.h, min_size.w, min_size.h);
+#ifdef DEBUG
+	if (new_size.w < min_size.w  ||  new_size.h < min_size.h) {
+		dbg->warning("gui_aligned_container_t::set_size", "new size (%d,%d) cannot fit all elements; at least (%d,%d) required", new_size.w, new_size.h, min_size.w, min_size.h);
 	}
+#endif
 
 	scr_size extra = new_size - min_size;
 	extra.clip_lefttop(scr_coord(0,0));
