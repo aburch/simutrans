@@ -349,7 +349,7 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 }
 
 
-scr_size gui_aligned_container_t::get_size(vector_tpl<scr_coord_val>& col_w, vector_tpl<scr_coord_val>& row_h) const
+scr_size gui_aligned_container_t::get_size(const vector_tpl<scr_coord_val>& col_w, const vector_tpl<scr_coord_val>& row_h) const
 {
 	scr_coord_val sinf = scr_size::inf.w;
 	scr_size s = margin_tl + margin_br;

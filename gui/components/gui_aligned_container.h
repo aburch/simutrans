@@ -39,7 +39,7 @@ private:
 	/**
 	 * Computes total size of table from row heights and column widths.
 	 */
-	scr_size get_size(vector_tpl<scr_coord_val>& col_w, vector_tpl<scr_coord_val>& row_h) const;
+	scr_size get_size(const vector_tpl<scr_coord_val>& col_w, const vector_tpl<scr_coord_val>& row_h) const;
 
 	/**
 	 * If size is larger than min-size, then distribute
