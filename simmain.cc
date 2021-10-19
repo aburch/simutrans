@@ -373,7 +373,7 @@ static bool wait_for_key()
  */
 static void install_objfilename()
 {
-#ifdef _WIN32 
+#ifdef _WIN32
 	dr_download_pakset( env_t::data_dir, env_t::data_dir == env_t::user_dir );  // windows
 #else
 	pakinstaller_t* sel = new pakinstaller_t();

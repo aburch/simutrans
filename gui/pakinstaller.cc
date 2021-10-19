@@ -70,7 +70,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 	FOR(vector_tpl<sint32>, i, paks.get_selections()) {
 		cbuffer_t param;
 #ifdef _WIN32
-		param.append( "powershell .\\get_pak.ps1 \"" );
+		param.append( "powershell -ExecutionPolicy ByPass -NoExit .\\get_pak.ps1 \"" );
 #else
 		param.append( "./get_pak.sh \"" );
 #endif
@@ -84,7 +84,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 	FOR(vector_tpl<sint32>, i, obsolete_paks.get_selections()) {
 		cbuffer_t param;
 #ifdef _WIN32
-		param.append( "powershell .\\get_pak.ps1 \"" );
+		param.append("powershell -ExecutionPolicy ByPass .\\get_pak.ps1 \"");
 #else
 		param.append( "./get_pak.sh \"" );
 #endif
