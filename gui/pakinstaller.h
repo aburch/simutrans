@@ -22,7 +22,7 @@ class pakinstaller_t : public gui_frame_t, private action_listener_t
 private:
 	gui_scrolled_list_t paks;
 	gui_scrolled_list_t obsolete_paks;
-	button_t install;
+	button_t install, cancel;
 
 public:
 	static bool finish_install;

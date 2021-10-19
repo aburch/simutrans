@@ -21,29 +21,33 @@ pakinstaller_t::pakinstaller_t() :
 {
 	finish_install = false;
 
-	set_table_layout(1, 0);
+	set_table_layout(2, 0);
 
-	new_component<gui_label_t>( "Select one or more graphics to install (Ctrl+click):" );
+	new_component_span<gui_label_t>( "Select one or more graphics to install (Ctrl+click):", 2 );
 
 	for (int i = 0; i < 10; i++) {
 		paks.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(pakinfo[i*2+1], i<10?SYSCOL_TEXT: SYSCOL_TEXT_SHADOW);
 	}
 	paks.enable_multiple_selection();
 	scr_coord_val paks_h = paks.get_max_size().h;
-	add_component(&paks);
+	add_component(&paks,2);
 
-	new_component<gui_label_t>( "The following graphics are unmaintained:" );
+	new_component_span<gui_label_t>( "The following graphics are unmaintained:", 2 );
 
 	for (int i = 10; i < PAKSET_COUNT; i++) {
 		obsolete_paks.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(pakinfo[i*2+1], i<10?SYSCOL_TEXT: SYSCOL_TEXT_SHADOW);
 	}
 	obsolete_paks.enable_multiple_selection();
 	scr_coord_val obsolete_paks_h = obsolete_paks.get_max_size().h;
-	add_component(&obsolete_paks);
+	add_component(&obsolete_paks,2);
 
-	install.init(button_t::roundbox_state, "Install");
+	install.init(button_t::roundbox_state | button_t::flexible, "Install");
 	add_component(&install);
 	install.add_listener(this);
+
+	cancel.init(button_t::roundbox_state | button_t::flexible, "Cancel");
+	cancel.add_listener(this);
+	add_component(&cancel);
 
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize()+scr_size(0,paks_h-paks.get_size().h + obsolete_paks_h- obsolete_paks.get_size().h));
@@ -54,8 +58,13 @@ pakinstaller_t::pakinstaller_t() :
  * This method is called if an action is triggered
  */
 #ifndef __ANDROID__
-bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
+bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 {
+	if (comp == &cancel) {
+		finish_install = true;
+		return false;
+	}
+
 	// now install
 	dr_chdir( env_t::data_dir );
 	FOR(vector_tpl<sint32>, i, paks.get_selections()) {
