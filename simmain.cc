@@ -334,7 +334,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 	// just trigger not another following window => wait for button release
 	if (IS_LEFTCLICK(&ev)) {
 		do {
-			display_get_event(&ev);
+			display_poll_event(&ev);
 		} while (!IS_LEFTRELEASE(&ev));
 	}
 

@@ -1366,14 +1366,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &convoy_selector  ) {
 			icnv = p.i - 1;
-/*
-			if(  !depot->get_convoi(icnv).is_bound()  ) {
-				set_focus( NULL );
-			}
-			else {
-				set_focus( (gui_component_t *)&convoy_selector );
-			}
-*/
 		}
 		else if(  comp == &line_selector  ) {
 			const int selection = p.i;

@@ -889,17 +889,8 @@ static void internal_GetEvents(bool const wait)
 
 void GetEvents()
 {
-	// already even processed?
-	if(sys_event.type==SIM_NOEVENT) {
-		internal_GetEvents(true);
-	}
-}
-
-
-void GetEventsNoWait()
-{
 	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		internal_GetEvents(false);
+		internal_GetEvents();
 	}
 }
 

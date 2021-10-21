@@ -1062,6 +1062,9 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 
 int sysmain(int const argc, char** const argv)
 {
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
+
 #ifdef _WIN32
 	// Guess required buffer length, if too small then dynamically expand up to around 65536 characters.
 	// It is unlikely this loop will ever run more than once in practice but is required to cover flaws with the API.

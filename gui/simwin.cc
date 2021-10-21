@@ -1610,7 +1610,7 @@ bool check_pos_win(event_t *ev)
 						move_win(i, ev);
 						is_moving = i;
 					}
-					if(IS_RIGHTCLICK(ev)) {
+					if(IS_RIGHTCLICK(ev)  ||  IS_LEFTDBLCLK(ev)  ) {
 						wins[i].rollup ^= 1;
 						gui_frame_t *gui = wins[i].gui;
 						scr_size size = gui->get_windowsize();

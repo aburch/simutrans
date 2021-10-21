@@ -107,14 +107,6 @@ void GetEvents()
 }
 
 
-void GetEventsNoWait()
-{
-	if(  sigterm_received  ) {
-		sys_event.type = SIM_SYSTEM;
-		sys_event.code = SYSTEM_QUIT;
-	}
-}
-
 void show_pointer(int)
 {
 }

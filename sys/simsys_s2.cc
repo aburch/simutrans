@@ -519,7 +519,7 @@ static int conv_mouse_buttons(Uint8 const state)
 }
 
 
-static void internal_GetEvents(bool const wait)
+static void internal_GetEvents()
 {
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
@@ -533,37 +533,15 @@ static void internal_GetEvents(bool const wait)
 
 	SDL_Event event;
 	event.type = 1;
-	if(  wait  ) {
-		int n;
-		do {
-			SDL_WaitEvent( &event );
-			n = SDL_PollEvent( NULL );
-		} while(  n != 0  &&  event.type == SDL_MOUSEMOTION  );
-	}
-	else {
-		int n;
-		bool got_one = false;
-		do {
-			n = SDL_PollEvent( &event );
-			if(  n != 0  ) {
-				got_one = true;
-				if(  event.type == SDL_MOUSEMOTION  ) {
-					sys_event.mx   = SCREEN_TO_TEX_X(event.motion.x);
-					sys_event.my   = SCREEN_TO_TEX_Y(event.motion.y);
-					sys_event.type = SIM_MOUSE_MOVE;
-					sys_event.code = SIM_MOUSE_MOVED;
-					sys_event.mb   = conv_mouse_buttons( event.motion.state );
-				}
-			}
-		} while(  n != 0  &&  event.type == SDL_MOUSEMOTION  );
-		if(  !got_one  ) {
-			return;
-		}
+	if (SDL_PollEvent(&event) == 0) {
+		return;
 	}
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch(  event.type  ) {
+
 		case SDL_WINDOWEVENT:
+			dbg->message("SDL_WINDOWEVENT", "%i", event.window.event);
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
 				sys_event.new_window_size_w = SCREEN_TO_TEX_X(event.window.data1);
 				sys_event.new_window_size_h = SCREEN_TO_TEX_Y(event.window.data2);
@@ -688,14 +666,31 @@ static void internal_GetEvents(bool const wait)
 								(event.tfinger.x + event.tfinger.dx) * display_get_width(),
 								(event.tfinger.y + event.tfinger.dy) * display_get_height()
 							);
-							dLastDist = fabs(event.tfinger.x + event.tfinger.dx) + fabs(event.tfinger.x + event.tfinger.dx);
+							dLastDist = 1e-99;
+							// return a press event
+							sys_event.type = SIM_MOUSE_BUTTONS;
+							sys_event.code = SIM_MOUSE_LEFTBUTTON;
+							sys_event.mb = 1;
+							sys_event.mx = event.tfinger.x * display_get_width();
+							sys_event.my = event.tfinger.y * display_get_height();
+							sys_event.key_mod = ModifierKeys();
+							// and queue the relese event
+							event_t* nev = new event_t(EVENT_RELEASE);
+							nev->ev_code = MOUSE_LEFTBUTTON;
+							nev->mx = event.tfinger.x * display_get_width();
+							nev->my = event.tfinger.y * display_get_height();
+							nev->button_state = 0;
+							nev->ev_key_mod = ModifierKeys();
+							queue_event(nev);
 						}
-						sys_event.type = SIM_MOUSE_BUTTONS;
-						sys_event.code = SIM_MOUSE_LEFTUP;
-						sys_event.mb = 0;
-						sys_event.mx = (event.tfinger.x + event.tfinger.dx) * display_get_width();
-						sys_event.my = (event.tfinger.y + event.tfinger.dy) * display_get_height();
-						sys_event.key_mod = ModifierKeys();
+						else {
+							sys_event.type = SIM_MOUSE_BUTTONS;
+							sys_event.code = SIM_MOUSE_LEFTUP;
+							sys_event.mb = 0;
+							sys_event.mx = (event.tfinger.x + event.tfinger.dx) * display_get_width();
+							sys_event.my = (event.tfinger.y + event.tfinger.dy) * display_get_height();
+							sys_event.key_mod = ModifierKeys();
+						}
 						DBG_MESSAGE("SDL_FINGERUP", "Actual FIngerup event send");
 					}
 					previous_multifinger_touch = 0;
@@ -896,16 +891,7 @@ static void internal_GetEvents(bool const wait)
 
 void GetEvents()
 {
-	internal_GetEvents( true );
-}
-
-
-void GetEventsNoWait()
-{
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
-
-	internal_GetEvents( false );
+	internal_GetEvents();
 }
 
 

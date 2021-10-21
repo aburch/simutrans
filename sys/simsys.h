@@ -165,7 +165,6 @@ int get_mouse_y();
 void ex_ord_update_mx_my();
 
 void GetEvents();
-void GetEventsNoWait();
 
 uint8 dr_get_max_threads();
 
