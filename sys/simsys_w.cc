@@ -890,7 +890,7 @@ static void internal_GetEvents(bool const wait)
 void GetEvents()
 {
 	if (sys_event.type==SIM_NOEVENT  &&  PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		internal_GetEvents();
+		internal_GetEvents(false);
 	}
 }
 
