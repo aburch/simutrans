@@ -704,7 +704,7 @@ static void internal_GetEvents()
 					if(!previous_multifinger_touch) {
 						if (dLastDist == 0.0) {
 							dLastDist = 1e-99;
-#if 0
+#if 1
 							// return a press event
 							sys_event.type = SIM_MOUSE_BUTTONS;
 							sys_event.code = SIM_MOUSE_LEFTBUTTON;
@@ -715,12 +715,14 @@ static void internal_GetEvents()
 							sys_event.my = event.tfinger.y * display_get_height();
 							// not yet moved -> set click origin or click will be at last position ...
 							set_click_xy(sys_event.mx, sys_event.my);
-#if 0
+#if 1
 							// and queue the relese event
 							event_t* nev = new event_t(EVENT_RELEASE);
-							nev->ev_code = MOUSE_LEFTBUTTON;
+							nev->ev_code = SIM_MOUSE_LEFTUP;
 							nev->mx = sys_event.mx;
 							nev->my = sys_event.my;
+							nev->cx = sys_event.mx;
+							nev->cy = sys_event.my;
 							nev->button_state = 0;
 							nev->ev_key_mod = ModifierKeys();
 							queue_event(nev);

@@ -30,3 +30,6 @@
 /doxygen
 .vs/
 revision.h
+.idea
+*.d
+*.res
