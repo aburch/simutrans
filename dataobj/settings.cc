@@ -302,7 +302,7 @@ settings_t::settings_t() :
 	frames_per_step = 4;
 	server_frames_ahead = 4;
 
-	advance_to_end = true;
+	stop_halt_as_scheduled = true;
 }
 
 
@@ -922,7 +922,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->is_version_atleast(122, 2)  ) {
-			file->rdwr_bool(advance_to_end);
+			file->rdwr_bool(stop_halt_as_scheduled);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1590,7 +1590,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	world_maximum_height = contents.get_int_clamped("world_maximum_height", world_maximum_height, 16, 127);
 	world_minimum_height = contents.get_int_clamped("world_minimum_height", world_minimum_height, -127, -12);
 
-	advance_to_end = contents.get_int("advance_to_end", advance_to_end);
+	stop_halt_as_scheduled = contents.get_int("stop_halt_as_scheduled", stop_halt_as_scheduled);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", objfilename.c_str() ) );

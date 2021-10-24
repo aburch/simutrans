@@ -314,8 +314,8 @@ private:
 	// true if companies can make ways public
 	bool disable_make_way_public;
 
-	// only for trains. If true, trains advance to the end of the platform.
-	bool advance_to_end;
+	// only for trains. If true, trains stop at the position designated in the schdule..
+	bool stop_halt_as_scheduled;
 
 public:
 	/* the big cost section */
@@ -662,8 +662,8 @@ public:
 	bool get_departures_on_time() const { return departures_on_time; }
 	void set_departures_on_time(bool b) { departures_on_time = b; }
 
-	bool get_advance_to_end() const { return advance_to_end; }
-	void set_advance_to_end(bool b) { advance_to_end = b; }
+	bool get_stop_halt_as_scheduled() const { return stop_halt_as_scheduled; }
+	void set_stop_halt_as_scheduled(bool b) { stop_halt_as_scheduled = b; }
 };
 
 #endif
