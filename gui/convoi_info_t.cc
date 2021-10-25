@@ -276,13 +276,6 @@ void convoi_info_t::apply_schedule()
 		return;
 	}
 
-	// if convoy was sent to depot do not override schedule here
-	if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
-		if (gr->get_depot() != NULL) {
-			return;
-		}
-	}
-
 	// do not send changes if the convoi is about to be deleted
 	if (cnv->get_state() != convoi_t::SELF_DESTRUCT) {
 		if (cnv->in_depot()) {
@@ -562,7 +555,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 				cnv->call_convoi_tool('s', "1");
 				scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line());
 				reset_min_windowsize();
-
 			}
 		}
 		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE  ||  cnv->get_state()==convoi_t::INITIAL) {
