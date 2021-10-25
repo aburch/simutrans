@@ -130,6 +130,15 @@ void nwc_nick_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_str(nickname);
+
+	if (packet->is_loading() && env_t::server && id == NWC_NICK) {
+		const SOCKET sock = packet->get_sender();
+		const socket_info_t &client = socket_list_t::get_client(socket_list_t::get_client_id(sock));
+
+		if (client.state != socket_info_t::playing) {
+			packet->failed();
+		}
+	}
 }
 
 
@@ -275,7 +284,16 @@ void nwc_chat_t::rdwr()
 	packet->rdwr_str( clientname );
 	packet->rdwr_str( destination );
 
-	dbg->warning("nwc_chat_t::rdwr", "rdwr message=%s plnr=%d clientname=%s destination=%s", message.c_str(), player_nr, clientname.c_str(), destination.c_str());
+	if (packet->is_loading() && env_t::server) {
+		const SOCKET sock = packet->get_sender();
+		const socket_info_t &client = socket_list_t::get_client(socket_list_t::get_client_id(sock));
+
+		if (client.state != socket_info_t::playing) {
+			packet->failed();
+		}
+	}
+
+	dbg->message("nwc_chat_t::rdwr", "rdwr message=%s plnr=%d clientname=%s destination=%s", message.c_str(), player_nr, clientname.c_str(), destination.c_str());
 }
 
 
@@ -531,6 +549,10 @@ void nwc_game_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(len);
+
+	if (packet->is_loading() && env_t::server) {
+		packet->failed();
+	}
 }
 
 
@@ -664,6 +686,10 @@ void nwc_sync_t::rdwr()
 	network_world_command_t::rdwr();
 	packet->rdwr_long(client_id);
 	packet->rdwr_long(new_map_counter);
+
+	if (packet->is_loading() && env_t::server) {
+		packet->failed();
+	}
 }
 
 
@@ -1028,9 +1054,8 @@ void nwc_tool_t::rdwr()
 		custom_data.append_tail(*packet);
 	}
 
-	//if (packet->is_loading()) {
-	dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s tool_id=%s defpar=%s init=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), tool_t::id_to_string(tool_id), default_param.c_str(), init, flags);
-	//}
+	dbg->message("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s tool_id=%s defpar=%s init=%d flags=%d",
+		id, tool_client_id, player_nr, pos.get_str(), tool_t::id_to_string(tool_id), default_param.c_str(), init, flags);
 }
 
 

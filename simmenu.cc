@@ -399,6 +399,7 @@ tool_t *create_tool(int toolnr)
 	if (tool == NULL) {
 		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
 	}
+
 	return tool;
 }
 
