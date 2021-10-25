@@ -236,6 +236,8 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "way_tunnel", sets->way_count_tunnel, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_max_bridge_len", sets->way_max_bridge_len, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_BOOL( "stop_halt_as_scheduled", sets->get_stop_halt_as_scheduled() );
 
 	INIT_END
 }
@@ -262,6 +264,8 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_count_tunnel );
 	READ_NUM_VALUE( sets->way_max_bridge_len );
 	READ_NUM_VALUE( sets->way_count_leaving_road );
+
+	READ_BOOL_VALUE( sets->stop_halt_as_scheduled );
 }
 
 

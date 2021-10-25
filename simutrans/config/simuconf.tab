@@ -108,6 +108,9 @@ way_leaving_road=25
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
 straight_way_without_control = 0
 
+# stop_halt_as_scheduled=1, trains stop at the scheduled tile (or advance until they fits)
+# stop_halt_as_scheduled=0 (default) trains will advance always to the end of a platform
+#stop_halt_as_scheduled=0
 
 ###############################passenger stuff##############################
 # also pak dependent

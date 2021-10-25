@@ -140,7 +140,8 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	cnv->set_next_reservation_index( 0 ); // nothing to reserve
 	target_halt = halthandle_t(); // no block reserved
 	// use length 8888 tiles to advance to the end of all stations
-	return route->calc_route(welt, start, ziel, this, max_speed, 8888 /*cnv->get_tile_length()*/ );
+	const uint16 convoy_length = world()->get_settings().get_stop_halt_as_scheduled() ? cnv->get_tile_length() : 8888;
+	return route->calc_route(welt, start, ziel, this, max_speed, convoy_length );
 }
 
 

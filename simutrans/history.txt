@@ -41,6 +41,7 @@
 	ADD: Command line option '-scenario' starts requested scenario if available
 	FIX: Trains brake two tiles too late when entering a terminal station via a long block signal
 	CHG: window rollup also with double click
+	CHG: stop_halt_as_scheduled=1 in simuconf.tab will stop trains at the desginated tile instead going to the end of the platform
 
 
 Release of 122.0 (r9274 on 10-Oct-2020):
