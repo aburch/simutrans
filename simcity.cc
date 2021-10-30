@@ -620,49 +620,15 @@ void stadt_t::update_gebaeude_from_stadt(gebaeude_t* gb)
 }
 
 
-void stadt_t::pruefe_grenzen(koord k, koord size)
+void stadt_t::pruefe_grenzen(koord /*k*/, koord /*size*/)
 {
-#if 1
 	/* somehow we sometimes end up during growth with a high density
 	 * city that is not recognized as such (happens more frequently with pak64.japan)
 	 * Therefore, we just recalc the borders each time; building events
 	 * are few, and the penalty is not strong.
+	 * See version control for old code.
 	 */
 	recalc_city_size();
-#else
-	// WARNING: do not call this during multithreaded loading,
-	// as has_low_density may depend on the order the buildings list is filled
-	if(  has_low_density  ) {
-		// has extra wide borders => change density calculation
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-2)*abs(ur.y-lo.y-2)+1) > min_building_density);
-		if(!has_low_density)  {
-			// full recalc needed due to map borders ...
-			recalc_city_size();
-			return;
-		}
-	}
-	else {
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
-		if(has_low_density)  {
-			// wide borders again ..
-			lo -= koord(2,2);
-			ur += koord(2,2) + size;
-		}
-	}
-	// now just add single coordinates
-	if(  has_low_density  ) {
-		lo.clip_max(k-koord(2,2));
-		ur.clip_min(k+koord(2,2)+size);
-	}
-	else {
-		// first grow within ...
-		lo.clip_max(k);
-		ur.clip_min(k+size);
-	}
-
-	lo.clip_min(koord(0,0));
-	ur.clip_max(koord(welt->get_size().x-1,welt->get_size().y-1));
-#endif
 }
 
 
