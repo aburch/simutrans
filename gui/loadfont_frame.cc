@@ -205,7 +205,7 @@ void loadfont_frame_t::fill_list()
 			continue;
 		}
 		i.button->set_typ(button_t::roundbox_state | button_t::flexible);
-#if !USE_FREETYPE
+#ifndef USE_FREETYPE
 	}
 #else
 		// Use internal name instead the cutted file name

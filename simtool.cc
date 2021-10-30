@@ -4870,7 +4870,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			gb->get_tile_list( gb_tiles );
 
 			// first test if all tiles are present (check for holes)
-			if( gb_tiles.get_count()<desc->get_x( layout )*desc->get_y( layout ) ) {
+			if( gb_tiles.get_count() < (uint32)desc->get_x( layout ) * (uint32)desc->get_y( layout ) ) {
 				// there are holes ...
 				return "Cannot rotate this building!";
 			}

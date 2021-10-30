@@ -47,7 +47,7 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 // 			return;
 // 		}
 
-#if MULTI_THREAD
+#ifdef MULTI_THREAD
 		ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_nbWorkers, env_t::num_threads );
 		if (ZSTD_isError(ret1)) {
 			// since compression should continue anyway, do not stop!
