@@ -759,7 +759,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 
 			if(  !env_t::networkmode  ||  env_t::server  ) {
-				frames_per_second = clamp(env_t::fps, 5u, 100u); // update it on the server to the current setting
+				frames_per_second = clamp(env_t::fps, env_t::min_fps, env_t::max_fps); // update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second );
