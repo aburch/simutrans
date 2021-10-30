@@ -37,6 +37,7 @@ extern char **__argv;
 #include "../gui/components/gui_textinput.h"
 #include "../simintr.h"
 #include "../simworld.h"
+#include "../music/music.h"
 
 
 // Maybe Linux is not fine too, had critical bugs...
@@ -178,7 +179,31 @@ bool dr_auto_scale(bool on_off )
 
 static int SDLCALL my_event_filter(void* userdata, SDL_Event* event)
 {
-	if (event->type == SDL_APP_TERMINATING) {
+	DBG_MESSAGE("my_event_filter", "%i", event->type);
+	switch (event->type)
+	{
+	case SDL_APP_DIDENTERBACKGROUND:
+		intr_disable();
+		// save settings
+		{
+			dr_chdir(env_t::user_dir);
+			loadsave_t settings_file;
+			if (settings_file.wr_open("settings.xml", loadsave_t::xml, 0, "settings only/", SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK) {
+				env_t::rdwr(&settings_file);
+				env_t::default_settings.rdwr(&settings_file);
+				settings_file.close();
+			}
+		}
+		dr_stop_midi();
+		return 0;
+
+	case SDL_APP_DIDENTERFOREGROUND:
+		dr_stop_textinput();
+		intr_enable();
+		//reanable midi
+		return 0;
+
+	case SDL_APP_TERMINATING:
 		// quitting immediate, save settings and game without visual feedback
 		intr_disable();
 		if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
@@ -206,11 +231,13 @@ static int SDLCALL my_event_filter(void* userdata, SDL_Event* event)
 			}
 		}
 		// at this point there is no UI active anymore, and we have no time to die, so just exit and leeve the cleanup to the OS
+		dr_stop_midi();
 		SDL_Quit();
+		dr_os_close();
 		exit(0);
-
-		// in priciple we need to return 0, since we handled this alread ...
+		// we never reach here tough ...
 		return 0;
+
 	}
 	return 1;  // let all events be added to the queue since we always return 1.
 }
