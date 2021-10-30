@@ -4780,6 +4780,27 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 
 	rdwr_gamestate(file, ls);
 
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		// **** REMOVE IF SOON! *********
+		if(file->is_version_less(101, 0)) {
+			if(  i<8  ) {
+				if(  players[i]  ) {
+					players[i]->rdwr(file);
+				}
+				else {
+					// simulate old ones ...
+					player_t *player = new player_t( i );
+					player->rdwr(file);
+					delete player;
+				}
+			}
+		}
+		else if(  players[i]  ) {
+			players[i]->rdwr(file);
+		}
+	}
+DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved players");
+
 	// saving messages
 	if(  file->is_version_atleast(102, 5)  ) {
 		msg->rdwr(file);
@@ -5228,6 +5249,15 @@ void karte_t::load(loadsave_t *file)
 	dbg->warning("karte_t::load", "Fileversion: %u", file->get_version_int());
 
 	rdwr_gamestate(file, &ls);
+
+	// now the player can be loaded
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		if(  players[i]  ) {
+			players[i]->rdwr(file);
+		}
+		ls.set_progress( (get_size().y*3)/2+128+8*i );
+	}
+	DBG_MESSAGE("karte_t::rdwr_gamestate()", "players loaded");
 
 	// loading messages
 	if(  file->is_version_atleast(102, 5)  ) {
@@ -5928,40 +5958,6 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 			INT_CHECK("saving");
 		}
 		DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved %i convois",convoi_array.get_count());
-	}
-
-	// rdwr players
-	if (file->is_loading()) {
-		// now the player can be loaded
-		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-			if(  players[i]  ) {
-				players[i]->rdwr(file);
-			}
-			ls->set_progress( (get_size().y*3)/2+128+8*i );
-		}
-	DBG_MESSAGE("karte_t::rdwr_gamestate()", "players loaded");
-	}
-	else { // saving
-		for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-	// **** REMOVE IF SOON! *********
-			if(file->is_version_less(101, 0)) {
-				if(  i<8  ) {
-					if(  players[i]  ) {
-						players[i]->rdwr(file);
-					}
-					else {
-						// simulate old ones ...
-						player_t *player = new player_t( i );
-						player->rdwr(file);
-						delete player;
-					}
-				}
-			}
-			else if(  players[i]  ) {
-				players[i]->rdwr(file);
-			}
-		}
-	DBG_MESSAGE("karte_t::rdwr_gamestate()", "saved players");
 	}
 }
 
