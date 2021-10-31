@@ -239,17 +239,8 @@ ifdef WITH_REVISION
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
       REV := $(WITH_REVISION)
     else
-      $(info Query SVN revision ...)
-      REV := $(shell svnversion)
+      REV := $(shell ./get_revision.sh)
       $(info Revision is $(REV))
-    endif
-    # we can query the svn directly, should the folder is not an svn (like on github)
-    ifeq ($(REV),)
-      ifeq ($(shell expr $(WITH_REVISION) \<= 1), 1)
-        $(info Query SVN revision with SVN directly...)
-        REV := $(shell svn info --show-item revision svn://servers.simutrans.org/simutrans | sed "s/[0-9]*://" | sed "s/M.*//")
-         $(info Revision is $(REV))
-      endif
     endif
   endif
 endif
@@ -261,6 +252,13 @@ else
   ifeq ("$(wildcard revision.h)","")
     DUMMY := $(shell echo '\#define REVISION' > revision.h)
   endif
+endif
+
+GIT_HASH := $(shell git describe --always 2>/dev/null 1>/dev/null; echo $$?)
+ifneq ($(GIT_HASH),)
+  GIT_HASH := $(shell git describe --always)
+  $(info Git hash is 0x$(GIT_HASH))
+  CFLAGS  += -DGIT_HASH=0x$(GIT_HASH)
 endif
 
 

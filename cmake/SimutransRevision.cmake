@@ -73,15 +73,17 @@ endif ()
 if (SIMUTRANS_WC_REVISION)
 	# write a file with the SVNVERSION define
 	if (NOT SIMUTRANS_WC_HASH)
-		set(SIMUTRANS_WC_HASH "0")
+		file(WRITE revision.h.txt "#define REVISION ${SIMUTRANS_WC_REVISION}\n")
+		message(STATUS "Compiling Simutrans revision ${SIMUTRANS_WC_REVISION} without hash ...")
+	else ()
+		file(WRITE revision.h.txt "#define REVISION ${SIMUTRANS_WC_REVISION}\n#define GIT_HASH 0x${SIMUTRANS_WC_HASH}\n")
+		message(STATUS "Compiling Simutrans revision ${SIMUTRANS_WC_REVISION} with hash ${SIMUTRANS_WC_HASH} ...")
 	endif ()
-	file(WRITE revision.h.txt "#define REVISION ${SIMUTRANS_WC_REVISION}\n#define GIT_HASH 0x${SIMUTRANS_WC_HASH}\n")
 
 	# copy the file to the final header only if the version changes
 	# reduces needless rebuilds
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different revision.h.txt "${SOURCE_DIR}/revision.h")
 
-	message(STATUS "Compiling Simutrans revision ${SIMUTRANS_WC_REVISION} with hash ${SIMUTRANS_WC_HASH} ...")
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "

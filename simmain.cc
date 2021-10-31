@@ -543,11 +543,14 @@ void print_help()
 void setup_logging(const args_t &args)
 {
 #ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE " r" QUOTEME(REVISION) "\n"
 #else
-	const char *version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n";
+	const char* version = "Simutrans version " VERSION_NUMBER " from " VERSION_DATE "\n"
 #endif
-
+#ifdef GIT_HASH
+		"hash " QUOTEME(GIT_HASH)
+#endif
+		;
 #ifdef SYSLOG
 	bool cli_syslog_enabled = args.has_arg("-syslog");
 	const char* cli_syslog_tag = args.gimme_arg("-tag", 1);

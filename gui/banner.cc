@@ -66,10 +66,14 @@ banner_t::banner_t() : gui_frame_t("")
 	new_component<gui_label_t>("This is Simutrans" SIM_VERSION_BUILD_STRING, SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 
 #ifdef REVISION
-	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) 
 #else
-	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE
 #endif
+#ifdef GIT_HASH
+		"hash " QUOTEME(GIT_HASH)
+#endif
+		L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 
 	add_table(5,0);
 	{
