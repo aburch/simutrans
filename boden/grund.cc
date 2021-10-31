@@ -2182,3 +2182,11 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 	}
 	return NULL;
 }
+
+
+bool grund_t::is_dummy_ground() const
+{
+	return (get_typ() == grund_t::tunnelboden  ||  get_typ() == grund_t::monorailboden)
+		&&  !hat_wege()
+		&&  get_leitung() == NULL;
+}

@@ -834,9 +834,12 @@ public:
 	 */
 	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
 
+	/// @returns true if this is a dummy ground that is only there for UI purposes
+	/// (previews for bridges, elevated ways and tunnels)
+	bool is_dummy_ground() const;
+
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);
-
 };
 
 
