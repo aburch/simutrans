@@ -177,7 +177,7 @@ bool dr_auto_scale(bool on_off )
 	}
 }
 
-static int SDLCALL my_event_filter(void* userdata, SDL_Event* event)
+static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 {
 	DBG_MESSAGE("my_event_filter", "%i", event->type);
 	switch (event->type)
@@ -610,7 +610,8 @@ static void internal_GetEvents()
 	}
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-	dbg->message("SDL_EVENT", "0x%X", event.type);
+	DBG_MESSAGE("SDL_EVENT", "0x%X", event.type);
+
 	switch(  event.type  ) {
 
 		case SDL_WINDOWEVENT:
@@ -622,7 +623,7 @@ static void internal_GetEvents()
 			}
 			// Ignore other window events.
 			break;
-		
+
 		case SDL_MOUSEBUTTONDOWN:
 			dLastDist = 0.0;
 			if (event.button.which != SDL_TOUCH_MOUSEID) {
@@ -682,12 +683,7 @@ static void internal_GetEvents()
 			 * The button down events will be from fingr move and the coordinate will be set from mouse up: enough
 			 */
 	DBG_MESSAGE("SDL_FINGERDOWN", "fingerID=%x FirstFingerId=%x Finger %i", (int)event.tfinger.fingerId, (int)FirstFingerId, SDL_GetNumTouchFingers(event.tfinger.touchId));
-			{
-				int mx = SCREEN_TO_TEX_X((event.tfinger.x) * screen->w);
-				int my = SCREEN_TO_TEX_Y((event.tfinger.y) * screen->h);
-				int tx = event.tfinger.x * display_get_width();
-				int ty = event.tfinger.y * display_get_height();
-			}
+
 			if (!in_finger_handling) {
 				dLastDist = 0.0;
 				FirstFingerId = event.tfinger.fingerId;
