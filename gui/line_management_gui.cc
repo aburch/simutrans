@@ -359,6 +359,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  ) {
 		player = welt->get_player( player_nr );
+		gui_frame_t::set_owner(player);
 		if(  line.is_bound()  ) {
 			set_windowsize(size);
 			set_windowsize( size );
