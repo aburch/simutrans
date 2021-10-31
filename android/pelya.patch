@@ -1,0 +1,24 @@
+diff --git a/project/jni/application/simutrans/AndroidBuild.sh b/project/jni/application/simutrans/AndroidBuild.sh
+index 18ba7761d..04c640b56 100755
+--- a/project/jni/application/simutrans/AndroidBuild.sh
++++ b/project/jni/application/simutrans/AndroidBuild.sh
+@@ -13,17 +13,10 @@ echo BACKEND=sdl2 >> config.$1.txt
+ echo USE_SOFTPOINTER=1 >> config.$1.txt
+ echo USE_FREETYPE=1 >> config.$1.txt
+ echo USE_FLUIDSYNTH_MIDI=1 >> config.$1.txt
++echo WITH_REVISION=1 >> config.$1.txt
+ 
+ cmake -E copy_if_different config.$1.txt config.$1
+-
+-# check first if svn repo; otherwise fallback to git repo
+-svn info --show-item revision
+-if [ $? -eq 0 ]; then
+-    echo "#define REVISION `svn info --show-item revision`" > revision.h.txt
+-else
+-    echo "#define REVISION `git svn find-rev $(git log origin --max-count 1 --pretty=format:%H)`" > revision.h.txt
+-fi
+-cmake -E copy_if_different revision.h.txt revision.h
++rm -rf revision.h
+ 
+ env CFLAGS="-fpermissive" \
+ 	LDFLAGS="-L`pwd`/../../../../obj/local/$1" \

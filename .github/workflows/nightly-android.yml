@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
@@ -83,10 +82,18 @@ jobs:
 
     # pelya building script expects that 1/ simutrans is found inside /android-sdl/project/jni/application/simutrans/simutrans and 2/ that it is a svn repo, as revision.h is populated by svn command line
     # the content of actions/checkout is a git repo so it is not compatible
-    - name: Setup Android SDL working folder to host Simutrans (latest)
+    # so we just checkout the meta informations
+    - name: Setup Android SDL working folder to host Simutrans (current branch)
       working-directory: /android-sdl
       run: |
-        svn checkout svn://servers.simutrans.org/simutrans/trunk project/jni/application/simutrans/simutrans
+        CURRENT_BRANCH=${GITHUB_REF##*/}
+        echo $CURRENT_BRANCH
+        echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
+        git clone -b $CURRENT_BRANCH $GITHUB_SERVER_URL/$GITHUB_REPOSITORY project/jni/application/simutrans/simutrans
+        chmod +755 project/jni/application/simutrans/simutrans/get_revision.sh
+        echo $(ls -al project/jni/application/simutrans/simutrans/android)
+        patch -p1 -i project/jni/application/simutrans/simutrans/android/pelya.patch
+    #    svn checkout --depth empty svn://servers.simutrans.org/simutrans/trunk/ project/jni/application/simutrans/simutrans
 
     # End of environment setup (dependencies installed, source code at correct location)
 
@@ -96,8 +103,8 @@ jobs:
       run: |
         if [ -f $GITHUB_WORKSPACE/.github/android/*.patch ]; then cp -r $GITHUB_WORKSPACE/.github/android/*.patch .; fi;
         if [ -f *.patch ]; then git apply *.patch; fi;
-        sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(svnversion project/jni/application/simutrans/simutrans)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
-        sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(svnversion project/jni/application/simutrans/simutrans)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
+        sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
+        sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
 
     - name: Build Simutrans
       working-directory: /android-sdl

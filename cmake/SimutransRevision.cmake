@@ -59,8 +59,8 @@ if (NOT SIMUTRANS_WC_REVISION AND Git_FOUND)
 		# not a git repository
 		unset(SIMUTRANS_WC_REVISION)
 	else ()
-		# the number of commit +326 equals the revision ...
-		MATH(EXPR res_var "${res_var}+326")
+		# the number of commit +328 equals the revision ...
+		MATH(EXPR res_var "${res_var}+328")
 
 		execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
 			COMMAND "${GIT_EXECUTABLE}" describe --always
