@@ -228,7 +228,7 @@ bool dr_has_fullscreen();
  */
 sint16 dr_get_fullscreen();
 
-/** 
+/**
  * Toggle between borderless and windowed mode
  * @return the fullscreen state after the toggle
  */

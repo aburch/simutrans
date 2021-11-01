@@ -149,7 +149,7 @@ sint32 y_scale = SCALE_NEUTRAL_Y;
 bool dr_auto_scale(bool)
 {
 #ifdef __ANDROID__
-	// SDL 1.2 does not support scaling, but the libSDL Android rendering layer 
+	// SDL 1.2 does not support scaling, but the libSDL Android rendering layer
 	// can stretch a rendered screensize to fit the full screen.
 	// Hence zoom scaling is achieved by rendering a lower resolution;
 	// dr_query_screen_resolution will therefore return a smaller resolution.
@@ -157,18 +157,18 @@ bool dr_auto_scale(bool)
 	// SDL 1.2 does not provide device dpi retrieval; this number is based
 	// on average dpi of medium-end smartphones on market
 	const int DEVICE_DPI = 400;
-	
+
 	// Touch screen UX best practice recommends button size of 42px at dpi 96 (~11 mm)
 	// non-large themes have button size of 32px at dpi 96
 	// large-theme have button size of 48px at dpi 96
-	// However, default target DPI of 96 is fine for computer screen, 
+	// However, default target DPI of 96 is fine for computer screen,
 	// but not for mobile devices. A target dpi of 96 with a 6 inch screen
-	// does not give enough resolution to display information, hence we must 
-	// target a higher dpi such as 192 to have enough screen estate, and 
-	// reach playable resolution. At 192 dpi, buttons are best in the 
-	// range 64-96 px so a new theme is preferrable. 
+	// does not give enough resolution to display information, hence we must
+	// target a higher dpi such as 192 to have enough screen estate, and
+	// reach playable resolution. At 192 dpi, buttons are best in the
+	// range 64-96 px so a new theme is preferrable.
 	const int MOBILE_TARGET_DPI = TARGET_DPI * 2;
-	
+
 	x_scale = SCALE_NEUTRAL_X * DEVICE_DPI / MOBILE_TARGET_DPI;
 	y_scale = SCALE_NEUTRAL_Y * DEVICE_DPI / MOBILE_TARGET_DPI;
 	return false;

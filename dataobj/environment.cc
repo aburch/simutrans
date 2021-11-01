@@ -561,7 +561,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( single_line_gui );
 
 		file->rdwr_byte( show_factory_storage_bar );
- 
+
 		file->rdwr_short( fullscreen );
 	}
 
