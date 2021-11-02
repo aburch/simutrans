@@ -496,20 +496,12 @@ static int conv_mouse_buttons(Uint8 const state)
 }
 
 
-static void internal_GetEvents(bool const wait)
+static void internal_GetEvents()
 {
 	SDL_Event event;
 	event.type = 1;
 
-	if (wait) {
-		int n;
-
-		do {
-			SDL_WaitEvent(&event);
-			n = SDL_PollEvent(NULL);
-		} while (n != 0 && event.type == SDL_MOUSEMOTION);
-	}
-	else {
+	{
 		int n;
 		bool got_one = false;
 
@@ -689,16 +681,7 @@ static void internal_GetEvents(bool const wait)
 
 void GetEvents()
 {
-	internal_GetEvents(true);
-}
-
-
-void GetEventsNoWait()
-{
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
-
-	internal_GetEvents(false);
+	internal_GetEvents();
 }
 
 
