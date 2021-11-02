@@ -153,7 +153,6 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	bt_find_convois.add_listener( this );
 	container_convois.add_component( &bt_find_convois );
 
-	new_component<gui_fill_t>();
 	container_convois.end_table();
 
 	container_convois.add_component(&scrolly_convois);
