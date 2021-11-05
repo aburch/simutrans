@@ -71,7 +71,7 @@ banner_t::banner_t() : gui_frame_t("")
 	new_component<gui_label_t>("Version " VERSION_NUMBER " " VERSION_DATE
 #endif
 #ifdef GIT_HASH
-		"hash " QUOTEME(GIT_HASH)
+		" hash " QUOTEME(GIT_HASH)
 #endif
 		L_DEBUG_TEXT, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 
