@@ -7323,12 +7323,7 @@ bool karte_t::interactive(uint32 quit_month)
 			INT_CHECK( "karte_t::interactive()" );
 			const sint32 wait_time = (sint32)next_step_time - (sint32)dr_time();
 			if(wait_time>0) {
-				if(  wait_time < 4  ) {
-					dr_sleep( wait_time );
-				}
-				else {
-					dr_sleep( 3 );
-				}
+				dr_sleep(min(wait_time, 3));
 				INT_CHECK( "karte_t::interactive()" );
 			}
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
