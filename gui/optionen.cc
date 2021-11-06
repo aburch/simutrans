@@ -18,8 +18,11 @@
 #include "kennfarbe.h"
 #include "sound_frame.h"
 #include "scenario_info.h"
+#include "pakinstaller.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/environment.h"
+#include "../sys/simsys.h"
 
 enum BUTTONS {
 	BUTTON_LANGUAGE = 0,
@@ -32,6 +35,7 @@ enum BUTTONS {
 	BUTTON_LOAD_SCENARIO,
 	BUTTON_SOUND,
 	BUTTON_SCENARIO_INFO,
+	BUTTON_INSTALL,
 	BUTTON_QUIT
 };
 
@@ -41,7 +45,7 @@ static char const *const option_buttons_text[] =
 	"Spieler(mz)", "Load game",
 	"Farbe", "Speichern",
 	"Helligk.", "Load scenario",
-	"Sound", "Scenario",
+	"Sound", "Scenario", "Install",
 	"Beenden"
 };
 
@@ -68,8 +72,6 @@ optionen_gui_t::optionen_gui_t() :
 			}
 			// Squeeze in divider
 			new_component_span<gui_divider_t>(2);
-			// empty cell left of quit button
-			new_component<gui_empty_t>();
 		}
 	}
 
@@ -77,6 +79,10 @@ optionen_gui_t::optionen_gui_t() :
 	set_windowsize(get_min_windowsize());
 	set_resizemode(gui_frame_t::horizontal_resize);
 }
+
+
+// helper for pakinstall
+static bool finish_install() { return pakinstaller_t::finish_install; }
 
 
 /**
@@ -123,9 +129,27 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;
 	}
-	else if(  comp == option_buttons + BUTTON_NEW_GAME  ) {
-		destroy_all_win( true );
+	else if (comp == option_buttons + BUTTON_NEW_GAME) {
+		destroy_all_win(true);
 		welt->stop(false);
+	}
+	else if (comp == option_buttons + BUTTON_INSTALL) {
+#if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
+		dr_download_pakset(env_t::data_dir, env_t::data_dir == env_t::user_dir);  // windows
+#else
+		pakinstaller_t* sel = new pakinstaller_t();
+
+		// notify gui to load list of paksets
+		event_t ev;
+		ev.ev_class = INFOWIN;
+		ev.ev_code = WIN_OPEN;
+		sel->infowin_event(&ev);
+
+		destroy_all_win(true); // since eventually the successful load message is still there ....
+		modal_dialogue(sel, magic_pakinstall, NULL, finish_install);
+
+		destroy_win(sel);
+#endif
 	}
 	else if(  comp == option_buttons + BUTTON_QUIT  ) {
 		welt->stop(true);

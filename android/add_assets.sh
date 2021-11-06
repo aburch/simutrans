@@ -29,5 +29,7 @@ download_with_retry() {
 [ -e ../simutrans/font/RobotoCondensed-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto%20Condensed Roboto_Condensed.zip && unzip -n Roboto_Condensed.zip -d ../simutrans/font) || exit 1
 [ -e ../simutrans/font/Roboto-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto Roboto.zip && unzip -n Roboto.zip -d ../simutrans/font) || exit 1
 [ -e ../simutrans/cacert.pem ] || cp ./cacert.pem ../simutrans/cacert.pem || exit 1
+[ -e ../simutrans/get_pak.sh ] || cp ./unpak.sh ../simutrans/get_pak.sh; chmod 755 ../simutrans/get_pak.sh  || exit 1
+
 
 echo 'Done adding assets'

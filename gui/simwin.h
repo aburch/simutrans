@@ -119,6 +119,7 @@ enum magic_numbers {
 	magic_depot, // only used to load/save
 	magic_depotlist   = magic_depot + MAX_PLAYER_COUNT,
 	magic_vehiclelist = magic_depotlist   + MAX_PLAYER_COUNT,
+	magic_pakinstall,
 	magic_max
 };
 
@@ -219,5 +220,8 @@ void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, c
  * *MUST* be explicitly unset!
  */
 void win_set_static_tooltip(const char *text);
+
+// shows a modal dialoge (blocks other interaction)
+void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)());
 
 #endif

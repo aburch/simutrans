@@ -197,12 +197,6 @@ static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 		dr_stop_midi();
 		return 0;
 
-	case SDL_APP_DIDENTERFOREGROUND:
-		dr_stop_textinput();
-		intr_enable();
-		//reanable midi
-		return 0;
-
 	case SDL_APP_TERMINATING:
 		// quitting immediate, save settings and game without visual feedback
 		intr_disable();
@@ -277,7 +271,9 @@ bool dr_os_init(const int* parameter)
 	if (has_soft_keyboard  &&  !env_t::hide_keyboard) {
 		env_t::hide_keyboard = true;
 	}
-	SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
+	if (!env_t::hide_keyboard) {
+		SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
+	}
 
 	sync_blit = parameter[0];  // hijack SDL1 -async flag for SDL2 vsync
 	use_dirty_tiles = !parameter[1]; // hijack SDL1 -use_hw flag to turn off dirty tile updates (force fullscreen updates)
@@ -286,8 +282,9 @@ bool dr_os_init(const int* parameter)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	if (env_t::hide_keyboard) {
+	if (!env_t::hide_keyboard) {
 		SDL_StartTextInput();
+		DBG_MESSAGE("SDL_StartTextInput", "");
 	}
 
 	atexit( SDL_Quit ); // clean up on exit
@@ -426,11 +423,6 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 #if SDL_VERSION_ATLEAST(2, 0, 10)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0"); // no mouse emulation for touch
 #endif
-
-	if(  !env_t::hide_keyboard  ) {
-		// enable keyboard input at all times unless requested otherwise
-	    SDL_StartTextInput();
-	}
 
 	assert(tex_pitch <= screen->pitch / (int)sizeof(PIXVAL));
 	assert(tex_h <= screen->h);
@@ -613,6 +605,12 @@ static void internal_GetEvents()
 	DBG_MESSAGE("SDL_EVENT", "0x%X", event.type);
 
 	switch(  event.type  ) {
+
+		case SDL_APP_DIDENTERFOREGROUND:
+			dr_stop_textinput();
+			intr_enable();
+			//reanable midi
+			break;
 
 		case SDL_WINDOWEVENT:
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
@@ -992,6 +990,7 @@ void dr_start_textinput()
 {
 	if(  env_t::hide_keyboard  ) {
 	    SDL_StartTextInput();
+		DBG_MESSAGE("SDL_StartTextInput", "");
 	}
 }
 
@@ -1000,6 +999,9 @@ void dr_stop_textinput()
 {
 	if(  env_t::hide_keyboard  ) {
 	    SDL_StopTextInput();
+		DBG_MESSAGE("SDL_StoptTextInput", "");
+	}
+	else {
 		SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 	}
 }

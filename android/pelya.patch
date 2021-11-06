@@ -6,7 +6,7 @@ index 18ba7761d..04c640b56 100755
  echo USE_SOFTPOINTER=1 >> config.$1.txt
  echo USE_FREETYPE=1 >> config.$1.txt
  echo USE_FLUIDSYNTH_MIDI=1 >> config.$1.txt
-+echo WITH_REVISION=1 >> config.$1.txt
++echo WITH_REVISION=1 >> config.$1.txt; echo MSG_LEVEL=3 >> config.$1.txt; echo DEBUG=1 >> config.$1.txt
  
  cmake -E copy_if_different config.$1.txt config.$1
 -

@@ -63,6 +63,8 @@
 // Maximum number of threads
 #define MAX_THREADS (12)
 
+// Use own routines for downloading paks and installing (requires libzip and libcurl)
+//#define USE_OWN_PAKINSTALL
 
 /*********************** Useful things for debugging ... ********************/
 

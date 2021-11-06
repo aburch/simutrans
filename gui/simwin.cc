@@ -2076,3 +2076,131 @@ void win_set_static_tooltip(const char *text)
 {
 	static_tooltip_text = text ? text : "";
 }
+
+
+// shows a modal dialoge
+void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)())
+{
+	if (display_get_width() == 0) {
+		dbg->error("modal_dialogue", "called without a display driver => nothing will be shown!");
+		env_t::quit_simutrans = true;
+		// cannot handle this!
+		return;
+	}
+
+	// switch off autosave
+	sint32 old_autosave = env_t::autosave;
+	env_t::autosave = 0;
+
+	event_t ev;
+	scr_coord_val x = (display_get_width() - gui->get_windowsize().w) / 2;
+	scr_coord_val y = (display_get_height() - gui->get_windowsize().h) / 2;
+	win_clamp_xywh_position(x, y, gui->get_windowsize(), true);
+	create_win(x, y, gui, w_info, magic);
+
+	if (welt) {
+		welt->set_pause(false);
+		welt->reset_interaction();
+		welt->reset_timer();
+
+		const uint32 ms_per_frame = 1000 / env_t::fps;
+		uint32 last_step = dr_time();
+		uint step_count = 5;
+
+		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
+			do {
+				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
+				win_poll_event(&ev);
+
+				x = ev.mx;
+				y = ev.my;
+				win_clamp_xywh_position(x, y, scr_size(1, 1), false);
+				ev.mx = x;
+				ev.my = y;
+
+				x = ev.cx;
+				y = ev.cy;
+				win_clamp_xywh_position(x, y, scr_size(1, 1), false);
+				ev.cx = x;
+				ev.cy = y;
+
+				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEY_F1) {
+					if (gui_frame_t* win = win_get_top()) {
+						if (const char* helpfile = win->get_help_filename()) {
+							help_frame_t::open_help_on(helpfile);
+							continue;
+						}
+					}
+				}
+				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
+				check_pos_win(&ev);
+				if (ev.ev_class == EVENT_SYSTEM && ev.ev_code == SYSTEM_QUIT) {
+					env_t::quit_simutrans = true;
+					break;
+				}
+				dr_sleep(5);
+			} while (dr_time() - last_step < ms_per_frame);
+
+			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
+			welt->sync_step(ms_per_frame, true, true);
+
+			if (step_count-- == 0) {
+				DBG_DEBUG4("modal_dialogue", "calling welt->step");
+				intr_set_last_time(last_step); // do not call sync_step twice unless step takes too long
+				welt->step();
+				step_count = 5;
+			}
+			last_step += ms_per_frame;
+		}
+	}
+	else {
+		display_show_pointer(true);
+		display_show_load_pointer(0);
+		display_fillbox_wh_rgb(0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true);
+		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
+			// do not move, do not close it!
+			dr_sleep(50);
+			// check for events again after waiting
+			if (quit()) {
+				break;
+			}
+			dr_prepare_flush();
+			gui->draw(win_get_pos(gui), gui->get_windowsize());
+			dr_flush();
+
+			display_poll_event(&ev);
+			if (ev.ev_class == EVENT_SYSTEM) {
+				if (ev.ev_code == SYSTEM_RESIZE) {
+					// main window resized
+					simgraph_resize(ev.new_window_size);
+					dr_prepare_flush();
+					display_fillbox_wh_rgb(0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true);
+					gui->draw(win_get_pos(gui), gui->get_windowsize());
+					dr_flush();
+				}
+				else if (ev.ev_code == SYSTEM_QUIT) {
+					env_t::quit_simutrans = true;
+					break;
+				}
+			}
+			else {
+				// other events
+				check_pos_win(&ev);
+			}
+		}
+		display_show_load_pointer(1);
+		dr_prepare_flush();
+		display_fillbox_wh_rgb(0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true);
+		dr_flush();
+	}
+
+	// just trigger not another following window => wait for button release
+	if (IS_LEFTCLICK(&ev)) {
+		do {
+			display_poll_event(&ev);
+		} while (!IS_LEFTRELEASE(&ev));
+	}
+
+	// restore autosave
+	env_t::autosave = old_autosave;
+}

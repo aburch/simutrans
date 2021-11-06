@@ -47,6 +47,9 @@
 #	if !defined __AMIGA__ && !defined __BEOS__
 #		include <unistd.h>
 #	endif
+#	ifdef __ANDROID__
+#		include <SDL2/SDL.h>
+#	endif
 #endif
 
 #ifdef MULTI_THREAD
@@ -389,6 +392,8 @@ char const *dr_query_homedir()
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans", userDir.Path());
+#elif defined __ANDROID__
+	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
 #else
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
