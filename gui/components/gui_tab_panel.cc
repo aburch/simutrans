@@ -255,7 +255,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	if(my>=0  &&  my < required_size.h-1) {
 		// Reiter getroffen?
 		int mx = get_mouse_x()-parent_pos.x-pos.x;
-		int text_x = xpos+D_H_SPACE;
+		int text_x = D_H_SPACE;
 		int i=0;
 		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
 			if(  i>=offset_tab  ) {
