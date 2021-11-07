@@ -960,25 +960,32 @@ void ai_passenger_t::step()
 			int count = staedte.get_count();
 			int offset = (count>1) ? simrand(count-1) : 0;
 			// start with previous target
-			const stadt_t* last_start_stadt=start_stadt;
+			const stadt_t* last_start_stadt = start_stadt;
 			start_stadt = end_stadt;
 			end_stadt = NULL;
 			end_attraction = NULL;
 			ziel = NULL;
 			platz2 = koord::invalid;
+
 			// if no previous town => find one
 			if(start_stadt==NULL) {
+				if (staedte.empty()) {
+					return;
+				}
+
 				// larger start town preferred
 				start_stadt = pick_any_weighted(staedte);
 				offset = staedte.index_of(start_stadt);
 			}
+
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using city %s for start",start_stadt->get_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
 			// find starting place
 
-if(!start_halt.is_bound()) {
-	DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","new_hub");
-}
+			if(!start_halt.is_bound()) {
+				DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","new_hub");
+			}
+
 			platz1 = start_halt.is_bound() ? start_halt->get_basis_pos() : find_place_for_hub( start_stadt );
 			if(platz1==koord::invalid) {
 				return;
