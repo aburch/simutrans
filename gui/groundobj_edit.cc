@@ -30,12 +30,13 @@
 // new tool definition
 tool_plant_groundobj_t groundobj_edit_frame_t::groundobj_tool;
 cbuffer_t groundobj_edit_frame_t::param_str;
+bool groundobj_edit_frame_t::sortreverse = false;
 
 
 static bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
-	return diff < 0;
+	return groundobj_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_groundobj_desc_name(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
@@ -43,7 +44,7 @@ static bool compare_groundobj_desc_name(const groundobj_desc_t* a, const groundo
 	if(diff ==0) {
 		diff = strcmp( a->get_name(), b->get_name() );
 	}
-	return diff < 0;
+	return groundobj_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_groundobj_desc_cost(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
@@ -51,7 +52,7 @@ static bool compare_groundobj_desc_cost(const groundobj_desc_t* a, const groundo
 	if(diff ==0) {
 		diff = strcmp( a->get_name(), b->get_name() );
 	}
-	return diff < 0;
+	return groundobj_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 
 
@@ -85,6 +86,7 @@ void groundobj_edit_frame_t::fill_list()
 {
 	groundobj_list.clear();
 	const uint8 sortedby = get_sortedby();
+	sortreverse = sort_order.pressed;
 	FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_t::get_all_desc()) {
 		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
 			switch(sortedby) {

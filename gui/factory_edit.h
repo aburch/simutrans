@@ -46,6 +46,8 @@ private:
 public:
 	factory_edit_frame_t(player_t* player);
 
+	static bool sortreverse;
+
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name

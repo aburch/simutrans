@@ -168,9 +168,14 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_filter.end_table();
 
 	// Sorting box
-	gui_aligned_container_t *tbl_sorting = cont_filter.add_table(2,0);
+	gui_aligned_container_t *tbl_sorting = cont_filter.add_table(3,0);
 	tbl_sorting->new_component<gui_label_t>("Sort by");
 	tbl_sorting->add_component(&cb_sortedby);
+	sort_order.init(button_t::sortarrow_state, "");
+	sort_order.set_tooltip(translator::translate("hl_btn_sort_order"));
+	sort_order.add_listener(this);
+	sort_order.pressed = false;
+	tbl_sorting->add_component(&sort_order);
 	cb_sortedby.add_listener(this);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_NAME_TRANSLATED);
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_NAME_OBJECT);
@@ -244,6 +249,10 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 		change_item_info(scl.get_selection());
 	}
 	else if(  comp==&cb_sortedby  ) {
+		fill_list();
+	}
+	else if(  comp == &sort_order  ) {
+		sort_order.pressed = !sort_order.pressed;
 		fill_list();
 	}
 

@@ -38,6 +38,8 @@ private:
 public:
 	baum_edit_frame_t(player_t* player_);
 
+	static bool sortreverse;
+
 	/**
 	* in top-level windows the name is displayed in titlebar
 	* @return the non-translated component name

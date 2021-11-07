@@ -29,12 +29,13 @@
 // new tool definition
 tool_plant_tree_t baum_edit_frame_t::baum_tool;
 cbuffer_t baum_edit_frame_t::param_str;
+bool baum_edit_frame_t::sortreverse = false;
 
 
 static bool compare_tree_desc(const tree_desc_t* a, const tree_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
-	return diff < 0;
+	return baum_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_tree_desc_name(const tree_desc_t* a, const tree_desc_t* b)
 {
@@ -42,7 +43,7 @@ static bool compare_tree_desc_name(const tree_desc_t* a, const tree_desc_t* b)
 	if(diff ==0) {
 		diff = strcmp( a->get_name(), b->get_name() );
 	}
-	return diff < 0;
+	return baum_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 
 
@@ -81,6 +82,7 @@ void baum_edit_frame_t::fill_list()
 {
 	tree_list.clear();
 	const bool is_sortedbyname = get_sortedby()==gui_sorting_item_t::BY_NAME_TRANSLATED;
+	sortreverse = sort_order.pressed;
 	FOR(vector_tpl<tree_desc_t const*>, const i, tree_builder_t::get_all_desc()) {
 		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
 			tree_list.insert_ordered(i, is_sortedbyname ? compare_tree_desc_name : compare_tree_desc);

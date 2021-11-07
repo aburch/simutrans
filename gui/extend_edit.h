@@ -125,7 +125,7 @@ protected:
 	//image
 	gui_building_t building_image;
 
-	button_t bt_obsolete, bt_timeline, bt_climates, bt_timeline_custom;
+	button_t bt_obsolete, bt_timeline, bt_climates, bt_timeline_custom, sort_order;
 
 	// we make this available for child classes
 	gui_combobox_t cb_rotation, cb_climates, cb_sortedby;

@@ -29,11 +29,13 @@ tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_
 tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
 tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
 cbuffer_t factory_edit_frame_t::param_str;
+bool factory_edit_frame_t::sortreverse = false;
+
 
 static bool compare_factory_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_name(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -41,7 +43,7 @@ static bool compare_factory_desc_name(const factory_desc_t* a, const factory_des
 	if(  diff==0  ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -50,7 +52,7 @@ static bool compare_factory_desc_level_pax(const factory_desc_t* a, const factor
 	if ( diff == 0 ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_level_mail(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -59,7 +61,7 @@ static bool compare_factory_desc_level_mail(const factory_desc_t* a, const facto
 	if ( diff == 0 ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_date_intro(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -67,7 +69,7 @@ static bool compare_factory_desc_date_intro(const factory_desc_t* a, const facto
 	if ( diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_date_retire(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -75,7 +77,7 @@ static bool compare_factory_desc_date_retire(const factory_desc_t* a, const fact
 	if ( diff == 0) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_size(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -89,7 +91,7 @@ static bool compare_factory_desc_size(const factory_desc_t* a, const factory_des
 	if(  diff==0  ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 static bool compare_factory_desc_goods_number(const factory_desc_t* a, const factory_desc_t* b)
 {
@@ -101,7 +103,7 @@ static bool compare_factory_desc_goods_number(const factory_desc_t* a, const fac
 	if(  diff==0  ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return factory_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
 
 
@@ -161,6 +163,7 @@ void factory_edit_frame_t::fill_list()
 	const bool land_chain = bt_land_chain.pressed;
 	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : bt_timeline_custom.pressed ? ni_timeline_year.get_value()*12 + ni_timeline_month.get_value()-1 : 0;
 	const uint8 sortedby = get_sortedby();
+	sortreverse = sort_order.pressed;
 
 	factory_list.clear();
 
