@@ -373,7 +373,7 @@ static special_obj_tpl<ground_desc_t> const grounds[] = {
 // the water and seven climates
 static const char* const climate_names[MAX_CLIMATES] =
 {
-	"Water", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
+	"sea", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
 };
 
 // from this number on there will be all ground images

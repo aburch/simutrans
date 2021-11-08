@@ -50,10 +50,9 @@ scr_size gui_textarea_t::calc_size() const
 {
 	const char *text(*buf);
 
-	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, color_idx_to_rgb(COL_BLACK));
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
-	int x_size = 1;
+	scr_coord_val x_size = 0;
 
 	if (  (text != NULL)  &&  (*text != '\0')  ) {
 		const char *buf=text;
@@ -61,17 +60,20 @@ scr_size gui_textarea_t::calc_size() const
 
 		do {
 			next = strchr(buf, '\n');
-			const size_t len = next ? next-buf : 0;
+			const size_t len = next ? next-buf : 99999;
 			const int px_len = display_calc_proportional_string_len_width(buf, len);
 
-			if(px_len>x_size) {
+			if(  px_len > x_size  ) {
 				x_size = px_len;
 			}
 
 			new_lines += LINESPACE;
 		} while(  next != NULL  &&  ((void)(buf = next+1), *buf!=0)  );
 	}
-	return scr_size( x_size + L_PADDING_RIGHT, new_lines );
+	if (x_size > 0) {
+		x_size += L_PADDING_RIGHT;
+	}
+	return scr_size( x_size, new_lines );
 }
 
 

@@ -40,7 +40,7 @@ public:
 	ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const OVERRIDE  { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::none; }
 
 	/// @copydoc grund_t::get_name
-	const char *get_name() const OVERRIDE { return "Water"; }
+	const char* get_name() const OVERRIDE;
 
 	/// @copydoc grund_t::get_typ
 	grund_t::typ get_typ() const OVERRIDE { return wasser; }

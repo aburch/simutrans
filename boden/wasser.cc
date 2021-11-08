@@ -150,3 +150,9 @@ void wasser_t::rotate90()
 	canal_ribi = ribi_t::rotate90(canal_ribi);
 	display_ribi = ribi_t::rotate90(display_ribi);
 }
+
+
+const char* wasser_t::get_name() const
+{
+	return pos.z > welt->get_groundwater() ? "Lake" : "Sea";
+}

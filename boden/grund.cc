@@ -591,7 +591,7 @@ void grund_t::info(cbuffer_t& buf) const
 	if(!is_water()) {
 		if(flags&has_way1) {
 			// bridges / tunnels only carry dummy ways
-			if(!ist_tunnel()  &&  !ist_bruecke()) {
+			if(ist_tunnel()  ||  ist_bruecke()) {
 				buf.append(translator::translate(get_weg_nr(0)->get_name()));
 				buf.append("\n");
 			}
@@ -625,9 +625,8 @@ void grund_t::info(cbuffer_t& buf) const
 				}
 			}
 		}
+		buf.append(translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d()))));
 	}
-
-	buf.printf("%s\n%s", get_name(), translator::translate( ground_desc_t::get_climate_name_from_bit( welt->get_climate( get_pos().get_2d() ) ) ) );
 #if MSG_LEVEL >= 4
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
