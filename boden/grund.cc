@@ -610,9 +610,8 @@ void grund_t::info(cbuffer_t& buf) const
 			}
 			if (maker) {
 				buf.printf(translator::translate("Constructed by %s"), maker);
-				buf.append("\n");
+				buf.append("\n\n");
 			}
-			buf.append("\n");
 			// second way
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));

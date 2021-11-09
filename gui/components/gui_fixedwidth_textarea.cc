@@ -12,7 +12,8 @@
 
 
 
-gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width)
+gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(cbuffer_t* buf_, const sint16 width) :
+	reserved_area(0, 0)
 {
 	buf = buf_;
 	set_width(width);
@@ -52,13 +53,6 @@ void gui_fixedwidth_textarea_t::set_reserved_area(const scr_size area)
 
 
 
-void gui_fixedwidth_textarea_t::set_size(scr_size size)
-{
-	gui_component_t::set_size(size);
-	// height is ignored, we set it to be able to debug
-}
-
-
 scr_size gui_fixedwidth_textarea_t::get_min_size() const
 {
 	scr_size size = calc_display_text(scr_coord(0,0), false);
@@ -80,7 +74,7 @@ scr_size gui_fixedwidth_textarea_t::get_max_size() const
  */
 scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw) const
 {
-	scr_coord_val x=0, word_x=0, y = 0;
+	scr_coord_val x=0, word_x=0, y = 0, new_width=get_size().w;
 
 	const char* text(*buf);
 	const utf8 *p = (const utf8 *)text;
@@ -88,11 +82,40 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 	const utf8 *word_start = p;
 	const utf8 *line_end  = p;
 
+	// pass 1 (and not drawing): find out if we can shrink width
+	if(*text  &&  !draw  &&   reserved_area.w > 0   ) {
+		scr_coord_val new_lines = 0;
+		scr_coord_val x_size = 0;
+
+		if ((text != NULL) && (*text != '\0')) {
+			const char* buf = text;
+			const char* next;
+
+			do {
+				next = strchr(buf, '\n');
+				const size_t len = next ? next - buf : 99999;
+				// we are in the image area
+				const int px_len = display_calc_proportional_string_len_width(buf, len) + reserved_area.w;
+
+				if (px_len > x_size) {
+					x_size = px_len;
+				}
+
+				new_lines += LINESPACE;
+			} while (new_lines<reserved_area.h  &&  next != NULL && ((void)(buf = next + 1), *buf != 0));
+		}
+		if (x_size < new_width) {
+			new_width = x_size;
+		}
+	}
+
+	// pass 2: height caluclation and drawing (if requested)
+
 	// also in unicode *c==0 is end
 	while(  *p!= UNICODE_NUL  ||  p!=line_end  ) {
 
 		// force at end of text or newline
-		const scr_coord_val max_width = ( y<reserved_area.h ) ? get_size().w-reserved_area.w : get_size().w;
+		const scr_coord_val max_width = ( y < reserved_area.h ) ? new_width-reserved_area.w : new_width;
 
 		// smaller than the allowed width?
 		do {
@@ -123,7 +146,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 				x += ch_width;
 				word_x += ch_width;
 			}
-		} while(  x<max_width  );
+		} while(  x<=max_width  );
 
 		// spaces at the end can be omitted
 		line_end = word_start;
@@ -148,7 +171,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 	}
 
 	// reset component height where necessary
-	return scr_size(get_size().w, y);
+	return scr_size(new_width, y);
 }
 
 

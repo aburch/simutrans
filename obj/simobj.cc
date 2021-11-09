@@ -134,7 +134,7 @@ void obj_t::info(cbuffer_t & buf) const
 	char              translation[256];
 	char const* const owner =
 		owner_n == 1              ? translator::translate("Eigenbesitz\n")   :
-		owner_n == PLAYER_UNOWNED ? translator::translate("Kein Besitzer\n") :
+		owner_n == PLAYER_UNOWNED ? "" : // was translator::translate("Kein Besitzer\n") :
 		get_owner()->get_name();
 	tstrncpy(translation, owner, lengthof(translation));
 	// remove trailing linebreaks etc.
