@@ -418,10 +418,11 @@ bool font_t::load_from_file(const char *srcfilename)
 	}
 #endif
 
+#if MSG_LEVEL>=4
 	if(  ok  ) {
 		print_debug();
 	}
-
+#endif
 	return ok;
 }
 

@@ -400,8 +400,9 @@ char const *dr_query_homedir()
 
 	// create directory and subdirectories
 	dr_mkdir(buffer);
+#ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
-
+#endif
 	return buffer;
 }
 

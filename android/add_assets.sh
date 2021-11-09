@@ -23,8 +23,9 @@ download_with_retry() {
   fi
 }
 
-[ -e ../simutrans/pak ] || (download_with_retry https://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip simupak64-122-0.zip && unzip -n simupak64-122-0.zip -d ..) || exit 1
-[ -e ../simutrans/pak64.german ] || (download_with_retry http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip pak64.german_0-122-0-0-2_full.zip && unzip -n pak64.german_0-122-0-0-2_full.zip -d ..) || exit 1
+[ -e ../simutrans/pak ] || (download_with_retry http://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip simupak64-122-0.zip && unzip -n simupak64-122-0.zip -d ..) || exit 1
+[ -e ../simutrans/pak ] || (download_with_retry http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip simupak64.japan-120-0-1.zip && unzip -n simupak64.japan-120-0-1.zip -d ..) || exit 1
+#[ -e ../simutrans/pak64.german ] || (download_with_retry http://simutrans-germany.com/pak.german/pak64.german_0-122-0-0-2_full.zip pak64.german_0-122-0-0-2_full.zip && unzip -n pak64.german_0-122-0-0-2_full.zip -d ..) || exit 1
 [ -e ../simutrans/music/TimGM6mb.sf2 ] || (download_with_retry https://sourceforge.net/p/mscore/code/HEAD/tree/trunk/mscore/share/sound/TimGM6mb.sf2?format=raw TimGM6mb.sf2 && cp ./TimGM6mb.sf2 ../simutrans/music/TimGM6mb.sf2) || exit 1
 [ -e ../simutrans/font/RobotoCondensed-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto%20Condensed Roboto_Condensed.zip && unzip -n Roboto_Condensed.zip -d ../simutrans/font) || exit 1
 [ -e ../simutrans/font/Roboto-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto Roboto.zip && unzip -n Roboto.zip -d ../simutrans/font) || exit 1

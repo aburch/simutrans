@@ -6941,7 +6941,66 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 void karte_t::stop(bool exit_game)
 {
 	finish_loop = true;
-	env_t::quit_simutrans = exit_game;
+	if (exit_game) {
+		env_t::quit_simutrans = true;
+
+		DBG_DEBUG("ev=SYSTEM_QUIT", "env_t::reload_and_save_on_quit=%d", env_t::reload_and_save_on_quit);
+
+		// we may be requested to save the game before exit
+		if (env_t::server && env_t::server_save_game_on_quit) {
+
+			// to ensure only one attempt is made
+			env_t::server_save_game_on_quit = false;
+
+			// following code quite similar to nwc_sync_t::do_coomand
+			dr_chdir(env_t::user_dir);
+
+			// first save password hashes
+			char fn[256];
+			sprintf(fn, "server%d-pwdhash.sve", env_t::server);
+			loadsave_t file;
+			if (file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK) {
+				world->rdwr_player_password_hashes(&file);
+				file.close();
+			}
+
+			// remove passwords before transfer on the server and set default client mask
+			// they will be restored in karte_t::laden
+			uint16 unlocked_players = 0;
+			for (int i = 0; i < PLAYER_UNOWNED; i++) {
+				player_t* player = world->get_player(i);
+				if (player == NULL || player->access_password_hash().empty()) {
+					unlocked_players |= (1 << i);
+				}
+				else {
+					player->access_password_hash().clear();
+				}
+			}
+
+			// save game
+			sprintf(fn, "server%d-restore.sve", env_t::server);
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+			world->save(fn, false, SAVEGAME_VER_NR, false);
+			env_t::restore_UI = old_restore_UI;
+		}
+		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
+			// save current game, if not online
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+
+			// construct from pak name an autosave if requested
+			std::string pak_name("autosave-");
+			pak_name.append(env_t::objfilename);
+			pak_name.erase(pak_name.length() - 1);
+			pak_name.append(".sve");
+
+			dr_chdir(env_t::user_dir);
+			world->save(pak_name.c_str(), true, SAVEGAME_VER_NR, false);
+			env_t::restore_UI = old_restore_UI;
+		}
+		destroy_all_win(true);
+	}
 }
 
 

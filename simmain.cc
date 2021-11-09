@@ -249,6 +249,7 @@ static bool wait_for_key()
  */
 static void install_objfilename()
 {
+	DBG_DEBUG("", "env_t::reload_and_save_on_quit=%d", env_t::reload_and_save_on_quit);
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
 	dr_download_pakset( env_t::data_dir, env_t::data_dir == env_t::user_dir );  // windows
 #else
@@ -882,7 +883,11 @@ int simu_main(int argc, char** argv)
 	if(  !themes_ok  ) {
 		dr_chdir( env_t::data_dir );
 		dr_chdir( "themes" );
+#ifndef __ANDROID__
 		themes_ok = gui_theme_t::themes_init("themes.tab",true,false);
+#else
+		themes_ok = gui_theme_t::themes_init("theme-large.tab", true, false);
+#endif
 	}
 	if(  !themes_ok  ) {
 		dbg->fatal( "simu_main()", "No GUI themes found! Please re-install!" );

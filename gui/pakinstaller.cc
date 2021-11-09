@@ -11,6 +11,7 @@
 #include "../sys/simsys.h"
 
 #include "../paksetinfo.h"
+#include "../simloadingscreen.h"
 
 bool pakinstaller_t::finish_install;
 
@@ -53,6 +54,9 @@ pakinstaller_t::pakinstaller_t() :
 	set_windowsize(get_min_windowsize()+scr_size(0,paks_h-paks.get_size().h + obsolete_paks_h- obsolete_paks.get_size().h));
 }
 
+#ifdef __ANDROID__
+//#define USE_OWN_PAKINSTALL
+#endif
 
 /**
  * This method is called if an action is triggered
@@ -67,8 +71,11 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 
 	// now install
 	dr_chdir( env_t::data_dir );
+	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+ obsolete_paks.get_selections(), true, false);
+	int j = 0;
 	FOR(vector_tpl<sint32>, i, paks.get_selections()) {
 		cbuffer_t param;
+		ls.set_info(pakinfo[i * 2 + 1]);
 #ifdef _WIN32
 		param.append( "powershell -ExecutionPolicy ByPass -NoExit .\\get_pak.ps1 \"" );
 #else
@@ -83,10 +90,12 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 
 		const int retval = system( param );
 		DBG_DEBUG("pakinstaller_t::action_triggered", "Command '%s' returned %d", param.get_str(), retval);
+		ls.set_progress(++j);
 	}
 
 	FOR(vector_tpl<sint32>, i, obsolete_paks.get_selections()) {
 		cbuffer_t param;
+		ls.set_info(pakinfo[i * 2 + 21]);
 #ifdef _WIN32
 		param.append("powershell -ExecutionPolicy ByPass .\\get_pak.ps1 \"");
 #else
@@ -97,6 +106,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 
 		const int retval = system( param );
 		DBG_DEBUG("pakinstaller_t::action_triggered", "Command '%s' returned %d", param.get_str(), retval);
+		ls.set_progress(++j);
 	}
 
 	finish_install = true;
@@ -246,10 +256,14 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 		DBG_DEBUG(__FUNCTION__, "libcurl initialized");
 
 		char outfilename[FILENAME_MAX];
+		loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
+		int j = 0;
 		FOR(vector_tpl<sint32>, i, paks.get_selections()) {
+			ls.set_info(pakinfo[i * 2 + 1]);
 			sprintf(outfilename, "%s.zip", pakinfo[i*2 + 1]);
 
 			CURLcode res = curl_download_file(curl, outfilename, pakinfo[i*2]);
+			ls.set_progress(++j);
 			DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i*2]);
 
 			if (res == 0) {
@@ -259,6 +273,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 			else {
 				DBG_DEBUG(__FUNCTION__, "download failed with error code %s, check curl errors; skipping", curl_easy_strerror(res));
 			}
+			ls.set_progress(++j);
 		}
 		curl_easy_cleanup(curl);
 	}
