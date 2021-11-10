@@ -71,7 +71,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 
 	// now install
 	dr_chdir( env_t::data_dir );
-	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+ obsolete_paks.get_selections(), true, false);
+	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+obsolete_paks.get_selections().get_count(), true, false);
 	int j = 0;
 	FOR(vector_tpl<sint32>, i, paks.get_selections()) {
 		cbuffer_t param;
