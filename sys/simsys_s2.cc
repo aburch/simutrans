@@ -137,6 +137,9 @@ sint32 y_scale = SCALE_NEUTRAL_Y;
 #define TARGET_DPI (96)
 #endif
 
+// make sure we have at least so much pixel in y-direction
+#define MIN_SCALE_HEIGHT (640)
+
 // screen -> texture coords
 #define SCREEN_TO_TEX_X(x) (((x) * SCALE_NEUTRAL_X) / x_scale)
 #define SCREEN_TO_TEX_Y(y) (((y) * SCALE_NEUTRAL_Y) / y_scale)
@@ -156,13 +159,27 @@ bool dr_auto_scale(bool on_off )
 	if(  on_off  ) {
 		float hdpi, vdpi;
 		SDL_Init( SDL_INIT_VIDEO );
-		if(  SDL_GetDisplayDPI( 0, NULL, &hdpi, &vdpi )==0  ) {
+		SDL_DisplayMode mode;
+		SDL_GetCurrentDisplayMode(0, &mode);
+		DBG_MESSAGE("dr_auto_scale", "screen resolution width=%d, height=%d", mode.w, mode.h);
+		// auto scale only for high enough screens
+
+		if(  mode.h > 1.5*MIN_SCALE_HEIGHT  &&  SDL_GetDisplayDPI( 0, NULL, &hdpi, &vdpi )==0  ) {
+
 			x_scale = ((sint64)hdpi * SCALE_NEUTRAL_X + 1) / TARGET_DPI;
 			y_scale = ((sint64)vdpi * SCALE_NEUTRAL_Y + 1) / TARGET_DPI;
 			DBG_MESSAGE("auto_dpi_scaling","x=%i, y=%i", x_scale, y_scale);
-			return true;
 		}
-		return false;
+
+		sint32 current_y = SCREEN_TO_TEX_Y(mode.h);
+		if (current_y < MIN_SCALE_HEIGHT) {
+			DBG_MESSAGE("dr_auto_scale", "virtual height=%d < %d", current_y, MIN_SCALE_HEIGHT);
+			x_scale = (x_scale * current_y) / MIN_SCALE_HEIGHT;
+			y_scale = (y_scale * current_y) / MIN_SCALE_HEIGHT;
+			DBG_MESSAGE("new scaling", "x=%i, y=%i", x_scale, y_scale);
+		}
+
+		return x_scale==SCALE_NEUTRAL_X  &&  y_scale==SCALE_NEUTRAL_Y;
 	}
 	else
 #else
