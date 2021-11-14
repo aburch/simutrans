@@ -14,9 +14,9 @@
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t("", NULL),
 	gr(gr_),
+	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&buf),
-	textarea2(&buf),
-	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	textarea2(&buf)
 {
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
