@@ -1682,7 +1682,7 @@ void win_poll_event(event_t* const ev)
 		}
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
-		ev->ev_class = EVENT_NONE;
+		ev->ev_class = IGNORE_EVENT;
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
@@ -1700,7 +1700,7 @@ void win_poll_event(event_t* const ev)
 			}
 		}
 		wl->set_dirty();
-		ev->ev_class = EVENT_NONE;
+		ev->ev_class = IGNORE_EVENT;
 		ticker::redraw();
 	}
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_THEME_CHANGED  ) {
@@ -1709,7 +1709,7 @@ void win_poll_event(event_t* const ev)
 		FOR(vector_tpl<simwin_t>, const& i, wins) {
 			i.gui->infowin_event(ev);
 		}
-		ev->ev_class = EVENT_NONE;
+		ev->ev_class = IGNORE_EVENT;
 		ticker::redraw();
 	}
 }

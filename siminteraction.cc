@@ -342,12 +342,12 @@ bool interaction_t::process_event( event_t &ev )
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		catch_dragging();
 		move_view(ev);
-		ev.ev_code = EVENT_NONE;
+		ev.ev_code = IGNORE_EVENT;
 	}
 
 	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
 		// show the mouse and swallow this event if we were dragging before
-		ev.ev_code = EVENT_NONE;
+		ev.ev_code = IGNORE_EVENT;
 		display_show_pointer(true);
 		left_drag = false;
 	}
