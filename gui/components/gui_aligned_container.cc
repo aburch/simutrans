@@ -186,7 +186,7 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 				delta.x      = -c_pos.x;
 				comp_size.w +=  c_pos.x;
 			}
-			if (columns  &&  (c % columns) == 0) {
+			if (columns  &&  ((c+1) % columns) == 0) {
 				// last element in column
 				comp_size.w = new_size.w - (c_pos.x + delta.x);
 			}
