@@ -3048,51 +3048,38 @@ station_tile_search_ready: ;
 	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
 
+	assert(time > 0  ||  !wants_more);
+	// time == 0 => wants_more == false, can only happen if all vehicles in station have no transport capacity (i.e., locomotives)
 	wait_lock = time;
 
-	// if we check here we will continue loading even if the departure is delayed
-	if (wants_more  &&  !welt->get_settings().get_departures_on_time()) {
-		// not yet fully unloaded/loaded
-		if( time == 0 ) {
-			wait_lock = WTT_LOADING;
+	// check if departure time is reached
+	bool departure_time_reached = false;
+	if (welt->get_settings().get_departures_on_time()  &&  schedule->get_current_entry().get_absolute_departures()) {
+
+		sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
+		if(  ticks_until_departure <= 0  ) {
+			departure_time_reached = true;
+			wants_more = false;
 		}
-		return;
-	}
-
-	// find out if there is a times departure pending => depart
-	if(  schedule->get_current_entry().get_absolute_departures()  ) {
-
-		uint32 dt = get_departure_ticks();
-		uint32 ct = welt->get_ticks();
-		if(  ct > dt ) {
-
-			// add available capacity after loading(!) to statistics
-			for (unsigned i = 0; i < anz_vehikel; i++) {
-				book(get_vehikel(i)->get_cargo_max() - get_vehikel(i)->get_total_cargo(), CONVOI_CAPACITY);
+		else {
+			// else continue loading (even if full) until departure time reached
+			if (wait_lock==0) {
+				// no loading time imposed, make sure we do not wait too long if the departure is imminent
+				wait_lock = min( WTT_LOADING, ticks_until_departure );
 			}
-
-			// Advance schedule
-			schedule->advance();
-			state = ROUTING_1;
-			loading_limit = 0;
-			wait_lock = 0;
+			wants_more = true;
 		}
-		else if(wait_lock==0) {
-			// no loading time imposed, make sure we do not wait too long if the departure is imminent
-			wait_lock = min( WTT_LOADING, dt-ct );
-		}
-
-		// else continue loading (even if full until departure time reached)
-		return;
 	}
 
-	if (wants_more) {
-		// not yet fully unloaded/loaded => continue loading
+	// continue loading
+	if (wants_more  &&  !no_load) {
+		//  there might be still cargo available (or cnv has to wait until departure)
 		return;
 	}
 
 	// loading is finished => maybe drive on
 	if(  loading_level >= loading_limit  ||  no_load
+		||  departure_time_reached
 		||  (schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks()  )  ) {
 
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
@@ -3115,7 +3102,6 @@ station_tile_search_ready: ;
 	}
 
 	INT_CHECK("convoi_t::hat_gehalten");
-
 }
 
 
