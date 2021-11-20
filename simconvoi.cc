@@ -510,6 +510,9 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	if(  state==LOADING  ) {
 		// the fully the shorter => register again as older convoi
 		wait_lock = 2000-loading_level*20;
+		if (distance_since_last_stop > 0) {
+			calc_gewinn();
+		}
 	}
 	// when saving with open window, this can happen
 	if(  state==EDIT_SCHEDULE  ) {
@@ -1623,6 +1626,8 @@ void convoi_t::ziel_erreicht()
 		halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
 		if(  halt.is_bound() &&  gr->get_weg_ribi(v->get_waytype())!=0  ) {
 			// seems to be a stop, so book the money for the trip
+			calc_gewinn();
+
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
@@ -2976,7 +2981,6 @@ station_tile_search_ready: ;
 	bool changed_loading_level = false;
 	unloading_state = true;
 	uint32 time = 0; // min time for loading/unloading
-	sint64 gewinn = 0;
 
 	uint32 current_tick = welt->get_ticks();
 	if (fahr[0]->last_stop_pos != fahr[0]->get_pos()  ||  last_load_tick==0) {
@@ -2992,15 +2996,6 @@ station_tile_search_ready: ;
 
 	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
-
-		// we need not to call this on the same position
-		if(  v->last_stop_pos != v->get_pos()  ) {
-			sint64 tmp;
-			// calc_revenue
-			gewinn += tmp = v->calc_revenue(v->last_stop_pos, v->get_pos() );
-			owner->book_revenue(tmp, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_cargo_type()->get_index());
-			v->last_stop_pos = v->get_pos();
-		}
 
 		// has no freight ...
 		if (fahr[i]->get_cargo_max() == 0) {
@@ -3052,23 +3047,6 @@ station_tile_search_ready: ;
 		unloading_state = false;
 	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
-
-	// update statistics of average speed
-	if(  distance_since_last_stop  ) {
-		financial_history[0][CONVOI_MAXSPEED] *= maxspeed_average_count;
-		financial_history[0][CONVOI_MAXSPEED] += get_speedbonus_kmh();
-		maxspeed_average_count ++;
-		financial_history[0][CONVOI_MAXSPEED] /= maxspeed_average_count;
-	}
-	distance_since_last_stop = 0;
-	sum_speed_limit = 0;
-
-	if(gewinn) {
-		jahresgewinn += gewinn;
-
-		book(gewinn, CONVOI_PROFIT);
-		book(gewinn, CONVOI_REVENUE);
-	}
 
 	wait_lock = time;
 
