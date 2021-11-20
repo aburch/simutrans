@@ -2891,11 +2891,9 @@ uint32 convoi_t::get_departure_ticks(uint32 ticks_at_arrival) const
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
-	grund_t *gr=welt->lookup(fahr[0]->get_pos());
-
 	// now find out station length
 	uint16 vehicles_loading = 0;
-	if(  gr->is_water()  ||  gr->hat_weg( water_wt )  ) {
+	if(fahr[0]->get_desc()->get_waytype() == water_wt) {
 		// harbour and river stop load any size
 		vehicles_loading = anz_vehikel;
 	}
@@ -2904,6 +2902,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// and numbers of vehicles that can be (un)loaded
 		koord zv = koord( ribi_t::backward(fahr[0]->get_direction()) );
 		koord3d pos = fahr[0]->get_pos();
+		grund_t *gr=welt->lookup(pos);
 		// start on bridge?
 		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
 		// difference between actual station length and vehicle lenghts
