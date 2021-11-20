@@ -766,7 +766,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 	last_ticks = cur_ticks;
 
 	// iterate over all convoys stopping here
-	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
+	FOR(  vector_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
 		if( !cnv.is_bound()  ||  cnv->get_state()!=convoi_t::LOADING  ) {
 			continue;
 		}

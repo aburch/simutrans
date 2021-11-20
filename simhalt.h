@@ -120,7 +120,7 @@ private:
 
 	static uint8 status_step; // NONE or SCHEDULING or REROUTING
 
-	slist_tpl<convoihandle_t> loading_here;
+	vector_tpl<convoihandle_t> loading_here;
 	sint32 last_loading_step;
 
 	koord init_pos; // for halt without grounds, created during game initialisation
@@ -135,7 +135,7 @@ public:
 	 * List of convois currently loading at this station.
 	 * May contain invalid handles!
 	 */
-	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
+	const vector_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
 
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
