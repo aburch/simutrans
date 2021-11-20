@@ -2815,14 +2815,11 @@ void convoi_t::laden()
 	// just wait a little longer if this is a non-bound halt
 	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 
+	// find station (ours or public)
 	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_entry().pos,owner);
-	// eigene haltestelle ?
 	if(  halt.is_bound()  ) {
-		const player_t* halt_owner = halt->get_owner();
-		if(  halt_owner == get_owner()  ||  halt_owner == welt->get_public_player()  ) {
-			// loading/unloading ...
-			halt->request_loading( self );
-		}
+		// queue for (un)loading, does (un)loading once per step
+		halt->request_loading( self );
 	}
 }
 
