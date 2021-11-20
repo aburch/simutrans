@@ -3054,12 +3054,13 @@ station_tile_search_ready: ;
 
 	// check if departure time is reached
 	bool departure_time_reached = false;
-	if (welt->get_settings().get_departures_on_time()  &&  schedule->get_current_entry().get_absolute_departures()) {
+	if (schedule->get_current_entry().get_absolute_departures()) {
 
 		sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
 		if(  ticks_until_departure <= 0  ) {
-			departure_time_reached = true;
-			wants_more = false;
+			// depart if forced due to welt->get_settings().get_departures_on_time()==true or nothing to load (wants_more==false)
+			departure_time_reached = welt->get_settings().get_departures_on_time()  ||  !wants_more;
+			wants_more = !departure_time_reached;
 		}
 		else {
 			// else continue loading (even if full) until departure time reached
@@ -3072,7 +3073,7 @@ station_tile_search_ready: ;
 	}
 
 	// continue loading
-	if (wants_more  &&  !no_load) {
+	if (wants_more) {
 		//  there might be still cargo available (or cnv has to wait until departure)
 		return;
 	}
