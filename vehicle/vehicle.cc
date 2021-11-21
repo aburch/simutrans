@@ -1136,15 +1136,26 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		tooltip_text[0] = 0;
 		uint8 state = env_t::show_vehicle_states;
 		if(  state==1  ||  state==2  ) {
+			// mouse over check
+			bool mo_this_convoy = false;
+			const koord3d mouse_pos = world()->get_zeiger()->get_pos();
+			if(  mouse_pos == get_pos()  ) {
+				mo_this_convoy = true;
+			}
+			else if(  grund_t* mo_gr = world()->lookup(mouse_pos)  ) {
+				if(  vehicle_t* mo_veh = (vehicle_t *)mo_gr->get_convoi_vehicle()  ) {
+					mo_this_convoy = mo_veh->get_convoi() == get_convoi();
+				}
+			}
 			// only show when mouse over vehicle
-			if(  welt->get_zeiger()->get_pos()==get_pos()  ) {
+			if(  mo_this_convoy  ) {
 				state = 3;
 			}
 			else {
 				state = 0;
 			}
 		}
-		if( state != 3 ) {
+		if(  state != 3  ) {
 			// nothing to show
 			return;
 		}
