@@ -101,9 +101,6 @@ private:
 
 	uint16 station_coverage_size;
 
-	// convois depart even if not unloaded if the time is up
-	bool departures_on_time;
-
 	// the maximum length of each convoi
 	uint8 max_rail_convoi_length;
 	uint8 max_road_convoi_length;
@@ -658,9 +655,6 @@ public:
 
 	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
 	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
-
-	bool get_departures_on_time() const { return departures_on_time; }
-	void set_departures_on_time(bool b) { departures_on_time = b; }
 
 	bool get_stop_halt_as_scheduled() const { return stop_halt_as_scheduled; }
 	void set_stop_halt_as_scheduled(bool b) { stop_halt_as_scheduled = b; }

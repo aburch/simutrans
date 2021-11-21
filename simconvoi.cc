@@ -3058,9 +3058,8 @@ station_tile_search_ready: ;
 
 		sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
 		if(  ticks_until_departure <= 0  ) {
-			// depart if forced due to welt->get_settings().get_departures_on_time()==true or nothing to load (wants_more==false)
-			departure_time_reached = welt->get_settings().get_departures_on_time()  ||  !wants_more;
-			wants_more = !departure_time_reached;
+			// depart if nothing to load (wants_more==false)
+			departure_time_reached = !wants_more;
 		}
 		else {
 			// else continue loading (even if full) until departure time reached
