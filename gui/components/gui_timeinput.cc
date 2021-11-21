@@ -22,16 +22,19 @@ gui_timeinput_t::gui_timeinput_t(const char *)
 
 	days.init(0, 0, max_days);
 	days.add_listener(this);
+	days.allow_tooltip(false);
 	add_component(&days);
 
 	hours.init(0, 0, 23);
 	hours.add_listener(this);
+	hours.allow_tooltip(false);
 	add_component(&hours);
 
 	new_component<gui_label_t>(":");
 
 	minutes.init(0, 0, 59);
 	minutes.add_listener(this);
+	minutes.allow_tooltip(false);
 	add_component(&minutes);
 
 	b_enabled = true;

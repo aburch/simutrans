@@ -36,6 +36,7 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
+	no_tooltip = false;
 	digits = 5;
 
 	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
@@ -228,12 +229,13 @@ sint32 gui_numberinput_t::get_prev_value()
 
 
 // all init in one ...
-void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap,  uint16 digits_ )
+void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap,  uint16 digits_, bool tooltip )
 {
 	set_limits( min, max );
 	set_value( value );
 	set_increment_mode( mode );
 	wrap_mode( wrap );
+	allow_tooltip(tooltip);
 	digits = digits_;
 }
 
@@ -345,7 +347,7 @@ void gui_numberinput_t::draw(scr_coord offset)
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.draw(new_offset);
 
-	if(getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )) {
+	if(!no_tooltip  &&  getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
 		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}

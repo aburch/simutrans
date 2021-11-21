@@ -55,9 +55,9 @@ private:
 
 	sint32 step_mode;
 
-
-	bool wrapping:1;
-	bool b_enabled:1;
+	bool wrapping : 1;
+	bool b_enabled : 1;
+	bool no_tooltip : 1;
 
 	// since only the last will prevail
 	static char tooltip[256];
@@ -68,7 +68,7 @@ public:
 	void set_size(scr_size size) OVERRIDE;
 
 	// all init in one ...
-	void init( sint32 value, sint32 min, sint32 max, sint32 mode = 1, bool wrap = true, uint16 digits = 5);
+	void init( sint32 value, sint32 min, sint32 max, sint32 mode = 1, bool wrap = true, uint16 digits = 5, bool tooltip=true);
 
 	/**
 	 * sets and get the current value.
@@ -122,6 +122,8 @@ public:
 			disable();
 		}
 	}
+
+	void allow_tooltip(bool b) { no_tooltip = !b; }
 
 	scr_size get_max_size() const OVERRIDE;
 
