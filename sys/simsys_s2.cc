@@ -614,6 +614,22 @@ static void internal_GetEvents()
 	static bool previous_mouse_down = false;
 	static double dLastDist = 0.0;
 
+	static bool has_queued_finger_release = false;
+	static sint32 last_mx, last_my; // last finger down pos
+
+	if (has_queued_finger_release) {
+		// we need to send a finger release, which was not done yet
+		has_queued_finger_release = false;
+		sys_event.type = SIM_MOUSE_BUTTONS;
+		sys_event.code = SIM_MOUSE_LEFTUP;
+		sys_event.mb = 0;
+		sys_event.mx = last_mx;
+		sys_event.my = last_my;
+		sys_event.key_mod = ModifierKeys();
+		DBG_MESSAGE("SDL_FINGERUP for queue", "SIM_MOUSE_LEFTUP at %i,%i", sys_event.mx, sys_event.my);
+		return;
+	}
+
 	SDL_Event event;
 	event.type = 1;
 	if (SDL_PollEvent(&event) == 0) {
@@ -744,30 +760,18 @@ static void internal_GetEvents()
 					if(!previous_multifinger_touch) {
 						if (dLastDist == 0.0) {
 							dLastDist = 1e-99;
-#if 1
 							// return a press event
 							sys_event.type = SIM_MOUSE_BUTTONS;
 							sys_event.code = SIM_MOUSE_LEFTBUTTON;
 							sys_event.mb = 1;
 							sys_event.key_mod = ModifierKeys();
-#endif
-							sys_event.mx = event.tfinger.x * display_get_width();
-							sys_event.my = event.tfinger.y * display_get_height();
+							last_mx = sys_event.mx = event.tfinger.x * display_get_width();
+							last_my = sys_event.my = event.tfinger.y * display_get_height();
 							// not yet moved -> set click origin or click will be at last position ...
 							set_click_xy(sys_event.mx, sys_event.my);
-#if 1
-							// and queue the relese event
-							event_t* nev = new event_t(EVENT_RELEASE);
-							nev->ev_code = SIM_MOUSE_LEFTUP;
-							nev->mx = sys_event.mx;
-							nev->my = sys_event.my;
-							nev->cx = sys_event.mx;
-							nev->cy = sys_event.my;
-							nev->button_state = 0;
-							nev->ev_key_mod = ModifierKeys();
-							queue_event(nev);
+
+							has_queued_finger_release = true;
 		DBG_MESSAGE("SDL_FINGERUP", "SIM_MOUSE_LEFTDOWN+UP at %i,%i", sys_event.mx, sys_event.my);
-#endif
 						}
 						else {
 							sys_event.type = SIM_MOUSE_BUTTONS;
