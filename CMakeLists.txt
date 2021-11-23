@@ -370,10 +370,7 @@ endif()
 #
 # Nettool/Makeobj
 #
-if (PNG_FOUND)
-	add_subdirectory(makeobj EXCLUDE_FROM_ALL)
-endif ()
-
+add_subdirectory(makeobj EXCLUDE_FROM_ALL)
 add_subdirectory(nettools EXCLUDE_FROM_ALL)
 
 
