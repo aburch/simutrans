@@ -53,7 +53,7 @@ void set_thousand_sep_exponent(int new_thousand_sep_exponent);
 /**
  * Set abbreviation and the amount by which large money amounts will be shortened
  */
-void set_large_amout( const char *, const double v );
+void set_large_amount( const char *, const double v );
 
 /**
  * copies n lines of the source into a buffer

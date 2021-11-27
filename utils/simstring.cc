@@ -63,7 +63,7 @@ const char *get_large_money_string()
  * Set large money abbreviation, used in money_to_string and
  * number_to_string
  */
-void set_large_amout(const char *s, const double v)
+void set_large_amount(const char *s, const double v)
 {
 	large_number_string = s;
 	large_number_factor = v;
