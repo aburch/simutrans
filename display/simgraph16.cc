@@ -252,8 +252,6 @@ int default_font_ascent = 0;
 int default_font_linespace = 0;
 
 
-#define MAX_PLAYER_COUNT (16)
-
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
 
 
