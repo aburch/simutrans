@@ -9,7 +9,6 @@
 
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
-#include "../gui/depot_frame.h"
 #include <string>
 
 class vehicle_t;

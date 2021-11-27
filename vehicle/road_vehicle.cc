@@ -21,6 +21,7 @@
 #include "../simconvoi.h"
 #include "../simhalt.h"
 #include "../simmesg.h"
+#include "../utils/cbuffer_t.h"
 
 
 road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
