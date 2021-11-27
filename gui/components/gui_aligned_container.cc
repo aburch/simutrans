@@ -117,8 +117,8 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 		// cells spanning more than one column into account
 		do {
 			// maybe no visible cells in this row anymore
-			if (cc < col_minw.get_count()) {
-				cell_size.w += col_minw[cc];
+			if (c < col_minw.get_count()) {
+				cell_size.w += col_minw[c];
 			}
 			cell_size.h = max(cell_size.h, row_minh[rr] );
 
