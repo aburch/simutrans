@@ -1632,6 +1632,7 @@ void convoi_t::ziel_erreicht()
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
 			arrived_time = welt->get_ticks();
+			last_load_tick = arrived_time;
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -2983,7 +2984,7 @@ station_tile_search_ready: ;
 	uint32 time = 0; // min time for loading/unloading
 
 	uint32 current_tick = welt->get_ticks();
-	if (fahr[0]->last_stop_pos != fahr[0]->get_pos()  ||  last_load_tick==0) {
+	if (last_load_tick==0) {
 		// first stop here, so no time passed yet
 		last_load_tick = current_tick;
 	}
