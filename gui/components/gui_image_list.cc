@@ -15,7 +15,6 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
 	placement(16, 16)
 {
 	this->images = images;
-	use_rows = true;
 	player_nr = 0;
 }
 
@@ -45,15 +44,12 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 	ypos -= parent_pos.y + pos.y + BORDER;
 
 	if(xpos>=0  &&  ypos>=0  &&  xpos<size.w-2*BORDER  &&  ypos < size.h-2*BORDER) {
-		const int rows = (size.h - 2 * BORDER) / grid.y;
 		const int columns = (size.w - 2 * BORDER) / grid.x;
 
 		const int column = xpos / grid.x;
 		const int row = ypos / grid.y;
 
-		const unsigned int index = use_rows ?
-		row * columns + column :
-		column * rows + row;
+		const unsigned int index = row * columns + column;
 
 		if (index < images->get_count()  &&  (*images)[index]->image != IMG_EMPTY) {
 			return index;
@@ -67,7 +63,6 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 
 void gui_image_list_t::draw(scr_coord parent_pos)
 {
-	const int rows = (size.h - 2 * BORDER) / grid.y;
 	const int columns = (size.w - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
@@ -76,7 +71,6 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 	// Show available wagon types
 	int xmin = parent_pos.x + pos.x + BORDER;
 	int ymin = parent_pos.y + pos.y + BORDER;
-	int ymax = ymin + rows * grid.y;
 	int xmax = xmin + columns * grid.x;
 	int xpos = xmin;
 	int ypos = ymin;
@@ -123,19 +117,10 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 			}
 		}
 		// advance x, y to next position
-		if(use_rows) {
-			xpos += grid.x;
-			if(xpos == xmax) {
-				xpos = xmin;
-				ypos += grid.y;
-			}
-		}
-		else {
+		xpos += grid.x;
+		if(xpos == xmax) {
+			xpos = xmin;
 			ypos += grid.y;
-			if(ypos == ymax) {
-				ypos = ymin;
-				xpos += grid.x;
-			}
 		}
 	}
 }
