@@ -77,7 +77,6 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	// Needs to be scrollable, size is adjusted in set_windowsize()
 	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V);
 	scrolly.set_size_corner(false);
-	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
 	add_component(&scrolly);
 	scrolly.set_maximize(true);
 
