@@ -44,6 +44,15 @@ public:
 	scr_size get_max_size() const OVERRIDE;
 };
 
+class gui_speedbar_fixed_length_t : public gui_speedbar_t
+{
+	scr_coord_val fixed_width;
+public:
+	gui_speedbar_fixed_length_t() : gui_speedbar_t(), fixed_width(10) {}
+	scr_size get_min_size() const OVERRIDE { return scr_size(fixed_width, gui_speedbar_t::get_min_size().h); }
+	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
+	void set_width(scr_coord_val w) { fixed_width = w; }
+};
 
 // route progress bar
 class gui_routebar_t : public gui_component_t
@@ -76,5 +85,4 @@ public:
 
 	scr_size get_max_size() const OVERRIDE;
 };
-
 #endif

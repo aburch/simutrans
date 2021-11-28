@@ -16,6 +16,8 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t*> *images) :
 {
 	this->images = images;
 	player_nr = 0;
+	max_rows = -1;
+	max_width = -1;
 }
 
 
@@ -126,13 +128,20 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 }
 
 
+scr_size gui_image_list_t::get_min_size() const { return get_max_size(); }
 
-void gui_image_list_t::recalc_size()
+scr_size gui_image_list_t::get_max_size() const
 {
-	const int columns = (size.w - 2 * BORDER) / grid.x;
-	int rows = (images->get_count() + columns-1) / columns;
-	if(rows== 0) {
-		rows = 1;
+	if (max_rows > 0) {
+		// this many images per column
+		sint32 cols = (images->get_count() + max_rows - 1) / max_rows;
+		return scr_size(cols*grid.x + 2*BORDER, max_rows*grid.y + 2*BORDER);
 	}
-	set_size(scr_size(size.w, rows * grid.y + 2*BORDER));
+	else if (max_width > 0) {
+		sint32 cols = (max_width - 2*BORDER) / grid.x;
+		sint32 rows = (images->get_count() + cols - 1) / cols;
+		return scr_size(cols*grid.x + 2*BORDER, rows*grid.y + 2*BORDER);
+
+	}
+	return scr_size((images->get_count()+1)*grid.x + 2*BORDER, grid.y + 2*BORDER);
 }

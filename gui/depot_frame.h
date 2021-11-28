@@ -13,7 +13,6 @@
 #include "components/gui_image_list.h"
 #include "components/gui_textinput.h"
 #include "components/gui_combobox.h"
-#include "components/gui_divider.h"
 #include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "components/gui_tab_panel.h"
@@ -28,24 +27,8 @@
 
 class depot_t;
 class vehicle_desc_t;
-
-
-/*
- * The depot window, where to buy convois
- */
-class depot_convoi_capacity_t : public gui_container_t
-{
-private:
-	uint32 total_pax;
-	uint32 total_mail;
-	uint32 total_goods;
-public:
-	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 mail, uint32 goods);
-	void draw(scr_coord offset) OVERRIDE;
-};
-
-
+class depot_convoi_capacity_t;
+class gui_aligned_container_zero_width_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  */
@@ -75,7 +58,7 @@ private:
 	/**
 	 * Gui elements
 	 */
-	gui_label_t lb_convois;
+	gui_label_buf_t lb_convois, lb_convoi_count;
 
 	/// contains the current translation of "new convoi"
 	const char* new_convoy_text;
@@ -83,20 +66,13 @@ private:
 
 	button_t line_button; // goto line ...
 
-	gui_label_t lb_convoi_count;
+	vector_tpl<gui_label_buf_t*> labels;
+	gui_aligned_container_t *cont_veh_action;
+	gui_aligned_container_zero_width_t *cont_vehicle_labels;
 
-	gui_label_t lb_convoi_number;
+	depot_convoi_capacity_t* cont_convoi_capacity;
 
-	gui_label_t lb_convoi_speed;
-	gui_label_t lb_convoi_cost;
-	gui_label_t lb_convoi_value;
-	gui_label_t lb_convoi_power;
-	gui_label_t lb_convoi_weight;
-	gui_label_t lb_convoi_line;
-
-	depot_convoi_capacity_t cont_convoi_capacity;
-
-	gui_speedbar_t sb_convoi_length;
+	gui_speedbar_fixed_length_t sb_convoi_length;
 	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
 	button_t bt_start;
@@ -107,18 +83,13 @@ private:
 	button_t bt_obsolete;
 	button_t bt_show_all;
 
-	gui_label_t lb_sort_by;
 	gui_combobox_t sort_by;
 
-	gui_label_t lb_name_filter_input;
 	static char name_filter_value[64];
 	gui_textinput_t name_filter_input;
 
 	gui_tab_panel_t tabs;
-	gui_divider_t div_tabbottom;
-	gui_divider_t div_action_bottom;
 
-	gui_label_t lb_veh_action;
 	button_t bt_veh_action;
 
 	/**
@@ -132,7 +103,7 @@ private:
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 
-	gui_container_t cont_convoi;
+	gui_aligned_container_t cont_convoi;
 	gui_scrollpane_t scrolly_convoi;
 
 	/// image list of passenger cars
@@ -175,19 +146,6 @@ private:
 
 	linehandle_t selected_line, last_selected_line;
 
-	cbuffer_t txt_convois;
-
-	cbuffer_t txt_convoi_count;
-	cbuffer_t txt_convoi_number;
-	cbuffer_t txt_convoi_value;
-	cbuffer_t txt_convoi_speed;
-	cbuffer_t txt_convoi_cost;
-	cbuffer_t txt_convoi_power;
-	cbuffer_t txt_convoi_weight;
-
-	scr_coord_val second_column_x; // x position of the second text column
-	scr_coord_val second_column_w;
-
 	enum {
 		va_append,
 		va_insert,
@@ -205,7 +163,7 @@ private:
 	/**
 	 * Draw the info text for the vehicle the mouse is over - if any.
 	 */
-	void draw_vehicle_info_text(scr_coord pos);
+	void update_vehicle_info_text(scr_coord pos);
 
 	/**
 	 * Calculate the values of the vehicles of the given type owned by the
@@ -238,11 +196,6 @@ public:
 	void activate_convoi( convoihandle_t cnv );
 
 	int get_icnv() const { return icnv; }
-
-	/**
-	 * Do the dynamic dialog layout
-	 */
-	void layout(scr_size *);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.

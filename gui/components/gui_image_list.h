@@ -60,6 +60,10 @@ private:
 	 */
 	sint8 player_nr;
 
+	scr_coord_val max_width;
+
+	sint32 max_rows;
+
 public:
 	/**
 	 * Constructor: takes pointer to vector with image_data_t
@@ -92,11 +96,12 @@ public:
 	 */
 	int index_at(scr_coord parent_pos, int xpos, int ypos) const;
 
-	void recalc_size();
+	void set_max_rows(sint32 r) { max_rows = r; }
 
-	// FIXME
-	scr_size get_min_size() const OVERRIDE { return get_size(); }
-	scr_size get_max_size() const OVERRIDE { return get_size(); }
+	void set_max_width(scr_coord_val w) { max_width = w; }
+
+	scr_size get_min_size() const OVERRIDE;
+	scr_size get_max_size() const OVERRIDE;
 };
 
 #endif
