@@ -136,20 +136,6 @@ public:
 	}
 
 	/**
-	 * Set this component's width.
-	 */
-	virtual void set_width(scr_coord_val width_par) {
-		set_size(scr_size(width_par,size.h));
-	}
-
-	/**
-	 * Set this component's height.
-	 */
-	virtual void set_height(scr_coord_val height_par) {
-		set_size(scr_size(size.w,height_par));
-	}
-
-	/**
 	 * Get this component's maximal bounding box size.
 	 * If this is larger than get_min_size(), then the element will be enlarged if possible
 	 *   according to min_size of elements in the same row/column.

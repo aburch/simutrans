@@ -50,13 +50,14 @@ class gui_routebar_t : public gui_component_t
 {
 private:
 	const sint32 *value;
-	const sint32 *reserve_value = 0;
+	const sint32 *reserve_value;
 	sint32 base;
 	uint8 state;
 	PIXVAL reserved_color;
+	scr_coord_val height;
 
 public:
-	gui_routebar_t() { base = 100; state = 0; }
+	gui_routebar_t() { base = 100; state = 0; height = 9; value = 0; reserve_value = 0; }
 	void set_reservation(const sint32 *value, PIXVAL color = color_idx_to_rgb(COL_BLUE));
 	void set_reserved_color(PIXVAL color) { reserved_color = color; };
 	void set_base(sint32 base);
@@ -68,6 +69,8 @@ public:
 	 * Draw the component
 	 */
 	void draw(scr_coord offset) OVERRIDE;
+
+	void set_height(scr_coord_val h) { height = h; };
 
 	scr_size get_min_size() const OVERRIDE;
 

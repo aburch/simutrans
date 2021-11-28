@@ -376,7 +376,6 @@ gui_schedule_t::gui_schedule_t() :
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Full load" ), SYSCOL_TEXT );
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Monthly departures" ), SYSCOL_TEXT );
 
-		numimp_load.set_width( 60 );
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
 

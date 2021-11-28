@@ -40,7 +40,7 @@ public:
 	void recalc_size();
 
 	// this sets a maximum width. The actual width may be smaller, depending on the text
-	void set_width(scr_coord_val width) OVERRIDE;
+	void set_width(scr_coord_val width);
 
 	void set_reserved_area(const scr_size area);
 

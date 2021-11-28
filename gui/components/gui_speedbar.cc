@@ -132,10 +132,10 @@ void gui_routebar_t::draw(scr_coord offset)
 
 scr_size gui_routebar_t::get_min_size() const
 {
-	return scr_size(D_INDICATOR_WIDTH, size.h);
+	return scr_size(D_INDICATOR_WIDTH, height);
 }
 
 scr_size gui_routebar_t::get_max_size() const
 {
-	return scr_size(scr_size::inf.w, size.h);
+	return scr_size(scr_size::inf.w, height);
 }
