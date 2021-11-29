@@ -298,7 +298,7 @@ void depot_frame_t::init(depot_t *dep)
 	new_component<gui_divider_t>();
 
 	cont_veh_action = add_table(4,0);
-	cont_veh_action->set_force_equal_columns(true);
+	// cont_veh_action->set_force_equal_columns(true); // this will make the depot frame very wide ...
 	{
 		// put columns 1-3 in extra container to force correct button width in 4th column
 		gui_aligned_container_t *cont_3cols = new_component_span<gui_aligned_container_t>(3,0,3);
