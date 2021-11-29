@@ -3153,7 +3153,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 	const int level = gb_desc->get_level();
 
 	if(  welt->get_timeline_year_month() > gb_desc->no_renovation_month()  ) {
-		// this is a historic city building (as defiend by the pak set author), so do not renovate
+		// this is a historic city building (as defined by the pak set author), so do not renovate
 		return;
 	}
 
