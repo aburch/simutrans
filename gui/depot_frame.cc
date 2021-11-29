@@ -298,7 +298,6 @@ void depot_frame_t::init(depot_t *dep)
 	new_component<gui_divider_t>();
 
 	cont_veh_action = add_table(4,0);
-	// cont_veh_action->set_force_equal_columns(true); // this will make the depot frame very wide ...
 	{
 		// put columns 1-3 in extra container to force correct button width in 4th column
 		gui_aligned_container_t *cont_3cols = new_component_span<gui_aligned_container_t>(3,0,3);
@@ -396,7 +395,7 @@ void depot_frame_t::init(depot_t *dep)
 		scr_coord_val grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
 		scr_coord_val placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
 
-		//sb_convoi_length.set_width(depot->get_max_convoi_length() * (grid.x - grid_dx));
+		sb_convoi_length.set_width(depot->get_max_convoi_length() * (grid.x - grid_dx));
 
 		gui_image_list_t* ilists[] = {&convoi, &pas, &electrics, &loks, &waggons};
 		for(uint32 i = 0; i<lengthof(ilists); i++) {
