@@ -31,7 +31,6 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 	b_has_size_corner = true;
 
 	old_comp_size = scr_size::invalid;
-	take_cached_size = false;
 	maximize = false;
 }
 
@@ -39,7 +38,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 scr_size gui_scrollpane_t::get_min_size() const
 {
 	// request width of largest element, but leave enough space for scrollbars
-	scr_size csize = take_cached_size ? cached_min_size : comp->get_min_size();
+	scr_size csize = comp->get_min_size();
 	csize.w = max( csize.w, scroll_x.get_min_size().w );
 	csize.w = min( csize.w, max_width );
 	csize.h = min( csize.h, scroll_y.get_min_size().h );
@@ -48,8 +47,7 @@ scr_size gui_scrollpane_t::get_min_size() const
 
 scr_size gui_scrollpane_t::get_max_size() const
 {
-	scr_size csize = take_cached_size ? cached_max_size : comp->get_max_size();
-	return csize;
+	return comp->get_max_size();
 }
 
 
@@ -110,12 +108,8 @@ void gui_scrollpane_t::set_size(scr_size size)
 		c_size.w -= scroll_y.get_size().w;
 	}
 
-	cached_min_size = comp->get_min_size();
-	cached_max_size = comp->get_max_size();
-	take_cached_size = false; // disabled, there is no proper way to check whether cache is still valid
-
-	c_size.clip_lefttop( cached_min_size );
-	c_size.clip_rightbottom( cached_max_size );
+	c_size.clip_lefttop( comp->get_min_size() );
+	c_size.clip_rightbottom( comp->get_max_size() );
 	comp->set_size(c_size);
 
 	recalc_sliders(size);
@@ -126,7 +120,7 @@ void gui_scrollpane_t::set_size(scr_size size)
 scr_size gui_scrollpane_t::request_size(scr_size request)
 {
 	// do not enlarge past max size of comp
-	scr_size cmax = take_cached_size ? cached_max_size : comp->get_max_size();
+	scr_size cmax = comp->get_max_size();
 	if (cmax.w  < request.w - comp->get_pos().x  &&  cmax.h < request.h - comp->get_pos().y) {
 		request = cmax;
 	}

@@ -19,8 +19,6 @@ class gui_scrollpane_t : public gui_component_t
 {
 private:
 	scr_size old_comp_size;
-	scr_size cached_min_size;
-	scr_size cached_max_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -31,7 +29,6 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 	bool maximize:1;
-	bool take_cached_size:1;
 
 	// for oversized entries
 	scr_coord_val max_width;
