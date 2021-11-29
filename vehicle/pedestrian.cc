@@ -281,10 +281,7 @@ void pedestrian_t::hop(grund_t *gr)
 	// new target
 	grund_t *to = NULL;
 	// current single direction
-	ribi_t::ribi current_direction = get_direction();
-	if (!ribi_t::is_single(current_direction)) {
-		current_direction = ribi_type(from, get_pos());
-	}
+	ribi_t::ribi current_direction = ribi_type(from, get_pos());
 	// ribi opposite to current direction
 	ribi_t::ribi reverse_direction = ribi_t::reverse_single( current_direction );
 	// all possible directions
@@ -308,7 +305,7 @@ void pedestrian_t::hop(grund_t *gr)
 
 		if (new_direction == current_direction) {
 			// going straight
-			direction = calc_set_direction(get_pos(), pos_next);
+			direction = calc_set_direction(from, pos_next);
 		}
 		else {
 			ribi_t::ribi turn_ribi = on_left ? ribi_t::rotate90l(current_direction) : ribi_t::rotate90(current_direction);

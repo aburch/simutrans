@@ -68,7 +68,8 @@ private:
 public:
 	depot_convoi_capacity_t()
 	{
-		set_table_layout(6,1);
+		set_table_layout(6, 1);
+		set_spacing(scr_size(D_H_SPACE, 0));
 		total_pax = 0;
 		total_mail = 0;
 		total_goods = 0;
@@ -246,15 +247,19 @@ void depot_frame_t::init(depot_t *dep)
 	}
 	add_component(&scrolly_convoi);
 
-	add_table(2,4)->set_force_equal_columns(true);
-	add_component(labels[LB_CNV_COUNT]);
-	cont_convoi_capacity = new_component<depot_convoi_capacity_t>();
-	add_component(labels[LB_CNV_COST]);
-	add_component(labels[LB_CNV_VALUE]);
-	add_component(labels[LB_CNV_POWER]);
-	add_component(labels[LB_CNV_WEIGHT]);
-	add_component(labels[LB_CNV_SPEED],2);
-	end_table();
+	{
+		gui_aligned_container_t* t = add_table(2, 4);
+		t->set_force_equal_columns(true);
+		t->set_spacing(scr_size(D_H_SPACE, 0));
+		add_component(labels[LB_CNV_COUNT]);
+		cont_convoi_capacity = new_component<depot_convoi_capacity_t>();
+		add_component(labels[LB_CNV_COST]);
+		add_component(labels[LB_CNV_VALUE]);
+		add_component(labels[LB_CNV_POWER]);
+		add_component(labels[LB_CNV_WEIGHT]);
+		add_component(labels[LB_CNV_SPEED], 2);
+		end_table();
+	}
 
 	/*
 	* [ACTIONS]
@@ -351,6 +356,7 @@ void depot_frame_t::init(depot_t *dep)
 	end_table();
 
 	new_component<gui_divider_t>();
+
 	/*
 	 * [VEHICLE]
 	 */
@@ -359,6 +365,7 @@ void depot_frame_t::init(depot_t *dep)
 	cont_vehicle_labels = new gui_aligned_container_zero_width_t();
 	cont_vehicle_labels->set_table_layout(2,0);
 	cont_vehicle_labels->set_force_equal_columns(true);
+	cont_vehicle_labels->set_spacing(scr_size(D_H_SPACE, 0));
 
 	cont_vehicle_labels->add_component(labels[LB_VEH_NAME],2);
 	cont_vehicle_labels->add_component(labels[LB_VEH_COST]);
@@ -389,7 +396,7 @@ void depot_frame_t::init(depot_t *dep)
 		scr_coord_val grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
 		scr_coord_val placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
 
-		sb_convoi_length.set_width(depot->get_max_convoi_length() * (grid.x - grid_dx));
+		//sb_convoi_length.set_width(depot->get_max_convoi_length() * (grid.x - grid_dx));
 
 		gui_image_list_t* ilists[] = {&convoi, &pas, &electrics, &loks, &waggons};
 		for(uint32 i = 0; i<lengthof(ilists); i++) {
