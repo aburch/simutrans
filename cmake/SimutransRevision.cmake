@@ -24,7 +24,7 @@ if (Git_FOUND)
 			unset(SIMUTRANS_WC_REVISION)
 		else ()
 			execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
-				COMMAND "${GIT_EXECUTABLE}" describe --always
+				COMMAND "${GIT_EXECUTABLE}" rev-parse --short=7 HEAD
 				RESULT_VARIABLE res_var
 				OUTPUT_VARIABLE SIMUTRANS_WC_HASH
 			)
@@ -63,7 +63,7 @@ if (NOT SIMUTRANS_WC_REVISION AND Git_FOUND)
 		MATH(EXPR res_var "${res_var}+328")
 
 		execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
-			COMMAND "${GIT_EXECUTABLE}" describe --always
+			COMMAND "${GIT_EXECUTABLE}" rev-parse --short=7 HEAD
 			RESULT_VARIABLE res_var
 			OUTPUT_VARIABLE SIMUTRANS_WC_HASH
 		)
