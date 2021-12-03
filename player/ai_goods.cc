@@ -1485,12 +1485,18 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		file->rdwr_str( s );
 	}
 	else {
-		k3d.rdwr(file);
-		fab1 = fabrik_t::get_fab( k3d.get_2d() );
-		k3d.rdwr(file);
-		fab2 = fabrik_t::get_fab( k3d.get_2d() );
+		koord3d pos1, pos2;
+		pos1.rdwr(file);
+		fab1 = fabrik_t::get_fab( pos1.get_2d() );
+		pos2.rdwr(file);
+		fab2 = fabrik_t::get_fab( pos2.get_2d() );
+
 		const char *temp=NULL;
 		file->rdwr_str( temp );
+
+		if (!temp) {
+			dbg->fatal("ai_goods_t::fabconnection_t::rdwr", "No name for freight connection between %s and %s", pos1.get_fullstr(), pos2.get_fullstr());
+		}
 		ware = goods_manager_t::get_info(temp);
 	}
 }
