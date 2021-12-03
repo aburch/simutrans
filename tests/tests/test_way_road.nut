@@ -706,6 +706,63 @@ function test_way_road_build_crossing()
 }
 
 
+function test_way_road_upgrade_crossing()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+	local remover = command_x(tool_remove_way)
+	local rail = way_desc_x("sand_track")
+	local slow_road = way_desc_x("dirt_road")
+	local fast_road = way_desc_x("asphalt_road")
+
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
+
+	// hard-coded because there is no crossing_desc_x/crossing_x
+	local crossing_road_speed = 30
+	local crossing_rail_speed = 160
+
+	// upgrade road past max crossing speed; works, but road crossing speed is limited
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), null)
+
+		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"...4....",
+				"...5....",
+				"...1....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"..2A8...",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_TRUE(way_x(3, 2, 0).is_crossing())
+		ASSERT_EQUAL(way_x(3, 2, 0).get_max_speed(), min(crossing_road_speed, fast_road.get_topspeed()))
+		ASSERT_TRUE(tile_x(3, 2, 0).has_two_ways())
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_road).get_max_speed(), min(crossing_road_speed, fast_road.get_topspeed()))
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_rail).get_max_speed(), min(crossing_rail_speed, rail.get_topspeed()))
+	}
+
+	// clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), "" + wt_rail), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
 
 function test_way_road_upgrade_downgrade()
 {

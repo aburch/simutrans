@@ -143,6 +143,7 @@ all_tests <- [
 	test_way_road_build_parallel,
 	test_way_road_build_below_powerline,
 	test_way_road_build_crossing,
+	test_way_road_upgrade_crossing,
 	test_way_road_upgrade_downgrade,
 	test_way_road_upgrade_downgrade_across_bridge,
 	test_way_road_build_cityroad,
