@@ -15,8 +15,8 @@ function test_sign_build_oneway()
 	local public_pl = player_x(1)
 	local wayremover = command_x(tool_remove_way)
 	local remover = command_x(tool_remover)
-	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	local road = way_desc_x("dirt_road")
+	local rail = way_desc_x("sand_track")
 	local sign = sign_desc_x.get_available_signs(wt_road).filter(@(idx, sign) sign.is_one_way())[0]
 
 	ASSERT_TRUE(road != null)
@@ -86,12 +86,66 @@ function test_sign_build_oneway()
 		ASSERT_EQUAL(w.get_dirs_masked(), dir.south)
 	}
 
-	// build road/rail crossing over sign, should fail if straight
+	// build road/rail crossing over sign, should succeed if crossing is possible without sign
 	{
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), rail, true), "")
-		ASSERT_FALSE(tile_x(2, 3, 0).find_object(mo_way).is_crossing())
-		ASSERT_EQUAL(tile_x(1, 3, 0).find_object(mo_way), null)
-		ASSERT_EQUAL(tile_x(3, 3, 0).find_object(mo_way), null)
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), rail, true), null)
+
+		ASSERT_WAY_PATTERN_MASKED(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"..4.....",
+				"..5.....",
+				"..4.....",
+				"..1.....",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				".2A8....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		local w = tile_x(2, 3, 0).find_object(mo_way)
+		ASSERT_TRUE(w.is_crossing())
+
+		// change direction of sign on rail-road crossing, should succeed
+		ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(2, 3, 0), sign), null)
+
+		ASSERT_WAY_PATTERN_MASKED(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"..4.....",
+				"..5.....",
+				"..1.....",
+				"..1.....",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				".2A8....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		// and remove rail
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), "" + wt_rail), null)
 	}
 
 	// build road/road crossing over sign, should succeed
@@ -112,7 +166,17 @@ function test_sign_build_oneway()
 
 		local w = tile_x(2, 3, 0).find_object(mo_way)
 		ASSERT_FALSE(w.is_crossing())
-		ASSERT_EQUAL(w.get_dirs_masked(), dir.southeastwest)
+		ASSERT_WAY_PATTERN_MASKED(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"..4.....",
+				"..5.....",
+				".2B8....",
+				"..1.....",
+				"........",
+				"........",
+				"........"
+			])
 
 		// change direction of sign on road crossing, should fail
 		local error_caught = false
@@ -289,8 +353,9 @@ function test_sign_build_private_way()
 	local public_pl = player_x(1)
 	local wayremover = command_x(tool_remove_way)
 	local remover = command_x(tool_remover)
-	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
-	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+
+	local road = way_desc_x("dirt_road")
+	local rail = way_desc_x("sand_track")
 	local sign = sign_desc_x.get_available_signs(wt_road).filter(@(idx, sign) sign.is_private_way())[0]
 
 	ASSERT_TRUE(road != null)
@@ -360,12 +425,37 @@ function test_sign_build_private_way()
 		ASSERT_EQUAL(w.get_dirs_masked(), dir.northsouth)
 	}
 
-	// build road/rail crossing over sign, should fail if straight
+	// build road/rail crossing over sign, should succeed if crossing is possible without sign
 	{
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), rail, true), "")
-		ASSERT_FALSE(tile_x(2, 3, 0).find_object(mo_way).is_crossing())
-		ASSERT_EQUAL(tile_x(1, 3, 0).find_object(mo_way), null)
-		ASSERT_EQUAL(tile_x(3, 3, 0).find_object(mo_way), null)
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), rail, true), null)
+		ASSERT_WAY_PATTERN_MASKED(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"..4.....",
+				"..5.....",
+				"..5.....",
+				"..1.....",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				".2A8....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_TRUE(tile_x(2, 3, 0).find_object(mo_way).is_crossing())
+
+		// and remove rail
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(1, 3, 0), coord3d(3, 3, 0), "" + wt_rail), null)
 	}
 
 	// build road/road crossing over sign, should succeed

@@ -629,7 +629,7 @@ function test_way_road_build_crossing()
 	local remover = command_x(tool_remove_way)
 	local rail = way_desc_x("sand_track")
 	local slow_road = way_desc_x("dirt_road")
-	local fast_road = way_desc_x("gavel_road")
+	local fast_road = way_desc_x("asphalt_road")
 
 	// road too fast, cannot build crossing
 	{
