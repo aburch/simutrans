@@ -1235,7 +1235,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {
-			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);
+			dbg->warning("nwc_tool_t::do_command","Tool %s failed with '%s'", tool->get_name(), err);
 		}
 		tool->exit(player);
 	}
