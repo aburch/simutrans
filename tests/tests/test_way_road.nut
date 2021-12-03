@@ -622,6 +622,91 @@ function test_way_road_build_below_powerline()
 }
 
 
+function test_way_road_build_crossing()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+	local remover = command_x(tool_remove_way)
+	local rail = way_desc_x("sand_track")
+	local slow_road = way_desc_x("dirt_road")
+	local fast_road = way_desc_x("gavel_road")
+
+	// road too fast, cannot build crossing
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), "")
+
+		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"...4....",
+				"...5....",
+				"...1....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_FALSE(way_x(3, 2, 0).is_crossing())
+		ASSERT_FALSE(tile_x(3, 2, 0).has_two_ways())
+	}
+
+	// road slow enough for crossing -> works
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
+
+		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"...4....",
+				"...5....",
+				"...1....",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"..2A8...",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_TRUE(way_x(3, 2, 0).is_crossing())
+		ASSERT_EQUAL(way_x(3, 2, 0).get_max_speed(), slow_road.get_topspeed())
+		ASSERT_TRUE(tile_x(3, 2, 0).has_two_ways())
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_road).get_max_speed(), slow_road.get_topspeed())
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_rail).get_max_speed(), rail.get_topspeed())
+	}
+
+	// clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), "" + wt_rail), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+
 function test_way_road_upgrade_downgrade()
 {
 	local pl = player_x(0)
