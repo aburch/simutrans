@@ -6705,7 +6705,7 @@ void karte_t::reset_timer()
 	}
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
-		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), 5u, 100u);
+		fix_ratio_frame_time = 1000 / clamp(settings.get_frames_per_second(), env_t::min_fps, env_t::max_fps);
 		next_step_time = last_tick_sync + fix_ratio_frame_time;
 		set_frame_time( fix_ratio_frame_time );
 		intr_disable();
