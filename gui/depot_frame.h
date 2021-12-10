@@ -140,7 +140,6 @@ private:
 	gui_combobox_t line_selector;
 
 	gui_combobox_t vehicle_filter;
-	gui_label_t lb_vehicle_filter;
 
 	gui_image_t img_bolt;
 
@@ -161,9 +160,13 @@ private:
 	vehicle_image_map vehicle_map;
 
 	/**
-	 * Draw the info text for the vehicle the mouse is over - if any.
+	 * Update the info text for the vehicle the mouse is over - if any.
 	 */
 	void update_vehicle_info_text(scr_coord pos);
+
+	// cache old values
+	uint32 old_vehicle_count;
+	const vehicle_desc_t *old_veh_type;
 
 	/**
 	 * Calculate the values of the vehicles of the given type owned by the
