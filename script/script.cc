@@ -494,7 +494,7 @@ void script_vm_t::intern_queue_call(HSQUIRRELVM job, int nparams, bool retvalue)
 		// add callback to queue
 		sq_pushstring(job, "queued_callbacks", -1);
 		sq_get(job, -3);
-		sq_newarray(job, 10);
+		sq_newarray(job, 0);
 		// stack: array, registry, queue, queued_callbacks, queued_callbacks[end]
 		sq_pushstring(job, "pending_callback", -1);
 		// delete pending_callback slot and push it
@@ -667,7 +667,7 @@ void script_vm_t::intern_make_pending_callback_active()
 	BEGIN_STACK_WATCH(vm);
 	sq_pushregistrytable(vm);
 	sq_pushstring(vm, "active_callbacks", -1);
-	sq_newarray(vm, 1);
+	sq_newarray(vm, 0);
 	sq_pushstring(vm, "pending_callback", -1);
 	if (SQ_SUCCEEDED( sq_deleteslot(vm, -4, true) ) ) {
 		// stack: registry, "..", array[], pending_callback
