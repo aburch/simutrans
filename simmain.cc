@@ -1384,7 +1384,15 @@ int simu_main(int argc, char** argv)
 		intr_set_view(view);
 		win_set_world(welt);
 
-		const char *err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		const char *err = "";
+		if (env_t::default_settings.get_with_private_paks()) {
+			// try addon directory first
+			err = scen->init(("addons/" + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		}
+		if (err) {
+			// no addon scenario, look in pakset
+			err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		}
 		if(  err  ) {
 			dbg->error("simu_main()", "Could not load scenario %s%s: %s", env_t::objfilename.c_str(), scen_name, err);
 			delete scen;
