@@ -64,7 +64,7 @@ namespace script_api {
 	SQInteger param<const T*>::push(HSQUIRRELVM vm, const T* b) \
 	{ \
 		if (b) { \
-			return push_instance(vm, sqtype, b->get_name()); \
+			return push_instance_up(vm, b); \
 		} \
 		else { \
 			sq_pushnull(vm); return 1; \

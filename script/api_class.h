@@ -156,6 +156,22 @@ namespace script_api {
 	}
 
 	/**
+	 * Create instance, set userpointer.
+	 * Does NOT call constructor.
+	 */
+	template<class C>
+	inline SQInteger push_instance_up(HSQUIRRELVM vm, const C* ptr)
+	{
+		if (!SQ_SUCCEEDED(push_class(vm, param<const C*>::squirrel_type()) )) {
+			return -1;
+		}
+		sq_createinstance(vm, -1);
+		sq_setinstanceup(vm, -1, (void*)const_cast<C*>(ptr));
+		sq_remove(vm, -2); // remove class
+		return 1;
+	}
+
+	/**
 	 * Implementation of quickstone_tpl specialization
 	 */
 	template<class T> struct param< quickstone_tpl<T> > {

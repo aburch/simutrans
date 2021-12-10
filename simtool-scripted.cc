@@ -44,9 +44,7 @@ namespace script_api {
 
 	SQInteger param<exec_script_base_t*>::push(HSQUIRRELVM vm, exec_script_base_t* const& v)
 	{
-		push_instance(vm, param<exec_script_base_t*>::squirrel_type());
-		sq_setinstanceup(vm, -1, v);
-		return 1;
+		return push_instance_up(vm, v);
 	}
 	exec_script_base_t* param<exec_script_base_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
