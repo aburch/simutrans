@@ -323,7 +323,7 @@ void schedule_list_gui_t::build_line_list(simline_t::linetype filter)
 		if(  !*schedule_filter  ||  utf8caseutf8(l->get_name(), schedule_filter)  ) {
 			// match good category
 			if(  is_matching_freight_catg( l->get_goods_catg_index() )  ) {
-				scl.new_component<line_scrollitem_t>(l);
+				scl.new_component<line_scrollitem_t>(l, line_scrollitem_t::SELECT_WIN);
 			}
 			if(  line == l  ) {
 				sel = scl.get_count() - 1;

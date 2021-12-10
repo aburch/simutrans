@@ -46,7 +46,11 @@ void line_scrollitem_t::set_text(char const* const t)
 
 void line_scrollitem_t::draw( scr_coord offset )
 {
-	selected = win_get_magic( (ptrdiff_t)line.get_rep() );
+	bool old_selected = selected;
+
+	if (select_mode == SELECT_WIN) {
+		selected = win_get_magic( (ptrdiff_t)line.get_rep() );
+	}
 
 	static char infotext[256];
 	if( getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y ) ) {
@@ -72,6 +76,8 @@ void line_scrollitem_t::draw( scr_coord offset )
 	}
 
 	gui_scrolled_list_t::const_text_scrollitem_t::draw( offset );
+
+	selected = old_selected;
 }
 
 // static helper function for sorting lineintems
