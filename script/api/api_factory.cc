@@ -8,6 +8,7 @@
 /** @file api_factory.cc exports factory related functions. */
 
 #include "get_next.h"
+#include "api_obj_desc_base.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
@@ -368,6 +369,10 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns minimum number of fields required
 	 */
 	register_method(vm, &fabrik_t::get_min_field_count, "get_min_field_count");
+	/**
+	 * @returns factory descriptor
+	 */
+	register_method(vm, &fabrik_t::get_desc, "get_desc");
 	// pop class
 	end_class(vm);
 

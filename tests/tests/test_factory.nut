@@ -30,6 +30,10 @@ function test_factory_build_pp()
 		ASSERT_TRUE(factory_x(5, 6) != null)
 		ASSERT_EQUAL(factory_list_x().get_count(), 1)
 
+		local desc = factory.get_desc();
+		ASSERT_TRUE(desc != null)
+		ASSERT_EQUAL(desc.get_name(), "Aufwindkraftwerk")
+
 		// FIXME Max electricity production for PPs not queryable via script?
 
 		ASSERT_EQUAL(factory.get_consumers().len(), 0)
@@ -332,4 +336,37 @@ function test_factory_link()
 	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(7, 7, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_factory_desc()
+{
+	local desc = factory_desc_x("Raffinerie")
+	local inp  = desc.get_inputs()
+	local out  = desc.get_outputs()
+
+	ASSERT_EQUAL(desc.get_name(), "Raffinerie")
+	ASSERT_EQUAL(desc.is_electricity_producer(), false)
+	ASSERT_EQUAL(inp.len(), 1)
+	ASSERT_EQUAL(out.len(), 3)
+
+	{
+		local inp_goods = []
+		for(local i=0; i<inp.len(); i++) {
+			inp_goods.append(inp[i].good.get_name())
+		}
+		ASSERT_TRUE(inp_goods.find("Oel")  != null)
+		ASSERT_TRUE(inp_goods.find("Holz") == null)
+	}
+
+	{
+		local out_goods = []
+		for(local i=0; i<out.len(); i++) {
+			out_goods.append(out[i].good.get_name())
+		}
+		ASSERT_TRUE(out_goods.find("Chemicals")   != null)
+		ASSERT_TRUE(out_goods.find("Plastik")     != null)
+		ASSERT_TRUE(out_goods.find("PrintersInk") != null)
+		ASSERT_TRUE(out_goods.find("Holz") == null)
+	}
 }

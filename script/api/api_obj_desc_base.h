@@ -19,6 +19,7 @@ class tree_desc_t;
 class bridge_desc_t;
 class building_desc_t;
 class building_tile_desc_t;
+class factory_desc_t;
 class goods_desc_t;
 class roadsign_desc_t;
 class tunnel_desc_t;
@@ -89,6 +90,7 @@ namespace script_api {
 	declare_desc_param(bridge_desc_t, "bridge_desc_x");
 	declare_desc_param(roadsign_desc_t, "sign_desc_x");
 	declare_desc_param(way_obj_desc_t, "wayobj_desc_x");
+	declare_desc_param(factory_desc_t, "factory_desc_x");
 
 	// only push the building_desc_t-pointer
 	declare_desc_param(building_tile_desc_t, "building_desc_x");
