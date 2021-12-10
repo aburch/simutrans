@@ -549,7 +549,7 @@ void gui_schedule_t::update_selection()
 			// waypoint
 		}
 	}
-	loading_details->set_size( loading_details->get_min_size() );
+	loading_details->set_size( loading_details->get_size() );
 }
 
 
