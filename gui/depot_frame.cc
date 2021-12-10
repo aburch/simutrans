@@ -826,10 +826,6 @@ void depot_frame_t::update_data()
 	if(  last_selected_line.is_bound()  ) {
 		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
 	}
-	if(  !selected_line.is_bound()  ) {
-		// select "create new schedule"
-		line_selector.set_selection( 0 );
-	}
 	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_seperator, SYSCOL_TEXT ) ;
 
 	// check all matching lines
@@ -838,6 +834,7 @@ void depot_frame_t::update_data()
 	}
 	vector_tpl<linehandle_t> lines;
 	get_line_list(depot, &lines);
+	// select "create new schedule"
 	line_selector.set_selection( 0 );
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
 		line_selector.new_component<line_scrollitem_t>(line) ;
