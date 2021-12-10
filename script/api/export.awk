@@ -14,6 +14,7 @@ BEGIN {
 	indent = ""
 	within_apidoc = 0
 	mask = ""
+	ai_only = 0
 }
 
 # match beginning of SQAPI_DOC block
@@ -36,6 +37,10 @@ BEGIN {
 # ignore preprocessor directives
 /^#/ {
 	next
+}
+
+/ingroup.*ai_only/ {
+	ai_only = 1
 }
 
 function split_params(string)
@@ -159,12 +164,18 @@ function split_params(string)
 /register_function/  ||  /register_method/ ||  /register_local_method/{
 	match($0, /"([^"]*)"/, data)
 	method = data[1]
-	# check for param types
-	if ( (within_class "::" method) in export_types) {
-		mask = export_types[(within_class "::" method)]
+	if (ai_only == 1) {
+		suffix = "ai"
 	}
-	else if ( ("::" method) in export_types) {
-		mask = export_types[("::" method)]
+	else {
+		suffix = "scenario"
+	}
+	# check for param types
+	if (ai_only  &&   ((within_class "::" method) in export_types_ai)) {
+		mask = export_types_ai[(within_class "::" method)]
+	}
+	else if ((within_class "::" method) in export_types_scenario) {
+		mask = export_types_scenario[(within_class "::" method)]
 	}
 	if (mask != "") {
 		match(mask, " *(.*)\\((.*)\\)", data)
@@ -222,6 +233,7 @@ function split_params(string)
 	delete ptypes
 	mask = ""
 	returns = "void"
+	ai_only = 0
 }
 
 # enum constants
