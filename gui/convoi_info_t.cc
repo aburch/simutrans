@@ -547,7 +547,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	bool edit_allowed = (cnv.is_bound() && (cnv->get_owner() == welt->get_active_player() || welt->get_active_player()->is_public_service()));
 
 	if (comp == &switch_mode) {
-		scd.highlight_schedule(v.i == 1);
 		if (v.i == 1) {
 			if(edit_allowed  &&  !cnv->in_depot()) {
 				// if not in depot:
@@ -560,6 +559,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		else if(cnv->get_state()==convoi_t::EDIT_SCHEDULE  ||  cnv->get_state()==convoi_t::INITIAL) {
 			apply_schedule();
 		}
+		scd.highlight_schedule(v.i == 1);
 	}
 
 	// some actions only allowed, when I am the player
