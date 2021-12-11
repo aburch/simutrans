@@ -147,7 +147,6 @@ DBG_MESSAGE("event","HOWDY!");
 			// call returns actual height, might be smaller than request_height
 			request_height = droplist.request_size(scr_size(this->size.w, min(request_height, max(height_above, height_below))) ).h;
 
-			gui_component_t::set_size( scr_size(this->size.w, (closed_size.h + D_V_SPACE) / 2 + droplist.get_size().h) );
 			// open below if enough space or more space than above
 			opened_above = request_height > height_below  &&  height_below < height_above;
 			set_pos(get_pos());
@@ -336,7 +335,6 @@ void gui_combobox_t::close_box()
 		finish = false;
 	}
 	droplist.set_visible(false);
-	gui_component_t::set_size(closed_size);
 	first_call = true;
 }
 
@@ -377,9 +375,6 @@ void gui_combobox_t::set_max_size(scr_size max)
 {
 	max_size = max;
 	droplist.request_size( scr_size( size.w, max_size.h - closed_size.h ) );
-	if(  droplist.is_visible()  ) {
-		gui_component_t::set_size( droplist.get_size() + scr_size( 0, closed_size.h ) );
-	}
 }
 
 
