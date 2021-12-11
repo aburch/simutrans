@@ -611,7 +611,6 @@ static void internal_GetEvents()
 	static int previous_multifinger_touch = 0;
 	static bool in_finger_handling = false;
 	static SDL_FingerID FirstFingerId = 0;
-	static bool previous_mouse_down = false;
 	static double dLastDist = 0.0;
 
 	static bool has_queued_finger_release = false;
@@ -672,7 +671,6 @@ static void internal_GetEvents()
 				sys_event.my      = SCREEN_TO_TEX_Y(event.button.y);
 				sys_event.mb      = conv_mouse_buttons( SDL_GetMouseState(0, 0) );
 				sys_event.key_mod = ModifierKeys();
-				previous_mouse_down = true;
 			}
 			break;
 
@@ -691,7 +689,6 @@ static void internal_GetEvents()
 				sys_event.key_mod = ModifierKeys();
 				previous_multifinger_touch = false;
 			}
-			previous_mouse_down = false;
 			break;
 
 		case SDL_MOUSEWHEEL:
@@ -726,7 +723,6 @@ static void internal_GetEvents()
 			else if (FirstFingerId != event.tfinger.fingerId) {
 				previous_multifinger_touch = 2;
 			}
-			previous_mouse_down = false;
 			break;
 
 		case SDL_FINGERMOTION:
