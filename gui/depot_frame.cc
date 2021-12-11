@@ -861,6 +861,7 @@ void depot_frame_t::update_data()
 		depot->selected_filter = VEHICLE_FILTER_RELEVANT;
 	}
 	vehicle_filter.set_selection(depot->selected_filter);
+	vehicle_filter.set_size(vehicle_filter.get_size());
 
 	sort_by.clear_elements();
 	for(int i = 0; i < vehicle_builder_t::sb_length; i++) {
