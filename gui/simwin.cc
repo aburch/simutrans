@@ -708,13 +708,10 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 			y = clip_rr.y + clip_rr.h - wh.h;
 		}
 	}
+
 	// now do not hide titlebar by menubar
-	if (x < clip_rr.x) {
-		x = clip_rr.x;
-	}
-	if (y < clip_rr.y) {
-		y = clip_rr.y;
-	}
+	x = max(x, clip_rr.x);
+	y = max(y, clip_rr.y);
 }
 
 
@@ -2112,17 +2109,8 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 
-				x = ev.mx;
-				y = ev.my;
-				win_clamp_xywh_position(x, y, scr_size(1, 1), false);
-				ev.mx = x;
-				ev.my = y;
-
-				x = ev.cx;
-				y = ev.cy;
-				win_clamp_xywh_position(x, y, scr_size(1, 1), false);
-				ev.cx = x;
-				ev.cy = y;
+				win_clamp_xywh_position(ev.mx, ev.my, scr_size(1, 1), false);
+				win_clamp_xywh_position(ev.mx, ev.my, scr_size(1, 1), false);
 
 				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEY_F1) {
 					if (gui_frame_t* win = win_get_top()) {
@@ -2132,8 +2120,10 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 						}
 					}
 				}
+
 				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
 				check_pos_win(&ev);
+
 				if (ev.ev_class == EVENT_SYSTEM && ev.ev_code == SYSTEM_QUIT) {
 					env_t::quit_simutrans = true;
 					break;
