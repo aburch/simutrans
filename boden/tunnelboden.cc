@@ -31,7 +31,12 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 	// some versions had tunnel without tunnel objects
 	if (!find<tunnel_t>()) {
 		// then we must spawn it here (a way MUST be always present, or the savegame is completely broken!)
-		weg_t *weg = (weg_t *)obj_bei(0);
+		obj_t *obj0 = obj_bei(0);
+		if (!obj0 || obj0->get_typ() != obj_t::way) {
+			dbg->fatal("tunnelboden_t::tunnelboden_t", "Trying to load tunnelboden at (%s) but tile has neither tunnel nor way! (savegame corrupted)", get_pos().get_str());
+		}
+
+		weg_t *weg = static_cast<weg_t *>(obj0);
 
 		const waytype_t wt = weg ? weg->get_desc()->get_wtyp() : road_wt;
 		const tunnel_desc_t *tunnel_desc = tunnel_builder_t::get_tunnel_desc(wt, 450, 0);
@@ -40,11 +45,11 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 			dbg->fatal("tunnelboden_t::tunnelboden_t", "Trying to load tunnel ground but pakset has no tunnels!");
 		}
 		else if(  !weg  ) {
-			dbg->warning( "tunnelboden_t::tunnelboden_t()", "Loading without a way at (%s)! Assuming road tunnel!", pos.get_str() );
+			dbg->warning( "tunnelboden_t::tunnelboden_t", "Loading without a way at (%s)! Assuming road tunnel!", pos.get_str() );
 		}
 
 		obj_add(new tunnel_t(get_pos(), weg ? weg->get_owner() : NULL, tunnel_desc));
-		DBG_MESSAGE("tunnelboden_t::tunnelboden_t()", "Added tunnel to pos (%s)", get_pos().get_str());
+		DBG_MESSAGE("tunnelboden_t::tunnelboden_t", "Added tunnel to pos (%s)", get_pos().get_str());
 	}
 }
 
