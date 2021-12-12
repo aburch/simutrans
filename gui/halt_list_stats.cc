@@ -103,6 +103,8 @@ const char* halt_list_stats_t::get_text() const
  */
 void halt_list_stats_t::draw(scr_coord offset)
 {
+	gotopos.set_targetpos3d(halt->get_basis_pos3d()); // since roation may have changed the target pos
+
 	img_enabled[0].set_visible(halt->get_pax_enabled());
 	img_enabled[1].set_visible(halt->get_mail_enabled());
 	img_enabled[2].set_visible(halt->get_ware_enabled());
