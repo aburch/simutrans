@@ -5598,6 +5598,12 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		if(file->is_version_less(86, 6)) {
 			last_year += env_t::default_settings.get_starting_year();
 		}
+
+		if (last_year+1 >= INT32_MAX/12) {
+			// prevent overflow
+			dbg->fatal("karte_t::rdwr_gamestate", "Year out of range (%d >= %d)", last_year+1, INT_MAX/12);
+		}
+
 		// old game might have wrong month
 		last_month %= 12;
 		// set the current month count
