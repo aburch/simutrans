@@ -124,7 +124,7 @@ static inline uint32 shortest_distance(const koord &a, const koord &b)
 // multiply the value by the distance weight
 static inline uint32 weight_by_distance(const sint32 value, const uint32 distance)
 {
-	return value<=0 ? 0 : 1+(uint32)( ( ((sint64)value<<8) * koord::locality_factor ) / (sint64)( koord::locality_factor + (distance < 4u ? 4u : distance) ) );
+	return value<=0 ? 0 : 1+(uint32)( ( ((sint64)value<<8) * koord::locality_factor ) / ( (sint64)koord::locality_factor + (sint64)(distance < 4u ? 4u : distance) ) );
 }
 
 static inline koord operator * (const koord &k, const sint16 m)
