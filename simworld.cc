@@ -605,8 +605,8 @@ void karte_t::init_tiles()
 		// old default: AI 3 passenger, other goods
 		players[i] = (i<2) ? new player_t(i) : NULL;
 	}
-	active_player = players[0];
-	active_player_nr = 0;
+	active_player = players[HUMAN_PLAYER_NR];
+	active_player_nr = HUMAN_PLAYER_NR;
 
 	// defaults without timeline
 	average_speed[0] = 60;
@@ -742,7 +742,7 @@ void karte_t::create_rivers( sint16 number )
 		for(  sint32 i=0;  i<256  &&  !valid_water_tiles.empty();  i++  ) {
 			koord const end = pick_any(valid_water_tiles);
 			valid_water_tiles.remove( end );
-			way_builder_t riverbuilder(players[1]);
+			way_builder_t riverbuilder(get_public_player());
 			riverbuilder.init_builder(way_builder_t::river, river_desc);
 			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
@@ -787,7 +787,7 @@ void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_coun
 			uint32 tbegin = dr_time();
 #endif
 			for(  int i=0;  i<new_city_count;  i++  ) {
-				stadt_t* s = new stadt_t(players[1], (*pos)[i], 1 );
+				stadt_t* s = new stadt_t(get_public_player(), (*pos)[i], 1 );
 				DBG_DEBUG("karte_t::distribute_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
 				if (s->get_buildings() > 0) {
 					add_city(s);
@@ -872,7 +872,7 @@ void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_coun
 			desc = way_builder_t::weg_search(road_wt,80,get_timeline_year_month(),type_flat);
 		}
 
-		way_builder_t bauigel (players[1] );
+		way_builder_t bauigel(get_public_player());
 		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
@@ -952,7 +952,7 @@ void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_coun
 			route_t verbindung;
 			vehicle_t* test_driver;
 			vehicle_desc_t test_drive_desc(road_wt, 500, vehicle_desc_t::diesel );
-			test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
+			test_driver = vehicle_builder_t::build(koord3d(), get_public_player(), NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -1290,7 +1290,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
 	// finishes the line preparation and sets id 0 to invalid ...
-	players[0]->simlinemgmt.finish_rd();
+	players[HUMAN_PLAYER_NR]->simlinemgmt.finish_rd();
 
 	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
@@ -1302,8 +1302,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		}
 	}
 
-	active_player_nr = 0;
-	active_player = players[0];
+	active_player_nr = HUMAN_PLAYER_NR;
+	active_player = players[HUMAN_PLAYER_NR];
 	tool_t::update_toolbars();
 
 	set_dirty();
@@ -5635,8 +5635,8 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 			}
 		}
 		// so far, player 1 will be active (may change in future)
-		active_player = players[0];
-		active_player_nr = 0;
+		active_player = players[HUMAN_PLAYER_NR];
+		active_player_nr = HUMAN_PLAYER_NR;
 	}
 
 	// rdwr tree ID mapping to restore tree IDs
@@ -6869,19 +6869,21 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 
 void karte_t::remove_player(uint8 player_nr)
 {
-	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
+	if ( player_nr!=PUBLIC_PLAYER_NR  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
 		players[player_nr]->ai_bankrupt();
 		delete players[player_nr];
-		players[player_nr] = 0;
+		players[player_nr] = NULL;
+
 		nwc_chg_player_t::company_removed(player_nr);
+
 		// if default human, create new instace of it (to avoid crashes)
-		if(  player_nr == 0  ) {
-			players[0] = new player_t( 0 );
+		if(  player_nr == HUMAN_PLAYER_NR  ) {
+			players[0] = new player_t( HUMAN_PLAYER_NR );
 		}
 		// if currently still active => reset to default human
 		if(  player_nr == active_player_nr  ) {
-			active_player_nr = 0;
-			active_player = players[0];
+			active_player_nr = HUMAN_PLAYER_NR;
+			active_player = players[HUMAN_PLAYER_NR];
 			if(  !env_t::server  ) {
 				create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 			}
@@ -6902,10 +6904,10 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 	koord3d old_zeiger_pos = zeiger->get_pos();
 
 	// no cheating allowed?
-	if (!settings.get_allow_player_change() && players[1]->is_locked()) {
-		active_player_nr = 0;
-		active_player = players[0];
-		if(new_player!=0) {
+	if (!settings.get_allow_player_change() && get_public_player()->is_locked()) {
+		active_player_nr = HUMAN_PLAYER_NR;
+		active_player = players[HUMAN_PLAYER_NR];
+		if(new_player!=HUMAN_PLAYER_NR) {
 			create_win( new news_img("On this map, you are not\nallowed to change player!\n"), w_time_delete, magic_none);
 		}
 	}
@@ -7677,5 +7679,5 @@ const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 
 player_t *karte_t::get_public_player() const
 {
-	return get_player(1);
+	return get_player(PUBLIC_PLAYER_NR);
 }
