@@ -265,7 +265,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				case grund_t::brueckenboden: gr = new brueckenboden_t(file, pos); break;
 				case grund_t::monorailboden: gr = new monorailboden_t(file, pos); break;
 				default:
-					gr = 0; // keep compiler happy, fatal() never returns
+					gr = NULL; // keep compiler happy, fatal() never returns
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 
@@ -274,18 +274,22 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				koord3d pos = gr->get_pos();
 				// show normal ground here
 				grund_t *neu = new boden_t(pos, 0);
+
 				if(gr->get_flag(grund_t::has_text)) {
 					neu->set_flag(grund_t::has_text);
 					gr->clear_flag(grund_t::has_text);
 				}
+
 				// transfer all objects
 				while(  gr->get_top()>0  ) {
 					neu->obj_add( gr->obj_remove_top() );
 				}
+
 				delete gr;
 				gr = neu;
 //DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at %d,%d replaced by normal ground!", pos.x,pos.y);
 			}
+
 			// we should also check for ground below factories
 			if(gr) {
 				if(ground_size==0) {
@@ -300,7 +304,12 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 					welt->set_grid_hgt( pos, hgt );
 				}
 			}
-		} while(gr != 0);
+		} while(gr != NULL);
+
+		// we must always have a kartenboden!
+		if (get_kartenboden() == NULL) {
+			dbg->fatal("planquadrat_t::rdwr", "No kartenboden found for tile at (%s)", pos.get_str());
+		}
 	}
 }
 
