@@ -254,9 +254,9 @@ else
   endif
 endif
 
-GIT_HASH := $(shell git describe --always 2>/dev/null 1>/dev/null; echo $$?)
+GIT_HASH := $(shell git rev-parse --short=7 HEAD 2>/dev/null 1>/dev/null; echo $$?)
 ifneq ($(GIT_HASH),)
-  GIT_HASH := $(shell git describe --always)
+  GIT_HASH := $(shell git rev-parse --short=7 HEAD)
   $(info Git hash is 0x$(GIT_HASH))
   CFLAGS  += -DGIT_HASH=0x$(GIT_HASH)
 endif
