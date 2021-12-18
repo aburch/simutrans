@@ -22,6 +22,7 @@
 #include "../../descriptor/factory_desc.h"
 #include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
+#include "../../bauer/fabrikbauer.h"
 #include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../bauer/goods_manager.h"
@@ -625,6 +626,12 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @typemask array<factory_slot_information_x> ()
 	 */
 	register_function(vm, get_factory_outputs, "get_outputs", 1, "t|x|y");
+	/**
+	 * Returns table with all factory types.
+	 * The factory names are used as table keys.
+	 */
+	register_method(vm, &factory_builder_t::get_factory_table, "get_list", 1);
+
 	end_class(vm);
 
 	/**

@@ -369,4 +369,9 @@ function test_factory_desc()
 		ASSERT_TRUE(out_goods.find("PrintersInk") != null)
 		ASSERT_TRUE(out_goods.find("Holz") == null)
 	}
+
+	{
+		local list = factory_desc_x.get_list()
+		ASSERT_TRUE("Aufwindkraftwerk" in list)
+	}
 }

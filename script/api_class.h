@@ -11,6 +11,7 @@
 
 #include "../squirrel/squirrel.h"
 #include "../squirrel/sq_extensions.h"  // sq_call_restricted
+#include "../tpl/stringhashtable_tpl.h"
 
 #include <string>
 
@@ -210,6 +211,32 @@ namespace script_api {
 		static const char* typemask()
 		{
 			return param<T*>::typemask();
+		}
+	};
+
+	/**
+	 * Implementation of stringhashtable_tpl specialization
+	 */
+	template<class T> struct param< stringhashtable_tpl<T> > {
+		/**
+		 * Creates table, uses string-keys as table keys.
+		 */
+		static SQInteger push(HSQUIRRELVM vm, stringhashtable_tpl<T> const& v)
+		{
+			sq_newtable(vm);
+
+			FORT(const stringhashtable_tpl<T>, const&i, v) {
+				create_slot<T>(vm, i.key, i.value);
+			}
+			return 1;
+		}
+		/// squirrel_type corresponding to the c++ type/class
+		static const char* squirrel_type()
+		{
+			static cbuffer_t buf;
+			buf.clear();
+			buf.printf("table<%s>", param<T>::squirrel_type() );
+			return buf;
 		}
 	};
 

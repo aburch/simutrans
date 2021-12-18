@@ -150,6 +150,7 @@ BEGIN {
 	export_types_ai["factory_desc_x::is_electricity_producer"] = "bool()"
 	export_types_ai["factory_desc_x::get_productivity_base"] = "integer()"
 	export_types_ai["factory_desc_x::get_productivity_range"] = "integer()"
+	export_types_ai["factory_desc_x::get_list"] = "table<factory_desc_x>()"
 	export_types_ai["way_desc_x::has_double_slopes"] = "bool()"
 	export_types_ai["way_desc_x::get_system_type"] = "way_system_types()"
 	export_types_ai["way_desc_x::get_available_ways"] = "array<way_desc_x>(way_types, way_system_types)"
