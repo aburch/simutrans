@@ -228,7 +228,7 @@ void goods_frame_t::sort_list()
 
 	// update all strings
 	speed_message.clear();
-	speed_message.printf(translator::translate("Average Speed: %i km/h"),
+	speed_message.printf(translator::translate("Bonus Speed: %i km/h"),
 		average_speed
 	);
 	speed_message.append("\n");
