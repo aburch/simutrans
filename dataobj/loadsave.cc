@@ -1359,3 +1359,12 @@ uint32 loadsave_t::int_version(const char *version_text, char *pak_extension_str
 
 	return version;
 }
+
+
+#if defined(HEAVY_MODE) && HEAVY_MODE >= 1
+stream_loadsave_t::stream_loadsave_t(rdwr_stream_t *stream)
+{
+	this->stream = stream;
+	finfo.version = int_version(VERSION_NUMBER, NULL);
+}
+#endif

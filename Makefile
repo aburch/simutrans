@@ -222,6 +222,13 @@ ifdef PROFILE
   endif
 endif
 
+ifdef HEAVY_MODE
+  CFLAGS += -DHEAVY_MODE=$(HEAVY_MODE)
+  ifeq ($(shell expr $(HEAVY_MODE) \>= 1), 1)
+    SOURCES += io/rdwr/adler32_stream.cc
+  endif
+endif
+
 ifdef MULTI_THREAD
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD

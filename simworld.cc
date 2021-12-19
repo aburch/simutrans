@@ -105,6 +105,11 @@
 #include "player/ai_goods.h"
 #include "player/ai_scripted.h"
 
+#include "io/rdwr/adler32_stream.h"
+
+#include "pathes.h"
+
+
 // forward declaration - management of rotation for scripting
 namespace script_api
 {
@@ -7250,9 +7255,16 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		const int offset = server_checklist.print(buf, "server");
 		LCHKLST(server_sync_step).print(buf + offset, "client");
 		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+
 		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
-			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
 			network_disconnect();
+
+#if defined(HEAVY_MODE) && HEAVY_MODE >= 2
+			dbg->fatal(
+#else
+			dbg->warning(
+#endif
+				"karte_t:::do_network_world_command", "Disconnected due to checklist mismatch" );
 		}
 	}
 	else {
@@ -7308,6 +7320,23 @@ sint16 karte_t::get_sound_id(grund_t *gr)
 	}
 	return NO_SOUND;
 }
+
+
+#if defined(HEAVY_MODE) && HEAVY_MODE >= 2
+static void heavy_rotate_saves(const char *prefix, uint32 sync_steps, uint32 num_to_keep)
+{
+	dr_mkdir( SAVE_PATH_X "heavy");
+
+	char name[128];
+	sprintf(name, SAVE_PATH_X "heavy/heavy-%s-%04d.sve", prefix, sync_steps);
+	world()->save(name, false, SERVER_SAVEGAME_VER_NR, true);
+
+	if (sync_steps >= num_to_keep) {
+		sprintf(name, SAVE_PATH_X "heavy/heavy-%s-%04d.sve", prefix, sync_steps - num_to_keep);
+		dr_remove(name);
+	}
+}
+#endif
 
 
 bool karte_t::interactive(uint32 quit_month)
@@ -7448,7 +7477,16 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
+#if defined(HEAVY_MODE) && HEAVY_MODE >= 1
+					LCHKLST(sync_steps) = checklist_t(get_gamestate_hash());
+
+#if HEAVY_MODE >= 2
+					heavy_rotate_saves(env_t::server ? "server" : "client", sync_steps, 10);
+#endif
+
+#else
 					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
+#endif
 					// some server side tasks
 					if(  env_t::networkmode  &&  env_t::server  ) {
 						// broadcast sync info regularly and when lagged
@@ -7687,3 +7725,15 @@ player_t *karte_t::get_public_player() const
 {
 	return get_player(PUBLIC_PLAYER_NR);
 }
+
+
+#if defined(HEAVY_MODE) && HEAVY_MODE >= 1
+uint32 karte_t::get_gamestate_hash()
+{
+	adler32_stream_t *stream = new adler32_stream_t;
+	stream_loadsave_t ls(stream);
+
+	rdwr_gamestate(&ls, NULL);
+	return stream->get_hash();
+}
+#endif
