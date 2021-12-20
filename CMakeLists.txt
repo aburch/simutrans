@@ -132,8 +132,16 @@ else ()
 	endif ()
 	if (APPLE)
 		target_sources(simutrans PRIVATE OSX/translocation.m)
-		set(BACKUP_SOUND sound/AVF_core-audio_sound.mm sound/core-audio_sound.mm)
-		set(BACKUP_MUSIC music/AVF_core-audio_midi.mm music/core-audio_midi.mm)
+		#Darwin kernel version is used to identify macOS version (16->10.12/Sierra)
+		if (CMAKE_HOST_SYSTEM_VERSION VERSION_GREATER_EQUAL 16) #AVF
+			set(BACKUP_SOUND sound/AVF_core-audio_sound.mm)
+			#AVF MIDI currently crash Simutrans
+			#set(BACKUP_MUSIC music/AVF_core-audio_midi.mm)
+			set(BACKUP_MUSIC music/no_midi.cc)
+		else () #QTKit
+			set(BACKUP_SOUND sound/core-audio_sound.mm)
+			set(BACKUP_MUSIC music/core-audio_midi.mm)
+		endif ()
 	else ()
 		set(BACKUP_SOUND sound/no_sound.cc)
 		set(BACKUP_MUSIC music/no_midi.cc)
