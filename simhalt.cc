@@ -2970,6 +2970,7 @@ void haltestelle_t::finish_rd()
 	}
 	recalc_status();
 	reconnect_counter = welt->get_schedule_counter()-1;
+	last_search_origin = halthandle_t();
 }
 
 
