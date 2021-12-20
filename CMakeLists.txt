@@ -325,7 +325,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans" DESTINATION "${CMAKE_BINARY_DI
 
 # download language files
 if (MSVC)
-	# MSVC has no variable on teh install target path at execution time, which is why we expand the directories at creation time!
+	# MSVC has no variable on the install target path at execution time, which is why we expand the directories at creation time!
 	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/get_lang_files.ps1 WORKING_DIRECTORY ${simutrans_BINARY_DIR})")
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		install(CODE "execute_process(COMMAND powershell -Command \"Remove-Item \'${simutrans_BINARY_DIR}/simutrans/simutrans.pdb\')")
