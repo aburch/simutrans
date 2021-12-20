@@ -500,7 +500,7 @@ bool nwc_ready_t::execute(karte_t *welt)
 		if(  welt->is_checklist_available(sync_step)  &&  checklist!=welt->get_checklist_at(sync_step)  ) {
 			// client has gone out of sync
 			socket_list_t::remove_client( get_sender() );
-			char buf[256];
+			cbuffer_t buf;
 			welt->get_checklist_at(sync_step).print(buf, "server");
 			checklist.print(buf, "client");
 			dbg->warning("nwc_ready_t::execute", "disconnect client due to checklist mismatch : sync_step=%u %s", sync_step, buf);

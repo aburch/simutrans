@@ -755,12 +755,9 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 		}
 		if (res == 0) {
 			// connection closed
-#if defined(HEAVY_MODE) && HEAVY_MODE >= 2
-			dbg->fatal(
-#else
-			dbg->warning(
-#endif
-				"network_receive_data", "Connection [%d] already closed", sender);
+			// output warning / throw fatal error depending on heavy mode setting
+			void (log_t::*outfn)(const char*, const char*, ...) = (env_t::network_heavy_mode == 2 ? &log_t::fatal : &log_t::warning);
+			(dbg->*outfn)("network_receive_data", "Connection [%d] already closed", sender);
 			return false;
 		}
 		received += res;

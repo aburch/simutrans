@@ -1800,9 +1800,10 @@ public:
 	 */
 	uint32 generate_new_map_counter() const;
 
-#if defined(HEAVY_MODE) && HEAVY_MODE >= 1
+	/**
+	 * Generates hash of game state by streaming a save to a hash function
+	 */
 	uint32 get_gamestate_hash();
-#endif
 
 private:
 	void process_network_commands(sint32* ms_difference);

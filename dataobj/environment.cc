@@ -60,6 +60,7 @@ std::string env_t::server_motd_filename;
 vector_tpl<std::string> env_t::listen;
 bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;
+uint8 env_t::network_heavy_mode = 0;
 
 sint32 env_t::server_frames_ahead = 4;
 sint32 env_t::additional_client_frames_behind = 4;

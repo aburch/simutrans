@@ -96,6 +96,7 @@ public:
 	/// if true save game under autosave-#paksetname#.sve and reload it upon startup
 	static bool reload_and_save_on_quit;
 
+	static uint8 network_heavy_mode;
 	/// @} end of Network-related settings
 
 
