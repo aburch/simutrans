@@ -6,12 +6,12 @@ jobs:
   build:
 
     runs-on: macos-10.15
-    
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: install_dependencies
-      run: | 
+      run: |
         brew install cmake pkg-config libpng sdl2 freetype fluidsynth zstd
 
     - name: build
@@ -33,4 +33,4 @@ jobs:
         file: build/simumac-nightly.zip
         asset_name: simumac-nightly.zip
         tag: Nightly
-        overwrite: true   
+        overwrite: true
