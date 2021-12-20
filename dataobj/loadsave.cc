@@ -27,7 +27,7 @@
 #if USE_ZSTD
 #include "../io/rdwr/zstd_file_rdwr_stream.h"
 #endif
-
+#include "../io/rdwr/compare_file_rd_stream.h"
 
 #define INVALID_RDWR_ID (-1)
 
@@ -1366,3 +1366,23 @@ stream_loadsave_t::stream_loadsave_t(rdwr_stream_t *stream)
 	this->stream = stream;
 	finfo.version = int_version(VERSION_NUMBER, NULL);
 }
+
+
+compare_loadsave_t::compare_loadsave_t(loadsave_t *file1, loadsave_t *file2)
+{
+	stream = new compare_file_rd_stream_t(file1->stream, file2->stream);
+	finfo.version = int_version(VERSION_NUMBER, NULL);
+	set_buffered(false);
+	file1->set_buffered(false);
+	file2->set_buffered(false);
+}
+
+
+compare_loadsave_t::~compare_loadsave_t()
+{
+	delete stream;
+	stream = NULL;
+}
+
+
+
