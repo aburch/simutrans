@@ -154,11 +154,11 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_waggons(&waggons),
 	line_selector(line_scrollitem_t::compare)
 {
-
-	old_vehicle_count = depot->get_vehicle_list().get_count() + 1;
-	old_veh_type = NULL;
+	old_vehicle_count = 0;
 
 	if (depot) {
+		old_vehicle_count = depot->get_vehicle_list().get_count() + 1;
+		old_veh_type = NULL;
 		init(depot);
 	}
 }

@@ -243,7 +243,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_bmp.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_png.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\raw_image_ppm.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\adler32_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\compare_file_rd_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.cc" />
@@ -613,7 +615,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)music\music.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\classify_file.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\raw_image.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\adler32_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\bzip2_file_rdwr_stream.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\compare_file_rd_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\raw_file_rdwr_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\rdwr_stream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)io\rdwr\zlib_file_rdwr_stream.h" />
