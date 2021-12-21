@@ -503,7 +503,7 @@ bool nwc_ready_t::execute(karte_t *welt)
 			cbuffer_t buf;
 			welt->get_checklist_at(sync_step).print(buf, "server");
 			checklist.print(buf, "client");
-			dbg->warning("nwc_ready_t::execute", "disconnect client due to checklist mismatch : sync_step=%u %s", sync_step, buf);
+			dbg->warning("nwc_ready_t::execute", "disconnect client due to checklist mismatch : sync_step=%u %s", sync_step, buf.get_str());
 			return true;
 		}
 		// check the validity of the map counter

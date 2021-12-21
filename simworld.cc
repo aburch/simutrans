@@ -7196,7 +7196,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					cbuffer_t buf;
 					LCHKLST(nwt->last_sync_step).print(buf, "server");
 					nwt->last_checklist.print(buf, "initiator");
-					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf.get_str());
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
 					nwc = NULL;
@@ -7253,7 +7253,7 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		cbuffer_t buf;
 		server_checklist.print(buf, "server");
 		LCHKLST(server_sync_step).print(buf, "client");
-		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
+		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf.get_str());
 
 		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
 			network_disconnect();
@@ -7270,7 +7270,7 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 				cbuffer_t buf;
 				nwt->last_checklist.print(buf, "server");
 				LCHKLST(nwt->last_sync_step).print(buf, "executor");
-				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf.get_str());
 				if(  !env_t::server  ) {
 					network_disconnect();
 				}
