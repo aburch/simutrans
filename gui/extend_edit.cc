@@ -55,7 +55,7 @@ gui_sorting_item_t::gui_sorting_item_t(uint8 s) : gui_scrolled_list_t::const_tex
 		case BY_LEVEL_PAX:           text = translator::translate("Pax level"); break;
 		case BY_LEVEL_MAIL:          text = translator::translate("Mail level"); break;
 		case BY_DATE_INTRO:          text = translator::translate("Intro. date"); break;
-		case BY_DATE_RETIRE:         text = translator::translate("Retire Date"); break;
+		case BY_DATE_RETIRE:         text = translator::translate("Retire date"); break;
 		case BY_SIZE:                text = translator::translate("Size (area)"); break;
 		case BY_COST:                text = translator::translate("Price"); break;
 		case BY_GOODS_NUMBER:        text = translator::translate("Goods"); break;
@@ -122,7 +122,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	scl.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 
 	// start filling cont_timeline---------------------------------------------------------------------------------------------
-	bt_timeline.init( button_t::square_state, "Use timeline start year");
+	bt_timeline.init( button_t::square_state, "timeline");
 	bt_timeline.pressed = welt->get_settings().get_use_timeline();
 	bt_timeline.add_listener(this);
 	cont_timeline.add_component(&bt_timeline, 4);

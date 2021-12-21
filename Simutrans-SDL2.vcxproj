@@ -41,6 +41,9 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Stable'">
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <EnableASAN>true</EnableASAN>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="Shared">
     <Import Project="Simutrans-Main.vcxitems" Label="Shared" />
@@ -83,7 +86,7 @@
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>
-	  </TargetMachine>
+      </TargetMachine>
     </Link>
     <Manifest>
       <EnableDPIAwareness>true</EnableDPIAwareness>
