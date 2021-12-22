@@ -116,11 +116,11 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 	bt_city_chain.init( button_t::square_state, "Only city chains");
 	bt_city_chain.add_listener(this);
-	cont_filter.add_component(&bt_city_chain);
+	cont_filter.add_component(&bt_city_chain,3);
 
 	bt_land_chain.init( button_t::square_state, "Only land chains");
 	bt_land_chain.add_listener(this);
-	cont_filter.add_component(&bt_land_chain);
+	cont_filter.add_component(&bt_land_chain,3);
 
 	// add water to climate selection
 	cb_climates.new_component<gui_climates_item_t>(climate::water_climate);

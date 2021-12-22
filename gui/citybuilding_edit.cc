@@ -102,17 +102,17 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	bt_res.init( button_t::square_state, "residential house");
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
-	cont_filter.add_component(&bt_res);
+	cont_filter.add_component(&bt_res,3);
 
 	bt_com.init( button_t::square_state, "shops and stores");
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
-	cont_filter.add_component(&bt_com);
+	cont_filter.add_component(&bt_com,3);
 
 	bt_ind.init( button_t::square_state, "industrial building");
 	bt_ind.add_listener(this);
 	bt_ind.pressed = true;
-	cont_filter.add_component(&bt_ind);
+	cont_filter.add_component(&bt_ind,3);
 
 	// add to sorting selection
 	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
