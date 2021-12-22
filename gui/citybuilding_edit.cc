@@ -250,8 +250,28 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n\n");
 			buf.append( translator::translate( desc->get_name() ) );
+			buf.append("\n\n");
 
-			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),desc->get_level());
+			// climates
+			buf.append( translator::translate("allowed climates:\n") );
+			uint16 cl = desc->get_allowed_climate_bits();
+			if(cl==0) {
+				buf.append( translator::translate("none") );
+				buf.append("\n");
+			}
+			else {
+				for(uint16 i=0;  i<=arctic_climate;  i++  ) {
+					if(cl &  (1<<i)) {
+						buf.append(" - ");
+						buf.append(translator::translate(ground_desc_t::get_climate_name_from_bit((climate)i)));
+						buf.append("\n");
+					}
+				}
+			}
+			buf.append("\n");
+
+
+			buf.printf("%s: %i\n",translator::translate("Passagierrate"),desc->get_level());
 			buf.printf("%s: %i\n",translator::translate("Postrate"),desc->get_mail_level());
 
 			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
