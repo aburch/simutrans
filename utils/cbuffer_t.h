@@ -98,6 +98,9 @@ public:
 	/* enlarge the buffer if needed (i.e. size+by_amount larger than capacity) */
 	void extend(unsigned int by_amount);
 
+	// removes trailing whitespaces
+	void trim();
+
 	/**
 	 * Automagic conversion to a const char* for backwards compatibility
 	 */

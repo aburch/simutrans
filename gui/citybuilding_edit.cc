@@ -250,6 +250,8 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n\n");
 			buf.append( translator::translate( desc->get_name() ) );
+
+			buf.trim();
 			buf.append("\n\n");
 
 			// climates

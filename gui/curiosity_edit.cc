@@ -246,6 +246,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			buf.append("\n\n");
 			buf.append( translator::translate( desc->get_name() ) );
 
+			buf.trim();
+			buf.append("\n\n");
+
 			// climates
 			buf.append( translator::translate("allowed climates:\n") );
 			uint16 cl = desc->get_allowed_climate_bits();
