@@ -105,7 +105,7 @@ bool dr_init_sound()
 	}
 
 	// initialize SDL sound subsystem
-	if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) == -1) {
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
 		dbg->error("dr_init_sound(SDL2)", "Could not initialize sound system. Muting.");
 		use_sound = -1;
 		return false;
