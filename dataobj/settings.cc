@@ -1226,8 +1226,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::autosave = contents.get_int_clamped( "autosave", env_t::autosave, 0, INT_MAX );
 
 	// routing stuff
-	max_route_steps        = contents.get_int_clamped( "max_route_steps",        max_route_steps,        0, INT_MAX );
-	max_choose_route_steps = contents.get_int_clamped( "max_choose_route_steps", max_choose_route_steps, 0, INT_MAX );
+	max_route_steps        = contents.get_int_clamped( "max_route_steps",        max_route_steps,        1, INT_MAX );
+	max_choose_route_steps = contents.get_int_clamped( "max_choose_route_steps", max_choose_route_steps, 1, INT_MAX );
 	max_hops               = contents.get_int_clamped( "max_hops",               max_hops,               0, INT_MAX );
 	max_transfers          = contents.get_int_clamped( "max_transfers",          max_transfers,          0, INT_MAX );
 	bonus_basefactor       = contents.get_int_clamped( "bonus_basefactor",       bonus_basefactor,       0, 1000 );

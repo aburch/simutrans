@@ -206,6 +206,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			    && gr->get_neighbour(to, wegtyp, ribi_t::nesw[r])  // is connected
 			    && !marker.is_marked(to) // not already tested
 			    && tdriver->check_next_tile(to) // can be driven on
+				&& step < MAX_STEP // do not overrun nodes[]
 			) {
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
@@ -473,9 +474,12 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				const uint32 new_f = new_g + dist + turns * 3 + costup;
 
+				if (step >= MAX_STEP) {
+					break; // Do not overrun nodes[]
+				}
+
 				// add new
-				ANode* k = &nodes[step];
-				step ++;
+				ANode* k = &nodes[step++];
 
 				k->parent = tmp;
 				k->gr = to;
