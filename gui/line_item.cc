@@ -101,7 +101,7 @@ bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t
 			case SORT_BY_PROFIT:
 				return ((a->get_line()->get_finance_history( 1, LINE_PROFIT ) - b->get_line()->get_finance_history( 1, LINE_PROFIT ))<0) ^ sort_reverse;
 			case SORT_BY_REVENUE:
-				return ((a->get_line()->get_finance_history( 1, LINE_REVENUE ) - b->get_line()->get_finance_history( 1, LINE_PROFIT ))<0) ^ sort_reverse;
+				return ((a->get_line()->get_finance_history( 1, LINE_REVENUE ) - b->get_line()->get_finance_history( 1, LINE_REVENUE ))<0) ^ sort_reverse;
 			case SORT_BY_TRANSPORTED:
 				return ((a->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS) - b->get_line()->get_finance_history(1,LINE_TRANSPORTED_GOODS))<0) ^ sort_reverse;
 			case SORT_BY_CONVOIS:
