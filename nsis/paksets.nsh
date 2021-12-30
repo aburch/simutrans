@@ -8,11 +8,11 @@
 SectionGroup /e "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 12334
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip"
-  StrCpy $archievename "simupak64-122-0.zip"
+  AddSize 15766
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/123-0/simupak64-123-0.zip"
+  StrCpy $archievename "simupak64-123-0.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 121 r2044"
+  StrCpy $VersionString "pak64 123 r2102"
   Call DownloadInstallZip
 SectionEnd
 
@@ -32,7 +32,7 @@ SectionEnd
 
 SectionGroupEnd
 
-Section "pak64.german (Freeware) for 122" pak64german
+Section "pak64.german (Freeware) for 123" pak64german
   AddSize 22460
   StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-1_full.zip"
   StrCpy $archievename "pak64.german_0-123-0-0-1_full.zip"
@@ -43,11 +43,11 @@ SectionEnd
 
 
 Section /o "pak.japan (64 size)" pak64japan
-  AddSize 8358
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip"
-  StrCpy $archievename "simupak64.japan-120-0-1.zip"
+  AddSize 10175
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip"
+  StrCpy $archievename "simupak64.japan-123-0.zip"
   StrCpy $downloadname "pak.japan"
-  StrCpy $VersionString "pak64.japan 120.0.1 r1495"
+  StrCpy $VersionString "pak64.japan 123 r2101"
   Call DownloadInstallZip
 SectionEnd
 
@@ -62,12 +62,12 @@ Section /o "pak.Nippon (64 size) V0.5" pak64nippon
 SectionEnd
 
 
-Section "pak128.German V2.0" pak128german
-  AddSize 431961
-	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.0_for_ST_122.0/PAK128.german_2.0_for_ST_122.0.zip"
-  StrCpy $archievename "PAK128.german_2.0_for_ST_122.0.zip"
+Section "pak128.German V2.1" pak128german
+  AddSize 558832
+	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip"
+  StrCpy $archievename "PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "Pak128.german VS 2.0 (Rev. 356)"
+  StrCpy $VersionString "Pak128.german VS 2.1.beta (Rev. 468)"
   Call DownloadInstallZip
 SectionEnd
 

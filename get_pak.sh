@@ -187,15 +187,15 @@ download_and_install_pakset()
 
 # generated list of pak sets
 paksets=( \
-	"http://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip" \
+	"http://downloads.sourceforge.net/project/simutrans/pak64/123-0/simupak64-123-0.zip" \
 	"http://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-1_full.zip" \
-	"http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip" \
+	"http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip" \
 	"http://github.com/wa-st/pak-nippon/releases/download/v0.5.0/pak.nippon-v0.5.0.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2078.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip" \
-	"http//downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.0_for_ST_122.0/PAK128.german_2.0_for_ST_122.0.zip" \
+	"http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip" \
 	"http://github.com/Flemmbrav/Pak192.Comic/releases/download/2021-V0.6-RC2/pak192.comic.0.6.RC2.zip" \
 	"http://pak128.jpn.org/souko/pak128.japan.120.0.cab" \
 	"http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip" \

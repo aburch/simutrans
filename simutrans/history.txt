@@ -1,3 +1,5 @@
+Release of 123.0 (r10137 on 30-Dec-2021):
+	KNOWN BUG: ugly movement of pedestrians on diagonals/curves
 	FIX: map enlargement crashes with new climate generator
 	FIX: Wrong tooltip when building something with the finance window opened
 	CHG: Sound now plays on GDI via Xaudio2 for individual volume control
@@ -8,7 +10,7 @@
 	ADD: New height conversion modes when loading heightmaps
 	CHG: schedule/line now tab of convoi window instead independent window
 	CHG: new line list, overhauled convoi list
-	CHG: rivers now go to the sea and pass through lakes. A tiny stream becomes navigatavble after a lake or merging with another stream
+	CHG: rivers now go to the sea and pass through lakes. A tiny stream becomes navigatable after a lake or merging with another stream
 	FIX: MessageOptions can be three single images (id=0,1,2) instead of one large image
 	FIX: Potential hang when loading zstd compressed save files when multi-threading is enabled
 	CHG: crossing speed is now the max speed. No crossing, if one speed higher than maxspeed
