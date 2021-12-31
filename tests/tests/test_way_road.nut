@@ -719,7 +719,7 @@ function test_way_road_upgrade_crossing()
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
 
 	// hard-coded because there is no crossing_desc_x/crossing_x
-	local crossing_road_speed = 30
+	local crossing_road_speed = 80
 	local crossing_rail_speed = 160
 
 	// upgrade road past max crossing speed; works, but road crossing speed is limited
