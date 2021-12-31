@@ -201,7 +201,7 @@ void schedule_t::move_entry_forward( uint8 cur )
 	if( cur < entries.get_count()-1 ) {
 		// just append everything
 		entries.insert_at( cur+2, entries[ cur ] );
-		entries.remove_at( cur+1 );
+		entries.remove_at( cur );
 	}
 	else {
 		// last entry, just append everything

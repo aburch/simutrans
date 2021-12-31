@@ -368,23 +368,24 @@ gui_schedule_t::gui_schedule_t() :
 	set_table_layout(1,0);
 
 	// loading level and waiting time
-	loading_details = add_table( 4, 1 );
+	loading_details = add_table( 3, 3 );
 	loading_details->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
-		add_component(&cb_wait);
+		add_component(&cb_wait,2);
 		cb_wait.add_listener( this );
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Full load" ), SYSCOL_TEXT );
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Monthly departures" ), SYSCOL_TEXT );
+		new_component_span<gui_fill_t>(1);
 
+		add_component(&lb_load_str);
 		numimp_load.add_listener(this);
 		add_component(&numimp_load);
+		new_component<gui_fill_t>();
 
-		add_component(&lb_departure_time);
-
+		add_component(&lb_departure_str);
 		departure.set_rigid(true);
 		departure.add_listener(this);
 		add_component(&departure);
-
 		new_component<gui_fill_t>();
 	}
 	end_table();
@@ -512,7 +513,8 @@ void gui_schedule_t::update_selection()
 	cb_wait.set_visible(false);
 	numimp_load.set_visible(false);
 	departure.set_visible(false);
-	lb_departure_time.set_visible(false);
+	lb_load_str.set_visible(false);
+	lb_departure_str.set_visible(false);
 
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
@@ -524,23 +526,27 @@ void gui_schedule_t::update_selection()
 			cb_wait.set_visible(true);
 			if( schedule->entries[current_stop].get_absolute_departures() ) {
 				cb_wait.set_selection( 1 );
+				lb_load_str.set_visible(true);
+				lb_load_str.set_text("Departures per month");
 				numimp_load.set_visible( true );
 				numimp_load.set_value( schedule->entries[current_stop].get_absolute_departures() );
 				numimp_load.set_limits( 1, 154 );
 				numimp_load.set_increment_mode( 1 );
-				lb_departure_time.set_visible( true );
-				lb_departure_time.set_text( "on the" );
+				lb_departure_str.set_visible( true );
+				lb_departure_str.set_text( "Departs at" );
 				departure.set_visible( true );
 				departure.set_ticks( schedule->entries[current_stop].waiting_time, true);
 			}
 			else {
 				cb_wait.set_selection( 0 );
+				lb_load_str.set_visible(true);
+				lb_load_str.set_text("Minimum load");
 				numimp_load.set_visible( true );
 				numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 				numimp_load.set_limits( 0, 100 );
 				numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
-				lb_departure_time.set_text( "Departure after" );
-				lb_departure_time.set_visible( true );
+				lb_departure_str.set_text( "Max. waiting time" );
+				lb_departure_str.set_visible( true );
 				departure.set_visible( true );
 				departure.set_ticks( schedule->entries[current_stop].waiting_time, false );
 			}
