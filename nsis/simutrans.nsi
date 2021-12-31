@@ -23,7 +23,7 @@ OutFile "simutrans-online-install.exe"
 InstallDir $PROGRAMFILES\Simutrans
 
 
-SectionGroup !Simutrans
+SectionGroup /e !Simutrans
 
 Function PostExeInstall
   StrCmp $multiuserinstall "1" NotPortable
@@ -44,20 +44,38 @@ finishGDIexe:
   ;WriteUninstaller $INSTDIR\uninstaller.exe
 FunctionEnd
 
-Section /o "Executable (GDI, run one more computers)" GDIexe
-  AddSize 15051
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/122-0/simuwin-122-0.zip"
-  StrCpy $archievename "simuwin-122-0.zip"
+Section /o "Executable (GDI)" GDIexe
+  AddSize 18656
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin-123-0.zip"
+  StrCpy $archievename "simuwin-123-0.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
-Section "Executable (SDL2, better sound)" SDLexe
-  AddSize 17768
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/122-0/simuwin-sdl-122-0.zip"
-  StrCpy $archievename "simuwin-sdl-122-0.zip"
+Section "Executable (SDL2)" SDLexe
+  AddSize 20372
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin-sdl-123-0.zip"
+  StrCpy $archievename "simuwin-sdl-123-0.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2)"
+  Call DownloadInstallZip
+  Call PostExeInstall
+SectionEnd
+
+Section /o "Executable (GDI 64bit)" GDI64exe
+  AddSize 18196
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin64-123-0.zip"
+  StrCpy $archievename "simuwin64-123-0.zip"
+  StrCpy $downloadname "Simutrans Executable (GDI) only for huge maps"
+  Call DownloadInstallZip
+  Call PostExeInstall
+SectionEnd
+
+Section /o "Executable (SDL2 64bit)" SDL64exe
+  AddSize 19776
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin64-sdl-123-0.zip"
+  StrCpy $archievename "simuwin-sdl64-123-0.zip"
+  StrCpy $downloadname "Simutrans Executable (SDL2) only for huge maps"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
@@ -87,33 +105,14 @@ SectionGroupEnd
 
 ;********************* from here on special own helper functions ************
 
-
 ; make sure, at least one executable is installed
 Function .onSelChange
-
-  ; radio button macro does not work as intended now => do it yourself
-  SectionSetFlags ${wenquanyi_font} ${SF_SELECTED}
-  SectionGetFlags ${SDLexe} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} +1 test_for_pak
-
-  ; SDL is selected
-  SectionGetFlags ${GDIexe} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} +1 select_SDL
-  ; ok both selected
-  IntCmp $group1 0 select_SDL
-  ; But GDI was not previously selected => unselect SDL
-  SectionGetFlags ${SDLexe} $R0
-  IntOp $R0 $R0 & ${SECTION_OFF}
-  SectionSetFlags ${SDLexe} $R0
-  Goto test_for_pak
-
-select_SDL:
-  ; ok SDL was selected
-  SectionGetFlags ${GDIexe} $R0
-  IntOp $R0 $R0 & ${SECTION_OFF}
-  SectionSetFlags ${GDIexe} $R0
+!insertmacro StartRadioButtons $9
+    !insertmacro RadioButton ${GDIexe}
+    !insertmacro RadioButton ${SDLexe}
+    !insertmacro RadioButton ${GDI64exe}
+    !insertmacro RadioButton ${SDL64exe}
+!insertmacro EndRadioButtons
 
 test_for_pak:
   ; save last state of SDLexe selection

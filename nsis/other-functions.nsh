@@ -263,6 +263,8 @@ PageExEnd
 ; ******************************** From here on Functions ***************************
 
 Function .oninit
+  StrCpy $9 ${SDLexe} ;The default for radiobutton
+
   InitPluginsDir
   StrCpy $multiuserinstall "1"
  ; avoids two instance at the same time ...
