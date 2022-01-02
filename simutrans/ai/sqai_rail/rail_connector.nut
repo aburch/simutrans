@@ -113,6 +113,22 @@ class rail_connector_t extends manager_t
 							planned_way = find_object("way", wt_rail, planned_way.get_topspeed())
 						}
 
+            // check exist way
+            local check_way = [0, 0, 0, 0, 0, 0]
+            for ( local i = 0; i < 6; i++ ) {
+              if ( i < 3 ) {
+                // start
+                if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_way) ) {
+                  check_way[i] = 1
+                }
+              } else {
+                // end
+                if ( tile_x(t_end[i-3].x, t_end[i-3].y, t_end[i-3].z).find_object(mo_way) ) {
+                  check_way[i] = 1
+                }
+              }
+            }
+
 						err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
 						err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
 						if ( err == null ) {
@@ -130,65 +146,53 @@ class rail_connector_t extends manager_t
 									if ( err == true ) {
 										// station end ok
 										// remove track -> error by build
-										for ( local i = 0; i < t_start.len(); i++ ) {
-											if ( !dir.is_threeway(tile_x(t_start[i].x, t_start[i].y, t_start[i].z).get_way_dirs(wt_rail)) ) {
+										for ( local i = 0; i < 6; i++ ) {
+											if ( check_way[i] == 0 && i < 3 ) {
 												remove_tile_to_empty(t_start[i], wt_rail, 0)
-											}
-											if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
-												remove_tile_to_empty(t_end[i], wt_rail, 0)
-											}
+											} else if ( check_way[i] == 0 && i > 2 ) {
+                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
+                      }
 										}
 										//tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
 										//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
 									} else {
 										// failed station place end
-										local a = 0
-										for ( local i = 0; i < t_start.len(); i++ ) {
-											if ( tile_x(t_start[i].x, t_start[i].y, t_start[i].z).find_object(mo_building) != null ) {
-												a++
-											}
+										for ( local i = 0; i < 6; i++ ) {
+											if ( check_way[i] == 0 && i < 3 ) {
+												remove_tile_to_empty(t_start[i], wt_rail, 0)
+											} else if ( check_way[i] == 0 && i > 2 ) {
+                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
+                      }
 										}
 
-										if ( a == 0 ) {
-											// remove start by not exists stations
-											for ( local i = 0; i < t_start.len(); i++ ) {
-												if ( !dir.is_threeway(tile_x(t_start[i].x, t_start[i].y, t_start[i].z).get_way_dirs(wt_rail)) ) {
-													remove_tile_to_empty(t_start[i], wt_rail, 0)
-												}
-											}
-											//tool.work(our_player, t_start[0], t_start[2], "" + wt_rail)
-										}
-										// remove end
-										a = 0
-										for ( local i = 0; i < t_end.len(); i++ ) {
-											if ( tile_x(t_end[i].x, t_end[i].y, t_end[i].z).find_object(mo_building) != null ) {
-												a++
-											}
-										}
-
-										if ( a == 0 ) {
-											for ( local i = 0; i < t_end.len(); i++ ) {
-												if ( !dir.is_threeway(tile_x(t_end[i].x, t_end[i].y, t_end[i].z).get_way_dirs(wt_rail)) ) {
-													remove_tile_to_empty(t_end[i], wt_rail, 0)
-												}
-											}
-											//tool.work(our_player, t_end[0], t_end[2], "" + wt_rail)
-										}
 										return error_handler()
 									}
 								} else {
 									// remove start
+										for ( local i = 0; i < 3; i++ ) {
+											if ( check_way[i] == 0 && i < 3 ) {
+												remove_tile_to_empty(t_start[i], wt_rail, 0)
+											}
+										}
 								}
 							} else {
 								// failed station place start
 								// remove start
 								//::debug.pause()
-								remove_tile_to_empty(t_start, wt_rail, 1)
+								for ( local i = 0; i < 3; i++ ) {
+								  if ( check_way[i] == 0 && i < 3 ) {
+									  remove_tile_to_empty(t_start[i], wt_rail, 0)
+									}
+								}
 								return error_handler()
 							}
 						} else {
 							// no built way start -> remove start
-							remove_tile_to_empty(t_start, wt_rail, 1)
+							for ( local i = 0; i < 3; i++ ) {
+								if ( check_way[i] == 0 && i < 3 ) {
+									remove_tile_to_empty(t_start[i], wt_rail, 0)
+								}
+							}
 						}
 						gui.add_message_at(pl, "plan station start " + t_start[0] + " - plan station end " + t_end[0], t_start[2])
 					}
@@ -231,8 +235,8 @@ class rail_connector_t extends manager_t
 					}
 
 					if ( (cash-build_cost) < (cost_monthly*4) ) {
-						remove_tile_to_empty(t_start, wt_rail, 1)
-						remove_tile_to_empty(t_end, wt_rail, 1)
+						//remove_tile_to_empty(t_start, wt_rail, 1)
+						//remove_tile_to_empty(t_end, wt_rail, 1)
 						industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
 						gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
 						return error_handler()

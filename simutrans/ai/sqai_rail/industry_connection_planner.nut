@@ -364,6 +364,12 @@ class industry_connection_planner_t extends manager_t
 			count += 1
 		} while(a > 0)
 
+    // check planned way speed - planned convoy speed
+    if ( wt == wt_air && wt != wt_water && planned_way.get_topspeed() < planned_convoy.min_top_speed ) {
+      //gui.add_message_at(our_player, "-- planned way (" + planned_way.get_topspeed() + ") to low speed for convoy (" + planned_convoy.min_top_speed + ")", world.get_time())
+      planned_way = find_object("way", wt, planned_convoy.min_top_speed)
+    }
+
 		// build cost for way, stations and depot
 		local build_cost = ((r.distance * planned_way.get_cost()) + ((count*2)*planned_station.get_cost()) + planned_depot.get_cost() + planned_bridge.cost)/100 + (tree_cost/100*2)
 		// build cost / 13 months
@@ -443,11 +449,11 @@ class industry_connection_planner_t extends manager_t
 		local bridge_year_factor = 1
 		if ( world.get_time().year < 1920 ) {
 			if ( wt == wt_road ) {
-				bridge_year_factor = 3
+				bridge_year_factor = 4
 			}
-		} else if ( world.get_time().year < 1930 ) {
+		} else if ( world.get_time().year < 1935 ) {
 			if ( wt == wt_road ) {
-				bridge_year_factor = 2
+				bridge_year_factor = 3
 			}
 		}
 
@@ -462,7 +468,10 @@ class industry_connection_planner_t extends manager_t
 						r.points += 20
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 25 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 25 ) {
+            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+						r.points -= (34*bridge_year_factor)
+          } else if ( planned_bridge.tiles > 40 ) {
 						r.points -= (25*bridge_year_factor)
 					}
 					if ( planned_convoy.max_speed < 50 ) {
@@ -514,7 +523,10 @@ class industry_connection_planner_t extends manager_t
 						r.points -= 10
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 30 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 8 ) {
+            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+						r.points -= (38*bridge_year_factor)
+          } else if ( planned_bridge.tiles > 15 ) {
 						r.points -= (25*bridge_year_factor)
 					}
 			    break
@@ -526,7 +538,10 @@ class industry_connection_planner_t extends manager_t
 						r.points += 10
 						cash_buffer = 10
 					}
-					if ( planned_bridge.tiles > 15 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 5 ) {
+            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+						r.points -= (38*bridge_year_factor)
+          } else if ( planned_bridge.tiles > 15 ) {
 						r.points -= (32*bridge_year_factor)
 					}
 			    break
@@ -546,12 +561,18 @@ class industry_connection_planner_t extends manager_t
 		if  ( r.distance > 120 && r.distance < 350 ) {
 			switch (wt) {
 				case wt_rail:
-					if ( planned_bridge.tiles > 25 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 15 ) {
+            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+						r.points -= (22*bridge_year_factor)
+          } else if ( planned_bridge.tiles > 28 ) {
 						r.points -= (15*bridge_year_factor)
 					}
 			    break
 				case wt_road:
-					if ( planned_bridge.tiles > 15 ) {
+					if ( world.get_time().year < 1935 && planned_bridge.tiles > 5 ) {
+            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+						r.points -= (22*bridge_year_factor)
+          } else if ( planned_bridge.tiles > 15 ) {
 						r.points -= (15*bridge_year_factor)
 					}
 			    break
@@ -598,7 +619,7 @@ class industry_connection_planner_t extends manager_t
 
 
 		if ( citycar_rate < 10 ) {
-		  gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
+		  //gui.add_message_at(our_player, "citycar_count[0] " + citycar_count[0] + " citycar_rate " + citycar_rate, world.get_time())
 			switch (wt) {
 				case wt_rail:
 					r.points += 25
