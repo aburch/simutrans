@@ -194,7 +194,7 @@ void schedule_t::remove_entry( uint8 delete_enty )
 
 void schedule_t::move_entry_forward( uint8 cur )
 {
-	if( entries.get_count() <= 2 ) {
+	if( entries.get_count() <= 1 ) {
 		return;
 	}
 	// not last entry
@@ -217,7 +217,7 @@ void schedule_t::move_entry_forward( uint8 cur )
 
 void schedule_t::move_entry_backward( uint8 cur )
 {
-	if( entries.get_count() <= 2 ) {
+	if( entries.get_count() <= 1 ) {
 		return;
 	}
 
