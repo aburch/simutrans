@@ -322,12 +322,12 @@ public:
 		}
 		else if( v.i & UP_FLAG ) {
 			uint8 up_stop = v.i & 0x00FF;
-			schedule->move_entry_forward( up_stop );
+			schedule->move_entry_backward( up_stop );
 			call_listeners( schedule->get_current_stop() );
 		}
 		else if( v.i & DOWN_FLAG ) {
 			uint8 down_stop = v.i & 0x00FF;
-			schedule->move_entry_backward( down_stop );
+			schedule->move_entry_forward( down_stop );
 			call_listeners( schedule->get_current_stop() );
 		}
 		else {
