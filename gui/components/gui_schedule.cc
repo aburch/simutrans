@@ -375,14 +375,18 @@ gui_schedule_t::gui_schedule_t() :
 		cb_wait.add_listener( this );
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Full load" ), SYSCOL_TEXT );
 		cb_wait.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "Monthly departures" ), SYSCOL_TEXT );
-		new_component_span<gui_fill_t>(1);
+		cb_wait.set_rigid(true);
+		new_component<gui_fill_t>();
 
 		add_component(&lb_load_str);
+		lb_load_str.set_rigid(true);
 		numimp_load.add_listener(this);
+		numimp_load.set_rigid(true);
 		add_component(&numimp_load);
 		new_component<gui_fill_t>();
 
 		add_component(&lb_departure_str);
+		lb_departure_str.set_rigid(true);
 		departure.set_rigid(true);
 		departure.add_listener(this);
 		add_component(&departure);
@@ -553,9 +557,11 @@ void gui_schedule_t::update_selection()
 		}
 		else {
 			// waypoint
+
 		}
 	}
 	loading_details->set_size( loading_details->get_size() );
+	set_size(size);
 }
 
 

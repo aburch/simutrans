@@ -351,7 +351,6 @@ void convoi_info_t::init_line_selector()
 		line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 		line_selector.sort(offset);
 		old_line_count = cnv->get_owner()->simlinemgmt.get_line_count();
-		old_schedule_count = scd.get_schedule()->get_count();
 	}
 }
 
@@ -463,6 +462,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		init_line_selector();
 		reset_min_windowsize();
 	}
+	old_schedule_count = scd.get_schedule()->get_count();
 
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 	line_button2.enable( line.is_bound() );
