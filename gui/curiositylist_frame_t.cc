@@ -46,7 +46,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 
 		filter_by_owner.init(button_t::square_automatic, "Served by");
 		filter_by_owner.add_listener(this);
-		filter_by_owner.set_tooltip("At least one tile is connected to one stop");
+		filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
 		add_component(&filter_by_owner);
 
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
@@ -94,7 +94,7 @@ void curiositylist_frame_t::fill_list()
 	scrolly.clear_elements();
 	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_attractions();
 	attraction_count = world_attractions.get_count();
-	player_t *pl = (filter_by_owner.pressed  &&  filterowner.get_selection()>0) ? world()->get_player(filterowner.get_selection()) : NULL;
+	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
 
 	FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
 		if (geb != NULL &&

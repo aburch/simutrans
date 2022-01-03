@@ -55,7 +55,7 @@ private:
 	gui_aligned_container_t list, statistics;
 	gui_label_buf_t citizens;
 
-	uint32 old_city_count;
+	uint32 old_city_count, old_halt_count;
 
 	void fill_list();
 	void update_label();

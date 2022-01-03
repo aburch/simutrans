@@ -10,6 +10,7 @@
 #include "../player/simplay.h"
 #include "../dataobj/translator.h"
 #include "../simcolor.h"
+#include "../simhalt.h"
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
 #include "components/gui_button_to_chart.h"
@@ -92,6 +93,7 @@ citylist_frame_t::citylist_frame_t() :
 	scrolly(gui_scrolled_list_t::windowskin, citylist_stats_t::compare)
 {
 	old_city_count = 0;
+	old_halt_count = 0;
 
 	set_table_layout(1,0);
 
@@ -110,7 +112,7 @@ citylist_frame_t::citylist_frame_t() :
 
 	filter_by_owner.init( button_t::square_automatic, "Served by" );
 	filter_by_owner.add_listener(this);
-	filter_by_owner.set_tooltip( "At least one stop is connected to the town" );
+	filter_by_owner.set_tooltip( "At least one stop is connected to the town." );
 	list.add_component(&filter_by_owner);
 
 	for( int i = 0; i < MAX_PLAYER_COUNT; i++ ) {
@@ -211,7 +213,7 @@ void citylist_frame_t::fill_list()
 	old_city_count = world()->get_cities().get_count();
 	scrolly.clear_elements();
 	strcpy(last_name_filter, name_filter);
-	player_t *pl = (filter_by_owner.pressed  &&  filterowner.get_selection()>0) ? world()->get_player(filterowner.get_selection()) : NULL;
+	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t* )(filterowner.get_selected_item()))->player_nr) : NULL;
 	FOR( const weighted_vector_tpl<stadt_t *>, city, world()->get_cities() ) {
 		if(  pl == NULL  ||  city->is_within_players_network( pl ) ) {
 			if(  last_name_filter[0] == 0  ||  utf8caseutf8(city->get_name(), last_name_filter)  ) {
@@ -219,6 +221,7 @@ void citylist_frame_t::fill_list()
 			}
 		}
 	}
+	old_halt_count = haltestelle_t::get_alle_haltestellen().get_count();
 	scrolly.sort(0);
 	scrolly.set_size( scrolly.get_size());
 }
@@ -253,6 +256,9 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	welt->update_history();
 
 	if(  world()->get_cities().get_count() != old_city_count  ||  strcmp(last_name_filter, name_filter)  ) {
+		fill_list();
+	}
+	else if(  filter_by_owner.pressed  &&  old_halt_count != haltestelle_t::get_alle_haltestellen().get_count()  ) {
 		fill_list();
 	}
 	update_label();

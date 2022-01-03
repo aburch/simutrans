@@ -45,7 +45,7 @@ factorylist_frame_t::factorylist_frame_t() :
 
 		filter_by_owner.init(button_t::square_automatic, "Served by");
 		filter_by_owner.add_listener(this);
-		filter_by_owner.set_tooltip("At least one tile is connected to one stop");
+		filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
 		add_component(&filter_by_owner);
 
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
@@ -116,13 +116,7 @@ void factorylist_frame_t::fill_list()
 {
 	old_factories_count = world()->get_fab_list().get_count(); // to avoid too many redraws ...
 	scrolly.clear_elements();
-	player_t *pl = NULL;
-	if (filter_by_owner.pressed  &&  filterowner.get_selection()>=0) {
-		playername_const_scroll_item_t *pi = dynamic_cast<playername_const_scroll_item_t*>( filterowner.get_selected_item() );
-		if (pi) {
-			pl = world()->get_player(pi->player_nr);
-		}
-	}
+	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
 
 	FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
 		if( pl == NULL  ||  fab->is_within_players_network( pl ) ) {
