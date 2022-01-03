@@ -7486,10 +7486,18 @@ bool karte_t::interactive(uint32 quit_month)
 						// broadcast sync info regularly and when lagged
 						const sint64 timelag = (sint32)dr_time() - (sint32)next_step_time;
 						if(  (network_frame_count == 0  &&  timelag > fix_ratio_frame_time * settings.get_server_frames_ahead() / 2)  ||  (sync_steps % env_t::server_sync_steps_between_checks) == 0  ) {
-							if(  timelag > fix_ratio_frame_time * settings.get_frames_per_step()  ) {
-								// log when server is lagged more than one step
-								dbg->warning("karte_t::interactive", "server lagging by %lli", timelag );
+							const sint64 time_per_step = fix_ratio_frame_time * settings.get_frames_per_step();
+							static sint64 previous_lag = 0;
+
+							if(  timelag > 1*time_per_step  ) {
+								// log when server is lagged more than one step, but only if it gets worse (don't spam log)
+
+								if (timelag/time_per_step > previous_lag/time_per_step) {
+									dbg->warning("karte_t::interactive", "Server lagging by %lli ms (%d steps)", timelag, (sint32)(timelag/time_per_step) );
+								}
 							}
+
+							previous_lag = timelag;
 
 							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
 							network_send_all(nwc, true);
