@@ -7,7 +7,7 @@
 #include "gui_theme.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
-
+#include "../simworld.h"
 #include "../dataobj/environment.h"
 
 
@@ -48,6 +48,7 @@ factorylist_frame_t::factorylist_frame_t() :
 		filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
 		add_component(&filter_by_owner);
 
+		filterowner.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No player"), SYSCOL_TEXT);
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 			if (player_t* pl = welt->get_player(i)) {
 				filterowner.new_component<playername_const_scroll_item_t>(pl);
@@ -116,12 +117,29 @@ void factorylist_frame_t::fill_list()
 {
 	old_factories_count = world()->get_fab_list().get_count(); // to avoid too many redraws ...
 	scrolly.clear_elements();
-	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
-
-	FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
-		if( pl == NULL  ||  fab->is_within_players_network( pl ) ) {
-			if(  name_filter[0] == 0  ||  utf8caseutf8(fab->get_name(), name_filter)) {
-				scrolly.new_component<factorylist_stats_t>( fab );
+	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
+		FOR(const slist_tpl<fabrik_t*>, fab, world()->get_fab_list()) {
+			bool add = (name_filter[0] == 0 || utf8caseutf8(fab->get_name(), name_filter));
+			for(  int i = 0;  add  &&  i < MAX_PLAYER_COUNT;  i++  ) {
+				if(  player_t* pl = welt->get_player(i)  ) {
+					if (fab->is_within_players_network(pl)) {
+						// already connected
+						add = false;
+					}
+				}
+			}
+			if (add) {
+				scrolly.new_component<factorylist_stats_t>(fab);
+			}
+		}
+	}
+	else {
+		player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 1) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
+		FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
+			if( pl == NULL  ||  fab->is_within_players_network( pl ) ) {
+				if(  name_filter[0] == 0  ||  utf8caseutf8(fab->get_name(), name_filter)) {
+					scrolly.new_component<factorylist_stats_t>( fab );
+				}
 			}
 		}
 	}

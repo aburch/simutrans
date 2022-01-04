@@ -115,6 +115,7 @@ citylist_frame_t::citylist_frame_t() :
 	filter_by_owner.set_tooltip( "At least one stop is connected to the town." );
 	list.add_component(&filter_by_owner);
 
+	filterowner.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No player"), SYSCOL_TEXT);
 	for( int i = 0; i < MAX_PLAYER_COUNT; i++ ) {
 		if( player_t *pl=welt->get_player(i) ) {
 			filterowner.new_component<playername_const_scroll_item_t>(pl);
@@ -213,11 +214,29 @@ void citylist_frame_t::fill_list()
 	old_city_count = world()->get_cities().get_count();
 	scrolly.clear_elements();
 	strcpy(last_name_filter, name_filter);
-	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t* )(filterowner.get_selected_item()))->player_nr) : NULL;
-	FOR( const weighted_vector_tpl<stadt_t *>, city, world()->get_cities() ) {
-		if(  pl == NULL  ||  city->is_within_players_network( pl ) ) {
-			if(  last_name_filter[0] == 0  ||  utf8caseutf8(city->get_name(), last_name_filter)  ) {
+	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
+		FOR(const weighted_vector_tpl<stadt_t*>, city, world()->get_cities()) {
+			bool add = (name_filter[0] == 0 || utf8caseutf8(city->get_name(), name_filter));
+			for (int i = 0; add && i < MAX_PLAYER_COUNT; i++) {
+				if (player_t* pl = welt->get_player(i)) {
+					if (city->is_within_players_network(pl)) {
+						// already connected
+						add = false;
+					}
+				}
+			}
+			if (add) {
 				scrolly.new_component<citylist_stats_t>(city);
+			}
+		}
+	}
+	else {
+		player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t* )(filterowner.get_selected_item()))->player_nr) : NULL;
+		FOR( const weighted_vector_tpl<stadt_t *>, city, world()->get_cities() ) {
+			if(  pl == NULL  ||  city->is_within_players_network( pl ) ) {
+				if(  last_name_filter[0] == 0  ||  utf8caseutf8(city->get_name(), last_name_filter)  ) {
+					scrolly.new_component<citylist_stats_t>(city);
+				}
 			}
 		}
 	}

@@ -49,6 +49,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 		filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
 		add_component(&filter_by_owner);
 
+		filterowner.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No player"), SYSCOL_TEXT);
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 			if (player_t* pl = welt->get_player(i)) {
 				filterowner.new_component<playername_const_scroll_item_t>(pl);
@@ -96,18 +97,40 @@ void curiositylist_frame_t::fill_list()
 	attraction_count = world_attractions.get_count();
 	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
 
-	FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
-		if (geb != NULL &&
-			geb->get_first_tile() == geb &&
-			geb->get_passagier_level() != 0) {
-
-			if(  pl == NULL  ||  geb->is_within_players_network( pl )   ) {
-				curiositylist_stats_t* cs = new curiositylist_stats_t(geb);
-				if(  name_filter[0] == 0 ||  utf8caseutf8(cs->get_text(), name_filter)  ) {
-					scrolly.take_component(cs);
+	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
+		FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+			if (geb != NULL &&
+				geb->get_first_tile() == geb &&
+				geb->get_passagier_level() != 0) {
+				bool add = (name_filter[0] == 0 || utf8caseutf8(translator::translate(geb->get_tile()->get_desc()->get_name()), name_filter));
+				for (int i = 0; add && i < MAX_PLAYER_COUNT; i++) {
+					if (player_t* pl = welt->get_player(i)) {
+						if (geb->is_within_players_network(pl)) {
+							// already connected
+							add = false;
+						}
+					}
 				}
-				else {
-					delete cs;
+				if (add) {
+					scrolly.new_component<curiositylist_stats_t>(geb);
+				}
+			}
+		}
+	}
+	else {
+		FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+			if (geb != NULL &&
+				geb->get_first_tile() == geb &&
+				geb->get_passagier_level() != 0) {
+
+				if(  pl == NULL  ||  geb->is_within_players_network( pl )   ) {
+					curiositylist_stats_t* cs = new curiositylist_stats_t(geb);
+					if(  name_filter[0] == 0 ||  utf8caseutf8(cs->get_text(), name_filter)  ) {
+						scrolly.take_component(cs);
+					}
+					else {
+						delete cs;
+					}
 				}
 			}
 		}
