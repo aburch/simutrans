@@ -201,7 +201,6 @@ bool dr_init_midi()
 	std::string fluidsynth_driver = "oboe";
 #else
 	std::string fluidsynth_driver = "sdl2";
-#endif
 
 	if(  !SDL_WasInit(SDL_INIT_AUDIO)  ) {
 		if(  SDL_InitSubSystem( SDL_INIT_AUDIO ) != 0  ) {
@@ -209,6 +208,7 @@ bool dr_init_midi()
 			return false;
 		}
 	}
+#endif
 
 	if(  !(settings = new_fluid_settings())  ) {
 		dbg->warning("dr_init_midi()", "FluidSynth: MIDI settings failed.");
