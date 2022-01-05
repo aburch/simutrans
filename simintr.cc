@@ -220,7 +220,7 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 	}
 
 	// suppress as much as possible, assuming this is an relative offset to the current month
-	sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : 31) ) >> world()->ticks_per_world_month_shift;
+	sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 1 : 31) ) >> world()->ticks_per_world_month_shift;
 	char days[64];
 	days[0] = 0;
 	if(  num_days!=0  ) {
@@ -241,15 +241,15 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 	else {
 		if( world()->ticks_per_world_month_shift>=16 ) {
 			uint32 precision = round_to_quaters ? 0 : 15;
-			hours = (((sint64)ticks * 3) >> (world()->ticks_per_world_month_shift-16)) + precision;
+			hours = (ticks >> (world()->ticks_per_world_month_shift-16)) + precision;
 		}
 		else {
 			uint32 precision = round_to_quaters ? 0 : 15 >> (16-world()->ticks_per_world_month_shift);
-			hours = (((sint64)ticks * 3) << (16-world()->ticks_per_world_month_shift)) + precision;
+			hours = (((sint64)ticks) << (16-world()->ticks_per_world_month_shift)) + precision;
 		}
-		minuten = (((hours*3) % 8192)*60)/8192;
-		hours = ((hours*3) / 8192)%24;
 	}
+	minuten = (((hours * 3) % 8192) * 60) / 8192;
+	hours = ((hours * 3) / 8192) % 24;
 
 	// maybe round minutes
 	if( round_to_quaters ) {

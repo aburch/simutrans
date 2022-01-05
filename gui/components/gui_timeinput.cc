@@ -14,13 +14,14 @@
 
 gui_timeinput_t::gui_timeinput_t(const char *)
 {
-	const int max_days = env_t::show_month == env_t::DATE_FMT_MONTH ? 3 : 31;
+	bool has_days = env_t::show_month > env_t::DATE_FMT_MONTH;
 
-	set_table_layout(4, 1);
+	set_table_layout(3+has_days, 1);
 	set_alignment(ALIGN_LEFT | ALIGN_TOP);
 	set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
 
-	days.init(0, 0, max_days);
+	days.set_visible(has_days);
+	days.init(0, 0, 31);
 	days.add_listener(this);
 	days.allow_tooltip(false);
 	add_component(&days);
@@ -47,8 +48,8 @@ sint32 gui_timeinput_t::get_ticks()
 	if (dms == 0) {
 		return 0;
 	}
-	if (env_t::show_month == env_t::DATE_FMT_MONTH) {
-		return (dms * 65536u) / (3 * 24 * 60)+1;
+	if (env_t::show_month <= env_t::DATE_FMT_MONTH) {
+		return (dms * 65536u) / (24 * 60)+1;
 	}
 	return (dms * 65536u) / (31 * 24 * 60)+1;
 }
@@ -63,7 +64,7 @@ void gui_timeinput_t::set_ticks(uint16 t,bool absolute)
 	days.set_limits( 0+absolute, 30+absolute );
 
 	// this is actually ticks*daylength*24*60/65536 but to avoid overflow the factor 32 was removed from both)
-	sint32 new_dms = (ticks * (env_t::show_month == env_t::DATE_FMT_MONTH ? 3 : 31) * 3 * 15) / (2048);
+	sint32 new_dms = (ticks * (env_t::show_month == env_t::DATE_FMT_MONTH ? 1 : 31) * 3 * 15) / (2048);
 
 	days.set_value(new_dms / (24 * 60)+absolute);
 	hours.set_value((new_dms / 60) % 24);
