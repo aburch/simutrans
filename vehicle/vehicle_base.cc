@@ -175,8 +175,8 @@ void vehicle_base_t::leave_tile()
 	if(!get_flag(not_on_map)  &&  (gr==NULL  ||  !gr->obj_remove(this)) ) {
 
 		// was not removed (not found?)
-		dbg->error("vehicle_base_t::leave_tile()","'typ %i' %p could not be removed from %d %d", get_typ(), this, get_pos().x, get_pos().y);
-		DBG_MESSAGE("vehicle_base_t::leave_tile()","checking all plan squares");
+		dbg->error("vehicle_base_t::leave_tile()", "%s %p could not be removed from (%s)", get_name(), (void *)this, get_pos().get_str());
+		DBG_MESSAGE("vehicle_base_t::leave_tile()", "checking all plan squares");
 
 		// check, whether it is on another height ...
 		const planquadrat_t *pl = welt->access( get_pos().get_2d() );
@@ -184,7 +184,7 @@ void vehicle_base_t::leave_tile()
 			gr = pl->get_boden_von_obj(this);
 			if(  gr  ) {
 				gr->obj_remove(this);
-				dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
+				dbg->warning("vehicle_base_t::leave_tile()", "Removed %s %p from (%s)", get_name(), (void *)this, get_pos().get_str());
 			}
 			return;
 		}
@@ -196,14 +196,14 @@ void vehicle_base_t::leave_tile()
 			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->access( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
-					dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, k.x, k.y);
+					dbg->warning("vehicle_base_t::leave_tile()", "Removed %s %p from (%s)", get_name(), (void *)this, k.get_str());
 					ok = true;
 				}
 			}
 		}
 
 		if(!ok) {
-			dbg->error("vehicle_base_t::leave_tile()","'%s' %p was not found on any map square!",get_name(), this);
+			dbg->error("vehicle_base_t::leave_tile()", "%s %p was not found on any map square!", get_name(), (void *)this);
 		}
 	}
 }

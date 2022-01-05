@@ -76,13 +76,13 @@ obj_t::~obj_t()
 	grund_t *gr = welt->lookup(pos);
 	if(!gr  ||  !gr->obj_remove(this)) {
 		// not found? => try harder at all map locations
-		dbg->warning("obj_t::~obj_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
+		dbg->warning("obj_t::~obj_t()", "Could not remove %s %p from (%s)", get_name(), (void *)this, pos.get_str());
 
 		// first: try different height ...
 		gr = welt->access(pos.get_2d())->get_boden_von_obj(this);
 		if(gr  &&  gr->obj_remove(this)) {
 			dbg->warning("obj_t::~obj_t()",
-				"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
+				"Removed %s %p from (%hi,%hi,%hhi), but it should have been on (%hi,%hi,%hhi)",
 				this,
 				gr->get_pos().x, gr->get_pos().y, gr->get_pos().z,
 				pos.x, pos.y, pos.z);
