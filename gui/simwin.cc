@@ -2100,11 +2100,15 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 		welt->reset_interaction();
 		welt->reset_timer();
 
+
 		const uint32 ms_per_frame = 1000 / env_t::fps;
-		uint32 last_step = dr_time();
-		uint step_count = 5;
+		const uint32 sync_steps_per_step = 5; // env_t::network_frames_per_step
+		uint32 frame_start_time;
+		uint32 sync_steps_until_step = sync_steps_per_step;
 
 		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
+			frame_start_time = dr_time();
+
 			do {
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
@@ -2128,20 +2132,27 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 					env_t::quit_simutrans = true;
 					break;
 				}
-				dr_sleep(5);
-			} while (dr_time() - last_step < ms_per_frame);
+			} while (ev.ev_class != EVENT_NONE);
 
 			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
-			welt->sync_step(ms_per_frame, true, true);
+			welt->sync_step((ms_per_frame * welt->get_time_multiplier()) / 16, true, true);
 
-			if (step_count-- == 0) {
+			if (--sync_steps_until_step == 0) {
 				DBG_DEBUG4("modal_dialogue", "calling welt->step");
-				intr_set_last_time(last_step); // do not call sync_step twice unless step takes too long
+				intr_disable();
 				welt->step();
-				step_count = 5;
+				intr_enable();
+				sync_steps_until_step = sync_steps_per_step;
 			}
-			last_step += ms_per_frame;
+
+			const uint32 next_frame_start_time = frame_start_time + ms_per_frame;
+			const uint32 now = dr_time();
+
+			if (now < next_frame_start_time) {
+				dr_sleep(next_frame_start_time - now);
+			}
 		}
+
 	}
 	else {
 		display_show_pointer(true);
