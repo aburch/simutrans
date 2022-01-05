@@ -149,7 +149,7 @@ else (MSVC) # Assume GCC/Clang
 	# only add large address linking to 32 bin windows programs
 	if (WIN32)
 		if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-			add_link_options(/LARGEADDRESSAWARE)
+			add_link_options(-Wl,--large-address-aware)
 		endif ()
 	endif ()
 
