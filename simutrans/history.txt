@@ -1,4 +1,6 @@
 	FIX: up/down arrows in schedule broken
+	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
+
 
 Release of 123.0 (r10137 on 30-Dec-2021):
 	KNOWN BUG: ugly movement of pedestrians on diagonals/curves
