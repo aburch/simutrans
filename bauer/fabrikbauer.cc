@@ -957,7 +957,9 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 {
 	int nr = 0;
 	fabrik_t *last_built_consumer = NULL;
-	const goods_desc_t *last_built_consumer_ware;
+#if MSG_LEVEL >= 3
+	const goods_desc_t *last_built_consumer_ware = NULL;
+#endif
 
 	// find last consumer
 	minivec_tpl<const goods_desc_t *>ware_needed;
@@ -1012,7 +1014,9 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 			}
 
 			nr += build_chain_link( last_built_consumer, last_built_consumer->get_desc(), last_built_consumer_missing_supplier, welt->get_public_player() );
+#if MSG_LEVEL >=3
 			last_built_consumer_ware = ware_needed[ 0 ];
+#endif
 			ware_needed.remove_at( 0 );
 
 		} while(  !ware_needed.empty()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
