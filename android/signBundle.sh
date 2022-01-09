@@ -16,17 +16,25 @@ cd project
 
 ../copyAssets.sh pack-binaries-bundle app/build/outputs/bundle/release/app-release.aab
 
-exit 0
-
 cd app/build/outputs/bundle/release || exit 1
 
-echo ${{$APPNAME-$APPVER.aab}}
+wget https://github.com/google/bundletool/releases/download/1.8.2/bundletool-all-1.8.2.jar
+mv bundletool-all-1.8.2.jar bundletool.jar
+
+java -jar bundletool.jar build-apks --bundle=app-release.aab --output=simutrans-multi.apks --mode=universal
+# -ks=keystore.jks --ks-pass=file:keystore.pwd --ks-key-alias=MyKeyAlias --key-pass=file:key.pwd
+
+unzip -p simutrans-multi.apks universal.apk > simuandroid-multi-nightly.apk
+mv app-release.aab simutrans-nightly.aab
+
+exit 0
 
 # Remove old certificate
 cp -f app-release.aab simutrans.aab || exit 1
+
 # Sign with the new certificate
 echo Using keystore $ANDROID_UPLOAD_KEYSTORE_FILE and alias $ANDROID_UPLOAD_KEYSTORE_ALIAS
 stty -echo
-jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $ANDROID_UPLOAD_KEYSTORE_FILE $PASS simutrans.aab $ANDROID_UPLOAD_KEYSTORE_ALIAS || exit 1
+jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $ANDROID_UPLOAD_KEYSTORE_FILE $PASS simutrans-nightly.aab $ANDROID_UPLOAD_KEYSTORE_ALIAS || exit 1
 stty echo
 echo

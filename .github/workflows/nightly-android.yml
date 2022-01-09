@@ -73,6 +73,8 @@ jobs:
     - name: Checkout lib Android SDL by pelya (hard coded version)
       working-directory: /android-sdl
       run: |
+        ls -l
+        pwd
         git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin e84e645ca309e56db84a211b484be7df6f3b03ca && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
@@ -106,17 +108,29 @@ jobs:
         sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
         sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
 
-    - name: Build Simutrans
+    - name: Build Simutrans Bundle
       working-directory: /android-sdl
       run: |
-        ./build.sh simutrans
-        mv /android-sdl/project/app/build/outputs/apk/release/app-release.apk $GITHUB_WORKSPACE/simuandroid-multi-nightly.apk
+        echo "action_state=yellow" >> $GITHUB_ENV
+        rm -f ./signBundle.sh
+        cp project/jni/application/simutrans/simutrans/android/signBundle.sh .
+        chmod 555 ./signBundle.sh
+        ./build.sh -b simutrans
 
-    - name: Update binaries of Nightly Release
+    - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./simuandroid-multi-nightly.apk
+        file: /android-sdl/project/app/build/outputs/bundle/release/simutrans-nightly.aab
+        asset_name: simutrans-nightly.aab
+        tag: Nightly
+        overwrite: true
+        
+    - name: Update binaries of Nightly Release apk
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: /android-sdl/project/app/build/outputs/bundle/release/simuandroid-multi-nightly.apk
         asset_name: simuandroid-multi-nightly.apk
         tag: Nightly
         overwrite: true
