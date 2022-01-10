@@ -1060,12 +1060,13 @@ sint16 dr_get_fullscreen()
 
 sint16 dr_toggle_borderless()
 {
-
 	if ( fullscreen ) {
 		SDL_SetWindowFullscreen(window, 0);
+		SDL_SetWindowPosition(window, 10, 10);
 		fullscreen = WINDOWED;
 	}
 	else {
+		SDL_SetWindowPosition(window, 0, 0);
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		fullscreen = BORDERLESS;
 	}

@@ -542,8 +542,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	}
 
 	if(  comp == &gui_settings.fullscreen  ) {
-		env_t::fullscreen = p.i==0 && dr_get_fullscreen()!=2 ? dr_get_fullscreen() : (sint16)FULLSCREEN;
 		gui_settings.fullscreen.pressed = !gui_settings.fullscreen.pressed;
+		env_t::fullscreen = gui_settings.fullscreen.pressed;
 		gui_settings.borderless.pressed = false;
 		return true;
 	}
