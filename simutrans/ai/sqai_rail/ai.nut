@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.7.6"
+ai.version <- "0.7.7"
 
 // includes
 include("basic")  // .. definition of basic node classes

@@ -17,6 +17,7 @@ class my_line_t extends line_x
 	build_line					= world.get_time() // create line
 	next_vehicle_check  = 0 // save ticks for next vehicle check
 	next_check 					= world.get_time().ticks
+  halt_length         = 0 // tiles from halts
 
 	constructor(line /* line_x */)
 	{
@@ -237,7 +238,7 @@ class industry_manager_t extends manager_t
 					check_link_line(link, line)
 				}
 			} else {
-				gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
+				//gui.add_message_at(our_player, "####### invalid line " + line, world.get_time())
 				link.lines.remove(index)
 			}
 		}
@@ -276,6 +277,7 @@ class industry_manager_t extends manager_t
 		f_dest = d
 		freight = good_desc_x(f)
 */
+		local print_message_box = 0
 
 		local pl_lines = []
 
@@ -396,8 +398,10 @@ class industry_manager_t extends manager_t
 		}
 
 		if ( line_list.get_count() > line_ai_count ) {
-			gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
-			gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+		  if ( print_message_box == 1 ) {
+			  gui.add_message_at(player_x(our_player.nr), our_player.get_name() + " ####### line check: not all listet in ai lines ", world.get_time())
+			  gui.add_message_at(player_x(our_player.nr), " ####### line check: line_list.get_count() " + line_list.get_count() + " ## line_ai_count " + line_ai_count, world.get_time())
+      }
 			for ( local i = 0; i < ai_lines_missing.len(); i++ ) {
 				gui.add_message_at(player_x(our_player.nr), "####### line missing " + ai_lines_missing[i].get_name(), world.get_time())
 			}
@@ -1030,6 +1034,7 @@ class industry_manager_t extends manager_t
 						}
 					}
 					//prototyper.max_length = station_count
+          line.halt_length = station_count
 					local a = station_count
 					if ( station_count < 6 ) {
 						// check expand station
@@ -1052,7 +1057,7 @@ class industry_manager_t extends manager_t
 								expand_station.append(nexttile[nexttile.len()-station_count])
 							}
 						}
-						if ( a < station_count ) {
+						if ( a < station_count && print_message_box > 0 ) {
 							gui.add_message_at(our_player, "###---- check stations field : " + a, nexttile[0])
 							gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
 						}
@@ -1094,7 +1099,9 @@ class industry_manager_t extends manager_t
 					if ( dist <= 50) { cnv_valuator.max_cnvs = dist/3 }
 					else if ( dist > 50 && dist <= 250 ) { cnv_valuator.max_cnvs = dist/2 }
 					//else if ( dist > 250 ) { cnv_valuator.max_cnvs = dist - 50 }
-					gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
+			    if ( print_message_box > 0 ) {
+					  gui.add_message_at(our_player, "### line : " + line.get_name() + " dist: " + dist + " cnv max: " + cnv_valuator.max_cnvs, world.get_time())
+          }
 				}
 
 				// add 10% from distance
@@ -1209,10 +1216,11 @@ class industry_manager_t extends manager_t
 					local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
 					if ( st_lenght > station_count ) {
-						// expand station to 4 tiles
+						// expand station
 						for ( local i = 0; i < 2; i++ ) {
 							command_x.build_station(our_player, expand_station[i], station_list[0])
 						}
+            line.halt_length = st_lenght
 						gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
 					} /*else if ( st_lenght == 5 && expand_station.len() > 2 ) {
 						// expand station to 5 tiles
@@ -1323,6 +1331,9 @@ class industry_manager_t extends manager_t
 
 		prototyper.max_vehicles = get_max_convoi_length(wt)
 		prototyper.max_length = 1
+    if ( wt == wt_rail ) {
+      prototyper.max_length = line.halt_length
+    }
 		if (wt == wt_water) {
 			prototyper.max_length = 4
 		}
