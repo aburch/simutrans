@@ -7158,8 +7158,8 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				if(  time_to_next > -frame_timediff  ) {
 					// already waiting longer than how far we're ahead, so set wait time shorter to the time ahead.
 					next_step_time = (sint64)timems - frame_timediff;
-			}
-			else if(  nwcid == NWC_CHECK  ) {
+				}
+				else if(  nwcid == NWC_CHECK  ) {
 					// gentle slowing down
 					*ms_difference = timediff;
 				}
