@@ -300,7 +300,7 @@ settings_t::settings_t() :
 	frames_per_step = 4;
 	server_frames_ahead = 4;
 
-	stop_halt_as_scheduled = true;
+	stop_halt_as_scheduled = false;
 }
 
 
