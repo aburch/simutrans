@@ -193,6 +193,15 @@ sint16 dr_toggle_borderless()
 	return 0;
 }
 
+sint16 dr_suspend_fullscreen()
+{
+	return 0;
+}
+
+void dr_restore_fullscreen(sint16) {}
+
+
+
 int main(int argc, char **argv)
 {
 	signal( SIGTERM, posix_sigterm );
@@ -201,3 +210,6 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
+
+
+

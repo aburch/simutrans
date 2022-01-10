@@ -16,7 +16,7 @@
 bool pakinstaller_t::finish_install;
 
 pakinstaller_t::pakinstaller_t() :
-	gui_frame_t(translator::translate("Install graphits")),
+	gui_frame_t(translator::translate("Install graphics")),
 	paks(gui_scrolled_list_t::listskin),
 	obsolete_paks(gui_scrolled_list_t::listskin)
 {

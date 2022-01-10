@@ -1027,10 +1027,12 @@ void dr_fatal_notify(char const* const msg)
 bool dr_download_pakset( const char *data_dir, bool portable )
 {
 #ifdef _WIN32
-	std::string param(portable ? "/P /D=" : "/D=");
-	param.append(data_dir);
-	U16View const wparam(param.c_str());
+	int old_fullscreen = dr_suspend_fullscreen();
+
 	U16View const wpath_to_program(data_dir);
+	WCHAR wparam[1024];
+	swprintf(wparam, portable ? L"/P /D=%ls" : L"/D=%ls", wpath_to_program);
+
 
 	SHELLEXECUTEINFOW shExInfo;
 	shExInfo.cbSize = sizeof(shExInfo);
@@ -1052,6 +1054,7 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 		WaitForSingleObject( shExInfo.hProcess, INFINITE );
 		CloseHandle( shExInfo.hProcess );
 	}
+	dr_restore_fullscreen(old_fullscreen);
 	return true;
 #else
 	(void)portable;

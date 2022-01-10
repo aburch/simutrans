@@ -288,7 +288,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, route_t::index_t n
 		return false;
 	}
 
-	// now we can use the route search array
+	// now we can use the route search array, since we are in step mode
 	// (route until end is already reserved at this point!)
 	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
@@ -427,13 +427,13 @@ skip_choose:
 		// => We can now start freshly all over
 
 		if(!cnv->is_waiting()) {
+			// we are driving and cannot search yet
 			restart_speed = -1;
 			target_halt = halthandle_t();
 			return false;
 		}
-		// now we are in a step and can use the route search array
 
-		// now it we are in a step and can use the route search
+		// now we are in a step and can use the route search array
 		route_t target_rt;
 		const int richtung = ribi_type(get_pos(), pos_next); // to avoid confusion at diagonals
 		if(  !target_rt.find_route( welt, cnv->get_route()->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps() )  ) {

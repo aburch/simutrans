@@ -234,6 +234,10 @@ sint16 dr_get_fullscreen();
  */
 sint16 dr_toggle_borderless();
 
+/* temparily minimizes window and restore it */
+sint16 dr_suspend_fullscreen();
+void dr_restore_fullscreen(sint16 old_fullscreen);
+
 int sysmain(int argc, char** argv);
 
 #endif

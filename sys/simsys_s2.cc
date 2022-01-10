@@ -1072,6 +1072,26 @@ sint16 dr_toggle_borderless()
 	return fullscreen;
 }
 
+sint16 dr_suspend_fullscreen()
+{
+	int was_fullscreen = fullscreen;
+	if (fullscreen) {
+		SDL_SetWindowFullscreen(window, 0);
+		fullscreen = WINDOWED;
+	}
+	SDL_MinimizeWindow(window);
+	return fullscreen;
+}
+
+void dr_restore_fullscreen(sint16 was_fullscreen)
+{
+	SDL_RestoreWindow(window);
+	if(was_fullscreen) {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		fullscreen = BORDERLESS;
+	}
+}
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main
