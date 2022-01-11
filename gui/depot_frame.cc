@@ -1046,7 +1046,7 @@ void depot_frame_t::update_data()
 		for(uint32 i=0; i<LB_CNV_ALL; i++) {
 			labels[i]->buf();
 		}
-		labels[LB_CNV_COUNT]->buf().append(translator::translate("keine Fahrzeuge"));
+		labels[LB_CNV_COUNT]->buf().append(translator::translate("Keine Einzelfahrzeuge im Depot"));
 	}
 
 	for(uint32 i=0; i<LB_CNV_ALL; i++) {
