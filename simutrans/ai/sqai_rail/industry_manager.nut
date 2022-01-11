@@ -1279,8 +1279,12 @@ class industry_manager_t extends manager_t
 	 */
 	function upgrade_link_line(link, line, cnv_speed)
 	{
-		gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
-		//gui.add_message_at(our_player, "### cnv_speed " + cnv_speed, world.get_time())
+		local print_message_box = 0
+
+		if ( print_message_box > 0 ) {
+		  gui.add_message_at(our_player, "### upgrade_link_line " + line.get_name(), world.get_time())
+    }
+    //gui.add_message_at(our_player, "### cnv_speed " + cnv_speed, world.get_time())
 		// find convoy
 		local cnv = null
 		{

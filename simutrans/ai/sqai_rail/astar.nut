@@ -1974,11 +1974,13 @@ function build_double_track(start_field, wt) {
       // build from n to s
       // ns - r
       local ref_ground = square_x(start_field.x, start_field.y + i).get_ground_tile()
-      if ( tile_x(start_field.x + 1, start_field.y + i, start_field.z).is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
+      local t = tile_x(start_field.x + 1, start_field.y + i, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
         tiles_build_r.append(tile_x(start_field.x + 1, start_field.y + i, ref_ground.z))
       }
       // ns - l
-      if ( tile_x(start_field.x - 1, start_field.y + i, start_field.z).is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
+      t = tile_x(start_field.x - 1, start_field.y + i, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x, start_field.y + i).get_ground_tile().z == ref_ground.z
         tiles_build_l.append(tile_x(start_field.x - 1, start_field.y + i, ref_ground.z))
       }
       tiles.append(ref_ground)
@@ -1989,11 +1991,13 @@ function build_double_track(start_field, wt) {
       // ew - r
       // build from w to e
       local ref_ground = square_x(start_field.x + i, start_field.y).get_ground_tile()
-      if ( tile_x(start_field.x + i, start_field.y + 1, start_field.z).is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
+      local t = tile_x(start_field.x + i, start_field.y + 1, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
         tiles_build_r.append(tile_x(start_field.x + i, start_field.y + 1, ref_ground.z))
       }
       // ew - l
-      if ( tile_x(start_field.x + i, start_field.y - 1, start_field.z).is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
+      t = tile_x(start_field.x + i, start_field.y - 1, start_field.z)
+      if ( t.is_valid() && t.is_empty() ) { //&& square_x(start_field.x + i, start_field.y).get_ground_tile().z == ref_ground.z
         tiles_build_l.append(tile_x(start_field.x + i, start_field.y - 1, ref_ground.z))
       }
       tiles.append(ref_ground)
@@ -2014,32 +2018,39 @@ function build_double_track(start_field, wt) {
         gui.add_message_at(b_player, "6/9 ref_ground " + coord3d_to_string(ref_ground), ref_ground)
       }
 
+      local t = null
       if ( tiles_build_l.len() == 0 && ref_ground.get_way_dirs(wt) == 9 ) {
-        if ( tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
         }
       } else if ( tiles_build_l.len() > way_len-2 && tiles_build_l.len() <= way_len ) {
         // no build tile
       } else if ( tiles_build_l.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
         }
       }
 
       if ( tiles_build_r.len() == 0 && ref_ground.get_way_dirs(wt) == 6 ) {
-        if ( tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 1, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 1, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 1, ref_ground.y, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z))
         }
       }else if ( tiles_build_r.len() > way_len-2 && i <= way_len ) {
         // no build tile
       } else if ( tiles_build_r.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x - 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x - 2, ref_ground.y, ref_ground.z))
         }
       }
@@ -2067,14 +2078,17 @@ function build_double_track(start_field, wt) {
         gui.add_message_at(b_player, "tiles_build_l.len() " + tiles_build_l.len() + " ref_ground.get_way_dirs(wt)" + ref_ground.get_way_dirs(wt), world.get_time())
       }
 
+      local t = null
       if ( tiles_build_l.len() == 0 && ref_ground.get_way_dirs(wt) == 3 ) {
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 1).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 1, ref_ground.z)), world.get_time())
         }
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
         }
@@ -2082,23 +2096,27 @@ function build_double_track(start_field, wt) {
         // no build tile
       } else if ( tiles_build_l.len() < way_len-2 ) {
         //gui.add_message_at(b_player, "test tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
-        if ( tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x, ref_ground.y + 2).get_ground_tile().z == ref_ground.z
           tiles_build_l.append(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z))
           //gui.add_message_at(b_player, "add tile " + coord3d_to_string(tile_x(ref_ground.x, ref_ground.y + 2, ref_ground.z)), world.get_time())
         }
       }
 
       if ( tiles_build_r.len() == 0 && ref_ground.get_way_dirs(wt) == 12 ) {
-        if ( tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x + 1, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 1, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 1, ref_ground.y, ref_ground.z))
         }
-        if ( tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z).is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z))
         }
       }else if ( tiles_build_r.len() > way_len-2 && i <= way_len ) {
         // no build tile
       } else if ( tiles_build_r.len() < way_len-2 ) {
-        if ( tile_x(ref_ground.x + 2, ref_ground.y, start_field.z).is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
+        t = tile_x(ref_ground.x + 2, ref_ground.y, start_field.z)
+        if ( t.is_valid() && t.is_empty() ) { //&& square_x(ref_ground.x + 2, ref_ground.y).get_ground_tile().z == ref_ground.z
           tiles_build_r.append(tile_x(ref_ground.x + 2, ref_ground.y, ref_ground.z))
         }
       }
@@ -3787,7 +3805,7 @@ function destroy_line(line_obj, good) {
     }
     // remove combined station ( rail - water ) on start
     local tool = command_x(tool_remove_way)
-    if ( start_line_count <= 1 ) {
+    if ( start_line_count < 2 ) {
       // remove combined waytype halt water - not rail
       if ( combined_s > 1 ) {
         local t = start_h.get_tile_list()
@@ -3897,6 +3915,9 @@ function destroy_line(line_obj, good) {
     // remove rail line way by single halt and no more treeways
     if ( remove_all == 1 ) {
       // remove line way
+      if ( print_message_box == 1 ) {
+        gui.add_message_at(our_player, " remove_all == 1 ", world.get_time())
+      }
       local tool = command_x(tool_remove_way)
       if ( start_l.is_empty() || end_l.is_empty() ) {
         local c1 = 0
@@ -3913,7 +3934,16 @@ function destroy_line(line_obj, good) {
           if ( (c1+c2) == 2 ) { break }
         }
       }
+
+      local t = start_l.get_halt().get_tile_list()
+
       tool.work(our_player, start_l, end_l, "" + wt_rail)
+      // remove all tiles from halt start
+        for ( local i = 0; i < t.len(); i++ ) {
+          if ( t[i].find_object(mo_building) ) {
+            t[i].remove_object(our_player, mo_building)
+          }
+        }
     }
 
 
@@ -4020,7 +4050,7 @@ function destroy_line(line_obj, good) {
       }
     }
 
-    if ( end_line_count == 0 ) {
+    if ( end_line_count < 2 ) {
       // remove combined waytype halt water - not road
       if ( combined_e > 1 ) {
         local t = end_h.get_tile_list()
@@ -4172,6 +4202,7 @@ function check_stations_connections() {
 
       local home_depot = null
       local wt = null
+      local good = null
 
       // combined station not finish
       if ( halt_cnv.get_count() > 0 ) {
@@ -4183,6 +4214,14 @@ function check_stations_connections() {
           halt_cnv[i].destroy(our_player)
         }
       } else if ( halt.get_line_list().get_count() == 1 ) {
+
+        //local t = halt.get_tile_list()
+        //halt_cnv = halt_lines.get_convoy_list()
+        destroy_line(halt_lines, good)
+
+
+        break
+        /*
         // remove convoys from line
         halt_cnv = halt_lines.get_convoy_list()
         wt = halt_cnv[0].get_waytype()
@@ -4228,7 +4267,7 @@ function check_stations_connections() {
             // remove depot road/rail and way
             err = remove_tile_to_empty(tile, wt, 0)
           }
-        }
+        }*/
       }
 
     }
