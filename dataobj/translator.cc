@@ -420,7 +420,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 	FOR(searchfolder_t, const& filename, folder) {
 		lang_info* lang = NULL;
 		const char* langcode = strrchr(filename,'.');
-		if(  langcode  &&  (langcode-i)>2  ) {
+		if(  langcode  &&  (langcode-filename)>2  ) {
 			// try before the point
 			lang_info* lang = get_lang_by_iso(langcode-2);
 			if (lang == NULL) {
@@ -429,18 +429,18 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 			}
 		}
 		if (lang != NULL) {
-			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, fileName.c_str(), lang->iso_base);
-			if (FILE* const file = dr_fopen(fileName.c_str(), "rb")) {
+			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, filename, lang->iso_base);
+			if (FILE* const file = dr_fopen(filename, "rb")) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, true, file_is_utf, lang->is_latin2_based );
 				fclose(file);
 			}
 			else {
-				dbg->warning("translator::load_files_from_folder()", "cannot open '%s'", fileName.c_str());
+				dbg->warning("translator::load_files_from_folder()", "cannot open '%s'", filename);
 			}
 		}
 		else {
-			dbg->warning("translator::load_files_from_folder()", "no %s texts for language '%s'", what, iso.c_str());
+			dbg->warning("translator::load_files_from_folder()", "%s no language '%s'", filename, what );
 		}
 	}
 }

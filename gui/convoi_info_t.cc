@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "convoi_info_t.h"
+#include "minimap.h"
 
 #include "../vehicle/rail_vehicle.h"
 #include "../simcolor.h"
@@ -95,6 +96,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	gui_frame_t::set_name(cnv->get_name());
 	gui_frame_t::set_owner(cnv->get_owner());
 
+	minimap_t::get_instance()->set_selected_cnv(cnv);
 	set_table_layout(1,0);
 
 	input.add_listener(this);
@@ -518,6 +520,7 @@ koord3d convoi_info_t::get_weltpos( bool set )
  */
 bool convoi_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
+	minimap_t::get_instance()->set_selected_cnv(cnv);
 	if(  comp == &line_button  ) {
 		// open selected line as schedule
 		if( line_scrollitem_t* li = dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) ) {
@@ -667,12 +670,14 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 			apply_schedule();
 		}
 		scd.highlight_schedule(false);
+		minimap_t::get_instance()->set_selected_cnv(convoihandle_t());
 	}
 
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
 		if(  switch_mode.get_aktives_tab() == &container_schedule  &&  !cnv->in_depot()  ) {
 			cnv->call_convoi_tool( 's', "1" );
 			scd.highlight_schedule( true );
+			minimap_t::get_instance()->set_selected_cnv(cnv);
 		}
 	}
 

@@ -211,6 +211,9 @@ void line_management_gui_t::init()
 		}
 		// start editing
 		scd.highlight_schedule(switch_mode.get_aktives_tab() == &container_schedule);
+		if (line->count_convoys() > 0) {
+			minimap_t::get_instance()->set_selected_cnv(line->get_convoy(0));
+		}
 	}
 }
 
@@ -253,10 +256,6 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			scrolly_convois.clear_elements();
 			for( uint32 i = 0; i < line->count_convoys(); i++ ) {
 				convoihandle_t cnv = line->get_convoy( i );
-				if( i == 0 ) {
-					// just to mark the schedule on the minimap
-					minimap_t::get_instance()->set_selected_cnv( cnv );
-				}
 				scrolly_convois.new_component<gui_convoiinfo_t>( cnv );
 			}
 			has_changed = true;
@@ -399,6 +398,10 @@ void line_management_gui_t::apply_schedule()
 
 bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
+	if(line->count_convoys()>0) {
+		minimap_t::get_instance()->set_selected_cnv(line->get_convoy(0));
+	}
+
 	if( comp == &scd ) {
 		if( !v.p ) {
 			// revert
@@ -505,11 +508,15 @@ bool line_management_gui_t::infowin_event( const event_t *ev )
 			apply_schedule();
 		}
 		scd.highlight_schedule( false );
+		minimap_t::get_instance()->set_selected_cnv(convoihandle_t());
 	}
 
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_TOP  ) {
 		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
 			scd.highlight_schedule( true );
+		}
+		if (line->count_convoys() > 0) {
+			minimap_t::get_instance()->set_selected_cnv(line->get_convoy(0));
 		}
 	}
 
