@@ -79,12 +79,6 @@ endif (NOT MSVC)
 
 
 #
-# output directory
-#
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
-
-#
 # sources
 #
 add_executable(simutrans MACOSX_BUNDLE)
@@ -93,6 +87,19 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 include(SimutransSourceList)
+
+
+#
+# output directory
+#
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
+if (MSVC)
+	# output to simutrans directory instead of Release or Debug directories
+	set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans/$<0:> )
+else ()
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
+endif ()
+
 
 #
 # Generate revision on compile time (so only if needed)
@@ -330,9 +337,6 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans" DESTINATION "${CMAKE_BINARY_DI
 if (MSVC)
 	# MSVC has no variable on the install target path at execution time, which is why we expand the directories at creation time!
 	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/get_lang_files.ps1 WORKING_DIRECTORY ${simutrans_BINARY_DIR})")
-	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-		install(CODE "execute_process(COMMAND powershell -Command \"Remove-Item \'${simutrans_BINARY_DIR}/simutrans/simutrans.pdb\')")
-	endif ()
 else ()
 	install(CODE "execute_process(COMMAND sh ../get_lang_files.sh WORKING_DIRECTORY \${CMAKE_BINARY_DIR})")
 endif ()
@@ -346,8 +350,13 @@ if (NOT WIN32)
 			WORLD_READ WORLD_EXECUTE
 	)
 else ()
-	# NSIS missing
-	install(CODE "execute_process(COMMAND NSIS WORKING_DIRECTORY \${CMAKE_SOURCE_DIR}/nsis)")
+	# NSIS must be installed manually in the path with the right addons
+	if(MINGW)
+		install(CODE "execute_process(COMMAND makensis onlineupgrade.nsi WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/nsis)")
+	else ()
+		install(CODE "execute_process(COMMAND cmd /k \"$ENV{ProgramFiles\(x86\)}/NSIS/makensis.exe\" onlineupgrade.nsi WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/nsis)")
+	endif ()
+	install(FILES "${CMAKE_SOURCE_DIR}/nsis/download-paksets.exe" DESTINATION "${CMAKE_BINARY_DIR}/simutrans")
 endif ()
 
 # install pak if needed
