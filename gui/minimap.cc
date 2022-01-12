@@ -1751,6 +1751,13 @@ void minimap_t::draw(scr_coord pos)
 		}
 
 	}
+
+	if (current_cnv.is_bound()) {
+		for(  int i = 0;  i < current_cnv->get_vehicle_count();  i++  ) {
+			const scr_coord veh_pos = map_to_screen_coord(current_cnv->get_vehikel(i)->get_pos().get_2d()) + pos;
+			display_fillbox_wh_clip_rgb(veh_pos.x-3, veh_pos.y-3, 7, 7, color_idx_to_rgb(COL_MAGENTA), true);
+		}
+	}
 }
 
 

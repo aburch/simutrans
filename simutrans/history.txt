@@ -1,5 +1,7 @@
 	FIX: up/down arrows in schedule broken
 	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
+	CHG: lang files are laoded if their name is *XX.tab or XX*.tab The first is preferred to avoid confusion by name like ja-taken.tab
+	ADD: selected convoi in minimap now magenta. Also network display properly updated when activating or closing windows
 
 
 Release of 123.0 (r10137 on 30-Dec-2021):
