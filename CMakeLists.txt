@@ -93,12 +93,7 @@ include(SimutransSourceList)
 # output directory
 #
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
-if (MSVC)
-	# output to simutrans directory instead of Release or Debug directories
-	set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans/$<0:> )
-else ()
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans)
-endif ()
+set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/simutrans/$<0:> )
 
 
 #

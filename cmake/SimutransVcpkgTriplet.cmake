@@ -5,8 +5,13 @@
 # set the correct triplet when compiling on MSVC using VCPKG
 #
 
-if (MSVC AND DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-	set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+# MSVC variable is not defined until the first call to project
+if (CMAKE_GENERATOR MATCHES "Visual Studio.*" OR CMAKE_GENERATOR MATCHES "Ninja" AND WIN32)
+	if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+		set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "CMAKE_TOOLCHAIN_FILE")
+	elseif (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+		set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/build/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "CMAKE_TOOLCHAIN_FILE")
+	endif ()
 endif ()
 
 
@@ -56,7 +61,7 @@ if (CMAKE_TOOLCHAIN_FILE_LC MATCHES ".*vcpkg.cmake")
 	endif ()
  	message( "-- VCPKG: triplet=" ${VCPKG_TARGET_TRIPLET} " platform=" ${CMAKE_GENERATOR_PLATFORM}) 
 else ()
-	if (MSVC)
+	if (CMAKE_GENERATOR MATCHES "Visual Studio.*" OR CMAKE_GENERATOR MATCHES "Ninja" AND WIN32)
 		message(WARNING  "CMake will fail without setting CMAKE_TOOLCHAIN_FILE!")
 	endif ()
 endif ()
