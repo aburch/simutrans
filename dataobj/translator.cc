@@ -414,20 +414,23 @@ uint32 translator::guess_highest_unicode(int n)
 void translator::load_files_from_folder(const char *folder_name, const char *what)
 {
 	searchfolder_t folder;
-	int num_pak_lang_dat = folder.search(folder_name, "tab");
+	const int num_pak_lang_dat = folder.search(folder_name, "tab");
 	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat); (void)num_pak_lang_dat;
+
 	//read now the basic language infos
 	FOR(searchfolder_t, const& filename, folder) {
 		lang_info* lang = NULL;
 		const char* langcode = strrchr(filename,'.');
+
 		if(  langcode  &&  (langcode-filename)>2  ) {
 			// try before the point
-			lang_info* lang = get_lang_by_iso(langcode-2);
+			lang = get_lang_by_iso(langcode-2);
 			if (lang == NULL) {
 				// try instead the start of the string
-				get_lang_by_iso(filename);
+				lang = get_lang_by_iso(filename);
 			}
 		}
+
 		if (lang != NULL) {
 			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, filename, lang->iso_base);
 			if (FILE* const file = dr_fopen(filename, "rb")) {
