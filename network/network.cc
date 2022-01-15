@@ -703,7 +703,7 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 		}
 		if (sent == 0) {
 			// connection closed
-			dbg->warning("network_send_data", "connection [%d] already closed (sent %d of &d)", dest, count, size );
+			dbg->warning("network_send_data", "connection [%d] already closed (sent %hu of %hu)", dest, count, size );
 			return false;
 		}
 		count += sent;
