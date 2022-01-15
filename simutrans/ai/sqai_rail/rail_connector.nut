@@ -222,7 +222,7 @@ class rail_connector_t extends manager_t
           // if combined station from ship
           local cash = pl.get_current_cash()
           local st_dock = search_station(t_start[0], wt_water, 1)
-          gui.add_message_at(our_player, "search_station(t_start[0], wt_water, 1) " + st_dock + " t_start[0] " + coord3d_to_string(t_start[0]), world.get_time())
+          //gui.add_message_at(our_player, "search_station(t_start[0], wt_water, 1) " + st_dock + " t_start[0] " + coord3d_to_string(t_start[0]), world.get_time())
           if ( st_dock ) {
             local st = halt_x.get_halt(st_dock[0], our_player)
             if ( st ) {
