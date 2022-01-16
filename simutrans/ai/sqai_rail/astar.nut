@@ -3656,7 +3656,7 @@ function optimize_way_line(route, wt) {
       }
 
 
-      if ( remove_bridge > 0 && bridge_len > 2 && bridge_len < 5 && pl_check == our_player_nr ) {
+      if ( remove_bridge > 0 && ( (remove_bridge+1) == bridge_len ) && bridge_len > 2 && bridge_len < 5 && pl_check == our_player_nr ) {
         local err = remove_tile_to_empty(tile_2, wt, 0)
             //gui.add_message_at(our_player, " remove way: " + err, tile_1)
         if (err) {
