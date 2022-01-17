@@ -375,8 +375,8 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 		const sint16 mx = get_mouse_x();
 		const sint16 my = get_mouse_y();
 		if(  is_hit(mx-pos.x, my-pos.y)  ) {
-			const sint16 xdiff = (mx - pos.x) / env_t::iconsize.w;
-			const sint16 ydiff = (my - pos.y-D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
+			const sint16 xdiff = (mx - pos.x - offset.x) / env_t::iconsize.w;
+			const sint16 ydiff = (my - pos.y-D_TITLEBAR_HEIGHT - offset.y) / env_t::iconsize.h;
 			if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  ) {
 				const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 				if(  tipnr < (int)tool_icon_disp_end  ) {
