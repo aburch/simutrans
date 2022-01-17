@@ -1580,22 +1580,26 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 				koord k( ix, iy );
 				uint8 neighbour_water = 0;
 				bool water[8] = {};
+				sint16 total_ground = 0;
 				// check whether nearby tiles are water
 				for(  int i = 0;  i < 8;  i++  ) {
 					if(  grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] )  ) {
+						total_ground++;
 						if( gr2->hat_weg( water_wt ) ) {
 							// never ever make a beach near a river mound
 							neighbour_water = 8;
 							break;
 						}
-						water[i] = (!gr2  ||  gr2->is_water());
+						if(  gr2->is_water()  ) {
+							water[i] = 1;
+							neighbour_water++;
+						}
 					}
 				}
 
 				// make a count of nearby tiles - where tiles on opposite (+-1 direction) sides are water these count much more so we don't block straits
 				for(  int i = 0;  i < 8;  i++  ) {
 					if(  water[i]  ) {
-						neighbour_water++;
 						if(  water[(i + 3) & 7]  ||  water[(i + 4) & 7]  ||  water[(i + 5) & 7]  ) {
 							neighbour_water++;
 						}
@@ -1603,7 +1607,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 				}
 
 				// if not much nearby water then turn into a beach
-				if(  neighbour_water < 4  ) {
+				if(  neighbour_water < (3*total_ground)/4  ) {
 					set_water_hgt( k, gr->get_hoehe() - 1 );
 					raise_grid_to( ix, iy, gr->get_hoehe() );
 					raise_grid_to( ix + 1, iy, gr->get_hoehe() );
