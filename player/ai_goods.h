@@ -98,14 +98,14 @@ private:
 
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
-	int baue_bahnhof(const koord* p, int anz_vehikel);
+	int baue_bahnhof(const koord* p, int vehicle_count);
 
 	bool create_simple_rail_transport();
 
 	// create way and stops for these routes
-	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int minimum_loading);
+	bool create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count);
+	void create_road_transport_vehikel(fabrik_t *qfab, int vehicle_count);
+	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int vehicle_count, int minimum_loading);
 
 public:
 	ai_goods_t(uint8 nr);

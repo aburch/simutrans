@@ -194,8 +194,8 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 				// we do not want to count the capacity of depot convois
 				if(  !cnv_in_line->in_depot()  ) {
 					for(  unsigned j = 0;  j < cnv_in_line->get_vehicle_count();  j++  ) {
-						capacity += cnv_in_line->get_vehikel(j)->get_cargo_max();
-						load += cnv_in_line->get_vehikel(j)->get_total_cargo();
+						capacity += cnv_in_line->get_vehicle(j)->get_cargo_max();
+						load += cnv_in_line->get_vehicle(j)->get_total_cargo();
 					}
 				}
 			}
@@ -204,8 +204,8 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 			// we do not want to count the capacity of depot convois
 			if(!cnv->in_depot()) {
 				for(unsigned j = 0; j < cnv->get_vehicle_count(); j++) {
-					capacity += cnv->get_vehikel(j)->get_cargo_max();
-					load += cnv->get_vehikel(j)->get_total_cargo();
+					capacity += cnv->get_vehicle(j)->get_cargo_max();
+					load += cnv->get_vehicle(j)->get_total_cargo();
 				}
 			}
 		}
@@ -1756,7 +1756,7 @@ void minimap_t::draw(scr_coord pos)
 		scr_coord_val offset = zoom_in / zoom_out /2;
 		scr_coord_val wd = max( zoom_in/zoom_out, 1) * 2 + 1; // to have it always odd
 		for(  int i = 0;  i < current_cnv->get_vehicle_count();  i++  ) {
-			const scr_coord veh_pos = map_to_screen_coord(current_cnv->get_vehikel(i)->get_pos().get_2d()) + pos;
+			const scr_coord veh_pos = map_to_screen_coord(current_cnv->get_vehicle(i)->get_pos().get_2d()) + pos;
 			display_fillbox_wh_clip_rgb(veh_pos.x-(wd/2)+offset, veh_pos.y-(wd/2)+offset, wd, wd, color_idx_to_rgb(COL_MAGENTA), true);
 		}
 	}

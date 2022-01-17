@@ -3260,7 +3260,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		}
 	}
 	else {
-		// get a default vehikel
+		// get a default vehicle
 		test_driver_t* test_driver;
 		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
@@ -3538,7 +3538,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 			waytype = dp->get_waytype();
 		}
 	}
-	// get a default vehikel
+	// get a default vehicle
 	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
@@ -5035,7 +5035,7 @@ uint8 tool_build_roadsign_t::is_valid_pos( player_t *player, const koord3d &pos,
 
 bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
-	// get a default vehikel
+	// get a default vehicle
 	vehicle_desc_t rs_desc( desc->get_wtyp(), 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &rs_desc);
 	test_vehicle->set_flag(obj_t::not_on_map);
@@ -7353,7 +7353,7 @@ bool tool_change_line_t::init( player_t *player )
 							sint64 old_sum_capacity = 0;
 							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
 								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-									old_sum_capacity += cnv->get_vehikel(i)->get_desc()->get_capacity();
+									old_sum_capacity += cnv->get_vehicle(i)->get_desc()->get_capacity();
 								}
 							}
 							/* now we have the total capacity. We will now remove convois until this capacity
@@ -7372,7 +7372,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
+										old_sum_capacity -= cnv->get_vehicle(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -7384,7 +7384,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
+										old_sum_capacity -= cnv->get_vehicle(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -7462,9 +7462,9 @@ bool tool_change_line_t::init( player_t *player )
  * 's' : sells convoi
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
- * 's' : sells a vehikel (+vehikel_name) uses the newest
- * 'r' : removes a vehikel (+number in convoi)
- * 'R' : removes all vehikels including (+number in convoi) to end
+ * 's' : sells a vehicle (+vehikel_name) uses the newest
+ * 'r' : removes a vehicle (+number in convoi)
+ * 'R' : removes all vehicles including (+number in convoi) to end
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -7568,7 +7568,7 @@ bool tool_change_depot_t::init( player_t *player )
 
 					// find end
 					while(nr<cnv->get_vehicle_count()) {
-						const vehicle_desc_t *info = cnv->get_vehikel(nr)->get_desc();
+						const vehicle_desc_t *info = cnv->get_vehicle(nr)->get_desc();
 						nr ++;
 						if(info->get_trailer_count()!=1) {
 							break;

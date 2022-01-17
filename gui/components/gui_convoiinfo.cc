@@ -45,7 +45,7 @@ public:
 		unsigned count = cnv.is_bound() ? cnv->get_vehicle_count() : 0;
 		for(unsigned i=0; i<count; i++) {
 			scr_coord_val x, y, w, h;
-			const image_id image = cnv->get_vehikel(i)->get_loaded_image();
+			const image_id image = cnv->get_vehicle(i)->get_loaded_image();
 			display_get_base_image_offset(image, &x, &y, &w, &h );
 			if (display_images) {
 				display_base_img(image, p.x + s.w - x, p.y - y - h/2, cnv->get_owner()->get_player_nr(), false, true);

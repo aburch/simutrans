@@ -483,7 +483,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						// not overtaking/being overtake: we need to make a more thought test!
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
-							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 								return true;
 							}
 						}

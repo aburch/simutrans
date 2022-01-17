@@ -99,7 +99,7 @@ bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 	}
 	else if(v->get_waytype()==desc->get_waytype(1)) {
 
-		// vehikel from way2 arrives
+		// vehicle from way2 arrives
 		if(on_way1.get_count()) {
 			// sorry, still things on the crossing, but we will prepare
 			set_state( CROSSING_REQUEST_CLOSE );

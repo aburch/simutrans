@@ -163,7 +163,7 @@ void convoi_detail_t::init(convoihandle_t cnv)
 		if(veh>0) {
 			container_veh.new_component<gui_divider_t>();
 		}
-		vehicle_t *v = cnv->get_vehikel(veh);
+		vehicle_t *v = cnv->get_vehicle(veh);
 		container_veh.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
 	}
 	update_labels();
@@ -178,7 +178,7 @@ void convoi_detail_t::update_labels()
 	label_odometer.update();
 	label_power.buf().printf( translator::translate("Leistung: %d kW"), cnv->get_sum_power() );
 	label_power.update();
-	if( cnv->get_vehicle_count()>0  &&  cnv->get_vehikel( 0 )->get_desc()->get_waytype()==water_wt ) {
+	if( cnv->get_vehicle_count()>0  &&  cnv->get_vehicle( 0 )->get_desc()->get_waytype()==water_wt ) {
 		label_length.buf().printf( "%s %i", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count() );
 	}
 	else {

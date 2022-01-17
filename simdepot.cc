@@ -146,8 +146,8 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 		// here a regular convoi arrived
 
 		for(unsigned i=0; i<acnv->get_vehicle_count(); i++) {
-			vehicle_t *v = acnv->get_vehikel(i);
-			// reset vehikel data
+			vehicle_t *v = acnv->get_vehicle(i);
+			// reset vehicle data
 			v->discard_cargo();
 			v->set_pos( koord3d::invalid );
 			v->set_leading( i==0 );
@@ -201,14 +201,14 @@ void depot_t::append_vehicle(convoihandle_t cnv, vehicle_t* veh, bool infront, b
 		cnv = add_convoi( local_execution );
 	}
 	veh->set_pos(get_pos());
-	cnv->add_vehikel(veh, infront);
+	cnv->add_vehicle(veh, infront);
 	vehicles.remove(veh);
 }
 
 
 void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 {
-	vehicle_t* veh = cnv->remove_vehikel_bei( ipos );
+	vehicle_t* veh = cnv->remove_vehicle_at( ipos );
 	if(  veh  ) {
 		vehicles.append( veh );
 	}
@@ -217,7 +217,7 @@ void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 
 void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
 {
-	while(  vehicle_t* veh = cnv->remove_vehikel_bei( ipos )  ) {
+	while(  vehicle_t* veh = cnv->remove_vehicle_at( ipos )  ) {
 		vehicles.append( veh );
 	}
 }
@@ -268,7 +268,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 	slist_tpl<vehicle_t*> veh_tmp_list;
 
 	for(  int i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-		const vehicle_desc_t* const vb = cnv->get_vehikel(i)->get_desc();
+		const vehicle_desc_t* const vb = cnv->get_vehicle(i)->get_desc();
 		if(  vb  ) {
 			// search storage for matching vehicle
 			vehicle_t* veh = NULL;
@@ -308,7 +308,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i<vehicle_count; i++) {
-			const vehicle_desc_t * info = old_cnv->get_vehikel(i)->get_desc();
+			const vehicle_desc_t * info = old_cnv->get_vehicle(i)->get_desc();
 			if (info != NULL) {
 				// search in depot for an existing vehicle of correct type
 				vehicle_t* oldest_vehicle = get_oldest_vehicle(info);
@@ -320,7 +320,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 					// buy new vehicle
 					vehicle_t* veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info );
 					veh->set_pos(get_pos());
-					new_cnv->add_vehikel(veh, false);
+					new_cnv->add_vehicle(veh, false);
 				}
 			}
 		}
@@ -356,7 +356,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 	if(  cnv.is_bound()  ) {
 		if(  !sell  ) {
 			// store vehicles in depot
-			while(  vehicle_t* const v = cnv->remove_vehikel_bei(0)  ) {
+			while(  vehicle_t* const v = cnv->remove_vehicle_at(0)  ) {
 				v->discard_cargo();
 				v->set_leading(false);
 				v->set_last(false);

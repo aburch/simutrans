@@ -62,7 +62,7 @@ public:
 
 	/** extended search for vehicles for AI
 	*/
-	static const vehicle_desc_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete );
+	static const vehicle_desc_t *vehicle_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete );
 
 	/* for replacement during load time
 	 * prev_veh==NULL equals leading of convoi

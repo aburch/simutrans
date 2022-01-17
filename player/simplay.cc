@@ -408,7 +408,7 @@ void player_t::calc_assets()
 		}
 	}
 
-	// all vehikels stored in depot not part of a convoi
+	// all vehicles stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_owner_nr() == player_nr  ) {
 			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {

@@ -397,7 +397,7 @@ slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t c
  * checks also timeline and constraints
  * tries to get best with but adds a little random action
  */
-const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
+const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	const vehicle_desc_t *desc = NULL;
 	sint32 desc_index = -100000;
@@ -463,7 +463,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 			if(  desc==NULL  ||  difference<(int)simrand(25)    ) {
 				// then we want this vehicle!
 				desc = test_desc;
-				DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found car %s",desc->get_name());
+				DBG_MESSAGE( "vehicle_builder_t::vehicle_search","Found car %s",desc->get_name());
 			}
 		}
 
@@ -491,13 +491,13 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 				// then we want this vehicle!
 				desc = test_desc;
 				desc_index = current_index;
-				DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found engine %s",desc->get_name());
+				DBG_MESSAGE( "vehicle_builder_t::vehicle_search","Found engine %s",desc->get_name());
 			}
 		}
 	}
 	// no vehicle found!
 	if(  desc==NULL  ) {
-		DBG_MESSAGE( "vehicle_builder_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+		DBG_MESSAGE( "vehicle_builder_t::vehicle_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	}
 	return desc;
 }

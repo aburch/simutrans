@@ -535,7 +535,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 								// otherwise the overtaken car would stop for us ...
 								if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(dt)  ) {
 									convoi_t* const ocnv = car->get_convoi();
-									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 										frei = false;
 									}
 								} else if(  private_car_t* const caut = obj_cast<private_car_t>(dt)  ) {

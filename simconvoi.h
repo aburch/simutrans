@@ -169,7 +169,7 @@ private:
 	 * Number of vehicles in this convoi.
 	 */
 	// TODO number of vehicles is stored in array_tpl too!
-	uint8 anz_vehikel;
+	uint8 vehicle_count;
 
 	uint32 next_wolke; // time to next smoke
 
@@ -337,7 +337,7 @@ private:
 	*/
 	void set_erstes_letztes();
 
-	// returns the index of the vehikel at position length (16=1 tile)
+	// returns the index of the vehicle at position length (16=1 tile)
 	int get_vehicle_at_length(uint16);
 
 	/**
@@ -603,26 +603,26 @@ public:
 	/**
 	* @return Vehicle count
 	*/
-	uint8 get_vehicle_count() const { return anz_vehikel; }
+	uint8 get_vehicle_count() const { return vehicle_count; }
 
 	/**
 	 * @return Vehicle at position i
 	 */
-	vehicle_t* get_vehikel(uint16 i) const { return fahr[i]; }
+	vehicle_t* get_vehicle(uint16 i) const { return fahr[i]; }
 
 	vehicle_t* front() const { return fahr[0]; }
 
-	vehicle_t* back() const { return fahr[anz_vehikel - 1]; }
+	vehicle_t* back() const { return fahr[vehicle_count - 1]; }
 
 	/**
 	* Adds a vehicle at the start or end of the convoi.
 	*/
-	bool add_vehikel(vehicle_t *v, bool infront = false);
+	bool add_vehicle(vehicle_t *v, bool infront = false);
 
 	/**
 	* Removes vehicles at position i
 	*/
-	vehicle_t * remove_vehikel_bei(unsigned short i);
+	vehicle_t * remove_vehicle_at(unsigned short i);
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 

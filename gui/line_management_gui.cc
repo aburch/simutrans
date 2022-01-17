@@ -270,8 +270,8 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 		for( uint32 i = 0; i < line->count_convoys(); i++ ) {
 			convoihandle_t cnv = line->get_convoy( i );
 			for (unsigned i = 0; i<cnv->get_vehicle_count(); i++) {
-				capacity += cnv->get_vehikel(i)->get_cargo_max();
-				load += cnv->get_vehikel( i )->get_total_cargo();
+				capacity += cnv->get_vehicle(i)->get_cargo_max();
+				load += cnv->get_vehicle( i )->get_total_cargo();
 			}
 		}
 		capacity_bar.set_base( capacity );

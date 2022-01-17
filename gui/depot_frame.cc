@@ -703,7 +703,7 @@ void depot_frame_t::update_data()
 	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		for(  unsigned i=0;  i < cnv->get_vehicle_count();  i++  ) {
 			// just make sure, there is this vehicle also here!
-			const vehicle_desc_t *info=cnv->get_vehikel(i)->get_desc();
+			const vehicle_desc_t *info=cnv->get_vehicle(i)->get_desc();
 			if(  vehicle_map.get( info ) == NULL  ) {
 				add_to_vehicle_list( info );
 			}
@@ -717,15 +717,15 @@ void depot_frame_t::update_data()
 		{
 			unsigned i;
 			for(  i = 1;  i < cnv->get_vehicle_count();  i++  ) {
-				convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehikel(i-1)->get_desc()->can_lead(cnv->get_vehikel(i)->get_desc()) ? COL_GREEN : COL_RED);
-				convoi_pics[i]->lcolor     = color_idx_to_rgb(cnv->get_vehikel(i)->get_desc()->can_follow(cnv->get_vehikel(i-1)->get_desc()) ? COL_GREEN : COL_RED);
+				convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehicle(i-1)->get_desc()->can_lead(cnv->get_vehicle(i)->get_desc()) ? COL_GREEN : COL_RED);
+				convoi_pics[i]->lcolor     = color_idx_to_rgb(cnv->get_vehicle(i)->get_desc()->can_follow(cnv->get_vehicle(i-1)->get_desc()) ? COL_GREEN : COL_RED);
 			}
-			convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehikel(i-1)->get_desc()->can_lead(NULL) ? COL_GREEN : COL_YELLOW);
+			convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehicle(i-1)->get_desc()->can_lead(NULL) ? COL_GREEN : COL_YELLOW);
 		}
 
 		// change green into blue for vehicles that are not available
 		for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-			if(  !cnv->get_vehikel(i)->get_desc()->is_available(month_now)  ) {
+			if(  !cnv->get_vehicle(i)->get_desc()->is_available(month_now)  ) {
 				if(  convoi_pics[i]->lcolor == color_idx_to_rgb(COL_GREEN)  ) {
 					convoi_pics[i]->lcolor = gui_theme_t::gui_color_obsolete;
 				}
@@ -896,7 +896,7 @@ void depot_frame_t::update_data()
 			}
 
 			for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-				const vehicle_desc_t *desc = cnv->get_vehikel(i)->get_desc();
+				const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
 
 				total_power += desc->get_power()*desc->get_gear();
 
@@ -1100,7 +1100,7 @@ void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 		unsigned start_nr = nr;
 		while(  start_nr > 0  ) {
 			start_nr--;
-			const vehicle_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
+			const vehicle_desc_t *info = cnv->get_vehicle(start_nr)->get_desc();
 			if(  info->get_trailer_count() != 1  ) {
 				start_nr++;
 				break;
@@ -1468,8 +1468,8 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		convoi_number = sel_index = convoi.index_at(pos - relpos + scrolly_convoi.get_pos(), x, y - D_TITLEBAR_HEIGHT);
 		if(  sel_index != -1  ) {
 			convoihandle_t cnv = depot->get_convoi( icnv );
-			veh_type = cnv->get_vehikel( sel_index )->get_desc();
-			resale_value = cnv->get_vehikel( sel_index )->calc_sale_value();
+			veh_type = cnv->get_vehicle( sel_index )->get_desc();
+			resale_value = cnv->get_vehicle( sel_index )->calc_sale_value();
 			new_vehicle_length_sb_force_zero = true;
 		}
 	}
