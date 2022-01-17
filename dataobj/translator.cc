@@ -320,10 +320,15 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 			fgets_line(buffer2, sizeof(buffer2), file);
 			if(  strcmp(buffer1,buffer2)  ) {
 				// only add line which are actually different
-				const char *raw = recode(buffer1, file_is_utf, false, language_is_latin2 );
-				const char *translated = recode(buffer2, false, convert_to_unicode,language_is_latin2);
+				char *raw = recode(buffer1, file_is_utf, false, language_is_latin2 );
+				char *translated = recode(buffer2, false, convert_to_unicode,language_is_latin2);
+
 				if(  cbuffer_t::check_format_strings(raw, translated)  ) {
 					table->set( raw, translated );
+				}
+				else {
+					free(raw);
+					free(translated);
 				}
 			}
 		}
