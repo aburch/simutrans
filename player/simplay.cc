@@ -62,19 +62,19 @@ static pthread_mutex_t load_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 player_t::player_t(uint8 nr) :
-	simlinemgmt()
+	finance(new finance_t(this, welt)),
+	player_age(0),
+	player_color_1(0),
+	player_color_2(0),
+	player_nr(nr),
+	active(false),
+	locked(false),
+	unlock_pending(false),
+	simlinemgmt(),
+	undo_type(invalid_wt),
+	headquarter_level(0),
+	headquarter_pos(koord::invalid)
 {
-	finance = new finance_t(this, welt);
-	player_nr = nr;
-	player_age = 0;
-	active = false; // Don't start as an AI player
-	locked = false; // allowed to change anything
-	unlock_pending = false;
-
-	headquarter_pos = koord::invalid;
-	headquarter_level = 0;
-
-
 	welt->get_settings().set_player_color_to_default(this);
 
 	// we have different AI, try to find out our type:

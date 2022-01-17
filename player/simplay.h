@@ -77,7 +77,7 @@ protected:
 		void operator delete(void *p);
 	};
 
-	slist_tpl<income_message_t *>messages;
+	slist_tpl<income_message_t *> messages;
 
 	/**
 	 * Creates new income message entry or merges with existing one if the

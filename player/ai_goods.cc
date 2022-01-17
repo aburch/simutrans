@@ -39,27 +39,24 @@
 #include "ai_goods.h"
 
 
-ai_goods_t::ai_goods_t(uint8 nr) : ai_t(nr)
+ai_goods_t::ai_goods_t(uint8 nr) :
+	ai_t(nr),
+	state(NR_INIT),
+	root(NULL),
+	start(NULL),
+	ziel(NULL),
+	freight(NULL),
+	rail_vehicle(NULL),
+	rail_engine(NULL),
+	road_vehicle(NULL),
+	ship_vehicle(NULL),
+	rail_weg(NULL),
+	road_weg(NULL),
+	count_rail(0),
+	count_road(0),
+	count(0),
+	next_construction_steps(welt->get_steps()+50)
 {
-	state = NR_INIT;
-
-	freight = NULL;
-
-	root = NULL;
-	start = NULL;
-	ziel = NULL;
-
-	count = 0;
-
-	rail_engine = NULL;
-	rail_vehicle = NULL;
-	rail_weg = NULL;
-	road_vehicle = NULL;
-	ship_vehicle = NULL;
-	road_weg = NULL;
-
-	next_construction_steps = welt->get_steps()+ 50;
-
 	road_transport = nr!=7;
 	rail_transport = nr>2;
 	ship_transport = true;

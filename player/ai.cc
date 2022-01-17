@@ -536,10 +536,14 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 
 /* create new AI */
-ai_t::ai_t(uint8 nr) : player_t( nr )
+ai_t::ai_t(uint8 nr) :
+	player_t( nr ),
+	road_transport(false),
+	rail_transport(false),
+	ship_transport(false),
+	air_transport(false),
+	construction_speed(env_t::default_ai_construction_speed)
 {
-	road_transport = rail_transport = air_transport = ship_transport = false;
-	construction_speed = env_t::default_ai_construction_speed;
 }
 
 
