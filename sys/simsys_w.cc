@@ -86,22 +86,44 @@ static long y_scale = 32;
 
 
 // scale automatically
-bool dr_auto_scale(bool on_off)
+bool dr_set_screen_scale(sint16 percent)
 {
-	if(  on_off  ) {
-		HDC hdc = GetDC(NULL);
-		if (hdc) {
-			x_scale = (GetDeviceCaps(hdc, LOGPIXELSX)*32)/96;
-			y_scale = (GetDeviceCaps(hdc, LOGPIXELSY)*32)/96;
-			ReleaseDC(NULL, hdc);
-		}
-		return true;
+	bool scale_ok = false;
+	long old_scale_x = x_scale, old_scale_y= y_scale;
+
+	HDC hdc = GetDC(NULL);
+	if(  percent == -1  &&  hdc  ) {
+		x_scale = (GetDeviceCaps(hdc, LOGPIXELSX)*32)/96;
+		y_scale = (GetDeviceCaps(hdc, LOGPIXELSY)*32)/96;
+		scale_ok = true;
 	}
-	else {
-		x_scale = 32;
-		y_scale = 32;
+	else if (percent == 0) {
+		percent = 100;
+		scale_ok = true;
+	}
+	else if (percent < 0) {
+		dbg->error("dr_set_screen_scale(Win32)", "Invalid screen scaling %d (Must be >= -1)", percent);
 		return false;
 	}
+	else {
+		x_scale = (percent * 32) / 100;
+		y_scale = (percent * 32) / 100;
+	}
+	ReleaseDC(NULL, hdc);
+
+	if(  (x_scale!=old_scale_x  ||  y_scale!=old_scale_y)  &&  hwnd) {
+		// force window size update
+		RECT TempRect;
+		GetWindowRect(hwnd, &TempRect);
+		const LRESULT res = PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, MAKELPARAM(TempRect.right - TempRect.left, TempRect.bottom - TempRect.top));
+	}
+	return true;
+}
+
+
+sint16 dr_get_screen_scale()
+{
+	return (x_scale * 100) / 32;
 }
 
 

@@ -152,11 +152,13 @@ sint32 y_scale = SCALE_NEUTRAL_Y;
 bool has_soft_keyboard = false;
 
 
-// no autoscaling yet
-bool dr_auto_scale(bool on_off )
+bool dr_set_screen_scale(sint16 scale_percent)
 {
+	const sint32 old_x_scale = x_scale;
+	const sint32 old_y_scale = y_scale;
+
+	if(  scale_percent == -1  ) {
 #if SDL_VERSION_ATLEAST(2,0,4)
-	if(  on_off  ) {
 		float hdpi, vdpi;
 		SDL_Init( SDL_INIT_VIDEO );
 		SDL_DisplayMode mode;
@@ -178,21 +180,47 @@ bool dr_auto_scale(bool on_off )
 			y_scale = (y_scale * current_y) / MIN_SCALE_HEIGHT;
 			DBG_MESSAGE("new scaling", "x=%i, y=%i", x_scale, y_scale);
 		}
-
-		return x_scale==SCALE_NEUTRAL_X  &&  y_scale==SCALE_NEUTRAL_Y;
-	}
-	else
 #else
 #pragma message "SDL version must be at least 2.0.4 to support autoscaling."
-#endif
-	{
 		// 1.5 scale up by default
-		x_scale = (3*SCALE_NEUTRAL_X)/2;
-		y_scale = (3*SCALE_NEUTRAL_Y)/2;
-		(void)on_off;
-		return false;
+		x_scale = (150*SCALE_NEUTRAL_X)/100;
+		y_scale = (150*SCALE_NEUTRAL_Y)/100;
+#endif
 	}
+	else if (scale_percent == 0) {
+		x_scale = SCALE_NEUTRAL_X;
+		y_scale = SCALE_NEUTRAL_Y;
+	}
+	else {
+		x_scale = (scale_percent*SCALE_NEUTRAL_X)/100;
+		y_scale = (scale_percent*SCALE_NEUTRAL_Y)/100;
+	}
+
+	if (x_scale != old_x_scale || y_scale != old_y_scale) {
+		// force window resize
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+
+		SDL_Event ev;
+		ev.type = SDL_WINDOWEVENT;
+		ev.window.event = SDL_WINDOWEVENT_SIZE_CHANGED;
+		ev.window.data1 = w;
+		ev.window.data2 = h;
+
+		if (SDL_PushEvent(&ev) != 1) {
+			return false;
+		}
+	}
+
+	return true;
 }
+
+
+sint16 dr_get_screen_scale()
+{
+	return (x_scale*100)/SCALE_NEUTRAL_X;
+}
+
 
 static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 {
@@ -369,6 +397,10 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 	DBG_DEBUG( "internal_create_surfaces(SDL2)", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s",
 		ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(pixel_format) );
 
+	// Non-integer scaling -> enable bilinear filtering (must be done before texture creation)
+	const bool integer_scaling = (x_scale & (SCALE_NEUTRAL_X - 1)) == 0 && (y_scale & (SCALE_NEUTRAL_Y - 1)) == 0;
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, integer_scaling ? "0" : "1" ); // 0=none, 1=bilinear, 2=anisotropic (DirectX only)
+
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, tex_width, tex_height );
 	if(  screen_tx == NULL  ) {
 		dbg->error( "internal_create_surfaces(SDL2)", "Couldn't create texture: %s", SDL_GetError() );
@@ -402,8 +434,8 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 {
 	// scale up
 	resolution res = dr_query_screen_resolution();
-	const int tex_w = min( res.w, SCREEN_TO_TEX_X(screen_width) );
-	const int tex_h = min( res.h, SCREEN_TO_TEX_Y(screen_height) );
+	const int tex_w = clamp( res.w, 1, SCREEN_TO_TEX_X(screen_width) );
+	const int tex_h = clamp( res.h, 1, SCREEN_TO_TEX_Y(screen_height) );
 
 	DBG_MESSAGE("dr_os_open()", "Screen requested %i,%i, available max %i,%i", tex_w, tex_h, res.w, res.h);
 
@@ -411,7 +443,7 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
-	const int tex_pitch = max((tex_w + 15) & 0x7FF0, 16);
+	const int tex_pitch = (tex_w + 15) & 0x7FF0;
 
 	// SDL2 only works with borderless fullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
@@ -421,11 +453,6 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 	if(  window == NULL  ) {
 		dbg->error("dr_os_open(SDL2)", "Could not open the window: %s", SDL_GetError() );
 		return 0;
-	}
-
-	// Non-integer scaling -> enable bilinear filtering (must be done before texture creation)
-	if ((x_scale & (SCALE_NEUTRAL_X - 1)) != 0 || (y_scale & (SCALE_NEUTRAL_Y - 1)) != 0) {
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); // 0=none, 1=bilinear, 2=anisotropic (DirectX only)
 	}
 
 	if(  !internal_create_surfaces( tex_pitch, tex_h )  ) {
@@ -648,8 +675,8 @@ static void internal_GetEvents()
 
 		case SDL_WINDOWEVENT:
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
-				sys_event.new_window_size_w = SCREEN_TO_TEX_X(event.window.data1);
-				sys_event.new_window_size_h = SCREEN_TO_TEX_Y(event.window.data2);
+				sys_event.new_window_size_w = max(1, SCREEN_TO_TEX_X(event.window.data1));
+				sys_event.new_window_size_h = max(1, SCREEN_TO_TEX_Y(event.window.data2));
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 			}

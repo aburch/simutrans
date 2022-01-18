@@ -1,10 +1,11 @@
 	FIX: up/down arrows in schedule broken
 	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
-	CHG: lang files are laoded if their name is *XX.tab or XX*.tab The first is preferred to avoid confusion by name like ja-taken.tab
+	CHG: lang files are loaded if their name is *XX.tab or XX*.tab. The first is preferred to avoid confusion by name like ja-taken.tab
 	ADD: selected convoi in minimap now magenta. Also network display properly updated when activating or closing windows
+	ADD: Option to adjust screen scaling manually (either via display settings or '-screen_scale' command line option)
 
 
-Release of 123.0 (r10137 on 30-Dec-2021):
+Release of 123.0 (r10317 on 30-Dec-2021):
 	KNOWN BUG: ugly movement of pedestrians on diagonals/curves
 	FIX: map enlargement crashes with new climate generator
 	FIX: Wrong tooltip when building something with the finance window opened

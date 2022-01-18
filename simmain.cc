@@ -393,7 +393,9 @@ void print_help()
 		" -server [PORT]      starts program as server (for network game)\n"
 		"                     without port specified uses 13353\n"
 		" -announce           Enable server announcements\n"
-		" -autodpi            Scale for high DPI screens\n"
+		" -autodpi            Automatic screen scaling for high DPI screens\n"
+		" -screen_scale N     Manual screen scaling to N percent (0=off)\n"
+		"                     Ignored when -autodpi is specified\n"
 		" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
 		" -server_name NAME   Name of server for announcements\n"
 		" -server_admin_pw PW password for server administration\n"
@@ -803,7 +805,12 @@ int simu_main(int argc, char** argv)
 	}
 
 	if(  args.has_arg("-autodpi")  ) {
-		dr_auto_scale( true );
+		dr_set_screen_scale( -1 );
+	}
+	else if (const char *scaling = args.gimme_arg("-screen_scale", 1)) {
+		if (scaling[0] >= '0' && scaling[0] <= '9') {
+			dr_set_screen_scale(atoi(scaling));
+		}
 	}
 
 	int parameter[2];

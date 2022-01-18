@@ -29,11 +29,18 @@ static bool sigterm_received = false;
 #error "Posix only compiles with color depth=0"
 #endif
 
-// no autoscaling as we have no display ...
-bool dr_auto_scale(bool)
+bool dr_set_screen_scale(sint16)
 {
+	// no autoscaling as we have no display ...
 	return false;
 }
+
+
+sint16 dr_get_screen_scale()
+{
+	return 100;
+}
+
 
 bool dr_os_init(const int*)
 {
