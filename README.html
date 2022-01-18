@@ -1,0 +1,207 @@
+<h1 id="simutrans">Simutrans</h1>
+<ul>
+<li>1.0) <a href="#1-about">About</a>
+<ul>
+<li>1.1) <a href="#11-download-simutrans">Download Simutrans</a></li>
+<li>1.2) <a href="#12-helpful-links">Helpful links</a></li>
+</ul></li>
+<li>2.0) <a href="#2-compiling-simutrans">Compiling Simutrans</a>
+<ul>
+<li>2.1) <a href="#21-getting-the-source-code">Getting the Source Code</a></li>
+<li>2.2) <a href="#22-getting-the-libraries">Getting the libraries</a></li>
+<li>2.3) <a href="#23-compiling">Compiling</a>
+<ul>
+<li>2.3.1) <a href="#232-compiling-with-make">Compiling with make</a></li>
+<li>2.3.2) <a href="#233-compiling-with-microsoft-visual-studio">Compiling with MSVC</a></li>
+<li>2.3.3) <a href="#231-compiling-with-cmake">Compiling with CMake</a></li>
+</ul></li>
+<li>2.4) <a href="#24-Cross-Compiling">Cross-Compiling</a></li>
+</ul></li>
+<li>3.0) <a href="#3-contribute">Contribute</a>
+<ul>
+<li>3.1) <a href="#31-coding">Coding</a></li>
+<li>3.2) <a href="#32-translating">Getting the libraries</a></li>
+<li>3.3) <a href="#33-painting">Painting</a></li>
+<li>3.4) <a href="#34-reporting-bugs">Reporting-bugs</a></li>
+</ul></li>
+<li>4.0) <a href="#4-license">License</a></li>
+<li>5.0) <a href="#5-credits">Credits</a></li>
+</ul>
+<h2 id="about">1) About</h2>
+<p>Simutrans is a freeware and open-source transportation simulator. Your goal is to establish a successful transport company. Transport passengers, mail and goods by rail, road, ship, and even air. Interconnect districts, cities, public buildings, industries and tourist attractions by building a transport network you always dreamed of.</p>
+<h2 id="download-simutrans">1.1) Download Simutrans</h2>
+<p>You can download Simutrans from:</p>
+<ul>
+<li><a href="https://www.simutrans.com/en/">Simutrans Official Website</a></li>
+<li><a href="https://store.steampowered.com/app/434520/Simutrans/">Steam</a></li>
+<li><a href="https://pkgs.org/search/?q=simutrans">Linux package managers</a></li>
+</ul>
+<p>There is a “nightly” version available, but most most people should use the last “stable” release.</p>
+<h2 id="helpful-links">1.2) Helpful links</h2>
+<h3 id="main-sites">Main sites</h3>
+<ul>
+<li><a href="https://www.simutrans.com/">Main website</a></li>
+<li><a href="https://forum.simutrans.com/">International Forum</a></li>
+<li><a href="https://www.simutrans-forum.de/">German Forumurl</a></li>
+<li><a href="https://forum.japanese.simutrans.com/">Japanese Forum</a></li>
+</ul>
+<h3 id="help">Help</h3>
+<ul>
+<li><a href="https://wiki.simutrans.com">Simutrans Wiki</a></li>
+<li><a href="http://simutrans.igoreliezer.com/docs/Simutrans%20Starter%20Guide.pdf">Starter Guide (PDF)</a></li>
+<li><a href="https://forum.simutrans.com/index.php/board,7.0.html">Help Center (International Forum)</a></li>
+</ul>
+<h3 id="additional-downloads">Additional downloads</h3>
+<ul>
+<li><a href="https://www.simutrans.com/en/paksets/">Paksets</a></li>
+<li><a href="https://simutrans-germany.com/wiki/wiki/en_Addons">Addons</a></li>
+</ul>
+<h2 id="compiling-simutrans">2) Compiling Simutrans</h2>
+<p>This is a short guide on compiling simutrans. If you want more detailed information, read the <a href="https://simutrans-germany.com/wiki/wiki/en_CompilingSimutrans">Compiling Simutrans</a> wiki page.</p>
+<p>If you are on Windows, download either <a href="https://visualstudio.microsoft.com/">Microsoft Visual Studio</a> or <a href="https://www.msys2.org/">MSYS2</a>. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to be done on the command line).</p>
+<h3 id="getting-the-source-code">2.1) Getting the Source Code</h3>
+<p>You can download the latest version with a SVN client:</p>
+<pre><code>svn checkout svn://servers.simutrans.org/simutrans/trunk</code></pre>
+<p>If you prefer to use git, there is a mirror of the svn repository available at github:</p>
+<pre><code>git clone http://github.com/aburch/simutrans.git</code></pre>
+<p>Note that the svn repository is the main repository, and the git repository is just a mirror. If you use git instead of svn, you will need to set the game version manually for network play.</p>
+<h3 id="getting-the-libraries">2.2) Getting the libraries</h3>
+<p>This is a list of libraries used by Simutrans. Not all of them are necessary, some are optional, so pick them according to your needs. Read below about how to install them.</p>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 26%" />
+<col style="width: 8%" />
+<col style="width: 53%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Library</th>
+<th>Website</th>
+<th>Necessary?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>zlib</td>
+<td>https://zlib.net/</td>
+<td>Necessary</td>
+<td>Basic compression support</td>
+</tr>
+<tr class="even">
+<td>bzip2</td>
+<td>https://www.bzip.org/downloads.html</td>
+<td>Necessary</td>
+<td>Alternative compression. You can pick this or zstd</td>
+</tr>
+<tr class="odd">
+<td>libpng</td>
+<td>http://www.libpng.org/pub/png/</td>
+<td>Necessary</td>
+<td>Image manipulation</td>
+</tr>
+<tr class="even">
+<td>libSDL2</td>
+<td>http://www.libsdl.org/</td>
+<td>Necessary*</td>
+<td>*On Linux &amp; Mac. Optional but recommended for Windows. Graphics back-end</td>
+</tr>
+<tr class="odd">
+<td>libzstd</td>
+<td>https://github.com/facebook/zstd</td>
+<td>Optional</td>
+<td>Alternative compression</td>
+</tr>
+<tr class="even">
+<td>libfreetype</td>
+<td>http://www.freetype.org/</td>
+<td>Optional</td>
+<td>TrueType font support</td>
+</tr>
+<tr class="odd">
+<td>libminiupnpc</td>
+<td>http://miniupnp.free.fr/</td>
+<td>Optional</td>
+<td>Easy Server option</td>
+</tr>
+<tr class="even">
+<td>libfluidsynth</td>
+<td>https://www.fluidsynth.org/</td>
+<td>Optional</td>
+<td>MIDI playback recommended on Linux &amp; temporarily on Mac</td>
+</tr>
+<tr class="odd">
+<td>libSDL2_mixer</td>
+<td>http://www.libsdl.org/</td>
+<td>Optional</td>
+<td>Alternative MIDI playback and sound system</td>
+</tr>
+</tbody>
+</table>
+<p>You will also need pkgconfig (Unix) or <a href="https://github.com/Microsoft/vcpkg">vcpkg</a> (Microsoft Visual C++)</p>
+<ul>
+<li>MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.</li>
+<li>MSYS2: Run <a href="./setup-mingw.sh">setup-mingw.sh</a> to get the libraries and set up the environment.</li>
+<li>Linux: Use <a href="https://pkgs.org/">pkgs.org</a> to search for development libraries available in your package manager.</li>
+<li>Mac: Install libraries via <a href="https://brew.sh/">Homebrew</a>.</li>
+</ul>
+<h3 id="compiling">2.3) Compiling</h3>
+<p>Go to the source code directory of simutrans (simutrans/trunk if you downloaded from svn). You have three build systems to choose from: make, MSVC, and CMake. We recommend make or MSVC for debug builds.</p>
+<p>Compiling will give you only the executable, you still need a Simutrans installation to run the program. You can start simutrans with <code>-use_workdir</code> to point it to an existing installation.</p>
+<h4 id="compiling-with-make">2.3.1) Compiling with make</h4>
+<p>The executable will be built in build/default.</p>
+<pre><code>(Linux) autoconf
+(MacOS) autoreconf -ivf
+./configure
+make -j 4
+(MacOS) make OSX/getversion</code></pre>
+<h4 id="compiling-with-microsoft-visual-studio">2.3.2) Compiling with Microsoft Visual Studio</h4>
+<p>Simutrans solution is a single solution file <a href="./simutrans.sln">simutrans.sln</a> with 4 projects:</p>
+<ul>
+<li>Simutrans-Main: The project that holds the shared, non back-end specific, files. All the followings use Main to build the specific back-end executables.</li>
+<li>Simutrans SDL2: Preferred back-end for Simutrans.</li>
+<li>Simutrans GDI: Windows-only back-end.</li>
+<li>Simutrans Server: Server back-end with no graphical interface.</li>
+</ul>
+<h4 id="compiling-with-cmake">2.3.3) Compiling with CMake</h4>
+<p>The executable will be built in build/simutrans.</p>
+<h5 id="linuxmingwmacos">Linux/MinGW/MacOS</h5>
+<pre><code>mkdir build &amp;&amp; cd build
+cmake -G &quot;Insert Correct Makefiles Generator&quot; ..
+cmake --build . -j 4</code></pre>
+<p>See <a href="https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html">here</a> for a list of generators.</p>
+<h5 id="msvc">MSVC</h5>
+<pre><code>mkdir build &amp;&amp; cd build
+cmake.exe .. -G &quot;Visual Studio 16 2019&quot; -A x64 -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake
+cmake --build . --config Release</code></pre>
+<h3 id="cross-compiling">2.4) Cross-Compiling</h3>
+<p>If you want to cross-compile Simutrans from Linux for Windows, see the <a href="https://simutrans-germany.com/wiki/wiki/en_Cross-Compiling_Simutrans">Cross-Compiling Simutrans</a> wiki page.</p>
+<h2 id="contribute">3) Contribute</h2>
+<p>You cand find general information about contributing to Simutrans in the <a href="https://simutrans-germany.com/wiki/wiki/en_Devel_Index?structure=en_Devel_Index">Development Index</a> of the wiki.</p>
+<h3 id="coding">3.1) Coding</h3>
+<ul>
+<li>If you want to contribute, read the coding guidelines in simutrans/documentation/coding_styles.txt</li>
+<li>You definitely should check out the <a href="https://forum.simutrans.com/index.php/board,112.0.html">Technical Documentation Sub-Forum</a> as well.</li>
+<li><strong>Do not open Pull Requests</strong> in GitHub. Use the <a href="https://forum.simutrans.com/index.php/board,33.0.html">Patches &amp; Projects</a> Sub-Forum instead.</li>
+</ul>
+<h3 id="translating">3.2) Translating</h3>
+<p>Simutrans is constantly updating and adding texts so we are always in need for translators:</p>
+<ul>
+<li>To help with translation use the <a href="https://translator.simutrans.com/">SimuTranslator</a> web tool.</li>
+<li>To request a translator account use the <a href="https://forum.simutrans.com/index.php/board,47.0.html">Translation Sub-Forum</a>.</li>
+</ul>
+<h3 id="painting">3.3) Painting</h3>
+<p>Simutrans is always looking for artists! If you want to paint graphics for Simutrans, check:</p>
+<ul>
+<li>The “Creating images” section of the <a href="https://simutrans-germany.com/wiki/wiki/en_Devel_Index">Development Index</a>.</li>
+<li>The <a href="https://forum.simutrans.com/index.php/board,108.0.html">General Resources and Tools</a> Sub-Forum.</li>
+</ul>
+<h3 id="reporting-bugs">3.4) Reporting bugs</h3>
+<p>For bug reports use the <a href="https://forum.simutrans.com/index.php/board,8.0.html">Bug Reports</a> Sub-Forum.</p>
+<h2 id="license">4) License</h2>
+<p>Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see <a href="./license.txt">license.txt</a>.</p>
+<p>Simutrans paksets (which are necessary to run the game) have their own license, but no one is included alongside this code.</p>
+<h2 id="credits">5) Credits</h2>
+<p>Simutrans was originally written by Hansjörg Malthaner “Hajo” from 1997 until he retired from development around 2004. Since then a team of contributors (The Simutrans Team) lead by Markus Pristovsek “Prissi” develop Simutrans.</p>
+<p>A list of early contributors can be found in <a href="./simutrans/thanks.txt">simutrans/thanks.txt</a></p>

@@ -1,143 +1,100 @@
-How to compile
---------------
+About
+=====
 
-Congratulations, you checked out the simutrans source. To compile it,
-you have many options, either using Microsoft Visual C++ Express (which
-is free in Version 7.0 or up) or some GCC variant including clang.
+Simutrans is a freeware and open-source transportation simulator. Your goal is to establish a successful transport company. Transport passengers, mail and goods by rail, road, ship, and even air. Interconnect districts, cities, public buildings, industries and tourist attractions by building a transport network you always dreamed of.
 
-To compile you will need the following libraries:
-libz (https://www.zlib.net/)
-libpng (http://www.libpng.org/pub/png/)
-libbz2.lib (compile from source from https://sourceware.org/bzip2/downloads.html)
+You can download Simutrans from:
 
-The following are also recommendend, but optional
-libfreetype (https://www.freetype.org/)
-libminiupnpc (http://miniupnp.free.fr/ or https://miniupnp.tuxfamily.org/)
+- Simutrans Website:   https://www.simutrans.com/en/
+- Steam:               https://store.steampowered.com/app/434520/Simutrans/
 
-For the recommended SDL2-support you need
-libSDL2 [better than libSDL] (https://libsdl.org/)
-libSDL_mixer (https://www.libsdl.org/projects/SDL_mixer/)
+Check the forum or wiki if you need help:
 
-The link for allegro lib is (but the allegro backend has not been
-tested for a long time):
-https://liballeg.org/old.html
+- International Forum: https://forum.simutrans.com/
+- Simutrans Wiki:      https://wiki.simutrans.com/
 
-To make life easier, you can follow the instructions to compile OpenTTD:
-http://wiki.openttd.org/Category:Compiling_OpenTTD
-A system set up for OpenTTD will also compile simutrans (except for
-bzlib2, see below sections).
 
-If you are on a MS Windows machine, download either MS VC Express or
-MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to
-be done on the command line).
+Compiling Simutrans
+===================
 
-The packages needed for MSYS2 are
-make
-mingw-w64-i686-gcc
-mingw-w64-i686-SDL (Only if you want an SDL build OR for sound on SDL2)
-mingw-w64-i686-SDL2 (Only if you want an SDL2 build)
-mingw-w64-i686-freetype (for scaleable font support)
-mingw-w64-i686-miniupnpc (for easy server option)
-mingw-w64-i686-libpng (for makeobj)
-mingw-w64-i686-pkg-config (for makeobj)
+This is a short guide on compiling simutrans. If you want more detailed information, read the Compiling Simutrans forum thread https://simutrans-germany.com/wiki/wiki/en_CompilingSimutrans
 
-For all other systems, it is recommended you get latest GCC 3.46 or higher
-and matching zlib, libbzip2, and libpng and SDL or SDL2 library. For linux
-systems you may have to use tools like apt-get, yast2, yum, ...
+If you are on Windows, download either MSVC or MinGW. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to be done on the command line).
+- MSVC:  https://visualstudio.microsoft.com/
+- MSYS2: https://www.msys2.org/ 
 
-Typical package names are (ending may be also -devel)
-libsdl2-dev or libsdl1.2-dev
-zlib-dev
-libpng-dev
-libbz2-dev
-libminiupnpc-dev
-libfreetype-dev
-Depending on your distribution, there may be also number needed, like
-libfreetype2-dev or libminiupnpc6-dev
+Getting the libraries
+------------------------
 
-To build on Haiku you must use GCC4 (type "setarch x86" in the current
-nightlies). To incorporate bz2lib, download make bz2lib and add them
-manually (via FLAGS = -I/dwonloadeddir -L/downloadeddir). However, simutrans
-has a Haikuporter package, which may build the lastest version.
+You will need pkgconfig (Unix) or vcpkg (Microsoft Visual C++) https://github.com/Microsoft/vcpkg
 
-A subversion will be also a good idea. You can find some of them on:
-https://subversion.apache.org/
-or you some other client.
+- Needed (All): libpng2 libbzip2 zlib 
+- Needed (Linux/Mac): libSDL2 libfluidsynth (for midi music)
+- Optional but recommended: libzstd libfreetype miniupnpc (for easy server setup)
 
-Check out the latest source from the SVN or check out a certain revision.
-I recommend always to use the latest source, since it does not make any
-sense to work with buggy code.
+- MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
+- MSYS2: Run setup-mingw.sh to get the libraries and set up the environment.
+- Linux: Use https://pkgs.org/ to search for development libraries available in your package manager.
+- Mac: Install libraries via Homebrew: https://brew.sh/
 
-The address is:
-svn://servers.simutrans.org/simutrans
+Compiling
+---------
 
-A commandline would look like this:
-svn checkout svn://servers.simutrans.org/simutrans
+Go to the source code directory of simutrans (simutrans/trunk if you downloaded from svn). You have three build systems to choose from: make, MSVC, and CMake. We recommend make or MSVC for debug builds.
 
-If everything is set up, you can run configure inside trunk. This should
-create a config.default file with all the needed settings. Try to compile
-using make. You can manually fine edit config.default to enable other
-settings.
+Compiling will give you only the executable, you still need a Simutrans installation to run the program. You can start simutrans with "-use_workdir" to point it to an existing installation.
 
-Typically you type into a command window:
+1) make
+
+(MacOS) autoreconf -ivf
+(Linux) autoconf
 ./configure
-make
+make -j 4
+(MacOS) make OSX/getversion
 
-The executable compiled by this is located in the directory "build/default",
-i.e. "./build/default/sim" You can start it by this
-cd simutrans
-../build/default/sim -use_workdir
-but you will need to add at least one pak to the simutrans directory.
+2) Microsoft Visual C++
 
-You can run ./distribute which will give you a zip file that contains
-everything (minus a pak) needed to run simutrans.
+Open the simutrans.sln, select the target (default is GDI) and build.
 
+3) CMake
 
-IMPORTANT:
-----------
+mkdir build && cd build
+(Unix) cmake -G "Insert Correct Makefiles Generator" ..
+(Unix) cmake build . -j 4
+(MSVC) cmake.exe .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake
+(MSVC) cmake.exe --build . --config Release
 
-If you want to contribute, read the coding guidelines in
-trunk/coding_styles.txt
-
-
-The following instructions are manual setup for GCC/Clang systems:
-------------------------------------------------------------------
-
-Go to simutrans/trunk.
-
-Then copy the file trunk/config.template to trunk/config.default and edit
-the file. You must define (i.e. uncomment by removing the leading # character)
-at least the following variables:
-
-- BACKEND (gdi, allegro, SDL, SDL2, posix)
-- OSTYPE (you should know it)
-
-I recommend to uncomment #DEBUG=1 and #OPTIMISE = 1 (i.e. removing the #),
-if you build for your own use.
-
-For allegro or libsdl you may need to define the path of the config file
-(or at least on win98 an empty path).
-
-Finally type make. If you want a smaller program and do not care about error
-messages, you can comment out #DEBUG=1 and run "strip sim" resp.
-"strip sim.exe" after compile and linking.
+See here a list of generators: https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html
 
 
-The following instructions are for MS Visual C Express:
--------------------------------------------------------
+Cross-Compiling
+===============
+If you want to cross-compile Simutrans from Linux for Windows, see the Cross-Compiling Simutrans wiki page https://simutrans-germany.com/wiki/wiki/en_Cross-Compiling_Simutrans
 
-Download Visual Express C++ (tested for 2012 upwards)
-http://www.microsoft.com/express/Downloads/
 
-For most libraries you will easily find binaries. A quick start for some of
-them is the bundle used for OpenTTD:
-https://www.openttd.org/en/download-openttd-useful/6.0
+Contribute
+==========
 
-The bzip2 source tarball comes with an archive where you can easily build
-your own libbz2.lib file.
+You cand find general information about contributing to Simutrans in the Development Index of the wiki: https://simutrans-germany.com/wiki/wiki/en_Devel_Index?structure=en_Devel_Index
 
-For debugging, you have to set the correct working directory, i.e. the
-directory where the pak/ folders are located and use the -use_workdir
-command line option.
 
-Nagoya, Oct 2018
+Reporting bugs
+==============
+
+For bug reports use the Bug Reports Sub-Forum: https://forum.simutrans.com/index.php/board,8.0.html
+
+
+License
+=======
+
+Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see license.txt.
+
+Simutrans paksets (which are necessary to run the game) have their own license, but no one is included alongside this code.
+
+
+Credits
+=======
+
+Simutrans was originally written by Hansjörg Malthaner "Hajo" from 1997 until he retired from development around 2004. Since then a team of contributors (The Simutrans Team) lead by Markus Pristovsek "Prissi" develop Simutrans. 
+
+A list of early contributors can be found in simutrans/thanks.txt
