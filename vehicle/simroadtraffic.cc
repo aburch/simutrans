@@ -465,7 +465,7 @@ void private_car_t::rdwr(loadsave_t *file)
 }
 
 
-bool private_car_t::ist_weg_frei(grund_t *gr)
+bool private_car_t::can_enter_tile(grund_t *gr)
 {
 	if(gr->get_top()>200) {
 		// already too many things here
@@ -685,7 +685,7 @@ grund_t* private_car_t::hop_check()
 		// cul de sac: return
 		if(ribi==0) {
 			pos_next_next = get_pos();
-			return ist_weg_frei(from) ? from : NULL;
+			return can_enter_tile(from) ? from : NULL;
 		}
 
 #ifdef DESTINATION_CITYCARS
@@ -726,7 +726,7 @@ grund_t* private_car_t::hop_check()
 #else
 					// ok, now check if we are allowed to go here (i.e. no cars blocking)
 					pos_next_next = to->get_pos();
-					if(ist_weg_frei(from)) {
+					if(can_enter_tile(from)) {
 						// ok, this direction is fine!
 						ms_traffic_jam = 0;
 						if(current_speed<48) {
@@ -752,7 +752,7 @@ grund_t* private_car_t::hop_check()
 		else {
 			pos_next_next = get_pos();
 		}
-		if(ist_weg_frei(from)) {
+		if(can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {
@@ -764,12 +764,12 @@ grund_t* private_car_t::hop_check()
 		// only stumps at single way crossing, all other blocked => turn around
 		if(ribi==0) {
 			pos_next_next = get_pos();
-			return ist_weg_frei(from) ? from : NULL;
+			return can_enter_tile(from) ? from : NULL;
 		}
 #endif
 	}
 	else {
-		if(from  &&  ist_weg_frei(from)) {
+		if(from  &&  can_enter_tile(from)) {
 			// ok, this direction is fine!
 			ms_traffic_jam = 0;
 			if(current_speed<48) {

@@ -18,7 +18,7 @@
 class road_vehicle_t : public vehicle_t
 {
 private:
-	// called internally only from ist_weg_frei()
+	// called internally only from can_enter_tile()
 	// returns true on success
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 

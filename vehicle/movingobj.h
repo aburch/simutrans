@@ -58,7 +58,6 @@ public:
 
 	// always free
 	virtual bool check_next_tile(const grund_t *) const;
-	virtual bool ist_weg_frei() { return 1; }
 	grund_t* hop_check() OVERRIDE;
 	void hop(grund_t* gr) OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE { return get_desc()->get_waytype(); }

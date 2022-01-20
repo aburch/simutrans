@@ -92,6 +92,7 @@ private:
 
 	void calc_disp_lane();
 
+	bool can_enter_tile(grund_t *gr);
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -116,7 +117,6 @@ public:
 	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	void hop(grund_t *gr) OVERRIDE;
-	bool ist_weg_frei(grund_t *gr);
 
 	void enter_tile(grund_t* gr) OVERRIDE;
 

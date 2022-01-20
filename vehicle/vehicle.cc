@@ -455,8 +455,7 @@ grund_t* vehicle_t::hop_check()
 		}
 
 		sint32 restart_speed = -1;
-		// ist_weg_frei() berechnet auch die Geschwindigkeit
-		// mit der spaeter weitergefahren wird
+		// can_enter_tile() wll compute restart_speed
 		if(  !can_enter_tile( bd, restart_speed, 0 )  ) {
 			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
