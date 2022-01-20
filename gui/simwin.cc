@@ -2132,7 +2132,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 					env_t::quit_simutrans = true;
 					break;
 				}
-			} while (ev.ev_class != EVENT_NONE);
+			} while(  ev.ev_class != EVENT_NONE  &&  dr_time()-frame_start_time < 50  );
 
 			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
 			welt->sync_step((ms_per_frame * welt->get_time_multiplier()) / 16, true, true);
@@ -2160,7 +2160,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 		display_fillbox_wh_rgb(0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true);
 		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
 			// do not move, do not close it!
-			dr_sleep(50);
+
 			// check for events again after waiting
 			if (quit()) {
 				break;
@@ -2169,24 +2169,35 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 			gui->draw(win_get_pos(gui), gui->get_windowsize());
 			dr_flush();
 
-			display_poll_event(&ev);
-			if (ev.ev_class == EVENT_SYSTEM) {
-				if (ev.ev_code == SYSTEM_RESIZE) {
-					// main window resized
-					simgraph_resize(ev.new_window_size);
-					dr_prepare_flush();
-					display_fillbox_wh_rgb(0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true);
-					gui->draw(win_get_pos(gui), gui->get_windowsize());
-					dr_flush();
+			// some backends (etc. SDL2) tend to flood the queue with events. Hence we need to process them all quickly
+			uint32 frame_start_time = dr_time();
+			do {
+				display_poll_event(&ev);
+				if (ev.ev_class == EVENT_SYSTEM) {
+					if (ev.ev_code == SYSTEM_RESIZE) {
+						// main window resized
+						simgraph_resize(ev.new_window_size);
+						dr_prepare_flush();
+						display_fillbox_wh_rgb(0, 0, ev.new_window_size.w, ev.new_window_size.h, color_idx_to_rgb(COL_BLACK), true);
+						gui->draw(win_get_pos(gui), gui->get_windowsize());
+						dr_flush();
+					}
+					else if (ev.ev_code == SYSTEM_QUIT) {
+						env_t::quit_simutrans = true;
+						break;
+					}
 				}
-				else if (ev.ev_code == SYSTEM_QUIT) {
-					env_t::quit_simutrans = true;
-					break;
+				else {
+					// other events
+					check_pos_win(&ev);
 				}
-			}
-			else {
-				// other events
-				check_pos_win(&ev);
+				// however, after 50ms we do a redraw ...
+			} while (ev.ev_class != EVENT_NONE &&  dr_time() - frame_start_time < 50);
+
+			// sleep the rest of the time
+			uint32 end_time = dr_time();
+			if (end_time - frame_start_time < 50) {
+				dr_sleep(50 - (end_time - frame_start_time));
 			}
 		}
 		display_show_load_pointer(1);
