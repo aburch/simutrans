@@ -164,7 +164,9 @@ void ai_scripted_t::new_year()
 
 void repair_table_keys(plainstring &str)
 {
-	// iterate linewise, enclose key starting with digit by [" .. "]
+	// iterate linewise
+	// replace [0\t]*([0-9][.*]) = by ["\1"]=
+	// replace [0\t]*(".*") =      by [\1]=
 	char *p = str;
 
 	char *line = p; // start of line
@@ -173,9 +175,15 @@ void repair_table_keys(plainstring &str)
 	while (*p) {
 		if (*p == '=') {
 			if (first_digit  &&  first_digit > line  &&  equal == NULL) {
-				*(p-1) = '"';
-				*(p  ) = ']';
-				*(p+1) = '=';
+				// match /" =/
+				if (line+2 < p  &&  *(p-2) == '"') {
+					*(p-1) = ']';
+				}
+				else {
+					*(p-1) = '"';
+					*(p  ) = ']';
+					*(p+1) = '=';
+				}
 				equal = p;
 			}
 		}
@@ -192,7 +200,14 @@ void repair_table_keys(plainstring &str)
 			}
 		}
 		else if (first_digit == NULL  &&  *p != ' '  &&  *p != '\t') {
-			first_digit = line;
+			if (*p == '"'  &&  line+1 < p ) {
+				// "
+				*(p-1) = '[';
+				first_digit = p+1;
+			}
+			else {
+				first_digit = line;
+			}
 		}
 		// some keys contained broken umlauts
 		if (equal == NULL  &&  *p < 0) {
@@ -261,7 +276,7 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 				err = script->eval_string(str);
 			}
 			if (err) {
-				dbg->warning("ai_scripted_t::rdwr", "error [%s] evaluating persistent ai data", err);
+				dbg->warning("ai_scripted_t::rdwr", "error [%s] evaluating persistent ai data for script '%s'", err, ai_name.c_str());
 				rdwr_error = true;
 			}
 		}

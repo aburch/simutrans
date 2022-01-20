@@ -45,7 +45,7 @@ function recursive_save(table, indent, table_stack)
 					str += key + " = "
 				}
 				else {
-					str += "\"" + key + "\" = "
+					str += "[\"" + key + "\"] = "
 				}
 			}
 			else {
