@@ -2944,6 +2944,10 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 				// not visible
 				return "";
 			}
+			if (gr->find<tunnel_t>()) {
+				// there is tunnel present -> allow, no chance to guess building cost.
+				return NULL;
+			}
 			if( gr->ist_karten_boden() ) {
 				win_set_static_tooltip( translator::translate("No suitable ground!") );
 
