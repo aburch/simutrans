@@ -149,6 +149,7 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		modal_dialogue(sel, magic_pakinstall, NULL, finish_install);
 
 		destroy_win(sel);
+		display_show_load_pointer(0);
 #endif
 	}
 	else if(  comp == option_buttons + BUTTON_QUIT  ) {
