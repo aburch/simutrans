@@ -65,13 +65,16 @@ private:
 	schedule_t *get_old_schedule() const;
 
 protected:
-	// only one of these is possible
-	schedule_t *schedule_mode;
+	// schedule of this line (or of convoi belonging to this line) is being edited
 	linehandle_t line_mode;
+	// schedule of this convoi is being edited
 	convoihandle_t convoi_mode;
 
-	// the actual data
-	schedule_t * schedule, *old_schedule;
+	// the schedule that is edited, copy of old_schedule
+	schedule_t *schedule;
+	// the original schedule (used to detect calls to init with same original schedule), might be non-null but invalid, do not dereference
+	schedule_t *old_schedule;
+
 	player_t *player;
 	uint8 current_schedule_rotation;	// to detect the rotation of the map independently
 
