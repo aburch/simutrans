@@ -451,7 +451,9 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		current_schedule_rotation = welt->get_settings().get_rotation();
 
 		// prepare editing
-		delete schedule;
+		if (schedule != schedule_) {
+			delete schedule;
+		}
 		schedule = schedule_->copy();
 
 		make_return = (schedule->get_waytype() == road_wt || schedule->get_waytype() == air_wt || schedule->get_waytype() == water_wt);
