@@ -442,8 +442,6 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		if( old_schedule ) {
 			stats->highlight_schedule( false );
 			update_tool( false );
-			schedule->cleanup();
-			schedule->finish_editing();
 		}
 
 		// initialization
@@ -453,6 +451,7 @@ void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		current_schedule_rotation = welt->get_settings().get_rotation();
 
 		// prepare editing
+		delete schedule;
 		schedule = schedule_->copy();
 
 		make_return = (schedule->get_waytype() == road_wt || schedule->get_waytype() == air_wt || schedule->get_waytype() == water_wt);
@@ -650,6 +649,9 @@ void gui_schedule_t::draw(scr_coord pos)
 			current_schedule_rotation = (current_schedule_rotation + 1) % 4;
 			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().x-1 : world()->get_size().y-1 );
 		}
+
+		// remove double entries
+		schedule->cleanup();
 
 		schedule_t *scd = get_old_schedule();
 		// change current entry while convois drives on
