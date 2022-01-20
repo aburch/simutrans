@@ -923,6 +923,7 @@ int simu_main(int argc, char** argv)
 		else if (env_t::objfilename.empty()) {
 			// try to download missing paks
 			install_objfilename(); // all other
+			retries--;
 		}
 	}
 #else
