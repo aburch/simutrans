@@ -430,4 +430,5 @@ BEGIN {
 	export_types_scenario["command_x::slope_get_price"] = "integer(slope)"
 	export_types_scenario["command_x::build_sign_at"] = "string(player_x, coord3d, sign_desc_x)"
 	export_types_scenario["command_x::build_wayobj"] = "string(player_x, coord3d, coord3d, wayobj_desc_x)"
+	export_types_scenario["command_x::change_climate_at"] = "string(player_x, coord3d, integer)"
 }

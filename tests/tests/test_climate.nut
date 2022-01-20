@@ -20,6 +20,16 @@ function test_climate_invalid()
 	ASSERT_EQUAL(setclimate.work(pl, pos, pos, ","), "")
 	ASSERT_EQUAL(setclimate.work(pl, pos, pos, "42"), "")
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(-1, -1, 0), coord3d(-1, -1, 0), "" + cl_water), null)
+
+	local error_caught = false
+	try {
+		ASSERT_TRUE(command_x.change_climate_at(pl, pos, -1) != null)
+	}
+	catch (e) {
+		error_caught = true
+		ASSERT_EQUAL(e, "Invalid climate number provided")
+	}
+	ASSERT_TRUE(error_caught)
 }
 
 
@@ -33,13 +43,15 @@ function test_climate_flat()
 	// single tile
 	{
 		foreach (cl in climates) {
-			ASSERT_EQUAL(setclimate.work(pl, pos, pos, "" + cl), null)
+			ASSERT_EQUAL(command_x.change_climate_at(pl, pos, cl), null)
 			ASSERT_EQUAL(square_x(pos.x, pos.y).get_climate(), cl)
 		}
 	}
 
 	// multi-tile
 	{
+		// not implemented in change_climate_at
+		// as multi-tile climate change is forbidden in multiplayer games
 		foreach (cl in climates) {
 			ASSERT_EQUAL(setclimate.work(pl, pos, pos + coord3d(2, 2, 0), "" + cl), null)
 			ASSERT_EQUAL(square_x(pos.x, pos.y).get_climate(), cl)
@@ -62,7 +74,7 @@ function test_climate_flat()
 		}
 	}
 
-	ASSERT_EQUAL(setclimate.work(pl, pos, pos, "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x.change_climate_at(pl, pos, cl_mediterran), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }

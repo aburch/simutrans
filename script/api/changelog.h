@@ -9,6 +9,10 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref change_climate_at
+ *
+ * @section api-123 Release 123.0
+ *
  * - Changed scripted tools: work, do_work, mark_tiles have additional parameter to send state of ctrl/shift keys
  * - Added @ref factory_desc_x
  * - Added @ref way_x::get_max_speed

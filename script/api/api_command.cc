@@ -425,6 +425,19 @@ call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t*
 	return call_tool_work(TOOL_BUILD_ROADSIGN | GENERAL_TOOL, sign->get_name(), 0, pl, start);
 }
 
+call_tool_work change_climate_at(player_t* pl, koord3d start, int climate)
+{
+	if (climate < water_climate || climate >= MAX_CLIMATES) {
+		return call_tool_work("Invalid climate number provided");
+	}
+	// communicate per default_param
+	static cbuffer_t param;
+	param.clear();
+	param.printf("%d", climate);
+	return call_tool_work(TOOL_SET_CLIMATE | GENERAL_TOOL, param, 0, pl, start, start);
+}
+
+
 
 void export_commands(HSQUIRRELVM vm)
 {
@@ -588,6 +601,13 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param wayobj type of wayobj to be built
 	 */
 	STATIC register_method(vm, build_wayobj, "build_wayobj", false, true);
+	/**
+	 * Change climate of tile
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile
+	 * @param climate new climate, possible values see @ref climates
+	 */
+	STATIC register_method(vm, change_climate_at, "change_climate_at", false, true);
 
 	end_class(vm);
 }
