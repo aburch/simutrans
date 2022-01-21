@@ -270,7 +270,7 @@ static void install_objfilename()
 /**
 * Show pak selector
 */
-static void ask_objfilename()
+static sint16 ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
 	// notify gui to load list of paksets
@@ -278,6 +278,7 @@ static void ask_objfilename()
 	ev.ev_class = INFOWIN;
 	ev.ev_code  = WIN_OPEN;
 	sel->infowin_event(&ev);
+	sint16 entries = sel->get_entries_count();
 
 	if(sel->has_pak()) {
 		destroy_all_win(true); // since eventually the successful load message is still there ....
@@ -286,6 +287,8 @@ static void ask_objfilename()
 	else {
 		delete sel;
 	}
+
+	return entries;
 }
 #endif
 
@@ -913,9 +916,11 @@ int simu_main(int argc, char** argv)
 	display_show_pointer(1);
 
 	// if no object files given, we ask the user
-	for(  int retries=0;  env_t::objfilename.empty()  &&  retries < 2;  retries++  ) {
-		ask_objfilename();
-
+	int retries=0;
+	while(   env_t::objfilename.empty()  &&  retries < 2  ) {
+		if(  ask_objfilename() == 0  ) {
+			retries++;
+		}
 		if(  env_t::quit_simutrans  ) {
 			simgraph_exit();
 			return EXIT_SUCCESS;
@@ -923,7 +928,6 @@ int simu_main(int argc, char** argv)
 		else if (env_t::objfilename.empty()) {
 			// try to download missing paks
 			install_objfilename(); // all other
-			retries--;
 		}
 	}
 #else
