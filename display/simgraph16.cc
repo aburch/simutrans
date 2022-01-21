@@ -5322,7 +5322,7 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	}
 
 	// get real width from os-dependent routines
-	disp_width = dr_os_open(window_size.w, window_size.h, full_screen);
+	disp_width = dr_os_open(window_size, full_screen);
 	if(  disp_width<=0  ) {
 		dr_fatal_notify( "Cannot open window!" );
 		return false;

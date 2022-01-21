@@ -430,12 +430,12 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 
 
 // open the window
-int dr_os_open(int screen_width, int screen_height, sint16 fs)
+int dr_os_open(const scr_size window_size, sint16 fs)
 {
 	// scale up
 	resolution res = dr_query_screen_resolution();
-	const int tex_w = clamp( res.w, 1, SCREEN_TO_TEX_X(screen_width) );
-	const int tex_h = clamp( res.h, 1, SCREEN_TO_TEX_Y(screen_height) );
+	const int tex_w = clamp( res.w, 1, SCREEN_TO_TEX_X(window_size.w) );
+	const int tex_h = clamp( res.h, 1, SCREEN_TO_TEX_Y(window_size.h) );
 
 	DBG_MESSAGE("dr_os_open()", "Screen requested %i,%i, available max %i,%i", tex_w, tex_h, res.w, res.h);
 
@@ -449,7 +449,7 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI; // apparently needed for Apple retina displays
 
-	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, flags );
+	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.w, window_size.h, flags );
 	if(  window == NULL  ) {
 		dbg->error("dr_os_open(SDL2)", "Could not open the window: %s", SDL_GetError() );
 		return 0;
@@ -458,7 +458,7 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 	if(  !internal_create_surfaces( tex_pitch, tex_h )  ) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", screen_width, screen_height, screen->w, screen->h );
+	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", window_size.w, window_size.h, screen->w, screen->h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();

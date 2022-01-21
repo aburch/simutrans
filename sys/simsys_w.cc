@@ -174,10 +174,10 @@ static DEVMODE settings;
 
 
 // open the window
-int dr_os_open(int const w, int const h, sint16 fs)
+int dr_os_open(const scr_size window_size, sint16 fs)
 {
-	MaxSize.right = ((w*x_scale)/32+15) & 0x7FF0;
-	MaxSize.bottom = (h*y_scale)/32;
+	MaxSize.right = ((window_size.w*x_scale)/32+15) & 0x7FF0;
+	MaxSize.bottom = (window_size.h*y_scale)/32;
 	fullscreen = fs;
 
 #ifdef MULTI_THREAD
@@ -224,8 +224,8 @@ int dr_os_open(int const w, int const h, sint16 fs)
 	AllDib = MALLOCF(BITMAPINFO, bmiColors, 3);
 	BITMAPINFOHEADER& header = AllDib->bmiHeader;
 	header.biSize          = sizeof(BITMAPINFOHEADER);
-	header.biWidth         = (w+15) & 0x7FF0;
-	header.biHeight        = h;
+	header.biWidth         = (window_size.w+15) & 0x7FF0;
+	header.biHeight        = window_size.h;
 	header.biPlanes        = 1;
 	header.biBitCount      = COLOUR_DEPTH;
 	header.biCompression   = BI_RGB;

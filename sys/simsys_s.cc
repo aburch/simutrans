@@ -244,7 +244,7 @@ resolution dr_query_screen_resolution()
 
 
 // open the window
-int dr_os_open(const int w, int const h, sint16 fs)
+int dr_os_open(const scr_size window_size, sint16 fs)
 {
 #ifdef MULTI_THREAD
 	// init barrier
@@ -266,8 +266,8 @@ int dr_os_open(const int w, int const h, sint16 fs)
 
 	Uint32 flags = async_blit ? SDL_ASYNCBLIT : 0;
 
-	width = w;
-	height = h;
+	width = window_size.w;
+	height = window_size.h;
 	fullscreen = fs;
 
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
@@ -277,7 +277,7 @@ int dr_os_open(const int w, int const h, sint16 fs)
 
 	// open the window now
 	SDL_putenv("SDL_VIDEO_CENTERED=center"); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
-	screen = SDL_SetVideoMode( max(1, w), max(1, h), COLOUR_DEPTH, flags );
+	screen = SDL_SetVideoMode( max(1, window_size.w), max(1, window_size.h), COLOUR_DEPTH, flags );
 	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
 	if(  screen == NULL  ) {
 		dbg->error("dr_os_open(SDL)", "Couldn't open the window: %s", SDL_GetError());
@@ -289,7 +289,7 @@ int dr_os_open(const int w, int const h, sint16 fs)
 	SDL_VideoDriverName( driver_name, lengthof(driver_name) );
 	dbg->debug("dr_os_open(SDL)", "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	dbg->debug("dr_os_open(SDL)", "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
-	dbg->debug("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d, pitch=%d (requested w=%d, h=%d)\n", screen->w, screen->h, screen->pitch, w, h );
+	dbg->debug("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d, pitch=%d (requested w=%d, h=%d)\n", screen->w, screen->h, screen->pitch, window_size.w, window_size.h);
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -303,7 +303,7 @@ int dr_os_open(const int w, int const h, sint16 fs)
 
 	SDL_ShowCursor(1);
 
-	display_set_actual_width( w );
+	display_set_actual_width( window_size.w );
 
 	assert(screen->pitch % sizeof(PIXVAL) == 0);
 	return screen->pitch / sizeof(PIXVAL);
