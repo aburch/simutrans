@@ -298,7 +298,7 @@ public:
 					// mark double entries as invalid
 					bool valid =     (schedule->entries[i].pos != schedule->entries[ (i+1)                               % schedule->entries.get_count() ].pos)
 					             &&  (schedule->entries[i].pos != schedule->entries[ (i-1+schedule->entries.get_count()) % schedule->entries.get_count() ].pos);
-					entry->mark_valid(schedule->entries.get_count() == 1 || valid);
+					entry->mark_valid(valid);
 					entry->add_listener( this );
 					entries.append(entry);
 
