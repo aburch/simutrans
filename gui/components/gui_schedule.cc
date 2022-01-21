@@ -58,6 +58,7 @@ class gui_schedule_entry_t :
 	gui_label_buf_t stop;
 	button_t arrow, up, down, del;
 	gui_label_buf_t stop_extra;
+	bool valid;
 
 public:
 	gui_schedule_entry_t(player_t* pl, schedule_entry_t e, uint n)
@@ -66,6 +67,7 @@ public:
 		entry  = e;
 		number = n;
 		is_current = false;
+		valid = true;
 		set_table_layout(6,1);
 
 		arrow.init( button_t::posbutton_automatic, "" );
@@ -128,8 +130,8 @@ public:
 	void draw(scr_coord offset) OVERRIDE
 	{
 		update_label();
-		if (is_current) {
-			display_fillbox_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_LIST_BACKGROUND_SELECTED_F, false);
+		if (is_current  ||  !valid) {
+			display_fillbox_wh_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, valid ? SYSCOL_LIST_BACKGROUND_SELECTED_F : MONEY_MINUS, false);
 		}
 		gui_aligned_container_t::draw(offset);
 	}
@@ -175,6 +177,11 @@ public:
 		}
 		return gui_aligned_container_t::infowin_event(ev);
 	}
+
+	void mark_valid(bool valid)
+	{
+		this->valid = valid;
+	}
 };
 
 /**
@@ -190,6 +197,8 @@ class schedule_gui_stats_t :
 	vector_tpl<gui_schedule_entry_t*> entries;
 	schedule_t *last_schedule; ///< last displayed schedule
 	zeiger_t *current_stop_mark; ///< mark current stop on map
+
+	bool invalid_entries;
 public:
 	schedule_t *schedule;      ///< schedule under editing
 	player_t*  player;
@@ -198,6 +207,7 @@ public:
 	{
 		set_table_layout(1,0);
 		last_schedule = schedule = NULL;
+		invalid_entries = false;
 
 		current_stop_mark = new zeiger_t(koord3d::invalid, NULL );
 		current_stop_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
@@ -275,6 +285,7 @@ public:
 		else {
 			remove_all();
 			entries.clear();
+			invalid_entries = false;
 			buf.clear();
 			buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
 			if (schedule->empty()) {
@@ -282,8 +293,16 @@ public:
 			}
 			else {
 				for(uint i=0; i<schedule->entries.get_count(); i++) {
-					entries.append( new_component<gui_schedule_entry_t>(player, schedule->entries[i], i));
-					entries.back()->add_listener( this );
+
+					gui_schedule_entry_t* entry = new_component<gui_schedule_entry_t>(player, schedule->entries[i], i);
+					// mark double entries as invalid
+					bool valid =     (schedule->entries[i].pos != schedule->entries[ (i+1)                               % schedule->entries.get_count() ].pos)
+					             &&  (schedule->entries[i].pos != schedule->entries[ (i-1+schedule->entries.get_count()) % schedule->entries.get_count() ].pos);
+					entry->mark_valid(schedule->entries.get_count() == 1 || valid);
+					entry->add_listener( this );
+					entries.append(entry);
+
+					invalid_entries |= schedule->entries.get_count() > 1 && !valid;
 				}
 				entries[ schedule->get_current_stop() ]->set_active(true);
 			}
@@ -334,6 +353,11 @@ public:
 			call_listeners(v);
 		}
 		return true;
+	}
+
+	bool has_invalid_entries() const
+	{
+		return invalid_entries;
 	}
 };
 
@@ -395,7 +419,8 @@ gui_schedule_t::gui_schedule_t() :
 	end_table();
 
 	// action button row
-	add_table( 3, 1 )->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
+	button_row = add_table( 3, 1 );
+	button_row->set_margin( scr_size(D_MARGIN_LEFT,0), scr_size(D_MARGIN_RIGHT,0) );
 	{
 		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Ins Stop"), SYSCOL_TEXT);
 		insert_mode.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Add Stop"), SYSCOL_TEXT);
@@ -410,9 +435,15 @@ gui_schedule_t::gui_schedule_t() :
 		bt_revert.enable(false); // schedule was not changed yet
 		add_component(&bt_revert);
 
-		bt_return.init(button_t::roundbox | button_t::flexible, "Revert schedule");
+		bt_return.init(button_t::roundbox | button_t::flexible, "return ticket");
 		bt_return.add_listener(this);
 		add_component(&bt_return);
+
+		bt_remove_double.init(button_t::roundbox | button_t::flexible, "Cleanup schedule");
+		bt_remove_double.set_tooltip("Remove double stops from schedule");
+		bt_remove_double.add_listener(this);
+		bt_remove_double.set_visible(false);
+		add_component(&bt_remove_double);
 	}
 	end_table();
 
@@ -583,6 +614,11 @@ bool gui_schedule_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		v.p = NULL;
 		call_listeners(v);
 	}
+	else if( comp == &bt_remove_double) {
+		schedule->remove_double_entries();
+		stats->update_schedule(true);
+		update_selection();
+	}
 	else if( comp == &cb_wait) {
 		if(  p.i==1  &&  schedule->entries[schedule->get_current_stop()].get_absolute_departures()==0  ) {
 			// absolute departure mode
@@ -652,8 +688,6 @@ void gui_schedule_t::draw(scr_coord pos)
 			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().x-1 : world()->get_size().y-1 );
 		}
 
-		schedule->remove_double_entries();
-
 		schedule_t *scd = get_old_schedule();
 		// change current entry while convois drives on
 		koord3d current = scd->get_current_entry().pos;
@@ -682,6 +716,11 @@ void gui_schedule_t::draw(scr_coord pos)
 		numimp_load.enable( is_allowed );
 		departure.enable( is_allowed );
 		bt_return.enable( is_allowed );
+
+		bool invalid = stats->has_invalid_entries();
+		bt_return.set_visible(!invalid);
+		bt_remove_double.set_visible(invalid);
+		button_row->set_size(button_row->get_size());
 	}
 	// always dirty, to cater for shortening of halt names and change of selections
 	gui_aligned_container_t::draw(pos);

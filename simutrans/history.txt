@@ -1,3 +1,4 @@
+	ADD: button to remove double entries in schedules
 	FIX: up/down arrows in schedule broken
 	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
 	CHG: lang files are loaded if their name is *XX.tab or XX*.tab. The first is preferred to avoid confusion by name like ja-taken.tab

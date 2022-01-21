@@ -40,7 +40,7 @@ class gui_schedule_t :
 {
 private:
 	// always needed
-	button_t bt_revert, bt_return;
+	button_t bt_revert, bt_return, bt_remove_double;
 
 	gui_label_t lb_load_str, lb_departure_str;
 	gui_numberinput_t numimp_load;
@@ -49,7 +49,7 @@ private:
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
 
-	gui_aligned_container_t *loading_details;
+	gui_aligned_container_t *loading_details, *button_row;
 
 	gui_timeinput_t departure;
 
