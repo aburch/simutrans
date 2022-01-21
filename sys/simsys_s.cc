@@ -525,7 +525,6 @@ static void internal_GetEvents()
 			sys_event.code = SYSTEM_RESIZE;
 			sys_event.new_window_size_w = event.resize.w;
 			sys_event.new_window_size_h = event.resize.h;
-			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
