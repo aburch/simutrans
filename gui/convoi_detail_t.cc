@@ -24,7 +24,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-karte_ptr_t convoi_detail_t:: welt;
+karte_ptr_t convoi_detail_t::welt;
 
 class gui_vehicleinfo_t : public gui_aligned_container_t
 {
@@ -42,12 +42,13 @@ public:
 		set_table_layout(2,0);
 		set_alignment(ALIGN_TOP | ALIGN_LEFT);
 
+		const int month_now = world()->get_timeline_year_month();
 		// image
 		new_component<gui_image_t>(v->get_loaded_image(), v->get_owner()->get_player_nr())->enable_offset_removal(true);
 		add_table(1,0);
 		{
 			// name
-			new_component<gui_label_t>( v->get_desc()->get_name() );
+			new_component<gui_label_t>( v->get_desc()->get_name(), v->get_desc()->is_retired(month_now) ? SYSCOL_OBSOLETE : SYSCOL_TEXT);
 			// age
 			gui_label_buf_t* l = new_component<gui_label_buf_t>();
 			const sint32 month = v->get_purchase_time();
