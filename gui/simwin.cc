@@ -775,7 +775,6 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 		win.flags.help = ( gui->get_help_filename() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
-		win.flags.size = gui->has_min_sizer();
 		win.flags.sticky = gui->has_sticky();
 		win.gui = gui;
 

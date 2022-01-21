@@ -40,8 +40,6 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	bool has_min_sizer() const OVERRIDE { return true; }
-
 	void rdwr(loadsave_t* file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_vehiclelist; }

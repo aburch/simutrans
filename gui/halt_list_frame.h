@@ -132,8 +132,6 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	bool has_min_sizer() const OVERRIDE {return true;}
-
 	void map_rotate90( sint16 ) OVERRIDE { sort_list(); }
 
 	void rdwr(loadsave_t* file) OVERRIDE;

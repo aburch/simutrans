@@ -148,12 +148,6 @@ public:
 	virtual const char * get_help_filename() const {return NULL;}
 
 	/**
-	 * Does this window need a min size button in the title bar?
-	 * @return true if such a button is needed
-	 */
-	virtual bool has_min_sizer() const {return false;}
-
-	/**
 	 * Does this window need a next button in the title bar?
 	 * @return true if such a button is needed
 	 */

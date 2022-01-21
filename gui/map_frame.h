@@ -99,12 +99,6 @@ public:
 	const char * get_help_filename() const OVERRIDE {return "map.txt";}
 
 	/**
-	 * Does this window need a min size button in the title bar?
-	 * @return true if such a button is needed
-	 */
-	bool has_min_sizer() const OVERRIDE {return true;}
-
-	/**
 	 * Constructor. Adds all necessary Subcomponents.
 	 */
 	map_frame_t();

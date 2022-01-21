@@ -174,12 +174,6 @@ private:
 	 */
 	sint64 calc_restwert(const vehicle_desc_t *veh_type);
 
-	/**
-	 * Does this window need a min size button in the title bar?
-	 * @return true if such a button is needed
-	 */
-	bool has_min_sizer() const OVERRIDE {return true;}
-
 	/// true if already stored here
 	bool is_in_vehicle_list(const vehicle_desc_t *info);
 

@@ -121,12 +121,6 @@ public:
 	void init(uint32 filter_flags, const slist_tpl<const goods_desc_t*>* wares);
 
 	/**
-	 * Does this window need a min size button in the title bar?
-	 * @return true if such a button is needed
-	 */
-	bool has_min_sizer() const OVERRIDE {return true;}
-
-	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 */

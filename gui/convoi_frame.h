@@ -113,8 +113,6 @@ public:
 	static bool get_reverse() { return sortreverse; }
 	static void set_reverse(bool reverse) { sortreverse = reverse; }
 
-	bool has_min_sizer() const OVERRIDE {return true;}
-
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void rdwr( loadsave_t *file ) OVERRIDE;

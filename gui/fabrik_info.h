@@ -86,8 +86,6 @@ public:
 	 */
 	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
-	bool has_min_sizer() const OVERRIDE {return true;}
-
 	koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
 
 	bool is_weltpos() OVERRIDE;

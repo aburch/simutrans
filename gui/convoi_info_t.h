@@ -150,8 +150,6 @@ public:
 	void route_search_finished() { route_search_in_progress = false; }
 
 	void change_schedule();
-
-	bool has_min_sizer() const OVERRIDE {return true;}
 };
 
 #endif
