@@ -1074,8 +1074,10 @@ int top_win(int win, bool keep_state )
 void display_win(int win)
 {
 	// ok, now process it
-	gui_frame_t *comp = wins[win].gui;
+	gui_frame_t* comp = wins[win].gui;
 	scr_size size = comp->get_windowsize();
+	// minimising flag if resize allowed
+	wins[win].flags.size = (comp->get_resizemode() != 0);
 	scr_coord pos = wins[win].pos;
 	FLAGGED_PIXVAL title_color = (comp->get_titlecolor()&0xFFFF);
 	FLAGGED_PIXVAL text_color = env_t::front_window_text_color;
