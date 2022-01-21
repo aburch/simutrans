@@ -143,7 +143,7 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 // cleanup a schedule
 void schedule_t::cleanup()
 {
-	if(  entries.empty()  ) {
+	if(  entries.get_count() < 2  ) {
 		return; // nothing to check
 	}
 
