@@ -59,11 +59,19 @@ waytype_t line_way_type(simline_t *line)
 call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_t *sched)
 {
 	if (sched) {
-		// build param string (see line_management_gui_t::infowin_event)
 		cbuffer_t buf;
-		buf.printf( "g,%i,", line->get_handle().get_id() );
-		sched->sprintf_schedule( buf );
-
+		// make a copy, and perform validation on it
+		schedule_t *copy = sched->copy();
+		copy->make_valid();
+		if (copy->get_count() >= 2) {
+			// build param string (see line_management_gui_t::apply_schedule)
+			buf.printf( "g,%i,", line->get_handle().get_id() );
+			copy->sprintf_schedule( buf );
+		}
+		else {
+			return "Invalid schedule provided: less than two entries remained after removing doubles";
+		}
+		delete copy;
 		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 	}
 	return "Invalid schedule provided";
@@ -258,7 +266,8 @@ void export_line(HSQUIRRELVM vm)
 	register_method(vm, &line_way_type, "get_waytype", true);
 
 	/**
-	 * Change schedule of line
+	 * Change schedule of line.
+	 * Schedule should not contain doubled entries and more than two entries.
 	 * @ingroup game_cmd
 	 */
 	register_method(vm, line_change_schedule, "change_schedule", true);

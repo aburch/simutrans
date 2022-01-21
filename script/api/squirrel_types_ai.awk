@@ -69,6 +69,7 @@ BEGIN {
 	export_types_ai["convoy_x::destroy"] = "void(player_x)"
 	export_types_ai["convoy_x::is_schedule_editor_open"] = "bool()"
 	export_types_ai["convoy_x::get_tile_length"] = "integer()"
+	export_types_ai["convoy_x::change_schedule"] = "void(player_x, schedule_x)"
 	export_types_ai["convoy_x::calc_max_speed"] = "integer(integer, integer, integer)"
 	export_types_ai["convoy_x::speed_to_tiles_per_month"] = "integer(integer)"
 	export_types_ai["factory_x::is_valid"] = "bool()"

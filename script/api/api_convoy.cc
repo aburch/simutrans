@@ -19,6 +19,7 @@
 
 // for convoy tools
 #include "../../simmenu.h"
+#include "../../dataobj/schedule.h"
 
 using namespace script_api;
 
@@ -161,6 +162,27 @@ bool convoy_is_schedule_editor_open(convoi_t *cnv)
 bool convoy_is_loading(convoi_t *cnv)
 {
 	return cnv->get_state() == convoi_t::LOADING;
+}
+
+call_tool_init convoy_change_schedule(convoi_t *cnv, player_t *player, schedule_t *sched)
+{
+	if (sched) {
+		cbuffer_t buf;
+		// make a copy, and perform validation on it
+		schedule_t *copy = sched->copy();
+		copy->make_valid();
+		if (copy->get_count() >= 2) {
+			// build param string (see convoi_info_t::apply_schedule and convoi_t::call_convoi_tool())
+			buf.printf("g,%u,", cnv->self.get_id());
+			copy->sprintf_schedule(buf);
+		}
+		else {
+			return "Invalid schedule provided: less than two entries remained after removing doubles";
+		}
+		delete copy;
+		return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
+	}
+	return "Invalid schedule provided";
 }
 
 void export_convoy(HSQUIRRELVM vm)
@@ -356,6 +378,13 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns returns the number of station tiles covered by the convoy.
 	 */
 	register_method(vm, &convoi_t::get_tile_length, "get_tile_length");
+	/**
+	 * Change schedule of convoy.
+	 * Schedule should not contain doubled entries and more than two entries.
+	 * This might make the convoy lose its line.
+	 * @ingroup game_cmd
+	 */
+	register_method(vm, convoy_change_schedule, "change_schedule", true);
 
 #define STATIC
 	/**

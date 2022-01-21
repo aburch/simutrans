@@ -10,6 +10,7 @@
  * @section api-trunk Current trunk
  *
  * - Added @ref change_climate_at
+ * - Added @ref convoy_x::change_schedule
  *
  * @section api-123 Release 123.0
  *
