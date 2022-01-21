@@ -153,9 +153,16 @@ public:
 	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint16 waiting_time = 0);
 
 	/**
-	 * Cleanup a schedule, removes double entries.
+	 * Makes schedule valid for driving:
+	 * - remove double entries
+	 * - clear schedule if it contains just one entry
+	 * - call make_current_stop_valid
 	 */
-	void cleanup();
+	void make_valid();
+	/**
+	 * Remove double entries.
+	 */
+	void remove_double_entries();
 
 	/**
 	 * Remove current_stop entry from the schedule.

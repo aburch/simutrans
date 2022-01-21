@@ -6324,7 +6324,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 							}
 						}
 						if(updated) {
-							schedule->cleanup();
+							schedule->make_valid();
 							// remove lineless convoy from old stop
 							if(  last_halt.is_bound()  ) {
 								last_halt->remove_convoy(cnv);
@@ -6361,7 +6361,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					}
 					// update line
 					if(updated) {
-						schedule->cleanup();
+						schedule->make_valid();
 						// remove line from old stop is needed at here
 						if(last_halt.is_bound()) {
 							last_halt->remove_line(line);

@@ -141,7 +141,17 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 
 
 // cleanup a schedule
-void schedule_t::cleanup()
+void schedule_t::make_valid()
+{
+	remove_double_entries();
+	if(  entries.get_count() == 1 ) {
+		// schedules with one entry not allowed
+		entries.clear();
+	}
+	make_current_stop_valid();
+}
+
+void schedule_t::remove_double_entries()
 {
 	if(  entries.get_count() < 2  ) {
 		return; // nothing to check
@@ -167,7 +177,6 @@ void schedule_t::cleanup()
 			lastpos = entries[i].pos;
 		}
 	}
-	make_current_stop_valid();
 }
 
 

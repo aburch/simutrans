@@ -652,8 +652,7 @@ void gui_schedule_t::draw(scr_coord pos)
 			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().x-1 : world()->get_size().y-1 );
 		}
 
-		// remove double entries
-		schedule->cleanup();
+		schedule->remove_double_entries();
 
 		schedule_t *scd = get_old_schedule();
 		// change current entry while convois drives on
