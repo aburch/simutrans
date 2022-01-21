@@ -218,8 +218,19 @@ void schedule_t::move_entry_forward( uint8 cur )
 		entries.remove_at( cur+1 );
 	}
 
-	current_stop = (current_stop + 1) % entries.get_count();
-	make_current_stop_valid();
+	// if cur was not at end of list then cur and other changed places
+	uint8 other = (cur + entries.get_count() + 1 ) % entries.get_count();
+
+	if (cur == entries.get_count()-1) {
+		// all entries moved down one index
+		current_stop = (current_stop + 1 + entries.get_count()) % entries.get_count();
+	}
+	else if (current_stop == other) {
+		current_stop = cur;
+	}
+	else if (current_stop == cur) {
+		current_stop = other;
+	}
 }
 
 
@@ -240,9 +251,19 @@ void schedule_t::move_entry_backward( uint8 cur )
 		entries.insert_at( cur-1, entries[ cur ] );
 		entries.remove_at( cur+1 );
 	}
+	// if cur was not at start of list then cur and other changed places
+	uint8 other = (cur + entries.get_count() - 1 ) % entries.get_count();
 
-	current_stop = (current_stop + entries.get_count() - 1 ) % entries.get_count();
-	make_current_stop_valid();
+	if (cur == 0) {
+		// all entries moved up one index
+		current_stop = (current_stop - 1 + entries.get_count()) % entries.get_count();
+	}
+	else if (current_stop == other) {
+		current_stop = cur;
+	}
+	else if (current_stop == cur) {
+		current_stop = other;
+	}
 }
 
 
