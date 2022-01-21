@@ -198,7 +198,11 @@ public:
 	// fills the given buffer with a schedule
 	void sprintf_schedule( cbuffer_t &buf ) const;
 
-	// converts this string into a schedule
+	/**
+	 * Converts this string into a schedule.
+	 * Ensure valid schedule.
+	 * @returns true reading worked and schedule is non-empty
+	 */
 	bool sscanf_schedule( const char * );
 
 	/**

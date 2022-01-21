@@ -569,7 +569,11 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		// ok, now we have a complete entry
 		entries.append(schedule_entry_t(koord3d(values[0], values[1], (sint8)values[2]), (uint8)values[3], (uint16)values[4]));
 	}
-	return true;
+	make_valid();
+	if (get_count() <= 1) {
+		dbg->error( "schedule_t::sscanf_schedule()", "schedule contains less than two entries!" );
+	}
+	return get_count() > 1;
 }
 
 
