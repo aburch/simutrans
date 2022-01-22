@@ -2459,7 +2459,7 @@ bool way_builder_t::build_tunnel_tile()
 
 		if(gr==NULL) {
 			// make new tunnelboden
-			tunnelboden_t* tunnel = new tunnelboden_t(route[i], 0);
+			tunnelboden_t* tunnel = new tunnelboden_t(route[i], slope_t::flat);
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
 			if(  tunnel_desc->get_waytype() != powerline_wt  ) {
 				weg_t *weg = weg_t::alloc(tunnel_desc->get_waytype());

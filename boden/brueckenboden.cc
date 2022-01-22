@@ -24,10 +24,11 @@
 #include "../vehicle/vehicle_base.h"
 
 
-brueckenboden_t::brueckenboden_t(koord3d pos, int grund_hang, int weg_hang) : grund_t(pos)
+brueckenboden_t::brueckenboden_t(koord3d pos, slope_t::type grund_hang, slope_t::type weg_hang) :
+	grund_t(pos),
+	weg_hang(weg_hang)
 {
 	slope = grund_hang;
-	this->weg_hang = weg_hang;
 }
 
 

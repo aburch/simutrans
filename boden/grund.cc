@@ -1464,7 +1464,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 
 	// display background
-	if (!tunnel_portal  ||  slope == 0) {
+	if (!tunnel_portal  ||  slope == slope_t::flat) {
 		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );
 	}
 	else {

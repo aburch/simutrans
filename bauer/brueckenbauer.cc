@@ -783,10 +783,10 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 		end_slope_height += slope_t::max_diff(end_slope);
 	}
 
-	if(  slope  ||  bridge_height != 0  ) {
+	if(  slope!=slope_t::flat  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
-		add_height = slope ?  slope_t::max_diff(slope) : bridge_height;
-		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc );
+		add_height = slope!=slope_t::flat ? slope_t::max_diff(slope) : bridge_height;
+		build_ramp( player, start, ribi, slope!=slope_t::flat ? slope_t::flat : slope_type(zv)*add_height, desc );
 		if(  desc->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(desc->get_waytype());
 		}
@@ -822,7 +822,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	}
 
 	while(  pos.get_2d() != end.get_2d()  ) {
-		brueckenboden_t *bruecke = new brueckenboden_t( pos, 0, 0 );
+		brueckenboden_t *bruecke = new brueckenboden_t( pos, slope_t::flat, slope_t::flat );
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
 		if(  desc->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(desc->get_waytype());

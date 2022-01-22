@@ -365,10 +365,10 @@ void planquadrat_t::abgesenkt()
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
-		const uint8 slope = gr->get_grund_hang();
+		const slope_t::type slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		sint8 max_hgt = gr->get_hoehe() + (slope ? 1 : 0);		// only matters that not flat
+		sint8 max_hgt = gr->get_hoehe() + (slope!=slope_t::flat ? 1 : 0);		// only matters that not flat
 
 		koord k(gr->get_pos().get_2d());
 		if(  max_hgt <= welt->get_water_hgt( k )  &&  gr->get_typ() != grund_t::wasser  ) {

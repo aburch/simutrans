@@ -13,7 +13,7 @@
 class brueckenboden_t : public grund_t
 {
 private:
-	uint8 weg_hang; ///< for e.g. ramps
+	slope_t::type weg_hang; ///< for e.g. ramps
 
 protected:
 	/// @copydoc grund_t::calc_image_internal
@@ -21,7 +21,7 @@ protected:
 
 public:
 	brueckenboden_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ) { rdwr(file); }
-	brueckenboden_t(koord3d pos, int grund_hang, int weg_hang);
+	brueckenboden_t(koord3d pos, slope_t::type grund_hang, slope_t::type weg_hang);
 
 public:
 	/// @copydoc grund_t::rdwr

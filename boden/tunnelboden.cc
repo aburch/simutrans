@@ -24,7 +24,8 @@
 #include "../utils/cbuffer_t.h"
 
 
-tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos,0), 0)
+tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) :
+	boden_t(koord3d(pos,0), slope_t::flat)
 {
 	rdwr(file);
 
@@ -89,8 +90,8 @@ void tunnelboden_t::calc_image_internal(const bool calc_only_snowline_change)
 		clear_back_image();
 		// default tunnel ground images
 		// single or double slope? (single slopes are not divisible by 8)
-		const uint8 slope_this =  get_disp_slope();
-		const uint8 imageid = (!slope_this  ||  is_one_high(slope_this)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
+		const slope_t::type slope_this = get_disp_slope();
+		const uint8 imageid = (slope_this==slope_t::flat  ||  is_one_high(slope_this)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
 		set_image( skinverwaltung_t::tunnel_texture->get_image_id( imageid ) );
 	}
 }

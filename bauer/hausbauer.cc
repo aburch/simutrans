@@ -391,7 +391,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 		if(gr->get_typ()==grund_t::fundament) {
 			const koord newk = pos.get_2d();
 			sint8 new_hgt;
-			uint8 new_slope;
+			slope_t::type new_slope;
 			welt->get_height_slope_from_grid(newk, new_hgt, new_slope);
 
 			// test for ground at new height

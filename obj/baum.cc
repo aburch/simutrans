@@ -51,7 +51,7 @@ baum_t::baum_t(koord3d pos) :
 }
 
 
-baum_t::baum_t(koord3d pos, uint8 type, uint16 age, uint8 slope ) :
+baum_t::baum_t(koord3d pos, uint8 type, uint16 age, slope_t::type slope ) :
 	obj_t(pos),
 	geburt(welt->get_current_month() - age), // might underflow
 	tree_id(type),
@@ -259,7 +259,7 @@ void baum_t::recalc_off()
 
 // calculates tree position on a tile
 // takes care of slopes
-void baum_t::calc_off(uint8 slope, sint8 x_, sint8 y_)
+void baum_t::calc_off(slope_t::type slope, sint8 x_, sint8 y_)
 {
 	const sint16 random = (sint16)( get_pos().x + get_pos().y + get_pos().z + slope + tree_id + geburt );
 

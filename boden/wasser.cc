@@ -76,7 +76,7 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 		recalc_ribis();
 
 		// artifical walls from here on ...
-		grund_t::calc_back_image( height, 0 );
+		grund_t::calc_back_image( height, slope_t::flat );
 	}
 }
 

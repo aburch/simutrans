@@ -53,7 +53,7 @@ public:
 	* the back image, drawn before vehicles
 	*/
 	image_id get_image() const OVERRIDE {
-		return hang ? desc->get_back_slope_image_id(hang) :
+		return hang!=slope_t::flat ? desc->get_back_slope_image_id(hang) :
 			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) :
 				(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir))
 				);
@@ -63,7 +63,7 @@ public:
 	 * the front image, drawn after everything else
 	 */
 	image_id get_front_image() const OVERRIDE {
-		return hang ? desc->get_front_slope_image_id(hang) :
+		return hang!=slope_t::flat ? desc->get_front_slope_image_id(hang) :
 			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) :
 				(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir))
 				);

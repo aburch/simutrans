@@ -1308,7 +1308,7 @@ public:
 	 * @note Will always return north-west except on border tiles.
 	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
 	 */
-	inline slope_t::type get_corner_to_operate(const koord &pos) const
+	inline slope4_t::type get_corner_to_operate(const koord &pos) const
 	{
 		// Normal tile
 		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
@@ -1354,13 +1354,13 @@ public:
 	 * @return The natural slope at a position.
 	 * @note Uses the corner height for the best slope.
 	 */
-	uint8 recalc_natural_slope( const koord k, sint8 &new_height ) const;
+	slope_t::type recalc_natural_slope( const koord k, sint8 &new_height ) const;
 
 	/**
 	 * Returns the natural slope a a position using the grid.
 	 * @note No checking, and only using the grind for calculation.
 	 */
-	uint8 calc_natural_slope( const koord k ) const;
+	slope_t::type calc_natural_slope( const koord k ) const;
 
 	 /**
 	  * Initialize map.
@@ -1608,7 +1608,7 @@ public:
 
 	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
 
-	void get_height_slope_from_grid(koord k, sint8 &hgt, uint8 &slope);
+	void get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope);
 
 private:
 	/**

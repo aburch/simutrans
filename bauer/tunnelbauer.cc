@@ -468,7 +468,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 
 	// Now we build the invisible part
 	while(pos.get_2d()!=end.get_2d()) {
-		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
+		tunnelboden_t *tunnel = new tunnelboden_t(pos, slope_t::flat);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
@@ -516,7 +516,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 	}
 	else {
 		// construct end tunnel tile
-		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);
+		tunnelboden_t *tunnel = new tunnelboden_t(pos, slope_t::flat);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());

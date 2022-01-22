@@ -55,7 +55,7 @@ public:
 	baum_t(koord3d pos);
 
 	/// @param age Must be smaller than 4095
-	baum_t(koord3d pos, uint8 type, uint16 age, uint8 slope );
+	baum_t(koord3d pos, uint8 type, uint16 age, slope_t::type slope );
 
 	baum_t(koord3d pos, const tree_desc_t *desc);
 
@@ -121,7 +121,7 @@ public:
 
 private:
 	/// calculate offsets for new trees
-	void calc_off(uint8 slope, sint8 x=-128, sint8 y=-128);
+	void calc_off(slope_t::type slope, sint8 x=-128, sint8 y=-128);
 };
 
 #endif

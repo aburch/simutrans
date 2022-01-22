@@ -1622,7 +1622,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 			return "Cannot built this station/building\nin underground mode here.";
 		}
 
-		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
+		tunnelboden_t* tunnel = new tunnelboden_t(pos, slope_t::flat);
 		welt->access(k)->boden_hinzufuegen(tunnel);
 		tunnel->obj_add(new tunnel_t(pos, player, tunnel_desc));
 		player_t::add_maintenance( player, tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
@@ -2587,7 +2587,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			koord3d pos = bauigel.get_route()[j] + koord3d(0,0,offset);
 			grund_t *gr = welt->lookup( pos );
 			if( !gr ) {
-				gr = new monorailboden_t(pos, 0);
+				gr = new monorailboden_t(pos, slope_t::flat);
 				// should only be here when elevated/monorail, therefore will be at height offset above ground
 				gr->set_grund_hang( welt->lookup( pos - koord3d( 0, 0, offset ) )->get_grund_hang() );
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
@@ -2760,8 +2760,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	while (pos.get_2d()!=end.get_2d()) {
 		grund_t *gr = welt->lookup( pos );
 		if( !gr ) {
-			gr = new monorailboden_t(pos, 0);
-			gr->set_grund_hang( 0 );
+			gr = new monorailboden_t(pos, slope_t::flat);
+			gr->set_grund_hang( slope_t::flat );
 			welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 		}
 		zeiger_t *way = new zeiger_t(pos, player );
@@ -3114,7 +3114,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 			grund_t *gr = welt->lookup(pos);
 			if( !gr ) {
 				// We need to create a dummy ground.
-				gr = new tunnelboden_t(pos, 0);
+				gr = new tunnelboden_t(pos, slope_t::flat);
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(wb->get_wtyp()) | bauigel.get_route().get_ribi( j );

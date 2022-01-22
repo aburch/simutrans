@@ -2600,7 +2600,7 @@ int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
 	if(is_within_grid_limits(k)) {
 
 		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope_t::type corner_to_raise = get_corner_to_operate(k);
+		const slope4_t::type corner_to_raise = get_corner_to_operate(k);
 
 		const sint16 x = gr->get_pos().x;
 		const sint16 y = gr->get_pos().y;
@@ -2918,7 +2918,7 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 	if(is_within_grid_limits(k)) {
 
 		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope_t::type corner_to_lower = get_corner_to_operate(k);
+		const slope4_t::type corner_to_lower = get_corner_to_operate(k);
 
 		const sint16 x = gr->get_pos().x;
 		const sint16 y = gr->get_pos().y;
@@ -4489,7 +4489,7 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 }
 
 
-uint8 karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
+slope_t::type karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
 {
 	grund_t *gr = lookup_kartenboden(k);
 	if(!gr) {
@@ -4579,27 +4579,27 @@ uint8 karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
 }
 
 
-uint8 karte_t::calc_natural_slope( const koord k ) const
+slope_t::type karte_t::calc_natural_slope( const koord k ) const
 {
-	if(is_within_grid_limits(k.x, k.y)) {
-
-		const sint8 * p = &grid_hgts[k.x + k.y*(sint32)(get_size().x+1)];
-
-		const int h1 = *p;
-		const int h2 = *(p+1);
-		const int h3 = *(p+get_size().x+2);
-		const int h4 = *(p+get_size().x+1);
-
-		const int mini = min(min(h1,h2), min(h3,h4));
-
-		const int d1=h1-mini;
-		const int d2=h2-mini;
-		const int d3=h3-mini;
-		const int d4=h4-mini;
-
-		return encode_corners(d4, d3, d2, d1);
+	if(!is_within_grid_limits(k.x, k.y)) {
+		return slope_t::flat;
 	}
-	return 0;
+
+	const sint8 *p = &grid_hgts[k.x + k.y*(sint32)(get_size().x+1)];
+
+	const int h1 = *p;
+	const int h2 = *(p+1);
+	const int h3 = *(p+get_size().x+2);
+	const int h4 = *(p+get_size().x+1);
+
+	const int mini = min(min(h1,h2), min(h3,h4));
+
+	const int d1=h1-mini;
+	const int d2=h2-mini;
+	const int d3=h3-mini;
+	const int d4=h4-mini;
+
+	return encode_corners(d4, d3, d2, d1);
 }
 
 
@@ -6454,8 +6454,7 @@ void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbotto
 }
 
 
-
-void karte_t::get_height_slope_from_grid(koord k, sint8 &hgt, uint8 &slope)
+void karte_t::get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope)
 {
 	if(  (k.x | k.y | (cached_grid_size.x - k.x-1) | (cached_grid_size.y - k.y-1)) >= 0  ) {
 		// inside map, so without further checks

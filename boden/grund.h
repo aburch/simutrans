@@ -806,7 +806,7 @@ public:
 		const slope_t::type way_slope = get_weg_hang();
 
 		// only on slope height may changes
-		if(  way_slope  ) {
+		if(  way_slope!=slope_t::flat  ) {
 			if(ribi & ribi_t::northeast) {
 				h += corner_ne(way_slope);
 			}

@@ -20,7 +20,7 @@ protected:
 	void calc_image_internal(const bool calc_only_snowline_change) OVERRIDE;
 
 public:
-	fundament_t(loadsave_t *file, koord pos );
+	fundament_t(loadsave_t *file, koord pos);
 	fundament_t(koord3d pos, slope_t::type hang);
 
 public:
