@@ -9,7 +9,6 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../simtool.h"
 #include "../network/network_cmd_ingame.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"

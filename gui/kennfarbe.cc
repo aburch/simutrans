@@ -11,7 +11,7 @@
 #include "../player/simplay.h"
 #include "components/gui_label.h"
 #include "components/gui_image.h"
-#include "../simtool.h"
+#include "../simmenu.h"
 
 /**
  * Buttons forced to be square ...

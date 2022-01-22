@@ -19,7 +19,8 @@
 #include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simline.h"
-#include "../simtool.h"
+#include "../simmenu.h"
+#include "../player/simplay.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

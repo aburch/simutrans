@@ -5,10 +5,12 @@
 
 #include <string.h>
 #include "../simdebug.h"
-#include "../simtool.h"
+#include "../simmenu.h"
 #include "simwin.h"
 #include "../simworld.h"
+#include "../player/simplay.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../network/network_cmd_ingame.h"
 

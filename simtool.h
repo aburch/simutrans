@@ -26,8 +26,6 @@
 
 #include "player/simplay.h"
 
-#include "tpl/slist_tpl.h"
-
 class koord3d;
 class koord;
 class way_builder_t;
