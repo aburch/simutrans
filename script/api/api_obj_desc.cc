@@ -156,9 +156,17 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 		}
 	}
 
+	// use wt_all (which is equal to invalid_wt, see api_const.cc) to get buildings for all waytypes
+	bool accept_all_wt = wt == invalid_wt  ||  wt == ignore_wt  ||  wt == any_wt;
+
 	uint16 time = welt->get_timeline_year_month();
 	FOR(vector_tpl<building_desc_t const*>, const desc, *p) {
-		if(  desc->get_type()==type  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  &&  desc->is_available(time)) {
+		if(  desc->get_type()==type
+			&&  (accept_all_wt  ||  desc->get_extra()==(uint32)wt)
+			&&  (enables==0  ||  (desc->get_enabled()&enables)!=0)
+			&&  desc->is_available(time))
+		{
+
 			dummy.append(desc);
 		}
 	}
@@ -578,7 +586,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * Returns an array of available station/extension/depot buildings.
 	 * Entries are of type @ref building_desc_x.
 	 * @param type building type from @ref building_desc_x::building_type
-	 * @param wt waytype
+	 * @param wt waytype (can be wt_all to ignore waytype of desc)
 	 * @param freight station should accept this freight (if null then return all buildings)
 	 * @returns the list
 	 */

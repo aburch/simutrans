@@ -11,6 +11,7 @@
  *
  * - Added @ref change_climate_at
  * - Added @ref convoy_x::change_schedule
+ * - Changed building_desc_x::get_available_stations to accept wt_all
  *
  * @section api-123 Release 123.0
  *
