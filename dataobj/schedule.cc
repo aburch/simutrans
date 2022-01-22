@@ -570,7 +570,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		entries.append(schedule_entry_t(koord3d(values[0], values[1], (sint8)values[2]), (uint8)values[3], (uint16)values[4]));
 	}
 	make_valid();
-	return get_count() > 1;
+	return true;
 }
 
 
