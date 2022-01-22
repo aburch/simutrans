@@ -7109,25 +7109,23 @@ bool tool_change_convoi_t::init( player_t *player )
 		return false;
 	}
 	// ownership check for network games
-	if (cnv.is_bound()  &&  env_t::networkmode  &&  !player_t::check_owner(cnv->get_owner(), player)) {
+	if (env_t::networkmode  &&  !player_t::check_owner(cnv->get_owner(), player)) {
 		return false;
 	}
 
 	// first letter is now the actual command
 	switch(  tool  ) {
 		case 'x': // self destruction ...
-			if(cnv.is_bound()) {
-				if (cnv->get_state()==convoi_t::INITIAL) {
-					// delete cnv in depot
-					if (grund_t *gr = welt->lookup(cnv->get_pos())) {
-						if (depot_t *dep = gr->get_depot()) {
-							dep->disassemble_convoi(cnv, true);
-							return false;
-						}
+			if (cnv->get_state()==convoi_t::INITIAL) {
+				// delete cnv in depot
+				if (grund_t *gr = welt->lookup(cnv->get_pos())) {
+					if (depot_t *dep = gr->get_depot()) {
+						dep->disassemble_convoi(cnv, true);
+						return false;
 					}
 				}
-				cnv->self_destruct();
 			}
+			cnv->self_destruct();
 			return false;
 
 		case 'f': // open schedule
