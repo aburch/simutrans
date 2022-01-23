@@ -161,8 +161,6 @@ public:
 	void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
-	inline bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)) || ((dir & ribi_t::northeast) && (dir & ribi_t::southwest)) || ((dir & ribi_t::northwest) && (dir & ribi_t::southeast)); }
-
 	void rdwr(loadsave_t *file) OVERRIDE;
 
 	void rotate90() OVERRIDE;
