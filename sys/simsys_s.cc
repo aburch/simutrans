@@ -733,6 +733,12 @@ sint16 dr_toggle_borderless()
 	return fullscreen;
 }
 
+sint16 dr_suspend_fullscreen()
+{}
+
+void dr_restore_fullscreen(sint16 was_fullscreen)
+{}
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main
