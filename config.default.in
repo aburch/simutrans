@@ -5,7 +5,6 @@
 
 # this is config.default.in
 
-#BACKEND := allegro
 #BACKEND := gdi
 #BACKEND := sdl2
 #BACKEND := posix

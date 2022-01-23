@@ -8,7 +8,6 @@
 # copy this file to config.default and adjust the settings
 #
 
-#BACKEND := allegro
 #BACKEND := gdi
 #BACKEND := sdl2
 #BACKEND := posix
