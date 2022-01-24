@@ -103,12 +103,14 @@ public:
 		stop.update();
 		if(  haltestelle_t::get_halt( entry.pos, player ).is_bound()  ) {
 			if(  !entry.get_absolute_departures()  ) {
-				if( entry.waiting_time > 0 ) {
-					// relative waiting time
-					stop_extra.buf().printf( "(%d%% %s%s)", (int)entry.minimum_loading, translator::translate( "in " ), difftick_to_string( entry.get_waiting_ticks(), false ) );
-				}
-				else {
-					stop_extra.buf().printf( "(%i%%)", entry.minimum_loading );
+				if (entry.minimum_loading > 0) {
+					if( entry.waiting_time > 0 ) {
+						// relative waiting time
+						stop_extra.buf().printf( "(%d%% %s%s)", (int)entry.minimum_loading, translator::translate( "in " ), difftick_to_string( entry.get_waiting_ticks(), false ) );
+					}
+					else {
+						stop_extra.buf().printf( "(%i%%)", entry.minimum_loading );
+					}
 				}
 			}
 			else {

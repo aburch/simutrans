@@ -235,8 +235,6 @@ char const *difftick_to_string( sint32 ticks, bool round_to_quaters )
 		else {
 			hours = (((sint64)ticks*31) << (16-world()->ticks_per_world_month_shift));
 		}
-		minuten = (((hours*3) % 8192)*60)/8192;
-		hours = ((hours*3) / 8192)%24;
 	}
 	else {
 		if( world()->ticks_per_world_month_shift>=16 ) {
