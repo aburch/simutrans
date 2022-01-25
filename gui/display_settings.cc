@@ -536,7 +536,7 @@ color_gui_t::color_gui_t() :
 	resize( scr_coord( 0, 0 ) );
 }
 
-bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
+bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if(  comp == &gui_settings.toolbar_pos  ) {
 		env_t::menupos++;

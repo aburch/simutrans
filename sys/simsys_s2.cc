@@ -1108,7 +1108,7 @@ sint16 dr_suspend_fullscreen()
 		fullscreen = WINDOWED;
 	}
 	SDL_MinimizeWindow(window);
-	return fullscreen;
+	return was_fullscreen;
 }
 
 void dr_restore_fullscreen(sint16 was_fullscreen)
