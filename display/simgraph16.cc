@@ -4331,17 +4331,21 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 
 
 /* returns true, if this is a valid character */
-bool has_character( utf16 char_code )
+bool has_character(utf16 char_code)
 {
+	if(  char_code >= default_font.glyphs.size()  ) {
+		// or we crash when accessing the non-existing char ...
+		return false;
+	}
 	bool b1 = default_font.is_loaded();
-	bool b2 = char_code < default_font.glyphs.size();
 	font_t::glyph_t& gl = default_font.glyphs[char_code];
 	uint8  ad = gl.advance;
-	return b1 &&  b2  &&  ad!=0xFF;
+	return b1 && ad != 0xFF;
 
 	// this return false for some reason on CJK for valid characters ?!?
 	// return default_font.is_valid_glyph(char_code);
 }
+
 
 
 /*
