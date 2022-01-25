@@ -229,10 +229,8 @@ if ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 		target_sources(simutrans PRIVATE music/fluidsynth.cc gui/loadsoundfont_frame.cc)
 		target_compile_definitions(simutrans PRIVATE USE_FLUIDSYNTH_MIDI=1)
 		if (MINGW)
-			# not working because fluidsynth doesn't set static libraries for pkgconf
-			#target_link_libraries(simutrans PRIVATE ${FluidSynth_STATIC_LIBRARIES})
-			# manually linking them instead, until it is fixed
-			target_link_libraries(simutrans PRIVATE -lfluidsynth -lharfbuzz -lgraphite2 -lglib-2.0 -lintl -liconv -ldsound -lole32 -lws2_32 -lgomp -lksuser)
+			# since fluidsynth 2.2.2 fluidsynth.pc include static libraries, but some are still missing
+			target_link_libraries(simutrans PRIVATE ${FluidSynth_STATIC_LIBRARIES} -liconv -lgomp)
 		elseif (MSVC)
 			target_link_libraries(simutrans PRIVATE ${FluidSynth_LIBRARIES})
 		else ()

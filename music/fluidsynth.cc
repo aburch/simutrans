@@ -32,6 +32,7 @@ static const char * default_sf_paths[] = {
 
 // Soundfonts included on linux distros or bundled with Simutrans
 static const char * default_sf_names[] = {
+	"default.sf3",
 	"default.sf2",
 	"freepats-general-midi.sf2",
 	"PCLite.sf2",

@@ -89,7 +89,7 @@ bool loadsoundfont_frame_t::check_file(const char *filename, const char *)
 
 	// just match extension for building soundfonts
 	const char *start_extension = strrchr(filename, '.' );
-	if(  start_extension  &&  !STRICMP( start_extension, ".sf2" )  ) {
+	if(  start_extension  &&  ( !STRICMP( start_extension, ".sf2" ) || !STRICMP( start_extension, ".sf3" ) )  ) {
 		return true;
 	}
 	return false;
