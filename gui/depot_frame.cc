@@ -1432,7 +1432,10 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		lb_convoi_count.update();
 		cont_veh_action->set_size(cont_veh_action->get_size());
 	}
-
+	// unmark vehicle
+	FOR(vector_tpl<gui_image_list_t::image_data_t*>, const& iptr, convoi_pics) {
+		iptr->count = 0;
+	}
 	// Find vehicle under mouse cursor
 	gui_component_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1471,6 +1474,9 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 			veh_type = cnv->get_vehicle( sel_index )->get_desc();
 			resale_value = cnv->get_vehicle( sel_index )->calc_sale_value();
 			new_vehicle_length_sb_force_zero = true;
+
+			// mark selected vehicle in convoi
+			convoi_pics[convoi_number]->count = convoi_number+1;
 		}
 	}
 
@@ -1541,14 +1547,6 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
-
-		// mark selected vehicle in convoi
-		FOR(vector_tpl<gui_image_list_t::image_data_t*>, const& iptr, convoi_pics) {
-			iptr->count = 0;
-		}
-		if (0 <= convoi_number  &&  convoi_number < (sint32)convoi_pics.get_count()) {
-			convoi_pics[convoi_number]->count = convoi_number;
-		}
 	}
 	else if (veh_type == NULL) {
 		new_vehicle_length_sb = 0;
