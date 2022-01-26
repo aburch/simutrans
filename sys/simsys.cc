@@ -1139,6 +1139,7 @@ int sysmain(int const argc, char** const argv)
 #endif
 
 	setlocale( LC_CTYPE, "" );
+	setlocale( LC_NUMERIC, "en_US.UTF-8" );
 	return simu_main(argc, argv);
 
 #ifdef _WIN32
