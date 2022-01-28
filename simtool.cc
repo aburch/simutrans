@@ -3176,6 +3176,18 @@ class electron_t : public test_driver_t {
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE { return false; }
 };
 
+class way_checker_t : public test_driver_t {
+private:
+	waytype_t wt;
+public:
+	way_checker_t(waytype_t w) : wt(w) {}
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->hat_weg(wt); }
+	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi(wt); }
+	waytype_t get_waytype() const OVERRIDE { return wt; }
+	int get_cost(const grund_t*, const weg_t*, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
+	bool is_target(const grund_t*, const grund_t*) const OVERRIDE { return false; }
+};
+
 class scenario_checker_t : public test_driver_t {
 public:
 	test_driver_t *other;
@@ -3207,6 +3219,7 @@ private:
 	int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const OVERRIDE { return other->get_cost(gr, w, max_speed, from); }
 	bool is_target(const grund_t *gr,const grund_t *gr2) const OVERRIDE { return other->is_target(gr,gr2); }
 };
+
 
 void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
@@ -3266,11 +3279,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	else {
 		// get a default vehicle
 		test_driver_t* test_driver;
-		vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel ); // must be here even if not needed for powerline
 		if(  wt!=powerline_wt  ) {
-			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
-			driver->set_flag( obj_t::not_on_map );
-			test_driver = driver;
+			test_driver = new way_checker_t(wt);
 		}
 		else {
 			test_driver = new electron_t();
