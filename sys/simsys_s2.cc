@@ -196,7 +196,7 @@ bool dr_set_screen_scale(sint16 scale_percent)
 		y_scale = (scale_percent*SCALE_NEUTRAL_Y)/100;
 	}
 
-	if (x_scale != old_x_scale || y_scale != old_y_scale) {
+	if (window  &&  (x_scale != old_x_scale || y_scale != old_y_scale)  ) {
 		// force window resize
 		int w, h;
 		SDL_GetWindowSize(window, &w, &h);

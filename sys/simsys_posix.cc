@@ -97,8 +97,9 @@ void dr_textur(int, int, int, int)
 {
 }
 
-void move_pointer(int, int)
+bool move_pointer(int, int)
 {
+	return false;
 }
 
 void set_pointer(int)
