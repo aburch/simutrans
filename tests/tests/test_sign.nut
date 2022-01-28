@@ -347,6 +347,39 @@ function test_sign_build_trafficlight()
 }
 
 
+function test_sign_remove_trafficlight()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+	local wayremover = command_x(tool_remove_way)
+	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
+	local trafficlight = sign_desc_x.get_available_signs(wt_road).filter(@(idx, sign) sign.is_traffic_light())[0]
+
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 2, 0), coord3d(3, 2, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 4, 0), coord3d(5, 6, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 5, 0), coord3d(6, 5, 0), road, true), null)
+
+	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(2, 2, 0), trafficlight), null)
+	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(5, 5, 0), trafficlight), null)
+
+	// Note that both traffic lights must have the same direction for the test to work
+	// So the second traffic light must not change direction between the two wayremover calls
+	{
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(2, 1, 0), coord3d(2, 2, 0), "" + wt_road), null)
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(4, 5, 0), coord3d(5, 5, 0), "" + wt_road), null)
+
+		ASSERT_EQUAL(tile_x(2, 2, 0).find_object(mo_signal), null)
+		ASSERT_EQUAL(tile_x(5, 5, 0).find_object(mo_signal), null)
+	}
+
+	ASSERT_EQUAL(wayremover.work(pl, coord3d(1, 2, 0), coord3d(3, 2, 0), "" + wt_road), null)
+	ASSERT_EQUAL(wayremover.work(pl, coord3d(5, 4, 0), coord3d(5, 6, 0), "" + wt_road), null)
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_sign_build_private_way()
 {
 	local pl = player_x(0)
@@ -957,7 +990,7 @@ function test_sign_replace_signal()
 	local signal = sign_desc_x.get_available_signs(wt_rail).filter(@(idx, sign) sign.is_signal())[0]
 	local presignal = sign_desc_x.get_available_signs(wt_rail).filter(@(idx, sign) sign.is_pre_signal())[0]
 
-	// precondistions
+	// preconditions
 	ASSERT_TRUE(signal != null)
 	ASSERT_TRUE(presignal != null)
 
