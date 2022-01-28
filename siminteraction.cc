@@ -40,9 +40,11 @@ void interaction_t::move_view( const event_t &ev )
 	viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
 	// move the mouse pointer back to starting location => infinite mouse movement
-	if(  (ev.mx - ev.cx) != 0  ||  (ev.my-ev.cy) !=0  ) {
+	// to avoid jumping with fingers, only do this above a threshold
+	if( abs(ev.mx - ev.cx) > 32  ||  abs(ev.my-ev.cy) > 32  ) {
+#if __BEOS__
 		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
-#if 0
+#else
 		// move pointer catches the mouse inside the windows but is incompatible with any touch based scolling
 		move_pointer(ev.cx, ev.cy);
 #endif
