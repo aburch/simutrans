@@ -462,12 +462,13 @@ void dr_restore_fullscreen(sint16 was_fullscreen)
 }
 
 // move cursor to the specified location
-void move_pointer(int x, int y)
+bool move_pointer(int x, int y)
 {
 	POINT pt = { ((long)x*x_scale+16)/32, ((long)y*y_scale+16)/32 };
 
 	ClientToScreen(hwnd, &pt);
 	SetCursorPos(pt.x, pt.y);
+	return true;
 }
 
 

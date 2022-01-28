@@ -27,39 +27,24 @@
 
 karte_ptr_t interaction_t::world;
 
-static bool moving_view=false;
-
 void interaction_t::move_view( const event_t &ev )
 {
 	static scr_coord_val old_move_dx=0, old_move_dy=0;
 	koord new_ij = viewport->get_world_position();
 
-	if (!moving_view) {
-		old_move_dx = ev.cx;
-		old_move_dy = ev.cy;
-		moving_view = true;
-	}
-
-	sint16 new_xoff = viewport->get_x_off() - (ev.mx - old_move_dx) * env_t::scroll_multi;
-	sint16 new_yoff = viewport->get_y_off() - (ev.my - old_move_dy) * env_t::scroll_multi;
+	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
+	sint16 new_yoff = viewport->get_y_off() - (ev.my - ev.cy) * env_t::scroll_multi;
 
 	// this sets the new position and mark screen dirty
 	// => with next refresh we will be at a new location
 	viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
 	// move the mouse pointer back to starting location => infinite mouse movement
-	// to avoid jumping with fingers, only do this above a threshold
-	if( abs(ev.mx - ev.cx) > 32  ||  abs(ev.my-ev.cy) > 32  ) {
-		// move pointer catches the mouse inside the windows but is incompatible with any touch based scolling
-		scr_coord_val dx = (ev.mx - ev.cx > 0) ? (ev.mx - ev.cx) % 32 : -((-(ev.mx - ev.cx) % 32));
-		scr_coord_val dy = (ev.my - ev.cy > 0) ? (ev.my - ev.cy) % 32 : -((-(ev.my - ev.cy) % 32));
-		move_pointer(ev.cx+dx, ev.cy+dx);
-		old_move_dx = ev.cx + dx;
-		old_move_dy = ev.cy + dy;
-	}
-	else {
-		old_move_dx = ev.mx;
-		old_move_dy = ev.my;
+	if ((ev.mx - ev.cx) != 0 || (ev.my - ev.cy) != 0) {
+		if(!env_t::scroll_infinite  ||  !move_pointer(ev.cx, ev.cy)) {
+			// fails in finger mode
+			change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
+		}
 	}
 }
 
@@ -127,11 +112,6 @@ void interaction_t::move_cursor( const event_t &ev )
 			world->set_mouse_rest_time(dr_time());
 			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL); // 13s no movement: play sound
 		}
-	}
-
-	if ((ev.button_state & 7) == 0) {
-		// reset movign view flag
-		moving_view = false;
 	}
 }
 

@@ -48,6 +48,7 @@ enum {
 	IDBTN_SHOW_THEMEMANAGER,
 	IDBTN_SIMPLE_DRAWING,
 	IDBTN_CHANGE_FONT,
+	IDBTN_INFINITE_SCROLL,
 	COLORS_MAX_BUTTONS
 };
 
@@ -245,8 +246,13 @@ map_settings_t::map_settings_t()
 	add_component( &brightness );
 
 	// Scroll inverse checkbox
-	buttons[ IDBTN_SCROLL_INVERSE ].init( button_t::square_state, "4LIGHT_CHOOSE" );
-	add_component( buttons + IDBTN_SCROLL_INVERSE, 2 );
+	buttons[IDBTN_SCROLL_INVERSE].init(button_t::square_state, "4LIGHT_CHOOSE");
+	add_component(buttons + IDBTN_SCROLL_INVERSE, 2);
+
+	// Scroll infinite checkbox
+	buttons[IDBTN_INFINITE_SCROLL].init(button_t::square_state, "Infinite mouse scrolling");
+	buttons[IDBTN_INFINITE_SCROLL].set_tooltip("Infinite scrolling using mouse");
+	add_component(buttons + IDBTN_INFINITE_SCROLL, 2);
 
 	// Numpad key
 	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
@@ -590,6 +596,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	case IDBTN_SCROLL_INVERSE:
 		env_t::scroll_multi = -env_t::scroll_multi;
 		break;
+	case IDBTN_INFINITE_SCROLL:
+		env_t::scroll_infinite ^= 1;
+		break;
 	case IDBTN_PEDESTRIANS_AT_STOPS:
 		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
@@ -700,6 +709,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[IDBTN_SIMPLE_DRAWING].pressed = env_t::simple_drawing;
 	buttons[IDBTN_SIMPLE_DRAWING].enable(welt->is_paused());
 	buttons[IDBTN_SCROLL_INVERSE].pressed = env_t::scroll_multi < 0;
+	buttons[IDBTN_INFINITE_SCROLL].pressed = env_t::scroll_infinite;
 	buttons[IDBTN_DAY_NIGHT_CHANGE].pressed = env_t::night_shift;
 	buttons[IDBTN_SHOW_SLICE_MAP_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[IDBTN_UNDERGROUND_VIEW].pressed = grund_t::underground_mode == grund_t::ugm_all;

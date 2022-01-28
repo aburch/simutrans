@@ -90,8 +90,8 @@ bool dr_os_init(int const* parameter);
 /* maximum size possible (if there) */
 struct resolution
 {
-	int w;
-	int h;
+	scr_coord_val w;
+	scr_coord_val h;
 };
 resolution dr_query_screen_resolution();
 
@@ -168,7 +168,7 @@ void show_pointer(int yesno);
 
 void set_pointer(int loading);
 
-void move_pointer(int x, int y);
+bool move_pointer(int x, int y);
 
 int get_mouse_x();
 int get_mouse_y();

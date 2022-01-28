@@ -6,6 +6,7 @@
 	ADD: Option to adjust screen scaling manually (either via display settings or '-screen_scale' command line option)
 	CHG: All resizeable windows will have a minimize button in the title
 	CHG: Illegal schedule entries are highlited and a button to clear them up will appear.
+	CHG: Infinite mouse scrolling can be activated manually in the display settings; but it will fail with certain touch devices
 
 
 Release of 123.0 (r10317 on 30-Dec-2021):

@@ -584,12 +584,16 @@ void dr_textur(int xp, int yp, int w, int h)
 		SDL_UpdateTexture( screen_tx, &r, (uint8 *)screen->pixels + yp * screen->pitch + xp * sizeof(PIXVAL), screen->pitch );
 	}
 }
-
+static bool in_finger_handling = false;
 
 // move cursor to the specified location
-void move_pointer(int x, int y)
+bool move_pointer(int x, int y)
 {
+	if (in_finger_handling) {
+		return false;
+	}
 	SDL_WarpMouseInWindow( window, TEX_TO_SCREEN_X(x), TEX_TO_SCREEN_Y(y) );
+	return true;
 }
 
 
@@ -636,7 +640,6 @@ static void internal_GetEvents()
 	static bool composition_is_underway = false;
 	static bool ignore_previous_number = false;
 	static int previous_multifinger_touch = 0;
-	static bool in_finger_handling = false;
 	static SDL_FingerID FirstFingerId = 0;
 	static double dLastDist = 0.0;
 
