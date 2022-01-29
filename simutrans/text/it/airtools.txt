@@ -35,7 +35,7 @@ Come rimuovere una pista: clicca sullo strumento (il cursore diventa una croce r
 {Consigli: Lascia gli estremi delle piste d'atterraggio non connessi, altrimenti gli aerei non atterreranno o decolleranno. Usa Rimuovi per eliminare singole parti di piste.}
 </p>
 <p>
-<em><a href="depot.txt"><em>Deposito aerei:</em></a></em> lo strumento costruisce un hangar per comprare e gestire gli aerei. Gli hangar hanno un costo di mantenimento e devono essere costruiti alla fine di una pista di rullaggio.<br>
+<a href="depot.txt"><em>Deposito aerei:</em></a> lo strumento costruisce un hangar per comprare e gestire gli aerei. Gli hangar hanno un costo di mantenimento e devono essere costruiti alla fine di una pista di rullaggio.<br>
 Come costruire un hangar: clicca sullo strumento (il cursore cambia in un deposito) e poi alla fine di una pista di rullaggio.<br>
 {Consiglio: Rimuovi il deposito con Rimuovi.}
 </p>
@@ -47,7 +47,7 @@ Come costruire una fermata: clicca sullo strumento e poi su un'estremità di una 
 {Consigli: elimina le piste con Rimuovi. Premi [v] per vedere/nascondere il bacino d'utenza per merci e passeggeri nella vista di gioco.}
 </p>
 <p>
-<em>Edifici aeroportuali:</em> gli strumenti costruiscono estensioni per le <a href="station.txt">Fermate</em></a> e possono aumentare i costi di mantenimento, la capacità e il bacino d'utenza per merci e passeggeri. Nell'angolo di alcuni strumenti sono riportate le icone (usate in <a href="haltlist.txt">Lista Stazioni</a> e Informazioni fermata) mostrano che tipo di bene l'estensione consente alla fermata di gestire.<br>
+<em>Edifici aeroportuali:</em> gli strumenti costruiscono estensioni per le <a href="station.txt">Fermate</a> e possono aumentare i costi di mantenimento, la capacità e il bacino d'utenza per merci e passeggeri. Nell'angolo di alcuni strumenti sono riportate le icone (usate in <a href="haltlist.txt">Lista Stazioni</a> e Informazioni fermata) mostrano che tipo di bene l'estensione consente alla fermata di gestire.<br>
 Come costruire un'estensione: clicca sullo strumento per selezionare l'estensione (il cursore cambia nell'estensione), poi clicca sulla posizione richiesta, vicino a una fermata preesistente. La nuova estensione è ora considerata come parte della fermata.<br>
 {Consigli: rimuovere estensioni con Rimuovi. Premi [v] per visualizzare/nascondere i bacini di raccolta di merci e passeggeri nella vista di gioco.}
 </p>

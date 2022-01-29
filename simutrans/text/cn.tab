@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1540,7 +1540,7 @@ sliced underground mode
 slot empty
 空槽
 Sort by
-排列乘客/货物,按
+排列按
 Sort waiting list by
 排列等候列表,按
 Sound
@@ -1753,8 +1753,6 @@ way %s cannot longer used:\n%s\n
 无法再建造 %s 路
 way %s now available:\n
 %s 路现在可用
-way %s now available:\n%s\n
-%s 路现在可用:\n%s
 Ways not connected
 道路未连接
 Wegpunkt

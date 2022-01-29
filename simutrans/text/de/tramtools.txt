@@ -1,12 +1,12 @@
-<title>Trambau Hilfe</title>
+<title>Straßenbahnbau</title>
 
-<h1><strong>Trambauwerkzeuge</strong></h1>
+<h1><strong>Straßenbahnbauwerkzeuge</strong></h1>
 
 <p>
-Diese Werkzeugleiste dient dem Bau von Tramgleisen, Fahrleitungen, Depots und Haltestellen. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+Diese Werkzeugleiste dient dem Bau von Straßenbahngleisen, Fahrleitungen, Depots und Haltestellen. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
 </p>
 <p>
-<em>Tramschienen:</em> Der Bau von Schienennetzen ist in der Hilfe zu den <a href="railtools.txt">Eisenbahnbauwerkzeugen</a> beschrieben. Tramgleise können auch auf Straßen und durch Straßentunnel und über Straßenbrücken gebaut werden. (Falls das Verlegen durch Tunnel/über Brücken nicht klappt, hilft evt. beim Bauen die Ctrl-Taste gedrückt zu halten.) Die Benutzung von Eisenbahngleisen neben Straßen ist möglich.
+<em>Straßenbahnschienen:</em> Der Bau von Schienennetzen ist in der Hilfe zu den <a href="railtools.txt">Eisenbahnbauwerkzeugen</a> beschrieben. Straßenbahngleise können auch auf Straßen und durch Straßentunnel und über Straßenbrücken gebaut werden. (Falls das Verlegen durch Tunnel/über Brücken nicht klappt, hilft evt. beim Bauen die Ctrl-Taste gedrückt zu halten.) Die Benutzung von Eisenbahngleisen neben Straßen ist möglich.
 </p>
 <p>
 <em>Fahrleitungen und Signale:</em> Entsprechen denen in den <a href="railtools.txt">Eisenbahnbauwerkzeugen</a>.
@@ -15,5 +15,5 @@ Diese Werkzeugleiste dient dem Bau von Tramgleisen, Fahrleitungen, Depots und Ha
 Im <em>Depot</em> kannst Du Straßenbahnen zusammenstellen sowie Linien einrichten und die Fahrzeuge nach der Zuordnung von Linien starten. Das Depot kann nur auf einem ebenen Gleisende platziert werden.
 </p>
 <p>
-<em>Tramhaltestellen:</em> Der Bau von Haltestellen ist in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben. Auf Straßen ist die Bushaltestelle zu verwenden, neben Straßen benutzt Du die Bahnhöfe.
+<em>Straßenbahnhaltestellen:</em> Der Bau von Haltestellen ist in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben. Auf Straßen ist die Bushaltestelle zu verwenden, neben Straßen benutzt Du die Bahnhöfe.
 </p>

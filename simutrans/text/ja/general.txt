@@ -2,69 +2,76 @@
 
 <h1>総合ヘルプ</h1>
 <p>
-※印のものは長い間、更新されていません。現在の内容と大きく異なる場合があります。 英語のものは、日本語ヘルプがまだありません。</p>
+これは主なヘルプファイルの一覧です（すべてではありません）。<br>
+※印のものは長い間、更新されていません。現在の内容と大きく異なる場合があります。 英語のものは、日本語ヘルプがまだありません。
+</p>
+
 <p>
 <a href="keys.txt">キーボード</a>
-<br>
 </p>
 <p>
 <it>ゲームオプション</it><br>
 <a href="options.txt">※ゲームオプション</a><br>
 <a href="language.txt">※言語</a><br>
-<a href="color.txt">※カラーダイアログ</a><br>
+<a href="color.txt">※プレイヤーの色</a><br>
 <a href="display.txt">※表示設定</a><br>
-<a href="sound.txt">※サウンドダイアログ</a><br>
-<a href="players.txt">※ライバル会社一覧</a><br>
+<a href="sound.txt">※サウンド</a><br>
+<a href="players.txt">※ライバル会社</a><br>
 <a href="load.txt">※ゲームの再開</a><br>
 <a href="save.txt">※ゲームの保存</a><br>
 <a href="new_world.txt">※新しいマップの作成</a><br>
-<a href="climates.txt">Climate Control</a><br>
-<a href="load_relief.txt">Load Height Map</a><br>
+<a href="climates.txt">気候の設定</a><br>
+<a href="load_relief.txt">地形データ読み込み</a><br>
 <a href="settings.txt">高度な設定</a><br>
 </p>
 
 <p>
 <it>メインメニュー</it><br>
-<a href="options.txt">※ゲームオプション</a><br>
-<a href="map.txt">※地図ウィンドウ</a><br>
-<a href="slopetools.txt">※土工ツール</a><br>
+<a href="options.txt">※設定を選ぶ</a><br>
+<a href="map.txt">※マップ</a><br>
+<a href="inspection_tools.txt">調査ツール</a><br>
+<a href="slopetools.txt">※スロープツール</a><br>
 <a href="railtools.txt">※鉄道ツール</a><br>
 ・<a href="signal_spacing.txt">※信号／標識の間隔設定</a><br>
-<a href="monorailtools.txt">Monorail Tools</a><br>
-<a href="tramtools.txt">Tram Tools</a><br>
+<a href="monorailtools.txt">モノレール／リニアツール</a><br>
+<a href="tramtools.txt">市電／軽便鉄道ツール</a><br>
 <a href="roadtools.txt">※道路ツール</a><br>
 <a href="shiptools.txt">※船舶ツール</a><br>
-<a href="airtools.txt">Airport Tools</a><br>
-<a href="special.txt">Special Construction Tools</a><br>
+<a href="airtools.txt">航空機ツール</a><br>
+<a href="special.txt">特別建築物建設ツール</a><br>
+<a href="removal_tool.txt">撤去／取り壊し</a><br>
 <a href="edittools.txt">Game Edit Tools</a><br>
 </p>
+
 <p>
 <it>一覧表</it><br>
 <a href="players.txt">ライバル会社一覧</a><br>
-<a href="linemanagement.txt">Line Management</a><br>
-<a href="mailbox.txt">※メッセージ表/メッセージ表設定</a><br>
-<a href="list.txt">Lists</a><br>
-・<a href="haltlist.txt">Stops/Station List</a><br>
-・・<a href="haltlist_filter.txt">Stops/Station List Filter</a><br>
-・<a href="convoi.txt">Vehicle List</a><br>
-・・<a href="convoi_filter.txt">Vehicle List Filter</a><br>
+<a href="linemanagement.txt">路線編集</a><br>
+<a href="list.txt">一覧表</a><br>
+・<a href="haltlist.txt">駅一覧</a><br>
+・・<a href="haltlist_filter.txt">駅一覧フィルター</a><br>
+・<a href="convoi.txt">乗り物一覧</a><br>
+・・<a href="convoi_filter.txt">乗り物一覧フィルター</a><br>
 ・<a href="citylist_filter.txt">※町一覧</a><br>
-・<a href="goods_filter.txt">Goods List</a><br>
-・<a href="factorylist_filter.txt">Industry List</a><br><br>
-・<a href="curiositylist_filter.txt">Attractions List</a><br>
+・<a href="goods_filter.txt">貨物一覧</a><br>
+・<a href="factorylist_filter.txt">産業一覧</a><br>
+・<a href="curiositylist_filter.txt">名所旧跡一覧</a><br>
+<a href="mailbox.txt">※メッセージ表</a><br>
+<a href="finances.txt">財務（財務一覧）</a>
 </p>
+
 <p>
 <it>その他のダイアログ</it><br>
 <a href="server.txt">※ゲームの情報ウィンドウ</a><br>
-<a href="finances.txt">※財務</a>
 <a href="password.txt">※パスワード設定ウィンドウ</a><br>
-<a href="convoiinfo.txt">Convoy/Vehicle Information</a><br>
-・<a href="convoidetail.txt">Convoy/Vehicle Details</a><br>
+<a href="convoiinfo.txt">車両の情報</a><br>
+・<a href="convoidetail.txt">車両の詳細</a><br>
 <a href="depot.txt">※車庫ダイアログ</a><br>
 <a href="schedule.txt">※スケジュールダイアログ</a><br>
 <a href="station.txt">※駅情報ダイアログ</a><br>
 ・<a href="station_details.txt">※駅情報詳細ダイアログ</a><br>
 <a href="citywindow.txt">※街の詳細</a><br>
-<a href="industry_info.txt">Industry Information</a><br>
-<a href="trafficlight_info.txt">交通信号機の情報</a>
+<a href="industry_info.txt">産業の情報</a><br>
+<a href="trafficlight_info.txt">交通信号機の情報</a><br>
+<a href="jump_frame.txt ">指定座標へ移動</a>
 </p>

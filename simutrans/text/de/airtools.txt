@@ -1,4 +1,4 @@
-<title>Flughafenbau Hilfe</title>
+<title>Flughafenbau</title>
 
 <h1><strong>Flughafenbauwerkzeuge</strong></h1>
 

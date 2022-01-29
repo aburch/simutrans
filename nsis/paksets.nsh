@@ -5,6 +5,15 @@
 
 ; Just the paksets
 
+Section /o "pak48.excentrique V0.19 rc3" pak48excentrique
+  AddSize 1908
+  StrCpy $downloadlink "https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip"
+  StrCpy $archievename "pak48.excentrique_v019rc3.zip"
+  StrCpy $downloadname "pak48.Excentrique"
+  StrCpy $VersionString "pak48.Excentrique v0.19"
+  Call DownloadInstallZipWithoutSimutrans
+SectionEnd
+
 SectionGroup /e "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
@@ -34,10 +43,10 @@ SectionGroupEnd
 
 Section "pak64.german (Freeware) for 123" pak64german
   AddSize 22460
-  StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-1_full.zip"
-  StrCpy $archievename "pak64.german_0-123-0-0-1_full.zip"
+  StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-2_full.zip"
+  StrCpy $archievename "pak64.german_0-123-0-0-2_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.123.0.0.1"
+  StrCpy $VersionString "pak64.german 0.123.0.0.2"
   Call DownloadInstallZip
 SectionEnd
 
@@ -61,13 +70,12 @@ Section /o "pak.Nippon (64 size) V0.5" pak64nippon
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
-
 Section "pak128.German V2.1" pak128german
   AddSize 558832
 	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $archievename "PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "Pak128.german VS 2.1.beta (Rev. 468)"
+  StrCpy $VersionString "Pak128.german VS 2.1 (Rev. 473)"
   Call DownloadInstallZip
 SectionEnd
 
@@ -81,13 +89,21 @@ Section /o "pak128.CZ (0.3) r2078" pak128cz
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
+Section /o "pak128 V2.8.2" pak128
+  AddSize 413800
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%202.8.2%20for%20ST%20123up/simupak128-2.8.2-for123.zip"
+  StrCpy $archievename "simupak128-2.8.2-for123.zip"
+  StrCpy $downloadname "pak128"
+  StrCpy $VersionString "Pak128 2.8.1"
+  Call DownloadInstallZip
+SectionEnd
 
 Section "pak192.Comic 0.6 RC2 (CC-BY-SA)" pak192comic
   AddSize 794299
   StrCpy $downloadlink "https://github.com/Flemmbrav/Pak192.Comic/releases/download/2021-V0.6-RC2/pak192.comic.0.6.RC2.zip"
   StrCpy $archievename "pak192.comic.0.6.RC2.zip"
-  StrCpy $downloadname "pak192.comic"
-  StrCpy $VersionString "Pak192.Comic 2021 [V 0.6 RC 2]"
+  StrCpy $downloadname "pak192.comic-nightly-datconverter"
+  StrCpy $VersionString "Pak192.Comic 2021 [V 0.6 RC 1]"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
@@ -117,16 +133,6 @@ Section /o "pak128.Japan for Simutrans 120.0" pak128japan
 SectionEnd
 
 
-Section /o "pak128 V2.8.1" pak128
-  AddSize 413056
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.4.1%20%282.8.1%2C%20priority%20signals%20%2B%20bugfix%29/pak128.zip"
-  StrCpy $archievename "pak128.zip"
-  StrCpy $downloadname "pak128"
-  StrCpy $VersionString "Pak128 2.8.1"
-  Call DownloadInstallZip
-SectionEnd
-
-
 Section /o "pak128.Britain V1.18" pak128britain
   AddSize 234108
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip"
@@ -150,16 +156,6 @@ Section /o "pak32.Comic (alpha) for 102.2.1" pak32comic
   StrCpy $downloadname "pak32.Comic"
   StrCpy $VersionString ""
   Call DownloadInstallZip
-SectionEnd
-
-
-Section /o "pak48.excentrique V0.18" pak48excentrique
-  AddSize 1385
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip"
-  StrCpy $archievename "pak48-excentrique_v018.zip"
-  StrCpy $downloadname "pak48.Excentrique"
-  StrCpy $VersionString "pak48.Excentrique v0.18"
-  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 ; name does not match folder name (pak64.ho-scale) but otherwise always updated

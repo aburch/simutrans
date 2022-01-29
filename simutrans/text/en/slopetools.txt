@@ -1,4 +1,4 @@
-<title>Landscaping Tools - raise/lower land Help</title>
+<title>Landscaping Tools - raise/lower land</title>
 
 <h1><strong>Landscaping Tools</strong></h1>
 

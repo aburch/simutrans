@@ -1,4 +1,4 @@
-<title>Map Window Help</title>
+<title>Map Window</title>
 
 <h1><strong>Map Window</strong></h1>
 
@@ -19,8 +19,8 @@
 </p>
 <p>Using the selection button many additional informations can be overlaid. Those fall in three groups. White and yellow buttons are exclusive and will disable any other white option. Green buttons are for overlays that can be combined with any other. The third group are the red buttons for stops. From this stop group only one can be active at a time.
 </p>
-<p>The following options exist:
-</p>
+<p>The following options exist:<br>
+
 <em>Cities</em> names of <a href="citywindow.txt">urban areas</a>.<br/>
 
 <em>City Limits</em> show the city limits; new houses and roads are only built inside the city limits.<br/>
@@ -64,4 +64,5 @@
 
 <em>Forest</em> shows forests in bright green.<br/>
 
-<em>Ownership</em> colors all things on the map with the a href="color.txt">color of their owner</a> (orange for unowned).<br/>
+<em>Ownership</em> colors all things on the map with the <a href="color.txt">color of their owner</a> (orange for unowned).
+</p>

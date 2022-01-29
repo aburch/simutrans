@@ -1,29 +1,38 @@
-<title>Klimazonen Hilfe</title>
+<title>Klimazonen</title>
 
 <h1><strong>Kliamzonen Hilfe</strong></h1>
 
 <p>
-Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt</a> Dialog. Mit ihm können diverse Details zu den Klimazonen und Bergen der neuen Karte eingestellt werden.</p>
+Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt</a> Dialog. Mit ihm können diverse Details zu den Klimazonen und Bergen der neuen Karte eingestellt werden.
+</p>
 <p>
-· <em>Grundwasser:</em> Den Pegel des Grundwassers kannst Du von 0 bis 5 festlegen. Je niedriger der Pegel ist, desto mehr Land erscheint und umgekehrt. Die Vorgabe ist 4.</p>
+· <em>Grundwasser:</em> Den Pegel des Grundwassers kannst Du von 0 bis 5 festlegen. Je niedriger der Pegel ist, desto mehr Land erscheint und umgekehrt. Die Vorgabe ist 4.
+</p>
 <p>
-· <em>Berghöhe:</em> Der Maximalwert für die Höhe der höchsten Berge beträgt 320. Die Vorgabe ist 160.</p>
+· <em>Berghöhe:</em> Der Maximalwert für die Höhe der höchsten Berge beträgt 320. Die Vorgabe ist 160.
+</p>
 <p>
-· <em>Bergigkeit:</em> Dieser Wert bestimmt, wieviel kleinere Hügel und Täler generiert werden. Mögliche Werte sind 0 bis 4. Die Vorgabe ist 2. Eine zu rauhe Karte wird eventuell nicht so viele Städte, Insdustrien oder Verbindungsstraßen erzeugen können, wie eingestellt.</p>
+· <em>Bergigkeit:</em> Dieser Wert bestimmt, wieviel kleinere Hügel und Täler generiert werden. Mögliche Werte sind 0 bis 4. Die Vorgabe ist 2. Eine zu rauhe Karte wird eventuell nicht so viele Städte, Insdustrien oder Verbindungsstraßen erzeugen können, wie eingestellt.
+</p>
 
-<br>
 <p>
-Im folgenden werden die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sinkt und steigt die Schneegrenze in Simutrans entsprechend der gewählten Einstellung.</p>
+Im folgenden werden die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sinkt und steigt die Schneegrenze in Simutrans entsprechend der gewählten Einstellung.
+</p>
 <p>
-· <em>Sommerschnee:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es sehr wenige Städte, Industrien und Vegetation.</p>
+· <em>Sommerschnee:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es sehr wenige Städte, Industrien und Vegetation.
+</p>
 <p>
-· <em>Winterschnee:</em> Bis zu dieser Höhe fällt im Winter Schnee. Das hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.</p>
+· <em>Winterschnee:</em> Bis zu dieser Höhe fällt im Winter Schnee. Das hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.
+</p>
 
 <p>
 Im nächsten Block werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die Anzeige der Klimazonen geht von Null bis zur eingestellten Höhe. Höhere Klimazonen werden dabei von niedrigeren Klimazonen im unteren Bereich überdeckt. Du kannst also Wüste in Tundra und dann in Tropen übergehen lassen.<br>
-<strong>Achtung:</strong> <br>Gebäude, Industrien und Vegetation können bestimmten Klimazonen zugeordnet sein. In welchen Klimazonen was vorkommt, liegt in den Händen der Pakset- und Addon-Ersteller.</p>
+<strong>Achtung:</strong> <br>Gebäude, Industrien und Vegetation können bestimmten Klimazonen zugeordnet sein. In welchen Klimazonen was vorkommt, liegt in den Händen der Pakset- und Addon-Ersteller.
+</p>
 
-<p>Ist die Schaltfläche <em>Keine Bäume</em> aktiviert, werden auf der neuen Karte keine Bäume generiert. </p>
+<p>Ist die Schaltfläche <em>Keine Bäume</em> aktiviert, werden auf der neuen Karte keine Bäume generiert. 
+</p>
 
 <p>
-Als letztes können Parameter eingestellt werden, um die Erzeugung von Flüssen auf der neuen Karte zu beeinflussen.</p>
+Als letztes können Parameter eingestellt werden, um die Erzeugung von Flüssen auf der neuen Karte zu beeinflussen.
+</p>

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -297,8 +297,6 @@ Eines de tramvia
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ha construït una nova base d'operacions.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\nha construït\nun nou ajuntament\nen arribar\nals %i habitants
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s\nha construït\nun nou ajuntament\nen arribar\nals %i habitants
 Bankrott:\n\nDu bist bankrott.\n
@@ -1893,8 +1891,6 @@ way %s cannot longer used:\n%s\n
 el tipus de via %s ja no es pot utilitzar:\n
 way %s now available:\n
 Nou tipus de via disponible: %s\n
-way %s now available:\n%s\n
-nou tipus de via:%s\n%s\n
 Ways not connected
 Les vies no estan connectades
 Wegpunkt

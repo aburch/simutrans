@@ -12,11 +12,13 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+Absolute times
+Display times as day:hh:mm of the month
 AMBIENT_SOUND
 ambient sounds
 CASH_SOUND
@@ -85,8 +87,6 @@ hlf_btn_keine
 none
 humidities
 humitdity borders
-lake
-Create inland lakes
 Lake height
 max. lake height
 moisture land
@@ -97,10 +97,14 @@ Queueing
 Waiting Trend
 rainfall
 humidity
+Reselect closes tools
+Reselect a tool deselect it
 Road toll
 Road Toll
 Scenario
 Scenario Info
+sea
+marine climate
 Start this as a server
 Start a server using this game.
 temperature-humidity based
@@ -270,7 +274,7 @@ Maglev Tools
 MONORAILTOOLS
 Monorail Tools
 NARROWGAUGETOOLS
-Narrow Gauge Railroad Tools
+Narrow-gauge Railroad Tools
 RAILTOOLS
 Railroad Tools
 ROADTOOLS
@@ -287,8 +291,6 @@ Trams/light rail Tools
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's has built a new headquarter.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nbuilt a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s \nbuilt a\nnew townhall\nwhen it reached\n%i inhabitants.
 Bankrott:\n\nDu bist bankrott.\n
@@ -321,10 +323,6 @@ Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 You have %d months\nto pay off your debt.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
-#_________________________________program text__________________________________
-#_________________________________program text__________________________________
-vh_title
-List of all vehicles
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%.2f$/km %.2f$/m)
@@ -446,7 +444,7 @@ Add stops for backward travel.
 Air
 Airline
 air_wt
-runway/taxiway
+Runway/Taxiway
 aircraft_tab
 Freight planes
 AIRTOOLS
@@ -540,7 +538,7 @@ Build artificial slopes
 Built random attraction
 Build a random attraction.
 Bus_tab
-Busses
+Buses
 Can only move from halt to halt or waypoint to waypoint.
 Can only move \nfrom halt to halt or \nfrom waypoint to waypoint.
 Capacity: %.0f MW
@@ -548,7 +546,7 @@ Capacity: %.0f MW\n
 Capacity: %d%s %s\n
 Capacity: %3d%s %s\n
 Capacity: %s\nLoad: %d (%d%%)
-Capacity: %s\n\nProporcion: %d (%d%%)
+Capacity: %s\n\nProportion: %d (%d%%)
 Cars are not available yet!
 Cars are not yet available.
 cars.\nstate
@@ -575,6 +573,8 @@ cl_title
 Vehicle List
 cl_txt_sort
 Sort by:
+Cleanup schedule
+Remove double entries
 Clear block reservation
 Show/reset reserved ways
 clf_chk_aircrafts
@@ -590,7 +590,7 @@ Monorails
 clf_chk_name_filter
 Filter names:
 clf_chk_narrowgauge
-Narrow gauge trains
+Narrow-gauge trains
 clf_chk_noincome
 Make a loss
 clf_chk_noline
@@ -681,6 +681,10 @@ Demand: %.0f MW
 Demand: %.0f MW\n
 Denkmal
 Monument
+Departs at
+Departs at (dd:hh:mm)
+Departure after
+% load or waiting for (dd-hh-mm)
 Departure board
 Departure time
 Destination
@@ -770,13 +774,13 @@ current friction factor:
 fuel_cell
 fuel cell
 Full load
-Minimum load:    
+Wait for minimum load  
 Fundament
 Foundation
 Fussgaenger
 Pedestrian
 GAME PAUSED
-Game Is Paused
+Game Paused
 Game_msg
 General
 Gebaeude
@@ -852,7 +856,7 @@ Monorail stop
 hlf_chk_name_filter
 Filter names:
 hlf_chk_narrowgaugestop
-Narrow gauge station
+Narrow-gauge station
 hlf_chk_overflow
 Overcrowded
 hlf_chk_spezial_filter
@@ -871,8 +875,14 @@ hydrogene
 Hydrogen
 ignore climates
 Ignore climates
+In the industry legend show only currently existing factories
+Show only currently existing factories in the industry legend
+Increase Industry density
+Increase industry density
 industrial building
 Industrial buildings
+Infinite mouse scrolling
+Infinite scrolling for mouse fails with some touch pens!
 Init map ...
 Initializing map ...
 Ins Stop
@@ -954,11 +964,11 @@ Maglev Track
 Maglevdepot
 Maglev Depot
 Mailbox
-Message Centre
+Messages
 Mailbox Options
-Message Centre Options
+Message Options
 make stop public (or join with public stop next) costs %i per tile and level
-make stop public (or join with neighbouring public stop) costs %i$ per tile and level
+Make stop public (or join with neighbouring public stop), costs %i$ per tile and level
 Map roughness
 Map roughness:
 map view
@@ -968,9 +978,11 @@ zoom
 Margin (%)
 Margin
 Marker
-Place a sign
+Place Marker
 Max income:
 Max. Income:
+Max. waiting time
+Max. Waiting time (dd:hh:mm)
 Maximum 254 stops\nin a schedule!\n
 Maximum of 254 stops\nin a schedule!\n
 maximum length of rivers
@@ -991,6 +1003,8 @@ min
 min.
 minimum length of rivers
 Min. length of rivers
+Minimum load
+Minimum load (%)
 Missing pakfiles
 Objects are missing!
 Monate alt
@@ -1001,6 +1015,8 @@ Monorailboden
 Elevated way
 Monoraildepot
 Monorail Depot
+Monthly departures
+Fixed departure times
 Mountain height
 Mountain height:
 Movingobj
@@ -1010,11 +1026,13 @@ Music disabled/unavailable.
 mute sound
 Mute sound
 Narrowgauge
-Narrow gauge
+Narrow-gauge
+Narrowgauge are not available yet!
+Narrow gauge tracks are not available yet.
 narrowgauge_track
 Narrowgauge Track
 Narrowgaugedepot
-Narrow gauge depot
+Narrow-gauge depot
 Net ID: %p
 Net ID: %p\n
 Neue Karte
@@ -1053,6 +1071,8 @@ Ok
 OK
 Oktober
 October
+on the
+departure/month first at (dd-hh-mm)
 Only city chains
 Build city industry chain
 Only land chains
@@ -1083,6 +1103,8 @@ Passagierziele
 Pass./mail destinations
 Password
 Password:
+Pause
+Pause/Unpaused
 Pax <%i>  Mail <%i>
 Passengers <%i> Mail <%i>
 PaxDest
@@ -1154,7 +1176,7 @@ Map
 Remove
 Remove label
 remove airstrips
-Remove runways and taxiways
+Remove runway or taxiway
 remove channels
 Remove channels
 remove interm. signals
@@ -1216,7 +1238,7 @@ Tourist attraction
 Sell the selected vehicle(s)
 Sell the selected vehicle(s).
 sended
-Sent mail
+Sent Mail
 SEP_FRACTION
 .
 SEP_THOUSAND
@@ -1230,11 +1252,13 @@ Set signal distance
 Setting
 Settings
 shops and stores
-Shops and offices\n
+Shops and offices
 show all building
 Show all buildings
 Show also vehicles that do not match for current action.
 Also show vehicles that can't be used by the selected action.
+Show contour
+Show heights
 Show even servers with wrong version or pakset
 Also show those servers providing the wrong version or pakset.
 show grid
@@ -1245,6 +1269,8 @@ Show legend
 Selections
 Show map scale
 Colour Codes
+Show outline
+infrastructure only
 show station coverage
 Show station coverage
 show waiting bars
@@ -1264,7 +1290,7 @@ Simloops:
 sliced underground mode
 Sliced map view
 Sort by
-sort passenger/freight by
+sort by
 special freight
 Special freight
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
@@ -1331,6 +1357,8 @@ To heavy traffic\nresults in traffic jam.\n
 Heavy traffic\ncauses a traffic jam.\n
 tonnen
 t
+Total inhabitants:
+Total inhabitants: 
 Tourist attractions
 Tourist attractions:
 Tourists
@@ -1397,6 +1425,8 @@ verkaufen
 Sell
 Verkehrsteilnehmer
 City Cars
+vh_title
+List of all vehicles
 via
 via (detail)
 via %s\n

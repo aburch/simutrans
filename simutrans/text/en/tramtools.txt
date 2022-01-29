@@ -1,4 +1,4 @@
-<title>Tram/light rail tools Help</title>
+<title>Tram/light rail tools</title>
 
 <h1><strong>Tram/light rail tools</strong></h1>
 

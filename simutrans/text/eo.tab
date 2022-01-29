@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,8 +71,6 @@ hlf_btn_invers
 Inverse
 hlf_btn_keine
 Neniu
-lake
-fari lagojn
 Maximize height levels
 Maksimumigi altecon
 Networks
@@ -299,8 +297,6 @@ Montri kiom da veturiloj alvenitaj kaj eliritaj
 %s nun\nofertas busan servon\ninter %s\nkaj altiraĵo\n%s\nĉe (%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
 %s nun\nofertas busan servon\ninter %s\nkaj fabriko\n%s\nĉe (%i,%i).\n
-%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
-%s nun\nveturigas ŝarĝaŭtojn\ninter %s\nkaj \n%s\nĉe (%i,%i).\n
 %s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
 %s\nmalfermis novan fervojon\ninter %s\nĉe (%i,%i) kaj\n%s\nĉe (%i,%i).
 Airline service by\n%s\nnow between\n%s \nand %s.\n
@@ -2059,8 +2055,6 @@ way %s cannot longer used:\n%s\n
 Vojtipo %s ne plu povi esti uzota:\n%s\n
 way %s now available:\n
 Vojtipo %s estas uzebla nun.\n
-way %s now available:\n%s\n
-Vojtipo %s estas nun uzebla:\n%s\n
 Way toll
 Paspago
 Ways not connected

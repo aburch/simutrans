@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: pl Polski                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -225,6 +225,8 @@ Show initial passenger departure
 Poka¿, sk±d przje¿d¿aj± pasa¿erowie.
 Show level of city buildings
 Poka¿ poziom budynków miejskich.
+Show mail service coverage/mail network
+Poka¿ zasiêg us³ug poczty
 Show speedlimit of ways
 Poka¿ maksymalne prêdko¶ci na drogach.
 Show the owenership of infrastructure
@@ -279,8 +281,6 @@ Buduj tramwaje
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ma teraz siedzibê w (%i,%i).
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\n\nzbudowa³o nowy\n\nratusz gdy ilo¶æ\n\nmieszkañców wynios³a\n\n%i.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s\n\nzbudowa³o nowy\n\nratusz gdy ilo¶æ\n\nmieszkañców wynios³a\n\n%i.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1174,7 +1174,11 @@ Pasa¿erowie
 Passagierrate
 Poziom pasa¿erów
 Passagierziele
-Cele podróznych
+Cele pas./pocz.
+Passenger AI
+SI przewozów pasa¿erskich
+Passenger Demand %d\n
+Popyt pas. %d\n
 Passengers %d %c, %d %c, %d no route
 Pasa¿erowie %d %c, %d %c, %d brak trasy
 Passengers %d %s, %d %s, %d no route
@@ -1182,7 +1186,7 @@ Pasa¿erowie %d %s, %d %s, %d brak trasy
 Password
 Has³o
 Pause
-Pauza
+Pauza/Wznów
 Pax <%i>  Mail <%i>
 Pasa¿erowie <%i> Poczta <%i>
 PaxDest
@@ -1404,7 +1408,7 @@ P³aszczyzna mapy
 Smart hide objects
 Inteligentne ukrywanie obiektów
 Sort by
-Sortuj pasa¿/towar wg
+Sortuj wg
 Sort waiting list by
 Posortuj listê wed³ug
 Sound
@@ -1611,8 +1615,6 @@ way %s cannot longer used:\n%s\n
 Droga typu %s nie mo¿e byæ dalej u¿ywana:\n\n%s\n
 way %s now available:\n
 Droga %s jest dostêpna:\n
-way %s now available:\n%s\n
-Droga %s jest dostêpna:\n\n%s\n
 Ways not connected
 Trasa nie jest po³±czona!\n
 Wegpunkt

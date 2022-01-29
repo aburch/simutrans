@@ -20,7 +20,7 @@ Clique nos botões de opções para mudá-los de acordo com as opções (o nome do bot
 - <em>Tipo</em> organiza por tipo de veículo (na ordem crescente de veículo rodoviário, veículo ferroviário, navio e avião) <br>
 - <em>Nome</em> organiza por nome designado, alfanumericamente de acordo com a ordem do código ASCII: letras maiúsculas antes das letras minúsculas (por padrão isso é feito no primeiro veículo <a href="depot.txt">comprado</a> ou montado ao Comboio).<br>
 - <em>Lucro</em> organiza por lucro (renda gerada menos os custos operacionais).<br>
-- <em>ID Interno</em> organiza pelo código de identificação único (ID) do comboio (designado por padrão quando o Comboio é comprado ou construído pela primeira vez em um <a href=depot.txt">Depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
+- <em>ID Interno</em> organiza pelo código de identificação único (ID) do comboio (designado por padrão quando o Comboio é comprado ou construído pela primeira vez em um <a href="depot.txt">Depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
 </p>
 <p>
 E o segundo botão, altera a ordem da lista em:<br>
@@ -42,7 +42,7 @@ Clique no item listado para ver mais informações sobre o <a href="convoiinfo.txt
 Itens listados para cada Comboio incluem:
 </p>
 <p>
-<em>ID Interno</em>: um número de identificação único (designado por padrão quando um Comboio é comprado ou montado pela primeira vez em um <a href=depot.txt">depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
+<em>ID Interno</em>: um número de identificação único (designado por padrão quando um Comboio é comprado ou montado pela primeira vez em um <a href="depot.txt">depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
 </p>
 <p>
 <em>Nome</em> que foi designado (por padrão isso já é feito no primeiro veículo quando o Comboio é comprado ou montado).

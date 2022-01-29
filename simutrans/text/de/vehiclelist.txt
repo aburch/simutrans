@@ -1,0 +1,9 @@
+<title>Liste aller Fahrzeuge</title>
+<h1>Auflistung aller im Spiel vorhanden Fahrzeugtypen</h1>
+<p>Standardmäßig werden alle derzeit aktuellen und zukünftig noch kommenden Fahrzeuge gezeigt. Das zeigen der Zukünftigen ist auch der eigentliche Sinn dieser Liste. In den Depots sind die kommenden Fahrzeuge nicht einsehbar. Der Spieler kann damit besser für die Zukunft planen.
+</p>
+<p>
+<em>Auch zukünftige zeigen</em> Durch Abwahl, kann die Liste eingegrenzt werden, auf die derzeit kaufbaren Fahrzeuge.<br>
+<em>Auch veraltete zeigen</em> erweitert die Liste um die bereits veralteten Fahrzeuge. Diese Funktion ist gleich der in den Depots.<br>  
+Dahinter bei <em>Alle</em> kann auf die Warenart sowie Passagiere oder Post eingeschränkt werden.
+</p>

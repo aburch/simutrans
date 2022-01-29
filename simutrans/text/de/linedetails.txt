@@ -1,0 +1,35 @@
+<title>Linienfenster</title>
+
+<h1><strong>Linienfenster</strong></h1>
+
+<p>
+· <em>Liniennamen ändern:</em> Der Name der Linie wird angezeigt. Klicke zum Editieren des Namens ins Namensfeld und bestätige die Änderung mit <em>RETURN</em>.
+</p>
+<p>
+<em>Linienstatistik:</em> Die wichtigsten statistischen Daten der Linie werden unterhalb des Linien-Namens angezeigt.<br/>
+· <em>Fahrzeuge:</em> Anzahl der Fahrzeugverbände der Linie.<br/>
+· <em>Auslastungsbalken:</em> Im Balken wird die prozentuale Auslastung der Linie grafisch dargestellt.<br/>
+· <em>Profit:</em> Der Profit der Linie im aktuellen Monat.<br/>
+· <em>Kapazität:</em> Die genutzte Ladekapazität der Linie, in Klammern die prozentuale Auslastung.<br/>
+</p>
+<p>
+Darunter sind vier Reiter mit weiteren Einstellungen.</p>
+<p><strong>Fahrplan</strong> ändert den <a href="schedule.txt">Fahrplan</a> für alle Fahrzeugverbände, die zur Linie gehören. Die Änderung wird bei Schießen des Fensters oder bei Anwählen eines anderen Reiters übernommen.</p>
+<p>
+<strong>Statistik:</strong> zeigt die monatsweise Statistiken der Linie der letzten 12 Monate as Kurven. Der aktuelle Monat steht links. Die Farben der Kurven entsprechen den Farben der Schalter.<br/>
+· <em>Freie Kapazität:</em> Der nicht genutzte Laderaum aller Fahrzeugverbände der Linie, summiert für jeden Fahrplanabschnitt.<br/>
+· <em>Beförderungen:</em> Der genutzte Laderaum alle Fahrzeugverbände der Linie, summiert für jeden Fahrplanabschnitt.<br/>
+· <em>Einnahmen:</em> Die Erlöse aller Fahrzeugverbände dieser Linie.<br/>
+· <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb aller Fahrzeugverbände der Linie.<br/>
+· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
+· <em>Fahrzeuge:</em> Die Anzahl der Fahrzeugverbände, welche die Linie befahren.<br/>
+· <em>Strecke/Monat:</em> Die zurückgelegt Strecke aller Fahrzeuge der Linie.<br/>
+· <em>Geschwindigkeit:</em> <br/>
+· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
+</p>
+<p>
+<strong>Halltestellenliste:</strong> Alle angefahrenen Haltestellen der Linie sind hier aufgeführt. Jeweils nur einmal, auch wenn sie im Fahrplan mehrmals angefahren werden. Freie Wegpunkte werden nicht angezeigt. Die ANzeige is wie in der <a href="haltlist.txt">Haltestellenliste</a>.
+</p>
+<p>
+<strong>Fahrzeugliste:</strong> All hier aufgeführte Fahrzeuge gehören zu dieser Linie. Fehlt ein dort vermuteter Fahrzeugverband, ist es möglich, dass sein Fahrplan geändert worden ist und er dadurch aus der Linienzugehörigkeit gefallen ist. Die Liste verhält sich wie die <a href="convoi.txt">Fahrzeugliste</a>. Zum Auswählen eines Fahrzeugverbandes auf diesen klicken.
+</p>

@@ -1,4 +1,4 @@
-<title>Landscape Settings Help</title>
+<title>Landscape Settings</title>
 
 <h1><strong>Landscape Settings</strong></h1>
 

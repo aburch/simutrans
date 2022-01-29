@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                            Language: sk Slovencina                           #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -181,6 +181,8 @@ EDITTOOLS
 Nástroje pre tvorbu mapy
 LISTTOOLS
 Prehµady
+MAGLEVTOOLS
+Nástroje pre maglev
 MONORAILTOOLS
 Visutá ¾eleznica
 NARROWGAUGETOOLS
@@ -218,11 +220,11 @@ V tejto hre\nnemô¾ete hra»\nza iného hráèa!\n
 Production of %s has been stopped:\n%s\n
 Výroba %s\n'%s'\nbola ukonèená.\n
 Remove vehicle from map. Use with care!
-Odstránenie vozidla z mapy. Pou¾ívat' opatrne !
+Odstránenie vozidla z mapy. Pou¾íva» opatrne!
 Screenshot\ngespeichert.\n
 Screenshot ulo¾ený.\n
 Sends the convoi to the last depot it departed from!
-Poslat' celý konvoj do nabli¾¹ieho depa !
+Posla» celý konvoj do nabli¾¹ieho depa !
 Spielstand wurde\ngeladen!\n
 Hra bola naèítaná !\n
 Spielstand wurde\ngespeichert!\n
@@ -539,6 +541,8 @@ Copy the selected convoi and its schedule or line
 Skopírova» zvolený konvoj s cest. poriadkom alebo linku
 Create a new line based on this schedule
 Vytvori» novú linku podµa tohto cestovného poriadku
+curiosity builder
+Postavi» kuriozitu
 curlist_title
 Zoznam atrakcií
 Currently playing:
@@ -565,6 +569,8 @@ Dock
 Dok 
 Dock must be built on single slope!
 Dok musí by» postavený na rovnom svahu.
+dp_title
+Zoznam dep
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 Má¹ %d mesiace na splatenie dlhu.
 Durchsatz
@@ -593,6 +599,8 @@ Fabrikname
 názov fabriky
 Factories
 Fabriky
+factorybuilder
+Postavi» fabriku
 Fahrplan
 Cest. poriadok
 Fahrtziel
@@ -663,6 +671,8 @@ Goods list
 Prehµady slu¾ieb
 Gross Profit
 Cash Flow
+groundobj builder
+Postavi» objekt v krajine
 Grow city
 Zväèsi» mesto
 Growth
@@ -759,6 +769,8 @@ Keine Einzelfahrzeuge im Depot
 V depe nie je ¾iadne vozidlo
 Kreuzung
 Kri¾ovatka
+labellist_title
+Zoznam znaèiek
 Lade Relief
 Naèítat' reliéf
 Laden
@@ -769,6 +781,8 @@ LANG_CHOOSE\n
 Prosím zvoµ Tvoj jazyk:\n
 Last Month
 Minulý mesiac:
+Last used tools
+Nedávno pou¾ité nástroje
 Last Year
 Minulý rok:
 leer
@@ -853,6 +867,8 @@ Meldung
 Oznámenie
 Menge
 Mno¾stvo
+merge stop
+Spoji» zastávky
 MessageOptionsText
 \nNový rok\n\nKonkurencia\n\nMesto\n\nBez trasy\n\nPriemysel\n\n"chat"\n\nNové vozidlá\n\nPlné zastávky\n\nProblémy\n\nTraffic jams\n\nScenario
 minimum length of rivers
@@ -987,6 +1003,8 @@ Optionen
 Nastavenia
 Origin
 Zdroj
+ost
+Východ
 paletten
  paliet
 Pas_tab
@@ -1073,6 +1091,8 @@ remove roads
 Odstráni» vozovku
 remove tracks
 Demontova» tra»
+replace stop
+Vymeni» zastávky
 residential house
 Obytný dom
 Restore natural slope
@@ -1089,6 +1109,8 @@ road vehicle
 cestného vozidla
 Roadsign
 Dopravná znaèka
+Rotate Building
+Otoèi» budovu (nástupi¹te)
 Rotate map
 Otoèi» mapu
 Rotation
@@ -1150,7 +1172,7 @@ Zmen¹i» mesto
 Size (%d MB):
 Veµkost mapy:
 Sort by
-Zoradi» cestujúcich/tovar podµa
+Zoradi» podµa
 Sort waiting list by
 Triedit' podµa èakania
 Sound
@@ -1325,6 +1347,8 @@ verkaufen
 Vyradi»
 Verkehrsteilnehmer
 Osobné autá
+vh_title
+Katalóg vozidiel
 via
 cez
 via %s\n
@@ -1351,8 +1375,6 @@ water vehicle
 plavidlo
 way %s cannot longer used:\n
 Tra»/cesta %s sa nemô¾e ïalej pou¾íva».\n
-way %s now available:\n%s\n
-tra» %s je je teraz k dispozícii:\n%s\n
 Ways not connected
 Mo¾né len na spojených cestách!
 Wegpunkt

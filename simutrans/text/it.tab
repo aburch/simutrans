@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,8 +71,6 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 ness.
-lake
-crea laghi
 Maximize height levels
 Massimizza livelli altezza
 Networks
@@ -297,8 +295,6 @@ Strumenti tram/ferrovia leggera
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ha costruito una nuova sede.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s ha speso\nsoldi per costruire un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s ha speso\nsoldi per costruire un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1710,7 +1706,7 @@ Slot vuoto
 Smart hide objects
 Nascondi oggetti intelligente
 Sort by
-ordina passeggeri/merci per
+ordina per
 Sort waiting list by
 Ordina lista di attesa per
 Sound
@@ -1933,8 +1929,6 @@ way %s cannot longer used:\n%s\n
 La via del tipo %s non può più essere usata:\n%s\n
 way %s now available:\n
 Via del tipo %s ora disponibile:\n
-way %s now available:\n%s\n
-La via del tipo %s ora è disponibile:\n%s\n
 Way toll
 Casello pedaggio
 Ways not connected

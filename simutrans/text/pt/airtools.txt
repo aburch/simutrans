@@ -50,7 +50,7 @@
 <em> Edifícios Aeroportuários:
 </em> A ferramenta constrói extensões e edifícios para
 <a href="station.txt"> Paradas de Aeronaves
-</em></a> os quais podem incrementar a capacidade e a área de captura para bens e passageiros, assim como custo de manutenção. No canto superior esquerdo de alguns dos botões existe um pequeno ícone (usado também em
+</a> os quais podem incrementar a capacidade e a área de captura para bens e passageiros, assim como custo de manutenção. No canto superior esquerdo de alguns dos botões existe um pequeno ícone (usado também em
 <a href="haltlist.txt">Lista de Paradas</a> e Informações da Parada) que indica quais os itens (bens, passageiros ou correio) a extensão habilita a Parada de Aeronaves a manipular.
 </p>
 <p> Para construir uma extensão: Clique sobre o botão para selecionar uma extensão (o cursor torna-se a extensão selecionada), então clique na posição requerida, próxima a uma Parada de Aeronaves existente na tela do jogo. A nova extensão agora passa a ser parte da Parada de Aeronaves existente.

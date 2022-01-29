@@ -1,17 +1,21 @@
-<title>Listenverwaltung Hilfe</title>
+<title>Listenverwaltung</title>
 
 <h1><strong>Listenverwaltung</strong></h1>
 
 <p>
-Die Listenverwaltung wird über die <a href="mainmenu2.txt">Hauptmenüleiste</a> aufgerufen.<br/>
-Im Listenverwaltungsmenü gibt es sechs Einträge. <br/>
-Von links nach rechts:
+Die Listenverwaltung wird über die <a href="mainmenu.txt">Hauptmenüleiste</a> aufgerufen.<br/>
+Im Listenverwaltungsmenü gibt es mehrere Einträge. Je nach Grafikset können Einträge fehlen. <br/>
 </p>
 <p>
+<a href="linemanagement.txt">Linienverwaltung</a><br/>
+<a href="convoi.txt">Fahrzeugliste Spieler</a><br/>
 <a href="haltlist.txt">Haltestellenliste</a><br/>
-<a href="convoi.txt">Fahrzeugliste</a><br/>
+<a href="depotlist.txt">Depotliste</a><br/>
+<a href="vehiclelist.txt">vorhandene Fahrzeuge Spiel</a><br/>
 <a href="citylist_filter.txt">Stadtliste</a><br/>
 <a href="goods_filter.txt">Warenliste</a><br/>
 <a href="factorylist_filter.txt">Fabrikliste</a><br/>
 <a href="curiositylist_filter.txt">Touristenzielliste</a><br/>
+<a href="labellist_filter.txt">Markerliste</a><br/>
+<a href="players.txt">Spielerliste</a><br/>
 </p>

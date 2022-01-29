@@ -20,7 +20,7 @@ Pulsa en los botones de opcion para pasar a la siguiente opcion (cambia el nombr
 - <em>Tipo</em> ordena por tipo de transporte (en orden ascendente de vehiculo de carretera, vehiculo de carretera, vehiculo de via ferrea, barcos y aviones) <br>
 - <em>Nombre</em> ordena por nombre asignado, alfanumericamente: mayusculas entes que minusculas (por defecto esto se hace para la primera unidad del un vehiculo <a href="depot.txt">comprado</a> o unido para formar un Convoy).<br>
 - <em>Ingresos</em> ordena por beneficio (ingresos generados menos costes operativos).
-- <em>ID interno</em> ordena por un numero ID unico para cada convoy (asignado por defecto cuando un Convoy es comprado o ensamblado por primera vez en un <a href=depot.txt">deposito</a> mostrado en la titulo de la ventana de <a href="convoiinfo.txt">Informacion del Convoy</a>).
+- <em>ID interno</em> ordena por un numero ID unico para cada convoy (asignado por defecto cuando un Convoy es comprado o ensamblado por primera vez en un <a href="depot.txt">deposito</a> mostrado en la titulo de la ventana de <a href="convoiinfo.txt">Informacion del Convoy</a>).
 </p>
 <p>
 - <em>ascendente</em> / <em>descendente</em> invierte el orden de la lista.
@@ -41,7 +41,7 @@ Pulsa en un elemento listado para ver mas informacion acerca de ese <a href="con
 Los elementos listados por cada Convoy incluyen:
 </p>
 <p>
-<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el Convoy es comprado o ensamblado por primera vez en un <a href=depot.txt">deposito</a> y se muestra en el titulo de la ventana de<a href="convoiinfo.txt">Informacion del Convoy</a>).
+<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el Convoy es comprado o ensamblado por primera vez en un <a href="depot.txt">deposito</a> y se muestra en el titulo de la ventana de<a href="convoiinfo.txt">Informacion del Convoy</a>).
 </p>
 <p>
 <em>nombre</em> que has sido asignado (por defecto se hace cuando el primer vehiculo es comprado o ensamblado).

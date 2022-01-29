@@ -1,4 +1,4 @@
-<title>Message Centre & Message Centre Options Help</title>
+<title>Message Centre & Message Centre Options</title>
 
 <h1><strong>Message Centre</strong></h1>
 

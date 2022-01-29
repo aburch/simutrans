@@ -1,4 +1,4 @@
-<title>Speichern Menü Hilfe</title>
+<title>Speichern</title>
  
 <h1><strong>Dialog Speichern</strong></h1>
  
@@ -8,10 +8,23 @@ Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em
 <strong>Achtung:</strong> Wählst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung überschrieben.
 <br/> Autosave-Spielstände werden bei aktivierten Autosave automatisch überschrieben.
 </p>
+
 <p>
-<strong>Warnung!</strong> Ein Klick auf das mit <em>X</em> bezeichnete Feld vor dem Dateinamen führt zur umgehenden Löschung des Spielstands!<br/>
- <em>Pak (Grafikset), Datum & Uhrzeit</em>: Geben an mit welchem pak (Grafikset) und an welchem Tag bzw. zu welcher Zeit ein Spielstand gespeichert wurde.
+<em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
 </p>
+
 <p>
-<em>Abbrechen</em>: Schließt den Dialog ohne ein Spiel zu laden.
+<em>Schaltfläche mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
+</p>
+ 
+<p>
+<em>Information des paks (Grafiksets):</em> Gibt an mit welchem pak (Grafikset) der Spielstand gespeichert wurde.
+</p>
+ 
+<p>
+<em>Datum und Uhrzeit:</em> Gibt an zu welchem Datum und welcher Uhrzeit der Spielstand gespeichert wurde.
+</p>
+
+<p>
+<em>Abbrechen</em>: Schließt den Dialog ohne das Spiel zu speichern.
 </p>

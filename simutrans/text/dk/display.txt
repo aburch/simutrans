@@ -1,4 +1,4 @@
-<title>Udseende dialog hjælp</title>
+<title>Udseende dialog</title>
 
 <h1>Udseende dialog</h1>
 

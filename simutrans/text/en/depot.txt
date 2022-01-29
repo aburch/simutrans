@@ -7,8 +7,7 @@ Depots are used to purchase and manage vehicles. Different types of transport ha
 If playing with <a href="new_world.txt">timeline</a>, then as time passes in Simutrans more vehicle-units may appear.
 </p>
 <p>
-Tools for the construction of different depots are available from the construction toolbar for the type of transport: <a href="railtools.txt">Train Depot</a>; <a href="monorailtools.txt">Monorail Depot</a>; <a href="tramtools.txt">Tram Depot</a>; <a href="roadtools.txt">Road Depot</a>; <a href="shiptools.txt">Ship Depot</a>
-; and <a href="airtools.txt">Aircraft Hangar</a>.
+Tools for the construction of different depots are available from the construction toolbar for the type of transport: <a href="railtools.txt">Train Depot</a>; <a href="monorailtools.txt">Monorail Depot</a>; <a href="tramtools.txt">Tram Depot</a>; <a href="roadtools.txt">Road Depot</a>; <a href="shiptools.txt">Ship Depot</a> and <a href="airtools.txt">Aircraft Hangar</a>.
 </p>
 <p>
 Click on a depot in game-view with the <a href="inspection_tool.txt">Inspection Tool</a> to open <strong>Depot Controls</strong> that give information about and allow the purchase and management of <a href="convoiinfo.txt">Convoys</a> (an operational vehicle or combination of vehicle-units).<br>
@@ -35,7 +34,7 @@ Move mouse over a vehicle-unit-graphic in the selected Convoy to see details abo
 Click on a vehicle-unit in the convoy-graphic to remove it from the selected Convoy and store it in the depot.
 </p>
 <p>
-Below the graphic the number of vehicle-units in the selected Convoy, length of tiles of the Convoy (all vehicle-units must fit into an appropriate <a href="station.txt"><em>Stop</em> to pick-up and drop-off goods and passengers), and assigned Line are shown.
+Below the graphic the number of vehicle-units in the selected Convoy, length of tiles of the Convoy (all vehicle-units must fit into an appropriate <a href="station.txt"><em>Stop</em></a> to pick-up and drop-off goods and passengers), and assigned Line are shown.
 </p>
 <p>
 Option-buttons (click to use) for <strong>Depot Controls</strong> include:

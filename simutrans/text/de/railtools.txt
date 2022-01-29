@@ -32,24 +32,29 @@ Eine wichtige Bauhilfe stellt die Nutzung des Gitternetzes dar (in der größten K
 Willst du nur ein Tunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick machen. Danach kann du dann in den Untergrundmodus wechseln (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) und mit dem Tunnelwerkzeug weitere Strecken bauen.
 </p>
 <p>
-<em>Signale</em> werden genutzt, um die Bewegungen der Züge zu kontrollieren. Erreicht ein Zug ein Signal, dann bekommt er nur grün, wenn die Strecke bis zum nächsten Signal auf seiner Route frei ist und auch kein Zug dort hinfahren wird. Ein anderer Zug kann aber durchaus parallel dazu fahren. <strong>ACHTUNG:</strong> Wegpunkte und Bahnhöfe sind damit sozusagen unsichtbare Signale, denn ein Zug reserviert die Strecke nur bis zu diesen. Soll tatsächlich wirklich die Strecke bis zum nächsten Signal reserviert werden, müssen Langstreckensignale (s.u.) verwendet werden!
-<br> <br/>
-<em>Signalbau</em> Signale können nur auf Gleisen gebaut werden, aber nicht auf Kreuzungen. Beim Bau eines Signals wird auf jeder Gleisseite ein Signal aufgestellt. Die Strecke kann in beiden Richtungen befahren werden. Klickst Du die Platzierungsstelle erneut mit dem Signalwerkzeug an, wird ein Signal entfernt, die Strecke kann nur in Signalrichtung befahren werden.
+<em>Signale</em> werden genutzt, um die Bewegungen der Züge zu kontrollieren. Die Grundstellung von Signalen bei Simutrans ist "Halt" (rotes Signal). Erreicht ein Zug ein Signal, dann bekommt er nur grün, wenn die Strecke bis zum nächsten Signal auf seiner Route frei ist und auch für keinen anderen Zug reserviert wurde. Die Strecke ist dann für diesen Zug reserviert. Die Reservierung wird hinter dem Zug aufgelöst. Diese Streckenteile können danach für Querende oder Abzweigende Züge genutzt werden. <strong>ACHTUNG:</strong> Bahnhöfe enthalten unsichtbare Signale, denn ein Zug reserviert die Strecke nur bis zu seiner Haltestelle. Soll die Strecke bis zum nächsten echten Signal reserviert werden, müssen Langstreckensignale (s.u.) verwendet werden!
+<br>
+<em>- Signalbau</em> Signale können nur auf Gleisen gebaut werden, aber nicht auf Kreuzungen. Beim Bau eines Signals wird auf jeder Gleisseite ein Signal aufgestellt. Die Strecke kann in beiden Richtungen befahren werden. Klickst Du die Platzierungsstelle erneut mit dem Signalwerkzeug an, wird ein Signal entfernt, die Strecke kann nur in Signalrichtung befahren werden.
 In der Regel befinden sich die Signale in Simutrans rechts vom Gleis. Beim nächsten Klick auf die Positionierungsstelle wird ein Signal auf der Gegenseite plaziert. Die Strecke kann nun nur in der Gegenrichtung befahren werden. Beim nächsten Klick erscheinen wieder beide Signale, die Strecke ist wieder in beide Richtungen befahrbar.
 <br/>
 Wird ein Signal mit Strg+Maustaste ausgewählt, kann mit dem <a href="signal_spacing.txt">Multisignalwerkzeug</a> eine ganze Reihe von Signalen auf einmal gebaut werden.
-<br/> <br/>
-<em>Wegfindung</em> Wurden auf einer Strecke Richtungssignale in der verkehrten Richtung aufgestellt, können die Züge der Linie keinen Weg finden und verlassen das Depot oder den Bahnhof nicht bzw. bleiben am letzten Linienpunkt vor dem nicht passierbaren Signal stehen. Es ist somit empfehlenswert, dem Verhalten der Züge auf neu eingerichteten Strecken anfänglich etwas erhöhte Aufmerksamkeit zu widmen.
-<br/> <br/>
-<em>Blocksicherung</em> Die Grundstellung von Signalen bei Simutrans ist "Halt" (rotes Signal).
-Fährt ein Zug in einen Blockabschnitt ein, schalten die Signale auf "Fahrt" (Grünes Licht) wenn die Strecke frei ist. Ein nachfolgender Zug bleibt vor dem Halt zeigenden Signal stehen. Hat der letzte Wagen das Signal passiert, gibt der Achszähler den Block wieder frei, das rückliegende Signal schaltet wieder auf "Halt". Der nächste Zug kann den Block befahren.
-<br/> <br/>
-<em>Zweiblocksicherung</em> Zwei-Block-Signale (Streckenabschnittssignale) geben die Fahrt erst frei, wenn für einen Zug die nächsten 2 Signale frei sind. Sie sind prädestiniert für verschiedene Deckungsaufgaben.
-Als Einfahrsignale regeln sie, dass ankommende Züge den Weichenbereich nicht befahren, solange sich noch ein Zug im Bahnhofsblock befindet. Bei mehrgleisigen Kreuzungen kannst Du durch Zwei-Block-Signalen erreichen, dass Züge erst dann den Kreuzungsbereich befahren, wenn danach noch 1 Block frei ist. So vermeidest Du Situationen, in denen Züge auf Kreuzungen stehen bleiben.
-<br/> <br/>
-<em>Auswahlsignale</em> Auswahlsignale (Einfahrtsignale) geben die Fahrt erst frei, wenn sie für einen Zug einen freien Weg bis zum nächsten Bahnhof reservieren konnte. Dabei wählt er aus allen erreichbaren Bahnsteigen den nächsten aus, wenn der ausgewählte besetzt ist. ACHTUNG: Ein Zug bleibt solange vor einem Auswahlsignal stehen, bis seine ganze Strecke bis zum nächsten Ziel frei ist! Man kann das umgehen, indem man für Züge, wo dies nicht erwünscht ist, einen Wegpunkt hinter das Auswahlsignal setzt.
-<br/> <br/>
-<em>Langstreckensignale</em> geben die Fahrt erst frei, wenn sie für einen Zug einen freien Weg bis zum nächsten Signal (auch durch mehrere Bahnhöfe hinweg) reservieren konnten. Dies ist z.B. für lange eingleisige Abschnitte nötig.
+<br/>
+<em>- Wegfindung</em> Wurden auf einer Strecke Richtungssignale in der verkehrten Richtung aufgestellt, können die Züge der Linie keinen Weg finden und verlassen das Depot oder den Bahnhof nicht bzw. bleiben am letzten Linienpunkt vor dem nicht passierbaren Signal stehen. Es ist somit empfehlenswert, dem Verhalten der Züge auf neu eingerichteten Strecken anfänglich etwas erhöhte Aufmerksamkeit zu widmen.
+<br/> 
+<em>- Signalarten:</em><br>
+<em>-- einfaches Signal</em> Es ist das normale Signal, oft Formsignal, Standardlichtsignal, oder einfach nur Signal genannt. Erreicht ein Zug das Signal, dann wird versucht die Strecke bis zum nächsten Signal, oder der nächsten Haltestelle des Zugs, zu reservieren. Gelingt das, dann bekommt er grün. Ansonsten bleibt das Signal rot und der Zug muss er warten bis die Strecke frei wird. 
+<br/> 
+<em>-- Zweiblocksignal</em> Zwei-Block-Signale (gelegentlich auch Vorsignal genannt) geben die Fahrt erst frei, wenn das nächsten Signal ebenfalls frei zeigt. Es werden zwei freie Blöcke zur weiterfahrt benötigt. Sie sind prädestiniert für verschiedene Deckungsaufgaben.<br>
+Als Einfahrsignale regeln sie, dass ankommende Züge den Weichenbereich nicht befahren, solange sich noch ein Zug im Bahnhofsblock befindet. Bei mehrgleisigen Kreuzungen kann durch Zwei-Block-Signalen erreicht werden, dass Züge erst dann den Kreuzungsbereich befahren, wenn danach noch 1 Block frei ist. So vermeidest Du Situationen, in denen Züge auf Kreuzungen stehen bleiben.
+<br/> 
+<em>-- Auswahlsignal</em> Auswahlsignale (Einfahrtsignale) geben die Fahrt erst frei, wenn sie für den Zug einen freien Weg bis zum Zielbahnhof, das ist der nächste im Fahrplan angegebene Halt, reservieren konnte. Wenn der im Fahrplan angegebene Bahnsteig nicht frei ist, dann wird der nächste ausreichend lange Bahnsteig des Zielbahnhofs ausgewählt. <strong>ACHTUNG:</strong> Der Zielbahnhof ist nicht zwingend  der nächste nach dem Auswahlsignal kommende Bahnhof. Ein Zug bleibt solange vor einem Auswahlsignal stehen,  bis ein passender Bahnsteig des Zielbahnhofs und die ganze Strecke bis dorthin frei ist! Man kann das umgehen, indem man für Züge, bei denen dies 
+nicht erwünscht ist, einen Wegpunkt hinter das Auswahlsignal setzt. Damit ist der nächste im Fahrplan angegebene Halt ein Wegpunkt und das Auswahlsignal arbeitet dann für diesen Zug wie ein normales Signal.
+<br/> 
+<em>-- Auswahl-Ende-Signal</em> Beendet die Suche des Auswahlsignals für dieses Gleis. Bahnsteige hinter diesem Signal werden bei der Suche nach einem freien Bahnsteig nicht berücksichtigt.
+<br/>
+<em>-- Langstreckensignale</em> geben die Fahrt erst frei, wenn sie für einen Zug einen freien Weg bis zum nächsten echten Signal (auch durch mehrere Bahnhöfe hinweg) reservieren konnten. Dies ist z.B. für lange eingleisige Abschnitte mit einem oder mehreren Bahnhöfen nötig, um Blockaden zu vermeiden.
+<br/> 
+<em>-- Vorrangsignal</em>Dieses Signal reserviert über mehrere Vorrangsignale hinweg so viele Streckenabschnitte wie möglich. Es wird bis zu einer Haltestelle oder einem normalen Signal reserviert. Damit ist es möglich Ausweichgleise zu bauen. Die Hauptstrecke erhält Vorrangsignale, das Ausweichgleis erhält eine Haltestelle oder ein normales Signal. Fährt nun ein langsamer Zug auf die Ausweiche, kann sich der nachfolgende schnelle Zug die Hauptstrecke an der Ausweichstelle vorbei reservieren und der langsame Zug muss warten bis der schnelle Zug vorbei ist.
 </p>
 <p>
 Im <em>Depot</em> kannst Du Züge zusammenstellen sowie Linien einrichten und die Züge nach der Zuordnung zu Linien starten. Das Depot kann nur auf einem ebenen Gleisende platziert werden.
@@ -59,7 +64,7 @@ Für E-Loks muss das Gleis zudem elektrifiziert sein. (siehe <a href="depot.txt">
 <em>Bahnhöfe</em> sind detailiert in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben. Die verschiedenen Haltestellengrafiken können die Haltestelle veranlassen, Passagiere, Post oder Güter umzuschlagen; es macht später jedoch keinen Unterschied mehr, auf welcher Grafik welcher Zug hält, er wird immer be- und entladen, wenn die Station für den Umschlag eingerichtet ist.
 </p>
 <p>
-<em>Bahnhofseingang und -vorpatz</em> können verwendet werden, wenn der Bahnhof auf erhöhtem Gelände mit Mauer gebaut ist. Sie werden vor die Mauer gebaut. Sie gehören zu den Nebengebäuden.
+<em>Bahnhofseingang und -vorplatz</em> können verwendet werden, wenn der Bahnhof auf erhöhtem Gelände mit Mauer gebaut ist. Sie werden vor die Mauer gebaut. Sie gehören zu den Nebengebäuden.
 </p>
 <p>
 <em>Nebengebäude</em> siehe <a href="special.txt">Spezialbauwerkzeuge</a>

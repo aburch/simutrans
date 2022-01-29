@@ -3,12 +3,24 @@
 <h1><strong>Linienverwaltung</strong></h1>
 
 <p>
-Die Linienverwaltung wird über die <a href="mainmenu2.txt">Hauptmenüleiste</a> oder mit der Taste <em>w</em>  aufgerufen.<br/>
-In der Linienverwaltung sind alle Daten zu eingerichteten Linien zusammengefaßt.
-Du hast Zugriff auf die Linienfahrpläne, die Fahrzeugverbände der jeweils ausgewählten Linie, kannst die Linien bearbeiten und Statistiken der Linien einsehen.
+Die Linienverwaltung wird über die <a href="mainmenu2.txt">Hauptmenüleiste</a> oder mit der Taste <em>w</em> aufgerufen. Je nach verwendeten Grafikset kann sich der Button auch in anderen Menüs befinden und die Tastenkombination kann anders sein.<br/>
+In der Linienverwaltung werden alle eingerichteten Linien des aktiven Spielers aufgelistet.
 </p>
 <p>
-<em>Linienfenster:</em> Im Linienfenster sind die Linien mit ihren Bezeichnungen alphanumerisch gelistet. Zum auswählen einer Linie auf diese klicken.<br/>
+Im oberen Teil befinden sich Filterelemente.<br/>
+Ganz oben befindet sich ein Eingabefeld um Linien mit Namen bzw. Namensteilen zu filtern. Darunter befindet sich ein Auswahlfeld um die Linien nach Waren zu filtern.<br/>
+Darunter befindet sich eine Sortierung. Die Liste kann mit den Entsprechenden Einträgen sortiert werden. Der Button hinter dem Auswahlfeld legt die Richtung (aufsteigend/absteigend) der Sortierung fest. 
+</p>
+<p>
+Darunter können <em>Linienaktionen</em> ausgeführt werden:<br/>
+· <em>Neue Linie:</em> Ein neues <a href="linedetails.txt">Linienfenster</a> öffnet sich. Der Button ist nur aktiv, wenn die Linienauswahl (Reiter über der Liste) nicht auf <em>alle</em> steht.<br/>
+· <em>Linie löschen:</em> Die markierte Linie wird ohne Rückfrage gelöscht. Der Button ist nur aktiv, wenn der Linie keine Fahrzeugverbände zugewiesen sind (weißer Linienname).<br/>
+</p>
+<p>
+Die Option <em>einzelne Linienfenster</em> rechts daneben bewirkt, das beim anklicken einer anderen Linie das gerade aktive Linienfenster geschlossen wird. Ist die Option nicht aktiv, werden die Linienfenster gleichzeitig geöffnet. Geöffnete Linienfenster sind in der Liste markiert.
+</p>
+<p>
+<em>Auflistung im unteren Teil:</em> Hier sind die Linien mit ihren Bezeichnungen alphanumerisch gelistet. Wird eine Linie angeklickt, dann öffnet sich das <a href="linedetails.txt">Linienfenster</a> der Linie. Erneutes anklicken schließt das Fenster wieder.<br/>
 Über die Reiter lässt sich die Liste filtern:<br/>
 · <em>Alle:</em> Alle Linien werden angezeigt.<br/>
 · <em>Zug:</em> Alle Zug-Linien (Bahn, Trams und Magnetbahnen) werden angezeigt.<br/>
@@ -17,48 +29,17 @@ Du hast Zugriff auf die Linienfahrpläne, die Fahrzeugverbände der jeweils ausgew
 · <em>Straße:</em> Alle LKW-Linien (Busse, Posttransporter, LKW) werden angezeigt.<br/>
 · <em>Schiff:</em> Alle Schiffslinien werden angezeigt.<br>
 · <em>Flug:</em> Alle Fluglinien werden angezeigt.
+<br/>
+Je nach verwendetem Grafikset kann die Anzahl und die Bezeichnung abweichen.
 </p>
 <p>
-Die Farbe des Linientext hat folgende Bedeutung:<br>
+Die Farbe des Liniennamen hat folgende Bedeutung:<br>
 · <em>scharz</em> Alles ok.<br/>
 · <em>weiß:</em> Dieser Linie sind keine Fahrzeugverbände zugeordnet.<br/>
 · <em>gelb:</em> Auf dieser Linie hat sich kein Fahrzeugverband bewegt (Betriebskosten gleich 0).<br/>
 · <em>rot:</em> Der Profit dieser Linie ist negativ.<br/>
-· <em>blau:</em> Mindestens ein Fahrzeugverband auf dieser Linie ist veraltet.<br/>
-</p>
-<p>
-Darunter können <em>Linienaktionen</em> ausgeführt werden:<br/>
-· <em>Neue Linie:</em> Ein leeres <a href="schedule.txt">Linienplanfenster</a> öffnet sich, wenn eine Linienart (Zug, Monorail, Tram, Straße, Schiff, Flug) ausgewählt ist.<br/>
-· <em>Linie ändern:</em> Das <a href="schedule.txt">Linienplanfenster</a> der markierten Linie öffnet sich.<br/>
-· <em>Linie löschen:</em> Die markierte Linie wird ohne Rückfrage gelöscht. (Geht nur, wenn keine Fahrzeuge zugewiesen sind.)<br/>
-· <em>Alle ausmustern:</em>  Alle Fahrzeuge der markierten Linie werden sobald als möglich ausgemustert: sie laden nichts mehr und werden verkauft sobald sie leer sind.
-</p>
-<p>
-<em>Grafische Linienstatistik:</em> Nach dem Auswählen der Statistikschalter werden Statistiken der Linie (monatsweise) innerhalb der letzten 12 Monate grafisch dargestellt. Der aktuelle Monat steht links. Die Farben der Kurven entsprechen den Farben der Schalter.<br/>
-· <em>Freie Kapazität:</em> Der nicht genutzte Laderaum aller Fahrzeugverbände der Linie, summiert für jeden Fahrplanabschnitt.<br/>
-· <em>Beförderungen:</em> Der genutzte Laderaum alle Fahrzeugverbände der Linie, summiert für jeden Fahrplanabschnitt.<br/>
-· <em>Einnahmen:</em> Die Erlöse aller Fahrzeugverbände dieser Linie.<br/>
-· <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb aller Fahrzeugverbände der Linie.<br/>
-· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
-· <em>Fahrzeuge:</em> Die Anzahl der Fahrzeugverbände, welche die Linie befahren.<br/>
-· <em>Strecke/Monat:</em> Die zurückgelegt Strecke aller Fahrzeuge der Linie.<br/>
-· <em>Geschwindigkeit:</em> <br/>
-· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
-</p>
-<p>
-· <em>Liniennamen ändern:</em> Der Name der Linie wird angezeigt. Klicke zum Editieren des Namens ins Namensfeld und bestätige die Änderung mit <em>RETURN</em>.
-</p>
-<p>
-<em>Linienstatistik:</em> Die wichtigsten statistischen Daten der Linie werden unterhalb des Linien-Namens angezeigt.<br/>
-· <em>Fahrzeuge:</em> Anzahl der Fahrzeugverbände der Linie.<br/>
-· <em>Kapazität:</em> Die Ladekapazität aller Fahrzeugverbände der Linie.<br/>
-· <em>Profit:</em> Der Profit der Linie im aktuellen Monat.<br/>
-· <em>Kapazität:</em> Die genutzte Ladekapazität der Linie, in Klammern die prozentuale Auslastung.<br/>
-· <em>Auslastungsbalken:</em> Im Balken wird die prozentuale Auslastung der Linie grafisch dargestellt.
-</p>
-<p>
-<em>Linienhaltepunkte:</em> Alle angefahrenen Haltestellen der Linie sind in einer <a href="haltlist.txt">Haltestellenliste</a> aufgeführt. Jeweils nur einmal, auch wenn sie im Fahrplan mehrmals angefahren werden. Freie Wegpunkte werden nicht angezeigt, allenfalls wird in der Liste eine Ordnungsnummer übersprungen.
-</p>
-<p>
-<em>Fahrzeugliste:</em> Die Fahrzeugverbände der Linie sind in einer <a href="convoi.txt">Fahrzeugliste</a> aufgeführt. Fehlt ein dort vermuteter Fahrzeugverband, ist es möglich, dass sein Fahrplan geändert worden ist und er dadurch aus der Linienzugehörigkeit gefallen ist. Zum auswählen eines Fahrzeugverbandes auf diesen klicken.
+· <em>blau:</em> Mindestens ein Fahrzeugverband auf dieser Linie ist veraltet. Wird von Rot überlagert.<br/>
+· <em>orange:</em> Mindestens ein Fahrzeugverband auf dieser Linie steht im Stau.<br/>
+<br/>
+Verweilt der Mauszeiger länger über einem Liniennamen, werden einige Daten der Linie eingeblendet.
 </p>

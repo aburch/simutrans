@@ -1,4 +1,4 @@
-<title>Game information / Server Help</title>
+<title>Game information / Server</title>
 
 <h1><strong>Game information / Server</strong></h1>
 

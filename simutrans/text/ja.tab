@@ -12,11 +12,17 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+Absolute times
+時刻を 月の日:hh:mm として表示
+AMBIENT_SOUND
+環境音の音量
+CASH_SOUND
+売買の音量
 cl_btn_filter_disable
 無効
 cl_btn_filter_enable
@@ -41,6 +47,14 @@ clf_btn_invers
 反転
 clf_btn_keine
 全解除
+climate area percentage
+気候区分の割合
+CROSSING_SOUND
+踏切の音量
+FACTORY_SOUND
+産業施設の音量
+Find matching convois
+同一車両の検索
 gl_btn_sort_bonus
 ボーナス順
 gl_btn_sort_name
@@ -49,6 +63,8 @@ gl_btn_sort_revenue
 収入順
 gl_btn_unsort
 ソート無し
+height based
+標高の気候
 hl_btn_filter_disable
 無効
 hl_btn_filter_enable
@@ -71,20 +87,46 @@ hlf_btn_invers
 反転
 hlf_btn_keine
 全解除
-lake
-湖を作成する
+humidities
+湿潤基準
+Lake
+	湖
+Lake height
+湖面水位
 Maximize height levels
 高さを最大化する
+moisture land
+陸地の湿潤度
+moisture water
+川、池周辺の湿潤度
 Networks
 路線図
+Num pad keys always move map
+Numlockを無視する
+Open Sea
+海
 Queueing
 待機の増減
+rainfall
+降雨量
+Reselect closes tools
+ツールを再選択で閉じる
 Road toll
 通行料
 Scenario
 シナリオ
+Sound range:
+効果音の再生範囲
 Start this as a server
 このゲームをサーバーとして開始します。
+temperature borders
+気候区分の気温基準
+temperature-humidity based
+温湿度
+TOOL_SOUND
+ツールの音量
+TRAFFIC_SOUND
+乗り物の音量
 Transfers
 乗降数
 #_________________________________climates_text_________________________________
@@ -199,6 +241,8 @@ On narrowgauge track only!\n
 ナローゲージ上にのみ\n停車することができます
 Only public player can lock games!
 公共事業だけが「プレイヤー変更の禁止」とその解除ができます。\nまたロック解除には公共事業のパスワードが必要です。
+Only up and down movement in the underground!
+地下のタイルには斜面を作るスロープツールは利用できません\n地下鉄や地下道の高度を変えるには上げ下げするスロープツールを使用してください
 Out of funds
 資金がありません
 Post muss neben\nHaltestelle\nliegen!\n
@@ -233,6 +277,10 @@ Zughalt muss auf\nSchiene liegen!\n
 <title>ヘルプ</title><h1>総合ヘルプ</h1><p>*：未訳（英文で表示）</p><p><it>Simutransについて</it></p>%1$s<p><it>使い方</it></p>%2$s<p><it>ゲームの開始</it></p>%4$s<p><it>遊び方</it></p>%5$s<p><it>ツール</it></p>%3$s<p><it>その他のダイアログ</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>キーボード ヘルプ</title><h1>キーボード ヘルプ</h1><p>キー割り当ての一覧表です。何も操作が割り当てられていないキーを押すと、<br>このキーボードヘルプウィンドウが開きます。</p><p>アルファベットの大文字と小文字は区別されます。大文字の場合は、<br>shiftキーを押しながらキーを押します。日本語入力は解除してください。</p><p><i>ウィンドウ操作</i><br>Backspace - すべてのウィンドウ/ツールバーを閉じます<br>Delete, ESC - アクティブなウィンドウ/ツールバーを閉じます<br>F1 - ヘルプウィンドウを開きます</p><p><i>ゲーム画面のスクロール</i>　（数字キー、矢印キー）<br>1,2,3,4,6,7,8,9 - ゲーム画面をスクロールします<br>↑,↓,→,← - ゲーム画面をスクロールします</p><p><i>ゲーム画面のズーム</i><br>＞,PageUp - ゲーム画面をズームインします<br>＜,PageDown - ゲーム画面をズームアウトします</p><p><i>[Ctrl]+道路/線路/トンネルツール</i><br>直線の道路/線路を敷設できます。<br>既存の道路/線路を、低速な道路/線路で置き換えます。<br>トンネルの入り口のみを建設します。</p><p><i>[Ctrl]+V</i><br>クリップボードからテキストを貼り付けます。(Windowsのみ)</p><p>以下の操作キーは「(pakフォルダ)/config/menuconf.tab」ファイル<br>で定義されています。このファイルを編集して、操作キーの割り当てを変更<br>したり、別のツールに、新たに操作キーを割り当てることができます。</p><p><i>現在の操作キー一覧</i><br></p>
+At least one stop is connected to the town.
+1つ以上の輸送施設が接続されている街だけを表示する
+At least one tile is connected to one stop.
+1つ以上の輸送施設が接続されている産業施設だけを表示する
 Color according to transport capacity left
 色は受け入れ可能な輸送能力の残量を表します。
 Decrease water height
@@ -339,8 +387,6 @@ TRAMTOOLS
 %s社は\n(%i,%i)に\n本社を建設しました。
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s町は\n住民が%i人に達したので、\n新しい役場を建てました。
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s町は\n住民が%i人に達したので、\n新しい役場を建てました。
 Bankrott:\n\nDu bist bankrott.\n
 破産:\n\n破産しました。\n
 Congratulation\nScenario was complete in\n%i months %i years.
@@ -376,23 +422,41 @@ Server preparing game ...
 Spielstand wurde\ngeladen!\n
 \nゲームをロードしました。\n
 Spielstand wurde\ngespeichert!\n
-\nゲームをセーブしました。\n
+\nゲームを保存しました。\n
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 現在借金があります。\n\nあと %d ヵ月以内に\n借金を返済してください。\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %sに\n新しい記念碑が建立され、\n歓喜に沸く%i人の住民が\n見守る中、盛大な除幕式が\n行われました。
-#_________________________________program text__________________________________
-#_________________________________program text__________________________________
-vh_title
-乗り物一覧
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%.2f$/km %.2f$/m)
  (%.2f$/km %.2f$/月)
+(%.2f$/km)
+ (%.2f$/km)
 (%i)-
 (%i)
 (in depot)
 (入庫中)
+[0] south-facing
+[0] 南向き
+[1] east-facing
+[1] 東向き
+[2] north-facing
+[2] 北向き
+[3] west-facing
+[3] 西向き
+[4] southeast corner
+[4] 南東の角
+[5] northeast corner
+[5] 北東の角
+[6] northwest corner
+[6] 北西の角
+[7] southwest corner
+[7] 南西の角
+[DELETE]
+[DEL]
+[SCROLLLOCK]
+[SCROLL LOCK]
 \nBauzeit bis
  ～ 
 \nBauzeit von
@@ -486,7 +550,7 @@ vh_title
 1LIGHT_CHOOSE
 明るさ:
 1WORLD_CHOOSE
-新しいマップの設定：
+新しいゲームの設定：
 2LIGHT_CHOOSE
 カラー:
 2WORLD_CHOOSE
@@ -541,6 +605,8 @@ Add Stop
  追加
 Add stops for backward travel
 折り返して戻るための停車駅を追加します
+Air
+航空機
 air_wt
 航空
 aircraft_tab
@@ -597,6 +663,8 @@ August
 8月
 Available
 供給率
+Available at custom date
+以下の年月で利用可能
 Bahndepot
 機関庫
 battery
@@ -627,6 +695,8 @@ Bonusspeed: %i km/h
 可能な最大速度：%i km/h
 Boost (%)
 増産率 (%)
+Borderless (disabled on fullscreen)
+全画面表示 (ソフトウェアモード)
 bridge is too high for its type!
 この型の橋梁で架橋できる\n橋脚の高さ制限を超えています。
 Bruecke
@@ -672,7 +742,7 @@ Building costs estimates
 Buildings
 市街地
 Built artifical slopes
-スロープの建設
+スロープ（人工斜面）の建設
 Built random attraction
 観光地の整備（ランダム）
 Bus_tab
@@ -773,10 +843,14 @@ clf_chk_waren
 旅客/貨物フィルター:
 clf_title
 乗り物の一覧フィルター
+Climate
+気候
 Climate Control
 気候の設定
 closed
 遮断
+Closes topmost line window when new line selected.
+路線を選択したときに最前面の路線ウィンドウを閉じます
 COLOR_CHOOSE\n
 カラーを選んで下さい。\n
 Company bankrupt
@@ -857,6 +931,8 @@ Currently playing:
 演奏中の曲：
 Customers live in:
 顧客居住地:
+Date format
+日付と時刻の形式
 DAY_SYMBOL
 日
 deactivated in online mode
@@ -891,6 +967,8 @@ Denkmal
 モニュメント
 Departed
  出発
+Departure after
+% ロードまたは待機時間(DD:SS:MM)
 Departure board
 発着時刻
 Departures to\n
@@ -910,13 +988,17 @@ directmail
 Direkt erreichbare Haltestellen
 ここから運行されている　駅・停留所・港
 disable midi
-ミュート
+BGMオフ
+Display bars above factory to show the status
+産業建築物の上部に在庫量を示すバーを表示します
 Distance
 走行距離
 distributing cities
 都市を配置中
 distributing factories
 産業を配置中
+Do not show
+非表示
 Dock
 港
 Dock must be built on single slope!
@@ -936,7 +1018,7 @@ Ein %s\npasst hier nicht.\n
 Einstellungen
 設定
 Einstellungen aendern
-設定を選ぶ
+ゲームオプション
 electric
 電気
 Electricity
@@ -1032,7 +1114,9 @@ Friction:
 fuel_cell
 燃料電池
 Full load
-積むまで待機(％): 
+積むまで待機
+Fullscreen (changed after restart)
+全画面表示 (ハードウェアモード、変更は再起動が必要)
 Fundament
 土地
 Fussgaenger
@@ -1075,6 +1159,8 @@ Gross Profit
 粗利益
 Groundobj
 景観物
+groundobj builder
+修景物設置ツール
 Grow city
 都市の人口を増やす
 Growth
@@ -1087,6 +1173,10 @@ Hangar
 格納庫
 Happy
 旅行成功
+Has slope graphics
+傾斜地設置対応
+Has Snow
+降雪対応
 Haus kaufen
 市内建築物を購入
 Headquarter and %li trains
@@ -1175,6 +1265,8 @@ increase underground view level
 ハイトカットレベルを上げる
 industrial building
 工場
+Industry overlay
+産業在庫量ツールチップ
 Init map ...
 マップを初期化しています ...
 Input
@@ -1183,6 +1275,8 @@ Ins Stop
  挿入
 Insert stop before the current stop
 選択している駅の直前に駅を挿入
+Install graphics
+グラフィックセットの追加
 Insufficient funds!
 資金が足りません！
 Intercity road len:
@@ -1226,7 +1320,7 @@ labellist_title
 Lade Relief
 地形データを読み込む
 Laden
-ゲームの再開
+ゲームのロード
 Land attraction
 郊外型施設
 Land industries
@@ -1265,6 +1359,8 @@ Line Filter
 路線フィルター
 Line Management
 路線編集
+line name mouseover tooltips
+マウスオーバーで路線名を表示
 Lineless convoys serving this stop
 路線に所属していない車両
 Lines serving this stop
@@ -1285,6 +1381,8 @@ loaded passenger/freight
 乗車中の旅客/貨物
 Loading (%i->%i%%)!
 積載(%i->%i%%)
+Loading (%i%%)!
+搭載(%i%%)!
 Loading addon paks ...
 アドオンを読み込み中 ...
 Loading map ...
@@ -1361,6 +1459,8 @@ Meldung
 メッセージ
 Menge
 待機数
+merge stop
+駅の結合
 MessageOptionsText
 \n新年\n\n他社\n\n都市\n\nルート不明\n\n産業\n\nチャット\n\n車両登場\n\n駅の混雑\n\n問題\n\n渋滞\n\nシナリオ\n
 min
@@ -1385,6 +1485,8 @@ Monoraildepot
 モノレール基地
 month wait time
 最大待ち時間(月):
+Monthly departures
+時刻表
 Months
 月
 Monument
@@ -1393,6 +1495,8 @@ Monuments
 モニュメント
 Mountain height
 起伏の高さ：
+Move the map
+マップの移動
 Movingobj
 動物
 Music playing disabled/not available
@@ -1400,7 +1504,7 @@ BGMは演奏できません。
 Music volume:
 BGMの音量:
 mute sound
-ミュート
+効果音オフ
 Name
 都市名
 Narrowgauge
@@ -1420,9 +1524,9 @@ Net Wealth
 Net wealth near zero
 総資産が尽きかけています
 Neue Karte
-新しいマップ
+新しいゲーム
 Neue Welt
-新しいマップを作成する
+新しいゲームを開始する
 new convoi
 新しい編成
 New Line
@@ -1491,6 +1595,10 @@ Oktober
 10月
 On loan since %i month(s)
 現在、負債があります。(%iヶ月間)
+On mouseover
+マウスオーバーで表示
+on the
+出発(月)出発（月）最初(日/時/分)
 Only city chains
 都市にチェーンを作成
 Only first %d differing paks reported. There are probably more.
@@ -1707,12 +1815,16 @@ road vehicle
 自動車
 Roadsign
 道路標識
+Rotate Building
+建物の向き回転
 Rotate map
 90°回転する
 Rotation
 向き
 Routing
   経路  
+Running cost
+維持費
 sack
  袋
 sail
@@ -1773,6 +1885,10 @@ Sept.
 9月
 September
 9月
+Served by
+サービス提供
+Served by me
+自社輸送網内のみ
 Server did not respond!
 サーバーの応答がありません。
 Serves Line:
@@ -1795,6 +1911,8 @@ Show also vehicles no longer in production.
 生産を終了している乗り物も表示します。
 Show also vehicles that do not match for current action.
 このボタンをオフにすると、選択/連結できない乗り物を隠します
+Show always
+常に表示
 Show contour
 等高線を表示
 Show even servers with wrong version or pakset
@@ -1848,7 +1966,7 @@ Shows the currently selected schedule
 Shrink city
 都市の人口を減らす
 shuffle midis
-シャッフル演奏
+シャッフル再生
 Signal
 信号
 signal spacing
@@ -1876,7 +1994,7 @@ Sound
 Sound settings
 サウンド設定
 Sound volume:
-効果音の音量:
+マスターボリューム
 special freight
 専用貨物
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
@@ -1888,9 +2006,9 @@ Speichern
 Spieler
 プレイヤー
 Spieler(mz)
-ライバル会社
+プレイヤー
 Spielerliste
-ライバル会社一覧
+プレイヤー一覧
 Sprache
 言語
 Sprachen
@@ -1943,6 +2061,8 @@ Supply %s at (%i,%i)
 産業チェーン「%s」(%i,%i) を完成し、安定供給する
 Tage alt
 樹齢(月)
+The gradient does not fit a tunnel
+斜面がトンネルを建設するのに適していません
 Theme selector
 テーマの選択
 There are still vehicles\nstored in this depot!\n
@@ -2041,6 +2161,8 @@ Unhappy
 旅行失敗
 units/day
 単位/月
+Unloading (%i%%)!
+荷下ろし(%i%%)!
 Update Line
 路線編集
 upgrade HQ
@@ -2063,6 +2185,8 @@ Vehicle Name
 車両名
 Vehicle Power
 出力
+vehicles stored
+留置中の車両数
 Verbrauch
 消費
 Vergroessere die Karte\n
@@ -2073,6 +2197,8 @@ verkaufen
 売却
 Verkehrsteilnehmer
 自家用車
+vh_title
+乗り物一覧
 via
 経由地
 via %s\n
@@ -2107,8 +2233,6 @@ way %s cannot longer used:\n%s\n
 この先、\n%sは\n建設できません。
 way %s now available:\n
 %s が\n新しく建設可能になりました。\n\n
-way %s now available:\n%s\n
-%s が\n新しく建設可能になりました。\n%s\n
 Way toll
 通行料
 Ways not connected
@@ -2123,6 +2247,8 @@ Wert
 価格
 west
 西
+Wind direction
+風向き
 Winter snowline
 積雪高度
 withdraw
@@ -2165,6 +2291,10 @@ New world record for railways: %.1f km/h by %s.
 最高速度記録（鉄道）\n　時速 %.1f km\n「%s」が達成
 New world record for ship: %.1f km/h by %s.
 最高速度記録（船舶）\n　時速 %.1f km\n「%s」が達成
+#_________________________________tooltip_text__________________________________
+#_________________________________tooltip_text__________________________________
+Add convois with similar schedule to this line.
+この路線と同じスケジュールの車両を追加します。
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: uk Ukrainian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1650,7 +1650,7 @@ Setting
 Ship
 Корабель
 shops and stores
-Магазини та офіси\n
+Магазини та офіси
 Show all
 Показати усе
 show all building
@@ -1726,7 +1726,7 @@ slot empty
 Smart hide objects
 Кмітливо ховати об'єкти
 Sort by
-Сортувати пасажирів/вантаж за:
+Сортувати за
 Sort waiting list by
 Сортувати список очікування за
 Sound
@@ -1953,8 +1953,6 @@ way %s cannot longer used:\n%s\n
 Дороги типу %s не можуть більше використовуватися.\n%s\n
 way %s now available:\n
 Тепер доступні дороги типу %s.\n
-way %s now available:\n%s\n
-Тепер доступні дороги типу %s.\n%s\n
 Way toll
 Дорожнє мито
 Ways not connected

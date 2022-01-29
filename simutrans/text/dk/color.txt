@@ -1,4 +1,4 @@
-<title>Farve vælger hjælp</title>
+<title>Farve vælger</title>
 
 <h1>Farve vælger</h1>
 

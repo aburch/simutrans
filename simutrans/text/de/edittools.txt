@@ -1,4 +1,4 @@
-<title>Karteneditor Hilfe</title>
+<title>Karteneditor</title>
 
 <h1><strong>Karteneditor</strong></h1>
 <p>

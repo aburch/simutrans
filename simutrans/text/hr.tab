@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: hr Hrvatski                            #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1332,7 +1332,7 @@ Postavke
 Ship
 Brod
 shops and stores
-Trgovine i biroi\n
+Trgovine i biroi
 Show all
 Prikaz svih
 show all building
@@ -1378,7 +1378,7 @@ Prikaz Kriske Sloja
 slot empty
 isjecak prazan
 Sort by
-sortiranje putnika/terena prema
+sortiranje prema
 Sort waiting list by
 Sortiranje liste cekanja prema
 Sound
@@ -1571,8 +1571,6 @@ way %s cannot longer used:\n%s\n
 tip puta %s se ne moze vise koristiti:\n
 way %s now available:\n
 Putni tip %s je sada dostupan.\n
-way %s now available:\n%s\n
-put %s je sada dostupan:\n%s\n
 Ways not connected
 Putovi nisu spojeni
 Wegpunkt

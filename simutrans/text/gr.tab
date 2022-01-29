@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: gr Ellinika                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -646,7 +646,7 @@ Setting
 Ship
 Πλοίο
 shops and stores
-Μαγαζιά και γραφεία\n
+Μαγαζιά και γραφεία
 Show all
 Εμφάνιση όλων
 show all building

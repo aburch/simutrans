@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,8 +71,12 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 rien
+Lake
+lac
 Networks
 Réseau de transport
+Open Sea
+mer
 Queueing
 Tendance d'attente
 Road toll
@@ -190,7 +194,7 @@ Transformation du terrain impossible sous-terre.
 Upgrade must have\na higher level
 Mise à jour doit avoir un niveau plus élevé.
 Vehicle %s cannot choose because stop too short!
-%s a des arrêt trop proche dans la ligne !
+%s ne peut pas choisir: tous les arrêts sont trop courts!
 Zughalt muss auf\nSchiene liegen!\n
 Un arrêt de train\npeut seulement\nêtre placé\nsur un rail !\n
 #___________________________________help_text___________________________________
@@ -795,6 +799,8 @@ Denkmal
 Monument
 Departed
 Parti
+Departure after
+% chargement ou départ après (jj-hh-mm)
 Departure board
 Tableau des départs
 Departures to\n
@@ -914,7 +920,7 @@ facteur de friction actuel:
 fuel_cell
 pile à combustible
 Full load
-Charge mini:
+Attendre un chargement minimale
 Fundament
 Fondations
 Fussgaenger
@@ -1147,6 +1153,8 @@ loaded passenger/freight
 Trier passagers/marchandise par
 Loading (%i->%i%%)!
 Chargement (%i->%i%%)
+Loading (%i%%)!
+Chargement (%i%%)
 Loading addon paks ...
 Chargement des add-ons.
 Loading map ...
@@ -1235,6 +1243,8 @@ Monoraildepot
 Dépôt de monorail
 month wait time
 Attend max. (mois)
+Monthly departures
+Selon l'horaire
 Months
 Mois
 Mountain height
@@ -1327,6 +1337,8 @@ Oktober
 Octobre
 On loan since %i month(s)
 Débiteur depuis %i mois
+on the
+départ par mois, à partir de (jj-hh-mm)
 Only city chains
 Seul chaine product urbaine
 Only first %d differing paks reported. There are probably more.
@@ -1658,7 +1670,7 @@ mode sous-terrain
 slot empty
 slot libre
 Sort by
-trier passagers/cargaisons par
+trier par
 Sort waiting list by
 Trier la liste d'attente par
 Sound
@@ -1877,8 +1889,6 @@ way %s cannot longer used:\n%s\n
 Les voies de type %s ne peuvent plus être utilisées:\n%s\n
 way %s now available:\n
 Les voies de type %s sont maintenant disponibles.\n
-way %s now available:\n%s\n
-Les voies de type  " %s " sont maintenant disponibles:\n%s\n
 Way toll
 péage ferroviaire
 Ways not connected

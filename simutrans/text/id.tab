@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -297,8 +297,6 @@ Infrastruktur Trem
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s membangun kantor pusat baru.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nmembangun\nbalai kota baru\nsaat mencapai\n%i penduduk.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s \nmembangun\nbalai kota baru\nsaat mencapai\n%i penduduk.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1620,7 +1618,7 @@ Pengaturan
 Ship
 Kapal
 shops and stores
-Toko dan kantor\n
+Toko dan kantor
 Show all
 Tampilkan semua
 show all building
@@ -1698,7 +1696,7 @@ kosong
 Smart hide objects
 Sembunyikan objek secara otomatis
 Sort by
-urutkan penumpang/kargo
+urutkan
 Sort waiting list by
 Urutkan daftar tunggu
 Sound
@@ -1921,8 +1919,6 @@ way %s cannot longer used:\n%s\n
 jenis jalan %s tidak dapat digunakan lagi:\n
 way %s now available:\n
 Jenis jalan %s tersedia sekarang.\n
-way %s now available:\n%s\n
-jalan %s tersedia sekarang:\n%s\n
 Way toll
 Tarif tol
 Ways not connected

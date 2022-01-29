@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: pt Portugues                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -301,8 +301,6 @@ Bondes
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 A empresa %s construiu seu centro administrativo.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s construiu uma nova prefeitura quando atingiu %i habitantes.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s construiu uma nova prefeitura quando atingiu %i habitantes.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1718,7 +1716,7 @@ slot empty
 Smart hide objects
 Auto-ocultar sob cursor
 Sort by
-Organizar cargas/pasageiros por
+Organizar por
 Sort waiting list by
 Ordenar lista por
 Sound
@@ -1945,8 +1943,6 @@ way %s cannot longer used:\n%s\n
 Via " %s " não pode ser utilizada:\n%s\n
 way %s now available:\n
 A via " %s " agora está disponível:\n
-way %s now available:\n%s\n
-A via " %s " agora está disponível:\n%s\n
 Way toll
 Pedágio
 Ways not connected

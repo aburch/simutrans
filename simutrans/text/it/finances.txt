@@ -35,4 +35,3 @@ Qui si trovano le informazioni relative alle finanze degli ultimi due anni, con 
                          per nuovi investimenti. Questa informazione si può trovare anche
                          nella barra di stato sul bordo inferiore dello schermo.
 </p>
-</p>

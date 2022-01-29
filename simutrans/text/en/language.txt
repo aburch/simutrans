@@ -1,4 +1,4 @@
-<title>Languages Help</title>
+<title>Languages</title>
 
 <h1><strong>Languages</strong></h1>
 

@@ -22,7 +22,7 @@ The title-bar of <strong>Convoy Information</strong> shows the name and the uniq
 Information shown at the top of <strong>Convoy Information</strong> includes:
 </p>
 <p>
-<em>Internal ID</em>: a unique ID number for the Convoy (assigned by default when the Convoy is first purchased or assembled in a <a href=depot.txt">depot</a>).
+<em>Internal ID</em>: a unique ID number for the Convoy (assigned by default when the Convoy is first purchased or assembled in a <a href="depot.txt">depot</a>).
 </p>
 <p>
 - <em>name</em>: shows the assigned name of the Convoy (by default this is the make of the first vehicle-unit purchased or assembled in a <a href="depot.txt">depot</a> for the Convoy).<br>

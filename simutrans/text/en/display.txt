@@ -1,4 +1,4 @@
-<title>Display Settings Help</title>
+<title>Display Settings</title>
 
 <h1><strong>Display Settings</strong></h1>
 

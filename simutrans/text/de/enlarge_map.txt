@@ -1,8 +1,8 @@
-<title>Hilfe zum Dialog Kartenfläche vergrößern</title>
+<title>Kartenfläche vergrößern</title>
 
 <h1><strong>Kartenfläche vergrößern</strong></h1>
 
-<p>In diesem Dialog kann die bestehende Spielkarte nach Rechts und Unten vergrößert werden. Möchte man nach links / oben erweitern, muss erst die Karte gedreht und dann mit diesem Dialog vergrößert werden. Nach dem Vergrößern kann man die Karte wieder zurückrotieren.
+<p>In diesem Dialog kann die bestehende Spielkarte nach Rechts und Unten vergrößert werden. Möchte man nach links / oben erweitern, muss erst die Karte gedreht und dann mit diesem Dialog vergrößert werden. Nach dem Vergrößern kann man die Karte wieder zurück drehen.
 <br>
 In der rechten oberen Ecke wird eine Vorschau der vergrößerten Karte angezeigt.
 </p>

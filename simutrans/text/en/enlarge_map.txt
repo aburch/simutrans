@@ -1,4 +1,4 @@
-<title>Map enlargement help</title>
+<title>Map enlargement</title>
 
 <h1><strong>Enlarge map</strong></h1>
 

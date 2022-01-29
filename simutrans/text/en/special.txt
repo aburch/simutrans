@@ -1,4 +1,4 @@
-<title>Special Construction Tools Help</title>
+<title>Special Construction Tools</title>
 
 <h1><strong>Special Construction Tools</strong></h1>
 

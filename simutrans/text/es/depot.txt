@@ -35,7 +35,7 @@ Situa el raton sobre el grafico para ver los detalles acerca del vehiculo (se mu
 Pulsa en el grafico del convoy o en alguna de las unidades para eliminarlo del mismo y almacenarlo en la cochera.
 </p>
 <p>
-Debajo del grafico se muestra el numero de unidades de Convoy seleccionado, longitud de cuadriculas del Convoy (debe caber en una <a href="station.txt"><em>Parada</em> del tamaño adecuado para carga y descargar pasajeros y mercancia), y la linea asignada.
+Debajo del grafico se muestra el numero de unidades de Convoy seleccionado, longitud de cuadriculas del Convoy (debe caber en una <a href="station.txt"><em>Parada</em></a> del tamaño adecuado para carga y descargar pasajeros y mercancia), y la linea asignada.
 </p>
 <p>
 Los botones de opcion (pulsa para usar) de <strong>Controles de Cochera</strong> incluyen:

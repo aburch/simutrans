@@ -22,10 +22,10 @@ La barra del titolo delle <strong>Informazioni convoglio</strong> mostra un unic
 Le informazioni riportate in alto a <strong>Informazioni convoglio</strong> includono:
 </p>
 <p>
-- <em>ID interno</em>: un unico ID per convoglio (assegnato al momento dell'acquisto o dell'assemblaggio in un <a href=depot.txt">deposito</a>).
+- <em>ID interno</em>: un unico ID per convoglio (assegnato al momento dell'acquisto o dell'assemblaggio in un <a href="depot.txt">deposito</a>).
 </p>
 <p>
-- <em>nome</em>: riporta il nome assegnato al convoglio (assegnato al momento dell'acquisto o dell'assemblaggio in un <a href=depot.txt">deposito</a>).<br>
+- <em>nome</em>: riporta il nome assegnato al convoglio (assegnato al momento dell'acquisto o dell'assemblaggio in un <a href="depot.txt">deposito</a>).<br>
 Clicca sul nome e scrivine uno nuovo per cambiarlo.
 </p>
 <p>

@@ -1,0 +1,35 @@
+<title>一覧表　ヘルプ</title>
+
+<h1><strong>一覧表</strong></h1>
+
+<p>
+<strong>一覧表</strong>には、ゲームの現在の状況に関する情報を得るためのコントロールを開くオプションがあります（また、さまざまな<a href="goods_filter.txt">商品、乗客、郵便物</a>の輸送から得られる相対的な収入を調整するコントロールもあります）。
+</p>
+<p>
+プレイヤーは情報を一覧表で見ることができます。<a href="station.txt">停留所</a>、<a href="convoiinfo.txt">車両</a>、<a href="citywindow.txt">都市部</a>、さまざまな<a href="goods_filter.txt">商品</a>や乗客、郵便から得られる収入、<a href="industry_info.txt">産業</a>、観光地などの情報が一覧表になっています。
+</p>
+<p>
+ゲームビューの上部にある一覧表アイコンをクリックして、<strong>一覧表</strong>リストを開きます。<br>
+ツールバーを開くか、ツールバーをクリックした後、マウスカーソルを一覧表ツールのオプションに合わせると名前が表示されます。
+</p>
+<p>
+ツールオプションをクリックすると、左から右の順に情報を表示するコントロールが開きます。
+</p>
+<p>
+<a href="haltlist.txt"><em>駅一覧:</em></a> <a href="station.txt">駅</a>、車両が荷物や乗客を乗せたり降ろしたりする場所（しかし、水上輸送の埠頭だけではありません）。
+</p>
+<p>
+<a href="convoi.txt"><em>乗り物一覧:</em></a> 道路・鉄道<a href="convoiinfo.txt">車両</a>、航空機、船舶。
+</p>
+<p>
+<a href="citylist_filter.txt"><em>町一覧:</em></a> <a href="citywindow.txt">各都市</a> （村、町、市）。
+</p>
+<p>
+<a href="goods_filter.txt"><em>貨物一覧:</em></a> 異なる商品、乗客、郵便から受け取る収入（相対的な収入を調整するためのコントロールを含む）。
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>産業一覧:</em></a> <a href="industry_info.txt">産業</a> （商品の消費者と供給会社）
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>名所旧跡一覧:</em></a> 観光名所。
+</p>

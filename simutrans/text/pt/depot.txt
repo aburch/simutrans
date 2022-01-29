@@ -34,7 +34,7 @@ Passe o cursor do mouse por cima do gráfico das unidades veiculares do comboio s
 Clique em uma unidade veicular para removê-la do comboio selecionado e armazená-la no depósito.
 </p>
 <p>
-Abaixo do gráfico são mostrados o número de unidades veiculares do comboio selecionado, bem como a quantidade de quadros de estação precisos (todas as unidades veiculares devem caber em uma <a href="station.txt"><em>parada</em> para poder recolher e entregar mercadorias e passageiros), e a linha a que serve.
+Abaixo do gráfico são mostrados o número de unidades veiculares do comboio selecionado, bem como a quantidade de quadros de estação precisos (todas as unidades veiculares devem caber em uma <a href="station.txt"><em>parada</em></a> para poder recolher e entregar mercadorias e passageiros), e a linha a que serve.
 </p>
 <p>
 Os botões de opção (logo abaixo, clique para usar) da <strong>janela do depósito</strong> incluem:

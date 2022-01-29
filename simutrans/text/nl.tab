@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1610,7 +1610,7 @@ Instellingen
 Ship
 Schip
 shops and stores
-Winkels en magazijnen\n
+Winkels en magazijnen
 Show all
 Toon alles
 show all building
@@ -1909,8 +1909,6 @@ way %s cannot longer used:\n%s\n
 %s kan niet langer worden gebruikt:\n%s\n
 way %s now available:\n
 %s is nu beschikbaar.\n
-way %s now available:\n%s\n
-%s is nu beschikbaar:\n%s\n
 Way toll
 Tol
 Ways not connected

@@ -8,7 +8,7 @@
 <p>
 <em>Angenommene Waren:</em> Alle Warenarten, welche von an die Haltestelle angeschlossenen Fabriken benötigt werden, sind alphabetisch gelistet.</p>
 <p>
-<em>Linien, die diesen Haltestelle anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet die <a href="linemanagement.txt">Linienverwaltung</a>.</p>
+<em>Linien, die diese Haltestelle anfahren:</em> Alle Linien, welche die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet die <a href="linemanagement.txt">Linienverwaltung</a>.</p>
 <p>
 <em>Einzelfahrzeuge, die hier halten:</em> Alle Fahrzeuge, die keiner Linie zugeordnet sind, aber die Haltestelle anfahren, sind alphanumerisch gelistet. Ein Klick auf den Pfeil öffnet das <a href="convoiinfo.txt">Fahrzeugfenster</a>.</p>
 <p>

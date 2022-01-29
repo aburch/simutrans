@@ -3,7 +3,7 @@
 <h1>Farby</h1>
 
 <p>
-V tomto menu si mô¾e¹ zvolit' farbu Tvojej spoloènosti.
+V tomto menu si mô¾e¹ zvoli» farbu Tvojej spoloènosti.
 Bude spoloèná pre v¹etky Tvoje dopravné prostriedky, stanice atd.
 </p>
 <p>

@@ -1,4 +1,4 @@
-<title>Straßenbau Hilfe</title>
+<title>Straßenbau</title>
 
 <h1><strong>Straßenbauwerkzeuge</strong></h1>
 

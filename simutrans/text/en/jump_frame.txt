@@ -1,9 +1,12 @@
-<title>Jump to Help</title>
+<title>Jump to</title>
 
 <h1><strong>Jump to</strong></h1>
 
 <p>
-Dialog opens with <a href="keys.txt">[J]</a> key and enables jumping to the specified coordinates. This is useful to move quickly to certain positions on the game-word.<br><br>
-Every tile on the game-word has two coordinates (x,y), with (0,0) located on the top-left corner of the map. Cursor coordinates are permanently displayed on the <a href="window.txt">status bar</a>.<br>
+Dialog opens with <a href="keys.txt">[J]</a> key and enables jumping to the specified coordinates. This is useful to move quickly to certain positions on the game-world.
+</p>
+
+<p>
+Every tile on the game-world has two coordinates (x,y), with (0,0) located on the top-left corner of the map. Cursor coordinates are permanently displayed on the <a href="window.txt">status bar</a>.<br>
 NOTE: A map rotation (performed with <a href="keys.txt">[R]</a> key) will rotate all tile coordinates.
 </p>

@@ -1,4 +1,4 @@
-<title>Lademenü Hilfe</title>
+<title>Lademenü</title>
 
 <h1>Spielauswahldialog (Ladedialog)</h1>
 
@@ -12,7 +12,7 @@
 </p>
  
 <p>
-<em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht.
+<em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht. Das X wird nur angezeigt, wenn in der <it>simuconf.tab</it> der Parameter  <it>show_delete_buttons = 1</it> gesetzt ist.
 </p>
  
 <p>
@@ -28,7 +28,15 @@
 </p>
  
 <p>
-<em>Abrechen:</em> Schließt den Dialog ohne ein Spiel zu laden.
+<em>Dieses Spiel als Server starten.</em> Wird diese Option gesetzt, dann startet das ausgewählte Spiel als Serverspiel und kann über das Netzwerk/Internet erreicht werden.
+</p>
+
+<p>
+<em>OK</em> Läd das Spiel was im Feld Dateiname angegeben wird.
+</p>
+
+<p>
+<em>Abrechen</em> Schließt den Dialog ohne ein Spiel zu laden.
 </p>
 
 <p>

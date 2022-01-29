@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: fi Suomi                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -485,6 +485,10 @@ Can only move from halt to halt or waypoint to waypoint.
 Voidaan siirt‰ vain\npys‰kilt‰ toiselle\ntai reittipisteelt‰ toiselle.
 Cancel
 Peruuta
+Capacity
+Kapasiteetti
+Capacity:
+Kapasiteetti:
 Capacity: %.0f MW
 Kapasiteetti: %.0f MW\n
 Capacity: %d%s %s\n
@@ -590,7 +594,7 @@ Kuljetusv‰line %d / %d
 convoi error tooltips
 ajoneuvojen virhetiedot
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Ajoneuvo on l‰hettetty l‰himp‰‰n sopivaan talliin.
+Ajoneuvo on l‰hetetty l‰himp‰‰n sopivaan talliin.
 Convoi is sold when all wagons are empty.
 Kulkuneuvo myyd‰‰n, kun kaikki vaunut ovat tyhji‰.
 convoi mouseover tooltips
@@ -1390,7 +1394,7 @@ Viipalen‰kym‰
 slot empty
 tyhj‰
 Sort by
-J‰rjest‰ matkustajat/rahti:
+J‰rjest‰:
 Sort waiting list by
 J‰rjest‰ odottavien lista:
 Sound
@@ -1589,8 +1593,6 @@ way %s cannot longer used:\n%s\n
 Tietyyppi‰ %s ei voida en‰‰ k‰ytt‰‰:\n
 way %s now available:\n
 %s nyt saatavilla:\n
-way %s now available:\n%s\n
-%s ei ole olemassa!
 Ways not connected
 Pisteit‰ ei ole yhdistetty.
 Wegpunkt

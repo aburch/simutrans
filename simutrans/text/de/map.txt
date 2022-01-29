@@ -1,4 +1,4 @@
-<title>Kartenfenster Hilfe</title>
+<title>Kartenfenster</title>
 
 <h1><strong>Kartenfenster</strong></h1>
 
@@ -35,27 +35,30 @@ Blendet die farbigen Schaltflächen ein, mit denen verschiedene Informationen in 
 <br/>
 <em>Reiseziele:</em> Falls eine Stadt ausgewählt ist, werden die Reiseziele dieser Stadt auf der Karte angezeigt (analog zu der kleinen Karte der <a href="citywindow.txt">Stadtinformation</a>.
 </p>
-<br/>
-<strong>Werteskala</strong>
 <p>
-Blendet den Balken ein, der die Farben zeigt, nach denen einige Objektauswahlen bestimmte Kartenbereiche entsprechend dem dargestellten Wert einfärben.</p>
-<br/>
-<strong>Industrieliste</strong>
+<strong>Werteskala</strong><br>
+Blendet den Balken ein, der die Farben zeigt, nach denen einige Objektauswahlen bestimmte Kartenbereiche entsprechend dem dargestellten Wert einfärben.
+</p>
 <p>
-Farbskala der Industrien.</p>
-<br/>
-<strong>Vergrößerung</strong>
-<p>Anzeige der Reliefkarte in 4 Stufen <em>Pfeilschalter</em> oder <em>Mausrad</em>.</p>
-<br/>
-<strong>Isometrische Anzeige:</strong>
+<strong>Industrieliste</strong><br>
+Farbskala der Industrien.
+</p>
 <p>
-Die Reliefkarte wird analog zur Spielfeld-Ausrichtung ausgerichtet.</p>
-<br/>
-<strong>Fabrikverbindungen:</strong>
+<strong>Vergrößerung</strong><br>
+Wähle die Vergrößerung von 1:6 bis 16:1 <em>Pfeilschalter</em> oder <em>Mausrad</em>.<br>
+Bei 1:1 entspricht eine Kachel einem Pixel auf der Karte.
+</p>
 <p>
+<strong>Isometrische Anzeige:</strong><br>
+Die Reliefkarte wird analog zur Spielfeld-Ausrichtung ausgerichtet.
+</p>
+<p>
+<strong>Fabrikverbindungen:</strong><br>
 <em>Abnehmer der Industrien</em> Mit der <em>Maus</em> auf eine Industrie zeigen (weisse Linien).<br/>
 <em>Zulieferer der Industrien</em> <em>Shift + mit der Maus</em> auf eine Industrie zeigen (rote Linien).<br/>
-Hinweis: Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.</p>
-<br/>
-<strong>Linienpläne</strong>
-<p>Bei geöffneter <a href="linemanagement.txt">Linienverwaltung</a> wird die dort markierte Linie in der Reliefkarte angezeigt.</p>
+Hinweis: Sollte nichts angezeigt werden, dann einmal in das Kartenfenster klicken.
+</p>
+<p>
+<strong>Linienpläne</strong><br>
+Bei geöffneter <a href="linemanagement.txt">Linienverwaltung</a> wird die dort markierte Linie in der Reliefkarte angezeigt.
+</p>

@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -277,8 +277,6 @@ Tramvajų/lengvojo traukinio įrankiai
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s'as pastat? naują vadavietę.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \npastatė\nnaują rotušę\nkada pasiekė\n%i gyventojus.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s \npastatė\nnaują rotušę\nkada pasiekė\n%i gyventojus.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1572,7 +1570,7 @@ Nustatymai
 Ship
 Laivai
 shops and stores
-Parduotuvės ir biurai\n
+Parduotuvės ir biurai
 Show all
 Rodyti viską
 show all building
@@ -1865,8 +1863,6 @@ way %s cannot longer used:\n%s\n
 Kelio rūšis %s negali būti naudijama:\n
 way %s now available:\n
 Nauja kelio rūšis : %s .\n
-way %s now available:\n%s\n
-kelią %s galima statyti:\n%s\n
 Ways not connected
 Keliai nesujungti
 Wegpunkt

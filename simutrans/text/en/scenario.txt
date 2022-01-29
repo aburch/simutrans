@@ -1,4 +1,4 @@
-<title>Scenario help</title>
+<title>Scenario</title>
 
 <h1><strong>Scenarios</strong></h1>
 

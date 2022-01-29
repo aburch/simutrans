@@ -1,4 +1,4 @@
-<title>Building Underground Help</title>
+<title>Building Underground</title>
 
 <h1><strong>Building Underground</strong></h1>
 

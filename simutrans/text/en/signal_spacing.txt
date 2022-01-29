@@ -1,4 +1,4 @@
-<title>Signal spacing help</title>
+<title>Signal spacing</title>
 
 <h1>General usage:</h1><br>
 <p>

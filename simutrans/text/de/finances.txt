@@ -1,13 +1,13 @@
-<title>Finanzen Hilfe</title>
+<title>Finanzen</title>
 
 <h1><strong>Finanzen</strong></h1>
 
 <p>
-Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu2.txt">Hauptmenüleiste</a> geöffnet werden.<br>
-Dort sind die Informationen über die Finanzen zusammengefaßt.
+Die Finanzen können im Finanzfenster betrachtet werden. Dieses kann durch Drücken von <em>f</em> oder über die <a href="mainmenu.txt">Hauptmenüleiste</a> geöffnet werden.<br>
+Dort sind die Informationen über die Finanzen zusammengefasst.
 </p>
 <p>
-Im unteren Teil des Fensters ist eine Grafik, die den Verlauf eines oder mehrer Werte anzeigt. Welche diese anzeigen soll, kannst Du mit den farbigen Schaltflächen darüber auswähln. Du kannst die Ansicht zwischen Jahren und Monaten umschalten.
+Im unteren Teil des Fensters ist eine Grafik, die den Verlauf eines oder mehrer Werte anzeigt. Welche diese anzeigen soll, kannst Du mit den farbigen Schaltflächen darüber auswählen. Du kannst die Ansicht zwischen Jahren und Monaten umschalten.
 </p>
 <p>
 Mit der Schaltfläche <em>Firmensitzbau</em> kann ein Firmensitz gebaut werden. Gibt es bereits einen Firmensitzes, heißt die Schaltfläche <em>Firmensitzumbau</em>. Unterhalb der Schaltfläche wird ein Kartenausschnitt mit dem Standort des Firmensitzes angezeigt.<br>
@@ -40,10 +40,8 @@ Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
 <em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
 <em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten eine Warnung.
 </p>
+
+<h1><strong>Mission-Spiele</strong></h1>
 <p>
-</p>
-<br>
-<h1><strong>Szenario-Spiele</strong></h1>
-<p>
-Bei Szenario-Spielen wird zusätzlich der Szenario-Auftrag und der erreichte Szenario-Status (in %) angezeigt.
+Bei Mission-Spielen wird zusätzlich der Mission-Auftrag und der erreichte Mission-Status (in %) angezeigt.
 </p>

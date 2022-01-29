@@ -1,12 +1,14 @@
+Release of 123.0.1 (r10420 on 29-Jan-2022):
 	ADD: button to remove double entries in schedules
 	FIX: up/down arrows in schedule broken
 	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
 	CHG: lang files are loaded if their name is *XX.tab or XX*.tab. The first is preferred to avoid confusion by name like ja-taken.tab
 	ADD: selected convoi in minimap now magenta. Also network display properly updated when activating or closing windows
 	ADD: Option to adjust screen scaling manually (either via display settings or '-screen_scale' command line option)
-	CHG: All resizeable windows will have a minimize button in the title
-	CHG: Illegal schedule entries are highlited and a button to clear them up will appear.
-	CHG: Infinite mouse scrolling can be activated manually in the display settings; but it will fail with certain touch devices
+	ADD: All resizeable windows will have a minimize button in the title
+	ADD: Illegal schedule entries are highlited and a button to clear them up will appear.
+	ADD: Infinite mouse scrolling can be activated manually in the display settings; but it will fail with certain touch devices
+	CHG: new versions of pak48.excentrique, pak64.german, pak128, pak128.German
 
 
 Release of 123.0 (r10317 on 30-Dec-2021):

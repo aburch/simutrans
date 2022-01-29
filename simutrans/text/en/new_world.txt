@@ -1,4 +1,4 @@
-<title>Create a New Game Help</title>
+<title>Create a New Game</title>
 
 <h1><strong>Create a New Game</strong></h1>
 
@@ -50,7 +50,7 @@ NOTE: If the terrain is very hilly, suitable flat space may not be found for cre
 </p>
 
 <p>
-<em>Tourist attractions</em></a> - Sets the inital number of sites outside of urban areas that attract passengers and mail. <a href="curiositylist_filter.txt">Tourist attractions</a> appear outside urban areas in addition to any attractions generated with new towns or cities at the start of the game.
+<em>Tourist attractions</em> - Sets the inital number of sites outside of urban areas that attract passengers and mail. <a href="curiositylist_filter.txt">Tourist attractions</a> appear outside urban areas in addition to any attractions generated with new towns or cities at the start of the game.
 </p>
 
 <p>

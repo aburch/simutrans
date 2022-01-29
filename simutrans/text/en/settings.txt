@@ -1,4 +1,4 @@
-<title>Extended Settings Help</title>
+<title>Extended Settings</title>
 
 <h1><strong>Extended settings</strong></h1>
 

@@ -1,9 +1,9 @@
-<title>Farbauswahl Hilfe</title>
+<title>Farbauswahl</title>
 
 <h1><strong>Farbauswahl</strong></h1>
 
 <p>
-Du kannst die eigene Spielerfarbe festlegen. Die Farbe wird für die meisten Fahrzeuge und Gebäude des Spielers genutzt. Es gibt zwei Farben, eine Pimäre und eine sekundäre.
+Du kannst die eigene Spielerfarbe festlegen. Die Farbe wird für die meisten Fahrzeuge und Gebäude des Spielers genutzt. Es gibt zwei Farben, eine Primäre und eine Sekundäre.
 </p>
 <p>
 Die Standardfarbe ist primär hellblau und sekundär gelb.

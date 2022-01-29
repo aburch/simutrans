@@ -66,7 +66,7 @@ För att ta bort en landnings- eller taxibana: klicka på verktyget (pekaren ändra
 
 <p>
 
-<em><a href="depot.txt"><em>Hangarer:</em></a></em> verktyg för att bygga hangarer för att köpa eller administrera flygplan. Hangarer kostar underhåll och byggs i slutet av en bit taxibana.<br>
+<a href="depot.txt"><em>Hangarer:</em></a> verktyg för att bygga hangarer för att köpa eller administrera flygplan. Hangarer kostar underhåll och byggs i slutet av en bit taxibana.<br>
 
 {Tips: Ta bort hangarer med Förstör/Ta bort.}
 

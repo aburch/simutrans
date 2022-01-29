@@ -60,9 +60,9 @@ Information contained in dialogue:<br>
 - <em>with sign/signal</em> is shown if there is a signal or sign present.<br>
 - <em>electrificado</em>/<em>no electrificado</em> indica si la via esta electrificada.<br>
 - <em>vehiculos el mes pasado</em> indica el numero de <a href="convoiinfo.txt">Vehiculos</a> que han usado la via en el mes previo de juego.<br>
-- <em>reservado<por/em> indica el tipo de vehiculo que ha reservado la via pasa su uso hasta que haya pasado por ella.<br>
+- <em>reservado por</em> indica el tipo de vehiculo que ha reservado la via pasa su uso hasta que haya pasado por ella.<br>
 - <em>inclinacion</em> indica la direccion de inclinacion si existe<br>
-- <em>coordenadas del mapa</em> mostradas en la barra inferior de la <a href="window.txt">pantalla<br>
+- <em>coordenadas del mapa</em> mostradas en la barra inferior de la <a href="window.txt">pantalla</a><br>
 En el caso de la vias del tranviaconstruidas sobre carreteras: la informacion se muestra dos veces, la primera por la carretera y la segunda por la via del tranvia.
 </p>
 <p>

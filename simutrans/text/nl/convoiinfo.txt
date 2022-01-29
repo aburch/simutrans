@@ -22,7 +22,7 @@ De titelbalk van het scherm met <strong>voertuig informatie</strong> toont een u
 De volgende informatie wordt getoond in de titelbalk en bovenin van het scherm <strong>voertuig informatie</strong> :
 </p>
 <p>
-<em>Intern ID</em>: een uniek ID nummer voor dat voertuig (toegekend wanneer het voertuig wordt gekocht in een  <a href=depot.txt">remise of hangar (depot)</a>).
+<em>Intern ID</em>: een uniek ID nummer voor dat voertuig (toegekend wanneer het voertuig wordt gekocht in een  <a href="depot.txt">remise of hangar (depot)</a>).
 </p>
 <p>
 - <em>naam</em>: dit is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).<br>

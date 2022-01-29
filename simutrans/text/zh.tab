@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                            Language: zh T. Chinese                           #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -1504,7 +1504,7 @@ sliced underground mode
 slot empty
 尚未使用
 Sort by
-排列乘客/貨物,按
+排列按
 Sort waiting list by
 排列等候列表,按
 Sound
@@ -1715,8 +1715,6 @@ way %s cannot longer used:\n%s\n
 無法再建造 %s 路
 way %s now available:\n
 現在可用%s 路了\n
-way %s now available:\n%s\n
-現在可用%s 路了:\n%s
 Ways not connected
 道路未連接
 Wegpunkt

@@ -62,7 +62,7 @@ Information contained in dialogue:<br>
 - <em>convoi passed last month</em> indicates number of <a href="convoiinfo.txt">Vehicles</a> that used way in the previous game-calendar-month.<br>
 - <em>reserved by</em> indicates which vehicle has reserved a track for use till it has passed.<br>
 - <em>wayslope</em> indicates direction of slope if any<br>
-- <em>map-coordinates</em> as shown on bottom-bar <a href="window.txt"></a><br>
+- <em>map-coordinates</em> as shown on bottom-bar<br>
 In the case of tram tracks constructed on road: information is shown twice, first for the road and then for the tram track.
 </p>
 <p>

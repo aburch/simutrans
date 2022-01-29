@@ -1,10 +1,9 @@
-<title>Line Management</title>
+<title>Line List</title>
 
-<h1><strong>Line Management</strong></h1>
+<h1><strong>Line List</strong></h1>
 
 <p>
-<strong>Line Management</strong> provides information and controls to manage Lines (routes and minimum quantity of goods & passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a Convoy or multiple Convoys with the same route.
-</p>
+<strong>Line List</strong> manage Lines (a group of <a href="convoiinfo.txt">Convoy</a> that share the same <a href="schedule.txt">route</a>)</p>
 <p>
 Lines consist of <a href="station.txt">Stops</a> where vehicles pick-up and drop-off goods & passengers (water-transport vehicles may use any square of water in the catchment area of a dock) and waypoints (used to direct vehicles if more than one option is possible or provide interim destination points).
 </p>
@@ -12,7 +11,7 @@ Lines consist of <a href="station.txt">Stops</a> where vehicles pick-up and drop
 Click on network-icon at top of game-view or press <a href="keys.txt">[w]</a> to open <strong>Line Management</strong>, which can be <a href="mouse.txt">re-sized</a> (click on down-arrow in titlebar to return to original size).
 </p>
 <p>
-The left hand side of <strong>Line Management</strong> lists existing Lines (to scroll list: use slider-bar on right of list), which can be filtered by transport type, click on a index-tab above list to select:<br>
+The <strong>Line List</strong> lists existing Lines (to scroll list: use slider-bar on right of list), which can be filtered by name or by transport type (click on a index-tab above list to select):<br>
 <em>All</em>: lists Lines for all vehicles.<br>
 <em>Train</em>: lists Lines for all railroad vehicles.<br>
 <em>Monorail</em>: lists Lines for all Monrail/maglev vehicles.<br>
@@ -30,76 +29,13 @@ Colour of name of Line that appears in List indicates following:<br>
 <it>red</it> - line making loss<br>
 </p>
 <p>
-Under the list of existing Lines are option-buttons for managing Lines.<br>
-Click on a Line in list to select (highlights name) and see information about <a href="station.txt">Stops</a>, income, and Convoys on selected Line.<br>
-If details about Stops or Convoys are only partially visible then re-size <strong>Line Management</strong> or use slider-bars to scroll information.
+If you hover over a Line, some more info will be shown. Click on a Line in list to open the <a href="linedetail.txt">Line</a> and see information about <a href="station.txt">Stops</a>, income, and Convoys on this Line or change the schedule.</p>
+<p>
+Two management option are available:
 </p>
 <p>
-The option-buttons, on the left, include (click to select):
-</p>
-<p>
-<em>New Line:</em>option opens controls to define a <a href="schedule.txt">Schedule</a> (a route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) for a new Line .<br>
-Add as many <a href="station.txt">Stops</a> or waypoints required, set Wait For levels as required, then close Schedule Controls to create new Line (click x in top-left-hand corner of controls or use keyboard). The new Line will be assigned a number and listed in <strong>Line Management</strong>.<br>
-{Tips: Select transport type using index-tab before creating new line. Vehicles do not pick-up or drop-off goods & passengers at waypoints.}
-</p>
-<p>
-<em>Update Line:</em> opens controls to alter and manage the existing <a href="schedule.txt">Schedule</a> (route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) of a Line. Changes will affect vehicles on line, once Schedule Controls have been closed (click x in top-left-hand corner).<br>
-Click on a Line name in list to select (highlights name) then click on option-button to open Schedule Controls.
-</p>
-<p>
-<em>Delete Line:</em> deletes the selected Line (a route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed).<br>
-Click on Line name in list to select (highlights name), then click on option-button to remove. No further confirmation will be required.
-</p>
-<p>
-When a Line is selected, the <a href="station.txt">Stops</a> are shown on bottom-left of <strong>Line Management</strong>. Click on a Stop listed to open its Stop Information.<br>
-Items listed for each Stop include:<br>
-<em>status-colour-bar:</em> colours indicate operation of <a href="station.txt">Stop</a> with regards to how overcrowded it is. The status-colour-bar is also used in <a href="haltlist.txt">Station List</a> and Stop Information and is the same colour displayed in the colour-bar above a Stop in game-display:<br>
-- <em>yellow:</em> not in service.<br>
-- <em>green:</em> no improvemments required.<br>
-- <em>orange:</em> improvements possible.<br>
-- <em>red:</em> improvements recommended.<br>
-{Tips: Use [!] to toggle colour-bar above Stop in game-view.} <br>
-<em>name</em> that has been assigned to Stop.<br>
-<em>number</em> of Stop (Stops are numbered if option is selected in simuconf.tab).<br>
-<em>vehicle icon(s)</em> indicate which types of vehicles can use Stop (also used in Stop Information and Station List). Icons include: bus (for road passenger vehicles), truck (for road goods vehicles), train, boat and airplane. Trams can be indicated by a bus-icon or a train-icon depending on type of station.<br>
-<em>freight icon(s)</em> indicate which items (passengers, goods and mail) a Stop can handle (also used in Stop Information and Station List).<br>
-{Tips: adding appropriate extensions can change the category of items a Stop can handle. <a href="special.txt">Post offices</a> can be added to Stops to enable handling of mail}.<br>
-<em>waiting</em> details of different goods and passengers.
-</p>
-<p>
-On the right of <strong>Line Management</strong> information on a graph, a name-box and a <a href="convoiinfo.txt">Convoy</a> list is shown for a selected Line.
-</p>
-<p>
-Click on Line name in list to select (highlights name). Click on option-buttons to toggle information, about selected Line and the vehicles assigned to it, on graph (the x-axis is time in months):
-</p>
-<p>
-- <em>Free Capacity</em> - amount of spare space in vehicle(s) for goods & passengers.
-</p>
-<p>
-- <em>Travelled</em> - amount of goods and passengers that used Line.
-</p>
-<p>
-- <em>Proceeds</em> - amount of income generated by vehicles.
-</p>
-<p>
-- <em>Operation Costs</em> - cost incurred by vehicles when in transit.
-</p>
-<p>
-- <a href="finances.txt"><em>Profit</em></a> - income generated less costs incurred (Proceeds less Operational Costs).
-</p>
-<p>
-- <a href="convoiinfo.txt"><em>Convoys</em></a> - number of Convoys assigned to Line.
-</p>
-<p>
-To rename Line: Click on Line name in list to select (highlights name), then click on name-box (under graph options, above listed Convoys) and type new name.
-</p>
-<p>
-When a Line is selected (click on Line name in list to highlight), the <a href="convoiinfo.txt">Convoys</a> assigned to Line are listed below the graph.<br>
-At the top of the list of vehicles: the total number of Convoys assigned to Line; income (proceeds less operation costs), capacity, and current quantity of  goods and passengers carried (% of full capacity in brackets) of all Convoys on Line is shown.<br>
-Click on a item listed to see more information about that Convoy (use slider-bar to scroll list).<br>
-Items listed for each Convoy include:<br>
-<em>name</em> that has been assigned (by default this is make of first vehicle unit <a href="depot.txt">purchased</a> or assembled for Convoy).<br>
-<em>income</em> shows profit (income generated less operation costs).<br>
-<em>Line:</em> shows the name of Line assigned to Convoy and indicates if it is in a <a href="depot.txt">depot</a>.<br>
-<em>graphics</em> show the compostion and the current level of items on board.
+<em>New Line:</em> creates a new Line window. This requires that a transport type is selected.<br>
+<em>Delete Line:</em> removes the current line from the game. All convois belonging to that line will driving with an individual schedule similar to the line.<br>
+<br>
+<em>Single GUI:</em> if activated and a Line is clicked, the topmost Line window will be replaced by the selected Line.
 </p>

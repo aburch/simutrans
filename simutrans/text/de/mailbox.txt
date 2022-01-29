@@ -1,4 +1,4 @@
-<title>Mailbox und Mailbox Optionen Hilfe</title>
+<title>Mailbox und Mailbox Optionen</title>
 
 <h1><strong>Mailbox und Mailbox Optionen</strong></h1>
 

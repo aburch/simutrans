@@ -1,4 +1,4 @@
-<title>Player List Help</title>
+<title>Player List</title>
 
 <h1><strong>Player List</strong></h1>
 

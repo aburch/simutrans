@@ -1,4 +1,4 @@
-<title>Load Help</title>
+<title>Load</title>
 
 <h1><strong>Load</strong></h1>
 

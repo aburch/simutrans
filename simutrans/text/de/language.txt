@@ -1,4 +1,4 @@
-<title>Sprachauswahl Hilfe</title>
+<title>Sprachauswahl</title>
 
 <h1><strong>Sprachauswahl</strong></h1>
 
@@ -9,6 +9,6 @@
 Die Sprache kann jederzeit geändert werden. Geöffnete Dialoge behalten teilweise die alte Sprache bei und werden erst nach erneutem Öffnen in der neuen Sprache angezeigt.
 </p> 
 <p>
-Du kannst helfen, Simutrans in andere Sprachen zu übersetzt.<br>
+Du kannst helfen, Simutrans in andere Sprachen zu übersetzen.<br>
 Gehe dafür auf https://translator.simutrans.com
 </p>

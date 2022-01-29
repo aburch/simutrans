@@ -1,4 +1,4 @@
-<title>Player Colour Help</title>
+<title>Player Colour</title>
 
 <h1><strong>Player Colour</strong></h1>
 

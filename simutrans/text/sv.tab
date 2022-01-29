@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: sv Svenska                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,8 +71,6 @@ hlf_btn_invers
 byt
 hlf_btn_keine
 inga
-lake
-Skapa insjö
 Networks
 Linjenät
 Queueing
@@ -1458,7 +1456,7 @@ Inställningar
 Ship
 Fartyg
 shops and stores
-Affärsbyggnader\n
+Affärsbyggnader
 Show all
 Visa allt
 show all building
@@ -1723,8 +1721,6 @@ way %s cannot longer used:\n%s\n
 %s finns inte längre tillgänglig:\n
 way %s now available:\n
 Vägtyp %s kan\Nframöver byggas.\n
-way %s now available:\n%s\n
-%s\nkan nu byggas.
 Way toll
 Vägtull
 Ways not connected

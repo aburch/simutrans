@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: hu Magyar                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -285,8 +285,6 @@ Villamos kellékek
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s-n\n felépítettek a (%i,%i) cégközpontot.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s többlet költséget jelent %i számú lakosnál.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s többlet költséget jelent %i számú lakosnál.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1468,7 +1466,7 @@ Metróépítő mód rétegei
 Smart hide objects
 Épületek elrejtése
 Sort by
-Szortírozta:
+Szortírozta
 Sort waiting list by
 Várakozáslista szort.:
 Sound
@@ -1671,8 +1669,6 @@ way %s cannot longer used:\n%s\n
 %s típúsú út többé már nem elérhatő:\n%s\n
 way %s now available:\n
 %s típúsú út már elérhatő:\n
-way %s now available:\n%s\n
-%s típúsú út már elérhatő:\n%s\n
 Ways not connected
 Az útvonal nincs összekötve
 Wegpunkt

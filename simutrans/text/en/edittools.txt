@@ -1,4 +1,4 @@
-<title>Game and map editing tools Help</title>
+<title>Game and map editing tools</title>
 
 <h1><strong>Game and map editing tools</strong></h1>
 

@@ -1,0 +1,7 @@
+<title> Detalles sobre el crecimiento de la ciudad </title>
+<h1> <strong> Crecimiento de la ciudad </strong> </h1>
+<p> Este texto explica cómo se produce el crecimiento de la ciudad. Cómo se calcula, qué edificios se están construyendo y por qué. Y cómo influir en el desarrollo urbano a través de los distintos parámetros.
+</p>
+<p> Una ciudad crece cuando las personas y el correo se transportan a su destino. <br>
+Y crece incluso cuando los mercados, las centrales eléctricas y las fábricas pertenecientes a la ciudad reciben suministros.
+</p>

@@ -1,1 +1,66 @@
-<title>Build city buildings</title> <h1><strong>Build city buildings</strong></h1> <p>The dialogue is divided into four sections. <br> · top left is a selection list of available city buildings<br> · bottom left is shown a picture of the chosen city building<br> · top right some options may be set<br> · bottom right is information about the chosen city building given<br></p> <h1>Selection list</h1> <p> In the selection list are given all urban buildings that are available with the options specified top right (<em>Residential houses</em>, <em>Shops and offices</em>, <em>Industrial buildings</em>). There are two tabs that will allow you to change how the urban buildings are identified.<br> · <em>Translation:</em> Shows the name of the building in the given language. If there is no translation available in the given language, the object name will be used.<br> · <em>Object:</em> Shows the Simutrans internal object name for the building type.<br> <br> The color of the text has the following meaning:<br> · <em>blue text</em> signifies a residential building.<br> · <em>green text</em> signifies a shop or office building.<br> · <em>black text</em> signifies an industrial building.<br> </p> <h1>Options</h1> <p> · <em>ignore climates:</em> This option deactivates the climate restrictions associated with various building types.<br> · <em>Use timeline year:</em> The selection list will only contain buildings that are available the current Simutrans year.<br> · <em>Show obsolete too:</em> Expand the selection list to also contain buildings that are obsolete the current Simutrans year.<br> · <em>Residential houses:</em> There will be residential houses in the selection list.<br> · <em>Shops and offices:</em> There will be shops and offices in the selection list.<br> · <em>Industrial buildings:</em> There will be industrial buildings in the selection list. <br> · <em>Rotation:</em> If the chosen building can be shown from different angles, then it is possible to chose a specific view of it here. The image bottom left will change to reflect this. If this option is set to <em>random</em> a random view of the building will be used.<br> </p>
+<title>Build urban buildings</title> 
+
+<h1><strong>Build urban buildings</strong></h1> 
+
+<p>
+The <strong>Build urban buildings</strong> window allows placement of individual building. It is a map customisation option, available if you switch to public service player and then open the <a href="edittools.txt">Map Editing Tools</a>.<br>
+</p> 
+
+<p>
+The dialogue is divided into four sections:<br>
+1) Top left: Filter and sort options.<br>
+2) Bottom left: A selection list of available buildings.<br>
+3) Top right: Placement options.<br>
+4) Bottom right: Information and picture of the chosen building.<br>
+</p>
+
+<h1>1 - Filter and sort options</h1>
+
+<p>
+· <em>Obey era:</em> The selection list will only contain buildings that are available at the current Simutrans year. This is mutually exclusive with "Available at custom date" option.<br>
+· <em>Available at custom date:</em> The selection list will only contain buildings that are available at the specified date. This is mutually exclusive with "Obey era" option.<br>
+· <em>Show obsolete:</em> Expand the selection list to also contain buildings that are obsolete at the current Simutrans year.<br> 
+· <em>Climate:</em> Filter by allowed climates.<br>
+· <em>Sort by:</em> Sort the list by any of the following parameters:<br>
+·· <em>Translation:</em> Show and sort by names in the given language as defined in the pakset. If there is no translation available, the object name will be used.<br>
+·· <em>Object:</em> Show and sort by Simutrans internal object name.<br>
+·· <em>Pax Level:</em> Sort by quantity of passengers generated or demanded.<br>
+·· <em>Mail Level:</em> Sort by quantity of mail generated or demanded.<br>
+·· <em>Intro. date:</em> Sort by date of introduction (when the building starts appearing).<br>
+·· <em>Retire date:</em> Sort by date of retirement (when the building stops appearing).<br>
+·· <em>Size (area):</em> Sort by size of building in tiles (Note: some paksets may only have buildings of one tile).<br>
+· <em>Residential houses:</em> Show/hide residential buildings.<br>
+· <em>Shops and offices:</em> Show/hide commercial buildings.<br>
+· <em>Industrial buildings:</em> Show/hide industrial buildings.<br>
+</p>
+
+<h1>2 - Selection list</h1> 
+
+<p>
+In the selection list are shown all urban buildings that are available with the options specified. Click on a building in the list to see more information about that particular building. To place the building, click in the game-world window on the desired location after selecting it from the list.<br><br>
+The color of the text has the following meaning:<br>
+· <em>Blue text</em> signifies a residential building.<br>
+· <em>Green text</em> signifies a shop or office building.<br>
+· <em>Black text</em> signifies an industrial building.<br>
+</p> 
+
+<h1>3 - Placement options</h1>
+
+<p> 
+· <em>Ignore climates:</em> This option deactivates the climate restrictions, allowing you to plant the tree on non-allowed climates.<br>
+· <em>Rotation:</em> If the chosen building can be shown from different angles, then it is possible to chose a specific view of it here. The image will change to reflect this. If this option is set to <em>random</em> a random view of the building will be used.
+</p>
+
+<h1>4 - Information</h1>
+
+<p>
+Information about buildings contains:<br>
+· <em>Type:</em> Building type (Residential, Industrial, or Shop and offices).<br>
+· <em>Name and Description:</em> It will display only the description if it has no name. It will display the object name only if it has no name and no description.<br>
+· <em>Allowed climates:</em> Climates where the tree is allowed to be planted (if "Ignore climates" option is not set).<br>
+· <em>Passenger level:</em> Metric of quantity of passengers generated or demanded.<br>
+· <em>Mail level:</em> Metric of quantity of mail generated or demanded.<br>
+· <em>Introduction date:</em> Date since the building appears.<br>
+· <em>Author:</em> The name of the author who painted the object (if available).<br>
+· <em>Image:</em> Image of the building.<br>
+</p>

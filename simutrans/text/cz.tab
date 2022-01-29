@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: cz Cestina                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -303,8 +303,6 @@ Tramvaje
 %s vybudoval nové øeditelství.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 Ve mìstì %s si úøedníci nechali postavit\nnovou budovu,\nkdy¾ jejich mìsto pøesáhlo\n%i obyvatel.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Ve mìstì %s si úøedníci nechali postavit\nnovou budovu,\nkdy¾ jejich mìsto pøesáhlo\n%i obyvatel.
 Bankrott:\n\nDu bist bankrott.\n
 Bankrot:\n\nVa¹e firma zkrachovala.\n
 Congratulation\nScenario was complete in\n%i months %i years.
@@ -490,7 +488,7 @@ letadlo
 Airport
 Leti¹tì
 AIRTOOLS
-Stavba leti¹»ì
+Stavba leti¹tì
 All
 V¹e
 all convoi tooltips
@@ -564,7 +562,7 @@ Nejvy¹¹í mo¾ná rychlost: %i km/h
 Boost (%)
 Zvý¹ení produkce (%)
 bridge is too high for its type!
-Tento typ neumo¾òuje takovouto bý¹ku mostu!
+Tento typ neumo¾òuje takovouto vý¹ku mostu!
 Bruecke
 Most
 Brueckenboden
@@ -833,6 +831,8 @@ Dock
 Pøístav
 Dock must be built on single slope!
 Doky lze postavit pouze na rovném pobøe¾í!
+dp_title
+Seznam dep
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 Máte je¹tì %d mìsíc(e) na splacení dluhu.
 Durchsatz
@@ -975,6 +975,8 @@ Gross Profit
 Hosp. výsledek
 Groundobj
 Objekt
+groundobj builder
+Pøidat krajinný objekt
 Grow city
 Zvìt¹it mìsto
 Growth
@@ -1114,7 +1116,7 @@ souøadnice
 Kreuzung
 Pøejezd
 labellist_title
-Seznam znakù
+Seznam znaèek
 Lade Relief
 Naèíst terén
 Laden
@@ -1131,6 +1133,8 @@ LARGE_NUMBER_VALUE
 1e6
 Last Month
 Minulý mìsíc
+Last used tools
+Naposledy pou¾ité nástroje
 Last Year
 Minulý rok:
 Leaving depot!
@@ -1235,6 +1239,8 @@ Meldung
 Zpráva
 Menge
 Poèet
+merge stop
+Slouèit zastávky
 MessageOptionsText
 \nNový rok\n\nNovinky AI\n\nZe mìst\n\nBloudìní\n\nNový prùmysl\n\nDiskuse\n\nNová vozidla\n\nPøeplnìní\n\nProblémy\n\nZácpy\n\nScénáø
 minimum length of rivers
@@ -1563,6 +1569,8 @@ road vehicle
 silnièní vozidlo
 Roadsign
 Silnièní znaèka
+Rotate Building
+Otoèit budovu (nástupi¹tì)
 Rotate map
 Rotace mapy
 Rotation
@@ -1901,6 +1909,8 @@ verkaufen
 Prodávat
 Verkehrsteilnehmer
 Osobní auta
+vh_title
+Katalog vozidel
 via
 Pøes
 via %s\n
@@ -1933,8 +1943,6 @@ way %s cannot longer used:\n%s\n
 Typ trati %s nemù¾e být dále pou¾íván:\n%s\n
 way %s now available:\n
 Typ trati %s je nyní k dispozici.
-way %s now available:\n%s\n
-tra» %s je je nyní k dispozici:\n%s\n
 Way toll
 Mýtné
 Ways not connected

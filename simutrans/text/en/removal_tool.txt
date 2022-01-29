@@ -1,4 +1,4 @@
-<title>Removal Tool Help</title>
+<title>Removal Tool</title>
 
 <h1><strong>Destroy/Removal Tool</strong></h1>
 

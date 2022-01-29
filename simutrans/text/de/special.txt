@@ -22,10 +22,40 @@ Einige Nebengebäude sind auch in den anderen Bauwerkzeugen zu finden, unterschei
 <em>Aufforstwerkzeug</em> Während Rodungsarbeiten mit Unkosten verbunden sind, stellt Dir Simutrans Setzlinge für Aufforstungen gratis zur Verfügung. Die Landschaftsverschönerung kann eine reizvolle Aufgabe sein. Ökologische Aspekte sind derzeit aber nicht im Spiel implementiert.
 </p>
 <p>
-<em>Überlandleitungen</em> Einige der Produktionsstätten könnten ruhig mehr produzieren? Versorge sie mit Strom, und sie werden es tun. Platziere je ein <em>Umspannwerk</em> neben dem Kraftwerk und neben dem Betrieb, den Du versorgen möchtest.
-Durch die Verbindung der beiden Umspannwerke durch eine Überlandleitung wird der Betrieb mit Strom versorgt. Der Stromtransport stellt auch eine interessante Einnahmequelle dar.
-Solange Strom fließt, verdoppelt sich die Produktion jedes versorgten Betriebs.
+<em>Stromnetz</em> Einige der Produktionsstätten könnten ruhig mehr produzieren? Versorge sie mit Strom, und sie werden es tun. Platziere je ein <em>Umspannwerk</em> direkt angrenzend an ein Kraftwerk und  dem Betrieb, den Du versorgen möchtest. An jedes Kraftwerk und jeden Betrieb kann nur ein Umspannwerk angeschloßene werden. Ein Kraftwerk kann aber mehrere Betriebe mit Strom versorgen.
+Durch die Verbindung der beiden Umspannwerke durch eine Überlandstromleitung wird der Betrieb mit Strom versorgt. Der Stromtransport stellt auch eine interessante Einnahmequelle dar.
+Solange Strom fließt, erhöht sich die Produktion jedes versorgten Betriebs.
 Ob eine Fabrik genug Strom erhält, sieht man im Spiel an einem roten Blitz auf dem Umspannwerk.
+Je nach Grafikset können Umspannwerke auch im Untergrund gebaut werden. Dazu muß man in den Untergrundmodus (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) wechseln und das Umspannwerk-Werkzueg ausgewählt haben. Dann erscheint unter den Betrieben eine rote Grundfläche auf der das Umspannwerk plaziert werden muß.
+</p>
+<p>
+<br/> <br/>
+<em>Überlandstromleitungen</em> Baukosten werden in den blauen Tooltips angezeigt.
+Der Abriss kostet für Überlandstromleitungen genausoviel wie deren Bau.
+<br/> <br/>
+Simutrans benutzt nur leere Felder bzw. bereits vorhandene Überlandstromleitungen.
+Brücken, Tunnel, Eisenbahnstrecken usw. werden nicht in die Bauaktion mit einbezogen.
+Allerdings werden automatisch Bahn- und Straßenübergänge gebaut. Am Hang kann nur in Neigungsrichtung gebaut werden.
+<br/><br/>
+Beim ersten Platzieren des Stromleitungswerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kürzestmögliche Strecke.
+Wenn keine Verbindung gefunden wird, passiert nach dem Anklicken des Endpunktes nichts.
+Eine Bauaktion lässt sich mittels <em>z</em> gratis rückgängig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.
+</p>
+<p>
+<em>Strombrücken</em> beginnen immer an einem Stromleitungsenden.
+Für das Strombrückenende sucht Simutrans in der geraden Weiterführung des Stromleitungsendes ein vorhandenes Stromleitungsende, welches in die Richtung des Anfangspunktes weist.
+Wird eine passende Hanglage vorgefunden, so wird die Brücke an sie angelehnt.
+Die weiter führende Stromleitung kann in dem Fall auch nachträglich gebaut werden, muss aber bis auf die Brücke fortgebaut werden.
+Um eine Strombrücke an einem Hang beginnen zu lassen, die Stromleitung bis auf den Hang bauen und dann das Strombrückenbauwerkzeug benutzen. (In neueren Versionen kann eine Strombrücke auch an einer senkrechten Wand enden. Dazu sollte vorher dort schon eine Stromleitung gebaut worden sein.)
+</p>
+<p>
+<em>Stromtunnel / Untergrundstromleitungen</em> können nur gerade und nur in einer Höhenebene gebaut werden.
+Als Startpunkt des Stromtunnels muss ein Stromleitungsende in einer Hanglage verbaut sein.
+Setze das Tunnelbauwerkzeug auf das Stromleitungsstück. Der Stromtunnel wird komplett gebaut, wenn Simutrans in der gegenüberliegneden Bergflanke eine gerade Hanglage vorfindet.
+Erhältst Du eine Hinweismeldung, war das gegenüberliegende Hangstück nicht gerade.
+Eine wichtige Bauhilfe stellt die Nutzung des Gitternetzes dar
+(in der größten Kartenansicht schaltet die Taste <em>#</em> es ein und aus); mit ihm lässt sich der Durchstoßpunkt besser finden.<br>
+Willst du nur ein Stromtunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick machen. Danach kann du dann in den Untergrundmodus wechseln (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) und mit dem Stromtunnelwerkzeug weitere Strecken bauen.
 </p>
 <p>
 <em>Marker</em> Den Marker kannst Du für die Einrichtung von Gedächtnisstützen nutzen.

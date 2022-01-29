@@ -1,13 +1,13 @@
-<title>Spieler Hilfe</title>
+<title>Spielerliste</title>
 
 <h1><strong>Spieler Menü</strong></h1>
 
 <p>
 Im Spieler-Menü sind alle Spieler aufgelistet.<br>
-Ganz oben befindet sich der menschlische Spieler.<br>
+Ganz oben befindet sich der menschliche Spieler.<br>
 Darunter befindet sich die <em>Öffentliche Hand</em>. Die öffentliche Hand kümmert sich nur um den Ausbau der Städte und Industrien sowie Sehenswürdigkeiten und Denkmälern.</p>
 <p>
-Wenn Du auf den Pfeil vor dem jeweiligen Spieler klickst, dann wechselst Du zu diesem Spieler. Vorraussetzung dafür ist, das der Spielerwechsel nicht deaktiviert wurde.</p>
+Wenn Du auf den Pfeil vor dem jeweiligen Spieler klickst, dann wechselst Du zu diesem Spieler. Voraussetzung dafür ist, das der Spielerwechsel nicht deaktiviert wurde.</p>
 <p>
 Darunter befinden sich mehrere Felder, wo weitere Spieler (KI-Spieler) ausgewählt werden können. Ist das Feld grau, so ist noch kein Spieler ausgewählt. Nach der Auswahl eines Spielers, erscheint vor dem Feld eine kleine Schaltfläche, mit der der Spieler aktiviert und deaktiviert werden kann.</p>
 <p>

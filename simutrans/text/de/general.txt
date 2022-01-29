@@ -1,4 +1,4 @@
-<title>Simutrans Hilfe</title>
+<title>Simutrans</title>
 
 <h1><strong>Simutrans Hilfe</strong></h1>
 

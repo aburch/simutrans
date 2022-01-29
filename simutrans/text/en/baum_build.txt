@@ -1,33 +1,49 @@
-<title>Plant trees Help</title>
+<title>Plant trees</title>
 
 <h1><strong>Plant trees</strong></h1>
 
 <p>
-The <strong>Plant trees</strong> window allows planting of individual trees. It is a map customisation option, available if you switch to public service player, via <a href="edittools.txt">Map Editing Tools</a> bar.<br>
+The <strong>Plant trees</strong> window allows planting of individual trees. It is a map customisation option, available if you switch to public service player and then open the <a href="edittools.txt">Map Editing Tools</a>.<br>
 TIP: There is also an <em>Add forest</em> button available on this bar, used to add forests at once.
 </p> 
 
 <p>
-The dialogue is divided into four sections.
-<br>· In the upper left corner there is a list of all of the tree species available to be planted. Click on an item in the list to see more information about that particular tree. To place the tree, click in the game-world window on the desired location after selecting it from the list. 
-<br>· In the lower left corner is shown a picture of the chosen tree.
-<br>· In the upper right corner some options may be set.
-<br>· Below the options is information about the chosen tree.
-<br>
-</p>
+The dialogue is divided into four sections:<br>
+1) Top left: Filter and sort options.<br>
+2) Bottom left: A selection list of available trees.<br>
+3) Top right: Placement options.<br>
+4) Bottom right: Information and picture of the chosen tree.<br>
+</p> 
 
-<h1>Selection list</h1>
-
-<p>
-In the selection list there are two tabs that will allow you to change how the tree types are identified.
-<br>· <em>Translation:</em> Shows the name of the tree in the given language as defined in the pakset. If there is no translation available, the object name will be used.
-<br>· <em>Object:</em> Shows the Simutrans internal object name.
-<br>
-</p>
-
-<h1>Options</h1>
+<h1>1 - Filter and sort options</h1>
 
 <p>
-· <em>Ignore climates:</em> This option deactivates the climate restrictions associated with various tree types.
-<br>· <em>Random age:</em> The age of the tree to be planted will be randomized. Normally, they are planted at the youngest age, they will grow to maturity and then die over the course of many years.
+· <em>Climate:</em> Filter by allowed climates.<br>
+· <em>Sort by:</em> Sort the list by any of the following parameters:<br>
+·· <em>Translation:</em> Show and sort by names in the given language as defined in the pakset. If there is no translation available, the object name will be used.<br>
+·· <em>Object:</em> Show and sort by Simutrans internal object name.<br>
+</p>
+
+<h1>2 - Selection list</h1>
+
+<p>
+In the selection list are shown all urban buildings that are available with the options specified. Click on a tree in the list to see more information about that particular tree. To plant the tree, click in the game-world window on the desired location after selecting it from the list.<br>
+</p>
+
+<h1>3 - Placement options</h1>
+
+<p>
+· <em>Ignore climates:</em> This option deactivates the climate restrictions, allowing you to plant the tree on non-allowed climates.<br>
+· <em>Random age:</em> If active, the age of the tree to be planted will be randomized. Normally, they are planted at the youngest age, they will grow to maturity and then die over the course of many years.<br>
+</p>
+
+<h1>4 - Information</h1>
+
+<p>
+Information about trees contains:<br>
+· <em>Name:</em> Name of the tree.<br>
+· <em>Allowed climates:</em> Climates where the tree is allowed to be planted (if "Ignore climates" option is not set).<br>
+· <em>Seasons:</em> Number of seasons.<br>
+· <em>Author:</em> The name of the author who painted the object (if available).<br>
+· <em>Image:</em> Image of the tree.<br>
 </p>

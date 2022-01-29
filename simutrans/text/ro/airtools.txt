@@ -35,19 +35,19 @@ Pentru a sterge pista: click pe iconita (se va schimba intr-o crucie rosie), cli
 {Sfat: Capetele pistei principale trebuie sa fie goale, altfel avioanele nu vor putea decola sau ateriza. Foloseste Distruge/Elimina pentru a sterge bucati din pista de rulare.}
 </p>
 <p>
-<em><a href="depot.txt"><em>Hangarul:</em></a></em> este folosit pentru a cumpara si a inventaria avioane. Hangarele au costuri de mentenanta si sunt construite la capatul unei piste de rulare.<br>
+<a href="depot.txt"><em>Hangarul:</em></a> este folosit pentru a cumpara si a inventaria avioane. Hangarele au costuri de mentenanta si sunt construite la capatul unei piste de rulare.<br>
 Pentru a construi un Hangar: click pe unealta (se va schimba in iconita unui hangar) si apoi click pe capatul unei piste de rulare.<br>
 {Sfat: Elimina hangare cu unealta de Distruge/Sterge.}
 </p>
 <p>
-<em></em>&<em>Terminal:</em> aceata unealta construieste statii pentru avioane, folosite pentru imbarcarea si debarcarea pasagerilor, incarcareea si descarcarea de marfa.<br>
+<em>Terminal:</em> aceata unealta construieste statii pentru avioane, folosite pentru imbarcarea si debarcarea pasagerilor, incarcareea si descarcarea de marfa.<br>
 Un Terminal, cand nu este construit langa un alt <a href="station.txt">Terminal</a> va actiona de sine statator (nu va imparti marfa sau pasageri cu celalalt terminal).<br>
 Terminalele sunt construite la capatul pistelor de rulare si au costuri de mentenanta. Mai mult, acestea au zone (arie de efect) care determina numarul de pasageri, posta si marfuri ce vor tranzita aeroportul. Un avion va ateriza numai la un aeroport care are un Terminal liber.<br>
 Pentru a construi un Terminal : click pe unealta si apoi click pe capatul unei piste de rulare.<br>
 {Sfat: Elimina Terminale cu unealta de Distruge/Sterge. Apasa [v] pentru a arata/ascunde aria de efect penru marfuri si pasageri.}
 </p>
 <p>
-<em>Cladiri aeroport:</em> aceasta unealta permite constructia de extensii pentru <a href="station.txt">Terminale</em></a> care pot creste costul de mententanta, capacitatea si aria de efect a acestuia, atat pentru pasageri cat si pentru marfa. In coltul unor unelte, o unealta (folosita in <a href="haltlist.txt">Lista statii</a> si Terminale) arata care elemente din extensie pot functiona cu terminalul.<br>
+<em>Cladiri aeroport:</em> aceasta unealta permite constructia de extensii pentru <a href="station.txt">Terminale</a> care pot creste costul de mententanta, capacitatea si aria de efect a acestuia, atat pentru pasageri cat si pentru marfa. In coltul unor unelte, o unealta (folosita in <a href="haltlist.txt">Lista statii</a> si Terminale) arata care elemente din extensie pot functiona cu terminalul.<br>
 Pentru a construi o extensie: click pe unealta pentru a selecta extensia dorita (cursorul se va schimba in forma unei extensii) iar apoi click pe zona potrivita, langa un Terminal. Noua extensie construita este acum parte din Terminal.<br>
 {Sfat: Sterge extenstiile cu unealta de Distruge/Sterge. Apasa [v] pentru a arata/ascunde aria de efect pentru marfa si pasageri.}
 </p>

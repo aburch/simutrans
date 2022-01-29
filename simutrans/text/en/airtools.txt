@@ -35,7 +35,7 @@ To remove an airstrip: click on tool (changes cursor to a red-cross); then click
 {Tips: Leave end of Runways unconnected otherwise planes may not take-off or land. Use Destroy/Remove to remove individual pieces of airstrips.}
 </p>
 <p>
-<em>Air <a href="depot.txt"><em>Depot:</em></a></em> tools build hangars for purchasing & managing aircraft. Hangars have a maintenance cost & are built on the end of a piece taxiway.<br>
+<em>Air </em><a href="depot.txt"><em>Depot:</em></a> tools build hangars for purchasing & managing aircraft. Hangars have a maintenance cost & are built on the end of a piece taxiway.<br>
 To build a Hangar: click on tool (changes cursor to a depot), then click on an end of a taxiway.<br>
 {Tips: Remove depots with Destroy/Remove.}
 </p>
@@ -47,7 +47,7 @@ To build an Airstop: click on tool to select and then click on an end of a taxiw
 {Tips: Remove Airstops with Destroy/Remove. Press [v] to show/hide catchment area for goods & passengers in game-view.}
 </p>
 <p>
-<em>Airport buildings:</em> tools construct extensions for <a href="station.txt">Stops</em></a> which may increase maintenance costs and the capacity & catchment area for goods & passengers. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the extension enables the Stop to handle.<br>
+<em>Airport buildings:</em> tools construct extensions for <a href="station.txt">Stops</a> which may increase maintenance costs and the capacity & catchment area for goods & passengers. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the extension enables the Stop to handle.<br>
 To build an extension: click on tool to select extension (changes cursor to extension), then click required position, next to an existing Stop in game-view. The new extension is now considered to be part of the Stop.<br>
 {Tips: Remove extensions with the Destroy/Remove. Press [v] to show/hide catchment area for goods & passengers in game-view.}
 </p>

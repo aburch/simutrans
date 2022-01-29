@@ -1,4 +1,4 @@
-<title>Spielzieldialog Hilfe</title>
+<title>Missionen</title>
 
 <h1><strong>Spielziele</strong></h1>
 

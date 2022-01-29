@@ -20,7 +20,7 @@ Klik op de knoppen om door de opties te bladeren (verandert de naam van de betre
 - <em>Naam</em> sorteert op de naam van het voertuig, alfanumeriek op de volgorde van ASCII-code order (hoofdletters voor kleine letters (de naam is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).<br>
 - <em>Inkomsten</em> sorteert de lijst op inkomsten (netto).
 - <em>Type</em> sorteert de lijst op het type transport (in oplopende volgorde wegverkeer, treinen, schepen en vliegtuigen) <br>
-- <em>id nummer</em> sorteert de lijst op het unieke id-nummer van het voertuig (wordt automatisch toegekend op het moment dat het voertuig in een <a href=depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
+- <em>id nummer</em> sorteert de lijst op het unieke id-nummer van het voertuig (wordt automatisch toegekend op het moment dat het voertuig in een <a href="depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
 </p>
 <p>
 - <em>oplopend</em> / <em>aflopend</em> keert de volgorde van de lijst om.
@@ -41,7 +41,7 @@ Klik op een voertuig in de lijst om meer informatie te zien van het <a href="con
 De volgende informatie wordt getoond voor elk voertuig:
 </p>
 <p>
-<em>id-nummer</em>: een uniek nummer dat automatisch wordt toegekend op het moment dat het voertuig in een <a href=depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
+<em>id-nummer</em>: een uniek nummer dat automatisch wordt toegekend op het moment dat het voertuig in een <a href="depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
 </p>
 <p>
 <em>naam</em> naam van het voertuig (dit is standaard het merk en naam van het eerst gekozen voertuig van de samenstelling in een <a href="depot.txt">remise of hangar (depot)</a>).
@@ -50,7 +50,7 @@ De volgende informatie wordt getoond voor elk voertuig:
 <em>Inkomsten</em> toont inkomsten (netto).
 </p>
 <p>
-<em>Lijn:</em> toont de toegekende <a href="linemanagement.txt">lijn</a> en toont of een voertuig zich in een <a href=depot.txt">remise of hangar (depot)</a>.
+<em>Lijn:</em> toont de toegekende <a href="linemanagement.txt">lijn</a> en toont of een voertuig zich in een <a href="depot.txt">remise of hangar (depot)</a>.
 </p>
 <p>
 <em>plaatje</em> toont een plaatje van het voertuig en een groene balk die weergeeft hoeveel lading het voertuig op dit moment vervoert ten opzichte van het maximum laadvermogen.

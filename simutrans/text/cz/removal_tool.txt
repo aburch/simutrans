@@ -16,7 +16,7 @@ Nástroj najdete v <a href="mainmenu.txt">hlavním menu</a> pod ikonou s èrveným k
 
 <p>
 
-Nástroj vyvoláte té¾ <a kref="keys.txt">klávesou [r]</a>.
+Nástroj vyvoláte té¾ <a href="keys.txt">klávesou [r]</a>.
 
 </p>
 

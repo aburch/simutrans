@@ -1,4 +1,4 @@
-<title>Erweiterte Einstellungen Hilfe</title>
+<title>Erweiterte Einstellungen</title>
 
 <h1><strong>Erweiterte Einstellungen</strong></h1>
 

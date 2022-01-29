@@ -35,7 +35,7 @@ Hoe een baan te verwijderen: klik op de toolbar (het menu met iconen voor Luchtv
 {TIP: Houdt het begin en einde van start- en landingsbanen vrij van connecties omdat het anders kan voorkomen dat vliegtuigen niet willen stijgen of landen. Gebruik de verwijder functie om individuele stukken start- en landingsbaan te verwijderen.}
 </p>
 <p>
-<em>Hangar <a href="depot.txt"><em>(Depot):</em></a></em> bouwt een hangar om vliegtuigen te kopen en te beheren. Hangars hebben  onderhoudskosten en worden gebouwd op een uiteinde van een taxibaan.<br>
+<em>Hangar </em><a href="depot.txt"><em>(Depot):</em></a> bouwt een hangar om vliegtuigen te kopen en te beheren. Hangars hebben  onderhoudskosten en worden gebouwd op een uiteinde van een taxibaan.<br>
 Om een hangar te bouwen (verandert de cursor in een hangar) en klik op een uiteinde van een taxibaan.<br><br>
 {TIP: Verwijder hangars met de verwijder tool.}
 </p>
@@ -47,7 +47,7 @@ Hoe een pier te plaatsen: klik op de toolbar (het menu met iconen voor Luchtvaar
 {TIP: Verwijder pieren met de verwijder tool. Druk op [v] om het dekkingsgebied van een pier te tonen of te verbergen.}
 </p>
 <p>
-<em>Luchthaven gebouwen:</em> bouwt uitbreidingen voor de luchthaven <a href="station.txt">(station of halte)</em></a> die de capaciteit voor passagiers, post en vracht kunnen vergroten, het dekkingsgebied van het vliegveld kunnen vergroten maar ook onderhoudskosten kunnen verhogen. Indien er in de bovenhoek van de te kiezen uitbreiding een icoontje staat (ook gebruikt in <a href="haltlist.txt">stationslijst</a> en stations en halte details) geeft dat aan welke capaciteit wordt uitgebreid.<br>
+<em>Luchthaven gebouwen:</em> bouwt uitbreidingen voor de luchthaven <a href="station.txt">(station of halte)></a> die de capaciteit voor passagiers, post en vracht kunnen vergroten, het dekkingsgebied van het vliegveld kunnen vergroten maar ook onderhoudskosten kunnen verhogen. Indien er in de bovenhoek van de te kiezen uitbreiding een icoontje staat (ook gebruikt in <a href="haltlist.txt">stationslijst</a> en stations en halte details) geeft dat aan welke capaciteit wordt uitgebreid.<br>
 Hoe een uitbreiding te plaatsen: klik op de toolbar (het menu met iconen voor Luchtvaart)  op het rode kruis icoon (verandert de cursor in een afbeelding van de gekozen uitbreiding), en plaats deze naast een pier/station/halte.  De nieuwe uitbreiding wordt nu geacht bij de pier/station/halte te horen.<br><br>
 {TIP: Verwijder uitbreidingen met de verwijder tool. Druk op [v] om het dekkingsgebied van een pier/station/halte te tonen of te verbergen.}
 </p>

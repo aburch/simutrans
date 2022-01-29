@@ -1,4 +1,4 @@
-<title>Sound- und Musikeinstellungen Hilfe</title>
+<title>Sound- und Musikeinstellungen</title>
  
 <h1><strong>Sound- & Musikeinstellungen</strong></h1>
  

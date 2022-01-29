@@ -22,10 +22,10 @@ El titulo de la ventana <strong>Informacion del Convoy</strong> muestra un numer
 La informacion mostrada en la parte superior de la ventana <strong>Informacion del Convoy</strong>:
 </p>
 <p>
-<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href=depot.txt">deposito</a>).
+<em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href="depot.txt">deposito</a>).
 </p>
 <p>
-- <em>nombre</em>: muestra el nombre asignado al convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href=depot.txt">deposito</a>).<br>
+- <em>nombre</em>: muestra el nombre asignado al convoy (asignado por defecto cuando el convoy se compra o ensambla en el <a href="depot.txt">deposito</a>).<br>
 Pulsa en la caja de texto del nombre y escribe el nuevo nombre del Convoy para cambiarlo.
 </p>
 <p>

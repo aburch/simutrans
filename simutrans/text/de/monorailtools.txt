@@ -1,4 +1,4 @@
-<title>Monorailbau Hilfe</title>
+<title>Monorailbau</title>
 
 <h1><strong>Monorailbauwerkzeuge</strong></h1>
 

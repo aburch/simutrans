@@ -1,9 +1,9 @@
-<title>Kurzinformation / Netzwerkspiele Hilfe</title>
+<title>Kurzinformation / Netzwerkspiele</title>
 
 <h1><strong>Kurzinformation / Netzwerkspiele</strong></h1>
 
 <p>
-Hier wird kompakt über einen Spielstand informatiert. Neben einer kleinen Karte wird das Datum, die Kartengröße und die Zahl der Städte, Fabriken, Bewohner, Fahrzeuge usw. angezeigt.</p>
+Hier wird kompakt über einen Spielstand informiert. Neben einer kleinen Karte wird das Datum, die Kartengröße und die Zahl der Städte, Fabriken, Bewohner, Fahrzeuge usw. angezeigt.</p>
 
 <p>
 Falls das aktuelle Spiel kein Netzwerkspiel ist, kann man aus einer Liste oben Server auswählen, deren Programmversion und Pakset zu dem gerade Laufendem passt. Ist die Liste leer, gibt es gerade keinen passenden Server. Dann kann man sich durch <em>Alle zeigen</em> alle Server anzeigen lassen.</p>

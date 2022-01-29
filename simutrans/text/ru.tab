@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,8 +71,6 @@ hlf_btn_invers
 обратить
 hlf_btn_keine
 нет
-lake
-Создание внутренних озёр
 Maximize height levels
 Больше уровней высоты
 Networks
@@ -337,8 +335,6 @@ TRAMTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s построил новое представительство
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-В %s была построена новая мэрия, когда население достигло %i.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 В %s была построена новая мэрия, когда население достигло %i.
 Bankrott:\n\nDu bist bankrott.\n
@@ -2059,8 +2055,6 @@ way %s cannot longer used:\n%s\n
 Дороги типа %s не могут больше использоваться.\n%s\n
 way %s now available:\n
 Теперь доступны дороги типа %s.\n
-way %s now available:\n%s\n
-Теперь доступны дороги типа %s.\n%s\n
 Way toll
 Дорожный налог
 Ways not connected

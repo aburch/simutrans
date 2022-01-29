@@ -1,23 +1,23 @@
-<title>Finances Help</title>
+<title>Finances</title>
 
 <h1><strong>Finances</strong></h1>
 
 <p>
-<strong>Finances</strong> provides an overview of the financial status of the player company.
+The <strong>Finances</strong> window provides an overview of the financial status of a player's company.
 </p>
 <p>
-Click money-icon at top of game-view, or press <a href="keys.txt">[f]</a>, or click on player name in <a href="players.txt">Players</a>, to open <strong>Finances</strong>.
+To open, click the money icon at top of main view, press <a href="keys.txt">[f]</a>, or click on a player's name in the <a href="players.txt">Players</a> dialog.
 </p>
 <p>
-Values (in Hajo Credits) are listed for present and previous calendar months/years. Click tab to change the display:<br/>
-<em>Years:</em> shows annual values.<br/>
-<em>Months:</em> shows monthly values.<br/>
+Values are in Hajo Credits and are listed for present and past calendar months or years. Click on the corresponding tab to change the timespan of the graph.<br/>
+- <em>Years:</em> shows annual values.<br/>
+- <em>Months:</em> shows monthly values.<br/>
 </p>
 <p>
-To show a vlue in the graph at the bottom click button: The y-axis is quantity, the x-axis is time. You can have several curves at the same time. If you click on a point in the graph, a tooltip will show the number.
+The graph displays the y-axis as quantity and the x-axis as time. You can have several curves displayed at the same time and if you hover the cursor over a point on the graph, a tooltip will display the number.
 </p>
 <p>
-In the upper right corner you can build/upgrade a company headquarter (if graphics are provided by the pak set.) The headquarter will add as a high-level attraction and is also required for some scenarios.
+The <em>Build HQ</em> button in the upper-right corner allows you to build or upgrade your company headquarters (if the graphics are provided by the pakset). The headquarters will serve as a high-level attraction and may be required for some scenarios.
 </p>
 <br/>
 <p>

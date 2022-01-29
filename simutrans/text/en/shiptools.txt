@@ -1,4 +1,4 @@
-<title>Dock/harbour tools Help</title>
+<title>Dock/harbour tools</title>
 
 <h1><strong>Dock/harbour tools</strong></h1>
 

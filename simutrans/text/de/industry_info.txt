@@ -7,9 +7,18 @@ Das <strong>Fabrikfenster</strong> erscheint, sobald auf eine Fabrik geklickt wi
 <p>
 Fabriken können Verbraucher,  Produzenten oder verarbeitende Industrie sein. Reine Verbraucher sind zum Beispiel Kraftwerke oder ein Supermarkt, reine Produzenten eine Kohlegrube oder eine Müllhalde; ein Stahlwerk oder eine Raffinerie sind verarbeitende Fabriken.</p>
 <p>
-Unter dem Namensfeld findet sich die akteulle Produktion pro Monat (für 100%). Sind danben Symbole für Passagiere/post/Strom, dann kann die Produktion auch durch Transport von Arbeitern, Post bzw. Elektrizitätsversorgung erhöht werden. (Ist dies momentan der Fall, erschient das jeweilige Symbol auch im Bild der Fabrik rechts daneben.)</p>
+Unter dem Namensfeld findet sich die akteulle Produktion pro Monat (für 100%). Sind danben Symbole für Passagiere/post/Strom, dann kann die Produktion auch durch Transport von Arbeitern, Post bzw. Elektrizitätsversorgung erhöht werden. (Ist dies momentan der Fall, erschient das jeweilige Symbol auch im Bild der Fabrik rechts daneben.)<br/>
+Unter dem Bild zeigt ein Balken den Status der Fabrik an. Die Farben bedeuten:<br/>
+- <em>Weiss:</em> Industrie produziert nicht<br/>
+- <em>Gelb:</em> Industrie ist nicht angeschlossen<br/>
+- <em>Grün:</em> Industrie hat Optimum<br/>
+- <em>Orange:</em> Industrie funktioniert, aber Verbesserungen sind möglich<br/>
+- <em>Rot:</em> Industrie muß überprüft werden
+</p>
 <p>
-Darunter folgen die Warenmengen, die produziert wurden und die Vorräte. Stauen sich produzierte Waren, dann sind alle Abnehmer überfüllt oder es gibt keine Verbindung. Ist das Lager für ankommende Waren überfüllt, dann fordert die Fabrik auch keine neuen Waren mehr an. (Diese Verhalten kann mit dem Eintrag "just_in_time" in der simuconf.tab angepasst werden.)</p>
+Bei Produzenten listet <em>Produktion</em>die Warenmengen auf, die auf Lager ist / und die maximale Lagermenge je Ware.<br/>
+Bei Verbrauchern werden unter <em>Verbrauch</em> die Vorräte, / die unterwegsbefindlichen Waren / und die maximale Lagerkapazität je Ware angezeigt.<br/>
+Stauen sich produzierte Waren, dann sind alle Abnehmer überfüllt oder es gibt keine Verbindung. Ist das Lager für ankommende Waren überfüllt, dann fordert die Fabrik auch keine neuen Waren mehr an. (Diese Verhalten kann mit dem Eintrag "just_in_time" in der simuconf.tab angepasst werden.)</p>
 <p>
 Da in Simutrans eine Fabrik feste Verträge mit anderen Fabriken hat, sind in dem Dialog als nächstes die Verbraucher aufgelistet. Nur diese nehmen Waren dieser Fabrik an. Ein Klick auf das Dreieck springt zu der jeweiligen Fabrik. Bei reinen Verbrauchern fehlt dieses Feld.</p>
 <p>

@@ -1,4 +1,4 @@
-<title>Load Height Map Help</title>
+<title>Load Height Map</title>
 
 <h1><strong>Load Height Map</strong></h1>
 

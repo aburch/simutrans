@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.10 2020                           #
+#                           Date Created: 29.01 2022                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -279,8 +279,6 @@ TRAMTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s는 새로운 본사를 건설했습니다.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s 주민수가 %i에 도달해, 새 시청을 지었습니다.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s 주민수가 %i에 도달해, 새 시청을 지었습니다.
 Bankrott:\n\nDu bist bankrott.\n
@@ -1604,7 +1602,7 @@ Setting
 Ship
 선박
 shops and stores
-상점과 사무실\n
+상점과 사무실
 Show all
 모두 보기
 show all building
@@ -1760,7 +1758,7 @@ timeline
 tl_title
 모든 도시 목록
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-%1$에서의 교통량 증가: %3$i 주민들이 %2$s 건설
+%1$s에서의 교통량 증가: %3$i 주민들이 %2$s 건설
 To heavy traffic\nresults in traffic jam.\n
 많은 교통량이\n 교통혼잡을 유발합니다.\n
 Toggle day/night view
@@ -1899,8 +1897,6 @@ way %s cannot longer used:\n%s\n
 %s 길 타입은 더 이상 사용할 수 없습니다:\n%s\n\n
 way %s now available:\n
 %s 길 타입을 사용할 수 있습니다.\n
-way %s now available:\n%s\n
-%s 길 타입을 사용할 수 있습니다:\n%s\n\n
 Way toll
 통행료
 Ways not connected
@@ -1940,19 +1936,19 @@ Zu nah am Kartenrand
 #__________________________________record_text__________________________________
 #__________________________________record_text__________________________________
 New world record for maglevs: %.1f km/h by %s.
-자기부상열차 %s가 %.1f km/h로 세계 신기록 달성!
+자기부상열차 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for monorails: %.1f km/h by %s.
-모노레일 %s가 %.1f km/h로 세계 신기록 달성!
+모노레일 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for motorcars: %.1f km/h by %s.
-자동차 %s가 %.1f km/h로 세계 신기록 달성!
+자동차 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for narrowgauges: %.1f km/h by %s.
-협궤기차 %s가 %.1f km/h로 세계 신기록 달성!
+협궤기차 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for planes: %.1f km/h by %s.
-비행기 %s가 %.1f km/h로 세계 신기록 달성!
+비행기 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for railways: %.1f km/h by %s.
-기차 %s가 %.1f km/h로 세계 신기록 달성!
+기차 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 New world record for ship: %.1f km/h by %s.
-선박 %s가 %.1f km/h로 세계 신기록 달성!
+선박 %2$s가 %1$.1f km/h로 세계 신기록 달성!
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

@@ -1,28 +1,32 @@
-<title>Einstellungen Hilfe</title>
+<title>Einstellungen</title>
 
 <h1><strong>Einstellungen, Laden, Speichern</strong></h1>
 
 <p>
 Der Dialog Einstellungen ist zweigeteilt. Auf der linken Seite befinden sich die Spieleinstellungen.
-Auf der rechten Seite kannst Du Spielstände laden, speichern, eine neue Karte starten sowie das Spiel beenden.
+Auf der rechten Seite kannst Du Spielstände laden, speichern, eine neue Karte starten, Missionen laden sowie das Spiel beenden.
 </p>
 <p>
 ·<a href="language.txt"><em>Sprache</em></a>: Wähle die Sprache, welche Simutrans nutzen soll. Die Sprachdateien befinden sich im Verzeichnis simutrans/text. In den Unterverzeichnissen sind die Hilfetexte der Sprachen abgelegt.
+<br>
+·<a href="players.txt"><em>Spieler</em></a>: Stelle die Anzahl der Computerspieler ein.
 <br>
 ·<a href="color.txt"><em>Spielerfarbe</em></a>: Einstellen der eigenen Spielerfarbe.
 <br>
 ·<a href="display.txt"><em>Anzeige</em></a>: Einstellungen für Grafik und Maus sowie Angaben über die Auslastung des Computers.
 <br>
 ·<a href="sound.txt"><em>Sound</em></a>: Einstellungen für Sound und Musik.
-<br>
-·<a href="players.txt"><em>Spieler</em></a>: Stelle die Anzahl der Computerspieler ein.
 </p>
 <p>
-·<a href="load.txt"><em>Laden</em></a>: Spielstand laden.
+·<a href="new_world.txt"><em>Neues Spiel</em></a>: Starte eine neue Karte.
+<br>
+·<a href="load.txt"><em>Laden Spiel</em></a>: Spielstand laden.
 <br>
 ·<a href="save.txt"><em>Speichern</em></a>: Spielstand speichern.
 <br>
-·<a href="new_world.txt"><em>Neue Karte</em></a>: Starte eine neue Karte.
+·<a href="scenario.txt"><em>Wähle Mission</em></a>: Öffnet das Auswahlfenster der vorhandenen Missionen.
+<br>
+·<a href=""><em>Missionsstatus</em></a>: Diese Schaltfläche ist nur aktiv, wenn eine Mission gespielt wird. Sie öffnet das Missionsinformationsfenster.
 </p>
 <p>
 · <em>Beenden</em>: Das Spiel wird beendet (ohne den Spielstand zu sichern).

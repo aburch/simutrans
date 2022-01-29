@@ -22,7 +22,7 @@ A janela <strong>Informações do Comboio</strong> contém uma caixa do nome; uma m
 A informação mostrada na janela de <strong>Informações do Comboio</strong> inclui:
 </p>
 <p>
-<em>ID Interno</em>: um número único de identificação para o Comboio (designado por padrão quando o Comboio é comprado ou montado pela primeira vez em um <a href=depot.txt">depósito</a>).
+<em>ID Interno</em>: um número único de identificação para o Comboio (designado por padrão quando o Comboio é comprado ou montado pela primeira vez em um <a href="depot.txt">depósito</a>).
 </p>
 <p>
 - <em>Nome</em>: mostra o nome designado do Comboio (por padrão isso já é feito ao primeiro veículo comprado ou montado no Comboio em um <a href="depot.txt">depósito</a>).<br>

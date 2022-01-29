@@ -1,4 +1,4 @@
-<title>Game Options Help</title>
+<title>Game Options</title>
 
 <h1><strong>Game Options</strong></h1>
 
