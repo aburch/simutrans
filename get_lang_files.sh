@@ -53,6 +53,7 @@ unzip -o "language_pack-Base+texts.zip" -d ${OUTPUT_DIR}
 rm language_pack-Base+texts.zip
 # remove Chris English (may become simple English ... )
 rm -f ${OUTPUT_DIR}/ce.tab
+rm -f ${OUTPUT_DIR}/_objectlist.txt
 # Remove check test
 #rm xx.tab
 #rm -rf xx

@@ -1,4 +1,4 @@
-Release of 123.0.1 (r10420 on 29-Jan-2022):
+Release of 123.0.1 (r10421 on 29-Jan-2022):
 	ADD: button to remove double entries in schedules
 	FIX: up/down arrows in schedule broken
 	FIX: Simulation speeds up uncontrollably in some cases if New World dialogue is open
