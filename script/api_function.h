@@ -11,6 +11,8 @@
 #include "../squirrel/squirrel.h"
 #include <string>
 #include <string.h>
+#include <utility>
+#include <functional>
 
 // mark class members static in doxygen documentation of api
 #define STATIC
@@ -100,8 +102,8 @@ namespace script_api {
 	template <typename F>
 	struct function_info_t {
 		F funcptr; // pointer to c++ function
-		bool discard_first;
-		function_info_t(F f, bool d) : funcptr(f), discard_first(d) {}
+		bool act_as_member;
+		function_info_t(F f, bool d) : funcptr(f), act_as_member(d) {}
 	};
 
 	/**
@@ -115,28 +117,28 @@ namespace script_api {
 	 * @tparam F function pointer signature of c++ method
 	 * @param funcptr pointer to the c++ method
 	 * @param name name of the method as visible from squirrel
-	 * @param discard_first if true then a global (non-member) function can be called
+	 * @param act_as_member if true then a global (non-member) function can be called
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
 	 * @param staticmethod if true then register as static method
 	 */
 	template<typename F>
-	void register_method(HSQUIRRELVM vm, F funcptr, const char* name, bool discard_first = false, bool staticmethod = false)
+	void register_method(HSQUIRRELVM vm, F funcptr, const char* name, bool act_as_member = false, bool staticmethod = false)
 	{
 		sq_pushstring(vm, name, -1);
 		// pointer to function info as free variable
-		function_info_t<F> fi(funcptr, discard_first);
+		function_info_t<F> fi(funcptr, act_as_member);
 		SQUserPointer up = sq_newuserdata(vm, sizeof(function_info_t<F>));
 		memcpy(up, &fi, sizeof(function_info_t<F>));
 		// create function
 		sq_newclosure(vm, generic_squirrel_callback<F>, 1);
 		// ..associate its name for debugging
 		sq_setnativeclosurename(vm, -1, name);
-		std::string typemask = func_signature_t<F>::get_typemask(discard_first);
-		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - discard_first, typemask.c_str());
+		std::string typemask = func_signature_t<F>::get_typemask(act_as_member);
+		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - act_as_member, typemask.c_str());
 		sq_newslot(vm, -3, staticmethod);
 
-		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, 0));
+		log_squirrel_type(func_signature_t<F>::get_squirrel_class(act_as_member), name, func_signature_t<F>::get_squirrel_type(act_as_member, 0));
 	}
 
 
@@ -153,17 +155,17 @@ namespace script_api {
 	 * @param funcptr pointer to the c++ method
 	 * @param name name of the method as visible from squirrel
 	 * @param freevariables values of default parameters to the c++ function (not the squirrel function)
-	 * @param discard_first if true then a global (non-member) function can be called
+	 * @param act_as_member if true then a global (non-member) function can be called
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
 	 * @param staticmethod if true then register as static method
 	 */
 	template<typename F, class V>
-	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool discard_first = false, bool staticmethod = false)
+	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool act_as_member = false, bool staticmethod = false)
 	{
 		sq_pushstring(vm, name, -1);
 		// pointer to function info as free variable
-		function_info_t<F> fi(funcptr, discard_first);
+		function_info_t<F> fi(funcptr, act_as_member);
 		SQUserPointer up = sq_newuserdata(vm, sizeof(function_info_t<F>));
 		memcpy(up, &fi, sizeof(function_info_t<F>));
 		// more free variables
@@ -172,11 +174,11 @@ namespace script_api {
 		sq_newclosure(vm, generic_squirrel_callback<F>, count+1);
 		// ..associate its name for debugging
 		sq_setnativeclosurename(vm, -1, name);
-		std::string typemask = func_signature_t<F>::get_typemask(discard_first);
-		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - discard_first - count, typemask.c_str());
+		std::string typemask = func_signature_t<F>::get_typemask(act_as_member);
+		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - act_as_member - count, typemask.c_str());
 		sq_newslot(vm, -3, staticmethod);
 
-		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, count));
+		log_squirrel_type(func_signature_t<F>::get_squirrel_class(act_as_member), name, func_signature_t<F>::get_squirrel_type(act_as_member, count));
 	}
 
 
@@ -215,18 +217,143 @@ namespace script_api {
 		memcpy(&fi, up, sizeof(function_info_t<F>));
 
 		// call the template that automatically fetches right number of parameters
-		return embed_call_t<F>::call_function(vm, fi.funcptr, fi.discard_first);
+		return embed_call_t<F>::call_function(vm, fi.funcptr, fi.act_as_member);
 	}
 
 	/**
-	 * Template to count the first parameter
-	 * @tparam F count is one, except if F is void_t then it is zero
+	 * Template to split parameter lists
 	 */
-	template<typename F> struct count_first_param_t {
-		static const uint16 count = 1;
+	template<typename A1, typename... As> struct parameter_pack_t
+	{
+		using first = A1;
+		using back = void (*)(As...);
 	};
-	template<> struct count_first_param_t<void_t> {
-		static const uint16 count = 0;
+	/**
+	 * Template to generate strings related to argument lists
+	 */
+	template<typename F> struct parameter_list_t;
+
+	template<typename... As>
+	struct  parameter_list_t< void (*)(As...) >
+	{
+		/// @returns get typemask of first @p nparams parameters only
+		static std::string get_param_typemask()
+		{
+			std::string res = param<typename parameter_pack_t<As...>::first>::typemask()
+			     + parameter_list_t<typename parameter_pack_t<As...>::back >::get_param_typemask();
+			return res;
+		}
+		/// @returns type list of first @p nparams arguments (without parentheses)
+		static std::string get_param_squirrel_type(int nparams)
+		{
+			if (nparams > 0) {
+				std::string res = param<typename parameter_pack_t<As...>::first>::squirrel_type();
+				std::string add = parameter_list_t< typename parameter_pack_t<As...>::back >::get_param_squirrel_type(nparams-1);
+				return res + (add.empty() ? "" : ", " + add);
+			}
+			return "";
+		}
+	};
+	// specialization for empty parameter list
+	template<>
+	struct  parameter_list_t< void (*)() >
+	{
+		static std::string get_param_typemask() { return ""; }
+		static std::string get_param_squirrel_type(int) { return ""; }
+	};
+	/**
+	 * Templates to generate squirrel typemasks,
+	 * wrapped in a one-parameter template struct,
+	 * which is specialized per function-signature.
+	 */
+	template<typename F> struct func_signature_t;
+
+	/**
+	 * Non-member functions.
+	 * May act as member functions if @p act_as_member is true.
+	 */
+	template<typename R, typename... As>
+	struct func_signature_t<R (*)(As...)>
+	{
+		/// @returns typemask taking into account class argument is taken from 0th or 1st parameter
+		static std::string get_typemask(bool act_as_member)
+		{
+			return (act_as_member ? "" : "." ) + parameter_list_t<void(*)(As...)>::get_param_typemask();
+		}
+		/// @returns number of parameters
+		static int get_nparams()
+		{
+			return sizeof...(As) + 1;
+		}
+		/// @returns squirrel class name of class argument of F ("" if not a member function)
+		static std::string get_squirrel_class(bool act_as_member)
+		{
+			if (act_as_member) {
+				// type of first parameter - if there is none then ""
+				return  parameter_list_t<void(*)(As...)>::get_param_squirrel_type(1);
+			}
+			return "";
+		}
+		/// @returns function signature if interpreted as squirrel function
+		static std::string get_squirrel_type(bool act_as_member, int freevars)
+		{
+			std::string res = get_return_squirrel_type() + "(";
+			// remaining number of parameters (including class name if act_as_member == true)
+			int nparams = get_nparams() - freevars - 1;
+
+			std::string params = parameter_list_t< void (*)(As...) >::get_param_squirrel_type(nparams);
+
+			if (act_as_member) {
+				// ignore class parameter
+				size_t n = params.find(", ");
+				if (n == std::string::npos  ||  n+2 > params.size()) {
+					// not found
+					params = "";
+				}
+				else {
+					// drop first parameter
+					params = params.substr(n+2);
+				}
+			}
+
+			return res += params + ")";
+		}
+		/// @return squirrel type of return value
+		static std::string get_return_squirrel_type()
+		{
+			return param<R (*)()>::squirrel_type(); // will resolve R = void
+		}
+	};
+
+	/**
+	 * Member functions
+	 */
+	template<class C, typename R, typename... As>
+	struct func_signature_t<R (C::*)(As...)>
+	{
+		// reduce it to the case of an non-member function with act_as_member == true
+		using function = R (*)(C*,As...);
+
+		static int get_nparams()
+		{
+			return func_signature_t<function>::get_nparams() - 1;
+		}
+		static std::string get_typemask(bool)
+		{
+			return func_signature_t<function>::get_typemask(true);
+		}
+		static std::string get_squirrel_class(bool)
+		{
+			return param<C*>::squirrel_type();
+		}
+		static std::string get_squirrel_type(bool, int freevars)
+		{
+			return func_signature_t<function>::get_squirrel_type(true, freevars);
+		}
+	};
+	template<class C, typename R, typename... As>
+	struct func_signature_t<R (C::*)(As...) const> : public func_signature_t<R (C::*)(As...)>
+	{
 	};
 
 	/**
@@ -241,106 +368,76 @@ namespace script_api {
 	};
 
 	/**
-	 * Templates to generate squirrel typemasks,
-	 * wrapped in a one-parameter template struct,
-	 * which is specialized per function-signature.
+	 * Classes to implement the actual calls.
+	 * Calls to function pointers and member functions are turned into std::function calls.
 	 */
-	template<typename F> struct func_signature_t
+	template<typename F> class call_std_function_t;
+
+	// specialization for functions with at least one argument: we might have to check for null-pointers
+	template<typename R, typename A1, typename... As>
+	class call_std_function_t< R(A1,As...) >
 	{
-		/// @returns typemask taking into account class argument is taken from 0th or 1st parameter
-		static std::string get_typemask(bool discard_first)
+		template <size_t... is>
+		static SQInteger call_function_helper(HSQUIRRELVM vm, std::function<R(A1,As...)> const& func, bool act_as_member, std::index_sequence<is...>)
 		{
-			return (discard_first ? "" : param<typename embed_call_t<F>::sig_class>::typemask())
-			+ get_param_typemask(get_nparams());
+			A1 a1 = param<A1>::get(vm, 2-act_as_member);
+			if (act_as_member  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			// non-void return value
+			return param<R>::push(vm, func(a1, param<As>::get(vm, is+2 /* index on stack */ +1 /* correct for A1 */ -act_as_member)...) );
+			// index on stack: at +1 `this` argument, then parameters starting from +2
+			// if act_as_member then `this` is first argument to function, results in offset -1
 		}
+	public:
 
-		/// @returns typemask of parameters only
-		static std::string get_param_typemask(uint16 nparams)
+		static SQInteger call_function(HSQUIRRELVM vm, std::function<R(A1,As...)> const& func, bool act_as_member)
 		{
-			if (nparams > 0) {
-				if (count_first_param_t<typename embed_call_t<F>::sig_first>::count > 0) {
-					// typemask of first parameter if there is any
-					return param<typename embed_call_t<F>::sig_first>::typemask() +
-						func_signature_t<typename embed_call_t<F>::sig_reduced>::get_param_typemask(nparams-1);
-				}
-				else {
-					return  func_signature_t<typename embed_call_t<F>::sig_reduced>::get_param_typemask(nparams-1);
-				}
-			}
-			return "";
+			return call_function_helper(vm, func, act_as_member, std::index_sequence_for<As...>{});
 		}
+	};
 
-		/// @returns number of parameters
-		static uint16 get_nparams()
+	// specialization for void functions with at least one argument: we might have to check for null-pointers
+	template<typename A1, typename... As>
+	class call_std_function_t< void(A1,As...) >
+	{
+		template <size_t... is>
+		static SQInteger call_function_helper(HSQUIRRELVM vm, std::function<void(A1,As...)> const& func, bool act_as_member, std::index_sequence<is...>)
 		{
-			// number of parameters of reduced signature
-			return func_signature_t<typename embed_call_t<F>::sig_reduced>::get_nparams() +
-			       // plus first parameter if there is any
-			       count_first_param_t<typename embed_call_t<F>::sig_first>::count;
+			A1 a1 = param<A1>::get(vm, 2-act_as_member);
+			if (act_as_member  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			// void function
+			func(a1, param<As>::get(vm, is+2 /* index on stack */ +1 /* correct for A1 */ -act_as_member)...);
+			return 0;
 		}
+	public:
 
-		/// @returns squirrel class name of class argument of F ("void", "" are allowed)
-		static std::string get_squirrel_class(bool discard_first)
+		static SQInteger call_function(HSQUIRRELVM vm, std::function<void(A1,As...)> const& func, bool act_as_member)
 		{
-			if (discard_first) {
-				return param<typename embed_call_t<F>::sig_first>::squirrel_type();
-			}
-			else {
-				return param<typename embed_call_t<F>::sig_class>::squirrel_type();
-			}
+			return call_function_helper(vm, func, act_as_member, std::index_sequence_for<As...>{});
 		}
-		/// @returns function signature if interpreted as squirrel function
-		static std::string get_squirrel_type(bool discard_first, int freevars)
+	};
+
+	// functions with no parameters
+	template<typename R>
+	class call_std_function_t< R() >
+	{
+	public:
+		static SQInteger call_function(HSQUIRRELVM vm, std::function<R()> const& func, bool)
 		{
-			// return type
-			std::string r = param<typename embed_call_t<F>::sig_return>::squirrel_type();
-			// parameters
-			uint16 nparams = get_nparams();
-			// if first parameter is interpreted as class ignore 2 parameters: environment, and first parameter
-			if (nparams > freevars + 1 + discard_first) {
-				// there are non-default params
-				if (discard_first) {
-					// first parameter is interpreted as class and thus ignored here
-					return r + "("+ func_signature_t<typename embed_call_t<F>::sig_reduced>::get_param_squirrel_type(nparams - freevars - 2) + ")";
-				}
-				else {
-					return r + "("+ get_param_squirrel_type(nparams - freevars - 1) + ")";
-				}
-			}
-			return r + "()";
-		}
-		/// @returns type list of arguments (without parentheses and return type)
-		static std::string get_param_squirrel_type(uint16 nparams)
-		{
-			if (nparams > 1) {
-				return std::string(param<typename embed_call_t<F>::sig_first>::squirrel_type()) + ", "
-				     + func_signature_t<typename embed_call_t<F>::sig_reduced>::get_param_squirrel_type(nparams-1);
-			}
-			else if (nparams > 0) {
-				return param<typename embed_call_t<F>::sig_first>::squirrel_type();
-			}
-			return "";
+			return param<R>::push(vm, func());
 		}
 	};
 	template<>
-	struct func_signature_t<void(*)()> {
-		static uint16 get_nparams() {
-			// first parameter is environment / root table
-			return 1;
-		}
-		static std::string get_typemask(bool discard_first)
+	class call_std_function_t< void() >
+	{
+	public:
+		static SQInteger call_function(HSQUIRRELVM, std::function<void()> const& func, bool)
 		{
-			// first parameter is environment / root table if discard_first==false
-			// otherwise first parameter is ignored
-			return (discard_first ? "" : ".");
-		}
-		static std::string get_param_typemask(uint16)
-		{
-			return "";
-		}
-		static std::string get_param_squirrel_type(uint16)
-		{
-			return "";
+			func();
+			return 0;
 		}
 	};
 
@@ -351,454 +448,38 @@ namespace script_api {
 	 */
 	template<typename F> struct embed_call_t;
 
-	// 0 parameters
-	template<typename R>
-	struct embed_call_t<R (*)()> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(), bool)
+	// Non-member functions
+	template<typename R, typename... As>
+	struct embed_call_t<R (*)(As...)>
+	{
+		static SQInteger call_function(HSQUIRRELVM vm, R (*func_ptr)(As...), bool act_as_member)
 		{
-			return param<R>::push(vm, (*func)() );
+			std::function< R(As...)> func = func_ptr;
+			return call_std_function_t< R(As...) >::call_function(vm, func, act_as_member);
 		}
-
-		typedef R         sig_return;  // return type
-		typedef void_t    sig_class;   // type of class
-		typedef void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
 	};
-
-	template<class C, typename R>
-	struct embed_call_t<R (C::*)()> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(), bool)
+	// Non-const member functions
+	template<class C, typename R, typename... As>
+	struct embed_call_t<R (C::*)(As...)>
+	{
+		static SQInteger call_function(HSQUIRRELVM vm, R (C::*member_func_ptr)(As...), bool)
 		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)() );
-			}
-			else {
-				return -1;
-			}
-		}
+			std::function< R(C*,As...)> func = member_func_ptr;
 
-		typedef R         sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
+			return call_std_function_t< R(C*,As...) >::call_function(vm, func, true);
+		}
 	};
-	template<class C, typename R>
-	struct embed_call_t<R (C::*)() const> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)() const, bool)
+	// Const member functions
+	template<class C, typename R, typename... As>
+	struct embed_call_t<R (C::*)(As...) const>
+	{
+		static SQInteger call_function(HSQUIRRELVM vm, R (C::*member_func_ptr)(As...) const, bool)
 		{
-			if (const C* instance = param<const C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)() );
-			}
-			else {
-				return -1;
-			}
+			std::function< R(const C*,As...)> func = member_func_ptr;
+
+			return call_std_function_t< R(const C*,As...) >::call_function(vm, func, true);
 		}
-
-		typedef R         sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
 	};
-	template<class C>
-	struct embed_call_t<void (C::*)()> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)();
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t    sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
-	};
-	// 1 parameter
-	template<typename R, typename A1>
-	struct embed_call_t<R (*)(A1)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			else {
-				return param<R>::push(vm, (*func)(a1) );
-			}
-		}
-
-		typedef R         sig_return;  // return type
-		typedef void_t    sig_class;   // type of class
-		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename A1>
-	struct embed_call_t<void (C::*)(A1)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)( param<A1>::get(vm, 2) );
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t    sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename R, typename A1>
-	struct embed_call_t<R (C::*)(A1)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(A1), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)( param<A1>::get(vm, 2) ) );
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef R         sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename R, typename A1>
-	struct embed_call_t<R (C::*)(A1) const> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(A1) const, bool)
-		{
-			if (const C* instance = param<const C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)( param<A1>::get(vm, 2) ) );
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef R         sig_return;  // return type
-		typedef C*        sig_class;   // type of class
-		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)();  // signature of function with without return type, class, and first parameter
-	};
-	// 2 parameters
-	template<typename A1, typename A2>
-	struct embed_call_t<void (*)(A1, A2)> {
-		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and first parameter
-	};
-
-	template<typename R, typename A1, typename A2>
-	struct embed_call_t<R (*)(A1, A2)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			return param<R>::push(vm, (*func)(a1,
-				param<A2>::get(vm, 3-discard_first)
-			) );
-		}
-
-		typedef R           sig_return;  // return type
-		typedef void_t      sig_class;   // type of class
-		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename A1, typename A2>
-	struct embed_call_t<void (C::*)(A1, A2)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3)
-				);
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t      sig_return;  // return type
-		typedef C*          sig_class;   // type of class
-		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename R, typename A1, typename A2>
-	struct embed_call_t<R (C::*)(A1, A2)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(A1, A2), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3)
-				) );
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef R           sig_return;  // return type
-		typedef C*          sig_class;   // type of class
-		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename R, typename A1, typename A2>
-	struct embed_call_t<R (C::*)(A1, A2) const> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(A1, A2) const, bool)
-		{
-			if (const C* instance = param<const C*>::get(vm, 1)) {
-				return param<R>::push(vm, (instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3)
-				) );
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef R           sig_return;  // return type
-		typedef C*          sig_class;   // type of class
-		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and first parameter
-	};
-
-	// 3 parameters
-	template<typename A1, typename A2, typename A3>
-	struct embed_call_t<void (*)(A1, A2, A3)> {
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and first parameter
-	};
-
-	template<typename R, typename A1, typename A2, typename A3>
-	struct embed_call_t<R (*)(A1, A2, A3)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			return param<R>::push(vm, (*func)(a1,
-				param<A2>::get(vm, 3-discard_first),
-				param<A3>::get(vm, 4-discard_first)
-			) );
-		}
-
-		typedef R              sig_return;  // return type
-		typedef void_t         sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename A1, typename A2, typename A3>
-	struct embed_call_t<void (C::*)(A1, A2, A3)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2, A3), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3),
-					param<A3>::get(vm, 4)
-				);
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t         sig_return;  // return type
-		typedef C*             sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and first parameter
-	};
-
-	// 4 parameters
-	template<typename A1, typename A2, typename A3, typename A4>
-	struct embed_call_t<void (*)(A1, A2, A3, A4)> {
-		typedef A1                sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and first parameter
-	};
-
-
-	template<typename R, typename A1, typename A2, typename A3, typename A4>
-	struct embed_call_t<R (*)(A1, A2, A3, A4)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3, A4), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			return param<R>::push(vm, (*func)(a1,
-				param<A2>::get(vm, 3-discard_first),
-				param<A3>::get(vm, 4-discard_first),
-				param<A4>::get(vm, 5-discard_first)
-			) );
-		}
-
-		typedef R              sig_return;  // return type
-		typedef void_t         sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and first parameter
-	};
-
-	template<class C, typename A1, typename A2, typename A3, typename A4>
-	struct embed_call_t<void (C::*)(A1, A2, A3, A4)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2, A3, A4), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3),
-					param<A3>::get(vm, 4),
-					param<A4>::get(vm, 5)
-				);
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t            sig_return;  // return type
-		typedef C*                sig_class;   // type of class
-		typedef A1                sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and first parameter
-	};
-
-	// 5 parameters
-	template<typename A1, typename A2, typename A3, typename A4, typename A5>
-	struct embed_call_t<void (*)(A1, A2, A3, A4, A5)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (*func)(A1, A2, A3, A4, A5), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			(*func)(a1,
-				param<A2>::get(vm, 3-discard_first),
-				param<A3>::get(vm, 4-discard_first),
-				param<A4>::get(vm, 5-discard_first),
-				param<A5>::get(vm, 6-discard_first)
-			);
-			return 0;
-		}
-
-		typedef void_t         sig_return;  // return type
-		typedef void_t         sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and first parameter
-	};
-
-	template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
-	struct embed_call_t<R (*)(A1, A2, A3, A4, A5)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3, A4, A5), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			return param<R>::push(vm, (*func)(a1,
-				  param<A2>::get(vm, 3-discard_first),
-				  param<A3>::get(vm, 4-discard_first),
-				  param<A4>::get(vm, 5-discard_first),
-				  param<A5>::get(vm, 6-discard_first)
-			));
-			return 0;
-		}
-
-		typedef R              sig_return;  // return type
-		typedef void_t         sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and first parameter
-	};
-
-	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5>
-	struct embed_call_t<void (C::*)(A1, A2, A3, A4, A5)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2, A3, A4, A5), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3),
-					param<A3>::get(vm, 4),
-					param<A4>::get(vm, 5),
-					param<A5>::get(vm, 6)
-				);
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t               sig_return;  // return type
-		typedef C*                   sig_class;   // type of class
-		typedef A1                   sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and first parameter
-	};
-
-	// 6 parameters
-	template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
-	struct embed_call_t<R (*)(A1, A2, A3, A4, A5, A6)> {
-		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3, A4, A5, A6), bool discard_first)
-		{
-			A1 a1 = param<A1>::get(vm, 2-discard_first);
-			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
-				return -1;
-			}
-			return param<R>::push(vm, (*func)(a1,
-											  param<A2>::get(vm, 3-discard_first),
-											  param<A3>::get(vm, 4-discard_first),
-											  param<A4>::get(vm, 5-discard_first),
-											  param<A5>::get(vm, 6-discard_first),
-											  param<A6>::get(vm, 7-discard_first)
-			));
-			return 0;
-		}
-
-		typedef R              sig_return;  // return type
-		typedef void_t         sig_class;   // type of class
-		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5,A6);  // signature of function with without return type, class, and first parameter
-	};
-	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
-	struct embed_call_t<void (C::*)(A1, A2, A3, A4, A5, A6)> {
-		static SQInteger call_function(HSQUIRRELVM vm, void (C::*func)(A1, A2, A3, A4, A5, A6), bool)
-		{
-			if (C* instance = param<C*>::get(vm, 1)) {
-				(instance->*func)(
-					param<A1>::get(vm, 2),
-					param<A2>::get(vm, 3),
-					param<A3>::get(vm, 4),
-					param<A4>::get(vm, 5),
-					param<A5>::get(vm, 6),
-					param<A6>::get(vm, 7)
-				);
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		typedef void_t                  sig_return;  // return type
-		typedef C*                      sig_class;   // type of class
-		typedef A1                      sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5,A6);  // signature of function with without return type, class, and first parameter
-	};
-
 
 	/**
 	 * Exports function to check whether pointer to in-game object is not null

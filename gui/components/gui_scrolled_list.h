@@ -139,18 +139,11 @@ public:
 	void clear_elements();
 	scrollitem_t *get_element(sint32 i) const { return (i>=0  &&  (uint32)i<item_list.get_count()) ? dynamic_cast<scrollitem_t*>(item_list[i]) : NULL; }
 
-	template<class C>
-	void new_component() { return container.new_component<C>()->set_focusable(true); }
-	template<class C, class A1>
-	void new_component(const A1& a1) { return container.new_component<C>(a1)->set_focusable(true); }
-	template<class C, class A1, class A2>
-	void new_component(const A1& a1, const A2& a2) { container.new_component<C>(a1, a2)->set_focusable(true); }
-	template<class C, class A1, class A2, class A3>
-	void new_component(const A1& a1, const A2& a2, const A3& a3) { container.new_component<C>(a1, a2, a3)->set_focusable(true); }
-	template<class C, class A1, class A2, class A3, class A4>
-	void new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4) { container.new_component<C>(a1, a2, a3, a4)->set_focusable(true); }
-	template<class C, class A1, class A2, class A3, class A4, class A5>
-	void new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5) { container.new_component<C>(a1, a2, a3, a4, a5)->set_focusable(true); }
+	template<class C, class... As>
+	void new_component(const As &... as)
+	{
+		return container.new_component<C>(as...)->set_focusable(true);
+	}
 
 	void take_component(gui_component_t* comp) { container.take_component(comp, 1); }
 

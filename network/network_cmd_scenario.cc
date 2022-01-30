@@ -63,7 +63,7 @@ bool nwc_scenario_t::execute(karte_t *welt)
 			case CALL_SCRIPT:
 			case CALL_SCRIPT_ANSWER: {
 				// register callback to send result back to client if script is delayed.
-				script->prepare_callback("nwc_scenario_t_record_result", 2, function, "", socket_list_t::get_client_id( packet->get_sender() ) );
+				script->prepare_callback("nwc_scenario_t_record_result", 2, function, (const char*)"", socket_list_t::get_client_id( packet->get_sender() ) );
 				plainstring res = dynamic_string::fetch_result(function, script, NULL, what==CALL_SCRIPT_ANSWER);
 				// clear callback, in case function call was successfull
 				script->clear_pending_callback();

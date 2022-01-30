@@ -154,52 +154,19 @@ void export_scripted_tools(HSQUIRRELVM vm)
 }
 
 
-#define check_script() \
-	if (!script) { \
-		dbg->warning("tool_exec_script_t::call_function", "script vm is not available."); \
-		return ""; \
+template<class R, class... As>
+const char* exec_script_base_t::call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, const As &... as)
+{
+	if (!script) {
+		dbg->warning("tool_exec_script_t::call_function", "script vm is not available.");
+		return "";
 	}
-#define check_error() \
-	if (err  &&  strcmp(err, "suspended")) {\
-		dbg->warning("tool_exec_script_t::call_function", "error calling %s: %s", function, err);\
+	const char* err = script->call_function(ct, function, ret, player, as...);
+	if (err  &&  strcmp(err, "suspended")) {
+		dbg->warning("tool_exec_script_t::call_function", "error calling %s: %s", function, err);
 	}
-
-template<class R>
-const char* exec_script_base_t::call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret)
-{
-	check_script();
-	const char* err = script->call_function(ct, function, ret, player);
-	check_error();
 	return err;
 }
-
-template<class R, class A1>
-const char* exec_script_base_t::call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1)
-{
-	check_script();
-	const char* err = script->call_function(ct, function, ret, player, arg1);
-	check_error();
-	return err;
-}
-
-template<class R, class A1, class A2>
-const char* exec_script_base_t::call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1, A2 arg2)
-{
-	check_script();
-	const char* err = script->call_function(ct, function, ret, player, arg1, arg2);
-	check_error();
-	return err;
-}
-
-template<class R, class A1, class A2, class A3>
-const char* exec_script_base_t::call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1, A2 arg2, A3 arg3)
-{
-	check_script();
-	const char* err = script->call_function(ct, function, ret, player, arg1, arg2, arg3);
-	check_error();
-	return err;
-}
-
 
 
 void exec_script_base_t::step(player_t* player)
@@ -265,7 +232,7 @@ const char* tool_exec_script_t::work(player_t* player, koord3d pos)
 {
 	static plainstring res;
 	// callback
-	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, "");
+	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, (const char*)"");
 	// now call
 	uint8 keys = flags & (tool_t::WFL_SHIFT  |  tool_t::WFL_CTRL);
 	const char* err = call_function(script_vm_t::QUEUE, "work", player, res, pos, keys);
@@ -342,7 +309,7 @@ const char* tool_exec_two_click_script_t::do_work(player_t* player, const koord3
 	}
 	static plainstring res;
 	// callback
-	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, "");
+	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, (const char*)"");
 	// now call
 	uint8 keys = flags & (tool_t::WFL_SHIFT  |  tool_t::WFL_CTRL);
 	const char* err = call_function(script_vm_t::QUEUE, "do_work", player, res, start, end, keys);

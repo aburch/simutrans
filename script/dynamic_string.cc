@@ -115,7 +115,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 			s = entry->result.c_str();
 		}
 		else {
-			script->prepare_callback("dynamicstring_record_result", 2, (const char*)buf, "");
+			script->prepare_callback("dynamicstring_record_result", 2, (const char*)buf, (const char*)"");
 
 			// call script
 			const char* err = script->call_function(script_vm_t::QUEUE, method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));

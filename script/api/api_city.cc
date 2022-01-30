@@ -134,82 +134,82 @@ void export_city(HSQUIRRELVM vm)
 	 * Get monthly statistics of number of citizens.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable2<bool,sint32>(true, HIST_CITIZENS), true);
+	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable<bool,sint32>(true, HIST_CITIZENS), true);
 	/**
 	 * Get monthly statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_growth",                freevariable2<bool,sint32>(true, HIST_GROWTH), true );
+	register_method_fv(vm, &get_city_stat, "get_growth",                freevariable<bool,sint32>(true, HIST_GROWTH), true );
 	/**
 	 * Get monthly statistics of number of buildings.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_buildings",             freevariable2<bool,sint32>(true, HIST_BUILDING), true );
+	register_method_fv(vm, &get_city_stat, "get_buildings",             freevariable<bool,sint32>(true, HIST_BUILDING), true );
 	/**
 	 * Get monthly statistics of number of citycars started.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_citycars",              freevariable2<bool,sint32>(true, HIST_CITYCARS), true );
+	register_method_fv(vm, &get_city_stat, "get_citycars",              freevariable<bool,sint32>(true, HIST_CITYCARS), true );
 	/**
 	 * Get monthly statistics of number of transported passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_transported_pax",       freevariable2<bool,sint32>(true, HIST_PAS_TRANSPORTED), true );
+	register_method_fv(vm, &get_city_stat, "get_transported_pax",       freevariable<bool,sint32>(true, HIST_PAS_TRANSPORTED), true );
 	/**
 	 * Get monthly statistics of number of generated passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_generated_pax",         freevariable2<bool,sint32>(true, HIST_PAS_GENERATED), true );
+	register_method_fv(vm, &get_city_stat, "get_generated_pax",         freevariable<bool,sint32>(true, HIST_PAS_GENERATED), true );
 	/**
 	 * Get monthly statistics of number of transported mail.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_transported_mail",      freevariable2<bool,sint32>(true, HIST_MAIL_TRANSPORTED), true );
+	register_method_fv(vm, &get_city_stat, "get_transported_mail",      freevariable<bool,sint32>(true, HIST_MAIL_TRANSPORTED), true );
 	/**
 	 * Get monthly statistics of number of generated mail.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_generated_mail",        freevariable2<bool,sint32>(true, HIST_MAIL_GENERATED), true );
+	register_method_fv(vm, &get_city_stat, "get_generated_mail",        freevariable<bool,sint32>(true, HIST_MAIL_GENERATED), true );
 	/**
 	 * Get per year statistics of number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable2<bool,sint32>(false, HIST_CITIZENS), true );
+	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable<bool,sint32>(false, HIST_CITIZENS), true );
 	/**
 	 * Get per year statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_growth",           freevariable2<bool,sint32>(false, HIST_GROWTH), true );
+	register_method_fv(vm, &get_city_stat, "get_year_growth",           freevariable<bool,sint32>(false, HIST_GROWTH), true );
 	/**
 	 * Get per year statistics of number of buildings.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_buildings",        freevariable2<bool,sint32>(false, HIST_BUILDING), true );
+	register_method_fv(vm, &get_city_stat, "get_year_buildings",        freevariable<bool,sint32>(false, HIST_BUILDING), true );
 	/**
 	 * Get per year statistics of number of citycars started.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_citycars",         freevariable2<bool,sint32>(false, HIST_CITYCARS), true );
+	register_method_fv(vm, &get_city_stat, "get_year_citycars",         freevariable<bool,sint32>(false, HIST_CITYCARS), true );
 	/**
 	 * Get per year statistics of number of transported passengers.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_transported_pax",  freevariable2<bool,sint32>(false, HIST_PAS_TRANSPORTED), true );
+	register_method_fv(vm, &get_city_stat, "get_year_transported_pax",  freevariable<bool,sint32>(false, HIST_PAS_TRANSPORTED), true );
 	/**
 	 * Get per year statistics of number of generated passengers.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_generated_pax",    freevariable2<bool,sint32>(false, HIST_PAS_GENERATED), true );
+	register_method_fv(vm, &get_city_stat, "get_year_generated_pax",    freevariable<bool,sint32>(false, HIST_PAS_GENERATED), true );
 	/**
 	 * Get per year statistics of number of transported mail.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_transported_mail", freevariable2<bool,sint32>(false, HIST_MAIL_TRANSPORTED), true );
+	register_method_fv(vm, &get_city_stat, "get_year_transported_mail", freevariable<bool,sint32>(false, HIST_MAIL_TRANSPORTED), true );
 	/**
 	 * Get per year statistics of number of generated mail.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_generated_mail",   freevariable2<bool,sint32>(false, HIST_MAIL_GENERATED), true );
+	register_method_fv(vm, &get_city_stat, "get_year_generated_mail",   freevariable<bool,sint32>(false, HIST_MAIL_GENERATED), true );
 
 	/**
 	 * Check city growth allowance.

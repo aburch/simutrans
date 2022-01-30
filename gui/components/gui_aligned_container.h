@@ -112,19 +112,13 @@ public:
 	 * Creates and appends new component, takes ownership of pointer
 	 * @returns the pointer to the new component
 	 */
-	template<class C>
-	C* new_component() { C* comp = new C(); take_component(comp); return comp; }
-	template<class C, class A1>
-	C* new_component(const A1& a1) { C* comp = new C(a1); take_component(comp); return comp; }
-	template<class C, class A1, class A2>
-	C* new_component(const A1& a1, const A2& a2) { C* comp = new C(a1, a2); take_component(comp); return comp; }
-	template<class C, class A1, class A2, class A3>
-	C* new_component(const A1& a1, const A2& a2, const A3& a3) { C* comp = new C(a1, a2, a3); take_component(comp); return comp; }
-	template<class C, class A1, class A2, class A3, class A4>
-	C* new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4) { C* comp = new C(a1, a2, a3, a4); take_component(comp); return comp; }
-	template<class C, class A1, class A2, class A3, class A4, class A5>
-	C* new_component(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5) { C* comp = new C(a1, a2, a3, a4, a5); take_component(comp); return comp; }
-
+	template<class C, class... As>
+	C* new_component(const As &... as)
+	{
+		C* comp = new C(as...);
+		take_component(comp);
+		return comp;
+	}
 	/**
 	 * Creates and appends new component, takes ownership of pointer
 	 * Component spans @p span columns.

@@ -69,95 +69,54 @@ public:
 	 */
 	static bool is_call_suspended(const char* err);
 
-#	define prep_function_call() \
-		HSQUIRRELVM job; \
-		const char* err = intern_prepare_call(job, ct, function); \
-		if (err) { \
-			return err; \
-		} \
-		int nparam = 1;
-
-#	define do_function_call() \
-		err = intern_finish_call(job, ct, nparam, true); \
-		if (err == NULL) { \
-			ret = script_api::param<R>::get(job, -1); \
-			sq_poptop(job); \
-		} \
-		return err;
-
 	/**
 	 * calls scripted function
 	 * @param function function name of squirrel function
 	 * @returns error msg (or NULL if succeeded)
 	 */
-	const char* call_function(call_type_t ct, const char* function) {
-		prep_function_call();
-		return intern_finish_call(job, ct, nparam, false);
+	const char* call_function(call_type_t ct, const char* function)
+	{
+		// choose correct vm, push function
+		HSQUIRRELVM job;
+		const char* err = intern_prepare_call(job, ct, function);
+		if (err) {
+			return err;
+		}
+		// now call
+		return intern_finish_call(job, ct, 1, false);
 	}
 
 	/**
 	 * calls scripted function
 	 *
 	 * @tparam R type of return value
+	 * @tparam As types of arguments
 	 * @param function function name of squirrel function
+	 * @param as any number of arguments passed to squirrel function
 	 * @param ret return value of script function is stored here
 	 * @returns error msg (or NULL if succeeded), if call was suspended ret is invalid
 	 */
-	template<class R>
-	const char* call_function(call_type_t ct, const char* function, R& ret) {
-		prep_function_call();
-		do_function_call();
-	}
-
-#undef push_param
-#define push_param(TYPE, arg) \
-	if (SQ_SUCCEEDED(script_api::param<TYPE>::push(job, arg))) { \
-			nparam++; \
-	} \
-	else { \
-		/* cleanup */ \
-		sq_pop(job, nparam+1); \
-		return "error pushing argument"; \
-	}
-	/**
-	 * calls scripted function
-	 *
-	 * @tparam R type of return value
-	 * @tparam A1 type of first argument
-	 * @param function function name of squirrel function
-	 * @param arg1 first argument passed to squirrel function
-	 * @param ret return value of script function is stored here
-	 * @returns error msg (or NULL if succeeded), if call was suspended ret is invalid
-	 */
-	template<class R, class A1>
-	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1) {
-		prep_function_call();
-		push_param(A1, arg1);
-		do_function_call();
-	}
-	template<class R, class A1, class A2>
-	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2) {
-		prep_function_call();
-		push_param(A1, arg1);
-		push_param(A2, arg2);
-		do_function_call();
-	}
-	template<class R, class A1, class A2, class A3>
-	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2, A3 arg3) {
-		prep_function_call();
-		push_param(A1, arg1);
-		push_param(A2, arg2);
-		push_param(A3, arg3);
-		do_function_call();
-	}
-	template<class R, class A1, class A2, class A3, class A4>
-	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2, A3 arg3, A4 arg4) {
-		prep_function_call();
-		push_param(A1, arg1);
-		push_param(A2, arg2);
-		push_param(A3, arg3);
-		push_param(A4, arg4);
-		do_function_call();
+	template<class R, class... As>
+	const char* call_function(call_type_t ct, const char* function, R& ret, const As &...  as)
+	{
+		// choose correct vm, push function
+		HSQUIRRELVM job;
+		const char* err = intern_prepare_call(job, ct, function);
+		if (err) {
+			return err;
+		}
+		// push parameters
+		int nparam = script_api::push_param(job, as...);
+		if (!SQ_SUCCEEDED(nparam)) {
+			return "error pushing argument";
+		}
+		// now call
+		err = intern_finish_call(job, ct, nparam+1, true);
+		if (err == NULL) {
+			ret = script_api::param<R>::get(job, -1);
+			sq_poptop(job);
+		}
+		return err;
 	}
 
 	/**
@@ -180,22 +139,13 @@ public:
 	 * @param function name of function to be called as callback
 	 * @param nret the nret-th parameter will be replaced by return value of suspended function.
 	 */
-	template<class A1, class A2>
-	void prepare_callback(const char* function, int nret, A1 arg1, A2 arg2) {
+	template<class... As>
+	void prepare_callback(const char* function, int nret, const As &...  as)
+	{
 		if (intern_prepare_pending_callback(function, nret))  {
-			script_api::param<A1>::push(vm, arg1);
-			script_api::param<A2>::push(vm, arg2);
-			intern_store_pending_callback(3);
-		}
-	}
-
-	template<class A1, class A2, class A3>
-	void prepare_callback(const char* function, int nret, A1 arg1, A2 arg2, A3 arg3) {
-		if (intern_prepare_pending_callback(function, nret))  {
-			script_api::param<A1>::push(vm, arg1);
-			script_api::param<A2>::push(vm, arg2);
-			script_api::param<A3>::push(vm, arg3);
-			intern_store_pending_callback(4);
+			int nparam = script_api::push_param(vm, as...);
+			assert(SQ_SUCCEEDED(nparam)); // FIXME
+			intern_store_pending_callback(nparam+1);
 		}
 	}
 

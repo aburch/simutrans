@@ -19,8 +19,8 @@ include(SimutransVcpkgTriplet)
 
 project(simutrans LANGUAGES C CXX)
 
-# Force C++11 everywhere
-set(CMAKE_CXX_STANDARD 11)
+# Force C++14 everywhere
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

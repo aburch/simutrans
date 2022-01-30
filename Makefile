@@ -19,6 +19,8 @@ CFG ?= default
 HOSTCC  ?=$(CC)
 HOSTCXX ?=$(CXX)
 
+CFLAGS += -std=c++14
+
 SDL_CONFIG       ?= sdl-config
 SDL2_CONFIG      ?= pkg-config sdl2
 #SDL2_CONFIG     ?= sdl2-config

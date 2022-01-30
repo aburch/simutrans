@@ -77,84 +77,25 @@ namespace script_api {
 	 */
 	SQInteger prepare_constructor(HSQUIRRELVM vm, const char* classname);
 
-#undef push_param
-#define push_param(TYPE, arg) \
-	if (SQ_SUCCEEDED(script_api::param<TYPE>::push(vm, arg))) { \
-			nparam++; \
-	} \
-	else { \
-		/* cleanup */ \
-		sq_pop(vm, nparam+1); \
-		return -1;  \
-	}
 
-#define call_constructor() \
-	bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, nparam, true, false)); \
-	sq_remove(vm, ok ? -2 : -1); /* remove closure */ \
-	return ok ? 1 : -1;
-
-	/**
-	 * Function to create & push instances of squirrel classes.
-	 * @param classname name of squirrel class
-	 */
-	inline SQInteger push_instance(HSQUIRRELVM vm, const char* classname)
+	template<class... As>
+	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const As &...  as)
 	{
+		// push constructor
 		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
 			return -1;
 		}
-		int nparam = 1;
-		call_constructor();
-	}
-
-	template<class A1>
-	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1)
-	{
-		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
+		// push parameters
+		int nparam = push_param(vm, as...);
+		if (!SQ_SUCCEEDED(nparam)) {
 			return -1;
 		}
-		int nparam = 1;
-		push_param(A1, a1);
-		call_constructor();
+		// call constructor
+		bool ok = SQ_SUCCEEDED(sq_call_restricted(vm, nparam+1, true, false));
+		sq_remove(vm, ok ? -2 : -1); /* remove closure */
+		return ok ? 1 : -1;
 	}
 
-	template<class A1, class A2>
-	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2)
-	{
-		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
-			return -1;
-		}
-		int nparam = 1;
-		push_param(A1, a1);
-		push_param(A2, a2);
-		call_constructor();
-	}
-
-	template<class A1, class A2, class A3>
-	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2, const A3 & a3)
-	{
-		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
-			return -1;
-		}
-		int nparam = 1;
-		push_param(A1, a1);
-		push_param(A2, a2);
-		push_param(A3, a3);
-		call_constructor();
-	}
-
-	template<class A1, class A2, class A3, class A4>
-	SQInteger push_instance(HSQUIRRELVM vm, const char* classname, const A1 & a1, const A2 & a2, const A3 & a3, const A4 & a4)
-	{
-		if (!SQ_SUCCEEDED(prepare_constructor(vm, classname)) ) {
-			return -1;
-		}
-		int nparam = 1;
-		push_param(A1, a1);
-		push_param(A2, a2);
-		push_param(A3, a3);
-		push_param(A4, a4);
-		call_constructor();
-	}
 
 	/**
 	 * Create instance, set userpointer.

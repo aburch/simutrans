@@ -177,92 +177,92 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * Get monthly statistics of construction costs.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_construction",      freevariable3<sint32,sint32,bool>(ATV_CONSTRUCTION_COST, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_construction",      freevariable<sint32,sint32,bool>(ATV_CONSTRUCTION_COST, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of vehicle running costs.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_vehicle_maint",     freevariable3<sint32,sint32,bool>(ATV_RUNNING_COST, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_vehicle_maint",     freevariable<sint32,sint32,bool>(ATV_RUNNING_COST, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of costs for vehicle purchase.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_new_vehicles",      freevariable3<sint32,sint32,bool>(ATV_NEW_VEHICLE, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_new_vehicles",      freevariable<sint32,sint32,bool>(ATV_NEW_VEHICLE, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of income.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_income",            freevariable3<sint32,sint32,bool>(ATV_REVENUE_TRANSPORT, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_income",            freevariable<sint32,sint32,bool>(ATV_REVENUE_TRANSPORT, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of infrastructure maintenance.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_maintenance",       freevariable3<sint32,sint32,bool>(ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_maintenance",       freevariable<sint32,sint32,bool>(ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of assets.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_assets",            freevariable3<sint32,sint32,bool>(ATV_NON_FINANCIAL_ASSETS, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_assets",            freevariable<sint32,sint32,bool>(ATV_NON_FINANCIAL_ASSETS, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of cash.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_cash",              freevariable3<sint32,sint32,bool>(ATC_CASH, -1, true), true);
+	register_method_fv(vm, &get_player_stat, "get_cash",              freevariable<sint32,sint32,bool>(ATC_CASH, -1, true), true);
 	/**
 	 * Get monthly statistics of net wealth.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_net_wealth",        freevariable3<sint32,sint32,bool>(ATC_NETWEALTH, -1, true), true);
+	register_method_fv(vm, &get_player_stat, "get_net_wealth",        freevariable<sint32,sint32,bool>(ATC_NETWEALTH, -1, true), true);
 	/**
 	 * Get monthly statistics of profit.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_profit",            freevariable3<sint32,sint32,bool>(ATV_PROFIT, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_profit",            freevariable<sint32,sint32,bool>(ATV_PROFIT, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of operating profit.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_operating_profit",  freevariable3<sint32,sint32,bool>(ATV_OPERATING_PROFIT, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_operating_profit",  freevariable<sint32,sint32,bool>(ATV_OPERATING_PROFIT, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of margin.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_margin",            freevariable3<sint32,sint32,bool>(ATV_PROFIT_MARGIN, -1, true), true);
+	register_method_fv(vm, &get_player_stat, "get_margin",            freevariable<sint32,sint32,bool>(ATV_PROFIT_MARGIN, -1, true), true);
 	/**
 	 * Get monthly statistics of all transported goods.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_transported",       freevariable3<sint32,sint32,bool>(ATV_TRANSPORTED, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_transported",       freevariable<sint32,sint32,bool>(ATV_TRANSPORTED, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of income from powerlines.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_powerline",         freevariable3<sint32,sint32,bool>(ATV_REVENUE, TT_POWERLINE, true), true);
+	register_method_fv(vm, &get_player_stat, "get_powerline",         freevariable<sint32,sint32,bool>(ATV_REVENUE, TT_POWERLINE, true), true);
 	/**
 	 * Get monthly statistics of transported passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_transported_pax",   freevariable3<sint32,sint32,bool>(ATV_TRANSPORTED_PASSENGER, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_transported_pax",   freevariable<sint32,sint32,bool>(ATV_TRANSPORTED_PASSENGER, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of transported mail.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_transported_mail",  freevariable3<sint32,sint32,bool>(ATV_TRANSPORTED_MAIL, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_transported_mail",  freevariable<sint32,sint32,bool>(ATV_TRANSPORTED_MAIL, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of transported goods.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_transported_goods", freevariable3<sint32,sint32,bool>(ATV_TRANSPORTED_GOOD, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_transported_goods", freevariable<sint32,sint32,bool>(ATV_TRANSPORTED_GOOD, TT_ALL, true), true);
 	/**
 	 * Get monthly statistics of number of convoys.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_convoys",           freevariable3<sint32,sint32,bool>(ATC_ALL_CONVOIS, -1, true), true);
+	register_method_fv(vm, &get_player_stat, "get_convoys",           freevariable<sint32,sint32,bool>(ATC_ALL_CONVOIS, -1, true), true);
 	/**
 	 * Get monthly statistics of income/loss due to way tolls.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_player_stat, "get_way_tolls",         freevariable3<sint32,sint32,bool>(ATV_WAY_TOLL, TT_ALL, true), true);
+	register_method_fv(vm, &get_player_stat, "get_way_tolls",         freevariable<sint32,sint32,bool>(ATV_WAY_TOLL, TT_ALL, true), true);
 
 	if (scenario) {
 		/**

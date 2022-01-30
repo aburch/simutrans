@@ -290,6 +290,31 @@ namespace script_api {
 	// which has to be included if necessary
 	template<class T> struct param< quickstone_tpl<T> >;
 
+	/**
+	 * partial specialization for function pointers,
+	 * used in api_function.h
+	 */
+	template<class T> struct param<T (*)()> {
+		// return type of return value
+		static const char* squirrel_type()
+		{
+			return param<T>::squirrel_type();
+		}
+		static const char* typemask()
+		{
+			return param<T>::typemask();
+		}
+	};
+	template<> struct param<void (*)()> {
+		static const char* squirrel_type()
+		{
+			return "void";
+		}
+		static const char* typemask()
+		{
+			return "";
+		}
+	};
 
 #define declare_types(mask, sqtype) \
 	static const char* typemask() { return mask; } \
@@ -400,58 +425,74 @@ namespace script_api {
 	 */
 	player_t* get_my_player(HSQUIRRELVM vm);
 
+	// trivial specialization for zero arguments
+	inline SQInteger push_param(HSQUIRRELVM) { return 0; }
+
+	/**
+	 * Pushes (recursively) all arguments on the stack.
+	 * First argument is pushed first.
+	 * @returns number of arguments (or SQ_ERROR)
+	 */
+	template<class A1, class... As>
+	SQInteger push_param(HSQUIRRELVM vm, const A1 & a1, const As &...  as)
+	{
+		// push first parameter
+		if (SQ_SUCCEEDED(script_api::param<A1>::push(vm, a1))) {
+			// push the other parameters
+			int res = push_param(vm, as...);
+			if (SQ_SUCCEEDED(res)) {
+				return res+1;
+			}
+			else {
+				// error: pop our parameter
+				sq_poptop(vm);
+			}
+		}
+		return -1;
+	}
+
 	/**
 	 * Templated interface to declare free variables for
 	 * c++ function calls
 	 */
-	template<class A1> struct freevariable {
+	template<class A1, class... As> struct freevariable : freevariable<As...>
+	{
+		using base = freevariable<As...>;
 		A1 arg1;
-		freevariable(A1 const& a1) : arg1(a1) {}
 
+		freevariable(const A1 & a1, const As &... as) : base(as...), arg1(a1) {}
 		/**
-		 * Pushes the free variables
+		 * Pushes the free variables. Lifo.
 		 * @returns number of pushed parameters
 		 */
-		SQInteger push(HSQUIRRELVM vm) const {
-			SQInteger count = 0;
-			if (SQ_SUCCEEDED( param<A1>::push(vm, arg1) ) ) count++;
-			return count;
+		SQInteger push(HSQUIRRELVM vm) const
+		{
+			int res = base::push(vm);
+			if (SQ_SUCCEEDED(res)) {
+				// first parameter is pushed last
+				if (SQ_SUCCEEDED(script_api::param<A1>::push(vm, arg1))) {
+					return res+1;
+				}
+				else {
+					sq_pop(vm, res); // pop other parameters in case of failure
+				}
+			}
+			return -1;
 		}
 	};
 
-	/**
-	 * Templated interface to declare free variables for
-	 * c++ function calls
-	 */
-	template<class A1,class A2> struct freevariable2 : public freevariable<A1> {
-		A2 arg2;
-		freevariable2(A1 const& a1, A2 const& a2) : freevariable<A1>(a1), arg2(a2) {}
+	template<class A1> struct freevariable<A1>
+	{
+		A1 arg1;
 
+		freevariable(const A1 & a1) : arg1(a1) {}
 		/**
 		 * Pushes the free variables
 		 * @returns number of pushed parameters
 		 */
-		SQInteger push(HSQUIRRELVM vm) const {
-			SQInteger count = 0;
-			if (SQ_SUCCEEDED( param<A2>::push(vm, arg2) ) ) count++;
-			count += freevariable<A1>::push(vm);
-			return count;
-		}
-	};
-
-	template<class A1,class A2,class A3> struct freevariable3 : public freevariable2<A1,A2> {
-		A3 arg3;
-		freevariable3(A1 const& a1, A2 const& a2, A3 const& a3) : freevariable2<A1,A2>(a1,a2), arg3(a3) {}
-
-		/**
-		 * Pushes the free variables
-		 * @returns number of pushed parameters
-		 */
-		SQInteger push(HSQUIRRELVM vm) const {
-			SQInteger count = 0;
-			if (SQ_SUCCEEDED( param<A3>::push(vm, arg3) ) ) count++;
-			count += freevariable2<A1,A2>::push(vm);
-			return count;
+		SQInteger push(HSQUIRRELVM vm) const
+		{
+			return push_param(vm, arg1);
 		}
 	};
 
