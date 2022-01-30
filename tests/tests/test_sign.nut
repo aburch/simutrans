@@ -366,8 +366,8 @@ function test_sign_remove_trafficlight()
 	// Note that both traffic lights must have the same direction for the test to work
 	// So the second traffic light must not change direction between the two wayremover calls
 	{
-		ASSERT_EQUAL(wayremover.work(pl, coord3d(2, 1, 0), coord3d(2, 2, 0), "" + wt_road), null)
-		ASSERT_EQUAL(wayremover.work(pl, coord3d(4, 5, 0), coord3d(5, 5, 0), "" + wt_road), null)
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), "" + wt_road), null)
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(4, 5, 0), coord3d(6, 5, 0), "" + wt_road), null)
 
 		ASSERT_EQUAL(tile_x(2, 2, 0).find_object(mo_signal), null)
 		ASSERT_EQUAL(tile_x(5, 5, 0).find_object(mo_signal), null)
