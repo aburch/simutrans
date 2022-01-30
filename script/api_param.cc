@@ -102,17 +102,6 @@ namespace script_api {
 		}
 	}
 
-// void parameter
-	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
-	{
-		return 0;
-	}
-
-	void_t param<void_t>::get(HSQUIRRELVM, SQInteger)
-	{
-		return void_t();
-	}
-
 // integer arguments
 	uint8 param<uint8>::get(HSQUIRRELVM vm, SQInteger index)
 	{

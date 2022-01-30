@@ -94,7 +94,7 @@ void export_control(HSQUIRRELVM vm)
 	 * Does not work in network games. Use with care.
 	 * @param p true if script should make the game pause in case of error
 	 */
-	STATIC register_function<void_t(*)(bool)>(vm, set_pause_on_error, "set_pause_on_error", true);
+	STATIC register_function<void(*)(bool)>(vm, set_pause_on_error, "set_pause_on_error", true);
 
 	end_class(vm);
 }

@@ -131,7 +131,7 @@ namespace script_api {
 		 */
 		static SQInteger push(HSQUIRRELVM vm, call_tool_init v);
 		// returns nothing sensible
-		static const char* squirrel_type() { return param<void_t>::squirrel_type(); }
+		static const char* squirrel_type() { return "void"; }
 	};
 
 	template<> struct param<call_tool_work> {

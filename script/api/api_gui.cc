@@ -50,7 +50,7 @@ call_tool_work add_scenario_message(player_t* player, const char* text)
 	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player(), koord3d::invalid);
 }
 
-void_t open_info_win_client(const char* tab, uint8 player_nr)
+void open_info_win_client(const char* tab, uint8 player_nr)
 {
 	if (env_t::server) {
 		// void network_send_all(network_command_t* nwc, bool exclude_us )
@@ -62,17 +62,16 @@ void_t open_info_win_client(const char* tab, uint8 player_nr)
 	else {
 		welt->get_scenario()->open_info_win(tab);
 	}
-	return void_t();
 }
 
-void_t open_info_win_at(const char* tab)
+void open_info_win_at(const char* tab)
 {
-	return open_info_win_client(tab, PLAYER_UNOWNED);
+	open_info_win_client(tab, PLAYER_UNOWNED);
 }
 
-void_t open_info_win()
+void open_info_win()
 {
-	return open_info_win_client("", PLAYER_UNOWNED);
+	open_info_win_client("", PLAYER_UNOWNED);
 }
 
 void export_gui(HSQUIRRELVM vm, bool scenario)

@@ -63,10 +63,9 @@ SQInteger param<heap_node_t>::push(HSQUIRRELVM vm, heap_node_t const& v)
 	return 1;
 }
 
-void_t simple_heap_insert(simple_heap_t *heap, sint32 weight, sint32 value)
+void simple_heap_insert(simple_heap_t *heap, sint32 weight, sint32 value)
 {
 	heap->insert( heap_node_t(weight, value) );
-	return void_t();
 }
 
 SQInteger simple_heap_pop(HSQUIRRELVM vm) // instance
@@ -105,12 +104,11 @@ SQInteger way_builder_constructor(HSQUIRRELVM vm) // instance, player
 	return SQ_OK;
 }
 
-void_t way_builder_set_build_types(way_builder_t *bob, const way_desc_t *way)
+void way_builder_set_build_types(way_builder_t *bob, const way_desc_t *way)
 {
 	if (way) {
 		bob->init_builder( (way_builder_t::bautyp_t)way->get_waytype(), way, NULL /*tunnel*/, NULL /*bridge*/);
 	}
-	return void_t();
 }
 
 bool way_builder_is_allowed_step(way_builder_t *bob, grund_t *from, grund_t *to)

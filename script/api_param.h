@@ -63,11 +63,6 @@ namespace script_api {
 	struct mytime_ticks_t;
 
 	/**
-	 * Cannot specialize templates by void, so use own void type
-	 */
-	struct void_t {};
-
-	/**
 	 * Templated interface to transfer variables from / to squirrel.
 	 */
 	template<class T> struct param {
@@ -337,13 +332,12 @@ namespace script_api {
 	template<> struct param<T> { \
 		declare_types(mask, sqtype) \
 	};
-	/// macro to declare fake types, inherited from void_t,
+	/// macro to declare fake types
 	/// for documentation purposes
 #define declare_fake_param(T, sqtype) \
-	class T { public: T(void_t) {};  operator void_t() const { return void_t();} };  \
+	class T { public: T() {};   };  \
 	template<> struct param<T> { \
-		static T get(HSQUIRRELVM vm, SQInteger index) { return param<void_t>::get(vm, index); } \
-		static SQInteger push(HSQUIRRELVM vm, T const& v) { return param<void_t>::push(vm, v); } \
+		static T get(HSQUIRRELVM, SQInteger) { return T(); } \
 		declare_types(".", sqtype); \
 	};
 	// macro to declare enums
@@ -355,8 +349,6 @@ namespace script_api {
 	};
 
 
-
-	declare_specialized_param(void_t, ".", "void");
 	// no typemask, as we call to_bool
 	declare_specialized_param(bool, ".", "bool");
 

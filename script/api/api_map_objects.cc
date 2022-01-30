@@ -301,17 +301,15 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 }
 
 // mark objects
-void_t mark_object(obj_t* obj)
+void mark_object(obj_t* obj)
 {
 	obj->set_flag(obj_t::highlight);
 	obj->set_flag(obj_t::dirty);
-	return void_t();
 }
-void_t unmark_object(obj_t* obj)
+void unmark_object(obj_t* obj)
 {
 	obj->clear_flag(obj_t::highlight);
 	obj->set_flag(obj_t::dirty);
-	return void_t();
 }
 bool object_is_marked(obj_t* obj)
 {
