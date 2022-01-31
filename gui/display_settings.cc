@@ -245,6 +245,11 @@ map_settings_t::map_settings_t()
 	brightness.add_listener( this );
 	add_component( &brightness );
 
+	// Numpad key
+	buttons[IDBTN_IGNORE_NUMLOCK].init(button_t::square_state, "Num pad keys always move map");
+	buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+	add_component(buttons + IDBTN_IGNORE_NUMLOCK, 2);
+
 	// Scroll inverse checkbox
 	buttons[IDBTN_SCROLL_INVERSE].init(button_t::square_state, "4LIGHT_CHOOSE");
 	add_component(buttons + IDBTN_SCROLL_INVERSE, 2);
@@ -254,10 +259,12 @@ map_settings_t::map_settings_t()
 	buttons[IDBTN_INFINITE_SCROLL].set_tooltip("Infinite scrolling using mouse");
 	add_component(buttons + IDBTN_INFINITE_SCROLL, 2);
 
-	// Numpad key
-	buttons[ IDBTN_IGNORE_NUMLOCK ].init( button_t::square_state, "Num pad keys always move map" );
-	buttons[ IDBTN_IGNORE_NUMLOCK ].pressed = env_t::numpad_always_moves_map;
-	add_component( buttons + IDBTN_IGNORE_NUMLOCK, 2 );
+	// scroll with genral tool selected if moved above a threshold
+	new_component<gui_label_t>("Scroll threshold");
+
+	scroll_threshold.init(env_t::scroll_threshold, 1, 64, 1, false);
+	scroll_threshold.add_listener(this);
+	add_component(&scroll_threshold);
 
 	// Scroll speed label
 	new_component<gui_label_t>( "3LIGHT_CHOOSE" );
@@ -296,8 +303,12 @@ bool map_settings_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		env_t::daynight_level = (sint8)v.i;
 	}
 	// Scroll speed edit
-	else if( &scrollspeed == comp ) {
-		env_t::scroll_multi = (sint16)(buttons[ IDBTN_SCROLL_INVERSE ].pressed ? -v.i : v.i);
+	else if (&scroll_threshold == comp) {
+		env_t::scroll_threshold = v.i;
+	}
+	// Scroll speed edit
+	else if (&scrollspeed == comp) {
+		env_t::scroll_multi = (sint16)(buttons[IDBTN_SCROLL_INVERSE].pressed ? -v.i : v.i);
 	}
 	// underground slice edit
 	else if( comp == &inp_underground_level ) {

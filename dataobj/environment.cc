@@ -75,6 +75,7 @@ std::string env_t::nickname = "";
 const char *env_t::language_iso = "en";
 sint16 env_t::scroll_multi = -1; // start with same scrool as mouse as nowadays standard
 bool env_t::scroll_infinite = false; // since it fails with touch devices
+uint16 env_t::scroll_threshold = 8;
 sint16 env_t::global_volume = 127;
 uint32 env_t::sound_distance_scaling;
 sint16 env_t::midi_volume = 127;
@@ -210,6 +211,7 @@ void env_t::init()
 	cursor_hide_range = 5;
 
 	scroll_infinite = false;
+	scroll_threshold = 16;
 
 	visualize_schedule = true;
 
@@ -578,6 +580,10 @@ void env_t::rdwr(loadsave_t *file)
 	if( file->is_version_atleast(123, 1) ) {
 		file->rdwr_short(display_scale_percent);
 		file->rdwr_bool(scroll_infinite);
+	}
+
+	if (file->is_version_atleast(123, 2)) {
+		file->rdwr_short(scroll_threshold);
 	}
 
 	// server settings are not saved, since they are server specific

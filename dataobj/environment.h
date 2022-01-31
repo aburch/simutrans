@@ -1,4 +1,5 @@
 /*
+/*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -162,6 +163,9 @@ public:
 
 	/// enables infinite scrolling with trackball or mouse, by may fail with sytlus
 	static bool scroll_infinite;
+
+	/// scrolling with general tool (like building stops or setting halts) after dragging a threshold
+	static uint16 scroll_threshold;
 
 	/// converts numpad keys to arrows no matter of numlock state
 	static bool numpad_always_moves_map;

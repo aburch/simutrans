@@ -331,17 +331,19 @@ bool interaction_t::process_event( event_t &ev )
 		catch_dragging();
 		move_view(ev);
 	}
-	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
-		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual difference
-		 * => move the map */
-		if(  !left_drag  ) {
-			display_show_pointer(false);
-			left_drag = true;
+	else if ((left_drag || (world->get_tool(world->get_active_player_nr())->get_id() & GENERAL_TOOL) != 0) && IS_LEFTDRAG(&ev)) {
+		/* ok, we have a general tool selected, and we have a left drag or left release event with an actual difference
+		 * => move the map, if we are beyond a threshold */
+		if(  left_drag  ||  abs(ev.cx-ev.mx)+abs(ev.cy-ev.my)>=env_t::scroll_threshold  ) {
+			if (!left_drag) {
+				display_show_pointer(false);
+				left_drag = true;
+			}
+			world->get_viewport()->set_follow_convoi(convoihandle_t());
+			catch_dragging();
+			move_view(ev);
+			ev.ev_code = IGNORE_EVENT;
 		}
-		world->get_viewport()->set_follow_convoi( convoihandle_t() );
-		catch_dragging();
-		move_view(ev);
-		ev.ev_code = IGNORE_EVENT;
 	}
 
 	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {

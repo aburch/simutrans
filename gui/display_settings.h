@@ -51,7 +51,8 @@ public:
 	gui_numberinput_t
 		inp_underground_level,
 		brightness,
-		scrollspeed;
+		scrollspeed,
+		scroll_threshold;
 	map_settings_t();
 	bool action_triggered( gui_action_creator_t *comp, value_t v ) OVERRIDE;
 };
