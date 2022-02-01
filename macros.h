@@ -12,22 +12,19 @@
 #include <cstring>
 
 
-// XXX Workaround: Old GCCs choke on type check.
-#if !defined __GNUC__ || GCC_ATLEAST(3, 0)
-// Ensures that the argument has array type.
-template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
-#	define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
-#else
-#	define lengthof(x) (sizeof(x) / sizeof(*(x)))
-#endif
+template<typename T, size_t N>
+static constexpr size_t lengthof(const T (&)[N]) { return N; }
 
-#define endof(x) ((x) + lengthof(x))
+template<typename T, size_t N>
+static constexpr T *endof(T (&arr)[N]) { return arr + N; }
+
 
 #define QUOTEME_(x) #x
 #define QUOTEME(x) QUOTEME_(x)
 
 #define MEMZERON(ptr, n) memset((ptr), 0, sizeof(*(ptr)) * (n))
 #define MEMZERO(obj)     MEMZERON(&(obj), 1)
+
 
 // make sure, a value in within the borders
 template<typename T> static inline T clamp(T v, T l, T u)
