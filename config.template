@@ -43,7 +43,7 @@
 # using UPnP for easy server hosting behind routers
 #USE_UPNP := 1
 
-# using zstd compression library
+# Enable support for zstd save file compression (larger save files than bzip2, but faster)
 #USE_ZSTD := 1
 
 # enable link time optimizations

@@ -30,7 +30,7 @@ You will need pkgconfig (Unix) or vcpkg (Microsoft Visual C++) https://github.co
 
 - Needed (All): libpng2 libbzip2 zlib 
 - Needed (Linux/Mac): libSDL2 libfluidsynth (for midi music)
-- Optional but recommended: libzstd libfreetype miniupnpc (for easy server setup)
+- Optional but recommended: libzstd (faster compression) libfreetype (TrueType font support) miniupnpc (for easy server setup)
 
 - MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
 - MSYS2: Run setup-mingw.sh to get the libraries and set up the environment.
@@ -87,7 +87,7 @@ For bug reports use the Bug Reports Sub-Forum: https://forum.simutrans.com/index
 License
 =======
 
-Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see license.txt.
+Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see LICENSE.txt.
 
 Simutrans paksets (which are necessary to run the game) have their own license, but no one is included alongside this code.
 

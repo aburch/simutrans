@@ -81,7 +81,7 @@ This is a list of libraries used by Simutrans. Not all of them are necessary, so
 | bzip2         | https://www.bzip.org/downloads.html | Necessary  | Alternative compression. You can pick this or zstd                         |
 | libpng        | http://www.libpng.org/pub/png/      | Necessary  | Image manipulation                                                         |
 | libSDL2       | http://www.libsdl.org/              | Necessary* | *On Linux & Mac. Optional but recommended for Windows. Graphics back-end |
-| libzstd       | https://github.com/facebook/zstd    | Optional   | Alternative compression                                                   |
+| libzstd       | https://github.com/facebook/zstd    | Optional   | Alternative compression (larger save files than bzip2, but faster)         |
 | libfreetype   | http://www.freetype.org/            | Optional   | TrueType font support                                                     |
 | libminiupnpc  | http://miniupnp.free.fr/            | Optional   | Easy Server option                                                         |
 | libfluidsynth | https://www.fluidsynth.org/         | Optional   | MIDI playback recommended on Linux & temporarily on Mac                   |
@@ -173,7 +173,7 @@ For bug reports use the [Bug Reports](https://forum.simutrans.com/index.php/boar
 
 ## 4) License
 
-Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see [license.txt](./license.txt).
+Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see [LICENSE.txt](./LICENSE.txt).
 
 Simutrans paksets (which are necessary to run the game) have their own license, but no one is included alongside this code.
 
