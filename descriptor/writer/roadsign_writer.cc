@@ -38,7 +38,7 @@ void parse_images_2d(slist_tpl<std::string>& keys, tabfileobj_t& obj, roadsign_d
 		directions = general_sign_directions;
 		dir_cnt = lengthof(general_sign_directions);
 	}
-	
+
 	for(  uint8 state=0;  state<8;  state++  ) {
 		for(  uint8 idx = 0;  idx < dir_cnt;  idx++  ) {
 			char buf[64];
@@ -54,7 +54,7 @@ void parse_images_2d(slist_tpl<std::string>& keys, tabfileobj_t& obj, roadsign_d
 			}
 			// append image number
 			keys.append(img);
-		}	
+		}
 	}
 }
 
@@ -133,9 +133,9 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	// add the images
 	slist_tpl<std::string> keys;
-	
+
 	if(  *obj.get("image[0]")  ) {
-		// image[0] is defined. 
+		// image[0] is defined.
 		// assume that images are defined in image[number] syntax.
 		parse_images_numbered(keys, obj);
 	}
