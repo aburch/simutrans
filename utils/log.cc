@@ -380,16 +380,7 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 {
 	if(debuglevel >= LEVEL_ERROR) {
 		va_list args2;
-
-#if defined(va_copy)
 		va_copy(args2, args);
-#elif defined(__va_copy)
-		// Deprecated macro possibly used by older compilers.
-		__va_copy(args2, args);
-#else
-		// Undefined behaviour that might work.
-		args2 = args; // If this throws an error then C++11 conformance may be required.
-#endif
 
 		if( log ) {                               /* only log when a log */
 			fprintf(log ,"%s: %s:\t", what, who); /* is already open */
