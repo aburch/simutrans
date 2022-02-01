@@ -198,7 +198,7 @@ bool dr_init_midi()
 	std::string fluidsynth_driver = "dsound";
 #elif defined(__APPLE__) && __APPLE__
 	std::string fluidsynth_driver = "coreaudio";
-#elif __ANDROID__
+#elif defined(__ANDROID__) && __ANDROID__
 	std::string fluidsynth_driver = "oboe";
 #else
 	std::string fluidsynth_driver = "sdl2";

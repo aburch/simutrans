@@ -29,7 +29,6 @@ karte_ptr_t interaction_t::world;
 
 void interaction_t::move_view( const event_t &ev )
 {
-	static scr_coord_val old_move_dx=0, old_move_dy=0;
 	koord new_ij = viewport->get_world_position();
 
 	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;

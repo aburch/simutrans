@@ -26,9 +26,11 @@ void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
 
 void pakset_info_t::debug()
 {
+#if MSG_LEVEL >= 4
 	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
 		DBG_DEBUG4("pakset_info_t::debug", "%.30s -> sha1 = %s", i.key, i.value->get_str());
 	}
+#endif
 }
 
 
