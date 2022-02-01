@@ -88,8 +88,8 @@ const char* curiositylist_stats_t::get_text() const
 	static char short_name[256];
 	char* dst = short_name;
 	int    cr = 0;
-	for( int j=0;  j<255  &&  cr<10;  j++  ) {
-		if(name[j]>0  &&  name[j]<=' ') {
+	for( int j=0;  name[j]>0  &&  j<255  &&  cr<10;  j++  ) {
+		if(name[j]<=' ') {
 			cr++;
 			if(  name[j]<32  ) {
 				break;
