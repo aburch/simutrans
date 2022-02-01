@@ -5509,7 +5509,7 @@ bool display_snapshot( const scr_rect &area )
 
 	for (scr_coord_val y = clipped_area.y; y < clipped_area.y + clipped_area.h; ++y) {
 		uint8 *dst = img.access_pixel(0, y);
-		const PIXVAL *row = textur + 0 + y*disp_width;
+		const PIXVAL *row = textur + clipped_area.x + y*disp_width;
 
 		for (scr_coord_val x = clipped_area.x; x < clipped_area.x + clipped_area.w; ++x) {
 			const PIXVAL pixel = *row++;
