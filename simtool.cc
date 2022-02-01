@@ -4735,36 +4735,6 @@ const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 }
 
 
-const char *tool_build_station_t::move( player_t *player, uint16 buttonstate, koord3d pos )
-{
-	CHECK_FUNDS();
-
-	const char *result = NULL;
-	if(  buttonstate==1  ) {
-		const grund_t *gr = welt->lookup(pos);
-		if(!gr) {
-			return "";
-		}
-
-		// ownership allowed?
-		halthandle_t halt = gr->get_halt();
-		if(halt.is_bound()  &&  !player_t::check_owner( player, halt->get_owner())) {
-			return "";
-		}
-
-		if(  env_t::networkmode  ) {
-			// queue tool for network
-			nwc_tool_t *nwc = new nwc_tool_t(player, this, pos, welt->get_steps(), welt->get_map_counter(), false);
-			network_send_server(nwc);
-		}
-		else {
-			result = work( player, pos );
-		}
-	}
-	return result;
-}
-
-
 const char *tool_build_station_t::work( player_t *player, koord3d pos )
 {
 	const grund_t *gr = welt->lookup(pos);

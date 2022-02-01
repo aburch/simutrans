@@ -412,8 +412,6 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
-	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
