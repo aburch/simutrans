@@ -19,10 +19,6 @@
 #endif
 
 #if defined _MSC_VER
-#	if _MSC_VER <= 1200
-#		error "Simutrans cannot be compiled with Visual C++ 6.0 or earlier."
-#	endif
-#
 #	include <malloc.h>
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
 #elif defined __clang__
@@ -32,6 +28,7 @@
 #	define ALLOCA(type, name, count) type name[count]
 #endif
 
+
 #if defined DEBUG
 #	include <stdlib.h>
 #	define NOT_REACHED abort();
@@ -39,41 +36,9 @@
 #	define NOT_REACHED
 #endif
 
-#if defined (__GNUC__)
-#	define GNUC_DEFINED 1
-#else
-#	define GNUC_DEFINED 0
-#endif
-#if defined (__GXX_EXPERIMENTAL_CXX0X__)
-#	define GXXEXP_DEFINED 1
-#else
-#	define GXXEXP_DEFINED 0
-#endif
-#if defined (_MSC_VER)
-#	define MSC_DEFINED 1
-#else
-#	define MSC_DEFINED 0
-#endif
 
-#define GCC_ATLEAST(major, minor) (GNUC_DEFINED && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+#define OVERRIDE override
 
-#define CXX11(gcc_major, gcc_minor, msc_ver) ( \
-	__cplusplus >= 201103L || \
-	(GXXEXP_DEFINED && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
-	(MSC_DEFINED && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
-)
-
-#if CXX11(4, 4, 0)
-#	define DELETED = delete
-#else
-#	define DELETED
-#endif
-
-#if CXX11(4, 7, 1400)
-#	define OVERRIDE override
-#else
-#	define OVERRIDE
-#endif
 
 #include <stdint.h> // intptr_t (standard)
 #include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)

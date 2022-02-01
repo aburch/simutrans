@@ -55,6 +55,6 @@ class plainstring
 		char* str_;
 };
 
-void free(plainstring const&) DELETED;
+void free(plainstring const&) = delete;
 
 #endif
