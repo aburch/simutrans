@@ -2135,8 +2135,10 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				}
 			} while(  ev.ev_class != EVENT_NONE  &&  dr_time()-frame_start_time < 50  );
 
-			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step");
-			welt->sync_step((ms_per_frame * welt->get_time_multiplier()) / 16, true, true);
+			const uint32 delta_t = (ms_per_frame * welt->get_time_multiplier()) / 16;
+			DBG_DEBUG4("modal_dialogue", "calling welt->sync_step(%u)", delta_t);
+			welt->sync_step(delta_t);
+			welt->display(delta_t);
 
 			if (--sync_steps_until_step == 0) {
 				DBG_DEBUG4("modal_dialogue", "calling welt->step");

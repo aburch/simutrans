@@ -1559,7 +1559,9 @@ public:
 	/**
 	 * Synchronous stepping of objects like vehicles.
 	 */
-	void sync_step(uint32 delta_t, bool sync, bool display ); // advance also the timer
+	void sync_step(uint32 delta_t); // advance also the timer
+
+	void display(uint32 delta_t);
 
 	/**
 	 * Tasks that are more time-consuming, like route search of vehicles and production of factories.

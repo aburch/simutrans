@@ -3620,86 +3620,92 @@ void karte_t::sync_list_t::sync_step(uint32 delta_t)
  * only time consuming thing are done in step()
  * everything else is done here
  */
-void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
+void karte_t::sync_step(uint32 delta_t)
 {
 	set_random_mode( SYNC_STEP_RANDOM );
-	if(do_sync_step) {
-		// only omitted, when called to display a new frame during fast forward
 
-		// just for progress
-		if(  delta_t > 10000  ) {
-			dbg->error( "karte_t::sync_step()", "delta_t (%u) too large, limiting to 10000", delta_t );
-			delta_t = 10000;
+	// only omitted, when called to display a new frame during fast forward
+
+	// just for progress
+	if(  delta_t > 10000  ) {
+		dbg->error( "karte_t::sync_step()", "delta_t (%u) too large, limiting to 10000", delta_t );
+		delta_t = 10000;
+	}
+	ticks += delta_t;
+
+	set_random_mode( INTERACTIVE_RANDOM );
+
+	/* animations do not require exact sync
+		* foundations etc are added removed frequently during city growth
+		* => they are now in a hastable!
+		*/
+	sync_eyecandy.sync_step( delta_t );
+
+	/* pedestrians do not require exact sync and are added/removed frequently
+		* => they are now in a hastable!
+		*/
+	sync_way_eyecandy.sync_step( delta_t );
+
+	clear_random_mode( INTERACTIVE_RANDOM );
+
+	sync.sync_step( delta_t );
+
+	ticker::update();
+
+	clear_random_mode( SYNC_STEP_RANDOM );
+}
+
+
+void karte_t::display(uint32 delta_t)
+{
+	set_random_mode( SYNC_STEP_RANDOM );
+
+	// only omitted in fast forward mode for the magic steps
+
+	for(int x=0; x<MAX_PLAYER_COUNT-1; x++) {
+		if(players[x]) {
+			players[x]->age_messages(delta_t);
 		}
-		ticks += delta_t;
-
-		set_random_mode( INTERACTIVE_RANDOM );
-
-		/* animations do not require exact sync
-		 * foundations etc are added removed frequently during city growth
-		 * => they are now in a hastable!
-		 */
-		sync_eyecandy.sync_step( delta_t );
-
-		/* pedestrians do not require exact sync and are added/removed frequently
-		 * => they are now in a hastable!
-		 */
-		sync_way_eyecandy.sync_step( delta_t );
-
-		clear_random_mode( INTERACTIVE_RANDOM );
-
-		sync.sync_step( delta_t );
-
-		ticker::update();
 	}
 
-	if(display) {
-		// only omitted in fast forward mode for the magic steps
+	// change view due to following a convoi?
+	convoihandle_t follow_convoi = viewport->get_follow_convoi();
+	if(follow_convoi.is_bound()  &&  follow_convoi->get_vehicle_count()>0) {
+		vehicle_t const& v       = *follow_convoi->front();
+		koord3d   const  new_pos = v.get_pos();
+		if(new_pos!=koord3d::invalid) {
+			const sint16 rw = get_tile_raster_width();
+			int new_xoff = 0;
+			int new_yoff = 0;
+			v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
+			new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
+			new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
+			viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
 
-		for(int x=0; x<MAX_PLAYER_COUNT-1; x++) {
-			if(players[x]) {
-				players[x]->age_messages(delta_t);
-			}
-		}
-
-		// change view due to following a convoi?
-		convoihandle_t follow_convoi = viewport->get_follow_convoi();
-		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehicle_count()>0) {
-			vehicle_t const& v       = *follow_convoi->front();
-			koord3d   const  new_pos = v.get_pos();
-			if(new_pos!=koord3d::invalid) {
-				const sint16 rw = get_tile_raster_width();
-				int new_xoff = 0;
-				int new_yoff = 0;
-				v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
-				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
-				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
-				viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
-
-				// auto underground to follow convois
-				if( env_t::follow_convoi_underground ) {
-					grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
-					bool redraw = false;
-					if( new_pos.z < gr->get_hoehe() ) {
-						redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
-						grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
-					}
-					else {
-						redraw = grund_t::underground_mode != grund_t::ugm_none;
-						grund_t::set_underground_mode( grund_t::ugm_none, 0 );
-					}
-					if(  redraw  ) {
-						// recalc all images on map
-						update_underground();
-					}
+			// auto underground to follow convois
+			if( env_t::follow_convoi_underground ) {
+				grund_t *gr = lookup_kartenboden( new_pos.get_2d() );
+				bool redraw = false;
+				if( new_pos.z < gr->get_hoehe() ) {
+					redraw = grund_t::underground_mode == grund_t::ugm_none ? grund_t::underground_level != new_pos.z : true;
+					grund_t::set_underground_mode( env_t::follow_convoi_underground, new_pos.z );
+				}
+				else {
+					redraw = grund_t::underground_mode != grund_t::ugm_none;
+					grund_t::set_underground_mode( grund_t::ugm_none, 0 );
+				}
+				if(  redraw  ) {
+					// recalc all images on map
+					update_underground();
 				}
 			}
 		}
-
-		// display new frame with water animation
-		intr_refresh_display( false );
-		update_frame_sleep_time();
 	}
+
+	// display new frame with water animation
+	intr_refresh_display( false );
+	update_frame_sleep_time();
+
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
@@ -7434,16 +7440,16 @@ bool karte_t::interactive(uint32 quit_month)
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
-				sync_step( 0, false, true );
+				display(0);
 				idle_time = 100;
 			}
 			else if(  env_t::networkmode  &&  !env_t::server  &&  sync_steps >= sync_steps_barrier  ) {
-				sync_step( 0, false, true );
+				display(0);
 				next_step_time = time + fix_ratio_frame_time;
 			}
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
-					sync_step( 100, true, false );
+					sync_step( 100 );
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );
@@ -7464,7 +7470,10 @@ bool karte_t::interactive(uint32 quit_month)
 						ms_difference -= nst_diff;
 					}
 
-					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
+					const uint32 delta_t = (fix_ratio_frame_time*time_multiplier)/16;
+					sync_step( delta_t );
+					display( delta_t );
+
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever fourth frame
 						set_random_mode( STEP_RANDOM );

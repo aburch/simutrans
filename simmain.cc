@@ -209,10 +209,11 @@ static void show_times(karte_t *welt, main_view_t *view)
 
 	ms = dr_time();
 	for (i = 0; i < 2000; i++) {
-		welt->sync_step(200,true,true);
+		welt->sync_step(200);
+		welt->display(200);
 		welt->step();
 	}
-	dbg->message( "welt->sync_step/step(200,1,1)", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message( "welt->sync_step(200)/display(200)/step", "%i iterations took %li ms", i, dr_time() - ms );
 }
 #endif
 
@@ -1473,7 +1474,7 @@ int simu_main(int argc, char** argv)
 		tool_t::toolbar_tool[0]->init(welt->get_active_player());
 
 		welt->set_fast_forward(true);
-		welt->sync_step(5000,true,false);
+		welt->sync_step(5000);
 		welt->step_month(5);
 		welt->step();
 		welt->step();

@@ -110,7 +110,10 @@ void interrupt_check(const char* caller_info)
 		if(  diff>0  ) {
 			enabled = false;
 			last_time = now;
-			world()->sync_step( diff, !world()->is_fast_forward(), true );
+			if (!world()->is_fast_forward()) {
+				world()->sync_step( diff );
+			}
+			world()->display(diff);
 			enabled = true;
 		}
 	}
