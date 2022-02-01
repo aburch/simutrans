@@ -98,7 +98,7 @@ bool dr_set_screen_scale(sint16 percent)
 		scale_ok = true;
 	}
 	else if (percent == 0) {
-		percent = 100;
+		x_scale = x_scale = 32;
 		scale_ok = true;
 	}
 	else if (percent < 0) {
@@ -246,6 +246,9 @@ int dr_os_open(const scr_size window_size, sint16 fs)
 	masks[2]               = 0x0000001F;
 #endif
 
+	MaxSize.right = header.biWidth;
+	MaxSize.bottom = header.biHeight;
+
 	return header.biWidth;
 }
 
@@ -288,20 +291,20 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 	int img_w = w;
 	int img_h = h;
 
-	if(  w > (MaxSize.right/x_scale)*32  ||  h >= (MaxSize.bottom/y_scale)*32  ) {
+	if(  w > MaxSize.right  ||  h >= MaxSize.bottom  ) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = (w*32)/x_scale;
-		MaxSize.bottom = ((h+1)*32)/y_scale;
+		MaxSize.right = w;
+		MaxSize.bottom = h;
 		AllDibData = MALLOCN(PIXVAL, img_w * img_h);
 		*textur = (unsigned short*)AllDibData;
 	}
 
 	AllDib->bmiHeader.biWidth  = img_w;
 	AllDib->bmiHeader.biHeight = img_h;
-	WindowSize.right           = (w*32)/x_scale;
-	WindowSize.bottom          = (h*32)/y_scale;
+	WindowSize.right           = w;
+	WindowSize.bottom          = h;
 
 #ifdef MULTI_THREAD
 	LeaveCriticalSection( &redraw_underway );
