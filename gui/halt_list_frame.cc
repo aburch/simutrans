@@ -487,6 +487,7 @@ void halt_list_frame_t::rdwr(loadsave_t* file)
 
 		sortby = (sort_mode_t)sort_mode;
 		m_player = welt->get_player(player_nr);
+		set_owner(m_player);
 		win_set_magic(this, magic_halt_list + player_nr);
 		sort_list();
 		set_windowsize(size);
