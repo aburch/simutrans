@@ -94,7 +94,10 @@ jobs:
         git clone -b $CURRENT_BRANCH $GITHUB_SERVER_URL/$GITHUB_REPOSITORY project/jni/application/simutrans/simutrans
         chmod +755 project/jni/application/simutrans/simutrans/get_revision.sh
         echo $(ls -al project/jni/application/simutrans/simutrans/android)
-        patch -p1 -i project/jni/application/simutrans/simutrans/android/pelya.patch
+        cp -f project/jni/application/simutrans/simutrans/android/AndroidAppSettings.cfg project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/android/AndroidBuild.sh project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/android/AndroidPreBuild.sh project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/android/icon.png project/jni/application/simutrans/
     #    svn checkout --depth empty svn://servers.simutrans.org/simutrans/trunk/ project/jni/application/simutrans/simutrans
 
     # End of environment setup (dependencies installed, source code at correct location)
