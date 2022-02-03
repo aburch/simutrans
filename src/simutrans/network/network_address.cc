@@ -39,15 +39,6 @@ net_address_t::net_address_t(const char *text)
 }
 
 
-net_address_t::net_address_t(const net_address_t &other)
-{
-	ip = other.ip;
-	mask = other.mask;
-	ipstr[0] = '\0';
-	init_ipstr();
-}
-
-
 void net_address_t::init_ipstr()
 {
 	if (  ipstr[0] == '\0'  ) {
