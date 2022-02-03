@@ -484,7 +484,7 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 // true if already stored here
 bool depot_frame_t::is_in_vehicle_list(const vehicle_desc_t *info)
 {
-	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+	for(vehicle_t* const v : depot->get_vehicle_list()) {
 		if(  v->get_desc() == info  ) {
 			return true;
 		}
@@ -503,7 +503,7 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
 			if(freight->get_catg_index() >= 3) {
 				bool found = false;
-				FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
+				for(goods_desc_t const* const i : welt->get_goods_list()) {
 					if (freight->get_catg_index() == i->get_catg_index()) {
 						found = true;
 						break;
@@ -578,7 +578,7 @@ void depot_frame_t::build_vehicle_lists()
 
 	if(!show_all  &&  veh_action==va_sell) {
 		// show only sellable vehicles
-		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+		for(vehicle_t* const v : depot->get_vehicle_list()) {
 			vehicle_desc_t const* const d = v->get_desc();
 			typ_list.append(d);
 		}
@@ -593,14 +593,14 @@ void depot_frame_t::build_vehicle_lists()
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
+		for(vehicle_desc_t const* const info : typ_list) {
 			if (vehicle_map.get(info)) continue;
 			add_to_vehicle_list(info);
 		}
 	}
 	else {
 		// list only matching ones
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
+		for(vehicle_desc_t const* const info : typ_list) {
 			const vehicle_desc_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
@@ -688,7 +688,7 @@ void depot_frame_t::update_data()
 	convoy_selector.set_selection(0);
 
 	// check all matching convoys
-	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
+	for(convoihandle_t const c : depot->get_convoy_list()) {
 		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
@@ -738,7 +738,7 @@ void depot_frame_t::update_data()
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 	}
 
-	FOR(vehicle_image_map, const& i, vehicle_map) {
+	for(auto const& i : vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 		const PIXVAL ok_color = info->is_available(month_now) ? color_idx_to_rgb(COL_GREEN) : gui_theme_t::gui_color_obsolete;
@@ -779,7 +779,7 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+	for(vehicle_t* const v : depot->get_vehicle_list()) {
 		// can fail, if currently not visible
 		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_desc())) {
 			imgdat->count++;
@@ -836,7 +836,7 @@ void depot_frame_t::update_data()
 	get_line_list(depot, &lines);
 	// select "create new schedule"
 	line_selector.set_selection( 0 );
-	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
+	for(linehandle_t const line :  lines  ) {
 		line_selector.new_component<line_scrollitem_t>(line) ;
 		if(  selected_line.is_bound()  &&  selected_line == line  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
@@ -853,7 +853,7 @@ void depot_frame_t::update_data()
 	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
 	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Relevant"), SYSCOL_TEXT);
 
-	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
+	for(goods_desc_t const* const i : welt->get_goods_list()) {
 		vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(i->get_name()), SYSCOL_TEXT);
 	}
 
@@ -913,7 +913,7 @@ void depot_frame_t::update_data()
 
 						// find number of goods in in this category. TODO: gotta be a better way...
 						uint8 catg_count = 0;
-						FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
+						for(goods_desc_t const* const i : welt->get_goods_list()) {
 							if(  ware->get_catg_index() == i->get_catg_index()  ) {
 								catg_count++;
 							}
@@ -1062,7 +1062,7 @@ void depot_frame_t::update_data()
 sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 {
 	sint64 wert = 0;
-	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+	for(vehicle_t* const v : depot->get_vehicle_list()) {
 		if(  v->get_desc() == veh_type  ) {
 			wert += v->calc_sale_value();
 		}
@@ -1433,7 +1433,7 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		cont_veh_action->set_size(cont_veh_action->get_size());
 	}
 	// unmark vehicle
-	FOR(vector_tpl<gui_image_list_t::image_data_t*>, const& iptr, convoi_pics) {
+	for(gui_image_list_t::image_data_t* const& iptr : convoi_pics) {
 		iptr->count = 0;
 	}
 	// Find vehicle under mouse cursor

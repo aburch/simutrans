@@ -424,14 +424,14 @@ money_frame_t::~money_frame_t()
 {
 	bFilterStates.clear();
 	// save button states
-	FOR(vector_tpl<gui_button_to_chart_t*>, b2c, button_to_chart.list()) {
+	for(gui_button_to_chart_t* b2c : button_to_chart.list()) {
 		bFilterStates.append( b2c->get_button()->pressed ? 1 : 0);
 	}
 }
 
 void money_frame_t::update_labels()
 {
-	FOR(vector_tpl<money_frame_label_t*>, lb, money_labels) {
+	for(money_frame_label_t* lb : money_labels) {
 		lb->update(this);
 	}
 

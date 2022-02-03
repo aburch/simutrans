@@ -403,7 +403,7 @@ vector_tpl<depot_t*> const& get_depot_list(player_t *player, waytype_t wt)
 	// fill list
 	const slist_tpl<depot_t*> &depot_list = depot_t::get_depot_list();
 
-	FOR(slist_tpl<depot_t*>, d, depot_list) {
+	for(depot_t* d : depot_list) {
 		if(d->get_line_type()==line_type  &&  d->get_owner()==player) {
 			list.append(d);
 		}

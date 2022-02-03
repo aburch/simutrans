@@ -98,7 +98,7 @@ void curiositylist_frame_t::fill_list()
 	player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
 
 	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
-		FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+		for(gebaeude_t* const geb : world_attractions) {
 			if (geb != NULL &&
 				geb->get_first_tile() == geb &&
 				geb->get_passagier_level() != 0) {
@@ -118,7 +118,7 @@ void curiositylist_frame_t::fill_list()
 		}
 	}
 	else {
-		FOR(const weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
+		for(gebaeude_t* const geb : world_attractions) {
 			if (geb != NULL &&
 				geb->get_first_tile() == geb &&
 				geb->get_passagier_level() != 0) {

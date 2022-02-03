@@ -60,7 +60,7 @@ void crossing_logic_t::recalc_state()
 	if(  !crossings.empty()  ) {
 		on_way1.clear();
 		on_way2.clear();
-		FOR(minivec_tpl<crossing_t*>, const i, crossings) {
+		for(crossing_t* const i : crossings) {
 			// add vehicles already there
 			if (grund_t* const gr = welt->lookup(i->get_pos())) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
@@ -167,7 +167,7 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
 
 	if(new_state!=state) {
 		state = new_state;
-		FOR(minivec_tpl<crossing_t*>, const i, crossings) {
+		for(crossing_t* const i : crossings) {
 			i->state_changed();
 		}
 	}
@@ -246,7 +246,7 @@ const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const 
 	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
 
 		const uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
-		FOR(  minivec_tpl<crossing_desc_t const*>,  const i,  can_cross_array[index]  ) {
+		for(crossing_desc_t const* const i :  can_cross_array[index]  ) {
 			if(  !i->is_available(timeline_year_month)  ) {
 				continue;
 			}
@@ -341,7 +341,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 	}
 
 	// set new crossing logic to all
-	FOR(slist_tpl<crossing_t*>, const cr, crossings) {
+	for(crossing_t* const cr : crossings) {
 		cr->set_logic( found_logic );
 		found_logic->append_crossing( cr );
 	}

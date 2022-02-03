@@ -156,7 +156,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	const scr_coord display_off = scr_coord((size.w - raster) / 2, hgt + yoff) + fine_here;
 
 	// display grounds
-	FOR(vector_tpl<koord>, const& off, offsets) {
+	for(koord const& off : offsets) {
 		const koord   k     = here + off + height_offset;
 		const sint16  off_x = (off.x - off.y) * 32 * raster / 64 + display_off.x;
 
@@ -183,7 +183,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	}
 
 	// display things
-	FOR(vector_tpl<koord>, const& off, offsets) {
+	for(koord const& off : offsets) {
 		const koord   k     = here + off + height_offset;
 		const sint16  off_x = (off.x - off.y) * 32 * raster / 64 + display_off.x;
 		if(  off_x + raster < 0  ||  size.w < off_x  ||  k.x < 0  ||  k.y < 0  ) {

@@ -130,7 +130,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if(  what_bit == (1<<traffic_jams)  ) {
 		sint32 now = welt->get_current_month()-2;
 		uint32 i = 0;
-		FOR(slist_tpl<node*>, const iter, list) {
+		for(node* const iter : list) {
 			node const& n = *iter;
 			if (n.time >= now &&
 					strcmp(n.msg, text) == 0 &&
@@ -146,7 +146,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	// filter out AI messages for a similar area to recent activity messages
 	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  &&  env_t::networkmode  ) {
 		uint32 i = 0;
-		FOR(slist_tpl<node*>, const iter, list) {
+		for(node* const iter : list) {
 			node const& n = *iter;
 			if ((n.pos.x & 0xFFE0) == (pos.x & 0xFFE0) &&
 				(n.pos.y & 0xFFE0) == (pos.y & 0xFFE0)) {
@@ -232,7 +232,7 @@ koord message_t::get_coord_from_text(const char* text)
 
 void message_t::rotate90( sint16 size_w )
 {
-	FOR(slist_tpl<node*>, const i, list) {
+	for(node* const i : list) {
 		i->pos.rotate90(size_w);
 	}
 }
@@ -246,14 +246,14 @@ void message_t::rdwr( loadsave_t *file )
 		if( env_t::server ) {
 			// do not save local messages and expired messages
 			uint32 current_time = world()->get_current_month();
-			FOR(slist_tpl<node*>, const i, list) {
+			for(node* const i : list) {
 				if( i->type & do_not_rdwr_flag  ||  (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
 					continue;
 				}
 				if (++msg_count == MAX_SAVED_MESSAGES) break;
 			}
 			file->rdwr_short( msg_count );
-			FOR(slist_tpl<node*>, const i, list) {
+			for(node* const i : list) {
 				if (msg_count == 0) break;
 				if(  i->type & do_not_rdwr_flag  || (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
 					continue;
@@ -264,13 +264,13 @@ void message_t::rdwr( loadsave_t *file )
 		}
 		else {
 			// do not save discardable messages (like changing player)
-			FOR(slist_tpl<node*>, const i, list) {
+			for(node* const i : list) {
 				if (!(i->type & do_not_rdwr_flag)) {
 					if (++msg_count == MAX_SAVED_MESSAGES) break;
 				}
 			}
 			file->rdwr_short( msg_count );
-			FOR(slist_tpl<node*>, const i, list) {
+			for(node* const i : list) {
 				if (msg_count == 0) break;
 				if(  !(i->type & do_not_rdwr_flag)  ) {
 					i->rdwr(file);

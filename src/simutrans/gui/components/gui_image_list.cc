@@ -77,7 +77,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 	int xpos = xmin;
 	int ypos = ymin;
 
-	FOR(vector_tpl<image_data_t*>, const& iptr, *images) {
+	for(image_data_t* const& iptr : *images) {
 		image_data_t const& idata = *iptr;
 		if(idata.count>=0) {
 

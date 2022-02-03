@@ -33,7 +33,7 @@ void powernet_t::new_world()
 
 void powernet_t::step_all(uint32 delta_t)
 {
-	FOR(slist_tpl<powernet_t*>, const p, powernet_list) {
+	for(powernet_t* const p : powernet_list) {
 		p->step(delta_t);
 	}
 }

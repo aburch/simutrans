@@ -81,7 +81,7 @@ void pedestrian_t::build_timeline_list(karte_t *welt)
 		const int month_now = welt->get_current_month();
 
 		// check for every citycar, if still ok ...
-		FOR(stringhashtable_tpl<pedestrian_desc_t const*>, const& i, table) {
+		for(auto const& i : table) {
 			pedestrian_desc_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
@@ -92,7 +92,7 @@ void pedestrian_t::build_timeline_list(karte_t *welt)
 		}
 	}
 	list_timeline.resize( temp_liste.get_count() );
-	FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
+	for(pedestrian_desc_t const* const i : temp_liste) {
 		list_timeline.append(i, i->get_distribution_weight());
 	}
 }

@@ -63,7 +63,7 @@ public:
 	address_list_t() : vector_tpl<net_address_t>(10) {}
 
 	bool contains(const net_address_t &other) {
-		FOR(address_list_t, const& i, *this) {
+		for(net_address_t const& i : *this) {
 			if (i.matches(other)) {
 				return true;
 			}

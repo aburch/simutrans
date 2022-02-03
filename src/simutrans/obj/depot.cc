@@ -80,7 +80,7 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_groundwater()) : koord3d(-1,-1,-1);
 	sint32 found_hash = forward ? 0x7FFFFFF : -1;
 	sint32 start_hash = start.x + (8192 * start.y);
-	FOR(slist_tpl<depot_t*>, const d, all_depots) {
+	for(depot_t* const d : all_depots) {
 		if(d->get_typ()==depot_type  &&  d->get_owner()==player) {
 			// ok, the right type of depot
 			const koord3d pos = d->get_pos();
@@ -236,7 +236,7 @@ void depot_t::sell_vehicle(vehicle_t* veh)
 vehicle_t* depot_t::find_oldest_newest(const vehicle_desc_t* desc, bool old)
 {
 	vehicle_t* found_veh = NULL;
-	FOR(  slist_tpl<vehicle_t*>,  const veh,  vehicles  ) {
+	for(vehicle_t* const veh :  vehicles  ) {
 		if(  veh->get_desc() == desc  ) {
 			// joy of XOR, finally a line where I could use it!
 			if(  found_veh == NULL  ||
@@ -546,7 +546,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 		}
 	}
 	else {
-		FOR(slist_tpl<vehicle_t*>, const v, list) {
+		for(vehicle_t* const v : list) {
 			file->wr_obj_id(v->get_typ());
 			v->rdwr_from_convoi(file);
 		}
@@ -566,7 +566,7 @@ const char * depot_t::is_deletable(const player_t *player)
 		return "There are still vehicles\nstored in this depot!\n";
 	}
 
-	FOR(slist_tpl<convoihandle_t>, const c, convois) {
+	for(convoihandle_t const c : convois) {
 		if (c.is_bound() && c->get_vehicle_count() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
@@ -584,7 +584,7 @@ slist_tpl<vehicle_desc_t const*> const& depot_t::get_vehicle_type(uint8 sortkey)
 vehicle_t* depot_t::get_oldest_vehicle(const vehicle_desc_t* desc)
 {
 	vehicle_t* oldest_veh = NULL;
-	FOR(slist_tpl<vehicle_t*>, const veh, get_vehicle_list()) {
+	for(vehicle_t* const veh : get_vehicle_list()) {
 		if (veh->get_desc() == desc) {
 			if (oldest_veh == NULL ||
 					oldest_veh->get_purchase_time() > veh->get_purchase_time()) {
@@ -614,7 +614,7 @@ void depot_t::new_month()
 
 void depot_t::update_all_win()
 {
-	FOR(slist_tpl<depot_t*>, const d, all_depots) {
+	for(depot_t* const d : all_depots) {
 		d->update_win();
 	}
 }

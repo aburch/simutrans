@@ -168,7 +168,7 @@ void factory_edit_frame_t::fill_list()
 	factory_list.clear();
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
+	for(auto const& i : factory_builder_t::get_factory_table()) {
 		factory_desc_t const* const desc = i.value;
 		if(desc->get_distribution_weight()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
@@ -198,7 +198,7 @@ void factory_edit_frame_t::fill_list()
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<factory_desc_t const*>, const i, factory_list) {
+	for(factory_desc_t const* const i : factory_list) {
 		PIXVAL const color =
 			i->is_consumer_only() ? color_idx_to_rgb(COL_DARK_BLUE + env_t::gui_player_color_dark) :
 			i->is_producer_only() ? color_idx_to_rgb(40 + env_t::gui_player_color_dark)            :

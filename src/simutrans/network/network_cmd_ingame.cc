@@ -221,7 +221,7 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 
 			// record nickname change
 			for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
-				FOR(slist_tpl<connection_info_t>, &iter, nwc_chg_player_t::company_active_clients[i]) {
+				for(connection_info_t &iter : nwc_chg_player_t::company_active_clients[i]) {
 					if (iter ==  info) {
 						iter.nickname = nick;
 					}
@@ -507,7 +507,7 @@ bool nwc_ready_t::execute(karte_t *welt)
 			return true;
 		}
 		// check the validity of the map counter
-		FOR(vector_tpl<uint32>, const i, all_map_counters) {
+		for(uint32 const i : all_map_counters) {
 			if (i == map_counter) {
 				// unpause the sender by sending nwc_ready_t back
 				nwc_ready_t nwc(sync_step, map_counter, checklist);
@@ -1412,7 +1412,7 @@ bool nwc_service_t::execute(karte_t *welt)
 					}
 					// print clients who played for this company
 					uint32 j=0;
-					FOR(slist_tpl<connection_info_t>, &iter, nwc_chg_player_t::company_active_clients[i]) {
+					for(connection_info_t &iter : nwc_chg_player_t::company_active_clients[i]) {
 						if (!detailed  &&  j > 3  &&  nwc_chg_player_t::company_active_clients[i].get_count() > 5) {
 							buf.printf("    .. and %d more.\n", nwc_chg_player_t::company_active_clients[i].get_count()-j);
 							break;

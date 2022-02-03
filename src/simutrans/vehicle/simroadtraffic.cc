@@ -279,7 +279,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 //DBG_DEBUG("private_car_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		FOR(stringhashtable_tpl<citycar_desc_t const*>, const& i, table) {
+		for(auto const& i : table) {
 			citycar_desc_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
@@ -290,7 +290,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	FOR(vector_tpl<citycar_desc_t const*>, const i, temp_liste) {
+	for(citycar_desc_t const* const i : temp_liste) {
 		liste_timeline.append(i, i->get_distribution_weight());
 	}
 }

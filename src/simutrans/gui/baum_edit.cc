@@ -83,7 +83,7 @@ void baum_edit_frame_t::fill_list()
 	tree_list.clear();
 	const bool is_sortedbyname = get_sortedby()==gui_sorting_item_t::BY_NAME_TRANSLATED;
 	sortreverse = sort_order.pressed;
-	FOR(vector_tpl<tree_desc_t const*>, const i, tree_builder_t::get_all_desc()) {
+	for(tree_desc_t const* const i : tree_builder_t::get_all_desc()) {
 		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
 			tree_list.insert_ordered(i, is_sortedbyname ? compare_tree_desc_name : compare_tree_desc);
 		}
@@ -92,7 +92,7 @@ void baum_edit_frame_t::fill_list()
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<tree_desc_t const*>, const i, tree_list) {
+	for(tree_desc_t const* const i : tree_list) {
 		char const* const name = get_sortedby()==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, SYSCOL_TEXT);
 		if (i == desc) {

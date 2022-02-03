@@ -413,14 +413,14 @@ void map_frame_t::update_factory_legend()
 		vector_tpl<const factory_desc_t*> factory_types;
 		// generate list of factory types
 		if(  filter_factory_list  ) {
-			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			for(fabrik_t* const f : welt->get_fab_list()) {
 				if(  f->get_desc()->get_distribution_weight() > 0  ) {
 					factory_types.insert_unique_ordered(f->get_desc(), compare_factories);
 				}
 			}
 		}
 		else {
-			FOR(stringhashtable_tpl<factory_desc_t const*>, i, factory_builder_t::get_factory_table()) {
+			for(auto i : factory_builder_t::get_factory_table()) {
 				factory_desc_t const* const d = i.value;
 				if (d->get_distribution_weight() > 0) {
 					factory_types.insert_unique_ordered(d, compare_factories);
@@ -430,7 +430,7 @@ void map_frame_t::update_factory_legend()
 		// now sort
 
 		// add corresponding legend entries
-		FOR(vector_tpl<const factory_desc_t*>, f, factory_types) {
+		for(const factory_desc_t* f : factory_types) {
 			directory_container.new_component<legend_entry_t>(f->get_name(), f->get_color());
 		}
 	}

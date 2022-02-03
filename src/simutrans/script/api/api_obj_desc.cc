@@ -160,7 +160,7 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 	bool accept_all_wt = wt == invalid_wt  ||  wt == ignore_wt  ||  wt == any_wt;
 
 	uint16 time = welt->get_timeline_year_month();
-	FOR(vector_tpl<building_desc_t const*>, const desc, *p) {
+	for(building_desc_t const* const desc : *p) {
 		if(  desc->get_type()==type
 			&&  (accept_all_wt  ||  desc->get_extra()==(uint32)wt)
 			&&  (enables==0  ||  (desc->get_enabled()&enables)!=0)
@@ -232,7 +232,7 @@ const vector_tpl<const vehicle_desc_t*>& get_available_vehicles(waytype_t wt)
 	dummy.clear();
 	slist_tpl<vehicle_desc_t const*> const& list = vehicle_builder_t::get_info(wt);
 
-	FOR(slist_tpl<vehicle_desc_t const*> const, i, list) {
+	for(vehicle_desc_t const* const i : list) {
 		if (!i->is_retired(time)  ||  use_obsolete) {
 			if (!i->is_future(time)) {
 				dummy.append(i);
@@ -276,7 +276,7 @@ const vector_tpl<const way_obj_desc_t*>& get_available_wayobjs(waytype_t wt)
 	uint16 time = welt->get_timeline_year_month();
 
 	dummy.clear();
-	FOR(stringhashtable_tpl<const way_obj_desc_t*> const, i, wayobj_t::get_list()) {
+	for(auto i : wayobj_t::get_list()) {
 		const way_obj_desc_t* desc = i.value;
 		if (desc->get_waytype()==wt  &&  desc->is_available(time)) {
 			dummy.append(desc);

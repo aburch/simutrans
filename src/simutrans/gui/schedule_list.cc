@@ -187,7 +187,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	}
 	else if(  comp == &bt_delete_line  ) {
 		vector_tpl<sint32> sel = scl.get_selections();
-		FOR(vector_tpl<sint32>, i, sel) {
+		for(sint32 i : sel) {
 			linehandle_t line = ((line_scrollitem_t*)scl.get_element(i))->get_line();
 			if (line->count_convoys()==0) {
 				// delete this line via tool
@@ -295,7 +295,7 @@ void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 	vector_tpl<sint32> sel = scl.get_selections();
 	bool can_delete = sel.get_count() > 0  &&  activate;
 	if (can_delete) {
-		FOR(vector_tpl<sint32>, i, sel) {
+		for(sint32 i : sel) {
 			linehandle_t line = ((line_scrollitem_t*)scl.get_element(i))->get_line();
 			if (line->count_convoys() > 0) {
 				can_delete = false;
@@ -318,7 +318,7 @@ void schedule_list_gui_t::build_line_list(simline_t::linetype filter)
 	scl.clear_elements();
 	player->simlinemgmt.get_lines(filter, &lines);
 
-	FOR(vector_tpl<linehandle_t>, const l, lines) {
+	for(linehandle_t const l : lines) {
 		// search name
 		if(  !*schedule_filter  ||  utf8caseutf8(l->get_name(), schedule_filter)  ) {
 			// match good category

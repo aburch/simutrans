@@ -448,7 +448,7 @@ void pumpe_t::new_world()
 
 void pumpe_t::step_all(uint32 delta_t)
 {
-	FOR(slist_tpl<pumpe_t*>, const p, pumpe_list) {
+	for(pumpe_t* const p : pumpe_list) {
 		p->step(delta_t);
 	}
 }
@@ -635,7 +635,7 @@ void senke_t::step_all(uint32 delta_t)
 	payment_timer %= pay_period;
 
 	// step all distribution transformers
-	FOR(slist_tpl<senke_t*>, const s, senke_list) {
+	for(senke_t* const s : senke_list) {
 		s->step(delta_t);
 		if (payout) {
 			s->pay_revenue();

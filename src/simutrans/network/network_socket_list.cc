@@ -152,7 +152,7 @@ void socket_list_t::change_state(uint32 id, socket_info_t::connection_state_t ne
 
 void socket_list_t::reset()
 {
-	FOR(vector_tpl<socket_info_t*>, const i, list) {
+	for(socket_info_t* const i : list) {
 		i->reset();
 	}
 	connected_clients = 0;
@@ -331,7 +331,7 @@ void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients, 
 SOCKET socket_list_t::fill_set(fd_set *fds)
 {
 	SOCKET s_max = 0;
-	FOR(vector_tpl<socket_info_t*>, const i, list) {
+	for(socket_info_t* const i : list) {
 		if (i->state != socket_info_t::inactive && i->socket != INVALID_SOCKET) {
 			SOCKET const s = i->socket;
 			s_max = max( s, s_max );

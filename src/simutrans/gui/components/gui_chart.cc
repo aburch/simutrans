@@ -185,7 +185,7 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	// draw chart's curves
-	FOR(slist_tpl<curve_t>, const& c, curves) {
+	for(curve_t const& c : curves) {
 		if (c.show) {
 			double display_tmp;
 			// for each curve iterate through all elements and display curve
@@ -258,7 +258,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *c
 	const char* max_suffix = NULL;
 	int precision = 0;
 
-	FOR(slist_tpl<curve_t>, const& c, curves) {
+	for(curve_t const& c : curves) {
 		if(  c.show  ) {
 			for(  int i=0;  i<c.elements;  i++  ) {
 				tmp = c.values[i*c.size+c.offset];

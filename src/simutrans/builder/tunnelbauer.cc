@@ -74,7 +74,7 @@ const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, con
 {
 	const tunnel_desc_t *find_desc = NULL;
 
-	FOR(stringhashtable_tpl<tunnel_desc_t*>, const& i, tunnel_by_name) {
+	for(auto const& i : tunnel_by_name) {
 		tunnel_desc_t* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  ) {
 			if(  desc->is_available(time)  ) {
@@ -117,14 +117,14 @@ void tunnel_builder_t::fill_menu(tool_selector_t* tool_selector, const waytype_t
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_desc_t*> matching(tunnel_by_name.get_count());
 
-	FOR(stringhashtable_tpl<tunnel_desc_t*>, const& i, tunnel_by_name) {
+	for(auto const& i : tunnel_by_name) {
 		tunnel_desc_t* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
 			matching.insert_ordered(desc, compare_tunnels);
 		}
 	}
 	// now sorted ...
-	FOR(vector_tpl<tunnel_desc_t const*>, const i, matching) {
+	for(tunnel_desc_t const* const i : matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -135,7 +135,7 @@ const vector_tpl<const tunnel_desc_t *>& tunnel_builder_t::get_available_tunnels
 	static vector_tpl<const tunnel_desc_t *> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<tunnel_desc_t*>, const& i, tunnel_by_name) {
+	for(auto const& i : tunnel_by_name) {
 		tunnel_desc_t const* const b = i.value;
 		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
 			dummy.append(b);

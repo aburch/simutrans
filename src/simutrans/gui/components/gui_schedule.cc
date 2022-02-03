@@ -225,7 +225,7 @@ public:
 	void highlight_schedule(bool marking)
 	{
 		marking &= env_t::visualize_schedule;
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+		for(schedule_entry_t const& i : schedule->entries) {
 			if (grund_t* const gr = welt->lookup(i.pos)) {
 				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 					obj_t *obj = gr->obj_bei(idx);
@@ -698,7 +698,7 @@ void gui_schedule_t::draw(scr_coord pos)
 		bool is_all_same = scd->get_count()==schedule->get_count();
 		is_all_same &= scd->get_current_stop() == schedule->get_current_stop();
 		is_all_same &= !(convoi_mode.is_bound()  &&  line_mode.is_bound()  &&  line_mode != convoi_mode->get_line());
-		FOR( minivec_tpl<schedule_entry_t>, ent, schedule->entries ) {
+		for(schedule_entry_t ent : schedule->entries ) {
 #if 0
 			if( ent.pos == current ) {
 				schedule->set_current_stop( idx );

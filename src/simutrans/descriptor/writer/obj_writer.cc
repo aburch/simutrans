@@ -122,7 +122,7 @@ void obj_writer_t::show_capabilites()
 
 	while (true) {
 		const char *max_s = "zzz";
-		FOR(stringhashtable_tpl<obj_writer_t*>, const& i, *writer_by_name) {
+		for(auto const& i : *writer_by_name) {
 			if(  STRICMP(i.key, min_s) > 0  &&  STRICMP(i.key, max_s) < 0   ) {
 				max_s = i.key;
 			}

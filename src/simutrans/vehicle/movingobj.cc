@@ -43,11 +43,11 @@ bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b
 bool movingobj_t::successfully_loaded()
 {
 	movingobj_typen.resize(desc_table.get_count());
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		movingobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		i.value->index = movingobj_typen.index_of(i.value);
 	}
 
@@ -84,7 +84,7 @@ const groundobj_desc_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 	int weight = 0;
 
-	FOR(vector_tpl<groundobj_desc_t const*>, const i, movingobj_typen) {
+	for(groundobj_desc_t const* const i : movingobj_typen) {
 		if (i->is_allowed_climate(cl) ) {
 			weight += i->get_distribution_weight();
 		}
@@ -94,7 +94,7 @@ const groundobj_desc_t *movingobj_t::random_movingobj_for_climate(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		FOR(vector_tpl<groundobj_desc_t const*>, const i, movingobj_typen) {
+		for(groundobj_desc_t const* const i : movingobj_typen) {
 			if (i->is_allowed_climate(cl)) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {

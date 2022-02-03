@@ -302,7 +302,7 @@ void line_management_gui_t::draw(scr_coord pos, scr_size size)
 			old_halt_count = line->get_schedule()->get_count();
 			// fill haltestellen container with info of stops of the line
 			scrolly_halts.clear_elements();
-			FOR(minivec_tpl<schedule_entry_t>, const& i, line->get_schedule()->entries) {
+			for(schedule_entry_t const& i : line->get_schedule()->entries) {
 				halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 				if(  halt.is_bound()  ) {
 					scrolly_halts.new_component<halt_list_stats_t>(halt);
@@ -452,7 +452,7 @@ bool line_management_gui_t::action_triggered( gui_action_creator_t *comp, value_
 		}
 	}
 	else if(  comp == &bt_find_convois  ) {
-		FOR(vector_tpl<convoihandle_t>, cnv, welt->convoys()) {
+		for(convoihandle_t cnv : welt->convoys()) {
 			if(  cnv->get_owner()==player  ) {
 				if(  !cnv->get_line().is_bound()  ) {
 					if(  line->get_schedule()->matches( welt, cnv->get_schedule() )  ) {

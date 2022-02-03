@@ -794,7 +794,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, route_t::index_t start
 	}
 
 	// ok, switch everything green ...
-	FOR(slist_tpl<grund_t*>, const g, signs) {
+	for(grund_t* const g : signs) {
 		if (signal_t* const signal = g->find<signal_t>()) {
 			signal->set_state(roadsign_t::STATE_GREEN);
 		}

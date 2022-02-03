@@ -158,7 +158,7 @@ sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		sint32 speed_sum = 0;
 		sint32 num_averages = 0;
 		// needs to do it the old way => iterate over all vehicles with this type ...
-		FOR(slist_tpl<vehicle_desc_t const*>, const info, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
+		for(vehicle_desc_t const* const info : typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 			if(  info->get_power()>0  &&  info->is_available(monthyear)  ) {
 				speed_sum += info->get_topspeed();
 				num_averages ++;
@@ -407,7 +407,7 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 		return NULL;
 	}
 
-	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
+	for(vehicle_desc_t const* const test_desc : typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		// no constricts allow for rail vehicles concerning following engines
 		if(wt==track_wt  &&  !test_desc->can_follow_any()  ) {
 			continue;
@@ -514,7 +514,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 	const vehicle_desc_t *desc = NULL;
 	sint32 desc_index = -100000;
 
-	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
+	for(vehicle_desc_t const* const test_desc : typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		if(target_power>0  &&  test_desc->get_power()==0) {
 			continue;
 		}
@@ -623,7 +623,7 @@ sint32 vehicle_builder_t::get_fastest_vehicle_speed(waytype_t wt, uint16 const m
 {
 	sint32 fastest_speed = 0;
 
-	FOR(slist_tpl<vehicle_desc_t const*>, const vehicle_descriptor, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
+	for(vehicle_desc_t const* const vehicle_descriptor : typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		if (vehicle_descriptor->get_power() == 0 ||
 			(use_timeline && (
 				vehicle_descriptor->is_future(month_now) ||

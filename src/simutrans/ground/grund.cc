@@ -524,17 +524,16 @@ void grund_t::rotate90()
 // after processing the last tile, we recalculate the hashes of the ground texts
 void grund_t::finish_rotate90()
 {
-	typedef inthashtable_tpl<uint64, char*> text_map;
-	text_map ground_texts_rotating;
+	inthashtable_tpl<uint64, char*> ground_texts_rotating;
 	// first get the old hashes
-	FOR(text_map, iter, ground_texts) {
+	for(auto iter : ground_texts) {
 		koord3d k = get_ground_koord3d_key( iter.key );
 		k.rotate90( welt->get_size().y-1 );
 		ground_texts_rotating.put( get_ground_text_key(k), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all rotated texts
-	FOR(text_map, const& iter, ground_texts_rotating) {
+	for(auto iter : ground_texts_rotating) {
 		ground_texts.put(iter.key, iter.value);
 	}
 	ground_texts_rotating.clear();
@@ -543,16 +542,15 @@ void grund_t::finish_rotate90()
 
 void grund_t::enlarge_map( sint16, sint16 /*new_size_y*/ )
 {
-	typedef inthashtable_tpl<uint64, char*> text_map;
-	text_map ground_texts_enlarged;
+	inthashtable_tpl<uint64, char*> ground_texts_enlarged;
 	// we have recalculate the keys
-	FOR(text_map, iter, ground_texts) {
+	for(auto iter : ground_texts) {
 		koord3d k = get_ground_koord3d_key( iter.key );
 		ground_texts_enlarged.put( get_ground_text_key(k), iter.value );
 	}
 	ground_texts.clear();
 	// then transfer all texts back
-	FOR(text_map, const& iter, ground_texts_enlarged) {
+	for(auto iter : ground_texts_enlarged) {
 		ground_texts.put(iter.key, iter.value);
 	}
 	ground_texts_enlarged.clear();

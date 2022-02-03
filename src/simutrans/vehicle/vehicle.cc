@@ -37,7 +37,7 @@ void vehicle_t::rotate90()
 void vehicle_t::rotate90_freight_destinations(const sint16 y_size)
 {
 	// now rotate the freight
-	FOR(slist_tpl<ware_t>, & tmp, fracht) {
+	for(ware_t & tmp : fracht) {
 		tmp.rotate90(y_size );
 	}
 }
@@ -74,7 +74,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 			}
 		}
 		// just correct freight destinations
-		FOR(slist_tpl<ware_t>, & c, fracht) {
+		for(ware_t & c : fracht) {
 			c.finish_rd(welt);
 		}
 	}
@@ -191,7 +191,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& 
 			sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
 
 			// could this be joined with existing freight?
-			FOR( slist_tpl<ware_t>, & tmp, fracht ) {
+			for(ware_t & tmp : fracht ) {
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
 				if(  ware.same_destination(tmp)  ) {
@@ -234,12 +234,12 @@ void vehicle_t::remove_stale_cargo()
 	total_freight = 0;
 
 	if (!fracht.empty()) {
-		FOR(slist_tpl<ware_t>, & tmp, fracht) {
+		for(ware_t & tmp : fracht) {
 			bool found = false;
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
+				for(schedule_entry_t const& i : cnv->get_schedule()->entries) {
 					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
@@ -281,7 +281,7 @@ void vehicle_t::remove_stale_cargo()
 			}
 		}
 
-		FOR(slist_tpl<ware_t>, const& c, kill_queue) {
+		for(ware_t const& c : kill_queue) {
 			fabrik_t::update_transit( &c, false );
 			fracht.remove(c);
 		}
@@ -695,7 +695,7 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 		dist = koord_distance( start, end );
 	}
 
-	FOR(slist_tpl<ware_t>, const& ware, fracht) {
+	for(ware_t const& ware : fracht) {
 		if(  ware.menge==0  ) {
 			continue;
 		}
@@ -756,7 +756,7 @@ uint32 vehicle_t::get_cargo_weight() const
 {
 	uint32 weight = 0;
 
-	FOR(slist_tpl<ware_t>, const& c, fracht) {
+	for(ware_t const& c : fracht) {
 		weight += c.menge * c.get_desc()->get_weight_per_unit();
 	}
 	return weight;
@@ -770,7 +770,7 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 		buf.append(translator::translate("leer"));
 		buf.append("\n");
 	} else {
-		FOR(slist_tpl<ware_t>, const& ware, fracht) {
+		for(ware_t const& ware : fracht) {
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = ware.get_ziel();
@@ -789,7 +789,7 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
  */
 void vehicle_t::discard_cargo()
 {
-	FOR(  slist_tpl<ware_t>, w, fracht ) {
+	for(ware_t w : fracht ) {
 		fabrik_t::update_transit( &w, false );
 	}
 	fracht.clear();
@@ -987,7 +987,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware.rdwr(file);
 		}
 		else {
-			FOR(slist_tpl<ware_t>, ware, fracht) {
+			for(ware_t ware : fracht) {
 				ware.rdwr(file);
 			}
 		}
@@ -1060,7 +1060,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 		// recalc total freight
 		total_freight = 0;
-		FOR(slist_tpl<ware_t>, const& c, fracht) {
+		for(ware_t const& c : fracht) {
 			total_freight += c.menge;
 		}
 	}

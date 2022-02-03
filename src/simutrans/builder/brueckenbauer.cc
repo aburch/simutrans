@@ -73,7 +73,7 @@ const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const s
 {
 	const bridge_desc_t *find_desc=NULL;
 
-	FOR(stringhashtable_tpl<bridge_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		bridge_desc_t const* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
 			if(  find_desc==NULL  ||
@@ -111,7 +111,7 @@ void bridge_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t
 	vector_tpl<const bridge_desc_t*> matching(desc_table.get_count());
 
 	// list of matching types (sorted by speed)
-	FOR(stringhashtable_tpl<bridge_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		bridge_desc_t const* const b = i.value;
 		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
 			matching.insert_ordered( b, compare_bridges);
@@ -119,7 +119,7 @@ void bridge_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t
 	}
 
 	// now sorted ...
-	FOR(vector_tpl<bridge_desc_t const*>, const i, matching) {
+	for(bridge_desc_t const* const i : matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -130,7 +130,7 @@ const vector_tpl<const bridge_desc_t *>&  bridge_builder_t::get_available_bridge
 	static vector_tpl<const bridge_desc_t *> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<bridge_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		bridge_desc_t const* const b = i.value;
 		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
 			dummy.append(b);

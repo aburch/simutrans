@@ -118,7 +118,7 @@ void factorylist_frame_t::fill_list()
 	old_factories_count = world()->get_fab_list().get_count(); // to avoid too many redraws ...
 	scrolly.clear_elements();
 	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
-		FOR(const slist_tpl<fabrik_t*>, fab, world()->get_fab_list()) {
+		for(fabrik_t* fab : world()->get_fab_list()) {
 			bool add = (name_filter[0] == 0 || utf8caseutf8(fab->get_name(), name_filter));
 			for(  int i = 0;  add  &&  i < MAX_PLAYER_COUNT;  i++  ) {
 				if(  player_t* pl = welt->get_player(i)  ) {
@@ -135,7 +135,7 @@ void factorylist_frame_t::fill_list()
 	}
 	else {
 		player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 1) ? welt->get_player(((const playername_const_scroll_item_t*)(filterowner.get_selected_item()))->player_nr) : NULL;
-		FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
+		for(fabrik_t * fab : world()->get_fab_list()) {
 			if( pl == NULL  ||  fab->is_within_players_network( pl ) ) {
 				if(  name_filter[0] == 0  ||  utf8caseutf8(fab->get_name(), name_filter)) {
 					scrolly.new_component<factorylist_stats_t>( fab );

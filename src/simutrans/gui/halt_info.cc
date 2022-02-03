@@ -553,7 +553,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 	new_component_span<gui_label_t>("Fabrikanschluss", 2);
 
 	if (!fab_list.empty()) {
-		FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
+		for(fabrik_t* const fab : fab_list) {
 			const koord3d pos = fab->get_pos();
 
 			// target button ...
@@ -566,7 +566,7 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			lb->buf().printf("%s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			lb->update();
 
-			FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
+			for(ware_production_t const& i : fab->get_input()) {
 				goods_desc_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
@@ -603,13 +603,13 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 		simline_t::linetype previous_linetype = simline_t::MAX_LINE_TYPE;
 
 		vector_tpl<linehandle_t> sorted_lines;
-		FOR(vector_tpl<linehandle_t>, l, halt->registered_lines) {
+		for(linehandle_t l : halt->registered_lines) {
 			if(  l.is_bound()  ) {
 				sorted_lines.insert_unique_ordered( l, gui_halt_detail_t::compare_line );
 			}
 		}
 
-		FOR(vector_tpl<linehandle_t>, line, sorted_lines) {
+		for(linehandle_t line : sorted_lines) {
 
 			// Linetype if it is the first
 			if(  line->get_linetype() != previous_linetype  ) {
@@ -672,12 +672,12 @@ void gui_halt_detail_t::update_connections( halthandle_t halt )
 			lb->update();
 
 			vector_tpl<haltestelle_t::connection_t> sorted;
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, connections) {
+			for(haltestelle_t::connection_t const& conn : connections) {
 				if(  conn.halt.is_bound()  ) {
 					sorted.insert_unique_ordered(conn, gui_halt_detail_t::compare_connection);
 				}
 			}
-			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, sorted) {
+			for(haltestelle_t::connection_t const& conn : sorted) {
 
 				has_stops = true;
 
@@ -766,7 +766,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 	last_ticks = cur_ticks;
 
 	// iterate over all convoys stopping here
-	FOR(  vector_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
+	for(convoihandle_t cnv : halt->get_loading_convois() ) {
 		if( !cnv.is_bound()  ||  cnv->get_state()!=convoi_t::LOADING  ) {
 			continue;
 		}
@@ -802,7 +802,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 	}
 
 	// now exactly the same for convoys en route; the only change is that we estimate their arrival time too
-	FOR(  vector_tpl<linehandle_t>, line, halt->registered_lines ) {
+	for(linehandle_t line : halt->registered_lines ) {
 		for(  uint j = 0;  j < line->count_convoys();  j++  ) {
 			convoihandle_t cnv = line->get_convoy(j);
 			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_entry().pos, cnv->get_owner() ) == halt  ) {
@@ -811,7 +811,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 				if(  prev_halt.is_bound()  ) {
 					dest_info_t prev( prev_halt, delta_t, cnv );
 					// smooth times a little
-					FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
+					for(dest_info_t &elem : old_origins ) {
 						if(  elem.cnv == cnv ) {
 							delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
 							prev.delta_ticks = delta_t;
@@ -839,14 +839,14 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 		}
 	}
 
-	FOR( vector_tpl<convoihandle_t>, cnv, halt->registered_convoys ) {
+	for(convoihandle_t cnv : halt->registered_convoys ) {
 		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_entry().pos, cnv->get_owner() ) == halt  ) {
 			halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
 			sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 			if(  prev_halt.is_bound()  ) {
 				dest_info_t prev( prev_halt, delta_t, cnv );
 				// smooth times a little
-				FOR( vector_tpl<dest_info_t>, &elem, old_origins ) {
+				for(dest_info_t &elem : old_origins ) {
 					if(  elem.cnv == cnv ) {
 						delta_t = ( delta_t + 3*elem.delta_ticks ) / 4;
 						prev.delta_ticks = delta_t;
@@ -870,7 +870,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 	if(  destinations.get_count()>0  ) {
 		new_component_span<gui_label_t>("Departures to\n", 3);
 
-		FOR( vector_tpl<dest_info_t>, hi, destinations ) {
+		for(dest_info_t hi : destinations ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
 				if( hi.delta_ticks == 0 ) {
@@ -896,7 +896,7 @@ void gui_departure_board_t::update_departures(halthandle_t halt)
 	if(  origins.get_count()>0  ) {
 		new_component_span<gui_label_t>("Arrivals from\n", 3);
 
-		FOR( vector_tpl<dest_info_t>, hi, origins ) {
+		for(dest_info_t hi : origins ) {
 			if(  freight_list_sorter_t::by_via_sum != env_t::default_sortmode  ||  !exclude.is_contained( hi.halt )  ) {
 				gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
 				if( hi.delta_ticks == 0 ) {

@@ -331,7 +331,7 @@ bool ai_t::built_update_headquarter()
 			// needs new place?
 			if(place==koord::invalid) {
 				stadt_t *st = NULL;
-				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
+				for(halthandle_t const halt : haltestelle_t::get_alle_haltestellen()) {
 					if(  halt->get_owner()==this  ) {
 						st = welt->find_nearest_city(halt->get_basis_pos());
 						break;

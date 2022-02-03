@@ -87,7 +87,7 @@ void groundobj_edit_frame_t::fill_list()
 	groundobj_list.clear();
 	const uint8 sortedby = get_sortedby();
 	sortreverse = sort_order.pressed;
-	FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_t::get_all_desc()) {
+	for(groundobj_desc_t const* const i : groundobj_t::get_all_desc()) {
 		if ( i  &&  (i->get_allowed_climate_bits() & get_climate()) ) {
 			switch(sortedby) {
 				case gui_sorting_item_t::BY_NAME_TRANSLATED:
@@ -105,7 +105,7 @@ void groundobj_edit_frame_t::fill_list()
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_list) {
+	for(groundobj_desc_t const* const i : groundobj_list) {
 		char const* const name = sortedby==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, SYSCOL_TEXT);
 		if (i == desc) {

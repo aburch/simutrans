@@ -316,7 +316,7 @@ void convoi_info_t::init_line_selector()
 		cnv->get_owner()->simlinemgmt.get_lines(cnv->get_schedule()->get_type(), &lines);
 
 		bool new_bound = false;
-		FOR(vector_tpl<linehandle_t>, other_line, lines) {
+		for(linehandle_t other_line : lines) {
 			if( scd.get_schedule()->matches( world(), other_line->get_schedule() ) ) {
 				if(  line != other_line  ) {
 					line = other_line;
@@ -342,7 +342,7 @@ void convoi_info_t::init_line_selector()
 			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>("--------------------------------", SYSCOL_TEXT);
 		}
 
-		FOR(vector_tpl<linehandle_t>, other_line, lines) {
+		for(linehandle_t other_line : lines) {
 			line_selector.new_component<line_scrollitem_t>(other_line);
 			if (line == other_line) {
 				selection = line_selector.count_elements() - 1;

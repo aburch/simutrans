@@ -25,7 +25,7 @@ void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int b
 	remove_all();
 	set_table_layout(6,0);
 
-	FOR(vector_tpl<const goods_desc_t*>, wtyp, goods) {
+	for(const goods_desc_t* wtyp : goods) {
 
 		new_component<gui_colorbox_t>(wtyp->get_color())->set_max_size(scr_size(D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT));
 		new_component<gui_label_t>(wtyp->get_name());

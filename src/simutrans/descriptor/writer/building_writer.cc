@@ -27,12 +27,12 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 	uint8 phases = 0;
 	for (int i = 0; i < seasons; i++) {
-		FOR(slist_tpl<slist_tpl<string> >, const& s, backkeys.at(i)) {
+		for(slist_tpl<string>  const& s : backkeys.at(i)) {
 			if (phases < s.get_count()) {
 				phases = s.get_count();
 			}
 		}
-		FOR(slist_tpl<slist_tpl<string> >, const& s, frontkeys.at(i)) {
+		for(slist_tpl<string>  const& s : frontkeys.at(i)) {
 			if (phases < s.get_count()) {
 				phases = s.get_count();
 			}

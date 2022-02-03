@@ -228,7 +228,7 @@ grund_t *haltestelle_t::get_ground_closest_to( const koord here ) const
 {
 	uint32 distance = 0x7FFFFFFFu;
 	grund_t *closest = NULL;
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		uint32 dist = shortest_distance( i.grund->get_pos().get_2d(), here );
 		if(  dist < distance  ) {
 			distance = dist;
@@ -265,7 +265,7 @@ void haltestelle_t::recalc_basis_pos()
 	cent_x = cent_y = 0;
 	uint64 level_sum;
 	level_sum = 0;
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
 			uint32 lv;
 			lv = gb->get_tile()->get_desc()->get_level() + 1;
@@ -509,7 +509,7 @@ haltestelle_t::~haltestelle_t()
 
 	for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 		if (cargo[i]) {
-			FOR(vector_tpl<ware_t>, const &w, *cargo[i]) {
+			for(ware_t const &w : *cargo[i]) {
 				fabrik_t::update_transit(&w, false);
 			}
 			delete cargo[i];
@@ -685,7 +685,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			if (self.is_bound()) {
 				// first factories (so with same distance, they have priority)
 				int this_distance = 999;
-				FOR(slist_tpl<fabrik_t*>, const f, get_fab_list()) {
+				for(fabrik_t* const f : get_fab_list()) {
 					int distance = koord_distance(f->get_pos().get_2d(), k);
 					if(  distance < this_distance  ) {
 						fabs.insert(f);
@@ -707,7 +707,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			}
 
 			// are there fabs?
-			FOR(slist_tpl<fabrik_t*>, const f, fabs) {
+			for(fabrik_t* const f : fabs) {
 				// with factories
 				buf.printf(fab_base, city_name, f->get_name(), stop);
 				if(  !all_names.get(buf).is_bound()  ) {
@@ -942,7 +942,7 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 		return false;
 	}
 	// Check if there is a player's line
-	FOR(vector_tpl<linehandle_t>, const l, registered_lines) {
+	for(linehandle_t const l : registered_lines) {
 		if(  l->get_owner() == player  &&  l->count_convoys()>0  ) {
 			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
 				return true;
@@ -953,7 +953,7 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 		}
 	}
 	// Check lineless convoys
-	FOR( vector_tpl<convoihandle_t>, cnv, registered_convoys ) {
+	for(convoihandle_t cnv : registered_convoys ) {
 		if(  cnv->get_owner() == player  &&  cnv->get_state() != convoi_t::INITIAL  ) {
 			if(  catg_index == goods_manager_t::INDEX_NONE  ) {
 				return true;
@@ -1120,17 +1120,17 @@ bool haltestelle_t::connect_factory(fabrik_t *fab)
 void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+	for(fabrik_t* const f : fab_list) {
 		f->unlink_halt(self);
 	}
 	fab_list.clear();
 
 	// then reconnect
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		koord const p = i.grund->get_pos().get_2d();
 
 		uint16 const cov = welt->get_settings().get_station_coverage();
-		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - koord(cov, cov), p + koord(cov, cov))) {
+		for(fabrik_t* const fab : fabrik_t::sind_da_welche(p - koord(cov, cov), p + koord(cov, cov))) {
 			if (connect_factory(fab)) {
 				// also connect the factory to this halt
 				fab->link_halt(self);
@@ -1231,7 +1231,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// determine goods category indices supported by this halt
 		supported_catg_index.clear();
-		FOR(minivec_tpl<uint8>, const catg_index, *goods_catg_index) {
+		for(uint8 const catg_index : *goods_catg_index) {
 			if(  is_enabled(catg_index)  ) {
 				supported_catg_index.append(catg_index);
 				previous_halt[catg_index] = self;
@@ -1257,7 +1257,7 @@ sint32 haltestelle_t::rebuild_connections()
 			}
 			if(  current_halt == self  ) {
 				// check for consecutive halts which precede self halt
-				FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
+				for(uint8 const catg_index : supported_catg_index) {
 					if(  previous_halt[catg_index]!=self  ) {
 						consecutive_halts[catg_index].append_unique(previous_halt[catg_index]);
 						consecutive_halts_schedule[catg_index].append_unique(previous_halt[catg_index]);
@@ -1271,7 +1271,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 			aggregate_weight += WEIGHT_HALT;
 
-			FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
+			for(uint8 const catg_index : supported_catg_index) {
 				if(  current_halt->is_enabled(catg_index)  ) {
 					// check for consecutive halts which succeed self halt
 					if(  previous_halt[catg_index] == self  ) {
@@ -1289,7 +1289,7 @@ sint32 haltestelle_t::rebuild_connections()
 			}
 		}
 
-		FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
+		for(uint8 const catg_index : supported_catg_index) {
 			if(  consecutive_halts_schedule[catg_index].get_count() > max_consecutive_halts_schedule[catg_index]  ) {
 				max_consecutive_halts_schedule[catg_index] = consecutive_halts_schedule[catg_index].get_count();
 			}
@@ -1316,11 +1316,11 @@ void haltestelle_t::rebuild_linked_connections()
 	for(  uint8 i=0;  i<goods_manager_t::get_max_catg_index();  i++  ){
 		vector_tpl<connection_t>& connections = all_links[i].connections;
 
-		FOR(vector_tpl<connection_t>, &c, connections) {
+		for(connection_t &c : connections) {
 			all.append_unique( c.halt );
 		}
 	}
-	FOR(vector_tpl<halthandle_t>, h, all) {
+	for(halthandle_t h : all) {
 		h->rebuild_connections();
 	}
 }
@@ -1334,7 +1334,7 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 	}
 	all_links[catg_idx].catg_connected_component = comp;
 
-	FOR(vector_tpl<connection_t>, &c, all_links[catg_idx].connections) {
+	for(connection_t &c : all_links[catg_idx].connections) {
 		c.halt->fill_connected_component(catg_idx, comp);
 		// cache the is_transfer value
 		c.is_transfer = c.halt->is_transfer(catg_idx);
@@ -1345,7 +1345,7 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 void haltestelle_t::rebuild_connected_components()
 {
 	for(uint8 catg_idx = 0; catg_idx<goods_manager_t::get_max_catg_index(); catg_idx++) {
-		FOR(vector_tpl<halthandle_t>, halt, alle_haltestellen) {
+		for(halthandle_t halt : alle_haltestellen) {
 			if (halt->all_links[catg_idx].catg_connected_component == UNDECIDED_CONNECTED_COMPONENT) {
 				// start recursion
 				halt->fill_connected_component(catg_idx, halt.get_id());
@@ -1568,7 +1568,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 	}
 
 	// initialisations for end halts => save some checking inside search loop
-	FOR(vector_tpl<halthandle_t>, const e, end_halts) {
+	for(halthandle_t const e : end_halts) {
 		uint16 const halt_id = e.get_id();
 		halt_data[ halt_id ].best_weight = 65535u;
 		halt_data[ halt_id ].destination = 1u;
@@ -1635,7 +1635,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				return_ware->set_zwischenziel(current_halt_data.transfer);
 				// count the connected transfer halts (including end halt)
 				uint8 t = current_node.halt->is_transfer(ware_catg_idx);
-				FOR(vector_tpl<connection_t>, const& i, current_node.halt->all_links[ware_catg_idx].connections) {
+				for(connection_t const& i : current_node.halt->all_links[ware_catg_idx].connections) {
 					if (t > 1) {
 						break;
 					}
@@ -1668,7 +1668,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			continue;
 		}
 
-		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->all_links[ware_catg_idx].connections) {
+		for(connection_t const& current_conn : current_node.halt->all_links[ware_catg_idx].connections) {
 
 			// halt may have been deleted or joined => test if still valid
 			if(  !current_conn.halt.is_bound()  ) {
@@ -1924,7 +1924,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			continue;
 		}
 
-		FOR(vector_tpl<connection_t>, const& current_conn, current_node.halt->all_links[ware_catg_idx].connections) {
+		for(connection_t const& current_conn : current_node.halt->all_links[ware_catg_idx].connections) {
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
 			const uint16 total_weight = current_weight + current_conn.weight;
@@ -1973,7 +1973,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 	}
 
 	// clear destinations since we may want to do another search with the same current_marker
-	FOR(vector_tpl<uint16>, const i, dest_indices) {
+	for(uint16 const i : dest_indices) {
 		halt_data[i].destination = false;
 		if (halt_data[i].best_weight == 65535u) {
 			// not processed -> reset marker
@@ -2039,7 +2039,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 	w.menge = 0;
 	vector_tpl<ware_t> *warray = cargo[w.get_desc()->get_catg_index()];
 	if(warray!=NULL) {
-		FOR(vector_tpl<ware_t>, & tmp, *warray) {
+		for(ware_t & tmp : *warray) {
 			// skip empty entries
 			if(tmp.menge==0  ||  w.get_index()!=tmp.get_index()  ||  w.get_zielpos()!=tmp.get_zielpos()) {
 				continue;
@@ -2149,7 +2149,7 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 	int sum = 0;
 	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
 	if(warray!=NULL) {
-		FOR(vector_tpl<ware_t>, const& i, *warray) {
+		for(ware_t const& i : *warray) {
 			if (wtyp->get_index() == i.get_index()) {
 				sum += i.menge;
 			}
@@ -2163,7 +2163,7 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const goods_desc_t *wtyp, const koor
 {
 	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
 	if(warray!=NULL) {
-		FOR(vector_tpl<ware_t>, const& ware, *warray) {
+		for(ware_t const& ware : *warray) {
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zielpos()==zielpos) {
 				return ware.menge;
 			}
@@ -2194,7 +2194,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware)
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
 	vector_tpl<ware_t> * warray = cargo[ware.get_desc()->get_catg_index()];
 	if(warray!=NULL) {
-		FOR(vector_tpl<ware_t>, & tmp, *warray) {
+		for(ware_t & tmp : *warray) {
 			// join packets with same destination
 			if(ware.same_destination(tmp)) {
 				if(  ware.get_zwischenziel().is_bound()  &&  ware.get_zwischenziel()!=self  ) {
@@ -2225,7 +2225,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware)
 	}
 	// the ware will be put into the first entry with menge==0
 	resort_freight_info = true;
-	FOR(vector_tpl<ware_t>, & i, *warray) {
+	for(ware_t & i : *warray) {
 		if (i.menge == 0) {
 			i = ware;
 			return;
@@ -2294,7 +2294,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 			// arriving passenger may create pedestrians
 			if(  welt->get_settings().get_show_pax()  ) {
 				int menge = ware.menge;
-				FOR( slist_tpl<tile_t>, const& i, tiles ) {
+				for(tile_t const& i : tiles ) {
 					if (menge <= 0) {
 						break;
 					}
@@ -2398,7 +2398,7 @@ void haltestelle_t::open_info_window()
 sint64 haltestelle_t::calc_maintenance() const
 {
 	sint64 maintenance = 0;
-	FOR(  slist_tpl<tile_t>,  const& i,  tiles  ) {
+	for(tile_t const& i :  tiles  ) {
 		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
 			maintenance += welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
 		}
@@ -2418,7 +2418,7 @@ void haltestelle_t::change_owner( player_t *player )
 
 	// process every tile of stop
 	slist_tpl<halthandle_t> joining;
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 
 		grund_t* const gr = i.grund;
 		if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
@@ -2520,7 +2520,7 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 	}
 
 	slist_tpl<tile_t> tiles_to_join;
-	FOR(slist_tpl<tile_t>, const& i, halt_merged->get_tiles()) {
+	for(tile_t const& i : halt_merged->get_tiles()) {
 		tiles_to_join.append(i);
 	}
 
@@ -2559,7 +2559,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 	for(uint8 i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 		const vector_tpl<ware_t> * warray = cargo[i];
 		if (warray) {
-			FOR(vector_tpl<ware_t>, const& j, *warray) {
+			for(ware_t const& j : *warray) {
 				halt->add_ware_to_halt(j);
 			}
 			delete cargo[i];
@@ -2684,12 +2684,12 @@ void haltestelle_t::recalc_station_type()
 	station_type = invalid;
 
 	// iterate over all tiles
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		grund_t* const gr = i.grund;
 		add_to_station_type( gr );
 	}
 	// and set halt info again
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		i.grund->set_halt( self );
 	}
 	recalc_status();
@@ -2791,7 +2791,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
-		FOR(slist_tpl<tile_t>, const& i, tiles) {
+		for(tile_t const& i : tiles) {
 			k = i.grund->get_pos();
 			k.rdwr( file );
 		}
@@ -2815,7 +2815,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					uint32 count = warray->get_count();
 					file->rdwr_long(count);
 				}
-				FOR(vector_tpl<ware_t>, & ware, *warray) {
+				for(ware_t & ware : *warray) {
 					ware.rdwr(file);
 				}
 			}
@@ -2903,7 +2903,7 @@ void haltestelle_t::finish_rd()
 	for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
 		if(cargo[i]) {
 			vector_tpl<ware_t> * warray = cargo[i];
-			FOR(vector_tpl<ware_t>, & j, *warray) {
+			for(ware_t & j : *warray) {
 				j.finish_rd(welt);
 			}
 			// merge identical entries (should only happen with old games)
@@ -3214,10 +3214,10 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
 		if(  player_t *player = welt->get_player(i)  ) {
 			player->simlinemgmt.get_lines(simline_t::line, &check_line);
-			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
+			for(linehandle_t const j : check_line  ) {
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->entries  ) {
+					for(schedule_entry_t const& k : j->get_schedule()->entries  ) {
 						if(  get_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
@@ -3228,11 +3228,11 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		}
 	}
 	// iterate over all convoys
-	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+	for(convoihandle_t const cnv : welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
-				FOR(minivec_tpl<schedule_entry_t>, const& k, schedule->entries) {
+				for(schedule_entry_t const& k : schedule->entries) {
 					if (get_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
@@ -3341,7 +3341,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->entries  ) {
+		for(schedule_entry_t const& k : registered_lines[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -3357,7 +3357,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
+		for(schedule_entry_t const& k : registered_convoys[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -3388,7 +3388,7 @@ void haltestelle_t::mark_unmark_coverage(const bool mark) const
 	// iterate over all tiles
 	uint16 const cov = welt->get_settings().get_station_coverage();
 	koord  const size(cov * 2 + 1, cov * 2 + 1);
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		welt->mark_area(i.grund->get_pos() - size / 2, size, mark);
 	}
 }
@@ -3400,7 +3400,7 @@ void haltestelle_t::mark_unmark_coverage(const bool mark) const
 const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 {
 	// iterate over all tiles
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		if (i.grund->hat_weg(w)) {
 			return i.grund;
 		}
@@ -3415,7 +3415,7 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
 	// iterate over all tiles
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		if (i.reservation == cnv || !i.reservation.is_bound()) {
 			// not reserved
 			grund_t* const gr = i.grund;
@@ -3481,7 +3481,7 @@ DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
  */
 bool haltestelle_t::is_reservable(const grund_t *gr, convoihandle_t cnv) const
 {
-	FOR(slist_tpl<tile_t>, const& i, tiles) {
+	for(tile_t const& i : tiles) {
 		if (gr == i.grund) {
 			if (i.reservation == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
@@ -3508,7 +3508,7 @@ DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr
 */
 void haltestelle_t::release_factory_links()
 {
-	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
+	for(fabrik_t* const f : fab_list) {
 		f->unlink_halt(self);
 	}
 	fab_list.clear();
@@ -3518,7 +3518,7 @@ void haltestelle_t::release_factory_links()
 bool haltestelle_t::is_halt_covered(const halthandle_t &halt) const
 {
 	uint16 const cov = welt->get_settings().get_station_coverage();
-	FOR(slist_tpl<tile_t>, const& i, halt->get_tiles()) {
+	for(tile_t const& i : halt->get_tiles()) {
 		if(  gebaeude_t* const gb = i.grund->find<gebaeude_t>()  ) {
 			if ( koord_distance( gb->get_pos().get_2d(), get_next_pos( gb->get_pos().get_2d() )) <= cov ) {
 				return true;

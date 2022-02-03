@@ -197,7 +197,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			default:
 				{
 					bool ok=false;
-					FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
+					for(tool_t* const i : tool_t::char_to_tool) {
 						if(  i->command_key == ev.ev_code  ) {
 							if(  i->command_flags == 0  ||  (ev.ev_key_mod & (SIM_MOD_SHIFT|SIM_MOD_CTRL)) == i->command_flags  ) {
 								world->set_tool(i, world->get_active_player());

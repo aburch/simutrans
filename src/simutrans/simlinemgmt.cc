@@ -85,7 +85,7 @@ void simlinemgmt_t::rdwr(loadsave_t *file, player_t *player)
 
 		uint32 count = all_managed_lines.get_count();
 		file->rdwr_long(count);
-		FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+		for(linehandle_t const i : all_managed_lines) {
 			simline_t::linetype lt = i->get_linetype();
 			file->rdwr_enum(lt);
 			i->rdwr(file);
@@ -164,7 +164,7 @@ void simlinemgmt_t::sort_lines()
 
 void simlinemgmt_t::finish_rd()
 {
-	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+	for(linehandle_t const i : all_managed_lines) {
 		i->finish_rd();
 	}
 	sort_lines();
@@ -173,7 +173,7 @@ void simlinemgmt_t::finish_rd()
 
 void simlinemgmt_t::rotate90( sint16 y_size )
 {
-	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+	for(linehandle_t const i : all_managed_lines) {
 		if (schedule_t* const schedule = i->get_schedule()) {
 			schedule->rotate90( y_size );
 		}
@@ -183,7 +183,7 @@ void simlinemgmt_t::rotate90( sint16 y_size )
 
 void simlinemgmt_t::new_month()
 {
-	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
+	for(linehandle_t const i : all_managed_lines) {
 		i->new_month();
 	}
 }
@@ -216,7 +216,7 @@ linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player, schedule_t
 void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 {
 	lines->clear();
-	FOR(vector_tpl<linehandle_t>, const line, all_managed_lines) {
+	for(linehandle_t const line : all_managed_lines) {
 		if (type == simline_t::line || line->get_linetype() == simline_t::line || line->get_linetype() == type) {
 			lines->append(line);
 		}

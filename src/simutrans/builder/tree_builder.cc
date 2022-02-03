@@ -228,7 +228,7 @@ bool tree_builder_t::successfully_loaded()
 		DBG_MESSAGE("tree_builder_t::successfully_loaded", "No trees found - feature disabled");
 	}
 
-	FOR(stringhashtable_tpl<tree_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		tree_list.insert_ordered(i.value, compare_tree_desc);
 		if(  tree_list.get_count()==255  ) {
 			dbg->error( "tree_builder_t::successfully_loaded", "Maximum tree count exceeded! (%u > 255)", desc_table.get_count() );

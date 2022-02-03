@@ -24,7 +24,7 @@ vector_tpl<const skin_desc_t *>wolke_t::all_clouds(0);
 bool wolke_t::register_desc(const skin_desc_t* desc)
 {
 	// avoid duplicates with same name
-	FOR(vector_tpl<skin_desc_t const*>, & i, all_clouds) {
+	for(skin_desc_t const* & i : all_clouds) {
 		if (strcmp(i->get_name(), desc->get_name()) == 0) {
 			i = desc;
 			return true;

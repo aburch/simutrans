@@ -103,7 +103,7 @@ void terraformer_t::generate_affected_tile_list()
 	while( !ready) {
 		actual_flag ^= 3; // flip bits
 		// clear new_flag bit
-		FOR(vector_tpl<node_t>, &i, list) {
+		for(node_t& i : list) {
 			i.changed &= actual_flag;
 		}
 
@@ -130,7 +130,7 @@ const char *terraformer_t::can_raise_all(const player_t *player, bool keep_water
 	assert(op == terraformer_t::raise);
 	assert(ready);
 
-	FOR(vector_tpl<node_t>, const &i, list) {
+	for(node_t const& i : list) {
 		if (const char *err = can_raise_tile_to(i, player, keep_water)) {
 			return err;
 		}
@@ -144,7 +144,7 @@ const char *terraformer_t::can_lower_all(const player_t *player) const
 	assert(op == terraformer_t::lower);
 	assert(ready);
 
-	FOR(vector_tpl<node_t>, const &i, list) {
+	for(node_t const& i : list) {
 		if (const char *err = can_lower_tile_to(i, player)) {
 			return err;
 		}
@@ -160,12 +160,12 @@ int terraformer_t::apply()
 	int n = 0;
 
 	if (op == terraformer_t::raise) {
-		FOR(vector_tpl<node_t>, const &i, list) {
+		for(node_t const& i : list) {
 			n += raise_to(i);
 		}
 	}
 	else {
-		FOR(vector_tpl<node_t>, const &i, list) {
+		for(node_t const& i : list) {
 			n += lower_to(i);
 		}
 	}

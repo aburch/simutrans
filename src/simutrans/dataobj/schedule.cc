@@ -39,7 +39,7 @@ void schedule_t::copy_from(const schedule_t *src)
 		dbg->fatal("schedule_t::copy_to()","cannot copy from NULL");
 	}
 	entries.clear();
-	FOR(minivec_tpl<schedule_entry_t>, const& i, src->entries) {
+	for(schedule_entry_t const& i : src->entries) {
 		entries.append(i);
 	}
 	set_current_stop( src->get_current_stop() );
@@ -358,7 +358,7 @@ void schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
-	FOR(minivec_tpl<schedule_entry_t>, & i, entries) {
+	for(schedule_entry_t & i : entries) {
 		i.pos.rotate90(y_size);
 	}
 }
@@ -506,7 +506,7 @@ void schedule_t::add_return_way(bool append_mirror)
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.printf("%u|%d|", current_stop, (int)get_type());
-	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) {
+	for(schedule_entry_t const& i : entries) {
 		buf.printf("%s,%i,%i|", i.pos.get_str(), (int)i.minimum_loading, (int)i.waiting_time);
 	}
 }

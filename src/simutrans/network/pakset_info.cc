@@ -27,7 +27,7 @@ void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
 void pakset_info_t::debug()
 {
 #if MSG_LEVEL >= 4
-	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+	for(auto const& i : info) {
 		DBG_DEBUG4("pakset_info_t::debug", "%.30s -> sha1 = %s", i.key, i.value->get_str());
 	}
 #endif
@@ -56,11 +56,11 @@ void pakset_info_t::calculate_checksum()
 
 	// first sort all the desc's
 	vector_tpl<entry_t> sorted(info.get_count());
-	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
+	for(auto const& i : info) {
 		sorted.insert_ordered(entry_t(i.key, i.value), entry_cmp);
 	}
 	// now loop
-	FOR(vector_tpl<entry_t>, const& i, sorted) {
+	for(entry_t const& i : sorted) {
 		i.chk->calc_checksum(&general);
 	}
 	general.finish();

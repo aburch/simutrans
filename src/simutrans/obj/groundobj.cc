@@ -88,11 +88,11 @@ bool groundobj_t::plant_groundobj_on_coordinate(koord pos, const groundobj_desc_
 bool groundobj_t::successfully_loaded()
 {
 	groundobj_typen.resize(desc_table.get_count());
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		groundobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		i.value->index = groundobj_typen.index_of(i.value);
 	}
 
@@ -139,7 +139,7 @@ const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits c
 	}
 
 	int weight = 0;
-	FOR(  vector_tpl<groundobj_desc_t const*>,  const i,  groundobj_typen  ) {
+	for(groundobj_desc_t const* const i :  groundobj_typen  ) {
 		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
@@ -149,7 +149,7 @@ const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits c
 	if(  weight > 0  ) {
 		const int w=simrand(weight);
 		weight = 0;
-		FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_typen) {
+		for(groundobj_desc_t const* const i : groundobj_typen) {
 			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {

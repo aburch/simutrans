@@ -77,7 +77,7 @@ bool tabfileobj_t::put(const char *key, const char *value)
 
 void tabfileobj_t::clear()
 {
-	FOR(stringhashtable_tpl<obj_info_t>, const& i, objinfo) {
+	for(auto const& i : objinfo) {
 		free(const_cast<char*>(i.key));
 		free(const_cast<char*>(i.value.str));
 	}
@@ -286,7 +286,7 @@ vector_tpl<sint64> tabfileobj_t::get_sint64s(const char *key)
 
 void tabfileobj_t::unused( const char *exclude_start_chars )
 {
-	FOR(stringhashtable_tpl<obj_info_t>, const& i, objinfo) {
+	for(auto const& i : objinfo) {
 		if(  !i.value.retrieved  ) {
 			// never retrieved
 			if(  !exclude_start_chars  ||  !strchr( exclude_start_chars, *i.value.str )  ) {

@@ -437,7 +437,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				vector_tpl<linehandle_t> lines;
 				get_owner()->simlinemgmt.get_lines(schedule->get_type(), &lines);
 				new_line = linehandle_t();
-				FOR(vector_tpl<linehandle_t>, const l, lines) {
+				for(linehandle_t const l : lines) {
 					if(  schedule->matches( welt, l->get_schedule() )  ) {
 						// if a line is assigned, set line!
 						new_line = l;
@@ -2693,8 +2693,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-			FOR(slist_tpl<ware_t>, ware, v->get_cargo()) {
-				FOR(vector_tpl<ware_t>, & tmp, total_fracht) {
+			for(ware_t ware : v->get_cargo()) {
+				for(ware_t & tmp : total_fracht) {
 					// could this be joined with existing freight?
 
 					// for pax: join according next stop
@@ -3523,7 +3523,7 @@ void convoi_t::check_pending_updates()
 void convoi_t::register_stops()
 {
 	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+		for(schedule_entry_t const& i : schedule->entries) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
@@ -3539,7 +3539,7 @@ void convoi_t::register_stops()
 void convoi_t::unregister_stops()
 {
 	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+		for(schedule_entry_t const& i : schedule->entries) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
@@ -3904,7 +3904,7 @@ const char* convoi_t::send_to_depot(bool local)
 	route_t *route = new route_t();
 	koord3d home = koord3d::invalid;
 	vehicle_t *v = front();
-	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+	for(depot_t* const depot : depot_t::get_depot_list()) {
 		if (depot->get_waytype() != v->get_desc()->get_waytype()  ||  depot->get_owner() != get_owner()) {
 			continue;
 		}

@@ -1513,7 +1513,7 @@ const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 					// reset driving state
 					cnv->suche_neue_route();
 				}
-				FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+				for(weg_t* const w : weg_t::get_alle_wege()) {
 					if (w->get_waytype() == waytype) {
 						schiene_t* const sch = obj_cast<schiene_t>(w);
 						if (sch->get_reserved_convoi() == cnv) {
@@ -1746,7 +1746,7 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 
 	vector_tpl<grund_t*> gb_tiles;
 	gb->get_tile_list( gb_tiles );
-	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+	for(grund_t* gr : gb_tiles ) {
 		gebaeude_t* gb_part = gr->find<gebaeude_t>();
 		sint32 const maint = welt->get_settings().maint_building * bdsc->get_level();
 		player_t::add_maintenance( old_owner, -maint, gb_part->get_waytype() );
@@ -1778,7 +1778,7 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
 		// update the links from other cities to this city
-		FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
+		for(stadt_t* const c : welt->get_cities()) {
 			c->remove_target_city(city);
 			c->add_target_city(city);
 		}
@@ -3226,7 +3226,7 @@ void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, cons
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, player, start, end );
 	if( can_built ) {
-		FOR(vector_tpl<koord3d>, const& pos, verbindung.get_route()) {
+		for(koord3d const& pos : verbindung.get_route()) {
 			zeiger_t *marker = new zeiger_t(pos, NULL );
 			marker->set_image( cursor );
 			marker->mark_image_dirty( marker->get_image(), 0 );
@@ -3296,7 +3296,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	bool can_delete = start == end  ||  verbindung.get_count()>1;
 	if(  can_delete  ) {
 		// found a route => check if I can delete anything on it
-		FOR(koord3d_vector_t, const& i, verbindung.get_route()) {
+		for(koord3d const& i : verbindung.get_route()) {
 			if (!can_delete) break;
 			grund_t const* const gr = welt->lookup(i);
 			if(  wt!=powerline_wt  ) {
@@ -4864,7 +4864,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 			}
 
 			// ok, we can rotate it
-			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+			for(grund_t* gr : gb_tiles ) {
 				gebaeude_t* gb_part = gr->find<gebaeude_t>();
 				koord k = gr->get_pos().get_2d()-gb_tiles.front()->get_pos().get_2d();
 				const building_tile_desc_t* tile = desc->get_tile( newlayout, k.x, k.y );
@@ -5140,7 +5140,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 	mark_tiles(player, start, end);
 	// only search the marked tiles
 	uint32 j=0;
-	FOR(slist_tpl<zeiger_t*>, const i, marked) {
+	for(zeiger_t* const i : marked) {
 		grund_t* const gr = welt->lookup(i->get_pos());
 		weg_t *weg = gr->get_weg(desc->get_wtyp());
 		ribi_t::ribi dir = directions[j++];
@@ -5664,7 +5664,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
-				FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+				for(fabrik_t* const f : welt->get_fab_list()) {
 					f->add_all_suppliers();
 				}
 			}
@@ -5733,7 +5733,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 
 		// crossconnect all?
 		if (welt->get_settings().is_crossconnect_factories()) {
-			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+			for(fabrik_t* const f : welt->get_fab_list()) {
 				f->add_all_suppliers();
 			}
 		}
@@ -5828,7 +5828,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
-				FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+				for(fabrik_t* const f : welt->get_fab_list()) {
 					f->add_all_suppliers();
 				}
 			}
@@ -6289,14 +6289,14 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			}
 
 			// first, check convoi without line
-			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
+			for(convoihandle_t const cnv : welt->convoys()) {
 				// check line and owner
 				if(!cnv->get_line().is_bound()  &&  cnv->get_owner()==player) {
 					schedule_t *schedule = cnv->get_schedule();
 					// check waytype
 					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
-						FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
+						for(schedule_entry_t & k : schedule->entries) {
 							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_owner()) == last_halt) ||
 									old_platform.is_contained(k.pos)) {
 								k.pos   = pos;
@@ -6326,12 +6326,12 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			// next, check lines serving old_halt (no owner check needed for own lines ...
 			vector_tpl<linehandle_t>lines;
 			player->simlinemgmt.get_lines(simline_t::line,&lines);
-			FOR(vector_tpl<linehandle_t>, const line, lines) {
+			for(linehandle_t const line : lines) {
 				schedule_t *schedule = line->get_schedule();
 				// check waytype
 				if(schedule->is_stop_allowed(bd)) {
 					bool updated = false;
-					FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
+					for(schedule_entry_t & k : schedule->entries) {
 						// ok!
 						if ((catch_all_halt && haltestelle_t::get_halt( k.pos, line->get_owner()) == last_halt) ||
 								old_platform.is_contained(k.pos)) {
@@ -6521,7 +6521,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	sint64 workcost = -welt->scale_with_month_length(halt->calc_maintenance() * welt->get_settings().cst_make_public_months);
 
 	// check waycost and some forbidden cases too
-	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+	for(haltestelle_t::tile_t const& i : halt->get_tiles()) {
 		// make way public if any suitable
 		for(  int j=0;  j<2;  j++  ) {
 			if(  weg_t *w=i.grund->get_weg_nr(0)  ) {
@@ -6554,7 +6554,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	vector_tpl<halthandle_t>checked_halts;
 	checked_halts.append(halt);
 	halthandle_t merge_to;
-	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
+	for(haltestelle_t::tile_t const& i : halt->get_tiles()) {
 		const koord pos = i.grund->get_pos().get_2d();
 		planquadrat_t *pl = welt->access( pos );
 		for(  int i=0;  i<pl->get_haltlist_count();  i++  ) {
@@ -6623,8 +6623,8 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 		win_set_static_tooltip( NULL );
 	}
 
-	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt_be_merged_from->get_tiles()) {
-		FOR(slist_tpl<haltestelle_t::tile_t>, const& j, halt_be_merged_to->get_tiles()) {
+	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
+		for(haltestelle_t::tile_t const& j : halt_be_merged_to->get_tiles()) {
 			uint32 dist = koord_distance( i.grund->get_pos(), j.grund->get_pos() );
 			if(  dist < distance  ) {
 				distance = dist;
@@ -6660,8 +6660,8 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 		return NULL;
 	}
 
-	FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt_be_merged_from->get_tiles()) {
-		FOR(slist_tpl<haltestelle_t::tile_t>, const& j, halt_be_merged_to->get_tiles()) {
+	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
+		for(haltestelle_t::tile_t const& j : halt_be_merged_to->get_tiles()) {
 			uint32 dist = koord_distance( i.grund->get_pos(), j.grund->get_pos() );
 			if(  dist < distance  ) {
 				distance = dist;
@@ -7316,7 +7316,7 @@ bool tool_change_line_t::init( player_t *player )
 					break;
 				}
 
-				FOR(vector_tpl<linehandle_t>,line,lines) {
+				for(linehandle_t line : lines) {
 					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 2  ) {
 						// correct waytpe and more than one,n now some up usage for the last six months
 						sint64 transported = 0, capacity = 0;
@@ -7333,7 +7333,7 @@ bool tool_change_line_t::init( player_t *player )
 							// less than 33 % usage => remove concois
 							vector_tpl<convoihandle_t> const& cnvs = line->get_convoys();
 							sint64 old_sum_capacity = 0;
-							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
+							for(convoihandle_t cnv : cnvs) {
 								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 									old_sum_capacity += cnv->get_vehicle(i)->get_desc()->get_capacity();
 								}
@@ -7386,13 +7386,13 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				array_tpl<vector_tpl<convoihandle_t> > cnvs(welt->convoys().get_count());
 				uint32 max_cnvs=0;
-				FOR(vector_tpl<convoihandle_t>, cnv, welt->convoys()) {
+				for(convoihandle_t cnv : welt->convoys()) {
 					// only check lineless convoys
 					if(  !cnv->get_line().is_bound()  ) {
 						bool found = false;
 						// check, if already matches existing convois schedule
 						for(  uint32 i=0;  i<max_cnvs  &&  !found;  i++  ) {
-							FOR(vector_tpl<convoihandle_t>, cnvcomp, cnvs[i] ) {
+							for(convoihandle_t cnvcomp : cnvs[i] ) {
 								if(  cnvcomp->get_schedule()->matches( welt, cnv->get_schedule() )  ) {
 									found = true;
 									cnvs[i].append( cnv );
@@ -7411,7 +7411,7 @@ bool tool_change_line_t::init( player_t *player )
 					// if there is more than one convois => new line
 					if(  cnvs[i].get_count()>1  ) {
 						line = player->simlinemgmt.create_line( cnvs[i][0]->get_schedule()->get_type(), player, cnvs[i][0]->get_schedule() );
-						FOR(vector_tpl<convoihandle_t>, cnv, cnvs[i] ) {
+						for(convoihandle_t cnv : cnvs[i] ) {
 							line->add_convoy( cnv );
 							cnv->set_line( line );
 						}

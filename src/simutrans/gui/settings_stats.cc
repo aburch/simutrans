@@ -548,7 +548,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
 	// add listener to all of them
-	FOR(slist_tpl<gui_numberinput_t*>, const n, numinp) {
+	for(gui_numberinput_t* const n : numinp) {
 		n->add_listener(this);
 	}
 	// the following are independent and thus need no listener

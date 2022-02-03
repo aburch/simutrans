@@ -371,7 +371,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 	int text_width   = width;
 	const int space_width = proportional_string_width(" ");
 
-	FOR(slist_tpl<node_t>, const& i, nodes) {
+	for(node_t const& i : nodes) {
 		switch (i.att) {
 			case ATT_NONE:
 			case ATT_NO_SPACE: {
@@ -522,7 +522,7 @@ bool gui_flowtext_intern_t::infowin_event(const event_t* ev)
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
 		scr_coord evpos = scr_coord( ev->cx, ev->cy ); // - get_pos();
-		FOR(slist_tpl<hyperlink_t>, const& link, links) {
+		for(hyperlink_t const& link : links) {
 			if(  link.tl.y+LINESPACE == link.br.y  ) {
 				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {
 					call_listeners((void const*)link.param.c_str());

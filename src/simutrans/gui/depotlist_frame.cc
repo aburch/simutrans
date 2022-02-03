@@ -202,7 +202,7 @@ bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 void depotlist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
-	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+	for(depot_t* const depot : depot_t::get_depot_list()) {
 		if(  depot->get_owner() == player  ) {
 			if(  tabs.get_active_tab_index() == 0  ||  depot->get_waytype() == tabs.get_active_tab_waytype()  ) {
 				scrolly.new_component<depotlist_stats_t>(depot);

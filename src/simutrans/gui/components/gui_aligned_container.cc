@@ -358,7 +358,7 @@ scr_size gui_aligned_container_t::get_size(const vector_tpl<scr_coord_val>& col_
 	s.w += spacing.w * max(col_w.get_count()-1, 0);
 	s.h += spacing.h * max(row_h.get_count()-1, 0);
 
-	FOR(vector_tpl<scr_coord_val>, const w, col_w) {
+	for(scr_coord_val const w : col_w) {
 		if (s.w > sinf - w) {
 			s.w = sinf;
 			break;
@@ -368,7 +368,7 @@ scr_size gui_aligned_container_t::get_size(const vector_tpl<scr_coord_val>& col_
 		}
 	}
 
-	FOR(vector_tpl<scr_coord_val>, const h, row_h) {
+	for(scr_coord_val const h : row_h) {
 		if (s.h > sinf - h) {
 			s.h = sinf;
 			break;

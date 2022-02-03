@@ -184,7 +184,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	// what goods can this line transport?
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
-		FOR(minivec_tpl<uint8>, const catg_index, cnv->get_goods_catg_index()) {
+		for(uint8 const catg_index : cnv->get_goods_catg_index()) {
 			if(  !goods_catg_index.is_contained( catg_index )  ) {
 				goods_catg_index.append( catg_index, 1 );
 				update_schedules = true;
@@ -335,7 +335,7 @@ void simline_t::finish_rd()
 void simline_t::register_stops(schedule_t * schedule)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	for(schedule_entry_t const& i : schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -357,7 +357,7 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * schedule)
 {
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	for(schedule_entry_t const& i : schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
@@ -377,7 +377,7 @@ void simline_t::renew_stops()
 
 void simline_t::check_freight()
 {
-	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+	for(convoihandle_t const i : line_managed_convoys) {
 		i->check_freight();
 	}
 }
@@ -388,7 +388,7 @@ void simline_t::new_month()
 	recalc_status();
 	// then calculate maxspeed
 	sint64 line_max_speed = 0, line_max_speed_count = 0;
-	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+	for(convoihandle_t const i : line_managed_convoys) {
 		if (!i->in_depot()) {
 			// since convoi stepped first, our history is in month 1 ...
 			line_max_speed += i->get_finance_history(1, convoi_t::CONVOI_MAXSPEED);
@@ -440,7 +440,7 @@ void simline_t::recalc_status()
 	else if(welt->use_timeline()) {
 		// convois has obsolete vehicles?
 		bool has_obsolete = false;
-		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+		for(convoihandle_t const i : line_managed_convoys) {
 			has_obsolete = i->has_obsolete_vehicles();
 			if (has_obsolete) break;
 		}
@@ -460,18 +460,18 @@ void simline_t::recalc_catg_index()
 {
 	// first copy old
 	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
-	FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+	for(uint8 const i : goods_catg_index) {
 		old_goods_catg_index.append(i);
 	}
 	goods_catg_index.clear();
 	withdraw = !line_managed_convoys.empty();
 	// then recreate current
-	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
+	for(convoihandle_t const i : line_managed_convoys) {
 		// what goods can this line transport?
 		convoi_t const& cnv = *i;
 		withdraw &= cnv.get_withdraw();
 
-		FOR(minivec_tpl<uint8>, const catg_index, cnv.get_goods_catg_index()) {
+		for(uint8 const catg_index : cnv.get_goods_catg_index()) {
 			goods_catg_index.append_unique( catg_index );
 		}
 	}
@@ -482,7 +482,7 @@ void simline_t::recalc_catg_index()
 	}
 	else {
 		// maybe changed => must test all entries
-		FOR(minivec_tpl<uint8>, const i, goods_catg_index) {
+		for(uint8 const i : goods_catg_index) {
 			if (!old_goods_catg_index.is_contained(i)) {
 				// different => recalc
 				welt->set_schedule_counter();

@@ -145,7 +145,7 @@ const vector_tpl<const way_desc_t *>&  way_builder_t::get_way_list(const waytype
 	static vector_tpl<const way_desc_t *> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if( test->get_wtyp()==wtyp  &&  test->get_styp()== styp  &&  test->is_available(time)  &&  test->get_builder() ) {
 			dummy.append(test);
@@ -166,7 +166,7 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 {
 	const way_desc_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfil the timeline?
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==type_tram  &&  wtyp==tram_wt))
@@ -192,7 +192,7 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 const way_desc_t *way_builder_t::get_earliest_way(const waytype_t wtyp)
 {
 	const way_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_intro_year_month()<desc->get_intro_year_month())  ) {
 			desc = test;
@@ -206,7 +206,7 @@ const way_desc_t *way_builder_t::get_earliest_way(const waytype_t wtyp)
 const way_desc_t *way_builder_t::get_latest_way(const waytype_t wtyp)
 {
 	const way_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_retire_year_month()>desc->get_retire_year_month())  ) {
 			desc = test;
@@ -223,7 +223,7 @@ bool way_builder_t::waytype_available( const waytype_t wtyp, uint16 time )
 		return true;
 	}
 
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
 			return true;
@@ -253,7 +253,7 @@ void way_builder_t::new_month()
 	if(current_month!=0) {
 		// check, what changed
 		slist_tpl <const way_desc_t *> matching;
-		FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+		for(auto const& i : desc_table) {
 			way_desc_t const* const desc = i.value;
 			cbuffer_t buf;
 
@@ -303,7 +303,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 	// list of matching types (sorted by speed)
 	vector_tpl<const way_desc_t*> matching;
 
-	FOR(stringhashtable_tpl<way_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		way_desc_t const* const desc = i.value;
 		if (  desc->get_styp()==styp &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  &&  desc->is_available(time)  ) {
 				matching.append(desc);
@@ -312,7 +312,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	// now add sorted ways ...
-	FOR(vector_tpl<way_desc_t const*>, const i, matching) {
+	for(way_desc_t const* const i : matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -967,7 +967,7 @@ void way_builder_t::do_terraforming()
 {
 	uint32 last_terraformed = terraform_index.get_count();
 
-	FOR(vector_tpl<uint32>, const i, terraform_index) { // index in route
+	for(uint32 const i : terraform_index) { // index in route
 		grund_t *from = welt->lookup(route[i]);
 		uint8 from_slope = from->get_grund_hang();
 
@@ -1223,7 +1223,7 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &maxi )
 {
 	mini = maxi = ziel[0];
-	FOR(vector_tpl<koord3d>, const& current, ziel) {
+	for(koord3d const& current : ziel) {
 		if( current.x < mini.x ) {
 			mini.x = current.x;
 		} else if( current.x > maxi.x ) {
@@ -1255,7 +1255,7 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 
 	// check for existing koordinates
 	bool has_target_ground = false;
-	FOR(vector_tpl<koord3d>, const& i, ziel) {
+	for(koord3d const& i : ziel) {
 		has_target_ground |= welt->lookup(i) != 0;
 	}
 	if( !has_target_ground ) {
@@ -1287,7 +1287,7 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 	uint32 step = 0;
 	const grund_t* gr=NULL;
 
-	FOR(vector_tpl<koord3d>, const& i, start) {
+	for(koord3d const& i : start) {
 		gr = welt->lookup(i);
 
 		// is valid ground?
@@ -1408,7 +1408,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		}
 
 		// now check all valid ones ...
-		FOR(vector_tpl<next_gr_t>, const& r, next_gr) {
+		for(next_gr_t const& r : next_gr) {
 			to = r.gr;
 
 			if(  to==NULL) {
@@ -1919,7 +1919,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		}
 
 		// now check all valid ones ...
-		FOR(vector_tpl<next_gr_t>, const& r, next_gr) {
+		for(next_gr_t const& r : next_gr) {
 			to = r.gr;
 
 			if(  to==NULL) {
@@ -2332,7 +2332,7 @@ sint64 way_builder_t::calc_costs()
 	// calculate costs for terraforming
 	uint32 last_terraformed = terraform_index.get_count();
 
-	FOR(vector_tpl<uint32>, const i, terraform_index) { // index in route
+	for(uint32 const i : terraform_index) { // index in route
 		grund_t *from = welt->lookup(route[i]);
 		uint8 from_slope = from->get_grund_hang();
 
@@ -2526,7 +2526,7 @@ bool way_builder_t::build_tunnel_tile()
 
 void way_builder_t::build_elevated()
 {
-	FOR(koord3d_vector_t, & i, route) {
+	for(koord3d & i : route) {
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
@@ -2943,7 +2943,7 @@ void way_builder_t::build_river()
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
 		if (to_the_sea.calc_route(welt, welt->lookup_kartenboden(route[last_common_water_tile].get_2d())->get_pos(), welt->lookup_kartenboden(route[0].get_2d())->get_pos(), &river_tester, 0, 0x7FFFFFFF)) {
-			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
+			for(koord3d const& i : to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
 					for(  type=env_t::river_types-1;  type>0;  type--  ) {

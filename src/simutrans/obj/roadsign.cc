@@ -725,14 +725,14 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	vector_tpl<const roadsign_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  ) {
 			// only add items with a cursor
 			matching.insert_ordered( desc, compare_roadsign_desc );
 		}
 	}
-	FOR(vector_tpl<roadsign_desc_t const*>, const i, matching) {
+	for(roadsign_desc_t const* const i : matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -743,7 +743,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
  */
 const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_flags()==flag  ) {
 			return desc;
@@ -758,7 +758,7 @@ const vector_tpl<const roadsign_desc_t*>& roadsign_t::get_available_signs(const 
 	static vector_tpl<const roadsign_desc_t*> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt) {
 			dummy.append(desc);

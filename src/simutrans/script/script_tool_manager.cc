@@ -99,7 +99,7 @@ void script_tool_manager_t::load_scripts(char const* path)
 {
 	searchfolder_t find;
 	find.search(path, "", true, false);
-	FOR(searchfolder_t, const &name, find) {
+	for(const char* const &name : find) {
 		cbuffer_t fullname;
 		fullname.printf("%s%s",path,name);
 

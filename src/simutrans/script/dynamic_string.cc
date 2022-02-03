@@ -56,7 +56,7 @@ cached_string_t* get_cached_result(const char* function, uint32 cache_time)
 
 dynamic_string::~dynamic_string()
 {
-	FOR(plainstringhashtable_tpl<cached_string_t*>, &iter, cached_results) {
+	for(auto &iter : cached_results) {
 		if (iter.value->listener == this) {
 			iter.value->listener = NULL;
 		}
@@ -90,7 +90,7 @@ void dynamic_string::rdwr_cache(loadsave_t *file)
 		}
 	}
 	else {
-		FOR(plainstringhashtable_tpl<cached_string_t*>, &iter, cached_results) {
+		for(auto &iter : cached_results) {
 			file->rdwr_str(iter.key);
 			iter.value->rdwr(file);
 		}

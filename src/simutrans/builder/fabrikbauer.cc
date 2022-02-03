@@ -77,7 +77,7 @@ void init_fab_map( karte_t *welt )
 	for( int i=0;  i<fab_map_w*welt->get_size().y;  i++ ) {
 		fab_map[i] = 0;
 	}
-	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
+	for(fabrik_t* const f : welt->get_fab_list()) {
 		add_factory_to_fab_map(welt, f);
 	}
 	if(  welt->get_settings().get_max_factory_spacing_percent() > 0  ) {
@@ -221,7 +221,7 @@ const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, clim
 	// get a random city factory
 	weighted_vector_tpl<const factory_desc_t *> consumer;
 
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		factory_desc_t const* const current = i.value;
 		// only insert end consumers
 		if (  current->is_consumer_only()  &&
@@ -269,7 +269,7 @@ DBG_DEBUG("factory_builder_t::register_desc()","Correction for old factory: Incr
 
 bool factory_builder_t::successfully_loaded()
 {
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table) {
+	for(auto const& i : desc_table) {
 		factory_desc_t const* const current = i.value;
 		if(  field_group_desc_t * fg = const_cast<field_group_desc_t *>(current->get_field_group())  ) {
 			// initialize weighted vector for the field class indices
@@ -297,7 +297,7 @@ int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline
 	int count=0;
 
 	// iterate over all factories and check if they produce this good...
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+	for(auto const& t : desc_table) {
 		factory_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_product_count(); i++) {
 			const factory_product_desc_t *product = tmp->get_product(i);
@@ -319,7 +319,7 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 {
 	// find all producers
 	producer.clear();
-	FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+	for(auto const& t : desc_table) {
 		factory_desc_t const* const tmp = t.value;
 		if (  tmp->get_distribution_weight()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_product_count();  i++  ) {
@@ -556,11 +556,11 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
-		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
+		for(stadt_t* const i : staedte) {
 			distance_stadt.insert_ordered(i, RelativeDistanceOrdering(fab->get_pos().get_2d()));
 		}
 		settings_t const& s = welt->get_settings();
-		FOR(vector_tpl<stadt_t*>, const i, distance_stadt) {
+		for(stadt_t* const i : distance_stadt) {
 			uint32 const ntgt = fab->get_target_cities().get_count();
 			if (ntgt >= s.get_factory_worker_maximum_towns()) break;
 			if (ntgt < s.get_factory_worker_minimum_towns() ||
@@ -587,7 +587,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 		const goods_desc_t *ware = desc->get_supplier(i)->get_input_type();
 
 		// unfortunately, for every for iteration we have to check all factories ...
-		FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
+		for(auto const& t : desc_table) {
 			factory_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_product_count(); i++) {
@@ -770,7 +770,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	DBG_MESSAGE("factory_builder_t::build_chain_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
 	// search if there already is one or two (cross-connect everything if possible)
-	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	for(fabrik_t* const fab : welt->get_fab_list()) {
 
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		if (  (lcount != 0  ||  consumption <= 0)  &&  lcount < lfound + 1  )
@@ -791,7 +791,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 						const vector_tpl <koord> & lieferziele = fab->get_lieferziele();
 
 						// decrease remaining production by supplier demand
-						FOR(vector_tpl<koord>, const& i, lieferziele) {
+						for(koord const& i : lieferziele) {
 							if (production_left <= 0) break;
 							fabrik_t* const zfab = fabrik_t::get_fab(i);
 							for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
@@ -814,7 +814,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 								 * needed is the same. Therefore, we just keep book
 								 * from whose factories from how many we stole */
 								crossconnected_supplier.append(fab);
-								FOR(vector_tpl<koord>, const& t, lieferziele) {
+								for(koord const& t : lieferziele) {
 									fabrik_t* zfab = fabrik_t::get_fab(t);
 									for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
 										if(zfab->get_desc()->get_supplier(zz)->get_input_type()==ware) {
@@ -919,14 +919,14 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	}
 
 	// now we add us to all cross-connected factories
-	FOR(slist_tpl<fabrik_t*>, const i, crossconnected_supplier) {
+	for(fabrik_t* const i : crossconnected_supplier) {
 		i->add_lieferziel(our_fab->get_pos().get_2d());
 	}
 
 	/* now the cross-connect part:
 	 * connect also the factories we stole from before ...
 	 */
-	FOR(slist_tpl<fabrik_t*>, const fab, new_factories) {
+	for(fabrik_t* const fab : new_factories) {
 		for (slist_tpl<factories_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
 			i->demand -= 1;
 			fab->add_lieferziel(i->fab->get_pos().get_2d());
@@ -964,7 +964,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 	// find last consumer
 	minivec_tpl<const goods_desc_t *>ware_needed;
 	if(!welt->get_fab_list().empty()) {
-		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+		for(fabrik_t* const fab : welt->get_fab_list()) {
 			if (fab->get_desc()->is_consumer_only()) {
 				last_built_consumer = fab;
 				break;
@@ -979,7 +979,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 				ware_needed.append_unique( last_built_consumer->get_desc()->get_supplier(i)->get_input_type() );
 			}
 
-			FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
+			for(koord const& j : last_built_consumer->get_suppliers()) {
 				factory_desc_t const* const fd = fabrik_t::get_fab(j)->get_desc();
 				for (uint32 k = 0; k < fd->get_product_count(); k++) {
 					ware_needed.remove( fd->get_product(k)->get_output_type() );
@@ -1054,7 +1054,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 	uint32 electric_supply = 0;
 	uint32 electric_demand = 1;
 
-	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	for(fabrik_t* const fab : welt->get_fab_list()) {
 		if(  fab->get_desc()->is_electricity_producer()  ) {
 			electric_supply += fab->get_scaled_electric_demand() / PRODUCTION_DELTA_T;
 		}

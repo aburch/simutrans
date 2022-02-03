@@ -50,7 +50,7 @@ void gui_tab_panel_t::set_size(scr_size size)
 
 	required_size = scr_size( 8, required_size.h );
 	gui_component_t *last_component = NULL;
-	FOR(slist_tpl<tab>, & i, tabs) {
+	for(tab & i : tabs) {
 		i.x_offset = required_size.w - 4;
 		if( i.title ) {
 			i.width = D_H_SPACE*2 + proportional_string_width( i.title );
@@ -85,7 +85,7 @@ scr_size gui_tab_panel_t::get_min_size() const
 	scr_size t_size(0, required_size.h);
 	scr_size c_size(0, 0);
 	gui_component_t *last_component = NULL;
-	FOR(slist_tpl<tab>, const& iter, tabs) {
+	for(tab const& iter : tabs) {
 		if (iter.title) {
 			t_size.h = max(t_size.h, LINESPACE + D_V_SPACE);
 		}

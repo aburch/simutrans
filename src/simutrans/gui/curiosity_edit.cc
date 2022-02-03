@@ -161,19 +161,19 @@ void curiosity_edit_frame_t::fill_list()
 	building_list.clear();
 
 	if(bt_city_attraction.pressed) {
-		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_city)) {
+		for(building_desc_t const* const desc : *hausbauer_t::get_list(building_desc_t::attraction_city)) {
 			put_item_in_list(desc);
 		}
 	}
 
 	if(bt_land_attraction.pressed) {
-		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_land)) {
+		for(building_desc_t const* const desc : *hausbauer_t::get_list(building_desc_t::attraction_land)) {
 			put_item_in_list(desc);
 		}
 	}
 
 	if(bt_monuments.pressed) {
-		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::monument)) {
+		for(building_desc_t const* const desc : *hausbauer_t::get_list(building_desc_t::monument)) {
 			put_item_in_list(desc);
 		}
 	}
@@ -181,7 +181,7 @@ void curiosity_edit_frame_t::fill_list()
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<building_desc_t const*>, const i, building_list) {
+	for(building_desc_t const* const i : building_list) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		PIXVAL color;
 		switch (i->get_type()) {

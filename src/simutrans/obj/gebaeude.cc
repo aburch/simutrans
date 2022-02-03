@@ -577,7 +577,7 @@ void gebaeude_t::show_info()
 			gebaeude_t * first_tile = NULL;
 			static vector_tpl<grund_t *> gb_tiles;
 			get_tile_list( gb_tiles );
-			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+			for(grund_t* gr : gb_tiles ) {
 				// no need for check, we jsut did before ...
 				gebaeude_t* gb = gr->find<gebaeude_t>();
 				if( win_get_magic( (ptrdiff_t)gb ) ) {
@@ -609,7 +609,7 @@ bool gebaeude_t::is_within_players_network(const player_t* player) const
 	// normal building: iterate over all tiles
 	vector_tpl<grund_t*> gb_tiles;
 	get_tile_list( gb_tiles );
-	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+	for(grund_t* gr : gb_tiles ) {
 		// no need for check, we jsut did before ...
 		if( const planquadrat_t* plan = welt->access( gr->get_pos().get_2d()) ) {
 			if( plan->get_haltlist_count() > 0 ) {

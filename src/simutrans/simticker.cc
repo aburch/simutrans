@@ -117,7 +117,7 @@ void ticker::update()
 	const int dx = X_DIST;
 	const int display_width = display_get_width();
 
-	FOR(slist_tpl<node>, & n, list) {
+	for(node & n : list) {
 		n.xpos -= dx;
 
 		if (n.xpos < display_width) {
@@ -165,7 +165,7 @@ void ticker::draw()
 
 	// ok, ready for the text
 	PUSH_CLIP( 0, start_y, width - 1, TICKER_HEIGHT );
-	FOR(slist_tpl<node>, & n, list) {
+	for(node & n : list) {
 		if (n.xpos < width) {
 			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
 		}
@@ -192,7 +192,7 @@ void ticker::redraw()
 
 	// just draw the ticker in its colour ... (to be sure ... )
 	display_fillbox_wh_rgb(0, start_y, width, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
-	FOR(slist_tpl<node>, & n, list) {
+	for(node & n : list) {
 		if (n.xpos < width) {
 			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
 		}

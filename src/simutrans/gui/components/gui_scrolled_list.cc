@@ -101,7 +101,7 @@ void gui_scrolled_list_t::set_selection(int s)
 	gui_component_t* new_focus = item_list[s];
 
 	// reset selected status
-	FOR(vector_tpl<gui_component_t*>, v, item_list) {
+	for(gui_component_t* v : item_list) {
 		scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
 		if(  item  ) {
 			item->selected = item==new_focus;
@@ -230,7 +230,7 @@ void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* 
 	}
 	else if(  !old_focus  ||  !multiple_selection  ||  ev.ev_key_mod==0  ) {
 		// simply select new_focus
-		FOR(vector_tpl<gui_component_t*>, v, item_list) {
+		for(gui_component_t* v : item_list) {
 			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
 			if(  item  ) {
 				item->selected = item==new_focus;
@@ -285,7 +285,7 @@ void gui_scrolled_list_t::draw(scr_coord offset)
 	// set focus
 	scrollitem_t* focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
 	if(  focus  ) {
-		FOR(vector_tpl<gui_component_t*>, v, item_list) {
+		for(gui_component_t* v : item_list) {
 			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
 			if(  item  ) {
 				item->focused = item->selected  &&  win_get_focus()==focus;

@@ -367,7 +367,7 @@ bool network_init_server( int port, const vector_tpl<std::string> &listen_addrs 
 #else
 
 	// For each address in the list of listen addresses try and create a socket to listen on
-	FOR(vector_tpl<std::string>, const& ip, listen_addrs) {
+	for(std::string const& ip : listen_addrs) {
 		int ret;
 		char port_nr[16];
 		sprintf( port_nr, "%u", port );

@@ -73,7 +73,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 	dr_chdir( env_t::data_dir );
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+obsolete_paks.get_selections().get_count(), true, false);
 	int j = 0;
-	FOR(vector_tpl<sint32>, i, paks.get_selections()) {
+	for(sint32 i : paks.get_selections()) {
 		cbuffer_t param;
 		ls.set_info(pakinfo[i * 2 + 1]);
 #ifdef _WIN32
@@ -93,7 +93,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 		ls.set_progress(++j);
 	}
 
-	FOR(vector_tpl<sint32>, i, obsolete_paks.get_selections()) {
+	for(sint32 i : obsolete_paks.get_selections()) {
 		cbuffer_t param;
 		ls.set_info(pakinfo[i * 2 + 21]);
 #ifdef _WIN32
@@ -258,7 +258,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 		char outfilename[FILENAME_MAX];
 		loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
 		int j = 0;
-		FOR(vector_tpl<sint32>, i, paks.get_selections()) {
+		for(sint32 i : paks.get_selections()) {
 			ls.set_info(pakinfo[i * 2 + 1]);
 			sprintf(outfilename, "%s.zip", pakinfo[i*2 + 1]);
 

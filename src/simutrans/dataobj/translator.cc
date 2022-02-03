@@ -197,7 +197,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	FILE *file;
 
 	// Clean up all names
-	FOR(vector_tpl<char*>, const i, name_list) {
+	for(char* const i : name_list) {
 		free(i);
 	}
 	name_list.clear();
@@ -423,7 +423,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat); (void)num_pak_lang_dat;
 
 	//read now the basic language infos
-	FOR(searchfolder_t, const& filename, folder) {
+	for(const char* const& filename : folder) {
 		lang_info* lang = NULL;
 		const char* langcode = strrchr(filename,'.');
 

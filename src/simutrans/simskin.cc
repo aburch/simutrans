@@ -231,7 +231,7 @@ const skin_desc_t *skinverwaltung_t::get_extra( const char *str, int len, skinty
 		// illegal type
 		return NULL;
 	}
-	FOR(slist_tpl<skin_desc_t const*>, const s,
+	for(skin_desc_t const* const s :
 		(type==menu ? skinverwaltung_t::extra_menu_obj : skinverwaltung_t::extra_cursor_obj)) {
 		if (  strncmp(str, s->get_name(), len) == 0  ) {
 			return s;

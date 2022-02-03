@@ -215,7 +215,7 @@ void citylist_frame_t::fill_list()
 	scrolly.clear_elements();
 	strcpy(last_name_filter, name_filter);
 	if (filter_by_owner.pressed && filterowner.get_selection() == 0) {
-		FOR(const weighted_vector_tpl<stadt_t*>, city, world()->get_cities()) {
+		for(stadt_t* city : world()->get_cities()) {
 			bool add = (name_filter[0] == 0 || utf8caseutf8(city->get_name(), name_filter));
 			for (int i = 0; add && i < MAX_PLAYER_COUNT; i++) {
 				if (player_t* pl = welt->get_player(i)) {
@@ -232,7 +232,7 @@ void citylist_frame_t::fill_list()
 	}
 	else {
 		player_t* pl = (filter_by_owner.pressed && filterowner.get_selection() >= 0) ? welt->get_player(((const playername_const_scroll_item_t* )(filterowner.get_selected_item()))->player_nr) : NULL;
-		FOR( const weighted_vector_tpl<stadt_t *>, city, world()->get_cities() ) {
+		for(stadt_t * city : world()->get_cities() ) {
 			if(  pl == NULL  ||  city->is_within_players_network( pl ) ) {
 				if(  last_name_filter[0] == 0  ||  utf8caseutf8(city->get_name(), last_name_filter)  ) {
 					scrolly.new_component<citylist_stats_t>(city);

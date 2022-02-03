@@ -175,7 +175,7 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
 
-	FOR(vector_tpl<rule_entry_t>, const& r, regel.rule) {
+	for(rule_entry_t const& r : regel.rule) {
 		uint8 x,y;
 		switch (rotation) {
 			default:
@@ -579,7 +579,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 	if (gb != NULL) {
 		uint16 level = gb->get_tile()->get_desc()->get_level()+1;
 		gb->get_tile_list( gb_tiles );
-		FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+		for(grund_t* gr : gb_tiles ) {
 			gebaeude_t* add_gb = gr->find<gebaeude_t>();
 			if( ordered ) {
 				buildings.insert_ordered( add_gb, level, compare_gebaeude_pos );
@@ -664,7 +664,7 @@ void stadt_t::recalc_city_size()
 	// as has_low_density may depend on the order the buildings list is filled
 	lo = pos;
 	ur = pos;
-	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
+	for(gebaeude_t* const i : buildings) {
 		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			koord const& gb_pos = i->get_pos().get_2d();
 			koord const& gb_size = i->get_tile()->get_desc()->get_size(i->get_tile()->get_layout());
@@ -721,7 +721,7 @@ void stadt_t::factory_entry_t::resolve_factory()
 
 const stadt_t::factory_entry_t* stadt_t::factory_set_t::get_entry(const fabrik_t *const factory) const
 {
-	FOR(vector_tpl<factory_entry_t>, const& e, entries) {
+	for(factory_entry_t const& e : entries) {
 		if (e.factory == factory) {
 			return &e;
 		}
@@ -735,7 +735,7 @@ stadt_t::factory_entry_t* stadt_t::factory_set_t::get_random_entry()
 {
 	if(  total_remaining>0  ) {
 		sint32 weight = simrand(total_remaining);
-		FOR(vector_tpl<factory_entry_t>, & entry, entries) {
+		for(factory_entry_t & entry : entries) {
 			if(  entry.remaining>0  ) {
 				if(  weight<entry.remaining  ) {
 					return &entry;
@@ -820,7 +820,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille < 1024  ) {
 			// expected supply is really smaller than target supply
-			FOR(vector_tpl<factory_entry_t>, & entry, entries) {
+			for(factory_entry_t & entry : entries) {
 				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
 				const sint32 delta_supply = new_supply - entry.supply;
 				if(  delta_supply==0  ) {
@@ -842,7 +842,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 		}
 	}
 	// expected supply is unknown or sufficient to meet target supply
-	FOR(vector_tpl<factory_entry_t>, & entry, entries) {
+	for(factory_entry_t & entry : entries) {
 		const sint32 new_supply = ( entry.demand * SUPPLY_FACTOR + ((1<<(DEMAND_BITS+SUPPLY_BITS))-1) ) >> (DEMAND_BITS+SUPPLY_BITS);
 		const sint32 delta_supply = new_supply - entry.supply;
 		if(  delta_supply==0  ) {
@@ -865,7 +865,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 
 void stadt_t::factory_set_t::new_month()
 {
-	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+	for(factory_entry_t & e : entries) {
 		e.new_month();
 	}
 	total_remaining = 0;
@@ -902,7 +902,7 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 void stadt_t::factory_set_t::resolve_factories()
 {
 	uint32 remove_count = 0;
-	FOR(vector_tpl<factory_entry_t>, & e, entries) {
+	for(factory_entry_t & e : entries) {
 		e.resolve_factory();
 		if (!e.factory) {
 			remove_count ++;
@@ -955,7 +955,7 @@ stadt_t::~stadt_t()
 
 static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* const name)
 {
-	FOR(weighted_vector_tpl<stadt_t*>, const i, cities) {
+	for(stadt_t* const i : cities) {
 		if (strcmp(i->get_name(), name) == 0) {
 			return true;
 		}
@@ -1403,7 +1403,7 @@ void stadt_t::verbinde_fabriken()
 	assert( target_factories_pax.get_entries().empty() );
 	assert( target_factories_mail.get_entries().empty() );
 
-	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
+	for(fabrik_t* const fab : welt->get_fab_list()) {
 		const uint32 count = fab->get_target_cities().get_count();
 		if(  count < welt->get_settings().get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_settings().get_factory_worker_radius()  ) {
 			fab->add_target_city(this);
@@ -1718,7 +1718,7 @@ void stadt_t::calc_growth()
 {
 	// now iterate over all factories to get the ratio of producing version non-producing factories
 	// we use the incoming storage as a measure and we will only look for end consumers (power stations, markets)
-	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
+	for(factory_entry_t const& i : target_factories_pax.get_entries()) {
 		fabrik_t *const fab = i.factory;
 		if (fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) {
 			// consumer => check for it storage
@@ -1920,7 +1920,7 @@ void stadt_t::step_passagiere()
 				}
 				else {
 					// all routes to goal are overcrowded -> register at first stop (closest)
-					FOR(vector_tpl<halthandle_t>, const s, start_halts) {
+					for(halthandle_t const s : start_halts) {
 						s->add_pax_unhappy(pax_left_to_do);
 						merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_ORANGE));
 						break;
@@ -1932,7 +1932,7 @@ void stadt_t::step_passagiere()
 			}
 			else if (  route_result == haltestelle_t::NO_ROUTE  ) {
 				// since there is no route from any start halt -> register no route at first halts (closest)
-				FOR(vector_tpl<halthandle_t>, const s, start_halts) {
+				for(halthandle_t const s : start_halts) {
 					s->add_pax_no_route(pax_left_to_do);
 					break;
 				}
@@ -2155,7 +2155,7 @@ void stadt_t::add_target_city(stadt_t *const city)
 void stadt_t::recalc_target_cities()
 {
 	target_cities.clear();
-	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
+	for(stadt_t* const c : welt->get_cities()) {
 		add_target_city(c);
 	}
 }
@@ -2174,7 +2174,7 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 void stadt_t::recalc_target_attractions()
 {
 	target_attractions.clear();
-	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_attractions()) {
+	for(gebaeude_t* const a : welt->get_attractions()) {
 		add_target_attraction(a);
 	}
 }
@@ -2250,13 +2250,13 @@ class building_place_with_road_finder: public building_placefinder_t
 		{
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_attractions();
 			int dist = welt->get_size().x * welt->get_size().y;
-			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
+			for(gebaeude_t* const i : attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
 				if(  d < dist  ) {
 					dist = d;
 				}
 			}
-			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_cities() ) {
+			for(stadt_t * const city : welt->get_cities() ) {
 				int const d = koord_distance(city->get_pos(), pos);
 				if(  d < dist  ) {
 					dist = d;
@@ -3797,7 +3797,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 count, sint16 old_x, sint1
 			for (sint32 i = k2mcd.x - 1; i <= k2mcd.x + 1; ++i) {
 				for (sint32 j = k2mcd.y - 1; j <= k2mcd.y + 1; ++j) {
 					if (i>=0 && i<(sint32)xmax2 && j>=0 && j<(sint32)ymax2) {
-						FOR(vector_tpl<koord>, const& l, result_places.at(i, j)) {
+						for(koord const& l : result_places.at(i, j)) {
 							if (koord_distance(k, l) < minimum_city_distance) {
 								goto too_close;
 							}

@@ -82,7 +82,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	// enumerate toolbars
 	bool special = false;
 	add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
-	FOR( vector_tpl<toolbar_t *>, iter, tool_t::toolbar_tool ) {
+	for(toolbar_t * iter : tool_t::toolbar_tool ) {
 		if(  strstart(iter->get_tool_selector()->get_help_filename(),"list.txt" )  ) {
 			continue;
 		}
@@ -323,7 +323,7 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		player_t *player = welt->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
-		FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
+		for(tool_t* const i : tool_t::char_to_tool) {
 			cbuffer_t c;
 			char str[16];
 			if(  i->command_flags & SIM_MOD_CTRL  ) {

@@ -319,7 +319,7 @@ void fabrik_info_t::update_components()
 		all_consumers.add_component(&highlight_consumers);
 
 
-		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
+		for(koord k : fab->get_lieferziele() ) {
 			all_consumers.new_component<gui_factory_connection_t>(fab, k, false);
 		}
 		old_consumers_count = fab->get_lieferziele().get_count();
@@ -331,7 +331,7 @@ void fabrik_info_t::update_components()
 		all_suppliers.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
 		all_suppliers.add_component(&highlight_suppliers);
 
-		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
+		for(koord k : fab->get_suppliers() ) {
 			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
 				all_suppliers.new_component<gui_factory_connection_t>(fab, src->get_pos().get_2d(), true);
 			}
@@ -345,7 +345,7 @@ void fabrik_info_t::update_components()
 		all_cities.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
 		all_cities.new_component_span<gui_label_t>(fab->is_end_consumer() ? "Customers live in:" : "Arbeiter aus:", 6);
 		// no new class for entries to get better alignment for columns
-		FOR(vector_tpl<stadt_t*>, const c, fab->get_target_cities()) {
+		for(stadt_t* const c : fab->get_target_cities()) {
 
 			button_t* b = all_cities.new_component<button_t>();
 			b->set_typ(button_t::posbutton_automatic);
@@ -418,7 +418,7 @@ void fabrik_info_t::highlight(vector_tpl<koord> fab_koords, bool marking)
 		if(grund_t *gr = welt->lookup_kartenboden(fab_koords[i])) {
 			if(gebaeude_t *gb=gr->find<gebaeude_t>() ) {
 				gb->get_tile_list(fab_tiles);
-				FOR( vector_tpl<grund_t*>, gr, fab_tiles ) {
+				for(grund_t* gr : fab_tiles ) {
 					// no need for check, we just did before ...
 					gebaeude_t* gb = gr->find<gebaeude_t>();
 					if( marking ) {

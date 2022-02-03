@@ -266,7 +266,7 @@ void vehiclelist_frame_t::fill_list()
 	if(  tabs.get_active_tab_waytype() == ignore_wt) {
 		// adding all vehiles, i.e. iterate over all available waytypes
 		for(  uint32 i=1;  i<tabs.get_count();  i++  ) {
-			FOR( slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs.get_tab_waytype(i)) ) {
+			for(vehicle_desc_t const* const veh : vehicle_builder_t::get_info(tabs.get_tab_waytype(i)) ) {
 				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
 						if( ware ) {
@@ -284,7 +284,7 @@ void vehiclelist_frame_t::fill_list()
 		}
 	}
 	else {
-		FOR(slist_tpl<vehicle_desc_t const*>, const veh, vehicle_builder_t::get_info(tabs.get_active_tab_waytype())) {
+		for(vehicle_desc_t const* const veh : vehicle_builder_t::get_info(tabs.get_active_tab_waytype())) {
 			if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 				if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
 					if( ware ) {

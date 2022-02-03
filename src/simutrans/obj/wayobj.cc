@@ -431,7 +431,7 @@ bool wayobj_t::successfully_loaded()
 	}
 
 	way_obj_desc_t const* def = 0;
-	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		way_obj_desc_t const& b = *i.value;
 		if (!b.is_overhead_line())                          continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
@@ -487,7 +487,7 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 
 	vector_tpl<const way_obj_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		way_obj_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  ) {
 
@@ -500,7 +500,7 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 	}
 	// sort the tools before adding to menu
 	std::sort(matching.begin(), matching.end(), compare_wayobj_desc);
-	FOR(vector_tpl<way_obj_desc_t const*>, const i, matching) {
+	for(way_obj_desc_t const* const i : matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -508,7 +508,7 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 
 const way_obj_desc_t *wayobj_t::get_overhead_line(waytype_t wt, uint16 time)
 {
-	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+	for(auto const& i : table) {
 		way_obj_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->is_overhead_line()  ) {
 			return desc;
