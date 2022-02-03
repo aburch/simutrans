@@ -10,6 +10,7 @@
 #include "../simtypes.h"
 #include "../utils/unicode.h"
 
+#include <stdio.h>
 #include <vector>
 
 

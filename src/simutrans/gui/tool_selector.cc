@@ -8,7 +8,6 @@
 #include "../display/simimg.h"
 #include "../display/simgraph.h"
 #include "../player/simplay.h"
-#include "../utils/for.h"
 #include "../utils/simstring.h"
 #include "../world/simworld.h"
 #include "../tool/simmenu.h"

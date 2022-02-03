@@ -7,7 +7,6 @@
 #define SIMTYPES_H
 
 
-#include "utils/for.h"
 #include <limits.h>
 
 #ifndef PATH_MAX

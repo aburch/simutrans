@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstring>
 #include <stdlib.h>
+#include <algorithm>
 
 
 raw_image_t::raw_image_t()
