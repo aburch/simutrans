@@ -50,6 +50,7 @@ class memory_rw_t;
 class viewport_t;
 class records_t;
 class loadingscreen_t;
+class terraformer_t;
 
 
 /**
@@ -318,55 +319,7 @@ private:
 	 */
 	interaction_t *eventmanager;
 
-	/**
-	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
-	 * If the desired height of a corner is lower than its current height, this corner is ignored.
-	 * @param player player who wants to lower
-	 * @param x coordinate
-	 * @param y coordinate
-	 * @param keep_water returns false if water tiles would be raised above water
-	 * @param hsw desired height of sw-corner
-	 * @param hse desired height of se-corner
-	 * @param hne desired height of ne-corner
-	 * @param hnw desired height of nw-corner
-	 * @returns NULL if raise_to operation can be performed, an error message otherwise
-	 */
-	const char* can_raise_to(const player_t* player, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
-
-	/**
-	 * Raises heights of the corners of the tile at (@p x, @p y).
-	 * New heights for each corner given.
-	 * @pre can_raise_to should be called before this method.
-	 * @see can_raise_to
-	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc minimap pixel.
-	 */
-	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-
-	/**
-	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
-	 * If the desired height of a corner is higher than its current height, this corner is ignored.
-	 * @param player player who wants to lower
-	 * @param x coordinate
-	 * @param y coordinate
-	 * @param hsw desired height of sw-corner
-	 * @param hse desired height of se-corner
-	 * @param hne desired height of ne-corner
-	 * @param hnw desired height of nw-corner
-	 * @returns NULL if lower_to operation can be performed, an error message otherwise
-	 */
-	const char* can_lower_to(const player_t* player, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
-
-	/**
-	 * Lowers heights of the corners of the tile at (@p x, @p y).
-	 * New heights for each corner given.
-	 * @pre can_lower_to should be called before this method.
-	 * @see can_lower_to
-	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc minimap pixel.
-	 */
-	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-
+public:
 	/**
 	 * Raise grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
 	 * @see clean_up
@@ -379,6 +332,7 @@ private:
 	 */
 	void lower_grid_to(sint16 x, sint16 y, sint8 h);
 
+private:
 	/**
 	 * The fractal generation of the map is not perfect.
 	 * cleanup_karte() eliminates errors.
@@ -1174,13 +1128,16 @@ public:
 	const char* call_work(tool_t *t, player_t *pl, koord3d pos, bool &suspended);
 
 	/**
-	 * Returns the (x,y) map size.
-	 * @brief Map size.
+	 * Returns the size in tiles of the map.
 	 * @note Valid coords are (0..x-1,0..y-1)
 	 * @note These values are exactly one less then get_grid_size ones.
 	 * @see get_grid_size()
 	 */
 	inline koord const &get_size() const { return cached_grid_size; }
+
+	/// Returns the maximum possible index when accessing tiles.
+	/// Valid tiles are in the range (0..x, 0..y)
+	inline koord get_max_tile_index() const { return cached_size; }
 
 	/**
 	 * Maximum size for waiting bars etc.
@@ -1327,7 +1284,7 @@ public:
 	}
 
 
-private:
+public:
 	/**
 	 * @return grund at the bottom (where house will be build)
 	 * @note Inline because called very frequently! - nocheck for more speed
@@ -1383,18 +1340,6 @@ public:
 	uint32 load_version;
 
 	/**
-	 * Checks if the planquadrat (tile) at coordinate (x,y)
-	 * can be lowered at the specified height.
-	 */
-	const char* can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
-
-	/**
-	 * Checks if the planquadrat (tile) at coordinate (x,y)
-	 * can be raised at the specified height.
-	 */
-	const char* can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
-
-	/**
 	 * Checks if the whole planquadrat (tile) at coordinates (x,y) height can
 	 * be changed ( for example, water height can't be changed ).
 	 */
@@ -1415,72 +1360,6 @@ public:
 	// mostly used by AI: Ask to flatten a tile
 	bool can_flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 	bool flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
-
-	/**
-	 * Class to manage terraform operations.
-	 * Can be used for raise only or lower only operations, but not mixed.
-	 */
-	class terraformer_t {
-		/// Structure to save terraforming operations
-		struct node_t {
-			sint16 x;    ///< x-coordinate
-			sint16 y;    ///< y-coordinate
-			sint8  h[4]; ///< height of corners, order: sw se ne nw
-			uint8  changed;
-
-			node_t(sint16 x_, sint16 y_, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 c)
-			: x(x_), y(y_), changed(c) { h[0]=hsw; h[1]=hse; h[2]=hne; h[3]=hnw; }
-
-			node_t() : x(-1), y(-1), changed(0) {}
-
-			/// compares position
-			bool operator== (const node_t& a) const { return (a.x==x)  && (a.y==y); }
-
-			/// compares position
-			static bool comp(const node_t& a, const node_t& b);
-		};
-
-		vector_tpl<node_t> list; ///< list of affected tiles
-		uint8 actual_flag;       ///< internal flag to iterate through list
-		bool ready;              ///< internal flag to signal iteration ready
-		karte_t* welt;
-
-		void add_node(bool raise, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-	public:
-		terraformer_t(karte_t* w) { init(); welt = w; }
-
-		void init() { list.clear(); actual_flag = 1; ready = false; }
-
-		/**
-		 * Add tile to be raised.
-		 */
-		void add_raise_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-
-		/**
-		 * Add tile to be lowered.
-		 */
-		void add_lower_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-
-		/**
-		 * Generate list of all tiles that will be affected.
-		 */
-		void iterate(bool raise);
-
-		/// Check whether raise operation would succeed
-		const char* can_raise_all(const player_t *player, bool keep_water=false) const;
-		/// Check whether lower operation would succeed
-		const char* can_lower_all(const player_t *player) const;
-
-		/// Do the raise operations
-		int raise_all();
-		/// Do the lower operations
-		int lower_all();
-	};
-
-private:
-	/// Internal functions to be used with terraformer_t to propagate terrain changes to neighbouring tiles
-	void prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
-	void prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
 public:
 
@@ -1568,7 +1447,7 @@ public:
 	 */
 	void step();
 
-private:
+public:
 	inline planquadrat_t *access_nocheck(int i, int j) const {
 		return &plan[i + j*cached_grid_size.x];
 	}
@@ -1582,7 +1461,7 @@ public:
 
 	inline planquadrat_t *access(koord k) const { return access(k.x, k.y); }
 
-private:
+public:
 	/**
 	 * @return Height at the grid point i, j - versions without checks for speed
 	 */
@@ -1610,9 +1489,10 @@ public:
 
 	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
 
+public:
 	void get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope);
-
-private:
+	
+public:
 	/**
 	 * @return water height - versions without checks for speed
 	 */
@@ -1690,7 +1570,7 @@ public:
 	 */
 	void cleanup_grounds_loop(sint16, sint16, sint16, sint16);
 
-private:
+public:
 	/**
 	 * @return Minimum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
 	 */

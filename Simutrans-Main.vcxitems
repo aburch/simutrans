@@ -356,6 +356,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\vehicle.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\vehicle_base.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)vehicle\water_vehicle.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)world\terraformer.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)freight_list_sorter.h" />
@@ -738,6 +739,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\vehicle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\vehicle_base.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)vehicle\water_vehicle.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)world\terraformer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)simres.rc" />

@@ -608,6 +608,7 @@ SOURCES += vehicle/simroadtraffic.cc
 SOURCES += vehicle/vehicle.cc
 SOURCES += vehicle/vehicle_base.cc
 SOURCES += vehicle/water_vehicle.cc
+SOURCES += world/terraformer.cc
 
 
 ifeq ($(BACKEND),gdi)

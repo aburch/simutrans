@@ -105,7 +105,9 @@
 #include "player/ai_goods.h"
 #include "player/ai_scripted.h"
 
+#include "world/terraformer.h"
 #include "io/rdwr/adler32_stream.h"
+
 
 #include "pathes.h"
 
@@ -2188,80 +2190,6 @@ karte_t::~karte_t()
 	}
 }
 
-const char* karte_t::can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const
-{
-	const planquadrat_t *plan = access(x,y);
-
-	if(  plan==NULL  ) {
-		return "";
-	}
-
-	if(  h < groundwater - 3  ) {
-		return "";
-	}
-
-	const sint8 hmax = plan->get_kartenboden()->get_hoehe();
-	if(  (hmax == h  ||  hmax == h - 1)  &&  (plan->get_kartenboden()->get_grund_hang() == 0  ||  is_plan_height_changeable( x, y ))  ) {
-		return NULL;
-	}
-
-	if(  !is_plan_height_changeable(x, y)  ) {
-		return "";
-	}
-
-	// tunnel slope below?
-	grund_t *gr = plan->get_boden_in_hoehe( h - 1 );
-	if(  !gr  ) {
-		gr = plan->get_boden_in_hoehe( h - 2 );
-	}
-	if(  !gr  && settings.get_way_height_clearance()==2  ) {
-		gr = plan->get_boden_in_hoehe( h - 3 );
-	}
-	if(  gr  &&  h < gr->get_pos().z + slope_t::max_diff( gr->get_weg_hang() ) + settings.get_way_height_clearance()  ) {
-		return "";
-	}
-
-	// tunnel below?
-	while(h < hmax) {
-		if(plan->get_boden_in_hoehe(h)) {
-			return "";
-		}
-		h ++;
-	}
-
-	// check allowance by scenario
-	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(player, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
-	}
-
-	return NULL;
-}
-
-
-const char* karte_t::can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const
-{
-	const planquadrat_t *plan = access(x,y);
-	if(  plan == 0  ||  !is_plan_height_changeable(x, y)  ) {
-		return "";
-	}
-
-	// irgendwo eine Bruecke im Weg?
-	int hmin = plan->get_kartenboden()->get_hoehe();
-	while(h > hmin) {
-		if(plan->get_boden_in_hoehe(h)) {
-			return "";
-		}
-		h --;
-	}
-
-	// check allowance by scenario
-	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(player, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
-	}
-
-	return NULL;
-}
-
 
 bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 {
@@ -2287,284 +2215,6 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 	}
 
 	return ok;
-}
-
-
-bool karte_t::terraformer_t::node_t::comp(const karte_t::terraformer_t::node_t& a, const karte_t::terraformer_t::node_t& b)
-{
-	int diff = a.x- b.x;
-	if (diff == 0) {
-		diff = a.y - b.y;
-	}
-	return diff<0;
-}
-
-
-void karte_t::terraformer_t::add_node(bool raise, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	if (!welt->is_within_limits(x,y)) {
-		return;
-	}
-	node_t test(x, y, hsw, hse, hne, hnw, actual_flag^3);
-	node_t *other = list.insert_unique_ordered(test, node_t::comp);
-
-	sint8 factor = raise ? +1 : -1;
-
-	if (other) {
-		for(int i=0; i<4; i++) {
-			if (factor*other->h[i] < factor*test.h[i]) {
-				other->h[i] = test.h[i];
-				other->changed |= actual_flag^3;
-				ready = false;
-			}
-		}
-	}
-	else {
-		ready = false;
-	}
-}
-
-void karte_t::terraformer_t::add_raise_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	add_node(true, x, y, hsw, hse, hne, hnw);
-}
-
-void karte_t::terraformer_t::add_lower_node(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	add_node(false, x, y, hsw, hse, hne, hnw);
-}
-
-void karte_t::terraformer_t::iterate(bool raise)
-{
-	while( !ready) {
-		actual_flag ^= 3; // flip bits
-		// clear new_flag bit
-		FOR(vector_tpl<node_t>, &i, list) {
-			i.changed &= actual_flag;
-		}
-		// process nodes with actual_flag set
-		ready = true;
-		for(uint32 j=0; j < list.get_count(); j++) {
-			node_t& i = list[j];
-			if (i.changed & actual_flag) {
-				i.changed &= ~ actual_flag;
-				if (raise) {
-					welt->prepare_raise(*this, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-				}
-				else {
-					welt->prepare_lower(*this, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-				}
-			}
-		}
-	}
-}
-
-
-const char* karte_t::terraformer_t::can_raise_all(const player_t *player, bool keep_water) const
-{
-	const char* err = NULL;
-	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_raise_to(player, i.x, i.y, keep_water, i.h[0], i.h[1], i.h[2], i.h[3]);
-		if (err) return err;
-	}
-	return NULL;
-}
-
-const char* karte_t::terraformer_t::can_lower_all(const player_t *player) const
-{
-	const char* err = NULL;
-	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_lower_to(player, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-		if (err) {
-			return err;
-		}
-	}
-	return NULL;
-}
-
-int karte_t::terraformer_t::raise_all()
-{
-	int n=0;
-	FOR(vector_tpl<node_t>, &i, list) {
-		n += welt->raise_to(i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-	}
-	return n;
-}
-
-int karte_t::terraformer_t::lower_all()
-{
-	int n=0;
-	FOR(vector_tpl<node_t>, &i, list) {
-		n += welt->lower_to(i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
-	}
-	return n;
-}
-
-
-const char* karte_t::can_raise_to(const player_t *player, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
-{
-	assert(is_within_limits(x,y));
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
-
-	const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
-
-	if(  gr->is_water()  &&  keep_water  &&  max_hgt > water_hgt  ) {
-		return "";
-	}
-
-	const char* err = can_raise_plan_to(player, x, y, max_hgt);
-
-	return err;
-}
-
-
-void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	assert(is_within_limits(x,y));
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
-	const sint8 h0 = gr->get_hoehe();
-	// old height
-	const sint8 h0_sw = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_sw( gr->get_grund_hang() );
-	const sint8 h0_se = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x+1,y+1) ) : h0 + corner_se( gr->get_grund_hang() );
-	const sint8 h0_ne = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x+1,y) )   : h0 + corner_ne( gr->get_grund_hang() );
-	const sint8 h0_nw = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x,y) )     : h0 + corner_nw( gr->get_grund_hang() );
-
-	// new height
-	const sint8 hn_sw = max(hsw, h0_sw);
-	const sint8 hn_se = max(hse, h0_se);
-	const sint8 hn_ne = max(hne, h0_ne);
-	const sint8 hn_nw = max(hnw, h0_nw);
-
-	// nothing to do?
-	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
-		return;
-	}
-
-	// calc new height and slope
-	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
-	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
-
-	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
-
-	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
-	if(  !ok  &&  !gr->is_water()  ) {
-		assert(false);
-	}
-
-	// sw
-	if (h0_sw < hsw) {
-		digger.add_raise_node( x - 1, y + 1, hsw - max_hdiff, hsw - max_hdiff, hsw, hsw - max_hdiff );
-	}
-	// s
-	if (h0_sw < hsw  ||  h0_se < hse) {
-		const sint8 hs = max( hse, hsw ) - max_hdiff;
-		digger.add_raise_node( x, y + 1, hs, hs, hse, hsw );
-	}
-	// se
-	if (h0_se < hse) {
-		digger.add_raise_node( x + 1, y + 1, hse - max_hdiff, hse - max_hdiff, hse - max_hdiff, hse );
-	}
-	// e
-	if (h0_se < hse  ||  h0_ne < hne) {
-		const sint8 he = max( hse, hne ) - max_hdiff;
-		digger.add_raise_node( x + 1, y, hse, he, he, hne );
-	}
-	// ne
-	if (h0_ne < hne) {
-		digger.add_raise_node( x + 1,y - 1, hne, hne - max_hdiff, hne - max_hdiff, hne - max_hdiff );
-	}
-	// n
-	if (h0_nw < hnw  ||  h0_ne < hne) {
-		const sint8 hn = max( hnw, hne ) - max_hdiff;
-		digger.add_raise_node( x, y - 1, hnw, hne, hn, hn );
-	}
-	// nw
-	if (h0_nw < hnw) {
-		digger.add_raise_node( x - 1, y - 1, hnw - max_hdiff, hnw, hnw - max_hdiff, hnw - max_hdiff );
-	}
-	// w
-	if (h0_sw < hsw  ||  h0_nw < hnw) {
-		const sint8 hw = max( hnw, hsw ) - max_hdiff;
-		digger.add_raise_node( x - 1, y, hw, hsw, hnw, hw );
-	}
-}
-
-
-int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	int n=0;
-	assert(is_within_limits(x,y));
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
-	const sint8 h0 = gr->get_hoehe();
-
-	// old height
-	const sint8 h0_sw = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_sw( gr->get_grund_hang() );
-	const sint8 h0_se = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x+1,y+1) ) : h0 + corner_se( gr->get_grund_hang() );
-	const sint8 h0_ne = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x+1,y) )   : h0 + corner_ne( gr->get_grund_hang() );
-	const sint8 h0_nw = gr->is_water() ? min(water_hgt, lookup_hgt_nocheck(x,y) )     : h0 + corner_nw( gr->get_grund_hang() );
-
-	// new height
-	const sint8 hn_sw = max(hsw, h0_sw);
-	const sint8 hn_se = max(hse, h0_se);
-	const sint8 hn_ne = max(hne, h0_ne);
-	const sint8 hn_nw = max(hnw, h0_nw);
-	// nothing to do?
-	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
-		return 0;
-	}
-
-	// calc new height and slope
-	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
-	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
-
-	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
-	const sint8 disp_hneu = max( hneu, water_hgt );
-	const sint8 disp_hn_sw = max( hn_sw, water_hgt );
-	const sint8 disp_hn_se = max( hn_se, water_hgt );
-	const sint8 disp_hn_ne = max( hn_ne, water_hgt );
-	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
-	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
-
-	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
-	if (!ok && !gr->is_water()) {
-		assert(false);
-	}
-	// change height and slope, for water tiles only if they will become land
-	if(  !gr->is_water()  ||  (hmaxneu > water_hgt  ||  (hneu == water_hgt  &&  hmaxneu == water_hgt)  )  ) {
-		gr->set_pos( koord3d( x, y, disp_hneu ) );
-		gr->set_grund_hang( sneu );
-		access_nocheck(x,y)->angehoben();
-		set_water_hgt(x, y, groundwater-4);
-	}
-
-	// update north point in grid
-	set_grid_hgt(x, y, hn_nw);
-	calc_climate(koord(x,y), true);
-	if ( x == cached_size.x ) {
-		// update eastern grid coordinates too if we are in the edge.
-		set_grid_hgt(x+1, y, hn_ne);
-		set_grid_hgt(x+1, y+1, hn_se);
-	}
-	if ( y == cached_size.y ) {
-		// update southern grid coordinates too if we are in the edge.
-		set_grid_hgt(x, y+1, hn_sw);
-		set_grid_hgt(x+1, y+1, hn_se);
-	}
-
-	n += hn_sw - h0_sw + hn_se - h0_se + hn_ne - h0_ne  + hn_nw - h0_nw;
-
-	lookup_kartenboden_nocheck(x,y)->calc_image();
-	if ( (x+1) < cached_size.x ) {
-		lookup_kartenboden_nocheck(x+1,y)->calc_image();
-	}
-	if ( (y+1) < cached_size.y ) {
-		lookup_kartenboden_nocheck(x,y+1)->calc_image();
-	}
-
-	return n;
 }
 
 
@@ -2620,15 +2270,15 @@ int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
 			hsw = hse = hne = hnw = hgt;
 		}
 
-		terraformer_t digger(this);
-		digger.add_raise_node(x, y, hsw, hse, hne, hnw);
-		digger.iterate(true);
+		terraformer_t digger(this, terraformer_t::raise);
+		digger.add_node(x, y, hsw, hse, hne, hnw);
+		digger.generate_affected_tile_list();
 
 		err = digger.can_raise_all(player);
 		if (err) {
 			return 0;
 		}
-		n = digger.raise_all();
+		n = digger.apply();
 
 		// force world full redraw, or background could be dirty.
 		set_dirty();
@@ -2640,253 +2290,6 @@ int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
 	return (n+3)>>2;
 }
 
-
-void karte_t::prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	assert(is_within_limits(x,y));
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
-	const sint8 h0 = gr->get_hoehe();
-	// which corners have to be raised?
-	const sint8 h0_sw = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_sw( gr->get_grund_hang() );
-	const sint8 h0_se = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x+1,y+1) ) : h0 + corner_se( gr->get_grund_hang() );
-	const sint8 h0_ne = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_ne( gr->get_grund_hang() );
-	const sint8 h0_nw = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x,y) )     : h0 + corner_nw( gr->get_grund_hang() );
-
-	const uint8 max_hdiff = ground_desc_t::double_grounds ?  2 : 1;
-
-	// sw
-	if (h0_sw > hsw) {
-		digger.add_lower_node(x - 1, y + 1, hsw + max_hdiff, hsw + max_hdiff, hsw, hsw + max_hdiff);
-	}
-	// s
-	if (h0_se > hse || h0_sw > hsw) {
-		const sint8 hs = min( hse, hsw ) + max_hdiff;
-		digger.add_lower_node( x, y + 1, hs, hs, hse, hsw);
-	}
-	// se
-	if (h0_se > hse) {
-		digger.add_lower_node( x + 1, y + 1, hse + max_hdiff, hse + max_hdiff, hse + max_hdiff, hse);
-	}
-	// e
-	if (h0_se > hse || h0_ne > hne) {
-		const sint8 he = max( hse, hne ) + max_hdiff;
-		digger.add_lower_node( x + 1,y, hse, he, he, hne);
-	}
-	// ne
-	if (h0_ne > hne) {
-		digger.add_lower_node( x + 1, y - 1, hne, hne + max_hdiff, hne + max_hdiff, hne + max_hdiff);
-	}
-	// n
-	if (h0_nw > hnw  ||  h0_ne > hne) {
-		const sint8 hn = min( hnw, hne ) + max_hdiff;
-		digger.add_lower_node( x, y - 1, hnw, hne, hn, hn);
-	}
-	// nw
-	if (h0_nw > hnw) {
-		digger.add_lower_node( x - 1, y - 1, hnw + max_hdiff, hnw, hnw + max_hdiff, hnw + max_hdiff);
-	}
-	// w
-	if (h0_nw > hnw || h0_sw > hsw) {
-		const sint8 hw = min( hnw, hsw ) + max_hdiff;
-		digger.add_lower_node( x - 1, y, hw, hsw, hnw, hw);
-	}
-}
-
-// lower plan
-// new heights for each corner given
-// only test corners in ctest to avoid infinite loops
-const char* karte_t::can_lower_to(const player_t* player, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
-{
-	assert(is_within_limits(x,y));
-
-	const sint8 hneu = min( min( hsw, hse ), min( hne, hnw ) );
-
-	if( hneu < get_minimumheight() ) {
-		return "Maximum tile height difference reached.";
-	}
-
-	// water heights
-	// check if need to lower water height for higher neighbouring tiles
-	for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
-		const koord neighbour = koord( x, y ) + koord::neighbours[i];
-		if(  is_within_limits(neighbour)  &&  get_water_hgt_nocheck(neighbour) > hneu  ) {
-			if (!is_plan_height_changeable( neighbour.x, neighbour.y )) {
-				return "";
-			}
-		}
-	}
-
-	return can_lower_plan_to(player, x, y, hneu );
-}
-
-
-int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw)
-{
-	int n=0;
-	assert(is_within_limits(x,y));
-	grund_t *gr = lookup_kartenboden_nocheck(x,y);
-	sint8 water_hgt = get_water_hgt_nocheck(x,y);
-	const sint8 h0 = gr->get_hoehe();
-	// old height
-	const sint8 h0_sw = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_sw( gr->get_grund_hang() );
-	const sint8 h0_se = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x+1,y+1) ) : h0 + corner_se( gr->get_grund_hang() );
-	const sint8 h0_ne = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x+1,y) )   : h0 + corner_ne( gr->get_grund_hang() );
-	const sint8 h0_nw = gr->is_water() ? min( water_hgt, lookup_hgt_nocheck(x,y) )     : h0 + corner_nw( gr->get_grund_hang() );
-	// new height
-	const sint8 hn_sw = min(hsw, h0_sw);
-	const sint8 hn_se = min(hse, h0_se);
-	const sint8 hn_ne = min(hne, h0_ne);
-	const sint8 hn_nw = min(hnw, h0_nw);
-	// nothing to do?
-	if(  gr->is_water()  ) {
-		if(  h0_nw <= hnw  ) {
-			return 0;
-		}
-	}
-	else {
-		if(  h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw  ) {
-			return 0;
-		}
-	}
-
-	// calc new height and slope
-	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
-	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
-
-	if(  hneu >= water_hgt  ) {
-		// calculate water table from surrounding tiles - start off with height on this tile
-		sint8 water_table = water_hgt >= h0 ? water_hgt : groundwater - 4;
-
-		/* we test each corner in turn to see whether it is at the base height of the tile
-			if it is we then mark the 3 surrounding tiles for that corner for checking
-			surrounding tiles are indicated by bits going anti-clockwise from
-			(binary) 00000001 for north-west through to (binary) 10000000 for north
-			as this is the order of directions used by koord::neighbours[] */
-
-		uint8 neighbour_flags = 0;
-
-		if(  hn_nw == hneu  ) {
-			neighbour_flags |= 0x83;
-		}
-		if(  hn_ne == hneu  ) {
-			neighbour_flags |= 0xe0;
-		}
-		if(  hn_se == hneu  ) {
-			neighbour_flags |= 0x38;
-		}
-		if(  hn_sw == hneu  ) {
-			neighbour_flags |= 0x0e;
-		}
-
-		for(  sint16 i = 0;  i < 8 ;  i++  ) {
-			const koord neighbour = koord( x, y ) + koord::neighbours[i];
-
-			// here we look at the bit in neighbour_flags for this direction
-			// we shift it i bits to the right and test the least significant bit
-
-			if(  is_within_limits( neighbour )  &&  ((neighbour_flags >> i) & 1)  ) {
-				grund_t *gr2 = lookup_kartenboden_nocheck( neighbour );
-				const sint8 water_hgt_neighbour = get_water_hgt_nocheck( neighbour );
-				if(  gr2  &&  (water_hgt_neighbour >= gr2->get_hoehe())  &&  water_hgt_neighbour <= hneu  ) {
-					water_table = max( water_table, water_hgt_neighbour );
-				}
-			}
-		}
-
-		for(  sint16 i = 0;  i < 8 ;  i++  ) {
-			const koord neighbour = koord( x, y ) + koord::neighbours[i];
-			if(  is_within_limits( neighbour )  ) {
-				grund_t *gr2 = lookup_kartenboden_nocheck( neighbour );
-				if(  gr2  &&  gr2->get_hoehe() < water_table  ) {
-					i = 8;
-					water_table = groundwater - 4;
-				}
-			}
-		}
-
-		// only allow water table to be lowered (except for case of sea level)
-		// this prevents severe (errors!
-		if(  water_table < get_water_hgt_nocheck(x,y)  ) {
-			water_hgt = water_table;
-			set_water_hgt(x, y, water_table );
-		}
-	}
-
-	// calc new height and slope
-	const sint8 disp_hneu = max( hneu, water_hgt );
-	const sint8 disp_hn_sw = max( hn_sw, water_hgt );
-	const sint8 disp_hn_se = max( hn_se, water_hgt );
-	const sint8 disp_hn_ne = max( hn_ne, water_hgt );
-	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
-	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
-
-	// change height and slope for land tiles only
-	if(  !gr->is_water()  ||  (hmaxneu > water_hgt)  ) {
-		gr->set_pos( koord3d( x, y, disp_hneu ) );
-		gr->set_grund_hang( (slope_t::type)sneu );
-		access_nocheck(x,y)->abgesenkt();
-	}
-	// update north point in grid
-	set_grid_hgt(x, y, hn_nw);
-	if ( x == cached_size.x ) {
-		// update eastern grid coordinates too if we are in the edge.
-		set_grid_hgt(x+1, y, hn_ne);
-		set_grid_hgt(x+1, y+1, hn_se);
-	}
-	if ( y == cached_size.y ) {
-		// update southern grid coordinates too if we are in the edge.
-		set_grid_hgt(x, y+1, hn_sw);
-		set_grid_hgt(x+1, y+1, hn_se);
-	}
-
-	// water heights
-	// lower water height for higher neighbouring tiles
-	// find out how high water is
-	for(  sint16 i = 0;  i < 8;  i++  ) {
-		const koord neighbour = koord( x, y ) + koord::neighbours[i];
-		if(  is_within_limits( neighbour )  ) {
-			const sint8 water_hgt_neighbour = get_water_hgt_nocheck( neighbour );
-			if(water_hgt_neighbour > hneu  ) {
-				if(  min_hgt_nocheck( neighbour ) < water_hgt_neighbour  ) {
-					// convert to flat ground before lowering water level
-					raise_grid_to( neighbour.x, neighbour.y, water_hgt_neighbour );
-					raise_grid_to( neighbour.x + 1, neighbour.y, water_hgt_neighbour );
-					raise_grid_to( neighbour.x, neighbour.y + 1, water_hgt_neighbour );
-					raise_grid_to( neighbour.x + 1, neighbour.y + 1, water_hgt_neighbour );
-				}
-				set_water_hgt( neighbour, hneu );
-				access_nocheck(neighbour)->correct_water();
-			}
-		}
-	}
-
-	calc_climate( koord( x, y ), false );
-	for(  sint16 i = 0;  i < 8;  i++  ) {
-		const koord neighbour = koord( x, y ) + koord::neighbours[i];
-		calc_climate( neighbour, false );
-	}
-
-	// recalc landscape images - need to extend 2 in each direction
-	for(  sint16 j = y - 2;  j <= y + 2;  j++  ) {
-		for(  sint16 i = x - 2;  i <= x + 2;  i++  ) {
-			if(  is_within_limits( i, j )  /*&&  (i != x  ||  j != y)*/  ) {
-				recalc_transitions( koord (i, j ) );
-			}
-		}
-	}
-
-	n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
-
-	lookup_kartenboden_nocheck(x,y)->calc_image();
-	if( (x+1) < cached_size.x ) {
-		lookup_kartenboden_nocheck(x+1,y)->calc_image();
-	}
-	if( (y+1) < cached_size.y ) {
-		lookup_kartenboden_nocheck(x,y+1)->calc_image();
-	}
-	return n;
-}
 
 
 void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
@@ -2931,16 +2334,16 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 		const sint8 hne = hgt + o - scorner_ne( corner_to_lower ) * f;
 		const sint8 hnw = hgt + o - scorner_nw( corner_to_lower ) * f;
 
-		terraformer_t digger(this);
-		digger.add_lower_node(x, y, hsw, hse, hne, hnw);
-		digger.iterate(false);
+		terraformer_t digger(this, terraformer_t::lower);
+		digger.add_node(x, y, hsw, hse, hne, hnw);
+		digger.generate_affected_tile_list();
 
 		err = digger.can_lower_all(player);
 		if (err) {
 			return 0;
 		}
 
-		n = digger.lower_all();
+		n = digger.apply();
 		err = NULL;
 
 		// force world full redraw, or background could be dirty.
@@ -2971,31 +2374,32 @@ bool karte_t::flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water
 	const sint8 max_hgt = old_hgt + slope_t::max_diff(slope);
 	if(  max_hgt > hgt  ) {
 
-		terraformer_t digger(this);
-		digger.add_lower_node(k.x, k.y, hgt, hgt, hgt, hgt);
-		digger.iterate(false);
+		terraformer_t digger(this, terraformer_t::lower);
+		digger.add_node(k.x, k.y, hgt, hgt, hgt, hgt);
+		digger.generate_affected_tile_list();
 
 		ok = digger.can_lower_all(player) == NULL;
 
 		if (ok  &&  !justcheck) {
-			n += digger.lower_all();
+			n += digger.apply();
 		}
 	}
-	if(  ok  &&  old_hgt < hgt  ) {
 
-		terraformer_t digger(this);
-		digger.add_raise_node(k.x, k.y, hgt, hgt, hgt, hgt);
-		digger.iterate(true);
+	if(  ok  &&  old_hgt < hgt  ) {
+		terraformer_t digger(this, terraformer_t::raise);
+		digger.add_node(k.x, k.y, hgt, hgt, hgt, hgt);
+		digger.generate_affected_tile_list();
 
 		ok = digger.can_raise_all(player, keep_water) == NULL;
 
 		if (ok  &&  !justcheck) {
-			n += digger.raise_all();
+			n += digger.apply();
 		}
 	}
+
 	// was changed => pay for it
 	if(n>0) {
-		n = (n+3) >> 2;
+		n = (n+3) / 4;
 		player_t::book_construction_costs(player, n * settings.cst_alter_land, k, ignore_wt);
 	}
 	return ok;

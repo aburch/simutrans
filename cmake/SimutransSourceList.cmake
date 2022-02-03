@@ -340,4 +340,5 @@ target_sources(simutrans PRIVATE
 		vehicle/vehicle.cc
 		vehicle/vehicle_base.cc
 		vehicle/water_vehicle.cc
+		world/terraformer.cc
 )
