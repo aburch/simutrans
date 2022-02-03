@@ -1,0 +1,77 @@
+Index: simworld.cc
+===================================================================
+--- simworld.cc	(revision 2029)
++++ simworld.cc	(working copy)
+@@ -2032,6 +2032,8 @@
+ 	if(letzter_monat>11) {
+ 		letzter_monat = 0;
+ 	}
++	view->update_darkness( 52, letzter_monat );
++
+ 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+ 	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
+
+Index: simview.cc
+===================================================================
+--- simview.cc	(revision 2031)
++++ simview.cc	(working copy)
+@@ -5,6 +5,7 @@
+  */
+
+ #include <stdio.h>
++#include <math.h>
+
+ #include "simworld.h"
+ #include "simview.h"
+@@ -22,13 +23,17 @@
+ #include "dataobj/umgebung.h"
+ #include "dings/zeiger.h"
+
++#ifndef M_PI
++#define M_PI		3.14159265358979323846
++#endif
+
++
+ karte_ansicht_t::karte_ansicht_t(karte_t *welt)
+ {
+     this->welt = welt;
+ }
+
+-static const sint8 hours2night[] =
++static sint8 hours2night[48] =
+ {
+     4,4,4,4,4,4,4,4,
+     4,4,4,4,3,2,1,0,
+@@ -40,6 +45,20 @@
+
+
+
++void karte_ansicht_t::update_darkness(double latitude, int month)
++{
++	// first we need the approxiamate day
++	const double day = 10.0 + (30.4*month) +182.5;
++	const double delta = (-23.45*M_PI/180.0) * cos(2.0*M_PI/365.0*day);
++	for(  int i=0;  i<48;  i++  ) {
++		const double tau = i*M_PI/24.0;
++		double arcsin_h = cos(delta)*cos(tau)*cos(latitude*M_PI/180.0) + sin(delta)*sin(latitude*M_PI/180.0);
++		hours2night[ i ] = (int)((1.0+arcsin_h)*3.0);
++	}
++}
++
++
++
+ void
+ karte_ansicht_t::display(bool force_dirty)
+ {
+Index: simview.h
+===================================================================
+--- simview.h	(revision 2029)
++++ simview.h	(working copy)
+@@ -21,6 +21,7 @@
+
+ public:
+ 	karte_ansicht_t(karte_t *welt);
++	void update_darkness(double latitude, int month);
+ 	void display(bool dirty);
+ };
+

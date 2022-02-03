@@ -1,0 +1,4430 @@
+# text group = 'message_text'
+# text group = 'button_text'
+# text group = 'climates_text'
+# text group = 'error_text'
+# text group = 'help_text'
+# text group = 'menu_text'
+# text group = 'program_text'
+# text group = 'record_text'
+# text group = 'ki_text'
+# text group = 'unnecessary_text'
+#obj= <-> text group
+#name= <-> object name
+#note= <-> description for object
+#-
+#obj=program_text
+#name=!0_STATION_CROWDED
+#-
+#obj=program_text
+#name=!1_DEPOT_REACHED
+#-
+obj=unnecessary_text
+name=%0_CITY_SYLL
+-
+obj=unnecessary_text
+name=%1_CITY_SYLL
+-
+obj=unnecessary_text
+name=%2_CITY_SYLL
+-
+obj=unnecessary_text
+name=%3_CITY_SYLL
+-
+obj=unnecessary_text
+name=%4_CITY_SYLL
+-
+obj=unnecessary_text
+name=%5_CITY_SYLL
+-
+obj=unnecessary_text
+name=%6_CITY_SYLL
+-
+obj=unnecessary_text
+name=%7_CITY_SYLL
+-
+obj=unnecessary_text
+name=%8_CITY_SYLL
+-
+obj=unnecessary_text
+name=%9_CITY_SYLL
+-
+obj=unnecessary_text
+name=%A_CITY_SYLL
+-
+obj=unnecessary_text
+name=%B_CITY_SYLL
+-
+obj=unnecessary_text
+name=%C_CITY_SYLL
+-
+obj=unnecessary_text
+name=%D_CITY_SYLL
+-
+obj=unnecessary_text
+name=%E_CITY_SYLL
+-
+obj=unnecessary_text
+name=%F_CITY_SYLL
+-
+obj=program_text
+name=%C: - %s<br>\n
+-
+obj=program_text
+name=%d buildings\n
+-
+obj=program_text
+name=%d convois
+-
+obj=program_text
+name=%d Einzelfahrzeuge im Depot
+-
+obj=program_text
+name=%i km/h (max. %ikm/h)
+-
+obj=program_text
+name=%s building %s %s
+-
+obj=program_text
+name=%s city %d %s
+-
+obj=program_text
+name=%s land %d %s
+-
+obj=program_text
+name=%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+-
+obj=program_text
+name=%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
+-
+obj=program_text
+name=%s\nwas liquidated.
+-
+obj=unnecessary_text
+name=&1_CITY_SYLL
+-
+obj=unnecessary_text
+name=&2_CITY_SYLL
+-
+obj=unnecessary_text
+name=&3_CITY_SYLL
+-
+obj=unnecessary_text
+name=&4_CITY_SYLL
+-
+obj=unnecessary_text
+name=&5_CITY_SYLL
+-
+obj=unnecessary_text
+name=&6_CITY_SYLL
+-
+obj=unnecessary_text
+name=&7_CITY_SYLL
+-
+obj=unnecessary_text
+name=&8_CITY_SYLL
+-
+obj=unnecessary_text
+name=&9_CITY_SYLL
+-
+obj=unnecessary_text
+name=&A_CITY_SYLL
+-
+obj=program_text
+name=(%i)-
+-
+obj=program_text
+name=(in depot)
+-
+obj=program_text
+name=1 Einzelfahrzeug im Depot
+-
+obj=unnecessary_text
+name=1center
+-
+obj=unnecessary_text
+name=1extern
+-
+obj=program_text
+name=1LIGHT_CHOOSE
+-
+obj=unnecessary_text
+name=1suburb
+-
+obj=program_text
+name=1WORLD_CHOOSE
+-
+obj=unnecessary_text
+name=2center
+-
+obj=unnecessary_text
+name=2extern
+-
+obj=program_text
+name=2LIGHT_CHOOSE
+-
+obj=unnecessary_text
+name=2suburb
+-
+obj=program_text
+name=2WORLD_CHOOSE
+-
+obj=unnecessary_text
+name=3center
+-
+obj=unnecessary_text
+name=3extern
+-
+obj=program_text
+name=3LIGHT_CHOOSE
+-
+obj=unnecessary_text
+name=3suburb
+-
+#obj=program_text
+#name=3WORLD_CHOOSE
+#-
+obj=unnecessary_text
+name=4center
+-
+obj=unnecessary_text
+name=4extern
+-
+obj=program_text
+name=4LIGHT_CHOOSE
+-
+obj=unnecessary_text
+name=4suburb
+-
+obj=unnecessary_text
+name=5center
+-
+obj=unnecessary_text
+name=5extern
+-
+obj=program_text
+name=5LIGHT_CHOOSE
+-
+obj=unnecessary_text
+name=5suburb
+-
+obj=program_text
+name=5WORLD_CHOOSE
+-
+obj=unnecessary_text
+name=6center
+-
+obj=unnecessary_text
+name=6extern
+-
+obj=program_text
+name=6LIGHT_CHOOSE
+-
+obj=program_text
+name=6WORLD_CHOOSE
+-
+obj=unnecessary_text
+name=7center
+-
+obj=unnecessary_text
+name=8center
+-
+obj=program_text
+name=8WORLD_CHOOSE
+-
+obj=unnecessary_text
+name=9center
+-
+obj=program_text
+name=<em>%C</em> - %s<br>\n
+-
+obj=program_text
+name=<no line>
+-
+obj=help_text
+name=<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+-
+#obj=program_text
+#name=A bridge must end on a way!
+#-
+#obj=program_text
+#name=A bridge must start on a way!
+-
+obj=program_text
+name=Abfrage
+-
+obj=program_text
+name=Abnehmer
+-
+obj=program_text
+name=About
+-
+obj=program_text
+name=Abriss
+-
+obj=program_text
+name=Absenken
+-
+obj=program_text
+name=Accelerate time
+-
+obj=program_text
+name=Account above %s
+-
+obj=program_text
+name=Add Stop
+-
+obj=program_text
+name=Add stops for backward travel
+-
+obj=program_text
+name=aircraft_tab
+-
+obj=program_text
+name=airplane
+-
+obj=program_text
+name=air_wt
+note=waytype for run/taxiways
+-
+obj=program_text
+name=Airport
+-
+obj=program_text
+name=AIRTOOLS
+-
+obj=program_text
+name=All
+-
+obj=program_text
+name=Allow player change
+-
+obj=program_text
+name=allowed climates:\n
+-
+obj=program_text
+name=Alters a schedule.
+-
+obj=program_text
+name=Angenommene Waren
+-
+obj=program_text
+name=anhaengen
+-
+obj=program_text
+name=Anhaenger_tab
+-
+obj=program_text
+name=Anheben
+-
+obsolete=program_text
+name=Appends stops at the end of the schedule
+-
+obj=program_text
+name=Apply Line
+-
+obj=program_text
+name=April
+-
+obj=program_text
+name=Arbeiter aus:
+-
+obj=climates_text
+name=arctic
+-
+obj=program_text
+name=Arrived
+-
+obj=program_text
+name=Assets
+-
+obj=program_text
+name=August
+-
+obj=program_text
+name=Autohalt muss auf\nStrasse liegen!\n
+-
+obj=program_text
+name=Available
+-
+obj=program_text
+name=Bahndepot
+-
+obj=program_text
+name=Bankrott:\n\nDu bist bankrott.\n
+-
+obj=program_text
+name=battery
+-
+obj=program_text
+name=Baum
+-
+obj=program_text
+name=baum builder
+-
+obj=program_text
+name=Baustelle
+-
+obj=program_text
+name=Bauzeit
+-
+obj=program_text
+name=Beenden
+-
+obj=program_text
+name=Beginner mode
+-
+obj=program_text
+name=Besonderes Gebaeude
+-
+obj=program_text
+name=BF
+-
+obj=program_text
+name=bio
+-
+obj=program_text
+name=Blockstrecke ist\nbelegt\n
+-
+obj=program_text
+name=Boden
+-
+obj=program_text
+name=bridge is too high for its type!
+-
+obj=program_text
+name=Bridge is too long for this type!\n
+-
+obj=program_text
+name=Bruecke
+-
+obj=program_text
+name=Bruecke muss an\neinfachem\nHang beginnen!\n
+-
+obj=program_text
+name=Brueckenboden
+-
+obj=program_text
+name=build choosesignals
+-
+obj=program_text
+name=Build city market
+-
+obj=program_text
+name=Build drain
+-
+obj=program_text
+name=build HQ
+-
+obj=program_text
+name=Build land consumer
+-
+obj=program_text
+name=Build monorail depot
+-
+obj=program_text
+name=Build powerline
+-
+obj=program_text
+name=Build presignals
+-
+obj=program_text
+name=Build road depot
+-
+obj=program_text
+name=Build ship depot
+-
+obj=program_text
+name=Build signals
+-
+obj=program_text
+name=Build train depot
+-
+obj=program_text
+name=Build tram depot
+-
+obj=program_text
+name=Build truck depot
+-
+obj=program_text
+name=Building costs estimates
+-
+obj=program_text
+name=Buildings
+-
+obj=program_text
+name=Built artifical slopes
+-
+obj=program_text
+name=Built random attraction
+-
+obj=program_text
+name=Bus_tab
+-
+obj=program_text
+name=Can only move from halt to halt or waypoint to waypoint.
+-
+obj=program_text
+name=Cancel
+-
+obj=error_text
+name=Cannot built depot here!
+-
+obj=program_text
+name=Capacity: %s\nLoad: %d (%d%%)
+-
+obj=program_text
+name=Cars are not available yet!
+-
+obj=program_text
+name=Cash
+-
+obj=program_text
+name=Change player
+-
+obj=program_text
+name=Chart
+-
+obj=program_text
+name=Choose operation executed on clicking stored/new vehicles
+-
+obj=program_text
+name=chooses a random map
+-
+obj=program_text
+name=citicens
+-
+obj=program_text
+name=City attraction
+-
+obj=program_text
+name=City industries
+-
+obj=program_text
+name=City list
+-
+obj=program_text
+name=City size
+-
+obj=program_text
+name=citybuilding builder
+-
+obj=program_text
+name=CityLimit
+-
+obj=program_text
+name=city_road
+-
+obj=program_text
+name=Clear block reservation
+-
+obj=button_text
+name=clf_btn_alle
+-
+obj=button_text
+name=clf_btn_invers
+-
+obj=button_text
+name=clf_btn_keine
+-
+obj=program_text
+name=clf_chk_indepot
+-
+obj=program_text
+name=clf_chk_noincome
+-
+obj=program_text
+name=clf_chk_noline
+-
+obj=program_text
+name=clf_chk_noroute
+-
+obj=program_text
+name=clf_chk_noschedule
+-
+obj=program_text
+name=clf_chk_spezial_filter
+-
+obj=program_text
+name=clf_chk_stucked
+-
+-
+obj=program_text
+name=clf_chk_type_filter
+-
+obj=program_text
+name=clf_chk_waren
+-
+obj=program_text
+name=clf_title
+-
+obj=program_text
+name=Climate Control
+-
+obj=button_text
+name=cl_btn_filter_settings
+-
+obsolete=button_text
+name=cl_btn_sort_asc
+-
+obsolete=button_text
+name=cl_btn_sort_desc
+-
+obj=button_text
+name=cl_btn_sort_id
+-
+obj=button_text
+name=cl_btn_sort_income
+-
+obj=button_text
+name=cl_btn_sort_name
+-
+obj=button_text
+name=cl_btn_sort_type
+-
+obj=program_text
+name=cl_title
+-
+obj=program_text
+name=Filter:
+-
+obj=program_text
+name=cl_txt_sort
+-
+obj=program_text
+name=COLOR_CHOOSE\n
+-
+obj=program_text
+name=Company bankrupt
+-
+obj=program_text
+name=Congratulation\nScenario was complete in\n%i months %i years.
+-
+obj=program_text
+name=Connect factory
+-
+obj=program_text
+name=Connected stops
+-
+obj=program_text
+name=Constructed by
+-
+obj=program_text
+name=Constructed by %s
+-
+obj=program_text
+name=Construction_Btn
+-
+obj=program_text
+name=convoi %d of %d
+-
+obj=program_text
+name=Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+-
+obj=program_text
+name=Convoi is sold when all wagons are empty.
+-
+obj=program_text
+name=convoi passed last\nmonth %i\n
+-
+obj=program_text
+name=Convois
+-
+obj=program_text
+name=Convois: %d\nProfit: %s
+-
+obj=program_text
+name=Convoys
+-
+obj=program_text
+name=Copy Convoi
+-
+obj=program_text
+name=Copy the selected convoi and its schedule or line
+-
+obj=program_text
+name=cost for removal
+-
+obj=program_text
+name=Create a new line based on this schedule
+-
+obj=program_text
+name=curiosity builder
+-
+obj=program_text
+name=curlist_title
+-
+obj=program_text
+name=Currently playing:
+-
+obj=error_text
+name=Das Feld gehoert\neinem anderen Spieler\n
+-
+obj=program_text
+name=Deccelerate time
+-
+obj=program_text
+name=December
+-
+obsolete=program_text
+name=Del Stop
+-
+obj=program_text
+name=Delete Line
+-
+obj=program_text
+name=Delete the current stop
+-
+obj=program_text
+name=Delete this file.
+-
+obj=program_text
+name=Denkmal
+-
+obj=program_text
+name=Departed
+-
+obj=program_text
+name=Depots
+-
+obj=error_text
+name=Der Besitzer erlaubt das Entfernen nicht
+-
+obj=program_text
+name=Der Tunnel ist nicht frei!\n
+-
+obj=climates_text
+name=desert
+-
+obj=program_text
+name=Destination
+-
+obj=program_text
+name=Details
+-
+obj=error_text
+name=Diese Zusammenstellung kann nicht fahren!\n
+-
+obj=program_text
+name=diesel
+-
+obj=program_text
+name=Direkt erreichbare Haltestellen
+-
+obj=program_text
+name=Dock
+-
+obj=program_text
+name=Dock must be built on single slope!
+-
+obj=program_text
+name=Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+-
+obj=program_text
+name=Durchsatz
+-
+obj=menu_text
+name=EDITTOOLS
+-
+obj=program_text
+name=Eigenbesitz\n
+-
+obj=program_text
+name=Ein %s\npasst hier nicht.\n
+-
+obj=program_text
+name=Einstellungen
+-
+obj=program_text
+name=Einstellungen aendern
+-
+obj=program_text
+name=electric
+-
+obj=program_text
+name=Electricity
+-
+obj=program_text
+name=Electricity producer\n\n
+-
+obj=program_text
+name=Electrify track
+-
+obj=program_text
+name=Error
+-
+obj=program_text
+name=Erzeuge neue Karte.\n
+-
+obj=program_text
+name=Es wird bereits\nein Fahrplan\neingegeben\n
+-
+obj=program_text
+name=Fabrikanschluss
+-
+obj=program_text
+name=Fabrikname
+-
+obj=program_text
+name=Factories
+-
+obj=message_text
+name=Factory chain extended\nfor %s near\n%s built with\n%i factories.
+-
+obj=program_text
+name=factory details
+-
+obj=program_text
+name=factorybuilder
+-
+obj=program_text
+name=Fahrplan
+-
+obj=program_text
+name=Fahrtziel
+-
+obj=program_text
+name=Fahrzeuge koennen so nicht entfernt werden
+-
+obj=program_text
+name=Fahrzeuge:
+-
+obj=program_text
+name=Farbe
+-
+obj=program_text
+name=Fast forward
+-
+obj=program_text
+name=February
+-
+obj=program_text
+name=Ferry_tab
+-
+obj=program_text
+name=Fertig
+-
+obj=program_text
+name=Filename
+-
+obj=program_text
+name=Finances of %s
+-
+obj=program_text
+name=Finanzen
+-
+obj=error_text
+name=Flugzeughalt muss auf\nRunway liegen!\n
+-
+obj=program_text
+name=Flug_tab
+-
+obj=program_text
+name=fl_title
+-
+obj=program_text
+name=follow me
+-
+obj=program_text
+name=Follow the convoi on the map.
+-
+obj=program_text
+name=Forest
+-
+obj=program_text
+name=Found new city
+-
+obj=program_text
+name=FPS:
+-
+obj=program_text
+name=Fracht
+-
+obj=program_text
+name=Frame time:
+-
+obj=program_text
+name=Free Capacity
+-
+obj=program_text
+name=Friction:
+-
+obj=program_text
+name=fuel_cell
+-
+obj=program_text
+name=Full load
+-
+obj=program_text
+name=Fussgaenger
+-
+obj=program_text
+name=GAME PAUSED
+-
+obj=program_text
+name=Gear:
+-
+obj=program_text
+name=Gebaeude
+-
+obj=program_text
+name=Gewicht
+-
+obj=program_text
+name=Gewinn
+-
+obj=program_text
+name=Give the selected vehicle(s) an individual schedule
+-
+obj=button_text
+name=gl_btn_sort_bonus
+-
+obj=button_text
+name=gl_btn_sort_name
+-
+obj=button_text
+name=gl_btn_sort_revenue
+-
+obj=button_text
+name=gl_btn_unsort
+-
+obj=program_text
+name=gl_title
+-
+obj=program_text
+name=go home
+-
+obj=program_text
+name=Goods
+-
+obj=program_text
+name=Goods list
+-
+obj=program_text
+name=Gross Profit
+-
+obj=program_text
+name=Groundobj
+-
+obj=program_text
+name=Grow city
+-
+obj=program_text
+name=Growth
+-
+obj=program_text
+name=H
+-
+obj=program_text
+name=Hangar
+-
+obj=program_text
+name=Happy
+-
+obj=program_text
+name=Helligk.
+-
+obj=program_text
+name=Helligk. u. Farben
+-
+obj=program_text
+name=Help
+-
+obj=program_text
+name=Help text not found
+-
+obj=program_text
+name=hide all building
+-
+obj=program_text
+name=hide city building
+-
+obj=program_text
+name=hide station names
+-
+obj=program_text
+name=hide transparent
+-
+obj=program_text
+name=hide trees
+-
+obj=error_text
+name=Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+-
+obj=error_text
+name=Hier kann kein\nSignal aufge-\nstellt werden!\n
+-
+obj=program_text
+name=Hier warten/lagern:
+-
+obj=button_text
+name=hlf_btn_alle
+-
+obj=button_text
+name=hlf_btn_invers
+-
+obj=button_text
+name=hlf_btn_keine
+-
+obj=program_text
+name=hlf_chk_airport
+-
+obj=program_text
+name=hlf_chk_anleger
+-
+obj=program_text
+name=hlf_chk_bahnhof
+-
+obj=program_text
+name=hlf_chk_bushalt
+-
+obj=program_text
+name=hlf_chk_frachthof
+-
+obj=program_text
+name=hlf_chk_keine_verb
+-
+obj=program_text
+name=hlf_chk_name_filter
+-
+obj=program_text
+name=hlf_chk_overflow
+-
+obj=program_text
+name=hlf_chk_spezial_filter
+-
+obj=program_text
+name=hlf_chk_type_filter
+-
+obj=program_text
+name=hlf_chk_waren_abgabe
+-
+obj=program_text
+name=hlf_chk_waren_annahme
+-
+obj=program_text
+name=hlf_title
+-
+obj=button_text
+name=hl_btn_filter_disable
+-
+obj=button_text
+name=hl_btn_filter_enable
+-
+obj=button_text
+name=hl_btn_filter_settings
+-
+obj=button_text
+name=hl_btn_sort_asc
+-
+obj=button_text
+name=hl_btn_sort_desc
+-
+obj=button_text
+name=hl_btn_sort_name
+-
+obj=button_text
+name=hl_btn_sort_type
+-
+obj=button_text
+name=hl_btn_sort_waiting
+-
+obj=program_text
+name=hl_title
+-
+obj=program_text
+name=hl_txt_filter
+-
+obj=program_text
+name=hl_txt_sort
+-
+obj=program_text
+name=Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+-
+obj=program_text
+name=Homeless
+-
+obj=program_text
+name=hydrogene
+-
+obj=program_text
+name=Idle:
+-
+obj=program_text
+name=ignore climates
+-
+obj=program_text
+name=Increase Industry density
+-
+obj=program_text
+name=industrial building
+-
+obj=program_text
+name=Init map ...
+-
+obj=program_text
+name=Input
+-
+obj=program_text
+name=Ins Stop
+-
+obsolete=program_text
+name=Insert stop before the current stop
+-
+obj=program_text
+name=Intercity road len:
+-
+obj=program_text
+name=Intro. date:
+-
+obj=program_text
+name=Invalid coordinate
+-
+obj=program_text
+name=isometric map
+-
+obj=program_text
+name=January
+-
+obj=program_text
+name=July
+-
+obj=program_text
+name=Jump to
+-
+obj=program_text
+name=June
+-
+obj=program_text
+name=Kann Spielstand\nnicht laden.\n
+-
+obj=program_text
+name=Kann Spielstand\nnicht speichern.\n
+-
+obj=program_text
+name=keine
+-
+obj=program_text
+name=Keine Einzelfahrzeuge im Depot
+-
+obj=program_text
+name=Keyboard_Help\n
+-
+obj=program_text
+name=Kreuzung
+-
+obj=program_text
+name=Lade Relief
+-
+obj=program_text
+name=Laden
+-
+obj=program_text
+name=Land attraction
+-
+-
+obj=program_text
+name=LANG_CHOOSE\n
+-
+obj=program_text
+name=Last Year
+-
+obj=program_text
+name=leer
+-
+obj=program_text
+name=Legend
+-
+obj=program_text
+name=Leistung
+-
+obj=program_text
+name=Leistung: %d kW
+-
+obj=program_text
+name=Leitung
+-
+obj=program_text
+name=letzen Monat: diesen Monat:
+-
+obj=program_text
+name=Line
+-
+obj=program_text
+name=Line Management
+-
+obj=program_text
+name=Lines serving this stop
+-
+obj=menu_text
+name=LISTTOOLS
+-
+obj=program_text
+name=LKW_tab
+-
+obj=program_text
+name=Load game
+-
+obj=program_text
+name=load height data from file
+-
+obj=program_text
+name=Load scenario
+-
+obj=program_text
+name=loaded
+-
+obj=program_text
+name=loaded passenger/freight
+-
+obj=program_text
+name=Loading map ...
+-
+obj=program_text
+name=Lock game
+-
+obj=program_text
+name=Lokomotive_tab
+-
+obj=program_text
+name=m3
+-
+obj=error_text
+name=Maglevhalt muss auf\nMaglevschiene liegen!\n
+-
+obj=program_text
+name=Mailbox
+-
+obj=program_text
+name=Mailbox Options
+-
+obj=program_text
+name=Maintenance
+-
+obj=program_text
+name=Manufactured:
+-
+obj=program_text
+name=Map roughness
+-
+obj=program_text
+name=map zoom
+-
+obj=program_text
+name=March
+-
+obj=program_text
+name=Margin (%)
+-
+obj=program_text
+name=Marker
+-
+obj=program_text
+name=max
+-
+obj=program_text
+name=Max income:
+-
+obj=program_text
+name=Max. speed:
+-
+obj=program_text
+name=Maximum 254 stops\nin a schedule!\n
+-
+obj=program_text
+name=Maximum tile height difference reached.
+-
+obj=program_text
+name=May
+-
+obj=program_text
+name=Median Citizen per town
+-
+obj=climates_text
+name=mediterran
+-
+obj=program_text
+name=Meldung
+-
+obj=program_text
+name=Menge
+-
+obj=program_text
+name=MessageOptionsText
+-
+obj=program_text
+name=min
+-
+obj=program_text
+name=Modify the selected line
+-
+obj=program_text
+name=Monorail
+-
+obj=program_text
+name=monorail vehicle
+-
+obj=program_text
+name=Monorailboden
+-
+obj=program_text
+name=Monoraildepot
+-
+obj=error_text
+name=Monorailhalt muss auf\nMonorail liegen!\n
+-
+obj=error_text
+name=Monorails are not available yet!
+-
+obj=menu_text
+name=MONORAILTOOLS
+-
+obsolete=program_text
+name=month wait time
+-
+obj=program_text
+name=Months
+-
+obj=program_text
+name=Monument
+-
+obj=program_text
+name=Monuments
+-
+obj=program_text
+name=Mountain height
+-
+obj=program_text
+name=Movingobj
+-
+obj=program_text
+name=Music playing disabled/not available
+-
+obj=program_text
+name=Music volume:
+-
+obj=program_text
+name=mute sound
+-
+obj=program_text
+name=Name
+-
+obj=program_text
+name=Net Wealth
+-
+obj=program_text
+name=Neue Karte
+-
+obj=program_text
+name=Neue Welt
+-
+obj=message_text
+name=New %s now available:\n%s\n
+-
+obj=program_text
+name=new convoi
+-
+obj=message_text
+name=New factory chain\nfor %s near\n%s built with\n%i factories.
+-
+obj=program_text
+name=New Line
+-
+obj=program_text
+name=New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+-
+obj=message_text
+name=New vehicle now available:\n%s\n
+-
+obj=program_text
+name=New Vehicles
+-
+obj=record_text
+name=New world record for monorails: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for motorcars: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for planes: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for railways: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for ship: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for narrowgauges: %.1f km/h by %s.
+-
+obj=record_text
+name=New world record for maglevs: %.1f km/h by %s.
+-
+obj=program_text
+name=no convois
+-
+obj=program_text
+name=No goods are loaded onto this convoi.
+-
+obj=program_text
+name=no goods waiting
+-
+obj=program_text
+name=no load
+-
+obj=program_text
+name=No Route
+-
+obj=program_text
+name=No suitable ground!
+-
+obj=program_text
+name=No terminal station here!
+-
+obj=error_text
+name=No through station here!
+-
+obj=program_text
+name=no timeline
+-
+obj=program_text
+name=no tree
+-
+obj=program_text
+name=Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+-
+obj=program_text
+name=none
+-
+obj=program_text
+name=nord
+-
+obj=program_text
+name=nordost
+-
+obj=program_text
+name=nordwest
+-
+obj=program_text
+name=Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+-
+obj=program_text
+name=Not enough fields would remain.
+-
+obj=program_text
+name=November
+-
+obj=program_text
+name=Now active as %s.\n
+-
+obj=program_text
+name=Object
+-
+obj=program_text
+name=Ok
+-
+obj=program_text
+name=Oktober
+-
+obj=program_text
+name=On loan since %i month(s)
+-
+obj=error_text
+name=On narrowgauge track only!\n
+-
+obj=program_text
+name=On this map, you are not\nallowed to change player!\n
+-
+obj=program_text
+name=Only city chains
+-
+obj=program_text
+name=Only land chains
+-
+obj=program_text
+name=Operation
+-
+obj=program_text
+name=Ops Profit
+-
+obj=program_text
+name=Optionen
+-
+obj=program_text
+name=Origin
+-
+obj=program_text
+name=ost
+-
+obj=program_text
+name=Output
+-
+obj=program_text
+name=paletten
+-
+obj=program_text
+name=Passagiere
+-
+obj=program_text
+name=Passagierrate
+-
+obj=program_text
+name=Passengers %d %c, %d %c, %d no route
+-
+obj=program_text
+name=Pas_tab
+-
+obj=program_text
+name=Pause
+-
+obj=program_text
+name=Percent Electricity
+-
+obj=program_text
+name=Planes are not available yet!
+-
+obj=program_text
+name=Plant tree
+-
+obj=program_text
+name=player -1
+-
+obj=program_text
+name=player 0
+-
+obj=program_text
+name=player 1
+-
+obj=program_text
+name=player 2
+-
+obj=program_text
+name=player 3
+-
+obj=program_text
+name=player 4
+-
+obj=program_text
+name=player 5
+-
+obj=program_text
+name=player 6
+-
+obj=program_text
+name=player 7
+-
+obj=program_text
+name=player 8
+-
+obj=program_text
+name=player 9
+-
+obj=program_text
+name=player 10
+-
+obj=program_text
+name=player 11
+-
+obj=program_text
+name=player 12
+-
+obj=program_text
+name=player 13
+-
+obj=program_text
+name=Please choose vehicles first\n
+-
+obj=program_text
+name=Post
+-
+obj=error_text
+name=Post muss neben\nHaltestelle\nliegen!\n
+-
+obj=program_text
+name=Postrate
+-
+obj=program_text
+name=Power
+-
+obj=program_text
+name=Power:
+-
+obj=program_text
+name=Powerlines
+-
+obj=program_text
+name=Produktion
+-
+obj=program_text
+name=Profit
+-
+obj=program_text
+name=promote to line
+-
+obj=program_text
+name=q1
+-
+obj=program_text
+name=q2
+-
+obj=program_text
+name=q3
+-
+obj=program_text
+name=q4
+-
+obj=program_text
+name=rail car
+-
+obj=menu_text
+name=RAILTOOLS
+-
+obj=program_text
+name=random
+-
+obj=program_text
+name=Random age
+-
+obj=program_text
+name=Random map
+-
+obj=program_text
+name=Rathaus
+-
+obj=program_text
+name=Rating
+-
+obj=program_text
+name=ratio_pax
+-
+obj=program_text
+name=Reliefkarte
+-
+obj=program_text
+name=remove airstrips
+-
+obj=program_text
+name=remove channels
+-
+obj=program_text
+name=remove monorails
+-
+obj=program_text
+name=remove roads
+-
+obj=program_text
+name=remove tracks
+-
+obj=program_text
+name=remove monorails
+-
+obj=program_text
+name=remove powerlines
+-
+obj=message_text
+name=Remove vehicle from map. Use with care!
+-
+obj=program_text
+name=replace stop
+-
+obj=program_text
+name=residential house
+-
+obj=program_text
+name=Restore natural slope
+-
+obj=program_text
+name=Restwert:
+-
+obj=program_text
+name=Retire. date:
+-
+obj=program_text
+name=return ticket
+-
+obj=program_text
+name=Revenue
+-
+obj=program_text
+name=road vehicle
+-
+obj=program_text
+name=Roadsign
+-
+obj=menu_text
+name=ROADTOOLS
+-
+obj=climates_text
+name=rocky
+-
+obj=program_text
+name=Rotate map
+-
+obj=program_text
+name=Rotation
+-
+obj=program_text
+name=sack
+-
+obj=program_text
+name=sail
+-
+obj=program_text
+name=Saving map ...
+-
+obj=program_text
+name=Scenario complete: %i%%
+-
+obj=program_text
+name=Schienentunnel
+-
+obj=program_text
+name=Schiffdepot
+-
+obj=error_text
+name=Schiffhalt muss im\nWasser liegen!\n
+-
+obj=program_text
+name=Schiff_tab
+-
+obj=program_text
+name=Schleppkahn_tab
+-
+obj=program_text
+name=Screenshot
+-
+obj=message_text
+name=Screenshot\ngespeichert.\n
+-
+obj=program_text
+name=Sehenswuerdigkeit
+-
+obj=program_text
+name=Sell the selected vehicle(s)
+-
+obj=program_text
+name=sended
+-
+obj=message_text
+name=Sends the convoi to the last depot it departed from!
+-
+obj=program_text
+name=September
+-
+obj=program_text
+name=SEP_FRACTION
+-
+obj=program_text
+name=SEP_THOUSAND
+-
+obj=program_text
+name=Serves Line:
+-
+obj=program_text
+name=Service
+-
+obj=program_text
+name=Ship
+-
+obj=menu_text
+name=SHIPTOOLS
+-
+obj=program_text
+name=shops and stores
+-
+obj=program_text
+name=Show all
+-
+obj=program_text
+name=show all building
+-
+obj=program_text
+name=Show also vehicles no longer in production.
+-
+obj=program_text
+name=Show also vehicles that do not match for current action.
+-
+obj=program_text
+name=show grid
+-
+obj=program_text
+name=Show industry
+-
+obj=program_text
+name=Show legend
+-
+obj=program_text
+name=Show map scale
+-
+obj=program_text
+name=Show obsolete
+-
+obj=program_text
+name=Show schedules
+-
+obj=program_text
+name=show station coverage
+-
+obj=program_text
+name=show station names
+-
+obj=program_text
+name=show waiting bars
+-
+obj=program_text
+name=Show/hide statistics
+-
+obj=program_text
+name=Shows consumer/suppliers for factories
+-
+obj=program_text
+name=Shows the currently selected schedule
+-
+obj=program_text
+name=Shrink city
+-
+obj=program_text
+name=shuffle midis
+-
+obj=program_text
+name=Sim:
+-
+obj=menu_text
+name=SLOPETOOLS
+-
+obj=program_text
+name=Sort by
+-
+obj=program_text
+name=Sort waiting list by
+-
+obj=program_text
+name=Sound
+-
+obj=program_text
+name=Sound settings
+-
+obj=program_text
+name=Sound volume:
+-
+obj=program_text
+name=special freight
+-
+obj=menu_text
+name=SPECIALTOOLS
+-
+obj=program_text
+name=Speedlimit
+-
+obj=program_text
+name=Speichern
+-
+obj=program_text
+name=Spieler
+-
+obj=program_text
+name=Spieler(mz)
+-
+obj=program_text
+name=Spielerliste
+-
+obj=program_text
+name=Spielstand wurde\ngeladen!\n
+-
+obj=program_text
+name=Spielstand wurde\ngespeichert!\n
+-
+obj=program_text
+name=Sprache
+-
+obj=program_text
+name=Sprachen
+-
+obj=program_text
+name=Stadtinformation
+-
+obj=program_text
+name=Start
+-
+obj=program_text
+name=Start the selected vehicle(s)
+-
+obj=program_text
+name=Starte Spiel
+-
+obj=program_text
+name=Station tiles:
+-
+obj=program_text
+name=Status
+-
+obj=program_text
+name=steam
+-
+obj=program_text
+name=Step timeline one year
+-
+obj=program_text
+name=Storage capacity
+-
+obj=program_text
+name=Strassendepot
+-
+obj=program_text
+name=Strassentunnel
+-
+obj=program_text
+name=street car
+-
+obj=program_text
+name=sued
+-
+obj=program_text
+name=suedost
+-
+obj=program_text
+name=suedwest
+-
+obj=program_text
+name=Summer snowline
+-
+obj=program_text
+name=Suppliers
+-
+obj=program_text
+name=Supply %s at (%i,%i)
+-
+obj=program_text
+name=Tage alt
+-
+obj=climates_text
+name=temperate
+-
+obj=program_text
+name=There are still vehicles\nstored in this depot!\n
+-
+obj=program_text
+name=This Month
+-
+obj=program_text
+name=This Year
+-
+obj=program_text
+name=Tile not empty.
+-
+obj=program_text
+name=timeline
+-
+obj=program_text
+name=tl_title
+-
+obj=program_text
+name=To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
+-
+obj=program_text
+name=To heavy traffic\nresults in traffic jam.\n
+-
+obj=program_text
+name=tonnen
+-
+obj=program_text
+name=Total inhabitants:
+-
+obj=program_text
+name=Tourist attractions
+-
+obj=program_text
+name=Tourists
+-
+obj=program_text
+name=Town: %s\n
+-
+obj=program_text
+name=Towns
+-
+obj=program_text
+name=Tracks
+-
+obj=program_text
+name=Traffic
+-
+obj=program_text
+name=Train
+-
+obj=program_text
+name=Trains are not available yet!
+-
+obj=program_text
+name=Tram
+-
+obj=program_text
+name=Tramdepot
+-
+obj=program_text
+name=Trams are not available yet!
+-
+obj=menu_text
+name=TRAMTOOLS
+-
+obj=program_text
+name=Transformer only next to factory!
+-
+obj=program_text
+name=Translation
+-
+obj=program_text
+name=transparent station coverage
+-
+obj=program_text
+name=Transport %li passengers
+-
+obj=program_text
+name=Transported
+-
+obj=program_text
+name=tropic
+-
+obj=program_text
+name=Truck
+-
+obj=program_text
+name=tundra
+-
+obj=program_text
+name=Tunnel muss an\neinfachem\nHang beginnen!\n
+-
+obj=program_text
+name=Tunnel must start on single way!
+-
+obj=program_text
+name=Tunnelboden
+-
+obj=program_text
+name=underground mode
+-
+obj=program_text
+name=UNDO failed!
+-
+obj=program_text
+name=Undo last ways construction
+-
+obj=program_text
+name=Unemployed
+-
+obj=program_text
+name=Unhappy
+-
+obj=program_text
+name=units/day
+-
+obj=program_text
+name=Update Line
+-
+obj=program_text
+name=upgrade HQ
+-
+obj=program_text
+name=Use timeline start year
+-
+obj=program_text
+name=Verbrauch
+-
+obj=program_text
+note=button in convoi dialogue to remove a convoi completely
+name=Verkauf
+-
+obj=program_text
+name=verkaufen
+-
+obj=program_text
+name=Verkehrsteilnehmer
+-
+obj=program_text
+name=Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+-
+obj=program_text
+name=via
+-
+obj=program_text
+name=via %s\n
+-
+obj=program_text
+name=via Menge
+-
+obj=program_text
+name=voranstellen
+-
+obj=program_text
+name=Waggon_tab
+-
+obj=program_text
+name=waiting
+-
+obj=program_text
+name=Water level
+-
+obj=program_text
+name=water vehicle
+-
+obj=program_text
+name=way %s cannot longer used:\n
+-
+obj=program_text
+name=way %s cannot longer used:\n%s\n
+-
+obj=program_text
+name=way %s now available:\n
+-
+obj=program_text
+name=way %s now available:\n%s\n
+-
+obj=program_text
+name=Ways not connected
+-
+obj=program_text
+name=Wegpunkt
+-
+obj=program_text
+name=Wert
+-
+obj=program_text
+name=west
+-
+obj=program_text
+name=Winter snowline
+-
+obj=message_text
+name=With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
+-
+obj=program_text
+name=withdraw
+-
+obj=program_text
+name=WRONGSAVE
+-
+obj=program_text
+name=Year %i has started.
+-
+obj=program_text
+name=Years
+-
+obj=program_text
+name=Zielort
+-
+obj=program_text
+name=zooming in
+-
+obj=program_text
+name=zooming out
+-
+obj=program_text
+name=Zu nah am Kartenrand
+-
+obj=error_text
+name=Zughalt muss auf\nSchiene liegen!\n
+-
+obj=program_text
+name=\nBauzeit bis
+-
+obj=program_text
+name=\nBauzeit von
+-
+obj=program_text
+name=\nCan't open heightfield file.\n
+-
+obj=program_text
+name=\ndirection:
+-
+obj=program_text
+name=\nelektrified
+-
+obj=program_text
+name=\nHeightfield has wrong image type.\n
+-
+obj=program_text
+name=\nis reserved by:
+-
+obj=program_text
+name=\nminimum speed:
+-
+obj=program_text
+name=\nnot elektrified
+-
+obj=program_text
+name=\nRibi (masked)
+-
+obj=program_text
+name=\nsingle way
+-
+obj=program_text
+name=\nwith sign/signal\n
+-
+obj=program_text
+name=Passagierziele
+-
+obj=program_text
+name=Production of %s has been stopped:\n%s\n
+-
+obj=unnecessary_text
+name=6suburb
+-
+obj=unnecessary_text
+name=7extern
+-
+obj=unnecessary_text
+name=7suburb
+-
+obj=unnecessary_text
+name=8extern
+-
+obj=unnecessary_text
+name=8suburb
+-
+obj=unnecessary_text
+name=9extern
+-
+obj=ki_text
+name=%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+-
+obj=ki_text
+name=%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+-
+obj=ki_text
+name=%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+-
+obj=ki_text
+name=%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+-
+obj=ki_text
+name=Airline service by\n%s\nnow between\n%s \nand %s.\n
+-
+obj=program_text
+name=factorybuilder
+--
+obj=program_text
+name=Add forest
+--
+obj=program_text
+name=Build narrowgauge depot
+-
+obj=menu_text
+name=NARROWGAUGETOOLS
+-
+obj=program_text
+name=remove narrowgauge tracks
+-
+obj=program_text
+name=Narrowgauge
+-
+obj=program_text
+name=narrowgauge vehicle
+-
+obj=program_text
+name=Narrowgaugedepot
+-
+obj=error_text
+name=Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
+-
+obj=program_text
+name=Narrowgauge are not available yet!
+-
+obj=program_text
+name=Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+-
+obj=program_text
+name=tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h.
+-
+obj=program_text
+name=\nRibi (unmasked)
+-
+obj=program_text
+name=\nway1 reserved by
+-
+obj=program_text
+name=\nway2 reserved by
+-
+obj=message_text
+name=%s s\nheadquarter now\nat (%i,%i).
+-
+obj=program_text
+name=Build air depot
+-
+obj=program_text
+name=Build maglev depot
+-
+obj=program_text
+name=cars.\nstate
+-
+obj=program_text
+name=clf_chk_monorail
+-
+obj=program_text
+name=clf_chk_monorail
+-
+obj=program_text
+name=clf_chk_narrowgauge
+-
+obj=program_text
+name=closed
+-
+obj=program_text
+name=disable midi
+-
+obj=program_text
+name=Electrics_tab
+-
+obj=program_text
+name=enlarge map
+-
+obj=program_text
+name=enter a value between %i and %i
+-
+obj=ki_text
+name=Ferry service by\n%s\nnow between\n%s \nand %s.\n
+-
+obj=program_text
+name=freeplay mode
+-
+obj=program_text
+name=Goods AI
+-
+obj=program_text
+name=Headquarter and %li trains
+-
+obj=program_text
+name=hlf_chk_maglevstop
+-
+obj=program_text
+name=hlf_chk_monorailstop
+-
+obj=program_text
+name=hlf_chk_narrowgaugestop
+-
+obj=program_text
+name=hlf_chk_tramstop
+-
+obj=program_text
+name=invalid
+-
+obj=program_text
+name=LARGE_NUMBER_STRING
+-
+obj=program_text
+name=LARGE_NUMBER_VALUE
+-
+obj=program_text
+name=Make way or stop public (will join with neighbours), %i times maintainance
+-
+obj=program_text
+name=Manual (Human)
+-
+obj=program_text
+name=No stop here!
+-
+obj=program_text
+name=open
+-
+obj=program_text
+name=Passenger AI
+-
+obj=program_text
+name=Remove
+-
+obj=program_text
+name=remove maglev tracks
+-
+obj=program_text
+name=request closing
+-
+obj=program_text
+name=slot empty
+-
+obj=program_text
+name=Toggle day/night view
+-
+obj=ki_text
+name=Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
+-
+obj=program_text
+name=TrolleyBus_tab
+-
+obj=program_text
+name=Vergroessere die Karte\n
+-
+obj=program_text
+name=clf_chk_maglev
+--
+obj=unnecessary_text
+name=&0_CITY_SYLL
+--
+obj=unnecessary_text
+name=&B_CITY_SYLL
+--
+obj=unnecessary_text
+name=&C_CITY_SYLL
+--
+obj=unnecessary_text
+name=&D_CITY_SYLL
+--
+obj=unnecessary_text
+name=&E_CITY_SYLL
+--
+obj=unnecessary_text
+name=&F_CITY_SYLL
+--
+obj=unnecessary_text
+name=%G_CITY_SYLL
+-
+obj=unnecessary_text
+name=%H_CITY_SYLL
+-
+obj=unnecessary_text
+name=%I_CITY_SYLL
+-
+obj=unnecessary_text
+name=%J_CITY_SYLL
+-
+obj=unnecessary_text
+name=%K_CITY_SYLL
+-
+obj=unnecessary_text
+name=%L_CITY_SYLL
+-
+obj=unnecessary_text
+name=%M_CITY_SYLL
+-
+obj=unnecessary_text
+name=%N_CITY_SYLL
+-
+obj=unnecessary_text
+name=%O_CITY_SYLL
+-
+obj=unnecessary_text
+name=%P_CITY_SYLL
+-
+obj=unnecessary_text
+name=%Q_CITY_SYLL
+-
+obj=unnecessary_text
+name=%R_CITY_SYLL
+-
+obj=unnecessary_text
+name=%S_CITY_SYLL
+-
+obj=unnecessary_text
+name=%T_CITY_SYLL
+-
+obj=unnecessary_text
+name=%U_CITY_SYLL
+-
+obj=unnecessary_text
+name=%V_CITY_SYLL
+-
+obj=unnecessary_text
+name=%W_CITY_SYLL
+-
+obj=unnecessary_text
+name=%X_CITY_SYLL
+-
+obj=unnecessary_text
+name=%Y_CITY_SYLL
+-
+obj=unnecessary_text
+name=%Z_CITY_SYLL
+-
+obj=unnecessary_text
+name=&G_CITY_SYLL
+-
+obj=unnecessary_text
+name=&H_CITY_SYLL
+-
+obj=unnecessary_text
+name=&I_CITY_SYLL
+-
+obj=unnecessary_text
+name=&J_CITY_SYLL
+-
+obj=unnecessary_text
+name=&K_CITY_SYLL
+-
+obj=unnecessary_text
+name=&L_CITY_SYLL
+-
+obj=unnecessary_text
+name=&M_CITY_SYLL
+-
+obj=unnecessary_text
+name=&N_CITY_SYLL
+-
+obj=unnecessary_text
+name=&O_CITY_SYLL
+-
+obj=unnecessary_text
+name=&P_CITY_SYLL
+-
+obj=unnecessary_text
+name=&Q_CITY_SYLL
+-
+obj=unnecessary_text
+name=&R_CITY_SYLL
+-
+obj=unnecessary_text
+name=&S_CITY_SYLL
+-
+obj=unnecessary_text
+name=&T_CITY_SYLL
+-
+obj=unnecessary_text
+name=&U_CITY_SYLL
+-
+obj=unnecessary_text
+name=&V_CITY_SYLL
+-
+obj=unnecessary_text
+name=&W_CITY_SYLL
+-
+obj=unnecessary_text
+name=&X_CITY_SYLL
+-
+obj=unnecessary_text
+name=&Y_CITY_SYLL
+-
+obj=unnecessary_text
+name=&Z_CITY_SYLL
+-
+obj=unnecessary_text
+name=0center
+--
+obj=unnecessary_text
+name=0extern
+--
+obj=unnecessary_text
+name=0suburb
+--
+obj=program_text
+name=Die Bruecke ist nicht frei!\n
+--
+obj=program_text
+name=Maglev
+--
+obj=program_text
+name=Maglevdepot
+--
+obj=program_text
+name=Number of rivers
+--
+obj=program_text
+name=minimum length of rivers
+--
+obj=program_text
+name=maximum length of rivers
+--
+obj=program_text
+name=maglev vehicle
+--
+obj=program_text
+name=labellist_title
+--
+obj=program_text
+name=Active player only
+--
+obj=program_text
+name=koord
+note=sort option in halt and depot list
+--
+obj=program_text
+name=gl_btn_sort_catg
+note=sort option for goods_list window
+--
+obj=program_text
+name=Leaving depot!
+--
+obj=program_text
+name=Schedule changing!
+--
+obj=program_text
+name=Waiting for clearance!
+--
+obj=program_text
+name=Withdraw All
+--
+obj=program_text
+name=sliced underground mode
+--
+obj=program_text
+name=increase underground view level
+--
+obj=program_text
+name=decrease underground view level
+--
+obj=error_text
+name=Cannot built this station/building\nin underground mode here.
+--
+obj=error_text
+name=Terraforming not possible\nhere in underground view
+--
+obj=program_text
+name=Remove wayobj %s
+-
+obj=program_text
+name=[HOME]
+-
+obj=program_text
+name=[END]
+-
+obj=program_text
+name=[CTRL]
+-
+obj=program_text
+name=[SHIFT]
+-
+obj=program_text
+name=[ESC]
+-
+obj=program_text
+name=[DELETE]
+-
+obj=program_text
+name=[SCROLLLOCK]
+-
+obj=error_text
+name=Upgrade must have\na higher level
+-
+obj=error_text
+name=Not enough money!
+-
+obj=program_text
+name=Allow city growth
+-
+obj=program_text
+name=Setting
+-
+obj=program_text
+name=General
+-
+obj=program_text
+name=Economy
+-
+obj=program_text
+name=Routing
+-
+obj=program_text
+name=Costs
+-
+obj=program_text
+name=Simuconf.tab
+-
+obj=program_text
+name=Default.sve
+-
+obj=error_text
+name=Cannot create socket
+-
+obj=error_text
+name=Protocoll error (expecting game)
+-
+obj=program_text
+name=Distance
+-
+obj=program_text
+name=Odometer: %s km
+-
+obj=error_text
+name=Lost synchronisation\nwith server.
+-
+obj=error_text
+name=Lost connection\nto server!
+-
+obj=program_text
+name=\nSet phases:
+-
+obj=program_text
+name=%s factory %s %s
+-
+obj=unnecessary_text
+name=Asuburb
+-
+obj=unnecessary_text
+name=Bsuburb
+-
+obj=unnecessary_text
+name=Csuburb
+-
+obj=unnecessary_text
+name=Dsuburb
+-
+obj=unnecessary_text
+name=Esuburb
+-
+obj=unnecessary_text
+name=Fsuburb
+-
+obj=unnecessary_text
+name=Gsuburb
+-
+obj=unnecessary_text
+name=Hsuburb
+-
+obj=unnecessary_text
+name=Isuburb
+-
+obj=unnecessary_text
+name=Jsuburb
+-
+obj=unnecessary_text
+name=Ksuburb
+-
+obj=unnecessary_text
+name=Lsuburb
+-
+obj=unnecessary_text
+name=Msuburb
+-
+obj=unnecessary_text
+name=Nsuburb
+-
+obj=unnecessary_text
+name=Osuburb
+-
+obj=unnecessary_text
+name=Psuburb
+-
+obj=unnecessary_text
+name=Qsuburb
+-
+obj=unnecessary_text
+name=Rsuburb
+-
+obj=unnecessary_text
+name=Ssuburb
+-
+obj=unnecessary_text
+name=Tsuburb
+-
+obj=unnecessary_text
+name=Usuburb
+-
+obj=unnecessary_text
+name=Vsuburb
+-
+obj=unnecessary_text
+name=Wsuburb
+-
+obj=unnecessary_text
+name=Xsuburb
+-
+obj=unnecessary_text
+name=Ysuburb
+-
+obj=unnecessary_text
+name=Zsuburb
+-
+obj=unnecessary_text
+name=Acenter
+-
+obj=unnecessary_text
+name=Bcenter
+-
+obj=unnecessary_text
+name=Ccenter
+-
+obj=unnecessary_text
+name=Dcenter
+-
+obj=unnecessary_text
+name=Ecenter
+-
+obj=unnecessary_text
+name=Fcenter
+-
+obj=unnecessary_text
+name=Gcenter
+-
+obj=unnecessary_text
+name=Hcenter
+-
+obj=unnecessary_text
+name=Icenter
+-
+obj=unnecessary_text
+name=Jcenter
+-
+obj=unnecessary_text
+name=Kcenter
+-
+obj=unnecessary_text
+name=Lcenter
+-
+obj=unnecessary_text
+name=Mcenter
+-
+obj=unnecessary_text
+name=Ncenter
+-
+obj=unnecessary_text
+name=Ocenter
+-
+obj=unnecessary_text
+name=Pcenter
+-
+obj=unnecessary_text
+name=Qcenter
+-
+obj=unnecessary_text
+name=Rcenter
+-
+obj=unnecessary_text
+name=Scenter
+-
+obj=unnecessary_text
+name=Tcenter
+-
+obj=unnecessary_text
+name=Ucenter
+-
+obj=unnecessary_text
+name=Vcenter
+-
+obj=unnecessary_text
+name=Wcenter
+-
+obj=unnecessary_text
+name=Xcenter
+-
+obj=unnecessary_text
+name=Ycenter
+-
+obj=unnecessary_text
+name=Zcenter
+-
+obj=unnecessary_text
+name=Aextern
+-
+obj=unnecessary_text
+name=Bextern
+-
+obj=unnecessary_text
+name=Cextern
+-
+obj=unnecessary_text
+name=Dextern
+-
+obj=unnecessary_text
+name=Eextern
+-
+obj=unnecessary_text
+name=Fextern
+-
+obj=unnecessary_text
+name=Gextern
+-
+obj=unnecessary_text
+name=Hextern
+-
+obj=unnecessary_text
+name=Iextern
+-
+obj=unnecessary_text
+name=Jextern
+-
+obj=unnecessary_text
+name=Kextern
+-
+obj=unnecessary_text
+name=Lextern
+-
+obj=unnecessary_text
+name=Mextern
+-
+obj=unnecessary_text
+name=Nextern
+-
+obj=unnecessary_text
+name=Oextern
+-
+obj=unnecessary_text
+name=Pextern
+-
+obj=unnecessary_text
+name=Qextern
+-
+obj=unnecessary_text
+name=Rextern
+-
+obj=unnecessary_text
+name=Sextern
+-
+obj=unnecessary_text
+name=Textern
+-
+obj=unnecessary_text
+name=Uextern
+-
+obj=unnecessary_text
+name=Vextern
+-
+obj=unnecessary_text
+name=Wextern
+-
+obj=unnecessary_text
+name=Xextern
+-
+obj=unnecessary_text
+name=Yextern
+-
+obj=unnecessary_text
+name=Zextern
+-
+obj=program_text
+name=SEP_THOUSAND_EXPONENT
+-
+obj=program_text
+name=Transferring game ...
+note=transfer game over network
+-
+obj=program_text
+name=Lineless convoys serving this stop
+note=halt detail window
+-
+obj=program_text
+name=Net ID: %p
+note=powernet info window
+-
+obj=program_text
+name=Capacity: %.0f MW
+note=powernet info window
+-
+obj=program_text
+name=Demand: %.0f MW
+note=powernet info window
+-
+obj=program_text
+name=Generation: %.0f MW
+note=powernet info window
+-
+obj=program_text
+name=Usage: %.0f %%
+note=powernet info window
+-
+obj=program_text
+name=\nAct. Load: %u MW\n
+note=powernet info window (depricated)
+-
+obj=program_text
+name=Supplied: %.0f %%
+note=powernet info window
+-
+obj=program_text
+name=%i years %i months old.
+note=tree info dialog
+-
+obj=program_text
+name=Only one transformer per factory!
+-
+obj=message_text
+name=Now %u clients connected.
+-
+obj=program_text
+name=Revision:
+-
+obj=program_text
+name=%u Player (%u locked)\n
+-
+obj=program_text
+name=%u Client(s)\n
+-
+obj=program_text
+name=join game
+-
+obj=program_text
+name=Show even servers with wrong version or pakset
+-
+obj=program_text
+name=add server
+-
+obj=program_text
+name=set signal spacing
+-
+obj=program_text
+name=signal spacing
+-
+obj=program_text
+name=remove interm. signals
+-
+obj=program_text
+name=replace other signals
+-
+obj=program_text
+name=Connected with server
+-
+obj=program_text
+name=Chat_msg
+-
+obj=program_text
+name=Problems_msg
+-
+obj=program_text
+name=Warnings_msg
+-
+obj=program_text
+name=Station_msg
+-
+obj=program_text
+name=Town_msg
+-
+obj=program_text
+name=Company_msg
+-
+obj=program_text
+name=Game_msg
+-
+obj=program_text
+name=Signal
+note=title of signal info window
+---
+obj=program_text
+name=Game info
+note=title of play-online window
+---
+obj=program_text
+name=find mismatch
+note=play-online window: button to compare paksets of client and server
+---
+obj=program_text
+name=Air
+note=tooltip in linemanagement window
+---
+obj=program_text
+name=Wasser
+note=title of tile-info window of water tiles
+---
+obj=program_text
+name=Comparing pak files ...
+---
+obj=program_text
+name=Pakset differences
+---
+obj=program_text
+name=Pak(s) not on server:
+---
+obj=program_text
+name=Pak(s) different:
+---
+obj=program_text
+name=Pak(s) missing on client:
+---
+obj=program_text
+name=Only first %d differing paks reported. There are probably more.
+---
+obj=program_text
+name=Enter Password
+note=title of cmpany name/password dialoge
+---
+obj=program_text
+name=Password
+---
+obj=program_text
+name=%s at (%i,%i) now public stop.
+---
+obj=program_text
+name=deactivated in online mode
+---
+obj=program_text
+name=Use beginner mode
+---
+obj=program_text
+name=Higher transport fees, crossconnect all factories
+---
+obj=button_text
+name=Road toll
+---
+obj=program_text
+name=Pax <%i>  Mail <%i>
+--
+obj=program_text
+name=Production/Boost
+--
+obj=program_text
+name=Boost (%)
+--
+obj=program_text
+name=Max Boost (%)
+--
+obj=program_text
+name=Demand
+--
+obj=program_text
+name=Power (MW)
+--
+obj=program_text
+name=Storage
+--
+obj=program_text
+name=Consumed
+--
+obj=program_text
+name=Produced
+--
+obj=program_text
+name=Generated
+--
+obj=error_text
+name=Server busy
+--
+obj=error_text
+name=Only public player can lock games!
+--
+obj=program_text
+name=Destroying map ...
+--
+obj=program_text
+name=Passenger Demand %d\n
+--
+obj=program_text
+name=Mail Demand %d\n
+--
+obj=program_text
+name=Customers live in:
+--
+obj=program_text
+name=Enter address
+--
+obj=program_text
+name=show/hide block reservations
+--
+obj=program_text
+name=show/hide object owner
+--
+obj=program_text
+name=Walked
+--
+obj=program_text
+name=Walked
+--
+obj=program_text
+name=Configure AI setttings
+--
+obj=program_text
+name=Configure AI
+--
+obj=program_text
+name=construction speed
+--
+obj=program_text
+name=Smart hide objects
+--
+obj=program_text
+name=hide objects under cursor
+--
+obj=program_text
+name=Show only used
+--
+obj=program_text
+name=In the industry legend show only currently existing factories
+--
+obj=program_text
+name=Only show goods which are currently handled by factories
+--
+obj=program_text
+name=clf_chk_obsolete
+--
+obj=program_text
+name=Relevant
+note=depot window: show vehicles that transport goods produced by factories in game
+--
+obj=program_text
+name=Missing pakfiles
+--
+obj=program_text
+name=Pak which may cause severe errors:
+--
+obj=program_text
+name=Pak which may cause visual errors:
+--
+obj=program_text
+name=Bonusspeed: %i km/h
+note=maximum speed possible on a route. This is used for bonus calculation
+--
+obj=program_text
+name=Maxspeed
+note=button with statistics of possible maxspeed of a convoi during all trips
+--
+obj=program_text
+name=Ownership
+note=button in minimap to show owner
+--
+obj=program_text
+name=player
+note=button in marker list sorting
+--
+obj=help_text
+name=Please click on the map to add\nwaypoints or stops to this\nschedule.
+note=Shown when a schedule is empty.
+--
+obj=program_text
+name=Highlite schedule
+note=button in visual setting dialog
+--
+obj=program_text
+name=Similar view as the main window
+note=tooltip in minimap
+--
+#obj=program_text
+#name=List of industries on the map
+#note=tooltip in minimap
+--
+obj=program_text
+name=Shows the color code for several selections.
+note=tooltip in minimap
+--
+obj=program_text
+name=Shows buttons on special topics.
+note=tooltip in minimap
+--
+obj=program_text
+name=Delete the selected line (if without associated convois).
+note=tooltip in line schedule
+--
+obj=obsolete
+name=Line Filter
+note=text in lin window for searching lines containing
+--
+obj=program_text
+name=Last Month
+note=text in finance window
+--
+obj=program_text
+name=Your primary color:
+note=text in player color choose dialog
+--
+obj=program_text
+name=Your secondary color:
+note=text in player color choose dialog
+--
+name=Show servers that are offline
+obj=program_text
+note=Tooltip in server information window
+---
+name=Show mismatched
+obj=program_text
+note=Option in server information window
+---
+name=Show offline
+obj=program_text
+note=Option in server information window
+---
+name=Server did not respond!
+obj=program_text
+note=Server information window
+---
+name=Query server
+obj=program_text
+note=Server information window
+---
+name=Cannot connect to offline server!
+obj=program_text
+note=Server information window
+---
+name=Nickname:
+obj=program_text
+---
+name=Or enter a server manually:
+obj=program_text
+note=Server information window
+---
+name=Show servers where game version or pakset does not match your client
+obj=program_text
+note=Tooltip in server information window
+---
+name=Show servers where game version or pakset does not match your client
+obj=program_text
+note=Tooltip in server information window
+---
+name=Select a server to join:
+obj=program_text
+note=Server information window
+---
+obj=error_text
+name=Vehicle %s cannot choose because stop too short!
+note=message at choose signs when the first stop is too short
+---
+obj=help_text
+name=<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
+note=string of which the index will be built
+--
+obj=program_text
+name=Net wealth near zero
+note=text when net wealth nearly consumed
+--
+obj=button_text
+name=Networks
+note=show network overlay in minimap
+--
+obj=button_text
+name=Queueing
+note=show station waiting number change overlay in minimap
+--
+obj=button_text
+name=Transfers
+note=show station arrival+departure overlay in minimap
+--
+obj=help_text
+name=Overlay town names
+note=tooltip in minimap
+--
+obj=help_text
+name=Overlay city limits
+note=tooltip in minimap
+--
+obj=help_text
+name=Show level of city buildings
+note=tooltip in minimap
+--
+obj=help_text
+name=Overlay passenger destinations when a town window is open
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlite tourist attraction
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlite factories
+note=tooltip in minimap
+--
+obj=help_text
+name=Overlay schedules/network
+note=tooltip in minimap
+--
+obj=help_text
+name=Show passenger coverage/passenger network
+note=tooltip in minimap
+--
+obj=help_text
+name=Show mail service coverage/mail network
+note=tooltip in minimap
+--
+obj=help_text
+name=Show transported freight/freight network
+note=tooltip in minimap
+--
+obj=help_text
+name=Show capacity and if halt is overcrowded
+note=tooltip in minimap
+--
+obj=help_text
+name=Show how many people/much is waiting at halts
+note=tooltip in minimap
+--
+obj=help_text
+name=Show the change of waiting at halts
+note=tooltip in minimap
+--
+obj=help_text
+name=Show how many convoi reach a station
+note=tooltip in minimap
+--
+obj=help_text
+name=Sum of departure/arrivals at halts
+note=tooltip in minimap
+--
+obj=help_text
+name=Show initial passenger departure
+note=tooltip in minimap
+--
+obj=help_text
+name=Show usage of network
+note=tooltip in minimap
+--
+obj=help_text
+name=Show speedlimit of ways
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlight railroad tracks
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlite depots
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlite electrical transmission lines
+note=tooltip in minimap
+--
+obj=help_text
+name=Highlite forests
+note=tooltip in minimap
+--
+obj=help_text
+name=Show the owenership of infrastructure
+note=tooltip in minimap
+--
+obj=help_text
+name=Shows a listing with all industries on the map.
+note=tooltip in minimap
+--
+obj=error_text
+name=Out of funds
+note=Shown when an action is forbidden because of negative net wealth
+--
+obj=error_text
+name=No suitable way on the ground!
+note=show when building stations without ways/on slopes/on tunnels
+--
+obj=button_text
+name=Scenario
+-
+obj=error_text
+name= Loading scenario script failed
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Info
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Goal
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Rules
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Result
+-
+obj=program_text
+note=tab in scenario info window
+name=About scenario
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Error Log
+-
+obj=program_text
+note=tab in scenario info window
+name=Scenario Debug
+-
+obj=program_text
+note=Title of scenario info dialogue
+name=Scenario information
+-
+obj=program_text
+note=button in map creation dialoge to set number of factories
+name=No. of Factories
+-
+obj=program_text
+note=item in depot line selector
+name=<no schedule set>
+-
+obj=program_text
+note=item in depot line selector
+name=<clear schedule>
+-
+obj=program_text
+note=item in depot line selector
+name=<individual schedule>
+-
+obj=program_text
+note=item in depot line selector
+name=<create new line>
+-
+obj=program_text
+note=item in depot line selector
+name=<promote to line>
+-
+obj=error_text
+name=Can't buy obsolete vehicles!
+-
+obj=program_text
+note=info in depot
+name=Cost: %8s (%.2f$/km)\n
+-
+obj=program_text
+note=info in depot
+name=Power: %4d kW\n
+-
+obj=program_text
+note=info in depot
+name=Weight:
+-
+obj=program_text
+note=info in depot
+name=Capacity:
+-
+obj=program_text
+note=info in depot
+name=1 convoi
+-
+obj=program_text
+note=factory chart for goods in transit
+name=In Transit
+-
+obj=program_text
+name=Files from:
+note=open savegame window
+-
+obj=program_text
+name=distributing factories
+note=for progress bar
+-
+obj=program_text
+name=distributing cities
+note=for progress bar
+-
+obj=program_text
+note=finance window: misc. transport type
+name=tt_Other
+-
+obj=program_text
+note=halt window, departure board
+name=Departure board
+-
+obj=program_text
+note=halt window, departure board
+name=Show/hide estimated arrival times
+-
+obj=program_text
+note=halt window, departure board
+name=Departures to\n
+-
+obj=program_text
+note=halt window, departure board
+name=Arrivals from\n
+-
+obj=program_text
+note=halt window, departure board
+name=now
+-
+obj=program_text
+note=Way toll button in charts
+name=Way toll
+-
+obj=program_text
+note=Char(s) to indicate truncated text
+name=...
+-
+obj=program_text
+note=title/tooltip of thememanager
+name=Select a theme for display
+-
+obj=help_text
+note=tooltext to indicate climate conversion of a tile
+name=Set tile climate
+-
+obj=help_text
+note=tooltext for filling a bassin
+name=Increase water height
+-
+obj=help_text
+note=tooltext for draining a bassin
+name=Decrease water height
+-
+obj=error_text
+note=Failure or drainign/filling a bassin
+name=Cannot alter water
+-
+obj=program_text
+name=Cost: %8s (%.2f$/km %.2f$/m)\n
+note=Text in depot for convoi with monthly fixed cost
+-
+obj=error_text
+name=Cannot connect to the\ncenter of a double slope!
+note=Bridges ending in the middle of a slope
+-
+obj=error_text
+name=Cannot build on a double slope!
+-
+obj=error_text
+name=No bridges over runways!
+-
+obj=program_text
+name=Water
+note=Climate name of water areas
+-
+obj=error_text
+name=This tunnel branches. You can try Control+Click to remove.
+-
+obj=program_text
+name=nowhere
+-
+obj=help_text
+name=Color according to transport capacity left
+note=tooltip in minimap window
+-
+obj=error_text
+name=Not enough clearance.
+note=Error when building a way with not enough clearance above or below.
+--
+obj=message_text
+name=Net wealth less than 10% of starting capital!
+--
+obj=message_text
+name=Server preparing game ...
+note=Shown while server is saving the game
+--
+obj=program_text
+name=Theme selector
+note=Loading a GUI theme dialog
+--
+obj=program_text
+name=Last used tools
+note=Toolbar with the last used tools
+--
+obj=help_text
+name=Open station/stop details
+note=Tooltip
+--
+obj=program_text
+name=Insufficient funds!
+note=text for when not enough funds are owned to use a tool
+-
+obj=program_text
+name=Trees disabled!
+note=text for when a tool fails due to trees being disabled
+-
+obj=program_text
+name=Not allowed to make publicly owned ways!
+note=text for when trying to make a public way when public ways are disabled
+-
+obj=error_text
+name=Server version too new
+note=Error message when questioning future server versions
+-
+obj=program_text
+name=Produces: %.1f units/minute
+note=Factory production per minute text
+-
+obj=program_text
+name=%s %.0f%% : %.0f/%.0f @ %.1f%%
+note=JIT2 factory output formater
+-
+obj=program_text
+name=%s %.0f%% : %.0f+%u/%.0f @ %.1f%%
+note=JIT2 factory input formater
+-
+obj=program_text
+name=%i car(s),
+note=length of assembled convoi in depot frame, only shown if more than one
+-
+obj=error_text
+name=Loading a new game will end the current server session!
+-
+obj=button_text
+name=Start this as a server
+note=used in loading games/scenario dialoge
+-
+obj=error_text
+name=More than one possibility to build this dock found.
+-
+obj=error_text
+name=Bridge blocked by way below or above.
+note=height clearance not enough for a bridge at this position
+-
+obj=program_text
+name=Select display font
+-
+obj=program_text
+name=font size
+-
+obj=program_text
+name=Only full Unicode fonts
+-
+obj=error_text
+name=Cannot rotate this building!
+-
+obj=error_text
+name=Not enough bytes transferred
+note=server did not send enough bytes when transmitting a game
+-
+obj=error_text
+name=Could not open file
+-
+obj=error_text
+name=Client closed connection during transfer
+-
+obj=error_text
+name=Show all revenue messages
+-
+obj=error_text
+name=Show only player's revenue
+-
+obj=error_text
+name=Show no revenue messages
+-
+obj=program_text
+name=length: %d
+-
+obj=program_text
+name=<h1>Error</h1><p><strong>
+-
+obj=program_text
+name=contains the following doubled objects:</strong><p>
+-
+obj=program_text
+name=<h1>Warning</h1><p><strong>addons for
+-
+obj=program_text
+name=Connections
+note=Tab in factory window
+-
+obj=program_text
+name=Freight
+note=Tab in convoy-info window
+-
+obj=program_text
+name=Scenario_
+note=in finance window
+-
+obj=program_text
+name=Show finances for transport type
+note=in finance window
+-
+obj=program_text
+name=Size (%d MB):
+note=in enlarge map and new map window
+-
+obj=error_text
+name=Too far away to merge stations!
+-
+obj=program_text
+name=Connections
+note=Name of connection tab in station dialog
+-
+obj=program_text
+name=Bonus Speed: %i km/h
+note=Goods frame current average speed of line type
+-
+obj=program_text
+name=Bonus Multiplier: %i%%
+note=Goods frame speed bonus multiplier in percent
+-
+obj=program_text
+name=No vehicles are available for purchase.
+note=Goods frame displayed if no vehicles of the selected line type are available for purchase
+-
+obj=program_text
+name=GUI settings
+note=tab in display setting
+-
+obj=program_text
+name=map view
+note=tab in display setting
+-
+obj=program_text
+name=transparencies
+note=tab in display setting
+-
+obj=program_text
+name=station labels
+note=tab in display setting
+-
+obj=program_text
+name=traffic settings
+note=tab in display setting
+-
+obj=program_text
+name=Convoi following mode
+note=label in trafic display setting
+-
+obj=button_text
+name=TOOL_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=TRAFFIC_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=AMBIENT_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=FACTORY_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=CROSSING_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=CASH_SOUND
+note=label in sound frame
+-
+obj=button_text
+name=Sound range:
+note=label in sound frame
+-
+obj=program_text
+name=dp_title
+note=list of depots
+-
+obj=program_text
+name=waytype
+-
+obj=program_text
+name=vehicles stored
+note=sort option in depot list
+-
+obj=program_text
+name=vh_title
+note=vehicle list title
+-
+obj=program_text
+name=Vehicle Name
+note=vehicle sort option
+-
+obj=program_text
+name=Capacity
+note=vehicle sort option
+-
+obj=program_text
+name=Price
+note=vehicle sort option
+-
+obj=program_text
+name=Cost
+note=vehicle sort option
+-
+obj=program_text
+name=Cost per unit
+note=vehicle sort option
+-
+obj=program_text
+name=Max. speed
+note=vehicle sort option
+-
+obj=program_text
+name=Vehicle Power
+note=vehicle sort option
+-
+obj=program_text
+name=Weight
+note=vehicle sort option
+-
+obj=program_text
+name=Intro. date
+note=vehicle sort option
+-
+obj=program_text
+name=Retire date
+note=vehicle sort option
+-
+obj=program_text
+name=Show future
+note=vehicle list option
+-
+obj=program_text
+name=Copy to clipboard
+note=In chat window
+-
+obj=error_text
+name=Only up and down movement in the underground!
+note=Tried to use a directional slope in the underground
+-
+obj=program_text
+name=Show contour
+note=Option in minimap
+-
+obj=help_text
+name=Color-coded terrain according to altitude.
+note=Option in minimap
+-
+obj=program_text
+name=line name mouseover tooltips
+note=option in display settings
+-
+obj=help_text
+name=At least one stop is connected to the town.
+note=tooltip in citylist
+-
+obj=program_text
+name=Served by
+note=option in citylist
+-
+obj=help_text
+name=At least one tile is connected to one stop.
+note=tooltip in factorylist
+-
+obj=program_text
+name=(%.2f$/km %.2f$/m)
+note=info for cars with running and fixed cost
+-
+obj=program_text
+name=(%.2f$/km)
+note=info for cars with running cost only
+-
+obj=button_text
+name=height based
+note=tab in climate dialog: Climate by heigh level
+-
+obj=button_text
+name=temperature-humidity based
+note=tab in climate dialog: climates by temperature and humidity
+-
+obj=button_text
+name=climate area percentage
+note=text in climate dialog, sizeof climate patches
+-
+obj=button_text
+name=moisture land
+note=text in climate dialog
+-
+obj=button_text
+name=moisture water
+note=text in climate dialog
+-
+obj=button_text
+name=humidities
+note=text in climate dialog
+-
+obj=button_text
+name=temperature borders
+note=text in climate dialog
+-
+obj=button_text
+name=rainfall
+note=text in climate dialog, trees vial simulated rainfall
+-
+obj=button_text
+name=Lake height
+note=text in climate dialog, maximum height of lakes
+-
+obj=button_text
+name=Num pad keys always move map
+note=Numloock is ignored with this
+-
+obj=program_text
+name=Move the map
+note=name of tool to move map view
+-
+obj=button_text
+name=Find matching convois
+info=line management window
+-
+obj=tooltip_text
+name=Add convois with similar schedule to this line.
+info=line management window
+-
+obj=program_text
+name=legacy (small heights)
+info=Heightmap window
+-
+obj=program_text
+name=legacy (large heights)
+info=Heightmap window
+-
+obj=program_text
+name=linear
+info=Heightmap window
+-
+obj=program_text
+name=clamp
+info=Heightmap window
+-
+obj=program_text
+name=Load mode:
+info=Heightmap window
+-
+obj=program_text
+name=Install graphics
+info=title of pakset installer
+-
+obj=program_text
+name=Wind direction
+info=Climate window
+-
+obj=program_text
+name=Install
+-
+obj=program_text
+name=Select one or more graphics to install (Ctrl+click):
+note=pakinstaller window
+-
+obj=program_text
+name=The following graphics are unmaintained:
+note=pakinstaller window
+-
+obj=program_text
+name=groundobj builder
+note=groundobj edit window
+-
+obj=program_text
+name=Has Snow
+note=groundobj edit window
+-
+obj=program_text
+name=Has slope graphics
+note=groundobj edit window
+-
+obj=program_text
+name=Can be overgrown
+note=groundobj edit window
+-
+obj=program_text
+name=[0] south-facing
+note=Extended edit option
+-
+obj=program_text
+name=[1] east-facing
+note=Extended edit option
+-
+obj=program_text
+name=[2] north-facing
+note=Extended edit option
+-
+obj=program_text
+name=[3] west-facing
+note=Extended edit option
+-
+obj=program_text
+name=[4] southeast corner
+note=Extended edit option
+-
+obj=program_text
+name=[5] northeast corner
+note=Extended edit option
+-
+obj=program_text
+name=[6] northwest corner
+note=Extended edit option
+-
+obj=program_text
+name=[7] southwest corner
+note=Extended edit option
+-
+obj=program_text
+name=Pax level
+note=Extended edit option
+-
+obj=program_text
+name=Mail level
+note=Extended edit option
+-
+obj=program_text
+name=Size (area)
+note=Extended edit option
+-
+obj=program_text
+name=Available at custom date
+note=Extended edit option
+-
+obj=program_text
+name=Loading (%i->%i%%)!
+--
+obj=program_text
+name=Loading (%i%%) departure %s!
+note=tooltip for convoi state scheduled loading
+-
+obj=program_text
+name=Loading (%i%%)!
+note=tooltip for convoi state scheduled loading without minimum load
+-
+obj=program_text
+name=Unloading (%i%%)!
+note=tooltip for convoi state scheduled unloading
+-
+obj=program_text
+name=Toolbar position:
+note=display setting label
+-
+obj=program_text
+name=1th
+note=ordinal number en
+-
+obj=program_text
+name=2th
+note=ordinal number en
+-
+obj=program_text
+name=3th
+note=ordinal number en
+-
+obj=program_text
+name=21th
+note=ordinal number en
+-
+obj=program_text
+name=22th
+note=ordinal number en
+-
+obj=program_text
+name=23th
+note=ordinal number en
+-
+obj=program_text
+name=31th
+note=ordinal number en
+-
+obj=program_text
+name=ORDINAL_DAR_SYMBOL
+note=ordinal day symbol (English th, german . frensh e
+-
+obj=program_text
+name=Monthly departures
+note=absolute departure time
+-
+obj=program_text
+name=Departure after
+note=relative departure time on loading
+-
+obj=program_text
+name=on the
+note=absolute departure time after the repetion box
+-
+obj=button_text
+name=Single GUI
+note=Button in line lines, please short translations!
+--
+obj=program_text
+name=Closes topmost line window when new line selected.
+note=tooltip for button in line list enforcing single window gui
+-
+obj=button_text
+name=Absolute times
+note=absolute departure time instead relative in departure board
+-
+obj=program_text
+name=The gradient does not fit a tunnel
+note=Shown when building a tunnel in invalid slope
+-
+obj=program_text
+name=Do not show
+note=option for factory tooltips
+--
+obj=program_text
+name=On mouseover
+note=option for factory tooltips
+--
+obj=program_text
+name=Served by me
+note=option for factory tooltips
+--
+obj=program_text
+name=Show always
+note=option for factory tooltips
+--
+obj=program_text
+name=Industry overlay
+note=label for factory tooltips
+--
+obj=program_text
+name=Display bars above factory to show the status
+note=tooltip help for factory tooltips
+--
+obj=program_text
+name=Date format
+note=label for date format combobox
+--
+obj=program_text
+name=Fullscreen (changed after restart)
+note=button in display setting
+--
+obj=program_text
+name=Borderless (disabled on fullscreen)
+note=button in display setting
+--
+obj=button_text
+name=Lake
+note=Name of water above groundlevel
+--
+obj=button_text
+name=Open Sea
+note=Name of water at groundlevel
+--
+obj=button_text
+name=sea
+note=climate of water
+--
+obj=program_text
+name=Climates
+--
+obj=button_text
+name=Reselect closes tools
+note=display option
+--
+obj=button_text
+name=Install
+note=Option to install new pak sets
+--
+obj=program_text
+name=Show climates
+note=minimap display setting
+--
+obj=program_text
+name=Show outline
+note=minimap display setting
+--
+obj=program_text
+name=Month
+note=in exted edit dialogues
+--
+obj=program_text
+name=Year
+note=in exted edit dialogues
+--
+obj=program_text
+name=auto
+note=in exted edit dialogues
+--
+obj=program_text
+name=Departures per month
+note=label in schedule edit
+--
+obj=program_text
+name=Departs at
+note=label in schedule edit
+--
+obj=program_text
+name=Minimum load
+note=label in schedule edit
+--
+obj=program_text
+name=Max. waiting time
+note=label in schedule edit
+--
+obj=program_text
+name=No player
+note=text to indicate to use for served by no one
+--
+obj=program_text
+name=Cleanup schedule
+note=Appear in schedule if there are double entries
+--
+obj=help_text
+name=Remove double stops from schedule
+note=toolytip for button that appears in schedule if there are double entries
+--
+obj=program_text
+name=Infinite mouse scrolling
+note=button in display options
+--
+obj=program_text
+name=Infinite scrolling using mouse
+note=tooltip in display options
+--
+obj=program_text
+name=Scroll threshold
+note=distance moved before starting map scrolling when a general tool is selected
+--
+
+
+
+
+#obj=help_text
+#name=Lower values mean more local sounds
+#note=tooltip in sound frame
+#--
+#obj=program_text
+#name=
+#-
+# text group = 'message_text'
+# text group = 'button_text'
+# text group = 'climates_text'
+# text group = 'error_text'
+# text group = 'help_text'
+# text group = 'menu_text'
+# text group = 'program_text'
+# text group = 'record_text'
+# text group = 'ki_text'
+#obj= <-> text group
+#name= <-> objecr name
+#note= <-> description for object
+
+
+#*************** Zuviel/falsch/obsolet **********************
+#-
+#obj=program_text
+#name=Land industries
+#-
+#obj=error_text
+#name=Cannot create generic line!\nSelect line type by\nusing filter tabs.
+#-
+# Obsolete vor 102.2
+#obj=program_text
+#name=Vehicle %s is stucked!
+#--
+#obj=program_text
+#name=Vehicle %s can't find a route!
+#--
+#obj=program_text
+#name=%s's\nheadquarter now\nat (%i,%i).
+#--
+#obj=program_text
+#name=1nord
+#--
+#obj=program_text
+#name=1nordost
+#--
+#obj=program_text
+#name=1nordwest
+#--
+#obj=program_text
+#name=1ost
+#--
+#obj=program_text
+#name=1sued
+#--
+#obj=program_text
+#name=1suedost
+#--
+#obj=program_text
+#name=1suedwest
+#--
+#obj=program_text
+#name=1west
+#--
+#obj=program_text
+#name=Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n
+#--
+#obj=ki_text
+#name=Ferry service by %s now between %s nand %s.
+#--
+#obj=program_text
+#name=Monorailhalt
+#-
+#obj=program_text
+#name=Narrowgaugehalt
+#-
+#obj=program_text
+#name=Narrowgaugeboden
+#-
+#obj=program_text
+#name=Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+#-
+#obj=message_text
+#name=Production of vehicle has been stopped:\n%s\n
+#-
+#obj=error_text
+#name=Station already\nhas a post office!\n
+#-
+#obj=ki_text
+#name=Travellers now use %s's busses between %s nand %s.
+#-
+#obj=program_text
+#name=Tunnelmuendung
+#-
+#obj=program_text
+#name=Wagen im Block
+#-
+#obj=program_text
+#name=Zeiger
+#-
+#obj=program_text
+#name=Zu nah an einem\nanderen Signal!\n
+#-
+#obj=program_text
+#name=\nRail block
+#-
+#obj=program_text
+#name=\n\nRibi (unmasked)
+#-
+#obj=program_text
+#name=attractionbuilder
+#--
+#obj=program_text
+#name=housebuilder
+#--
+#obj=program_text
+#name=treebuilder
+#--
+#obj=record_text
+#name=New world record for maglev: %.1f km/h by %s.
+#--
+#obj=record_text
+#name=New world record for narrowgauge: %.1f km/h by %s.
+#--
+#obj=program_text
+#name=Tunnel must end on single way!
+#--
+#obj=program_text
+#name=Headquartern and %li trains
+#-
+#obj=program_text
+#name=Monate alt
+#-
+#obj=program_text
+#name=Einstellungsfenster
+#-
+#obj=program_text
+#name=Move the selected vehicle(s) back to the depot
+#-
+#obj=program_text
+#name=Lines are used to manage groups of vehicles
+#-
+#obj=program_text
+#name=Add the selected vehicle(s) to the selected line
+#-
+#obj=program_text
+#name=Aufloesen
+#-
+#obj=program_text
+#name=LOCO_CAP
+#-
+#obj=program_text
+#name=LOCO_INFO
+#-
+#obj=program_text
+#name=WAGGON_INFO
+#-
+#obj=program_text
+#name=Cost: %6d$ (%.2f$/km)\n
+#-
+#obj=program_text
+#name=Vehicle details
+#-
+#obj=program_text
+#name=%i years %i months old
+#--
+#obj=program_text
+#name=Stucked!
+#--
+#obj=program_text
+#name=Can't find a route!
+#--
+#obj=program_text
+#name=Not loading!
+#--
+#obj=program_text
+#name=Going to depot!
+#--
+#obj=button_text
+#name=Maximize height levels
+#note=Indicates that the heightmap should be stretched over more height levels
+#--
+#obj=program_text
+#name=clf_chk_name_filter
+#-
+#obj=program_text
+#name=clf_chk_ships
+#-
+#obj=program_text
+#name=clf_chk_trains
+#-
+#obj=program_text
+#name=clf_chk_trams
+#-
+#obj=program_text
+#name=clf_chk_aircrafts
+#-
+#obj=program_text
+#name=clf_chk_cars
+#-
+#obj=button_text
+#name=cl_btn_filter_disable
+#-
+#obj=button_text
+#name=cl_btn_filter_enable
+#-
+#obj=button_text
+#name=Select soundfont
+#-
+#obj=program_text
+#name=Soundfonts are located in the music directory.
+#-
+#obj=program_text
+#name=Soundfont not found. Please select a soundfont below.
+#-
+#obj=error_text
+#name=No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu.
+#-

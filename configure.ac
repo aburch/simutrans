@@ -5,7 +5,7 @@
 
 simutrans.ac
 
-AC_INIT(simutrans, version-0.2)
+AC_INIT([simutrans],[version-0.2])
 
 AC_PROG_CC
 AC_LANG(C++)
@@ -162,4 +162,5 @@ then
 	fi
 fi
 
-AC_OUTPUT(config.default)
+AC_CONFIG_FILES([config.default])
+AC_OUTPUT

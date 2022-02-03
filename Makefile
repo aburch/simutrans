@@ -81,16 +81,16 @@ else ifeq ($(OSTYPE),mingw)
 else ifeq ($(OSTYPE),linux)
   LD_FLAGS += "-Wl,-Bstatic"
 else ifeq ($(OSTYPE),mac)
-  SOURCES += OSX/translocation.m
+  SOURCES += src/simutrans/OSX/translocation.m
   LDFLAGS += -framework Cocoa
 endif
 
 ifeq ($(BACKEND),sdl2)
-  SOURCES += sys/clipboard_s2.cc
+  SOURCES += src/simutrans/sys/clipboard_s2.cc
 else ifeq ($(OSTYPE),mingw)
-  SOURCES += sys/clipboard_w32.cc
+  SOURCES += src/simutrans/sys/clipboard_w32.cc
 else
-  SOURCES += sys/clipboard_internal.cc
+  SOURCES += src/simutrans/sys/clipboard_internal.cc
 endif
 
 LIBS += -lbz2 -lz -lpng
@@ -189,15 +189,15 @@ ifdef USE_ZSTD
   ifeq ($(shell expr $(USE_ZSTD) \>= 1), 1)
     CFLAGS  += -DUSE_ZSTD
     LDFLAGS += -lzstd
-    SOURCES += io/rdwr/zstd_file_rdwr_stream.cc
+    SOURCES += src/simutrans/io/rdwr/zstd_file_rdwr_stream.cc
   endif
 endif
 
 ifdef USE_FLUIDSYNTH_MIDI
   ifeq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
     CFLAGS  += -DUSE_FLUIDSYNTH_MIDI
-    SOURCES += music/fluidsynth.cc
-    SOURCES += gui/loadsoundfont_frame.cc
+    SOURCES += src/simutrans/music/fluidsynth.cc
+    SOURCES += src/simutrans/gui/loadsoundfont_frame.cc
     LDFLAGS += -lfluidsynth
     ifeq ($(OSTYPE),mingw)
       # fluidsynth.pc doesn't properly list dependant libraries, unable to use pkg-config. Manually listed below. Only valid for fluidsynth built with options: "-DBUILD_SHARED_LIBS=0 -Denable-aufile=0 -Denable-dbus=0 -Denable-ipv6=0 -Denable-jack=0 -Denable-ladspa=0 -Denable-midishare=0 -Denable-opensles=0 -Denable-oboe=0 -Denable-oss=0 -Denable-readline=0 -Denable-winmidi=0 -Denable-waveout=0 -Denable-libsndfile=0 -Denable-network=0 -Denable-pulseaudio=0 Denable-dsound=1 -Denable-sdl2=0"
@@ -239,7 +239,7 @@ ifdef WITH_REVISION
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
       REV := $(WITH_REVISION)
     else
-      REV := $(shell ./get_revision.sh)
+      REV := $(shell tools/get_revision.sh)
       $(info Revision is $(REV))
     endif
   endif
@@ -267,382 +267,382 @@ CCFLAGS  += -ansi -Wstrict-prototypes -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 
 # sources (in alphabetic order)
-SOURCES += bauer/brueckenbauer.cc
-SOURCES += bauer/fabrikbauer.cc
-SOURCES += bauer/goods_manager.cc
-SOURCES += bauer/hausbauer.cc
-SOURCES += bauer/tunnelbauer.cc
-SOURCES += bauer/tree_builder.cc
-SOURCES += bauer/vehikelbauer.cc
-SOURCES += bauer/wegbauer.cc
-SOURCES += boden/boden.cc
-SOURCES += boden/brueckenboden.cc
-SOURCES += boden/fundament.cc
-SOURCES += boden/grund.cc
-SOURCES += boden/monorailboden.cc
-SOURCES += boden/tunnelboden.cc
-SOURCES += boden/wasser.cc
-SOURCES += boden/wege/kanal.cc
-SOURCES += boden/wege/maglev.cc
-SOURCES += boden/wege/monorail.cc
-SOURCES += boden/wege/narrowgauge.cc
-SOURCES += boden/wege/runway.cc
-SOURCES += boden/wege/schiene.cc
-SOURCES += boden/wege/strasse.cc
-SOURCES += boden/wege/weg.cc
-SOURCES += dataobj/crossing_logic.cc
-SOURCES += dataobj/environment.cc
-SOURCES += dataobj/freelist.cc
-SOURCES += dataobj/gameinfo.cc
-SOURCES += dataobj/height_map_loader.cc
-SOURCES += dataobj/koord.cc
-SOURCES += dataobj/koord3d.cc
-SOURCES += dataobj/loadsave.cc
-SOURCES += dataobj/marker.cc
-SOURCES += dataobj/objlist.cc
-SOURCES += dataobj/powernet.cc
-SOURCES += dataobj/records.cc
-SOURCES += dataobj/rect.cc
-SOURCES += dataobj/ribi.cc
-SOURCES += dataobj/route.cc
-SOURCES += dataobj/scenario.cc
-SOURCES += dataobj/schedule.cc
-SOURCES += dataobj/settings.cc
-SOURCES += dataobj/tabfile.cc
-SOURCES += dataobj/translator.cc
-SOURCES += descriptor/bridge_desc.cc
-SOURCES += descriptor/building_desc.cc
-SOURCES += descriptor/factory_desc.cc
-SOURCES += descriptor/goods_desc.cc
-SOURCES += descriptor/ground_desc.cc
-SOURCES += descriptor/image.cc
-SOURCES += descriptor/obj_base_desc.cc
-SOURCES += descriptor/reader/bridge_reader.cc
-SOURCES += descriptor/reader/building_reader.cc
-SOURCES += descriptor/reader/citycar_reader.cc
-SOURCES += descriptor/reader/crossing_reader.cc
-SOURCES += descriptor/reader/factory_reader.cc
-SOURCES += descriptor/reader/good_reader.cc
-SOURCES += descriptor/reader/ground_reader.cc
-SOURCES += descriptor/reader/groundobj_reader.cc
-SOURCES += descriptor/reader/image_reader.cc
-SOURCES += descriptor/reader/imagelist2d_reader.cc
-SOURCES += descriptor/reader/imagelist_reader.cc
-SOURCES += descriptor/reader/obj_reader.cc
-SOURCES += descriptor/reader/pedestrian_reader.cc
-SOURCES += descriptor/reader/roadsign_reader.cc
-SOURCES += descriptor/reader/root_reader.cc
-SOURCES += descriptor/reader/sim_reader.cc
-SOURCES += descriptor/reader/skin_reader.cc
-SOURCES += descriptor/reader/sound_reader.cc
-SOURCES += descriptor/reader/text_reader.cc
-SOURCES += descriptor/reader/tree_reader.cc
-SOURCES += descriptor/reader/tunnel_reader.cc
-SOURCES += descriptor/reader/vehicle_reader.cc
-SOURCES += descriptor/reader/way_obj_reader.cc
-SOURCES += descriptor/reader/way_reader.cc
-SOURCES += descriptor/reader/xref_reader.cc
-SOURCES += descriptor/sound_desc.cc
-SOURCES += descriptor/tunnel_desc.cc
-SOURCES += descriptor/vehicle_desc.cc
-SOURCES += descriptor/way_desc.cc
-SOURCES += display/font.cc
-SOURCES += display/simgraph$(COLOUR_DEPTH).cc
-SOURCES += display/simview.cc
-SOURCES += display/viewport.cc
-SOURCES += finder/placefinder.cc
-SOURCES += freight_list_sorter.cc
-SOURCES += gui/ai_option_t.cc
-SOURCES += gui/ai_selector.cc
-SOURCES += gui/banner.cc
-SOURCES += gui/base_info.cc
-SOURCES += gui/baum_edit.cc
-SOURCES += gui/city_info.cc
-SOURCES += gui/citybuilding_edit.cc
-SOURCES += gui/citylist_frame_t.cc
-SOURCES += gui/citylist_stats_t.cc
-SOURCES += gui/climates.cc
-SOURCES += gui/components/gui_aligned_container.cc
-SOURCES += gui/components/gui_building.cc
-SOURCES += gui/components/gui_button.cc
-SOURCES += gui/components/gui_button_to_chart.cc
-SOURCES += gui/components/gui_chart.cc
-SOURCES += gui/components/gui_colorbox.cc
-SOURCES += gui/components/gui_combobox.cc
-SOURCES += gui/components/gui_container.cc
-SOURCES += gui/components/gui_convoiinfo.cc
-SOURCES += gui/components/gui_divider.cc
-SOURCES += gui/components/gui_fixedwidth_textarea.cc
-SOURCES += gui/components/gui_flowtext.cc
-SOURCES += gui/components/gui_image.cc
-SOURCES += gui/components/gui_image_list.cc
-SOURCES += gui/components/gui_component.cc
-SOURCES += gui/components/gui_label.cc
-SOURCES += gui/components/gui_map_preview.cc
-SOURCES += gui/components/gui_numberinput.cc
-SOURCES += gui/components/gui_obj_view_t.cc
-SOURCES += gui/components/gui_schedule.cc
-SOURCES += gui/components/gui_scrollbar.cc
-SOURCES += gui/components/gui_scrolled_list.cc
-SOURCES += gui/components/gui_scrollpane.cc
-SOURCES += gui/components/gui_speedbar.cc
-SOURCES += gui/components/gui_tab_panel.cc
-SOURCES += gui/components/gui_textarea.cc
-SOURCES += gui/components/gui_textinput.cc
-SOURCES += gui/components/gui_timeinput.cc
-SOURCES += gui/components/gui_waytype_tab_panel.cc
-SOURCES += gui/components/gui_world_view_t.cc
-SOURCES += gui/convoi_detail_t.cc
-SOURCES += gui/convoi_filter_frame.cc
-SOURCES += gui/convoi_frame.cc
-SOURCES += gui/convoi_info_t.cc
-SOURCES += gui/convoy_item.cc
-SOURCES += gui/curiosity_edit.cc
-SOURCES += gui/curiositylist_frame_t.cc
-SOURCES += gui/curiositylist_stats_t.cc
-SOURCES += gui/depot_frame.cc
-SOURCES += gui/depotlist_frame.cc
-SOURCES += gui/display_settings.cc
-SOURCES += gui/enlarge_map_frame_t.cc
-SOURCES += gui/extend_edit.cc
-SOURCES += gui/fabrik_info.cc
-SOURCES += gui/factory_chart.cc
-SOURCES += gui/factory_edit.cc
-SOURCES += gui/factorylist_frame_t.cc
-SOURCES += gui/factorylist_stats_t.cc
-SOURCES += gui/goods_frame_t.cc
-SOURCES += gui/goods_stats_t.cc
-SOURCES += gui/ground_info.cc
-SOURCES += gui/groundobj_edit.cc
-SOURCES += gui/gui_frame.cc
-SOURCES += gui/gui_theme.cc
-SOURCES += gui/halt_info.cc
-SOURCES += gui/halt_list_filter_frame.cc
-SOURCES += gui/halt_list_frame.cc
-SOURCES += gui/halt_list_stats.cc
-SOURCES += gui/headquarter_info.cc
-SOURCES += gui/help_frame.cc
-SOURCES += gui/jump_frame.cc
-SOURCES += gui/minimap.cc
-SOURCES += gui/kennfarbe.cc
-SOURCES += gui/label_info.cc
-SOURCES += gui/labellist_frame_t.cc
-SOURCES += gui/labellist_stats_t.cc
-SOURCES += gui/line_item.cc
-SOURCES += gui/line_management_gui.cc
-SOURCES += gui/load_relief_frame.cc
-SOURCES += gui/loadfont_frame.cc
-SOURCES += gui/loadsave_frame.cc
-SOURCES += gui/map_frame.cc
-SOURCES += gui/message_frame_t.cc
-SOURCES += gui/message_option_t.cc
-SOURCES += gui/message_stats_t.cc
-SOURCES += gui/messagebox.cc
-SOURCES += gui/money_frame.cc
-SOURCES += gui/obj_info.cc
-SOURCES += gui/optionen.cc
-SOURCES += gui/pakselector.cc
-SOURCES += gui/pakinstaller.cc
-SOURCES += gui/password_frame.cc
-SOURCES += gui/player_frame_t.cc
-SOURCES += gui/privatesign_info.cc
-SOURCES += gui/savegame_frame.cc
-SOURCES += gui/scenario_frame.cc
-SOURCES += gui/scenario_info.cc
-SOURCES += gui/schedule_list.cc
-SOURCES += gui/script_tool_frame.cc
-SOURCES += gui/server_frame.cc
-SOURCES += gui/settings_frame.cc
-SOURCES += gui/settings_stats.cc
-SOURCES += gui/signal_spacing.cc
-SOURCES += gui/simwin.cc
-SOURCES += gui/sound_frame.cc
-SOURCES += gui/sprachen.cc
-SOURCES += gui/station_building_select.cc
-SOURCES += gui/themeselector.cc
-SOURCES += gui/tool_selector.cc
-SOURCES += gui/trafficlight_info.cc
-SOURCES += gui/vehiclelist_frame.cc
-SOURCES += gui/welt.cc
-SOURCES += io/classify_file.cc
-SOURCES += io/raw_image.cc
-SOURCES += io/raw_image_bmp.cc
-SOURCES += io/raw_image_png.cc
-SOURCES += io/raw_image_ppm.cc
-SOURCES += io/rdwr/adler32_stream.cc
-SOURCES += io/rdwr/compare_file_rd_stream.cc
-SOURCES += io/rdwr/bzip2_file_rdwr_stream.cc
-SOURCES += io/rdwr/raw_file_rdwr_stream.cc
-SOURCES += io/rdwr/rdwr_stream.cc
-SOURCES += io/rdwr/zlib_file_rdwr_stream.cc
-SOURCES += network/checksum.cc
-SOURCES += network/memory_rw.cc
-SOURCES += network/network.cc
-SOURCES += network/network_address.cc
-SOURCES += network/network_cmd.cc
-SOURCES += network/network_cmd_ingame.cc
-SOURCES += network/network_cmd_scenario.cc
-SOURCES += network/network_cmp_pakset.cc
-SOURCES += network/network_file_transfer.cc
-SOURCES += network/network_packet.cc
-SOURCES += network/network_socket_list.cc
-SOURCES += network/pakset_info.cc
-SOURCES += obj/baum.cc
-SOURCES += obj/bruecke.cc
-SOURCES += obj/crossing.cc
-SOURCES += obj/field.cc
-SOURCES += obj/gebaeude.cc
-SOURCES += obj/groundobj.cc
-SOURCES += obj/label.cc
-SOURCES += obj/leitung2.cc
-SOURCES += obj/pillar.cc
-SOURCES += obj/roadsign.cc
-SOURCES += obj/signal.cc
-SOURCES += obj/simobj.cc
-SOURCES += obj/tunnel.cc
-SOURCES += obj/wayobj.cc
-SOURCES += obj/wolke.cc
-SOURCES += obj/zeiger.cc
-SOURCES += old_blockmanager.cc
-SOURCES += player/ai.cc
-SOURCES += player/ai_goods.cc
-SOURCES += player/ai_passenger.cc
-SOURCES += player/ai_scripted.cc
-SOURCES += player/finance.cc
-SOURCES += player/simplay.cc
-SOURCES += script/api/api_city.cc
-SOURCES += script/api/api_command.cc
-SOURCES += script/api/api_const.cc
-SOURCES += script/api/api_control.cc
-SOURCES += script/api/api_convoy.cc
-SOURCES += script/api/api_factory.cc
-SOURCES += script/api/api_gui.cc
-SOURCES += script/api/api_halt.cc
-SOURCES += script/api/api_include.cc
-SOURCES += script/api/api_line.cc
-SOURCES += script/api/api_map_objects.cc
-SOURCES += script/api/api_obj_desc.cc
-SOURCES += script/api/api_obj_desc_base.cc
-SOURCES += script/api/api_pathfinding.cc
-SOURCES += script/api/api_player.cc
-SOURCES += script/api/api_scenario.cc
-SOURCES += script/api/api_schedule.cc
-SOURCES += script/api/api_settings.cc
-SOURCES += script/api/api_simple.cc
-SOURCES += script/api/api_tiles.cc
-SOURCES += script/api/api_world.cc
-SOURCES += script/api/export_desc.cc
-SOURCES += script/api/get_next.cc
-SOURCES += script/api_class.cc
-SOURCES += script/api_function.cc
-SOURCES += script/api_param.cc
-SOURCES += script/dynamic_string.cc
-SOURCES += script/export_objs.cc
-SOURCES += script/script.cc
-SOURCES += script/script_loader.cc
-SOURCES += script/script_tool_manager.cc
-SOURCES += simcity.cc
-SOURCES += simconvoi.cc
-SOURCES += simdebug.cc
-SOURCES += simdepot.cc
-SOURCES += simevent.cc
-SOURCES += simfab.cc
-SOURCES += simhalt.cc
-SOURCES += siminteraction.cc
-SOURCES += simintr.cc
-SOURCES += simio.cc
-SOURCES += simline.cc
-SOURCES += simlinemgmt.cc
-SOURCES += simloadingscreen.cc
-SOURCES += simmain.cc
-SOURCES += simmem.cc
-SOURCES += simmenu.cc
-SOURCES += simmesg.cc
-SOURCES += simplan.cc
-SOURCES += simskin.cc
-SOURCES += simsound.cc
-SOURCES += simticker.cc
-SOURCES += simtool.cc
-SOURCES += simtool-scripted.cc
-SOURCES += simware.cc
-SOURCES += simworld.cc
-SOURCES += squirrel/sq_extensions.cc
-SOURCES += squirrel/sqstdlib/sqstdaux.cc
-SOURCES += squirrel/sqstdlib/sqstdblob.cc
-SOURCES += squirrel/sqstdlib/sqstdio.cc
-SOURCES += squirrel/sqstdlib/sqstdmath.cc
-SOURCES += squirrel/sqstdlib/sqstdrex.cc
-SOURCES += squirrel/sqstdlib/sqstdstream.cc
-SOURCES += squirrel/sqstdlib/sqstdstring.cc
-SOURCES += squirrel/sqstdlib/sqstdsystem.cc
-SOURCES += squirrel/squirrel/sqapi.cc
-SOURCES += squirrel/squirrel/sqbaselib.cc
-SOURCES += squirrel/squirrel/sqclass.cc
-SOURCES += squirrel/squirrel/sqcompiler.cc
-SOURCES += squirrel/squirrel/sqdebug.cc
-SOURCES += squirrel/squirrel/sqfuncstate.cc
-SOURCES += squirrel/squirrel/sqlexer.cc
-SOURCES += squirrel/squirrel/sqmem.cc
-SOURCES += squirrel/squirrel/sqobject.cc
-SOURCES += squirrel/squirrel/sqstate.cc
-SOURCES += squirrel/squirrel/sqtable.cc
-SOURCES += squirrel/squirrel/sqvm.cc
-SOURCES += sys/simsys.cc
-SOURCES += unicode.cc
-SOURCES += utils/cbuffer_t.cc
-SOURCES += utils/checklist.cc
-SOURCES += utils/csv.cc
-SOURCES += utils/log.cc
-SOURCES += utils/searchfolder.cc
-SOURCES += utils/sha1.cc
-SOURCES += utils/sha1_hash.cc
-SOURCES += utils/simrandom.cc
-SOURCES += utils/simstring.cc
-SOURCES += utils/simthread.cc
-SOURCES += vehicle/air_vehicle.cc
-SOURCES += vehicle/movingobj.cc
-SOURCES += vehicle/pedestrian.cc
-SOURCES += vehicle/rail_vehicle.cc
-SOURCES += vehicle/road_vehicle.cc
-SOURCES += vehicle/simroadtraffic.cc
-SOURCES += vehicle/vehicle.cc
-SOURCES += vehicle/vehicle_base.cc
-SOURCES += vehicle/water_vehicle.cc
-SOURCES += world/terraformer.cc
+SOURCES += src/simutrans/builder/brueckenbauer.cc
+SOURCES += src/simutrans/builder/fabrikbauer.cc
+SOURCES += src/simutrans/builder/goods_manager.cc
+SOURCES += src/simutrans/builder/hausbauer.cc
+SOURCES += src/simutrans/builder/tunnelbauer.cc
+SOURCES += src/simutrans/builder/tree_builder.cc
+SOURCES += src/simutrans/builder/vehikelbauer.cc
+SOURCES += src/simutrans/builder/wegbauer.cc
+SOURCES += src/simutrans/ground/boden.cc
+SOURCES += src/simutrans/ground/brueckenboden.cc
+SOURCES += src/simutrans/ground/fundament.cc
+SOURCES += src/simutrans/ground/grund.cc
+SOURCES += src/simutrans/ground/monorailboden.cc
+SOURCES += src/simutrans/ground/tunnelboden.cc
+SOURCES += src/simutrans/ground/wasser.cc
+SOURCES += src/simutrans/obj/way/kanal.cc
+SOURCES += src/simutrans/obj/way/maglev.cc
+SOURCES += src/simutrans/obj/way/monorail.cc
+SOURCES += src/simutrans/obj/way/narrowgauge.cc
+SOURCES += src/simutrans/obj/way/runway.cc
+SOURCES += src/simutrans/obj/way/schiene.cc
+SOURCES += src/simutrans/obj/way/strasse.cc
+SOURCES += src/simutrans/obj/way/weg.cc
+SOURCES += src/simutrans/dataobj/crossing_logic.cc
+SOURCES += src/simutrans/dataobj/environment.cc
+SOURCES += src/simutrans/dataobj/freelist.cc
+SOURCES += src/simutrans/dataobj/gameinfo.cc
+SOURCES += src/simutrans/dataobj/height_map_loader.cc
+SOURCES += src/simutrans/dataobj/koord.cc
+SOURCES += src/simutrans/dataobj/koord3d.cc
+SOURCES += src/simutrans/dataobj/loadsave.cc
+SOURCES += src/simutrans/dataobj/marker.cc
+SOURCES += src/simutrans/dataobj/objlist.cc
+SOURCES += src/simutrans/dataobj/powernet.cc
+SOURCES += src/simutrans/dataobj/records.cc
+SOURCES += src/simutrans/dataobj/rect.cc
+SOURCES += src/simutrans/dataobj/ribi.cc
+SOURCES += src/simutrans/dataobj/route.cc
+SOURCES += src/simutrans/dataobj/scenario.cc
+SOURCES += src/simutrans/dataobj/schedule.cc
+SOURCES += src/simutrans/dataobj/settings.cc
+SOURCES += src/simutrans/dataobj/tabfile.cc
+SOURCES += src/simutrans/dataobj/translator.cc
+SOURCES += src/simutrans/descriptor/bridge_desc.cc
+SOURCES += src/simutrans/descriptor/building_desc.cc
+SOURCES += src/simutrans/descriptor/factory_desc.cc
+SOURCES += src/simutrans/descriptor/goods_desc.cc
+SOURCES += src/simutrans/descriptor/ground_desc.cc
+SOURCES += src/simutrans/descriptor/image.cc
+SOURCES += src/simutrans/descriptor/obj_base_desc.cc
+SOURCES += src/simutrans/descriptor/reader/bridge_reader.cc
+SOURCES += src/simutrans/descriptor/reader/building_reader.cc
+SOURCES += src/simutrans/descriptor/reader/citycar_reader.cc
+SOURCES += src/simutrans/descriptor/reader/crossing_reader.cc
+SOURCES += src/simutrans/descriptor/reader/factory_reader.cc
+SOURCES += src/simutrans/descriptor/reader/good_reader.cc
+SOURCES += src/simutrans/descriptor/reader/ground_reader.cc
+SOURCES += src/simutrans/descriptor/reader/groundobj_reader.cc
+SOURCES += src/simutrans/descriptor/reader/image_reader.cc
+SOURCES += src/simutrans/descriptor/reader/imagelist2d_reader.cc
+SOURCES += src/simutrans/descriptor/reader/imagelist_reader.cc
+SOURCES += src/simutrans/descriptor/reader/obj_reader.cc
+SOURCES += src/simutrans/descriptor/reader/pedestrian_reader.cc
+SOURCES += src/simutrans/descriptor/reader/roadsign_reader.cc
+SOURCES += src/simutrans/descriptor/reader/root_reader.cc
+SOURCES += src/simutrans/descriptor/reader/sim_reader.cc
+SOURCES += src/simutrans/descriptor/reader/skin_reader.cc
+SOURCES += src/simutrans/descriptor/reader/sound_reader.cc
+SOURCES += src/simutrans/descriptor/reader/text_reader.cc
+SOURCES += src/simutrans/descriptor/reader/tree_reader.cc
+SOURCES += src/simutrans/descriptor/reader/tunnel_reader.cc
+SOURCES += src/simutrans/descriptor/reader/vehicle_reader.cc
+SOURCES += src/simutrans/descriptor/reader/way_obj_reader.cc
+SOURCES += src/simutrans/descriptor/reader/way_reader.cc
+SOURCES += src/simutrans/descriptor/reader/xref_reader.cc
+SOURCES += src/simutrans/descriptor/sound_desc.cc
+SOURCES += src/simutrans/descriptor/tunnel_desc.cc
+SOURCES += src/simutrans/descriptor/vehicle_desc.cc
+SOURCES += src/simutrans/descriptor/way_desc.cc
+SOURCES += src/simutrans/display/font.cc
+SOURCES += src/simutrans/display/simgraph$(COLOUR_DEPTH).cc
+SOURCES += src/simutrans/display/simview.cc
+SOURCES += src/simutrans/display/viewport.cc
+SOURCES += src/simutrans/world/placefinder.cc
+SOURCES += src/simutrans/freight_list_sorter.cc
+SOURCES += src/simutrans/gui/ai_option.cc
+SOURCES += src/simutrans/gui/ai_selector.cc
+SOURCES += src/simutrans/gui/banner.cc
+SOURCES += src/simutrans/gui/base_info.cc
+SOURCES += src/simutrans/gui/baum_edit.cc
+SOURCES += src/simutrans/gui/city_info.cc
+SOURCES += src/simutrans/gui/citybuilding_edit.cc
+SOURCES += src/simutrans/gui/citylist_frame.cc
+SOURCES += src/simutrans/gui/citylist_stats.cc
+SOURCES += src/simutrans/gui/climates.cc
+SOURCES += src/simutrans/gui/components/gui_aligned_container.cc
+SOURCES += src/simutrans/gui/components/gui_building.cc
+SOURCES += src/simutrans/gui/components/gui_button.cc
+SOURCES += src/simutrans/gui/components/gui_button_to_chart.cc
+SOURCES += src/simutrans/gui/components/gui_chart.cc
+SOURCES += src/simutrans/gui/components/gui_colorbox.cc
+SOURCES += src/simutrans/gui/components/gui_combobox.cc
+SOURCES += src/simutrans/gui/components/gui_container.cc
+SOURCES += src/simutrans/gui/components/gui_convoiinfo.cc
+SOURCES += src/simutrans/gui/components/gui_divider.cc
+SOURCES += src/simutrans/gui/components/gui_fixedwidth_textarea.cc
+SOURCES += src/simutrans/gui/components/gui_flowtext.cc
+SOURCES += src/simutrans/gui/components/gui_image.cc
+SOURCES += src/simutrans/gui/components/gui_image_list.cc
+SOURCES += src/simutrans/gui/components/gui_component.cc
+SOURCES += src/simutrans/gui/components/gui_label.cc
+SOURCES += src/simutrans/gui/components/gui_map_preview.cc
+SOURCES += src/simutrans/gui/components/gui_numberinput.cc
+SOURCES += src/simutrans/gui/components/gui_obj_view.cc
+SOURCES += src/simutrans/gui/components/gui_schedule.cc
+SOURCES += src/simutrans/gui/components/gui_scrollbar.cc
+SOURCES += src/simutrans/gui/components/gui_scrolled_list.cc
+SOURCES += src/simutrans/gui/components/gui_scrollpane.cc
+SOURCES += src/simutrans/gui/components/gui_speedbar.cc
+SOURCES += src/simutrans/gui/components/gui_tab_panel.cc
+SOURCES += src/simutrans/gui/components/gui_textarea.cc
+SOURCES += src/simutrans/gui/components/gui_textinput.cc
+SOURCES += src/simutrans/gui/components/gui_timeinput.cc
+SOURCES += src/simutrans/gui/components/gui_waytype_tab_panel.cc
+SOURCES += src/simutrans/gui/components/gui_world_view.cc
+SOURCES += src/simutrans/gui/convoi_detail.cc
+SOURCES += src/simutrans/gui/convoi_filter_frame.cc
+SOURCES += src/simutrans/gui/convoi_frame.cc
+SOURCES += src/simutrans/gui/convoi_info.cc
+SOURCES += src/simutrans/gui/convoy_item.cc
+SOURCES += src/simutrans/gui/curiosity_edit.cc
+SOURCES += src/simutrans/gui/curiositylist_frame.cc
+SOURCES += src/simutrans/gui/curiositylist_stats.cc
+SOURCES += src/simutrans/gui/depot_frame.cc
+SOURCES += src/simutrans/gui/depotlist_frame.cc
+SOURCES += src/simutrans/gui/display_settings.cc
+SOURCES += src/simutrans/gui/enlarge_map_frame.cc
+SOURCES += src/simutrans/gui/extend_edit.cc
+SOURCES += src/simutrans/gui/fabrik_info.cc
+SOURCES += src/simutrans/gui/factory_chart.cc
+SOURCES += src/simutrans/gui/factory_edit.cc
+SOURCES += src/simutrans/gui/factorylist_frame.cc
+SOURCES += src/simutrans/gui/factorylist_stats.cc
+SOURCES += src/simutrans/gui/goods_frame.cc
+SOURCES += src/simutrans/gui/goods_stats.cc
+SOURCES += src/simutrans/gui/ground_info.cc
+SOURCES += src/simutrans/gui/groundobj_edit.cc
+SOURCES += src/simutrans/gui/gui_frame.cc
+SOURCES += src/simutrans/gui/gui_theme.cc
+SOURCES += src/simutrans/gui/halt_info.cc
+SOURCES += src/simutrans/gui/halt_list_filter_frame.cc
+SOURCES += src/simutrans/gui/halt_list_frame.cc
+SOURCES += src/simutrans/gui/halt_list_stats.cc
+SOURCES += src/simutrans/gui/headquarter_info.cc
+SOURCES += src/simutrans/gui/help_frame.cc
+SOURCES += src/simutrans/gui/jump_frame.cc
+SOURCES += src/simutrans/gui/minimap.cc
+SOURCES += src/simutrans/gui/kennfarbe.cc
+SOURCES += src/simutrans/gui/label_info.cc
+SOURCES += src/simutrans/gui/labellist_frame.cc
+SOURCES += src/simutrans/gui/labellist_stats.cc
+SOURCES += src/simutrans/gui/line_item.cc
+SOURCES += src/simutrans/gui/line_management_gui.cc
+SOURCES += src/simutrans/gui/load_relief_frame.cc
+SOURCES += src/simutrans/gui/loadfont_frame.cc
+SOURCES += src/simutrans/gui/loadsave_frame.cc
+SOURCES += src/simutrans/gui/map_frame.cc
+SOURCES += src/simutrans/gui/message_frame.cc
+SOURCES += src/simutrans/gui/message_option.cc
+SOURCES += src/simutrans/gui/message_stats.cc
+SOURCES += src/simutrans/gui/messagebox.cc
+SOURCES += src/simutrans/gui/money_frame.cc
+SOURCES += src/simutrans/gui/obj_info.cc
+SOURCES += src/simutrans/gui/optionen.cc
+SOURCES += src/simutrans/gui/pakselector.cc
+SOURCES += src/simutrans/gui/pakinstaller.cc
+SOURCES += src/simutrans/gui/password_frame.cc
+SOURCES += src/simutrans/gui/player_frame.cc
+SOURCES += src/simutrans/gui/privatesign_info.cc
+SOURCES += src/simutrans/gui/savegame_frame.cc
+SOURCES += src/simutrans/gui/scenario_frame.cc
+SOURCES += src/simutrans/gui/scenario_info.cc
+SOURCES += src/simutrans/gui/schedule_list.cc
+SOURCES += src/simutrans/gui/script_tool_frame.cc
+SOURCES += src/simutrans/gui/server_frame.cc
+SOURCES += src/simutrans/gui/settings_frame.cc
+SOURCES += src/simutrans/gui/settings_stats.cc
+SOURCES += src/simutrans/gui/signal_spacing.cc
+SOURCES += src/simutrans/gui/simwin.cc
+SOURCES += src/simutrans/gui/sound_frame.cc
+SOURCES += src/simutrans/gui/sprachen.cc
+SOURCES += src/simutrans/gui/station_building_select.cc
+SOURCES += src/simutrans/gui/themeselector.cc
+SOURCES += src/simutrans/gui/tool_selector.cc
+SOURCES += src/simutrans/gui/trafficlight_info.cc
+SOURCES += src/simutrans/gui/vehiclelist_frame.cc
+SOURCES += src/simutrans/gui/welt.cc
+SOURCES += src/simutrans/io/classify_file.cc
+SOURCES += src/simutrans/io/raw_image.cc
+SOURCES += src/simutrans/io/raw_image_bmp.cc
+SOURCES += src/simutrans/io/raw_image_png.cc
+SOURCES += src/simutrans/io/raw_image_ppm.cc
+SOURCES += src/simutrans/io/rdwr/adler32_stream.cc
+SOURCES += src/simutrans/io/rdwr/compare_file_rd_stream.cc
+SOURCES += src/simutrans/io/rdwr/bzip2_file_rdwr_stream.cc
+SOURCES += src/simutrans/io/rdwr/raw_file_rdwr_stream.cc
+SOURCES += src/simutrans/io/rdwr/rdwr_stream.cc
+SOURCES += src/simutrans/io/rdwr/zlib_file_rdwr_stream.cc
+SOURCES += src/simutrans/network/checksum.cc
+SOURCES += src/simutrans/network/memory_rw.cc
+SOURCES += src/simutrans/network/network.cc
+SOURCES += src/simutrans/network/network_address.cc
+SOURCES += src/simutrans/network/network_cmd.cc
+SOURCES += src/simutrans/network/network_cmd_ingame.cc
+SOURCES += src/simutrans/network/network_cmd_scenario.cc
+SOURCES += src/simutrans/network/network_cmp_pakset.cc
+SOURCES += src/simutrans/network/network_file_transfer.cc
+SOURCES += src/simutrans/network/network_packet.cc
+SOURCES += src/simutrans/network/network_socket_list.cc
+SOURCES += src/simutrans/network/pakset_info.cc
+SOURCES += src/simutrans/obj/baum.cc
+SOURCES += src/simutrans/obj/bruecke.cc
+SOURCES += src/simutrans/obj/crossing.cc
+SOURCES += src/simutrans/obj/field.cc
+SOURCES += src/simutrans/obj/gebaeude.cc
+SOURCES += src/simutrans/obj/groundobj.cc
+SOURCES += src/simutrans/obj/label.cc
+SOURCES += src/simutrans/obj/leitung2.cc
+SOURCES += src/simutrans/obj/pillar.cc
+SOURCES += src/simutrans/obj/roadsign.cc
+SOURCES += src/simutrans/obj/signal.cc
+SOURCES += src/simutrans/obj/simobj.cc
+SOURCES += src/simutrans/obj/tunnel.cc
+SOURCES += src/simutrans/obj/wayobj.cc
+SOURCES += src/simutrans/obj/wolke.cc
+SOURCES += src/simutrans/obj/zeiger.cc
+SOURCES += src/simutrans/old_blockmanager.cc
+SOURCES += src/simutrans/player/ai.cc
+SOURCES += src/simutrans/player/ai_goods.cc
+SOURCES += src/simutrans/player/ai_passenger.cc
+SOURCES += src/simutrans/player/ai_scripted.cc
+SOURCES += src/simutrans/player/finance.cc
+SOURCES += src/simutrans/player/simplay.cc
+SOURCES += src/simutrans/script/api/api_city.cc
+SOURCES += src/simutrans/script/api/api_command.cc
+SOURCES += src/simutrans/script/api/api_const.cc
+SOURCES += src/simutrans/script/api/api_control.cc
+SOURCES += src/simutrans/script/api/api_convoy.cc
+SOURCES += src/simutrans/script/api/api_factory.cc
+SOURCES += src/simutrans/script/api/api_gui.cc
+SOURCES += src/simutrans/script/api/api_halt.cc
+SOURCES += src/simutrans/script/api/api_include.cc
+SOURCES += src/simutrans/script/api/api_line.cc
+SOURCES += src/simutrans/script/api/api_map_objects.cc
+SOURCES += src/simutrans/script/api/api_obj_desc.cc
+SOURCES += src/simutrans/script/api/api_obj_desc_base.cc
+SOURCES += src/simutrans/script/api/api_pathfinding.cc
+SOURCES += src/simutrans/script/api/api_player.cc
+SOURCES += src/simutrans/script/api/api_scenario.cc
+SOURCES += src/simutrans/script/api/api_schedule.cc
+SOURCES += src/simutrans/script/api/api_settings.cc
+SOURCES += src/simutrans/script/api/api_simple.cc
+SOURCES += src/simutrans/script/api/api_tiles.cc
+SOURCES += src/simutrans/script/api/api_world.cc
+SOURCES += src/simutrans/script/api/export_desc.cc
+SOURCES += src/simutrans/script/api/get_next.cc
+SOURCES += src/simutrans/script/api_class.cc
+SOURCES += src/simutrans/script/api_function.cc
+SOURCES += src/simutrans/script/api_param.cc
+SOURCES += src/simutrans/script/dynamic_string.cc
+SOURCES += src/simutrans/script/export_objs.cc
+SOURCES += src/simutrans/script/script.cc
+SOURCES += src/simutrans/script/script_loader.cc
+SOURCES += src/simutrans/script/script_tool_manager.cc
+SOURCES += src/simutrans/world/simcity.cc
+SOURCES += src/simutrans/simconvoi.cc
+SOURCES += src/simutrans/simdebug.cc
+SOURCES += src/simutrans/obj/depot.cc
+SOURCES += src/simutrans/simevent.cc
+SOURCES += src/simutrans/simfab.cc
+SOURCES += src/simutrans/simhalt.cc
+SOURCES += src/simutrans/siminteraction.cc
+SOURCES += src/simutrans/simintr.cc
+SOURCES += src/simutrans/simio.cc
+SOURCES += src/simutrans/simline.cc
+SOURCES += src/simutrans/simlinemgmt.cc
+SOURCES += src/simutrans/simloadingscreen.cc
+SOURCES += src/simutrans/simmain.cc
+SOURCES += src/simutrans/simmem.cc
+SOURCES += src/simutrans/tool/simmenu.cc
+SOURCES += src/simutrans/simmesg.cc
+SOURCES += src/simutrans/world/simplan.cc
+SOURCES += src/simutrans/simskin.cc
+SOURCES += src/simutrans/simsound.cc
+SOURCES += src/simutrans/simticker.cc
+SOURCES += src/simutrans/tool/simtool.cc
+SOURCES += src/simutrans/tool/simtool-scripted.cc
+SOURCES += src/simutrans/simware.cc
+SOURCES += src/simutrans/world/simworld.cc
+SOURCES += src/squirrel/sq_extensions.cc
+SOURCES += src/squirrel/sqstdlib/sqstdaux.cc
+SOURCES += src/squirrel/sqstdlib/sqstdblob.cc
+SOURCES += src/squirrel/sqstdlib/sqstdio.cc
+SOURCES += src/squirrel/sqstdlib/sqstdmath.cc
+SOURCES += src/squirrel/sqstdlib/sqstdrex.cc
+SOURCES += src/squirrel/sqstdlib/sqstdstream.cc
+SOURCES += src/squirrel/sqstdlib/sqstdstring.cc
+SOURCES += src/squirrel/sqstdlib/sqstdsystem.cc
+SOURCES += src/squirrel/squirrel/sqapi.cc
+SOURCES += src/squirrel/squirrel/sqbaselib.cc
+SOURCES += src/squirrel/squirrel/sqclass.cc
+SOURCES += src/squirrel/squirrel/sqcompiler.cc
+SOURCES += src/squirrel/squirrel/sqdebug.cc
+SOURCES += src/squirrel/squirrel/sqfuncstate.cc
+SOURCES += src/squirrel/squirrel/sqlexer.cc
+SOURCES += src/squirrel/squirrel/sqmem.cc
+SOURCES += src/squirrel/squirrel/sqobject.cc
+SOURCES += src/squirrel/squirrel/sqstate.cc
+SOURCES += src/squirrel/squirrel/sqtable.cc
+SOURCES += src/squirrel/squirrel/sqvm.cc
+SOURCES += src/simutrans/sys/simsys.cc
+SOURCES += src/simutrans/utils/unicode.cc
+SOURCES += src/simutrans/utils/cbuffer.cc
+SOURCES += src/simutrans/utils/checklist.cc
+SOURCES += src/simutrans/utils/csv.cc
+SOURCES += src/simutrans/utils/log.cc
+SOURCES += src/simutrans/utils/searchfolder.cc
+SOURCES += src/simutrans/utils/sha1.cc
+SOURCES += src/simutrans/utils/sha1_hash.cc
+SOURCES += src/simutrans/utils/simrandom.cc
+SOURCES += src/simutrans/utils/simstring.cc
+SOURCES += src/simutrans/utils/simthread.cc
+SOURCES += src/simutrans/vehicle/air_vehicle.cc
+SOURCES += src/simutrans/vehicle/movingobj.cc
+SOURCES += src/simutrans/vehicle/pedestrian.cc
+SOURCES += src/simutrans/vehicle/rail_vehicle.cc
+SOURCES += src/simutrans/vehicle/road_vehicle.cc
+SOURCES += src/simutrans/vehicle/simroadtraffic.cc
+SOURCES += src/simutrans/vehicle/vehicle.cc
+SOURCES += src/simutrans/vehicle/vehicle_base.cc
+SOURCES += src/simutrans/vehicle/water_vehicle.cc
+SOURCES += src/simutrans/world/terraformer.cc
 
 
 ifeq ($(BACKEND),gdi)
-  SOURCES += sys/simsys_w.cc
-  SOURCES += sound/win32_sound_xa.cc
+  SOURCES += src/simutrans/sys/simsys_w.cc
+  SOURCES += src/simutrans/sound/win32_sound_xa.cc
   LDFLAGS += -lxaudio2_8
   ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
-    SOURCES += music/w32_midi.cc
+    SOURCES += src/simutrans/music/w32_midi.cc
   endif
 endif
 
 ifeq ($(BACKEND),sdl)
-  SOURCES += sys/simsys_s.cc
+  SOURCES += src/simutrans/sys/simsys_s.cc
   ifeq ($(OSTYPE),mac)
     AV_FOUNDATION ?= 0
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
-      SOURCES += sound/AVF_core-audio_sound.mm
-      SOURCES += music/AVF_core-audio_midi.mm
+      SOURCES += src/simutrans/sound/AVF_core-audio_sound.mm
+      SOURCES += src/simutrans/music/AVF_core-audio_midi.mm
       LIBS    += -framework Foundation -framework AVFoundation
     else
       # Core Audio (Quicktime) base sound system routines
-      SOURCES += sound/core-audio_sound.mm
-      SOURCES += music/core-audio_midi.mm
+      SOURCES += src/simutrans/sound/core-audio_sound.mm
+      SOURCES += src/simutrans/music/core-audio_midi.mm
       LIBS    += -framework Foundation -framework QTKit
     endif
   else
-    SOURCES   += sound/sdl_sound.cc
+    SOURCES += src/simutrans/sound/sdl_sound.cc
     ifneq ($(OSTYPE),mingw)
       ifeq ($(USE_FLUIDSYNTH_MIDI), 0)
-        SOURCES += music/no_midi.cc
+        SOURCES += src/simutrans/music/no_midi.cc
       endif
     else
-      SOURCES += music/w32_midi.cc
+      SOURCES += src/simutrans/music/w32_midi.cc
     endif
   endif
 
@@ -667,31 +667,31 @@ ifeq ($(BACKEND),sdl)
 endif
 
 ifeq ($(BACKEND),sdl2)
-  SOURCES += sys/simsys_s2.cc
+  SOURCES += src/simutrans/sys/simsys_s2.cc
   ifeq ($(OSTYPE),mac)
     AV_FOUNDATION ?= 0
     ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
-      SOURCES += sound/AVF_core-audio_sound.mm
+      SOURCES += src/simutrans/sound/AVF_core-audio_sound.mm
       LIBS    += -framework Foundation -framework AVFoundation
       ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
-        SOURCES += music/AVF_core-audio_midi.mm
+        SOURCES += src/simutrans/music/AVF_core-audio_midi.mm
       endif
     else
       # Core Audio (Quicktime) base sound system routines
-      SOURCES += sound/core-audio_sound.mm
+      SOURCES += src/simutrans/sound/core-audio_sound.mm
       LIBS    += -framework Foundation -framework QTKit
       ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
-        SOURCES += music/core-audio_midi.mm
+        SOURCES += src/simutrans/music/core-audio_midi.mm
       endif
     endif
   else
-    SOURCES   += sound/sdl2_sound.cc
+    SOURCES += src/simutrans/sound/sdl2_sound.cc
     ifneq ($(shell expr $(USE_FLUIDSYNTH_MIDI) \>= 1), 1)
       ifneq ($(OSTYPE),mingw)
-        SOURCES += music/no_midi.cc
+        SOURCES += src/simutrans/music/no_midi.cc
       else
-        SOURCES += music/w32_midi.cc
+        SOURCES += src/simutrans/music/w32_midi.cc
       endif
     endif
   endif
@@ -717,7 +717,7 @@ ifeq ($(BACKEND),sdl2)
 endif
 
 ifeq ($(BACKEND),mixer_sdl2)
-  SOURCES += sys/simsys_s2.cc
+  SOURCES += src/simutrans/sys/simsys_s2.cc
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
       SDL_CFLAGS  := -F /Library/Frameworks -I/Library/Frameworks/SDL2.framework/Headers
@@ -727,8 +727,8 @@ ifeq ($(BACKEND),mixer_sdl2)
       SDL_LDFLAGS := -lSDL2main -lSDL2
     endif
   else
-    SOURCES += sound/sdl_mixer_sound.cc
-    SOURCES += music/sdl_midi.cc
+    SOURCES += src/simutrans/sound/sdl_mixer_sound.cc
+    SOURCES += src/simutrans/music/sdl_midi.cc
     SDL_CFLAGS    := $(shell $(SDL2_CONFIG) --cflags)
     ifeq ($(shell expr $(STATIC) \>= 1), 1)
       SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
@@ -741,9 +741,9 @@ ifeq ($(BACKEND),mixer_sdl2)
 endif
 
 ifeq ($(BACKEND),mixer_sdl)
-  SOURCES += sys/simsys_s.cc
-  SOURCES += sound/sdl_mixer_sound.cc
-  SOURCES += music/sdl_midi.cc
+  SOURCES += src/simutrans/sys/simsys_s.cc
+  SOURCES += src/simutrans/sound/sdl_mixer_sound.cc
+  SOURCES += src/simutrans/music/sdl_midi.cc
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
@@ -756,15 +756,15 @@ ifeq ($(BACKEND),mixer_sdl)
 endif
 
 ifeq ($(BACKEND),posix)
-  SOURCES += sys/simsys_posix.cc
-  SOURCES += music/no_midi.cc
-  SOURCES += sound/no_sound.cc
+  SOURCES += src/simutrans/sys/simsys_posix.cc
+  SOURCES += src/simutrans/music/no_midi.cc
+  SOURCES += src/simutrans/sound/no_sound.cc
 endif
 
 CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
 ifeq ($(OSTYPE),mingw)
-  SOURCES += simres.rc
+  SOURCES += src/Windows/simres.rc
   ifneq ($(REV),)
     WINDRES ?= windres -DREVISION=$(REV)
   else
@@ -793,11 +793,11 @@ all: simutrans makeobj nettool
 
 makeobj:
 	@echo "Building makeobj"
-	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
+	$(Q)$(MAKE) -e -C src/makeobj FLAGS="$(FLAGS)"
 
 nettool:
 	@echo "Building nettool"
-	$(Q)$(MAKE) -e -C nettools FLAGS="$(FLAGS)"
+	$(Q)$(MAKE) -e -C src/nettool FLAGS="$(FLAGS)"
 
 test: simutrans
 	$(PROGDIR)/$(PROG) -set_workdir $(shell pwd)/simutrans -objects pak -scenario automated-tests -debug 2 -lang en -fps 100
@@ -808,5 +808,5 @@ clean:
 	$(Q)rm -f $(DEPS)
 	$(Q)rm -f $(PROGDIR)/$(PROG)
 	$(Q)rm -fr $(PROGDIR)/$(PROG).app
-	$(Q)$(MAKE) -e -C makeobj clean
-	$(Q)$(MAKE) -e -C nettools clean
+	$(Q)$(MAKE) -e -C src/makeobj clean
+	$(Q)$(MAKE) -e -C src/nettool clean

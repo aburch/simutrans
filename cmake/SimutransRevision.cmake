@@ -82,15 +82,15 @@ if (SIMUTRANS_WC_REVISION)
 
 	# copy the file to the final header only if the version changes
 	# reduces needless rebuilds
-	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different revision.h.txt "${SOURCE_DIR}/revision.h")
+	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different revision.h.txt "${SOURCE_DIR}/src/simutrans/revision.h")
 
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
 		"will be unavailable.")
 
-	if (NOT EXISTS "${SOURCE_DIR}/revision.h")
-		file(WRITE "${SOURCE_DIR}/revision.h" "#define REVISION \n")
+	if (NOT EXISTS "${SOURCE_DIR}/src/simutrans/revision.h")
+		file(WRITE "${SOURCE_DIR}/src/simutrans/revision.h" "#define REVISION \n")
 	endif ()
 endif ()
 

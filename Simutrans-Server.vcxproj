@@ -118,7 +118,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
     <PreBuildEvent>
-      <Command>cscript.exe //Nologo revision.jse</Command>
+      <Command>cscript.exe //Nologo tools\revision.jse</Command>
       <Message>Obtain SVN revision number</Message>
     </PreBuildEvent>
     <ClCompile>
@@ -150,11 +150,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="display\simgraph0.cc" />
-    <ClCompile Include="music\no_midi.cc" />
-    <ClCompile Include="sound\no_sound.cc" />
-    <ClCompile Include="sys\clipboard_internal.cc" />
-    <ClCompile Include="sys\simsys_posix.cc" />
+    <ClCompile Include="src\simutrans\display\simgraph0.cc" />
+    <ClCompile Include="src\simutrans\music\no_midi.cc" />
+    <ClCompile Include="src\simutrans\sound\no_sound.cc" />
+    <ClCompile Include="src\simutrans\sys\clipboard_internal.cc" />
+    <ClCompile Include="src\simutrans\sys\simsys_posix.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

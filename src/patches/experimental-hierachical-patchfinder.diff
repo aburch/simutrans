@@ -1,0 +1,389 @@
+Index: gui/karte.cc
+===================================================================
+--- gui/karte.cc	(revision 1232)
++++ gui/karte.cc	(working copy)
+@@ -233,6 +233,7 @@
+ #endif
+ 						color = calc_hoehe_farbe((welt->lookup_hgt(gr->gib_pos().gib_2d())/Z_TILE_STEP)+height, welt->gib_grundwasser()/Z_TILE_STEP);
+ 						//color = COL_BLUE;	// water with boat?
++						color = route_t::add_to_minimap(welt,gr);
+ 					}
+ 					else {
+ 						color = dt->get_fabrik()->gib_kennfarbe();
+Index: dataobj/route.cc
+===================================================================
+--- dataobj/route.cc	(revision 1232)
++++ dataobj/route.cc	(working copy)
+@@ -19,8 +19,187 @@
+ #include "umgebung.h"
+
+
++// sorted heap, since we only need insert and pop
++#include "../tpl/array2d_tpl.h" // fastest
++#include "../tpl/array_tpl.h" // fastest
++#include "../tpl/minivec_tpl.h" // fastest
++
++class region_node {
++public:
++	koord center;
++	minivec_tpl<uint16> conn;
++	uint8 marked;
++};
++
++static array_tpl<region_node> connections;
++static array2d_tpl<uint16> *water_regions = NULL;
++static int REGION_SIZE = 16;
++static uint8 current_mark = 1;
++#define REGION_MASK (~(REGION_SIZE-1))
++
++
++static void fill_region(karte_t *welt, int x, int y, uint16 region_nr )
++{
++	const uint16 replace_nr = water_regions->at(x,y);
++	const int xmin = (x & REGION_MASK);
++	const int xmax = min( welt->gib_groesse_x(), xmin+REGION_SIZE );
++	// fill one line
++	int xl, xr;
++	xl = xr = x;
++	while(xl>=x  &&  water_regions->at(xl,y)==replace_nr  ) xl--;
++	if(xl<xmin) xl++;
++	while(xr<xmax  &&  water_regions->at(xr,y)==replace_nr  ) xr++;
++	if(xr==xmax) xr--;
++	// first fill with color
++	for(  x=xl;  x<=xr;  x++  ) {
++		water_regions->at(x,y) = region_nr;
++	}
++	// and then recursion
++	const int ymin = (y & REGION_MASK);
++	const int ymax = min( welt->gib_groesse_y(), ymin+REGION_SIZE );
++	y--;
++	if(y>=ymin) {
++		for(  x=xl;  x<xr;  x++  ) {
++			if(water_regions->at(x,y)==replace_nr) {
++				fill_region( welt, x, y, region_nr );
++			}
++		}
++	}
++	y += 2;
++	if(y<ymax) {
++		for(  x=xl;  x<xr;  x++  ) {
++			if(water_regions->at(x,y)==replace_nr) {
++				fill_region( welt, x, y, region_nr );
++			}
++		}
++	}
++}
++
++
++static void init_regions(karte_t *welt)
++{
++	if(water_regions) {
++		delete water_regions;
++		water_regions = NULL;
++	}
++	const int xw = welt->gib_groesse_x();
++	const int yw = welt->gib_groesse_y();
++	// what region size?
++	REGION_SIZE = 1;
++	while(  max(xw,yw)/REGION_SIZE>=256  ) {
++		REGION_SIZE <<= 1;
++	}
++	if(REGION_SIZE<4) {
++		REGION_SIZE = 0;
++		return;
++	}
++	water_regions = new array2d_tpl<uint16>( xw, yw );
++	// init land with zero, water with 1
++	memset( (void *)(water_regions->to_array()), 0, sizeof(uint16)*xw*yw );
++	for( int y=0;  y<yw;  y++  ) {
++		for( int x=0;  x<yw;  x++  ) {
++			if(welt->lookup_kartenboden(koord(x,y))->gib_weg_ribi(water_wt)) {
++				water_regions->at(x,y) = 1;
++			}
++		}
++	}
++	/* now finde the regions
++	 * we go from top to bottom and from left to right
++	 */
++	int region = 2;
++	for( int y=0;  y<yw+REGION_SIZE-1;  y+=REGION_SIZE  ) {
++		for( int x=0;  x<xw+REGION_SIZE-1;  x+=REGION_SIZE  ) {
++			// this way the reagions are ordered
++			// i.e. all regions of the first tile are following each other
++			const int ymax = min( yw, y+REGION_SIZE );
++			const int xmax = min( xw, x+REGION_SIZE );
++			for( int yoff=y;  yoff<ymax;  yoff++  ) {
++				for( int xoff=x;  xoff<xmax;  xoff++  ) {
++					if(water_regions->at(xoff,yoff)==1) {
++						fill_region( welt, xoff, yoff, region++ );
++					}
++				}
++			}
++		}
++	}
++	// finally: init new nodelist
++	connections.resize(region);
++	for( int i=0;  i<region;  i++) {
++		connections[i].conn.clear();
++		connections[i].conn.resize(6);
++		connections[i].marked = 0;
++	}
++	current_mark = 0;
++	// fill the entries
++	for( int yh=REGION_SIZE-1;  yh<yw;  yh+=REGION_SIZE  ) {
++		for( int xb=REGION_SIZE-1;  xb<xw;  xb+=REGION_SIZE  ) {
++			const koord center( xb&REGION_MASK, yh&REGION_MASK );
++			const int xmax = min(xw,xb);
++			if(yh+1<yw) {
++				for(  int x=xb-(REGION_SIZE-1);  x<xmax;  x++) {
++					if(water_regions->at(x,yh)>1  &&  water_regions->at(x,yh+1)>1) {
++						connections[water_regions->at(x,yh)].conn.append_unique(water_regions->at(x,yh+1));
++						connections[water_regions->at(x,yh)].center = center;
++					}
++				}
++			}
++			const int ymax = min(yw,yh);
++			if(xb+1<xw) {
++				for(  int y=yh-(REGION_SIZE-1);  y<ymax;  y++) {
++					if(water_regions->at(xb,y)>1  &&  water_regions->at(xb+1,y)>1) {
++						connections[water_regions->at(xb,y)].conn.append_unique(water_regions->at(xb+1,y));
++						connections[water_regions->at(xb,y)].center = center;
++					}
++				}
++			}
++			int y = yh & REGION_MASK;
++			if(y>0) {
++				for(  int x=xb-(REGION_SIZE-1);  x<xmax;  x++) {
++					if(water_regions->at(x,y)>1  &&  water_regions->at(x,y-1)>1) {
++						connections[water_regions->at(x,y)].conn.append_unique(water_regions->at(x,y-1));
++						connections[water_regions->at(x,y)].center = center;
++					}
++				}
++			}
++			int x = xb & REGION_MASK;
++			if(x>0) {
++				for(  int y=yh-(REGION_SIZE-1);  y<ymax;  y++) {
++					if(water_regions->at(x,y)>1  &&  water_regions->at(x-1,y)>1) {
++						connections[water_regions->at(x,y)].conn.append_unique(water_regions->at(x-1,y));
++						connections[water_regions->at(x,y)].center = center;
++					}
++				}
++			}
++		}
++	}
++	// now, in principle, we can free the region tile array ...
++
++	// debug
++	for( int i=2;  i<region;  i++  ) {
++		DBG_MESSAGE("connection tile","%i",i-2);
++		for(  int j=0;  j<connections[i].conn.get_count();  j++  ) {
++			DBG_MESSAGE("","%i->%i",i-2,connections[i].conn[j]-2);
++		}
++	}
++}
++
++// debug
++uint8 route_t::add_to_minimap(karte_t *welt, const grund_t *gr)
++{
++	if(water_regions==NULL) init_regions(welt);
++	if(REGION_SIZE==0) {
++		return 3;
++	}
++	if(water_regions->get_width()!=welt->gib_groesse_x()  ||  water_regions->get_height()!=welt->gib_groesse_y()) init_regions(welt);
++	uint16 node = water_regions->at( gr->gib_pos().x, gr->gib_pos().y );
++	return connections[node].marked==current_mark ? 15 : ((node*241)%242)+16;
++}
++
++
++
++
+ // if defined, print some profiling informations into the file
+-//#define DEBUG_ROUTES
++#define DEBUG_ROUTES
+
+ // this is WAY slower than the sorted_heap! (also not always finding best routes, but was the original algorithms)
+ //#include "../tpl/prioqueue_tpl.h" // ~100-250% slower
+@@ -36,6 +215,10 @@
+ // sorted heap, since we only need insert and pop
+ #include "../tpl/binary_heap_tpl.h" // fastest
+
++#ifdef DEBUG_ROUTES
++#include "../gui/karte.h"
++#include "../simsys.h"
++#endif
+
+
+ void
+@@ -324,9 +507,145 @@
+
+
+
+-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
++#define NODE_TO_KOORD(i) koord((i)%welt->gib_groesse_x(),(i)/welt->gib_groesse_x())
++#define GRUND_TO_NODE(i) ((i)->gib_pos().x+(i)->gib_pos().y*welt->gib_groesse_x())
++#define NODE_DISTANCE(i,j) (abs_distance(connections[i].center,connections[j].center)+((i)!=(j)))
++
++// ships may use a hierachical pathfinder
++bool route_t::intern_calc_route_water(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
+ {
++	// first, find a route in the node list
++	uint16 start_node = water_regions->at(start.x,start.y);
++	uint16 end_node = water_regions->at(ziel.x,ziel.y);
++
++	uint16 node=0;
++	bool ziel_erreicht = false;
++
++	// memory in static list ...
++	if(nodes==NULL) {
++		MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
++		nodes = new ANode[MAX_STEP + 4 + 2];
++	}
++	/* now find the shortest route beteen them with A* */
++
++	// there are several variant for maintaining the open list
++	// however, only binary heap and HOT queue with binary heap are worth considering
++#if defined(tpl_HOT_queue_tpl_h)
++    static HOT_queue_tpl <ANode *> queue;
++#elif defined(tpl_binary_heap_tpl_h)
++    static binary_heap_tpl <ANode *> queue;
++#elif defined(tpl_sorted_heap_tpl_h)
++    static sorted_heap_tpl <ANode *> queue;
++#else
++    static prioqueue_tpl <ANode *> queue;
++#endif
++	GET_NODE();
++
++	// use different mark
++	current_mark ++;
++
++	// clear the queue (should be empty anyhow)
++	route.clear();
++	queue.clear();
++
++	uint32 step = 0;
++	ANode* tmp = &nodes[step];
++	step ++;
++
++	tmp->parent = NULL;
++	tmp->gr = welt->lookup_kartenboden(NODE_TO_KOORD(start_node));
++	tmp->f = NODE_DISTANCE(start_node,end_node);
++	tmp->g = 0;
++	tmp->dir = 0;
++	tmp->count = 0;
++
++	queue.insert(tmp);
++
++	uint32 beat=1;
++	do {
++		// Hajo: this is too expensive to be called each step
++		if((beat++ & 255) == 0) {
++			INT_CHECK("route 161");
++		}
++
++		ANode *test_tmp = queue.pop();
++		uint16 test_node = GRUND_TO_NODE(test_tmp->gr);
++
++		if(connections[test_node].marked==current_mark) {
++			// we were already here on a faster route, thus ignore this branch
++			// (trading speed against memory consumption)
++			continue;
++		}
++
++		// we took the target pos out of the closed list
++		if(end_node==node) {
++			ziel_erreicht = true;
++			break;
++		}
++
++		tmp = test_tmp;
++		node = test_node;
++		connections[node].marked = current_mark;
++
++		for(int n=0;  n<connections[node].conn.get_count();  n++) {
++			uint16 to_node = connections[node].conn[n];
++			if(connections[to_node].marked!=current_mark) {
++
++				// new values for cost g
++				uint32 new_g = tmp->g + 1;
++
++				// no check for curves ...
++
++				const uint32 new_f = new_g + NODE_DISTANCE(to_node,end_node);
++
++				// add new
++				ANode* k = &nodes[step];
++				step ++;
++
++				k->parent = tmp;
++				k->gr = welt->lookup_kartenboden(NODE_TO_KOORD(to_node));
++				k->g = new_g;
++				k->f = new_f;
++				k->count = tmp->count+1;
++
++				queue.insert( k );
++			}
++		}
++
++	} while (!queue.empty()  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
++
++#ifdef DEBUG_ROUTES
++	// display marked route
++	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
++	//reliefkarte_t::gib_karte()->calc_map();
++#endif
++	vector_tpl<uint16>nodes(tmp->count+16);
++
++	// target reached?
++	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
++		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
++		return false;
++	}
++	else {
++		// reached => construct route
++		current_mark ++;
++		while(tmp != NULL) {
++			uint16 n = GRUND_TO_NODE(tmp->gr);
++			nodes.append( n );
++			connections[n].marked = current_mark;
++			tmp = tmp->parent;
++		}
++	}
++
++	RELEASE_NODE();
++
++	return false;
++}
++
++
++
++bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
++{
+ 	bool ok = false;
+
+ 	// check for existing koordinates
+Index: dataobj/route.h
+===================================================================
+--- dataobj/route.h	(revision 1232)
++++ dataobj/route.h	(working copy)
+@@ -28,6 +28,12 @@
+ {
+ private:
+ 	/**
++	 * an experimental hierachical pathfinder
++	 * @author Hj. Malthaner
++	 */
++	bool intern_calc_route_water(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
++
++	/**
+ 	 * Die eigentliche Routensuche
+ 	 * @author Hj. Malthaner
+ 	 */
+@@ -36,6 +42,8 @@
+ 	vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
+
+ public:
++	static uint8 add_to_minimap(karte_t *welt, const grund_t *gr);
++
+ 	// this class save the nodes during route search
+ 	class ANode {
+ 	public:

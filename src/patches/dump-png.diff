@@ -1,0 +1,205 @@
+Index: descriptor/image.cc
+===================================================================
+--- descriptor/image.cc	(revision 10146)
++++ descriptor/image.cc	(working copy)
+@@ -189,3 +189,46 @@
+ 	}
+ 	return target_image;
+ }
++
++
++/**
++ * decodes an image into a 32 bit bitmap (needed to dump images only)
++ */
++void image_t::decode_img(sint16 , sint16 , uint32 *target, uint32 target_width, uint32 target_height ) const
++{
++	if(  h > 0  && w > 0  ) {
++
++		// now: unpack the image
++		uint16 const *src = data;
++		for(  sint32 yy = y; yy < h+y; yy++  ) {
++			uint16 runlen;
++			sint16 max_w = x;
++			uint8* p = ((uint8*)target) + x * 3 + yy * target_width * 3;
++
++			// decode line
++			runlen = *src++;
++			do {
++				// clear run
++				p += runlen*3;
++				// color pixel
++				runlen = *src++;
++				while (runlen--) {
++					// get rgb components
++					uint16 s = *src++;
++					if(  s>=0x8000  ) {
++						// special color
++						*p++ = rgbtab[s&0x001F]>>16;
++						*p++ = rgbtab[s&0x001F]>>8;
++						*p++ = rgbtab[s&0x001F];
++					}
++					else {
++						*p++ = ((s>>10) & 0x001F)<<3;
++						*p++ = ((s>>5) & 0x001F)<<3;
++						*p++ = ((s) & 0x001F)<<3;
++					}
++				}
++				runlen = *src++;
++			} while( runlen!=0);
++		}
++	}
++}
+Index: descriptor/image.h
+===================================================================
+--- descriptor/image.h	(revision 10146)
++++ descriptor/image.h	(working copy)
+@@ -80,6 +80,8 @@
+ 
+ 	void register_image() { ::register_image(this); }
+ 
++	void decode_img(sint16 xoff, sint16 yoff, uint32* target, uint32 target_width, uint32 target_height) const;
++
+ private:
+ 	friend class image_reader_t;
+ };
+Index: descriptor/reader/image_reader.cc
+===================================================================
+--- descriptor/reader/image_reader.cc	(revision 10146)
++++ descriptor/reader/image_reader.cc	(working copy)
+@@ -19,6 +19,11 @@
+ #include "../../tpl/array_tpl.h"
+ 
+ 
++#ifdef MAKEOBJ
++#undef COLOUR_DEPTH
++#define COLOUR_DEPTH 16
++#endif
++
+ // if without graphics backend, do not copy any pixel
+ #if COLOUR_DEPTH != 0
+ #define skip_reading_pixels_if_no_graphics
+@@ -186,6 +191,7 @@
+ 		}
+ 	}
+ 
++#if !defined(MAKEOBJ)
+ 	if (desc->len != 0) {
+ 		// get the adler hash (since we have zlib on board anyway ... )
+ 		bool do_register_image = true;
+@@ -221,6 +227,7 @@
+ 			desc = same;
+ 		}
+ 	}
++#endif
+ 
+ 	return desc;
+ }
+Index: descriptor/reader/image_reader.h
+===================================================================
+--- descriptor/reader/image_reader.h	(revision 10146)
++++ descriptor/reader/image_reader.h	(working copy)
+@@ -17,6 +17,13 @@
+ {
+ 	OBJ_READER_DEF(image_reader_t, obj_image, "image");
+ 
++#ifdef MAKEOBJ
++#undef COLOUR_DEPTH
++#define COLOUR_DEPTH 16
++
++	void register_reader() {}
++#endif
++
+ public:
+ 	/// @copydoc obj_reader_t::read_node
+ 	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
+Index: descriptor/writer/image_writer.cc
+===================================================================
+--- descriptor/writer/image_writer.cc	(revision 10146)
++++ descriptor/writer/image_writer.cc	(working copy)
+@@ -31,7 +31,41 @@
+ 	int ymax;
+ };
+ 
++#include "../reader/image_reader.h"
++#include <assert.h>
+ 
++static image_reader_t ir;
++
++static int image_nr = 0;
++
++
++void image_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
++{
++	image_t *desc = (image_t *)ir.read_node( infp, (obj_node_info_t& )node );
++
++	/* now we can dump the image as we like it ... */
++	uint16 width = min( 64, desc->w+desc->x );
++	uint16 height = min( 64, desc->h+desc->y );
++
++	raw_image_t rawimg(width, height, raw_image_t::FMT_RGB888);
++	uint8* target = rawimg.access_pixel(0, 0);
++
++	for(  uint32 i=0;  i<width*height;  i++  ) {
++		// init transparent back ground
++		*target++ = 0xE7;
++		*target++ = 0xFF;
++		*target++ = 0xFF;
++	}
++	desc->decode_img( 0, 0, (uint32 *)rawimg.access_pixel(0, 0), rawimg.get_width(), height );
++
++	// PNG
++	char fname[256];
++	sprintf( fname, "image%i.png", image_nr++ );
++	rawimg.write_png(fname);
++}
++
++
++
+ std::string image_writer_t::last_img_file;
+ 
+ raw_image_t image_writer_t::input_img;
+Index: descriptor/writer/image_writer.h
+===================================================================
+--- descriptor/writer/image_writer.h	(revision 10146)
++++ descriptor/writer/image_writer.h	(working copy)
+@@ -37,6 +37,8 @@
+ 	static void set_img_size(int _img_size) { img_size = _img_size; }
+ 
+ 	obj_type get_type() const OVERRIDE { return obj_image; }
++		virtual void dump_node(FILE* infp, const obj_node_info_t& node);
++
+ 	const char* get_type_name() const OVERRIDE { return "image"; }
+ 
+ 	void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
+Index: makeobj/Makefile
+===================================================================
+--- makeobj/Makefile	(revision 10146)
++++ makeobj/Makefile	(working copy)
+@@ -118,6 +118,7 @@
+ SOLO_SOURCES += ../descriptor/writer/way_obj_writer.cc
+ SOLO_SOURCES += ../descriptor/writer/xref_writer.cc
+ SHARED_SOURCES += ../descriptor/image.cc
++SHARED_SOURCES += ../descriptor/reader/image_reader.cc
+ SHARED_SOURCES += ../dataobj/freelist.cc
+ SHARED_SOURCES += ../io/raw_image.cc
+ SHARED_SOURCES += ../simio.h
+Index: makeobj/Makeobj.vcxproj
+===================================================================
+--- makeobj/Makeobj.vcxproj	(revision 10146)
++++ makeobj/Makeobj.vcxproj	(working copy)
+@@ -88,6 +88,7 @@
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemGroup>
++    <ClCompile Include="..\descriptor\reader\image_reader.cc" />
+     <ClCompile Include="makeobj.cc" />
+     <ClCompile Include="..\simdebug.cc" />
+     <ClCompile Include="..\simmem.cc" />
+@@ -133,6 +134,7 @@
+     <ClCompile Include="..\simio.cc" />
+   </ItemGroup>
+   <ItemGroup>
++    <ClInclude Include="..\descriptor\reader\image_reader.h" />
+     <ClInclude Include="..\macros.h" />
+     <ClInclude Include="..\simcolor.h" />
+     <ClInclude Include="..\simconst.h" />

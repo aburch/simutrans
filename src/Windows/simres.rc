@@ -1,0 +1,43 @@
+/*
+* This file is part of the Simutrans project under the Artistic License.
+* (see LICENSE.txt)
+*/
+
+/* ICON and Version info for Simutrans Windows */
+
+#include <windows.h>
+#include "../simutrans/simversion.h"
+
+100 ICON "stormoog.ico"
+101 ICON "simutrans.ico"
+102 ICON "old.ico"
+
+
+1 VERSIONINFO
+FILEVERSION    RES_VERSION_NUMBER
+PRODUCTVERSION RES_VERSION_NUMBER
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "040904E4"
+  {
+   VALUE "CompanyName",      "Simutrans Team"
+   VALUE "FileDescription",  "Simutrans"
+   VALUE "FileVersion",      VERSION_NUMBER
+   VALUE "InternalName",     "SIMUTRANS"
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans Team '05-'13"
+   VALUE "OriginalFilename", "SIMUTRANS.EXE"
+   VALUE "ProductName",      "Simutrans"
+   VALUE "ProductVersion",   VERSION_NUMBER
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 2057, 1252, 1031, 1252, 1035, 1252, 1036, 1252, 1034, 1252, 1038, 1252, 1043, 1252
+ }
+
+}
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "Simutrans.manifest"
