@@ -3359,13 +3359,13 @@ void fabrik_t::display_status(sint16 xpos, sint16 ypos)
 		}
 		display_fillbox_wh_clip_rgb(xpos-1, ypos, D_WAITINGBAR_WIDTH*input.get_count()+2, 4, color_idx_to_rgb(150), true);
 
-		int i = 0;
-		FORX(array_tpl<ware_production_t>, const& goods, input, i++) {
+		for(uint32 i=0; i < input.get_count(); i++) {
+			ware_production_t const& goods = input[i];
+
 			if (!desc->get_supplier(i)) {
 				continue;
 			}
-			//const sint64 max_transit      = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
-			const sint64 pfactor = desc->get_supplier(i) ? (sint64)desc->get_supplier(i)->get_consumption() : 1ll;
+			const sint64 pfactor = (sint64)desc->get_supplier(i)->get_consumption();
 			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));
 
 			if (storage_capacity) {
@@ -3395,8 +3395,8 @@ void fabrik_t::display_status(sint16 xpos, sint16 ypos)
 		}
 		display_fillbox_wh_clip_rgb(xpos-1, ypos, D_WAITINGBAR_WIDTH*output.get_count()+2, 4, color_idx_to_rgb(COL_ORANGE), true);
 
-		int i = 0;
-		FORX(array_tpl<ware_production_t>, const& goods, output, i++) {
+		for(uint32 i=0; i < output.get_count(); i++) {
+			ware_production_t const& goods = output[i];
 
 			const sint64 pfactor = (sint64)desc->get_product(i)->get_factor();
 			const uint32 storage_capacity = (uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)goods.max * pfactor) >> (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS));

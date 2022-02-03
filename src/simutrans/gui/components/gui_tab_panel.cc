@@ -130,7 +130,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		// tab selector was hit
 		int text_x = (required_size.w>size.w ? D_ARROW_LEFT_WIDTH : 0) + D_H_SPACE;
 		int k=0;
-		FORX(slist_tpl<tab>, const& i, tabs, ++k) {
+		for(tab const& i : tabs) {
 			if(  k >= offset_tab  ) {
 				if (text_x <= ev->mx && text_x + i.width > ev->mx) {
 					// either tooltip or change
@@ -140,6 +140,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 				}
 				text_x += i.width;
 			}
+			k++;
 		}
 		return false;
 	}
@@ -197,7 +198,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	int xx = required_size.w>get_size().w ? get_size().w-(D_ARROW_LEFT_WIDTH+2+D_ARROW_RIGHT_WIDTH) : get_size().w;
 
 	int i=0;
-	FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
+	for(tab const& iter : tabs) {
 
 		if(i>=offset_tab) {
 			// set clipping
@@ -243,6 +244,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			// reset clipping
 			POP_CLIP();
 		}
+		i++;
 	}
 	display_fillbox_wh_clip_rgb(text_x, ypos+required_size.h-1, xpos+size.w-text_x, 1, SYSCOL_HIGHLIGHT, true);
 
@@ -257,7 +259,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		int mx = get_mouse_x()-parent_pos.x-pos.x;
 		int text_x = D_H_SPACE;
 		int i=0;
-		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
+		for(tab const& iter : tabs) {
 			if(  i>=offset_tab  ) {
 				if(text_x <= mx && text_x+iter.width > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
@@ -267,6 +269,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 				text_x += iter.width;
 			}
+			i++;
 		}
 	}
 }

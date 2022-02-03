@@ -617,11 +617,12 @@ bool settings_climates_stats_t::action_triggered(gui_action_creator_t *comp, val
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	read( local_sets );
 	uint i = 0;
-	FORX(slist_tpl<gui_numberinput_t*>, const n, numinp, ++i) {
+	for(gui_numberinput_t* const n : numinp) {
 		if (n == comp && i < 3 && welt_gui) {
 			// update world preview
 			welt_gui->update_preview();
 		}
+		i++;
 	}
 	return true;
 }

@@ -161,12 +161,12 @@ bool obj_reader_t::load(const char *path, const char *message)
 DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 
 		uint n = 0;
-		FORX(searchfolder_t, const& i, find, ++n) {
+		for(char* const& i : find) {
 			if (!read_file(i)) {
 				dbg->warning("obj_reader_t::load()", "Cannot load '%s', some objects might be unavailable!", i);
 			}
 
-			if ((n & step) == 0 && drawing) {
+			if ((n++ & step) == 0 && drawing) {
 				ls.set_progress(n);
 			}
 		}
