@@ -262,7 +262,7 @@ namespace script_api {
 		{
 			sq_newarray(vm, 0);
 
-			FORT(const vector<T>, const&i, v) {
+			for(auto const&i : v) {
 				param<T>::push(vm, i);
 				sq_arrayappend(vm, -2);
 			}

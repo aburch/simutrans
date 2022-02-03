@@ -166,7 +166,7 @@ namespace script_api {
 		{
 			sq_newtable(vm);
 
-			FORT(const stringhashtable_tpl<T>, const&i, v) {
+			for(auto const&i : v) {
 				create_slot<T>(vm, i.key, i.value);
 			}
 			return 1;

@@ -294,7 +294,7 @@ template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
  */
 template<class T> void clear_ptr_vector(vector_tpl<T*>& v)
 {
-	FORT(vector_tpl<T*>, const i, v) {
+	for(auto const i : v) {
 		delete i;
 	}
 	v.clear();

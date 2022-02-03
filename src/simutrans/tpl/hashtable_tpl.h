@@ -212,7 +212,7 @@ public:
 	const value_t &get(const key_t key) const
 	{
 		static value_t nix;
-		FORT(slist_tpl<node_t>, const& node, bags[get_hash(key)]) {
+		for(auto const& node : bags[get_hash(key)]) {
 			typename hash_t::diff_type diff = hash_t::comp(node.key, key);
 			if(  diff == 0  ) {
 				return node.value;
@@ -230,7 +230,7 @@ public:
 	value_t *access(const key_t key)
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];
-		FORT(slist_tpl<node_t>, & node, bag) {
+		for(auto & node : bag) {
 			typename hash_t::diff_type diff = hash_t::comp(node.key, key);
 			if(  diff == 0  ) {
 				return &node.value;
