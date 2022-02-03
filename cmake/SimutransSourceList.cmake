@@ -4,25 +4,10 @@ target_sources(simutrans PRIVATE
 		src/simutrans/builder/fabrikbauer.cc
 		src/simutrans/builder/goods_manager.cc
 		src/simutrans/builder/hausbauer.cc
-		src/simutrans/builder/tunnelbauer.cc
 		src/simutrans/builder/tree_builder.cc
+		src/simutrans/builder/tunnelbauer.cc
 		src/simutrans/builder/vehikelbauer.cc
 		src/simutrans/builder/wegbauer.cc
-		src/simutrans/ground/boden.cc
-		src/simutrans/ground/brueckenboden.cc
-		src/simutrans/ground/fundament.cc
-		src/simutrans/ground/grund.cc
-		src/simutrans/ground/monorailboden.cc
-		src/simutrans/ground/tunnelboden.cc
-		src/simutrans/ground/wasser.cc
-		src/simutrans/obj/way/kanal.cc
-		src/simutrans/obj/way/maglev.cc
-		src/simutrans/obj/way/monorail.cc
-		src/simutrans/obj/way/narrowgauge.cc
-		src/simutrans/obj/way/runway.cc
-		src/simutrans/obj/way/schiene.cc
-		src/simutrans/obj/way/strasse.cc
-		src/simutrans/obj/way/weg.cc
 		src/simutrans/dataobj/crossing_logic.cc
 		src/simutrans/dataobj/environment.cc
 		src/simutrans/dataobj/freelist.cc
@@ -82,8 +67,14 @@ target_sources(simutrans PRIVATE
 		src/simutrans/display/font.cc
 		src/simutrans/display/simview.cc
 		src/simutrans/display/viewport.cc
-		src/simutrans/world/placefinder.cc
 		src/simutrans/freight_list_sorter.cc
+		src/simutrans/ground/boden.cc
+		src/simutrans/ground/brueckenboden.cc
+		src/simutrans/ground/fundament.cc
+		src/simutrans/ground/grund.cc
+		src/simutrans/ground/monorailboden.cc
+		src/simutrans/ground/tunnelboden.cc
+		src/simutrans/ground/wasser.cc
 		src/simutrans/gui/ai_option.cc
 		src/simutrans/gui/ai_selector.cc
 		src/simutrans/gui/banner.cc
@@ -101,6 +92,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/components/gui_chart.cc
 		src/simutrans/gui/components/gui_colorbox.cc
 		src/simutrans/gui/components/gui_combobox.cc
+		src/simutrans/gui/components/gui_component.cc
 		src/simutrans/gui/components/gui_container.cc
 		src/simutrans/gui/components/gui_convoiinfo.cc
 		src/simutrans/gui/components/gui_divider.cc
@@ -108,7 +100,6 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/components/gui_flowtext.cc
 		src/simutrans/gui/components/gui_image.cc
 		src/simutrans/gui/components/gui_image_list.cc
-		src/simutrans/gui/components/gui_component.cc
 		src/simutrans/gui/components/gui_label.cc
 		src/simutrans/gui/components/gui_map_preview.cc
 		src/simutrans/gui/components/gui_numberinput.cc
@@ -155,7 +146,6 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/headquarter_info.cc
 		src/simutrans/gui/help_frame.cc
 		src/simutrans/gui/jump_frame.cc
-		src/simutrans/gui/minimap.cc
 		src/simutrans/gui/kennfarbe.cc
 		src/simutrans/gui/label_info.cc
 		src/simutrans/gui/labellist_frame.cc
@@ -170,11 +160,12 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/message_option.cc
 		src/simutrans/gui/message_stats.cc
 		src/simutrans/gui/messagebox.cc
+		src/simutrans/gui/minimap.cc
 		src/simutrans/gui/money_frame.cc
 		src/simutrans/gui/obj_info.cc
 		src/simutrans/gui/optionen.cc
-		src/simutrans/gui/pakselector.cc
 		src/simutrans/gui/pakinstaller.cc
+		src/simutrans/gui/pakselector.cc
 		src/simutrans/gui/password_frame.cc
 		src/simutrans/gui/player_frame.cc
 		src/simutrans/gui/privatesign_info.cc
@@ -222,6 +213,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/obj/baum.cc
 		src/simutrans/obj/bruecke.cc
 		src/simutrans/obj/crossing.cc
+		src/simutrans/obj/depot.cc
 		src/simutrans/obj/field.cc
 		src/simutrans/obj/gebaeude.cc
 		src/simutrans/obj/groundobj.cc
@@ -232,6 +224,14 @@ target_sources(simutrans PRIVATE
 		src/simutrans/obj/signal.cc
 		src/simutrans/obj/simobj.cc
 		src/simutrans/obj/tunnel.cc
+		src/simutrans/obj/way/kanal.cc
+		src/simutrans/obj/way/maglev.cc
+		src/simutrans/obj/way/monorail.cc
+		src/simutrans/obj/way/narrowgauge.cc
+		src/simutrans/obj/way/runway.cc
+		src/simutrans/obj/way/schiene.cc
+		src/simutrans/obj/way/strasse.cc
+		src/simutrans/obj/way/weg.cc
 		src/simutrans/obj/wayobj.cc
 		src/simutrans/obj/wolke.cc
 		src/simutrans/obj/zeiger.cc
@@ -273,10 +273,8 @@ target_sources(simutrans PRIVATE
 		src/simutrans/script/script.cc
 		src/simutrans/script/script_loader.cc
 		src/simutrans/script/script_tool_manager.cc
-		src/simutrans/world/simcity.cc
 		src/simutrans/simconvoi.cc
 		src/simutrans/simdebug.cc
-		src/simutrans/obj/depot.cc
 		src/simutrans/simevent.cc
 		src/simutrans/simfab.cc
 		src/simutrans/simhalt.cc
@@ -288,16 +286,40 @@ target_sources(simutrans PRIVATE
 		src/simutrans/simloadingscreen.cc
 		src/simutrans/simmain.cc
 		src/simutrans/simmem.cc
-		src/simutrans/tool/simmenu.cc
 		src/simutrans/simmesg.cc
-		src/simutrans/world/simplan.cc
 		src/simutrans/simskin.cc
 		src/simutrans/simsound.cc
 		src/simutrans/simticker.cc
-		src/simutrans/tool/simtool.cc
-		src/simutrans/tool/simtool-scripted.cc
 		src/simutrans/simware.cc
+		src/simutrans/sys/simsys.cc
+		src/simutrans/tool/simmenu.cc
+		src/simutrans/tool/simtool-scripted.cc
+		src/simutrans/tool/simtool.cc
+		src/simutrans/utils/cbuffer.cc
+		src/simutrans/utils/checklist.cc
+		src/simutrans/utils/csv.cc
+		src/simutrans/utils/log.cc
+		src/simutrans/utils/searchfolder.cc
+		src/simutrans/utils/sha1.cc
+		src/simutrans/utils/sha1_hash.cc
+		src/simutrans/utils/simrandom.cc
+		src/simutrans/utils/simstring.cc
+		src/simutrans/utils/simthread.cc
+		src/simutrans/utils/unicode.cc
+		src/simutrans/vehicle/air_vehicle.cc
+		src/simutrans/vehicle/movingobj.cc
+		src/simutrans/vehicle/pedestrian.cc
+		src/simutrans/vehicle/rail_vehicle.cc
+		src/simutrans/vehicle/road_vehicle.cc
+		src/simutrans/vehicle/simroadtraffic.cc
+		src/simutrans/vehicle/vehicle.cc
+		src/simutrans/vehicle/vehicle_base.cc
+		src/simutrans/vehicle/water_vehicle.cc
+		src/simutrans/world/placefinder.cc
+		src/simutrans/world/simcity.cc
+		src/simutrans/world/simplan.cc
 		src/simutrans/world/simworld.cc
+		src/simutrans/world/terraformer.cc
 		src/squirrel/sq_extensions.cc
 		src/squirrel/sqstdlib/sqstdaux.cc
 		src/squirrel/sqstdlib/sqstdblob.cc
@@ -319,26 +341,4 @@ target_sources(simutrans PRIVATE
 		src/squirrel/squirrel/sqstate.cc
 		src/squirrel/squirrel/sqtable.cc
 		src/squirrel/squirrel/sqvm.cc
-		src/simutrans/sys/simsys.cc
-		src/simutrans/utils/unicode.cc
-		src/simutrans/utils/cbuffer.cc
-		src/simutrans/utils/checklist.cc
-		src/simutrans/utils/csv.cc
-		src/simutrans/utils/log.cc
-		src/simutrans/utils/searchfolder.cc
-		src/simutrans/utils/sha1.cc
-		src/simutrans/utils/sha1_hash.cc
-		src/simutrans/utils/simrandom.cc
-		src/simutrans/utils/simstring.cc
-		src/simutrans/utils/simthread.cc
-		src/simutrans/vehicle/air_vehicle.cc
-		src/simutrans/vehicle/movingobj.cc
-		src/simutrans/vehicle/pedestrian.cc
-		src/simutrans/vehicle/rail_vehicle.cc
-		src/simutrans/vehicle/road_vehicle.cc
-		src/simutrans/vehicle/simroadtraffic.cc
-		src/simutrans/vehicle/vehicle.cc
-		src/simutrans/vehicle/vehicle_base.cc
-		src/simutrans/vehicle/water_vehicle.cc
-		src/simutrans/world/terraformer.cc
 )
