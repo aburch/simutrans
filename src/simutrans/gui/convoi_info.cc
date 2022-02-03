@@ -177,6 +177,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	container_schedule.end_table();
 
 	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line() );
+	old_schedule_count = scd.get_schedule()->get_count()+1;
 	init_line_selector();
 	container_schedule.add_component(&scd);
 	scd.add_listener(this);
