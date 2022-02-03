@@ -247,10 +247,10 @@ endif
 
 ifneq ($(REV),)
   CFLAGS  += -DREVISION=$(REV)
-  DUMMY := $(shell rm -f revision.h)
+  DUMMY := $(shell rm -f src/simutrans/revision.h)
 else
-  ifeq ("$(wildcard revision.h)","")
-    DUMMY := $(shell echo '\#define REVISION' > revision.h)
+  ifeq ("$(wildcard src/simutrans/revision.h)","")
+    DUMMY := $(shell echo '\#define REVISION' > src/simutrans/revision.h)
   endif
 endif
 
