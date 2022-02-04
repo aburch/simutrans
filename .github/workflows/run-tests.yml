@@ -35,7 +35,7 @@ jobs:
     - name: Install pak64
       run: |
         pushd simutrans
-        printf '1\ni\ny\n' | ../get_pak.sh
+        printf '1\ni\ny\n' | ../tools/get_pak.sh
         popd
     - name: Install language files
       run: ./get_lang_files.sh
@@ -52,7 +52,7 @@ jobs:
       run: |
         export ASAN_OPTIONS="print_stacktrace=1 abort_on_error=1 detect_leaks=0"
         export UBSAN_OPTIONS="print_stacktrace=1 abort_on_error=1"
-        cp scripts/run-automated-tests.sh .
+        cp tools/run-automated-tests.sh .
         chmod +x run-automated-tests.sh
         ulimit -St 600 # 10 minutes ought to be enough for anybody.
         ./run-automated-tests.sh
