@@ -38,7 +38,7 @@ jobs:
         printf '1\ni\ny\n' | ../tools/get_pak.sh
         popd
     - name: Install language files
-      run: ./get_lang_files.sh
+      run: tools/get_lang_files.sh
     - name: Link tests as scenario
       run: |
         mkdir -p ./simutrans/pak/scenario

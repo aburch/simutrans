@@ -16,5 +16,5 @@ echo "STATIC = 1" >>config.default
 %echo "VERBOSE = 1" >>config.default
 cat config.default >2
 make
-sh ./distribute.sh
+sh tools/distribute.sh
 mv simu*.zip simuwin-gdi32-nightly.zip

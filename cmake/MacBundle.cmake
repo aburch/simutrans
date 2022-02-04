@@ -3,13 +3,13 @@ string(TIMESTAMP YEAR "%Y")
 set(COPYRIGHT "Copyright 1997-${YEAR} by the Simutrans Team")
 
 # Get version number
-file(READ ${CMAKE_SOURCE_DIR}/simversion.h VERSION_FILE)
+file(READ ${SOURCE_DIR}src/simutrans/simversion.h VERSION_FILE)
 
 string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${VERSION_FILE})
 set(VERSION ${CMAKE_MATCH_1})
 
 # Copy the icon file
-set(ICON ${CMAKE_SOURCE_DIR}/OSX/simutrans.icns)
+set(ICON ${SOURCE_DIR}src/OSX/simutrans.icns)
 target_sources(simutrans PRIVATE ${ICON})
 set_source_files_properties(${ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 

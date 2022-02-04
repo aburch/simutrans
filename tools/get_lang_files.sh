@@ -8,6 +8,9 @@
 #
 # script to fetch language files
 #
+# assumes to be called from main dir "tools/get_lang_files.sh"
+#
+
 
 OUTPUT_DIR=simutrans/text
 

@@ -89,8 +89,8 @@ else ()
 		"is neither a Subversion nor a Git repository. Revision information "
 		"will be unavailable.")
 
-	if (NOT EXISTS "${SOURCE_DIR}/src/simutrans/revision.h")
-		file(WRITE "${SOURCE_DIR}/src/simutrans/revision.h" "#define REVISION \n")
+	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/revision.h")
+		file(WRITE "${CMAKE_SOURCE_DIR}/revision.h" "#define REVISION \n")
 	endif ()
 endif ()
 

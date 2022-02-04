@@ -31,7 +31,7 @@ jobs:
       run: make
 
     - name: distribute
-      run: sh ./distribute.sh
+      run: sh tools/distribute.sh
 
     - name: Rename result
       run:  mv simu*.zip simulinux-x64-nightly.zip

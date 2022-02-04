@@ -1,6 +1,7 @@
 *.ncb
 *.suo
 *.vcproj.*
+/out
 /Debug
 /Release
 /build
@@ -33,3 +34,5 @@ revision.h
 .idea
 *.d
 *.res
+/autom4te.cache
+*.exe

@@ -8,7 +8,7 @@
 #else
 #include <SDL.h>
 extern "C" {
-	#include "../OSX/translocation.h"
+	#include "../../OSX/translocation.h"
 }
 #endif
 

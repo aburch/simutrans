@@ -92,12 +92,12 @@ jobs:
         echo $CURRENT_BRANCH
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
         git clone -b $CURRENT_BRANCH $GITHUB_SERVER_URL/$GITHUB_REPOSITORY project/jni/application/simutrans/simutrans
-        chmod +755 project/jni/application/simutrans/simutrans/get_revision.sh
+        chmod +755 project/jni/application/simutrans/simutrans/tools/get_revision.sh
         echo $(ls -al project/jni/application/simutrans/simutrans/android)
-        cp -f project/jni/application/simutrans/simutrans/android/AndroidAppSettings.cfg project/jni/application/simutrans/
-        cp -f project/jni/application/simutrans/simutrans/android/AndroidBuild.sh project/jni/application/simutrans/
-        cp -f project/jni/application/simutrans/simutrans/android/AndroidPreBuild.sh project/jni/application/simutrans/
-        cp -f project/jni/application/simutrans/simutrans/android/icon.png project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/src/android/AndroidAppSettings.cfg project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/src/android/AndroidBuild.sh project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/src/android/AndroidPreBuild.sh project/jni/application/simutrans/
+        cp -f project/jni/application/simutrans/simutrans/src/android/icon.png project/jni/application/simutrans/
     #    svn checkout --depth empty svn://servers.simutrans.org/simutrans/trunk/ project/jni/application/simutrans/simutrans
 
     # End of environment setup (dependencies installed, source code at correct location)
@@ -108,15 +108,15 @@ jobs:
       run: |
         if [ -f $GITHUB_WORKSPACE/.github/android/*.patch ]; then cp -r $GITHUB_WORKSPACE/.github/android/*.patch .; fi;
         if [ -f *.patch ]; then git apply *.patch; fi;
-        sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
-        sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(cd project/jni/application/simutrans/simutrans; ./get_revision.sh)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
+        sed -i "s/^AppVersionCode=[0-9]\+/AppVersionCode=$(cd project/jni/application/simutrans/simutrans; tools/get_revision.sh)/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
+        sed -i "s/^AppVersionName=\"[0-9]\+.[0-9]\+\"/AppVersionName=\"r$(cd project/jni/application/simutrans/simutrans; tools/get_revision.sh)\"/" ./project/jni/application/simutrans/AndroidAppSettings.cfg
 
     - name: Build Simutrans Bundle
       working-directory: /android-sdl
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
         rm -f ./signBundle.sh
-        cp project/jni/application/simutrans/simutrans/android/signBundle.sh .
+        cp project/jni/application/simutrans/simutrans/src/android/signBundle.sh .
         chmod 555 ./signBundle.sh
         ./build.sh -b simutrans
 

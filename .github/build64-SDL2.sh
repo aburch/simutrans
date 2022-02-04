@@ -23,5 +23,5 @@ echo "STATIC = 1" >>config.default
 echo "VERBOSE = 1" >>config.default
 echo "LDFLAGS   += $(pkg-config --libs --static SDL2) " >>config.default
 make
-sh ./distribute.sh
+sh tools/distribute.sh
 mv simu*.zip simuwin64-SDL2-nightly.zip

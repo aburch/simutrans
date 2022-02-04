@@ -10,6 +10,9 @@
 # "-no-lang" prevents downloading the translations
 # "-no-rev" do not include revision number in zip file name
 # "-rev=###" overide SDL revision with ## (number)
+#
+# should be called from the main directory "tools/distribute.sh"
+#
 
 
 # get pthreads DLL
@@ -74,7 +77,7 @@ getSDL2mac()
 
 # first assume unix name defaults ...
 simexe=
-updatepath="/"
+updatepath="tools/"
 updater="get_pak.sh"
 
 OST=unknown
@@ -82,8 +85,8 @@ OST=unknown
 OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
 PGC=0
-# now get the OSTYPE from config.default and remove all spaces around
-PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+# now get the BUNDLE_PTHREADGC2 from config.default and remove all spaces around
+PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed -E "s/BUNDLE_PTHREADGC2[ :]*=[ ]*//" | sed -E "s/[ ]*\#.*//"`
 
 BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 if [ -n "$BUILDDIR" ]; then
@@ -113,11 +116,11 @@ elif [ "$OST" = "mingw" ]; then
     getDLL
   fi
   cd ..
-  updatepath="/nsis/"
+  updatepath="src/Windows/nsis/"
   updater="download-paksets.exe"
-  cd nsis
-  makensis onlineupgrade.nsi
-  cd ..
+  if ! [[ -f "$updatepath$updater" ]]; then
+	(cd "$updatepath" && makensis onlineupgrade.nsi)
+  fi
 elif [ "$OST" = "linux" ]; then
  simarchivbase=simulinux
 elif [ "$OST" = "freebsd" ]; then
@@ -131,6 +134,8 @@ if [ ! -f ./simutrans/$BUILDDIR$simexe ]; then
   echo "No simutrans executable found! Aborted!"
   exit 1
 fi
+
+cp $updatepath$updater simutrans
 
 # now add revision number without any modificators
 # fetch language files
@@ -168,7 +173,7 @@ buildOSX()
 	mkdir -p "simutrans.app/Contents/Resources"
 	cp $BUILDDIR$simexe   "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
-	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
+	cp "src/OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
 	localostype=`uname -o`
 	if [ "Msys" == "$localostype" ] || [ "Linux" == "$localostype" ]; then
 		# only 7z on linux and windows can do that ...
@@ -188,7 +193,7 @@ buildOSX()
 		install_name_tool -change "/usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Frameworks/libSDL2-2.0.0.dylib" "simutrans.app/Contents/MacOS/simutrans"
 	fi
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
-	sh ../OSX/plistgen.sh "simutrans.app" "simutrans"
+	sh src/OSX/plistgen.sh "simutrans.app" "simutrans"
 	if [ ! -d "pak" ]; then
 		curl --progress-bar -L -o "pak.zip" "http://downloads.sourceforge.net/project/simutrans/pak64/122-0/simupak64-122-0.zip"
 		unzip -qoC "pak.zip" -d ..
@@ -198,7 +203,7 @@ buildOSX()
 
 # fetch language files
 if [ "$#" = "0"  ]  ||  [ `expr match "$*" "-no-lang"` = "0" ]; then
-  sh ./get_lang_files.sh
+  sh tools/get_lang_files.sh
 fi
 
 # now built the archive for distribution
