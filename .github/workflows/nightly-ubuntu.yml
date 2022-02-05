@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -16,31 +16,25 @@ jobs:
         sudo apt-get -ym install libsdl2-dev
         sudo apt-get -ym install libfreetype6-dev
         sudo apt-get -ym install libminiupnpc-dev
-        sudo apt-get -ym install libbz2-dev
+        sudo apt-get -ym install libzstd-dev
+        sudo apt-get -ym install libfluidsynth-dev
         sudo apt-get -ym install autoconf
 
-    - name: setup
+    - name: build
       run: |
-        autoconf
-        ./configure
-        echo "FLAGS = -DREVISION=$(svn info --show-item revision svn://servers.simutrans.org/simutrans) " >>config.default
-        echo "STATIC = 1" >>config.default
-        cat config.default >>/dev/stderr
-
-    - name: make
-      run: make
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOPTION_BUNDLE_LIBRARIES=ON -DSIMUTRANS_STEAM_BUILT=1
+        cmake --build build -j$(nproc) --target install
 
     - name: distribute
-      run: sh tools/distribute.sh
-
-    - name: Rename result
-      run:  mv simu*.zip simulinux-x64-nightly.zip
+      run: |
+        cd build
+        zip -r simulinux-x64-nightly.zip simutrans
 
     - name: Update binaries of Nightly Release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./simulinux-x64-nightly.zip
+        file: build/simulinux-x64-nightly.zip
         asset_name: simulinux-x64-nightly.zip
         tag: Nightly
         overwrite: true

@@ -57,6 +57,12 @@ if(NOT SIMUTRANS_MSG_LEVEL)
 endif ()
 set_property(CACHE SIMUTRANS_MSG_LEVEL PROPERTY STRINGS 0 1 2 3 4)
 
+if(OPTION_BUNDLE_LIBRARIES AND UNIX AND NOT APPLE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_INSTALL_RPATH "\$ORIGIN/lib")
+    # otherwise RUNPATH will be set instead of RPATH, which can lead to issues
+	add_link_options("-Wl,--disable-new-dtags")
+endif()
 
 include(CheckCXXCompilerFlag)
 

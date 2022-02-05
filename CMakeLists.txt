@@ -33,6 +33,7 @@ if (MINGW)
 endif ()
 
 if (APPLE)
+	list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/readline")
 	link_directories(/usr/local/lib)
 	set(CMAKE_EXE_LINKER_FLAGS "-framework Cocoa")
 endif ()
@@ -374,8 +375,35 @@ if (SIMUTRANS_INSTALL_PAK64)
 		 execute_process(COMMAND sh ../../${CMAKE_SOURCE_DIR}/tools/get_pak.sh \${URLpak64} WORKING_DIRECTORY \${CMAKE_BINARY_DIR}/simutrans)
 		")
 	endif ()
-endif()
+endif ()
 
+# bundle libraries on linux if requested
+if(OPTION_BUNDLE_LIBRARIES AND UNIX AND NOT APPLE)
+	# Steam Runtime already includes some of our libraries
+	if (SIMUTRANS_STEAM_BUILT)
+		install(CODE [[
+			file(GET_RUNTIME_DEPENDENCIES
+					RESOLVED_DEPENDENCIES_VAR DEPENDENCIES
+					EXECUTABLES "${CMAKE_BINARY_DIR}/simutrans/simutrans"
+					PRE_EXCLUDE_REGEXES "libX11.so|libxkbcommon.so|libpulse*|libdbus*|libasound.so|libapparmor*|libsystemd*|libjack*|libportaudio*|libgcrypt*|libwayland*|libSDL2*|libfreetype*|libpng*|libz.so*|libglib*|libogg*|libpcre*|libvorbis*"
+					POST_EXCLUDE_REGEXES "libXrandr.so|libXrender.so|libXss.so|libXxf86vm.so|libXinerama.so|libXi.so|libXfixes.so|libXext.so|libXcursor.so|ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|librt.so|libstdc...so")
+		]])
+	else ()
+		install(CODE [[
+			file(GET_RUNTIME_DEPENDENCIES
+					RESOLVED_DEPENDENCIES_VAR DEPENDENCIES
+					EXECUTABLES "${CMAKE_BINARY_DIR}/simutrans/simutrans"
+					PRE_EXCLUDE_REGEXES "libX11.so|libxkbcommon.so|libpulse*|libdbus*|libasound.so|libapparmor*|libsystemd*|libjack*|libportaudio*|libgcrypt*|libwayland*"
+					POST_EXCLUDE_REGEXES "libXrandr.so|libXrender.so|libXss.so|libXxf86vm.so|libXinerama.so|libXi.so|libXfixes.so|libXext.so|libXcursor.so|ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|librt.so|libstdc...so")
+		]])
+	endif ()
+	install(CODE [[
+		file(INSTALL
+				DESTINATION "${CMAKE_BINARY_DIR}/simutrans/lib"
+				FILES ${DEPENDENCIES}
+				FOLLOW_SYMLINK_CHAIN)
+	]])
+endif ()
 
 #
 # Nettool/Makeobj
