@@ -68,115 +68,98 @@ server_frame_t::server_frame_t() :
 	update_info();
 	map->set_gameinfo(&gi);
 
-	set_table_layout(1,0);
+	set_table_layout(3,0);
 
 	// When in network mode, display only local map info (and nickname changer)
 	// When not in network mode, display server picker
 	if (  !env_t::networkmode  ) {
 		new_component<gui_label_t>("Select a server to join:" );
+		new_component<gui_fill_t>();
+		join.init(button_t::roundbox, "join game");
+		join.disable();
+		join.add_listener(this);
+		add_component(&join);
 
 		// Server listing
 		serverlist.set_selection( 0 );
-		add_component( &serverlist );
+		add_component( &serverlist, 3 );
 		serverlist.add_listener(this);
 
 		// Show mismatched checkbox
-		add_table(2,1);
-		{
-			show_mismatched.init( button_t::square_state, "Show mismatched");
-			show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
-			show_mismatched.add_listener( this );
-			add_component( &show_mismatched );
+		show_mismatched.init( button_t::square_state, "Show mismatched");
+		show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
+		show_mismatched.add_listener( this );
+		add_component( &show_mismatched );
 
-			// Show offline checkbox
-			show_offline.init( button_t::square_state, "Show offline");
-			show_offline.set_tooltip( "Show servers that are offline" );
-			show_offline.add_listener( this );
-			add_component( &show_offline );
-		}
-		end_table();
-		new_component<gui_divider_t>();
+		// Show offline checkbox
+		show_offline.init( button_t::square_state, "Show offline");
+		show_offline.set_tooltip( "Show servers that are offline" );
+		show_offline.add_listener( this );
+		add_component( &show_offline, 2 );
 
-		new_component<gui_label_t>("Or enter a server manually:" );
+		new_component_span<gui_divider_t>(3);
 
-		add_table(2,1);
-		{
-			// Add server input/button
-			addinput.set_text( newserver_name, sizeof( newserver_name ) );
-			addinput.add_listener( this );
-			add_component( &addinput );
+		new_component_span<gui_label_t>("Or enter a server manually:", 3);
 
-			add.init( button_t::roundbox, "Query server");
-			add.add_listener( this );
-			add_component( &add );
-		}
-		end_table();
-		new_component<gui_divider_t>();
+		// Add server input/button
+		addinput.set_text( newserver_name, sizeof( newserver_name ) );
+		addinput.add_listener( this );
+		add_component( &addinput, 2 );
+
+		add.init( button_t::roundbox, "Query server");
+		add.add_listener( this );
+		add_component( &add );
+
+		new_component_span<gui_divider_t>(3);
 	}
 
-	add_component( &revision );
+	if(!env_t::networkmode) {
+		add_component(&revision, 2);
+
+		find_mismatch.init(button_t::roundbox, "find mismatch");
+		find_mismatch.add_listener(this);
+		add_component(&find_mismatch);
+	}
+	else {
+		add_component(&revision, 3);
+	}
 	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
-	add_component( &pak_version );
+	add_component( &pak_version, 3 );
 #if MSG_LEVEL>=4
 	add_component( &pakset_checksum );
 #endif
-	new_component<gui_divider_t>();
+	new_component_span<gui_divider_t>(3);
 
-	add_table(2,1)->set_alignment(ALIGN_CENTER_V | ALIGN_CENTER_H);
+	add_component(map);
+
+	add_table(1,0)->set_force_equal_columns(true);
 	{
-		add_component(map);
-
-		add_table(1,0)->set_force_equal_columns(true);
+		add_table(3,1);
 		{
-			add_table(3,1);
-			{
-				add_component(&label_size);
-				new_component<gui_fill_t>();
-				add_component( &date );
-			}
-			end_table();
-
-			add_component(&game_text);
+			add_component(&label_size);
+			new_component<gui_fill_t>();
+			add_component( &date );
 		}
 		end_table();
-		new_component<gui_fill_t>();
-		new_component<gui_fill_t>();
-	}
-	end_table();
-	new_component<gui_divider_t>();
 
-	add_table(2,1);
-	{
-		new_component<gui_label_t>("Nickname:" );
-		add_component( &nick );
-		nick.add_listener(this);
-		nick.set_text( nick_buf, lengthof( nick_buf ) );
-		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
+		add_component(&game_text);
 	}
 	end_table();
-	new_component<gui_divider_t>();
+	new_component<gui_fill_t>();
+
+	new_component_span<gui_divider_t>(3);
+
+	new_component<gui_label_t>("Nickname:" );
+	add_component( &nick, 2 );
+	nick.add_listener(this);
+	nick.set_text( nick_buf, lengthof( nick_buf ) );
+	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 
 	if (  !env_t::networkmode  ) {
-
-		add_table(3,1)->set_force_equal_columns(true);
-		{
-			new_component<gui_empty_t>();
-
-			find_mismatch.init( button_t::roundbox, "find mismatch");
-			find_mismatch.add_listener( this );
-			add_component( &find_mismatch );
-
-			join.init( button_t::roundbox, "join game");
-			join.disable();
-			join.add_listener( this );
-			add_component( &join );
-
-			// only update serverlist, when not already in network mode
-			// otherwise desync to current game may happen
-			update_serverlist();
-		}
-		end_table();
+		// only update serverlist, when not already in network mode
+		// otherwise desync to current game may happen
+		update_serverlist();
 	}
 
 	set_resizemode( diagonal_resize );
@@ -324,10 +307,11 @@ bool server_frame_t::update_serverlist ()
 
 		cbuffer_t serverdns2;
 		// Strip default port
-		if(  strcmp(serverdns.get_str() + strlen(serverdns.get_str()) - 6, ":13353") == 0  ) {
+		if(  strcmp(serverdns.get_str() + serverdns.len() - 6, ":13353") == 0  ) {
 			dbg->message( "server_frame_t::update_serverlist", "stripping default port from entry %s", serverdns.get_str() );
 			serverdns2.append( serverdns.get_str(), strlen( serverdns.get_str() ) - 6 );
 			serverdns = serverdns2;
+			serverdns2.clear();
 		}
 
 		// Third field is server revision (use for filtering)
@@ -361,8 +345,6 @@ bool server_frame_t::update_serverlist ()
 			}
 		}
 
-		serverdns2.clear();
-
 		// Fifth field is server online/offline status (use for colour-coding)
 		cbuffer_t serverstatus;
 		ret = csvdata.get_next_field( serverstatus );
@@ -379,7 +361,7 @@ bool server_frame_t::update_serverlist ()
 
 		// Only show offline servers if the checkbox is set
 		if(  status == 1  ||  show_offline.pressed  ) {
-			PIXVAL color = status == 1 ? SYSCOL_TEXT_UNUSED : MONEY_MINUS;
+			PIXVAL color = status == 1 ? SYSCOL_EMPTY : MONEY_MINUS;
 			if(  pakset  &&  !strstart( serverpakset.get_str(), pakset )  ) {
 				color = SYSCOL_OBSOLETE;
 			}
