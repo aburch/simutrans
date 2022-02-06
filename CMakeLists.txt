@@ -385,16 +385,16 @@ if(OPTION_BUNDLE_LIBRARIES AND UNIX AND NOT APPLE)
 			file(GET_RUNTIME_DEPENDENCIES
 					RESOLVED_DEPENDENCIES_VAR DEPENDENCIES
 					EXECUTABLES "${CMAKE_BINARY_DIR}/simutrans/simutrans"
-					PRE_EXCLUDE_REGEXES "libSDL2*|libfreetype*|libpng*|libz.so*|libglib*|libogg*|libpcre*|libvorbis*"
-					POST_EXCLUDE_REGEXES "ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|libstdc...so")
+					PRE_EXCLUDE_REGEXES "libSDL2*|libz.so*|libfreetype*|libpng*|libglib*|libogg*|libpcre*|libvorbis*"
+					POST_EXCLUDE_REGEXES "ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|libstdc...so|libgomp.so")
 		]])
 	else ()
 		install(CODE [[
 			file(GET_RUNTIME_DEPENDENCIES
 					RESOLVED_DEPENDENCIES_VAR DEPENDENCIES
 					EXECUTABLES "${CMAKE_BINARY_DIR}/simutrans/simutrans"
-					PRE_EXCLUDE_REGEXES "libSDL2*"
-					POST_EXCLUDE_REGEXES "ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|libstdc...so")
+					PRE_EXCLUDE_REGEXES "libSDL2*|libz.so*"
+					POST_EXCLUDE_REGEXES "ld-linux|libc.so|libdl.so|libm.so|libgcc_s.so|libpthread.so|libstdc...so|libgomp.so")
 		]])
 	endif ()
 	install(CODE [[
