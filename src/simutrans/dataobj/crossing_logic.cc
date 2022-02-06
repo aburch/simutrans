@@ -240,11 +240,13 @@ DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 }
 
 
-const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
+const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t w0, const waytype_t w1, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possiblea
-	const waytype_t way0 = ns < ow ? ns : ow;
-	const waytype_t way1 = ns < ow ? ow : ns;
+	const waytype_t way0 = w0 < w1 ? w0 : w1;
+	const waytype_t way1 = w0 < w1 ? w1 : w0;
+	const sint32 speed0 = w0 < w1 ? way_0_speed : way_1_speed;
+	const sint32 speed1 = w0 < w1 ? way_1_speed : way_0_speed;
 	const crossing_desc_t *best = NULL;
 	// index 8 is narrowgauge, only air_wt and powerline_wt have higher indexes
 	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
@@ -258,11 +260,11 @@ const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const 
 			uint8  const swap_way = i->get_waytype(0) != way0;
 			sint32 const imax0   = i->get_maxspeed(swap_way);
 			sint32 const bmax0   = best ? best->get_maxspeed(swap_way) : 9999;
-			if(  imax0 >= way_0_speed   &&  imax0 <= bmax0  ) {
+			if(  imax0 >= speed0  &&  imax0 <= bmax0  ) {
 				// match maxspeed of second way
 				sint32 const imax1   = i->get_maxspeed(!swap_way);
 				sint32 const bmax1   = best ? best->get_maxspeed(!swap_way) : 9999;
-				if(  imax1 >= way_1_speed  &&  imax1 <= bmax1  ) {
+				if(  imax1 >= speed1  &&  imax1 <= bmax1  ) {
 					best = i;
 				}
 			}
