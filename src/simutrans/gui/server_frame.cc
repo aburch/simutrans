@@ -127,7 +127,7 @@ server_frame_t::server_frame_t() :
 
 	add_component( &pak_version, 3 );
 #if MSG_LEVEL>=4
-	add_component( &pakset_checksum );
+	add_component( &pakset_checksum, 3 );
 #endif
 	new_component_span<gui_divider_t>(3);
 
