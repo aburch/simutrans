@@ -302,11 +302,13 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					my_client_socket = INVALID_SOCKET;
 					continue;
 				}
+#else
+				fcntl(sockfd, F_SETFL, O_NONBLOCK);
 #endif
 
 				if (connect(my_client_socket, walk_remote->ai_addr, (socklen_t)walk_remote->ai_addrlen) != 0) {
-#ifdef WIN32
-					if (WSAGetLastError() != WSAEWOULDBLOCK) {
+
+					if(  GET_LAST_ERROR() != EINPROGRESS) {
 						// connection failed
 						closesocket(my_client_socket);
 						continue;
@@ -327,30 +329,29 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					int ret = select(0, NULL, &setW, &setE, &time_out);
 					if (ret <= 0) {
 						// select() failed or connection timed out
+						DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() Error: \"%s\"", strerror(GET_LAST_ERROR()));
 						closesocket(my_client_socket);
-						if (ret == 0) {
-							WSASetLastError(WSAETIMEDOUT);
-						}
 						continue;
 					}
 
 					if(  FD_ISSET(my_client_socket, &setE)  ) {
 						// connection failed
+						DBG_MESSAGE("network_open_address()", "Could not connect FD_ISSET failed.");
 						closesocket(my_client_socket);
 						continue;
 					}
 					// connection successful
-
-					// put socked in blocking mode...
+#ifdef WIN32
+					// put socket in blocking mode...
 					block = 0;
 					if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  ) {
+						DBG_MESSAGE("network_open_address()", "Could not reset to non-blocking.");
 						closesocket(my_client_socket);
 						continue;
 					}
-					// can connect
 #else
-					DBG_MESSAGE( "network_open_address()", "Could not connect using this socket. Error: \"%s\"", strerror(GET_LAST_ERROR()) );
-					continue;
+					// put socket in blocking mode...
+					fcntl(sockfd, F_SETFL, O_BLOCK);
 #endif
 				}
 

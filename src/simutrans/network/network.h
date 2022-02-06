@@ -29,8 +29,8 @@
 #	endif
 #	define GET_LAST_ERROR() WSAGetLastError()
 #	include <errno.h>
-#	undef  EWOULDBLOCK
-#	define EWOULDBLOCK WSAEWOULDBLOCK
+#	undef  EINPROGRESS
+#	define EINPROGRESS WSAEWOULDBLOCK
 #else
 	// beos specific headers
 #	ifdef  __BEOS__
