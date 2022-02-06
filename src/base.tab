@@ -4207,8 +4207,10 @@ obj=program_text
 name=Scroll threshold
 note=distance moved before starting map scrolling when a general tool is selected
 --
-
-
+obj=program_text
+name=Toolbar position:
+note=option in display settings
+--
 
 
 #obj=help_text
