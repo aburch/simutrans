@@ -1202,6 +1202,12 @@ void minimap_t::draw(scr_coord pos)
 			stop_cache.clear();
 		}
 
+		if(  (mode & MAP_LINES)  &&  (last_mode & MAP_LINES) == 0  &&  current_cnv.is_bound()  ) {
+			schedule_cache.clear();
+			add_to_schedule_cache(current_cnv, true);
+			needs_redraw = true;
+		}
+
 		if(  (mode^last_mode) & (MAP_PASSENGER|MAP_MAIL|MAP_FREIGHT|MAP_LINES)  ||  (mode&MAP_LINES  &&  stop_cache.empty())  ) {
 			// rebuilt line display
 			last_schedule_counter = world->get_schedule_counter()-1;

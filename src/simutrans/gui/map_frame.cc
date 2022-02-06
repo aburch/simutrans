@@ -517,6 +517,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 			env_t::default_mapmode &= ~minimap_t::MAP_LINES;
 		}
 		minimap_t::get_instance()->set_display_mode(  ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
+		minimap_t::get_instance()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &viewed_player_c  ) {
 		minimap_t::get_instance()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
