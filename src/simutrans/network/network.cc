@@ -295,22 +295,25 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
 
-#ifdef WIN32
 				// put socked in non-blocking mode...
+#ifdef WIN32
 				u_long block = 1;
 				if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  )	{
 					my_client_socket = INVALID_SOCKET;
 					continue;
 				}
 #else
-				fcntl(sockfd, F_SETFL, O_NONBLOCK);
+				if (fcntl(my_client_socket, F_SETFL, O_NONBLOCK) != 0) {
+					my_client_socket = INVALID_SOCKET;
+					continue;
+				}
 #endif
 
 				if (connect(my_client_socket, walk_remote->ai_addr, (socklen_t)walk_remote->ai_addrlen) != 0) {
 
 					if(  GET_LAST_ERROR() != EINPROGRESS) {
 						// connection failed
-						closesocket(my_client_socket);
+						network_close_socket(my_client_socket);
 						continue;
 					}
 
@@ -322,7 +325,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					FD_ZERO(&setE);
 					FD_SET(my_client_socket, &setE);
 
-					timeval time_out = { 0 };
+					timeval time_out;
 					time_out.tv_sec = 2; // 2 seconds or joining a server would not make sense
 					time_out.tv_usec = 0;
 
@@ -330,29 +333,34 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					if (ret <= 0) {
 						// select() failed or connection timed out
 						DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() Error: \"%s\"", strerror(GET_LAST_ERROR()));
-						closesocket(my_client_socket);
+						network_close_socket(my_client_socket);
 						continue;
 					}
 
 					if(  FD_ISSET(my_client_socket, &setE)  ) {
 						// connection failed
 						DBG_MESSAGE("network_open_address()", "Could not connect FD_ISSET failed.");
-						closesocket(my_client_socket);
+						network_close_socket(my_client_socket);
 						continue;
 					}
 					// connection successful
-#ifdef WIN32
+
 					// put socket in blocking mode...
+#ifdef WIN32
 					block = 0;
-					if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  ) {
+					bool blocking_mode = ioctlsocket(my_client_socket, FIONBIO, &block) == 0;
+#else
+					// on linux clear O_NONBLOCK flag
+					const int flags = fcntl(my_client_socket, F_GETFL, 0);
+					bool blocking_mode = fcntl(my_client_socket, F_SETFL, flags & (~O_NONBLOCK)) == 0;
+#endif
+					if (!blocking_mode) {
 						DBG_MESSAGE("network_open_address()", "Could not reset to non-blocking.");
-						closesocket(my_client_socket);
+						network_close_socket(my_client_socket);
 						continue;
 					}
-#else
-					// put socket in blocking mode...
-					fcntl(sockfd, F_SETFL, O_BLOCK);
-#endif
+
+
 				}
 
 				connected = true;
