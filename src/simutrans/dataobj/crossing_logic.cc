@@ -211,7 +211,11 @@ void crossing_logic_t::register_desc(crossing_desc_t *desc)
 	// mark if crossing possible
 	const waytype_t way0 = (waytype_t)min(desc->get_waytype(0), desc->get_waytype(1));
 	const waytype_t way1 = (waytype_t)max(desc->get_waytype(0), desc->get_waytype(1));
-	if(way0<8  &&  way1<9  &&  way0<way1) {
+	if (way1 == way0) {
+		dbg->error("crossing_logic_t::register_desc()", "Same waytype for both ways for crossing %S: Not added!", desc->get_name());
+		return;
+	}
+	if(  way0<8  &&  way1<9  ) {
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
 		// .. overwrite double entries
@@ -239,8 +243,8 @@ DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possiblea
-	const waytype_t way0 = ns <  ow ? ns : ow;
-	const waytype_t way1 = ns >= ow ? ns : ow;
+	const waytype_t way0 = ns < ow ? ns : ow;
+	const waytype_t way1 = ns < ow ? ow : ns;
 	const crossing_desc_t *best = NULL;
 	// index 8 is narrowgauge, only air_wt and powerline_wt have higher indexes
 	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
@@ -251,14 +255,13 @@ const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const 
 				continue;
 			}
 			// match maxspeed of first way
-			uint8  const way0_nr = (way0 == ow);
-			sint32 const imax0   = i->get_maxspeed(way0_nr);
-			sint32 const bmax0   = best ? best->get_maxspeed(way0_nr) : 9999;
+			uint8  const swap_way = i->get_waytype(0) != way0;
+			sint32 const imax0   = i->get_maxspeed(swap_way);
+			sint32 const bmax0   = best ? best->get_maxspeed(swap_way) : 9999;
 			if(  imax0 >= way_0_speed   &&  imax0 <= bmax0  ) {
 				// match maxspeed of second way
-				uint8  const way1_nr = (way1 == ow);
-				sint32 const imax1   = i->get_maxspeed(way1_nr);
-				sint32 const bmax1   = best ? best->get_maxspeed(way1_nr) : 9999;
+				sint32 const imax1   = i->get_maxspeed(!swap_way);
+				sint32 const bmax1   = best ? best->get_maxspeed(!swap_way) : 9999;
 				if(  imax1 >= way_1_speed  &&  imax1 <= bmax1  ) {
 					best = i;
 				}
