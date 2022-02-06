@@ -1194,8 +1194,8 @@ void minimap_t::draw(scr_coord pos)
 	}
 
 	if(  last_mode != mode  ) {
-		// only needing update, if last mode was also not about halts ...
-		needs_redraw = (mode^last_mode) & ~MAP_MODE_FLAGS;
+		// only needing update, if last mode was also not about halts or background rendering ...
+		needs_redraw = (mode^last_mode) & (~MAP_MODE_FLAGS | MAP_CLIMATES | MAP_HIDE_CONTOUR);
 
 		if(  (mode & MAP_LINES) == 0  ||  (mode^last_mode) & MAP_MODE_HALT_FLAGS  ) {
 			// rebuilt stop_cache needed

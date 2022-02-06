@@ -478,19 +478,14 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		show_hide_directory( !b_show_directory.pressed );
 	}
 	else if(  comp == &c_show_outlines  ) {
+		env_t::default_mapmode &= ~(minimap_t::MAP_CLIMATES | minimap_t::MAP_HIDE_CONTOUR);
 		if( v.i == 2 ) {
 			env_t::default_mapmode |= minimap_t::MAP_HIDE_CONTOUR;
-			env_t::default_mapmode &= ~minimap_t::MAP_CLIMATES;
 		}
 		else if( v.i == 1 ) {
 			env_t::default_mapmode |= minimap_t::MAP_CLIMATES;
-			env_t::default_mapmode &= ~minimap_t::MAP_HIDE_CONTOUR;
 		}
-		else {
-			env_t::default_mapmode &= ~minimap_t::MAP_CLIMATES;
-			env_t::default_mapmode &= ~minimap_t::MAP_HIDE_CONTOUR;
-		}
-		minimap_t::get_instance()->set_display_mode(  ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
+		minimap_t::get_instance()->set_display_mode( (minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
 	}
 	else if (  comp == &b_filter_factory_list  ) {
 		filter_factory_list = !filter_factory_list;
@@ -561,7 +556,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 				break;
 			}
 		}
-		minimap_t::get_instance()->set_display_mode(  ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
+		minimap_t::get_instance()->set_display_mode( (minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode  );
 		update_buttons();
 	}
 	return true;
