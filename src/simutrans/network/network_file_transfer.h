@@ -42,4 +42,10 @@ const char *network_http_post ( const char *address, const char *name, const cha
  */
 const char *network_http_get ( const char *address, const char *name, cbuffer_t& local );
 
+/**
+ * Use HTTP to retrieve a file into the FILE
+ */
+const char* network_http_get_file( const char* address, const char* name, const char *filename );
+
+
 #endif

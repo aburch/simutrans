@@ -55,7 +55,8 @@ pakinstaller_t::pakinstaller_t() :
 }
 
 #ifdef __ANDROID__
-//#define USE_OWN_PAKINSTALL
+// since the script does only work on few devices
+#define USE_OWN_PAKINSTALL
 #endif
 
 /**
@@ -113,8 +114,10 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 	return false;
 }
 #else
-#include <curl/curl.h>
+
 #include <zip.h>
+#include <utils/simstring.h>
+#include <network/network_file_transfer.h>
 
  // linux/android specific, function to create folder makes use of opendir (linux system call) and mkdir (via system)
 
@@ -216,6 +219,9 @@ static void read_zip(const char* outfilename)
 	dr_remove(outfilename);
 }
 
+#if HAS_LIBCURL
+#include <curl/curl.h>
+
 static size_t curl_write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
@@ -246,10 +252,12 @@ static CURLcode curl_download_file(CURL *curl, const char* target_file, const ch
 	fclose(fp);
 	return res;
 }
+#endif
 
 // native download (curl), extract (libzip)
 bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 {
+#if HAS_LIBCURL
 	CURL *curl = curl_easy_init(); // can only be called once during program lifecycle
 	if (curl) {
 		dr_chdir( env_t::data_dir );
@@ -280,7 +288,43 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 	else {
 		DBG_DEBUG(__FUNCTION__, "libcurl failed to initialize, pakset not downloaded");
 	}
+#else
+	dr_chdir(env_t::data_dir);
 
+	char outfilename[FILENAME_MAX];
+	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
+	int j = 0;
+	for (sint32 i : paks.get_selections()) {
+		ls.set_info(pakinfo[i * 2 + 1]);
+		sprintf(outfilename, "%s.zip", pakinfo[i * 2 + 1]);
+		const char *url = pakinfo[i*2] + 7; // minus http://
+
+		char site_ip[1024];
+		tstrncpy(site_ip, url, lengthof(site_ip));
+
+		const char *site_path = strchr(url, '/');
+		site_ip[site_path - url] = 0;
+		strcat(site_ip,":80");
+
+		const char *err = NULL;
+
+		err = network_http_get_file(site_ip, site_path, outfilename);
+		if (err) {
+			dbg->warning("Pakset download faield with", "%s", err);
+			j += 2;
+			ls.set_progress(j);
+			continue;
+		}
+
+		ls.set_progress(++j);
+		DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i * 2]);
+
+		DBG_DEBUG(__FUNCTION__, "download successful to %s, attempting extract", outfilename);
+		read_zip(outfilename);
+
+		ls.set_progress(++j);
+	}
+#endif
 	finish_install = true;
 	return false;
 }

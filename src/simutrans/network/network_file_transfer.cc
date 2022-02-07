@@ -407,7 +407,84 @@ const char *network_http_post( const char *address, const char *name, const char
 	return err;
 }
 
-const char *network_http_get ( const char* address, const char* name, cbuffer_t& local )
+const char* network_http_get(const char* address, const char* name, cbuffer_t& local)
+{
+	const int REQ_HEADER_LEN = 1024;
+	// open from network
+	const char* err = NULL;
+	SOCKET const my_client_socket = network_open_address(address, err);
+	if (err == NULL) {
+#ifndef REVISION
+#	define REVISION 0
+#endif
+		const char* format = "GET %s HTTP/1.1\r\n"
+			"User-Agent: Simutrans/r%s\r\n"
+			"Host: %s\r\n\r\n";
+		if ((strlen(format) + strlen(name) + strlen(address) + strlen(QUOTEME(REVISION))) > (REQ_HEADER_LEN - 1)) {
+			// We will get a buffer overwrite here if we continue
+			return "Error: String too long";
+		}
+		char request[REQ_HEADER_LEN];
+		int const len = sprintf(request, format, name, QUOTEME(REVISION), address);
+		uint16 dummy;
+		if (!network_send_data(my_client_socket, request, len, dummy, 250)) {
+			err = "Server did not respond!";
+		}
+
+		// Read the response header and parse arguments as needed
+		char line[1024], rbuf;
+		unsigned int pos = 0;
+		sint32 length = 0;
+		while (1) {
+			// Receive one character at a time the HTTP headers
+			int i = recv(my_client_socket, &rbuf, 1, 0);
+			if (i > 0) {
+				if (rbuf >= 32 && pos < sizeof(line) - 1) {
+					line[pos++] = rbuf;
+				}
+				if (rbuf == 10) {
+					if (pos == 0) {
+						// this line was empty => now data will follow
+						break;
+					}
+					line[pos] = 0;
+					DBG_MESSAGE("network_http_get", "received header: %s", line);
+					// Parse out the length tag to get length of content
+					if (STRNICMP("Content-Length:", line, 15) == 0) {
+						length = atol(line + 15);
+					}
+					pos = 0;
+				}
+			}
+			else {
+				break;
+			}
+		}
+
+		// Make buffer to receive data into
+		char* buffer = new char[length + 1];
+		uint16 bytesreceived = 0;
+
+		if (!network_receive_data(my_client_socket, buffer, length, bytesreceived, 10000)) {
+			err = "Error: network_receive_data failed!";
+		}
+		else if (bytesreceived != length) {
+			err = "Error: Bytes received does not match length!";
+		}
+		else {
+			buffer[length] = 0;
+			local.append(buffer, length);
+		}
+
+		DBG_MESSAGE("network_http_get", "received data length: %i", local.len());
+
+		delete[] buffer;
+		network_close_socket(my_client_socket);
+	}
+	return err;
+}
+
+const char *network_http_get_file( const char* address, const char* name, const char *filename )
 {
 	const int REQ_HEADER_LEN = 1024;
 	// open from network
@@ -435,7 +512,7 @@ const char *network_http_get ( const char* address, const char* name, cbuffer_t&
 		char line[1024], rbuf;
 		unsigned int pos = 0;
 		sint32 length = 0;
-		while(1) {
+		while(pos<lengthof(line)) {
 			// Receive one character at a time the HTTP headers
 			int i = recv( my_client_socket, &rbuf, 1, 0 );
 			if (  i > 0  ) {
@@ -443,42 +520,56 @@ const char *network_http_get ( const char* address, const char* name, cbuffer_t&
 					line[pos++] = rbuf;
 				}
 				if (  rbuf == 10  ) {
-					if (  pos == 0  ) {
+					if (  pos > 0  &&  line[pos-1]==10) {
+						line[pos++] = 10;
+						line[pos++] = 0;
 						// this line was empty => now data will follow
 						break;
 					}
-					line[pos] = 0;
-					DBG_MESSAGE( "network_http_get", "received header: %s", line );
-					// Parse out the length tag to get length of content
-					if (  STRNICMP( "Content-Length:", line, 15 ) == 0  ) {
-						length = atol( line + 15 );
-					}
-					pos = 0;
+					line[pos++] = 10;
 				}
 			}
 			else {
 				break;
 			}
 		}
+		DBG_DEBUG("network_http_get_file()", "%s", line);
+		int http_code = atoi(strchr(line, ' '));
+		// if not sucessful maybe redirect
+		if(http_code==302  ||  http_code==301) {
+			network_close_socket(my_client_socket);
 
-		// Make buffer to receive data into
-		char* buffer = new char[length+1];
-		uint16 bytesreceived = 0;
+			char new_ip[1024];
+			char new_path[1024];
+			if(char *c=strstr(line,"\nLocation: http://")) {
+				tstrncpy(new_ip, c + 18, lengthof(new_ip));
+				if(char *c = strchr(new_ip, '/')) {
+					tstrncpy(new_path, c, lengthof(new_path));
+					strcpy( c, ":80");
 
-		if (  !network_receive_data( my_client_socket, buffer, length, bytesreceived, 10000 )  ) {
-			err = "Error: network_receive_data failed!";
+					*strchr(new_path, 10) = 0;
+					return network_http_get_file(new_ip, new_path, filename);
+				}
+			}
+			if (char* c = strstr(line, "Location: https://")) {
+				return "Cannot handole https.";
+			}
+			return "Unknown redirect.";
 		}
-		else if (  bytesreceived != length  ) {
-			err = "Error: Bytes received does not match length!";
+
+		if (http_code == 200) {
+			if (char *c=strstr(line,"Content-Length:")) {
+				length = atol(c + 15);
+			}
+			DBG_MESSAGE("network_http_get", "received data length: %i", length);
+			err = network_receive_file(my_client_socket, filename, length);
 		}
 		else {
-			buffer[length] = 0;
-			local.append( buffer, length );
+			static char err_code[64];
+			sprintf(err_code,"Cannot handle https", http_code);
+			err = err_code;
 		}
 
-		DBG_MESSAGE( "network_http_get", "received data length: %i", local.len() );
-
-		delete [] buffer;
 		network_close_socket( my_client_socket );
 	}
 	return err;
