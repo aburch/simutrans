@@ -303,7 +303,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					continue;
 				}
 #else
-				if (fcntl(my_client_socket, F_SETFL, O_NONBLOCK) != 0) {
+				if (fcntl(my_client_socket, F_SETFL, fcntl(my_client_socket, F_GETFL, 0) | O_NONBLOCK) != 0) {
 					my_client_socket = INVALID_SOCKET;
 					continue;
 				}
@@ -329,7 +329,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 					time_out.tv_sec = 2; // 2 seconds or joining a server would not make sense
 					time_out.tv_usec = 0;
 
-					int ret = select(0, NULL, &setW, &setE, &time_out);
+					int ret = select(my_client_socket+1, NULL, &setW, &setE, &time_out);
 					if (ret <= 0) {
 						// select() failed or connection timed out
 						DBG_MESSAGE("network_open_address()", "Could not connect using this socket. select() Error: \"%s\"", strerror(GET_LAST_ERROR()));
