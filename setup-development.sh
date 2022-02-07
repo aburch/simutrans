@@ -10,7 +10,7 @@ elif grep -q MSYS2 /etc/*-release
 elif grep "Debian" /etc/*-release
 	then
 	echo "Setup for Debian, please be patient!"
-	#su -c "sh tools/setup-debian.sh"
+	su -c "sh tools/setup-debian.sh"
 fi
 
 read -p "Confirm compile simutrans? (Yy) " reply
