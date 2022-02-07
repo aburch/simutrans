@@ -6,7 +6,7 @@ if grep "Ubuntu" /etc/*-release
 elif grep -q MSYS2 /etc/*-release
 	then
 	echo "Setup for Mingw, please be patient!"
-	tools/setup-debian.sh
+	tools/setup-mingw.sh
 elif grep "Debian" /etc/*-release
 	then
 	echo "Setup for Debian, please be patient!"

@@ -1,7 +1,7 @@
 
 echo "We need to have a current system or it fails"
-sudo apt update
-sudo -y apt upgrade
+apt update
+apt -y upgrade
 
 echo "Now installing dependencies"
 # neccessary packets

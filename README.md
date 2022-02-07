@@ -90,7 +90,7 @@ This is a list of libraries used by Simutrans. Not all of them are necessary, so
 You will also need pkgconfig (Unix) or [vcpkg](https://github.com/Microsoft/vcpkg) (Microsoft Visual C++)
 
 - MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
-- MSYS2: Run [setup-mingw.sh](./setup-mingw.sh) to get the libraries and set up the environment.
+- MSYS2/Ubuntu/Debian: Run [setup-development.sh](./setup-development.sh) to get the libraries and set up the environment.
 - Linux: Use [pkgs.org](https://pkgs.org/) to search for development libraries available in your package manager.
 - Mac: Install libraries via [Homebrew](https://brew.sh/).
 
