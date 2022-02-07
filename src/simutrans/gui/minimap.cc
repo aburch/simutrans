@@ -581,7 +581,7 @@ PIXVAL minimap_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
 	if(max_value!=0) {
 		// color array goes from light blue to red
-		sint32 severity = amount * MAX_SEVERITY_COLORS / (max_value+1);
+		const sint32 severity = ((sint64)amount * MAX_SEVERITY_COLORS) / ((sint64)max_value + 1);
 		return color_idx_to_rgb( minimap_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ]);
 	}
 	return color_idx_to_rgb( minimap_t::severity_color[0]);
@@ -918,7 +918,9 @@ void minimap_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_map_color(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
+					const sint32 saturated_demand = std::min<uint64>(lt->get_net()->get_demand(), INT32_MAX);
+					const sint32 saturated_supply = std::min<uint64>(lt->get_net()->get_supply(), INT32_MAX);
+					set_map_color(k, calc_severity_color(saturated_demand, saturated_supply) );
 				}
 			}
 			break;
