@@ -94,7 +94,7 @@ gui_settings_t::gui_settings_t()
 	add_component( buttons + IDBTN_CHANGE_FONT, 3 );
 
 	// screen scale number input
-	new_component<gui_label_t>("Screen scale: ");
+	new_component<gui_label_t>("Screen scale:");
 
 	add_table(2,0);
 	{

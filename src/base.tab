@@ -4124,6 +4124,10 @@ obj=program_text
 name=Borderless (disabled on fullscreen)
 note=button in display setting
 --
+obj=program_text
+name=Screen scale:
+note button in display setting
+--
 obj=button_text
 name=Lake
 note=Name of water above groundlevel
