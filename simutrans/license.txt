@@ -14,6 +14,25 @@ https://mplus-fonts.osdn.jp/
 
 -----------------------------------------------------------------------------
 
+Third Party Libraries
+
+When downloading Simutrans, additional third party libraries may be included for compatibility purposes in the "lib" directory. Such files are not covered by the Artistic License. The list of included libraries and a link to their license text is listed below.
+
+libFLAC			https://raw.githubusercontent.com/xiph/flac/master/COPYING.Xiph
+libbz2			http://sourceware.org/git/?p=bzip2.git;a=blob_plain;f=LICENSE;hb=HEAD
+libfluidsynth	https://raw.githubusercontent.com/FluidSynth/fluidsynth/master/LICENSE
+libfreetype		https://raw.githubusercontent.com/aseprite/freetype2/master/docs/LICENSE.TXT
+libglib			https://raw.githubusercontent.com/GNOME/glib/main/COPYING
+libminiupnpc		https://raw.githubusercontent.com/miniupnp/miniupnp/master/LICENSE
+libogg			https://raw.githubusercontent.com/gcp/libogg/master/COPYING
+libpcre			https://raw.githubusercontent.com/vmg/libpcre/master/LICENCE
+libpng			https://sourceforge.net/p/libpng/code/ci/master/tree/LICENSE?format=raw
+libsndfile		https://raw.githubusercontent.com/libsndfile/libsndfile/master/COPYING
+libvorbis-{enc}	https://raw.githubusercontent.com/xiph/vorbis/master/COPYING
+libzstd			https://raw.githubusercontent.com/facebook/zstd/dev/COPYING
+
+-----------------------------------------------------------------------------
+
 The Artistic License
 
 Preamble
