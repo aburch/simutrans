@@ -73,6 +73,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Stable'">
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgHostTriplet>x86-windows-static</VcpkgHostTriplet>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
