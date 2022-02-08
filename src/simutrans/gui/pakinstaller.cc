@@ -116,8 +116,8 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 #else
 
 #include <zip.h>
-#include "utils/simstring.h"
-#include "network/network_file_transfer.h"
+#include "../utils/simstring.h"
+#include "../network/network_file_transfer.h"
 
  // linux/android specific, function to create folder makes use of opendir (linux system call) and mkdir (via system)
 
