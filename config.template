@@ -13,7 +13,6 @@
 #BACKEND := posix
 
 #OSTYPE := amiga
-#OSTYPE := beos
 #OSTYPE := freebsd
 #OSTYPE := haiku
 #OSTYPE := linux
@@ -27,7 +26,7 @@
 #PROFILE := 1  # Enable profiling
 #PROFILE := 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-#STATIC := 1   # Enable static linkage, Freetype and SDL only for non-MinGW OSTYPE.
+#STATIC := 1   # Enable static linkage, but not SDL2 for non-MinGW OSTYPE.
 #AV_FOUNDATION := 1  # Use AVFoundation instead of QTKit. If you are building on macOS 10.12 or later, this must be enabled.
 
 #WITH_REVISION := 1 # adds the revision from svn; required for networkgames
