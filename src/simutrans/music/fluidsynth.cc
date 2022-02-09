@@ -178,7 +178,11 @@ bool dr_load_sf(const char * filename){
 }
 
 
+#if 	FLUIDSYNTH_VERSION_MAJOR >= 2
+static void fluid_log(int level, const char* message, void*)
+#else
 static void fluid_log(int level, char *message, void *)
+#endif
 {
 	switch (level) {
 	case FLUID_PANIC: dbg->fatal("FluidSynth", "%s", message);
