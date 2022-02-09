@@ -9,7 +9,11 @@
 #include "../dataobj/environment.h"
 #include "music.h"
 #ifndef _WIN32
-	#include <SDL.h>
+#ifndef __APPLE__
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 #endif
 
 // fluidsynth music routine interfaces
@@ -174,7 +178,7 @@ bool dr_load_sf(const char * filename){
 }
 
 
-static void fluid_log(int level, const char *message, void *)
+static void fluid_log(int level, char *message, void *)
 {
 	switch (level) {
 	case FLUID_PANIC: dbg->fatal("FluidSynth", "%s", message);

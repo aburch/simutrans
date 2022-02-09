@@ -11,6 +11,8 @@ LIBS :=
 SOURCES :=
 STATIC := 0
 
+DYNAMICSTART = 
+DYNAMICEND = 
 
 CFG ?= default
 -include config.$(CFG)
@@ -46,9 +48,20 @@ endif
 ifdef MULTI_THREAD
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifneq ($(OSTYPE),haiku)
-      # mingw has already added pthread statically
-      ifneq ($(OSTYPE),mingw)
+    ifneq ($(OSTYPE),mingw)
+      ifneq ($(OSTYPE),haiku)
+        # mingw has already added pthread statically
+        ifneq ($(OSTYPE),mingw)
+	  LDFLAGS += -lpthread
+        endif
+      endif
+    endif
+  else
+    ifneq ($(OSTYPE),mingw)
+      ifeq ($(BACKEND),sdl2)
+        LDFLAGS += -lpthread
+      endif
+      ifeq ($(BACKEND),mixer_sdl2)
         LDFLAGS += -lpthread
       endif
     endif
@@ -93,6 +106,8 @@ else ifeq ($(OSTYPE),mingw)
 else ifeq ($(OSTYPE),linux)
   ifeq ($(shell expr $(STATIC) \>= 1), 1)
     LDFLAGS +=  -Wl,-Bstatic -lm
+    DYNAMICSTART = -Wl,-Bdynamic 
+    DYNAMICEND = -Wl,-Bstatic 
   endif
 else ifeq ($(OSTYPE),mac)
   SOURCES += src/simutrans/OSX/translocation.m
@@ -212,10 +227,11 @@ ifdef USE_FLUIDSYNTH_MIDI
     CFLAGS  += -DUSE_FLUIDSYNTH_MIDI
     SOURCES += src/simutrans/music/fluidsynth.cc
     SOURCES += src/simutrans/gui/loadsoundfont_frame.cc
-    LDFLAGS += -lfluidsynth
+    LDFLAGS += $(DYNAMICSTART)-lfluidsynth $(DYNAMICEND)
     ifeq ($(OSTYPE),mingw)
       # fluidsynth.pc doesn't properly list dependant libraries, unable to use pkg-config. Manually listed below. Only valid for fluidsynth built with options: "-DBUILD_SHARED_LIBS=0 -Denable-aufile=0 -Denable-dbus=0 -Denable-ipv6=0 -Denable-jack=0 -Denable-ladspa=0 -Denable-midishare=0 -Denable-opensles=0 -Denable-oboe=0 -Denable-oss=0 -Denable-readline=0 -Denable-winmidi=0 -Denable-waveout=0 -Denable-libsndfile=0 -Denable-network=0 -Denable-pulseaudio=0 Denable-dsound=1 -Denable-sdl2=0"
       LDFLAGS += -lglib-2.0 -lintl -liconv -ldsound -lole32
+    else
     endif
   endif
 else
@@ -661,11 +677,9 @@ ifeq ($(BACKEND),sdl2)
     endif
   else
     SDL_CFLAGS    := $(shell $(SDL2_CONFIG) --cflags)
-    SDL_LDFLAGS   := $(shell $(SDL2_CONFIG) --libs)
+    SDL_LDFLAGS   := $(DYNAMICSTART) $(shell $(SDL2_CONFIG) --libs) $(DYNAMICEND)
     ifeq ($(shell expr $(STATIC) \>= 1), 1)
-      ifneq ($(OSTYPE),mingw)
-        SDL_LDFLAGS = -Wl,-Bdynamic $(shell $(SDL2_CONFIG) --libs)
-      else
+      ifeq ($(OSTYPE),mingw)
         SDL_LDFLAGS = $(shell $(SDL2_CONFIG) --static --libs)
       endif
     endif
@@ -688,14 +702,15 @@ ifeq ($(BACKEND),mixer_sdl2)
     SOURCES += src/simutrans/sound/sdl_mixer_sound.cc
     SOURCES += src/simutrans/music/sdl_midi.cc
     SDL_CFLAGS    := $(shell $(SDL2_CONFIG) --cflags)
+    SDL_LDFLAGS   := $(DYMANICSTART) $(shell $(SDL2_CONFIG) --libs) -lSDL2_mixer $(DYNAMICEND)
     ifeq ($(shell expr $(STATIC) \>= 1), 1)
-      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
-    else
-      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      ifeq ($(OSTYPE),mingw)
+        SDL_LDFLAGS = $(shell $(SDL2_CONFIG) --static --libs) -lSDL2_mixer
+      endif
     endif
   endif
   CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS) -lSDL2_mixer
+  LIBS   += $(SDL_LDFLAGS)
 endif
 
 ifeq ($(BACKEND),posix)
