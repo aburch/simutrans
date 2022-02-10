@@ -125,7 +125,7 @@ install_zip()
 		echo "Error: Could not extract '$pakzippath' (unzip -Z returned: $result)" >&2
 		return 1
 	elif [ -n "$files" ]; then
-		destdir="$(pwd)/"
+		destdir="$(pwd)/simutrans"
 	else
 		destdir="$(pwd)/.."
 	fi
