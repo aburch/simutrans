@@ -1,4 +1,5 @@
 	ADD: map view can be changed with any general tool by dragging the pointer above a threshold
+	FIX: Cannot load PPM heightmaps
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

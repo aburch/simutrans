@@ -26,6 +26,13 @@ bool raw_image_t::read_ppm(const char *filename)
 	const char *c = "";
 	sint32 param[3] = {0, 0, 0};
 
+	char id[2];
+	if (fread(id, sizeof(char), 2, file) != 2 || id[0]!='P' || id[1]!='6') {
+		fclose(file);
+		dbg->error("raw_image::read_ppm", "Malformed ppm file");
+		return false;
+	}
+
 	for(  int index=0;  index<3;  ) {
 		// the format is "P6[whitespace]width[whitespace]height[[whitespace bitdepth]]newline]
 		// however, Photoshop is the first program that uses space for the first whitespace
@@ -38,7 +45,8 @@ bool raw_image_t::read_ppm(const char *filename)
 		// but comments can be anywhere
 		if(  *c==0  ) {
 			if(  read_line(buf, sizeof(buf), file) == NULL  ) {
-				dbg->warning("raw_image::read_ppm", "Malformed ppm file");
+				dbg->error("raw_image::read_ppm", "Malformed ppm file");
+				fclose(file);
 				return false;
 			}
 
@@ -56,8 +64,14 @@ bool raw_image_t::read_ppm(const char *filename)
 	const sint32 w = param[0];
 	const sint32 h = param[1];
 
+	if (w <= 0 || h <= 0) {
+		dbg->error("raw_image_t::read_ppm", "Heightfield has invalid image size (%dx%d)", w, h);
+		fclose(file);
+		return false;
+	}
+
 	if(  param[2]!=255  ) {
-		dbg->warning("raw_image_t::read_ppm", "Heightfield has wrong color depth (must be 255)");
+		dbg->warning("raw_image_t::read_ppm", "Heightfield has wrong color depth (was %d, must be 255)", param[2]);
 	}
 
 	width  = w;
@@ -86,6 +100,7 @@ bool raw_image_t::read_ppm(const char *filename)
 		}
 	}
 
+	fclose(file);
 	return true;
 }
 
