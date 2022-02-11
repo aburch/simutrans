@@ -29,6 +29,7 @@ jobs:
         CC="ccache clang" CXX="ccache clang++" ./configure
         echo "FLAGS += -fsanitize=address,undefined -fno-sanitize-recover=all -fno-sanitize=shift,function" >> config.default
         echo "LDFLAGS += -fsanitize=address,undefined" >> config.default
+        echo "STATIC := 0" >> config.default
     - name: Build Simutrans
       run: |
         CC="ccache clang" CXX="ccache clang++" make -j$(nproc)
