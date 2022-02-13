@@ -39,7 +39,7 @@ jobs:
         unzip commandlinetools-linux-7583922_latest.zip
         rm commandlinetools-linux-7583922_latest.zip
         mv cmdline-tools latest
-        mkdir cmdline-tools 
+        mkdir cmdline-tools
         mv latest cmdline-tools/latest
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
@@ -88,7 +88,7 @@ jobs:
     - name: Setup Android SDL working folder to host Simutrans (current branch)
       working-directory: /android-sdl
       run: |
-        CURRENT_BRANCH=${GITHUB_REF##*/}
+        CURRENT_BRANCH=$GITHUB_REF_NAME
         echo $CURRENT_BRANCH
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
         git clone -b $CURRENT_BRANCH $GITHUB_SERVER_URL/$GITHUB_REPOSITORY project/jni/application/simutrans/simutrans
@@ -128,7 +128,7 @@ jobs:
         asset_name: simutrans-nightly.aab
         tag: Nightly
         overwrite: true
-        
+
     - name: Update binaries of Nightly Release apk
       uses: svenstaro/upload-release-action@v1-release
       with:
