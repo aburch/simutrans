@@ -4215,6 +4215,18 @@ obj=program_text
 name=Toolbar position:
 note=option in display settings
 --
+obj=program_text
+name=Downloading
+note=loadingbar during http download of content
+--
+obj=program_text
+name=Extract files
+note=loadingbar during zip file extrating of paks
+--
+obj=program_text
+name=Install paks
+note=loadingbar during paks download and install
+--
 
 
 #obj=help_text

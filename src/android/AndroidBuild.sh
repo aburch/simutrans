@@ -16,6 +16,7 @@ echo USE_FLUIDSYNTH_MIDI=1 >> config.$1.txt
 echo WITH_REVISION=1 >> config.$1.txt
 echo MSG_LEVEL=3 >> config.$1.txt
 echo DEBUG=1 >> config.$1.txt
+echo FLAGS ?= -DUSE_OWN_PAKINSTALL
 
 cmake -E copy_if_different config.$1.txt config.$1
 

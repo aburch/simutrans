@@ -137,19 +137,7 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
 		dr_download_pakset(env_t::data_dir, env_t::data_dir == env_t::user_dir);  // windows
 #else
-		pakinstaller_t* sel = new pakinstaller_t();
-
-		// notify gui to load list of paksets
-		event_t ev;
-		ev.ev_class = INFOWIN;
-		ev.ev_code = WIN_OPEN;
-		sel->infowin_event(&ev);
-
-		destroy_all_win(true); // since eventually the successful load message is still there ....
-		modal_dialogue(sel, magic_pakinstall, NULL, finish_install);
-
-		destroy_win(sel);
-		display_show_load_pointer(0);
+		create_win(new pakinstaller_t(), w_info, magic_pakinstall);
 #endif
 	}
 	else if(  comp == option_buttons + BUTTON_QUIT  ) {

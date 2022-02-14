@@ -59,11 +59,11 @@ pakinstaller_t::pakinstaller_t() :
 #define USE_OWN_PAKINSTALL
 #endif
 
+#ifndef USE_OWN_PAKINSTALL
 /**
  * This method is called if an action is triggered
  */
-#ifndef USE_OWN_PAKINSTALL
-bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
+bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	if (comp == &cancel) {
 		finish_install = true;
@@ -115,11 +115,106 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*comp, value_t)
 }
 #else
 
-#include <zip.h>
-#include "../utils/simstring.h"
-#include "../network/network_file_transfer.h"
+#ifndef USE_EXTERNAL_ZIP_CURL
 
- // linux/android specific, function to create folder makes use of opendir (linux system call) and mkdir (via system)
+#include "../utils/simstring.h"
+
+#include "../network/network_file_transfer.h"
+extern "C" {
+#define STDC
+#define voidpc voidpczip
+#include "../../external/zip.c"
+};
+
+
+void extract_pak_from_zip(const char* zipfile)
+{
+
+	struct zip_t* zip = zip_open(zipfile, 0, 'r');
+	const int n = zip_entries_total(zip);
+	bool has_simutrans_folder = false;
+
+	loadingscreen_t ls("Extract files", n, true, false);
+
+	for (int i = 0; i < n && i < 10 && !has_simutrans_folder; ++i) {
+		zip_entry_openbyindex(zip, i);
+		{
+			int isdir = zip_entry_isdir(zip);
+			if (isdir) {
+				has_simutrans_folder = STRNICMP("simutrans", zip_entry_name(zip), 9) == 0;
+			}
+		}
+		zip_entry_close(zip);
+	}
+	// now extract
+	for (int i = 0; i < n; i++) {
+		zip_entry_openbyindex(zip, i);
+		{
+			int isdir = zip_entry_isdir(zip);
+			const char* name = zip_entry_name(zip) + (has_simutrans_folder ? 10 : 0);
+			if (isdir) {
+				// create directory (may fail if exists ...
+				dr_mkdir(name);
+			}
+			else {
+				// or extract file
+				DBG_DEBUG("Install pak file", "%s", name);
+				zip_entry_fread(zip, name);
+			}
+		}
+		zip_entry_close(zip);
+		ls.set_progress(i);
+	}
+	zip_close(zip);
+}
+
+// native download (curl), extract (libzip)
+bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
+{
+	dr_chdir(env_t::data_dir);
+
+	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
+	char outfilename[FILENAME_MAX];
+	int j = 0;
+	for (sint32 i : paks.get_selections()) {
+		ls.set_info(pakinfo[i * 2 + 1]);
+		sprintf(outfilename, "%s.zip", pakinfo[i * 2 + 1]);
+		const char* url = pakinfo[i * 2] + 7; // minus http://
+
+		char site_ip[1024];
+		tstrncpy(site_ip, url, lengthof(site_ip));
+
+		const char* site_path = strchr(url, '/');
+		site_ip[site_path - url] = 0;
+		strcat(site_ip, ":80");
+
+		const char* err = NULL;
+
+		err = network_http_get_file(site_ip, site_path, outfilename);
+		if (err) {
+			dbg->warning("Pakset download failed with", "%s", err);
+			j += 2;
+			ls.set_progress(j);
+			continue;
+		}
+
+		ls.set_progress(++j);
+		DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i * 2]);
+
+		DBG_DEBUG(__FUNCTION__, "download successful to %s, attempting extract", outfilename);
+		extract_pak_from_zip(outfilename);
+		dr_remove(outfilename);
+
+		ls.set_progress(++j);
+	}
+	finish_install = true;
+	return false;
+}
+
+
+#else
+#include <zip.h>
+// linux/android specific, function to create folder makes use of opendir (linux system call) and mkdir (via system)
 
 static bool create_folder_if_required(const char* extracted_path)
 {
@@ -148,21 +243,21 @@ static bool create_folder_if_required(const char* extracted_path)
 	return true;
 }
 
-static void read_zip(const char* outfilename)
+static void extract_pak_from_zip(const char* outfilename)
 {
-	zip_t * zip_archive;
+	zip_t* zip_archive;
 	int err;
 
-	if ((zip_archive = zip_open(outfilename, ZIP_RDONLY, &err)) == NULL ) {
+	if ((zip_archive = zip_open(outfilename, ZIP_RDONLY, &err)) == NULL) {
 		zip_error_t error;
 		zip_error_init_with_code(&error, err);
-		DBG_DEBUG(__FUNCTION__, "cannot open zip archive \"%s\": %s : %d", outfilename, zip_error_strerror(&error), error );
+		DBG_DEBUG(__FUNCTION__, "cannot open zip archive \"%s\": %s : %d", outfilename, zip_error_strerror(&error), error);
 		zip_error_fini(&error);
 	}
 
 	DBG_DEBUG(__FUNCTION__, "zip archive opened");
 
-	zip_uint64_t nentry = (zip_uint64_t) zip_get_num_entries(zip_archive, 0);
+	zip_uint64_t nentry = (zip_uint64_t)zip_get_num_entries(zip_archive, 0);
 	for (zip_uint64_t idx = 0; idx < nentry; idx++) {
 		struct zip_stat st;
 		if (zip_stat_index(zip_archive, idx, 0, &st) == -1) {
@@ -170,19 +265,19 @@ static void read_zip(const char* outfilename)
 			continue;
 		}
 
-		zip_file_t *zip_file;
+		zip_file_t* zip_file;
 		if ((zip_file = zip_fopen_index(zip_archive, idx, 0)) == NULL) {
 			DBG_DEBUG(__FUNCTION__, "cannot open file %s (index %d) in zip_archive: %s", st.name, idx, zip_strerror(zip_archive));
 			continue;
 		}
 
-		char *contents = new char[st.size];
+		char* contents = new char[st.size];
 		zip_int64_t read_size;
 		if ((read_size = zip_fread(zip_file, contents, st.size)) == -1) {
 			DBG_DEBUG(__FUNCTION__, "failed to read content in file %s (index %d) of zip_archive: %s", st.name, idx, zip_file_strerror(zip_file));
 		}
 		else {
-			if (read_size != (zip_int64_t) st.size) {
+			if (read_size != (zip_int64_t)st.size) {
 				DBG_DEBUG(__FUNCTION__, "unexpected content size in file %s (index %d) of zip_archive; is %d, should be %d: %s", st.name, idx, read_size, st.size);
 			}
 			else {
@@ -198,7 +293,7 @@ static void read_zip(const char* outfilename)
 					continue;
 				}
 
-				if(st.size > 0 ) {
+				if (st.size > 0) {
 					if (FILE* f = dr_fopen(extracted_path, "wb")) {
 						fwrite(contents, st.size, 1, f);
 						fclose(f);
@@ -219,22 +314,22 @@ static void read_zip(const char* outfilename)
 	dr_remove(outfilename);
 }
 
-#if HAS_LIBCURL
+
 #include <curl/curl.h>
 
-static size_t curl_write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    size_t written = fwrite(ptr, size, nmemb, stream);
-    return written;
+static size_t curl_write_data(void* ptr, size_t size, size_t nmemb, FILE* stream) {
+	size_t written = fwrite(ptr, size, nmemb, stream);
+	return written;
 }
 
-static CURLcode curl_download_file(CURL *curl, const char* target_file, const char* url) {
-	FILE *fp = fopen(target_file,"wb");
+static CURLcode curl_download_file(CURL* curl, const char* target_file, const char* url) {
+	FILE* fp = fopen(target_file, "wb");
 	CURLcode res;
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	char cabundle_path[PATH_MAX];
 	sprintf(cabundle_path, "%s%s", env_t::data_dir, "cacert.pem");
-	FILE *cabundle_file;
+	FILE* cabundle_file;
 	if ((cabundle_file = fopen(cabundle_path, "r"))) {
 		fclose(cabundle_file);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
@@ -252,27 +347,26 @@ static CURLcode curl_download_file(CURL *curl, const char* target_file, const ch
 	fclose(fp);
 	return res;
 }
-#endif
+
 
 // native download (curl), extract (libzip)
 bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 {
-#if HAS_LIBCURL
-	CURL *curl = curl_easy_init(); // can only be called once during program lifecycle
+	CURL* curl = curl_easy_init(); // can only be called once during program lifecycle
 	if (curl) {
-		dr_chdir( env_t::data_dir );
+		dr_chdir(env_t::data_dir);
 		DBG_DEBUG(__FUNCTION__, "libcurl initialized");
 
 		char outfilename[FILENAME_MAX];
 		loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
 		int j = 0;
-		for(sint32 i : paks.get_selections()) {
+		for (sint32 i : paks.get_selections()) {
 			ls.set_info(pakinfo[i * 2 + 1]);
-			sprintf(outfilename, "%s.zip", pakinfo[i*2 + 1]);
+			sprintf(outfilename, "%s.zip", pakinfo[i * 2 + 1]);
 
-			CURLcode res = curl_download_file(curl, outfilename, pakinfo[i*2]);
+			CURLcode res = curl_download_file(curl, outfilename, pakinfo[i * 2]);
 			ls.set_progress(++j);
-			DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i*2]);
+			DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i * 2]);
 
 			if (res == 0) {
 				DBG_DEBUG(__FUNCTION__, "download successful to %s, attempting extract", outfilename);
@@ -288,44 +382,8 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 	else {
 		DBG_DEBUG(__FUNCTION__, "libcurl failed to initialize, pakset not downloaded");
 	}
-#else
-	dr_chdir(env_t::data_dir);
-
-	char outfilename[FILENAME_MAX];
-	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
-	int j = 0;
-	for (sint32 i : paks.get_selections()) {
-		ls.set_info(pakinfo[i * 2 + 1]);
-		sprintf(outfilename, "%s.zip", pakinfo[i * 2 + 1]);
-		const char *url = pakinfo[i*2] + 7; // minus http://
-
-		char site_ip[1024];
-		tstrncpy(site_ip, url, lengthof(site_ip));
-
-		const char *site_path = strchr(url, '/');
-		site_ip[site_path - url] = 0;
-		strcat(site_ip,":80");
-
-		const char *err = NULL;
-
-		err = network_http_get_file(site_ip, site_path, outfilename);
-		if (err) {
-			dbg->warning("Pakset download faield with", "%s", err);
-			j += 2;
-			ls.set_progress(j);
-			continue;
-		}
-
-		ls.set_progress(++j);
-		DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i * 2]);
-
-		DBG_DEBUG(__FUNCTION__, "download successful to %s, attempting extract", outfilename);
-		read_zip(outfilename);
-
-		ls.set_progress(++j);
-	}
-#endif
 	finish_install = true;
 	return false;
 }
+#endif
 #endif

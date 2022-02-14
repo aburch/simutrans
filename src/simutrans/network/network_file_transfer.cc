@@ -34,7 +34,7 @@ const char *network_receive_file(const SOCKET src_sock, const char *const save_a
 
 	if(length>0) {
 #ifndef NETTOOL // no display, no translator available
-		loadingscreen_t ls(translator::translate("Transferring game ..."),length,true,true);
+		loadingscreen_t ls(translator::translate("Downloading"),length,true,true);
 #endif
 
 		// good place to show a progress bar
