@@ -250,6 +250,19 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 			tool = new tool_headquarter_t();
 		}
 		else {
+			// station
+			if(  desc->get_type()==building_desc_t::flat_dock  ||  desc->get_type()==building_desc_t::dock  ) {
+				if(  desc->get_size().x>1  &&  desc->get_size().y>1  ) {
+					// no multile docks in both directions => do not register
+					dbg->warning( "hausbauer_t::register_desc()", "Multitile dock %s ignored!", desc->get_name() );
+					return false;
+				}
+			}
+			else if(  desc->get_type()==building_desc_t::generic_stop  &&  desc->get_size().x+desc->get_size().y > 2  ) {
+				// no multile docks in both directions => do not register
+				dbg->warning( "hausbauer_t::register_desc()", "Way stops must be single tile! %s ignored!", desc->get_name() );
+				return false;
+			}
 			tool = new tool_build_station_t();
 		}
 		tool->set_icon( desc->get_cursor()->get_image_id(1) );
