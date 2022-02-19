@@ -177,6 +177,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/server_frame.cc
 		src/simutrans/gui/settings_frame.cc
 		src/simutrans/gui/settings_stats.cc
+		src/simutrans/gui/signal_info.cc
 		src/simutrans/gui/signal_spacing.cc
 		src/simutrans/gui/simwin.cc
 		src/simutrans/gui/sound_frame.cc

@@ -66,6 +66,7 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 
+
 // alter land height tools
 class tool_raise_lower_base_t : public tool_t {
 protected:
@@ -645,6 +646,16 @@ private:
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 	image_id get_marker_image() const OVERRIDE;
+};
+
+
+// removes signal from tile
+class tool_remove_signal_t : public tool_t {
+public:
+	tool_remove_signal_t() : tool_t(TOOL_REMOVE_SIGNAL | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove signal"); }
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 
 

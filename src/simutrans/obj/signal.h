@@ -30,9 +30,8 @@ public:
 	typ get_typ() const OVERRIDE { return obj_t::signal; }
 	const char *get_name() const OVERRIDE {return "Signal";}
 
-	/**
-	* Calculate the actual image
-	*/
+	void show_info() OVERRIDE;
+
 	void calc_image() OVERRIDE;
 };
 

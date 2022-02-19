@@ -463,6 +463,7 @@ SOURCES += src/simutrans/gui/script_tool_frame.cc
 SOURCES += src/simutrans/gui/server_frame.cc
 SOURCES += src/simutrans/gui/settings_frame.cc
 SOURCES += src/simutrans/gui/settings_stats.cc
+SOURCES += src/simutrans/gui/signal_info.cc
 SOURCES += src/simutrans/gui/signal_spacing.cc
 SOURCES += src/simutrans/gui/simwin.cc
 SOURCES += src/simutrans/gui/sound_frame.cc

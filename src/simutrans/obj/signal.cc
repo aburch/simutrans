@@ -15,6 +15,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../gui/signal_info.h"
+#include "../gui/simwin.h"
 #include "../utils/cbuffer.h"
 
 #include "signal.h"
@@ -178,4 +180,10 @@ void signal_t::calc_image()
 	set_xoff( xoff );
 	set_yoff( yoff );
 	set_image(image);
+}
+
+
+void signal_t::show_info()
+{
+	create_win( new signal_info_t( this ), w_info, (ptrdiff_t)this );
 }

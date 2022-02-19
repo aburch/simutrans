@@ -4227,7 +4227,10 @@ obj=program_text
 name=Install paks
 note=loadingbar during paks download and install
 --
-
+obj=program_text
+name=remove signal
+note=button/tool tooltip on removing signals
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds
