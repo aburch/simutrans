@@ -76,7 +76,7 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		zeiger->change_pos(pos);
 
-		if (!tool->move_has_effects()) {
+		if (!tool->move_has_effects()  ||  IS_CONTROL_PRESSED(&ev)) {
 			is_dragging = false;
 		}
 		else if(  !env_t::networkmode  ||  tool->is_move_network_safe(world->get_active_player())) {
@@ -330,7 +330,7 @@ bool interaction_t::process_event( event_t &ev )
 		catch_dragging();
 		move_view(ev);
 	}
-	else if(  IS_LEFTDRAG(&ev)  &&  IS_LEFT_BUTTON_PRESSED(&ev)  &&  (left_drag  ||  !world->get_tool(world->get_active_player_nr())->move_has_effects())  ) {
+	else if(  IS_LEFTDRAG(&ev)  &&  IS_LEFT_BUTTON_PRESSED(&ev)  &&  (left_drag  ||  (!world->get_tool(world->get_active_player_nr())->move_has_effects()  &&  !IS_CONTROL_PRESSED(&ev))  )  ) {
 		/* ok, we have a general tool selected, and we have a left drag or left release event with an actual difference
 		 * => move the map, if we are beyond a threshold */
 		if(  left_drag  ||  abs(ev.cx-ev.mx)+abs(ev.cy-ev.my)>=env_t::scroll_threshold  ) {
