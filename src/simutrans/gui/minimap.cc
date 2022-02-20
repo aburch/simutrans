@@ -1621,6 +1621,7 @@ void minimap_t::draw(scr_coord pos)
 
 	// draw city limit
 	if(  mode & MAP_CITYLIMIT  ) {
+		const PIXVAL col = color_idx_to_rgb(showing_schedule ? COL_DARK_BROWN : COL_ORANGE);
 
 		// for all cities
 		for(stadt_t* const stadt :  world->get_cities()  ) {
@@ -1640,10 +1641,10 @@ void minimap_t::draw(scr_coord pos)
 				c[i] = map_to_screen_coord(k[i]) + pos;
 			}
 
-			display_direct_line_dotted_rgb( c[0].x, c[0].y, c[1].x, c[1].y, 3, 3, color_idx_to_rgb(COL_ORANGE) );
-			display_direct_line_dotted_rgb( c[1].x, c[1].y, c[2].x, c[2].y, 3, 3, color_idx_to_rgb(COL_ORANGE) );
-			display_direct_line_dotted_rgb( c[2].x, c[2].y, c[3].x, c[3].y, 3, 3, color_idx_to_rgb(COL_ORANGE) );
-			display_direct_line_dotted_rgb( c[3].x, c[3].y, c[0].x, c[0].y, 3, 3, color_idx_to_rgb(COL_ORANGE) );
+			display_direct_line_dotted_rgb( c[0].x, c[0].y, c[1].x, c[1].y, 3, 3, col );
+			display_direct_line_dotted_rgb( c[1].x, c[1].y, c[2].x, c[2].y, 3, 3, col );
+			display_direct_line_dotted_rgb( c[2].x, c[2].y, c[3].x, c[3].y, 3, 3, col );
+			display_direct_line_dotted_rgb( c[3].x, c[3].y, c[0].x, c[0].y, 3, 3, col );
 		}
 	}
 
@@ -1734,7 +1735,7 @@ void minimap_t::draw(scr_coord pos)
 		c[i] = map_to_screen_coord( view[i] ) + pos;
 	}
 	for(  int i=0;  i<4;  i++  ) {
-		display_direct_line_rgb( c[i].x, c[i].y, c[(i+1)%4].x, c[(i+1)%4].y, color_idx_to_rgb(COL_YELLOW));
+		display_direct_line_rgb( c[i].x, c[i].y, c[(i+1)%4].x, c[(i+1)%4].y, color_idx_to_rgb(showing_schedule?COL_RED:COL_YELLOW));
 	}
 
 	if(  !showing_schedule  ) {
