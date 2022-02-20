@@ -38,11 +38,7 @@ void signal_t::info(cbuffer_t & buf) const
 	obj_t::info(buf);
 
 	buf.printf("%s\n%s%u", translator::translate(desc->get_name()), translator::translate("\ndirection:"), get_dir());
-
-	if (char const* const maker = desc->get_copyright()) {
-		buf.append("\n\n");
-		buf.printf(translator::translate("Constructed by %s"), maker);
-	}
+	// copyright obmitted, signal dialog will show it
 }
 
 
