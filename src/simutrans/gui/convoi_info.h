@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_CONVOI_INFO_T_H
-#define GUI_CONVOI_INFO_T_H
+#ifndef GUI_CONVOI_INFO_H
+#define GUI_CONVOI_INFO_H
 
 
 #include "gui_frame.h"

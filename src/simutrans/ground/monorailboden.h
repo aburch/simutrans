@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_MONORAILBODEN_H
-#define BODEN_MONORAILBODEN_H
+#ifndef GROUND_MONORAILBODEN_H
+#define GROUND_MONORAILBODEN_H
 
 
 #include "grund.h"

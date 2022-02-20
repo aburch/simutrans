@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_KANAL_H
-#define BODEN_WEGE_KANAL_H
+#ifndef OBJ_WAY_KANAL_H
+#define OBJ_WAY_KANAL_H
 
 
 #include "weg.h"

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_GOODS_MANAGER_H
-#define BAUER_GOODS_MANAGER_H
+#ifndef BUILDER_GOODS_MANAGER_H
+#define BUILDER_GOODS_MANAGER_H
 
 
 #include "../tpl/vector_tpl.h"

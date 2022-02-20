@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_FACTORYLIST_STATS_T_H
-#define GUI_FACTORYLIST_STATS_T_H
+#ifndef GUI_FACTORYLIST_STATS_H
+#define GUI_FACTORYLIST_STATS_H
 
 
 #include "components/gui_colorbox.h"

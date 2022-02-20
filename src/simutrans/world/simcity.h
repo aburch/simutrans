@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMCITY_H
-#define SIMCITY_H
+#ifndef WORLD_SIMCITY_H
+#define WORLD_SIMCITY_H
 
 
 #include "../obj/simobj.h"

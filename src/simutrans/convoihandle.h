@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef CONVOIHANDLE_T_H
-#define CONVOIHANDLE_T_H
+#ifndef CONVOIHANDLE_H
+#define CONVOIHANDLE_H
 
 
 #include "tpl/quickstone_tpl.h"

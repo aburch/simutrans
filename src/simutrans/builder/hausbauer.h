@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_HAUSBAUER_H
-#define BAUER_HAUSBAUER_H
+#ifndef BUILDER_HAUSBAUER_H
+#define BUILDER_HAUSBAUER_H
 
 
 #include "../descriptor/building_desc.h"

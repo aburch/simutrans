@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMPLAN_H
-#define SIMPLAN_H
+#ifndef WORLD_SIMPLAN_H
+#define WORLD_SIMPLAN_H
 
 
 #include "../halthandle.h"

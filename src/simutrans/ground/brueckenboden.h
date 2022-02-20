@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_BRUECKENBODEN_H
-#define BODEN_BRUECKENBODEN_H
+#ifndef GROUND_BRUECKENBODEN_H
+#define GROUND_BRUECKENBODEN_H
 
 
 #include "grund.h"

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef UNICODE_H
-#define UNICODE_H
+#ifndef UTILS_UNICODE_H
+#define UTILS_UNICODE_H
 
 
 #include <stddef.h>

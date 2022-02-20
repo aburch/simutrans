@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FINDER_BUILDING_PLACEFINDER_H
-#define FINDER_BUILDING_PLACEFINDER_H
+#ifndef WORLD_BUILDING_PLACEFINDER_H
+#define WORLD_BUILDING_PLACEFINDER_H
 
 
 #include "placefinder.h"

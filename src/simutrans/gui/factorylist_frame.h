@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_FACTORYLIST_FRAME_T_H
-#define GUI_FACTORYLIST_FRAME_T_H
+#ifndef GUI_FACTORYLIST_FRAME_H
+#define GUI_FACTORYLIST_FRAME_H
 
 
 #include "simwin.h"

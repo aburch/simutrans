@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMMENU_H
-#define SIMMENU_H
+#ifndef TOOL_SIMMENU_H
+#define TOOL_SIMMENU_H
 
 
 #include <string>

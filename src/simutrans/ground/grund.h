@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_GRUND_H
-#define BODEN_GRUND_H
+#ifndef GROUND_GRUND_H
+#define GROUND_GRUND_H
 
 
 #include "../halthandle.h"

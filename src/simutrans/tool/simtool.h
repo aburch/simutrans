@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMTOOL_H
-#define SIMTOOL_H
+#ifndef TOOL_SIMTOOL_H
+#define TOOL_SIMTOOL_H
 
 
 /// New OO tool system

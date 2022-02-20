@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_CURIOSITYLIST_FRAME_T_H
-#define GUI_CURIOSITYLIST_FRAME_T_H
+#ifndef GUI_CURIOSITYLIST_FRAME_H
+#define GUI_CURIOSITYLIST_FRAME_H
 
 
 #include "simwin.h"

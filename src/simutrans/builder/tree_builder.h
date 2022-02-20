@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_TREE_BUILDER_H
-#define BAUER_TREE_BUILDER_H
+#ifndef BUILDER_TREE_BUILDER_H
+#define BUILDER_TREE_BUILDER_H
 
 
 #include "../tpl/stringhashtable_tpl.h"

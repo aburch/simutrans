@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_MESSAGE_FRAME_T_H
-#define GUI_MESSAGE_FRAME_T_H
+#ifndef GUI_MESSAGE_FRAME_H
+#define GUI_MESSAGE_FRAME_H
 
 
 #include "simwin.h"

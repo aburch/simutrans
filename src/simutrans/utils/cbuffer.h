@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef UTILS_CBUFFER_T_H
-#define UTILS_CBUFFER_T_H
+#ifndef UTILS_CBUFFER_H
+#define UTILS_CBUFFER_H
 
 
 #include <stdarg.h>

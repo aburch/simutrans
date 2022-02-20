@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_MONORAIL_H
-#define BODEN_WEGE_MONORAIL_H
+#ifndef OBJ_WAY_MONORAIL_H
+#define OBJ_WAY_MONORAIL_H
 
 
 #include "schiene.h"

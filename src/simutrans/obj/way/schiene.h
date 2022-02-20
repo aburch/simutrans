@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_SCHIENE_H
-#define BODEN_WEGE_SCHIENE_H
+#ifndef OBJ_WAY_SCHIENE_H
+#define OBJ_WAY_SCHIENE_H
 
 
 #include "weg.h"

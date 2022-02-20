@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMWORLD_H
-#define SIMWORLD_H
+#ifndef WORLD_SIMWORLD_H
+#define WORLD_SIMWORLD_H
 
 
 #include "../simconst.h"
@@ -1491,7 +1491,7 @@ public:
 
 public:
 	void get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope);
-	
+
 public:
 	/**
 	 * @return water height - versions without checks for speed

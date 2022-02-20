@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
-#define GUI_COMPONENTS_GUI_OBJ_VIEW_T_H
+#ifndef GUI_COMPONENTS_GUI_OBJ_VIEW_H
+#define GUI_COMPONENTS_GUI_OBJ_VIEW_H
 
 
 #include "gui_world_view.h"

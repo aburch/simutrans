@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef IFC_SIMTESTDRIVER_H
-#define IFC_SIMTESTDRIVER_H
+#ifndef VEHICLE_SIMTESTDRIVER_H
+#define VEHICLE_SIMTESTDRIVER_H
 
 
 #include "../simtypes.h"

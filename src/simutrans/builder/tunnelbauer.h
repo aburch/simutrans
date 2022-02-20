@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_TUNNELBAUER_H
-#define BAUER_TUNNELBAUER_H
+#ifndef BUILDER_TUNNELBAUER_H
+#define BUILDER_TUNNELBAUER_H
 
 
 #include "../simtypes.h"

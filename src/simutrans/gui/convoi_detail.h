@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_CONVOI_DETAIL_T_H
-#define GUI_CONVOI_DETAIL_T_H
+#ifndef GUI_CONVOI_DETAIL_H
+#define GUI_CONVOI_DETAIL_H
 
 
 #include "components/gui_aligned_container.h"

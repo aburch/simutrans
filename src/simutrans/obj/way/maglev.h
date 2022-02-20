@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_MAGLEV_H
-#define BODEN_WEGE_MAGLEV_H
+#ifndef OBJ_WAY_MAGLEV_H
+#define OBJ_WAY_MAGLEV_H
 
 
 #include "schiene.h"

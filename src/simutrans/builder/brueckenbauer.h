@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_BRUECKENBAUER_H
-#define BAUER_BRUECKENBAUER_H
+#ifndef BUILDER_BRUECKENBAUER_H
+#define BUILDER_BRUECKENBAUER_H
 
 
 #include "../simtypes.h"

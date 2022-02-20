@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_LABELLIST_FRAME_T_H
-#define GUI_LABELLIST_FRAME_T_H
+#ifndef GUI_LABELLIST_FRAME_H
+#define GUI_LABELLIST_FRAME_H
 
 
 #include "simwin.h"

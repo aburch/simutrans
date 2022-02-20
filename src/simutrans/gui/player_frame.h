@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_PLAYER_FRAME_T_H
-#define GUI_PLAYER_FRAME_T_H
+#ifndef GUI_PLAYER_FRAME_H
+#define GUI_PLAYER_FRAME_H
 
 
 #include "../simconst.h"

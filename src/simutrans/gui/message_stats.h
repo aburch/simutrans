@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_MESSAGE_STATS_T_H
-#define GUI_MESSAGE_STATS_T_H
+#ifndef GUI_MESSAGE_STATS_H
+#define GUI_MESSAGE_STATS_H
 
 
 #include "components/gui_aligned_container.h"

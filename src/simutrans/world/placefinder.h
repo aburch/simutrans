@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef FINDER_PLACEFINDER_H
-#define FINDER_PLACEFINDER_H
+#ifndef WORLD_PLACEFINDER_H
+#define WORLD_PLACEFINDER_H
 
 
 #include "../dataobj/koord.h"

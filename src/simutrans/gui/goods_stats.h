@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_GOODS_STATS_T_H
-#define GUI_GOODS_STATS_T_H
+#ifndef GUI_GOODS_STATS_H
+#define GUI_GOODS_STATS_H
 
 
 #include "../simtypes.h"

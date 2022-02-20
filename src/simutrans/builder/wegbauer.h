@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_WEGBAUER_H
-#define BAUER_WEGBAUER_H
+#ifndef BUILDER_WEGBAUER_H
+#define BUILDER_WEGBAUER_H
 
 
 #include "../simtypes.h"

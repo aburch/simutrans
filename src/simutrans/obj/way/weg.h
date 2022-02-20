@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_WEG_H
-#define BODEN_WEGE_WEG_H
+#ifndef OBJ_WAY_WEG_H
+#define OBJ_WAY_WEG_H
 
 
 #include "../../display/simimg.h"

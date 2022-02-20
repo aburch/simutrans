@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef GUI_ENLARGE_MAP_FRAME_T_H
-#define GUI_ENLARGE_MAP_FRAME_T_H
+#ifndef GUI_ENLARGE_MAP_FRAME_H
+#define GUI_ENLARGE_MAP_FRAME_H
 
 
 #include "gui_frame.h"

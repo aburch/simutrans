@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_WEGE_RUNWAY_H
-#define BODEN_WEGE_RUNWAY_H
+#ifndef OBJ_WAY_RUNWAY_H
+#define OBJ_WAY_RUNWAY_H
 
 
 #include "../../tpl/vector_tpl.h"

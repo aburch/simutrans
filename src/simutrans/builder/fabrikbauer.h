@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_FABRIKBAUER_H
-#define BAUER_FABRIKBAUER_H
+#ifndef BUILDER_FABRIKBAUER_H
+#define BUILDER_FABRIKBAUER_H
 
 
 #include "../tpl/stringhashtable_tpl.h"

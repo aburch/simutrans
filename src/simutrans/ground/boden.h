@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BODEN_BODEN_H
-#define BODEN_BODEN_H
+#ifndef GROUND_BODEN_H
+#define GROUND_BODEN_H
 
 
 #include "grund.h"

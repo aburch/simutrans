@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMDEPOT_H
-#define SIMDEPOT_H
+#ifndef OBJ_DEPOT_H
+#define OBJ_DEPOT_H
 
 
 #include "../tpl/slist_tpl.h"

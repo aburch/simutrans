@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMTOOL_DIALOGS_H
-#define SIMTOOL_DIALOGS_H
+#ifndef TOOL_SIMTOOL_DIALOGS_H
+#define TOOL_SIMTOOL_DIALOGS_H
 
 
 #include "../tool/simmenu.h"

@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef SIMTOOL_SCRIPTED_H
-#define SIMTOOL_SCRIPTED_H
+#ifndef TOOL_SIMTOOL_SCRIPTED_H
+#define TOOL_SIMTOOL_SCRIPTED_H
 
 
 #include "../tool/simmenu.h"

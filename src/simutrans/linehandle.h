@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef LINEHANDLE_T_H
-#define LINEHANDLE_T_H
+#ifndef LINEHANDLE_H
+#define LINEHANDLE_H
 
 
 #include "tpl/quickstone_tpl.h"

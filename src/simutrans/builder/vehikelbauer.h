@@ -3,8 +3,8 @@
  * (see LICENSE.txt)
  */
 
-#ifndef BAUER_VEHIKELBAUER_H
-#define BAUER_VEHIKELBAUER_H
+#ifndef BUILDER_VEHIKELBAUER_H
+#define BUILDER_VEHIKELBAUER_H
 
 
 #include "../dataobj/koord3d.h"
