@@ -29,13 +29,14 @@ private:
 	gui_scrolled_list_t scrolly;
 	gui_tab_panel_t tabs;     // tab panel for filtering messages
 	gui_textinput_t input;
-	button_t option_bt, copy_bt;
+	button_t opaque_bt, option_bt, copy_bt;
 	vector_tpl<sint32> tab_categories;
 
 	uint32 last_count; // of messages in list
 	sint32 message_type;  // message type for filtering; -1 indicates no filtering
 	void fill_list();
 	void filter_list(sint32 type);
+
 public:
 	message_frame_t();
 

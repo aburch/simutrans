@@ -59,7 +59,7 @@ message_frame_t::message_frame_t() :
 
 	set_table_layout(1,0);
 
-	add_table(3,0);
+	add_table(4,0);
 	{
 		option_bt.init(button_t::roundbox, translator::translate("Optionen"));
 		option_bt.add_listener(this);
@@ -69,12 +69,20 @@ message_frame_t::message_frame_t() :
 		copy_bt.add_listener(this);
 		add_component(&copy_bt);
 
-		new_component<gui_fill_t>();
+		if(  env_t::networkmode  && env_t::chat_window_transparency!=100  ) {
+			opaque_bt.init(button_t::square_state, translator::translate("transparent background"));
+			opaque_bt.add_listener(this);
+			add_component(&opaque_bt);
 
+			new_component<gui_fill_t>();
+		}
+		else {
+			new_component_span<gui_fill_t>(2);
+		}
 		if(  env_t::networkmode  ) {
 			input.set_text(ibuf, lengthof(ibuf) );
 			input.add_listener(this);
-			add_component(&input,3);
+			add_component(&input,4);
 			set_focus( &input );
 		}
 	}
@@ -100,7 +108,7 @@ message_frame_t::message_frame_t() :
 	add_component(&tabs);
 
 	set_resizemode(diagonal_resize);
-	if(  env_t::networkmode  && env_t::chat_window_transparency!=100  ) {
+	if(  env_t::networkmode  && env_t::chat_window_transparency!=100  &&  opaque_bt.pressed  ) {
 		set_transparent( 100-env_t::chat_window_transparency, gui_theme_t::gui_color_chat_window_network_transparency );
 		scrolly.set_skin_type(gui_scrolled_list_t::transparent);
 	}
@@ -154,7 +162,19 @@ bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 	if(  comp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
 	}
-	if(  comp==&copy_bt  ) {
+	else if(  comp==&opaque_bt  ) {
+		if(  !opaque_bt.pressed  &&  env_t::chat_window_transparency!=100  ) {
+			set_transparent( 100-env_t::chat_window_transparency, gui_theme_t::gui_color_chat_window_network_transparency );
+			scrolly.set_skin_type(gui_scrolled_list_t::transparent);
+
+		}
+		else {
+			set_transparent( 0, gui_theme_t::gui_color_chat_window_network_transparency );
+			scrolly.set_skin_type(gui_scrolled_list_t::transparent);
+		}
+		opaque_bt.pressed ^= 1;
+	}
+	else if(  comp==&copy_bt  ) {
 		cbuffer_t clipboard;
 		const sint32 message_type = tab_categories[ tabs.get_active_tab_index() ];
 		int count = 20; // just copy the last 20

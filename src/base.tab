@@ -4231,7 +4231,9 @@ obj=program_text
 name=remove signal
 note=button/tool tooltip on removing signals
 --
-
+obj=program_text
+name=transparent background
+--
 #obj=help_text
 #name=Lower values mean more local sounds
 #note=tooltip in sound frame
