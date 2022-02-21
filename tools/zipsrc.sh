@@ -6,18 +6,18 @@ packen()
 	FILELISTE=`find . -type f "(" -name "*.c" -o -name "*.h" -o -name "*.cc" -o -name "*.mm" ")"`
 	FILELISTF=`find . -type f "(" -name "*.sh" -o -name "*.mk"  -o -name "*.nut" ")"`
 	FILELISTG=`find . -type f "(" -name "*.txt" -o -name "*.bdf"  -o -name "*.fnt"  -o -name "*.mid"  -o -name "*.tab" ")"`
-	FILELISTH=`find . -type f "(" -name "*.rtf" -o -name "*.bmp"  -o -name "*.nsi"  -o -name "*.nsh" ")"`
-	FILELISTI=`find . -type f "(" -name "*.tab" -o -name "*.dat"  -o -name "*.png" -o -name "*.svg" ")"`
+	FILELISTI=`find . -type f "(" -name "*.tab" -o -name "*.dat"  -o -name "*.png" -o -name "*.svg" -o -name "*.desktop" ")"`
 	rm ../simutrans-src.zip
 	zip ../simutrans-src.zip $FILELISTE
 	zip ../simutrans-src.zip $FILELISTF
 	zip ../simutrans-src.zip $FILELISTG
 	zip ../simutrans-src.zip $FILELISTH
 	zip ../simutrans-src.zip $FILELISTI
-	zip ../simutrans-src.zip Makefile makeobj/Makefile nettools/Makefile
+	zip ../simutrans-src.zip Makefile src/makeobj/Makefile src/nettool/Makefile
 	zip ../simutrans-src.zip cmake/*.cmake
-	zip ../simutrans-src.zip Simutrans.manifest configure.ac config.default.in config.template simutrans.ico old.ico stormoog.ico simres.rc OSX/simutrans.icns
+	zip ../simutrans-src.zip configure.ac config.default.in config.template src/OSX/simutrans.icns
 	zip ../simutrans-src.zip documentation/*.pal simutrans/themes/*.pak
+	zip -r ../simutrans-src.zip src/Windows
 }
 
 # not used (stumbles in private: in class definition ... :( )
@@ -35,6 +35,6 @@ beautify()
 }
 
 # take action!
-cd trunk
+cd ..
 autoconf
 packen
