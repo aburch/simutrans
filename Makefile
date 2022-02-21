@@ -11,8 +11,8 @@ LIBS :=
 SOURCES :=
 STATIC := 0
 
-DYNAMICSTART = 
-DYNAMICEND = 
+DYNAMICSTART =
+DYNAMICEND =
 
 CFG ?= default
 -include config.$(CFG)
@@ -106,8 +106,8 @@ else ifeq ($(OSTYPE),mingw)
 else ifeq ($(OSTYPE),linux)
   ifeq ($(shell expr $(STATIC) \>= 1), 1)
     LDFLAGS +=  -Wl,-Bstatic -lm
-    DYNAMICSTART = -Wl,-Bdynamic 
-    DYNAMICEND = -Wl,-Bstatic 
+    DYNAMICSTART = -Wl,-Bdynamic
+    DYNAMICEND = -Wl,-Bstatic
   endif
 else ifeq ($(OSTYPE),mac)
   SOURCES += src/simutrans/OSX/translocation.m
@@ -272,9 +272,8 @@ else
   endif
 endif
 
-GIT_HASH := $(shell git rev-parse --short=7 HEAD 2>/dev/null 1>/dev/null; echo $$?)
-ifneq ($(GIT_HASH),)
-  GIT_HASH := $(shell git rev-parse --short=7 HEAD)
+GIT_HASH := $(shell git rev-parse --short=7 HEAD)
+ifeq ($(.SHELLSTATUS),0)
   $(info Git hash is 0x$(GIT_HASH))
   CFLAGS  += -DGIT_HASH=0x$(GIT_HASH)
 endif
