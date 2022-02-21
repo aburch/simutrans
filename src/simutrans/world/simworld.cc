@@ -4468,7 +4468,8 @@ bool karte_t::load(const char *filename)
 		file.set_buffered(true);
 		load(&file);
 
-		if(  env_t::networkmode  ) {
+		if(  env_t::server  ) {
+			// since the sync should have been the last command on the clients due to tcp, only clear command queue on the server
 			clear_command_queue();
 		}
 

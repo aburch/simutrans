@@ -789,7 +789,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		if(  sock != INVALID_SOCKET  ) {
 			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter(), welt->get_checklist_at(old_sync_steps) );
 			if (nwc.send(sock)) {
-				socket_list_t::change_state( client_id, socket_info_t::playing);
+				socket_list_t::change_state(client_id, socket_info_t::playing);
 				if (socket_list_t::is_valid_client_id(client_id)) {
 					socket_list_t::get_client(client_id).player_unlocked = unlocked_players;
 					// send information about locked state
@@ -799,6 +799,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 					// welcome message
 					nwc_nick_t::server_tools(welt, client_id, nwc_nick_t::WELCOME, NULL);
+				}
+				else {
+					dbg->warning("nwc_sync_t::do_command(karte_t *welt)", "client_id %d became invalid during sync!", client_id);
 				}
 			}
 			else {
