@@ -102,6 +102,8 @@ private:
 	 */
 	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
 
+	vector_tpl<halthandle_t> halt_served_this_step;
+
 	/**
 	 * struct holds new financial history for line
 	 */
@@ -136,6 +138,11 @@ public:
 	 * May contain invalid handles!
 	 */
 	const vector_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
+
+	/**
+	 * All destinations which received goods in this step. hat_gehalten will exclude them, to load the first convoi for those first
+	 */
+	const vector_tpl<halthandle_t>& get_halt_served_this_step() const { return halt_served_this_step; }
 
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );

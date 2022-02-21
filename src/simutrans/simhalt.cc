@@ -971,6 +971,9 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
+	// reset served stops
+	halt_served_this_step.clear();
+
 	switch(what) {
 		case RECONNECTING:
 			units_remaining -= (rebuild_connections()/256)+2;
@@ -2079,65 +2082,67 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 		for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
 			halthandle_t plan_halt = destination_halts[i];
 
-				// The random offset will ensure that all goods have an equal chance to be loaded.
-				uint32 offset = simrand(warray->get_count());
-				for(  uint32 i=0;  i<warray->get_count();  i++  ) {
-					ware_t &tmp = (*warray)[ i+offset ];
+			// mark this stop as served
+			halt_served_this_step.append_unique(plan_halt);
 
-					// prevent overflow (faster than division)
-					if(  i+offset+1>=warray->get_count()  ) {
-						offset -= warray->get_count();
-					}
+			// The random offset will ensure that all goods have an equal chance to be loaded.
+			uint32 offset = simrand(warray->get_count());
+			for(  uint32 i=0;  i<warray->get_count();  i++  ) {
+				ware_t &tmp = (*warray)[ i+offset ];
 
-					// skip empty entries
-					if(tmp.menge==0) {
+				// prevent overflow (faster than division)
+				if(  i+offset+1>=warray->get_count()  ) {
+					offset -= warray->get_count();
+				}
+
+				// skip empty entries
+				if(tmp.menge==0) {
+					continue;
+				}
+
+				// goods without route -> returning passengers/mail
+				if(  !tmp.get_zwischenziel().is_bound()  ) {
+					search_route_resumable(tmp);
+					if (!tmp.get_ziel().is_bound()) {
+						// no route anymore
+						tmp.menge = 0;
 						continue;
 					}
+				}
 
-					// goods without route -> returning passengers/mail
-					if(  !tmp.get_zwischenziel().is_bound()  ) {
-						search_route_resumable(tmp);
-						if (!tmp.get_ziel().is_bound()) {
-							// no route anymore
-							tmp.menge = 0;
+				// compatible car and right target stop?
+				if(  tmp.get_zwischenziel()==plan_halt  ) {
+					if(  plan_halt->is_overcrowded( tmp.get_index() )  ) {
+						if (welt->get_settings().is_avoid_overcrowding() && tmp.get_ziel() != plan_halt) {
+							// do not go for transfer to overcrowded transfer stop
 							continue;
 						}
 					}
 
-					// compatible car and right target stop?
-					if(  tmp.get_zwischenziel()==plan_halt  ) {
-						if(  plan_halt->is_overcrowded( tmp.get_index() )  ) {
-							if (welt->get_settings().is_avoid_overcrowding() && tmp.get_ziel() != plan_halt) {
-								// do not go for transfer to overcrowded transfer stop
-								continue;
-							}
-						}
+					// not too much?
+					ware_t neu(tmp);
+					if(  tmp.menge > requested_amount  ) {
+						// not all can be loaded
+						neu.menge = requested_amount;
+						tmp.menge -= requested_amount;
+						requested_amount = 0;
+					}
+					else {
+						requested_amount -= tmp.menge;
+						// leave an empty entry => joining will more often work
+						tmp.menge = 0;
+					}
+					load.insert(neu);
 
-						// not too much?
-						ware_t neu(tmp);
-						if(  tmp.menge > requested_amount  ) {
-							// not all can be loaded
-							neu.menge = requested_amount;
-							tmp.menge -= requested_amount;
-							requested_amount = 0;
-						}
-						else {
-							requested_amount -= tmp.menge;
-							// leave an empty entry => joining will more often work
-							tmp.menge = 0;
-						}
-						load.insert(neu);
+					book(neu.menge, HALT_DEPARTED);
+					resort_freight_info = true;
 
-						book(neu.menge, HALT_DEPARTED);
-						resort_freight_info = true;
-
-						if (requested_amount==0) {
-							return;
-						}
+					if (requested_amount==0) {
+						return;
 					}
 				}
-
-				// nothing there to load
+			}
+			// nothing there to load
 		}
 	}
 }

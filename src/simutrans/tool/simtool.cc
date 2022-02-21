@@ -6613,6 +6613,7 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 
 void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
+	// only seens when dragging
 	halt_be_merged_from = haltestelle_t::get_halt(start,player);
 	halt_be_merged_to = haltestelle_t::get_halt(end,player);
 	sint64 workcost = 0;

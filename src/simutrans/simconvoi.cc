@@ -2973,9 +2973,13 @@ station_tile_search_ready: ;
 				}
 				continue;
 			}
-			destination_halts.append(plan_halt);
+			if(  !halt->get_halt_served_this_step().is_contained(plan_halt)  ) {
+				destination_halts.append(plan_halt);
+			}
 		}
 	}
+
+	
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
