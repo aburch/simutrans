@@ -87,7 +87,8 @@ if (SIMUTRANS_WC_REVISION)
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
-		"will be unavailable.")
+		"will be unavailable. You can set the SIMUTRANS_USE_REVISION option "
+		"to manually specify a revision number")
 
 	if (NOT EXISTS "${CMAKE_SOURCE_DIR}/revision.h")
 		file(WRITE "${CMAKE_SOURCE_DIR}/revision.h" "#define REVISION \n")

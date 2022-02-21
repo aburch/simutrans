@@ -1,5 +1,4 @@
 target_sources(simutrans PRIVATE
-		${CMAKE_SOURCE_DIR}/revision.h
 		src/simutrans/builder/brueckenbauer.cc
 		src/simutrans/builder/fabrikbauer.cc
 		src/simutrans/builder/goods_manager.cc
@@ -243,6 +242,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/player/ai_scripted.cc
 		src/simutrans/player/finance.cc
 		src/simutrans/player/simplay.cc
+		src/simutrans/revision.h
 		src/simutrans/script/api/api_city.cc
 		src/simutrans/script/api/api_command.cc
 		src/simutrans/script/api/api_const.cc

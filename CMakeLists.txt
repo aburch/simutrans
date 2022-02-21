@@ -98,19 +98,24 @@ set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BIN
 
 
 #
-# Generate revision on compile time (so only if needed)
+# Generate revision on compile time (so only if needed) if no revision is given
 #
-string(FIND ${CMAKE_GENERATOR} "Visual Studio" VS )
-if (${VS} EQUAL 0)
-	# using a script for MSVC project files
-	file(WRITE ${CMAKE_SOURCE_DIR}/revision.h "#define REVISION \n")
-	add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo revision.jse COMMENT "Find SVN revision")
+if (${SIMUTRANS_USE_REVISION})
+	file(WRITE ${CMAKE_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION ${SIMUTRANS_USE_REVISION}\n")
+	message(STATUS "Compiling Simutrans with manually specified revision ${SIMUTRANS_USE_REVISION}")
 else ()
-	# using custom target svnhear that is always built to update the revision.h file using cmake script
-	add_custom_target(svnheader ALL DEPENDS svn_header)
-	add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
-	set_source_files_properties(${CMAKE_SOURCE_DIR}/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
-	add_dependencies(simutrans svnheader)
+	string(FIND ${CMAKE_GENERATOR} "Visual Studio" VS )
+	if (${VS} EQUAL 0)
+		# using a script for MSVC project files
+		file(WRITE ${CMAKE_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION \n")
+		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo revision.jse COMMENT "Find SVN revision")
+	else ()
+		# using custom target svnhear that is always built to update the revision.h file using cmake script
+		add_custom_target(svnheader ALL DEPENDS svn_header)
+		add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
+		set_source_files_properties(${CMAKE_SOURCE_DIR}/src/simutrans/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
+		add_dependencies(simutrans svnheader)
+	endif ()
 endif ()
 
 #

@@ -47,6 +47,7 @@ option(SIMUTRANS_STEAM_BUILT "Compile a Steam build" OFF)
 option(DEBUG_FLUSH_BUFFER "Highlite areas changes since last redraw" OFF)
 option(ENABLE_WATERWAY_SIGNS "Allow private signs on watersways" OFF)
 option(AUTOJOIN_PUBLIC "Join when making things public" OFF)
+option(SIMUTRANS_USE_REVISION "Use the given revision number" OFF)
 
 if(NOT SIMUTRANS_DEBUG_LEVEL)
 	set(SIMUTRANS_DEBUG_LEVEL $<CONFIG:Debug>)
