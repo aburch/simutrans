@@ -6611,7 +6611,7 @@ uint8 tool_merge_stop_t::is_valid_pos( player_t *player, const koord3d &pos, con
 	return 0;
 }
 
-void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
+void tool_merge_stop_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
 	halt_be_merged_from = haltestelle_t::get_halt(start,player);
 	halt_be_merged_to = haltestelle_t::get_halt(end,player);
@@ -6621,6 +6621,12 @@ void tool_merge_stop_t::mark_tiles(  player_t *player, const koord3d &start, con
 	if( halt_be_merged_from == halt_be_merged_to ) {
 		// same halt => do nothing
 		win_set_static_tooltip( NULL );
+	}
+
+	// check ownership
+	if (!halt_be_merged_from->get_owner()->is_public_service() || halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
+		win_set_static_tooltip( "Das Feld gehoert\neinem anderen Spieler\n" );
+		return;
 	}
 
 	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
@@ -6658,6 +6664,11 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	if( halt_be_merged_from == halt_be_merged_to ) {
 		// same halt => do nothing
 		return NULL;
+	}
+
+	// check ownership
+	if (!halt_be_merged_from->get_owner()->is_public_service() || halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
+		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
 	for(haltestelle_t::tile_t const& i : halt_be_merged_from->get_tiles()) {
