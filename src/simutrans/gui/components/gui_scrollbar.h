@@ -81,6 +81,7 @@ public:
 		* Scroolbars are not directly related to pixels!
 		*/
 	void set_knob(sint32 knob_size, sint32 total_size);
+
 	sint32 get_knob_offset() const {
 		// return clamped offset if really desired
 		return knob_offset - (knob_scroll_discrete  &&  total_size!=knob_offset+knob_size  ?  (knob_offset % knob_scroll_amount) : 0);

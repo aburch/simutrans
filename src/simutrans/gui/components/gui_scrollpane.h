@@ -29,6 +29,11 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 	bool maximize:1;
+	bool b_can_drag:1;
+	bool b_is_dragging:1;
+
+	// start of dragging
+	scr_coord origin;
 
 	// for oversized entries
 	scr_coord_val max_width;
@@ -48,6 +53,8 @@ public:
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 
 	void set_component(gui_component_t *comp) { this->comp = comp; }
+
+	void set_allow_dragging(bool b) { b_can_drag = b;  }
 
 	/**
 	* this is the maximum width a scrollbar requests as minimum size

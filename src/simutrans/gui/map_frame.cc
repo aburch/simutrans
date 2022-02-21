@@ -47,7 +47,7 @@ scr_coord map_frame_t::screenpos;
 class gui_scrollpane_map_t : public gui_scrollpane_t
 {
 public:
-	gui_scrollpane_map_t(gui_component_t *comp) : gui_scrollpane_t(comp) {}
+	gui_scrollpane_map_t(gui_component_t* comp) : gui_scrollpane_t(comp) { set_allow_dragging(false); }
 
 	scr_size get_max_size() const OVERRIDE { return scr_size::inf;}
 };
