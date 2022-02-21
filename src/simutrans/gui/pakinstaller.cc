@@ -169,8 +169,13 @@ void extract_pak_from_zip(const char* zipfile)
 }
 
 // native download (curl), extract (libzip)
-bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
+bool pakinstaller_t::action_triggered(gui_action_creator_t* comp, value_t)
 {
+	if (comp == &cancel) {
+		destroy_win(this);
+		return true;
+	}
+
 	dr_chdir(env_t::data_dir);
 
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
