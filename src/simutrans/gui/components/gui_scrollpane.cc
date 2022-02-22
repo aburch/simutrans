@@ -158,8 +158,8 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 				return true;
 			}
 			// now drag: scrollbars are not in pixel, but we will scroll one unit per pixels ...
-			scroll_x.set_knob_offset(scroll_x.get_knob_offset() + (ev->mx - origin.x));
-			scroll_y.set_knob_offset(scroll_y.get_knob_offset() + (ev->my - origin.y));
+			scroll_x.set_knob_offset(scroll_x.get_knob_offset() - (ev->mx - origin.x));
+			scroll_y.set_knob_offset(scroll_y.get_knob_offset() - (ev->my - origin.y));
 			origin = scr_coord(ev->mx, ev->my);
 			// and finally end dragging on release of any button
 			if(  ev->ev_class == EVENT_RELEASE  ) {

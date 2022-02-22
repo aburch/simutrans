@@ -733,7 +733,7 @@ static void internal_GetEvents()
 				sys_event.code = SIM_MOUSE_MOVED;
 				sys_event.mx = SCREEN_TO_TEX_X(event.motion.x);
 				sys_event.my = SCREEN_TO_TEX_Y(event.motion.y);
-				sys_event.mb = conv_mouse_buttons(event.motion.state);
+				sys_event.mb = conv_mouse_buttons( SDL_GetMouseState(0, 0) );
 				sys_event.key_mod = ModifierKeys();
 			}
 			break;
