@@ -4471,16 +4471,14 @@ bool karte_t::load(const char *filename)
 		if(  env_t::server  ) {
 			// since the sync should have been the last command on the clients due to tcp, only clear command queue on the server
 			clear_command_queue();
-		}
 
-		if(  env_t::server  ) {
 			step_mode = FIX_RATIO;
-			if(  env_t::server  ) {
-				// meaningless to use a locked map; there are passwords now
-				settings.set_allow_player_change(true);
-				// language of map becomes server language
-				settings.set_name_language_iso(translator::get_lang()->iso_base);
-			}
+
+			// meaningless to use a locked map; there are passwords now
+			settings.set_allow_player_change(true);
+
+			// language of map becomes server language
+			settings.set_name_language_iso(translator::get_lang()->iso_base);
 
 			if(  server_reload_pwd_hashes  ) {
 				char fn[256];
