@@ -150,9 +150,9 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// since we get can grab the focus to get keyboard events, we must make sure to handle mouse events only if we are hit
 
 		// we will handle dragging ourselves inf not prevented
-		if(  b_can_drag  &&  ev->ev_class == EVENT_CLICK  ||  b_is_dragging  &&  (ev->ev_class == EVENT_DRAG  ||  ev->ev_class == EVENT_RELEASE)  ) {
-			// init dragging?
-			if(  ev->ev_class == EVENT_CLICK  ) {
+		if(  b_can_drag  &&  (ev->ev_class == EVENT_CLICK  ||  ev->ev_class == EVENT_DRAG)  ||  (b_is_dragging  &&  ev->ev_class == EVENT_RELEASE)  ) {
+			// init dragging? (Android SDL starts dragging without preceeding click!)
+			if(  ev->ev_class == EVENT_CLICK  ||  !b_is_dragging  ) {
 				origin = scr_coord(ev->mx, ev->my);
 				b_is_dragging = true;
 				return true;
