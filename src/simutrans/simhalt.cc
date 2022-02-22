@@ -972,7 +972,9 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
 	// reset served stops
-	halt_served_this_step.clear();
+	halt_served_this_step[0].clear();
+	halt_served_this_step[1].clear();
+	halt_served_this_step[2].clear();
 
 	switch(what) {
 		case RECONNECTING:
@@ -2078,12 +2080,14 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 	// this allows for separate high speed and normal service
 	vector_tpl<ware_t> *warray = cargo[good_category->get_catg_index()];
 
+	const int halt_catg = good_category->get_catg_index()>1 ? 2 : good_category->get_catg_index();
+
 	if(  warray  &&  !warray->empty()  ) {
 		for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
 			halthandle_t plan_halt = destination_halts[i];
 
 			// mark this stop as served
-			halt_served_this_step.append_unique(plan_halt);
+			halt_served_this_step[halt_catg].append_unique(plan_halt);
 
 			// The random offset will ensure that all goods have an equal chance to be loaded.
 			uint32 offset = simrand(warray->get_count());
