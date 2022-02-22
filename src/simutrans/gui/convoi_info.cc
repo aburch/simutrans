@@ -678,8 +678,8 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 		if(  switch_mode.get_aktives_tab() == &container_schedule  &&  !cnv->in_depot()  ) {
 			cnv->call_convoi_tool( 's', "1" );
 			scd.highlight_schedule( true );
-			minimap_t::get_instance()->set_selected_cnv(cnv);
 		}
+		minimap_t::get_instance()->set_selected_cnv(cnv);
 	}
 
 	return gui_frame_t::infowin_event(ev);

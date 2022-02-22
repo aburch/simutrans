@@ -854,12 +854,60 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 }
 
 
+static int notify_top_win()
+{
+	// mark new dirty
+	scr_size size = wins.back().gui->get_windowsize();
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
+
+	event_t ev;
+
+	ev.ev_class = INFOWIN;
+	ev.ev_code = WIN_TOP;
+	ev.mx = 0;
+	ev.my = 0;
+	ev.cx = 0;
+	ev.cy = 0;
+	ev.button_state = 0;
+
+	void *old = inside_event_handling;
+	inside_event_handling = wins.back().gui;
+	wins.back().gui->infowin_event(&ev);
+	inside_event_handling = old;
+
+	return wins.get_count()-1;
+}
+
+
+int top_win(int win, bool keep_state )
+{
+	if(  (uint32)win==wins.get_count()-1  ) {
+		return win;
+	} // already topped
+
+	  // mark old dirty
+	scr_size size = wins.back().gui->get_windowsize();
+	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
+	wins.back().dirty = true;
+
+	simwin_t tmp = wins[win];
+	wins.remove_at(win);
+	if(  !keep_state  ) {
+		tmp.rollup = false; // make visible when topping
+	}
+	wins.append(tmp);
+
+	return notify_top_win();
+}
+
+
 /* sometimes a window cannot destroyed while it is still handled;
  * in those cases it will added to kill list and it is only destructed
  * by this function
  */
 static void process_kill_list()
 {
+	bool needs_top = !kill_list.empty();
 	for(simwin_t & i : kill_list) {
 		if (inside_event_handling != i.gui) {
 			destroy_framed_win(&i); // we call this first, otherwise the focus may not be recognized
@@ -867,6 +915,10 @@ static void process_kill_list()
 		}
 	}
 	kill_list.clear();
+	// top message always after destruction
+	if(  needs_top  &&  wins.get_count()>1  ) {
+		notify_top_win();
+	}
 }
 
 
@@ -941,12 +993,6 @@ bool destroy_win(const ptrdiff_t magic)
 
 bool destroy_win(const gui_frame_t *gui)
 {
-	if(wins.get_count() > 1  &&  wins.back().gui == gui) {
-		// destroy topped window, top the next window before removing
-		// do it here as top_win manipulates the win vector
-		top_win(wins.get_count() - 2, true);
-	}
-
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(wins[i].gui == gui) {
 			if(inside_event_handling==wins[i].gui) {
@@ -965,6 +1011,9 @@ bool destroy_win(const gui_frame_t *gui)
 					}
 				}
 				destroy_framed_win(&win);
+				if(  wins.get_count()>1  ) {
+					notify_top_win();
+				}
 			}
 			return true;
 		}
@@ -1025,47 +1074,6 @@ void rolldown_all_win()
 		scr_size size = gui->get_windowsize();
 		mark_rect_dirty_wc( wins[curWin].pos.x, wins[curWin].pos.y, wins[curWin].pos.x+size.w, wins[curWin].pos.y+size.h );
 	}
-}
-
-
-int top_win(int win, bool keep_state )
-{
-	if(  (uint32)win==wins.get_count()-1  ) {
-		return win;
-	} // already topped
-
-	// mark old dirty
-	scr_size size = wins.back().gui->get_windowsize();
-	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
-	wins.back().dirty = true;
-
-	simwin_t tmp = wins[win];
-	wins.remove_at(win);
-	if(  !keep_state  ) {
-		tmp.rollup = false; // make visible when topping
-	}
-	wins.append(tmp);
-
-	 // mark new dirty
-	size = wins.back().gui->get_windowsize();
-	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
-
-	event_t ev;
-
-	ev.ev_class = INFOWIN;
-	ev.ev_code = WIN_TOP;
-	ev.mx = 0;
-	ev.my = 0;
-	ev.cx = 0;
-	ev.cy = 0;
-	ev.button_state = 0;
-
-	void *old = inside_event_handling;
-	inside_event_handling = tmp.gui;
-	tmp.gui->infowin_event(&ev);
-	inside_event_handling = old;
-
-	return wins.get_count()-1;
 }
 
 
