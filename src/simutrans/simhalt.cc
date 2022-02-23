@@ -407,6 +407,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	cargo = (vector_tpl<ware_t> **)calloc( goods_manager_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
+	halt_served_this_step = new vector_tpl<halthandle_t>[goods_manager_t::get_max_catg_index()];
 
 	status_color = SYSCOL_TEXT_UNUSED;
 	last_status_color = color_idx_to_rgb(COL_PURPLE);
@@ -447,6 +448,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	cargo = (vector_tpl<ware_t> **)calloc( goods_manager_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
+	halt_served_this_step = new vector_tpl<halthandle_t>[goods_manager_t::get_max_catg_index()];
 
 	status_color = SYSCOL_TEXT_UNUSED;
 	last_status_color = color_idx_to_rgb(COL_PURPLE);
@@ -518,6 +520,7 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( cargo );
 	delete[] all_links;
+	delete[] halt_served_this_step;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -972,9 +975,9 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
 	// reset served stops
-	halt_served_this_step[0].clear();
-	halt_served_this_step[1].clear();
-	halt_served_this_step[2].clear();
+	for(  int i=0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+		halt_served_this_step[i].clear();
+	}
 
 	switch(what) {
 		case RECONNECTING:
@@ -2080,14 +2083,12 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 	// this allows for separate high speed and normal service
 	vector_tpl<ware_t> *warray = cargo[good_category->get_catg_index()];
 
-	const int halt_catg = good_category->get_catg_index()>1 ? 2 : good_category->get_catg_index();
-
 	if(  warray  &&  !warray->empty()  ) {
 		for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
 			halthandle_t plan_halt = destination_halts[i];
 
 			// mark this stop as served
-			halt_served_this_step[halt_catg].append_unique(plan_halt);
+			halt_served_this_step[good_category->get_catg_index()].append_unique(plan_halt);
 
 			// The random offset will ensure that all goods have an equal chance to be loaded.
 			uint32 offset = simrand(warray->get_count());

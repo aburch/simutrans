@@ -25,7 +25,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
-#include <array>
+#include "tpl/array_tpl.h"
 
 
 #define RECONNECTING (1)
@@ -103,7 +103,7 @@ private:
 	 */
 	static inthashtable_tpl<sint32,halthandle_t> *all_koords;
 
-	std::array<vector_tpl<halthandle_t>, 3> halt_served_this_step;
+	vector_tpl<halthandle_t>* halt_served_this_step;
 
 	/**
 	 * struct holds new financial history for line
@@ -143,7 +143,7 @@ public:
 	/**
 	 * All destinations which received goods in this step. hat_gehalten will exclude them, to load the first convoi for those first
 	 */
-	const std::array<vector_tpl<halthandle_t>, 3>& get_halt_served_this_step() const { return halt_served_this_step; }
+	const vector_tpl<halthandle_t> *get_halt_served_this_step() const { return halt_served_this_step; }
 
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );

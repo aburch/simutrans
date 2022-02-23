@@ -2976,19 +2976,14 @@ station_tile_search_ready: ;
 				}
 				continue;
 			}
-			if(  has_pax  &&  !halt->get_halt_served_this_step()[0].is_contained(plan_halt)  ) {
-				destination_halts.append(plan_halt);
-			}
-			else if(  has_mail  &&  !halt->get_halt_served_this_step()[1].is_contained(plan_halt)  ) {
-				destination_halts.append(plan_halt);
-			}
-			else if(  has_goods  &&  !halt->get_halt_served_this_step()[2].is_contained(plan_halt)  ) {
-				destination_halts.append(plan_halt);
+			for( uint8 const idx : goods_catg_index ) {
+				if(  !halt->get_halt_served_this_step()[idx].is_contained(plan_halt)  ) {
+					// not somebody loaded before us in the queue
+					destination_halts.append(plan_halt);
+				}
 			}
 		}
 	}
-
-	
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
