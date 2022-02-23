@@ -92,7 +92,7 @@ endif ()
 #
 # System Installation (Linux only)
 #
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT OPTION_BUNDLE_LIBRARIES)
 
 	include(GNUInstallDirs)
 
