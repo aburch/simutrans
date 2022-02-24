@@ -749,6 +749,7 @@ static void internal_GetEvents()
 				FirstFingerId = event.tfinger.fingerId;
 				DBG_MESSAGE("SDL_FINGERDOWN", "FirstfingerID=%x", FirstFingerId);
 				in_finger_handling = true;
+				previous_multifinger_touch = 0;
 			}
 			else if (FirstFingerId != event.tfinger.fingerId) {
 				previous_multifinger_touch = 2;
@@ -765,6 +766,7 @@ static void internal_GetEvents()
 					sys_event.code = SIM_MOUSE_LEFTBUTTON;
 					sys_event.mx = event.tfinger.x * display_get_width();
 					sys_event.my = event.tfinger.y * display_get_height();
+					previous_multifinger_touch = 0;
 	DBG_MESSAGE("SDL_FINGERMOTION", "SIM_MOUSE_LEFTBUTTON at %i,%i", sys_event.mx, sys_event.my);
 				}
 				else {
@@ -809,9 +811,15 @@ static void internal_GetEvents()
 		DBG_MESSAGE("SDL_FINGERUP", "SIM_MOUSE_LEFTUP at %i,%i", sys_event.mx, sys_event.my);
 						}
 					}
+					else {
+		DBG_MESSAGE("SDL_FINGERUP", "ignored at %i,%i because previous_multifinger_touch>0", sys_event.mx, sys_event.my);
+					}
 					previous_multifinger_touch = 0;
 					in_finger_handling = 0;
 					FirstFingerId = 0xFFFF;
+				}
+				else {
+		DBG_MESSAGE("SDL_FINGERUP", "ignored at %i,%i beacuse FirstFingerId(%xd)!=event.tfinger.fingerId(%xd) &&  SDL_GetNumTouchFinger()=%d", sys_event.mx, sys_event.my,FirstFingerId, event.tfinger.fingerId,SDL_GetNumTouchFingers(event.tfinger.touchId));
 				}
 			}
 			break;
