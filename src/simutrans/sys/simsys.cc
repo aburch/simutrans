@@ -395,7 +395,11 @@ char const *dr_query_homedir()
 #elif defined __ANDROID__
 	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
 #else
-	sprintf(buffer, "%s/simutrans", getenv("HOME"));
+	if( getenv("XDG_DATA_HOME") == NULL ) {
+		sprintf(buffer, "%s/simutrans", getenv("HOME"));
+	} else {
+		sprintf(buffer, "%s/simutrans", getenv("XDG_DATA_HOME"));
+	}
 #endif
 
 	// create directory and subdirectories
