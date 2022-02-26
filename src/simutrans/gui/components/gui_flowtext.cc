@@ -519,7 +519,7 @@ scr_size gui_flowtext_intern_t::output(scr_coord offset, bool doit, bool return_
 
 bool gui_flowtext_intern_t::infowin_event(const event_t* ev)
 {
-	if (IS_LEFTCLICK(ev)) {
+	if (IS_LEFTRELEASE(ev)) {
 		// scan links for hit
 		scr_coord evpos = scr_coord( ev->cx, ev->cy ); // - get_pos();
 		for(hyperlink_t const& link : links) {
