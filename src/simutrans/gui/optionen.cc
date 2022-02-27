@@ -81,10 +81,6 @@ optionen_gui_t::optionen_gui_t() :
 }
 
 
-// helper for pakinstall
-static bool finish_install() { return pakinstaller_t::finish_install; }
-
-
 /**
  * This method is called if an action is triggered
  */
