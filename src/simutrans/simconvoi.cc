@@ -2949,9 +2949,6 @@ station_tile_search_ready: ;
 
 	// next stop in schedule will be a depot
 	bool next_depot = false;
-	bool has_pax=goods_catg_index.is_contained( 0 );
-	bool has_mail=goods_catg_index.is_contained( 1 );
-	bool has_goods=goods_catg_index.get_count()>(has_pax+has_mail);
 
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
@@ -2980,6 +2977,7 @@ station_tile_search_ready: ;
 				if(  !halt->get_halt_served_this_step()[idx].is_contained(plan_halt)  ) {
 					// not somebody loaded before us in the queue
 					destination_halts.append(plan_halt);
+					break;
 				}
 			}
 		}
