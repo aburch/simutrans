@@ -11,6 +11,9 @@
 
 static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
+
+static bool is_dragging = false;
+
 static int control_shift_state = 0; // none pressed
 static event_t meta_event(EVENT_NONE); // for storing meta-events like double-clicks and triple-clicks
 static event_class_t last_meta_class = EVENT_NONE;
@@ -91,6 +94,7 @@ static void fill_event(event_t* const ev)
 
 	ev->mx = sys_event.mx;
 	ev->my = sys_event.my;
+
 	ev->cx = cx;
 	ev->cy = cy;
 
@@ -119,6 +123,7 @@ static void fill_event(event_t* const ev)
 					ev->ev_code = MOUSE_LEFTBUTTON;
 					ev->cx = cx = sys_event.mx;
 					ev->cy = cy = sys_event.my;
+					is_dragging = true;
 					break;
 
 				case SIM_MOUSE_RIGHTBUTTON:
@@ -127,6 +132,7 @@ static void fill_event(event_t* const ev)
 					ev->ev_code = MOUSE_RIGHTBUTTON;
 					ev->cx = cx = sys_event.mx;
 					ev->cy = cy = sys_event.my;
+					is_dragging = true;
 					break;
 
 				case SIM_MOUSE_MIDBUTTON:
@@ -135,6 +141,7 @@ static void fill_event(event_t* const ev)
 					ev->ev_code = MOUSE_MIDBUTTON;
 					ev->cx = cx = sys_event.mx;
 					ev->cy = cy = sys_event.my;
+					is_dragging = true;
 					break;
 
 				case SIM_MOUSE_WHEELUP:
@@ -155,18 +162,21 @@ static void fill_event(event_t* const ev)
 					ev->ev_class = EVENT_RELEASE;
 					ev->ev_code = MOUSE_LEFTBUTTON;
 					pressed_buttons &= ~MOUSE_LEFTBUTTON;
+					is_dragging = false;
 					break;
 
 				case SIM_MOUSE_RIGHTUP:
 					ev->ev_class = EVENT_RELEASE;
 					ev->ev_code = MOUSE_RIGHTBUTTON;
 					pressed_buttons &= ~MOUSE_RIGHTBUTTON;
+					is_dragging = false;
 					break;
 
 				case SIM_MOUSE_MIDUP:
 					ev->ev_class = EVENT_RELEASE;
 					ev->ev_code = MOUSE_MIDBUTTON;
 					pressed_buttons &= ~MOUSE_MIDBUTTON;
+					is_dragging = false;
 					break;
 			}
 			break;
@@ -175,10 +185,17 @@ static void fill_event(event_t* const ev)
 			if (sys_event.mb) { // drag
 				ev->ev_class = EVENT_DRAG;
 				ev->ev_code  = sys_event.mb;
+				if(  !is_dragging) {
+					// we just start dragging, since the click was not delivered it seems
+					ev->cx = cx = sys_event.mx;
+					ev->cy = cy = sys_event.my;
+					is_dragging = true;
+				}
 			}
 			else { // move
 				ev->ev_class = EVENT_MOVE;
 				ev->ev_code  = 0;
+				is_dragging = false;
 			}
 			break;
 
