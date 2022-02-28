@@ -11,6 +11,7 @@ class karte_ptr_t;
 class viewport_t;
 struct event_t;
 
+
 /**
  * User interaction class, it collects and processes all user and system events from the OS.
  * @brief Event manager of the game.
@@ -30,6 +31,9 @@ private:
 	 */
 	viewport_t *viewport;
 
+	bool is_dragging;
+
+private:
 	/**
 	 * Processes a mouse event that's moving the camera.
 	 */
@@ -50,9 +54,7 @@ private:
 	 * Processes a single event.
 	 * @return true if we need to stop processing events.
 	 */
-	bool process_event( event_t &ev );
-
-	bool is_dragging;
+	bool process_event(event_t &ev);
 
 public:
 	/**
@@ -61,10 +63,7 @@ public:
 	 */
 	void check_events();
 
-	/**
-	 * @note Requires world() with it's viewport already attached!
-	 */
-	interaction_t();
+	explicit interaction_t(viewport_t *viewport);
 };
 
 #endif

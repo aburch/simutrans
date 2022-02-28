@@ -1369,7 +1369,7 @@ int simu_main(int argc, char** argv)
 	main_view_t *view = new main_view_t(welt);
 	welt->set_view( view );
 
-	interaction_t *eventmanager = new interaction_t();
+	interaction_t *eventmanager = new interaction_t(welt->get_viewport());
 	welt->set_eventmanager( eventmanager );
 
 	// some messages about old vehicle may appear ...

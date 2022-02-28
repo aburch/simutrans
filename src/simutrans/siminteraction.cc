@@ -398,11 +398,9 @@ void interaction_t::check_events()
 }
 
 
-interaction_t::interaction_t()
+interaction_t::interaction_t(viewport_t *viewport) :
+	viewport(viewport),
+	is_dragging(false)
 {
-	viewport = world->get_viewport();
-	is_dragging = false;
-
-	// Requires a world with a view already attached!
 	assert(viewport);
 }
