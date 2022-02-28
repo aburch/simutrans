@@ -6880,7 +6880,6 @@ bool karte_t::interactive(uint32 quit_month)
 					display( delta_t );
 
 					if (++network_frame_count == settings.get_frames_per_step()) {
-						// ever fourth frame
 						set_random_mode( STEP_RANDOM );
 						step();
 						clear_random_mode( STEP_RANDOM );
