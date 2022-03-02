@@ -71,7 +71,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 	}
 
 	// now install
-	dr_chdir( env_t::data_dir );
+	dr_chdir( env_t::base_dir );
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+obsolete_paks.get_selections().get_count(), true, false);
 	int j = 0;
 	for(sint32 i : paks.get_selections()) {
@@ -176,7 +176,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t* comp, value_t)
 		return true;
 	}
 
-	dr_chdir(env_t::data_dir);
+	dr_chdir(env_t::base_dir);
 
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
 	char outfilename[FILENAME_MAX];
@@ -291,7 +291,7 @@ static void extract_pak_from_zip(const char* outfilename)
 				const char* target_filename = start_with_simutrans ? st.name + 10 : st.name;
 
 				char extracted_path[FILENAME_MAX];
-				sprintf(extracted_path, "%s%s", env_t::data_dir, target_filename);
+				sprintf(extracted_path, "%s%s", env_t::base_dir, target_filename);
 				DBG_DEBUG(__FUNCTION__, "- %s: %d", extracted_path, st.size);
 
 				if (!create_folder_if_required(extracted_path)) {
@@ -315,7 +315,7 @@ static void extract_pak_from_zip(const char* outfilename)
 	if (zip_close(zip_archive) == -1) {
 		DBG_DEBUG(__FUNCTION__, "cannot close zip archive: %s", zip_strerror(zip_archive));
 	}
-	dr_chdir(env_t::data_dir);
+	dr_chdir(env_t::base_dir);
 	dr_remove(outfilename);
 }
 
@@ -333,7 +333,7 @@ static CURLcode curl_download_file(CURL* curl, const char* target_file, const ch
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	char cabundle_path[PATH_MAX];
-	sprintf(cabundle_path, "%s%s", env_t::data_dir, "cacert.pem");
+	sprintf(cabundle_path, "%s%s", env_t::base_dir, "cacert.pem");
 	FILE* cabundle_file;
 	if ((cabundle_file = fopen(cabundle_path, "r"))) {
 		fclose(cabundle_file);
@@ -359,7 +359,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 {
 	CURL* curl = curl_easy_init(); // can only be called once during program lifecycle
 	if (curl) {
-		dr_chdir(env_t::data_dir);
+		dr_chdir(env_t::base_dir);
 		DBG_DEBUG(__FUNCTION__, "libcurl initialized");
 
 		char outfilename[FILENAME_MAX];

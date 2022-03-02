@@ -144,6 +144,9 @@ int dr_stat(const char *path, struct stat *buf);
 /* query home directory */
 char const* dr_query_homedir();
 
+/* query install directory (all user writable) */
+char const* dr_query_installdir();
+
 unsigned short* dr_textur_init();
 
 // returns the file path to a font file (or more than one, if used with number higher than zero)
@@ -202,7 +205,7 @@ size_t dr_paste(char *target, size_t max_length);
 
 /**
  * Open a program/starts a script to download pak sets.
- * @param data_dir : The current simutrans data directory (usually the same as env_t::data_dir)
+ * @param data_dir : The current simutrans data directory (usually the same as env_t::base_dir)
  * @param portable : true if local files to be save in simutransdir
  * @return false, if nothing was downloaded
  */

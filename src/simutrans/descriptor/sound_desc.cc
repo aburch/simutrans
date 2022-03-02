@@ -62,8 +62,8 @@ void sound_desc_t::init()
 {
 	// ok, now init
 	sound_on = true;
-	sound_path = env_t::data_dir;
-	sound_path= sound_path + env_t::objfilename + "sound/";
+	sound_path = env_t::base_dir;
+	sound_path= sound_path + env_t::pak_name + "sound/";
 	// process sound.tab
 	tabfile_t soundconf;
 	if (soundconf.open((sound_path + "sound.tab").c_str())) {

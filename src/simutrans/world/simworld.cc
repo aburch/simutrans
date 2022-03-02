@@ -4129,7 +4129,7 @@ void karte_t::save(const char *filename, bool autosave, const char *version_str,
 	const loadsave_t::mode_t mode = autosave ? loadsave_t::autosave_mode : loadsave_t::save_mode;
 	const int save_level = autosave ? loadsave_t::autosave_level : loadsave_t::save_level;
 
-	if(  file.wr_open( savename.c_str(), mode, save_level, env_t::objfilename.c_str(), version_str ) != loadsave_t::FILE_STATUS_OK  ) {
+	if(  file.wr_open( savename.c_str(), mode, save_level, env_t::pak_name.c_str(), version_str ) != loadsave_t::FILE_STATUS_OK  ) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save", "Cannot open file '%s' for writing! Check permissions!", savename.c_str());
 	}
@@ -6417,7 +6417,7 @@ void karte_t::stop(bool exit_game)
 
 			// construct from pak name an autosave if requested
 			std::string pak_name("autosave-");
-			pak_name.append(env_t::objfilename);
+			pak_name.append(env_t::pak_name);
 			pak_name.erase(pak_name.length() - 1);
 			pak_name.append(".sve");
 
@@ -7036,7 +7036,7 @@ void karte_t::announce_server(server_announce_type_t status)
 		}
 		else {
 			// construct from pak name
-			std::string pak_name = env_t::objfilename;
+			std::string pak_name = env_t::pak_name;
 			pak_name.erase( pak_name.length() - 1 );
 			encode_URI( buf, pak_name.c_str() );
 		}

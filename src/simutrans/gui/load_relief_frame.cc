@@ -77,7 +77,7 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 		table->add_component( &load_mode );
 	bottom_left_frame.end_table();
 
-	const std::string extra_path = env_t::data_dir + env_t::objfilename + "maps/";
+	const std::string extra_path = env_t::pak_dir + "maps/";
 	this->add_path(extra_path.c_str());
 
 	set_name(translator::translate("Lade Relief"));

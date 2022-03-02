@@ -77,14 +77,14 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 		tabfile_t simuconf;
 		env_t::init();
 		*sets = settings_t();
-		dr_chdir( env_t::data_dir );
+		dr_chdir( env_t::base_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sets->parse_simuconf( simuconf );
 			sets->parse_colours( simuconf );
 		}
-		stadt_t::cityrules_init(env_t::objfilename);
-		dr_chdir( env_t::data_dir );
-		dr_chdir( env_t::objfilename.c_str() );
+		stadt_t::cityrules_init(env_t::pak_name);
+		dr_chdir( env_t::base_dir );
+		dr_chdir( env_t::pak_name.c_str() );
 		if(simuconf.open("config/simuconf.tab")) {
 			sets->parse_simuconf( simuconf );
 			sets->parse_colours( simuconf );

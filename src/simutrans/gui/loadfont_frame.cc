@@ -176,7 +176,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 // parses the directory, using freetype lib, in installed
 void loadfont_frame_t::fill_list()
 {
-	add_path( ((std::string)env_t::data_dir+"font/").c_str() );
+	add_path( ((std::string)env_t::base_dir+"font/").c_str() );
 #ifdef USE_FREETYPE
 	// ok, we can handle TTF fonts
 	ft_library = NULL;

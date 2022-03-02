@@ -22,7 +22,7 @@ ai_selector_t::ai_selector_t(uint8 plnr_) : savegame_frame_t(NULL, true, NULL, f
 {
 	plnr = plnr_;
 	cbuffer_t buf;
-	buf.printf("%s/ai/", env_t::data_dir);
+	buf.printf("%s/ai/", env_t::base_dir);
 
 	this->add_path("addons/ai/");
 	this->add_path(buf);

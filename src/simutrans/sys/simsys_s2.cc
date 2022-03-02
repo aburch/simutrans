@@ -253,7 +253,7 @@ static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 
 			// construct from pak name an autosave if requested
 			std::string pak_name("autosave-");
-			pak_name.append(env_t::objfilename);
+			pak_name.append(env_t::pak_name);
 			pak_name.erase(pak_name.length() - 1);
 			pak_name.append(".sve");
 

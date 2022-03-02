@@ -98,7 +98,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	}
 	else {
 		// construct from pak name
-		pak_name = env_t::objfilename;
+		pak_name = env_t::pak_name;
 		pak_name.erase( pak_name.length()-1 );
 	}
 

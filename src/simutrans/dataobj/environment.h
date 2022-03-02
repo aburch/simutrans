@@ -31,9 +31,24 @@ enum { MENU_LEFT, MENU_TOP, MENU_RIGHT, MENU_BOTTOM };
 class env_t
 {
 public:
-	/// Points to the current simutrans data directory. Usually this is the same directory
-	/// where the executable is located, unless -use_workdir is specified.
-	static char data_dir[PATH_MAX];
+	/// Points to the simutrans data directory which hosts translation theme etc.
+	/// This directory may be write protected or only accesible for certain users
+	/// May contain pak, scripts and addons
+	static char base_dir[PATH_MAX];
+
+	/// Points to a global writable directory, where downloaded content content is stored 
+	/// This directory is writable to all users to store global content (like paksets)
+	static char install_dir[PATH_MAX];
+
+	/// Points to a the user's writable directory
+	/// This directory writable to the local user
+	static char user_dir[PATH_MAX];
+
+	/// the selected pak (whole path, can be write protected)
+	static std::string pak_dir;
+
+	/// the folder name of the selected pak
+	static std::string pak_name;
 
 	static sint16 menupos;
 
@@ -44,14 +59,8 @@ public:
 
 	static bool reselect_closes_tool;
 
-	/// points to the current user directory for loading and saving
-	static const char *user_dir;
-
 	/// version for which the savegames should be created
 	static const char *savegame_version_str;
-
-	/// name of the directory to the pak-set
-	static std::string objfilename;
 
 	/// this the the preferred GUI theme at startup
 	static plainstring default_theme;

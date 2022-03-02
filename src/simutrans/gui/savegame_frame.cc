@@ -159,9 +159,9 @@ void savegame_frame_t::add_section(std::string &name){
 	char *label_text = new char [L_SHORTENED_SIZE+prefix_len+2];
 	char *path_expanded = new char[FILENAME_MAX];
 
-	const size_t data_dir_len = strlen(env_t::data_dir);
+	const size_t data_dir_len = strlen(env_t::base_dir);
 
-	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::data_dir,data_dir_len) == 0  ) {
+	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::base_dir,data_dir_len) == 0  ) {
 		// starts with data_dir or an absolute path
 		tstrncpy(path_expanded, name.c_str(), FILENAME_MAX);
 	}
@@ -369,7 +369,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	button->set_no_translate(true);
 	button->set_text(name); // to avoid translation
 
-	std::string const compare_to = !env_t::objfilename.empty() ? env_t::objfilename.substr(0, env_t::objfilename.size() - 1) + " -" : std::string();
+	std::string const compare_to = !env_t::pak_name.empty() ? env_t::pak_name.substr(0, env_t::pak_name.size() - 1) + " -" : std::string();
 	// sort descending with respect to compare_items
 	slist_tpl<dir_entry_t>::iterator i = entries.begin();
 	slist_tpl<dir_entry_t>::iterator end = entries.end();

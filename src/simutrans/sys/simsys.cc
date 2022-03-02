@@ -411,6 +411,50 @@ char const *dr_query_homedir()
 }
 
 
+char const *dr_query_installdir()
+{
+	static char buffer[PATH_MAX + 24];
+
+#if defined _WIN32
+	WCHAR whomedir[MAX_PATH];
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA|CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, whomedir))) {
+		return NULL;
+	}
+
+	// Convert UTF-16 to UTF-8.
+	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, whomedir, -1, buffer, sizeof(buffer), NULL, NULL);
+	if(convert_size == 0) {
+		return NULL;
+	}
+
+	// Append Simutrans folder.
+	char const foldername[] = "Simutrans";
+	if(lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1){
+		return NULL;
+	}
+	strcat(buffer, PATH_SEPARATOR);
+	strcat(buffer, foldername);
+#elif defined __APPLE__
+	sprintf(buffer, "/Library/Simutrans");
+#elif defined __HAIKU__
+	BPath userDir;
+	find_directory(B_USER_DIRECTORY, &userDir);
+	sprintf(buffer, "%s/simutrans", userDir.Path());
+#elif defined __ANDROID__
+	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
+#else
+	tstrncpy(buffer,"/usr/share/simutrans");
+#endif
+
+	// create directory and subdirectories
+	dr_mkdir(buffer);
+#ifndef __ANDROID__
+	strcat(buffer, PATH_SEPARATOR);
+#endif
+	return buffer;
+}
+
+
 const char *dr_query_fontpath(int which)
 {
 	static char buffer[PATH_MAX];

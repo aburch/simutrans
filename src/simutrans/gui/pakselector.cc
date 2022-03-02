@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-#include <string>
+#include "../utils/simstring.h"
 
 #include "pakselector.h"
 #include "pakinstaller.h"
@@ -12,7 +12,7 @@
 #include "../sys/simsys.h"
 
 pakselector_t::pakselector_t() :
-	savegame_frame_t( NULL, true, env_t::data_dir, true ),
+	savegame_frame_t( NULL, true, NULL, true ),
 	notice_label(&notice_buffer)
 {
 	// if true, we would call the installler afterwards
@@ -41,6 +41,16 @@ pakselector_t::pakselector_t() :
 	add_component(&installbutton);
 
 	resize(scr_coord(0,0));
+
+	add_path( env_t::base_dir );
+	if(  !strcmp(env_t::base_dir,env_t::install_dir)  ) {
+		add_path( env_t::base_dir );
+	}
+	dr_chdir( env_t::user_dir );
+	if(dr_chdir("paksets")){
+		char dummy[PATH_MAX];
+		add_path( dr_getcwd(dummy,lengthof(dummy)) );
+	}
 }
 
 
@@ -49,7 +59,8 @@ pakselector_t::pakselector_t() :
  */
 bool pakselector_t::item_action(const char *fullpath)
 {
-	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::pak_dir = fullpath;
+	env_t::pak_name = (get_filename(fullpath)+PATH_SEPARATOR);
 	env_t::default_settings.set_with_private_paks( false );
 
 	return true;
@@ -59,7 +70,8 @@ bool pakselector_t::item_action(const char *fullpath)
 bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
-	env_t::objfilename = get_filename(fullpath)+"/";
+	env_t::pak_dir = fullpath;
+	env_t::pak_name = get_filename(fullpath)+"/";
 	env_t::default_settings.set_with_private_paks( true );
 	return true;
 }
@@ -122,15 +134,18 @@ void pakselector_t::fill_list()
 
 			// if list contains only one header, one pakset entry without addons
 			// store path to pakset temporary, reset later if more choices available
-			// if env_t::objfilename is non-empty then simmain.cc will close the window immediately
-			env_t::objfilename = (std::string)i.button->get_text() + "/";
+			// if env_t::pak_dir is non-empty then simmain.cc will close the window immediately
+			env_t::pak_name = (std::string)i.button->get_text() + PATH_SEPARATOR;
+			env_t::pak_dir = path;
+			env_t::pak_dir += env_t::pak_name;
 		}
 	}
-	dr_chdir( env_t::data_dir );
+	dr_chdir( env_t::base_dir );
 
 	if(entries.get_count() > this->num_sections+1) {
 		// empty path as more than one pakset is present, user has to choose
-		env_t::objfilename = "";
+		env_t::pak_dir.clear();
+		env_t::pak_name.clear();
 	}
 }
 

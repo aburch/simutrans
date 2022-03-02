@@ -16,6 +16,12 @@
 #include "../utils/simrandom.h"
 void rdwr_win_settings(loadsave_t *file); // simwin
 
+char env_t::base_dir[PATH_MAX];
+char env_t::install_dir[PATH_MAX];
+char env_t::user_dir[PATH_MAX];
+std::string env_t::pak_dir;
+std::string env_t::pak_name;
+
 sint16 env_t::menupos = MENU_TOP;
 sint16 env_t::fullscreen = WINDOWED;
 sint16 env_t::display_scale_percent = 100;
@@ -31,9 +37,7 @@ sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
 uint8 env_t::follow_convoi_underground = 2;
 
-char env_t::data_dir[PATH_MAX];
 plainstring env_t::default_theme;
-const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
 bool env_t::straight_way_without_control = false;
 bool env_t::networkmode = false;
@@ -103,7 +107,6 @@ settings_t env_t::default_settings;
 bool env_t::player_finance_display_account = true;
 
 // the following initialisation is not important; set values in init()!
-std::string env_t::objfilename;
 bool env_t::night_shift;
 bool env_t::hide_with_transparency;
 bool env_t::hide_trees;

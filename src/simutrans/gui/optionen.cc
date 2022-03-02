@@ -131,7 +131,7 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if (comp == option_buttons + BUTTON_INSTALL) {
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
-		dr_download_pakset(env_t::data_dir, env_t::data_dir == env_t::user_dir);  // windows
+		dr_download_pakset(env_t::base_dir, env_t::base_dir == env_t::user_dir);  // windows
 #else
 		create_win(new pakinstaller_t(), w_info, magic_pakinstall);
 #endif
