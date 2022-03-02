@@ -99,7 +99,7 @@ bool loadsoundfont_frame_t::check_file(const char *filename, const char *)
 // parses the directory
 void loadsoundfont_frame_t::fill_list()
 {
-	add_path( ((std::string)env_t::data_dir + "music/").c_str() );
+	add_path( ((std::string)env_t::base_dir + "music/").c_str() );
 	add_path( "/usr/share/soundfonts/" );
 	add_path( "/usr/share/sounds/sf2/" );
 

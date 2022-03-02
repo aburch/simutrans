@@ -44,7 +44,7 @@ pakselector_t::pakselector_t() :
 
 	add_path( env_t::base_dir );
 	if(  !strcmp(env_t::base_dir,env_t::install_dir)  ) {
-		add_path( env_t::base_dir );
+		add_path( env_t::install_dir );
 	}
 	dr_chdir( env_t::user_dir );
 	if(dr_chdir("paksets")){

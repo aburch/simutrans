@@ -243,13 +243,13 @@ bool dr_init_midi()
 	}
 
 	// User defined font first
-	if(  dr_load_sf( env_t::soundfont_filename.c_str() ) || dr_load_sf( ((std::string)env_t::data_dir + "music/" + env_t::soundfont_filename).c_str() )  ) {
+	if(  dr_load_sf( env_t::soundfont_filename.c_str() ) || dr_load_sf( ((std::string)env_t::base_dir + "music/" + env_t::soundfont_filename).c_str() )  ) {
 		return true;
 	}
 
 	// Bundled soundfonts second
 	for(  int i = 0;  default_sf_names[i];  i++  ) {
-		if(  dr_load_sf( ((std::string)env_t::data_dir + "music/" + (std::string)default_sf_names[i] ).c_str() )  ) {
+		if(  dr_load_sf( ((std::string)env_t::base_dir + "music/" + (std::string)default_sf_names[i] ).c_str() )  ) {
 			return true;
 		}
 	}

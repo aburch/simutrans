@@ -486,8 +486,8 @@ void setup_logging(const args_t &args)
 	}
 }
 
-// find if there is an comamndline otpion or environment varibale with a valid path
-static bool set_predeinfed_dir( const char *p, const char *opt, char *result)
+// find if there is an commandline option or environment variable with a valid path
+static bool set_predefined_dir( const char *p, const char *opt, char *result)
 {
 	if(  p  &&  *p  ) {
 		if(  dr_chdir( p )  ) {
@@ -555,22 +555,22 @@ int simu_main(int argc, char** argv)
 	sint8 pak_height_conversion_factor = env_t::pak_height_conversion_factor;
 
 	/* simutrans has three directories:
-	* a global writable (pak_dir)
+	* a global writable (install_dir)
 	* a user writable (user_dir)
 	* a base directory with default data (may be write protected) (base_dir)
 	*
 	* The directory will be determined in the following order
 	* -set_XXXdir Path (command line option)
-	* SIMUTRANS_XXXDIR (environemt variable)
-	* (in case of base dire current path, then executable path)
-	* (for user and install: machien dependent default directories)
+	* SIMUTRANS_XXXDIR (environment variable)
+	* (in case of base_dir current path, then executable path)
+	* (for user and install: machine dependent default directories)
 	*
 	* The pak_dir contains the complete path to the current pak, since it could be in different locations
 	*
 	*/
 
-	if( !set_predeinfed_dir( args.gimme_arg( "-set_basedir", 1 ), "-set_basedir", env_t::base_dir ) ) {
-		if( !set_predeinfed_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::base_dir ) ) {
+	if( !set_predefined_dir( args.gimme_arg( "-set_basedir", 1 ), "-set_basedir", env_t::base_dir ) ) {
+		if( !set_predefined_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::base_dir ) ) {
 			dr_getcwd(env_t::base_dir, lengthof(env_t::base_dir));
 			strcat( env_t::base_dir, PATH_SEPARATOR );
 #ifdef __APPLE__
@@ -606,8 +606,8 @@ int simu_main(int argc, char** argv)
 		simuconf.close();
 	}
 
-	if( !set_predeinfed_dir( args.gimme_arg( "-set_installdir", 1 ), "-set_installdir", env_t::install_dir ) ) {
-		if( !set_predeinfed_dir( getenv( "SIMUTRANS_INSTALLDIR" ), "SIMUTRANS_INSTALLDIR", env_t::install_dir ) ) {
+	if( !set_predefined_dir( args.gimme_arg( "-set_installdir", 1 ), "-set_installdir", env_t::install_dir ) ) {
+		if( !set_predefined_dir( getenv( "SIMUTRANS_INSTALLDIR" ), "SIMUTRANS_INSTALLDIR", env_t::install_dir ) ) {
 			if( !multiuser ) {
 				strcpy( env_t::install_dir, env_t::base_dir );
 			}
@@ -617,8 +617,8 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if( !set_predeinfed_dir( args.gimme_arg( "-set_userdir", 1 ), "-set_userdir", env_t::user_dir ) ) {
-		if( !set_predeinfed_dir( getenv( "SIMUTRANS_USERDIR" ), "SIMUTRANS_USERDIR", env_t::user_dir ) ) {
+	if( !set_predefined_dir( args.gimme_arg( "-set_userdir", 1 ), "-set_userdir", env_t::user_dir ) ) {
+		if( !set_predefined_dir( getenv( "SIMUTRANS_USERDIR" ), "SIMUTRANS_USERDIR", env_t::user_dir ) ) {
 			if( !multiuser ) {
 				strcpy( env_t::user_dir, env_t::base_dir );
 			}
@@ -705,7 +705,7 @@ int simu_main(int argc, char** argv)
 		if(!set_pakdir(fn)) {
 			// try as absolute path
 			char tmp[PATH_MAX];
-			if( set_predeinfed_dir( fn, "-set_pakdir", tmp ) ) {
+			if( set_predefined_dir( fn, "-set_pakdir", tmp ) ) {
 				env_t::pak_dir = tmp;
 				// to be done => extrat pak name!!!
 				const char *last_pathsep=0;
@@ -809,11 +809,12 @@ int simu_main(int argc, char** argv)
 		env_t::network_heavy_mode = clamp(heavy, 0, 2);
 	}
 
-	DBG_MESSAGE("simu_main()", "Version:    " VERSION_NUMBER "  Date: " VERSION_DATE);
-	DBG_MESSAGE("simu_main()", "Debuglevel: %i", env_t::verbose_debug);
-	DBG_MESSAGE("simu_main()", "data_dir:   %s", env_t::base_dir);
-	DBG_MESSAGE("simu_main()", "home_dir:   %s", env_t::user_dir);
-	DBG_MESSAGE("simu_main()", "locale:     %s", dr_get_locale_string());
+	DBG_MESSAGE("simu_main()", "Version:     " VERSION_NUMBER "  Date: " VERSION_DATE);
+	DBG_MESSAGE("simu_main()", "Debuglevel:  %i", env_t::verbose_debug);
+	DBG_MESSAGE("simu_main()", "base_dir:    %s", env_t::base_dir);
+	DBG_MESSAGE("simu_main()", "install_dir: %s", env_t::install_dir);
+	DBG_MESSAGE("simu_main()", "user_dir:    %s", env_t::user_dir);
+	DBG_MESSAGE("simu_main()", "locale:      %s", dr_get_locale_string());
 
 #ifdef DEBUG
 	if (args.has_arg("-sizes")) {
