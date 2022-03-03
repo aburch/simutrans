@@ -582,6 +582,16 @@ int simu_main(int argc, char** argv)
 					env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
 				}
 			}
+#elif __linux__
+			// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
+			if(  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 4 )), "bin/")) {
+				env_t::base_dir[strlen(env_t::base_dir) - 4] = 0;
+				strcat( env_t::base_dir, "share/simutrans/" );
+				if( dr_chdir( env_t::base_dir ) ) {
+					env_t::base_dir[strlen(env_t::base_dir) - 10] = 0;
+					strcat( env_t::base_dir, "games/simutrans/" );
+				}
+			}
 #endif
 		}
 	}
