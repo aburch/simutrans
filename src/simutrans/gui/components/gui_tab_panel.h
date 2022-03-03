@@ -40,10 +40,15 @@ private:
 	};
 
 	slist_tpl<tab> tabs;
-	int active_tab, offset_tab;
+	int active_tab;
 
 	scr_size required_size;
+	scr_coord_val tab_offset_x;
 	button_t left, right;
+
+	bool is_dragging;
+
+	bool tab_getroffen(scr_coord_val x, scr_coord_val y);
 
 public:
 	static scr_coord_val header_vsize;

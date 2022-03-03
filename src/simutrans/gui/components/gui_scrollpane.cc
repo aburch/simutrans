@@ -156,6 +156,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		if(  ev->ev_class < EVENT_CLICK  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
 			b_is_dragging = false;
 		}
+
 		// we will handle dragging ourselves inf not prevented
 		if(  b_is_dragging  &&  ev->ev_class < INFOWIN  ) {
 			// now drag: scrollbars are not in pixel, but we will scroll one unit per pixels ...
@@ -175,6 +176,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 				return true;
 			}
 		}
+
 		// translate according to scrolled position
 		event_t ev2 = *ev;
 		const scr_coord offset(scroll_x.get_knob_offset(), scroll_y.get_knob_offset());
