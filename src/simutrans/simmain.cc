@@ -17,6 +17,9 @@
 #include <stdio.h>
 #include <string>
 #include <new>
+#ifdef __linux__
+#include <unistd.h>
+#endif
 
 #include "pathes.h"
 
@@ -43,6 +46,7 @@
 #include "simmesg.h"
 #include "tool/simmenu.h"
 #include "siminteraction.h"
+#include "simtypes.h"
 
 #include "sys/simsys.h"
 #include "display/simgraph.h"
@@ -584,8 +588,11 @@ int simu_main(int argc, char** argv)
 			}
 #elif __linux__
 			// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-			if(  dr_chdir("config/")  &&  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 4 )), "bin/")) {
-				env_t::base_dir[strlen(env_t::base_dir) - 4] = 0;
+			char binary_path[PATH_MAX];
+			readlink("/proc/self/exe", binary_path, PATH_MAX);
+			if(  dr_chdir("config/")  &&  !strcmp((binary_path + (strlen(binary_path) - 13 )), "bin/simutrans")) {
+				strcpy( env_t::base_dir, binary_path );
+				env_t::base_dir[strlen(env_t::base_dir) - 13] = 0;
 				strcat( env_t::base_dir, "share/simutrans/" );
 				if( dr_chdir( env_t::base_dir ) ) {
 					env_t::base_dir[strlen(env_t::base_dir) - 10] = 0;
