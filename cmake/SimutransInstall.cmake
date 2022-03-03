@@ -1,23 +1,44 @@
+if (UNIX AND NOT APPLE AND NOT OPTION_BUNDLE_LIBRARIES AND NOT SINGLE_INSTALL)
+	# System Installation (Linux only)
+	include(GNUInstallDirs)
 
-install(TARGETS simutrans RUNTIME DESTINATION "${CMAKE_BINARY_DIR}/simutrans/" BUNDLE DESTINATION "${CMAKE_BINARY_DIR}/simutrans/")
+	if (USE_GAMES_DATADIR)
+		set(SIMUTRANS_BASE_DIR "${CMAKE_INSTALL_DATADIR}/games/simutrans")
+	else ()
+		set(SIMUTRANS_BASE_DIR "${CMAKE_INSTALL_DATADIR}/simutrans")
+	endif ()
+	set(SIMUTRANS_BIN_DIR "${CMAKE_INSTALL_BINDIR}")
+	set(SIMUTRANS_OUTPUT_DIR "${CMAKE_INSTALL_PREFIX}")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans" DESTINATION "${CMAKE_BINARY_DIR}")
+	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/simutrans.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications RENAME simutrans.desktop)
+else ()
+	# Portable installation
+	set(SIMUTRANS_BASE_DIR "${CMAKE_BINARY_DIR}/simutrans")
+	set(SIMUTRANS_BIN_DIR "${CMAKE_BINARY_DIR}/simutrans")
+	set(SIMUTRANS_OUTPUT_DIR "")
+endif ()
+
+
+install(TARGETS simutrans RUNTIME DESTINATION "${SIMUTRANS_BIN_DIR}" BUNDLE DESTINATION "${SIMUTRANS_BIN_DIR}")
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans/" DESTINATION ${SIMUTRANS_BASE_DIR} REGEX "get_pak.sh" EXCLUDE)
 
 #
 # Download language files
 #
 if (MSVC)
 	# MSVC has no variable on the install target path at execution time, which is why we expand the directories at creation time!
-	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_lang_files.ps1 WORKING_DIRECTORY ${simutrans_BINARY_DIR})")
+	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_lang_files.ps1 WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/..)")
 else ()
-	install(CODE "execute_process(COMMAND sh ${CMAKE_SOURCE_DIR}/tools/get_lang_files.sh WORKING_DIRECTORY \${CMAKE_BINARY_DIR})")
+	install(CODE "execute_process(COMMAND sh ${CMAKE_SOURCE_DIR}/tools/get_lang_files.sh WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/.. )")
 endif ()
 
 #
 # Pak installer
 #
 if (NOT WIN32)
-	install(FILES ${CMAKE_SOURCE_DIR}/tools/get_pak.sh DESTINATION "${CMAKE_BINARY_DIR}/simutrans/"
+	install(FILES "${CMAKE_SOURCE_DIR}/tools/get_pak.sh" DESTINATION "${SIMUTRANS_BASE_DIR}"
 		PERMISSIONS
 			OWNER_READ OWNER_WRITE OWNER_EXECUTE
 			GROUP_READ GROUP_EXECUTE
@@ -30,7 +51,7 @@ else ()
 	else ()
 		install(CODE "execute_process(COMMAND cmd /k \"$ENV{ProgramFiles\(x86\)}/NSIS/makensis.exe\" onlineupgrade.nsi WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/Windows/nsis)")
 	endif ()
-	install(FILES "${CMAKE_SOURCE_DIR}/src/Windows/nsis/download-paksets.exe" DESTINATION "${CMAKE_BINARY_DIR}/simutrans")
+	install(FILES "${CMAKE_SOURCE_DIR}/src/Windows/nsis/download-paksets.exe" DESTINATION "${SIMUTRANS_BASE_DIR}")
 endif ()
 
 #
@@ -39,13 +60,13 @@ endif ()
 if (SIMUTRANS_INSTALL_PAK64)
 	if (MSVC)
 		install(CODE
-		"if(NOT EXISTS ${simutrans_BINARY_DIR}/simutrans/pak)
-		execute_process(COMMAND powershell -Command \"Remove-Item \'${simutrans_BINARY_DIR}/simutrans/pak\' -Recurse\" WORKING_DIRECTORY ${simutrans_BINARY_DIR})
+		"if(NOT EXISTS ${SIMUTRANS_BASE_DIR}/pak)
+		execute_process(COMMAND powershell -Command \"Remove-Item \'${SIMUTRANS_BASE_DIR}/pak\' -Recurse\" WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR})
 		file(STRINGS ${CMAKE_SOURCE_DIR}/src/simutrans/paksetinfo.h URLpak64 REGEX \"/pak64/\")
 		string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
 		string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
-		message(\"install pak to \" ${simutrans_BINARY_DIR})
-		execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_pak.ps1 \${URLpak64} WORKING_DIRECTORY ${simutrans_BINARY_DIR}/simutrans)
+		message(\"install pak to \" ${SIMUTRANS_BASE_DIR})
+		execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_pak.ps1 \${URLpak64} WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR})
 		endif ()
 		")
 	else ()
@@ -54,7 +75,7 @@ if (SIMUTRANS_INSTALL_PAK64)
 		"file(STRINGS  ${CMAKE_SOURCE_DIR}/src/simutrans/paksetinfo.h URLpak64 REGEX \"/pak64/\")
 		 string( REGEX REPLACE \"^.[\\t ]*\\\"\" \"\" URLpak64 \${URLpak64})
 		 string( REGEX REPLACE \"\\\", .*\$\" \"\" URLpak64 \${URLpak64})
-		 execute_process(COMMAND sh ../../${CMAKE_SOURCE_DIR}/tools/get_pak.sh \${URLpak64} WORKING_DIRECTORY \${CMAKE_BINARY_DIR}/simutrans)
+		 execute_process(COMMAND sh ${CMAKE_SOURCE_DIR}/tools/get_pak.sh \${URLpak64} WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR})
 		")
 	endif ()
 endif ()
@@ -87,30 +108,4 @@ if (OPTION_BUNDLE_LIBRARIES AND UNIX AND NOT APPLE)
 				FILES ${DEPENDENCIES}
 				FOLLOW_SYMLINK_CHAIN)
 	]])
-endif ()
-
-#
-# System Installation (Linux only)
-#
-if (UNIX AND NOT APPLE AND NOT OPTION_BUNDLE_LIBRARIES)
-
-	include(GNUInstallDirs)
-
-	if (USE_GAMES_DATADIR)
-		set(INSTALL_DATADIR "${CMAKE_INSTALL_DATADIR}/games")
-	else ()
-		set(INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR})
-	endif ()
-
-	install(TARGETS simutrans RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
-
-	install(DIRECTORY ${CMAKE_BINARY_DIR}/simutrans
-		DESTINATION ${INSTALL_DATADIR}
-		REGEX "simutrans/simutrans|simutrans/get_pak.sh" EXCLUDE
-	)
-	install(FILES ${CMAKE_BINARY_DIR}/simutrans/get_pak.sh DESTINATION ${INSTALL_DATADIR}/simutrans PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_EXECUTE WORLD_READ)
-
-	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/simutrans.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications RENAME simutrans.desktop)
-
 endif ()
