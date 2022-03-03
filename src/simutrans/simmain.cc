@@ -584,7 +584,7 @@ int simu_main(int argc, char** argv)
 			}
 #elif __linux__
 			// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-			if(  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 4 )), "bin/")) {
+			if(  dr_chdir("config/")  &&  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 4 )), "bin/")) {
 				env_t::base_dir[strlen(env_t::base_dir) - 4] = 0;
 				strcat( env_t::base_dir, "share/simutrans/" );
 				if( dr_chdir( env_t::base_dir ) ) {
