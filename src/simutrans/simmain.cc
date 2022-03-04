@@ -603,12 +603,11 @@ int simu_main(int argc, char** argv)
 						}
 #else
 						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-						if(strcmp(c-3,"bin")==0) {
-							c[-3] = 0; // remvoe the "bin"
-							strcat( testpath, "share/simutrans/" );
+						if(strcmp(c-3,"bin")!=0) {
+							// replace bin with other paths
+							strcpy( c-3, "share/simutrans/" );
 							if (!set_predefined_dir( testpath, "share/simutrans", env_t::base_dir, "config/simuconf.tab")) {
-								testpath[strlen(testpath) - 10] = 0;
-								strcat(testpath, "games/simutrans/" );
+								strcpy(c-3, "share/games/simutrans/" );
 								found_basedir = set_predefined_dir(testpath, "share/games/simutrans", env_t::base_dir, "config/simuconf.tab");
 							}
 						}
