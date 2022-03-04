@@ -106,8 +106,8 @@ else ifeq ($(OSTYPE),mingw)
 else ifeq ($(OSTYPE),linux)
   ifeq ($(shell expr $(STATIC) \>= 1), 1)
     LDFLAGS +=  -Wl,-Bstatic -lm
-    DYNAMICSTART = -Wl,-Bdynamic
-    DYNAMICEND = -Wl,-Bstatic
+    DYNAMICSTART = -Wl,-Bdynamic 
+    DYNAMICEND = -Wl,-Bstatic 
   endif
 else ifeq ($(OSTYPE),mac)
   SOURCES += src/simutrans/OSX/translocation.m
