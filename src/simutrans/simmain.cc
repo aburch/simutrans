@@ -17,9 +17,6 @@
 #include <stdio.h>
 #include <string>
 #include <new>
-#ifdef __linux__
-#include <unistd.h>
-#endif
 
 #include "pathes.h"
 
@@ -591,11 +588,14 @@ int simu_main(int argc, char** argv)
 				char* c = strrchr(testpath, *PATH_SEPARATOR);
 				if(c) {
 					*c = 0; // remove program name
-					if(!set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab")) {
+					c = strrchr(testpath, *PATH_SEPARATOR);
+					found_basedir = set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
+					if(!found_basedir) {
 #ifdef __APPLE__
 						// Detect if the binary is started inside an application bundle
 						// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
-						if(  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 20 )), ".app/Contents/MacOS/")) {
+						found_basedir = !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 20 )), ".app/Contents/MacOS/");
+						if( found_basedir ) {
 							env_t::base_dir[strlen(env_t::base_dir) - 20] = 0;
 							while (env_t::base_dir[strlen(env_t::base_dir) - 1] != '/') {
 								env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
@@ -603,11 +603,12 @@ int simu_main(int argc, char** argv)
 						}
 #else
 						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-						if(strcmp(c-3,"bin")!=0) {
+						if( strcmp(c-3,"bin")!=0 ) {
 							// replace bin with other paths
-							strcpy( c-3, "share/simutrans/" );
-							if (!set_predefined_dir( testpath, "share/simutrans", env_t::base_dir, "config/simuconf.tab")) {
-								strcpy(c-3, "share/games/simutrans/" );
+							strcpy( c, "/share/simutrans/" );
+							found_basedir = set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
+							if (!found_basedir) {
+								strcpy(c, "/share/games/simutrans/" );
 								found_basedir = set_predefined_dir(testpath, "share/games/simutrans", env_t::base_dir, "config/simuconf.tab");
 							}
 						}
