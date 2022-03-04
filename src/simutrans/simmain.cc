@@ -405,7 +405,9 @@ void print_help()
 		" -server_name NAME   Name of server for announcements\n"
 		" -server_admin_pw PW password for server administration\n"
 		" -heavy NUM          enables heavy-mode debugging for network games. VERY SLOW!\n"
-		" -set_workdir WD     Use WD as directory containing all data.\n"
+		" -set_basedir WD     Use WD as directory containing all constant data.\n"
+		" -set_installdir WD  Use WD as directory for pakset download.\n"
+		" -set_userdir WD     Use WD as directory for local user data.\n"
 		" -singleuser         Save everything in data directory (portable version)\n"
 #ifdef DEBUG
 		" -sizes              Show current size of some structures\n"
@@ -420,8 +422,6 @@ void print_help()
 		" -times              does some simple profiling\n"
 		" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
 #endif
-		" -use_workdir        Use current directory as data directory. If this parameter is\n"
-		"                     not present, uses the directory where the executable is located\n"
 	);
 }
 
@@ -495,7 +495,7 @@ static bool set_predefined_dir( const char *p, const char *opt, char *result, co
 		FILE * testf;
 		ok &=  ok  &&  testfile  &&  (testf = fopen(testfile,"r"));
 		if(!ok) {
-			printf("WARNING: Path not found for %s \"%s\"!\n",  opt, p);
+			printf("WARNING: Objects not found in %s \"%s\"!\n",  opt, p);
 		}
 		else {
 			fclose(testf);
@@ -588,7 +588,6 @@ int simu_main(int argc, char** argv)
 				char* c = strrchr(testpath, *PATH_SEPARATOR);
 				if(c) {
 					*c = 0; // remove program name
-					c = strrchr(testpath, *PATH_SEPARATOR);
 					found_basedir = set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
 					if(!found_basedir) {
 #ifdef __APPLE__
@@ -603,12 +602,13 @@ int simu_main(int argc, char** argv)
 						}
 #else
 						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-						if( strcmp(c-3,"bin")!=0 ) {
+						char *c = strrchr(testpath, *PATH_SEPARATOR);
+						if(  c  &&  strcmp(c+1,"bin")==0  ) {
 							// replace bin with other paths
-							strcpy( c, "/share/simutrans/" );
+							strcpy( c+1, "share/simutrans/" );
 							found_basedir = set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
 							if (!found_basedir) {
-								strcpy(c, "/share/games/simutrans/" );
+								strcpy( c+1 , "share/games/simutrans/" );
 								found_basedir = set_predefined_dir(testpath, "share/games/simutrans", env_t::base_dir, "config/simuconf.tab");
 							}
 						}
