@@ -186,6 +186,16 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// hand event to component
 		swallow = comp->infowin_event(&ev2);
 
+		// now process wheel-events that are not swallowed by component, scroll the pane
+		if(!swallow) {
+			if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))
+				 &&  (((b_show_scroll_y  &&  scroll_y.is_visible())  &&  !IS_SHIFT_PRESSED(ev))  ||  ((b_show_scroll_x  &&  scroll_x.is_visible())  &&  IS_SHIFT_PRESSED(ev)))  ) {
+				// otherwise these events are only registered where directly over the scroll region
+				// (and sometime even not then ... )
+				return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
+			}
+		}
+
 		if(  !swallow  &&  b_can_drag  &&  (ev->ev_class == EVENT_CLICK || ev->ev_class == EVENT_DRAG)  ) {
 			// init dragging? (Android SDL starts dragging without preceeding click!)
 			if(!b_is_dragging) {
@@ -206,16 +216,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		if(  old_comp_size!=comp->get_size()  ) {
 			recalc_sliders(get_size());
 		}
-	}
 
-	// now process wheel-events that are not swallowed by component, scroll the pane
-	if (!swallow) {
-		if((IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))
-			&&  (((b_show_scroll_y  &&  scroll_y.is_visible())  &&  !IS_SHIFT_PRESSED(ev))  ||  ((b_show_scroll_x  &&  scroll_x.is_visible())  &&  IS_SHIFT_PRESSED(ev)))) {
-			// otherwise these events are only registered where directly over the scroll region
-			// (and sometime even not then ... )
-			return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
-		}
 	}
 	return swallow;
 }
