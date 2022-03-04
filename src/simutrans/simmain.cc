@@ -491,17 +491,19 @@ void setup_logging(const args_t &args)
 }
 
 // find if there is an commandline option or environment variable with a valid path
-static bool set_predefined_dir( const char *p, const char *opt, char *result)
+static bool set_predefined_dir( const char *p, const char *opt, char *result, const char *testfile=NULL)
 {
 	if(  p  &&  *p  ) {
-		if(  dr_chdir( p )  ) {
-			cbuffer_t errmsg;
-			errmsg.printf("Path not found for %s \"%s\"",  opt, p);
-			dr_fatal_notify(errmsg);
+		bool ok = !dr_chdir(p);
+		FILE * testf;
+		ok &=  ok  &&  testfile  &&  (testf = fopen(testfile,"r"));
+		if(!ok) {
+			printf("WARNING: Path not found for %s \"%s\"!\n",  opt, p);
 		}
 		else {
-			dr_getcwd( env_t::base_dir, lengthof( env_t::base_dir ) );
-			strcat( env_t::base_dir, PATH_SEPARATOR );
+			fclose(testf);
+			dr_getcwd( result, PATH_MAX-1 );
+			strcat( result, PATH_SEPARATOR );
 			return true;
 		}
 	}
@@ -572,34 +574,55 @@ int simu_main(int argc, char** argv)
 	* The pak_dir contains the complete path to the current pak, since it could be in different locations
 	*
 	*/
-
-	if( !set_predefined_dir( args.gimme_arg( "-set_basedir", 1 ), "-set_basedir", env_t::base_dir ) ) {
-		if( !set_predefined_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::base_dir ) ) {
+	if( !set_predefined_dir( args.gimme_arg( "-set_basedir", 1 ), "-set_basedir", env_t::base_dir, "config/simuconf.tab")) {
+		if( !set_predefined_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::base_dir, "config/simuconf.tab") ) {
+			bool found_basedir = false;
 			dr_getcwd(env_t::base_dir, lengthof(env_t::base_dir));
 			strcat( env_t::base_dir, PATH_SEPARATOR );
+			// test if base installation
+			if (FILE* f = fopen("config/simuconf.tab", "r")) {
+				fclose(f);
+				found_basedir = true;
+			}
+			else {
+				// argv[0] contain the full path to the excutable already
+				char testpath[PATH_MAX];
+				tstrncpy(testpath, argv[0], lengthof(testpath));
+				char* c = strrchr(testpath, *PATH_SEPARATOR);
+				if(c) {
+					*c = 0; // remove program name
+					if(!set_predefined_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab")) {
 #ifdef __APPLE__
-			// Detect if the binary is started inside an application bundle
-			// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
-			if(  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 20 )), ".app/Contents/MacOS/")) {
-				env_t::base_dir[strlen(env_t::base_dir) - 20] = 0;
-				while (env_t::base_dir[strlen(env_t::base_dir) - 1] != '/') {
-					env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
-				}
-			}
-#elif __linux__
-			// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
-			char binary_path[PATH_MAX];
-			readlink("/proc/self/exe", binary_path, PATH_MAX);
-			if(  dr_chdir("config/")  &&  !strcmp((binary_path + (strlen(binary_path) - 13 )), "bin/simutrans")) {
-				strcpy( env_t::base_dir, binary_path );
-				env_t::base_dir[strlen(env_t::base_dir) - 13] = 0;
-				strcat( env_t::base_dir, "share/simutrans/" );
-				if( dr_chdir( env_t::base_dir ) ) {
-					env_t::base_dir[strlen(env_t::base_dir) - 10] = 0;
-					strcat( env_t::base_dir, "games/simutrans/" );
-				}
-			}
+						// Detect if the binary is started inside an application bundle
+						// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
+						if(  !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 20 )), ".app/Contents/MacOS/")) {
+							env_t::base_dir[strlen(env_t::base_dir) - 20] = 0;
+							while (env_t::base_dir[strlen(env_t::base_dir) - 1] != '/') {
+								env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
+							}
+						}
+#else
+						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
+						if(strcmp(c-3,"bin")==0) {
+							c[-3] = 0; // remvoe the "bin"
+							strcat( testpath, "share/simutrans/" );
+							if (!set_predefined_dir( testpath, "share/simutrans", env_t::base_dir, "config/simuconf.tab")) {
+								testpath[strlen(testpath) - 10] = 0;
+								strcat(testpath, "games/simutrans/" );
+								found_basedir = set_predefined_dir(testpath, "share/games/simutrans", env_t::base_dir, "config/simuconf.tab");
+							}
+						}
 #endif
+					}
+				}
+			}
+			if (!found_basedir) {
+				// try the installer dir next
+				if (!set_predefined_dir(dr_query_installdir(), "install_dir", env_t::base_dir, "config/simuconf.tab")) {
+					dr_fatal_notify("Absolutely no base installation found.\nPlease download/install the complete base set!");
+					return EXIT_FAILURE;
+				}
+			}
 		}
 	}
 	dr_chdir( env_t::base_dir );
