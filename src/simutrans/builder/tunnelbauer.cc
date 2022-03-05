@@ -175,7 +175,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			sint8 hne = pos.z + corner_ne(new_slope);
 			sint8 hnw = pos.z + corner_nw(new_slope);
 
-			terraformer_t raise(welt, terraformer_t::raise);
+			terraformer_t raise(terraformer_t::raise, welt);
 			raise.add_node(pos.x, pos.y, hsw, hse, hne, hnw);
 			raise.generate_affected_tile_list();
 
@@ -249,8 +249,8 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 				sint8 hne = pos.z + corner_ne(new_slope);
 				sint8 hnw = pos.z + corner_nw(new_slope);
 
-				terraformer_t raise(welt, terraformer_t::raise);
-				terraformer_t lower(welt, terraformer_t::lower);
+				terraformer_t raise(terraformer_t::raise, welt);
+				terraformer_t lower(terraformer_t::lower, welt);
 
 				raise.add_node(pos.x, pos.y, hsw, hse, hne, hnw);
 				lower.add_node(pos.x, pos.y, hsw, hse, hne, hnw);
@@ -414,10 +414,8 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		sint8 hne = end.z + corner_ne(end_slope);
 		sint8 hnw = end.z + corner_nw(end_slope);
 
-		int n = 0;
-
-		terraformer_t raise(welt, terraformer_t::raise);
-		terraformer_t lower(welt, terraformer_t::lower);
+		terraformer_t raise(terraformer_t::raise, welt);
+		terraformer_t lower(terraformer_t::lower, welt);
 
 		raise.add_node(end.x, end.y, hsw, hse, hne, hnw);
 		lower.add_node(end.x, end.y, hsw, hse, hne, hnw);
@@ -431,7 +429,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 
 // TODO: this is rather hackish as 4 seems to come from nowhere but works most of the time
 // feel free to change if you have a better idea!
-		n = (raise.apply() + lower.apply()) / 4;
+		const int n = (raise.apply() + lower.apply()) / 4;
 		player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, end.get_2d(), desc->get_waytype());
 	}
 

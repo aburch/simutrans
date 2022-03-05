@@ -460,13 +460,13 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	// ensure is land
 	grund_t* bd = welt->lookup_kartenboden(platz1);
 	if (bd->get_typ() == grund_t::wasser) {
-		welt->set_water_hgt(platz1, bd->get_hoehe()-1);
+		welt->set_water_hgt_nocheck(platz1, bd->get_hoehe()-1);
 		welt->access(platz1)->correct_water();
 		welt->set_climate(platz1, c1, true);
 	}
 	bd = welt->lookup_kartenboden(platz2);
 	if (bd->get_typ() == grund_t::wasser) {
-		welt->set_water_hgt(platz2, bd->get_hoehe()-1);
+		welt->set_water_hgt_nocheck(platz2, bd->get_hoehe()-1);
 		welt->access(platz2)->correct_water();
 		welt->set_climate(platz2, c2, true);
 	}

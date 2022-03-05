@@ -284,9 +284,9 @@ void karte_t::recalc_season_snowline(bool set_pending)
 		pending_season_change++;
 	}
 
-	const sint16 winterline = settings.get_winter_snowline();
-	const sint16 summerline = max(settings.get_climate_borders(arctic_climate,1),settings.get_climate_borders(arctic_climate,0));
-	snowline = summerline - (sint16)(((summerline-winterline)*factor)/100);
+	const sint8 winterline = settings.get_winter_snowline();
+	const sint8 summerline = max(settings.get_climate_borders(arctic_climate,1),settings.get_climate_borders(arctic_climate,0));
+	snowline = summerline - (sint8)(((summerline-winterline)*factor)/100);
 	if(  old_snowline != snowline  &&  set_pending  ) {
 		pending_snowline_change++;
 	}
@@ -300,7 +300,7 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			// loop all tiles
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
-			set_grid_hgt( k, (sint8) h);
+			set_grid_hgt_nocheck( k, (sint8) h);
 		}
 	}
 }
@@ -355,7 +355,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			}
 
 			if(  max_hgt_nocheck(k) > water_hgt  ) {
-				set_water_hgt(k, groundwater-4);
+				set_water_hgt_nocheck(k, groundwater-4);
 			}
 		}
 	}
@@ -1227,8 +1227,8 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	recalc_average_speed(); // resets timeline
 	koord::locality_factor = settings.get_locality_factor( last_year );
 
-	world_maximum_height = sets->get_maximumheight();
-	world_minimum_height = sets->get_minimumheight();
+	max_allowed_height = sets->get_maximumheight();
+	min_allowed_height = sets->get_minimumheight();
 	groundwater = (sint8)sets->get_groundwater();
 
 	init_height_to_climate();
@@ -1326,7 +1326,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 
 #define array_koord(px,py) (px + py * get_size().x)
-
 
 /* Lakes:
  * For each height from groundwater+1 to max_lake_height we loop over
@@ -1479,96 +1478,6 @@ void karte_t::create_lakes(  int xoff, int yoff, sint8 max_lake_height  )
 }
 
 
-bool karte_t::can_flood_to_depth(  koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max  ) const
-{
-	bool succeeded = true;
-	if(  k == koord::invalid  ) {
-		return false;
-	}
-
-	if(  new_water_height < get_groundwater() - 3  ) {
-		return false;
-	}
-
-	// make a list of tiles to change
-	// cannot use a recursive method as stack is not large enough!
-
-	sint8 *from_dir = new sint8[get_size().x * get_size().y];
-	bool local_stage = (our_stage==NULL);
-
-	if(  local_stage  ) {
-		our_stage = new sint8[get_size().x * get_size().y];
-	}
-
-	memset( our_stage + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
-
-	uint32 offset = array_koord(k.x,k.y);
-	from_dir[offset]=-1;
-	stage[offset]=0;
-	our_stage[offset]=0;
-
-	do {
-		koord k_neighbour = k + koord::neighbours[our_stage[offset]];
-		if(  k_neighbour.x < x_min  ||  k_neighbour.x>=x_max) {
-			succeeded = false;
-		} else if(  k_neighbour.y >= y_min  &&  k_neighbour.y<y_max  ) {
-			const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
-
-			// already visited
-			if(our_stage[neighbour_offset] != -1) goto next_neighbour;
-
-			// land or water height above
-			if(max_water_hgt[neighbour_offset] >= new_water_height) goto next_neighbour;
-
-			//move on to next tile
-			from_dir[neighbour_offset] = our_stage[offset];
-			stage[neighbour_offset] = 0;
-			our_stage[neighbour_offset] = 0;
-			k = k_neighbour;
-			offset = neighbour_offset;
-			continue;
-		}
-		else if(  succeeded  &&  (global_lake_fill  ||  k_neighbour.y < 1  ||  k_neighbour.y>=get_size().y-1)  ) {
-			// edge of map - we keep iterating so we can mark all connected tiles as failing
-			succeeded = false;
-		}
-		next_neighbour:
-		//return back to previous tile
-		while(  our_stage[offset]==7  ) {
-			if(  from_dir[offset] == -1  ) goto exit_iteration;    // for natural maps only need to have checked one path out from original tile
-			k = k - koord::neighbours[from_dir[offset]];
-			offset = array_koord(k.x,k.y);
-		}
-		our_stage[offset]++;
-	} while(  true  );
-
-	exit_iteration:
-
-	delete [] from_dir;
-
-	if(  local_stage  ) {
-		delete [] our_stage;
-	}
-
-	return succeeded;
-}
-
-
-void karte_t::flood_to_depth( sint8 new_water_height, sint8 *stage )
-{
-	const uint16 size_x = get_size().x;
-	const uint16 size_y = get_size().y;
-
-	uint32 offset_max = size_x*size_y;
-	for(  uint32 offset = 0;  offset < offset_max;  offset++  ) {
-		if(  stage[offset] == -1  ) {
-			continue;
-		}
-		water_hgts[offset] = new_water_height;
-	}
-}
-
-
 void karte_t::create_beaches(  int xoff, int yoff  )
 {
 	const uint16 size_x = get_size().x;
@@ -1610,7 +1519,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 
 				// if not much nearby water then turn into a beach
 				if(  neighbour_water < (3*total_ground)/4  ) {
-					set_water_hgt( k, gr->get_hoehe() - 1 );
+					set_water_hgt_nocheck( k, gr->get_hoehe() - 1 );
 					raise_grid_to( ix, iy, gr->get_hoehe() );
 					raise_grid_to( ix + 1, iy, gr->get_hoehe() );
 					raise_grid_to( ix, iy + 1, gr->get_hoehe() );
@@ -1672,40 +1581,6 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 				}
 			}
 		}
-	}
-}
-
-
-void karte_t::init_height_to_climate()
-{
-	// mark unused as arctic
-	memset( num_climates_at_height, 0, lengthof(num_climates_at_height) );
-
-	// now just add them, the later climates will win (we will do a fineer assessment later
-	for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
-		DBG_DEBUG( "init_height_to_climate()", "climate %i, start %i end %i", cl,  settings.get_climate_borders( cl, 0 ),  settings.get_climate_borders( cl, 1 ) );
-		for( sint8 h = max(groundwater, settings.get_climate_borders( cl, 0 )); h < settings.get_climate_borders( cl, 1 ); h++ ) {
-			if(  num_climates_at_height[ h - groundwater ] == 0  ) {
-				// default climate for this height is the first matching one
-				height_to_climate[ h - groundwater ] = (uint8)cl;
-			}
-			num_climates_at_height[h-groundwater]++;
-		}
-	}
-	for( int h = 0; h < 128; h++ ) {
-		if(  num_climates_at_height[h]==0  ) {
-			if( h == 0 ) {
-				height_to_climate[ h ] = desert_climate;
-			}
-			else if( h - groundwater > settings.get_climate_borders( arctic_climate, 1 ) ) {
-				height_to_climate[ h ] = arctic_climate;
-			}
-			else {
-				height_to_climate[ h ] = temperate_climate;
-			}
-			num_climates_at_height[ h ] = 1;
-		}
-		DBG_DEBUG( "init_height_to_climate()", "Height %i, climate %i, num_climates %i", h - groundwater, height_to_climate[ h ], num_climates_at_height[ h ] );
 	}
 }
 
@@ -1869,7 +1744,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_size_x;  x++  ) {
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
-					set_grid_hgt( k, (sint8) h);
+					set_grid_hgt_nocheck( k, (sint8) h);
 				}
 				ls.set_progress( (y*16)/new_size_y );
 			}
@@ -2100,8 +1975,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 karte_t::karte_t() :
 	settings(env_t::default_settings),
-	climate_map(0,0),
-	humidity_map(0,0),
 	convoi_array(0),
 	attractions(16),
 	stadt(0)
@@ -2138,10 +2011,6 @@ karte_t::karte_t() :
 	goods_manager_t::set_multiplier( 1000 );
 
 	zeiger = NULL;
-	plan = 0;
-
-	grid_hgts = 0;
-	water_hgts = 0;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
 	loaded_rotation = 0;
@@ -2160,8 +2029,6 @@ karte_t::karte_t() :
 	map_counter = 0;
 
 	msg = new message_t();
-	cached_size.x = 0;
-	cached_size.y = 0;
 
 	records = new records_t(this->msg);
 
@@ -2188,222 +2055,6 @@ karte_t::~karte_t()
 	if (world == this) {
 		world = NULL;
 	}
-}
-
-
-bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
-{
-	const planquadrat_t *plan = access(x,y);
-	bool ok = true;
-
-	if(plan != NULL) {
-		grund_t *gr = plan->get_kartenboden();
-
-		ok = (gr->ist_natur() || gr->is_water())  &&  !gr->hat_wege()  &&  !gr->is_halt();
-
-		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
-			const obj_t *obj = gr->obj_bei(i);
-			assert(obj != NULL);
-			ok =
-				obj->get_typ() == obj_t::baum  ||
-				obj->get_typ() == obj_t::zeiger  ||
-				obj->get_typ() == obj_t::wolke  ||
-				obj->get_typ() == obj_t::sync_wolke  ||
-				obj->get_typ() == obj_t::async_wolke  ||
-				obj->get_typ() == obj_t::groundobj;
-		}
-	}
-
-	return ok;
-}
-
-
-
-// raise height in the hgt-array
-void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
-{
-	if(is_within_grid_limits(x,y)) {
-		const sint32 offset = x + y*(cached_grid_size.x+1);
-
-		if(  grid_hgts[offset] < h  ) {
-			grid_hgts[offset] = h;
-
-			const sint8 hh = h - (ground_desc_t::double_grounds ? 2 : 1);
-
-			// set new height of neighbor grid points
-			raise_grid_to(x-1, y-1, hh);
-			raise_grid_to(x  , y-1, hh);
-			raise_grid_to(x+1, y-1, hh);
-			raise_grid_to(x-1, y  , hh);
-			raise_grid_to(x+1, y  , hh);
-			raise_grid_to(x-1, y+1, hh);
-			raise_grid_to(x  , y+1, hh);
-			raise_grid_to(x+1, y+1, hh);
-		}
-	}
-}
-
-
-int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
-{
-	int n = 0;
-
-	if(is_within_grid_limits(k)) {
-
-		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope4_t::type corner_to_raise = get_corner_to_operate(k);
-
-		const sint16 x = gr->get_pos().x;
-		const sint16 y = gr->get_pos().y;
-		const sint8 hgt = gr->get_hoehe(corner_to_raise);
-
-		sint8 hsw, hse, hne, hnw;
-		if(  !gr->is_water()  ) {
-			const sint8 f = ground_desc_t::double_grounds ?  2 : 1;
-			const sint8 o = ground_desc_t::double_grounds ?  1 : 0;
-
-			hsw = hgt - o + scorner_sw( corner_to_raise ) * f;
-			hse = hgt - o + scorner_se( corner_to_raise ) * f;
-			hne = hgt - o + scorner_ne( corner_to_raise ) * f;
-			hnw = hgt - o + scorner_nw( corner_to_raise ) * f;
-		}
-		else {
-			hsw = hse = hne = hnw = hgt;
-		}
-
-		terraformer_t digger(this, terraformer_t::raise);
-		digger.add_node(x, y, hsw, hse, hne, hnw);
-		digger.generate_affected_tile_list();
-
-		err = digger.can_raise_all(player);
-		if (err) {
-			return 0;
-		}
-		n = digger.apply();
-
-		// force world full redraw, or background could be dirty.
-		set_dirty();
-
-		if(  max_height < lookup_kartenboden_gridcoords(k)->get_hoehe()  ) {
-			max_height = lookup_kartenboden_gridcoords(k)->get_hoehe();
-		}
-	}
-	return (n+3)>>2;
-}
-
-
-
-void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
-{
-	if(is_within_grid_limits(x,y)) {
-		const sint32 offset = x + y*(cached_grid_size.x+1);
-
-		if(  grid_hgts[offset] > h  ) {
-			grid_hgts[offset] = h;
-			sint8 hh = h + 2;
-			// set new height of neighbor grid points
-			lower_grid_to(x-1, y-1, hh);
-			lower_grid_to(x  , y-1, hh);
-			lower_grid_to(x+1, y-1, hh);
-			lower_grid_to(x-1, y  , hh);
-			lower_grid_to(x+1, y  , hh);
-			lower_grid_to(x-1, y+1, hh);
-			lower_grid_to(x  , y+1, hh);
-			lower_grid_to(x+1, y+1, hh);
-		}
-	}
-}
-
-
-int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
-{
-	int n = 0;
-
-	if(is_within_grid_limits(k)) {
-
-		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope4_t::type corner_to_lower = get_corner_to_operate(k);
-
-		const sint16 x = gr->get_pos().x;
-		const sint16 y = gr->get_pos().y;
-		const sint8 hgt = gr->get_hoehe(corner_to_lower);
-
-		const sint8 f = ground_desc_t::double_grounds ?  2 : 1;
-		const sint8 o = ground_desc_t::double_grounds ?  1 : 0;
-		const sint8 hsw = hgt + o - scorner_sw( corner_to_lower ) * f;
-		const sint8 hse = hgt + o - scorner_se( corner_to_lower ) * f;
-		const sint8 hne = hgt + o - scorner_ne( corner_to_lower ) * f;
-		const sint8 hnw = hgt + o - scorner_nw( corner_to_lower ) * f;
-
-		terraformer_t digger(this, terraformer_t::lower);
-		digger.add_node(x, y, hsw, hse, hne, hnw);
-		digger.generate_affected_tile_list();
-
-		err = digger.can_lower_all(player);
-		if (err) {
-			return 0;
-		}
-
-		n = digger.apply();
-		err = NULL;
-
-		// force world full redraw, or background could be dirty.
-		set_dirty();
-
-		if(  min_height > min_hgt_nocheck( koord(x,y) )  ) {
-			min_height = min_hgt_nocheck( koord(x,y) );
-		}
-	}
-	return (n+3)>>2;
-}
-
-
-bool karte_t::can_flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill)
-{
-	return flatten_tile(player, k, hgt, keep_water, make_underwater_hill, true /* just check */);
-}
-
-
-// make a flat level at this position (only used for AI at the moment)
-bool karte_t::flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill, bool justcheck)
-{
-	int n = 0;
-	bool ok = true;
-	const grund_t *gr = lookup_kartenboden(k);
-	const slope_t::type slope = gr->get_grund_hang();
-	const sint8 old_hgt = make_underwater_hill  &&  gr->is_water() ? min_hgt(k) : gr->get_hoehe();
-	const sint8 max_hgt = old_hgt + slope_t::max_diff(slope);
-	if(  max_hgt > hgt  ) {
-
-		terraformer_t digger(this, terraformer_t::lower);
-		digger.add_node(k.x, k.y, hgt, hgt, hgt, hgt);
-		digger.generate_affected_tile_list();
-
-		ok = digger.can_lower_all(player) == NULL;
-
-		if (ok  &&  !justcheck) {
-			n += digger.apply();
-		}
-	}
-
-	if(  ok  &&  old_hgt < hgt  ) {
-		terraformer_t digger(this, terraformer_t::raise);
-		digger.add_node(k.x, k.y, hgt, hgt, hgt, hgt);
-		digger.generate_affected_tile_list();
-
-		ok = digger.can_raise_all(player, keep_water) == NULL;
-
-		if (ok  &&  !justcheck) {
-			n += digger.apply();
-		}
-	}
-
-	// was changed => pay for it
-	if(n>0) {
-		n = (n+3) / 4;
-		player_t::book_construction_costs(player, n * settings.cst_alter_land, k, ignore_wt);
-	}
-	return ok;
 }
 
 
@@ -2594,55 +2245,6 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 	toolbar_last_used_t::last_used_tools->append( tool_in, player );
 }
 
-
-sint8 karte_t::min_hgt_nocheck(const koord k) const
-{
-	// more optimised version of min_hgt code
-	const sint8 * p = &grid_hgts[k.x + k.y*(sint32)(cached_grid_size.x+1)];
-
-	const int h1 = *p;
-	const int h2 = *(p+1);
-	const int h3 = *(p+get_size().x+2);
-	const int h4 = *(p+get_size().x+1);
-
-	return min(min(h1,h2), min(h3,h4));
-}
-
-
-sint8 karte_t::max_hgt_nocheck(const koord k) const
-{
-	// more optimised version of max_hgt code
-	const sint8 * p = &grid_hgts[k.x + k.y*(sint32)(cached_grid_size.x+1)];
-
-	const int h1 = *p;
-	const int h2 = *(p+1);
-	const int h3 = *(p+get_size().x+2);
-	const int h4 = *(p+get_size().x+1);
-
-	return max(max(h1,h2), max(h3,h4));
-}
-
-
-sint8 karte_t::min_hgt(const koord k) const
-{
-	const sint8 h1 = lookup_hgt(k);
-	const sint8 h2 = lookup_hgt(k+koord(1, 0));
-	const sint8 h3 = lookup_hgt(k+koord(1, 1));
-	const sint8 h4 = lookup_hgt(k+koord(0, 1));
-
-	return min(min(h1,h2), min(h3,h4));
-}
-
-
-sint8 karte_t::max_hgt(const koord k) const
-{
-	const sint8 h1 = lookup_hgt(k);
-	const sint8 h2 = lookup_hgt(k+koord(1, 0));
-	const sint8 h3 = lookup_hgt(k+koord(1, 1));
-	const sint8 h4 = lookup_hgt(k+koord(0, 1));
-
-	return max(max(h1,h2), max(h3,h4));
-}
 
 
 planquadrat_t *rotate90_new_plan;
@@ -3873,205 +3475,6 @@ void karte_t::update_history()
 }
 
 
-static sint8 median( sint8 a, sint8 b, sint8 c )
-{
-#if 0
-	if(  a==b  ||  a==c  ) {
-		return a;
-	}
-	else if(  b==c  ) {
-		return b;
-	}
-	else {
-		// noting matches
-//		return (3*128+1 + a+b+c)/3-128;
-		return -128;
-	}
-#elif 0
-	if(  a<=b  ) {
-		return b<=c ? b : max(a,c);
-	}
-	else {
-		return b>c ? b : min(a,c);
-	}
-#else
-		return (6*128+3 + a+a+b+b+c+c)/6-128;
-#endif
-}
-
-
-slope_t::type karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
-{
-	grund_t *gr = lookup_kartenboden(k);
-	if(!gr) {
-		return slope_t::flat;
-	}
-	else {
-		const sint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
-
-		sint8 corner_height[4];
-
-		// get neighbour corner heights
-		sint8 neighbour_height[8][4];
-		get_neighbour_heights( k, neighbour_height );
-
-		//check whether neighbours are foundations
-		bool neighbour_fundament[8];
-		for(  int i = 0;  i < 8;  i++  ) {
-			grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
-			neighbour_fundament[i] = (gr2  &&  gr2->get_typ() == grund_t::fundament);
-		}
-
-		for(  uint8 i = 0;  i < 4;  i++  ) { // 0 = sw, 1 = se etc.
-			// corner_sw (i=0): tests vs neighbour 1:w (corner 2 j=1),2:sw (corner 3) and 3:s (corner 4)
-			// corner_se (i=1): tests vs neighbour 3:s (corner 3 j=2),4:se (corner 4) and 5:e (corner 1)
-			// corner_ne (i=2): tests vs neighbour 5:e (corner 4 j=3),6:ne (corner 1) and 7:n (corner 2)
-			// corner_nw (i=3): tests vs neighbour 7:n (corner 1 j=0),0:nw (corner 2) and 1:w (corner 3)
-
-			sint16 median_height = 0;
-			uint8 natural_corners = 0;
-			for(  int j = 1;  j < 4;  j++  ) {
-				if(  !neighbour_fundament[(i * 2 + j) & 7]  ) {
-					natural_corners++;
-					median_height += neighbour_height[(i * 2 + j) & 7][(i + j) & 3];
-				}
-			}
-			switch(  natural_corners  ) {
-				case 1: {
-					corner_height[i] = (sint8)median_height;
-					break;
-				}
-				case 2: {
-					corner_height[i] = median_height >> 1;
-					break;
-				}
-				default: {
-					// take the average of all 3 corners (if no natural corners just use the artificial ones anyway)
-					corner_height[i] = median( neighbour_height[(i * 2 + 1) & 7][(i + 1) & 3], neighbour_height[(i * 2 + 2) & 7][(i + 2) & 3], neighbour_height[(i * 2 + 3) & 7][(i + 3) & 3] );
-					break;
-				}
-			}
-		}
-
-		// new height of that tile ...
-		sint8 min_height = min( min( corner_height[0], corner_height[1] ), min( corner_height[2], corner_height[3] ) );
-		sint8 max_height = max( max( corner_height[0], corner_height[1] ), max( corner_height[2], corner_height[3] ) );
-		/* check for an artificial slope on a steep sidewall */
-		bool not_ok = abs( max_height - min_height ) > max_hdiff  ||  min_height == -128;
-
-		sint8 old_height = gr->get_hoehe();
-		new_height = min_height;
-
-		// now we must make clear, that there is no ground above/below the slope
-		if(  old_height!=new_height  ) {
-			not_ok |= lookup(koord3d(k,new_height))!=NULL;
-			if(  old_height > new_height  ) {
-				not_ok |= lookup(koord3d(k,old_height-1))!=NULL;
-			}
-			if(  old_height < new_height  ) {
-				not_ok |= lookup(koord3d(k,old_height+1))!=NULL;
-			}
-		}
-
-		if(  not_ok  ) {
-			/* difference too high or ground above/below
-			 * we just keep it as it was ...
-			 */
-			new_height = old_height;
-			return gr->get_grund_hang();
-		}
-
-		const sint16 d1 = min( corner_height[0] - new_height, max_hdiff );
-		const sint16 d2 = min( corner_height[1] - new_height, max_hdiff );
-		const sint16 d3 = min( corner_height[2] - new_height, max_hdiff );
-		const sint16 d4 = min( corner_height[3] - new_height, max_hdiff );
-		return encode_corners(d1, d2, d3, d4);
-	}
-}
-
-
-slope_t::type karte_t::calc_natural_slope( const koord k ) const
-{
-	if(!is_within_grid_limits(k.x, k.y)) {
-		return slope_t::flat;
-	}
-
-	const sint8 *p = &grid_hgts[k.x + k.y*(sint32)(get_size().x+1)];
-
-	const int h1 = *p;
-	const int h2 = *(p+1);
-	const int h3 = *(p+get_size().x+2);
-	const int h4 = *(p+get_size().x+1);
-
-	const int mini = min(min(h1,h2), min(h3,h4));
-
-	const int d1=h1-mini;
-	const int d2=h2-mini;
-	const int d3=h3-mini;
-	const int d4=h4-mini;
-
-	return encode_corners(d4, d3, d2, d1);
-}
-
-
-bool karte_t::is_water(koord k, koord dim) const
-{
-	koord k_check;
-	for(  k_check.x = k.x;  k_check.x < k.x + dim.x;  k_check.x++  ) {
-		for(  k_check.y = k.y;  k_check.y < k.y + dim.y;  k_check.y++  ) {
-			if(  !is_within_grid_limits( k_check + koord(1, 1) )  ||  max_hgt(k_check) > get_water_hgt(k_check)  ) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-
-bool karte_t::square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const
-{
-	if(k.x < 0  ||  k.y < 0  ||  k.x+w > get_size().x || k.y+h > get_size().y) {
-		return false;
-	}
-
-	grund_t *gr = lookup_kartenboden(k);
-	const sint16 platz_base_h = gr->get_hoehe(); // remember the base height of the first tile
-	const sint16 platz_max_h = gr->get_hoehe() + slope_t::max_diff( gr->get_grund_hang() ); // remember the max height of the first tile
-
-	koord k_check;
-	for(k_check.y=k.y+h-1; k_check.y>=k.y; k_check.y--) {
-		for(k_check.x=k.x; k_check.x<k.x+w; k_check.x++) {
-			const grund_t *gr = lookup_kartenboden(k_check);
-
-			// we can built, if: max height all the same, everything removable and no buildings there
-			slope_t::type slope = gr->get_grund_hang();
-			sint8 max_height = gr->get_hoehe() + slope_t::max_diff(slope);
-			climate test_climate = get_climate(k_check);
-			if(  cl & (1 << water_climate)  &&  test_climate != water_climate  ) {
-				bool neighbour_water = false;
-				for(int i=0; i<8  &&  !neighbour_water; i++) {
-					if(  is_within_limits(k_check + koord::neighbours[i])  &&  get_climate( k_check + koord::neighbours[i] ) == water_climate  ) {
-						neighbour_water = true;
-					}
-				}
-				if(  neighbour_water  ) {
-					test_climate = water_climate;
-				}
-			}
-			if( (platz_max_h != max_height  &&  platz_base_h != gr->get_hoehe())  ||  !gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||
-			     (cl & (1 << test_climate)) == 0  ||  ( slope && (lookup( gr->get_pos()+koord3d(0,0,1) ) ||
-			     (slope_t::max_diff(slope)==2 && lookup( gr->get_pos()+koord3d(0,0,2) )) ))  ) {
-				if(  last_y  ) {
-					*last_y = k_check.y;
-				}
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-
 slist_tpl<koord> *karte_t::find_squares(sint16 w, sint16 h, climate_bits cl, sint16 old_x, sint16 old_y) const
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
@@ -4960,8 +4363,8 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 			goods_manager_t::set_multiplier( 1000 );
 		}
 
-		world_maximum_height = settings.get_maximumheight();
-		world_minimum_height = settings.get_minimumheight();
+		max_allowed_height = settings.get_maximumheight();
+		min_allowed_height = settings.get_minimumheight();
 
 		groundwater = (sint8)(settings.get_groundwater());
 		min_height = max_height = groundwater;
@@ -5150,7 +4553,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 					sint32 hgt;
 					file->rdwr_long(hgt);
 					// old height step was 16!
-					set_grid_hgt(x, y, hgt/16 );
+					set_grid_hgt_nocheck(x, y, hgt/16 );
 				}
 			}
 		}
@@ -5418,6 +4821,100 @@ void karte_t::update_map_intern(sint16 x_min, sint16 x_max, sint16 y_min, sint16
 }
 
 
+bool karte_t::can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max  ) const
+{
+	bool succeeded = true;
+	if(  k == koord::invalid  ) {
+		return false;
+	}
+
+	if(  new_water_height < get_groundwater() - 3  ) {
+		return false;
+	}
+
+	// make a list of tiles to change
+	// cannot use a recursive method as stack is not large enough!
+
+	sint8 *from_dir = new sint8[get_size().x * get_size().y];
+	bool local_stage = (our_stage==NULL);
+
+	if(  local_stage  ) {
+		our_stage = new sint8[get_size().x * get_size().y];
+	}
+
+	memset( our_stage + sizeof(sint8) * array_koord(0,y_min), -1, sizeof(sint8) * get_size().x * (y_max-y_min) );
+
+	uint32 offset = array_koord(k.x,k.y);
+	from_dir[offset]=-1;
+	stage[offset]=0;
+	our_stage[offset]=0;
+
+	do {
+		koord k_neighbour = k + koord::neighbours[our_stage[offset]];
+		if(  k_neighbour.x < x_min  ||  k_neighbour.x>=x_max) {
+			succeeded = false;
+		} else if(  k_neighbour.y >= y_min  &&  k_neighbour.y<y_max  ) {
+			const uint32 neighbour_offset = array_koord(k_neighbour.x,k_neighbour.y);
+
+			// already visited
+			if(our_stage[neighbour_offset] != -1) {
+				goto next_neighbour;
+			}
+
+			// land or water height above
+			if(max_water_hgt[neighbour_offset] >= new_water_height) {
+				goto next_neighbour;
+			}
+
+			//move on to next tile
+			from_dir[neighbour_offset] = our_stage[offset];
+			stage[neighbour_offset] = 0;
+			our_stage[neighbour_offset] = 0;
+			k = k_neighbour;
+			offset = neighbour_offset;
+			continue;
+		}
+		else if(  succeeded  &&  (global_lake_fill  ||  k_neighbour.y < 1  ||  k_neighbour.y>=get_size().y-1)  ) {
+			// edge of map - we keep iterating so we can mark all connected tiles as failing
+			succeeded = false;
+		}
+		next_neighbour:
+		//return back to previous tile
+		while(  our_stage[offset]==7  ) {
+			if(  from_dir[offset] == -1  ) goto exit_iteration;    // for natural maps only need to have checked one path out from original tile
+			k = k - koord::neighbours[from_dir[offset]];
+			offset = array_koord(k.x,k.y);
+		}
+		our_stage[offset]++;
+	} while(  true  );
+
+	exit_iteration:
+
+	delete [] from_dir;
+
+	if(  local_stage  ) {
+		delete [] our_stage;
+	}
+
+	return succeeded;
+}
+
+
+void karte_t::flood_to_depth( sint8 new_water_height, sint8 *stage )
+{
+	const uint16 size_x = get_size().x;
+	const uint16 size_y = get_size().y;
+
+	uint32 offset_max = size_x*size_y;
+	for(  uint32 offset = 0;  offset < offset_max;  offset++  ) {
+		if(  stage[offset] == -1  ) {
+			continue;
+		}
+		water_hgts[offset] = new_water_height;
+	}
+}
+
+
 // recalcs all ground tiles on the map
 void karte_t::update_map()
 {
@@ -5469,57 +4966,6 @@ void karte_t::prepare_tiles(rect_t const &new_area, rect_t const &old_area) {
 				const planquadrat_t &tile = plan[y * cached_grid_size.x + x];
 				tile.update_underground();
 			}
-		}
-	}
-}
-
-void karte_t::calc_climate(koord k, bool recalc)
-{
-	planquadrat_t *pl = access(k);
-	if(  !pl  ) {
-		return;
-	}
-
-	if( (unsigned)k.x >= climate_map.get_width()  ||  (unsigned)k.y >= climate_map.get_height()  ) {
-		// not initialised yet (may happend during river creation)
-		return;
-	}
-
-	grund_t *gr = pl->get_kartenboden();
-	if(  gr  ) {
-		if(  !gr->is_water()  ) {
-			bool beach = false;
-			climate default_cl = (climate)climate_map.at( k.x, k.y );
-			if(  gr->get_pos().z == groundwater  ) {
-				for(  int i = 0;  i < 8 && !beach;  i++  ) {
-					grund_t *gr2 = lookup_kartenboden( k + koord::neighbours[i] );
-					if(  gr2 && gr2->is_water()  ) {
-						beach = true;
-					}
-				}
-			}
-			if( beach ) {
-				pl->set_climate( desert_climate );
-			}
-			else if(  default_cl>water_climate  &&  default_cl<=arctic_climate  &&  settings.get_climate_borders(default_cl,false)<=gr->get_pos().z  &&  settings.get_climate_borders(default_cl,true)>gr->get_pos().z  ) {
-				// if possible keep (or revert) to original climate
-				pl->set_climate( default_cl );
-			}
-			else {
-				pl->set_climate( get_climate_at_height( max( gr->get_pos().z, groundwater + 1 ) ) );
-			}
-		}
-		else {
-			pl->set_climate( water_climate );
-		}
-		pl->set_climate_transition_flag(false);
-		pl->set_climate_corners(0);
-	}
-
-	if(  recalc  ) {
-		recalc_transitions(k);
-		for(  int i = 0;  i < 8;  i++  ) {
-			recalc_transitions( k + koord::neighbours[i] );
 		}
 	}
 }
@@ -5864,113 +5310,6 @@ void karte_t::assign_climate_map_region( sint16 xtop, sint16 ytop, sint16 xbotto
 }
 
 
-void karte_t::get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope)
-{
-	if(  (k.x | k.y | (cached_grid_size.x - k.x-1) | (cached_grid_size.y - k.y-1)) >= 0  ) {
-		// inside map, so without further checks
-		const sint8 h_n = lookup_hgt_nocheck(k.x, k.y);
-		const sint8 h_w = lookup_hgt_nocheck(k.x, k.y+1);
-		const sint8 h_s = lookup_hgt_nocheck(k.x+1, k.y+1);
-		const sint8 h_e = lookup_hgt_nocheck(k.x+1, k.y);
-
-		hgt = min(min(h_n, h_e), min(h_s, h_w));
-
-		slope  = slope_t::northwest * min(h_n - hgt, 2);
-		slope |= slope_t::northeast * min(h_e - hgt, 2);
-		slope |= slope_t::southeast * min(h_s - hgt, 2);
-		slope |= slope_t::southwest * min(h_w - hgt, 2);
-	}
-}
-
-
-// fills array with neighbour heights
-void karte_t::get_neighbour_heights(const koord k, sint8 neighbour_height[8][4]) const
-{
-	for(  int i = 0;  i < 8;  i++  ) { // 0 = nw, 1 = w etc.
-		planquadrat_t *pl2 = access( k + koord::neighbours[i] );
-		if(  pl2  ) {
-			grund_t *gr2 = pl2->get_kartenboden();
-			slope_t::type slope_corner = gr2->get_grund_hang();
-			for(  int j = 0;  j < 4;  j++  ) {
-				neighbour_height[i][j] = gr2->get_hoehe() + corner_sw(slope_corner);
-				slope_corner /= slope_t::southeast;
-			}
-		}
-		else {
-			switch(i) {
-				case 0: // nw
-					neighbour_height[i][0] = groundwater;
-					neighbour_height[i][1] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
-					neighbour_height[i][2] = groundwater;
-					neighbour_height[i][3] = groundwater;
-				break;
-				case 1: // w
-					neighbour_height[i][0] = groundwater;
-					neighbour_height[i][1] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
-					neighbour_height[i][2] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
-					neighbour_height[i][3] = groundwater;
-				break;
-				case 2: // sw
-					neighbour_height[i][0] = groundwater;
-					neighbour_height[i][1] = groundwater;
-					neighbour_height[i][2] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
-					neighbour_height[i][3] = groundwater;
-				break;
-				case 3: // s
-					neighbour_height[i][0] = groundwater;
-					neighbour_height[i][1] = groundwater;
-					neighbour_height[i][2] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
-					neighbour_height[i][3] = max( lookup_hgt( k+koord(0,1) ), get_water_hgt( k ) );
-				break;
-				case 4: // se
-					neighbour_height[i][0] = groundwater;
-					neighbour_height[i][1] = groundwater;
-					neighbour_height[i][2] = groundwater;
-					neighbour_height[i][3] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
-				break;
-				case 5: // e
-					neighbour_height[i][0] = max( lookup_hgt( k+koord(1,1) ), get_water_hgt( k ) );
-					neighbour_height[i][1] = groundwater;
-					neighbour_height[i][2] = groundwater;
-					neighbour_height[i][3] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
-				break;
-				case 6: // ne
-					neighbour_height[i][0] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
-					neighbour_height[i][1] = groundwater;
-					neighbour_height[i][2] = groundwater;
-					neighbour_height[i][3] = groundwater;
-				break;
-				case 7: // n
-					neighbour_height[i][0] = max( lookup_hgt( k+koord(0,0) ), get_water_hgt( k ) );
-					neighbour_height[i][1] = max( lookup_hgt( k+koord(1,0) ), get_water_hgt( k ) );
-					neighbour_height[i][2] = groundwater;
-					neighbour_height[i][3] = groundwater;
-				break;
-			}
-
-			/*neighbour_height[i][0] = groundwater;
-			neighbour_height[i][1] = groundwater;
-			neighbour_height[i][2] = groundwater;
-			neighbour_height[i][3] = groundwater;*/
-		}
-	}
-}
-
-
-void karte_t::rotate_transitions(koord k)
-{
-	planquadrat_t *pl = access(k);
-	if(  !pl  ) {
-		return;
-	}
-
-	uint8 climate_corners = pl->get_climate_corners();
-	if(  climate_corners != 0  ) {
-		climate_corners = (climate_corners >> 1) | ((climate_corners & 1) << 3);
-		pl->set_climate_corners( climate_corners );
-	}
-}
-
 
 void karte_t::recalc_transitions_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
@@ -5979,63 +5318,6 @@ void karte_t::recalc_transitions_loop( sint16 x_min, sint16 x_max, sint16 y_min,
 			recalc_transitions( koord( x, y ) );
 		}
 	}
-}
-
-
-void karte_t::recalc_transitions(koord k)
-{
-	planquadrat_t *pl = access(k);
-	if(  !pl  ) {
-		return;
-	}
-
-	grund_t *gr = pl->get_kartenboden();
-	if(  !gr->is_water()  ) {
-		// get neighbour corner heights
-		sint8 neighbour_height[8][4];
-		get_neighbour_heights( k, neighbour_height );
-
-		// look up neighbouring climates
-		climate neighbour_climate[8];
-		for(  int i = 0;  i < 8;  i++  ) { // 0 = nw, 1 = w etc.
-			koord k_neighbour = k + koord::neighbours[i];
-			if(  !is_within_limits(k_neighbour)  ) {
-				k_neighbour = get_closest_coordinate(k_neighbour);
-			}
-			neighbour_climate[i] = get_climate( k_neighbour );
-		}
-
-		uint8 climate_corners = 0;
-		climate climate0 = get_climate(k);
-
-		slope_t::type slope_corner = gr->get_grund_hang();
-		for(  uint8 i = 0;  i < 4;  i++  ) { // 0 = sw, 1 = se etc.
-			// corner_sw (i=0): tests vs neighbour 1:w (corner 2 j=1),2:sw (corner 3) and 3:s (corner 4)
-			// corner_se (i=1): tests vs neighbour 3:s (corner 3 j=2),4:se (corner 4) and 5:e (corner 1)
-			// corner_ne (i=2): tests vs neighbour 5:e (corner 4 j=3),6:ne (corner 1) and 7:n (corner 2)
-			// corner_nw (i=3): tests vs neighbour 7:n (corner 1 j=0),0:nw (corner 2) and 1:w (corner 3)
-			sint8 corner_height = gr->get_hoehe() + corner_sw(slope_corner);
-
-			climate transition_climate = water_climate;
-			climate min_climate = arctic_climate;
-
-			for(  int j = 1;  j < 4;  j++  ) {
-				if(  corner_height == neighbour_height[(i * 2 + j) & 7][(i + j) & 3]) {
-					climate climatej = neighbour_climate[(i * 2 + j) & 7];
-					climatej > transition_climate ? transition_climate = climatej : 0;
-					climatej < min_climate ? min_climate = climatej : 0;
-				}
-			}
-
-			if(  min_climate == water_climate  ||  transition_climate > climate0  ) {
-				climate_corners |= 1 << i;
-			}
-			slope_corner /= slope_t::southeast;
-		}
-		pl->set_climate_transition_flag( climate_corners != 0 );
-		pl->set_climate_corners( climate_corners );
-	}
-	gr->calc_image();
 }
 
 
@@ -6260,15 +5542,6 @@ void karte_t::set_fast_forward(bool ff)
 			}
 		}
 	}
-}
-
-
-koord karte_t::get_closest_coordinate(koord outside_pos)
-{
-	outside_pos.clip_min(koord(0,0));
-	outside_pos.clip_max(koord(get_size().x-1,get_size().y-1));
-
-	return outside_pos;
 }
 
 

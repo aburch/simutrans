@@ -847,7 +847,7 @@ const char* tool_raise_lower_base_t::drag(player_t *player, koord k, sint16 heig
 	const char* err = NULL;
 
 	// dragging may be going up or down!
-	while(  welt->lookup_hgt(k) < height  &&  height <= welt->get_maximumheight()  ) {
+	while(  welt->lookup_hgt(k) < height  &&  height <= welt->get_max_allowed_height()  ) {
 		int diff = welt->grid_raise( player, k, err );
 		if(  diff == 0  ) {
 			break;
@@ -857,7 +857,7 @@ const char* tool_raise_lower_base_t::drag(player_t *player, koord k, sint16 heig
 
 	// when going down need to check here we will not be going below sea level
 	// cannot rely on check within lower as water height can be recalculated
-	while(  height >= welt->get_water_hgt(k)  &&  welt->lookup_hgt(k) > height  &&  height >= welt->get_minimumheight()  ) {
+	while(  height >= welt->get_water_hgt(k)  &&  welt->lookup_hgt(k) > height  &&  height >= welt->get_min_allowed_height()  ) {
 		int diff = welt->grid_lower( player, k, err );
 		if(  diff == 0  ) {
 			break;
@@ -921,7 +921,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 
 		const sint8 hgt = (sint8) get_drag_height(k);
 
-		if(  hgt <= welt->get_maximumheight()  ) {
+		if(  hgt <= welt->get_max_allowed_height()  ) {
 
 			int n = 0; // tiles changed
 			if(  !strempty(default_param)  ) {
@@ -1085,7 +1085,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		const uint8 max_hdiff = ground_desc_t::double_grounds ?  2 : 1;
 
-		if(new_slope==ALL_DOWN_SLOPE  &&  pos.z-1<welt->get_minimumheight() ) {
+		if(new_slope==ALL_DOWN_SLOPE  &&  pos.z-1<welt->get_min_allowed_height() ) {
 			return "Maximum tile height difference reached.";
 		}
 
@@ -1237,7 +1237,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				// do not lower tiles when it will be below water level
 				return NOTICE_TILE_FULL;
 			}
-			welt->set_water_hgt( k, water_table );
+			welt->set_water_hgt_nocheck( k, water_table );
 			water_hgt = water_table;
 		}
 		else if(  new_slope == ALL_UP_SLOPE  ) {
@@ -1352,7 +1352,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				gr1->obj_loesche_alle(player);
 				welt->access(k)->kartenboden_setzen( new boden_t(new_pos,new_slope) );
 				gr1 = welt->lookup_kartenboden(k);
-				welt->set_water_hgt(k, welt->get_groundwater()-4);
+				welt->set_water_hgt_nocheck(k, welt->get_groundwater()-4);
 			}
 			else {
 				gr1->set_grund_hang(new_slope);
@@ -1414,10 +1414,10 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				// correct the grid height
 				if(  gr1->is_water()  ) {
 					sint8 grid_hgt = min( water_hgt, welt->lookup_hgt( k ) );
-					welt->set_grid_hgt(k, grid_hgt );
+					welt->set_grid_hgt_nocheck(k, grid_hgt );
 				}
 				else {
-					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
+					welt->set_grid_hgt_nocheck(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
 				minimap_t::get_instance()->calc_map_pixel(k);
 
@@ -1875,7 +1875,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						}
 						if(  ok  ) {
 							gr->obj_loesche_alle( NULL );
-							welt->set_water_hgt( k, hgt - 1 );
+							welt->set_water_hgt_nocheck( k, hgt - 1 );
 							welt->access(k)->correct_water();
 						}
 					}
@@ -1895,7 +1895,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 					}
 					if(  ok  ) {
 						gr->obj_loesche_alle( NULL );
-						welt->set_water_hgt( k, gr->get_pos().z );
+						welt->set_water_hgt_nocheck( k, gr->get_pos().z );
 						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
 						minimap_t::get_instance()->calc_map_pixel( k );
@@ -2121,7 +2121,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 				const uint8 sneu = (hneu_sw - hneu > 2 ? 2 : hneu_sw - hneu) + ((hneu_se - hneu > 2 ? 2 : hneu_se-hneu) * 3) + ((hneu_ne - hneu > 2 ? 2 : hneu_ne - hneu) * 9) + ((hneu_nw - hneu > 2 ? 2 : hneu_nw - hneu) * 27);
 				gr2->set_grund_hang( sneu );
 
-				welt->set_water_hgt(x, y, new_water_height );
+				welt->set_water_hgt_nocheck(x, y, new_water_height );
 				welt->access(x, y)->correct_water();
 				welt->calc_climate( koord( x, y ), true );
 			}

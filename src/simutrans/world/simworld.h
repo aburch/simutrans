@@ -27,6 +27,8 @@
 #include "../utils/sha1_hash.h"
 
 #include "simplan.h"
+#include "surface.h"
+
 #include "../simdebug.h"
 
 
@@ -63,7 +65,7 @@ typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
  * The map is the central part of the simulation. It stores all data and objects.
  * @brief Stores all data and objects of the simulated world.
  */
-class karte_t
+class karte_t : public surface_t
 {
 	friend karte_t* world();  // to access the single instance
 	friend class karte_ptr_t; // to access the single instance
@@ -135,26 +137,6 @@ private:
 	 */
 	settings_t settings;
 
-	/**
-	 * For performance reasons we have the map grid size cached locally, comes from the environment (Einstellungen)
-	 * @brief Cached map grid size.
-	 * @note Valid coords are (0..x-1,0..y-1)
-	 */
-	koord cached_grid_size;
-
-	/**
-	 * For performance reasons we have the map size cached locally, comes from the environment (Einstellungen).
-	 * @brief Cached map size.
-	 * @note Valid coords are (0..x-1,0..y-1)
-	 * @note These values are one less than the size values of the grid.
-	 */
-	koord cached_size;
-
-	/**
-	 * @brief The maximum of the two dimensions.
-	 * Maximum size for waiting bars etc.
-	 */
-	int cached_size_max;
 	/** @} */
 
 	/**
@@ -223,17 +205,6 @@ private:
 	bool nosave_warning;
 
 	/**
-	 * Water level height.
-	 */
-	sint8 groundwater;
-
-	/**
-	 * Current snow height.
-	 * @note Might change during the game.
-	 */
-	sint16 snowline;
-
-	/**
 	 * Changes the season and/or snowline height
 	 */
 	void recalc_season_snowline(bool set_pending);
@@ -248,24 +219,6 @@ private:
 	 * Recalculates sleep time etc.
 	 */
 	void update_frame_sleep_time();
-
-	/**
-	 * Table for fast conversion from height to climate.
-	 */
-	uint8 height_to_climate[256];
-	uint8 num_climates_at_height[256];
-
-	/**
-	* Contains the intended climate for a tile
-	* (needed to restore tiles after height changes)
-	*/
-	array2d_tpl<uint8>climate_map;
-
-	/**
-	* Contains the intended climate for a tile
-	* (needed to restore tiles after height changes)
-	*/
-	array2d_tpl<uint8>humidity_map;
 
 	/**
 	 * Array containing the convois.
@@ -319,50 +272,12 @@ private:
 	 */
 	interaction_t *eventmanager;
 
-public:
-	/**
-	 * Raise grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
-	 * @see clean_up
-	 */
-	void raise_grid_to(sint16 x, sint16 y, sint8 h);
-
-	/**
-	 * Lower grid point (@p x,@p y). Changes grid_hgts only, used during map creation/enlargement.
-	 * @see clean_up
-	 */
-	void lower_grid_to(sint16 x, sint16 y, sint8 h);
-
 private:
 	/**
 	 * The fractal generation of the map is not perfect.
 	 * cleanup_karte() eliminates errors.
 	 */
 	void cleanup_karte( int xoff, int yoff );
-
-	/**
-	 * @name Map data structures
-	 *       This variables represent the simulated map.
-	 * @{
-	 */
-
-	/**
-	 * Array containing all the map tiles.
-	 * @see cached_size
-	 */
-	planquadrat_t *plan;
-
-	/**
-	 * Array representing the height of each point of the grid.
-	 * @see cached_grid_size
-	 */
-	sint8 *grid_hgts;
-
-	/**
-	 * Array representing the height of water on each point of the grid.
-	 * @see cached_grid_size
-	 */
-	sint8 *water_hgts;
-	/** @} */
 
 	/**
 	 * @name Player management
@@ -511,12 +426,6 @@ private:
 	sint32 last_year;
 
 	/**
-	 * Current season.
-	 * @note 0=winter, 1=spring, 2=summer, 3=autumn
-	 */
-	uint8 season;
-
-	/**
 	 * Number of steps since creation.
 	 */
 	sint32 steps;
@@ -560,16 +469,6 @@ private:
 	 * To identify different stages of the same game.
 	 */
 	uint32 map_counter;
-
-	/**
-	 * the maximum allowed world height.
-	 */
-	sint8 world_maximum_height;
-
-	/**
-	 * the minimum allowed world height.
-	 */
-	sint8 world_minimum_height;
 
 	/**
 	 * Recalculated speed bonus for different vehicles.
@@ -660,6 +559,10 @@ private:
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
+	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16, sint16, sint16, sint16) const;
+
+	void flood_to_depth(sint8 new_water_height, sint8 *stage);
+
 public:
 	enum server_announce_type_t
 	{
@@ -674,9 +577,6 @@ public:
 	 * or offline (the latter only in cases where it is shutting down)
 	 */
 	void announce_server(server_announce_type_t status);
-
-	/// cache the current maximum and minimum height on the map
-	sint8 max_height, min_height;
 
 	/**
 	 * Returns the messagebox message container.
@@ -983,6 +883,7 @@ public:
 
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
+	 * Here instead of in surface_t because this is required for the script API
 	 */
 	uint8 get_season() const { return season; }
 
@@ -1026,90 +927,14 @@ public:
 	uint32 get_simloops() const { return simloops; }
 
 	/**
-	 * Returns the current waterline height.
-	 */
-	sint8 get_groundwater() const { return groundwater; }
-
-	/**
-	 * Returns the minimum allowed height on the map.
-	 */
-	sint8 get_minimumheight() const { return world_minimum_height; }
-
-	/**
-	 * Returns the maximum allowed world height.
-	 */
-	sint8 get_maximumheight() const { return world_maximum_height; }
-
-	/**
 	 * Returns the current snowline height.
 	 */
-	sint16 get_snowline() const { return snowline; }
-
-	/**
-	 * Initializes the height_to_climate field from settings.
-	 */
-	void init_height_to_climate();
-
-	/**
-	 * Returns the climate for a given height, ruled by world creation settings.
-	 * Used to determine climate when terraforming, loading old games, etc.
-	 */
-	climate get_climate_at_height(sint16 height) const
-	{
-		const sint16 h=height-groundwater;
-		if(h<0) {
-			return water_climate;
-		}
-		else if(  (uint)h >= lengthof(height_to_climate)  ) {
-			return arctic_climate;
-		}
-		return (climate)height_to_climate[h];
-	}
-
-	/**
-	 * returns the current climate for a given koordinate
-	 */
-	inline climate get_climate(koord k) const {
-		const planquadrat_t *plan = access(k);
-		return plan ? plan->get_climate() : water_climate;
-	}
-
-	/**
-	 * sets the current climate for a given koordinate
-	 */
-	inline void set_climate(koord k, climate cl, bool recalc) {
-		planquadrat_t *plan = access(k);
-		if(  plan  ) {
-			plan->set_climate(cl);
-			if(  recalc  ) {
-				recalc_transitions(k);
-				for(  int i = 0;  i < 8;  i++  ) {
-					recalc_transitions( k + koord::neighbours[i] );
-				}
-			}
-		}
-	}
+	sint8 get_snowline() const { return snowline; }
 
 	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; }
 	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; }
 
-private:
-	/**
-	 * Dummy method, to generate compiler error if someone tries to call get_climate( int ),
-	 * as the int parameter will silently be cast to koord...
-	 */
-	climate get_climate(sint16) const;
-
-	/**
-	 * iterates over the map starting from k setting the water height
-	 * lakes are left where there is no drainage
-	 */
-	void drain_tile(koord k, sint8 water_height);
-	bool can_flood_to_depth(koord k, sint8 new_water_height, sint8 *stage, sint8 *our_stage, sint16, sint16, sint16, sint16) const;
-
 public:
-	void flood_to_depth(sint8 new_water_height, sint8 *stage);
-
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
@@ -1126,198 +951,6 @@ public:
 	 * Takes network and scenarios into account.
 	 */
 	const char* call_work(tool_t *t, player_t *pl, koord3d pos, bool &suspended);
-
-	/**
-	 * Returns the size in tiles of the map.
-	 * @note Valid coords are (0..x-1,0..y-1)
-	 * @note These values are exactly one less then get_grid_size ones.
-	 * @see get_grid_size()
-	 */
-	inline koord const &get_size() const { return cached_grid_size; }
-
-	/// Returns the maximum possible index when accessing tiles.
-	/// Valid tiles are in the range (0..x, 0..y)
-	inline koord get_max_tile_index() const { return cached_size; }
-
-	/**
-	 * Maximum size for waiting bars etc.
-	 */
-	inline int get_size_max() const { return cached_size_max; }
-
-	/**
-	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_limits(sint16 x, sint16 y) const {
-	// since negative values will make the whole result negative, we can use bitwise or
-	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (x|y|(cached_size.x-x)|(cached_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
-	}
-
-	/**
-	 * @return True if the specified coordinate is inside the world tiles(planquadrat_t) limits, false otherwise.
-	 * @param k (x,y) coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_limits(koord k) const { return is_within_limits(k.x, k.y); }
-
-	/**
-	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_grid_limits(sint16 x, sint16 y) const {
-	// since negative values will make the whole result negative, we can use bitwise or
-	// faster, since pentiums and other long pipeline processors do not like jumps
-		return (x|y|(cached_grid_size.x-x)|(cached_grid_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
-	}
-
-	/**
-	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
-	 * @param k (x,y) coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_grid_limits(const koord &k) const { return is_within_grid_limits(k.x, k.y); }
-
-	/**
-	 * @return True if the specified coordinate is inside the world height grid limits, false otherwise.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
-	 * @note Inline because called very frequently!
-	 */
-	inline bool is_within_grid_limits(uint16 x, uint16 y) const {
-		return (x<=(unsigned)cached_grid_size.x && y<=(unsigned)cached_grid_size.y);
-	}
-
-	/**
-	 * Returns the closest coordinate to outside_pos that is within the world
-	 */
-	koord get_closest_coordinate(koord outside_pos);
-
-	/**
-	 * @return grund an pos/hoehe
-	 * @note Inline because called very frequently!
-	 */
-	inline grund_t *lookup(const koord3d &pos) const
-	{
-		const planquadrat_t *plan = access(pos.x, pos.y);
-		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
-	}
-
-	/**
-	 * This function takes grid coordinates as a parameter and a desired height (koord3d).
-	 * Will return the ground_t object that intersects with it in it's north corner if possible.
-	 * If that tile doesn't exist, returns the one that intersects with it in other corner.
-	 * @param pos Grid coordinates to check for, the z points to the desired height.
-	 * @see lookup_kartenboden_gridcoords
-	 * @see corner_to_operate
-	 * @note Inline because called very frequently!
-	 */
-	inline grund_t *lookup_gridcoords(const koord3d &pos) const
-	{
-		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return lookup(koord3d(pos.x, pos.y, pos.z));
-		}
-
-		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
-			return lookup(koord3d(pos.x-1, pos.y-1, pos.z));
-		}
-		else if ( pos.x == cached_grid_size.x ) {
-			return lookup(koord3d(pos.x-1, pos.y, pos.z));
-		}
-		return lookup(koord3d(pos.x, pos.y-1, pos.z));
-	}
-
-	/**
-	 * This function takes 2D grid coordinates as a parameter, will return the ground_t object that
-	 * intersects with it in it's north corner if possible. If that tile doesn't exist, returns
-	 * the one that intersects with it in other corner.
-	 * @param pos Grid coordinates to check for.
-	 * @see corner_to_operate
-	 * @see lookup_gridcoords
-	 * @return The requested tile, or the immediately adjacent in case of lower border.
-	 * @note Inline because called very frequently!
-	 */
-	inline grund_t *lookup_kartenboden_gridcoords(const koord &pos) const
-	{
-		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return lookup_kartenboden(pos);
-		}
-
-		if ( ( pos.x == cached_grid_size.x )  &&  ( pos.y == cached_grid_size.y ) ) {
-			return access(koord(pos.x-1, pos.y-1))->get_kartenboden();
-		}
-		else if ( pos.x == cached_grid_size.x ) {
-			return access(koord(pos.x-1, pos.y))->get_kartenboden();
-		}
-		return access(koord(pos.x, pos.y-1))->get_kartenboden();
-	}
-
-	/**
-	 * @return The corner that needs to be raised/lowered on the given coordinates.
-	 * @param pos Grid coordinate to check.
-	 * @note Inline because called very frequently!
-	 * @note Will always return north-west except on border tiles.
-	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
-	 */
-	inline slope4_t::type get_corner_to_operate(const koord &pos) const
-	{
-		// Normal tile
-		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return slope4_t::corner_NW;
-		}
-		// Border on south-east
-		if ( is_within_limits(pos.x-1, pos.y) ) {
-			return(slope4_t::corner_NE);
-		}
-		// Border on south-west
-		if ( is_within_limits(pos.x, pos.y-1) ) {
-			return(slope4_t::corner_SW);
-		}
-		// Border on south
-		return (slope4_t::corner_SE);
-	}
-
-
-public:
-	/**
-	 * @return grund at the bottom (where house will be build)
-	 * @note Inline because called very frequently! - nocheck for more speed
-	 */
-	inline grund_t *lookup_kartenboden_nocheck(const sint16 x, const sint16 y) const
-	{
-		return plan[x+y*cached_grid_size.x].get_kartenboden();
-	}
-
-	inline grund_t *lookup_kartenboden_nocheck(const koord &pos) const { return lookup_kartenboden_nocheck(pos.x, pos.y); }
-public:
-	/**
-	 * @return grund at the bottom (where house will be build)
-	 * @note Inline because called very frequently!
-	 */
-	inline grund_t *lookup_kartenboden(const sint16 x, const sint16 y) const
-	{
-		return is_within_limits(x, y) ? plan[x+y*cached_grid_size.x].get_kartenboden() : NULL;
-	}
-
-	inline grund_t *lookup_kartenboden(const koord &pos) const { return lookup_kartenboden(pos.x, pos.y); }
-
-	/**
-	 * @return The natural slope at a position.
-	 * @note Uses the corner height for the best slope.
-	 */
-	slope_t::type recalc_natural_slope( const koord k, sint8 &new_height ) const;
-
-	/**
-	 * Returns the natural slope a a position using the grid.
-	 * @note No checking, and only using the grind for calculation.
-	 */
-	slope_t::type calc_natural_slope( const koord k ) const;
 
 	 /**
 	  * Initialize map.
@@ -1339,30 +972,7 @@ public:
 	 */
 	uint32 load_version;
 
-	/**
-	 * Checks if the whole planquadrat (tile) at coordinates (x,y) height can
-	 * be changed ( for example, water height can't be changed ).
-	 */
-	bool is_plan_height_changeable(sint16 x, sint16 y) const;
-
-	/**
-	 * Increases the height of the grid coordinate (x, y) by one.
-	 * @param pos Grid coordinate.
-	 */
-	int grid_raise(const player_t *player, koord pos, const char*&err);
-
-	/**
-	 * Decreases the height of the grid coordinate (x, y) by one.
-	 * @param pos Grid coordinate.
-	 */
-	int grid_lower(const player_t *player, koord pos, const char*&err);
-
-	// mostly used by AI: Ask to flatten a tile
-	bool can_flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
-	bool flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
-
 public:
-
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t);
 	void rem_convoi(convoihandle_t);
@@ -1448,88 +1058,6 @@ public:
 	void step();
 
 public:
-	inline planquadrat_t *access_nocheck(int i, int j) const {
-		return &plan[i + j*cached_grid_size.x];
-	}
-
-	inline planquadrat_t *access_nocheck(koord k) const { return access_nocheck(k.x, k.y); }
-
-public:
-	inline planquadrat_t *access(int i, int j) const {
-		return is_within_limits(i, j) ? &plan[i + j*cached_grid_size.x] : NULL;
-	}
-
-	inline planquadrat_t *access(koord k) const { return access(k.x, k.y); }
-
-public:
-	/**
-	 * @return Height at the grid point i, j - versions without checks for speed
-	 */
-	inline sint8 lookup_hgt_nocheck(sint16 x, sint16 y) const {
-		return grid_hgts[x + y*(cached_grid_size.x+1)];
-	}
-
-	inline sint8 lookup_hgt_nocheck(koord k) const { return lookup_hgt_nocheck(k.x, k.y); }
-
-public:
-	/**
-	 * @return Height at the grid point i, j
-	 */
-	inline sint8 lookup_hgt(sint16 x, sint16 y) const {
-		return is_within_grid_limits(x, y) ? grid_hgts[x + y*(cached_grid_size.x+1)] : groundwater;
-	}
-
-	inline sint8 lookup_hgt(koord k) const { return lookup_hgt(k.x, k.y); }
-
-	/**
-	 * Sets grid height.
-	 * Never set grid_hgts manually, always use this method!
-	 */
-	void set_grid_hgt(sint16 x, sint16 y, sint8 hgt) { grid_hgts[x + y*(uint32)(cached_grid_size.x+1)] = hgt; }
-
-	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
-
-public:
-	void get_height_slope_from_grid(koord k, sint8 &hgt, slope_t::type &slope);
-
-public:
-	/**
-	 * @return water height - versions without checks for speed
-	 */
-	inline sint8 get_water_hgt_nocheck(sint16 x, sint16 y) const {
-		return water_hgts[x + y * (cached_grid_size.x)];
-	}
-
-	inline sint8 get_water_hgt_nocheck(koord k) const { return get_water_hgt_nocheck(k.x, k.y); }
-
-public:
-	/**
-	 * @return water height
-	 */
-	inline sint8 get_water_hgt(sint16 x, sint16 y) const {
-		return is_within_limits( x, y ) ? water_hgts[x + y * (cached_grid_size.x)] : groundwater;
-	}
-
-	inline sint8 get_water_hgt(koord k) const { return get_water_hgt(k.x, k.y); }
-
-
-	/**
-	 * Sets water height.
-	 */
-	void set_water_hgt(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * (cached_grid_size.x)] = (hgt); }
-
-	inline void set_water_hgt(koord k, sint8 hgt) {  set_water_hgt(k.x, k.y, hgt); }
-
-	/**
-	 * Fills array with corner heights of neighbours
-	 */
-	void get_neighbour_heights(const koord k, sint8 neighbour_height[8][4]) const;
-
-	/**
-	 * Calculates appropriate climate for a tile
-	 */
-	void calc_climate(koord k, bool recalc);
-
 	/**
 	* Calculates appropriate climate for a region using elliptic areas for each
 	*/
@@ -1551,16 +1079,6 @@ public:
 	void distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom, sint16 ybottom );
 
 	/**
-	 * Rotates climate and water transitions for a tile
-	 */
-	void rotate_transitions(koord k);
-
-	/**
-	 * Recalculate climate and water transitions for a tile
-	 */
-	void recalc_transitions(koord k);
-
-	/**
 	 * Loop recalculating transitions - suitable for multithreading
 	 */
 	void recalc_transitions_loop(sint16, sint16, sint16, sint16);
@@ -1569,38 +1087,6 @@ public:
 	 * Loop cleans grounds so that they have correct boden and slope - suitable for multithreading
 	 */
 	void cleanup_grounds_loop(sint16, sint16, sint16, sint16);
-
-public:
-	/**
-	 * @return Minimum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
-	 */
-	sint8 min_hgt_nocheck(koord k) const;
-
-	/**
-	 * @return Maximum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
-	 */
-	sint8 max_hgt_nocheck(koord k) const;
-
-public:
-	/**
-	 * @return Minimum height of the planquadrats (tile) at i, j.
-	 */
-	sint8 min_hgt(koord k) const;
-
-	/**
-	 * @return Maximum height of the planquadrats (tile) at i, j.
-	 */
-	sint8 max_hgt(koord k) const;
-
-	/**
-	 * @return true, wenn Platz an Stelle pos mit Groesse dim Water ist
-	 */
-	bool is_water(koord k, koord dim) const;
-
-	/**
-	 * @return true, if square in place (i,j) with size w, h is constructible.
-	 */
-	bool square_is_free(koord k, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
 
 	/**
 	 * @return A list of all buildable squares with size w, h.

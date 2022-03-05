@@ -284,7 +284,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_southeast += corner_se(slope);
 			}
-			welt->set_grid_hgt( k + koord(1,1), z_southeast );
+			welt->set_grid_hgt_nocheck( k + koord(1,1), z_southeast );
 		}
 		if(  pos.x == welt->get_size().x-1  ) {
 			sint8 z_east = z;
@@ -294,7 +294,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_east += corner_ne(slope);
 			}
-			welt->set_grid_hgt( k + koord(1,0), z_east );
+			welt->set_grid_hgt_nocheck( k + koord(1,0), z_east );
 		}
 		if(  pos.y == welt->get_size().y-1  ) {
 			sint8 z_south = z;
@@ -304,7 +304,7 @@ void grund_t::rdwr(loadsave_t *file)
 			else {
 				z_south += corner_sw(slope);
 			}
-			welt->set_grid_hgt( k + koord(0,1), z_south );
+			welt->set_grid_hgt_nocheck( k + koord(0,1), z_south );
 		}
 
 		if(  get_typ() == grund_t::wasser  &&  z > z_w  ) {
@@ -313,8 +313,8 @@ void grund_t::rdwr(loadsave_t *file)
 		else {
 			z += corner_nw(slope);
 		}
-		welt->set_grid_hgt( k, z );
-		welt->set_water_hgt( k, z_w );
+		welt->set_grid_hgt_nocheck( k, z );
+		welt->set_water_hgt_nocheck( k, z_w );
 	}
 
 	// loading ways from here on

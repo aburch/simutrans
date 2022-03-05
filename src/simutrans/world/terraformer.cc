@@ -37,11 +37,11 @@ bool terraformer_t::node_t::operator==(const terraformer_t::node_t &a) const
 }
 
 
-terraformer_t::terraformer_t(karte_t *w, operation_t op) :
+terraformer_t::terraformer_t(operation_t op, karte_t *welt) :
 	actual_flag(1),
 	ready(false),
 	op(op),
-	welt(w)
+	welt(welt)
 {
 }
 
@@ -329,7 +329,7 @@ const char* terraformer_t::can_lower_tile_to(const node_t &node, const player_t 
 
 	const sint8 hneu = min( min( node.hsw, node.hse ), min( node.hne, node.hnw ) );
 
-	if( hneu < welt->get_minimumheight() ) {
+	if( hneu < welt->get_min_allowed_height() ) {
 		return "Maximum tile height difference reached.";
 	}
 
@@ -396,34 +396,34 @@ int terraformer_t::raise_to(const node_t &node)
 		gr->set_pos( koord3d( node.x, node.y, disp_hneu ) );
 		gr->set_grund_hang( sneu );
 		welt->access_nocheck(node.x,node.y)->angehoben();
-		welt->set_water_hgt(node.x, node.y, welt->get_groundwater()-4);
+		welt->set_water_hgt_nocheck(node.x, node.y, welt->get_groundwater()-4);
 	}
 
 	// update north point in grid
-	welt->set_grid_hgt(node.x, node.y, hn_nw);
+	welt->set_grid_hgt_nocheck(node.x, node.y, hn_nw);
 	welt->calc_climate(koord(node.x,node.y), true);
 
-	if ( node.x == welt->get_max_tile_index().x ) {
+	if ( node.x+1 == welt->get_size().x ) {
 		// update eastern grid coordinates too if we are in the edge.
-		welt->set_grid_hgt(node.x+1, node.y, hn_ne);
-		welt->set_grid_hgt(node.x+1, node.y+1, hn_se);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y, hn_ne);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
 	}
 
-	if ( node.y == welt->get_max_tile_index().y ) {
+	if ( node.y+1 == welt->get_size().y ) {
 		// update southern grid coordinates too if we are in the edge.
-		welt->set_grid_hgt(node.x,   node.y+1, hn_sw);
-		welt->set_grid_hgt(node.x+1, node.y+1, hn_se);
+		welt->set_grid_hgt_nocheck(node.x,   node.y+1, hn_sw);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
 	}
 
 	n += hn_sw - h0_sw + hn_se - h0_se + hn_ne - h0_ne  + hn_nw - h0_nw;
 
 	welt->lookup_kartenboden_nocheck(node.x,node.y)->calc_image();
 
-	if ( (node.x+1) < welt->get_max_tile_index().x ) {
+	if ( (node.x+2) < welt->get_size().x ) {
 		welt->lookup_kartenboden_nocheck(node.x+1,node.y)->calc_image();
 	}
 
-	if ( (node.y+1) < welt->get_max_tile_index().y ) {
+	if ( (node.y+2) < welt->get_size().y ) {
 		welt->lookup_kartenboden_nocheck(node.x,node.y+1)->calc_image();
 	}
 
@@ -523,7 +523,7 @@ int terraformer_t::lower_to(const node_t &node)
 		// this prevents severe (errors!
 		if(  water_table < welt->get_water_hgt_nocheck(node.x,node.y)  ) {
 			water_hgt = water_table;
-			welt->set_water_hgt(node.x, node.y, water_table );
+			welt->set_water_hgt_nocheck(node.x, node.y, water_table );
 		}
 	}
 
@@ -543,17 +543,17 @@ int terraformer_t::lower_to(const node_t &node)
 	}
 
 	// update north point in grid
-	welt->set_grid_hgt(node.x, node.y, hn_nw);
-	if ( node.x == welt->get_max_tile_index().x ) {
+	welt->set_grid_hgt_nocheck(node.x, node.y, hn_nw);
+	if ( node.x+1 == welt->get_size().x ) {
 		// update eastern grid coordinates too if we are in the edge.
-		welt->set_grid_hgt(node.x+1, node.y,   hn_ne);
-		welt->set_grid_hgt(node.x+1, node.y+1, hn_se);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y,   hn_ne);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
 	}
 
-	if ( node.y == welt->get_max_tile_index().y ) {
+	if ( node.y+1 == welt->get_size().y ) {
 		// update southern grid coordinates too if we are in the edge.
-		welt->set_grid_hgt(node.x,   node.y+1, hn_sw);
-		welt->set_grid_hgt(node.x+1, node.y+1, hn_se);
+		welt->set_grid_hgt_nocheck(node.x,   node.y+1, hn_sw);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
 	}
 
 	// water heights
@@ -572,7 +572,7 @@ int terraformer_t::lower_to(const node_t &node)
 					welt->raise_grid_to( neighbour.x + 1, neighbour.y + 1, water_hgt_neighbour );
 				}
 
-				welt->set_water_hgt( neighbour, hneu );
+				welt->set_water_hgt_nocheck( neighbour, hneu );
 				welt->access_nocheck(neighbour)->correct_water();
 			}
 		}
@@ -596,11 +596,11 @@ int terraformer_t::lower_to(const node_t &node)
 	n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
 
 	welt->lookup_kartenboden_nocheck(node.x,node.y)->calc_image();
-	if( (node.x+1) < welt->get_max_tile_index().x ) {
+	if( (node.x+2) < welt->get_size().x ) {
 		welt->lookup_kartenboden_nocheck(node.x+1,node.y)->calc_image();
 	}
 
-	if( (node.y+1) < welt->get_max_tile_index().y ) {
+	if( (node.y+2) < welt->get_size().y ) {
 		welt->lookup_kartenboden_nocheck(node.x,node.y+1)->calc_image();
 	}
 
@@ -611,6 +611,7 @@ int terraformer_t::lower_to(const node_t &node)
 const char *terraformer_t::can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = welt->access(x,y);
+	const settings_t &settings = welt->get_settings();
 
 	if(  plan==NULL  ) {
 		return "";
@@ -635,11 +636,11 @@ const char *terraformer_t::can_lower_plan_to(const player_t *player, sint16 x, s
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
 
-	if(  !gr  && welt->get_settings().get_way_height_clearance()==2  ) {
+	if(  !gr  && settings.get_way_height_clearance()==2  ) {
 		gr = plan->get_boden_in_hoehe( h - 3 );
 	}
 
-	if(  gr  &&  h < gr->get_pos().z + slope_t::max_diff( gr->get_weg_hang() ) + welt->get_settings().get_way_height_clearance()  ) {
+	if(  gr  &&  h < gr->get_pos().z + slope_t::max_diff( gr->get_weg_hang() ) + settings.get_way_height_clearance()  ) {
 		return "";
 	}
 

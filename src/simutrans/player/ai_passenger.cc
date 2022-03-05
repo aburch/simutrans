@@ -488,7 +488,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 			// ensure is land
 			grund_t* bd = welt->lookup_kartenboden(pos+koord(j,i));
 			if (bd->get_typ() == grund_t::wasser) {
-				welt->set_water_hgt(pos+koord(j,i), bd->get_hoehe()-1);
+				welt->set_water_hgt_nocheck(pos+koord(j,i), bd->get_hoehe()-1);
 				welt->access(pos+koord(j,i))->correct_water();
 				welt->set_climate(pos+koord(j,i), c, true);
 			}

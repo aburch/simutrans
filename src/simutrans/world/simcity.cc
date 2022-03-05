@@ -3467,7 +3467,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		// kartenboden may have changed - also ensure is land
 		bd = welt->lookup_kartenboden(k);
 		if (bd->get_typ() == grund_t::wasser) {
-			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->set_water_hgt_nocheck(k, bd->get_hoehe()-1);
 			welt->access(k)->correct_water();
 			welt->set_climate(k, c, true);
 			bd = welt->lookup_kartenboden(k);

@@ -59,7 +59,7 @@ private:
 	};
 
 public:
-	terraformer_t(karte_t *world, terraformer_t::operation_t op);
+	terraformer_t(terraformer_t::operation_t op, karte_t *welt);
 
 public:
 	/// Add tile to be raised/lowered.

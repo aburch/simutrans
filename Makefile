@@ -605,6 +605,7 @@ SOURCES += src/simutrans/world/placefinder.cc
 SOURCES += src/simutrans/world/simcity.cc
 SOURCES += src/simutrans/world/simplan.cc
 SOURCES += src/simutrans/world/simworld.cc
+SOURCES += src/simutrans/world/surface.cc
 SOURCES += src/simutrans/world/terraformer.cc
 SOURCES += src/squirrel/sq_extensions.cc
 SOURCES += src/squirrel/sqstdlib/sqstdaux.cc
