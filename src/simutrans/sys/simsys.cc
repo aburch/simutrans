@@ -444,9 +444,10 @@ char const *dr_query_installdir()
 	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		sprintf(buffer, "%s/simutrans", getenv("HOME"));
-	} else {
-		sprintf(buffer, "%s/simutrans", getenv("XDG_DATA_HOME"));
+		sprintf(buffer, "%s/simutrans/simutrans", getenv("HOME"));
+	}
+	else {
+		sprintf(buffer, "%s/simutrans/simutrans", getenv("XDG_DATA_HOME"));
 	}
 #endif
 

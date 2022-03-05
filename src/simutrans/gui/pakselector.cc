@@ -43,7 +43,7 @@ pakselector_t::pakselector_t() :
 	resize(scr_coord(0,0));
 
 	add_path( env_t::base_dir );
-	if(  !strcmp(env_t::base_dir,env_t::install_dir)  ) {
+	if(  strcmp(env_t::base_dir,env_t::install_dir)  ) {
 		add_path( env_t::install_dir );
 	}
 	dr_chdir( env_t::user_dir );
@@ -60,6 +60,7 @@ pakselector_t::pakselector_t() :
 bool pakselector_t::item_action(const char *fullpath)
 {
 	env_t::pak_dir = fullpath;
+	env_t::pak_dir += PATH_SEPARATOR;
 	env_t::pak_name = (get_filename(fullpath)+PATH_SEPARATOR);
 	env_t::default_settings.set_with_private_paks( false );
 
@@ -110,7 +111,8 @@ void pakselector_t::fill_list()
 	// do the search ...
 	savegame_frame_t::fill_list();
 
-	entries.sort(dir_entry_t::compare);
+	// do not sort or the path names are in the wrong positions
+//	entries.sort(dir_entry_t::compare);
 
 	for(dir_entry_t &i : entries) {
 

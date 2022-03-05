@@ -513,20 +513,23 @@ static bool set_pakdir( const char* pak )
 	char tmp[PATH_MAX];
 	dr_chdir( env_t::base_dir );
 	if( !dr_chdir( pak ) ) {
-		dr_getcwd(tmp, lengthof(tmp)-1);
+		dr_getcwd(tmp, lengthof(tmp));
+		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::install_dir );
 	if( !dr_chdir( pak ) ) {
-		dr_getcwd(tmp, lengthof(tmp)-1);
+		dr_getcwd(tmp, lengthof(tmp));
+		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::user_dir );
-	if(!dr_chdir( "paksets" ) ) {
+	if(!dr_chdir( "simutrans" ) ) {
 		if( !dr_chdir( pak ) ) {
-			dr_getcwd(tmp, lengthof(tmp)-1);
+			dr_getcwd(tmp, lengthof(tmp));
+			env_t::pak_dir = tmp;
 			env_t::pak_dir += PATH_SEPARATOR;
 			return true;
 		}
@@ -630,25 +633,26 @@ int simu_main(int argc, char** argv)
 	// parsing config/simuconf.tab to find out single user install
 	bool found_settings = false;
 	bool found_simuconf = false;
-	bool multiuser = !args.has_arg("-singleuser");
+	bool not_portable = !args.has_arg("-singleuser");
 
 	// only parse global config, if not force to portable by switch
 	tabfile_t simuconf;
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
 	sprintf( path_to_simuconf, "config%csimuconf.tab", PATH_SEPARATOR[0] );
-	if(  multiuser  &&  simuconf.open( path_to_simuconf )  ) {
+	if(  not_portable  &&  simuconf.open( path_to_simuconf )  ) {
 		tabfileobj_t contents;
 		simuconf.read( contents );
 		// use different save directories
-		multiuser = !(contents.get_int( "singleuser_install", !multiuser )==1  ||  !multiuser);
+		not_portable = !(contents.get_int( "singleuser_install", !not_portable )==1  ||  !not_portable);
 		found_simuconf = true;
 		simuconf.close();
 	}
 
 	if( !set_predefined_dir( args.gimme_arg( "-set_installdir", 1 ), "-set_installdir", env_t::install_dir ) ) {
 		if( !set_predefined_dir( getenv( "SIMUTRANS_INSTALLDIR" ), "SIMUTRANS_INSTALLDIR", env_t::install_dir ) ) {
-			if( !multiuser ) {
+			if( !not_portable ) {
+				// portable installation
 				strcpy( env_t::install_dir, env_t::base_dir );
 			}
 			else {
@@ -659,7 +663,7 @@ int simu_main(int argc, char** argv)
 
 	if( !set_predefined_dir( args.gimme_arg( "-set_userdir", 1 ), "-set_userdir", env_t::user_dir ) ) {
 		if( !set_predefined_dir( getenv( "SIMUTRANS_USERDIR" ), "SIMUTRANS_USERDIR", env_t::user_dir ) ) {
-			if( !multiuser ) {
+			if( !not_portable ) {
 				strcpy( env_t::user_dir, env_t::base_dir );
 			}
 			else {
@@ -667,6 +671,8 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+	// set portable, if base dir and user dir were same
+	not_portable &= strcmp( env_t::user_dir, env_t::base_dir )!=0;
 
 	dr_chdir( env_t::user_dir );
 	dr_mkdir("maps");
@@ -722,10 +728,15 @@ int simu_main(int argc, char** argv)
 
 	// a portable installation could have a personal simuconf.tab in the main dir of simutrans
 	// otherwise it is in ~/simutrans/simuconf.tab
+	env_t::pak_dir.clear();
+	env_t::pak_name.clear();
 	string obj_conf = string(env_t::user_dir) + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
 		dbg->message("simu_main()", "Parsing %s", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::pak_name );
+		if(  set_pakdir( env_t::pak_name.c_str() )  ) {
+			env_t::pak_name += PATH_SEPARATOR;
+		}
 		simuconf.close();
 	}
 
@@ -740,12 +751,11 @@ int simu_main(int argc, char** argv)
 #endif
 
 	// now set the desired objectfilename (override all previous settings)
-	env_t::pak_dir.clear();
 	if(  const char *fn = args.gimme_arg("-set_pakdir", 1)  ) {
 		if(!set_pakdir(fn)) {
 			// try as absolute path
 			char tmp[PATH_MAX];
-			if( set_predefined_dir( fn, "-set_pakdir", tmp ) ) {
+			if( set_predefined_dir( fn, "-set_pakdir", tmp, "config/menuconf.tab" ) ) {
 				env_t::pak_dir = tmp;
 				// to be done => extrat pak name!!!
 				const char *last_pathsep=0;
@@ -765,10 +775,11 @@ int simu_main(int argc, char** argv)
 		}
 		else {
 			env_t::pak_name = fn;
+			env_t::pak_name += PATH_SEPARATOR;
 		}
 	}
 
-	if( env_t::pak_dir.empty() ) {
+	if(  env_t::pak_dir.empty()  ) {
 		// old style (deprecated)
 		if( const char* pak = args.gimme_arg( "-objects", 1 ) ) {
 			if( set_pakdir( pak ) ) {
@@ -778,7 +789,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if( env_t::pak_dir.empty() ) {
+	if(  env_t::pak_dir.empty()  ) {
 		if(  const char *filename = args.gimme_arg("-load", 1)  ) {
 			// try to get a pak file path from a savegame file
 			// read pak_extension from file
@@ -798,6 +809,7 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+	dr_chdir( env_t::base_dir );
 
 	// starting a server?
 	if(  args.has_arg("-easyserver")  ) {
@@ -1063,20 +1075,15 @@ int simu_main(int argc, char** argv)
 
 	// check for valid pak path
 	{
-		cbuffer_t buf;
-		buf.append( env_t::base_dir );
-		buf.append( env_t::pak_name.c_str() );
-		buf.append("ground.Outside.pak");
-
-		FILE* const f = dr_fopen(buf, "r");
+		FILE* const f = dr_fopen((env_t::pak_dir+"ground.Outside.pak").c_str(), "r");
 		if(  !f  ) {
 			cbuffer_t errmsg;
 			errmsg.printf(
 				"The file 'ground.Outside.pak' was not found in\n"
-				"'%s%s'.\n"
+				"'%s'.\n"
 				"This file is required for a valid pak set (graphics).\n"
 				"Please install and select a valid pak set.",
-				env_t::base_dir, env_t::pak_name.c_str());
+				env_t::pak_dir.c_str());
 
 			dr_fatal_notify(errmsg);
 			simgraph_exit();
@@ -1086,8 +1093,8 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	obj_conf = env_t::pak_name + path_to_simuconf;
-	if(  simuconf.open(obj_conf.c_str())  ) {
+	obj_conf = env_t::pak_dir + "simuconf.tab";
+	if (simuconf.open(obj_conf.c_str())) {
 		env_t::default_settings.set_way_height_clearance( 0 );
 
 		dbg->message("simu_main()", "Parsing %s", obj_conf.c_str());
@@ -1117,7 +1124,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
-	if(  args.gimme_arg("-objects", 1) != NULL  ) {
+	if(  args.gimme_arg("-objects", 1)  ||  args.gimme_arg("-set_pakdir", 1)  ) {
 		if(args.has_arg("-addons")) {
 			env_t::default_settings.set_with_private_paks( true );
 		}
@@ -1182,7 +1189,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// Adam - Moved away loading from simu_main() and placed into translator for better modularization
-	if(  !translator::load(env_t::pak_name)  ) {
+	if(  !translator::load()  ) {
 		// installation error: likely only program started
 		dbg->fatal("simu_main()",
 			"Unable to load any language files\n"
@@ -1216,17 +1223,17 @@ int simu_main(int argc, char** argv)
 	dr_chdir(env_t::base_dir);
 
 	dbg->message("simu_main()","Reading city configuration ...");
-	stadt_t::cityrules_init(env_t::pak_name);
+	stadt_t::cityrules_init();
 
 	dbg->message("simu_main()","Reading speedbonus configuration ...");
-	vehicle_builder_t::speedbonus_init(env_t::pak_name);
+	vehicle_builder_t::speedbonus_init();
 
 	dbg->message("simu_main()","Reading menu configuration ...");
 	tool_t::init_menu();
 
 	// loading all objects in the pak
-	dbg->message("simu_main()","Reading object data from %s...", env_t::pak_name.c_str());
-	if (!obj_reader_t::load( env_t::pak_name.c_str(), translator::translate("Loading paks ...") )) {
+	dbg->message("simu_main()","Reading object data from %s...", env_t::pak_dir.c_str());
+	if (!obj_reader_t::load( env_t::pak_dir.c_str(), translator::translate("Loading paks ...") )) {
 		dbg->fatal("simu_main()", "Failed to load pakset. Please re-download or select another pakset.");
 	}
 
@@ -1279,13 +1286,13 @@ int simu_main(int argc, char** argv)
 
 	dbg->message("simu_main()","Reading menu configuration ...");
 	dr_chdir( env_t::base_dir );
-	if (!tool_t::read_menu(env_t::pak_name + "config/menuconf.tab")) {
+	if (!tool_t::read_menu(env_t::pak_dir + "config/menuconf.tab")) {
 		// Fatal error while reading menuconf.tab, we cannot continue!
 		dbg->fatal(
-			"Could not read %s%sconfig/menuconf.tab.\n"
+			"Could not read %sconfig/menuconf.tab.\n"
 			"This file is required for a valid pak set (graphics).\n"
 			"Please install and select a valid pak set.",
-			env_t::base_dir, env_t::pak_name.c_str());
+			env_t::pak_dir.c_str());
 	}
 
 #if COLOUR_DEPTH != 0
@@ -1443,8 +1450,7 @@ int simu_main(int argc, char** argv)
 	if(  dr_init_midi()  ) {
 		dbg->message("simu_main()","Reading midi data ...");
 		char pak_dir[PATH_MAX];
-		sprintf( pak_dir, "%s%s", env_t::base_dir, env_t::pak_name.c_str() );
-		if(  !midi_init( pak_dir )  &&  !midi_init( env_t::user_dir )  &&  !midi_init( env_t::base_dir )  ) {
+		if(  !midi_init( env_t::pak_dir.c_str() )  &&  !midi_init( env_t::user_dir )  &&  !midi_init( env_t::base_dir )  ) {
 			midi_set_mute(true);
 			dbg->message("simu_main()","Midi disabled ...");
 		}

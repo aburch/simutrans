@@ -69,7 +69,7 @@ public:
 	 * behaviour may follow if calls to translate message or similar are
 	 * called before load has been called
 	 */
-	static bool load(const std::string &pakset_path);
+	static bool load();
 
 	/**
 	 * Loads all language file in folder folder_name

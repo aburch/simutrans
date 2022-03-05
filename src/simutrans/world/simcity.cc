@@ -272,14 +272,16 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, const rule_t &regel)
 /**
  * Reads city configuration data
  */
-bool stadt_t::cityrules_init(const std::string &objfilename)
+bool stadt_t::cityrules_init()
 {
 	tabfile_t cityconf;
 	// first take user data, then user global data
 	const std::string user_dir=env_t::user_dir;
 	if (!cityconf.open((user_dir+"cityrules.tab").c_str())) {
-		if (!cityconf.open((objfilename+"config/cityrules.tab").c_str())) {
-			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
+		if (!cityconf.open((user_dir+"addons/"+env_t::pak_name+"config/cityrules.tab").c_str())) {
+			if (!cityconf.open((env_t::pak_dir+"config/cityrules.tab").c_str())) {
+				dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
+			}
 		}
 	}
 

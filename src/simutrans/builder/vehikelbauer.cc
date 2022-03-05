@@ -90,11 +90,11 @@ static sint32 default_speedbonus[8] =
 	60   // narrowgauge
 };
 
-bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
+bool vehicle_builder_t::speedbonus_init()
 {
 	tabfile_t bonusconf;
 	// first take user data, then user global data
-	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
+	if (!bonusconf.open((env_t::pak_dir+"config/speedbonus.tab").c_str())) {
 		dbg->warning("vehicle_builder_t::speedbonus_init()", "Can't read speedbonus.tab" );
 		return false;
 	}

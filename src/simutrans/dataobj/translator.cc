@@ -182,10 +182,6 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 }
 
 
-
-/* needed for loading city names */
-static char pakset_path[256];
-
 // List of custom city and streetnames
 vector_tpl<char *> translator::city_name_list;
 vector_tpl<char *> translator::street_name_list;
@@ -205,7 +201,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	// first try in pakset
 	{
 		string local_file_name(env_t::user_dir);
-		local_file_name = local_file_name + "addons/" + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		local_file_name = local_file_name + "addons/" + env_t::pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
@@ -218,8 +214,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	}
 	// not found => try pak location
 	if(  file==NULL  ) {
-		string local_file_name(env_t::base_dir);
-		local_file_name = local_file_name + pakset_path + "text/" + fileprefix + langs[lang].iso_base + ".txt";
+		string local_file_name(env_t::pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt");
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
@@ -454,16 +449,14 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 }
 
 
-bool translator::load(const string &path_to_pakset)
+bool translator::load()
 {
-	dr_chdir( env_t::base_dir );
-	tstrncpy(pakset_path, path_to_pakset.c_str(), lengthof(pakset_path));
-
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.current_lang = -1;
 	single_instance.lang_count = 0;
 
 	DBG_MESSAGE("translator::load()", "Loading languages...");
+	dr_chdir( env_t::base_dir );
 	searchfolder_t folder;
 	folder.search("text/", "tab");
 
@@ -495,14 +488,13 @@ bool translator::load(const string &path_to_pakset)
 
 	// now read the pakset specific text
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
-	const string folderName(path_to_pakset + "text/");
-	load_files_from_folder(folderName.c_str(), "pak");
+	load_files_from_folder((env_t::pak_dir+"text"+PATH_SEPARATOR).c_str(), "pak");
 
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		dr_chdir( env_t::user_dir );
 		// now read the pakset specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
-		const string folderName("addons/" + path_to_pakset + "text/");
+		const string folderName("addons/" + env_t::pak_name + "text/");
 		load_files_from_folder(folderName.c_str(), "pak addons");
 		dr_chdir( env_t::base_dir );
 	}
@@ -513,7 +505,7 @@ bool translator::load(const string &path_to_pakset)
 	}
 
 	// now we try to read the compatibility stuff
-	if (FILE* const file = dr_fopen((path_to_pakset + "compat.tab").c_str(), "rb")) {
+	if (FILE* const file = dr_fopen((env_t::pak_dir + "compat.tab").c_str(), "rb")) {
 		load_language_file_body(file, &compatibility, false, false, false );
 		DBG_MESSAGE("translator::load()", "pakset compatibility texts loaded.");
 		fclose(file);
@@ -525,7 +517,7 @@ bool translator::load(const string &path_to_pakset)
 	// also addon compatibility ...
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		dr_chdir( env_t::user_dir );
-		if (FILE* const file = dr_fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
+		if (FILE* const file = dr_fopen(string("addons/"+env_t::pak_name + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false, false );
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
