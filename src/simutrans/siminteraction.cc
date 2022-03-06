@@ -76,7 +76,7 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		zeiger->change_pos(pos);
 
-		if (!tool->move_has_effects()  ||  IS_CONTROL_PRESSED(&ev)) {
+		if (!tool->move_has_effects()) {
 			is_dragging = false;
 		}
 		else if(  !env_t::networkmode  ||  tool->is_move_network_safe(world->get_active_player())) {
@@ -220,7 +220,7 @@ void interaction_t::interactive_event( const event_t &ev )
 		}
 	}
 
-	if(  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() -16 -(TICKER_HEIGHT*ticker::empty())  ) {
+	if(  !is_dragging  &&  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() -16 -(TICKER_HEIGHT*ticker::empty())  ) {
 
 		DBG_MESSAGE("interaction_t::interactive_event(event_t &ev)", "calling a tool");
 
@@ -316,7 +316,7 @@ bool interaction_t::process_event( event_t &ev )
 
 	// Handle map drag with right-click
 
-	static bool is_dragging = false;
+	static bool is_world_dragging = false;
 
 	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
@@ -330,13 +330,13 @@ bool interaction_t::process_event( event_t &ev )
 		catch_dragging();
 		move_view(ev);
 	}
-	else if(  IS_LEFTDRAG(&ev)  &&  IS_LEFT_BUTTON_PRESSED(&ev)  &&  (is_dragging  ||  (!world->get_tool(world->get_active_player_nr())->move_has_effects()  &&  !IS_CONTROL_PRESSED(&ev))  )  ) {
+	else if(  IS_LEFTDRAG(&ev)  &&  IS_LEFT_BUTTON_PRESSED(&ev)  &&  (is_world_dragging  ||  (!world->get_tool(world->get_active_player_nr())->move_has_effects()  &&  !IS_CONTROL_PRESSED(&ev))  )  ) {
 		/* ok, we have a general tool selected, and we have a left drag or left release event with an actual difference
 		 * => move the map, if we are beyond a threshold */
-		if(  is_dragging  ||  abs(ev.cx-ev.mx)+abs(ev.cy-ev.my)>=env_t::scroll_threshold  ) {
-			if (!is_dragging) {
+		if(  is_world_dragging  ||  abs(ev.cx-ev.mx)+abs(ev.cy-ev.my)>=env_t::scroll_threshold  ) {
+			if (!is_world_dragging) {
 				display_show_pointer(false);
-				is_dragging = true;
+				is_world_dragging = true;
 			}
 			world->get_viewport()->set_follow_convoi(convoihandle_t());
 			catch_dragging();
@@ -345,11 +345,11 @@ bool interaction_t::process_event( event_t &ev )
 		}
 	}
 
-	if( !IS_LEFT_BUTTON_PRESSED(&ev)  &&  is_dragging  ) {
+	if( !!IS_LEFT_BUTTON_PRESSED(&ev)  &&  is_world_dragging  ) {
 		// show the mouse and swallow this event if we were dragging before
 		ev.ev_code = IGNORE_EVENT;
 		display_show_pointer(true);
-		is_dragging = false;
+		is_world_dragging = false;
 	}
 
 
