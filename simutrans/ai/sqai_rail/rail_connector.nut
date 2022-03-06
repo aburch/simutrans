@@ -91,11 +91,13 @@ class rail_connector_t extends manager_t
 
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
-          //gui.add_message_at(our_player, "distance " + distance, world.get_time())
           if ( calc_route == "No route" || calc_route.routes.len() < 7 ) {
-            return error_handler()
+            return r_t(RT_TOTAL_FAIL)
           } else {
-            //gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+            if ( calc_route.routes.len() > 150 ) {
+              //gui.add_message_at(our_player, "distance " + distance, world.get_time())
+              gui.add_message_at(our_player, "calc route " + coord3d_to_string(c_start[0]) +  " to " + coord3d_to_string(c_end[0]) + ": way tiles = " + calc_route.routes.len() + " bridge tiles = " + calc_route.bridge_lens + " tree tiles = " + calc_route.tiles_tree, world.get_time())
+            }
             local s = calc_route.routes.len()-3
             t_start = calc_route.routes.slice(s)
             t_start.reverse()
@@ -130,7 +132,9 @@ class rail_connector_t extends manager_t
             }
 
             err = command_x.build_way(pl, t_start[0], t_start[1], planned_way, true)
+            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
             err = command_x.build_way(pl, t_start[1], t_start[2], planned_way, true)
+            if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
             if ( err == null ) {
               err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
               if ( err == false ) {
@@ -139,7 +143,9 @@ class rail_connector_t extends manager_t
               if ( err == true ) {
                 // station start ok
                 err = command_x.build_way(pl, t_end[0], t_end[1], planned_way, true)
+                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
                 err = command_x.build_way(pl, t_end[1], t_end[2], planned_way, true)
+                if ( err != null ) { gui.add_message_at(pl, "check_station build_way t_end " + err, t_end[0]) }
                 //local tool = command_x(tool_remove_way)
                 if ( err == null ) {
                   err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
@@ -168,10 +174,12 @@ class rail_connector_t extends manager_t
                     return error_handler()
                   }
                 } else {
-                  // remove start
-                    for ( local i = 0; i < 3; i++ ) {
+                  // remove start and end
+                    for ( local i = 0; i < 6; i++ ) {
                       if ( check_way[i] == 0 && i < 3 ) {
                         remove_tile_to_empty(t_start[i], wt_rail, 0)
+                      } else if ( check_way[i] == 0 && i > 2 ) {
+                        remove_tile_to_empty(t_end[i-3], wt_rail, 0)
                       }
                     }
                 }
@@ -229,7 +237,7 @@ class rail_connector_t extends manager_t
               local fl_st = st.get_factory_list()
               if ( fl_st.len() == 0 ) {
                 cash = our_player.get_current_net_wealth()
-                gui.add_message_at(our_player, "combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
+                gui.add_message_at(our_player, "rail: combined station -> get_current_net_wealth() " + (our_player.get_current_net_wealth()/100), world.get_time())
               } else {
 
               }
@@ -243,7 +251,15 @@ class rail_connector_t extends manager_t
             gui.add_message_at(pl, "Way construction cost to height: cash: " + cash + " build cost: " + build_cost, world.get_time())
             return error_handler()
           }
-
+/*
+          if ( calc_route.routes.len() > 150 && (cash-build_cost-(build_cost/2)) < (cost_monthly*10) ) {
+            //remove_tile_to_empty(t_start, wt_rail, 1)
+            //remove_tile_to_empty(t_end, wt_rail, 1)
+            industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+            gui.add_message_at(pl, "Way to long for rentabel build.", world.get_time())
+            return error_handler()
+          }
+*/
           //gui.add_message_at(pl, "c_start.len() " + c_start.len() + " - c_end.len() " + c_end.len(), world.get_time())
           err = construct_rail(pl, c_start, c_end, planned_way )
           print("Way construction cost: " + (d-pl.get_current_cash()) )
@@ -261,12 +277,16 @@ class rail_connector_t extends manager_t
             local asf = astar_route_finder(wt_rail)
             // check start -> end
             local wayline = asf.search_route([c_start], [c_end])
-            check_doubleway_in_line(wayline, wt_rail)
-            // check end -> start
-            wayline.clear()
-            wayline = asf.search_route([c_end], [c_start])
-            check_doubleway_in_line(wayline, wt_rail)
+            if ( "err" in wayline ) {
+              // no route found
+            } else {
+              check_doubleway_in_line(wayline, wt_rail)
+              // check end -> start
+              wayline.clear()
+              wayline = asf.search_route([c_end], [c_start])
+              check_doubleway_in_line(wayline, wt_rail)
 
+            }
           }
           phase ++
         }
@@ -326,6 +346,8 @@ class rail_connector_t extends manager_t
 
             remove_wayline(c_route, c_route.len()-1, wt_rail, s_src.len())
             remove_tile_to_empty(s_src, wt_rail)
+            remove_tile_to_empty(c_start, wt_rail, 0)
+            remove_tile_to_empty(c_end, wt_rail, 0)
             return error_handler()
           }
 
@@ -492,7 +514,7 @@ class rail_connector_t extends manager_t
       if ( fl_st.len() > 0 ) {
         f_name[0] = fl_st[0].get_name()
       } else {
-        f_name[0] = "station"
+        f_name[0] = st.get_name()
       }
     }
     st = halt_x.get_halt(ce, pl)
@@ -501,7 +523,7 @@ class rail_connector_t extends manager_t
       if ( fl_st.len() > 0 ) {
         f_name[1] = fl_st[0].get_name()
       } else {
-        f_name[1] = "station"
+        f_name[1] = st.get_name()
       }
     }
     local msgtext = format(translate("%s build rail line from %s (%s) to %s (%s)"), pl.get_name(), f_name[0], coord_to_string(cs), f_name[1], coord_to_string(ce))

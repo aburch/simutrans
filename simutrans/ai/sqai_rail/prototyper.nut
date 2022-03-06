@@ -97,6 +97,8 @@ class prototyper_t extends node_t
   max_length   = 0  // maximum lenght of convoy in number of tiles
   min_speed    = 0  // minimum speed
 
+  electrified  = 0  // 0 - not electrified vehicle; 1 - electrified vehicle
+
   volume = 0     // monthly transport volume
 
   valuate = null    // valuate function, takes prototype, returns number (null -> first valid prototype is returned)
@@ -131,6 +133,7 @@ class prototyper_t extends node_t
       gui.add_message_at(our_player, "units: " + units, world.get_time())
       gui.add_message_at(our_player, "CARUNITS_PER_TILE: " + CARUNITS_PER_TILE, world.get_time())
       gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
+      gui.add_message_at(our_player, "electrified: " + electrified, world.get_time())
     }
     // list of all vehicles
     local list = vehicle_desc_x.get_available_vehicles(wt)
@@ -157,12 +160,16 @@ class prototyper_t extends node_t
       local t = frev*100 - veh.get_running_cost()
 
       // no build catenary -> no electrified vehicles
-      local electrified = !veh.needs_electrification()
+      //local electrified = !veh.needs_electrification()
+      local electro = true
+      if ( electrified == 0 && veh.needs_electrification() ) {
+        electro = false
+      }
 
       //gui.add_message_at(our_player, "timeline: " + veh.get_name() + " - " + timeline, world.get_time())
       // use vehicles that can carry freight
       // or that are powered and have no freight capacity
-      if ( (fits || (pwer && none)) && timeline && electrified) {
+      if ( (fits || (pwer && none)) && timeline && electro ) {
         if (first && (pwer || wt == wt_water) ) {
           /**
            * speed < 161 - max speed 160 for rail lines factory goods

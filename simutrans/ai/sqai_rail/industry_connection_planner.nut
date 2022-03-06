@@ -197,6 +197,7 @@ class industry_connection_planner_t extends manager_t
     prototyper.valuate = bound_valuator
 
     if (prototyper.step().has_failed()) {
+      gui.add_message_at(our_player, "ERROR # no " + wt_name[wt] + " vehicle found for freight " + freight, world.get_time())
       return null
     }
     local planned_convoy = prototyper.best
@@ -562,7 +563,7 @@ class industry_connection_planner_t extends manager_t
       switch (wt) {
         case wt_rail:
           if ( world.get_time().year < 1935 && planned_bridge.tiles > 12 ) {
-            //gui.add_message_at(our_player, "wt_road: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
+            //gui.add_message_at(our_player, "wt_rail: world.get_time().year < 1935 && planned_bridge.tiles > 5", world.get_time())
             r.points -= (22*bridge_year_factor)
           } else if ( planned_bridge.tiles > 28 ) {
             r.points -= (15*bridge_year_factor)
@@ -578,6 +579,31 @@ class industry_connection_planner_t extends manager_t
           break
       }
     }
+
+    // route <-> factory distance
+    local dist_route_check = 0
+    if ( get_set_name() == "pak64.german" ) {
+      //gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist * 2) " + (f_dist * 2) + " - route len " + r.distance, world.get_time())
+      dist_route_check = f_dist + (f_dist / 3 * 4)
+
+
+    } else {
+      //gui.add_message_at(our_player, "factorys: f_dist " + f_dist + " - f_dist + (f_dist / 3 * 2) " + (f_dist + (f_dist / 3 * 2)) + " - route len " + r.distance, world.get_time())
+      dist_route_check = f_dist + (f_dist / 3 * 2)
+
+    }
+
+    if ( dist_route_check < r.distance ) {
+      switch (wt) {
+        case wt_rail:
+          r.points -= 40
+          break
+        case wt_road:
+          r.points -= 60
+          break
+      }
+    }
+
 
     // freight weight
     local g = good_desc_x(freight).get_weight_per_unit()
@@ -680,6 +706,19 @@ class industry_connection_planner_t extends manager_t
     }
 
     local m = r.cost_fix/100*cash_buffer
+
+    if ( r.distance > 350 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 350 -> " + r.distance, world.get_time())
+      m = r.cost_fix/40*cash_buffer
+    } else if ( r.distance > 300 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 300 -> " + r.distance, world.get_time())
+      m = r.cost_fix/60*cash_buffer
+    } else if ( r.distance > 250 ) {
+      gui.add_message_at(our_player, "connection planner r.distance > 250 -> " + r.distance, world.get_time())
+      m = r.cost_fix/80*cash_buffer
+    }
+
+
     if ( (cash-m) < 0 ) {
       r.points -= 50
     }

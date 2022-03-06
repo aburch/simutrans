@@ -139,7 +139,9 @@ class report_t
 
 	function merge_report(r)
 	{
-		action.append_child( r.action )
+		if (r.action) {
+			action.append_child( r.action )
+		}
 		cost_fix     += r.cost_fix
 		cost_monthly += r.cost_monthly
 		gain_per_m   += r.gain_per_m

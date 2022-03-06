@@ -95,18 +95,9 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		local report = report_t()
 		report.action = node_seq_t()
 
-		marine.search_route(fsrc,fdest)
-
-		local route = marine.route
-		if (route.len() == 0) {
-			return r_t(RT_TOTAL_FAIL)
-		}
-		// generate report
-		local report = report_t()
-		report.action = node_seq_t()
-
 		if ( print_message_box_x == 1 ) {
 			gui.add_message_at(our_player, " ---> marine.route.len(fsrc,fdest)  " + route.len(), world.get_time())
+			gui.add_message_at(our_player, " ---> route[0] " + coord3d_to_string(route[0]) + " - route[route.len()-1] " + coord3d_to_string(route[route.len()-1]), world.get_time())
 		}
 
 		// now loop through route backwards
@@ -149,10 +140,19 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 				else {
 					// from_i = first land tile, which is harbour slope
 					// i      = first water tile
-					r = plan_simple_connection(wt, route[from_i-1], change ? route[i+2] : null, from_i-1 - (i+2))
+					print("Try to catch index error")
+					if (i+2 < route.len()) {
+						r = plan_simple_connection(wt, route[from_i-1], change ? route[i+2] : null, from_i-1 - (i+2))
+					}
+					else {
+						// else: first tile of route but second already in water - no need to plan road
+						r = report_t()
+					}
 				}
 				if (r) {
-					r.action.finalize = !change
+					if (r.action) {
+						r.action.finalize = !change
+					}
 					report.merge_report(r)
 				}
 				else {
