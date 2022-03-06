@@ -6668,7 +6668,7 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	}
 
 	// check ownership
-	if (!halt_be_merged_from->get_owner()->is_public_service() || halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
+	if(!player->is_public_service()  &&  halt_be_merged_from->get_owner() != halt_be_merged_to->get_owner()) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
