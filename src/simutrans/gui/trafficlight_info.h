@@ -21,7 +21,7 @@ class trafficlight_info_t : public obj_infowin_t, public action_listener_t
 {
 private:
 	roadsign_t* roadsign;
-        gui_numberinput_t ns, ow, offset, yellow_ns, yellow_ow;
+	gui_numberinput_t ns, ow, offset, yellow_ns, yellow_ow;
 
 public:
 	trafficlight_info_t(roadsign_t* s);
