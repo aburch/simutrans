@@ -315,9 +315,6 @@ bool interaction_t::process_event( event_t &ev )
 	DBG_DEBUG4("interaction_t::process_event", "after check_pos_win");
 
 	// Handle map drag with right-click
-
-	static bool is_world_dragging = false;
-
 	if(IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
 	}
@@ -345,7 +342,7 @@ bool interaction_t::process_event( event_t &ev )
 		}
 	}
 
-	if( !!IS_LEFT_BUTTON_PRESSED(&ev)  &&  is_world_dragging  ) {
+	if( !IS_LEFT_BUTTON_PRESSED(&ev)  &&  is_world_dragging  ) {
 		// show the mouse and swallow this event if we were dragging before
 		ev.ev_code = IGNORE_EVENT;
 		display_show_pointer(true);
@@ -400,7 +397,8 @@ void interaction_t::check_events()
 
 interaction_t::interaction_t(viewport_t *viewport) :
 	viewport(viewport),
-	is_dragging(false)
+	is_dragging(false),
+	is_world_dragging(false)
 {
 	assert(viewport);
 }

@@ -32,6 +32,8 @@ private:
 	viewport_t *viewport;
 
 	bool is_dragging;
+	bool is_world_dragging;
+
 
 private:
 	/**
