@@ -16,8 +16,8 @@
 
 
 static const char* private_sign_directions[] = {"ns", "ew"};
-static const char* traffic_light_directions[] = {"n", "s", "e", "w", "ne", "sw", "se", "nw"};
-static const char* general_sign_directions[] = {"n", "s", "e", "w"};
+static const char* traffic_light_directions[] = {"n", "s", "w", "e", "nw", "se", "sw", "ne"};
+static const char* general_sign_directions[] = {"n", "s", "w", "e"};
 
 // parse "image[direction][state]" syntax
 void parse_images_2d(slist_tpl<std::string>& keys, tabfileobj_t& obj, roadsign_desc_t::types flags)
