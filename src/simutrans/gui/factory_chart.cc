@@ -161,8 +161,6 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		goods_chart.set_min_size(scr_size(D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, CHART_HEIGHT));
 		goods_chart.set_dimension(12, 10000);
 		goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
-		const uint32 input_count = factory->get_input().get_count();
-		const uint32 output_count = factory->get_output().get_count();
 
 		uint32 count = 0;
 
