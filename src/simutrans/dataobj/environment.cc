@@ -27,7 +27,7 @@ sint16 env_t::menupos = MENU_TOP;
 bool env_t::single_toolbar_mode = true;
 #else
 sint16 env_t::menupos = MENU_BOTTOM;
-bool env_t::single_toopbar_mode = false;
+bool env_t::single_toolbar_mode = false;
 #endif
 sint16 env_t::fullscreen = WINDOWED;
 sint16 env_t::display_scale_percent = 100;
