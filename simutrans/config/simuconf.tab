@@ -370,6 +370,9 @@ numpad_always_moves_map = 1
 # 1=selecting a tool again will close it (0=will be topped/reinit)
 #reselect_closes_tool = 1
 
+# 1=upon opening, all toolbars will be closed, toolbar will be top centered
+#single_toolbar = 0
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files

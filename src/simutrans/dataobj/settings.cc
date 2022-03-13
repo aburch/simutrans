@@ -991,6 +991,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::remember_window_positions = contents.get_int( "remember_window_positions", env_t::remember_window_positions ) != 0;
 	env_t::menupos                   = contents.get_int_clamped( "menubar_position",  env_t::menupos, 0, 3);
 	env_t::reselect_closes_tool      = contents.get_int( "reselect_closes_tool",      env_t::reselect_closes_tool ) != 0;
+	env_t::single_toolbar_mode       = contents.get_int( "single_toolbar",            env_t::single_toolbar_mode ) != 0;
 
 	env_t::show_tooltips      = contents.get_int(         "show_tooltips",      env_t::show_tooltips ) != 0;
 	env_t::tooltip_delay      = contents.get_int_clamped( "tooltip_delay",      env_t::tooltip_delay,      0, INT_MAX);

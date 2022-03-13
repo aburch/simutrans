@@ -2,6 +2,9 @@
 	FIX: Cannot load PPM heightmaps
 	ADD: new tool (and button in signal dialog) for removing signals only
 	CHG: only load goods for a destination into a single convoi. This avoids loading in parrallel of slow loading convois
+	CHG: More search pathes for paks, new parameters -set_base_dir, -set_pak_dir, -set_user_dir
+	CHG: Simutrans tries for base files also in current path without any parameter (also in program location)
+	ADD: single toolbar mode: Enabled only one top centered toolbar shown
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

@@ -575,8 +575,8 @@ void env_t::rdwr(loadsave_t *file)
 			soundfont_filename = str ? str.c_str() : "";
 		}
 
-		file->rdwr_short(env_t::menupos);
-		env_t::menupos &= 3;
+		file->rdwr_short( menupos );
+		menupos &= 3;
 		file->rdwr_bool( reselect_closes_tool );
 
 		file->rdwr_bool( single_line_gui );
