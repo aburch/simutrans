@@ -397,7 +397,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		if (fab != NULL  &&  gb != NULL) {
 			init(fab, gb);
 		}
-		win_set_magic(this, (ptrdiff_t)this);
+		win_set_magic(this, (ptrdiff_t)fab);
 	}
 	chart.rdwr(file);
 	scroll_info.rdwr(file);
