@@ -507,27 +507,27 @@ static bool set_predefined_dir( const char *p, const char *opt, char *result, co
 	return false;
 }
 
-// search for this in all possible pakset locations for a directory "pak" and take the first match
-static bool set_pakdir( const char* pak )
+// search for this in all possible pakset locations for the directory chkdir and take the first match
+static bool set_pakdir( const char *chkdir )
 {
 	char tmp[PATH_MAX];
 	dr_chdir( env_t::base_dir );
-	if( !dr_chdir( pak ) ) {
+	if( !dr_chdir( chkdir ) ) {
 		dr_getcwd(tmp, lengthof(tmp));
 		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::install_dir );
-	if( !dr_chdir( pak ) ) {
+	if( !dr_chdir( chkdir ) ) {
 		dr_getcwd(tmp, lengthof(tmp));
 		env_t::pak_dir = tmp;
 		env_t::pak_dir += PATH_SEPARATOR;
 		return true;
 	}
 	dr_chdir( env_t::user_dir );
-	if(!dr_chdir( "simutrans" ) ) {
-		if( !dr_chdir( pak ) ) {
+	if(!dr_chdir( USER_PAK_PATH ) ) {
+		if( !dr_chdir( chkdir ) ) {
 			dr_getcwd(tmp, lengthof(tmp));
 			env_t::pak_dir = tmp;
 			env_t::pak_dir += PATH_SEPARATOR;

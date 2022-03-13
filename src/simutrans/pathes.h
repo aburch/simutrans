@@ -18,6 +18,9 @@
  *   #define _PATH_X _PATH "/"
  */
 
+#define USER_PAK_PATH      "simutrans"
+#define USER_PAK_PATH_X     USER_PAK_PATH "/"
+
 #define FONT_PATH      "font"
 #define FONT_PATH_X     FONT_PATH "/"
 
