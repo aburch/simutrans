@@ -9,6 +9,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../sys/simsys.h"
+#include "../world/simworld.h"
 
 #include "../paksetinfo.h"
 #include "../simloadingscreen.h"
@@ -42,13 +43,17 @@ pakinstaller_t::pakinstaller_t() :
 	scr_coord_val obsolete_paks_h = obsolete_paks.get_max_size().h;
 	add_component(&obsolete_paks,2);
 
+	bool is_world = world();
+
 	install.init(button_t::roundbox_state | button_t::flexible, "Install");
-	add_component(&install);
+	add_component(&install,is_world+1);
 	install.add_listener(this);
 
-	cancel.init(button_t::roundbox_state | button_t::flexible, "Cancel");
-	cancel.add_listener(this);
-	add_component(&cancel);
+	if( !is_world ) {
+		cancel.init( button_t::roundbox_state | button_t::flexible, "Cancel" );
+		cancel.add_listener( this );
+		add_component( &cancel );
+	}
 
 	reset_min_windowsize();
 	set_windowsize(get_min_windowsize()+scr_size(0,paks_h-paks.get_size().h + obsolete_paks_h- obsolete_paks.get_size().h));
@@ -71,7 +76,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 	}
 
 	// now install
-	dr_chdir( env_t::base_dir );
+	dr_chdir( env_t::install_dir );
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count()+obsolete_paks.get_selections().get_count(), true, false);
 	int j = 0;
 	for(sint32 i : paks.get_selections()) {
@@ -176,7 +181,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t* comp, value_t)
 		return true;
 	}
 
-	dr_chdir(env_t::base_dir);
+	dr_chdir(env_t::install_dir);
 
 	loadingscreen_t ls("Install paks", paks.get_selections().get_count() * 2, true, false);
 	char outfilename[FILENAME_MAX];
@@ -287,11 +292,11 @@ static void extract_pak_from_zip(const char* outfilename)
 			}
 			else {
 				// path may start with simutrans/, in which case it can be removed safely
-				bool start_with_simutrans = strncmp(st.name, "simutrans", 9) == 0;
+				bool start_with_simutrans = STRNICMP(st.name, "simutrans", 9) == 0;
 				const char* target_filename = start_with_simutrans ? st.name + 10 : st.name;
 
-				char extracted_path[FILENAME_MAX];
-				sprintf(extracted_path, "%s%s", env_t::base_dir, target_filename);
+				char extracted_path[PATH_MAX];
+				sprintf(extracted_path, "%s%s", env_t::install_dir, target_filename);
 				DBG_DEBUG(__FUNCTION__, "- %s: %d", extracted_path, st.size);
 
 				if (!create_folder_if_required(extracted_path)) {
@@ -315,19 +320,21 @@ static void extract_pak_from_zip(const char* outfilename)
 	if (zip_close(zip_archive) == -1) {
 		DBG_DEBUG(__FUNCTION__, "cannot close zip archive: %s", zip_strerror(zip_archive));
 	}
-	dr_chdir(env_t::base_dir);
+	dr_chdir(env_t::install_dir);
 	dr_remove(outfilename);
 }
 
 
 #include <curl/curl.h>
 
-static size_t curl_write_data(void* ptr, size_t size, size_t nmemb, FILE* stream) {
+static size_t curl_write_data(void* ptr, size_t size, size_t nmemb, FILE* stream)
+{
 	size_t written = fwrite(ptr, size, nmemb, stream);
 	return written;
 }
 
-static CURLcode curl_download_file(CURL* curl, const char* target_file, const char* url) {
+static CURLcode curl_download_file(CURL* curl, const char* target_file, const char* url)
+{
 	FILE* fp = fopen(target_file, "wb");
 	CURLcode res;
 	curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -359,7 +366,6 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 {
 	CURL* curl = curl_easy_init(); // can only be called once during program lifecycle
 	if (curl) {
-		dr_chdir(env_t::base_dir);
 		DBG_DEBUG(__FUNCTION__, "libcurl initialized");
 
 		char outfilename[FILENAME_MAX];
@@ -369,6 +375,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t*, value_t)
 			ls.set_info(pakinfo[i * 2 + 1]);
 			sprintf(outfilename, "%s.zip", pakinfo[i * 2 + 1]);
 
+			dr_chdir(env_t::install_dir);
 			CURLcode res = curl_download_file(curl, outfilename, pakinfo[i * 2]);
 			ls.set_progress(++j);
 			DBG_DEBUG(__FUNCTION__, "pak target %s", pakinfo[i * 2]);
