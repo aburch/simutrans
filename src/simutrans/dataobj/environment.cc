@@ -22,7 +22,13 @@ char env_t::user_dir[PATH_MAX];
 std::string env_t::pak_dir;
 std::string env_t::pak_name;
 
+#ifndef __ANDROID__
 sint16 env_t::menupos = MENU_TOP;
+bool env_t::single_toolbar_mode = true;
+#else
+sint16 env_t::menupos = MENU_BOTTOM;
+bool env_t::single_toopbar_mode = false;
+#endif
 sint16 env_t::fullscreen = WINDOWED;
 sint16 env_t::display_scale_percent = 100;
 bool env_t::reselect_closes_tool = true;
@@ -587,6 +593,7 @@ void env_t::rdwr(loadsave_t *file)
 
 	if (file->is_version_atleast(123, 2)) {
 		file->rdwr_short(scroll_threshold);
+		file->rdwr_bool(single_toolbar_mode);
 	}
 
 	// server settings are not saved, since they are server specific

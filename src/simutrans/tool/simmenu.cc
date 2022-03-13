@@ -1177,9 +1177,23 @@ bool toolbar_t::init(player_t *player)
 		return false;
 	}
 
-	if(  this != tool_t::toolbar_tool[0]  ) {
-		// not main menu
-		create_win( tool_selector, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
+	if(  this!=tool_t::toolbar_tool[0]  ) {
+		if(env_t::single_toolbar_mode) {
+			for(  uint16 i=1;  i<toolbar_tool.get_count();  i++  ) {
+				if(  this!=toolbar_tool[i]  ) {
+					// make sure only one tool is visibile
+					destroy_win( magic_toolbar+i );
+				}
+			}
+			scr_coord_val w = display_get_width() - (env_t::menupos == MENU_LEFT ? env_t::iconsize.w : 0) - (env_t::menupos == MENU_RIGHT ? env_t::iconsize.w : 0);
+			scr_coord_val x = (w-tool_selector->get_windowsize().w)/2+(env_t::menupos == MENU_LEFT ? env_t::iconsize.w : 0);
+			scr_coord_val y = -D_TITLEBAR_HEIGHT + (env_t::menupos == MENU_TOP ? env_t::iconsize.h : 0);
+			create_win( x, y, tool_selector, w_do_not_delete, magic_toolbar+toolbar_tool.index_of(this) );
+		}
+		else {
+			// not main menu => open random
+			create_win( tool_selector, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
+		}
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
 	return false;

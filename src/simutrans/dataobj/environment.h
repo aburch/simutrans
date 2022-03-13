@@ -51,6 +51,7 @@ public:
 	static std::string pak_name;
 
 	static sint16 menupos;
+	static bool single_toolbar_mode;
 
 	static sint16 fullscreen;
 

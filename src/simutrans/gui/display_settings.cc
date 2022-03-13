@@ -120,6 +120,14 @@ gui_settings_t::gui_settings_t()
 	}
 	add_component(&toolbar_pos,2);
 
+	single_toolbar.init( button_t::square_state, "Single toolbar only" );
+	single_toolbar.pressed = ( env_t::single_toolbar_mode );
+	add_component( &single_toolbar, 3 );
+
+	reselect_closes_tool.init( button_t::square_state, "Reselect closes tools" );
+	reselect_closes_tool.pressed = env_t::reselect_closes_tool;
+	add_component( &reselect_closes_tool, 3 );
+
 	fullscreen.init( button_t::square_state, "Fullscreen (changed after restart)" );
 	fullscreen.pressed = ( dr_get_fullscreen() == FULLSCREEN );
 	fullscreen.enable(dr_has_fullscreen());
@@ -129,10 +137,6 @@ gui_settings_t::gui_settings_t()
 	borderless.enable ( dr_get_fullscreen() != FULLSCREEN );
 	borderless.pressed = ( dr_get_fullscreen() == BORDERLESS );
 	add_component( &borderless, 3 );
-
-	reselect_closes_tool.init( button_t::square_state, "Reselect closes tools" );
-	reselect_closes_tool.pressed = env_t::reselect_closes_tool;
-	add_component( &reselect_closes_tool, 3 );
 
 	// Frame time label
 	new_component<gui_label_t>("Frame time:");
@@ -543,9 +547,10 @@ color_gui_t::color_gui_t() :
 		buttons[ i ].add_listener( this );
 	}
 	gui_settings.toolbar_pos.add_listener( this );
+	gui_settings.single_toolbar.add_listener(this);
+	gui_settings.reselect_closes_tool.add_listener(this);
 	gui_settings.fullscreen.add_listener( this );
 	gui_settings.borderless.add_listener( this );
-	gui_settings.reselect_closes_tool.add_listener(this);
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
@@ -592,6 +597,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	if(  comp == &gui_settings.reselect_closes_tool  ) {
 		env_t::reselect_closes_tool = !env_t::reselect_closes_tool;
 		gui_settings.reselect_closes_tool.pressed = env_t::reselect_closes_tool;
+		return true;
+	}
+
+	if(  comp == &gui_settings.single_toolbar  ) {
+		env_t::single_toolbar_mode = !env_t::single_toolbar_mode;
+		gui_settings.single_toolbar.pressed = env_t::single_toolbar_mode;
 		return true;
 	}
 
