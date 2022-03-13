@@ -25,9 +25,11 @@ std::string env_t::pak_name;
 #ifndef __ANDROID__
 sint16 env_t::menupos = MENU_TOP;
 bool env_t::single_toolbar_mode = true;
+sint16 env_t::dpi_scale = 100;
 #else
 sint16 env_t::menupos = MENU_BOTTOM;
 bool env_t::single_toolbar_mode = false;
+sint16 env_t::dpi_scale = -1;
 #endif
 sint16 env_t::fullscreen = WINDOWED;
 sint16 env_t::display_scale_percent = 100;
@@ -591,9 +593,13 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(scroll_infinite);
 	}
 
-	if (file->is_version_atleast(123, 2)) {
+	if( file->is_version_atleast(123, 2) ) {
 		file->rdwr_short(scroll_threshold);
 		file->rdwr_bool(single_toolbar_mode);
+		file->rdwr_short(dpi_scale);
+		if( file->is_loading() ) {
+			dr_set_screen_scale(dpi_scale);
+		}
 	}
 
 	// server settings are not saved, since they are server specific

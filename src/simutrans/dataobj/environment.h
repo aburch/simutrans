@@ -54,6 +54,7 @@ public:
 	static bool single_toolbar_mode;
 
 	static sint16 fullscreen;
+	static sint16 dpi_scale;
 
 	/// Controls size of the virtual display
 	static sint16 display_scale_percent;

@@ -199,13 +199,14 @@ void gui_settings_t::draw(scr_coord offset)
 }
 
 
-bool gui_settings_t::action_triggered(gui_action_creator_t *comp, value_t)
+bool gui_settings_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
 	if (comp == &screen_scale_numinp) {
-		const sint16 new_value = screen_scale_numinp.get_value();
-		dr_set_screen_scale(new_value);
+		env_t::dpi_scale = v.i;
+		dr_set_screen_scale(v.i);
 	}
 	else if (comp == &screen_scale_auto) {
+		env_t::dpi_scale = -1;
 		dr_set_screen_scale(-1);
 		screen_scale_numinp.set_value(dr_get_screen_scale());
 	}

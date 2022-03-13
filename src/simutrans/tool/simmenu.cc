@@ -1185,6 +1185,7 @@ bool toolbar_t::init(player_t *player)
 					destroy_win( magic_toolbar+i );
 				}
 			}
+			// open toolbar centered at top or bottom position (bottom, when menubar at bottom)
 			scr_coord_val w = display_get_width() - (env_t::menupos == MENU_LEFT ? env_t::iconsize.w : 0) - (env_t::menupos == MENU_RIGHT ? env_t::iconsize.w : 0);
 			scr_coord_val x = (w-tool_selector->get_windowsize().w)/2+(env_t::menupos == MENU_LEFT ? env_t::iconsize.w : 0);
 			scr_coord_val y = (env_t::menupos == MENU_BOTTOM ? display_get_height()-tool_selector->get_windowsize().h-env_t::iconsize.h : 0);

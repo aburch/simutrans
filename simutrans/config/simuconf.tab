@@ -373,6 +373,9 @@ numpad_always_moves_map = 1
 # 1=upon opening, all toolbars will be closed, toolbar will be top centered
 #single_toolbar = 0
 
+# display scaling factor in percent or -1 for auto
+# dpi_scaling = 100
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files
