@@ -186,7 +186,7 @@ static int display_gadget_box(sint8 code,
 	if(  img != NULL  ) {
 
 		// Max Kielland: This center the gadget image and compensates for any left/top margins within the image to be backward compatible with older PAK sets.
-		display_img_aligned(img->imageid, scr_rect(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT), ALIGN_CENTER_H | ALIGN_CENTER_V, true);
+		display_img_aligned(img->imageid, scr_rect(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT), ALIGN_CENTER_H | ALIGN_CENTER_V, false);
 
 	}
 	else {
@@ -329,7 +329,7 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 	PIXVAL darker  = display_blend_colors(title_color, color_idx_to_rgb(COL_BLACK), 25);
 
 	// fill title bar with color
-	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, D_TITLEBAR_HEIGHT, title_color, false);
+	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, D_TITLEBAR_HEIGHT, title_color, true);
 
 	// border of title bar
 	display_fillbox_wh_clip_rgb( pos.x + 1, pos.y,                         size.w - 2, 1, lighter, false ); // top
@@ -1431,6 +1431,7 @@ bool check_pos_win(event_t *ev)
 {
 	static int is_resizing = -1;
 	static int is_moving = -1;
+	static bool is_dragging = false;
 
 	bool swallowed = false;
 
@@ -1475,9 +1476,9 @@ bool check_pos_win(event_t *ev)
 	scr_coord menuoffset((env_t::menupos == MENU_RIGHT) * (display_get_width() - env_t::iconsize.w), (env_t::menupos == MENU_BOTTOM) * (display_get_height() - env_t::iconsize.h) - D_TITLEBAR_HEIGHT);
 	if (!tool_t::toolbar_tool.empty()  &&
 		tool_t::toolbar_tool[0]->get_tool_selector()  &&
-		tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y)  &&
+		(is_dragging  ||  tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y))  &&
 		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&
-		ev->ev_class != EVENT_KEYBOARD) {
+		ev->ev_class >= EVENT_CLICK  &&  ev->ev_class <= EVENT_REPEAT  ) {
 
 		event_t wev = *ev;
 		wev.move_origin(menuoffset);
@@ -1485,6 +1486,8 @@ bool check_pos_win(event_t *ev)
 		inside_event_handling = tool_t::toolbar_tool[0];
 		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event( &wev );
 		inside_event_handling = NULL;
+
+		is_dragging = ev->ev_class != EVENT_RELEASE  &&  ev->button_state>1;
 
 		// swallow event
 		return true;
