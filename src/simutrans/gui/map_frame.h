@@ -42,6 +42,7 @@ private:
 	static scr_coord screenpos;
 
 	static bool legend_visible;
+	static bool network_option_visible;
 	static bool scale_visible;
 	static bool directory_visible;
 	static bool filter_factory_list;
@@ -63,7 +64,7 @@ private:
 
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 
-	gui_aligned_container_t filter_container, scale_container, directory_container, *zoom_row;
+	gui_aligned_container_t filter_container, network_filter_container, scale_container, directory_container, *zoom_row;
 
 	gui_scrollpane_t* p_scrolly;
 
@@ -71,6 +72,7 @@ private:
 	button_t zoom_buttons[2];
 	button_t b_rotate45;
 	button_t b_show_legend;
+	button_t b_show_network_option;
 	button_t b_show_scale;
 	gui_combobox_t c_show_outlines;
 	button_t b_show_directory;
@@ -88,6 +90,7 @@ private:
 	void update_buttons();
 	void update_factory_legend();
 	void show_hide_legend(const bool show);
+	void show_hide_network_option(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
 

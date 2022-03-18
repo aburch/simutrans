@@ -33,6 +33,7 @@ karte_ptr_t map_frame_t::welt;
 
 scr_size map_frame_t::window_size;
 bool  map_frame_t::legend_visible=false;
+bool map_frame_t::network_option_visible = false;
 bool  map_frame_t::scale_visible=false;
 bool  map_frame_t::directory_visible=false;
 bool  map_frame_t::is_cursor_hidden=false;
@@ -173,9 +174,15 @@ map_frame_t::map_frame_t() :
 	set_table_layout(1,0);
 
 	// first row of controls
-	add_table(3,1);
+	add_table(4,1);
 	{
 		// first row of controls
+		b_show_network_option.init(button_t::roundbox_state, "Show networks");
+		b_show_network_option.set_tooltip("Shows option buttons about networks.");
+		b_show_network_option.set_size(D_BUTTON_SIZE);
+		b_show_network_option.add_listener(this);
+		add_component(&b_show_network_option);
+
 		// selections button
 		b_show_legend.init(button_t::roundbox_state, "Show legend");
 		b_show_legend.set_tooltip("Shows buttons on special topics.");
@@ -247,18 +254,17 @@ map_frame_t::map_frame_t() :
 	}
 	end_table();
 
-	// filter container
-	filter_container.set_visible(false);
-	add_component(&filter_container);
-	filter_container.set_table_layout(1,0);
+	// networks filter container
+	network_filter_container.set_visible(false);
+	add_component(&network_filter_container);
 
-	filter_container.add_table(5,0);
+	network_filter_container.set_table_layout(5,1);
 	// insert selections: show networks, in filter container
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
 	b_overlay_networks.pressed = (env_t::default_mapmode & minimap_t::MAP_LINES)!=0;
-	filter_container.add_component( &b_overlay_networks );
+	network_filter_container.add_component( &b_overlay_networks );
 
 	// player combo for network overlay
 	viewed_player_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
@@ -272,7 +278,7 @@ map_frame_t::map_frame_t() :
 	viewed_player_c.set_selection(0);
 	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
-	filter_container.add_component(&viewed_player_c);
+	network_filter_container.add_component(&viewed_player_c);
 
 	// freight combo for network overlay
 	{
@@ -306,7 +312,7 @@ map_frame_t::map_frame_t() :
 	minimap_t::get_instance()->freight_type_group_index_showed_on_map = NULL;
 	freight_type_c.set_focusable( true );
 	freight_type_c.add_listener( this );
-	filter_container.add_component(&freight_type_c);
+	network_filter_container.add_component(&freight_type_c);
 
 	// mode of transport combo for network overlay
 	for (int i = 0; i < simline_t::MAX_LINE_TYPE; i++) {
@@ -316,15 +322,19 @@ map_frame_t::map_frame_t() :
 	minimap_t::get_instance()->transport_type_showed_on_map = simline_t::line;
 	transport_type_c.set_focusable( true );
 	transport_type_c.add_listener( this );
-	filter_container.add_component(&transport_type_c);
+	network_filter_container.add_component(&transport_type_c);
 
 	b_overlay_networks_load_factor.init(button_t::square_state, "Free Capacity");
 	b_overlay_networks_load_factor.set_tooltip("Color according to transport capacity left");
 	b_overlay_networks_load_factor.add_listener(this);
 	b_overlay_networks_load_factor.pressed = 0;
 	minimap_t::get_instance()->show_network_load_factor = 0;
-	filter_container.add_component( &b_overlay_networks_load_factor );
-	filter_container.end_table();
+	network_filter_container.add_component( &b_overlay_networks_load_factor );
+
+	// filter container
+	filter_container.set_visible(false);
+	add_component(&filter_container);
+	filter_container.set_table_layout(1, 0);
 
 	filter_container.add_table(5,0)->set_force_equal_columns(true);
 	// insert filter buttons in legend container
@@ -365,6 +375,7 @@ map_frame_t::map_frame_t() :
 
 	// restore window size and options
 	show_hide_legend( legend_visible );
+	show_hide_network_option( network_option_visible );
 	show_hide_scale( scale_visible );
 	show_hide_directory( directory_visible );
 
@@ -445,6 +456,14 @@ void map_frame_t::show_hide_legend(const bool show)
 	reset_min_windowsize();
 }
 
+void map_frame_t::show_hide_network_option(const bool show)
+{
+	network_filter_container.set_visible(show);
+	b_show_network_option.pressed = show;
+	network_option_visible = show;
+	reset_min_windowsize();
+}
+
 
 void map_frame_t::show_hide_scale(const bool show)
 {
@@ -470,6 +489,9 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if(  comp == &b_show_legend  ) {
 		show_hide_legend( !b_show_legend.pressed );
+	}
+	else if(comp==&b_show_network_option) {
+		show_hide_network_option( !b_show_network_option.pressed );
 	}
 	else if(  comp == &b_show_scale  ) {
 		show_hide_scale( !b_show_scale.pressed );
@@ -753,6 +775,10 @@ void map_frame_t::rdwr( loadsave_t *file )
 	transport_type_c.rdwr(file);
 	freight_type_c.rdwr(file);
 
+	if( file->is_version_atleast(123, 2) ) {
+		file->rdwr_bool( network_option_visible );
+	}
+
 	if(  file->is_loading()  ) {
 		set_windowsize( window_size );
 		// notify minimap of new settings
@@ -764,6 +790,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 
 		show_hide_directory(directory_visible);
 		show_hide_legend(legend_visible);
+		show_hide_network_option(network_option_visible);
 		show_hide_scale(scale_visible);
 
 		b_overlay_networks.pressed = (env_t::default_mapmode & minimap_t::MAP_LINES)!=0;
