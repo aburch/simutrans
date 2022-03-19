@@ -977,6 +977,7 @@ static bool destroy_framed_win(simwin_t *wins)
 	if(  wl  ) {
 		wl->set_background_dirty();
 	}
+	tooltip_text = 0;
 	return r;
 }
 
