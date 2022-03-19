@@ -179,12 +179,14 @@ bool dr_set_screen_scale(sint16 scale_percent)
 		// most Android are underpowered to run more than 1280 pixel horizontal
 		sint32 current_x = SCREEN_TO_TEX_X(mode.w);
 		if (current_x > MAX_AUTOSCALE_WIDTH) {
-			x_scale = (x_scale * current_x) / MAX_AUTOSCALE_WIDTH;
-			y_scale = (y_scale * current_x) / MAX_AUTOSCALE_WIDTH;
+			sint32 new_x_scale = ((sint64)mode.w * SCALE_NEUTRAL_X + 1) / MAX_AUTOSCALE_WIDTH;
+			y_scale = (y_scale * new_x_scale) / x_scale;
+			x_scale = new_x_scale;
 			DBG_MESSAGE("new scaling (max 1280)", "x=%i, y=%i", x_scale, y_scale);
-		}
+	}
 #endif
 
+		// ensure minimum height
 		sint32 current_y = SCREEN_TO_TEX_Y(mode.h);
 		if (current_y < MIN_SCALE_HEIGHT) {
 			DBG_MESSAGE("dr_auto_scale", "virtual height=%d < %d", current_y, MIN_SCALE_HEIGHT);
