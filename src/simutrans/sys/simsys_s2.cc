@@ -160,7 +160,6 @@ bool dr_set_screen_scale(sint16 scale_percent)
 	if(  scale_percent == -1  ) {
 #if SDL_VERSION_ATLEAST(2,0,4)
 		float hdpi, vdpi;
-		SDL_Init( SDL_INIT_VIDEO );
 		SDL_DisplayMode mode;
 		SDL_GetCurrentDisplayMode(0, &mode);
 		DBG_MESSAGE("dr_auto_scale", "screen resolution width=%d, height=%d", mode.w, mode.h);

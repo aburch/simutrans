@@ -936,15 +936,6 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if(  args.has_arg("-autodpi")  ) {
-		dr_set_screen_scale( -1 );
-	}
-	else if (const char *scaling = args.gimme_arg("-screen_scale", 1)) {
-		if (scaling[0] >= '0' && scaling[0] <= '9') {
-			dr_set_screen_scale(atoi(scaling));
-		}
-	}
-
 	int parameter[2];
 	parameter[0] = args.has_arg("-async");
 	parameter[1] = args.has_arg("-use_hw");
@@ -952,6 +943,15 @@ int simu_main(int argc, char** argv)
 	if (!dr_os_init(parameter)) {
 		dr_fatal_notify("Failed to initialize backend.\n");
 		return EXIT_FAILURE;
+	}
+
+	if (args.has_arg("-autodpi")) {
+		dr_set_screen_scale(-1);
+	}
+	else if (const char* scaling = args.gimme_arg("-screen_scale", 1)) {
+		if (scaling[0] >= '0' && scaling[0] <= '9') {
+			dr_set_screen_scale(atoi(scaling));
+		}
 	}
 
 	// Get optimal resolution.

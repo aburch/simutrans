@@ -1693,7 +1693,7 @@ void win_poll_event(event_t* const ev)
 		ev->ev_class = IGNORE_EVENT;
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
-	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
+	else if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
 		dr_chdir( env_t::user_dir );
 		loadsave_t dlg;
 
@@ -1711,7 +1711,7 @@ void win_poll_event(event_t* const ev)
 		ev->ev_class = IGNORE_EVENT;
 		ticker::redraw();
 	}
-	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_THEME_CHANGED  ) {
+	else if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_THEME_CHANGED  ) {
 		// called when font is changed
 		ev->mx = ev->my = ev->cx = ev->cy = 0;
 		for(simwin_t const& i : wins) {
