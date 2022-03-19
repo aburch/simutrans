@@ -554,8 +554,8 @@ color_gui_t::color_gui_t() :
 	gui_settings.borderless.add_listener( this );
 
 	set_resizemode(diagonal_resize);
-	set_min_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
-	set_windowsize( scr_size(D_DEFAULT_WIDTH,get_min_windowsize().h+map_settings.get_size().h) );
+	set_min_windowsize( gui_settings.get_min_size()+scr_size(0,D_TAB_HEADER_HEIGHT) );
+	set_windowsize( get_min_windowsize()+map_settings.get_min_size() );
 	resize( scr_coord( 0, 0 ) );
 }
 
