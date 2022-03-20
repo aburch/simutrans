@@ -106,19 +106,6 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 
 		return true;
 	}
-	else if (IS_LEFTDBLCLK(ev)) {
-		// re-center cursor by scrolling
-		koord ij = world()->get_viewport()->get_world_position();
-		scr_coord center = minimap_t::get_instance()->map_to_screen_coord(ij);
-		const scr_size s_size = get_size();
-
-		set_scroll_position(max(0, center.x - (s_size.w / 2)), max(0, center.y - (s_size.h / 2)));
-		map_frame_t::zoomed = false;
-
-		// remember world position, we do not want to have surprises when scrolling later on
-		old_ij = ij;
-		return true;
-	}
 	else if (IS_RIGHTDBLCLK(ev)) {
 		// zoom to fit window
 		do { // first, zoom all the way in
