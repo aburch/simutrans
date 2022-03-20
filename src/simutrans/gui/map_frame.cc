@@ -606,8 +606,7 @@ void map_frame_t::zoom(bool magnify)
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
+ * Report events to the GUI-components
  */
 bool map_frame_t::infowin_event(const event_t *ev)
 {
@@ -627,8 +626,13 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		set_focus( minimap_t::get_instance() );
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  ) {
-		// otherwise these would go to the vertical scroll bar
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  
+		minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  && 
+		!viewed_player_c.getroffen(ev2.mx,ev2.my) &&
+		!transport_type_c.getroffen(ev2.mx,ev2.my) &&
+		!freight_type_c.getroffen(ev2.mx,ev2.my)  )
+	{
+		// otherwise these would go to the vertical scroll bars
 		zoom(IS_WHEELUP(ev));
 		return true;
 	}
