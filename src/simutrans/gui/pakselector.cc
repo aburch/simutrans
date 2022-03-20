@@ -48,7 +48,7 @@ pakselector_t::pakselector_t() :
 		add_path( env_t::install_dir );
 	}
 	dr_chdir( env_t::user_dir );
-	if(  !strcmp(env_t::install_dir,env_t::user_dir)  &&  !dr_chdir(USER_PAK_PATH)  ) {
+	if(  !dr_chdir(USER_PAK_PATH)  ) {
 		char dummy[PATH_MAX];
 		dr_getcwd(dummy, lengthof(dummy) - 2);
 		strcat(dummy, PATH_SEPARATOR);
