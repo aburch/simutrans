@@ -28,7 +28,7 @@ namespace ticker
 	 * @param pos    position of the event
 	 * @param color  message color
 	 */
-	void add_msg(const char*, koord pos, FLAGGED_PIXVAL color = SYSCOL_TEXT);
+	void add_msg(const char*, koord pos, FLAGGED_PIXVAL color);
 
 	/**
 	 * Remove all messages and mark for redraw
