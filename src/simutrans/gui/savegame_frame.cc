@@ -210,7 +210,7 @@ void savegame_frame_t::add_path(const char * path){
 		sprintf(this->searchpath, "%s", path);
 		this->searchpath_defined = true;
 	}
-	this->paths.append(path);
+	this->paths.append_unique(path);
 }
 
 
