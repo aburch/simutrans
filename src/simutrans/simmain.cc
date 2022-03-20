@@ -510,6 +510,10 @@ static bool set_predefined_dir( const char *p, const char *opt, char *result, co
 // search for this in all possible pakset locations for the directory chkdir and take the first match
 static bool set_pakdir( const char *chkdir )
 {
+	if(  !chkdir  ||  !*chkdir  ) {
+		return false;
+	}
+
 	char tmp[PATH_MAX];
 	dr_chdir( env_t::base_dir );
 	if( !dr_chdir( chkdir ) ) {

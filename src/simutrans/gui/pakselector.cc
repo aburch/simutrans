@@ -52,7 +52,9 @@ pakselector_t::pakselector_t() :
 		char dummy[PATH_MAX];
 		dr_getcwd(dummy, lengthof(dummy) - 2);
 		strcat(dummy, PATH_SEPARATOR);
-		add_path(dummy);
+		if(  strcmp(env_t::install_dir, dummy)  ) {
+			add_path(dummy);
+		}
 	}
 }
 
