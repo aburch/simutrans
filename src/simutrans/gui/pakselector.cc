@@ -73,7 +73,8 @@ bool pakselector_t::del_action(const char *fullpath)
 {
 	// cannot delete set => use this for selection
 	env_t::pak_dir = fullpath;
-	env_t::pak_name = get_filename(fullpath)+"/";
+	env_t::pak_dir += PATH_SEPARATOR;
+	env_t::pak_name = get_filename(fullpath)+PATH_SEPARATOR;
 	env_t::default_settings.set_with_private_paks( true );
 	return true;
 }
