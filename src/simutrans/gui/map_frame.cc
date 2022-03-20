@@ -256,7 +256,7 @@ map_frame_t::map_frame_t() :
 	{
 		// first row of controls
 		b_show_network_option.init(button_t::roundbox_state, "Show networks");
-		b_show_network_option.set_tooltip("Shows option buttons about networks.");
+		b_show_network_option.set_tooltip("Shows buttons on network overlay.");
 		b_show_network_option.set_size(D_BUTTON_SIZE);
 		b_show_network_option.add_listener(this);
 		add_component(&b_show_network_option);

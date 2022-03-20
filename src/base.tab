@@ -4234,6 +4234,16 @@ note=button/tool tooltip on removing signals
 obj=program_text
 name=transparent background
 --
+obj=program_text
+name=Show networks
+--
+obj=program_text
+name=Shows buttons on network overlay.
+note=tooltip to Show networks
+--
+
+
+
 #obj=help_text
 #name=Lower values mean more local sounds
 #note=tooltip in sound frame
