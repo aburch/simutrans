@@ -23,6 +23,27 @@ class karte_ptr_t;
 
 #define MAP_MAX_BUTTONS (22)
 
+
+/**
+ * Scroll-container of map, so we can rightdrag and zoom with wheel
+ */
+class gui_scrollpane_map_t : public gui_scrollpane_t
+{
+private:
+	bool is_dragging;
+	bool is_cursor_hidden;
+
+public:
+	gui_scrollpane_map_t(gui_component_t* comp);
+
+	// we use rightclick dragging and scrollwhell for zoom, so we need to catch some events before
+	bool infowin_event(event_t const*) OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE { return scr_size::inf; }
+
+	void zoom(bool magnify);
+};
+
 /**
  * Minimap window
  */
@@ -39,7 +60,6 @@ private:
 	 * so we use a static variable here.
 	 */
 	static scr_size window_size;
-	static scr_coord screenpos;
 
 	static bool legend_visible;
 	static bool network_option_visible;
@@ -47,26 +67,13 @@ private:
 	static bool directory_visible;
 	static bool filter_factory_list;
 
-	static bool is_cursor_hidden;
-
-	/**
-	 * We need to keep track of drag/click events
-	 */
-	bool is_dragging;
-
-	/**
-	 * remember that we zoomed
-	 * to center map
-	 */
-	bool zoomed;
-
 	int viewable_players[MAX_PLAYER_COUNT+1];
 
 	vector_tpl<const goods_desc_t *> viewable_freight_types;
 
 	gui_aligned_container_t filter_container, network_filter_container, scale_container, directory_container, *zoom_row;
 
-	gui_scrollpane_t* p_scrolly;
+	gui_scrollpane_map_t *p_scrolly;
 
 	button_t filter_buttons[MAP_MAX_BUTTONS];
 	button_t zoom_buttons[2];
@@ -86,7 +93,7 @@ private:
 	gui_combobox_t transport_type_c;
 	gui_combobox_t freight_type_c;
 
-	void zoom(bool zoom_out);
+//	void zoom(bool zoom_out);
 	void update_buttons();
 	void update_factory_legend();
 	void show_hide_legend(const bool show);
@@ -99,7 +106,10 @@ public:
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 */
-	const char * get_help_filename() const OVERRIDE {return "map.txt";}
+	const char *get_help_filename() const OVERRIDE {return "map.txt";}
+
+	static bool zoomed; // if true, zoom label will be uopdated on next redraw
+	static scr_coord screenpos;
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.

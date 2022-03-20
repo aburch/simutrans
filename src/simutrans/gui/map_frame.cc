@@ -36,22 +36,114 @@ bool  map_frame_t::legend_visible=false;
 bool map_frame_t::network_option_visible = false;
 bool  map_frame_t::scale_visible=false;
 bool  map_frame_t::directory_visible=false;
-bool  map_frame_t::is_cursor_hidden=false;
 bool  map_frame_t::filter_factory_list=true;
+bool  map_frame_t::zoomed = true;
 
 // we track our position onscreen
 scr_coord map_frame_t::screenpos;
 
-/**
- * Scroll-container of map. Hack: size calculations of minimap_t are intertwined with map_frame_t.
- */
-class gui_scrollpane_map_t : public gui_scrollpane_t
-{
-public:
-	gui_scrollpane_map_t(gui_component_t* comp) : gui_scrollpane_t(comp) { set_allow_dragging(false); }
 
-	scr_size get_max_size() const OVERRIDE { return scr_size::inf;}
-};
+gui_scrollpane_map_t::gui_scrollpane_map_t(gui_component_t* comp) : gui_scrollpane_t(comp)
+{
+	set_allow_dragging(false);
+	is_dragging = false;
+	is_cursor_hidden = false;
+}
+
+
+void gui_scrollpane_map_t::zoom(bool magnify)
+{
+	if (minimap_t::get_instance()->change_zoom_factor(magnify)) {
+		map_frame_t::zoomed = true;
+
+		// recalculate scroll bar width
+		set_size(get_size());
+		// invalidate old offsets
+		old_ij = koord::invalid;
+	}
+}
+
+
+bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
+{
+	if (IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
+		// otherwise these would go to the vertical scroll bars
+		zoom(IS_WHEELUP(ev));
+		return true;
+	}
+
+	// hack: minimap can resize upon right click
+	// we track this here, and adjust size.
+	if (IS_RIGHTCLICK(ev)) {
+		is_dragging = false;
+		display_show_pointer(false);
+		is_cursor_hidden = true;
+		return true;
+	}
+	else if (IS_RIGHTRELEASE(ev)) {
+		is_dragging = false;
+		display_show_pointer(true);
+		is_cursor_hidden = false;
+		return true;
+	}
+	else if (IS_RIGHTDRAG(ev)) {
+		int x = get_scroll_x();
+		int y = get_scroll_y();
+		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
+
+		x += (ev->mx - ev->cx) * scroll_direction * 2;
+		y += (ev->my - ev->cy) * scroll_direction * 2;
+
+		is_dragging = true;
+
+		set_scroll_position(max(0, x), max(0, y));
+
+		// Move the mouse pointer back to starting location
+		// To prevent a infinite mouse event loop, we just do it when needed.
+		if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
+			move_pointer(map_frame_t::screenpos.x + ev->cx, map_frame_t::screenpos.y + ev->cy);
+		}
+
+		return true;
+	}
+	else if (IS_LEFTDBLCLK(ev)) {
+		// re-center cursor by scrolling
+		koord ij = world()->get_viewport()->get_world_position();
+		scr_coord center = minimap_t::get_instance()->map_to_screen_coord(ij);
+		const scr_size s_size = get_size();
+
+		set_scroll_position(max(0, center.x - (s_size.w / 2)), max(0, center.y - (s_size.h / 2)));
+		map_frame_t::zoomed = false;
+
+		// remember world position, we do not want to have surprises when scrolling later on
+		old_ij = ij;
+		return true;
+	}
+	else if (IS_RIGHTDBLCLK(ev)) {
+		// zoom to fit window
+		do { // first, zoom all the way in
+			map_frame_t::zoomed = false;
+			zoom(true);
+		} while (map_frame_t::zoomed);
+
+		// then zoom back out to fit
+		const scr_size s_size = get_size() - D_SCROLLBAR_SIZE;
+		scr_size size = minimap_t::get_instance()->get_size();
+		map_frame_t::zoomed = true;
+		while (map_frame_t::zoomed && max(size.w / s_size.w, size.h / s_size.h)) {
+			zoom(false);
+			size = minimap_t::get_instance()->get_size();
+		}
+		return true;
+	}
+	else if (is_cursor_hidden) {
+		display_show_pointer(true);
+		is_cursor_hidden = false;
+	}
+
+	return gui_scrollpane_t::infowin_event(ev);
+}
+
 
 /**
  * Entries in factory legend: show color indicator + name
@@ -147,7 +239,6 @@ map_frame_t::map_frame_t() :
 {
 	// init statics
 	old_ij = koord::invalid;
-	is_dragging = false;
 	zoomed = false;
 
 	// init map
@@ -515,11 +606,11 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 	}
 	else if(  comp == zoom_buttons+1  ) {
 		// zoom out
-		zoom(true);
+		p_scrolly->zoom(true);
 	}
 	else if(  comp == zoom_buttons+0  ) {
 		// zoom in
-		zoom(false);
+		p_scrolly->zoom(false);
 	}
 	else if(  comp == &b_rotate45  ) {
 		// rotated/straight map
@@ -586,25 +677,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 }
 
 
-void map_frame_t::zoom(bool magnify)
-{
-	if ( minimap_t::get_instance()->change_zoom_factor(magnify)) {
-		zoomed = true;
-
-		// update zoom factors and zoom label
-		sint16 zoom_in, zoom_out;
-		minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
-		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
-		zoom_value_label.update();
-		zoom_row->set_size( zoom_row->get_size());
-		// recalculate scroll bar width
-		scrolly.set_size( scrolly.get_size() );
-		// invalidate old offsets
-		old_ij = koord::invalid;
-	}
-}
-
-
 /**
  * Report events to the GUI-components
  */
@@ -620,90 +692,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		else if(ev->ev_code == WIN_CLOSE) {
 			minimap_t::get_instance()->is_visible = false;
 		}
-	}
-
-	if(  minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  ) {
-		set_focus( minimap_t::get_instance() );
-	}
-
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  
-		minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  && 
-		!viewed_player_c.getroffen(ev2.mx,ev2.my) &&
-		!transport_type_c.getroffen(ev2.mx,ev2.my) &&
-		!freight_type_c.getroffen(ev2.mx,ev2.my)  )
-	{
-		// otherwise these would go to the vertical scroll bars
-		zoom(IS_WHEELUP(ev));
-		return true;
-	}
-
-	// hack: minimap can resize upon right click
-	// we track this here, and adjust size.
-	if(  IS_RIGHTCLICK(ev)  ) {
-		is_dragging = false;
-		display_show_pointer(false);
-		is_cursor_hidden = true;
-		return true;
-	}
-	else if(  IS_RIGHTRELEASE(ev)  ) {
-		is_dragging = false;
-		display_show_pointer(true);
-		is_cursor_hidden = false;
-		return true;
-	}
-	else if(  IS_RIGHTDRAG(ev)  &&  ( minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  ||  minimap_t::get_instance()->getroffen(ev2.cx,ev2.cy))  ) {
-		int x = scrolly.get_scroll_x();
-		int y = scrolly.get_scroll_y();
-		const int scroll_direction = ( env_t::scroll_multi>0 ? 1 : -1 );
-
-		x += (ev->mx - ev->cx)*scroll_direction*2;
-		y += (ev->my - ev->cy)*scroll_direction*2;
-
-		is_dragging = true;
-
-		scrolly.set_scroll_position(  max(0, x),  max(0, y) );
-
-		// Move the mouse pointer back to starting location
-		// To prevent a infinite mouse event loop, we just do it when needed.
-		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
-			move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
-		}
-
-		return true;
-	}
-	else if(  IS_LEFTDBLCLK(ev)  &&  minimap_t::get_instance()->getroffen(ev2.mx,ev2.my)  ) {
-		// re-center cursor by scrolling
-		koord ij = welt->get_viewport()->get_world_position();
-		scr_coord center = minimap_t::get_instance()->map_to_screen_coord(ij);
-		const scr_size s_size = scrolly.get_size();
-
-		scrolly.set_scroll_position(max(0,center.x-(s_size.w/2)), max(0,center.y-(s_size.h/2)));
-		zoomed = false;
-
-		// remember world position, we do not want to have surprises when scrolling later on
-		old_ij = ij;
-		return true;
-	}
-	else if(  IS_RIGHTDBLCLK(ev)  ) {
-		// zoom to fit window
-		do { // first, zoom all the way in
-			zoomed = false;
-			zoom(true);
-		} while(  zoomed  );
-
-		// then zoom back out to fit
-		const scr_size s_size = scrolly.get_size() - D_SCROLLBAR_SIZE;
-		scr_size size = minimap_t::get_instance()->get_size();
-		zoomed = true;
-		while(  zoomed  &&  max(size.w/s_size.w, size.h/s_size.h)  ) {
-			zoom(false);
-			size = minimap_t::get_instance()->get_size();
-		}
-		return true;
-	}
-	else if(  is_cursor_hidden  ) {
-		display_show_pointer(true);
-		is_cursor_hidden = false;
 	}
 
 	return gui_frame_t::infowin_event(ev);
@@ -741,9 +729,15 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		if(zoomed  ||  ( old_ij != ij  &&
 				( scrolly.get_scroll_x()>center.x  ||  scrolly.get_scroll_x()+size.w<=center.x  ||
 				  scrolly.get_scroll_y()>center.y  ||  scrolly.get_scroll_y()+size.h<=center.y ) ) ) {
-				// re-center cursor by scrolling
-				scrolly.set_scroll_position( max(0,center.x-(size.w/2)), max(0,center.y-(size.h/2)) );
-				zoomed = false;
+			// re-center cursor by scrolling
+			scrolly.set_scroll_position( max(0,center.x-(size.w/2)), max(0,center.y-(size.h/2)) );
+			zoomed = false;
+			// update zoom factors and zoom label
+			sint16 zoom_in, zoom_out;
+			minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
+			zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out);
+			zoom_value_label.update();
+			zoom_row->set_size(zoom_row->get_size());
 		}
 		// remember world position, we do not want to have surprises when scrolling later on
 		old_ij = ij;
