@@ -643,7 +643,7 @@ int simu_main(int argc, char** argv)
 	tabfile_t simuconf;
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
-	sprintf( path_to_simuconf, "config%csimuconf.tab", PATH_SEPARATOR[0] );
+	sprintf( path_to_simuconf, "config%ssimuconf.tab", PATH_SEPARATOR );
 	if(  not_portable  &&  simuconf.open( path_to_simuconf )  ) {
 		tabfileobj_t contents;
 		simuconf.read( contents );
@@ -1097,13 +1097,19 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	obj_conf = env_t::pak_dir + "config" +PATH_SEPARATOR + "simuconf.tab";
+	obj_conf = env_t::pak_dir + "config" + PATH_SEPARATOR + "simuconf.tab";
 	if (simuconf.open(obj_conf.c_str())) {
 		env_t::default_settings.set_way_height_clearance( 0 );
+		uint8 show_month = env_t::env_t::show_month;
 
 		dbg->message("simu_main()", "Parsing %s", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf );
 		env_t::default_settings.parse_colours( simuconf );
+
+		if (show_month != env_t::show_month) {
+			dbg->warning("Parsing simuconf.tab", "Pakset %s defines show_month will be ignored!", env_t::pak_name);
+		}
+		env_t::show_month = show_month;
 
 		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
 		pak_height_conversion_factor = env_t::pak_height_conversion_factor;
