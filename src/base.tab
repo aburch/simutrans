@@ -921,9 +921,6 @@ obj=program_text
 name=Happy
 -
 obj=program_text
-name=Helligk.
--
-obj=program_text
 name=Helligk. u. Farben
 -
 obj=program_text
@@ -4460,4 +4457,7 @@ note=tooltip to Show networks
 #-
 #obj=error_text
 #name=No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu.
+#-
+#obj=program_text
+#name=Helligk.
 #-

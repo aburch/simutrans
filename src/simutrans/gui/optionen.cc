@@ -44,7 +44,7 @@ static char const *const option_buttons_text[] =
 	"Sprache", "Neue Karte",
 	"Spieler(mz)", "Load game",
 	"Farbe", "Speichern",
-	"Helligk.", "Load scenario",
+	"Display settings", "Load scenario",
 	"Sound", "Scenario", "Install",
 	"Beenden"
 };

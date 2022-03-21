@@ -522,7 +522,7 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 
 
 color_gui_t::color_gui_t() :
-	gui_frame_t( translator::translate( "Helligk. u. Farben" ) ),
+	gui_frame_t( translator::translate( "Display settings" ) ),
 	scrolly_gui(&gui_settings),
 	scrolly_map(&map_settings),
 	scrolly_transparency(&transparency_settings),

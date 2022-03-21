@@ -171,7 +171,7 @@ public:
 class dialog_displayoptions_t : public tool_t {
 public:
 	dialog_displayoptions_t() : tool_t(DIALOG_DISPLAYOPTIONS | DIALOGE_TOOL) {}
-	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Helligk."); }
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Display settings"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_color_gui_t); }
 	bool init(player_t*) OVERRIDE{
 		create_win(new color_gui_t(), w_info, magic_color_gui_t);

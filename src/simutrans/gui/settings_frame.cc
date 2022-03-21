@@ -56,7 +56,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_climates.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
 
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
-	tabs.add_tab(&scrolly_display, translator::translate("Helligk."));
+	tabs.add_tab(&scrolly_display, translator::translate("Display settings"));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));

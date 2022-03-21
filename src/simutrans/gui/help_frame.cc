@@ -147,7 +147,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
 
 	add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
-	add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
+	add_helpfile( others, "Display settings", "display.txt", false, 0 );
 	add_helpfile( others, "Mailbox", "mailbox.txt", false, 0 );
 	add_helpfile( others, "Sound settings", "sound.txt", false, 0 );
 	add_helpfile( others, "Sprachen", "language.txt", false, 0 );
