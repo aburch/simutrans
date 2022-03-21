@@ -29,8 +29,14 @@ pakinstaller_t::pakinstaller_t() :
 
 	for (int i = 0; i < 10; i++) {
 #ifdef USE_OWN_PAKINSTALL
+		// can only do http and zip files
 		const char *c = pakinfo[i*2];
 		if(  strncmp(c, "https://", 8)==0  ||  !strstr(c, ".zip")  ) {
+			continue;
+		}
+#elif defined(_WIN32)
+		// powershell script can only do zip
+		if(!strstr(pakinfo[i*2], ".zip")) {
 			continue;
 		}
 #endif
@@ -46,6 +52,10 @@ pakinstaller_t::pakinstaller_t() :
 #ifdef USE_OWN_PAKINSTALL
 		const char *c = pakinfo[i*2];
 		if(  !strncmp(c, "https://", 8)  ||  !strstr(c, ".zip")  ) {
+			continue;
+		}
+#elif defined(_WIN32)
+		if(!strstr(pakinfo[i*2], ".zip")) {
 			continue;
 		}
 #endif
