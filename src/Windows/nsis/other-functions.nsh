@@ -7,6 +7,7 @@
 
 !include "TextFunc.nsh"
 
+
 ; Usage ...
 ; Push "|" ;divider char
 ; Push "string1|string2|string3|string4|string5" ;input string
@@ -92,13 +93,66 @@ YesPortable:
   StrCpy $installinsimutransfolder "0"
 AllSetPortable:
   ; here everything is ok
+;	MessageBox MB_OK $PAKDIR
+;	MessageBox MB_OK $INSTDIR
 FunctionEnd
 
 PageEx directory
  PageCallbacks "" "" CheckForPortableInstall
 PageExEnd
 
+Page custom MovePre MoveLeave "Moving paks to PorgramData"
 
+; only show this page, if there are old paks to move ...
+Function MovePre
+  StrCmp $PAKDIR $INSTDIR0 0 +2
+  Abort
+
+  StrCmp $multiuserinstall "1" +2
+  Abort
+
+  ; find at least on pak to move?
+  nsDialogs::Create 1018
+  Pop $0
+  ${NSD_CreateLabel} 0 0 100% 12u "Moving paks to ProgramData (slow)"
+  Pop $0
+  IntOp $9 0 + 13
+  FindFirst $R0 $R1 "$INSTDIR\pak*"
+  IfErrors 0 LoopIt
+  Abort
+
+LoopIt:
+  ${NSD_CreateLabel} 0 $9 100% 12u "$R1"
+  POP $0
+  IntOp $9 $9 + 13
+;  Messagebox MB_OK "Do some processing on $R1"
+  FindNext $R0 $R1
+  IfErrors 0 LoopIt
+
+  nsDialogs::Show
+FunctionEnd
+
+Function MoveLeave
+  StrCmp $PAKDIR $INSTDIR0 0 +2
+  Abort
+
+  StrCmp $multiuserinstall "1" +2
+  Abort
+
+  FindFirst $R0 $R1 "$INSTDIR\pak*"
+  IfErrors 0 MoveIt
+  Abort
+
+MoveIt:
+  CreateDirectory "$PAKDIR\$R1"
+  CopyFiles "$INSTDIR\$R1" "$PAKDIR"
+  RMdir /r "$INSTDIR\$R1"
+  FindNext $R0 $R1
+  IfErrors 0 MoveIt
+  ExecWait 'Icacls "$PAKDIR" /grant Users:(OI)(CI)M'
+FunctionEnd
+
+  
 
 PageEx components
   PageCallbacks componentsPre
@@ -115,7 +169,7 @@ Function EnableSectionIfThere
   Push $R1
   Call SplitFirstStrPart
   Pop $R1
-  IfFileExists "$INSTDIR\$R1\ground.Outside.pak" 0 NotExistingPakNotSelected
+  IfFileExists "PAKDIR\$R1\ground.Outside.pak" 0 NotExistingPakNotSelected
   SectionGetFlags $R0 $R1
   IntOp $R1 $R1 | ${SF_SELECTED}
   SectionSetFlags $R0 $R1
@@ -128,6 +182,8 @@ FunctionEnd
 
 ; set pak for update/skip if installed
 Function componentsPre
+  Push ${pak}
+  Call EnableSectionIfThere
   Push ${pak64german}
   Call EnableSectionIfThere
   Push ${pak64japan}
@@ -263,6 +319,10 @@ PageExEnd
 ; ******************************** From here on Functions ***************************
 
 Function .oninit
+  SetShellVarContext all
+  StrCpy $PAKDIR "$APPDATA\Simutrans"
+  SetShellVarContext current
+
   StrCpy $9 ${SDLexe} ;The default for radiobutton
 
   InitPluginsDir
@@ -327,10 +387,10 @@ FunctionEnd
 
 Function IsPakInstalledAndCurrent
   IntOp $R0 0 + 0
-  IfFileExists "$INSTDIR\$downloadname\ground.Outside.pak" +1 PakNotThere
+  IfFileExists "$PAKDIR\$downloadname\ground.Outside.pak" +1 PakNotThere
   IntOp $R0 1 | 1
 ; now we have outside.pak and it should have a valid number
-  FileOpen $0 "$INSTDIR\$downloadname\ground.Outside.pak" r
+  FileOpen $0 "$PAKDIR\$downloadname\ground.Outside.pak" r
   FileSeek $0 101
   FileRead $0 $R1
   FileClose $0
@@ -349,7 +409,6 @@ Function DownloadInstallZip
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipSkipped
   IntCmp $R0 0 DownloadInstallZipDo
-  SetOutPath $INSTDIR
   RMdir /r "$downloadname.old"
   Rename "$downloadname" "$downloadname.old"
   DetailPrint "Old $downloadname renamed to $downloadname.old"
@@ -371,11 +430,10 @@ DownloadInstallZipDo:
      Quit
 
   ; remove all old files before!
-  RMdir /r "$INSTDIR\$downloadname"
+  RMdir /r "$OUTDIR\$downloadname"
   ; we need the magic with temporary copy only if the folder does not end with simutrans ...
   StrCmp $installinsimutransfolder "0" +4
-    CreateDirectory "$INSTDIR"
-    nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+    nsisunz::Unzip "$TEMP\$archievename" "$OUTDIR\.."
     goto +2
     nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
   Pop $R0 ;Get the return value
@@ -386,8 +444,8 @@ DownloadInstallZipDo:
 
   Delete "$Temp\$archievename"
   StrCmp $installinsimutransfolder "1" +3
-  CreateDirectory "$INSTDIR"
-  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
+  CreateDirectory "$OUTDIR"
+  CopyFiles /silent "$TEMP\Simutrans\*.*" "$OUTDIR"
   RMdir /r "$TEMP\simutrans"
 DownloadInstallZipSkipped:
 FunctionEnd
@@ -412,8 +470,7 @@ Function DownloadInstallNoRemoveZip
 
   ; we need the magic with temporary copy only if the folder does not end with simutrans ...
   StrCmp $installinsimutransfolder "0" +4
-    CreateDirectory "$INSTDIR"
-    nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+    nsisunz::Unzip "$TEMP\$archievename" "$OUTDIR\.."
     goto +2
     nsisunz::Unzip "$TEMP\$archievename" "$TEMP"
   Pop $R0 ;Get the return value
@@ -424,8 +481,8 @@ Function DownloadInstallNoRemoveZip
 
   Delete "$Temp\$archievename"
   StrCmp $installinsimutransfolder "1" +3
-  CreateDirectory "$INSTDIR"
-  CopyFiles /silent "$TEMP\Simutrans\*.*" "$INSTDIR"
+  CreateDirectory "$OUTDIR"
+  CopyFiles /silent "$TEMP\Simutrans\*.*" "$OUTDIR"
   RMdir /r "$TEMP\simutrans"
 FunctionEnd
 
@@ -478,7 +535,7 @@ Function DownloadInstallAddonZipPortable
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+  nsisunz::Unzip "$TEMP\$archievename" "$OUTDIR\.."
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
@@ -495,7 +552,7 @@ Function DownloadInstallZipWithoutSimutrans
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip
   IntCmp $R0 0 DownloadInstallZipWithoutSimutransDo
-  SetOutPath $INSTDIR
+  SetOutPath $OUTDIR
   RMdir /r "$downloadname.old"
   Rename "$downloadname" "$downloadname.old"
   DetailPrint "Old $downloadname renamed to $downloadname.old"
@@ -513,9 +570,9 @@ DownloadInstallZipWithoutSimutransDo:
      Quit
 
   ; remove all old files before!
-  RMdir /r "$INSTDIR\$downloadname"
-  CreateDirectory "$INSTDIR"
-  nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR"
+  RMdir /r "$OUTDIR\$downloadname"
+  CreateDirectory "$OUTDIR"
+  nsisunz::Unzip "$TEMP\$archievename" "$OUTDIR"
   Pop $R0
   StrCmp $R0 "success" +4
     Delete "$Temp\$archievename"
@@ -533,7 +590,7 @@ Function DownloadInstallCabWithoutSimutrans
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallCabWithoutSimutransSkip
   IntCmp $R0 0 DownloadInstallCabWithoutSimutransDo
-  SetOutPath $INSTDIR
+  SetOutPath $OUTDIR
   RMdir /r "$downloadname.old"
   Rename "$downloadname" "$downloadname.old"
   DetailPrint "Old $downloadname renamed to $downloadname.old"
@@ -549,15 +606,15 @@ DownloadInstallCabWithoutSimutransDo:
 
   ; not supported with Unicode
   ;CabDLL::CabView "$TEMP\$archievename"
-  DetailPrint "Install of $archievename to $INSTDIR"
-  CreateDirectory "$INSTDIR\$downloadname"
-  CreateDirectory "$INSTDIR\$downloadname\config"
-  CreateDirectory "$INSTDIR\$downloadname\sound"
-  CreateDirectory "$INSTDIR\$downloadname\text"
+  DetailPrint "Install of $archievename to $OUTDIR"
+  CreateDirectory "$OUTDIR\$downloadname"
+  CreateDirectory "$OUTDIR\$downloadname\config"
+  CreateDirectory "$OUTDIR\$downloadname\sound"
+  CreateDirectory "$OUTDIR\$downloadname\text"
 
-  CabX::FromFile "" "$TEMP\$archievename" "$INSTDIR"
+  CabX::FromFile "" "$TEMP\$archievename" "$OUTDIR"
   ; for ANSI installer
-  ;CabDLL::CabExtractAll "$TEMP\$archievename" "$INSTDIR"
+  ;CabDLL::CabExtractAll "$TEMP\$archievename" "$OUTDIR"
   StrCmp $R0 "0" +5
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
@@ -580,10 +637,10 @@ Function DownloadInstallTgzWithoutSimutrans
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
-  CreateDirectory "$INSTDIR"
+  CreateDirectory "$OUTDIR"
   ; remove all old files before!
-  RMdir /r "$INSTDIR\$downloadname"
-  untgz::extract -d "$INSTDIR" "$TEMP\$archievename"
+  RMdir /r "$OUTDIR\$downloadname"
+  untgz::extract -d "$OUTDIR" "$TEMP\$archievename"
   StrCmp $R0 "success" +4
     Delete "$Temp\$archievename"
     MessageBox MB_OK "Extraction of $archievename failed: $R0"

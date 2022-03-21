@@ -8,6 +8,8 @@
 !include "MUI2.nsh"
 !include "Sections.nsh"
 
+VAR /Global PAKDIR
+
 ; needs the following plugins:
 ; nsisunz
 ; inetc
@@ -24,12 +26,9 @@ var VersionString
 
 var multiuserinstall
 var installinsimutransfolder
+var installpaksetforlder
 
 XPStyle on
-
-; Request application privileges for Windows Vista
-RequestExecutionLevel highest
-
 
 !define MUI_ICON "..\stormoog.ico"
 !define MUI_HEADERIMAGE

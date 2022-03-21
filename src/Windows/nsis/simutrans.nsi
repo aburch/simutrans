@@ -14,6 +14,9 @@
 
 Unicode true
 
+; Request application privileges for Windows Vista
+RequestExecutionLevel highest
+
 !include "preparation-functions.nsh"
 
 var group1
@@ -39,6 +42,8 @@ NotPortable:
   ; make start menu entries
   CreateDirectory "$SMPROGRAMS\Simutrans"
   CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
+  ExecWait 'Icacls "$PAKDIR" /grant Users:(OI)(CI)M'
+
 finishGDIexe:
   ; uninstaller not working yet
   ;WriteUninstaller $INSTDIR\uninstaller.exe
@@ -49,6 +54,7 @@ Section /o "Executable (GDI)" GDIexe
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0-1/simuwin-123-0-1.zip"
   StrCpy $archievename "simuwin-123-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
+  SetOutPath $INSTDIR
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
@@ -58,6 +64,7 @@ Section "Executable (SDL2)" SDLexe
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0-1/simuwin-sdl-123-0-1.zip"
   StrCpy $archievename "simuwin-sdl-123-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2)"
+  SetOutPath $INSTDIR
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
@@ -67,6 +74,7 @@ Section /o "Executable (GDI 64bit)" GDI64exe
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin-x64-123-0-1.zip"
   StrCpy $archievename "simuwin-x64-123-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI) only needed for huge maps"
+  SetOutPath $INSTDIR
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
@@ -76,6 +84,7 @@ Section /o "Executable (SDL2 64bit)" SDL64exe
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/123-0/simuwin-x64-sdl-123-0-1.zip"
   StrCpy $archievename "simuwin-sdl-x64-123-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2) only needed for huge maps"
+  SetOutPath $INSTDIR
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
@@ -86,6 +95,7 @@ Section "Chinese Font" wenquanyi_font
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
   StrCpy $downloadname "wenquanyi_9pt"
+  SetOutPath $INSTDIR
   Call DownloadInstallZipWithoutSimutrans
   Rename $INSTDIR\wenquanyi_9pt.bdf $INSTDIR\font\wenquanyi_9pt.bdf
   Delete $INSTDIR\wenquanyi_9pt.bdf
@@ -138,6 +148,12 @@ test_for_pak:
   SectionGetFlags ${pak64contrast} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak64contrast} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak64scifi} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak96comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
@@ -153,6 +169,9 @@ test_for_pak:
   SectionGetFlags ${pak128britain} $R0
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak128german} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak128cz} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak192comic} $R0
