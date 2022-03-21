@@ -41,12 +41,14 @@ Function PostExeInstall
 NotPortable:
   ; make start menu entries
   CreateDirectory "$SMPROGRAMS\Simutrans"
-  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
+  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" ""
+  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans (Debug).lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
   ExecWait 'Icacls "$PAKDIR" /grant Users:(OI)(CI)M'
+  WriteUninstaller $INSTDIR\uninstaller.exe
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "Simutrans" "Transport Simulator Game"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
 
 finishGDIexe:
-  ; uninstaller not working yet
-  ;WriteUninstaller $INSTDIR\uninstaller.exe
 FunctionEnd
 
 Section /o "Executable (GDI)" GDIexe
@@ -104,6 +106,16 @@ SectionEnd
 
 SectionGroupEnd
 
+
+Section "Uninstall"
+  Delete $INSTDIR\Uninst.exe ; delete self (see explanation below why this works)
+  Delete "$SMPROGRAMS\Simutrans\Simutrans.lnk"
+  Delete "$SMPROGRAMS\Simutrans\Simutrans (Debug).lnk"
+  Delete $INSTDIR\Uninst.exe ; delete self (see explanation below why this works)
+  RMDir /r $INSTDIR
+  RMDir /r $PAKDIR
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans"
+SectionEnd
 
 !include "paksets.nsh"
 
