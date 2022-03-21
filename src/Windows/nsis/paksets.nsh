@@ -43,7 +43,7 @@ SectionEnd
 
 SectionGroupEnd
 
-Section "pak64.german (Freeware) for 123" pak64german
+Section /o "pak64.german (Freeware) for 123" pak64german
   AddSize 22460
   StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-2_full.zip"
   StrCpy $archievename "pak64.german_0-123-0-0-2_full.zip"
@@ -75,7 +75,7 @@ Section /o "pak.Nippon (64 size) V0.5" pak64nippon
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
-Section "pak128.German V2.1" pak128german
+Section /o "pak128.German V2.1" pak128german
   AddSize 558832
 	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $archievename "PAK128.german_2.1_for_ST_123.0.zip"
@@ -106,7 +106,7 @@ Section /o "pak128 V2.8.2" pak128
   Call DownloadInstallZip
 SectionEnd
 
-Section "pak192.Comic 0.6 RC2 (CC-BY-SA)" pak192comic
+Section /o "pak192.Comic 0.6 RC2 (CC-BY-SA)" pak192comic
   AddSize 794299
   StrCpy $downloadlink "https://github.com/Flemmbrav/Pak192.Comic/releases/download/2021-V0.6-RC2/pak192.comic.0.6.RC2.zip"
   StrCpy $archievename "pak192.comic.0.6.RC2.zip"
