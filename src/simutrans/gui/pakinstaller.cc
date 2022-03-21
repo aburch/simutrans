@@ -28,7 +28,13 @@ pakinstaller_t::pakinstaller_t() :
 	new_component_span<gui_label_t>( "Select one or more graphics to install (Ctrl+click):", 2 );
 
 	for (int i = 0; i < 10; i++) {
-		paks.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(pakinfo[i*2+1], i<10?SYSCOL_TEXT: SYSCOL_TEXT_SHADOW);
+#ifdef USE_OWN_PAKINSTALL
+		const char *c = pakinfo[i*2];
+		if(  strncmp(c, "https://", 8)==0  ||  !strstr(c, ".zip")  ) {
+			continue;
+		}
+#endif
+		paks.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(pakinfo[i * 2 + 1], i < 10 ? SYSCOL_TEXT : SYSCOL_TEXT_SHADOW);
 	}
 	paks.enable_multiple_selection();
 	scr_coord_val paks_h = paks.get_max_size().h;
@@ -37,6 +43,12 @@ pakinstaller_t::pakinstaller_t() :
 	new_component_span<gui_label_t>( "The following graphics are unmaintained:", 2 );
 
 	for (int i = 10; i < PAKSET_COUNT; i++) {
+#ifdef USE_OWN_PAKINSTALL
+		const char *c = pakinfo[i*2];
+		if(  !strncmp(c, "https://", 8)  ||  !strstr(c, ".zip")  ) {
+			continue;
+		}
+#endif
 		obsolete_paks.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(pakinfo[i*2+1], i<10?SYSCOL_TEXT: SYSCOL_TEXT_SHADOW);
 	}
 	obsolete_paks.enable_multiple_selection();
@@ -83,12 +95,17 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 		cbuffer_t param;
 		ls.set_info(pakinfo[i * 2 + 1]);
 #ifdef _WIN32
-		param.append( "powershell -ExecutionPolicy ByPass -NoExit .\\get_pak.ps1 \"" );
+		param.append("powershell -ExecutionPolicy ByPass -NoExit ");
+		param.append(env_t::base_dir);
+		param.append("get_pak.ps1 \"" );
 #else
 #ifndef __ANDROID__
-		param.append("./get_pak.sh \"");
+		param.append( env_t::base_dir);
+		param.append("get_pak.sh \"");
 #else
-		param.append( "sh get_pak.sh \"" );
+		param.append("sh ");
+		param.append(env_t::base_dir);
+		param.append("get_pak.sh \"");
 #endif
 #endif
 		param.append(pakinfo[i*2]);
@@ -103,9 +120,18 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 		cbuffer_t param;
 		ls.set_info(pakinfo[i * 2 + 21]);
 #ifdef _WIN32
-		param.append("powershell -ExecutionPolicy ByPass .\\get_pak.ps1 \"");
+		param.append("powershell -ExecutionPolicy ByPass -NoExit ");
+		param.append(env_t::base_dir);
+		param.append("get_pak.ps1 \"");
 #else
-		param.append( "./get_pak.sh \"" );
+#ifndef __ANDROID__
+		param.append(env_t::base_dir);
+		param.append("get_pak.sh \"");
+#else
+		param.append("sh ");
+		param.append(env_t::base_dir);
+		param.append("get_pak.sh \"");
+#endif
 #endif
 		param.append(pakinfo[i*2+20]);
 		param.append("\"");
