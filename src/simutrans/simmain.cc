@@ -1107,7 +1107,7 @@ int simu_main(int argc, char** argv)
 		env_t::default_settings.parse_colours( simuconf );
 
 		if (show_month != env_t::show_month) {
-			dbg->warning("Parsing simuconf.tab", "Pakset %s defines show_month will be ignored!", env_t::pak_name);
+			dbg->warning("Parsing simuconf.tab", "Pakset %s defines show_month will be ignored!", env_t::pak_name.c_str());
 		}
 		env_t::show_month = show_month;
 
