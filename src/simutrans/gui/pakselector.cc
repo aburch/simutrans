@@ -144,8 +144,7 @@ void pakselector_t::fill_list()
 			// store path to pakset temporary, reset later if more choices available
 			// if env_t::pak_dir is non-empty then simmain.cc will close the window immediately
 			env_t::pak_name = (std::string)i.button->get_text() + PATH_SEPARATOR;
-			env_t::pak_dir = path;
-			env_t::pak_dir += env_t::pak_name;
+			env_t::pak_dir = (std::string)i.info + PATH_SEPARATOR;
 		}
 	}
 	dr_chdir( env_t::base_dir );
