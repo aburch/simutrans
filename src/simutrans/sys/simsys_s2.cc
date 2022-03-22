@@ -915,11 +915,11 @@ static void internal_GetEvents()
 			bool np = false; // to indicate we converted a numpad key
 
 			switch(  sym  ) {
-				case SDLK_AC_BACK:
 				case SDLK_BACKSPACE:  code = SIM_KEY_BACKSPACE;             break;
 				case SDLK_TAB:        code = SIM_KEY_TAB;                   break;
 				case SDLK_RETURN:     code = SIM_KEY_ENTER;                 break;
 				case SDLK_ESCAPE:     code = SIM_KEY_ESCAPE;                break;
+				case SDLK_AC_BACK:
 				case SDLK_DELETE:     code = SIM_KEY_DELETE;                break;
 				case SDLK_DOWN:       code = SIM_KEY_DOWN;                  break;
 				case SDLK_END:        code = SIM_KEY_END;                   break;
