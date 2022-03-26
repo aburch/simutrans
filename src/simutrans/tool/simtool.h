@@ -161,6 +161,7 @@ public:
 class tool_clear_reservation_t : public tool_t {
 public:
 	tool_clear_reservation_t() : tool_t(TOOL_CLEAR_RESERVATION | GENERAL_TOOL) {}
+	bool is_selected() const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Clear block reservation"); }
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;

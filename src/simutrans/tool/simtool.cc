@@ -1478,6 +1478,11 @@ bool tool_clear_reservation_t::exit( player_t * )
 	return true;
 }
 
+bool tool_clear_reservation_t::is_selected() const
+{
+	return schiene_t::show_reservations;
+}
+
 const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
