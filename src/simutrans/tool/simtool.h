@@ -922,6 +922,23 @@ public:
 	bool is_work_network_safe() const OVERRIDE { return true; }
 };
 
+class tool_toggle_control_t : public tool_t {
+public:
+	tool_toggle_control_t() : tool_t(TOLL_TOGGLE_CONTROL | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Lock Control key"); }
+	bool is_selected() const OVERRIDE { return tool_t::control_invert; }
+	bool init(player_t*) OVERRIDE {
+		tool_t::control_invert = WFL_CTRL;
+		return false;
+	}
+	bool exit(player_t* s) OVERRIDE {
+		tool_t::control_invert = 0;
+		return false;
+	}
+	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_work_network_safe() const OVERRIDE { return true; }
+};
+
 class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}

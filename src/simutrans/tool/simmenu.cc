@@ -47,6 +47,9 @@
 
 karte_ptr_t tool_t::welt;
 
+// emulate control key by tool
+uint8 tool_t::control_invert = 0;
+
 // for key lookup; is always sorted during the game
 vector_tpl<tool_t *>tool_t::char_to_tool(0);
 
@@ -322,6 +325,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
 		case TOOL_RECOLOUR_TOOL:        tool = new tool_recolour_t();             break;
 		case TOOL_SHOW_FACTORY_STORAGE: tool = new tool_show_factory_storage_t(); break;
+		case TOLL_TOGGLE_CONTROL:       tool = new tool_toggle_control_t();       break;
 		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case UNUSED_WKZ_PWDHASH_TOOL:
 			dbg->warning("create_simple_tool()", "Deprecated tool [%i] requested", toolnr);

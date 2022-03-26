@@ -125,6 +125,7 @@ enum {
 	TOOL_ROLLUP_ALL_WIN,
 	TOOL_RECOLOUR_TOOL,
 	TOOL_SHOW_FACTORY_STORAGE,
+	TOLL_TOGGLE_CONTROL,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -190,6 +191,7 @@ protected:
 	static karte_ptr_t welt;
 
 	const char *default_param;
+
 public:
 	uint16 get_id() const { return id; }
 
@@ -201,6 +203,9 @@ public:
 
 	// for key lookup
 	static vector_tpl<tool_t *>char_to_tool;
+
+	// true, if the control key should be inverted
+	static uint8 control_invert;
 
 	/// cursor image
 	image_id cursor;
