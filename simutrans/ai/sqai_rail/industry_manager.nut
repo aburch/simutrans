@@ -256,7 +256,7 @@ class industry_manager_t extends manager_t
     }
 
     // check all 5 years ( year xxx0 and xxx5 )
-    mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 1000
+    mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 500
     if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
       // in may
       // check unused halts
@@ -1111,6 +1111,7 @@ class industry_manager_t extends manager_t
 
         local expand_station = []
         local station_count = 0
+        local station_exist = 0
         if ( wt == wt_rail ) {
 
           for ( local i = 0; i < 6; i++ ) {
@@ -1120,7 +1121,7 @@ class industry_manager_t extends manager_t
           }
           //prototyper.max_length = station_count
           line.halt_length = station_count
-          local a = station_count
+          station_exist = station_count
           if ( station_count < 6 ) {
             // check expand station
             // built cnv to new length end expand station befor create cnv
@@ -1144,14 +1145,14 @@ class industry_manager_t extends manager_t
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
                 }
-                if ( (t1.z == nexttile[a-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
+                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
                     gui.add_message_at(our_player, "###---- check tile nexttile[a-1].z (" + coord3d_to_string(nexttile[a-1]) + ") : " + nexttile[a-1].z, nexttile[a-1])
                   }
                   check_tile++
                 }
-                if ( (t2.z == nexttile[(nexttile.len()-1)-(a-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
+                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
                     gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(a-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(a-1)]) + ") : " + nexttile[(nexttile.len()-1)-(a-1)].z, nexttile[(nexttile.len()-1)-(a-1)])
@@ -1160,7 +1161,7 @@ class industry_manager_t extends manager_t
                 }
                 if (check_tile == 2) {
                   expand_station.append(nexttile[station_count])
-                  expand_station.append(nexttile[nexttile.len()-station_count])
+                  expand_station.append(nexttile[nexttile.len()-(station_count+1)])
                 } else {
                   station_count--
                   break
@@ -1170,8 +1171,8 @@ class industry_manager_t extends manager_t
                 break
               }
             }
-            if ( a < station_count && (print_message_box == 2 || print_message_box == 5) ) {
-              gui.add_message_at(our_player, "###---- check stations field : " + a, nexttile[0])
+            if ( station_exist < station_count && (print_message_box == 2 || print_message_box == 5) ) {
+              gui.add_message_at(our_player, "###---- check stations field : " + station_exist, nexttile[0])
               gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
             }
           }
@@ -1351,6 +1352,7 @@ class industry_manager_t extends manager_t
           gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
         }
 
+        gui.add_message_at(our_player, "####### expand_station.len() " + expand_station.len(), expand_station[0])
         if ( wt == wt_rail && expand_station.len() > 0 ) {
           // tiles for convoy
           local a = c.p_convoy.length
@@ -1364,10 +1366,12 @@ class industry_manager_t extends manager_t
           //local k = c.p_convoy.get_tile_length()
           local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
-          if ( st_lenght > station_count ) {
+          //gui.add_message_at(our_player, "####### st_lenght > station_count : " + st_lenght + " > " + station_exist, expand_station[0])
+          if ( st_lenght > station_exist ) {
             // expand station
-            for ( local i = 0; i < 2; i++ ) {
+            for ( local i = 0; i <= (st_lenght - station_exist); i++ ) {
               command_x.build_station(our_player, expand_station[i], station_list[0])
+              //gui.add_message_at(our_player, "####### expand stations tile " + coord3d_to_string(expand_station[i]), expand_station[0])
             }
             line.halt_length = st_lenght
             gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
@@ -1376,7 +1380,6 @@ class industry_manager_t extends manager_t
             for ( local i = 0; i < expand_station.len(); i++ ) {
               command_x.build_station(our_player, expand_station[i], station_list[0])
             }
-            gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
           }*/
         }
 
