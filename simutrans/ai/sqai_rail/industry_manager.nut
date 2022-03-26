@@ -1352,7 +1352,7 @@ class industry_manager_t extends manager_t
           gui.add_message_at(our_player, "Line: " + line.get_name() + " ==> build additional convoy", world.get_time())
         }
 
-        gui.add_message_at(our_player, "####### expand_station.len() " + expand_station.len(), expand_station[0])
+        //gui.add_message_at(our_player, "####### expand_station.len() " + expand_station.len(), expand_station[0])
         if ( wt == wt_rail && expand_station.len() > 0 ) {
           // tiles for convoy
           local a = c.p_convoy.length
