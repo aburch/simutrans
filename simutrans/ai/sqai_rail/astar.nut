@@ -4662,6 +4662,7 @@ function check_stations_connections() {
           // remove way by wt_rail from halt tiles
           remove_tile_to_empty(t, wt_rail, 1)
         } else {
+          //gui.add_message_at(our_player, "####### remove building halt name: " + halt.get_name(), t[i])
           t[i].remove_object(our_player, mo_building)
         }
       }

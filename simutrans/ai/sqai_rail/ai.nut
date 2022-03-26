@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.8.4"
+ai.version <- "0.8.5"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -36,6 +36,9 @@ function abs(x) { return x>0 ? x : -x }
 // global variables
 our_player_nr <- -1
 our_player    <- null // player_x instance
+
+month_count   <- null
+month_count_ticks <- world.get_time().next_month_ticks
 
 // the AI is organized as a tree,
 // all the work is done in the nodes of the tree

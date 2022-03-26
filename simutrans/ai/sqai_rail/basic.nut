@@ -184,28 +184,36 @@ class manager_t extends node_seq_t
 
 	function work()
 	{
-		/*
-		world.get_time().ticks
-		world.get_time().ticks_per_month
-		world.get_time().next_month_ticks
-		*/ //our_player.nr == 2 &&
-		if ( world.get_time().ticks > ( world.get_time().next_month_ticks - world.get_time().ticks_per_month ) && world.get_time().ticks < ( world.get_time().next_month_ticks - world.get_time().ticks_per_month + 4000 ) ) {
-				//local operating_profit = our_player.get_operating_profit()
-				//local net_wealth = our_player.get_net_wealth()
-				//gui.add_message_at(our_player, our_player.get_name() + " - last month: operating profit " + operating_profit[1] + " net wealth " + net_wealth[1], world.get_time())
-			for ( local i = 0; i <= 14; i++ ) {
-				if ( player_x(i).is_valid() && our_player.nr == i ) {
-					local operating_profit = player_x(i).get_operating_profit()
-					local net_wealth = player_x(i).get_net_wealth()
-					gui.add_message_at(player_x(i), player_x(i).get_name() + " - last month: operating profit " + operating_profit[1] + " net wealth " + net_wealth[1], world.get_time())
+    if ( month_count ) {
+        month_count = false
+        month_count_ticks = world.get_time().next_month_ticks
+
+				if ( our_player.is_valid() && our_player.get_type() == 4 ) {
+					local operating_profit = player_x(our_player.nr).get_operating_profit()
+					local net_wealth = player_x(our_player.nr).get_net_wealth()
+          local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
+					gui.add_message_at(our_player, message_text, world.get_time())
+
+          local yt = world.get_time().year.tostring()
+
+          // check all 5 years ( year xxx0 and xxx5 )
+          if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 3 ) {
+            // in april
+            check_pl_lines()
+          }
+
+          // check all 5 years ( year xxx2 and xxx7 )
+          if ( (yt.slice(-1) == "2" || yt.slice(-1) == "7") && world.get_time().month == 4 ) {
+            // in may
+            // check unused halts
+            check_stations_connections()
+          }
+
 				}
-			}
-		}
+		} else if ( world.get_time().ticks > month_count_ticks ) {
+      month_count = true
+    }
 
-
-		//		gui.add_message_at(our_player, "world.get_time().next_month_ticks " + world.get_time().next_month_ticks, world.get_time())
-		//		gui.add_message_at(our_player, "world.get_time().ticks " + world.get_time().ticks, world.get_time())
-		//		gui.add_message_at(our_player, "world.get_time().ticks_per_month " + world.get_time().ticks_per_month/400, world.get_time())
 	}
 
 	function append_report(r) { reports.append(r); }

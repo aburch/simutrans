@@ -243,25 +243,7 @@ class industry_manager_t extends manager_t
       }
     }
 
-    // check all 10 years ( year xxx0 )
-    local yt = world.get_time().year.tostring()
-    // Zeitfenster am Monatsanfang um Daueraufruf zu vermeiden im Monat
-    local mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 3500
 
-    if ( yt.slice(-1) == "0" && world.get_time().month == 3 && mnt_ticks > world.get_time().ticks ) {
-      // in april
-      //gui.add_message_at(our_player, "####### year check " + yt, world.get_time())
-      check_pl_lines()
-      //::debug.pause(),
-    }
-
-    // check all 5 years ( year xxx0 and xxx5 )
-    mnt_ticks = world.get_time().next_month_ticks - world.get_time().ticks_per_month + 500
-    if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 4 && mnt_ticks > world.get_time().ticks ) {
-      // in may
-      // check unused halts
-      check_stations_connections()
-    }
     return true
   }
 
@@ -433,7 +415,7 @@ class industry_manager_t extends manager_t
     // 3
     // 4 = cnv status retired / all to old
     // 5 = electrified
-    local print_message_box = 5
+    local print_message_box = 0
 
     dbgprint("Check line " + line.get_name())
     if ( our_player.nr == 3 && print_message_box == 1 ) {
@@ -1112,6 +1094,7 @@ class industry_manager_t extends manager_t
         local expand_station = []
         local station_count = 0
         local station_exist = 0
+
         if ( wt == wt_rail ) {
 
           for ( local i = 0; i < 6; i++ ) {
@@ -1171,7 +1154,7 @@ class industry_manager_t extends manager_t
                 break
               }
             }
-            if ( station_exist < station_count && (print_message_box == 2 || print_message_box == 5) ) {
+            if ( station_exist < station_count && print_message_box == 2 ) {
               gui.add_message_at(our_player, "###---- check stations field : " + station_exist, nexttile[0])
               gui.add_message_at(our_player, "###---- check stations field expand : " + station_count, nexttile[0])
             }
@@ -1366,15 +1349,45 @@ class industry_manager_t extends manager_t
           //local k = c.p_convoy.get_tile_length()
           local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
 
+          local station_s_obj = nexttile[nexttile.len()-1].find_object(mo_building).get_desc()
+          if ( !station_s_obj.is_available(world.get_time()) ) {
+            local capacity = station_s_obj.get_capacity()
+            station_s_obj = null
+            foreach(station in station_list) {
+              if ( station_s_obj = null ) {
+                station_s_obj = station
+              }
+              if ( station.get_capacity() >= capacity && station.get_capacity() < station_s_obj.get_capacity() ) {
+                station_s_obj = station
+              }
+            }
+          }
+
+          local station_e_obj = nexttile[0].find_object(mo_building).get_desc()
+          if ( !station_e_obj.is_available(world.get_time()) ) {
+            station_e_obj = null
+            foreach(station in station_list) {
+              if ( station_e_obj = null ) {
+                station_e_obj = station
+              }
+              if ( station.cost < station_e_obj.cost ) {
+                station_e_obj = station
+              }
+            }
+          }
+
           //gui.add_message_at(our_player, "####### st_lenght > station_count : " + st_lenght + " > " + station_exist, expand_station[0])
           if ( st_lenght > station_exist ) {
             // expand station
             for ( local i = 0; i <= (st_lenght - station_exist); i++ ) {
-              command_x.build_station(our_player, expand_station[i], station_list[0])
+              local station_obj = (i % 2) ? station_s_obj : station_e_obj
+              command_x.build_station(our_player, expand_station[i], station_obj)
               //gui.add_message_at(our_player, "####### expand stations tile " + coord3d_to_string(expand_station[i]), expand_station[0])
             }
             line.halt_length = st_lenght
-            gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+            //gui.add_message_at(our_player, "####### expand stations ", expand_station[0])
+            local message_text = format(translate("%s expand the station %s (%s) and station %s (%s)"), our_player.get_name(), start_l.get_halt().get_name(), coord_to_string(start_l), end_l.get_halt().get_name(), coord_to_string(end_l))
+            gui.add_message_at(our_player, message_text, start_l)
           } /*else if ( st_lenght == 5 && expand_station.len() > 2 ) {
             // expand station to 5 tiles
             for ( local i = 0; i < expand_station.len(); i++ ) {
