@@ -983,17 +983,17 @@ class industry_manager_t extends manager_t
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t1), t1)
                   gui.add_message_at(our_player, "###---- check tile direction : " + coord3d_to_string(t2), t2)
                 }
-                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[a-1].z && t1.is_bridge()) ) {
+                if ( (t1.z == nexttile[station_exist-1].z && !t1.is_bridge() && !t1.is_tunnel()) || (t1.z < nexttile[station_exist-1].z && t1.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t1 z : " + t1.z, t1)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[a-1].z (" + coord3d_to_string(nexttile[a-1]) + ") : " + nexttile[a-1].z, nexttile[a-1])
+                    gui.add_message_at(our_player, "###---- check tile nexttile[station_exist-1].z (" + coord3d_to_string(nexttile[station_exist-1]) + ") : " + nexttile[station_exist-1].z, nexttile[station_exist-1])
                   }
                   check_tile++
                 }
-                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(a-1)].z && t2.is_bridge()) ) {
+                if ( (t2.z == nexttile[(nexttile.len()-1)-(station_exist-1)].z && !t2.is_bridge() && !t2.is_tunnel()) || (t2.z < nexttile[(nexttile.len()-1)-(station_exist-1)].z && t2.is_bridge()) ) {
                   if ( print_message_box == 2 ) {
                     gui.add_message_at(our_player, "###---- check tile t2 z : " + t2.z, t2)
-                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(a-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(a-1)]) + ") : " + nexttile[(nexttile.len()-1)-(a-1)].z, nexttile[(nexttile.len()-1)-(a-1)])
+                    gui.add_message_at(our_player, "###---- check tile nexttile[(nexttile.len()-1)-(station_exist-1)].z (" + coord3d_to_string(nexttile[(nexttile.len()-1)-(station_exist-1)]) + ") : " + nexttile[(nexttile.len()-1)-(station_exist-1)].z, nexttile[(nexttile.len()-1)-(station_exist-1)])
                   }
                   check_tile++
                 }
