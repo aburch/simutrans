@@ -199,7 +199,7 @@ class manager_t extends node_seq_t
           // check all 5 years ( year xxx0 and xxx5 )
           if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 3 ) {
             // in april
-            check_pl_lines()
+            industry_manager.check_pl_lines()
           }
 
           // check all 5 years ( year xxx2 and xxx7 )
