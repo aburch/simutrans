@@ -924,7 +924,7 @@ public:
 
 class tool_toggle_control_t : public tool_t {
 public:
-	tool_toggle_control_t() : tool_t(TOLL_TOGGLE_CONTROL | SIMPLE_TOOL) {}
+	tool_toggle_control_t() : tool_t(TOOL_TOGGLE_CONTROL | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Lock Control key"); }
 	bool is_selected() const OVERRIDE { return tool_t::control_invert; }
 	bool init(player_t*) OVERRIDE {
