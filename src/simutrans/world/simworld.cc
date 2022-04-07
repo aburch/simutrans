@@ -2778,9 +2778,10 @@ void karte_t::update_frame_sleep_time()
 		// way too slow => try to increase time ...
 		if(  last_ms-last_interaction > 100  ) {
 			if(  last_ms-last_interaction > 500  ) {
+				idle_time >>= 1;
 				set_frame_time( 1+get_frame_time() );
 				// more than 1s since last zoom => check if zoom out is a way to improve it
-				if(  last_ms-last_interaction > 5000  &&  get_current_tile_raster_width() < 32  ) {
+				if(  last_ms-last_interaction > 5000  &&  get_current_tile_raster_width() < 32  &&  realFPS <= 80  ) {
 					zoom_factor_up();
 					set_dirty();
 					last_interaction = last_ms-1000;
@@ -3155,7 +3156,7 @@ void karte_t::step()
 	}
 	else if(  step_mode==FAST_FORWARD  ) {
 		// fast forward first: get average simloops (i.e. calculate acceleration)
-		last_step_nr[steps%32] = dr_time();
+		last_step_nr[steps%32] = time;
 		int last_5_simloops = simloops;
 		if(  last_step_nr[(steps+32-5)%32] < last_step_nr[steps%32]  ) {
 			// since 5 steps=1s
@@ -6205,11 +6206,20 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 				}
 				else {
+					// normal ratio
 					INT_CHECK( "karte_t::interactive()" );
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );
-					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
+					uint32 cur_time = dr_time();
+					if (next_step_time > cur_time) {
+						// slowly change idel time
+						idle_time = ( (idle_time * 7) + (next_step_time - dr_time()) ) / 8;
+					}
+					else {
+						// but half if we are really far behind
+						idle_time >>= 1;
+					}
 					INT_CHECK( "karte_t::interactive()" );
 				}
 			}
