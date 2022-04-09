@@ -393,7 +393,20 @@ char const *dr_query_homedir()
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans", userDir.Path());
 #elif defined __ANDROID__
-	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
+	buffer[0] = 0;
+	int state = SDL_AndroidGetExternalStorageState();
+	if (state & SDL_ANDROID_EXTERNAL_STORAGE_WRITE) {
+		const char* p = SDL_AndroidGetExternalStoragePath();
+		if (p) {
+			strcpy(buffer, p);
+			dr_mkdir("/sdcard/simutrans");
+		}
+	}
+	if (!*buffer) {
+		dbg->warning("dr_query_homedir()", "SDL_AndroidGetExternalStoragePath() failed.");
+		// no permission
+		tstrncpy(buffer, SDL_GetPrefPath("Simutrans Team", "simutrans"), lengthof(buffer));
+	}
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		sprintf(buffer, "%s/simutrans", getenv("HOME"));
@@ -404,9 +417,7 @@ char const *dr_query_homedir()
 
 	// create directory and subdirectories
 	dr_mkdir(buffer);
-#ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
-#endif
 	return buffer;
 }
 

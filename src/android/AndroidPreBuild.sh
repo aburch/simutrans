@@ -4,10 +4,12 @@ if [ -e simutrans ]; then
 	echo Simutrans SVN already downloaded
 else
 	svn checkout https://github.com/aburch/simutrans/trunk simutrans || exit 1
-	cd simutrans || exit 1
-	tools/get_lang_files.sh || exit 1
-	cd ..
 fi
+
+echo "Updating translations"
+cd simutrans || exit 1
+tools/get_lang_files.sh || exit 1
+cd ..
 
 echo "Adding assets"
 
