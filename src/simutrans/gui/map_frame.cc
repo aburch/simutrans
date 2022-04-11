@@ -97,13 +97,13 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 		is_dragging = true;
 
 		set_scroll_position(max(0, x), max(0, y));
-
+#if 0
 		// Move the mouse pointer back to starting location
 		// To prevent a infinite mouse event loop, we just do it when needed.
 		if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
 			move_pointer(map_frame_t::screenpos.x + ev->cx, map_frame_t::screenpos.y + ev->cy);
 		}
-
+#endif
 		return true;
 	}
 	else if (IS_RIGHTDBLCLK(ev)) {
