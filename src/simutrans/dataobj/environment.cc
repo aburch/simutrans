@@ -24,11 +24,11 @@ std::string env_t::pak_name;
 
 #ifndef __ANDROID__
 sint16 env_t::menupos = MENU_TOP;
-bool env_t::single_toolbar_mode = true;
+bool env_t::single_toolbar_mode = false;
 sint16 env_t::dpi_scale = 100;
 #else
 sint16 env_t::menupos = MENU_BOTTOM;
-bool env_t::single_toolbar_mode = false;
+bool env_t::single_toolbar_mode = true;
 sint16 env_t::dpi_scale = -1;
 #endif
 sint16 env_t::fullscreen = WINDOWED;
