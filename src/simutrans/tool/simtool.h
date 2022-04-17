@@ -931,7 +931,7 @@ public:
 		tool_t::control_invert = WFL_CTRL;
 		return false;
 	}
-	bool exit(player_t* s) OVERRIDE {
+	bool exit(player_t *) OVERRIDE {
 		tool_t::control_invert = 0;
 		return false;
 	}
