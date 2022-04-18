@@ -80,7 +80,7 @@ void interaction_t::move_cursor( const event_t &ev )
 			is_dragging = false;
 		}
 		else if(  !env_t::networkmode  ||  tool->is_move_network_safe(world->get_active_player())) {
-			tool->flags = (event_get_last_control_shift()^tool_t::control_invert) | tool_t::WFL_LOCAL;
+			tool->flags = (event_get_last_control_shift() ^ tool_t::control_invert) | tool_t::WFL_LOCAL;
 			if(tool->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev.button_state == 0  ) {
 					is_dragging = false;
@@ -230,7 +230,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			bool suspended = false; // true if execution was suspended, i.e. sent to server
 			tool_t *tool = world->get_tool(world->get_active_player_nr());
 			player_t *player = world->get_active_player();
-			tool->flags = event_get_last_control_shift()^tool_t::control_invert;
+			tool->flags = event_get_last_control_shift() ^ tool_t::control_invert;
 			// first check for visibility etc (needs already right flags)
 			const char *err = tool->check_pos( player, pos );
 			if (err==NULL) {

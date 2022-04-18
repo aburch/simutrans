@@ -12,6 +12,7 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../ground/grund.h"
+#include "../tool/simtool.h"
 #include "../simfab.h"
 #include "../world/simcity.h"
 #include "fabrik_info.h"
@@ -1407,7 +1408,7 @@ void minimap_t::draw(scr_coord pos)
 		for(line_segment_t seg : schedule_cache  ) {
 
 			uint8 color = seg.colorcount;
-			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound()  ) {
+			if(  (event_get_last_control_shift() ^ tool_t::control_invert)==2  ||  current_cnv.is_bound()  ) {
 				// on control / single convoi use only player colors
 				static uint8 last_color = color;
 				color = seg.player->get_player_color1()+1;
@@ -1539,7 +1540,7 @@ void minimap_t::draw(scr_coord pos)
 				}
 			}
 			// with control, show only circles
-			if(  event_get_last_control_shift()!=2  ) {
+			if((event_get_last_control_shift() ^ tool_t::control_invert)==2) {
 				// else elongate them ...
 				const int key = station->get_basis_pos().x + station->get_basis_pos().y * world->get_size().x;
 				diagonal_dist = waypoint_hash.get( key ).get_count();

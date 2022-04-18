@@ -2187,7 +2187,7 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 		create_win( -1, -1, new password_frame_t(player), w_info, magic_pwd_t + player->get_player_nr() );
 		return;
 	}
-	tool_in->flags |= event_get_last_control_shift();
+	tool_in->flags |= (event_get_last_control_shift() ^ tool_t::control_invert);
 	if(!env_t::networkmode  ||  tool_in->is_init_network_safe()  ) {
 		local_set_tool(tool_in, player);
 	}

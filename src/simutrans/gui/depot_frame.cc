@@ -1131,7 +1131,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				//first: close schedule (will update schedule on clients)
 				destroy_win( (ptrdiff_t)cnv->get_schedule() );
 				// only then call the tool to start
-				char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
+				char tool = (event_get_last_control_shift() ^ tool_t::control_invert)==2 ? 'B' : 'b'; // start all with CTRL-click
 				depot->call_depot_tool( tool, cnv, NULL);
 			}
 		}
@@ -1395,7 +1395,7 @@ void depot_frame_t::open_schedule_editor()
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
 	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
-		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
+		if(  selected_line.is_bound()  &&  (event_get_last_control_shift() ^ tool_t::control_invert)==2  ) { // update line with CTRL-click
 			create_win( new line_management_gui_t( selected_line, depot->get_owner(), 0 ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule

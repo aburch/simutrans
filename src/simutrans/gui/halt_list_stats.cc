@@ -7,6 +7,7 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simcolor.h"
+#include "../tool/simtool.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../player/simplay.h"
@@ -35,7 +36,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 	if(  !swallowed  &&  halt.is_bound()  ) {
 
 		if(IS_LEFTRELEASE(ev)) {
-			if(  event_get_last_control_shift() != 2  ) {
+			if((event_get_last_control_shift() ^ tool_t::control_invert)==2) {
 				halt->open_info_window();
 			}
 			return true;
