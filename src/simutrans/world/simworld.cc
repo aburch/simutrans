@@ -6098,8 +6098,9 @@ bool karte_t::interactive(uint32 quit_month)
 			DBG_DEBUG4("karte_t::interactive", "can I get some sleep?");
 			INT_CHECK( "karte_t::interactive()" );
 			const sint32 wait_time = (sint32)next_step_time - (sint32)dr_time();
-			if(wait_time>0) {
-				dr_sleep(min(wait_time, 3));
+			if(wait_time>2) {
+				dr_sleep(2);
+				eventmanager->check_events();
 				INT_CHECK( "karte_t::interactive()" );
 			}
 			DBG_DEBUG4("karte_t::interactive", "end of sleep");
@@ -6213,7 +6214,7 @@ bool karte_t::interactive(uint32 quit_month)
 					uint32 cur_time = dr_time();
 					if (next_step_time > cur_time) {
 						// slowly change idel time
-						idle_time = ( (idle_time * 7) + (next_step_time - dr_time()) ) / 8;
+						idle_time = ( (idle_time * 7) + (next_step_time - cur_time) ) / 8;
 					}
 					else {
 						// but half if we are really far behind
