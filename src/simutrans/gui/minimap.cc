@@ -1153,8 +1153,8 @@ const fabrik_t* minimap_t::draw_factory_connections(const fabrik_t* const fab, b
 	if(fab) {
 		PIXVAL color = supplier_link ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE);
 		scr_coord fabpos = map_to_screen_coord( fab->get_pos().get_2d() ) + pos;
-		const vector_tpl<koord>& lieferziele = supplier_link ? fab->get_suppliers() : fab->get_lieferziele();
-		for(koord lieferziel : lieferziele) {
+		const vector_tpl<koord>& consumer = supplier_link ? fab->get_suppliers() : fab->get_consumer();
+		for(koord lieferziel : consumer) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
 				const scr_coord end = map_to_screen_coord( lieferziel ) + pos;

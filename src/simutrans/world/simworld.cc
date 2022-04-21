@@ -2484,8 +2484,8 @@ bool karte_t::rem_fab(fabrik_t *fab)
 
 		// remove all links from factories
 		for(fabrik_t* const fab : fab_list) {
-			fab->rem_lieferziel(k);
-			fab->rem_supplier(k);
+			fab->remove_consumer(k);
+			fab->remove_supplier(k);
 		}
 
 		// remove all links to cities

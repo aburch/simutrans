@@ -1726,13 +1726,13 @@ void stadt_t::calc_growth()
 	// we use the incoming storage as a measure and we will only look for end consumers (power stations, markets)
 	for(factory_entry_t const& i : target_factories_pax.get_entries()) {
 		fabrik_t *const fab = i.factory;
-		if (fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) {
+		if (fab->get_consumer().empty() && !fab->get_suppliers().empty()) {
 			// consumer => check for it storage
 			const factory_desc_t *const desc = fab->get_desc();
 			for(  int i=0;  i<desc->get_supplier_count();  i++  ) {
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
-				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_input_type() )>0  ) {
+				if(  fab->get_input_stock( desc->get_supplier(i)->get_input_type() )>0  ) {
 					city_history_month[0][HIST_GOODS_RECEIVED] ++;
 					city_history_year[0][HIST_GOODS_RECEIVED] ++;
 				}

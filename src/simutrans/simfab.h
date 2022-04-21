@@ -174,7 +174,7 @@ public:
 #ifdef TRANSIT_DISTANCE
 	sint32 count_suppliers; // only needed for averaging
 #endif
-	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+	uint32 index_offset; // used for haltlist and consumer searches in verteile_waren to produce round robin results
 
 	// Production rate for outputs. Returns fixed point with WORK_BITS fractional bits.
 	sint32 calculate_output_production_rate() const;
@@ -253,8 +253,8 @@ private:
 	void book_weighted_sums(sint64 delta_time);
 
 	/// Possible destinations for produced goods
-	vector_tpl <koord> lieferziele;
-	uint32 lieferziele_active_last_month;
+	vector_tpl <koord> consumer;
+	uint32 consumer_active_last_month;
 
 	/**
 	 * suppliers to this factory
@@ -311,11 +311,11 @@ private:
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/// Accumulated time since last production
-	uint32 delta_sum;
-	uint32 delta_menge;
+	uint32 delta_t_sum;
+	uint32 delta_amount;
 
 	// production remainder when scaled to PRODUCTION_DELTA_T. added back next step to eliminate cumulative error
-	uint32 menge_remainder;
+	uint32 delta_amount_remainder;
 
 	// number of rounds where there is active production or consumption
 	uint8 activity_count;
@@ -534,8 +534,8 @@ public:
 
 	bool is_within_players_network( const player_t* player ) const;
 
-	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
-	bool is_active_lieferziel( koord k ) const;
+	const vector_tpl<koord>& get_consumer() const { return consumer; }
+	bool is_active_consumer( koord k ) const;
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
@@ -547,22 +547,22 @@ public:
 	void clear_target_cities();
 	const vector_tpl<stadt_t *>& get_target_cities() const { return target_cities; }
 
-	void  add_lieferziel(koord ziel);
-	void  rem_lieferziel(koord pos);
+	void  add_consumer(koord ziel);
+	void  remove_consumer(koord pos);
 
 	/**
 	 * adds a supplier
 	 */
 	void  add_supplier(koord pos);
-	void  rem_supplier(koord pos);
+	void  remove_supplier(koord pos);
 
 	/**
-	 * @return menge der ware typ
-	 *   -1 wenn typ nicht produziert wird
-	 *   sonst die gelagerte menge
+	 * @return counts amount of ware of typ
+	 *   -1 not produced/used here
+	 *   0>= actual amount
 	 */
-	sint32 input_vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
-	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
+	sint32 get_input_stock(const goods_desc_t *ware);
+	sint32 get_output_stock(const goods_desc_t *ware);
 
 	// true, if there was production requiring power in the last step
 	bool is_currently_producing() const { return currently_requiring_power; }

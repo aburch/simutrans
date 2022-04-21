@@ -647,7 +647,7 @@ void senke_t::step_all(uint32 delta_t)
 senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
-	delta_sum = 0;
+	delta_t_sum = 0;
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
@@ -662,7 +662,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
-	delta_sum = 0;
+	delta_t_sum = 0;
 	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
@@ -760,13 +760,13 @@ sync_result senke_t::sync_step(uint32 delta_t)
 	}
 
 	// advance timers
-	delta_sum += delta_t;
+	delta_t_sum += delta_t;
 	next_t += delta_t;
 
 	// change graphics at most 16 times a second
 	if(  next_t > PRODUCTION_DELTA_T / 16  ) {
 		// enforce timer periods
-		delta_sum %= PRODUCTION_DELTA_T; // 1 second
+		delta_t_sum %= PRODUCTION_DELTA_T; // 1 second
 		next_t %= PRODUCTION_DELTA_T / 16; // 1/16 seconds
 
 		// determine pwm period for image change
@@ -790,7 +790,7 @@ sync_result senke_t::sync_step(uint32 delta_t)
 		}
 
 		// determine image with PWM logic
-		const uint16 work_offset = (delta_sum < pwm_period) ? 1 : 0;
+		const uint16 work_offset = (delta_t_sum < pwm_period) ? 1 : 0;
 
 		// apply seasonal image offset
 		uint16 winter_offset = 0;
@@ -827,11 +827,11 @@ void senke_t::rdwr(loadsave_t *file)
 	}
 
 	if (file->is_version_atleast(122, 1)) {
-		file->rdwr_long(delta_sum);
+		file->rdwr_long(delta_t_sum);
 		file->rdwr_long(next_t);
 	}
 	else if (file->is_loading()) {
-		delta_sum = 0;
+		delta_t_sum = 0;
 		next_t = 0;
 	}
 }

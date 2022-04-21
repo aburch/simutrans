@@ -498,7 +498,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 	add_factory_to_fab_map(welt, fab);
 
 	if(parent) {
-		fab->add_lieferziel(parent->get_2d());
+		fab->add_consumer(parent->get_2d());
 	}
 
 	// make all water station
@@ -777,7 +777,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 			break;
 
 		// connect to an existing one if this is a producer
-		if(  fab->vorrat_an(ware) > -1  ) {
+		if(  fab->get_output_stock(ware) > -1  ) {
 
 			const int distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 			if(  distance > welt->get_settings().get_min_factory_spacing()  &&  distance <= DISTANCE  ) {
@@ -786,12 +786,12 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 				// now guess how much this factory can supply
 				const factory_desc_t* const fd = fab->get_desc();
 				for (uint gg = 0; gg < fd->get_product_count(); gg++) {
-					if (fd->get_product(gg)->get_output_type() == ware && fab->get_lieferziele().get_count() < 10) { // does not make sense to split into more ...
+					if (fd->get_product(gg)->get_output_type() == ware && fab->get_consumer().get_count() < 10) { // does not make sense to split into more ...
 						sint32 production_left = fab->get_base_production() * fd->get_product(gg)->get_factor();
-						const vector_tpl <koord> & lieferziele = fab->get_lieferziele();
+						const vector_tpl <koord> & consumer = fab->get_consumer();
 
 						// decrease remaining production by supplier demand
-						for(koord const& i : lieferziele) {
+						for(koord const& i : consumer) {
 							if (production_left <= 0) break;
 							fabrik_t* const zfab = fabrik_t::get_fab(i);
 							for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
@@ -806,7 +806,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 						if (production_left > 0 || simrand(100) < (uint32)welt->get_settings().get_crossconnect_factor()) {
 							if(production_left>0) {
 								consumption -= production_left;
-								fab->add_lieferziel(our_fab->get_pos().get_2d());
+								fab->add_consumer(our_fab->get_pos().get_2d());
 								DBG_MESSAGE("factory_builder_t::build_chain_link","supplier %s can supply approx %i of %s to us", fd->get_name(), production_left, ware->get_name());
 							}
 							else {
@@ -814,7 +814,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 								 * needed is the same. Therefore, we just keep book
 								 * from whose factories from how many we stole */
 								crossconnected_supplier.append(fab);
-								for(koord const& t : lieferziele) {
+								for(koord const& t : consumer) {
 									fabrik_t* zfab = fabrik_t::get_fab(t);
 									for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
 										if(zfab->get_desc()->get_supplier(zz)->get_input_type()==ware) {
@@ -920,7 +920,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 
 	// now we add us to all cross-connected factories
 	for(fabrik_t* const i : crossconnected_supplier) {
-		i->add_lieferziel(our_fab->get_pos().get_2d());
+		i->add_consumer(our_fab->get_pos().get_2d());
 	}
 
 	/* now the cross-connect part:
@@ -929,7 +929,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	for(fabrik_t* const fab : new_factories) {
 		for (slist_tpl<factories_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
 			i->demand -= 1;
-			fab->add_lieferziel(i->fab->get_pos().get_2d());
+			fab->add_consumer(i->fab->get_pos().get_2d());
 			i->fab->add_supplier(fab->get_pos().get_2d());
 			if (i->demand < 0) {
 				i = factories_to_correct.erase(i);

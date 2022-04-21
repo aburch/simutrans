@@ -205,7 +205,7 @@ private:
 	fabrik_t *fab;
 
 	// Pwm timer for duty cycling image.
-	uint32 delta_sum;
+	uint32 delta_t_sum;
 
 	// Timer for recalculating image.
 	uint32 next_t;

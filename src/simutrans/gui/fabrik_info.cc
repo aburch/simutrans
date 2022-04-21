@@ -38,11 +38,11 @@ class gui_factory_connection_t : public gui_aligned_container_t
 	{
 		if (supplier) {
 			if(  const fabrik_t *src = fabrik_t::get_fab(target)  ) {
-				return src->is_active_lieferziel(fab->get_pos().get_2d());
+				return src->is_active_consumer(fab->get_pos().get_2d());
 			}
 		}
 		else {
-			return fab->is_active_lieferziel(target);
+			return fab->is_active_consumer(target);
 		}
 		return false;
 	}
@@ -208,7 +208,7 @@ fabrik_info_t::~fabrik_info_t()
 	rename_factory();
 	fabname[0] = 0;
 	if (highlight_consumers.pressed) {
-		highlight(fab->get_lieferziele(), false);
+		highlight(fab->get_consumer(), false);
 	}
 	if (highlight_suppliers.pressed) {
 		highlight(fab->get_suppliers(), false);
@@ -273,7 +273,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	else if (comp == &highlight_consumers)
 	{
 		highlight_consumers.pressed ^= 1;
-		highlight(fab->get_lieferziele(), highlight_consumers.pressed);
+		highlight(fab->get_consumer(), highlight_consumers.pressed);
 	}
 	else if (comp == &highlight_suppliers)
 	{
@@ -312,17 +312,17 @@ void fabrik_info_t::update_components()
 	fab->info_conn( info_buf );
 
 	// consumers
-	if(  fab->get_lieferziele().get_count() != old_consumers_count ) {
+	if(  fab->get_consumer().get_count() != old_consumers_count ) {
 		all_consumers.remove_all();
 		all_consumers.set_table_layout(1,0);
 		all_consumers.set_margin(scr_size(0,0), scr_size(0,D_V_SPACE));
 		all_consumers.add_component(&highlight_consumers);
 
 
-		for(koord k : fab->get_lieferziele() ) {
+		for(koord k : fab->get_consumer() ) {
 			all_consumers.new_component<gui_factory_connection_t>(fab, k, false);
 		}
-		old_consumers_count = fab->get_lieferziele().get_count();
+		old_consumers_count = fab->get_consumer().get_count();
 	}
 	// suppliers
 	if(  fab->get_suppliers().get_count() != old_suppliers_count ) {

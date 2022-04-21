@@ -247,7 +247,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get list of consumers of this factory.
 	 * @returns array of coordinates of consumers
 	 */
-	register_method(vm, &fabrik_t::get_lieferziele, "get_consumers");
+	register_method(vm, &fabrik_t::get_consumer, "get_consumers");
 
 	/**
 	 * Get list of consumers of this factory.
