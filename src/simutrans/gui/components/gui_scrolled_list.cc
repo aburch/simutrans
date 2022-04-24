@@ -211,7 +211,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	scrollitem_t* const new_focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
 
 	// if different element is focused, calculate selection and call listeners
-	if (  focus != new_focus  ) {
+	if (  focus != new_focus  ||  (IS_LEFTRELEASE(&ev2)  &&  new_focus->getroffen(ev2.mx,ev2.my))  ) {
 		calc_selection(focus, new_focus, *ev);
 		int new_selection = get_selection();
 		call_listeners((long)new_selection);
@@ -228,7 +228,7 @@ void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* 
 		// do nothing.
 		return;
 	}
-	else if(  !old_focus  ||  !multiple_selection  ||  ev.ev_key_mod==0  ) {
+	else if(  !multiple_selection  ||  ev.ev_key_mod==0  ) {
 		// simply select new_focus
 		for(gui_component_t* v : item_list) {
 			scrollitem_t* item = dynamic_cast<scrollitem_t*>(v);
@@ -237,7 +237,7 @@ void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* 
 			}
 		}
 	}
-	else if(  IS_CONTROL_PRESSED(&ev)  ) {
+	else if(  multiple_selection  &&  IS_CONTROL_PRESSED(&ev)  ) {
 		// control key is pressed. select or deselect the focused one.
 		new_focus->selected = !new_focus->selected;
 	}

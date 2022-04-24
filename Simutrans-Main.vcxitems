@@ -33,6 +33,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\marker.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\objlist.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\pakset_manager.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\pakset_downloader.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\powernet.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\records.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\rect.cc" />
@@ -380,6 +381,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\marker.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\objlist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\pakset_manager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\pakset_downloader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\powernet.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\records.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\rect.h" />

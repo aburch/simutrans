@@ -16,6 +16,7 @@
 
 #include "simwin.h"
 
+#include "../dataobj/pakset_downloader.h"
 
 class pakinstaller_t : public gui_frame_t, private action_listener_t
 {
@@ -23,6 +24,8 @@ private:
 	gui_scrolled_list_t paks;
 	gui_scrolled_list_t obsolete_paks;
 	button_t install, cancel;
+
+	vector_tpl<paksetinfo_t*> paklist;
 
 public:
 	static bool finish_install;
