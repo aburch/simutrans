@@ -15,6 +15,7 @@
 
 #include "../dataobj/ribi.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../obj/leitung2.h"
 #include "../obj/tunnel.h"
@@ -227,7 +228,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	const building_desc_t *old_desc = desc_table.get(desc->get_name());
 	if(old_desc) {
 		// do not overlay existing factories if the new one is not a factory
-		dbg->doubled( "building", desc->get_name() );
+		pakset_manager_t::doubled( "building", desc->get_name() );
 		if (old_desc->is_factory()  &&  !desc->is_factory()) {
 			dbg->error( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
 			delete desc;

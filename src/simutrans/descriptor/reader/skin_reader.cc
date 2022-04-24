@@ -24,7 +24,8 @@ void skin_reader_t::register_obj(obj_desc_t *&data)
 		skinverwaltung_t::register_desc(get_skintype(), desc);
 	}
 	else {
-		obj_for_xref(get_type(), desc->get_name(), data);
+		pakset_manager_t::obj_for_xref(get_type(), desc->get_name(), data);
+
 		// smoke needs its own registering
 		if(  get_type()==obj_smoke  ) {
 			wolke_t::register_desc(desc);

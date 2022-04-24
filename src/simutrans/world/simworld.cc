@@ -82,6 +82,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/records.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../utils/cbuffer.h"
 #include "../utils/simrandom.h"
@@ -126,7 +127,6 @@ static std::string last_network_game;
 
 karte_t* karte_t::world = NULL;
 
-stringhashtable_tpl<karte_t::missing_level_t>missing_pak_names;
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
@@ -3696,16 +3696,6 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 }
 
 
-// store missing obj during load and their severity
-void karte_t::add_missing_paks( const char *name, missing_level_t level )
-{
-	if(  missing_pak_names.get( name )==NOT_MISSING  ) {
-		missing_pak_names.put( strdup(name), level );
-	}
-}
-
-
-
 void karte_t::switch_server( bool start_server, bool port_forwarding )
 {
 	if(  !start_server  ) {
@@ -3787,7 +3777,7 @@ bool karte_t::load(const char *filename)
 	loadsave_t file;
 
 	// clear hash table with missing paks (may cause some small memory loss though)
-	missing_pak_names.clear();
+	pakset_manager_t::clear_missing_paks();
 
 	dbg->message("karte_t::load", "Loading game from '%s'", filename);
 
@@ -3922,54 +3912,8 @@ bool karte_t::load(const char *filename)
 		}
 		else if(  !env_t::networkmode  ||  !env_t::restore_UI  ) {
 			// warning message about missing paks
-			if(  !missing_pak_names.empty()  ) {
+			pakset_manager_t::warn_if_paks_missing();
 
-				cbuffer_t msg;
-				msg.append("<title>");
-				msg.append(translator::translate("Missing pakfiles"));
-				msg.append("</title>\n");
-
-				cbuffer_t error_paks;
-				cbuffer_t warning_paks;
-
-				cbuffer_t paklog;
-				paklog.append( "\n" );
-				for(auto const& i : missing_pak_names) {
-					if (i.value <= MISSING_ERROR) {
-						error_paks.append(translator::translate(i.key));
-						error_paks.append("<br>\n");
-						paklog.append( i.key );
-						paklog.append("\n" );
-					}
-					else {
-						warning_paks.append(translator::translate(i.key));
-						warning_paks.append("<br>\n");
-					}
-				}
-
-				if(  error_paks.len()>0  ) {
-					msg.append("<h1>");
-					msg.append(translator::translate("Pak which may cause severe errors:"));
-					msg.append("</h1><br>\n");
-					msg.append("<br>\n");
-					msg.append( error_paks );
-					msg.append("<br>\n");
-					dbg->warning( "The following paks are missing and may cause errors", paklog );
-				}
-
-				if(  warning_paks.len()>0  ) {
-					msg.append("<h1>");
-					msg.append(translator::translate("Pak which may cause visual errors:"));
-					msg.append("</h1><br>\n");
-					msg.append("<br>\n");
-					msg.append( warning_paks );
-					msg.append("<br>\n");
-				}
-
-				help_frame_t *win = new help_frame_t();
-				win->set_text( msg );
-				create_win(win, w_info, magic_pakset_info_t);
-			}
 			// will not notify if we restore everything
 			if(  scenario->is_scripted()  ) {
 				scenario->open_info_win();

@@ -110,22 +110,6 @@ public:
 		FIX_RATIO    = 1 << 2
 	};
 
-	/**
-	 * Missing things during loading:
-	 * factories, vehicles, roadsigns or catenary may be severe
-	 */
-	enum missing_level_t {
-		NOT_MISSING     = 0,
-		MISSING_FACTORY = 1,
-		MISSING_VEHICLE = 2,
-		MISSING_SIGN    = 3,
-		MISSING_WAYOBJ  = 4,
-		MISSING_ERROR   = 4,
-		MISSING_BRIDGE,
-		MISSING_BUILDING,
-		MISSING_WAY
-	};
-
 private:
 	/**
 	 * @name Map properties
@@ -587,13 +571,6 @@ public:
 	 * Set to something useful, if there is a total distance != 0 to show in the bar below.
 	 */
 	koord3d show_distance;
-
-	/**
-	 * For warning, when stuff had to be removed/replaced
-	 * level must be >=1 (1=factory, 2=vehicles, 3=not so important)
-	 * may be refined later
-	 */
-	void add_missing_paks( const char *name, missing_level_t critical_level );
 
 	/**
 	 * Absolute month.

@@ -13,6 +13,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "bruecke.h"
 
@@ -133,7 +134,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		}
 		if(desc==NULL) {
 			dbg->warning( "bruecke_t::rdwr", "Unknown bridge \"%s\" at (%s) will be replaced with best match!", s, get_pos().get_str() );
-			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
+			pakset_manager_t::add_missing_paks( s, MISSING_BRIDGE );
 		}
 		free(const_cast<char *>(s));
 

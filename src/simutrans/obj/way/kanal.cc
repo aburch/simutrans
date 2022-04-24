@@ -13,6 +13,8 @@
 
 #include "../../builder/wegbauer.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/pakset_manager.h"
+
 #include "kanal.h"
 
 const way_desc_t *kanal_t::default_kanal=NULL;
@@ -59,7 +61,7 @@ void kanal_t::rdwr(loadsave_t *file)
 				if (desc == NULL) {
 					dbg->fatal("kanal_t::rdwr", "Trying to load canal but pakset has no water ways!");
 				}
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
 			}
 			dbg->warning("kanal_t::rdwr()", "Unknown canal '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

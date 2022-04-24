@@ -36,7 +36,7 @@ public:
 	/// May contain pak, scripts and addons
 	static char base_dir[PATH_MAX];
 
-	/// Points to a global writable directory, where downloaded content content is stored 
+	/// Points to a global writable directory, where downloaded content content is stored
 	/// This directory is writable to all users to store global content (like paksets)
 	static char install_dir[PATH_MAX];
 
@@ -47,7 +47,7 @@ public:
 	/// the selected pak (whole path, can be write protected)
 	static std::string pak_dir;
 
-	/// the folder name of the selected pak
+	/// the folder name of the selected pak (with trailing path separator)
 	static std::string pak_name;
 
 	static sint16 menupos;

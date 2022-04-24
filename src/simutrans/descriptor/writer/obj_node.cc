@@ -17,7 +17,7 @@ obj_node_t::obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent)
 	this->parent = parent;
 
 	desc.type = writer->get_type();
-	desc.children = 0;
+	desc.nchildren = 0;
 	desc.size = size;
 	if(  size<LARGE_RECORD_SIZE  ) {
 		write_offset = free_offset + OBJ_NODE_INFO_SIZE; // put size of dis here!
@@ -39,7 +39,7 @@ void obj_node_t::read_node(FILE* fp, obj_node_info_t &node )
 	fread(&u32, 4, 1, fp);
 	node.type = endian(u32);
 	fread(&u16, 2, 1, fp);
-	node.children = endian(u16);
+	node.nchildren = endian(u16);
 	fread(&u16, 2, 1, fp);
 	node.size = endian(u16);
 	if(  node.size==LARGE_RECORD_SIZE  ) {
@@ -54,7 +54,7 @@ void obj_node_t::write(FILE* fp)
 	if(  desc.size<LARGE_RECORD_SIZE  ) {
 		fseek(fp, write_offset - OBJ_NODE_INFO_SIZE, SEEK_SET);
 		uint32 type     = endian(desc.type);
-		uint16 children = endian(desc.children);
+		uint16 children = endian(desc.nchildren);
 		uint16 size16   = endian(uint16(desc.size));
 		fwrite(&type, 4, 1, fp);
 		fwrite(&children, 2, 1, fp);
@@ -64,7 +64,7 @@ void obj_node_t::write(FILE* fp)
 		// extended length record
 		fseek(fp, write_offset - EXT_OBJ_NODE_INFO_SIZE, SEEK_SET);
 		uint32 type     = endian(desc.type);
-		uint16 children = endian(desc.children);
+		uint16 children = endian(desc.nchildren);
 		uint16 size16   = endian(uint16(LARGE_RECORD_SIZE));
 		uint32 size     = endian(desc.size);
 		fwrite(&type, 4, 1, fp);
@@ -73,7 +73,7 @@ void obj_node_t::write(FILE* fp)
 		fwrite(&size, 4, 1, fp);
 	}
 	if (parent) {
-		parent->desc.children++;
+		parent->desc.nchildren++;
 	}
 }
 

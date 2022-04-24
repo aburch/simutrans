@@ -407,7 +407,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->animation_time = 300;
 	}
 	// there are additional nodes for cursor/icon
-	if(  node.children > 2+desc->size.x*desc->size.y*desc->layouts  ) {
+	if(  node.nchildren > 2+desc->size.x*desc->size.y*desc->layouts  ) {
 		desc->flags |= building_desc_t::FLAG_HAS_CURSOR;
 	}
 

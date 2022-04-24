@@ -14,7 +14,10 @@
  * Basis of all desc_t classes, which are loaded from the .pak files.
  * No virtual methods are allowed!
  */
-class obj_desc_t {
+class obj_desc_t
+{
+	friend class pakset_manager_t;
+
 public:
 	obj_desc_t() : children() {}
 

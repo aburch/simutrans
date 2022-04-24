@@ -36,6 +36,7 @@
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/pakset_manager.h"
 
 #include "descriptor/factory_desc.h"
 #include "builder/hausbauer.h"
@@ -1166,7 +1167,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(  desc==NULL  ) {
 			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
 			// we continue loading even if desc==NULL
-			welt->add_missing_paks( s, karte_t::MISSING_FACTORY );
+			pakset_manager_t::add_missing_paks( s, MISSING_FACTORY );
 		}
 	}
 	pos_origin.rdwr(file);

@@ -25,6 +25,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../obj/baum.h"
 
@@ -64,7 +65,7 @@ bool movingobj_t::register_desc(groundobj_desc_t *desc)
 {
 	// remove duplicates
 	if(  desc_table.remove( desc->get_name() )  ) {
-		dbg->doubled( "movingobj", desc->get_name() );
+		pakset_manager_t::doubled( "movingobj", desc->get_name() );
 	}
 	desc_table.put(desc->get_name(), desc );
 	return true;

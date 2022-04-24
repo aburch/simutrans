@@ -19,6 +19,7 @@
 #include "../obj/wolke.h"
 #include "../utils/cbuffer.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 #include "../builder/vehikelbauer.h"
 #include "../obj/zeiger.h"
 #include "../utils/simstring.h"
@@ -971,7 +972,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			desc = vehicle_builder_t::get_info(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
-			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
+			pakset_manager_t::add_missing_paks( s, MISSING_VEHICLE );
 			dbg->warning("vehicle_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}

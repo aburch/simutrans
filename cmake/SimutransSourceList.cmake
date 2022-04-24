@@ -17,6 +17,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/dataobj/loadsave.cc
 		src/simutrans/dataobj/marker.cc
 		src/simutrans/dataobj/objlist.cc
+		src/simutrans/dataobj/pakset_manager.cc
 		src/simutrans/dataobj/powernet.cc
 		src/simutrans/dataobj/records.cc
 		src/simutrans/dataobj/rect.cc

@@ -29,6 +29,7 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../dataobj/loadsave.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../ground/grund.h"
 #include "../builder/wegbauer.h"
@@ -393,7 +394,7 @@ void leitung_t::rdwr(loadsave_t *file)
 				if(desc==NULL) {
 					desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 					if(desc==NULL) {
-						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+						pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
 						desc = way_builder_t::leitung_desc;
 
 						if (!desc) {

@@ -302,6 +302,7 @@ SOURCES += src/simutrans/dataobj/koord3d.cc
 SOURCES += src/simutrans/dataobj/loadsave.cc
 SOURCES += src/simutrans/dataobj/marker.cc
 SOURCES += src/simutrans/dataobj/objlist.cc
+SOURCES += src/simutrans/dataobj/pakset_manager.cc
 SOURCES += src/simutrans/dataobj/powernet.cc
 SOURCES += src/simutrans/dataobj/records.cc
 SOURCES += src/simutrans/dataobj/rect.cc

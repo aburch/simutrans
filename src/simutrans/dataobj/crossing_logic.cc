@@ -11,6 +11,7 @@
 #include "../simsound.h"
 
 #include "translator.h"
+#include "pakset_manager.h"
 
 #include "../descriptor/crossing_desc.h"
 
@@ -224,7 +225,7 @@ void crossing_logic_t::register_desc(crossing_desc_t *desc)
 		for(uint8 i=0; i<vec.get_count(); i++) {
 			if (strcmp(vec[i]->get_name(), desc->get_name())==0) {
 				vec.remove_at(i);
-				dbg->doubled( "crossing", desc->get_name() );
+				pakset_manager_t::doubled( "crossing", desc->get_name() );
 			}
 		}
 DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );

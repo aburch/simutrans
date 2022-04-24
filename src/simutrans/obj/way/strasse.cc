@@ -11,6 +11,7 @@
 #include "../../descriptor/way_desc.h"
 #include "../../builder/wegbauer.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/pakset_manager.h"
 
 
 const way_desc_t *strasse_t::default_strasse=NULL;
@@ -66,7 +67,7 @@ void strasse_t::rdwr(loadsave_t *file)
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_strasse;
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
 			}
 			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

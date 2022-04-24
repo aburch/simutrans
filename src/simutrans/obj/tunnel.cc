@@ -14,6 +14,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../descriptor/tunnel_desc.h"
 
@@ -134,7 +135,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 				desc = tunnel_builder_t::get_desc(translator::compatibility_name(buf));
 			}
 			if(  desc==NULL  ) {
-				welt->add_missing_paks( buf, karte_t::MISSING_WAY );
+				pakset_manager_t::add_missing_paks( buf, MISSING_WAY );
 			}
 		}
 		else {

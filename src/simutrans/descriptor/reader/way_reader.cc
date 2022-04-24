@@ -22,7 +22,7 @@ void way_reader_t::register_obj(obj_desc_t *&data)
 	way_desc_t *desc = static_cast<way_desc_t *>(data);
 
 	way_builder_t::register_desc(desc);
-	obj_for_xref(get_type(), desc->get_name(), data);
+	pakset_manager_t::obj_for_xref(get_type(), desc->get_name(), data);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);

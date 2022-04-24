@@ -41,6 +41,7 @@
 #include "../dataobj/marker.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../utils/simrandom.h"
 
@@ -117,7 +118,7 @@ bool way_builder_t::successfully_loaded()
 bool way_builder_t::register_desc(way_desc_t *desc)
 {
 	if(  const way_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
-		dbg->doubled( "way", desc->get_name() );
+		pakset_manager_t::doubled( "way", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

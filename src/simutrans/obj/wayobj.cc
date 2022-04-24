@@ -17,6 +17,7 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../descriptor/bridge_desc.h"
 #include "../descriptor/tunnel_desc.h"
@@ -160,7 +161,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 				}
 				if(desc==NULL) {
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, get_pos().x, get_pos().y );
-					welt->add_missing_paks( bname, karte_t::MISSING_WAYOBJ );
+					pakset_manager_t::add_missing_paks( bname, MISSING_WAYOBJ );
 				}
 				else {
 					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, desc->get_name() );
@@ -448,7 +449,7 @@ bool wayobj_t::register_desc(way_obj_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if(  const way_obj_desc_t *old_desc = table.remove(desc->get_name())  ) {
-		dbg->doubled( "wayobj", desc->get_name() );
+		pakset_manager_t::doubled( "wayobj", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

@@ -227,24 +227,6 @@ static bool empty_objfilename() { return !env_t::pak_name.empty() ||  pakinstall
 static bool finish_install() { return pakinstaller_t::finish_install; }
 #endif
 
-static bool wait_for_key()
-{
-	event_t ev;
-	display_poll_event(&ev);
-	if(  ev.ev_class==EVENT_KEYBOARD  ) {
-		if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
-			return true;
-		}
-	}
-	if(  IS_LEFTRELEASE(&ev)  ) {
-		return true;
-	}
-	event_t *nev = new event_t();
-	*nev = ev;
-	queue_event(nev);
-	return false;
-}
-
 
 #if COLOUR_DEPTH != 0
 /**
@@ -1242,48 +1224,7 @@ int simu_main(int argc, char** argv)
 	tool_t::init_menu();
 
 	// loading all objects in the pak
-	dbg->message("simu_main()","Reading object data from %s...", env_t::pak_dir.c_str());
-	if (!obj_reader_t::load( env_t::pak_dir.c_str(), translator::translate("Loading paks ...") )) {
-		dbg->fatal("simu_main()", "Failed to load pakset. Please re-download or select another pakset.");
-	}
-
-	std::string overlaid_warning; // more prominent handling of double objects
-
-	if(  dbg->had_overlaid()  ) {
-		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
-		overlaid_warning.append( env_t::pak_name + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
-		dbg->clear_overlaid();
-	}
-
-	if(  env_t::default_settings.get_with_private_paks()  ) {
-		// try to read addons from private directory
-		dr_chdir( env_t::user_dir );
-		if(!obj_reader_t::load(("addons/" + env_t::pak_name).c_str(), translator::translate("Loading addon paks ..."))) {
-			dbg->warning("simu_main", "Reading addon object data failed (disabling).");
-			env_t::default_settings.set_with_private_paks( false );
-		}
-		dr_chdir( env_t::base_dir );
-		if(  dbg->had_overlaid()  ) {
-			overlaid_warning.append( translator::translate("<h1>Warning</h1><p><strong>addons for") + env_t::pak_name + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() );
-			dbg->clear_overlaid();
-		}
-	}
-
-	if (!obj_reader_t::finish_loading()) {
-		dbg->fatal("simu_main()", "Failed to load pakset. Please re-download or select another pakset.");
-	}
-
-	pakset_info_t::calculate_checksum();
-	if(  env_t::verbose_debug >= log_t::LEVEL_DEBUG  ) {
-		pakset_info_t::debug();
-	}
-	if(  !overlaid_warning.empty()  ) {
-		overlaid_warning.append( "<p>Continue by click, ESC, SPACE, or BACKSPACE.<br>" );
-		help_frame_t *win = new help_frame_t();
-		win->set_text( overlaid_warning.c_str() );
-		modal_dialogue( win, magic_pakset_info_t, NULL, wait_for_key );
-		destroy_all_win(true);
-	}
+	pakset_manager_t::load_pakset(env_t::default_settings.get_with_private_paks());
 
 	// load tool scripts
 	dbg->message("simu_main()","Reading tool scripts ...");

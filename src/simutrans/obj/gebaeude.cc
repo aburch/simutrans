@@ -43,6 +43,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../gui/obj_info.h"
 
@@ -892,7 +893,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					default:
 						dbg->warning("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, get_pos().x, get_pos().y);
-						welt->add_missing_paks( buf, karte_t::MISSING_BUILDING );
+						pakset_manager_t::add_missing_paks( buf, MISSING_BUILDING );
 				}
 			}
 		}

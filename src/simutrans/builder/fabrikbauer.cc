@@ -22,6 +22,7 @@
 #include "../dataobj/environment.h"
 #include "../network/pakset_info.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/pakset_manager.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
@@ -260,7 +261,7 @@ void factory_builder_t::register_desc(factory_desc_t *desc)
 DBG_DEBUG("factory_builder_t::register_desc()","Correction for old factory: Increase production from %i by %i",p&0x7FFF,k.x*k.y);
 	}
 	if(  const factory_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
-		dbg->doubled( "factory", desc->get_name() );
+		pakset_manager_t::doubled( "factory", desc->get_name() );
 		delete old_desc;
 	}
 	desc_table.put(desc->get_name(), desc);

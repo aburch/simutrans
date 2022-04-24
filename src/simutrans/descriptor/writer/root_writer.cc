@@ -126,7 +126,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root)
 {
 	uint32 type      = endian(root.type);
-	uint16 children  = endian(root.children);
+	uint16 children  = endian(root.nchildren);
 	uint16 root_size = endian(uint16(root.size));
 	fwrite(&type,     4, 1, outfp);
 	fwrite(&children, 2, 1, outfp);
@@ -217,7 +217,7 @@ bool root_writer_t::do_list(const char* open_file_name)
 			obj_node_t::read_node( infp, node );
 			fseek(infp, node.size, SEEK_CUR);
 
-			for (int i = 0; i < node.children; i++) {
+			for (int i = 0; i < node.nchildren; i++) {
 				list_nodes(infp);
 			}
 		}
@@ -268,7 +268,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 				obj_node_info_t info;
 				obj_node_t::read_node( infp, info );
 
-				root.children += info.children;
+				root.nchildren += info.nchildren;
 				copy_nodes(outfp, infp, info);
 				any = true;
 			}
@@ -314,7 +314,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 
 	long start = ftell(outfp); // remember position for adding children
 	obj_node_info_t root;
-	root.children = 0; // we will change this later
+	root.nchildren = 0; // we will change this later
 	root.size = 0;
 	root.type = obj_root;
 	this->write_obj_node_info_t(outfp, root);
@@ -379,16 +379,16 @@ void root_writer_t::uncopy(const char* name)
 			// read root node
 			obj_node_info_t root;
 			obj_node_t::read_node( infp, root );
-			if (root.children == 1) {
+			if (root.nchildren == 1) {
 				dbg->error( "Unmerge", "%s is not an archive (aborting)", name);
 				fclose(infp);
 				exit(3);
 			}
 
-			printf("  found %d files to extract\n\n", root.children);
+			printf("  found %d files to extract\n\n", root.nchildren);
 
 			// now iterate over the archive
-			for (  int number=0;  number<root.children;  number++  ) {
+			for (  int number=0;  number<root.nchildren;  number++  ) {
 				// read the info node ...
 				long start_pos=ftell(infp);
 
@@ -450,7 +450,7 @@ void root_writer_t::uncopy(const char* name)
 
 				// write the root for the new pak file
 				obj_node_info_t root;
-				root.children = 1;
+				root.nchildren = 1;
 				root.size = 0;
 				root.type = obj_root;
 				write_obj_node_info_t( outfp, root );
@@ -468,7 +468,7 @@ void root_writer_t::uncopy(const char* name)
 
 void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 {
-	for(  int i=0;  i<start.children;  i++  ) {
+	for(  int i=0;  i<start.nchildren;  i++  ) {
 		// copy header
 		obj_node_info_t info;
 		obj_node_t::read_node( infp, info );

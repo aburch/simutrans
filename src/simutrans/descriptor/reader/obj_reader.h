@@ -13,6 +13,7 @@
 #include "../objversion.h"
 #include "../../simdebug.h"
 #include "../../simtypes.h"
+#include "../../dataobj/pakset_manager.h"
 
 
 class obj_desc_t;
@@ -64,7 +65,7 @@ inline uint32 decode_uint32(char * &data)
 
 #define OBJ_READER_DEF(classname, ty, ty_name) \
 	public: \
-		classname() { register_reader(); } \
+		classname() { pakset_manager_t::register_reader(this); } \
 		obj_type get_type() const OVERRIDE { return ty; } \
 		const char *get_type_name() const OVERRIDE { return ty_name; } \
 		static classname *instance() { return &the_instance; } \
@@ -74,36 +75,11 @@ inline uint32 decode_uint32(char * &data)
 
 class obj_reader_t
 {
-	//
-	// table of registered obj readers sorted by id
-	//
-	typedef inthashtable_tpl<obj_type, obj_reader_t*> obj_map;
-	static obj_map* obj_reader;
-	//
-	// object addresses needed for resolving xrefs later
-	// - stored in a hash table with type and name
-	//
-	static inthashtable_tpl<obj_type, stringhashtable_tpl<obj_desc_t *> > loaded;
-	typedef inthashtable_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_desc_t**> > > unresolved_map;
-	static unresolved_map unresolved;
-	static ptrhashtable_tpl<obj_desc_t **, int>  fatals;
-
-	/// Read a descriptor node.
-	/// @param fp File to read from
-	/// @param[out] data If reading is successful, contains descriptor for the object, else NULL.
-	/// @param register_nodes Nesting level for desc-nodes, should normally be 0
-	/// @param version File format version
-	static bool read_nodes(FILE* fp, obj_desc_t *&data, int register_nodes, uint32 version);
-	static bool skip_nodes(FILE *fp, uint32 version);
-
-protected:
-	obj_reader_t() { /* Beware: Cannot register here! */}
+public:
+	obj_reader_t() { /* Beware: Cannot register_reader() here! */ }
 	virtual ~obj_reader_t() {}
 
-	static void obj_for_xref(obj_type type, const char *name, obj_desc_t *data);
-	static void xref_to_resolve(obj_type type, const char *name, obj_desc_t **dest, bool fatal);
-	static void resolve_xrefs();
-
+public:
 	/// Read a descriptor from @p fp. Does version check and compatibility transformations.
 	/// @returns The descriptor on success, or NULL on failure
 	virtual obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) = 0;
@@ -114,8 +90,6 @@ protected:
 	/// Does post-loading checks.
 	/// @returns true if everything ok
 	virtual bool successfully_loaded() const { return true; }
-
-	void register_reader();
 
 	template<typename T> static T* read_node(obj_node_info_t const& node)
 	{
@@ -129,18 +103,6 @@ protected:
 public:
 	virtual obj_type get_type() const = 0;
 	virtual const char *get_type_name() const = 0;
-
-	static bool finish_loading();
-
-	/**
-	 * Loads all pak files from a directory, displaying a progress bar if the display is initialized
-	 * @param path Directory to be scanned for PAK files
-	 * @param message Label to show over the progress bar
-	 */
-	static bool load(const char *path, const char *message);
-
-	// Only for single files, must take care of all the cleanup/registering matrix themselves
-	static bool read_file(const char *name);
 };
 
 #endif

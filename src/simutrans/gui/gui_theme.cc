@@ -16,7 +16,8 @@
 #include "components/gui_button.h"
 #include "components/gui_tab_panel.h"
 #include "../descriptor/skin_desc.h"
-#include "../descriptor/reader/obj_reader.h"
+#include "../dataobj/pakset_manager.h"
+
 
 /**
  * Colours
@@ -419,7 +420,7 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 			*s = 0;
 		}
 		dr_chdir( pathname );
-		obj_reader_t::read_file(buttonpak.c_str());
+		pakset_manager_t::load_pak_file(buttonpak);
 		gui_theme_t::init_gui_from_images();
 		free(pathname);
 		dr_chdir(env_t::user_dir);

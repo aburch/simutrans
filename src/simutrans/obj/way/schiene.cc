@@ -11,7 +11,7 @@
 
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
-
+#include "../../dataobj/pakset_manager.h"
 #include "../../utils/cbuffer.h"
 
 #include "../../descriptor/way_desc.h"
@@ -155,7 +155,7 @@ void schiene_t::rdwr(loadsave_t *file)
 				if (!desc) {
 					dbg->fatal("schiene_t::rdwr", "Trying to load train tracks but pakset has none!");
 				}
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
 			}
 			dbg->warning("schiene_t::rdwr()", "Unknown rail '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

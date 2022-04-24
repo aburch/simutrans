@@ -41,7 +41,7 @@ void xref_reader_t::register_obj(obj_desc_t *&data)
 	xref_desc_t* desc = static_cast<xref_desc_t*>(data);
 
 	if (desc->name[0] != '\0' || desc->fatal) {
-		xref_to_resolve(desc->type, desc->name, &data, desc->fatal);
+		pakset_manager_t::xref_to_resolve(desc->type, desc->name, &data, desc->fatal);
 	}
 	else {
 		delete data;

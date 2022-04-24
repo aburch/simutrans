@@ -85,7 +85,7 @@ void obj_writer_t::dump_nodes(FILE* infp, int level, uint16 index)
 		printf("\n");
 	}
 	fseek(infp, next_pos, SEEK_SET);
-	for (int i = 0; i < node.children; i++) {
+	for (int i = 0; i < node.nchildren; i++) {
 		dump_nodes(infp, level + 1, child++);
 	}
 }
@@ -102,13 +102,13 @@ void obj_writer_t::list_nodes(FILE* infp)
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
 		fseek(infp, node.size, SEEK_CUR);
-		printf("%-16s  %-30s  %5u  ", writer->get_type_name(), (writer->get_node_name(infp)).c_str(), node.children);
+		printf("%-16s  %-30s  %5u  ", writer->get_type_name(), (writer->get_node_name(infp)).c_str(), node.nchildren);
 	}
 	else {
 		printf("(unknown %4.4s)    %30.30s  %5.5s  ", (const char*)&node.type, " ", " ");
 	}
 	fseek(infp, next_pos, SEEK_SET);
-	for (int i = 0; i < node.children; i++) {
+	for (int i = 0; i < node.nchildren; i++) {
 		size += skip_nodes(infp);
 	}
 	printf("%10lu\n",size);
@@ -164,7 +164,7 @@ size_t obj_writer_t::skip_nodes(FILE* fp)
 
 	obj_node_t::read_node( fp, node );
 	fseek(fp, node.size, SEEK_CUR);
-	for (int i = 0; i < node.children; i++) {
+	for (int i = 0; i < node.nchildren; i++) {
 		size += skip_nodes(fp);
 	}
 	return size+node.size;

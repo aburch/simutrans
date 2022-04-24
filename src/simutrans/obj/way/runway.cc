@@ -6,8 +6,11 @@
 #include "../../world/simworld.h"
 #include "../../builder/wegbauer.h"
 #include "../../descriptor/way_desc.h"
+
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/pakset_manager.h"
+
 #include "../../utils/cbuffer.h"
 
 #include "runway.h"
@@ -58,7 +61,7 @@ void runway_t::rdwr(loadsave_t *file)
 			desc = way_builder_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
 			if(desc==NULL) {
 				desc = default_runway;
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				pakset_manager_t::add_missing_paks( bname, MISSING_WAY );
 			}
 			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

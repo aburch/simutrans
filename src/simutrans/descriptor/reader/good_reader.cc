@@ -21,7 +21,7 @@ void goods_reader_t::register_obj(obj_desc_t *&data)
 	goods_manager_t::register_desc(desc);
 	DBG_DEBUG("goods_reader_t::register_obj()","loaded good '%s'", desc->get_name());
 
-	obj_for_xref(get_type(), desc->get_name(), data);
+	pakset_manager_t::obj_for_xref(get_type(), desc->get_name(), data);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
