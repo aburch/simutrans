@@ -225,7 +225,7 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 	do
 		zipname="${urlname##http*\/}"
 
-		echo "Downloading from '$1'"
+		echo "Downloading $zipname"
 		do_download "$urlname" "$zipname" || return 1
 		downloadcall=""
 		skip_in_exe="0"
@@ -233,12 +233,12 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 
 		if [ -n "$(file "$zipname" | grep -i "Microsoft Cabinet archive data")" ]; then
 			# .cab file
-			install_cab "../$zipname"
+			install_cab "$zipname"
 			skip_in_exe="1"
 			downloadcall="DownloadInstallCabWithoutSimutrans"
 		elif [ -n "$(file "$zipname" | grep -i "gzip compressed data")" ]; then
 			# .tar.gz
-			install_tgz "../$zipname"
+			install_tgz "$zipname"
 			skip_in_exe="1"
 			downloadcall="DownloadInstallTgzWithoutSimutrans"
 		elif [ -n "$(file "$zipname" | grep -i "Zip archive data")" ]; then
@@ -266,8 +266,14 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 		rm -rf simutrans/config
 		choicename="$(ls simutrans)"
 		echo "choicename $choicename"
-		versionstring="$(dd bs=1 skip=97 count=100 if=simutrans/$choicename/ground.Outside.pak status=none| tr -cd [:print:] | sed 's/IMG2.*$//')"
-		
+		versionstring=""
+		count="$( od -An -tu2 -j 99 -N2 --endian=little simutrans/$choicename/ground.Outside.pak | tr -d ' ')"
+		if [ "$count" != "0" ] ; then
+			versionstring="$(dd bs=1 skip=101 count=$count if=simutrans/$choicename/ground.Outside.pak status=none)"
+			echo "version $versionstring"
+		fi
+
+		# paksetinfo.h
 		echo $'\t'\{ "\"$urlname\", \"$choicename\", \"$versionstring\", $size}, " >> "../paksetinfo.h"
 
 		# nsh output
