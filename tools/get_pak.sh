@@ -180,7 +180,7 @@ download_and_install_pakset()
 # generated list of pak sets
 paksets=( \
 	"http://downloads.sourceforge.net/project/simutrans/pak64/123-0/simupak64-123-0.zip" \
-	"http://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-2_full.zip" \
+	"http://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-4_full.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip" \
 	"http://github.com/wa-st/pak-nippon/releases/download/v0.5.0/pak.nippon-v0.5.0.zip" \
 	"https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip" \
@@ -317,10 +317,10 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 	done
 	echo "SectionGroupEnd\n\n" >> "../pakset.nsh"
 	echo "};" >> "paksetinfo.h"
-	
+
 	cd ..
 	rm -rf tmp
-	
+
 	exit 0
 fi
 
