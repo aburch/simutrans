@@ -7,7 +7,7 @@
 #include "../utils/simstring.h"
 
 #include "pakset_downloader.h"
-#include "../dataobj/environment.h"
+#include "environment.h"
 #include "../sys/simsys.h"
 
 #include "../simloadingscreen.h"
@@ -191,7 +191,7 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 			sprintf(outfilename, "powershell \"(New-Object System.Net.WebClient).DownloadFile('%s', 'temp.zip')\"", pi->url);
 			system(outfilename);
 #else
-			// use 
+			// use
 			if (URLDownloadToFile(NULL, pi->url, "temp.zip", 0, NULL) != 0) {
 				dbg->warning("pak_download()", "Pakset download failed");
 				j += 2;
