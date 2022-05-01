@@ -702,6 +702,8 @@ public:
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);
 
+	bool is_step_mode_normal() const { return step_mode == NORMAL; }
+
 	/**
 	 * (un)pause for network games.
 	 */

@@ -1994,6 +1994,10 @@ bool win_change_zoom_factor(bool magnify)
 {
 	const bool result = magnify ? zoom_factor_up() : zoom_factor_down();
 
+	if(magnify  &&  wl->is_step_mode_normal()) {
+		wl->reset_timer();
+	}
+
 	wl->get_viewport()->metrics_updated();
 
 	return result;
