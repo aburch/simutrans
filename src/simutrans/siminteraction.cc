@@ -377,16 +377,39 @@ void interaction_t::check_events()
 
 	win_poll_event(&ev);
 
-	while (  ev.ev_class != EVENT_NONE ) {
+	event_t deferred_ev;
+	deferred_ev.ev_class = EVENT_NONE;
+
+	while(  ev.ev_class != EVENT_NONE ) {
 
 		DBG_DEBUG4("interaction_t::check_events", "called win_poll_event");
 
-		if (process_event(ev)) {
-			// We have been asked to stop processing, exit.
-			return;
+		if (ev.ev_class == EVENT_DRAG) {
+			// defer processing, since there might be many triggered at once
+			// Otherwise mark tiles could be alled twice duing one step
+			deferred_ev = ev;
+		}
+		else {
+			// still one drag left in queue?
+			if (deferred_ev.ev_class == EVENT_DRAG) {
+				// do this first
+				process_event(deferred_ev);
+				deferred_ev.ev_class = EVENT_NONE;
+			}
+
+			if (process_event(ev)) {
+				// We have been asked to stop processing, exit.
+				return;
+			}
 		}
 
 		win_poll_event(&ev);
+	}
+
+	if (deferred_ev.ev_class == EVENT_DRAG) {
+		// process pending drag events
+		process_event(deferred_ev);
+		deferred_ev.ev_class = EVENT_NONE;
 	}
 
 	if(  env_t::networkmode  ) {
