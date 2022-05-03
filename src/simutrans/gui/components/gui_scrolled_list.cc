@@ -211,7 +211,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	scrollitem_t* const new_focus = dynamic_cast<scrollitem_t*>( comp->get_focus() );
 
 	// if different element is focused, calculate selection and call listeners
-	if (  focus != new_focus  ||  (IS_LEFTRELEASE(&ev2)  &&  new_focus->getroffen(ev2.mx,ev2.my))  ) {
+	if (  focus != new_focus  ||  (new_focus  &&  IS_LEFTRELEASE(&ev2)  &&  new_focus->getroffen(ev2.mx,ev2.my))  ) {
 		calc_selection(focus, new_focus, *ev);
 		int new_selection = get_selection();
 		call_listeners((long)new_selection);
