@@ -114,7 +114,8 @@ void interrupt_check(const char* caller_info)
 				world()->sync_step( diff );
 			}
 			world()->display(diff);
-			enabled = true;
+			// since pause maz have been activated in this sync_step
+			enabled = !world()->is_paused();
 		}
 	}
 	last_ms = world()->get_ticks();
