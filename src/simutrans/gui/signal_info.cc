@@ -36,7 +36,7 @@ bool signal_info_t::action_triggered( gui_action_creator_t *, value_t /* */)
 	bool suspended_execution=false;
 	koord3d pos = sig->get_pos();
 	tool_t::general_tool[TOOL_REMOVE_SIGNAL]->set_default_param(NULL);
-	const char *err = welt->call_work( tool_t::general_tool[TOOL_REMOVE_SIGNAL], welt->get_active_player(), pos, suspended_execution );
+	const char *err = welt->call_work_api( tool_t::general_tool[TOOL_REMOVE_SIGNAL], welt->get_active_player(), pos, suspended_execution, false );
 	if(!suspended_execution) {
 		// play sound / error message
 		welt->get_active_player()->tell_tool_result(tool_t::general_tool[TOOL_REMOVE_SIGNAL], pos, err);

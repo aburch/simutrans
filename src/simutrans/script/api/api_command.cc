@@ -91,10 +91,11 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	tool->callback_id = callback_id;
 
 	// HACK call karte_t::set_tool
-	welt->set_tool(tool, player);
+	bool suspended;
+	welt->set_tool_api(tool, player, suspended, true);
 	// in networkmode, call is suspended
 
-	if (env_t::networkmode) {
+	if (suspended) {
 		// register for wakeup
 		suspended_scripts_t::register_suspended_script(callback_id, vm);
 		// suspend vm for now, after wakeup it returns to the script
@@ -242,7 +243,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 
 	// first click of two_click_tool_t
 	if (v.twoclick) {
-		err = welt->call_work(tool, player, v.start, suspended);
+		err = welt->call_work_api(tool, player, v.start, suspended, true);
 		assert(!suspended);
 	}
 	// call the work that has effects
@@ -250,7 +251,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 		// register this tool call for callback with this id
 		uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
 		tool->callback_id = callback_id;
-		err = welt->call_work(tool, player, v.twoclick ? v.end : v.start, suspended);
+		err = welt->call_work_api(tool, player, v.twoclick ? v.end : v.start, suspended, true);
 
 		if (suspended) {
 			// register for wakeup

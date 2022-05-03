@@ -2168,8 +2168,9 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-void karte_t::set_tool( tool_t *tool_in, player_t *player )
+void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended, bool called_from_script)
 {
+	suspended = false;
 	if(  get_random_mode()&LOAD_RANDOM  ) {
 		dbg->warning("karte_t::set_tool", "Ignored tool %s during loading.", tool_in->get_name() );
 		return;
@@ -2189,19 +2190,21 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 	}
 	tool_in->flags |= (event_get_last_control_shift() ^ tool_t::control_invert);
 	if(!env_t::networkmode  ||  tool_in->is_init_network_safe()  ) {
-		if (tool_in->is_init_network_safe()) {
+		if (called_from_script  ||  tool_in->is_init_network_safe()) {
 			local_set_tool(tool_in, player);
 		}
 		else {
 			// queue tool for execution
 			nwc_tool_t* nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), steps, map_counter, true);
 			command_queue_append(nwc);
+			suspended = true;
 		}
 	}
 	else {
 		// queue tool for network
 		nwc_tool_t *nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), steps, map_counter, true);
 		network_send_server(nwc);
+		suspended = true;
 	}
 }
 
@@ -3302,7 +3305,7 @@ void karte_t::step()
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 		tmp_tool->set_default_param( buf );
 		bool suspended;
-		call_work(tmp_tool, get_active_player(), koord3d::invalid, suspended);
+		call_work_api(tmp_tool, get_active_player(), koord3d::invalid, suspended, false);
 		// work is done (or command sent), it is safe to delete immediately
 		delete tmp_tool;
 	}
@@ -5691,8 +5694,9 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 }
 
 
-const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
+const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, bool &suspended, bool called_from_api )
 {
+	suspended = false;
 	const char *err = NULL;
 	bool network_safe_tool = tool->is_work_network_safe() || tool->is_work_here_network_safe(player, pos);
 	if(  !env_t::networkmode  ||  network_safe_tool  ) {
@@ -5708,7 +5712,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 			}
 		}
 		if (err == NULL) {
-			if (network_safe_tool) {
+			if (called_from_api  ||  network_safe_tool) {
 				err = tool->work(player, pos);
 				suspended = false;
 			}
@@ -5720,9 +5724,6 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 				tool->init(player);
 				suspended = true;
 			}
-		}
-		else {
-			suspended = false;
 		}
 	}
 	else {
