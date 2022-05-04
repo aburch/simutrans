@@ -922,10 +922,7 @@ public:
 	/**
 	 * Set a new tool as current without suspending parameter
 	 */
-	void set_tool(tool_t* tool_in, player_t* player) {
-		bool b;
-		set_tool_api(tool_in, player, b, false);
-	}
+	void set_tool(tool_t* tool_in, player_t* player) { bool b; set_tool_api(tool_in, player, b, false); }
 
 	/**
 	 * Set a new tool on our client, calls init.
@@ -933,9 +930,16 @@ public:
 	void local_set_tool( tool_t *tool_in, player_t* player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
+	/* since move can alter the map state
+	 * (e.g. route search for marking tiles)
+	 * we defer it to outside sync_step
+	 */
+	void set_deferred_move_to(koord3d);
+
 	/**
 	 * Calls the work method of the tool.
 	 * Takes network and scenarios into account.
+	 * (There is the flags for scripted calls in the tool structure, but it seems not used so far?!)
 	 */
 	const char* call_work_api(tool_t *t, player_t *pl, koord3d pos, bool &suspended, bool called_from_api);
 

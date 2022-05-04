@@ -5739,6 +5739,12 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 
 
 static slist_tpl<network_world_command_t*> command_queue;
+static koord3d next_deferred_move_to = koord3d::invalid;
+
+void karte_t::set_deferred_move_to(koord3d k)
+{
+	next_deferred_move_to = k;
+}
 
 void karte_t::command_queue_append(network_world_command_t* nwc) const
 {
@@ -6053,6 +6059,16 @@ bool karte_t::interactive(uint32 quit_month)
 		// events are now checked during each screen update for quicker feedback on scrolling etc.
 		if (env_t::quit_simutrans){
 			break;
+		}
+
+		if (next_deferred_move_to != koord3d::invalid) {
+			// some tool movement is expensive (like route search) and must be done outsied sync_step
+			// to avoid calling a the non-reentrant route search twice
+			const char* err = scenario->is_work_allowed_here(active_player, selected_tool[active_player_nr]->get_id(), selected_tool[active_player_nr]->get_waytype(), next_deferred_move_to);
+			if (err == NULL) {
+				selected_tool[active_player_nr]->move(active_player, true, next_deferred_move_to);
+			}
+			next_deferred_move_to = koord3d::invalid;
 		}
 
 		if(  env_t::networkmode  ) {
