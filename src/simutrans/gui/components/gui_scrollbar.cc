@@ -168,7 +168,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	}
 	else if(  is_visible()  &&  !full ) {
 		// don't respond to these messages if not visible
-		if(  IS_LEFTCLICK(ev)  ||  IS_LEFTREPEAT(ev)  ) {
+		if(  IS_LEFTCLICK(ev)  ) {
 			if(  button_def[0].getroffen(x, y)  ) {
 				button_def[0].pressed = true;
 				scroll( -knob_scroll_amount );

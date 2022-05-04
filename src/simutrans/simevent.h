@@ -25,7 +25,6 @@ enum event_class_t
 	EVENT_RELEASE        =   6,
 	EVENT_MOVE           =   7,
 	EVENT_DRAG           =   8,
-	EVENT_REPEAT         =   9,
 
 	INFOWIN              =  10,  ///< window event, i.e. WIN_OPEN, WIN_CLOSE
 	WINDOW_RESIZE        =  11,
@@ -119,7 +118,6 @@ enum {
 #define IS_LEFTCLICK(ev)              ((ev)->ev_class == EVENT_CLICK        && (ev)->ev_code == MOUSE_LEFTBUTTON)
 #define IS_LEFTRELEASE(ev)            ((ev)->ev_class == EVENT_RELEASE      && (ev)->ev_code == MOUSE_LEFTBUTTON)
 #define IS_LEFTDRAG(ev)               ((ev)->ev_class == EVENT_DRAG         && (ev)->ev_code == MOUSE_LEFTBUTTON)
-#define IS_LEFTREPEAT(ev)             ((ev)->ev_class == EVENT_REPEAT       && (ev)->ev_code == MOUSE_LEFTBUTTON)
 #define IS_LEFTDBLCLK(ev)             ((ev)->ev_class == EVENT_DOUBLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
 #define IS_LEFTTPLCLK(ev)             ((ev)->ev_class == EVENT_TRIPLE_CLICK && (ev)->ev_code == MOUSE_LEFTBUTTON)
 

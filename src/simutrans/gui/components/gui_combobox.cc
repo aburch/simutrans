@@ -116,7 +116,7 @@ DBG_MESSAGE("event","HOWDY!");
 		return ev->ev_code == SIM_KEY_ENTER;
 	}
 
-	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev)  ) {
+	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)  ) {
 
 		if(first_call) {
 

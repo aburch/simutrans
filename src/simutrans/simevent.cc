@@ -249,30 +249,6 @@ static void fill_event(event_t* const ev)
 		repeat_count = 0;
 	}
 
-	if (IS_LEFTCLICK(ev)) {
-		// remember button press
-		lb_time = curr_time;
-		repeat_time = 400;
-	}
-	else if (pressed_buttons == 0) {
-		lb_time = 0;
-	}
-	else { // the else is to prevent race conditions
-		/* this would transform non-left button presses always
-		 * to repeat events. I need right button clicks.
-		 * I have no idea how this can be done cleanly, currently just
-		 * disabling the repeat feature for non-left buttons
-		 */
-		if (pressed_buttons == MOUSE_LEFTBUTTON) {
-			if (curr_time - lb_time > repeat_time) {
-				repeat_time = 100;
-				lb_time = curr_time;
-				ev->ev_class = EVENT_REPEAT;
-				ev->ev_code = pressed_buttons;
-			}
-		}
-	}
-
 	ev->button_state = pressed_buttons;
 }
 

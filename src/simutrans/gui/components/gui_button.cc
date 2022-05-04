@@ -14,6 +14,8 @@
 #include "../../simevent.h"
 #include "../simwin.h"
 
+#include "../../sys/simsys.h"
+
 #include "../../dataobj/translator.h"
 
 #include "../../simskin.h"
@@ -309,9 +311,15 @@ bool button_t::infowin_event(const event_t *ev)
 			return true;
 		}
 	}
-	else if(IS_LEFTREPEAT(ev)) {
-		if((type&TYPE_MASK)>=repeatarrowleft) {
+	else if(  (type & TYPE_MASK) >= repeatarrowleft  &&  ev->button_state==1  ) {
+		uint32 cur_time = dr_time();
+		if (IS_LEFTCLICK(ev)  ||  button_click_time==0) {
+			button_click_time = cur_time;
+		}
+		else if(cur_time - button_click_time > 100) {
+			// call listerner every 100 ms
 			call_listeners( (long)1 );
+			button_click_time = cur_time;
 			return true;
 		}
 	}

@@ -1479,7 +1479,7 @@ bool check_pos_win(event_t *ev)
 		tool_t::toolbar_tool[0]->get_tool_selector()  &&
 		(is_dragging  ||  tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y))  &&
 		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&
-		ev->ev_class >= EVENT_CLICK  &&  ev->ev_class <= EVENT_REPEAT  ) {
+		ev->ev_class >= EVENT_CLICK  &&  ev->ev_class <= EVENT_DRAG  ) {
 
 		event_t wev = *ev;
 		wev.move_origin(menuoffset);
@@ -1507,13 +1507,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// just move top window until button release
-	if(  is_moving>=0  &&  (unsigned)is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+	if(  is_moving>=0  &&  (unsigned)is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  )  ) {
 		move_win( is_moving, ev );
 		return true;
 	}
 
 	// just resize window until button release
-	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  )  ) {
 		resize_win( is_resizing, ev );
 		return true;
 	}
@@ -1646,7 +1646,7 @@ bool check_pos_win(event_t *ev)
 												(ev->cx > wins[i].pos.x + size.w - D_DRAGGER_WIDTH  &&
 												 ev->cy > wins[i].pos.y + size.h - D_DRAGGER_HEIGHT);
 
-					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_frame_t::no_resize) {
+					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_frame_t::no_resize) {
 						resize_win( i, ev );
 						is_resizing = i;
 					}
