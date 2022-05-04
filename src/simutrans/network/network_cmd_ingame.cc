@@ -1084,7 +1084,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	}
 
 	// do not open dialog windows across network
-	if (  init  ?  tool->is_init_alters_map() :  tool->is_work_alters_map() ){
+	if (  init  ?  tool->is_init_keeps_game_state() :  tool->is_work_keeps_game_state() ){
 		// no reason to send request over network
 		return NULL;
 	}
@@ -1197,7 +1197,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 	assert(tool);
 	bool init_successfull = true;
 	if (!init) {
-		// init command was not sent if tool->is_init_alters_map() returned true
+		// init command was not sent if tool->is_init_keeps_game_state() returned true
 		tool->flags = 0;
 		// init tool
 		init_successfull = tool->init(player);
