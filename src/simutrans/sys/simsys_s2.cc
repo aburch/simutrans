@@ -238,7 +238,7 @@ sint16 dr_get_screen_scale()
 
 static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 {
-	DBG_MESSAGE("my_event_filter", "%i", event->type);
+	DBG_DEBUG4("my_event_filter", "%i", event->type);
 	switch (event->type)
 	{
 	case SDL_APP_DIDENTERBACKGROUND:
@@ -694,7 +694,7 @@ static void internal_GetEvents()
 	}
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-	DBG_MESSAGE("SDL_EVENT", "0x%X", event.type);
+	DBG_DEBUG4("SDL_EVENT", "0x%X", event.type);
 
 	switch(  event.type  ) {
 
