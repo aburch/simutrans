@@ -294,14 +294,13 @@ public:
 	virtual bool is_selected() const;
 
 	// when true, local execution would do no harm
-	virtual bool is_init_network_safe() const { return false; }
-	virtual bool is_move_network_safe(player_t *) const { return true; }
+	virtual bool is_init_alters_map() const { return false; }
 
-	// if is_work_network_safe()==false
-	// and is_work_here_network_safe(...)==false
+	// if is_work_alters_map()==false
+	// and is_work_here_alters_map(...)==false
 	// then work-command is sent over network
-	virtual bool is_work_network_safe() const { return false; }
-	virtual bool is_work_here_network_safe(player_t *, koord3d) { return false; }
+	virtual bool is_work_alters_map() const { return false; }
+	virtual bool is_work_here_alters_map(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after(scr_coord pos, bool dirty) const;
@@ -390,7 +389,7 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 
-	bool is_work_here_network_safe(player_t *, koord3d) OVERRIDE;
+	bool is_work_here_alters_map(player_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed
@@ -465,8 +464,8 @@ public:
 	tool_selector_t *get_tool_selector() const { return tool_selector; }
 	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 	// show this toolbar
 	bool init(player_t*) OVERRIDE;
 	// close this toolbar

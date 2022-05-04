@@ -676,6 +676,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\sys\simsys.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simmenu.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool-dialogs.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool-scripted.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tpl\array2d_tpl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\tpl\array_tpl.h" />

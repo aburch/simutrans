@@ -50,8 +50,8 @@ public:
 	tool_query_t() : tool_t(TOOL_QUERY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abfrage"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 
@@ -63,7 +63,7 @@ public:
 	tool_remover_t() : tool_t(TOOL_REMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 
@@ -88,12 +88,12 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	/**
 	 * work() is only called when not dragging
 	 * if work() is called with is_dragging==true then is_dragging is reset
 	 */
-	bool is_work_network_safe() const OVERRIDE { return is_dragging;}
+	bool is_work_alters_map() const OVERRIDE { return is_dragging;}
 
 	/**
 	 * @return true if this tool operates over the grid, not the map tiles.
@@ -136,7 +136,7 @@ public:
 	 */
 	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool old_slope_compatibility, bool just_check = false);
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), old_slope_compatibility_mode); }
 };
@@ -145,7 +145,7 @@ class tool_restoreslope_t : public tool_t {
 public:
 	tool_restoreslope_t() : tool_t(TOOL_RESTORESLOPE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Restore natural slope", welt->get_settings().cst_set_slope); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_setslope_t::tool_set_slope_work(player, k, RESTORE_SLOPE, true); }
 };
@@ -155,7 +155,7 @@ public:
 	tool_marker_t() : kartenboden_tool_t(TOOL_MARKER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Marker", welt->get_settings().cst_buy_land); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_clear_reservation_t : public tool_t {
@@ -166,7 +166,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_transformer_t : public kartenboden_tool_t {
@@ -179,7 +179,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 };
 
@@ -188,7 +188,7 @@ public:
 	tool_add_city_t() : kartenboden_tool_t(TOOL_ADD_CITY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Found new city", welt->get_settings().cst_found_city); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 // buy a house to protect it from renovating
@@ -197,7 +197,7 @@ public:
 	tool_buy_house_t() : kartenboden_tool_t(TOOL_BUY_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Haus kaufen"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 /************** the following tools need a valid default_param ************************/
 
@@ -208,7 +208,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( atoi(default_param)>=0 ? "Grow city" : "Shrink city" ); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 // height change by default_param
@@ -219,7 +219,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode  ||  player->is_public_service()) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 // height change by default_param
@@ -231,7 +231,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_plant_tree_t : public kartenboden_tool_t {
@@ -243,7 +243,7 @@ public:
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_plant_groundobj_t : public kartenboden_tool_t {
@@ -255,7 +255,7 @@ public:
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /* only called directly from schedule => no tooltip!
@@ -265,18 +265,18 @@ class tool_schedule_add_t : public tool_t {
 public:
 	tool_schedule_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-//	bool is_work_network_safe() const OVERRIDE { return true; }
-	bool is_work_here_network_safe(player_t*, koord3d) OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+//	bool is_work_alters_map() const OVERRIDE { return true; }
+	bool is_work_here_alters_map(player_t*, koord3d) OVERRIDE { return true; }
 };
 
 class tool_schedule_ins_t : public tool_t {
 public:
 	tool_schedule_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-//	bool is_work_network_safe() const OVERRIDE { return true; }
-	bool is_work_here_network_safe(player_t*, koord3d) OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+//	bool is_work_alters_map() const OVERRIDE { return true; }
+	bool is_work_here_alters_map(player_t*, koord3d) OVERRIDE { return true; }
 };
 
 class tool_build_way_t : public two_click_tool_t {
@@ -301,7 +301,7 @@ public:
 	char const* get_default_param(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
@@ -315,7 +315,7 @@ public:
 	way_desc_t const* get_desc(uint16) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 };
 
@@ -330,7 +330,7 @@ public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
@@ -347,7 +347,7 @@ public:
 	tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 	bool init(player_t*) OVERRIDE;
@@ -365,7 +365,7 @@ public:
 	tool_wayremover_t() : two_click_tool_t(TOOL_WAYREMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	image_id get_icon(player_t*) const OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 };
 
@@ -389,7 +389,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 };
 
@@ -397,7 +397,7 @@ class tool_remove_wayobj_t : public tool_build_wayobj_t {
 public:
 	tool_remove_wayobj_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_build_station_t : public tool_t {
@@ -415,7 +415,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 };
 
@@ -428,7 +428,7 @@ public:
 	tool_rotate_building_t() : tool_t(TOOL_ROTATE_BUILDING | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Rotate Building"); }
 	char const* work(player_t *, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 // builds roadsigns and signals
@@ -468,7 +468,7 @@ public:
 
 	void set_values(player_t *player, uint8 spacing, bool remove, bool replace );
 	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace );
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
@@ -483,7 +483,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 };
 
@@ -501,7 +501,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /**
@@ -520,7 +520,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build land consumer"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_city_chain_t : public kartenboden_tool_t {
@@ -529,7 +529,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_build_factory_t : public kartenboden_tool_t {
@@ -538,14 +538,14 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_link_factory_t : public two_click_tool_t {
 public:
 	tool_link_factory_t() : two_click_tool_t(TOOL_LINK_FACTORY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Connect factory"); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {}
@@ -561,7 +561,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /* protects map from further change (here because two clicks to confirm it!) */
@@ -573,7 +573,7 @@ public:
 	// deactivate in network mode
 	bool init(player_t *) OVERRIDE { return !env_t::networkmode; }
 	const char *work( player_t *, koord3d ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /* add random citycar if no default is set; else add a certain city car */
@@ -582,7 +582,7 @@ public:
 	tool_add_citycar_t() : tool_t(TOOL_ADD_CITYCAR | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add random citycar"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /* make forest */
@@ -596,7 +596,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 /* stop moving tool */
@@ -607,7 +607,7 @@ private:
 public:
 	tool_stop_mover_t() : two_click_tool_t(TOOL_STOP_MOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("replace stop"); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -629,7 +629,7 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 
@@ -641,7 +641,7 @@ private:
 public:
 	tool_merge_stop_t() : two_click_tool_t(TOOL_MERGE_STOP | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("merge stop"); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -656,7 +656,7 @@ public:
 	tool_remove_signal_t() : tool_t(TOOL_REMOVE_SIGNAL | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove signal"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 };
 
 
@@ -666,7 +666,7 @@ class tool_error_message_t : public tool_t {
 public:
 	tool_error_message_t() : tool_t(TOOL_ERROR_MESSAGE | GENERAL_TOOL) {}
 	bool init(player_t*) OVERRIDE { return true; }
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE { return default_param ? default_param : ""; }
 };
 
@@ -687,8 +687,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return !env_t::networkmode; }
-	bool is_work_network_safe() const OVERRIDE { return !env_t::networkmode; }
+	bool is_init_alters_map() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_alters_map() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class tool_fastforward_t : public tool_t {
@@ -708,8 +708,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return !env_t::networkmode; }
-	bool is_work_network_safe() const OVERRIDE { return !env_t::networkmode; }
+	bool is_init_alters_map() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_alters_map() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class tool_screenshot_t : public tool_t {
@@ -717,8 +717,8 @@ public:
 	tool_screenshot_t() : tool_t(TOOL_SCREENSHOT | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Screenshot"); }
 	bool init(player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 // builds next chain
@@ -748,8 +748,8 @@ public:
 		return false;
 	}
 	// since it is handled internally
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 // step one year forward
@@ -788,8 +788,8 @@ public:
 	tool_zoom_in_t() : tool_t(TOOL_ZOOM_IN | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("zooming in"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_zoom_out_t : public tool_t {
@@ -797,8 +797,8 @@ public:
 	tool_zoom_out_t() : tool_t(TOOL_ZOOM_OUT | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("zooming out"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_coverage_t : public tool_t {
@@ -812,8 +812,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_factory_storage_t : public tool_t {
@@ -825,8 +825,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_name_t : public tool_t {
@@ -858,8 +858,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_grid_t : public tool_t {
@@ -873,8 +873,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_trees_t : public tool_t {
@@ -884,8 +884,8 @@ public:
 	bool is_selected() const OVERRIDE {return env_t::hide_trees; }
 	bool init( player_t * ) OVERRIDE;
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_houses_t : public tool_t {
@@ -904,8 +904,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_show_underground_t : public tool_t {
@@ -918,8 +918,8 @@ public:
 	bool init(player_t *) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool exit(player_t *) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_toggle_control_t : public tool_t {
@@ -935,8 +935,8 @@ public:
 		tool_t::control_invert = 0;
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_rotate90_t : public tool_t {
@@ -946,8 +946,8 @@ public:
 	void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return !env_t::networkmode; }
-	bool is_work_network_safe() const OVERRIDE { return !env_t::networkmode; }
+	bool is_init_alters_map() const OVERRIDE { return !env_t::networkmode; }
+	bool is_work_alters_map() const OVERRIDE { return !env_t::networkmode; }
 };
 
 class tool_quit_t : public tool_t {
@@ -955,8 +955,8 @@ public:
 	tool_quit_t() : tool_t(TOOL_QUIT | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Beenden"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 // step size by default_param
@@ -979,8 +979,8 @@ public:
 	tool_daynight_level_t() : tool_t(TOOL_DAYNIGHT_LEVEL | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_vehicle_tooltips_t : public tool_t {
@@ -992,8 +992,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_toggle_pax_station_t : public tool_t {
@@ -1009,7 +1009,7 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 class tool_toggle_pedestrians_t : public tool_t {
@@ -1025,7 +1025,7 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 class tool_toggle_reservation_t : public tool_t {
@@ -1038,8 +1038,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_view_owner_t : public tool_t {
@@ -1052,8 +1052,8 @@ public:
 		welt->set_dirty();
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_hide_under_cursor_t : public tool_t {
@@ -1067,8 +1067,8 @@ public:
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_move_map_t : public tool_t {
@@ -1085,8 +1085,8 @@ public:
 		}
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 class tool_rollup_all_win_t : public tool_t {
@@ -1095,8 +1095,8 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Hide/open all windows"); }
 	bool is_selected() const OVERRIDE { return false; }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
-	bool is_work_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
+	bool is_work_alters_map() const OVERRIDE { return true; }
 };
 
 
@@ -1114,28 +1114,28 @@ public:
 		welt->get_settings().set_traffic_level(level);
 		return false;
 	}
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 class tool_change_convoi_t : public tool_t {
 public:
 	tool_change_convoi_t() : tool_t(TOOL_CHANGE_CONVOI | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 class tool_change_line_t : public tool_t {
 public:
 	tool_change_line_t() : tool_t(TOOL_CHANGE_LINE | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 class tool_change_depot_t : public tool_t {
 public:
 	tool_change_depot_t() : tool_t(TOOL_CHANGE_DEPOT | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 // adds a new player of certain type to the map
@@ -1150,7 +1150,7 @@ class tool_change_traffic_light_t : public tool_t {
 public:
 	tool_change_traffic_light_t() : tool_t(TOOL_CHANGE_TRAFFIC_LIGHT | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 // change city: (dis)allow growth
@@ -1158,7 +1158,7 @@ class tool_change_city_t : public tool_t {
 public:
 	tool_change_city_t() : tool_t(TOOL_CHANGE_CITY | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 // internal tool: rename stuff
@@ -1166,7 +1166,7 @@ class tool_rename_t : public tool_t {
 public:
 	tool_rename_t() : tool_t(TOOL_RENAME | SIMPLE_TOOL) {}
 	bool init(player_t*) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return false; }
+	bool is_init_alters_map() const OVERRIDE { return false; }
 };
 
 // internal tool: change player colours
@@ -1181,7 +1181,7 @@ class tool_add_message_t : public tool_t {
 public:
 	tool_add_message_t() : tool_t(TOOL_ADD_MESSAGE | GENERAL_TOOL) {}
 	const char *work( player_t*, koord3d) OVERRIDE;
-	bool is_init_network_safe() const OVERRIDE { return true; }
+	bool is_init_alters_map() const OVERRIDE { return true; }
 	// work is not safe, has to be send over network
 };
 

@@ -2181,7 +2181,7 @@ void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended, 
 		return;
 	}
 	// check for password-protected players
-	if(  (!tool_in->is_init_network_safe()  ||  !tool_in->is_work_network_safe())  &&  needs_check  &&
+	if(  (!tool_in->is_init_alters_map()  ||  !tool_in->is_work_alters_map())  &&  needs_check  &&
 		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE | GENERAL_TOOL))  &&
 		 player  &&  player->is_locked()  ) {
 		// player is currently password protected => request unlock first
@@ -2189,8 +2189,8 @@ void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended, 
 		return;
 	}
 	tool_in->flags |= (event_get_last_control_shift() ^ tool_t::control_invert);
-	if(!env_t::networkmode  ||  tool_in->is_init_network_safe()  ) {
-		if (called_from_script  ||  tool_in->is_init_network_safe()) {
+	if(!env_t::networkmode  ||  tool_in->is_init_alters_map()  ) {
+		if (called_from_script  ||  tool_in->is_init_alters_map()) {
 			local_set_tool(tool_in, player);
 		}
 		else {
@@ -2216,7 +2216,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 	// now call init
 	bool init_result = tool_in->init(player);
 	// for unsafe tools init() must return false
-	assert(tool_in->is_init_network_safe()  ||  !init_result);
+	assert(tool_in->is_init_alters_map()  ||  !init_result);
 
 	if (player  &&  init_result  &&  !tool_in->is_scripted()) {
 
@@ -5698,7 +5698,7 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 {
 	suspended = false;
 	const char *err = NULL;
-	bool network_safe_tool = tool->is_work_network_safe() || tool->is_work_here_network_safe(player, pos);
+	bool network_safe_tool = tool->is_work_alters_map() || tool->is_work_here_alters_map(player, pos);
 	if(  !env_t::networkmode  ||  network_safe_tool  ) {
 		// do the work
 		tool->flags |= tool_t::WFL_LOCAL;
