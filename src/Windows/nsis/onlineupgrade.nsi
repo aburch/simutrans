@@ -14,7 +14,13 @@
 
 Unicode true
 
+!define PAKSETINSTALL 1
+
 !include "preparation-functions.nsh"
+!include "languages.nsh"
+
+!define MULTIUSER_INSTALLMODE_INSTDIR "Simutrans"
+!define MULTIUSER_EXECUTIONLEVEL Standard
 
 Name "Simutrans Pakset Installer"
 OutFile "download-paksets.exe"

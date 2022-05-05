@@ -61,10 +61,9 @@ Function CheckForPortableInstall
   StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"
   ; if the destination directory is the program dir, we must use use own documents directory for data
-  StrCmp $INSTDIR $PROGRAMFILES\Simutrans AllSetPortable
-  StrLen $1 $PROGRAMFILES
-  StrCpy $0 $INSTDIR $1
-  StrCmp $0 $PROGRAMFILES YesPortable +1
+  StrCmp $INSTDIR $PROGRAMFILES\simutrans AllSetPortable
+  StrCmp $INSTDIR $PROGRAMFILES64\simutrans AllSetPortable
+  StrCmp $INSTDIR $USERDIR AllSetPortable
   StrCpy $multiuserinstall "0"  ; check whether we already have a simuconf.tab, to get state from file
   IfFileExists "$INSTDIR\config\simuconf.tab" 0 PortableUnknown
   ; now we have a config. Without single_user install, it will be multiuser
@@ -87,19 +86,25 @@ PortableUnknown:
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES YesPortable
   StrCpy $multiuserinstall "1"
 YesPortable:
+  Goto AllSetPortable
+NotPortable:
+  StrCpy $multiuserinstall "0"
+  StrCpy $PAKDIR $INSTDIR
+  
+AllSetPortable:
   ; now check, whether the path ends with "simutrans"
   StrCpy $0 $INSTDIR 9 -9
   StrCmp $0 simutrans +2
   StrCpy $installinsimutransfolder "0"
-AllSetPortable:
   ; here everything is ok
-;	MessageBox MB_OK $PAKDIR
-;	MessageBox MB_OK $INSTDIR
+;  MessageBox MB_OK "$INSTDIR $PAKDIR"
 FunctionEnd
 
+!ifndef PAKSETINSTALL
 PageEx directory
  PageCallbacks "" "" CheckForPortableInstall
 PageExEnd
+!endif
 
 Page custom MovePre MoveLeave "Moving paks to PorgramData"
 
@@ -169,7 +174,7 @@ Function EnableSectionIfThere
   Push $R1
   Call SplitFirstStrPart
   Pop $R1
-  IfFileExists "PAKDIR\$R1\ground.Outside.pak" 0 NotExistingPakNotSelected
+  IfFileExists "$PAKDIR\$R1\ground.Outside.pak" 0 NotExistingPakNotSelected
   SectionGetFlags $R0 $R1
   IntOp $R1 $R1 | ${SF_SELECTED}
   SectionSetFlags $R0 $R1
@@ -319,9 +324,12 @@ PageExEnd
 ; ******************************** From here on Functions ***************************
 
 Function .oninit
+  StrCpy $USERDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext all
-  StrCpy $PAKDIR "$APPDATA\Simutrans"
+  StrCpy $PAKDIR "$APPDATA\simutrans"
   SetShellVarContext current
+
+  !insertmacro MULTIUSER_INIT
 
   StrCpy $9 ${SDLexe} ;The default for radiobutton
 
@@ -350,10 +358,13 @@ no_previous_menu:
   ; If match, jump 3 lines down.
   strCmp $0 "Admin" +3
   ; we are not admin: default install in a different dir
-  StrCpy $INSTDIR "C:\simutrans"
+  StrCpy $INSTDIR $USERDIR
   ; ok, we are admin
 
 init_path_ok:
+!ifdef PAKSETINSTALL
+  Call CheckForPortableInstall
+!endif
 FunctionEnd
 
 
