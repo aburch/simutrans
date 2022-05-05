@@ -6,11 +6,13 @@ Invoke-WebRequest -Uri "https://nsis.sourceforge.io/mediawiki/images/c/c7/CabX.z
 Invoke-WebRequest -Uri "https://nsis.sourceforge.io/mediawiki/images/9/9d/Untgz.zip" -OutFile "Untgz.zip"
 Invoke-WebRequest -Uri "https://nsis.sourceforge.io/mediawiki/images/6/6c/Shelllink.zip" -OutFile "Shelllink.zip"
     
-7z e -aoa -o"NSIS_Plugins/plugins/x86-unicode" "NSISunzU.zip" -ir!"nsisunz.dll"
-7z x -aoa -o"NSIS_Plugins" "Inetc.zip"
-7z x -aoa -o"NSIS_Plugins" "CabX.zip"
-7z x -aoa -o"NSIS_Plugins" "Untgz.zip"
-move .\NSIS_Plugins\Untgz\unicode\untgz.dll .\NSIS_Plugins\plugins\x86-unicode\
-7z x -aoa -o"NSIS_Plugins" "Shelllink.zip"
-move .\NSIS_Plugins\Unicode\Plugins\ShellLink.dll .\NSIS_Plugins\plugins\x86-unicode\
+expand-archive -path "CabX.zip" -DestinationPath "NSIS_Plugins" -Force
+expand-archive -path "Inetc.zip" -DestinationPath "NSIS_Plugins" -Force
+expand-archive -path "NSISunzU.zip" -DestinationPath "dummy" -Force
+move ".\dummy\NSISunzU\Plugin unicode\nsisunz.dll" .\NSIS_Plugins\plugins\x86-unicode\
+expand-archive -path "Untgz.zip" -DestinationPath "dummy" -Force
+move .\dummy\Untgz\unicode\untgz.dll .\NSIS_Plugins\plugins\x86-unicode\
+expand-archive -path "Shelllink.zip" -DestinationPath "dummy" -Force
+move .\dummy\Unicode\Plugins\ShellLink.dll .\NSIS_Plugins\plugins\x86-unicode\
+Remove-Item 'dummy' -Recurse
 del *.zip
