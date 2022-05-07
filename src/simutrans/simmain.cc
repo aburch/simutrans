@@ -105,7 +105,11 @@ using std::string;
  */
 static void show_sizes()
 {
+	log_t::level_t old_level = env_t::verbose_debug;
+	env_t::verbose_debug = log_t::LEVEL_MSG;
+
 	DBG_MESSAGE("Debug", "size of structures");
+	DBG_MESSAGE("sizes", "size of pointer %i", sizeof(void*));
 
 	DBG_MESSAGE("sizes", "koord: %d", sizeof(koord));
 	DBG_MESSAGE("sizes", "koord3d: %d", sizeof(koord3d));
@@ -130,6 +134,7 @@ static void show_sizes()
 
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
 	DBG_MESSAGE("sizes", "player_t: %d\n", sizeof(player_t));
+	env_t::verbose_debug = old_level;
 }
 #endif
 
