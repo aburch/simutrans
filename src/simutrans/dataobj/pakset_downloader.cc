@@ -70,17 +70,18 @@ bool pak_can_download(const paksetinfo_t *pi)
 	return false;
 #endif
 #else
-	// own routines, require http (for Android) and zip
-	if (!strstr(pi->url, ".zip")) {
-		return false;
-	}
 #ifdef __ANDROID__
 	// no https for Android for now
 	if (strncmp(pi->url, "https://",8)==0) {
 		return false;
 	}
 #endif
+	// own routines, require http (for Android) and zip
+	if (strstr(pi->url, ".zip")) {
+		return true;
+	}
 #endif
+	return false;
 }
 
 
