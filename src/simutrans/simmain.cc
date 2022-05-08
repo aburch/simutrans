@@ -586,13 +586,14 @@ int simu_main(int argc, char** argv)
 					if(!found_basedir) {
 #ifdef __APPLE__
 						// Detect if the binary is started inside an application bundle
-						// Change working dir to bundle dir if that is the case or the game will search for the files inside the bundle
-						found_basedir = !strcmp((env_t::base_dir + (strlen(env_t::base_dir) - 20 )), ".app/Contents/MacOS/");
-						if( found_basedir ) {
-							env_t::base_dir[strlen(env_t::base_dir) - 20] = 0;
-							while (env_t::base_dir[strlen(env_t::base_dir) - 1] != '/') {
+						// Change working dir from MacOS to Resources dir
+						strcpy(env_t::base_dir, testpath);
+						if( strstr(env_t::base_dir, ".app/Contents/MacOS") != NULL ) {
+							while (env_t::base_dir[strlen(env_t::base_dir) - 1] != 's') {
 								env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
 							}
+							strcat(env_t::base_dir, "/Resources/simutrans/");
+							found_basedir = true;
 						}
 #else
 						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location

@@ -7,9 +7,6 @@
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>
-extern "C" {
-	#include "../../OSX/translocation.h"
-}
 #endif
 
 #ifdef _WIN32
@@ -1178,12 +1175,6 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 	int    const argc = __argc;
 	char** const argv = __argv;
-#endif
-#ifdef __APPLE__
-	if (RestartIfTranslocated()) {
-		// we restarted the retranslocated app noch with correct attributes => exit this useless instance
-		return 0;
-	}
 #endif
 	return sysmain(argc, argv);
 }

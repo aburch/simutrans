@@ -446,7 +446,7 @@ char const *dr_query_installdir()
 	strcat(buffer, PATH_SEPARATOR);
 	strcat(buffer, foldername);
 #elif defined __APPLE__
-	sprintf(buffer, "/Library/Simutrans");
+	sprintf(buffer, "%s/Library/Simutrans/simutrans", getenv("HOME"));
 #elif defined __HAIKU__
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);

@@ -1,4 +1,9 @@
-if (UNIX AND NOT APPLE AND NOT OPTION_BUNDLE_LIBRARIES AND NOT SINGLE_INSTALL)
+if (APPLE)
+	# Self-contained bundle
+	set(SIMUTRANS_BASE_DIR "${CMAKE_BINARY_DIR}/simutrans/simutrans.app/Contents/Resources/simutrans")
+	set(SIMUTRANS_BIN_DIR "${CMAKE_BINARY_DIR}/simutrans")
+	set(SIMUTRANS_OUTPUT_DIR "")
+elseif (UNIX AND NOT OPTION_BUNDLE_LIBRARIES AND NOT SINGLE_INSTALL)
 	# System Installation (Linux only)
 	include(GNUInstallDirs)
 
