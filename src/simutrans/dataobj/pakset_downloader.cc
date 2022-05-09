@@ -202,11 +202,10 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 			}
 			strcpy(outfilename, "temp.zip");
 #endif
-#ifndef __ANDROID__
+#else ifndef __ANDROID__
 			sprintf(outfilename, "curl --progress-bar -L '%s' > 'temp.zip'", pi->url);
 			system(outfilename);
 			strcpy(outfilename, "temp.zip");
-#endif
 #endif
 		}
 		else {
