@@ -110,7 +110,6 @@ else ifeq ($(OSTYPE),linux)
     DYNAMICEND = -Wl,-Bstatic 
   endif
 else ifeq ($(OSTYPE),mac)
-  SOURCES += src/simutrans/OSX/translocation.m
   LDFLAGS += -framework Cocoa
 endif
 

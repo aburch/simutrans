@@ -139,7 +139,6 @@ else ()
 		target_sources(simutrans PRIVATE src/simutrans/sys/clipboard_internal.cc)
 	endif ()
 	if (APPLE)
-		target_sources(simutrans PRIVATE src/OSX/translocation.m)
 		#Darwin kernel version is used to identify macOS version (16->10.12/Sierra)
 		if (CMAKE_HOST_SYSTEM_VERSION VERSION_GREATER_EQUAL 16) #AVF
 			set(BACKUP_SOUND src/simutrans/sound/AVF_core-audio_sound.mm)
