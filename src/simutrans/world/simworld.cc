@@ -5957,22 +5957,31 @@ uint32 karte_t::get_next_command_step()
 sint16 karte_t::get_sound_id(grund_t *gr)
 {
 	if(  gr->ist_natur()  ||  gr->is_water()  ) {
-		sint16 id = NO_SOUND;
+
+		// first, find out if climates overlap for shore
+		const koord k = gr->get_pos().get_2d();
+		uint8 climate_corners = access(k)->get_climate_corners();
+		if (climate_corners  && sound_desc_t::beach_sound!=NO_SOUND) {
+			for (int i = 0; i < 8; i++) {
+				koord k_neighbour = k + koord::neighbours[i];
+				if (!is_within_limits(k_neighbour)) {
+					k_neighbour = get_closest_coordinate(k_neighbour);
+				}
+				if(water_climate == get_climate(k_neighbour)) {
+					// one croner water => shore
+					return sound_desc_t::beach_sound;
+				}
+			}
+		}
+		// try forest
+		if (  sound_desc_t::forest_sound!=NO_SOUND  &&  gr->get_top() > 0  &&  gr->obj_bei(0)->get_typ() == obj_t::baum  ) {
+			return sound_desc_t::forest_sound;
+		}
 		if(  gr->get_pos().z >= get_snowline()  ) {
-			id = sound_desc_t::climate_sounds[ arctic_climate ];
+			return sound_desc_t::climate_sounds[ arctic_climate ];
 		}
 		else {
-			id = sound_desc_t::climate_sounds[get_climate( zeiger->get_pos().get_2d() )];
-		}
-		if (id != NO_SOUND) {
-			return id;
-		}
-		// try, if there is another sound ready
-		if(  zeiger->get_pos().z==groundwater  &&  !gr->is_water()  ) {
-			return sound_desc_t::beach_sound;
-		}
-		else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==obj_t::baum  ) {
-			return sound_desc_t::forest_sound;
+			return sound_desc_t::climate_sounds[get_climate( k )];
 		}
 	}
 	return NO_SOUND;

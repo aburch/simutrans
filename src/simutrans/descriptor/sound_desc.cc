@@ -46,7 +46,7 @@ sint16 sound_desc_t::compatible_sound_id[MAX_OLD_SOUNDS]=
 	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND
 };
 
-// sound with the names of climates and "beach" and "forest" are reserved for ambient noises
+// sound with the names of climates and "beaches" and "forest" are reserved for ambient noises
 sint16 sound_desc_t::beach_sound = NO_SOUND;
 sint16 sound_desc_t::forest_sound = NO_SOUND;
 sint16 sound_desc_t::climate_sounds[MAX_CLIMATES]=
