@@ -407,8 +407,8 @@ void print_help()
 		" -timeline           enables timeline\n"
 #if defined DEBUG || defined PROFILE
 		" -times              does some simple profiling\n"
-		" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
 #endif
+		" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
 	);
 }
 
@@ -1584,6 +1584,7 @@ int simu_main(int argc, char** argv)
 	if (args.has_arg("-times")) {
 		show_times(welt, view);
 	}
+#endif
 
 	// finish after a certain month? (must be entered decimal, i.e. 12*year+month
 	if(  args.has_arg("-until")  ) {
@@ -1597,7 +1598,6 @@ int simu_main(int argc, char** argv)
 		}
 		welt->set_fast_forward(true);
 	}
-#endif
 
 	welt->reset_timer();
 	if(  !env_t::networkmode  &&  !env_t::server  ) {
