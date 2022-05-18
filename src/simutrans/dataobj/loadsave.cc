@@ -1248,9 +1248,10 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 		if(  !is_xml()  ) {
 			int i=0;
 			*id_buf = 0;
-			while(  i<size  &&  id_buf[i-1]!=10  ) {
+			do
+			{
 				id_buf[i++] = lsgetc();
-			}
+			} while (i < size && id_buf[i - 1] != 10);
 			id_buf[i-1] = 0;
 		}
 		else {
