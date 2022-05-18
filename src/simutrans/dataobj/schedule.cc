@@ -13,7 +13,7 @@
 #include "../display/simimg.h"
 
 #include "../utils/cbuffer.h"
-#include "../utils/int_math.h"
+#include "../utils/simrandom.h"
 #include "../gui/messagebox.h"
 #include "../descriptor/building_desc.h"
 #include "../ground/grund.h"
