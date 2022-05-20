@@ -263,19 +263,27 @@ grund_t* pedestrian_t::hop_check()
 		time_to_life = 0;
 		return NULL;
 	}
+
+	if (from->get_top() >= 254) {
+		return NULL; // target tile full
+	}
+
 	return from;
 }
 
 
 void pedestrian_t::hop(grund_t *gr)
 {
-	koord3d from = get_pos();
+	const koord3d from = get_pos();
 
 	// hop
 	leave_tile();
 	set_pos(gr->get_pos());
-	// no need to call enter_tile();
-	gr->obj_add(this);
+	// no need to call enter_tile()
+
+	// if this fails, the target tile is full, but this should already have been checked in hop_check
+	const bool ok = gr->obj_add(this);
+	assert(ok); (void)ok;
 
 	// determine pos_next
 	const weg_t *weg = gr->get_weg(road_wt);
