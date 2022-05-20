@@ -210,6 +210,11 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && count > 0; i++) {
+				if (bd->get_top() >= 240) {
+					// tile too full
+					return;
+				}
+
 				pedestrian_t* fg = new pedestrian_t(bd);
 				bool ok = bd->obj_add(fg) != 0; // 256 limit reached
 				if (ok) {
