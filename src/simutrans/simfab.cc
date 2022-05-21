@@ -1592,7 +1592,7 @@ void fabrik_t::smoke()
 		const koord offset = ( desc->get_smokeoffset(rot)*OBJECT_OFFSET_STEPS)/16;
 		wolke_t *smoke =  new wolke_t(gr->get_pos(), offset.x, 0, offset.y, desc->get_smokelifetime(), desc->get_smokeuplift(), rada->get_images() );
 		gr->obj_add(smoke);
-		welt->sync_way_eyecandy.add( smoke );
+//		welt->sync_way_eyecandy.add( smoke );
 	}
 
 	// maybe sound?

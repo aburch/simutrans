@@ -28,6 +28,7 @@
 
 FLAGGED_PIXVAL baum_t::outline_color = 0;
 
+freelist_tpl<baum_t> baum_t::fl;
 
 baum_t::baum_t(loadsave_t *file) :
 	obj_t(),
@@ -322,16 +323,4 @@ void baum_t::cleanup(player_t *player)
 uint16 baum_t::get_age() const
 {
 	return (welt->get_current_month() - (uint32)geburt) % (1<<12);
-}
-
-
-void *baum_t::operator new(size_t /*s*/)
-{
-	return freelist_t::gimme_node(sizeof(baum_t));
-}
-
-
-void baum_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(baum_t),p);
 }

@@ -14,6 +14,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../display/simimg.h"
 
+#include "../tpl/freelist_iter_tpl.h"
 
 class karte_t;
 
@@ -37,17 +38,21 @@ private:
 
 	sint16 calc_yoff() const; // calculate the smoke height using uplift and insta_zeit
 
+	static freelist_iter_tpl<wolke_t> fl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
 public:
 	static bool register_desc(const skin_desc_t *desc);
-
-	void * operator new(size_t s);
-	void operator delete(void *p);
 
 	wolke_t(loadsave_t *file);
 	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, sint16 hoff, uint16 lifetime, uint16 uplift, const skin_desc_t *cloud );
 	~wolke_t();
 
 	sync_result sync_step(uint32 delta_t) OVERRIDE;
+
+	void* operator new(size_t) { return fl.gimme_node(); }
+	void operator delete(void* p) { return fl.putback_node(p); }
+
+	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
 
 	const char* get_name() const OVERRIDE { return "Wolke"; }
 	typ get_typ() const OVERRIDE { return sync_wolke; }

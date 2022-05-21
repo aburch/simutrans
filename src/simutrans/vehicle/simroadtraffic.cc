@@ -231,6 +231,7 @@ void road_user_t::finish_rd()
 /**********************************************************************************************************************/
 /* statsauto_t (city cars) from here on */
 
+freelist_iter_tpl<private_car_t> private_car_t::fl;
 
 static weighted_vector_tpl<const citycar_desc_t*> liste_timeline;
 stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
@@ -312,11 +313,6 @@ private_car_t::~private_car_t()
 	if(gr  &&  gr->ist_uebergang()) {
 		gr->find<crossing_t>(2)->release_crossing(this);
 	}
-
-	// just to be sure we are removed from this list!
-	if(time_to_life>0) {
-		welt->sync.remove(this);
-	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
 }
 
@@ -327,9 +323,6 @@ private_car_t::private_car_t(loadsave_t *file) :
 	rdwr(file);
 	ms_traffic_jam = 0;
 	calc_disp_lane();
-	if(desc) {
-		welt->sync.add(this);
-	}
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 

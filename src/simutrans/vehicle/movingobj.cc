@@ -33,6 +33,8 @@
 
 /******************************** static stuff: desc management ****************************************************************/
 
+freelist_iter_tpl<movingobj_t> movingobj_t::fl;
+
 vector_tpl<const groundobj_desc_t *> movingobj_t::movingobj_typen(0);
 
 stringhashtable_tpl<groundobj_desc_t *> movingobj_t::desc_table;
@@ -152,9 +154,6 @@ void movingobj_t::calc_image()
 movingobj_t::movingobj_t(loadsave_t *file) : vehicle_base_t()
 {
 	rdwr(file);
-	if(get_desc()) {
-		welt->sync.add( this );
-	}
 }
 
 
@@ -165,13 +164,6 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) : vehicle_base
 	timetochange = 0; // will do random direct change anyway during next step
 	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_image();
-	welt->sync.add( this );
-}
-
-
-movingobj_t::~movingobj_t()
-{
-	welt->sync.remove( this );
 }
 
 
@@ -416,18 +408,4 @@ void movingobj_t::hop(grund_t* gr)
 
 	// next position
 	pos_next = pos_next_next;
-}
-
-
-
-void *movingobj_t::operator new(size_t /*s*/)
-{
-	return freelist_t::gimme_node(sizeof(movingobj_t));
-}
-
-
-
-void movingobj_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(movingobj_t),p);
 }

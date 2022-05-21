@@ -9,6 +9,7 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/freelist_iter_tpl.h"
 #include "../descriptor/groundobj_desc.h"
 #include "../simcolor.h"
 #include "../obj/sync_steppable.h"
@@ -39,6 +40,8 @@ private:
 	/// static vector for fast lookup of desc
 	static vector_tpl<const groundobj_desc_t *> movingobj_typen;
 
+	static freelist_iter_tpl<movingobj_t> fl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -52,9 +55,13 @@ public:
 
 	movingobj_t(loadsave_t *file);
 	movingobj_t(koord3d pos, const groundobj_desc_t *);
-	~movingobj_t();
 
 	sync_result sync_step(uint32 delta_t) OVERRIDE;
+
+	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
+
+	void* operator new(size_t) { return fl.gimme_node(); }
+	void operator delete(void* p) { return fl.putback_node(p); }
 
 	// always free
 	virtual bool check_next_tile(const grund_t *) const;
@@ -81,8 +88,6 @@ public:
 
 	bool is_flying() const OVERRIDE { return get_desc()->get_waytype()==air_wt; }
 
-	void * operator new(size_t s);
-	void operator delete(void *p);
 };
 
 #endif

@@ -551,8 +551,8 @@ const char *network_http_get_file( const char* address, const char* name, const 
 					return network_http_get_file(new_ip, new_path, filename);
 				}
 			}
-			if (char* c = strstr(line, "Location: https://")) {
-				return "Cannot handole https.";
+			if (strstr(line, "Location: https://")) {
+				return "Cannot handle https.";
 			}
 			return "Unknown redirect.";
 		}

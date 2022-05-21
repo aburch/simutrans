@@ -60,6 +60,7 @@
 #include "../obj/groundobj.h"
 #include "../obj/gebaeude.h"
 #include "../obj/leitung2.h"
+#include "../obj/wolke.h"
 
 #include "../gui/password_frame.h"
 #include "../gui/messagebox.h"
@@ -440,7 +441,6 @@ void karte_t::destroy()
 	// removes all moving stuff from the sync_step
 	sync.clear();
 	sync_eyecandy.clear();
-	sync_way_eyecandy.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
 	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
@@ -2656,13 +2656,14 @@ void karte_t::sync_step(uint32 delta_t)
 		* => they are now in a hastable!
 		*/
 	sync_eyecandy.sync_step( delta_t );
-
-	/* pedestrians do not require exact sync and are added/removed frequently
-		* => they are now in a hastable!
-		*/
-	sync_way_eyecandy.sync_step( delta_t );
+	wolke_t::sync_handler(delta_t);
 
 	clear_random_mode( INTERACTIVE_RANDOM );
+
+	pedestrian_t::sync_handler(delta_t);
+	movingobj_t::sync_handler(delta_t);
+	private_car_t::sync_handler(delta_t);
+	senke_t::sync_handler(delta_t);
 
 	sync.sync_step( delta_t );
 
@@ -3263,8 +3264,8 @@ void karte_t::step()
 	// step powerlines - required order: powernet, pumpe then senke
 	DBG_DEBUG4("karte_t::step", "step poweline stuff");
 	powernet_t::step_all(delta_t);
-	pumpe_t::step_all(delta_t);
-	senke_t::step_all(delta_t);
+	pumpe_t::sync_handler(delta_t);
+//	senke_t::step_all(delta_t); // not needed, handeld by sunc_step already
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4260,7 +4261,6 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 	if (file->is_loading()) {
 		// zum laden vorbereiten -> tabelle loeschen
 		powernet_t::new_world();
-		pumpe_t::new_world();
 		senke_t::new_world();
 		script_api::new_world();
 
@@ -6028,6 +6028,7 @@ bool karte_t::interactive(uint32 quit_month)
 	sint32 ms_difference = 0;
 	reset_timer();
 	DBG_DEBUG4("karte_t::interactive", "welcome in this routine");
+	uint32 interactive_start_timer = dr_time();
 
 	if(  env_t::server  ) {
 		step_mode |= FIX_RATIO;
@@ -6235,6 +6236,8 @@ bool karte_t::interactive(uint32 quit_month)
 
 		DBG_DEBUG4("karte_t::interactive", "point of loop return");
 	} while(!finish_loop  &&  get_current_month()<quit_month);
+
+	DBG_MESSAGE("karte_t::interactive()", "Spent %lu ms in loop", dr_time() - interactive_start_timer);
 
 	if(  get_current_month() >= quit_month  ) {
 		env_t::quit_simutrans = true;

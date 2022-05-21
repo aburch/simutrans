@@ -21,6 +21,8 @@
 #include <cstdio>
 
 
+freelist_iter_tpl<pedestrian_t> pedestrian_t::fl;
+
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
 static weighted_vector_tpl<const pedestrian_desc_t*> list_timeline;
@@ -66,7 +68,6 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 	steps_offset = 0;
 	rdwr(file);
 	if(desc) {
-		welt->sync.add(this);
 		ped_offset = desc->get_offset();
 	}
 	calc_disp_lane();
@@ -118,14 +119,6 @@ pedestrian_t::pedestrian_t(grund_t *gr) :
 	ped_offset = desc->get_offset();
 	calc_image();
 	calc_disp_lane();
-}
-
-
-pedestrian_t::~pedestrian_t()
-{
-	if(  time_to_life>0  ) {
-		welt->sync.remove( this );
-	}
 }
 
 
@@ -216,14 +209,12 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 				}
 
 				pedestrian_t* fg = new pedestrian_t(bd);
-				bool ok = bd->obj_add(fg) != 0; // 256 limit reached
-				if (ok) {
+				if (bd->obj_add(fg) != 0) {
 					fg->calc_height(bd);
 					if (i > 0) {
 						// walk a little
 						fg->sync_step( (i & 3) * 64 * 24);
 					}
-					welt->sync.add(fg);
 					count--;
 				}
 				else {
@@ -231,8 +222,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 					fg->set_flag(obj_t::not_on_map);
 					// do not try to delete it from sync-list
 					fg->time_to_life = 0;
-					delete fg;
-					return; // it is pointless to try again
+					return; // it is pointless to try for more here
 				}
 			}
 		}
@@ -395,16 +385,4 @@ void pedestrian_t::info(cbuffer_t & buf) const
 	if (char const* const maker = get_desc()->get_copyright()) {
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
-}
-
-
-void *pedestrian_t::operator new(size_t /*s*/)
-{
-	return freelist_t::gimme_node(sizeof(pedestrian_t));
-}
-
-
-void pedestrian_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(pedestrian_t),p);
 }

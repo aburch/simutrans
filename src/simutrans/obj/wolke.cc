@@ -11,15 +11,15 @@
 #include "../utils/simrandom.h"
 #include "wolke.h"
 
-#include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"
 
 #include "../descriptor/factory_desc.h"
 
 #include "../tpl/vector_tpl.h"
 
-
 vector_tpl<const skin_desc_t *>wolke_t::all_clouds(0);
+
+freelist_iter_tpl<wolke_t> wolke_t::fl;
 
 bool wolke_t::register_desc(const skin_desc_t* desc)
 {
@@ -32,19 +32,6 @@ bool wolke_t::register_desc(const skin_desc_t* desc)
 	}
 	return all_clouds.append_unique( desc );
 }
-
-
-void *wolke_t::operator new(size_t /*s*/)
-{
-	return freelist_t::gimme_node(sizeof(wolke_t));
-}
-
-
-void wolke_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(wolke_t),p);
-}
-
 
 
 wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint8 b_y_off, sint16 b_h_off, uint16 lt, uint16 ul, const skin_desc_t* desc ) :
@@ -63,9 +50,6 @@ wolke_t::wolke_t(koord3d pos, sint8 b_x_off, sint8 b_y_off, sint16 b_h_off, uint
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_image(), calc_yoff() );
-	if(  insta_zeit != lifetime  ) {
-		welt->sync_way_eyecandy.remove( this );
-	}
 }
 
 

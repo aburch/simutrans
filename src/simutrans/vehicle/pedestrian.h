@@ -8,6 +8,7 @@
 
 
 #include "simroadtraffic.h"
+#include "../tpl/freelist_iter_tpl.h"
 
 
 class pedestrian_desc_t;
@@ -32,6 +33,8 @@ private:
 
 	bool list_empty();
 
+	static freelist_iter_tpl<pedestrian_t> fl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -46,7 +49,7 @@ protected:
 public:
 	pedestrian_t(loadsave_t *file);
 
-	virtual ~pedestrian_t();
+	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
 
 	const pedestrian_desc_t *get_desc() const { return desc; }
 
@@ -72,8 +75,8 @@ public:
 	grund_t* hop_check() OVERRIDE;
 	void hop(grund_t* gr) OVERRIDE;
 
-	void * operator new(size_t s);
-	void operator delete(void *p);
+	void* operator new(size_t) { return fl.gimme_node(); }
+	void operator delete(void* p) { return fl.putback_node(p); }
 
 	// class register functions
 	static bool register_desc(const pedestrian_desc_t *desc);

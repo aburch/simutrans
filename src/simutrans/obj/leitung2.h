@@ -13,6 +13,8 @@
 #include "simobj.h"
 #include "../tpl/slist_tpl.h"
 
+#include "../tpl/freelist_iter_tpl.h"
+
 // bitshift for converting internal power values to MW for display
 extern const uint32 POWER_TO_MW;
 
@@ -125,26 +127,27 @@ public:
 
 
 
-class pumpe_t : public leitung_t
+class pumpe_t : public leitung_t, public sync_steppable
 {
-public:
-	static void new_world();
-	static void step_all(uint32 delta_t);
-
 private:
-	static slist_tpl<pumpe_t *> pumpe_list;
-
 	fabrik_t *fab;
 
 	// The power supplied through the transformer.
 	uint32 power_supply;
 
-	void step(uint32 delta_t);
+	static freelist_iter_tpl<pumpe_t> pl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
 
 public:
 	pumpe_t(loadsave_t *file);
 	pumpe_t(koord3d pos, player_t *player);
 	~pumpe_t();
+
+	void* operator new(size_t) { return pl.gimme_node(); }
+	void operator delete(void* p) { return pl.putback_node(p); }
+
+	static void sync_handler(uint32 delta_t) { pl.sync_step(delta_t); }
+
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
 
 	void set_net(powernet_t* p) OVERRIDE;
 
@@ -185,20 +188,7 @@ public:
  */
 class senke_t : public leitung_t, public sync_steppable
 {
-public:
-	static void new_world();
-	static void step_all(uint32 delta_t);
-
-	/**
-	 * Read and write static state.
-	 * This is used to make payments occur at the same time after load as after saving.
-	 */
-	static void static_rdwr(loadsave_t *file);
-
 private:
-	// List of all distribution transformers.
-	static slist_tpl<senke_t *> senke_list;
-
 	// Timer for global power payment.
 	static uint32 payment_timer;
 
@@ -221,10 +211,28 @@ private:
 	// Pay out revenue for the energy metered.
 	void pay_revenue();
 
+	static freelist_iter_tpl<senke_t> sl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
+	// true, needs payout
+	static bool payout;
+
 public:
+	static void new_world();
+
+	/**
+	 * Read and write static state.
+	 * This is used to make payments occur at the same time after load as after saving.
+	 */
+	static void static_rdwr(loadsave_t* file);
+
 	senke_t(loadsave_t *file);
 	senke_t(koord3d pos, player_t *player);
 	~senke_t();
+
+	void* operator new(size_t) { return sl.gimme_node(); }
+	void operator delete(void* p) { return sl.putback_node(p); }
+
+	static void sync_handler(uint32 delta_t);
 
 	void set_net(powernet_t* p) OVERRIDE;
 

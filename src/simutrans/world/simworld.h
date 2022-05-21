@@ -1034,7 +1034,6 @@ public:
 
 	sync_list_t sync;              ///< vehicles, transformers, traffic lights
 	sync_list_t sync_eyecandy;     ///< animated buildings
-	sync_list_t sync_way_eyecandy; ///< smoke
 
 	/**
 	 * Synchronous stepping of objects like vehicles.

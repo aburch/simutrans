@@ -12,6 +12,7 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../obj/sync_steppable.h"
+#include "../tpl/freelist_iter_tpl.h"
 
 class citycar_desc_t;
 class karte_t;
@@ -93,6 +94,9 @@ private:
 	void calc_disp_lane();
 
 	bool can_enter_tile(grund_t *gr);
+
+	static freelist_iter_tpl<private_car_t> fl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -110,11 +114,16 @@ public:
 
 	virtual ~private_car_t();
 
+	sync_result sync_step(uint32 delta_t) OVERRIDE;
+
+	void* operator new(size_t) { return fl.gimme_node(); }
+	void operator delete(void* p) { return fl.putback_node(p); }
+
+	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
+
 	void rotate90() OVERRIDE;
 
-	const citycar_desc_t *get_desc() const { return desc; }
-
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	const citycar_desc_t* get_desc() const { return desc; }
 
 	void hop(grund_t *gr) OVERRIDE;
 

@@ -13,6 +13,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
+#include "../tpl/freelist_tpl.h"
 #include "../descriptor/tree_desc.h"
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
@@ -48,6 +49,8 @@ private:
 
 	// one bit free ;)
 
+	static freelist_tpl<baum_t> fl;
+
 public:
 	/// Only the load save constructor should be called outside.
 	/// Otherwise I suggest use the plant tree function (@see tree_builder_t)
@@ -58,6 +61,9 @@ public:
 	baum_t(koord3d pos, uint8 type, uint16 age, slope_t::type slope );
 
 	baum_t(koord3d pos, const tree_desc_t *desc);
+
+	void* operator new(size_t) { return fl.gimme_node(); }
+	void operator delete(void* p) { return fl.putback_node(p); }
 
 public:
 	/// @copydoc obj_t::get_name
@@ -114,10 +120,6 @@ public:
 
 	/// @returns age of the tree in months, between 0 and 4095
 	uint16 get_age() const;
-
-public:
-	void *operator new(size_t s);
-	void operator delete(void *p);
 
 private:
 	/// calculate offsets for new trees

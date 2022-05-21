@@ -75,7 +75,6 @@ bool trafficlight_info_t::action_triggered( gui_action_creator_t *comp, value_t 
 {
 	char param[256];
 	int toolnr = 0;
-	const int swap = world()->get_settings().get_rotation() & 1;
 	if(comp == &ns) {
 		toolnr = 1;
 	}
