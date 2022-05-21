@@ -308,7 +308,7 @@ void pedestrian_t::hop(grund_t *gr)
 	if (to) {
 		pos_next = to->get_pos();
 
-		if (new_direction == current_direction) {
+		if (  ribi_t::is_twoway(weg->get_ribi_unmasked())  ||  new_direction == current_direction  ) {
 			// going straight
 			direction = calc_set_direction(from, pos_next);
 		}
