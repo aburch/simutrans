@@ -269,8 +269,9 @@ grund_t* pedestrian_t::hop_check()
 		return NULL;
 	}
 
-	if (from->get_top() >= 254) {
-		return NULL; // target tile full
+	if (from->get_top() >= 240) {
+		time_to_life = 0;
+		return NULL; // target tile full, just die
 	}
 
 	return from;

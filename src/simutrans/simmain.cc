@@ -537,6 +537,11 @@ int simu_main(int argc, char** argv)
 	args_t args(argc, argv);
 	env_t::init();
 
+	printf("Args\n");
+	for (int i = 1; i < argc; i++) {
+		printf("*%s*\n", argv[i]);
+	}
+
 	// you really want help with this?
 	if (args.has_arg("-h") ||
 			args.has_arg("-?") ||
