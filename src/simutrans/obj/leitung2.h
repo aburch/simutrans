@@ -11,7 +11,6 @@
 #include "../dataobj/koord3d.h"
 #include "../dataobj/ribi.h"
 #include "simobj.h"
-#include "../tpl/slist_tpl.h"
 
 #include "../tpl/freelist_iter_tpl.h"
 

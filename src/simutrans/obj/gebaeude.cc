@@ -83,7 +83,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 		set_yoff(0);
 	}
 	if(tile  &&  tile->get_phases()>1) {
-		welt->sync_eyecandy.add( this );
+		welt->sync_buildings.add( this );
 		sync = true;
 	}
 }
@@ -124,7 +124,7 @@ gebaeude_t::~gebaeude_t()
 
 	if(sync) {
 		sync = false;
-		welt->sync_eyecandy.remove(this);
+		welt->sync_buildings.remove(this);
 	}
 
 	// tiles might be invalid, if no description is found during loading
@@ -253,7 +253,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 #ifdef MULTI_THREAD
 			pthread_mutex_lock( &sync_mutex );
 #endif
-			welt->sync_eyecandy.remove(this);
+			welt->sync_buildings.remove(this);
 			sync = false;
 			anim_frame = 0;
 #ifdef MULTI_THREAD
@@ -268,7 +268,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 #endif
 		anim_frame = sim_async_rand( new_tile->get_phases() );
 		anim_time = 0;
-		welt->sync_eyecandy.add(this);
+		welt->sync_buildings.add(this);
 		sync = true;
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &sync_mutex );

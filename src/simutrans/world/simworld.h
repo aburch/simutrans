@@ -1032,8 +1032,9 @@ public:
 			bool sync_step_running;
 	};
 
-	sync_list_t sync;              ///< vehicles, transformers, traffic lights
-	sync_list_t sync_eyecandy;     ///< animated buildings
+	sync_list_t sync;               ///< vehicles
+	sync_list_t sync_buildings;     ///< animated buildings
+	sync_list_t sync_roadsigns;     ///< traffic lights
 
 	/**
 	 * Synchronous stepping of objects like vehicles.

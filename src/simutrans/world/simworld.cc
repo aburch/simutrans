@@ -440,7 +440,7 @@ void karte_t::destroy()
 
 	// removes all moving stuff from the sync_step
 	sync.clear();
-	sync_eyecandy.clear();
+	sync_buildings.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
 	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
@@ -2652,14 +2652,16 @@ void karte_t::sync_step(uint32 delta_t)
 	set_random_mode( INTERACTIVE_RANDOM );
 
 	/* animations do not require exact sync
-		* foundations etc are added removed frequently during city growth
-		* => they are now in a hastable!
-		*/
-	sync_eyecandy.sync_step( delta_t );
+	 * foundations etc are added removed frequently during city growth
+	 */
+	sync_buildings.sync_step( delta_t );
 	wolke_t::sync_handler(delta_t);
 
 	clear_random_mode( INTERACTIVE_RANDOM );
 
+	// the following sync_steps affect the game state
+
+	sync_roadsigns.sync_step(delta_t);
 	pedestrian_t::sync_handler(delta_t);
 	movingobj_t::sync_handler(delta_t);
 	private_car_t::sync_handler(delta_t);

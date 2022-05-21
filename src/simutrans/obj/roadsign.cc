@@ -36,6 +36,7 @@
 
 #include "roadsign.h"
 
+freelist_tpl<roadsign_t> roadsign_t::rs;
 
 const roadsign_desc_t *roadsign_t::default_signal=NULL;
 
@@ -62,7 +63,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 	}
 	// only traffic light need switches
 	if(  automatic  ) {
-		welt->sync.add(this);
+		welt->sync_roadsigns.add(this);
 	}
 }
 
@@ -94,7 +95,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	automatic = (desc->get_count()>4  &&  desc->get_wtyp()==road_wt)  ||  (desc->get_count()>2  &&  desc->is_private_way());
 	// only traffic light need switches
 	if(  automatic  ) {
-		welt->sync.add(this);
+		welt->sync_roadsigns.add(this);
 	}
 }
 
@@ -120,7 +121,7 @@ roadsign_t::~roadsign_t()
 		}
 	}
 	if(automatic) {
-		welt->sync.remove(this);
+		welt->sync_roadsigns.remove(this);
 	}
 }
 

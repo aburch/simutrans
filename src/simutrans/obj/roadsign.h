@@ -13,6 +13,9 @@
 #include "../obj/sync_steppable.h"
 #include "../tpl/stringhashtable_tpl.h"
 
+#include "../tpl/freelist_tpl.h"
+
+
 template<class T> class vector_tpl;
 class tool_selector_t;
 
@@ -46,6 +49,9 @@ protected:
 	const roadsign_desc_t *desc;
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
+
+	static freelist_tpl<roadsign_t> rs; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
 public:
 	enum signalstate {
 		STATE_RED    = 0,
@@ -82,6 +88,9 @@ public:
 	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t* desc, bool preview = false);
 
 	const roadsign_desc_t *get_desc() const {return desc;}
+
+	void* operator new(size_t) { return rs.gimme_node(); }
+	void operator delete(void* p) { return rs.putback_node(p); }
 
 	/**
 	 * signale muessen bei der destruktion von der
