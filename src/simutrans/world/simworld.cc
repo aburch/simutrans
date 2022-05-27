@@ -441,6 +441,7 @@ void karte_t::destroy()
 	// removes all moving stuff from the sync_step
 	sync.clear();
 	sync_buildings.clear();
+	sync_roadsigns.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
 	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");

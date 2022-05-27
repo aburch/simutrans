@@ -6091,7 +6091,6 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 		// add citycar
 		private_car_t* vt = new private_car_t(gr, koord::invalid, default_param);
 		gr->obj_add(vt);
-		welt->sync.add(vt);
 		return NULL;
 	}
 	return "";

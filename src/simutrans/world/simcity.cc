@@ -1701,7 +1701,6 @@ void stadt_t::new_month( bool recalc_destinations )
 						if(  ribi_t::is_twoway(w->get_ribi_unmasked())  &&  player_t::check_owner(NULL,w->get_owner())  &&  gr->find<private_car_t>() == NULL  ) {
 							private_car_t* vt = new private_car_t(gr, koord::invalid);
 							gr->obj_add(vt);
-							welt->sync.add(vt);
 							number_of_cars--;
 						}
 					}
@@ -3419,7 +3418,6 @@ void stadt_t::generate_private_cars(koord pos, koord target)
 						}
 						private_car_t* vt = new private_car_t(gr, target);
 						gr->obj_add(vt);
-						welt->sync.add(vt);
 						city_history_month[0][HIST_CITYCARS] ++;
 						city_history_year[0][HIST_CITYCARS] ++;
 						number_of_cars --;

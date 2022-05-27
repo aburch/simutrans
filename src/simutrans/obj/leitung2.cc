@@ -471,7 +471,7 @@ pumpe_t::~pumpe_t()
 sync_result pumpe_t::sync_step(uint32 delta_t)
 {
 	if(  fab == NULL  ) {
-		return SYNC_REMOVE;
+		return SYNC_DELETE;
 	}
 	else if(  delta_t == 0  ) {
 		return SYNC_OK;
