@@ -149,14 +149,6 @@ public:
 
 	scr_size get_max_size() const OVERRIDE;
 
-	/**
-	 * Checks if the given position is inside the component area, including the droplist.
-	 * @return true if the coordinates are inside this component area.
-	 */
-	bool getroffen(int x, int y) OVERRIDE {
-		return ( pos.x <= x && pos.y <= y && (pos.x+size.w+droplist.get_size().w+1) > x && (pos.y+size.h+droplist.get_size().h+1) > y );
-	}
-
 	void enable();
 	void disable();
 	void enable( bool yesno ) {
