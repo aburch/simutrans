@@ -77,7 +77,6 @@ private:
 
 	button_t bt_start;
 	button_t bt_schedule;
-	button_t bt_destroy;
 	button_t bt_sell;
 
 	button_t bt_obsolete;
@@ -91,14 +90,7 @@ private:
 	gui_tab_panel_t tabs;
 
 	button_t bt_veh_action;
-
-	/**
-	 * buttons for new route-management
-	 */
-	button_t bt_new_line;
-	button_t bt_change_line;
 	button_t bt_copy_convoi;
-	button_t bt_apply_line;
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;

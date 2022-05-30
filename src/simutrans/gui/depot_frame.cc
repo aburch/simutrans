@@ -1333,13 +1333,9 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 {
 	const bool action_allowed = welt->get_active_player() == depot->get_owner();
 
-	bt_new_line.enable( action_allowed );
-	bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
-	bt_apply_line.enable( action_allowed );
 	bt_start.enable( action_allowed );
 	bt_schedule.enable( action_allowed );
-	bt_destroy.enable( action_allowed );
 	bt_sell.enable( action_allowed );
 	bt_obsolete.enable( action_allowed );
 	bt_show_all.enable( action_allowed );

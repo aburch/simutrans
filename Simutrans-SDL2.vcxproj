@@ -167,6 +167,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LargeAddressAware>
       <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</LargeAddressAware>
+      <Profile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</Profile>
+      <Profile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
