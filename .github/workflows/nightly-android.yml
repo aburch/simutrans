@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        path: 'gh-clone/simutrans'
 
     - name: Install dependencies
       run: |
@@ -91,7 +95,7 @@ jobs:
         CURRENT_BRANCH=$GITHUB_REF_NAME
         echo $CURRENT_BRANCH
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
-        git clone -b $CURRENT_BRANCH $GITHUB_SERVER_URL/$GITHUB_REPOSITORY project/jni/application/simutrans/simutrans
+        mv $GITHUB_WORKSPACE/gh-clone/simutrans project/jni/application/simutrans/
         chmod +755 project/jni/application/simutrans/simutrans/tools/get_revision.sh
         echo $(ls -al project/jni/application/simutrans/simutrans/android)
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidAppSettings.cfg project/jni/application/simutrans/
