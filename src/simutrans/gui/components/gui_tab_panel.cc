@@ -187,15 +187,15 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	// navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  IS_CONTROL_PRESSED(ev)  ) {
-		if(  ev->ev_code==SIM_KEY_PGUP  ) {
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_TAB  ) {
+		if(  IS_SHIFT_PRESSED(ev)  ) {
 			// Ctrl-PgUp -> go to the previous tab
 			const int next_tab_idx = active_tab - 1;
 			active_tab = next_tab_idx<0 ? max(0, (int)tabs.get_count()-1) : next_tab_idx;
 			call_listeners((long)active_tab);
 			return true;
 		}
-		else if(  ev->ev_code==SIM_KEY_PGDN  ) {
+		else {
 			// Ctrl-PgDn -> go to the next tab
 			const int next_tab_idx = active_tab + 1;
 			active_tab = next_tab_idx>=(int)tabs.get_count() ? 0 : next_tab_idx;
