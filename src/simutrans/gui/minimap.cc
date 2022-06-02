@@ -1755,13 +1755,14 @@ void minimap_t::draw(scr_coord pos)
 			display_ddd_proportional_clip(boxpos.x, boxpos.y, color_idx_to_rgb(10), color_idx_to_rgb(COL_WHITE), name, true);
 		}
 
-		for (uint32 i = 0; i < win_get_open_count(); i++) {
+		for (int i = win_get_open_count() - 1; i >= 0; i--) {
 			gui_frame_t *g = win_get_index(i);
 			if(g->get_rdwr_id()== magic_factory_info) {
 				// is a factory info window
 				const fabrik_t * const fab = dynamic_cast<fabrik_info_t *>(g)->get_factory();
 				draw_factory_connections(fab, true, pos);
 				draw_factory_connections(fab, false, pos);
+				break; // only show top window
 			}
 		}
 
