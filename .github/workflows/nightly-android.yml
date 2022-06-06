@@ -102,10 +102,6 @@ jobs:
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidBuild.sh project/jni/application/simutrans/
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidPreBuild.sh project/jni/application/simutrans/
         cp -f project/jni/application/simutrans/simutrans/src/android/icon.png project/jni/application/simutrans/
-        cd project/jni/application/simutrans/simutrans/tools
-        cat /android-sdl/project/jni/application/simutrans/AndroidAppSettings.cfg | sed "s|AppVersionCode=XXXVVVXXX|AppVersionCode=`../../tools/get_revision.sh`|" > /android-sdl/project/jni/application/simutrans/AndroidAppSettings.cfg
-    #    svn checkout --depth empty svn://servers.simutrans.org/simutrans/trunk/ project/jni/application/simutrans/simutrans
-
     # End of environment setup (dependencies installed, source code at correct location)
 
     # some temporary changes to Android SDL are stored in <repo>/.github/android
