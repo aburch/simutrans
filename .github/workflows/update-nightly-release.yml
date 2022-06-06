@@ -13,7 +13,7 @@ jobs:
 
     - name: detect revision
       run: |
-        echo "revision=`tools\get_revision.sh`" >> $GITHUB_ENV
+        echo "revision=`tools/get_revision.sh`" >> $GITHUB_ENV
 
     - name: set current head to nightly
       uses: richardsimko/update-tag@v1
