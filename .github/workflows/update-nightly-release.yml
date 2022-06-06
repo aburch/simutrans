@@ -8,11 +8,12 @@ jobs:
     steps:
 
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: detect revision
       run: |
-        revision="$(git log -1 --pretty=%b | grep 'git-svn-id' | sed -ne 's%.*simutrans/trunk@\([0-9]*\).*%\1%p')"
-        echo "revision=$revision" >> $GITHUB_ENV
+        echo "revision=`tools\get_revision.sh`" >> $GITHUB_ENV
 
     - name: set current head to nightly
       uses: richardsimko/update-tag@v1

@@ -20,7 +20,7 @@ echo FLAGS ?= -DUSE_OWN_PAKINSTALL
 
 cmake -E copy_if_different config.$1.txt config.$1
 
-echo "#define REVISION `svn info --show-item revision`" > revision.h.txt
+echo "#define REVISION `sh tools/get_revision.sh`" > revision.h.txt
 cmake -E copy_if_different revision.h.txt revision.h
 
 env CFLAGS="-fpermissive -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections" \

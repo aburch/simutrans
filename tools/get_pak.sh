@@ -333,24 +333,56 @@ pwd | grep "/simutrans$" >/dev/null || {
 # parameter is the full path to the pakset
 if  [ "$#" -gt 0 ]; then
 
-	for urlname in "$@"
+	pushd .. 1>/dev/null
+	for pakname in "$@"
 	do
-		cd ..
-		zipname="${urlname##http*\/}"
-		choicename="${zipname%.*}"
-		choicename="${choicename%.tar}" # for .tar.gz
-		choicename="${choicename/simupak/pak}"
+		if [[ $pakname == "http"* ]]; then
 
-		echo "-- Installing $choicename --"
-		tempzipname="$TEMP/$zipname"
-		download_and_install_pakset "$urlname" "$tempzipname" || {
-			echo "Error installing pakset $choicename"
-		}
+			# direct download if whatever
+			zipname="${pakname##http*\/}"
+			choicename="${zipname%.*}"
+			choicename="${choicename%.tar}" # for .tar.gz
+			choicename="${choicename/simupak/pak}"
+
+			echo "-- Installing $choicename --"
+			tempzipname="$TEMP/$zipname"
+			download_and_install_pakset "$urlname" "$tempzipname" || {
+				popd 1>/dev/null
+				echo "Error installing pakset $choicename"
+				exit 1
+			}
+		else
+			# find pakset with this folder name
+			has_match="0"
+			for urlname in "${paksets[@]}"
+			do
+				if [[ $urlname == *"/$pakname"/* ]]; then
+
+					zipname="${urlname##http*\/}"
+					choicename="${zipname%.*}"
+					choicename="${choicename%.tar}" # for .tar.gz
+					choicename="${choicename/simupak/pak}"
+
+					echo "-- Installing $choicename --"
+					tempzipname="$TEMP/$zipname"
+					download_and_install_pakset "$urlname" "$tempzipname" || {
+						echo "Error installing pakset $choicename"
+						popd 1>/dev/null
+						exit 1
+					}
+					has_match="1"
+				fi
+			done
+			if [[ $has_match == "0" ]]; then
+				echo "No pak matches $pakname"
+				popd 1>/dev/null
+				exit 1
+			fi
+		fi
 	done
-	echo "Installation finished."
+	popd 1>/dev/null
 	exit 0
 fi
-
 
 echo "-- Choose at least one of these paks --"
 
