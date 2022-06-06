@@ -37,5 +37,5 @@ mv app-release.aab simutrans-nightly.aab
 cp simutrans-nightly.aab simutrans-nightly-r`cd /android-sdl/project/jni/application/simutrans/simutrans/;tools/get_revision.sh`.aab
 
 mkdir whatsNewDirectory
-echo `git log -1` > whatsNewDirectory/whatsnew-en-US
+echo `git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
 
