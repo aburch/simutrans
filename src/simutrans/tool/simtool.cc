@@ -464,8 +464,9 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 			return true;
 		}
 	}
-	// pedestrians?
-	if (type == obj_t::pedestrian  ||  type == obj_t::undefined) {
+
+	// pedestrians only delete on demand!
+	if (type == obj_t::pedestrian) {
 		if (pedestrian_t* pedestrian = gr->find<pedestrian_t>()) {
 			delete pedestrian;
 			return true;
@@ -685,9 +686,19 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 	bool return_ok = false;
 	uint8 num_obj = gr->obj_count();
 	if(num_obj>0) {
-		msg = gr->kann_alle_obj_entfernen(player);
-		return_ok = (msg==NULL  &&  !(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(player));
-		DBG_MESSAGE("tool_remover()",  "removing everything from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
+		// cout all pedestrians and ignore them
+		int num_pedestrians = 0;
+		for (int i = 0; i < num_obj; i++) {
+			if (gr->obj_bei(i + 1)->get_typ() == obj_t::pedestrian) {
+				num_pedestrians++;
+			}
+		}
+		// only delete everything if there is more than pedestrians to delete
+		if (num_obj > num_pedestrians) {
+			msg = gr->kann_alle_obj_entfernen(player);
+			return_ok = (msg == NULL && !(gr->get_typ() == grund_t::brueckenboden || gr->get_typ() == grund_t::tunnelboden) && gr->obj_loesche_alle(player));
+			DBG_MESSAGE("tool_remover()", "removing everything from %d,%d,%d", gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
+		}
 	}
 
 	if(lt) {
