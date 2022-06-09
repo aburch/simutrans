@@ -688,8 +688,8 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 	if(num_obj>0) {
 		// cout all pedestrians and ignore them
 		int num_pedestrians = 0;
-		for (int i = 0; i < num_obj; i++) {
-			if (gr->obj_bei(i + 1)->get_typ() == obj_t::pedestrian) {
+		for (int i = 1; i < num_obj; i++) {
+			if (gr->obj_bei(i)->get_typ() == obj_t::pedestrian) {
 				num_pedestrians++;
 			}
 		}
