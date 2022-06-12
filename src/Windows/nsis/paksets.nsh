@@ -28,7 +28,7 @@ Section "!pak (64 size) (standard)" pak
 SectionEnd
 
 
-Section /o "pak64 Food addon"
+Section "pak64 Food addon" pakFoodAddon
   AddSize 228
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/121-0/simupak64-addon-food-120-4.zip"
   StrCpy $archievename "simupak64-addon-food-120-4.zip"
@@ -43,7 +43,7 @@ SectionEnd
 
 SectionGroupEnd
 
-Section /o "pak64.german (Freeware) for 123" pak64german
+Section "pak64.german (Freeware) for 123" pak64german
   AddSize 22460
   StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-2_full.zip"
   StrCpy $archievename "pak64.german_0-123-0-0-2_full.zip"
@@ -54,7 +54,7 @@ Section /o "pak64.german (Freeware) for 123" pak64german
 SectionEnd
 
 
-Section /o "pak.japan (64 size)" pak64japan
+Section "pak.japan (64 size)" pak64japan
   AddSize 10175
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip"
   StrCpy $archievename "simupak64.japan-123-0.zip"
@@ -229,7 +229,8 @@ Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
   inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
   Pop $0
   StrCmp $0 "OK" +3
-     MessageBox MB_OK "Download of $archievename failed: $R0"
+     MessageBox MB_OK "Download of $archievename failed: $R0" /SD IDOK
+     SetErrorLevel 3
      Quit
 
   nsisunz::Unzip "$TEMP\$archievename" "$TEMP\simutrans"
@@ -237,6 +238,7 @@ Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
   StrCmp $R0 "success" +4
     DetailPrint "$0" ;print error message to log
     RMdir /r "$TEMP\simutrans"
+    SetErrorLevel 5
     Quit
 
   CreateDirectory "$INSTDIR"

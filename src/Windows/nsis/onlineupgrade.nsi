@@ -99,6 +99,7 @@ Function .onSelChange
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   ; not pak selected!
-  MessageBox MB_OK|MB_ICONSTOP "At least on pak set must be selected!"
+  MessageBox MB_OK|MB_ICONSTOP "At least on pak set must be selected!" /SD IDOK
+  SetErrorLevel 4
 show_not:
 FunctionEnd
