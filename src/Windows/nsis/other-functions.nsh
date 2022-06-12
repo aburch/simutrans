@@ -57,6 +57,7 @@ PageExEnd
 
 ; If not installed to program dir, ask for a portable installation
 Function CheckForPortableInstall
+  StrCpy $PAKDIR $INSTDIR
   ; defaults in progdir, and ending with simutrans
   StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"

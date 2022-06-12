@@ -12,6 +12,12 @@
 ; untgz
 ; ShellLink
 
+!define VERSION "0.123.0.1"
+
+VIProductVersion "${VERSION}"
+VIFileVersion "${VERSION}"
+VIAddVersionKey "FileVersion" "${VERSION}"
+
 Unicode true
 
 ; Request application privileges for Windows Vista
