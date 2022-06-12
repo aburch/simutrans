@@ -74,13 +74,13 @@
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -92,7 +92,7 @@
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>MSVCRT.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>
       </TargetMachine>
@@ -105,12 +105,12 @@
     <ClCompile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>USE_OWN_PAKINSTALL;USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;DEBUG=3;REVISION_FROM_FILE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;DEBUG=3;REVISION_FROM_FILE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
@@ -122,12 +122,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <PreprocessorDefinitions>USE_OWN_PAKINSTALL;USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;NDEBUG;REVISION_FROM_FILE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;NDEBUG;REVISION_FROM_FILE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Stable'">
     <ClCompile>
-      <PreprocessorDefinitions>USE_OWN_PAKINSTALL;USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;NDEBUG;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_ZSTD;USE_UPNP;USE_FREETYPE;COLOUR_DEPTH=16;MULTI_THREAD=1;MSG_LEVEL=3;NDEBUG;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
@@ -151,7 +151,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</MultiProcessorCompilation>
@@ -162,7 +162,7 @@
       <MinimalRebuild Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LargeAddressAware>

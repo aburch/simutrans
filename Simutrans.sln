@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans SDL2", "Simutrans
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans Server", "Simutrans-Server.vcxproj", "{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Simutrans SDL2 MSI", "src\Windows\MSI\Simutrans SDL2.vdproj", "{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Simutrans-Main.vcxitems*{0621b295-beb7-4767-82f1-f27995610323}*SharedItemsImports = 4
@@ -54,6 +56,18 @@ Global
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x64.ActiveCfg = Stable|x64
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x86.ActiveCfg = Stable|Win32
 		{0EE7EB1C-43C6-4548-9C60-B79F4D781B4C}.Stable|x86.Build.0 = Stable|Win32
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Debug|x64.ActiveCfg = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Debug|x64.Build.0 = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Debug|x86.ActiveCfg = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Debug|x86.Build.0 = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Release|x64.ActiveCfg = Release
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Release|x64.Build.0 = Release
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Release|x86.ActiveCfg = Release
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Release|x86.Build.0 = Release
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Stable|x64.ActiveCfg = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Stable|x64.Build.0 = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Stable|x86.ActiveCfg = Debug
+		{8652F1D9-A60F-404A-B68E-B9E8AA8D7B84}.Stable|x86.Build.0 = Debug
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
