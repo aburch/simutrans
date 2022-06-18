@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "../simunits.h"
+#include "../simintr.h"
 #include "../world/simworld.h"
 #include "../vehicle/vehicle.h"
 #include "../simconvoi.h"
@@ -129,6 +130,7 @@ enum {
 	LB_VEH_AUTHOR,
 	LB_VEH_POWER,
 	LB_VEH_VALUE,
+	LB_VEH_LOADINGTIME,
 	LB_MAX,
 	LB_CNV_ALL = LB_VEH_NAME
 };
@@ -374,11 +376,12 @@ void depot_frame_t::init(depot_t *dep)
 	cont_vehicle_labels->add_component(labels[LB_VEH_COST]);
 	cont_vehicle_labels->add_component(labels[LB_VEH_WEIGHT]);
 	cont_vehicle_labels->add_component(labels[LB_VEH_CAPACITY]);
-	cont_vehicle_labels->add_component(labels[LB_VEH_DATE]);
+	cont_vehicle_labels->add_component(labels[LB_VEH_LOADINGTIME]);
 	cont_vehicle_labels->add_component(labels[LB_VEH_SPEED]);
-	cont_vehicle_labels->add_component(labels[LB_VEH_AUTHOR]);
+	cont_vehicle_labels->add_component(labels[LB_VEH_DATE]);
 	cont_vehicle_labels->add_component(labels[LB_VEH_POWER]);
 	cont_vehicle_labels->add_component(labels[LB_VEH_VALUE]);
+	cont_vehicle_labels->add_component(labels[LB_VEH_AUTHOR]);
 	add_component(cont_vehicle_labels);
 	/*
 	 * [END OF WINDOW]
@@ -1501,9 +1504,11 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 				translator::translate( veh_type->get_freight_type()->get_mass() ),
 				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
 				);
+			labels[LB_VEH_LOADINGTIME]->buf().printf("%s%s", translator::translate("Loading time:"), difftick_to_string(veh_type->get_loading_time(), false));
 		}
 		else {
 			labels[LB_VEH_CAPACITY]->buf().clear();
+			labels[LB_VEH_LOADINGTIME]->buf().clear();
 		}
 
 		labels[LB_VEH_SPEED]->buf().printf( "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed() );

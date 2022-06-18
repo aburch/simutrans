@@ -4238,6 +4238,10 @@ obj=program_text
 name=Shows buttons on network overlay.
 note=tooltip to Show networks
 --
+obj=program_text
+name=Loading time:
+note=TIme for full load
+--
 
 
 

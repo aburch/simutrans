@@ -10,6 +10,7 @@
 #include "../builder/vehikelbauer.h"
 
 #include "../simskin.h"
+#include "../simintr.h"
 #include "../world/simworld.h"
 
 #include "../display/simgraph.h"
@@ -70,6 +71,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 			translator::translate( veh->get_freight_type()->get_mass() ),
 			veh->get_freight_type()->get_catg() == 0 ? translator::translate( veh->get_freight_type()->get_name() ) : translator::translate( veh->get_freight_type()->get_catg_name() )
 		);
+		part1.printf("%s%s\n", translator::translate("Loading time:"), difftick_to_string(veh->get_loading_time(), false));
 	}
 	part1.printf( "%s %3d km/h\n", translator::translate( "Max. speed:" ), veh->get_topspeed() );
 	if( veh->get_power() > 0 ) {

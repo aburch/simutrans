@@ -15,6 +15,7 @@
 #include "../simcolor.h"
 #include "../world/simworld.h"
 #include "../simware.h"
+#include "../simintr.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
@@ -72,6 +73,12 @@ public:
 				l->update();
 			}
 			end_table();
+			// loading time
+			if (v->get_desc()->get_capacity() > 0) {
+				l = new_component<gui_label_buf_t>();
+				l->buf().printf("%s%s", translator::translate("Loading time:"), difftick_to_string(v->get_desc()->get_loading_time(),false) );
+				l->update();
+			}
 			// power
 			if(v->get_desc()->get_power()>0) {
 				l = new_component<gui_label_buf_t>();
