@@ -1000,32 +1000,28 @@ class tool_toggle_pax_station_t : public tool_t {
 public:
 	tool_toggle_pax_station_t() : tool_t(TOOL_TOOGLE_PAX | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("5LIGHT_CHOOSE"); }
-	bool is_selected() const OVERRIDE { return welt->get_settings().get_show_pax(); }
+	bool is_selected() const OVERRIDE { return env_t::stop_pedestrians; }
 	bool init( player_t * ) OVERRIDE {
-		if( !env_t::networkmode) {
-			settings_t& s = welt->get_settings();
-			s.set_show_pax(!s.get_show_pax());
-		}
+		env_t::stop_pedestrians = !env_t::stop_pedestrians;
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_keeps_game_state() const OVERRIDE { return false; }
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
 
 class tool_toggle_pedestrians_t : public tool_t {
 public:
 	tool_toggle_pedestrians_t() : tool_t(TOOL_TOOGLE_PEDESTRIANS | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("6LIGHT_CHOOSE"); }
-	bool is_selected() const OVERRIDE { return welt->get_settings().get_random_pedestrians(); }
+	bool is_selected() const OVERRIDE { return env_t::random_pedestrians; }
 	bool init( player_t * ) OVERRIDE {
-		if( !env_t::networkmode) {
-			settings_t& s = welt->get_settings();
-			s.set_random_pedestrians(!s.get_random_pedestrians());
-		}
+		env_t::random_pedestrians = !env_t::random_pedestrians;
 		return false;
 	}
 	bool exit(player_t *s ) OVERRIDE { return init(s); }
-	bool is_init_keeps_game_state() const OVERRIDE { return false; }
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
 
 class tool_toggle_reservation_t : public tool_t {

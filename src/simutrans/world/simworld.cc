@@ -2655,17 +2655,21 @@ void karte_t::sync_step(uint32 delta_t)
 	/* animations do not require exact sync
 	 * foundations etc are added removed frequently during city growth
 	 */
-	sync_buildings.sync_step( delta_t );
+	sync_buildings.sync_step(delta_t);
+
 	wolke_t::sync_handler(delta_t);
+
+	pedestrian_t::sync_handler(delta_t);
 
 	clear_random_mode( INTERACTIVE_RANDOM );
 
 	// the following sync_steps affect the game state
-
 	sync_roadsigns.sync_step(delta_t);
-	pedestrian_t::sync_handler(delta_t);
+
 	movingobj_t::sync_handler(delta_t);
+
 	private_car_t::sync_handler(delta_t);
+
 	senke_t::sync_handler(delta_t);
 
 	sync.sync_step( delta_t );

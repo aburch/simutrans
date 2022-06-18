@@ -349,8 +349,8 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "growthfactor_cities", sets->get_growthfactor_medium(), 1, 10000, 10, false );
 	INIT_NUM( "growthfactor_capitals", sets->get_growthfactor_large(), 1, 10000, 10, false );
 	SEPERATOR
-	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
-	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
+	INIT_BOOL( "random_pedestrians", env_t::random_pedestrians);
+	INIT_BOOL( "stop_pedestrians", env_t::stop_pedestrians);
 	INIT_NUM( "citycar_level", sets->get_traffic_level(), 0, 16, 1, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
@@ -420,8 +420,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->growthfactor_small );
 	READ_NUM_VALUE( sets->growthfactor_medium );
 	READ_NUM_VALUE( sets->growthfactor_large );
-	READ_BOOL( sets->set_random_pedestrians );
-	READ_BOOL( sets->set_show_pax );
+	READ_BOOL_VALUE( env_t::random_pedestrians );
+	READ_BOOL_VALUE( env_t::stop_pedestrians );
 	READ_NUM( sets->set_traffic_level );
 	READ_NUM_VALUE( sets->stadtauto_duration );
 }

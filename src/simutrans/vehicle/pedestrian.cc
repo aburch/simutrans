@@ -109,13 +109,13 @@ bool pedestrian_t::list_empty()
 
 
 pedestrian_t::pedestrian_t(grund_t *gr) :
-	road_user_t(gr, simrand(65535)),
-	desc(pick_any_weighted(list_timeline))
+	road_user_t(gr, sim_async_rand(65535)),
+	desc(pick_any_weighted_async(list_timeline))
 {
 	animation_steps = 0;
-	on_left = simrand(2) > 0;
+	on_left = sim_async_rand(2) > 0;
 	steps_offset = 0;
-	time_to_life = pick_any(strecke);
+	time_to_life = pick_any_async(strecke);
 	ped_offset = desc->get_offset();
 	calc_image();
 	calc_disp_lane();
@@ -156,12 +156,12 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		desc = table.get(s);
 		// unknown pedestrian => create random new one
 		if(desc == NULL  &&  !list_timeline.empty()  ) {
-			desc = pick_any_weighted(list_timeline);
+			desc = pick_any_weighted_async(list_timeline);
 		}
 	}
 
 	if(file->is_version_less(89, 4)) {
-		time_to_life = pick_any(strecke);
+		time_to_life = pick_any_async(strecke);
 	}
 
 	if (file->is_version_atleast(120, 6)) {
@@ -189,44 +189,52 @@ void pedestrian_t::rotate90()
 }
 
 // create a number (count) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
+void pedestrian_t::generate_pedestrians_at(grund_t *bd, int &count)
 {
 	if (list_timeline.empty()) {
 		return;
 	}
 
-	grund_t* bd = welt->lookup(k);
-	if (bd) {
-		const weg_t* weg = bd->get_weg(road_wt);
+	// allow also pedestrians on any road including crossings
+	// the complex bus center in front of the station is almost empty ...
+	if (const weg_t* weg = bd->get_weg(road_wt)) {
 
-		// we do not start on crossings (not overrunning pedestrians please
-		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
-			// we create maximal 4 pedestrians here for performance reasons
-			for (int i = 0; i < 4 && count > 0; i++) {
-				if (bd->get_top() >= 240) {
-					// tile too full
-					return;
-				}
+		// we create maximal 4 pedestrians here for performance reasons
+		for (int i = 0; i < 4 && count > 0; i++) {
+			if (bd->get_top() >= 120) {
+				// tile too full
+				return;
+			}
 
-				pedestrian_t* fg = new pedestrian_t(bd);
-				if (bd->obj_add(fg) != 0) {
-					fg->calc_height(bd);
-					if (i > 0) {
-						// walk a little
-						fg->sync_step( (i & 3) * 64 * 24);
-					}
-					count--;
-				}
-				else {
-					// delete it, if we could not put it on the map
-					fg->set_flag(obj_t::not_on_map);
-					// do not try to delete it from sync-list
-					fg->time_to_life = 0;
-					return; // it is pointless to try for more here
-				}
+			pedestrian_t* fg = new pedestrian_t(bd);
+			if (bd->obj_add(fg) != 0) {
+				fg->calc_height(bd);
+				uint32 separate_pedestrians = (bd->get_top()*23) << YARDS_PER_VEHICLE_STEP_SHIFT;
+				// walk a little
+				fg->sync_step( (separate_pedestrians % (255 << YARDS_PER_VEHICLE_STEP_SHIFT))/128 );
+				count--;
+			}
+			else {
+				// delete it, if we could not put it on the map
+				fg->set_flag(obj_t::not_on_map);
+				// do not try to delete it from sync-list
+				fg->time_to_life = 0;
+				return; // it is pointless to try for more here
 			}
 		}
 	}
+}
+
+
+int pedestrian_t::generate_pedestrians_near(grund_t *gr, int count)
+{
+	generate_pedestrians_at(gr, count);
+	for (int i = 0; i < 4 && count>0; i++) {
+		if (grund_t *gr_next = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord::nesw[i])) {
+			generate_pedestrians_at(gr_next, count);
+		}
+	}
+	return count;
 }
 
 
@@ -292,7 +300,7 @@ void pedestrian_t::hop(grund_t *gr)
 	// all possible directions
 	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~reverse_direction);
 	// randomized offset
-	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : simrand(4);
+	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : sim_async_rand(4);
 
 	ribi_t::ribi new_direction = ribi_t::none;
 	for(uint r = 0; r < 4; r++) {

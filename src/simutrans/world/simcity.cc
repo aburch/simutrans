@@ -9,7 +9,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "../obj/way/strasse.h"
 #include "../ground/grund.h"
 #include "../ground/boden.h"
 #include "../gui/simwin.h"
@@ -18,7 +17,6 @@
 #include "../player/simplay.h"
 #include "simplan.h"
 #include "../display/simimg.h"
-#include "../vehicle/simroadtraffic.h"
 #include "../simhalt.h"
 #include "../simfab.h"
 #include "simcity.h"
@@ -34,6 +32,10 @@
 #include "../simdebug.h"
 
 #include "../obj/gebaeude.h"
+#include "../obj/way/strasse.h"
+
+#include "../vehicle/pedestrian.h"
+#include "../vehicle/simroadtraffic.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
@@ -46,6 +48,7 @@
 #include "../builder/brueckenbauer.h"
 #include "../builder/hausbauer.h"
 #include "../builder/fabrikbauer.h"
+
 #include "../utils/cbuffer.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
@@ -1803,8 +1806,8 @@ void stadt_t::step_grow_city( bool new_town )
 }
 
 
-/* this creates passengers and mail for everything is is therefore one of the CPU hogs of the machine
- * think trice, before applying optimisation here ...
+/* this creates passengers and mail for everything. It is therefore one of the CPU hogs of the machine
+ * think trice, before adding here ...
  */
 void stadt_t::step_passagiere()
 {
@@ -1830,8 +1833,8 @@ void stadt_t::step_passagiere()
 			(gb->get_tile()->get_desc()->get_mail_level() + 8) >> 3 ;
 
 	// create pedestrians in the near area?
-	if (welt->get_settings().get_random_pedestrians()  &&  ispass) {
-		haltestelle_t::generate_pedestrians(gb->get_pos(), num_pax);
+	if (env_t::random_pedestrians  &&  ispass) {
+		pedestrian_t::generate_pedestrians_near(welt->lookup_kartenboden(gb->get_pos().get_2d()), num_pax);
 	}
 
 	// suitable start search

@@ -10,9 +10,8 @@
 #include "simroadtraffic.h"
 #include "../tpl/freelist_iter_tpl.h"
 
-
 class pedestrian_desc_t;
-
+class grund_t;
 
 /**
  * Pedestrians also are road users.
@@ -34,6 +33,8 @@ private:
 	bool list_empty();
 
 	static freelist_iter_tpl<pedestrian_t> fl; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+
+	static void generate_pedestrians_at(grund_t *gr, int& count);
 
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
@@ -82,7 +83,12 @@ public:
 	static bool register_desc(const pedestrian_desc_t *desc);
 	static bool successfully_loaded();
 
-	static void generate_pedestrians_at(koord3d k, int &count);
+	/**
+	 * Tries to generate some pedestrians on the square and the
+	 * adjacent squares. Return actual number of generated
+	 * pedestrians.
+	 */
+	static int generate_pedestrians_near(grund_t *gr, int count);
 
 	static void build_timeline_list( karte_t *welt );
 };

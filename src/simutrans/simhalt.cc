@@ -2302,15 +2302,17 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		}
 		else if(  ware.is_passenger()  ) {
 			// arriving passenger may create pedestrians
-			if(  welt->get_settings().get_show_pax()  ) {
+			if(env_t::stop_pedestrians) {
 				int menge = ware.menge;
 				for(tile_t const& i : tiles ) {
 					if (menge <= 0) {
 						break;
 					}
-					menge = generate_pedestrians(i.grund->get_pos(), menge);
+					if(  (station_type & (loadingbay | busstop)) == 0  ||  i.grund->get_weg(road_wt)  ) {
+						// if the station has road tiles, then start passenger generation there to speed things up
+						menge = pedestrian_t::generate_pedestrians_near(i.grund, menge);
+					}
 				}
-				INT_CHECK("simhalt 938");
 			}
 		}
 		return ware.menge;
@@ -2706,15 +2708,6 @@ void haltestelle_t::recalc_station_type()
 }
 
 
-
-int haltestelle_t::generate_pedestrians(koord3d pos, int count)
-{
-	pedestrian_t::generate_pedestrians_at(pos, count);
-	for(int i=0; i<4 && count>0; i++) {
-		pedestrian_t::generate_pedestrians_at(pos+koord::nesw[i], count);
-	}
-	return count;
-}
 
 // necessary to load pre0.99.13 savegames
 void warenziel_rdwr(loadsave_t *file)

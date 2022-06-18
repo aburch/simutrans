@@ -165,13 +165,6 @@ public:
 	static void reset_routing();
 
 	/**
-	 * Tries to generate some pedestrians on the square and the
-	 * adjacent squares. Return actual number of generated
-	 * pedestrians.
-	 */
-	static int generate_pedestrians(const koord3d pos, int count);
-
-	/**
 	 * Returns an index to a halt at koord k
 	 * optionally limit to that owned by player sp
 	 * by default create a new halt if none found

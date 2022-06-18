@@ -52,8 +52,6 @@ settings_t::settings_t() :
 
 	traffic_level = 5;
 
-	show_pax = true;
-
 	// default maximum length of convoi
 	max_rail_convoi_length = 24;
 	max_road_convoi_length = 4;
@@ -164,7 +162,6 @@ settings_t::settings_t() :
 
 	just_in_time = env_t::just_in_time;
 
-	random_pedestrians = true;
 	stadtauto_duration = 36; // three years
 
 	// to keep names consistent
@@ -368,7 +365,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// rest
 		file->rdwr_long(dummy ); // scroll ignored
 		file->rdwr_long(traffic_level );
-		file->rdwr_long(show_pax );
+		file->rdwr_long(dummy); // pedestrians at stops
 		dummy = groundwater;
 		file->rdwr_long(dummy );
 		groundwater = (sint16)(dummy/16);
@@ -405,7 +402,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy );
 		}
 		file->rdwr_long(traffic_level );
-		file->rdwr_long(show_pax );
+		if (file->is_version_less(123, 2)) {
+			sint32 dummy = env_t::stop_pedestrians;
+			file->rdwr_long(dummy);
+			env_t::stop_pedestrians = dummy;
+		}
 		sint32 dummy = groundwater;
 		file->rdwr_long(dummy );
 		if(file->is_version_less(99, 5)) {
@@ -566,7 +567,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(crossconnect_factories );
 			file->rdwr_short(crossconnect_factor );
 
-			file->rdwr_bool(random_pedestrians );
+			if (file->is_version_less(123, 2)) {
+				file->rdwr_bool(env_t::random_pedestrians);
+			}
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool(numbered_stations );
@@ -1266,8 +1269,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	growthfactor_medium = contents.get_int_clamped( "growthfactor_cities",   growthfactor_medium, 1, 10000 );
 	growthfactor_large  = contents.get_int_clamped( "growthfactor_capitals", growthfactor_large,  1, 10000 );
 
-	random_pedestrians = contents.get_int( "random_pedestrians", random_pedestrians ) != 0;
-	show_pax           = contents.get_int( "stop_pedestrians",   show_pax           ) != 0;
+	env_t::random_pedestrians = contents.get_int("random_pedestrians", env_t::random_pedestrians) != 0;
+	env_t::stop_pedestrians   = contents.get_int("stop_pedestrians", env_t::stop_pedestrians) != 0;
 
 	allow_buying_obsolete_vehicles = contents.get_int( "allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles ) != 0;
 	used_vehicle_reduction         = contents.get_int_clamped( "used_vehicle_reduction", used_vehicle_reduction, 0, 1000 );

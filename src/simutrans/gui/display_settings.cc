@@ -438,12 +438,12 @@ traffic_settings_t::traffic_settings_t()
 
 	// Pedestrians in towns checkbox
 	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].init(button_t::square_state, "6LIGHT_CHOOSE");
-	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = world()->get_settings().get_random_pedestrians();
+	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = env_t::random_pedestrians;
 	add_component(buttons+IDBTN_PEDESTRIANS_IN_TOWNS, 2);
 
 	// Pedestrians at stops checkbox
 	buttons[IDBTN_PEDESTRIANS_AT_STOPS].init(button_t::square_state, "5LIGHT_CHOOSE");
-	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = world()->get_settings().get_show_pax();
+	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = env_t::stop_pedestrians;
 	add_component(buttons+IDBTN_PEDESTRIANS_AT_STOPS, 2);
 
 	// Traffic density label
@@ -623,14 +623,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 		env_t::scroll_infinite ^= 1;
 		break;
 	case IDBTN_PEDESTRIANS_AT_STOPS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
-			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
-		}
+		welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
 		break;
 	case IDBTN_PEDESTRIANS_IN_TOWNS:
-		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
-			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PEDESTRIANS & 0xFFF ], welt->get_active_player() );
-		}
+		welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PEDESTRIANS & 0xFFF ], welt->get_active_player() );
 		break;
 	case IDBTN_HIDE_TREES:
 		env_t::hide_trees = !env_t::hide_trees;
@@ -719,8 +715,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 void color_gui_t::draw(scr_coord pos, scr_size size)
 {
 	// Update button states that was changed with keyboard ...
-	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = welt->get_settings().get_show_pax();
-	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = welt->get_settings().get_random_pedestrians();
+	buttons[IDBTN_PEDESTRIANS_AT_STOPS].pressed = env_t::stop_pedestrians;
+	buttons[IDBTN_PEDESTRIANS_IN_TOWNS].pressed = env_t::random_pedestrians;
 	buttons[IDBTN_HIDE_TREES].pressed = env_t::hide_trees;
 	buttons[IDBTN_HIDE_BUILDINGS].pressed = env_t::hide_under_cursor;
 	buttons[IDBTN_SHOW_STATION_COVERAGE].pressed = env_t::station_coverage_show;

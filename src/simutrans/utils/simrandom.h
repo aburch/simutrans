@@ -65,10 +65,22 @@ template<typename T, template<typename> class U> T const& pick_any(U<T> const& c
 	return container[simrand(container.get_count())];
 }
 
+/* Randomly select an entry from the given array, not affecting game state. */
+template<typename T, size_t N> T const& pick_any_async(T const (&array)[N])
+{
+	return array[sim_async_rand(N)];
+}
+
 /* Randomly select an entry from the given weighted container. */
 template<typename T, template<typename> class U> T const& pick_any_weighted(U<T> const& container)
 {
 	return container.at_weight(simrand(container.get_sum_weight()));
+}
+
+/* Randomly select an entry from the given weighted container, not affecting game state. */
+template<typename T, template<typename> class U> T const& pick_any_weighted_async(U<T> const& container)
+{
+	return container.at_weight(sim_async_rand(container.get_sum_weight()));
 }
 
 

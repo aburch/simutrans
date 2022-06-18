@@ -659,9 +659,6 @@ void vehicle_t::make_smoke() const
 					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;
 				}
-				else {
-//					welt->sync_way_eyecandy.add( abgas );
-				}
 			}
 		}
 	}

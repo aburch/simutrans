@@ -195,6 +195,12 @@ public:
 	/// open only one info window per click on a map-square
 	static bool single_info;
 
+	///  pedestrians in cities
+	static bool random_pedestrians;
+
+	///  pedestrians at stops
+	static bool stop_pedestrians;
+
 	///  linelist enforcing single line GUI
 	static bool single_line_gui;
 

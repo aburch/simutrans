@@ -113,11 +113,6 @@ private:
 	sint32 traffic_level;
 
 	/**
-	 * Should pedestrians be displayed?
-	 */
-	sint32 show_pax;
-
-	/**
 	 * the maximum and minimum allowed world height.
 	 */
 	sint8 world_maximum_height;
@@ -209,11 +204,6 @@ private:
 
 	/* crossconnect all factories (like OTTD and similar games) */
 	sint16 crossconnect_factor;
-
-	/**
-	* Generate random pedestrians in the cities?
-	*/
-	bool random_pedestrians;
 
 	sint32 stadtauto_duration;
 
@@ -424,9 +414,6 @@ public:
 	void set_traffic_level(sint32 l) {traffic_level=l;}
 	sint32 get_traffic_level() const {return traffic_level;}
 
-	void set_show_pax(bool yesno) {show_pax=yesno;}
-	bool get_show_pax() const {return show_pax != 0;}
-
 	sint8 get_maximumheight() const { return world_maximum_height; }
 	sint8 get_minimumheight() const { return world_minimum_height; }
 
@@ -486,9 +473,6 @@ public:
 	sint32 get_max_transfers() const { return max_transfers; }
 
 	sint64 get_starting_money(sint16 year) const;
-
-	bool get_random_pedestrians() const { return random_pedestrians; }
-	void set_random_pedestrians( bool f ) { random_pedestrians = f; }
 
 	sint16 get_special_building_distance() const { return special_building_distance; }
 
