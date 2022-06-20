@@ -4240,7 +4240,7 @@ note=tooltip to Show networks
 --
 obj=program_text
 name=Loading time:
-note=TIme for full load
+note=Time for full load
 --
 
 
