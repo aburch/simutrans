@@ -262,7 +262,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				scr_coord_val const y = ypos   - iter.img->get_pic()->y + required_size.h / 2 - iter.img->get_pic()->h / 2 + 1;
 				scr_coord_val const x = text_x - iter.img->get_pic()->x + iter.width / 2      - iter.img->get_pic()->w / 2;
 //					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
-				display_base_img(iter.img->get_id(), x, y, world()->get_active_player_nr(), false, true);
+				display_base_img(iter.img->get_id(), x, y, -1, false, true);
 			}
 		}
 		else {
@@ -278,7 +278,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			else {
 				scr_coord_val const y = ypos   - iter.img->get_pic()->y + required_size.h / 2 - iter.img->get_pic()->h / 2 - 1;
 				scr_coord_val const x = text_x - iter.img->get_pic()->x + iter.width / 2      - iter.img->get_pic()->w / 2;
-				display_color_img(iter.img->get_id(), x, y, 0, false, true);
+				display_color_img(iter.img->get_id(), x, y, -1, false, true);
 			}
 		}
 		text_x += iter.width;
