@@ -2573,7 +2573,7 @@ void way_builder_t::build_road()
 		bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
 
 		// bridges/tunnels have their own track type and must not upgrade
-		if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden  ||  (gr->has_two_ways()  &&  gr->find<crossing_t>())  ) {
+		if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
 			continue;
 		}
 
