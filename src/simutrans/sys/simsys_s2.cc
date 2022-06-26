@@ -307,6 +307,8 @@ bool dr_os_init(const int* parameter)
 		return false;
 	}
 
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight Portrait PortraitUpsideDown");
+
 	dbg->message("dr_os_init(SDL2)", "SDL Driver: %s", SDL_GetCurrentVideoDriver() );
 
 	// disable event types not interested in
@@ -459,6 +461,10 @@ int dr_os_open(const scr_size window_size, sint16 fs)
 	// SDL2 only works with borderless fullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI; // apparently needed for Apple retina displays
+#ifdef __ANDROID__
+	// needed for landscape apparently
+	flags |= SDL_WINDOW_RESIZABLE;
+#endif
 
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.w, window_size.h, flags );
 	if(  window == NULL  ) {
