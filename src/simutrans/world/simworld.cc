@@ -6083,9 +6083,10 @@ bool karte_t::interactive(uint32 quit_month)
 			// to avoid calling a the non-reentrant route search twice
 			const char* err = scenario->is_work_allowed_here(active_player, selected_tool[active_player_nr]->get_id(), selected_tool[active_player_nr]->get_waytype(), next_deferred_move_to);
 			if (err == NULL) {
-				selected_tool[active_player_nr]->move(active_player, true, next_deferred_move_to);
+				koord3d target = next_deferred_move_to;
+				next_deferred_move_to = koord3d::invalid;
+				selected_tool[active_player_nr]->move(active_player, true, target);
 			}
-			next_deferred_move_to = koord3d::invalid;
 		}
 
 		if(  env_t::networkmode  ) {

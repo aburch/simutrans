@@ -291,7 +291,7 @@ protected:
 	const way_desc_t *desc;
 
 	virtual way_desc_t const* get_desc(uint16 timeline_year_month) const;
-	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
+	const char *calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 	void start_at( koord3d &new_start ) OVERRIDE;
 
 public:

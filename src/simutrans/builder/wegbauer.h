@@ -131,8 +131,12 @@ private:
 	uint32 maximum;    // hoechste Suchtiefe
 
 	koord3d_vector_t route;
+
 	// index in route with terraformed tiles
 	vector_tpl<uint32> terraform_index;
+
+	// has a warning message, why the route may have failed (could be wrong!)
+	char *warn_fail;
 
 public:
 	/**
@@ -141,7 +145,7 @@ public:
 	* A) allowed step
 	* B) if allowed, calculate the cost for the step from from to to
 	*/
-	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer = false ) const;
+	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer = false );
 
 private:
 	// checks, if we can built a bridge here ...
@@ -201,9 +205,9 @@ public:
 
 	way_builder_t(player_t *player);
 
-	void calc_straight_route(const koord3d start, const koord3d ziel);
-	void calc_route(const koord3d &start3d, const koord3d &ziel);
-	void calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
+	const char *calc_straight_route(const koord3d start, const koord3d ziel);
+	const char *calc_route(const koord3d &start3d, const koord3d &ziel);
+	const char *calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
 
 	/* returns the amount needed to built this way
 	*/

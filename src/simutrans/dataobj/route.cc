@@ -18,6 +18,8 @@
 #include "route.h"
 #include "environment.h"
 
+#include"../utils/simrandom.h"
+
 // define USE_VALGRIND_MEMCHECK to make
 // valgrind aware of the memory pool for A* nodes
 #ifdef USE_VALGRIND_MEMCHECK
@@ -286,6 +288,8 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
 {
+	assert((get_random_mode() & SYNC_STEP_RANDOM) == 0);
+
 	bool ok = false;
 
 	// check for existing koordinates
@@ -523,7 +527,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	// minimap_t::get_instance()->calc_map();
+	//minimap_t::get_instance()->calc_map();
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 

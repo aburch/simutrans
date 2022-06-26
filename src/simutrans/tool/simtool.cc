@@ -2519,7 +2519,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	return 2;
 }
 
-void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
+const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
 {
 	// recalc type of construction
 	way_builder_t::bautyp_t bautyp = (way_builder_t::bautyp_t)desc->get_wtyp();
@@ -2552,20 +2552,22 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 		}
 	}
 	// and continue as normal ...
+	const char *err;
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
-		bauigel.calc_straight_route(start,my_end);
+		err = bauigel.calc_straight_route(start,my_end);
 	}
 	else {
-		bauigel.calc_route(start,my_end);
+		err = bauigel.calc_route(start,my_end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
+	return err;
 }
 
 const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
-	calc_route( bauigel, start, end );
+	const char *err = calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();
@@ -2583,13 +2585,13 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 
 		return NULL;
 	}
-	return "";
+	return err ? err : "";
 }
 
 void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
-	calc_route( bauigel, start, end );
+	const char *err = calc_route( bauigel, start, end );
 	bool keep_city_roads = is_shift_pressed()  &&  desc->get_styp() == type_flat  &&  desc->get_wtyp() == road_wt;
 
 	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
@@ -2633,6 +2635,9 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			marked.insert( way );
 			way->mark_image_dirty( way->get_image(), 0 );
 		}
+	}
+	else if(err) {
+		win_set_static_tooltip(translator::translate(err));
 	}
 }
 

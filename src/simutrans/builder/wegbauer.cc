@@ -499,7 +499,7 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
  * A) allowed step
  * B) if allowed, calculate the cost for the step from from to to
  */
-bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer ) const
+bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer )
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
@@ -663,6 +663,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
 		if(!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)) {
+			warn_fail = "No suitable crossing";
 			return false;
 		}
 	}
@@ -1250,6 +1251,8 @@ void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &max
  */
 sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
+	assert((get_random_mode() & SYNC_STEP_RANDOM) == 0);
+
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 	terraform_index.clear();
@@ -2054,6 +2057,7 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	const ribi_t::ribi ribi = ribi_type( start, ziel );
 	if(  !ribi_t::is_straight(ribi)  ) {
 		// only straight runways!
+		warn_fail = "No curves on runways";
 		return false;
 	}
 	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
@@ -2121,8 +2125,9 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 /*
  * calc_straight_route (maximum one curve, including diagonals)
  */
-void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
+const char *way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
+	warn_fail = 0;
 	DBG_MESSAGE("way_builder_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
 	if(bautyp==luft  &&  desc->get_styp()==type_runway) {
 		// these are straight anyway ...
@@ -2134,26 +2139,30 @@ void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 			intern_calc_straight_route(ziel,start);
 		}
 	}
+	return warn_fail;
 }
 
 
-void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
+const char *way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
+	warn_fail = 0;
 	start_vec.append(start);
 	ziel_vec.append(ziel);
 	calc_route(start_vec, ziel_vec);
+	return warn_fail;
 }
 
 /* calc_route
  *
  */
-void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+const char *way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
 #endif
 	INT_CHECK("simbau 740");
+	warn_fail = 0;
 
 	if(bautyp==luft  &&  desc->get_styp()==type_runway) {
 		assert( start.get_count() == 1  &&  ziel.get_count() == 1 );
@@ -2181,7 +2190,7 @@ uint32 ms = dr_time();
 			INT_CHECK("wegbauer 1165");
 			if(cost2 < 0) {
 				intern_calc_route_elevated(ziel[0], start[0]);
-				return;
+				return warn_fail;
 			}
 		}
 		else {
@@ -2189,7 +2198,7 @@ uint32 ms = dr_time();
 			INT_CHECK("wegbauer 1165");
 			if(cost2 < 0) {
 				intern_calc_route( ziel, start );
-				return;
+				return warn_fail;
 			}
 		}
 
@@ -2218,6 +2227,7 @@ uint32 ms = dr_time();
 #ifdef DEBUG_ROUTES
 DBG_MESSAGE("calc_route::calc_route", "took %u ms", dr_time() - ms );
 #endif
+	return 0;
 }
 
 
