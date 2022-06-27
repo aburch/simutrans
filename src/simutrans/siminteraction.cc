@@ -225,7 +225,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			// first check for visibility etc (needs already right flags)
 			const char *err = tool->check_pos( player, pos );
 			if (err==NULL) {
-				err = world->call_work_api(tool, player, pos, suspended, true);
+				err = world->call_work_api(tool, player, pos, suspended, false);
 			}
 			if (!suspended) {
 				// play sound / error message
