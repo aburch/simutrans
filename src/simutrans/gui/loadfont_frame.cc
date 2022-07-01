@@ -31,11 +31,17 @@ uint8 loadfont_frame_t::old_linespace;
 
 bool loadfont_frame_t::use_unicode=false;
 
+bool loadfont_frame_t::is_resizable_font (const char *fontname) {
+	const char *start_extension = strrchr(fontname, '.' );
+	return start_extension  &&  STRICMP( start_extension, ".fnt" ) && STRICMP( start_extension, ".bdf" );
+}
+
 /**
  * Action that's started with a button click
  */
 bool loadfont_frame_t::item_action(const char *filename)
 {
+	fontsize.enable( is_resizable_font(filename) );
 	win_load_font(filename, env_t::fontsize);
 	return false;
 }
@@ -58,8 +64,6 @@ bool loadfont_frame_t::cancel_action(const char *)
 	return true;
 }
 
-
-
 loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 {
 	// first call (and not resizing)
@@ -70,12 +74,17 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 
 	set_name(translator::translate("Select display font"));
 
-	fnlabel.set_text( "font size" );
-
 	top_frame.remove_component(&input);
 	fontsize.init( env_t::fontsize, 6, 19, gui_numberinput_t::AUTOLINEAR, false );
 	fontsize.add_listener(this);
+	fontsize.enable( is_resizable_font(env_t::fontname.c_str()) );
+
+#ifdef USE_FREETYPE
+	fnlabel.set_text( "font size" );
 	top_frame.add_component(&fontsize);
+#else
+	top_frame.remove_component(&fnlabel);
+#endif
 
 	unicode_only.init( button_t::square_automatic, "Only full Unicode fonts");
 	unicode_only.pressed = use_unicode;
@@ -83,7 +92,6 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 	top_frame.add_component(&unicode_only, 2);
 
 	delete_enabled = false;
-//	label_enabled  = false;
 }
 
 

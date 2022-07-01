@@ -43,6 +43,8 @@ protected:
 	button_t unicode_only;
 	gui_numberinput_t fontsize;
 
+	bool is_resizable_font (const char *fontname);
+
 	/**
 	 * Action that's started with a button click
 	 */
