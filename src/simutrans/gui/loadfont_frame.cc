@@ -16,6 +16,7 @@
 #include "../simversion.h"
 #include "../pathes.h"
 #include "../utils/unicode.h"
+#include "../utils/searchfolder.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -193,8 +194,13 @@ void loadfont_frame_t::fill_list()
 	}
 	else {
 		const char *addpath;
+		searchfolder_t subfolders;
 		for(  int i=0;  ( addpath = dr_query_fontpath(i) );  i++  ) {
 			add_path( addpath );
+			subfolders.search(addpath, "", true, true, 4);
+			for( const char * folder : subfolders ){
+				add_path( ((std::string) folder + PATH_SEPARATOR).c_str() );
+			}
 		}
 	}
 #endif

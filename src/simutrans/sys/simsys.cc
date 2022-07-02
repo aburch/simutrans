@@ -473,25 +473,8 @@ char const *dr_query_installdir()
 
 const char *dr_query_fontpath(int which)
 {
-	static char buffer[PATH_MAX];
 #ifdef _WIN32
-	if(  which>0  ) {
-		return NULL;
-	}
-
-	WCHAR fontdir[MAX_PATH];
-	if(FAILED(SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, fontdir))) {
-		wcscpy(fontdir, L"C:\\Windows\\Fonts");
-	}
-
-	// Convert UTF-16 to UTF-8.
-	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, fontdir, -1, buffer, sizeof(buffer), NULL, NULL);
-	if(convert_size == 0) {
-		return 0;
-	}
-
-	strcat(buffer, PATH_SEPARATOR);
-	return buffer;
+	return which > 0 ? NULL : "C:/Windows/Fonts/";
 #else
 	// linux has more than one path
 	// sometimes there is the file "/etc/fonts/fonts.conf" and we can read it
@@ -517,50 +500,16 @@ const char *dr_query_fontpath(int which)
 #endif
 		NULL
 	};
-
-	// since we include subdirectories (one level!) too
-	static int which_offset, subdir_offset;
-	if( which == 0 ) {
-		which_offset = 0;
-		subdir_offset = 0;
-	}
-
-	for( int i = which - which_offset; trypaths[ i ]; i++ ) {
+	if( trypaths[which] != NULL ) {
 		static char fontpath[PATH_MAX];
-		if( trypaths[i][0] == '~' ) {
+		if( trypaths[which][0] == '~' ) {
 			// prepace with homedirectory
-			snprintf( fontpath, PATH_MAX, "%s/%s", getenv("HOME"), trypaths[i]+2 );
+			snprintf( fontpath, PATH_MAX, "%s/%s", getenv("HOME"), trypaths[which]+2 );
 		}
 		else {
-			tstrncpy( fontpath, trypaths[i], PATH_MAX );
+			tstrncpy( fontpath, trypaths[which], PATH_MAX );
 		}
-		DIR *dir = opendir(fontpath);
-		if(  dir  ) {
-			int j = 0;
-			// look for subdirectories
-			struct dirent *entry;
-			while( (entry = readdir( dir )) ) {
-				if( entry->d_type == DT_DIR ) {
-					if( ((strcmp( entry->d_name, "." )) != 0) && ((strcmp( entry->d_name, ".." )) != 0) ) {
-						j++;
-						if( subdir_offset < j ) {
-							strcpy( buffer, fontpath );
-							strcat( buffer, entry->d_name );
-							strcat( buffer, PATH_SEPARATOR );
-							closedir( dir );
-							subdir_offset++;
-							which_offset++;
-							return buffer;
-						}
-					}
-				}
-			}
-			// last return parent folder
-			closedir( dir );
-			subdir_offset = 0; // we do not increase which_offset, so next the the next folder will be searched
-			return fontpath;
-		}
-		which_offset--;
+		return fontpath;
 	}
 	return NULL;
 #endif

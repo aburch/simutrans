@@ -19,14 +19,15 @@ public:
 	~searchfolder_t();
 
 	/**
-	 * Executes the requested file search
+	 * Executes the requested file search. It will look in subdirectories recursively when a max_depth is given.
 	 * @param filepath Base path to search in.
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 * @param max_depth Maximum depth of recursive search.
 	 * @returns Number files that matched the search parameters.
 	 */
-	int search(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true);
+	int search(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true, const int max_depth = 0);
 
 	/**
 	 * Appends the extension to the file name if it's not a directory
@@ -50,14 +51,26 @@ public:
 
 private:
 	/**
-	 * Real implementation of the search.
-	 * @param filepath Base path to search in. (This path can have either / or \ as deliminator on windows
+	 * Make the preparations for the search and then call search_path to do the actual search.
+	 * @param filepath Base path to search in. (This path can have either / or \ as deliminator on windows.
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 * @param max_depth Maximum depth of recursive search.
 	 */
-	int search_path(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true);
-
+	int prepare_search(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true, const int max_depth = 0);
+	
+	/**
+	 * Real implementation of the search. It will call itself recursively to search in subdirectories when a max_depth is given.
+	 * @param path Path to search in. (This path can have either / or \ as deliminator on windows.
+	 * @param name Name of file to search. It will be "*" if not searching for an specific file.
+	 * @param ext Extension of files to search for.
+	 * @param only_directories Extra restriction, will only consider directory entries.
+	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 * @param max_depth Maximum depth of recursive search.
+	 */
+	void search_path(const std::string path, const std::string name, const std::string ext, const bool only_directories = false, const bool prepend_path = true, const int max_depth = 0 );
+	
 	/**
 	 * We store the result of the search on this list
 	 */

@@ -59,18 +59,17 @@ void searchfolder_t::clear_list()
 }
 
 
-int searchfolder_t::search(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path)
+int searchfolder_t::search(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path, const int max_depth )
 {
 	clear_list();
-	return search_path(filepath, extension, only_directories, prepend_path);
+	return prepare_search(filepath, extension, only_directories, prepend_path, max_depth);
 }
 
 
-int searchfolder_t::search_path(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path)
+int searchfolder_t::prepare_search(const std::string &filepath, const std::string &extension, const bool only_directories, const bool prepend_path, const int max_depth )
 {
 	std::string path(filepath);
 	std::string name;
-	std::string lookfor;
 	std::string ext;
 
 #ifdef _WIN32
@@ -109,20 +108,28 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 			path = path.substr(0, slash + 1);
 		}
 	}
+	search_path(path, name, ext, only_directories, prepend_path, max_depth);
+
+	return files.get_count();
+}
+
+void searchfolder_t::search_path(const std::string path, const std::string name, const std::string ext, const bool only_directories, const bool prepend_path, const int max_depth ){
+
+	std::string lookfor;
 #ifdef _WIN32
 	lookfor = path + name + ext;
 
 	WCHAR path_inW[MAX_PATH];
 	if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, lookfor.c_str(), -1, path_inW, MAX_PATH) == 0) {
 		// Conversion failed so results will be nonsense anyway.
-		return files.get_count();
+		return;
 	}
 
 	struct _wfinddata_t entry;
 	intptr_t const hfind = _wfindfirst(path_inW, &entry);
 	if(hfind == -1) {
 		// Search failed.
-		return files.get_count();
+		return;
 	}
 
 	lookfor = name + ext;
@@ -131,13 +138,17 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 		int const entry_name_size = WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, NULL, 0, NULL, NULL );
 		char *const entry_name = new char[entry_name_size];
 		WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, entry_name_size, NULL, NULL );
-
-		if(  filename_matches_pattern(entry_name, lookfor.c_str()) ) {
-			if(only_directories && ((entry.attrib & _A_SUBDIR)==0)) {
-				delete[] entry_name;
-				continue;
+		if( entry_name[0]!='.' || (entry_name[1]!='.' && entry_name[1]!=0) ) {
+			if(  filename_matches_pattern(entry_name, lookfor.c_str()) ) {
+				if(only_directories && ((entry.attrib & _A_SUBDIR)==0)) {
+					delete[] entry_name;
+					continue;
+				}
+				add_entry(path,entry_name,prepend_path);
 			}
-			add_entry(path,entry_name,prepend_path);
+			if( ( (entry.attrib & _A_SUBDIR) ) && ( max_depth > 0 ) ) {
+				search_path(path + entry_name + '/', name, ext, only_directories, prepend_path, max_depth - 1);
+			}
 		}
 		delete[] entry_name;
 	} while(_wfindnext(hfind, &entry) == 0 );
@@ -151,18 +162,23 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 
 		while (dirent const* const entry = readdir(dir)) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-				if (filename_matches_pattern(entry->d_name, lookfor.c_str())) {
+				if ( only_directories) {
+					if( entry->d_type == DT_DIR ) {
+						add_entry(path, entry->d_name, prepend_path);
+					}
+				} else if (filename_matches_pattern(entry->d_name, lookfor.c_str())) {
 					add_entry(path, entry->d_name, prepend_path);
 				}
+				if( entry->d_type == DT_DIR && max_depth > 0) {
+					search_path(path + entry->d_name + '/', name, ext, only_directories, prepend_path, max_depth - 1);
+				}
+
 			}
 		}
 		closedir(dir);
 	}
-	(void)only_directories;
 #endif
-	return files.get_count();
 }
-
 
 #ifdef _WIN32
 std::string searchfolder_t::complete(const std::string &filepath_raw, const std::string &extension)
