@@ -108,7 +108,7 @@ else ()
 	if (${VS} EQUAL 0)
 		# using a script for MSVC project files
 		file(WRITE ${CMAKE_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION \n")
-		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo revision.jse COMMENT "Find SVN revision")
+		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo tools/revision.jse COMMENT "Find SVN revision")
 	else ()
 		# using custom target svnhear that is always built to update the revision.h file using cmake script
 		add_custom_target(svnheader ALL DEPENDS svn_header)
