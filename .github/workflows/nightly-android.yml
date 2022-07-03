@@ -143,8 +143,9 @@ jobs:
         tag: Nightly
         overwrite: true
 
-    - name: Release Beta on Google Play Store 
+    - name: Release Beta on Google Play Store
       uses: r0adkll/upload-google-play@v1
+      if: github.repository == 'simutrans/simutrans'
       with:
         serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         packageName: com.simutrans
