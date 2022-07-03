@@ -15,7 +15,7 @@ jobs:
           install: git zip unzip svn base-devel mingw-w64-x86_64-toolchain autoconf mingw-w64-x86_64-gcc mingw-w64-x86_64-freetype mingw-w64-x86_64-zstd mingw-w64-x86_64-libpng mingw-w64-x86_64-brotli mingw-w64-x86_64-SDL2 mingw-w64-x86_64-pkg-config
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Prepares NSIS plugins
         run: ./.github/prepare-nsis.ps1
