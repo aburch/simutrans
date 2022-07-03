@@ -122,7 +122,7 @@ bool pakset_manager_t::load_paks_from_directory(const std::string &path, const c
 	// divides it in 256 sub-steps at most (the -7 comes from here)
 
 	searchfolder_t find;
-	const sint32 max = find.search(path, "pak");
+	const sint32 max = find.search(path, "pak", false, true, 4);
 	sint32 step = -7;
 
 	for(  sint32 bit = 1;  bit < max;  bit += bit  ) {
