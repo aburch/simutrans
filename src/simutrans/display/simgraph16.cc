@@ -5129,17 +5129,25 @@ void display_right_triangle_rgb(scr_coord_val x, scr_coord_val y, scr_coord_val 
 // ------------------- other support routines that actually interface with the OS -----------------
 
 
-/**
- * copies only the changed areas to the screen using the "tile dirty buffer"
- * To get large changes, actually the current and the previous one is used.
- */
-void display_flush_buffer()
+/// Returns the index of the least significant set bit of a number, e.g. returns 2 for @p val == 12.
+/// Returns 0 for @p val == 0.
+static inline uint32 get_lowest_set_bit(uint32 val)
 {
 	static const uint8 MultiplyDeBruijnBitPosition[32] =
 	{
 		0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
 	};
 
+	return MultiplyDeBruijnBitPosition[(((val & -val) * 0x077CB531U)) >> 27];
+}
+
+
+/**
+ * copies only the changed areas to the screen using the "tile dirty buffer"
+ * To get large changes, actually the current and the previous one is used.
+ */
+void display_flush_buffer()
+{
 #ifdef USE_SOFTPOINTER
 	ex_ord_update_mx_my();
 
@@ -5203,13 +5211,12 @@ void display_flush_buffer()
 						word_x2--; // masks already set in while loop above
 					}
 					else { // dirty block ends in word_x2
-						const uint32 tv = ~tile_dirty_old[word_x2];
-						x2 = MultiplyDeBruijnBitPosition[(((tv & -tv) * 0x077CB531U)) >> 27];
+						x2 = get_lowest_set_bit(~tile_dirty_old[word_x2]);
 						masks[word_x2-word_x1] = 0xFFFFFFFF >> (32 - x2);
 					}
 				}
 				else { // dirty block is all within one word - word_x1
-					x2 = MultiplyDeBruijnBitPosition[(((testval & -testval) * 0x077CB531U)) >> 27];
+					x2 = get_lowest_set_bit(testval);
 					masks[0] = (0xFFFFFFFF << (32 - x2 + (x1 & 31))) >> (32 - x2);
 				}
 
