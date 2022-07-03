@@ -5094,6 +5094,7 @@ void draw_bezier_rgb(scr_coord_val Ax, scr_coord_val Ay, scr_coord_val Bx, scr_c
 
 	sint32 rx = Ax*32*32*32; // init with a=0, b=32
 	sint32 ry = Ay*32*32*32; // init with a=0, b=32
+
 	// fixed point: we cycle between 0 and 32, rather than 0 and 1
 	for(  sint32 a=1;  a<=32;  a++  ) {
 		const sint32 b = 32 - a;
@@ -5101,7 +5102,8 @@ void draw_bezier_rgb(scr_coord_val Ax, scr_coord_val Ay, scr_coord_val Bx, scr_c
 		const sint32 oldy = ry;
 		rx = Ax*b*b*b + 3*Cx*b*b*a + 3*Dx*b*a*a + Bx*a*a*a;
 		ry = Ay*b*b*b + 3*Cy*b*b*a + 3*Dy*b*a*a + By*a*a*a;
-		//fixed point: due to cycling between 0 and 32 (2<<5), we divide by 32^3=2>>15 because of cubic interpolation
+
+		// fixed point: due to cycling between 0 and 32 (1<<5), we divide by 32^3 == 1<<15 because of cubic interpolation
 		if(  !draw  &&  !dontDraw  ) {
 			display_direct_line_rgb( rx>>15, ry>>15, oldx>>15, oldy>>15, colore );
 		}
