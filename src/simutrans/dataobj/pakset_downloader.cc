@@ -131,6 +131,7 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 extern "C" {
 #define STDC
 #define voidpc voidpczip
+#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
 #include "../../external/zip.c"
 };
 
