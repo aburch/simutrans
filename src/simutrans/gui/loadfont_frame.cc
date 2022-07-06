@@ -227,8 +227,10 @@ void loadfont_frame_t::fill_list()
 			FT_Face face;
 			if(  !FT_New_Face( ft_library, i.info, 0, &face )  ) {
 				delete [] const_cast<char*>(i.button->get_text());
-				char *name = new char[strlen(face->family_name)+1];
+				char *name = new char[strlen(face->family_name)+strlen(face->style_name)+2];
 				strcpy( name, face->family_name );
+				strcat( name, " ");
+				strcat( name, face->style_name );
 				i.button->set_text(name);
 				FT_Done_Face( face );
 			}
