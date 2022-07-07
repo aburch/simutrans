@@ -491,7 +491,7 @@ void factory_reader_t::register_obj(obj_desc_t *&data)
 {
 	factory_desc_t* desc = static_cast<factory_desc_t*>(data);
 	size_t fab_name_len = strlen( desc->get_name() );
-	desc->electricity_producer = ( fab_name_len>=10   &&  (strcmp(desc->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0) );
+	desc->electricity_producer = (fab_name_len>=10   &&  strcmp(desc->get_name()+fab_name_len-9, "kraftwerk")==0)  ||  (fab_name_len>=12  &&  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0);
 	desc->correct_smoke();
 	factory_builder_t::register_desc(desc);
 }
