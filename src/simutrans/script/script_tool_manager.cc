@@ -46,9 +46,9 @@ const scripted_tool_info_t* script_tool_manager_t::get_script_info(const char* p
 	if (  file.open(buf)  ) {
 		tabfileobj_t contents;
 		file.read( contents );
-		info->title    = contents.get_string("title", path);
+		info->title    = translator::translate(contents.get_string("title", path));
 		info->menu_arg = contents.get_string("menu", "");
-		info->tooltip  = contents.get_string("tooltip", "");
+		info->tooltip  = translator::translate(contents.get_string("tooltip", ""));
 		info->cursor_area = contents.get_koord("cursor_area", koord(1,1));
 		info->cursor_offset = contents.get_koord("cursor_offset", koord(0,0));
 		if(  info->cursor_area.x<1  ||  info->cursor_area.y<1  ) {
