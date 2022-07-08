@@ -136,7 +136,7 @@ private:
 	vector_tpl<uint32> terraform_index;
 
 	// has a warning message, why the route may have failed (could be wrong!)
-	char *warn_fail;
+	const char *warn_fail;
 
 public:
 	/**
