@@ -663,7 +663,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
 		if(!check_crossing(zv,to,wtyp,player_builder)  ||  !check_crossing(-zv,from,wtyp,player_builder)) {
-			warn_fail = "No suitable crossing";
+			warn_fail = translator::translate("No suitable crossing");
 			return false;
 		}
 	}
