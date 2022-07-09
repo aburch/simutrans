@@ -210,6 +210,8 @@ convoi_frame_t::convoi_frame_t() :
 		new_component<gui_label_t>("Filter:");
 		name_filter_input.set_text( name_filter, lengthof(name_filter) );
 		add_component(&name_filter_input);
+		name_filter_input.add_listener(this);
+
 		filter_details.init(button_t::roundbox, "cl_btn_filter_settings");
 		filter_details.add_listener(this);
 		add_component(&filter_details);
@@ -273,7 +275,10 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
  */
 bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )
 {
-	if(  comp == &tabs  ) {
+	if(  comp == &name_filter_input  ) {
+		fill_list();
+	}
+	else if(  comp == &tabs  ) {
 		fill_list();
 	}
 	else if(  comp == &sortedby  ) {
@@ -301,8 +306,7 @@ void convoi_frame_t::draw(scr_coord pos, scr_size size)
 	filter_details.pressed = win_get_magic( magic_convoi_list_filter+owner->get_player_nr() );
 	sorteddir.pressed = get_reverse();
 
-	if (last_world_convois != welt->convoys().get_count()  ||  strcmp(last_name_filter,name_filter)) {
-		strcpy( last_name_filter, name_filter );
+	if (last_world_convois != welt->convoys().get_count()) {
 		// some deleted/ added => resort
 		fill_list();
 	}
