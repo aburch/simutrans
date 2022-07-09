@@ -6396,7 +6396,8 @@ char const* tool_daynight_level_t::get_tooltip(player_t const*) const
 	}
 }
 
-bool tool_daynight_level_t::init( player_t * ) {
+bool tool_daynight_level_t::init( player_t * )
+{
 	if(grund_t::underground_mode==grund_t::ugm_all  ||  env_t::night_shift) {
 		return false;
 	}

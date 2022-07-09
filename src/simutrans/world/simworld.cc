@@ -4894,6 +4894,7 @@ void karte_t::update_underground()
 	get_view()->clear_prepared();
 	world_view_t::invalidate_all();
 	set_dirty();
+	minimap_t::get_instance()->calc_map();
 }
 
 void karte_t::prepare_tiles(rect_t const &new_area, rect_t const &old_area) {

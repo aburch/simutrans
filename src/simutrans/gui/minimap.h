@@ -207,6 +207,10 @@ public:
 	/// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
 
+	/// update color with render mode (but for that kind of ground)
+	// true for 
+	bool calc_map_pixel(const grund_t *gr);
+
 	void calc_map();
 
 	/// calculates the current size of the map (but do not change anything else)
