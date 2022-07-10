@@ -7,7 +7,7 @@
 
 #
 # script to fetch pak sets
-# Downloads pak sets and installs them into $install_dir/
+# Downloads pak sets and installs them into $(pwd)/
 #
 
 # make sure that non-existing variables are not ignored
@@ -97,9 +97,9 @@ install_tgz()
 	files=$(echo "$files"|grep "^simutrans/")
 	if [ $? -eq 0 ]; then
 		# has simutrans folder
-		destdir="$extract_dir"
+		destdir="$(pwd)"
 	else
-		destdir="$extract_dir/simutrans"
+		destdir="$(pwd)/simutrans"
 	fi
 
 	tar -zxf "$pakzippath" -C "$destdir" || {
@@ -119,9 +119,9 @@ install_zip()
 	files=$(unzip -Z1 "$pakzippath" | grep "^simutrans/")
 	if [ $? -eq 0 ]; then
 		# we have simutrans already
-		destdir="$extract_dir"
+		destdir="$(pwd)"
 	else
-		destdir="$extract_dir/simutrans"
+		destdir="$(pwd)/simutrans"
 	fi
 
 	echo "Extracting '$pakzippath' to '$destdir'..."
@@ -170,18 +170,6 @@ download_and_install_pakset()
 	if [ $result -ne 0 ]; then
 		echo "Installation failed." >&2
 		return 1
-	fi
-
-	# Install the files downloaded on the tmp directory if installing to the paksets directory
-	if echo "$install_dir" | grep "paksets" >> /dev/null ; then
-		mv "$extract_dir/simutrans/"* "$install_dir"
-		result=$?
-		rm -rf "$extract_dir/simutrans"
-		if [ $result -ne 0 ]; then
-			echo "Error: Cannot move files to the paksets directory" >&2
-			echo "Installation failed." >&2
-			return 1
-		fi
 	fi
 
 	echo "Installation completed."
@@ -336,22 +324,10 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 	exit 0
 fi
 
-# Linux
-if [ -d "HOME/simutrans/paksets" ]; then
-	install_dir="$HOME/simutrans/paksets"
-	extract_dir="$TEMP"
-# macOS
-elif [ -d "$HOME/Library/Simutrans/paksets" ]; then
-	install_dir="$HOME/Library/Simutrans/paksets"
-	extract_dir="$TEMP"
-# Other (or single install)
-elif $(pwd | grep "/simutrans$" >/dev/null); then
-	install_dir="$(pwd)"
-	extract_dir="$install_dir/.."
-else
+pwd | grep "/simutrans$" >/dev/null || {
 	echo "Cannot install paksets: Must be in a simutrans/ directory" >&2
 	exit 1
-fi
+}
 
 # first find out, if we have a command options and just install these paks
 # parameter is the full path to the pakset
@@ -448,7 +424,7 @@ while true; do
 			let "setcount += 1"
 		done
 
-		echo "into directory '$install_dir'"
+		echo "into directory '$(pwd)'"
 		read -p "Is this correct? (y/n)" yn
 		if [[ $yn = [yY] ]]; then
 			break

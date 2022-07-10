@@ -446,19 +446,19 @@ char const *dr_query_installdir()
 	strcat(buffer, PATH_SEPARATOR);
 	strcat(buffer, foldername);
 #elif defined __APPLE__
-	sprintf(buffer, "%s/Library/Simutrans/paksets", getenv("HOME"));
+	sprintf(buffer, "%s/Library/Simutrans/simutrans", getenv("HOME"));
 #elif defined __HAIKU__
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);
-	sprintf(buffer, "%s/simutrans/paksets", userDir.Path());
+	sprintf(buffer, "%s/simutrans", userDir.Path());
 #elif defined __ANDROID__
 	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		sprintf(buffer, "%s/simutrans/paksets", getenv("HOME"));
+		sprintf(buffer, "%s/simutrans/simutrans", getenv("HOME"));
 	}
 	else {
-		sprintf(buffer, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
+		sprintf(buffer, "%s/simutrans/simutrans", getenv("XDG_DATA_HOME"));
 	}
 #endif
 
