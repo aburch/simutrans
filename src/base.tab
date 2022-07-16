@@ -4250,6 +4250,32 @@ obj=error_text
 name=No curves on runways
 note=Displayed when a route search failed as one possible cause
 --
+obj=tooltip_text
+name=Mirrors order of stops
+note=tooltip for mirror stop order button
+--
+obj=program_text
+name=Revert schedule
+note=button to restore original schedule
+--
+obj=tooltip_text
+name=Revert to original schedule
+note=tooltip to restore original schedule
+--
+obj=program_text
+name=Invert stops
+note=button to invert stop order
+--
+obj=tooltip_text
+name=Mirrors order of stops
+note=tooltip to invert stop order
+--
+obj=tooltip_text
+name=Enter intervall in days, hours, minutes
+note=tooltip for timeinput gui element
+--
+
+
 
 
 #obj=help_text
