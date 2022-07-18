@@ -70,10 +70,10 @@ install_cab()
 	# First check if we only have a simutrans/ directory at the root.
 	files=$(echo "$files"|grep " simutrans/")
 	if [ $? -eq 0 ]; then
-		# has simutrans folder, but cap cannot handle unix path on windows
+		# has simutrans folder, but cabextract cannot handle unix path on windows
 		destdir="."
 	else
-		destdir="simutrans"
+		destdir="."
 	fi
 
 	cabextract -qd "$destdir" "$pakzippath" || {
@@ -98,11 +98,13 @@ install_tgz()
 	if [ $? -eq 0 ]; then
 		# has simutrans folder
 		destdir="$(pwd)"
+		extra="--strip-components=1"
 	else
 		destdir="$(pwd)/simutrans"
+		extra=""
 	fi
 
-	tar -zxf "$pakzippath" -C "$destdir" || {
+	tar -zxf "$pakzippath" "$extra" C "$destdir" || {
 		echo "Error: Could not extract '$pakzippath' to '$destdir'" >&2
 		return 1
 	}
@@ -120,14 +122,15 @@ install_zip()
 	if [ $? -eq 0 ]; then
 		# we have simutrans already
 		destdir="$(pwd)"
+		echo "Extracting '$pakzippath' to '$destdir'..."
+		temp=$(mktemp -d) && unzip -qoC "$pakzippath" -d "$temp" && mv "$temp"/*/* "$destdir" && rmdir "$temp"/* "$temp"
 	else
-		destdir="$(pwd)/simutrans"
+		destdir="$(pwd)"
+		echo "Extracting '$pakzippath' to '$destdir'..."
+		unzip -qoC "$pakzippath" -d "$destdir"
 	fi
 
-	echo "Extracting '$pakzippath' to '$destdir'..."
-	unzip -qoC "$pakzippath" -d "$destdir"
 	result=$?
-
 	if [ $result -ge 2 ]; then
 		# unzip failed
 		echo "Error: Could not extract '$pakzippath' to '$destdir' (unzip returned: $result)" >&2
@@ -325,15 +328,13 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 fi
 
 pwd | grep "/simutrans$" >/dev/null || {
-	echo "Cannot install paksets: Must be in a simutrans/ directory" >&2
-	exit 1
+	echo "Warning install csb-paksets might fail if not in a simutrans/ directory" >&2
 }
 
 # first find out, if we have a command options and just install these paks
 # parameter is the full path to the pakset
 if  [ "$#" -gt 0 ]; then
 
-	pushd .. 1>/dev/null
 	for pakname in "$@"
 	do
 		if [[ $pakname == "http"* ]]; then
@@ -347,7 +348,6 @@ if  [ "$#" -gt 0 ]; then
 			echo "-- Installing $choicename --"
 			tempzipname="$TEMP/$zipname"
 			download_and_install_pakset "$urlname" "$tempzipname" || {
-				popd 1>/dev/null
 				echo "Error installing pakset $choicename"
 				exit 1
 			}
@@ -367,7 +367,6 @@ if  [ "$#" -gt 0 ]; then
 					tempzipname="$TEMP/$zipname"
 					download_and_install_pakset "$urlname" "$tempzipname" || {
 						echo "Error installing pakset $choicename"
-						popd 1>/dev/null
 						exit 1
 					}
 					has_match="1"
@@ -375,12 +374,10 @@ if  [ "$#" -gt 0 ]; then
 			done
 			if [[ $has_match == "0" ]]; then
 				echo "No pak matches $pakname"
-				popd 1>/dev/null
 				exit 1
 			fi
 		fi
 	done
-	popd 1>/dev/null
 	exit 0
 fi
 
@@ -466,8 +463,6 @@ let setcount=0
 let "maxcount = ${#paksets[*]}"
 fail=0
 
-pushd .. 1>/dev/null
-
 while [ "$setcount" -lt "$maxcount" ]; do
 	if [ "${installpak[$setcount]}" -gt 0 ]; then
 		urlname=${paksets[$setcount]}
@@ -485,5 +480,4 @@ while [ "$setcount" -lt "$maxcount" ]; do
 	let "setcount++"
 done
 
-popd 1>/dev/null
 exit $fail
