@@ -870,6 +870,7 @@ void depot_frame_t::update_data()
 	for(int i = 0; i < vehicle_builder_t::sb_length; i++) {
 		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_builder_t::vehicle_sort_by[i]), SYSCOL_TEXT);
 	}
+	sort_by.set_size(sort_by.get_size());
 	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
 		depot->selected_sort_by = vehicle_builder_t::sb_name;
 	}
