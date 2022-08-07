@@ -199,10 +199,8 @@ public:
 
 
 /// Return one event. Does *not* wait.
-void display_poll_event(event_t*);
+void display_poll_event(event_t *event);
 
-/// Wait for one event, and return it.
-void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 void set_click_xy(scr_coord_val x, scr_coord_val y);
 
