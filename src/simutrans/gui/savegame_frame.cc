@@ -470,7 +470,7 @@ bool savegame_frame_t::infowin_event(const event_t *event)
  */
 bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t )
 {
-	char buf[PATH_MAX];
+	char buf[PATH_MAX] = {};
 
 	if(component==&input  ||  component==&savebutton) {
 		// Save/Load Button or Enter-Key pressed
