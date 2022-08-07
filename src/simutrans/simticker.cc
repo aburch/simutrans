@@ -16,6 +16,7 @@
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"
 #include "gui/gui_frame.h"
+#include "world/simworld.h"
 
 
 #define X_DIST    (2)   // how much scrolling per update call?
@@ -185,6 +186,7 @@ void ticker::redraw()
 	if (list.empty()) {
 		// mark everything at the bottom as dirty to clear also tooltips and compass
 		mark_rect_dirty_wc(0, env_t::menupos == MENU_BOTTOM ? 0 : start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
+		world()->set_background_dirty();
 		return;
 	}
 

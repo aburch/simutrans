@@ -68,6 +68,7 @@ public:
 	void display_region( koord lt, koord wh, sint16 y_min, const sint16 y_max, bool force_dirty );
 #endif
 
+private:
 	/**
 	 * Draws background in the specified rectangular screen coordinates.
 	 * @param xp X screen coordinate of the left-top corner.
@@ -77,7 +78,6 @@ public:
 	 * @param dirty Mark the specified area as dirty.
 	 */
 	void display_background( scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, bool dirty );
-
 };
 
 #endif
