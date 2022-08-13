@@ -866,7 +866,12 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 			// show track
 			if (gr->hat_weg(track_wt)) {
 				const schiene_t* sch = (const schiene_t*)(gr->get_weg(track_wt));
-				if (sch->is_electrified()) {
+				// show signals
+				if (sch->has_sign() || sch->has_signal()) {
+					set_map_color(k, color_idx_to_rgb(COL_YELLOW));
+					return true;
+				}
+				else if (sch->is_electrified()) {
 					set_map_color(k, color_idx_to_rgb(COL_RED));
 					return true;
 				}
@@ -874,11 +879,7 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 					set_map_color(k, color_idx_to_rgb(COL_WHITE));
 					return true;
 				}
-				// show signals
-				if (sch->has_sign() || sch->has_signal()) {
-					set_map_color(k, color_idx_to_rgb(COL_YELLOW));
-					return true;
-				}
+
 			}
 			break;
 
@@ -949,6 +950,8 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 		default:
 			return false;
 	}
+
+	return false;
 }
 
 
