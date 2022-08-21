@@ -99,15 +99,15 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 		ls.set_info(ps->name);
 #ifdef _WIN32
 		param.append("powershell -ExecutionPolicy ByPass -NoExit ");
-		param.append(env_t::base_dir);
+		param.append(env_t::install_dir);
 		param.append("get_pak.ps1 \"" );
 #else
 #ifndef __ANDROID__
-		param.append( env_t::base_dir);
+		param.append( env_t::install_dir);
 		param.append("get_pak.sh \"");
 #else
 		param.append("sh ");
-		param.append(env_t::base_dir);
+		param.append(env_t::install_dir);
 		param.append("get_pak.sh \"");
 #endif
 #endif
