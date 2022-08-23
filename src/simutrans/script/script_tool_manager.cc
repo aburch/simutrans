@@ -98,7 +98,8 @@ tool_t* script_tool_manager_t::load_tool(char const* path, tool_t* tool)
 void script_tool_manager_t::load_scripts(char const* path)
 {
 	searchfolder_t find;
-	find.search(path, "", true, false);
+	find.search(path, "", searchfolder_t::SF_ONLYDIRS);
+
 	for(const char* const &name : find) {
 		cbuffer_t fullname;
 		fullname.printf("%s%s",path,name);

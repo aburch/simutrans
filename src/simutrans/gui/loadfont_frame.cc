@@ -197,7 +197,7 @@ void loadfont_frame_t::fill_list()
 		searchfolder_t subfolders;
 		for(  int i=0;  ( addpath = dr_query_fontpath(i) );  i++  ) {
 			add_path( addpath );
-			subfolders.search(addpath, "", true, true, 4);
+			subfolders.search(addpath, "", searchfolder_t::SF_ONLYDIRS | searchfolder_t::SF_PREPEND_PATH, 4);
 			for( const char * folder : subfolders ){
 				add_path( ((std::string) folder + PATH_SEPARATOR).c_str() );
 			}

@@ -239,7 +239,8 @@ void savegame_frame_t::fill_list( void )
 		const char *path_c      = path.c_str();
 		const size_t path_c_len = strlen(path_c);
 
-		sf.search(path, std::string(suffixnodot), this->only_directories, false);
+		const searchfolder_t::search_flags_t search_flags = this->only_directories ? searchfolder_t::SF_ONLYDIRS : searchfolder_t::SF_NONE;
+		sf.search(path, std::string(suffixnodot), search_flags, false);
 
 		bool section_added = false;
 
