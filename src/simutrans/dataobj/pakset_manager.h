@@ -87,11 +87,12 @@ public:
 
 private:
 	/**
-	 * Loads all pak files from a directory, displaying a progress bar if the display is initialized
+	 * Loads all pak files from a directory and its subdirectories, displaying a progress bar if the display is initialized.
 	 * @param path Directory to be scanned for PAK files
+	 * @param load_addons true to also load paks from subdirectories named "addons"
 	 * @param message Label to show over the progress bar
 	 */
-	static bool load_paks_from_directory(const std::string &path, const char *message);
+	static bool load_paks_from_directory(const std::string &path, bool load_addons, const char *message);
 
 	static bool finish_loading();
 

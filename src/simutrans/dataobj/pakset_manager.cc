@@ -64,7 +64,7 @@ void pakset_manager_t::load_pakset(bool load_addons)
 {
 	dbg->message("pakset_manager_t::load_pakset", "Reading object data from %s...", env_t::pak_dir.c_str());
 
-	if (!load_paks_from_directory( env_t::pak_dir.c_str(), translator::translate("Loading paks ...") )) {
+	if (!load_paks_from_directory( env_t::pak_dir.c_str(), load_addons, translator::translate("Loading paks ...") )) {
 		dbg->fatal("pakset_manager_t::load_pakset", "Failed to load pakset. Please re-download or select another pakset.");
 	}
 
@@ -80,7 +80,7 @@ void pakset_manager_t::load_pakset(bool load_addons)
 		// try to read addons from private directory
 		dr_chdir( env_t::user_dir );
 
-		if(!load_paks_from_directory("addons/" + env_t::pak_name, translator::translate("Loading addon paks ..."))) {
+		if(!load_paks_from_directory("addons/" + env_t::pak_name, true, translator::translate("Loading addon paks ..."))) {
 			dbg->warning("pakset_manager_t::load_pakset", "Reading addon object data failed (disabling).");
 			env_t::default_settings.set_with_private_paks( false );
 		}
@@ -113,7 +113,7 @@ void pakset_manager_t::load_pakset(bool load_addons)
 }
 
 
-bool pakset_manager_t::load_paks_from_directory(const std::string &path, const char *message)
+bool pakset_manager_t::load_paks_from_directory(const std::string &path, bool load_addons, const char *message)
 {
 	const bool drawing = is_display_init();
 
@@ -122,7 +122,8 @@ bool pakset_manager_t::load_paks_from_directory(const std::string &path, const c
 	// divides it in 256 sub-steps at most (the -7 comes from here)
 
 	searchfolder_t find;
-	const sint32 max = find.search(path, "pak", searchfolder_t::SF_PREPEND_PATH, 4);
+	const searchfolder_t::search_flags_t addon_flags = load_addons ? searchfolder_t::SF_NONE : searchfolder_t::SF_NOADDONS;
+	const sint32 max = find.search(path, "pak", addon_flags | searchfolder_t::SF_PREPEND_PATH, 4);
 	sint32 step = -7;
 
 	for(  sint32 bit = 1;  bit < max;  bit += bit  ) {

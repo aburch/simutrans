@@ -21,7 +21,8 @@ public:
 	{
 		SF_NONE         = 0,
 		SF_ONLYDIRS     = 1 << 0, ///< Extra restriction, will only consider directory entries. If not specified, will search both file and directory entries.
-		SF_PREPEND_PATH = 1 << 1  ///< Will force prepending the base path to the output on each entry.
+		SF_PREPEND_PATH = 1 << 1, ///< Will force prepending the base path to the output on each entry.
+		SF_NOADDONS     = 1 << 2  ///< If set, subdrectories named "addons" will not be searched.
 	};
 
 public:

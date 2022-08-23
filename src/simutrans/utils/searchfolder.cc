@@ -142,6 +142,10 @@ void searchfolder_t::search_path(const std::string path, const std::string name,
 		char *const entry_name = new char[entry_name_size];
 		WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, entry_name_size, NULL, NULL );
 		if( entry_name[0]!='.' || (entry_name[1]!='.' && entry_name[1]!=0) ) {
+			if ((entry.attrib & _A_SUBDIR) && (search_flags&SF_NOADDONS) && !STRICMP(entry_name, "addons")) {
+				continue;
+			}
+
 			if(  filename_matches_pattern(entry_name, lookfor.c_str()) ) {
 				if(only_directories && ((entry.attrib & _A_SUBDIR)==0)) {
 					delete[] entry_name;
@@ -165,7 +169,11 @@ void searchfolder_t::search_path(const std::string path, const std::string name,
 
 		while (dirent const* const entry = readdir(dir)) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-				if ( only_directories) {
+				if (entry->d_type == DT_DIR && (search_flags&SF_NOADDONS) && !STRICMP(entry->d_name, "addons")) {
+					continue;
+				}
+
+				if (only_directories) {
 					if( entry->d_type == DT_DIR ) {
 						add_entry(path, entry->d_name, prepend_path);
 					}
