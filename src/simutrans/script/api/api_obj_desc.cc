@@ -587,7 +587,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * Entries are of type @ref building_desc_x.
 	 * @param type building type from @ref building_desc_x::building_type
 	 * @param wt waytype (can be wt_all to ignore waytype of desc)
-	 * @param freight station should accept this freight (if null then return all buildings)
+	 * @param freight station should accept this freight (if equal to {}, i.e., empty table, then return all buildings)
 	 * @returns the list
 	 */
 	STATIC register_method(vm, &get_available_stations, "get_available_stations", false, true);
