@@ -23,6 +23,11 @@ struct nodelist_node_t
 #include "../utils/simthread.h"
 #endif
 
+// define USE_VALGRIND_MEMCHECK to make
+// valgrind aware of the freelist memory pool
+#ifdef USE_VALGRIND_MEMCHECK
+#include <valgrind/memcheck.h>
+#endif
 
 /**
   * A template class for const sized memory pool
@@ -136,7 +141,7 @@ public:
 #ifdef USE_VALGRIND_MEMCHECK
 		// tell valgrind that we keep access to a nodelist_node_t within the memory chunk
 		VALGRIND_MEMPOOL_CHANGE(p, p, p, sizeof(nodelist_node_t));
-		VALGRIND_MAKE_MEM_NOACCESS(p, size);
+		VALGRIND_MAKE_MEM_NOACCESS(p, sizeof(T));
 		VALGRIND_MAKE_MEM_UNDEFINED(p, sizeof(nodelist_node_t));
 #endif
 
