@@ -479,7 +479,7 @@ static bool set_predefined_dir( const char *p, const char *opt, char *result, co
 {
 	if(  p  &&  *p  ) {
 		bool ok = !dr_chdir(p);
-		FILE * testf;
+		FILE * testf = NULL;
 		ok &=  ok  &&  testfile  &&  (testf = fopen(testfile,"r"));
 		if(!ok) {
 			printf("WARNING: Objects not found in %s \"%s\"!\n",  opt, p);

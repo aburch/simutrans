@@ -197,7 +197,7 @@ void pedestrian_t::generate_pedestrians_at(grund_t *bd, int &count)
 
 	// allow also pedestrians on any road including crossings
 	// the complex bus center in front of the station is almost empty ...
-	if (const weg_t* weg = bd->get_weg(road_wt)) {
+	if (bd->get_weg(road_wt)) {
 
 		// we create maximal 4 pedestrians here for performance reasons
 		for (int i = 0; i < 4 && count > 0; i++) {
