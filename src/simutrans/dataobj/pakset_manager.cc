@@ -80,10 +80,10 @@ void pakset_manager_t::load_pakset(bool load_addons)
 		// try to read addons from private directory
 		dr_chdir( env_t::user_dir );
 
-		if(!load_paks_from_directory("addons/" + env_t::pak_name, true, translator::translate("Loading addon paks ..."))) {
-			dbg->warning("pakset_manager_t::load_pakset", "Reading addon object data failed (disabling).");
-			env_t::default_settings.set_with_private_paks( false );
-		}
+		// Do not disable addons after failing to find addon objects
+		// because a user might only have addon scenarios but no addon objects.
+		// So do not check the return value here.
+		load_paks_from_directory("addons/" + env_t::pak_name, true, translator::translate("Loading addon paks ..."));
 
 		dr_chdir( env_t::base_dir );
 
