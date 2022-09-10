@@ -77,6 +77,9 @@ bool tabfileobj_t::put(const char *key, const char *value)
 
 void tabfileobj_t::clear()
 {
+#ifdef MAKEOBJ
+	obj_writer_t::last_name = "";
+#endif
 	for(auto const& i : objinfo) {
 		free(const_cast<char*>(i.key));
 		free(const_cast<char*>(i.value.str));
