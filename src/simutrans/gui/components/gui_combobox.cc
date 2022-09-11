@@ -367,8 +367,8 @@ void gui_combobox_t::set_size(scr_size size)
 	set_pos(get_pos());
 
 	bt_prev.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
-	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
-	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
+	textinp.align_to( &bt_prev, scr_coord( D_H_SPACE / 2, 0) );
+	bt_next.align_to( &textinp, scr_coord( D_H_SPACE / 2, 0) );
 }
 
 
