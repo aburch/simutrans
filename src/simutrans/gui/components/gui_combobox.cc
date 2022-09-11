@@ -89,9 +89,12 @@ DBG_MESSAGE("event","HOWDY!");
 			return true;
 		}
 	}
-	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mx + get_pos().x, ev->my + get_pos().y)  ) {
+	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mx, ev->my)  ) {
 		// scroll the list
-		droplist.infowin_event(ev);
+		event_t ev2 = *ev;
+		ev2.move_origin(droplist.get_pos());
+
+		droplist.infowin_event(&ev2);
 		return true;
 	}
 
@@ -158,12 +161,12 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.show_selection(sel);
 		}
 		else if (droplist.is_visible()) {
-			event_t ev2 = *ev;
-			const scr_coord diff = droplist.get_pos() - gui_component_t::get_pos();
-			ev2.move_origin(diff);
 
-			if( droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ) {
+			if( droplist.getroffen(ev->cx, ev->cy)  ) {
 				int old_selection = droplist.get_selection();
+
+				event_t ev2 = *ev;
+				ev2.move_origin(droplist.get_pos());
 				if(  droplist.infowin_event(&ev2)  ) {
 					if(  droplist.get_selection() !=  old_selection  ) {
 						// close box will anyway call
@@ -201,7 +204,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		if(  item==NULL  ||  item->is_editable()  ) {
 			event_t ev2 = *ev;
 			ev2.move_origin(textinp.get_pos());
-			return textinp.infowin_event(ev);
+			return textinp.infowin_event(&ev2);
 		}
 	}
 	return false;
@@ -236,6 +239,8 @@ void gui_combobox_t::draw(scr_coord offset)
 		reset_selected_item_name();
 	}
 
+	offset += pos;
+
 	bool with_focus = (win_get_focus()==this)  &&  (item==NULL  ||  item->is_editable());
 	textinp.display_with_focus( offset, with_focus);
 
@@ -243,7 +248,6 @@ void gui_combobox_t::draw(scr_coord offset)
 		droplist.draw(offset);
 	}
 	else {
-		offset += pos;
 		bt_prev.draw(offset);
 		bt_next.draw(offset);
 	}
@@ -344,10 +348,10 @@ void gui_combobox_t::set_pos(scr_coord pos_par)
 	gui_component_t::set_pos( pos_par );
 
 	if(  opened_above  ) {
-		droplist.set_pos( gui_component_t::get_pos() + scr_size( (get_size().w -droplist.get_size().w)/2, D_V_SPACE/4 - droplist.get_size().h) );
+		droplist.set_pos( scr_size( (get_size().w -droplist.get_size().w)/2, D_V_SPACE/4 - droplist.get_size().h) );
 	}
 	else {
-		droplist.set_pos( gui_component_t::get_pos() + scr_size( (get_size().w -droplist.get_size().w)/2, textinp.get_size().h) );
+		droplist.set_pos( scr_size( (get_size().w -droplist.get_size().w)/2, textinp.get_size().h) );
 	}
 }
 
@@ -363,8 +367,8 @@ void gui_combobox_t::set_size(scr_size size)
 	set_pos(get_pos());
 
 	bt_prev.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
-	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
-	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( -pos.x + D_H_SPACE / 2, -pos.y ) );
+	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
+	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 }
 
 
