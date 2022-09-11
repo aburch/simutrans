@@ -150,7 +150,7 @@ public:
 			// tell valgrind that we reserved space for one nodelist_node_t
 			VALGRIND_CREATE_MEMPOOL(chunk, 0, false);
 			VALGRIND_MEMPOOL_ALLOC(chunk, chunk, sizeof(*chunk));
-			VALGRIND_MAKE_MEM_UNDEFINED(chunk, sizeof(*chunk));
+			VALGRIND_MAKE_MEM_DEFINED(chunk, sizeof(*chunk));
 #endif
 			chunk->chunk_next = chunk_list;
 			chunk_list = chunk;
