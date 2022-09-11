@@ -227,6 +227,13 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 		while(  alt->get_top()>0  ) {
 			neu->obj_add( alt->obj_remove_top() );
 		}
+		// transfer way flags
+		if(alt->get_flag(grund_t::has_way1)) {
+			neu->set_flag(grund_t::has_way1);
+		}
+		if(alt->get_flag(grund_t::has_way2)) {
+			neu->set_flag(grund_t::has_way2);
+		}
 		delete alt;
 	}
 }
