@@ -5748,10 +5748,12 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 
 static slist_tpl<network_world_command_t*> command_queue;
 static koord3d next_deferred_move_to = koord3d::invalid;
+static uint8   next_deferred_move_flags = 0;
 
-void karte_t::set_deferred_move_to(koord3d k)
+void karte_t::set_deferred_move_to(koord3d k, uint8 f)
 {
 	next_deferred_move_to = k;
+	next_deferred_move_flags = f;
 }
 
 void karte_t::command_queue_append(network_world_command_t* nwc) const
@@ -6017,6 +6019,7 @@ bool karte_t::interactive(uint32 quit_month)
 	finish_loop = false;
 	sync_steps = 0;
 	sync_steps_barrier = sync_steps;
+	next_deferred_move_to = koord3d::invalid;
 
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok; // bit set: this client can do something with this player
@@ -6082,11 +6085,15 @@ bool karte_t::interactive(uint32 quit_month)
 		if (next_deferred_move_to != koord3d::invalid) {
 			// some tool movement is expensive (like route search) and must be done outsied sync_step
 			// to avoid calling a the non-reentrant route search twice
-			const char* err = scenario->is_work_allowed_here(active_player, selected_tool[active_player_nr]->get_id(), selected_tool[active_player_nr]->get_waytype(), next_deferred_move_to);
+			tool_t *tool = selected_tool[active_player_nr];
+			const char* err = scenario->is_work_allowed_here(active_player, tool->get_id(), tool->get_waytype(), next_deferred_move_to);
 			if (err == NULL) {
 				koord3d target = next_deferred_move_to;
 				next_deferred_move_to = koord3d::invalid;
-				selected_tool[active_player_nr]->move(active_player, true, target);
+				tool->flags = next_deferred_move_flags;
+				tool->move(active_player, true, target);
+				tool->flags = 0;
+				next_deferred_move_flags = 0;
 			}
 		}
 

@@ -934,7 +934,7 @@ public:
 	 * (e.g. route search for marking tiles)
 	 * we defer it to outside sync_step
 	 */
-	void set_deferred_move_to(koord3d);
+	void set_deferred_move_to(koord3d pos, uint8 flags);
 
 	/**
 	 * Calls the work method of the tool.

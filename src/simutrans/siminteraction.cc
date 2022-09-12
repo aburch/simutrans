@@ -91,7 +91,7 @@ void interaction_t::move_cursor( const event_t &ev )
 					}
 				}
 				if (is_dragging) {
-					world->set_deferred_move_to(pos);
+					world->set_deferred_move_to(pos, tool->flags);
 				}
 			}
 			tool->flags = 0;
