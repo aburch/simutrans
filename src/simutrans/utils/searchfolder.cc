@@ -174,7 +174,7 @@ void searchfolder_t::search_path(const std::string path, const std::string name,
 				}
 
 				if (only_directories) {
-					if( entry->d_type == DT_DIR ) {
+					if( entry->d_type == DT_DIR  ||  entry->d_type == DT_LNK) {
 						add_entry(path, entry->d_name, prepend_path);
 					}
 				} else if (filename_matches_pattern(entry->d_name, lookfor.c_str())) {
