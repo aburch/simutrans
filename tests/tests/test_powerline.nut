@@ -135,26 +135,36 @@ function test_powerline_connect()
 }
 
 
-function test_powerline_bridge()
+function test_powerline_build_below_powerbridge()
 {
 	local pl = player_x(0)
 	local power_bridge = bridge_desc_x.get_available_bridges(wt_power)[0]
 	local powerline = way_desc_x.get_available_ways(wt_power, st_flat)[0]
 
+	ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), power_bridge), null)
+
 	// build normal powerline below power bridge, should fail
 	{
-		ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), power_bridge), null)
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), powerline, true), "")
-
-		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), "" + wt_power), null)
 	}
 
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), "" + wt_power), null)
 	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_powerline_build_powerbridge_above_powerline()
+{
+	local pl = player_x(0)
+	local power_bridge = bridge_desc_x.get_available_bridges(wt_power)[0]
+	local powerline = way_desc_x.get_available_ways(wt_power, st_flat)[0]
+
+	// Note: Build way first, then bridge (see above for why)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), powerline, true), null)
 
 	// build flat powerline bridge
 	{
-		// Note: Build way first, then bridge (see above for why)
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), powerline, true), null)
 		ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), power_bridge), null)
 
 		local bridge_part = powerline_x(3, 3, 1)
@@ -164,11 +174,11 @@ function test_powerline_bridge()
 
 		ASSERT_FALSE(bridge_part.is_connected(ground_part))
 		ASSERT_FALSE(ground_part.is_connected(bridge_part))
-
-		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), "" + wt_power), null)
-		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), "" + wt_power), null)
 	}
 
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), "" + wt_power), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 2, 0), coord3d(3, 4, 0), "" + wt_power), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -540,5 +550,41 @@ function test_powerline_ways()
 	ASSERT_EQUAL(wayremover.work(pl, coord3d(0, 7, 0), coord3d(7, 0, 0), "" + wt_road), null)
 
 	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_powerline_remove_powerbridge()
+{
+	local pl = player_x(0)
+	local power_bridge = bridge_desc_x.get_available_bridges(wt_power)[0]
+
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(2, 3, 0), "" + slope.east), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 3, 0), "" + slope.west), null)
+	ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), power_bridge), null)
+
+	// try removing the bridge from its center
+	{
+		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 1)), "Cannot delete a bridge from its centre")
+		ASSERT_TRUE(tile_x(2, 3, 0).find_object(mo_bridge) != null)
+	}
+
+	// try removing the bridge from one of its ends
+	{
+		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(2, 3, 0)), null)
+
+		ASSERT_TRUE(tile_x(2, 3, 0).find_object(mo_bridge) == null)
+		ASSERT_TRUE(tile_x(3, 3, 1).find_object(mo_bridge) == null)
+		ASSERT_TRUE(tile_x(4, 3, 0).find_object(mo_bridge) == null)
+
+		ASSERT_TRUE(tile_x(2, 3, 0).find_object(mo_powerline) != null)
+		ASSERT_TRUE(tile_x(4, 3, 0).find_object(mo_powerline) != null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(2, 3, 0)), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(2, 3, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 3, 0), "" + slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
