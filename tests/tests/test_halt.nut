@@ -969,3 +969,36 @@ function test_halt_make_public_underground()
 	ASSERT_EQUAL(lower.work(public_pl, coord3d(4, 4, 0)), null)
 	ASSERT_EQUAL(lower.work(public_pl, coord3d(5, 4, 0)), null)
 }
+
+
+function test_halt_move_stop_invalid_param()
+{
+	// out of map limits
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_stop_mover).work(player_x(0), coord3d(-1, -1, 0), coord3d(-1, -1, 0)), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Tool has no effects")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// no way
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_stop_mover).work(player_x(0), coord3d(1, 1, 0), coord3d(3, 1, 0)), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Tool has no effects")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}

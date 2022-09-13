@@ -99,6 +99,7 @@ all_tests <- [
 	test_halt_make_public_single,
 	test_halt_make_public_multi_tile,
 	test_halt_make_public_underground,
+	test_halt_move_stop_invalid_param,
 	test_headquarters_build_flat,
 	test_label,
 	test_player_cash,
