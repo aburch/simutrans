@@ -634,7 +634,7 @@ function test_way_road_build_crossing()
 	// road too fast, cannot build crossing
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), "No suitable crossing! (max speed too fast?)")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), translate("No suitable crossing"))
 
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
