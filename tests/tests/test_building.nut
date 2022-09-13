@@ -137,6 +137,89 @@ function test_building_build_multi_tile_sloped()
 }
 
 
+function test_building_buy_house_invalid_param()
+{
+	local pl = player_x(0)
+
+	// outside of map limits
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(-1,-1,-1)), "")
+	}
+
+	// cannot buy house on flat land
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(0,0,0)), "")
+	}
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_building_buy_house_from_public_player()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+	local building_desc = building_desc_x("RES_01_23") // does not matter which of res,com,ind
+	local old_cash = pl.get_cash()[0]
+	local old_maint = pl.get_current_maintenance()
+
+	ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0,0,0), "11" + building_desc.get_name()), null)
+	ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, 16) // building is unowned
+
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(0,0,0)), null)
+		ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, pl.nr)
+		ASSERT_GREATER(pl.get_current_maintenance(), old_maint)
+		ASSERT_LESS(pl.get_cash()[0], old_cash)
+	}
+
+	old_cash = pl.get_cash()[0]
+	old_maint = pl.get_current_maintenance()
+
+	// public player cannot buy buildings
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(public_pl, coord3d(0,0,0)), "")
+		ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, pl.nr)
+		ASSERT_EQUAL(pl.get_current_maintenance(), old_maint)
+		ASSERT_EQUAL(pl.get_cash()[0], old_cash)
+	}
+
+	// cannot buy from myself
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(0,0,0)), "")
+		ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, pl.nr)
+		ASSERT_EQUAL(pl.get_current_maintenance(), old_maint)
+		ASSERT_EQUAL(pl.get_cash()[0], old_cash)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0,0,0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_building_buy_house_attraction()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+
+	local building_desc = building_desc_x("STADIUM2")
+	local builder = command_x(tool_build_house)
+
+	// build stadium using public player
+	ASSERT_EQUAL(builder.work(public_pl, coord3d(0,0,0), "11" + building_desc.get_name()), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_buy_house).work(pl, coord3d(0,0,0)), "Das Feld gehoert\neinem anderen Spieler\n")
+		ASSERT_EQUAL(building_x(0,0,0).get_owner().nr, public_pl.nr)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0,0,0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_building_rotate_house()
 {
 	local pl = player_x(0)
@@ -175,6 +258,7 @@ function test_building_rotate_house()
 		ASSERT_EQUAL(rotator.work(public_pl, coord3d(0, 0, 0)), null)
 	}
 
+	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -200,6 +284,7 @@ function test_building_rotate_harbour()
 		ASSERT_EQUAL(rotator.work(pl, coord3d(3, 2, 0)), "Cannot rotate this building!")
 	}
 
+	// clean up
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0)), null)
 	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.flat), null)
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(4, 2, 0), coord3d(5, 2, 0), "" + cl_mediterran), null)
@@ -237,6 +322,7 @@ function test_building_rotate_station()
 		ASSERT_EQUAL(pl.get_current_cash(), old_cash)
 	}
 
+	// clean up
 	ASSERT_EQUAL(wayremover.work(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_rail), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -263,6 +349,7 @@ function test_building_rotate_factory()
 		ASSERT_TRUE(tile_x(3, 3, 0).find_object(mo_building) == null)
 	}
 
+	// clean up
 	ASSERT_EQUAL(remover.work(public_pl, coord3d(3, 4, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }

@@ -7,17 +7,46 @@
 //
 // Test helpers
 //
+function make_assertion_str(val)
+{
+	if (typeof val == "string") {
+		return "\"" + val + "\""
+	}
+	else {
+		return "" + val
+	}
+}
+
 
 function ASSERT_EQUAL(act, exp)
 {
-	if (act != exp) {
-		local err = ttext("Assertion failed, {act} != {exp}")
-		err.act = act
-		err.exp = exp
+	if (!(act == exp)) {
+		local err = ttext("Assertion failed, '{act} == {exp}' was not true")
+		err.act = make_assertion_str(act)
+		err.exp = make_assertion_str(exp)
 		throw err.tostring()
 	}
 }
 
+function ASSERT_LESS(lhs, rhs)
+{
+	if (!(lhs < rhs)) {
+		local err = ttext("Assertion failed, '{lhs} &lt; {rhs}' was not true")
+		err.lhs = make_assertion_str(lhs)
+		err.rhs = make_assertion_str(rhs)
+		throw err.tostring()
+	}
+}
+
+function ASSERT_GREATER(lhs, rhs)
+{
+	if (!(lhs > rhs)) {
+		local err = ttext("Assertion failed, '{lhs} &gt; {rhs}' was not true")
+		err.lhs = make_assertion_str(lhs)
+		err.rhs = make_assertion_str(rhs)
+		throw err.tostring()
+	}
+}
 
 function ASSERT_TRUE(a)
 {
