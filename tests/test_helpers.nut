@@ -50,13 +50,21 @@ function ASSERT_GREATER(lhs, rhs)
 
 function ASSERT_TRUE(a)
 {
-	return ASSERT_EQUAL(a, true)
+	if (!(a == true)) {
+		local err = ttext("Assertion failed, '{a}' was not true")
+		err.a = make_assertion_str(a)
+		throw err.tostring()
+	}
 }
 
 
 function ASSERT_FALSE(a)
 {
-	return ASSERT_EQUAL(a, false)
+	if (!(a == false)) {
+		local err = ttext("Assertion failed, '{a}' was not false")
+		err.a = make_assertion_str(a)
+		throw err.tostring()
+	}
 }
 
 

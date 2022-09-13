@@ -563,7 +563,7 @@ function test_powerline_remove_powerbridge()
 	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 3, 0), "" + slope.west), null)
 	ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), power_bridge), null)
 
-	// try removing the bridge from its center
+	// try removing the bridge from its centre
 	{
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 1)), "Cannot delete a bridge from its centre")
 		ASSERT_TRUE(tile_x(2, 3, 0).find_object(mo_bridge) != null)
