@@ -273,6 +273,18 @@ function test_factory_link()
 	// link first factory with nothing - should fail
 	{
 		ASSERT_EQUAL(command_x(tool_link_factory).work(pl, coord3d(0, 0, 0), coord3d(15, 15, 0), ""), "")
+
+		ASSERT_EQUAL(mine.get_consumers().len(), 0)
+		ASSERT_EQUAL(mine.get_suppliers().len(), 0)
+
+		ASSERT_EQUAL(pp.get_consumers().len(), 0)
+		ASSERT_EQUAL(pp.get_suppliers().len(), 0)
+	}
+
+	// link factory with itself - should fail
+	{
+		ASSERT_EQUAL(command_x(tool_link_factory).work(pl, coord3d(0, 0, 0), coord3d(0, 0, 0), ""), "")
+
 		ASSERT_EQUAL(mine.get_consumers().len(), 0)
 		ASSERT_EQUAL(mine.get_suppliers().len(), 0)
 
