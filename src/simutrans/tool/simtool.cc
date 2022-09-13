@@ -1798,7 +1798,9 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
 	stadt_t *city = welt->find_nearest_city(pos.get_2d());
 	if(city!=NULL) {
-		city->change_size( atoi(default_param) );
+		const int delta = std::atoi(default_param);
+		city->change_size( delta );
+
 		// update the links from other cities to this city
 		for(stadt_t* const c : welt->get_cities()) {
 			c->remove_target_city(city);

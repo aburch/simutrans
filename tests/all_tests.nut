@@ -9,6 +9,7 @@
 //
 
 include("tests/test_building")
+include("tests/test_city")
 include("tests/test_climate")
 include("tests/test_depot")
 include("tests/test_dir")
@@ -43,6 +44,13 @@ all_tests <- [
 	test_building_rotate_harbour,
 	test_building_rotate_station,
 	test_building_rotate_factory,
+	test_city_add_invalid,
+	test_city_add_cannot_afford,
+	test_city_add_by_public_player,
+	test_city_add_on_existing_townhall,
+	test_city_add_near_map_border,
+	test_city_change_size_invalid_params,
+	test_city_change_size_to_minimum
 	test_climate_invalid,
 	test_climate_flat,
 	test_climate_cliff,
