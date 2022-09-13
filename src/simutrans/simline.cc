@@ -105,7 +105,7 @@ simline_t::linetype simline_t::waytype_to_linetype(const waytype_t wt)
 
 const char *simline_t::get_linetype_name(const simline_t::linetype lt)
 {
-	static const char *lt2name[MAX_LINE_TYPE] = {"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge" };
+	static const char *lt2name[MAX_LINE_TYPE] = {"All", "Truck", "Train", "Ship", "Aircraft", "Monorail", "Tram", "Maglev", "Narrowgauge" };
 	return translator::translate( lt2name[lt] );
 }
 

@@ -150,7 +150,7 @@ const char * transport_type_values[TT_MAX] = {
 	"Maglev",
 	"Tram",
 	"Narrowgauge",
-	"Air",
+	"Aircraft",
 	"tt_Other",
 	"Powerlines",
 };

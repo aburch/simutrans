@@ -283,7 +283,7 @@ obj=program_text
 name=airplane
 -
 obj=program_text
-name=air_wt
+name=air
 note=waytype for run/taxiways
 -
 obj=program_text
@@ -2987,7 +2987,7 @@ name=find mismatch
 note=play-online window: button to compare paksets of client and server
 ---
 obj=program_text
-name=Air
+name=Aircraft
 note=tooltip in linemanagement window
 ---
 obj=program_text

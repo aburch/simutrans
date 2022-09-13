@@ -373,7 +373,7 @@ public:
 
 	/**
 	 * @returns maintenance
-	 * @param tt transport type (Truck, Ship Air, ...)
+	 * @param tt transport type (Truck, Ship Aircraft, ...)
 	 */
 	sint64 get_maintenance(transport_type tt=TT_ALL) const { assert(tt<TT_MAX); return maintenance[tt]; }
 

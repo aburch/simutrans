@@ -60,7 +60,7 @@ void gui_waytype_tab_panel_t::init_tabs(gui_component_t* c)
 		tabs_to_waytype[max_idx++] = water_wt;
 	}
 	if (runway_t::default_runway) {
-		add_tab(c, translator::translate("Air"), skinverwaltung_t::airhaltsymbol, translator::translate("Air"));
+		add_tab(c, translator::translate("Aircraft"), skinverwaltung_t::airhaltsymbol, translator::translate("Aircraft"));
 		tabs_to_waytype[max_idx++] = air_wt;
 	}
 }
