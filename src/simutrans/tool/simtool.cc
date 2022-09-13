@@ -1051,6 +1051,12 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 	return NULL;
 }
 
+void tool_setslope_t::rdwr_custom_data(memory_rw_t *packet)
+{
+	tool_t::rdwr_custom_data(packet);
+	packet->rdwr_bool(old_slope_compatibility_mode);
+}
+
 const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope, bool old_slope_compatibility, bool just_check )
 {
 	if(  !ground_desc_t::double_grounds  &&  old_slope_compatibility  ) {
