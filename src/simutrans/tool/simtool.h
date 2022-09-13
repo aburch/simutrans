@@ -240,7 +240,7 @@ public:
 	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
 	image_id get_icon(player_t *) const OVERRIDE { return tree_builder_t::get_num_trees() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
-	bool init(player_t*) OVERRIDE { return tree_builder_t::has_trees(); }
+	bool init(player_t*) OVERRIDE;
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;

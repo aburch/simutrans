@@ -2175,6 +2175,26 @@ char const* tool_plant_tree_t::move(player_t* const player, uint16 const b, koor
 }
 
 
+bool tool_plant_tree_t::init(player_t*)
+{
+	if (!tree_builder_t::has_trees()) {
+		return false;
+	}
+	else if (default_param == NULL || default_param[0] == 0) {
+		return true;
+	}
+
+	char ignore_cl,random_age,dummy;
+	if (std::sscanf(default_param, "%c%c,%c", &ignore_cl, &random_age, &dummy) != 3) {
+		return false;
+	}
+
+	return
+		(ignore_cl == '0' || ignore_cl == '1') &&
+		(random_age == '0' || random_age == '1');
+}
+
+
 const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 {
 	koord k(pos.get_2d());
