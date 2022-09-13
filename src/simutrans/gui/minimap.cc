@@ -885,7 +885,7 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 
 		// show max speed (if there)
 		case MAX_SPEEDLIMIT:
-			if (sint32 speed = gr->get_max_speed()) {
+			if (gr->get_max_speed()) {
 				set_map_color(k, calc_severity_color(gr->get_max_speed(), 450));
 				return true;
 			}

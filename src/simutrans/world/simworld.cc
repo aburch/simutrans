@@ -6039,7 +6039,7 @@ bool karte_t::interactive(uint32 quit_month)
 	sint32 ms_difference = 0;
 	reset_timer();
 	DBG_DEBUG4("karte_t::interactive", "welcome in this routine");
-	uint32 interactive_start_timer = dr_time();
+	uint32 interactive_start_timer = dr_time(); (void)interactive_start_timer;
 
 	if(  env_t::server  ) {
 		step_mode |= FIX_RATIO;
