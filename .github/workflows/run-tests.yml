@@ -42,8 +42,8 @@ jobs:
       run: tools/get_lang_files.sh
     - name: Link tests as scenario
       run: |
-        mkdir -p ./simutrans/pak/scenario
-        ln -sT $GITHUB_WORKSPACE/tests ./simutrans/pak/scenario/automated-tests
+        mkdir -p ~/simutrans/addons/pak/scenario
+        ln -sT $GITHUB_WORKSPACE/tests ~/simutrans/addons/pak/scenario/automated-tests
     - name: Create simuconf
       run: |
         mkdir -p ~/simutrans/

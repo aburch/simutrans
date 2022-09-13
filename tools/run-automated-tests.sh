@@ -3,7 +3,7 @@ set -e
 
 
 pushd simutrans
-../sim -use_workdir -objects pak -lang en -scenario automated-tests -debug 2 2>&1 | ts -s | tee output.log &
+../sim -use_workdir -objects pak -lang en -scenario automated-tests -addons -debug 2 2>&1 | ts -s | tee output.log &
 pid=$!
 
 result=1
