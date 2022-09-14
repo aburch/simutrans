@@ -309,6 +309,7 @@ BEGIN {
 	export_types_scenario["rules::clear"] = "void()"
 	export_types_scenario["rules::gui_needs_update"] = "void()"
 	export_types_scenario["debug::get_forbidden_text"] = "string()"
+	export_types_scenario["schedule_entry_x::constructor"] = "void(coord3d, integer, integer)"
 	export_types_scenario["coord3d::get_halt"] = "halt_x(player_x)"
 	export_types_scenario["settings::get_industry_increase_every"] = "integer()"
 	export_types_scenario["settings::set_industry_increase_every"] = "void(integer)"

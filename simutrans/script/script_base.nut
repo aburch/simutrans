@@ -442,7 +442,7 @@ class settings {
 }
 
 /**
- * base class of map objects (ding_t)
+ * base class of map objects (obj_t)
  */
 class map_object_x extends extend_get {
 	/// coordinates
@@ -460,15 +460,6 @@ class schedule_entry_x {
 	load = 0
 	/// waiting
 	wait = 0
-
-	constructor(pos, l, w)
-	{
-		x = pos.x
-		y = pos.y
-		z = pos.z
-		load = l
-		wait = w
-	}
 }
 
 class dir {

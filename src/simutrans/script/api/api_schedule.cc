@@ -16,6 +16,27 @@
 
 using namespace script_api;
 
+SQInteger schedule_entry_constructor(HSQUIRRELVM vm) // instance, coord3d, load, wait
+{
+	koord3d pos = param<koord3d>::get(vm, 2);
+	uint8  load = param<uint8>::get(vm, 3);
+	uint16 wait = param<uint16>::get(vm, 4);
+
+	SQInteger res = set_slot(vm, "x", pos.x, 1);
+	if (SQ_SUCCEEDED(res)) {
+		res = set_slot(vm, "y", pos.y, 1);
+	}
+	if (SQ_SUCCEEDED(res)) {
+		res = set_slot(vm, "z", pos.z, 1);
+	}
+	if (SQ_SUCCEEDED(res)) {
+		res = set_slot(vm, "wait", wait, 1);
+	}
+	if (SQ_SUCCEEDED(res)) {
+		res = set_slot(vm, "load", load, 1);
+	}
+	return res;
+}
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player )
 {
@@ -132,6 +153,13 @@ void export_schedule(HSQUIRRELVM vm)
 	integer wait;
 #endif
 
+	/**
+	 * Constructor
+	 * @param pos coordinate of entry
+	 * @param wait waiting time
+	 * @param load minimum loading
+	 */
+	register_function<void(*)(koord3d,uint8,uint16)>(vm, schedule_entry_constructor, "constructor");
 	/**
 	 * Returns halt at this entry position.
 	 * @param pl player that wants to use halt here
