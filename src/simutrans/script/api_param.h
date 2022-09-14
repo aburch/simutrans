@@ -263,8 +263,14 @@ namespace script_api {
 			sq_newarray(vm, 0);
 
 			for(auto const&i : v) {
-				param<T>::push(vm, i);
-				sq_arrayappend(vm, -2);
+				if (SQ_SUCCEEDED(param<T>::push(vm, i))) {
+					sq_arrayappend(vm, -2);
+				}
+				else {
+					// error
+					sq_poptop(vm);
+					return SQ_ERROR;
+				}
 			}
 			return 1;
 		}
