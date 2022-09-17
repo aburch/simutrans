@@ -49,6 +49,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_plant_tree", TOOL_PLANT_TREE | GENERAL_TOOL);
 	// not needed? enum__slot(vm, "tool_schedule_add", TOOL_SCHEDULE_ADD | GENERAL_TOOL);
 	// not needed? enum__slot(vm, "tool_schedule_ins", TOOL_SCHEDULE_INS | GENERAL_TOOL);
+	/// build groundobj/movingobj
+	enum_slot(vm, "tool_build_groundobj", TOOL_PLANT_GROUNDOBJ | GENERAL_TOOL);
 	/// build ways
 	enum_slot(vm, "tool_build_way", TOOL_BUILD_WAY | GENERAL_TOOL);
 	/// build bridges
