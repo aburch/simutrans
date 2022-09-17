@@ -2258,6 +2258,22 @@ char const* tool_plant_groundobj_t::move(player_t* const player, uint16 const b,
 }
 
 
+bool tool_plant_groundobj_t::init(player_t *)
+{
+	if (groundobj_t::get_count() == 0) {
+		return false;
+	}
+	else if (strempty(default_param)) {
+		return true;
+	}
+	else if (strlen(default_param) < 4) {
+		return false;
+	}
+
+	return default_param[0] == '0' || default_param[0] == '1';
+}
+
+
 const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
 {
 	koord k(pos.get_2d());
@@ -2267,7 +2283,8 @@ const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
 
 		const groundobj_desc_t *desc = NULL;
 		bool check_climates = true;
-		if(default_param==NULL  ||  strlen(default_param)==0) {
+
+		if (strempty(default_param)) {
 			desc = groundobj_t::random_groundobj_for_climate( welt->get_climate( k ) );
 			if (desc == NULL) {
 				return NULL;
@@ -2279,7 +2296,7 @@ const char *tool_plant_groundobj_t::work( player_t *player, koord3d pos )
 		}
 
 		// disable placing groundobj on slopes unless they have extra phases (=moving or for slopes)
-		if( !(gr->get_grund_hang() == sint8(0))  &&  desc->get_phases() == 2 ) {
+		if( gr->get_grund_hang() != slope_t::flat  &&  desc->get_phases() == 2 ) {
 			return NULL;
 		}
 
