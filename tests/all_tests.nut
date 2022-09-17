@@ -35,7 +35,12 @@ include("tests/test_wayobj")
 
 
 all_tests <- [
-	test_building_build_house,
+	test_building_build_house_invalid_param,
+	test_building_build_house_random,
+	test_building_build_house_valid_desc,
+	test_building_build_house_invalid_desc,
+	test_building_build_house_auto_rotation_attraction,
+	test_building_build_house_auto_rotation_citybuilding,
 	test_building_build_multi_tile_sloped,
 	test_building_buy_house_invalid_param,
 	test_building_buy_house_from_public_player,

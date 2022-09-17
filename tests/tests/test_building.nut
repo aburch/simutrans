@@ -8,23 +8,20 @@
 // Tests for building, rotating and demolishing houses
 //
 
-function test_building_build_house()
+function test_building_build_house_invalid_param()
 {
 	local pl = player_x(0)
-	local public_pl = player_x(1)
-	local builder = command_x(tool_build_house)
-	local remover = command_x(tool_remover)
 
 	// Invalid pos: error
 	{
-		ASSERT_EQUAL(builder.work(pl, coord3d(-1, 1, 0)), "")
+		ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(-1, 1, 0)), "")
 	}
 
 	// empty default_param: error
 	{
 		local error_caught = false
 		try {
-			ASSERT_EQUAL(builder.work(pl, coord3d(0, 0, 0), ""), null)
+			ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), ""), null)
 		}
 		catch (e) {
 			error_caught = true
@@ -37,7 +34,7 @@ function test_building_build_house()
 	{
 		local error_caught = false
 		try {
-			ASSERT_EQUAL(builder.work(pl, coord3d(0, 0, 0), "0"), null)
+			ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), "0"), null)
 		}
 		catch (e) {
 			error_caught = true
@@ -50,7 +47,7 @@ function test_building_build_house()
 	{
 		local error_caught = false
 		try {
-			ASSERT_EQUAL(builder.work(pl, coord3d(0, 0, 0), "1"), null)
+			ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), "1"), null)
 		}
 		catch (e) {
 			error_caught = true
@@ -63,7 +60,7 @@ function test_building_build_house()
 	{
 		local error_caught = false
 		try {
-			ASSERT_EQUAL(builder.work(pl, coord3d(0, 0, 0), "42"), null)
+			ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(0, 0, 0), "42"), null)
 		}
 		catch (e) {
 			error_caught = true
@@ -71,16 +68,22 @@ function test_building_build_house()
 		}
 		ASSERT_TRUE(error_caught)
 	}
+}
+
+
+function test_building_build_house_random()
+{
+	local public_pl = player_x(1)
 
 	// no default_param: random building
 	// built by player, owned by pubic player
 	{
-		ASSERT_EQUAL(builder.work(pl, coord3d(0, 0, 0)), null)
+		ASSERT_EQUAL(command_x(tool_build_house).work(player_x(0), coord3d(0, 0, 0)), null)
 
 		local b = building_x(0, 0, 0)
 		ASSERT_EQUAL(b.get_owner().get_name(), public_pl.get_name())
 
-		ASSERT_EQUAL(remover.work(public_pl, coord3d(0, 0, 0)), null)
+		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
 
 		// check that foundations are removed
 		ASSERT_TRUE(tile_x(0, 0, 0).is_empty())
@@ -88,15 +91,21 @@ function test_building_build_house()
 		ASSERT_TRUE(tile_x(1, 0, 0).is_empty())
 		ASSERT_TRUE(tile_x(1, 1, 0).is_empty())
 	}
+}
+
+
+function test_building_build_house_valid_desc()
+{
+	local public_pl = player_x(1)
 
 	// Valid default_param: Build specific building
 	{
-		ASSERT_EQUAL(builder.work(public_pl, coord3d(0, 0, 0), "1#RUIN_0"), null)
+		ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0, 0, 0), "1#RUIN_0"), null)
 		local b = building_x(0, 0, 0)
 		ASSERT_EQUAL(b.get_owner().get_name(), public_pl.get_name())
 		ASSERT_EQUAL(b.get_desc().get_name(), "RUIN_0")
 
-		ASSERT_EQUAL(remover.work(public_pl, coord3d(0, 0, 0)), null)
+		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
 
 		// check that foundations are removed
 		ASSERT_TRUE(tile_x(0, 0, 0).is_empty())
@@ -105,6 +114,65 @@ function test_building_build_house()
 		ASSERT_TRUE(tile_x(1, 1, 0).is_empty())
 	}
 
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_building_build_house_invalid_desc()
+{
+	local public_pl = player_x(1)
+
+	// Valid default_param: Build specific building
+	{
+		ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0, 0, 0), "1#nonexistent"), "")
+		ASSERT_EQUAL(tile_x(0,0,0).find_object(mo_building), null)
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_building_build_house_auto_rotation_attraction()
+{
+	local public_pl = player_x(1)
+
+	// TODO: Actually check rotation
+	{
+		ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0, 0, 0), "1ARUIN_0"), null)
+		local b = building_x(0, 0, 0)
+		ASSERT_EQUAL(b.get_owner().get_name(), public_pl.get_name())
+		ASSERT_EQUAL(b.get_desc().get_name(), "RUIN_0")
+
+		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
+
+		// check that foundations are removed
+		ASSERT_TRUE(tile_x(0, 0, 0).is_empty())
+		ASSERT_TRUE(tile_x(0, 1, 0).is_empty())
+		ASSERT_TRUE(tile_x(1, 0, 0).is_empty())
+		ASSERT_TRUE(tile_x(1, 1, 0).is_empty())
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_building_build_house_auto_rotation_citybuilding()
+{
+	local public_pl = player_x(1)
+
+	// TODO: Actually check rotation
+	{
+		ASSERT_EQUAL(command_x(tool_build_house).work(public_pl, coord3d(0, 0, 0), "1ARES_01_23"), null)
+		local b = building_x(0, 0, 0)
+		ASSERT_EQUAL(b.owner.nr, 16)
+		ASSERT_EQUAL(b.desc.name, "RES_01_23")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(0, 0, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
