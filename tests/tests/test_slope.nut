@@ -228,3 +228,21 @@ function test_slope_restore_on_bridge()
 	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 4, 0), "" + slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+function test_slope_restore_on_label()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 2, 0), "" + slope.south), null)
+	ASSERT_EQUAL(label_x.create(coord(4, 2), pl, "foo"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_restoreslope).work(pl, coord3d(4, 2, 0)), "Tile not empty.")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 2, 0), "" + slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
