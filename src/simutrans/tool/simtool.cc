@@ -4615,7 +4615,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 // gives the description and sets the rotation value
 const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 {
-	if (!default_param) {
+	if (strempty(default_param)) {
 		return NULL;
 	}
 
@@ -4626,12 +4626,16 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 		char *p = strrchr( building, ',' );
 		if(  p  ) {
 			*p++ = 0;
-			rotation = atoi( p );
+			if (std::sscanf(p, "%hhd", &rotation) != 1 || rotation < -1 || rotation > 15) {
+				free(building);
+				return NULL;
+			}
 		}
 		else {
 			rotation = -1;
 		}
-		tdsc = hausbauer_t::find_tile(building,0);
+
+		tdsc = hausbauer_t::find_tile(building, 0);
 		free( building );
 	}
 
