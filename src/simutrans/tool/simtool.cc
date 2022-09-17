@@ -4614,8 +4614,13 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 // gives the description and sets the rotation value
 const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 {
+	if (!default_param) {
+		return NULL;
+	}
+
 	char *building = strdup( default_param );
 	const building_tile_desc_t *tdsc = NULL;
+
 	if(  building  ) {
 		char *p = strrchr( building, ',' );
 		if(  p  ) {
@@ -4628,10 +4633,8 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 		tdsc = hausbauer_t::find_tile(building,0);
 		free( building );
 	}
-	if(  tdsc==NULL  ) {
-		return NULL;
-	}
-	return tdsc->get_desc();
+
+	return tdsc ? tdsc->get_desc() : NULL;
 }
 
 bool tool_build_station_t::init( player_t * )
