@@ -15,6 +15,7 @@ include("tests/test_depot")
 include("tests/test_dir")
 include("tests/test_factory")
 include("tests/test_good")
+include("tests/test_groundobj")
 include("tests/test_halt")
 include("tests/test_headquarters")
 include("tests/test_label")
@@ -87,6 +88,15 @@ all_tests <- [
 	test_factory_link,
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
+	test_groundobj_build_invalid_param,
+	test_groundobj_build_invalid_pos,
+	test_groundobj_build_random,
+	test_groundobj_build_specific,
+	test_groundobj_build_invalid_climate,
+	test_groundobj_build_ignore_climate,
+	test_groundobj_build_occupied,
+	test_groundobj_build_on_trees,
+	test_groundobj_build_on_slope,
 	test_halt_build_rail_single_tile,
 	test_halt_build_harbour,
 	test_halt_build_flat_dock_near_water,
