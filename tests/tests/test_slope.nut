@@ -189,3 +189,21 @@ function test_slope_get_price()
 	ASSERT_EQUAL(pl.get_current_net_wealth(),  200000*100) // get_current_net_wealth is in 1/100 credits
 	RESET_ALL_PLAYER_FUNDS()
 }
+
+
+function test_slope_restore_on_foundation()
+{
+	local pl = player_x(0)
+
+	ASSERT_EQUAL(command_x(tool_build_house).work(pl, coord3d(4, 2, 0), "11RES_01_23"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_restoreslope).work(pl, coord3d(4, 2, 0)), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4, 2, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
