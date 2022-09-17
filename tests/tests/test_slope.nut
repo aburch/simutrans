@@ -207,3 +207,24 @@ function test_slope_restore_on_foundation()
 }
 
 
+function test_slope_restore_on_bridge()
+{
+	local pl = player_x(0)
+	local rail_bridge = bridge_desc_x.get_available_bridges(wt_rail)[0]
+
+	ASSERT_TRUE(rail_bridge != null)
+
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 2, 0), "" + slope.south), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 4, 0), "" + slope.north), null)
+	ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_restoreslope).work(pl, coord3d(4, 2, 0)), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 2, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 4, 0), "" + slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}

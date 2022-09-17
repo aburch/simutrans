@@ -137,6 +137,7 @@ all_tests <- [
 	test_slope_get_price,
 	test_slope_set_near_map_border,
 	test_slope_restore_on_foundation,
+	test_slope_restore_on_bridge,
 	test_slope_max_height_diff,
 	test_terraform_raise_lower_land,
 	test_terraform_raise_lower_land_at_map_border,
