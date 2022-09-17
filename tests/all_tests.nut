@@ -94,6 +94,7 @@ all_tests <- [
 	test_halt_build_on_tunnel_entrance,
 	test_halt_build_on_bridge_end,
 	test_halt_build_on_depot,
+	test_halt_build_station_invalid_param,
 	test_halt_build_station_extension,
 	test_halt_upgrade_downgrade,
 	test_halt_make_public_single,

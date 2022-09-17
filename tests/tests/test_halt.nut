@@ -548,6 +548,7 @@ function test_halt_build_on_bridge_end()
 		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.flat), null)
 	}
 
+	// clean up
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -566,8 +567,42 @@ function test_halt_build_on_depot()
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc), "No suitable ground!")
 	}
 
+	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_rail), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_station_invalid_param()
+{
+	// null default_param
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), null), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// invalid default_param
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), ""), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// clean up
 	RESET_ALL_PLAYER_FUNDS()
 }
 

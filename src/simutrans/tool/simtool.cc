@@ -4611,6 +4611,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	return NULL;
 }
 
+
 // gives the description and sets the rotation value
 const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 {
@@ -4636,6 +4637,7 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 
 	return tdsc ? tdsc->get_desc() : NULL;
 }
+
 
 bool tool_build_station_t::init( player_t * )
 {
