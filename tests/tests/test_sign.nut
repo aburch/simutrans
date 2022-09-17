@@ -962,10 +962,10 @@ function test_sign_build_signal_multiple()
 		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(0, 2, 0), coord3d(7, 2, 0), "" + wt_rail), null)
 	}
 
+	// FIXME click-and-drag for tools using script is not supported
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(0, 2, 0), coord3d(7, 2, 0), rail, true), null)
 
-		// FIXME click-and-drag for tools is not supported
 		local error_caught = false
 		try {
 			command_x(tool_build_roadsign).work(pl, coord3d(1, 2, 0), coord3d(6, 2, 0), signal.get_name())
@@ -995,11 +995,10 @@ function test_sign_replace_signal()
 	ASSERT_TRUE(presignal != null)
 
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 3, 0), coord3d(6, 3, 0), rail, true), null)
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
 
-	// try replacing one-directional signals
+	// try replacing two-directional signals
 	{
-		ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
-
 		local error_caught = false
 		try {
 			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
@@ -1014,11 +1013,12 @@ function test_sign_replace_signal()
 		ASSERT_TRUE(s != null)
 		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
 	}
+
+	// make 2-way signal 1-way
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
 
 	// and one-directional signals
 	{
-		ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
-
 		local error_caught = false
 		try {
 			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
@@ -1034,9 +1034,8 @@ function test_sign_replace_signal()
 		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
 	}
 
-	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(6, 3, 0), coord3d(4, 3, 0), "" + wt_rail), null)
-
 	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(6, 3, 0), coord3d(4, 3, 0), "" + wt_rail), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
