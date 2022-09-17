@@ -151,6 +151,179 @@ function test_halt_build_harbour()
 }
 
 
+function test_halt_build_flat_dock_near_water()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 3, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_multiple_rotations()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(3, 3, 0), coord3d(3, 3, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop"), "More than one possibility to build this dock found.")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(3, 3, 0), coord3d(3, 3, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_fixed_rotation_valid()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop,2"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 3, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_fixed_rotation_invalid()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop,1"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_outside_map()
+{
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(-1, -1, 0), "LakeShipStop"), "")
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_map_border_auto_rotation()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 1, 0), coord3d(4, 1, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 0, 0), "LakeShipStop"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 1, 0), coord3d(4, 0, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 0, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_map_border_fixed_rotation()
+{
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 0, 0), "LakeShipStop,2"), "No suitable ground!")
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_on_bridge()
+{
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.south), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 4, 0), "" + slope.north), null)
+	ASSERT_EQUAL(command_x(tool_build_bridge).work(player_x(0), coord3d(4, 2, 0), "Schiffhebewerk"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 1), "LakeShipStop"), "")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 4, 0), "" + slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_on_slope()
+{
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.north), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_cliff()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 3, 0), "" + slope.all_up_slope), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 1), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 3, 1), "" + slope.all_down_slope), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_in_water()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_occupied()
+{
+	ASSERT_EQUAL(command_x(tool_build_house).work(player_x(1), coord3d(4, 2, 0), "11RES_01_23"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4, 2, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_halt_build_air()
 {
 	local pl = player_x(0)
@@ -186,6 +359,7 @@ function test_halt_build_air()
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 5, 0), coord3d(5, 7, 0), "" + wt_air), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
+
 
 function test_halt_build_multi_tile()
 {
@@ -229,7 +403,7 @@ function test_halt_build_multi_tile()
 			ASSERT_TRUE(t.find_object(mo_building) != null)
 
 			// expected_tiles.find(t) != null won't work
-			ASSERT_TRUE(expected_tiles.filter(@(idx, val) t.x == val.x && t.y == val.y && t.z == val.z).len() == 1)
+			ASSERT_EQUAL(expected_tiles.filter(@(idx, val) t.x == val.x && t.y == val.y && t.z == val.z).len(), 1)
 		}
 
 		ASSERT_EQUAL(halt.get_freight_to_dest(good_desc_x.passenger, coord(2, 2)), 0)
@@ -589,11 +763,63 @@ function test_halt_build_station_invalid_param()
 		ASSERT_TRUE(error_caught)
 	}
 
-	// invalid default_param
+	// empty default_param
 	{
 		local error_caught = false
 		try {
 			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), ""), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information not a number
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,bar"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 1
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,16"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 2
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,-2"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 3 (out of sint8 range)
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,1000"), "")
 		}
 		catch (e) {
 			error_caught = true
