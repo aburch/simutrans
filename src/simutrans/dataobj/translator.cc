@@ -158,12 +158,14 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 				}
 				else if(  translate_from_utf  ) {
 					// make latin from UTF8 (ignore overflows!)
+					const utf8 *p = reinterpret_cast<const utf8 *>(src);
 					if(  !is_latin2  ) {
-						*dst++ = c = (uint8)utf8_decoder_t::decode((utf8 const *&)src);
+						*dst++ = c = (uint8)utf8_decoder_t::decode(p);
 					}
 					else {
-						*dst++ = c = unicode_to_latin2(utf8_decoder_t::decode((utf8 const *&)src));
+						*dst++ = c = unicode_to_latin2(utf8_decoder_t::decode(p));
 					}
+					src = reinterpret_cast<const char *>(p);
 				}
 			}
 			else if(c>=13) {

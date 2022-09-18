@@ -4427,7 +4427,10 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 	// decode char
 	const char *const end = text + len;
 	while(  text < end  ) {
-		const utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
+		const utf8 *p = reinterpret_cast<const utf8 *>(text);
+		const utf32 iUnicode = utf8_decoder_t::decode(p);
+		text = reinterpret_cast<const char *>(p);
+
 		if(  iUnicode == UNICODE_NUL ||  iUnicode == '\n') {
 			return width;
 		}
@@ -4452,7 +4455,10 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 	// decode char
 	const char *const end = text + len;
 	while(  text < end  ) {
-		utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
+		const utf8 *p = reinterpret_cast<const utf8 *>(text);
+		const utf32 iUnicode = utf8_decoder_t::decode(p);
+		text = reinterpret_cast<const char *>(p);
+
 		if(  iUnicode == '\n'  ) {
 			// new line: record max width
 			xw = max( xw, width );
