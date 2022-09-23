@@ -19,6 +19,7 @@
 #include "../simintr.h"
 #include "../simhalt.h"
 #include "../world/simworld.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -2115,7 +2116,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 		welt->set_pause(false);
 		welt->reset_interaction();
 		welt->reset_timer();
-
+		set_random_mode(MODAL_RANDOM);
 
 		const uint32 ms_per_frame = 1000 / env_t::fps;
 		const uint32 sync_steps_per_step = 5; // env_t::network_frames_per_step
@@ -2144,10 +2145,6 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
 				check_pos_win(&ev);
 
-				if (ev.ev_class == EVENT_SYSTEM && ev.ev_code == SYSTEM_QUIT) {
-					env_t::quit_simutrans = true;
-					break;
-				}
 			} while(  ev.ev_class != EVENT_NONE  &&  dr_time()-frame_start_time < 50  );
 
 			const uint32 delta_t = (ms_per_frame * welt->get_time_multiplier()) / 16;
@@ -2170,7 +2167,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				dr_sleep(next_frame_start_time - now);
 			}
 		}
-
+		clear_random_mode(MODAL_RANDOM);
 	}
 	else {
 		display_show_pointer(true);
@@ -2201,6 +2198,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 						dr_flush();
 					}
 					else if (ev.ev_code == SYSTEM_QUIT) {
+						// no world yet => simple quit
 						env_t::quit_simutrans = true;
 						break;
 					}

@@ -952,12 +952,13 @@ public:
 };
 
 class tool_quit_t : public tool_t {
+	// default_parameter not empty: start new game
 public:
 	tool_quit_t() : tool_t(TOOL_QUIT | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Beenden"); }
 	bool init( player_t * ) OVERRIDE;
-	bool is_init_keeps_game_state() const OVERRIDE { return true; }
-	bool is_work_keeps_game_state() const OVERRIDE { return true; }
+	bool is_init_keeps_game_state() const OVERRIDE { return false; }
+	bool is_work_keeps_game_state() const OVERRIDE { return false; }
 };
 
 // step size by default_param

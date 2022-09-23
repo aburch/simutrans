@@ -126,8 +126,10 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		delete tmp_tool;
 	}
 	else if (comp == option_buttons + BUTTON_NEW_GAME) {
-		destroy_all_win(true);
-		welt->stop(false);
+		// create new world
+		tool_t::simple_tool[TOOL_QUIT]->set_default_param("n");
+		welt->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
+		tool_t::simple_tool[TOOL_QUIT]->set_default_param(0);
 	}
 	else if (comp == option_buttons + BUTTON_INSTALL) {
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
@@ -137,7 +139,8 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 #endif
 	}
 	else if(  comp == option_buttons + BUTTON_QUIT  ) {
-		welt->stop(true);
+		// we call the proper tool for quitting
+		welt->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
 	}
 	else {
 		// not our?

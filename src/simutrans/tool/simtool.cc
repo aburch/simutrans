@@ -7067,7 +7067,7 @@ bool tool_rotate90_t::init( player_t * )
 bool tool_quit_t::init( player_t * )
 {
 	destroy_all_win( true );
-	welt->stop( true );
+	welt->stop( strempty(default_param) );
 	return false;
 }
 

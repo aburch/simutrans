@@ -121,6 +121,8 @@ void loadingscreen_t::set_progress( uint32 progress )
 			queued_events.append(ev);
 		}
 		else if(  ev->ev_code == SYSTEM_QUIT  ) {
+			// since the world is suspended (or may not even exists) when the loading screen is active
+			// we can quit the quick way
 			env_t::quit_simutrans = true;
 			delete ev;
 		}

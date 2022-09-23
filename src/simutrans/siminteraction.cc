@@ -287,8 +287,15 @@ void interaction_t::interactive_event( const event_t &ev )
 bool interaction_t::process_event( event_t &ev )
 {
 	if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
-		// quit the program if this window is closed
-		world->stop(true);
+		// since we run in a sync_step, quitting may be needed to be delagated to a tool
+		if(  (LOAD_RANDOM | MAP_CREATE_RANDOM | MODAL_RANDOM) & get_random_mode()  ) {
+			// next sync step would take tool long
+			world->stop(true);
+		}
+		else {
+			// we call the proper tool for quitting
+			world->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
+		}
 		return true;
 	}
 
