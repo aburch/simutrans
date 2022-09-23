@@ -117,5 +117,8 @@ char const* strstart(char const* str, char const* start);
  */
 static inline bool strempty(char const* const s) { return !s || s[0] == '\0'; }
 
+std::string str_get_filename(const char* fullpath, const bool with_extension);
+
+std::string str_get_basename(const char* fullpath);
 
 #endif

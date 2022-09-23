@@ -3,6 +3,7 @@
  * (see LICENSE.txt)
  */
 
+#include <string>
 #include "simstring.h"
 
 #include <assert.h>
@@ -340,4 +341,54 @@ char const* strstart(char const* str, char const* start)
 		if (*str++ != *start++) return 0;
 	}
 	return str;
+}
+
+
+
+/**
+ * Returns the file name without extension (optional) of a qualified filename
+ * including path.
+ *
+ * @param fullpath            A nul terminated string with a full qualified file name.
+ * @param with_extension  If true, the extension is removed from the filename.
+ *
+ * @retval std::string  The filename without extension.
+ */
+std::string str_get_filename(const char* fullpath, const bool with_extension)
+{
+	std::string path = fullpath;
+
+	// Remove until last \ or /
+
+	size_t last = path.find_last_of("\\/");
+	if (last != std::string::npos) {
+		path = path.erase(0, last + 1);
+	}
+
+	// Remove extension if it's present, will remove from '.' till the end.
+
+	if (!with_extension) {
+		last = path.find_last_of(".");
+		if (last != std::string::npos) {
+			path = path.erase(last);
+		}
+	}
+	return path;
+}
+
+
+
+/**
+ * Returns the path portion of a qualified filename including path.
+ *
+ * @param fullpath  A null terminated string with a full qualified file name.
+ */
+std::string str_get_basename(const char* fullpath)
+{
+	std::string path = fullpath;
+	size_t last = path.find_last_of("\\/");
+	if (last == std::string::npos) {
+		return path;
+	}
+	return path.substr(0, last + 1);
 }

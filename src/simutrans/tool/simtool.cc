@@ -46,6 +46,7 @@
 #include "../gui/minimap.h" // to update map after construction of new industry
 #include "../gui/depot_frame.h"
 #include "../gui/player_frame.h"
+#include "../gui/scenario_info.h"
 #include "../gui/schedule_list.h"
 #include "../gui/signal_spacing.h"
 #include "../gui/city_info.h"
@@ -8101,6 +8102,46 @@ bool tool_recolour_t::init(player_t *)
 	dbg->error( "wkz_recolour_t::init", "could not perform (%s)", default_param );
 	return false;
 }
+
+
+bool tool_load_scenario_t::init(player_t*)
+{
+	if (strempty(default_param)  ||  strlen(default_param)<3  ||  default_param[1]!=','  ) {
+		// no valid scenario parameter
+		return false;
+	}
+
+	bool easy_server = default_param[0] == '1';
+
+	// since loading a scenario may not init the world
+	welt->switch_server(easy_server, true);
+
+	scenario_t* scn = new scenario_t(welt);
+
+	const char* err = scn->init(str_get_basename(default_param+2).c_str(), str_get_filename(default_param + 2,true).c_str(), welt);
+	if (err == NULL) {
+		// start the game
+		welt->set_pause(false);
+		// open scenario info window
+		destroy_win(magic_scenario_info);
+		create_win(new scenario_info_t(), w_info, magic_scenario_info);
+		tool_t::update_toolbars();
+		if (env_t::server) {
+			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
+		}
+	}
+	else {
+		if (env_t::server) {
+			welt->switch_server(false, true);
+		}
+		create_win(new news_img(err), w_info, magic_none);
+		delete scn;
+	}
+
+	return true;
+}
+
+
 
 /*
  * Add a message to the message queue

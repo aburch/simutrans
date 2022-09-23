@@ -940,6 +940,17 @@ public:
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
 
+class tool_load_scenario_t : public tool_t {
+	// internal tool to start a scenario
+	// command i.filename
+	// if i==1, start as easyserver
+public:
+	tool_load_scenario_t() : tool_t(TOOL_LOAD_SCENARIO | SIMPLE_TOOL) {}
+	bool init(player_t*) OVERRIDE;
+	bool is_init_keeps_game_state() const OVERRIDE { return false; }
+	bool is_work_keeps_game_state() const OVERRIDE { return false; }
+};
+
 class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}

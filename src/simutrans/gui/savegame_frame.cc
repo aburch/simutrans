@@ -644,56 +644,6 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
 
 
 
-/**
- * Returns the path portion of a qualified filename including path.
- *
- * @param fullpath  A null terminated string with a full qualified file name.
- */
-std::string savegame_frame_t::get_basename(const char *fullpath)
-{
-	std::string path = fullpath;
-	size_t last = path.find_last_of("\\/");
-	if (last==std::string::npos){
-		return path;
-	}
-	return path.substr(0,last+1);
-}
-
-
-
-/**
- * Returns the file name without extension (optional) of a qualified filename
- * including path.
- *
- * @param fullpath            A nul terminated string with a full qualified file name.
- * @param with_extension  If true, the extension is removed from the filename.
- *
- * @retval std::string  The filename without extension.
- */
-std::string savegame_frame_t::get_filename(const char *fullpath,const bool with_extension)
-{
-	std::string path = fullpath;
-
-	// Remove until last \ or /
-
-	size_t last = path.find_last_of("\\/");
-	if (last!=std::string::npos) {
-		path = path.erase(0,last+1);
-	}
-
-	// Remove extension if it's present, will remove from '.' till the end.
-
-	if (!with_extension){
-		last = path.find_last_of(".");
-		if (last!=std::string::npos) {
-			path = path.erase(last);
-		}
-	}
-	return path;
-}
-
-
-
 bool savegame_frame_t::compare_items ( const dir_entry_t & entry, const char *, const char *name )
 {
 	return (strcmp(name, entry.button->get_text()) < 0);

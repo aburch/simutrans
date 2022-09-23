@@ -18,6 +18,7 @@
 
 #include "../utils/cbuffer.h"
 
+
 ai_selector_t::ai_selector_t(uint8 plnr_) : savegame_frame_t(NULL, true, NULL, false)
 {
 	plnr = plnr_;
@@ -44,7 +45,7 @@ bool ai_selector_t::item_action(const char *fullpath)
 		return true;
 	}
 
-	const char* err = ai->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str());
+	const char* err = ai->init(str_get_basename(fullpath).c_str(), str_get_filename(fullpath, true).c_str());
 
 	if (err == NULL) {
 		return true;
@@ -60,7 +61,7 @@ const char *ai_selector_t::get_info(const char *filename)
 {
 	static char info[PATH_MAX];
 
-	sprintf(info,"%s",this->get_filename(filename, false).c_str());
+	sprintf(info,"%s",str_get_filename(filename, false).c_str());
 
 	return info;
 }

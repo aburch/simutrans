@@ -3,14 +3,13 @@
  * (see LICENSE.txt)
  */
 
-#include "../utils/simstring.h"
-
 #include "pakselector.h"
 #include "pakinstaller.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../sys/simsys.h"
 #include "../pathes.h"
+
 
 pakselector_t::pakselector_t() :
 	savegame_frame_t( NULL, true, NULL, true ),
@@ -66,7 +65,7 @@ bool pakselector_t::item_action(const char *fullpath)
 {
 	env_t::pak_dir = fullpath;
 	env_t::pak_dir += PATH_SEPARATOR;
-	env_t::pak_name = (get_filename(fullpath)+PATH_SEPARATOR);
+	env_t::pak_name = (str_get_filename(fullpath, true)+PATH_SEPARATOR);
 	env_t::default_settings.set_with_private_paks( false );
 
 	return true;
@@ -78,7 +77,7 @@ bool pakselector_t::del_action(const char *fullpath)
 	// cannot delete set => use this for selection
 	env_t::pak_dir = fullpath;
 	env_t::pak_dir += PATH_SEPARATOR;
-	env_t::pak_name = get_filename(fullpath)+PATH_SEPARATOR;
+	env_t::pak_name = str_get_filename(fullpath, true)+PATH_SEPARATOR;
 	env_t::default_settings.set_with_private_paks( true );
 	return true;
 }

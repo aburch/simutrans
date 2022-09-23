@@ -6,9 +6,9 @@
 #ifndef GUI_SAVEGAME_FRAME_H
 #define GUI_SAVEGAME_FRAME_H
 
-
 #include <string>
 #include <cstring>
+#include "../utils/simstring.h"
 
 #include "gui_frame.h"
 #include "../tpl/slist_tpl.h"
@@ -113,8 +113,6 @@ protected:
 	void        set_extension( const char *ext ) { suffix = ext; }
 	void        cleanup_path ( char *path );
 	void        shorten_path ( char *dest, const char *source, const size_t max_size );
-	std::string get_filename ( const char *fullpath, const bool with_extension = true );
-	std::string get_basename ( const char *fullpath );
 	void        list_filled  ( void );
 
 	virtual   void fill_list ( void );

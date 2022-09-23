@@ -23,6 +23,7 @@
 
 #include "../utils/cbuffer.h"
 
+
 scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 {
 	static cbuffer_t pakset_scenario;
@@ -52,30 +53,12 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
-	// since loading a scenario may not init the world
-	welt->switch_server( easy_server.pressed, true );
+	cbuffer_t param;
 
-	scenario_t *scn = new scenario_t(welt);
-
-	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
-	if (err == NULL) {
-		// start the game
-		welt->set_pause(false);
-		// open scenario info window
-		destroy_win(magic_scenario_info);
-		create_win(new scenario_info_t(), w_info, magic_scenario_info);
-		tool_t::update_toolbars();
-		if(  env_t::server  ) {
-			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
-		}
-	}
-	else {
-		if(  env_t::server  ) {
-			welt->switch_server( false, true );
-		}
-		create_win(new news_img(err), w_info, magic_none);
-		delete scn;
-	}
+	param.printf("%i,%s", easy_server.pressed, fullpath);
+	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(param);
+	welt->set_tool(tool_t::simple_tool[TOOL_LOAD_SCENARIO], NULL);
+	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(0);
 
 	return true;
 }
@@ -85,7 +68,7 @@ const char *scenario_frame_t::get_info(const char *filename)
 {
 	static char info[PATH_MAX];
 
-	sprintf(info,"%s",this->get_filename(filename, false).c_str());
+	sprintf(info,"%s",str_get_filename(filename, false).c_str());
 
 	return info;
 }
