@@ -286,9 +286,6 @@ settings_t::settings_t() :
 
 	allow_buying_obsolete_vehicles = true;
 
-	// default: load also private extensions of the pak file
-	with_private_paks = true;
-
 	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync

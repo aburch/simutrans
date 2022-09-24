@@ -272,8 +272,8 @@ private:
 	// lowest possible income with speedbonus (1000=1) default 125
 	sint32 bonus_basefactor;
 
-	// true, if this pak should be used with extensions (default)
-	bool with_private_paks;
+	// true, if this pak should be used with extensions (default=false)
+	bool with_private_paks = false;
 
 	/// what is the minimum clearance required under bridges
 	uint8 way_height_clearance;
@@ -525,7 +525,7 @@ public:
 	sint16 get_max_river_length() const { return max_river_length; }
 
 	// true, if this pak should be used with extensions (default)
-	void set_with_private_paks(bool b ) {with_private_paks = b;}
+	void set_with_private_paks(bool b ) { with_private_paks = b; }
 	bool get_with_private_paks() const { return with_private_paks; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
