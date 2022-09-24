@@ -965,9 +965,10 @@ public:
 class tool_quit_t : public tool_t {
 	// default_parameter not empty: start new game
 public:
-	tool_quit_t() : tool_t(TOOL_QUIT | SIMPLE_TOOL) {}
+	tool_quit_t() : tool_t(TOOL_QUIT | SIMPLE_TOOL) { flags = WFL_LOCAL | WFL_NO_CHK; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Beenden"); }
 	bool init( player_t * ) OVERRIDE;
+	bool is_not_for_network() const { return true; }
 	bool is_init_keeps_game_state() const OVERRIDE { return false; }
 	bool is_work_keeps_game_state() const OVERRIDE { return false; }
 };

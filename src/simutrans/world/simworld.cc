@@ -2190,13 +2190,13 @@ void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended, 
 		return;
 	}
 	tool_in->flags |= (event_get_last_control_shift() ^ tool_t::control_invert);
-	if(!env_t::networkmode  ||  tool_in->is_init_keeps_game_state()  ) {
+	if(!env_t::networkmode  ||  tool_in->is_local_execution()  ||  tool_in->is_init_keeps_game_state()  ) {
 		if (called_from_script  ||  tool_in->is_init_keeps_game_state()) {
 			local_set_tool(tool_in, player);
 		}
 		else {
 			// queue tool for execution
-			nwc_tool_t* nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), steps, map_counter, true);
+			nwc_tool_t* nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), 0, map_counter, true);
 			command_queue_append(nwc);
 			suspended = true;
 		}
@@ -5906,7 +5906,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 void karte_t::do_network_world_command(network_world_command_t *nwc)
 {
 	// want to execute something in the past?
-	if (nwc->get_sync_step() < sync_steps) {
+	if (nwc->get_sync_step()!=0  &&  nwc->get_sync_step() < sync_steps) {
 		if (!nwc->ignore_old_events()) {
 			dbg->warning("karte_t:::do_network_world_command", "wanted to do_command(%s) in the past", nwc->get_name());
 			network_disconnect();
