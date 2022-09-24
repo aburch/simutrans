@@ -593,9 +593,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_none: return;
 
 					// actual dialogues to restore
-					case magic_convoi_info:    w = new convoi_info_t(); break;
 					case magic_themes:         w = new themeselector_t(); break;
-					case magic_halt_info:      w = new halt_info_t(); break;
 					case magic_reliefmap:      w = new map_frame_t(); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(); break;
@@ -631,6 +629,12 @@ void rdwr_all_win(loadsave_t *file)
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
 							w = tool_t::toolbar_tool[id-magic_toolbar]->get_tool_selector();
+						}
+						else if( id>=magic_convoi_info && id<magic_convoi_info+0x10000  ) {
+							w = new convoi_info_t();
+						}
+						else if( id>=magic_halt_info  &&  id<magic_halt_info+0x10000  ) {
+							w = new halt_info_t();
 						}
 						else {
 							dbg->error( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );

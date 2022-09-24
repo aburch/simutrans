@@ -145,7 +145,7 @@ public:
 
 	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info+cnv.get_id(); }
 
 	void route_search_finished() { route_search_in_progress = false; }
 
