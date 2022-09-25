@@ -761,7 +761,7 @@ const char* translator::get_month_date( uint16 month, uint16 day )
 
 const char* translator::get_day_date(uint16 day)
 {
-	char const* const day_sym = strcmp("ORDINAL_DAR_SYMBOL", translate("ORDINAL_DAR_SYMBOL")) ? translate("ORDINAL_DAR_SYMBOL") : "th ";
+	char const* const day_sym = strcmp("ORDINAL_DAY_SYMBOL", translate("ORDINAL_DAY_SYMBOL")) ? translate("ORDINAL_DAY_SYMBOL") : "th ";
 	static char date[256];
 	switch( env_t::show_month ) {
 	case env_t::DATE_FMT_GERMAN:

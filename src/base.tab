@@ -67,9 +67,6 @@ obj=unnecessary_text
 name=%F_CITY_SYLL
 -
 obj=program_text
-name=%C: - %s<br>\n
--
-obj=program_text
 name=%d buildings\n
 -
 obj=program_text
@@ -2072,9 +2069,6 @@ obj=program_text
 name=way %s now available:\n
 -
 obj=program_text
-name=way %s now available:\n%s\n
--
-obj=program_text
 name=Ways not connected
 -
 obj=program_text
@@ -2903,10 +2897,6 @@ name=Usage: %.0f %%
 note=powernet info window
 -
 obj=program_text
-name=\nAct. Load: %u MW\n
-note=powernet info window (depricated)
--
-obj=program_text
 name=Supplied: %.0f %%
 note=powernet info window
 -
@@ -3227,10 +3217,6 @@ obj=program_text
 name=Or enter a server manually:
 obj=program_text
 note=Server information window
----
-name=Show servers where game version or pakset does not match your client
-obj=program_text
-note=Tooltip in server information window
 ---
 name=Show servers where game version or pakset does not match your client
 obj=program_text
@@ -3932,9 +3918,6 @@ name=Wind direction
 info=Climate window
 -
 obj=program_text
-name=Install
--
-obj=program_text
 name=Select one or more graphics to install (Ctrl+click):
 note=pakinstaller window
 -
@@ -4054,7 +4037,7 @@ name=31th
 note=ordinal number en
 -
 obj=program_text
-name=ORDINAL_DAR_SYMBOL
+name=ORDINAL_DAY_SYMBOL
 note=ordinal day symbol (English th, german . frensh e
 -
 obj=program_text
@@ -4123,7 +4106,7 @@ note=button in display setting
 --
 obj=program_text
 name=Screen scale:
-note button in display setting
+note=button in display setting
 --
 obj=button_text
 name=Lake
@@ -4267,14 +4250,17 @@ name=Invert stops
 note=button to invert stop order
 --
 obj=tooltip_text
-name=Mirrors order of stops
-note=tooltip to invert stop order
---
-obj=tooltip_text
 name=Enter intervall in days, hours, minutes
 note=tooltip for timeinput gui element
 --
-
+obj=program_text
+name=Single toolbar only
+note=button in display setting
+--
+obj=program_text
+name=Vehicle count:
+note=number of convoi vehicles in the convoi details
+--
 
 
 
@@ -4498,3 +4484,6 @@ note=tooltip for timeinput gui element
 #obj=program_text
 #name=Helligk.
 #-
+#obj=program_text
+#name=\nAct. Load: %u MW\n
+#note=powernet info window (depricated)
