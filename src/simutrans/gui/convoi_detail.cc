@@ -190,7 +190,7 @@ void convoi_detail_t::update_labels()
 		label_length.buf().printf( "%s %i", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count() );
 	}
 	else {
-		label_length.buf().printf( "%s %i %s %s %i %s", "(", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count(), translator::translate( "Station tiles:" ), cnv->get_tile_length(), ")");
+		label_length.buf().printf( "%s %i %s %s %i %s", translator::translate( "Vehicle count:" ), cnv->get_vehicle_count(), "(", translator::translate( "Station tiles:" ), cnv->get_tile_length(), ")");
 	}
 	label_length.update();
 	label_resale.buf().printf("%s ", translator::translate("Restwert:"));
