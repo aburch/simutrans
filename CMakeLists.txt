@@ -34,7 +34,7 @@ endif ()
 
 if (APPLE)
 	list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/readline")
-	link_directories(/usr/local/lib)
+	link_directories(/usr/local/lib /opt/homebrew/lib)
 	set(CMAKE_EXE_LINKER_FLAGS "-framework Cocoa")
 endif ()
 
