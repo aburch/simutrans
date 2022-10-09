@@ -1416,11 +1416,11 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		const uint32 count = depot->get_vehicle_list().get_count();
 		switch (count) {
 			case 0: {
-				lb_convoi_count.buf().append(translator::translate("Keine Einzelfahrzeuge im Depot"));
+				lb_convoi_count.buf().append( translator::translate("Keine Einzelfahrzeuge im Depot") );
 				break;
 			}
 			case 1: {
-				lb_convoi_count.buf().append("1 Einzelfahrzeug im Depot");
+				lb_convoi_count.buf().append( translator::translate("1 Einzelfahrzeug im Depot") );
 				break;
 			}
 			default: {
