@@ -180,6 +180,8 @@ all_tests <- [
 	test_transport_generate_pax_walked,
 	test_transport_generate_pax_no_route,
 	test_transport_pax_valid_route,
+	test_transport_mail_valid_route,
+	test_transport_freight_valid_route,
 	test_trees_plant_single_invalid_pos,
 	test_trees_plant_single_invalid_param,
 	test_trees_plant_single_null_param,

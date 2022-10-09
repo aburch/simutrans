@@ -89,14 +89,14 @@ uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_des
 	good.menge = count;
 	good.to_factory = fabrik_t::get_fab(to) != NULL;
 
-	ware_t return_pax(goods_manager_t::passengers);
+	ware_t return_good(desc);
 
 	const halthandle_t *haltlist = fromplan->get_haltlist();
 	const uint8 hl_count = fromplan->get_haltlist_count();
 	const bool no_route_over_overcrowded = welt->get_settings().is_no_routing_over_overcrowding();
 
 	assert(hl_count > 0);
-	const int route_result = haltestelle_t::search_route(haltlist, hl_count, no_route_over_overcrowded, good, &return_pax);
+	const int route_result = haltestelle_t::search_route(haltlist, hl_count, no_route_over_overcrowded, good, &return_good);
 
 	switch (route_result) {
 	case haltestelle_t::ROUTE_WALK:
@@ -119,9 +119,11 @@ uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_des
 
 	case haltestelle_t::ROUTE_OK: {
 		assert(route_result == haltestelle_t::ROUTE_OK);
-		const halthandle_t start_halt = return_pax.get_ziel();
+		const halthandle_t start_halt = return_good.get_ziel();
 		start_halt->starte_mit_route(good);
-		start_halt->add_pax_happy(good.menge);
+		if (good.get_desc() == goods_manager_t::passengers) {
+			start_halt->add_pax_happy(good.menge);
+		}
 		}
 		break;
 	}
