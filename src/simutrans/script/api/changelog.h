@@ -9,8 +9,10 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added @ref world_x::generate_goods to generate passengers, mail or freight (scenario only)
  * - Added @ref change_climate_at
  * - Added @ref convoy_x::change_schedule
+ * - Added tool_ids::tool_build_groundobj
  * - Changed building_desc_x::get_available_stations to accept wt_all
  *
  * @section api-123 Release 123.0
