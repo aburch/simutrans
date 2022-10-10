@@ -18,13 +18,22 @@ using namespace script_api;
 
 SQInteger schedule_entry_constructor(HSQUIRRELVM vm) // instance, coord3d, load, wait
 {
-	koord3d pos = param<koord3d>::get(vm, 2);
+	koord3d pos = param<koord3d>::get(vm, 2); // world coordinates
 	uint8  load = param<uint8>::get(vm, 3);
 	uint16 wait = param<uint16>::get(vm, 4);
 
-	SQInteger res = set_slot(vm, "x", pos.x, 1);
+	// transform coordinates to squirrel coordinates
+	koord k(pos.get_2d());
+	coordinate_transform_t::koord_w2sq(k);
+
+	// propagate error
+	SQInteger res = pos != koord3d::invalid ? SQ_OK : SQ_ERROR;
+
 	if (SQ_SUCCEEDED(res)) {
-		res = set_slot(vm, "y", pos.y, 1);
+		res = set_slot(vm, "x", k.x, 1);
+	}
+	if (SQ_SUCCEEDED(res)) {
+		res = set_slot(vm, "y", k.y, 1);
 	}
 	if (SQ_SUCCEEDED(res)) {
 		res = set_slot(vm, "z", pos.z, 1);
