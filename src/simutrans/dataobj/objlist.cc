@@ -1029,11 +1029,11 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::old_gebaeudefundament: { dummy_obj_t d(file); break; }
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
-				case obj_t::raucher: { raucher_t r(file); break; }
+				case obj_t::old_raucher: { raucher_t r(file); break; }
 
 				// wolke is not saved any more
 				case obj_t::cloud: { wolke_t w(file); break; }
-				case obj_t::async_wolke: { async_wolke_t w(file); break; }
+				case obj_t::old_async_wolke: { async_wolke_t w(file); break; }
 
 				default:
 					dbg->fatal("objlist_t::laden()", "During loading: Unknown object type '%d'", typ);
@@ -1068,9 +1068,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 			obj_t *new_obj = bei((uint8)i);
 			if(new_obj->get_typ()==obj_t::way
 				// do not save smoke
-				||  new_obj->get_typ()==obj_t::raucher
 				||  new_obj->get_typ()==obj_t::cloud
-				||  new_obj->get_typ()==obj_t::async_wolke
 				// fields will be built by factory
 				||  new_obj->get_typ()==obj_t::field
 				// do not save factory buildings => factory will reconstruct them

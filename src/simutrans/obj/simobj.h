@@ -114,7 +114,7 @@ public:
 	/// all the different types of objects
 	enum typ {
 		undefined=-1, obj=0, baum=1, zeiger=2,
-		cloud=4, async_wolke=5,
+		cloud=4,
 
 		gebaeude=7, // animated buildings (6 not used any more)
 		signal=8,
@@ -122,7 +122,6 @@ public:
 		bruecke=9, tunnel=10,
 		bahndepot=12, strassendepot=13, schiffdepot = 14,
 
-		raucher=15, // obsolete
 		leitung = 16, pumpe = 17, senke = 18,
 		roadsign = 19, pillar = 20,
 
@@ -156,7 +155,9 @@ public:
 		// lagerhaus = 24, (never really used)
 		// gebaeude_alt=6, (very, very old?
 		old_wolke=3,
+		old_async_wolke=5,
 		old_gebaeudefundament=11, // wall below buildings, not used any more
+		old_raucher=15, // obsolete
 		old_automobil=32, old_waggon=33,
 		old_schiff=34, old_aircraft=35, old_monorailwaggon=36,
 		old_verkehr=41,
