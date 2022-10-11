@@ -114,7 +114,7 @@ public:
 	/// all the different types of objects
 	enum typ {
 		undefined=-1, obj=0, baum=1, zeiger=2,
-		wolke=3, sync_wolke=4, async_wolke=5,
+		cloud=4, async_wolke=5,
 
 		gebaeude=7, // animated buildings (6 not used any more)
 		signal=8,
@@ -154,7 +154,8 @@ public:
 
 		// other new objs (obsolete, only used during loading old games
 		// lagerhaus = 24, (never really used)
-		// gebaeude_alt=6, (very, very old?)
+		// gebaeude_alt=6, (very, very old?
+		old_wolke=3,
 		old_gebaeudefundament=11, // wall below buildings, not used any more
 		old_automobil=32, old_waggon=33,
 		old_schiff=34, old_aircraft=35, old_monorailwaggon=36,

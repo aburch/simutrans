@@ -201,7 +201,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// pointer (bulldozers etc)
 	enum_slot(vm, "mo_pointer", obj_t::zeiger);
 	/// cloud and smoke
-	enum_slot(vm, "mo_cloud", obj_t::wolke);
+	enum_slot(vm, "mo_cloud", obj_t::cloud);
 	/// building (houses, halts, factories ...)
 	enum_slot(vm, "mo_building", obj_t::gebaeude);
 	/// signal

@@ -59,7 +59,7 @@ uint8 tree_builder_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_co
 			obj_t *obj = gr->obj_bei(0);
 			if(obj) {
 				switch(obj->get_typ()) {
-					case obj_t::wolke:
+					case obj_t::cloud:
 					case obj_t::air_vehicle:
 					case obj_t::baum:
 					case obj_t::leitung:
@@ -103,7 +103,7 @@ bool tree_builder_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc
 		if(  gr->ist_natur()  &&  gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
 			if(  gr->get_top() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {
-					case obj_t::wolke:
+					case obj_t::cloud:
 					case obj_t::air_vehicle:
 					case obj_t::baum:
 					case obj_t::leitung:

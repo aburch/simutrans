@@ -851,7 +851,7 @@ sint64 player_t::undo()
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
 					case obj_t::zeiger:
-					case obj_t::wolke:
+					case obj_t::cloud:
 					case obj_t::leitung:
 					case obj_t::pillar:
 					case obj_t::way:

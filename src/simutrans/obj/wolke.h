@@ -55,7 +55,7 @@ public:
 	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
 
 	const char* get_name() const OVERRIDE { return "Wolke"; }
-	typ get_typ() const OVERRIDE { return sync_wolke; }
+	typ get_typ() const OVERRIDE { return cloud; }
 
 	image_id get_image() const OVERRIDE { return IMG_EMPTY; }
 

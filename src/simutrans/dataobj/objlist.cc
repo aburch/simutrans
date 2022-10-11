@@ -1032,7 +1032,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::raucher: { raucher_t r(file); break; }
 
 				// wolke is not saved any more
-				case obj_t::sync_wolke: { wolke_t w(file); break; }
+				case obj_t::cloud: { wolke_t w(file); break; }
 				case obj_t::async_wolke: { async_wolke_t w(file); break; }
 
 				default:
@@ -1069,7 +1069,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 			if(new_obj->get_typ()==obj_t::way
 				// do not save smoke
 				||  new_obj->get_typ()==obj_t::raucher
-				||  new_obj->get_typ()==obj_t::sync_wolke
+				||  new_obj->get_typ()==obj_t::cloud
 				||  new_obj->get_typ()==obj_t::async_wolke
 				// fields will be built by factory
 				||  new_obj->get_typ()==obj_t::field

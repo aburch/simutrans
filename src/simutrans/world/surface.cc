@@ -283,8 +283,7 @@ bool surface_t::is_plan_height_changeable(sint16 x, sint16 y) const
 			ok =
 				obj->get_typ() == obj_t::baum  ||
 				obj->get_typ() == obj_t::zeiger  ||
-				obj->get_typ() == obj_t::wolke  ||
-				obj->get_typ() == obj_t::sync_wolke  ||
+				obj->get_typ() == obj_t::cloud  ||
 				obj->get_typ() == obj_t::async_wolke  ||
 				obj->get_typ() == obj_t::groundobj;
 		}
