@@ -184,35 +184,35 @@ class manager_t extends node_seq_t
 
 	function work()
 	{
-    if ( month_count ) {
-        month_count = false
-        month_count_ticks = world.get_time().next_month_ticks
+		if ( month_count ) {
+				month_count = false
+				month_count_ticks = world.get_time().next_month_ticks
 
 				if ( our_player.is_valid() && our_player.get_type() == 4 ) {
 					local operating_profit = player_x(our_player.nr).get_operating_profit()
 					local net_wealth = player_x(our_player.nr).get_net_wealth()
-          local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
+					local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
 					gui.add_message_at(our_player, message_text, world.get_time())
 
-          local yt = world.get_time().year.tostring()
+					local yt = world.get_time().year.tostring()
 
-          // check all 5 years ( year xxx0 and xxx5 )
-          if ( (yt.slice(-1) == "0" || yt.slice(-1) == "5") && world.get_time().month == 3 ) {
-            // in april
-            industry_manager.check_pl_lines()
-          }
+					// check all 5 years ( year xxx0 and xxx5 )
+					if ( world.get_time().month == 3 ) { #(yt.slice(-1) == "0" || yt.slice(-1) == "5") &&
+						// in april
+						industry_manager.check_pl_lines()
+					}
 
-          // check all 5 years ( year xxx2 and xxx7 )
-          if ( (yt.slice(-1) == "2" || yt.slice(-1) == "7") && world.get_time().month == 4 ) {
-            // in may
-            // check unused halts
-            check_stations_connections()
-          }
+					// check all 5 years ( year xxx2 and xxx7 )
+					if ( (yt.slice(-1) == "2" || yt.slice(-1) == "7") && world.get_time().month == 4 ) {
+						// in may
+						// check unused halts
+						check_stations_connections()
+					}
 
 				}
 		} else if ( world.get_time().ticks > month_count_ticks ) {
-      month_count = true
-    }
+			month_count = true
+		}
 
 	}
 
@@ -253,7 +253,7 @@ class manager_t extends node_seq_t
 
 				p_test[1] = test.gain_per_m * p_best[0] * test.points
 				p_best[1] = best.gain_per_m * p_test[0] * best.points
-      }
+			}
 
 			if ( best == null
 				|| ( p_best[1] < p_test[1] )

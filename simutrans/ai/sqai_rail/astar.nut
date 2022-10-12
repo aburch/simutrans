@@ -843,6 +843,115 @@ function check_ground(pos_s, pos_e, way) {
 }
 
 /**
+ *  check tile end of station
+ *
+ *  direction = 1, 2, 4, 8
+ *  count
+ *  s_tile    = station tile : tile_x
+ *
+ *  return tile_x or null
+ */
+function check_tile_end_of_station(direction, count, s_tile) {
+
+  local tx = 0
+  local ty = 0
+  if ( direction == 1 || direction == 4 ) {
+    ty = count
+  } else if ( direction == 2 || direction == 8 ) {
+    tx = count
+  }
+
+  local t_square = null
+  switch(direction) {
+    case 1:
+      t_square = square_x(s_tile.x, s_tile.y + ty)
+      break
+    case 2:
+      t_square = square_x(s_tile.x - tx, s_tile.y)
+      break
+    case 4:
+      t_square = square_x(s_tile.x, s_tile.y - ty)
+      break
+    case 8:
+      t_square = square_x(s_tile.x + tx, s_tile.y)
+      break
+  }
+
+  local t_ground = null
+  // tile out of map
+  if ( !world.is_coord_valid(t_square) ) {
+    return null
+  }
+  t_ground = t_square.get_ground_tile()
+  if ( test_tile_is_empty(t_ground) && t_ground.z > (s_tile.z - 2) && t_ground.z < (s_tile.z + 2) ) { //t_ground.z > s_tile.z
+    return t_ground
+  }
+
+  return null
+}
+
+/**
+ * terraform tile
+ *
+ * tile       = tile_x
+ * ref_hight  = target height
+ *
+ */
+function terraform_tile(tile, ref_hight) {
+
+  // messages set 2
+  local print_message_box = 0
+
+  if ( print_message_box > 0 ) {
+    ::debug.set_pause_on_error(true)
+    gui.add_message_at(our_player, " ---=> terraform_tile(tile, ref_hight) tile : " + coord3d_to_string(tile) + " target hight : " + ref_hight, world.get_time())
+  }
+
+  if ( test_tile_is_empty(tile) && ( tile.get_slope() > 0 || tile.z != ref_hight ) ) {
+    local err = null
+        if ( print_message_box == 2 ) {
+           gui.add_message_at(our_player, " ---=> terraform", world.get_time())
+           gui.add_message_at(our_player, " ---=> tile z " + tile.z + " to ref_hight " + ref_hight, world.get_time())
+        }
+
+        if ( tile.z < ref_hight && tile.z >= (ref_hight - 2) ) {
+        // terraform up
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, " ---=> tile up to flat ", world.get_time())
+          }
+          do {
+            err = command_x.set_slope(our_player, tile, 82 )
+            if ( err != null ) { break }
+            //z = square_x(tile.x, tile.y).get_ground_tile()
+          } while(tile.z < ref_hight )
+
+        } else if ( tile.z >= ref_hight || tile.z <= (ref_hight + 1) ) {
+           // terraform down
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(our_player, " ---=> tile down to flat ", world.get_time())
+          }
+          do {
+            err = command_x.set_slope(pl, tile, 83 )
+            if ( err != null ) { break }
+            //z = square_x(fields[i].x, fields[i].y).get_ground_tile()
+          } while(tile.z > ref_hight )
+          // replace water to land
+          if ( tile.is_water() ) { command_x.change_climate_at(our_player, tile, cl_temperate) }
+
+        }
+        if ( err ) {
+          return false
+        }
+        return true
+  } else if ( test_tile_is_empty(tile) && ( tile.get_slope() == 0 || tile.z == ref_hight ) ) {
+    return true
+  }
+
+  return false
+}
+
+
+/**
  *
  *
  */
@@ -1335,7 +1444,7 @@ function test_tile_is_empty(tile) {
  * fields         = array fields
  * wt             = waytype
  * select_station = station object
- * start_fld    = c_start or c_end
+ * start_fld      = c_start or c_end
  */
 function expand_station(pl, fields, wt, select_station, start_fld) {
 
@@ -1510,6 +1619,7 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
 
     // check station connect factory
     local st = halt_x.get_halt(fields[0], pl)
+    local s_tiles = []
 
     if ( st ) {
       local fl_st = st.get_factory_list()
@@ -1554,7 +1664,6 @@ function expand_station(pl, fields, wt, select_station, start_fld) {
             gui.add_message_at(pl, "check connect factory : build extension", start_field)
           }
           //::debug.pause()
-          local s_tiles = []
             s_tiles.append(fields[0])
             s_tiles.append(start_field)
           local tool = command_x(tool_remover)
@@ -1743,11 +1852,21 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
 
   // test 1 -> rebuild 0
   for (local i = 0; i < tiles.len(); i++ ) {
-    if ( tiles[i].is_empty() && tiles[i].is_ground() ) {
+    if ( test_tile_is_empty(tiles[i]) && tiles[i].is_ground() ) {
+      if ( i > 0 ) {
+        tool.work(pl, st_field)
+        command_x.build_station(pl, st_field, extension)
+      }
       err = command_x.build_station(pl, tiles[i], extension)
+      if ( err != null ) {
+        gui.add_message_at(pl, " -##-=> build err tile " + i + " " + err, tiles[i])
+      }
       fl_st = st.get_factory_list()
       if ( fl_st.len() > 0 ) {
         factory_connect = 1
+        if ( i > 0 ) {
+          tool.work(pl, st_field)
+        }
         break
       }
     } else if ( tiles[i].has_way(wt_water) ) {
@@ -1759,7 +1878,9 @@ function build_extensions_connect_factory(pl, st_field, hlt_field, tiles, extens
         local station = find_station(wt_water)
         if ( station != false ) {
           err = command_x.build_station(pl, tiles[i], station)
-
+          if ( err != null ) {
+            gui.add_message_at(pl, " -##-=> build err tile " + i + " " + err, tiles[i])
+          }
           fl_st = st.get_factory_list()
           if ( fl_st.len() > 0 ) {
             factory_connect = 1
@@ -1825,7 +1946,7 @@ function find_station(wt) {
   */
 function find_object(obj, wt, speed) {
 
-  local list = null
+  local list = []
   switch(obj) {
     case "bridge":
       list = bridge_desc_x.get_available_bridges(wt)
@@ -1837,7 +1958,12 @@ function find_object(obj, wt, speed) {
       list = way_desc_x.get_available_ways(wt, st_flat)
       break
     case "catenary":
-      list = wayobj_desc_x.get_available_wayobjs(wt)
+			local li = wayobj_desc_x.get_available_wayobjs(wt)
+      for (local j=0; j<li.len(); j++) {
+        if ( li[j].is_overhead_line() ) {
+          list.append(li[j])
+        }
+      }
       break
   }
 
@@ -2458,7 +2584,7 @@ function build_double_track(start_field, wt) {
             gui.add_message_at(b_player, " ---=> tiles_build.z " + build_hight.z + " tiles.z " + ref_hight.z, world.get_time())
           }
           if ( i < (tiles_build.len()-1) ) {
-            err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
+						err = command_x.set_slope(b_player, build_hight, ref_hight.get_slope())
             if ( err != null ) {
               gui.add_message_at(b_player, " ERROR " + err, world.get_time())
               err = null
@@ -3702,9 +3828,10 @@ function optimize_way_line(route, wt) {
             remove_tile_to_empty(tile_1, wt, 0)
             command_x.change_climate_at(our_player, tile_1, cl_temperate)
           }
+          err = null
           err = command_x.build_way(our_player, tile_4, tile_3, way_obj, true)
           if (err != null ) {
-            gui.add_message_at(our_player, " build tunnel: " + err, world.get_time())
+            gui.add_message_at(our_player, " build tunnel " + coord3d_to_string(tile_4) + " - " + coord3d_to_string(tile_3) + ": " + err, world.get_time())
           } else {
             count_build++
           }
@@ -3996,7 +4123,7 @@ function destroy_line(line_obj, good) {
   // 1 = messages
   // 2 = debug.pause()
   // 3 = line check
-  local print_message_box = 0
+  local print_message_box = 3
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, "+ destroy_line(line_obj) start line " + line_obj.get_name(), world.get_time())
@@ -4108,8 +4235,35 @@ function destroy_line(line_obj, good) {
             gui.add_message_at(our_player, "### factory start generator && factory end  end-consumers", world.get_time())
           }
         } else {
-          // something stored/in-transit in last and current month
-          // no need to search for more supply
+          // 12 month no output goods -> line remove
+          local output_count = 0
+          /*foreach(good, islot in end_f[0].output) {
+
+            // test for in-storage or in-transit goods
+            local st = end_f[0].get_desc().get_outputs()
+            foreach(t in st) {
+              gui.add_message_at(our_player, "### foreach(t in st) - t.keys() " + t.keys(), world.get_time())
+              local tt = t.keys()
+              for (local i = 0; i < tt.len(); i++) {
+                gui.add_message_at(our_player, "**** keys() - tt["+i+"] " + tt[i], world.get_time())
+              }
+              tt.clear()
+              tt = t.values()
+              for (local i = 0; i < tt.len(); i++) {
+                if ( i == 2 ) {
+                  gui.add_message_at(our_player, "**** values() - tt["+i+"].get_name() " + tt[i].get_name(), world.get_time())
+                } else {
+                  gui.add_message_at(our_player, "**** values() - tt["+i+"] " + tt[i], world.get_time())
+                }
+              }
+              //output_count += t
+            }
+          }*/
+          if ( print_message_box == 1 || print_message_box == 3 ) {
+            gui.add_message_at(our_player, "### factory end : count outputs good = " + output_count, world.get_time())
+          }
+
+
           return false
         }
       }
@@ -4189,7 +4343,13 @@ function destroy_line(line_obj, good) {
     local i = 0
 
     // remove depot
-    if ( check_home_depot(depot, wt) )  {
+    if ( depot == null ) {
+      depot = search_depot(start_l, wt_road)
+      if ( !depot ) {
+        depot = search_depot(end_l, wt_road)
+      }
+    }
+    if ( depot != false && check_home_depot(depot, wt) )  {
       // todo check vehicles in depot
       remove_tile_to_empty(depot, wt, 0)
     }

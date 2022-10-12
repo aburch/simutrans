@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.8.5"
+ai.version <- "0.8.6"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -36,9 +36,11 @@ function abs(x) { return x>0 ? x : -x }
 // global variables
 our_player_nr <- -1
 our_player    <- null // player_x instance
-
+// for single run functions in month
 month_count   <- null
 month_count_ticks <- world.get_time().next_month_ticks
+// build check for new lines
+build_check_month <- world.get_time().month
 
 // the AI is organized as a tree,
 // all the work is done in the nodes of the tree
@@ -146,34 +148,48 @@ function init(pl_nr)
  */
 function step()
 {
-	tree.step()
-	s._step++
+	if ( build_check_month <= world.get_time().month ) {
 
-	// connector node may fail, but may offer alternative connector node
-	local report = tree.get_report()
-	if (report) {
-		factorysearcher.append_report(report)
-	}
+		tree.step()
+		s._step++
 
-	if (s._step > s._next_construction_step) {
-		local r = factorysearcher.get_report()
-
-
-		if (r   &&  r.action) {
-			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
-			tree.append_child(r.action)
-		} else {
-			if ( r && r.action && r.retire_time < world.get_time() ) {
-				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
-				return r_t(RT_TOTAL_FAIL)
-			}
-			if ( r && r.action && r.retire_obj <= world.get_time().raw ) {
-					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
-					return r_t(RT_TOTAL_FAIL)
-			}
+		// connector node may fail, but may offer alternative connector node
+		local report = tree.get_report()
+		if (report) {
+			factorysearcher.append_report(report)
 		}
-		s._next_construction_step += 1 + (s._step % 3)
 
+		if (s._step > s._next_construction_step) {
+			local r = factorysearcher.get_report()
+
+			if (r   &&  r.action) {
+		/*
+			gui.add_message_at(our_player, "####### r.retire_obj " + r.retire_obj, world.get_time())
+			gui.add_message_at(our_player, "####### world.get_time().raw " + world.get_time().raw, world.get_time())
+		*/
+				if ( r.retire_time != null && r.retire_time < world.get_time().ticks ) {
+					gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+					gui.add_message_at(our_player, "####### r.retire_time " + r.retire_time, world.get_time())
+					gui.add_message_at(our_player, "####### world.get_time().ticks " + world.get_time().ticks, world.get_time())
+					return
+				}
+				else if ( r.retire_obj != null && r.retire_obj <= world.get_time().raw ) {
+					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+					return
+				}
+				else {
+					print("New report: expected construction cost: " + (r.cost_fix / 100.0))
+					gui.add_message_at(our_player, "New report: expected construction cost: " + (r.cost_fix / 100.0), world.get_time())
+					tree.append_child(r.action)
+				}
+			}
+
+			s._next_construction_step += 1 + (s._step % 3)
+		}
+
+	}
+	else {
+		//gui.add_message_at(our_player, " ai step() break : build_check_month = " + build_check_month, world.get_time())
 	}
 }
 

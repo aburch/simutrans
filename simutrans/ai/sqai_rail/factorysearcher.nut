@@ -281,7 +281,7 @@ class factorysearcher_t extends manager_t
 				if (state != industry_link_t.st_free) {
 					if (state == industry_link_t.st_built  ||  state == industry_link_t.st_planned) {
 						dbgprint(indent + ".. connection for " + good + " from " + s.get_name() + " to " + fab.get_name() + " already "
-							   + (state == industry_link_t.st_built ? "built" : "planned") )
+								 + (state == industry_link_t.st_built ? "built" : "planned") )
 						break
 					}
 					continue // if connection state is 'failed'
@@ -514,7 +514,8 @@ class factorysearcher_t extends manager_t
  */
 function check_factory_link_line(f_src, f_dest, t_good) {
 
-	local print_message_box = 0
+	local print_message_box = 2
+	local print_status = 1
 
 	local good_list_in = [];
 	local g_count_in = 0
@@ -572,7 +573,7 @@ function check_factory_link_line(f_src, f_dest, t_good) {
 					for ( local i = 0; i < consumers.len(); i++ ) {
 						if ( check_factory_links(f_dest, consumers[i], good_list_out[j]) == 0 ) {
 
-							if ( print_message_box == 1 ) { gui.add_message_at(our_player, " link check consumers " + consumers[i].get_name() + " good " + good_list_out[j], world.get_time()) }
+							if ( print_message_box >= 1 ) { gui.add_message_at(our_player, " link check consumers " + consumers[i].get_name() + " good " + good_list_out[j], world.get_time()) }
 
 							// test to other supliers for this good
 							g_count_in = 0
@@ -604,7 +605,7 @@ function check_factory_link_line(f_src, f_dest, t_good) {
 
 										foreach(good, islot in suppliers[k].input) {
 											//if ( good_list_out[j] == good ) {
-												if ( print_message_box == 1 ) { gui.add_message_at(our_player, " supplier " + suppliers[k].get_name() + " good " + good, world.get_time()) }
+												if ( print_message_box >= 1 ) { gui.add_message_at(our_player, " supplier " + suppliers[k].get_name() + " good " + good, world.get_time()) }
 												// test for in-storage or in-transit goods
 												local st = islot.get_storage()
 												local it = islot.get_in_transit()
@@ -651,9 +652,14 @@ function check_factory_link_line(f_src, f_dest, t_good) {
 		}
 	}
 
-	//gui.add_message_at(our_player, "check_factory_link_line() return " + o, world.get_time())
-	return o
+	if ( print_message_box == 1 || print_status == 1 ) {
+		local fs = f_src.get_tile_list()
+		local fd = f_dest.get_tile_list()
+		gui.add_message_at(our_player, "--> factory: " + f_src.get_name() + " (" + coord_to_string(fs[0]) + ")  to factory " + f_dest.get_name() + " (" + coord_to_string(fd[0]) + ")  --> good: " + t_good, world.get_time())
+		gui.add_message_at(our_player, "--> check_factory_link_line() return " + o, world.get_time())
+	}
 
+	return o
 
 	//get_delivered()
 	//get_consumers()
