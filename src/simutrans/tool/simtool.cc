@@ -2216,7 +2216,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 		const tree_desc_t *desc = NULL;
 		bool check_climates = true;
 		bool random_age = true;
-		if(default_param==NULL  ||  strlen(default_param)==0  ) {
+		if(default_param==NULL  ||  strlen(default_param)<5  ) {
 			// just a random tree to the limit
 			if( tree_builder_t::plant_tree_on_coordinate( k, welt->get_settings().get_max_no_of_trees_on_square(), 1 )  ) {
 				player_t::book_construction_costs( player, cost, k, ignore_wt );

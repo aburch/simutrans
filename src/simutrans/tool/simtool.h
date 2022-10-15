@@ -139,7 +139,8 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), old_slope_compatibility_mode); }
+	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, default_param ? atoi(default_param) : 0, old_slope_compatibility_mode); }
+	bool init(player_t*) OVERRIDE { return default_param != NULL; }
 };
 
 class tool_restoreslope_t : public tool_t {
