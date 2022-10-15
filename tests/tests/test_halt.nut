@@ -16,7 +16,7 @@ function test_halt_build_rail_single_tile()
 	local stationbuilder = command_x(tool_build_station)
 	local wayremover = command_x(tool_remove_way)
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0] // road because it has double slopes available
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {} )[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	// preconditions
@@ -365,7 +365,7 @@ function test_halt_build_multi_tile()
 {
 	local pl = player_x(0)
 	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {})[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	// 2 adjacent tiles
@@ -840,7 +840,7 @@ function test_halt_build_station_extension()
 	local stationbuilder = command_x(tool_build_station)
 	local wayremover = command_x(tool_remove_way)
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0] // road because it has double slopes available
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {})[0]
 	local stext_desc = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_rail, good_desc_x.passenger)[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
