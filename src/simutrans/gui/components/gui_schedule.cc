@@ -687,7 +687,7 @@ void gui_schedule_t::draw(scr_coord pos)
 		const uint8 world_rotation = world()->get_settings().get_rotation();
 		while(  current_schedule_rotation != world_rotation  ) {
 			current_schedule_rotation = (current_schedule_rotation + 1) % 4;
-			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().x-1 : world()->get_size().y-1 );
+			schedule->rotate90( (4+current_schedule_rotation - world_rotation) & 1 ? world()->get_size().y-1 : world()->get_size().x-1 );
 		}
 
 		schedule_t *scd = get_old_schedule();
