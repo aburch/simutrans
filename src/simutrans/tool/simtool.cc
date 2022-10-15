@@ -7253,6 +7253,9 @@ bool tool_change_convoi_t::init( player_t *player )
 				else {
 					// could not read schedule, do not assign
 					delete schedule;
+					// but clear editing flag
+					cnv->get_schedule()->finish_editing();
+					cnv->set_schedule( cnv->get_schedule() );
 				}
 			}
 			break;
