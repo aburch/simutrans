@@ -374,7 +374,7 @@ function test_depot_build_tram()
 function test_depot_build_sloped()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 	local wayremover = command_x(tool_remove_way)
 
@@ -382,7 +382,7 @@ function test_depot_build_sloped()
 
 	{
 		for (local sl = slope.flat+1; sl < slope.raised; ++sl) {
-			ASSERT_EQUAL(setslope.work(pl, pos, "" + sl), null)
+			ASSERT_EQUAL(setslope(pl, pos, sl), null)
 
 			local d = slope.to_dir(sl)
 			if (d != dir.none) { // only consider slopes we can build roads on
@@ -403,7 +403,7 @@ function test_depot_build_sloped()
 	}
 
 	// clean up
-	ASSERT_EQUAL(setslope.work(pl, pos, "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, pos, slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -454,34 +454,34 @@ function test_depot_build_on_bridge_end()
 {
 	local pl = player_x(0)
 	local rail_bridge = bridge_desc_x.get_available_bridges(wt_rail)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 
 	// north-south direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.north), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 4, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.flat), null)
 	}
 
 	// east-west direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.east), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.west), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.east), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.west), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 3, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(3, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.flat), null)
 	}
 
 	RESET_ALL_PLAYER_FUNDS()

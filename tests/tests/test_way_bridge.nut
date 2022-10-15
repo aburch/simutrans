@@ -105,11 +105,11 @@ function test_way_bridge_build_at_slope()
 	local start_pos = coord3d(2, 1, 0)
 	local end_pos = coord3d(2, 6, 0)
 	local remover = command_x(tool_remove_way)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local pl = player_x(0)
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
-	ASSERT_EQUAL(setslope.work(pl, coord3d(2, 1, 0), "" + slope.south), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(2, 1, 0), slope.south), null)
 
 	{
 		// down slope
@@ -131,7 +131,7 @@ function test_way_bridge_build_at_slope()
 
 	{
 		// wrong single-height slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + slope.west), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, slope.west), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, "A bridge must start on a way!")
 
@@ -150,7 +150,7 @@ function test_way_bridge_build_at_slope()
 
 	{
 		// double height slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + 2*slope.north), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, 2*slope.north), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
 
@@ -169,7 +169,7 @@ function test_way_bridge_build_at_slope()
 
 	{
 		// wrong double height slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + 2*slope.west), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, 2*slope.west), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
 
@@ -188,8 +188,8 @@ function test_way_bridge_build_at_slope()
 
 	{
 		// flat double height slope (i.e. 2 stacked flat slopes)
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, end_pos + coord3d(0, 0, 1), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos + coord3d(0, 0, 1), slope.all_up_slope), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, "Cannot connect to the\ncenter of a double slope!")
 
@@ -205,13 +205,13 @@ function test_way_bridge_build_at_slope()
 				"........"
 			])
 
-		ASSERT_EQUAL(setslope.work(pl, end_pos + coord3d(0, 0, 2), "" + slope.all_down_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, end_pos + coord3d(0, 0, 1), "" + slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos + coord3d(0, 0, 2), slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos + coord3d(0, 0, 1), slope.all_down_slope), null)
 	}
 
 	{
 		// flat single height slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, slope.all_up_slope), null)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, null)
 
@@ -231,12 +231,12 @@ function test_way_bridge_build_at_slope()
 		ASSERT_EQUAL(remover.work(pl, start_pos, end_pos + coord3d(0, 0, 1), "" + wt_road), null)
 
 		// remove slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos + coord3d(0, 0, 1), "" + slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, end_pos + coord3d(0, 0, 1), slope.all_down_slope), null)
 	}
 
 	{
 		// correct slope
-		setslope.work(pl, end_pos, "" + slope.north)
+		setslope(pl, end_pos, slope.north)
 		local err = command_x.build_bridge_at(pl, start_pos, bridge_desc)
 		ASSERT_EQUAL(err, null)
 
@@ -256,11 +256,11 @@ function test_way_bridge_build_at_slope()
 		ASSERT_EQUAL(remover.work(pl, start_pos, end_pos, "" + wt_road), null)
 
 		// remove slope
-		ASSERT_EQUAL(setslope.work(pl, end_pos, "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, end_pos, slope.flat), null)
 	}
 
 	// clean up
-	ASSERT_EQUAL(setslope.work(pl, start_pos, "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, start_pos, slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -268,13 +268,13 @@ function test_way_bridge_build_at_slope()
 function test_way_bridge_build_at_slope_stacked()
 {
 	local remover = command_x(tool_remove_way)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local pl = player_x(0)
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.north), null)
 
 		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 2, 0), bridge_desc), null)
 
@@ -292,10 +292,10 @@ function test_way_bridge_build_at_slope_stacked()
 
 
 		// second bridge layer
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 1, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 1, 1), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 6, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 6, 1), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 1, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 1, 1), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 6, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 6, 1), slope.north), null)
 
 		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 1, 1), bridge_desc), null)
 
@@ -355,18 +355,18 @@ function test_way_bridge_build_at_slope_stacked()
 			])
 
 		ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 1), coord3d(3, 6, 1), "" + wt_road), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 1, 1), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 6, 1), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 1, 1), "" + slope.all_down_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 6, 1), "" + slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 1, 1), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 6, 1), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 1, 1), slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 6, 1), slope.all_down_slope), null)
 	}
 
 	{
 		// second bridge layer
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 3, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 3, 1), "" + slope.east), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(6, 3, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(6, 3, 1), "" + slope.west), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 3, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 3, 1), slope.east), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(6, 3, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(6, 3, 1), slope.west), null)
 
 		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(1, 3, 1), bridge_desc), null)
 
@@ -429,12 +429,12 @@ function test_way_bridge_build_at_slope_stacked()
 	// clean up
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0), coord3d(3, 5, 0), "" + wt_road), null)
 	ASSERT_EQUAL(remover.work(pl, coord3d(1, 3, 1), coord3d(6, 3, 1), "" + wt_road), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(1, 3, 1), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(1, 3, 1), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(6, 3, 1), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(6, 3, 1), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(1, 3, 1), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(1, 3, 1), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(6, 3, 1), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(6, 3, 1), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.all_down_slope), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -444,7 +444,7 @@ function test_way_bridge_build_at_slope_stacked()
 function test_way_bridge_build_above_way()
 {
 	local remover = command_x(tool_remove_way)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local pl = player_x(0)
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 	local way_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
@@ -453,8 +453,8 @@ function test_way_bridge_build_above_way()
 	ASSERT_TRUE(way_desc != null)
 
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.north), null)
 
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), way_desc, true), null)
 		ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 2, 0), bridge_desc), null)
@@ -492,8 +492,8 @@ function test_way_bridge_build_above_way()
 
 	ASSERT_EQUAL(remover.work(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), "" + wt_road), null)
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0), coord3d(3, 5, 0), "" + wt_road), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.all_down_slope), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.all_down_slope), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.all_down_slope), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -506,7 +506,7 @@ function test_way_bridge_build_above_runway()
 	local taxiway = way_desc_x.get_available_ways(wt_air, st_flat)[0]
 	local runway = way_desc_x.get_available_ways(wt_air, st_elevated)[0]
 	local bridge = bridge_desc_x.get_available_bridges(wt_road)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 
 	// preconditions
 

@@ -83,7 +83,7 @@ function test_climate_flat()
 function test_climate_cliff()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local pos = coord3d(3, 2, 0)
 	local setclimate = command_x(tool_set_climate)
 	local climates = [ cl_water, cl_desert, cl_tropic, cl_mediterran, cl_temperate, cl_tundra, cl_rocky, cl_arctic ]
@@ -91,7 +91,7 @@ function test_climate_cliff()
 	for (local h = 0; h < 4; ++h) {
 		for (local y = 0; y < 3; ++y) {
 			for (local x = 0; x < 3; ++x) {
-				ASSERT_EQUAL(setslope.work(pl, pos + coord3d(x, y, h), "" + slope.all_up_slope), null)
+				ASSERT_EQUAL(setslope(pl, pos + coord3d(x, y, h), slope.all_up_slope), null)
 			}
 		}
 	}
@@ -131,7 +131,7 @@ function test_climate_cliff()
 	for (local h = 4; h > 0; --h) {
 		for (local y = 0; y < 3; ++y) {
 			for (local x = 0; x < 3; ++x) {
-				ASSERT_EQUAL(setslope.work(pl, pos + coord3d(x, y, h), "" + slope.all_down_slope), null)
+				ASSERT_EQUAL(setslope(pl, pos + coord3d(x, y, h), slope.all_down_slope), null)
 			}
 		}
 	}

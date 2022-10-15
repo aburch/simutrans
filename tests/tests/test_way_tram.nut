@@ -181,12 +181,12 @@ function test_way_tram_build_across_road_bridge()
 {
 	local pl = player_x(0)
 	local bridge = bridge_desc_x.get_available_bridges(wt_road)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local tramway = way_desc_x.get_available_ways(wt_rail, st_tram)[0]
 
 	// build bridge
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.south), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.north), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.south), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.north), null)
 	ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 3, 0), bridge), null)
 
 	// and build tram track
@@ -220,8 +220,8 @@ function test_way_tram_build_across_road_bridge()
 	}
 
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.flat), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.flat), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }

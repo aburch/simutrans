@@ -196,7 +196,7 @@ function test_groundobj_build_on_trees()
 
 function test_groundobj_build_on_slope()
 {
-	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.south), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.south), null)
 
 	{
 		ASSERT_EQUAL(command_x(tool_build_groundobj).work(player_x(0), coord3d(4, 2, 0), "1__See1"), null)
@@ -204,6 +204,6 @@ function test_groundobj_build_on_slope()
 	}
 
 	// clean up
-	ASSERT_EQUAL(command_x(tool_setslope).work(player_x(0), coord3d(4, 2, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }

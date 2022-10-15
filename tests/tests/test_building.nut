@@ -335,7 +335,7 @@ function test_building_rotate_house()
 function test_building_rotate_harbour()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local setclimate = command_x(tool_set_climate)
 	local harbours = building_desc_x.get_building_list(building_desc_x.harbour)
 	harbours = harbours.filter(@(idx, val) val.get_type() == building_desc_x.harbour)
@@ -345,7 +345,7 @@ function test_building_rotate_harbour()
 	local remover = command_x(tool_remover)
 
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(4, 2, 0), coord3d(5, 2, 0), "" + cl_water), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.east), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.east), null)
 	ASSERT_EQUAL(stationbuilder.work(pl, coord3d(3, 2, 0), harbour.get_name()), null)
 
 	{
@@ -354,7 +354,7 @@ function test_building_rotate_harbour()
 
 	// clean up
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.flat), null)
 	ASSERT_EQUAL(setclimate.work(pl, coord3d(4, 2, 0), coord3d(5, 2, 0), "" + cl_mediterran), null)
 
 	RESET_ALL_PLAYER_FUNDS()

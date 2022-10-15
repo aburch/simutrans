@@ -187,7 +187,7 @@ function test_way_tunnel_build_up_down()
 	local digger = command_x(tool_build_tunnel)
 	local raise = command_x(tool_raise_land)
 	local lower = command_x(tool_lower_land)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local remover = command_x(tool_remover)
 	local default_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
 	local pl = player_x(0)
@@ -208,7 +208,7 @@ function test_way_tunnel_build_up_down()
 
 	// invalid param
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 1, 0), "42"), "Only up and down movement in the underground!")
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), 42), "Only up and down movement in the underground!")
 
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0), // no change
 			[
@@ -225,7 +225,7 @@ function test_way_tunnel_build_up_down()
 
 	// Build up: Does not work: surface in the way
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 1, 0), "" + slope.all_up_slope), "Tile not empty.")
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), slope.all_up_slope), "Tile not empty.")
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0), // no change
 			[
 				".4......",
@@ -242,7 +242,7 @@ function test_way_tunnel_build_up_down()
 	// Build down
 	{
 		local old_maint = pl.get_current_maintenance()
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 1, 0), "" + slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), slope.all_down_slope), null)
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
 				".4......",
@@ -273,7 +273,7 @@ function test_way_tunnel_build_up_down()
 	// try building duble slope down, rail does not support double slopes
 	{
 		local old_maint = pl.get_current_maintenance()
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 1, -1), "" + slope.all_down_slope), "Tile not empty.")
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, -1), slope.all_down_slope), "Tile not empty.")
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
 				".4......",
@@ -307,7 +307,7 @@ function test_way_tunnel_build_up_down()
 	{
 		local old_maint = pl.get_current_maintenance()
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 2, -1), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 2, -1), slope.all_up_slope), null)
 
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
@@ -344,7 +344,7 @@ function test_way_tunnel_build_up_down()
 		ASSERT_EQUAL(raise.work(pl, coord3d(2, 3, 1)), null)
 
 		local old_maint = pl.get_current_maintenance()
-		ASSERT_EQUAL(setslope.work(pl, coord3d(1, 1, 0), "" + slope.all_up_slope), "")
+		ASSERT_EQUAL(setslope(pl, coord3d(1, 1, 0), slope.all_up_slope), "")
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
 				".4......",

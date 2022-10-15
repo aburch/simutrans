@@ -189,7 +189,7 @@ function test_powerline_build_transformer()
 	local public_pl = player_x(1)
 	local build_trafo = command_x(tool_build_transformer)
 	local setclimate = command_x(tool_set_climate)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local power_tunnel = tunnel_desc_x.get_available_tunnels(wt_power)[0]
 
 	// preconditions
@@ -235,7 +235,7 @@ function test_powerline_build_transformer()
 
 	{
 		// cannot build transformer on sloped tile
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.north), null)
 
 		ASSERT_EQUAL(build_trafo.work(pl, coord3d(3, 2, 0)), "Transformer only on flat bare land!")
 		ASSERT_EQUAL(build_trafo.work(pl, coord3d(3, 2, 1)), "Transformer only on flat bare land!")
@@ -245,18 +245,18 @@ function test_powerline_build_transformer()
 	{
 		// Cannot build transformer underground adjacent to factory
 		// Depends also on allow_underground_transformers setting
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.all_up_slope), null)
 		ASSERT_EQUAL(build_trafo.work(pl, coord3d(3, 2, 0)), "Transformer only next to factory!")
 		// 2 height levels
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 1), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 1), slope.all_up_slope), null)
 		ASSERT_EQUAL(build_trafo.work(pl, coord3d(3, 2, 0)), "Transformer only next to factory!")
 
 		// However, building on flat ground on a different height level works
 		ASSERT_EQUAL(build_trafo.work(pl, coord3d(3, 2, 2)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(public_pl, coord3d(3, 2, 2)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 2), "" + slope.all_down_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 1), "" + slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 2), slope.all_down_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 1), slope.all_down_slope), null)
 		ASSERT_EQUAL(pl.get_current_maintenance(), 0)
 	}
 
@@ -559,8 +559,8 @@ function test_powerline_remove_powerbridge()
 	local pl = player_x(0)
 	local power_bridge = bridge_desc_x.get_available_bridges(wt_power)[0]
 
-	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(2, 3, 0), "" + slope.east), null)
-	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 3, 0), "" + slope.west), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(2, 3, 0), slope.east), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(4, 3, 0), slope.west), null)
 	ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(2, 3, 0), coord3d(4, 3, 0), power_bridge), null)
 
 	// try removing the bridge from its centre
@@ -584,7 +584,7 @@ function test_powerline_remove_powerbridge()
 	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(2, 3, 0)), null)
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(2, 3, 0), "" + slope.flat), null)
-	ASSERT_EQUAL(command_x(tool_setslope).work(pl, coord3d(4, 3, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(2, 3, 0), slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(pl, coord3d(4, 3, 0), slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
