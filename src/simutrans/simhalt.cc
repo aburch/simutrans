@@ -1368,6 +1368,9 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 	if (!halt.is_bound()) {
 		return 0; // not connected
 	}
+	if (halt == self) {
+		return 1;
+	}
 	const link_t& linka =       all_links[catg_index];
 	const link_t& linkb = halt->all_links[catg_index];
 	if (linka.connections.empty()  ||  linkb.connections.empty()) {

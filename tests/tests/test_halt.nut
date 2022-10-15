@@ -380,7 +380,7 @@ function test_halt_build_multi_tile()
 		ASSERT_TRUE(halt != null)
 		ASSERT_EQUAL(tile_x(2, 2, 0).get_halt().get_name(), tile_x(3, 2, 0).get_halt().get_name()) // check that this is really the same halt
 		ASSERT_EQUAL(halt.get_owner().get_name(), pl.get_name())
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 0) // FIXME this should be 1
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 1)
 		ASSERT_TRUE(halt.accepts_good(good_desc_x.passenger))
 		ASSERT_FALSE(halt.accepts_good(good_desc_x.mail))
 
@@ -462,8 +462,8 @@ function test_halt_build_multi_tile()
 		ASSERT_TRUE(halt != null)
 		ASSERT_TRUE(halt.accepts_good(good_desc_x.passenger))
 		ASSERT_FALSE(halt.accepts_good(good_desc_x.mail))
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 0) // FIXME this should be 1
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.mail), 0)
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 1)
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.mail), 1)
 
 		for (local x = 0; x < 16; ++x) {
 			ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(x, 0, 0), coord3d(x, 15, 0), "" + wt_road), null)

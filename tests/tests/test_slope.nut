@@ -81,7 +81,6 @@ function test_slope_set_and_restore()
 	local restoreslope = command_x(tool_restoreslope)
 
 	{
-		// FIXME Crash when the "" are omitted (default_param is null)
 		ASSERT_EQUAL(setslope(pl, coord3d(2, 3, 0), slope.north), null)
 		ASSERT_EQUAL(tile_x(2, 3, 0).get_slope(), slope.north)
 
