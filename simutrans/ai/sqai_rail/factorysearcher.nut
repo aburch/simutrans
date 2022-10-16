@@ -514,7 +514,7 @@ class factorysearcher_t extends manager_t
  */
 function check_factory_link_line(f_src, f_dest, t_good) {
 
-	local print_message_box = 2
+	local print_message_box = 0
 	local print_status = 1
 
 	local good_list_in = [];
