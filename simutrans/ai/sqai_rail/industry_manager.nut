@@ -442,9 +442,9 @@ class industry_manager_t extends manager_t
 			}
 
 			if ( bilanz_year < 0 ) {
-				gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
-				gui.add_message_at(our_player, "bilanz_year " + bilanz_year, world.get_time())
-				gui.add_message_at(our_player, "month_check " + month_check, world.get_time())
+				//gui.add_message_at(our_player, "Check line " + line.get_name(), world.get_time())
+				//gui.add_message_at(our_player, "bilanz_year " + bilanz_year, world.get_time())
+				//gui.add_message_at(our_player, "month_check " + month_check, world.get_time())
 				//::debug.pause()
 			}
 
@@ -1026,7 +1026,7 @@ class industry_manager_t extends manager_t
 		if ( (freight_available  &&  cc_new == 0  &&  cc_stop < 2 && cnv.is_valid()) || bilanz_year < 0 ) {
 
 			if ( bilanz_year < 0 ) {
-				gui.add_message_at(our_player, " line 1029 ", world.get_time())
+				//gui.add_message_at(our_player, " line 1029 ", world.get_time())
 				//::debug.pause()
 			}
 			// stations distance
@@ -1138,8 +1138,8 @@ class industry_manager_t extends manager_t
 			cnv_count = line.double_ways_count + 1
 
 			if ( bilanz_year < 0 ) {
-				gui.add_message_at(our_player, " line 1141 ", world.get_time())
-				gui.add_message_at(our_player, " gain_per_m " + gain_per_m, world.get_time())
+				//gui.add_message_at(our_player, " line 1141 ", world.get_time())
+				//gui.add_message_at(our_player, " gain_per_m " + gain_per_m, world.get_time())
 				//::debug.pause()
 			}
 
