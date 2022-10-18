@@ -419,17 +419,33 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 	const int num_pak_lang_dat = folder.search(folder_name, "tab");
 	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat); (void)num_pak_lang_dat;
 
-	//read now the basic language infos
+	// read now the basic language infos
+	// we allow either "LA.*.tab" or "*.LA.tab" whe LA is the ISO language code
 	for(const char* const& filename : folder) {
 		lang_info* lang = NULL;
-		const char* langcode = strrchr(filename,'.');
 
-		if(  langcode  &&  (langcode-filename)>2  ) {
-			// try before the point
-			lang = get_lang_by_iso(langcode-2);
-			if (lang == NULL) {
-				// try instead the start of the string
-				lang = get_lang_by_iso(filename);
+		const char *filestr1 = strrchr(filename, '/');
+		const char *filestr2 = strrchr(filename, '\\');
+		const char *filestr = filestr1 > filestr2 ? filestr1 : filestr2;
+
+		if (filestr) {
+			if(  filestr[3] == '.'  ) {
+				// try the start of the string first
+				lang = get_lang_by_iso(filestr + 1);
+			}
+		}
+		else if(filename[2] == '.') {
+			// try the start of the filename if no path separator found
+			lang = get_lang_by_iso(filename);
+		}
+
+		if (!lang) {
+			const char *langcode = strrchr(filename, '.');
+			if(  langcode  ) {
+				if(  ((langcode - filename) > 3  &&  !isalnum(langcode[-3]))  || (langcode - filename) == -2  ) {
+					// try before the point
+					lang = get_lang_by_iso(langcode - 2);
+				}
 			}
 		}
 
