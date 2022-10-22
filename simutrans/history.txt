@@ -8,6 +8,7 @@
 	CHG: Mouse clicks etc. are now processed every frame (but maybe executed later) to avoid the lagging UI at large zoom out or with week devices
 	ADD: tooltip warning when try to cross way without suitable crossing or curves on runways
 	ADD: Pak files are now additionally searched for in up to 4 subdirectory levels within a pakset
+	ADD: theme parameter gui_color_image_transparency to set transparency color for icons (Yona-TYT)
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

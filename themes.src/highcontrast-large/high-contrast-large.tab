@@ -119,6 +119,9 @@ cursor_overlay_color = #000000
 gui_color_loadingbar_progress = #000000
 gui_color_loadingbar_inner = #868c86
 
+# Transparency color in factories boost icons (mail, energy, passengers)
+gui_color_image_transparency = #ffffff
+
 gui_player_color_dark = 5	
 gui_player_color_bright = 5
 
