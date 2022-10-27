@@ -30,7 +30,7 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 	static cbuffer_t addons_scenario;
 
 	pakset_scenario.clear();
-	pakset_scenario.printf("%s%sscenario/", env_t::base_dir, env_t::pak_name.c_str());
+	pakset_scenario.printf("%sscenario/", env_t::pak_dir.c_str());
 
 	addons_scenario.clear();
 	addons_scenario.printf("addons/%sscenario/", env_t::pak_name.c_str());
