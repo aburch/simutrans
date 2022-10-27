@@ -154,6 +154,14 @@ public:
 		return scr_size(0,0);
 	}
 
+	/**
+	 * Get this component's minimal bounding box size when inside a scrollpane.
+	 * Elements will be as least as small.
+	 */
+	virtual scr_size get_min_scroll_size() const {
+		return scr_size(0,0);
+	}
+
 
 	/**
 	 * Checks if the given position is inside the component area.

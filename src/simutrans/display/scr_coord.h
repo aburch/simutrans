@@ -122,6 +122,7 @@ public:
 	scr_size( scr_coord_val w_par, scr_coord_val h_par) { w = w_par; h = h_par; }
 
 	operator scr_coord() const { return scr_coord(w,h); }
+	operator bool() const { return ((w != 0) && (h != 0)); }
 
 	bool operator ==(const scr_size& other) const { return ((w-other.w) | (h-other.h)) == 0; }
 	bool operator !=(const scr_size& other) const { return !(other == *this ); }

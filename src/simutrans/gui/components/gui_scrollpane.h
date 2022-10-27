@@ -20,11 +20,6 @@ class gui_scrollpane_t : public gui_component_t
 private:
 	scr_size old_comp_size;
 
-	/**
-	 * Scrollbar X/Y
-	 */
-	scrollbar_t scroll_x, scroll_y;
-
 	bool b_show_scroll_x:1;
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
@@ -35,14 +30,20 @@ private:
 	// start of dragging
 	scr_coord origin;
 
-	// for oversized entries
-	scr_coord_val max_width;
-
 protected:
 	/**
 	 * The scrolling component
 	 */
 	gui_component_t *comp;
+
+	/**
+	 * Scrollbar X/Y
+	 */
+	scrollbar_t scroll_x, scroll_y;
+
+	// for oversized entries
+	scr_coord_val max_width;
+	scr_coord_val max_height;
 
 	void recalc_sliders(scr_size size);
 

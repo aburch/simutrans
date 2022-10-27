@@ -173,8 +173,6 @@ void depot_frame_t::init(depot_t *dep)
 	icnv = depot->convoi_count()-1;
 	veh_action = va_append;
 
-	scr_size size = scr_size(0,0);
-
 	last_selected_line = depot->get_last_selected_line();
 	no_schedule_text     = translator::translate("<no schedule set>");
 	clear_schedule_text  = translator::translate("<clear schedule>");
@@ -429,7 +427,7 @@ void depot_frame_t::init(depot_t *dep)
 	update_data();
 
 	reset_min_windowsize();
-	set_windowsize(size);
+	set_windowsize(get_min_windowsize());
 	set_resizemode( diagonal_resize );
 
 	depot->clear_command_pending();
