@@ -7067,8 +7067,8 @@ bool tool_rotate90_t::init( player_t * )
 
 bool tool_quit_t::init( player_t * )
 {
-	if (!is_local_execution()) {
-		return false; // do not act on cmd send over network
+	if (env_t::networkmode) {
+		welt->network_disconnect();
 	}
 	if (!strempty(default_param)) {
 		// new world
@@ -8122,9 +8122,6 @@ bool tool_load_scenario_t::init(player_t*)
 	if (strempty(default_param)  ||  strlen(default_param)<3  ||  default_param[1]!=','  ) {
 		// no valid scenario parameter
 		return false;
-	}
-	if (!is_local_execution()) {
-		return false; // do not act on cmd send over network
 	}
 
 	bool easy_server = default_param[0] == '1';
