@@ -946,7 +946,7 @@ class tool_load_scenario_t : public tool_t {
 	// command i.filename
 	// if i==1, start as easyserver
 public:
-	tool_load_scenario_t() : tool_t(TOOL_LOAD_SCENARIO | SIMPLE_TOOL) {}
+	tool_load_scenario_t() : tool_t(TOOL_LOAD_SCENARIO | SIMPLE_TOOL) { flags = WFL_LOCAL | WFL_NO_CHK; }
 	bool init(player_t*) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return false; }
 	bool is_work_keeps_game_state() const OVERRIDE { return false; }
