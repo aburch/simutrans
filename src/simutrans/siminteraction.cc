@@ -369,7 +369,8 @@ void interaction_t::check_events()
 {
 	event_t ev;
 
-	if(  env_t::networkmode  ) {
+	bool const set_rmode_interactive = env_t::networkmode;
+	if (set_rmode_interactive) {
 		set_random_mode( INTERACTIVE_RANDOM );
 	}
 
@@ -397,6 +398,10 @@ void interaction_t::check_events()
 
 			if (process_event(ev)) {
 				// We have been asked to stop processing, exit.
+				// but clear random mode flag first
+				if(  set_rmode_interactive  ) {
+					clear_random_mode( INTERACTIVE_RANDOM );
+				}
 				return;
 			}
 		}
@@ -410,7 +415,7 @@ void interaction_t::check_events()
 		deferred_ev.ev_class = EVENT_NONE;
 	}
 
-	if(  env_t::networkmode  ) {
+	if(  set_rmode_interactive  ) {
 		clear_random_mode( INTERACTIVE_RANDOM );
 	}
 }
