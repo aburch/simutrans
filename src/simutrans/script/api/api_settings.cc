@@ -12,6 +12,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/settings.h"
+#include "../../ground/grund.h"
 #include "../../tool/simmenu.h"
 #include "../../world/simworld.h"
 
@@ -30,6 +31,11 @@ call_tool_init set_traffic_level(settings_t*, sint16 rate)
 	cbuffer_t buf;
 	buf.printf("%i", rate);
 	return call_tool_init(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL, buf, 0, welt->get_public_player());
+}
+
+sint8 get_underground_view_level()
+{
+	return grund_t::underground_level;
 }
 
 
@@ -107,5 +113,13 @@ void export_settings(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &settings_t::get_pay_for_total_distance_mode, "get_pay_for_total_distance_mode");
 
+	/**
+	 * Returns current view mode and underground view level.
+	 * Possible return values:
+	 * -128 == full underground view
+	 * +127 == normal view
+	 * other values == sliced view at the given value
+	 */
+	register_method(vm, &get_underground_view_level, "get_underground_view_level", true);
 	end_class(vm);
 }
