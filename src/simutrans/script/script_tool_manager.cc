@@ -58,6 +58,7 @@ const scripted_tool_info_t* script_tool_manager_t::get_script_info(const char* p
 
 		const char* skin_name = contents.get_string("icon", "");
 		info->desc   = skinverwaltung_t::get_extra(skin_name, strlen(skin_name), skinverwaltung_t::cursor);
+		info->restart = contents.get_int("restart", false);
 		info->is_one_click = !( strcmp(contents.get_string("type", "one_click"), "two_click")==0 );
 	}
 	else {
