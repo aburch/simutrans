@@ -333,7 +333,7 @@ void vehiclelist_frame_t::rdwr(loadsave_t* file)
 	file->rdwr_bool(sorteddir.pressed);
 	file->rdwr_bool(bt_obsolete.pressed);
 	file->rdwr_bool(bt_future.pressed);
-	if (file->is_version_atleast(132, 2)) {
+	if (file->is_version_atleast(123, 2)) {
 		file->rdwr_str(name_filter, lengthof(name_filter));
 	}
 	if (file->is_loading()) {
