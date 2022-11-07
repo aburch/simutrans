@@ -99,17 +99,38 @@ void viewport_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 ne
 }
 
 
+void viewport_t::switch_underground_mode(const koord3d& pos)
+{
+	if (grund_t *gr = world->lookup(pos)) {
+		if (!gr->is_visible()) {
+			if (gr->ist_tunnel()) {
+				// position is underground (and not visible), change to sliced mode
+				grund_t::set_underground_mode(grund_t::ugm_level, gr->get_hoehe());
+			}
+			else {
+				// position is overground, change to normal view
+				grund_t::set_underground_mode(grund_t::ugm_none, 0);
+			}
+			// make dirty etc
+			world->update_underground();
+		}
+	}
+}
+
+
 // change the center viewport position for a certain ground tile
 // any possible convoi to follow will be disabled
 void viewport_t::change_world_position( const koord3d& new_ij )
 {
 	follow_convoi = convoihandle_t();
+	switch_underground_mode(new_ij);
 	change_world_position( get_map2d_coord( new_ij ) );
 }
 
 
 void viewport_t::change_world_position(const koord3d& pos, const koord& off, scr_coord sc)
 {
+	switch_underground_mode(pos);
 	// see get_viewport_coord and update_cached_values
 	koord scr_pos_2d = pos.get_2d() - view_ij_off;
 

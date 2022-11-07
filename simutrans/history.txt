@@ -9,6 +9,8 @@
 	ADD: tooltip warning when try to cross way without suitable crossing or curves on runways
 	ADD: Pak files are now additionally searched for in up to 4 subdirectory levels within a pakset
 	ADD: theme parameter gui_color_image_transparency to set transparency color for icons (Yona-TYT)
+	CHG: messages, speed records, ticker use 3d coordinates
+	CHG: a go-to-coordinate action will change view to underground/normal view if target is invisible
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

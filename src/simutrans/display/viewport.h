@@ -171,17 +171,24 @@ public:
 	void change_world_position( koord ij, sint16 x=0, sint16 y=0 );
 
 	/**
-	 * Set center viewport position, taking height into account
+	 * Set center viewport position, taking height into account.
+	 * Possibly switches underground mode.
 	 */
 	void change_world_position( const koord3d& ij );
 
 	/**
 	 * Set center viewport position, placing a in-game koord3d under the desired screen position.
+	 * Possibly switches underground mode.
 	 * @param pos map position to consider.
 	 * @param off extra offset.
 	 * @param sc screen position "pos" should be under.
 	 */
 	void change_world_position(const koord3d& pos, const koord& off, scr_coord sc);
+
+	/**
+	 * Switch underground mode if target position @p pos is not visible.
+	 */
+	void switch_underground_mode(const koord3d& pos);
 
 	/**
 	 * Fine offset within the viewport tile.
