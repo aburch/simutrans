@@ -81,9 +81,9 @@ void news_img::init(image_id id)
 }
 
 
-news_loc::news_loc(const char* text, koord k, FLAGGED_PIXVAL color) :
+news_loc::news_loc(const char* text, koord3d k, FLAGGED_PIXVAL color) :
 	news_window(text, color),
-	view(welt->lookup_kartenboden(k)->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(k, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	set_embedded(&view);
 }

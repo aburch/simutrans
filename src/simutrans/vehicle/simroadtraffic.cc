@@ -371,7 +371,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 			else {
 				if(  ms_traffic_jam > welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month  ) {
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams|message_t::expire_after_one_month_flag, color_idx_to_rgb(COL_ORANGE) );
+					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos(), message_t::traffic_jams|message_t::expire_after_one_month_flag, color_idx_to_rgb(COL_ORANGE) );
 				}
 			}
 		}

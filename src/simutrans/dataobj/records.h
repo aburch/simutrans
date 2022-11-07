@@ -7,7 +7,7 @@
 #define DATAOBJ_RECORDS_H
 
 
-#include "koord.h"
+#include "koord3d.h"
 #include "../convoihandle.h"
 
 class message_t;
@@ -27,7 +27,7 @@ public:
 	sint32 get_record_speed( waytype_t w ) const;
 
 	/** Posts a message that a new speed record has been set. */
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k, uint32 current_month );
+	void notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k, uint32 current_month );
 
 	/** Resets all speed records. */
 	void clear_speed_records();
@@ -43,11 +43,11 @@ private:
 	public:
 		convoihandle_t cnv;
 		sint32    speed;
-		koord     pos;
+		koord3d     pos;
 		player_t *owner;  // Owner
 		uint32    year_month;
 
-		speed_record_t() : cnv(), speed(0), pos(koord::invalid), owner(NULL), year_month(0) {}
+		speed_record_t() : cnv(), speed(0), pos(koord3d::invalid), owner(NULL), year_month(0) {}
 	};
 
 	/// World rail speed record

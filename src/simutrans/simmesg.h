@@ -11,6 +11,7 @@
 #include "gui/gui_theme.h"
 #include "display/simimg.h"
 #include "dataobj/koord.h"
+#include "dataobj/koord3d.h"
 #include "tpl/slist_tpl.h"
 
 class karte_t;
@@ -27,7 +28,7 @@ public:
 	public:
 		char msg[256];
 		sint32 type;
-		koord pos;
+		koord3d pos;
 		FLAGGED_PIXVAL color;
 		image_id image;
 		sint32 time;
@@ -59,7 +60,7 @@ public:
 		playermsg_flag              = 1 << 15
 	};
 
-	void add_message( const char *text, koord pos, uint16 what, FLAGGED_PIXVAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );
+	void add_message( const char *text, koord3d pos, uint16 what, FLAGGED_PIXVAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );
 
 	/* determines, which message is displayed where */
 	void get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32  *i);
@@ -92,7 +93,7 @@ public:
 	 * Returns first valid coordinate from text (or koord::invalid if none is found).
 	 * syntax: either @x,y or (x,y)
 	 */
-	static koord get_coord_from_text(const char* text);
+	static koord3d get_coord_from_text(const char* text);
 };
 
 #endif

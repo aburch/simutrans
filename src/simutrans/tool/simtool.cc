@@ -236,8 +236,8 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 
 void open_error_msg_win(const char* error)
 {
-	koord pos = message_t::get_coord_from_text(error);
-	if (pos != koord::invalid) {
+	koord3d pos = message_t::get_coord_from_text(error);
+	if (pos != koord3d::invalid) {
 		create_win( new news_loc(error, pos), w_time_delete, magic_none);
 	}
 	else {
@@ -6117,7 +6117,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			// tell the world of it ...
 			cbuffer_t buf;
 			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), player->get_name(), pos.x, pos.y );
-			welt->get_message()->add_message( buf, k, message_t::ai, PLAYER_FLAG|player->get_player_nr(), hq->get_tile()->get_background(0,0,0) );
+			welt->get_message()->add_message( buf, hq->get_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), hq->get_tile()->get_background(0,0,0) );
 			// reset to query tool, since costly relocations should be avoided
 			if(can_use_gui()  &&  player == welt->get_active_player()) {
 				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
@@ -6562,7 +6562,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						if (env_t::networkmode && !has_been_announced) {
 							cbuffer_t buf;
 							buf.printf(translator::translate("(%s) now public way."), w->get_pos().get_str());
-							welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG | player->get_player_nr(), IMG_EMPTY);
+							welt->get_message()->add_message(buf, w->get_pos(), message_t::ai, PLAYER_FLAG | player->get_player_nr(), IMG_EMPTY);
 							has_been_announced = true; // one message is enough
 						}
 						cost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
@@ -8167,7 +8167,7 @@ const char* tool_add_message_t::work(player_t* player, koord3d pos )
 		if ((type & message_t::MESSAGE_TYPE_MASK) >= message_t::MAX_MESSAGE_TYPE  ||  text == NULL) {
 			return "";
 		}
-		welt->get_message()->add_message( text+1, pos.get_2d(), type,
+		welt->get_message()->add_message( text+1, pos, type,
 								player == NULL || ( (type & message_t::playermsg_flag) != 0)  ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 
 	}

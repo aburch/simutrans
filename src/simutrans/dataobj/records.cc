@@ -38,7 +38,7 @@ void records_t::clear_speed_records()
 	max_air_speed.speed = 0;
 }
 
-void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, uint32 current_month )
+void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k, uint32 current_month )
 {
 	speed_record_t *sr = NULL;
 	switch (cnv->front()->get_waytype()) {

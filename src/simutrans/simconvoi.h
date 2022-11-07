@@ -154,7 +154,7 @@ private:
 	sint32 max_record_speed; // current convois fastest speed ever
 
 	// things for the world record
-	koord record_pos;
+	koord3d record_pos;
 
 	/* Number of steps the current convoi did already
 	 * (only needed for leaving/entering depot)

@@ -34,6 +34,7 @@ class loadsave_t;
 struct schedule_entry_t;
 struct my_ribi_t;
 struct my_slope_t;
+struct my_koord3d;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
@@ -381,6 +382,7 @@ namespace script_api {
 
 	declare_specialized_param(koord, "t|x|y", "coord");
 	declare_specialized_param(koord3d, "t|x|y", "coord3d");
+	declare_specialized_param(my_koord3d, "t|x|y", "coord3d");
 
 	declare_specialized_param(convoi_t*, "t|x|y", "convoy_x");
 	declare_specialized_param(fabrik_t*, "t|x|y", "factory_x");

@@ -1175,7 +1175,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
 			buf.printf( translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), get_name(), translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
-			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, rail_engine->get_base_image());
+			welt->get_message()->add_message(buf, spos, message_t::ai, PLAYER_FLAG|player_nr, rail_engine->get_base_image());
 
 			harbour = koord::invalid;
 			state = CHECK_CONVOI;
@@ -1190,7 +1190,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 			const koord3d& spos = start->get_pos();
 			const koord3d& zpos = ziel->get_pos();
 			buf.printf( translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), get_name(), count_road, translator::translate(start->get_name()), spos.x, spos.y, translator::translate(ziel->get_name()), zpos.x, zpos.y);
-			welt->get_message()->add_message(buf, spos.get_2d(), message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_base_image());
+			welt->get_message()->add_message(buf, spos, message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_base_image());
 
 			harbour = koord::invalid;
 			state = CHECK_CONVOI;

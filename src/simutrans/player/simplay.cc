@@ -296,18 +296,18 @@ bool player_t::new_month()
 				if(  finance->get_netwealth() < 0 ) {
 					destroy_all_win(true);
 					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
-					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord::invalid, PLAYER_FLAG + player_color_1 + 1 );
+					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord3d::invalid, PLAYER_FLAG + player_color_1 + 1 );
 					welt->stop(false);
 				}
 				else if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 					// tell the player (problem!)
-					welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord::invalid, message_t::problems, player_nr, IMG_EMPTY );
+					welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord3d::invalid, message_t::problems, player_nr, IMG_EMPTY );
 				}
 				else {
 					// tell the player (just warning)
 					buf.clear();
 					buf.printf( translator::translate("On loan since %i month(s)"), finance->get_account_overdrawn() );
-					welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_EMPTY );
+					welt->get_message()->add_message( buf, koord3d::invalid, message_t::ai, player_nr, IMG_EMPTY );
 				}
 			}
 			// no assets => nothing to go bankrupt about again
@@ -321,13 +321,13 @@ bool player_t::new_month()
 				if(  welt->get_active_player_nr()==player_nr  ) {
 					if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 						// net wealth nearly spent (problem!)
-						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord::invalid, message_t::problems, player_nr, IMG_EMPTY );
+						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord3d::invalid, message_t::problems, player_nr, IMG_EMPTY );
 					}
 					else {
 						// just minus in account (just tell)
 						buf.clear();
 						buf.printf( translator::translate("On loan since %i month(s)"), finance->get_account_overdrawn() );
-						welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_EMPTY );
+						welt->get_message()->add_message( buf, koord3d::invalid, message_t::ai, player_nr, IMG_EMPTY );
 					}
 				}
 			}
@@ -635,7 +635,7 @@ void player_t::ai_bankrupt()
 
 	cbuffer_t buf;
 	buf.printf( translator::translate("%s\nwas liquidated."), get_name() );
-	welt->get_message()->add_message( buf, koord::invalid, message_t::ai, PLAYER_FLAG|player_nr );
+	welt->get_message()->add_message( buf, koord3d::invalid, message_t::ai, PLAYER_FLAG|player_nr );
 }
 
 
@@ -786,7 +786,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 
@@ -797,7 +797,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_nam
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 

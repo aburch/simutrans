@@ -29,7 +29,25 @@ void message_t::node::rdwr(loadsave_t *file)
 {
 	file->rdwr_str( msg, lengthof(msg) );
 	file->rdwr_long( type );
-	pos.rdwr( file );
+
+	if (file->is_version_less(123, 2)) {
+		// only 2d coordinates
+		koord k = pos.get_2d();
+		k.rdwr(file);
+		if (file->is_loading()) {
+			pos = koord3d::invalid;
+			if (k != koord::invalid) {
+				// query ground tile (world is loaded at this point)
+				if (grund_t *gr = welt->lookup_kartenboden(k)) {
+					pos = gr->get_pos();
+				}
+			}
+		}
+	}
+	else {
+		pos.rdwr(file);
+	}
+
 	if (file->is_version_less(120, 5)) {
 		// color was 16bit, with 0x8000 indicating player colors
 		uint16 c = color & PLAYER_FLAG ? 0x8000 + (color&(~PLAYER_FLAG)) : MN_GREY0;
@@ -110,11 +128,11 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
  * @param pos        position of the event
  * @param color      message color
  * @param what_flags type of message
- * @param image      image associated with message (will be ignored if pos!=koord::invalid)
+ * @param image      image associated with message (will be ignored if pos!=koord3d::invalid)
  */
-void message_t::add_message(const char *text, koord pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
+void message_t::add_message(const char *text, koord3d pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
 {
-DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
+DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos.z );
 
 	sint32 what_bit = 1<<(what_flags & MESSAGE_TYPE_MASK);
 	if(  what_bit&ignore_flags  ) {
@@ -144,7 +162,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// filter out AI messages for a similar area to recent activity messages
-	if(  what_bit == (1<<ai)  &&  pos != koord::invalid  &&  env_t::networkmode  ) {
+	if(  what_bit == (1<<ai)  &&  pos != koord3d::invalid  &&  env_t::networkmode  ) {
 		uint32 i = 0;
 		for(node* const iter : list) {
 			node const& n = *iter;
@@ -158,7 +176,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// if no coordinate is provided, there is maybe one in the text message?
 	// syntax: either @x,y or (x,y)
-	if (pos == koord::invalid) {
+	if (pos == koord3d::invalid) {
 		pos = get_coord_from_text(text);
 	}
 
@@ -192,7 +210,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	// should we open a window?
 	if (  what_bit & (auto_win_flags | win_flags)  ) {
 		news_window* news;
-		if (pos == koord::invalid) {
+		if (pos == koord3d::invalid) {
 			news = new news_img(p, image, colorval);
 		}
 		else {
@@ -210,20 +228,25 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 }
 
 
-koord message_t::get_coord_from_text(const char* text)
+koord3d message_t::get_coord_from_text(const char* text)
 {
-	koord pos(koord::invalid);
+	koord3d pos(koord3d::invalid);
 	const char *str = text;
 	// scan until either @ or ( are found
 	while( *(str += strcspn(str, "@(")) ) {
 		str += 1;
-		int x=-1, y=-1;
-		if (sscanf(str, "%d,%d", &x, &y) == 2) {
-			if (welt->is_within_limits(x,y)) {
+		int x=-1, y=-1, z=0;
+		int read_coords = sscanf(str, "%d,%d,%d", &x, &y, &z);
+		if (read_coords >= 2  &&  welt->is_within_limits(x,y)) {
+			if (read_coords == 3) {
 				pos.x = x;
 				pos.y = y;
-				break; // success
+				pos.z = z;
 			}
+			else {
+				pos = welt->lookup_kartenboden(x,y)->get_pos();
+			}
+			break; // success
 		}
 	}
 	return pos;

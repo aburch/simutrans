@@ -261,13 +261,13 @@ void way_builder_t::new_month()
 			const uint16 intro_month = desc->get_intro_year_month();
 			if(intro_month == current_month) {
 				buf.printf( translator::translate("way %s now available:\n"), translator::translate(desc->get_name()) );
-				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,desc->get_image_id(5,0));
+				welt->get_message()->add_message(buf,koord3d::invalid,message_t::new_vehicle,NEW_VEHICLE,desc->get_image_id(5,0));
 			}
 
 			const uint16 retire_month = desc->get_retire_year_month();
 			if(retire_month == current_month) {
 				buf.printf( translator::translate("way %s cannot longer used:\n"), translator::translate(desc->get_name()) );
-				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,desc->get_image_id(5,0));
+				welt->get_message()->add_message(buf,koord3d::invalid,message_t::new_vehicle,NEW_VEHICLE,desc->get_image_id(5,0));
 			}
 		}
 

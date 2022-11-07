@@ -312,7 +312,6 @@ namespace script_api {
 		return koord3d(k, z);
 	}
 
-
 	SQInteger param<koord3d>::push(HSQUIRRELVM vm, koord3d const& v)
 	{
 		koord k(v.get_2d());
@@ -325,6 +324,28 @@ namespace script_api {
 		}
 		return push_instance(vm, "coord3d", k.x, k.y, v.z);
 	}
+
+	my_koord3d param<my_koord3d>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		koord3d k3 = koord3d::invalid;
+		sint8 z = 0; // dummy
+
+		if (!SQ_SUCCEEDED(get_slot(vm, "z", z, index))) {
+			// 2d, try kartenboden
+			koord k =  param<koord>::get(vm,index);
+			if (grund_t *gr = welt->lookup_kartenboden(k)) {
+				k3 = gr->get_pos();
+			}
+			// else: return invalid
+		}
+		else {
+			// 3d
+			k3 = param<koord3d>::get(vm, index);
+		}
+		return k3;
+	}
+
+
 // directions / ribis
 	SQInteger param<my_ribi_t>::push(HSQUIRRELVM vm, my_ribi_t const& v)
 	{

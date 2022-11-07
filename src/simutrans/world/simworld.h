@@ -692,7 +692,7 @@ public:
 
 	/// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
-	void notify_record( convoihandle_t cnv, sint32 max_speed, koord k );
+	void notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k );
 
 	/// time lapse mode ...
 	bool is_paused() const { return step_mode&PAUSE_FLAG; }

@@ -1039,7 +1039,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 				const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 				cbuffer_t buf;
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
-				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+				welt->get_message()->add_message(buf, last_built_consumer->get_pos(), message_t::industry, CITY_KI, last_built_consumer->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 			}
 			minimap_t::get_instance()->calc_map();
 			return nr;
@@ -1106,7 +1106,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 							}
 							cbuffer_t buf;
 							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
-							welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, our_fab->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
+							welt->get_message()->add_message(buf, pos, message_t::industry, CITY_KI, our_fab->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 						}
 						return nr;
 					}

@@ -344,7 +344,7 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH), pos.y, lighter, darker, gadget_state, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip_rgb( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_color, false );
 	if(  flags.gotopos  ) {
-		display_proportional_clip_rgb( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_color, false );
+		display_proportional_clip_rgb( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_fullstr(), ALIGN_LEFT, text_color, false );
 	}
 	POP_CLIP();
 }
@@ -1533,9 +1533,9 @@ bool check_pos_win(event_t *ev)
 	if(  !(ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  show_ticker  &&  y > display_get_height()- win_get_statusbar_height() - TICKER_HEIGHT  ) {
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
-			koord p = ticker::get_welt_pos();
-			if(wl->is_within_limits(p)) {
-				wl->get_viewport()->change_world_position(koord3d(p,wl->min_hgt(p)));
+			koord3d p = ticker::get_welt_pos();
+			if(wl->is_within_limits(p.get_2d())) {
+				wl->get_viewport()->change_world_position(p);
 			}
 		}
 		// swallow event

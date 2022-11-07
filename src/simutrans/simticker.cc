@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-#include "dataobj/koord.h"
+#include "dataobj/koord3d.h"
 #include "dataobj/environment.h"
 #include "simdebug.h"
 #include "simticker.h"
@@ -26,7 +26,7 @@ uint16 win_get_statusbar_height(); // simwin.h
 
 struct node {
 	char msg[256];
-	koord pos;
+	koord3d pos;
 	FLAGGED_PIXVAL color;
 	sint16 xpos;
 	sint32 w;
@@ -34,7 +34,7 @@ struct node {
 
 
 static slist_tpl<node> list;
-static koord default_pos = koord::invalid; ///< world position of newest message
+static koord3d default_pos = koord3d::invalid; ///< world position of newest message
 static bool redraw_all = false;            ///< true, if also trigger background need redraw
 static int next_pos;                       ///< Next x offset of new message. Always greater or equal to display_width
 static int dx_since_last_draw = 0;         ///< Increased during update(); positive values move messages to the left
@@ -59,14 +59,14 @@ void ticker::set_redraw_all(bool redraw)
 }
 
 
-void ticker::add_msg(const char* txt, koord pos, FLAGGED_PIXVAL color)
+void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 {
 	const int count = list.get_count();
 
 	if(count==0) {
 		redraw_all = true;
 		next_pos = display_get_width();
-		default_pos = koord::invalid;
+		default_pos = koord3d::invalid;
 	}
 
 	// don't store more than 4 messages, it's useless.
@@ -107,7 +107,7 @@ void ticker::add_msg(const char* txt, koord pos, FLAGGED_PIXVAL color)
 }
 
 
-koord ticker::get_welt_pos()
+koord3d ticker::get_welt_pos()
 {
 	return default_pos;
 }

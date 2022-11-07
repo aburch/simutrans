@@ -812,7 +812,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 	// new record?
 	if(akt_speed > max_record_speed) {
 		max_record_speed = akt_speed;
-		record_pos = fahr[0]->get_pos().get_2d();
+		record_pos = fahr[0]->get_pos();
 	}
 }
 
@@ -1617,7 +1617,7 @@ void convoi_t::ziel_erreicht()
 
 		akt_speed = 0;
 		buf.printf( translator::translate("%s has entered a depot."), get_name() );
-		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
+		welt->get_message()->add_message(buf, v->get_pos(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 
 		betrete_depot(dp);
 	}

@@ -9,6 +9,7 @@
 
 #include "../api_class.h"
 #include "../api_function.h"
+#include "api_simple.h"
 
 #include "../../simmesg.h"
 #include "../../tool/simmenu.h"
@@ -23,22 +24,22 @@
 using namespace script_api;
 
 
-call_tool_work add_scenario_message_at(const char* text, koord pos)
+call_tool_work add_scenario_message_at(const char* text, my_koord3d pos)
 {
 	// build param string (see tool_add_message_t::init)
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::scenario, text);
 
-	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, welt->get_active_player(), koord3d(pos, 0));
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, welt->get_active_player(), pos);
 }
 
-call_tool_work add_ai_message_at(player_t *player, const char* text, koord pos)
+call_tool_work add_ai_message_at(player_t *player, const char* text, my_koord3d pos)
 {
 	// build param string (see tool_add_message_t::init)
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::ai, text);
 
-	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, koord3d(pos, 0));
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, pos);
 }
 
 call_tool_work add_scenario_message(player_t* player, const char* text)

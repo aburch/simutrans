@@ -9,6 +9,7 @@
 
 #include "../../../squirrel/squirrel.h"
 #include "../../dataobj/ribi.h"
+#include "../../dataobj/koord3d.h"
 
 /** @file api_simple.h Helper functions to export simple datatypes: ribi & friends */
 
@@ -28,6 +29,16 @@ struct my_slope_t {
 	operator slope_t::type() const { return data; }
 };
 
+
+/**
+ * Coordinate that accepts either 2d or 3d coordinates.
+ * Converts to kartenboden/ground when supplied with 2d coordinates.
+ */
+struct my_koord3d {
+	koord3d data;
+	my_koord3d(koord3d k) : data(k) { }
+	operator koord3d() const { return data; }
+};
 
 namespace script_api {
 
