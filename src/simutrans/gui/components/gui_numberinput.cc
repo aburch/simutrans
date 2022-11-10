@@ -242,6 +242,10 @@ void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode,
 
 bool gui_numberinput_t::infowin_event(const event_t *ev)
 {
+	// no action if disabled
+	if (!b_enabled) {
+		return false;
+	}
 	// buttons pressed
 	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
