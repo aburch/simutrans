@@ -2650,8 +2650,6 @@ void karte_t::sync_step(uint32 delta_t)
 	}
 	ticks += delta_t;
 
-	set_random_mode( INTERACTIVE_RANDOM );
-
 	/* animations do not require exact sync
 	 * foundations etc are added removed frequently during city growth
 	 */
@@ -2660,8 +2658,6 @@ void karte_t::sync_step(uint32 delta_t)
 	wolke_t::sync_handler(delta_t);
 
 	pedestrian_t::sync_handler(delta_t);
-
-	clear_random_mode( INTERACTIVE_RANDOM );
 
 	// the following sync_steps affect the game state
 	sync_roadsigns.sync_step(delta_t);
@@ -2678,7 +2674,11 @@ void karte_t::sync_step(uint32 delta_t)
 
 	clear_random_mode( SYNC_STEP_RANDOM );
 
+	set_random_mode( INTERACTIVE_RANDOM );
+
 	eventmanager->check_events();
+
+	clear_random_mode( INTERACTIVE_RANDOM );
 }
 
 
