@@ -118,7 +118,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 					koord k(x,y);
 					welt->get_scenario()->koord_sq2w( k );
 					if (welt->is_within_limits(k)) {
-						koord3d p(x,y,z);
+						koord3d p(k,z);
 						if (n < 3) {
 							// take z coordinate from ground
 							p = welt->lookup_kartenboden(k)->get_pos();
