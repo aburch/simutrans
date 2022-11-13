@@ -746,7 +746,9 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(file->is_version_atleast(102, 2)) {
 			file->rdwr_bool( no_routing_over_overcrowding );
-			file->rdwr_bool( with_private_paks );
+			if (file->is_version_less(123, 2)) {
+				file->rdwr_bool( with_private_paks );
+			}
 		}
 		if(file->is_version_atleast(102, 3)) {
 			// network stuff
