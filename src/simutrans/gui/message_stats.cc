@@ -17,7 +17,7 @@
 
 static karte_ptr_t welt;
 
-message_stats_t::message_stats_t(const message_t::node *m, uint32 sid) :
+message_stats_t::message_stats_t(const message_node_t *m, uint32 sid) :
 	msg(m), sortid(sid)
 {
 	set_table_layout(2,1);

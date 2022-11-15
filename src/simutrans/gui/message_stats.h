@@ -18,13 +18,13 @@
 class message_stats_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	const message_t::node *msg;
+	const message_node_t *msg;
 	uint32 sortid; // sortid reflects the order in message_t
 
 public:
-	message_stats_t(const message_t::node *m, uint32 sid);
+	message_stats_t(const message_node_t *m, uint32 sid);
 
-	const message_t::node* get_msg() const { return msg; }
+	const message_node_t* get_msg() const { return msg; }
 
 	char const* get_text() const OVERRIDE { return msg->msg; }
 

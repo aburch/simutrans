@@ -21,27 +21,27 @@ class karte_ptr_t;
  * class for a simple message
  * this way they are stored in a list
  */
+struct message_node_t
+{
+	char msg[256];
+	sint32 type;
+	koord3d pos;
+	FLAGGED_PIXVAL color;
+	image_id image;
+	sint32 time;
+
+	void rdwr(loadsave_t *file);
+
+	uint32 get_type_shifted() const; // { return 1<<(type & MESSAGE_TYPE_MASK); }
+
+	FLAGGED_PIXVAL get_player_color(karte_t*) const;
+
+	void open_msg_window(bool open_as_autoclose) const;
+};
+
 class message_t
 {
 public:
-	class node {
-	public:
-		char msg[256];
-		sint32 type;
-		koord3d pos;
-		FLAGGED_PIXVAL color;
-		image_id image;
-		sint32 time;
-
-		void rdwr(loadsave_t *file);
-
-		uint32 get_type_shifted() const { return 1<<(type & MESSAGE_TYPE_MASK); }
-
-		FLAGGED_PIXVAL get_player_color(karte_t*) const;
-
-		void open_msg_window(bool open_as_autoclose) const;
-	};
-
 	enum msg_typ {
 		general      = 0,
 		ai           = 1,
@@ -72,18 +72,16 @@ public:
 	~message_t();
 
 private:
-	static karte_ptr_t welt;
-
 	// bitfields that contains the messages
 	sint32 ticker_flags;
 	sint32 win_flags;
 	sint32 auto_win_flags;
 	sint32 ignore_flags;
 
-	slist_tpl<node *> list;
+	slist_tpl<message_node_t *> list;
 
 public:
-	const slist_tpl<node *> &get_list() const { return list; }
+	const slist_tpl<message_node_t *> &get_list() const { return list; }
 
 	void clear();
 
