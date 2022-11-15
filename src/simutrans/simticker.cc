@@ -3,38 +3,35 @@
  * (see LICENSE.txt)
  */
 
-#include <string.h>
-
-#include <algorithm>
-
 #include "dataobj/koord3d.h"
 #include "dataobj/environment.h"
-#include "simdebug.h"
 #include "simticker.h"
 #include "display/simgraph.h"
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"
-#include "gui/gui_frame.h"
+#include "gui/gui_theme.h"
 #include "world/simworld.h"
-
+#include "simmesg.h"
+#include "display/viewport.h"
 
 #define X_DIST    (2)   // how much scrolling per update call?
 #define X_SPACING (18)  // spacing between messages, in pixels
 
+static karte_ptr_t welt;
+
 uint16 win_get_statusbar_height(); // simwin.h
 
-struct node {
-	char msg[256];
-	koord3d pos;
-	FLAGGED_PIXVAL color;
+struct node : public message_node_t
+{
+	node() {}
+	node(const message_node_t& msg) : message_node_t(msg), xpos(0), w(0) {}
 	sint16 xpos;
 	sint32 w;
 };
 
 
 static slist_tpl<node> list;
-static koord3d default_pos = koord3d::invalid; ///< world position of newest message
 static bool redraw_all = false;            ///< true, if also trigger background need redraw
 static int next_pos;                       ///< Next x offset of new message. Always greater or equal to display_width
 static int dx_since_last_draw = 0;         ///< Increased during update(); positive values move messages to the left
@@ -66,7 +63,6 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 	if(count==0) {
 		redraw_all = true;
 		next_pos = display_get_width();
-		default_pos = koord3d::invalid;
 	}
 
 	// don't store more than 4 messages, it's useless.
@@ -98,8 +94,15 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 
 		n.pos = pos;
 		n.color = color;
+
 		n.xpos = next_pos;
 		n.w = proportional_string_width(n.msg);
+
+		// set to default values
+		n.type  = message_t::general;
+		n.pos   = pos;
+		n.time  = 0;
+		n.image = IMG_EMPTY;
 
 		next_pos += n.w + X_SPACING;
 		list.append(n);
@@ -107,9 +110,18 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 }
 
 
-koord3d ticker::get_welt_pos()
+void ticker::add_msg_node(const message_node_t& msg)
 {
-	return default_pos;
+	if (list.empty()) {
+		redraw_all = true;
+		next_pos = display_get_width();
+	}
+
+	node n(msg);
+	n.xpos = next_pos;
+	n.w = proportional_string_width(n.msg);
+	next_pos += n.w + X_SPACING;
+	list.append(n);
 }
 
 
@@ -120,10 +132,6 @@ void ticker::update()
 
 	for(node & n : list) {
 		n.xpos -= dx;
-
-		if (n.xpos < display_width) {
-			default_pos = n.pos;
-		}
 	}
 
 	dx_since_last_draw += dx;
@@ -199,4 +207,31 @@ void ticker::redraw()
 			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
 		}
 	}
+}
+
+
+void ticker::process_click(int x)
+{
+	node *clicked = NULL;
+	if (list.empty()) {
+		return;
+	}
+	clicked = &list.front();
+	if (list.get_count() > 1) {
+		for(node & n : list) {
+			if (n.xpos <= x  &&  x < n.xpos + n.w ) {
+				clicked = &n;
+				break;
+			}
+		}
+	}
+	if (clicked->pos != koord3d::invalid) {
+		if(welt->is_within_limits(clicked->pos.get_2d())) {
+			welt->get_viewport()->change_world_position(clicked->pos);
+		}
+	}
+	else {
+		clicked->open_msg_window(false);
+	}
+
 }

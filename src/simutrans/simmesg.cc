@@ -216,10 +216,9 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos
 	n->time = welt->get_current_month();
 	n->image = image;
 
-	FLAGGED_PIXVAL colorval = n->get_player_color(welt);
 	// should we send this message to a ticker?
 	if(  what_bit&ticker_flags  ) {
-		ticker::add_msg(text, pos, colorval);
+		ticker::add_msg_node(*n);
 	}
 
 	// insert at the top
