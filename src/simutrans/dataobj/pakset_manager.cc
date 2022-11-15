@@ -485,6 +485,5 @@ void pakset_manager_t::xref_to_resolve(obj_type type, const char *name, obj_desc
 
 void pakset_manager_t::doubled(const char *what, const char *name)
 {
-	dbg->warning("pakset_manager_t::doubled", "Object %s::%s is overlaid, using data of new object", what, name);
 	doublettes.append( (std::string)what+"::"+name+"<br/>" );
 }

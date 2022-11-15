@@ -23,8 +23,14 @@ void pakset_info_t::append(const char* name, const char* type, checksum_t *chk)
 
 	checksum_t *old = info.set( strdup( (const char*)buf), chk );
 
-	if (old  &&  !(*chk == *old) ) {
-		pakset_manager_t::doubled(type, name);
+	if (old) {
+		if (*chk == *old) {
+			dbg->warning("pakset_info_t::append", "Object %s::%s is overlaid by identical object, using data of new object", type, name);
+		}
+		else {
+			dbg->warning("pakset_info_t::append", "Object %s::%s is overlaid by different object, using data of new object", type, name);
+			pakset_manager_t::doubled(type, name);
+		}
 	}
 	delete old;
 }
