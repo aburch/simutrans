@@ -13,7 +13,6 @@
 #include "../ground/grund.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "../utils/cbuffer.h"
 #include "../descriptor/pedestrian_desc.h"
@@ -31,8 +30,8 @@ stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
 bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 {
-	if(  table.remove(desc->get_name())  ) {
-		pakset_manager_t::doubled( "pedestrian", desc->get_name() );
+	if(const pedestrian_desc_t* old = table.remove(desc->get_name())  ) {
+		delete old;
 	}
 	table.put(desc->get_name(), desc);
 	return true;

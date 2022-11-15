@@ -13,7 +13,6 @@
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "../descriptor/vehicle_desc.h"
 #include "../gui/depot_frame.h"
@@ -226,7 +225,6 @@ bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 	// first hashtable
 	vehicle_desc_t const *old_desc = name_fahrzeuge.get( desc->get_name() );
 	if(  old_desc  ) {
-		pakset_manager_t::doubled( "vehicle", desc->get_name() );
 		name_fahrzeuge.remove( desc->get_name() );
 	}
 	name_fahrzeuge.put(desc->get_name(), desc);

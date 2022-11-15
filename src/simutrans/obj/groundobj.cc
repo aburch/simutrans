@@ -21,7 +21,6 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/freelist.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "groundobj.h"
 
@@ -119,8 +118,8 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 {
 	assert(desc->get_speed()==0);
 	// remove duplicates
-	if(  desc_table.remove( desc->get_name() )  ) {
-		pakset_manager_t::doubled( "groundobj", desc->get_name() );
+	if(groundobj_desc_t *old = desc_table.remove( desc->get_name() )  ) {
+		delete old;
 	}
 	desc_table.put(desc->get_name(), desc );
 	return true;

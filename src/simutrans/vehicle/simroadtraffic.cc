@@ -24,7 +24,6 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "../obj/crossing.h"
 #include "../obj/roadsign.h"
@@ -238,8 +237,8 @@ stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
 
 bool private_car_t::register_desc(const citycar_desc_t *desc)
 {
-	if(  table.remove(desc->get_name())  ) {
-		pakset_manager_t::doubled( "citycar", desc->get_name() );
+	if(const citycar_desc_t *old = table.remove(desc->get_name())  ) {
+		delete old;
 	}
 	table.put(desc->get_name(), desc);
 	return true;

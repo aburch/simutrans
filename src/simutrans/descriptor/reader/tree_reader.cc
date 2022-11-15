@@ -23,7 +23,7 @@ void tree_reader_t::register_obj(obj_desc_t *&data)
 	tree_builder_t::register_desc(desc);
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
-	pakset_info_t::append(desc->get_name(), get_type(), chk);
+	pakset_info_t::append(desc->get_name(), get_type_name(), chk);
 }
 
 

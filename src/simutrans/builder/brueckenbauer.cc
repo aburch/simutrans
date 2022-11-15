@@ -31,7 +31,6 @@
 #include "../obj/pillar.h"
 #include "../obj/signal.h"
 #include "../dataobj/crossing_logic.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
@@ -48,7 +47,6 @@ void bridge_builder_t::register_desc(bridge_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if(  const bridge_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
-		pakset_manager_t::doubled( "bridge", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

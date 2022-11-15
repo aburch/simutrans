@@ -6,7 +6,6 @@
 #include "tree_builder.h"
 
 #include "../dataobj/settings.h"
-#include "../dataobj/pakset_manager.h"
 #include "../obj/baum.h"
 #include "../obj/groundobj.h"
 #include "../world/simworld.h"
@@ -286,8 +285,8 @@ bool tree_builder_t::successfully_loaded()
 bool tree_builder_t::register_desc(const tree_desc_t *desc)
 {
 	// avoid duplicates with same name
-	if(  desc_table.remove(desc->get_name())  ) {
-		pakset_manager_t::doubled( "baum_t", desc->get_name() );
+	if(const tree_desc_t *old =  desc_table.remove(desc->get_name())  ) {
+		delete old;
 	}
 
 	desc_table.put(desc->get_name(), desc );

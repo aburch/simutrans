@@ -32,7 +32,11 @@ public:
 	static void calculate_checksum();
 	static checksum_t* get_checksum() { return &general; }
 
-	static void append(const char* name, obj_type type, checksum_t *chk);
+	/**
+	 * Register object with given @p name and @p type.
+	 * Sends warning to pakset_manager_t for objects with same name, type but different checksum.
+	 */
+	static void append(const char* name, const char* type, checksum_t *chk);
 
 	static void debug();
 

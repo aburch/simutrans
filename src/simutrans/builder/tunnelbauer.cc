@@ -16,7 +16,6 @@
 #include "../tool/simtool.h"
 
 #include "../descriptor/tunnel_desc.h"
-#include "../dataobj/pakset_manager.h"
 
 #include "../ground/tunnelboden.h"
 
@@ -46,7 +45,6 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if( const tunnel_desc_t *old_desc = tunnel_by_name.remove(desc->get_name()) ) {
-		pakset_manager_t::doubled( "tunnel", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		// we cannot delete old_desc, since then xref-resolving will crash

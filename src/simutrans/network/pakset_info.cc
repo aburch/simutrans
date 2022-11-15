@@ -6,20 +6,26 @@
 #include "pakset_info.h"
 #include "../simdebug.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/pakset_manager.h"
 #include "../tpl/vector_tpl.h"
-#include "../utils/simstring.h"
+#include "../utils/cbuffer.h"
 
 stringhashtable_tpl<checksum_t*> pakset_info_t::info;
 checksum_t pakset_info_t::general;
 
-void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
+void pakset_info_t::append(const char* name, const char* type, checksum_t *chk)
 {
 	chk->finish();
 
-	char objname[256] = { char(type), char(type>>8), char(type>>16), 0 };
-	tstrncpy( objname+3, name, 252 );
+	static cbuffer_t buf;
+	buf.clear();
+	buf.printf("%s:%s", type, name);
 
-	checksum_t *old = info.set( strdup(objname), chk );
+	checksum_t *old = info.set( strdup( (const char*)buf), chk );
+
+	if (old  &&  !(*chk == *old) ) {
+		pakset_manager_t::doubled(type, name);
+	}
 	delete old;
 }
 
