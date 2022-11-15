@@ -28,25 +28,7 @@ pakset_manager_t::unresolved_map_t                            pakset_manager_t::
 ptrhashtable_tpl<obj_desc_t**, int>                           pakset_manager_t::fatals;
 std::string                                                   pakset_manager_t::doublettes;
 stringhashtable_tpl<missing_level_t>                          pakset_manager_t::missing_pak_names;
-
-
-static bool wait_for_key()
-{
-	event_t ev;
-	display_poll_event(&ev);
-	if(  ev.ev_class==EVENT_KEYBOARD  ) {
-		if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
-			return true;
-		}
-	}
-	if(  IS_LEFTRELEASE(&ev)  ) {
-		return true;
-	}
-	event_t *nev = new event_t();
-	*nev = ev;
-	queue_event(nev);
-	return false;
-}
+std::string                                                   pakset_manager_t::overlaid_warning;
 
 
 void pakset_manager_t::register_reader(obj_reader_t *reader)
@@ -60,6 +42,12 @@ void pakset_manager_t::register_reader(obj_reader_t *reader)
 }
 
 
+const char* pakset_manager_t::get_doubled_warning_message()
+{
+	return translator::translate("Doubled objects detected. Click to see details.");
+}
+
+
 void pakset_manager_t::load_pakset(bool load_addons)
 {
 	dbg->message("pakset_manager_t::load_pakset", "Reading object data from %s...", env_t::pak_dir.c_str());
@@ -68,10 +56,10 @@ void pakset_manager_t::load_pakset(bool load_addons)
 		dbg->fatal("pakset_manager_t::load_pakset", "Failed to load pakset. Please re-download or select another pakset.");
 	}
 
-	std::string overlaid_warning; // more prominent handling of double objects
+	overlaid_warning.clear();
 
 	if(  had_overlaid()  ) {
-		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
+		overlaid_warning.append( translator::translate("<h1>Error</h1><p><strong>") );
 		overlaid_warning.append( env_t::pak_name + translator::translate("contains the following doubled objects:</strong><p>") + get_overlaid() + "<p>" );
 		clear_overlaid();
 	}
@@ -102,14 +90,13 @@ void pakset_manager_t::load_pakset(bool load_addons)
 	if(  env_t::verbose_debug >= log_t::LEVEL_DEBUG  ) {
 		pakset_info_t::debug();
 	}
+}
 
-	if(  !overlaid_warning.empty()  ) {
-		overlaid_warning.append( "<p>Continue by click, ESC, SPACE, or BACKSPACE.<br>" );
-		help_frame_t *win = new help_frame_t();
-		win->set_text( overlaid_warning.c_str() );
-		modal_dialogue( win, magic_pakset_info_t, NULL, wait_for_key );
-		destroy_all_win(true);
-	}
+void pakset_manager_t::open_doubled_warning_window()
+{
+	help_frame_t *win = new help_frame_t();
+	win->set_text( overlaid_warning.c_str() );
+	create_win(win, w_info, magic_none);
 }
 
 

@@ -57,6 +57,7 @@ class pakset_manager_t
 	static bool skip_nodes(FILE *fp, uint32 version);
 
 	static std::string doublettes;
+	static std::string overlaid_warning;
 	static stringhashtable_tpl<missing_level_t> missing_pak_names;
 
 public:
@@ -81,9 +82,16 @@ public:
 	// Display and log a warning if there are missing paks after loading a saved game
 	static void warn_if_paks_missing();
 
-public:
 	static void xref_to_resolve(obj_type type, const char *name, obj_desc_t **dest, bool fatal);
 	static void obj_for_xref(obj_type type, const char *name, obj_desc_t *data);
+
+	// Warnings for doubled objects
+	//  Message sent when doubled objects were loaded
+	static const char* get_doubled_warning_message();
+	//  Return true if doubled objects were loaded
+	static bool needs_doubled_warning_message() { return !overlaid_warning.empty(); }
+	//  Open a window to display the full warning
+	static void open_doubled_warning_window();
 
 private:
 	/**

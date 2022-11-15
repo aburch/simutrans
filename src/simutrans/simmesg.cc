@@ -14,6 +14,7 @@
 
 #include "dataobj/loadsave.h"
 #include "dataobj/environment.h"
+#include "dataobj/pakset_manager.h"
 #include "player/simplay.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
@@ -78,6 +79,11 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 
 void message_t::node::open_msg_window(bool open_as_autoclose) const
 {
+	// show window with the complete warning
+	if (strcmp(msg, pakset_manager_t::get_doubled_warning_message()) == 0) {
+		pakset_manager_t::open_doubled_warning_window();
+		return;
+	}
 	// message window again
 	news_window* news;
 	if(  pos==koord3d::invalid  ) {
