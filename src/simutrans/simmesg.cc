@@ -76,6 +76,21 @@ FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
 }
 
 
+void message_t::node::open_msg_window(bool open_as_autoclose) const
+{
+	// message window again
+	news_window* news;
+	if(  pos==koord3d::invalid  ) {
+		news = new news_img( msg, image, get_player_color(welt) );
+	}
+	else {
+		news = new news_loc( msg, pos, get_player_color(welt) );
+	}
+
+	create_win(news, open_as_autoclose ? w_time_delete /* autoclose window */ : w_info /* normal window */, magic_none);
+}
+
+
 message_t::message_t()
 {
 	ticker_flags = 0xFF7F; // everything on the ticker only
@@ -198,7 +213,6 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos
 
 	// insert at the top
 	list.insert(n);
-	char* p = list.front()->msg;
 
 	// if we are not current player, do not open windows
 	if(  (what_bit&(1<<ai))==0  &&   (color & PLAYER_FLAG) != 0  &&  welt->get_active_player_nr() != (color&(~PLAYER_FLAG))  ) {
@@ -209,16 +223,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos
 
 	// should we open a window?
 	if (  what_bit & (auto_win_flags | win_flags)  ) {
-		news_window* news;
-		if (pos == koord3d::invalid) {
-			news = new news_img(p, image, colorval);
-		}
-		else {
-			news = new news_loc(p, pos, colorval);
-		}
-		wintype w_t = what_bit & win_flags ? w_info /* normal window */ : w_time_delete /* autoclose window */;
-
-		create_win(  news, w_t, magic_none );
+		n->open_msg_window( (what_bit & win_flags)==0 );
 	}
 
 	// restore focus

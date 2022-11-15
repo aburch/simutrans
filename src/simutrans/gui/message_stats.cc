@@ -70,15 +70,8 @@ bool message_stats_t::infowin_event(const event_t * ev)
 	bool swallowed = gui_aligned_container_t::infowin_event(ev);
 
 	if(  !swallowed  &&  IS_LEFTRELEASE(ev)  ) {
-		// show message window again
-		news_window* news;
-		if(  msg->pos==koord3d::invalid  ) {
-			news = new news_img( msg->msg, msg->image, msg->get_player_color(welt) );
-		}
-		else {
-			news = new news_loc( msg->msg, msg->pos, msg->get_player_color(welt) );
-		}
-		create_win(-1, -1, news, w_info, magic_none);
+		msg->open_msg_window(false /* open as normal not autoclose */);
+
 		swallowed = true;
 	}
 	else if(  !swallowed  &&  IS_RIGHTRELEASE(ev)  &&  msg->pos!=koord3d::invalid  ) {

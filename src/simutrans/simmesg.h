@@ -38,6 +38,8 @@ public:
 		uint32 get_type_shifted() const { return 1<<(type & MESSAGE_TYPE_MASK); }
 
 		FLAGGED_PIXVAL get_player_color(karte_t*) const;
+
+		void open_msg_window(bool open_as_autoclose) const;
 	};
 
 	enum msg_typ {
