@@ -6095,6 +6095,12 @@ bool karte_t::interactive(uint32 quit_month)
 				tool->flags = 0;
 				next_deferred_move_flags = 0;
 			}
+			else if (two_click_tool_t *tct = dynamic_cast<two_click_tool_t*>(tool)) {
+				// remove preview images
+				if (!tct->is_first_click()) {
+					tct->cleanup(false);
+				}
+			}
 		}
 
 		if(  env_t::networkmode  ) {

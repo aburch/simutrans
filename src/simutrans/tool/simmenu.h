@@ -401,18 +401,13 @@ public:
 	bool is_first_click() const;
 
 	/**
-	 * Remove dummy grounds, remove start_marker.
+	 * Remove dummy grounds, remove start_marker if @p delete_start_marker is true.
 	 */
-	void cleanup() { cleanup(true); }
+	void cleanup(bool delete_start_marker = true);
 
 	const koord3d& get_start_pos() const { return start; }
 
 private:
-	/**
-	 * Remove dummy grounds, remove start_marker if @p delete_start_marker is true.
-	 */
-	void cleanup(bool delete_start_marker );
-
 	/*
 	 * This routine should fill marked_tiles.
 	 */
