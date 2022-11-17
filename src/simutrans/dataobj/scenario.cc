@@ -151,6 +151,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 
 bool scenario_t::load_script(const char* filename)
 {
+	delete script;
 	// start vm
 	script = script_loader_t::start_vm("scenario_base.nut", "script-scenario.log", scenario_path.c_str(), true);
 	if (script == NULL) {
