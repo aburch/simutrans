@@ -89,6 +89,9 @@ void scenario_info_t::update_scenario_texts(bool init)
 	update_dynamic_texts( about, scen->about_text, border_size, init);
 	update_dynamic_texts( result, scen->result_text, border_size, init);
 	update_dynamic_texts( debug_msg, scen->debug_text, border_size, init);
+
+	const char *d = scen->debug_text;
+	debug_msg.set_visible(d  &&  *d);
 }
 
 void scenario_info_t::draw(scr_coord pos, scr_size size)
