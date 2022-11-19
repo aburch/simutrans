@@ -162,6 +162,7 @@ register_function("get_result_text");
 
 /**
  * Text shown in the 'Debug' tab in the scenario info window.
+ * If the method returns null then the 'Debug'-tab will not be shown.
  *
  * Html-like tags can be used, see @ref get_rule_text.
  *

@@ -180,7 +180,7 @@ BEGIN {
 	export_types_scenario["gui::open_info_win"] = "void()"
 	export_types_scenario["gui::open_info_win_at"] = "void(string)"
 	export_types_scenario["gui::open_info_win_client"] = "void(string, integer)"
-	export_types_scenario["gui::add_message_at"] = "string(string, coord)"
+	export_types_scenario["gui::add_message_at"] = "string(string, coord3d)"
 	export_types_scenario["gui::add_message"] = "string(player_x, string)"
 	export_types_scenario["halt_x::is_valid"] = "bool()"
 	export_types_scenario["halt_x::get_name"] = "string()"

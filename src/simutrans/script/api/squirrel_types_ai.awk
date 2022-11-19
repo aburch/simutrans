@@ -177,7 +177,7 @@ BEGIN {
 	export_types_ai["sign_desc_x::get_available_signs"] = "array<sign_desc_x>(way_types)"
 	export_types_ai["wayobj_desc_x::is_overhead_line"] = "bool()"
 	export_types_ai["wayobj_desc_x::get_available_wayobjs"] = "array<wayobj_desc_x>(way_types)"
-	export_types_ai["gui::add_message_at"] = "string(player_x, string, coord)"
+	export_types_ai["gui::add_message_at"] = "string(player_x, string, coord3d)"
 	export_types_ai["halt_x::is_valid"] = "bool()"
 	export_types_ai["halt_x::get_name"] = "string()"
 	export_types_ai["halt_x::set_name"] = "void(string)"
