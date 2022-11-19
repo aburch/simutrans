@@ -174,6 +174,9 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		int text_x = (required_size.w>size.w ? D_ARROW_LEFT_WIDTH : 0) + D_H_SPACE - tab_offset_x;
 		int k=0;
 		for(tab const& i : tabs) {
+			if (!i.component->is_visible()) {
+				continue;
+			}
 			if (text_x <= ev->mx && text_x + i.width > ev->mx) {
 				// either tooltip or change
 				active_tab = k;
@@ -186,22 +189,23 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		return false;
 	}
 
-	// navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
+	// navigate among the tabs using shift+tab and tab
 	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_TAB  ) {
+		int di = 1; // tab -> go to the next tab
 		if(  IS_SHIFT_PRESSED(ev)  ) {
-			// Ctrl-PgUp -> go to the previous tab
-			const int next_tab_idx = active_tab - 1;
-			active_tab = next_tab_idx<0 ? max(0, (int)tabs.get_count()-1) : next_tab_idx;
-			call_listeners((long)active_tab);
-			return true;
+			// shift+tab -> go to the previous tab
+			di = -1;
 		}
-		else {
-			// Ctrl-PgDn -> go to the next tab
-			const int next_tab_idx = active_tab + 1;
-			active_tab = next_tab_idx>=(int)tabs.get_count() ? 0 : next_tab_idx;
-			call_listeners((long)active_tab);
-			return true;
+		// change index by di*i
+		for(int i = 1; i<(int)tabs.get_count(); i++) {
+			const int next_tab_idx = (active_tab + tabs.get_count() + di*i) % tabs.get_count();
+			if (tabs.at(next_tab_idx).component->is_visible()) {
+				active_tab = next_tab_idx;
+				call_listeners((long)active_tab);
+				break;
+			}
 		}
+		return true;
 	}
 
 	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
@@ -217,6 +221,16 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 
 void gui_tab_panel_t::draw(scr_coord parent_pos)
 {
+	// if active tab is invisible, choose the previous visible one
+	if (!tabs.at(active_tab).component->is_visible()) {
+		for(int i = 1; i<(int)tabs.get_count(); i++) {
+			const int next_tab_idx = (active_tab + tabs.get_count() - i) % tabs.get_count();
+			if (tabs.at(next_tab_idx).component->is_visible()) {
+				active_tab = next_tab_idx;
+				break;
+			}
+		}
+	}
 	// Position in screen/window
 	int xpos = parent_pos.x + pos.x;
 	const int ypos = parent_pos.y + pos.y;
@@ -242,6 +256,9 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	int i=0;
 	for(tab const& iter : tabs) {
 
+		if (!iter.component->is_visible()) {
+			continue;
+		}
 		// set clipping
 		PUSH_CLIP_FIT(xpos, ypos, xx, required_size.h);
 		// only start drawing here ...
