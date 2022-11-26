@@ -561,11 +561,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// station extension
 	enum_slot(vm, "station_extension", (uint8)building_desc_t::generic_extension, true);
 	/// city building: residential
-	enum_slot(vm, "city_ind", (uint8)building_desc_t::city_res, true);
+	enum_slot(vm, "city_res", (uint8)building_desc_t::city_res, true);
 	/// city building: commercial
 	enum_slot(vm, "city_com", (uint8)building_desc_t::city_com, true);
 	/// city building: industrial
-	enum_slot(vm, "city_res", (uint8)building_desc_t::city_ind, true);
+	enum_slot(vm, "city_ind", (uint8)building_desc_t::city_ind, true);
 	end_enum();
 	/**
 	 * @returns building type
