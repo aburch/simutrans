@@ -88,6 +88,16 @@ function test_way_tunnel_build_straight()
 				"........",
 				"........"
 			])
+
+		{
+			// test tunnel object
+			local t = tile_x(3, 1, 0)
+			local tunnel = t.find_object(mo_tunnel)
+
+			ASSERT_TRUE(tunnel != null)
+
+			ASSERT_EQUAL(tunnel.get_desc().get_name(), default_tunnel.get_name())
+		}
 	}
 
 	{

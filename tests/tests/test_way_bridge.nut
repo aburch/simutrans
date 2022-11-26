@@ -19,6 +19,16 @@ function test_way_bridge_build_ground()
 	// build bridge on flat ground
 	ASSERT_EQUAL(command_x.build_bridge(pl, coord3d(3, 5, 0), coord3d(3, 2, 0), bridge_desc), null)
 
+	{
+		// test bridge object
+		local t = tile_x(3, 5, 0)
+		local bridge = t.find_object(mo_bridge)
+
+		ASSERT_TRUE(bridge != null)
+
+		ASSERT_EQUAL(bridge.get_desc().get_name(), bridge_desc.get_name())
+	}
+
 	ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 		[
 			"........",

@@ -14,6 +14,7 @@
  * - Added @ref convoy_x::change_schedule
  * - Added tool_ids::tool_build_groundobj
  * - Changed building_desc_x::get_available_stations to accept wt_all
+ * - Added @ref bridge_x, @ref tunnel_x
  *
  * @section api-123 Release 123.0
  *

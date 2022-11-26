@@ -19,12 +19,14 @@
 #include "../../dataobj/scenario.h"
 #include "../../descriptor/ground_desc.h"
 #include "../../obj/baum.h"
+#include "../../obj/bruecke.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/field.h"
 #include "../../obj/label.h"
 #include "../../obj/leitung2.h"
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
+#include "../../obj/tunnel.h"
 #include "../../obj/wayobj.h"
 #include "../../player/simplay.h"
 
@@ -185,6 +187,8 @@ getpush_obj_pos(weg_t, obj_t::way);
 getpush_obj_pos(leitung_t, obj_t::leitung);
 getpush_obj_pos(field_t, obj_t::field);
 getpush_obj_pos(wayobj_t, obj_t::wayobj);
+getpush_obj_pos(bruecke_t, obj_t::bruecke);
+getpush_obj_pos(tunnel_t, obj_t::tunnel);
 
 namespace script_api {
 	// each depot has its own class
@@ -261,6 +265,8 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(senke_t);
 
 		case_resolve_obj(wayobj_t);
+		case_resolve_obj(bruecke_t);
+		case_resolve_obj(tunnel_t);
 		default:
 			return access_objs<obj_t>::push_with_pos(vm, obj);
 	}
@@ -773,5 +779,25 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &wayobj_t::get_desc, "get_desc");
+	end_class(vm);
+
+	/**
+	 * Bridges: bridge objects of bridge ramps and tiles
+	 */
+	begin_obj_class<bruecke_t>(vm, "bridge_x", "map_object_x");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &bruecke_t::get_desc, "get_desc");
+	end_class(vm);
+
+	/**
+	 * Tunnels
+	 */
+	begin_obj_class<tunnel_t>(vm, "tunnel_x", "map_object_x");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &tunnel_t::get_desc, "get_desc");
 	end_class(vm);
 }
