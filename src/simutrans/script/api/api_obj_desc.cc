@@ -517,11 +517,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &building_desc_t::get_capacity, "get_capacity");
 	/**
-	 * @return whether building can be built underground
+	 * @return whether station building can be built underground
 	 */
 	register_method(vm, &building_desc_t::can_be_built_underground, "can_be_built_underground");
 	/**
-	 * @return whether building can be built above ground
+	 * @return whether station building can be built above ground
 	 */
 	register_method(vm, &building_desc_t::can_be_built_aboveground, "can_be_built_aboveground");
 	/**
