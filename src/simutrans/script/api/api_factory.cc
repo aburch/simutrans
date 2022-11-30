@@ -206,7 +206,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Class to access information about factories.
 	 * Identified by coordinate.
 	 */
-	begin_class(vm, "factory_x", "extend_get,coord,ingame_object");
+	begin_class(vm, "factory_x", "coord,extend_get,ingame_object");
 
 	/**
 	 * Constructor.

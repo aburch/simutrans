@@ -465,7 +465,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Class to access objects on the map
 	 * These classes cannot modify anything.
 	 */
-	begin_class(vm, "map_object_x", "extend_get,coord3d,ingame_object");
+	begin_class(vm, "map_object_x", "coord3d,extend_get,ingame_object");
 	uint8 objtype = bind_code<obj_t>::objtype;
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	/**

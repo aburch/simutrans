@@ -105,7 +105,7 @@ void export_city(HSQUIRRELVM vm)
 	/**
 	 * Class to access cities.
 	 */
-	begin_class(vm, "city_x", "extend_get,coord,ingame_object");
+	begin_class(vm, "city_x", "coord,extend_get,ingame_object");
 
 	/**
 	 * Constructor.

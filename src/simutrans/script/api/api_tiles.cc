@@ -143,7 +143,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class(vm, "tile_x", "extend_get,coord3d,ingame_object");
+	begin_class(vm, "tile_x", "coord3d,extend_get,ingame_object");
 
 	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
@@ -349,7 +349,7 @@ void export_tiles(HSQUIRRELVM vm)
 	/**
 	 * Class to map squares, which holds all the tiles on one particular coordinate.
 	 */
-	begin_class(vm, "square_x", "extend_get,coord,ingame_object");
+	begin_class(vm, "square_x", "coord,extend_get,ingame_object");
 
 	/**
 	 * Constructor. Returns map square at particular 2d coordinate.
