@@ -106,6 +106,13 @@ vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
 	return list;
 }
 
+vector_tpl<grund_t*> const& factory_get_fields_list(fabrik_t *fab)
+{
+	static vector_tpl<grund_t*> list;
+	fab->get_fields_list(list);
+	return list;
+}
+
 vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan); // api_tiles.cc
 
 vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
@@ -344,6 +351,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array of tile_x objects
 	 */
 	register_method(vm, &factory_get_tile_list, "get_tile_list", true);
+
+	/**
+	 * Get list of all tiles occupied by fields belonging to this factory.
+	 * @returns array of tile_x objects
+	 */
+	register_method(vm, &factory_get_fields_list, "get_fields_list", true);
 
 	/**
 	 * Get list of all halts that serve this this factory.

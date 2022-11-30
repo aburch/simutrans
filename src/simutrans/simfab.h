@@ -623,6 +623,11 @@ public:
 	 */
 	void get_tile_list( vector_tpl<koord> &tile_list ) const;
 
+	/*
+	 * Fills the vector with the tiles of the fields.
+	 */
+	void get_fields_list( vector_tpl<grund_t*> &fields_list ) const;
+
 	/// @returns a vector of factories within a rectangle
 	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 

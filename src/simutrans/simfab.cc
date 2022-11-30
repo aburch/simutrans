@@ -3283,6 +3283,21 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	}
 }
 
+
+void fabrik_t::get_fields_list( vector_tpl<grund_t*> &fields_list ) const
+{
+	fields_list.clear();
+	if(desc->get_field_group()) {
+		// if there are fields
+		for(auto fd : fields) {
+			const koord k = fd.location;
+			grund_t *gr=welt->lookup_kartenboden(k);
+			fields_list.append( gr );
+		}
+	}
+}
+
+
 // Returns a list of goods produced by this factory. The caller must delete
 // the list when done
 slist_tpl<const goods_desc_t*> *fabrik_t::get_produced_goods() const
