@@ -99,11 +99,17 @@ uint32 get_consumption_factor(const factory_supplier_desc_t *desc)
 }
 
 
-vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
+vector_tpl<grund_t*> const& factory_get_tile_list(fabrik_t *fab)
 {
 	static vector_tpl<koord> list;
 	fab->get_tile_list(list);
-	return list;
+
+	static vector_tpl<grund_t*> tile_list;
+	tile_list.clear();
+	for(koord k : list) {
+		tile_list.append(welt->lookup_kartenboden(k));
+	}
+	return tile_list;
 }
 
 vector_tpl<grund_t*> const& factory_get_fields_list(fabrik_t *fab)

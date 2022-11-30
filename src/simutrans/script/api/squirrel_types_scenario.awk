@@ -89,7 +89,7 @@ BEGIN {
 	export_types_scenario["factory_x::get_mail_generated"] = "array<integer>()"
 	export_types_scenario["factory_x::get_mail_departed"] = "array<integer>()"
 	export_types_scenario["factory_x::get_mail_arrived"] = "array<integer>()"
-	export_types_scenario["factory_x::get_tile_list"] = "array<coord>()"
+	export_types_scenario["factory_x::get_tile_list"] = "array<tile_x>()"
 	export_types_scenario["factory_x::get_fields_list"] = "array<tile_x>()"
 	export_types_scenario["factory_x::get_halt_list"] = "array<halt_x>()"
 	export_types_scenario["factory_x::is_transformer_connected"] = "bool()"
