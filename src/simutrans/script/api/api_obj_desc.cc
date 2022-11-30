@@ -422,11 +422,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &can_be_last, "can_be_last", true);
 	/**
-	 * @returns list of possible successors, if all are allowed then list is empty
+	 * @returns list of possible successors, if list is empty then all are allowed (if @ref can_be_last returns true, or no successors are allowed if @ref can_be_last is false).
 	 */
 	register_method(vm, &get_successors, "get_successors", true);
 	/**
-	 * @returns list of possible predecessors, if all are allowed then list is empty
+	 * @returns list of possible predecessors, if list is empty then all are allowed (if @ref can_be_first returns true, or no predecessors are allowed if @ref can_be_first is false).
 	 */
 	register_method(vm, &get_predecessors, "get_predecessors", true);
 	/**
