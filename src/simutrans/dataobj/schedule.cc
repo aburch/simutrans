@@ -492,7 +492,7 @@ void schedule_t::add_return_way(bool append_mirror)
 	else {
 		// invert
 		if(  entries.get_count()>1  ) {
-			for(  uint8 i=0;  i<(entries.get_count()-1)/2;  i++  ) {
+			for(  uint8 i=0;  i<entries.get_count()/2;  i++  ) {
 				schedule_entry_t temp = entries[i];
 				entries[i] = entries[entries.get_count()-i-1];
 				entries[ entries.get_count()-i-1] = temp;
