@@ -917,12 +917,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server/queue (then suspend is true).
 	 */
-	void set_tool_api(tool_t* tool_in, player_t* player, bool& suspended, bool called_from_api );
+	void set_tool_api(tool_t* tool_in, player_t* player, bool& suspended);
 
 	/**
 	 * Set a new tool as current without suspending parameter
 	 */
-	void set_tool(tool_t* tool_in, player_t* player) { bool b; set_tool_api(tool_in, player, b, false); }
+	void set_tool(tool_t* tool_in, player_t* player) { bool b; set_tool_api(tool_in, player, b); }
 
 	/**
 	 * Set a new tool on our client, calls init.
@@ -939,9 +939,8 @@ public:
 	/**
 	 * Calls the work method of the tool.
 	 * Takes network and scenarios into account.
-	 * (There is the flags for scripted calls in the tool structure, but it seems not used so far?!)
 	 */
-	const char* call_work_api(tool_t *t, player_t *pl, koord3d pos, bool &suspended, bool called_from_api);
+	const char* call_work_api(tool_t *t, player_t *pl, koord3d pos, bool &suspended);
 
 	 /**
 	  * Initialize map.

@@ -2169,7 +2169,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended, bool)
+void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended)
 {
 	suspended = false;
 	if(  get_random_mode()&LOAD_RANDOM  ) {
@@ -3315,7 +3315,7 @@ void karte_t::step()
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 		tmp_tool->set_default_param( buf );
 		bool suspended;
-		call_work_api(tmp_tool, get_active_player(), koord3d::invalid, suspended, false);
+		call_work_api(tmp_tool, get_active_player(), koord3d::invalid, suspended);
 		// work is done (or command sent), it is safe to delete immediately
 		delete tmp_tool;
 	}
@@ -5704,7 +5704,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 }
 
 
-const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, bool &suspended, bool  )
+const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
 {
 	suspended = false;
 	const char *err = NULL;
