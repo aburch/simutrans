@@ -8,6 +8,8 @@
 #include <stdlib.h>
 
 #ifndef _WIN32
+#	include <sys/stat.h>
+#	include <sys/types.h>
 #	include <dirent.h>
 #else
 #	ifndef NOMINMAX
@@ -165,27 +167,45 @@ void searchfolder_t::search_path(const std::string path, const std::string name,
 	lookfor = path + ".";
 
 	if (DIR* const dir = opendir(lookfor.c_str())) {
+		int dir_fd = dirfd(dir);
+		if( dir_fd == -1 ) {
+			goto close_dir;
+		}
 		lookfor = name + ext;
 
 		while (dirent const* const entry = readdir(dir)) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-				if (entry->d_type == DT_DIR && (search_flags&SF_NOADDONS) && !STRICMP(entry->d_name, "addons")) {
+
+				bool is_dir = false;
+				if( entry->d_type == DT_DIR ) {
+					is_dir = true;
+				}
+				else if( entry->d_type == DT_UNKNOWN || entry->d_type == DT_LNK ) {
+					struct stat st;
+					if( fstatat(dir_fd, entry->d_name, &st, 0) == -1 ) {
+						continue;
+					}
+					is_dir = S_ISDIR(st.st_mode);
+				}
+
+				if( is_dir && (search_flags&SF_NOADDONS) && !STRICMP(entry->d_name, "addons") ) {
 					continue;
 				}
 
 				if (only_directories) {
-					if( entry->d_type == DT_DIR  ||  entry->d_type == DT_LNK) {
+					if( is_dir ) {
 						add_entry(path, entry->d_name, prepend_path);
 					}
 				} else if (filename_matches_pattern(entry->d_name, lookfor.c_str())) {
 					add_entry(path, entry->d_name, prepend_path);
 				}
-				if( entry->d_type == DT_DIR && max_depth > 0) {
+				if( is_dir && max_depth > 0 ) {
 					search_path(path + entry->d_name + '/', name, ext, search_flags, max_depth - 1);
 				}
 
 			}
 		}
+close_dir:
 		closedir(dir);
 	}
 #endif
