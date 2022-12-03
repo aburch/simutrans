@@ -6093,7 +6093,6 @@ bool karte_t::interactive(uint32 quit_month)
 				tool->flags = next_deferred_move_flags;
 				tool->move(active_player, true, target);
 				tool->flags = 0;
-				next_deferred_move_flags = 0;
 			}
 			else if (two_click_tool_t *tct = dynamic_cast<two_click_tool_t*>(tool)) {
 				// remove preview images
@@ -6101,6 +6100,8 @@ bool karte_t::interactive(uint32 quit_month)
 					tct->cleanup(false);
 				}
 			}
+			next_deferred_move_to = koord3d::invalid;
+			next_deferred_move_flags = 0;
 		}
 
 		if(  env_t::networkmode  ) {
