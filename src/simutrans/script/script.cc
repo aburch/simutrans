@@ -308,10 +308,8 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 		err = "Call function failed";
 		retvalue = false;
 	}
-	if (ct == FORCE  ||  ct == FORCEX) {
-		sq_block_suspend(job, NULL);
-	}
-	if (sq_getvmstate(job) != SQ_VMSTATE_SUSPENDED  ||  ct == FORCE  ||  ct == FORCEX) {
+	// call not suspended
+	if (sq_getvmstate(job) != SQ_VMSTATE_SUSPENDED) {
 		// remove closure
 		sq_remove(job, retvalue ? -2 : -1);
 		if (ct == QUEUE  &&  retvalue) {
@@ -333,12 +331,29 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 		if (retvalue) {
 			sq_poptop(job);
 		}
-		// save retvalue flag, number of parameters
-		sq_pushregistrytable(job);
-		script_api::create_slot(job, "retvalue", retvalue);
-		script_api::create_slot(job, "nparams", nparams);
-		sq_poptop(job);
+		// throw error in FORCEd mode
+		if (ct == FORCE  ||  ct == FORCEX) {
+			// not allowed for ct == FORCE
+			sq_raise_error(job, "cannot suspend call to %s", sq_get_suspend_blocker(job));
+			// wake up to throw error
+			sq_wakeupvm(job, false, retvalue, true /*raise_error*/, true /* throw error*/);
+			retvalue = false;
+			// pop closure and params
+			sq_pop(job, nparams+1);
+		}
+		else {
+			// save retvalue flag, number of parameters
+			sq_pushregistrytable(job);
+			script_api::create_slot(job, "retvalue", retvalue);
+			script_api::create_slot(job, "nparams", nparams);
+			sq_poptop(job);
+		}
 		err = "suspended";
+	}
+
+	if (ct == FORCE  ||  ct == FORCEX) {
+		END_STACK_WATCH(job, -nparams-1 + retvalue);
+		sq_block_suspend(job, NULL);
 	}
 	dbg->message("script_vm_t::intern_call_function", "stack=%d err=%s", sq_gettop(job)-retvalue, err);
 	return err;
