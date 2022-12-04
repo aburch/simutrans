@@ -295,6 +295,7 @@ register_function("jump_to_link_executed");
  *
  * @param pl player instance to use this tool.
  * @ingroup tool_skel
+ * @ingroup quick_return_func
  * @typemask bool(player_x)
  */
 register_function("init");
@@ -305,6 +306,7 @@ register_function("init");
  *
  * @param pl player instance to use this tool.
  * @ingroup tool_skel
+ * @ingroup quick_return_func
  * @typemask bool(player_x)
  */
 register_function("exit");
@@ -371,6 +373,7 @@ register_function("mark_tile");
  * @param pos position to test
  * @param start first tile clicked by user
  * @ingroup tool_skel
+ * @ingroup quick_return_func
  * @typemask void(player_x, coord3d, coord3d)
  */
 register_function("is_valid_pos");
