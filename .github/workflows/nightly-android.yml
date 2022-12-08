@@ -85,11 +85,6 @@ jobs:
         pwd
         git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1 && git reset --hard FETCH_HEAD
 
-    - name: Setup licenses for Gradle
-      working-directory: /android-sdl
-      run: |
-        ln -s $ANDROID_HOME/licenses project/licenses
-
     # pelya building script expects that 1/ simutrans is found inside /android-sdl/project/jni/application/simutrans/simutrans and 2/ that it is a svn repo, as revision.h is populated by svn command line
     # the content of actions/checkout is a git repo so it is not compatible
     # so we just checkout the meta informations
