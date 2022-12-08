@@ -83,7 +83,7 @@ jobs:
       run: |
         ls -l
         pwd
-        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1 && git reset --hard FETCH_HEAD
+        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl
@@ -99,6 +99,7 @@ jobs:
         CURRENT_BRANCH=$GITHUB_REF_NAME
         echo $CURRENT_BRANCH
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
+        echo $(ls -al project/jni/application/simutrans)
         mv $GITHUB_WORKSPACE/gh-clone/simutrans project/jni/application/simutrans/
         chmod +755 project/jni/application/simutrans/simutrans/tools/get_revision.sh
         echo $(ls -al project/jni/application/simutrans/simutrans/android)
