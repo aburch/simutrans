@@ -83,7 +83,7 @@ jobs:
       run: |
         ls -l
         pwd
-        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1
+        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1 && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl
