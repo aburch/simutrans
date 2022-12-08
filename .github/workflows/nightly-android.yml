@@ -94,8 +94,8 @@ jobs:
         CURRENT_BRANCH=$GITHUB_REF_NAME
         echo $CURRENT_BRANCH
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
-        echo $(ls -al project/jni/application/simutrans)
-        mv $GITHUB_WORKSPACE/gh-clone/simutrans project/jni/application/simutrans/
+        echo $(ls -rl $GITHUB_WORKSPACE/gh-clone)
+        mv $GITHUB_WORKSPACE/gh-clone project/jni/application/simutrans/
         chmod +755 project/jni/application/simutrans/simutrans/tools/get_revision.sh
         echo $(ls -al project/jni/application/simutrans/simutrans/android)
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidAppSettings.cfg project/jni/application/simutrans/
