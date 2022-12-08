@@ -57,11 +57,13 @@ jobs:
 
     - name: Install Android SDK dependencies
       working-directory: /opt/android-sdk-linux
+      # was:   yes | sdkmanager --install "build-tools;30.0.3"
+      # was    echo "$ANDROID_HOME/build-tools/30.0.3" >> $GITHUB_PATH
       run: |
         yes | sdkmanager --install "platform-tools"
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        yes | sdkmanager --install "build-tools;30.0.3"
-        echo "$ANDROID_HOME/build-tools/30.0.3" >> $GITHUB_PATH
+        yes | sdkmanager --install "build-tools"
+        echo "$ANDROID_HOME/build-tools" >> $GITHUB_PATH
         yes | sdkmanager --install "cmake;3.18.1"
         echo "$ANDROID_HOME/cmake/3.18.1/bin" >> $GITHUB_PATH
         yes | sdkmanager --install "ndk;23.0.7599858"
@@ -75,11 +77,13 @@ jobs:
         keytool -genkey -v -keystore /home/runner/.android/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -keypass android -storepass android -dname "cn=example.com,ou=exampleou,dc=example,dc=com"
 
     - name: Checkout lib Android SDL by pelya (hard coded version)
+      # krosk is no longer work right now
+      # was:  git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin e84e645ca309e56db84a211b484be7df6f3b03ca && git reset --hard FETCH_HEAD
       working-directory: /android-sdl
       run: |
         ls -l
         pwd
-        git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin e84e645ca309e56db84a211b484be7df6f3b03ca && git reset --hard FETCH_HEAD
+        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1 && git reset --hard FETCH_HEAD
 
     - name: Setup licenses for Gradle
       working-directory: /android-sdl
