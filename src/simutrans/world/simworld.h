@@ -221,7 +221,7 @@ private:
 
 	weighted_vector_tpl<gebaeude_t *> attractions;
 
-	slist_tpl<koord> labels;
+	vector_tpl<koord> labels;
 
 	/**
 	 * Stores the cities.
@@ -984,9 +984,9 @@ public:
 	void remove_attraction(gebaeude_t *gb);
 	const weighted_vector_tpl<gebaeude_t*> &get_attractions() const {return attractions; }
 
-	void add_label(koord k) { if (!labels.is_contained(k)) labels.append(k); }
+	void add_label(koord k) { labels.append_unique(k); }
 	void remove_label(koord k) { labels.remove(k); }
-	const slist_tpl<koord>& get_label_list() const { return labels; }
+	const vector_tpl<koord>& get_label_list() const { return labels; }
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);

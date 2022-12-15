@@ -16,6 +16,7 @@
 #include "../../simversion.h"
 #include "../../player/simplay.h"
 #include "../../obj/gebaeude.h"
+#include "../../obj/label.h"
 #include "../../descriptor/ground_desc.h"
 #include "../../simware.h"
 #include "../../builder/goods_manager.h"
@@ -153,6 +154,7 @@ SQInteger world_attraction_list_next(HSQUIRRELVM vm)
 
 namespace script_api {
 	declare_fake_param(attraction_list_t, "attraction_list_x");
+	declare_fake_param(label_list_t, "label_list_x");
 }
 
 gebaeude_t* world_attraction_list_get(attraction_list_t, uint32 index)
@@ -170,6 +172,33 @@ SQInteger world_get_attraction_list(HSQUIRRELVM vm)
 SQInteger world_get_attraction_count(HSQUIRRELVM vm)
 {
 	return param<uint32>::push(vm, welt->get_attractions().get_count());
+}
+
+SQInteger world_get_label_list(HSQUIRRELVM vm)
+{
+	return push_instance(vm, "label_list_x");
+}
+
+uint32 world_get_label_count(label_list_t)
+{
+	return welt->get_label_list().get_count();
+}
+
+SQInteger world_label_list_next(HSQUIRRELVM vm)
+{
+	return generic_get_next(vm, welt->get_label_list().get_count());
+}
+
+label_t* world_label_list_get(label_list_t, uint32 index)
+{
+	auto list = welt->get_label_list();
+	if (index < list.get_count()) {
+		koord k = list[index];
+		if (grund_t *gr = welt->lookup_kartenboden(k)) {
+			return gr->find<label_t>();
+		}
+	}
+	return NULL;
 }
 
 SQInteger world_get_convoy_list(HSQUIRRELVM vm)
@@ -410,6 +439,14 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * @typemask attraction_list_x()
 	 */
 	STATIC register_function(vm, world_get_attraction_list, "get_attraction_list", 1, ".");
+
+	/**
+	 * Returns iterator through the list of labels on the map.
+	 * @returns iterator class.
+	 * @typemask label_list_x()
+	 */
+	STATIC register_function(vm, world_get_label_list, "get_label_list", 1, ".");
+
 	/**
 	 * Returns list of convoys on the map.
 	 * @returns convoy list
@@ -450,6 +487,35 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * @typemask integer()
 	 */
 	register_function(vm, world_get_attraction_count, "get_count",  1, "x");
+
+	end_class(vm);
+
+	/**
+	 * Implements iterator to iterate through the list of all labels on the map.
+	 *
+	 * Usage:
+	 * @code
+	 * local list = world.get_label_list()
+	 * // list is now of type label_list_x
+	 * foreach(label in list) {
+	 *     ... // label is an instance of the label_x class
+	 * }
+	 * @endcode
+	 */
+	create_class(vm, "label_list_x");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all labels on the map. Do not call it directly.
+	 */
+	register_function(vm, world_label_list_next,  "_nexti",  2, ". o|i");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all labels on the map. Do not call it directly.
+	 */
+	register_method(vm, world_label_list_get,   "_get", true);
+	/**
+	 * Returns number of labels in the list.
+	 * @typemask integer()
+	 */
+	register_method(vm, world_get_label_count, "get_count", true);
 
 	end_class(vm);
 

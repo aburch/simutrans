@@ -395,6 +395,8 @@ BEGIN {
 	export_types_ai["world::get_year_transported_goods"] = "array<integer>()"
 	export_types_ai["world::use_timeline"] = "bool()"
 	export_types_ai["attraction_list_x::_get"] = "building_x(integer)"
+	export_types_ai["label_list_x::_get"] = "label_x(integer)"
+	export_types_ai["label_list_x::get_count"] = "integer()"
 	export_types_ai["::get_pakset_name"] = "string()"
 	export_types_ai["::get_version_number"] = "string()"
 	export_types_ai["simple_heap_x::clear"] = "void()"

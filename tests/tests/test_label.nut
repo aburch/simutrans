@@ -18,7 +18,17 @@ function test_label()
 	// build label on ground
 	{
 		ASSERT_EQUAL(label_x.create(coord3d(4, 1,  0), pl, "Foo2"), null)
+
+		// test label list
+		local count = 0
+		foreach(label in world.get_label_list()) {
+			ASSERT_EQUAL(label.get_text(), "Foo2")
+			count ++
+		}
+		ASSERT_EQUAL(count, 1)
+
 		ASSERT_EQUAL(remover.work(pl, coord3d(4, 1, 0)), null)
+		ASSERT_EQUAL(world.get_label_list().get_count(), 0)
 	}
 
 	// Build label on invalid ground, same as building on map ground
