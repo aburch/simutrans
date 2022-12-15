@@ -61,15 +61,18 @@ namespace script_api {
 		player_t *player;
 		// error message when calling, returned by push
 		const char* error;
+		// if true, calls to tools that were not immediately executed will not suspend the vm
+		// but rather return null (as if the tool was successfully executed)
+		bool no_block;
 	public:
 		call_tool_base_t(tool_t* t, player_t* pl)
-		: tool(t), tool_id(0), default_param(NULL), flags(0), player(pl), error(NULL)  { }
+		: tool(t), tool_id(0), default_param(NULL), flags(0), player(pl), error(NULL), no_block(false)  { }
 
 		call_tool_base_t(uint16 id, const char* dp, uint8 f, player_t* pl)
-		: tool(NULL), tool_id(id), default_param(dp), flags(f), player(pl), error(NULL) { }
+		: tool(NULL), tool_id(id), default_param(dp), flags(f), player(pl), error(NULL), no_block(false) { }
 
 		call_tool_base_t(const char* err)
-		: tool(NULL), tool_id(0), default_param(NULL), flags(0), player(NULL), error(err)  { }
+		: tool(NULL), tool_id(0), default_param(NULL), flags(0), player(NULL), error(err), no_block(false)  { }
 
 		tool_t * create_tool();
 	};
@@ -119,6 +122,12 @@ namespace script_api {
 		call_tool_work(const char* err)
 		: call_tool_base_t(err),
 		  start(koord3d::invalid), end(koord3d::invalid), twoclick(false) {
+		}
+
+		call_tool_work set_no_block(bool nb)
+		{
+			no_block = nb;
+			return *this;
 		}
 	};
 

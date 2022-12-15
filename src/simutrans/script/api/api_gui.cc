@@ -30,7 +30,7 @@ call_tool_work add_scenario_message_at(const char* text, my_koord3d pos)
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::scenario, text);
 
-	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, welt->get_active_player(), pos);
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, welt->get_active_player(), pos).set_no_block(true);
 }
 
 call_tool_work add_ai_message_at(player_t *player, const char* text, my_koord3d pos)
@@ -39,7 +39,7 @@ call_tool_work add_ai_message_at(player_t *player, const char* text, my_koord3d 
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::ai, text);
 
-	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, pos);
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, pos).set_no_block(true);
 }
 
 call_tool_work add_scenario_message(player_t* player, const char* text)
@@ -48,7 +48,7 @@ call_tool_work add_scenario_message(player_t* player, const char* text)
 	cbuffer_t buf;
 	buf.printf("%d,%s", message_t::scenario, text);
 
-	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player(), koord3d::invalid);
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player(), koord3d::invalid).set_no_block(true);
 }
 
 void open_info_win_client(const char* tab, uint8 player_nr)
