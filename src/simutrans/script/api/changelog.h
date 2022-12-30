@@ -16,6 +16,7 @@
  * - Changed building_desc_x::get_available_stations to accept wt_all
  * - Added @ref bridge_x, @ref tunnel_x
  * - Added @ref factory_x::get_fields_list, @ref world::get_label_list
+ * - Added @ref schedule_x::current.
  *
  * @section api-123 Release 123.0
  *
