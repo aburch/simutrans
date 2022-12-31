@@ -3,12 +3,12 @@
  * (see LICENSE.txt)
  */
 
-#include "../simversion.h"
+#include "../simutrans/simversion.h"
 
 #include <cstdio>
 
 
 int main()
 {
-	return puts(VERSION_NUMBER) < 0;
+  return puts(VERSION_NUMBER) < 0;
 }
