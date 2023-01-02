@@ -59,7 +59,7 @@ public:
 
 	void info(cbuffer_t & buf) const OVERRIDE;
 
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	///@ returns true if pedestrian walks on the left side of the road
 	bool is_on_left() const { return on_left; }

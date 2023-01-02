@@ -2579,60 +2579,6 @@ stadt_t *karte_t::find_nearest_city(const koord k) const
 }
 
 
-// -------- Verwaltung von synchronen Objekten ------------------
-
-void karte_t::sync_list_t::add(sync_steppable *obj)
-{
-	assert(!sync_step_running);
-	list.append(obj);
-}
-
-void karte_t::sync_list_t::remove(sync_steppable *obj)
-{
-	if(sync_step_running) {
-		if (obj == currently_deleting) {
-			return;
-		}
-		assert(false);
-	}
-	else {
-		list.remove(obj);
-	}
-}
-
-void karte_t::sync_list_t::clear()
-{
-	list.clear();
-	currently_deleting = NULL;
-	sync_step_running = false;
-}
-
-void karte_t::sync_list_t::sync_step(uint32 delta_t)
-{
-	sync_step_running = true;
-	currently_deleting = NULL;
-
-	for(uint32 i=0; i<list.get_count();i++) {
-		sync_steppable *ss = list[i];
-		switch(ss->sync_step(delta_t)) {
-			case SYNC_OK:
-				break;
-			case SYNC_DELETE:
-				currently_deleting = ss;
-				delete ss;
-				currently_deleting = NULL;
-				/* fall-through */
-			case SYNC_REMOVE:
-				ss = list.pop_back();
-				if (i < list.get_count()) {
-					list[i] = ss;
-				}
-		}
-	}
-	sync_step_running = false;
-}
-
-
 /*
  * this routine is called before an image is displayed
  * it moves vehicles and pedestrians

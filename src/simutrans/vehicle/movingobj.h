@@ -12,7 +12,6 @@
 #include "../tpl/freelist_iter_tpl.h"
 #include "../descriptor/groundobj_desc.h"
 #include "../simcolor.h"
-#include "../obj/sync_steppable.h"
 
 #include "vehicle_base.h"
 
@@ -20,7 +19,7 @@
 /**
  * moving stuff like sheep or birds
  */
-class movingobj_t : public vehicle_base_t, public sync_steppable
+class movingobj_t : public vehicle_base_t
 {
 private:
 	/// distance to move
@@ -56,7 +55,7 @@ public:
 	movingobj_t(loadsave_t *file);
 	movingobj_t(koord3d pos, const groundobj_desc_t *);
 
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	static void sync_handler(uint32 delta_t) { fl.sync_step(delta_t); }
 

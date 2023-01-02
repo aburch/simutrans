@@ -7,7 +7,6 @@
 #define OBJ_LEITUNG2_H
 
 
-#include "../obj/sync_steppable.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/ribi.h"
 #include "simobj.h"
@@ -126,7 +125,7 @@ public:
 
 
 
-class pumpe_t : public leitung_t, public sync_steppable
+class pumpe_t : public leitung_t
 {
 private:
 	fabrik_t *fab;
@@ -146,7 +145,7 @@ public:
 
 	static void sync_handler(uint32 delta_t) { pl.sync_step(delta_t); }
 
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	void set_net(powernet_t* p) OVERRIDE;
 
@@ -185,7 +184,7 @@ public:
  * Distribution transformers act as an interface between power networks and
  * and power consuming factories.
  */
-class senke_t : public leitung_t, public sync_steppable
+class senke_t : public leitung_t
 {
 private:
 	// Timer for global power payment.
@@ -258,7 +257,7 @@ public:
 	 * Frequency determined by the percentage of power supplied.
 	 * Gives players a visual indication of a power network with insufficient generation.
 	 */
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	const char *get_name() const OVERRIDE {return "Abspanntransformator";}
 

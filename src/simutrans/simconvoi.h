@@ -12,8 +12,6 @@
 #include "simcolor.h"
 #include "linehandle.h"
 
-#include "obj/sync_steppable.h"
-
 #include "dataobj/route.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
@@ -36,7 +34,7 @@ class cbuffer_t;
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  */
-class convoi_t : public sync_steppable, public overtaker_t
+class convoi_t : public overtaker_t
 {
 public:
 	enum {
@@ -574,7 +572,7 @@ public:
 	 * moving the vehicles of a convoi and acceleration/deceleration
 	 * all other stuff => convoi_t::step()
 	 */
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	/**
 	 * All things like route search or loading, that may take a little

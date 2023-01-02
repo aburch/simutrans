@@ -41,7 +41,6 @@ class grund_t;
 class planquadrat_t;
 class main_view_t;
 class interaction_t;
-class sync_steppable;
 class tool_t;
 class scenario_t;
 class message_t;
@@ -1015,25 +1014,79 @@ public:
 	/// rotate map view by 90 degrees
 	void rotate90();
 
-	class sync_list_t {
-			friend class karte_t;
-		public:
-			sync_list_t() : currently_deleting(NULL), sync_step_running(false) {}
-			void add(sync_steppable *obj);
-			void remove(sync_steppable *obj);
-		private:
-			void sync_step(uint32 delta_t);
-			/// clears list, does not delete the objects
-			void clear();
+	template <class T>
+	class sync_list_t
+	{
+		friend class karte_t;
 
-			vector_tpl<sync_steppable *> list;  ///< list of sync-steppable objects
-			sync_steppable* currently_deleting; ///< deleted durign sync_step, safeguard calls to remove
-			bool sync_step_running;
+		vector_tpl<T *> list;  ///< list of sync-steppable objects
+		T *currently_deleting; ///< deleted durign sync_step, safeguard calls to remove
+		bool sync_step_running;
+
+	public:
+		sync_list_t() :
+			currently_deleting(NULL),
+			sync_step_running(false)
+		{}
+
+		void add(T *obj)
+		{
+			assert(!sync_step_running);
+			list.append(obj);
+		}
+
+		void remove(T *obj)
+		{
+			if(sync_step_running) {
+				if (obj == currently_deleting) {
+					return;
+				}
+				assert(false);
+			}
+			else {
+				list.remove(obj);
+			}
+		}
+
+	private:
+		void sync_step(uint32 delta_t)
+		{
+			sync_step_running = true;
+			currently_deleting = NULL;
+
+			for(uint32 i=0; i<list.get_count();i++) {
+				T *ss = list[i];
+
+				switch(ss->sync_step(delta_t)) {
+					case SYNC_OK:
+						break;
+					case SYNC_DELETE:
+						currently_deleting = ss;
+						delete ss;
+						currently_deleting = NULL;
+						/* fall-through */
+					case SYNC_REMOVE:
+						ss = list.pop_back();
+						if (i < list.get_count()) {
+							list[i] = ss;
+						}
+				}
+			}
+			sync_step_running = false;
+		}
+
+		/// clears list, does not delete the objects
+		void clear()
+		{
+			list.clear();
+			currently_deleting = NULL;
+			sync_step_running = false;
+		}
 	};
 
-	sync_list_t sync;               ///< vehicles
-	sync_list_t sync_buildings;     ///< animated buildings
-	sync_list_t sync_roadsigns;     ///< traffic lights
+	sync_list_t<convoi_t>   sync;           ///< vehicles
+	sync_list_t<gebaeude_t> sync_buildings; ///< animated buildings
+	sync_list_t<roadsign_t> sync_roadsigns; ///< traffic lights
 
 	/**
 	 * Synchronous stepping of objects like vehicles.

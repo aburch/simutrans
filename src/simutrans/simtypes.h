@@ -124,6 +124,15 @@ enum systemtype_t {
 };
 
 
+/// Result of calling sync_step for sync_step-able object
+enum sync_result
+{
+	SYNC_OK,     ///< object remains in list
+	SYNC_REMOVE, ///< remove object from list
+	SYNC_DELETE  ///< delete object and remove from list
+};
+
+
 // define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;

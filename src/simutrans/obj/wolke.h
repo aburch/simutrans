@@ -10,11 +10,11 @@
 #include "simobj.h"
 
 #include "../descriptor/skin_desc.h"
-#include "../obj/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../display/simimg.h"
 
 #include "../tpl/freelist_iter_tpl.h"
+
 
 class karte_t;
 
@@ -25,7 +25,7 @@ class karte_t;
 /**
  * smoke clouds (formerly sync_wolke_t)
  */
-class wolke_t : public obj_no_info_t, public sync_steppable
+class wolke_t : public obj_no_info_t
 {
 private:
 	static vector_tpl<const skin_desc_t *>all_clouds;
@@ -47,7 +47,7 @@ public:
 	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, sint16 hoff, uint16 lifetime, uint16 uplift, const skin_desc_t *cloud );
 	~wolke_t();
 
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	void* operator new(size_t) { return fl.gimme_node(); }
 	void operator delete(void* p) { return fl.putback_node(p); }
