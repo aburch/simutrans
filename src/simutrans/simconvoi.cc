@@ -2587,8 +2587,13 @@ void convoi_t::rdwr(loadsave_t *file)
 		withdraw = false;
 	}
 	else {
-		file->rdwr_bool(no_load);
-		file->rdwr_bool(withdraw);
+		bool value = no_load;
+		file->rdwr_bool(value);
+		no_load = value;
+
+		value = withdraw;
+		file->rdwr_bool(value);
+		withdraw = value;
 	}
 
 	if(file->is_version_atleast(111, 1)) {

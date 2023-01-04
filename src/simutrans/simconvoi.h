@@ -52,7 +52,7 @@ public:
 	/** Constants */
 	enum { default_vehicle_length = 4 };
 
-	enum states {
+	enum states : uint8 {
 		INITIAL,
 		EDIT_SCHEDULE,
 		ROUTING_1,
@@ -74,6 +74,9 @@ public:
 	};
 
 private:
+	/// Current map
+	static karte_ptr_t welt;
+
 	/* The data is laid out such that the most important variables for sync_step and step are
 	 * concentrated at the beginning of the structure.
 	 * All computations are for 64bit builds.
@@ -84,38 +87,45 @@ private:
 	/**
 	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
-	 * continue after a waiting time larger than wait_lock
+	 * continue after a waiting time larger than wait_lock milliseconds
 	 */
 	uint16 wait_lock;
 
+	/// holds id of line with pending update, or -1 if no pending update
+	linehandle_t line_update_pending;
+
 	/**
-	 * The convoi is gradually loaded for each vehicle, i.e. there is a constant loadin speed.
+	 * The convoi is gradually loaded for each vehicle, i.e. there is a constant loading speed.
 	 * Hence the tick value
 	 */
 	uint32 last_load_tick;
 
-	states state;
-	// 32 bytes (state is int is 4 byte)
+	// 24 bytes
 
-	/**
-	* holds id of line with pending update
-	* -1 if no pending update
-	*/
-	linehandle_t line_update_pending;
-
+	uint16 unloading_state    : 1; ///< if state == LOADING, this is true while unloading
 	uint16 recalc_data_front  : 1; ///< true, when front vehicle has to recalculate braking
 	uint16 recalc_data        : 1; ///< true, when convoy has to recalculate weights and speed limits
 	uint16 recalc_speed_limit : 1; ///< true, when convoy has to recalculate speed limits
 
-	uint16 previous_delta_v   :12; /// 12 bit! // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelerate
-	// 36 bytes
+	uint16 previous_delta_v   :12; ///< 12 bit! // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelerate
+
+	uint8 withdraw            : 1; ///< the convoi is being withdrawn from service
+	uint8 no_load             : 1; ///< nothing will be loaded onto this convoi
+	uint8 freight_info_resort : 1; ///< the convoi caches its freight info; it is only recalculation after loading or resorting
+	uint8 has_obsolete        : 1; ///< true, if at least one vehicle of a convoi is obsolete
+	uint8 is_electric         : 1; ///< true, if there is at least one engine that requires catenary
+	// 3 bits free
+
+	states state;
+
 	/**
 	 * Overall performance with Gear.
 	 * Used in movement calculations.
 	 */
 	sint32 sum_gear_and_power;
 
-	// 40 bytes
+	// 32 bytes
+
 	/**
 	 * sum_weight: unloaded weight of all vehicles
 	 * sum_gesamtweight: total weight of all vehicles
@@ -124,52 +134,51 @@ private:
 	 */
 	sint64 sum_gesamtweight;
 	sint64 sum_friction_weight;
-	// 56 bytes
-	sint32 akt_speed_soll;    // target speed
-	sint32 akt_speed;         // current speed
+
+	// 48 bytes
+
+	sint32 akt_speed_soll; ///< target speed
+	sint32 akt_speed;      ///< current speed
+	sint32 min_top_speed;  ///< Lowest top speed of all vehicles. Doesn't get saved, but calculated from the vehicles data
+	sint32 sp_soll;        ///< steps to go
+
 	// 64 bytes
 
+	// needed for speed control/calculation
+	sint32 brake_speed_soll; // brake target speed
+	sint32 speed_limit;
+	sint32 max_record_speed; // current convois fastest speed ever
+
+	/// Number of steps the current convoi did already (only needed for leaving/entering depot)
+	sint16 steps_driven;
+
 	/**
-	 * this give the index of the next signal or the end of the route
+	 * this gives the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
 	 */
 	route_t::index_t next_stop_index;
 
-	// if state == LOADING, this is true while unloading
-	bool unloading_state;
+	// 80 bytes
 
-	sint32 speed_limit;
-	// needed for speed control/calculation
-	sint32 brake_speed_soll;    // brake target speed
-	/**
-	 * Lowest top speed of all vehicles. Doesn't get saved, but calculated
-	 * from the vehicles data
-	 */
-	sint32 min_top_speed;
+	/// loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
+	/// needed as int, since used by the gui
+	sint32 loading_level;
 
-	sint32 sp_soll;           // steps to go
-	sint32 max_record_speed; // current convois fastest speed ever
+	/// At which loading level is the train allowed to start? 0 during driving.
+	/// needed as int, since used by the gui
+	sint32 loading_limit;
 
 	// things for the world record
 	koord3d record_pos;
 
-	/* Number of steps the current convoi did already
-	 * (only needed for leaving/entering depot)
-	 */
-	sint16 steps_driven;
-	/**
-	 * The vehicles of this convoi
-	 *
-	 */
-	array_tpl<vehicle_t*> fahr;
-	/**
-	 * Number of vehicles in this convoi.
-	 */
-	// TODO number of vehicles is stored in array_tpl too!
+	/// Number of vehicles in this convoi.
 	uint8 vehicle_count;
 
-	uint32 next_wolke; // time to next smoke
+	// 96 bytes
+
+	/// The vehicles of this convoi
+	array_tpl<vehicle_t *> fahr;
 
 	/**
 	 * Route of this convoi - a sequence of coordinates. Actually
@@ -177,101 +186,52 @@ private:
 	 */
 	route_t route;
 
-	/**
-	 * assigned line
-	 */
+	// 128 bytes
+
+	/// a list of all catg_index, which can be transported by this convoy.
+	minivec_tpl<uint8> goods_catg_index;
+
+	/// assigned line
 	linehandle_t line;
 
-	/**
-	* All vehicle-schedule pointers point here
-	*/
+	/// Time when convoi arrived at the current stop
+	/// Used to calculate when it should depart due to the 'month wait time'
+	uint32 arrived_time;
+
+	// 144 bytes
+
+	/// All vehicle-schedule pointers point here
 	schedule_t *schedule;
+
+	/// Convoi owner
+	player_t *owner;
+
+	// 160 bytes
 
 	koord3d schedule_target;
 
-	/**
-	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
-	* needed as int, since used by the gui
-	*/
-	sint32 loading_level;
-
-	/**
-	* At which loading level is the train allowed to start? 0 during driving.
-	* needed as int, since used by the gui
-	*/
-	sint32 loading_limit;
-
-	/*
-	 * a list of all catg_index, which can be transported by this convoy.
-	 */
-	minivec_tpl<uint8> goods_catg_index;
-
-	/**
-	* Convoi owner
-	*/
-	player_t *owner;
-
-	/**
-	* Current map
-	*/
-	static karte_ptr_t welt;
-
-	/**
-	* the convoi is being withdrawn from service
-	*/
-	bool withdraw;
-
-	/**
-	* nothing will be loaded onto this convoi
-	*/
-	bool no_load;
-
-	/**
-	* the convoi caches its freight info; it is only recalculation after loading or resorting
-	*/
-	bool freight_info_resort;
-
-	// true, if at least one vehicle of a convoi is obsolete
-	bool has_obsolete;
-
-	// true, if there is at least one engine that requires catenary
-	bool is_electric;
-
-	/**
-	* the convoi caches its freight info; it is only recalculation after loading or resorting
-	*/
+	/// the convoi caches its freight info; it is only recalculation after loading or resorting
 	uint8 freight_info_order;
 
-	/*
-	 * caches the running costs
-	 */
+	/// this give the index until which the route has been reserved.
+	/// It is used for restoring reservations after loading a game.
+	route_t::index_t next_reservation_index;
+
+	/// caches the running costs
 	sint32 sum_running_costs;
 	sint32 sum_fixed_costs;
+	uint32 next_wolke; // time to next smoke
 
-	/**
-	* Overall performance.
-	* Not used in movement code.
-	*/
+	/// Overall performance.
+	/// Not used in movement code.
 	uint32 sum_power;
 
 	/// sum_weight: unloaded weight of all vehicles
 	sint64 sum_weight;
 
-	/**
-	 * this give the index until which the route has been reserved. It is used for
-	 * restoring reservations after loading a game.
-	 */
-	route_t::index_t next_reservation_index;
+	// 192 bytes
 
-	/**
-	 * Time when convoi arrived at the current stop
-	 * Used to calculate when it should depart due to the 'month wait time'
-	 */
-	uint32 arrived_time;
-
-	/**
-	* accumulated profit over a year
-	*/
+	/// accumulated profit over a year
 	sint64 jahresgewinn;
 
 	/* the odometer */
@@ -283,20 +243,15 @@ private:
 	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
 	sint32 maxspeed_average_count; // just a simple count to average for statistics
 
-
-	ribi_t::ribi alte_richtung;
-
-	/**
-	 * struct holds new financial history for convoi
-	 */
-	sint64 financial_history[MAX_MONTHS][MAX_CONVOI_COST];
-
+	// 224 bytes
 
 	/**
 	 * the koordinate of the home depot of this convoi
 	 * the last depot visited is considered being the home depot
 	 */
 	koord3d home_depot;
+
+	ribi_t::ribi alte_richtung;
 
 	/**
 	 * Name of the convoi.
@@ -305,6 +260,10 @@ private:
 	uint8 name_offset;
 	char name_and_id[128];
 
+	/// struct holds new financial history for convoi
+	sint64 financial_history[MAX_MONTHS][MAX_CONVOI_COST];
+
+private:
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
