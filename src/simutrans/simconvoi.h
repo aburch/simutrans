@@ -78,7 +78,7 @@ private:
 	 * concentrated at the beginning of the structure.
 	 * All computations are for 64bit builds.
 	 *
-	 * We start with a 24 bytes header from virtual tables and data of overtaker_t :(
+	 * We start with a 16 bytes header from data of overtaker_t :(
 	 */
 
 	/**
@@ -86,7 +86,7 @@ private:
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
 	 */
-	sint32 wait_lock;
+	uint16 wait_lock;
 
 	/**
 	 * The convoi is gradually loaded for each vehicle, i.e. there is a constant loadin speed.

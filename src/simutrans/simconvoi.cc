@@ -509,7 +509,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	}
 	if(  state==LOADING  ) {
 		// the fully the shorter => register again as older convoi
-		wait_lock = 2000-loading_level*20;
+		wait_lock = max(0, 2000-loading_level*20);
 		if (distance_since_last_stop > 0) {
 			calc_gewinn();
 		}
@@ -517,7 +517,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	// when saving with open window, this can happen
 	if(  state==EDIT_SCHEDULE  ) {
 		if (env_t::networkmode) {
-			wait_lock = 30000; // 60s to drive on, if the client in question had left
+			wait_lock = 30000; // 30s to drive on, if the client in question had left
 		}
 		schedule->finish_editing();
 	}
@@ -878,11 +878,10 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 sync_result convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?
-	wait_lock -= delta_t;
+	wait_lock = max(0, (int)wait_lock - delta_t);
 	if(wait_lock > 0) {
 		return SYNC_OK;
 	}
-	wait_lock = 0;
 
 	switch(state) {
 		case INITIAL:
@@ -2237,12 +2236,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy);
 	}
 
-	file->rdwr_long(wait_lock);
-	// some versions may produce broken safegames apparently
-	if(wait_lock > 60000) {
-		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
-		wait_lock = 60000;
-	}
+	sint32 wl = wait_lock;
+	file->rdwr_long(wl);
+	wait_lock = clamp(wl, 0, 0xFFFF);
 
 	bool dummy_bool=false;
 	file->rdwr_bool(dummy_bool);
@@ -3057,7 +3053,7 @@ station_tile_search_ready: ;
 
 	assert(time > 0  ||  !wants_more);
 	// time == 0 => wants_more == false, can only happen if all vehicles in station have no transport capacity (i.e., locomotives)
-	wait_lock = time;
+	wait_lock = min(time, 0xFFFF);
 
 	// check if departure time is reached
 	bool departure_time_reached = false;
