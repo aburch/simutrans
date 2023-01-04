@@ -267,7 +267,7 @@ ifneq ($(REV),)
   DUMMY := $(shell rm -f src/simutrans/revision.h)
 else
   ifeq ("$(wildcard src/simutrans/revision.h)","")
-    DUMMY := $(shell echo '\#define REVISION' > src/simutrans/revision.h)
+    DUMMY := $(shell printf "#define REVISION" > src/simutrans/revision.h)
   endif
 endif
 

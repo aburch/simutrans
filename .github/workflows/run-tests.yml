@@ -7,7 +7,7 @@ name: Automated Tests
 
 jobs:
   run-tests-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -27,6 +27,7 @@ jobs:
       run: |
         autoconf
         CC="ccache clang" CXX="ccache clang++" ./configure
+        echo "FLAGS += -Wno-cast-align" >> config.default
         echo "FLAGS += -fsanitize=address,undefined -fno-sanitize-recover=all -fno-sanitize=shift,function" >> config.default
         echo "LDFLAGS += -fsanitize=address,undefined" >> config.default
         echo "STATIC := 0" >> config.default
