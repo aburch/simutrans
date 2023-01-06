@@ -79,7 +79,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->is_version_less(112, 7)  ) {
 		// convert slopes from old single height saved game
-		weg_hang = (scorner_sw(weg_hang) + scorner_se(weg_hang) * 3 + scorner_ne(weg_hang) * 9 + scorner_nw(weg_hang) * 27) * env_t::pak_height_conversion_factor;
+		weg_hang = slope_from_slope4(slope4_t(weg_hang), env_t::pak_height_conversion_factor);
 	}
 
 	if(!find<bruecke_t>()) {

@@ -4486,7 +4486,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 					sint8 slope;
 					file->rdwr_byte(slope);
 					// convert slopes from old single height saved game
-					slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
+					slope = slope_from_slope4(slope4_t(slope), env_t::pak_height_conversion_factor);
 					access_nocheck(x, y)->get_kartenboden()->set_grund_hang(slope);
 				}
 			}

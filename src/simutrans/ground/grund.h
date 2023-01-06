@@ -440,9 +440,9 @@ public:
 	 * @param corner slope_t::_corner mask of corners to check.
 	 * @return The height of the tile at the requested corner.
 	 */
-	inline sint8 get_hoehe(slope4_t::type corner) const
+	inline sint8 get_hoehe(slope4_t corner) const
 	{
-		switch(  corner  ) {
+		switch(  corner.value  ) {
 			case slope4_t::corner_SW: {
 				return pos.z + corner_sw(slope);
 				break;
