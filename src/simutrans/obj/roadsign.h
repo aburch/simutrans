@@ -10,7 +10,6 @@
 #include "simobj.h"
 #include "../simtypes.h"
 #include "../descriptor/roadsign_desc.h"
-#include "../obj/sync_steppable.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "../tpl/freelist_tpl.h"
@@ -22,7 +21,7 @@ class tool_selector_t;
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
  */
-class roadsign_t : public obj_t, public sync_steppable
+class roadsign_t : public obj_t
 {
 protected:
 	image_id image;
@@ -113,7 +112,7 @@ public:
 	bool is_free_route(uint8 check_dir) const { return desc->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
-	sync_result sync_step(uint32) OVERRIDE;
+	sync_result sync_step(uint32);
 
 	// change the phases of the traffic lights
 	uint8 get_ticks_ns() const { return ticks_ns; }

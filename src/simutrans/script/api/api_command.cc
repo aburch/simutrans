@@ -82,10 +82,11 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 		return sq_raise_error(vm, "Called tool with player == null");
 	}
 	// check if calling suspendable tools is blocked
-	if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
-		return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+	if (!v.no_block) {
+		if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
+			return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+		}
 	}
-
 	// register this tool call for callback with this id
 	uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
 	tool->callback_id = callback_id;
@@ -95,7 +96,7 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	welt->set_tool_api(tool, player, suspended);
 	// in networkmode, call is suspended
 
-	if (suspended) {
+	if (suspended  &&  !v.no_block) {
 		// register for wakeup
 		suspended_scripts_t::register_suspended_script(callback_id, vm);
 		// suspend vm for now, after wakeup it returns to the script
@@ -234,8 +235,10 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 		}
 	}
 	// check if calling suspendable tools is blocked
-	if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
-		return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+	if (!v.no_block) {
+		if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
+			return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+		}
 	}
 
 	bool suspended = false;
@@ -253,7 +256,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 		tool->callback_id = callback_id;
 		err = welt->call_work_api(tool, player, v.twoclick ? v.end : v.start, suspended);
 
-		if (suspended) {
+		if (suspended  &&  !v.no_block) {
 			// register for wakeup
 			suspended_scripts_t::register_suspended_script(callback_id, vm);
 			// suspend vm for now, after wakeup it returns to the script

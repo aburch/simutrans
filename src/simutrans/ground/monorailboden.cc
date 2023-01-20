@@ -36,7 +36,7 @@ void monorailboden_t::rdwr(loadsave_t *file)
 			uint8 sl;
 			file->rdwr_byte(sl);
 			// convert slopes from old single height saved game
-			slope = (scorner_sw(sl) + scorner_se(sl) * 3 + scorner_ne(sl) * 9 + scorner_nw(sl) * 27) * env_t::pak_height_conversion_factor;
+			slope = slope_from_slope4(slope4_t(sl), env_t::pak_height_conversion_factor);
 		}
 		else {
 			slope = grund_t::get_grund_hang();

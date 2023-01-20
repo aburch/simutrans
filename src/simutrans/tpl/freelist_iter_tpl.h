@@ -21,7 +21,6 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#include "../obj/sync_steppable.h"
 
 /**
   * A template class for const sized memory pool

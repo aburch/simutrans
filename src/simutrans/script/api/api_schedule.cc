@@ -63,15 +63,29 @@ SQInteger waiting_time_to_string(HSQUIRRELVM vm)
 	return param<plainstring>::push(vm, str);
 }
 
-SQInteger schedule_constructor(HSQUIRRELVM vm) // instance, wt, entries
+SQInteger schedule_constructor(HSQUIRRELVM vm) // instance, wt, entries = [], current = 0
 {
 	waytype_t wt = param<waytype_t>::get(vm, 2);
 	SQInteger res = set_slot(vm, "waytype", wt, 1);
 
 	if (SQ_SUCCEEDED(res)) {
 		sq_pushstring(vm, "entries", -1);
-		sq_push(vm, 3); // entries
+		// entries parameter
+		if (sq_gettop(vm) >= 3) {
+			sq_push(vm, 3);
+		}
+		else {
+			// not provided, push empty array
+			sq_newarray(vm, 4);
+		}
 		res = sq_set(vm, 1);
+	}
+	if (SQ_SUCCEEDED(res)) {
+		uint8 current = 0;
+		if (sq_gettop(vm) >= 4) {
+			current = param<uint8>::get(vm, 4);
+		}
+		res = set_slot(vm, "current", current, 1);
 	}
 	if (SQ_SUCCEEDED(res)) {
 		// attach a schedule instance
@@ -121,6 +135,11 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	// get instance pointer
 	schedule_t* sched = get_attached_instance<schedule_t>(vm, index, param<schedule_t*>::tag());
 	if (sched) {
+		// check waytype
+		if (wt != sched->get_waytype()) {
+			sq_raise_error(vm, "Waytype mismatch in schedule");
+			return NULL;
+		}
 		sched->entries.clear();
 		// now read the entries
 		sq_pushstring(vm, "entries", -1);
@@ -135,6 +154,10 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 			}
 			sq_pop(vm, 1);
 		}
+		// current stop
+		uint8 current = 0;
+		get_slot(vm, "current", current, index);
+		sched->set_current_stop(current);
 	}
 	return sched;
 }
@@ -190,8 +213,13 @@ void export_schedule(HSQUIRRELVM vm)
 	create_class(vm, "schedule_x");
 
 	/**
-	 * Constructor
-	 * @typemask command_x(way_types)
+	 * Constructor.
+	 * Parameters @p entries and @p current are optional.
+	 * @param wt way type
+	 * @param entries array of entries of the new schedule (default = [])
+	 * @param current current stop of schedule (default = 0)
+	 *
+	 * @typemask command_x(way_types, array< schedule_entry_x >, integer)
 	 */
 	register_function(vm, schedule_constructor, "constructor", 3, "xi.");
 	sq_settypetag(vm, -1, param<schedule_t*>::tag());
@@ -206,9 +234,20 @@ void export_schedule(HSQUIRRELVM vm)
 	 * Waytype of schedule.
 	 */
 	way_types waytype;
+
+	/**
+	 * Current stop of schedule:
+	 * default first stop (schedule of line)
+	 * or next stop of convoy (schedule of convoy).
+	 *
+	 * In order to change this value for a convoy
+	 * call @ref convoy_x::change_schedule.
+	 */
+	uint8 current;
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
+	create_slot(vm, "current", 0);
 #endif
 
 	end_class(vm);

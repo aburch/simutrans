@@ -7,7 +7,6 @@
 #define OBJ_GEBAEUDE_H
 
 
-#include "../obj/sync_steppable.h"
 #include "simobj.h"
 #include "../simcolor.h"
 
@@ -19,7 +18,7 @@ class grund_t;
 /**
  * Asynchronous or synchronous animations for buildings.
  */
-class gebaeude_t : public obj_t, sync_steppable
+class gebaeude_t : public obj_t
 {
 private:
 	const building_tile_desc_t *tile;
@@ -138,7 +137,7 @@ public:
 	 * Play animations of animated buildings.
 	 * Count-down to replace construction site image by regular image.
 	 */
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	/**
 	 * @return Den level (die Ausbaustufe) des Gebaudes

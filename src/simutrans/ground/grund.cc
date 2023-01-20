@@ -258,7 +258,7 @@ void grund_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		if(  file->is_version_less(112, 7)  ) {
 			// convert slopes from old single height saved game
-			slope = encode_corners(scorner_sw(slope), scorner_se(slope), scorner_ne(slope), scorner_nw(slope)) * env_t::pak_height_conversion_factor;
+			slope = slope_from_slope4(slope4_t(slope), env_t::pak_height_conversion_factor);
 		}
 		if(  !ground_desc_t::double_grounds  ) {
 			// truncate double slopes to single slopes

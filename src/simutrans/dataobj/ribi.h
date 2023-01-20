@@ -100,7 +100,8 @@ public:
  * Used as bitfield to refer to specific corners of a tile
  * as well as for compatibility.
  */
-struct slope4_t {
+struct slope4_t
+{
 	/* bit-field:
 	 * Bit 0 is set if southwest corner is raised
 	 * Bit 1 is set if southeast corner is raised
@@ -112,19 +113,35 @@ struct slope4_t {
 	 * Macros to access the height of the 4 corners for single slope:
 	 * One bit per corner
 	 */
-	typedef sint8 type;
-
-	#define scorner_sw(i) (i%2)     // sw corner
-	#define scorner_se(i) ((i/2)%2) // se corner
-	#define scorner_ne(i) ((i/4)%2) // ne corner
-	#define scorner_nw(i) (i/8)     // nw corner
 	enum _corners {
 		corner_SW = 1 << 0,
 		corner_SE = 1 << 1,
 		corner_NE = 1 << 2,
 		corner_NW = 1 << 3
 	};
+
+	typedef sint8 type;
+
+	type value;
+
+public:
+	explicit slope4_t(type v) : value(v) {}
+	slope4_t(_corners c) : value(c) {}
 };
+
+
+static inline sint8 scorner_sw(slope4_t sl) { return (sl.value & slope4_t::corner_SW) != 0; } // sw corner
+static inline sint8 scorner_se(slope4_t sl) { return (sl.value & slope4_t::corner_SE) != 0; } // se corner
+static inline sint8 scorner_ne(slope4_t sl) { return (sl.value & slope4_t::corner_NE) != 0; } // ne corner
+static inline sint8 scorner_nw(slope4_t sl) { return (sl.value & slope4_t::corner_NW) != 0; } // nw corner
+
+static inline slope_t::type slope_from_slope4(slope4_t sl, sint8 pak_height_factor)
+{
+	return encode_corners(scorner_sw(sl) * pak_height_factor,
+						  scorner_se(sl) * pak_height_factor,
+						  scorner_ne(sl) * pak_height_factor,
+						  scorner_nw(sl) * pak_height_factor);
+}
 
 
 /**

@@ -891,13 +891,13 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 				// slope of tile
 				int slope = double_grounds ? dslope : slopetable[dslope];
 				// corners with transition
-				uint8 double_corners = corners == 15 ? 80 : scorner_sw(corners) + 3 * scorner_se(corners) + 9 * scorner_ne(corners) + 27 * scorner_nw(corners);
+				uint8 double_corners = corners == 15 ? 80 : slope_from_slope4(slope4_t(corners), 1);
 
 				// create alpha image
 				final_tile = create_alpha_tile( light_map->get_image_ptr( slope ), dslope, all_rotations_slope[double_corners] );
 				alpha_corners_image[dslope * 15 + corners - 1] = final_tile->get_id();
 
-				double_corners = corners == 15 ? 80 : (1 - scorner_sw(corners)) + 3 * (1 - scorner_se(corners)) + 9 * (1 - scorner_ne(corners)) + 27 * (1 - scorner_nw(corners));
+				double_corners = corners == 15 ? 80 : slope_from_slope4(slope4_t(15-corners), 1);
 				if(  all_rotations_beach[double_corners]  ) {
 					final_tile = create_alpha_tile( light_map->get_image_ptr( slope ), dslope, all_rotations_beach[double_corners] );
 					alpha_water_image[dslope * 15 + corners - 1] = final_tile->get_id();

@@ -11,7 +11,6 @@
 #include "overtaker.h"
 
 #include "../tpl/stringhashtable_tpl.h"
-#include "../obj/sync_steppable.h"
 #include "../tpl/freelist_iter_tpl.h"
 
 class citycar_desc_t;
@@ -24,7 +23,7 @@ class karte_t;
  * differ from the vehicles defined herein for the individual traffic
  * (pedestrians, citycars, movingobj aka flock of sheep).
  */
-class road_user_t : public vehicle_base_t, public sync_steppable
+class road_user_t : public vehicle_base_t
 {
 protected:
 	/**
@@ -114,7 +113,7 @@ public:
 
 	virtual ~private_car_t();
 
-	sync_result sync_step(uint32 delta_t) OVERRIDE;
+	sync_result sync_step(uint32 delta_t);
 
 	void* operator new(size_t) { return fl.gimme_node(); }
 	void operator delete(void* p) { return fl.putback_node(p); }

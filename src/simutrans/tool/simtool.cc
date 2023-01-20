@@ -1063,7 +1063,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 	if(  !ground_desc_t::double_grounds  &&  old_slope_compatibility  ) {
 		// translate old single slope parameter to new double slope
 		if(  0 < new_slope  &&  new_slope < ALL_UP_SLOPE_SINGLE  ) {
-			new_slope = scorner_sw(new_slope) + scorner_se(new_slope) * 3 + scorner_ne(new_slope) * 9 + scorner_nw(new_slope) * 27;
+			new_slope = slope_from_slope4(slope4_t(new_slope), 1);
 		}
 		else {
 			switch(  new_slope  ) {

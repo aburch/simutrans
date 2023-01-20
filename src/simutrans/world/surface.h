@@ -422,7 +422,7 @@ public:
 	 * @note Will always return north-west except on border tiles.
 	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
 	 */
-	inline slope4_t::type get_corner_to_operate(const koord &pos) const
+	inline slope4_t get_corner_to_operate(const koord &pos) const
 	{
 		// Normal tile
 		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){

@@ -299,7 +299,7 @@ int surface_t::grid_raise(const player_t *player, koord k, const char*&err)
 	if(is_within_grid_limits(k)) {
 
 		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope4_t::type corner_to_raise = get_corner_to_operate(k);
+		const slope4_t corner_to_raise = get_corner_to_operate(k);
 
 		const sint16 x = gr->get_pos().x;
 		const sint16 y = gr->get_pos().y;
@@ -348,7 +348,7 @@ int surface_t::grid_lower(const player_t *player, koord k, const char*&err)
 	if(is_within_grid_limits(k)) {
 
 		const grund_t *gr = lookup_kartenboden_gridcoords(k);
-		const slope4_t::type corner_to_lower = get_corner_to_operate(k);
+		const slope4_t corner_to_lower = get_corner_to_operate(k);
 
 		const sint16 x = gr->get_pos().x;
 		const sint16 y = gr->get_pos().y;
