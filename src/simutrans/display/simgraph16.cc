@@ -255,12 +255,14 @@ int default_font_linespace = 0;
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
 
 // RGB 555/565 specific functions
+
+// different masks needed for RGB 555 and RGB 565 for blending
 #ifdef RGB555
 #define ONE_OUT (0x3DEF) // mask out bits after applying >>1
 #define TWO_OUT (0x1CE7) // mask out bits after applying >>2
 inline PIXVAL rgb(PIXVAL r, PIXVAL g, PIXVAL b) { return (r << 10) | (g << 5) | b; }
 inline PIXVAL red(PIXVAL rgb) { return  rgb >> 10; }
-inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x31; }
+inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x1F; }
 #else
 #define ONE_OUT (0x7bef) // mask out bits after applying >>1
 #define TWO_OUT (0x39E7) // mask out bits after applying >>2
@@ -373,12 +375,6 @@ struct imd {
 //#define FLAG_POSITION_CHANGED (16)
 
 #define TRANSPARENT_RUN (0x8000u)
-
-// different masks needed for RGB 555 and RGB 565 for blending
-#define ONE_OUT_16 (0x7bef)
-#define TWO_OUT_16 (0x39E7)
-#define ONE_OUT_15 (0x3DEF)
-#define TWO_OUT_15 (0x1CE7)
 
 static int bitdepth = 16;
 
@@ -2961,74 +2957,30 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 	switch( alpha ) {
 		case 0: // nothing to do ...
 			return background;
-#ifdef RGB555
 		case 16:
-		{
-			const PIXVAL two = TWO_OUT_15;
-			return (3 * (((background) >> 2) & two)) + (((foreground) >> 2) & two);
-		}
+			return colors_blend25(background, foreground);
+
 		case 32:
-		{
-			const PIXVAL one = ONE_OUT_15;
-			return ((((background) >> 1) & one)) + (((foreground) >> 1) & one);
-		}
+			return colors_blend50(background, foreground);
+
 		case 48:
-		{
-			const PIXVAL two = TWO_OUT_15;
-			return ((((background) >> 2) & two)) + (3 * ((foreground) >> 2) & two);
-		}
+			return colors_blend25(background, foreground);
 
 		case 64:
 			return foreground;
 
 		default:
 			// any percentage blending: SLOW!
-			// 555 BITMAPS
-			const PIXVAL r_src = (background >> 10) & 0x1F;
-			const PIXVAL g_src = (background >> 5) & 0x1F;
-			const PIXVAL b_src = background & 0x1F;
-			const PIXVAL r_dest = (foreground >> 10) & 0x1F;
-			const PIXVAL g_dest = (foreground >> 5) & 0x1F;
-			const PIXVAL b_dest = (foreground & 0x1F);
-
+			const PIXVAL r_src = red(background);
+			const PIXVAL g_src = green(background);
+			const PIXVAL b_src = blue(background);
+			const PIXVAL r_dest = red(foreground);
+			const PIXVAL g_dest = green(foreground);
+			const PIXVAL b_dest = blue(foreground);
 			const PIXVAL r = (r_dest * alpha + r_src * (64 - alpha) + 32) >> 6;
 			const PIXVAL g = (g_dest * alpha + g_src * (64 - alpha) + 32) >> 6;
 			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
-			return (r << 10) | (g << 5) | b;
-#else
-		case 16:
-		{
-			const PIXVAL two = TWO_OUT_16;
-			return (3 * (((background) >> 2) & two)) + (((foreground) >> 2) & two);
-		}
-		case 32:
-		{
-			const PIXVAL one = ONE_OUT_16;
-			return ((((background) >> 1) & one)) + (((foreground) >> 1) & one);
-		}
-		case 48:
-		{
-			const PIXVAL two = TWO_OUT_16;
-			return ((((background) >> 2) & two)) + (3 * ((foreground) >> 2) & two);
-		}
-
-		case 64:
-			return foreground;
-
-		default:
-			// any percentage blending: SLOW!
-			// 565 colors
-			const PIXVAL r_src = (background >> 11);
-			const PIXVAL g_src = (background >> 5) & 0x3F;
-			const PIXVAL b_src = background & 0x1F;
-			const PIXVAL r_dest = (foreground >> 11);
-			const PIXVAL g_dest = (foreground >> 5) & 0x3F;
-			const PIXVAL b_dest = (foreground & 0x1F);
-			const PIXVAL r = (r_dest * alpha + r_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL g = (g_dest * alpha + g_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
-			return (r << 11) | (g << 5) | b;
-#endif
+			return rgb(r, g, b);
 	}
 }
 
