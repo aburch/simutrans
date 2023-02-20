@@ -260,12 +260,14 @@ int default_font_linespace = 0;
 #ifdef RGB555
 #define ONE_OUT (0x3DEF) // mask out bits after applying >>1
 #define TWO_OUT (0x1CE7) // mask out bits after applying >>2
+#define MASK_32 (0x03e0f81f) // mask out bits after transforming to 32bit
 inline PIXVAL rgb(PIXVAL r, PIXVAL g, PIXVAL b) { return (r << 10) | (g << 5) | b; }
 inline PIXVAL red(PIXVAL rgb) { return  rgb >> 10; }
 inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x1F; }
 #else
 #define ONE_OUT (0x7bef) // mask out bits after applying >>1
 #define TWO_OUT (0x39E7) // mask out bits after applying >>2
+#define MASK_32 (0x07e0f81f) // mask out bits after transforming to 32bit
 inline PIXVAL rgb(PIXVAL r, PIXVAL g, PIXVAL b) { return (r << 11) | (g << 5) | b; }
 inline PIXVAL red(PIXVAL rgb) { return rgb >> 11; }
 inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x3F; }
@@ -2949,6 +2951,31 @@ inline PIXVAL colors_blend50(PIXVAL background, PIXVAL foreground) { return rgb_
 inline PIXVAL colors_blend75(PIXVAL background, PIXVAL foreground) { return rgb_shr2(background) + rgb_shr1(foreground) + rgb_shr2(foreground); }
 
 
+// Blends two colors. Possible values for alpha: 0..32
+PIXVAL display_blend_colors_alpha32(PIXVAL background, PIXVAL foreground, int alpha)
+{
+	// alpha takes values 0 .. 32
+	switch(alpha) {
+		case 0: // nothing to do ...
+			return background;
+		case 8:
+			return colors_blend25(background, foreground);
+		case 16:
+			return colors_blend50(background, foreground);
+		case 24:
+			return colors_blend75(background, foreground);
+		case 32:
+			return foreground;
+		default:
+			// any percentage
+			uint32 b = ((background << 16) | background) & MASK_32;
+			uint32 f = ((foreground << 16) | foreground) & MASK_32;
+			uint32 r = ((f * alpha + (32-alpha) * b) >> 5) & MASK_32;
+			return r | (r >> 16);
+	}
+}
+
+
 // Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend)
 {
@@ -2982,6 +3009,7 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
 			return rgb(r, g, b);
 	}
+// ??	return display_blend_colors_alpha32(background, foreground, (percent_blend*32)/100);
 }
 
 
@@ -4385,8 +4413,8 @@ void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGG
 
 	scr_coord_val width = proportional_string_width(text);
 
-	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
-	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
+	PIXVAL lighter = display_blend_colors_alpha32(ddd_color, color_idx_to_rgb(COL_WHITE), 8 /* 25% */);
+	PIXVAL darker  = display_blend_colors_alpha32(ddd_color, color_idx_to_rgb(COL_BLACK), 8 /* 25% */);
 
 	display_fillbox_wh_clip_rgb( xpos+1, ypos - vpadding + 1, width+2*hpadding-2, LINESPACE+2*vpadding-1, ddd_color, dirty CLIP_NUM_PAR);
 
