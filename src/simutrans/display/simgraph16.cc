@@ -378,8 +378,6 @@ struct imd {
 
 #define TRANSPARENT_RUN (0x8000u)
 
-static int bitdepth = 16;
-
 static scr_coord_val disp_width  = 640;
 static scr_coord_val disp_actual_width  = 640;
 static scr_coord_val disp_height = 480;
@@ -5002,7 +5000,6 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 		}
 		if(c==31) {
 			// 15 bit per pixel
-			bitdepth = 15;
 			alpha = pix_alpha_15;
 			alpha_recode = pix_alpha_recode_15;
 #ifndef RGB555
