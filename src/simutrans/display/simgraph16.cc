@@ -3430,21 +3430,11 @@ void display_rezoomed_img_blend(const image_id n, scr_coord_val xp, scr_coord_va
 			// we use function pointer for the blend runs for the moment ...
 			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
-			// use horizontal clipping or skip it?
-			if(  xp >= CR.clip_rect.x  &&  xp + w  <= CR.clip_rect.xx  ) {
-				// marking change?
-				if(  dirty  ) {
-					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
+			// marking change?
+			if(  dirty  ) {
+				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
-			else if(  xp < CR.clip_rect.xx  &&  xp + w > CR.clip_rect.x  ) {
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
-				// since height may be reduced, start marking here
-				if(  dirty  ) {
-					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-			}
+			display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
 	}
 }
@@ -3519,21 +3509,11 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 			// get the real color
 			const PIXVAL color = color_index & 0xFFFF;
 
-			// use horizontal clipping or skip it?
-			if(  xp >= CR.clip_rect.x  &&  xp + w  <= CR.clip_rect.xx  ) {
-				// marking change?
-				if(  dirty  ) {
-					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha  CLIP_NUM_PAR );
+			// marking change?
+			if(  dirty  ) {
+				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
-			else if(  xp < CR.clip_rect.xx  &&  xp + w > CR.clip_rect.x  ) {
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha  CLIP_NUM_PAR );
-				// since height may be reduced, start marking here
-				if(  dirty  ) {
-					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-			}
+			display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha  CLIP_NUM_PAR );
 		}
 	}
 }
@@ -3601,19 +3581,10 @@ void display_base_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp
 				}
 			}
 
-			// use horizontal clipping or skip it?
-			if(  x >= CR.clip_rect.x  &&  x + w <= CR.clip_rect.xx  ) {
-				if(  dirty  ) {
-					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
+			if(  dirty  ) {
+				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 			}
-			else {
-				if(  dirty  ) {
-					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
-			}
+			display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
 	} // number ok
 }
@@ -3687,19 +3658,10 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 				}
 			}
 
-			// use horizontal clipping or skip it?
-			if(  x >= CR.clip_rect.x  &&  x + w <= CR.clip_rect.xx  ) {
-				if(  dirty  ) {
-					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode  CLIP_NUM_PAR );
+			if(  dirty  ) {
+				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 			}
-			else {
-				if(  dirty  ) {
-					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode  CLIP_NUM_PAR );
-			}
+			display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode  CLIP_NUM_PAR );
 		}
 	} // number ok
 }
