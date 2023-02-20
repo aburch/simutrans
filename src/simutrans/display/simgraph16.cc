@@ -2947,7 +2947,13 @@ void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, cons
 inline PIXVAL colors_blend25(PIXVAL background, PIXVAL foreground) { return rgb_shr1(background) + rgb_shr2(background) + rgb_shr2(foreground); }
 inline PIXVAL colors_blend50(PIXVAL background, PIXVAL foreground) { return rgb_shr1(background) + rgb_shr1(foreground); }
 inline PIXVAL colors_blend75(PIXVAL background, PIXVAL foreground) { return rgb_shr2(background) + rgb_shr1(foreground) + rgb_shr2(foreground); }
-
+inline PIXVAL colors_blend_alpha32(PIXVAL background, PIXVAL foreground, int alpha)
+{
+	uint32 b = ((background << 16) | background) & MASK_32;
+	uint32 f = ((foreground << 16) | foreground) & MASK_32;
+	uint32 r = ((f * alpha + (32-alpha) * b) >> 5) & MASK_32;
+	return r | (r >> 16);
+}
 
 // Blends two colors. Possible values for alpha: 0..32
 PIXVAL display_blend_colors_alpha32(PIXVAL background, PIXVAL foreground, int alpha)
@@ -2965,11 +2971,7 @@ PIXVAL display_blend_colors_alpha32(PIXVAL background, PIXVAL foreground, int al
 		case 32:
 			return foreground;
 		default:
-			// any percentage
-			uint32 b = ((background << 16) | background) & MASK_32;
-			uint32 f = ((foreground << 16) | foreground) & MASK_32;
-			uint32 r = ((f * alpha + (32-alpha) * b) >> 5) & MASK_32;
-			return r | (r >> 16);
+			return colors_blend_alpha32(background, foreground, alpha);
 	}
 }
 
@@ -3159,13 +3161,11 @@ static void display_img_blend_wc(scr_coord_val h, const scr_coord_val xp, const 
 
 /* from here code for transparent images */
 
-
 typedef void (*alpha_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL colour, const PIXVAL len);
-static alpha_proc alpha;
-static alpha_proc alpha_recode;
 
+// FIXME provide alphamask as parameter
 
-static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+static void alpha(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 
@@ -3184,18 +3184,7 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 		else if(  alpha_value > 0  ) {
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
-			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7c1f;
-			const uint16 gs =  (*dest) & 0x03e0;
-
-			// read image components - 15bpp
-			const uint16 rbi = (*src) & 0x7c1f;
-			const uint16 gi =  (*src) & 0x03e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
+			*dest = colors_blend_alpha32(*dest, *src, alpha_value);
 		}
 
 		dest++;
@@ -3205,47 +3194,7 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 }
 
 
-static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
-	while(  dest < end  ) {
-		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
-
-		if(  alpha_value > 30  ) {
-			// opaque, just copy source
-			*dest = *src;
-		}
-		else if(  alpha_value > 0  ) {
-			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
-
-			//read screen components - 16bpp
-			const uint16 rbs = (*dest) & 0xf81f;
-			const uint16 gs =  (*dest) & 0x07e0;
-
-			// read image components 16bpp
-			const uint16 rbi = (*src) & 0xf81f;
-			const uint16 gi =  (*src) & 0x07e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
-		}
-
-		dest++;
-		src++;
-		alphamap++;
-	}
-}
-
-
-static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+static void alpha_recode(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 
@@ -3264,58 +3213,7 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 		else if(  alpha_value > 0  ) {
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
-			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7c1f;
-			const uint16 gs =  (*dest) & 0x03e0;
-
-			// read image components - 15bpp
-			const uint16 rbi = (rgbmap_current[*src]) & 0x7c1f;
-			const uint16 gi =  (rgbmap_current[*src]) & 0x03e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
-		}
-
-		dest++;
-		src++;
-		alphamap++;
-	}
-}
-
-
-static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
-	while(  dest < end  ) {
-		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
-
-		if(  alpha_value > 30  ) {
-			// opaque, just copy source
-			*dest = rgbmap_current[*src];
-		}
-		else if(  alpha_value > 0  ) {
-			alpha_value = alpha_value> 15 ? alpha_value + 1 : alpha_value;
-
-			//read screen components - 16bpp
-			const uint16 rbs = (*dest) & 0xf81f;
-			const uint16 gs =  (*dest) & 0x07e0;
-
-			// read image components 16bpp
-			const uint16 rbi = (rgbmap_current[*src]) & 0xf81f;
-			const uint16 gi =  (rgbmap_current[*src]) & 0x07e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
+			*dest = colors_blend_alpha32(*dest, rgbmap_current[*src], alpha_value);
 		}
 
 		dest++;
@@ -5000,15 +4898,11 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 		}
 		if(c==31) {
 			// 15 bit per pixel
-			alpha = pix_alpha_15;
-			alpha_recode = pix_alpha_recode_15;
 #ifndef RGB555
 			dr_fatal_notify( "Compiled for 16 bit color depth but using 15!" );
 #endif
 		}
 		else {
-			alpha = pix_alpha_16;
-			alpha_recode = pix_alpha_recode_16;
 #ifdef RGB555
 			dr_fatal_notify( "Compiled for 15 bit color depth but using 16!" );
 #endif
