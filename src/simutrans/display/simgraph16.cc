@@ -323,23 +323,6 @@ static PIXVAL specialcolormap_day_night[256];
  */
 PIXVAL specialcolormap_all_day[256];
 
-
-/*
- * contains all color conversions for transparency
- * 16 player colors, 15 special colors and 1024 3 4 3 encoded colors for transparent base
- */
-static PIXVAL transparent_map_day_night[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
-static PIXVAL transparent_map_all_day[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
-//static PIXVAL *transparent_map_current;
-
-/*
- * contains all color conversions for transparency
- * 16 player colors, 15 special colors and 1024 3 4 3 encoded colors for transparent base
- */
-static uint8 transparent_map_day_night_rgb[(MAX_PLAYER_COUNT+LIGHT_COUNT+1024)*4];
-static uint8 transparent_map_all_day_rgb[(MAX_PLAYER_COUNT+LIGHT_COUNT+1024)*4];
-//static uint8 *transparent_map_current_rgb;
-
 // offsets of first and second company color
 static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
@@ -1185,15 +1168,6 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_all_day[0x8000+i] = specialcolormap_all_day[player_offsets[player_day][0]+i];
 				rgbmap_all_day[0x8008+i] = specialcolormap_all_day[player_offsets[player_day][1]+i];
-				transparent_map_all_day[i] =     rgb_shr2(specialcolormap_all_day[player_offsets[player_day][0] + i]);
-				transparent_map_all_day[i + 8] = rgb_shr2(specialcolormap_all_day[player_offsets[player_day][1] + i]);
-				// those save RGB components
-				transparent_map_all_day_rgb[i * 4 + 0] = red(specialcolormap_all_day[player_offsets[player_day][0] + i]);
-				transparent_map_all_day_rgb[i * 4 + 1] = green(specialcolormap_all_day[player_offsets[player_day][0] + i]);
-				transparent_map_all_day_rgb[i * 4 + 2] = blue(specialcolormap_all_day[player_offsets[player_day][0] + i]);
-				transparent_map_all_day_rgb[i * 4 + 0 + 32] = red(specialcolormap_all_day[player_offsets[player_day][1] + i]);
-				transparent_map_all_day_rgb[i * 4 + 1 + 32] = green(specialcolormap_all_day[player_offsets[player_day][1] + i]);
-				transparent_map_all_day_rgb[i * 4 + 2 + 32] = blue(specialcolormap_all_day[player_offsets[player_day][1] + i]);
 			}
 		}
 		rgbmap_current = rgbmap_all_day;
@@ -1206,15 +1180,6 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[player_night][0]+i];
 				rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[player_night][1]+i];
-				transparent_map_day_night[i]     = rgb_shr2(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-				transparent_map_day_night[i + 8] = rgb_shr2(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-				// those save RGB components
-				transparent_map_day_night_rgb[i * 4 + 0] = red(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-				transparent_map_day_night_rgb[i * 4 + 1] = green(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-				transparent_map_day_night_rgb[i * 4 + 2] = blue(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-				transparent_map_day_night_rgb[i * 4 + 0 + 32] = red(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-				transparent_map_day_night_rgb[i * 4 + 1 + 32] = green(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-				transparent_map_day_night_rgb[i * 4 + 2 + 32] = blue(specialcolormap_day_night[player_offsets[player_day][1] + i]);
 			}
 		}
 		rgbmap_current = rgbmap_day_night;
@@ -1905,26 +1870,6 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
-	// again the same but for transparent colors
-	for (i = 0; i < 0x0400; i++) {
-		// RGB 343 input
-		int R = (i & 0x0380) >> 2;
-		int G = (i & 0x0078) << 1;
-		int B = (i & 0x0007) << 5;
-
-		// lines generate all possible colors in 343RGB code - input
-		// however the result is in 888RGB - 8bit per channel
-		R = (int)(R * RG_night_multiplier);
-		G = (int)(G * RG_night_multiplier);
-		B = (int)(B * B_night_multiplier);
-
-		PIXVAL color = get_system_color(R, G, B);
-		transparent_map_day_night[MAX_PLAYER_COUNT + LIGHT_COUNT + i] = rgb_shr2(color);
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 0] = red(color);
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 1] = green(color);
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 2] = blue(color);
-	}
-
 	// player color map (and used for map display etc.)
 	for (i = 0; i < SPECIAL_COLOR_COUNT; i++) {
 		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
@@ -1948,14 +1893,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	for(i=0;  i<8;  i++  ) {
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
 		rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[0][1]+i];
-		transparent_map_day_night[i] =     rgb_shr2(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-		transparent_map_day_night[i + 8] = rgb_shr2(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-		transparent_map_day_night_rgb[i * 4 + 0] = red(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-		transparent_map_day_night_rgb[i * 4 + 1] = green(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-		transparent_map_day_night_rgb[i * 4 + 2] = blue(specialcolormap_day_night[player_offsets[player_day][0] + i]);
-		transparent_map_day_night_rgb[i * 4 + 0 + 32] = red(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-		transparent_map_day_night_rgb[i * 4 + 1 + 32] = green(specialcolormap_day_night[player_offsets[player_day][1] + i]);
-		transparent_map_day_night_rgb[i * 4 + 2 + 32] = blue(specialcolormap_day_night[player_offsets[player_day][1] + i]);
 	}
 	player_night = 0;
 
@@ -1975,10 +1912,6 @@ static void calc_base_pal_from_night_shift(const int night)
 
 		PIXVAL color = get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 		rgbmap_day_night[0x8000 + MAX_PLAYER_COUNT + i] = color;
-		transparent_map_day_night[i + MAX_PLAYER_COUNT] = rgb_shr2(color);
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 0] = red(color);
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 1] = green(color);
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 2] = blue(color);
 	}
 
 	// convert to RGB xxx
@@ -2007,8 +1940,6 @@ void display_set_player_color_scheme(const int player, const uint8 col1, const u
 			// and recalculate map (and save it)
 			calc_base_pal_from_night_shift(0);
 			memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-			memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
-			memcpy(transparent_map_all_day_rgb, transparent_map_day_night_rgb, lengthof(transparent_map_day_night_rgb) * sizeof(uint8));
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
@@ -2150,6 +2081,8 @@ void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coor
 
 // ------------------ display all kind of images from here on ------------------------------
 
+// forward declaration, implementation is further below
+PIXVAL colors_blend_alpha32(PIXVAL background, PIXVAL foreground, int alpha);
 
 /**
  * Copy Pixel from src to dest
@@ -2176,27 +2109,11 @@ static inline void colorpixcopy(PIXVAL* dest, const PIXVAL* src, const PIXVAL* c
 	else {
 		while (src < end) {
 			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_day_night[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				// FIXME loses precision for alpha = 2
-				*dest = alpha * colval + (4 - alpha) * rgb_shr2(*dest);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_day_night_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
-				const PIXVAL r_dest = red(*dest);
-				const PIXVAL g_dest = green(*dest);
-				const PIXVAL b_dest = blue(*dest);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = rgb(r, g, b);
-			}
+			uint16 aux   = *src++ - 0x8020;
+			uint16 alpha = (aux % 31) + 1;
+
+			*dest = colors_blend_alpha32(*dest, rgbmap_day_night[0x8000 + aux / 31], alpha);
+			dest++;
 		}
 	}
 }
@@ -2215,27 +2132,11 @@ static inline void colorpixcopydaytime(PIXVAL* dest, const PIXVAL* src, const PI
 	else {
 		while (src < end) {
 			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_all_day[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				*dest = alpha * colval + (4 - alpha) * rgb_shr2(*dest);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_all_day_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
+			uint16 aux   = *src++ - 0x8020;
+			uint16 alpha = (aux % 31) + 1;
 
-				const PIXVAL r_dest = red(*dest);
-				const PIXVAL g_dest = green(*dest);
-				const PIXVAL b_dest = blue(*dest);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = rgb(r, g, b);
-			}
+			*dest = colors_blend_alpha32(*dest, rgbmap_all_day[0x8000 + aux / 31], alpha);
+			dest++;
 		}
 	}
 }
@@ -4892,8 +4793,6 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-	memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
-	memcpy(transparent_map_all_day_rgb, transparent_map_day_night_rgb, lengthof(transparent_map_day_night_rgb) * sizeof(uint8));
 
 	// find out bit depth
 	{
