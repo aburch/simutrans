@@ -243,7 +243,7 @@ void export_schedule(HSQUIRRELVM vm)
 	 * In order to change this value for a convoy
 	 * call @ref convoy_x::change_schedule.
 	 */
-	uint8 current;
+	integer current;
 #else
 	create_slot(vm, "entries", 0);
 	create_slot(vm, "waytype", 0);
