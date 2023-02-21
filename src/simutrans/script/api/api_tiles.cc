@@ -14,6 +14,7 @@
 #include "../../tool/simmenu.h"
 #include "../../world/simworld.h"
 #include "../../ground/wasser.h"
+#include "../../obj/crossing.h"
 
 #include "../../simconvoi.h"
 #include "../../vehicle/vehicle.h"
@@ -94,6 +95,10 @@ my_slope_t get_slope(grund_t *gr)
 	return gr->get_grund_hang();
 }
 
+bool is_crossing(grund_t *gr)
+{
+	return gr->find<crossing_t>();
+}
 
 halthandle_t get_first_halt_on_square(planquadrat_t* plan)
 {
@@ -213,6 +218,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns true if tile on ground (not bridge/elevated, not tunnel)
 	 */
 	register_method(vm, &grund_t::ist_karten_boden, "is_ground");
+
+	/**
+	 * Checks for crossing object.
+	 * @returns true if there is a crossing on the tile.
+	 */
+	register_method(vm, &is_crossing, "is_crossing", true);
 
 	/**
 	 * Returns encoded slope of tile, zero means flat tile.

@@ -344,6 +344,7 @@ BEGIN {
 	export_types_ai["tile_x::is_tunnel"] = "bool()"
 	export_types_ai["tile_x::is_empty"] = "bool()"
 	export_types_ai["tile_x::is_ground"] = "bool()"
+	export_types_ai["tile_x::is_crossing"] = "bool()"
 	export_types_ai["tile_x::get_slope"] = "slope()"
 	export_types_ai["tile_x::get_text"] = "string()"
 	export_types_ai["tile_x::has_way"] = "bool(way_types)"
