@@ -57,11 +57,13 @@ jobs:
 
     - name: Install Android SDK dependencies
       working-directory: /opt/android-sdk-linux
+      # was:   yes | sdkmanager --install "build-tools;30.0.3"
+      # was    echo "$ANDROID_HOME/build-tools/30.0.3" >> $GITHUB_PATH
       run: |
         yes | sdkmanager --install "platform-tools"
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        yes | sdkmanager --install "build-tools;34.0.0"
-        echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+        yes | sdkmanager --install "build-tools;33.0.1"
+        echo "$ANDROID_HOME/build-tools/33.0.1" >> $GITHUB_PATH
         yes | sdkmanager --install "cmake;3.18.1"
         echo "$ANDROID_HOME/cmake/3.18.1/bin" >> $GITHUB_PATH
         yes | sdkmanager --install "ndk;23.0.7599858"
@@ -75,16 +77,13 @@ jobs:
         keytool -genkey -v -keystore /home/runner/.android/debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -keypass android -storepass android -dname "cn=example.com,ou=exampleou,dc=example,dc=com"
 
     - name: Checkout lib Android SDL by pelya (hard coded version)
+      # krosk is no longer work right now
+      # was:  git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin e84e645ca309e56db84a211b484be7df6f3b03ca && git reset --hard FETCH_HEAD
       working-directory: /android-sdl
       run: |
         ls -l
         pwd
-        git init && git remote add origin https://github.com/krosk/commandergenius.git && git fetch origin e84e645ca309e56db84a211b484be7df6f3b03ca && git reset --hard FETCH_HEAD
-
-    - name: Setup licenses for Gradle
-      working-directory: /android-sdl
-      run: |
-        ln -s $ANDROID_HOME/licenses project/licenses
+        git init && git remote add origin https://github.com/pelya/commandergenius.git && git fetch origin --depth 1 && git reset --hard FETCH_HEAD
 
     # pelya building script expects that 1/ simutrans is found inside /android-sdl/project/jni/application/simutrans/simutrans and 2/ that it is a svn repo, as revision.h is populated by svn command line
     # the content of actions/checkout is a git repo so it is not compatible
@@ -97,7 +96,7 @@ jobs:
         echo $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/$CURRENT_BRANCH
         mv $GITHUB_WORKSPACE/gh-clone/simutrans project/jni/application/simutrans/
         chmod +755 project/jni/application/simutrans/simutrans/tools/get_revision.sh
-        echo $(ls -al project/jni/application/simutrans/simutrans/android)
+        echo $(ls -al project/jni/application/simutrans/simutrans/src/android)
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidAppSettings.cfg project/jni/application/simutrans/
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidBuild.sh project/jni/application/simutrans/
         cp -f project/jni/application/simutrans/simutrans/src/android/AndroidPreBuild.sh project/jni/application/simutrans/
@@ -123,7 +122,7 @@ jobs:
         rm -f ./signBundle.sh
         cp project/jni/application/simutrans/simutrans/src/android/signBundle.sh .
         chmod 555 ./signBundle.sh
-        ./build.sh -b simutrans
+        ./build.sh simutrans
 
     - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v1-release
