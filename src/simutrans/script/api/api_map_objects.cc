@@ -288,6 +288,23 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 	return param<my_ribi_t>::push(vm, ribi);
 }
 
+
+template<class D>
+SQInteger map_obj_to_string(HSQUIRRELVM vm) // parameters: obj
+{
+	static cbuffer_t buf;
+	buf.clear();
+	koord3d pos = script_api::param<koord3d>::get(vm, 1);
+	D* obj = script_api::param<D*>::get(vm, 1);
+	buf.printf("%s@%s", script_api::param<D*>::squirrel_type(), pos.get_str());
+	if (obj == NULL) {
+		buf.append(" [invalid]");
+	}
+	sq_pushstring(vm, (const char*)buf, -1);
+	return 1;
+}
+
+
 // create class
 template<class D>
 void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
@@ -303,6 +320,8 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	// export constructor
 	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiiii", freevariable<uint8>(objtype));
+	// export _tostring method
+	register_function(vm, map_obj_to_string<D>, "_tostring", 1, "x");
 	// now functions can be registered
 }
 
