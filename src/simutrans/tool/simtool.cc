@@ -1060,6 +1060,13 @@ void tool_setslope_t::rdwr_custom_data(memory_rw_t *packet)
 
 const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope, bool old_slope_compatibility, bool just_check )
 {
+	if(  !ground_desc_t::double_grounds  &&  !old_slope_compatibility  ) {
+		// do not build double slopes if no graphics are available
+		if (slope_t::max_diff(new_slope) > 1) {
+			return ""; // invalid parameter
+		}
+	}
+
 	if(  !ground_desc_t::double_grounds  &&  old_slope_compatibility  ) {
 		// translate old single slope parameter to new double slope
 		if(  0 < new_slope  &&  new_slope < ALL_UP_SLOPE_SINGLE  ) {
