@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -371,8 +371,8 @@ Straßenbahnbau
 Neuer Firmensitz von %s eröffnet.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Wirtschaft brummt:\n%s bei %s erweitert:\n%i neue Fabriken.
-Net wealth less than 10% of starting capital!
-Gesamtvermögen ist weniger als 10% des Startkapitals!
+Net wealth less than 10%% of starting capital!
+Gesamtvermögen ist weniger als 10%% des Startkapitals!
 New %s now available:\n%s\n
 %s '%s'\nist nun verfügbar.
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -645,8 +645,8 @@ Boden
 Land
 Bonusspeed: %i km/h
 Referenzgeschwindigkeit: %i km/h (für Speedbonus)
-Boost (%)
-erhöht um (%)
+Boost (%%)
+erhöht um (%%)
 Borderless (disabled on fullscreen)
 Bildschirmfüllend (Softwaremode)
 bridge is too high for its type!
@@ -1379,12 +1379,12 @@ Mar.
 März
 March
 März
-Margin (%)
+Margin (%%)
 Marge
 Marker
 Markierung
-Max Boost (%)
-max. erhöht (%)
+Max Boost (%%)
+max. erhöht (%%)
 Max income:
 Maximaler Gewinn:
 Max. speed

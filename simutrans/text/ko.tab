@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -499,8 +499,8 @@ Boden
 땅
 Bonusspeed: %i km/h
 가능한 최고속력: %i km/h
-Boost (%)
-증산률 (%)
+Boost (%%)
+증산률 (%%)
 bridge is too high for its type!
 이 타입의 다리를 건설하기에는 너무 높습니다!
 Bridge is too long for this type!\n
@@ -1153,14 +1153,14 @@ map zoom
 지도 줌
 March
 3월
-Margin (%)
+Margin (%%)
 총이익
 Marker
 표지판 만들기
 max
 최대
-Max Boost (%)
-최대촉진률 (%)
+Max Boost (%%)
+최대촉진률 (%%)
 Max income:
 최대수입:
 Max. speed:

@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -487,8 +487,8 @@ Boden
 Žemė
 Bonusspeed: %i km/h
 Maks. greitis: %i km/h
-Boost (%)
-Produktyvumas (%)
+Boost (%%)
+Produktyvumas (%%)
 bridge is too high for its type!
 Tiltas per aukštas savo tipui!
 Bridge is too long for this type!\n
@@ -1139,12 +1139,12 @@ map zoom
 Priartinimas
 March
 Kovas
-Margin (%)
+Margin (%%)
 Margin'as
 Marker
 Pastatyti ženklą
-Max Boost (%)
-Maks. bonusas (%)
+Max Boost (%%)
+Maks. bonusas (%%)
 Max income:
 Max pajamos:
 Max. speed:

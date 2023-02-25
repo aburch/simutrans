@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: ro Romana                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -917,7 +917,7 @@ map zoom
 zoom
 March
 Martie
-Margin (%)
+Margin (%%)
 Margine
 Marker
 Indicator

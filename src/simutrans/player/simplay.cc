@@ -301,7 +301,7 @@ bool player_t::new_month()
 				}
 				else if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 					// tell the player (problem!)
-					welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord3d::invalid, message_t::problems, player_nr, IMG_EMPTY );
+					welt->get_message()->add_message( translator::translate("Net wealth less than 10%% of starting capital!"), koord3d::invalid, message_t::problems, player_nr, IMG_EMPTY );
 				}
 				else {
 					// tell the player (just warning)

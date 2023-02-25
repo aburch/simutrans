@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -313,8 +313,8 @@ TRAMTOOLS
 %s построил новое представительство
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Промышленность растёт:\n%s около %s увеличивает цепочку.\n%i новых предприятий основано.
-Net wealth less than 10% of starting capital!
-Чистых активов меньше 10% от стартового капитала! Это может привести к банкротству. 
+Net wealth less than 10%% of starting capital!
+Чистых активов меньше 10%% от стартового капитала! Это может привести к банкротству.
 New %s now available:\n%s\n
 Доступен новый %s:\n%s
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -573,8 +573,8 @@ Boden
 Земля
 Bonusspeed: %i km/h
 Макс. возм. скорость: %i км/ч
-Boost (%)
-Ускорение (%)
+Boost (%%)
+Ускорение (%%)
 bridge is too high for its type!
 Слишком высоко для моста данного типа!
 Bridge is too long for this type!\n
@@ -1269,14 +1269,14 @@ map zoom
 Масштаб
 March
 Март
-Margin (%)
+Margin (%%)
 Маржа
 Marker
 Метка
 max
 макс.
-Max Boost (%)
-Макс. ускорение (%)
+Max Boost (%%)
+Макс. ускорение (%%)
 Max income:
 Макс. доход:
 Max. speed

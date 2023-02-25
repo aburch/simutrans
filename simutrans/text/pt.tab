@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: pt Portugues                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -279,8 +279,8 @@ Bondes
 A empresa %s construiu seu centro administrativo.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Economia em crescimento!\nA %s, perto de %s, ampliou sua cadeia de produção.\n%i nova(s) fábrica(s) fundada(s).
-Net wealth less than 10% of starting capital!
-Riqueza líquida inferior a 10% do capital inicial!
+Net wealth less than 10%% of starting capital!
+Riqueza líquida inferior a 10%% do capital inicial!
 New %s now available:\n%s\n
 Novo %s disponível:\n%s
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -527,8 +527,8 @@ Boden
 Terra
 Bonusspeed: %i km/h
 Vel. máxima possível: %i km/h
-Boost (%)
-Reforço (%)
+Boost (%%)
+Reforço (%%)
 bridge is too high for its type!
 O local é muito alto para este modelo de ponte!
 Bridge is too long for this type!\n
@@ -1187,14 +1187,14 @@ map zoom
 Zoom
 March
 Março
-Margin (%)
+Margin (%%)
 Margem de lucro
 Marker
 Marcador
 max
 máx. 
-Max Boost (%)
-Reforço máx.(%)
+Max Boost (%%)
+Reforço máx.(%%)
 Max income:
 Faturamento máximo:
 Max. speed:

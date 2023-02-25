@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -517,8 +517,8 @@ Boden
 Tanah
 Bonusspeed: %i km/h
 Kecepatan maks. yang mungkin dicapai: %i km/h
-Boost (%)
-Peningkatan produksi(%)
+Boost (%%)
+Peningkatan produksi(%%)
 bridge is too high for its type!
 Melebihi tinggi maksimum jenis jembatan ini.
 Bridge is too long for this type!\n
@@ -1169,14 +1169,14 @@ map zoom
 Perbesar Peta
 March
 Maret
-Margin (%)
+Margin (%%)
 Marjin
 Marker
 Meletakkan penanda
 max
 maks.
-Max Boost (%)
-Peningkatan maks.(%)
+Max Boost (%%)
+Peningkatan maks.(%%)
 Max income:
 Pendapatan Max:
 Max. speed:

@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: bg Bulgarian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #_________________________________climates_text_________________________________
@@ -51,8 +51,8 @@ Assets
 Автомобили стойност
 August
 Август
-Boost (%)
-Увеличете (%)
+Boost (%%)
+Увеличете (%%)
 Build air depot
 Построй хангар
 Build maglev depot

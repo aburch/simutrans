@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -461,7 +461,7 @@ Boden
 地
 Bonusspeed: %i km/h
 设计最高时速：%i km/h
-Boost (%)
+Boost (%%)
 查看大图
 bridge is too high for its type!
 无法在这里建造\n因为离地面的高度超出了其桥脚的高度限制
@@ -1075,7 +1075,7 @@ map zoom
 缩放
 March
 3月
-Margin (%)
+Margin (%%)
 利润
 Marker
 设定标记

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -517,8 +517,8 @@ Boden
 Terrain
 Bonusspeed: %i km/h
 Vitesse maximale possible : %i km/h (pour le bonus de vitesse)
-Boost (%)
-Augmentation de productivité (%)
+Boost (%%)
+Augmentation de productivité (%%)
 bridge is too high for its type!
 Ce pont est trop haut pour ce type de pont !
 Bridge is too long for this type!\n
@@ -1169,12 +1169,12 @@ map zoom
 zoom
 March
 Mars
-Margin (%)
+Margin (%%)
 Marge
 Marker
 Marqueur
-Max Boost (%)
-Augmentation max. (%)
+Max Boost (%%)
+Augmentation max. (%%)
 Max income:
 Revenu max.:
 Max. speed:

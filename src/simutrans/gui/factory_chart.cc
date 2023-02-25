@@ -95,7 +95,7 @@ static const uint8 ref_color[MAX_FAB_REF_LINE] =
 
 static const char *const label_text[MAX_PROD_LABEL] =
 {
-	"Boost (%)", "Max Boost (%)", "Demand", "Passagiere", "Post", "Power (MW)"
+	"Boost (%%)", "Max Boost (%%)", "Demand", "Passagiere", "Post", "Power (MW)"
 };
 
 // Mappings from cell position to buttons, labels, charts

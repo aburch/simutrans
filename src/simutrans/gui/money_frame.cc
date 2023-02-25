@@ -44,7 +44,7 @@ static const char *cost_type_name[MAX_PLAYER_COST_BUTTON] =
 	"Gross Profit",
 	"Cash",
 	"Assets",
-	"Margin (%)",
+	"Margin (%%)",
 	"Net Wealth"
 };
 

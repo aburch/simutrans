@@ -1201,7 +1201,7 @@ obj=program_text
 name=March
 -
 obj=program_text
-name=Margin (%)
+name=Margin (%%)
 -
 obj=program_text
 name=Marker
@@ -3016,10 +3016,10 @@ obj=program_text
 name=Production/Boost
 --
 obj=program_text
-name=Boost (%)
+name=Boost (%%)
 --
 obj=program_text
-name=Max Boost (%)
+name=Max Boost (%%)
 --
 obj=program_text
 name=Demand
@@ -3525,7 +3525,7 @@ name=Not enough clearance.
 note=Error when building a way with not enough clearance above or below.
 --
 obj=message_text
-name=Net wealth less than 10% of starting capital!
+name=Net wealth less than 10%% of starting capital!
 --
 obj=message_text
 name=Server preparing game ...

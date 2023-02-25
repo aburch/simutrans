@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                            Language: sk Slovencina                           #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -827,12 +827,12 @@ map zoom
 mierka mapy
 March
 Marec
-Margin (%)
+Margin (%%)
 Rentabilita tr¾ieb
 Marker
 Znaèkovaè
-Max Boost (%)
-Max. nárast (%)
+Max Boost (%%)
+Max. nárast (%%)
 Max income:
 Max. tr¾ba:
 Max. speed:

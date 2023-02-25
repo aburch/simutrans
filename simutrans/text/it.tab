@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -275,7 +275,7 @@ Strumenti tram/ferrovia leggera
 %s ha costruito una nuova sede.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 L'economia si sta allargando:\n%s vicino %s allarga la catena.\n%i nuove fabbriche sono state fondate
-Net wealth less than 10% of starting capital!
+Net wealth less than 10%% of starting capital!
 Ricchezza netta inferiore al 10% del capitale iniziale!
 New %s now available:\n%s\n
 Nuovo %s ora disponibile:\n%s\n
@@ -523,8 +523,8 @@ Boden
 Terreno
 Bonusspeed: %i km/h
 Bonus velocità: %i km/h
-Boost (%)
-Incremento (%)
+Boost (%%)
+Incremento (%%)
 bridge is too high for its type!
 Ponte troppo alto per il suo tipo
 Bridge is too long for this type!\n
@@ -1195,12 +1195,12 @@ map zoom
 Zoom
 March
 Marzo
-Margin (%)
-Margine (%)
+Margin (%%)
+Margine (%%)
 Marker
 Cartello
-Max Boost (%)
-Incr. max. (%)
+Max Boost (%%)
+Incr. max. (%%)
 Max income:
 Guadagno max:
 Max. speed

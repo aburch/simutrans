@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: hu Magyar                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -325,8 +325,8 @@ Villamos kellékei
 %s-n\n felépítettek a (%i,%i) cégközpontot.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 A gazdaság megerősődött:\nA %s mely %s van közel, fejlődik.\n%i új gyár lett alapítva.
-Net wealth less than 10% of starting capital!
-A tőke a kezdőtőke 10%-a alatt van!
+Net wealth less than 10%% of starting capital!
+A tőke a kezdőtőke 10%%-a alatt van!
 New %s now available:\n%s\n
 Új %s érhető el:\n%s.\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -561,8 +561,8 @@ Boden
 Föld
 Bonusspeed: %i km/h
 Legnagyobb elérhető sebesség: %i km/h
-Boost (%)
-Növekedés (%)
+Boost (%%)
+Növekedés (%%)
 bridge is too high for its type!
 A híd túl magas a típusához képest!
 Bridge is too long for this type!\n
@@ -1179,12 +1179,12 @@ map zoom
 méretarány
 March
 Március
-Margin (%)
-Árrés (%)
+Margin (%%)
+Árrés (%%)
 Marker
 Jelzőtábla
-Max Boost (%)
-Max növekedés(%)
+Max Boost (%%)
+Max növekedés(%%)
 Max income:
 Maximális bevétel:
 Max. speed:

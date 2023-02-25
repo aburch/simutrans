@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -311,8 +311,8 @@ Tramaj iloj
 %s ĵus konstruis novan ĉefsidejon.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 "%s" grandigis sian aferon apud %s, kaj konstruis novajn %i fabrikojn.
-Net wealth less than 10% of starting capital!
-Via riĉeco estas nun malpli ol 10% de komenco!
+Net wealth less than 10%% of starting capital!
+Via riĉeco estas nun malpli ol 10%% de komenco!
 New %s now available:\n%s\n
 Nova %s estas nun uzebla:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -575,8 +575,8 @@ Boden
 Tero
 Bonusspeed: %i km/h
 Maks. ebla rapideco: %i km/h
-Boost (%)
-Pliigite (%)
+Boost (%%)
+Pliigite (%%)
 bridge is too high for its type!
 Ne povas konstrui tian ponton je tiel alta nivelo.
 Bridge is too long for this type!\n
@@ -1269,14 +1269,14 @@ map zoom
 Zomi
 March
 Marto
-Margin (%)
-Profiteco (%)
+Margin (%%)
+Profiteco (%%)
 Marker
 MEti signon
 max
 maks
-Max Boost (%)
-Plifabrikeco (%)
+Max Boost (%%)
+Plifabrikeco (%%)
 Max income:
 Maksimuma enspezo: 
 Max. speed

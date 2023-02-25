@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -371,8 +371,8 @@ TRAMTOOLS
 %s社は\n(%i, %i)に\n本社を建設しました。
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 「%s」は\n事業を拡大し、新たに\n%s近郊に\n%iの産業施設を建てました。
-Net wealth less than 10% of starting capital!
-総資産が開始時の総資産の10%未満になりました
+Net wealth less than 10%% of starting capital!
+総資産が開始時の総資産の10%%未満になりました
 New %s now available:\n%s\n
 新型%s\n「%s」が\n新たに使用可能になりました。
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -671,8 +671,8 @@ Bonus Multiplier: %i%%
 速達ボーナス倍率: %i%%
 Bonusspeed: %i km/h
 可能な最大速度: %i km/h
-Boost (%)
-増産率 (%)
+Boost (%%)
+増産率 (%%)
 Borderless (disabled on fullscreen)
 全画面表示 (ソフトウェアモード)
 bridge is too high for its type!
@@ -1451,14 +1451,14 @@ Mar.
 3月
 March
 3月
-Margin (%)
-利益率 (%)
+Margin (%%)
+利益率 (%%)
 Marker
 マーカー
 max
 高
-Max Boost (%)
-増産能力 (%)
+Max Boost (%%)
+増産能力 (%%)
 Max income:
 最大収益：
 Max. speed

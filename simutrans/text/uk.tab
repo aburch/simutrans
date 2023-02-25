@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: uk Ukrainian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -279,8 +279,8 @@ TRAMTOOLS
 %s спорудив новий офіс у (%i,%i).
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Промисловість зростає:\n%s біля %s збільшує ланцюжок.\n%i нових підприємств засновано.
-Net wealth less than 10% of starting capital!
-Чистих активів менше 10% від стартового капіталу!
+Net wealth less than 10%% of starting capital!
+Чистих активів менше 10%% від стартового капіталу!
 New %s now available:\n%s\n
 Доступний новий %s:\n%s
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -527,8 +527,8 @@ Boden
 Земля
 Bonusspeed: %i km/h
 Найб. можлива швидкість: %i км/год
-Boost (%)
-Прискорення (%)
+Boost (%%)
+Прискорення (%%)
 bridge is too high for its type!
 Міст зависокий для цього типу!
 Bridge is too long for this type!\n
@@ -1195,14 +1195,14 @@ map zoom
 масштаб
 March
 Березень
-Margin (%)
+Margin (%%)
 Запас
 Marker
 Знак
 max
 макс
-Max Boost (%)
-Макс. прискорення (%)
+Max Boost (%%)
+Макс. прискорення (%%)
 Max income:
 Макс. дохід:
 Max. speed:

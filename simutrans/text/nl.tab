@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -281,8 +281,8 @@ Trams
 %s's heeft een nieuw hoofdkantoor gebouwd.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Economie gaat goed\n voor %s bij %s zijn\n%i nieuwe fabrieken gebouwd.
-Net wealth less than 10% of starting capital!
-Het nettovermogen bedraagt minder dan 10% van het startkapitaal!
+Net wealth less than 10%% of starting capital!
+Het nettovermogen bedraagt minder dan 10%% van het startkapitaal!
 New %s now available:\n%s\n
 %s '%s'\nis nu beschikbaar.
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -523,8 +523,8 @@ Boden
 Land
 Bonusspeed: %i km/h
 Max. haalbare snelheid: %i km/h
-Boost (%)
-verhoging met (%)
+Boost (%%)
+verhoging met (%%)
 bridge is too high for its type!
 De brug is te hoog voor dit type!
 Bridge is too long for this type!\n
@@ -1175,13 +1175,13 @@ map zoom
 Inzoomen
 March
 Maart
-Margin (%)
-Marge (%)
+Margin (%%)
+Marge (%%)
 Marker
 InfoBordje
 max
 max.
-Max Boost (%)
+Max Boost (%%)
 Maximale verhoging
 Max income:
 Max. inkomsten:

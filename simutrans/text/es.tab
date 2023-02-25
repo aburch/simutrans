@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 24.02 2023                           #
+#                           Date Created: 25.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -379,8 +379,8 @@ Herramientas de Tranvía/Tren Ligero
 %s ha construido una nueva sede
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 La economía crece:\n%s cerca de %s se añade a la cadena de producción.\n%i nueva fábrica establecida.
-Net wealth less than 10% of starting capital!
-¡Patrimonio neto inferior al 10% del capital inicial!
+Net wealth less than 10%% of starting capital!
+¡Patrimonio neto inferior al 10%% del capital inicial!
 New %s now available:\n%s\n
 Nuevo %s ya disponible:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -685,8 +685,8 @@ Bonus Speed: %i km/h
 Bonificación de Velocidad: %i km/h
 Bonusspeed: %i km/h
 Velocidad máxima posible: %i km/h
-Boost (%)
-Incremento de producción (%)
+Boost (%%)
+Incremento de producción (%%)
 Borderless (disabled on fullscreen)
 Ventana sin bordes (deshabilitado en pantalla completa)
 bridge is too high for its type!
@@ -1459,14 +1459,14 @@ map zoom
 Ampliar
 March
 Marzo
-Margin (%)
+Margin (%%)
 Margen
 Marker
 Colocar Marcador
 max
 máximo
-Max Boost (%)
-Incremento máximo(%)
+Max Boost (%%)
+Incremento máximo(%%)
 Max income:
 Ingresos Máximos:
 Max. speed
