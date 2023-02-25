@@ -265,9 +265,6 @@ obj=program_text
 name=Accelerate time
 -
 obj=program_text
-name=Account above %s
--
-obj=program_text
 name=Add Stop
 -
 obj=program_text
@@ -595,9 +592,6 @@ name=Company bankrupt
 -
 obj=program_text
 name=Congratulation\nScenario was complete in\n%i months %i years.
--
-obj=program_text
-name=Connect factory
 -
 obj=program_text
 name=Connected stops
@@ -1885,9 +1879,6 @@ obj=program_text
 name=Suppliers
 -
 obj=program_text
-name=Supply %s at (%i,%i)
--
-obj=program_text
 name=Tage alt
 -
 obj=climates_text
@@ -1967,9 +1958,6 @@ name=Translation
 -
 obj=program_text
 name=transparent station coverage
--
-obj=program_text
-name=Transport %li passengers
 -
 obj=program_text
 name=Transported
@@ -2277,9 +2265,6 @@ name=freeplay mode
 -
 obj=program_text
 name=Goods AI
--
-obj=program_text
-name=Headquarter and %li trains
 -
 obj=program_text
 name=hlf_chk_maglevstop
@@ -4487,3 +4472,11 @@ note=number of convoi vehicles in the convoi details
 #obj=program_text
 #name=\nAct. Load: %u MW\n
 #note=powernet info window (depricated)
+#-
+#obj=program_text
+#name=Account above %s
+#name=Supply %s at (%i,%i)
+#name=Connect factory
+#name=Headquarter and %li trains
+#name=Transport %li passengers
+#note=old scenarion descriptions
