@@ -602,7 +602,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				to = &to_dummy;
 			}
 
-			pos = from->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
+			pos = from->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
 			grund_t *from2 = welt->lookup(pos);
 			if(from2) {
 				from = from2;

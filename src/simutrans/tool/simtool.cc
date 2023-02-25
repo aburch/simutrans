@@ -3024,7 +3024,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 					return "";
 				}
 
-				if(  env_t::pak_height_conversion_factor != slope_t::max_diff(sl)  ) {
+				if(  welt->get_settings().get_way_height_clearance() != slope_t::max_diff(sl)  ) {
 					win_set_static_tooltip( translator::translate("The gradient does not fit a tunnel") );
 					return "";
 				}
