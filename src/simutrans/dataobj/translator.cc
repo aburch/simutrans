@@ -332,9 +332,14 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 				// only add line which are actually different
 				char *raw = recode(buffer1, file_is_utf, false, language_is_latin2 );
 				char *translated = recode(buffer2, false, convert_to_unicode,language_is_latin2);
+				char *repaired = NULL;
 
 				// check format strings (only for unicode, ignore special strings)
-				if(language_is_utf  &&  (is_not_format_string(raw)  ||  cbuffer_t::check_format_strings(raw, translated) ) ) {
+				if(language_is_utf  &&  (is_not_format_string(raw)  ||  cbuffer_t::check_and_repair_format_strings(raw, translated, &repaired) ) ) {
+					if (repaired) {
+						free(translated);
+						translated = repaired;
+					}
 					table->set( raw, translated );
 				}
 				else {

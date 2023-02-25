@@ -107,7 +107,7 @@ public:
 	operator const char *() const {return buf;}
 
 	/// checks whether format specifiers in @p translated match those in @p master
-	static bool check_format_strings(const char* master, const char* translated);
+	static bool check_and_repair_format_strings(const char* master, const char* translated, char **repaired = NULL);
 };
 
 #endif

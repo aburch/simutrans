@@ -779,7 +779,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				// as count % offset != 0 we are guaranteed to test all street names
 				for(uint32 i=0; i<count; i++) {
 					buf.clear();
-					if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
+					if (cbuffer_t::check_and_repair_format_strings("%s %s", street_names[idx])) {
 						buf.printf( street_names[idx], city_name, stop );
 						if(  !all_names.get(buf).is_bound()  ) {
 							return strdup(buf);
@@ -855,13 +855,13 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				// allow for names without direction
 				uint8 count_s = count_printf_param( base_name );
 				if(count_s==3) {
-					if (cbuffer_t::check_format_strings("%s %s %s", base_name) ) {
+					if (cbuffer_t::check_and_repair_format_strings("%s %s %s", base_name) ) {
 						// ok, try this name, if free ...
 						buf.printf( base_name, city_name, dirname, stop );
 					}
 				}
 				else {
-					if (cbuffer_t::check_format_strings("%s %s", base_name) ) {
+					if (cbuffer_t::check_and_repair_format_strings("%s %s", base_name) ) {
 						// ok, try this name, if free ...
 						buf.printf( base_name, city_name, stop );
 					}

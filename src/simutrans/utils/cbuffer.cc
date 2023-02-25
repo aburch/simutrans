@@ -161,6 +161,7 @@ static bool check_format_specifier(const char*& format, int& position, char& mas
 	return mask != '?';
 }
 
+
 /**
  * Parses string @p format, and puts type identifiers into @p typemask.
  * If an error occurs, an error message is printed into @p error.
@@ -235,6 +236,52 @@ err_mix_pos_nopos:
 
 
 /**
+ * Repairs format string: replace starting % of broken
+ * format specifier by %% to deactivate it.
+ */
+static void repair_format_string(const char* format, char* &repaired)
+{
+	// find length of string plus number of percent signs
+	size_t len = 0;
+	{
+		const char* p = format;
+		while (*p) {
+			len ++;
+			if (*p == '%') {
+				len++;
+			}
+			p++;
+		}
+	}
+	// copy string
+	// replace any broken format specifier starting % with %% to deactivate it
+	repaired = (char*) malloc(len+1);
+	char *dest = repaired;
+
+	while(format  &&  *format) {
+		// skip until percent sign
+		while(*format  &&  *format!='%') {
+			*dest++ = *format++;
+		}
+		if (*format == 0) {
+			break;
+		}
+		int pos;
+		char mask;
+		const char *s = format;
+		if (!check_format_specifier(format, pos, mask)) {
+			// put additional % sign after the previous one
+			*dest++ = '%';
+		}
+		format = s;
+		// copy %
+		*dest++ = *format++;
+	}
+	*dest++ = 0;
+}
+
+
+/**
  * Check whether the format specifiers in @p translated match those in @p master.
  * Checks number of parameters as well as types as provided by format specifiers in @p master.
  * If @p master does not contain any format specifier then function returns true!
@@ -244,7 +291,7 @@ err_mix_pos_nopos:
  * @param translated the translated string taken from some tab file
  * @returns whether format in translated is ok
  */
-bool cbuffer_t::check_format_strings(const char* master, const char* translated)
+bool cbuffer_t::check_and_repair_format_strings(const char* master, const char* translated, char** repaired_p)
 {
 	if (master == NULL  ||  translated == NULL) {
 		return false;
@@ -262,21 +309,32 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 
 	// read out translated string
 	get_format_mask(translated, translated_tm, lengthof(translated_tm), buf);
+	if (buf.len() > 0  &&  repaired_p) {
+		// try to repair
+		repair_format_string(translated, *repaired_p);
+		// and check again
+		buf.clear();
+		get_format_mask(*repaired_p, translated_tm, lengthof(translated_tm), buf);
+		if (buf.len() == 0) {
+			// acceptable now
+			dbg->warning("cbuffer_t::check_format_strings", "Repaired broken translation string '%.15s' of '%s'.", translated, master);
+		}
+	}
 	if (buf.len() > 0) {
 		// broken translated string
-		dbg->warning("cbuffer_t::check_format_strings", "Broken translation string '%s': %s", translated, (const char*) buf);
+		dbg->warning("cbuffer_t::check_format_strings", "Broken translation string '%.15s' of '%s': %s", translated, master, (const char*) buf);
 		return false;
 	}
 	// check for consistency
 	for(uint i=0; (translated_tm[i])  &&  (i<lengthof(translated_tm)); i++) {
 		if (master_tm[i]==0) {
 			// too much parameters requested...
-				dbg->warning("cbuffer_t::check_format_strings", "Translation string '%s' has more parameters than master string '%s'", translated, master);
+				dbg->warning("cbuffer_t::check_format_strings", "Translation string '%.15s' has more parameters than master string '%s'", translated, master);
 				return false;
 		}
 		else if (master_tm[i]!=translated_tm[i]) {
 			// wrong type
-			dbg->warning("cbuffer_t::check_format_strings", "Parameter %d in translation string '%s' of '%s' has to be of type '%%%c' instead of '%%%c', Typemasks: Master = %s vs Translated = %s",
+			dbg->warning("cbuffer_t::check_format_strings", "Parameter %d in translation string '%.15s' of '%s' has to be of type '%%%c' instead of '%%%c', Typemasks: Master = %s vs Translated = %s",
 			               i+1, translated, master, master_tm[i], translated_tm[i], master_tm,translated_tm);
 			return false;
 		}
