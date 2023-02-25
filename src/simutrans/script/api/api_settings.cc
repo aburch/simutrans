@@ -12,6 +12,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/settings.h"
+#include "../../descriptor/ground_desc.h"
 #include "../../ground/grund.h"
 #include "../../tool/simmenu.h"
 #include "../../world/simworld.h"
@@ -36,6 +37,11 @@ call_tool_init set_traffic_level(settings_t*, sint16 rate)
 sint8 get_underground_view_level()
 {
 	return grund_t::underground_level;
+}
+
+bool has_double_slopes()
+{
+	return 	ground_desc_t::double_grounds;
 }
 
 
@@ -105,6 +111,10 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::get_max_air_convoi_length, "get_max_air_convoi_length");
 	/// @returns true, if drive-on-left is on
 	register_method(vm, &settings_t::is_drive_left, "get_drive_on_left");
+	/// @returns minimal z-distance between tiles with ways (possible values = 1,2)
+	register_method(vm, &settings_t::get_way_height_clearance, "get_way_height_clearance");
+	/// @returns whether paksets support two different slope heights
+	register_method(vm, &has_double_slopes, "has_double_slopes", true);
 	/**
 	 * Three modes of transfer payment:
 	 * 0 = pay for travelled Manhattan distance

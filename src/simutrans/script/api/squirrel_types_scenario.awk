@@ -333,6 +333,8 @@ BEGIN {
 	export_types_scenario["settings::get_max_ship_convoi_length"] = "integer()"
 	export_types_scenario["settings::get_max_air_convoi_length"] = "integer()"
 	export_types_scenario["settings::get_drive_on_left"] = "bool()"
+	export_types_scenario["settings::get_way_height_clearance"] = "integer()"
+	export_types_scenario["settings::has_double_slopes"] = "bool()"
 	export_types_scenario["settings::get_pay_for_total_distance_mode"] = "integer()"
 	export_types_scenario["settings::get_underground_view_level"] = "integer()"
 	export_types_scenario["dir::is_single"] = "bool(dir)"
