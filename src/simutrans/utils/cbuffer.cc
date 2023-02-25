@@ -111,12 +111,64 @@ const char* cbuffer_t::get_str() const
 
 
 /**
+ * Checks the format specifier.
+ * No flags, precision modifiers, n, * are allowed.
+ * @param format points to percent sign
+ * @param position positional parameter (if larger than zero)
+ * @param mask format mask for checking ('?' in case of error)
+ * @returns whether specifier is correct
+ */
+static bool check_format_specifier(const char*& format, int& position, char& mask)
+{
+	mask = '?';
+	// skip %
+	assert(*format == '%');
+	format++;
+//  %[n$][flags][width][.precision][length]specifier
+	int n = atoi(format);
+	// skip numbers
+	while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
+	// positional argument?
+	position = *format == '$' ? n : -1;
+	// skip $
+	if (*format == '$') format++;
+	// no flags
+	// skip numbers (width)
+	while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
+	// skip .
+	if (*format == '.') format++;
+	// no precision modifiers allowed
+	// skip numbers (precision)
+	while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
+
+	// now the specifier
+	static const char* all_types = "cdiouxXeEfFgGaAsp%"; // no n
+	static const char* all_masks = "ciiiiiiffffffffsp%";
+
+	if (*format) {
+		if (const char* type = strchr(all_types, *format)) {
+			mask = *(all_masks + (type-all_types));
+			if (mask == '%') {
+				// previous char has to be % as well
+				if ( *(format-1) != '%') {
+					mask = '?';
+				}
+			}
+			// skip specifier
+			format++;
+		}
+	}
+	return mask != '?';
+}
+
+/**
  * Parses string @p format, and puts type identifiers into @p typemask.
  * If an error occurs, an error message is printed into @p error.
  * Checks for positional parameters: either all or no parameter have to be positional as eg %1$d.
  * If positional parameter %[n]$ is specified then all up to n have to be present in the string as well.
  * Treats all integer parameters %i %u %d etc the same.
  * Ignores positional width parameters as *[n].
+ * Positional parameters start with 1.
  *
  * @param format format string
  * @param typemask pointer to array of length @p max_params
@@ -126,58 +178,44 @@ const char* cbuffer_t::get_str() const
 static void get_format_mask(const char* format, char *typemask, int max_params, cbuffer_t &error)
 {
 	MEMZERON(typemask, max_params);
-	uint16 found = 0;
+	// count found parameters
+	int found = 0;
 	bool positional = false;
 	while(format  &&  *format) {
-		uint16 pos = found;
+
 		// skip until percent sign
 		while(*format  &&  *format!='%') format++;
 		if (*format == 0) {
 			break;
 		}
-		format++;
-		// read out position
-		const int i = atoi(format);
-		// skip numbers
-		while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
-
-		// check for correct positional argument
-		if (i>0 && i<=max_params) {
-			if (format  &&  *format=='$')  {
-				format ++;
-				if (found > 0  &&  !positional) {
-					goto err_mix_pos_nopos;
-				}
-				positional = true;
-				pos = i-1;
+		int pos;
+		char mask;
+		if (check_format_specifier(format, pos, mask)) {
+			// mixed positional / non-positional arguments?
+			if (found>0  &&  (positional  ^  (pos > 0) )) {
+				goto err_mix_pos_nopos;
 			}
-			else {
-				// width specified, eg %2i
+			// has positional parameters?
+			// allowed range 1 .. max_params
+			if (found == 0) {
+				positional = pos > 0;
+			}
+			if (pos > max_params) {
+				error.printf("Positional parameter too large (pos = %d). ", pos);
+				return;
+			}
+			if (mask != '%') { // ignore %%
+				// no positional parameter
+				// positional parameter is 1-based, indexing is 0-based
+				int idx = pos > 0 ? pos-1 : found;
+				// found valid format
+				typemask[idx] = mask;
+				found++;
 			}
 		}
 		else {
-			if (found>0  &&  positional) {
-				goto err_mix_pos_nopos;
-			}
-		}
-		// now skip until format specifier
-		static const char* all_types = "cCdDeEfFgGiIoOsSuUxXpPnN \t\n";
-		static const char* all_masks = "cciiffffffiiiissiiiippnn   ";
-		while(format  &&  *format) {
-			if (const char* type = strchr(all_types, *format)) {
-				char mask = *(all_masks + (type-all_types));
-				if (mask == ' ') {
-					// broken format string
-				}
-				else if (pos < max_params) {
-					// found valid format
-					typemask[pos] = mask;
-					found++;
-				}
-				format++;
-				break;
-			}
-			format++;
+			error.printf("Format specifier %d contains invalid characters. ", found);
+			return;
 		}
 	}
 	// check whether positional parameters are continuous
@@ -185,14 +223,14 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 		for(uint16 i=0; i<found; i++) {
 			if (typemask[i]==0) {
 				// unspecified
-				error.printf("Positional parameter %d not specified.", i);
+				error.printf("Positional parameter %d not specified. ", i+1);
 				return;
 			}
 		}
 	}
 	return;
 err_mix_pos_nopos:
-	error.append("Either all or no parameters have to be positional.");
+	error.append("Either all or no parameters have to be positional. ");
 }
 
 
@@ -221,6 +259,7 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 		dbg->warning("cbuffer_t::check_format_strings", "Broken master string '%s': %s", master, (const char*) buf);
 		return false;
 	}
+
 	// read out translated string
 	get_format_mask(translated, translated_tm, lengthof(translated_tm), buf);
 	if (buf.len() > 0) {
@@ -232,12 +271,8 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 	for(uint i=0; (translated_tm[i])  &&  (i<lengthof(translated_tm)); i++) {
 		if (master_tm[i]==0) {
 			// too much parameters requested...
-			// but some master strings like 1extern have no format specifiers - ignore these
-			if (master_tm[0]) {
 				dbg->warning("cbuffer_t::check_format_strings", "Translation string '%s' has more parameters than master string '%s'", translated, master);
 				return false;
-			}
-			return true;
 		}
 		else if (master_tm[i]!=translated_tm[i]) {
 			// wrong type
