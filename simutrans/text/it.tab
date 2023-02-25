@@ -276,7 +276,7 @@ Strumenti tram/ferrovia leggera
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 L'economia si sta allargando:\n%s vicino %s allarga la catena.\n%i nuove fabbriche sono state fondate
 Net wealth less than 10%% of starting capital!
-Ricchezza netta inferiore al 10% del capitale iniziale!
+Ricchezza netta inferiore al 10%% del capitale iniziale!
 New %s now available:\n%s\n
 Nuovo %s ora disponibile:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -1414,7 +1414,7 @@ Passeggeri <%i> Posta <%i>
 PaxDest
 Destinazioni
 Percent Electricity
-Produzione elettricità(% domanda)
+Produzione elettricità(%% domanda)
 Planes are not available yet!
 Aerei non ancora disponibili.
 Plant tree

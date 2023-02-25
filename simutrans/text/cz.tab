@@ -370,7 +370,7 @@ Spoleènost %s zbankrotovala a byla zlikvidována. Provoz byl zastaven a majetek b
 %u Client(s)\n
 %u hráè(ù)\n
 %u Player (%u locked)\n
-% hráèù (z toho %u zamknutých)\n
+%u hráèù (z toho %u zamknutých)\n
 <clear schedule>
 <<Vymazat jízdní plán>>
 <create new line>
@@ -1410,7 +1410,7 @@ Cestující <%i> Po¹ta <%i>
 PaxDest
 Cíl cesty
 Percent Electricity
-Elektrifikováno (%)
+Elektrifikováno (%%)
 Planes are not available yet!
 Letadla nejsou zatím dostupná!\n®ádné komerènì vyu¾itelné stroje\nnebyly je¹tì vynalezeny.
 Plant tree
@@ -1500,7 +1500,7 @@ Radnice
 Rating
 Stav
 ratio_pax
-% osob
+%% osob
 Relevant
 Pou¾itelné
 Reliefkarte
@@ -1568,7 +1568,7 @@ vítr
 Saving map ...
 Ukládám mapu ...
 Scenario complete: %i%%
-Splnìní scénáøe: %i%
+Splnìní scénáøe: %i%%
 Scenario Debug
 Ladìní scénáøe
 Scenario Error Log

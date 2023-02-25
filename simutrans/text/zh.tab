@@ -1246,7 +1246,7 @@ Pause
 PaxDest
 目的地
 Percent Electricity
-供電率(%需求)
+供電率(%%需求)
 Planes are not available yet!
 飛機還不可用
 Plant tree
@@ -1326,7 +1326,7 @@ Rathaus
 Rating
 評價
 ratio_pax
-乘客運載率(%)
+乘客運載率(%%)
 Reliefkarte
 地圖
 Remove

@@ -662,7 +662,7 @@ Monument
 Departs at
 Departs at (dd:hh:mm)
 Departure after
-% load or waiting for (dd-hh-mm)
+%% load or waiting for (dd-hh-mm)
 Departure board
 Departure time
 Der Tunnel ist nicht frei!\n
@@ -1000,7 +1000,7 @@ min.
 minimum length of rivers
 Min. length of rivers
 Minimum load
-Minimum load (%)
+Minimum load (%%)
 Missing pakfiles
 Objects are missing!
 Monate alt
@@ -1114,7 +1114,7 @@ Passengers <%i> Mail <%i>
 PaxDest
 Destinations
 Percent Electricity
-Electricity output (% demand):
+Electricity output (%% demand):
 Planes are not available yet!
 Aircrafts are not yet available.
 Plant tree

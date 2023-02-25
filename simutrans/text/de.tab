@@ -930,7 +930,7 @@ Abgefahren
 Departs at
 Abfahrt um (TT:SS:MM)
 Departure after
-% geladen oder Wartezeit (TT:SS:MM)
+%% geladen oder Wartezeit (TT:SS:MM)
 Departure board
 Fahrtanzeiger
 Departures per month
@@ -1412,7 +1412,7 @@ MessageOptionsText
 minimum length of rivers
 min. Länge
 Minimum load
-Mindestbeladung (%)
+Mindestbeladung (%%)
 Missing pakfiles
 Es fehlen Objekte im Spiel!
 Modify the selected line
@@ -1608,7 +1608,7 @@ Passagieraufkommen
 PaxDest
 Reiseziele
 Percent Electricity
-Anteil Kraftwerke (%)
+Anteil Kraftwerke (%%)
 Planes are not available yet!
 Noch keine Fluggeräte erfunden!
 Plant tree

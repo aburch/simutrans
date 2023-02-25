@@ -972,7 +972,7 @@ Salió
 Departs at
 Sale el (dd:hh:mm)
 Departure after
-% de carga o esperar durante (dd-hh-mm)
+%% de carga o esperar durante (dd-hh-mm)
 Departure board
 Hora de salida
 Departures per month
@@ -1500,7 +1500,7 @@ mín.
 minimum length of rivers
 Longitud mínima de rios
 Minimum load
-Carga mínima (%)
+Carga mínima (%%)
 Missing pakfiles
 ¡Faltan objetos (pak)!
 Modify the selected line
@@ -1716,7 +1716,7 @@ Nivel de pasajeros
 PaxDest
 Destinos
 Percent Electricity
-Producción de electricidad (% demandada):
+Producción de electricidad (%% demandada):
 Planes are not available yet!
 ¡Todavía no están disponibles los aviones!
 Plant tree

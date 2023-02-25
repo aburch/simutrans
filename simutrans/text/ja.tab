@@ -958,7 +958,7 @@ Departed
 Departs at
 出発時間 (DD:HH:MM)
 Departure after
-% ロードまたは待機時間(DD:SS:MM)
+%% ロードまたは待機時間(DD:SS:MM)
 Departure board
 発着時刻
 Departures per month
@@ -1436,7 +1436,7 @@ Maintenance
 make stop public (or join with public stop next) costs %i per tile and level
 公共駅に変更　駅上をドラッグで、実際の見積り費用を表示します (単価%i)
 Make way or stop public (will join with neighbours), %i times maintainance
-駅または道路・軌道等を公共化して隣接する公共駅と統合します。%i 維持費の%倍がかかります。
+駅または道路・軌道等を公共化して隣接する公共駅と統合します。%i 維持費の%%倍がかかります。
 Manual (Human)
 プレイヤー(人間)
 Manufactured:
@@ -1492,7 +1492,7 @@ min
 minimum length of rivers
 河川の長さ　最短：
 Minimum load
-最低積載率 (%)
+最低積載率 (%%)
 Missing pakfiles
 オブジェクトが不足しています!
 Modify the selected line
@@ -1708,7 +1708,7 @@ Pax level
 PaxDest
 旅客/郵便目的地
 Percent Electricity
-電力供給率 (％):
+電力供給率 (%%):
 Planes are not available yet!
 飛行機はまだ開発されていません！
 Plant tree
@@ -1802,7 +1802,7 @@ Rathaus
 Rating
 評価
 ratio_pax
-旅客輸送率(%)
+旅客輸送率(%%)
 Relevant
 取扱い貨物のみ
 Reliefkarte

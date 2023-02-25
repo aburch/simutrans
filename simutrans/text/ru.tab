@@ -976,7 +976,7 @@ Friction:
 fuel_cell
 элемент питания
 Full load
-Загрузить, %:    
+Загрузить, %%:
 Fundament
 Фундамент
 Fussgaenger
@@ -1502,7 +1502,7 @@ Pax <%i>  Mail <%i>
 PaxDest
 Направления
 Percent Electricity
-Произв. электричества (% от спроса):
+Произв. электричества (%% от спроса):
 Planes are not available yet!
 Авиация ещё недоступна!
 Plant tree
