@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: pl Polski                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,20 +93,10 @@ rocky
 Ter. skaliste
 temperate
 Klim. umiarkowany
-tropic
-Klim. tropikalny
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Wczytanie scenariusza nie powiod³o siê!
-Autohalt muss auf\nStrasse liegen!\n
-Przystanek musi\nbyæ postawiony\nna drodze.
-Bridge is too long for this type!\n
-Przês³o zbyt d³ugie\ndla tego typu mostu!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Most musi\nzaczynaæ siê na\nrównym zboczu!\n
 Can't buy obsolete vehicles!
 Nie mo¿na zakupiæ przestarza³ych pojazdów!
 Cannot built depot here!
@@ -125,10 +115,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Te tereny\ns± w³asnosci±\ninnego gracza!\n
 Der Besitzer erlaubt das Entfernen nicht
 \nW³a¶ciciel nie wyra¿a\nzgody na likwidacjê\nobiektu!\n
-Der Tunnel ist nicht frei!\n
-Tunel nie jest pusty.\n
-Die Bruecke ist nicht frei!\n
-Most nie jest pusty.\n
 Diese Zusammenstellung kann nicht fahren!\n
 Taki zestaw\nnie pojedzie!
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -137,14 +123,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Nie mo¿e postawiæ\ntutaj lotniska.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Nie mo¿esz\nzbudowaæ tu\nsemaforu!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Baza nie mo¿e zostaæ\nodnaleziona. Musisz\nwys³aæ rêcznie.
 In order to lock the game, you have to protect the public player by password!
 W celu zapisania gry trzeba ustawiæ has³o!
-Kann Spielstand\nnicht laden.\n
-Nie mogê odczytaæ\nzapisanej gry!\n
-Kann Spielstand\nnicht speichern.\n
-Nie mogê otworzyæ\n gry do zapisu!\n
 Lost connection\nto server!
 Serwer \nnieodpowiada!\nGrasz offline!
 Lost synchronisation\nwith server.
@@ -161,10 +141,6 @@ No suitable way on the ground!
 Peron mo¿na wybudowaæ tylko na prostym odcinku toru.
 No through station here!
 Nie mo¿esz tu wybudowaæ \nprzystanku!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Najpierw ustal\nrozk³ad jazdy!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Rozk³ad jazdy tego\npojazdu nie mo¿e byæ zmieniany\n w czasie znajdywania trasy.
 Not enough money!
 Masz za ma³o pieniêdzy aby to zbudowaæ!
 On narrowgauge track only!\n
@@ -281,12 +257,6 @@ Buduj tramwaje
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ma teraz siedzibê w (%i,%i).
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\n\nzbudowa³o nowy\n\nratusz gdy ilo¶æ\n\nmieszkañców wynios³a\n\n%i.
-Bankrott:\n\nDu bist bankrott.\n
-Bankructwo:\n\nStraci³e¶ ca³y maj±tek.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Gratulacje!\nScenariusz zosta³ ukoñczony \nw %i miêsiecy i %i lat!
 New %s now available:\n%s\n
 Nowy %s jest dostêpny:\n%s\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -295,20 +265,12 @@ New vehicle now available:\n%s\n
 Dostepny nowy pojazd:\n%s\n
 Now %u clients connected.
 Obecnie na serwerze jest %u graczy.
-On this map, you are not\nallowed to change player!\n
-Ta gra jest zablokowana.\nNie mo¿na zmieniaæ gracza.\n
 Remove vehicle from map. Use with care!
 Usuñ pojazd z gry. U¿ywaæ ostro¿nie!
 Screenshot\ngespeichert.\n
 Zapisano\nzrzut ekranu.\n
 Sends the convoi to the last depot it departed from!
 Wy¶lij pojazd do najbli¿szej bazy.
-Spielstand wurde\ngeladen!\n
-\nGrê za³adowano!\n
-Spielstand wurde\ngespeichert!\n
-\nGra zosta³a zapisana!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Masz dlugi!\n\nDosta³e¶ %d miesiêcy\nna sp³atê d³ugu!\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Dziêki du¿emu festiwalowi,\n\nw %s zbudowano\n\nnowy monument powoduj±c\n\nrado¶æ obywateli.\n
 #_________________________________program_text__________________________________
@@ -371,6 +333,8 @@ Wiek: %i lat i %i miesiêcy
 %s\nPojazd czeka w bazie
 %s land %d %s
 %s teren %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s\n\nzbudowa³o nowy\n\nratusz gdy ilo¶æ\n\nmieszkañców wynios³a\n\n%i.
 %s\nis crowded.
 %s\njest przepe³niony/a.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -427,8 +391,6 @@ Abspanntransformator
 Stacja transformatorowa
 Accelerate time
 Przy¶piesz
-Account above %s
-%s ¶rodków na koncie
 Active player only
 Tylko Aktywny Gracz
 Add forest
@@ -441,8 +403,6 @@ Add Stop
 Dodaj
 Add stops for backward travel
 Dodaj stacje drogi powrotnej
-air_wt
-Powietrzne
 aircraft_tab
 Transportowe
 airplane
@@ -483,10 +443,14 @@ Aufspanntransformator
 Stacja transformatorowa
 August
 Sierpieñ
+Autohalt muss auf\nStrasse liegen!\n
+Przystanek musi\nbyæ postawiony\nna drodze.
 Available
 Dostêpny
 Bahndepot
 Lokomotywownia
+Bankrott:\n\nDu bist bankrott.\n
+Bankructwo:\n\nStraci³e¶ ca³y maj±tek.\n
 battery
 akumulatorowy
 Baum
@@ -513,8 +477,12 @@ Boden
 L±d
 bridge is too high for its type!
 Ten typ mostu nie mo¿e byæ tak wysoki!
+Bridge is too long for this type!\n
+Przês³o zbyt d³ugie\ndla tego typu mostu!\n
 Bruecke
 Most
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Most musi\nzaczynaæ siê na\nrównym zboczu!\n
 Brueckenboden
 most
 Build air depot
@@ -659,6 +627,8 @@ Company_msg
 Konkurencja
 Comparing pak files ...
 Porównywanie plików...
+Congratulation\nScenario was complete in\n%i months %i years.
+Gratulacje!\nScenariusz zosta³ ukoñczony \nw %i miêsiecy i %i lat!
 Connected stops
 Po³±czony z:
 Constructed by
@@ -707,16 +677,22 @@ Departed
 Wys³anych
 Depots
 Bazy
+Der Tunnel ist nicht frei!\n
+Tunel nie jest pusty.\n
 Destination
 Przeznaczenie
 Details
 Szczegó³y
+Die Bruecke ist nicht frei!\n
+Most nie jest pusty.\n
 diesel
 spalinowy
 Direkt erreichbare Haltestellen
 Bezpo¶rednie po³±czenie z
 disable midi
 Wy³±cz muzykê Midi
+Display settings
+Ustawienie wy¶wietlania
 Distance
 Odleg³o¶æ
 Dock
@@ -853,8 +829,6 @@ Haus kaufen
 Kup dom
 Helligk.
 Grafika
-Helligk. u. Farben
-Ustawienie wy¶wietlania
 Help
 Pomoc
 Help text not found
@@ -909,6 +883,8 @@ hlf_chk_waren_annahme
 Zapotrzebowanie:
 hlf_title
 Filtruj listê stacji
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Baza nie mo¿e zostaæ\nodnaleziona. Musisz\nwys³aæ rêcznie.
 Homeless
 Bezdomni
 hydrogene
@@ -939,6 +915,10 @@ July
 Lipiec
 June
 Czerwiec
+Kann Spielstand\nnicht laden.\n
+Nie mogê odczytaæ\nzapisanej gry!\n
+Kann Spielstand\nnicht speichern.\n
+Nie mogê otworzyæ\n gry do zapisu!\n
 Kein Besitzer\n
 Brak w³a¶ciciela
 keine
@@ -1117,6 +1097,8 @@ no timeline
 Bez osi czasu
 no tree
 bez drzew
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Najpierw ustal\nrozk³ad jazdy!\n
 none
 Nic
 nord
@@ -1125,6 +1107,8 @@ nordost
 Pó³nocny wschód
 nordwest
 Pó³nocny zachód
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Rozk³ad jazdy tego\npojazdu nie mo¿e byæ zmieniany\n w czasie znajdywania trasy.
 Not enough fields would remain.
 To pole obsiane zbo¿em jest\nw³asno¶ci± prywatn±, \na w³a¶ciciel nie wyra¿a zgody \nna jego sprzeda¿. Nie mo¿esz \nwiêc zrównaæ go z ziemi±.
 November
@@ -1141,6 +1125,8 @@ Oktober
 Pa¼dziernik
 On loan since %i month(s)
 Na debecie od %i miesi±c/miesiêcy.
+On this map, you are not\nallowed to change player!\n
+Ta gra jest zablokowana.\nNie mo¿na zmieniaæ gracza.\n
 Only one transformer per factory!
 Tylko jeden transformator na jedn± fabrykê!
 open
@@ -1431,6 +1417,10 @@ Spieler(mz)
 Gracze
 Spielerliste
 Lista graczy
+Spielstand wurde\ngeladen!\n
+\nGrê za³adowano!\n
+Spielstand wurde\ngespeichert!\n
+\nGra zosta³a zapisana!\n
 Sprache
 Jêzyk
 Sprachen
@@ -1531,14 +1521,16 @@ Translation
 T³umaczenie
 transparent station coverage
 Przezr. zasiêg stacji
-Transport %li passengers
-Przewie¼ %li pasa¿erów
 Transported
 Przewiezione
 TrolleyBus_tab
 Trolejbusy
+tropic
+Klim. tropikalny
 Truck
 Drog.
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunel musi\nzaczynaæ siê na \nrównym zboczu!\n
 Tunnel must start on single way!
@@ -1583,6 +1575,8 @@ verkaufen
 Sprzedaj
 Verkehrsteilnehmer
 U¿ytkownik drogi
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Masz dlugi!\n\nDosta³e¶ %d miesiêcy\nna sp³atê d³ugu!\n
 via
 Przez
 via %s\n

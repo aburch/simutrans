@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -97,22 +97,12 @@ rocky
 Высокогорный
 temperate
 Умеренный
-tropic
-Тропический
-tundra
-Субарктический
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Ошибка загрузки скрипта сценария.
-Autohalt muss auf\nStrasse liegen!\n
-Остановка должна размещаться на дороге.
 Bridge blocked by way below or above.
 Высота моста не достаточна для прокладки путей под ним!
-Bridge is too long for this type!\n
-Слишком большой пролёт\nдля данного типа мостов!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Мосты должны\nначинаться на\nпрямом склоне!\n
 Can't buy obsolete vehicles!
 Нельзя купить устаревшие т/с!
 Cannot alter water
@@ -141,10 +131,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Этим участком\nземли владеет\nдругой игрок!\n
 Der Besitzer erlaubt das Entfernen nicht
 Права владельца\nзапрещают удаление!\n
-Der Tunnel ist nicht frei!\n
-Тоннель не пуст!\n\n\n
-Die Bruecke ist nicht frei!\n
-Мост несвободен!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Эта комбинация\nне может двигаться!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -153,14 +139,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Это здание аэропорта\nне может быть\nпостроено здесь!\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Семафор не может\nбыть установлен здесь!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Исходное депо не найдено!\nВы должны послать т/с\nв депо вручную.
 In order to lock the game, you have to protect the public player by password!
 Для блокировки игры, необходимо защитить текущего игрока паролем!
-Kann Spielstand\nnicht laden.\n
-Не могу загрузить\nсохранённую игру!\n
-Kann Spielstand\nnicht speichern.\n
-Не могу открыть для записи\nфайл с сохранением игры!\n
 Loading a new game will end the current server session!
 Загрузка новой игры закроет текущую сессию сервера!
 Lost connection\nto server!
@@ -183,10 +163,6 @@ No suitable way on the ground!
 Остановку можно построить только на\nпрямом участке трассы.
 No through station here!
 Здесь нет транзитной станции!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Установите расписание \nт/с перед отправкой!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Расписание нельзя \nпоменять во время \nпоиска пути
 Not enough bytes transferred
 Передано недостаточное кол-во байтов.
 Not enough clearance.
@@ -261,7 +237,7 @@ Overlay town names
 Отображать названия городов.
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Укажите на карте, какие точки или остановки\nнеобходимо добавить к этому расписанию.
-Set tile climate
+Set tile climate %s
 Задать %s для клетки.
 Show capacity and if halt is overcrowded
 Отображать емкость складов станции и их переполнение грузами.
@@ -335,16 +311,8 @@ TRAMTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s построил новое представительство
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-В %s была построена новая мэрия, когда население достигло %i.
-Bankrott:\n\nDu bist bankrott.\n
-Банкротство:\n\nВы банкрот.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Поздравляем!\nВы прошли сценарий за\n%i месяцев и %i лет!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Промышленность растёт:\n%s около %s увеличивает цепочку.\n%i новых предприятий основано.
-Make way or stop public (will join with neighbours), %i times maintainance
-Сделать путь или остановку публичной (объединяет с соседними) %i обслуживание
 Net wealth less than 10% of starting capital!
 Чистых активов меньше 10% от стартового капитала! Это может привести к банкротству. 
 New %s now available:\n%s\n
@@ -355,10 +323,6 @@ New vehicle now available:\n%s\n
 \n Теперь доступно новое\nтранспортное средство:\n\n\n » %s «\n\n
 Now %u clients connected.
 Сейчас подключено клиентов: %u.
-On this map, you are not\nallowed to change player!\n
-Эта игра заблокирована!\nСмена игрока невозможна!\n\n\n
-Production of %s has been stopped:\n%s\n
-Производство %s было прекращено:\n%s\n
 Remove vehicle from map. Use with care!
 Убрать т/с с карты. Используйте осторожно!
 Screenshot\ngespeichert.\n
@@ -367,14 +331,12 @@ Sends the convoi to the last depot it departed from!
 Послать т/с в последнее посещённое депо.
 Server preparing game ...
 Сервер сохраняет игру...
-Spielstand wurde\ngeladen!\n
-\nИгра успешно загружена!\n
-Spielstand wurde\ngespeichert!\n
-\nИгра успешно сохранена!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-У Вас образовалась задолженность!\n\nОсталось %d месяц(а,ев)\nчтобы выплататить долг!\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 В честь открытия нового монумента\nв %s организованы большие празднования.\n%i горожан отмечают это событие.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Фильтр линий
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -437,6 +399,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s прибыл в депо.
 %s land %d %s
 %s область %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+В %s была построена новая мэрия, когда население достигло %i.
 %s\nis crowded.
 %s переполнена.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -451,8 +415,6 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 <очистить расписание>
 <create new line>
 <создать линию>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <H1>Ошибка: Дублирование объектов в папке пак-сета</H1><p><strong>В 
 <h1>Warning</h1><p><strong>addons for
@@ -513,8 +475,6 @@ Abspanntransformator
 Трансформатор
 Accelerate time
 Ускорить время
-Account above %s
-Счет выше %s
 Act. load: %u MW\n
 Факт. нагр.: %u МВ\n
 Active player only
@@ -529,7 +489,7 @@ Add Stop
 Добавить
 Add stops for backward travel
 Добавить остановки для обратного пути
-air_wt
+air
 рулежная дорожка/взлетная полоса
 aircraft_tab
 Грузовые
@@ -579,10 +539,14 @@ Aufspanntransformator
 Трансформатор
 August
 Август
+Autohalt muss auf\nStrasse liegen!\n
+Остановка должна размещаться на дороге.
 Available
 Доступно
 Bahndepot
 Железнодорожное депо
+Bankrott:\n\nDu bist bankrott.\n
+Банкротство:\n\nВы банкрот.\n
 battery
 Батарея
 Baum
@@ -613,8 +577,12 @@ Boost (%)
 Ускорение (%)
 bridge is too high for its type!
 Слишком высоко для моста данного типа!
+Bridge is too long for this type!\n
+Слишком большой пролёт\nдля данного типа мостов!\n
 Bruecke
 Мост
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Мосты должны\nначинаться на\nпрямом склоне!\n
 Brueckenboden
 Мост
 Build air depot
@@ -773,8 +741,8 @@ Configure AI
 Настроить ИИ
 Configure AI setttings
 Настроить ИИ
-Connect factory
-Соединить предприятия
+Congratulation\nScenario was complete in\n%i months %i years.
+Поздравляем!\nВы прошли сценарий за\n%i месяцев и %i лет!
 Connected stops
 Соединённые остановки
 Connected with server
@@ -871,12 +839,16 @@ Departures to\n
 Отправление в\n
 Depots
 Депо
+Der Tunnel ist nicht frei!\n
+Тоннель не пуст!\n\n\n
 Destination
 Назначение
 Destroying map ...
 Очистка карты...
 Details
 Детали
+Die Bruecke ist nicht frei!\n
+Мост несвободен!\n
 diesel
 дизельный привод
 directmail
@@ -885,6 +857,8 @@ Direkt erreichbare Haltestellen
 Прямые маршруты отсюда:
 disable midi
 Выключить музыку
+Display settings
+Настройки графики
 Distance
 Расстояние
 distributing cities
@@ -1057,12 +1031,8 @@ Happy
 Счастливы
 Haus kaufen
 Купить здание
-Headquarter and %li trains
-Офис и %li поездов
 Helligk.
 Графика
-Helligk. u. Farben
-Настройки графики
 Help
 Справка по игре
 Help text not found
@@ -1125,6 +1095,8 @@ hlf_chk_waren_annahme
 Требуются товары:
 hlf_title
 Фильтр списка станций
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Исходное депо не найдено!\nВы должны послать т/с\nв депо вручную.
 Homeless
 Бездомные
 hydrogene
@@ -1175,6 +1147,10 @@ Jump to
 Перейти к
 June
 Июнь
+Kann Spielstand\nnicht laden.\n
+Не могу загрузить\nсохранённую игру!\n
+Kann Spielstand\nnicht speichern.\n
+Не могу открыть для записи\nфайл с сохранением игры!\n
 Kein Besitzer\n
 Нет владельца\n
 keine
@@ -1227,8 +1203,6 @@ letzen Monat: diesen Monat:
 Пред. месяц: этот месяц:
 Line
 Линия
-Line Filter
-Фильтр линий
 Line Management
 Управление линиями
 Lineless convoys serving this stop
@@ -1283,6 +1257,8 @@ Maintenance
 Содержание
 make stop public (or join with public stop next) costs %i per tile and level
 создать публичную остановку (или присоединить к соседней публичной остановке), стоимостью %i$ за клетку и уровень
+Make way or stop public (will join with neighbours), %i times maintainance
+Сделать путь или остановку публичной (объединяет с соседними) %i обслуживание
 Manual (Human)
 Ручной (Человек)
 Manufactured:
@@ -1419,6 +1395,8 @@ no tree
 Без деревьев
 No. of Factories
 Кол-во фабрик и магазинов
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Установите расписание \nт/с перед отправкой!\n
 none
 нет
 nord
@@ -1429,6 +1407,8 @@ nordwest
 Северо-запад
 Not allowed to make publicly owned ways!
 Запрещено делать общедоступными собственные пути!
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Расписание нельзя \nпоменять во время \nпоиска пути
 Not enough fields would remain.
 Вокруг фермы осталось слишком мало полей
 November
@@ -1451,6 +1431,8 @@ Oktober
 Октябрь
 On loan since %i month(s)
 Кредит в течении %i месяца(-ев)
+On this map, you are not\nallowed to change player!\n
+Эта игра заблокирована!\nСмена игрока невозможна!\n\n\n
 Only city chains
 Только городские цепочки
 Only first %d differing paks reported. There are probably more.
@@ -1581,6 +1563,8 @@ Produced
 Произведено
 Produces: %.1f units/minute
 Производит: %.1f ед./мин.
+Production of %s has been stopped:\n%s\n
+Производство %s было прекращено:\n%s\n
 Production/Boost
 Производство/Рост
 Produktion
@@ -1845,6 +1829,10 @@ Spieler(mz)
 Игроки
 Spielerliste
 Список игроков
+Spielstand wurde\ngeladen!\n
+\nИгра успешно загружена!\n
+Spielstand wurde\ngespeichert!\n
+\nИгра успешно сохранена!\n
 Sprache
 Язык
 Sprachen
@@ -1891,8 +1879,6 @@ Supplied: %.0f %%
 Доставлено: %.0f %%
 Suppliers
 Поставщики
-Supply %s at (%i,%i)
-Поставить %s в (%i,%i)
 Tage alt
 дней
 Theme selector
@@ -1959,18 +1945,20 @@ Translation
 Перевод
 transparent station coverage
 Прозрачная зона покрытия
-Transport %li passengers
-Перевезти %li пассажиров
 Transported
 Перевезено
 Trees disabled!
 Деревья запрещены!
 TrolleyBus_tab
 троллейбусы
+tropic
+Тропический
 Truck
 Грузовик
 tt_Other
 Другое
+tundra
+Субарктический
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Туннели должны начинаться\nна прямом склоне!\n
 Tunnel must start on single way!
@@ -2021,6 +2009,8 @@ verkaufen
 Продажа
 Verkehrsteilnehmer
 Гор. трансп.
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+У Вас образовалась задолженность!\n\nОсталось %d месяц(а,ев)\nчтобы выплататить долг!\n
 via
 через (детали)
 via %s\n

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: sv Svenska                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,20 +91,10 @@ rocky
 Fjällklimat
 temperate
 Tempererat klimat
-tropic
-Tropiskt klimat
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Laddningen av scenario skriptet (.nut) misslyckades.
-Autohalt muss auf\nStrasse liegen!\n
-Buss- och lastbilshållplatser måste ligga på en väg.\n
-Bridge is too long for this type!\n
-Spannet skulle bli för\nlångt för denna typ av bro!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Broar måste\nbörja på\nraka sluttningar!\n
 Can't buy obsolete vehicles!
 Du kan inte köpa utgångna fordonsmodeller!
 Cannot built depot here!
@@ -123,10 +113,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Den här mark-\nbiten ägs av\nen annan spelare!\n
 Der Besitzer erlaubt das Entfernen nicht
 Ägaren tillåter\ninte att\ndetta tas bort!\n
-Der Tunnel ist nicht frei!\n
-Tunneln är inte tom.\n
-Die Bruecke ist nicht frei!\n
-Bron är inte tom!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Denna kombination\nkan ej köra!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -135,14 +121,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Här kan man inte\nbygga den här flygplats-\nbyggnaden.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Här kan man\ninte bygga\nnågon signal!
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Vet inte var fordonet \nhör hemma! Lägg\nmanuellt till\ndetta i färdplanen.
 In order to lock the game, you have to protect the public player by password!
 För att kunna låsa spelet krävs det att den allmänna spelare är skyddad med lösenord!
-Kann Spielstand\nnicht laden.\n
-Kan inte öppna\ndet sparade spelet!\n
-Kann Spielstand\nnicht speichern.\n
-Kan inte spara\nspelet!\n
 Lost connection\nto server!
 Tappat anslutningen\till servern!
 Lost synchronisation\nwith server.
@@ -157,10 +137,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Smalspårsstation måste\nligga på ett smalspår!\n
 No through station here!
 Här kan inte byggas någon hållplats.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Det finns ännu inte någon\ntidtabell att köra efter!
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Detta går inte!\nFordonets tidtabell kan\nför närvarande inte ändras.\nFörsök igen senare!
 Not enough money!
 Pengarna räcker int\ntill för att bygga detta!
 On narrowgauge track only!\n
@@ -243,12 +219,6 @@ Spårvägsverktyg
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 Ett nytt huvudkontor har byggts av %s.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Borgmästaren vägrar frysa mer:\nNytt rådhus byggt i %s\n när staden blev %i invånare stor.\n
-Bankrott:\n\nDu bist bankrott.\n
-Bankrutt:\n\nDu är bankrutt.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Gratulationer!\nDetta scenario har \nspelats klart på \n%i månader och %i år!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomin är stark:\n%s nära %s utvidgar.\n%i nya fabriker har öppnat.
 New %s now available:\n%s\n
@@ -259,22 +229,12 @@ New vehicle now available:\n%s\n
 \nEtt nytt fordon är\n nu tillgängligt:\n\n\n -- %s --\n\n
 Now %u clients connected.
 Just nu %i spelare anslutna.
-On this map, you are not\nallowed to change player!\n
-Detta spel är låst.\nInga spelarbyten är tillåtna\npå denna karta.\n
-Production of %s has been stopped:\n%s\n
-%s av typen \n'%s'\ntillverkas inte längre.\n
 Remove vehicle from map. Use with care!
 Fordonet tas bort. Försäljningsvärdet tillgodoskrivs som vinst.
 Screenshot\ngespeichert.\n
 Skärmbild\nsparad.\n
 Sends the convoi to the last depot it departed from!
 Sänder konvojen till fordonshallen den startade från.
-Spielstand wurde\ngeladen!\n
-\nSpelet har lästs in!\n
-Spielstand wurde\ngespeichert!\n
-\nSpelet har sparats!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Du står i skuld!\n\nDu har %d månader på dig\natt återbetala din skuld.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 I %s\ninvigs ett nytt\nmonument.\n%i åskådare deltar\ni festligheterna.
 #_________________________________program_text__________________________________
@@ -335,6 +295,8 @@ Här förvaras %d fordon
 %s\nhar nått fordonshall
 %s land %d %s
 %s %d yttre %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+Borgmästaren vägrar frysa mer:\nNytt rådhus byggt i %s\n när staden blev %i invånare stor.\n
 %s\nis crowded.
 %s är överfull.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -347,8 +309,6 @@ Här förvaras %d fordon
 %i Spelarplatser (%i lösenordsskyddade)\n
 <create new line>
 < Ny linje >
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <no line>
 <ingen linje finns>
 1 convoi
@@ -395,8 +355,6 @@ Abspanntransformator
 Transformatorstation
 Accelerate time
 Accelerera tidsförlopp
-Account above %s
-Mer än %s på kontot
 Act. load: %u MW\n
 Förbrukning: %u MW\n
 Active player only
@@ -411,7 +369,7 @@ Add Stop
 Lägg till
 Add stops for backward travel
 Lägg till stopp på vägen tillbaka.
-air_wt
+air
 flyg
 aircraft_tab
 Fraktflygplan
@@ -459,10 +417,14 @@ Aufspanntransformator
 Transformatorstation
 August
 Augusti
+Autohalt muss auf\nStrasse liegen!\n
+Buss- och lastbilshållplatser måste ligga på en väg.\n
 Available
 Tillgänglig
 Bahndepot
 Lokstall/vagnhall
+Bankrott:\n\nDu bist bankrott.\n
+Bankrutt:\n\nDu är bankrutt.\n
 battery
 Batteri
 Baum
@@ -491,8 +453,12 @@ Bonusspeed: %i km/h
 Högsta möjliga hastighet: %i km/h
 bridge is too high for its type!
 Dalen är för djup för\ndenna typ av bro!\n
+Bridge is too long for this type!\n
+Spannet skulle bli för\nlångt för denna typ av bro!\n
 Bruecke
 Bro
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Broar måste\nbörja på\nraka sluttningar!\n
 Brueckenboden
 Bro
 Build air depot
@@ -651,8 +617,8 @@ Configure AI
 Konfigurera AI
 Configure AI setttings
 Justera parametrar för datormotståndare
-Connect factory
-Länka industrier
+Congratulation\nScenario was complete in\n%i months %i years.
+Gratulationer!\nDetta scenario har \nspelats klart på \n%i månader och %i år!
 Connected stops
 Hållplatser (med anslutning till denna fabrik)
 Connected with server
@@ -725,12 +691,18 @@ Departed
 Avgått
 Depots
 Fordonshallar
+Der Tunnel ist nicht frei!\n
+Tunneln är inte tom.\n
 Details
 Detaljer
+Die Bruecke ist nicht frei!\n
+Bron är inte tom!\n
 Direkt erreichbare Haltestellen
 --direkta trafikförbindelser:
 disable midi
 Tysta MIDI-musiken
+Display settings
+Visning:
 Distance
 Färdsträcka
 Dock
@@ -877,12 +849,8 @@ Happy
 Tillfreds
 Haus kaufen
 Köp hus
-Headquarter and %li trains
-Huvudkontor och %li tåg
 Helligk.
 Visning
-Helligk. u. Farben
-Visning:
 Help
 Hjälp
 Help text not found
@@ -939,6 +907,8 @@ hlf_chk_waren_annahme
 Inkommande varor:
 hlf_title
 Stationslista - inställningar
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Vet inte var fordonet \nhör hemma! Lägg\nmanuellt till\ndetta i färdplanen.
 Homeless
 Hemlösa
 hydrogene
@@ -983,6 +953,10 @@ Jump to
 Centrera runt
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Kan inte öppna\ndet sparade spelet!\n
+Kann Spielstand\nnicht speichern.\n
+Kan inte spara\nspelet!\n
 Kein Besitzer\n
 Ingen ägare\n
 keine
@@ -1193,6 +1167,8 @@ no timeline
 utan tidslinje
 no tree
 Inga träd
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Det finns ännu inte någon\ntidtabell att köra efter!
 none
 ingen
 nord
@@ -1201,6 +1177,8 @@ nordost
 Nordöstra
 nordwest
 Nordvästra
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Detta går inte!\nFordonets tidtabell kan\nför närvarande inte ändras.\nFörsök igen senare!
 Not enough fields would remain.
 Det måste finnas ett\nvisst antal fält\nkvar runt varje bondgård.
 Now active as %s.\n
@@ -1215,6 +1193,8 @@ Ok
 OK
 On loan since %i month(s)
 Kontot övertrasserat i %i månad(er)
+On this map, you are not\nallowed to change player!\n
+Detta spel är låst.\nInga spelarbyten är tillåtna\npå denna karta.\n
 Only city chains
 Endast stadsnätverk
 Only land chains
@@ -1313,6 +1293,8 @@ Price
 Pris
 Problems_msg
 Problem
+Production of %s has been stopped:\n%s\n
+%s av typen \n'%s'\ntillverkas inte längre.\n
 Profit
 Vinst
 promote to line
@@ -1537,6 +1519,10 @@ Spieler(mz)
 Spelare
 Spielerliste
 Spelarlista
+Spielstand wurde\ngeladen!\n
+\nSpelet har lästs in!\n
+Spielstand wurde\ngespeichert!\n
+\nSpelet har sparats!\n
 Sprache
 Språk
 Sprachen
@@ -1577,8 +1563,6 @@ Summer snowline
 Sommarsnögräns
 Suppliers
 Leverantörer
-Supply %s at (%i,%i)
-Tillförsel %s vid (%i,%i)
 Tage alt
 dagar.
 There are still vehicles\nstored in this depot!\n
@@ -1643,14 +1627,16 @@ Translation
 Översättning 
 transparent station coverage
 Genomskinlig stationstäckning
-Transport %li passengers
-Transportera %li passagerare
 Transported
 Antal resor
 TrolleyBus_tab
 Trådbuss
+tropic
+Tropiskt klimat
 Truck
 Landsvägsfordon
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnlar måste\nbörja på raka\nsluttningar!\n
 Tunnel must start on single way!
@@ -1693,6 +1679,8 @@ verkaufen
 Sälj
 Verkehrsteilnehmer
 Stadsbilar
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Du står i skuld!\n\nDu har %d månader på dig\natt återbetala din skuld.\n
 via %s\n
  via %s\n
 via Menge

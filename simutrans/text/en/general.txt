@@ -35,7 +35,7 @@ Game Options</a><br>
 - <a href="map.txt">Map</a>
 <br>
 - <a href="inspection_tool.txt">Inspection Tool</a><br>
-- <a href="slopetools.txt">Landscaping Tools Tools</a><br>
+- <a href="slopetools.txt">Landscaping Tools</a><br>
 - <a href="railtools.txt">Railroad/Train Tools</a>
 <br>
 - <a href="monorailtools.txt">Monorail Tools</a><br>
@@ -51,7 +51,7 @@ Game Options</a><br>
 - <a href="removal_tool.txt">Destroy/Remove</a>
 </p>
 <p>
-<a href="window.txt"><strong>?Management Menu</strong></a><br>
+<a href="window.txt"><strong>Management Menu</strong></a><br>
 - <a href="linemanagement.txt">Line Management</a>
 <br>
 - <a href="list.txt">Lists</a>
@@ -92,7 +92,7 @@ Game Options</a><br>
 - - <a href="station_details.txt">Stop Details</a><br>
 - <a href="convoiinfo.txt">Convoy/Vehicle Information</a><br>
 - - <a href="convoidetail.txt">Convoy/Vehicle Details</a><br>
-- <a href="citywindow.txt">City ?Information</a><br>
+- <a href="citywindow.txt">City Information</a><br>
 - <a href="industry_info.txt">Industry Information</a>
 </p>
 

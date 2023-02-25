@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: ro Romana                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -83,16 +83,8 @@ rocky
 clima alpina
 temperate
 clima temperata
-tropic
-clima tropicala
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Statiile trebuie\npuse pe drum.
-Bridge is too long for this type!\n
-Podul este prea lung.
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Podurile incep\npe zona plata!\n
 Cannot built depot here!
 Nu pot construi depou aici.
 Cannot built this station/building\nin underground mode here.
@@ -107,10 +99,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Aceasta parte a insulei\neste detinuta de\nun alt jucator!\n
 Der Besitzer erlaubt das Entfernen nicht
 \nNu ai permsiunea!\n
-Der Tunnel ist nicht frei!\n
-Tunelul nu este liber.\n
-Die Bruecke ist nicht frei!\n
-Podul nu este liber!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Combinatia\nnu functioneaza!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -119,12 +107,6 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Nu poti construi\n\naeroport aici.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Aici nu se poate\nconstrui semafor!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depou inexistent!\nDepoul trebuie desemnat\nmanual.
-Kann Spielstand\nnicht laden.\n
-Nu pot incarca salvarile!
-Kann Spielstand\nnicht speichern.\n
-Nu pot deschide\n fila pentru\n scriere!
 Lost connection\nto server!
 Nu exista!
 Lost synchronisation\nwith server.
@@ -139,10 +121,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 acest stop trebuie construit pe linia specifica
 No through station here!
 Statiile trebuie plasate la capatul liniilor sau pe sectiuni in line dreapta.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-"Unde ma duc?"\nTrebuie sa-i dai convoiului un program sau o linie inainte de alte ordine.
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Programul nu poate\n fi schimbat\n in acest moment.
 Not enough money!
 Nu ai suficienti bani\npentru a construi!
 On narrowgauge track only!\n
@@ -207,12 +185,6 @@ Unelte tramvai
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's a construit un nou sediu.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \na construit o\n noua primarie\n cand a ajuns la\n%i locuitori.
-Bankrott:\n\nDu bist bankrott.\n
-Faliment:\n\nAi dat faliment!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Felicitari!\nScenariul a fost\nterminat in\n%i luni si %i ani!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Economie puternica:\n%s aproape de %s se extinde.\n%i are o fabrica noua.
 New %s now available:\n%s\n
@@ -221,14 +193,10 @@ New factory chain\nfor %s near\n%s built with\n%i factories.
 Crestere: Nou lant industrial\npentru %s langa\n%s, constructie cu \n%i fabrici.
 New vehicle now available:\n%s\n
 \n Un nou vehicol este\nacum disponibil:\n\n\n -- %s --\n\n
-On this map, you are not\nallowed to change player!\n
-Jocul este oprit.\nNicio modificare nu este posobila.\n
 Screenshot\ngespeichert.\n
 Imaginea \ns-a salvat.\n
 Sends the convoi to the last depot it departed from!
 Vehicolul este trimis în depoul de unde provine!
-Spielstand wurde\ngespeichert!\n
-\nSalvarea jocului s-a terminat!\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -255,6 +223,8 @@ pana
 %d sunt
 %s has entered a depot.
 %s a intrat in depou.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \na construit o\n noua primarie\n cand a ajuns la\n%i locuitori.
 1 Einzelfahrzeug im Depot
 1 vehicol
 1LIGHT_CHOOSE
@@ -293,8 +263,6 @@ Absenken
 Coboara nivel
 Accelerate time
 Accelereaza timpul
-Account above %s
-Cont peste %s
 Active player only
 Doar jucãtor activ
 Add forest
@@ -305,7 +273,7 @@ Add Stop
 Adaugã Stop
 Add stops for backward travel
 Adaugã stopuri pentru circula?ie inversã
-air_wt
+air
 pistã
 aircraft_tab
 Avioane de transport
@@ -349,10 +317,14 @@ Assets
 Bunuri
 Aufloesen
 Dezansambleaza
+Autohalt muss auf\nStrasse liegen!\n
+Statiile trebuie\npuse pe drum.
 Available
 Disponibil
 Bahndepot
 Depou trenuri
+Bankrott:\n\nDu bist bankrott.\n
+Faliment:\n\nAi dat faliment!\n
 battery
 Baterie
 Baum
@@ -379,8 +351,12 @@ Boden
 Uscat
 bridge is too high for its type!
 Podul este prea inalt!
+Bridge is too long for this type!\n
+Podul este prea lung.
 Bruecke
 Pod
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Podurile incep\npe zona plata!\n
 Brueckenboden
 pod
 Build air depot
@@ -519,8 +495,8 @@ COLOR_CHOOSE\n
 Alege culoarea:\n
 Company bankrupt
 Companie falimentara
-Connect factory
-Conecteaza fabrica
+Congratulation\nScenario was complete in\n%i months %i years.
+Felicitari!\nScenariul a fost\nterminat in\n%i luni si %i ani!
 Connected stops
 Conecteaza statii
 Constructed by
@@ -583,14 +559,20 @@ Departed
 Plecat
 Depots
 Depouri
+Der Tunnel ist nicht frei!\n
+Tunelul nu este liber.\n
 Destination
 Sosiri
 Details
 Detalii
+Die Bruecke ist nicht frei!\n
+Podul nu este liber!\n
 Direkt erreichbare Haltestellen
 Traseu direct de aici
 disable midi
 Opreste muzica MIDI
+Display settings
+Setare monitor
 Distance
 Distanta
 Dock
@@ -729,12 +711,8 @@ Happy
 Bucuros
 Haus kaufen
 Cumpara casa
-Headquarter and %li trains
-Sediu si %li trenuri
 Helligk.
 Monitor
-Helligk. u. Farben
-Setare monitor
 Help
 Ajutor
 Help text not found
@@ -791,6 +769,8 @@ hlf_chk_waren_annahme
 Bunuri primite:
 hlf_title
 Filtru lista statii
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depou inexistent!\nDepoul trebuie desemnat\nmanual.
 Homeless
 Cersetor
 hydrogene
@@ -831,6 +811,10 @@ Jump to
 Sari la
 June
 Iunie
+Kann Spielstand\nnicht laden.\n
+Nu pot incarca salvarile!
+Kann Spielstand\nnicht speichern.\n
+Nu pot deschide\n fila pentru\n scriere!
 Kein Besitzer\n
 Fara proprietar\n
 keine
@@ -1023,6 +1007,8 @@ No goods are loaded onto this convoi.
 Acest convoi nu va fi incarcat
 no tree
 fara copaci
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+"Unde ma duc?"\nTrebuie sa-i dai convoiului un program sau o linie inainte de alte ordine.
 none
 nimic
 nord
@@ -1031,12 +1017,16 @@ nordost
 Nord-est
 nordwest
 Nord-vest
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Programul nu poate\n fi schimbat\n in acest moment.
 November
 Noiembrie
 Number of rivers
 Numar de rauri
 Oktober
 Octombrie
+On this map, you are not\nallowed to change player!\n
+Jocul este oprit.\nNicio modificare nu este posobila.\n
 Ops Profit
 Profit ops
 Optionen
@@ -1095,6 +1085,8 @@ Sound settings
 Setare sunet
 Sound volume:
 Volum efecte:
+Spielstand wurde\ngespeichert!\n
+\nSalvarea jocului s-a terminat!\n
 Sprache
 Limba
 Sprachen
@@ -1123,6 +1115,8 @@ Traffic
 Trafic
 Train
 Tren
+tropic
+clima tropicala
 Truck
 Camion
 units/day

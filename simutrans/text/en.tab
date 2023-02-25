@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -127,36 +127,24 @@ rocky
 Alpine (rocky)
 temperate
 Temperate
-tropic
-Tropical
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Twin House\n\nAfter a long discussion with no conclusion about the interior decoration of their house, the Burns family decided to divide their house. Father and son manned the left half, Mother and daughter call the shots in the right half.
-Autohalt muss auf\nStrasse liegen!\n
-Bus or car stops\nmust be\nplaced on the road.
-Bridge is too long for this type!\n
-Bridge span is too\nlong for this type of\nbridge.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Bridges must\nstart on a\nstraight slope!\n
 Cannot alter water
 This basin cannot be further drained or filled.
 Cannot build on a double slope!
 Can be only built on a single slope or flat ground!
 Cannot built depot here!
 Cannot build a depot here.
+Cannot built this station/building\nin underground mode here.
+This station/building cannot be built underground.
 Convoi handles exhausted!
 Maximum number of convoys reached.
 Das Feld gehoert\neinem anderen Spieler\n
 This piece of\nland is owned by\nanother player!\n
 Der Besitzer erlaubt das Entfernen nicht
 The owner refuses\npermission to\nremove this!\n
-Der Tunnel ist nicht frei!\n
-Tunnel is not empty.\n
-Die Bruecke ist nicht frei!\n
-The bridge is not free!\n
 Diese Zusammenstellung kann nicht fahren!\n
 This combination\ncannot start!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -165,12 +153,6 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 You cannot build\n\nairport building here.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 You cannot place\nrail signals here.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depot cannot be found.\nYou must send the\nvehicle there manually.
-Kann Spielstand\nnicht laden.\n
-Cannot load saved game!
-Kann Spielstand\nnicht speichern.\n
-Cannot open\ntarget file\nfor writing!
 Maglevhalt muss auf\nMaglevschiene liegen!\n
 A maglev stop must be placed on maglev track!
 Monorailhalt muss auf\nMonorail liegen!\n
@@ -179,16 +161,16 @@ Monorails are not available yet!
 Monorails are not yet available.
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 A narrowgauge stop must be placed on narrowgauge track
+No curves on runways
+Runways cannot make turns!
+No suitable crossing
+No suitable crossing! (max speed too fast?)
 No suitable way on the ground!
 Stops can be built only on\nstraight level matching ways!
 No through station here!
 Stations must be placed on dead-end ways or straight sections with no intersections.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-"Where do I go?"\nYou must give this convoy a schedule or assign it to a line before giving it the go order.
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-The vehicle's schedule\nmust not be changed\nduring route-finding.
 Not enough clearance.
-Between two way a minimum height difference of two is needed.
+Between two ways a minimum height difference of two is needed.
 Not enough money!
 You do not have enough\nmoney to buy this!
 Only public player can lock games!
@@ -216,7 +198,7 @@ Rail stations must\nbe placed on the\nrailroad track.\n
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
 <title>Help</title><h1>Help Index</h1><p><it>About Simutrans</it></p>%1$s<p><it>How to use</it></p>%2$s<p><it>How to start a game</it></p>%4$s<p><it>How to play</it></p>%5$s<p><it>Tools</it></p>%3$s<p><it>Others windows</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Keyboard Binding</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<p><strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or  [<em> less than symbol</em>]: zoom-out game-view.\n[<em>CTRL</em>] + tool: build straighter ways (even over faster ways) or reverse selection order during query or deletion.<br>\n</p>
+<title>Keyboard Binding</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<p><strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text.<br>\n[<em>Page-Up</em>], or [<em>&gt;</em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or  [<em>&lt;</em>]: zoom-out game-view.\n[<em>CTRL</em>] + tool: build straighter ways (even over faster ways) or reverse selection order during query or deletion.<br>\n</p>
 Color-coded terrain according to altitude.
 Show/hide terrain contour shading.
 Decrease water height
@@ -235,7 +217,7 @@ Increase water height
 Raise the water by one level
 Open station/stop details
 Show station details
-Set tile climate
+Set tile climate %s
 Convert this ground into %s zone
 Show how many convoi reach a station
 Show how many convoys reach a station
@@ -291,12 +273,6 @@ Trams/light rail Tools
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's has built a new headquarter.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nbuilt a\nnew townhall\nwhen it reached\n%i inhabitants.
-Bankrott:\n\nDu bist bankrott.\n
-Bankrupt:\n\nYou are bankrupt!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Congratulations!\nThe scenario had been \ncompleted within \n%i months and %i years!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Economy going strong:\n%s near %s extends chain.\n%i new factory founded.
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -305,22 +281,12 @@ New vehicle now available:\n%s\n
 \n A new vehicle is\n now available:\n\n\n -- %s --\n\n
 Now %u clients connected.
 Right now %u clients are connected.
-On this map, you are not\nallowed to change player!\n
-This game is locked.\nNo player changes are possible.\n
-Production of %s has been stopped:\n%s\n
-Production of %s has been discontinued:\n%s\n
 Remove vehicle from map. Use with care!
 Remove vehicle from map. (Use with care!)
 Screenshot\ngespeichert.\n
 Screenshot\nsaved.\n
 Sends the convoi to the last depot it departed from!
 Sends the convoy to the last depot it departed from.
-Spielstand wurde\ngeladen!\n
-\nGame successfully loaded.\n
-Spielstand wurde\ngespeichert!\n
-\nGame successfully saved.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-You have %d months\nto pay off your debt.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
 #_________________________________program_text__________________________________
@@ -354,7 +320,7 @@ With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
 \nRibi (unmasked)
 \ndirections\n (unmasked): 
 \nSet phases:
-\nSet phases time\nNorth-South East-West:
+\nSet phases time\n  / then \\  then offset
 \nsingle way
 \nSingle Way
 \nway1 reserved by
@@ -381,14 +347,16 @@ Age: %i years and %i months
 %s %s yard
 %s land %d %s
 %s %d outer %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nbuilt a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
 %1$s\n\n\nmaximum speed %3$i km/h\n\ncurrent speed %2$i km/h.\n\n
 %s\nwas liquidated.
 %s went bankrupt and\nhas been liquidated.\nAll operation was halted,\nand all assets have been sold.
 %u Player (%u locked)\n
 %u Players (%u locked)\n
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
+<em>%s</em> - %s<br>\n
+[<em>%s</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <H1>Error: Double objects in main pak directory</H1><p><strong>In 
 <h1>Warning</h1><p><strong>addons for
@@ -441,10 +409,10 @@ add server
 Add server
 Add stops for backward travel
 Add stops for backward travel.
-Air
+air
+runway/taxiway
+Aircraft
 Airline
-air_wt
-Runway/Taxiway
 aircraft_tab
 Freight planes
 AIRTOOLS
@@ -473,8 +441,12 @@ Aufloesen
 Disassemble
 Aufspanntransformator
 Transformer
+Autohalt muss auf\nStrasse liegen!\n
+Bus or car stops\nmust be\nplaced on the road.
 Bahndepot
 Train depot
+Bankrott:\n\nDu bist bankrott.\n
+Bankrupt:\n\nYou are bankrupt!\n
 battery
 Battery
 Baum
@@ -503,8 +475,12 @@ Bonusspeed: %i km/h
 Max. possible speed: %i km/h
 bridge is too high for its type!
 The bridge is too high for its type!
+Bridge is too long for this type!\n
+Bridge span is too\nlong for this type of\nbridge.\n
 Bruecke
 Bridge
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Bridges must\nstart on a\nstraight slope!\n
 Brueckenboden
 bridge
 Build air depot
@@ -625,6 +601,8 @@ COLOR_CHOOSE\n
 Please choose two\ncolours from the\nimage on the right:
 Company_msg
 Competitors
+Congratulation\nScenario was complete in\n%i months %i years.
+Congratulations!\nThe scenario had been \ncompleted within \n%i months and %i years!
 Connected stops
 Connected Stops:
 Connected with server
@@ -687,10 +665,14 @@ Departure after
 % load or waiting for (dd-hh-mm)
 Departure board
 Departure time
+Der Tunnel ist nicht frei!\n
+Tunnel is not empty.\n
 Destination
 Arrivals
 Destroying map ...
 Destroying old map ...
+Die Bruecke ist nicht frei!\n
+The bridge is not free!\n
 directmail
 Leaflets
 Direkt erreichbare Haltestellen
@@ -725,6 +707,8 @@ Erzeuge neue Karte.\n
 Please wait while a new\nmap is being created.\n\n(This may take a few \nminutes for big maps.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
 A schedule is\nbeing planned.\nFinish it first\nbefore re-scheduling!\n
+Extract files
+Extract pak files from zip.
 Fabrikanschluss
 Connected factories
 Fabrikname
@@ -763,6 +747,8 @@ follow me
 Follow
 Follow the convoi on the map.
 Follow the convoy on the map.
+font size
+Font size (only .ttf and .otf fonts)
 Found new city
 Found a new city
 Fracht
@@ -813,8 +799,6 @@ Haus kaufen
 Buy house
 Helligk.
 Display
-Helligk. u. Farben
-Display settings
 Help text not found
 The help text is missing.
 hide all building
@@ -830,7 +814,7 @@ Goods and passengers waiting:
 Higher transport fees, crossconnect all factories
 Higher transport fees, disable Just-in-time.
 Highlite schedule
-Show schedule's stops
+Highlight stops in schedule
 hl_title
 Station List
 hl_txt_filter
@@ -871,6 +855,8 @@ hlf_chk_waren_annahme
 Goods in:
 hlf_title
 Station List Filter
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depot cannot be found.\nYou must send the\nvehicle there manually.
 hydrogene
 Hydrogen
 ignore climates
@@ -882,13 +868,17 @@ Increase industry density
 industrial building
 Industrial buildings
 Infinite mouse scrolling
-Infinite scrolling for mouse fails with some touch pens!
+Infine map scrolling
+Infinite scrolling using mouse
+May not work with touch screens!
 Init map ...
 Initializing map ...
 Ins Stop
 Insert
 Insert stop before the current stop
 Insert stop before current stop
+Install paks
+Pak sets are downloaded and installed.
 Intercity road len:
 Intercity road length:
 invalid
@@ -899,6 +889,10 @@ isometric map
 Isometric view
 join game
 Play Online
+Kann Spielstand\nnicht laden.\n
+Cannot load saved game!
+Kann Spielstand\nnicht speichern.\n
+Cannot open\ntarget file\nfor writing!
 Kein Besitzer\n
 Without owner\n
 keine
@@ -953,6 +947,8 @@ loaded passenger/freight
 Sort passengers/freight by
 Loading (%i->%i%%)!
 Loading (%i->%i%%)
+Loading time:
+fully loaded in: 
 Lock game
 Disallow player changes (requires confirmation).
 Lokomotive_tab
@@ -1059,12 +1055,16 @@ no tree
 No trees
 No. of Factories
 Factories and shops:
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+"Where do I go?"\nYou must give this convoy a schedule or assign it to a line before giving it the go order.
 nord
 North
 nordost
 Northeast
 nordwest
 Northwest
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+The vehicle's schedule\nmust not be changed\nduring route-finding.
 Not enough fields would remain.
 Not enough fields would\nremain around this farm.
 Ok
@@ -1073,6 +1073,8 @@ Oktober
 October
 on the
 departure/month first at (dd-hh-mm)
+On this map, you are not\nallowed to change player!\n
+This game is locked.\nNo player changes are possible.\n
 Only city chains
 Build city industry chain
 Only land chains
@@ -1091,6 +1093,8 @@ Pak which may cause severe errors:
 Following objects (pak) are missing, which may cause failure of transport chains:
 Pak which may cause visual errors:
 The following objects (pak) were replaced by similar objects:
+Pak(s) different:
+Different pak(s):
 paletten
  crates
 Pas_tab
@@ -1112,7 +1116,7 @@ Destinations
 Percent Electricity
 Electricity output (% demand):
 Planes are not available yet!
-Aircraft are not yet available.
+Aircrafts are not yet available.
 Plant tree
 Plant trees
 player
@@ -1153,6 +1157,8 @@ Postrate
 Mail level
 Problems_msg
 Problems
+Production of %s has been stopped:\n%s\n
+Production of %s has been discontinued:\n%s\n
 Produktion
 Production:
 promote to line
@@ -1207,8 +1213,14 @@ return ticket
 copy backward
 Revenue
 Vehicle Earnings
+Revert schedule
+Revert changes
 Roadsign
 Road Sign
+Rotate Building
+Rotate building
+Running cost
+Running costs
 sack
  bags
 sail
@@ -1225,6 +1237,8 @@ Scenario Result
 Progress
 Scenario Rules
 Rules
+Scenario_
+Scenario 
 Schienentunnel
 Build railroad tunnel
 Schiff_tab
@@ -1255,12 +1269,14 @@ shops and stores
 Shops and offices
 show all building
 Show all buildings
+Show also vehicles no longer in production.
+Show also vehicles that are no longer in production.
 Show also vehicles that do not match for current action.
-Also show vehicles that can't be used by the selected action.
+Show also vehicles that can't be used by the selected action.
 Show contour
 Show heights
 Show even servers with wrong version or pakset
-Also show those servers providing the wrong version or pakset.
+Show also servers providing the wrong version or pakset.
 show grid
 Show grid
 Show industry
@@ -1277,6 +1293,8 @@ show waiting bars
 Show waiting bars
 Show/hide statistics
 Show/Hide Statistics
+Shows buttons on network overlay.
+Show option to overlay a connection network.
 Shows consumer/suppliers for factories
 Show consumers/suppliers for factories
 Shows the currently selected schedule
@@ -1305,6 +1323,10 @@ Spieler(mz)
 Players
 Spielerliste
 Player List
+Spielstand wurde\ngeladen!\n
+\nGame successfully loaded.\n
+Spielstand wurde\ngespeichert!\n
+\nGame successfully saved.\n
 Sprache
 Language
 Sprachen
@@ -1389,8 +1411,12 @@ Transported
 Trips
 TrolleyBus_tab
 Trolleybuses
+tropic
+Tropical
 tt_Other
 Other
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnels must\nstart on a straight\nslope!\n
 Tunnel must start on single way!
@@ -1425,6 +1451,8 @@ verkaufen
 Sell
 Verkehrsteilnehmer
 City Cars
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+You have %d months\nto pay off your debt.\n
 vh_title
 List of all vehicles
 via
@@ -1485,6 +1513,12 @@ New world record for railways: %.1f km/h by %s.
 Thundering over the tracks\nat %.1f km/h.\n%s sets a new world record for trains.\m
 New world record for ship: %.1f km/h by %s.
 Blue Riband for cruising\nat %.1f km/h was won by\n%s.
+#_________________________________tooltip_text__________________________________
+#_________________________________tooltip_text__________________________________
+Mirrors order of stops
+Invert stop order
+Revert to original schedule
+Revert all schedule changes.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

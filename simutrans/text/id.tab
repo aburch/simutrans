@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,20 +93,10 @@ rocky
 Iklim Alpen
 temperate
 iklim sedang
-tropic
-Iklim Tropis
-tundra
-Iklim Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Scenario script tidak dapat dibuka
-Autohalt muss auf\nStrasse liegen!\n
-Halte Bus\nharus dibuat\ndi jalan.
-Bridge is too long for this type!\n
-Melebihi\npanjang maksimum\njenis jembatan ini.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Jembatan harus\ndibuat ditanah\nyang lurus!\n
 Can't buy obsolete vehicles!
 Kendaraan tua tidak dapat dibeli.
 Cannot alter water
@@ -127,10 +117,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Tanah ini\ndimiliki oleh\npemain lain.\n
 Der Besitzer erlaubt das Entfernen nicht
 Pemilik tidak\nmemberikan ijin\nuntuk menghapus.\n
-Der Tunnel ist nicht frei!\n
-Terowongan tidak kosong.\n
-Die Bruecke ist nicht frei!\n
-Jembatan tidak kosong.\n
 Diese Zusammenstellung kann nicht fahren!\n
 Salah Kombinasi\nKendaraan tdk dpt bergerak!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -139,14 +125,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Bandara tidak dapat\n\ndibangun di sini.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Sinyal kereta tidak dapat\ndiletakkan di sini.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depot tidak ditemukan.\nKendaraan harus dikirim ke\ndepot secara manual.
 In order to lock the game, you have to protect the public player by password!
 Untuk mengunci permainan, anda harus memberikan kata sandi untuk public player.
-Kann Spielstand\nnicht laden.\n
-Data permainan tidak dapat dibuka.
-Kann Spielstand\nnicht speichern.\n
-Berkas yang dituju\ntidak dapat\ndiubah.
 Lost connection\nto server!
 Koneksi dengan\nserver terputus.
 Lost synchronisation\nwith server.
@@ -163,10 +143,6 @@ No suitable way on the ground!
 Pemberhentian hanya dapat dibangun\ndi jalurnya dan harus datar.
 No through station here!
 Pemberhentian hanya dapat dibangun di jalur lurus tanpa persimpangan.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Konvoi ini harus memiliki jadwal atau rute perjalanan sebelum dapat dijalankan.
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Jadwal tidak dapat diubah\nsaat sedang mencari jalur.\nCoba sekali lagi.
 Not enough money!
 Uang Anda tidak cukup\nuntuk membangun ini.
 On narrowgauge track only!\n
@@ -223,7 +199,7 @@ Overlay town names
 Menampilkan nama kota
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Klik di peta untuk menambah\nwaypoint atau pemberhentian\nke jadwal ini.
-Set tile climate
+Set tile climate %s
 Mengubah tanah ini menjadi iklim %s.
 Show capacity and if halt is overcrowded
 Menampilkan kapasitas dan keramaian pemberhentian
@@ -297,12 +273,6 @@ Infrastruktur Trem
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s membangun kantor pusat baru.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nmembangun\nbalai kota baru\nsaat mencapai\n%i penduduk.
-Bankrott:\n\nDu bist bankrott.\n
-Bangkrut:\n\nAnda bangkrut.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Selamat!\nSkenario sudah\nselesai dalam\n%i bulan dan %i tahun.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomi meningkat:\n%s di dekat %s menambah pabrik.\n%i pabrik baru dibangun.
 New %s now available:\n%s\n
@@ -313,24 +283,18 @@ New vehicle now available:\n%s\n
 \n Kendaraan baru\n tersedia:\n\n\n -- %s --\n\n
 Now %u clients connected.
 Saat ini %u orang tersambung.
-On this map, you are not\nallowed to change player!\n
-Permainan terkunci.\nSemua pemain tidak dapat mengubah apapun.\n
-Production of %s has been stopped:\n%s\n
-Pembuatan %s telah dihentikan:\n%s\n
 Remove vehicle from map. Use with care!
 Menghapus kendaraan. (Gunakan secara hati-hati)
 Screenshot\ngespeichert.\n
 Screenshot\ntersimpan.\n
 Sends the convoi to the last depot it departed from!
 Mengirim konvoi ke depot tempat konvoi ini berangkat.
-Spielstand wurde\ngeladen!\n
-\nPermainan berhasil dibuka.\n
-Spielstand wurde\ngespeichert!\n
-\nPermainan berhasil disimpan.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Anda memiliki %d bulan\nuntuk membayar utang.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s membangun\nmonumen baru.\n%i penduduk bersuka cita.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Filter rute
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -391,6 +355,8 @@ Usia: %i tahun %i bulan
 %s telah kembali ke depot.
 %s land %d %s
 %s %d %s pinggir kota
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nmembangun\nbalai kota baru\nsaat mencapai\n%i penduduk.
 %s\nis crowded.
 %s\n Penuh.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -405,8 +371,6 @@ Usia: %i tahun %i bulan
 <kosongkan jadwal>
 <create new line>
 <buat rute baru>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <individual schedule>
 <jadwal masing-masing>
 <no line>
@@ -459,8 +423,6 @@ Abspanntransformator
 Gardu Listrik
 Accelerate time
 Percepat Waktu
-Account above %s
-Saldo di atas %s
 Act. load: %u MW\n
 Yang digunakan: %u MW\n
 Active player only
@@ -475,8 +437,6 @@ Add Stop
 Tambah pemberhentian
 Add stops for backward travel
 Tambah pemberhentian untuk perjalanan balik.
-air_wt
-Pesawat
 aircraft_tab
 Pesawat kargo
 airplane
@@ -523,10 +483,14 @@ Aufspanntransformator
 Gardu Listrik
 August
 Agustus
+Autohalt muss auf\nStrasse liegen!\n
+Halte Bus\nharus dibuat\ndi jalan.
 Available
 Tersedia
 Bahndepot
 Depot kereta
+Bankrott:\n\nDu bist bankrott.\n
+Bangkrut:\n\nAnda bangkrut.\n
 battery
 Baterai
 Baum
@@ -557,8 +521,12 @@ Boost (%)
 Peningkatan produksi(%)
 bridge is too high for its type!
 Melebihi tinggi maksimum jenis jembatan ini.
+Bridge is too long for this type!\n
+Melebihi\npanjang maksimum\njenis jembatan ini.\n
 Bruecke
 Jembatan
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Jembatan harus\ndibuat ditanah\nyang lurus!\n
 Brueckenboden
 Jembatan
 Build air depot
@@ -715,8 +683,8 @@ Configure AI
 Mengatur lawan komputer
 Configure AI setttings
 Melakukan pengaturan lawan komputer
-Connect factory
-Hubungkan pabrik
+Congratulation\nScenario was complete in\n%i months %i years.
+Selamat!\nSkenario sudah\nselesai dalam\n%i bulan dan %i tahun.
 Connected stops
 Pemberhentian yang terhubung:
 Connected with server
@@ -807,16 +775,22 @@ Departures to\n
 Keberangkatan ke\n
 Depots
 Depot
+Der Tunnel ist nicht frei!\n
+Terowongan tidak kosong.\n
 Destination
 Kedatangan
 Destroying map ...
 Menghapus peta yang lalu...
 Details
 Detil
+Die Bruecke ist nicht frei!\n
+Jembatan tidak kosong.\n
 Direkt erreichbare Haltestellen
 Rute langsung dari sini:
 disable midi
 Matikan Musik
+Display settings
+Pengaturan tampilan
 Distance
 Jarak
 Dock
@@ -973,12 +947,8 @@ Happy
 Senang
 Haus kaufen
 Beli rumah
-Headquarter and %li trains
-Kantor pusat dan %li kereta
 Helligk.
 Tampilan
-Helligk. u. Farben
-Pengaturan tampilan
 Help
 Bantuan
 Help text not found
@@ -1041,6 +1011,8 @@ hlf_chk_waren_annahme
 Barang masuk:
 hlf_title
 Filter daftar stasiun
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depot tidak ditemukan.\nKendaraan harus dikirim ke\ndepot secara manual.
 Homeless
 Tunawisma
 hydrogene
@@ -1087,6 +1059,10 @@ Jump to
 Pergi ke
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Data permainan tidak dapat dibuka.
+Kann Spielstand\nnicht speichern.\n
+Berkas yang dituju\ntidak dapat\ndiubah.
 Kein Besitzer\n
 Tanpa pemilik\n
 keine
@@ -1135,8 +1111,6 @@ letzen Monat: diesen Monat:
 bulan lalu: bulan ini:
 Line
 Rute
-Line Filter
-Filter rute
 Line Management
 Pengelolaan rute
 Lineless convoys serving this stop
@@ -1319,12 +1293,16 @@ no tree
 Tanpa pohon
 No. of Factories
 Pabrik dan toko
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Konvoi ini harus memiliki jadwal atau rute perjalanan sebelum dapat dijalankan.
 nord
 Utara
 nordost
 Timur laut
 nordwest
 Barat laut
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Jadwal tidak dapat diubah\nsaat sedang mencari jalur.\nCoba sekali lagi.
 Not enough fields would remain.
 Lahan yang tersisa untuk\nladang ini tidak cukup.
 Now active as %s.\n
@@ -1339,6 +1317,8 @@ Ok
 OK
 On loan since %i month(s)
 Meminjam uang sejak %i bulan
+On this map, you are not\nallowed to change player!\n
+Permainan terkunci.\nSemua pemain tidak dapat mengubah apapun.\n
 Only city chains
 Bangun rantai industri dalam kota
 Only first %d differing paks reported. There are probably more.
@@ -1463,6 +1443,8 @@ Problems_msg
 Masalah
 Produced
 Dibuat
+Production of %s has been stopped:\n%s\n
+Pembuatan %s telah dihentikan:\n%s\n
 Production/Boost
 Produksi/peningkatan
 Produktion
@@ -1719,6 +1701,10 @@ Spieler(mz)
 Pemain
 Spielerliste
 Daftar Pemain
+Spielstand wurde\ngeladen!\n
+\nPermainan berhasil dibuka.\n
+Spielstand wurde\ngespeichert!\n
+\nPermainan berhasil disimpan.\n
 Sprache
 Bahasa
 Sprachen
@@ -1765,8 +1751,6 @@ Supplied: %.0f %%
 Dipasok: %.0f %%
 Suppliers
 Pemasok
-Supply %s at (%i,%i)
-Pasokan %s (%i,%i)
 Tage alt
 hari (usia).
 There are still vehicles\nstored in this depot!\n
@@ -1831,16 +1815,18 @@ Translation
 Terjemahan
 transparent station coverage
 jangkauan stasiun tampil tembus pandang
-Transport %li passengers
-Pengantaran %li penumpang
 Transported
 Perjalanan
 TrolleyBus_tab
 Busway
+tropic
+Iklim Tropis
 Truck
 Truk
 tt_Other
 Lain-lain
+tundra
+Iklim Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Terowongan harus\ndimulai di\nkemiringan lurus.\n
 Tunnel must start on single way!
@@ -1887,6 +1873,8 @@ verkaufen
 Jual
 Verkehrsteilnehmer
 Mobil kota
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Anda memiliki %d bulan\nuntuk membayar utang.\n
 via
 melewati(rincian)
 via %s\n

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: no Norsk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -61,20 +61,8 @@ rocky
 alpint klima
 temperate
 temperert klima
-tropic
-tropisk klima
-tundra
-tundraklima
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Buss- og lastebilholdeplasser må ligge på en vei.\n
-Bridge is too long for this type!\n
-Spennet blir for\nlangt for denne brotypen!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Broer må\nbegynne på\nrette bakker!\n
-Kann Spielstand\nnicht laden.\n
-Kan ikke laste lagret spill!
 Monorails are not available yet!
 Monorailer er ikke tilgjengelig enda!
 Not enough money!
@@ -97,16 +85,6 @@ Nå flyr %s mellom\n%s og %s!\n
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %ss har bygget nytt hovedkontor.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\noppfoerte et nytt\nraadhus naar\ninnbyggertallet steg\n til over %i.
-Bankrott:\n\nDu bist bankrott.\n
-Konkurs:\n\nDu er konkurs!\n
-Spielstand wurde\ngeladen!\n
-\nInnlasting av spill vellykket.\n
-Spielstand wurde\ngespeichert!\n
-\nLagring av spill vellykket.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Gjeld maa tilbakebetales\n innen %d mnd.\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -153,6 +131,8 @@ til
 %i km/t (maks. %ikm/t)
 %i years %i months old.
  %i år %i måned(er) gammel.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s\noppfoerte et nytt\nraadhus naar\ninnbyggertallet steg\n til over %i.
 %s\nis crowded.
 er overfyldt.
 1WORLD_CHOOSE
@@ -181,8 +161,6 @@ Abspanntransformator
 Transformatorstasjon
 Accelerate time
 Øk spillhastighet
-Account above %s
-Mer enn %s på konto
 Add forest
 Legg til skog
 add server
@@ -191,8 +169,6 @@ Add Stop
 Legg til
 Add stops for backward travel
 Legg til stopp på veien tilbake.
-air_wt
-Fly
 aircraft_tab
 Frakt
 airplane
@@ -233,10 +209,14 @@ Assets
 Øvrige aktiva
 Aufspanntransformator
 Transformatorstasjon
+Autohalt muss auf\nStrasse liegen!\n
+Buss- og lastebilholdeplasser må ligge på en vei.\n
 Available
 Tilgjengelig
 Bahndepot
 Lokstall/Vognhall
+Bankrott:\n\nDu bist bankrott.\n
+Konkurs:\n\nDu er konkurs!\n
 battery
 Batteri
 Baum
@@ -263,8 +243,12 @@ Bonusspeed: %i km/h
 Maks. mulige hastighet: %i km/t
 bridge is too high for its type!
 Dalen er for dyp for \ndenne type bro!\n
+Bridge is too long for this type!\n
+Spennet blir for\nlangt for denne brotypen!\n
 Bruecke
 Bro
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Broer må\nbegynne på\nrette bakker!\n
 Brueckenboden
 bro
 Build air depot
@@ -379,6 +363,8 @@ July
 Juli
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Kan ikke laste lagret spill!
 Kein Besitzer\n
 Eksisterer ikke!
 keine
@@ -533,6 +519,10 @@ Spieler(mz)
 Spillere
 Spielerliste
 Spillerliste
+Spielstand wurde\ngeladen!\n
+\nInnlasting av spill vellykket.\n
+Spielstand wurde\ngespeichert!\n
+\nLagring av spill vellykket.\n
 Sprache
 Språk
 Sprachen
@@ -569,12 +559,18 @@ Translation
 Oversettelse
 transparent station coverage
 gjennomsiktig dekningsomraade
+tropic
+tropisk klima
+tundra
+tundraklima
 Unemployed
 Arbeidsloes
 units/day
 enheter/mnd
 upgrade HQ
 Oppgradere HK
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Gjeld maa tilbakebetales\n innen %d mnd.\n
 Waggon_tab
 Biler
 waiting

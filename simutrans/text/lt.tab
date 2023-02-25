@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,16 +91,8 @@ rocky
 kalnų klimatas
 temperate
 vidutinis klimatas
-tropic
-tropikai
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Autobuso ar automobilio stotelės\nturi būti\nant kelio.
-Bridge is too long for this type!\n
-Tiltas per ilgas\nnaudokite kitą\ntipą.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Tiltas privalo\nprasidėti ant\ntiesios nuokalnės!\n
 Cannot built depot here!
 Negalima čia statyti depo.
 Cannot built this station/building\nin underground mode here.
@@ -117,10 +109,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Šitas žemės lopinėlis\nvaldomas\nkito žaidėjo!\n
 Der Besitzer erlaubt das Entfernen nicht
 Laukelio savininkas atsisako\nduoti leidimą\nsunaikinti šitą objektą!\n
-Der Tunnel ist nicht frei!\n
-Tunelis nėra tuščias.\n 
-Die Bruecke ist nicht frei!\n
-Tiltas užimtas \n
 Diese Zusammenstellung kann nicht fahren!\n
 Šita kombinacija\nnevažiuoja!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -129,14 +117,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Jūs negalite čia statyti\n\naerousto pastatų.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Jūs čia negalite\nstatyti signalo.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depas nerastas.\nSiųskite transporto priemonę\nrankiniu būdu.
 In order to lock the game, you have to protect the public player by password!
 Norėdami apriboti kitų žaidėjų prieigą prie žaidimo, uždėkite viešam (valstybės, public) žaidėjui slaptažodį.
-Kann Spielstand\nnicht laden.\n
-Neįmanoma užkrauti išsaugoto žaidimo!
-Kann Spielstand\nnicht speichern.\n
-Neįmanoma atverti\npasirinktos bylos\nįrašimui!
 Lost connection\nto server!
 Prarastas ryšys\nsu serveriu!
 Lost synchronisation\nwith server.
@@ -151,10 +133,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Siauruko sustojimas tik ant atitinkamų bėgių
 No through station here!
 Neįmanoma čia pastatyti stoties ji turi būti ant kelio galo arba sekcijose be sankryžos.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Duokite tvarkaraštį!\nPrieš paleisdami konvojų!
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Transporto priemonės\ngrafiko nekeisti\nper kelio paiešką.
 Not enough money!
 Trūksta pinigų statyboms!
 On narrowgauge track only!\n
@@ -277,12 +255,6 @@ Tramvajų/lengvojo traukinio įrankiai
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s'as pastat? naują vadavietę.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \npastatė\nnaują rotušę\nkada pasiekė\n%i gyventojus.
-Bankrott:\n\nDu bist bankrott.\n
-Bankrotas:\n\nTU BANKRUTAVAI!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Sveikiname!\njūs pabaigėte \nscenarijų per \n%i mėnesių ir %i metų!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomika pakilo: \n%s šalia %s praplėtė gamybą. \n%i pastatyta nauja gamykla.
 New %s now available:\n%s\n
@@ -293,24 +265,18 @@ New vehicle now available:\n%s\n
 \n Atsirado nauja\n tr. priemonė:\n\n\n -- %s --\n\n
 Now %u clients connected.
 Dabar %i žaidėjų prisijungę.
-On this map, you are not\nallowed to change player!\n
-Žaidimas užrakintas.\nŽaidėjo keitimas uždraustas.\n
-Production of %s has been stopped:\n%s\n
-Gamyba %s sustabdyta:\n%s\n
 Remove vehicle from map. Use with care!
 Naikinti transportą. (Naudoti atsargiai!)
 Screenshot\ngespeichert.\n
 Ekrano fonas\nišsaugotas.\n
 Sends the convoi to the last depot it departed from!
 Siunčia konvojų į praeitą depą iš kurio išvyko
-Spielstand wurde\ngeladen!\n
-\nŽaidimas užkrautas.\n
-Spielstand wurde\ngespeichert!\n
-\nŽaidimas išsaugotas.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Tu turi %d mėnesių\nišmokėti skolą.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Švesdami,\n%s pastatė\nnaują paminklą.\n%i miestiečių dalyvavo ceremonijoje.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Linijos filtras
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -369,6 +335,8 @@ kelias 2 užimtas: \nkelias 2 paruoštas
 %s pasiekė depą.
 %s land %d %s
 %s žem? %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \npastatė\nnaują rotušę\nkada pasiekė\n%i gyventojus.
 %s\nis crowded.
 %s\n užimta.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -379,8 +347,6 @@ kelias 2 užimtas: \nkelias 2 paruoštas
 %i klientas -ų\n
 %u Player (%u locked)\n
 %u žaidėjų (%u užrakinta)\n
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <no line>
 <linija neegzistuoja>
 1 convoi
@@ -425,8 +391,6 @@ Abspanntransformator
 Transformatorius
 Accelerate time
 ?sib?g?jimo laikas
-Account above %s
-Sąskaita virš %s
 Act. load: %u MW\n
 \nApkrova:
 Active player only
@@ -441,7 +405,7 @@ Add Stop
 Pastatyti stotelę
 Add stops for backward travel
 Prid?ti stot? atgaliniam keliavimui.
-air_wt
+air
 takas
 aircraft_tab
 Krovininiai l?ktuvai
@@ -489,10 +453,14 @@ Aufspanntransformator
 Transformatorius
 August
 Rugpjūtis
+Autohalt muss auf\nStrasse liegen!\n
+Autobuso ar automobilio stotelės\nturi būti\nant kelio.
 Available
 Galimi
 Bahndepot
 Traukinių depas
+Bankrott:\n\nDu bist bankrott.\n
+Bankrotas:\n\nTU BANKRUTAVAI!\n
 battery
 Baterija
 Baum
@@ -523,8 +491,12 @@ Boost (%)
 Produktyvumas (%)
 bridge is too high for its type!
 Tiltas per aukštas savo tipui!
+Bridge is too long for this type!\n
+Tiltas per ilgas\nnaudokite kitą\ntipą.\n
 Bruecke
 Tiltas
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Tiltas privalo\nprasidėti ant\ntiesios nuokalnės!\n
 Brueckenboden
 tiltas
 Build air depot
@@ -679,8 +651,8 @@ Configure AI
 Konfigūruoti DI
 Configure AI setttings
 Nustatyti Dirbtinio Intelekto nustatymus
-Connect factory
-Sujungti gamyklas
+Congratulation\nScenario was complete in\n%i months %i years.
+Sveikiname!\njūs pabaigėte \nscenarijų per \n%i mėnesių ir %i metų!
 Connected stops
 Aptarnaujamas stotelių:
 Connected with server
@@ -763,18 +735,24 @@ Departed
 Išvykę
 Depots
 Depai
+Der Tunnel ist nicht frei!\n
+Tunelis nėra tuščias.\n 
 Destination
 Tikslas
 Destroying map ...
 Naikinamas žemėlapis ...
 Details
 Informacija
+Die Bruecke ist nicht frei!\n
+Tiltas užimtas \n
 diesel
 dyzelis
 Direkt erreichbare Haltestellen
 Tiesioginiai maršrutai iš šios vietos
 disable midi
 Išjungti MIDI muziką
+Display settings
+Vaizdo nustatymai
 Distance
 Atstumas
 Dock
@@ -937,12 +915,8 @@ Happy
 Laimingi
 Haus kaufen
 Nupirkti namą
-Headquarter and %li trains
-Būstinė ir %li traukinių
 Helligk.
 Rodyti
-Helligk. u. Farben
-Vaizdo nustatymai
 Help
 Pagalba
 Help text not found
@@ -1005,6 +979,8 @@ hlf_chk_waren_annahme
 Reikalingos prekės:
 hlf_title
 Stočių sąrašo filtras
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depas nerastas.\nSiųskite transporto priemonę\nrankiniu būdu.
 Homeless
 "Benamių"
 hydrogene
@@ -1049,6 +1025,10 @@ Jump to
 Peršokti į
 June
 Birželis
+Kann Spielstand\nnicht laden.\n
+Neįmanoma užkrauti išsaugoto žaidimo!
+Kann Spielstand\nnicht speichern.\n
+Neįmanoma atverti\npasirinktos bylos\nįrašimui!
 Kein Besitzer\n
 Neturi savininko\n
 keine
@@ -1097,8 +1077,6 @@ letzen Monat: diesen Monat:
 Praeitą mėnesį:  Šį mėnesį:
 Line
 Linija
-Line Filter
-Linijos filtras
 Line Management
 Linijos valdymas
 Lineless convoys serving this stop
@@ -1281,6 +1259,8 @@ no timeline
 visos eros
 no tree
 Nėra medžių
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Duokite tvarkaraštį!\nPrieš paleisdami konvojų!
 none
 joks
 nord
@@ -1289,6 +1269,8 @@ nordost
 Šiaurės rytai
 nordwest
 Šiaurės vakarai
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Transporto priemonės\ngrafiko nekeisti\nper kelio paiešką.
 Not enough fields would remain.
 Per mažai laukų\nliks aplink šią fermą.
 November
@@ -1307,6 +1289,8 @@ Oktober
 Spalis
 On loan since %i month(s)
 Skoloje %i mėnesius
+On this map, you are not\nallowed to change player!\n
+Žaidimas užrakintas.\nŽaidėjo keitimas uždraustas.\n
 Only city chains
 Tik miesto įmonės
 Only first %d differing paks reported. There are probably more.
@@ -1429,6 +1413,8 @@ Problems_msg
 Bėdos
 Produced
 Pagaminta
+Production of %s has been stopped:\n%s\n
+Gamyba %s sustabdyta:\n%s\n
 Production/Boost
 Produktyvumas/Bonusas
 Produktion
@@ -1667,6 +1653,10 @@ Spieler(mz)
 Žaidėjai
 Spielerliste
 Žaidėjų sąrašas
+Spielstand wurde\ngeladen!\n
+\nŽaidimas užkrautas.\n
+Spielstand wurde\ngespeichert!\n
+\nŽaidimas išsaugotas.\n
 Sprache
 Kalba
 Sprachen
@@ -1713,8 +1703,6 @@ Supplied: %.0f %%
 Tiekta: %.0f %%
 Suppliers
 Tiekėjai
-Supply %s at (%i,%i)
-Tiekia %s kuri(s) yra (%i,%i)
 Tage alt
 dienų senumo.
 There are still vehicles\nstored in this depot!\n
@@ -1779,12 +1767,12 @@ Translation
 Vertimas
 transparent station coverage
 permatomas stoties vaizdas
-Transport %li passengers
-Transportuoti %li keleivius
 Transported
 Nukeliavo
 TrolleyBus_tab
 troleibusai
+tropic
+tropikai
 Truck
 Sunkvežimiai
 Tunnel muss an\neinfachem\nHang beginnen!\n
@@ -1831,6 +1819,8 @@ verkaufen
 Pardavimas
 Verkehrsteilnehmer
 miesto mašinos
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Tu turi %d mėnesių\nišmokėti skolą.\n
 via
 per (info)
 via %s\n

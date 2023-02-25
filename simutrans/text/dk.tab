@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: dk Dansk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -63,8 +63,6 @@ hlf_btn_keine
 ingen
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Broer skal\nbegynde på\nskråninger!\n
 Das Feld gehoert\neinem anderen Spieler\n
 Dette område\nejes allerede af\nen anden spiller!\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -73,12 +71,6 @@ Diese Zusammenstellung kann nicht fahren!\n
 Denne sammensætning\nkan ikke køre!\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Her kan ikke\nbygges et jernbanesignal!\n
-Kann Spielstand\nnicht laden.\n
-Kan ikke finde\ndet angivne spil!\n
-Kann Spielstand\nnicht speichern.\n
-Kan ikke gemme\nspillet!\n
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Giv køretøjerne\nen ruteplan, før\ndu vælger "Start"\n
 Post muss neben\nHaltestelle\nliegen!\n
 Et postkontor skal\nplaceres nær ved\nrutemål/station!\n
 Schiffhalt muss im\nWasser liegen!\n
@@ -97,18 +89,10 @@ SLOPETOOLS
 Rampeanlæg
 #_________________________________message_text__________________________________
 #_________________________________message_text__________________________________
-Bankrott:\n\nDu bist bankrott.\n
-Bankerot:\n\nDu er bankerot.\n
 Remove vehicle from map. Use with care!
 Fjern køretøjet fra kortet. Forsigtig brug tilrådes!
 Screenshot\ngespeichert.\n
 Skærmbilledet\ner gemt.\n
-Spielstand wurde\ngeladen!\n
-\nSpillet er indlæst!\n
-Spielstand wurde\ngespeichert!\n
-\nSpillet er gemt!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Du har gæld!\n\nDu har %d måneder til\nat betale din gæld!
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 \nCan't open heightfield file.\n
@@ -175,6 +159,8 @@ Assets
 Aktiver
 Bahndepot
 Togdepot
+Bankrott:\n\nDu bist bankrott.\n
+Bankerot:\n\nDu er bankerot.\n
 Baum
 Træ
 Baustelle
@@ -189,6 +175,8 @@ Boden
 Mark/land
 Bruecke
 Bro
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Broer skal\nbegynde på\nskråninger!\n
 Build ship depot
 Byg skibsdepot
 Build signals
@@ -261,6 +249,8 @@ Details
 Detaljer
 Direkt erreichbare Haltestellen
 Direkte ruter herfra
+Display settings
+Udseende
 Dock
 havn
 Durchsatz
@@ -321,8 +311,6 @@ Happy
 Tilfredse
 Helligk.
 Udseende
-Helligk. u. Farben
-Udseende
 Hier warten/lagern:
 Ventende varer og passagerer:
 hl_title
@@ -365,6 +353,10 @@ July
 Juli
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Kan ikke finde\ndet angivne spil!\n
+Kann Spielstand\nnicht speichern.\n
+Kan ikke gemme\nspillet!\n
 keine
 ingen
 Keine Einzelfahrzeuge im Depot
@@ -433,6 +425,8 @@ no goods waiting
 ingen ventende varer
 No Route
 Ingen rute
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Giv køretøjerne\nen ruteplan, før\ndu vælger "Start"\n
 Ok
 OK
 Operation
@@ -505,6 +499,10 @@ Spieler
 Spiller
 Spieler(mz)
 AI-spillerliste
+Spielstand wurde\ngeladen!\n
+\nSpillet er indlæst!\n
+Spielstand wurde\ngespeichert!\n
+\nSpillet er gemt!\n
 Sprache
 Sprog
 Stadtinformation
@@ -541,6 +539,8 @@ Verbrauch
 Forbrug
 verkaufen
 Sælge
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Du har gæld!\n\nDu har %d måneder til\nat betale din gæld!
 voranstellen
 Sætte foran
 Waggon_tab

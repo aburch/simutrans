@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: cz Cestina                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,20 +93,10 @@ rocky
 Skaliska
 temperate
 Mírné
-tropic
-Tropy
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Nahrávání scénáøe selhalo
-Autohalt muss auf\nStrasse liegen!\n
-Nelze postavit mimo silnici!
-Bridge is too long for this type!\n
-Most tohoto typu nemù¾e být tak dlouhý!
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Mosty musí zaèínat na\nrovinì nebo na sklonu!\n
 Can't buy obsolete vehicles!
 Nákup zastaralých vozidel není mo¾ný!
 Cannot alter water
@@ -127,10 +117,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Tuto èást zemì\nvlastní jiný hráè!\n
 Der Besitzer erlaubt das Entfernen nicht
 Odstranìní není dovoleno!\n
-Der Tunnel ist nicht frei!\n
-Tunel nelze zasypat!
-Die Bruecke ist nicht frei!\n
-Most neni volný!
 Diese Zusammenstellung kann nicht fahren!\n
 Tato kombinace\nje nepojízdná!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -139,14 +125,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Tato leti¹tní budova\nsem nepasuje
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Zde nemù¾ete postavit\nnávìstidla!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depo nenalezeno!\nSouprava je tøeba poslat\ndo depa ruènì.
 In order to lock the game, you have to protect the public player by password!
 Pro zamèení hry je nutné veøejné slu¾by zablokovat heslem!
-Kann Spielstand\nnicht laden.\n
-Ulo¾enou hru nelze naèíst!\n
-Kann Spielstand\nnicht speichern.\n
-Do souboru s ulo¾enou\nhrou nelze zapisovat!\n
 Lost connection\nto server!
 Server neodpovídá1\nHra pokraèuje na lokálním poèítaèi!
 Lost synchronisation\nwith server.
@@ -163,10 +143,6 @@ No suitable way on the ground!
 Nevhodný úsek pro stavbu stanice nebo zastávky!
 No through station here!
 Zde nelze umístit stanici!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Nejprve nastavte\njízdní øád!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Nepovoleno!\nJízdní øád nemù¾e\nbýt právì zmìnìn.\nZkuste to pozdìji!
 Not enough clearance.
 Mezi cestami musí být vý¹kový rozdíl alespoò dvou úrovní.
 Not enough money!
@@ -227,7 +203,7 @@ Overlay town names
 Zobrazí/skryje na mapì názvy mìst.
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Pøidejte stanice a kontrolní body do jízdního øádu.
-Set tile climate
+Set tile climate %s
 Zmìnit klima na %s
 Show capacity and if halt is overcrowded
 Zobrazí velikost a stav zastávky.
@@ -301,12 +277,6 @@ Tramvaje
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s vybudoval nové øeditelství.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Ve mìstì %s si úøedníci nechali postavit\nnovou budovu,\nkdy¾ jejich mìsto pøesáhlo\n%i obyvatel.
-Bankrott:\n\nDu bist bankrott.\n
-Bankrot:\n\nVa¹e firma zkrachovala.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Gratulace!\n\nScénáø byl úspì¹nì dodehrán za %i mìsíc(e) a %i rok(y)
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomický rùst! Øetìzec prùmyslu pro %s poblí¾ %s byl roz¹íøen o %i továren.
 New %s now available:\n%s\n
@@ -317,24 +287,18 @@ New vehicle now available:\n%s\n
 Je dostupné\nnové vozidlo:\n\n' %s '\n\n
 Now %u clients connected.
 Právì je pøipojeno %u hráèù.
-On this map, you are not\nallowed to change player!\n
-V této høe\nnemù¾ete hrát\nza jiného hráèe!\n
-Production of %s has been stopped:\n%s\n
-Zastavena výroba %s '%s'
 Remove vehicle from map. Use with care!
 Odstranit vozidlo z mapy. Pou¾ívejte jen pøi problémech!
 Screenshot\ngespeichert.\n
 Screenshot ulo¾en.\n
 Sends the convoi to the last depot it departed from!
 Poslat soupravu do nejbli¾¹ího vhodného depa
-Spielstand wurde\ngeladen!\n
-\nHra úspì¹nì naètena!\n
-Spielstand wurde\ngespeichert!\n
-\nHra úspì¹nì ulo¾ena!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Jste v mínusu!\n\nMáte %d mìsíc(e)\nna zaplacení dluhu!\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 S velikou slávou\nv %s odhalili\nnovou atrakci.\n%i obèanù jásá.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+filtr
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -395,6 +359,8 @@ Stáøí: %i rokù a %i mìsícù
 Vozidlo "%s"\nzajelo do depa.
 %s land %d %s
 %s, Venkov %d
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+Ve mìstì %s si úøedníci nechali postavit\nnovou budovu,\nkdy¾ jejich mìsto pøesáhlo\n%i obyvatel.
 %s\nis crowded.
 %s\nje pøeplnìna.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -409,8 +375,6 @@ Spoleènost %s zbankrotovala a byla zlikvidována. Provoz byl zastaven a majetek b
 <<Vymazat jízdní plán>>
 <create new line>
 <<Vytvoøit novou linku>>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <individual schedule>
 <<Vlastní jízdní øád>>
 <no line>
@@ -463,8 +427,6 @@ Abspanntransformator
 Trafostanice továrny
 Accelerate time
 Zrychlený èas
-Account above %s
-%s stav úètu
 Act. load: %u MW\n
 Aktuální pøenos: %u MW\n
 Active player only
@@ -479,7 +441,7 @@ Add Stop
 Pøidat zast.
 Add stops for backward travel
 Pøidat zastávky pro jízdu nazpìt
-air_wt
+air
 ranvej
 aircraft_tab
 Nákladní letadla
@@ -529,10 +491,14 @@ Aufspanntransformator
 Trafostanice elektrárny
 August
 Srpen
+Autohalt muss auf\nStrasse liegen!\n
+Nelze postavit mimo silnici!
 Available
 K dispozici
 Bahndepot
 Vlakové depo
+Bankrott:\n\nDu bist bankrott.\n
+Bankrot:\n\nVa¹e firma zkrachovala.\n
 battery
 pohon: baterie
 Baum
@@ -563,8 +529,12 @@ Boost (%)
 Zvý¹ení produkce (%)
 bridge is too high for its type!
 Tento typ neumo¾òuje takovouto vý¹ku mostu!
+Bridge is too long for this type!\n
+Most tohoto typu nemù¾e být tak dlouhý!
 Bruecke
 Most
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Mosty musí zaèínat na\nrovinì nebo na sklonu!\n
 Brueckenboden
 most
 Build air depot
@@ -721,8 +691,8 @@ Configure AI
 Nastavit umìlou inteligenci
 Configure AI setttings
 Nastavení UI
-Connect factory
-Propojení továren
+Congratulation\nScenario was complete in\n%i months %i years.
+Gratulace!\n\nScénáø byl úspì¹nì dodehrán za %i mìsíc(e) a %i rok(y)
 Connected stops
 Zastávky v dosahu objektu:
 Connected with server
@@ -813,18 +783,24 @@ Departures to\n
 Odjezdy\n
 Depots
 Depa
+Der Tunnel ist nicht frei!\n
+Tunel nelze zasypat!
 Destination
 Míøení
 Destroying map ...
 Ru¹ím mapu ...
 Details
 Detaily
+Die Bruecke ist nicht frei!\n
+Most neni volný!
 diesel
 pohon: dieslový
 Direkt erreichbare Haltestellen
 Pøeprava odkud, kam a èeho
 disable midi
 Vypnout Midi
+Display settings
+Nastavení zobrazení
 Distance
 Délka/Mìsíc
 Dock
@@ -989,12 +965,8 @@ Happy
 Spokojeno
 Haus kaufen
 Koupit dùm
-Headquarter and %li trains
-Sídla a %li vlakù
 Helligk.
 Zobrazení
-Helligk. u. Farben
-Nastavení zobrazení
 Help
 Pomoc
 Help text not found
@@ -1057,6 +1029,8 @@ hlf_chk_waren_annahme
 Pøíjme:
 hlf_title
 Filtrovat Seznam stanic podle:
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depo nenalezeno!\nSouprava je tøeba poslat\ndo depa ruènì.
 Homeless
 Bezdomovcù
 hydrogene
@@ -1103,6 +1077,10 @@ Jump to
 Posunout na
 June
 Èerven
+Kann Spielstand\nnicht laden.\n
+Ulo¾enou hru nelze naèíst!\n
+Kann Spielstand\nnicht speichern.\n
+Do souboru s ulo¾enou\nhrou nelze zapisovat!\n
 Kein Besitzer\n
 Bez majitele\n
 keine
@@ -1153,8 +1131,6 @@ letzen Monat: diesen Monat:
 minulý mìsíc:      tento mìsíc:
 Line
 Linka
-Line Filter
-filtr
 Line Management
 Správa linek
 Lineless convoys serving this stop
@@ -1335,6 +1311,8 @@ no tree
 Bez stromù
 No. of Factories
 Továrny a obchody
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Nejprve nastavte\njízdní øád!\n
 none
 nic
 nord
@@ -1343,6 +1321,8 @@ nordost
 Severovýchodní
 nordwest
 Severozápadní
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Nepovoleno!\nJízdní øád nemù¾e\nbýt právì zmìnìn.\nZkuste to pozdìji!
 Not enough fields would remain.
 Kolem této farmy zbývá\nmálo políèek.
 November
@@ -1361,6 +1341,8 @@ Oktober
 Øíjen
 On loan since %i month(s)
 Jste zadlu¾en ji¾ %i mìsíc(ù)!
+On this map, you are not\nallowed to change player!\n
+V této høe\nnemù¾ete hrát\nza jiného hráèe!\n
 Only city chains
 Pouze mìstský prùmysl
 Only first %d differing paks reported. There are probably more.
@@ -1485,6 +1467,8 @@ Problems_msg
 Upozornìní
 Produced
 Vyrobeno
+Production of %s has been stopped:\n%s\n
+Zastavena výroba %s '%s'
 Production/Boost
 Výroba/Zvý¹eno
 Produktion
@@ -1743,6 +1727,10 @@ Spieler(mz)
 Hráèi
 Spielerliste
 Obchodní rejstøík
+Spielstand wurde\ngeladen!\n
+\nHra úspì¹nì naètena!\n
+Spielstand wurde\ngespeichert!\n
+\nHra úspì¹nì ulo¾ena!\n
 Sprache
 Jazyk
 Sprachen
@@ -1787,8 +1775,6 @@ Supplied: %.0f %%
 Dodáno: %.0f %%
 Suppliers
 Dodavatelé
-Supply %s at (%i,%i)
-%s prosí o dodávku zbo¾í (%i,%i)
 Tage alt
 dní starý
 There are still vehicles\nstored in this depot!\n
@@ -1853,16 +1839,18 @@ Translation
 Podle jména
 transparent station coverage
 Prùhledný dosah stanice
-Transport %li passengers
-Pøepravte %li cestujících!
 Transported
 Pøepraveno
 TrolleyBus_tab
 Trolejbusy
+tropic
+Tropy
 Truck
 Náklaïáky
 tt_Other
 Ostatní
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunely musí zaèínat\ni konèit na sklonu!\n
 Tunnel must start on single way!
@@ -1909,6 +1897,8 @@ verkaufen
 Prodávat
 Verkehrsteilnehmer
 Osobní auta
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Jste v mínusu!\n\nMáte %d mìsíc(e)\nna zaplacení dluhu!\n
 vh_title
 Katalog vozidel
 via

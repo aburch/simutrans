@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: gr Ellinika                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -75,12 +75,6 @@ desert
 κλίμα της ερήμου
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Οι χώροι στάθμευσης αυτοκινήτων ή λεωφορείων\nπρέπει να τοποθετηθούν\nκοντά στον δρόμο.
-Bridge is too long for this type!\n
-Για τέτοιου τύπου γέφυρες,\nτο άνοιγμα είναι πολύ μεγάλο.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Οι γέφυρες πρέπει\nνα ξεκινούν από μια\nεπιφάνεια με κλίση!\n
 Cannot built depot here!
 Δεν μπορείτε να χτίσετε έναν χώρο στάθμευσης εδώ.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
@@ -89,16 +83,10 @@ Das Feld gehoert\neinem anderen Spieler\n
 Αυτό το τμήμα\nτου εδάφους ανήκει σε\nέναν άλλο παίκτη!\n
 Der Besitzer erlaubt das Entfernen nicht
 \nΟ ιδιοκτήτης δεν δίνει\nάδεια για να\nτο διαγράψετε!\n
-Der Tunnel ist nicht frei!\n
-Η σήραγγα δεν είναι άδεια.\n
-Die Bruecke ist nicht frei!\n
-Η γέφυρα δεν είναι ελεύθερη!\n
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Δεν μπορείτε να χτίσετε\n\nκτίριο αεροδρομίου εδώ.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Δεν μπορείτε να τοποθετήσετε\nσήματα σιδηροδρόμων εδώ.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Ο σταθμός δεν βρέθηκε.\nΠρέπει να στείλεις το \nόχημα εκεί χειροκίνητα
 Lost connection\nto server!
 Χαμένη σύνδεση\nμε τον διακομιστή!
 Lost synchronisation\nwith server.
@@ -129,16 +117,10 @@ SHIPTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's έχει χτίσει ένα καινούριο διοικητήριο
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nέχτισε ένα\nκαινούριο δημαρχείο\nόταν αυξήθηκαν\n%i οι κάτοικοι.
-Bankrott:\n\nDu bist bankrott.\n
-Χρεοκοπημένος:\n\nΕίστε χρεοκοπημένος!\n
 New %s now available:\n%s\n
 Καινούριο %s τώρα διαθέσιμο:\n%s\n\n
 Now %u clients connected.
 Τώρα ακριβώς %u οι πελάτες είναι συνδεδεμένοι.
-On this map, you are not\nallowed to change player!\n
-Αυτό το παιχνίδι είναι κλειδωμένο.\nΔεν είναι δυνατές αλλαγές από τον παίκτη.\n
 Remove vehicle from map. Use with care!
 Αφαίρεσε το όχημα από τον χάρτη
 #_________________________________program_text__________________________________
@@ -193,12 +175,12 @@ Remove vehicle from map. Use with care!
 %s έχει μπει στον χώρο στάθμευσης οχημάτων.
 %s land %d %s
 %s γη %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nέχτισε ένα\nκαινούριο δημαρχείο\nόταν αυξήθηκαν\n%i οι κάτοικοι.
 %s\nis crowded.
 %s\σταθμός γεμάτος.
 %s\nwas liquidated.
 %s\nέχει εξοφληθεί.
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <no line>
 <δεν υπάρχει γραμμή>
 1 convoi
@@ -217,16 +199,24 @@ Arbeiter aus:
 Οι εργαζόμενοι ζουν σε:
 August
 Αύγουστος
+Autohalt muss auf\nStrasse liegen!\n
+Οι χώροι στάθμευσης αυτοκινήτων ή λεωφορείων\nπρέπει να τοποθετηθούν\nκοντά στον δρόμο.
 Available
 Διαθέσιμο
 Bahndepot
 Χώρος στάθμευσης τρένων
+Bankrott:\n\nDu bist bankrott.\n
+Χρεοκοπημένος:\n\nΕίστε χρεοκοπημένος!\n
 battery
 Μπαταρία
 bridge is too high for its type!
 Για τέτοιου τύπου γέφυρες, το ύψος αυτό είναι πολύ μεγάλο!
+Bridge is too long for this type!\n
+Για τέτοιου τύπου γέφυρες,\nτο άνοιγμα είναι πολύ μεγάλο.\n
 Bruecke
 Γέφυρα
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Οι γέφυρες πρέπει\nνα ξεκινούν από μια\nεπιφάνεια με κλίση!\n
 Brueckenboden
 γέφυρα
 Build air depot
@@ -347,12 +337,18 @@ Denkmal
 Μνημείο
 Depots
 Χώροι στάθμευσης
+Der Tunnel ist nicht frei!\n
+Η σήραγγα δεν είναι άδεια.\n
 Destination
 Προορισμός
 Details
 Λεπτομέρειες
+Die Bruecke ist nicht frei!\n
+Η γέφυρα δεν είναι ελεύθερη!\n
 diesel
 πετρελαιοκινητήρας
+Display settings
+Ρυθμίσεις εμφάνισης
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 Έχετε %d μήνες για να εξοφλήσετε τις οφειλές σας.
 Filter:
@@ -413,8 +409,6 @@ Haus kaufen
 Αγόρασε σπίτι
 Helligk.
 Εμφάνιση
-Helligk. u. Farben
-Ρυθμίσεις εμφάνισης
 Help
 Βοήθεια
 Help text not found
@@ -461,6 +455,8 @@ hlf_chk_spezial_filter
 Ειδικό φίλτρο:
 hlf_chk_type_filter
 Τύποι φίλτρων:
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Ο σταθμός δεν βρέθηκε.\nΠρέπει να στείλεις το \nόχημα εκεί χειροκίνητα
 Homeless
 Άστεγος
 industrial building
@@ -567,6 +563,8 @@ Ok
 Εντάξει
 Oktober
 Οκτώβριος
+On this map, you are not\nallowed to change player!\n
+Αυτό το παιχνίδι είναι κλειδωμένο.\nΔεν είναι δυνατές αλλαγές από τον παίκτη.\n
 Only one transformer per factory!
 Μόνο ένας μεταφορέας για κάθε εργοστάσιο
 Optionen

@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,20 +93,10 @@ rocky
 고산 기후
 temperate
 온대 기후
-tropic
-열대 기후
-tundra
-툰드라 기후
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 시나리오를 불러오는데에 실패했습니다.
-Autohalt muss auf\nStrasse liegen!\n
-버스/자동차는 도로 위에서만 운행할 수 있습니다.
-Bridge is too long for this type!\n
-이 타입의 다리를 건설하기에는 너무 깁니다!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-다리는 곧은 경사 위에서 건설해야 합니다!\n
 Can't buy obsolete vehicles!
 생산 중단된 차량을 살 수 없습니다!
 Cannot alter water
@@ -127,10 +117,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 이 토지는\n다른 플레이어가\n소유하고 있습니다!\n
 Der Besitzer erlaubt das Entfernen nicht
 주인이 \n없애는 것을\n허락하지 않습니다!\n
-Der Tunnel ist nicht frei!\n
-터널이 비어있지 않습니다.\n
-Die Bruecke ist nicht frei!\n
-다리가 비어있지 않습니다!\n
 Diese Zusammenstellung kann nicht fahren!\n
 이 조합으로\n운행할 수 없습니다!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -139,14 +125,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 여기에\n공항을 건설할 수 없습니다.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 여기에 열차 신호등을\n만들 수 없습니다.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-차고지를 찾을 수 없습니다.\n수동으로 차량을\n차고지로 보내세요.
 In order to lock the game, you have to protect the public player by password!
 게임을 잠그기위해 공공 서비스에 비밀번호를 거세요!
-Kann Spielstand\nnicht laden.\n
-게임을 불러올 수 없습니다!
-Kann Spielstand\nnicht speichern.\n
-게임을 저장을 할 수 없습니다!
 Lost connection\nto server!
 서버와의 연결이 끊어졌습니다!
 Lost synchronisation\nwith server.
@@ -161,10 +141,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 협궤열차는 협궤철도 위에서만 운행할 수 있습니다.
 No through station here!
 역은 선로의 끝부분이나 교차지점이 없는\n직선 선로 위에서만 건설할 수 있습니다.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-차량을 출발시키 전에 스케줄을 설정해주세요!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-경로를 탐색하는 동안\n차량의 스케줄을\n바꿀 수 없습니다.
 Not enough money!
 돈이 부족합니다.
 On narrowgauge track only!\n
@@ -225,7 +201,7 @@ Overlay town names
 도시 이름 표시
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 지도를 클릭하여 웨이포인트 또는 역을 스케줄에 추가하세요.
-Set tile climate
+Set tile climate %s
 이 땅을 %s 기후로 바꿉니다.
 Show speedlimit of ways
 선로/도로의 제한속도 표시
@@ -279,12 +255,6 @@ TRAMTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s는 새로운 본사를 건설했습니다.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s 주민수가 %i에 도달해, 새 시청을 지었습니다.
-Bankrott:\n\nDu bist bankrott.\n
-파산:\n\n당신은 파산했습니다!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-축하합니다!\n이 시나리오가 \n%i개월, %i년 만에\n완료되었습니다!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 경제 성장:\n%s 근처의 %s는 체인을 확장합니다.\n%i에 새로운 공장이 건설됩니다.\n
 New %s now available:\n%s\n
@@ -295,24 +265,18 @@ New vehicle now available:\n%s\n
 \n 새로운 차량을\n 사용할 수 있습니다:\n\n\n -- %s --\n\n
 Now %u clients connected.
 플레이어 %u가 연결되었습니다.
-On this map, you are not\nallowed to change player!\n
-이 게임에서는 플레이어를 교체할 수 없습니다.\n\n
-Production of %s has been stopped:\n%s\n
-%s의 생산이 중지되었습니다:\n%s\n
 Remove vehicle from map. Use with care!
 차량을 제거합니다. 조심하세요!
 Screenshot\ngespeichert.\n
 스크린샷이\n저장되었습니다.\n
 Sends the convoi to the last depot it departed from!
 가장 마지막으로 방문한 차고지로 보냅니다.
-Spielstand wurde\ngeladen!\n
-\n게임 불러왔습니다.\n
-Spielstand wurde\ngespeichert!\n
-\n게임 저장했습니다.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-부채 상환 기한이\n %d개월 남았습니다.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 대형 축제와 함께,\n%s에 새로운\n기념물이 건설되었습니다.\n%i 시민들이 기뻐하고 있습니다.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+노선 필터
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -371,6 +335,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s가 차고로 들어왔습니다.
 %s land %d %s
 %s %d 외부의 %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s 주민수가 %i에 도달해, 새 시청을 지었습니다.
 %s\nis crowded.
 %s\n는 혼잡합니다.\n\n
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -385,8 +351,6 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 <스케줄 취소>
 <create new line>
 <새 노선 만들기>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <individual schedule>
 <개별 스케줄>
 <no line>
@@ -439,8 +403,6 @@ Abspanntransformator
 변전소
 Accelerate time
 가속시간
-Account above %s
-현금 %s 이상
 Act. load: %u MW\n
 송전량: %u MW\n
 Active player only
@@ -455,7 +417,7 @@ Add Stop
 정류장 추가
 Add stops for backward travel
 여정 뒤에 정류장을 추가합니다.
-air_wt
+air
 활주로/유도로
 aircraft_tab
 화물 수송기
@@ -503,10 +465,14 @@ Aufspanntransformator
 변전소
 August
 8월
+Autohalt muss auf\nStrasse liegen!\n
+버스/자동차는 도로 위에서만 운행할 수 있습니다.
 Available
 사용가능
 Bahndepot
 철도 차량기지
+Bankrott:\n\nDu bist bankrott.\n
+파산:\n\n당신은 파산했습니다!\n
 battery
 배터리
 Baum
@@ -537,8 +503,12 @@ Boost (%)
 증산률 (%)
 bridge is too high for its type!
 이 타입의 다리를 건설하기에는 너무 높습니다!
+Bridge is too long for this type!\n
+이 타입의 다리를 건설하기에는 너무 깁니다!\n
 Bruecke
 다리
+Bruecke muss an\neinfachem\nHang beginnen!\n
+다리는 곧은 경사 위에서 건설해야 합니다!\n
 Brueckenboden
 다리
 Build air depot
@@ -689,8 +659,8 @@ Company_msg
 경쟁자
 Comparing pak files ...
 팩 비교 중...
-Connect factory
-공장 연결
+Congratulation\nScenario was complete in\n%i months %i years.
+축하합니다!\n이 시나리오가 \n%i개월, %i년 만에\n완료되었습니다!
 Connected stops
 연결된 정류장
 Connected with server
@@ -779,16 +749,22 @@ Departure board
 출발 시간
 Depots
 차고지
+Der Tunnel ist nicht frei!\n
+터널이 비어있지 않습니다.\n
 Destination
 도착
 Details
 세부사항
+Die Bruecke ist nicht frei!\n
+다리가 비어있지 않습니다!\n
 diesel
 디젤
 Direkt erreichbare Haltestellen
 여기에서 바로가는 경로
 disable midi
 미디 음악 음소거
+Display settings
+디스플레이 설정
 Distance
 주행거리
 Dock
@@ -951,12 +927,8 @@ Happy
 행복
 Haus kaufen
 집 구매
-Headquarter and %li trains
-본사와 %li 열차
 Helligk.
 디스플레이
-Helligk. u. Farben
-디스플레이 설정
 Help
 도움말
 Help text not found
@@ -1017,6 +989,8 @@ hlf_chk_waren_annahme
 상품 입고:
 hlf_title
 역 목록 필터
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+차고지를 찾을 수 없습니다.\n수동으로 차량을\n차고지로 보내세요.
 Homeless
 노숙자
 hydrogene
@@ -1063,6 +1037,10 @@ Jump to
 건너뛰기
 June
 6월
+Kann Spielstand\nnicht laden.\n
+게임을 불러올 수 없습니다!
+Kann Spielstand\nnicht speichern.\n
+게임을 저장을 할 수 없습니다!
 Kein Besitzer\n
 주인 없음\n
 keine
@@ -1113,8 +1091,6 @@ letzen Monat: diesen Monat:
 지난달: 이번달:
 Line
 노선
-Line Filter
-노선 필터
 Line Management
 노선 관리
 Lineless convoys serving this stop
@@ -1299,6 +1275,8 @@ no tree
 나무 없음
 No. of Factories
 공장과 상점 수
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+차량을 출발시키 전에 스케줄을 설정해주세요!\n
 none
 아무것도 없음
 nord
@@ -1307,6 +1285,8 @@ nordost
 북동쪽
 nordwest
 북서쪽
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+경로를 탐색하는 동안\n차량의 스케줄을\n바꿀 수 없습니다.
 Not enough fields would remain.
 이 농장 주변에는\n충분한 평지가 없습니다.
 November
@@ -1325,6 +1305,8 @@ Oktober
 10월
 On loan since %i month(s)
 %i달 동안 대출
+On this map, you are not\nallowed to change player!\n
+이 게임에서는 플레이어를 교체할 수 없습니다.\n\n
 Only city chains
 도시에 체인 만들기
 Only land chains
@@ -1447,6 +1429,8 @@ Problems_msg
 문제
 Produced
 생산
+Production of %s has been stopped:\n%s\n
+%s의 생산이 중지되었습니다:\n%s\n
 Production/Boost
 생산/증산
 Produktion
@@ -1695,6 +1679,10 @@ Spieler(mz)
 플레이어
 Spielerliste
 플레이어 목록
+Spielstand wurde\ngeladen!\n
+\n게임 불러왔습니다.\n
+Spielstand wurde\ngespeichert!\n
+\n게임 저장했습니다.\n
 Sprache
 언어
 Sprachen
@@ -1741,8 +1729,6 @@ Supplied: %.0f %%
 공급량: %.0f %%
 Suppliers
 공급자:
-Supply %s at (%i,%i)
-%s를 (%i,%i)에 공급
 Tage alt
 일 전.
 There are still vehicles\nstored in this depot!\n
@@ -1807,16 +1793,18 @@ Translation
 번역
 transparent station coverage
 역 범위 반투명으로 보기
-Transport %li passengers
-%li명의 승객 수송
 Transported
 수송실적
 TrolleyBus_tab
 트롤리 버스
+tropic
+열대 기후
 Truck
 트럭
 tt_Other
 기타
+tundra
+툰드라 기후
 Tunnel muss an\neinfachem\nHang beginnen!\n
 터널은 곧은 경사면에서\n 시작해야 합니다!\n
 Tunnel must start on single way!
@@ -1863,6 +1851,8 @@ verkaufen
 판매
 Verkehrsteilnehmer
 자가용
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+부채 상환 기한이\n %d개월 남았습니다.\n
 via
 경유(세부사항)
 via %s\n

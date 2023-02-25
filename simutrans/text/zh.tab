@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                            Language: zh T. Chinese                           #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -89,20 +89,10 @@ rocky
 高山氣候
 temperate
 溫帶氣候
-tropic
-熱帶氣候
-tundra
-苔原氣候
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 載入場景腳本失敗
-Autohalt muss auf\nStrasse liegen!\n
-巴士、車輛停靠站必須建在道路上
-Bridge is too long for this type!\n
-橋梁跨度太大\n請選擇其它橋梁或分段建造
-Bruecke muss an\neinfachem\nHang beginnen!\n
-這橋必須建在斜坡上
 Cannot built depot here!
 無法在這裡建造車庫
 Cannot built this station/building\nin underground mode here.
@@ -119,10 +109,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 該陸地屬於其他玩家
 Der Besitzer erlaubt das Entfernen nicht
 建築物擁有者拒絕移除建築\n汽車或行人在路上，無法移除
-Der Tunnel ist nicht frei!\n
-隧道内仍有車輛在行駛
-Die Bruecke ist nicht frei!\n
-橋上存在其他玩家的所有物
 Diese Zusammenstellung kann nicht fahren!\n
 非法組合
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -131,14 +117,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 無法在這裡建造飛機場
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 不能在這裡放置道路標誌
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-找不到車庫\n請手動設置車輛行程表令其回到車庫
 In order to lock the game, you have to protect the public player by password!
 想要鎖定遊戲，必須設置密碼以防其他玩家繼續遊戲
-Kann Spielstand\nnicht laden.\n
-無法載入存儲的遊戲
-Kann Spielstand\nnicht speichern.\n
-無法打開目標文件
 Lost connection\nto server!
 與服務器失去連接
 Lost synchronisation\nwith server.
@@ -153,10 +133,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 窄軌車站必須建造在窄軌軌道上
 No through station here!
 車站必須建造在路的盡頭或道路直綫段上
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-"我該去哪裏?"\n在派出車輛前，必須先給其制定行程表或者安排到已有的行程表
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-尋找路綫期間，無法修改車輛路線表
 Not enough money!
 資金不足
 On narrowgauge track only!\n
@@ -227,12 +203,6 @@ TRAMTOOLS
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s 興建了一個新總部
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s 的居民達到 %i\n因此興建了一個新市政廳
-Bankrott:\n\nDu bist bankrott.\n
-破產:\n\n你已經破產, 遊戲結束
-Congratulation\nScenario was complete in\n%i months %i years.
-恭喜!\n歷經 %i 月 %i 年, 此遊戲場景已完成!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 經濟逐漸繁榮\n%s 擴大產業, 於 %s 附近建設了 %i 間工廠
 New %s now available:\n%s\n
@@ -243,22 +213,12 @@ New vehicle now available:\n%s\n
 新交通工具現在可用\n\n -- %s --
 Now %u clients connected.
 現在有 %u 個用戶已連接
-On this map, you are not\nallowed to change player!\n
-遊戲已鎖定, 無法切換玩家\n
-Production of %s has been stopped:\n%s\n
-%s 已停產\n%s
 Remove vehicle from map. Use with care!
 移除該運輸工具(請小心使用!)
 Screenshot\ngespeichert.\n
 遊戲截圖已保存
 Sends the convoi to the last depot it departed from!
 將運輸隊調回最後的發車庫
-Spielstand wurde\ngeladen!\n
-遊戲載入成功
-Spielstand wurde\ngespeichert!\n
-遊戲存儲成功
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-僅餘 %d 個月還清債務
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s 為某盛大的節日建立了紀念館\n%i 個市民感到十分高興
 #_________________________________program_text__________________________________
@@ -321,6 +281,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s 已回到車庫
 %s land %d %s
 %s %d %s 外
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s 的居民達到 %i\n因此興建了一個新市政廳
 %s\nis crowded.
 %s 過度擁擠
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -331,8 +293,6 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %u 玩家\n
 %u Player (%u locked)\n
 %u 個玩家 (%u 個已鎖定)\n
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <no line>
 <未指定路線>
 1 convoi
@@ -377,8 +337,6 @@ Abspanntransformator
 變壓站
 Accelerate time
 加快遊戲速度
-Account above %s
-資金多於 %s
 Act. load: %u MW\n
 實際負荷: %u MW
 Active player only
@@ -393,8 +351,6 @@ Add Stop
 新建車站
 Add stops for backward travel
 為回程路段增設車站
-air_wt
-空運
 aircraft_tab
 貨機
 airplane
@@ -441,10 +397,14 @@ Aufspanntransformator
 變壓站
 August
 8月
+Autohalt muss auf\nStrasse liegen!\n
+巴士、車輛停靠站必須建在道路上
 Available
 可用
 Bahndepot
 鐵路車廠
+Bankrott:\n\nDu bist bankrott.\n
+破產:\n\n你已經破產, 遊戲結束
 battery
 電池
 Baum
@@ -471,8 +431,12 @@ Boden
 陸地
 bridge is too high for its type!
 無法在這裏建造\n因為離地面的高度超出了其橋腳的高度限制
+Bridge is too long for this type!\n
+橋梁跨度太大\n請選擇其它橋梁或分段建造
 Bruecke
 橋樑
+Bruecke muss an\neinfachem\nHang beginnen!\n
+這橋必須建在斜坡上
 Brueckenboden
 橋梁
 Build air depot
@@ -619,8 +583,8 @@ Company_msg
 競爭對手
 Comparing pak files ...
 正在比對遊戲資料檔案...
-Connect factory
-在工廠之間建立供求關係
+Congratulation\nScenario was complete in\n%i months %i years.
+恭喜!\n歷經 %i 月 %i 年, 此遊戲場景已完成!
 Connected stops
 可供使用的站：
 Connected with server
@@ -693,18 +657,24 @@ Departed
 已出發
 Depots
 車廠
+Der Tunnel ist nicht frei!\n
+隧道内仍有車輛在行駛
 Destination
 到達
 Destroying map ...
 正在刪除地圖...
 Details
 詳情
+Die Bruecke ist nicht frei!\n
+橋上存在其他玩家的所有物
 diesel
 柴油
 Direkt erreichbare Haltestellen
 從這裡開始的直達路綫
 disable midi
 關閉背景音樂
+Display settings
+顯示設置
 Distance
 行走距離
 Dock
@@ -863,12 +833,8 @@ Happy
 高興
 Haus kaufen
 購買房屋
-Headquarter and %li trains
-總部及 %li 火車
 Helligk.
 顯示
-Helligk. u. Farben
-顯示設置
 Help
 幫助
 Help text not found
@@ -927,6 +893,8 @@ hlf_chk_waren_annahme
 物資
 hlf_title
 車站列表篩選
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+找不到車庫\n請手動設置車輛行程表令其回到車庫
 Homeless
 流浪者
 hydrogene
@@ -969,6 +937,10 @@ Jump to
 跳至
 June
 6月
+Kann Spielstand\nnicht laden.\n
+無法載入存儲的遊戲
+Kann Spielstand\nnicht speichern.\n
+無法打開目標文件
 Kein Besitzer\n
 無物主
 keine
@@ -1189,6 +1161,8 @@ no timeline
 不使用時間軸
 no tree
 沒有樹林
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+"我該去哪裏?"\n在派出車輛前，必須先給其制定行程表或者安排到已有的行程表
 none
 無
 nord
@@ -1197,6 +1171,8 @@ nordost
 東北
 nordwest
 西北
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+尋找路綫期間，無法修改車輛路線表
 Not enough fields would remain.
 此農場預留空間不足
 November
@@ -1215,6 +1191,8 @@ Oktober
 10月
 On loan since %i month(s)
 負債狀況已經維持了%i個月
+On this map, you are not\nallowed to change player!\n
+遊戲已鎖定, 無法切換玩家\n
 Only city chains
 只顯示城市的工業鏈
 Only first %d differing paks reported. There are probably more.
@@ -1319,6 +1297,8 @@ Powerlines
 電纜
 Problems_msg
 問題
+Production of %s has been stopped:\n%s\n
+%s 已停產\n%s
 Produktion
 生產
 Profit
@@ -1527,6 +1507,10 @@ Spieler(mz)
 玩家
 Spielerliste
 玩家列表
+Spielstand wurde\ngeladen!\n
+遊戲載入成功
+Spielstand wurde\ngespeichert!\n
+遊戲存儲成功
 Sprache
 語言
 Sprachen
@@ -1569,8 +1553,6 @@ Summer snowline
 夏季雪綫
 Suppliers
 供應商
-Supply %s at (%i,%i)
-供應 %s 於 (%i,%i)
 Tage alt
 天
 There are still vehicles\nstored in this depot!\n
@@ -1635,14 +1617,16 @@ Translation
 翻譯
 transparent station coverage
 透明顯示車站覆蓋範圍
-Transport %li passengers
-運載了 %li 乘客
 Transported
 路程
 TrolleyBus_tab
 無軌電車
+tropic
+熱帶氣候
 Truck
 貨車
+tundra
+苔原氣候
 Tunnel muss an\neinfachem\nHang beginnen!\n
 隧道入口必須建造在斜坡上
 Tunnel must start on single way!
@@ -1685,6 +1669,8 @@ verkaufen
 販售模式
 Verkehrsteilnehmer
 城市車輛
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+僅餘 %d 個月還清債務
 via
 途經站(細節)
 via %s\n

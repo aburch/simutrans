@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -145,22 +145,12 @@ rocky
 Alpines Klima
 temperate
 gemäßigtes Klima
-tropic
-Tropenklima
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Doppelhaus\n\nNach langer Diskussion über die Inneneinrichtung entschied sich Familie Brenz das Haus zu teilen. Vater und Sohn sind Herr über die linke Hälfte, Mutter und Tochter haben das Sagen in der rechten Hälfte.
-Autohalt muss auf\nStrasse liegen!\n
-Autohalt muss auf\nStraße liegen!\n
 Bridge blocked by way below or above.
 Die Höhe der Brücke über dem Weg darunter reicht nicht aus.
-Bridge is too long for this type!\n
-Diese Brücke hat nicht die\nbenötigte Spannweite!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Die Brücke muss an\neinem geraden\nHang beginnen!\n
 Can't buy obsolete vehicles!
 Es können keine veralteten Fahrzeuge gekauft werden!
 Cannot alter water
@@ -189,22 +179,14 @@ Das Feld gehoert\neinem anderen Spieler\n
 Das Grundstück\ngehört einem\nanderen Spieler!\n
 Der Besitzer erlaubt das Entfernen nicht
 Der Besitzer\nerlaubt das\nEntfernen nicht.\n
-Die Bruecke ist nicht frei!\n
-Die Brücke ist nicht frei!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Diese Zusammenstellung\nkann nicht fahren!\n
 Flugzeughalt muss auf\nRunway liegen!\n
 Flugzeuge können\nnur auf Flughäfen landen!\n
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Hier kann dieses\nFlughafengebäude nicht\ngebaut werden!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Kein Heimdepot gefunden!\nÄndern Sie den\nFahrplan entsprechend\nmanuell.
 In order to lock the game, you have to protect the public player by password!
 Um die Karte gegen Spielerwechsel zu schützen, muß die Öffentliche Hand passwortgeschützt sein!
-Kann Spielstand\nnicht laden.\n
-Kann Spielstand\nnicht laden!\n
-Kann Spielstand\nnicht speichern.\n
-Kann Spielstand\nnicht speichern!\n
 Loading a new game will end the current server session!
 Das Laden eines neuen Spieles wird das laufende Netzwerkspiel beenden!
 Lost connection\nto server!
@@ -223,14 +205,14 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Schmalspurbahnhalt muss auf\nSchmalspurbahnschienen liegen!\n
 No bridges over runways!
 Keine Brücken über Landebahnen bitte!
+No curves on runways
+Keine Kurven auf Startbahnen!
+No suitable crossing
+Keine passende Kreuzung! (Weg zu schnell?)
 No suitable way on the ground!
 Halte können nur auf\ngeraden ebnen geeigneten\nWegen gebaut werden!
 No through station here!
 Hier kann kein Bahnhof oder\neine Haltestelle\ngebaut werden.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Noch kein Fahrplan\nvorhanden!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Nicht möglich!\nDer Fahrplan kann zur Zeit\nnicht geändert werden.\nVersuchen Sie es später\nnoch einmal!
 Not enough bytes transferred
 Vorzeitiges Übertragungsende!
 Not enough clearance.
@@ -263,6 +245,8 @@ Terraforming not possible\nhere in underground view
 Diese Landschaftsveränderung ist\nnur auf dem Kartenboden möglich.\n
 This tunnel branches. You can try Control+Click to remove.
 Dies ist ein Tunnelsystem. Evt. kann es mittels Strg+Klick gelöscht werden!
+Too far away to merge stations!
+Halt zu weit entfernt zum Verbinden.
 Upgrade must have\na higher level
 Neue Station muss ein\nhöheres Level haben.
 Vehicle %s cannot choose because stop too short!
@@ -311,7 +295,7 @@ Please click on the map to add\nwaypoints or stops to this\nschedule.
 Wegpunkte und Halte werden durch\nAnklicken der Ziele auf der Karte\nhinzugefügt.
 Remove double stops from schedule
 Aufeinanderfolgende Doppeleinträge entfernen
-Set tile climate
+Set tile climate %s
 %s für diesen Boden
 Show capacity and if halt is overcrowded
 Zeige Haltkapazität und -status.
@@ -385,14 +369,8 @@ Straßenbahnbau
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 Neuer Firmensitz von %s eröffnet.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Glückwünsche\n\nDas Spielziel wurde in\n\n%i Monat(en) und %i Jahr(en)\n\nerreicht!\n
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Wirtschaft brummt:\n%s bei %s erweitert:\n%i neue Fabriken.
-Make way or stop public (will join with neighbours), %i times maintainance
-In öffentliche Haltestelle umwandeln (mit Nachbarn verbinden), %i-fache Wartungskosten.
 Net wealth less than 10% of starting capital!
 Gesamtvermögen ist weniger als 10% des Startkapitals!
 New %s now available:\n%s\n
@@ -403,28 +381,22 @@ New vehicle now available:\n%s\n
 Ein neues Fahrzeug ist\nab jetzt verfügbar:\n\n»%s«\n\n
 Now %u clients connected.
 Aktuell %i Mitspieler.
-On this map, you are not\nallowed to change player!\n
-Spiel geschützt!\nSpielerwechsel ist auf dieser\nKarte nicht möglich.\n
 overtaking
 überholend
-Production of %s has been stopped:\n%s\n
-%s '%s'\nwird nicht mehr hergestellt.
 Remove vehicle from map. Use with care!
 Fahrzeug wird vom Bildschirm entfernt. Verkaufswert wird als Gewinn gutgeschrieben.
 Sends the convoi to the last depot it departed from!
 Schickt den Fahrzeugverband in das nächste Depot.
 Server preparing game ...
 Server bereitet Kartenübertragung vor ...
-Spielstand wurde\ngeladen!\n
-\nSpielstand wurde geladen!\n
-Spielstand wurde\ngespeichert!\n
-\nSpielstand wurde\ngespeichert!\n\n
 Trees
 Bäume
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurückzuzahlen.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s ehrt die \nwackeren Pioniere von Simutrans \nmit einem neuen Denkmal.\n%i Zuschauer sind mit dabei.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Linienfilter
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%.2f$/km %.2f$/m)
@@ -480,7 +452,7 @@ Pos1
 \nRibi (unmasked)
 \nRichtungen (alle) 
 \nSet phases:
-\nAmpelphasen NS/OW:
+\nAmpelphasen:\n  /  dann \\   dann Offset
 \nsingle way
 Keine Einfahrt!
 \nway1 reserved by
@@ -511,6 +483,8 @@ Keine Einfahrt!
 %s\nhat das Depot erreicht.
 %s land %d %s
 %s %d Land %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
 %s\nis crowded.
 %s\nist überfüllt.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -525,8 +499,6 @@ Keine Einfahrt!
 <Fahrplan löschen>
 <create new line>
 <Neue Linie erstellen>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <H1>Fehler: Doppelte Objekte im Hauptverzeichnis</H1><p><strong>Im 
 <h1>Warning</h1><p><strong>addons for
@@ -585,8 +557,6 @@ Abspanntransformator
 Umspannwerk (Fabrik)
 Accelerate time
 Spielablauf beschleunigen
-Account above %s
-%s Kontostand
 Act. load: %u MW\n
 Verbrauch: %u MW\n
 Active player only
@@ -601,10 +571,10 @@ Add Stop
 Hinzufügen
 Add stops for backward travel
 Füge Stops für Rückfahrt hinzu
-Air
-Fluglinie
-air_wt
+air
 Roll-/Startbahn
+Aircraft
+Fluglinie
 aircraft_tab
 Frachtflugzeuge
 airplane
@@ -651,6 +621,8 @@ Aufspanntransformator
 Umspannwerk (Kraftwerk)
 auto
 automatisch
+Autohalt muss auf\nStrasse liegen!\n
+Autohalt muss auf\nStraße liegen!\n
 Available
 Verfügbar
 Available at custom date
@@ -679,8 +651,12 @@ Borderless (disabled on fullscreen)
 Bildschirmfüllend (Softwaremode)
 bridge is too high for its type!
 Tal ist zu tief für\ndiesen Brückentyp!\n
+Bridge is too long for this type!\n
+Diese Brücke hat nicht die\nbenötigte Spannweite!\n
 Bruecke
 Brücke
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Die Brücke muss an\neinem geraden\nHang beginnen!\n
 Brueckenboden
 Brücke
 Build air depot
@@ -849,8 +825,8 @@ Configure AI
 KI-Einstellungen
 Configure AI setttings
 Parameter für Computergegner anpassen
-Connect factory
-Industrieanlagen mit Verträgen verbinden
+Congratulation\nScenario was complete in\n%i months %i years.
+Glückwünsche\n\nDas Spielziel wurde in\n\n%i Monat(en) und %i Jahr(en)\n\nerreicht!\n
 Connected stops
 Haltestelle (mit dieser Fabrik verbunden):
 Connected with server
@@ -965,6 +941,8 @@ Destination
 Zielort
 Destroying map ...
 Kartenspeicher wird freigegeben ...
+Die Bruecke ist nicht frei!\n
+Die Brücke ist nicht frei!\n
 diesel
 Diesel
 directmail
@@ -975,6 +953,8 @@ disable midi
 Midi-Musik ausschalten
 Display bars above factory to show the status
 Zeigt über Fabriken deren Name, Warenmengen und Produktion an.
+Display settings
+Anzeigeoptionen
 Distance
 Strecke/Monat
 distributing cities
@@ -987,6 +967,8 @@ Dock
 Hafen
 Dock must be built on single slope!
 Ein Hafen muss an einem\ngeraden Ufer gebaut werden!\n
+Downloading
+Herunterladen
 dp_title
 Depotliste
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
@@ -1025,6 +1007,8 @@ Erzeuge neue Karte.\n
 Bitte warten,\nerzeuge neue\nKarte...\n\n (Kann bei großen\n Karten ein paar\n Minuten dauern.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
 Es wird bereits\nein Fahrplan\neingegeben!\n
+Extract files
+Packe Zip-Archiv aus.
 Fabrikanschluss
 -- Fabriken, mit dieser Haltestelle verbunden
 Factories
@@ -1133,12 +1117,8 @@ Has slope graphics
 auch auf Hanglagen
 Has Snow
 mit Schnee
-Headquarter and %li trains
-Firmensitz und %li Züge
 Helligk.
 Anzeige
-Helligk. u. Farben
-Anzeigeoptionen
 Help
 Hilfe
 Help text not found
@@ -1201,6 +1181,8 @@ hlf_chk_waren_annahme
 Nimmt an:
 hlf_title
 Haltestellenliste - Einstellungen
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Kein Heimdepot gefunden!\nÄndern Sie den\nFahrplan entsprechend\nmanuell.
 Homeless
 Obdachlos
 hydrogene
@@ -1222,9 +1204,9 @@ Industriegebäude
 Industry overlay
 Industriestatusanzeige
 Infinite mouse scrolling
-Funktioniert nicht mit manchen Touchpens!
+Unbegrenzte Kartenbewegung
 Infinite scrolling using mouse
-Unbegrenzte Mausbewegungen
+Funktioniert nicht mit manchen Touchpens!
 Init map ...
 Kartenfelder initialisieren ...
 Input
@@ -1237,6 +1219,8 @@ Install
 Installiere Paks
 Install graphics
 Grafikset hinzufügen
+Install paks
+Paksets werden heruntergeladen und installiert.
 Insufficient funds!
 Zu wenig Geld!
 Intercity road len:
@@ -1249,6 +1233,8 @@ invalid
 undefiniert
 Invalid coordinate
 ungültiger Eintrag
+Invert stops
+Reihenfolge umdrehen
 isometric map
 isometrische Anzeige
 January
@@ -1261,6 +1247,10 @@ Jump to
 Zentrieren auf
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Kann Spielstand\nnicht laden!\n
+Kann Spielstand\nnicht speichern.\n
+Kann Spielstand\nnicht speichern!\n
 Kein Besitzer\n
 kein Besitzer\n\n
 Keine Einzelfahrzeuge im Depot
@@ -1307,8 +1297,6 @@ letzen Monat: diesen Monat:
 letzten Monat: diesen Monat:
 Line
 Linie
-Line Filter
-Linienfilter
 Line Management
 Linienverwaltung
 line name mouseover tooltips
@@ -1347,6 +1335,8 @@ Loading paks ...
 Grafikset laden ...
 Loading skins ...
 eigene Skins laden ...
+Loading time:
+Voll Beladen in: 
 Lock game
 Karte gegen weiteren Spielerwechsel schützen.
 Lokomotive_tab
@@ -1373,6 +1363,8 @@ Maintenance
 Instandhaltung
 make stop public (or join with public stop next) costs %i per tile and level
 Erzeugen/verbinden mit öffentlichem Stop (%i$ pro Feld und Level)
+Make way or stop public (will join with neighbours), %i times maintainance
+In öffentliche Haltestelle umwandeln (mit Nachbarn verbinden), %i-fache Wartungskosten.
 Manual (Human)
 Mensch (keine KI)
 Manufactured:
@@ -1513,6 +1505,8 @@ no tree
 ohne Wälder
 No. of Factories
 Fabriken und Geschäfte
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Noch kein Fahrplan\nvorhanden!\n
 none
 keine
 nord
@@ -1523,6 +1517,8 @@ nordwest
 Nordwest
 Not allowed to make publicly owned ways!
 Das Bauen von Wegen der öffentlichen Hand ist nicht erlaubt.
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Nicht möglich!\nDer Fahrplan kann zur Zeit\nnicht geändert werden.\nVersuchen Sie es später\nnoch einmal!
 Not enough fields would remain.
 Um jeden Hof muss eine\nMindestanzahl von Feldern\nübrigbleiben.
 now
@@ -1545,6 +1541,8 @@ On mouseover
 Wenn unter Mauszeiger
 on the
 Abfahrten/Monat, erste am (TT:HH:MM)
+On this map, you are not\nallowed to change player!\n
+Spiel geschützt!\nSpielerwechsel ist auf dieser\nKarte nicht möglich.\n
 Only city chains
 Fabrikkette (Stadt) bauen
 Only first %d differing paks reported. There are probably more.
@@ -1669,6 +1667,8 @@ Produced
 Erzeugt
 Produces: %.1f units/minute
 Produziert %.1f Einheiten pro Minute
+Production of %s has been stopped:\n%s\n
+%s '%s'\nwird nicht mehr hergestellt.
 Production/Boost
 Produktionskennzahlen
 promote to line
@@ -1715,6 +1715,8 @@ remove powerlines
 Übertragungsleitung entfernen
 remove roads
 Straßenzug löschen
+remove signal
+Signal entfernen
 remove tracks
 Eisenbahnstrecken entfernen
 Remove wayobj %s
@@ -1739,6 +1741,8 @@ return ticket
 Rückfahrkarte
 Revenue
 Einnahmen
+Revert schedule
+Änderungen verwerfen
 Revision:
 Revision: 
 road
@@ -1777,6 +1781,8 @@ Scenario Result
 Spielstand
 Scenario Rules
 Regeln
+Scenario_
+Scenario 
 Schedule changing!
 Fahrplan geändert!
 Schiff_tab
@@ -1785,6 +1791,8 @@ Schleppkahn_tab
 Schleppkähne
 Screenshot
 Bildschirmfoto
+Scroll threshold
+Kartenbewegungstoleranz
 Search:
 Suche:
 Seasons
@@ -1856,11 +1864,13 @@ Gitternetz einblenden
 Show industry
 Industrieliste
 Show legend
-Auswahl
+Datenauswahl
 Show map scale
 Werteskala
 Show mismatched
 Zeige inkompatible
+Show networks
+Netzplan
 Show obsolete
 Auch veraltete zeigen
 Show offline
@@ -1889,6 +1899,10 @@ show/hide object owner
 Dinge in Besitzerfarbe anzeigen
 Show/hide statistics
 Zeige/verberge Statistik
+Shows buttons about networks overlay.
+Zeigt Transportnetzeinstellungen.
+Shows buttons on network overlay.
+Zeigt die Einstellungen für Netzpläne.
 Shows buttons on special topics.
 Zeigt Auswahlfelder z.B. für Benutzung oder Industrien.
 Shows consumer/suppliers for factories
@@ -1937,6 +1951,10 @@ Speedlimit
 Tempolimit
 Spieler(mz)
 Spieler
+Spielstand wurde\ngeladen!\n
+\nSpielstand wurde geladen!\n
+Spielstand wurde\ngespeichert!\n
+\nSpielstand wurde\ngespeichert!\n\n
 Sprachen
 Sprachauswahl
 Start
@@ -1979,8 +1997,6 @@ Supplied: %.0f %%
 Geliefert: %.0f %%
 Suppliers
 Lieferanten
-Supply %s at (%i,%i)
-Beliefere %s bei (%i,%i)
 The following graphics are unmaintained:
 Die folgenden Grafiksets werden nicht mehr betreut:
 The gradient does not fit a tunnel
@@ -2009,6 +2025,8 @@ Toggle vehicle tooltips
 Tooltips für Fahrzeuge umschalten
 tonnen
 t
+Toolbar position:
+Position der Menüleiste:
 Total inhabitants:
 Gesamtbevölkerung:
 Tourist attractions
@@ -2053,18 +2071,20 @@ transparencies
 Sichtbarkeit
 transparent station coverage
 transparente Stationsabdeckung
-Transport %li passengers
-Befördere %li Reisende
 Transported
 Beförderungen
 Trees disabled!
 Bäume ausgeschalten!
 TrolleyBus_tab
 Trolleybusse
+tropic
+Tropenklima
 Truck
 Straße
 tt_Other
 Sonstige
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Der Tunnel muss an\neinem Hang beginnen!\n
 Tunnel must start on single way!
@@ -2117,6 +2137,8 @@ verkaufen
 Verkaufen
 Verkehrsteilnehmer
 Stadtautos
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurückzuzahlen.\n
 vh_title
 Liste aller Fahrzeuge
 via %s\n
@@ -2225,6 +2247,12 @@ Fahrzeuge der Linie %s wurden ausgemustert
 #_________________________________tooltip_text__________________________________
 Add convois with similar schedule to this line.
 Finde Fahrzeuge mit gleichen Zielen und füge sie hinzu.
+Enter intervall in days, hours, minutes
+Zeitspanne in Tagen, Stunden und Minuten eingeben.
+Mirrors order of stops
+Reihenfolge der Halte invertieren.
+Revert to original schedule
+Alle Änderung des Fahrplans zurücknehmen.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

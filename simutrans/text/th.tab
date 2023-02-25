@@ -12,7 +12,7 @@ cyr.bdf
 #                               Language: th Thai                              #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -27,18 +27,6 @@ cl_btn_sort_type
 #_________________________________climates_text_________________________________
 arctic
 ภูมิอากาศหนาว
-#__________________________________error_text___________________________________
-#__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-จุดรับส่งผู้โดยสารนี้\nต้องสร้างบนถนนเท่านั้น
-Bridge is too long for this type!\n
-ไม่สามารถสร้างสะพานได้\nระยะทางไกลเกินไป
-Bruecke muss an\neinfachem\nHang beginnen!\n
-สร้างสะพานด้วยแนวตรงเท่านั้น!
-#_________________________________message_text__________________________________
-#_________________________________message_text__________________________________
-Bankrott:\n\nDu bist bankrott.\n
-ล้มละลาย:\n\nคุณล้มละลายแล้ว!\n\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 allowed climates:\n
@@ -69,10 +57,14 @@ Aufspanntransformator
 สถานีจ่ายไฟฟ้าย่อย
 August
 สิงหาคม
+Autohalt muss auf\nStrasse liegen!\n
+จุดรับส่งผู้โดยสารนี้\nต้องสร้างบนถนนเท่านั้น
 Available
 หาได้
 Bahndepot
 โรงซ่อมรถไฟ
+Bankrott:\n\nDu bist bankrott.\n
+ล้มละลาย:\n\nคุณล้มละลายแล้ว!\n\n
 battery
 แบตเตอร์รี่
 Baum
@@ -101,8 +93,12 @@ Bonusspeed: %i km/h
 ใช้ความเร็วสูงสุด: %i km/h
 bridge is too high for its type!
 สะพานสูงเกินไป
+Bridge is too long for this type!\n
+ไม่สามารถสร้างสะพานได้\nระยะทางไกลเกินไป
 Bruecke
 สะพาน
+Bruecke muss an\neinfachem\nHang beginnen!\n
+สร้างสะพานด้วยแนวตรงเท่านั้น!
 Brueckenboden
 สะพาน
 Build air depot

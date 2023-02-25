@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: frp Arpitan                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,14 +91,8 @@ rocky
 climâ montanyârd
 temperate
 climâ tempèrâ
-tropic
-climâ tropicâl
-tundra
-climâ de tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Bridge is too long for this type!\n
-Cèti pont est trop long por son tipo.
 Cannot built depot here!
 Impossiblo de consture\nun dèpot iqui.
 Cannot built this station/building\nin underground mode here.
@@ -107,14 +101,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Pas possiblo de\n\nconstrure d'aèropôrt iqui.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Pas possiblo de\nconstrure de sinyâl iqui.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Impossiblo de trovar lo dèpô.\nVos devéds i mandar\nlo vèyiclo manuèlment.
 In order to lock the game, you have to protect the public player by password!
 Pèr vèrrolyér la partia, vos devéds protègér lo joyòr avoèc un contresìnyo!
-Kann Spielstand\nnicht laden.\n
-Impossiblo d'ovrir\nlo document enrègistrâ!\n
-Kann Spielstand\nnicht speichern.\n
-Impossiblo d'èhcrire\ndiens lo document enregistrâ!\n
 #___________________________________help_text___________________________________
 #___________________________________help_text___________________________________
 Highlight railroad tracks
@@ -129,10 +117,6 @@ Highlite forests
 Jors salyentes
 Increase water height
 Ôgmentar l'égua d'un nivél
-#_________________________________message_text__________________________________
-#_________________________________message_text__________________________________
-Bankrott:\n\nDu bist bankrott.\n
-Bancarota:\n\n\nVos êtes en falyita!\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -171,6 +155,8 @@ Available
 Disponiblo
 Bahndepot
 Depot fèrrovièro
+Bankrott:\n\nDu bist bankrott.\n
+Bancarota:\n\n\nVos êtes en falyita!\n
 battery
 Bateria
 Baum
@@ -197,6 +183,8 @@ Boost (%)
 Ôgmentar la productivitâ
 bridge is too high for its type!
 Cèti pont est trop yôt por son tipo!
+Bridge is too long for this type!\n
+Cèti pont est trop long por son tipo.
 Bruecke
 Pont
 Brueckenboden
@@ -331,6 +319,8 @@ December
 Dècembro
 Depots
 Dèpots
+Display settings
+Règllâjo d'afichâjo
 Dock
 Pôrt
 electric
@@ -421,12 +411,8 @@ Happy
 Content
 Haus kaufen
 Achetar la mêson
-Headquarter and %li trains
-Oficina centrâla e %li trens
 Helligk.
 Afichâjo
-Helligk. u. Farben
-Règllâjo d'afichâjo
 Help
 Èda
 Help text not found
@@ -483,6 +469,8 @@ hlf_chk_waren_annahme
 Matiére premiéra:
 hlf_title
 Filtro de nom de stacion
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Impossiblo de trovar lo dèpô.\nVos devéds i mandar\nlo vèyiclo manuèlment.
 Homeless
 Galapian
 hydrogene
@@ -523,6 +511,10 @@ Jump to
 Alar a
 June
 Joen
+Kann Spielstand\nnicht laden.\n
+Impossiblo d'ovrir\nlo document enrègistrâ!\n
+Kann Spielstand\nnicht speichern.\n
+Impossiblo d'èhcrire\ndiens lo document enregistrâ!\n
 Kein Besitzer\n
 Sens propriètèro\n
 keine
@@ -583,3 +575,7 @@ Start
 Dèpârt
 Starte Spiel
 Comencér
+tropic
+climâ tropicâl
+tundra
+climâ de tundra

@@ -12,11 +12,17 @@ prop-latin2.fnt
 #                            Language: sk Slovencina                           #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+Absolute times
+Zobraz èas ako den:hh:mm mesiaca
+AMBIENT_SOUND
+zvuky okolia
+CASH_SOUND
+zvuk pokladne
 cl_btn_filter_disable
 Vypnutý
 cl_btn_filter_enable
@@ -89,20 +95,10 @@ rocky
 alpská klíma
 temperate
 Mierne podnebie
-tropic
-Tropické podnebie
-tundra
-Polárne podnebie
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Nahranie scenára sa nepodarilo
-Autohalt muss auf\nStrasse liegen!\n
-Zastávka musí by»\numiestnená na ceste.
-Bridge is too long for this type!\n
-Tento typ mostu\nnemô¾e by» tak dlhý.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Most mô¾e byt' postavený\nlen na rovnom kopci !\n
 Cannot built depot here!
 Tu nemô¾e¹ postavi» depo.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
@@ -113,20 +109,12 @@ Das Feld gehoert\neinem anderen Spieler\n
 Toto políèko patrí inému hráèovi !\n
 Der Besitzer erlaubt das Entfernen nicht
 Majiteµ Ti to nedovolí\nzbúrat.\n
-Der Tunnel ist nicht frei!\n
-Tunel nie je voµný !
 Flugzeughalt muss auf\nRunway liegen!\n
 Stojánka musí by»\nna rolovacej ploche.
 Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Tu nemô¾e¹ postavi»\nleti¹tnú budovu.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Tu nemô¾e¹ postavit'\n¾iadny signalizátor !\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depo nebolo nájdené!\nKonvoj treba poslat'\ndo depa manuálne.
-Kann Spielstand\nnicht laden.\n
-Nemô¾em naèítat' hru !\n
-Kann Spielstand\nnicht speichern.\n
-Nemô¾em ulo¾it' hru !\n
 Monorailhalt muss auf\nMonorail liegen!\n
 Stanica visutej ¾eleznice\nmusí by» na trati.
 Monorails are not available yet!
@@ -137,10 +125,6 @@ No suitable way on the ground!
 Nevhodný úsek pre stavbu stanice alebo zastávky!
 No through station here!
 Tu nie je mo¾né postavi» stanicu/zastávku.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Nemá¹ ¾iadny\ncestovný poriadok!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Odopreté!\nCestovný poriadok nemô¾e\nbyt' teraz zmenený.\nVyskú¹ajte neskôr !
 Not enough money!
 Nedostatok peòazí\nna stavbu.
 On narrowgauge track only!\n
@@ -201,12 +185,6 @@ TRAMTOOLS
 Elektrièková doprava
 #_________________________________message_text__________________________________
 #_________________________________message_text__________________________________
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Mesto %s\npostavilo\nnovú radnicu,\nkeï dosiahlo\n%i obyvateµov.
-Bankrott:\n\nDu bist bankrott.\n
-Bankrot:\n\nZbankrotoval si.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Gratulácia!\n\nScenár bol úspe¹ne uhraný za %i mesiace(ov) a %i rok(y)
 New %s now available:\n%s\n
 Bola zahájená sériová výroba %s\n'%s'\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
@@ -215,22 +193,12 @@ New vehicle now available:\n%s\n
 Je dostupné nové vozidlo:\n>> %s <<\n
 Now %u clients connected.
 Práve je pøipojených %u hráèov.
-On this map, you are not\nallowed to change player!\n
-V tejto hre\nnemô¾ete hra»\nza iného hráèa!\n
-Production of %s has been stopped:\n%s\n
-Výroba %s\n'%s'\nbola ukonèená.\n
 Remove vehicle from map. Use with care!
 Odstránenie vozidla z mapy. Pou¾íva» opatrne!
 Screenshot\ngespeichert.\n
 Screenshot ulo¾ený.\n
 Sends the convoi to the last depot it departed from!
 Posla» celý konvoj do nabli¾¹ieho depa !
-Spielstand wurde\ngeladen!\n
-Hra bola naèítaná !\n
-Spielstand wurde\ngespeichert!\n
-Hra bola ulo¾ená !\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Má¹ %d mesiace\nna splatenie dlhov.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 S veµkou parádou\nodhalilo mesto %s\nnovú atrakciu.\n%i obyvateµov oslavuje.
 #_________________________________program_text__________________________________
@@ -277,6 +245,8 @@ S veµkou parádou\nodhalilo mesto %s\nnovú atrakciu.\n%i obyvateµov oslavuje.
 Vozidlo ,,%s'' pri¹lo do depa.
 %s land %d %s
 %s pozemok %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+Mesto %s\npostavilo\nnovú radnicu,\nkeï dosiahlo\n%i obyvateµov.
 %s\nis crowded.
 Zastávka ,,%s'' je pret'a¾ená
 <no line>
@@ -359,10 +329,14 @@ Assets
 Majetok
 Aufloesen
 Rozpoji»
+Autohalt muss auf\nStrasse liegen!\n
+Zastávka musí by»\numiestnená na ceste.
 Available
 K dispozícii
 Bahndepot
 ®eleznièné depo
+Bankrott:\n\nDu bist bankrott.\n
+Bankrot:\n\nZbankrotoval si.\n
 Baum
 Strom
 baum builder
@@ -383,8 +357,12 @@ Boden
 Krajina
 bridge is too high for its type!
 Tento typ mostu nemô¾e stá» tak vysoko.
+Bridge is too long for this type!\n
+Tento typ mostu\nnemô¾e by» tak dlhý.\n
 Bruecke
 Most
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Most mô¾e byt' postavený\nlen na rovnom kopci !\n
 Brueckenboden
 most
 build choosesignals
@@ -503,8 +481,8 @@ Comparing pak files ...
 Porovnávanie *.pak súborov ...
 Configure AI
 Nastavi» umelú inteligenciu
-Connect factory
-Prepojenie tovární
+Congratulation\nScenario was complete in\n%i months %i years.
+Gratulácia!\n\nScenár bol úspe¹ne uhraný za %i mesiace(ov) a %i rok(y)
 Connected stops
 Zastávky v dosahu:
 Connected with server
@@ -559,12 +537,16 @@ Departed
 Odvezené
 Depots
 Depá
+Der Tunnel ist nicht frei!\n
+Tunel nie je voµný !
 Destination
 Cieµ urèenia
 Details
 Detaily
 Direkt erreichbare Haltestellen
 Priame spojenia
+Display settings
+Obrazovka :
 Dock
 Dok 
 Dock must be built on single slope!
@@ -687,8 +669,6 @@ Haus kaufen
 Kúpi» dom
 Helligk.
 Obraz
-Helligk. u. Farben
-Obrazovka :
 Help
 Nápoveda
 Help text not found
@@ -733,6 +713,8 @@ hlf_chk_waren_annahme
 Akcept.cena:
 hlf_title
 Filter staníc:
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depo nebolo nájdené!\nKonvoj treba poslat'\ndo depa manuálne.
 Homeless
 Bývanie hµadá
 hydrogene
@@ -761,6 +743,10 @@ July
 Júl
 June
 Jún
+Kann Spielstand\nnicht laden.\n
+Nemô¾em naèítat' hru !\n
+Kann Spielstand\nnicht speichern.\n
+Nemô¾em ulo¾it' hru !\n
 Kein Besitzer\n
 Bez majiteµa\n
 keine
@@ -963,6 +949,8 @@ no tree
 bez stromov
 No. of Factories
 Poèet tovární a obchodov:
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Nemá¹ ¾iadny\ncestovný poriadok!\n
 none
 niè
 nord
@@ -971,6 +959,8 @@ nordost
 Severovýchod
 nordwest
 Severozápad
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Odopreté!\nCestovný poriadok nemô¾e\nbyt' teraz zmenený.\nVyskú¹ajte neskôr !
 Not enough fields would remain.
 Okolo tejto farmy zostáva\nmálo políèok.
 Now active as %s.\n
@@ -987,6 +977,8 @@ Oktober
 Október
 On loan since %i month(s)
 Poèet mesiacov na splatenie dlhov: %i
+On this map, you are not\nallowed to change player!\n
+V tejto hre\nnemô¾ete hra»\nza iného hráèa!\n
 Only city chains
 Postavi» mestský priemysel
 Only first %d differing paks reported. There are probably more.
@@ -1055,6 +1047,8 @@ Power:
 Výkon:
 Powerlines
 El. vedenie
+Production of %s has been stopped:\n%s\n
+Výroba %s\n'%s'\nbola ukonèená.\n
 Produktion
 Produkcia
 Profit
@@ -1195,6 +1189,10 @@ Spieler(mz)
 Konkurencia
 Spielerliste
 Zoznam hráèov
+Spielstand wurde\ngeladen!\n
+Hra bola naèítaná !\n
+Spielstand wurde\ngespeichert!\n
+Hra bola ulo¾ená !\n
 Sprache
 Jazyk
 Sprachen
@@ -1293,14 +1291,16 @@ Translation
 Preklad
 transparent station coverage
 Priehµadné sp. územie stanice
-Transport %li passengers
-Prepravte %li cestujúcich!
 Transported
 Odvezení
 TrolleyBus_tab
 Trolejbusy
+tropic
+Tropické podnebie
 Truck
 Automobily
+tundra
+Polárne podnebie
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunel musí zaèínat'\nna úpätí kopca !\n
 Tunnel must start on single way!
@@ -1347,6 +1347,8 @@ verkaufen
 Vyradi»
 Verkehrsteilnehmer
 Osobné autá
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Má¹ %d mesiace\nna splatenie dlhov.\n
 vh_title
 Katalóg vozidiel
 via

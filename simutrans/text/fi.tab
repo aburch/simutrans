@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: fi Suomi                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -83,18 +83,8 @@ rocky
 alppi-ilmasto
 temperate
 lämmin ilmasto
-tropic
-troopp. ilmasto
-tundra
-tundrailmasto
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Pysäkki täytyy asettaa tielle!
-Bridge is too long for this type!\n
-Silta on liian\npitkä! 
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Sillan täytyy\nalkaa mäestä.\n
 Cannot built depot here!
 Et voi rakentaa tallia tähän.
 Cannot built this station/building\nin underground mode here.
@@ -109,10 +99,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Maa on toisen\npelaajan omistuksessa.\n 
 Der Besitzer erlaubt das Entfernen nicht
 Omistaja ei salli\ntehdä tätä.\n
-Der Tunnel ist nicht frei!\n
-Tunneli ei ole tyhjä.\n
-Die Bruecke ist nicht frei!\n
-Silta ei ole vapaa.
 Diese Zusammenstellung kann nicht fahren!\n
 Tämä yhdistelmä\nei toimi.\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -121,12 +107,6 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Tätä lentokenttärakennusta\n\nei voi rakentaa tähän!
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Rautatieopastinta\nei voi rakentaa\ntähän.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Sopivaa tallia ei löydy.\nSinun täytyy lähettää\najonevo talliin manuaalisesti.
-Kann Spielstand\nnicht laden.\n
-Tallennetun pelin\nlataus epäonnistui.\n
-Kann Spielstand\nnicht speichern.\n
-Tallennus epäonnistui.\n
 Lost connection\nto server!
 Palvelin ei vastaa!
 Lost synchronisation\nwith server.
@@ -141,10 +121,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Kapearaidepysäkin oltava kapeariteisella raiteella.
 No through station here!
 Et voi rakentaa asemaa tähän!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Aseta kuljetusvälineelle\nensin reitti.\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Ei sallittu!\nEt voi muuttaa \nkulkuneuvon reittiä \njuuri nyt. \nYritä myöhemmin uudestaan.
 Not enough money!
 Sinulla ei ole tarpeeksi varoja tämän rakentamiseen!
 On narrowgauge track only!\n
@@ -209,12 +185,6 @@ Raitiovaunu
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s on rakentanut uuden pääkonttorin.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s rakensi\nuuden kaupungintalon\nsaavuttaessaan %i\nasukkaan rajan.
-Bankrott:\n\nDu bist bankrott.\n
-\n\nYhtiösi on tehnyt konkurssin.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Onnittelut!\nSkenaario selvitetty\n%i kuukaudessa ja %i vuodessa.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Talouskasvu kiihtyy:\n%s laajentaa tuotantoa\nkaupungin %s alueella.\n%i uutta tehdasta perustettiin.
 New %s now available:\n%s\n
@@ -223,22 +193,12 @@ New factory chain\nfor %s near\n%s built with\n%i factories.
 Uusi %s on\n alihankkijoineen avattu\nkaupungin %s\nlähellä, %i uutta tehdasta\n rakennettiin.
 New vehicle now available:\n%s\n
 \n Uusi kulkuneuvo on käytettävissä:\n\n\n Â» %s Â«\n\n
-On this map, you are not\nallowed to change player!\n
-Peli lukittu!\nEt voi vaihtaa pelaajaa!\n
-Production of %s has been stopped:\n%s\n
-%s %s on poistunut tuotannosta.\n
 Remove vehicle from map. Use with care!
 Poista kulj.väline. (Käytä varoen!)
 Screenshot\ngespeichert.\n
 Kuvankaappaus\ntallennettu.\n
 Sends the convoi to the last depot it departed from!
 Lähettää kulkuneuvon lähimpään talliin.
-Spielstand wurde\ngeladen!\n
-\nPeli ladattu.\n
-Spielstand wurde\ngespeichert!\n
-\nPeli tallennettu.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Yhtiölläsi on velkoja!\n\nSinulla on %d kuukautta\naikaa maksaa velkasi.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s rakensi uuden\nmuistomerkin. %i asukasta\nvietti kotiseudustaan ylpeänä\nansaittua vapaapäivää.
 #_________________________________program_text__________________________________
@@ -297,14 +257,14 @@ Tien 2 varannut\nTien 2 varannut
 %s on tallissa.
 %s land %d %s
 %s maa %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s rakensi\nuuden kaupungintalon\nsaavuttaessaan %i\nasukkaan rajan.
 %s\nis crowded.
 %s\on ruuhkainen.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
 %s\nnopeus %i\nmax. nopeus %i\ndx:%i dy:%i
 %s\nwas liquidated.
 %s\non lakkautettu.
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <no line>
 <ei linjaa>
 1 convoi
@@ -347,8 +307,6 @@ Absenken
 Laske maata
 Accelerate time
 Nopeuta aikaa
-Account above %s
-Tilillä yli %s
 Active player only
 Vain aktiivinen pelaaja
 Add forest
@@ -359,7 +317,7 @@ Add Stop
 Lisää pysäkki
 Add stops for backward travel
 Lisää pysäkkejä paluumatkalle
-air_wt
+air
 kiitorata/rullausalue
 aircraft_tab
 Rahtikoneet
@@ -405,10 +363,14 @@ Aufloesen
 Pura
 August
 elokuu
+Autohalt muss auf\nStrasse liegen!\n
+Pysäkki täytyy asettaa tielle!
 Available
 Saatavilla
 Bahndepot
 Veturitalli
+Bankrott:\n\nDu bist bankrott.\n
+\n\nYhtiösi on tehnyt konkurssin.\n
 battery
 akku
 Baum
@@ -433,8 +395,12 @@ Boden
 Maa
 bridge is too high for its type!
 Silta on liian korkea.
+Bridge is too long for this type!\n
+Silta on liian\npitkä! 
 Bruecke
 Silta
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Sillan täytyy\nalkaa mäestä.\n
 Brueckenboden
 silta
 Build air depot
@@ -544,7 +510,7 @@ Maglev-junat
 clf_chk_monorail
 Yksiraidejunat
 clf_chk_name_filter
-Suod. Nimi:
+Suodata nimet:
 clf_chk_narrowgauge
 Kapearaidejunat
 clf_chk_noincome
@@ -579,8 +545,8 @@ COLOR_CHOOSE\n
 Valitse yhtiöllesi\nväriteema:\n
 Company bankrupt
 Yhtiö vararikossa
-Connect factory
-Yhdistä tehtaita
+Congratulation\nScenario was complete in\n%i months %i years.
+Onnittelut!\nSkenaario selvitetty\n%i kuukaudessa ja %i vuodessa.
 Connected stops
 Yhdist. pysäkit
 Constructed by
@@ -645,14 +611,20 @@ Departed
 Lähtenyt
 Depots
 Tallit
+Der Tunnel ist nicht frei!\n
+Tunneli ei ole tyhjä.\n
 Destination
 Määränpää
 Details
 Lisätiedot
+Die Bruecke ist nicht frei!\n
+Silta ei ole vapaa.
 Direkt erreichbare Haltestellen
 Suorat yhteydet asemille
 disable midi
 Mykistä midi-musiikki
+Display settings
+Näytön asetukset
 Distance
 Matka
 Dock
@@ -684,9 +656,9 @@ Sähköistä rata
 enlarge map
 Suurenna karttaa
 enter a value between %i and %i
-Syötä arvo väliltä %i - %i.
+Syötä arvo %i:n ja %i:n väliltä
 Error
-Virhe!
+Virhe
 Erzeuge neue Karte.\n
 Odota, uutta karttaa\nluodaan.\n\nTämä saattaa kestää\nmuutaman minuutin\nisoilla kartoilla.\n
 Es wird bereits\nein Fahrplan\neingegeben\n
@@ -799,12 +771,8 @@ Happy
 Tyytyväisiä
 Haus kaufen
 Osta talo
-Headquarter and %li trains
-Pääkonttori ja %li junaa
 Helligk.
 Näyttö
-Helligk. u. Farben
-Näytön asetukset
 Help
 Ohje
 Help text not found
@@ -844,7 +812,7 @@ Maglev-pysäkki
 hlf_chk_monorailstop
 Yksiraidepysäkki
 hlf_chk_name_filter
-Suod. Nimi:
+Suodata nimet:
 hlf_chk_narrowgaugestop
 Kapearaideasema
 hlf_chk_overflow
@@ -854,13 +822,15 @@ Erik. suod.:
 hlf_chk_tramstop
 Raitiovaunupysäkki
 hlf_chk_type_filter
-Suod. tyyppi:
+Suodata tyypit:
 hlf_chk_waren_abgabe
 Tuotanto:
 hlf_chk_waren_annahme
 Tavaran tarve:
 hlf_title
 Pysäkkilistan suodatus
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Sopivaa tallia ei löydy.\nSinun täytyy lähettää\najonevo talliin manuaalisesti.
 Homeless
 Kodittomia
 hydrogene
@@ -901,6 +871,10 @@ Jump to
 Siirry kohteeseen 
 June
 kesäkuu
+Kann Spielstand\nnicht laden.\n
+Tallennetun pelin\nlataus epäonnistui.\n
+Kann Spielstand\nnicht speichern.\n
+Tallennus epäonnistui.\n
 Kein Besitzer\n
 Ei omistajaa\n
 keine
@@ -976,7 +950,7 @@ Ladataan grafiikoita...
 Loading skins ...
 Ladataan käyttöliittymää...
 Lock game
-Estä pelaajan vaihto
+Estä pelaajan vaihto (edellyttää vahvistusta)
 Lokomotive_tab
 Veturit
 m3
@@ -1028,7 +1002,7 @@ Viesti
 Menge
 Määrä
 MessageOptionsText
-\nUusi vuosi\n\nAI-uutiset\n\nKaupunkiuutiset\n\nEi reittiä\n\nUusia yrityksiä\n\nJutella\n\nUusia ajoneuvoja\n\nAsema täynnä\n\nOngelmia\n\nTraffic jams\n\nScenario
+\nUusi vuosi\n\nPelaajauutiset\n\nKaupunkiuutiset\n\nEi reittiä\n\nUudet yritykset\n\nChat\n\nUudet ajoneuvot\n\nAsema täynnä\n\nOngelmat\n\nRuuhkat\n\nSkenaario
 minimum length of rivers
 Jokien min.pituus
 Modify the selected line
@@ -1086,7 +1060,7 @@ Uusi kuljetusväline
 New Line
 Uusi linja
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-Uusi linja on luotu\nVoit laittaa sille kulkuneuvoja\nvalitsemalla se\nlinja valikosta yläreunassa.
+Uusi linja on luotu.\nVoit liittää sen kulkuneuvoon\nvalitsemalla sen\nlinjavalikosta yläreunassa.
 New Vehicles
 Uudet kulj.välineet
 no buildings hidden
@@ -1111,6 +1085,8 @@ no timeline
 Ei aikalinjaa
 no tree
 Ei puita
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Aseta kuljetusvälineelle\nensin reitti.\n
 none
 ei mitään
 nord
@@ -1119,6 +1095,8 @@ nordost
 Koillinen
 nordwest
 Luode
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Ei sallittu!\nEt voi muuttaa \nkulkuneuvon reittiä \njuuri nyt. \nYritä myöhemmin uudestaan.
 Not enough fields would remain.
 Maatilan ympärille ei jäisi\ntarpeeksi peltoja.
 November
@@ -1135,6 +1113,8 @@ Oktober
 lokakuu
 On loan since %i month(s)
 Veloissa %i kuukauden ajan
+On this map, you are not\nallowed to change player!\n
+Peli lukittu!\nEt voi vaihtaa pelaajaa!\n
 Only city chains
 Vain kaupunkiketjut
 Only land chains
@@ -1225,6 +1205,8 @@ Power:
 Teho:
 Powerlines
 Voimalinjat
+Production of %s has been stopped:\n%s\n
+%s %s on poistunut tuotannosta.\n
 Produktion
 Tuotanto
 Profit
@@ -1332,9 +1314,11 @@ Myy valitut kulkuneuvot.
 sended
 Läht. posti
 SEP_FRACTION
-.
+,
 SEP_THOUSAND
- 
+.
+SEP_THOUSAND_EXPONENT
+3
 September
 syyskuu
 Server did not respond!
@@ -1417,6 +1401,10 @@ Spieler(mz)
 Pelaajat
 Spielerliste
 Pelaajalista
+Spielstand wurde\ngeladen!\n
+\nPeli ladattu.\n
+Spielstand wurde\ngespeichert!\n
+\nPeli tallennettu.\n
 Sprache
 Kieli
 Sprachen
@@ -1448,15 +1436,13 @@ raitiovaunu
 sued
 etelä
 suedost
-luode
+kaakko
 suedwest
 lounas
 Summer snowline
 Lumiraja kesällä
 Suppliers
 Alihankkijat
-Supply %s at (%i,%i)
-Alihankkija %s (%i,%i)
 Tage alt
 päivää vanha.
 There are still vehicles\nstored in this depot!\n
@@ -1519,14 +1505,16 @@ Translation
 Käännös
 transparent station coverage
 Läpinäkyvä asemien peittävyys
-Transport %li passengers
-Kuljeta %li matkustajaa
 Transported
 Kuljetettu
 TrolleyBus_tab
 Johdinautot
+tropic
+troopp. ilmasto
 Truck
 Rekka
+tundra
+tundrailmasto
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnelin täytyy\nalkaa mäestä.\n
 Tunnel must start on single way!
@@ -1538,7 +1526,7 @@ Maanalainen näkymä
 UNDO failed!
 Et voi perua enää.\nReitin rakentamisen voi perua\nvain, jos reitille ei ole\nrakennettu osoittimia,\nasemia, pysäkkejä tai\nmitään muutakaan.
 Undo last ways construction
-Peruuttaa edellisen rakennustyön.
+Peruuta edellinen tien-/radanrakennustyö
 Unemployed
 Työttömiä
 Unhappy
@@ -1567,6 +1555,8 @@ verkaufen
 Myy
 Verkehrsteilnehmer
 Henkilöautoja
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Yhtiölläsi on velkoja!\n\nSinulla on %d kuukautta\naikaa maksaa velkasi.\n
 via
 Kautta
 via %s\n

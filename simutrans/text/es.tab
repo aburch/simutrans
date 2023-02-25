@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -145,22 +145,12 @@ rocky
 Alpino
 temperate
 Templado
-tropic
-Tropical
-tundra
-Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 ¡No se ha podido cargar\nel script del escenario!\n
-Autohalt muss auf\nStrasse liegen!\n
-¡Las paradas de autobús/camión deben situarse en la carretera!
 Bridge blocked by way below or above.
-Puente bloqueado por debajo o por encima.
-Bridge is too long for this type!\n
-¡El tramo de puente es\n demasiado largo para\n este tipo de puente!
-Bruecke muss an\neinfachem\nHang beginnen!\n
-¡El puente debe\nempezar en una\npendiente recta!\n
+Puente obstruído por otra vía debajo o encima.
 Can't buy obsolete vehicles!
 ¡No se pueden comprar vehículos obsoletos! 
 Cannot alter water
@@ -170,7 +160,9 @@ Cannot build on a double slope!
 Cannot built depot here!
 ¡Aquí no se puede construir un depósito!
 Cannot built this station/building\nin underground mode here.
-El edificio/estación no se puede\nconstruir aquí en modo subterráneo.
+El edificio/estación no se puede construir bajo la superficie.
+Cannot connect to the\ncenter of a double slope!
+¡No se puede conectar a la\nmitad de una pendiente doble!
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 ¡No se puede crear una línea genérica!\nSeleccione el tipo de línea\nutilizando las pestañas de filtro.
 Cannot create socket
@@ -189,10 +181,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 ¡Esta parcela\nes propiedad\nde otro jugador!\n
 Der Besitzer erlaubt das Entfernen nicht
 El propietario no da\npermiso para\neliminarlo.\n
-Der Tunnel ist nicht frei!\n
-¡El túnel no está vacío!\n
-Die Bruecke ist nicht frei!\n
-¡El puente no está libre!\n
 Diese Zusammenstellung kann nicht fahren!\n
 ¡Esta combinación\nno puede arrancar!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -201,14 +189,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 No puedes construir\nun aeropuerto aquí.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 No puedes colocar\n señales de tren aquí\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-No se encuentra el depósito.\nDebes enviar manualmente\nel convoy al depósito.
 In order to lock the game, you have to protect the public player by password!
 ¡Para proteger la partida debe crear una contraseña para el jugador Servicio Público!
-Kann Spielstand\nnicht laden.\n
-¡Imposible leer/abrir\nla partida guardada!\n
-Kann Spielstand\nnicht speichern.\n
-¡Imposible abrir\nel achivo para\nguardar!\n
 Loading a new game will end the current server session!
 ¡Cargar un juego nuevo finalizará la sesión actual del servidor!
 Lost connection\nto server!
@@ -227,14 +209,14 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 ¡La estación debe estar en una vía estrecha!
 No bridges over runways!
 ¡No se puede construir un puente sobre una pista de aterrizaje!
+No curves on runways
+¡Las pistas de aterrizaje no pueden tener curvas!
+No suitable crossing
+¡No es un cruce adecuado! (¿La velocidad máxima es demasiado alta?)
 No suitable way on the ground!
 ¡Las estaciones deben construirse sobre una superfície plana!
 No through station here!
 ¡Sin estación intermedia aquí!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-¡Asigna una ruta\nal vehículo antes\nde darle la orden\nde partida!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-¡No está permitido!\nLa línea ferroviaria no puede\ncambiarse ahora.\nPruebe más tarde.
 Not enough bytes transferred
 No se transmitieron bytes suficientes.
 Not enough clearance.
@@ -269,6 +251,8 @@ Terraforming not possible\nhere in underground view
 No es posible modificar el\nterreno en modo subterráneo.\n
 This tunnel branches. You can try Control+Click to remove.
 Este túnel tiene más de 2 entradas. Puede probar Ctrl+clic para eliminar este túnel.
+Too far away to merge stations!
+¡Demasiado lejos para fusionar las paradas!
 Upgrade must have\na higher level
 La actualización debe tener\nun nivel superior.
 Vehicle %s cannot choose because stop too short!
@@ -280,7 +264,7 @@ Zughalt muss auf\nSchiene liegen!\n
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
 <title>Ayuda</title><h1>Índice</h1><p><it>Acerca de Simutrans</it></p>%1$s<p><it>Cómo usar</it></p>%2$s<p><it>Cómo empezar una partida</it></p>%4$s<p><it>Cómo jugar</it></p>%5$s<p><it>Herramientas</it></p>%3$s<p><it>Otras ventanas</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Atajos de Teclado</title>\n<h1><strong>Ayuda de Teclado</strong></h1>\n<p>\n<p><strong>Ayuda de Teclado</strong> Se abre cuando una tecla sin asignar es presionada.\n</p>\n<p>\nSe distingue entre mayúsculas y minúsculas (usa [<em>Mayús</em>] para teclas mayúsculas).\n</p>\n<p>\nLas teclas con funciones asognadas incluyen:\n</p>\n<p>\n[<em>Teclas de dirección</em>]: Mueven la cámara del juego en dirección de la flecha.<br>\n[<em>Retroceso</em>]: Cierra todas las ventanas, barras de herramientas, y textos de ayuda.<br>\n[<em>Suprimir</em>], o [<em>Escape</em>]: Cierra la ventana superior, barra de herramientas, o texto de ayuda.<br>\n[<em>AvPág</em>], o [<em>Símbolo de mayor que</em>]: Acercar la cámara.<br>\n[<em>RePág</em>], o [<em>Símbolo de menor que</em>]: Aleja la cámara.\n[<em>CTRL</em>] + herramienta: construye vías rectas (incluso sobre vías más rápidas), o selección inversa durante inspección o eliminación.<br>\n</p>
+<title>Atajos de Teclado</title>\n<h1><strong>Ayuda de Teclado</strong></h1>\n<p>\n<p><strong>Ayuda de Teclado</strong> Se abre cuando una tecla sin asignar es presionada.\n</p>\n<p>\nSe distingue entre mayúsculas y minúsculas (usa [<em>Mayús</em>] para teclas mayúsculas).\n</p>\n<p>\nLas teclas con funciones asognadas incluyen:\n</p>\n<p>\n[<em>Teclas de dirección</em>]: Mueven la cámara del juego en dirección de la flecha.<br>\n[<em>Retroceso</em>]: Cierra todas las ventanas, barras de herramientas, y textos de ayuda.<br>\n[<em>Suprimir</em>], o [<em>Escape</em>]: Cierra la ventana superior, barra de herramientas, o texto de ayuda.<br>\n[<em>AvPág</em>], o [<em>&gt;</em>]: Acercar la cámara.<br>\n[<em>RePág</em>], o [<em>&lt;</em>]: Aleja la cámara.\n[<em>CTRL</em>] + herramienta: construye vías rectas (incluso sobre vías más rápidas), o selección inversa durante inspección o eliminación.<br>\n</p>
 At least one stop is connected to the town.
 Al menos una parada está conectada a la ciudad.
 At least one tile is connected to one stop.
@@ -319,8 +303,8 @@ Please click on the map to add\nwaypoints or stops to this\nschedule.
 Pulse sobre el mapa\npara añadir puntos de ruta o paradas\na al itinerario.
 Remove double stops from schedule
 Eliminar paradas duplicadas del itinerario
-Set tile climate
-Ajustar el clima de la casilla
+Set tile climate %s
+Ajustar el clima de la casilla %s
 Show capacity and if halt is overcrowded
 Mostrar capacidad y estaciones llenas
 Show how many convoi reach a station
@@ -393,16 +377,8 @@ Herramientas de Tranvía/Tren Ligero
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ha construido una nueva sede
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s derrochó su dinero en un\nnuevo ayuntamiento\ncuando se alcanzaron los\n%i habitantes.
-Bankrott:\n\nDu bist bankrott.\n
-Bancarrota:\n\nEstás en numeros rojos.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-¡Felicidades!\nCompletaste el escenario en\n%i meses y %i años.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 La economía crece:\n%s cerca de %s se añade a la cadena de producción.\n%i nueva fábrica establecida.
-Make way or stop public (will join with neighbours), %i times maintainance
-Convertir a vía o parada pública (conectará con las vecinas), %i veces el mantenimiento
 Net wealth less than 10% of starting capital!
 ¡Patrimonio neto inferior al 10% del capital inicial!
 New %s now available:\n%s\n
@@ -413,12 +389,8 @@ New vehicle now available:\n%s\n
 \n Un nuevo vehículo está disponible:\n\n\n -- %s -- \n\n
 Now %u clients connected.
 Actualmente hay %u clientes conectados.
-On this map, you are not\nallowed to change player!\n
-¡Esta partida está bloqueada!\n¡No se puede cambiar de jugador!\n
 overtaking
 Adelantamiento
-Production of %s has been stopped:\n%s\n
-La producción de %s ha sido descontinuada:\n%s\n
 Remove vehicle from map. Use with care!
 Eliminar vehículo del mapa. ¡Úselo con precaución!
 Screenshot\ngespeichert.\n
@@ -427,16 +399,14 @@ Sends the convoi to the last depot it departed from!
 Envía el convoy al último depósito del que salió.
 Server preparing game ...
 El servidor está preparando el juego...
-Spielstand wurde\ngeladen!\n
-\n¡Partida cargada con éxito!\n
-Spielstand wurde\ngespeichert!\n
-\n¡Partida guardada con éxito!\n
 Trees
 Árboles
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-¡Te quedan %d meses\npara pagar tu deuda!\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Con un gran festival\n%s\ninauguró un nuevo monumento.\n%i ciudadanos contentos.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Filtro de Línea
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%.2f$/km %.2f$/m)
@@ -494,13 +464,13 @@ Con un gran festival\n%s\ninauguró un nuevo monumento.\n%i ciudadanos contentos.
 \nRibi (unmasked)
 \nDirecciones\n (visibles): 
 \nSet phases:
-\nAjustar tiempo de fase\nNorte-Sur Este-Oeste:
+\nAjustar tiempo de fases\n  / luego \\  y luego desplazamiento
 \nsingle way
 \nVía Única
 \nway1 reserved by
-\nVía 1 reservada por
+\nVía 1 reservada por 
 \nway2 reserved by
-\nVía 2 reservada por
+\nVía 2 reservada por 
 \nwith sign/signal\n
 \ncon la señal\n
 %d buildings\n
@@ -527,6 +497,8 @@ Antigüedad: %i años y %i meses.
 %s ha llegado al depósito.
 %s land %d %s
 %s tierra %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s derrochó su dinero en un\nnuevo ayuntamiento\ncuando se alcanzaron los\n%i habitantes.
 %s\nis crowded.
 ¡%s\n está saturada!
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -541,8 +513,6 @@ Antigüedad: %i años y %i meses.
 <Limpiar itinerario>
 <create new line>
 <Crear línea nueva>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <H1>Error: Objetos duplicados en el directorio principal del pak</H1><p><strong>En
 <h1>Warning</h1><p><strong>addons for
@@ -603,8 +573,6 @@ Abspanntransformator
 Transformador
 Accelerate time
 Acelerar
-Account above %s
-Has sobrepasado los %s
 Act. load: %u MW\n
 Consumo eléctrico: %u MW\n
 Active player only
@@ -619,10 +587,10 @@ Add Stop
 Añadir Parada
 Add stops for backward travel
 Añadir paradas para el viaje de vuelta.
-Air
+air
+aéreo
+Aircraft
 Aerolínea
-air_wt
-Pista de aterrizaje/rodaje
 aircraft_tab
 Aviones de carga
 airplane
@@ -677,12 +645,16 @@ August
 Agosto
 auto
 Automático
+Autohalt muss auf\nStrasse liegen!\n
+¡Las paradas de autobús/camión deben situarse en la carretera!
 Available
 Disponible
 Available at custom date
 Disponible en fecha personalizada
 Bahndepot
 Depósito de Trenes
+Bankrott:\n\nDu bist bankrott.\n
+Bancarrota:\n\nEstás en numeros rojos.\n
 battery
 Batería
 Baum
@@ -709,6 +681,8 @@ Boden
 Tierra
 Bonus Multiplier: %i%%
 Multiplicador de bonificación: %i%%
+Bonus Speed: %i km/h
+Bonificación de Velocidad: %i km/h
 Bonusspeed: %i km/h
 Velocidad máxima posible: %i km/h
 Boost (%)
@@ -717,8 +691,12 @@ Borderless (disabled on fullscreen)
 Ventana sin bordes (deshabilitado en pantalla completa)
 bridge is too high for its type!
 ¡El puente es demasiado alto para su tipo!
+Bridge is too long for this type!\n
+¡El tramo de puente es\n demasiado largo para\n este tipo de puente!
 Bruecke
 Puente
+Bruecke muss an\neinfachem\nHang beginnen!\n
+¡El puente debe\nempezar en una\npendiente recta!\n
 Brueckenboden
 Puente
 Build air depot
@@ -742,7 +720,7 @@ Construir depósito de vía estrecha
 Build powerline
 Construir tendido eléctrico
 Build presignals
-Construir señales previas
+Construir señales de bloqueo de dos tramos (pre-señales)
 Build road depot
 Construir depósito de carretera
 Build ship depot
@@ -786,7 +764,7 @@ Capacidad: %s\n\nProporción: %d (%d%%)
 Cars are not available yet!
 ¡Todavía no están disponibles los automóviles!
 cars.\nstate
-Coches\n
+ Coches\n
 Cash
 Efectivo
 Change player
@@ -871,6 +849,8 @@ Climate
 Clima
 Climate Control
 Ajustes de Terreno
+Climates
+Climas
 closed
 Cerrado.
 Closes topmost line window when new line selected.
@@ -887,8 +867,8 @@ Configure AI
 Configuración IA
 Configure AI setttings
 Propiedades Configuración IA
-Connect factory
-Fábricas conectadas:
+Congratulation\nScenario was complete in\n%i months %i years.
+¡Felicidades!\nCompletaste el escenario en\n%i meses y %i años.
 Connected stops
 Paradas conectadas:
 Connected with server
@@ -1001,12 +981,16 @@ Departures to\n
 Salidas hacia\n
 Depots
 Depósitos
+Der Tunnel ist nicht frei!\n
+¡El túnel no está vacío!\n
 Destination
 Llegadas
 Destroying map ...
 Destruyendo viejo mapa...
 Details
 Detalles
+Die Bruecke ist nicht frei!\n
+¡El puente no está libre!\n
 diesel
 Diésel
 directmail
@@ -1017,6 +1001,8 @@ disable midi
 Silenciar música MIDI
 Display bars above factory to show the status
 Muestra barras sobre las fábricas que indican la cantidad almacenada de producción
+Display settings
+Ajustes de pantalla
 Distance
 Distancia
 distributing cities
@@ -1029,6 +1015,8 @@ Dock
 Muelle
 Dock must be built on single slope!
 ¡El muelle debe construirse sobre una única casilla en pendiente!
+Downloading
+Descargando
 dp_title
 Lista de Depósitos
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
@@ -1067,6 +1055,8 @@ Erzeuge neue Karte.\n
 Por favor, espera,\ncreando un\nmapa nuevo ...\n\n (Puede tardar\n algunos minutos\n para mapas grandes.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
 Se está planificando\nun itinerario.\n¡Termínalo antes\nde crear un nuevo itinerario!\n
+Extract files
+Extrayendo archivos
 Fabrikanschluss
 Fábricas conectadas
 Fabrikname
@@ -1106,7 +1096,7 @@ Finanzas de %s
 Finanzen
 Finanzas
 find mismatch
-Comparando paks
+Comparar paks
 fl_title
 Lista de Fábricas
 Flug_tab
@@ -1116,7 +1106,7 @@ Seguir
 Follow the convoi on the map.
 Sigue al convoy en el mapa.
 font size
-Tamaño de la fuente
+Tamaño de la fuente (sólo fuentes .ttf y .otf)
 Forest
 Bosque
 Found new city
@@ -1129,8 +1119,10 @@ Free Capacity
 Capacidad Libre
 freeplay mode
 Modo libre
+Freight
+Carga
 Friction:
- Fricción actual:
+Fricción actual:
 fuel_cell
 Pila de combustible
 Full load
@@ -1195,12 +1187,8 @@ Has Snow
 Tiene nieve
 Haus kaufen
 Comprar casa
-Headquarter and %li trains
-Sede y %li trenes
 Helligk.
 Pantalla
-Helligk. u. Farben
-Ajustes de pantalla
 Help
 Ayuda
 Help text not found
@@ -1222,7 +1210,7 @@ Bienes y pasajeros esperando:
 Higher transport fees, crossconnect all factories
 Tarifas de transporte mayores, desactivar Justo-a-tiempo
 Highlite schedule
-Mostrar paradas del itinerario
+Destacar paradas en el itinerario
 hl_title
 Lista de Estaciones
 hl_txt_filter
@@ -1263,6 +1251,8 @@ hlf_chk_waren_annahme
 Bienes entrantes:
 hlf_title
 Filtro de Lista de Estaciones
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+No se encuentra el depósito.\nDebes enviar manualmente\nel convoy al depósito.
 Homeless
 Sin techo
 hydrogene
@@ -1283,6 +1273,10 @@ industrial building
 Edificios industriales
 Industry overlay
 Interfaz de Industria
+Infinite mouse scrolling
+Desplazamiento infinito con el ratón
+Infinite scrolling using mouse
+¡El desplazamiento infinito puede fallar con ciertos dispositivos!
 Init map ...
 Iniciando mapa...
 Input
@@ -1295,6 +1289,8 @@ Install
 Instalar paksets
 Install graphics
 Instalar gráficos
+Install paks
+Los paksets se descargarán e instalarán.
 Insufficient funds!
 ¡Fondos insuficientes!
 Intercity road len:
@@ -1307,6 +1303,8 @@ invalid
 indefinido.
 Invalid coordinate
 Orden no válida
+Invert stops
+Invertir paradas
 isometric map
 Vista Isométrica
 Jan.
@@ -1321,6 +1319,10 @@ Jump to
 Saltar a
 June
 Junio
+Kann Spielstand\nnicht laden.\n
+¡Imposible leer/abrir\nla partida guardada!\n
+Kann Spielstand\nnicht speichern.\n
+¡Imposible abrir\nel achivo para\nguardar!\n
 Kein Besitzer\n
 Sin propietario\n
 keine
@@ -1377,8 +1379,6 @@ letzen Monat: diesen Monat:
 último mes:   este mes:
 Line
 Línea
-Line Filter
-Filtro de Línea
 Line Management
 Administración de Líneas
 line name mouseover tooltips
@@ -1407,6 +1407,8 @@ loaded passenger/freight
 Ordenar pasajeros/mercancía por
 Loading (%i->%i%%)!
 Cargando (%i->%i%%)
+Loading (%i%%) departure %s!
+¡Cargando (%i%%) salida %s!
 Loading (%i%%)!
 Cargando (%i%%)
 Loading addon paks ...
@@ -1417,6 +1419,8 @@ Loading paks ...
 Cargando paks ...
 Loading skins ...
 Cargando temas...
+Loading time:
+Completamente cargado en: 
 Lock game
 Impedir cambio de jugador (exige confirmación).
 Lokomotive_tab
@@ -1441,6 +1445,8 @@ Maintenance
 Mantenimiento
 make stop public (or join with public stop next) costs %i per tile and level
 Hacer pública la parada (o unirla con una parada pública vecina) cuesta %i$ por casilla y nivel
+Make way or stop public (will join with neighbours), %i times maintainance
+Convertir a vía o parada pública (conectará con las vecinas), %i veces el mantenimiento
 Manual (Human)
 Manual (Humano)
 Manufactured:
@@ -1462,7 +1468,7 @@ máximo
 Max Boost (%)
 Incremento máximo(%)
 Max income:
-Ingresos Máximos
+Ingresos Máximos:
 Max. speed
 Velocidad máxima
 Max. speed:
@@ -1568,7 +1574,7 @@ Nuevos Vehículos
 Nickname:
 Apodo:
 no buildings hidden
-no hay edificios ocultos
+Sin edificios ocultos
 no convois
 Sin convoyes
 No goods are loaded onto this convoi.
@@ -1577,6 +1583,8 @@ no goods waiting
 Sin bienes esperando
 no load
 Sólo descarga
+No player
+Sin jugador
 No Route
 Sin ruta
 No stop here!
@@ -1589,8 +1597,12 @@ no timeline
 Todas las épocas
 no tree
 Sin árboles
+No vehicles are available for purchase.
+No hay vehículos disponibles para su compra.
 No. of Factories
 Fábricas y tiendas:
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+¡Asigna una ruta\nal vehículo antes\nde darle la orden\nde partida!\n
 none
 Nada
 nord
@@ -1601,6 +1613,8 @@ nordwest
 Noroeste
 Not allowed to make publicly owned ways!
 ¡No se permite hacer vías públicas!
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+¡No está permitido!\nLa línea ferroviaria no puede\ncambiarse ahora.\nPruebe más tarde.
 Not enough fields would remain.
 No habrá suficientes\ncampos alrededor de esta\ngranja.
 November
@@ -1627,6 +1641,8 @@ On mouseover
 Al pasar por encima el ratón
 on the
 salida(s) al mes, comenzando el (dd-hh-mm)
+On this map, you are not\nallowed to change player!\n
+¡Esta partida está bloqueada!\n¡No se puede cambiar de jugador!\n
 Only city chains
 Construir cadena industrial urbana
 Only first %d differing paks reported. There are probably more.
@@ -1649,6 +1665,8 @@ Optionen
 Opciones
 Or enter a server manually:
 O introduce un servidor manualmente:
+ORDINAL_DAY_SYMBOL
+º
 Origin
 Orígen
 ost
@@ -1759,6 +1777,8 @@ Produced
 Producido
 Produces: %.1f units/minute
 Produce: %.1f unidades por minuto
+Production of %s has been stopped:\n%s\n
+La producción de %s ha sido descontinuada:\n%s\n
 Production/Boost
 Producción/Incremento
 Produktion
@@ -1813,6 +1833,8 @@ remove powerlines
 Eliminar tendido eléctrico
 remove roads
 Eliminar carreteras
+remove signal
+Eliminar señal
 remove tracks
 Eliminar vías
 Remove wayobj %s
@@ -1837,6 +1859,8 @@ return ticket
 Viaje de vuelta
 Revenue
 Ingresos
+Revert schedule
+Deshacer cambios
 Revision:
 Revisión:
 road
@@ -1877,6 +1901,8 @@ Scenario Result
 Progreso
 Scenario Rules
 Normas
+Scenario_
+Escenario 
 Schedule changing!
 ¡Cambio de itinerario!
 Schienentunnel
@@ -1887,8 +1913,12 @@ Schiffdepot
 Astillero
 Schleppkahn_tab
 Barcazas
+Screen scale:
+Escala de pantalla:
 Screenshot
 Captura de pantalla
+Scroll threshold
+Umbral de desplazamiento
 Search:
 Buscar:
 Seasons
@@ -1967,6 +1997,8 @@ Show map scale
 Escala
 Show mismatched
 Mostrar incompatibles
+Show networks
+Redes
 Show obsolete
 Mostrar obsoletos
 Show offline
@@ -1988,13 +2020,17 @@ Mostrar nombres de estaciones
 show waiting bars
 Mostrar barras de espera
 show/hide block reservations
-Mostrar/ocultar reservas de bloques
+Mostrar/ocultar reservas de tramos
 Show/hide estimated arrival times
 Mostrar/ocultar horarios estimados de llegada
 show/hide object owner
 Mostrar/ocultar propietario
 Show/hide statistics
 Mostrar/ocultar Estadísticas
+Shows buttons about networks overlay.
+Muestra los botones de configuración de la vista de redes.
+Shows buttons on network overlay.
+Mostrar opción para superponer una red de conexión.
 Shows buttons on special topics.
 Mostrar los botones de la leyenda del mapa
 Shows consumer/suppliers for factories
@@ -2015,6 +2051,8 @@ Sim:
 Ciclos:
 Similar view as the main window
 Vista similar a la principal del juego
+Single toolbar only
+Barra de herramientas única
 Size (%d MB):
 Tamaño (%d MB):
 Size (area)
@@ -2053,6 +2091,10 @@ Spieler(mz)
 Jugadores
 Spielerliste
 Lista de Jugadores
+Spielstand wurde\ngeladen!\n
+\n¡Partida cargada con éxito!\n
+Spielstand wurde\ngespeichert!\n
+\n¡Partida guardada con éxito!\n
 Sprache
 Idioma
 Sprachen
@@ -2101,8 +2143,6 @@ Supplied: %.0f %%
 Suministrado: %.0f %%
 Suppliers
 Proveedores
-Supply %s at (%i,%i)
-Suministro %s en (%i,%i)
 Tage alt
 días de antigüedad.
 The following graphics are unmaintained:
@@ -2133,6 +2173,8 @@ Toggle vehicle tooltips
 Alternar información sobre vehículos
 tonnen
 t
+Toolbar position:
+Posición de la barra:
 Total inhabitants:
 Población:
 Tourist attractions
@@ -2175,20 +2217,24 @@ Translation
 Traducción
 transparencies
 Transparencia
+transparent background
+Fondo transparente
 transparent station coverage
 Cobertura de estación transparente
-Transport %li passengers
-Transportó %li pasajeros
 Transported
 Viajes
 Trees disabled!
 ¡Árboles deshabilitados!
 TrolleyBus_tab
 Trolebuses
+tropic
+Tropical
 Truck
 Camión
 tt_Other
 Otro
+tundra
+Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 ¡Los túneles deben\ncomenzar en una\npendiente recta!\n
 Tunnel must start on single way!
@@ -2225,6 +2271,8 @@ Vehicle %s can't find a route!
 ¡El vehículo %s\n no puede encontrar una ruta!
 Vehicle %s is stucked!
 ¡El vehículo %s está atascado!
+Vehicle count:
+Número de vehículos:
 Vehicle details
 Detalles del Vehículo
 Vehicle Name
@@ -2243,6 +2291,8 @@ verkaufen
 Vender
 Verkehrsteilnehmer
 Coches Ciudad
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+¡Te quedan %d meses\npara pagar tu deuda!\n
 vh_title
 Lista de todos los vehículos
 via
@@ -2361,6 +2411,12 @@ vehículos de la línea %s fueron retirados
 #_________________________________tooltip_text__________________________________
 Add convois with similar schedule to this line.
 Añade convoyes con itinerarios similares a esta línea.
+Enter intervall in days, hours, minutes
+Introduce el intervalo en días, horas, y minutos.
+Mirrors order of stops
+Invierte el orden de las paradas.
+Revert to original schedule
+Deshace los cambios al itinerario.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

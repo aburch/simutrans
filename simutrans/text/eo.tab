@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -97,22 +97,12 @@ rocky
 Altmonta klimato
 temperate
 Mezvarma klimato
-tropic
-Tropika klimato
-tundra
-Tundra klimato
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Malsukcesis legi scenaron
-Autohalt muss auf\nStrasse liegen!\n
-Busoj kaj veturiloj devas esti konstruitaj sur la strato\n
 Bridge blocked by way below or above.
 Ponto estas malhelpata de vojo supre aŭ sube.\n
-Bridge is too long for this type!\n
-La distanco estas tro longa por konstrui tian ponton.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Ponto devas ekkonstrui sur rekta vojo.\n
 Can't buy obsolete vehicles!
 Ne povas aĉeti elservigitajn veturilojn.
 Cannot alter water
@@ -141,10 +131,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Ĉi tiu loko estas okupita\nde alia ludanto!\n
 Der Besitzer erlaubt das Entfernen nicht
 La proprulo malpermesas malkonstrui ĉi tion!\n
-Der Tunnel ist nicht frei!\n
-Tunelo ne estas malplena.\n
-Die Bruecke ist nicht frei!\n
-La ponto estas ne libera!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Ĉi tiu kombinado ne povas ekveturi!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -153,14 +139,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Vi ne povas konstrui hangaron ĉi tie.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Ne povas meti signalilon ĉi tie.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Ne povas trovi veturejon.\nVi devas sendi mane la veturilon tien.
 In order to lock the game, you have to protect the public player by password!
 Por ŝlosi la ludon, vi devas protekti la publikan ludanton de pasvorto!
-Kann Spielstand\nnicht laden.\n
-Ne povas malfermi la ludon!
-Kann Spielstand\nnicht speichern.\n
-Ne povas sekurigi la ludon.
 Loading a new game will end the current server session!
 Malfermi novan ludon finigos la nunan servilan ludon!
 Lost connection\nto server!
@@ -183,10 +163,6 @@ No suitable way on the ground!
 Oni ne povas konstrui ion ĉi tie.
 No through station here!
 Oni ne povas konstrui haltejon ĉi tie!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Ŝargu linplanon antaŭ ekveturigi la veturilon.\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Ne povas ŝanĝi la veturilan liniplanon dum vojtrovado. 
 Not enough bytes transferred
 Malsukcesis sendi datumon.
 Not enough clearance.
@@ -261,7 +237,7 @@ Overlay town names
 Montri urbnamojn
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Bonvolu klaki sur la mapo por aldoni vojpunktojn aŭ haltejojn al la liniplano.
-Set tile climate
+Set tile climate %s
 Ŝanĝi ĉi tiean klimaton je %s
 Show capacity and if halt is overcrowded
 Montri enhavecon kaj ĉu haltejo estas superenhaveca.
@@ -333,16 +309,8 @@ Tramaj iloj
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s ĵus konstruis novan ĉefsidejon.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nkonstruis \nnovan urbdomon\nkiam ĝi atingis \n%i loĝantojn.
-Bankrott:\n\nDu bist bankrott.\n
-Bankroto:\n\nVi Bankrotis!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Graturon!\nScenaro finiĝis komplete dum %i monatoj kaj %i jaroj.
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 "%s" grandigis sian aferon apud %s, kaj konstruis novajn %i fabrikojn.
-Make way or stop public (will join with neighbours), %i times maintainance
-Unuigi vojon aŭ haltejon kiel publika kun ĉirkaŭa publika stacio. Ĝi kostos %i-oblan konservan elspezon.
 Net wealth less than 10% of starting capital!
 Via riĉeco estas nun malpli ol 10% de komenco!
 New %s now available:\n%s\n
@@ -353,12 +321,8 @@ New vehicle now available:\n%s\n
 Nova veturilo estas nun uzebla:\n%s\n
 Now %u clients connected.
 Nun %u ludantoj estas en ĉi tiu servilo.
-On this map, you are not\nallowed to change player!\n
-Ĉi tiu ludo estas ŝlosita.\nNeniu ludanto povas interŝanĝi viajn rolojn.
 overtaking
 Preterpasi
-Production of %s has been stopped:\n%s\n
-%s "%s" ne plu estas aĉetebla.
 Remove vehicle from map. Use with care!
 Atentu! Forigos veturilon el mapo!
 Screenshot\ngespeichert.\n
@@ -367,14 +331,12 @@ Sends the convoi to the last depot it departed from!
 Sendas la veturilon al la plej proksima veturilejo.
 Server preparing game ...
 Servilo preparas ludon ...
-Spielstand wurde\ngeladen!\n
-\nSukcese malfermis ludon.\n
-Spielstand wurde\ngespeichert!\n
-La ludo estas sukcese sekurigita.
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Vi havas ŝuldon. Bonvolu pagi tion ĝis post %d monatoj.
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Kun granda festo, %s konstruis novan monumenton, kaj %i loĝantoj ĝojis.
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+Linia filtrilo
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -437,6 +399,8 @@ Aĝo: %i jaroj kaj %i monatoj
 %s ĵus revenis veturilejen.\n
 %s land %d %s
 %s %d-a ekstera %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nkonstruis \nnovan urbdomon\nkiam ĝi atingis \n%i loĝantojn.
 %s\nis crowded.
 %s amasas.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -451,8 +415,6 @@ Aĝo: %i jaroj kaj %i monatoj
 <purigi liniplanon>
 <create new line>
 <Krei novan linion>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <h1>Averton: Duoblaj objektoj en ĉefa paka dosierujo</h1><p><strong> En
 <h1>Warning</h1><p><strong>addons for
@@ -513,8 +475,6 @@ Abspanntransformator
 Transformilejo
 Accelerate time
 Rapidigi tempon
-Account above %s
-Konton super %s
 Act. load: %u MW\n
 Sendkvanto: %u MW\n
 Active player only
@@ -529,7 +489,7 @@ Add Stop
  Aldoni
 Add stops for backward travel
 Aldoni reveturajn haltejojn
-air_wt
+air
 Aviadilo
 aircraft_tab
 Aviadilo
@@ -581,10 +541,14 @@ Aug.
 Aŭg.
 August
 Aŭgusto
+Autohalt muss auf\nStrasse liegen!\n
+Busoj kaj veturiloj devas esti konstruitaj sur la strato\n
 Available
 Uzebleco
 Bahndepot
 Trajna veturilejo
+Bankrott:\n\nDu bist bankrott.\n
+Bankroto:\n\nVi Bankrotis!\n
 battery
 Baterio
 Baum
@@ -615,8 +579,12 @@ Boost (%)
 Pliigite (%)
 bridge is too high for its type!
 Ne povas konstrui tian ponton je tiel alta nivelo.
+Bridge is too long for this type!\n
+La distanco estas tro longa por konstrui tian ponton.\n
 Bruecke
 Ponto
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Ponto devas ekkonstrui sur rekta vojo.\n
 Brueckenboden
 Ponto
 Build air depot
@@ -775,8 +743,8 @@ Configure AI
 Agordi AI
 Configure AI setttings
 Agordi AI
-Connect factory
-Ĉeni fabrikojn
+Congratulation\nScenario was complete in\n%i months %i years.
+Graturon!\nScenaro finiĝis komplete dum %i monatoj kaj %i jaroj.
 Connected stops
 Korespondaj haltejoj:
 Connected with server
@@ -873,12 +841,16 @@ Departures to\n
 Eliroj al\n
 Depots
 Veturilejoj
+Der Tunnel ist nicht frei!\n
+Tunelo ne estas malplena.\n
 Destination
 Celoj
 Destroying map ...
 Finas malnovan mapon ...
 Details
 Detaloj
+Die Bruecke ist nicht frei!\n
+La ponto estas ne libera!\n
 diesel
 Dizelo
 directmail
@@ -887,6 +859,8 @@ Direkt erreichbare Haltestellen
 Haltejoj ireblaj de tie ĉi
 disable midi
 Malsoni MIDI-muzikon
+Display settings
+Vidigaĵaj agordoj
 Distance
 Distanco
 distributing cities
@@ -1057,12 +1031,8 @@ Happy
 Feliĉuloj
 Haus kaufen
 Aĉeti domon
-Headquarter and %li trains
-Ĉefhaltejo kaj %li veturiloj
 Helligk.
 Vidigaĵo
-Helligk. u. Farben
-Vidigaĵaj agordoj
 Help
 Helpo
 Help text not found
@@ -1125,6 +1095,8 @@ hlf_chk_waren_annahme
 Konsumaĵo:
 hlf_title
 Filtrilo de stacilisto
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Ne povas trovi veturejon.\nVi devas sendi mane la veturilon tien.
 Homeless
 Senhejmuloj
 hydrogene
@@ -1175,6 +1147,10 @@ Jump to
 Moviĝi al aldifinita koordinato
 June
 Junio
+Kann Spielstand\nnicht laden.\n
+Ne povas malfermi la ludon!
+Kann Spielstand\nnicht speichern.\n
+Ne povas sekurigi la ludon.
 Kein Besitzer\n
 Sen proprulo\n
 keine
@@ -1227,8 +1203,6 @@ letzen Monat: diesen Monat:
 Lasta monato:    Ĉi-monato:
 Line
 Linio
-Line Filter
-Linia filtrilo
 Line Management
 Linia administrado
 Lineless convoys serving this stop
@@ -1283,6 +1257,8 @@ Maintenance
 Bontenado
 make stop public (or join with public stop next) costs %i per tile and level
 Igi haltejon publika (aŭ unuigi al ĉirkaŭa publika haltejo) kostos po %i$ por kehalo kaj nivelo
+Make way or stop public (will join with neighbours), %i times maintainance
+Unuigi vojon aŭ haltejon kiel publika kun ĉirkaŭa publika stacio. Ĝi kostos %i-oblan konservan elspezon.
 Manual (Human)
 Ludanto (homo)
 Manufactured:
@@ -1419,6 +1395,8 @@ no tree
 Ne fari arbojn
 No. of Factories
 Fabrikoj kaj butikoj:
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Ŝargu linplanon antaŭ ekveturigi la veturilon.\n
 none
 nenio
 nord
@@ -1429,6 +1407,8 @@ nordwest
 Nordokcidento
 Not allowed to make publicly owned ways!
 Estas ne permesita publikigi!
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Ne povas ŝanĝi la veturilan liniplanon dum vojtrovado. 
 Not enough fields would remain.
 Nesufiĉaj kampoj restos ĉirkaŭ tiu ĉi farmo.
 November
@@ -1453,6 +1433,8 @@ Oktober
 Oktobro
 On loan since %i month(s)
 Ŝuldas %i monatojn
+On this map, you are not\nallowed to change player!\n
+Ĉi tiu ludo estas ŝlosita.\nNeniu ludanto povas interŝanĝi viajn rolojn.
 Only city chains
 Konstrui urban fabrikan ĉenon
 Only first %d differing paks reported. There are probably more.
@@ -1583,6 +1565,8 @@ Produced
 Produktitaj
 Produces: %.1f units/minute
 Produktaĵoj: %.1f /minuto
+Production of %s has been stopped:\n%s\n
+%s "%s" ne plu estas aĉetebla.
 Production/Boost
 Produkto/pliigo
 Produktion
@@ -1845,6 +1829,10 @@ Spieler(mz)
 Ludantoj
 Spielerliste
 Ludantolisto
+Spielstand wurde\ngeladen!\n
+\nSukcese malfermis ludon.\n
+Spielstand wurde\ngespeichert!\n
+La ludo estas sukcese sekurigita.
 Sprache
 Lingvo
 Sprachen
@@ -1891,8 +1879,6 @@ Supplied: %.0f %%
 Oferto: %.0f %%
 Suppliers
 Ofertantoj:
-Supply %s at (%i,%i)
-Ofertu je %s ĉe (%i,%i)
 Tage alt
 tage aĝas.
 Theme selector
@@ -1959,18 +1945,20 @@ Translation
 Traduko
 transparent station coverage
 Surmontri efektareon de haltejoj 
-Transport %li passengers
-Transportu %li pasaĝerojn
 Transported
 Transportitaj
 Trees disabled!
 Arboj ne estas uzeblaj!
 TrolleyBus_tab
 Trolebusoj
+tropic
+Tropika klimato
 Truck
 Ŝarĝaŭto
 tt_Other
 Aliaj
+tundra
+Tundra klimato
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tuneloj devas esti sur rekta deklivo!
 Tunnel must start on single way!
@@ -2021,6 +2009,8 @@ verkaufen
 Vendi
 Verkehrsteilnehmer
 Privataŭtoj
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Vi havas ŝuldon. Bonvolu pagi tion ĝis post %d monatoj.
 via
 tra
 via %s\n

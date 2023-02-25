@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: hr Hrvatski                            #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -83,16 +83,8 @@ rocky
 alpska klima
 temperate
 umjerena klima
-tropic
-tropska klima
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Autobusne postaje\nmoraju se\nnalazitina cesti.
-Bridge is too long for this type!\n
-Raspon mosta\nje prevelik za\novaj tip mosta.\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Most mora\nnpoceti na\npravom nagibu!\n
 Cannot built depot here!
 Depo se ne moze ovdje izgraditi.
 Cannot built this station/building\nin underground mode here.
@@ -107,10 +99,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Ovaj dio \nzemlje posjeduje \ndrugi igrac!
 Der Besitzer erlaubt das Entfernen nicht
 \nVlasnik odbija\ndozvolu za\nuklnjanje ovoga!\n
-Der Tunnel ist nicht frei!\n
-Tunel nije prazan.\n
-Die Bruecke ist nicht frei!\n
-Most nije slobodan!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Ova kombinacija\se ne moze kretati!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -119,12 +107,6 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Ne mozete sagraditi\n\naerodromsku zgradu ovdje.\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Ne mozete staviti\nzeljeznicki signal ovdje.\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depo nije nadjen.\nMorate poslati\nvozilo tamo rucno.
-Kann Spielstand\nnicht laden.\n
-Nije moguce ucitati spremljenu igru!
-Kann Spielstand\nnicht speichern.\n
-Nije moguce otvoriti\nciljnu datoteku\nza pisanje!
 Lost connection\nto server!
 Izgubljena veza\nna server!
 Lost synchronisation\nwith server.
@@ -139,10 +121,6 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 stajaliste uskog kolosijeka be trebalo biti na uskom kolosijeku
 No through station here!
 Stanica se mora postaviti na krajevima\n puteva ili ravnim dijelovima bez krizanja.
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-"Gdje ja idem?"\nMorate ovome konvoju postaviti raspored ili dodijeliti mu liniju prije nego ode po nalog.
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Raspored vozila\nse ne smije mijenjati\n prilikom trazenja rute.
 Not enough money!
 Nemas dovoljno\nnovaca za gradnju ovoga!
 On narrowgauge track only!\n
@@ -207,12 +185,6 @@ Alati Tramvaja/lakosinske zeljeznice
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s s\nsredisnjica sada\nna (%i,%i).
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s je trosio\ntvoj novac na\nnovu vijecnicu\nkada je dosegao\n%i stanovnika.
-Bankrott:\n\nDu bist bankrott.\n
-Bankrot:\n\nBankrotirali ste!\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Cestitke!\nScenario je\nzavrsen unutar \n%i mjeseci i %i godina!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Ekonomija jaca:\n%s bilzu %s povecava lanac.\n%i nova tvornica osnovana.
 New %s now available:\n%s\n
@@ -221,22 +193,12 @@ New factory chain\nfor %s near\n%s built with\n%i factories.
 Rast industrije:Novi lanac industrije\m za %s blizu\n%s sagradjeno sa\n%i tvornica.
 New vehicle now available:\n%s\n
 \n Novo vozilo je\n sada dostupno:\n\n\n -- %s --\n\n
-On this map, you are not\nallowed to change player!\n
-Ova igra je zakljucana.\nPromjene od igraca nisu moguce.\n
-Production of %s has been stopped:\n%s\n
-Proizvodnja od %s je ukinuta:\n%s\n
 Remove vehicle from map. Use with care!
 Ukloniti vozilo sa mape. (Koristi pazljivo!)
 Screenshot\ngespeichert.\n
 Snimak ekrana\nspremljen.\n
 Sends the convoi to the last depot it departed from!
 Salje konvoj u zadnji depo iz kojega je posao.
-Spielstand wurde\ngeladen!\n
-\nIgra uspjesno ucitana.\n
-Spielstand wurde\ngespeichert!\n
-\n Igra uspjesno spremljena.\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Imas %d mjeseca\nza otplatu svojih dugova.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Sa velikim festivalom,\n %s sagradnjen\nnovi spomenik\n%i gradjana su se veselili.
 #_________________________________program_text__________________________________
@@ -293,6 +255,8 @@ do
 %s je usao u depo.
 %s land %d %s
 %s %d izvan %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s je trosio\ntvoj novac na\nnovu vijecnicu\nkada je dosegao\n%i stanovnika.
 %s\nis crowded.
 %s\nje pretrpana
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -341,8 +305,6 @@ Absenken
 Snizi zemlji¹te
 Accelerate time
 Vrijeme ubrzanja
-Account above %s
-Podizanje preko %s
 Active player only
 Samo aktivan igraè
 Add forest
@@ -353,7 +315,7 @@ Add Stop
 Dodaj postaju
 Add stops for backward travel
 Dodaj postaje za povratak
-air_wt
+air
 Pista
 aircraft_tab
 Teretni avioni
@@ -399,10 +361,14 @@ Aufloesen
 Rastavi
 August
 Kolovoz
+Autohalt muss auf\nStrasse liegen!\n
+Autobusne postaje\nmoraju se\nnalazitina cesti.
 Available
 Dostupno
 Bahndepot
 Depo za vlakove.
+Bankrott:\n\nDu bist bankrott.\n
+Bankrot:\n\nBankrotirali ste!\n
 battery
 Akumulator
 Baum
@@ -429,8 +395,12 @@ Boden
 Zemljiste
 bridge is too high for its type!
 Most je previsok za svoj tip!
+Bridge is too long for this type!\n
+Raspon mosta\nje prevelik za\novaj tip mosta.\n
 Bruecke
 Most
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Most mora\nnpoceti na\npravom nagibu!\n
 Brueckenboden
 most
 Build air depot
@@ -569,8 +539,8 @@ COLOR_CHOOSE\n
 Molimo odabrati a\nboju iz tablice:\n
 Company bankrupt
 Kompanija bankrotirana
-Connect factory
-Spojiti tvornicu
+Congratulation\nScenario was complete in\n%i months %i years.
+Cestitke!\nScenario je\nzavrsen unutar \n%i mjeseci i %i godina!
 Connected stops
 Spojena stajalista
 Constructed by
@@ -633,16 +603,22 @@ Departed
 Odaslan
 Depots
 Depoi
+Der Tunnel ist nicht frei!\n
+Tunel nije prazan.\n
 Destination
 Dolasci
 Details
 Detalji
+Die Bruecke ist nicht frei!\n
+Most nije slobodan!\n
 diesel
 dizel
 Direkt erreichbare Haltestellen
 Direktne rute odavde
 disable midi
 Zanijemiti MIDI glazbu
+Display settings
+Opcije prikaza
 Distance
 Udaljenost
 Dock
@@ -783,12 +759,8 @@ Happy
 Sretni
 Haus kaufen
 Kupiti kucu
-Headquarter and %li trains
-Srediste i %li vlakova
 Helligk.
 Prikaz
-Helligk. u. Farben
-Opcije prikaza
 Help
 Pomoc
 Help text not found
@@ -845,6 +817,8 @@ hlf_chk_waren_annahme
 Potrebna roba:
 hlf_title
 Filter liste stanica
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depo nije nadjen.\nMorate poslati\nvozilo tamo rucno.
 Homeless
 Beskucnik
 hydrogene
@@ -885,6 +859,10 @@ Jump to
 Skociti na
 June
 Lipanj
+Kann Spielstand\nnicht laden.\n
+Nije moguce ucitati spremljenu igru!
+Kann Spielstand\nnicht speichern.\n
+Nije moguce otvoriti\nciljnu datoteku\nza pisanje!
 Kein Besitzer\n
 Bez vlasnika\n
 keine
@@ -1091,6 +1069,8 @@ no timeline
 sve epohe
 no tree
 Nema stabala
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+"Gdje ja idem?"\nMorate ovome konvoju postaviti raspored ili dodijeliti mu liniju prije nego ode po nalog.
 none
 nema
 nord
@@ -1099,6 +1079,8 @@ nordost
 Sjeveroistok
 nordwest
 Sjeverozapad
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Raspored vozila\nse ne smije mijenjati\n prilikom trazenja rute.
 Not enough fields would remain.
 Ne bi dovoljno polja\n ostalo oko farme.
 November
@@ -1115,6 +1097,8 @@ Oktober
 Listopad
 On loan since %i month(s)
 U kreditu vec %i mjesec(i)
+On this map, you are not\nallowed to change player!\n
+Ova igra je zakljucana.\nPromjene od igraca nisu moguce.\n
 Only city chains
 Samo lanci gradova
 Only land chains
@@ -1203,6 +1187,8 @@ Power:
 Snaga:
 Powerlines
 Dalekovodi
+Production of %s has been stopped:\n%s\n
+Proizvodnja od %s je ukinuta:\n%s\n
 Produktion
 Produkcija
 promote to line
@@ -1401,6 +1387,10 @@ Spieler(mz)
 Igraci
 Spielerliste
 Lista Igraca
+Spielstand wurde\ngeladen!\n
+\nIgra uspjesno ucitana.\n
+Spielstand wurde\ngespeichert!\n
+\n Igra uspjesno spremljena.\n
 Sprache
 Jezik
 Sprachen
@@ -1437,8 +1427,6 @@ Summer snowline
 Ljetna snjezna linija
 Suppliers
 Dobavljaci
-Supply %s at (%i,%i)
-Dostava %s na (%i,%i)
 Tage alt
 dana staro.
 There are still vehicles\nstored in this depot!\n
@@ -1499,12 +1487,12 @@ Translation
 Prijevod
 transparent station coverage
 transparentan prikaz pokrivanja
-Transport %li passengers
-Transport %li putnika 
 Transported
 Putovanja
 TrolleyBus_tab
 trolejbusi
+tropic
+tropska klima
 Truck
 Kamion
 Tunnel muss an\neinfachem\nHang beginnen!\n
@@ -1545,6 +1533,8 @@ verkaufen
 Prodaje
 Verkehrsteilnehmer
 gradski auti
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Imas %d mjeseca\nza otplatu svojih dugova.\n
 via
 preko (detalj)
 via %s\n

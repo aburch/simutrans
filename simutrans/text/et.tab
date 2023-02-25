@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: et Eesti                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -47,12 +47,6 @@ arctic
 arktiline kliima
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Autohalt muss auf\nStrasse liegen!\n
-Auto- või bussipeatus \npeab olema \nasetatud teele.
-Bridge is too long for this type!\n
-Sild on liiga\npikk valitud\nsillatüübi jaoks.
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Sillad peavad\nalgama sirgelt\nteelõigult!
 Cannot built depot here!
 Siia ei saa depood ehitada.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
@@ -63,12 +57,6 @@ Ei saa luua üldist liini!\nVali liini tüüp\nkasutades sakke.
 %s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
 %s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
-#_________________________________message_text__________________________________
-#_________________________________message_text__________________________________
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s\nehitas\nuue raekoja\nkui jõudis\n%i elanikuni.
-Bankrott:\n\nDu bist bankrott.\n
-Pankrot: \n\nSa oled pankrotis!\n
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (in depot)
@@ -89,6 +77,8 @@ Pankrot: \n\nSa oled pankrotis!\n
 %s sisenes depoosse.
 %s land %d %s
 %s maa %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s\nehitas\nuue raekoja\nkui jõudis\n%i elanikuni.
 %s\nis crowded.
 %s\n on ülerahvastatud
 <no line>
@@ -169,10 +159,14 @@ Aufloesen
 Võta koost lahti
 August
 august
+Autohalt muss auf\nStrasse liegen!\n
+Auto- või bussipeatus \npeab olema \nasetatud teele.
 Available
 Kasutatav
 Bahndepot
 Rongidepoo
+Bankrott:\n\nDu bist bankrott.\n
+Pankrot: \n\nSa oled pankrotis!\n
 battery
 Aku
 Baum
@@ -193,8 +187,12 @@ Blockstrecke ist\nbelegt\n
 \nRaudtee on kasutuses\nteise rongi poolt!\n
 Boden
 Maa
+Bridge is too long for this type!\n
+Sild on liiga\npikk valitud\nsillatüübi jaoks.
 Bruecke
 Sild
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Sillad peavad\nalgama sirgelt\nteelõigult!
 Brueckenboden
 sild
 build choosesignals

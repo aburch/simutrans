@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -95,20 +95,10 @@ rocky
 Rotsachtig
 temperate
 Gematigd
-tropic
-Tropisch
-tundra
-Toendra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Scenario kan niet geladen worden!
-Autohalt muss auf\nStrasse liegen!\n
-Een halte voor bussen of \nvrachtwagens moet op een \nweg geplaatst worden!
-Bridge is too long for this type!\n
-Dit brugtype kan \nde overspanning niet halen!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Een brug moet op\neen rechte\nhelling beginnen!\n
 Can't buy obsolete vehicles!
 Verouderde voertuigen kunnen niet gekocht worden!
 Cannot alter water
@@ -129,10 +119,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Deze grond \nis van een \nandere Speler!\n\n
 Der Besitzer erlaubt das Entfernen nicht
 De eigenaar laat\nverwijderen\nniet toe\n
-Der Tunnel ist nicht frei!\n
-De tunnel is niet vrij!\n
-Die Bruecke ist nicht frei!\n
-De brug is niet leeg!\n
 Diese Zusammenstellung kann nicht fahren!\n
 Deze voertuigsamenstelling \nkan niet rijden!
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -141,14 +127,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Dit luchthavengebouw \nkan hier niet gebouwd \nworden!
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Hier kan geen\nsein staan!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Depot niet gevonden!\nKies zelf een depot \n(met de dienstregeling).
 In order to lock the game, you have to protect the public player by password!
 Om het spel te blokkeren moet de overheid beschermd worden met een wachtwoord
-Kann Spielstand\nnicht laden.\n
-Kan opgeslagen spelstand\nniet vinden/laden\n
-Kann Spielstand\nnicht speichern.\n
-Kan spelstand\nniet opslaan\n
 Lost connection\nto server!
 Verbinding met server\nverbroken!
 Lost synchronisation\nwith server.
@@ -165,10 +145,6 @@ No suitable way on the ground!
 Haltes kunnen alleen op rechte\nvlakke wegen gebouwd worden
 No through station here!
 Hier is geen (doorrij) station mogelijk!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Voertuig heeft\n een dienstregeling\nnodig voordat het\nkan vertrekken!\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Niet mogelijk!\nDe dienstregeling kan \nnu niet veranderd \nworden.\nProbeer later.
 Not enough clearance.
 Tussen twee wegen moeten minstens 2 hoogtes zijn.
 Not enough money!
@@ -229,7 +205,7 @@ Overlay town names
 Toon stadsnamen
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Klik op de kaart om haltes en routepunten toe te voegen
-Set tile climate
+Set tile climate %s
 Verander het klimaat van deze tegel naar %s
 Show capacity and if halt is overcrowded
 Toon capaciteit en status van halte
@@ -303,12 +279,6 @@ Trams
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's heeft een nieuw hoofdkantoor gebouwd.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s heeft \neen nieuw stadhuis \ngebouwd toen de stad\n%i inwoners bereikte.
-Bankrott:\n\nDu bist bankrott.\n
-Bankroet:\n\nU bent falliet.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Gefeliciteerd!\nHet scenario is gerealiseerd\nin \n%i maanden en %i jaren!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 Economie gaat goed\n voor %s bij %s zijn\n%i nieuwe fabrieken gebouwd.
 Net wealth less than 10% of starting capital!
@@ -321,24 +291,18 @@ New vehicle now available:\n%s\n
 Nieuw voertuig is \nnu beschikbaar:\n\n» %s «\n
 Now %u clients connected.
 %i spelers verbonden.
-On this map, you are not\nallowed to change player!\n
-Spelerswissel is niet mogelijk in dit spel.\nSpelerswissel is uitgeschakeld!\n
-Production of %s has been stopped:\n%s\n
-%s '%s'\nword niet meer geproduceerd.
 Remove vehicle from map. Use with care!
 Verwijder het voertuig direct.
 Screenshot\ngespeichert.\n
 Schermafdruk\nopgeslagen\n
 Sends the convoi to the last depot it departed from!
 Stuur het voertuig naar een nabijgelegen depot.
-Spielstand wurde\ngeladen!\n
-\nSpelstand is\ngeladen\n
-Spielstand wurde\ngespeichert!\n
-\nSpelstand is\nopgeslagen\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-U heeft schulden!\n\nU heeft %d maanden\nom uw schulden af\n te lossen!\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s heeft\neen nieuw monument\nopgericht. Dit wordt\ngevierd met festiviteiten.\n
+#___________________________________obsolete____________________________________
+#___________________________________obsolete____________________________________
+Line Filter
+lijn filter
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -397,6 +361,8 @@ Weg 2 gebruikt door\nWeg 2 gebruikt door
 %s heeft een depot bereikt.
 %s land %d %s
 %s %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s heeft \neen nieuw stadhuis \ngebouwd toen de stad\n%i inwoners bereikte.
 %s\nis crowded.
  %s is overbelast.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -411,8 +377,6 @@ Weg 2 gebruikt door\nWeg 2 gebruikt door
 <dienstregeling leegmaken>
 <create new line>
 <nieuwe lijn maken>
-<em>%C</em> - %s<br>\n
-[%C]: %s\n\n
 <individual schedule>
 <individuele dienstregeling>
 <no line>
@@ -465,8 +429,6 @@ Abspanntransformator
 Transformator
 Accelerate time
 Tijd versnellen
-Account above %s
-%s Saldo
 Act. load: %u MW\n
 Verbruik: %u MW\n
 Active player only
@@ -481,7 +443,7 @@ Add Stop
 Toevoegen
 Add stops for backward travel
 Toevoegen van de stops voor de terugweg
-air_wt
+air
 start/taxibaan
 aircraft_tab
 Vrachtvliegtuigen
@@ -529,10 +491,14 @@ Aufspanntransformator
 Transformator
 August
 Augustus
+Autohalt muss auf\nStrasse liegen!\n
+Een halte voor bussen of \nvrachtwagens moet op een \nweg geplaatst worden!
 Available
 Beschikbaar
 Bahndepot
 Depot
+Bankrott:\n\nDu bist bankrott.\n
+Bankroet:\n\nU bent falliet.\n
 battery
 batterij
 Baum
@@ -561,8 +527,12 @@ Boost (%)
 verhoging met (%)
 bridge is too high for its type!
 De brug is te hoog voor dit type!
+Bridge is too long for this type!\n
+Dit brugtype kan \nde overspanning niet halen!\n
 Bruecke
 Brug
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Een brug moet op\neen rechte\nhelling beginnen!\n
 Brueckenboden
 brugdek
 Build air depot
@@ -719,8 +689,8 @@ Configure AI
 AI-instellingen
 Configure AI setttings
 AI (computer tegenstander) instellingen aanpassen
-Connect factory
-Verbind fabrieken
+Congratulation\nScenario was complete in\n%i months %i years.
+Gefeliciteerd!\nHet scenario is gerealiseerd\nin \n%i maanden en %i jaren!
 Connected stops
 Aangesloten haltes
 Connected with server
@@ -807,16 +777,22 @@ Departure board
 Vertrektijden
 Departures to\n
 Gaat naar\n
+Der Tunnel ist nicht frei!\n
+De tunnel is niet vrij!\n
 Destination
 Bestemming
 Destroying map ...
 Oude kaart wordt ontruimd ...
+Die Bruecke ist nicht frei!\n
+De brug is niet leeg!\n
 directmail
 Direct Mail
 Direkt erreichbare Haltestellen
 Direct bereikbare stopplaatsen
 disable midi
 Midi-muziek uitschakelen
+Display settings
+Beeldscherm instellingen
 Distance
 Afstand
 Dock
@@ -973,12 +949,8 @@ Happy
 Tevreden
 Haus kaufen
 koop huis
-Headquarter and %li trains
-Hoofdkwartier en %li treinen
 Helligk.
 Scherm
-Helligk. u. Farben
-Beeldscherm instellingen
 Help
 Hulp
 Help text not found
@@ -1041,6 +1013,8 @@ hlf_chk_waren_annahme
 Verbruik:
 hlf_title
 Station Filter
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depot niet gevonden!\nKies zelf een depot \n(met de dienstregeling).
 Homeless
 Dakloos
 hydrogene
@@ -1087,6 +1061,10 @@ Jump to
 Ga naar
 June
 Juni
+Kann Spielstand\nnicht laden.\n
+Kan opgeslagen spelstand\nniet vinden/laden\n
+Kann Spielstand\nnicht speichern.\n
+Kan spelstand\nniet opslaan\n
 Kein Besitzer\n
 Geen eigenaar
 keine
@@ -1135,8 +1113,6 @@ letzen Monat: diesen Monat:
 Afgelopen maand:   Deze maand:
 Line
 Lijn
-Line Filter
-lijn filter
 Line Management
 Lijnenbeheer
 Lineless convoys serving this stop
@@ -1278,7 +1254,7 @@ Smalspoor
 Narrowgaugedepot
 Smalspoor depot
 Net ID: %p
-Net ID: %\n
+Net ID: %p\n
 Net Wealth
 Totale activa
 Net wealth near zero
@@ -1319,6 +1295,8 @@ no tree
 zonder bomen
 No. of Factories
 Fabrieken en winkels
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Voertuig heeft\n een dienstregeling\nnodig voordat het\nkan vertrekken!\n
 none
 Geen
 nord
@@ -1327,6 +1305,8 @@ nordost
 Noord-Oost
 nordwest
 Noord-West
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Niet mogelijk!\nDe dienstregeling kan \nnu niet veranderd \nworden.\nProbeer later.
 Not enough fields would remain.
 Onvoldoende vrije velden.
 Now active as %s.\n
@@ -1339,6 +1319,8 @@ Ok
 OK
 On loan since %i month(s)
 U heeft schulden sinds %i maand(en)
+On this map, you are not\nallowed to change player!\n
+Spelerswissel is niet mogelijk in dit spel.\nSpelerswissel is uitgeschakeld!\n
 Only city chains
 Alleen stadsfabrieken
 Only first %d differing paks reported. There are probably more.
@@ -1461,6 +1443,8 @@ Problems_msg
 Waarschuwingen
 Produced
 Geproduceerd
+Production of %s has been stopped:\n%s\n
+%s '%s'\nword niet meer geproduceerd.
 Production/Boost
 Productie/boost
 Produktion
@@ -1709,6 +1693,10 @@ Spieler(mz)
 Spelers
 Spielerliste
 Lijst met spelers
+Spielstand wurde\ngeladen!\n
+\nSpelstand is\ngeladen\n
+Spielstand wurde\ngespeichert!\n
+\nSpelstand is\nopgeslagen\n
 Sprache
 Taal
 Sprachen
@@ -1755,8 +1743,6 @@ Supplied: %.0f %%
 Geleverd: %.0f %%
 Suppliers
 Leveranciers
-Supply %s at (%i,%i)
-Bezorg %s bij (%i,%i)
 Tage alt
 dagen oud
 Theme selector
@@ -1821,16 +1807,18 @@ Translation
 Vertaling
 transparent station coverage
 transparante stations dekking
-Transport %li passengers
-Vervoer %li passagiers
 Transported
 Vervoerd
 TrolleyBus_tab
 Trolleybussen
+tropic
+Tropisch
 Truck
 Vrachtwagen
 tt_Other
 Andere
+tundra
+Toendra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Een tunnel moet op\neen rechte\nhelling beginnen\n
 Tunnel must start on single way!
@@ -1877,6 +1865,8 @@ verkaufen
 Verkopen
 Verkehrsteilnehmer
 Weggebruiker
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+U heeft schulden!\n\nU heeft %d maanden\nom uw schulden af\n te lossen!\n
 via %s\n
  via %s\n
 via Menge

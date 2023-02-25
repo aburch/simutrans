@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -97,20 +97,10 @@ rocky
 montagneux
 temperate
 Climat tempéré
-tropic
-climat tropical
-tundra
-Toundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Le chargement du scénario a échoué
-Autohalt muss auf\nStrasse liegen!\n
-Un arrêt de bus doit être placé sur une route.
-Bridge is too long for this type!\n
-Ce pont est trop long pour ce type de pont!
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Le pont doit\ncommencer sur\nune pente droite!\n
 Can't buy obsolete vehicles!
 Impossible d'acheter des véhicules obsolètes
 Cannot alter water
@@ -131,10 +121,6 @@ Das Feld gehoert\neinem anderen Spieler\n
 Ce terrain appartient\nà un autre joueur!\n
 Der Besitzer erlaubt das Entfernen nicht
 Le propriétaire\nne permet pas\nde retirer ceci.\n
-Der Tunnel ist nicht frei!\n
-Le tunnel est occupé.
-Die Bruecke ist nicht frei!\n
-Le pont est occupé!
 Diese Zusammenstellung kann nicht fahren!\n
 Cette combinaison\nne fonctionne pas!\n
 Flugzeughalt muss auf\nRunway liegen!\n
@@ -143,14 +129,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Vous ne pouvez pas\nconstruire d'aéroport\nici.
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Impossible de\nconstruire un\nsignal ici!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Le dépôt ne peut pas\nêtre trouvé. Vous devez\nenvoyer le véhicule\nmanuellement.
 In order to lock the game, you have to protect the public player by password!
 Pour verrouiller le jeu, vous devez protéger le service public par un mot de passe !
-Kann Spielstand\nnicht laden.\n
-Impossible de\nlire/ouvrir\nle fichier\nde sauvegarde!\n
-Kann Spielstand\nnicht speichern.\n
-Impossible d'ouvrir\nle fichier\nde sauvegarde\nen écriture!\n
 Lost connection\nto server!
 Connexion au\nserveur perdu!\n 
 Lost synchronisation\nwith server.
@@ -167,10 +147,6 @@ No suitable way on the ground!
 Les arrêts ne peuvent être construits\nseulement sur le niveau droit correspondant aux voies
 No through station here!
 Impossible de placer\nun arrêt ici !
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Aucun itinéraire\nprogrammé :\ndépart impossible !\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Pas autorisé!\nL'itinéraire du convoi\nne peut pas être changé actuellement.\nEssayez plus tard!
 Not enough clearance.
 Une différence minimale de hauteur de 2 est requise pour construire des voies superposées
 Not enough money!
@@ -229,7 +205,7 @@ Overlay town names
 Afficher le nom des villes
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Cliquer sur la carte pour ajouter\ndes points de passage ou des arrêts pour cet\nitinéraire
-Set tile climate
+Set tile climate %s
 Transforme ce terrain en climat %s
 Show capacity and if halt is overcrowded
 Afficher la capacité et si l'arrêt est surchargé
@@ -303,12 +279,6 @@ Outils trams
 #_________________________________message_text__________________________________
 %s s\nheadquarter now\nat (%i,%i).
 %s's a construit un nouveau quartier général.
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \na construit un\nnouvel hôtel\nde ville quand\nelle a atteint\n%i habitants.
-Bankrott:\n\nDu bist bankrott.\n
-Banqueroute:\n\nVous êtes en faillite.\n
-Congratulation\nScenario was complete in\n%i months %i years.
-Félicitation!\nLe scénario a été \ncomplété en \n%i mois et %i années!
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 L'économie est florissante :\n%s à côté de %s s'étend.\n%i nouvelles industries sont fondées.
 New %s now available:\n%s\n
@@ -319,22 +289,12 @@ New vehicle now available:\n%s\n
 \n Un nouveau véhicule\n est maintenant disponible:\n\n\n » %s «\n\n
 Now %u clients connected.
 %i clients branchés à cet instant.\n\n
-On this map, you are not\nallowed to change player!\n
-Il n'est pas possible de\n changer les joueurs dans\ncette partie!\n
-Production of %s has been stopped:\n%s\n
-La production de %s a été arrêtée:\n%s\n
 Remove vehicle from map. Use with care!
 Supprimer un véhicule. A utiliser avec précautions!
 Screenshot\ngespeichert.\n
 Capture d'écran\nsauvegardée.\n
 Sends the convoi to the last depot it departed from!
 Envoie le convoi au dernier dépôt qu'il a quitté.
-Spielstand wurde\ngeladen!\n
-Partie chargée !\n
-Spielstand wurde\ngespeichert!\n
-Partie sauvegardée !\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Endettement:\n\nIl vous reste\n%d mois\npour rembourser.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s a construit un nouveau monument. %i citoyens ont été réjouis.
 #_________________________________program_text__________________________________
@@ -397,6 +357,8 @@ voie 2 réservée par\nvoie 2 réservée par
 %s est entré au dépôt.
 %s land %d %s
 %s terrain %d %s
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \na construit un\nnouvel hôtel\nde ville quand\nelle a atteint\n%i habitants.
 %s\nis crowded.
 %s\nest pleine.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -411,8 +373,6 @@ voie 2 réservée par\nvoie 2 réservée par
 <désattribuer la ligne>
 <create new line>
 <Créer nouvelle ligne>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <individual schedule>
 <itinéraire individuel>
 <no line>
@@ -461,8 +421,6 @@ Abspanntransformator
 Transformateur
 Accelerate time
 Accélérer le temps
-Account above %s
-Crédits sous %s
 Act. load: %u MW\n
 Charge: %u MW\n
 Active player only
@@ -477,7 +435,7 @@ Add Stop
 Aj. Arrêt
 Add stops for backward travel
 Ajouter des arrêts pour le retour
-air_wt
+air
 Piste de décollage/Voie de circulation
 aircraft_tab
 Avions cargo
@@ -527,10 +485,14 @@ Aufspanntransformator
 Transformateur
 August
 Août
+Autohalt muss auf\nStrasse liegen!\n
+Un arrêt de bus doit être placé sur une route.
 Available
 Disponible
 Bahndepot
 Dépôt ferroviaire
+Bankrott:\n\nDu bist bankrott.\n
+Banqueroute:\n\nVous êtes en faillite.\n
 battery
 Batterie
 Baum
@@ -559,8 +521,12 @@ Boost (%)
 Augmentation de productivité (%)
 bridge is too high for its type!
 Ce pont est trop haut pour ce type de pont !
+Bridge is too long for this type!\n
+Ce pont est trop long pour ce type de pont!
 Bruecke
 Pont
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Le pont doit\ncommencer sur\nune pente droite!\n
 Brueckenboden
 pont
 Build air depot
@@ -715,8 +681,8 @@ Configure AI
 Configurer l'IA
 Configure AI setttings
 Configurer les paramètres de l'IA
-Connect factory
-Connecter une fabrique
+Congratulation\nScenario was complete in\n%i months %i years.
+Félicitation!\nLe scénario a été \ncomplété en \n%i mois et %i années!
 Connected stops
 Arrêts connectés
 Connected with server
@@ -807,14 +773,20 @@ Departures to\n
 Départ pour\n
 Depots
 Dépôts
+Der Tunnel ist nicht frei!\n
+Le tunnel est occupé.
 Destroying map ...
 Destruction ancienne carte ...
 Details
 Détails
+Die Bruecke ist nicht frei!\n
+Le pont est occupé!
 Direkt erreichbare Haltestellen
 Gares/arrêt(s) connecté(s)
 disable midi
 Arrêter la musique MIDI
+Display settings
+Réglages d'affichage
 Distance
 distance
 Dock
@@ -971,12 +943,8 @@ Happy
 Content
 Haus kaufen
 Acheter la maison
-Headquarter and %li trains
-Gares centrales et %li trains
 Helligk.
 Affichage
-Helligk. u. Farben
-Réglages d'affichage
 Help
 Aide
 Help text not found
@@ -1039,6 +1007,8 @@ hlf_chk_waren_annahme
 Matières premières:
 hlf_title
 Filtre nom des gares
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Le dépôt ne peut pas\nêtre trouvé. Vous devez\nenvoyer le véhicule\nmanuellement.
 Homeless
 Sans domicile
 hydrogene
@@ -1085,6 +1055,10 @@ Jump to
 Aller à
 June
 Juin
+Kann Spielstand\nnicht laden.\n
+Impossible de\nlire/ouvrir\nle fichier\nde sauvegarde!\n
+Kann Spielstand\nnicht speichern.\n
+Impossible d'ouvrir\nle fichier\nde sauvegarde\nen écriture!\n
 Kein Besitzer\n
 Sans propriétaire\n
 keine
@@ -1270,7 +1244,7 @@ Voie étroite
 Narrowgaugedepot
 Dépôt de train à voi étroite
 Net ID: %p
-ID Réseau: %\n
+ID Réseau: %p\n
 Net Wealth
 Richesse
 Net wealth near zero
@@ -1313,6 +1287,8 @@ no tree
 Pas d'arbre
 No. of Factories
 Usines et magasins
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Aucun itinéraire\nprogrammé :\ndépart impossible !\n
 none
 aucun
 nord
@@ -1321,6 +1297,8 @@ nordost
 nord-est
 nordwest
 Nordouest
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Pas autorisé!\nL'itinéraire du convoi\nne peut pas être changé actuellement.\nEssayez plus tard!
 Not enough fields would remain.
 Manque de place pour\nles champs de cette ferme.
 November
@@ -1339,6 +1317,8 @@ On loan since %i month(s)
 Débiteur depuis %i mois
 on the
 départ par mois, à partir de (jj-hh-mm)
+On this map, you are not\nallowed to change player!\n
+Il n'est pas possible de\n changer les joueurs dans\ncette partie!\n
 Only city chains
 Seul chaine product urbaine
 Only first %d differing paks reported. There are probably more.
@@ -1461,6 +1441,8 @@ Problems_msg
 Problèmes
 Produced
 Produit
+Production of %s has been stopped:\n%s\n
+La production de %s a été arrêtée:\n%s\n
 Production/Boost
 Production/Augmentation de production
 Produktion
@@ -1693,6 +1675,10 @@ Spieler(mz)
 Joueurs
 Spielerliste
 Liste des joueurs
+Spielstand wurde\ngeladen!\n
+Partie chargée !\n
+Spielstand wurde\ngespeichert!\n
+Partie sauvegardée !\n
 Sprache
 Langue
 Sprachen
@@ -1739,8 +1725,6 @@ Supplied: %.0f %%
 Fournis: %.0f %%
 Suppliers
 Fournisseurs
-Supply %s at (%i,%i)
-Fournit %s à (%i,%i)
 Tage alt
 jours (âge)
 There are still vehicles\nstored in this depot!\n
@@ -1801,16 +1785,18 @@ Translation
 Traduction
 transparent station coverage
 couverture stations transparente
-Transport %li passengers
-Transport %li passagers
 Transported
 Transporté(s)
 TrolleyBus_tab
 trolley bus
+tropic
+climat tropical
 Truck
 Camion
 tt_Other
 autres
+tundra
+Toundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Le tunnel doit\ncommencer sur une\npente droite!\n
 Tunnel must start on single way!
@@ -1857,6 +1843,8 @@ verkaufen
 Vendre
 Verkehrsteilnehmer
 Utilise la route
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Endettement:\n\nIl vous reste\n%d mois\npour rembourser.\n
 via %s\n
  via %s\n
 via Menge

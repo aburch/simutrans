@@ -12,7 +12,7 @@ cyr.bdf
 #                           Language: be Belaruskaja                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 29.01 2022                           #
+#                           Date Created: 24.02 2023                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,10 +71,6 @@ hlf_btn_keine
 нічога
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
-Bridge is too long for this type!\n
-Нельга пабудаваць маста\nабранага тыпу гэткай\nвелькай даўжыні!\n
-Bruecke muss an\neinfachem\nHang beginnen!\n
-Мост павінен пачынацца\nад роўнага схілу!\n
 Das Feld gehoert\neinem anderen Spieler\n
 Участак ужо\nналежыць іншаму гульцу!\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -87,18 +83,8 @@ Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
 Немагчыма размясціць\nбудынка аэрапорта\nў абраным месцы!\n
 Hier kann kein\nSignal aufge-\nstellt werden!\n
 Тут немагчыма\nўстанавіць\nсветлафора!\n
-Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
-Адпаведнага дэпо ня знойдзена!\nЗмяніце расклад\nяк трэба самі.
-Kann Spielstand\nnicht laden.\n
-Немагчыма прачытаць\nстану гульні!\n
-Kann Spielstand\nnicht speichern.\n
-Немагчыма запісаць\nстану гульні!\n
 Monorails are not available yet!
 Манарэйкавы транспарт\nяшчэ не даступны!
-Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
-Абраны транспарт не мае раскладу.\n
-Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
-Не магчыма зараз змяніць\nраскладу руху!\nПаўтарыце пазней!
 Post muss neben\nHaltestelle\nliegen!\n
 Дадатак трэба\nбудаваць ля\nпрыпынку/станцыі!\n
 Schiffhalt muss im\nWasser liegen!\n
@@ -137,28 +123,16 @@ TRAMTOOLS
 Трамвай
 #_________________________________message_text__________________________________
 #_________________________________message_text__________________________________
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-Горад %s\nз павелічэннем\nнасельніцтва да %i\nмае цяпер новую ратушу.
-Bankrott:\n\nDu bist bankrott.\n
-Банкрот:\n\nВы банкрот.\n
 New factory chain\nfor %s near\n%s built with\n%i factories.
 Новы прамысловы ланцуг:\nдля прадпрыемства %s\nля %s\nствораны яшчэ %i\n.
 New vehicle now available:\n%s\n
 З'явілася\nновая тр. адзінка:\n\n"%s" !\n\n
-On this map, you are not\nallowed to change player!\n
-Мапа замкнёна!\nЗмена гульца\nна гэтай мапе\nзабаронена.\n
 Remove vehicle from map. Use with care!
 Асцярожна! Выдаляе транспарт з мапы.
 Screenshot\ngespeichert.\n
 Здымак запісаны.\n
 Sends the convoi to the last depot it departed from!
 Адпраўляе тр. адзінку ў найбліжэйшае дэпо!
-Spielstand wurde\ngeladen!\n
-\nСтан гульні\nбыў прачытаны!\n
-Spielstand wurde\ngespeichert!\n
-\nСтан гульні\nбыў запісаны!\n
-Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-Запазычанасць:\n\nМесяцаў\nвыплаціць доўг: %d \n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s святкуе\nўсталяванне новага помніка.\nУ фэсце бяруць\nудзел %i грамадзян.
 #_________________________________program_text__________________________________
@@ -191,6 +165,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 %s %s %s
 %s has entered a depot.
 %s\nчакае\nў дэпо.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+Горад %s\nз павелічэннем\nнасельніцтва да %i\nмае цяпер новую ратушу.
 %s\nis crowded.
 Станцыя\n%s\nперапоўнена!
 <no line>
@@ -267,6 +243,8 @@ August
 Жнівень
 Bahndepot
 Дэпо (цягнікі)
+Bankrott:\n\nDu bist bankrott.\n
+Банкрот:\n\nВы банкрот.\n
 Baum
 Дрэва
 Baustelle
@@ -281,8 +259,12 @@ Blockstrecke ist\nbelegt\n
 \nУчастак заняты іншай\nтр. адзінкай!\n
 Boden
 Зямля
+Bridge is too long for this type!\n
+Нельга пабудаваць маста\nабранага тыпу гэткай\nвелькай даўжыні!\n
 Bruecke
 Мост
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Мост павінен пачынацца\nад роўнага схілу!\n
 Build city market
 Пабудаваць гандлёвае прадпрыемства
 Build drain
@@ -409,6 +391,8 @@ diesel
 Дызель
 Direkt erreichbare Haltestellen
 Прамы маршрут да прыпынкаў
+Display settings
+Відарыс
 Dock
 Док
 Durchsatz
@@ -503,8 +487,6 @@ Happy
 Здаволеныя пас.
 Helligk.
 Відарыс
-Helligk. u. Farben
-Відарыс
 Help
 Дапамога
 Hier warten/lagern:
@@ -539,6 +521,8 @@ hlf_chk_waren_annahme
 Прынімае:
 hlf_title
 Фільтр спісу станцый
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Адпаведнага дэпо ня знойдзена!\nЗмяніце расклад\nяк трэба самі.
 Homeless
 Бяздомныя
 hydrogene
@@ -557,6 +541,10 @@ July
 Ліпень
 June
 Чэрвень
+Kann Spielstand\nnicht laden.\n
+Немагчыма прачытаць\nстану гульні!\n
+Kann Spielstand\nnicht speichern.\n
+Немагчыма запісаць\nстану гульні!\n
 keine
 нічога
 Keine Einzelfahrzeuge im Depot
@@ -657,12 +645,18 @@ no goods waiting
 няма нічога для перавозкі
 No Route
 Без маршруту
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Абраны транспарт не мае раскладу.\n
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Не магчыма зараз змяніць\nраскладу руху!\nПаўтарыце пазней!
 November
 Лістапад
 Now active as %s.\n
 Цяпер Вы -\n%s.\n
 Ok
 Добра
+On this map, you are not\nallowed to change player!\n
+Мапа замкнёна!\nЗмена гульца\nна гэтай мапе\nзабаронена.\n
 Operation
 Бягучыя выд.
 Ops Profit
@@ -801,6 +795,10 @@ Spieler
 Гулец
 Spieler(mz)
 Гульцы
+Spielstand wurde\ngeladen!\n
+\nСтан гульні\nбыў прачытаны!\n
+Spielstand wurde\ngespeichert!\n
+\nСтан гульні\nбыў запісаны!\n
 Sprache
 Мова
 Stadtinformation
@@ -877,6 +875,8 @@ Verbrauch
 Спажыванне
 verkaufen
 Продаж
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Запазычанасць:\n\nМесяцаў\nвыплаціць доўг: %d \n
 via
 прамеж. пункт
 via Menge
