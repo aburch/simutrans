@@ -3478,7 +3478,7 @@ name=Select a theme for display
 -
 obj=help_text
 note=tooltext to indicate climate conversion of a tile
-name=Set tile climate
+name=Set tile climate %s
 -
 obj=help_text
 note=tooltext for filling a bassin
