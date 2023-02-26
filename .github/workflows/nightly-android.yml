@@ -126,7 +126,7 @@ jobs:
         ./build.sh -b simutrans
 
     - name: Update binaries of Nightly Release aab
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: /android-sdl/project/app/build/outputs/bundle/release/simutrans-nightly.aab
@@ -135,7 +135,7 @@ jobs:
         overwrite: true
 
     - name: Update binaries of Nightly Release apk
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: /android-sdl/project/app/build/outputs/bundle/release/simuandroid-multi-nightly.apk
