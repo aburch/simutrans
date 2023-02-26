@@ -22,7 +22,7 @@ jobs:
         shell: powershell
 
       - name: Create nsis installer
-        uses: joncloud/makensis-action@v2.0
+        uses: joncloud/makensis-action@v4
         with:
           arguments: "/V3"
           additional-plugin-paths: NSIS_Plugins/Plugins
