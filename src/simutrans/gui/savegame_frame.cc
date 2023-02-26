@@ -280,6 +280,8 @@ void savegame_frame_t::list_filled( void )
 	button_frame.set_table_layout(1,0);
 	button_frame.add_table(cols,0)->set_spacing(scr_size(D_H_SPACE,D_FILELIST_V_SPACE)); // change space between entries to zero to see more on screen
 
+	button_t *pressed_button = NULL;
+
 	for(dir_entry_t const& i : entries) {
 		button_t*    const delete_button = i.del;
 		button_t*    const action_button = i.button;
@@ -311,6 +313,10 @@ void savegame_frame_t::list_filled( void )
 			if (label_enabled) {
 				button_frame.add_component(label);
 			}
+
+			if (pressed_button == NULL  &&  action_button->pressed) {
+				pressed_button = action_button;
+			}
 		}
 
 	}
@@ -323,6 +329,10 @@ void savegame_frame_t::list_filled( void )
 	// TODO do something smarter here
 	size.w = max(size.w, button_frame.get_min_size().w + D_SCROLLBAR_WIDTH);
 	set_windowsize(size);
+
+	if (pressed_button) {
+		scrolly.set_scroll_position(0, max(0, pressed_button->get_pos().y - 2 * D_BUTTON_HEIGHT) );
+	}
 }
 
 

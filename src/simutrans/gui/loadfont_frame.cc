@@ -232,6 +232,7 @@ void loadfont_frame_t::fill_list()
 				strcat( name, " ");
 				strcat( name, face->style_name );
 				i.button->set_text(name);
+				i.button->pressed = strstr( env_t::fontname.c_str(), i.info );
 				FT_Done_Face( face );
 			}
 		}
