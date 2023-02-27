@@ -254,6 +254,33 @@ int default_font_linespace = 0;
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
 
+// RGB 555/565 specific functions
+
+// different masks needed for RGB 555 and RGB 565 for blending
+#ifdef RGB555
+#define ONE_OUT (0x3DEF) // mask out bits after applying >>1
+#define TWO_OUT (0x1CE7) // mask out bits after applying >>2
+#define MASK_32 (0x03e0f81f) // mask out bits after transforming to 32bit
+inline PIXVAL rgb(PIXVAL r, PIXVAL g, PIXVAL b) { return (r << 10) | (g << 5) | b; }
+inline PIXVAL red(PIXVAL rgb) { return  rgb >> 10; }
+inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x1F; }
+#else
+#define ONE_OUT (0x7bef) // mask out bits after applying >>1
+#define TWO_OUT (0x39E7) // mask out bits after applying >>2
+#define MASK_32 (0x07e0f81f) // mask out bits after transforming to 32bit
+inline PIXVAL rgb(PIXVAL r, PIXVAL g, PIXVAL b) { return (r << 11) | (g << 5) | b; }
+inline PIXVAL red(PIXVAL rgb) { return rgb >> 11; }
+inline PIXVAL green(PIXVAL rgb) { return (rgb >> 5) & 0x3F; }
+#endif
+inline PIXVAL blue(PIXVAL rgb) { return  rgb & 0x1F; }
+
+/**
+ * Implement shift-and-mask for rgb values:
+ * shift-right by 1 or 2, and mask it to a valid rgb number.
+ */
+inline PIXVAL rgb_shr1(PIXVAL c) { return (c >> 1) & ONE_OUT; }
+inline PIXVAL rgb_shr2(PIXVAL c) { return (c >> 2) & TWO_OUT; }
+
 
 /*
  * mapping tables for RGB 555 to actual output format
@@ -296,23 +323,6 @@ static PIXVAL specialcolormap_day_night[256];
  */
 PIXVAL specialcolormap_all_day[256];
 
-
-/*
- * contains all color conversions for transparency
- * 16 player colors, 15 special colors and 1024 3 4 3 encoded colors for transparent base
- */
-static PIXVAL transparent_map_day_night[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
-static PIXVAL transparent_map_all_day[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
-//static PIXVAL *transparent_map_current;
-
-/*
- * contains all color conversions for transparency
- * 16 player colors, 15 special colors and 1024 3 4 3 encoded colors for transparent base
- */
-static uint8 transparent_map_day_night_rgb[(MAX_PLAYER_COUNT+LIGHT_COUNT+1024)*4];
-static uint8 transparent_map_all_day_rgb[(MAX_PLAYER_COUNT+LIGHT_COUNT+1024)*4];
-//static uint8 *transparent_map_current_rgb;
-
 // offsets of first and second company color
 static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
@@ -350,14 +360,6 @@ struct imd {
 //#define FLAG_POSITION_CHANGED (16)
 
 #define TRANSPARENT_RUN (0x8000u)
-
-// different masks needed for RGB 555 and RGB 565 for blending
-#define ONE_OUT_16 (0x7bef)
-#define TWO_OUT_16 (0x39E7)
-#define ONE_OUT_15 (0x3DEF)
-#define TWO_OUT_15 (0x1CE7)
-
-static int bitdepth = 16;
 
 static scr_coord_val disp_width  = 640;
 static scr_coord_val disp_actual_width  = 640;
@@ -1166,27 +1168,6 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_all_day[0x8000+i] = specialcolormap_all_day[player_offsets[player_day][0]+i];
 				rgbmap_all_day[0x8008+i] = specialcolormap_all_day[player_offsets[player_day][1]+i];
-#ifdef RGB555
-				transparent_map_all_day[i] = (specialcolormap_all_day[player_offsets[player_day][0] + i] >> 2) & TWO_OUT_15;
-				transparent_map_all_day[i + 8] = (specialcolormap_all_day[player_offsets[player_day][1] + i] >> 2) & TWO_OUT_15;
-				// those save RGB components
-				transparent_map_all_day_rgb[i * 4 + 0] = specialcolormap_all_day[player_offsets[player_day][0] + i] >> 10;
-				transparent_map_all_day_rgb[i * 4 + 1] = (specialcolormap_all_day[player_offsets[player_day][0] + i] >> 5) & 0x31;
-				transparent_map_all_day_rgb[i * 4 + 2] = specialcolormap_all_day[player_offsets[player_day][0] + i] & 0x1F;
-				transparent_map_all_day_rgb[i * 4 + 0 + 32] = specialcolormap_all_day[player_offsets[player_day][1] + i] >> 10;
-				transparent_map_all_day_rgb[i * 4 + 1 + 32] = (specialcolormap_all_day[player_offsets[player_day][1] + i] >> 5) & 0x1F;
-				transparent_map_all_day_rgb[i * 4 + 2 + 32] = specialcolormap_all_day[player_offsets[player_day][1] + i] & 0x1F;
-#else
-				transparent_map_all_day[i] = (specialcolormap_all_day[player_offsets[player_day][0] + i] >> 2) & TWO_OUT_16;
-				transparent_map_all_day[i + 8] = (specialcolormap_all_day[player_offsets[player_day][1] + i] >> 2) & TWO_OUT_16;
-				// those save RGB components
-				transparent_map_all_day_rgb[i * 4 + 0] = specialcolormap_all_day[player_offsets[player_day][0] + i] >> 11;
-				transparent_map_all_day_rgb[i * 4 + 1] = (specialcolormap_all_day[player_offsets[player_day][0] + i] >> 5) & 0x3F;
-				transparent_map_all_day_rgb[i * 4 + 2] = specialcolormap_all_day[player_offsets[player_day][0] + i] & 0x1F;
-				transparent_map_all_day_rgb[i * 4 + 0 + 32] = specialcolormap_all_day[player_offsets[player_day][1] + i] >> 11;
-				transparent_map_all_day_rgb[i * 4 + 1 + 32] = (specialcolormap_all_day[player_offsets[player_day][1] + i] >> 5) & 0x3F;
-				transparent_map_all_day_rgb[i * 4 + 2 + 32] = specialcolormap_all_day[player_offsets[player_day][1] + i] & 0x1F;
-#endif
 			}
 		}
 		rgbmap_current = rgbmap_all_day;
@@ -1199,27 +1180,6 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[player_night][0]+i];
 				rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[player_night][1]+i];
-#ifdef RGB555
-				transparent_map_day_night[i] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 2) & TWO_OUT_15;
-				transparent_map_day_night[i + 8] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 2) & TWO_OUT_15;
-				// those save RGB components
-				transparent_map_day_night_rgb[i * 4 + 0] = specialcolormap_day_night[player_offsets[player_day][0] + i] >> 10;
-				transparent_map_day_night_rgb[i * 4 + 1] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 5) & 0x31;
-				transparent_map_day_night_rgb[i * 4 + 2] = specialcolormap_day_night[player_offsets[player_day][0] + i] & 0x1F;
-				transparent_map_day_night_rgb[i * 4 + 0 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] >> 10;
-				transparent_map_day_night_rgb[i * 4 + 1 + 32] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 5) & 0x1F;
-				transparent_map_day_night_rgb[i * 4 + 2 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] & 0x1F;
-#else
-				transparent_map_day_night[i] = (specialcolormap_day_night[player_offsets[player_day][0]+i] >> 2) & TWO_OUT_16;
-				transparent_map_day_night[i+8] = (specialcolormap_day_night[player_offsets[player_day][1]+i] >> 2) & TWO_OUT_16;
-				// those save RGB components
-				transparent_map_day_night_rgb[i*4+0] = specialcolormap_day_night[player_offsets[player_day][0]+i] >> 11;
-				transparent_map_day_night_rgb[i*4+1] = (specialcolormap_day_night[player_offsets[player_day][0]+i] >> 5) & 0x3F;
-				transparent_map_day_night_rgb[i*4+2] = specialcolormap_day_night[player_offsets[player_day][0]+i] & 0x1F;
-				transparent_map_day_night_rgb[i*4+0+32] = specialcolormap_day_night[player_offsets[player_day][1]+i] >> 11;
-				transparent_map_day_night_rgb[i*4+1+32] = (specialcolormap_day_night[player_offsets[player_day][1]+i] >> 5) & 0x3F;
-				transparent_map_day_night_rgb[i*4+2+32] = specialcolormap_day_night[player_offsets[player_day][1]+i] & 0x1F;
-#endif
 			}
 		}
 		rgbmap_current = rgbmap_day_night;
@@ -1238,15 +1198,10 @@ static void recode()
 }
 
 
-// to switch between 15 bit and 16 bit recoding ...
-typedef void (*display_recode_img_src_target_proc)(scr_coord_val h, PIXVAL *src, PIXVAL *target);
-static display_recode_img_src_target_proc recode_img_src_target = NULL;
-
-
 /**
  * Convert a certain image data to actual output data
  */
-static void recode_img_src_target_15(scr_coord_val h, PIXVAL *src, PIXVAL *target)
+static void recode_img_src_target(scr_coord_val h, PIXVAL *src, PIXVAL *target)
 {
 	if(  h > 0  ) {
 		do {
@@ -1260,46 +1215,13 @@ static void recode_img_src_target_15(scr_coord_val h, PIXVAL *src, PIXVAL *targe
 					while(  runlen--  ) {
 						if(  *src < 0x8020+(31*16)  ) {
 							// expand transparent player color
-							PIXVAL rgb555 = rgbmap_day_night[(*src-0x8020)/31+0x8000];
 							PIXVAL alpha = (*src-0x8020) % 31;
-							PIXVAL pix = ((rgb555 >> 6) & 0x0380) | ((rgb555 >>  4) & 0x0038) | ((rgb555 >> 2) & 0x07);
-							*target++ = 0x8020 + 31*31 + pix*31 + alpha;
-							src ++;
-						}
-						else {
-							*target++ = *src++;
-						}
-					}
-				}
-				else {
-					// now just convert the color pixels
-					while(  runlen--  ) {
-						*target++ = rgbmap_day_night[*src++];
-					}
-				}
-				// next clear run or zero = end
-			} while(  (runlen = *target++ = *src++)  );
-		} while(  --h  );
-	}
-}
-
-static void recode_img_src_target_16(scr_coord_val h, PIXVAL *src, PIXVAL *target)
-{
-	if(  h > 0  ) {
-		do {
-			uint16 runlen = *target++ = *src++;
-			// decode rows
-			do {
-				// clear run is always ok
-				runlen = *target++ = *src++;
-				if(  runlen & TRANSPARENT_RUN  ) {
-					runlen &= ~TRANSPARENT_RUN;
-					while(  runlen--  ) {
-						if(  *src < 0x8020+(31*16)  ) {
-							// expand transparent player color
-							PIXVAL rgb565 = rgbmap_day_night[(*src-0x8020)/31+0x8000];
-							PIXVAL alpha = (*src-0x8020) % 31;
-							PIXVAL pix = ((rgb565 >> 6) & 0x0380) | ((rgb565 >>  3) & 0x0078) | ((rgb565 >> 2) & 0x07);
+							PIXVAL rgb = rgbmap_day_night[(*src-0x8020)/31+0x8000];
+#ifdef RGB555
+							PIXVAL pix = ((rgb >> 6) & 0x0380) | ((rgb >>  4) & 0x0038) | ((rgb >> 2) & 0x07);
+#else
+							PIXVAL pix = ((rgb >> 6) & 0x0380) | ((rgb >>  3) & 0x0078) | ((rgb >> 2) & 0x07);
+#endif
 							*target++ = 0x8020 + 31*31 + pix*31 + alpha;
 							src ++;
 						}
@@ -1948,36 +1870,6 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
-	// again the same but for transparent colors
-	for (i = 0; i < 0x0400; i++) {
-		// RGB 343 input
-		int R = (i & 0x0380) >> 2;
-		int G = (i & 0x0078) << 1;
-		int B = (i & 0x0007) << 5;
-
-		// lines generate all possible colors in 343RGB code - input
-		// however the result is in 888RGB - 8bit per channel
-		R = (int)(R * RG_night_multiplier);
-		G = (int)(G * RG_night_multiplier);
-		B = (int)(B * B_night_multiplier);
-
-#ifdef RGB555
-		// 15 bit colors form here!
-		PIXVAL color = get_system_color(R, G, B);
-		transparent_map_day_night[MAX_PLAYER_COUNT + LIGHT_COUNT + i] = (color >> 2) & TWO_OUT_15;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 0] = color >> 10;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 1] = (color >> 5) & 0x1F;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 2] = color & 0x1F;
-#else
-		// 16 bit colors form here!
-		PIXVAL color = get_system_color(R, G, B);
-		transparent_map_day_night[MAX_PLAYER_COUNT + LIGHT_COUNT + i] = (color >> 2) & TWO_OUT_16;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 0] = color >> 11;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 1] = (color >> 5) & 0x3F;
-		transparent_map_day_night_rgb[(MAX_PLAYER_COUNT + LIGHT_COUNT + i) * 4 + 2] = color & 0x1F;
-#endif
-	}
-
 	// player color map (and used for map display etc.)
 	for (i = 0; i < SPECIAL_COLOR_COUNT; i++) {
 		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
@@ -2001,28 +1893,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	for(i=0;  i<8;  i++  ) {
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
 		rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[0][1]+i];
-#ifdef RGB555
-		// 15 bit colors from here!
-		transparent_map_day_night[i] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 2) & TWO_OUT_15;
-		transparent_map_day_night[i + 8] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 2) & TWO_OUT_15;
-		transparent_map_day_night_rgb[i * 4 + 0] = specialcolormap_day_night[player_offsets[player_day][0] + i] >> 10;
-		transparent_map_day_night_rgb[i * 4 + 1] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 5) & 0x1F;
-		transparent_map_day_night_rgb[i * 4 + 2] = specialcolormap_day_night[player_offsets[player_day][0] + i] & 0x1F;
-		transparent_map_day_night_rgb[i * 4 + 0 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] >> 10;
-		transparent_map_day_night_rgb[i * 4 + 1 + 32] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 5) & 0x1F;
-		transparent_map_day_night_rgb[i * 4 + 2 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] & 0x1F;
-#else
-		// 16 bit colors from here!
-		transparent_map_day_night[i] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 2) & TWO_OUT_16;
-		transparent_map_day_night[i + 8] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 2) & TWO_OUT_16;
-		// save RGB components
-		transparent_map_day_night_rgb[i * 4 + 0] = specialcolormap_day_night[player_offsets[player_day][0] + i] >> 11;
-		transparent_map_day_night_rgb[i * 4 + 1] = (specialcolormap_day_night[player_offsets[player_day][0] + i] >> 5) & 0x3F;
-		transparent_map_day_night_rgb[i * 4 + 2] = specialcolormap_day_night[player_offsets[player_day][0] + i] & 0x1F;
-		transparent_map_day_night_rgb[i * 4 + 0 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] >> 11;
-		transparent_map_day_night_rgb[i * 4 + 1 + 32] = (specialcolormap_day_night[player_offsets[player_day][1] + i] >> 5) & 0x3F;
-		transparent_map_day_night_rgb[i * 4 + 2 + 32] = specialcolormap_day_night[player_offsets[player_day][1] + i] & 0x1F;
-#endif
 	}
 	player_night = 0;
 
@@ -2042,19 +1912,6 @@ static void calc_base_pal_from_night_shift(const int night)
 
 		PIXVAL color = get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 		rgbmap_day_night[0x8000 + MAX_PLAYER_COUNT + i] = color;
-#ifdef RGB555
-		// 15 bit colors from here!
-		transparent_map_day_night[i + MAX_PLAYER_COUNT] = (color >> 2) & TWO_OUT_15;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 0] = color >> 10;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 1] = (color >> 5) & 0x1F;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 2] = color & 0x1F;
-#else
-		// 16 bit colors from here!
-		transparent_map_day_night[i + MAX_PLAYER_COUNT] = (color >> 2) & TWO_OUT_16;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 0] = color >> 11;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 1] = (color >> 5) & 0x3F;
-		transparent_map_day_night_rgb[(i + MAX_PLAYER_COUNT) * 4 + 2] = color & 0x1F;
-#endif
 	}
 
 	// convert to RGB xxx
@@ -2083,8 +1940,6 @@ void display_set_player_color_scheme(const int player, const uint8 col1, const u
 			// and recalculate map (and save it)
 			calc_base_pal_from_night_shift(0);
 			memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-			memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
-			memcpy(transparent_map_all_day_rgb, transparent_map_day_night_rgb, lengthof(transparent_map_day_night_rgb) * sizeof(uint8));
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
@@ -2226,6 +2081,8 @@ void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coor
 
 // ------------------ display all kind of images from here on ------------------------------
 
+// forward declaration, implementation is further below
+PIXVAL colors_blend_alpha32(PIXVAL background, PIXVAL foreground, int alpha);
 
 /**
  * Copy Pixel from src to dest
@@ -2239,8 +2096,6 @@ static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const
 }
 
 
-
-#ifdef RGB555
 /**
  * Copy pixel, replace player color
  */
@@ -2254,79 +2109,16 @@ static inline void colorpixcopy(PIXVAL* dest, const PIXVAL* src, const PIXVAL* c
 	else {
 		while (src < end) {
 			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_day_night[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				*dest = alpha * colval + (4 - alpha) * (((*dest) >> 2) & TWO_OUT_15);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_day_night_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
+			uint16 aux   = *src++ - 0x8020;
+			uint16 alpha = (aux % 31) + 1;
 
-				const PIXVAL r_dest = (*dest >> 10);
-				const PIXVAL g_dest = (*dest >> 5) & 0x1F;
-				const PIXVAL b_dest = (*dest & 0x1F);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = (r << 10) | (g << 5) | b;
-			}
+			*dest = colors_blend_alpha32(*dest, rgbmap_day_night[0x8000 + aux / 31], alpha);
+			dest++;
 		}
 	}
 }
-#else
-/**
- * Copy pixel, replace player color
- */
-static inline void colorpixcopy(PIXVAL* dest, const PIXVAL* src, const PIXVAL* const end)
-{
-	if (*src < 0x8020) {
-		while (src < end) {
-			*dest++ = rgbmap_current[*src++];
-		}
-	}
-	else {
-		while (src < end) {
-			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			//assert( *src>=0x8020+16*31 );
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_day_night[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				*dest = alpha * colval + (4 - alpha) * (((*dest) >> 2) & TWO_OUT_16);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_day_night_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
-
-				//				const PIXVAL colval = transparent_map_day_night[(*src++-0x8020)/31];
-				//				const PIXVAL r_src = (colval >> 11);
-				//				const PIXVAL g_src = (colval >> 5) & 0x3F;
-				//				const PIXVAL b_src = colval & 0x1F;
-								// all other alphas
-				const PIXVAL r_dest = (*dest >> 11);
-				const PIXVAL g_dest = (*dest >> 5) & 0x3F;
-				const PIXVAL b_dest = (*dest & 0x1F);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = (r << 11) | (g << 5) | b;
-			}
-		}
-	}
-}
-#endif
 
 
-
-#ifdef RGB555
 /**
  * Copy pixel, replace player color
  */
@@ -2340,76 +2132,14 @@ static inline void colorpixcopydaytime(PIXVAL* dest, const PIXVAL* src, const PI
 	else {
 		while (src < end) {
 			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_all_day[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				*dest = alpha * colval + (4 - alpha) * (((*dest) >> 2) & TWO_OUT_15);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_all_day_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
+			uint16 aux   = *src++ - 0x8020;
+			uint16 alpha = (aux % 31) + 1;
 
-				const PIXVAL r_dest = (*dest >> 10);
-				const PIXVAL g_dest = (*dest >> 5) & 0x1F;
-				const PIXVAL b_dest = (*dest & 0x1F);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = (r << 10) | (g << 5) | b;
-			}
+			*dest = colors_blend_alpha32(*dest, rgbmap_all_day[0x8000 + aux / 31], alpha);
+			dest++;
 		}
 	}
 }
-#else
-/**
- * Copy pixel, replace player color
- */
-static inline void colorpixcopydaytime(PIXVAL* dest, const PIXVAL* src, const PIXVAL* const end)
-{
-	if (*src < 0x8020) {
-		while (src < end) {
-			*dest++ = rgbmap_current[*src++];
-		}
-	}
-	else {
-		while (src < end) {
-			// a semi-transparent pixel
-			uint16 alpha = ((*src - 0x8020) % 31) + 1;
-			//assert( *src>=0x8020+16*31 );
-			if ((alpha & 0x07) == 0) {
-				const PIXVAL colval = transparent_map_all_day[(*src++ - 0x8020) / 31];
-				alpha /= 8;
-				*dest = alpha * colval + (4 - alpha) * (((*dest) >> 2) & TWO_OUT_16);
-				dest++;
-			}
-			else {
-				uint8* trans_rgb = transparent_map_all_day_rgb + ((*src++ - 0x8020) / 31) * 4;
-				const PIXVAL r_src = *trans_rgb++;
-				const PIXVAL g_src = *trans_rgb++;
-				const PIXVAL b_src = *trans_rgb++;
-
-				//				const PIXVAL colval = transparent_map_day_night[(*src++-0x8020)/31];
-				//				const PIXVAL r_src = (colval >> 11);
-				//				const PIXVAL g_src = (colval >> 5) & 0x3F;
-				//				const PIXVAL b_src = colval & 0x1F;
-								// all other alphas
-				const PIXVAL r_dest = (*dest >> 11);
-				const PIXVAL g_dest = (*dest >> 5) & 0x3F;
-				const PIXVAL b_dest = (*dest & 0x1F);
-				const PIXVAL r = r_dest + (((r_src - r_dest) * alpha) >> 5);
-				const PIXVAL g = g_dest + (((g_src - g_dest) * alpha) >> 5);
-				const PIXVAL b = b_dest + (((b_src - b_dest) * alpha) >> 5);
-				*dest++ = (r << 11) | (g << 5) | b;
-			}
-		}
-	}
-}
-#endif
-
 
 
 /**
@@ -3115,6 +2845,36 @@ void display_base_img(const image_id n, scr_coord_val xp, scr_coord_val yp, cons
 	} // number ok
 }
 
+inline PIXVAL colors_blend25(PIXVAL background, PIXVAL foreground) { return rgb_shr1(background) + rgb_shr2(background) + rgb_shr2(foreground); }
+inline PIXVAL colors_blend50(PIXVAL background, PIXVAL foreground) { return rgb_shr1(background) + rgb_shr1(foreground); }
+inline PIXVAL colors_blend75(PIXVAL background, PIXVAL foreground) { return rgb_shr2(background) + rgb_shr1(foreground) + rgb_shr2(foreground); }
+inline PIXVAL colors_blend_alpha32(PIXVAL background, PIXVAL foreground, int alpha)
+{
+	uint32 b = ((background << 16) | background) & MASK_32;
+	uint32 f = ((foreground << 16) | foreground) & MASK_32;
+	uint32 r = ((f * alpha + (32-alpha) * b) >> 5) & MASK_32;
+	return r | (r >> 16);
+}
+
+// Blends two colors. Possible values for alpha: 0..32
+PIXVAL display_blend_colors_alpha32(PIXVAL background, PIXVAL foreground, int alpha)
+{
+	// alpha takes values 0 .. 32
+	switch(alpha) {
+		case 0: // nothing to do ...
+			return background;
+		case 8:
+			return colors_blend25(background, foreground);
+		case 16:
+			return colors_blend50(background, foreground);
+		case 24:
+			return colors_blend75(background, foreground);
+		case 32:
+			return foreground;
+		default:
+			return colors_blend_alpha32(background, foreground, alpha);
+	}
+}
 
 
 // Blends two colors
@@ -3125,278 +2885,88 @@ PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_bl
 	switch( alpha ) {
 		case 0: // nothing to do ...
 			return background;
-#ifdef RGB555
 		case 16:
-		{
-			const PIXVAL two = TWO_OUT_15;
-			return (3 * (((background) >> 2) & two)) + (((foreground) >> 2) & two);
-		}
+			return colors_blend25(background, foreground);
+
 		case 32:
-		{
-			const PIXVAL one = ONE_OUT_15;
-			return ((((background) >> 1) & one)) + (((foreground) >> 1) & one);
-		}
+			return colors_blend50(background, foreground);
+
 		case 48:
-		{
-			const PIXVAL two = TWO_OUT_15;
-			return ((((background) >> 2) & two)) + (3 * ((foreground) >> 2) & two);
-		}
+			return colors_blend25(background, foreground);
 
 		case 64:
 			return foreground;
 
 		default:
 			// any percentage blending: SLOW!
-			// 555 BITMAPS
-			const PIXVAL r_src = (background >> 10) & 0x1F;
-			const PIXVAL g_src = (background >> 5) & 0x1F;
-			const PIXVAL b_src = background & 0x1F;
-			const PIXVAL r_dest = (foreground >> 10) & 0x1F;
-			const PIXVAL g_dest = (foreground >> 5) & 0x1F;
-			const PIXVAL b_dest = (foreground & 0x1F);
-
+			const PIXVAL r_src = red(background);
+			const PIXVAL g_src = green(background);
+			const PIXVAL b_src = blue(background);
+			const PIXVAL r_dest = red(foreground);
+			const PIXVAL g_dest = green(foreground);
+			const PIXVAL b_dest = blue(foreground);
 			const PIXVAL r = (r_dest * alpha + r_src * (64 - alpha) + 32) >> 6;
 			const PIXVAL g = (g_dest * alpha + g_src * (64 - alpha) + 32) >> 6;
 			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
-			return (r << 10) | (g << 5) | b;
-#else
-		case 16:
-		{
-			const PIXVAL two = TWO_OUT_16;
-			return (3 * (((background) >> 2) & two)) + (((foreground) >> 2) & two);
-		}
-		case 32:
-		{
-			const PIXVAL one = ONE_OUT_16;
-			return ((((background) >> 1) & one)) + (((foreground) >> 1) & one);
-		}
-		case 48:
-		{
-			const PIXVAL two = TWO_OUT_16;
-			return ((((background) >> 2) & two)) + (3 * ((foreground) >> 2) & two);
-		}
-
-		case 64:
-			return foreground;
-
-		default:
-			// any percentage blending: SLOW!
-			// 565 colors
-			const PIXVAL r_src = (background >> 11);
-			const PIXVAL g_src = (background >> 5) & 0x3F;
-			const PIXVAL b_src = background & 0x1F;
-			const PIXVAL r_dest = (foreground >> 11);
-			const PIXVAL g_dest = (foreground >> 5) & 0x3F;
-			const PIXVAL b_dest = (foreground & 0x1F);
-			const PIXVAL r = (r_dest * alpha + r_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL g = (g_dest * alpha + g_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
-			return (r << 11) | (g << 5) | b;
-#endif
+			return rgb(r, g, b);
 	}
+// ??	return display_blend_colors_alpha32(background, foreground, (percent_blend*32)/100);
 }
 
 
 /* from here code for transparent images */
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
 
-static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+// templated structures to specialize for the different blend modes: 25/50/75 percent
+struct blend25_t { static inline PIXVAL blend(PIXVAL background, PIXVAL foreground) { return 3 * rgb_shr2(background) + rgb_shr2(foreground); } };
+struct blend50_t { static inline PIXVAL blend(PIXVAL background, PIXVAL foreground) { return rgb_shr1(background) + rgb_shr1(foreground); }     };
+struct blend75_t { static inline PIXVAL blend(PIXVAL background, PIXVAL foreground) { return rgb_shr2(background) + 3 * rgb_shr2(foreground); } };
+
+template<class F> void pix_blend_tpl(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*(((*src)>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		*dest = F::blend(*dest, *src);
 		dest++;
 		src++;
 	}
 }
-
-
-static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (3*(((*src)>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((*src)>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((*src)>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((*src)>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((*src)>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
-		dest++;
-		src++;
-	}
-}
-
 
 // the following 6 functions are for display_base_img_blend()
-static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+template<class F> void pix_blend_recode_tpl(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*(((rgbmap_current[*src])>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		*dest = F::blend(*dest, rgbmap_current[*src]);
 		dest++;
 		src++;
 	}
 }
 
-
-static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+template<class F> void pix_outline_tpl(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*(((rgbmap_current[*src])>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((rgbmap_current[*src])>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((rgbmap_current[*src])>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((rgbmap_current[*src])>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (((rgbmap_current[*src])>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
-		dest++;
-		src++;
-	}
-}
-
-
-static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (3*((colour>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		*dest = F::blend(*dest, colour);
 		dest++;
 	}
 }
 
+// save them for easier access
+static blend_proc blend[3] = {
+	pix_blend_tpl<blend25_t>,
+	pix_blend_tpl<blend50_t>,
+	pix_blend_tpl<blend75_t> };
 
-static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = (3*((colour>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
-		dest++;
-	}
-}
+static blend_proc blend_recode[3] = {
+	pix_blend_recode_tpl<blend25_t>,
+	pix_blend_recode_tpl<blend50_t>,
+	pix_blend_recode_tpl<blend75_t>};
 
-
-static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = ((colour>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
-		dest++;
-	}
-}
-
-
-static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = ((colour>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
-		dest++;
-	}
-}
-
-
-static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = ((colour>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
-		dest++;
-	}
-}
-
-
-static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-	while (dest < end) {
-		*dest = ((colour>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
-		dest++;
-	}
-}
-
-
-// will kept the actual values
-static blend_proc blend[3];
-static blend_proc blend_recode[3];
-static blend_proc outline[3];
+static blend_proc outline[3] = {
+	pix_outline_tpl<blend25_t>,
+	pix_outline_tpl<blend50_t>,
+	pix_outline_tpl<blend75_t>};
 
 
 /**
@@ -3431,41 +3001,21 @@ void display_blend_wh_rgb(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, s
 
 			default:
 				// any percentage blending: SLOW!
-				if(  blend[0] == pix_blend25_15  ) {
-					// 555 BITMAPS
-					const PIXVAL r_src = (colval >> 10) & 0x1F;
-					const PIXVAL g_src = (colval >> 5) & 0x1F;
-					const PIXVAL b_src = colval & 0x1F;
+				{
+					const PIXVAL r_src = red(colval);
+					const PIXVAL g_src = green(colval);
+					const PIXVAL b_src = blue(colval);
 					for(  ;  h>0;  yp++, h--  ) {
 						PIXVAL *dest = textur + yp*disp_width + xp;
 						const PIXVAL *const end = dest + w;
 						while (dest < end) {
-							const PIXVAL r_dest = (*dest >> 10) & 0x1F;
-							const PIXVAL g_dest = (*dest >> 5) & 0x1F;
-							const PIXVAL b_dest = (*dest & 0x1F);
+							const PIXVAL r_dest = red(*dest);
+							const PIXVAL g_dest = green(*dest);
+							const PIXVAL b_dest = blue(*dest);
 							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
 							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
 							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
-							*dest++ = (r << 10) | (g << 5) | b;
-						}
-					}
-				}
-				else {
-					// 565 BITMAPS
-					const PIXVAL r_src = (colval >> 11);
-					const PIXVAL g_src = (colval >> 5) & 0x3F;
-					const PIXVAL b_src = colval & 0x1F;
-					for(  ;  h>0;  yp++, h--  ) {
-						PIXVAL *dest = textur + yp*disp_width + xp;
-						const PIXVAL *const end = dest + w;
-						while (dest < end) {
-							const PIXVAL r_dest = (*dest >> 11);
-							const PIXVAL g_dest = (*dest >> 5) & 0x3F;
-							const PIXVAL b_dest = (*dest & 0x1F);
-							const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
-							const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
-							const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
-							*dest++ = (r << 11) | (g << 5) | b;
+							*dest++ = rgb(r, g, b);
 						}
 					}
 				}
@@ -3512,23 +3062,29 @@ static void display_img_blend_wc(scr_coord_val h, const scr_coord_val xp, const 
 
 /* from here code for transparent images */
 
+static PIXVAL get_alpha_mask(const unsigned alpha_flags)
+{
+	PIXVAL mask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
+	if (alpha_flags & ALPHA_GREEN) {
+		mask |= 0x03e0;
+	}
+	if (alpha_flags & ALPHA_BLUE) {
+		mask |= 0x001f;
+	}
+	return mask;
+}
 
-typedef void (*alpha_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL colour, const PIXVAL len);
-static alpha_proc alpha;
-static alpha_proc alpha_recode;
 
+typedef void (*alpha_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const PIXVAL alpha_mask, const PIXVAL colour, const PIXVAL len);
 
-static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+static void alpha(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const PIXVAL alpha_mask, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
+		uint16 masked = *alphamap & alpha_mask;
+		uint16 alpha_value = (masked & 0x1f) + ((masked >> 5) & 0x1f) + ((masked >> 10) & 0x1f);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
@@ -3537,18 +3093,7 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 		else if(  alpha_value > 0  ) {
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
-			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7c1f;
-			const uint16 gs =  (*dest) & 0x03e0;
-
-			// read image components - 15bpp
-			const uint16 rbi = (*src) & 0x7c1f;
-			const uint16 gi =  (*src) & 0x03e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
+			*dest = colors_blend_alpha32(*dest, *src, alpha_value);
 		}
 
 		dest++;
@@ -3558,57 +3103,14 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 }
 
 
-static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
+static void alpha_recode(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const PIXVAL alpha_mask, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
-
-		if(  alpha_value > 30  ) {
-			// opaque, just copy source
-			*dest = *src;
-		}
-		else if(  alpha_value > 0  ) {
-			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
-
-			//read screen components - 16bpp
-			const uint16 rbs = (*dest) & 0xf81f;
-			const uint16 gs =  (*dest) & 0x07e0;
-
-			// read image components 16bpp
-			const uint16 rbi = (*src) & 0xf81f;
-			const uint16 gi =  (*src) & 0x07e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
-		}
-
-		dest++;
-		src++;
-		alphamap++;
-	}
-}
-
-
-static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
-	while(  dest < end  ) {
-		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
+		uint16 masked = *alphamap & alpha_mask;
+		uint16 alpha_value = (masked & 0x1f) + ((masked >> 5) & 0x1f) + ((masked >> 10) & 0x1f);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
@@ -3617,18 +3119,7 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 		else if(  alpha_value > 0  ) {
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
-			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7c1f;
-			const uint16 gs =  (*dest) & 0x03e0;
-
-			// read image components - 15bpp
-			const uint16 rbi = (rgbmap_current[*src]) & 0x7c1f;
-			const uint16 gi =  (rgbmap_current[*src]) & 0x03e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
+			*dest = colors_blend_alpha32(*dest, rgbmap_current[*src], alpha_value);
 		}
 
 		dest++;
@@ -3638,47 +3129,7 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 }
 
 
-static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap, const unsigned alpha_flags, const PIXVAL , const PIXVAL len)
-{
-	const PIXVAL *const end = dest + len;
-
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
-	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
-
-	while(  dest < end  ) {
-		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
-
-		if(  alpha_value > 30  ) {
-			// opaque, just copy source
-			*dest = rgbmap_current[*src];
-		}
-		else if(  alpha_value > 0  ) {
-			alpha_value = alpha_value> 15 ? alpha_value + 1 : alpha_value;
-
-			//read screen components - 16bpp
-			const uint16 rbs = (*dest) & 0xf81f;
-			const uint16 gs =  (*dest) & 0x07e0;
-
-			// read image components 16bpp
-			const uint16 rbi = (rgbmap_current[*src]) & 0xf81f;
-			const uint16 gi =  (rgbmap_current[*src]) & 0x07e0;
-
-			// calculate and write destination components - 16bpp
-			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
-			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0xf81f) | (gd & 0x07e0);
-		}
-
-		dest++;
-		src++;
-		alphamap++;
-	}
-}
-
-
-static void display_img_alpha_wc(scr_coord_val h, const scr_coord_val xp, const scr_coord_val yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p  CLIP_NUM_DEF )
+static void display_img_alpha_wc(scr_coord_val h, const scr_coord_val xp, const scr_coord_val yp, const PIXVAL *sp, const PIXVAL *alphamap, const PIXVAL alpha_mask, int colour, alpha_proc p  CLIP_NUM_DEF )
 {
 	if(  h > 0  ) {
 		PIXVAL *tp = textur + yp * disp_width;
@@ -3702,7 +3153,7 @@ static void display_img_alpha_wc(scr_coord_val h, const scr_coord_val xp, const 
 				if(  xpos + runlen > CR.clip_rect.x  &&  xpos < CR.clip_rect.xx  ) {
 					const int left = (xpos >= CR.clip_rect.x ? 0 : CR.clip_rect.x - xpos);
 					const int len  = (CR.clip_rect.xx - xpos >= runlen ? runlen : CR.clip_rect.xx - xpos);
-					p( tp + xpos + left, sp + left, alphamap + left, alpha_flags, colour, len - left );
+					p( tp + xpos + left, sp + left, alphamap + left, alpha_mask, colour, len - left );
 				}
 
 				sp += runlen;
@@ -3781,21 +3232,11 @@ void display_rezoomed_img_blend(const image_id n, scr_coord_val xp, scr_coord_va
 			// we use function pointer for the blend runs for the moment ...
 			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
 
-			// use horizontal clipping or skip it?
-			if(  xp >= CR.clip_rect.x  &&  xp + w  <= CR.clip_rect.xx  ) {
-				// marking change?
-				if(  dirty  ) {
-					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
+			// marking change?
+			if(  dirty  ) {
+				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
-			else if(  xp < CR.clip_rect.xx  &&  xp + w > CR.clip_rect.x  ) {
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
-				// since height may be reduced, start marking here
-				if(  dirty  ) {
-					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-			}
+			display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
 	}
 }
@@ -3870,21 +3311,11 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 			// get the real color
 			const PIXVAL color = color_index & 0xFFFF;
 
-			// use horizontal clipping or skip it?
-			if(  xp >= CR.clip_rect.x  &&  xp + w  <= CR.clip_rect.xx  ) {
-				// marking change?
-				if(  dirty  ) {
-					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha  CLIP_NUM_PAR );
+			// marking change?
+			if(  dirty  ) {
+				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
-			else if(  xp < CR.clip_rect.xx  &&  xp + w > CR.clip_rect.x  ) {
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha  CLIP_NUM_PAR );
-				// since height may be reduced, start marking here
-				if(  dirty  ) {
-					mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
-				}
-			}
+			display_img_alpha_wc( h, xp, yp, sp, alphamap, get_alpha_mask(alpha_flags), color, alpha  CLIP_NUM_PAR );
 		}
 	}
 }
@@ -3952,19 +3383,10 @@ void display_base_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp
 				}
 			}
 
-			// use horizontal clipping or skip it?
-			if(  x >= CR.clip_rect.x  &&  x + w <= CR.clip_rect.xx  ) {
-				if(  dirty  ) {
-					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
+			if(  dirty  ) {
+				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 			}
-			else {
-				if(  dirty  ) {
-					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
-			}
+			display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
 	} // number ok
 }
@@ -4038,19 +3460,10 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 				}
 			}
 
-			// use horizontal clipping or skip it?
-			if(  x >= CR.clip_rect.x  &&  x + w <= CR.clip_rect.xx  ) {
-				if(  dirty  ) {
-					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode  CLIP_NUM_PAR );
+			if(  dirty  ) {
+				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 			}
-			else {
-				if(  dirty  ) {
-					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
-				}
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode  CLIP_NUM_PAR );
-			}
+			display_img_alpha_wc( h, x, y, sp, alphamap, get_alpha_mask(alpha_flags), color, alpha_recode  CLIP_NUM_PAR );
 		}
 	} // number ok
 }
@@ -4764,8 +4177,8 @@ void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGG
 
 	scr_coord_val width = proportional_string_width(text);
 
-	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
-	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
+	PIXVAL lighter = display_blend_colors_alpha32(ddd_color, color_idx_to_rgb(COL_WHITE), 8 /* 25% */);
+	PIXVAL darker  = display_blend_colors_alpha32(ddd_color, color_idx_to_rgb(COL_BLACK), 8 /* 25% */);
 
 	display_fillbox_wh_clip_rgb( xpos+1, ypos - vpadding + 1, width+2*hpadding-2, LINESPACE+2*vpadding-1, ddd_color, dirty CLIP_NUM_PAR);
 
@@ -5380,8 +4793,6 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-	memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
-	memcpy(transparent_map_all_day_rgb, transparent_map_day_night_rgb, lengthof(transparent_map_day_night_rgb) * sizeof(uint8));
 
 	// find out bit depth
 	{
@@ -5391,36 +4802,11 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 		}
 		if(c==31) {
 			// 15 bit per pixel
-			bitdepth = 15;
-			blend[0] = pix_blend25_15;
-			blend[1] = pix_blend50_15;
-			blend[2] = pix_blend75_15;
-			blend_recode[0] = pix_blend_recode25_15;
-			blend_recode[1] = pix_blend_recode50_15;
-			blend_recode[2] = pix_blend_recode75_15;
-			outline[0] = pix_outline25_15;
-			outline[1] = pix_outline50_15;
-			outline[2] = pix_outline75_15;
-			alpha = pix_alpha_15;
-			alpha_recode = pix_alpha_recode_15;
-			recode_img_src_target = recode_img_src_target_15;
 #ifndef RGB555
 			dr_fatal_notify( "Compiled for 16 bit color depth but using 15!" );
 #endif
 		}
 		else {
-			blend[0] = pix_blend25_16;
-			blend[1] = pix_blend50_16;
-			blend[2] = pix_blend75_16;
-			blend_recode[0] = pix_blend_recode25_16;
-			blend_recode[1] = pix_blend_recode50_16;
-			blend_recode[2] = pix_blend_recode75_16;
-			outline[0] = pix_outline25_16;
-			outline[1] = pix_outline50_16;
-			outline[2] = pix_outline75_16;
-			alpha = pix_alpha_16;
-			alpha_recode = pix_alpha_recode_16;
-			recode_img_src_target = recode_img_src_target_16;
 #ifdef RGB555
 			dr_fatal_notify( "Compiled for 15 bit color depth but using 16!" );
 #endif
