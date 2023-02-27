@@ -64,9 +64,9 @@ jobs:
         echo "$ANDROID_HOME/build-tools/33.0.1" >> $GITHUB_PATH
         yes | sdkmanager --install "cmake;3.18.1"
         echo "$ANDROID_HOME/cmake/3.18.1/bin" >> $GITHUB_PATH
-        yes | sdkmanager --install "ndk;23.0.7599858"
-        echo "$ANDROID_HOME/ndk/23.0.7599858" >> $GITHUB_PATH
-        echo "$ANDROID_HOME/ndk/23.0.7599858/toolchains/llvm/prebuilt/linux-x86_64/bin/" >> $GITHUB_PATH
+        yes | sdkmanager --install "ndk;25.2.9519653"
+        echo "$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/" >> $GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/23.0.7599858/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
 
     - name: Install keystore for Android APK signing
