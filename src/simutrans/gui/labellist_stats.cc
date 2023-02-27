@@ -112,8 +112,7 @@ const char* labellist_stats_t::get_text() const
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Events are notified to GUI components via this method
  */
 bool labellist_stats_t::infowin_event(const event_t * ev)
 {

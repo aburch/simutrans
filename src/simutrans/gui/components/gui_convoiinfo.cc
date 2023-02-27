@@ -110,8 +110,7 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 }
 
 /**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Events are notified to GUI components via this method
  */
 bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 {

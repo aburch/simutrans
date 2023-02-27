@@ -140,7 +140,7 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
 
 
 /**
- * Events werden hiermit an die GUI-components gemeldet
+ * Events are notified to GUI components via this method
  */
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {

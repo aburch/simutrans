@@ -59,8 +59,7 @@ void gui_container_t::remove_all()
 
 
 /**
- * Events werden hiermit an die GUI-components
- * gemeldet
+ * Events are notified to GUI components via this method
  */
 bool gui_container_t::infowin_event(const event_t *ev)
 {

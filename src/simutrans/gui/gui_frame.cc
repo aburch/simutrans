@@ -101,8 +101,7 @@ FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
+ * Events are notified to GUI components via this method
  */
 bool gui_frame_t::infowin_event(const event_t *ev)
 {
