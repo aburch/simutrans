@@ -11,7 +11,7 @@ echo "Get pak64"
 ../tools/get_pak.sh pak64 || exit 1
 
 #echo "Get pak64.german"
-#../tools/get_pak.sh pak.german || exit 11
+#../tools/get_pak.sh pak.german || exit 1
 
 echo "Get pak64.japan"
 ../tools/get_pak.sh pak64.japan || exit 1
