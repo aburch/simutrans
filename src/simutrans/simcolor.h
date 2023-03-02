@@ -158,5 +158,6 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_OBSOLETE                     gui_theme_t::gui_color_obsolete
 #define SYSCOL_EMPTY                        gui_theme_t::gui_color_empty
 #define SYSCOL_IMAGE_TRANSPARENCY           gui_theme_t::gui_color_image_transparency
+#define SYSCOL_OBJECT_HIGHLIGHT             gui_theme_t::gui_color_object_highlight
 
 #endif
