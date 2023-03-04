@@ -68,6 +68,7 @@ jobs:
         echo "$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_PATH
         echo "$ANDROID_HOME/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/" >> $GITHUB_PATH
         ln -s llvm-objdump ${ANDROID_HOME}/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/objdump
+        ls /opt/android-sdk-linux/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin
 
     - name: Install keystore for Android APK signing
       run: |
