@@ -260,7 +260,7 @@ bool has_character( utf16 )
 	return false;
 }
 
-size_t display_fit_proportional(const char *, scr_coord_val, scr_coord_val)
+size_t display_fit_proportional(const char *, scr_coord_val)
 {
 	return 0;
 }
