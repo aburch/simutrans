@@ -9,6 +9,7 @@
 #include "../player/simplay.h"
 #include "../world/simworld.h"
 #include "../dataobj/environment.h"
+#include "../utils/unicode.h"
 
 
 char factorylist_frame_t::name_filter[256];

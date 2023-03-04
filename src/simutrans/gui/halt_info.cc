@@ -32,6 +32,7 @@
 #include "../vehicle/vehicle.h"
 
 #include "../utils/simstring.h"
+#include "../utils/unicode.h"
 
 #include "../descriptor/skin_desc.h"
 

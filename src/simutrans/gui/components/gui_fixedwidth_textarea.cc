@@ -9,6 +9,7 @@
 #include "gui_fixedwidth_textarea.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/cbuffer.h"
+#include "../../utils/unicode.h"
 
 
 

@@ -35,6 +35,7 @@ extern char **__argv;
 #include "../simintr.h"
 #include "../world/simworld.h"
 #include "../music/music.h"
+#include "../utils/unicode.h"
 
 
 // Maybe Linux is not fine too, had critical bugs...

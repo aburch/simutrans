@@ -9,6 +9,7 @@
 #include "../simwin.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../../utils/unicode.h"
 #include "../../sys/simsys.h"
 
 

@@ -7,7 +7,6 @@
 #define IO_CLASSIFY_FILE_H
 
 
-#include "../utils/unicode.h"
 #include "../simtypes.h"
 
 

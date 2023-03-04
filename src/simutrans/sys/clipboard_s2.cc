@@ -9,6 +9,7 @@
 #include "../display/simgraph.h"
 #include "../simdebug.h"
 #include "../dataobj/translator.h"
+#include "../utils/unicode.h"
 
 #ifndef __APPLE__
 #include <SDL2/SDL.h>

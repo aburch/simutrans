@@ -41,6 +41,7 @@ extern char **__argv;
 #include "../gui/gui_frame.h"
 #include "../gui/components/gui_component.h"
 #include "../gui/components/gui_textinput.h"
+#include "../utils/unicode.h"
 
 // needed for wheel
 #ifndef WM_MOUSEWHEEL

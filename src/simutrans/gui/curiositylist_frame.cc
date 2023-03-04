@@ -14,6 +14,7 @@
 #include "../player/simplay.h"
 #include "../obj/gebaeude.h"
 #include "../descriptor/building_desc.h"
+#include "../utils/unicode.h"
 
 
 char curiositylist_frame_t::name_filter[256];

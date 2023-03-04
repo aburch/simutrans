@@ -13,6 +13,7 @@
 #include "../simhalt.h"
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer.h"
+#include "../utils/unicode.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_scrolled_list.h"
 

@@ -9,7 +9,6 @@
 #include "../world/simworld.h"
 #include "../player/simplay.h"
 #include "../obj/label.h"
-#include "../utils/simstring.h"
 #include "../utils/cbuffer.h"
 
 #include "../dataobj/environment.h"
