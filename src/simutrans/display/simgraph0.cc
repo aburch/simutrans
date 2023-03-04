@@ -271,7 +271,7 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 }
 
 
-void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *, size_t )
+void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *)
 {
 	xw = yh = 0;;
 }

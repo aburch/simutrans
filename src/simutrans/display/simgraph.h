@@ -301,7 +301,7 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width);
 int display_calc_proportional_string_len_width(const char* text, size_t len);
 
 // box which will contain the multi (or single) line of text
-void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *text, size_t len );
+void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *text);
 
 /*
  * len parameter added - use -1 for previous behaviour.

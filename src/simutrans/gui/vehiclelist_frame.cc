@@ -83,7 +83,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 		}
 	}
 	int text1w, text1h;
-	display_calc_proportional_multiline_string_len_width( text1w, text1h, part1, part1.len() );
+	display_calc_proportional_multiline_string_len_width( text1w, text1h, part1);
 	col1_width = text1w + D_H_SPACE;
 
 	// column 2
@@ -98,7 +98,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 		part2.printf( translator::translate( "Constructed by %s" ), copyright );
 	}
 	int text2w, text2h;
-	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2, part2.len() );
+	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2);
 	col2_width = text2w;
 
 	height = max( height, max( text1h, text2h ) + LINESPACE );

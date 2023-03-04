@@ -3699,7 +3699,7 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 	size_t len = 0;
 	utf32 const char_code = utf8_decoder_t::decode((utf8 const *)text, len);
 
-	if(  char_code==0  ||  char_code == '\n') {
+	if(  char_code==UNICODE_NUL  ||  char_code == '\n') {
 		// case : end of text reached -> do not advance text pointer
 		// also stop at linebreaks
 		byte_length = 0;
@@ -3789,57 +3789,41 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 */
 int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
-	const font_t* const fnt = &default_font;
-	unsigned int width = 0;
+	uint8 byte_length = 0;
+	uint8 pixel_width = 0;
+	size_t idx = 0;
+	scr_coord_val width = 0;
 
-	// decode char
-	const char *const end = text + len;
-	while(  text < end  ) {
-		const utf8 *p = reinterpret_cast<const utf8 *>(text);
-		const utf32 iUnicode = utf8_decoder_t::decode(p);
-		text = reinterpret_cast<const char *>(p);
-
-		if(  iUnicode == UNICODE_NUL ||  iUnicode == '\n') {
-			return width;
-		}
-		width += fnt->get_glyph_advance(iUnicode);
+	while (get_next_char_with_metrics(text, byte_length, pixel_width)  &&  idx < len) {
+		width += pixel_width;
+		idx += byte_length;
 	}
-
 	return width;
 }
-
 
 
 /* display_calc_proportional_multiline_string_len_width
 * calculates the width and hieght of a box containing the text inside
 */
-void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text, size_t len)
+void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, const char *text)
 {
 	const font_t* const fnt = &default_font;
 	int width = 0;
 
 	xw = yh = 0;
 
-	// decode char
-	const char *const end = text + len;
-	while(  text < end  ) {
-		const utf8 *p = reinterpret_cast<const utf8 *>(text);
-		const utf32 iUnicode = utf8_decoder_t::decode(p);
-		text = reinterpret_cast<const char *>(p);
+	const utf8 *p = reinterpret_cast<const utf8 *>(text);
+	while (const utf32 iUnicode = utf8_decoder_t::decode(p)) {
 
 		if(  iUnicode == '\n'  ) {
 			// new line: record max width
 			xw = max( xw, width );
 			yh += LINESPACE;
 			width = 0;
+			continue;
 		}
-		if(  iUnicode == UNICODE_NUL ) {
-			return;
-		}
-
 		width += fnt->get_glyph_advance(iUnicode);
 	}
-
 	xw = max( xw, width );
 	yh += LINESPACE;
 }
