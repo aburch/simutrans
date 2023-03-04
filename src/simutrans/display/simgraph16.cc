@@ -3704,19 +3704,6 @@ scr_coord_val display_get_char_width(utf32 c)
 }
 
 
-/* returns the width of this character or the default (Nr 0) character size */
-scr_coord_val display_get_char_max_width(const char* text, size_t len) {
-
-	scr_coord_val max_len=0;
-
-	for(unsigned n=0; (len && n<len) || (len==0 && *text != '\0'); n++) {
-		max_len = max(max_len,display_get_char_width(*text++));
-	}
-
-	return max_len;
-}
-
-
 /**
  * For the next logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width

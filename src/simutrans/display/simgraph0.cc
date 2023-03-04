@@ -258,11 +258,6 @@ scr_coord_val display_get_char_width(utf32)
 	return 0;
 }
 
-scr_coord_val display_get_char_max_width(const char*, size_t)
-{
-	return 0;
-}
-
 utf32 get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
 {
 	return 0;

@@ -274,14 +274,6 @@ scr_coord_val display_get_char_width(utf32 c);
 bool has_character( utf16 char_code );
 
 /**
- * Returns the width of the widest character in a string.
- * @param text  pointer to a string of characters to evaluate.
- * @param len   length of text buffer to evaluate. If set to 0,
- *              evaluate until null termination.
- */
-scr_coord_val display_get_char_max_width(const char* text, size_t len=0);
-
-/**
  * For the next logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
  * CAUTION : The text pointer advances to point to the next logical character
