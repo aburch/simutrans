@@ -4,10 +4,10 @@
  */
 
 #include <string.h>
+#include <assert.h>
 
 #include "simsys.h"
-#include "../display/simgraph.h"
-#include "../simdebug.h"
+#include "../utils/unicode.h"
 
 
 #define MAX_SIZE (4096)
@@ -47,7 +47,7 @@ size_t dr_paste(char *target, size_t max_length)
 		// ensure that max_length aligns with logical character boundaries of clipboard content
 		size_t tmp_length = 0;
 		size_t byte_count;
-		while(  tmp_length+(byte_count=get_next_char(content+tmp_length,0u))<=max_length  ) {
+		while(  tmp_length+(byte_count=utf8_get_next_char(content+tmp_length,0u))<=max_length  ) {
 			tmp_length += byte_count;
 		}
 		max_length = tmp_length;

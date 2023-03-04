@@ -68,8 +68,12 @@ public:
 	utf8 const *get_position();
 };
 
+// unicode save moving in strings
 size_t utf8_get_next_char(const utf8 *text, size_t pos);
+size_t utf8_get_next_char(const char* text, size_t pos);
+
 sint32 utf8_get_prev_char(const utf8 *text, sint32 pos);
+sint32 utf8_get_prev_char(const char* text, sint32 pos);
 
 int utf16_to_utf8(utf16 unicode, utf8 *out);
 

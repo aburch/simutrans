@@ -109,17 +109,27 @@ size_t utf8_get_next_char(const utf8* text, size_t pos)
 
 sint32 utf8_get_prev_char(const utf8* text, sint32 pos)
 {
-/* not needed, since the only position calling it, checks it too
-	if(pos==0) {
+	if (pos <= 0) {
 		return 0;
 	}
-*/
 	// go left one character
 	// the bytes in a sequence have always the format 10xxxxxx, thus we use is_cont_char()
 	do {
 		pos--;
 	} while (pos>0  &&  is_cont_char(text[pos]));
 	return pos;
+}
+
+
+size_t utf8_get_next_char(const char* text, size_t pos)
+{
+	return utf8_get_next_char((const utf8*)text, pos);
+}
+
+
+sint32 utf8_get_prev_char(const char* text, sint32 pos)
+{
+	return utf8_get_prev_char((const utf8*)text, pos);
 }
 
 

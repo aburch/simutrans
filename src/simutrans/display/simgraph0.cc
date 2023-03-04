@@ -240,19 +240,6 @@ void display_array_wh(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val
 {
 }
 
-size_t get_next_char(const char*, size_t pos)
-{
-	return pos + 1;
-}
-
-sint32 get_prev_char(const char*, sint32 pos)
-{
-	if (pos <= 0) {
-		return 0;
-	}
-	return pos - 1;
-}
-
 scr_coord_val display_get_char_width(utf32)
 {
 	return 0;

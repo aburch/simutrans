@@ -3682,22 +3682,6 @@ bool display_load_font(const char *fname, bool reload)
 }
 
 
-// unicode save moving in strings
-size_t get_next_char(const char* text, size_t pos)
-{
-	return utf8_get_next_char((const utf8*)text, pos);
-}
-
-
-sint32 get_prev_char(const char* text, sint32 pos)
-{
-	if(  pos <= 0  ) {
-		return 0;
-	}
-	return utf8_get_prev_char((const utf8*)text, pos);
-}
-
-
 scr_coord_val display_get_char_width(utf32 c)
 {
 	return default_font.get_glyph_advance(c);

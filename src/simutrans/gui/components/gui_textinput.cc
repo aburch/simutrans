@@ -192,7 +192,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							}
 						}
 						else {
-							head_cursor_pos = get_prev_char(text, head_cursor_pos);
+							head_cursor_pos = utf8_get_prev_char(text, head_cursor_pos);
 						}
 					}
 					// do not update tail cursor if SHIFT key is pressed -> enables text selection
@@ -221,7 +221,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 							}
 						}
 						else {
-							head_cursor_pos = get_next_char(text, head_cursor_pos);
+							head_cursor_pos = utf8_get_next_char(text, head_cursor_pos);
 						}
 					}
 					// do not update tail cursor if SHIFT key is pressed -> enables text selection
@@ -253,13 +253,13 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					if(  !remove_selection()  &&  head_cursor_pos>0  ) {
 						if (  head_cursor_pos<len  ) {
 							size_t prev_pos = head_cursor_pos;
-							tail_cursor_pos = head_cursor_pos = get_prev_char(text, head_cursor_pos);
+							tail_cursor_pos = head_cursor_pos = utf8_get_prev_char(text, head_cursor_pos);
 							for (  size_t pos=head_cursor_pos;  pos<=len-(prev_pos-head_cursor_pos);  pos++  ) {
 								text[pos] = text[pos+(prev_pos-head_cursor_pos)];
 							}
 						}
 						else {
-							tail_cursor_pos = head_cursor_pos = get_prev_char(text, head_cursor_pos);
+							tail_cursor_pos = head_cursor_pos = utf8_get_prev_char(text, head_cursor_pos);
 							text[head_cursor_pos] = 0;
 						}
 						text_dirty = true;
@@ -270,7 +270,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					// check and remove any selected text first
 					text_dirty |= len>0;
 					if(  !remove_selection()  &&  head_cursor_pos<=len  ) {
-						size_t next_pos = get_next_char(text, head_cursor_pos);
+						size_t next_pos = utf8_get_next_char(text, head_cursor_pos);
 						for(  size_t pos=head_cursor_pos;  pos<len;  pos++  ) {
 							text[pos] = text[pos+(next_pos-head_cursor_pos)];
 						}
