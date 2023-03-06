@@ -1,0 +1,30 @@
+obj=script_ai_text
+name=%s build road line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build ship line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build rail line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s optimize way line from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s extends the route from %s (%s) to %s (%s)
+-
+obj=script_ai_text
+name=%s build additional convoy to line: %s
+-
+obj=script_ai_text
+name=%s removes convoys from line: %s
+-
+obj=script_ai_text
+name=vehicles of the line %s were retired
+-
+obj=script_ai_text
+name=%s electrified the line %s
+-
+obj=script_ai_text
+name=%s removes line: %s
+-
