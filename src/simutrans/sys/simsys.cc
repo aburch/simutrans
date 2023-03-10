@@ -48,7 +48,7 @@
 #		include <unistd.h>
 #	endif
 #	ifdef __ANDROID__
-#		include <SDL2/SDL.h>
+#		include <SDL.h>
 #	endif
 #endif
 
