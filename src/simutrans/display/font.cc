@@ -279,15 +279,8 @@ bool font_t::load_from_freetype(const char *fname, int pixel_height)
 
 	for(  uint32 glyph_nr=0;  glyph_nr<0xFFFF;  glyph_nr++  ) {
 
-		uint32 idx = FT_Get_Char_Index( face, glyph_nr );
-		if(  idx==0  &&  glyph_nr!=0  ) {
-			// glyph not there, we need to render glyph 0 instead
-			glyphs[glyph_nr].advance = 0xFF;
-			continue;
-		}
-
 		/* load glyph image into the slot (erase previous one) */
-		if(  FT_Load_Glyph( face, idx, FT_LOAD_RENDER | FT_LOAD_MONOCHROME ) != FT_Err_Ok  ) {
+		if(  FT_Load_Char( face, glyph_nr, FT_LOAD_RENDER | FT_LOAD_MONOCHROME ) != FT_Err_Ok  ) {
 			// glyph not there ...
 			glyphs[glyph_nr].advance = 0xFF;
 			continue;
