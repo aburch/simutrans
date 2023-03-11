@@ -180,7 +180,7 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	dirty = false;
 
-	PUSH_CLIP_FIT(pos.x+1, pos.y+titlebar_size.h, size.w-2, size.h-titlebar_size.h);
+	PUSH_CLIP_FIT(pos.x+1, pos.y+titlebar_size.h+1, size.w-2, size.h-titlebar_size.h-2);
 	gui_aligned_container_t::draw(pos);
 	POP_CLIP();
 
