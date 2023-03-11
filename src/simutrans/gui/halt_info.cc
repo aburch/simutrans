@@ -483,7 +483,7 @@ void halt_info_t::update_components()
 			unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
 			lb_happy[0].buf().printf(translator::translate("Passengers %d %s, %d %s, %d no route"), halt->get_pax_happy(), happy, halt->get_pax_unhappy(), unhappy, halt->get_pax_no_route());
 		}
-		else if(  has_character( 0x30 )  ) {
+		else if(  has_character( 30 )  ) {
 			lb_happy[0].buf().printf(translator::translate("Passengers %d %c, %d %c, %d no route"), halt->get_pax_happy(), 30, halt->get_pax_unhappy(), 31, halt->get_pax_no_route());
 		}
 		else {
