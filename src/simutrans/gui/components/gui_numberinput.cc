@@ -107,10 +107,35 @@ void gui_numberinput_t::set_limits(sint32 _min, sint32 _max)
 {
 	min_value = _min;
 	max_value = _max;
-	char min_text[32], max_text[32];
-	sprintf(min_text, "%d", _min);
-	sprintf(max_text, "%d", _max);
-	max_numbertext_width = max(proportional_string_width(min_text), proportional_string_width(max_text));
+	// guess max width of numbers
+	const char* digits = "-0123456789";
+	uint8 bytes, pixel;
+	// minus sign
+	if (min_value > 0) {
+		get_next_char_with_metrics(digits, bytes, pixel);
+		max_numbertext_width = pixel;
+	}
+	else {
+		digits++;
+		max_numbertext_width = 0;
+	}
+	// count digits
+	uint32 max_abs = max_value > 0 ? max_value : -max_value;
+	if (min_value < 0  &&  (uint32) (-min_value) > max_abs) {
+		max_abs = -min_value;
+	}
+	// width of digits
+	uint8 digit_width = 0;
+	while (*digits) {
+		get_next_char_with_metrics(digits, bytes, pixel);
+		if (pixel > digit_width) {
+			digit_width =  pixel;
+		}
+	}
+	while (max_abs) {
+		max_numbertext_width += digit_width;
+		max_abs /= 10;
+	}
 }
 
 
