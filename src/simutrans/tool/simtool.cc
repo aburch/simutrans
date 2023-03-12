@@ -4672,7 +4672,7 @@ bool tool_build_station_t::init( player_t * )
 {
 	sint8 rotation = -1;
 	const building_desc_t *bdsc = get_desc( rotation );
-	if(  bdsc==NULL  ) {
+	if(  bdsc==NULL  ||  bdsc->get_cursor()==NULL) {
 		return false;
 	}
 	cursor = bdsc->get_cursor()->get_image_id(0);
@@ -5471,7 +5471,7 @@ bool tool_build_depot_t::init( player_t *player )
 
 	const building_tile_desc_t *tile_desc = hausbauer_t::find_tile(default_param, 0);
 	building_desc_t const* desc = tile_desc ? tile_desc->get_desc() : NULL;
-	if (desc == NULL) {
+	if (desc == NULL  ||  desc->get_cursor()==NULL) {
 		return false;
 	}
 
