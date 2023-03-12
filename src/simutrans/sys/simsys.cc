@@ -421,7 +421,6 @@ char const *dr_query_homedir()
 	return buffer;
 }
 
-
 char const *dr_query_installdir()
 {
 	static char buffer[PATH_MAX + 24];
@@ -1081,9 +1080,30 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 #endif
 }
 
+/**
+ * Copy argv because some systems (e.g. Android) do not allow to write them
+*/
+char **copy_argv(int argc, char *argv[]) {
+  // calculate the contiguous argv buffer size
+  int length=0;
+  for(int i = 0; i < argc; i++) {
+      length += (strlen(argv[i]) + 1);
+  }
+  char** new_argv = (char**)malloc((argc + 1) * sizeof(char*) + length);
+  // copy argv into the contiguous buffer
+  length = 0;
+  for (int i = 0; i < argc; i++) {
+      new_argv[i] = &(((char*)new_argv)[argc * sizeof(char*) + length]);
+      strcpy(new_argv[i], argv[i]);
+      length = (strlen(argv[i]) + 1);
+  }
+  new_argv[argc] = NULL;
+  return new_argv;
+}
 
 int sysmain(int const argc, char** const argv)
 {
+	char ** argv_copy = copy_argv(argc,argv);
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
@@ -1108,7 +1128,7 @@ int sysmain(int const argc, char** const argv)
 	WideCharToMultiByte(CP_UTF8, 0, wpathname, -1, pathname, pathnamesize, NULL, NULL);
 	delete[] wpathname;
 
-	argv[0] = pathname;
+	argv_copy[0] = pathname;
 #elif !defined __BEOS__
 #	if defined __GLIBC__ && !defined __AMIGA__
 	/* glibc has a non-standard extension */
@@ -1121,21 +1141,21 @@ int sysmain(int const argc, char** const argv)
 	ssize_t const length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	} else if (strchr(argv[0], '/') == NULL) {
+		argv_copy[0] = buffer;
+	} else if (strchr(argv_copy[0], '/') == NULL) {
 		// no /proc, no '/' in argv[0] => search PATH
 		const char* path = getenv("PATH");
 		if (path != NULL) {
-			size_t flen = strlen(argv[0]);
+			size_t flen = strlen(argv_copy[0]);
 			for (;;) { /* for each directory in PATH */
 				size_t dlen = strcspn(path, ":");
 				if (dlen > 0 && dlen + flen + 2 < lengthof(buffer)) {
 					// buffer = dir '/' argv[0] '\0'
 					memcpy(buffer, path, dlen);
 					buffer[dlen] = '/';
-					memcpy(buffer + dlen + 1, argv[0], flen + 1);
+					memcpy(buffer + dlen + 1, argv_copy[0], flen + 1);
 					if (access(buffer, X_OK) == 0) {
-						argv[0] = buffer;
+						argv_copy[0] = buffer;
 						break; /* found it! */
 					}
 				}
@@ -1148,12 +1168,12 @@ int sysmain(int const argc, char** const argv)
 #	endif
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
+	argv_copy[0] = realpath(argv_copy[0], buffer2);
 #endif
 
 	setlocale( LC_CTYPE, "" );
 	setlocale( LC_NUMERIC, "en_US.UTF-8" );
-	return simu_main(argc, argv);
+	return simu_main(argc, argv_copy);
 
 #ifdef _WIN32
 	// Cleanup for dynamic allocation, probably unnescescary.
