@@ -136,7 +136,7 @@ const vector_tpl<const tunnel_desc_t *>& tunnel_builder_t::get_available_tunnels
 	const uint16 time = welt->get_timeline_year_month();
 	for(auto const& i : tunnel_by_name) {
 		tunnel_desc_t const* const b = i.value;
-		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
+		if (b->get_waytype()==wtyp  &&  b->is_available(time)  &&  b->get_builder()) {
 			dummy.append(b);
 		}
 	}

@@ -164,6 +164,7 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 		if(  desc->get_type()==type
 			&&  (accept_all_wt  ||  desc->get_extra()==(uint32)wt)
 			&&  (enables==0  ||  (desc->get_enabled()&enables)!=0)
+			&&  desc->get_builder()
 			&&  desc->is_available(time))
 		{
 
@@ -278,7 +279,7 @@ const vector_tpl<const way_obj_desc_t*>& get_available_wayobjs(waytype_t wt)
 	dummy.clear();
 	for(auto i : wayobj_t::get_list()) {
 		const way_obj_desc_t* desc = i.value;
-		if (desc->get_waytype()==wt  &&  desc->is_available(time)) {
+		if (desc->get_waytype()==wt  &&  desc->is_available(time)  &&  desc->get_builder()) {
 			dummy.append(desc);
 		}
 	}

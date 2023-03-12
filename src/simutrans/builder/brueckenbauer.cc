@@ -132,7 +132,7 @@ const vector_tpl<const bridge_desc_t *>&  bridge_builder_t::get_available_bridge
 	const uint16 time = welt->get_timeline_year_month();
 	for(auto const& i : desc_table) {
 		bridge_desc_t const* const b = i.value;
-		if (  b->get_waytype()==wtyp  &&  b->is_available(time)  ) {
+		if (b->get_waytype()==wtyp  &&  b->is_available(time)  &&  b->get_builder()) {
 			dummy.append(b);
 		}
 	}

@@ -761,7 +761,7 @@ const vector_tpl<const roadsign_desc_t*>& roadsign_t::get_available_signs(const 
 	const uint16 time = welt->get_timeline_year_month();
 	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
-		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt) {
+		if (desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_builder()) {
 			dummy.append(desc);
 		}
 	}
