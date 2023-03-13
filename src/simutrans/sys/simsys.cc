@@ -420,7 +420,6 @@ char const *dr_query_homedir()
 	strcat(buffer, PATH_SEPARATOR);
 	return buffer;
 }
-
 char const *dr_query_installdir()
 {
 	static char buffer[PATH_MAX + 24];
@@ -451,7 +450,7 @@ char const *dr_query_installdir()
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans/paksets", userDir.Path());
 #elif defined __ANDROID__
-	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
+	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		sprintf(buffer, "%s/simutrans/paksets", getenv("HOME"));
@@ -463,9 +462,7 @@ char const *dr_query_installdir()
 
 	// create directory and subdirectories
 	dr_mkdir(buffer);
-#ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
-#endif
 	return buffer;
 }
 
