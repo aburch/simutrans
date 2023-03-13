@@ -1076,26 +1076,19 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 	return true;
 #endif
 }
-
+#include <android/log.h>
 /**
  * Copy argv because some systems (e.g. Android) do not allow to write them
 */
 char **copy_argv(int argc, char *argv[]) {
-  // calculate the contiguous argv buffer size
-  int length=0;
-  for(int i = 0; i < argc; i++) {
-      length += (strlen(argv[i]) + 1);
-  }
-  char** new_argv = (char**)malloc((argc + 1) * sizeof(char*) + length);
-  // copy argv into the contiguous buffer
-  length = 0;
-  for (int i = 0; i < argc; i++) {
-      new_argv[i] = &(((char*)new_argv)[argc * sizeof(char*) + length]);
-      strcpy(new_argv[i], argv[i]);
-      length = (strlen(argv[i]) + 1);
-  }
-  new_argv[argc] = NULL;
-  return new_argv;
+	char** new_argv = new char*[argc+1];
+	for(int i=0; i < argc; i++) {
+		int len = strlen(argv[i]) + 1;
+		new_argv[i] = new char[len];
+		strcpy(new_argv[i], argv[i]);
+	}
+	new_argv[argc] = NULL;
+	return new_argv;
 }
 
 int sysmain(int const argc, char** const argv)
