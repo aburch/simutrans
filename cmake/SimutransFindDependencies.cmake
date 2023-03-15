@@ -1,6 +1,8 @@
+
+find_package(ZLIB REQUIRED)
+
 if (NOT ANDROID)
 	find_package(CCache)
-	find_package(ZLIB REQUIRED)
 	find_package(BZip2 REQUIRED)
 	find_package(PNG REQUIRED)
 	find_package(MiniUPNP)
@@ -20,10 +22,6 @@ if (NOT ANDROID)
 	set(CMAKE_THREAD_PREFER_PTHREAD ON)
 	find_package(Threads)
 else ()
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../zlib/)
-	add_library(ZLIB::ZLIB SHARED IMPORTED)
-	set(SHARED_LIBRARY_SO ${CMAKE_CURRENT_SOURCE_DIR}/../zlib/prebuilt/debug/${CMAKE_ANDROID_ARCH_ABI}/libz.so)
-	set_target_properties(ZLIB::ZLIB PROPERTIES IMPORTED_LOCATION ${SHARED_LIBRARY_SO})
 
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../bzip2/)
 	add_library(BZip2::BZip2 SHARED IMPORTED)
