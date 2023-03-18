@@ -459,7 +459,7 @@ char const *dr_query_installdir()
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans/paksets", userDir.Path());
 #elif defined __ANDROID__
-	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
+	tstrncpy(buffer,SDL_AndroidGetInternalStoragePath(),lengthof(buffer));
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		sprintf(buffer, "%s/simutrans/paksets", getenv("HOME"));
