@@ -621,7 +621,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 	dr_chdir( env_t::base_dir );
-
+	
 	// parsing config/simuconf.tab to find out single user install
 	bool found_settings = false;
 	bool found_simuconf = false;

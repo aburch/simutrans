@@ -28,6 +28,7 @@
 #include "../utils/simstring.h"
 #include "../simdebug.h"
 #include "../simevent.h"
+#include "../simversion.h"
 
 #ifdef _WIN32
 #	include <locale>
@@ -54,6 +55,14 @@
 
 #ifdef MULTI_THREAD
 #include <pthread.h>
+#endif
+
+#ifdef _OPTIMIZED
+	#define L_DEBUG_TEXT " (optimized)"
+#elif defined DEBUG
+#	define L_DEBUG_TEXT " (debug)"
+#else
+#	define L_DEBUG_TEXT
 #endif
 
 sys_event_t sys_event;
@@ -1076,7 +1085,19 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 	return true;
 #endif
 }
-#include <android/log.h>
+
+const char* get_version()
+{
+	return "Version " VERSION_NUMBER " " VERSION_DATE
+#ifdef REVISION
+	" r" QUOTEME(REVISION)
+#endif
+#ifdef GIT_HASH
+	" hash " QUOTEME(GIT_HASH)
+#endif
+	L_DEBUG_TEXT;
+}
+
 /**
  * Copy argv because some systems (e.g. Android) do not allow to write them
 */

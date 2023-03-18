@@ -252,6 +252,8 @@ sint16 dr_toggle_borderless();
 sint16 dr_suspend_fullscreen();
 void dr_restore_fullscreen(sint16 old_fullscreen);
 
+const char* get_version();
+
 int sysmain(int argc, char** argv);
 
 #endif
