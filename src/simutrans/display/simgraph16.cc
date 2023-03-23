@@ -253,7 +253,7 @@ int default_font_ascent = 0;
 int default_font_linespace = 0;
 
 
-#define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
+#define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT+1024 /* 343 transparent */)
 
 // RGB 555/565 specific functions
 
@@ -1869,6 +1869,23 @@ static void calc_base_pal_from_night_shift(const int night)
 		B = (int)(B * B_night_multiplier);
 
 		rgbmap_day_night[i] = get_system_color(R, G, B);
+	}
+
+	// again the same but for transparent colors
+	for (i = 0; i < 0x0400; i++) {
+		// RGB 343 input
+		int R = (i & 0x0380) >> 2;
+		int G = (i & 0x0078) << 1;
+		int B = (i & 0x0007) << 5;
+
+		// lines generate all possible colors in 343RGB code - input
+		// however the result is in 888RGB - 8bit per channel
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
+
+		PIXVAL color = get_system_color(R, G, B);
+		rgbmap_day_night[0x8000 +MAX_PLAYER_COUNT + LIGHT_COUNT + i] = color;
 	}
 
 	// player color map (and used for map display etc.)
