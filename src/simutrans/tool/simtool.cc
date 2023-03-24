@@ -7747,12 +7747,20 @@ bool tool_change_depot_t::init( player_t *player )
 					else {
 						// now check if we are allowed to buy this (we test only leading vehicle, so one can still buy hidden stuff)
 						info = new_vehicle_info.front();
-						if(  !info->is_available(welt->get_timeline_year_month())  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
-							// only allow append/insert, if in depot do not create new obsolete vehicles
-							if(  !depot->find_oldest_newest(info, true)  ) {
-								// just fail silent
+
+						if (!info->is_available(welt->get_timeline_year_month())) {
+							if (info->is_future(welt->get_timeline_year_month())) {
+								// not allowed
 								return false;
 							}
+							else if (!welt->get_settings().get_allow_buying_obsolete_vehicles()) {
+								// only allow append/insert, if in depot do not create new obsolete vehicles
+								if(  !depot->find_oldest_newest(info, true)  ) {
+									// just fail silent
+									return false;
+								}
+							}
+							// obsolete vehicle found or buying of obsolete allowed
 						}
 
 						// append/insert into convoi; create one if needed
