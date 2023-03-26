@@ -4246,6 +4246,10 @@ obj=program_text
 name=Vehicle count:
 note=number of convoi vehicles in the convoi details
 --
+obj=program_text
+name=Climate
+note=dialoque to build object
+--
 
 
 
