@@ -3252,7 +3252,7 @@ void display_rezoomed_img_blend(const image_id n, scr_coord_val xp, scr_coord_va
 
 			// marking change?
 			if(  dirty  ) {
-				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
+				mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
 			display_img_blend_wc( h, xp, yp, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
@@ -3331,7 +3331,7 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 
 			// marking change?
 			if(  dirty  ) {
-				mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
+				mark_rect_dirty_wc( xp, yp, xp + w - 1, yp + h - 1 );
 			}
 			display_img_alpha_wc( h, xp, yp, sp, alphamap, get_alpha_mask(alpha_flags), color, alpha  CLIP_NUM_PAR );
 		}
@@ -3402,7 +3402,7 @@ void display_base_img_blend(const image_id n, scr_coord_val xp, scr_coord_val yp
 			}
 
 			if(  dirty  ) {
-				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
+				mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 			}
 			display_img_blend_wc( h, x, y, sp, color, pix_blend  CLIP_NUM_PAR );
 		}
@@ -3479,7 +3479,7 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 			}
 
 			if(  dirty  ) {
-				mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
+				mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 			}
 			display_img_alpha_wc( h, x, y, sp, alphamap, get_alpha_mask(alpha_flags), color, alpha_recode  CLIP_NUM_PAR );
 		}
