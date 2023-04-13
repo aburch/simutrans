@@ -102,8 +102,6 @@ function test_halt_build_rail_single_tile()
 function test_halt_build_harbour()
 {
 	local pl = player_x(0)
-	local lower = command_x(tool_lower_land)
-	local raise = command_x(tool_raise_land)
 	local stationbuilder = command_x(tool_build_station)
 	local station_desc = building_desc_x.get_available_stations(building_desc_x.harbour, wt_water, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
 	local setclimate = command_x(tool_set_climate)
@@ -116,14 +114,14 @@ function test_halt_build_harbour()
 
 	// build harbour on sloped land: should fail
 	{
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), station_desc.get_name()), "")
 		ASSERT_EQUAL(tile_x(4, 3, 0).find_object(mo_building), null)
 
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 4, 0)), null)
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 4, 0)), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), station_desc.get_name()), "")
 		ASSERT_EQUAL(tile_x(4, 3, 0).find_object(mo_building), null)
@@ -143,10 +141,10 @@ function test_halt_build_harbour()
 	}
 
 	// clean up
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 4, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -648,14 +646,12 @@ function test_halt_build_on_tunnel_entrance()
 {
 	local pl = player_x(0)
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x.passenger)[0]
 
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 1, 0), rail_tunnel.get_name()), null)
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(3, 2, 0), rail_tunnel.get_name()), null)
@@ -674,10 +670,10 @@ function test_halt_build_on_tunnel_entrance()
 	remover.set_flags(2)
 	ASSERT_EQUAL(remover.work(pl, coord3d(4, 1, 0)), null)
 
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -1197,14 +1193,12 @@ function test_halt_make_public_underground()
 	local tunnel_desc = tunnel_desc_x.get_available_tunnels(wt_road)[0]
 	local pax_halt    = building_desc_x("LongBusStop")
 	local makepublic  = command_x(tool_make_stop_public)
-	local raise       = command_x(tool_raise_land)
-	local lower       = command_x(tool_lower_land)
 	local stationbuilder = command_x(tool_build_station)
 
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(5, 4, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 2, 0), tunnel_desc.get_name()), null)
 	ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), pax_halt.get_name()), null)
@@ -1225,10 +1219,10 @@ function test_halt_make_public_underground()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_road), null)
 
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(5, 4, 0)), null)
 }
 
 

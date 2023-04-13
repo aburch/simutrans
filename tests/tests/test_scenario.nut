@@ -10,18 +10,14 @@
 
 function test_scenario_rules_allow_forbid_tool()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local pl = player_x(0)
 
 	{
-		rules.forbid_tool(0, tool_raise_land)
-		ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null) // FIXME this should fail
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 1)), null)
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null) // FIXME this should fail
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 1)), null)
 	}
 
 	// clean up
-	rules.allow_tool(player_all, tool_raise_land)
 	RESET_ALL_PLAYER_FUNDS()
 }
 

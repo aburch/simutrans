@@ -412,13 +412,11 @@ function test_depot_build_on_tunnel_entrance()
 {
 	local pl = player_x(0)
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 1, 0), rail_tunnel.get_name()), null)
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(3, 2, 0), rail_tunnel.get_name()), null)
@@ -441,10 +439,10 @@ function test_depot_build_on_tunnel_entrance()
 	ASSERT_EQUAL(remover.work(pl, coord3d(4, 3, 0)), null)
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0)), null)
 
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }

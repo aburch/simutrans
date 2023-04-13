@@ -11,27 +11,25 @@
 
 function test_terraform_raise_lower_land()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 
 	// TODO check terrain height
 
-	local err = raise.work(player_x(0), coord(3, 2))
+	local err = command_x.grid_raise(player_x(0), coord(3, 2))
 	ASSERT_EQUAL(err, "Zu nah am Kartenrand") // TODO Fix error message?
 
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 100)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 100)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 0)), null)
 
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 1)), null)
 
 	// clean up
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -39,25 +37,23 @@ function test_terraform_raise_lower_land()
 
 function test_terraform_raise_lower_land_at_map_border()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 
 	// TODO Check terrain height
 
-	ASSERT_EQUAL(raise.work(player_x(0), coord(0, 0)), "Zu nah am Kartenrand")
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(0, 0, 100)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(0, 0, 0)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(0, 0, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord(0, 0)), "Zu nah am Kartenrand")
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(0, 0, 100)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(0, 0, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(0, 0, 0)), null)
 
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(0, 0, 0)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(0, 0, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(0, 0, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(0, 0, 1)), null)
-	ASSERT_EQUAL(lower.work(player_x(0), coord3d(0, 0, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(0, 0, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(0, 0, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(0, 0, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(0, 0, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(0, 0, 1)), null)
 
 	// clean up
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(0, 0, 0)), null)
-	ASSERT_EQUAL(raise.work(player_x(0), coord3d(0, 0, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(0, 0, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(0, 0, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -65,15 +61,13 @@ function test_terraform_raise_lower_land_at_map_border()
 
 function test_terraform_raise_lower_land_at_water_center()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local clim  = command_x(tool_set_climate)
 
 	{
 		clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water)
 
 		// raise center piece
-		local err = lower.work(player_x(0), coord3d(3, 3, 0))
+		local err = command_x.grid_lower(player_x(0), coord3d(3, 3, 0))
 		ASSERT_EQUAL(err, "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
@@ -86,7 +80,7 @@ function test_terraform_raise_lower_land_at_water_center()
 		clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water)
 
 		// lower center piece
-		local err = lower.work(player_x(0), coord3d(3, 3, 0))
+		local err = command_x.grid_lower(player_x(0), coord3d(3, 3, 0))
 		ASSERT_EQUAL(err, "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
@@ -101,8 +95,6 @@ function test_terraform_raise_lower_land_at_water_center()
 
 function test_terraform_raise_lower_land_at_water_corner()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local clim  = command_x(tool_set_climate)
 
 	// FIXME inconsistencies with raising/lowering depending on direction
@@ -111,7 +103,7 @@ function test_terraform_raise_lower_land_at_water_corner()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(2, 2, 0)), "")
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(2, 2, 0)), "")
 
 		ASSERT_FALSE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
@@ -123,7 +115,7 @@ function test_terraform_raise_lower_land_at_water_corner()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(2, 2, 0)), "")
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(2, 2, 0)), "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
@@ -136,84 +128,84 @@ function test_terraform_raise_lower_land_at_water_corner()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(2, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(2, 4, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(2, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(2, 4, 0)), null)
 	}
 
 	// lower south-east corner
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(2, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(2, 4, 0)), null)
 
 		ASSERT_FALSE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(2, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(2, 4, 0)), null)
 	}
 
 	// raise south-west corner
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 4, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(2, 3, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 4, 0)), null)
 	}
 
 	// lower south-west corner
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 4, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 4, 0)), null)
 	}
 
 	// raise north-west corner
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 2, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 2, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(2, 3, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 2, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 2, 0)), null)
 	}
 
 	// lower north-west corner
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 2, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 2, 0)), null)
 
 		ASSERT_FALSE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 2, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 2, 0)), null)
 	}
 
 	// clean up
@@ -225,8 +217,6 @@ function test_terraform_raise_lower_land_at_water_corner()
 
 function test_terraform_raise_lower_land_at_water_edge()
 {
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local clim  = command_x(tool_set_climate)
 
 	// FIXME inconsistencies with raising/lowering depending on direction
@@ -235,7 +225,7 @@ function test_terraform_raise_lower_land_at_water_edge()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 2, 0)), "")
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 2, 0)), "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
@@ -247,7 +237,7 @@ function test_terraform_raise_lower_land_at_water_edge()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 2, 0)), "")
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 2, 0)), "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
@@ -259,63 +249,63 @@ function test_terraform_raise_lower_land_at_water_edge()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 3, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 3, 0)), null)
 	}
 
 	// lower east edge
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(4, 3, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(4, 3, 0)), null)
 	}
 
 	// raise south edge
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 4, 0)), null)
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 4, 0)), null)
 	}
 
 	// lower south edge
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(3, 4, 0)), null)
 
 		ASSERT_FALSE(tile_x(2, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 2, 0).is_water())
 		ASSERT_FALSE(tile_x(2, 3, 0).is_water())
 		ASSERT_FALSE(tile_x(3, 3, 0).is_water())
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(3, 4, 0)), null)
 	}
 
 	// raise west edge
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(raise.work(player_x(0), coord3d(2, 3, 0)), "")
+		ASSERT_EQUAL(command_x.grid_raise(player_x(0), coord3d(2, 3, 0)), "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
@@ -327,7 +317,7 @@ function test_terraform_raise_lower_land_at_water_edge()
 	{
 		ASSERT_EQUAL(clim.work(player_x(0), coord3d(2, 3, 0), coord3d(3, 2, 0), "" + cl_water), null)
 
-		ASSERT_EQUAL(lower.work(player_x(0), coord3d(2, 3, 0)), "")
+		ASSERT_EQUAL(command_x.grid_lower(player_x(0), coord3d(2, 3, 0)), "")
 
 		ASSERT_TRUE(tile_x(2, 2, 0).is_water())
 		ASSERT_TRUE(tile_x(3, 2, 0).is_water())
@@ -346,34 +336,32 @@ function test_terraform_raise_lower_land_below_way()
 {
 	local pl = player_x(0)
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local setslope = command_x.set_slope
 
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), road_desc, true), null)
 
 	// raise below way
 	{
-		ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(4, 4, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(4, 5, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(5, 2, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(5, 4, 0)), "Tile not empty.")
-		ASSERT_EQUAL(raise.work(pl, coord3d(5, 5, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 4, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 5, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 2, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 4, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 5, 0)), "Tile not empty.")
 	}
 
 	// and lower
 	{
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 4, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 5, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 2, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 4, 0)), "Tile not empty.")
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 5, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 4, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 5, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 2, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 4, 0)), "Tile not empty.")
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 5, 0)), "Tile not empty.")
 	}
 
 	// set slope up
@@ -430,14 +418,14 @@ function test_terraform_raise_lower_land_below_way()
 function terraform_volcano(pl, pos, size, h)
 {
 	local raise = h > 0
-	local tool = raise ? command_x(tool_raise_land) : command_x(tool_lower_land)
+	local tool = raise ? command_x.grid_raise : command_x.grid_lower
 
 	for (local dz = 0; raise ? dz<h : dz>h; dz += raise?1:-1) {
 		for (local i = 0; i<size; ++i) {
-			tool.work(pl, pos + coord3d(i,      0,      dz))
-			tool.work(pl, pos + coord3d(size,   i,      dz))
-			tool.work(pl, pos + coord3d(size-i, size,   dz))
-			tool.work(pl, pos + coord3d(0,      size-i, dz))
+			tool(pl, pos + coord3d(i,      0,      dz))
+			tool(pl, pos + coord3d(size,   i,      dz))
+			tool(pl, pos + coord3d(size-i, size,   dz))
+			tool(pl, pos + coord3d(0,      size-i, dz))
 		}
 	}
 }
@@ -446,8 +434,6 @@ function test_terraform_raise_lower_water_level()
 {
 	local pl = player_x(0)
 	local public_pl = player_x(1)
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 
 	// invalid default_param
 	{
@@ -616,8 +602,8 @@ function test_terraform_raise_lower_water_level()
 	{
 		local chg_water = command_x(tool_change_water_height)
 
-		command_x(tool_lower_land).work(pl, coord3d(5, 5, 2))
-		command_x(tool_lower_land).work(pl, coord3d(6, 6, 2))
+		command_x.grid_lower(pl, coord3d(5, 5, 2))
+		command_x.grid_lower(pl, coord3d(6, 6, 2))
 
 		ASSERT_EQUAL(chg_water.work(pl, coord3d(5, 7, 0), "1"), null)
 		ASSERT_EQUAL(chg_water.work(pl, coord3d(5, 7, 1), "1"), null)
@@ -630,8 +616,8 @@ function test_terraform_raise_lower_water_level()
 		ASSERT_EQUAL(chg_water.work(pl, coord3d(5, 7, 0), "0"), null)
 		ASSERT_EQUAL(chg_water.work(pl, coord3d(5, 3, 0), "0"), null)
 
-		command_x(tool_raise_land).work(pl, coord3d(5, 5, 1))
-		command_x(tool_raise_land).work(pl, coord3d(6, 6, 1))
+		command_x.grid_raise(pl, coord3d(5, 5, 1))
+		command_x.grid_raise(pl, coord3d(6, 6, 1))
 	}
 
 	// clean up

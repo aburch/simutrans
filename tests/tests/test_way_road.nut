@@ -264,10 +264,8 @@ function test_way_road_build_bend()
 	}
 
 	{
-		local raise = command_x(tool_raise_land)
-		local lower = command_x(tool_lower_land)
 
-		raise.work(pl, coord3d(2, 2, 0))
+		command_x.grid_raise(pl, coord3d(2, 2, 0))
 
 		local err = command_x.build_way(pl, coord3d(0, 1, 0), coord3d(1, 0, 0), desc, true)
 		ASSERT_EQUAL(err, null)
@@ -284,7 +282,7 @@ function test_way_road_build_bend()
 			])
 
 		remover.work(pl, tile_x(0, 1, 0), coord3d(1, 0, 0), "" + wt_road)
-		lower.work(pl, coord3d(2, 2, 0))
+		command_x.grid_lower(pl, coord3d(2, 2, 0))
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
 				"........",
@@ -894,10 +892,10 @@ function test_way_road_upgrade_downgrade_across_bridge()
 	ASSERT_TRUE(slow_road.get_topspeed() < fast_road.get_topspeed())
 
 	// build bridge
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 6, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 6, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
 	ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 5, 0), bridge), null)
 
 	// upgrade road
@@ -993,10 +991,10 @@ function test_way_road_upgrade_downgrade_across_bridge()
 
 	// remove bridge
 	ASSERT_EQUAL(remover.work(pl, start_pos, end_pos, "" + wt_road), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 6, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 6, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
 
 	// clean up
 	ASSERT_EQUAL(pl.get_current_maintenance(), 0)

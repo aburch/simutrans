@@ -441,6 +441,17 @@ call_tool_work change_climate_at(player_t* pl, koord3d start, int climate)
 }
 
 
+call_tool_work lower_raise(player_t* pl, koord3d pos, bool lower)
+{
+	// need to transform coordinate to grid coordinates
+	switch(coordinate_transform_t::get_rotation()) {
+		case 1: pos += koord(1,0); break;
+		case 2: pos += koord(1,1); break;
+		case 3: pos += koord(0,1); break;
+		default:;
+	}
+	return call_tool_work((lower ? TOOL_LOWER_LAND : TOOL_RAISE_LAND) | GENERAL_TOOL, NULL, 0, pl, pos);
+}
 
 void export_commands(HSQUIRRELVM vm)
 {
@@ -611,6 +622,19 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param climate new climate, possible values see @ref climates
 	 */
 	STATIC register_method(vm, change_climate_at, "change_climate_at", false, true);
+
+	/**
+	 * Lower grid point
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile, grid point in nw corner will be lowered
+	 */
+	STATIC register_method_fv(vm, lower_raise, "grid_lower", freevariable<bool>(true), false, true);
+	/**
+	 * Raise grid point
+	 * @param pl player to pay for the work
+	 * @param pos coordinate of tile, grid point in nw corner will be lowered
+	 */
+	STATIC register_method_fv(vm, lower_raise, "grid_raise", freevariable<bool>(false), false, true);
 
 	end_class(vm);
 }

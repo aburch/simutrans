@@ -270,12 +270,12 @@ function test_way_tram_build_in_tunel()
 	local road_tunnel = tunnel_desc_x.get_available_tunnels(wt_road)[0]
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
 
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(2, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(2, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(1, 2, 0), road_tunnel.get_name()), null)
 
@@ -337,12 +337,12 @@ function test_way_tram_build_in_tunel()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(1, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
 
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(2, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(2, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 1)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 

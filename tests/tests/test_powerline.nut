@@ -274,13 +274,11 @@ function test_powerline_build_transformer()
 
 	{
 		// build underground transformer on underground powerline, should fail
-		local lower = command_x(tool_lower_land)
-		local raise = command_x(tool_raise_land)
 		local digger = command_x(tool_build_tunnel)
 		digger.set_flags(2) # Ctrl
 
-		ASSERT_EQUAL(lower.work(pl, coord3d(2, 4, 0)), null)
-		ASSERT_EQUAL(lower.work(pl, coord3d(3, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 4, 0)), null)
 		ASSERT_EQUAL(pl.get_current_maintenance(), 0)
 
 		ASSERT_EQUAL(digger.work(pl, coord3d(2, 3, -1), power_tunnel.get_name()), null)
@@ -297,8 +295,8 @@ function test_powerline_build_transformer()
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(2, 3, -1)), null) // above ground ???
 		ASSERT_EQUAL(pl.get_current_maintenance(), 0)
 
-		ASSERT_EQUAL(raise.work(pl, coord3d(2, 4, -1)), null)
-		ASSERT_EQUAL(raise.work(pl, coord3d(3, 4, -1)), null)
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 4, -1)), null)
+		ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 4, -1)), null)
 	}
 
 	// clean up

@@ -181,13 +181,11 @@ function test_building_build_multi_tile_sloped()
 {
 	local pl = player_x(1)
 	local remover = command_x(tool_remover)
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local builder = command_x(tool_build_house)
 
 	local building_desc = building_desc_x("STADIUM2") // 3x2 size
 
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
 
 	{
 		ASSERT_EQUAL(builder.work(pl, coord3d(3, 1, 0), "11" + building_desc.get_name()), null)
@@ -199,7 +197,7 @@ function test_building_build_multi_tile_sloped()
 		ASSERT_EQUAL(tile_x(4, 2, 0).get_slope(), slope.northwest)
 	}
 
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 1)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
