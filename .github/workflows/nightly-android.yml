@@ -50,7 +50,7 @@ jobs:
 
     - name: Install Android SDK dependencies
       working-directory: /opt/android-sdk-linux
-      run: 
+      run: |
         yes | sdkmanager --licenses
         yes | sdkmanager --install "platform-tools"
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
