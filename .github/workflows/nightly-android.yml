@@ -105,20 +105,18 @@ jobs:
 
     - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v2
-      working-directory: /android-sdl/simutrans-android-cmake
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: simutrans/build/outputs/bundle/release/simutrans-release.aab
+        file: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/bundle/release/simutrans-release.aab
         asset_name: simuandroid-nightly.aab
         tag: Nightly
         overwrite: true
 
     - name: Update binaries of Nightly Release apk
       uses: svenstaro/upload-release-action@v2
-      working-directory: /android-sdl/simutrans-android-cmake
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: simutrans/build/outputs/bundle/release/simutrans-release-unsigned.apk
+        file: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/bundle/release/simutrans-release-unsigned.apk
         asset_name: simuandroid-nightly.apk
         tag: Nightly
         overwrite: true
@@ -126,11 +124,10 @@ jobs:
     - name: Release Beta on Google Play Store
       uses: r0adkll/upload-google-play@v1
       if: github.repository == 'simutrans/simutrans'
-      working-directory: /android-sdl/simutrans-android-cmake
       with:
         serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         packageName: com.simutrans
-        releaseFiles: simutrans/build/outputs/bundle/release/simutrans-release.aab
+        releaseFiles: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/bundle/release/simutrans-release.aab
         track: beta
         status: completed
         whatsNewDirectory: /android-sdl/project/simutrans/build/outputs/bundle/release/whatsNewDirectory
