@@ -1,0 +1,48 @@
+name: Nightly build Ubuntu
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install_dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -ym install libsdl2-dev
+        sudo apt-get -ym install libfreetype6-dev
+        sudo apt-get -ym install libminiupnpc-dev
+        sudo apt-get -ym install libzstd-dev
+
+        # We build fluidsynth with the minimum set of options we need to keep dependencies low
+        sudo apt-get -ym install libsndfile1-dev
+        wget https://github.com/FluidSynth/fluidsynth/archive/v2.3.0.tar.gz
+        tar xf v*.tar.gz
+        cd fluidsynth*
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -Denable-aufile=0 -Denable-dbus=0 -Denable-ipv6=0 -Denable-jack=0 -Denable-ladspa=0 -Denable-midishare=0 -Denable-opensles=0 -Denable-oboe=0 -Denable-oss=0 -Denable-readline=0 -Denable-winmidi=0 -Denable-waveout=0 -Denable-network=0 -Denable-pulseaudio=0 -Denable-dsound=0 -Denable-alsa=0 -Denable-libinstpatch=0 -Denable-portaudio=0 -Denable-wasapi=0 -Denable-openmp=1 -Denable-libsndfile=1 -Denable-sdl2=1
+        cmake --build build -j $(nproc)
+        sudo cmake --install build
+
+    - name: build
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOPTION_BUNDLE_LIBRARIES=ON
+        cmake --build build -j$(nproc) --target install
+
+    - name: distribute
+      run: |
+        cd build
+        zip -r simulinux-x64-nightly.zip simutrans
+
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/simulinux-x64-nightly.zip
+        asset_name: simulinux-x64-nightly.zip
+        tag: Nightly
+        overwrite: true
+
