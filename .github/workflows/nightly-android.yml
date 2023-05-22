@@ -72,7 +72,7 @@ jobs:
       working-directory: /android-sdl
       run: |
         git clone https://github.com/simutrans/simutrans-android-project
-        cd simutrans-android-cmake
+        cd simutrans-android-project
         git submodule init
         git submodule update
         cp -r $GITHUB_WORKSPACE/gh-clone/simutrans simutrans/jni/simutrans
@@ -83,7 +83,7 @@ jobs:
 
 
     - name: Build libraries
-      working-directory: /android-sdl/simutrans-android-cmake/simutrans/jni
+      working-directory: /android-sdl/simutrans-android-project/simutrans/jni
       run: |
         ./build_libraries.sh
         # Fluidsynth is a PITA to build; using the prebuilt release instead
@@ -94,7 +94,7 @@ jobs:
       env:
         STORE_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_ALIAS }}
         STORE_PASS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASS }}
-      working-directory: /android-sdl/simutrans-android-cmake
+      working-directory: /android-sdl/simutrans-android-project
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
         #cp project/jni/simutrans/src/android/signBundle.sh .
@@ -107,7 +107,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/bundle/release/simutrans-release.aab
+        file: /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release/simutrans-release.aab
         asset_name: simuandroid-nightly.aab
         tag: Nightly
         overwrite: true
@@ -116,7 +116,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/apk/release/simutrans-release-unsigned.apk
+        file: /android-sdl/simutrans-android-project/simutrans/build/outputs/apk/release/simutrans-release-unsigned.apk
         asset_name: simuandroid-nightly.apk
         tag: Nightly
         overwrite: true
@@ -127,7 +127,7 @@ jobs:
       with:
         serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         packageName: com.simutrans
-        releaseFiles: /android-sdl/simutrans-android-cmake/simutrans/build/outputs/bundle/release/simutrans-release.aab
+        releaseFiles: /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release/simutrans-release.aab
         track: beta
         status: completed
         whatsNewDirectory: /android-sdl/project/simutrans/build/outputs/bundle/release/whatsNewDirectory
