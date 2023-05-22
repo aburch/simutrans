@@ -71,7 +71,7 @@ jobs:
     - name: Set up android project
       working-directory: /android-sdl
       run: |
-        git clone https://github.com/Roboron3042/simutrans-android-cmake
+        git clone https://github.com/simutrans/simutrans-android-project
         cd simutrans-android-cmake
         git submodule init
         git submodule update
