@@ -76,7 +76,7 @@ jobs:
         git submodule init
         git submodule update
         cp -r $GITHUB_WORKSPACE/gh-clone/simutrans simutrans/jni/simutrans
-        cp -r simutrans/jni/SDL/android-project/simutrans/src/main/java simutrans/src/main
+        cp -r simutrans/jni/SDL/android-project/app/src/main/java simutrans/src/main
         cd simutrans/jni
         ./simutrans/src/android/AndroidPreBuild.sh
         cp -rf simutrans/simutrans/. ../src/main/assets
