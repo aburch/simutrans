@@ -10,8 +10,8 @@ cd simutrans
 echo "Get pak64"
 ../tools/get_pak.sh pak64 || exit 1
 
-echo "Get pak64.german"
-../tools/get_pak.sh pak.german || exit 1
+#echo "Get pak64.german"
+#../tools/get_pak.sh pak.german || exit 1
 
 echo "Get pak64.japan"
 ../tools/get_pak.sh pak64.japan || exit 1
@@ -41,7 +41,7 @@ echo "`pwd`"
 echo "`ls -l`"
 echo "`ls -l *`"
 
-mkdir simutrans/music
+mkdir -p simutrans/music
 [ -e simutrans/music/TimGM6mb.sf2 ] || (download_with_retry https://sourceforge.net/p/mscore/code/HEAD/tree/trunk/mscore/share/sound/TimGM6mb.sf2?format=raw TimGM6mb.sf2 && cp ./TimGM6mb.sf2 simutrans/music/TimGM6mb.sf2) || exit 1
 #[ -e ../simutrans/font/RobotoCondensed-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto%20Condensed Roboto_Condensed.zip && unzip -n Roboto_Condensed.zip -d ../simutrans/font) || exit 1
 [ -e simutrans/font/Roboto-Regular.ttf ] || (download_with_retry https://fonts.google.com/download?family=Roboto Roboto.zip && unzip -n Roboto.zip Roboto-Regular.ttf -d simutrans/font) || exit 1
@@ -51,15 +51,3 @@ mkdir simutrans/music
 
 
 echo 'Done adding assets'
-cd ..
-
-mkdir -p AndroidData
-echo Generating data.zip
-cd simutrans/simutrans
-
-rm -f ../../AndroidData/data.zip
-zip -r -0 ../../AndroidData/data.zip * >/dev/null
-cd ../..
-echo Generating data.zip done
-
-[ -e AndroidData/TimGM6mb.sf2 ] || cp simutrans/TimGM6mb.sf2 AndroidData/ || exit 1

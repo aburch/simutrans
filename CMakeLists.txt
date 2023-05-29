@@ -15,7 +15,7 @@ endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 set(CMAKE_WARN_DEPRECATED ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
-include(SimutransVcpkgTriplet)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransVcpkgTriplet.cmake)
 
 project(simutrans LANGUAGES C CXX)
 
@@ -42,32 +42,14 @@ endif ()
 #
 # Dependencies
 #
-find_package(CCache)
-find_package(ZLIB REQUIRED)
-find_package(BZip2 REQUIRED)
-find_package(PNG REQUIRED)
-find_package(MiniUPNP)
-if (MSVC)
-	find_package(ZSTD)
-	find_package(SDL2)
-	find_package(Freetype)
-	find_package(FluidSynth)
-else ()
-	find_package(PkgConfig MODULE REQUIRED)
-	pkg_check_modules(ZSTD IMPORTED_TARGET libzstd)
-	pkg_check_modules(SDL2 IMPORTED_TARGET sdl2)
-	pkg_check_modules(Freetype IMPORTED_TARGET freetype2)
-	pkg_check_modules(FluidSynth IMPORTED_TARGET fluidsynth>=2.1.0)
-endif ()
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransFindDependencies.cmake)
 
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
-find_package(Threads)
 
 #
 # Configuration options
 #
-include(SimutransBackend) # Select backend (SDL2 / GDI)
-include(SimutransCompileOptions)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransBackend.cmake) # Select backend (SDL2 / GDI)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransCompileOptions.cmake)
 
 
 # CMake does not fill in CMAKE_BUILD_TYPE automatically.
@@ -82,12 +64,18 @@ endif (NOT MSVC)
 #
 # sources
 #
-add_executable(simutrans MACOSX_BUNDLE)
+if(ANDROID)
+	add_library(simutrans SHARED)
+	target_link_libraries(simutrans PRIVATE android log)
+	target_sources(simutrans PRIVATE src/android/android.cc)
+else ()
+	add_executable(simutrans MACOSX_BUNDLE)
+endif ()
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set_target_properties(simutrans PROPERTIES WIN32_EXECUTABLE 1)
 endif ()
 
-include(SimutransSourceList)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransSourceList.cmake)
 
 
 #
@@ -101,19 +89,19 @@ set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BIN
 # Generate revision on compile time (so only if needed) if no revision is given
 #
 if (${SIMUTRANS_USE_REVISION})
-	file(WRITE ${CMAKE_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION ${SIMUTRANS_USE_REVISION}\n")
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}src/simutrans/revision.h "#define REVISION ${SIMUTRANS_USE_REVISION}\n")
 	message(STATUS "Compiling Simutrans with manually specified revision ${SIMUTRANS_USE_REVISION}")
 else ()
 	string(FIND ${CMAKE_GENERATOR} "Visual Studio" VS )
 	if (${VS} EQUAL 0)
 		# using a script for MSVC project files
-		file(WRITE ${CMAKE_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION \n")
-		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} COMMAND cscript.exe /Nologo tools/revision.jse COMMENT "Find SVN revision")
+		file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION \n")
+		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND cscript.exe /Nologo tools/revision.jse COMMENT "Find SVN revision")
 	else ()
 		# using custom target svnhear that is always built to update the revision.h file using cmake script
 		add_custom_target(svnheader ALL DEPENDS svn_header)
-		add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} -P ${CMAKE_MODULE_PATH}/SimutransRevision.cmake)
-		set_source_files_properties(${CMAKE_SOURCE_DIR}/src/simutrans/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
+		add_custom_command(OUTPUT svn_header COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransRevision.cmake)
+		set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/simutrans/revision.h PROPERTIES GENERATED TRUE HEADER_FILE_ONLY TRUE)
 		add_dependencies(simutrans svnheader)
 	endif ()
 endif ()
@@ -168,7 +156,9 @@ if (SIMUTRANS_BACKEND STREQUAL "sdl2")
 	elseif (APPLE)
 		target_link_libraries(simutrans PRIVATE ${SDL2_LIBRARIES})
 	elseif (MSVC)
-		target_link_libraries(simutrans PRIVATE SDL2::SDL2)
+		target_link_libraries(simutrans PRIVATE SDL2)
+	elseif (ANDROID)
+		target_link_libraries(simutrans PRIVATE SDL2 SDL2main)
 	else ()
 		target_link_libraries(simutrans PRIVATE PkgConfig::SDL2)
 	endif ()
@@ -201,7 +191,7 @@ if (SIMUTRANS_USE_FREETYPE)
 		target_link_libraries(simutrans PRIVATE ${Freetype_STATIC_LIBRARIES})
 	elseif (APPLE)
 		target_link_libraries(simutrans PRIVATE ${Freetype_LIBRARIES})
-	elseif (MSVC)
+	elseif (MSVC OR ANDROID)
 		target_link_libraries(simutrans PRIVATE Freetype::Freetype)
 	else ()
 		target_link_libraries(simutrans PRIVATE PkgConfig::Freetype)
@@ -223,6 +213,8 @@ if (SIMUTRANS_USE_ZSTD)
 	elseif (MINGW)
 		# only 64 bit cmake, 32 bit is broken
 		target_link_libraries(simutrans PRIVATE -lzstd)
+	elseif (ANDROID)
+		target_link_libraries(simutrans PRIVATE ZSTD::ZSTD)
 	else()
 		target_link_libraries(simutrans PRIVATE PkgConfig::ZSTD)
 	endif ()
@@ -238,6 +230,8 @@ if ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 			target_link_libraries(simutrans PRIVATE ${FluidSynth_STATIC_LIBRARIES} -liconv -lgomp)
 		elseif (MSVC)
 			target_link_libraries(simutrans PRIVATE ${FluidSynth_LIBRARIES})
+		elseif (ANDROID)
+			target_link_libraries(simutrans PRIVATE fluidsynth)
 		else ()
 			target_link_libraries(simutrans PRIVATE PkgConfig::FluidSynth)
 		endif (MINGW)
@@ -297,6 +291,10 @@ if (SIMUTRANS_STEAM_BUILT)
 	target_compile_definitions(simutrans PRIVATE STEAM_BUILT=1)
 endif ()
 
+if (SIMUTRANS_USE_OWN_PAKINSTALL)
+	target_compile_definitions(simutrans PRIVATE USE_OWN_PAKINSTAL=1)
+endif ()
+
 if (APPLE)
 	target_compile_definitions(simutrans PRIVATE ALT_SDL_DIR=1)
 endif (APPLE)
@@ -327,12 +325,12 @@ add_custom_target(test
 #
 # Installation
 #
-include(SimutransInstall)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransInstall.cmake)
 
 #
 # Nettool/Makeobj
 #
-add_subdirectory(src/makeobj EXCLUDE_FROM_ALL)
-add_subdirectory(src/nettool EXCLUDE_FROM_ALL)
-
-
+if (NOT ANDROID)
+	add_subdirectory(src/makeobj EXCLUDE_FROM_ALL)
+	add_subdirectory(src/nettool EXCLUDE_FROM_ALL)
+endif ()

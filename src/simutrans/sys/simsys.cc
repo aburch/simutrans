@@ -20,6 +20,7 @@
 #define NO_UINT64_TYPES
 #endif
 
+#include "../dataobj/environment.h"
 #include "../macros.h"
 #include "../simmain.h"
 #include "simsys.h"
@@ -28,6 +29,7 @@
 #include "../utils/simstring.h"
 #include "../simdebug.h"
 #include "../simevent.h"
+#include "../simversion.h"
 
 #ifdef _WIN32
 #	include <locale>
@@ -48,12 +50,20 @@
 #		include <unistd.h>
 #	endif
 #	ifdef __ANDROID__
-#		include <SDL2/SDL.h>
+#		include <SDL.h>
 #	endif
 #endif
 
 #ifdef MULTI_THREAD
 #include <pthread.h>
+#endif
+
+#ifdef _OPTIMIZED
+	#define L_DEBUG_TEXT " (optimized)"
+#elif defined DEBUG
+#	define L_DEBUG_TEXT " (debug)"
+#else
+#	define L_DEBUG_TEXT
 #endif
 
 sys_event_t sys_event;
@@ -354,6 +364,102 @@ int dr_stat(const char *path, struct stat *buf)
 #endif
 }
 
+bool check_and_set_dir( const char *path, const char *info, char *result, const char *testfile)
+{
+	if(  path  &&  *path  ) {
+		bool ok = !dr_chdir(path);
+		FILE * testf = NULL;
+		ok &=  ok  &&  testfile  &&  (testf = fopen(testfile,"r"));
+		if(!ok) {
+			printf("WARNING: Objects not found in %s \"%s\"!\n",  info, path);
+		}
+		else {
+			fclose(testf);
+			dr_getcwd( result, PATH_MAX-1 );
+			strcat( result, PATH_SEPARATOR );
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+* Simutrans has three directories:
+* base_dir: directory with default data (may be write protected)
+* install_dir: global writable directory where paksets are installed
+* user_dir: a user writable directory
+*
+* The directory will be determined in the following order
+* -set_XXXdir Path (command line option)
+* SIMUTRANS_XXXDIR (environment variable)
+* (in case of base_dir current path, then executable path)
+* (for user_dir and install_dir: machine dependent default directories)
+*
+* The pak_dir contains the complete path to the current pak, since it could be in different locations
+*
+*/
+bool dr_set_basedir(const char * base_dir_arg, char * executable_path)
+{
+	bool found_basedir = false;
+#ifdef __ANDROID__
+	found_basedir = check_and_set_dir( SDL_AndroidGetInternalStoragePath(), "Android Internal Storage", env_t::base_dir, "config/simuconf.tab");
+#else
+	found_basedir = check_and_set_dir( base_dir_arg, "-set_basedir", env_t::base_dir, "config/simuconf.tab");
+	if( !found_basedir ) {
+		found_basedir = check_and_set_dir( getenv("SIMUTRANS_BASEDIR"), "SIMUTRANS_BASEDIR", env_t::base_dir, "config/simuconf.tab");
+		if( !found_basedir ) {
+			dr_getcwd(env_t::base_dir, lengthof(env_t::base_dir));
+			strcat( env_t::base_dir, PATH_SEPARATOR );
+			// test if base installation
+			if (FILE* f = fopen("config/simuconf.tab", "r")) {
+				fclose(f);
+				found_basedir = true;
+			}
+			else {
+				char testpath[PATH_MAX];
+				tstrncpy(testpath, executable_path, lengthof(testpath));
+				char* c = strrchr(testpath, *PATH_SEPARATOR);
+				if(c) {
+					*c = 0; // remove program name
+					found_basedir = check_and_set_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
+					if(!found_basedir) {
+#ifdef __APPLE__
+						// Detect if the binary is started inside an application bundle
+						// Change working dir from MacOS to Resources dir
+						strcpy(env_t::base_dir, testpath);
+						if( strstr(env_t::base_dir, ".app/Contents/MacOS") != NULL ) {
+							while (env_t::base_dir[strlen(env_t::base_dir) - 1] != 's') {
+								env_t::base_dir[strlen(env_t::base_dir) - 1] = 0;
+							}
+							strcat(env_t::base_dir, "/Resources/simutrans/");
+							found_basedir = true;
+						}
+#else
+						// Detect if simutrans has been installed by the system and try to locate the installation relative to the binary location
+						char *c = strrchr(testpath, *PATH_SEPARATOR);
+						if(  c  &&  strcmp(c+1,"bin")==0  ) {
+							// replace bin with other paths
+							strcpy( c+1, "share/simutrans/" );
+							found_basedir = check_and_set_dir(testpath, "program dir", env_t::base_dir, "config/simuconf.tab");
+							if (!found_basedir) {
+								strcpy( c+1 , "share/games/simutrans/" );
+								found_basedir = check_and_set_dir(testpath, "share/games/simutrans", env_t::base_dir, "config/simuconf.tab");
+							}
+						}
+#endif
+					}
+				}
+			}
+		}
+	}
+#endif
+	if (!found_basedir) {
+		// try the installer dir next
+		found_basedir = check_and_set_dir(dr_query_installdir(), "install_dir", env_t::base_dir, "config/simuconf.tab");
+	}
+	return found_basedir;
+}
+
 char const *dr_query_homedir()
 {
 	static char buffer[PATH_MAX + 24];
@@ -421,7 +527,6 @@ char const *dr_query_homedir()
 	return buffer;
 }
 
-
 char const *dr_query_installdir()
 {
 	static char buffer[PATH_MAX + 24];
@@ -452,7 +557,7 @@ char const *dr_query_installdir()
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans/paksets", userDir.Path());
 #elif defined __ANDROID__
-	tstrncpy(buffer,SDL_GetPrefPath("Simutrans Team","simutrans"),lengthof(buffer));
+	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
 #else
 	if( getenv("XDG_DATA_HOME") == NULL ) {
 		sprintf(buffer, "%s/simutrans/paksets", getenv("HOME"));
@@ -464,9 +569,7 @@ char const *dr_query_installdir()
 
 	// create directory and subdirectories
 	dr_mkdir(buffer);
-#ifndef __ANDROID__
 	strcat(buffer, PATH_SEPARATOR);
-#endif
 	return buffer;
 }
 
@@ -1081,9 +1184,35 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 #endif
 }
 
+const char* get_version()
+{
+	return "Version " VERSION_NUMBER " " VERSION_DATE
+#ifdef REVISION
+	" r" QUOTEME(REVISION)
+#endif
+#ifdef GIT_HASH
+	" hash " QUOTEME(GIT_HASH)
+#endif
+	L_DEBUG_TEXT;
+}
+
+/**
+ * Copy argv because some systems (e.g. Android) do not allow to write them
+*/
+char **copy_argv(int argc, char *argv[]) {
+	char** new_argv = new char*[argc+1];
+	for(int i=0; i < argc; i++) {
+		int len = strlen(argv[i]) + 1;
+		new_argv[i] = new char[len];
+		strcpy(new_argv[i], argv[i]);
+	}
+	new_argv[argc] = NULL;
+	return new_argv;
+}
 
 int sysmain(int const argc, char** const argv)
 {
+	char ** argv_copy = copy_argv(argc,argv);
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
@@ -1108,7 +1237,7 @@ int sysmain(int const argc, char** const argv)
 	WideCharToMultiByte(CP_UTF8, 0, wpathname, -1, pathname, pathnamesize, NULL, NULL);
 	delete[] wpathname;
 
-	argv[0] = pathname;
+	argv_copy[0] = pathname;
 #elif !defined __BEOS__
 #	if defined __GLIBC__ && !defined __AMIGA__
 	/* glibc has a non-standard extension */
@@ -1121,21 +1250,21 @@ int sysmain(int const argc, char** const argv)
 	ssize_t const length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
-		argv[0] = buffer;
-	} else if (strchr(argv[0], '/') == NULL) {
+		argv_copy[0] = buffer;
+	} else if (strchr(argv_copy[0], '/') == NULL) {
 		// no /proc, no '/' in argv[0] => search PATH
 		const char* path = getenv("PATH");
 		if (path != NULL) {
-			size_t flen = strlen(argv[0]);
+			size_t flen = strlen(argv_copy[0]);
 			for (;;) { /* for each directory in PATH */
 				size_t dlen = strcspn(path, ":");
 				if (dlen > 0 && dlen + flen + 2 < lengthof(buffer)) {
 					// buffer = dir '/' argv[0] '\0'
 					memcpy(buffer, path, dlen);
 					buffer[dlen] = '/';
-					memcpy(buffer + dlen + 1, argv[0], flen + 1);
+					memcpy(buffer + dlen + 1, argv_copy[0], flen + 1);
 					if (access(buffer, X_OK) == 0) {
-						argv[0] = buffer;
+						argv_copy[0] = buffer;
 						break; /* found it! */
 					}
 				}
@@ -1148,12 +1277,12 @@ int sysmain(int const argc, char** const argv)
 #	endif
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
-	argv[0] = realpath(argv[0], buffer2);
+	argv_copy[0] = realpath(argv_copy[0], buffer2);
 #endif
 
 	setlocale( LC_CTYPE, "" );
 	setlocale( LC_NUMERIC, "en_US.UTF-8" );
-	return simu_main(argc, argv);
+	return simu_main(argc, argv_copy);
 
 #ifdef _WIN32
 	// Cleanup for dynamic allocation, probably unnescescary.

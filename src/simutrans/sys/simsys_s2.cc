@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-#ifndef __APPLE__
+#if !defined __APPLE__ && !defined __ANDROID__
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>
