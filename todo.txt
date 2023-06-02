@@ -1,7 +1,6 @@
 To be done:
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
-- Signals switching nearly like before (should be easy)
 - detail on vehicles (like factory_details)
 - city wayobj instead just sidewalks
 - building/tree heights in dats
