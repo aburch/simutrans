@@ -92,7 +92,6 @@ jobs:
 
     - name: Build Simutrans
       env:
-          REVISION: $(cd $GITHUB_WORKSPACE/gh-clone/simutrans;tools/get_revision.sh)
           SIGNING_KEYSTORE: /android-sdl/simutrans-android-project/simutrans/jni/simutrans/src/android/Simutrans-upload.keystore
           SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASS }}
@@ -100,6 +99,9 @@ jobs:
       working-directory: /android-sdl/simutrans-android-project
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
+        cd $GITHUB_WORKSPACE/gh-clone/simutrans
+        ./tools/get_revision.sh
+        echo "$REV"
         ./gradlew assembleRelease
         ./gradlew bundleRelease
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
