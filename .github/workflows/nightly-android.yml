@@ -99,11 +99,12 @@ jobs:
       working-directory: /android-sdl/simutrans-android-project
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
-        #cp project/jni/simutrans/src/android/signBundle.sh .
-        #chmod 555 ./signBundle.sh
-        #./build.sh -b simutrans
         ./gradlew assembleRelease
         ./gradlew bundleRelease
+        cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE --storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
+        mkdir whatsNewDirectory
+        echo `$GITHUB_WORKSPACE/gh-clone/simutrans;cd git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
 
     - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v2
