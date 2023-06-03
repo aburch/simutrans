@@ -96,11 +96,12 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASS }}
           SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASS }}
-      working-directory: /android-sdl/simutrans-android-project
+      working-directory: gh-clone/simutrans
       run: |
         echo "action_state=yellow" >> $GITHUB_ENV
         sed -i "s/versionCode [0-9]\+/versionCode $(./tools/get_revision.sh)/" /android-sdl/simutrans-android-project/simutrans/build.gradle
         cd /android-sdl/simutrans-android-project
+        cat simutrans/build.gradle
         ./gradlew assembleRelease
         ./gradlew bundleRelease
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
