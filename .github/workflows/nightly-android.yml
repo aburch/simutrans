@@ -71,10 +71,10 @@ jobs:
     - name: Set up android project
       working-directory: /android-sdl
       run: |
-        git clone https://github.com/simutrans/simutrans-android-project
+        git clone --depth 1 https://github.com/simutrans/simutrans-android-project
         cd simutrans-android-project
         git submodule init
-        git submodule update
+        git submodule update --depth 1
         cp -r $GITHUB_WORKSPACE/gh-clone/simutrans simutrans/jni/simutrans
         cp -r simutrans/jni/SDL/android-project/app/src/main/java simutrans/src/main
         cd simutrans/jni
