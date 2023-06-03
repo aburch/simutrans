@@ -102,7 +102,7 @@ jobs:
         cd $GITHUB_WORKSPACE/gh-clone/simutrans
         ./tools/get_revision.sh
         cd /android-sdl/simutrans-android-project
-        sed -i "s/versionCode [0-9]\+/versionCode $REV" simutrans/build.gradle
+        sed -i "s/versionCode [0-9]\+/versionCode $REV/" simutrans/build.gradle
         ./gradlew assembleRelease
         ./gradlew bundleRelease
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
