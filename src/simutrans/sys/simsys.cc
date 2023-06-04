@@ -696,11 +696,9 @@ std::string dr_get_system_font()
 	CHAR winDir[MAX_PATH];
 	GetWindowsDirectoryA(winDir, MAX_PATH);
 	strcat(winDir, "\\Fonts\\");
-
 	return (std::string)winDir + std::string(wsFontFile.begin(), wsFontFile.end());
 #elif defined(ANDROID)
-	std::string env_t::fontname = FONT_PATH_X "Roboto-Regular.ttf";
-	return fontname;
+	return FONT_PATH_X "Roboto-Regular.ttf";
 #else
 	return FONT_PATH_X "cyr.bdf";
 #endif
