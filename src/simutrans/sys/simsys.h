@@ -168,6 +168,9 @@ unsigned short* dr_textur_init();
 // returns the file path to a font file (or more than one, if used with number higher than zero)
 const char *dr_query_fontpath( int );
 
+// return a default TTF (windows/android) or a BDF for now
+std::string dr_get_system_font();
+
 void dr_textur(int xp, int yp, int w, int h);
 
 /* returns the actual width (might be larger than requested! */
