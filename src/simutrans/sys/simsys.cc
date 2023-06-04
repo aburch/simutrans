@@ -579,9 +579,10 @@ const char *dr_query_fontpath(int which)
 #ifdef _WIN32
 	if (!which) {
 		// Build full font file path
-		CHAR winDir[MAX_PATH];
+		static CHAR winDir[MAX_PATH];
 		GetWindowsDirectoryA(winDir, MAX_PATH);
 		strcat(winDir, "\\Fonts\\");
+		return winDir;
 	}
 	return NULL;
 #else
