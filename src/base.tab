@@ -1603,9 +1603,6 @@ obj=program_text
 name=remove tracks
 -
 obj=program_text
-name=remove monorails
--
-obj=program_text
 name=remove powerlines
 -
 obj=message_text
@@ -2175,9 +2172,6 @@ name=%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
 -
 obj=ki_text
 name=Airline service by\n%s\nnow between\n%s \nand %s.\n
--
-obj=program_text
-name=factorybuilder
 --
 obj=program_text
 name=Add forest
@@ -2232,9 +2226,6 @@ name=Build maglev depot
 -
 obj=program_text
 name=cars.\nstate
--
-obj=program_text
-name=clf_chk_monorail
 -
 obj=program_text
 name=clf_chk_monorail
@@ -3070,9 +3061,6 @@ obj=program_text
 name=Walked
 --
 obj=program_text
-name=Walked
---
-obj=program_text
 name=Configure AI setttings
 --
 obj=program_text
@@ -3634,7 +3622,7 @@ name=<h1>Warning</h1><p><strong>addons for
 -
 obj=program_text
 name=Connections
-note=Tab in factory window
+note=Tab in factory window/station dialog
 -
 obj=program_text
 name=Freight
@@ -3654,10 +3642,6 @@ note=in enlarge map and new map window
 -
 obj=error_text
 name=Too far away to merge stations!
--
-obj=program_text
-name=Connections
-note=Name of connection tab in station dialog
 -
 obj=program_text
 name=Bonus Speed: %i km/h
@@ -3991,7 +3975,7 @@ note=tooltip for convoi state scheduled unloading
 -
 obj=program_text
 name=Toolbar position:
-note=display setting label
+note=display setting option
 -
 obj=program_text
 name=1th
@@ -4175,10 +4159,6 @@ note=tooltip in display options
 obj=program_text
 name=Scroll threshold
 note=distance moved before starting map scrolling when a general tool is selected
---
-obj=program_text
-name=Toolbar position:
-note=option in display settings
 --
 obj=program_text
 name=Downloading
