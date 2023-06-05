@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   update-nightly:
+  
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
