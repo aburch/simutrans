@@ -19,8 +19,9 @@
 
 void sound_frame_t::update_song_name()
 {
-	const int current_midi = get_current_midi();
-	if(  current_midi < 0  ) {
+	const int current_midi_index = get_current_midi();
+	std::string credits = "";
+	if(  current_midi_index < 0  ) {
 		song_name_label.buf().printf( translator::translate("Music playing disabled/not available") );
 	}
 #ifdef USE_FLUIDSYNTH_MIDI
@@ -29,10 +30,23 @@ void sound_frame_t::update_song_name()
 	}
 #endif
 	else {
-		song_name_label.buf().printf("%d - %s", current_midi + 1, sound_get_midi_title( current_midi ) );
+		midi_info_t current_midi = sound_get_midi_info( current_midi_index );
+		song_name_label.buf().printf("%d - %s", current_midi_index + 1, current_midi.title.c_str() );
+		if ( current_midi.composer != "-" ) {
+			credits.append( translator::translate("Composed by") );
+			credits.append(" " + current_midi.composer + " ");
+			if( current_midi.arranger != "-" ) {
+				credits.append( translator::translate("and arranged by") );
+				credits.append( " " + current_midi.arranger );
+			}
+		} 
 	}
 	song_name_label.update();
 	song_name_label.set_size( song_name_label.get_min_size() );
+
+	song_credits_label.buf().printf(credits.c_str());
+	song_credits_label.update();
+	song_credits_label.set_size( song_credits_label.get_min_size() );
 
 	// Loadsoundfont dialog may unmute us, update mute status
 	music_mute_button.pressed = midi_get_mute();
@@ -60,8 +74,8 @@ sound_frame_t::sound_frame_t() :
 
 	sound_mute_button.init( button_t::square_state, "mute sound");
 	sound_mute_button.pressed = sound_get_mute();
-	add_component(&sound_mute_button);
 	sound_mute_button.add_listener( this );
+	add_component(&sound_mute_button);
 
 	add_table(2,0);
 	{
@@ -108,6 +122,11 @@ sound_frame_t::sound_frame_t() :
 #endif
 	add_component(&music_mute_button);
 
+	shuffle_song_button.init( button_t::square_state, "shuffle midis" );
+	shuffle_song_button.pressed = sound_get_shuffle_midi();
+	shuffle_song_button.add_listener(this);
+	add_component(&shuffle_song_button);
+
 	add_table(2,0);
 	{
 		new_component<gui_label_t>( "Music volume:" );
@@ -119,6 +138,8 @@ sound_frame_t::sound_frame_t() :
 		add_component( &music_volume_scrollbar );
 	}
 	end_table();
+
+	new_component<gui_margin_t>();
 
 	// song selection
 	new_component<gui_label_t>( "Currently playing:" );
@@ -140,10 +161,9 @@ sound_frame_t::sound_frame_t() :
 	}
 	end_table();
 
-	shuffle_song_button.init( button_t::square_state, "shuffle midis" );
-	shuffle_song_button.pressed = sound_get_shuffle_midi();
-	shuffle_song_button.add_listener(this);
-	add_component(&shuffle_song_button);
+	add_component( &song_credits_label );
+
+	new_component<gui_margin_t>();
 
 #ifdef USE_FLUIDSYNTH_MIDI
 	// Soundfont selection

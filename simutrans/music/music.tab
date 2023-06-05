@@ -1,107 +1,218 @@
 # music.tab
+# Format:
+# 1. Path to file (relative to simutrans base dir)
+# 2. Song Title
+# 3. Song Composer
+# 4. Song Arranger(s). Set to "-" if none.
 music/01-Simutrans-Main-Theme.mid
 Main Theme
+shunter
+-
 music/02-Gotta-catch-that-train.mid
 Gotta catch that train
+shunter
+-
 music/03-Sunday-drivers.mid
 Sunday drivers
+shunter
+-
 music/04-Simutrans-B-Theme.mid
 Simutrans B Theme
+shunter
+-
 music/05-Boring-afternoon.mid
 Boring Afternoon
+shunter
+-
 music/06-A-busy-day-at-the-depot.mid
 A busy day at the depot
+shunter
+-
 music/07-Transport-chaos.mid
 Transport Chaos
+shunter
+-
 music/08-The-journey-home.mid
 The Journey Home
+shunter
+-
 music/09-Simupolitan-Swing.mid
 simupolitan swing
+Lmallet
+-
 music/10-Easy-driving.mid
 easy driving
+shunter
+-
 music/11-Stucked-Convoi.mid
 stucked convoi
+Lmallet
+-
 music/12-Steamin-across-the-prairies.mid
 Steamin' across the prairies
+shunter
+-
 music/13-Stephenson-blues.mid
 Stephenson blues
+shunter
+-
 music/14-Last-journey-of-the-Niagara.mid
 Last journey of the Niagara
+shunter
+-
 music/15-The-Wayside-Blues.mid
 The Wayside Blues
+Lmallet
+-
 music/16-Midnight-Express2.mid
 Midnight Express2
+shunter
+-
 music/17-The-Benevolent-Dictators-March.mid
 The Benevolent Dictators March
+shunter
+-
 music/18-Ride-that-train.mid
 Ride that train
+shunter
+-
 music/19-Rockin-trucker.mid
 Rockin` trucker
+shunter
+-
 music/20-Last-Trip.mid
 Last Trip
+shunter
+-
 music/21-Dusty-Eyes.mid
 Dusty Eyes
+shunter
+-
 music/22-Variable-Journeys.mid
 Variable Journeys
+shunter
+-
 music/23-Something-for-Silver-Sand.mid
 Something for Silver Sand
+shunter
+-
 music/24-needlessly-striking.mid
 needlessly striking
+shunter
+-
 music/25-Float-on-by.mid
 Float on by
+shunter
+-
 music/26-Tantalizingly-Unusual.mid
 Tantalizingly Unusual
+shunter
+-
 music/27-March-Winds.mid
 March Winds
+shunter
+-
 music/28-Road-to-Warm-Places.mid
 Road to Warm Places
+shunter
+-
 music/29-Runaway.mid
 Runaway
+Lmallet
+-
 music/30-On-the-waterfront.mid
 On the waterfront
+shunter
+-
 music/31-Courtenay-Bridge.mid
 Courtenay Bridge
+Lmallet
+-
 music/32-incidental-skies.mid
 incidental skies
+shunter
+-
 music/33-Journey-to-times-gone-by.mid
 Journey to times gone by
+shunter
+-
 music/34-flyingaway.mid
 flying away
+Lmallet
+-
 music/35-deep-ride.mid
 deep ride
+shunter
+-
 music/36-faded-things.mid
 faded things
+shunter
+-
 music/37-inevitably-engrossed.mid
 inevitably engrossed
+shunter
+-
 music/38-positive-thrill.mid
 positive thrill
+shunter
+-
 music/39-bangin-mover.mid
 bangin mover
+shunter
+-
 music/40-alternative.mid
 alternative
+Marcos Maestro
+-
 music/41-Libertador.mid
 Libertador
+Marcos Maestro
+-
 music/42-Stranger-Echoes.mid
 Stranger Echoes (Multitrack slow)
+vilvoh
+shunter
 music/43-Driving-on-the-midnight-highway.mid
 Driving on the Midnight Highway
+Kayoko
+-
 music/44-Above-the-sky.mid
 Above the sky
+Kayoko
+-
 music/45-Misty-Forest.mid
 Misty Forest
+Gobanboshi
+Phystam, Reti_N
 music/46-House-in-the-station.mid
 House in the station
+Gobanboshi
+Phystam, Reti_N
 music/47-Salty-Breeze.mid
 Salty Breeze
+RykSeb
+-
 music/48-Techno-movement.mid
 Techno-movement
+RykSeb
+-
 music/49-Last-Sunday.mid
 Last Sunday
+RykSeb
+-
 music/50-Snowy-Road.mid
 Snowy Road
+anoKTOK
+RykSeb
 music/51-Summer-Intersection.mid
 Summer Intersection
+Gobanboshi
+Phystam, Reti_N
 music/52-Dreamy-Oriental-Nights.mid
 Dreamy Oriental Nights
+RykSeb
+-
 #music/53-Where-Thomassons-Lie.mid
 #Where Thomassons Lie
+#Shingoushori
+#-

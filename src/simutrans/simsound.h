@@ -6,8 +6,9 @@
 #ifndef SIMSOUND_H
 #define SIMSOUND_H
 
-
+#include <string>
 #include "simtypes.h"
+#include "utils/plainstring.h"
 
 /// sound can be selectively muted (but volume is not touched)
 void sound_set_mute(bool new_flag);
@@ -45,8 +46,14 @@ void sound_set_midi_volume(int volume);
 /// @returns volume in range 0..255
 int sound_get_midi_volume();
 
+struct midi_info_t {
+	std::string title;
+	std::string composer;
+	std::string arranger;
+};
+
 /// gets midi title
-const char *sound_get_midi_title(int index);
+struct midi_info_t sound_get_midi_info(int index);
 
 
 /**

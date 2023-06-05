@@ -20,8 +20,9 @@
 #include "utils/simstring.h"
 
 
-static bool        new_midi = false;
-static plainstring midi_title[MAX_MIDI];
+static bool new_midi = false;
+
+static struct midi_info_t midi_list[MAX_MIDI];
 
 static int max_midi = -1; // number of MIDI files
 
@@ -105,14 +106,12 @@ int sound_get_midi_volume()
 /**
  * gets midi title
  */
-const char *sound_get_midi_title(int index)
+struct midi_info_t sound_get_midi_info(int index)
 {
 	if (  index >= 0  &&  index <= max_midi  ) {
-		return midi_title[index];
+		return midi_list[index];
 	}
-	else {
-		return "Invalid MIDI index!";
-	}
+	return { "Invalid MIDI Index!", "-", "-" };
 }
 
 
@@ -125,7 +124,6 @@ int get_current_midi()
 }
 
 
-
 /**
  * Load MIDI files
  */
@@ -136,29 +134,25 @@ int midi_init(const char *directory)
 
 	if(  FILE* const file = dr_fopen(full_path.c_str(), "rb")  ) {
 		while(!feof(file)) {
-			char buf[256];
-			char title[256];
+			char buf[256], title[256], composer[256], arranger[256];
 			size_t len;
 
 			read_line(buf,   sizeof(buf),   file);
 			read_line(title, sizeof(title), file);
+			read_line(composer, sizeof(composer), file);
+			read_line(arranger, sizeof(arranger), file);
 			if(  !feof(file)  ) {
+				clear_invalid_ending_chars(buf);
 				len = strlen(buf);
-				while(  len>0  &&  buf[--len] <= 32  ) {
-					buf[len] = 0;
-				}
-
 				if(  len > 1  ) {
 					full_path = std::string(directory) + buf;
 					dbg->message("midi_init()", "  Reading MIDI file '%s' - %s", full_path.c_str(), title);
 					max_midi = dr_load_midi(full_path.c_str());
 
 					if(  max_midi >= 0  ) {
-						len = strlen(title);
-						while(  len > 0  &&  title[--len] <= 32  ) {
-							title[len] = 0;
-						}
-						midi_title[max_midi] = title;
+						midi_list[max_midi].title = (std::string) clear_invalid_ending_chars(title);
+						midi_list[max_midi].composer = (std::string) clear_invalid_ending_chars(composer);
+						midi_list[max_midi].arranger = (std::string) clear_invalid_ending_chars(arranger);
 					}
 				}
 			}

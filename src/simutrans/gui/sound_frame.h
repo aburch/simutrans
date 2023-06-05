@@ -34,6 +34,7 @@ private:
 	button_t soundfont_button;
 #endif
 	gui_label_buf_t song_name_label;
+	gui_label_buf_t song_credits_label;
 
 	void update_song_name();
 

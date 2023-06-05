@@ -392,3 +392,20 @@ std::string str_get_basename(const char* fullpath)
 	}
 	return path.substr(0, last + 1);
 }
+
+/**
+ * Removes ASCII control characters and the space character from the end of the string
+ * See https://www.ascii-code.com/
+ * 
+ * @param string
+ * @returns the string without control chars at the end
+*/
+char* clear_invalid_ending_chars(char* string) 
+{
+	static int MAX_ASCII_CHAR = 32;
+	size_t len = strlen(string);
+	while(  len>0  &&  string[--len] <= MAX_ASCII_CHAR  ) {
+		string[len] = 0;
+	}
+	return string;
+}

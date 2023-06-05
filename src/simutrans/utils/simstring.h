@@ -121,4 +121,13 @@ std::string str_get_filename(const char* fullpath, const bool with_extension);
 
 std::string str_get_basename(const char* fullpath);
 
+/**
+ * Removes ASCII control characters (and the space character) from the end of the string
+ * See https://www.ascii-code.com/
+ *
+ * @param string
+ * @returns string without control chars at the end
+*/
+char* clear_invalid_ending_chars(char* string);
+
 #endif
