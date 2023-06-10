@@ -36,7 +36,7 @@
  * the linking and raise an error if we lack any of them.
  */
 stringhashtable_tpl<obj_writer_t*>* obj_writer_t::writer_by_name = NULL;
-inthashtable_tpl<obj_type, obj_writer_t*>* obj_writer_t::writer_by_type = NULL;
+inthashtable_tpl<uint32, obj_writer_t *> *obj_writer_t::writer_by_type = NULL;
 
 text_writer_t text_writer_t::the_instance;
 image_writer_t image_writer_t::the_instance;

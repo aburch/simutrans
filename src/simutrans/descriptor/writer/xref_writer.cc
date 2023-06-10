@@ -18,7 +18,7 @@ void xref_writer_t::write_obj(FILE* outfp, obj_node_t& parent, obj_type type, co
 
 	obj_node_t node(
 		this,
-			sizeof(char) + // Fatal-Flag
+			sizeof(char)     + // Fatal-Flag
 			sizeof(obj_type) + // type of dest node
 			len + 1, // 0-terminated name of dest node
 		&parent

@@ -25,7 +25,7 @@ void obj_writer_t::register_writer(bool main_obj)
 {
 	if (!writer_by_name) {
 		writer_by_name = new stringhashtable_tpl<obj_writer_t*>;
-		writer_by_type = new inthashtable_tpl<obj_type, obj_writer_t*>;
+		writer_by_type = new inthashtable_tpl<uint32, obj_writer_t*>;
 	}
 	if (main_obj) {
 		writer_by_name->put(get_type_name(), this);
@@ -80,7 +80,7 @@ bool obj_writer_t::dump_nodes(FILE* infp, int level, uint16 index)
 
 	const long next_pos = ftell(infp) + node.size;
 
-	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
+	obj_writer_t* writer = writer_by_type->get(node.type);
 	if (writer) {
 		printf("%*s%03u %4.4s-node (%s)", 3 * level, " ", index, (const char*)&node.type, writer->get_type_name());
 		bool ok = writer->dump_node(infp, node);
@@ -218,7 +218,7 @@ const char* obj_writer_t::node_writer_name(FILE* infp) const
 	obj_node_info_t node;
 	obj_node_t::read_node( infp, node );
 	fseek(infp, node.size, SEEK_CUR);
-	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
+	obj_writer_t* writer = writer_by_type->get(node.type);
 	if (writer) {
 		return writer->get_type_name();
 	}

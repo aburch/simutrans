@@ -24,7 +24,7 @@
 #define C4ID(a, b ,c ,d) (((uint32)a) | ((uint32)b) << 8 | ((uint32)c) << 16 | ((uint32)d) << 24)
 
 
-enum obj_type
+enum obj_type : uint32
 {
 	obj_bridge      = C4ID('B','R','D','G'),
 	obj_building    = C4ID('B','U','I','L'),

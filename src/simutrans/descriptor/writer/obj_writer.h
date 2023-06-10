@@ -24,7 +24,7 @@ class obj_writer_t
 {
 private:
 	static stringhashtable_tpl<obj_writer_t*>* writer_by_name;
-	static inthashtable_tpl<obj_type, obj_writer_t*>* writer_by_type;
+	static inthashtable_tpl<uint32, obj_writer_t *> *writer_by_type;
 
 	static int default_image_size;
 
