@@ -154,21 +154,22 @@ void obj_writer_t::show_capabilites()
 std::string obj_writer_t::name_from_next_node(FILE* fp) const
 {
 	std::string ret;
-	char* buf;
 	obj_node_info_t node;
 
-	obj_node_t::read_node( fp, node );
-	if(node.type==obj_text) {
-		buf = new char[node.size];
-		fread(buf, node.size, 1, fp);
-		ret = buf;
-		delete [] buf;
-
-		return ret;
-	}
-	else {
+	if (!obj_node_t::read_node( fp, node ) || node.type!=obj_text) {
 		return "";
 	}
+
+	char *buf = new char[node.size+1];
+	buf[node.size] = 0;
+	if (fread(buf, node.size, 1, fp) != 1) {
+		delete[] buf;
+		return "";
+	}
+
+	ret = buf;
+	delete[] buf;
+	return ret;
 }
 
 
