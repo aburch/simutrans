@@ -32,9 +32,9 @@ protected:
 	obj_writer_t() { /* Beware: Cannot register here! */ }
 
 	void register_writer(bool main_obj);
-	void dump_nodes(FILE* infp, int level, uint16 index = 0);
-	void list_nodes(FILE* infp);
-	size_t skip_nodes(FILE* fp);
+	void dump_nodes(FILE *infp, int level, uint16 index = 0);
+	bool list_nodes(FILE *infp);
+	bool skip_nodes(FILE* fp, size_t &offset);
 	void show_capabilites();
 
 	std::string name_from_next_node(FILE* fp) const;

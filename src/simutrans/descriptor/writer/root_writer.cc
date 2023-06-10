@@ -203,29 +203,44 @@ void root_writer_t::dump(int argc, char* argv[])
 
 bool root_writer_t::do_list(const char* open_file_name)
 {
-	if (FILE* const infp = fopen(open_file_name, "rb")) {
-		if (skip_header(infp)) {
-			// Compiled Version
-			uint32 version;
+	FILE* const infp = fopen(open_file_name, "rb");
 
-			fread(&version, sizeof(version), 1, infp);
-			printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
-			printf("type              name                            nodes  size\n"
-			       "----------------  ------------------------------  -----  ----------\n");
-
-			obj_node_info_t node;
-			obj_node_t::read_node( infp, node );
-			fseek(infp, node.size, SEEK_CUR);
-
-			for (int i = 0; i < node.nchildren; i++) {
-				list_nodes(infp);
-			}
-		}
-		fclose(infp);
-		return true;
+	if (!infp) {
+		return false;
 	}
 
-	return false;
+	if (!skip_header(infp)) {
+		fclose(infp);
+		return false;
+	}
+
+	// Compiled Version
+	uint32 version;
+
+	if (fread(&version, sizeof(version), 1, infp) != 1) {
+		fclose(infp);
+		return false;
+	}
+
+	printf("Contents of file %s (pak version %u):\n", open_file_name, endian(version));
+	printf("type              name                            nodes  size\n"
+	       "----------------  ------------------------------  -----  ----------\n");
+
+	obj_node_info_t node;
+	if (!obj_node_t::read_node( infp, node ) || fseek(infp, node.size, SEEK_CUR) != 0) {
+		fclose(infp);
+		return false;
+	}
+
+	for (int i = 0; i < node.nchildren; i++) {
+		if (!list_nodes(infp)){
+			fclose(infp);
+			return false;
+		}
+	}
+
+	fclose(infp);
+	return true;
 }
 
 
@@ -248,7 +263,7 @@ void root_writer_t::list(int argc, char* argv[])
 		}
 
 		if (!any) {
-			dbg->error( "root_writer_t::list", "file or dir %s not found", argv[i] );
+			dbg->error( "root_writer_t::list", "Could not read pak file or dir %s (not found or file corrupted)", argv[i] );
 		}
 	}
 }
