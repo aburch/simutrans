@@ -33,18 +33,25 @@ void xref_writer_t::write_obj(FILE* outfp, obj_node_t& parent, obj_type type, co
 }
 
 
-void xref_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
+bool xref_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 {
-	obj_writer_t::dump_node(infp, node);
-
-	if(  node.size>=5  ) {
-		char* buf = new char[node.size+1];
-
-		fread(buf, node.size, 1, infp);
-		buf[node.size] = 0;
-
-		printf(" -> %4.4s-node (%s) '%s'", buf, buf[4] ? "required" : "optional", buf+5 );
-
-		delete [] buf;
+	if (!obj_writer_t::dump_node(infp, node)) {
+		return false;
 	}
+
+	if(  node.size<5  ) {
+		return false;
+	}
+
+	char* buf = new char[node.size+1];
+	buf[node.size] = 0;
+
+	if (fread(buf, node.size, 1, infp) != 1) {
+		delete[] buf;
+		return false;
+	}
+
+	printf(" -> %4.4s-node (%s) '%s'", buf, buf[4] ? "required" : "optional", buf+5 );
+	delete[] buf;
+	return true;
 }

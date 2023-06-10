@@ -161,17 +161,31 @@ static bool skip_header(FILE* const f)
 
 bool root_writer_t::do_dump(const char* open_file_name)
 {
-	if (FILE* const infp = fopen(open_file_name, "rb")) {
-		if (skip_header(infp)) {
-			// Compiled Version
-			uint32 version;
-			fread(&version, sizeof(version), 1, infp);
-			printf("File %s (version %d):\n", open_file_name, endian(version));
+	FILE *const infp = fopen(open_file_name, "rb");
 
-			dump_nodes(infp, 1);
-		}
-		fclose(infp);
+	if (!infp) {
+		return false;
 	}
+
+	if (!skip_header(infp)) {
+		fclose(infp);
+		return false;
+	}
+
+	// Compiled Version
+	uint32 version;
+	if (fread(&version, sizeof(version), 1, infp) != 1) {
+		fclose(infp);
+		return false;
+	}
+
+	printf("File %s (version %d):\n", open_file_name, endian(version));
+	if (!dump_nodes(infp, 1)) {
+		fclose(infp);
+		return false;
+	}
+
+	fclose(infp);
 	return true;
 }
 
@@ -195,7 +209,7 @@ void root_writer_t::dump(int argc, char* argv[])
 		}
 
 		if (!any) {
-			dbg->error( "root_writer_t::dump", "file or dir %s not found", argv[i] );
+			dbg->error( "root_writer_t::dump", "Could not read pak file or dir %s (not found or file corrupted)", argv[i] );
 		}
 	}
 }

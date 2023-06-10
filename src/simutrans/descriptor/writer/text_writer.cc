@@ -23,13 +23,21 @@ void text_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* text)
 }
 
 
-void text_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
+bool text_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 {
-	obj_writer_t::dump_node(infp, node);
+	if (!obj_writer_t::dump_node(infp, node)) {
+		return false;
+	}
 
-	char* buf = new char[node.size];
+	char* buf = new char[node.size+1];
+	buf[node.size] = 0;
 
-	fread(buf, node.size, 1, infp);
+	if (fread(buf, node.size, 1, infp) != 1) {
+		delete[] buf;
+		return false;
+	}
+
 	printf(" '%s'", buf);
-	delete [] buf;
+	delete[] buf;
+	return true;
 }

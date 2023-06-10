@@ -28,8 +28,8 @@ public:
 	obj_type get_type() const OVERRIDE { return obj_text; }
 	const char* get_type_name() const OVERRIDE { return "text"; }
 
-	void dump_node(FILE* infp, const obj_node_info_t& node) OVERRIDE;
-	void write_obj(FILE* fp, obj_node_t& parent, const char* text);
+	bool dump_node(FILE *infp, const obj_node_info_t& node) OVERRIDE;
+	void write_obj(FILE *fp, obj_node_t& parent, const char* text);
 };
 
 

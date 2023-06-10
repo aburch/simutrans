@@ -12,6 +12,7 @@
 	CHG: messages, speed records, ticker use 3d coordinates
 	CHG: a go-to-coordinate action will change view to underground/normal view if target is invisible
 	FIX: Crash when using 'makeobj list <file>' in some cases
+	FIX: Crash when using 'makeobj dump <file>' in some cases
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

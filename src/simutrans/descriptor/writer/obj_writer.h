@@ -32,7 +32,7 @@ protected:
 	obj_writer_t() { /* Beware: Cannot register here! */ }
 
 	void register_writer(bool main_obj);
-	void dump_nodes(FILE *infp, int level, uint16 index = 0);
+	bool dump_nodes(FILE *infp, int level, uint16 index = 0);
 	bool list_nodes(FILE *infp);
 	bool skip_nodes(FILE* fp, size_t &offset);
 	void show_capabilites();
@@ -42,8 +42,8 @@ protected:
 
 	virtual std::string get_node_name(FILE* /*fp*/) const { return ""; }
 
-	virtual void dump_node(FILE* infp, const obj_node_info_t& node);
-	virtual void write_obj(FILE* /*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}
+	virtual bool dump_node(FILE *infp, const obj_node_info_t& node);
+	virtual void write_obj(FILE */*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}
 	void write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
 
 public:
