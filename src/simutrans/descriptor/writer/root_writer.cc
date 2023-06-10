@@ -201,9 +201,9 @@ void root_writer_t::dump(int argc, char* argv[])
 }
 
 
-bool root_writer_t::do_list(const char* open_file_name)
+bool root_writer_t::do_list(const char *open_file_name)
 {
-	FILE* const infp = fopen(open_file_name, "rb");
+	FILE *const infp = fopen(open_file_name, "rb");
 
 	if (!infp) {
 		return false;

@@ -91,7 +91,7 @@ void obj_writer_t::dump_nodes(FILE* infp, int level, uint16 index)
 }
 
 
-bool obj_writer_t::list_nodes(FILE* infp)
+bool obj_writer_t::list_nodes(FILE *infp)
 {
 	obj_node_info_t node;
 
@@ -103,11 +103,15 @@ bool obj_writer_t::list_nodes(FILE* infp)
 
 	obj_writer_t *writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
-		fseek(infp, node.size, SEEK_CUR);
-		printf("%-16s  %-30s  %5u  ", writer->get_type_name(), (writer->get_node_name(infp)).c_str(), node.nchildren);
+		if (fseek(infp, node.size, SEEK_CUR) != 0) {
+			return false;
+		}
+
+		const std::string node_name = writer->get_node_name(infp);
+		printf("%-16s  %-30s  %5u  ", writer->get_type_name(), node_name.c_str(), node.nchildren);
 	}
 	else {
-		printf("(unknown %4.4s)    %30.30s  %5.5s  ", (const char*)&node.type, " ", " ");
+		printf("(unknown %4.4s)    %30.30s  %5.5s  ", (const char *)&node.type, " ", " ");
 	}
 
 	if (fseek(infp, next_pos, SEEK_SET) != 0) {
