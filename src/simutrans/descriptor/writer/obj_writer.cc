@@ -164,22 +164,26 @@ void obj_writer_t::show_capabilites()
 }
 
 
-std::string obj_writer_t::name_from_next_node(FILE* fp) const
+std::string obj_writer_t::name_from_next_node(FILE *fp) const
 {
 	std::string ret;
 	obj_node_info_t node;
 
-	if (!obj_node_t::read_node( fp, node ) || node.type!=obj_text) {
+	if (!obj_node_t::read_node( fp, node ) || node.type!=obj_text || node.size == 0xFFFFFFFFu) {
 		return "";
 	}
 
 	char *buf = new char[node.size+1];
-	buf[node.size] = 0;
+	if (!buf) {
+		return "";
+	}
+
 	if (fread(buf, node.size, 1, fp) != 1) {
 		delete[] buf;
 		return "";
 	}
 
+	buf[node.size] = 0;
 	ret = buf;
 	delete[] buf;
 	return ret;
