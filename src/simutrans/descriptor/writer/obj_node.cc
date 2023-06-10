@@ -31,21 +31,34 @@ obj_node_t::obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent)
 
 
 // reads a node and advance the file pointer accordingly
-void obj_node_t::read_node(FILE* fp, obj_node_info_t &node )
+bool obj_node_t::read_node(FILE* fp, obj_node_info_t &node )
 {
 	uint32 u32;
 	uint16 u16;
 
-	fread(&u32, 4, 1, fp);
+	if (fread(&u32, 4, 1, fp) != 1) {
+		return false;
+	}
 	node.type = endian(u32);
-	fread(&u16, 2, 1, fp);
+
+	if (fread(&u16, 2, 1, fp) != 1) {
+		return false;
+	}
 	node.nchildren = endian(u16);
-	fread(&u16, 2, 1, fp);
+
+	if (fread(&u16, 2, 1, fp) != 1) {
+		return false;
+	}
 	node.size = endian(u16);
+
 	if(  node.size==LARGE_RECORD_SIZE  ) {
-		fread(&u32, 4, 1, fp);
+		if (fread(&u32, 4, 1, fp) != 1) {
+			return false;
+		}
 		node.size = endian(u32);
 	}
+
+	return true;
 }
 
 
@@ -72,6 +85,7 @@ void obj_node_t::write(FILE* fp)
 		fwrite(&size16, 2, 1, fp); // 0xFFFF
 		fwrite(&size, 4, 1, fp);
 	}
+
 	if (parent) {
 		parent->desc.nchildren++;
 	}
