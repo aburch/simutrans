@@ -29,14 +29,17 @@ bool text_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 		return false;
 	}
 
-	char* buf = new char[node.size+1];
-	buf[node.size] = 0;
+	char *buf = new char[node.size+1];
+	if (!buf) {
+		return false;
+	}
 
 	if (fread(buf, node.size, 1, infp) != 1) {
 		delete[] buf;
 		return false;
 	}
 
+	buf[node.size] = 0;
 	printf(" '%s'", buf);
 	delete[] buf;
 	return true;

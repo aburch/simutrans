@@ -304,7 +304,7 @@ void log_t::custom_fatal(char *buffer)
 #elif defined NETTOOL
 	// no display available
 	puts( buffer );
-	abort();
+	exit(1);
 #else
 
 	env_t::verbose_debug = log_t::LEVEL_FATAL; // no more window concerning messages
