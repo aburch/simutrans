@@ -227,12 +227,18 @@ void loadfont_frame_t::fill_list()
 			FT_Face face;
 
 			if(  FT_New_Face( ft_library, i.info, 0, &face )==FT_Err_Ok  ) {
-				if (face->family_name  &&  face->style_name  ) {
-					delete [] const_cast<char*>(i.button->get_text());
-					char *name = new char[strlen(face->family_name)+strlen(face->style_name)+2];
+				if (  face->family_name  ) {
+					const size_t len = strlen(face->family_name) + 1 + (face->style_name ? strlen(face->style_name) + 1 : 0);
+					char *name = new char[len];
+
 					strcpy( name, face->family_name );
-					strcat( name, " ");
-					strcat( name, face->style_name );
+
+					if (face->style_name) {
+						strcat( name, " ");
+						strcat( name, face->style_name );
+					}
+
+					delete [] const_cast<char*>(i.button->get_text());
 					i.button->set_text(name);
 					i.button->pressed = strstr( env_t::fontname.c_str(), i.info ) != NULL;
 				}
