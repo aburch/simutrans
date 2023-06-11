@@ -305,7 +305,7 @@ bool interaction_t::process_event( event_t &ev )
 	}
 
 	DBG_DEBUG4("interaction_t::process_event", "calling check_pos_win");
-	if(check_pos_win(&ev)){
+	if(check_pos_win(&ev,false)){
 		// The event is shallowed by the GUI, next.
 		return false;
 	}

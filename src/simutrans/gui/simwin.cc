@@ -1438,7 +1438,7 @@ void catch_dragging()
 /*
  * main window event handler
  */
-bool check_pos_win(event_t *ev)
+bool check_pos_win(event_t *ev,bool modal)
 {
 	static int is_resizing = -1;
 	static int is_moving = -1;
@@ -1488,15 +1488,60 @@ bool check_pos_win(event_t *ev)
 	if (!tool_t::toolbar_tool.empty()  &&
 		tool_t::toolbar_tool[0]->get_tool_selector()  &&
 		(is_dragging  ||  tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(x-menuoffset.x, y-menuoffset.y))  &&
-		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&
-		ev->ev_class >= EVENT_CLICK  &&  ev->ev_class <= EVENT_DRAG  ) {
+		y > menuoffset.y+D_TITLEBAR_HEIGHT  &&  (ev->ev_class >= EVENT_CLICK  &&  ev->ev_class <= EVENT_DRAG)  ) {
 
+		// first finish dragging
 		event_t wev = *ev;
 		wev.move_origin(menuoffset);
 
 		inside_event_handling = tool_t::toolbar_tool[0];
-		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event( &wev );
+		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event(&wev);
 		inside_event_handling = NULL;
+
+		if (!tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(ev->mx, ev->my)) {
+
+			// find out if the toolbar should be move to another corner
+			uint8 new_pos = 0;
+			int mx = get_mouse_x(); // inclippe values needed
+			int my = get_mouse_y();
+			if (my < env_t::iconsize.h) {
+				new_pos = 1 << MENU_TOP;
+			}
+			if (my > display_get_height()- env_t::iconsize.h) {
+				new_pos |= 1 << MENU_BOTTOM;
+			}
+			if (mx < env_t::iconsize.w) {
+				new_pos |= 1 << MENU_LEFT;
+			}
+			if (mx > display_get_width() - env_t::iconsize.w) {
+				new_pos |= 1 << MENU_RIGHT;
+			}
+			if (new_pos  &&  new_pos!=(1<<env_t::menupos)) {
+				// check for unit rotation and convert to MNEU_XXX system
+				uint8 check_pos = new_pos, rot = 0;
+				while (  (check_pos & 1)==0) {
+					check_pos >>= 1;
+					rot++;
+				}
+				// single rotation only
+				if (check_pos == 1  &&  rot!=env_t::menupos) {
+					env_t::menupos = rot;
+					world()->set_dirty();
+
+					// if no inside a modal from
+					if (!modal) {
+						// move all windows
+						event_t* ev = new event_t();
+						ev->ev_class = EVENT_SYSTEM;
+						ev->ev_code = SYSTEM_RELOAD_WINDOWS;
+						queue_event(ev);
+					}
+
+					is_dragging = false;
+					return true;
+				}
+			}
+		}
 
 		is_dragging = ev->ev_class != EVENT_RELEASE  &&  ev->button_state>1;
 
@@ -2148,7 +2193,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				}
 
 				DBG_DEBUG4("modal_dialogue", "calling check_pos_win");
-				check_pos_win(&ev);
+				check_pos_win(&ev, true);
 
 			} while(  ev.ev_class != EVENT_NONE  &&  dr_time()-frame_start_time < 50  );
 
@@ -2210,7 +2255,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				}
 				else {
 					// other events
-					check_pos_win(&ev);
+					check_pos_win(&ev,true);
 				}
 				// however, after 50ms we do a redraw ...
 			} while (ev.ev_class != EVENT_NONE &&  dr_time() - frame_start_time < 50);

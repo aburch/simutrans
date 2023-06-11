@@ -140,7 +140,7 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t*, wintype, ptrdiff_
 // call to avoid the main menu getting mouse events while dragging
 void catch_dragging();
 
-bool check_pos_win(event_t*);
+bool check_pos_win(event_t*,bool modal);
 
 bool win_is_open(gui_frame_t *ig );
 

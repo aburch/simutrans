@@ -95,6 +95,7 @@ public:
 		add_pax_dest( pax_dest_new, city->get_pax_destinations_new() );
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
+
 	// handle clicks into minimaps
 	bool infowin_event(const event_t *ev) OVERRIDE
 	{
@@ -122,6 +123,7 @@ public:
 		}
 		return false;
 	}
+
 	// draw both minimaps
 	void draw(scr_coord offset) OVERRIDE
 	{

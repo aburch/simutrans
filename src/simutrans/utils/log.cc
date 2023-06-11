@@ -329,7 +329,7 @@ void log_t::custom_fatal(char *buffer)
 			dr_flush();
 			display_poll_event(&ev);
 			// main window resized
-			check_pos_win(&ev);
+			check_pos_win(&ev,true);
 			if(ev.ev_class==EVENT_KEYBOARD) {
 				break;
 			}
