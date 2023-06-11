@@ -225,14 +225,18 @@ void loadfont_frame_t::fill_list()
 		// Use internal name instead the cutted file name
 		if(  ft_library  ) {
 			FT_Face face;
-			if(  !FT_New_Face( ft_library, i.info, 0, &face )  ) {
-				delete [] const_cast<char*>(i.button->get_text());
-				char *name = new char[strlen(face->family_name)+strlen(face->style_name)+2];
-				strcpy( name, face->family_name );
-				strcat( name, " ");
-				strcat( name, face->style_name );
-				i.button->set_text(name);
-				i.button->pressed = strstr( env_t::fontname.c_str(), i.info );
+
+			if(  FT_New_Face( ft_library, i.info, 0, &face )==FT_Err_Ok  ) {
+				if (face->family_name  &&  face->style_name  ) {
+					delete [] const_cast<char*>(i.button->get_text());
+					char *name = new char[strlen(face->family_name)+strlen(face->style_name)+2];
+					strcpy( name, face->family_name );
+					strcat( name, " ");
+					strcat( name, face->style_name );
+					i.button->set_text(name);
+					i.button->pressed = strstr( env_t::fontname.c_str(), i.info ) != NULL;
+				}
+
 				FT_Done_Face( face );
 			}
 		}
