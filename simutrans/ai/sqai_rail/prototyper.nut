@@ -135,6 +135,7 @@ class prototyper_t extends node_t
       gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
       gui.add_message_at(our_player, "electrified: " + electrified, world.get_time())
     }
+    local date = world.get_time()
     // list of all vehicles
     local list = vehicle_desc_x.get_available_vehicles(wt)
 
@@ -205,6 +206,9 @@ class prototyper_t extends node_t
     // iterating ind-th position in convoy
     local ind = 1
 
+    local count_cnv_length = false
+
+    local show_mwssage = false
 
     while(true) {
 
@@ -233,21 +237,23 @@ class prototyper_t extends node_t
       // check constraints
       // .. length
       local l = (ind > 1 ?  cnv[ind-1].length : 0) + max( CARUNITS_PER_TILE/2, test.get_length());
-      //gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), test)
+      //if ( wt == wt_rail ) gui.add_message_at(our_player, "convoy length max: " + max( CARUNITS_PER_TILE/2, test.get_length()), world.get_time())
       //max_vehicles
       local a = 0
       if ( wt == wt_water ) {
         a = CARUNITS_PER_TILE * 4
       }
       else if ( wt == wt_rail ) {
-        local tiles = 3
+        a = CARUNITS_PER_TILE * 3
         if ( volume > 1200 && volume < 2200 ) {
-          tiles = 4
+          a = CARUNITS_PER_TILE * 4
         } else if ( volume > 2200 ) {
-          tiles = 5
+          a = CARUNITS_PER_TILE * 5
         }
-        if ( tiles > max_length ) { tiles = max_length }
-        a = CARUNITS_PER_TILE * tiles
+        if ( show_mwssage ) {
+          gui.add_message_at(our_player, "#prototyper 251# tiles_length: " + a + " - max_length: " + max_length, world.get_time())
+          show_mwssage = false
+        }
       }
       else {
         a = CARUNITS_PER_TILE
@@ -256,7 +262,14 @@ class prototyper_t extends node_t
       // no more by max length
       // no more by speed < max speed convoy
       if (l > a  || c["min_top_speed"] < c["max_speed"]) { //) { max_length   CARUNITS_PER_TILE
-        continue;
+        //gui.add_message_at(our_player, "c['min_top_speed']: " + c["min_top_speed"], world.get_time())
+        //gui.add_message_at(our_player, "c['max_speed']: " + c["max_speed"], world.get_time())
+        if ( (c["max_speed"]-c["min_top_speed"]) < 10 ) {
+          count_cnv_length = true
+        } else {
+          continue;
+        }
+
       }
 
       // check if convoy finished
@@ -281,15 +294,27 @@ class prototyper_t extends node_t
       }
 
       // move on to next position
-      if (ind >= max_vehicles) {
+      if (ind >= max_vehicles || count_cnv_length) {
+        count_cnv_length = false
         continue;
       }
 
       ind++
 
-      local list_succ = test.get_successors()
-      it_lists[ind] = list_succ.len()==0 ? list_other : list_succ
-      it_ind[ind] = -1
+    local list_succ = test.get_successors()
+    if (list_succ.len()==0) {
+      it_lists[ind] = list_other
+    }
+    else{
+      it_lists[ind] = []
+      foreach(v in list_succ) {
+        if (v.is_available(date)) {
+          it_lists[ind].append(v)
+        }
+      }
+    }
+
+    it_ind[ind] = -1
     }
 
     if (best) {
