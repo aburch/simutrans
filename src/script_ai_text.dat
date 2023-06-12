@@ -28,3 +28,9 @@ name=%s electrified the line %s
 obj=script_ai_text
 name=%s removes line: %s
 -
+obj=script_ai_text
+name=%s expand the station %s (%s) and station %s (%s)
+-
+obj=script_ai_text
+name=%s - last month: operating profit %d net wealth %d
+-
