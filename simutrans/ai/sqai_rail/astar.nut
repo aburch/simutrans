@@ -1096,9 +1096,9 @@ function check_tile_end_of_station(direction, count, s_tile) {
 
   local tx = 0
   local ty = 0
-  if ( direction == 1 || direction == 4 ) {
+  if ( direction == 1 || direction == 4 || direction == 5 ) {
     ty = count
-  } else if ( direction == 2 || direction == 8 ) {
+  } else if ( direction == 2 || direction == 8 || direction == 10 ) {
     tx = count
   }
 
@@ -1116,8 +1116,14 @@ function check_tile_end_of_station(direction, count, s_tile) {
     case 8:
       t_square = square_x(s_tile.x + tx, s_tile.y)
       break
+    case 5:
+      t_square = square_x(s_tile.x, s_tile.y - ty)
+      break
+    case 10:
+      t_square = square_x(s_tile.x + tx, s_tile.y)
+      break
   }
-
+  local tile_coord = coord3d_to_string(s_tile) // debug
   local t_ground = null
   // tile out of map
   if ( !world.is_coord_valid(t_square) ) {
