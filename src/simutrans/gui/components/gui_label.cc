@@ -157,6 +157,20 @@ void gui_label_buf_t::draw(scr_coord offset)
 }
 
 
+void gui_label_buf_t::set_min_width(scr_coord_val w)
+{
+	min_width = w;
+}
+
+
+scr_size gui_label_buf_t::get_min_size() const
+{
+	scr_size min_size = gui_label_t::get_min_size();
+	min_size.w = max(min_size.w, min_width);
+	return min_size;
+}
+
+
 void gui_label_buf_t::append_money(double money)
 {
 	buffer_write.append_money(money);

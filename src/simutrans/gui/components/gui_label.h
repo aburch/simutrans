@@ -117,6 +117,7 @@ class gui_label_buf_t : public gui_label_t
 {
 	bool buf_changed;
 	cbuffer_t buffer_write, buffer_read;
+	scr_coord_val min_width = 0;
 
 public:
 	gui_label_buf_t(PIXVAL color=SYSCOL_TEXT, align_t align=left) : gui_label_t(NULL, color, align), buf_changed(true) { }
@@ -145,6 +146,10 @@ public:
 	void append_money(double money);
 
 	void draw(scr_coord offset) OVERRIDE;
+
+	void set_min_width(scr_coord_val w);
+
+	scr_size get_min_size() const OVERRIDE;
 
 protected:
 	using gui_label_t::get_text_pointer;
