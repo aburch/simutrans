@@ -212,7 +212,7 @@ void crossing_logic_t::register_desc(crossing_desc_t *desc)
 	const waytype_t way0 = (waytype_t)min(desc->get_waytype(0), desc->get_waytype(1));
 	const waytype_t way1 = (waytype_t)max(desc->get_waytype(0), desc->get_waytype(1));
 	if (way1 == way0) {
-		dbg->error("crossing_logic_t::register_desc()", "Same waytype for both ways for crossing %S: Not added!", desc->get_name());
+		dbg->error("crossing_logic_t::register_desc()", "Crossing %s has waytype %s for both ways! (Crossing ignored)", desc->get_name(), weg_t::waytype_to_string(way0));
 		return;
 	}
 	if(  way0<8  &&  way1<9  ) {
