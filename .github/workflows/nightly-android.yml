@@ -107,7 +107,7 @@ jobs:
         cd /android-sdl/simutrans-android-project/simutrans/build/outputs/bundle/release
         jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $SIGNING_KEYSTORE --storepass $SIGNING_STORE_PASSWORD simutrans-release.aab $SIGNING_KEY_ALIAS
         mkdir whatsNewDirectory
-        echo `$GITHUB_WORKSPACE/gh-clone/simutrans;git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
+        echo `cd $GITHUB_WORKSPACE/gh-clone/simutrans && git log --pretty=format:'%s' -1` > whatsNewDirectory/whatsnew-en-US
 
     - name: Update binaries of Nightly Release aab
       uses: svenstaro/upload-release-action@v2
