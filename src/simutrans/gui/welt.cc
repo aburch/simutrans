@@ -89,7 +89,6 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	game_ends  = min( game_ends,  (way_builder_t::get_latest_way(road_wt)->get_retire_year_month()+11)/12 );
 
 	loaded_heightfield = load_heightfield = false;
-	load = start = close = scenario = quit = false;
 	sets->heightfield = "";
 
 	//******************************************************************
@@ -554,10 +553,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 bool  welt_gui_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
-
-	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
-		close = true;
-	}
 
 	return true;
 }

@@ -37,11 +37,6 @@ class welt_gui_t  :
 
 		bool load_heightfield;
 		bool loaded_heightfield;
-		bool load;
-		bool start;
-		bool close;
-		bool scenario;
-		bool quit;
 
 		double city_density;
 		double industry_density;
