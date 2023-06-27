@@ -550,14 +550,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 }
 
 
-bool  welt_gui_t::infowin_event(const event_t *ev)
-{
-	gui_frame_t::infowin_event(ev);
-
-	return true;
-}
-
-
 void welt_gui_t::draw(scr_coord pos, scr_size size)
 {
 	// Coordinates are relative to parent (TITLEHEIGHT **NOT** subtracted)

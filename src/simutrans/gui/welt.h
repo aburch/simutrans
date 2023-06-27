@@ -107,8 +107,6 @@ public:
 		// does not work during new world dialog
 		bool has_sticky() const OVERRIDE { return false; }
 
-		bool infowin_event(event_t const*) OVERRIDE;
-
 		/**
 		 * Draw new component. The values to be passed refer to the window
 		 * i.e. It's the screen coordinates of the window where the
