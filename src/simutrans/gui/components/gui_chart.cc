@@ -214,7 +214,7 @@ void gui_chart_t::draw(scr_coord offset)
 					if (c.suffix) {
 						strcat(tooltip, c.suffix);
 					}
-					win_set_tooltip(get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
+					win_set_tooltip(get_mouse_pos().x+TOOLTIP_MOUSE_OFFSET_X, get_mouse_pos().y-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on

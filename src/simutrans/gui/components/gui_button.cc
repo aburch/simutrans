@@ -422,7 +422,7 @@ void button_t::draw(scr_coord offset)
 					tooltip = "hl_btn_sort_asc";
 				}
 
-				if(  getroffen(get_mouse_x() - offset.x, get_mouse_y() - offset.y)  ) {
+				if(  getroffen(get_mouse_pos().x - offset.x, get_mouse_pos().y - offset.y)  ) {
 					translated_tooltip = translator::translate(tooltip);
 				}
 			}
@@ -477,8 +477,8 @@ void button_t::draw(scr_coord offset)
 		default: ;
 	}
 
-	if(  translated_tooltip  &&  getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )  ) {
-		win_set_tooltip( get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, area.get_bottom() + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
+	if(  translated_tooltip  &&  getroffen( get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y )  ) {
+		win_set_tooltip( get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, area.get_bottom() + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
 	}
 }
 

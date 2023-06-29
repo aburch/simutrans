@@ -371,8 +371,8 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 
 	if(  !is_dragging  ) {
 		// tooltips?
-		const sint16 mx = get_mouse_x();
-		const sint16 my = get_mouse_y();
+		const sint16 mx = get_mouse_pos().x;
+		const sint16 my = get_mouse_pos().y;
 		if(  is_hit(mx-pos.x, my-pos.y)  &&  (my-pos.y > D_TITLEBAR_HEIGHT)) {
 			const sint16 xdiff = (mx - pos.x - offset.x) / env_t::iconsize.w;
 			const sint16 ydiff = (my - pos.y-D_TITLEBAR_HEIGHT - offset.y) / env_t::iconsize.h;

@@ -838,8 +838,8 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 		// try to go next to mouse bar
 		if (x == -1) {
 			move_to_full_view = true;
-			x = get_mouse_x() - gui->get_windowsize().w / 2;
-			y = get_mouse_y() - gui->get_windowsize().h - get_tile_raster_width()/4;
+			x = get_mouse_pos().x - gui->get_windowsize().w / 2;
+			y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
 		}
 
 		// make sure window is on screen
@@ -1150,8 +1150,8 @@ void display_all_win()
 	process_kill_list();
 
 	// check which window can set tooltip
-	const sint16 x = get_mouse_x();
-	const sint16 y = get_mouse_y();
+	const sint16 x = get_mouse_pos().x;
+	const sint16 y = get_mouse_pos().y;
 	tooltip_element = NULL;
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  (!wins[i].rollup  &&  wins[i].gui->is_hit(x-wins[i].pos.x,y-wins[i].pos.y))  ||
@@ -1502,8 +1502,8 @@ bool check_pos_win(event_t *ev,bool modal)
 
 			// find out if the toolbar should be move to another corner
 			uint8 new_pos = 0;
-			int mx = get_mouse_x(); // inclippe values needed
-			int my = get_mouse_y();
+			int mx = get_mouse_pos().x; // inclippe values needed
+			int my = get_mouse_pos().y;
 			if (my < env_t::iconsize.h) {
 				new_pos = 1 << MENU_TOP;
 			}
@@ -1827,7 +1827,7 @@ void win_display_flush(double konto)
 		display_fillbox_wh_rgb( menu_pos.x, menu_pos.y, menu_size.w, menu_size.h, color_idx_to_rgb(MN_GREY2), false );
 	}
 	// .. extra logic to enable tooltips
-	tooltip_element = main_menu->is_hit( get_mouse_x()-menu_pos.x, get_mouse_y()-menu_pos.y) ? main_menu : NULL;
+	tooltip_element = main_menu->is_hit( get_mouse_pos().x-menu_pos.x, get_mouse_pos().y-menu_pos.y) ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
 	menu_pos.y -= D_TITLEBAR_HEIGHT;
@@ -1876,8 +1876,8 @@ void win_display_flush(double konto)
 			}
 			else if(!static_tooltip_text.empty()) {
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+ (LINESPACE/2);
-				scr_coord_val x = get_mouse_x();
-				scr_coord_val y = get_mouse_y();
+				scr_coord_val x = get_mouse_pos().x;
+				scr_coord_val y = get_mouse_pos().y;
 				win_clamp_xywh_position(x, y, scr_size(width, (LINESPACE*9)/7), true);
 				display_ddd_proportional_clip(x, y, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
@@ -1913,9 +1913,9 @@ void win_display_flush(double konto)
 	display_fillbox_wh_rgb(0, env_t::menupos == MENU_BOTTOM ? status_bar_height : status_bar_y - 1, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
 	display_fillbox_wh_rgb(0, status_bar_y, disp_width, status_bar_height, SYSCOL_STATUSBAR_BACKGROUND, false);
 
-	bool tooltip_check = env_t::menupos == MENU_BOTTOM ? get_mouse_y() < status_bar_height : get_mouse_y() > status_bar_y;
+	bool tooltip_check = env_t::menupos == MENU_BOTTOM ? get_mouse_pos().y < status_bar_height : get_mouse_pos().y > status_bar_y;
 	if(  tooltip_check  ) {
-		tooltip_xpos = get_mouse_x();
+		tooltip_xpos = get_mouse_pos().x;
 		tooltip_ypos = env_t::menupos == MENU_BOTTOM ? status_bar_height + 10 + TICKER_HEIGHT * show_ticker : status_bar_y - 10 - TICKER_HEIGHT * show_ticker;
 	}
 

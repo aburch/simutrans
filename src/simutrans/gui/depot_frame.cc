@@ -1441,8 +1441,8 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		tab == &scrolly_electrics ? &electrics :
 		tab == &scrolly_loks      ? &loks      :
 		&waggons;
-	int x = get_mouse_x();
-	int y = get_mouse_y();
+	int x = get_mouse_pos().x;
+	int y = get_mouse_pos().y;
 	double resale_value = -1.0;
 	const vehicle_desc_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;

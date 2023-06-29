@@ -131,24 +131,10 @@ char const PATH_SEPARATOR[] = "/";
 #endif
 
 
-
-/**
- * Get Mouse X-Position
- */
-int get_mouse_x()
+scr_coord get_mouse_pos()
 {
-	return sys_event.mx;
+	return { sys_event.mx, sys_event.my };
 }
-
-
-/**
- * Get Mouse y-Position
- */
-int get_mouse_y()
-{
-	return sys_event.my;
-}
-
 
 
 uint8 dr_get_max_threads()

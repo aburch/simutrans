@@ -311,16 +311,16 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	get_aktives_tab()->draw(parent_pos + pos);
 
 	// now for tooltips ...
-	int my = get_mouse_y()-parent_pos.y-pos.y-6;
+	int my = get_mouse_pos().y-parent_pos.y-pos.y-6;
 	if(my>=0  &&  my < required_size.h-1) {
 		// Reiter getroffen?
-		int mx = get_mouse_x()-parent_pos.x-pos.x;
+		int mx = get_mouse_pos().x-parent_pos.x-pos.x;
 		int text_x = D_H_SPACE + tab_offset_x;
 		int i=0;
 		for(tab const& iter : tabs) {
 			if(text_x <= mx && text_x+iter.width > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 				// tooltip or change
-				win_set_tooltip(get_mouse_x() + 16, ypos + required_size.h + 12, iter.tooltip, &iter, this);
+				win_set_tooltip(get_mouse_pos().x + 16, ypos + required_size.h + 12, iter.tooltip, &iter, this);
 				break;
 			}
 

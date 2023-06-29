@@ -53,7 +53,7 @@ void line_scrollitem_t::draw( scr_coord offset )
 	}
 
 	static char infotext[256];
-	if( getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y ) ) {
+	if( getroffen( get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y ) ) {
 		char convoi_tmp[128];
 		const char * convoicount;
 		// update convoi info
@@ -72,7 +72,7 @@ void line_scrollitem_t::draw( scr_coord offset )
 		money_to_string( profit_str, line->get_finance_history( 0, LINE_PROFIT )/100.0, true );
 
 		sprintf( infotext, "%s, %s %s", convoicount, translator::translate( "Gewinn" ), profit_str );
-		win_set_tooltip( get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, get_mouse_y() + TOOLTIP_MOUSE_OFFSET_Y, infotext);
+		win_set_tooltip( get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, get_mouse_pos().y + TOOLTIP_MOUSE_OFFSET_Y, infotext);
 	}
 
 	gui_scrolled_list_t::const_text_scrollitem_t::draw( offset );
