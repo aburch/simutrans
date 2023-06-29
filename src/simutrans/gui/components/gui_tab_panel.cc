@@ -116,9 +116,9 @@ bool gui_tab_panel_t::action_triggered(gui_action_creator_t *comp, value_t)
 }
 
 
-bool gui_tab_panel_t::tab_getroffen(scr_coord_val x, scr_coord_val y)
+bool gui_tab_panel_t::tab_getroffen(scr_coord p)
 {
-	return x >= 0  &&  x < size.w  &&  y >= 0  &&  y < required_size.h;
+	return p.x >= 0  &&  p.x < size.w  &&  p.y >= 0  &&  p.y < required_size.h;
 }
 
 bool gui_tab_panel_t::infowin_event(const event_t *ev)
@@ -128,7 +128,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		is_dragging = false;
 	}
 
-	if(  required_size.w > size.w  &&  tab_getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
+	if(  required_size.w > size.w  &&  tab_getroffen(ev->click_pos)  ) {
 		if (!is_dragging) {
 			// handle scroll buttons pressed
 			if(  left.getroffen(ev->click_pos)  ) {
@@ -169,7 +169,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  IS_LEFTRELEASE(ev)  && tab_getroffen(ev->click_pos.x,ev->click_pos.y)  )  {
+	if(  IS_LEFTRELEASE(ev)  && tab_getroffen(ev->click_pos)  )  {
 		// tab selector was hit
 		int text_x = (required_size.w>size.w ? D_ARROW_LEFT_WIDTH : 0) + D_H_SPACE - tab_offset_x;
 		int k=0;

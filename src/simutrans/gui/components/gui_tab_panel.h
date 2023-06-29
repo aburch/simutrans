@@ -48,7 +48,7 @@ private:
 
 	bool is_dragging;
 
-	bool tab_getroffen(scr_coord_val x, scr_coord_val y);
+	bool tab_getroffen(scr_coord p);
 
 public:
 	static scr_coord_val header_vsize;
