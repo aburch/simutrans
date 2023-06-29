@@ -316,7 +316,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		// Reiter getroffen?
 		int mx = get_mouse_pos().x-parent_pos.x-pos.x;
 		int text_x = D_H_SPACE + tab_offset_x;
-		int i=0;
+
 		for(tab const& iter : tabs) {
 			if(text_x <= mx && text_x+iter.width > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 				// tooltip or change
@@ -325,7 +325,6 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			}
 
 			text_x += iter.width;
-			i++;
 		}
 	}
 }
