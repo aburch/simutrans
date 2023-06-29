@@ -159,7 +159,7 @@ public:
 	 * @return true when x, y is within button area, i.e. the button was clicked
 	 * @return false when x, y is outside button area
 	 */
-	bool getroffen(int x, int y) OVERRIDE;
+	bool getroffen(scr_coord p) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

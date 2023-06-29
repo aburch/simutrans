@@ -53,7 +53,7 @@ void line_scrollitem_t::draw( scr_coord offset )
 	}
 
 	static char infotext[256];
-	if( getroffen( get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y ) ) {
+	if( getroffen( get_mouse_pos() - offset ) ) {
 		char convoi_tmp[128];
 		const char * convoicount;
 		// update convoi info

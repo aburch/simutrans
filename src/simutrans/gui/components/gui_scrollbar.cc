@@ -154,8 +154,7 @@ void scrollbar_t::scroll(sint32 updown)
 
 bool scrollbar_t::infowin_event(const event_t *ev)
 {
-	const int x = ev->click_pos.x;
-	const int y = ev->click_pos.y;
+	const scr_coord click_pos = ev->click_pos;
 	int i;
 
 	if(  IS_WHEELUP(ev)  &&  (type == vertical) != IS_SHIFT_PRESSED(ev)  ) {
@@ -169,21 +168,21 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	else if(  is_visible()  &&  !full ) {
 		// don't respond to these messages if not visible
 		if(  IS_LEFTCLICK(ev)  ) {
-			if(  button_def[0].getroffen(x, y)  ) {
+			if(  button_def[0].getroffen(click_pos)  ) {
 				button_def[0].pressed = true;
 				scroll( -knob_scroll_amount );
 			}
-			else if(  button_def[1].getroffen(x, y)  ) {
+			else if(  button_def[1].getroffen(click_pos)  ) {
 				button_def[1].pressed = true;
 				scroll( +knob_scroll_amount );
 			}
 			else if(  !dragging  ) {
 				// click above/below the slider?
 				if(  type == vertical  ) {
-					if(  y < knobarea.y  ) {
+					if(  click_pos.y < knobarea.y  ) {
 						scroll( -knob_size);
 					}
-					else if(  y > knobarea.get_bottom()  ) {
+					else if(  click_pos.y > knobarea.get_bottom()  ) {
 						scroll( +knob_size );
 					}
 					else {
@@ -191,10 +190,10 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 					}
 				}
 				else {
-					if(  x < knobarea.x  ) {
+					if(  click_pos.x < knobarea.x  ) {
 						scroll( -knob_size );
 					}
-					else if(  x > knobarea.get_right()  ) {
+					else if(  click_pos.x > knobarea.get_right()  ) {
 						scroll( +knob_size );
 					}
 					else {
@@ -206,7 +205,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 		}
 		else if(  IS_LEFTDRAG(ev)  ||  (dragging  &&  IS_LEFT_BUTTON_PRESSED(ev))  ) {
 			// now dragging the slider ...
-			if(  knobarea.contains( scr_coord(x,y) )  ||  dragging  ) {
+			if(  knobarea.contains( click_pos )  ||  dragging  ) {
 				sint32 delta, change;
 
 				// added vertical/horizontal check
@@ -231,7 +230,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 		else if (IS_LEFTRELEASE(ev)) {
 			dragging = false;
 			for (i=0;i<2;i++) {
-				if (button_def[i].getroffen(x, y)) {
+				if (button_def[i].getroffen(click_pos)) {
 					button_def[i].pressed = false;
 					return true;
 				}

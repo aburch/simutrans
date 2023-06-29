@@ -64,7 +64,7 @@ bool gui_combobox_t::infowin_event(const event_t *ev)
 
 	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->click_pos.x, ev->click_pos.y);
-		if(  bt_prev.getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
+		if(  bt_prev.getroffen(ev->click_pos)  ) {
 DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
@@ -76,7 +76,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			return true;
 		}
-		else if(  bt_next.getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
+		else if(  bt_next.getroffen(ev->click_pos)  ) {
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
@@ -88,7 +88,7 @@ DBG_MESSAGE("event","HOWDY!");
 			return true;
 		}
 	}
-	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mouse_pos.x, ev->mouse_pos.y)  ) {
+	else if(  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  &&  droplist.getroffen(ev->mouse_pos)  ) {
 		// scroll the list
 		event_t ev2 = *ev;
 		ev2.move_origin(droplist.get_pos());
@@ -161,7 +161,7 @@ DBG_MESSAGE("event","HOWDY!");
 		}
 		else if (droplist.is_visible()) {
 
-			if( droplist.getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
+			if( droplist.getroffen(ev->click_pos)  ) {
 				int old_selection = droplist.get_selection();
 
 				event_t ev2 = *ev;

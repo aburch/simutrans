@@ -167,8 +167,8 @@ public:
 	 * Checks if the given position is inside the component area.
 	 * @return true if the coordinates are inside this component area.
 	 */
-	virtual bool getroffen(int x, int y) {
-		return ( pos.x <= x && pos.y <= y && (pos.x+size.w+1) > x && (pos.y+size.h+1) > y );
+	virtual bool getroffen(scr_coord p) {
+		return ( pos.x <= p.x && pos.y <= p.y && (pos.x+size.w+1) > p.x && (pos.y+size.h+1) > p.y );
 	}
 
 	/**

@@ -1450,7 +1450,7 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 	scr_coord relpos = scr_coord(0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y());
 	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - tabs.get_required_size().h);
 
-	if(  (sel_index != -1)  &&  (tabs.getroffen(x - pos.x, y - pos.y - D_TITLEBAR_HEIGHT))  ) {
+	if(  (sel_index != -1)  &&  (tabs.getroffen({ x-pos.x, y-pos.y-D_TITLEBAR_HEIGHT }))  ) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehicle_builder_t::get_info( vec[sel_index]->text );

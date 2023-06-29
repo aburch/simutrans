@@ -272,12 +272,12 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		return false;
 	}
 	// buttons pressed
-	if(  bt_left.getroffen(ev->click_pos.x, ev->click_pos.y)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	if(  bt_left.getroffen(ev->click_pos)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(bt_left.get_pos());
 		return bt_left.infowin_event(&ev2);
 	}
-	else if(  bt_right.getroffen(ev->click_pos.x, ev->click_pos.y)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	else if(  bt_right.getroffen(ev->click_pos)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(bt_right.get_pos());
 		return bt_right.infowin_event(&ev2);
@@ -295,7 +295,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		sint32 new_value = value;
 
 		// mouse wheel -> fast increase / decrease
-		if (getroffen(ev->mouse_pos.x + pos.x, ev->mouse_pos.y + pos.y)) {
+		if (getroffen(ev->mouse_pos + this->pos)) {
 			if(IS_WHEELUP(ev)) {
 				new_value = get_next_value();
 				result = true;
@@ -305,6 +305,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 				result = true;
 			}
 		}
+
 		// catch non-number keys
 		if(  ev->ev_class == EVENT_KEYBOARD  ||  value==new_value  ) {
 			// assume false input
@@ -376,7 +377,7 @@ void gui_numberinput_t::draw(scr_coord offset)
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.draw(new_offset);
 
-	if(!no_tooltip  &&  getroffen( get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y )) {
+	if(!no_tooltip  &&  getroffen( get_mouse_pos() - offset )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
 		win_set_tooltip(get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}

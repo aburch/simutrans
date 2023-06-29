@@ -84,7 +84,7 @@ bool gui_timeinput_t::action_triggered(gui_action_creator_t*, value_t)
 void gui_timeinput_t::draw(scr_coord offset)
 {
 	gui_aligned_container_t::draw(offset);
-	if(b_enabled  &&  getroffen( get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y )) {
+	if(b_enabled  &&  getroffen( get_mouse_pos() - offset )) {
 		win_set_tooltip(get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, get_mouse_pos().y + TOOLTIP_MOUSE_OFFSET_Y, translator::translate("Enter intervall in days, hours, minutes" ), this);
 	}
 }

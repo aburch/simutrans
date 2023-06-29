@@ -145,13 +145,13 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
 	bool swallow = false;
-	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mouse_pos.x, ev->mouse_pos.y) || scroll_y.getroffen(ev->click_pos.x, ev->click_pos.y)) ) {
+	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mouse_pos) || scroll_y.getroffen(ev->click_pos)) ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(scroll_y.get_pos());
 		b_is_dragging = false;
 		return scroll_y.infowin_event(&ev2);
 	}
-	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mouse_pos.x, ev->mouse_pos.y) || scroll_x.getroffen(ev->click_pos.x, ev->click_pos.y))) {
+	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mouse_pos) || scroll_x.getroffen(ev->click_pos))) {
 		event_t ev2 = *ev;
 		ev2.move_origin(scroll_x.get_pos());
 		b_is_dragging = false;

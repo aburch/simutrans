@@ -118,7 +118,7 @@ void gui_label_t::draw(scr_coord offset)
 		display_proportional_ellipsis_rgb( area, text,  a | DT_CLIP, color, true, shadowed, color_shadow );
 	}
 
-	if ( tooltip  &&  getroffen(get_mouse_pos().x-offset.x, get_mouse_pos().y-offset.y) ) {
+	if ( tooltip  &&  getroffen(get_mouse_pos() - offset) ) {
 		const scr_coord_val by = offset.y + pos.y;
 		const scr_coord_val bh = size.h;
 
