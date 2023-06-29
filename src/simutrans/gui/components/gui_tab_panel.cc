@@ -128,15 +128,15 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		is_dragging = false;
 	}
 
-	if(  required_size.w > size.w  &&  tab_getroffen(ev->cx, ev->cy)  ) {
+	if(  required_size.w > size.w  &&  tab_getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
 		if (!is_dragging) {
 			// handle scroll buttons pressed
-			if(  left.getroffen(ev->cx, ev->cy)  ) {
+			if(  left.getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
 				event_t ev2 = *ev;
 				ev2.move_origin(left.get_pos());
 				return left.infowin_event(&ev2);
 			}
-			if(  right.getroffen(ev->cx, ev->cy)  ) {
+			if(  right.getroffen(ev->click_pos.x, ev->click_pos.y)  ) {
 				event_t ev2 = *ev;
 				ev2.move_origin(right.get_pos());
 				return right.infowin_event(&ev2);
@@ -153,12 +153,12 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	// we will handle dragging ourselves inf not prevented
 	if(is_dragging  &&  ev->ev_class < INFOWIN) {
 		// now drag: scrollbars are not in pixel, but we will scroll one unit per pixels ...
-		tab_offset_x -= (ev->mx - ev->cx);
+		tab_offset_x -= (ev->mouse_pos.x - ev->click_pos.x);
 		tab_offset_x = clamp(tab_offset_x, 0, required_size.w - size.w);
 		// and finally end dragging on release of any button
 		if (ev->ev_class == EVENT_RELEASE) {
 			is_dragging = false;
-			if (abs(ev->mx - ev->cx) >= 5 || abs(ev->cx - ev->mx) + abs(ev->cy - ev->my) >= env_t::scroll_threshold) {
+			if (abs(ev->mouse_pos.x - ev->click_pos.x) >= 5 || abs(ev->click_pos.x - ev->mouse_pos.x) + abs(ev->click_pos.y - ev->mouse_pos.y) >= env_t::scroll_threshold) {
 				// dragged a lot => swallow click
 				return true;
 			}
@@ -169,7 +169,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  IS_LEFTRELEASE(ev)  && tab_getroffen(ev->cx,ev->cy)  )  {
+	if(  IS_LEFTRELEASE(ev)  && tab_getroffen(ev->click_pos.x,ev->click_pos.y)  )  {
 		// tab selector was hit
 		int text_x = (required_size.w>size.w ? D_ARROW_LEFT_WIDTH : 0) + D_H_SPACE - tab_offset_x;
 		int k=0;
@@ -177,7 +177,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 			if (!i.component->is_visible()) {
 				continue;
 			}
-			if (text_x <= ev->mx && text_x + i.width > ev->mx) {
+			if (text_x <= ev->mouse_pos.x && text_x + i.width > ev->mouse_pos.x) {
 				// either tooltip or change
 				active_tab = k;
 				call_listeners((long)active_tab);
@@ -208,7 +208,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
+	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mouse_pos.x, ev->mouse_pos.y)  ||  get_aktives_tab()->getroffen(ev->click_pos.x, ev->click_pos.y)) {
 		// active tab was hit
 		event_t ev2 = *ev;
 		ev2.move_origin(get_aktives_tab()->get_pos());

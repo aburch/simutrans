@@ -522,7 +522,8 @@ bool gui_flowtext_intern_t::infowin_event(const event_t* ev)
 {
 	if (IS_LEFTRELEASE(ev)) {
 		// scan links for hit
-		scr_coord evpos = scr_coord( ev->cx, ev->cy ); // - get_pos();
+		const scr_coord evpos = ev->click_pos; // - get_pos();
+
 		for(hyperlink_t const& link : links) {
 			if(  link.tl.y+LINESPACE == link.br.y  ) {
 				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {

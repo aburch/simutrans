@@ -31,18 +31,18 @@ void interaction_t::move_view( const event_t &ev )
 {
 	koord new_ij = viewport->get_world_position();
 
-	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
-	sint16 new_yoff = viewport->get_y_off() - (ev.my - ev.cy) * env_t::scroll_multi;
+	sint16 new_xoff = viewport->get_x_off() - (ev.mouse_pos.x - ev.click_pos.x) * env_t::scroll_multi;
+	sint16 new_yoff = viewport->get_y_off() - (ev.mouse_pos.y - ev.click_pos.y) * env_t::scroll_multi;
 
 	// this sets the new position and mark screen dirty
 	// => with next refresh we will be at a new location
 	viewport->change_world_position( new_ij, new_xoff, new_yoff );
 
 	// move the mouse pointer back to starting location => infinite mouse movement
-	if ((ev.mx - ev.cx) != 0 || (ev.my - ev.cy) != 0) {
-		if(!env_t::scroll_infinite  ||  !move_pointer(ev.cx, ev.cy)) {
+	if ((ev.mouse_pos.x - ev.click_pos.x) != 0 || (ev.mouse_pos.y - ev.click_pos.y) != 0) {
+		if(!env_t::scroll_infinite  ||  !move_pointer(ev.click_pos.x, ev.click_pos.y)) {
 			// fails in finger mode
-			change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
+			change_drag_start(ev.mouse_pos.x - ev.click_pos.x, ev.mouse_pos.y - ev.click_pos.y);
 		}
 	}
 }
@@ -61,7 +61,7 @@ void interaction_t::move_cursor( const event_t &ev )
 
 	tool_t *tool = world->get_tool(world->get_active_player_nr());
 
-	const koord3d pos = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), tool->is_grid_tool());
+	const koord3d pos = viewport->get_new_cursor_position(scr_coord(ev.mouse_pos.x,ev.mouse_pos.y), tool->is_grid_tool());
 
 	if( pos == koord3d::invalid ) {
 		zeiger->change_pos(pos);
@@ -211,7 +211,7 @@ void interaction_t::interactive_event( const event_t &ev )
 		}
 	}
 
-	if(  !is_dragging  &&  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() -16 -(TICKER_HEIGHT*ticker::empty())  ) {
+	if(  !is_dragging  &&  IS_LEFTRELEASE(&ev)  &&  ev.mouse_pos.y < display_get_height() -16 -(TICKER_HEIGHT*ticker::empty())  ) {
 
 		DBG_MESSAGE("interaction_t::interactive_event(event_t &ev)", "calling a tool");
 
@@ -234,7 +234,7 @@ void interaction_t::interactive_event( const event_t &ev )
 				// Check if we need to update pointer(zeiger) position.
 				if( err == NULL  &&  tool->update_pos_after_use() ) {
 					// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-					const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), tool->is_grid_tool());
+					const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mouse_pos.x,ev.mouse_pos.y), tool->is_grid_tool());
 					world->get_zeiger()->set_pos(pos_new);
 				}
 			}
@@ -328,7 +328,7 @@ bool interaction_t::process_event( event_t &ev )
 	else if(  IS_LEFTDRAG(&ev)  &&  IS_LEFT_BUTTON_PRESSED(&ev)  &&  (is_world_dragging  ||  (!world->get_tool(world->get_active_player_nr())->move_has_effects()  &&  !IS_CONTROL_PRESSED(&ev))  )  ) {
 		/* ok, we have a general tool selected, and we have a left drag or left release event with an actual difference
 		 * => move the map, if we are beyond a threshold */
-		if(  is_world_dragging  ||  abs(ev.cx-ev.mx)+abs(ev.cy-ev.my)>=max(1,(env_t::scroll_threshold* get_tile_raster_width())/get_base_tile_raster_width())  ) {
+		if(  is_world_dragging  ||  abs(ev.click_pos.x-ev.mouse_pos.x)+abs(ev.click_pos.y-ev.mouse_pos.y)>=max(1,(env_t::scroll_threshold* get_tile_raster_width())/get_base_tile_raster_width())  ) {
 			if (!is_world_dragging) {
 				display_show_pointer(false);
 				is_world_dragging = true;

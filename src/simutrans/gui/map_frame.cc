@@ -91,8 +91,8 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 		int y = get_scroll_y();
 		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
 
-		x += (ev->mx - ev->cx) * scroll_direction * 2;
-		y += (ev->my - ev->cy) * scroll_direction * 2;
+		x += (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2;
+		y += (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2;
 
 		is_dragging = true;
 

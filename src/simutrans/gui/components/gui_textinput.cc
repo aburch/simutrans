@@ -415,7 +415,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTCLICK(ev)  ) {
 		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
-		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab
 			return false;
 		}
@@ -424,7 +424,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		// use mouse *click* position; update both head and tail cursors
 		tail_cursor_pos = 0;
 		if(  text  ) {
-			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->cx - 2 + scroll_offset );
+			tail_cursor_pos = head_cursor_pos = display_fit_proportional( text, ev->click_pos.x - 2 + scroll_offset );
 		}
 		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
@@ -432,14 +432,14 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTDRAG(ev)  ) {
 		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
-		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab
 			return false;
 		}
 		// use mouse *move* position; update head cursor only in order to enable text selection
 		head_cursor_pos = 0;
 		if(  text  ) {
-			head_cursor_pos = display_fit_proportional( text, ev->mx - 1 + scroll_offset );
+			head_cursor_pos = display_fit_proportional( text, ev->mouse_pos.x - 1 + scroll_offset );
 		}
 		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;
@@ -447,7 +447,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTDBLCLK(ev)  ) {
 		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
-		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab
 			return false;
 		}
@@ -469,7 +469,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTTPLCLK(ev)  ) {
 		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
-		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab
 			return false;
 		}
@@ -647,7 +647,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 	if(  IS_LEFTRELEASE(ev)  ) {
 		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
-		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab
 			return false;
 		}
@@ -656,7 +656,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
 		head_cursor_pos = 0;
 		if (  text  ) {
-			head_cursor_pos = min( strlen(text), ev->cx/asterix_width );
+			head_cursor_pos = min( strlen(text), ev->click_pos.x/asterix_width );
 		}
 		cursor_reference_time = dr_time(); // update reference time for cursor blinking
 		return true;

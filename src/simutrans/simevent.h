@@ -152,13 +152,13 @@ enum {
  * ev_class and ev_code speak for itself.
  * ev_class = EVENT_NONE:      nothing defined
  * ev_class = EVENT_KEYBOARD:  code = key pressed (released key is ignored)
- * ev_class = EVENT_CLICK:     mx/my/cx/cy point to mouse click place,
+ * ev_class = EVENT_CLICK:     mouse_pos/click_pos point to mouse click place,
  *                             code = pressed mouse button
- * ev_class = EVENT_RELEASE:   cx/cy point to mouse click place,
- *                             mx/my point to mouse release place,
+ * ev_class = EVENT_RELEASE:   click_pos points to mouse click place,
+ *                             mouse_pos points to mouse release place,
  *                             code = mouse release button
- * ev_class = EVENT_MOVE:      cx/cy is last click place, mx/my is to.
- * ev_class = EVENT_DRAG:      cx/cy is last click place, mx/my is to,
+ * ev_class = EVENT_MOVE:      click_pos is last click place, mouse_pos is to.
+ * ev_class = EVENT_DRAG:      click_pos is last click place, mouse_pos is to,
  *                             code = mouse button
  * ev_class = EVENT_REPEAT:    code = button pressed
  */
@@ -182,10 +182,11 @@ public:
 		void *ev_ptr;
 	};
 
-	scr_coord_val mx, my;
+	// Mouse position
+	scr_coord mouse_pos;
 
 	/// position of last mouse click
-	scr_coord_val cx, cy;
+	scr_coord click_pos;
 
 	/// new window size for SYSTEM_RESIZE
 	scr_size new_window_size;

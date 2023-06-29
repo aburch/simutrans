@@ -1180,8 +1180,7 @@ void minimap_t::invalidate_map_lines_cache()
 // handle event
 bool minimap_t::infowin_event(const event_t *ev)
 {
-	scr_coord c( ev->mx, ev->my );
-	koord k = screen_to_map_coord(c);
+	const koord k = screen_to_map_coord(ev->mouse_pos);
 
 	// get factory under mouse cursor
 	last_world_pos = k;

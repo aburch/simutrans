@@ -115,7 +115,7 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 		}
 		// currently only drag in x directions
 		is_dragging = true;
-		offset = old_offset + (tool_icon_height == 1 ? scr_coord(ev->mx - ev->cx, 0) : scr_coord(0, ev->my - ev->cy));
+		offset = old_offset + (tool_icon_height == 1 ? scr_coord(ev->mouse_pos.x - ev->click_pos.x, 0) : scr_coord(0, ev->mouse_pos.y - ev->click_pos.y));
 		int xy = tool_icon_width*tool_icon_height;
 		if(  tool_icon_height == 1  &&  tool_icon_disp_start + xy >= (int)tools.get_count()  ) {
 			// we have to take into account that the height is not a full icon
@@ -182,15 +182,15 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 	if(IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev)) {
 		if( is_dragging ) {
 			is_dragging = false;
-			if( abs(old_offset.x - offset.x) > 2   ||  abs(old_offset.y - offset.y) > 2  ||  ev->cx-ev->mx != offset.x  ||  ev->cx - ev->my != offset.y  ) {
+			if( abs(old_offset.x - offset.x) > 2   ||  abs(old_offset.y - offset.y) > 2  ||  ev->click_pos.x-ev->mouse_pos.x != offset.x  ||  ev->click_pos.x - ev->mouse_pos.y != offset.y  ) {
 				// we did dragg sucesfully before, so no tool selection!
 				return true;
 			}
 		}
 
 		// No dragging => Next check tooltips
-		const int x = (ev->mx-offset.x) / env_t::iconsize.w;
-		const int y = (ev->my-offset.y-D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
+		const int x = (ev->mouse_pos.x-offset.x) / env_t::iconsize.w;
+		const int y = (ev->mouse_pos.y-offset.y-D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
 
 		const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
 		if( wz_idx>=0  &&  wz_idx < (int)tools.get_count()  ) {

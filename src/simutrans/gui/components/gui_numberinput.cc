@@ -272,12 +272,12 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		return false;
 	}
 	// buttons pressed
-	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	if(  bt_left.getroffen(ev->click_pos.x, ev->click_pos.y)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(bt_left.get_pos());
 		return bt_left.infowin_event(&ev2);
 	}
-	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	else if(  bt_right.getroffen(ev->click_pos.x, ev->click_pos.y)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(bt_right.get_pos());
 		return bt_right.infowin_event(&ev2);
@@ -295,7 +295,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		sint32 new_value = value;
 
 		// mouse wheel -> fast increase / decrease
-		if (getroffen(ev->mx + pos.x, ev->my + pos.y)) {
+		if (getroffen(ev->mouse_pos.x + pos.x, ev->mouse_pos.y + pos.y)) {
 			if(IS_WHEELUP(ev)) {
 				new_value = get_next_value();
 				result = true;

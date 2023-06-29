@@ -797,10 +797,10 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 
 		ev.ev_class = INFOWIN;
 		ev.ev_code = WIN_OPEN;
-		ev.mx = 0;
-		ev.my = 0;
-		ev.cx = 0;
-		ev.cy = 0;
+		ev.mouse_pos.x = 0;
+		ev.mouse_pos.y = 0;
+		ev.click_pos.x = 0;
+		ev.click_pos.y = 0;
 		ev.button_state = 0;
 
 		void *old = inside_event_handling;
@@ -827,8 +827,8 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 			event_t wev;
 			wev.ev_class = WINDOW_RESIZE;
 			wev.ev_code = 0;
-			wev.mx = delta.w;
-			wev.my = delta.h;
+			wev.mouse_pos.x = delta.w;
+			wev.mouse_pos.y = delta.h;
 
 			inside_event_handling = gui;
 			gui->infowin_event(&wev);
@@ -869,10 +869,10 @@ static int notify_top_win()
 
 	ev.ev_class = INFOWIN;
 	ev.ev_code = WIN_TOP;
-	ev.mx = 0;
-	ev.my = 0;
-	ev.cx = 0;
-	ev.cy = 0;
+	ev.mouse_pos.x = 0;
+	ev.mouse_pos.y = 0;
+	ev.click_pos.x = 0;
+	ev.click_pos.y = 0;
 	ev.button_state = 0;
 
 	void *old = inside_event_handling;
@@ -961,10 +961,10 @@ static bool destroy_framed_win(simwin_t *wins)
 
 		ev.ev_class = INFOWIN;
 		ev.ev_code = WIN_CLOSE;
-		ev.mx = 0;
-		ev.my = 0;
-		ev.cx = 0;
-		ev.cy = 0;
+		ev.mouse_pos.x = 0;
+		ev.mouse_pos.y = 0;
+		ev.click_pos.x = 0;
+		ev.click_pos.y = 0;
 		ev.button_state = 0;
 
 		void *old = inside_event_handling;
@@ -1315,8 +1315,8 @@ void snap_check_win( const int win, scr_coord *r, const scr_coord from_pos, cons
 
 void move_win(int win, event_t *ev)
 {
-	const scr_coord mouse_from( ev->cx, ev->cy );
-	const scr_coord mouse_to( ev->mx, ev->my );
+	const scr_coord mouse_from( ev->click_pos.x, ev->click_pos.y );
+	const scr_coord mouse_to( ev->mouse_pos.x, ev->mouse_pos.y );
 
 	const scr_coord from_pos = wins[win].pos;
 	scr_coord from_size = scr_coord(wins[win].gui->get_windowsize().w,wins[win].gui->get_windowsize().h);
@@ -1356,8 +1356,8 @@ void resize_win(int win, event_t *ev)
 	wev.ev_class = WINDOW_RESIZE;
 	wev.ev_code = 0;
 
-	const scr_coord mouse_from( wev.cx, wev.cy );
-	const scr_coord mouse_to( wev.mx, wev.my );
+	const scr_coord mouse_from( wev.click_pos.x, wev.click_pos.y );
+	const scr_coord mouse_to( wev.mouse_pos.x, wev.mouse_pos.y );
 
 	const scr_coord from_pos = wins[win].pos;
 	const scr_coord from_size = scr_coord(wins[win].gui->get_windowsize().w,wins[win].gui->get_windowsize().h);
@@ -1377,8 +1377,8 @@ void resize_win(int win, event_t *ev)
 	}
 
 	// adjust event mouse scr_coord per snap
-	wev.mx = wev.cx + to_size.x - from_size.x;
-	wev.my = wev.cy + to_size.y - from_size.y;
+	wev.mouse_pos.x = wev.click_pos.x + to_size.x - from_size.x;
+	wev.mouse_pos.y = wev.click_pos.y + to_size.y - from_size.y;
 
 	wins[win].gui->infowin_event( &wev );
 }
@@ -1446,8 +1446,8 @@ bool check_pos_win(event_t *ev,bool modal)
 
 	bool swallowed = false;
 
-	const int x = ev->ev_class==EVENT_MOVE?ev->mx:ev->cx;
-	const int y = ev->ev_class==EVENT_MOVE?ev->my:ev->cy;
+	const int x = ev->ev_class==EVENT_MOVE?ev->mouse_pos.x:ev->click_pos.x;
+	const int y = ev->ev_class==EVENT_MOVE?ev->mouse_pos.y:ev->click_pos.y;
 
 	if( last_drag_is_caught ) {
 		if( ev->ev_class == EVENT_DRAG ) {
@@ -1498,7 +1498,7 @@ bool check_pos_win(event_t *ev,bool modal)
 		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event(&wev);
 		inside_event_handling = NULL;
 
-		if (!tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(ev->mx, ev->my)) {
+		if (!tool_t::toolbar_tool[0]->get_tool_selector()->is_hit(ev->mouse_pos.x, ev->mouse_pos.y)) {
 
 			// find out if the toolbar should be move to another corner
 			uint8 new_pos = 0;
@@ -1599,7 +1599,7 @@ bool check_pos_win(event_t *ev,bool modal)
 			inside_event_handling = wins[i].gui;
 
 			// Top window first
-			if(  (int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ev->cy<wins[i].pos.y+D_TITLEBAR_HEIGHT)  ) {
+			if(  (int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ev->click_pos.y<wins[i].pos.y+D_TITLEBAR_HEIGHT)  ) {
 				i = top_win(i,false);
 			}
 
@@ -1622,7 +1622,7 @@ bool check_pos_win(event_t *ev,bool modal)
 					}
 					else if(  IS_LEFTRELEASE(ev)  ) {
 						wins[i].gadget_state &= ~(1 << code);
-						if(  ev->my >= wins[i].pos.y  &&  ev->my < wins[i].pos.y+D_TITLEBAR_HEIGHT  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH), ev->mx )==code  ) {
+						if(  ev->mouse_pos.y >= wins[i].pos.y  &&  ev->mouse_pos.y < wins[i].pos.y+D_TITLEBAR_HEIGHT  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH), ev->mouse_pos.x )==code  ) {
 							// do whatever needs to be done
 							switch(  code  ) {
 								case SKIN_GADGET_CLOSE :
@@ -1694,8 +1694,8 @@ bool check_pos_win(event_t *ev,bool modal)
 
 					// resizer hit ?
 					const bool canresize = is_resizing>=0  ||
-												(ev->cx > wins[i].pos.x + size.w - D_DRAGGER_WIDTH  &&
-												 ev->cy > wins[i].pos.y + size.h - D_DRAGGER_HEIGHT);
+												(ev->click_pos.x > wins[i].pos.x + size.w - D_DRAGGER_WIDTH  &&
+												 ev->click_pos.y > wins[i].pos.y + size.h - D_DRAGGER_HEIGHT);
 
 					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_frame_t::no_resize) {
 						resize_win( i, ev );
@@ -1765,7 +1765,7 @@ void win_poll_event(event_t* const ev)
 	}
 	else if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_THEME_CHANGED  ) {
 		// called when font is changed
-		ev->mx = ev->my = ev->cx = ev->cy = 0;
+		ev->mouse_pos.x = ev->mouse_pos.y = ev->click_pos.x = ev->click_pos.y = 0;
 		for(simwin_t const& i : wins) {
 			i.gui->infowin_event(ev);
 		}
@@ -2180,8 +2180,8 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 
-				win_clamp_xywh_position(ev.mx, ev.my, scr_size(1, 1), false);
-				win_clamp_xywh_position(ev.mx, ev.my, scr_size(1, 1), false);
+				win_clamp_xywh_position(ev.mouse_pos.x, ev.mouse_pos.y, scr_size(1, 1), false);
+				win_clamp_xywh_position(ev.mouse_pos.x, ev.mouse_pos.y, scr_size(1, 1), false);
 
 				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEY_F1) {
 					if (gui_frame_t* win = win_get_top()) {

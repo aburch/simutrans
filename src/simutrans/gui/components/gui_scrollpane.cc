@@ -145,19 +145,19 @@ scr_size gui_scrollpane_t::request_size(scr_size request)
 bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
 	bool swallow = false;
-	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
+	if(   (b_show_scroll_y  &&  scroll_y.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mouse_pos.x, ev->mouse_pos.y) || scroll_y.getroffen(ev->click_pos.x, ev->click_pos.y)) ) {
 		event_t ev2 = *ev;
 		ev2.move_origin(scroll_y.get_pos());
 		b_is_dragging = false;
 		return scroll_y.infowin_event(&ev2);
 	}
-	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
+	else if(  (b_show_scroll_x  &&  scroll_x.is_visible())  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mouse_pos.x, ev->mouse_pos.y) || scroll_x.getroffen(ev->click_pos.x, ev->click_pos.y))) {
 		event_t ev2 = *ev;
 		ev2.move_origin(scroll_x.get_pos());
 		b_is_dragging = false;
 		return scroll_x.infowin_event(&ev2);
 	}
-	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<=size.w  &&  ev->my<=size.h)  ||  b_is_dragging  ) {
+	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mouse_pos.x>=0 &&  ev->mouse_pos.y>=0  &&  ev->mouse_pos.x<=size.w  &&  ev->mouse_pos.y<=size.h)  ||  b_is_dragging  ) {
 
 		// since we get can grab the focus to get keyboard events, we must make sure to handle mouse events only if we are hit
 		if(  ev->ev_class < EVENT_CLICK  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
@@ -167,13 +167,13 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// we will handle dragging ourselves inf not prevented
 		if(  b_is_dragging  &&  ev->ev_class < INFOWIN  ) {
 			// now drag: scrollbars are not in pixel, but we will scroll one unit per pixels ...
-			scroll_x.set_knob_offset(scroll_x.get_knob_offset() - (ev->mx - origin.x));
-			scroll_y.set_knob_offset(scroll_y.get_knob_offset() - (ev->my - origin.y));
-			origin = scr_coord(ev->mx, ev->my);
+			scroll_x.set_knob_offset(scroll_x.get_knob_offset() - (ev->mouse_pos.x - origin.x));
+			scroll_y.set_knob_offset(scroll_y.get_knob_offset() - (ev->mouse_pos.y - origin.y));
+			origin = ev->mouse_pos;
 			// and finally end dragging on release of any button
 			if(  ev->ev_class == EVENT_RELEASE  ) {
 				b_is_dragging = false;
-				if(  abs(ev->mx - ev->cx) >= 5  || abs(ev->cx-ev->mx)+abs(ev->cy-ev->my) >= env_t::scroll_threshold  ) {
+				if(  abs(ev->mouse_pos.x - ev->click_pos.x) >= 5  || abs(ev->click_pos.x-ev->mouse_pos.x)+abs(ev->click_pos.y-ev->mouse_pos.y) >= env_t::scroll_threshold  ) {
 					// dragged a lot => swallow click
 					return true;
 				}
@@ -206,7 +206,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		if(  !swallow  &&  b_can_drag  &&  (ev->ev_class == EVENT_CLICK || ev->ev_class == EVENT_DRAG)  ) {
 			// init dragging? (Android SDL starts dragging without preceeding click!)
 			if(!b_is_dragging) {
-				origin = scr_coord(ev->mx, ev->my);
+				origin = ev->mouse_pos;
 				b_is_dragging = true;
 				return true;
 			}

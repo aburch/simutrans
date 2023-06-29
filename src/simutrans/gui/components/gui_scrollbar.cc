@@ -154,8 +154,8 @@ void scrollbar_t::scroll(sint32 updown)
 
 bool scrollbar_t::infowin_event(const event_t *ev)
 {
-	const int x = ev->cx;
-	const int y = ev->cy;
+	const int x = ev->click_pos.x;
+	const int y = ev->click_pos.y;
 	int i;
 
 	if(  IS_WHEELUP(ev)  &&  (type == vertical) != IS_SHIFT_PRESSED(ev)  ) {
@@ -211,14 +211,14 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 
 				// added vertical/horizontal check
 				if(type == vertical) {
-					delta = ev->my - ev->cy;
+					delta = ev->mouse_pos.y - ev->click_pos.y;
 					change = (sint32)(delta*( (double)total_size / (double) sliderarea.h ) + 0.5);
 					delta = knobarea.y;
 					scroll( change );
 					change_drag_start( 0, knobarea.y-delta );
 				}
 				else {
-					delta = ev->mx - ev->cx;
+					delta = ev->mouse_pos.x - ev->click_pos.x;
 					change = (sint32)(delta*( (double)total_size / (double) sliderarea.w ) + 0.5);
 					delta = knobarea.x;
 					scroll( change );

@@ -171,7 +171,7 @@ public:
 		}
 		else if(ev->button_state==1  ){
 			set_focus( this );
-			if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->cx, ev->cy ) ) {
+			if( !gui_aligned_container_t::infowin_event( ev ) && stop.getroffen( ev->click_pos.x, ev->click_pos.y ) ) {
 				// not handled, so we make i aktive
 				call_listeners( number );
 			}

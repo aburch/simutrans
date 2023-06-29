@@ -135,7 +135,7 @@ banner_t::banner_t() : gui_frame_t("")
 
 bool banner_t::infowin_event(const event_t *ev)
 {
-	if(  gui_frame_t::is_hit( ev->cx, ev->cy  )  ) {
+	if(  gui_frame_t::is_hit( ev->click_pos.x, ev->click_pos.y  )  ) {
 		gui_frame_t::infowin_event( ev );
 	}
 	return false;
