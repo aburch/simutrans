@@ -292,7 +292,7 @@ if (SIMUTRANS_STEAM_BUILT)
 endif ()
 
 if (SIMUTRANS_USE_OWN_PAKINSTALL)
-	target_compile_definitions(simutrans PRIVATE USE_OWN_PAKINSTAL=1)
+	target_compile_definitions(simutrans PRIVATE USE_OWN_PAKINSTALL=1)
 endif ()
 
 if (APPLE)
