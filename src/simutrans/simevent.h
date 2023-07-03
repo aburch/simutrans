@@ -202,7 +202,7 @@ public:
 /// Return one event. Does *not* wait.
 void display_poll_event(event_t *event);
 
-void change_drag_start(int x, int y);
+void change_drag_start(scr_coord offset);
 void set_click_xy(scr_coord_val x, scr_coord_val y);
 
 int event_get_last_control_shift();

@@ -58,10 +58,10 @@ event_class_t last_meta_event_get_class()
  * so the origin keeps pointing to the window top bar.
  *  Mainly to prevent copied, double code.
  */
-void change_drag_start(scr_coord_val x, scr_coord_val y)
+void change_drag_start(scr_coord offset)
 {
-	cx += x;
-	cy += y;
+	cx += offset.x;
+	cy += offset.y;
 }
 
 

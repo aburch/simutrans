@@ -214,14 +214,14 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 					change = (sint32)(delta*( (double)total_size / (double) sliderarea.h ) + 0.5);
 					delta = knobarea.y;
 					scroll( change );
-					change_drag_start( 0, knobarea.y-delta );
+					change_drag_start({ 0, knobarea.y-delta });
 				}
 				else {
 					delta = ev->mouse_pos.x - ev->click_pos.x;
 					change = (sint32)(delta*( (double)total_size / (double) sliderarea.w ) + 0.5);
 					delta = knobarea.x;
 					scroll( change );
-					change_drag_start( knobarea.x-delta, 0 );
+					change_drag_start({ knobarea.x-delta, 0 });
 				}
 				dragging = true;
 				return true;

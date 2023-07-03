@@ -142,18 +142,13 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 void gui_frame_t::resize(const scr_coord delta)
 {
 	dirty = true;
-	scr_size new_size = windowsize + delta;
 
-	// resize window to the minimum size
+	// Make sure the window is not smaller than the minimum size
+	scr_size new_size = windowsize + delta;
 	new_size.clip_lefttop(min_windowsize);
 
-	scr_coord size_change = new_size - windowsize;
-
-	// resize window
-	set_windowsize(new_size);
-
-	// change drag start
-	change_drag_start(size_change.x, size_change.y);
+	set_windowsize(new_size); // do the resize
+	change_drag_start(new_size - windowsize);
 }
 
 

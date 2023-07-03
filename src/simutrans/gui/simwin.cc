@@ -1341,12 +1341,13 @@ void move_win(int win, event_t *ev)
 	// need to mark all of old and new positions dirty. -1, +2 for env_t::window_frame_active
 	mark_rect_dirty_wc( from_pos.x - 1, from_pos.y - 1, from_pos.x + from_size.x + 2, from_pos.y + from_size.y + 2 );
 	wins[win].dirty = true;
+
 	// set dirty flag to refill background
 	if(wl) {
 		wl->set_background_dirty();
 	}
 
-	change_drag_start( delta.x, delta.y );
+	change_drag_start( delta );
 }
 
 

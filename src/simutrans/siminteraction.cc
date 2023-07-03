@@ -42,7 +42,7 @@ void interaction_t::move_view( const event_t &ev )
 	if ((ev.mouse_pos.x - ev.click_pos.x) != 0 || (ev.mouse_pos.y - ev.click_pos.y) != 0) {
 		if(!env_t::scroll_infinite  ||  !move_pointer(ev.click_pos.x, ev.click_pos.y)) {
 			// fails in finger mode
-			change_drag_start(ev.mouse_pos.x - ev.click_pos.x, ev.mouse_pos.y - ev.click_pos.y);
+			change_drag_start(ev.mouse_pos - ev.click_pos);
 		}
 	}
 }
