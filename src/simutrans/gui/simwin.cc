@@ -1413,12 +1413,11 @@ scr_coord const& win_get_pos(gui_frame_t const* const gui)
 }
 
 
-void win_set_pos(gui_frame_t *gui, int x, int y)
+void win_set_pos(gui_frame_t *gui, scr_coord new_pos)
 {
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  wins[i].gui == gui  ) {
-			wins[i].pos.x = x;
-			wins[i].pos.y = y;
+			wins[i].pos   = new_pos;
 			wins[i].dirty = true;
 			return;
 		}

@@ -1304,11 +1304,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 		if(next_dep  &&  next_dep!=this->depot) {
 			//  Replace our depot_frame_t with a new at the same position.
-			scr_coord const pos = win_get_pos(this);
+			const scr_coord pos = win_get_pos(this);
 			destroy_win( this );
 
 			next_dep->show_info();
-			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
+			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos);
 			welt->get_viewport()->change_world_position(next_dep->get_pos());
 		}
 		else {
