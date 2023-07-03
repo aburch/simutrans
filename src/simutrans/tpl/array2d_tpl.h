@@ -101,7 +101,7 @@ public:
 		}
 	}
 
-	// kepp old informations, new cell get default
+	// keep old information, new cell get default
 	void resize(unsigned resize_x, unsigned resize_y, T default_value )
 	{
 		if( w*h != resize_x*resize_y  ) {
