@@ -1441,16 +1441,16 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		tab == &scrolly_electrics ? &electrics :
 		tab == &scrolly_loks      ? &loks      :
 		&waggons;
-	int x = get_mouse_pos().x;
-	int y = get_mouse_pos().y;
+
+	const scr_coord mouse_pos = get_mouse_pos();
 	double resale_value = -1.0;
 	const vehicle_desc_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	sint16 convoi_number = -1;
 	scr_coord relpos = scr_coord(0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y());
-	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - tabs.get_required_size().h);
+	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, mouse_pos.x, mouse_pos.y - D_TITLEBAR_HEIGHT - tabs.get_required_size().h);
 
-	if(  (sel_index != -1)  &&  (tabs.getroffen({ x-pos.x, y-pos.y-D_TITLEBAR_HEIGHT }))  ) {
+	if(  (sel_index != -1)  &&  (tabs.getroffen({ mouse_pos.x-pos.x, mouse_pos.y-pos.y-D_TITLEBAR_HEIGHT }))  ) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehicle_builder_t::get_info( vec[sel_index]->text );
@@ -1466,7 +1466,7 @@ void depot_frame_t::update_vehicle_info_text(scr_coord pos)
 		// cursor over a vehicle in the convoi
 		relpos = scr_coord(scrolly_convoi.get_scroll_x(), 0);
 
-		convoi_number = sel_index = convoi.index_at(pos - relpos + scrolly_convoi.get_pos(), x, y - D_TITLEBAR_HEIGHT);
+		convoi_number = sel_index = convoi.index_at(pos - relpos + scrolly_convoi.get_pos(), mouse_pos.x, mouse_pos.y - D_TITLEBAR_HEIGHT);
 		if(  sel_index != -1  ) {
 			convoihandle_t cnv = depot->get_convoi( icnv );
 			veh_type = cnv->get_vehicle( sel_index )->get_desc();
