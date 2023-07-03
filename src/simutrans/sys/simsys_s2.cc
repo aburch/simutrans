@@ -1095,12 +1095,11 @@ void dr_stop_textinput()
 	}
 }
 
-void dr_notify_input_pos(int x, int y)
+void dr_notify_input_pos(scr_coord pos)
 {
-	SDL_Rect rect = { TEX_TO_SCREEN_X(x), TEX_TO_SCREEN_Y(y + LINESPACE), 1, 1};
+	SDL_Rect rect = { TEX_TO_SCREEN_X(pos.x), TEX_TO_SCREEN_Y(pos.y + LINESPACE), 1, 1};
 	SDL_SetTextInputRect( &rect );
 }
-
 
 
 const char* dr_get_locale()

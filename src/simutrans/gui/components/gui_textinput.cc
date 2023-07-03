@@ -98,11 +98,11 @@ void gui_textinput_t::set_composition_status( char *c, int start, int length )
 			composition_target_start = start;
 			composition_target_length = length;
 
-			scr_coord gui_xy = win_get_pos( win_get_top() );
-			int offset_to_target = proportional_string_len_width( composition.get_str(), composition_target_start );
-			int x = pos.x + gui_xy.x + get_current_cursor_x() + offset_to_target;
-			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
-			dr_notify_input_pos( x, y );
+			const scr_coord gui_xy = win_get_pos( win_get_top() );
+			const int offset_to_target = proportional_string_len_width( composition.get_str(), composition_target_start );
+			const scr_coord_val x = pos.x + gui_xy.x + get_current_cursor_x() + offset_to_target;
+			const scr_coord_val y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos({ x, y });
 		}
 	}
 }
@@ -515,10 +515,10 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 
 			dr_start_textinput();
 
-			scr_coord gui_xy = win_get_pos( win_get_top() );
-			int x = pos.x + gui_xy.x + get_current_cursor_x();
-			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
-			dr_notify_input_pos( x, y );
+			const scr_coord gui_xy = win_get_pos( win_get_top() );
+			const scr_coord_val x = pos.x + gui_xy.x + get_current_cursor_x();
+			const scr_coord_val y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos({ x, y });
 		}
 		else {
 			dr_stop_textinput();

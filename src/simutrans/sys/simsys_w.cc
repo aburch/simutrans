@@ -995,10 +995,10 @@ void dr_stop_textinput()
 	ImmReleaseContext( hwnd, immcx );
 }
 
-void dr_notify_input_pos(int x, int y)
+void dr_notify_input_pos(scr_coord pos)
 {
-	x = (x*x_scale)/32;
-	y = (y*y_scale)/32;
+	const int x = (pos.x * x_scale)/32;
+	const int y = (pos.y * y_scale)/32;
 
 	COMPOSITIONFORM co;
 	co.dwStyle = CFS_POINT;

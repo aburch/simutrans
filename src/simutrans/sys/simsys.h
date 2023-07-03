@@ -244,7 +244,7 @@ void dr_stop_textinput();
 /**
  * Inform the IME of a ideal place to open its popup.
  */
-void dr_notify_input_pos(int x, int y);
+void dr_notify_input_pos(scr_coord pos);
 
 ///  returns current two byte languange ID
 const char* dr_get_locale();
