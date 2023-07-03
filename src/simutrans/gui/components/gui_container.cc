@@ -132,8 +132,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 	}
 	else {
 		// CASE : not a keyboard event
-		const int x = ev->ev_class==EVENT_MOVE ? ev->mouse_pos.x : ev->click_pos.x;
-		const int y = ev->ev_class==EVENT_MOVE ? ev->mouse_pos.y : ev->click_pos.y;
+		const scr_coord event_pos = ev->ev_class == EVENT_MOVE ? ev->mouse_pos : ev->click_pos;
 
 		// Handle the focus!
 		if(  comp_focus  &&  comp_focus->is_visible()  ) {
@@ -175,7 +174,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 						comp->infowin_event(ev);
 					}
 					else if(  comp->is_visible()  ) {
-						if(  comp->getroffen({ x, y })  ) {
+						if(  comp->getroffen(event_pos)  ) {
 							handle_mouseover.append( comp );
 						}
 					}
