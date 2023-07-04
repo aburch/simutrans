@@ -433,56 +433,64 @@ public:
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 };
 
-// builds roadsigns and signals
+
+/// builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t
 {
-	const roadsign_desc_t* desc;
-	const char *place_sign_intern(player_t *player, grund_t *gr);
-
-	struct signal_info
+	struct signal_info_t
 	{
-		signal_info() :
-			spacing(2),
-			remove_intermediate(true),
-			replace_other(true)
-		{}
-
-		uint8 spacing; // place signals every n tiles
-		bool  remove_intermediate;
-		bool  replace_other;
+		uint8 spacing = 2; // place signals every n tiles
+		bool  remove_intermediate = true;
+		bool  replace_other = true;
 	};
 
+	const roadsign_desc_t* desc = NULL;
+
 	/// default values for this tool per player
-	signal_info signal[MAX_PLAYER_COUNT];
+	signal_info_t signal[MAX_PLAYER_COUNT];
 
 	/// values that will be used to build
-	signal_info current;
+	signal_info_t current;
 
 	/// save direction of new signs
 	vector_tpl<ribi_t::ribi> directions;
 
-private:
-	const char *check_pos_intern(player_t *, koord3d);
-	bool calc_route(route_t &, player_t *, const koord3d &start, const koord3d &to);
-
-	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+public:
+	tool_build_roadsign_t();
 
 public:
-	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
+	/// @copydoc tool_t::get_tooltip
+	const char *get_tooltip(const player_t *player) const OVERRIDE;
 
-public:
-	char const* get_tooltip(player_t const*) const OVERRIDE;
+	/// @copydoc tool_t::init
 	bool init(player_t*) OVERRIDE;
+
+	/// @copydoc tool_t::exit
 	bool exit(player_t*) OVERRIDE;
 
-	void set_values(player_t *player, uint8 spacing, bool remove, bool replace );
-	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace );
+	/// Called by the GUI (gui/signal_spacing.*)
+	void set_values(player_t *player, uint8 spacing, bool remove, bool replace);
+	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace);
+
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
+
+
+private:
+	/// @copydoc two_click_tool_t::mark_tiles
+	void mark_tiles(player_t *player, const koord3d &start, const koord3d &end) OVERRIDE;
+
+	/// @copydoc two_click_tool_t::do_work
+	const char *do_work(player_t *player, const koord3d &start, const koord3d &end) OVERRIDE;
+
+	/// @copydoc two_click_tool_t::is_valid_pos
+	uint8 is_valid_pos(player_t *player, const koord3d &builder, char const *&error, const koord3d &start) OVERRIDE;
+
+	const char *check_pos_intern(player_t *, koord3d);
+	const char *place_sign_intern(player_t *player, grund_t *gr);
+	bool calc_route(route_t &route, player_t *player, const koord3d &from, const koord3d &to);
 };
 
 
