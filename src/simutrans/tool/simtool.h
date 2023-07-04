@@ -434,36 +434,45 @@ public:
 };
 
 // builds roadsigns and signals
-class tool_build_roadsign_t : public two_click_tool_t {
-private:
+class tool_build_roadsign_t : public two_click_tool_t
+{
 	const roadsign_desc_t* desc;
-	const char *place_sign_intern( player_t *, grund_t*, const roadsign_desc_t* b = NULL);
+	const char *place_sign_intern(player_t *player, grund_t *gr);
 
-	struct signal_info {
-		signal_info() : spacing(2), remove_intermediate(true), replace_other(true) {}
+	struct signal_info
+	{
+		signal_info() :
+			spacing(2),
+			remove_intermediate(true),
+			replace_other(true)
+		{}
 
 		uint8 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
 	};
-	// default values for this tool per player
+
+	/// default values for this tool per player
 	signal_info signal[MAX_PLAYER_COUNT];
-	// values that will be used to build
+
+	/// values that will be used to build
 	signal_info current;
 
-	const char* check_pos_intern(player_t *, koord3d);
-	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
+	/// save direction of new signs
+	vector_tpl<ribi_t::ribi> directions;
+
+private:
+	const char *check_pos_intern(player_t *, koord3d);
+	bool calc_route(route_t &, player_t *, const koord3d &start, const koord3d &to);
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
-	/// save direction of new signs
-	vector_tpl< ribi_t::ribi > directions;
-
 public:
 	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
 
+public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
@@ -475,6 +484,7 @@ public:
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
 };
+
 
 class tool_build_depot_t : public tool_t {
 private:

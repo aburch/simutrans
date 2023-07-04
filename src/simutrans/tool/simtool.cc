@@ -5214,11 +5214,13 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 {
 	// read data from string
 	desc = roadsign_t::find_desc(default_param);
+
 	// single click ->place signal
 	if( end == koord3d::invalid  ||  start == end ) {
 		grund_t *gr = welt->lookup(start);
 		return place_sign_intern( player, gr );
 	}
+
 	// mark tiles to calculate positions of signals
 	mark_tiles(player, start, end);
 	// only search the marked tiles
@@ -5288,7 +5290,7 @@ void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &
 }
 
 
-const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t* gr, const roadsign_desc_t*)
+const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *gr)
 {
 	const char *error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	// search for starting ground
