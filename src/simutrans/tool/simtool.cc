@@ -5128,12 +5128,12 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 }
 
 
-const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &start, const koord3d &end)
+const char *tool_build_roadsign_t::do_work(player_t *player, const koord3d &start, const koord3d &end)
 {
 	// read data from string
 	desc = roadsign_t::find_desc(default_param);
 
-	// single click ->place signal
+	// single click -> place signal
 	if (end == koord3d::invalid  ||  start == end) {
 		grund_t *gr = welt->lookup(start);
 		return place_sign_intern( player, gr );
@@ -5230,14 +5230,8 @@ const char *tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 		return error;
 	}
 
-	signal_t *s = gr->find<signal_t>();
-	if(s  &&  s->get_desc()!=desc) {
-		// only one signal per tile
-		return error;
-	}
-
-	if(desc->is_signal_type()  &&  gr->find<roadsign_t>())  {
-		// only one sign per tile
+	// do not replace roadsigns by signals and vice versa (e.g. on level crossings)
+	if ((desc->is_signal_type() && gr->find<roadsign_t>()) || (!desc->is_signal_type() && gr->find<signal_t>())) {
 		return error;
 	}
 
@@ -5292,12 +5286,12 @@ const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *
 	// get the sign direction
 	weg_t *weg = gr->get_weg( desc->get_wtyp()!=tram_wt ? desc->get_wtyp() : track_wt);
 	roadsign_t *s = gr->find<signal_t>();
-
 	if(s==NULL) {
 		s = gr->find<roadsign_t>();
 	}
-	if(s  &&  s->get_desc()!=desc) {
-		// only one sign per tile
+
+	if(s  &&  (!s->get_desc()->is_signal_type() && s->get_desc() != desc)) {
+		// can only replace signals
 		return error;
 	}
 
@@ -5314,10 +5308,18 @@ const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *
 	if (desc->is_signal_type()) {
 		// if there is already a signal, we might need to inverse the direction
 		rs = gr->find<signal_t>();
-		if (rs) {
-			if(  !player_t::check_owner( rs->get_owner(), player )  ) {
-				return "Das Feld gehoert\neinem anderen Spieler\n";
-			}
+		if (!rs) {
+			// add a new signal at position zero!
+			rs = new signal_t(player, gr->get_pos(), dir, desc);
+			DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
+			goto built_sign;
+		}
+
+		if(  !player_t::check_owner( rs->get_owner(), player )  ) {
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}
+
+		if (rs->get_desc() == desc) {
 			// signals have three options
 			ribi_t::ribi sig_dir = rs->get_dir();
 			uint8 i = 0;
@@ -5339,10 +5341,14 @@ const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *
 			// if nothing found, we have two ways again ...
 			rs->set_dir(dir);
 		}
-		else {
-			// add a new signal at position zero!
+
+		// different desc -> replace signal
+		else if (rs->is_deletable(player) == NULL) {
+			ribi_t::ribi old_dir = rs->get_dir();
+			rs->cleanup(player);
+			delete rs;
 			rs = new signal_t(player, gr->get_pos(), dir, desc);
-			DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
+			rs->set_dir(old_dir);
 			goto built_sign;
 		}
 	}

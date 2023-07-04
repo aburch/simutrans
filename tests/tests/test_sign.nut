@@ -993,45 +993,63 @@ function test_sign_replace_signal()
 	// preconditions
 	ASSERT_TRUE(signal != null)
 	ASSERT_TRUE(presignal != null)
+	ASSERT_TRUE(rail != null)
 
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 3, 0), coord3d(6, 3, 0), rail, true), null)
-	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.name), null)
 
-	// try replacing two-directional signals
+	// replace two-directional signals
 	{
-		local error_caught = false
-		try {
-			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
-		}
-		catch (e) {
-			ASSERT_EQUAL(e, "Tool has no effects")
-			error_caught = true
-		}
-		ASSERT_TRUE(error_caught)
+		local old_cash = pl.current_cash * 100
+		local old_maint = pl.current_maintenance
+		command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), presignal.name)
 
 		local s = sign_x(5, 3, 0)
+
 		ASSERT_TRUE(s != null)
-		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
+		ASSERT_EQUAL(s.desc.name, presignal.name)
+		ASSERT_EQUAL(pl.current_cash * 100,   old_cash  - signal.cost        - presignal.cost)
+		ASSERT_EQUAL(pl.current_maintenance,  old_maint + signal.maintenance - presignal.maintenance)
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"....2A8.",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
 	}
 
 	// make 2-way signal 1-way
-	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), presignal.name), null)
 
 	// and one-directional signals
 	{
-		local error_caught = false
-		try {
-			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
-		}
-		catch (e) {
-			ASSERT_EQUAL(e, "Tool has no effects")
-			error_caught = true
-		}
-		ASSERT_TRUE(error_caught)
+		local old_cash = pl.current_cash * 100
+		local old_maint = pl.current_maintenance
 
-		local s = sign_x(5, 3, 0)
+		command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.name)
+
+		local s = sign_x(5, 3 , 0)
+
 		ASSERT_TRUE(s != null)
-		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
+		ASSERT_EQUAL(s.desc.name, signal.name)
+		ASSERT_EQUAL(pl.current_cash * 100,   old_cash  - signal.cost        - presignal.cost)
+		ASSERT_EQUAL(pl.current_maintenance,  old_maint - signal.maintenance + presignal.maintenance)
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"....288.",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
 	}
 
 	// clean up
