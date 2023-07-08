@@ -409,7 +409,8 @@ ptrdiff_t guess_magic_number(simwin_t *win, ptrdiff_t magic = magic_none)
 	return magic;
 }
 
-void save_windowsize(simwin_t *win)
+
+static void save_windowsize(simwin_t *win)
 {
 	ptrdiff_t magic = guess_magic_number(win);
 	if (magic != magic_none) {
@@ -417,7 +418,8 @@ void save_windowsize(simwin_t *win)
 	}
 }
 
-scr_size get_stored_windowsize(simwin_t *win)
+
+static scr_size get_stored_windowsize(simwin_t *win)
 {
 	ptrdiff_t magic = guess_magic_number(win);
 	if (magic != magic_none) {
@@ -425,6 +427,7 @@ scr_size get_stored_windowsize(simwin_t *win)
 	}
 	return scr_size();
 }
+
 
 void rdwr_win_settings(loadsave_t *file)
 {
@@ -719,8 +722,6 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 }
 
 
-
-
 int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
 {
 	assert(gui!=NULL  &&  magic!=0);
@@ -905,6 +906,7 @@ int top_win(int win, bool keep_state )
 	return notify_top_win();
 }
 
+
 static void save_win_position(const simwin_t &win)
 {
 	if(  win.magic_number < magic_max  ) {
@@ -916,6 +918,7 @@ static void save_win_position(const simwin_t &win)
 		}
 	}
 }
+
 
 /* sometimes a window cannot destroyed while it is still handled;
  * in those cases it will added to kill list and it is only destructed
@@ -1056,6 +1059,7 @@ void destroy_all_win(bool destroy_sticky)
 	}
 }
 
+
 void rollup_all_win()
 {
 	bool all_rolldown_flag = true; // If any dialog is open, all rolldown will not be performed
@@ -1076,6 +1080,7 @@ void rollup_all_win()
 		rolldown_all_win();
 	}
 }
+
 
 void rolldown_all_win()
 {
@@ -1203,7 +1208,7 @@ static inline void snap_check_distance( scr_coord_val *r, const scr_coord_val a,
 }
 
 
-void snap_check_win( const int win, scr_coord *r, const scr_coord from_pos, const scr_coord from_size, const scr_coord to_pos, const scr_coord to_size )
+static void snap_check_win( const int win, scr_coord *r, const scr_coord from_pos, const scr_coord from_size, const scr_coord to_pos, const scr_coord to_size )
 {
 	bool resize;
 	if(  from_size==to_size  &&  from_pos!=to_pos  ) { // check if we're moving
@@ -1313,7 +1318,7 @@ void snap_check_win( const int win, scr_coord *r, const scr_coord from_pos, cons
 }
 
 
-void move_win(int win, event_t *ev)
+static void move_win(int win, event_t *ev)
 {
 	const scr_coord mouse_from( ev->click_pos.x, ev->click_pos.y );
 	const scr_coord mouse_to( ev->mouse_pos.x, ev->mouse_pos.y );
@@ -1351,7 +1356,7 @@ void move_win(int win, event_t *ev)
 }
 
 
-void resize_win(int win, event_t *ev)
+static void resize_win(int win, event_t *ev)
 {
 	event_t wev = *ev;
 	wev.ev_class = WINDOW_RESIZE;
@@ -1386,7 +1391,7 @@ void resize_win(int win, event_t *ev)
 
 
 // returns true, if gui is a open window handle
-bool win_is_open(gui_frame_t *gui)
+static bool win_is_open(gui_frame_t *gui)
 {
 	for(simwin_t const& i : wins) {
 		if (i.gui == gui) {
@@ -1434,6 +1439,7 @@ void catch_dragging()
 {
 	last_drag_is_caught = true;
 }
+
 
 /*
  * main window event handler
@@ -1779,6 +1785,7 @@ uint16 win_get_statusbar_height()
 {
 	return max(LINESPACE + 2, 15);
 }
+
 
 // finally updates the display
 void win_display_flush(double konto)

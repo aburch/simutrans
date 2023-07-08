@@ -142,8 +142,6 @@ void catch_dragging();
 
 bool check_pos_win(event_t*,bool modal);
 
-bool win_is_open(gui_frame_t *ig );
-
 
 scr_coord const& win_get_pos(gui_frame_t const*);
 void win_set_pos(gui_frame_t *window, scr_coord new_pos);
@@ -184,7 +182,6 @@ void rolldown_all_win();
 bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
 void display_all_win();
 void win_rotate90( sint16 new_size );
-void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
 
