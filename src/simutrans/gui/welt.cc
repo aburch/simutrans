@@ -490,7 +490,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			open_setting_gui.pressed = false;
 		}
 		else {
-			create_win(10, 40, new settings_frame_t(sets), w_info, magic_settings_frame_t );
+			create_win({ 10, 40 }, new settings_frame_t(sets), w_info, magic_settings_frame_t );
 			open_setting_gui.pressed = true;
 		}
 	}
@@ -502,7 +502,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		}
 		else {
 			climate_gui_t *cg = new climate_gui_t(sets);
-			create_win((display_get_width() - cg->get_windowsize().w-10), 40, cg, w_info, magic_climate );
+			const scr_coord pos{ (display_get_width() - cg->get_windowsize().w-10), 40 };
+			create_win(pos, cg, w_info, magic_climate );
 			open_climate_gui.pressed = true;
 		}
 	}
@@ -518,7 +519,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 	else if(comp==&start_game) {
 		destroy_all_win(true);
 		welt->get_message()->clear();
-		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
+		create_win({ 200, 100 }, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
 		if(loaded_heightfield) {
 			welt->load_heightfield(&env_t::default_settings);
 		}

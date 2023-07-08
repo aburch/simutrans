@@ -191,7 +191,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		if(  comp == (player_lock[i])  &&  welt->get_player(i)  ) {
 			if (!welt->get_player(i)->is_unlock_pending()) {
 				// set password
-				create_win( -1, -1, new password_frame_t(welt->get_player(i)), w_info, magic_pwd_t + i );
+				create_win(new password_frame_t(welt->get_player(i)), w_info, magic_pwd_t + i );
 				player_lock[i]->pressed = false;
 			}
 		}

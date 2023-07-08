@@ -655,7 +655,7 @@ void rdwr_all_win(loadsave_t *file)
 				p.rdwr(file);
 				uint8 win_type;
 				file->rdwr_byte( win_type );
-				create_win( p.x, p.y, w, (wintype)win_type, id, true );
+				create_win( p, w, (wintype)win_type, id, true );
 				bool sticky, rollup;
 				file->rdwr_bool( sticky );
 				file->rdwr_bool( rollup );
@@ -672,12 +672,6 @@ void rdwr_all_win(loadsave_t *file)
 			}
 		}
 	}
-}
-
-
-int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
-{
-	return create_win( -1, -1, gui, wt, magic);
 }
 
 
@@ -721,8 +715,12 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 	y = max(y, clip_rr.y);
 }
 
+int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
+{
+	return create_win({ -1, -1 }, gui, wt, magic);
+}
 
-int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
+int create_win(scr_coord pos, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -739,11 +737,10 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 		return -1;
 	}
 
-	if(  x==-1  &&  y==-1  &&  env_t::remember_window_positions  ) {
+	if(  pos.x==-1  &&  pos.y==-1  &&  env_t::remember_window_positions  ) {
 		// look for window in hash table
 		if(  scr_coord *k = old_win_pos.access(magic)  ) {
-			x = k->x;
-			y = k->y;
+			pos = *k;
 		}
 	}
 
@@ -837,17 +834,17 @@ int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t* const gui, wintype
 		}
 
 		// try to go next to mouse bar
-		if (x == -1) {
+		if (pos.x == -1) {
 			move_to_full_view = true;
-			x = get_mouse_pos().x - gui->get_windowsize().w / 2;
-			y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
+			pos.x = get_mouse_pos().x - gui->get_windowsize().w / 2;
+			pos.y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
 		}
 
 		// make sure window is on screen
-		win_clamp_xywh_position(x, y, gui->get_windowsize(), move_to_full_view);
+		win_clamp_xywh_position(pos.x, pos.y, gui->get_windowsize(), move_to_full_view);
 
 
-		win.pos = scr_coord(x,y);
+		win.pos = pos;
 		win.dirty = true;
 		return wins.get_count();
 	}
@@ -1320,8 +1317,8 @@ static void snap_check_win( const int win, scr_coord *r, const scr_coord from_po
 
 static void move_win(int win, event_t *ev)
 {
-	const scr_coord mouse_from( ev->click_pos.x, ev->click_pos.y );
-	const scr_coord mouse_to( ev->mouse_pos.x, ev->mouse_pos.y );
+	const scr_coord mouse_from = ev->click_pos;
+	const scr_coord mouse_to = ev->mouse_pos;
 
 	const scr_coord from_pos = wins[win].pos;
 	scr_coord from_size = scr_coord(wins[win].gui->get_windowsize().w,wins[win].gui->get_windowsize().h);
@@ -1362,8 +1359,8 @@ static void resize_win(int win, event_t *ev)
 	wev.ev_class = WINDOW_RESIZE;
 	wev.ev_code = 0;
 
-	const scr_coord mouse_from( wev.click_pos.x, wev.click_pos.y );
-	const scr_coord mouse_to( wev.mouse_pos.x, wev.mouse_pos.y );
+	const scr_coord mouse_from = wev.click_pos;
+	const scr_coord mouse_to  = wev.mouse_pos;
 
 	const scr_coord from_pos = wins[win].pos;
 	const scr_coord from_size = scr_coord(wins[win].gui->get_windowsize().w,wins[win].gui->get_windowsize().h);
@@ -1383,8 +1380,7 @@ static void resize_win(int win, event_t *ev)
 	}
 
 	// adjust event mouse scr_coord per snap
-	wev.mouse_pos.x = wev.click_pos.x + to_size.x - from_size.x;
-	wev.mouse_pos.y = wev.click_pos.y + to_size.y - from_size.y;
+	wev.mouse_pos = wev.click_pos + to_size - from_size;
 
 	wins[win].gui->infowin_event( &wev );
 }
@@ -2167,7 +2163,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 	scr_coord_val x = (display_get_width() - gui->get_windowsize().w) / 2;
 	scr_coord_val y = (display_get_height() - gui->get_windowsize().h) / 2;
 	win_clamp_xywh_position(x, y, gui->get_windowsize(), true);
-	create_win(x, y, gui, w_info, magic);
+	create_win({ x, y }, gui, w_info, magic);
 
 	if (welt) {
 		welt->set_pause(false);

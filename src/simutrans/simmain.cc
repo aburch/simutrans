@@ -1553,7 +1553,7 @@ int simu_main(int argc, char** argv)
 	}
 #ifdef USE_FLUIDSYNTH_MIDI
 	if(  strcmp( env_t::soundfont_filename.c_str(), "Error" ) == 0  ) {
-		create_win( 0,0, new news_img("No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu."), w_info, magic_none );
+		create_win({ 0,0 }, new news_img("No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu."), w_info, magic_none );
 	}
 #endif
 	while(  !env_t::quit_simutrans  ) {

@@ -81,7 +81,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Einstellungen aendern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_optionen_gui_t); }
 	bool init(player_t*) OVERRIDE{
-		create_win(-1, -1, new optionen_gui_t(), w_info, magic_optionen_gui_t, true);
+		create_win({ -1, -1 }, new optionen_gui_t(), w_info, magic_optionen_gui_t, true);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_optionen_gui_t); return false; }
@@ -159,7 +159,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Spielerliste"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_ki_kontroll_t); }
 	bool init(player_t*) OVERRIDE{
-		create_win(272, 160, new ki_kontroll_t(), w_info, magic_ki_kontroll_t);
+		create_win({ 272, 160 }, new ki_kontroll_t(), w_info, magic_ki_kontroll_t);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_ki_kontroll_t); return false; }
@@ -256,8 +256,8 @@ public:
 		else {
 			destroy_win(magic_save_t);
 			create_win( new loadsave_frame_t(true), w_info, magic_load_t);
-			scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
-			create_win( pos.x+20, pos.y+20, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
+			const scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
+			create_win( pos + scr_coord{ 20, 20 }, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
 		}
 		return false;
 	}
@@ -308,8 +308,8 @@ public:
 		}
 		else {
 			create_win( new scenario_frame_t(), w_info, magic_load_t );
-			scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
-			create_win( pos.x+20, pos.y+20, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
+			const scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
+			create_win( pos + scr_coord{ 20, 20 }, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
 		}
 		return false;
 	}

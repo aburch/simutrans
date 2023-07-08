@@ -160,7 +160,7 @@ void message_frame_t::filter_list(sint32 type)
 bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
 	if(  comp==&option_bt  ) {
-		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
+		create_win({ 320, 200 }, new message_option_t(), w_info, magic_message_options );
 	}
 	else if(  comp==&opaque_bt  ) {
 		if(  !opaque_bt.pressed  &&  env_t::chat_window_transparency!=100  ) {

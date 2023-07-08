@@ -295,7 +295,7 @@ bool player_t::new_month()
 			if(  welt->get_active_player_nr()==player_nr  &&  !env_t::networkmode  ) {
 				if(  finance->get_netwealth() < 0 ) {
 					destroy_all_win(true);
-					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+					create_win({ display_get_width()/2-128, 40 }, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord3d::invalid, PLAYER_FLAG + player_color_1 + 1 );
 					welt->stop(false);
 				}
