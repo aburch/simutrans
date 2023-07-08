@@ -678,7 +678,7 @@ void rdwr_all_win(loadsave_t *file)
 /* tries to get a window on the screen
  * without titlebar hidden by any menubar/satus bar elements
  */
-void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, bool move_topleft )
+void win_clamp_xywh_position( scr_coord &pos, scr_size wh, bool move_topleft )
 {
 	scr_coord_val add_menuwidth = env_t::iconsize.w;
 	scr_coord_val add_menuheight = env_t::iconsize.h;
@@ -702,17 +702,17 @@ void win_clamp_xywh_position( scr_coord_val &x, scr_coord_val &y, scr_size wh, b
 
 	// should we move to be fully on screen?
 	if (move_topleft) {
-		if (x + wh.w > clip_rr.x + clip_rr.w) {
-			x = clip_rr.x + clip_rr.w - wh.w;
+		if (pos.x + wh.w > clip_rr.x + clip_rr.w) {
+			pos.x = clip_rr.x + clip_rr.w - wh.w;
 		}
-		if (y + wh.h > clip_rr.y + clip_rr.h) {
-			y = clip_rr.y + clip_rr.h - wh.h;
+		if (pos.y + wh.h > clip_rr.y + clip_rr.h) {
+			pos.y = clip_rr.y + clip_rr.h - wh.h;
 		}
 	}
 
 	// now do not hide titlebar by menubar
-	x = max(x, clip_rr.x);
-	y = max(y, clip_rr.y);
+	pos.x = max(pos.x, clip_rr.x);
+	pos.y = max(pos.y, clip_rr.y);
 }
 
 int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
@@ -720,7 +720,7 @@ int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
 	return create_win({ -1, -1 }, gui, wt, magic);
 }
 
-int create_win(scr_coord pos, gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
+int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -841,7 +841,7 @@ int create_win(scr_coord pos, gui_frame_t* const gui, wintype const wt, ptrdiff_
 		}
 
 		// make sure window is on screen
-		win_clamp_xywh_position(pos.x, pos.y, gui->get_windowsize(), move_to_full_view);
+		win_clamp_xywh_position(pos, gui->get_windowsize(), move_to_full_view);
 
 
 		win.pos = pos;
@@ -1334,7 +1334,7 @@ static void move_win(int win, event_t *ev)
 	}
 
 	// CLIP(wert,min,max)
-	win_clamp_xywh_position(to_pos.x, to_pos.y, wins[win].gui->get_windowsize(), false);
+	win_clamp_xywh_position(to_pos, wins[win].gui->get_windowsize(), false);
 
 	// delta is actual window movement.
 	const scr_coord delta = to_pos - from_pos;
@@ -1736,11 +1736,7 @@ void win_poll_event(event_t* const ev)
 		ticker::redraw();
 		tool_t::update_toolbars();
 		for( uint i = 0; i<wins.get_count(); i++ ) {
-			scr_coord_val x = wins[i].pos.x;
-			scr_coord_val y = wins[i].pos.y;
-			win_clamp_xywh_position( x, y, wins[i].gui->get_min_windowsize(), true );
-			wins[i].pos.x = x;
-			wins[i].pos.y = y;
+			win_clamp_xywh_position( wins[i].pos, wins[i].gui->get_min_windowsize(), true );
 		}
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
@@ -1868,10 +1864,9 @@ void win_display_flush(double konto)
 				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+(LINESPACE/2);
-					scr_coord_val x = tooltip_xpos;
-					scr_coord_val y = tooltip_ypos;
-					win_clamp_xywh_position( x, y, scr_size( width, (LINESPACE*9)/7 ), true );
-					display_ddd_proportional_clip( x, y, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
+					scr_coord pos{ tooltip_xpos, tooltip_ypos };
+					win_clamp_xywh_position( pos, scr_size( width, (LINESPACE*9)/7 ), true );
+					display_ddd_proportional_clip( pos.x, pos.y, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
 					if(wl) {
 						wl->set_background_dirty();
 					}
@@ -1879,10 +1874,9 @@ void win_display_flush(double konto)
 			}
 			else if(!static_tooltip_text.empty()) {
 				const sint16 width = proportional_string_width(static_tooltip_text.c_str())+ (LINESPACE/2);
-				scr_coord_val x = get_mouse_pos().x;
-				scr_coord_val y = get_mouse_pos().y;
-				win_clamp_xywh_position(x, y, scr_size(width, (LINESPACE*9)/7), true);
-				display_ddd_proportional_clip(x, y, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
+				scr_coord pos = get_mouse_pos();
+				win_clamp_xywh_position(pos, scr_size(width, (LINESPACE*9)/7), true);
+				display_ddd_proportional_clip(pos.x, pos.y, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text.c_str(), true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -2126,8 +2120,8 @@ void win_set_tooltip(scr_coord pos, const char *text, const void *const owner, c
 	}
 
 	if (text) {
-		scr_size tt_size = scr_size(proportional_string_width(text), LINESPACE + 2);
-		win_clamp_xywh_position(pos.x, pos.y, tt_size, true);
+		const scr_size tt_size = scr_size(proportional_string_width(text), LINESPACE + 2);
+		win_clamp_xywh_position(pos, tt_size, true);
 		pos.y += LINESPACE / 2 + 1;
 	}
 
@@ -2160,10 +2154,12 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 	env_t::autosave = 0;
 
 	event_t ev;
-	scr_coord_val x = (display_get_width() - gui->get_windowsize().w) / 2;
-	scr_coord_val y = (display_get_height() - gui->get_windowsize().h) / 2;
-	win_clamp_xywh_position(x, y, gui->get_windowsize(), true);
-	create_win({ x, y }, gui, w_info, magic);
+	scr_coord pos{
+		(display_get_width()  - gui->get_windowsize().w) / 2,
+		(display_get_height() - gui->get_windowsize().h) / 2
+	};
+	win_clamp_xywh_position(pos, gui->get_windowsize(), true);
+	create_win(pos, gui, w_info, magic);
 
 	if (welt) {
 		welt->set_pause(false);
@@ -2183,8 +2179,8 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 
-				win_clamp_xywh_position(ev.mouse_pos.x, ev.mouse_pos.y, scr_size(1, 1), false);
-				win_clamp_xywh_position(ev.mouse_pos.x, ev.mouse_pos.y, scr_size(1, 1), false);
+				win_clamp_xywh_position(ev.mouse_pos, scr_size(1, 1), false);
+				win_clamp_xywh_position(ev.mouse_pos, scr_size(1, 1), false);
 
 				if (ev.ev_class == EVENT_KEYBOARD && ev.ev_code == SIM_KEY_F1) {
 					if (gui_frame_t* win = win_get_top()) {

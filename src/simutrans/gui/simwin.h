@@ -132,7 +132,7 @@ void rdwr_all_win(loadsave_t *file);
 // save windowsizes in settings
 void rdwr_win_settings(loadsave_t *file);
 
-void win_clamp_xywh_position(scr_coord_val &x, scr_coord_val &y, scr_size wh, bool move_to_full_view);
+void win_clamp_xywh_position(scr_coord &pos, scr_size wh, bool move_to_full_view);
 
 int create_win(gui_frame_t *gui, wintype type, ptrdiff_t magic);
 int create_win(scr_coord pos, gui_frame_t *gui, wintype type, ptrdiff_t magic, bool move_to_show_full=false);
