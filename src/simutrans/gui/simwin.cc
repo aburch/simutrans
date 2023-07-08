@@ -2085,7 +2085,7 @@ void win_load_font(const char *fname, uint8 fontsize)
  * Has to be called from within gui_frame_t::draw
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  */
-void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, const void *const owner, const void *const group)
+void win_set_tooltip(scr_coord pos, const char *text, const void *const owner, const void *const group)
 {
 	// check whether the right window will set the tooltip
 	if(inside_event_handling != tooltip_element  ) {
@@ -2127,12 +2127,12 @@ void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, c
 
 	if (text) {
 		scr_size tt_size = scr_size(proportional_string_width(text), LINESPACE + 2);
-		win_clamp_xywh_position(xpos, ypos, tt_size, true);
-		ypos += LINESPACE / 2 + 1;
+		win_clamp_xywh_position(pos.x, pos.y, tt_size, true);
+		pos.y += LINESPACE / 2 + 1;
 	}
 
-	tooltip_xpos = xpos;
-	tooltip_ypos = ypos;
+	tooltip_xpos = pos.x;
+	tooltip_ypos = pos.y;
 }
 
 

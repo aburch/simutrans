@@ -320,7 +320,8 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		for(tab const& iter : tabs) {
 			if(text_x <= mx && text_x+iter.width > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 				// tooltip or change
-				win_set_tooltip(get_mouse_pos().x + 16, ypos + required_size.h + 12, iter.tooltip, &iter, this);
+				const scr_coord tooltip_pos{ get_mouse_pos().x + 16, ypos + required_size.h + 12 };
+				win_set_tooltip(tooltip_pos, iter.tooltip, &iter, this);
 				break;
 			}
 

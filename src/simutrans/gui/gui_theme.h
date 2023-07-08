@@ -136,6 +136,7 @@ class image_t;
 
 #define TOOLTIP_MOUSE_OFFSET_X (16)
 #define TOOLTIP_MOUSE_OFFSET_Y (12)
+#define TOOLTIP_MOUSE_OFFSET (scr_coord{ TOOLTIP_MOUSE_OFFSET_X, TOOLTIP_MOUSE_OFFSET_Y })
 
 // these define the offset of images in their definitions
 enum {

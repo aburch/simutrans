@@ -119,10 +119,8 @@ void gui_label_t::draw(scr_coord offset)
 	}
 
 	if ( tooltip  &&  getroffen(get_mouse_pos() - offset) ) {
-		const scr_coord_val by = offset.y + pos.y;
-		const scr_coord_val bh = size.h;
-
-		win_set_tooltip(get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, by + bh + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+		const scr_coord tooltip_base_pos{ get_mouse_pos().x,  offset.y + pos.y + size.h };
+		win_set_tooltip(tooltip_base_pos + TOOLTIP_MOUSE_OFFSET, tooltip, this);
 	}
 }
 

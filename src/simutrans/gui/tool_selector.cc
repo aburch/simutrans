@@ -371,16 +371,17 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 
 	if(  !is_dragging  ) {
 		// tooltips?
-		const sint16 mx = get_mouse_pos().x;
-		const sint16 my = get_mouse_pos().y;
-		if(  is_hit(mx-pos.x, my-pos.y)  &&  (my-pos.y > D_TITLEBAR_HEIGHT)) {
-			const sint16 xdiff = (mx - pos.x - offset.x) / env_t::iconsize.w;
-			const sint16 ydiff = (my - pos.y-D_TITLEBAR_HEIGHT - offset.y) / env_t::iconsize.h;
+		const scr_coord mouse_pos = get_mouse_pos();
+
+		if(  is_hit(mouse_pos.x-pos.x, mouse_pos.y-pos.y)  &&  (mouse_pos.y-pos.y > D_TITLEBAR_HEIGHT)) {
+			const scr_coord_val xdiff = (mouse_pos.x - pos.x                     - offset.x) / env_t::iconsize.w;
+			const scr_coord_val ydiff = (mouse_pos.y - pos.y - D_TITLEBAR_HEIGHT - offset.y) / env_t::iconsize.h;
+
 			if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  ) {
 				const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 				if(  tipnr < (int)tool_icon_disp_end  ) {
 					const char* tipstr = tools[tipnr].tool->get_tooltip(welt->get_active_player());
-					win_set_tooltip(mx+TOOLTIP_MOUSE_OFFSET_X, my+TOOLTIP_MOUSE_OFFSET_Y, tipstr, tools[tipnr].tool, this);
+					win_set_tooltip(mouse_pos + TOOLTIP_MOUSE_OFFSET, tipstr, tools[tipnr].tool, this);
 				}
 			}
 		}

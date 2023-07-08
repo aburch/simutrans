@@ -480,7 +480,7 @@ void button_t::draw(scr_coord offset)
 	}
 
 	if(  translated_tooltip  &&  getroffen( get_mouse_pos() - offset )  ) {
-		win_set_tooltip( get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, area.get_bottom() + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
+		win_set_tooltip( scr_coord{ get_mouse_pos().x, area.get_bottom() } + TOOLTIP_MOUSE_OFFSET, translated_tooltip, this);
 	}
 }
 

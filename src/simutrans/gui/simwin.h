@@ -210,7 +210,7 @@ void win_load_font(const char *fname, uint8 fontsize);
  * Sets the tooltip to display.
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  */
-void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, const void *const owner = 0, const void *const group = 0);
+void win_set_tooltip(scr_coord pos, const char *text, const void *const owner = NULL, const void *const group = NULL);
 
 /**
  * Sets a static tooltip that follows the mouse

@@ -1714,7 +1714,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 //					display_text_label( new_xpos, new_ypos, text, fab->get_owner(), dirty );
 					// ... and status
 					fab->display_status( xpos, new_ypos );
-					win_set_tooltip( new_xpos, ypos, fab->get_name(), NULL, NULL );
+					win_set_tooltip( { new_xpos, ypos }, fab->get_name(), NULL, NULL );
 				}
 				else if(  gb->get_first_tile() == gb  ) {
 					if(  env_t::show_factory_storage_bar == 3  ||  (env_t::show_factory_storage_bar == 2  &&  fab->is_within_players_network( welt->get_active_player() ))  ) {

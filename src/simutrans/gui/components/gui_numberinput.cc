@@ -379,6 +379,7 @@ void gui_numberinput_t::draw(scr_coord offset)
 
 	if(!no_tooltip  &&  getroffen( get_mouse_pos() - offset )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(get_mouse_pos().x + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+		const scr_coord tooltip_base_pos{ get_mouse_pos().x, new_offset.y + size.h };
+		win_set_tooltip(tooltip_base_pos + TOOLTIP_MOUSE_OFFSET, tooltip, this);
 	}
 }
