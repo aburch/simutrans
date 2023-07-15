@@ -280,6 +280,22 @@ static void repair_format_string(const char* format, char* &repaired)
 	*dest++ = 0;
 }
 
+static void replace_double_percent(const char* format, char* &repaired)
+{
+	repaired = strdup(format);
+	char *src = repaired, *dest = repaired;
+	char prev = 0;
+	while (*src) {
+		if (prev != '%'  ||  *src != '%') {
+			prev =  *src;
+			*dest ++ = *src ++;
+		}
+		else {
+			src ++;
+		}
+	}
+	*dest = 0;
+}
 
 /**
  * Check whether the format specifiers in @p translated match those in @p master.
@@ -303,8 +319,24 @@ bool cbuffer_t::check_and_repair_format_strings(const char* master, const char* 
 	get_format_mask(master, master_tm, lengthof(master_tm), buf);
 	if (buf.len() > 0) {
 		// broken master string ?!
+		// cannot contain single % signs, use %% instead
 		dbg->warning("cbuffer_t::check_format_strings", "Broken master string '%s': %s", master, (const char*) buf);
 		return false;
+	}
+	// no format specifiers or only %%? Replace %% by %, otherwise leave translated alone.
+	bool has_format = false;
+	for(uint i=0; (master_tm[i])  &&  (i<lengthof(master_tm)); i++) {
+		if (master_tm[i] != '%') {
+			has_format = true;
+			break;
+		}
+	}
+	if (!has_format) {
+		// no check needed, replace %% by %
+		if (strstr(translated, "%%") ) {
+			replace_double_percent(translated, *repaired_p);
+		}
+		return true;
 	}
 
 	// read out translated string
