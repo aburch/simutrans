@@ -56,7 +56,7 @@ void ticker::set_redraw_all(bool redraw)
 }
 
 
-void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
+void ticker::add_msg_node(const message_node_t& msg)
 {
 	const int count = list.get_count();
 
@@ -65,15 +65,17 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 		next_pos = display_get_width();
 	}
 
+	const char* txt = msg.msg;
 	// don't store more than 4 messages, it's useless.
 	if(count >= 4) {
 		return;
 	}
 	// Don't repeat messages
 	else if (count == 0 || !strstart(list.back().msg, txt)) {
-		node n;
+		node n(msg);
 		int i=0;
 
+		// copy message text
 		// remove breaks
 		for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
 			if(  txt[j]=='\n'  ) {
@@ -92,17 +94,8 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 		}
 		n.msg[i++] = 0;
 
-		n.pos = pos;
-		n.color = color;
-
 		n.xpos = next_pos;
 		n.w = proportional_string_width(n.msg);
-
-		// set to default values
-		n.type  = message_t::general;
-		n.pos   = pos;
-		n.time  = 0;
-		n.image = IMG_EMPTY;
 
 		next_pos += n.w + X_SPACING;
 		list.append(n);
@@ -110,18 +103,18 @@ void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 }
 
 
-void ticker::add_msg_node(const message_node_t& msg)
+void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
 {
-	if (list.empty()) {
-		redraw_all = true;
-		next_pos = display_get_width();
-	}
+	node n;
+	tstrncpy(n.msg, txt, lengthof(n.msg));
+	n.pos = pos;
+	n.color = color;
+	// set to default values
+	n.type  = message_t::general;
+	n.time  = 0;
+	n.image = IMG_EMPTY;
 
-	node n(msg);
-	n.xpos = next_pos;
-	n.w = proportional_string_width(n.msg);
-	next_pos += n.w + X_SPACING;
-	list.append(n);
+	add_msg_node(n);
 }
 
 
