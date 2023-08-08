@@ -4238,6 +4238,10 @@ obj=program_text
 name=and arranged by
 note=music credits
 --
+obj=program_text
+name=Load Scripted AI
+note=script Ai text player list and load dialoque
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds
