@@ -66,7 +66,8 @@ class industry_connection_planner_t extends manager_t
 
     local fs = fsrc.get_tile_list()
     local fs_halt = fs[0].get_halt()
-    if ( (fs_halt != null || fs_halt != false) && exists_links == 1 ) {
+    if ( (fs_halt != null ) && exists_links == 1 ) { //|| fs_halt != false
+      if (debug) gui.add_message_at(our_player, "fs_halt - " + fs_halt, fs[0])
       // water factory - no more links than one
       if (debug) gui.add_message_at(our_player, " water factory - no more links than one ", fs[0])
       return r_t(RT_TOTAL_FAIL)

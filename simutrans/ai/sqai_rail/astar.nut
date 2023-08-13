@@ -1923,11 +1923,14 @@ function expand_station(pl, fields, wt, select_station, start_fld, combined_halt
     // check station connect factory
     local st = halt_x.get_halt(fields[0], pl)
     local s_tiles = []
-
+/*
+        gui.add_message_at(our_player, "(1927) -*---> combined_station : " + combined_station, fields[0])
+        gui.add_message_at(our_player, "(1927) -*---> combined_halt : " + combined_halt, fields[0])
+        gui.add_message_at(our_player, "(1927) -*---> extension_tile : " + extension_tile, fields[0])
+        gui.add_message_at(our_player, "(1927) -*---> st.get_factory_list().len() : " + st.get_factory_list().len(), fields[0])
+*/
     if ( st.get_factory_list().len() == 0 && combined_halt == false ) {
       local fl_st = st.get_factory_list()
-        //gui.add_message_at(our_player, "(1773) -*---> combined_station : " + combined_station, fields[0])
-        //gui.add_message_at(our_player, "(1773) -*---> extension_tile : " + extension_tile, fields[0])
       if ( combined_station == false && fl_st.len() == 0 && extension_tile != null ) {
         local tile = tile_x(extension_tile.x, extension_tile.y, extension_tile.get_ground_tile().z)
         if ( print_message_box == 1 ) {
