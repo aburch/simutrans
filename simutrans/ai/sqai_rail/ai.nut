@@ -9,8 +9,8 @@
 ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
-ai.author <-"dwachs/Andarix"
-ai.version <- "0.8.14"
+ai.author <- "dwachs/Andarix"
+ai.version <- "0.8.15"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -102,6 +102,7 @@ function start(pl_nr)
     player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
   }
 
+  gui.add_message_at(our_player, "### script version " + ai.version, world.get_time())
   print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
 }
 

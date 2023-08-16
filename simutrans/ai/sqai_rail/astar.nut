@@ -1384,7 +1384,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
         }
       }
 
-      if ( tile.is_crossing ) {
+      if ( tile.is_crossing() ) {
         //::debug.pause()
         // test crossing and remove
         local t_field = tile.get_way(wt)
@@ -1699,7 +1699,7 @@ function test_tile_is_empty(tile) {
   local tile_groundobj = tile.find_object(mo_groundobj)
   local tile_moving_object = tile.find_object(mo_moving_object)
 
-  //gui.add_message_at(our_player, " ---=> test_tile_is_empty " + coord3d_to_string(tile) + " | tile_tree " + tile_tree + " | tile_groundobj " + tile_groundobj + " | tile_moving_object " + tile_moving_object, tile)
+  //gui.add_message_at(our_player, " ---=> test_tile " + coord3d_to_string(tile) + " | is_empty " + tile.is_empty() + " | tile_tree " + tile_tree + " | tile_groundobj " + tile_groundobj + " | tile_moving_object " + tile_moving_object, tile)
 
   if ( tile.is_empty() ) {
     return true
@@ -2563,7 +2563,7 @@ function build_double_track(start_field, wt) {
   // 2 - terraform
   // 21 - terraform grid
   // 3 - double track diagonal
-  local print_message_box = 21
+  local print_message_box = 0
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
@@ -3126,10 +3126,18 @@ function build_double_track(start_field, wt) {
                 }*/
               }
 
+              tile_build_slope = [4, 12, 28, 36]
+              if ( tile_build_slope.find(tiles_build[i].get_slope()) != null ) {
+                terraform_tile = 0
+              }
+
+              // double hight 8, 24, 56, 72
+
+
               // terraform tile
               if ( terraform_tile == 1 ) { //&& ref_hight.z < build_hight.z
                 if ( print_message_box == 21 ) {
-                  gui.add_message_at(b_player, "#3112# terraform down ", world.get_time())
+                  gui.add_message_at(b_player, "#3132# terraform down ", world.get_time())
                   //gui.add_message_at(b_player, " tile_a1.get_slope() " + tile_a1.get_slope(), tile_a1)
                 }
                 do {
