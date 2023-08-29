@@ -10,6 +10,9 @@
 #include "obj_base_desc.h"
 #include "../simtypes.h"
 
+#include <string>
+
+
 #define NO_SOUND (sint16)(0xFFFFu)
 #define LOAD_SOUND (sint8)(0xFFFEu)
 
@@ -54,7 +57,7 @@ public:
 
 	static bool register_desc(sound_desc_t *desc);
 
-	static void init();
+	static void init(const std::string &pak_dir);
 
 	/* return old sound id from index */
 	static sint16 get_compatible_sound_id(const sint8 nr) { return compatible_sound_id[nr&(15)]; }

@@ -57,42 +57,46 @@ sint16 sound_desc_t::climate_sounds[MAX_CLIMATES]=
 
 
 /* init sounds */
-/* standard sounds and old sounds are found in the file pak/sound/sound.tab */
-void sound_desc_t::init()
+/* standard sounds and old sounds are found in the file <pakset>/sound/sound.tab */
+void sound_desc_t::init(const std::string &pak_dir)
 {
 	// ok, now init
 	sound_on = true;
-	sound_path = env_t::base_dir;
-	sound_path= sound_path + env_t::pak_name + "sound/";
-	// process sound.tab
+	sound_path = pak_dir + "sound/";
+
 	tabfile_t soundconf;
-	if (soundconf.open((sound_path + "sound.tab").c_str())) {
+	const std::string tabfilename = pak_dir + "sound/sound.tab";
+
+	if (!soundconf.open(tabfilename.c_str())) {
+		return;
+	}
+
 DBG_MESSAGE("sound_desc_t::init()","successfully opened sound/sound.tab"  );
-		tabfileobj_t contents;
-		soundconf.read(contents);
-		// max. 16 old sounds ...
-		for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
-			char buf[1024];
-			sprintf(buf, "sound[%i]", i);
-			const char *fn=ltrim(contents.get(buf));
-			if(fn[0]>0) {
+	tabfileobj_t contents;
+	soundconf.read(contents);
+
+	// max. 16 old sounds ...
+	for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
+		char buf[1024];
+		sprintf(buf, "sound[%i]", i);
+		const char *fn=ltrim(contents.get(buf));
+		if(fn[0]>0) {
 DBG_MESSAGE("sound_desc_t::init()","reading sound %s", fn  );
-				compatible_sound_id[i] = get_sound_id( fn );
+			compatible_sound_id[i] = get_sound_id( fn );
 DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
-			}
-		}
-		// now assign special sounds for climates, beaches and forest
-		beach_sound = get_sound_id( "beaches.wav" );
-		forest_sound = get_sound_id( "forest.wav" );
-		for(  int i=0;  i<MAX_CLIMATES;  i++  ) {
-			char name[64];
-			sprintf( name, "%s.wav", ground_desc_t::get_climate_name_from_bit((climate)i) );
-			climate_sounds[i] = get_sound_id( name );
 		}
 	}
+
+	// now assign special sounds for climates, beaches and forest
+	beach_sound = get_sound_id( "beaches.wav" );
+	forest_sound = get_sound_id( "forest.wav" );
+
+	for(  int i=0;  i<MAX_CLIMATES;  i++  ) {
+		char name[64];
+		sprintf( name, "%s.wav", ground_desc_t::get_climate_name_from_bit((climate)i) );
+		climate_sounds[i] = get_sound_id( name );
+	}
 }
-
-
 
 
 /* return sound id from index */
