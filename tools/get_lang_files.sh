@@ -17,12 +17,11 @@ OUTPUT_DIR=simutrans/text
 # get the translations for basis
 # The first file is longer, but only because it contains SQL error messages
 # - discard it after complete download (although parsing it would give us the archive's name):
-
 # first test which URL actually works
-TRANSLATOR_URL="https://translator.simutrans.com"
-nslookup translator.simutrans.com > /dev/null
+TRANSLATOR_URL=https://makie.de/translator
+nslookup makie.de > /dev/null
 if [ $? -eq 0 ]; then
-	TRANSLATOR_URL=https://makie.de/translator
+	TRANSLATOR_URL=https://translator.simutrans.com
 fi
 echo "Using translator at $TRANSLATOR_URL"
 
