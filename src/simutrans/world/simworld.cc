@@ -6342,7 +6342,13 @@ void karte_t::announce_server(server_announce_type_t status)
 		buf.printf( "&convoys=%u",   convoys().get_count());
 		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 
-		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
+		if (network_http_post(ANNOUNCE_SERVER1, ANNOUNCE_URL, buf, NULL)) {
+			if (network_http_post(ANNOUNCE_SERVER2, ANNOUNCE_URL, buf, NULL)) {
+				if (network_http_post(ANNOUNCE_SERVER3, ANNOUNCE_URL, buf, NULL)) {
+					dbg->warning("announce_server", "All announce servers down!");
+				}
+			}
+		}
 
 		// Record time of this announce
 		server_last_announce_time = dr_time();

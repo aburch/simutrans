@@ -275,9 +275,13 @@ bool server_frame_t::update_serverlist ()
 	// Download game listing from listings server into memory
 	cbuffer_t buf;
 
-	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
-		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
-		return false;
+	if (const char* err = network_http_get(ANNOUNCE_SERVER1, ANNOUNCE_LIST_URL, buf)) {
+		if (err = network_http_get(ANNOUNCE_SERVER2, ANNOUNCE_LIST_URL, buf)) {
+			if (err = network_http_get(ANNOUNCE_SERVER3, ANNOUNCE_LIST_URL, buf)) {
+				dbg->error("server_frame_t::update_serverlist", "could not download list: %s", err);
+				return false;
+			}
+		}
 	}
 
 	// Parse listing into CSV_t object
