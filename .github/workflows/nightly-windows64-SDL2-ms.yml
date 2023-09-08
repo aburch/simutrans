@@ -34,7 +34,7 @@ jobs:
       uses: johnwason/vcpkg-action@v5
       id: vcpkg
       with:
-      pkgs: freetype miniupnpc pthreads zstd sdl2
+        pkgs: freetype miniupnpc pthreads zstd sdl2
         triplet: x64-windows-static
         token: ${{ github.token }}
 
@@ -45,10 +45,10 @@ jobs:
 
     - name: CI-Build
       shell: msys2 {0}
-	  run: |
+      run: |
         mv "build/SDL2/Simutrans SDL2 Nightly.exe" sim.exe
         sh tools/distribute.sh
-	    mv simu*.zip simuwin64-SDL2-nightly.zip
+        mv simu*.zip simuwin64-SDL2-nightly.zip
 
     - name: Update binaries of Nightly Release
       uses: svenstaro/upload-release-action@v2
