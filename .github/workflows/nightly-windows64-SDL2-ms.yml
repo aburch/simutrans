@@ -1,0 +1,61 @@
+# This workflow sets up and runs MSBuild and VSTest 
+# to build and test a Visual Studio solution.
+
+name: Nightly Built Windows
+
+on: [push]
+
+jobs:
+  winSDL2-64:
+    runs-on: windows-latest
+    steps:
+  
+  steps:
+    - name: Setup MSBuild and add to PATH
+      uses: microsoft/setup-msbuild@v1.0.0
+      id: setup_msbuild
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+      id: checkout_code
+
+    - name: Prepares NSIS plugins
+      run: ./.github/prepare-nsis.ps1
+      shell: powershell
+
+    - name: Create nsis installer
+      uses: joncloud/makensis-action@v4
+      with:
+        arguments: "/V3"
+        additional-plugin-paths: NSIS_Plugins/Plugins
+        script-file: src/Windows/nsis/onlineupgrade.nsi
+
+    - name: vcpkg build
+      uses: johnwason/vcpkg-action@v5
+      id: vcpkg
+      with:
+      pkgs: freetype miniupnpc pthreads zstd sdl2
+        triplet: x64-windows-static
+        token: ${{ github.token }}
+
+    - name: Run MSBuild
+      triplet: 'x64-windows-static'
+      run: |
+         msbuild .\Simutrans-SDL2.vcxproj -p:Configuration=Release /p:platform=x64
+
+    - name: CI-Build
+      shell: msys2 {0}
+	  run: |
+        mv "build/SDL2/Simutrans SDL2 Nightly.exe" sim.exe
+        sh tools/distribute.sh
+	    mv simu*.zip simuwin64-SDL2-nightly.zip
+
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./simuwin64-SDL2-nightly.zip
+        asset_name: simuwin64-SDL2-nightly.zip
+        tag: Nightly
+        overwrite: true
+
