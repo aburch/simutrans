@@ -54,8 +54,8 @@ jobs:
         yes | sdkmanager --licenses
         yes | sdkmanager --install "platform-tools"
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        yes | sdkmanager --install "build-tools;34.0.0-rc3"
-        echo "$ANDROID_HOME/build-tools/34.0.0-rc3" >> $GITHUB_PATH
+        yes | sdkmanager --install "build-tools;34.0.0"
+        echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
         yes | sdkmanager --install "cmake;3.22.1"
         echo "$ANDROID_HOME/cmake/3.22.1/bin" >> $GITHUB_PATH
         yes | sdkmanager --install "ndk;25.1.8937393"
