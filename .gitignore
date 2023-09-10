@@ -5,6 +5,7 @@
 /Debug
 /Release
 /build
+/vcpkg*
 /config.*
 /makeobj/makeobj
 /makeobj/makeobj.exe

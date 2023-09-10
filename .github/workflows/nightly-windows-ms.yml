@@ -1,12 +1,12 @@
 # This workflow sets up and runs MSBuild and VSTest 
 # to build and test a Visual Studio solution.
 
-name: Nightly Built Windows64 SDL2
+name: Nightly Built Windows32 GDI
 
 on: [push]
 
 jobs:
-  winSDL2-64:
+  winGDI-32:
    runs-on: windows-latest
    steps:
     - name: Setup MSBuild and add to PATH
@@ -36,21 +36,21 @@ jobs:
         ./bootstrap-vcpkg.bat
         ./vcpkg integrate install
         cd ..
-        msbuild /m .\Simutrans-SDL2.vcxproj -p:Configuration=Release /p:platform=x64
+        msbuild /m .\Simutrans-GDI.vcxproj -p:Configuration=Release /p:platform=Win32
 
     - name: Build zipfile
       shell: pwsh
       run: |
-        move-item "build/SDL2/Simutrans SDL2 Nightly.exe" "simutrans/simutrans.exe"
+        move-item "build/GDI/Simutrans GDI Nightly.exe" "simutrans/simutrans.exe"
         tools/get_lang_files.ps1
-        Compress-Archive -Path simutrans -DestinationPath "simuwin64-SDL2-nightly.zip"
+        Compress-Archive -Path simutrans -DestinationPath "simuwin-gdi32-nightly.zip"
         dir
 
     - name: Update binaries of Nightly Release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./simuwin64-SDL2-nightly.zip
-        asset_name: simuwin64-SDL2-nightly.zip
+        file: ./simuwin-gdi32-nightly.zip
+        asset_name: simuwin-gdi32-nightly.zip
         tag: Nightly
         overwrite: true

@@ -22,7 +22,7 @@ cat Makefile.mingw | sed 's|[ \t]wingenminiupnpcstrings.exe |'"$(printf '\t')"'.
 make -f Makefile.mingw2
 cp libminiupnpc.a $MINGW_PREFIX/lib
 cp *.h $MINGW_PREFIX/lib
-mkdir $MINGW_PREFIX/include/miniupnpc
+mkdir -p $MINGW_PREFIX/include/miniupnpc
 cp *.h $MINGW_PREFIX/include/miniupnpc
 
 cd ../..
@@ -33,3 +33,4 @@ rm -rf miniupnpc-master
 for f in libbrotlidec libbrotlienc libbrotlicommon; do
 	mv "$MINGW_PREFIX/lib/$f-static.a" "$MINGW_PREFIX/lib/$f.a"
 done
+
