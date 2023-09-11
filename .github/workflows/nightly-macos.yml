@@ -12,7 +12,11 @@ jobs:
 
     - name: install_dependencies
       run: |
-        brew install cmake pkg-config libpng sdl2 freetype fluidsynth zstd
+        # Build with fluidsynth temporarily disabled until issue with homebrew is solved
+        # See https://github.com/Homebrew/homebrew-core/issues/140930
+        brew update
+        brew reinstall cmake pkg-config libpng freetype zstd
+        brew install sdl2 #fluidsynth
 
     - name: build
       run: |
