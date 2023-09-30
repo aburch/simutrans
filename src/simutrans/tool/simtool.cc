@@ -7703,6 +7703,10 @@ bool tool_change_depot_t::init( player_t *player )
 			depot->disassemble_convoi( cnv, tool=='v' );
 			break;
 		}
+		case 'V': { // sell all convoys
+			depot->disassemble_all_convois( tool=='V' );
+			break;
+		}
 		case 'c': { // copy this convoi
 			if(  cnv.is_bound()  ) {
 				if(  convoihandle_t::is_exhausted()  ) {

@@ -1162,7 +1162,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			}
 		}
 		else if(  comp == &bt_sell  ) {
-			depot->call_depot_tool('v', cnv, NULL);
+			char tool = (event_get_last_control_shift() ^ tool_t::control_invert)==2 ? 'V' : 'v'; // sell all with CTRL-click
+			depot->call_depot_tool( tool, cnv, NULL);
 		}
 		// image list selection here ...
 		else if(  comp == &convoi  ) {

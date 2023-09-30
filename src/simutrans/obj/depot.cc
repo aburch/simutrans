@@ -374,6 +374,16 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 	return false;
 }
 
+bool depot_t::disassemble_all_convois(bool sell)
+{
+	uint32 i = 0;
+	while(  i < convois.get_count()  ) {
+		if(  !disassemble_convoi( convois.at(i), sell )  ) {
+			i++;
+		}
+	}
+	return (convois.get_count() == 0);
+}
 
 bool depot_t::start_all_convoys()
 {

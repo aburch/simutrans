@@ -109,6 +109,7 @@ public:
 	 * or sell all immediately (sell==true).
 	 */
 	bool disassemble_convoi(convoihandle_t cnv, bool sell);
+	bool disassemble_all_convois(bool sell);
 
 	/**
 	 * Remove the convoi from the depot lists
