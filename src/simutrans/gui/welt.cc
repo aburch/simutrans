@@ -95,8 +95,6 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	// Component creation
 	set_table_layout(1,0);
 	// top part: preview, maps size
-	new_component<gui_label_t>("1WORLD_CHOOSE");
-	new_component<gui_divider_t>();
 	add_table(3,1);
 	{
 		// input fields
