@@ -4,16 +4,19 @@
  */
 
 #include "gui_numberinput.h"
+
 #include "../gui_frame.h"
 #include "../simwin.h"
 #include "../../display/simgraph.h"
 #include "../../macros.h"
 #include "../../dataobj/translator.h"
 
+
 uint32 log10( uint32 ); // simrandom.h
 
 
 char gui_numberinput_t::tooltip[256];
+
 
 gui_numberinput_t::gui_numberinput_t() :
 	gui_component_t(true)
@@ -42,8 +45,9 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 }
 
-void gui_numberinput_t::set_size(scr_size size_par) {
 
+void gui_numberinput_t::set_size(scr_size size_par)
+{
 	gui_component_t::set_size(size_par);
 
 	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w - D_H_SPACE, size_par.h) );
@@ -53,16 +57,19 @@ void gui_numberinput_t::set_size(scr_size size_par) {
 	bt_right.align_to( &textinp, scr_coord( D_H_SPACE / 2, 0) );
 }
 
+
 scr_size gui_numberinput_t::get_max_size() const
 {
 	return get_min_size();
 }
+
 
 scr_size gui_numberinput_t::get_min_size() const
 {
 	return scr_size(max_numbertext_width + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2*D_H_SPACE,
 					max(LINESPACE+4, max( max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT), D_EDIT_HEIGHT)) );
 }
+
 
 void gui_numberinput_t::set_value(sint32 new_value)
 {
@@ -94,7 +101,6 @@ sint32 gui_numberinput_t::get_value()
 {
 	return clamp( value, min_value, max_value );
 }
-
 
 
 bool gui_numberinput_t::check_value(sint32 _value)
@@ -163,7 +169,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *comp, value_t /*
 }
 
 
-sint8 gui_numberinput_t::percent[7] = { 0, 1, 5, 10, 20, 50, 100 };
+static const sint8 load_percents[7] = { 0, 1, 5, 10, 20, 50, 100 };
 
 sint32 gui_numberinput_t::get_next_value()
 {
@@ -195,9 +201,9 @@ sint32 gui_numberinput_t::get_next_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value - (sint64)min_value;
-			for( int i=0;  i<7;  i++  ) {
-				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
-					return min_value+(sint32)((diff*percent[i])/100l);
+			for( size_t i=0;  i<lengthof(load_percents);  i++  ) {
+				if(  value-min_value < ((diff*(sint64)load_percents[i])/100l)  ) {
+					return min_value+(sint32)((diff*load_percents[i])/100l);
 				}
 			}
 			return max_value;
@@ -239,9 +245,9 @@ sint32 gui_numberinput_t::get_prev_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value-(sint64)min_value;
-			for( int i=6;  i>=0;  i--  ) {
-				if(  value-min_value > ((diff*percent[i])/100l)  ) {
-					return min_value+(sint32)((diff*percent[i])/100l);
+			for( int i = (int)lengthof(load_percents)-1;  i>=0;  i--  ) {
+				if(  value-min_value > ((diff*load_percents[i])/100l)  ) {
+					return min_value+(sint32)((diff*load_percents[i])/100l);
 				}
 			}
 			return min_value;
