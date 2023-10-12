@@ -677,6 +677,9 @@ name=Departed
 obj=program_text
 name=Depots
 -
+obj=program_text
+name=Depot
+-
 obj=error_text
 name=Der Besitzer erlaubt das Entfernen nicht
 -
