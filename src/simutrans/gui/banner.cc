@@ -157,7 +157,7 @@ bool banner_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	else if(  comp == &load_scenario  ) {
 		destroy_all_win(true);
-		create_win( new scenario_frame_t(), w_info, magic_load_t );
+		create_win( new scenario_frame_t(), w_info, magic_load_scenario );
 	}
 	else if(  comp == &options  ) {
 		destroy_all_win(true);

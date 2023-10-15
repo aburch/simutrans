@@ -512,7 +512,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 	else if(comp==&load_scenario) {
 		destroy_all_win(true);
 		welt->get_message()->clear();
-		create_win( new scenario_frame_t(), w_info, magic_load_t );
+		create_win( new scenario_frame_t(), w_info, magic_load_scenario );
 	}
 	else if(comp==&start_game) {
 		destroy_all_win(true);

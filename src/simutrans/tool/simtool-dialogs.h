@@ -250,7 +250,6 @@ public:
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
 		if(  !env_t::server  ) {
-			destroy_all_win(true);
 			create_win(new loadsave_frame_t(true), w_info, magic_load_t);
 		}
 		else {
@@ -284,13 +283,13 @@ class dialog_script_tool_t : public tool_t {
 public:
 	dialog_script_tool_t() : tool_t(DIALOG_SCRIPT_TOOL | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load tool script"); }
-	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_script); }
 	bool init(player_t*) OVERRIDE{
 		destroy_win(magic_save_t);
-		create_win( new script_tool_frame_t(), w_info, magic_load_t );
+		create_win( new script_tool_frame_t(), w_info, magic_load_script );
 		return false;
 	}
-	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_t); return false; }
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_script); return false; }
 	bool is_init_keeps_game_state() const OVERRIDE{ return true; }
 };
 
@@ -299,21 +298,20 @@ class dialog_scenario_t : public tool_t {
 public:
 	dialog_scenario_t() : tool_t(DIALOG_SCENARIO | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load scenario"); }
-	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_scenario); }
 	bool init(player_t*) OVERRIDE{
 		destroy_win(magic_save_t);
 		if(  !env_t::server  ) {
-			destroy_all_win(true);
-			create_win( new scenario_frame_t(), w_info, magic_load_t );
+			create_win( new scenario_frame_t(), w_info, magic_load_scenario );
 		}
 		else {
-			create_win( new scenario_frame_t(), w_info, magic_load_t );
-			const scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
+			create_win( new scenario_frame_t(), w_info, magic_load_scenario );
+			const scr_coord pos = win_get_pos( win_get_magic(magic_load_scenario) );
 			create_win( pos + scr_coord{ 20, 20 }, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
 		}
 		return false;
 	}
-	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_t); return false; }
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_scenario); return false; }
 	bool is_init_keeps_game_state() const OVERRIDE{ return true; }
 };
 

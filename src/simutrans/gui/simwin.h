@@ -54,6 +54,8 @@ enum magic_numbers {
 	magic_optionen_gui_t,
 	magic_sound_kontroll_t,
 	magic_load_t,
+	magic_load_scenario,
+	magic_load_script,
 	magic_save_t,
 	magic_UNUSED_railtools,
 	magic_UNUSED_monorailtools,
