@@ -218,7 +218,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_frame_bottom     = 10;
 	gui_hspace           = 4;
 	gui_vspace           = 4;
-	gui_filelist_vspace  = 0;
+	gui_filelist_vspace  = 1;
 	gui_waitingbar_width = 4;
 	gui_divider_size.h   = D_V_SPACE*2;
 

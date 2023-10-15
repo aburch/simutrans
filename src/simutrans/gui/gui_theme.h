@@ -289,7 +289,7 @@ public:
 	static scr_coord_val gui_vspace;
 	static scr_coord_val gui_waitingbar_width;
 
-	// one special entries, since there are lot of lists with files/fonts/paks/... where zero spacing could fit more entires on the screen
+	// one special entries, since there are lot of lists with files/fonts/paks/... where less spacing could fit more entires on the screen
 	static scr_coord_val gui_filelist_vspace;
 	/// @}
 
