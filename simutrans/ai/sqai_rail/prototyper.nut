@@ -27,6 +27,7 @@ class cnv_proto_t
   constructor()
   {
     veh = []
+    debug = false
   }
 
   /**

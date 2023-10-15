@@ -46,17 +46,17 @@ class industry_connection_planner_t extends manager_t
   {
     base.constructor("industry_connection_planner_t");
     fsrc = s; fdest = d; freight = f;
+    debug = false
   }
 
   /**
    * Evaluates transport by road, rail and ships.
    * Returns the corresponding reports.
    * In addition, returns amphibious_connection_planner_t.
-   * This planner will start to work if the connection by road or ship did not succeed.
+   * This planner will start to work if the connection by road, rail or ship did not succeed.
    */
   function step()
   {
-    debug = true
     local tic = get_ops_total();
 
     // limit links to transport good
@@ -84,7 +84,7 @@ class industry_connection_planner_t extends manager_t
       return r_t(RT_TOTAL_FAIL)
     }
 
-    if ( build_check_month > world.get_time().month ) {
+    if ( build_check_month > world.get_time().ticks ) {
       // not plan link
       if (debug) gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
       if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
@@ -164,6 +164,13 @@ class industry_connection_planner_t extends manager_t
    */
   function plan_simple_connection(wt, start, target, distance = 0)
   {
+
+    // set line build cost 0
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 1)
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 2)
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, 0, 3)
+
+
     // compute correct distance
     if (distance == 0) {
       foreach(i in ["x", "y"]) {
@@ -216,7 +223,7 @@ class industry_connection_planner_t extends manager_t
     prototyper.valuate = bound_valuator
 
     if (prototyper.step().has_failed()) {
-      gui.add_message_at(our_player, "ERROR # no " + wt_name[wt] + " vehicle found for freight " + freight, world.get_time())
+      if (debug) gui.add_message_at(our_player, "ERROR # no " + wt_name[wt] + " vehicle found for freight " + freight, world.get_time())
       return null
     }
     local planned_convoy = prototyper.best
@@ -421,6 +428,15 @@ class industry_connection_planner_t extends manager_t
         //if (debug) gui.add_message_at(our_player, "-check build station rail- calc_route " + calc_route, world.get_time())
       }
 
+    }
+
+    // save build cost to link
+    if ( wt == wt_rail ) {
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, build_cost, 1)
+    } else if ( wt == wt_road ) {
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, build_cost, 2)
+    } else if ( wt == wt_water ) {
+      industry_manager.set_link_build_cost(fsrc, fdest, freight, build_cost, 3)
     }
 
     local conv_capacity = planned_convoy.capacity
@@ -728,6 +744,7 @@ class industry_connection_planner_t extends manager_t
 
     // successfull - complete report
     r.cost_fix     = build_cost
+
     r.cost_monthly = (r.distance * planned_way.get_maintenance()) + ((count*2)*planned_station.get_maintenance()) + planned_depot.get_maintenance() + planned_bridge.montly_cost
 
     // fixed cost convoy

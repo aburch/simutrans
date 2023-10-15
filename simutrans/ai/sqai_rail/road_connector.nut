@@ -35,7 +35,7 @@ class road_connector_t extends manager_t
   constructor()
   {
     base.constructor("road_connector_t")
-    debug = true
+    debug = false
   }
 
   function work()
@@ -50,27 +50,36 @@ class road_connector_t extends manager_t
     local fs = fsrc.get_tile_list()
     local fd = fdest.get_tile_list()
 
-    if ( !check_link_catg_goods(fsrc, fdest, freight) && phase == 0 ) {
-      //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") exists catg links", world.get_time())
-      return r_t(RT_TOTAL_FAIL) //
-    } else if ( check_factory_links(fsrc, fdest, freight) >= 2 && phase == 0 ) {
-      //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
-      return r_t(RT_TOTAL_FAIL) //
-    } else {
-      //gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
-      local st_dock = search_station(c_start, wt_water, 1)
-      if ( !check_factory_link_line(fsrc, fdest, freight) && !st_dock ) {
+    if ( phase == 0 ) {
+      if ( !check_link_catg_goods(fsrc, fdest, freight) ) {
+        //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") exists catg links", world.get_time())
+        return r_t(RT_TOTAL_FAIL) //
+      } else if ( check_factory_links(fsrc, fdest, freight) >= 2 ) {
+        //gui.add_message_at(pl, "no build line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") to many links", world.get_time())
+        return r_t(RT_TOTAL_FAIL) //
+      } else {
+        //gui.add_message_at(pl, "check line from " + fsrc.get_name() + " (" + coord_to_string(fs[0]) + ") to " + fdest.get_name() + " (" + coord_to_string(fd[0]) + ") " + freight, world.get_time())
+        local st_dock = search_station(c_start, wt_water, 1)
+        if ( !check_factory_link_line(fsrc, fdest, freight) && !st_dock ) {
+          return r_t(RT_TOTAL_FAIL)
+        }
+      }
+      local build_cash = player_x(our_player.nr).get_current_cash() + (((player_x(our_player.nr).get_current_net_wealth()/100) - player_x(our_player.nr).get_current_cash())/2)
+      local build_cost = industry_manager.get_link_build_cost(fsrc, fdest, freight, 2)
+      if ( industry_manager.get_link_build_cost(fsrc, fdest, freight, 0) > 0 ) {
+        build_cost = industry_manager.get_link_build_cost(fsrc, fdest, freight, 0)
+      }
+      if ( (build_check_month > world.get_time().ticks || build_cost > build_cash) && industry_manager.get_combined_link(fsrc, fdest, freight) == 0 ) {
+        // not build link
+        gui.add_message_at(our_player, "#road_conn# not build line : build_check_month = " + build_check_month + " or build cost link > cash : build cost line " + industry_manager.get_link_build_cost(fsrc, fdest, freight, 2) + " | build cost link " + industry_manager.get_link_build_cost(fsrc, fdest, freight, 0), world.get_time())
+        gui.add_message_at(our_player, " ---> link " + fsrc + "  " + fsrc.get_name() + " - " + fdest.get_name(), world.get_time())
+
+        industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+
         return r_t(RT_TOTAL_FAIL)
       }
     }
 
-    if ( build_check_month > world.get_time().month ) {
-      // not build link
-      if ( print_message_box == 4 ) {
-        gui.add_message_at(our_player, " not build line : build_check_month = " + build_check_month, world.get_time())
-      }
-      return r_t(RT_TOTAL_FAIL)
-    }
 
     switch(phase) {
       case 0:  // station places
@@ -111,6 +120,7 @@ class road_connector_t extends manager_t
 
           // test route for calculate cost
           local calc_route = test_route(our_player, c_start, c_end, planned_way)
+          //gui.add_message_at(our_player, "plan road from " + coord_to_string(c_start[0]) + " to " + coord_to_string(c_end[0]), world.get_time())
           if ( print_message_box == 1 && calc_route != "No route" ) {
             gui.add_message_at(our_player, "distance " + (calc_route.routes.len() + calc_route.bridge_lens), world.get_time())
           }
@@ -157,8 +167,7 @@ class road_connector_t extends manager_t
             //gui.add_message_at(pl, "Way construction cost to height: cash: " + pl.get_current_cash() + " build cost: " + build_cost, world.get_time())
             industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
 
-            build_check_month = world.get_time().month + 2
-            if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
+            build_check_month = world.get_time().ticks + (build_check_time(build_cost) + world.get_time().ticks_per_month)
 
             return error_handler()
           }
@@ -189,15 +198,14 @@ class road_connector_t extends manager_t
           if ( print_message_box == 1 ) { gui.add_message_at(our_player, "Build road from " + coord_to_string(c_start) + " to " + coord_to_string(c_end), world.get_time()) }
           phase ++
         }
-      case 2: // build station
+      case 2: // build station and extensions
         {
           local err = null
           local obj_building = tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building)
           if ( obj_building != null && obj_building.get_owner() != our_player ) {
             if (debug) gui.add_message_at(pl, " --- tile to build station not free", c_start)
 
-            build_check_month = world.get_time().month + 1
-            if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
+            build_check_month = world.get_time().ticks + world.get_time().ticks_per_month
 
             return restart_with_phase0()
             //return error_handler()
@@ -268,22 +276,6 @@ class road_connector_t extends manager_t
           }
 
           phase += 3
-        }
-      case 3: // find depot place
-        {
-          /*
-          local trial = 0
-          local err = null
-          do { // try 3x to find road to suitable depot spot
-            err = construct_road_to_depot(pl, c_start, planned_way)
-            trial ++
-          } while (err != null  &&  err != "No route"  &&  trial < 3)
-          if (err) {
-            print("Failed to build depot access from " + coord_to_string(c_start))
-            return error_handler()
-          }
-          */
-          //phase += 2
         }
       case 5: // build depot
         {
@@ -379,7 +371,7 @@ class road_connector_t extends manager_t
           c_line.change_schedule(pl, c_sched);
           phase ++
         }
-      case 8: // append vehicle_constructor
+      case 8: // append vehicle_constructor and set line
         {
           local c = vehicle_constructor_t()
           c.p_depot  = depot_x(c_depot.x, c_depot.y, c_depot.z)
@@ -397,35 +389,35 @@ class road_connector_t extends manager_t
           c_generate_start = c_start == null
           c_generate_end   = c_end   == null
 
+          // rename line
+          local line_name = c_line.get_name()
+          local str_search = ") " + translate("Line")
+          local st_names = c_line.get_schedule().entries
+          if ( line_name.find(str_search) != null ) {
+            local new_name = translate("road") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
+            c_line.set_name(new_name)
+          }
+
           phase ++
 
           return r_t(RT_PARTIAL_SUCCESS)
         }
-      case 9: // build station extension
+      case 9: // currently not used
         {
-          // optimize way line save in c_route
-          if ( tile_x(c_start.x, c_start.y, c_start.z).find_object(mo_building) != null && tile_x(c_end.x, c_end.y, c_end.z).find_object(mo_building) != null && c_route.len() > 0 ) {
-            // tile c_start ans c_end have station
-            if (our_player.get_current_cash() > 50000) {
-              //optimize_way_line(c_route, wt_road)
-            }
 
-            // rename line
-            local line_name = c_line.get_name()
-            local str_search = ") " + translate("Line")
-            local st_names = c_line.get_schedule().entries
-            if ( line_name.find(str_search) != null ) {
-              local new_name = translate("road") + " " + translate(freight) + " " + st_names[0].get_halt(pl).get_name() + " - " + st_names[1].get_halt(pl).get_name()
-              c_line.set_name(new_name)
-            }
-          }
         }
     }
 
     if (finalize) {
       industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+      if ( industry_manager.get_combined_link(fsrc, fdest, freight) > 0 ) {
+        local a = industry_manager.get_combined_link(fsrc, fdest, freight) - 1
+        industry_manager.set_combined_link(fsrc, fdest, freight, a)
+      }
     }
     industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
+
+    //gui.add_message_at(pl, "Build cost link " + industry_manager.get_link_build_cost(fsrc, fdest, freight, 2), world.get_time())
 
     local cs = c_start
     local ce = c_end

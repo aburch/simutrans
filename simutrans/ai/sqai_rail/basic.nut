@@ -90,6 +90,10 @@ class node_seq_t extends node_t
     }
 
     local ret = nodes[next_to_step].step()
+    if ( ret == null ) {
+      gui.add_message_at(our_player, "####### nodes[next_to_step].step() is null; nodes.len() = " + nodes.len() + " # next_to_step " + next_to_step, world.get_time())
+      return r_t(RT_ERROR);
+    }
     // take nodes report
     if (ret.report) {
       append_report(ret.report)
@@ -113,8 +117,7 @@ class node_seq_t extends node_t
     else if (next_to_step > nodes.len()) {
       rc = RT_SUCCESS // done with stepping all nodes
 
-      build_check_month = world.get_time().month + 1
-      if ( build_check_month > 11 ) { build_check_month = build_check_month - 11 }
+      build_check_month = world.get_time() + world.get_time().ticks_per_month
     }
     return r_t(rc)
   }
@@ -172,27 +175,40 @@ class manager_t extends node_seq_t
     reports = []
   }
 
-	function step()
-	{
-		dbgprint("stepping a child")
-		local r = base.step()
-		if (r.has_failed()) {
-			if ("error_handler" in this) {
-				return error_handler()
-			}
-		}
-		if (r.code == RT_DONE_NOTHING  ||  r.code == RT_SUCCESS) {
-			// all nodes were stepped
-			dbgprint("doing some work")
-			return work()
-		}
-		dbgprint("stepped a child")
-		return r
-	}
+  function step()
+  {
+
+    month_check_message()
+
+    if ( build_check_month > world.get_time().ticks ) {
+      // not plan link
+      //if (debug) gui.add_message_at(our_player, " not plan link : build_check_month = " + build_check_month, world.get_time())
+      //if (debug) gui.add_message_at(our_player, " for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, world.get_time())
+
+      //return RT_DONE_NOTHING
+    }
+
+
+      dbgprint("stepping a child")
+      local r = base.step()
+      if (r.has_failed()) {
+        if ("error_handler" in this) {
+          return error_handler()
+        }
+      }
+      if (r.code == RT_DONE_NOTHING  ||  r.code == RT_SUCCESS) {
+        // all nodes were stepped
+        dbgprint("doing some work")
+        return work()
+      }
+      dbgprint("stepped a child")
+      return r
+
+  }
 
   function work()
   {
-    if ( month_count ) {
+    /*if ( month_count ) {
         month_count = false
         month_count_ticks = world.get_time().next_month_ticks
 
@@ -228,8 +244,8 @@ class manager_t extends node_seq_t
       month_count = true
     }
 
-    set_map_vehicles_counts()
-
+    set_map_vehicles_counts()*/
+    month_check_message()
   }
 
   function append_report(r) { reports.append(r); }
@@ -285,4 +301,86 @@ class manager_t extends node_seq_t
     }
     return best
   }
+}
+
+/*
+ * monthly message profit and net wealth
+ *
+ */
+function month_check_message() {
+
+    if ( month_count ) {
+        month_count = false
+        month_count_ticks = world.get_time().next_month_ticks
+
+        if ( our_player.is_valid() && our_player.get_type() == 4 ) {
+          local operating_profit = player_x(our_player.nr).get_operating_profit()
+          local net_wealth = player_x(our_player.nr).get_net_wealth()
+          local message_text = format(translate("%s - last month: operating profit %d net wealth %d"), our_player.get_name(), operating_profit[1], net_wealth[1])
+          gui.add_message_at(our_player, message_text, world.get_time())
+          //gui.add_message_at(our_player, "### get_current_net_wealth() " + (player_x(our_player.nr).get_current_net_wealth()/100), world.get_time())
+          //gui.add_message_at(our_player, "### get_current_cash() " + player_x(our_player.nr).get_current_cash(), world.get_time())
+          //gui.add_message_at(our_player, "### net_wealth - cash " + ((player_x(our_player.nr).get_current_net_wealth()/100) - player_x(our_player.nr).get_current_cash()), world.get_time())
+          //gui.add_message_at(our_player, "### world.get_time().month " + world.get_time().month, world.get_time())
+
+          if ( operating_profit[1] < 0 ) {
+            build_check_month = world.get_time().ticks + world.get_time().ticks_per_month
+          }
+
+          local yt = world.get_time().year.tostring()
+
+          // check all 5 years ( year xxx0 and xxx5 )
+          if ( world.get_time().month == 3 ) { #(yt.slice(-1) == "0" || yt.slice(-1) == "5") &&
+            // in april
+            industry_manager.check_pl_lines()
+          }
+
+          // check all 5 years ( year xxx2 and xxx7 )
+          if ( (yt.slice(-1) == "2" || yt.slice(-1) == "7") && world.get_time().month == 4 ) {
+            // in may
+            // check unused halts
+            check_stations_connections()
+          }
+
+        }
+
+    } else if ( world.get_time().ticks > month_count_ticks ) {
+      month_count = true
+    }
+
+    set_map_vehicles_counts()
+}
+
+/*
+ *
+ *
+ */
+function build_check_time(build_cost) {
+  local operating_profit = player_x(our_player.nr).get_operating_profit()
+  local net_wealth = player_x(our_player.nr).get_current_net_wealth()/100
+  local cash = player_x(our_player.nr).get_current_cash()
+  local maintenance = player_x(our_player.nr).get_current_maintenance()/100
+
+  local k = build_cost
+
+  if ( cash > 0 ) { k -= cash + (net_wealth / 2) }
+
+  gui.add_message_at(our_player, "### k -= cash " + k, world.get_time())
+
+  local t = 0
+  if ( operating_profit[1] > 0 ) {
+    t = abs(k / operating_profit[1]).tointeger()
+  } else {
+    t = 12
+  }
+
+  gui.add_message_at(our_player, "### build_cost " + build_cost, world.get_time())
+  gui.add_message_at(our_player, "### operating_profit[1] " + operating_profit[1], world.get_time())
+  gui.add_message_at(our_player, "### build_check_time(build_cost) " + t, world.get_time())
+
+  if ( t > 24 ) {
+    t = 24
+  }
+
+  return t
 }

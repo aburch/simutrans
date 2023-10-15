@@ -66,7 +66,7 @@ class factorysearcher_t extends manager_t
   function work()
   {
     if (method < 0) {
-      method = our_player_nr % 2;
+      method = factory_strategie //our_player_nr % 2;
       froot = null
     }
 

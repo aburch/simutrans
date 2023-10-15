@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <- "dwachs/Andarix"
-ai.version <- "0.8.15"
+ai.version <- "0.9.1"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -37,10 +37,12 @@ function abs(x) { return x>0 ? x : -x }
 our_player_nr <- -1
 our_player    <- null // player_x instance
 // for single run functions in month
-month_count   <- null
+month_count   <- false
 month_count_ticks <- world.get_time().next_month_ticks
 // build check for new lines
-build_check_month <- world.get_time().month
+build_check_month <- world.get_time().ticks
+// set factory strategie - 0 = traditional method, taken from C++ implementation
+factory_strategie <- 0
 
 /*
  *  different ticks per month for bits_per_month
@@ -104,6 +106,24 @@ function start(pl_nr)
 
   gui.add_message_at(our_player, "### script version " + ai.version, world.get_time())
   print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
+
+  local player_sai_count = 0
+  for ( local i = 2; i < 16; i++ ) {
+    if ( player_x(i).is_valid() ) {
+      if ( player_x(i).get_type() == 4 ) {
+        player_sai_count++
+      }
+    }
+  }
+  //build_check_month += abs(player_count / our_player_nr)
+  build_check_month += (abs(player_sai_count / 2) * world.get_time().ticks_per_month)
+  if ( ( player_sai_count % 2 ) == 0 ) {
+    factory_strategie = 1
+    build_check_month -= world.get_time().ticks_per_month
+  } else {
+    factory_strategie = 0
+  }
+  gui.add_message_at(our_player, "### player_sai_count " + player_sai_count + " #  build_check_month " + build_check_month + " # factory_strategie " + factory_strategie, world.get_time())
 }
 
 /**
@@ -173,7 +193,7 @@ function init(pl_nr)
  */
 function step()
 {
-  if ( build_check_month <= world.get_time().month ) {
+  if ( build_check_month <= world.get_time().ticks ) {
 
     tree.step()
     s._step++
@@ -215,6 +235,10 @@ function step()
   }
   else {
     //gui.add_message_at(our_player, " ai step() break : build_check_month = " + build_check_month, world.get_time())
+
+    month_check_message()
+
+    sleep()
   }
 }
 
