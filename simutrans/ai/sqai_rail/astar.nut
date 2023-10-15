@@ -1150,7 +1150,7 @@ function terraform_tile(tile, ref_hight) {
   local print_message_box = 0
 
   if ( print_message_box > 0 ) {
-    ::debug.set_pause_on_error(true)
+    if ( debug ) ::debug.set_pause_on_error(true)
     gui.add_message_at(our_player, " ---=> terraform_tile(tile, ref_hight) tile : " + coord3d_to_string(tile) + " target hight : " + ref_hight, world.get_time())
   }
 
@@ -1242,7 +1242,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
   //}
   local l = 0
 
-  ::debug.set_pause_on_error(true)
+  if ( debug ) ::debug.set_pause_on_error(true)
 
   local new_route_s = null
   local new_route_e = null
@@ -5135,7 +5135,7 @@ function check_doubleway_in_line(route, wt) {
  */
 function destroy_line(line_obj, good, link_obj) {
 
-  ::debug.set_pause_on_error(true)
+  if ( debug ) ::debug.set_pause_on_error(true)
 
   // 1 = messages
   // 2 = debug.pause()
@@ -5839,7 +5839,7 @@ function check_home_depot(tile, wt) {
 function check_stations_connections() {
   //gui.add_message_at(our_player, "####### check_stations_connections()" , world.get_time())
 
-  ::debug.set_pause_on_error(true)
+  if ( debug ) ::debug.set_pause_on_error(true)
 
   local haltlist = []
   // list player halts
