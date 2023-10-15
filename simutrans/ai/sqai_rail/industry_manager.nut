@@ -125,6 +125,7 @@ class industry_manager_t extends manager_t
     base.constructor("industry_manager_t")
     link_list = {}
     ::industry_manager = this
+    debug = false
   }
 
   /// Generate unique key from link data
@@ -544,7 +545,7 @@ class industry_manager_t extends manager_t
   function check_link_line(link, line)
   {
 
-    ::debug.set_pause_on_error(true)
+    if ( debug ) ::debug.set_pause_on_error(true)
 
     // set first run as line build time
     /*if ( line.build_line == 0 ) {

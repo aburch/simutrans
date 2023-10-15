@@ -3734,7 +3734,7 @@ function check_way_line(start, end, wt, l, c) {
    * 4 =
    */
 
-  ::debug.set_pause_on_error(true)
+  if ( debug ) ::debug.set_pause_on_error(true)
   //debug.pause
 
   local print_message_box = 0
