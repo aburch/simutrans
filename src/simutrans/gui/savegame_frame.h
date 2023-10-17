@@ -133,7 +133,7 @@ protected:
 
 public:
 
-	savegame_frame_t(const char *suffix, bool only_directorie, const char *path, const bool delete_enabled );
+	savegame_frame_t(const char *suffix, bool only_directorie, const char *path, const bool delete_enabled = true );
 //	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true);
 	virtual ~savegame_frame_t();
 

@@ -1021,7 +1021,6 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::visualize_schedule          = contents.get_int( "visualize_schedule",          env_t::visualize_schedule ) != 0;
 
 	env_t::hide_rail_return_ticket  = contents.get_int( "hide_rail_return_ticket",   env_t::hide_rail_return_ticket ) != 0;
-	env_t::show_delete_buttons      = contents.get_int( "show_delete_buttons",       env_t::show_delete_buttons ) != 0;
 	env_t::chat_window_transparency = contents.get_int_clamped( "chat_transparency", env_t::chat_window_transparency, 0, 100);
 
 	env_t::hide_keyboard           = contents.get_int( "hide_keyboard", env_t::hide_keyboard ) != 0;

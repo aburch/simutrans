@@ -61,7 +61,7 @@ bool load_relief_frame_t::item_action(const char *fullpath)
 }
 
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", true )
 {
 	gui_aligned_container_t *table = bottom_left_frame.add_table(2, 1);
 		load_mode_label.init(translator::translate("Load mode:"), scr_coord(0, 0));

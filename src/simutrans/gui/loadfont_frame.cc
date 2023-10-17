@@ -91,8 +91,6 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 	unicode_only.pressed = use_unicode;
 	unicode_only.add_listener(this);
 	top_frame.add_component(&unicode_only, 2);
-
-	delete_enabled = false;
 }
 
 

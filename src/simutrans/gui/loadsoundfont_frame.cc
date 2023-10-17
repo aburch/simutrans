@@ -59,7 +59,6 @@ loadsoundfont_frame_t::loadsoundfont_frame_t() : savegame_frame_t(NULL,false,NUL
 	set_name( translator::translate("Select soundfont") );
 	fnlabel.set_text("Soundfonts are located in the music directory.");
 	top_frame.remove_component( &input );
-	delete_enabled = false;
 }
 
 

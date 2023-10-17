@@ -310,9 +310,6 @@ townhall_info = 0
 # (1=hide, 0=show anyway)
 hide_rail_return_ticket = 1
 
-# do not show the buttons to delete old savegames (default)
-show_delete_buttons = 0
-
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
 #only_single_info = 1

@@ -107,7 +107,7 @@ bool loadsave_frame_t::ok_action(const char *filename)
 
 
 
-loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false,"save/",env_t::show_delete_buttons)
+loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false,"save/",true)
 {
 	this->do_load = do_load;
 

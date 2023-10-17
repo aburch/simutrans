@@ -104,7 +104,6 @@ sint16 env_t::window_snap_distance = 8;
 scr_size env_t::iconsize( 32, 32 );
 uint8 env_t::chat_window_transparency = 75;
 bool env_t::hide_rail_return_ticket = true;
-bool env_t::show_delete_buttons = false;
 
 bool env_t::numpad_always_moves_map = true;
 
@@ -517,9 +516,6 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->is_version_atleast(112, 7)  ) {
 		file->rdwr_bool( second_open_closes_win );
 		file->rdwr_bool( remember_window_positions );
-	}
-	if(  file->is_version_atleast(112, 8)  ) {
-		file->rdwr_bool( show_delete_buttons );
 	}
 	if(  file->is_version_atleast(120, 1)  ) {
 		file->rdwr_str( default_theme );
