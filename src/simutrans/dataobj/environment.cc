@@ -517,6 +517,10 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( second_open_closes_win );
 		file->rdwr_bool( remember_window_positions );
 	}
+	if(  file->is_version_atleast(112, 8)  &&  file->is_version_less(123, 2)  ) {
+		bool show_delete_buttons = false;
+		file->rdwr_bool( show_delete_buttons );
+	}
 	if(  file->is_version_atleast(120, 1)  ) {
 		file->rdwr_str( default_theme );
 	}

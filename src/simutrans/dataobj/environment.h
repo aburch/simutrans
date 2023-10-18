@@ -207,9 +207,6 @@ public:
 	/// for schedules with rails hide the back ticket button
 	static bool hide_rail_return_ticket;
 
-	/// show/hide delete buttons in savegame frame
-	static bool show_delete_buttons;
-
 	/// how to sort destination of goods
 	/// @see freight_list_sorter_t::sort_mode_t
 	static uint8 default_sortmode;
