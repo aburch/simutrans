@@ -745,11 +745,13 @@ class industry_manager_t extends manager_t
           stucked_cnv.append(list[i])
         }
         // destroy no waiting goods
-        local d = start_h.get_waiting()
-        if ( d[0] == 0 && list[i].is_loading() == false ) {
-          //gui.add_message_at(our_player, "(605) ####### " + start_h.get_name() + " - destroy waiting road vehicles ", world.get_time())
-          stucked_cnv.append(list[i])
-          //remove_cnv++
+        if ( start_h != null ) {
+          local d = start_h.get_waiting()
+          if ( d[0] == 0 && list[i].is_loading() == false ) {
+            //gui.add_message_at(our_player, "(605) ####### " + start_h.get_name() + " - destroy waiting road vehicles ", world.get_time())
+            stucked_cnv.append(list[i])
+            //remove_cnv++
+          }
         }
       }
 
