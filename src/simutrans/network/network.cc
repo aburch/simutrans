@@ -551,7 +551,7 @@ network_command_t* network_get_received_command()
  * - server: accept connection to a new client
  * - all: receive commands and puts them to the received_command_queue
  */
-network_command_t* network_check_activity(karte_t *, int timeout)
+network_command_t *network_check_activity(int timeout)
 {
 	fd_set fds;
 	FD_ZERO(&fds);

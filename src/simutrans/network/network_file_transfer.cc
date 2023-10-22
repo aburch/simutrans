@@ -123,7 +123,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			}
 		}
 		// wait for join command (tolerate some wrong commands)
-		nwc = network_check_activity( NULL, 10000 ); // 10s should be enough for reply ...
+		nwc = network_check_activity(10000); // 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
@@ -198,7 +198,7 @@ const char *network_connect(const char *cp, karte_t *world)
 		// wait for join command (tolerate some wrong commands)
 		network_command_t *nwc = NULL;
 		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( NULL, 10000 );
+			nwc = network_check_activity(10000);
 			if (nwc  &&  nwc->get_id() == NWC_JOIN) break;
 		}
 		if (nwc==NULL) {
@@ -221,7 +221,7 @@ const char *network_connect(const char *cp, karte_t *world)
 		// update map counter
 		// wait for sync command (tolerate some wrong commands)
 		for(  uint8 i=0;  i<5;  ++i  ) {
-			nwc = network_check_activity( NULL, 10000 );
+			nwc = network_check_activity(10000);
 			if(  nwc  &&  nwc->get_id()==NWC_SYNC  ) break;
 		}
 		if(  nwc==NULL  ||  nwc->get_id()!=NWC_SYNC  ) {
@@ -239,7 +239,7 @@ const char *network_connect(const char *cp, karte_t *world)
 #ifndef NETTOOL // no display, no translator available
 				ls.set_progress(i);
 #endif
-				nwc = network_check_activity( NULL, 1000 );
+				nwc = network_check_activity(1000);
 				if (nwc  &&  nwc->get_id() == NWC_GAME) {
 					break;
 				}

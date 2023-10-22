@@ -98,7 +98,7 @@ network_command_t* network_get_received_command();
  * @return pointer to first received command
  * more commands can be obtained by call to network_get_received_command
  */
-network_command_t* network_check_activity(karte_t *welt, int timeout);
+network_command_t* network_check_activity(int timeout);
 
 /**
  * send data to dest:

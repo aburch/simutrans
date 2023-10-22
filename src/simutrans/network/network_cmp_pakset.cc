@@ -163,7 +163,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 				nwc_pakset_info_t *nwi = NULL;
 				// wait for nwc_pakset_info_t, ignore other commands
 				for(uint8 i=0; i<5; i++) {
-					network_command_t* nwc = network_check_activity( NULL, 10000 );
+					network_command_t* nwc = network_check_activity(10000);
 					if (nwc  &&  nwc->get_id() == NWC_PAKSETINFO) {
 						nwi = (nwc_pakset_info_t*)nwc;
 						break;
