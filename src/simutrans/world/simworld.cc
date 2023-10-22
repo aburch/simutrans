@@ -5747,7 +5747,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	// did we receive a new command?
 	uint32 ms = dr_time();
 	sint32 time_to_next_step = (sint32)next_step_time - (sint32)ms;
-	network_command_t *nwc = network_check_activity( this, time_to_next_step > 0 ? min( time_to_next_step, 5) : 0 );
+	network_command_t *nwc = network_check_activity(this, clamp(time_to_next_step, 0, 5));
 	if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 		dbg->warning("karte_t::process_network_commands", "lost connection to server");
 		network_disconnect();
