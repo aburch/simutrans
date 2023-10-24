@@ -562,11 +562,12 @@ unsigned short *dr_textur_init()
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
  */
-unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
+PIXVAL get_system_color(rgb888_t col)
 {
 	SDL_PixelFormat *fmt = SDL_AllocFormat( SDL_PIXELFORMAT_RGB565 );
-	unsigned int ret = SDL_MapRGB( fmt, (Uint8)r, (Uint8)g, (Uint8)b );
+	unsigned int ret = SDL_MapRGB(fmt, col.r, col.g, col.b);
 	SDL_FreeFormat( fmt );
+	assert((ret & 0xFFFF0000u) == 0);
 	return ret;
 }
 

@@ -80,7 +80,7 @@ unsigned short *dr_textur_init()
 	return NULL;
 }
 
-unsigned int get_system_color(unsigned int, unsigned int, unsigned int)
+PIXVAL get_system_color(rgb888_t)
 {
 	return 1;
 }

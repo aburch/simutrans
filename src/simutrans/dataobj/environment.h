@@ -242,9 +242,9 @@ public:
 
 	/// customize your tooltips
 	static bool show_tooltips;
-	static uint32 tooltip_color_rgb;
+	static rgb888_t tooltip_color_rgb;
 	static PIXVAL tooltip_color;
-	static uint32 tooltip_textcolor_rgb;
+	static rgb888_t tooltip_textcolor_rgb;
 	static PIXVAL tooltip_textcolor;
 	static uint32 tooltip_delay;
 	static uint32 tooltip_duration;
@@ -255,11 +255,11 @@ public:
 
 	// how to highlight topped (untopped windows)
 	static bool window_frame_active;
-	static uint32 front_window_text_color_rgb;
+	static rgb888_t front_window_text_color_rgb;
 	static PIXVAL front_window_text_color;
-	static uint32 bottom_window_text_color_rgb;
+	static rgb888_t bottom_window_text_color_rgb;
 	static PIXVAL bottom_window_text_color;
-	static uint32 default_window_title_color_rgb;
+	static rgb888_t default_window_title_color_rgb;
 	static PIXVAL default_window_title_color;
 	static uint8 bottom_window_darkness;
 
@@ -330,13 +330,13 @@ public:
 	static uint16 cursor_hide_range;
 
 	/// color used for cursor overlay blending
-	static uint32 cursor_overlay_color_rgb;
+	static rgb888_t cursor_overlay_color_rgb;
 	static PIXVAL cursor_overlay_color;
 
 	static sint8 show_money_message;
 
 	/// color used for solid background draw
-	static uint32 background_color_rgb;
+	static rgb888_t background_color_rgb;
 	static PIXVAL background_color;
 
 	/// true if the border shut be shown as cut through the earth

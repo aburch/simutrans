@@ -85,7 +85,7 @@ PIXVAL color_rgb_to_idx(PIXVAL color);
 /*
  * Get 24bit RGB888 colour from an index of the old 8bit palette
  */
-uint32 get_color_rgb(uint8 idx);
+rgb888_t get_color_rgb(uint8 idx);
 
 /*
  * Environment colours from RGB888 to system format
@@ -345,8 +345,8 @@ void display_pop_clip_wh(CLIP_NUM_DEF0);
 bool display_snapshot( const scr_rect &area );
 
 #if COLOUR_DEPTH != 0
-extern uint8 display_day_lights[  LIGHT_COUNT * 3];
-extern uint8 display_night_lights[LIGHT_COUNT * 3];
+extern rgb888_t display_day_lights  [LIGHT_COUNT];
+extern rgb888_t display_night_lights[LIGHT_COUNT];
 #endif
 
 #endif

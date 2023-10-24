@@ -328,12 +328,12 @@ unsigned short *dr_textur_init()
  * Transform a 24 bit RGB color into the system format.
  * @return converted color value
  */
-unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
+PIXVAL get_system_color(rgb888_t col)
 {
 #ifdef RGB555
-	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
+	return ((col.r & 0xF8) << 7) | ((col.g & 0xF8) << 2) | (col.b >> 3); // 15 Bit
 #else
-	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
+	return ((col.r & 0xF8) << 8) | ((col.g & 0xFC) << 3) | (col.b >> 3);
 #endif
 }
 

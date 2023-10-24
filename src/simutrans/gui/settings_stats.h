@@ -48,9 +48,21 @@ class settings_t;
 	numinp.append( ni );\
 	gui_label_t *lb = new_component<gui_label_t>();\
 	lb->set_text_pointer(t);\
-}\
+}
 
 #define INIT_NUM_NEW(t,a,b,c,d,e) if(  new_world  ) INIT_NUM( (t), (a), (b), (c), (d) , (e) )
+
+
+#define INIT_COLOR(t,val,step) {\
+	gui_numberinput_t *ni = new_component<gui_numberinput_t>();\
+	ni->init((sint32)((val).r << 16 | (val).g << 8 | (val).b), 0, 0x00FFFFFF, (step), 0);\
+	numinp.append(ni);\
+	gui_label_t *lb = new_component<gui_label_t>();\
+	lb->set_text_pointer(t);\
+}
+
+#define INIT_COLOR_NEW(t,val,step) if (new_world) INIT_COLOR( (t), (val), (step) )
+
 
 #define INIT_COST(t,a,b,c,d,e) \
 {\
@@ -95,6 +107,8 @@ class settings_t;
 #define READ_COST(t)           (t)((sint64)((*numiter++)->get_value()) * 100)
 #define READ_NUM_VALUE(t)      (t) = (*numiter++)->get_value()
 #define READ_NUM_VALUE_NEW(t)  if(new_world) { READ_NUM_VALUE(t); }
+#define READ_COL_VALUE(t)      do { const uint32_t v = (*numiter++)->get_value(); (t).r = v >> 16; (t).g = v >> 8; (t).b = v; } while (false)
+#define READ_COL_VALUE_NEW(t)  if (new_world) { READ_COL_VALUE(t); }
 #define READ_COST_VALUE(t)     (t) = (sint64)((*numiter++)->get_value()) * 100
 #define READ_COST_VALUE_NEW(t) if(new_world) { READ_COST_VALUE(t); }
 #define READ_BOOL(t)           (t)((*booliter++)->pressed)

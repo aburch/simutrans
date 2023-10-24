@@ -25,9 +25,9 @@ PIXVAL color_rgb_to_idx(PIXVAL color)
 }
 
 
-uint32 get_color_rgb(uint8)
+rgb888_t get_color_rgb(uint8)
 {
-	return 0;
+	return {0,0,0};
 }
 
 void env_t_rgb_to_system_colors()

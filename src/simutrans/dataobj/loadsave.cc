@@ -800,6 +800,14 @@ void loadsave_t::rdwr_long(uint32 &l)
 	l = (uint32)ll;
 }
 
+void loadsave_t::rdwr_color(rgb888_t &col)
+{
+	uint32 v = col.r<<16 | col.g<<8 | col.b;
+	rdwr_long(v);
+	col.r = v >> 16;
+	col.g = v >>  8;
+	col.b = v >>  0;
+}
 
 void loadsave_t::rdwr_longlong(sint64 &ll)
 {

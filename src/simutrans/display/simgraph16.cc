@@ -419,275 +419,79 @@ static int night_shift = -1;
 /*
  * special colors during daytime
  */
-uint8 display_day_lights[LIGHT_COUNT*3] = {
-	0x57, 0x65, 0x6F, // Dark windows, lit yellowish at night
-	0x7F, 0x9B, 0xF1, // Lighter windows, lit blueish at night
-	0xFF, 0xFF, 0x53, // Yellow light
-	0xFF, 0x21, 0x1D, // Red light
-	0x01, 0xDD, 0x01, // Green light
-	0x6B, 0x6B, 0x6B, // Non-darkening grey 1 (menus)
-	0x9B, 0x9B, 0x9B, // Non-darkening grey 2 (menus)
-	0xB3, 0xB3, 0xB3, // non-darkening grey 3 (menus)
-	0xC9, 0xC9, 0xC9, // Non-darkening grey 4 (menus)
-	0xDF, 0xDF, 0xDF, // Non-darkening grey 5 (menus)
-	0xE3, 0xE3, 0xFF, // Nearly white light at day, yellowish light at night
-	0xC1, 0xB1, 0xD1, // Windows, lit yellow
-	0x4D, 0x4D, 0x4D, // Windows, lit yellow
-	0xE1, 0x00, 0xE1, // purple light for signals
-	0x01, 0x01, 0xFF, // blue light
+rgb888_t display_day_lights[LIGHT_COUNT] = {
+	{ 0x57, 0x65, 0x6F }, // Dark windows, lit yellowish at night
+	{ 0x7F, 0x9B, 0xF1 }, // Lighter windows, lit blueish at night
+	{ 0xFF, 0xFF, 0x53 }, // Yellow light
+	{ 0xFF, 0x21, 0x1D }, // Red light
+	{ 0x01, 0xDD, 0x01 }, // Green light
+	{ 0x6B, 0x6B, 0x6B }, // Non-darkening grey 1 (menus)
+	{ 0x9B, 0x9B, 0x9B }, // Non-darkening grey 2 (menus)
+	{ 0xB3, 0xB3, 0xB3 }, // non-darkening grey 3 (menus)
+	{ 0xC9, 0xC9, 0xC9 }, // Non-darkening grey 4 (menus)
+	{ 0xDF, 0xDF, 0xDF }, // Non-darkening grey 5 (menus)
+	{ 0xE3, 0xE3, 0xFF }, // Nearly white light at day, yellowish light at night
+	{ 0xC1, 0xB1, 0xD1 }, // Windows, lit yellow
+	{ 0x4D, 0x4D, 0x4D }, // Windows, lit yellow
+	{ 0xE1, 0x00, 0xE1 }, // purple light for signals
+	{ 0x01, 0x01, 0xFF }  // blue light
 };
 
 
 /*
  * special colors during nighttime
  */
-uint8 display_night_lights[LIGHT_COUNT*3] = {
-	0xD3, 0xC3, 0x80, // Dark windows, lit yellowish at night
-	0x80, 0xC3, 0xD3, // Lighter windows, lit blueish at night
-	0xFF, 0xFF, 0x53, // Yellow light
-	0xFF, 0x21, 0x1D, // Red light
-	0x01, 0xDD, 0x01, // Green light
-	0x6B, 0x6B, 0x6B, // Non-darkening grey 1 (menus)
-	0x9B, 0x9B, 0x9B, // Non-darkening grey 2 (menus)
-	0xB3, 0xB3, 0xB3, // non-darkening grey 3 (menus)
-	0xC9, 0xC9, 0xC9, // Non-darkening grey 4 (menus)
-	0xDF, 0xDF, 0xDF, // Non-darkening grey 5 (menus)
-	0xFF, 0xFF, 0xE3, // Nearly white light at day, yellowish light at night
-	0xD3, 0xC3, 0x80, // Windows, lit yellow
-	0xD3, 0xC3, 0x80, // Windows, lit yellow
-	0xE1, 0x00, 0xE1, // purple light for signals
-	0x01, 0x01, 0xFF, // blue light
+rgb888_t display_night_lights[LIGHT_COUNT] = {
+	{ 0xD3, 0xC3, 0x80 }, // Dark windows, lit yellowish at night
+	{ 0x80, 0xC3, 0xD3 }, // Lighter windows, lit blueish at night
+	{ 0xFF, 0xFF, 0x53 }, // Yellow light
+	{ 0xFF, 0x21, 0x1D }, // Red light
+	{ 0x01, 0xDD, 0x01 }, // Green light
+	{ 0x6B, 0x6B, 0x6B }, // Non-darkening grey 1 (menus)
+	{ 0x9B, 0x9B, 0x9B }, // Non-darkening grey 2 (menus)
+	{ 0xB3, 0xB3, 0xB3 }, // non-darkening grey 3 (menus)
+	{ 0xC9, 0xC9, 0xC9 }, // Non-darkening grey 4 (menus)
+	{ 0xDF, 0xDF, 0xDF }, // Non-darkening grey 5 (menus)
+	{ 0xFF, 0xFF, 0xE3 }, // Nearly white light at day, yellowish light at night
+	{ 0xD3, 0xC3, 0x80 }, // Windows, lit yellow
+	{ 0xD3, 0xC3, 0x80 }, // Windows, lit yellow
+	{ 0xE1, 0x00, 0xE1 }, // purple light for signals
+	{ 0x01, 0x01, 0xFF }  // blue light
 };
 
 
 // the players colors and colors for simple drawing operations
-// each three values correspond to a color, each 8 colors are a player color
-static const uint8 special_pal[SPECIAL_COLOR_COUNT*3] =
+// each 8 colors are a player color
+static const rgb888_t special_pal[SPECIAL_COLOR_COUNT] =
 {
-	36, 75, 103,
-	57, 94, 124,
-	76, 113, 145,
-	96, 132, 167,
-	116, 151, 189,
-	136, 171, 211,
-	156, 190, 233,
-	176, 210, 255,
-	88, 88, 88,
-	107, 107, 107,
-	125, 125, 125,
-	144, 144, 144,
-	162, 162, 162,
-	181, 181, 181,
-	200, 200, 200,
-	219, 219, 219,
-	17, 55, 133,
-	27, 71, 150,
-	37, 86, 167,
-	48, 102, 185,
-	58, 117, 202,
-	69, 133, 220,
-	79, 149, 237,
-	90, 165, 255,
-	123, 88, 3,
-	142, 111, 4,
-	161, 134, 5,
-	180, 157, 7,
-	198, 180, 8,
-	217, 203, 10,
-	236, 226, 11,
-	255, 249, 13,
-	86, 32, 14,
-	110, 40, 16,
-	134, 48, 18,
-	158, 57, 20,
-	182, 65, 22,
-	206, 74, 24,
-	230, 82, 26,
-	255, 91, 28,
-	34, 59, 10,
-	44, 80, 14,
-	53, 101, 18,
-	63, 122, 22,
-	77, 143, 29,
-	92, 164, 37,
-	106, 185, 44,
-	121, 207, 52,
-	0, 86, 78,
-	0, 108, 98,
-	0, 130, 118,
-	0, 152, 138,
-	0, 174, 158,
-	0, 196, 178,
-	0, 218, 198,
-	0, 241, 219,
-	74, 7, 122,
-	95, 21, 139,
-	116, 37, 156,
-	138, 53, 173,
-	160, 69, 191,
-	181, 85, 208,
-	203, 101, 225,
-	225, 117, 243,
-	59, 41, 0,
-	83, 55, 0,
-	107, 69, 0,
-	131, 84, 0,
-	155, 98, 0,
-	179, 113, 0,
-	203, 128, 0,
-	227, 143, 0,
-	87, 0, 43,
-	111, 11, 69,
-	135, 28, 92,
-	159, 45, 115,
-	183, 62, 138,
-	230, 74, 174,
-	245, 121, 194,
-	255, 156, 209,
-	20, 48, 10,
-	44, 74, 28,
-	68, 99, 45,
-	93, 124, 62,
-	118, 149, 79,
-	143, 174, 96,
-	168, 199, 113,
-	193, 225, 130,
-	54, 19, 29,
-	82, 44, 44,
-	110, 69, 58,
-	139, 95, 72,
-	168, 121, 86,
-	197, 147, 101,
-	226, 173, 115,
-	255, 199, 130,
-	8, 11, 100,
-	14, 22, 116,
-	20, 33, 139,
-	26, 44, 162,
-	41, 74, 185,
-	57, 104, 208,
-	76, 132, 231,
-	96, 160, 255,
-	43, 30, 46,
-	68, 50, 85,
-	93, 70, 110,
-	118, 91, 130,
-	143, 111, 170,
-	168, 132, 190,
-	193, 153, 210,
-	219, 174, 230,
-	63, 18, 12,
-	90, 38, 30,
-	117, 58, 42,
-	145, 78, 55,
-	172, 98, 67,
-	200, 118, 80,
-	227, 138, 92,
-	255, 159, 105,
-	11, 68, 30,
-	33, 94, 56,
-	54, 120, 81,
-	76, 147, 106,
-	98, 174, 131,
-	120, 201, 156,
-	142, 228, 181,
-	164, 255, 207,
-	64, 0, 0,
-	96, 0, 0,
-	128, 0, 0,
-	192, 0, 0,
-	255, 0, 0,
-	255, 64, 64,
-	255, 96, 96,
-	255, 128, 128,
-	0, 128, 0,
-	0, 196, 0,
-	0, 225, 0,
-	0, 240, 0,
-	0, 255, 0,
-	64, 255, 64,
-	94, 255, 94,
-	128, 255, 128,
-	0, 0, 128,
-	0, 0, 192,
-	0, 0, 224,
-	0, 0, 255,
-	0, 64, 255,
-	0, 94, 255,
-	0, 106, 255,
-	0, 128, 255,
-	128, 64, 0,
-	193, 97, 0,
-	215, 107, 0,
-	235, 118, 0,
-	255, 128, 0,
-	255, 149, 43,
-	255, 170, 85,
-	255, 193, 132,
-	8, 52, 0,
-	16, 64, 0,
-	32, 80, 4,
-	48, 96, 4,
-	64, 112, 12,
-	84, 132, 20,
-	104, 148, 28,
-	128, 168, 44,
-	164, 164, 0,
-	180, 180, 0,
-	193, 193, 0,
-	215, 215, 0,
-	235, 235, 0,
-	255, 255, 0,
-	255, 255, 64,
-	255, 255, 128,
-	32, 4, 0,
-	64, 20, 8,
-	84, 28, 16,
-	108, 44, 28,
-	128, 56, 40,
-	148, 72, 56,
-	168, 92, 76,
-	184, 108, 88,
-	64, 0, 0,
-	96, 8, 0,
-	112, 16, 0,
-	120, 32, 8,
-	138, 64, 16,
-	156, 72, 32,
-	174, 96, 48,
-	192, 128, 64,
-	32, 32, 0,
-	64, 64, 0,
-	96, 96, 0,
-	128, 128, 0,
-	144, 144, 0,
-	172, 172, 0,
-	192, 192, 0,
-	224, 224, 0,
-	64, 96, 8,
-	80, 108, 32,
-	96, 120, 48,
-	112, 144, 56,
-	128, 172, 64,
-	150, 210, 68,
-	172, 238, 80,
-	192, 255, 96,
-	32, 32, 32,
-	48, 48, 48,
-	64, 64, 64,
-	80, 80, 80,
-	96, 96, 96,
-	172, 172, 172,
-	236, 236, 236,
-	255, 255, 255,
-	41, 41, 54,
-	60, 45, 70,
-	75, 62, 108,
-	95, 77, 136,
-	113, 105, 150,
-	135, 120, 176,
-	165, 145, 218,
-	198, 191, 232,
+	{  36,  75, 103 }, {  57,  94, 124 }, {  76, 113, 145 }, {  96, 132, 167 }, { 116, 151, 189 }, { 136, 171, 211 }, { 156, 190, 233 }, { 176, 210, 255 },
+	{  88,  88,  88 }, { 107, 107, 107 }, { 125, 125, 125 }, { 144, 144, 144 }, { 162, 162, 162 }, { 181, 181, 181 }, { 200, 200, 200 }, { 219, 219, 219 },
+	{  17,  55, 133 }, {  27,  71, 150 }, {  37,  86, 167 }, {  48, 102, 185 }, {  58, 117, 202 }, {  69, 133, 220 }, {  79, 149, 237 }, {  90, 165, 255 },
+	{ 123,  88,   3 }, { 142, 111,   4 }, { 161, 134,   5 }, { 180, 157,   7 }, { 198, 180,   8 }, { 217, 203,  10 }, { 236, 226,  11 }, { 255, 249,  13 },
+	{  86,  32,  14 }, { 110,  40,  16 }, { 134,  48,  18 }, { 158,  57,  20 }, { 182,  65,  22 }, { 206,  74,  24 }, { 230,  82,  26 }, { 255,  91,  28 },
+	{  34,  59,  10 }, {  44,  80,  14 }, {  53, 101,  18 }, {  63, 122,  22 }, {  77, 143,  29 }, {  92, 164,  37 }, { 106, 185,  44 }, { 121, 207,  52 },
+	{   0,  86,  78 }, {   0, 108,  98 }, {   0, 130, 118 }, {   0, 152, 138 }, {   0, 174, 158 }, {   0, 196, 178 }, {   0, 218, 198 }, {   0, 241, 219 },
+	{  74,   7, 122 }, {  95,  21, 139 }, { 116,  37, 156 }, { 138,  53, 173 }, { 160,  69, 191 }, { 181,  85, 208 }, { 203, 101, 225 }, { 225, 117, 243 },
+	{  59,  41,   0 }, {  83,  55,   0 }, { 107,  69,   0 }, { 131,  84,   0 }, { 155,  98,   0 }, { 179, 113,   0 }, { 203, 128,   0 }, { 227, 143,   0 },
+	{  87,   0,  43 }, { 111,  11,  69 }, { 135,  28,  92 }, { 159,  45, 115 }, { 183,  62, 138 }, { 230,  74, 174 }, { 245, 121, 194 }, { 255, 156, 209 },
+	{  20,  48,  10 }, {  44,  74,  28 }, {  68,  99,  45 }, {  93, 124,  62 }, { 118, 149,  79 }, { 143, 174,  96 }, { 168, 199, 113 }, { 193, 225, 130 },
+	{  54,  19,  29 }, {  82,  44,  44 }, { 110,  69,  58 }, { 139,  95,  72 }, { 168, 121,  86 }, { 197, 147, 101 }, { 226, 173, 115 }, { 255, 199, 130 },
+	{   8,  11, 100 }, {  14,  22, 116 }, {  20,  33, 139 }, {  26,  44, 162 }, {  41,  74, 185 }, {  57, 104, 208 }, {  76, 132, 231 }, {  96, 160, 255 },
+	{  43,  30,  46 }, {  68,  50,  85 }, {  93,  70, 110 }, { 118,  91, 130 }, { 143, 111, 170 }, { 168, 132, 190 }, { 193, 153, 210 }, { 219, 174, 230 },
+	{  63,  18,  12 }, {  90,  38,  30 }, { 117,  58,  42 }, { 145,  78,  55 }, { 172,  98,  67 }, { 200, 118,  80 }, { 227, 138,  92 }, { 255, 159, 105 },
+	{  11,  68,  30 }, {  33,  94,  56 }, {  54, 120,  81 }, {  76, 147, 106 }, {  98, 174, 131 }, { 120, 201, 156 }, { 142, 228, 181 }, { 164, 255, 207 },
+	{  64,   0,   0 }, {  96,   0,   0 }, { 128,   0,   0 }, { 192,   0,   0 }, { 255,   0,   0 }, { 255,  64,  64 }, { 255,  96,  96 }, { 255, 128, 128 },
+	{   0, 128,   0 }, {   0, 196,   0 }, {   0, 225,   0 }, {   0, 240,   0 }, {   0, 255,   0 }, {  64, 255,  64 }, {  94, 255,  94 }, { 128, 255, 128 },
+	{   0,   0, 128 }, {   0,   0, 192 }, {   0,   0, 224 }, {   0,   0, 255 }, {   0,  64, 255 }, {   0,  94, 255 }, {   0, 106, 255 }, {   0, 128, 255 },
+	{ 128,  64,   0 }, { 193,  97,   0 }, { 215, 107,   0 }, { 235, 118,   0 }, { 255, 128,   0 }, { 255, 149,  43 }, { 255, 170,  85 }, { 255, 193, 132 },
+	{   8,  52,   0 }, {  16,  64,   0 }, {  32,  80,   4 }, {  48,  96,   4 }, {  64, 112,  12 }, {  84, 132,  20 }, { 104, 148,  28 }, { 128, 168,  44 },
+	{ 164, 164,   0 }, { 180, 180,   0 }, { 193, 193,   0 }, { 215, 215,   0 }, { 235, 235,   0 }, { 255, 255,   0 }, { 255, 255,  64 }, { 255, 255, 128 },
+	{  32,   4,   0 }, {  64,  20,   8 }, {  84,  28,  16 }, { 108,  44,  28 }, { 128,  56,  40 }, { 148,  72,  56 }, { 168,  92,  76 }, { 184, 108,  88 },
+	{  64,   0,   0 }, {  96,   8,   0 }, { 112,  16,   0 }, { 120,  32,   8 }, { 138,  64,  16 }, { 156,  72,  32 }, { 174,  96,  48 }, { 192, 128,  64 },
+	{  32,  32,   0 }, {  64,  64,   0 }, {  96,  96,   0 }, { 128, 128,   0 }, { 144, 144,   0 }, { 172, 172,   0 }, { 192, 192,   0 }, { 224, 224,   0 },
+	{  64,  96,   8 }, {  80, 108,  32 }, {  96, 120,  48 }, { 112, 144,  56 }, { 128, 172,  64 }, { 150, 210,  68 }, { 172, 238,  80 }, { 192, 255,  96 },
+	{  32,  32,  32 }, {  48,  48,  48 }, {  64,  64,  64 }, {  80,  80,  80 }, {  96,  96,  96 }, { 172, 172, 172 }, { 236, 236, 236 }, { 255, 255, 255 },
+	{  41,  41,  54 }, {  60,  45,  70 }, {  75,  62, 108 }, {  95,  77, 136 }, { 113, 105, 150 }, { 135, 120, 176 }, { 165, 145, 218 }, { 198, 191, 232 }
 };
 
 
@@ -717,21 +521,20 @@ static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 /*
  * Gets a colour index and returns RGB888
  */
-uint32 get_color_rgb(uint8 idx)
+rgb888_t get_color_rgb(uint8 idx)
 {
 	// special_pal has 224 rgb colors
 	if (idx < SPECIAL_COLOR_COUNT) {
-		return special_pal[idx*3 + 0]<<16 | special_pal[idx*3 + 1]<<8 | special_pal[idx*3 + 2];
+		return special_pal[idx];
 	}
 
 	// if it uses one of the special light colours it's under display_day_lights
 	if (idx < SPECIAL_COLOR_COUNT + LIGHT_COUNT) {
-		const uint8 lidx = idx - SPECIAL_COLOR_COUNT;
-		return display_day_lights[lidx*3 + 0]<<16 | display_day_lights[lidx*3 + 1]<<8 | display_day_lights[lidx*3 + 2];
+		return display_day_lights[idx - SPECIAL_COLOR_COUNT];
 	}
 
 	// Return black for anything else
-	return 0;
+	return rgb888_t{0,0,0};
 }
 
 /**
@@ -759,26 +562,13 @@ PIXVAL color_rgb_to_idx(PIXVAL color)
 void env_t_rgb_to_system_colors()
 {
 	// get system colours for the default colours or settings.xml
-	uint32 rgb = env_t::default_window_title_color_rgb;
-	env_t::default_window_title_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::front_window_text_color_rgb;
-	env_t::front_window_text_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::bottom_window_text_color_rgb;
-	env_t::bottom_window_text_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::tooltip_color_rgb;
-	env_t::tooltip_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::tooltip_textcolor_rgb;
-	env_t::tooltip_textcolor = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::cursor_overlay_color_rgb;
-	env_t::cursor_overlay_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
-
-	rgb = env_t::background_color_rgb;
-	env_t::background_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+	env_t::default_window_title_color = get_system_color(env_t::default_window_title_color_rgb);
+	env_t::front_window_text_color    = get_system_color(env_t::front_window_text_color_rgb);
+	env_t::bottom_window_text_color   = get_system_color(env_t::bottom_window_text_color_rgb);
+	env_t::tooltip_color              = get_system_color(env_t::tooltip_color_rgb);
+	env_t::tooltip_textcolor          = get_system_color(env_t::tooltip_textcolor_rgb);
+	env_t::cursor_overlay_color       = get_system_color(env_t::cursor_overlay_color_rgb);
+	env_t::background_color           = get_system_color(env_t::background_color_rgb);
 }
 
 
@@ -1868,7 +1658,7 @@ static void calc_base_pal_from_night_shift(const int night)
 		G = (int)(G * RG_night_multiplier);
 		B = (int)(B * B_night_multiplier);
 
-		rgbmap_day_night[i] = get_system_color(R, G, B);
+		rgbmap_day_night[i] = get_system_color({ (uint8)R, (uint8)G, (uint8)B });
 	}
 
 	// again the same but for transparent colors
@@ -1882,24 +1672,24 @@ static void calc_base_pal_from_night_shift(const int night)
 		// however the result is in 888RGB - 8bit per channel
 		R = (int)(R * RG_night_multiplier);
 		G = (int)(G * RG_night_multiplier);
-		B = (int)(B * B_night_multiplier);
+		B = (int)(B *  B_night_multiplier);
 
-		PIXVAL color = get_system_color(R, G, B);
+		PIXVAL color = get_system_color({ (uint8)R, (uint8)G, (uint8)B });
 		rgbmap_day_night[0x8000 +MAX_PLAYER_COUNT + LIGHT_COUNT + i] = color;
 	}
 
 	// player color map (and used for map display etc.)
 	for (i = 0; i < SPECIAL_COLOR_COUNT; i++) {
-		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
-		const int G = (int)(special_pal[i*3 + 1] * RG_night_multiplier);
-		const int B = (int)(special_pal[i*3 + 2] * B_night_multiplier);
+		const int R = (int)(special_pal[i].r * RG_night_multiplier);
+		const int G = (int)(special_pal[i].g * RG_night_multiplier);
+		const int B = (int)(special_pal[i].b *  B_night_multiplier);
 
-		specialcolormap_day_night[i] = get_system_color(R, G, B);
+		specialcolormap_day_night[i] = get_system_color({ (uint8)R, (uint8)G, (uint8)B });
 	}
 
 	// special light colors (actually, only non-darkening greys should be used)
 	for(i=0;  i<LIGHT_COUNT;  i++  ) {
-		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i*3 + 0], display_day_lights[i*3 + 1], display_day_lights[i*3 + 2] );
+		specialcolormap_day_night[SPECIAL_COLOR_COUNT+i] = get_system_color( display_day_lights[i] );
 	}
 
 	// init with black for forbidden colors
@@ -1916,19 +1706,19 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R = display_day_lights[i*3+0];
-		const int day_G = display_day_lights[i*3+1];
-		const int day_B = display_day_lights[i*3+2];
+		const int day_R = display_day_lights[i].r;
+		const int day_G = display_day_lights[i].g;
+		const int day_B = display_day_lights[i].b;
 
-		const int night_R = display_night_lights[i*3+0];
-		const int night_G = display_night_lights[i*3+1];
-		const int night_B = display_night_lights[i*3+2];
+		const int night_R = display_night_lights[i].r;
+		const int night_G = display_night_lights[i].g;
+		const int night_B = display_night_lights[i].b;
 
 		const int R = (day_R * day + night_R * night2) >> 2;
 		const int G = (day_G * day + night_G * night2) >> 2;
 		const int B = (day_B * day + night_B * night2) >> 2;
 
-		PIXVAL color = get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
+		PIXVAL color = get_system_color({ (uint8)max(R,0), (uint8)max(G,0), (uint8)max(B,0) });
 		rgbmap_day_night[0x8000 + MAX_PLAYER_COUNT + i] = color;
 	}
 
@@ -4752,12 +4542,13 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 
 	// find out bit depth
 	{
-		uint32 c = get_system_color( 0, 255, 0 );
-		while((c&1)==0) {
+		PIXVAL c = get_system_color({ 0, 0xFF, 0 });
+		while ((c&1)==0) {
 			c >>= 1;
 		}
-		if(c==31) {
-			// 15 bit per pixel
+
+		if(c==0x1F) {
+			// 5 bits for green channel -> 15 bits per pixel)
 #ifndef RGB555
 			dr_fatal_notify( "Compiled for 16 bit color depth but using 15!" );
 #endif

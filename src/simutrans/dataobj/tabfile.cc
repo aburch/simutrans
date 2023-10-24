@@ -128,7 +128,7 @@ const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 }
 
 
-PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
+PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, rgb888_t *color_rgb)
 {
 	const char *value = get_string(key,NULL);
 
@@ -142,13 +142,19 @@ PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 		}
 #ifndef MAKEOBJ
 		if(  *value=='#'  ) {
-			uint32 rgb = strtoul( value+1, NULL, 16 ) & 0XFFFFFFul;
+			const uint32 v = strtoul( value+1, NULL, 16 ) & 0xFFFFFFul;
+			const rgb888_t col = {
+				(uint8)(v >> 16),
+				(uint8)(v >>  8),
+				(uint8)(v >>  0)
+			};
 			// we save in settings as RGB888
 			if (color_rgb) {
-				*color_rgb = rgb;
+				*color_rgb = col;
 			}
+
 			// but the functions expect in the system colour (like RGB565)
-			return get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+			return get_system_color(col);
 		}
 		else {
 			// this inputs also hex correct
