@@ -643,7 +643,7 @@ static inline unsigned int ModifierKeys()
 }
 
 
-static int conv_mouse_buttons(Uint8 const state)
+static uint16 conv_mouse_buttons(Uint8 const state)
 {
 	return
 		(state & SDL_BUTTON_LMASK ? MOUSE_LEFTBUTTON  : 0) |
@@ -809,7 +809,7 @@ static void internal_GetEvents()
 					sys_event.my = event.tfinger.y * display_get_height();
 	DBG_MESSAGE("SDL_FINGERMOTION", "SIM_MOUSE_MOVED at %i,%i", sys_event.mx, sys_event.my);
 				}
-				sys_event.mb = 1;
+				sys_event.mb = MOUSE_LEFTBUTTON;
 				sys_event.key_mod = ModifierKeys();
 			}
 			in_finger_handling = true;
@@ -824,7 +824,7 @@ static void internal_GetEvents()
 							// return a press event
 							sys_event.type = SIM_MOUSE_BUTTONS;
 							sys_event.code = SIM_MOUSE_LEFTBUTTON;
-							sys_event.mb = 1;
+							sys_event.mb = MOUSE_LEFTBUTTON;
 							sys_event.key_mod = ModifierKeys();
 							last_mx = sys_event.mx = event.tfinger.x * display_get_width();
 							last_my = sys_event.my = event.tfinger.y * display_get_height();
@@ -881,7 +881,7 @@ static void internal_GetEvents()
 				// any three finger touch is scrolling the map
 				sys_event.type = SIM_MOUSE_MOVE;
 				sys_event.code = SIM_MOUSE_MOVED;
-				sys_event.mb = 2;
+				sys_event.mb = MOUSE_RIGHTBUTTON;
 				sys_event.mx = SCREEN_TO_TEX_X(event.mgesture.x * screen->w);
 				sys_event.my = SCREEN_TO_TEX_Y(event.mgesture.y * screen->h);
 				sys_event.key_mod = ModifierKeys();
