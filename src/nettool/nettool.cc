@@ -60,7 +60,7 @@ network_command_t* network_receive_command(uint16 id)
 {
 	// wait for command with id, ignore other commands
 	for(uint8 i=0; i<5; i++) {
-		network_command_t* nwc = network_check_activity( NULL, 10000 );
+		network_command_t* nwc = network_check_activity( 10000 );
 		if (nwc  &&  nwc->get_id() == id) {
 			return nwc;
 		}
