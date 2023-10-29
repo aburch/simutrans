@@ -8209,7 +8209,8 @@ bool tool_load_scenario_t::init(player_t*)
 		delete scn;
 	}
 
-	return true;
+	// do not call work(), it's a no-op anyway
+	return false;
 }
 
 
