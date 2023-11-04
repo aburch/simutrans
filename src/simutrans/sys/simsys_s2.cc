@@ -666,6 +666,8 @@ static void internal_GetEvents()
 	static bool has_queued_zero_mouse_move = false;
 	static sint32 last_mx, last_my; // last finger down pos
 
+	static int last_zoom = 0;
+
 	if (has_queued_finger_release) {
 		// we need to send a finger release, which was not done yet
 		has_queued_finger_release = false;
@@ -699,7 +701,13 @@ static void internal_GetEvents()
 	}
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
-	DBG_DEBUG4("SDL_EVENT", "0x%X", event.type);
+	DBG_DEBUG("SDL_EVENT", "0x%X", event.type);
+
+	if (in_finger_handling && event.type == SDL_FINGERMOTION) {
+		// swallow the millons of fingermotion events
+		do {
+		} while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION) == 1);
+	}
 
 	switch(  event.type  ) {
 
@@ -803,6 +811,7 @@ static void internal_GetEvents()
 	DBG_MESSAGE("SDL_FINGERMOTION", "SIM_MOUSE_LEFTBUTTON at %i,%i", sys_event.mx, sys_event.my);
 				}
 				else {
+
 					sys_event.type = SIM_MOUSE_MOVE;
 					sys_event.code = SIM_MOUSE_MOVED;
 					sys_event.mx = event.tfinger.x * display_get_width();
@@ -861,34 +870,46 @@ static void internal_GetEvents()
 			DBG_MESSAGE("SDL_FINGERUP", "Finger %i", SDL_GetNumTouchFingers(event.tfinger.touchId));
 			in_finger_handling = true;
 			if( event.mgesture.numFingers == 2 ) {
+				int num_events;
+				do {
+					dLastDist += event.mgesture.dDist;
+					num_events = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MULTIGESTURE, SDL_MULTIGESTURE);
+				} while (num_events == 1);
+
 				// any multitouch is intepreted as pinch zoom
-				dLastDist += event.mgesture.dDist;
-				if( dLastDist<-DELTA_PINCH ) {
+				if (dLastDist < -DELTA_PINCH) {
 					sys_event.type = SIM_MOUSE_BUTTONS;
 					sys_event.code = SIM_MOUSE_WHEELDOWN;
 					sys_event.key_mod = ModifierKeys();
-					dLastDist += DELTA_PINCH;
+					//dLastDist += DELTA_PINCH;
+					dLastDist = 0;
 				}
-				else if( dLastDist>DELTA_PINCH ) {
+				else if (dLastDist > DELTA_PINCH) {
 					sys_event.type = SIM_MOUSE_BUTTONS;
 					sys_event.code = SIM_MOUSE_WHEELUP;
 					sys_event.key_mod = ModifierKeys();
-					dLastDist -= DELTA_PINCH;
+					//dLastDist -= DELTA_PINCH;
+					dLastDist = 0;
 				}
+			
 				previous_multifinger_touch = 2;
 			}
 			else if (event.mgesture.numFingers == 3  &&  screen) {
 				// any three finger touch is scrolling the map
+
+				if (previous_multifinger_touch != 3) {
+					// just started scrolling
+					set_click_xy(SCREEN_TO_TEX_X(event.mgesture.x* screen->w), SCREEN_TO_TEX_Y(event.mgesture.y* screen->h));
+				}
+
+				do {
+				} while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MULTIGESTURE, SDL_MULTIGESTURE) == 1);
 				sys_event.type = SIM_MOUSE_MOVE;
 				sys_event.code = SIM_MOUSE_MOVED;
 				sys_event.mb = MOUSE_RIGHTBUTTON;
+				sys_event.key_mod = ModifierKeys();
 				sys_event.mx = SCREEN_TO_TEX_X(event.mgesture.x * screen->w);
 				sys_event.my = SCREEN_TO_TEX_Y(event.mgesture.y * screen->h);
-				sys_event.key_mod = ModifierKeys();
-				if (previous_multifinger_touch != 3) {
-					// just started scrolling
-					set_click_xy(sys_event.mx, sys_event.my);
-				}
 				previous_multifinger_touch = 3;
 			}
 			break;
