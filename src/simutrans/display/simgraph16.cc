@@ -518,6 +518,26 @@ static uint32 zoom_factor = ZOOM_NEUTRAL;
 static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
 static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
+
+static inline rgb888_t pixval_to_rgb888(PIXVAL colour)
+{
+	// Scale each colour channel from 5 or 6 bits to 8 bits
+#ifdef RGB555
+	return {
+		uint8(((colour >> 10) & 0x1F) * 0xFF / 0x1F), // R
+		uint8(((colour >>  5) & 0x1F) * 0xFF / 0x1F), // G
+		uint8(((colour >>  0) & 0x1F) * 0xFF / 0x1F)  // B
+	};
+#else
+	return {
+		uint8(((colour >> 11) & 0x1F) * 0xFF / 0x1F), // R
+		uint8(((colour >>  5) & 0x3F) * 0xFF / 0x3F), // G
+		uint8(((colour >>  0) & 0x1F) * 0xFF / 0x1F)  // B
+	};
+#endif
+}
+
+
 /*
  * Gets a colour index and returns RGB888
  */
@@ -4660,17 +4680,10 @@ bool display_snapshot( const scr_rect &area )
 		const PIXVAL *row = textur + clipped_area.x + y*disp_width;
 
 		for (scr_coord_val x = clipped_area.x; x < clipped_area.x + clipped_area.w; ++x) {
-			const PIXVAL pixel = *row++;
-
-#ifdef RGB555
-			*dst++ = ((pixel >> 10) & 0x1F) << (8-5); // R
-			*dst++ = ((pixel >>  5) & 0x1F) << (8-5); // G
-			*dst++ = ((pixel >>  0) & 0x1F) << (8-5); // B
-#else
-			*dst++ = ((pixel >> 11) & 0x1F) << (8-5); // R
-			*dst++ = ((pixel >>  5) & 0x3F) << (8-6); // G
-			*dst++ = ((pixel >>  0) & 0x1F) << (8-5); // B
-#endif
+			const rgb888_t pixel = pixval_to_rgb888(*row++);
+			*dst++ = pixel.r;
+			*dst++ = pixel.g;
+			*dst++ = pixel.b;
 		}
 	}
 
