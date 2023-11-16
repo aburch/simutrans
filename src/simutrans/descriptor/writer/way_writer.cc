@@ -92,7 +92,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		for(int backtofront = 0; backtofront<2; backtofront++) {
 			// way images defined without seasons
 			char buf[40];
-			sprintf(buf, "%simage[new2][0]", image_type[backtofront]);
+			sprintf(buf, "%simage[new2]", image_type[backtofront]);
 			// test for switch images
 			const uint8 ribinr = *(obj.get(buf))==0 ? 16 : 26;
 			for (ribi = 0; ribi < ribinr; ribi++) {

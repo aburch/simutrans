@@ -16,6 +16,7 @@
 	ADD: Signals can be replaced by overbuilding them using left-click
 	FIX: Wrong brightness of colours in screenshots
 	FIX: Graphical glitches related to translucent player colours
+	FIX: Makeobj ignored switch images for tracks with no seasons (e.g. image[new2]=...)
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
