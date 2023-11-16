@@ -147,9 +147,6 @@ name=1LIGHT_CHOOSE
 obj=unnecessary_text
 name=1suburb
 -
-obj=program_text
-name=1WORLD_CHOOSE
--
 obj=unnecessary_text
 name=2center
 -
