@@ -457,9 +457,6 @@ name=Can only move from halt to halt or waypoint to waypoint.
 obj=program_text
 name=Cancel
 -
-obj=error_text
-name=Cannot built depot here!
--
 obj=program_text
 name=Capacity: %s\nLoad: %d (%d%%)
 -
@@ -673,6 +670,14 @@ name=Departed
 -
 obj=program_text
 name=Depots
+-
+obj=error_text
+name=Depots must be built on flat cul-de-sac way tiles!
+note=Error text when building depot fails
+-
+obj=error_text
+name=Depots cannot be built on runways!
+note=Error text when building depot fails
 -
 obj=program_text
 name=Depot

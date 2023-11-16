@@ -127,11 +127,6 @@ char const *const NOTICE_NO_TREES = "Trees disabled!";
 char const *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
 
 /**
- * Message returned when a depot cannot be placed.
- */
-char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
-
-/**
  * Message returned when a tool fails due to the target tile being occupied.
  */
 char const *const NOTICE_TILE_FULL = "Tile not empty.";
@@ -5425,70 +5420,74 @@ bool tool_build_roadsign_t::calc_route(route_t &route, player_t *player, const k
 }
 
 
-// built all types of depots
+// build all types of depots
 const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype)
 {
-	if(welt->is_within_limits(pos.get_2d())) {
-		grund_t *bd=NULL;
-		// special for the seven seas ...
-		if(wegtype==water_wt) {
-			bd = welt->lookup_kartenboden(pos.get_2d());
-			if(!bd->is_water()) {
-				bd = NULL;
-			}
-		}
-		if(bd==NULL) {
-			bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
-		}
-		if(!bd  ||  bd->has_two_ways()) {
-			return NOTICE_DEPOT_BAD_POS;
-		}
-
-		// no depots on runways!
-		if(desc->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_desc()->get_styp()!=type_flat) {
-			return NOTICE_DEPOT_BAD_POS;
-		}
-
-		const char *p=bd->kann_alle_obj_entfernen(player);
-		if(p) {
-			return p;
-		}
-
-		// avoid building over a stop
-		if(bd->is_halt()  ||  bd->get_depot()!=NULL) {
-			return NOTICE_DEPOT_BAD_POS;
-		}
-
-		ribi_t::ribi ribi;
-		if(bd->is_water()) {
-			// assume one orientation with water
-			ribi = ribi_t::south;
-		}
-		else {
-			ribi = bd->get_weg_ribi_unmasked(wegtype);
-		}
-
-		if(ribi_t::is_single(ribi)  &&  bd->get_weg_hang()==0) {
-
-			int layout = 0;
-			switch(ribi) {
-				//case ribi_t::south:layout = 0;  break;
-				case ribi_t::east:   layout = 1;    break;
-				case ribi_t::north:  layout = 2;    break;
-				case ribi_t::west:  layout = 3;    break;
-			}
-			hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
-			player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());
-			if(can_use_gui()  &&  player == welt->get_active_player()) {
-				welt->set_tool( general_tool[TOOL_QUERY], player );
-			}
-
-			return NULL;
-		}
-		return NOTICE_DEPOT_BAD_POS;
+	if(!welt->is_within_limits(pos.get_2d())) {
+		return "";
 	}
-	return "";
+
+	grund_t *bd = NULL;
+
+	// special for the Seven Seas ...
+	if (wegtype==water_wt) {
+		bd = welt->lookup_kartenboden(pos.get_2d());
+		if(!bd->is_water()) {
+			bd = NULL;
+		}
+	}
+	if (!bd) {
+		bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
+	}
+
+	if (!bd) {
+		return "Depots must be built on flat dead-end way tiles!";
+	}
+	else if (bd->has_two_ways() || bd->is_halt() || bd->get_depot()!=NULL) { // avoid building over a stop
+		return "Tile not empty.";
+	}
+
+	// no depots on runways!
+	if(desc->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_desc()->get_styp()!=type_flat) {
+		return "Depots cannot be built on runways!";
+	}
+
+	if (const char *errmsg = bd->kann_alle_obj_entfernen(player)) {
+		return errmsg;
+	}
+
+	ribi_t::ribi ribi;
+	if(bd->is_water()) {
+		// assume one orientation with water
+		ribi = ribi_t::south;
+	}
+	else {
+		ribi = bd->get_weg_ribi_unmasked(wegtype);
+	}
+
+	if(!ribi_t::is_single(ribi)  ||  bd->get_weg_hang()!=slope_t::flat) {
+		return "Depots must be built on flat dead-end way tiles";
+	}
+
+	int layout = 0;
+
+	switch(ribi) {
+		//case ribi_t::south:layout = 0;  break;
+		case ribi_t::east:  layout = 1;    break;
+		case ribi_t::north: layout = 2;    break;
+		case ribi_t::west:  layout = 3;    break;
+	}
+
+	hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
+	player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());
+
+	if(can_use_gui()  &&  player == welt->get_active_player()) {
+		welt->set_tool( general_tool[TOOL_QUERY], player );
+	}
+
+	return NULL;
 }
+
 
 image_id tool_build_depot_t::get_icon(player_t *player) const
 {
