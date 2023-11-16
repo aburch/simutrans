@@ -538,6 +538,20 @@ static inline rgb888_t pixval_to_rgb888(PIXVAL colour)
 }
 
 
+static inline PIXVAL pixval_to_rgb343(PIXVAL rgb)
+{
+	//         msb          lsb
+	// rgb555: xrrrrrgggggbbbbb
+	// rgb565: rrrrrggggggbbbbb
+	// rgb343:       rrrggggbbb
+#ifdef RGB555
+	return ((rgb >> 5) & 0x0380) | ((rgb >>  3) & 0x0078) | ((rgb >> 2) & 0x07);
+#else
+	return ((rgb >> 6) & 0x0380) | ((rgb >>  4) & 0x0078) | ((rgb >> 2) & 0x07);
+#endif
+}
+
+
 /*
  * Gets a colour index and returns RGB888
  */
@@ -1026,14 +1040,10 @@ static void recode_img_src_target(scr_coord_val h, PIXVAL *src, PIXVAL *target)
 					while(  runlen--  ) {
 						if(  *src < 0x8020+(31*16)  ) {
 							// expand transparent player color
-							PIXVAL alpha = (*src-0x8020) % 31;
-							PIXVAL rgb = rgbmap_day_night[(*src-0x8020)/31+0x8000];
-#ifdef RGB555
-							PIXVAL pix = ((rgb >> 6) & 0x0380) | ((rgb >>  4) & 0x0038) | ((rgb >> 2) & 0x07);
-#else
-							PIXVAL pix = ((rgb >> 6) & 0x0380) | ((rgb >>  3) & 0x0078) | ((rgb >> 2) & 0x07);
-#endif
-							*target++ = 0x8020 + 31*31 + pix*31 + alpha;
+							const uint8 alpha   = (*src-0x8020) % 31;
+							const PIXVAL colour = rgbmap_day_night[(*src-0x8020)/31+0x8000];
+
+							*target++ = 0x8020 + 31*31 + pixval_to_rgb343(colour)*31 + alpha;
 							src ++;
 						}
 						else {

@@ -15,6 +15,7 @@
 	FIX: Crash when using 'makeobj dump <file>' in some cases
 	ADD: Signals can be replaced by overbuilding them using left-click
 	FIX: Wrong brightness of colours in screenshots
+	FIX: Graphical glitches related to translucent player colours
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
