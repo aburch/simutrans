@@ -5433,9 +5433,10 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 	if (wegtype==water_wt) {
 		bd = welt->lookup_kartenboden(pos.get_2d());
 		if(!bd->is_water()) {
-			bd = NULL;
+			return "Ship depots must be built on water!";
 		}
 	}
+
 	if (!bd) {
 		bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
 	}
@@ -5466,7 +5467,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 	}
 
 	if(!ribi_t::is_single(ribi)  ||  bd->get_weg_hang()!=slope_t::flat) {
-		return "Depots must be built on flat dead-end way tiles";
+		return "Depots must be built on flat dead-end way tiles!";
 	}
 
 	int layout = 0;

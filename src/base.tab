@@ -672,11 +672,15 @@ obj=program_text
 name=Depots
 -
 obj=error_text
-name=Depots must be built on flat cul-de-sac way tiles!
+name=Depots must be built on flat dead-end way tiles!
 note=Error text when building depot fails
 -
 obj=error_text
 name=Depots cannot be built on runways!
+note=Error text when building depot fails
+-
+obj=error_text
+name=Ship depots must be built on water!
 note=Error text when building depot fails
 -
 obj=program_text
