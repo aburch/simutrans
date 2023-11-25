@@ -839,18 +839,16 @@ void air_vehicle_t::hop(grund_t* gr)
 			assert(previous < cnv->get_vehicle_count());
 		}
 		previous--;
+
+		// hop to next tile
+		vehicle_t::hop(gr);
+
 		air_vehicle_t* before_veh = dynamic_cast<air_vehicle_t*>(cnv->get_vehicle(previous));
 		target_height = before_veh->get_target_height();
 		current_friction = before_veh->get_frictionfactor();
 		speed_limit = before_veh->get_speed_limit();
 		flying_height = before_veh->get_flyingheight() + before_veh->get_hoff() + 2;
 		state = before_veh->get_flying_state();
-
-		// hop to next tile
-		vehicle_t::hop(gr);
-
-		speed_limit = new_speed_limit;
-		current_friction = new_friction;
 
 		route_index = before_veh->get_route_index();
 

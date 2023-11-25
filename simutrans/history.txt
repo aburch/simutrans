@@ -1,22 +1,24 @@
 	ADD: map view can be changed with any general tool by dragging the pointer above a threshold
 	FIX: Cannot load PPM heightmaps
 	ADD: new tool (and button in signal dialog) for removing signals only
-	CHG: only load goods for a destination into a single convoi. This avoids loading in parrallel of slow loading convois
-	CHG: More search pathes for paks, new parameters -set_base_dir, -set_pak_dir, -set_user_dir
-	CHG: Simutrans tries for base files also in current path without any parameter (also in program location)
-	ADD: single toolbar mode: Enabled only one top centered toolbar
+	CHG: only load goods for a destination into a single convoi. This avoids loading in parallel of slow loading convois
+	CHG: More search paths for paks, new parameters -set_base_dir, -set_pak_dir, -set_user_dir
+	CHG: Simutrans tries for base files also in the current path without any parameter (also in program location)
+	ADD: single toolbar mode: Enabled only one top-centered toolbar
 	CHG: Mouse clicks etc. are now processed every frame (but maybe executed later) to avoid the lagging UI at large zoom out or with weak devices
-	ADD: tooltip warning when try to cross way without suitable crossing or curves on runways
+	ADD: tooltip warning when trying to cross way without suitable crossing or curves on runways
 	ADD: Pak files are now additionally searched for in up to 4 subdirectory levels within a pakset
 	ADD: theme parameter gui_color_image_transparency to set transparency color for icons (Yona-TYT)
 	CHG: messages, speed records, ticker use 3d coordinates
-	CHG: a go-to-coordinate action will change view to underground/normal view if target is invisible
+	CHG: a go-to-coordinate action will change to underground/normal view if the target is invisible
 	FIX: Crash when using 'makeobj list <file>' in some cases
 	FIX: Crash when using 'makeobj dump <file>' in some cases
 	ADD: Signals can be replaced by overbuilding them using left-click
 	FIX: Wrong brightness of colours in screenshots
 	FIX: Graphical glitches related to translucent player colours
 	FIX: Makeobj ignored switch images for tracks with no seasons (e.g. image[new2]=...)
+	FIX: massive swallowing of touch event to keep the game responsive despite SDL2's denial of service flooding
+	FIX: airplane convois do no longer crash the game (but are not working perfect yet ...)
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
