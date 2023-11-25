@@ -91,6 +91,10 @@ public:
 
 	int get_flyingheight() const {return flying_height-get_hoff()-2;}
 
+	sint16 get_target_height() const { return target_height; }
+
+	flight_state get_flying_state() const { return state; }
+
 	// image: when flying empty, on ground the plane
 	image_id get_image() const OVERRIDE {return !is_on_ground() ? IMG_EMPTY : image;}
 

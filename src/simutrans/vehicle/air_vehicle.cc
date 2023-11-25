@@ -552,13 +552,17 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// too many objects here
 		return false;
 	}
+	if (!leading) {
+		return true;
+	}
 
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
 			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
-				if(  obj->get_typ()==obj_t::air_vehicle  &&  ((air_vehicle_t *)obj)->is_on_ground()  ) {
+				// we drive through non leading vehicels for now ...
+				if(  obj->get_typ() == obj_t::air_vehicle  &&  ((air_vehicle_t*)obj)->get_convoi()!=cnv  ) {
 					restart_speed = 0;
 					return false;
 				}
@@ -826,6 +830,37 @@ void air_vehicle_t::hop(grund_t* gr)
 	const sint16 h_cur = (sint16)get_pos().z*TILE_HEIGHT_STEP;
 	const sint16 h_next = (sint16)pos_next.z*TILE_HEIGHT_STEP;
 
+	// just mimick vehicle in front of me
+	if (cnv->get_vehicle(0)!=this) {
+		// get number in convoi
+		uint16 previous = 1;
+		while (cnv->get_vehicle(previous) != this) {
+			previous++;
+			assert(previous < cnv->get_vehicle_count());
+		}
+		previous--;
+		air_vehicle_t* before_veh = dynamic_cast<air_vehicle_t*>(cnv->get_vehicle(previous));
+		target_height = before_veh->get_target_height();
+		current_friction = before_veh->get_frictionfactor();
+		speed_limit = before_veh->get_speed_limit();
+		flying_height = before_veh->get_flyingheight() + before_veh->get_hoff() + 2;
+		state = before_veh->get_flying_state();
+
+		// hop to next tile
+		vehicle_t::hop(gr);
+
+		speed_limit = new_speed_limit;
+		current_friction = new_friction;
+
+		route_index = before_veh->get_route_index();
+
+		// friction factors and speed limit may have changed
+		// TODO use the same logic as in vehicle_t::hop
+		cnv->must_recalc_data();
+
+		return;
+	}
+
 	switch(state) {
 		case departing: {
 			flying_height = 0;
@@ -858,21 +893,21 @@ void air_vehicle_t::hop(grund_t* gr)
 		case flying: {
 			// since we are at a tile border, round up to the nearest value
 			flying_height += h_cur;
-			if(  flying_height < target_height  ) {
-				flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+			if (flying_height < target_height) {
+				flying_height = (flying_height + TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP - 1);
 			}
-			else if(  flying_height > target_height  ) {
-				flying_height = (flying_height-TILE_HEIGHT_STEP);
+			else if (flying_height > target_height) {
+				flying_height = (flying_height - TILE_HEIGHT_STEP);
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
+			if (target_height - h_next > TILE_HEIGHT_STEP * 5) {
 				// Move down
-				target_height -= TILE_HEIGHT_STEP*2;
+				target_height -= TILE_HEIGHT_STEP * 2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
+			else if (target_height - h_next < TILE_HEIGHT_STEP * 2) {
 				// Move up
-				target_height += TILE_HEIGHT_STEP*2;
+				target_height += TILE_HEIGHT_STEP * 2;
 			}
 			break;
 		}

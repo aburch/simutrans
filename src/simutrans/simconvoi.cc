@@ -2118,8 +2118,8 @@ void convoi_t::vorfahren()
 			train_length = max(1,train_length);
 
 			// now advance all convoi until it is completely on the track
-			fahr[0]->set_leading(false); // switches off signal checks ...
-			uint32 dist = VEHICLE_STEPS_PER_CARUNIT*train_length<<YARDS_PER_VEHICLE_STEP_SHIFT;
+			fahr[0]->set_leading(fahr[0]->get_waytype()==air_wt); // switches off signal checks ...
+			uint32 dist = (VEHICLE_STEPS_PER_CARUNIT*train_length) << YARDS_PER_VEHICLE_STEP_SHIFT;
 			for(unsigned i=0; i<vehicle_count; i++) {
 				vehicle_t* v = fahr[i];
 
@@ -2132,7 +2132,7 @@ void convoi_t::vorfahren()
 				// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 				v->get_smoke(true);
 
-				uint32 const vlen = ((VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length())<<YARDS_PER_VEHICLE_STEP_SHIFT);
+				uint32 const vlen = (VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length()) << YARDS_PER_VEHICLE_STEP_SHIFT;
 				if (vlen > dist) {
 					break;
 				}
