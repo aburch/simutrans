@@ -623,8 +623,9 @@ void private_car_t::enter_tile(grund_t* gr)
 		// was generating pedestrians gere, but not possible with new sync system
 	}
 #endif
-	vehicle_base_t::enter_tile(gr);
+
 	calc_disp_lane();
+	vehicle_base_t::enter_tile(gr);
 	gr->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
 

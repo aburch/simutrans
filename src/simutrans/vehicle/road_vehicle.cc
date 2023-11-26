@@ -515,8 +515,8 @@ overtaker_t* road_vehicle_t::get_overtaker()
 
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
-	vehicle_t::enter_tile(gr);
 	calc_disp_lane();
+	vehicle_t::enter_tile(gr);
 
 	const int cargo = get_total_cargo();
 	weg_t *str = gr->get_weg(road_wt);

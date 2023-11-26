@@ -19,6 +19,7 @@
 	FIX: Makeobj ignored switch images for tracks with no seasons (e.g. image[new2]=...)
 	FIX: massive swallowing of touch event to keep the game responsive despite SDL2's denial of service flooding
 	FIX: airplane convois do no longer crash the game (but are not working perfect yet ...)
+	FIX: Graphical glitches when road convois change direction in some cases
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
