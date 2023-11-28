@@ -874,7 +874,7 @@ void private_car_t::calc_disp_lane()
 	   if overtaking as there are fíve "display lanes" in simutrans
 	   which determine their drawing order. */
 	bool heading_left = (get_direction() & ribi_t::southwest) != 0;
-	if (heading_left ^ (cnv && cnv->is_overtaking())) {
+	if (heading_left ^ is_overtaking()) {
 		disp_lane ^= 2;
 	}
 }
