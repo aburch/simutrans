@@ -231,7 +231,7 @@ void road_user_t::finish_rd()
 
 
 /**********************************************************************************************************************/
-/* statsauto_t (city cars) from here on */
+/* private_car_t (city cars) from here on */
 
 freelist_iter_tpl<private_car_t> private_car_t::fl;
 
@@ -868,9 +868,15 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 
 void private_car_t::calc_disp_lane()
 {
-	// driving in the back or the front
-	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
-	disp_lane = get_direction() & test_dir ? 1 : 3;
+	disp_lane = welt->get_settings().is_drive_left() ? 1 : 3;
+	/* disp_lane is valid for vehicles moving to the right side of
+	   the screen, must be mirrored if SE < heading < NW, and also
+	   if overtaking as there are fíve "display lanes" in simutrans
+	   which determine their drawing order. */
+	bool heading_left = (get_direction() & ribi_t::southwest) != 0;
+	if (heading_left ^ (cnv && cnv->is_overtaking())) {
+		disp_lane ^= 2;
+	}
 }
 
 void private_car_t::rotate90()
