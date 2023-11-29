@@ -30,7 +30,7 @@ public:
 
 	void rotate90() OVERRIDE;
 
-	void calc_disp_lane();
+	void calc_disp_lane(bool is_overtaking);
 
 	waytype_t get_waytype() const OVERRIDE { return road_wt; }
 
