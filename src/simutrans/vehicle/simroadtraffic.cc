@@ -624,6 +624,7 @@ void private_car_t::enter_tile(grund_t* gr)
 	}
 #endif
 
+	update_tiles_overtaking();
 	calc_disp_lane();
 	vehicle_base_t::enter_tile(gr);
 	gr->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
@@ -797,13 +798,11 @@ void private_car_t::hop(grund_t* to)
 	}
 	calc_image();
 
-	// and add to next tile
 	set_pos(pos_next);
 	enter_tile(to);
 
 	calc_current_speed(to);
 
-	update_tiles_overtaking();
 	if(to->ist_uebergang()) {
 		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
