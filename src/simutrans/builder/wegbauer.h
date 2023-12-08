@@ -173,6 +173,8 @@ private:
 	void build_powerline();
 	void build_river();
 
+	void upgrade_crossing_if_needed(const grund_t*);
+
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
 public:

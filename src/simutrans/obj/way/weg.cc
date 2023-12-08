@@ -266,6 +266,7 @@ void weg_t::count_sign()
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
+		max_speed = desc->get_topspeed(); // reset max_speed
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
 		if(  gr->ist_uebergang()  ) {

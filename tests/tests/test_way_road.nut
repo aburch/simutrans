@@ -758,6 +758,23 @@ function test_way_road_upgrade_crossing()
 	// clean up
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), "" + wt_rail), null)
 	ASSERT_EQUAL(remover.work(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
+
+	// upgrade rail with crossing; the crossing is upgraded
+	{
+		local fast_rail = way_desc_x("wooden_sleeper_track")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
+		// The crossing whose speed limit for rail is 80kph is built here.
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
+		// upgrade rail. The crossing should be upgraded to the one whose speed limit for rail is 160kph.
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), fast_rail, true), null)
+
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_road).get_max_speed(), min(crossing_road_speed, slow_road.get_topspeed()))
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_rail).get_max_speed(), min(crossing_rail_speed, fast_rail.get_topspeed()))
+	}
+
+	// clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), "" + wt_rail), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
