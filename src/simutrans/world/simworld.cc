@@ -544,17 +544,28 @@ void karte_t::rem_convoi(convoihandle_t const cnv)
 }
 
 
-void karte_t::add_city(stadt_t *s)
+stadt_t *karte_t::create_city(const koord pos, sint32 citizens)
 {
+	// if city is owned by player and player removes special
+	// buildings the game crashes. To avoid this problem cities
+	// always belong to the public player
+	stadt_t *new_city = new stadt_t(get_public_player(), pos, citizens);
+	if (new_city->get_einwohner() == 0) {
+		delete new_city;
+		return NULL;
+	}
+
 	settings.set_city_count(settings.get_city_count() + 1);
-	cities.append(s, s->get_einwohner());
+	cities.append(new_city, new_city->get_einwohner());
 
 	// add links between this city and other cities as well as attractions
-	for(stadt_t* const c : cities) {
-		c->add_target_city(s);
+	for(stadt_t *city : cities) {
+		city->add_target_city(new_city);
 	}
-	s->recalc_target_cities();
-	s->recalc_target_attractions();
+
+	new_city->recalc_target_cities();
+	new_city->recalc_target_attractions();
+	return new_city;
 }
 
 
@@ -795,15 +806,11 @@ void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_coun
 			uint32 tbegin = dr_time();
 #endif
 			for(  int i=0;  i<new_city_count;  i++  ) {
-				stadt_t* s = new stadt_t(get_public_player(), (*pos)[i], 1 );
-				DBG_DEBUG("karte_t::distribute_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
-				if (s->get_buildings() > 0) {
-					add_city(s);
-				}
-				else {
-					delete(s);
+				if (const stadt_t *s = create_city((*pos)[i], 1)) {
+					DBG_DEBUG("karte_t::distribute_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITIZENS] );
 				}
 			}
+
 			// center on first city
 			if(  old_x+old_y == 0  &&  cities.get_count()>0) {
 				viewport->change_world_position( cities[0]->get_pos() );

@@ -114,27 +114,27 @@
 /**
  * Message returned when a player cannot afford to complete an action.
  */
-char const *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
+static const char *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
 
 /**
  * Message returned when a player tries to place trees when trees are disabled.
  */
-char const *const NOTICE_NO_TREES = "Trees disabled!";
+static const char *const NOTICE_NO_TREES = "Trees disabled!";
 
 /**
  * Message returned when valid terrain cannot be found for a tool to use.
  */
-char const *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
+static const char *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
 
 /**
  * Message returned when a tool fails due to the target tile being occupied.
  */
-char const *const NOTICE_TILE_FULL = "Tile not empty.";
+static const char *const NOTICE_TILE_FULL = "Tile not empty.";
 
 /**
  * Message returned when a company tries to make a public way when public ways are disabled.
  */
-char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
+static const char *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
 
 /****************************************** static helper functions **************************************/
 
@@ -1697,48 +1697,40 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 	koord k(pos.get_2d());
 
 	grund_t *gr = welt->lookup_kartenboden(k);
-	if(gr) {
-		if(gr->ist_natur() &&
-			!gr->is_water() &&
-			gr->get_grund_hang() == 0  &&
-			hausbauer_t::get_special( 0, building_desc_t::townhall, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
-
-			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
-			if(gb && gb->is_townhall()) {
-				dbg->warning("tool_add_city()", "Already a city here");
-				return NOTICE_TILE_FULL;
-			}
-			else {
-
-				// if city is owned by player and player removes special
-				// buildings the game crashes. To avoid this problem cities
-				// always belong to player 1
-
-				int const citizens = (int)(welt->get_settings().get_mean_citizen_count() * 0.9);
-				//  stadt_t *stadt = new stadt_t(welt->get_public_player(), pos,citizens/10+simrand(2*citizens+1));
-
-				// always start with 1/10 citizens
-				stadt_t* stadt = new stadt_t(welt->get_public_player(), k, citizens / 10);
-				if (stadt->get_buildings() == 0) {
-					delete stadt;
-					return NOTICE_UNSUITABLE_GROUND;
-				}
-
-				welt->add_city(stadt);
-				stadt->finish_rd();
-				stadt->verbinde_fabriken();
-
-				player_t::book_construction_costs(player, cost, k, ignore_wt);
-				minimap_t::get_instance()->calc_map();
-				return NULL;
-			}
-		}
-		else {
-			return NOTICE_UNSUITABLE_GROUND;
-		}
+	if (!gr) {
+		return "";
 	}
-	return "";
+
+	if(!gr->ist_natur() || gr->is_water() || gr->get_grund_hang() != slope_t::flat) {
+		return "Cities can only be built on flat empty ground!";
+	}
+
+	if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, welt->get_climate( k )) == NULL  ) {
+		return "No suitable townhall available for this climate!";
+	}
+
+	gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
+	if (gb && gb->is_townhall()) {
+		dbg->warning("tool_add_city()", "Already a city here");
+		return NOTICE_TILE_FULL;
+	}
+
+	// always start with 1/10 citizens
+	const int citizens = (int)(welt->get_settings().get_mean_citizen_count() * 0.09);
+
+	stadt_t *stadt = welt->create_city(k, citizens);
+	if (!stadt) {
+		return NOTICE_UNSUITABLE_GROUND;
+	}
+
+	stadt->finish_rd();
+	stadt->verbinde_fabriken();
+
+	player_t::book_construction_costs(player, cost, k, ignore_wt);
+	minimap_t::get_instance()->calc_map();
+	return NULL;
 }
+
 
 // buy a house
 const char *tool_buy_house_t::work( player_t *player, koord3d pos)

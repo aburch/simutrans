@@ -234,6 +234,8 @@ public:
 	 */
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
+	const sint64* get_city_history_year() const { return *city_history_year; }
+	const sint64* get_city_history_month() const { return *city_history_month; }
 
 	uint32 stadtinfo_options;
 

@@ -482,6 +482,10 @@ obj=program_text
 name=citicens
 -
 obj=program_text
+name=Cities can only be built on flat empty ground!
+note=Error message when building city manually
+-
+obj=program_text
 name=City attraction
 -
 obj=program_text
@@ -1373,6 +1377,10 @@ name=No Route
 -
 obj=program_text
 name=No suitable ground!
+-
+obj=program_text
+name=No suitable townhall available for this climate!
+note=Error message when building city manually
 -
 obj=program_text
 name=No terminal station here!
@@ -4253,7 +4261,7 @@ note=script Ai text player list and load dialoque
 --
 obj=program_text
 name=Load script tool
-note=mouseover and dialoque title
+note=mouseover and dialogue title
 --
 
 #obj=help_text
