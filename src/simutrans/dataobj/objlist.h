@@ -89,7 +89,6 @@ public:
 	bool remove(const obj_t* obj);
 	bool loesche_alle(player_t *player,uint8 offset);
 	bool ist_da(const obj_t* obj) const;
-	void rotate90_moving();
 
 	inline uint8 get_top() const {return top;}
 
