@@ -176,8 +176,9 @@ void pedestrian_t::rdwr(loadsave_t *file)
 void pedestrian_t::calc_disp_lane()
 {
 	// walking in the back or the front
-	ribi_t::ribi test_dir = on_left ? ribi_t::northeast : ribi_t::southwest;
-	disp_lane = direction & test_dir ? 0 : 4;
+	disp_lane = on_left ? 0 : 4;
+	if ((direction & ribi_t::south) || direction == ribi_t::west)
+		disp_lane ^= 4;
 }
 
 
