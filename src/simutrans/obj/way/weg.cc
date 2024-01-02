@@ -446,6 +446,13 @@ void weg_t::calc_image()
 			// on slope
 			set_images(image_slope, hang, snow);
 		}
+		else if (ribi_t::is_threeway(ribi)) {
+			set_images(image_switch, ribi, snow, has_switched());
+		}
+		else if (!ribi_t::is_twoway(ribi)) {
+			set_images(image_flat, ribi, snow);
+		}
+		// recursion to find out of diagonal
 		else {
 			static int recursion = 0; /* Communicate among different instances of this method */
 

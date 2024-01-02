@@ -868,11 +868,12 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 void private_car_t::calc_disp_lane()
 {
 	disp_lane = welt->get_settings().is_drive_left() ? 1 : 3;
+	ribi_t::ribi dir = get_direction();
 	/* disp_lane is valid for vehicles moving to the right side of
-	   the screen, must be mirrored if SE < heading < NW, and also
-	   if overtaking as there are fíve "display lanes" in simutrans
+	   the screen, must be mirrored if SE <= heading < NW, and also
+	   if overtaking as there are five "display lanes" in simutrans
 	   which determine their drawing order. */
-	bool heading_left = (get_direction() & ribi_t::southwest) != 0;
+	bool heading_left = (dir & ribi_t::south) || dir == ribi_t::west;
 	if (heading_left ^ is_overtaking()) {
 		disp_lane ^= 2;
 	}

@@ -65,12 +65,12 @@ Section "pak.japan (64 size)" pak64japan
 SectionEnd
 
 
-Section /o "pak.Nippon (64 size) V0.5" pak64nippon
+Section /o "pak.Nippon (64 size) V0.6.2" (new) pak64nippon
   AddSize 48300
-  StrCpy $downloadlink "https://github.com/wa-st/pak-nippon/releases/download/v0.5.0/pak.nippon-v0.5.0.zip"
-  StrCpy $archievename "pak.nippon-v0.5.0.zip"
+  StrCpy $downloadlink "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip"
+  StrCpy $archievename "pak.nippon-v0.6.2.zip"
   StrCpy $downloadname "pak.nippon"
-  StrCpy $VersionString "pak.nippon v0.5.0"
+  StrCpy $VersionString "pak.nippon v0.6.2"
   SetOutPath $PAKDIR
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd

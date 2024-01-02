@@ -185,7 +185,7 @@ paksets=( \
 	"http://downloads.sourceforge.net/project/simutrans/pak64/123-0/simupak64-123-0.zip" \
 	"http://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-4_full.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip" \
-	"http://github.com/wa-st/pak-nippon/releases/download/v0.5.0/pak.nippon-v0.5.0.zip" \
+	"https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip" \
 	"https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2078.zip" \
 	"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip" \

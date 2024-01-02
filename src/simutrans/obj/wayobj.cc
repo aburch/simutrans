@@ -27,6 +27,7 @@
 
 #include "../ground/grund.h"
 #include "../obj/way/weg.h"
+#include "../obj/way/strasse.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -89,7 +90,10 @@ wayobj_t::~wayobj_t()
 				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 				weg->set_electrify(false);
 				// restore old speed limit
-				sint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_desc()->get_topspeed();
+				sint32 max_speed = weg->get_desc()->get_topspeed();
+				if (wt==road_wt  &&  weg->hat_gehweg()) {
+					max_speed = 50;
+				}
 				if(gr->get_typ()==grund_t::tunnelboden) {
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) {

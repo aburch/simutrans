@@ -87,7 +87,8 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::is_bend(dir)  &&  get_desc()->has_switch_image()  ) {
 			mark_image_dirty( get_image(), 0 );
 			mark_image_dirty( get_front_image(), 0 );
-			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::northeast  ||  dir==ribi_t::southwest) );
+			set_switched(dir == ribi_t::northeast || dir == ribi_t::southwest);
+			set_images(image_switch, get_ribi_unmasked(), is_snow(), has_switched() );
 			set_flag( obj_t::dirty );
 		}
 		if(schiene_t::show_reservations) {

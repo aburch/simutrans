@@ -375,43 +375,19 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 	while(  end>start  &&  (!obj.some[end-1]->is_moving()  ||  ((vehicle_base_t*)obj.some[end-1])->get_disp_lane() > lane) ) {
 		end--;
 	}
-	if(start==end) {
-		intern_insert_at(new_obj, start);
-		return true;
+
+	/* Vehicles are sorted back to front by their disp_lane.  Here we
+	   append them in tile entry order within their disp_lane, last one
+	   displayed in front.  Those moving downwards on screen (direction
+	   NE, E, SE, S) must be prepended, first one in front. */
+	auto v = static_cast<const vehicle_base_t*>(new_obj);
+	const uint8 direction = v->get_direction();
+	if (direction == ribi_t::north || (direction & ribi_t::west)) {
+		start = end; // append
 	}
 
-	const uint8 direction = ((vehicle_base_t*)new_obj)->get_direction();
-
-	switch(lane) {
-		// pedestrians or road vehicles, back: either w/sw/s or n/ne/e
-		case 0:
-		case 1: {
-			// on right side to w,sw; on left to n: insert last
-			// on right side to s; on left to ne,e: insert first
-			if (direction == ribi_t::south  ||  (direction & ribi_t::east)) {
-				intern_insert_at(new_obj, start);
-			}
-			else {
-				intern_insert_at(new_obj, end);
-			}
-			return true;
-		}
-		// middle land
-		case 2:
-		case 3:
-		// pedestrians, road vehicles, front lane
-		case 4: {
-			// going e/s: insert first, else last
-			if ( (direction & ribi_t::northwest)==0 ) {
-				intern_insert_at(new_obj, start);
-			}
-			else {
-				intern_insert_at(new_obj, end);
-			}
-			return true;
-		}
-	}
-	return false;
+	intern_insert_at(new_obj, start);
+	return true;
 }
 
 
@@ -626,6 +602,130 @@ bool objlist_t::loesche_alle(player_t *player, uint8 offset)
 	shrink_capacity(top);
 
 	return ok;
+}
+
+
+/* Rotates the display order of moving objects 90 deg CW.  The objects
+   themselves are not rotated, that is expected to happen afterwards. */
+void objlist_t::rotate90_moving()
+{
+	if (capacity < 2)
+		return; // has no obj.some
+
+	uint begin, end;
+	for (begin = 0; begin < top; ++begin) {
+		if (obj.some[begin]->is_moving())
+			break;
+	}
+	for (end = top; end > begin; --end) {
+		if (obj.some[end - 1]->is_moving())
+			break;
+	}
+	if (end - begin < 2)
+		return;
+
+	obj_t **old_some = obj.some;
+	obj.some = dl_alloc(capacity);
+
+	uint old_top = top;
+
+	for (top = 0; top < begin; ++top)
+		obj.some[top] = old_some[top];
+
+	/* intern_add_moving() appends vehicles in the order they
+	   enter a tile.  To sort them back to front it reverses,
+	   i.e. prepends those moving downwards on screen (direction
+	   NE, E, SE, S).  Additionally it sorts vehicles on different
+	   road lanes by their disp_lane, numbers which ascend back to
+	   front.
+
+	   We must maintain the original entry order, reverse vehicles
+	   which were prepended, and insert based on the rotated
+	   disp_lane and direction.  Lane numbers are mirrored when a
+	   vehicle moves to the left side of the screen, so disp_lane
+	   will be mirrored if the current direction is NE, E, SW, or W.
+
+	   The order is lost if vehicles entered the same lane in
+	   different directions, that may cause a visual glitch but
+	   shouldn't really happen. */
+
+	static const uint append_dirs = (
+		(1 << ribi_t::southwest) | (1 << ribi_t::west) |
+		(1 << ribi_t::northwest) | (1 << ribi_t::north));
+	static const uint rotated_append_dirs = (
+		(1 << ribi_t::southeast) | (1 << ribi_t::south) |
+		(1 << ribi_t::southwest) | (1 << ribi_t::west));
+	static const uint rotated_mirror_dirs = (
+		(1 << ribi_t::northeast) | (1 << ribi_t::east) |
+		(1 << ribi_t::southwest) | (1 << ribi_t::west));
+
+	auto rotated_disp_lane = [] (uint& dir_mask, const obj_t* o) {
+		auto v = static_cast<const vehicle_base_t*>(o);
+		dir_mask = 1 << v->get_direction();
+		uint lane = v->get_disp_lane();
+		return (rotated_mirror_dirs & dir_mask) ? 4 - lane : lane;
+	};
+
+	auto insert = [&] (obj_t *o) {
+		uint dir_mask, dm;
+		uint lane = rotated_disp_lane(dir_mask, o);
+		uint i;
+
+		// Insert in the same disp_lane, first position.
+		for (i = begin; i < top; ++i) {
+			if (rotated_disp_lane(dm, obj.some[i]) >= lane)
+				break;
+		}
+		// Append if the vehicle will move upwards on screen after
+		// rotation, same as in intern_add_moving().
+		if (rotated_append_dirs & dir_mask) {
+			for (; i < top; ++i) {
+				if (rotated_disp_lane(dm, obj.some[i]) > lane)
+					break;
+			}
+		}
+
+		intern_insert_at(o, i);
+	};
+
+	const vehicle_base_t* v;
+	auto disp_lane = [&v] (const obj_t* o) {
+		v = static_cast<const vehicle_base_t*>(o);
+		return v->get_disp_lane();
+	};
+
+	uint prev_lane = disp_lane(old_some[begin]);
+
+	for (uint i = begin; i < end;) {
+		uint prepended_begin = i;
+		uint lane;
+
+		// Find the first appended vehicle.
+		for (; i < end; ++i) {
+			lane = disp_lane(old_some[i]);
+			if (lane != prev_lane)
+				break;
+			if (append_dirs & (1 << v->get_direction()))
+				break;
+		}
+ 
+		for (uint j = i; j > prepended_begin; --j) {
+			insert(old_some[j - 1]);
+		}
+		for (; i < end; ++i) {
+			lane = disp_lane(old_some[i]);
+			if (lane != prev_lane)
+				break;
+			insert(old_some[i]);
+		}
+
+		prev_lane = lane;
+	}
+
+	while (top < old_top)
+		obj.some[top++] = old_some[end++];
+
+	dl_free(old_some, capacity);
 }
 
 
