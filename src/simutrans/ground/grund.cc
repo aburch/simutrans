@@ -744,7 +744,7 @@ static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
 /**
 * if ground is deleted mark the old spot as dirty
 */
-void grund_t::mark_image_dirty()
+void grund_t::mark_image_dirty() const
 {
 	// see obj_t::mark_image_dirty
 	if(imageid!=IMG_EMPTY) {

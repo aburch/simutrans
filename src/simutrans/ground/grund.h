@@ -321,7 +321,7 @@ public:
 	/**
 	* if ground is deleted mark the old spot as dirty
 	*/
-	void mark_image_dirty();
+	void mark_image_dirty() const;
 
 	/**
 	* Return the name of the ground.

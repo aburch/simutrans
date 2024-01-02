@@ -385,17 +385,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	if(  is_diagonal()  ) {
 		set_images( image_diagonal, ribi, snow );
 	}
-	else if(  ribi_t::is_threeway( ribi )  &&  desc->has_switch_image()  ) {
-		// there might be two states of the switch; remember it when changing seasons
-		if(  image == desc->get_switch_image_id( ribi, old_snow, false )  ) {
-			set_images( image_switch, ribi, snow, false );
-		}
-		else if(  image == desc->get_switch_image_id( ribi, old_snow, true )  ) {
-			set_images( image_switch, ribi, snow, true );
-		}
-		else {
-			set_images( image_flat, ribi, snow );
-		}
+	else if(  ribi_t::is_threeway( ribi )  &&  desc->get_waytype()!=road_wt  ) {
+		set_images(image_switch, ribi, snow, has_switched());
 	}
 	else {
 		set_images( image_flat, ribi, snow );
