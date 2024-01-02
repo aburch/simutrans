@@ -90,7 +90,7 @@ class road_connector_t extends manager_t
         // count trials, and fail if necessary
         if (c_trial_route > 3) {
           print("Route building failed " + c_trial_route + " times.")
-          gui.add_message_at(pl, "Failed to complete route from  " + coord_to_string(fsrc) + " to " + coord_to_string(fdest) + " after " + c_trial_route + " attempts", fsrc)
+          if (debug) gui.add_message_at(pl, "Failed to complete route from  " + coord_to_string(fsrc) + " to " + coord_to_string(fdest) + " after " + c_trial_route + " attempts", fsrc)
           return error_handler()
         }
         c_trial_route++

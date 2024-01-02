@@ -365,7 +365,7 @@ function build_check_time(build_cost) {
 
   if ( cash > 0 ) { k -= cash + (net_wealth / 2) }
 
-  gui.add_message_at(our_player, "### k -= cash " + k, world.get_time())
+  //gui.add_message_at(our_player, "### k -= cash " + k, world.get_time())
 
   local t = 0
   if ( operating_profit[1] > 0 ) {
@@ -374,9 +374,9 @@ function build_check_time(build_cost) {
     t = 12
   }
 
-  gui.add_message_at(our_player, "### build_cost " + build_cost, world.get_time())
-  gui.add_message_at(our_player, "### operating_profit[1] " + operating_profit[1], world.get_time())
-  gui.add_message_at(our_player, "### build_check_time(build_cost) " + t, world.get_time())
+  //gui.add_message_at(our_player, "### build_cost " + build_cost, world.get_time())
+  //gui.add_message_at(our_player, "### operating_profit[1] " + operating_profit[1], world.get_time())
+  //gui.add_message_at(our_player, "### build_check_time(build_cost) " + t, world.get_time())
 
   if ( t > 24 ) {
     t = 24

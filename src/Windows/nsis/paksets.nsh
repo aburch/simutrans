@@ -43,12 +43,12 @@ SectionEnd
 
 SectionGroupEnd
 
-Section "pak64.german (Freeware) for 123" pak64german
-  AddSize 22460
-  StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-2_full.zip"
-  StrCpy $archievename "pak64.german_0-123-0-0-2_full.zip"
+Section "pak64.german (Freeware)" pak64german
+  AddSize 23840
+  StrCpy $downloadlink "https://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-1_full.zip"
+  StrCpy $archievename "pak64.german_0-124-0-0-1_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.123.0.0.2"
+  StrCpy $VersionString "pak64.german 0.124.0.0.1"
   SetOutPath $PAKDIR
   Call DownloadInstallZip
 SectionEnd
@@ -77,7 +77,7 @@ SectionEnd
 
 Section /o "pak128.German V2.1" pak128german
   AddSize 558832
-	StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $archievename "PAK128.german_2.1_for_ST_123.0.zip"
   StrCpy $downloadname "pak128.German"
   StrCpy $VersionString "Pak128.german VS 2.1 (Rev. 473)"
@@ -249,4 +249,3 @@ Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
 SectionEnd
 
 SectionGroupEnd
-

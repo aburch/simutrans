@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "AI player implementation road/ship/rail"
 
 ai.author <- "dwachs/Andarix"
-ai.version <- "0.9.1"
+ai.version <- "0.9.3"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -335,6 +335,7 @@ function get_set_name()
  * output = 1 -> return road_car_rate
  */
 function set_map_vehicles_counts(output = 0) {
+  sleep()
   local citycar_array = world.get_year_citycars()
   local convoy_array = world.get_convoys()
   convoy_count = convoy_array[0]
