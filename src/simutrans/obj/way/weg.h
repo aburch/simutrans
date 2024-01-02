@@ -69,6 +69,8 @@ private:
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
+	static uint16 cityroad_speed;
+
 	/**
 	* Way type description
 	*/
@@ -148,6 +150,9 @@ public:
 
 	void set_max_speed(sint32 s) { max_speed = s; }
 	sint32 get_max_speed() const { return max_speed; }
+
+	static void set_cityroad_speedlimit(uint16 new_limit);
+	static uint16 get_cityroad_speedlimit() { return cityroad_speed; }
 
 	/// @note Replaces max speed of the way by the max speed property of the descriptor.
 	void set_desc(const way_desc_t *b);

@@ -21,6 +21,8 @@
 	FIX: airplane convois do no longer crash the game (but are not working perfect yet ...)
 	FIX: graphical glitches when road convois change direction in some cases and on overtaking with drive on left
 	FIX: (THLeaderH) crossings upgrade when ways are upgraded
+	CHG: state of switches (images) save during reloading
+	ADD: new parameter in simuconf.tab "cityroad_speeds" for a timeline (year,new_speed) of speed limits of way with pavement
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

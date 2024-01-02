@@ -786,7 +786,7 @@ public:
 	void step_month( sint16 months=1 );
 
 	/**
-	 * @return Either 0 or the current year*16 + month
+	 * @return Either 0 or the current year*12 + month
 	 */
 	uint16 get_timeline_year_month() const { return settings.get_use_timeline() ? current_month : 0; }
 

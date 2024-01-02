@@ -22,7 +22,7 @@ public:
 
 	inline waytype_t get_waytype() const OVERRIDE {return road_wt;}
 
-	void set_gehweg(bool janein);
+	//void set_gehweg(bool janein);
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 };

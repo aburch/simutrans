@@ -169,6 +169,7 @@ settings_t::settings_t() :
 
 	num_city_roads = 0;
 	num_intercity_roads = 0;
+	city_road_speed_limit_num = 0;
 
 	max_route_steps = 1000000;
 	max_choose_route_steps = 200;
@@ -921,12 +922,19 @@ void settings_t::rdwr(loadsave_t *file)
 				case 3: wind_direction = ribi_t::south; break;
 			}
 		}
-
 		if(  file->is_version_atleast(122, 2)  ) {
 			file->rdwr_bool(stop_halt_as_scheduled);
 		}
+		// restoring the city speed limit vector
+		if (file->is_version_atleast(123, 3)) {
+			file->rdwr_short(city_road_speed_limit_num);
+			for (uint16 i = 0;  i < city_road_speed_limit_num;  i++) {
+				file->rdwr_short(city_road_speed_limit[i]);
+			}
+		}
 		// otherwise the default values of the last one will be used
 	}
+
 	// sometimes broken savegames could have no legal direction for take off ...
 	if( !ribi_t::is_single( wind_direction ) ) {
 		wind_direction = ribi_t::west;
@@ -1100,6 +1108,24 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 			start = end;
 			end = s.find_first_of( ",", start + 1 );
 			env_t::listen.append_unique( ltrim( s.substr( start + 1, end - 1 - start ).c_str() ) );
+		}
+	}
+
+	// listen directive is a comma separated list of years and cityroad speeds
+	if (*contents.get("cityroad_speeds")) {
+		const char *start = ltrim(contents.get("cityroad_speeds"));
+		city_road_speed_limit_num = 0;
+		city_road_speed_limit[city_road_speed_limit_num++]=atoi(start);
+		while (*start  && city_road_speed_limit_num<20) {
+			start++;
+			if (*start == ',') {
+				start++;
+				city_road_speed_limit[city_road_speed_limit_num++] = atoi(start);
+			}
+		}
+		// make sure we have pairs
+		if (city_road_speed_limit_num & 1) {
+			dbg->error("Wrong number of entries in city_road_speed_limit", "Expected pairs yers,speed but only %i values", city_road_speed_limit_num);
 		}
 	}
 
@@ -1750,6 +1776,20 @@ static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, 
 way_desc_t const* settings_t::get_city_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_city_roads, city_roads );
+}
+
+
+uint16 settings_t::get_city_road_speed_limit(uint16 year)
+{
+	uint16 limit = 50;
+	sint32 last_year = -1;
+	for (int i = 0; i < city_road_speed_limit_num; i += 2) {
+		if (city_road_speed_limit[i] <= year && last_year < city_road_speed_limit[i]) {
+			last_year = city_road_speed_limit[i];
+			limit = city_road_speed_limit[i + 1];
+		}
+	}
+	return limit;
 }
 
 

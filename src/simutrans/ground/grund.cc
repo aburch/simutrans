@@ -1120,7 +1120,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 				//display snow transitions if required
 				if(  slope != 0  &&  (!weg  ||  !weg->hat_gehweg())  ) {
-					// the getweg flag is used for rail switches, but a slope has no switches ...
+					// the gehweg flag is used for rail switches, but a slope has no switches ...
 					switch(  snow_transition  ) {
 						case 1: {
 							display_alpha( ground_desc_t::get_snow_tile(slope), ground_desc_t::get_alpha_tile(slope), ALPHA_GREEN | ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );

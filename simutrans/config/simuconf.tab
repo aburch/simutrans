@@ -519,6 +519,11 @@ allow_merge_distant_halt=2
 # default: asphalt_road
 # (old, 102.2.2 and before) city_road_type = city_road
 
+# city road speed limit over time
+# A comma seperated list of year of change and new limit
+# without a timeline, the value will be 50
+#cityroad_speeds=1,25,1910,30,1930,40,1950,50
+
 # now river stuff
 # first river type (should be defined in pak dependent file)
 # The highest number is the smallest. A river with max_speed==0 is not navigable by ships.

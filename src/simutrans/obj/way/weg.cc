@@ -45,13 +45,32 @@ static recursive_mutex_maker_t weg_cim_maker(weg_calc_image_mutex);
  */
 slist_tpl <weg_t *> alle_wege;
 
+uint16 weg_t::cityroad_speed = 50;
 
 /**
  * Get list of all ways
  */
-const slist_tpl <weg_t *> & weg_t::get_alle_wege()
+const slist_tpl <weg_t*> &weg_t::get_alle_wege()
 {
 	return alle_wege;
+}
+
+
+void weg_t::set_cityroad_speedlimit(uint16 new_limit)
+{
+	if (cityroad_speed != new_limit) {
+		cityroad_speed = new_limit;
+		for(weg_t *w : alle_wege) {
+			if(  w->hat_gehweg()  &&  w->get_waytype() == road_wt  ) {
+				if (const way_desc_t* desc = w->get_desc()) {
+					w->set_max_speed(max(desc->get_topspeed(), cityroad_speed));
+				}
+				else {
+					w->set_max_speed(cityroad_speed);
+				}
+			}
+		}
+	}
 }
 
 
@@ -115,8 +134,8 @@ void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
 
-	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {
-		max_speed = 50;
+	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > cityroad_speed  ) {
+		max_speed = cityroad_speed;
 	}
 	else {
 		max_speed = desc->get_topspeed();

@@ -8,6 +8,7 @@
 
 
 #include <string>
+
 #include "../simtypes.h"
 #include "../simconst.h"
 
@@ -223,6 +224,10 @@ private:
 	road_timeline_t city_roads[10];
 	uint16 num_intercity_roads;
 	road_timeline_t intercity_roads[10];
+
+	// pairs of year,speed
+	uint16 city_road_speed_limit_num;
+	uint16 city_road_speed_limit[20];
 
 	/**
 	 * Use numbering for stations?
@@ -490,6 +495,7 @@ public:
 
 	const way_desc_t *get_city_road_type( uint16 year );
 	const way_desc_t *get_intercity_road_type( uint16 year );
+	uint16 get_city_road_speed_limit(uint16 year);
 
 	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }

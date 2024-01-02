@@ -3054,7 +3054,7 @@ void karte_t::recalc_average_speed()
 			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
 			city_road = way_builder_t::weg_search(road_wt,50,get_timeline_year_month(),type_flat);
 		}
-
+		weg_t::set_cityroad_speedlimit(settings.get_city_road_speed_limit(get_timeline_year_month() / 12));
 	}
 	else {
 		// defaults
@@ -3062,6 +3062,7 @@ void karte_t::recalc_average_speed()
 		if(city_road==NULL) {
 			city_road = way_builder_t::weg_search(road_wt,50,0,type_flat);
 		}
+		weg_t::set_cityroad_speedlimit(50);
 	}
 }
 

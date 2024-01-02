@@ -92,7 +92,7 @@ wayobj_t::~wayobj_t()
 				// restore old speed limit
 				sint32 max_speed = weg->get_desc()->get_topspeed();
 				if (wt==road_wt  &&  weg->hat_gehweg()) {
-					max_speed = 50;
+					max_speed = weg_t::get_cityroad_speedlimit();
 				}
 				if(gr->get_typ()==grund_t::tunnelboden) {
 					tunnel_t *t = gr->find<tunnel_t>(1);
