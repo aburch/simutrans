@@ -2267,9 +2267,13 @@ function find_signal(sig_type, wt) {
   foreach(o in list) {
     if (o.is_signal() && sig_type == "is_signal") {
       obj_sign = o
-      return o
+    }
+    if ( o.is_traffic_light() && sig_type == "traffic_light" ) {
+      obj_sign = o
     }
   }
+
+  return obj_sign
 
 }
 
