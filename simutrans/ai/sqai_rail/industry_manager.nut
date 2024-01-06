@@ -730,13 +730,22 @@ class industry_manager_t extends manager_t
       local entries = line.get_schedule().entries
       local start_h = entries[0].get_halt(our_player)
 
+      // remove stucked convoy
+      // cnv_count > 10 then remove cnv_count/2
+      local cnv_remove_count = cnv_count
+      if ( cnv_count > 10 ) {
+        cnv_remove_count = abs(cnv_count / 2)
+        //gui.add_message_at(our_player, "(738) ####  cnv_remove_count " + cnv_remove_count, world.get_time())
+      }
+      local loading_cnv_stucked = 0
+
       for ( local i = 0; i < cnv_count; i++ ) {
         if ( !list[i].is_withdrawn() && cnv == null ) {
           cnv = list[i]
         }
-        // stucked road vehicles destroy
+        // stucked convoy destroy
         local d = list[i].get_traveled_distance()
-        if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && cnv_count > 1 && list[i].get_loading_level() == 0) {
+        if ( list[i].get_distance_traveled_total() > 0 && d[0] == 0 && d[1] == 0 && list[i].is_loading() == false && cnv_count > 1 && list[i].get_loading_level() == 0 && stucked_cnv.len() <= cnv_remove_count ) {
           //gui.add_message_at(our_player, "####### destroy stucked road vehicles " + cnv_count, world.get_time())list[i].get_waytype() == wt_road &&
           stucked_cnv.append(list[i])
           //remove_cnv++
@@ -748,11 +757,16 @@ class industry_manager_t extends manager_t
         // destroy no waiting goods
         if ( start_h != null ) {
           local d = start_h.get_waiting()
-          if ( d[0] == 0 && list[i].is_loading() == false ) {
+          if ( d[0] == 0 && list[i].is_loading() == false && stucked_cnv.len() <= cnv_remove_count ) {
             //gui.add_message_at(our_player, "(605) ####### " + start_h.get_name() + " - destroy waiting road vehicles ", world.get_time())
             stucked_cnv.append(list[i])
             //remove_cnv++
           }
+        }
+        // stucked loaded convoy
+        if ( d[0] == 0 && d[1] == 0 && list[i].get_loading_level() > 0 && loading_cnv_stucked == 0 ) {
+          loading_cnv_stucked = 1
+          //gui.add_message_at(our_player, "(768) ####  loading convoy stucked ", world.get_time())
         }
       }
 
@@ -1729,8 +1743,15 @@ class industry_manager_t extends manager_t
 
         }
       }
+
     }
     dbgprint("")
+
+    if ( wt == wt_road ) {
+      line.next_vehicle_check = world.get_time().ticks + road_line_check
+    } else {
+      line.next_vehicle_check = world.get_time().ticks + world.get_time().ticks_per_month
+    }
 
     return true
 
