@@ -14,18 +14,9 @@
 #include <string>
 
 class loadsave_t;
+class sve_info_t;
 
-class sve_info_t {
-public:
-	std::string pak;
-	sint64 mod_time;
-	sint32 file_size;
-	bool file_exists;
-	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false) {}
-	sve_info_t(const char *pak_, time_t mod_, sint32 fs);
-	bool operator== (const sve_info_t &) const;
-	void rdwr(loadsave_t *file);
-};
+
 
 class loadsave_frame_t : public savegame_frame_t
 {
@@ -34,7 +25,6 @@ private:
 
 	button_t easy_server; // only active on loading savegames
 
-	static stringhashtable_tpl<sve_info_t *> cached_info;
 
 protected:
 	/**
@@ -56,7 +46,7 @@ public:
 	*/
 	const char *get_help_filename() const OVERRIDE;
 
-	loadsave_frame_t(bool do_load);
+	loadsave_frame_t(bool do_load, bool back_to_menu = false);
 
 	/**
 	 * save hashtable to xml file

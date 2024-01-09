@@ -6,7 +6,7 @@
 #ifndef GUI_BANNER_H
 #define GUI_BANNER_H
 
-
+#include "scenario_frame.h"
 #include "../dataobj/environment.h"
 #include "components/gui_button.h"
 #include "gui_frame.h"
@@ -21,12 +21,22 @@ class banner_t : public gui_frame_t, action_listener_t
 {
 private:
 	button_t
+		continue_game,
 		new_map,
 		load_map,
+		play_tutorial,
 		load_scenario,
-		options,
 		join_map,
+		options,
+		install,
+		credits,
 		quit;
+
+	cbuffer_t continue_tooltip;
+
+	scenario_frame_t *scenario_frame = new scenario_frame_t();
+
+	std::string pakset_tutorial = env_t::pak_dir + "scenario/" + env_t::pakset_tutorial_dir;
 
 public:
 	banner_t();
@@ -46,11 +56,12 @@ public:
 	*/
 	FLAGGED_PIXVAL get_titlecolor() const OVERRIDE {return env_t::default_window_title_color; }
 
-	bool is_hit(int, int) OVERRIDE { return true; }
-
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	static void show_banner();
+
 };
 
 #endif

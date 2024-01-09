@@ -508,6 +508,8 @@ public:
 	 * @see simmain.cc
 	 */
 	static void rdwr(loadsave_t *file);
+
+	static std::string pakset_tutorial_dir;
 };
 
 #endif

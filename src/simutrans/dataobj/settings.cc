@@ -1626,6 +1626,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	if(  *contents.get("soundfont_filename")  ) {
 		env_t::soundfont_filename = ltrim(contents.get("soundfont_filename"));
 	}
+
+	env_t::pakset_tutorial_dir = ltrim( contents.get_string("pakset_tutorial_dir", env_t::pakset_tutorial_dir.c_str()) );
 }
 
 // colour stuff can only be parsed when the graphic system has already started

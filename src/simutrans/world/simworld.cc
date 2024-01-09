@@ -3808,7 +3808,6 @@ bool karte_t::load(const char *filename)
 					// no sync => finish network mode
 					dbg->warning("karte_t::load","finished network mode");
 					network_disconnect();
-					finish_loop = false; // do not trigger intro screen
 					// closing the socket will tell the server, I am away too
 				}
 			}

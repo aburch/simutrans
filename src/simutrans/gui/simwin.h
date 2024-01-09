@@ -221,6 +221,6 @@ void win_set_tooltip(scr_coord pos, const char *text, const void *const owner = 
 void win_set_static_tooltip(const char *text);
 
 // shows a modal dialoge (blocks other interaction)
-void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)());
+void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)(), bool dismissible = false);
 
 #endif

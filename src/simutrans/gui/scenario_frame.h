@@ -31,15 +31,17 @@ protected:
 	// returns extra file info
 	const char *get_info(const char *fname) OVERRIDE;
 
+public:
 	// true, if valid
 	bool check_file( const char *filename, const char *suffix ) OVERRIDE;
 
-public:
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
 	*/
 	const char * get_help_filename() const OVERRIDE { return "scenario.txt"; }
+
+	void load_scenario(const char *fullpath, bool is_easy_server = false);
 
 	scenario_frame_t();
 };

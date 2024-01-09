@@ -24,7 +24,7 @@
 #include "../utils/cbuffer.h"
 
 
-scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
+scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false, true)
 {
 	static cbuffer_t pakset_scenario;
 	static cbuffer_t addons_scenario;
@@ -47,19 +47,23 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 	set_focus(NULL);
 }
 
+void scenario_frame_t::load_scenario(const char *fullpath, bool is_easy_server)
+{
+	cbuffer_t param;
+
+	param.printf("%i,%s", is_easy_server, fullpath);
+	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(param);
+	welt->set_tool(tool_t::simple_tool[TOOL_LOAD_SCENARIO], NULL);
+	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(0);
+}
+
 
 /**
  * Action, started after button pressing.
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
-	cbuffer_t param;
-
-	param.printf("%i,%s", easy_server.pressed, fullpath);
-	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(param);
-	welt->set_tool(tool_t::simple_tool[TOOL_LOAD_SCENARIO], NULL);
-	tool_t::simple_tool[TOOL_LOAD_SCENARIO]->set_default_param(0);
-
+	scenario_frame_t::load_scenario(fullpath, easy_server.pressed);
 	return true;
 }
 

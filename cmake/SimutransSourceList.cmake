@@ -27,6 +27,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/dataobj/scenario.cc
 		src/simutrans/dataobj/schedule.cc
 		src/simutrans/dataobj/settings.cc
+		src/simutrans/dataobj/sve_cache.cc
 		src/simutrans/dataobj/tabfile.cc
 		src/simutrans/dataobj/translator.cc
 		src/simutrans/descriptor/bridge_desc.cc

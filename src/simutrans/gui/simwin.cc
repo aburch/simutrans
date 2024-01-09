@@ -2140,7 +2140,7 @@ void win_set_static_tooltip(const char *text)
 
 
 // shows a modal dialoge
-void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)())
+void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)(), bool dismissible)
 {
 	if (display_get_width() == 0) {
 		dbg->error("modal_dialogue", "called without a display driver => nothing will be shown!");
@@ -2188,6 +2188,15 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 							help_frame_t::open_help_on(helpfile);
 							continue;
 						}
+					}
+				}
+				
+				if(dismissible){
+					if (
+						(ev.ev_class == EVENT_KEYBOARD) ||
+						(ev.ev_class == EVENT_CLICK && !gui->is_hit(ev.click_pos.x - pos.x, ev.click_pos.y - pos.y))
+					) {
+						destroy_win(gui);
 					}
 				}
 

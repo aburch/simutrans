@@ -14,19 +14,23 @@
 #include "../macros.h"
 #include "../descriptor/skin_desc.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/sve_cache.h"
+#include "../tool/simmenu.h"
 
 #include "simwin.h"
 #include "banner.h"
+#include "welt.h"
 #include "loadsave_frame.h"
 #include "scenario_frame.h"
 #include "server_frame.h"
 #include "components/gui_image.h"
 #include "optionen.h"
+#include "pakinstaller.h"
 
 
 // Local adjustments
-#define L_BANNER_ROWS        ( 5 )                             // Rows of scroll text
-#define L_BANNER_TEXT_INDENT ( 4 )                             // Scroll text padding (left/right)
+#define L_BANNER_ROWS        ( 6 )                             // Rows of scroll text
+#define L_BANNER_TEXT_INDENT ( 5 )                             // Scroll text padding (left/right)
 #define L_BANNER_HEIGHT      ( L_BANNER_ROWS * LINESPACE + 2 ) // Banner control height in pixels
 
 // colors
@@ -53,50 +57,26 @@ public:
 
 banner_t::banner_t() : gui_frame_t("")
 {
-	set_table_layout(1,0);
+	set_table_layout(3,0);
 
-	new_component<gui_label_t>("This is Simutrans" SIM_VERSION_BUILD_STRING, SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+	add_table(1, 0); {
+		sve_cache_t::load_cache();
+		const std::string last_save = sve_cache_t::get_most_recent_compatible_save();
 
-	new_component<gui_label_t>(get_version(), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		// Continue game button
+		continue_game.init( button_t::roundbox | button_t::flexible, "Continue Game");
+		continue_game.add_listener( this );
+		continue_game.enable(!last_save.empty());
 
-	add_table(5,0);
-	{
-		new_component_span<gui_label_t>("The version is developed by", SYSCOL_TEXT_TITLE, gui_label_t::left, 5)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_fill_t>();
+		if (!last_save.empty()) {
+			continue_tooltip.printf("Load '%s'", (last_save.c_str() + 5));
+			continue_game.set_tooltip(continue_tooltip.get_str());
+		}
 
-		add_table(1,0);
-		new_component<gui_label_t>("the simutrans team", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("under the Artistic Licence", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("based on Simutrans 84.22.1", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		end_table();
+		add_component( &continue_game );
 
-		new_component<gui_fill_t>();
-		new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
-		new_component<gui_fill_t>();
-	}
-	end_table();
+		new_component<gui_divider_t>();
 
-	new_component<gui_label_t>("Selling of the program is forbidden.", color_idx_to_rgb(COL_ORANGE), gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-	new_component<gui_label_t>("For questions and support please visit:", SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-
-	add_table(3,0);
-	{
-		new_component<gui_fill_t>();
-		add_table(1,0);
-		new_component<gui_label_t>("https://www.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("https://forum.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		new_component<gui_label_t>("https://wiki.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
-		end_table();
-		new_component<gui_fill_t>();
-	}
-
-	end_table();
-
-	// scrolling text ...
-	new_component<banner_text_t>();
-
-	add_table(3,2)->set_force_equal_columns(true);;
-	{
 		// New game button
 		new_map.init( button_t::roundbox | button_t::flexible, "Neue Karte");
 		new_map.add_listener( this );
@@ -107,25 +87,101 @@ banner_t::banner_t() : gui_frame_t("")
 		load_map.add_listener( this );
 		add_component( &load_map );
 
+
+		// Play Tutorial
+		play_tutorial.init( button_t::roundbox | button_t::flexible, "Tutorial");
+		play_tutorial.add_listener( this );
+		if(  !(scenario_frame->check_file(pakset_tutorial.c_str(), ""))  ) {
+			play_tutorial.disable();
+			play_tutorial.set_tooltip("Scenario Tutorial is not available for this pakset. Please try loading Pak128.");
+		}
+		add_component( &play_tutorial );
+
 		// Load scenario button
 		load_scenario.init( button_t::roundbox | button_t::flexible, "Load scenario");
 		load_scenario.add_listener( this );
 		add_component( &load_scenario );
-
-		// Options button
-		options.init( button_t::roundbox | button_t::flexible, "Optionen");
-		options.add_listener( this );
-		add_component( &options );
 
 		// Play online button
 		join_map.init( button_t::roundbox | button_t::flexible, "join game");
 		join_map.add_listener( this );
 		add_component( &join_map );
 
+		// Options button
+		options.init( button_t::roundbox | button_t::flexible, "Optionen");
+		options.add_listener( this );
+		add_component( &options );
+
+		// Install button
+		install.init( button_t::roundbox | button_t::flexible, "Install");
+		install.add_listener( this );
+		add_component( &install );
+
+		new_component<gui_fill_t>(false, true);
+		new_component<gui_divider_t>();
+
 		// Quit button
 		quit.init( button_t::roundbox | button_t::flexible, "Beenden");
 		quit.add_listener( this );
 		add_component( &quit );
+	}
+	end_table();
+
+	add_table(1, 0)->set_margin(scr_size(10,0), scr_size());
+	{
+		add_table(3,0);
+		{
+			add_table(1,0);
+			{
+				add_table(2,0)->set_spacing(scr_size(0,0));{
+					new_component<gui_label_t>("Welcome to Simutrans", SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+					new_component<gui_label_t>(SIM_VERSION_BUILD_STRING, SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+				}
+				end_table();
+				new_component<gui_fill_t>(true, true);
+				add_table(3,0);
+				{
+					new_component<gui_fill_t>();
+					add_table(1,0);
+						new_component<gui_label_t>("Developed by the Simutrans Team", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+						new_component<gui_label_t>("under the Artistic Licence ", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+						new_component<gui_label_t>("based on Simutrans 84.22.1", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+					end_table();
+					new_component<gui_fill_t>();
+				}
+				end_table();
+			}
+			end_table();
+			new_component<gui_fill_t>();
+			new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
+		}
+		end_table();
+
+		new_component<gui_fill_t>(true, true);
+
+		add_table(1,0);
+		{
+		new_component<gui_label_t>("Selling of the program is forbidden.", color_idx_to_rgb(COL_RED), gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("For questions and support please visit:", SYSCOL_TEXT_TITLE, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		}
+		end_table();
+
+		add_table(3,0);
+		{
+			new_component<gui_fill_t>();
+			add_table(1,0);
+			new_component<gui_label_t>("https://www.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+			new_component<gui_label_t>("https://forum.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+			new_component<gui_label_t>("https://wiki.simutrans.com", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::left)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+			end_table();
+			new_component<gui_fill_t>();
+		}
+		end_table();
+
+		new_component<gui_fill_t>(false, true);
+		new_component<banner_text_t>();
+		new_component<gui_fill_t>(false, true);
+		new_component<gui_label_t>(get_version(), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 	}
 	end_table();
 
@@ -144,30 +200,55 @@ bool banner_t::infowin_event(const event_t *ev)
 
 bool banner_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
-	if(  comp == &quit  ) {
+	if(  comp == &continue_game  ) {
+		sve_cache_t::load_cache();
+		const std::string last_save = sve_cache_t::get_most_recent_compatible_save();
+		destroy_all_win(true);
+		welt->load(last_save.c_str());
+	}
+	else if(  comp == &quit  ) {
 		env_t::quit_simutrans = true;
 		destroy_all_win(true);
 	}
 	else if(  comp == &new_map  ) {
 		destroy_all_win(true);
+		create_win( new welt_gui_t(&env_t::default_settings), w_info, magic_welt_gui_t );
+	}
+	else if(  comp == &play_tutorial  ) {
+		destroy_all_win(true);
+		scenario_frame->load_scenario(pakset_tutorial.c_str());
 	}
 	else if(  comp == &load_map  ) {
 		destroy_all_win(true);
-		create_win( new loadsave_frame_t(true), w_info, magic_load_t);
+		create_win( new loadsave_frame_t(true, true), w_info, magic_load_t );
 	}
 	else if(  comp == &load_scenario  ) {
 		destroy_all_win(true);
-		create_win( new scenario_frame_t(), w_info, magic_load_scenario );
-	}
-	else if(  comp == &options  ) {
-		destroy_all_win(true);
-		create_win( new optionen_gui_t(), w_info, magic_optionen_gui_t );
+		create_win( scenario_frame, w_info, magic_load_scenario );
 	}
 	else if(  comp == &join_map  ) {
 		destroy_all_win(true);
 		create_win( new server_frame_t(), w_info, magic_server_frame_t );
 	}
+	else if(  comp == &options  ) {
+		destroy_all_win(true);
+		create_win( new optionen_gui_t(), w_info, magic_optionen_gui_t );
+	}
+	else if (comp == &install) {
+#if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
+		dr_download_pakset(env_t::base_dir, env_t::base_dir == env_t::user_dir);  // windows
+#else
+		destroy_all_win(true);
+		create_win( new pakinstaller_t(), w_info, magic_pakinstall );
+#endif
+	}
 	return true;
+}
+
+void banner_t::show_banner() {
+	tool_t::simple_tool[TOOL_QUIT]->set_default_param("n");
+	welt->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
+	tool_t::simple_tool[TOOL_QUIT]->set_default_param(0);
 }
 
 
@@ -184,8 +265,8 @@ void banner_text_t::draw(scr_coord offset)
 	scr_coord cursor(get_pos() + offset);
 	const scr_coord_val text_line = (line / LINESPACE) * 2;
 	const scr_coord_val text_offset = line % LINESPACE;
-	const scr_coord_val left = cursor.x + D_MARGIN_LEFT;
-	const scr_coord_val width = size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
+	const scr_coord_val left = cursor.x;
+	const scr_coord_val width = size.w;
 	const scr_coord_val height = size.h;
 
 
@@ -216,7 +297,7 @@ void banner_text_t::draw(scr_coord offset)
 	POP_CLIP();
 
 	// scroll on every 70 ms
-	if(dr_time()>last_ms+70u) {
+	if(  dr_time() > (last_ms + 70u)  ) {
 		last_ms += 70u;
 		line ++;
 	}

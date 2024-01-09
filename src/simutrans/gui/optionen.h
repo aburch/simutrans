@@ -21,7 +21,7 @@
 class optionen_gui_t : public gui_frame_t, action_listener_t
 {
 	private:
-		button_t option_buttons[12];
+		button_t option_buttons[9];
 
 	public:
 		optionen_gui_t();

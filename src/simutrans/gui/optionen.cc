@@ -18,7 +18,7 @@
 #include "kennfarbe.h"
 #include "sound_frame.h"
 #include "scenario_info.h"
-#include "pakinstaller.h"
+#include "banner.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -26,26 +26,26 @@
 
 enum BUTTONS {
 	BUTTON_LANGUAGE = 0,
-	BUTTON_NEW_GAME,
 	BUTTON_PLAYERS,
-	BUTTON_LOAD_GAME,
-	BUTTON_PLAYER_COLORS,
-	BUTTON_SAVE_GAME,
 	BUTTON_DISPLAY,
-	BUTTON_LOAD_SCENARIO,
+	BUTTON_PLAYER_COLORS,
 	BUTTON_SOUND,
+	BUTTON_SAVE_GAME,
 	BUTTON_SCENARIO_INFO,
-	BUTTON_INSTALL,
+	BUTTON_MENU,
 	BUTTON_QUIT
 };
 
 static char const *const option_buttons_text[] =
 {
-	"Sprache", "Neue Karte",
-	"Spieler(mz)", "Load game",
-	"Farbe", "Speichern",
-	"Display settings", "Load scenario",
-	"Sound", "Scenario", "Install",
+	"Sprache",
+	"Spieler(mz)",
+	"Display",
+	"Farbe",
+	"Sound",
+	"Save",
+	"Scenario",
+	"Neue Karte",
 	"Beenden"
 };
 
@@ -61,7 +61,6 @@ optionen_gui_t::optionen_gui_t() :
 
 	for(  uint i=0;  i<lengthof(option_buttons);  i++  ) {
 
-		add_component(option_buttons + i);
 		option_buttons[i].init(button_t::roundbox | button_t::flexible, option_buttons_text[i]);
 		option_buttons[i].add_listener(this);
 
@@ -71,8 +70,10 @@ optionen_gui_t::optionen_gui_t() :
 				option_buttons[BUTTON_SCENARIO_INFO].disable();
 			}
 			// Squeeze in divider
+			new_component<gui_fill_t>();
+			add_component(option_buttons + i);
 			new_component_span<gui_divider_t>(2);
-		}
+		} else add_component(option_buttons + i);
 	}
 
 	reset_min_windowsize();
@@ -104,20 +105,6 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	else if(  comp == option_buttons + BUTTON_SCENARIO_INFO  ) {
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 	}
-	else if(  comp == option_buttons + BUTTON_LOAD_GAME  ) {
-		destroy_win(this);
-		tool_t *tmp_tool = create_tool( DIALOG_LOAD | DIALOGE_TOOL );
-		welt->set_tool( tmp_tool, welt->get_active_player() );
-		// since init always returns false, it is safe to delete immediately
-		delete tmp_tool;
-	}
-	else if(  comp == option_buttons + BUTTON_LOAD_SCENARIO  ) {
-		destroy_win(this);
-		tool_t *tmp_tool = create_tool( DIALOG_SCENARIO | DIALOGE_TOOL );
-		welt->set_tool( tmp_tool, welt->get_active_player() );
-		// since init always returns false, it is safe to delete immediately
-		delete tmp_tool;
-	}
 	else if(  comp == option_buttons + BUTTON_SAVE_GAME  ) {
 		destroy_win(this);
 		tool_t *tmp_tool = create_tool( DIALOG_SAVE | DIALOGE_TOOL );
@@ -125,18 +112,9 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;
 	}
-	else if (comp == option_buttons + BUTTON_NEW_GAME) {
-		// create new world
-		tool_t::simple_tool[TOOL_QUIT]->set_default_param("n");
-		welt->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
-		tool_t::simple_tool[TOOL_QUIT]->set_default_param(0);
-	}
-	else if (comp == option_buttons + BUTTON_INSTALL) {
-#if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
-		dr_download_pakset(env_t::base_dir, env_t::base_dir == env_t::user_dir);  // windows
-#else
-		create_win(new pakinstaller_t(), w_info, magic_pakinstall);
-#endif
+	else if (comp == option_buttons + BUTTON_MENU) {
+		// return to menu
+		banner_t::show_banner();
 	}
 	else if(  comp == option_buttons + BUTTON_QUIT  ) {
 		// we call the proper tool for quitting

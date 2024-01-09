@@ -66,10 +66,8 @@ class welt_gui_t  :
 		use_beginner_mode,
 		open_climate_gui,
 		open_setting_gui,
-		load_game,
-		load_scenario,
 		start_game,
-		quit_game;
+		return_menu;
 
 	/**
 	 * Calculates preview from height map

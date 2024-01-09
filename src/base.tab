@@ -4263,6 +4263,46 @@ obj=program_text
 name=Load script tool
 note=mouseover and dialogue title
 --
+obj=button_text
+name=Tutorial
+note=Button in the banner window
+--
+obj=tooltip_text
+name=Tutorial not available for this pakset. Please try loading Pak128.
+note=Tooltip text for the button in the banner window
+--
+obj=button_text
+name=Continue Game
+note=Button in the banner window
+--
+obj=button_text
+name=Return to menu
+note=Button to return to banner menu
+--
+obj=program_text
+name=Welcome to Simutrans
+note=Text in banner. It may be followed by a version string (i.e. "Nightly")
+--
+obj=program_text
+name=Developed by the Simutrans Team
+note=Text in banner
+--
+obj=program_text
+name=under the Artistic License
+note=Text in banner
+--
+obj=program_text
+name=based on Simutrans 84.22.1
+note=Text in banner
+--
+obj=program_text
+name=Selling of the program is forbidden.
+note=Text in banner
+--
+obj=program_text
+name=For questions and support please visit:
+note=Text in banner
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds

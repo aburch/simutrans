@@ -16,6 +16,7 @@
 #include "../utils/searchfolder.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
+#include "banner.h"
 
 #define L_DEFAULT_ROWS       (12)   // Number of file entries to show as default
 #define L_SHORTENED_SIZE   (48)
@@ -49,7 +50,7 @@ public:
  * @param delete_enabled    Show (true) or hide (false) the delete buttons.
  *                          This is an optional parameter with a default value of true;
  */
-savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled) : gui_frame_t( translator::translate("Load/Save") ),
+savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled, bool back_to_menu) : gui_frame_t( translator::translate("Load/Save") ),
 	suffix(suffix),
 	in_action(false),
 	only_directories(only_directories),
@@ -60,6 +61,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	num_sections(0),
 	delete_enabled(delete_enabled)
 {
+	is_back_to_menu = back_to_menu;
 	set_table_layout(1,0);
 	label_enabled = true;
 
@@ -509,6 +511,9 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		// Cancel-button pressed
 		//----------------------------
 		cancel_action(buf);
+		if(is_back_to_menu) {
+			banner_t::show_banner();
+		}
 		destroy_win(this);
 	}
 	else {
