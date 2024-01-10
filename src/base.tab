@@ -1818,7 +1818,8 @@ obj=program_text
 name=Speedlimit
 -
 obj=program_text
-name=Speichern
+name=Save
+note=button and window title
 -
 obj=program_text
 name=Spieler

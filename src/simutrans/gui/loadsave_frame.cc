@@ -87,7 +87,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load, bool back_to_menu) : savegame_f
 	}
 	else {
 		set_filename(welt->get_settings().get_filename());
-		set_name(translator::translate("Speichern"));
+		set_name(translator::translate("Save"));
 	}
 
 	sve_cache_t::load_cache();
