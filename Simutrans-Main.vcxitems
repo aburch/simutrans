@@ -42,6 +42,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\scenario.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\schedule.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\settings.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\sve_cache.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\tabfile.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\translator.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\descriptor\bridge_desc.cc" />
@@ -391,6 +392,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\schedule_entry.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\schedule.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\settings.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\sve_cache.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\tabfile.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\dataobj\translator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\descriptor\bridge_desc.h" />
@@ -720,7 +722,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\simcity.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\simplan.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\simworld.h" />
-	<ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\surface.h" />
+  <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\surface.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\world\terraformer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\squirrel\sqconfig.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\squirrel\sq_extensions.h" />

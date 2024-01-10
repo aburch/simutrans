@@ -4,6 +4,7 @@
  */
 
 #include "sve_cache.h"
+#include <time.h>
 
 #include "../dataobj/loadsave.h"
 #include "../utils/simstring.h"
