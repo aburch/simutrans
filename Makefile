@@ -311,6 +311,7 @@ SOURCES += src/simutrans/dataobj/route.cc
 SOURCES += src/simutrans/dataobj/scenario.cc
 SOURCES += src/simutrans/dataobj/schedule.cc
 SOURCES += src/simutrans/dataobj/settings.cc
+SOURCES += src/simutrans/dataobj/sve_cache.cc
 SOURCES += src/simutrans/dataobj/tabfile.cc
 SOURCES += src/simutrans/dataobj/translator.cc
 SOURCES += src/simutrans/descriptor/bridge_desc.cc
