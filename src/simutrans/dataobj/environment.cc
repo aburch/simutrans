@@ -97,7 +97,7 @@ sint16 env_t::midi_volume = 127;
 uint16 env_t::specific_volume[MAX_SOUND_TYPES];
 
 std::string env_t::soundfont_filename = "";
-std::string env_t::pakset_tutorial_dir = "tutorial_pak128";
+std::string env_t::pakset_tutorial_dir = "tutorial";
 bool env_t::global_mute_sound = false;
 bool env_t::mute_midi = false;
 bool env_t::shuffle_midi = true;

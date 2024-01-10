@@ -509,6 +509,8 @@ public:
 	 */
 	static void rdwr(loadsave_t *file);
 
+	/// Name of tutorial scenario for the current pakset.
+	/// Defaults to "tutorial".
 	static std::string pakset_tutorial_dir;
 };
 
