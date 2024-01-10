@@ -3,12 +3,12 @@
 #define OBSOLETE_FROM (10)
 paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64/123-0/simupak64-123-0.zip", "pak", "pak64 123 r2102", 16068 },
-	{ "http://simutrans-germany.com/pak.german/pak64.german_0-123-0-0-4_full.zip", "pak64.german", "pak64.german 0.123.0.0.4", 25620 },
-	{ "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip", "pak.japan", "pak64.japan 123 r2101", 10068 },
+	{ "https://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-1_full.zip", "pak64.german", "pak64.german 0.124.0.0.1", 27036 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip", "pak.japan", "pak64.japan 123 r2101", 10064 },
 	{ "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip", "pak.nippon", "pak.nippon v0.6.2", 50220 },
 	{ "https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip", "pak48.Excentrique", "pak48.Excentrique v0.19", 2100 },
 	{ "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2078.zip", "pak128.CS", "Pak128.CS 0.3.0", 78628 },
-	{ "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip", "pak128.Britain", "pak128.Britain 1.18 120.3 r1991", 240572 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip", "pak128.Britain", "pak128.Britain 1.18 120.3 r1991", 240568 },
 	{ "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip", "PAK128.german", "Pak128.german VS 2.1 (Rev. 473)", 559016 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%202.8.2%20for%20ST%20123up/simupak128-2.8.2-for123.zip", "pak128", "pak128 2.8.2 for 123.0.1 git r498 hash 0adb1d2", 414700 },
 	{ "https://github.com/Flemmbrav/Pak192.Comic/releases/download/V0.6/pak192.comic.zip", "pak192.comic_0_6", "Pak192.Comic 0.6 Git Rev 771", 802136 },
