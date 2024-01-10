@@ -40,7 +40,7 @@ static char const *const option_buttons_text[] =
 {
 	"Sprache",
 	"Spieler(mz)",
-	"Display",
+	"Display settings",
 	"Farbe",
 	"Sound",
 	"Save",
