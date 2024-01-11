@@ -758,7 +758,7 @@ class industry_manager_t extends manager_t
         // destroy no waiting goods
         if ( start_h != null ) {
           local d = start_h.get_waiting()
-          if ( d[0] == 0 && list[i].is_loading() == false && stucked_cnv.len() <= cnv_remove_count ) {
+          if ( d[0] == 0 && list[i].is_loading() == false && stucked_cnv.len() <= cnv_remove_count && list[i].get_loading_level() == 0 ) {
             //gui.add_message_at(our_player, "(605) ####### " + start_h.get_name() + " - destroy waiting road vehicles ", world.get_time())
             stucked_cnv.append(list[i])
             //remove_cnv++
@@ -785,12 +785,16 @@ class industry_manager_t extends manager_t
             sleep()
           }
           local traffic_build = 0
-          for ( local s = 0; traffic_build < 2; s++ ) {
+          for ( local s = 0; s < route_tile.len(); s++ ) {
             local test_way = route_tile[s].find_object(mo_way)
 
             if ( dir.is_threeway(route_tile[s].get_way_dirs(wt_road)) && (test_way.get_owner().nr == our_player_nr || test_way.get_owner().nr == 1) ) {
               local err = command_x.build_sign_at(our_player, route_tile[s], traffic_obj)
               traffic_build++
+              if ( traffic_build == 2 ) {
+                continue
+              }
+
             }
 
 
@@ -1640,7 +1644,8 @@ class industry_manager_t extends manager_t
         c.p_depot  = depot_x(depot.x, depot.y, depot.z)
         c.p_line   = line
         c.p_convoy = proto
-        if ( wt == wt_road ) {
+        local cnv_payload = c.p_convoy.capacity
+        if ( wt == wt_road && cnv_payload < 30 ) {
           // by road add 3 vehicles
           c.p_count  = 3
         } else {
