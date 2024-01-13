@@ -68,12 +68,13 @@ install_cab()
 	}
 
 	# First check if we only have a simutrans/ directory at the root.
-	files=$(echo "$files"|grep " simutrans/")
+	files=$(echo "$files" | grep "| simutrans/")
 	if [ $? -eq 0 ]; then
 		# has simutrans folder, but cabextract cannot handle unix path on windows
 		destdir="."
 	else
-		destdir="."
+		mkdir -p simutrans
+		destdir="simutrans"
 	fi
 
 	cabextract -qd "$destdir" "$pakzippath" || {
@@ -94,17 +95,20 @@ install_tgz()
 	}
 
 	# First check if we only have a simutrans/ directory at the root.
-	files=$(echo "$files"|grep "^simutrans/")
+	files=$(echo "$files"|grep "^simutrans")
 	if [ $? -eq 0 ]; then
 		# has simutrans folder
 		destdir="$(pwd)"
 		extra="--strip-components=1"
 	else
+		mkdir -p simutrans
 		destdir="$(pwd)/simutrans"
 		extra=""
 	fi
 
-	tar -zxf "$pakzippath" "$extra" C "$destdir" || {
+	# No quotes around $extra, since adding quotes breaks extraction if $extra evaluates to the empty string
+	# (This will be interpreted as the file(s) to extract and not as a command line parameter)
+	tar -xzf "$pakzippath" $extra -C "$destdir" || {
 		echo "Error: Could not extract '$pakzippath' to '$destdir'" >&2
 		return 1
 	}
