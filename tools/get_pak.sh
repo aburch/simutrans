@@ -271,7 +271,7 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 		else
 			rm -f "$zipname"
 			echo "Error: Cannot extract unknown archive format" >&2
-			return 1
+			exit 1
 		fi
 
 		size="$(du -s -Bk simutrans | sed 's/K.*$//')"
