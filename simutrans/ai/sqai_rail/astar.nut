@@ -563,7 +563,7 @@ class astar_builder extends astar
         local err
         // build
         if (route[i-1].flag == 0) {
-          if ( way.get_waytype() == wt_road ) {
+          /*if ( way.get_waytype() == wt_road ) {
             if ( build_route == 1 ) {
               err = command_x.build_road(our_player, route[i-1], route[i], way, true, true)
               if (err) {
@@ -573,7 +573,7 @@ class astar_builder extends astar
 
             }
 
-          } else {
+          } else {*/
             if ( build_route == 1 ) {
               // test way is available
               if ( !way.is_available(world.get_time()) ) {
@@ -583,6 +583,35 @@ class astar_builder extends astar
               local t = tile_x(route[i].x, route[i].y, route[i].z)
               local d = t.get_way_dirs(way.get_waytype())
               local test_exists_way = t.find_object(mo_way)
+
+              local check_build_tile = true
+              if ( i > 1 && i < (route.len()-1) ) {
+                local tx_0 = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
+                local tx_1 = tile_x(route[i+1].x, route[i+1].y, route[i+1].z)
+                if ( tx_0.find_object(mo_way) != null && tx_1.find_object(mo_way) != null ) {
+                  //gui.add_message_at(our_player, " check tx_0 and tx_1 ", t)
+                  if ( test_exists_way == null ) {
+                    local ty = route[i]
+                    local cnv_count = tx_0.find_object(mo_way).get_convoys_passed()[0] + tx_0.find_object(mo_way).get_convoys_passed()[1]
+
+                    if ( last_treeway_tile != null && cnv_count == 0 ) {
+                      ty = route[last_treeway_tile]
+                    }
+                    err = test_select_way(tx_1, tx_0, ty, way.get_waytype())
+                    //gui.add_message_at(our_player, " check tx_0 and tx_1 : test_select_way " + err, t)
+                    if ( err ) {
+                      check_build_tile = false
+                    }
+                    err = null
+                  }
+                } else if ( test_exists_way != null && test_exists_way.get_waytype() == way.get_waytype() ) {
+                  check_build_tile = false
+                }
+                if ( tx_0.find_object(mo_signal) != null ) {
+                  check_build_tile = false
+
+                }
+              }
 
               if ( test_exists_way != null && test_exists_way.get_owner() != our_player.nr ) { //&& last_treeway_tile != null
                 //gui.add_message_at(our_player, "test_exists_way " + test_exists_way + " last_treeway_tile " + last_treeway_tile + " test_exists_way.get_waytype() " + test_exists_way.get_waytype() + " !t.is_bridge() " + !t.is_bridge() + " t.get_slope() " + t.get_slope(), t)
@@ -597,7 +626,8 @@ class astar_builder extends astar
                 last_treeway_tile = null
               }
 
-              if ( i > 2 && test_exists_way != null && last_treeway_tile != null && test_exists_way.get_waytype() == wt_rail && !t.is_bridge() && t.get_slope() == 0 ) {
+              if ( i > 2 && test_exists_way != null && last_treeway_tile != null && test_exists_way.get_waytype() == wt_rail && t.get_slope() == 0 ) {
+                gui.add_message_at(our_player, " (624) ", t)
                 err = test_select_way(route[i], route[last_treeway_tile], route[i-1], way.get_waytype())
                 if ( err ) {
                   last_treeway_tile = null
@@ -623,10 +653,10 @@ class astar_builder extends astar
               }
 
               local build_tile = false
-              if ( settings.get_pay_for_total_distance_mode == 2 && test_exists_way == null ) {
+              if ( settings.get_pay_for_total_distance_mode == 2 && test_exists_way == null && check_build_tile ) {
                 err = command_x.build_way(our_player, route[i-1], route[i], way, true)
                 build_tile = true
-              } else if ( test_exists_way == null ) {
+              } else if ( test_exists_way == null && check_build_tile ) {
                 err = command_x.build_way(our_player, route[i-1], route[i], way, false)
                 build_tile = true
               }
@@ -639,6 +669,7 @@ class astar_builder extends astar
               } else {
                 t = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
                 d = t.get_way_dirs(way.get_waytype())
+                //gui.add_message_at(our_player, " (666) dir.is_threeway(d) " + dir.is_threeway(d), t)
                 if ( dir.is_threeway(d) && way.get_waytype() == wt_rail && build_tile ) {
                   last_treeway_tile = i - 1
                 }
@@ -648,7 +679,7 @@ class astar_builder extends astar
                 count_tree++
               }
             }
-          }
+          //}
         }
         else if (route[i-1].flag == 1) {
           // plan build bridge
@@ -728,13 +759,13 @@ class astar_builder extends astar
  *
  */
 function test_select_way(start, end, t_end, wt) {
-  //gui.add_message_at(our_player, "start " + coord3d_to_string(start) + " end " + coord3d_to_string(end) + " t_end " + coord3d_to_string(t_end), start)
+  gui.add_message_at(our_player, "start " + coord3d_to_string(start) + " end " + coord3d_to_string(end) + " t_end " + coord3d_to_string(t_end), start)
   local asf = astar_route_finder(wt_rail)
   local wayline = asf.search_route([start], [end])
   if ( "err" in wayline ) {
     //gui.add_message_at(our_player, "no route from " + coord3d_to_string(start) + " to " + coord3d_to_string(end) , start)
   } else {
-    gui.add_message_at(our_player, "exists route from " + coord3d_to_string(start) + " to " + coord3d_to_string(end) , start)
+    //gui.add_message_at(our_player, "exists route from " + coord3d_to_string(start) + " to " + coord3d_to_string(end) , start)
     local toolr = command_x(tool_remove_way)
     toolr.work(our_player, t_end, end, "" + wt)
     return true
@@ -768,11 +799,6 @@ function replace_bridge_to_land(tiles) {
         local tile_a1 = square_x(tiles_ground[1].x, tiles_ground[1].y-1).get_ground_tile()
         local tile_b1 = square_x(tiles_ground[0].x, tiles_ground[0].y+1).get_ground_tile()
         local tile_b2 = square_x(tiles_ground[1].x, tiles_ground[1].y+1).get_ground_tile()
-
-
-
-
-
 
 
       }
