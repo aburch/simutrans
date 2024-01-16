@@ -16,16 +16,10 @@ jobs:
       uses: actions/checkout@v3
       id: checkout_code
 
-    - name: Prepares NSIS plugins
+    - name: Make NSIS
       shell: pwsh
-      run: ./.github/prepare-nsis.ps1
-
-    - name: Create nsis installer
-      uses: joncloud/makensis-action@v4
-      with:
-        arguments: "/V3"
-        additional-plugin-paths: NSIS_Plugins/Plugins
-        script-file: src/Windows/nsis/onlineupgrade.nsi
+      run:
+        ./.github/prepare-nsis.ps1
 
     - name: Run MSBuild
       shell: pwsh
@@ -42,6 +36,7 @@ jobs:
       shell: pwsh
       run: |
         move-item "build/SDL2/Simutrans SDL2 Nightly.exe" "simutrans/simutrans.exe"
+        move-item "src\Windows\nsis\download-paksets.exe" "simutrans/download-pakset.exe"
         tools/get_lang_files.ps1
         Compress-Archive -Path simutrans -DestinationPath "simuwin64-SDL2-nightly.zip"
         dir
