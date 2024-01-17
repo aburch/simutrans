@@ -89,7 +89,7 @@ set_target_properties( simutrans PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BIN
 # Generate revision on compile time (so only if needed) if no revision is given
 #
 if (${SIMUTRANS_USE_REVISION})
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}src/simutrans/revision.h "#define REVISION ${SIMUTRANS_USE_REVISION}\n")
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION ${SIMUTRANS_USE_REVISION}\n")
 	message(STATUS "Compiling Simutrans with manually specified revision ${SIMUTRANS_USE_REVISION}")
 else ()
 	string(FIND ${CMAKE_GENERATOR} "Visual Studio" VS )
