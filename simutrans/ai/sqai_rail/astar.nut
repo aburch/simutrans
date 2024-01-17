@@ -627,7 +627,7 @@ class astar_builder extends astar
               }
 
               if ( i > 2 && test_exists_way != null && last_treeway_tile != null && test_exists_way.get_waytype() == wt_rail && t.get_slope() == 0 ) {
-                gui.add_message_at(our_player, " (624) ", t)
+                //gui.add_message_at(our_player, " (624) ", t)
                 err = test_select_way(route[i], route[last_treeway_tile], route[i-1], way.get_waytype())
                 if ( err ) {
                   last_treeway_tile = null
@@ -759,7 +759,7 @@ class astar_builder extends astar
  *
  */
 function test_select_way(start, end, t_end, wt) {
-  gui.add_message_at(our_player, "start " + coord3d_to_string(start) + " end " + coord3d_to_string(end) + " t_end " + coord3d_to_string(t_end), start)
+  //gui.add_message_at(our_player, "start " + coord3d_to_string(start) + " end " + coord3d_to_string(end) + " t_end " + coord3d_to_string(t_end), start)
   local asf = astar_route_finder(wt_rail)
   local wayline = asf.search_route([start], [end])
   if ( "err" in wayline ) {
@@ -1317,7 +1317,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
         if (dir.is_threeway(next_tile.get_way_dirs(wt))  ||  t_field.get_owner().nr == 1) {
           test = 1
           tile_treeway = dir.is_threeway(next_tile.get_way_dirs(wt))
-          //gui.add_message_at(our_player, "dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
+          gui.add_message_at(our_player, "(1320) dir.is_threeway(next_tile.get_way_dirs(wt) " + dir.is_threeway(next_tile.get_way_dirs(wt)), next_tile)
           //::debug.pause()
         }
       }
@@ -5184,6 +5184,7 @@ function destroy_line(line_obj, good, link_obj) {
     } else {
       local sig_tile = 0
       local t_t = 0
+      local treeway_tiles = []
       foreach(node in wayline.routes) {
         local tile = tile_x(node.x, node.y, node.z)
         nexttile.append(tile)
@@ -5215,7 +5216,15 @@ function destroy_line(line_obj, good, link_obj) {
 
           }
           treeways++
+          //gui.add_message_at(our_player, " ## treeway_tiles " + coord3d_to_string(tile), tile)
+          treeway_tiles.append(tile)
           t_t = 1
+
+          // test signals by rail
+          if ( sig_tile == 1 && wt == wt_rail ) {
+            double_way_tiles.append(treeway_tiles.top())
+            sig_tile = 0
+          }
         }
 
         // treeway tile other player, set next tile for remove
@@ -5225,13 +5234,15 @@ function destroy_line(line_obj, good, link_obj) {
 
         // test signals by rail
         if ( tile.find_object(mo_signal) != null && wt == wt_rail ) {
-          double_way_tiles.append(treeway_tile_s[0])
+          //double_way_tiles.append(treeway_tile_s[0])
+          double_way_tiles.append(treeway_tiles.top())
           sig_tile = 1
           double_ways++
-        }else if ( dir.is_threeway(tile.get_way_dirs(wt)) && sig_tile == 1 && wt == wt_rail ) {
+          //gui.add_message_at(our_player, " ## treeway_tiles.top() " + coord3d_to_string(treeway_tiles.top()), tile)
+        } /*else if ( dir.is_threeway(tile.get_way_dirs(wt)) && sig_tile == 1 && wt == wt_rail ) {
           double_way_tiles.append(tile)
           sig_tile = 0
-        }
+        }*/
       }
       if ( wt == wt_rail && print_message_box > 0 ) {
         gui.add_message_at(our_player, " double_ways " + double_ways, world.get_time())
@@ -5326,8 +5337,9 @@ function destroy_line(line_obj, good, link_obj) {
           local cnv_count_1 = double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[0] + double_way_tiles[j+1].get_way(wt_rail).get_convoys_passed()[1]
 
           if ( print_message_box > 0 ) {
-            gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[i]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[i+1]), double_way_tiles[i])
-            gui.add_message_at(our_player, " cnv_count_0 " + cnv_count_0 + " cnv_count_1 " + cnv_count_1 + " cnv_count_start " + cnv_count_start, double_way_tiles[i])
+            gui.add_message_at(our_player, " double_way_tiles[j] " + coord3d_to_string(double_way_tiles[j]) + " double_way_tiles[j+1] " + coord3d_to_string(double_way_tiles[j+1]), double_way_tiles[j])
+            gui.add_message_at(our_player, " j " + j, double_way_tiles[j+1])
+            gui.add_message_at(our_player, " cnv_count_0 " + cnv_count_0 + " cnv_count_1 " + cnv_count_1 + " cnv_count_start " + cnv_count_start + " cnv_count_end " + cnv_count_end, double_way_tiles[i])
             //::debug.pause()
           }
 
@@ -5340,6 +5352,9 @@ function destroy_line(line_obj, good, link_obj) {
               //::debug.pause()
             }
 
+          } else if ( !dir.is_threeway(double_way_tiles[j].get_way_dirs(wt)) && !dir.is_threeway(double_way_tiles[j+1].get_way_dirs(wt)) ) {
+            tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
+            tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j], "" + wt_rail)
           }
 
           j += 2;
