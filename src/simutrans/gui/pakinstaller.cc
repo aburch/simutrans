@@ -81,6 +81,7 @@ bool pakinstaller_t::action_triggered(gui_action_creator_t *comp, value_t)
 	}
 
 	// now install
+	dr_mkdir( env_t::install_dir );
 	dr_chdir( env_t::install_dir );
 	vector_tpl<paksetinfo_t*>install_paks;
 

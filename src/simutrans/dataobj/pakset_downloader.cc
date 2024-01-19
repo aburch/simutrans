@@ -91,6 +91,7 @@ bool pak_can_download(const paksetinfo_t *pi)
 bool pak_download(vector_tpl<paksetinfo_t*>paks)
 {
 	// now install
+	dr_mkdir( env_t::install_dir );
 	dr_chdir( env_t::install_dir );
 	loadingscreen_t ls("Install paks", paks.get_count(), true, false);
 	int j = 0;
@@ -180,6 +181,7 @@ static void extract_pak_from_zip(const char* zipfile)
 bool pak_download(vector_tpl<paksetinfo_t*>paks)
 {
 	bool all_good=true;
+	dr_mkdir(env_t::install_dir);
 	dr_chdir(env_t::install_dir);
 
 	loadingscreen_t ls("Install paks", paks.get_count() * 2, true, false);
