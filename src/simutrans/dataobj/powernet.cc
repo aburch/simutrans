@@ -52,8 +52,8 @@ powernet_t::powernet_t()
 	power_supply = 0;
 	power_demand = 0;
 
-	norm_demand = 1 << FRACTION_PRECISION;
-	norm_supply = 1 << FRACTION_PRECISION;
+	norm_demand = 0 << FRACTION_PRECISION;
+	norm_supply = 0 << FRACTION_PRECISION;
 }
 
 

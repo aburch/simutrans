@@ -93,7 +93,7 @@ public:
 	/**
 	 * Return the normalized value of demand in the network.
 	 * Will have a logical value between 0 (no demand) and 1 (all supply consumed).
-	 * Will have a logical value of 1 when no supply is present.
+	 * Will have a logical value of 0 when no supply is present.
 	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
 	 */
 	sint32 get_normal_demand() const { return norm_demand; }
@@ -101,7 +101,7 @@ public:
 	/**
 	 * Return the normalized value of supply in the network.
 	 * Will have a logical value between 0 (no supply) and 1 (all demand supplied).
-	 * Will have a logical value of 1 when no demand is present.
+	 * Will have a logical value of 0 when no demand is present.
 	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
 	 */
 	sint32 get_normal_supply() const { return norm_supply; }
