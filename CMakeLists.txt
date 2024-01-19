@@ -54,7 +54,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransCompileOptions.cmake)
 
 # CMake does not fill in CMAKE_BUILD_TYPE automatically.
 if (NOT MSVC)
-	if (CMAKE_BUILD_TYPE STREQUAL "")
+	if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
 		set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type. Valid values are Debug Release MinSizeRel RelWithDebInfo" FORCE)
 	endif ()
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release MinSizeRel RelWithDebInfo)
