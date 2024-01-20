@@ -159,24 +159,45 @@ uint8 dr_get_max_threads()
 }
 
 
+// create a directory with all subdirectories needed
 int dr_mkdir(char const* const path)
 {
 #ifdef _WIN32
 	// Perform operation.
-	int const result = CreateDirectoryW(U16View(path), NULL) ? 0 : -1;
+	int const result = SHCreateDirectory(NULL, U16View(path)) ? 0 : -1;
 
 	// Translate error.
-	if(result != 0) {
+	if (result != ERROR_SUCCESS) {
 		DWORD const error = GetLastError();
-		if(error == ERROR_ALREADY_EXISTS) {
+		if (error == ERROR_ALREADY_EXISTS || error == ERROR_FILE_EXISTS) {
 			errno = EEXIST;
-		} else if(error == ERROR_PATH_NOT_FOUND) {
+		}
+		else if (error == ERROR_PATH_NOT_FOUND) {
 			errno = ENOENT;
 		}
 	}
 
 	return result;
 #else
+	// create also intermediate directories
+	char tmp[PATH_MAX];
+	size_t len;
+	snprintf(tmp, sizeof(tmp), "%s", path);
+
+	// remove trailing director separator
+	len = strnlen(tmp, sizeof(tmp));
+	if (tmp[len - 1] == *PATH_SEPARATOR) {
+		tmp[len - 1] = 0;
+	}
+	// now walk the path
+	for (char *p = tmp + 1; *p; p++ ) {
+		if (*p == '/') {
+			*p = '\0';
+			// mkdir mail fail if already existing, but we continue anyway
+			mkdir(tmp, 0777);
+			*p = '/';
+		}
+	}
 	return mkdir(path, 0777);
 #endif
 }
