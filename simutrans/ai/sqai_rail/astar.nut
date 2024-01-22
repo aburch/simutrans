@@ -5330,6 +5330,12 @@ function destroy_line(line_obj, good, link_obj) {
       // remove double ways by rail
       if ( double_ways > 0 ) {
         local j = 0;
+
+        local c = 0
+        if ( double_ways > 4 ) {
+          c = 1
+        }
+
         for ( local i = 0; i < double_ways; i++ ) {
           // remove double way
           //    local cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1]
@@ -5343,7 +5349,7 @@ function destroy_line(line_obj, good, link_obj) {
             //::debug.pause()
           }
 
-          if ( cnv_count_0 == cnv_count_1 && (cnv_count_0 <= cnv_count_start || cnv_count_0 <= cnv_count_end) ) {
+          if ( cnv_count_0 == cnv_count_1 && (cnv_count_0 <= (cnv_count_start + c) || cnv_count_0 <= (cnv_count_end + c)) ) {
             tool.work(our_player, double_way_tiles[j], double_way_tiles[j+1], "" + wt_rail)
             tool.work(our_player, double_way_tiles[j+1], double_way_tiles[j], "" + wt_rail)
             if ( i < (double_ways-1) ) {
@@ -5556,6 +5562,8 @@ function destroy_line(line_obj, good, link_obj) {
   //link_obj.status = 4
   //link_obj.next_check = today_plus_months(36)
 
+  check_stations_connections()
+
   return true
 }
 
@@ -5669,6 +5677,7 @@ function check_stations_connections() {
       for ( local i = 0; i < t.len(); i++ ) {
         if ( t[i].has_way(wt_rail) ) {
           // remove way by wt_rail from halt tiles
+          gui.add_message_at(our_player, "####### remove rail halt : " + halt.get_name(), t[i])
           remove_tile_to_empty(t, wt_rail, 1)
         } else {
           //gui.add_message_at(our_player, "####### remove building halt name: " + halt.get_name(), t[i])
