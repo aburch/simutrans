@@ -45,7 +45,7 @@ static char const *const option_buttons_text[] =
 	"Sound",
 	"Save",
 	"Scenario",
-	"Neue Karte",
+	"Return to menu",
 	"Beenden"
 };
 
