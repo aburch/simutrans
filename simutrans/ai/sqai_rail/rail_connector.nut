@@ -118,7 +118,7 @@ class rail_connector_t extends manager_t
 
           local line_start = null
 
-          if ( (abs(c_start[0].x - c_end[0].x) + abs(c_start[0].y - c_end[0].y)) < 7 && industry_manager.get_combined_link(fsrc, fdest, freight) > 0) {
+          if ( (abs(c_start[0].x - c_end[0].x) + abs(c_start[0].y - c_end[0].y)) < 13 && industry_manager.get_combined_link(fsrc, fdest, freight) > 0) {
             //gui.add_message_at(pl, "c_start " + coord_to_string(c_start[0]) + " c_end " + coord_to_string(c_end[0]), c_end[0])
             local d = settings.get_station_coverage()
             local f = 0
@@ -135,8 +135,11 @@ class rail_connector_t extends manager_t
                 }
               }
             }
-            gui.add_message_at(pl, "c_start " + coord_to_string(c_start[0]) + " c_end " + coord_to_string(c_end[0]), c_end[0])
-            ::debug.pause
+            if ( debug ) {
+              gui.add_message_at(pl, "c_start " + coord_to_string(c_start[0]) + " c_end " + coord_to_string(c_end[0]), c_end[0])
+              ::debug.pause
+
+            }
           }
 
           // test route for calculate cost
@@ -157,9 +160,9 @@ class rail_connector_t extends manager_t
           }
 
           local build_status = null
-          if ( calc_route.routes.len() < 7 ) {
+          if ( calc_route.routes.len() < 13 ) {
 
-            //gui.add_message_at(pl, "route len < 7 tiles  ", c_end)
+            //gui.add_message_at(pl, "route len < 13 tiles  ", c_end)
             //gui.add_message_at(pl, "c_start " + coord_to_string(c_start) + " c_end " + coord_to_string(c_end), c_end)
             local extension = find_extension(wt_rail)
             //local start_h = tile_x(c_start.x, c_start.y, c_start.z).get_halt().get_name()
