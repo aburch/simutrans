@@ -1977,13 +1977,13 @@ name=transparent station coverage
 obj=program_text
 name=Transported
 -
-obj=program_text
+obj=climates_text
 name=tropic
 -
 obj=program_text
 name=Truck
 -
-obj=program_text
+obj=climates_text
 name=tundra
 -
 obj=program_text
