@@ -137,6 +137,7 @@ class prototyper_t extends node_t
       gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
       gui.add_message_at(our_player, "electrified: " + electrified, world.get_time())
     }
+     if ( wt == wt_rail ) gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
     local date = world.get_time()
     // list of all vehicles
     local list = vehicle_desc_x.get_available_vehicles(wt)
@@ -260,6 +261,9 @@ class prototyper_t extends node_t
           gui.add_message_at(our_player, "#prototyper 259# tiles_length: " + a + " - max_length: " + max_length, world.get_time())
           show_mwssage = false
         }
+        if ( a < max_length ) {
+          a = max_length
+        }
       }
       else {
         a = CARUNITS_PER_TILE
@@ -273,7 +277,7 @@ class prototyper_t extends node_t
         if ( (c["max_speed"]-c["min_top_speed"]) < 10 ) {
           count_cnv_length = true
         } else if ( (l + test.get_length()) > a ) {
-          //gui.add_message_at(our_player, "#prototyper 277# tiles_length: " + a + " - (l + test.get_length()): " + (l + test.get_length()), world.get_time())
+          gui.add_message_at(our_player, "#prototyper 277# tiles_length: " + a + " - (l + test.get_length()): " + (l + test.get_length()), world.get_time())
           count_cnv_length = true
         } else {
           continue;
@@ -328,7 +332,7 @@ class prototyper_t extends node_t
     if (best) {
       foreach(ind, test in best.veh) {
         print("Best[" + ind + "] = " + test.get_name())
-        if ( wt == wt_rail ) gui.add_message_at(our_player, "Best[" + ind + "] = " + test.get_name(), world.get_time())
+        //if ( wt == wt_rail ) gui.add_message_at(our_player, "Best[" + ind + "] = " + test.get_name(), world.get_time())
       }
 
       return r_t(RT_SUCCESS)
