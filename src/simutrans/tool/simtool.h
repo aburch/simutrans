@@ -1066,6 +1066,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit(player_t* s) OVERRIDE { return init(s); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
@@ -1080,6 +1081,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit(player_t* s) OVERRIDE { return init(s); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
