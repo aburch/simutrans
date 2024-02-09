@@ -1593,7 +1593,7 @@ class industry_manager_t extends manager_t
         }
 
         // build convoy
-        local stations_list = cnv.get_schedule().entries
+        local stations_list = line.get_schedule().entries
         local depot = null //cnv.get_home_depot()
 
         for (local i=0; i<stations_list.len(); i++) {
