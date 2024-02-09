@@ -2240,10 +2240,13 @@ class industry_manager_t extends manager_t
           b_count++
           break
         case 3:
-
+          b_count += 2
           break
         case 4:
-
+          b_count += 3
+          break
+        case 5:
+          b_count += 4
           break
       }
 
