@@ -2880,7 +2880,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 		}
 	}
-	win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", costs, koord_distance(start, pos) ) );
+	win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", costs, koord_distance(start, pos)+1 ) );
 }
 
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
