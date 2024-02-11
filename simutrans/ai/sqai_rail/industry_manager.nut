@@ -2167,6 +2167,7 @@ class industry_manager_t extends manager_t
     // 3
     local print_message_box = 0
 
+    local wt = line.get_waytype()
 
     local start_l = nexttile[nexttile.len()-1]
     local end_l = nexttile[0]
@@ -2179,7 +2180,7 @@ class industry_manager_t extends manager_t
       }
     }
 
-    local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x(freight))
+    local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
 
     local station_s_obj = nexttile[nexttile.len()-1].find_object(mo_building).get_desc()
     if ( !station_s_obj.is_available(world.get_time()) ) {
@@ -2210,7 +2211,7 @@ class industry_manager_t extends manager_t
 
     local way_obj = start_l.find_object(mo_way).get_desc() //way_list[0]
     if ( !way_obj.is_available(world.get_time()) ) {
-      way_obj = find_object("way", wt_rail, way_obj.get_topspeed())
+      way_obj = find_object("way", wt, way_obj.get_topspeed())
     }
 
     local catenary_obj = null //find_object("catenary", wt, 100)
