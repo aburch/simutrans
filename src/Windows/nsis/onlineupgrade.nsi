@@ -57,45 +57,56 @@ Function .onSelChange
   SectionGetFlags ${pak} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64german} $R0
+  SectionGetFlags ${pak64.german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64HAJO} $R0
+  SectionGetFlags ${pakHAJO} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64japan} $R0
+  SectionGetFlags ${pak.japan} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64HO} $R0
+  SectionGetFlags ${pak.nippon} $R0
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak64.ho-scale} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64contrast} $R0
+  SectionGetFlags ${pakcontrast} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak96comic} $R0
+  SectionGetFlags ${pak64.scifi} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak96HD} $R0
+  SectionGetFlags ${pak96.comic} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pakHD} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak128} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak128japan} $R0
+  SectionGetFlags ${pak128.japan} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak128britain} $R0
+  SectionGetFlags ${pak128.britain} $R0
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak128german} $R0
+  SectionGetFlags ${PAK128.german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak192comic} $R0
+  SectionGetFlags ${pak128.CS} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak48excentrique} $R0
+  SectionGetFlags ${pak192.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak32comic} $R0
+  SectionGetFlags ${pak144.Excentrique} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak48.Excentrique} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak32} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   ; not pak selected!

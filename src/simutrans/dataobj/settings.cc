@@ -926,7 +926,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(stop_halt_as_scheduled);
 		}
 		// restoring the city speed limit vector
-		if (file->is_version_atleast(123, 3)) {
+		if (file->is_version_atleast(123, 2)) {
 			file->rdwr_short(city_road_speed_limit_num);
 			for (uint16 i = 0;  i < city_road_speed_limit_num;  i++) {
 				file->rdwr_short(city_road_speed_limit[i]);

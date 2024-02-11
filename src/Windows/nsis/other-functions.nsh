@@ -190,74 +190,78 @@ FunctionEnd
 Function componentsPre
   Push ${pak}
   Call EnableSectionIfThere
-  Push ${pak64german}
+  Push ${pak64.german}
   Call EnableSectionIfThere
-  Push ${pak64japan}
+  Push ${pak.japan}
   Call EnableSectionIfThere
-  Push ${pak64nippon}
+  Push ${pak.nippon}
   Call EnableSectionIfThere
-  Push ${pak64HO}
+  Push ${pak64.ho-scale}
   Call EnableSectionIfThere
-  Push ${pak64HAJO}
+  Push ${pakHAJO}
   Call EnableSectionIfThere
-  Push ${pak64contrast}
+  Push ${pakcontrast}
   Call EnableSectionIfThere
-  Push ${pak96comic}
+  Push ${pak64.scifi}
   Call EnableSectionIfThere
-  Push ${pak96HD}
+  Push ${pak96.comic}
+  Call EnableSectionIfThere
+  Push ${pakHD}
   Call EnableSectionIfThere
   Push ${pak128}
   Call EnableSectionIfThere
-  Push ${pak128britain}
+  Push ${pak128.Britain}
   Call EnableSectionIfThere
-  Push ${pak128german}
+  Push ${PAK128.german}
   Call EnableSectionIfThere
-  Push ${pak128japan}
+  Push ${pak128.japan}
   Call EnableSectionIfThere
-  Push ${pak128cz}
+  Push ${pak128.CS}
   Call EnableSectionIfThere
-  Push ${pak192comic}
+  Push ${pak144.Excentrique}
   Call EnableSectionIfThere
-  Push ${pak64scifi}
+  Push ${pak192.comic}
   Call EnableSectionIfThere
-  Push ${pak48excentrique}
+  Push ${pak64.scifi}
   Call EnableSectionIfThere
-  Push ${pak32comic}
+  Push ${pak48.Excentrique}
+  Call EnableSectionIfThere
+  Push ${pak32}
   Call EnableSectionIfThere
 FunctionEnd
 
 ; Some paksets don't have an open source license, so we have to show additional licences
 Function CheckForClosedSource
 
-  SectionGetFlags ${pak64german} $R0
+  SectionGetFlags ${pak64.german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak64HAJO} $R0
+  SectionGetFlags ${pakHAJO} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak64nippon} $R0
+  SectionGetFlags ${pak.nippon} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak96comic} $R0
+  SectionGetFlags ${pak96.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak96HD} $R0
+  SectionGetFlags ${pakHD} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak128japan} $R0
+  SectionGetFlags ${pak128.japan} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak128german} $R0
+  SectionGetFlags ${PAK128.german} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak192comic} $R0
+  SectionGetFlags ${pak192.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
@@ -277,11 +281,11 @@ PageExEnd
 ; Some packs are GPL
 Function CheckForGPL
 
-  SectionGetFlags ${pak64HO} $R0
+  SectionGetFlags ${pak64.ho-scale} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showGPL
 
-  SectionGetFlags ${pak64contrast} $R0
+  SectionGetFlags ${pakcontrast} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showGPL
 
@@ -301,7 +305,7 @@ PageExEnd
 ; Some pak192.comic is CC
 Function CheckForCC
 
-  SectionGetFlags ${pak192comic} $R0
+  SectionGetFlags ${pak192.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showCC
 
