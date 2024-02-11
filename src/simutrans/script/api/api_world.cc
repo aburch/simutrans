@@ -86,8 +86,8 @@ uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_des
 	}
 
 	ware_t good(desc);
-	good.set_zielpos(to);
-	good.menge = count;
+	good.set_target_pos(to);
+	good.amount = count;
 	good.to_factory = fabrik_t::get_fab(to) != NULL;
 
 	ware_t return_good(desc);
@@ -120,10 +120,10 @@ uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_des
 
 	case haltestelle_t::ROUTE_OK: {
 		assert(route_result == haltestelle_t::ROUTE_OK);
-		const halthandle_t start_halt = return_good.get_ziel();
+		const halthandle_t start_halt = return_good.get_target_halt();
 		start_halt->starte_mit_route(good);
 		if (good.get_desc() == goods_manager_t::passengers) {
-			start_halt->add_pax_happy(good.menge);
+			start_halt->add_pax_happy(good.amount);
 		}
 		}
 		break;

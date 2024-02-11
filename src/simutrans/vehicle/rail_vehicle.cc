@@ -49,7 +49,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 			else {
 				dbg->error("rail_vehicle_t::rail_vehicle_t()","no matching desc found for %s!",w->get_name());
 			}
-			if (!fracht.empty() && fracht.front().menge == 0) {
+			if (!fracht.empty() && fracht.front().amount == 0) {
 				// this was only there to find a matching vehicle
 				fracht.remove_first();
 			}

@@ -49,7 +49,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 		case by_via_sum:
 		case by_amount: { // sort by ware amount
-			int const order = w2.menge - w1.menge;
+			int const order = w2.amount - w1.amount;
 			if(  order != 0  ) {
 				return order < 0;
 			}
@@ -57,8 +57,8 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 		/* FALLTHROUGH */
 
 		case by_via: { // sort by via_destination name
-			halthandle_t const v1 = w1.get_zwischenziel();
-			halthandle_t const v2 = w2.get_zwischenziel();
+			halthandle_t const v1 = w1.get_via_halt();
+			halthandle_t const v2 = w2.get_via_halt();
 			if(  v1.is_bound() && v2.is_bound()  ) {
 				int const order = strcmp(v1->get_name(), v2->get_name());
 				if(  order != 0) return order < 0;
@@ -73,12 +73,12 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 		/* FALLTHROUGH */
 
 		case by_name: { // sort by destination name
-			halthandle_t const d1 = w1.get_ziel();
-			halthandle_t const d2 = w2.get_ziel();
+			halthandle_t const d1 = w1.get_target_halt();
+			halthandle_t const d2 = w2.get_target_halt();
 			if(  d1.is_bound()  &&  d2.is_bound()  ) {
 				const fabrik_t *fab = NULL;
-				const char *const name1 = ( w1.to_factory ? ( (fab=fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
-				const char *const name2 = ( w2.to_factory ? ( (fab=fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
+				const char *const name1 = ( w1.to_factory ? ( (fab=fabrik_t::get_fab(w1.get_target_pos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
+				const char *const name2 = ( w2.to_factory ? ( (fab=fabrik_t::get_fab(w2.get_target_pos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
 				return strcmp(name1, name2) < 0;
 			}
 			else if(  d1.is_bound()  ) {
@@ -135,7 +135,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	uint64* categories_goods_amount_lost = NULL;
 
 	for(ware_t const& ware : warray) {
-		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == goods_manager_t::none  ||  ware.amount == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -144,10 +144,10 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// via sort mode merges packets with a common next stop
 			for(  int i=0;  i<pos;  i++  ) {
 				ware_t& wi = wlist[i];
-				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  &&
-					(  (wi.get_zwischenziel().is_bound() && (  wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() ) )
-					|| wi.get_ziel() == ware.get_ziel() ) ) {
-					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.menge);
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_via_halt()==ware.get_via_halt()  &&
+					(  (wi.get_via_halt().is_bound() && (  wi.get_target_halt()==wi.get_via_halt() )==( ware.get_target_halt()==ware.get_via_halt() ) )
+					|| wi.get_target_halt() == ware.get_target_halt() ) ) {
+					ware_t::goods_amount_t const remaining_amount = wi.add_goods(ware.amount);
 					if(  remaining_amount > 0  ) {
 						// reached goods amount limit, have to discard amount and track category totals separatly
 						if(  categories_goods_amount_lost == NULL  ) {
@@ -179,8 +179,8 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		int last_ware_catg = -1;
 
 		for(  int j = 0;  j < pos;  j++  ) {
-			halthandle_t const halt     = wlist[j].get_ziel();
-			halthandle_t const via_halt = wlist[j].get_zwischenziel();
+			halthandle_t const halt     = wlist[j].get_target_halt();
+			halthandle_t const via_halt = wlist[j].get_via_halt();
 
 			const char * name = "Error in Routing";
 			if(  halt.is_bound()  ) {
@@ -200,7 +200,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 							break; // next category reached ...
 						}
 					}
-					sum += sumware.menge;
+					sum += sumware.amount;
 				}
 
 				if(  full_list == NULL  ) {
@@ -212,11 +212,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					while(  full_i != full_end  ) {
 						ware_t const& current = *full_i++;
 						if(  last_goods_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
-							add_ware_heading( buf, sum, current.menge, &current, what_doing );
+							add_ware_heading( buf, sum, current.amount, &current, what_doing );
 							break;
 						}
 						else {
-							add_ware_heading( buf, 0, current.menge, &current, what_doing );
+							add_ware_heading( buf, 0, current.amount, &current, what_doing );
 						}
 					}
 				}
@@ -225,14 +225,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
 			char const *const good_description_format = sortby == by_via_sum  &&  ware.is_goods_amount_maxed() ? "  >=%u%s %s > " : "  %u%s %s > ";
-			buf.printf(good_description_format, ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
+			buf.printf(good_description_format, ware.amount, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
 
 			// the target name is not correct for the via sort
 			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory ); // exclude merged packets
 			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
 				if(  is_factory_going  ) {
-					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_zielpos() );
-					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
+					const fabrik_t *const factory = fabrik_t::get_fab( ware.get_target_pos() );
+					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_target_pos().x, ware.get_target_pos().y);
 				}
 				else {
 					buf.append(name);
@@ -265,7 +265,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	// still entire left?
 	for(  ; full_i != full_end; ++full_i  ) {
 		ware_t const& g = *full_i;
-		add_ware_heading(buf, 0, g.menge, &g, what_doing);
+		add_ware_heading(buf, 0, g.amount, &g, what_doing);
 	}
 
 	free( wlist );

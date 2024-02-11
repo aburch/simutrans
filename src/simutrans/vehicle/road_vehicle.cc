@@ -51,7 +51,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 				// still wrong load ...
 				calc_image();
 			}
-			if(!fracht.empty()  &&  fracht.front().menge == 0) {
+			if(!fracht.empty()  &&  fracht.front().amount == 0) {
 				// this was only there to find a matching vehicle
 				fracht.remove_first();
 			}

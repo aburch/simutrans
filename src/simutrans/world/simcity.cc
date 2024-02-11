@@ -1883,19 +1883,19 @@ void stadt_t::step_passagiere()
 			}
 
 			ware_t pax(wtyp);
-			pax.set_zielpos(dest_pos);
-			pax.menge = pax_left_to_do;
+			pax.set_target_pos(dest_pos);
+			pax.amount = pax_left_to_do;
 			pax.to_factory = ( factory_entry ? 1 : 0 );
 
 			ware_t return_pax(wtyp);
 
 			// now, finally search a route; this consumes most of the time
 			int const route_result = haltestelle_t::search_route( &start_halts[0], start_halts.get_count(), welt->get_settings().is_no_routing_over_overcrowding(), pax, &return_pax);
-			halthandle_t start_halt = return_pax.get_ziel();
+			halthandle_t start_halt = return_pax.get_target_halt();
 			if(  route_result==haltestelle_t::ROUTE_OK  ) {
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
-				start_halt->add_pax_happy(pax.menge);
+				start_halt->add_pax_happy(pax.amount);
 
 				// people were transported so are logged
 				city_history_year[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_left_to_do;
@@ -1974,7 +1974,7 @@ void stadt_t::step_passagiere()
 				// route type specific logic
 				if(  route_result == haltestelle_t::ROUTE_OK  ) {
 					// send return packet
-					halthandle_t return_halt = pax.get_ziel();
+					halthandle_t return_halt = pax.get_target_halt();
 					if(  !return_halt->is_overcrowded(wtyp->get_index())  ) {
 						// stop can receive passengers
 
@@ -1984,8 +1984,8 @@ void stadt_t::step_passagiere()
 						}
 
 						// setup ware packet
-						return_pax.menge = pax_return;
-						return_pax.set_zielpos(origin_pos);
+						return_pax.amount = pax_return;
+						return_pax.set_target_pos(origin_pos);
 						return_halt->starte_mit_route(return_pax);
 
 						// log departed at stop
@@ -2019,8 +2019,8 @@ void stadt_t::step_passagiere()
 				else if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) {
 					// overcrowded routes cause unhappiness to be logged
 
-					if (pax.get_ziel().is_bound()) {
-						pax.get_ziel()->add_pax_unhappy(pax_return);
+					if (pax.get_target_halt().is_bound()) {
+						pax.get_target_halt()->add_pax_unhappy(pax_return);
 					}
 					else {
 						// the unhappy passengers will be added to the first stops near destination (might be none)

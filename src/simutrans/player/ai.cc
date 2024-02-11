@@ -92,8 +92,8 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const good
 	// now try to find a route
 	// ok, they are not in walking distance
 	ware_t ware(wtyp);
-	ware.set_zielpos(dest_pos);
-	ware.menge = 1;
+	ware.set_target_pos(dest_pos);
+	ware.amount = 1;
 
 	return (start_halt_count != 0)  &&  (haltestelle_t::search_route( start_list, start_halt_count, false, ware ) != haltestelle_t::NO_ROUTE);
 }

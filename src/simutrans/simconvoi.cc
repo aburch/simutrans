@@ -2701,14 +2701,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					// for pax: join according next stop
 					// for all others we *must* use target coordinates
 					if( ware.same_destination(tmp) ) {
-						tmp.menge += ware.menge;
-						ware.menge = 0;
+						tmp.amount += ware.amount;
+						ware.amount = 0;
 						break;
 					}
 				}
 
 				// if != 0 we could not join it to existing => load it
-				if(ware.menge != 0) {
+				if(ware.amount != 0) {
 					total_fracht.append(ware);
 				}
 			}
@@ -2722,13 +2722,13 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		for (uint16 i = 0; i != n; ++i) {
 			if(max_loaded_waren[i]>0  &&  i!=goods_manager_t::INDEX_NONE) {
 				ware_t ware(goods_manager_t::get_info(i));
-				ware.menge = max_loaded_waren[i];
+				ware.amount = max_loaded_waren[i];
 				// append to category?
 				slist_tpl<ware_t>::iterator j   = capacity.begin();
 				slist_tpl<ware_t>::iterator end = capacity.end();
 				while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
 				if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
-					j->menge += max_loaded_waren[i];
+					j->amount += max_loaded_waren[i];
 				} else {
 					// not yet there
 					capacity.insert(j, ware);

@@ -99,31 +99,31 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all, uint16 max_am
 			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end  &&  max_amount > 0;  ) {
 				ware_t& tmp = *i;
 
-				halthandle_t end_halt = tmp.get_ziel();
-				halthandle_t via_halt = tmp.get_zwischenziel();
+				halthandle_t end_halt = tmp.get_target_halt();
+				halthandle_t via_halt = tmp.get_via_halt();
 
 				// check if destination or transfer is still valid
 				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
 					// target halt no longer there => delete and remove from fab in transit
 					fabrik_t::update_transit( &tmp, false );
-					DBG_MESSAGE("vehicle_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
-					total_freight -= tmp.menge;
-					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
+					DBG_MESSAGE("vehicle_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.amount,translator::translate(tmp.get_name()));
+					total_freight -= tmp.amount;
+					sum_weight -= tmp.amount * tmp.get_desc()->get_weight_per_unit();
 					i = fracht.erase( i );
 				}
 				else if(  end_halt == halt  ||  via_halt == halt  ||  unload_all  ) {
 
 					// here, only ordinary goods should be processed
-					uint32 org_menge = tmp.menge;
-					if (tmp.menge > max_amount) {
-						tmp.menge = max_amount;
+					uint32 org_menge = tmp.amount;
+					if (tmp.amount > max_amount) {
+						tmp.amount = max_amount;
 					}
 					// since the max capacity of a vehicle is an uint16
 					uint16 menge = (uint16)halt->liefere_an(tmp);
 					max_amount -= menge;
 					sum_menge += menge;
 					total_freight -= menge;
-					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
+					sum_weight -= tmp.amount * tmp.get_desc()->get_weight_per_unit();
 
 					index = tmp.get_index();
 
@@ -132,8 +132,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all, uint16 max_am
 					}
 
 					// in case of partial unlaoding
-					tmp.menge = org_menge-tmp.menge;
-					if (tmp.menge == 0) {
+					tmp.amount = org_menge-tmp.amount;
+					if (tmp.amount == 0) {
 						i = fracht.erase(i);
 					}
 				}
@@ -188,22 +188,22 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& 
 		for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
 			ware_t &ware = *iter_z;
 
-			total_freight += ware.menge;
-			sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
+			total_freight += ware.amount;
+			sum_weight += ware.amount * ware.get_desc()->get_weight_per_unit();
 
 			// could this be joined with existing freight?
 			for(ware_t & tmp : fracht ) {
 				// for pax: join according next stop
 				// for all others we *must* use target coordinates
 				if(  ware.same_destination(tmp)  ) {
-					tmp.menge += ware.menge;
-					ware.menge = 0;
+					tmp.amount += ware.amount;
+					ware.amount = 0;
 					break;
 				}
 			}
 
 			// if != 0 we could not join it to existing => load it
-			if(  ware.menge != 0  ) {
+			if(  ware.amount != 0  ) {
 				++iter_z;
 				// we add list directly
 			}
@@ -238,10 +238,10 @@ void vehicle_t::remove_stale_cargo()
 		for(ware_t & tmp : fracht) {
 			bool found = false;
 
-			if(  tmp.get_zwischenziel().is_bound()  ) {
+			if(  tmp.get_via_halt().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				for(schedule_entry_t const& i : cnv->get_schedule()->entries) {
-					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
+					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_via_halt()  ) {
 						found = true;
 						break;
 					}
@@ -257,10 +257,10 @@ void vehicle_t::remove_stale_cargo()
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
-							tmp.access_zwischenziel() = halt;
-							if (!tmp.get_ziel().is_bound()) {
+							tmp.set_via_halt(halt);
+							if (!tmp.get_target_halt().is_bound()) {
 								// set target, to prevent that unload_freight drops cargo
-								tmp.set_ziel( halt );
+								tmp.set_target_halt( halt );
 							}
 							found = true;
 							break;
@@ -274,11 +274,11 @@ void vehicle_t::remove_stale_cargo()
 			}
 			else {
 				// since we need to point at factory (0,0), we recheck this too
-				koord k = tmp.get_zielpos();
+				koord k = tmp.get_target_pos();
 				fabrik_t *fab = fabrik_t::get_fab( k );
-				tmp.set_zielpos( fab ? fab->get_pos().get_2d() : k );
+				tmp.set_target_pos( fab ? fab->get_pos().get_2d() : k );
 
-				total_freight += tmp.menge;
+				total_freight += tmp.amount;
 			}
 		}
 
@@ -694,7 +694,7 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 	}
 
 	for(ware_t const& ware : fracht) {
-		if(  ware.menge==0  ) {
+		if(  ware.amount==0  ) {
 			continue;
 		}
 		// which distance will be paid?
@@ -703,8 +703,8 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 				// pay distance traveled to next transfer stop
 
 				// now only use the real gain in difference for the revenue (may as well be negative!)
-				if (ware.get_zwischenziel().is_bound()) {
-					const koord &zwpos = ware.get_zwischenziel()->get_basis_pos();
+				if (ware.get_via_halt().is_bound()) {
+					const koord &zwpos = ware.get_via_halt()->get_basis_pos();
 					// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
 					dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 				}
@@ -717,7 +717,7 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 				// pay only the distance, we get closer to our destination
 
 				// now only use the real gain in difference for the revenue (may as well be negative!)
-				const koord &zwpos = ware.get_zielpos();
+				const koord &zwpos = ware.get_target_pos();
 				// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
 				dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 				break;
@@ -730,7 +730,7 @@ sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 			freight_revenue = ware_t::calc_revenue(ware.get_desc(), get_desc()->get_waytype(), cnv_kmh);
 			last_freight = ware.get_desc();
 		}
-		const sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+		const sint64 price = freight_revenue * (sint64)dist * (sint64)ware.amount;
 
 		// sum up new price
 		value += price;
@@ -755,7 +755,7 @@ uint32 vehicle_t::get_cargo_weight() const
 	uint32 weight = 0;
 
 	for(ware_t const& c : fracht) {
-		weight += c.menge * c.get_desc()->get_weight_per_unit();
+		weight += c.amount * c.get_desc()->get_weight_per_unit();
 	}
 	return weight;
 }
@@ -771,12 +771,12 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 		for(ware_t const& ware : fracht) {
 			const char * name = "Error in Routing";
 
-			halthandle_t halt = ware.get_ziel();
+			halthandle_t halt = ware.get_target_halt();
 			if(halt.is_bound()) {
 				name = halt->get_name();
 			}
 
-			buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
+			buf.printf("   %u%s %s > %s\n", ware.amount, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
 		}
 	}
 }
@@ -978,10 +978,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		if (fracht.empty()  &&  fracht_count>0) {
 			// create dummy freight for savegame compatibility
 			ware_t ware( desc->get_freight_type() );
-			ware.menge = 0;
-			ware.set_ziel( halthandle_t() );
-			ware.set_zwischenziel( halthandle_t() );
-			ware.set_zielpos( get_pos().get_2d() );
+			ware.amount = 0;
+			ware.set_target_halt( halthandle_t() );
+			ware.set_via_halt( halthandle_t() );
+			ware.set_target_pos( get_pos().get_2d() );
 			ware.rdwr(file);
 		}
 		else {
@@ -993,7 +993,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(file);
-			if(  (desc==NULL  ||  ware.menge>0)  &&  welt->is_within_limits(ware.get_zielpos())  &&  ware.get_desc()  ) {
+			if(  (desc==NULL  ||  ware.amount>0)  &&  welt->is_within_limits(ware.get_target_pos())  &&  ware.get_desc()  ) {
 				// also add, of the desc is unknown to find matching replacement
 				fracht.append(ware);
 #ifdef CACHE_TRANSIT
@@ -1002,12 +1002,12 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 					// restore in-transit information
 					fabrik_t::update_transit( &ware, true );
 			}
-			else if(  ware.menge>0  ) {
+			else if(  ware.amount>0  ) {
 				if(  ware.get_desc()  ) {
-					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.amount, ware.get_name(), ware.get_target_pos().get_str() );
 				}
 				else {
-					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
+					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of unknown to %s ignored!", ware.amount, ware.get_target_pos().get_str() );
 				}
 			}
 		}
@@ -1059,7 +1059,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		// recalc total freight
 		total_freight = 0;
 		for(ware_t const& c : fracht) {
-			total_freight += c.menge;
+			total_freight += c.amount;
 		}
 	}
 

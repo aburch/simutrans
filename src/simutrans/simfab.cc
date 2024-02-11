@@ -299,7 +299,7 @@ void fabrik_t::update_transit( const ware_t *ware, bool add )
 {
 	if(  ware->index > goods_manager_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( ware->get_zielpos() );
+		fabrik_t *fab = get_fab( ware->get_target_pos() );
 		if(  fab  ) {
 			fab->update_transit_intern( ware, add );
 		}
@@ -310,17 +310,17 @@ void fabrik_t::apply_transit( const ware_t *ware )
 {
 	if(  ware->index > goods_manager_t::INDEX_NONE  ) {
 		// only for freights
-		fabrik_t *fab = get_fab( ware->get_zielpos() );
+		fabrik_t *fab = get_fab( ware->get_target_pos() );
 		if(  fab  ) {
 			for(  uint32 input = 0;  input < fab->input.get_count();  input++  ){
 				ware_production_t& w = fab->input[input];
 				if(  w.get_typ()->get_index() == ware->index  ) {
 					// It is now in transit.
-					w.book_stat((sint64)ware->menge, FAB_GOODS_TRANSIT );
+					w.book_stat((sint64)ware->amount, FAB_GOODS_TRANSIT );
 					// If using JIT2, must decrement demand buffers, activating if required.
 					if( welt->get_settings().get_just_in_time() >= 2 ){
 						const uint32 prod_factor = fab->desc->get_supplier(input)->get_consumption();
-						const sint32 prod_delta = (sint32)((((sint64)(ware->menge) << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+						const sint32 prod_delta = (sint32)((((sint64)(ware->amount) << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 						const sint32 demand = w.demand_buffer;
 						w.demand_buffer -= prod_delta;
 						if(  demand >= w.max  &&  w.demand_buffer < w.max  ) {
@@ -341,7 +341,7 @@ void fabrik_t::update_transit_intern( const ware_t *ware, bool add )
 {
 	for(ware_production_t &w :  input ) {
 		if(  w.get_typ()->get_index() == ware->index  ) {
-			w.book_stat(add ? (sint64)ware->menge : -(sint64)ware->menge, FAB_GOODS_TRANSIT );
+			w.book_stat(add ? (sint64)ware->amount : -(sint64)ware->amount, FAB_GOODS_TRANSIT );
 			return;
 		}
 	}
@@ -2590,9 +2590,9 @@ void fabrik_t::verteile_waren(const uint32 product)
 				const sint8 needed = ziel_fab->is_needed(output[product].get_typ());
 				if(  needed>=0  ) {
 					ware_t ware(output[product].get_typ());
-					ware.menge = menge;
+					ware.amount = menge;
 					ware.to_factory = 1;
-					ware.set_zielpos( lieferziel );
+					ware.set_target_pos( lieferziel );
 
 					unsigned w;
 					// find the index in the target factory
@@ -2605,13 +2605,13 @@ void fabrik_t::verteile_waren(const uint32 product)
 					if(  !(welt->get_settings().get_just_in_time() != 0)  ) {
 						// without production stop when target overflowing, distribute to least overflow target
 						const sint32 fab_left = ziel_fab->get_input()[w].max - ziel_fab->get_input()[w].menge;
-						dist_list.insert_ordered( distribute_ware_t( halt, fab_left, ziel_fab->get_input()[w].max, (sint32)halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+						dist_list.insert_ordered( distribute_ware_t( halt, fab_left, ziel_fab->get_input()[w].max, (sint32)halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_target_pos()), ware ), distribute_ware_t::compare );
 
 					}
 					else if(  needed > 0  ) {
 						// we are not overflowing: Station can only store up to a maximum amount of goods per square
 						const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_desc());
-						dist_list.insert_ordered( distribute_ware_t( halt, halt_left, halt->get_capacity(2), (sint32)halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare );
+						dist_list.insert_ordered( distribute_ware_t( halt, halt_left, halt->get_capacity(2), (sint32)halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_target_pos()), ware ), distribute_ware_t::compare );
 					}
 				}
 			}
@@ -2646,25 +2646,25 @@ void fabrik_t::verteile_waren(const uint32 product)
 			menge = 0;
 		}
 		// since it is assigned here to an unsigned variable!
-		best_ware.menge = menge;
+		best_ware.amount = menge;
 
 		if(  space_left<0  ) {
 			// find, what is most waiting here from us
 			ware_t most_waiting(output[product].get_typ());
-			most_waiting.menge = 0;
+			most_waiting.amount = 0;
 			for(koord const& n : consumer) {
 				uint32 const amount = best_halt->get_ware_fuer_zielpos(output[product].get_typ(), n);
-				if(  amount > most_waiting.menge  ) {
-					most_waiting.set_zielpos(n);
-					most_waiting.menge = amount;
+				if(  amount > most_waiting.amount  ) {
+					most_waiting.set_target_pos(n);
+					most_waiting.amount = amount;
 				}
 			}
 
 			//  we will reroute some goods
-			if(  best->amount_waiting==0  &&  most_waiting.menge>0  ) {
+			if(  best->amount_waiting==0  &&  most_waiting.amount>0  ) {
 				// remove something from the most waiting goods
-				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.menge/2), 1 - space_left) )  ) {
-					best_ware.menge += most_waiting.menge;
+				if(  best_halt->recall_ware( most_waiting, min((sint32)(most_waiting.amount/2), 1 - space_left) )  ) {
+					best_ware.amount += most_waiting.amount;
 				}
 				else {
 					// overcrowded with other stuff (not from us)
@@ -2674,7 +2674,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 				// refund JIT2 demand buffers for rerouted goods
 				if(  welt->get_settings().get_just_in_time() >= 2  ) {
 					// locate destination factory
-					fabrik_t *fab = get_fab( most_waiting.get_zielpos() );
+					fabrik_t *fab = get_fab( most_waiting.get_target_pos() );
 
 					if(  fab  ) {
 						for(  uint32 input = 0;  input < fab->input.get_count();  input++  ) {
@@ -2684,7 +2684,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 
 								// refund demand buffers, deactivating if required
 								const uint32 prod_factor = fab->desc->get_supplier(input)->get_consumption();
-								const sint32 prod_delta = (sint32)((((sint64)(most_waiting.menge) << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+								const sint32 prod_delta = (sint32)((((sint64)(most_waiting.amount) << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 								const sint32 demand = w.demand_buffer;
 								w.demand_buffer += prod_delta;
 								if(  demand < w.max  &&  w.demand_buffer >= w.max  ) {
@@ -2715,8 +2715,8 @@ void fabrik_t::verteile_waren(const uint32 product)
 		best_halt->recalc_status();
 		fabrik_t::apply_transit( &best_ware );
 		// add as active destination
-		consumer_active_last_month |= (1 << consumer.index_of(best_ware.get_zielpos()));
-		output[product].book_stat(best_ware.menge, FAB_GOODS_DELIVERED);
+		consumer_active_last_month |= (1 << consumer.index_of(best_ware.get_target_pos()));
+		output[product].book_stat(best_ware.amount, FAB_GOODS_DELIVERED);
 	}
 }
 
