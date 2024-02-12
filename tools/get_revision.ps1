@@ -2,13 +2,12 @@ $revision = 0
 
 $answer = svnversion
 $has_svn = $?
-
+$answer=$answer.Trim("MSP:")
 $is_number = ($null -ne ($answer -as [int]))
 if($has_svn -and $is_number)
 {
 	# svnversion valid number
 	$revision = [int]$answer
-	"$answer"
 }
 else
 {
@@ -32,8 +31,7 @@ else
 				$answer = $answer + 331
 			}
 		}
-	}
-	
+	}	
 }
 
 if(!$is_number -and $has_svn) {

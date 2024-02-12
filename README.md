@@ -67,9 +67,9 @@ svn checkout svn://servers.simutrans.org/simutrans/trunk
 ```
 If you prefer to use git, there is a mirror of the svn repository available at github:
 ```
-git clone http://github.com/aburch/simutrans.git
+git clone http://github.com/simutrans/simutrans.git
 ```
-Note that the svn repository is the main repository, and the git repository is just a mirror. If you use git instead of svn, you will need to set the game version manually for network play.
+Note that the svn repository is the main repository, and the git repository is just a mirror. If you use git instead of svn, you will need to set the game version manually to join a network game.
 
 ### 2.2) Getting the libraries
 
@@ -89,14 +89,15 @@ This is a list of libraries used by Simutrans. Not all of them are necessary, so
 
 You will also need pkgconfig (Unix) or [vcpkg](https://github.com/Microsoft/vcpkg) (Microsoft Visual C++)
 
-- MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
-- MSYS2/Ubuntu/Debian: Run [setup-development.sh](./setup-development.sh) to get the libraries and set up the environment.
+- MSVC: Should compile the needed libraries automatically, if VCPKG is installed. Alternative, copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
+- MSYS2: Run [setup-mingw.sh] (tools/setup-mingw.sh) to get the libraries and set up the environment.
+- Ubuntu/Debian: Run [setup-debian.sh] (tools/setup-debian.sh) to get the libraries and set up the environment.
 - Linux: Use [pkgs.org](https://pkgs.org/) to search for development libraries available in your package manager.
-- Mac: Install libraries via [Homebrew](https://brew.sh/).
+- Mac: Install libraries via [Homebrew] (https://brew.sh/). Some guidance can be found in the github directory.
 
 ### 2.3) Compiling
 
-Go to the source code directory of simutrans (simutrans/trunk if you downloaded from svn). You have three build systems to choose from: make, MSVC, and CMake. We recommend make or MSVC for debug builds.
+Go to the source code directory of simutrans (simutrans/trunk if you downloaded from svn). You have three build systems to choose from: make, MSVC, and CMake. We recommend make or MSVC for debug builds, cmake for MacOS and Android.
 
 Compiling will give you only the executable, you still need a Simutrans installation to run the program. You can start simutrans with `-use_workdir` to point it to an existing installation.
 
@@ -121,11 +122,13 @@ Simutrans solution is a single solution file [simutrans.sln](./simutrans.sln) wi
 - Simutrans GDI: Windows-only back-end.
 - Simutrans Server: Server back-end with no graphical interface.
 
+Select on of them as startup project and in the configuration manager compile it.
+
 #### 2.3.3) Compiling with CMake
 
 The executable will be built in build/simutrans.
 
-##### Linux/MinGW/MacOS
+##### Commandline on Linux/MinGW/MacOS ...
 ```
 mkdir build && cd build
 cmake -G "Insert Correct Makefiles Generator" ..
@@ -145,6 +148,7 @@ cmake --build . --config Release
 If you want to cross-compile Simutrans from Linux for Windows, see the [Cross-Compiling Simutrans](https://simutrans-germany.com/wiki/wiki/en_Cross-Compiling_Simutrans) wiki page.
 
 ## 3) Contribute
+
 You cand find general information about contributing to Simutrans in the [Development Index](https://simutrans-germany.com/wiki/wiki/en_Devel_Index?structure=en_Devel_Index) of the wiki.
 
 ### 3.1) Coding
@@ -179,6 +183,6 @@ Simutrans paksets (which are necessary to run the game) have their own license, 
 
 ## 5) Credits
 
-Simutrans was originally written by Hansjörg Malthaner "Hajo" from 1997 until he retired from development around 2004. Since then a team of contributors (The Simutrans Team) lead by Markus Pristovsek "Prissi" develop Simutrans.
+Simutrans was originally written by Hansjörg Malthaner "Hajo" from 1997 until he retired from development around 2004. Since then a team of contributors (The Simutrans Team) lead by Markus Pristovsek "Prissi" is developing Simutrans.
 
 A list of early contributors can be found in [simutrans/thanks.txt](./simutrans/thanks.txt)
