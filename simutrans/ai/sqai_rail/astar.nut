@@ -4233,7 +4233,9 @@ function optimize_way_line(route, wt, int_run, o_line) {
       break
     }
   }
-
+  if ( station_len == 1 ) {
+    station_len = 3
+  }
 
   //gui.add_message_at(our_player, " found bridge " + bridge_obj.get_name() + " tunnel " + tunnel_obj.get_name(), world.get_time())
 
