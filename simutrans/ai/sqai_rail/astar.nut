@@ -3479,6 +3479,7 @@ function check_way_line(start, end, wt, l, c, r_line) {
   }
 
   local nexttile = [] //[tile_x(start.x, start.y, start.z)]
+  local station_len = 0
 
   //if (wt == wt_rail) {
     local asf = astar_route_finder(wt)
@@ -3494,9 +3495,17 @@ function check_way_line(start, end, wt, l, c, r_line) {
       //gui.add_message_at(our_player, " ### route found: length =  " +  result.routes.len(), start)
       // route found, mark tiles
       local marked = {}
+      local a = 0
       foreach(node in result.routes) {
         local tile = tile_x(node.x, node.y, node.z)
         nexttile.append(tile)
+
+        // count station len start/end
+        if ( tile.find_object(mo_building) != null && a == 0 ) {
+          station_len++
+        } else {
+          a = 1
+        }
         /*
         try {
           tile.mark();
@@ -3587,7 +3596,7 @@ function check_way_line(start, end, wt, l, c, r_line) {
   local dst = 0
   local i = 8
 
-  while ( i < (nexttile.len() - 1 - 8) ) {
+  while ( i < (nexttile.len() - 1 - station_len) ) {
     i++
     // check to signal
     local sig = nexttile[i-1].find_object(mo_signal)
@@ -3611,6 +3620,9 @@ function check_way_line(start, end, wt, l, c, r_line) {
 
     // len from double track
     local way_len = 8
+    if ( station_len > 8 ) {
+      way_len = station_len
+    }
     if ( d == 6 || d == 9 ) {
       way_len = 9
     } else if ( d == 3 || d == 12 ) {
@@ -4212,9 +4224,20 @@ function optimize_way_line(route, wt, int_run, o_line) {
   local stations_awst = null
   local stations_awst_2 = []
 
+  // count station len start
+  local station_len = 0
+  for ( local c = 0; c < 50; c++ ) {
+    if ( route[c].find_object(mo_building) != null ) {
+      station_len++
+    } else {
+      break
+    }
+  }
+
+
   //gui.add_message_at(our_player, " found bridge " + bridge_obj.get_name() + " tunnel " + tunnel_obj.get_name(), world.get_time())
 
-  for ( local i = 1; i < route.len() - 2; i++ ) {
+  for ( local i = 1; i < (route.len() - station_len); i++ ) {
     local tile_1 = tile_x(route[i-1].x, route[i-1].y, route[i-1].z)
     local tile_2 = tile_x(route[i].x, route[i].y, route[i].z)
     local tile_3 = tile_x(route[i+1].x, route[i+1].y, route[i+1].z)
@@ -4284,8 +4307,9 @@ function optimize_way_line(route, wt, int_run, o_line) {
     }
     // END :: remove diagonal double ways without spacing
 
+
     // START :: check station in line
-    if ( tile_2.find_object(mo_building) != null && i > 8 && i < (route.len() - 8) && wt == wt_rail && stations_awst == null ) {
+    if ( tile_2.find_object(mo_building) != null && i > station_len && i < (route.len() - station_len) && wt == wt_rail && stations_awst == null ) {
       // station in line
 
       // set line.way_line_count
@@ -4307,7 +4331,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
       }*/
       local t = null
       local r = null
-      for (local j = 1; j < 8; j++ ) {
+      for (local j = 1; j < station_len; j++ ) {
         t = route[i+j]
         //gui.add_message_at(our_player, "st_awst ", t)
         if (t.find_object(mo_building) == null) {
@@ -6085,23 +6109,46 @@ function station_aw(start_field, wt, awst_array) {
       local tile_c = tile_x(awst_array[0].x, awst_array[0].y-1, awst_array[0].z)
       //gui.add_message_at(b_player, "(6667)  ", tile_c)
       local err = command_x.build_way(b_player, awst_array[0], tile_c, way_obj, true)
-      //gui.add_message_at(b_player, "(6669) err " + err, awst_array[0])
-      err = command_x.build_way(b_player, tile_c, tiles_build[0], way_obj, true)
-      //gui.add_message_at(b_player, "(6671) err " + err, tiles_build[0])
+      gui.add_message_at(b_player, "(6088) err " + err, awst_array[0])
+      if ( err != null ) {
+        remove_tile_to_empty(awst_array, wt_rail, 1)
+      } else {
+        err = command_x.build_way(b_player, tile_c, tiles_build[0], way_obj, true)
+        gui.add_message_at(b_player, "(6093) err " + err, tiles_build[0])
+        if ( err != null ) {
+          remove_tile_to_empty(awst_array, wt_rail, 1)
+        } else {
+          local obj_sign = find_signal("is_signal", wt)
+          local signal = null
+          local s_tile = tile_x(awst_array[1].x,awst_array[1].y-1, awst_array[1].z)
+          if ( s_tile.get_way_dirs(wt) == 10 ) {
+            // ew
+            signal = [{coor=coord3d(awst_array[1].x,awst_array[1].y-1, awst_array[1].z), ribi=8}, {coor=coord3d(awst_array[awst_array.len()-2].x, awst_array[awst_array.len()-2].y, awst_array[awst_array.len()-2].z), ribi=2}]
+          } else if ( s_tile.get_way_dirs(wt) == 5 ) {
+            // ns
+            signal = [{coor=coord3d(awst_array[1].x,awst_array[1].y-1, awst_array[1].z), ribi=1}, {coor=coord3d(awst_array[awst_array.len()-2].x, awst_array[awst_array.len()-2].y, awst_array[awst_array.len()-2].z), ribi=4}]
+          }
 
-      local obj_sign = find_signal("is_signal", wt)
-
-      local signal = [{coor=coord3d(awst_array[1].x,awst_array[1].y-1, awst_array[1].z), ribi=8}, {coor=coord3d(awst_array[awst_array.len()-2].x, awst_array[awst_array.len()-2].y, awst_array[awst_array.len()-2].z), ribi=2}]
-      for ( local j=0; j < 2; j++ ) {
-        local s_ribi = signal[j].ribi
-        local signal_build_tile = tile_x(signal[j].coor.x, signal[j].coor.y, signal[j].coor.z)
-
+          for ( local j=0; j < 2; j++ ) {
+            local s_ribi = signal[j].ribi
+            local signal_build_tile = tile_x(signal[j].coor.x, signal[j].coor.y, signal[j].coor.z)
+              gui.add_message_at(b_player, "(6103) signal_build_tile " + coord3d_to_string(signal_build_tile), signal_build_tile)
               while(true){
-                local err = command_x.build_sign_at(b_player, signal_build_tile, obj_sign)
+                err = command_x.build_sign_at(b_player, signal_build_tile, obj_sign)
+                if ( err != null ) {
+                  break
+                }
                 local ribi = signal_build_tile.get_way_dirs_masked(wt)
                 if (ribi == s_ribi)
                   break
               }
+          }
+          if ( err != null ) {
+            remove_tile_to_empty(awst_array, wt_rail, 1)
+          }
+
+        }
+
       }
     }
   }
