@@ -2597,7 +2597,7 @@ function search_station(field_pos, wt, range) {
  *
  *
  */
-function build_double_track(start_field, wt) {
+function build_double_track(start_field, wt, station_len) {
 
   // 1
   // 2 - terraform
@@ -2607,6 +2607,7 @@ function build_double_track(start_field, wt) {
 
   if ( print_message_box > 0 ) {
     gui.add_message_at(our_player, " ### build_double_track ### " + coord3d_to_string(start_field), start_field)
+    gui.add_message_at(our_player, " ### station_len ### " + station_len, start_field)
   }
 
   //local way_list = way_desc_x.get_available_ways(wt, st_flat)
@@ -2623,15 +2624,15 @@ function build_double_track(start_field, wt) {
   local tiles_build_l = []
   local tiles_build_r = []
   local t = 0
-  local way_len = 8
+  local way_len = station_len
   local diagonal_st = 0
   local way_len_d = 0
   if ( d == 6 || d == 9 ) {
-    way_len = 9
+    way_len++
     way_len_d = 1
     diagonal_st = d
   } else if ( d == 3 || d == 12  ) {
-    way_len = 9
+    way_len++
     way_len_d = 1
     diagonal_st = d
   }
@@ -3504,6 +3505,9 @@ function check_way_line(start, end, wt, l, c, r_line) {
         if ( tile.find_object(mo_building) != null && a == 0 ) {
           station_len++
         } else {
+          if ( a == 0 ) {
+            station_len += 2
+          }
           a = 1
         }
         /*
@@ -3561,6 +3565,9 @@ function check_way_line(start, end, wt, l, c, r_line) {
   local s = []
 
   local l_split = 25
+  if ( station_len > 8 ) {
+    l_split = station_len + 1
+  }
 
   if ( c > 0 ) {
     // distance double ways
@@ -3569,7 +3576,7 @@ function check_way_line(start, end, wt, l, c, r_line) {
     //as = as - ( c * 16 )
     if ( print_message_box > 0 ) {
       gui.add_message_at(our_player, c + " double way search", world.get_time())
-      message_text.append("as " + as + " l " + l + " c " + c)
+      message_text.append("l_split " + l_split + " as " + as + " l " + l + " c " + c)
     }
 
       for (local i = 0; i < as; i++ ) {
@@ -3614,19 +3621,21 @@ function check_way_line(start, end, wt, l, c, r_line) {
     di = dc
     dc = d
 
-    if ( i < 5 ) {
+    /*if ( i < station_len ) {
       st_tile = nexttile[i-1].find_object(mo_building)
-    }
+    }*/
 
     // len from double track
     local way_len = 8
     if ( station_len > 8 ) {
       way_len = station_len
-    }
-    if ( d == 6 || d == 9 ) {
-      way_len = 9
-    } else if ( d == 3 || d == 12 ) {
-      way_len = 9
+      if ( d == 6 || d == 9 || d == 3 || d == 12) {
+        way_len = station_len + 1
+      }
+    } else {
+      if ( d == 6 || d == 9 || d == 3 || d == 12) {
+        way_len = station_len + 1
+      }
     }
 
     d = nexttile[i].get_way_dirs(wt)
@@ -4092,16 +4101,20 @@ function check_way_line(start, end, wt, l, c, r_line) {
         gui.add_message_at(our_player, "* " + coord3d_to_string(t), world.get_time())
       }
 
+      local dw_abs = 10
+      if ( station_len > 8 ) {
+        dw_abs = 1
+      }
       if ( r < as ) {
         if ( r < s.len() - 1 ) {
           if ( i > s[r] ) {
-            s[r] = i + 10
+            s[r] = i + dw_abs
           } else {
             s[r] = i
           }
         } else {
           if ( i > s[r] ) {
-            s.append(i + 10)
+            s.append(i + dw_abs)
           } else {
             s.append(i)
           }

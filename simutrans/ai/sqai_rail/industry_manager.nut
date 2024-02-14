@@ -1404,8 +1404,23 @@ class industry_manager_t extends manager_t
               c--
             }
 
+
+            // count station len start
+            local station_len = 0
+            for ( local h = 0; h < 50; h++ ) {
+              if ( nexttile[h].find_object(mo_building) != null ) {
+                station_len++
+              } else {
+                break
+              }
+            }
+            station_len += 3
+            if ( station_len < 8 ) {
+              station_len = 8
+            }
+
             for ( local i = 0; i < c; i++ ) {
-              build = build_double_track(s_fields[i], wt_rail)
+              build = build_double_track(s_fields[i], wt_rail, station_len)
               if ( build ) {
                 cc++
                 count_build++
