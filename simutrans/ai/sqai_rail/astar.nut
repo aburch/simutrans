@@ -1276,6 +1276,9 @@ function remove_wayline(route, pos, wt, st_len = null) {
   //  tool.work(our_player, pos)
   //}
   local l = 0
+  if ( st_len == null ) {
+    st_len = 6
+  }
 
   if ( debug ) ::debug.set_pause_on_error(true)
 
@@ -1301,7 +1304,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
     if ( i > 0 && ( abs(tile.x-next_tile.x) > 1 || abs(tile.y-next_tile.y) > 1 )) {
       if ( tile.find_object(mo_bridge) == null ) {
         no_bridge = true
-        gui.add_message_at(our_player, "#1179# remove way by not build bridge " + coord3d_to_string(tile), next_tile)
+        gui.add_message_at(our_player, "#1304# remove way by not build bridge " + coord3d_to_string(tile), next_tile)
       }
     }
 
@@ -1324,7 +1327,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
 
       if ( tile.find_object(mo_building) != null ) {
         // no remove station
-        if ( l < 6 ) { continue }
+        if ( l < st_len ) { continue }
         test = 1
       } else if ( wt == wt_road ) {
           local test_way = tile.find_object(mo_way) //.get_desc()
@@ -1340,7 +1343,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
             test = 1
           }
       } else { // if ( test == 0 ) {
-        if ( l < 6 ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
+        if ( l < st_len ) { way_cnv_count = t_field.get_convoys_passed()[0] + t_field.get_convoys_passed()[1] }
         // remove way from tile
         if ( cnv_count == way_cnv_count ) {
           //::debug.pause()
@@ -1390,7 +1393,7 @@ function remove_wayline(route, pos, wt, st_len = null) {
 
         if ( tile.find_object(mo_building) != null ) {
           // no remove station
-          if ( j < 7 ) { continue }
+          if ( j < st_len ) { continue }
           test += 1
         } else if ( wt == wt_road ) {
           //local tile_coord = coord3d_to_string(tile)
