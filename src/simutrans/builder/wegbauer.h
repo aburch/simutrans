@@ -27,6 +27,7 @@ class tool_selector_t;
 class way_builder_t
 {
 	static karte_ptr_t welt;
+
 public:
 	static const way_desc_t *leitung_desc;
 
@@ -51,7 +52,6 @@ public:
 
 	static const vector_tpl<const way_desc_t *>&  get_way_list(waytype_t, systemtype_t system_type);
 
-
 	/**
 	 * Fill menu with icons of given waytype
 	 */
@@ -70,15 +70,16 @@ public:
 		river          = 0x7F,
 		bautyp_mask    = 0xFF,
 
-		bot_flag       = 1 << 8,  // do not connect to other ways
-		elevated_flag  = 1 << 9,  // elevated structure
+		bot_flag       = 1 << 8,  ///< do not connect to other ways
+		elevated_flag  = 1 << 9,  ///< elevated structure
 		terraform_flag = 1 << 10,
-		tunnel_flag    = 1 << 11  // underground structure
+		tunnel_flag    = 1 << 11  ///< underground structure
 	};
 
 private:
 	/// flags used in intern_calc_route, saved in the otherwise unused route_t::ANode->count
-	enum build_type_t {
+	enum build_type_t
+	{
 		build_straight      = 1 << 0, ///< next step has to be straight
 		terraform           = 1 << 1, ///< terraform this tile
 		build_tunnel_bridge = 1 << 2, ///< bridge/tunnel ends here
@@ -98,25 +99,17 @@ private:
 
 	player_t *player_builder;
 
-	/**
-	 * Type of building operation
-	 */
+	/// Type of building operation
 	bautyp_t bautyp;
 
-	/**
-	 * Type of way to build
-	 */
-	const way_desc_t * desc;
+	/// Which way to build
+	const way_desc_t *desc;
 
-	/**
-	 * Type of bridges to build (zero=>no bridges)
-	 */
-	const bridge_desc_t * bridge_desc;
+	/// Type of bridge to build (null => no bridges)
+	const bridge_desc_t *bridge_desc;
 
-	/**
-	 * Type of tunnels to build (zero=>no bridges)
-	 */
-	const tunnel_desc_t * tunnel_desc;
+	/// Type of tunnel to build (null => no bridges)
+	const tunnel_desc_t *tunnel_desc;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -140,15 +133,15 @@ private:
 
 public:
 	/**
-	* This is the core routine for the way search
-	* it will check
-	* A) allowed step
-	* B) if allowed, calculate the cost for the step from from to to
-	*/
+	 * This is the core routine for the way search
+	 * it will check
+	 * A) allowed step
+	 * B) if allowed, calculate the cost for the step from @p from to @p to
+	 */
 	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer = false );
 
 private:
-	// checks, if we can built a bridge here ...
+	// checks, if we can build a bridge here ...
 	// may modify next_gr array!
 	void check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel);
 
@@ -175,6 +168,12 @@ private:
 
 	void upgrade_crossing_if_needed(const grund_t*);
 
+	/**
+	 * This function calculates the distance of pos to the cuboid
+	 * spanned up by mini and maxi.
+	 * The result is already weighted according to
+	 * welt->get_settings().get_way_count_{straight,slope}().
+	 */
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
 public:
@@ -211,8 +210,7 @@ public:
 	const char *calc_route(const koord3d &start3d, const koord3d &ziel);
 	const char *calc_route(const vector_tpl<koord3d> &start3d, const vector_tpl<koord3d> &ziel);
 
-	/* returns the amount needed to built this way
-	*/
+	/// returns the amount needed to build this way
 	sint64 calc_costs();
 
 	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player) const;
