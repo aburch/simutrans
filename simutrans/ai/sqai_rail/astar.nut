@@ -2628,6 +2628,9 @@ function build_double_track(start_field, wt, station_len) {
   local tiles_build_r = []
   local t = 0
   local way_len = station_len
+  if ( way_len < 8 ) {
+    way_len = 8
+  }
   local diagonal_st = 0
   local way_len_d = 0
   if ( d == 6 || d == 9 ) {
@@ -3384,6 +3387,11 @@ function build_double_track(start_field, wt, station_len) {
                 }
               }
 
+              // check ribi
+              test = signal_build_tile.get_way_dirs(wt)
+              if ( test == 3 && s_ribi == 4 ) { s_ribi = 2 }
+
+
               while(true){
                 local err = command_x.build_sign_at(b_player, signal_build_tile, obj_sign)
                 local ribi = signal_build_tile.get_way_dirs_masked(wt)
@@ -3568,7 +3576,9 @@ function check_way_line(start, end, wt, l, c, r_line) {
   local s = []
 
   local l_split = 25
-  if ( station_len > 8 ) {
+  if ( station_len < 8 ) {
+    station_len = 8
+  } else if ( station_len > 8 ) {
     l_split = station_len + 1
   }
 
