@@ -137,7 +137,8 @@ class prototyper_t extends node_t
       gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
       gui.add_message_at(our_player, "electrified: " + electrified, world.get_time())
     }
-     //if ( wt == wt_rail ) gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
+    //if ( wt == wt_rail ) gui.add_message_at(our_player, "max_length: " + max_length, world.get_time())
+
     local date = world.get_time()
     // list of all vehicles
     local list = vehicle_desc_x.get_available_vehicles(wt)
@@ -213,6 +214,36 @@ class prototyper_t extends node_t
 
     local show_mwssage = false
 
+      //max_vehicles
+      local a = 0
+      if ( wt == wt_water ) {
+        a = CARUNITS_PER_TILE * 4
+      }
+      else if ( wt == wt_rail ) {
+        a = CARUNITS_PER_TILE * 3
+        if ( volume > 1200 && volume < 2200 ) {
+          a = CARUNITS_PER_TILE * 4
+        } else if ( volume > 2200 ) {
+          a = CARUNITS_PER_TILE * 5
+        }
+        if ( show_mwssage ) {
+          gui.add_message_at(our_player, "#prototyper 259# tiles_length: " + a + " - max_length: " + max_length, world.get_time())
+          show_mwssage = false
+        }
+
+        if ( get_set_name() == "pak64.german" ) {
+
+        } else if ( a < max_length ) {
+          a = max_length
+        }
+
+      }
+      else {
+        a = CARUNITS_PER_TILE
+      }
+
+
+
     while(true) {
 
       it_ind[ind] ++
@@ -246,7 +277,7 @@ class prototyper_t extends node_t
         //show_mwssage = true
       }
       //max_vehicles
-      local a = 0
+/*      local a = 0
       if ( wt == wt_water ) {
         a = CARUNITS_PER_TILE * 4
       }
@@ -261,13 +292,19 @@ class prototyper_t extends node_t
           gui.add_message_at(our_player, "#prototyper 259# tiles_length: " + a + " - max_length: " + max_length, world.get_time())
           show_mwssage = false
         }
+
+        if ( get_set_name() != "pak64.german" ) {
+          max_length = 96
+        }
+
         if ( a < max_length ) {
           a = max_length
         }
+
       }
       else {
         a = CARUNITS_PER_TILE
-      }
+      }*/
 
       // no more by max length
       // no more by speed < max speed convoy
