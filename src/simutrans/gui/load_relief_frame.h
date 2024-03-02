@@ -35,6 +35,8 @@ public:
 	const char *get_help_filename() const OVERRIDE { return "load_relief.txt"; }
 
 	load_relief_frame_t(settings_t*);
+
+	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };
 
 #endif

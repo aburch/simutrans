@@ -74,6 +74,7 @@ load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_fram
 		load_mode.new_component<load_relief_mode_scrollitem_t>(env_t::HEIGHT_CONV_LINEAR);
 		load_mode.new_component<load_relief_mode_scrollitem_t>(env_t::HEIGHT_CONV_CLAMP);
 		load_mode.set_selection(env_t::HEIGHT_CONV_LINEAR);
+		load_mode.add_listener(this);
 		table->add_component( &load_mode );
 	bottom_left_frame.end_table();
 
@@ -102,7 +103,7 @@ const char *load_relief_frame_t::get_info(const char *fullpath)
 		new_mode = static_cast<const load_relief_mode_scrollitem_t *>(selected)->get_mode();
 	}
 
-	height_map_loader_t hml(min_h, max_h, env_t::height_conv_mode);
+	height_map_loader_t hml(min_h, max_h, new_mode);
 	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_groundwater(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
 		env_t::height_conv_mode = new_mode;
@@ -135,4 +136,15 @@ bool load_relief_frame_t::check_file( const char *fullpath, const char * )
 	}
 
 	return false;
+}
+
+
+bool load_relief_frame_t::action_triggered(gui_action_creator_t* comp, value_t extra)
+{
+	if (comp == &load_mode) {
+		return item_action(sets->heightfield.c_str());
+	}
+	else {
+		return savegame_frame_t::action_triggered(comp, extra);
+	}
 }

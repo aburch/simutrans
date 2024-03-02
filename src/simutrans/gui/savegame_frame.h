@@ -27,7 +27,7 @@ class loadfont_frame_t;
  * Base class from which all GUI dialogs to load/save generics can inherit from
  * @note When I refer to a "qualified" path I mean it can contain sub-directories or even fully qualified path. i.e. : "save/a.sve" or "c:\simutrans\scenario\file.nut"
  */
-class savegame_frame_t : public gui_frame_t, action_listener_t
+class savegame_frame_t : public gui_frame_t, public action_listener_t
 {
 friend class loadfont_frame_t;
 
