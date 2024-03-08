@@ -787,8 +787,10 @@ class industry_manager_t extends manager_t
           local traffic_build = 0
           for ( local s = 0; s < route_tile.len(); s++ ) {
             local test_way = route_tile[s].find_object(mo_way)
+            local test_traffic_light = route_tile[s].find_object(mo_roadsign)
 
-            if ( dir.is_threeway(route_tile[s].get_way_dirs(wt_road)) && (test_way.get_owner().nr == our_player_nr || test_way.get_owner().nr == 1) ) {
+            if ( test_traffic_light == null && dir.is_threeway(route_tile[s].get_way_dirs(wt_road)) && (test_way.get_owner().nr == our_player_nr || test_way.get_owner().nr == 1) ) {
+
               local err = command_x.build_sign_at(our_player, route_tile[s], traffic_obj)
               traffic_build++
               if ( traffic_build == 2 ) {
