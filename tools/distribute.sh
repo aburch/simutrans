@@ -82,13 +82,13 @@ updater="get_pak.sh"
 
 OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
-OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*[:]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
 PGC=0
 # now get the BUNDLE_PTHREADGC2 from config.default and remove all spaces around
 PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed -E "s/BUNDLE_PTHREADGC2[ :]*=[ ]*//" | sed -E "s/[ ]*\#.*//"`
 
-BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*[:]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 if [ -n "$BUILDDIR" ]; then
   BUILDDIR=../sim
 else
@@ -103,7 +103,7 @@ elif [ "$OST" = "haiku" ]; then
  simarchivbase=simuhaiku
 elif [ "$OST" = "mingw" ]; then
   simexe=.exe
-  SDLTEST=`grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+  SDLTEST=`grep "^BACKEND" config.default | sed "s/BACKEND[ ]*[:]*=[ ]*//" | sed "s/[ ]*\#.*//"`
   if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
     simarchivbase=simuwin-sdl
   else
@@ -111,8 +111,7 @@ elif [ "$OST" = "mingw" ]; then
 # Missing: Copy matching SDL dll!
   fi
   cd simutrans
-
-  if [ "$PGC" -ne 0	]; then
+  if [ "$PGC" -ne 0 ]; then
     getDLL
   fi
   cd ..
@@ -222,16 +221,15 @@ else
   echo "Build default zip archive"
   cp $BUILDDIR$simexe ./simutrans$simexe
   strip simutrans$simexe
-  cp ..$updatepath$updater $updater
+  cp ../$updatepath$updater $updater
   cd ..
   distribute
   # .. finally delete executable and language files
   rm simutrans/simutrans$simexe
 fi
 
-
 # cleanup dll's
-if [ "$PGC" -ne 0 ]; then
+if [[ -n "$PGC" ]] && [[ "$PGC" -ne 0 ]]; then
   rm simutrans/pthreadGC2.dll
 fi
 
