@@ -300,11 +300,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 				u_long block = 1;
 				if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  )	{
 					my_client_socket = INVALID_SOCKET;
-					continue;
-				}
-#else
-				if (fcntl(my_client_socket, F_SETFL, fcntl(my_client_socket, F_GETFL, 0) | O_NONBLOCK) != 0) {
-					my_client_socket = INVALID_SOCKET;
+					DBG_MESSAGE("network_open_address()","Failed to make unblocking socket.")
 					continue;
 				}
 #endif
@@ -349,18 +345,13 @@ SOCKET network_open_address(char const* cp, char const*& err)
 #ifdef WIN32
 					block = 0;
 					bool blocking_mode = ioctlsocket(my_client_socket, FIONBIO, &block) == 0;
-#else
-					// on linux clear O_NONBLOCK flag
-					const int flags = fcntl(my_client_socket, F_GETFL, 0);
-					bool blocking_mode = fcntl(my_client_socket, F_SETFL, flags & (~O_NONBLOCK)) == 0;
-#endif
 					if (!blocking_mode) {
 						DBG_MESSAGE("network_open_address()", "Could not reset to non-blocking.");
 						network_close_socket(my_client_socket);
 						continue;
 					}
-
-
+					// linux non-blocking sockets seems to not work at all!
+#endif
 				}
 
 				connected = true;

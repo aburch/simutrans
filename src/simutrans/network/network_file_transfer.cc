@@ -322,7 +322,7 @@ error:
 /// Optionally: Receive response to file localname
 const char *network_http_post( const char *address, const char *name, const char *poststr, const char *localname )
 {
-	DBG_MESSAGE("network_http_post", "");
+	DBG_MESSAGE("network_http_post", address);
 	// Open socket
 	const char *err = NULL;
 	SOCKET const my_client_socket = network_open_address(address, err);
@@ -403,6 +403,9 @@ const char *network_http_post( const char *address, const char *name, const char
 			err = network_receive_file( my_client_socket, localname, length );
 		}
 		network_close_socket( my_client_socket );
+	}
+	else {
+		dbg->warning("network_http_post()", "failed with %s", err);
 	}
 	return err;
 }
