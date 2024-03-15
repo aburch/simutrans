@@ -300,7 +300,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 				u_long block = 1;
 				if(  ioctlsocket(my_client_socket, FIONBIO, &block) != 0  )	{
 					my_client_socket = INVALID_SOCKET;
-					DBG_MESSAGE("network_open_address()","Failed to make unblocking socket.")
+					DBG_MESSAGE("network_open_address()", "Failed to make unblocking socket.");
 					continue;
 				}
 #endif
