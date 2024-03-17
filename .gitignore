@@ -37,4 +37,4 @@ revision.h
 *.res
 /autom4te.cache
 *.exe
-.ccls-cache
+*.kdev4
