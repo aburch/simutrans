@@ -180,7 +180,7 @@ bool root_writer_t::do_dump(const char* open_file_name)
 	}
 
 	printf("File %s (version %d):\n", open_file_name, endian(version));
-	if (!dump_nodes(infp, 1)) {
+	if (!dump_nodes(infp, 0)) {
 		fclose(infp);
 		return false;
 	}

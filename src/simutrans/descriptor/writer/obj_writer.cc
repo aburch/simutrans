@@ -74,7 +74,8 @@ bool obj_writer_t::dump_nodes(FILE* infp, int level, uint16 index)
 {
 	obj_node_info_t node;
 
-	if (!obj_node_t::read_node( infp, node ) || node.size == 0) {
+	// root node may be 0-sized but children must not be 0-sized to prevent infinite recursion
+	if (!obj_node_t::read_node( infp, node ) || (level > 0 && node.size == 0)) {
 		return false;
 	}
 
