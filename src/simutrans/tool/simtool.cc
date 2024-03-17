@@ -185,10 +185,9 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 	memcpy( tool_t::toolstr+n, ", ", 2 );
 	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
 	n += strlen(tool_t::toolstr+n);
-	strcpy( tool_t::toolstr+n, " (" );
-
-	money_to_string(tool_t::toolstr+n+2, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
-	strcat( tool_t::toolstr, ")" );
+	strcpy( tool_t::toolstr+n, "+" );
+	money_to_string(tool_t::toolstr+n+1, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
+	strcat(tool_t::toolstr, translator::translate("/month"));
 	return tool_t::toolstr;
 }
 
@@ -202,11 +201,11 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 	int n = strncopy_to_break( tool_t::toolstr, translator::translate( tip ), 256 );
 	memcpy( tool_t::toolstr+n, ", ", 2 );
 	money_to_string(tool_t::toolstr+n+2, (double)price/-100.0);
-	strcat( tool_t::toolstr, " (" );
+	strcat( tool_t::toolstr, "+" );
 	n = strlen(tool_t::toolstr);
 
 	money_to_string(tool_t::toolstr+n, (double)(welt->scale_with_month_length(maintenance) ) / 100.0);
-	strcat( tool_t::toolstr, ")" );
+	strcat(tool_t::toolstr, translator::translate("/month"));
 	n = strlen(tool_t::toolstr);
 
 	if((enables&7)!=0) {
