@@ -638,6 +638,8 @@ std::string dr_get_system_font()
 {
 #if COLOUR_DEPTH != 0
 #ifdef WIN32
+#define DEFAULT_FONT "arial.ttf"
+
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof(NONCLIENTMETRICS);
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
@@ -651,13 +653,13 @@ std::string dr_get_system_font()
 	// Open Windows font registry key
 	result = RegOpenKeyExW(HKEY_LOCAL_MACHINE, fontRegistryPath, 0, KEY_READ, &hKey);
 	if (result != ERROR_SUCCESS) {
-		return "";
+		return DEFAULT_FONT;
 	}
 
 	DWORD maxValueNameSize, maxValueDataSize;
 	result = RegQueryInfoKeyW(hKey, 0, 0, 0, 0, 0, 0, 0, &maxValueNameSize, &maxValueDataSize, 0, 0);
 	if (result != ERROR_SUCCESS) {
-		return "";
+		return DEFAULT_FONT;
 	}
 
 	DWORD valueIndex = 0;
@@ -665,8 +667,9 @@ std::string dr_get_system_font()
 	LPBYTE valueData = new BYTE[maxValueDataSize];
 	DWORD valueNameSize, valueDataSize, valueType;
 	std::wstring wsFontFile;
+	// So far best matching font name
+	std::wstring wsBestMatch;
 
-	// Look for a matching font name
 	do {
 
 		wsFontFile.clear();
@@ -685,9 +688,14 @@ std::string dr_get_system_font()
 
 		// Found a match
 		if (_wcsnicmp(wsFaceName.c_str(), wsValueName.c_str(), wsFaceName.length()) == 0) {
-
+			// full match
 			wsFontFile.assign((LPWSTR)valueData, valueDataSize);
 			break;
+		}
+
+		// Sometimes the face name is a family name; then only a partial match will be possible
+		if (wcsstr(wsValueName.c_str(), wsFaceName.c_str())) {
+			wsBestMatch.assign((LPWSTR)valueData, valueDataSize);
 		}
 	} while (result != ERROR_NO_MORE_ITEMS);
 
@@ -697,13 +705,20 @@ std::string dr_get_system_font()
 	RegCloseKey(hKey);
 
 	if (wsFontFile.empty()) {
-		return "";
+		if (wsBestMatch.empty()) {
+			dbg->warning("dr_get_system_font()", "%s not found!", std::string(wsFaceName.begin(), wsFaceName.end()).c_str());
+			return DEFAULT_FONT;
+		}
+		wsFontFile = wsBestMatch;
+		dbg->warning("dr_get_system_font()", "Using %s for %s", std::string(wsFontFile.begin(), wsFontFile.end()).c_str(), std::string(wsFaceName.begin(), wsFaceName.end()).c_str());
 	}
 
 	// Build full font file path
 	CHAR winDir[MAX_PATH];
 	GetWindowsDirectoryA(winDir, MAX_PATH);
 	strcat(winDir, "\\Fonts\\");
+	// luckily any TTF font in windows has an ASCII name ...
+	DBG_MESSAGE("dr_get_system_font()", "Using %s", std::string(wsFontFile.begin(), wsFontFile.end()).c_str());
 	return (std::string)winDir + std::string(wsFontFile.begin(), wsFontFile.end());
 #elif defined(ANDROID)
 	return FONT_PATH_X "Roboto-Regular.ttf";

@@ -76,7 +76,7 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 	set_name(translator::translate("Select display font"));
 
 	top_frame.remove_component(&input);
-	fontsize.init( env_t::fontsize, 6, 19, gui_numberinput_t::AUTOLINEAR, false );
+	fontsize.init( env_t::fontsize, 6, 40, gui_numberinput_t::AUTOLINEAR, false );
 	fontsize.add_listener(this);
 	fontsize.enable( is_resizable_font(env_t::fontname.c_str()) );
 
@@ -120,34 +120,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 
 	// just match textension for buildin fonts
 	const char *start_extension = strrchr(filename, '.' );
-	if(  start_extension  &&  !STRICMP( start_extension, ".fnt" )  ) {
-		return !use_unicode;
-	}
-	if(  start_extension  &&  !STRICMP( start_extension, ".bdf" )  ) {
-		if(  use_unicode  ) {
-			bool is_unicode = false;
-			uint32 numchars=0;
-			test = fopen( filename, "r" );
 
-			while(  !feof(test)  ) {
-				char str[1024];
-				if (fgets( str, lengthof(str), test) == NULL) {
-					break;
-				}
-
-				if(  STRNICMP(str,"CHARSET_REGISTRY", 16 )==0  ) {
-					is_unicode = strstr( str, "ISO10646" );
-				}
-				else if(  STRNICMP( str, "CHARS ", 6)==0  ) {
-					numchars = atol( str+5 );
-					break;
-				}
-			}
-			fclose( test );
-			return is_unicode  &&  numchars>6000;
-		}
-		return true;
-	}
 	// no support for windows fon files, so we skip them to speed things up
 	if(  start_extension  &&  !STRICMP( start_extension, ".fon" )  ) {
 		return false;
@@ -170,7 +143,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 					}
 				}
 			}
-			FT_Done_Face( face );
+			FT_Done_Face(face);
 			return ok;
 		}
 		// next check for extension, might be still a valid font
@@ -297,6 +270,7 @@ bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t
 
 	if(  &fontsize==component  ) {
 		win_load_font(env_t::fontname.c_str(), fontsize.get_value());
+		fontsize.set_limits(6, 40);
 		return false;
 	}
 

@@ -155,18 +155,22 @@ void ticker::draw()
 		mark_rect_dirty_wc(0, env_t::menupos == MENU_BOTTOM ? 0 : start_y - 128, display_get_width(), start_y + 128 + TICKER_HEIGHT);
 		return;
 	}
+	if (dx_since_last_draw <=0) {
+		return;
+	}
 
 	const int width = display_get_width();
 	if (width <= 0) {
 		return;
 	}
-
 	// do partial redraw
 	display_scroll_band( start_y, dx_since_last_draw, TICKER_HEIGHT );
-	display_fillbox_wh_rgb(width-dx_since_last_draw-6, start_y, dx_since_last_draw+6, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 
+	display_fillbox_wh_rgb(width-dx_since_last_draw, start_y, dx_since_last_draw, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
+
+	mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
 	// ok, ready for the text
-	PUSH_CLIP( 0, start_y, width - 1, TICKER_HEIGHT );
+	PUSH_CLIP( width-dx_since_last_draw, start_y, dx_since_last_draw, TICKER_HEIGHT );
 	for(node & n : list) {
 		if (n.xpos < width) {
 			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);

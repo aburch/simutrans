@@ -515,6 +515,13 @@ int simu_main(int argc, char** argv)
 	std::set_new_handler(sim_new_handler);
 
 	args_t args(argc, argv);
+#ifdef DEBUG
+	if (args.has_arg("-debug")) {
+		// debug init messages
+		env_t::verbose_debug = log_t::LEVEL_DEBUG;
+		init_logging("stderr", true, true, "Preinit", NULL);
+	}
+#endif
 	env_t::init();
 
 	// you really want help with this?

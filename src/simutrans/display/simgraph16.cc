@@ -2718,37 +2718,7 @@ PIXVAL display_blend_colors_alpha32(PIXVAL background, PIXVAL foreground, int al
 // Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend)
 {
-	const PIXVAL alpha = (percent_blend*64)/100;
-
-	switch( alpha ) {
-		case 0: // nothing to do ...
-			return background;
-		case 16:
-			return colors_blend25(background, foreground);
-
-		case 32:
-			return colors_blend50(background, foreground);
-
-		case 48:
-			return colors_blend25(background, foreground);
-
-		case 64:
-			return foreground;
-
-		default:
-			// any percentage blending: SLOW!
-			const PIXVAL r_src = red(background);
-			const PIXVAL g_src = green(background);
-			const PIXVAL b_src = blue(background);
-			const PIXVAL r_dest = red(foreground);
-			const PIXVAL g_dest = green(foreground);
-			const PIXVAL b_dest = blue(foreground);
-			const PIXVAL r = (r_dest * alpha + r_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL g = (g_dest * alpha + g_src * (64 - alpha) + 32) >> 6;
-			const PIXVAL b = (b_dest * alpha + b_src * (64 - alpha) + 32) >> 6;
-			return rgb(r, g, b);
-	}
-// ??	return display_blend_colors_alpha32(background, foreground, (percent_blend*32)/100);
+	return display_blend_colors_alpha32(background, foreground, (percent_blend*32)/100);
 }
 
 
@@ -3659,39 +3629,11 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 			width = 0;
 			continue;
 		}
+
 		width += fnt->get_glyph_advance(iUnicode);
 	}
 	xw = max( xw, width );
 	yh += LINESPACE;
-}
-
-
-
-/**
- * Helper: calculates 8bit mask for clipping.
- * Calculates mask to fit pixel interval [xRL,xR) to clipping interval [cL, cR).
- */
-static unsigned char get_h_mask(const int xL, const int xR, const int cL, const int cR)
-{
-	// do not mask
-	unsigned char mask = 0xff;
-
-	// check, if there is something to display
-	if (xR <= cL || xL >= cR) return 0;
-	// 8bit masks only
-	assert(xR - xL <= 8);
-
-	// check for left border
-	if (xL < cL) {
-		// left border clipped
-		mask = 0xff >> (cL - xL);
-	}
-	// check for right border
-	if (xR > cR) {
-		// right border clipped
-		mask &= 0xff << (xR - cR);
-	}
-	return mask;
 }
 
 
@@ -3748,18 +3690,6 @@ int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, con
 	// store the initial x (for dirty marking)
 	const scr_coord_val x0 = x;
 
-	scr_coord_val y_offset = 0; // real y for display with clipping
-	scr_coord_val glyph_height = fnt->get_linespace();
-	const scr_coord_val yy = y + fnt->get_linespace();
-
-	// calculate vertical y clipping parameters
-	if (y < cT) {
-		y_offset = cT - y;
-	}
-	if (yy > cB) {
-		glyph_height -= yy - cB;
-	}
-
 	// big loop, draw char by char
 	utf8_decoder_t decoder((utf8 const*)txt);
 	size_t iTextPos = 0; // pointer on text position
@@ -3779,33 +3709,37 @@ int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, con
 		}
 
 		// get the data from the font
-		int glyph_width = fnt->get_glyph_width(c);
-		const uint8 glyph_yoffset = std::max(fnt->get_glyph_yoffset(c), (uint8)y_offset);
+		const font_t::glyph_t& glyph = fnt->get_glyph(c);
+		const uint8 *p = glyph.bitmap;
 
-		// currently max character width 16 bit supported by font.h/font.cc
-		for(  int i=0;  i<2;  i++  ) {
-			const uint8 bits = std::min(8, glyph_width);
-			uint8 mask = get_h_mask(x + i*8, x + i*8 + bits, cL, cR);
-			glyph_width -= bits;
+		int screen_pos = (y + glyph.top) * disp_width + x + glyph.left;
 
-			const uint8 *p = fnt->get_glyph_bitmap(c) + glyph_yoffset + i*GLYPH_BITMAP_HEIGHT;
-			if(  mask!=0  ) {
-				int screen_pos = (y+glyph_yoffset) * disp_width + x + i*8;
+		// glyph x clipping
+		int g_left  = max(cL - x - glyph.left, 0);
+		int g_right = min(cR - x - glyph.left, glyph.width);
 
-				for (int h = glyph_yoffset; h < glyph_height; h++) {
-					unsigned int dat = *p++ & mask;
-					PIXVAL* dst = textur + screen_pos;
+		// all visible rows
+		for (int h = 0; h < glyph.height; h++) {
+			const int line = y + glyph.top + h;
+			if(line >= cT && line < cB) {
 
-					if(  dat  !=  0  ) {
-						for(  size_t dat_offset = 0 ; dat_offset < 8 ; dat_offset++  ) {
-							if(  (dat & (0x80 >> dat_offset))  ) {
-								dst[dat_offset] = color;
-							}
-						}
+				PIXVAL* dst = textur + screen_pos + g_left;
+
+				// all columns
+				for(int gx=g_left; gx<g_right; gx++) {
+					int alpha = p[h*glyph.width + gx];
+
+					if(alpha > 31) {
+						// opaque
+						*dst++ = color;
+					} else {
+						// partially transparent -> blend it
+						PIXVAL old_color = *dst;
+						*dst++ = colors_blend_alpha32(old_color, color, alpha);
 					}
-					screen_pos += disp_width;
 				}
 			}
+			screen_pos += disp_width;
 		}
 
 		x += fnt->get_glyph_advance(c);
@@ -4539,7 +4473,8 @@ bool simgraph_init(scr_size window_size, sint16 full_screen)
 	textur = dr_textur_init();
 
 	// init, load, and check fonts
-	if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
+	if(!display_load_font(env_t::fontname.c_str()) &&
+	   !display_load_font(FONT_PATH_X "LiberationSans-Regular.ttf") ) {
 		dr_fatal_notify("No fonts found!");
 		return false;
 	}
