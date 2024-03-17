@@ -885,7 +885,7 @@ void stadt_t::factory_set_t::rdwr(loadsave_t *file)
 		uint32 entry_count = entries.get_count();
 		file->rdwr_long(entry_count);
 		if(  file->is_loading()  ) {
-			entries.resize( entry_count );
+			entries.reserve( entry_count );
 			factory_entry_t entry;
 			for(  uint32 e=0;  e<entry_count;  ++e  ) {
 				entry.rdwr( file );

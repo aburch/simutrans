@@ -2127,7 +2127,7 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	// now we can build here
 	route.clear();
 	terraform_index.clear();
-	route.resize(dist + 2);
+	route.reserve(dist + 2);
 
 	for(  int i=0;  i<=dist;  i++  ) {
 		route.append(welt->lookup_kartenboden(start + zv * i)->get_pos());

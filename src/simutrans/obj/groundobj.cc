@@ -86,7 +86,7 @@ bool groundobj_t::plant_groundobj_on_coordinate(koord pos, const groundobj_desc_
 
 bool groundobj_t::successfully_loaded()
 {
-	groundobj_typen.resize(desc_table.get_count());
+	groundobj_typen.reserve(desc_table.get_count());
 	for(auto const& i : desc_table) {
 		groundobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}

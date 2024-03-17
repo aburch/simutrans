@@ -42,7 +42,7 @@ void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
 	const uint32 hops = r->get_count()-1;
-	route.resize(hops+1+route.get_count());
+	route.reserve(hops+1+route.get_count());
 
 	while (!route.empty() && back() == r->front()) {
 		// skip identical end tiles
@@ -83,7 +83,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 
 	// then try to calculate direct route
 	koord pos = back().get_2d();
-	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
+	route.reserve( route.get_count()+koord_distance(pos,ziel)+2 );
 	DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
 		// shortest way
@@ -699,7 +699,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 	if( !ok ) {
 		DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
-		route.resize(1);
+		route.reserve(1);
 		route.append(start); // just to be safe
 		return no_route;
 	}
@@ -759,7 +759,7 @@ void route_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		koord3d k;
 		route.clear();
-		route.resize(max_n+2);
+		route.reserve(max_n+2);
 		for(sint32 i=0;  i<=max_n;  i++ ) {
 			k.rdwr(file);
 			route.append(k);

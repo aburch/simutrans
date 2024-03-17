@@ -814,7 +814,7 @@ void player_t::init_undo( waytype_t wtype, unsigned short max )
 	// allow for UNDO for real player
 DBG_MESSAGE("player_t::int_undo()","undo tiles %i",max);
 	last_built.clear();
-	last_built.resize(max+1);
+	last_built.reserve(max+1);
 	if(max>0) {
 		undo_type = wtype;
 	}
@@ -824,7 +824,7 @@ DBG_MESSAGE("player_t::int_undo()","undo tiles %i",max);
 
 void player_t::add_undo(koord3d k)
 {
-	if(last_built.get_size()>0) {
+	if(last_built.get_capacity()>0) {
 //DBG_DEBUG("player_t::add_undo()","tile at (%i,%i)",k.x,k.y);
 		last_built.append(k);
 	}

@@ -742,8 +742,8 @@ DBG_MESSAGE("tool_remover()", "removing way");
 				// no way at all ...
 				return true;
 			}
-			if(w->get_removal_error(player)!=NULL){
-				msg = w->get_removal_error(player);
+			if(const char *err = w->get_removal_error(player)){
+				msg = err;
 				return false;
 			}
 		}

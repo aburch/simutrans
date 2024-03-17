@@ -44,7 +44,7 @@ bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b
 
 bool movingobj_t::successfully_loaded()
 {
-	movingobj_typen.resize(desc_table.get_count());
+	movingobj_typen.reserve(desc_table.get_count());
 	for(auto const& i : desc_table) {
 		movingobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}

@@ -478,6 +478,7 @@ static vector_tpl<grund_t*> const& get_tile_list( gebaeude_t *gb )
 	return list;
 }
 
+
 void export_map_objects(HSQUIRRELVM vm)
 {
 	/**

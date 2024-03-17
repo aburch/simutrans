@@ -3096,7 +3096,7 @@ void haltestelle_t::display_status(sint16 xpos, sint16 ypos)
 
 		// reset bar heights for new count
 		last_bar_height.clear();
-		last_bar_height.resize( count );
+		last_bar_height.reserve( count );
 		for(  sint16 i = 0;  i < count;  i++  ) {
 			last_bar_height.append(0);
 		}

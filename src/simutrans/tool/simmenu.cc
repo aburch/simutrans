@@ -762,7 +762,7 @@ bool tool_t::read_menu(const std::string &menuconf_path)
 	DBG_MESSAGE( "tool_t::read_menu()", "Reading toolbars" );
 	toolbar_last_used_t::last_used_tools = new toolbar_last_used_t( TOOL_LAST_USED | TOOLBAR_TOOL, "Last used tools", "last_used.txt" );
 	// first: add main menu
-	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_count() );
+	toolbar_tool.reserve( skinverwaltung_t::tool_icons_toolbars->get_count() );
 	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", ""));
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
 		char id[256];

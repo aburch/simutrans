@@ -18,57 +18,64 @@ template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
 
 
 /** A template class for a simple vector type */
-template<class T> class vector_tpl
+template<class T>
+class vector_tpl
 {
 public:
-	typedef const T* const_iterator;
-	typedef       T* iterator;
+	typedef const T *const_iterator;
+	typedef       T *iterator;
 
 	/** Construct a vector for cap elements */
-	vector_tpl() : data(NULL), size(0), count(0) {}
+	vector_tpl() :
+		data(NULL),
+		cap(0),
+		count(0)
+	{}
 
 	explicit vector_tpl(const uint32 cap) :
 		data(cap > 0 ? new T[cap] : NULL),
-		size(cap),
-		count(0) {}
+		cap(cap),
+		count(0)
+	{}
 
 	vector_tpl(const vector_tpl& copy_from) :
-		data( copy_from.get_size() > 0 ? new T[ copy_from.get_size() ] : 0 ),
-		size( copy_from.get_size() ),
-		count( copy_from.get_count() ) {
-			for( uint32 i = 0; i < count; i++ ) {
-				data[i] = copy_from.data[i];
-			}
+		data( copy_from.cap > 0 ? new T[ copy_from.cap ] : 0 ),
+		cap( copy_from.cap ),
+		count( copy_from.count )
+	{
+		for( uint32 i = 0; i < count; i++ ) {
+			data[i] = copy_from.data[i];
 		}
+	}
 
-	~vector_tpl() { delete [] data; }
+	~vector_tpl() { delete[] data; }
 
 	/** sets the vector to empty */
 	void clear() { count = 0; }
 
 	/**
-	 * Resizes the maximum data that can be hold by this vector.
-	 * Existing entries are preserved, new_size must be big enough to hold them
+	 * Increases the capacity of this vector to @p new_capacity. Existing entries are preserved.
+	 * If @p new_capacity is smaller than the current capacity, the vector is not modified.
 	 */
-	void resize(const uint32 new_size)
+	void reserve(uint32 new_capacity)
 	{
-		if (new_size <= size) return; // do nothing
+		if (new_capacity <= cap) return; // do nothing
 
-		T* new_data = new T[new_size];
-		if(size>0) {
+		T *new_data = new T[new_capacity];
+		if (cap>0) {
 			for (uint32 i = 0; i < count; i++) {
 				new_data[i] = data[i];
 			}
 			delete [] data;
 		}
-		size = new_size;
+		cap  = new_capacity;
 		data = new_data;
 	}
 
 	/**
-		* Checks if element elem is contained in vector.
-		* Uses the == operator for comparison.
-		*/
+	 * Checks if element elem is contained in vector.
+	 * Uses the == operator for comparison.
+	 */
 	bool is_contained(const T& elem) const
 	{
 		for (uint32 i = 0; i < count; i++) {
@@ -80,9 +87,9 @@ public:
 	}
 
 	/**
-		* Checks if element elem is contained in vector.
-		* Uses the == operator for comparison.
-		*/
+	 * Checks if element elem is contained in vector.
+	 * Uses the == operator for comparison.
+	 */
 	uint32 index_of(const T& elem) const
 	{
 		for (uint32 i = 0; i < count; i++) {
@@ -96,8 +103,8 @@ public:
 
 	void append(const T& elem)
 	{
-		if(  count == size  ) {
-			resize(size == 0 ? 1 : size * 2);
+		if(  count == cap  ) {
+			reserve(cap == 0 ? 1 : cap * 2);
 		}
 		data[count++] = elem;
 	}
@@ -119,8 +126,8 @@ public:
 	void insert_at(const uint32 pos, const T& elem)
 	{
 		if (pos < count) {
-			if (count == size) {
-				resize(size == 0 ? 1 : size * 2);
+			if (count == cap) {
+				reserve(cap == 0 ? 1 : cap * 2);
 			}
 			for (uint i = count; i > pos; i--) {
 				data[i] = data[i - 1];
@@ -182,18 +189,18 @@ public:
 
 	/**
 	 * Put the data at a certain position.
-	 * Possibly resizes vector (and hence creates default objects).
+	 * Possibly re-allocates vector (and hence creates default objects).
 	 * @param pos index
 	 * @param elem this element will be copied
 	 */
 	void store_at(const uint32 pos, const T& elem)
 	{
-		if (pos >= size) {
-			uint32 new_size = size == 0 ? 1 : size * 2;
-			while (pos >= new_size) {
-				new_size *= 2;
+		if (pos >= cap) {
+			uint32 new_cap = cap == 0 ? 1 : cap * 2;
+			while (pos >= new_cap) {
+				new_cap *= 2;
 			}
-			resize(new_size);
+			reserve(new_cap);
 		}
 		data[pos] = elem;
 		if (pos >= count) {
@@ -261,13 +268,13 @@ public:
 	uint32 get_count() const { return count; }
 
 	/** Get the capacity */
-	uint32 get_size() const { return size; }
+	uint32 get_capacity() const { return cap; }
 
 	bool empty() const { return count == 0; }
 
 private:
 	T* data;
-	uint32 size;  ///< Capacity
+	uint32 cap;   ///< Capacity
 	uint32 count; ///< Number of elements in vector
 
 	vector_tpl& operator=( vector_tpl const& other ) {
@@ -284,7 +291,7 @@ private:
 template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
 {
 	sim::swap(a.data,  b.data);
-	sim::swap(a.size,  b.size);
+	sim::swap(a.cap,   b.cap);
 	sim::swap(a.count, b.count);
 }
 

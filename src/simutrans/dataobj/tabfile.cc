@@ -244,7 +244,7 @@ vector_tpl<int> tabfileobj_t::get_ints(const char *key)
 	}
 
 	// Create result vector and fill
-	result.resize(count);
+	result.reserve(count);
 	result.append(strtol( value, NULL, 0 ));
 
 	for(tmp = value; *tmp; tmp++) {
@@ -281,7 +281,7 @@ vector_tpl<sint64> tabfileobj_t::get_sint64s(const char *key)
 	}
 
 	// Create result vector and fill
-	result.resize(count);
+	result.reserve(count);
 	result.append(atosint64(value));
 
 	for(tmp = value; *tmp; tmp++) {

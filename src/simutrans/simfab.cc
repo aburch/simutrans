@@ -1485,7 +1485,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			uint16 nr=0;
 			koord k;
 			file->rdwr_short(nr);
-			fields.resize(nr);
+			fields.reserve(nr);
 			if(  file->is_version_atleast(102, 3)  ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
