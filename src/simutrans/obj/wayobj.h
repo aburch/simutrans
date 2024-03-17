@@ -82,7 +82,7 @@ public:
 
 	void cleanup(player_t *player) OVERRIDE;
 
-	const char* is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	void finish_rd() OVERRIDE;
 

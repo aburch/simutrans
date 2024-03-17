@@ -101,7 +101,7 @@ public:
 	/**
 	* @return NULL when OK, or message, why not?
 	*/
-	const char * kann_alle_entfernen(const player_t *, uint8 ) const;
+	const char *kann_alle_entfernen(const player_t *player, uint8 offset) const;
 
 	/** recalcs all objects on this tile
 	*/

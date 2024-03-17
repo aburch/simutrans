@@ -290,7 +290,7 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 
 
 template<class D>
-SQInteger map_obj_to_string(HSQUIRRELVM vm) // parameters: obj
+static SQInteger map_obj_to_string(HSQUIRRELVM vm) // parameters: obj
 {
 	static cbuffer_t buf;
 	buf.clear();
@@ -307,7 +307,7 @@ SQInteger map_obj_to_string(HSQUIRRELVM vm) // parameters: obj
 
 // create class
 template<class D>
-void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
+static void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 {
 	SQInteger res = create_class(vm, name, base);
 	if(  !SQ_SUCCEEDED(res)  ) {
@@ -326,23 +326,23 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 }
 
 // mark objects
-void mark_object(obj_t* obj)
+static void mark_object(obj_t* obj)
 {
 	obj->set_flag(obj_t::highlight);
 	obj->set_flag(obj_t::dirty);
 }
-void unmark_object(obj_t* obj)
+static void unmark_object(obj_t* obj)
 {
 	obj->clear_flag(obj_t::highlight);
 	obj->set_flag(obj_t::dirty);
 }
-bool object_is_marked(obj_t* obj)
+static bool object_is_marked(obj_t* obj)
 {
 	return obj->get_flag(obj_t::highlight);
 }
 
 // markers / labels
-call_tool_work create_marker(koord pos, player_t* player, const char* text)
+static call_tool_work create_marker(koord pos, player_t* player, const char* text)
 {
 	if (text == NULL) {
 		return "Cannot create label with text == null";
@@ -350,12 +350,12 @@ call_tool_work create_marker(koord pos, player_t* player, const char* text)
 	return call_tool_work(TOOL_MARKER | GENERAL_TOOL, text, 0, player, koord3d(pos, 0));
 }
 
-call_tool_init label_set_text(label_t *l, const char* text)
+static call_tool_init label_set_text(label_t *l, const char* text)
 {
 	return command_rename(l->get_owner(), 'm', l->get_pos(), text);
 }
 
-const char* label_get_text(label_t* l)
+static const char* label_get_text(label_t* l)
 {
 	if (l) {
 		if (grund_t *gr = welt->lookup(l->get_pos())) {
@@ -366,13 +366,13 @@ const char* label_get_text(label_t* l)
 }
 
 // roadsign
-bool roadsign_can_pass(const roadsign_t* rs, player_t* player)
+static bool roadsign_can_pass(const roadsign_t* rs, player_t* player)
 {
 	return player  &&  rs->get_desc()->is_private_way()  ?  (rs->get_player_mask() & (1<<player->get_player_nr()))!=0 : true;
 }
 
 // depot
-call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehicle_desc_t *desc)
+static call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehicle_desc_t *desc)
 {
 	if (desc == NULL) {
 		return "Invalid vehicle_desc_x provided";
@@ -385,7 +385,7 @@ call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihand
 	return call_tool_init(TOOL_CHANGE_DEPOT | SIMPLE_TOOL, buf, 0, player);
 }
 
-call_tool_init depot_start_convoy(depot_t *depot, player_t *player, convoihandle_t cnv)
+static call_tool_init depot_start_convoy(depot_t *depot, player_t *player, convoihandle_t cnv)
 {
 	// see depot_frame_t::action_triggered: tool = 'b'
 	// see depot_t::call_depot_tool for command string composition
@@ -400,7 +400,7 @@ call_tool_init depot_start_convoy(depot_t *depot, player_t *player, convoihandle
 	return call_tool_init(TOOL_CHANGE_DEPOT | SIMPLE_TOOL, buf, 0, player);
 }
 
-vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
+static vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 {
 	static vector_tpl<convoihandle_t> list;
 	list.clear();
@@ -416,7 +416,7 @@ vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 	return list;
 }
 
-vector_tpl<depot_t*> const& get_depot_list(player_t *player, waytype_t wt)
+static vector_tpl<depot_t*> const& get_depot_list(player_t *player, waytype_t wt)
 {
 	static vector_tpl<depot_t*> list;
 	list.clear();
@@ -437,7 +437,7 @@ vector_tpl<depot_t*> const& get_depot_list(player_t *player, waytype_t wt)
 }
 
 
-const fabrik_t* transformer_get_factory(leitung_t *lt)
+static const fabrik_t* transformer_get_factory(leitung_t *lt)
 {
 	if (pumpe_t *p = dynamic_cast<pumpe_t*>(lt)) {
 		return p->get_factory();
@@ -448,18 +448,18 @@ const fabrik_t* transformer_get_factory(leitung_t *lt)
 	return NULL;
 }
 
-bool leitung_is_connected(leitung_t* lt1, leitung_t* lt2)
+static bool leitung_is_connected(leitung_t* lt1, leitung_t* lt2)
 {
 	return lt2 != NULL  &&  lt1->get_net() == lt2->get_net();
 }
 
-bool field_is_deleteable(field_t* f)
+static bool field_is_deletable(field_t* f)
 {
-	return f->is_deletable( welt->get_player(1) ) == NULL;
+	return f->get_removal_error( welt->get_public_player() ) == NULL;
 }
 
 
-vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
+static vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
@@ -471,7 +471,7 @@ vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
 	return v;
 }
 
-vector_tpl<grund_t*> const& get_tile_list( gebaeude_t *gb )
+static vector_tpl<grund_t*> const& get_tile_list( gebaeude_t *gb )
 {
 	static vector_tpl<grund_t*> list;
 	gb->get_tile_list( list );
@@ -522,7 +522,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Checks whether player can remove this object.
 	 * @returns error message or null if object can be removed.
 	 */
-	register_method(vm, &obj_t::is_deletable, "is_removable");
+	register_method(vm, &obj_t::get_removal_error, "is_removable");
 	/**
 	 * @returns type of object.
 	 */
@@ -782,7 +782,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @see factory_x::get_field_count, factory_x::get_min_field_count
 	 * @return whether this one can be deleted
 	 */
-	register_method(vm, &field_is_deleteable, "is_deletable", true);
+	register_method(vm, &field_is_deletable, "is_deletable", true);
 	/**
 	 * @returns factory this field belongs to
 	 * @see factory_x::get_field_count, factory_x::get_min_field_count

@@ -394,7 +394,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 	const grund_t *end_gr = welt->lookup(end);
 	if (end_gr) {
 		if (weg_t *weg_end = end_gr->get_weg(wegtyp)) {
-			if (weg_end->is_deletable(player)!=NULL) {
+			if (weg_end->get_removal_error(player)!=NULL) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 			if(  full_tunnel  &&  end_gr->get_typ() == grund_t::tunnelboden  ) {

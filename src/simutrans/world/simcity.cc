@@ -3021,7 +3021,7 @@ void stadt_t::build_city_building(const koord k)
 	// test ownership of all objects that can block construction
 	for(  uint8 i = 0;  i < gr->obj_count();  i++  ) {
 		obj_t *const obj = gr->obj_bei(i);
-		if(  obj->is_deletable(NULL) != NULL  &&  obj->get_typ() != obj_t::pillar  ) {
+		if(  obj->get_removal_error(NULL) != NULL  &&  obj->get_typ() != obj_t::pillar  ) {
 			return;
 		}
 	}

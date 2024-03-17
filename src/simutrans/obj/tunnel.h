@@ -61,7 +61,7 @@ public:
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 */
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 };
 
 #endif

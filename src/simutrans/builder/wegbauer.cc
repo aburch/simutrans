@@ -2609,9 +2609,9 @@ void way_builder_t::build_road()
 			if(weg->get_desc()==desc  ||  keep_existing_ways
 				||  (keep_existing_city_roads  &&  weg->hat_gehweg())
 				||  (keep_existing_faster_ways  &&  weg->get_desc()->get_topspeed()>desc->get_topspeed())
-				||  (player_builder!=NULL  &&  weg->is_deletable(player_builder)!=NULL)
+				||  (player_builder!=NULL  &&  weg->get_removal_error(player_builder)!=NULL)
 				||  (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)
-				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->is_deletable(player_builder)!=NULL) // do not replace public roads crossing rails of other players
+				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->get_removal_error(player_builder)!=NULL) // do not replace public roads crossing rails of other players
 			) {
 				//nothing to be done
 			}

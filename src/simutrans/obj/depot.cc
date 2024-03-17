@@ -567,7 +567,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 /**
  * @return NULL when OK, otherwise an error message
  */
-const char * depot_t::is_deletable(const player_t *player)
+const char *depot_t::get_removal_error(const player_t *player)
 {
 	if(player!=get_owner()  &&  player!=welt->get_public_player()) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";

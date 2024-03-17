@@ -47,6 +47,6 @@ bool signal_info_t::action_triggered( gui_action_creator_t *, value_t /* */)
 
 void signal_info_t::draw( scr_coord pos, scr_size size )
 {
-	remove.enable( !sig->is_deletable( welt->get_active_player() ) );
+	remove.enable( !sig->get_removal_error( welt->get_active_player() ) );
 	obj_infowin_t::draw( pos, size );
 }

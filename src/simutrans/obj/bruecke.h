@@ -60,7 +60,7 @@ public:
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 */
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 };
 
 #endif

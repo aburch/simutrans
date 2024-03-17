@@ -262,7 +262,8 @@ public:
 	*/
 	virtual schedule_t *generate_new_schedule() const = 0;
 
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	/// @copydoc obj_t::get_removal_error
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 	virtual void rdwr_from_convoi(loadsave_t *file);

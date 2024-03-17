@@ -61,7 +61,7 @@ public:
 	/**
 	 * @return NULL when OK, otherwise an error message
 	 */
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }

@@ -737,13 +737,13 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 	}
 
 	if(capacity==1) {
-		return obj.one->is_deletable(player);
+		return obj.one->get_removal_error(player);
 	}
 	else {
 		const char * msg = NULL;
 
 		for(uint8 i=offset; i<top; i++) {
-			msg = obj.some[i]->is_deletable(player);
+			msg = obj.some[i]->get_removal_error(player);
 			if(msg != NULL) {
 				return msg;
 			}

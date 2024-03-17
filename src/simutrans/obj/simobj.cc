@@ -157,7 +157,7 @@ bool obj_t::has_managed_lifecycle() const {
 }
 
 // returns NULL, if removal is allowed
-const char *obj_t::is_deletable(const player_t *player)
+const char *obj_t::get_removal_error(const player_t *player)
 {
 	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_public_player() == player) {
 		return NULL;

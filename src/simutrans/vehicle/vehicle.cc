@@ -1106,7 +1106,7 @@ void vehicle_t::info(cbuffer_t & buf) const
 }
 
 
-const char *vehicle_t::is_deletable(const player_t *)
+const char *vehicle_t::get_removal_error(const player_t *)
 {
 	return "Fahrzeuge koennen so nicht entfernt werden";
 }

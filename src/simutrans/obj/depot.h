@@ -176,7 +176,7 @@ public:
 	 * Can object be removed?
 	 * @return NULL when OK, otherwise an error message
 	 */
-	const char * is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	/**
 	 * identifies the oldest vehicle of a certain type

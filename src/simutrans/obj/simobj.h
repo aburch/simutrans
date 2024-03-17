@@ -292,10 +292,8 @@ public:
 	 */
 	virtual bool has_managed_lifecycle() const;
 
-	/**
-	 * @return NULL if OK, otherwise an error message
-	 */
-	virtual const char *is_deletable(const player_t *player);
+	/// @return NULL if this obj can be removed by @p player, otherwise an error message
+	virtual const char *get_removal_error(const player_t *player);
 
 	/**
 	 * Draw background image of object

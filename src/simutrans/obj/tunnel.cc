@@ -222,12 +222,12 @@ void tunnel_t::set_foreground_image( image_id b )
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *tunnel_t::is_deletable(const player_t *player)
+const char *tunnel_t::get_removal_error(const player_t *player)
 {
 	if (get_owner_nr()==PUBLIC_PLAYER_NR) {
 		return NULL;
 	}
 	else {
-		return obj_t::is_deletable(player);
+		return obj_t::get_removal_error(player);
 	}
 }

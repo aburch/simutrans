@@ -1047,10 +1047,7 @@ void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 }
 
 
-const char *air_vehicle_t::is_deletable(const player_t *player)
+const char *air_vehicle_t::get_removal_error(const player_t *player)
 {
-	if (is_on_ground()) {
-		return vehicle_t::is_deletable(player);
-	}
-	return NULL;
+	return is_on_ground() ? vehicle_t::get_removal_error(player) : NULL;
 }

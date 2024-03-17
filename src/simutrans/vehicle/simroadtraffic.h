@@ -64,7 +64,7 @@ public:
 	void finish_rd() OVERRIDE;
 
 	// we allow to remove all cars etc.
-	const char *is_deletable(const player_t *) OVERRIDE { return NULL; }
+	const char *get_removal_error(const player_t *) OVERRIDE { return NULL; }
 };
 
 

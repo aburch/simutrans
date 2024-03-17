@@ -174,7 +174,7 @@ public:
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 */
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	waytype_t get_waytype() const OVERRIDE = 0;
 

@@ -115,7 +115,7 @@ public:
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 */
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	/**
 	 * @return maintenance of this object (powerline or transformer)

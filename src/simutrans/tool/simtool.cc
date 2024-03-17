@@ -318,7 +318,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 	if(  wt==powerline_wt  &&  gr->get_leitung()  ) {
 		// check for ownership
-		if(gr->get_leitung()->is_deletable(player)!=NULL) {
+		if(gr->get_leitung()->get_removal_error(player)!=NULL) {
 			return NULL;
 		}
 		// ok
@@ -330,7 +330,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way  &&  way->get_desc()->get_styp() == type_tram &&  way->is_deletable(player)==NULL) {
+		if (way  &&  way->get_desc()->get_styp() == type_tram &&  way->get_removal_error(player)==NULL) {
 			return gr;
 		}
 		else {
@@ -344,7 +344,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 		return NULL;
 	}
 	// check for ownership
-	if(gr->get_weg(wt)->is_deletable(player)!=NULL){
+	if(gr->get_weg(wt)->get_removal_error(player)!=NULL){
 		return NULL;
 	}
 	// ok, now we have a valid ground
@@ -439,7 +439,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// marker?
 	if (type == obj_t::label  ||  type == obj_t::undefined) {
 		if (label_t* l = gr->find<label_t>()) {
-			msg = l->is_deletable(player);
+			msg = l->get_removal_error(player);
 			if(msg==NULL) {
 				delete l;
 				return true;
@@ -475,7 +475,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	leitung_t* lt = gr->get_leitung();
 	// check whether powerline related stuff should be removed, and if there is any to remove
 	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
-	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
+	       &&  lt != NULL  &&  lt->get_removal_error(player) == NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -523,7 +523,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	roadsign_t* rs = gr->find<signal_t>();
 	if (rs == NULL) rs = gr->find<roadsign_t>();
 	if ( (type == obj_t::signal  ||  type == obj_t::roadsign  ||  type == obj_t::undefined)  &&  rs!=NULL) {
-		msg = rs->is_deletable(player);
+		msg = rs->get_removal_error(player);
 		if(msg) {
 			return false;
 		}
@@ -560,7 +560,7 @@ DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 	// catenary or something like this
 	wayobj_t* wo = gr->find<wayobj_t>();
 	if(wo  &&  (type == obj_t::wayobj  ||  type == obj_t::undefined)) {
-		msg = wo->is_deletable(player);
+		msg = wo->get_removal_error(player);
 		if(msg) {
 			return false;
 		}
@@ -594,7 +594,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// fields
 	field_t* f = gr->find<field_t>();
 	if (f  &&  (type == obj_t::field  ||  type == obj_t::undefined)) {
-		msg = f->is_deletable(player);
+		msg = f->get_removal_error(player);
 		if(msg==NULL) {
 			f->cleanup(player);
 			delete f;
@@ -611,7 +611,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	depot_t* dep = gr->get_depot();
 	if (dep  &&  (type == obj_t::bahndepot  ||  type == obj_t::undefined)) {
 		// type == bahndepot to remove any type of depot
-		msg = dep->is_deletable(player);
+		msg = dep->get_removal_error(player);
 		if(msg) {
 			return false;
 		}
@@ -624,7 +624,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if(gb != NULL  &&  (type == obj_t::gebaeude  ||  type == obj_t::undefined)) {
 		gb = gb->get_first_tile();
-		msg = gb->is_deletable(player);
+		msg = gb->get_removal_error(player);
 		if(msg) {
 			return false;
 		}
@@ -736,14 +736,14 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			// remove the other way first
 			w = NULL;
 		}
-		if(w==NULL  ||  w->is_deletable(player)!=NULL) {
+		if(w==NULL  ||  w->get_removal_error(player)!=NULL) {
 			w = gr->get_weg_nr(0);
 			if(w==NULL) {
 				// no way at all ...
 				return true;
 			}
-			if(w->is_deletable(player)!=NULL){
-				msg = w->is_deletable(player);
+			if(w->get_removal_error(player)!=NULL){
+				msg = w->get_removal_error(player);
 				return false;
 			}
 		}
@@ -1330,10 +1330,10 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 			// check way ownership
 			if(gr1->hat_wege()) {
-				if(gr1->get_weg_nr(0)->is_deletable(player)!=NULL) {
+				if(gr1->get_weg_nr(0)->get_removal_error(player)!=NULL) {
 					return NOTICE_TILE_FULL;
 				}
-				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->is_deletable(player)!=NULL) {
+				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->get_removal_error(player)!=NULL) {
 					return NOTICE_TILE_FULL;
 				}
 			}
@@ -2537,17 +2537,17 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 			if(  desc->get_wtyp() == road_wt  ||  desc->get_wtyp() == water_wt  ) {
 				return 2;
 			}
-			error = way->is_deletable(player);
+			error = way->get_removal_error(player);
 			return error==NULL ? 2 : 0;
 		}
 		// check for ownership but ignore moving things
 		if(player!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
 				obj_t* dt = gr->obj_bei(i);
-				if (!dt->is_moving()  &&  dt->is_deletable(player)!=NULL  &&  dt->get_typ()!=obj_t::label
+				if (!dt->is_moving()  &&  dt->get_removal_error(player)!=NULL  &&  dt->get_typ()!=obj_t::label
 					&&  (desc->get_wtyp() == powerline_wt  ||  dt->get_typ()!=obj_t::leitung) ) {
 
-					error =  dt->is_deletable(player); // "Das Feld gehoert\neinem anderen Spieler\n";
+					error =  dt->get_removal_error(player); // "Das Feld gehoert\neinem anderen Spieler\n";
 					return 0;
 				}
 			}
@@ -3387,18 +3387,18 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 						// special case: stations - take care not to produce station without any way
 						const bool lonely_station = type==obj_t::gebaeude  &&  !gr->has_two_ways();
 						if (check_all ||  obj_wt == wt  ||  lonely_station) {
-							can_delete = (calc_route_error = obj->is_deletable(player)) == NULL;
+							can_delete = (calc_route_error = obj->get_removal_error(player)) == NULL;
 						}
 					}
 					// all other stuff
 					else {
-						can_delete = (calc_route_error = obj->is_deletable(player)) == NULL;
+						can_delete = (calc_route_error = obj->get_removal_error(player)) == NULL;
 					}
 				}
 			}
 			else {
 				// for powerline: only a ground and a powerline to remove
-				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()->is_deletable(player))!=NULL  ) {
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()->get_removal_error(player))!=NULL  ) {
 					can_delete = false;
 					break;
 				}
@@ -3735,7 +3735,7 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 					wayobj_t *wo = static_cast<wayobj_t *>(obj);
 					if(  wo->get_waytype() == wt  ) {
 						// only remove matching waytype
-						const char *err = wo->is_deletable( player );
+						const char *err = wo->get_removal_error( player );
 						if( !err ) {
 							wo->cleanup( player );
 							delete wo;
@@ -5099,7 +5099,7 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
-			if (check_pos_intern(player, route.at(i))==NULL  || (s.replace_other && rs && !rs->is_deletable(player))) {
+			if (check_pos_intern(player, route.at(i))==NULL  || (s.replace_other && rs && !rs->get_removal_error(player))) {
 				zeiger_t *zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
 				zeiger->set_image( skinverwaltung_t::bauigelsymbol->get_image_id(0) );
@@ -5113,7 +5113,7 @@ void tool_build_roadsign_t::mark_tiles(player_t *player, const koord3d &start, c
 				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_price()+rs->get_desc()->get_price()) : desc->get_price();
 			}
 		}
-		else if (s.remove_intermediate && rs && !rs->is_deletable(player)) {
+		else if (s.remove_intermediate && rs && !rs->get_removal_error(player)) {
 			zeiger_t *zeiger = new zeiger_t(gr->get_pos(), player );
 			marked.append(zeiger);
 			zeiger->set_image( tool_t::general_tool[TOOL_REMOVER]->cursor );
@@ -5159,7 +5159,7 @@ const char *tool_build_roadsign_t::do_work(player_t *player, const koord3d &star
 					roadsign_t* rs = gr->find<signal_t>();
 					if(rs == NULL) rs = gr->find<roadsign_t>();
 
-					if(  rs != NULL  &&  rs->is_deletable(player) == NULL  ) {
+					if(  rs != NULL  &&  rs->get_removal_error(player) == NULL  ) {
 						rs->cleanup(player);
 						delete rs;
 						error_text = place_sign_intern( player, gr );
@@ -5180,7 +5180,7 @@ const char *tool_build_roadsign_t::do_work(player_t *player, const koord3d &star
 			// Place no signal -> remove existing signal
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
-			if(  rs != NULL  &&  rs->is_deletable(player) == NULL  ) {
+			if(  rs != NULL  &&  rs->get_removal_error(player) == NULL  ) {
 				rs->cleanup(player);
 				delete rs;
 			};
@@ -5343,7 +5343,7 @@ const char *tool_build_roadsign_t::place_sign_intern(player_t *player, grund_t *
 		}
 
 		// different desc -> replace signal
-		else if (rs->is_deletable(player) == NULL) {
+		else if (rs->get_removal_error(player) == NULL) {
 			ribi_t::ribi old_dir = rs->get_dir();
 			rs->cleanup(player);
 			delete rs;
@@ -6839,7 +6839,7 @@ const char* tool_remove_signal_t::work( player_t* player, koord3d pos )
 {
 	if(  grund_t *gr=welt->lookup(pos)  ) {
 		if(  signal_t *rs=gr->find<signal_t>()  ) {
-			const char *msg = rs->is_deletable(player);
+			const char *msg = rs->get_removal_error(player);
 			if(msg) {
 				return msg;
 			}

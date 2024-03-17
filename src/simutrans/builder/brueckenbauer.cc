@@ -176,7 +176,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
 
-		if(  w->is_deletable(player) != NULL  ) {
+		if(  w->get_removal_error(player) != NULL  ) {
 			// not our way
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -184,7 +184,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 		// now check for direction
 		ribi_t::ribi ribi = w->get_ribi_unmasked();
 		if(  weg_t *w2 = gr->get_weg_nr(1)  ) {
-			if(  w2->is_deletable(player) != NULL ) {
+			if(  w2->get_removal_error(player) != NULL ) {
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -223,7 +223,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 	else if(  wt == powerline_wt  ) {
 		if(  leitung_t *lt = gr->get_leitung()  ) {
-			if(  lt->is_deletable(player) == NULL  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
+			if(  lt->get_removal_error(player) == NULL  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
 				// matching powerline
 				return NULL;
 			}
@@ -232,7 +232,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 	// something here which we cannot remove => fail too
 	if(  obj_t *obj=gr->obj_bei(0)  ) {
-		if(  const char *err_msg = obj->is_deletable(player)  ) {
+		if(  const char *err_msg = obj->get_removal_error(player)  ) {
 			return err_msg;
 		}
 	}
@@ -737,10 +737,10 @@ DBG_MESSAGE("bridge_builder_t::build()", "end not ok");
 	}
 	// check way ownership
 	if(gr_end->hat_wege()) {
-		if(gr_end->get_weg_nr(0)->is_deletable(player)!=NULL) {
+		if(gr_end->get_weg_nr(0)->get_removal_error(player)!=NULL) {
 			return "Tile not empty.";
 		}
-		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->is_deletable(player)!=NULL) {
+		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->get_removal_error(player)!=NULL) {
 			return "Tile not empty.";
 		}
 	}

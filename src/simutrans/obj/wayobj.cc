@@ -190,12 +190,12 @@ void wayobj_t::cleanup(player_t *player)
 
 // returns NULL, if removal is allowed
 // players can remove public owned wayobjs
-const char *wayobj_t::is_deletable(const player_t *player)
+const char *wayobj_t::get_removal_error(const player_t *player)
 {
 	if(  get_owner_nr()==PUBLIC_PLAYER_NR  ) {
 		return NULL;
 	}
-	return obj_t::is_deletable(player);
+	return obj_t::get_removal_error(player);
 }
 
 

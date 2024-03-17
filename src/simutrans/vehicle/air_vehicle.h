@@ -119,7 +119,7 @@ public:
 
 	bool is_on_ground() const { return flying_height==0  &&  !(state==circling  ||  state==flying); }
 
-	const char *is_deletable(const player_t *player) OVERRIDE;
+	const char *get_removal_error(const player_t *player) OVERRIDE;
 
 	bool is_flying() const OVERRIDE { return !is_on_ground(); }
 };
