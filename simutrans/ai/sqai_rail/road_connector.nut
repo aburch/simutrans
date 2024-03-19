@@ -247,7 +247,7 @@ class road_connector_t extends manager_t
           local result = asf.search_route([c_start], [c_end])
 
           if ( "routes" in result ) {  } else {
-            ::debug.pause()
+            if ( debug ) ::debug.pause()
             sleep()
             return r_t(RT_TOTAL_FAIL)
           }
