@@ -40,7 +40,7 @@ Below the graphic the number of vehicle-units in the selected Convoy, length of 
 Option-buttons (click to use) for <strong>Depot Controls</strong> include:
 </p>
 <p>
-<em>Start:</em> sends the selected <a href="convoiinfo.txt">Convoy</a> out of the depot if a route can be found.
+<em>Start:</em> sends the selected <a href="convoiinfo.txt">Convoy</a> out of the depot if a route can be found. You can hold Ctrl to start all convoys.
 </p>
 <p>
 <a href="schedule.txt"><em>Schedule:</em></a> opens controls to change the route and quantity of items that a <a href="convoiinfo.txt">Convoy</a> will wait for at a <a href="station.txt">Stop</a>.
@@ -49,7 +49,7 @@ Option-buttons (click to use) for <strong>Depot Controls</strong> include:
 <em>Disassemble:</em> puts the vehicle unit(s) in selected <a href="convoiinfo.txt">Convoy</a> into storage.
 </p>
 <p>
-<em>Sell:</em> sells the current <a href="convoiinfo.txt">Convoy</a>, account balance is credited with <em>Resale Value</em>.
+<em>Sell:</em> sells the current <a href="convoiinfo.txt">Convoy</a>, account balance is credited with <em>Resale Value</em>. You can hold Ctrl to sell all convoys.
 </p>
 <p>
 <a href="linemanagement.txt"><em>New Line:</em></a> opens controls to define a <a href="schedule.txt">Schedule</a> (a route and minimum quantity of items that a Convoy will wait for at a Stop), which may be used for multiple <a href="convoiinfo.txt">Convoys</a>.

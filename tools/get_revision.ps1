@@ -2,7 +2,8 @@ $revision = 0
 
 $answer = svnversion
 $has_svn = $?
-$answer=$answer.Trim("MSP:")
+#$answer=$answer.Trim("MSP:")
+$answer=$answer.substring(0,5);
 $is_number = ($null -ne ($answer -as [int]))
 if($has_svn -and $is_number)
 {

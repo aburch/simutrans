@@ -12,11 +12,15 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+Absolute times
+Affichage des heures sous forme de jour:hh:mm du mois
+AMBIENT_SOUND
+Sons d'ambiance
 cl_btn_filter_disable
 désactivé
 cl_btn_filter_enable
@@ -41,6 +45,10 @@ clf_btn_invers
 inv.
 clf_btn_keine
 rien
+climate area percentage
+Taille d'une région climatique
+Find matching convois
+Trouver les convois correspondants
 gl_btn_sort_bonus
 par bonus
 gl_btn_sort_name
@@ -71,6 +79,10 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 rien
+humidities
+Limites d'humidité
+Install
+Installer paks
 Lake
 lac
 Networks
@@ -79,8 +91,12 @@ Open Sea
 mer
 Queueing
 Tendance d'attente
+Reselect closes tools
+Re-sélection d'un outil le ferme
 Road toll
 Péages routiers
+Save
+Enregistrer partie
 Scenario
 Scénario
 Transfers
@@ -143,6 +159,8 @@ Monorails are not available yet!
 Les monorails ne sont pas encore disponibles.
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 Arrêt ou gare doit être sur une voie étroite!
+No bridges over runways!
+Ne peut pas construire de ponts au-dessus des pistes!
 No suitable way on the ground!
 Les arrêts ne peuvent être construits\nseulement sur le niveau droit correspondant aux voies
 No through station here!
@@ -1889,6 +1907,8 @@ Wert
 Valeur
 west
 Ouest
+Wind direction
+Direction du vent
 Winter snowline
 Altitude neige hiver
 withdraw

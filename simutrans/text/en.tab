@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -50,7 +50,7 @@ none
 climate area percentage
 Size single climate 
 CROSSING_SOUND
-crossign warnings
+crossing warnings
 FACTORY_SOUND
 factory noises
 gl_btn_sort_bonus
@@ -86,7 +86,7 @@ inv.
 hlf_btn_keine
 none
 humidities
-humitdity borders
+humidity borders
 Lake height
 max. lake height
 moisture land
@@ -101,6 +101,8 @@ Reselect closes tools
 Reselect a tool deselect it
 Road toll
 Road Toll
+Save
+Save game
 Scenario
 Scenario Info
 sea

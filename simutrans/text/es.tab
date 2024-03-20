@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -89,6 +89,8 @@ hlf_btn_keine
 Nada
 humidities
 Límites de humedad
+Install
+Instalar paksets
 Lake
 Lago
 Lake height
@@ -611,6 +613,8 @@ allowed climates:\n
 Climas disponibles:\n
 Alters a schedule.
 Añade/quita paradas a/de un itinerario.
+and arranged by
+con arreglos de
 Angenommene Waren
 Bienes demandados por industrias cercanas
 anhaengen
@@ -863,6 +867,8 @@ Company_msg
 Competencia
 Comparing pak files ...
 Comparando archivos pak...
+Composed by
+Compuesta por
 Configure AI
 Configuración IA
 Configure AI setttings
@@ -979,6 +985,8 @@ Departures per month
 Salidas al mes
 Departures to\n
 Salidas hacia\n
+Depot
+Depósito
 Depots
 Depósitos
 Der Tunnel ist nicht frei!\n
@@ -1285,8 +1293,6 @@ Ins Stop
 Insertar
 Insert stop before the current stop
 Inserta una parada antes de la parada actual.
-Install
-Instalar paksets
 Install graphics
 Instalar gráficos
 Install paks
@@ -1401,6 +1407,10 @@ Load mode:
 Cargar modo: 
 Load scenario
 Escenario
+Load script tool
+Cargar herramienta desde script
+Load Scripted AI
+Cargar IA desde script
 loaded
 cargado
 loaded passenger/freight

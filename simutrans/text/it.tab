@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,14 +71,22 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 ness.
+Lake
+Lago
 Maximize height levels
 Massimizza livelli altezza
 Networks
 Reti
+Open Sea
+Mare Aperto
 Queueing
 Accodamento
+rainfall
+pioggia
 Road toll
 Casello stradale
+sea
+mare
 Transfers
 Trasferimenti
 #_________________________________climates_text_________________________________
@@ -113,6 +121,8 @@ Convoi handles exhausted!
 Massimo numero di convogli raggiunto
 Convoy already deleted!
 Convoglio già cancellato!
+Could not open file
+Impossibile aprire il file
 Das Feld gehoert\neinem anderen Spieler\n
 Questo terreno\nè di proprietà\ndi un altro giocatore!\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -161,6 +171,8 @@ Schiffhalt muss im\nWasser liegen!\n
 Le fermate delle barche\npossono essere piazzate\nsolo sull'acqua\nvicino ad un attracco!\n
 Server busy
 Server sovraccarico
+Server version too new
+Aggiorna la versione del gioco, quella del server è avanzata.
 Terraforming not possible\nhere in underground view
 Il terraforming è impossibile sottoterra.
 Upgrade must have\na higher level
@@ -341,6 +353,8 @@ via 2 riservata da\nvia 2 riservata da
 %d convogli
 %d Einzelfahrzeuge im Depot
 %d veicoli in deposito
+%i car(s),
+%i auto,
 %i km/h (max. %ikm/h)
 %i km/h (max %ikm/h)
 %i years %i months old.
@@ -409,6 +423,8 @@ Pedoni in città
 Densità traffico:
 8WORLD_CHOOSE
 Modalità giorno e notte
+A bridge must end on a way!
+I ponti devono\nfinire su un\ntracciato esistente.
 A bridge must start on a way!
 I ponti devono\niniziare su un\ntracciato esistente.
 Abfrage
@@ -443,6 +459,8 @@ Add stops for backward travel
 Aggiungi fermate viaggio ritorno
 air
 pista di rullaggio
+Aircraft
+Aereo
 aircraft_tab
 Aerei merci
 airplane
@@ -521,6 +539,8 @@ Blockstrecke ist\nbelegt\n
 Questo tratto di\nlinea è usato\nda un altro treno\n
 Boden
 Terreno
+Bonus Speed: %i km/h
+Bonus Velocità: %i km/h
 Bonusspeed: %i km/h
 Bonus velocità: %i km/h
 Boost (%%)
@@ -697,6 +717,8 @@ Connected stops
 Fermate collegate
 Connected with server
 Connesso al server
+Connections
+Connessioni
 Constructed by
 Disegno di
 Constructed by %s
@@ -783,8 +805,12 @@ Departed
 Partiti
 Departure board
 Tabella partenze
+Departures per month
+Partenze al mese
 Departures to\n
 Partenze per\n
+Depot
+Deposito
 Depots
 Depositi
 Der Tunnel ist nicht frei!\n
@@ -1057,6 +1083,8 @@ Ins Stop
 Inserisci
 Insert stop before the current stop
 Inserisci fermata prima della corrente
+Insufficient funds!
+Fondi insufficenti!
 Intercity road len:
 Lunghezza strade interurbane:
 Intro. date
@@ -1155,6 +1183,10 @@ loaded passenger/freight
 Ordina passegeri/merci per
 Loading (%i->%i%%)!
 Caricamento (%i->%i%%)
+Loading (%i%%) departure %s!
+Caricando (%i%%) partenza %s!
+Loading (%i%%)!
+Caricando (%i%%)!
 Loading addon paks ...
 Caricamento pacchetti aggiuntivi...
 Loading map ...
@@ -1163,6 +1195,8 @@ Loading paks ...
 Caricamento pacchetti...
 Loading skins ...
 Caricamento maschere...
+Loading time:
+Tempo di caricamento:
 Lock game
 Vieta cambio giocatore (richiede conferma).
 Lokomotive_tab
@@ -1185,6 +1219,8 @@ Maintenance
 Manutenz. edifici
 make stop public (or join with public stop next) costs %i per tile and level
 far diventare la fermata pubblica (o collega a fermata pubblica vicina) costa %i$ per area e livello 
+Make way or stop public (will join with neighbours), %i times maintainance
+Rendere pubblica fermata o strada (si unirà ai vicini), %i volte la manutenzione
 Manual (Human)
 Manuale (umano)
 Manufactured:
@@ -1247,8 +1283,12 @@ Monorailboden
 Suppporto Monorotaia
 Monoraildepot
 Deposito Monorotaia
+Month
+Mese
 month wait time
 Attesa mensile
+Monthly departures
+Partenze mensili
 Months
 Mesi
 Monument
@@ -1317,6 +1357,8 @@ no timeline
 no linea del tempo
 no tree
 Nessun albero
+No vehicles are available for purchase.
+Nessun veicolo è disponibile per l'acquisto.
 No. of Factories
 Numero di fabbriche
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
@@ -1335,6 +1377,8 @@ Not enough fields would remain.
 Non rimarranno abbastanza\nterreni intorno a questa fattoria
 November
 Novembre
+now
+adesso
 Now active as %s.\n
 Ora attivo come %s.\n
 Number of rivers
@@ -1467,10 +1511,14 @@ Power: %4d kW\n
 Potenza: %4d kW\n
 Powerlines
 Elettrodotti
+Price
+Prezzo
 Problems_msg
 Problemi
 Produced
 Prodotti
+Produces: %.1f units/minute
+Produce: %.1f unità/minuto
 Production of %s has been stopped:\n%s\n
 Produzione di %s è stata interrotta:\n%s\n
 Production/Boost
@@ -1504,7 +1552,7 @@ Municipio
 Rating
 Valutazione
 ratio_pax
-Rapporto pass.
+Percentuale passeggeri
 Relevant
 Rilevante
 Reliefkarte
@@ -1583,6 +1631,8 @@ Schleppkahn_tab
 Chiatte
 Screenshot
 Cattura schermata
+Search:
+Cerca:
 Seasons
 stagioni
 Sehenswuerdigkeit
@@ -1693,6 +1743,8 @@ Smart hide objects
 Nascondi oggetti intelligente
 Sort by
 ordina per
+Sort by:
+Ordina per:
 Sort waiting list by
 Ordina lista di attesa per
 Sound
@@ -1825,6 +1877,10 @@ Transformer only next to factory!
 I trasformatori devono essere in\nuno spazio piano vuoto\nvicino alla fabbrica!
 Translation
 Traduzione
+transparencies
+trasparenze
+transparent background
+sfondo trasparente
 transparent station coverage
 Copertura stazione trasparente
 Transported
@@ -1855,6 +1911,8 @@ Unhappy
 Infelici
 units/day
  unità/mese
+Unloading (%i%%)!
+Scaricando (%i%%)!
 Update Line
 Aggiorna linea
 upgrade HQ
@@ -1871,8 +1929,14 @@ Vehicle %s can't find a route!
 Il veicolo %s\nnon trova il percorso!
 Vehicle %s is stucked!
 Il veicolo %s è bloccato!
+Vehicle count:
+Conteggio Veicoli:
 Vehicle details
 Dettagli Veicolo
+Vehicle Name
+Nome Veicolo
+Vehicle Power
+Potenza Veicolo
 Verbrauch
 Consumo
 Vergroessere die Karte\n
@@ -1933,6 +1997,8 @@ Wert
 Valore
 west
 Ovest
+Wind direction
+Direzione del vento
 Winter snowline
 0°C inverno
 withdraw
@@ -1941,6 +2007,8 @@ Withdraw All
 Ritira tutto
 WRONGSAVE
 Versione salvata\nnon compatibile.\n\nImpossibile leggere\nil file.\n
+Year
+Anno
 Year %i has started.
 L'anno %i è iniziato.
 Years
@@ -1973,6 +2041,10 @@ New world record for railways: %.1f km/h by %s.
 Nuovo record del mondo per\nferrovie:\n %.1f km/h\nda %s.
 New world record for ship: %.1f km/h by %s.
 Nuovo record del mondo per\nnavi:\n %.1f km/h\nda %s.
+#________________________________script_ai_text_________________________________
+#________________________________script_ai_text_________________________________
+vehicles of the line %s were retired
+i veicoli della linea %s sono stati ritirati
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

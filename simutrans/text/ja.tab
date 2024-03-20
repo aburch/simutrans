@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -89,6 +89,8 @@ hlf_btn_keine
 全解除
 humidities
 湿潤基準
+Install
+インストール
 Lake
 	湖
 Lake height
@@ -113,6 +115,8 @@ Reselect closes tools
 選択済のツールボタンを押すと選択を解除する
 Road toll
 通行料
+Save
+ゲームの保存
 Scenario
 シナリオ
 sea
@@ -207,6 +211,10 @@ Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 ナローゲージ用の駅は\nナローゲージ上にのみ\n設置できます。
 No bridges over runways!
 滑走路をまたぐ橋梁は建設できません
+No curves on runways
+滑走路にカーブは作れません!
+No suitable crossing
+適切な交差がありません! (最高速度が速すぎるのかもしれません)
 No suitable way on the ground!
 設置に適当な場所ではありません。
 No through station here!
@@ -245,6 +253,8 @@ Terraforming not possible\nhere in underground view
 スロープツールは、\n地下では使用できません。
 This tunnel branches. You can try Control+Click to remove.
 このトンネルは枝分かれしています。Control+クリックで削除できます。
+Too far away to merge stations!
+駅を統合するには離れすぎています!
 Upgrade must have\na higher level
 この駅にはアップグレードできません\n\nよりレベルの高い駅を選択するか、\n一度撤去してから、置き換えてください
 Vehicle %s cannot choose because stop too short!
@@ -1279,8 +1289,6 @@ Ins Stop
  挿入
 Insert stop before the current stop
 選択している駅の直前に駅を挿入
-Install
-インストール
 Install graphics
 グラフィックセットの追加
 Install paks
@@ -1891,6 +1899,8 @@ Scenario Result
 結果
 Scenario Rules
 ルール
+Scenario_
+シナリオ 
 Schedule changing!
 ルート変更中
 Schienentunnel

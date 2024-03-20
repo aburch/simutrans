@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -624,9 +624,9 @@ Connected stops
 Connected with server
 已连接到伺服器
 Constructed by
-上色于:
+绘画者：
 Constructed by %s
-上色于: %s 
+绘画者：%s 
 Construction_Btn
 建设开支
 convoi %d of %d

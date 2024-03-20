@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 25.02 2023                           #
+#                           Date Created: 20.03 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -89,6 +89,8 @@ hlf_btn_keine
 keine
 humidities
 Feuchtigkeitgrenzen
+Install
+Installiere Paks
 Lake
 See
 Lake height
@@ -113,6 +115,8 @@ Reselect closes tools
 Werkzeug abwählen durch erneute Auswahl
 Road toll
 Maut
+Save
+Spiel speichern
 Scenario
 Missionsstatus
 sea
@@ -122,7 +126,7 @@ Einfenstermodus
 Sound range:
 Reichweite:
 Start this as a server
-Diese Spiel als Server starten.
+Dieses Spiel als Server starten.
 temperature borders
 Temperaturgrenzen
 temperature-humidity based
@@ -517,14 +521,28 @@ Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
 100 km/h = %i Felder/Monat
 1LIGHT_CHOOSE
 Helligkeit:
+1th
+1.
 1WORLD_CHOOSE
 Einstellungen für neue Karte:
+21th
+21.
+22th
+22.
+23th
+23.
 2LIGHT_CHOOSE
 Farbigkeit:
+2th
+2.
 2WORLD_CHOOSE
 Kartennummer:
+31th
+31.
 3LIGHT_CHOOSE
 Scrollgeschwindigkeit:
+3th
+3.
 4LIGHT_CHOOSE
 Inverses Kartenscrolling
 5LIGHT_CHOOSE
@@ -595,6 +613,8 @@ allowed climates:\n
 Klimazonen\n
 Alters a schedule.
 Fahrplan verändern
+and arranged by
+und arrangiert von
 Angenommene Waren
 -- Waren, die hier angeliefert werden können
 anhaengen
@@ -643,6 +663,10 @@ Blockstrecke ist\nbelegt\n
 \nBlockstrecke ist\nbelegt!\n
 Boden
 Land
+Bonus Multiplier: %i%%
+Bonus-Multiplikator: %i%%
+Bonus Speed: %i km/h
+Bonus-Geschwindigkeit: %i km/h
 Bonusspeed: %i km/h
 Referenzgeschwindigkeit: %i km/h (für Speedbonus)
 Boost (%%)
@@ -809,6 +833,8 @@ Climate
 Klimazone
 Climate Control
 Einstellungen Landschaft
+Climates
+Klimazonen
 closed
 Geschlossen
 Closes topmost line window when new line selected.
@@ -821,6 +847,8 @@ Company_msg
 Konkurrenz
 Comparing pak files ...
 Abgleich der pak-Dateien läuft ...
+Composed by
+Komponiert von
 Configure AI
 KI-Einstellungen
 Configure AI setttings
@@ -1059,6 +1087,8 @@ Free Capacity
 Freie Kapazität
 freeplay mode
 Ohne Bankrott
+Freight
+Fracht
 Friction:
 Momentaner Bremswert:
 fuel_cell
@@ -1215,8 +1245,6 @@ Ins Stop
 Einfügen
 Insert stop before the current stop
 Halt vor aktueller Fahrplanposition einfügen
-Install
-Installiere Paks
 Install graphics
 Grafikset hinzufügen
 Install paks
@@ -1319,12 +1347,18 @@ Load mode:
 Höheberechnungä
 Load scenario
 Wähle Mission
+Load script tool
+Skript-Werkzeug laden
+Load Scripted AI
+Skript-KI laden
 loaded
 geladen.
 loaded passenger/freight
 Sortiere Passagiere/Güter nach
 Loading (%i->%i%%)!
 Beladen (%i->%i%%)
+Loading (%i%%) departure %s!
+Lädt (%i%%), Abfahrt %s!
 Loading (%i%%)!
 Beladen (%i%%)
 Loading addon paks ...
@@ -1503,6 +1537,8 @@ no timeline
 alle Epochen
 no tree
 ohne Wälder
+No vehicles are available for purchase.
+Keine Fahrzeuge zum Kauf verfügbar.
 No. of Factories
 Fabriken und Geschäfte
 Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
@@ -1789,6 +1825,8 @@ Schiff_tab
 Schiffe
 Schleppkahn_tab
 Schleppkähne
+Screen scale:
+Bildschirmskalierung:
 Screenshot
 Bildschirmfoto
 Scroll threshold
@@ -1921,6 +1959,8 @@ Sim:
 Simloops:
 Similar view as the main window
 Kippt die Ansicht analog zur großen Ansicht.
+Single toolbar only
+Nur eine Werkzeugleiste anzeigen
 Size (%d MB):
 Größe (%d MB):
 Size (area)
@@ -2069,6 +2109,8 @@ Translation
 Übersetzung
 transparencies
 Sichtbarkeit
+transparent background
+transparenter Hintergrund
 transparent station coverage
 transparente Stationsabdeckung
 Transported
@@ -2121,6 +2163,8 @@ Vehicle %s can't find a route!
 %s\nfindet keinen Weg\nmehr!
 Vehicle %s is stucked!
 %s\nsteckt fest!\n
+Vehicle count:
+Anzahl Fahrzeuge:
 Vehicle details
 Fahrzeugdetails
 Vehicle Name
