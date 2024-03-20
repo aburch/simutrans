@@ -12,6 +12,7 @@
 #include "../tool/simmenu.h"
 #include "../descriptor/skin_desc.h"
 #include "sprachen.h"
+#include "loadfont_frame.h"
 #include "simwin.h"
 #include "components/gui_image.h"
 #include "components/gui_divider.h"
@@ -125,41 +126,8 @@ sprachengui_t::sprachengui_t() :
 		b->set_text(lang->name);
 		b->set_no_translate(true);
 
-		// check, if font exists
-		uint16 num_loaded = false;
-		char prop_font_file_name[1024];
-		tstrncpy( prop_font_file_name, lang->translate("PROP_FONT_FILE"), lengthof(prop_font_file_name) );
-		char *f = strtok( prop_font_file_name, ";" );
-		do {
-			std::string fname = FONT_PATH_X;
-			fname += prop_font_file_name;
-#if 1
-			// we are only checking the existence of the file
-			num_loaded = false;
-			if(  FILE *fnt = dr_fopen(fname.c_str(), "rb")  ) {
-				num_loaded = true;
-				fclose( fnt );
-			}
-#else
-			//
-			num_loaded = display_load_font(fname.c_str());
-#endif
-			f = strtok( NULL, ";" );
-		}
-		while(  !num_loaded  &&  f  );
-
-		// now we know this combination is working
-		if(num_loaded) {
-			// only listener for working languages ...
-			b->add_listener(this);
-			if(  num_loaded <= 256  ) {
-				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
-			}
-		}
-		else {
-			dbg->warning("sprachengui_t::sprachengui_t()", "no font found for %s", lang->name);
-			b->disable();
-		}
+		// we do not check for a working font anymore
+		b->add_listener(this);
 
 		// press button
 		int id = translator::get_language(lang->iso);
@@ -206,6 +174,17 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 			ev->ev_class = EVENT_SYSTEM;
 			ev->ev_code = SYSTEM_RELOAD_WINDOWS;
 			queue_event( ev );
+
+			// check if we need another font ...
+			{
+				// we only show matching fonts for this language
+				utf8* new_world = (utf8*)translator::translate("Beenden");
+				size_t len;
+				if (!has_character(utf8_decoder_t::decode(new_world, len))) {
+					// load a matching font ...
+					create_win(new loadfont_frame_t(), w_info, magic_font);
+				}
+			}
 
 			if (world()) {
 				// must not update non-existent toolbars

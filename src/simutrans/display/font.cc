@@ -303,6 +303,15 @@ bool font_t::load_from_freetype(const char *fname, int pixel_height)
 
 	for(  uint32 glyph_nr=0;  glyph_nr<0xFFFF;  glyph_nr++  ) {
 
+		if (glyph_nr > 0) {
+			uint32 c = FT_Get_Char_Index(face, glyph_nr);
+			if (c == 0) {
+				// glyph not in font => nothing to render
+				glyphs[glyph_nr].advance = 0xFF;
+				continue;
+			}
+		}
+
 		/* load glyph image into the slot (erase previous one) */
 		if(  FT_Load_Char( face, glyph_nr, FT_LOAD_RENDER) != FT_Err_Ok  ) {
 			// glyph not there ...
@@ -377,6 +386,13 @@ bool font_t::load_from_freetype(const char *fname, int pixel_height)
 				}
 			}
 		}
+
+		// find out if invalid character
+		if (glyph_nr  &&  glyph.height>0  &&  glyphs[0].height == glyph.height  &&  glyphs[0].width == glyph.width  &&  memcmp(glyphs[0].bitmap, glyph.bitmap, glyph.height * glyph.width) == 0) {
+			// same bitmap as character zero ?!?!
+			glyph.advance = 0xFF;
+		}
+
 	}
 
 	FT_Bitmap_Done(ft_library, &bitmap_8);

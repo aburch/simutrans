@@ -30,7 +30,7 @@
 std::string loadfont_frame_t::old_fontname;
 uint8 loadfont_frame_t::old_linespace;
 
-bool loadfont_frame_t::use_unicode=false;
+bool loadfont_frame_t::use_unicode=true;
 
 bool loadfont_frame_t::is_resizable_font (const char *fontname) {
 	const char *start_extension = strrchr(fontname, '.' );
@@ -67,13 +67,8 @@ bool loadfont_frame_t::cancel_action(const char *)
 
 loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 {
-	// first call (and not resizing)
-	if(  old_fontname.empty()  ) {
-		const utf8* p = (const utf8*)translator::translate("Cancel");
-		use_unicode = utf8_decoder_t::decode(p) >= 0x2e80;
-	}
-
 	set_name(translator::translate("Select display font"));
+	use_unicode = true; // only try matching fonts
 
 	top_frame.remove_component(&input);
 	fontsize.init( env_t::fontsize, 6, 40, gui_numberinput_t::AUTOLINEAR, false );
@@ -121,6 +116,11 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 	// just match textension for buildin fonts
 	const char *start_extension = strrchr(filename, '.' );
 
+	// we only show matching fonts for this language
+	utf8* new_world = (utf8*)translator::translate("Beenden");
+	size_t len;
+	utf16 testfor_this_character = utf8_decoder_t::decode(new_world, len);
+
 	// no support for windows fon files, so we skip them to speed things up
 	if(  start_extension  &&  !STRICMP( start_extension, ".fon" )  ) {
 		return false;
@@ -135,12 +135,9 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 			if(  FT_Get_Char_Index( face, '}' )!=0  &&  (STRICMP(face->style_name,"Regular")==0  ||  STRICMP(face->style_name,"Bold")==0) ) {
 				// ok, we have at least charecter 126, and it is a regular font, so it is probably a valid font)
 				ok = !use_unicode;
-				if(  use_unicode  &&  face->num_glyphs>6000  ) {
-					uint32 char_nr=FT_Get_Char_Index( face, 0x751F );
-					if(char_nr) {
-						// the char NAMA does exist and has a finite width
-						ok = true; // in pricipal we must also check if it can be rendered ...
-					}
+				if(  FT_Get_Char_Index(face, testfor_this_character)!=0  ) {
+					// the char NAMA does exist
+					ok = true; // in pricipal we must also check if it can be rendered ...
 				}
 			}
 			FT_Done_Face(face);
