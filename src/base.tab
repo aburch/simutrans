@@ -4308,6 +4308,22 @@ obj=program_text
 name=/month
 note=Text in tooltip for way and building tool icons
 --
+obj=program_text
+name=Revenue/unit/100 tiles
+note=Column header in goods list
+--
+obj=program_text
+name=Speed Bonus
+note=Column header in goods list
+--
+obj=program_text
+name=Category
+note=Column header in goods list
+--
+obj=program_text
+name=Weight/unit
+note=Column header in goods list
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds

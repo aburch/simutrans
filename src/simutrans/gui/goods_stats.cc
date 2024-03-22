@@ -25,6 +25,13 @@ void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int b
 	remove_all();
 	set_table_layout(6,0);
 
+	new_component<gui_empty_t>();
+	new_component<gui_label_t>("Name")                  ->set_align(gui_label_t::left);
+	new_component<gui_label_t>("Revenue/unit/100 tiles")->set_align(gui_label_t::right);
+	new_component<gui_label_t>("Speed Bonus")           ->set_align(gui_label_t::right);
+	new_component<gui_label_t>("Category")              ->set_align(gui_label_t::left);
+	new_component<gui_label_t>("Weight/unit")           ->set_align(gui_label_t::right);
+
 	for(const goods_desc_t* wtyp : goods) {
 
 		new_component<gui_colorbox_t>(wtyp->get_color())->set_max_size(scr_size(D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT));
@@ -35,7 +42,7 @@ void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int b
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
 
 		gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-		lb->buf().append_money(price/300000.0);
+		lb->buf().append_money(price/3000.0);
 		lb->update();
 
 		lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
