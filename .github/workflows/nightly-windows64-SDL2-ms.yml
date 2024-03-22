@@ -1,4 +1,4 @@
-# This workflow sets up and runs MSBuild and VSTest 
+# This workflow sets up and runs MSBuild and VSTest
 # to build and test a Visual Studio solution.
 
 name: Nightly Built Windows64 SDL2
@@ -13,7 +13,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       id: checkout_code
 
     - name: Make NSIS
