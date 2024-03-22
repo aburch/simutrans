@@ -4216,6 +4216,10 @@ obj=error_text
 name=No curves on runways
 note=Displayed when a route search failed as one possible cause
 --
+obj=error_text
+name=A building blocks the construction
+note=Displayed when a route search failed as one possible cause
+--
 obj=tooltip_text
 name=Mirrors order of stops
 note=tooltip for mirror stop order button

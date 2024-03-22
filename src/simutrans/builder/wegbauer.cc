@@ -8,6 +8,7 @@
 #include "../simdebug.h"
 #include "../world/simworld.h"
 #include "../tool/simtool.h"
+#include "../simhalt.h"
 #include "../simmesg.h"
 #include "../simintr.h"
 #include "../player/simplay.h"
@@ -471,6 +472,12 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 		return true;
 	}
 
+	// check for other player stops
+	halthandle_t halt = to->get_halt();
+	if(halt.is_bound() && !check_owner(halt->get_owner(), player_builder)){
+		return false;
+	}
+
 	// first find all kind of buildings
 	gebaeude_t *building = to->find<gebaeude_t>();
 	if(building==NULL) {
@@ -646,6 +653,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 	// universal check for depots/stops/...
 	if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+		warn_fail = translator::translate("A building blocks the construction");
 		return false;
 	}
 
