@@ -1608,7 +1608,7 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
           gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(current_d), world.get_time())
         }
 
-        if ( test_field(pl, b1_tile, wt, dir.double(current_d), starts_field.z)) {
+        if ( test_field(pl, b1_tile, wt, dir.double(current_d), starts_field.z) &&  test_tile_is_empty(b1_tile)) {
           if ( print_message_box == 2 ) {
             gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
           }
