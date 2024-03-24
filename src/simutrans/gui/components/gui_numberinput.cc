@@ -60,7 +60,7 @@ void gui_numberinput_t::set_size(scr_size size_par)
 
 scr_size gui_numberinput_t::get_max_size() const
 {
-	return get_min_size();
+	return scr_size(scr_size::inf.w, get_min_size().h);
 }
 
 
