@@ -39,6 +39,10 @@ if (FluidSynth_FOUND AND NOT WIN32)
 	option(SIMUTRANS_USE_FLUIDSYNTH_MIDI "Enable FluidSynth for MIDI playback" ON)
 endif (FluidSynth_FOUND AND NOT WIN32)
 
+if(Fontconfig_FOUND)
+	option(SIMUTRANS_USE_FONTCONFIG "Use Fontconfig for font autodetection" ON)
+endif()
+
 option(SIMUTRANS_INSTALL_PAK64 "Download pak64 on install" OFF)
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
 option(SIMUTRANS_USE_SYSLOG "Enable logging to syslog" OFF)

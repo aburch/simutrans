@@ -77,6 +77,10 @@ else
 	AC_SEARCH_LIBS(new_fluid_settings, fluidsynth,
 		[AC_SUBST(fluidsynth, 1)],
 		[AC_SUBST(fluidsynth, 0)] )
+	# optional fluidsynth
+	AC_SEARCH_LIBS(fontConfig, libfontconfig,
+		[AC_SUBST(fontconfig, 1)],
+		[AC_SUBST(fontconfig, 0)] )
 	if uname | grep "Darwin"
 	then
 		AC_LANG_PUSH(Objective C++)

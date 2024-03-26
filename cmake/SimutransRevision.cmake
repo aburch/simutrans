@@ -6,7 +6,7 @@
 find_package(Subversion QUIET)
 find_package(Git QUIET)
 
-# assume this is from aburch/simutrans!
+# assume this is from simutrans/simutrans!
 if (Git_FOUND)
 	execute_process(WORKING_DIRECTORY "${SOURCE_DIR}"
 		COMMAND "${GIT_EXECUTABLE}" log -1

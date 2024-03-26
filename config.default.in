@@ -46,8 +46,14 @@ USE_FREETYPE := @freetype@
 # using zstd compression
 USE_ZSTD := @zstd@
 
+# use fontconfig to find default font (does not work for windows)
+USE_FONTCONFIG := @fontconfig@\
+
 # using FluidSynth for MIDI playback (SDL2 backend needed for Linux/MacOS, SDL2 or GDI for MinGW)
 USE_FLUIDSYNTH_MIDI := @fluidsynth@
+
+# enable link time optimizations
+#LTO := 1
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG :=

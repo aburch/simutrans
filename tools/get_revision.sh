@@ -29,4 +29,4 @@ else
   fi
 fi
 
-echo $REV
+echo "$REV"

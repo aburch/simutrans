@@ -45,6 +45,9 @@
 # Enable support for zstd save file compression (larger save files than bzip2, but faster)
 #USE_ZSTD := 1
 
+# use fontconfig to find default font (does not work for windows)
+USE_FONTCONFIG := @fontconfig@
+
 # enable link time optimizations
 #LTO := 1
 

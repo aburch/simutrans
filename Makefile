@@ -25,6 +25,8 @@ SDL2_CONFIG      ?= pkg-config sdl2
 #SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG  ?= pkg-config freetype2
 #FREETYPE_CONFIG ?= freetype-config
+FONTCONFIG_CONFIG  ?= pkg-config fontconfig
+
 
 BACKENDS  := gdi sdl2 mixer_sdl2 posix
 OSTYPES   := amiga freebsd haiku linux mac mingw openbsd
@@ -195,6 +197,11 @@ ifdef USE_FREETYPE
       LDFLAGS += -lfreetype
     endif
   endif
+  ifdef USE_FONTCONFIG
+    CFLAGS  += -USE_FONTCONFIG
+    CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)
+    LDFLAGS += $(shell $(FONTCONFIG_CONFIG) --libs)
+  endif
 endif
 
 ifdef USE_UPNP
@@ -271,10 +278,13 @@ else
   endif
 endif
 
-GIT_HASH := $(shell git rev-parse --short=7 HEAD)
-ifeq ($(.SHELLSTATUS),0)
-  $(info Git hash is 0x$(GIT_HASH))
-  CFLAGS  += -DGIT_HASH=0x$(GIT_HASH)
+
+ifneq ($(GIT_HASH),)
+  GIT_HASH := $(shell git rev-parse --short=7 HEAD)
+  ifeq ($(.SHELLSTATUS),0)
+    $(info Git hash is 0x$(GIT_HASH))
+    CFLAGS  += -DGIT_HASH=0x$(GIT_HASH)
+  endif
 endif
 
 
