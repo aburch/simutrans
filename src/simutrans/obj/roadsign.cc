@@ -463,6 +463,17 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		set_image( desc->get_image_id(image) );
 	}
 	else {
+		if (grund_t* gr = welt->lookup(get_pos())) {
+			ribi_t::ribi r = gr->get_weg_ribi_unmasked(road_wt);
+			if (  ribi_t::none==r  ||  ribi_t::is_single(r)  ||  (ribi_t::is_twoway(r)  &&  !ribi_t::is_straight(r))  ) {
+				// not at least a straight road => remove the lights
+				return SYNC_DELETE;
+			}
+		}
+		else {
+			return SYNC_DELETE;
+		}
+
 		// Must not overflow if ticks_ns+ticks_ow+ticks_yellow_ns+ticks_yellow_ow=256
         uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % ((uint32)ticks_ns+(uint32)ticks_ow+(uint32)ticks_yellow_ns+(uint32)ticks_yellow_ow);
 
