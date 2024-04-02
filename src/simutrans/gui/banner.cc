@@ -194,6 +194,9 @@ bool banner_t::infowin_event(const event_t *ev)
 	if(  gui_frame_t::is_hit( ev->click_pos.x, ev->click_pos.y  )  ) {
 		gui_frame_t::infowin_event( ev );
 	}
+	if (ev->ev_class == EVENT_SYSTEM && ev->ev_code == SYSTEM_QUIT) {
+		env_t::quit_simutrans = true;
+	}
 	return false;
 }
 
