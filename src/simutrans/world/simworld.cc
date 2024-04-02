@@ -5586,13 +5586,9 @@ void karte_t::stop(bool exit_game)
 
 			// remove passwords before transfer on the server and set default client mask
 			// they will be restored in karte_t::laden
-			uint16 unlocked_players = 0;
-			for (int i = 0; i < PLAYER_UNOWNED; i++) {
-				player_t* player = world->get_player(i);
-				if (player == NULL || player->access_password_hash().empty()) {
-					unlocked_players |= (1 << i);
-				}
-				else {
+			for (uint8 i = 0; i < PLAYER_UNOWNED; i++) {
+				player_t *player = world->get_player(i);
+				if (player  && !player->access_password_hash().empty()) {
 					player->access_password_hash().clear();
 				}
 			}
