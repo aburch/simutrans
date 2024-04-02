@@ -117,7 +117,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 	const char *start_extension = strrchr(filename, '.' );
 
 	// we only show matching fonts for this language
-	utf8* new_world = (utf8*)translator::translate("Beenden");
+	const utf8 *new_world = (const utf8 *)translator::translate("Beenden");
 	size_t len;
 	utf16 testfor_this_character = utf8_decoder_t::decode(new_world, len);
 

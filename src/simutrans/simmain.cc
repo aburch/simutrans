@@ -1209,9 +1209,9 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	// now find out if there is a valid font ...
+	// now find out if there is a valid font
 	{
-		utf8 *new_world = (utf8 *)translator::translate("Beenden");
+		const utf8 *new_world = (const utf8 *)translator::translate("Beenden");
 		size_t len;
 		testfor_this_character = utf8_decoder_t::decode(new_world,len);
 		if (!has_character(testfor_this_character)) {

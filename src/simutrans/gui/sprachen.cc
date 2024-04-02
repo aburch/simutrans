@@ -178,7 +178,7 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 			// check if we need another font ...
 			{
 				// we only show matching fonts for this language
-				utf8* new_world = (utf8*)translator::translate("Beenden");
+				const utf8 *new_world = (const utf8 *)translator::translate("Beenden");
 				size_t len;
 				if (!has_character(utf8_decoder_t::decode(new_world, len))) {
 					// load a matching font ...
