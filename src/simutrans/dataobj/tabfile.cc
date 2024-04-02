@@ -470,7 +470,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo, FILE *fp)
 							strcpy(delim_expand, delim);
 						}
 
-						dbg->message("tabfile_t::read", "Parameter expansion %s = %s\n", line_expand, delim_expand);
+						dbg->message("tabfile_t::read", "Parameter expansion: %s = %s", line_expand, delim_expand);
 						objinfo.put(line_expand, delim_expand);
 						if (fp != NULL) {
 							fprintf(fp, "%s=%s\n", line_expand, delim_expand);
