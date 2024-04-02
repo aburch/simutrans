@@ -7,5 +7,6 @@
         "pthreads",
         "zstd",
         "sdl2"
-    ]
+    ],
+	"builtin-baseline": "3c76dc55f8bd2b7f4824bcd860055094bfbbb9ea"
 }
