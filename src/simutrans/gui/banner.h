@@ -29,7 +29,6 @@ private:
 		join_map,
 		options,
 		install,
-		credits,
 		quit;
 
 	cbuffer_t continue_tooltip;

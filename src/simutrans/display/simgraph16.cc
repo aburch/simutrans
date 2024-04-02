@@ -3462,8 +3462,6 @@ void display_array_wh(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_c
 
 // --------------------------------- text rendering stuff ------------------------------
 
-static int number_width = 0;
-
 bool display_load_font(const char *fname, bool reload)
 {
 	font_t loaded_fnt;

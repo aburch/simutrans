@@ -113,9 +113,7 @@ void gui_numberinput_t::set_limits(sint32 _min, sint32 _max)
 {
 	min_value = _min;
 	max_value = _max;
-	// guess max width of numbers
-	const char* digits = "-0123456789";
-	uint8 bytes, pixel;
+
 	// minus sign
 	max_numbertext_width = (min_value > 0) ? 0 : display_get_char_width('-');
 	// count digits

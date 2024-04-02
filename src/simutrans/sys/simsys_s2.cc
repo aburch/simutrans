@@ -666,8 +666,6 @@ static void internal_GetEvents()
 	static bool has_queued_zero_mouse_move = false;
 	static sint32 last_mx, last_my; // last finger down pos
 
-	static int last_zoom = 0;
-
 	if (has_queued_finger_release) {
 		// we need to send a finger release, which was not done yet
 		has_queued_finger_release = false;
@@ -891,7 +889,7 @@ static void internal_GetEvents()
 					//dLastDist -= DELTA_PINCH;
 					dLastDist = 0;
 				}
-			
+
 				previous_multifinger_touch = 2;
 			}
 			else if (event.mgesture.numFingers == 3  &&  screen) {
