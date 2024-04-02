@@ -1633,6 +1633,7 @@ bool check_pos_win(event_t *ev,bool modal)
 								case SKIN_GADGET_MINIMIZE: // (Mathew Hounsell)
 									ev->ev_class = WINDOW_MAKE_MIN_SIZE;
 									ev->ev_code = 0;
+									wl->set_background_dirty();
 									wins[i].gui->infowin_event( ev );
 									break;
 								case SKIN_GADGET_HELP :
