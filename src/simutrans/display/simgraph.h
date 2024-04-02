@@ -16,8 +16,8 @@
 
 #if COLOUR_DEPTH != 0
 
-extern int default_font_ascent;
-extern int default_font_linespace;
+extern scr_coord_val default_font_ascent;
+extern scr_coord_val default_font_linespace;
 
 #  define LINEASCENT (default_font_ascent)
 #  define LINESPACE  (default_font_linespace)
@@ -268,6 +268,7 @@ size_t get_next_char(const char* text, size_t pos);
 sint32 get_prev_char(const char* text, sint32 pos);
 
 scr_coord_val display_get_char_width(utf32 c);
+scr_coord_val display_get_number_width();
 
 /* returns true, if this is a valid character */
 bool has_character( utf16 char_code );

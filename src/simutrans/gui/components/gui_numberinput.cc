@@ -60,7 +60,7 @@ void gui_numberinput_t::set_size(scr_size size_par)
 
 scr_size gui_numberinput_t::get_max_size() const
 {
-	return scr_size(scr_size::inf.w, get_min_size().h);
+	return get_min_size();
 }
 
 
@@ -117,30 +117,20 @@ void gui_numberinput_t::set_limits(sint32 _min, sint32 _max)
 	const char* digits = "-0123456789";
 	uint8 bytes, pixel;
 	// minus sign
-	if (min_value > 0) {
-		get_next_char_with_metrics(digits, bytes, pixel);
-		max_numbertext_width = pixel;
-	}
-	else {
-		digits++;
-		max_numbertext_width = 0;
-	}
+	max_numbertext_width = (min_value > 0) ? 0 : display_get_char_width('-');
 	// count digits
 	uint32 max_abs = max_value > 0 ? max_value : -max_value;
 	if (min_value < 0  &&  (uint32) (-min_value) > max_abs) {
 		max_abs = -min_value;
 	}
 	// width of digits
-	uint8 digit_width = 0;
-	while (*digits) {
-		get_next_char_with_metrics(digits, bytes, pixel);
-		if (pixel > digit_width) {
-			digit_width =  pixel;
-		}
-	}
 	while (max_abs) {
-		max_numbertext_width += digit_width;
+		max_numbertext_width += display_get_number_width();
 		max_abs /= 10;
+	}
+	// enforce a min width of 5 digits
+	if (max_numbertext_width < 5 * display_get_number_width()) {
+		max_numbertext_width = 5 * display_get_number_width();
 	}
 }
 

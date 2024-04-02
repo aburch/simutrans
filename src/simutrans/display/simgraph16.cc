@@ -251,6 +251,7 @@ static font_t default_font;
 // needed for resizing gui
 int default_font_ascent = 0;
 int default_font_linespace = 0;
+static int default_font_numberwidth = 0;
 
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT+1024 /* 343 transparent */)
@@ -3461,6 +3462,7 @@ void display_array_wh(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_c
 
 // --------------------------------- text rendering stuff ------------------------------
 
+static int number_width = 0;
 
 bool display_load_font(const char *fname, bool reload)
 {
@@ -3481,6 +3483,16 @@ bool display_load_font(const char *fname, bool reload)
 		default_font_ascent    = default_font.get_ascent();
 		default_font_linespace = default_font.get_linespace();
 
+		// find default number width
+		const char* digits = "0123456789";
+		default_font_numberwidth = 0;
+		while (*digits) {
+			int pixel = default_font.get_glyph_advance(*digits++);
+			if (pixel > default_font_numberwidth) {
+				default_font_numberwidth = pixel;
+			}
+		}
+
 		env_t::fontname = fname;
 
 		return default_font.is_loaded();
@@ -3495,6 +3507,11 @@ scr_coord_val display_get_char_width(utf32 c)
 	return default_font.get_glyph_advance(c);
 }
 
+
+scr_coord_val display_get_number_width()
+{
+	return default_font_numberwidth;
+}
 
 /**
  * For the next logical character in the text, returns the character code
