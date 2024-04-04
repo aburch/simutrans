@@ -22,7 +22,6 @@
 /simutrans/text
 *.bdf
 *.zip
-*.vcxproj
 *.vcxproj.*
 /ipch/*
 *.*sdf
@@ -38,3 +37,4 @@ revision.h
 /autom4te.cache
 *.exe
 *.kdev4
+vcpkg_installed/

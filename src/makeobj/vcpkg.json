@@ -1,12 +1,10 @@
 {
-    "name": "simutrans-sdl2",
+    "name": "makeobj",
     "version-string": "1.0.0",
     "dependencies": [
-        "freetype",
-        "miniupnpc",
-        "pthreads",
-        "zstd",
-        "sdl2"
+       "zlib",
+	   "libpng",
+	   "bzip2"
     ],
 	"builtin-baseline": "3c76dc55f8bd2b7f4824bcd860055094bfbbb9ea"
 }
