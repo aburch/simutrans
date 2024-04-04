@@ -1689,8 +1689,8 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	objlist.display_obj_overlay( xpos, ypos );
 #endif
 	// marker/station text
-	if(  get_flag(has_text)  &&  env_t::show_names&1  ) {
-		if(  env_t::show_names&1  ) {
+	if(  get_flag(has_text)  ) {
+		if(  env_t::show_names & 1  ) {
 			const char *text = get_text();
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
