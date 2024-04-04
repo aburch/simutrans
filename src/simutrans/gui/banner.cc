@@ -69,7 +69,7 @@ banner_t::banner_t() : gui_frame_t("")
 		continue_game.enable(!last_save.empty());
 
 		if (!last_save.empty()) {
-			continue_tooltip.printf("Load '%s'", (last_save.c_str() + 5));
+			continue_tooltip.printf(translator::translate("Load '%s'"), (last_save.c_str() + 5));
 			continue_game.set_tooltip(continue_tooltip.get_str());
 		}
 
