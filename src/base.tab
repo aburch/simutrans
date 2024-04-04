@@ -1767,9 +1767,6 @@ obj=program_text
 name=show station coverage
 -
 obj=program_text
-name=show station names
--
-obj=program_text
 name=show waiting bars
 -
 obj=program_text
@@ -4328,6 +4325,14 @@ obj=program_text
 name=Weight/unit
 note=Column header in goods list
 --
+obj=program_text
+name=Hide labels
+note=Option in display settings/stations
+--
+obj=program_text
+name=Change label style
+note=Option in display settings/stations
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds
@@ -4552,6 +4557,9 @@ note=Column header in goods list
 #obj=program_text
 #name=\nAct. Load: %u MW\n
 #note=powernet info window (depricated)
+#-
+#obj=program_text
+#name=show station names
 #-
 #obj=program_text
 #name=Account above %s
