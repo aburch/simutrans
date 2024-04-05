@@ -261,7 +261,7 @@ Function CheckForClosedSource
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak192.comic} $R0
+  SectionGetFlags ${pak192.comic-serverset} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
@@ -305,7 +305,7 @@ PageExEnd
 ; Some pak192.comic is CC
 Function CheckForCC
 
-  SectionGetFlags ${pak192.comic} $R0
+  SectionGetFlags ${pak192.comic-serverset} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showCC
 

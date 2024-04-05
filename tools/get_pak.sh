@@ -196,7 +196,7 @@ paksets=( \
   "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%202.8.2%20for%20ST%20123up/simupak128-2.8.2-for123.zip" \
   "https://github.com/Varkalandar/pak144.Excentrique/releases/download/Nightly/pak144.Excentrique_v008.zip" \
-  "https://github.com/Flemmbrav/Pak192.Comic/releases/download/V0.7.1/pak192-comic.zip" \
+  "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192.comic-serverset.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
   "http://pak128.jpn.org/souko/pak128.japan.120.0.cab" \
   "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
@@ -277,9 +277,10 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
     rm -rf simutrans/themes
     rm -rf simutrans/config
     choicename="$(ls simutrans)"
-    echo "choicename $choicename"
+    echo "choicename >$choicename<"
     versionstring=""
     count="$( od -An -tu2 -j 99 -N2 --endian=little simutrans/$choicename/ground.Outside.pak | tr -d ' ')"
+    echo "count $count"
     if [ "$count" != "0" ] ; then
       versionstring="$(dd bs=1 skip=101 count=$count if=simutrans/$choicename/ground.Outside.pak status=none)"
       echo "version $versionstring"
@@ -292,13 +293,13 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 
     if ((pakcount == $obsolete_start_index )); then
       # obsolete paks from here
-      echo '\n; OBSOLETE PAKS from here\nSectionGroup /e "Not currently developed" slowPakgroup\n\n'  >>  "$nsis_header"
+      printf '\n; OBSOLETE PAKS from here\nSectionGroup /e "Not currently developed" slowPakgroup\n\n'  >>  "$nsis_header"
     fi
 
 
     if [ "$choicename" == "pak" ]; then
       # sectiongroup for pak64
-      echo "SectionGroup /e \"Pak64: main and addons\" pak64group\n\n" >>  "$nsis_header"
+      printf "SectionGroup /e \"Pak64: main and addons\" pak64group\n\n" >>  "$nsis_header"
     fi
 
     # normal section
@@ -314,9 +315,9 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
 
     if [ "$choicename" == "pak" ]; then
       # pak64 addons
-      echo "Section /o \"pak64 Food addon\"\n  AddSize 228\n  StrCpy \$downloadlink \"http://downloads.sourceforge.net/project/simutrans/pak64/121-0/simupak64-addon-food-120-4.zip\"\n  StrCpy \$archievename \"simupak64-addon-food-120-4.zip\"\n  StrCpy \$downloadname \"pak\"\n" >>  "$nsis_header"
-      echo "  StrCpy \$VersionString \"\"\n  StrCmp \$multiuserinstall \"1\" +3\n  ; no multiuser => install in normal directory\n  Call DownloadInstallAddonZipPortable\n  goto +2\n  Call DownloadInstallAddonZip\nSectionEnd\n\n"  >>  "$nsis_header"
-      echo "SectionGroupEnd\n\n" >>  "$nsis_header"
+      printf "Section /o \"pak64 Food addon\"\n  AddSize 228\n  StrCpy \$downloadlink \"http://downloads.sourceforge.net/project/simutrans/pak64/121-0/simupak64-addon-food-120-4.zip\"\n  StrCpy \$archievename \"simupak64-addon-food-120-4.zip\"\n  StrCpy \$downloadname \"pak\"\n" >>  "$nsis_header"
+      printf "  StrCpy \$VersionString \"\"\n  StrCmp \$multiuserinstall \"1\" +3\n  ; no multiuser => install in normal directory\n  Call DownloadInstallAddonZipPortable\n  goto +2\n  Call DownloadInstallAddonZip\nSectionEnd\n\n"  >>  "$nsis_header"
+      printf "SectionGroupEnd\n\n" >>  "$nsis_header"
     fi
     echo ""  >>  "$nsis_header"
 
@@ -327,7 +328,7 @@ if [ "$#" -gt 0 ] && [ "$1" = '-generate_h' ]; then
     pakcount=$((pakcount+1))
 
   done
-  echo "SectionGroupEnd\n\n" >>  "$nsis_header"
+  printf "SectionGroupEnd\n\n" >>  "$nsis_header"
   echo "};" >> "$paks_header"
 
   cd ..

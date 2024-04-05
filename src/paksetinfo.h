@@ -2,7 +2,7 @@
 #define PAKSET_COUNT 19
 #define OBSOLETE_FROM (10)
 paksetinfo_t pakinfo[PAKSET_COUNT] = {
-	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-0/simupak64-124-0.zip", "pak", "pak64 123 r2140:2142", 15849 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-0/simupak64-124-0.zip", "pak", "pak64 124.0 r2143", 15849 },
 	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-1_full.zip", "pak64.german", "pak64.german 0.124.0.0.1", 26712 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip", "pak.japan", "pak64.japan 123 r2101", 10175 },
 	{ "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip", "pak.nippon", "pak.nippon v0.6.2", 50198 },
@@ -11,7 +11,7 @@ paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.1_for_ST_123.0/PAK128.german_2.1_for_ST_123.0.zip", "PAK128.german", "Pak128.german VS 2.1 (Rev. 473)", 559225 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%202.8.2%20for%20ST%20123up/simupak128-2.8.2-for123.zip", "pak128", "pak128 2.8.2 for 123.0.1 git r498 hash 0adb1d2", 414152 },
 	{ "https://github.com/Varkalandar/pak144.Excentrique/releases/download/Nightly/pak144.Excentrique_v008.zip", "pak144.Excentrique", "pak144.Excentrique v0.08", 7621 },
-	{ "https://github.com/Flemmbrav/Pak192.Comic/releases/download/V0.7.1/pak192-comic.zip", "pak192.comic", "Pak192.Comic V0.7.1 Rev 1246", 892852 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192.comic-serverset.zip", "pak192.comic-serverset", "Pak192.Comic Severset based on V0.7.1 Rev 1246", 995121 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip", "pak96.comic", "pak96.comic V4.1 plus", 32526 },
 	{ "http://pak128.jpn.org/souko/pak128.japan.120.0.cab", "", "", 0 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip", "pak32", "", 3420 },
