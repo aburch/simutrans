@@ -2181,6 +2181,11 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 				DBG_DEBUG4("modal_dialogue", "calling win_poll_event");
 				win_poll_event(&ev);
 
+				if (ev.ev_class == EVENT_SYSTEM && ev.ev_code == SYSTEM_QUIT) {
+					welt->stop(true);
+					break;
+				}
+
 				win_clamp_xywh_position(ev.mouse_pos, scr_size(1, 1), false);
 				win_clamp_xywh_position(ev.mouse_pos, scr_size(1, 1), false);
 
@@ -2192,7 +2197,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 						}
 					}
 				}
-				
+
 				if(dismissible){
 					if (
 						(ev.ev_class == EVENT_KEYBOARD) ||
