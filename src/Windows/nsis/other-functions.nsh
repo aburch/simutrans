@@ -57,7 +57,6 @@ PageExEnd
 
 ; If not installed to program dir, ask for a portable installation
 Function CheckForPortableInstall
-  StrCpy $PAKDIR $INSTDIR
   ; defaults in progdir, and ending with simutrans
   StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"
@@ -116,6 +115,13 @@ Function MovePre
 
   StrCmp $multiuserinstall "1" +2
   Abort
+
+  SetShellVarContext all
+  StrCmp $PAKDIR "$LOCALAPPDATA\simutrans" +3
+  SetShellVarContext current
+  Abort
+
+  SetShellVarContext current
 
   ; find at least on pak to move?
   nsDialogs::Create 1018
@@ -261,7 +267,7 @@ Function CheckForClosedSource
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
-  SectionGetFlags ${pak192.comic-serverset} $R0
+  SectionGetFlags ${pak192.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showFW
 
@@ -305,7 +311,7 @@ PageExEnd
 ; Some pak192.comic is CC
 Function CheckForCC
 
-  SectionGetFlags ${pak192.comic-serverset} $R0
+  SectionGetFlags ${pak192.comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showCC
 
@@ -331,7 +337,7 @@ PageExEnd
 Function .oninit
   StrCpy $USERDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext all
-  StrCpy $PAKDIR "$APPDATA\simutrans"
+  StrCpy $PAKDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext current
 
   !insertmacro MULTIUSER_INIT

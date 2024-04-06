@@ -14,35 +14,31 @@
 
 !define VERSION "0.124.0.0"
 
+RequestExecutionLevel user
+
 VIProductVersion "${VERSION}"
 VIFileVersion "${VERSION}"
 VIAddVersionKey "FileVersion" "${VERSION}"
 
 Unicode true
 
-; Request application privileges for Windows Vista
-;RequestExecutionLevel highest
-
-!define MULTIUSER_INSTALLMODE_INSTDIR "Simutrans"
-!define MULTIUSER_EXECUTIONLEVEL Highest
-
 var group1
 Name "Simutrans Transport Simulator"
-OutFile "simutrans-online-install.exe"
+OutFile "simutrans-online-install-noadmin.exe"
 
-InstallDir $PROGRAMFILES\Simutrans
+InstallDir $LOCALAPPDATA\Simutrans
 
 !define MUI_UNICON "..\stormoog.ico"
 
 !include "preparation-functions.nsh"
-
-!insertmacro MULTIUSER_PAGE_INSTALLMODE
 
 !include "languages.nsh"
 
 SectionGroup /e !Simutrans
 
 Function PostExeInstall
+  WriteUninstaller $INSTDIR\uninstall.exe
+
   StrCmp $multiuserinstall "1" NotPortable
 
   ; just change to simuconf.tab "singleuser_install = 1"
@@ -54,15 +50,11 @@ Function PostExeInstall
 
 NotPortable:
   ; make start menu entries
-  SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\Simutrans"
   CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" ""
   CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans (Debug).lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
-  ExecWait 'Icacls "$PAKDIR" /grant Users:(OI)(CI)M'
-  WriteUninstaller $INSTDIR\uninstall.exe
-  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "DisplayName" "Simutrans Game"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "DisplayIcon" "$\"$INSTDIR\uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans Uninstall.lnk" "$INSTDIR\uninstall.exe" ""
+
 finishGDIexe:
 FunctionEnd
 
@@ -110,20 +102,17 @@ SectionGroupEnd
 
 
 Section "Uninstall"
-  SetShellVarContext all
-  Delete $INSTDIR\Uninst.exe ; delete self (see explanation below why this works)
+  Delete $INSTDIR\Uninstall.exe ; delete self (see explanation below why this works)
   Delete "$SMPROGRAMS\Simutrans\Simutrans.lnk"
   Delete "$SMPROGRAMS\Simutrans\Simutrans (Debug).lnk"
   Delete $INSTDIR\Uninst.exe ; delete self (see explanation below why this works)
   RMDir /r $INSTDIR
-
   SetShellVarContext all
   StrCpy $PAKDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext current
   MessageBox MB_YESNO "Remove global paksets from $PAKDIR?" /SD IDYES IDNO +2
   RMDir /r $PAKDIR
   
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans"
 SectionEnd
 
 !include "paksets.nsh"

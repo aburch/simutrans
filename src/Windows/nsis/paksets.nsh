@@ -106,7 +106,7 @@ Section /o "pak144.Excentrique" pak144.Excentrique
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
-Section /o "pak192.comic-serverset" pak192.comic-serverset
+Section /o "pak192.comic-serverset" pak192.comic
   AddSize 995121
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192.comic-serverset.zip"
   SetOutPath $PAKDIR
