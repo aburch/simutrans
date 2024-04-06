@@ -1209,6 +1209,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
+#if COLOUR_DEPTH != 0
 	// now find out if there is a valid font
 	{
 		const utf8 *new_world = (const utf8 *)translator::translate("Beenden");
@@ -1222,6 +1223,7 @@ int simu_main(int argc, char** argv)
 			destroy_win(sel);
 		}
 	}
+#endif
 
 	bool new_world = true;
 	std::string loadgame;
