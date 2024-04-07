@@ -372,12 +372,6 @@ private:
 	uint32 last_interaction;
 
 	/**
-	 * ms, when the last step was done.
-	 * To calculate the fps and the simloops.
-	 */
-	uint32 last_step_time;
-
-	/**
 	* ms, when the next step is to be done.
 	* To calculate the fps and the simloops.
 	*/

@@ -1996,7 +1996,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_midi_time = next_step_time = last_step_time = 0;
+	next_midi_time = next_step_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
 	network_frame_count = 0;
@@ -5311,7 +5311,7 @@ void karte_t::reset_timer()
 		step_mode = FIX_RATIO;
 	}
 
-	last_step_time = last_interaction = last_tick_sync;
+	last_interaction = last_tick_sync;
 	last_step_ticks = ticks;
 
 	// reinit simloop counter
