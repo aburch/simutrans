@@ -248,7 +248,8 @@ bool banner_t::action_triggered( gui_action_creator_t *comp, value_t)
 	return true;
 }
 
-void banner_t::show_banner() {
+void banner_t::show_banner()
+{
 	tool_t::simple_tool[TOOL_QUIT]->set_default_param("n");
 	welt->set_tool(tool_t::simple_tool[TOOL_QUIT], NULL);
 	tool_t::simple_tool[TOOL_QUIT]->set_default_param(0);
