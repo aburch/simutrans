@@ -147,6 +147,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	bt_withdraw_line.init( button_t::roundbox_state | button_t::flexible, "Withdraw All" );
 	bt_withdraw_line.set_tooltip( "Convoi is sold when all wagons are empty." );
 	bt_withdraw_line.add_listener( this );
+	bt_withdraw_line.pressed = line->get_withdraw();
 	container_convois.add_component( &bt_withdraw_line );
 
 	bt_find_convois.init( button_t::roundbox | button_t::flexible, "Find matching convois" );

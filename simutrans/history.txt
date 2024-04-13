@@ -25,6 +25,7 @@
 	ADD: new parameter in simuconf.tab "cityroad_speeds" for a timeline (year,new_speed) of speed limits of way with pavement
 	ADD: rotate house tool will also switch railroad switches (eyecandy only)
 	FIX: height map conversion version is ignored if it is selected after height map in the height map selection dialogue
+	FIX: Withdraw All button in line window did not indicate withdraw status correctly in some cases
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
