@@ -117,7 +117,7 @@ public:
 
 	sint32 get_purchase_time() const {return purchase_time;}
 
-	void get_smoke(bool yesno ) { smoke = yesno;}
+	void set_smoke_enabled(bool yesno ) { smoke = yesno;}
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 	route_t::index_t get_route_index() const { return route_index; }

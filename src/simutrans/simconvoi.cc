@@ -489,10 +489,10 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 			for(unsigned i=0; i<vehicle_count; i++) {
 				vehicle_t* v = fahr[i];
 
-				v->get_smoke(false);
+				v->set_smoke_enabled(false);
 				fahr[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 				train_length -= v->get_desc()->get_length();
-				v->get_smoke(true);
+				v->set_smoke_enabled(true);
 
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
@@ -2079,13 +2079,13 @@ void convoi_t::vorfahren()
 		// just advances the first vehicle
 		vehicle_t* v0 = fahr[0];
 		v0->set_leading(false); // switches off signal checks ...
-		v0->get_smoke(false);
+		v0->set_smoke_enabled(false);
 		steps_driven = 0;
 		// drive half a tile:
 		for(int i=0; i<vehicle_count; i++) {
 			fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
-		v0->get_smoke(true);
+		v0->set_smoke_enabled(true);
 		v0->set_leading(true); // switches on signal checks to reserve the next route
 
 		// until all other are on the track
@@ -2123,14 +2123,14 @@ void convoi_t::vorfahren()
 			for(unsigned i=0; i<vehicle_count; i++) {
 				vehicle_t* v = fahr[i];
 
-				v->get_smoke(false);
+				v->set_smoke_enabled(false);
 				uint32 const driven = fahr[i]->do_drive( dist );
 				if (i==0  &&  driven < dist) {
 					// we are already at our destination
 					at_dest = true;
 				}
 				// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
-				v->get_smoke(true);
+				v->set_smoke_enabled(true);
 
 				uint32 const vlen = (VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length()) << YARDS_PER_VEHICLE_STEP_SHIFT;
 				if (vlen > dist) {
