@@ -2695,10 +2695,10 @@ void karte_t::display(uint32 delta_t)
 void karte_t::update_frame_sleep_time()
 {
 	// get average frame time
-	uint32 last_ms = dr_time();
-	last_frame_ms[last_frame_idx] = last_ms;
+	uint32 frame_end_time = dr_time();
+	last_frame_ms[last_frame_idx] = frame_end_time;
 	last_frame_idx = (last_frame_idx+1) % 32;
-	sint32 ms_diff = (sint32)( last_ms - last_frame_ms[last_frame_idx] );
+	sint32 ms_diff = (sint32)( frame_end_time - last_frame_ms[last_frame_idx] );
 	if(ms_diff > 0) {
 		realFPS = (32000u*16) / ms_diff;
 	}
@@ -2708,8 +2708,9 @@ void karte_t::update_frame_sleep_time()
 	}
 
 	if(  step_mode&PAUSE_FLAG  ) {
-		// not changing pauses
-		next_step_time = dr_time() + 1000 / env_t::fps;
+		// calculate next frame start time based on last frame start
+		// setting next_step_time = frame_end_time + 1000/env_t::fps would would sleep way too long
+		next_step_time = std::max(frame_end_time, next_step_time + 1000 / env_t::fps);
 		idle_time = 100;
 	}
 	else if(  step_mode==FIX_RATIO) {
@@ -2750,16 +2751,16 @@ void karte_t::update_frame_sleep_time()
 		env_t::simple_drawing = (env_t::simple_drawing_normal >= get_tile_raster_width());
 
 		// way too slow => try to increase time ...
-		if(  last_ms-last_interaction > 100  ) {
-			if(  last_ms-last_interaction > 500  ) {
+		if(  frame_end_time-last_interaction > 100  ) {
+			if(  frame_end_time-last_interaction > 500  ) {
 				idle_time >>= 1;
 				set_frame_time( 1+get_frame_time() );
 				// more than 1s since last zoom => check if zoom out is a way to improve it
-				if(  last_ms-last_interaction > 5000  &&  get_current_tile_raster_width() < 32  &&  realFPS <= 80  ) {
+				if(  frame_end_time-last_interaction > 5000  &&  get_current_tile_raster_width() < 32  &&  realFPS <= 80  ) {
 					zoom_factor_up();
 					viewport->metrics_updated();
 					set_dirty();
-					last_interaction = last_ms-1000;
+					last_interaction = frame_end_time-1000;
 				}
 			}
 			else {
@@ -2778,7 +2779,7 @@ void karte_t::update_frame_sleep_time()
 				if(  1000u*16/get_frame_time() < 2*realFPS  ) {
 					if(  realFPS < (env_t::fps*16/2)  ) {
 						set_frame_time( get_frame_time()-1 );
-						next_step_time = last_ms;
+						next_step_time = frame_end_time;
 					}
 					else {
 						reduce_frame_time();
@@ -2787,7 +2788,7 @@ void karte_t::update_frame_sleep_time()
 				else {
 					// do not set time too short!
 					set_frame_time( 500/max(1,realFPS/16) );
-					next_step_time = last_ms;
+					next_step_time = frame_end_time;
 				}
 			}
 		}

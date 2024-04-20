@@ -26,6 +26,7 @@
 	ADD: rotate house tool will also switch railroad switches (eyecandy only)
 	FIX: height map conversion version is ignored if it is selected after height map in the height map selection dialogue
 	FIX: Withdraw All button in line window did not indicate withdraw status correctly in some cases
+	FIX: Game lags when paused, especially on big maps
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
