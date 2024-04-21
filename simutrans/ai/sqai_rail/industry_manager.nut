@@ -793,12 +793,14 @@ class industry_manager_t extends manager_t
 
               local err = command_x.build_sign_at(our_player, route_tile[s], traffic_obj)
               traffic_build++
-              if ( traffic_build == 2 ) {
-                continue
-              }
 
+            } else if ( test_traffic_light != null ) {
+              traffic_build++
             }
 
+              if ( traffic_build >= 2 ) {
+                continue
+              }
 
           }
 
@@ -2239,7 +2241,7 @@ class industry_manager_t extends manager_t
         catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
       }
     } else {
-      catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
+      //catenary_obj = find_object("catenary", wt, way_obj.get_topspeed())
     }
 
     if ( print_message_box == 1 ) {
