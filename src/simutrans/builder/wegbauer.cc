@@ -683,6 +683,12 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 		return false;
 	}
 
+	// do not connect to the side of a sloped elevated way if the ground is flat
+	if ((from->get_weg_hang()!=slope_t::flat && ribi_t::doubles(ribi_type(from->get_weg_hang())) != ribi_t::doubles(ribi_type(zv))) ||
+		(to  ->get_weg_hang()!=slope_t::flat && ribi_t::doubles(ribi_type(to  ->get_weg_hang())) != ribi_t::doubles(ribi_type(zv)))) {
+		return false;
+	}
+
 	// universal check for crossings
 	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t const wtyp = (bautyp == river) ? water_wt : (waytype_t)(bautyp & bautyp_mask);
