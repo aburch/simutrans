@@ -973,7 +973,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		sort_button.set_text(sort_text[env_t::default_sortmode]);
 	}
 	else if(  comp == &input  ) {
-		if(  strcmp(halt->get_name(),edit_name)  ) {
+		if (strcmp(halt->get_name(), edit_name)) {
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
