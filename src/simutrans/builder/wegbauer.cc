@@ -676,7 +676,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	}
 
 	// universal check: do not switch to tunnel through cliffs!
-	if( from->get_typ() == grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
+	if( from->get_typ()==grund_t::tunnelboden  &&  to->get_typ() != grund_t::tunnelboden  &&  !from->ist_karten_boden() ) {
 		return false;
 	}
 	if( to->get_typ()==grund_t::tunnelboden  &&  from->get_typ() != grund_t::tunnelboden   &&  !to->ist_karten_boden() ) {
@@ -684,8 +684,10 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	}
 
 	// do not connect to the side of a sloped elevated way if the ground is flat
-	if ((from->get_weg_hang()!=slope_t::flat && ribi_t::doubles(ribi_type(from->get_weg_hang())) != ribi_t::doubles(ribi_type(zv))) ||
-		(to  ->get_weg_hang()!=slope_t::flat && ribi_t::doubles(ribi_type(to  ->get_weg_hang())) != ribi_t::doubles(ribi_type(zv)))) {
+	if (from->get_typ() == grund_t::monorailboden  &&  to->get_typ() != grund_t::monorailboden  &&  !from->ist_karten_boden()) {
+		return false;
+	}
+	if (to->get_typ() == grund_t::monorailboden  &&  from->get_typ() != grund_t::monorailboden  &&  !to->ist_karten_boden()) {
 		return false;
 	}
 
