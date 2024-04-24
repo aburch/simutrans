@@ -56,7 +56,7 @@ bottom_window_text_color = #C0C0C0
 
 #################################colour stuff#################################
 
-default_window_title_color = #338FCC
+default_window_title_color = #cc9600
 
 # gui_color_text = #000000
 gui_color_text_highlight = #005C9E
