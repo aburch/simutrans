@@ -30,7 +30,7 @@ public:
 	bool is_weltpos() OVERRIDE;
 
 	// refill buffer
-	void fill_buffer();
+	virtual void fill_buffer();
 
 	/**
 	* Draw new component. The values to be passed refer to the window
