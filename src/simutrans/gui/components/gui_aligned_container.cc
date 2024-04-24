@@ -263,6 +263,10 @@ void gui_aligned_container_t::compute_sizes(vector_tpl<scr_coord_val>& col_w, ve
 			// only compute if necessary
 			scr_size s = outer == 0 ||  span>1 ? (calc_max ? comp->get_max_size() : comp->get_min_size()) : scr_size(0,0);
 
+			if (!calc_max && comp->is_marginless()) {
+				s = s - (margin_tl + margin_br);
+			}
+
 			if (outer == 0) {
 
 				uint16 rr = rows ? r % rows : r;

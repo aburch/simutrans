@@ -560,7 +560,7 @@ color_gui_t::color_gui_t() :
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( gui_settings.get_min_size()+scr_size(0,D_TAB_HEADER_HEIGHT) );
-	set_windowsize( get_min_windowsize()+map_settings.get_min_size() );
+	set_windowsize( scr_size(get_min_windowsize().w, map_settings.get_min_size().h) );
 	resize( scr_coord( 0, 0 ) );
 }
 

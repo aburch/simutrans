@@ -23,7 +23,8 @@ factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 {
 	this->fab = fab;
 	// pos button
-	set_table_layout(6,1);
+	set_table_layout(7,1);
+	new_component<gui_margin_t>();
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos3d(fab->get_pos());

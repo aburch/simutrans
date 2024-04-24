@@ -95,11 +95,15 @@ scr_size gui_tab_panel_t::get_min_size() const
 			t_size.h = max(t_size.h, LINESPACE + D_V_SPACE);
 		}
 		if (iter.component != last_component) {
-			c_size.clip_lefttop( iter.component->get_min_size() );
+			scr_size cs = iter.component->get_min_size();
+			if (!iter.component->is_marginless()) {
+				cs.h += D_MARGIN_BOTTOM;
+			}
+			c_size.clip_lefttop( cs );
 			last_component = iter.component;
 		}
 	}
-	return t_size + c_size;
+	return t_size+c_size;
 }
 
 

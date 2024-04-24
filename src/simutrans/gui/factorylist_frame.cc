@@ -35,51 +35,45 @@ factorylist_frame_t::factorylist_frame_t() :
 {
 	old_factories_count = 0;
 
-	set_table_layout(1,0);
-	set_table_layout(1, 0);
-	add_table(3, 3);
-	{
-		new_component<gui_label_t>("Filter:");
-		name_filter_input.set_text(name_filter, lengthof(name_filter));
-		add_component(&name_filter_input);
-		new_component<gui_fill_t>();
+	set_table_layout(3,4);
+	new_component<gui_label_t>("Filter:");
+	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	add_component(&name_filter_input);
+	new_component<gui_fill_t>();
 
-		filter_by_owner.init(button_t::square_automatic, "Served by");
-		filter_by_owner.add_listener(this);
-		filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
-		add_component(&filter_by_owner);
+	filter_by_owner.init(button_t::square_automatic, "Served by");
+	filter_by_owner.add_listener(this);
+	filter_by_owner.set_tooltip("At least one tile is connected to one stop.");
+	add_component(&filter_by_owner);
 
-		filterowner.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No player"), SYSCOL_TEXT);
-		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
-			if (player_t* pl = welt->get_player(i)) {
-				filterowner.new_component<playername_const_scroll_item_t>(pl);
-				if (pl == welt->get_active_player()) {
-					filterowner.set_selection(filterowner.count_elements() - 1);
-				}
+	filterowner.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No player"), SYSCOL_TEXT);
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if (player_t* pl = welt->get_player(i)) {
+			filterowner.new_component<playername_const_scroll_item_t>(pl);
+			if (pl == welt->get_active_player()) {
+				filterowner.set_selection(filterowner.count_elements() - 1);
 			}
 		}
-		filterowner.add_listener(this);
-		add_component(&filterowner);
-		new_component<gui_fill_t>();
-
-		new_component_span<gui_label_t>("hl_txt_sort", 1);
-		sortedby.set_unsorted(); // do not sort
-		for (size_t i = 0; i < lengthof(sort_text); i++) {
-			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
-		}
-		sortedby.set_selection(factorylist_stats_t::sort_mode);
-		sortedby.add_listener(this);
-		add_component(&sortedby);
-
-		sorteddir.init(button_t::sortarrow_state, NULL);
-		sorteddir.add_listener(this);
-		sorteddir.pressed = factorylist_stats_t::reverse;
-		add_component(&sorteddir);
-		new_component<gui_fill_t>();
 	}
-	end_table();
+	filterowner.add_listener(this);
+	add_component(&filterowner);
+	new_component<gui_fill_t>();
 
-	add_component(&scrolly);
+	new_component<gui_label_t>("hl_txt_sort");
+	sortedby.set_unsorted(); // do not sort
+	for (size_t i = 0; i < lengthof(sort_text); i++) {
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
+	}
+	sortedby.set_selection(factorylist_stats_t::sort_mode);
+	sortedby.add_listener(this);
+	add_component(&sortedby);
+
+	sorteddir.init(button_t::sortarrow_state, NULL);
+	sorteddir.add_listener(this);
+	sorteddir.pressed = factorylist_stats_t::reverse;
+	add_component(&sorteddir);
+
+	add_component(&scrolly,3);
 	fill_list();
 
 	set_resizemode(diagonal_resize);
