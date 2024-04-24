@@ -147,7 +147,6 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	bt_withdraw_line.init( button_t::roundbox_state | button_t::flexible, "Withdraw All" );
 	bt_withdraw_line.set_tooltip( "Convoi is sold when all wagons are empty." );
 	bt_withdraw_line.add_listener( this );
-	bt_withdraw_line.pressed = line->get_withdraw();
 	container_convois.add_component( &bt_withdraw_line );
 
 	bt_find_convois.init( button_t::roundbox | button_t::flexible, "Find matching convois" );
@@ -194,6 +193,7 @@ void line_management_gui_t::init()
 		inp_name.set_text(line_name, sizeof(line_name));
 
 		bt_delete_line.enable();
+		bt_withdraw_line.pressed = line->get_withdraw();
 		// init_chart
 		if( chart.get_curve_count() == 0 ) {
 			container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
