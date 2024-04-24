@@ -94,10 +94,10 @@ void gui_routebar_t::draw(scr_coord offset)
 {
 	uint8  h = size.h % 2 ? size.h : size.h-1;
 	if (h < 5) { h = 5; set_size( scr_size(size.w, h) ); }
-	const uint16 w = size.w - h;
+	const uint16 w = size.w - h/2;
 
 	offset += pos;
-	display_fillbox_wh_clip_rgb(offset.x+h/2, offset.y+h/2-1, w, 3, color_idx_to_rgb(MN_GREY1), true);
+	display_fillbox_wh_clip_rgb(offset.x, offset.y+h/2-1, w, 3, color_idx_to_rgb(MN_GREY1), true);
 
 	PIXVAL col;
 	for (uint8 i = 0; i<5; i++) {

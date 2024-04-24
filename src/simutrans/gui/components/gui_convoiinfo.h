@@ -20,12 +20,17 @@
 class gui_convoiinfo_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
+	static const char *profit;
+
 	/**
 	* Handle Convois to be displayed.
 	*/
 	convoihandle_t cnv;
 
 	gui_speedbar_t filled_bar;
+	gui_routebar_t route_bar;
+	sint32 cnv_route_index, next_reservation_index;
+
 	gui_label_t label_name, label_next_halt;
 	gui_label_buf_t label_line, label_profit;
 	button_t pos_next_halt;

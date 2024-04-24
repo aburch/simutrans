@@ -9,12 +9,13 @@
 
 #include "gui_convoiinfo.h"
 #include "../../world/simworld.h"
-#include "../../vehicle/vehicle.h"
+#include "../../vehicle/rail_vehicle.h"
 #include "../../simconvoi.h"
 #include "../../simcolor.h"
 #include "../../simhalt.h"
 #include "../../display/simgraph.h"
 #include "../../display/viewport.h"
+#include "../../tool/simmenu.h"
 #include "../../player/simplay.h"
 #include "../../simline.h"
 
@@ -23,6 +24,7 @@
 
 #include "../../utils/simstring.h"
 
+const char* gui_convoiinfo_t::profit;
 
 class gui_convoi_images_t : public gui_component_t
 {
@@ -69,83 +71,81 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	set_table_layout(2,2);
-	set_alignment(ALIGN_LEFT | ALIGN_TOP);
+	set_table_layout(3,0);
+	set_alignment(ALIGN_LEFT | ALIGN_BOTTOM);
 
+	// first row
+	new_component<gui_empty_t>(); // could become posbutton to jump to convoi
+	add_component(&label_name);
+	new_component<gui_convoi_images_t>(cnv);
 
-	add_table(1,4);
-	{
-		add_component(&label_name);
+	// second row
+	new_component<gui_empty_t>();
+	add_component(&label_profit);
+	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
+	add_component(&filled_bar);
 
-		add_table(2,1);
-		{
-			new_component<gui_label_t>("Gewinn");
-			add_component(&label_profit);
-		}
-		end_table();
+	// third row
+	pos_next_halt.init( button_t::posbutton_automatic, "" );
+	add_component( &pos_next_halt );
 
+	add_component( &label_next_halt );
+
+	route_bar.init(&cnv_route_index, 0);
+	if (cnv->get_vehicle_count() > 0 && dynamic_cast<rail_vehicle_t*>(cnv->front())) {
+		// only for trains etc.
+		route_bar.set_reservation(&next_reservation_index);
 	}
-	end_table();
+	add_component(&route_bar);
 
-	add_table(1,2);
-	{
-		new_component<gui_convoi_images_t>(cnv);
-		filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
-		filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
-		add_component(&filled_bar);
-	}
-	end_table();
-
-	add_component( &label_line );
-
-	container_next_halt = add_table(2,1);
-	{
-		pos_next_halt.init( button_t::posbutton_automatic, "" );
-		add_component( &pos_next_halt );
-		add_component( &label_next_halt );
-	}
-	end_table();
+	new_component<gui_empty_t>();
+	add_component(&label_line,2);
 
 	update_label();
 }
 
-/**
- * Events are notified to GUI components via this method
- */
+
 bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
 	if(cnv.is_bound()) {
-		// check whether some child must handle this!
-		event_t ev2 = *ev;
-		ev2.move_origin(container_next_halt->get_pos());
 
-		if( container_next_halt->infowin_event( &ev2 ) ) {
+		// check whether some child must handle this!
+		if (gui_aligned_container_t::infowin_event(ev)) {
 			return true;
 		}
-		if(IS_LEFTRELEASE(ev)) {
-			cnv->open_info_window();
+
+		if (IS_LEFTRELEASE(ev)) {
+			if ((event_get_last_control_shift() ^ tool_t::control_invert) == 2) {
+				world()->get_viewport()->change_world_position(cnv->get_pos());
+			}
+			else {
+				cnv->open_info_window();
+			}
 			return true;
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			karte_ptr_t welt;
-			welt->get_viewport()->change_world_position(cnv->get_pos());
+			world()->get_viewport()->change_world_position(cnv->get_pos());
 			return true;
 		}
 	}
 	return false;
 }
 
+
 const char* gui_convoiinfo_t::get_text() const
 {
 	return cnv->get_name();
 }
 
+
 void gui_convoiinfo_t::update_label()
 {
+	label_profit.buf().append(translator::translate("Gewinn"));
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
 	label_profit.update();
-	label_line.buf().clear();
 
+	label_line.buf().clear();
 	if (cnv->in_depot()) {
 		label_line.set_visible( false );
 		pos_next_halt.set_targetpos3d(cnv->get_home_depot());
@@ -162,7 +162,30 @@ void gui_convoiinfo_t::update_label()
 		}
 		label_line.update();
 
+		switch (cnv->get_state()) {
+		case convoi_t::WAITING_FOR_CLEARANCE:
+		case convoi_t::CAN_START:
+		case convoi_t::DRIVING:
+			route_bar.set_state(0);
+			break;
+		case convoi_t::NO_ROUTE:
+			route_bar.set_state(3);
+			break;
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::CAN_START_ONE_MONTH:
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case convoi_t::CAN_START_TWO_MONTHS:
+			route_bar.set_state(2);
+			break;
+		default:
+			route_bar.set_state(1);
+			break;
+		}
 		if (!cnv->get_route()->empty()) {
+			route_bar.set_base(cnv->get_route()->get_count() - 1);
+			cnv_route_index = cnv->front()->get_route_index() - 1;
+			next_reservation_index = cnv->get_next_reservation_index();
+
 			halthandle_t h;
 			const koord3d end = cnv->get_route()->back();
 
@@ -179,6 +202,12 @@ void gui_convoiinfo_t::update_label()
 			pos_next_halt.set_targetpos3d( end );
 			label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
 		}
+		else {
+			route_bar.set_base(1);
+			cnv_route_index = 0;
+			next_reservation_index = 0;
+
+		}
 	}
 
 	label_name.set_text_pointer(cnv->get_name());
@@ -192,6 +221,8 @@ void gui_convoiinfo_t::update_label()
  */
 void gui_convoiinfo_t::draw(scr_coord offset)
 {
-	update_label();
+	if (cnv.is_bound()) {
+		update_label();
+	}
 	gui_aligned_container_t::draw(offset);
 }
