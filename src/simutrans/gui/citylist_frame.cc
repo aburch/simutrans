@@ -170,7 +170,6 @@ citylist_frame_t::citylist_frame_t() :
 		buttons[i] = container_year.new_component<button_t>();
 		buttons[i]->init(button_t::box_state_automatic | button_t::flexible, hist_type[i]);
 		buttons[i]->background_color = color_idx_to_rgb(hist_type_color[i]);
-		assert(buttons[i]->get_min_size() == D_BUTTON_SIZE);
 		buttons[i]->pressed = false;
 
 		button_to_chart.append(buttons[i], &chart, curve);

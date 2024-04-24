@@ -256,10 +256,9 @@ void display_poll_event(event_t* const ev)
 		event_t *elem = queued_events.remove_first();
 		*ev = *elem;
 		delete elem;
-		return ;
 	}
-	// if there is any pending meta-event, consume it instead of fetching a new event from the system
-	if(  meta_event.ev_class!=EVENT_NONE  ) {
+	else if(  meta_event.ev_class!=EVENT_NONE  ) {
+		// if there is any pending meta-event, consume it instead of fetching a new event from the system
 		*ev = meta_event;
 		last_meta_class = meta_event.ev_class;
 		meta_event.ev_class = EVENT_NONE;
