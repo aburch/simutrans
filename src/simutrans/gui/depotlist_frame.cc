@@ -11,7 +11,8 @@
 #include "../obj/depot.h"
 #include "../simskin.h"
 #include "../world/simworld.h"
-
+#include "../display/viewport.h"
+#include "../tool/simmenu.h"
 #include "../dataobj/translator.h"
 
 #include "../descriptor/skin_desc.h"
@@ -107,9 +108,20 @@ bool depotlist_stats_t::infowin_event(const event_t * ev)
 {
 	bool swallowed = gui_aligned_container_t::infowin_event(ev);
 
-	if(  !swallowed  &&  IS_LEFTRELEASE(ev)  ) {
-		depot->show_info();
-		swallowed = true;
+	if (!swallowed) {
+		// either open dialog or goto (with control or right click)
+		if (IS_LEFTRELEASE(ev)) {
+			if ((event_get_last_control_shift() ^ tool_t::control_invert) == 2) {
+				world()->get_viewport()->change_world_position(depot->get_pos());
+			}
+			else {
+				depot->show_info();
+			}
+			return true;
+		}
+		if (IS_RIGHTRELEASE(ev)) {
+			world()->get_viewport()->change_world_position(depot->get_pos());
+		}
 	}
 	return swallowed;
 }

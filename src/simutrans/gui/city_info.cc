@@ -163,7 +163,7 @@ const uint8 hist_type_color[MAX_CITY_HISTORY] =
 
 
 city_info_t::city_info_t(stadt_t* city) :
-	gui_frame_t( name, NULL ),
+	gui_frame_t( "", NULL),
 	city(city)
 {
 	if (city) {
@@ -365,6 +365,8 @@ void gui_city_minimap_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const spar
 void city_info_t::update_labels()
 {
 	stadt_t* const c = city;
+
+	set_name(city->get_name());
 
 	// display city stats
 	lb_size.buf().printf( "%d (%.1f)", c->get_einwohner(), c->get_wachstum() / 10.0);         lb_size.update();

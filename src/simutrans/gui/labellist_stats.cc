@@ -7,6 +7,8 @@
 
 #include "components/gui_button.h"
 #include "../world/simworld.h"
+#include "../display/viewport.h"
+#include "../tool/simmenu.h"
 #include "../player/simplay.h"
 #include "../obj/label.h"
 #include "../utils/cbuffer.h"
@@ -116,14 +118,25 @@ const char* labellist_stats_t::get_text() const
 bool labellist_stats_t::infowin_event(const event_t * ev)
 {
 	bool swallowed = gui_aligned_container_t::infowin_event(ev);
-
-	if(  !swallowed  &&  IS_LEFTRELEASE(ev)  ) {
-		if (grund_t *gr = welt->lookup_kartenboden(label_pos)) {
-			if (label_t *lb = gr->find<label_t>()) {
-				lb->show_info();
+	if (!swallowed) {
+		// either open dialog or goto (with control or right click)
+		if (IS_LEFTRELEASE(ev)) {
+			if ((event_get_last_control_shift() ^ tool_t::control_invert) == 2) {
+				world()->get_viewport()->change_world_position(label_pos);
 			}
+			else {
+				if (grund_t* gr = welt->lookup_kartenboden(label_pos)) {
+					if (label_t* lb = gr->find<label_t>()) {
+						lb->show_info();
+					}
+				}
+			}
+			return true;
 		}
-		swallowed = true;
+		if (IS_RIGHTRELEASE(ev)) {
+			world()->get_viewport()->change_world_position(label_pos);
+			return true;
+		}
 	}
 	return swallowed;
 }
