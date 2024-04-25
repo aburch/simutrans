@@ -652,6 +652,19 @@ const char *translator::translate(const char *str)
 }
 
 
+const char *translator::translate_obj_details(const char *str)
+{
+	char text_key[256];
+	sprintf(text_key, "obj_%s_details", str);
+	const char* translated_detail = get_lang()->translate(text_key);
+	// returns input string if not there
+	if (translated_detail != text_key) {
+		return translated_detail;
+	}
+	return NULL;
+}
+
+
 const char *translator::translate(const char *str, int lang)
 {
 	return langs[lang].translate(str);

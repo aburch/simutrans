@@ -16,6 +16,7 @@
 #include "components/gui_waytype_tab_panel.h"
 #include "components/gui_combobox.h"
 #include "components/gui_textinput.h"
+#include "components/gui_fixedwidth_textarea.h"
 
 class vehicle_desc_t;
 class goods_desc_t;
@@ -54,11 +55,12 @@ class vehiclelist_stats_t : public gui_scrolled_list_t::scrollitem_t
 {
 private:
 	const vehicle_desc_t *veh;
-	cbuffer_t part1, part2;
+	cbuffer_t part1, part2, details_buf;
 	int name_width;
 	int col1_width;
 	int col2_width;
 	int height;
+	gui_fixedwidth_textarea_t details;
 
 public:
 	static int sort_mode;

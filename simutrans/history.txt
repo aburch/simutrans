@@ -28,6 +28,9 @@
 	FIX: Withdraw All button in line window did not indicate withdraw status correctly in some cases
 	FIX: Game lags when paused, especially on big maps
 	FIX: Could connect elevated way to side of sloped elevated way
+	FIX: more respone event handling a low frames per second
+	FIX: consequently in lists left click->window richt click/Control+left click -> goto position
+	ADD: obj_xxx_details in translation will display some more details on an obj, especially vehciles
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):

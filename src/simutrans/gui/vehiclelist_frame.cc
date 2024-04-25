@@ -32,7 +32,8 @@ bool vehiclelist_stats_t::reverse = false;
 int vehiclelist_stats_t::img_width = 100;
 
 
-vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
+vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v) : 
+	details(&details_buf,0)
 {
 	veh = v;
 
@@ -52,6 +53,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 		sprintf( str, " (%s)", translator::translate( vehicle_builder_t::engine_type_names[ veh->get_engine_type() + 1 ] ) );
 		name_width += proportional_string_width( str );
 	}
+	scr_coord_val name_h = LINESPACE;
 
 	// column 1
 	part1.clear();
@@ -101,7 +103,13 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v)
 	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2);
 	col2_width = text2w;
 
-	height = max( height, max( text1h, text2h ) + LINESPACE );
+	if (const char* detail_str = translator::translate_obj_details(veh->get_name())) {
+		details_buf.append(detail_str);
+		details.set_width(col1_width + col2_width);
+		name_h += details.get_size().h;
+	}
+
+	height = max( height, max( text1h, text2h ) + name_h );
 }
 
 
@@ -131,7 +139,14 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 		display_proportional_rgb( offset.x+dx, offset.y, str, ALIGN_LEFT|DT_CLIP, SYSCOL_TEXT, false );
 	}
 
+	// maybe there are detailed text to the vehicle?
 	int yyy = offset.y + LINESPACE;
+	if (details_buf.len()>0) {
+		details.draw(scr_coord(offset.x, yyy));
+		yyy += details.get_size().h;
+	}
+
+	// now the rest in two columns
 	display_multiline_text_rgb( offset.x, yyy, part1, SYSCOL_TEXT );
 
 	display_multiline_text_rgb( offset.x + col1_width, yyy, part2, SYSCOL_TEXT );

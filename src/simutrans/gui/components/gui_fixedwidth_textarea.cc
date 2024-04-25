@@ -31,7 +31,6 @@ void gui_fixedwidth_textarea_t::recalc_size()
 }
 
 
-
 void gui_fixedwidth_textarea_t::set_width(const scr_coord_val width)
 {
 	if(  width>0  ) {
@@ -40,6 +39,10 @@ void gui_fixedwidth_textarea_t::set_width(const scr_coord_val width)
 
 		scr_size newsize = calc_display_text(scr_coord::invalid, false);
 		gui_component_t::set_size( newsize );
+	}
+	else {
+		set_visible(false);
+		size = scr_size(0, 0);
 	}
 }
 

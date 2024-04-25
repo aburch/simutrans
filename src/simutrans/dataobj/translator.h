@@ -118,6 +118,11 @@ public:
 	static const char *translate(const char* str, int lang);
 
 	/**
+	 * Returns a translated detail text or NULL if not present
+	 */
+	static const char *translate_obj_details(const char* str);
+
+	/**
 	 * @return replacement info for almost any object within the game
 	 */
 	static const char *compatibility_name(const char* str);
