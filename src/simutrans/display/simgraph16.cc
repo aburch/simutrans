@@ -3621,6 +3621,7 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 {
 	const font_t* const fnt = &default_font;
 	int width = 0;
+	bool last_cr = false;
 
 	xw = yh = 0;
 
@@ -3632,13 +3633,17 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
 			xw = max( xw, width );
 			yh += LINESPACE;
 			width = 0;
+			last_cr = true;
 			continue;
 		}
-
+		last_cr = false;
 		width += fnt->get_glyph_advance(iUnicode);
 	}
 	xw = max( xw, width );
-	yh += LINESPACE;
+	if (!last_cr) {
+		// extra CR of the last was not already a CR
+		yh += LINESPACE;
+	}
 }
 
 
