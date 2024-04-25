@@ -281,6 +281,10 @@ bool vehicle_builder_t::compare_vehicles(const vehicle_desc_t* a, const vehicle_
 			cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 			if (cmp != 0) return cmp < 0;
 			break;
+		case sb_capacity:
+			cmp = compare_capacity(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
 		case sb_price:
 			cmp = compare_price(a, b);
 			if (cmp != 0) return cmp < 0;

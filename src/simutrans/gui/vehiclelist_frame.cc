@@ -337,6 +337,8 @@ void vehiclelist_frame_t::rdwr(loadsave_t* file)
 		file->rdwr_str(name_filter, lengthof(name_filter));
 	}
 	if (file->is_loading()) {
+		vehiclelist_stats_t::reverse = sorteddir.pressed;
+		vehiclelist_stats_t::sort_mode = sort_by.get_selection();
 		fill_list();
 		set_windowsize(size);
 	}
