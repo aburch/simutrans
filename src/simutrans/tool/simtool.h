@@ -398,6 +398,7 @@ public:
 class tool_remove_wayobj_t : public tool_build_wayobj_t {
 public:
 	tool_remove_wayobj_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
+	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 };
@@ -674,6 +675,7 @@ private:
 class tool_remove_signal_t : public tool_t {
 public:
 	tool_remove_signal_t() : tool_t(TOOL_REMOVE_SIGNAL | GENERAL_TOOL) {}
+	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove signal"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }

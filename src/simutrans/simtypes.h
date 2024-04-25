@@ -111,6 +111,7 @@ enum waytype_t {
 	any_wt           = 255
 };
 
+
 /**
  * System types for ways
  */

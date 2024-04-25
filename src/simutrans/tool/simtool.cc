@@ -3217,8 +3217,8 @@ char const* tool_wayremover_t::get_tooltip(player_t const*) const
 
 image_id tool_wayremover_t::get_icon(player_t *) const
 {
-	if(  default_param  &&  way_builder_t::waytype_available( (waytype_t)atoi(default_param), welt->get_timeline_year_month() )  ) {
-		return icon;
+	if (default_param && way_builder_t::waytype_available((waytype_t)atoi(default_param), welt->get_timeline_year_month())) {
+			return icon;
 	}
 	return IMG_EMPTY;
 }
@@ -3757,6 +3757,15 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 	}
 
 	return err;
+}
+
+
+image_id tool_remove_wayobj_t::get_icon(player_t*) const
+{
+	if (default_param && way_builder_t::waytype_available((waytype_t)atoi(default_param), welt->get_timeline_year_month())) {
+		return icon;
+	}
+	return IMG_EMPTY;
 }
 
 
@@ -6833,6 +6842,15 @@ const char *tool_merge_stop_t::do_work( player_t *player, const koord3d &last_po
 	return NULL;
 }
 
+
+image_id tool_remove_signal_t::get_icon(player_t*) const
+{
+	// do not show if there are no matching ways on the map
+	if (default_param && way_builder_t::waytype_available((waytype_t)atoi(default_param), welt->get_timeline_year_month())) {
+		return icon;
+	}
+	return IMG_EMPTY;
+}
 
 const char* tool_remove_signal_t::work( player_t* player, koord3d pos )
 {

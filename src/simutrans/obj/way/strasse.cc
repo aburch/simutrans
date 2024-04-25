@@ -16,24 +16,6 @@
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
-/*
-void strasse_t::set_gehweg(bool janein)
-{
-	weg_t::set_gehweg(janein);
-	if (janein) {
-		if (const way_desc_t *desc=get_desc()) {
-			set_max_speed(max(desc->get_topspeed(), weg_t::get_cityroad_speedlimit()));
-		}
-		else {
-			set_max_speed(weg_t::get_cityroad_speedlimit());
-		}
-	}
-	else if (const way_desc_t* desc = get_desc()) {
-		set_max_speed(desc->get_topspeed());
-	}
-}*/
-
-
 
 strasse_t::strasse_t(loadsave_t *file) : weg_t()
 {
@@ -46,7 +28,6 @@ strasse_t::strasse_t() : weg_t()
 	set_gehweg(false);
 	set_desc(default_strasse);
 }
-
 
 
 void strasse_t::rdwr(loadsave_t *file)
