@@ -237,6 +237,7 @@ convoi_frame_t::convoi_frame_t() :
 
 	scrolly = new gui_scrolled_convoy_list_t(this);
 	scrolly->set_maximize( true );
+	scrolly->set_checkered( true );
 
 	tabs.init_tabs(scrolly);
 	for(  uint32 i = 0;  i < tabs.get_count();  i++  ) {

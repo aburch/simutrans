@@ -172,6 +172,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 {
 	name_filter[0] = 0;
 	scrolly.set_cmp( vehiclelist_stats_t::compare );
+	scrolly.set_checkered(true);
 
 	set_table_layout(1,0);
 

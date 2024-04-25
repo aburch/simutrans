@@ -99,6 +99,9 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	line = line_;
 	player = player_;
 
+	scrolly_convois.set_checkered(true);
+	scrolly_halts.set_checkered(true);
+
 	// line name
 	inp_name.add_listener( this );
 	add_component( &inp_name, 3 );

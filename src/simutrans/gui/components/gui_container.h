@@ -26,10 +26,13 @@ protected:
 	// focused component of this container can only be one of its immediate children
 	gui_component_t *comp_focus;
 
-	bool list_dirty:1;
+	bool list_dirty : 1;
+
+	// if true, alternate background
+	bool checkered : 1;
 
 	// true, while infowin_event is processed
-	bool inside_infowin_event:1;
+	bool inside_infowin_event : 1;
 
 public:
 	gui_container_t();
@@ -37,6 +40,12 @@ public:
 
 	// needed for WIN_OPEN events
 	void clear_dirty() { list_dirty=false; }
+
+	bool set_checkered(bool c) {
+		bool old = checkered;
+		checkered = c;
+		return c;
+	}
 
 	/**
 	* Adds a Component to the Container.

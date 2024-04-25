@@ -14,6 +14,7 @@ gui_container_t::gui_container_t() : gui_component_t(), comp_focus(NULL)
 {
 	list_dirty = false;
 	inside_infowin_event = false;
+	checkered = false;
 }
 
 
@@ -261,14 +262,22 @@ void gui_container_t::draw(scr_coord offset)
 	display_ddd_box_clip_rgb(shorten(screen_pos.x), shorten(screen_pos.y), shorten(get_size().w), shorten(get_size().h), color_idx_to_rgb(COL_RED), color_idx_to_rgb(COL_RED));
 #endif
 	// iterate backwards
+	int checker_count = 0;
 	for(  uint32 iter = components.get_count(); iter > 0; iter--) {
 		gui_component_t*const c = components[iter-1];
 		if (c->is_visible()) {
+
+			checker_count++;
 
 			// check if component is in the drawing region
 			// also fixes integer overflow as KOORDVAL in simgraph is 16bit, while scr_coord is 32bit
 			if (!clip_rect.is_overlapping( scr_rect(screen_pos + c->get_pos(), c->get_size()) ) ) {
 				continue;
+			}
+
+			if (checkered && (checker_count&1)==0) {
+				scr_coord c_pos = screen_pos + c->get_pos();
+				display_blend_wh_rgb( c_pos.x, c_pos.y, c->get_size().w, c->get_size().h, color_idx_to_rgb(COL_WHITE), 50 );
 			}
 
 			if(  c == comp_focus  ) {

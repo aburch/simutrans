@@ -97,6 +97,7 @@ citylist_frame_t::citylist_frame_t() :
 	old_halt_count = 0;
 
 	scrolly.set_maximize(true);
+	scrolly.set_checkered(true);
 
 	set_table_layout(1,0);
 

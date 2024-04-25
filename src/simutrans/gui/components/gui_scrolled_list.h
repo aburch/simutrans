@@ -119,6 +119,8 @@ public:
 
 	void set_cmp(item_compare_func cmp) { compare = cmp; }
 
+	bool set_checkered(bool c) { return container.set_checkered(c); }
+
 	gui_scrolled_list_t(enum type, item_compare_func cmp = 0);
 
 	~gui_scrolled_list_t() { clear_elements(); }

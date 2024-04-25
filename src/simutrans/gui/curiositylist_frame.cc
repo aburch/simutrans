@@ -36,6 +36,8 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	scrolly(gui_scrolled_list_t::windowskin, curiositylist_stats_t::compare)
 {
 	attraction_count = 0;
+	scrolly.set_checkered(true);
+	scrolly.set_maximize(true);
 
 	set_table_layout(1,0);
 	add_table(3, 3);

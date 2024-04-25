@@ -156,6 +156,7 @@ halt_list_frame_t::halt_list_frame_t() :
 
 	scrolly = new gui_scrolled_halt_list_t();
 	scrolly->set_maximize(true);
+	scrolly->set_checkered(true);
 
 	tabs.init_tabs(scrolly);
 	tabs.add_listener(this);

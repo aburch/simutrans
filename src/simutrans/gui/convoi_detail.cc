@@ -166,11 +166,12 @@ void convoi_detail_t::init(convoihandle_t cnv)
 	const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
 
 	container_veh.set_table_layout(1,0);
+	container_veh.set_checkered(true);
 	container_veh.new_component<gui_fill_t>();
 	for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
-		if(veh>0) {
-			container_veh.new_component<gui_divider_t>();
-		}
+//		if(veh>0) { // only on non-checkred lists
+//			container_veh.new_component<gui_divider_t>();
+//		}
 		vehicle_t *v = cnv->get_vehicle(veh);
 		container_veh.new_component<gui_vehicleinfo_t>(v, cnv_kmh);
 	}

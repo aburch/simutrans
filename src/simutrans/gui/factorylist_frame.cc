@@ -34,6 +34,7 @@ factorylist_frame_t::factorylist_frame_t() :
 	scrolly(gui_scrolled_list_t::windowskin, factorylist_stats_t::compare)
 {
 	old_factories_count = 0;
+	scrolly.set_checkered(true);
 
 	set_table_layout(3,4);
 	new_component<gui_label_t>("Filter:");

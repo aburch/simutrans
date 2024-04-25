@@ -167,6 +167,7 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 	set_table_layout(1,0);
 
 	scrolly.set_maximize(true);
+	scrolly.set_checkered(true);
 
 	tabs.init_tabs(&scrolly);
 	tabs.add_listener(this);
