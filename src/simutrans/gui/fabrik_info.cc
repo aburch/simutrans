@@ -99,6 +99,7 @@ void fabrik_info_t::init(fabrik_t* fab_, const gebaeude_t* gb)
 
 	// input name
 	input.set_text( fabname, lengthof(fabname) );
+	input.set_notify_all_changes_delay(500); // since it triggers a tool
 	input.add_listener(this);
 	add_component(&input);
 	highlight_suppliers.set_text("Suppliers");

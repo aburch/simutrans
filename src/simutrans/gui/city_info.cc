@@ -8,6 +8,7 @@
 #include "../tool/simmenu.h"
 #include "../world/simworld.h"
 #include "../simcolor.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../display/viewport.h"
 #include "../utils/cbuffer.h"
@@ -178,7 +179,8 @@ void city_info_t::init()
 	set_table_layout(1,0);
 
 	// add city name input field
-	name_input.add_listener( this );
+	name_input.set_notify_all_changes_delay(500);	// since each letter triggers a tool
+	name_input.add_listener(this);
 	add_component(&name_input);
 
 	add_table(2,0)->set_alignment(ALIGN_TOP);

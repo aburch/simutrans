@@ -74,7 +74,8 @@ protected:
 	/**
 	 * whether focus has been received
 	 */
-	bool notify_all_changes : 1;
+	uint16 notify_all_changes_delay;
+	uint32 next_update_call;
 
 	/**
 	 * reference time for regulating cursor blinking
@@ -96,9 +97,10 @@ public:
 	// three messages for the calling
 	enum { INPUT_UNTOP = 0, INPUT_FINISHED, INPUT_CHANGED };
 
-	gui_textinput_t(bool notify_all = false);
+	gui_textinput_t();
 
-	void set_notify_all_changes(bool _n) { notify_all_changes = _n; }
+	// update changes with delay (in ms), 0=immeadiately 0xFFFF=never
+	void set_notify_all_changes_delay(uint16 _n) { notify_all_changes_delay = _n; }
 
 	/**
 	 * Sets the Text buffer

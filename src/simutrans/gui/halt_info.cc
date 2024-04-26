@@ -314,6 +314,7 @@ void halt_info_t::init(halthandle_t halt)
 			// input name
 			tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 			input.set_text(edit_name, lengthof(edit_name));
+			input.set_notify_all_changes_delay(500);	// since each letter triggers a tool
 			input.add_listener(this);
 			add_component(&input, 2);
 

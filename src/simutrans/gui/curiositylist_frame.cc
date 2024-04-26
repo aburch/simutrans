@@ -33,8 +33,7 @@ public:
 
 curiositylist_frame_t::curiositylist_frame_t() :
 	gui_frame_t( translator::translate("curlist_title") ),
-	scrolly(gui_scrolled_list_t::windowskin, curiositylist_stats_t::compare),
-	name_filter_input(true)
+	scrolly(gui_scrolled_list_t::windowskin, curiositylist_stats_t::compare)
 {
 	attraction_count = 0;
 	scrolly.set_checkered(true);
@@ -44,6 +43,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 
 	new_component<gui_label_t>("Filter:");
 	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	name_filter_input.set_notify_all_changes_delay(0);
 	name_filter_input.add_listener(this);
 	add_component(&name_filter_input);
 	new_component<gui_fill_t>();

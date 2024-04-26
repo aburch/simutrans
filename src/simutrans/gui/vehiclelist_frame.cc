@@ -170,8 +170,7 @@ bool vehiclelist_stats_t::compare(const gui_component_t *aa, const gui_component
 
 vehiclelist_frame_t::vehiclelist_frame_t() :
 	gui_frame_t( translator::translate("vh_title") ),
-	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare),
-	name_filter_input(true)
+	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare)
 {
 	name_filter[0] = 0;
 	scrolly.set_cmp( vehiclelist_stats_t::compare );
@@ -183,6 +182,7 @@ vehiclelist_frame_t::vehiclelist_frame_t() :
 	{
 		new_component<gui_label_t>("Filter:");
 		name_filter_input.set_text(name_filter, lengthof(name_filter));
+		name_filter_input.set_notify_all_changes_delay(0);
 		add_component(&name_filter_input,2);
 		name_filter_input.add_listener(this);
 

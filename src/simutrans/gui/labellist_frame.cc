@@ -21,13 +21,13 @@ static const char *sort_text[labellist::SORT_MODES] = {
 
 labellist_frame_t::labellist_frame_t() :
 	gui_frame_t(translator::translate("labellist_title")),
-	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare),
-	name_filter_input(true)
+	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare)
 {
 	set_table_layout(3,0);
 
 	new_component<gui_label_t>("Filter:");
 	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	name_filter_input.set_notify_all_changes_delay(0);
 	name_filter_input.add_listener(this);
 	add_component(&name_filter_input);
 	new_component<gui_fill_t>();

@@ -31,8 +31,7 @@ public:
 
 factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
-	scrolly(gui_scrolled_list_t::windowskin, factorylist_stats_t::compare),
-	name_filter_input(true)
+	scrolly(gui_scrolled_list_t::windowskin, factorylist_stats_t::compare)
 {
 	old_factories_count = 0;
 	scrolly.set_checkered(true);
@@ -40,6 +39,7 @@ factorylist_frame_t::factorylist_frame_t() :
 	set_table_layout(3,4);
 	new_component<gui_label_t>("Filter:");
 	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	name_filter_input.set_notify_all_changes_delay(0);
 	name_filter_input.add_listener(this);
 	add_component(&name_filter_input);
 	new_component<gui_fill_t>();
