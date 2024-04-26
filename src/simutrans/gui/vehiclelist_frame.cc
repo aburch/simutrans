@@ -23,6 +23,7 @@
 #include "../descriptor/vehicle_desc.h"
 
 #include "../utils/simstring.h"
+#include "../utils/unicode.h"
 
 
 int vehiclelist_stats_t::sort_mode = vehicle_builder_t::sb_intro_date;
@@ -109,7 +110,7 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v) :
 		name_h += details.get_size().h;
 	}
 
-	height = max( height, max( text1h, text2h ) + name_h );
+	height = max( height, max( text1h, text2h ) + name_h )+D_V_SPACE;
 }
 
 
@@ -119,6 +120,7 @@ void vehiclelist_stats_t::draw( scr_coord offset )
 	offset += pos;
 
 	offset.x += D_MARGIN_LEFT;
+	offset.y += D_V_SPACE/2;
 	scr_coord_val x, y, w, h;
 	const image_id image = veh->get_image_id( ribi_t::dir_south, veh->get_freight_type() );
 	display_get_base_image_offset(image, &x, &y, &w, &h );
@@ -168,7 +170,8 @@ bool vehiclelist_stats_t::compare(const gui_component_t *aa, const gui_component
 
 vehiclelist_frame_t::vehiclelist_frame_t() :
 	gui_frame_t( translator::translate("vh_title") ),
-	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare)
+	scrolly(gui_scrolled_list_t::windowskin, vehiclelist_stats_t::compare),
+	name_filter_input(true)
 {
 	name_filter[0] = 0;
 	scrolly.set_cmp( vehiclelist_stats_t::compare );
@@ -296,7 +299,7 @@ void vehiclelist_frame_t::fill_list()
 			for(vehicle_desc_t const* const veh : vehicle_builder_t::get_info(tabs.get_tab_waytype(i)) ) {
 				if(  bt_obsolete.pressed  ||  !veh->is_retired( month )  ) {
 					if(  bt_future.pressed  ||  !veh->is_future( month )  ) {
-						if(name_filter[0]==0  ||  strstr(translator::translate(veh->get_name()),name_filter)) {
+						if(name_filter[0]==0  ||  utf8caseutf8(translator::translate(veh->get_name()),name_filter)) {
 							if( ware ) {
 								const goods_desc_t *vware = veh->get_freight_type();
 								if(  (ware->get_catg_index() > 0  &&  vware->get_catg_index() == ware->get_catg_index())  ||  vware->get_index() == ware->get_index()  ) {

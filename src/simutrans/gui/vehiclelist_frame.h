@@ -34,12 +34,10 @@ private:
 
 	char name_filter[256];
 
-	void fill_list();
-
-//	waytype_t current_wt;
-
 public:
 	vehiclelist_frame_t();
+
+	void fill_list();
 
 	const char *get_help_filename() const OVERRIDE {return "vehiclelist.txt"; }
 

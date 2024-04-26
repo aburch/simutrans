@@ -67,6 +67,10 @@
 #include "../gui/help_frame.h"
 #include "../gui/minimap.h"
 #include "../gui/player_frame.h"
+#include "../gui/factorylist_frame.h"
+#include "../gui/curiositylist_frame.h"
+#include "../gui/labellist_frame.h"
+#include "../gui/vehiclelist_frame.h"
 
 #include "../network/network.h"
 #include "../network/network_file_transfer.h"
@@ -2366,26 +2370,26 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	delete [] plan;
 	plan = rotate90_new_plan;
-	delete [] water_hgts;
+	delete[] water_hgts;
 	water_hgts = rotate90_new_water;
 
 	climate_map.rotate90();
 
 	// rotate heightmap
-	sint8 *new_hgts = new sint8[(cached_grid_size.x+1)*(cached_grid_size.y+1)];
+	sint8* new_hgts = new sint8[(cached_grid_size.x + 1) * (cached_grid_size.y + 1)];
 	const int LOOP_BLOCK = 64;
-	for(  int yy=0;  yy<=cached_grid_size.y;  yy+=LOOP_BLOCK  ) {
-		for(  int xx=0;  xx<=cached_grid_size.x;  xx+=LOOP_BLOCK  ) {
-			for(  int x=xx;  x<=min(xx+LOOP_BLOCK,cached_grid_size.x);  x++  ) {
-				for(  int y=yy;  y<=min(yy+LOOP_BLOCK,cached_grid_size.y);  y++  ) {
-					const int nr = x+(y*(cached_grid_size.x+1));
-					const int new_nr = (cached_grid_size.y-y)+(x*(cached_grid_size.y+1));
+	for (int yy = 0; yy <= cached_grid_size.y; yy += LOOP_BLOCK) {
+		for (int xx = 0; xx <= cached_grid_size.x; xx += LOOP_BLOCK) {
+			for (int x = xx; x <= min(xx + LOOP_BLOCK, cached_grid_size.x); x++) {
+				for (int y = yy; y <= min(yy + LOOP_BLOCK, cached_grid_size.y); y++) {
+					const int nr = x + (y * (cached_grid_size.x + 1));
+					const int new_nr = (cached_grid_size.y - y) + (x * (cached_grid_size.y + 1));
 					new_hgts[new_nr] = grid_hgts[nr];
 				}
 			}
 		}
 	}
-	delete [] grid_hgts;
+	delete[] grid_hgts;
 	grid_hgts = new_hgts;
 
 	// rotate borders
@@ -2398,44 +2402,44 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	cached_grid_size.y = wx;
 
 	// now step all towns (to generate passengers)
-	for(stadt_t* const i : cities) {
+	for (stadt_t* const i : cities) {
 		i->rotate90(cached_size.x);
 	}
 
 	// fixed order factory, halts, convois
-	for(fabrik_t* const f : fab_list) {
+	for (fabrik_t* const f : fab_list) {
 		f->rotate90(cached_size.x);
 	}
 	// after rotation of factories, rotate everything that holds freight: stations and convoys
-	for(halthandle_t const s : haltestelle_t::get_alle_haltestellen()) {
+	for (halthandle_t const s : haltestelle_t::get_alle_haltestellen()) {
 		s->rotate90(cached_size.x);
 	}
 
-	for(convoihandle_t const i : convoi_array) {
+	for (convoihandle_t const i : convoi_array) {
 		i->rotate90(cached_size.x);
 	}
 
-	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  players[i]  ) {
-			players[i]->rotate90( cached_size.x );
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+		if (players[i]) {
+			players[i]->rotate90(cached_size.x);
 		}
 	}
 
 	// rotate label texts
-	for(koord & l : labels) {
+	for (koord& l : labels) {
 		l.rotate90(cached_size.x);
 	}
 
 	// rotate view
-	viewport->rotate90( cached_size.x );
+	viewport->rotate90(cached_size.x);
 
 	// rotate messages
-	msg->rotate90( cached_size.x );
+	msg->rotate90(cached_size.x);
 
 	// rotate view in dialog windows
-	win_rotate90( cached_size.x );
+	win_rotate90(cached_size.x);
 
-	if( cached_grid_size.x != cached_grid_size.y ) {
+	if (cached_grid_size.x != cached_grid_size.y) {
 		// the map must be reinit
 		minimap_t::get_instance()->init();
 	}
@@ -2444,11 +2448,11 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	factory_builder_t::new_world();
 
 	// update minimap
-	if( minimap_t::is_visible) {
-		minimap_t::get_instance()->set_display_mode( minimap_t::get_instance()->get_display_mode() );
+	if (minimap_t::is_visible) {
+		minimap_t::get_instance()->set_display_mode(minimap_t::get_instance()->get_display_mode());
 	}
 
-	get_scenario()->rotate90( cached_size.x );
+	get_scenario()->rotate90(cached_size.x);
 
 	script_api::rotate90();
 
@@ -2460,12 +2464,15 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 // -------- Verwaltung von Fabriken -----------------------------
 
 
-bool karte_t::add_fab(fabrik_t *fab)
+bool karte_t::add_fab(fabrik_t* fab)
 {
-//DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
+	//DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
 	assert(fab != NULL);
-	fab_list.insert( fab );
+	fab_list.insert(fab);
 	goods_in_game.clear(); // Force rebuild of goods list
+	if (factorylist_frame_t* f = (factorylist_frame_t*)win_get_magic(magic_factorylist)) {
+		f->fill_list();
+	}
 	return true;
 }
 
@@ -2517,6 +2524,9 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		// recalculate factory position map
 		factory_builder_t::new_world();
 	}
+	if (factorylist_frame_t* f = (factorylist_frame_t *)win_get_magic(magic_factorylist)) {
+		f->fill_list();
+	}
 	return true;
 }
 
@@ -2534,6 +2544,9 @@ void karte_t::add_attraction(gebaeude_t *gb)
 	for(stadt_t* const c : cities) {
 		c->add_target_attraction(gb);
 	}
+	if (curiositylist_frame_t *f = (curiositylist_frame_t*)win_get_magic(magic_curiositylist)) {
+		f->fill_list();
+	}
 }
 
 
@@ -2546,8 +2559,26 @@ void karte_t::remove_attraction(gebaeude_t *gb)
 	for(stadt_t* const c : cities) {
 		c->remove_target_attraction(gb);
 	}
+	if (curiositylist_frame_t *f = (curiositylist_frame_t*)win_get_magic(magic_curiositylist)) {
+		f->fill_list();
+	}
 }
 
+void karte_t::add_label(koord k)
+{
+	labels.append_unique(k);
+	if (labellist_frame_t* f = (labellist_frame_t*)win_get_magic(magic_labellist)) {
+		f->fill_list();
+	}
+}
+
+void karte_t::remove_label(koord k)
+{
+	labels.remove(k);
+	if (labellist_frame_t* f = (labellist_frame_t*)win_get_magic(magic_labellist)) {
+		f->fill_list();
+	}
+}
 
 // -------- Verwaltung von Staedten -----------------------------
 
@@ -2908,8 +2939,7 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 1701");
 	// update the window
-	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
-	if(  playerwin  ) {
+	if( ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t) ) {
 		playerwin->update_data();
 	}
 
@@ -3030,12 +3060,14 @@ void karte_t::recalc_average_speed()
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
+			bool vehicle_changed = false;
 			for(vehicle_desc_t const* const info : vehicle_builder_t::get_info((waytype_t)i)) {
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
 					cbuffer_t buf;
 					buf.printf( translator::translate("New %s now available:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
 					msg->add_message(buf,koord3d::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_base_image());
+					vehicle_changed = true;
 				}
 
 				const uint16 retire_month = info->get_retire_year_month();
@@ -3043,6 +3075,12 @@ void karte_t::recalc_average_speed()
 					cbuffer_t buf;
 					buf.printf( translator::translate("Production of %s has been stopped:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
 					msg->add_message(buf,koord3d::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_base_image());
+					vehicle_changed = true;
+				}
+			}
+			if (vehicle_changed) {
+				if (vehiclelist_frame_t* f = (vehiclelist_frame_t*)win_get_magic(magic_vehiclelist)) {
+					f->fill_list();
 				}
 			}
 		}

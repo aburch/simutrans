@@ -62,7 +62,7 @@ void gui_aligned_container_t::set_size(scr_size new_size)
 //	printf("\n");
 
 #ifdef DEBUG
-	if (new_size.w < min_size.w  ||  new_size.h < min_size.h) {
+	if (new_size.w>0  &&  (new_size.w < min_size.w  ||  new_size.h < min_size.h)) {
 		dbg->warning("gui_aligned_container_t::set_size", "new size (%d,%d) cannot fit all elements; at least (%d,%d) required", new_size.w, new_size.h, min_size.w, min_size.h);
 	}
 #endif

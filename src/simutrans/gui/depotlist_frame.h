@@ -27,14 +27,14 @@ private:
 
 	uint32 last_depot_count;
 
-	void fill_list();
-
 	player_t *player;
 
 public:
 	depotlist_frame_t();
 
 	depotlist_frame_t(player_t* player);
+
+	void fill_list();
 
 	const char *get_help_filename() const OVERRIDE {return "depotlist.txt"; }
 

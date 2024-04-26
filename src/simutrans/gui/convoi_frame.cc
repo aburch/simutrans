@@ -208,7 +208,9 @@ convoi_frame_t::convoi_frame_t() :
 	add_table(4,2);
 	{
 		new_component<gui_label_t>("Filter:");
-		name_filter_input.set_text( name_filter, lengthof(name_filter) );
+		name_filter_input.set_text(name_filter, lengthof(name_filter));
+		name_filter_input.set_notify_all_changes(true);
+		name_filter_input.add_listener(this);
 		add_component(&name_filter_input);
 		name_filter_input.add_listener(this);
 

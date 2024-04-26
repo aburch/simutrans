@@ -20,45 +20,41 @@ static const char *sort_text[labellist::SORT_MODES] = {
 };
 
 labellist_frame_t::labellist_frame_t() :
-	gui_frame_t( translator::translate("labellist_title") ),
-	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare)
+	gui_frame_t(translator::translate("labellist_title")),
+	scrolly(gui_scrolled_list_t::windowskin, labellist_stats_t::compare),
+	name_filter_input(true)
 {
-	set_table_layout(1,0);
-	scrolly.set_checkered(true);
+	set_table_layout(3,0);
 
-	add_table(3, 3);
-	{
-		new_component<gui_label_t>("Filter:");
-		name_filter_input.set_text(name_filter, lengthof(name_filter));
-		add_component(&name_filter_input);
-		new_component<gui_fill_t>();
+	new_component<gui_label_t>("Filter:");
+	name_filter_input.set_text(name_filter, lengthof(name_filter));
+	name_filter_input.add_listener(this);
+	add_component(&name_filter_input);
+	new_component<gui_fill_t>();
 
-		filter.init( button_t::square_automatic, "Active player only");
-		filter.pressed = labellist_stats_t::filter;
-		add_component(&filter, 2);
-		filter.add_listener( this );
-		new_component<gui_fill_t>();
+	filter.init( button_t::square_automatic, "Active player only");
+	filter.pressed = labellist_stats_t::filter;
+	add_component(&filter, 2);
+	filter.add_listener( this );
+	new_component<gui_fill_t>();
 
-		new_component<gui_label_t>("hl_txt_sort");
-		sortedby.set_unsorted(); // do not sort
-		for (size_t i = 0; i < lengthof(sort_text); i++) {
-			sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
-		}
-		sortedby.set_selection(labellist_stats_t::sortby);
-		sortedby.add_listener(this);
-		add_component(&sortedby);
-
-		sorteddir.init(button_t::sortarrow_state, NULL);
-		sorteddir.add_listener(this);
-		sorteddir.pressed = labellist_stats_t::sortreverse;
-		add_component(&sorteddir);
-
-		new_component<gui_fill_t>();
+	new_component<gui_label_t>("hl_txt_sort");
+	sortedby.set_unsorted(); // do not sort
+	for (size_t i = 0; i < lengthof(sort_text); i++) {
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
-	end_table();
+	sortedby.set_selection(labellist_stats_t::sortby);
+	sortedby.add_listener(this);
+	add_component(&sortedby);
 
-	add_component(&scrolly);
+	sorteddir.init(button_t::sortarrow_state, NULL);
+	sorteddir.add_listener(this);
+	sorteddir.pressed = labellist_stats_t::sortreverse;
+	add_component(&sorteddir);
+
 	scrolly.set_maximize(true);
+	scrolly.set_checkered(true);
+	add_component(&scrolly,3);
 
 	fill_list();
 
@@ -69,7 +65,6 @@ labellist_frame_t::labellist_frame_t() :
 
 void labellist_frame_t::fill_list()
 {
-	strcpy(last_name_filter, name_filter);
 	label_count = welt->get_label_list().get_count();
 
 	scrolly.clear_elements();
@@ -115,20 +110,14 @@ bool labellist_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		sorteddir.pressed = labellist_stats_t::sortreverse;
 		scrolly.sort(0);
 	}
+	else if (comp == &name_filter_input) {
+		fill_list();
+	}
 	else if (comp == &filter) {
 		labellist_stats_t::filter = !labellist_stats_t::filter;
 		fill_list();
 	}
 	return true;
-}
-
-
-void labellist_frame_t::draw(scr_coord pos, scr_size size)
-{
-	if(  label_count != welt->get_label_list().get_count()  ||  strcmp(last_name_filter, name_filter)  ) {
-		fill_list();
-	}
-	gui_frame_t::draw(pos, size);
 }
 
 

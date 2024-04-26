@@ -39,13 +39,16 @@ label_t::label_t(koord3d pos, player_t *player, const char *text) :
 	obj_t(pos)
 {
 	set_owner( player );
-	welt->add_label(pos.get_2d());
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 		if (text) {
 			gr->set_text(text);
 		}
 		player_t::book_construction_costs(player, welt->get_settings().cst_buy_land, pos.get_2d(), ignore_wt);
+		welt->add_label(pos.get_2d());
+	}
+	else {
+		dbg->error("label_t", "cannot create label on empty ground at %s", pos.get_fullstr());
 	}
 }
 
@@ -60,6 +63,9 @@ label_t::~label_t()
 		if (!gr->is_halt()  ||  gr->get_halt()->get_basis_pos3d()!=gr->get_pos()) {
 			gr->set_text(NULL);
 		}
+	}
+	else {
+		dbg->error("label_t", "cannot remove label on empty ground at %s", get_pos().get_fullstr());
 	}
 }
 

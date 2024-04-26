@@ -32,21 +32,19 @@ private:
 	gui_scrolled_list_t scrolly;
 
 	static char name_filter[256];
-	char last_name_filter[256];
 	gui_textinput_t name_filter_input;
-
-	void fill_list();
 
 	uint32 old_factories_count;
 
 public:
 	factorylist_frame_t();
 
+	// can be called externally when open or crash!
+	void fill_list();
+
 	const char *get_help_filename() const OVERRIDE {return "factorylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-
-	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 

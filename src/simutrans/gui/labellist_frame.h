@@ -28,7 +28,6 @@ private:
 	gui_scrolled_list_t scrolly;
 
 	static char name_filter[256];
-	char last_name_filter[256];
 	gui_textinput_t name_filter_input;
 
 	uint32 label_count;
@@ -39,8 +38,6 @@ public:
 	const char *get_help_filename() const OVERRIDE {return "labellist_filter.txt"; }
 
 	bool action_triggered( gui_action_creator_t *comp,value_t /* */) OVERRIDE;
-
-	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	uint32 count_label();
 

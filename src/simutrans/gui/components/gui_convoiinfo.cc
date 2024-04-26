@@ -213,7 +213,7 @@ void gui_convoiinfo_t::update_label()
 	label_name.set_text_pointer(cnv->get_name());
 	label_name.set_color(cnv->get_status_color());
 
-	set_size(get_size());
+//	set_size(get_size());
 }
 
 /**
