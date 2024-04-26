@@ -31,6 +31,7 @@
 	FIX: more respone event handling a low frames per second
 	FIX: consequently in lists left click->window richt click/Control+left click -> goto position
 	ADD: obj_xxx_details in translation will display some more details on an obj, especially vehciles
+	CHG: editing names or filter will become immediately active
 
 
 Release of 123.0.1 (r10421 on 29-Jan-2022):
