@@ -64,17 +64,22 @@ protected:
 	PIXVAL textcol;
 
 	// true if there were changed but no notification was sent yet
-	bool text_dirty;
+	bool text_dirty : 1;
+
+	/**
+	 * whether focus has been received
+	 */
+	bool focus_received : 1;
+
+	/**
+	 * whether focus has been received
+	 */
+	bool notify_all_changes : 1;
 
 	/**
 	 * reference time for regulating cursor blinking
 	 */
 	uint32 cursor_reference_time;
-
-	/**
-	 * whether focus has been received
-	 */
-	bool focus_received;
 
 	/**
 	 * determine new cursor position from event coordinates
@@ -88,7 +93,12 @@ protected:
 	bool remove_selection();
 
 public:
-	gui_textinput_t();
+	// three messages for the calling
+	enum { INPUT_UNTOP = 0, INPUT_FINISHED, INPUT_CHANGED };
+
+	gui_textinput_t(bool notify_all = false);
+
+	void set_notify_all_changes(bool _n) { notify_all_changes = _n; }
 
 	/**
 	 * Sets the Text buffer
