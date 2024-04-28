@@ -1,0 +1,8 @@
+Obj=symbol
+name=CompassIso
+copyright=FrankP
+Image[0]=> compass-iso.0.0
+Image[1]=> compass-iso.0.1
+Image[2]=> compass-iso.0.2
+Image[3]=> compass-iso.0.3
+--------------------

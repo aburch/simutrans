@@ -1,0 +1,20 @@
+del menu.pak64german.pak
+
+cd files
+
+del *.pak
+..\..\makeobj PAK >err.txt
+
+cd..
+..\makeobj_60-5 MERGE ./menu.pak64german.pak ./files/*.pak
+
+rem large theme
+del menu.pak64german_large.pak
+cd files_large
+
+del *.pak
+..\..\makeobj PAK >err.txt
+..\..\makeobj PAK128 ./ ./dat_128.txt >>err.txt
+
+cd..
+..\makeobj_60-5 MERGE ./menu.pak64german_large.pak ./files_large/*.pak

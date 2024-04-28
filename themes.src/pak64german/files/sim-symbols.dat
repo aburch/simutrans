@@ -1,0 +1,174 @@
+Obj=symbol
+name=Logo
+Image[0]=> ls-symbols.0.7
+--------------------
+Obj=symbol
+name=ColorOptions
+Image[0]=> ls-symbols.0.8
+--------------------
+Obj=symbol
+name=Flags
+Image[0]=> ls-symbols.0.2
+--------------------
+Obj=symbol
+name=Message
+Image[0]=> ls-symbols.0.0
+--------------------
+Obj=symbol
+name=NewYear
+Image[0]=> ls-symbols.0.4
+--------------------
+Obj=symbol
+name=BusStop
+#Image[0]=> ls-symbols.1.2
+Image[0]=> ls-symbols_stops_new.0.2
+--------------------
+Obj=symbol
+name=TrainStop
+#Image[0]=> ls-symbols.1.1
+Image[0]=> ls-symbols_stops_new.0.1
+--------------------
+Obj=symbol
+name=CarStop
+#Image[0]=> ls-symbols.1.0
+Image[0]=> ls-symbols_stops_new.0.0
+--------------------
+Obj=symbol
+name=ShipStop
+#Image[0]=> ls-symbols.1.3
+Image[0]=> ls-symbols_stops_new.0.3
+--------------------
+Obj=symbol
+name=AirStop
+#Image[0]=> ls-symbols.1.4
+Image[0]=> ls-symbols_stops_new.0.4
+--------------------
+Obj=symbol
+name=MonorailStop
+#Image[0]=> ls-symbols.1.5
+Image[0]=> ls-symbols_stops_new.0.5
+--------------------
+Obj=symbol
+name=TramStop
+#Image[0]=> ls-symbols.1.6
+Image[0]=> ls-symbols_stops_new.0.6
+--------------------
+Obj=symbol
+name=MaglevStop
+#Image[0]=> ls-symbols.1.7
+Image[0]=> ls-symbols_stops_new.0.7
+--------------------
+Obj=symbol
+name=NarrowgaugeStop
+#Image[0]=> ls-symbols.1.8
+Image[0]=> ls-symbols_stops_new.0.9
+--------------------
+Obj=symbol
+name=Passagiere
+Image[0]=> stations_status.1.0
+--------------------
+Obj=symbol
+name=Post
+Image[0]=> stations_status.1.1
+--------------------
+Obj=symbol
+name=Waren
+Image[0]=> stations_status.1.2
+--------------------
+Obj=symbol
+name=Happy
+#copyright=
+Image[0]=> stations_status.0.0
+--------------------
+Obj=symbol
+name=Unhappy
+#copyright=
+Image[0]=> stations_status.0.1
+--------------------
+Obj=symbol
+name=NoRoute
+#copyright=
+Image[0]=> stations_status.0.2
+--------------------
+Obj=symbol
+name=MessageOptions
+Image[0]=> ls-symbols.2.3
+--------------------
+Obj=symbol
+name=Electricity
+Image[0]=> stations_status.2.0
+--------------------
+Obj=symbol
+name=InTown
+Image[0]=> stations_status.2.1
+--------------------
+Obj=symbol
+name=Seasons
+Image[3]=> ls-symbols.3.0
+Image[0]=> ls-symbols.3.1
+Image[1]=> ls-symbols.3.2
+Image[2]=> ls-symbols.3.3
+--------------------
+Obj=symbol
+name=networksym
+Image[0]=> ls-symbols.3.4
+--------------------
+Obj=symbol
+name=timelinesym
+Image[0]=> ls-symbols.3.5
+--------------------
+Obj=symbol
+name=fastforwardsym
+Image[0]=> ls-symbols.3.6
+--------------------
+Obj=symbol
+name=pausesym
+Image[0]=> ls-symbols.3.7
+--------------------
+Obj=symbol
+name=CompassIso
+copyright=FrankP
+Image[0]=> compass-iso.0.0
+Image[1]=> compass-iso.0.1
+Image[2]=> compass-iso.0.2
+Image[3]=> compass-iso.0.3
+--------------------
+Obj=symbol
+name=CompassMap
+copyright=prissi
+Image[0]=> compass-map.0.0
+Image[1]=> compass-map.0.1
+Image[2]=> compass-map.0.2
+Image[3]=> compass-map.0.3
+Image[4]=> -
+#compass-map.0.4
+Image[5]=> -
+#compass-map.0.5
+Image[6]=> -
+#compass-map.0.6
+Image[7]=> -
+#compass-map.0.7
+--------------------
+Obj=symbol
+name=station_type
+# used in line display only currently
+# the number is the stationtype (emtpy images must be defined as "-"
+# loadingbay=0, railstation = 1, dock = 2, busstop = 3, airstop = 4, monorailstop = 5, tramstop = 6, maglevstop=7, narrowgaugestop=8
+# maximum size please 11x11
+Image[0]=-
+Image[1]=-
+Image[2]=> ls-symbols.4.0
+Image[3]=-
+Image[4]=> ls-symbols.4.1
+Image[5]=-
+Image[6]=-
+Image[7]=> ls-symbols.4.2
+Image[8]=-
+--------------------
+Obj=symbol
+name=MessageOptions
+#Image[0]=> ls-symbols.2.3
+Image[0]=> singlesMessageSymbols.0.0
+Image[1]=> singlesMessageSymbols.0.1
+Image[2]=> singlesMessageSymbols.0.2
+--------------------
