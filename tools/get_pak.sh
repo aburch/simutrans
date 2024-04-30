@@ -61,10 +61,27 @@ do_download()
 install_cab()
 {
   pakzippath="$1"
-# files=$(cabextract --list "$pakzippath" 2>/dev/null | head -n -2 | tail -n +4 | cut -d '|' -f3- | cut -b 2- ) || {
   files=$(cabextract --list "$pakzippath" 2>/dev/null) || {
-    echo "Error: Cannot extract .cab file (cabextract required)" >&2
-    return 1
+    #echo "Warning: no cabextract, assuming mingw on windows" >&2
+    files=$(extrac32 //D "$pakzippath" 2>/dev/null) || {
+      echo "Error: Cannot extract .cab file (Either cabextract or makecab required)" >&2
+      return 1
+    }
+    # this is likely Mingw on windows using extrac32
+    # First check if we only have a simutrans/ directory at the root.
+    files=$(echo "$files" | grep ' simutrans\\')
+    if [ $? -eq 0 ]; then
+      # has simutrans folder, but cabextract cannot handle unix path on windows
+      destdir="."
+    else
+      mkdir -p simutrans
+      destdir="simutrans"
+    fi
+    files=$(extrac32 //L "$destdir" //Y //E "$pakzippath" 2>/dev/null) || {
+      echo "Error: Could not extract '$pakzippath' to '$destdir'" >&2
+      return 1
+    }
+    return 0
   }
 
   # First check if we only have a simutrans/ directory at the root.
@@ -81,7 +98,6 @@ install_cab()
     echo "Error: Could not extract '$pakzippath' to '$destdir'" >&2
     return 1
   }
-
   return 0
 }
 
