@@ -19,6 +19,8 @@ Unicode true
 !include "preparation-functions.nsh"
 !include "languages.nsh"
 
+RequestExecutionLevel user
+
 !define MULTIUSER_INSTALLMODE_INSTDIR "Simutrans"
 !define MULTIUSER_EXECUTIONLEVEL Standard
 
@@ -27,19 +29,6 @@ OutFile "download-paksets.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Simutrans
-
-SectionGroup Simutrans
-
-Section /o "Chinese Font" wenquanyi_font
-  AddSize 3245
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
-  StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
-  StrCpy $downloadname "wenquanyi_9pt"
-  Call DownloadInstallZip
-SectionEnd
-
-SectionGroupEnd
-
 
 !include "paksets.nsh"
 

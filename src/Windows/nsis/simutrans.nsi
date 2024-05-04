@@ -16,6 +16,12 @@
 
 VIProductVersion "${VERSION}"
 VIFileVersion "${VERSION}"
+
+VIAddVersionKey "ProductName" "Simutrans"
+;VIAddVersionKey "Comments" "A test comment"
+VIAddVersionKey "CompanyName" "Simutrans Team"
+VIAddVersionKey "LegalCopyright" "Artistic License"
+VIAddVersionKey "FileDescription" "Simutrans installer (all users)"
 VIAddVersionKey "FileVersion" "${VERSION}"
 
 Unicode true

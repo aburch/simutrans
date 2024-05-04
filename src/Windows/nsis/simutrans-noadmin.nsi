@@ -15,9 +15,16 @@
 !define VERSION "0.124.0.0"
 
 RequestExecutionLevel user
+!define MULTIUSER_EXECUTIONLEVEL user
 
 VIProductVersion "${VERSION}"
 VIFileVersion "${VERSION}"
+
+VIAddVersionKey "ProductName" "Simutrans"
+;VIAddVersionKey "Comments" "A test comment"
+VIAddVersionKey "CompanyName" "Simutrans Team"
+VIAddVersionKey "LegalCopyright" "Artistic License"
+VIAddVersionKey "FileDescription" "Simutrans installer (local user)"
 VIAddVersionKey "FileVersion" "${VERSION}"
 
 Unicode true

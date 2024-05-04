@@ -4337,6 +4337,24 @@ obj=program_text
 name=Change label style
 note=Option in display settings/stations
 --
+obj=program_text
+name=%s now known as %s.
+note=Shown as message if a client renames himself.
+--
+obj=program_text
+name=Welcome, %s!
+note=Shown as message if a client connects
+--
+obj=program_text
+name=%s has left.
+note=Shown as message if a client leaves
+--
+
+
+
+
+
+
 
 #obj=help_text
 #name=Lower values mean more local sounds
