@@ -5790,7 +5790,9 @@ function check_stations_connections() {
 
         }
 
-        destroy_line(search_line, good, null) //halt_line
+        if ( search_line != null ) {
+          destroy_line(search_line, good, null) //halt_line
+        }
 
         break
       }
