@@ -1,46 +1,46 @@
-<title>®eleznièní doprava</title>
-<h1>®eleznièní doprava</h1>
+<title>Å½elezniÄnÃ­ doprava</title>
+<h1>Å½elezniÄnÃ­ doprava</h1>
 
 <p>
-Tento dialog obsahuje nástroje pro stavbu kolejí, tunelù, návìstidel, stanic, dep, pøejezdù a elektrifikování trati.
+Tento dialog obsahuje nÃ¡stroje pro stavbu kolejÃ­, tunelÅ¯, nÃ¡vÄ›stidel, stanic, dep, pÅ™ejezdÅ¯ a elektrifikovÃ¡nÃ­ trati.
 </p>
 
 <p>
-První jsou symboly rùznıch druhù <em>¾eleznièních tratí</em>: Kliknutím na nìkterı z nich se kurzor zmìní v obrázek odpovídajícího druhu ¾eleznièní tratì. Rùzné druhy tratí se li¹í v max. rychlost, cenì, a cenì za údr¾bu. Parametry ka¾dého druhu se zobrazí po najetí kurzorem nad jeho obrázek. Cena v závorce je cena z údr¾bu.<br>
-Pro stavbu ¾eleznice kliknete na místo, kde má tra» zaèínat - musí bıt prázdné - a poté si vyberete místo, kde má tra» konèit. Nesmí bıt moc daleko a musí bıt spojitelné (nesmí napøíklad pøeká¾et silnice). Problém se silnicemi øe¹í pøejezdy.
+PrvnÃ­ jsou symboly rÅ¯znÃ½ch druhÅ¯ <em>Å¾elezniÄnÃ­ch tratÃ­</em>: KliknutÃ­m na nÄ›kterÃ½ z nich se kurzor zmÄ›nÃ­ v obrÃ¡zek odpovÃ­dajÃ­cÃ­ho druhu Å¾elezniÄnÃ­ tratÄ›. RÅ¯znÃ© druhy tratÃ­ se liÅ¡Ã­ v max. rychlost, cenÄ›, a cenÄ› za ÃºdrÅ¾bu. Parametry kaÅ¾dÃ©ho druhu se zobrazÃ­ po najetÃ­ kurzorem nad jeho obrÃ¡zek. Cena v zÃ¡vorce je cena z ÃºdrÅ¾bu.<br>
+Pro stavbu Å¾eleznice kliknete na mÃ­sto, kde mÃ¡ traÅ¥ zaÄÃ­nat - musÃ­ bÃ½t prÃ¡zdnÃ© - a potÃ© si vyberete mÃ­sto, kde mÃ¡ traÅ¥ konÄit. NesmÃ­ bÃ½t moc daleko a musÃ­ bÃ½t spojitelnÃ© (nesmÃ­ napÅ™Ã­klad pÅ™ekÃ¡Å¾et silnice). ProblÃ©m se silnicemi Å™eÅ¡Ã­ pÅ™ejezdy.
 </p>
 
 <p>
-Symbol <em>stanice</em>: Kliknutím na nìj se kurzor zmìní v obrázek èásti stanice. Stanice jsou pou¾ívány pro nalo¾ení v¹ech druhù vırobkù a surovin, ale i cestujících a po¹ty. Nádra¾í mù¾e bıt jakkoliv velké, ale jeho jednotlivé èásti spolu musí sousedit a navíc nádra¾í del¹í ne¾ 8 ètvereèkù jsou zbyteèná, proto¾e takto dlouhı vlak ani nelze postavit. Stavìjte nádra¾í kdekoliv na trati, mimo stoupání, zatáèek a jinıch nerovností. Kapacita èekajícího zbo¾í a lidí je neomezená, av¹ak pokud je od jednoho produktu na nádra¾í více ne¾ 1000 kusù, továrna, která jej produkuje pøestane dodávat. Zaène a¾ tehdy, kdy¾ poèet opìt klesne pod 1000 kusù.
+Symbol <em>stanice</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek ÄÃ¡sti stanice. Stanice jsou pouÅ¾Ã­vÃ¡ny pro naloÅ¾enÃ­ vÅ¡ech druhÅ¯ vÃ½robkÅ¯ a surovin, ale i cestujÃ­cÃ­ch a poÅ¡ty. NÃ¡draÅ¾Ã­ mÅ¯Å¾e bÃ½t jakkoliv velkÃ©, ale jeho jednotlivÃ© ÄÃ¡sti spolu musÃ­ sousedit a navÃ­c nÃ¡draÅ¾Ã­ delÅ¡Ã­ neÅ¾ 8 ÄtvereÄkÅ¯ jsou zbyteÄnÃ¡, protoÅ¾e takto dlouhÃ½ vlak ani nelze postavit. StavÄ›jte nÃ¡draÅ¾Ã­ kdekoliv na trati, mimo stoupÃ¡nÃ­, zatÃ¡Äek a jinÃ½ch nerovnostÃ­. Kapacita ÄekajÃ­cÃ­ho zboÅ¾Ã­ a lidÃ­ je neomezenÃ¡, avÅ¡ak pokud je od jednoho produktu na nÃ¡draÅ¾Ã­ vÃ­ce neÅ¾ 1000 kusÅ¯, tovÃ¡rna, kterÃ¡ jej produkuje pÅ™estane dodÃ¡vat. ZaÄne aÅ¾ tehdy, kdyÅ¾ poÄet opÄ›t klesne pod 1000 kusÅ¯.
 </p>
 
 <p>
-Symbol <em>návìstidel</em>: Ty se pou¾ívají, pokud potøebujete na jedné trati jezdit s více soupravami. Základní tvar je obousmìrnı, postaví se jedním kliknutím na existující ¾eleznici. Pokud kliknete podruhé na to samé místo,semafor uèiní tra» jednosmìrnou z jedné strany. Tøetím kliknutím obrátíte semafory a tra» je jednosmìrná na druhou stranu. Takto je mo¾né urèovat, po jaké koleji pojedou vlaky z jedné strany a naopak. Kdy¾ semafory zbouráte a budete mít tra» elektrifikovanou, elektrifikace zùstane nepo¹kozená.
+Symbol <em>nÃ¡vÄ›stidel</em>: Ty se pouÅ¾Ã­vajÃ­, pokud potÅ™ebujete na jednÃ© trati jezdit s vÃ­ce soupravami. ZÃ¡kladnÃ­ tvar je obousmÄ›rnÃ½, postavÃ­ se jednÃ­m kliknutÃ­m na existujÃ­cÃ­ Å¾eleznici. Pokud kliknete podruhÃ© na to samÃ© mÃ­sto,semafor uÄinÃ­ traÅ¥ jednosmÄ›rnou z jednÃ© strany. TÅ™etÃ­m kliknutÃ­m obrÃ¡tÃ­te semafory a traÅ¥ je jednosmÄ›rnÃ¡ na druhou stranu. Takto je moÅ¾nÃ© urÄovat, po jakÃ© koleji pojedou vlaky z jednÃ© strany a naopak. KdyÅ¾ semafory zbourÃ¡te a budete mÃ­t traÅ¥ elektrifikovanou, elektrifikace zÅ¯stane nepoÅ¡kozenÃ¡.
 </p>
 
 <p>
-Symbol <em>tunelu</em>: Kliknutím na nìj se kurzor zmìní v obrázek tunelu. Tunely se pou¾ívají pro protnutí hory v místech, kde by objí¾ïka znaènì prodlou¾ila dobu cesty vlakové soupravy. Pro stavbu tunelu musíte nìjprve postavit na místì, kde chcete zaèít ¾eleznici. Místo, kde má tunel konèit musí bıt pøesnì naproti zaèátku tunelu. Tunel také nemù¾e stoupat, jeho konec musí bıt ve stejné vı¹ce jako zaèátek.
+Symbol <em>tunelu</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek tunelu. Tunely se pouÅ¾Ã­vajÃ­ pro protnutÃ­ hory v mÃ­stech, kde by objÃ­Å¾Äka znaÄnÄ› prodlouÅ¾ila dobu cesty vlakovÃ© soupravy. Pro stavbu tunelu musÃ­te nÄ›jprve postavit na mÃ­stÄ›, kde chcete zaÄÃ­t Å¾eleznici. MÃ­sto, kde mÃ¡ tunel konÄit musÃ­ bÃ½t pÅ™esnÄ› naproti zaÄÃ¡tku tunelu. Tunel takÃ© nemÅ¯Å¾e stoupat, jeho konec musÃ­ bÃ½t ve stejnÃ© vÃ½Å¡ce jako zaÄÃ¡tek.
 </p>
 
 <p>
-Symbol <em>pøejezdu</em>: Kliknutím na nìj se kurzor zmìní v obrázek ¾eleznièního pøejezdu. Pou¾ívá se v místì, kde se silnice protíná se ¾eleznicí. Pøejezd musí bıt postaven na ji¾ existují rovné èásti ¾eleznice nebo silnice.
+Symbol <em>pÅ™ejezdu</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek Å¾elezniÄnÃ­ho pÅ™ejezdu. PouÅ¾Ã­vÃ¡ se v mÃ­stÄ›, kde se silnice protÃ­nÃ¡ se Å¾eleznicÃ­. PÅ™ejezd musÃ­ bÃ½t postaven na jiÅ¾ existujÃ­ rovnÃ© ÄÃ¡sti Å¾eleznice nebo silnice.
 </p>
 
 <p>
-Symbol <em>¾eleznièního depa</em>: Kliknutím na nìj se kurzor zmìní v obrázek depa.
-Depa umo¾òují nakoupit v¹echna dostupná kolejová vozidla, spojovat soupravy a vytváøet èi pøiøazovat jízdní plány.
-Ke stavbì si vyberte místo, kde konèí ¾eleznice - nejlep¹í je tedy postavit si odboèku.
+Symbol <em>Å¾elezniÄnÃ­ho depa</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek depa.
+Depa umoÅ¾ÅˆujÃ­ nakoupit vÅ¡echna dostupnÃ¡ kolejovÃ¡ vozidla, spojovat soupravy a vytvÃ¡Å™et Äi pÅ™iÅ™azovat jÃ­zdnÃ­ plÃ¡ny.
+Ke stavbÄ› si vyberte mÃ­sto, kde konÄÃ­ Å¾eleznice - nejlepÅ¡Ã­ je tedy postavit si odboÄku.
 </p>
 
 <p>
-<em>Pozor:</em> Ka¾dá èást nádra¾í má kapacitu dvou kusù vozidel. Pokud je vlak del¹í ne¾ nádra¾í, zadní èást vlaku nemù¾e bıt vylo¾ena ani nalo¾ena. Dávejte proto pozor, aby nádra¾í bylo dostateènì veliké.
+<em>Pozor:</em> KaÅ¾dÃ¡ ÄÃ¡st nÃ¡draÅ¾Ã­ mÃ¡ kapacitu dvou kusÅ¯ vozidel. Pokud je vlak delÅ¡Ã­ neÅ¾ nÃ¡draÅ¾Ã­, zadnÃ­ ÄÃ¡st vlaku nemÅ¯Å¾e bÃ½t vyloÅ¾ena ani naloÅ¾ena. DÃ¡vejte proto pozor, aby nÃ¡draÅ¾Ã­ bylo dostateÄnÄ› velikÃ©.
 </p>
 
 <p>
--><a href="bridges.txt">Stavba mostù</a><br>
--><a href="depot.txt">Nápovìda pro depo</a>
+-><a href="bridges.txt">Stavba mostÅ¯</a><br>
+-><a href="depot.txt">NÃ¡povÄ›da pro depo</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

@@ -1,35 +1,35 @@
-<title>Indlæs hjælp</title>
+<title>IndlÃ¦s hjÃ¦lp</title>
 
-<h1>Indlæs dialog</h1>
+<h1>IndlÃ¦s dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Indlæs dialogen giver mulighed for at fortsætte et tidligere gemt spil.
-Indlæs dialogen er opbygget analogt til<br>
+IndlÃ¦s dialogen giver mulighed for at fortsÃ¦tte et tidligere gemt spil.
+IndlÃ¦s dialogen er opbygget analogt til<br>
 <a href="save.txt">Gem dialogen</a>
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er overskriften 'Filnavn:' med en tilhørende tekstboks. Denne
-tekstboks giver mulighed for at indtaste navnet på et tidligere gemt
-spil. Derunder er en liste bestående af de spil, der befinder sig i
+Ã˜verst i dialogen er overskriften 'Filnavn:' med en tilhÃ¸rende tekstboks. Denne
+tekstboks giver mulighed for at indtaste navnet pÃ¥ et tidligere gemt
+spil. Derunder er en liste bestÃ¥ende af de spil, der befinder sig i
 simutrans/save mappen. For alle spil er vist en slet-knap, spillets navn samt
 "gem-tidspunktet".<br>
 Nederst er en 'OK' og en 'Fortryd' knap.
 </p>
 
 <p>
-Et spil indlæses enten ved at taste navnet på spillet i tekstboksen og trykke
-på 'OK' knappen eller ved at trykke på spillets navn i listen. Hvis du prøver
-at indlæse et gemt spil, som ikke eksisterer vil du få en fejlmeddelelse, der
-fortæller dette.
+Et spil indlÃ¦ses enten ved at taste navnet pÃ¥ spillet i tekstboksen og trykke
+pÃ¥ 'OK' knappen eller ved at trykke pÃ¥ spillets navn i listen. Hvis du prÃ¸ver
+at indlÃ¦se et gemt spil, som ikke eksisterer vil du fÃ¥ en fejlmeddelelse, der
+fortÃ¦ller dette.
 </p>
 
 <p>
 <strong>Vigtigt !</strong><br>
-Gamle gemte spil fra tidligere Simutrans versioner kan være inkompatible.<br>
-Læs venligst "release notes" for hver ny version, du anvender for at se, om
-dette er tilfældet.<br>
-Imellem "major versions" vil inkompabilitet højst sandsynlig være tilfældet.
+Gamle gemte spil fra tidligere Simutrans versioner kan vÃ¦re inkompatible.<br>
+LÃ¦s venligst "release notes" for hver ny version, du anvender for at se, om
+dette er tilfÃ¦ldet.<br>
+Imellem "major versions" vil inkompabilitet hÃ¸jst sandsynlig vÃ¦re tilfÃ¦ldet.
 </p>

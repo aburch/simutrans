@@ -3,8 +3,8 @@
 <h1>Charger un jeu</h1>
 
 <p>Le fait de charger une partie vous permet de continuer une partie que vous
-avez commencé auparavant.
-L'écran de chargement est très semblable à l'écran de <a href="save.txt">sauvegarde</a>.
+avez commencÃ© auparavant.
+L'Ã©cran de chargement est trÃ¨s semblable Ã  l'Ã©cran de <a href="save.txt">sauvegarde</a>.
 </p>
 
 <p>Si vous tentez de charger un jeu inexistant, le jeu affichera un message d'erreur.
@@ -12,18 +12,18 @@ L'écran de chargement est très semblable à l'écran de <a href="save.txt">sauvega
 
 <p>
 <em>X</em> - Pour supprimer un fichier de sauvegarde. Attention!, aucun message
-de confirmation n'apparaît.<br>
+de confirmation n'apparaÃ®t.<br>
 <em>Nom du fichier de sauvegarde</em> - En cliquant dessus, Simutrans effectue le
 chargement de ce jeu.
 </p>
 
 <p><em>Important</em>
-Les sauvegardes effectuées avec d'anciennes versions de Simutrans ne sont pas toutes
+Les sauvegardes effectuÃ©es avec d'anciennes versions de Simutrans ne sont pas toutes
 compatibles. Pour vous en assurer, veuillez vous reporter aux informations sur la
-version actuelle pour lire la mention de compatibilité.
-Entre les versions récentes et les plus anciennes, cela ne fonctionne pas.
+version actuelle pour lire la mention de compatibilitÃ©.
+Entre les versions rÃ©centes et les plus anciennes, cela ne fonctionne pas.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

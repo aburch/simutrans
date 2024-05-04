@@ -1,4 +1,4 @@
-Hrvatski
+¬ßHrvatski
 PROP_FONT_FILE
 prop-latin2.fnt
 ################################################################################
@@ -10,9 +10,9 @@ prop-latin2.fnt
 #                        Simutrans Base Translation File                       #
 #                             Scenario: Base texts                             #
 #                             Language: hr Hrvatski                            #
-#                             Encoding: ISO-8859-2                             #
+#                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -300,15 +300,15 @@ Potrosac
 About
 O
 Abriss
-Uniπti/Ukloni
+Uni≈°ti/Ukloni
 Absenken
-Snizi zemljiπte
+Snizi zemlji≈°te
 Accelerate time
 Vrijeme ubrzanja
 Active player only
-Samo aktivan igraË
+Samo aktivan igraƒç
 Add forest
-Dodaj πumu
+Dodaj ≈°umu
 Add random citycar
 Dodaj slucajan gradski automobil
 Add Stop
@@ -730,7 +730,7 @@ Opcenito
 Gewicht
 Tezina
 Gewinn
-Dohodak:
+Dohodak: 
 Give the selected vehicle(s) an individual schedule
 Dati odabranom(nim) vozilu(ima) poseban vozni red.
 gl_btn_sort_catg
@@ -1452,7 +1452,7 @@ Promijena savjeta za vozila
 tonnen
 t
 Total inhabitants:
-Ukupno stanovnika:
+Ukupno stanovnika: 
 Tourist attractions
 Turisticke atrakcije:
 Tourists

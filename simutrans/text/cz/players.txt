@@ -1,13 +1,13 @@
-<title>Nápovìda - seznam hráèù</title>
-<h1>Seznam hráèù</h1>
+<title>NÃ¡povÄ›da - seznam hrÃ¡ÄÅ¯</title>
+<h1>Seznam hrÃ¡ÄÅ¯</h1>
 
-<p>V dialogu seznamu hráèù mù¾ete aktivovat a deaktivovat poèítaèové hráèe,
-a prohlí¾et stav jejich kont.</p>
+<p>V dialogu seznamu hrÃ¡ÄÅ¯ mÅ¯Å¾ete aktivovat a deaktivovat poÄÃ­taÄovÃ© hrÃ¡Äe,
+a prohlÃ­Å¾et stav jejich kont.</p>
 
-<p>K aktivaci/deaktivaci urèitého poèítaèového hráèe jednou kliknìte na tlaèítko vedle jména (barvy) hráèe.
-Pokud hráèe jednou aktivujete a pozdìji deaktivujete, tak nic co postavil se nezmìní, tzn. ¾e jeho dopravní spoje budou dále fungovat. Hráèe pouze 'uspíte', tak¾e nebude stavìt nic nového, ani zavádìt nové spoje.
+<p>K aktivaci/deaktivaci urÄitÃ©ho poÄÃ­taÄovÃ©ho hrÃ¡Äe jednou kliknÄ›te na tlaÄÃ­tko vedle jmÃ©na (barvy) hrÃ¡Äe.
+Pokud hrÃ¡Äe jednou aktivujete a pozdÄ›ji deaktivujete, tak nic co postavil se nezmÄ›nÃ­, tzn. Å¾e jeho dopravnÃ­ spoje budou dÃ¡le fungovat. HrÃ¡Äe pouze 'uspÃ­te', takÅ¾e nebude stavÄ›t nic novÃ©ho, ani zavÃ¡dÄ›t novÃ© spoje.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

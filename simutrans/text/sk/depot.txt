@@ -2,59 +2,59 @@
 
 <h1>Depo</h1>
 <p>
-V depe mô¾e¹ kupovat' a predávat' vozidlá, vytvárat' cestovné
-poriadky pre kúpené dopravné prostriedky príslu¹ného typu,
-t.j. dopravné prostriedky v cestnom, ¾ele¾niènom alebo lodnom depe.
+V depe mÃ´Å¾eÅ¡ kupovat' a predÃ¡vat' vozidlÃ¡, vytvÃ¡rat' cestovnÃ©
+poriadky pre kÃºpenÃ© dopravnÃ© prostriedky prÃ­sluÅ¡nÃ©ho typu,
+t.j. dopravnÃ© prostriedky v cestnom, Å¾eleÅ¾niÄnom alebo lodnom depe.
 </p>
 <p>
-Depo obsahuje informáciu o dopravnom prostriedku, ktorı mô¾e¹ kúpit'
-(aj ktorı u¾ vlastní¹). Cenu a parametre vozidiel zobrazí¹ nabehnutím my¹i
-na príslu¹né vozidlo. Kliknutím na vedµaj¹iu zálo¾ku ,,Prívesy'' alebo ,,Vagóny''
-zobrazí¹ zoznam prívesov alebo vagónov. Nad informaènou zónou (s cenou a parametrami
-vozidla) nájde¹ skupinu tlaèidiel. Prvú skupinu tvoria :<br>
-,,©tart'',<a href="schedule.txt">,,Cestovnı poriadok''</a>, ,,Rozdelit' '' a ,,Predat' ''.
+Depo obsahuje informÃ¡ciu o dopravnom prostriedku, ktorÃ½ mÃ´Å¾eÅ¡ kÃºpit'
+(aj ktorÃ½ uÅ¾ vlastnÃ­Å¡). Cenu a parametre vozidiel zobrazÃ­Å¡ nabehnutÃ­m myÅ¡i
+na prÃ­sluÅ¡nÃ© vozidlo. KliknutÃ­m na vedÄ¾ajÅ¡iu zÃ¡loÅ¾ku ,,PrÃ­vesy'' alebo ,,VagÃ³ny''
+zobrazÃ­Å¡ zoznam prÃ­vesov alebo vagÃ³nov. Nad informaÄnou zÃ³nou (s cenou a parametrami
+vozidla) nÃ¡jdeÅ¡ skupinu tlaÄidiel. PrvÃº skupinu tvoria :<br>
+,,Å tart'',<a href="schedule.txt">,,CestovnÃ½ poriadok''</a>, ,,Rozdelit' '' a ,,Predat' ''.
 </p>
 <p>
-Tlaèidlom ,,©tart'' vypustí¹ vozidlo so zadanım cestovnım poriadkom do premávky.
-Tlaèidlom ,,Cestovnı poriadok'' zadefinuje¹, odkiaµ a kam bude vozidlo premávat'
-a ako bude chodit vyt'a¾ené. Tlaèidlom ,,Rozpojit' '' dosiahne¹ rozpojenie
-zostavy vozidla s prívesom alebo vlaku. Pod nápisom ,,Vozidlá'' je umiestnené
-tlaèidlo módu. Klikaním nadobúda tri stavy ,,Pridávanie'' ,,Zostavovanie''
-a ,,Predávanie''. V móde predávania si zvolí¹, ktorı vlastnenı dopravnı
-prostriedok predat' (za zostatkovú cenu). Predávanie ukonèí¹ prepnutím tohto tlaèidla.
-Informácie o hodnote a parametroch budú zobrazené v informaènej zóne (tesne pod tlaèidlami).<br>
-Predat' okam¾ite nejakı Tvoj privolanı dopravnı prostriedok mô¾e¹ aj tlaèidlom ,,Predat' ''.
+TlaÄidlom ,,Å tart'' vypustÃ­Å¡ vozidlo so zadanÃ½m cestovnÃ½m poriadkom do premÃ¡vky.
+TlaÄidlom ,,CestovnÃ½ poriadok'' zadefinujeÅ¡, odkiaÄ¾ a kam bude vozidlo premÃ¡vat'
+a ako bude chodit vyt'aÅ¾enÃ©. TlaÄidlom ,,Rozpojit' '' dosiahneÅ¡ rozpojenie
+zostavy vozidla s prÃ­vesom alebo vlaku. Pod nÃ¡pisom ,,VozidlÃ¡'' je umiestnenÃ©
+tlaÄidlo mÃ³du. KlikanÃ­m nadobÃºda tri stavy ,,PridÃ¡vanie'' ,,Zostavovanie''
+a ,,PredÃ¡vanie''. V mÃ³de predÃ¡vania si zvolÃ­Å¡, ktorÃ½ vlastnenÃ½ dopravnÃ½
+prostriedok predat' (za zostatkovÃº cenu). PredÃ¡vanie ukonÄÃ­Å¡ prepnutÃ­m tohto tlaÄidla.
+InformÃ¡cie o hodnote a parametroch budÃº zobrazenÃ© v informaÄnej zÃ³ne (tesne pod tlaÄidlami).<br>
+Predat' okamÅ¾ite nejakÃ½ Tvoj privolanÃ½ dopravnÃ½ prostriedok mÃ´Å¾eÅ¡ aj tlaÄidlom ,,Predat' ''.
 <br>
-Pri kúpe : Ak Ti vyhovuje cena a parametre, kúpu vozidla vykoná¹ kliknutím na vozidlo.
-Kúpu prívesu alebo vagónov dosiahne¹ obdobnım spôsobom. Kúpené vozidlá sa objavia
-v prvom a ïal¹ích poliach. Z nich si klikaním v logickom slede poskladaj dopravnı
-prostriedok. Poskladanı dopravnı prostriedok sa objaví v prvıch (vrchnıch) poliach.
+Pri kÃºpe : Ak Ti vyhovuje cena a parametre, kÃºpu vozidla vykonÃ¡Å¡ kliknutÃ­m na vozidlo.
+KÃºpu prÃ­vesu alebo vagÃ³nov dosiahneÅ¡ obdobnÃ½m spÃ´sobom. KÃºpenÃ© vozidlÃ¡ sa objavia
+v prvom a ÄalÅ¡Ã­ch poliach. Z nich si klikanÃ­m v logickom slede poskladaj dopravnÃ½
+prostriedok. PoskladanÃ½ dopravnÃ½ prostriedok sa objavÃ­ v prvÃ½ch (vrchnÃ½ch) poliach.
 </p>
 <p>
-Teraz mô¾e¹ pristúpit' k zadaniu cestovného poriadku. Musí¹ mat' u¾ vytvorené stanice,
-zastávky alebo nákladné rampy. Zobrazenım ¾ltım znaèkovaèom pooznaèuj stanice,
-zastávky alebo nákladné rampy po ktorıch bude premávat' dopravnı prostriedok.
+Teraz mÃ´Å¾eÅ¡ pristÃºpit' k zadaniu cestovnÃ©ho poriadku. MusÃ­Å¡ mat' uÅ¾ vytvorenÃ© stanice,
+zastÃ¡vky alebo nÃ¡kladnÃ© rampy. ZobrazenÃ½m Å¾ltÃ½m znaÄkovaÄom pooznaÄuj stanice,
+zastÃ¡vky alebo nÃ¡kladnÃ© rampy po ktorÃ½ch bude premÃ¡vat' dopravnÃ½ prostriedok.
 </p>
 <p>
-<strong>Klasicky zadáva¹ cestovnı poriadok ka¾dému vozidlu zvlá¹t'.</strong>
-Táto verzia hry v¹ak umo¾òuje vytvorit' cestovnı poriadok pre celú skupinu
-vozidiel - konvoj tlaèidlami <strong>,,Nová linka'', ,,Pou¾it' linku'', ,,Upravit' linku'' a
-,,Zru¹it' linku''</strong>. Staèí kúpit' dopravnı prostriedok, priradit' k
-niektorej zo zadefinovanıch liniek a vypustit' do premávky.<br>
-Pre lep¹í prehµad o linkách má hra zabudovanı tzv. <strong>Mana¾ment liniek - kláves
+<strong>Klasicky zadÃ¡vaÅ¡ cestovnÃ½ poriadok kaÅ¾dÃ©mu vozidlu zvlÃ¡Å¡t'.</strong>
+TÃ¡to verzia hry vÅ¡ak umoÅ¾Åˆuje vytvorit' cestovnÃ½ poriadok pre celÃº skupinu
+vozidiel - konvoj tlaÄidlami <strong>,,NovÃ¡ linka'', ,,PouÅ¾it' linku'', ,,Upravit' linku'' a
+,,ZruÅ¡it' linku''</strong>. StaÄÃ­ kÃºpit' dopravnÃ½ prostriedok, priradit' k
+niektorej zo zadefinovanÃ½ch liniek a vypustit' do premÃ¡vky.<br>
+Pre lepÅ¡Ã­ prehÄ¾ad o linkÃ¡ch mÃ¡ hra zabudovanÃ½ tzv. <strong>ManaÅ¾ment liniek - klÃ¡ves
 ,,W''</strong>.
 </p>
 <p>
-Ak chce¹ poslat' dopravnı prostriedok spät' do depa neskôr, do cestovného poriadku
-ho vlo¾ úplne na koniec. V depe mô¾e¹ dopravnı prostriedok porozkladat' (napr. oddelit'
-príves alebo vagóny), preusporiadat' a prípadne znova po skontrolovaní (príp. zmene)
-cestovného poriadku vypustit' do premávky.
+Ak chceÅ¡ poslat' dopravnÃ½ prostriedok spÃ¤t' do depa neskÃ´r, do cestovnÃ©ho poriadku
+ho vloÅ¾ Ãºplne na koniec. V depe mÃ´Å¾eÅ¡ dopravnÃ½ prostriedok porozkladat' (napr. oddelit'
+prÃ­ves alebo vagÃ³ny), preusporiadat' a prÃ­padne znova po skontrolovanÃ­ (prÃ­p. zmene)
+cestovnÃ©ho poriadku vypustit' do premÃ¡vky.
 </p>
 <p>
-<strong>Pozn. prekladateµa :</strong>
-Cestovnı poriadok vozidla môze¹ menit' aj poèas jazdy. My¹ou klikni na idúci dopravnı
-prostriedok a vykonaj v jeho cestovnom poriadku úpravy. Po ukonèení úprav potvrï tlaèidlo
-,,Hotovo''. Poèas tıchto úprav bude dopravnı prostriedok stát'. Zaujímavost'ou je, ¾e do
-cestovného poriadku mô¾e¹ zadat' aj ,,Voµnı bod trasy''. Vozidlo takto nebude zarábat'.<em>
-Pri úpravách staníc, zastávok alebo nákladnıch rámp si treba na toto dat' pozor !</em>
+<strong>Pozn. prekladateÄ¾a :</strong>
+CestovnÃ½ poriadok vozidla mÃ´zeÅ¡ menit' aj poÄas jazdy. MyÅ¡ou klikni na idÃºci dopravnÃ½
+prostriedok a vykonaj v jeho cestovnom poriadku Ãºpravy. Po ukonÄenÃ­ Ãºprav potvrÄ tlaÄidlo
+,,Hotovo''. PoÄas tÃ½chto Ãºprav bude dopravnÃ½ prostriedok stÃ¡t'. ZaujÃ­mavost'ou je, Å¾e do
+cestovnÃ©ho poriadku mÃ´Å¾eÅ¡ zadat' aj ,,VoÄ¾nÃ½ bod trasy''. Vozidlo takto nebude zarÃ¡bat'.<em>
+Pri ÃºpravÃ¡ch stanÃ­c, zastÃ¡vok alebo nÃ¡kladnÃ½ch rÃ¡mp si treba na toto dat' pozor !</em>
 </p>

@@ -1,57 +1,57 @@
-<title>Help Hartã nouã</title>
-<h1>Hartã nouã</h1>
+<title>Help HartÄƒ nouÄƒ</title>
+<h1>HartÄƒ nouÄƒ</h1>
 
 <p>
-Aici se poate ajusta harta nou creatã.
+Aici se poate ajusta harta nou creatÄƒ.
 </p>
 
 <p>
-<em>Nr. hartã</em> - Aici se poate alege harta doritã. Un mic preview
-este afiºat în partea dreaptã.
+<em>Nr. hartÄƒ</em> - Aici se poate alege harta doritÄƒ. Un mic preview
+este afiÅŸat Ã®n partea dreaptÄƒ.
 <br>
-<em>Mãrime</em> - Mãrimea hãrşii. Valoare inişialã este de 256.<br>
-<em>Important!</em>Cu cât harta e mai mare cu atât creºte ºi nevoia de
-putere de calcul ºi multã memorie.
+<em>MÄƒrime</em> - MÄƒrimea hÄƒrÅ£ii. Valoare iniÅ£ialÄƒ este de 256.<br>
+<em>Important!</em>Cu cÃ¢t harta e mai mare cu atÃ¢t creÅŸte ÅŸi nevoia de
+putere de calcul ÅŸi multÄƒ memorie.
 </p>
 
 <p>
-<em>Densit. industriei</em> - Se poate seta densitatea unitãşilor industriale.
-Valoarea inişialã este de 125.
+<em>Densit. industriei</em> - Se poate seta densitatea unitÄƒÅ£ilor industriale.
+Valoarea iniÅ£ialÄƒ este de 125.
 <br>
-<em>Nr. oraºelor</em> - SE poate seta nr. oraºelor (min. 2 max. 64)
-Valoare inişialã 16.
+<em>Nr. oraÅŸelor</em> - SE poate seta nr. oraÅŸelor (min. 2 max. 64)
+Valoare iniÅ£ialÄƒ 16.
 <br>
-<em>Densit. traficului</em> - Se poate regla densitatea traficului din oraºe.
-Valoarea mai micã poate accelera jocul.
+<em>Densit. traficului</em> - Se poate regla densitatea traficului din oraÅŸe.
+Valoarea mai micÄƒ poate accelera jocul.
 </p>
 
 <p>
-<em>Adâncime apã</em> - Aici se poate ajusta cantitatea de apã afiºat pe hartã.
-Valoare mai mare cantitate mai mare. Valoare inişialã 4.
+<em>AdÃ¢ncime apÄƒ</em> - Aici se poate ajusta cantitatea de apÄƒ afiÅŸat pe hartÄƒ.
+Valoare mai mare cantitate mai mare. Valoare iniÅ£ialÄƒ 4.
 <br>
-<em>Înãlşime munşi</em> - Se poate ajusta nivelul munşilor. Valorile mai mari cauzeazã
-un teren cu mai multe culmi. Valoarea inişialã este de 160.
+<em>ÃnÄƒlÅ£ime munÅ£i</em> - Se poate ajusta nivelul munÅ£ilor. Valorile mai mari cauzeazÄƒ
+un teren cu mai multe culmi. Valoarea iniÅ£ialÄƒ este de 160.
 <br>
 <em>Dificultate teren</em> - Se poate ajusta dificultatea terenului
 </p>
 
 <p>
-<em>Hartã aleatorie</em> - Generare de hartã aleatorie.
+<em>HartÄƒ aleatorie</em> - Generare de hartÄƒ aleatorie.
 </p>
 
 <p>
-<em>Aratã pietonii</em> - Se poate seta sã afiºeze sau nu pietonii din oraºe. Dupã pornirea
-unei noi hãrşi valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
+<em>AratÄƒ pietonii</em> - Se poate seta sÄƒ afiÅŸeze sau nu pietonii din oraÅŸe. DupÄƒ pornirea
+unei noi hÄƒrÅ£i valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
 <br>
-<em>Mod zi/noapte</em> - Aici se poate seta ca jocul sã arate trecerea timpului sub formã de zi
-ºi noapte. Neactivat înseamnã cã întotdeauna este ziua.Dupã pornirea
-unei noi hãrşi valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
+<em>Mod zi/noapte</em> - Aici se poate seta ca jocul sÄƒ arate trecerea timpului sub formÄƒ de zi
+ÅŸi noapte. Neactivat Ã®nseamnÄƒ cÄƒ Ã®ntotdeauna este ziua.DupÄƒ pornirea
+unei noi hÄƒrÅ£i valoarea se poate modifica in meniul <a href="display.txt">"Monitor"</a>
 </p>
 
 <p>
-<em>Încarcã joc</em> - Încarcã un joc salvat.
-(vezi la Opşiuni meniul <a href="load.txt">"Salvare"</a>.)<br>
-<em>Porneºte joc</em> Pornirea jocului.
+<em>ÃncarcÄƒ joc</em> - ÃncarcÄƒ un joc salvat.
+(vezi la OpÅ£iuni meniul <a href="load.txt">"Salvare"</a>.)<br>
+<em>PorneÅŸte joc</em> Pornirea jocului.
 <br>
-<em>Terminare joc</em> - Ieºire din joc (fãrã confirmare).<br>
+<em>Terminare joc</em> - IeÅŸire din joc (fÄƒrÄƒ confirmare).<br>
 </p>

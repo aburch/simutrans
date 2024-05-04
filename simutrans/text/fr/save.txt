@@ -3,28 +3,28 @@
 <h1>Sauvegarder un jeu</h1>
 
 <p>
-Si vous souhaitez jouer sur le même jeu pendant plusieurs jours, vous devrez
-sauvegarder le jeu à certains moments. Simutrans vous propose une solution vous
-permettant de sauvegarder l'ensemble de vos données dans un fichier.</p>
+Si vous souhaitez jouer sur le mÃªme jeu pendant plusieurs jours, vous devrez
+sauvegarder le jeu Ã  certains moments. Simutrans vous propose une solution vous
+permettant de sauvegarder l'ensemble de vos donnÃ©es dans un fichier.</p>
 
-<p>L'écran de sauvegarde vous permet de sauvegarder vers un nouveau fichier ou
-d'écraser un fichier existant ou encore de supprimer un fichier.
+<p>L'Ã©cran de sauvegarde vous permet de sauvegarder vers un nouveau fichier ou
+d'Ã©craser un fichier existant ou encore de supprimer un fichier.
 Pour sauvegarder un nouveau fichier, entrez le nom (sans extension) dans la
-zone de texte et cliquez sur le bouton 'sauver'. L'écran va alors se refermer
+zone de texte et cliquez sur le bouton 'sauver'. L'Ã©cran va alors se refermer
 et un message vous confirmera la bonne sauvegarde de votre jeu.
-Si vous souhaitez écraser un fichier existant, cliquez simplement sur son nom.
+Si vous souhaitez Ã©craser un fichier existant, cliquez simplement sur son nom.
 </p>
 
 <p>
 Pour la suppression de fichiers, soyez vigilants car une fois le fichier
-effacé, vous ne pourrez plus le retrouver. Même dans la poubelle (pour les
+effacÃ©, vous ne pourrez plus le retrouver. MÃªme dans la poubelle (pour les
 versions Windows), vous ne le retrouverez plus.
 Pour supprimer un fichier cliquez sur le bouton 'X' en face du nom du fichier que
 vous voulez supprimer.<br>
-<em>NB:</em> Vous n'aurez pas d'autre information une fois le bouton pressé,
-l'écran va simplement se refermer.
+<em>NB:</em> Vous n'aurez pas d'autre information une fois le bouton pressÃ©,
+l'Ã©cran va simplement se refermer.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

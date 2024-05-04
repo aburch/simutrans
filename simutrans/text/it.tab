@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -41,6 +41,8 @@ clf_btn_invers
 inv.
 clf_btn_keine
 ness.
+Find matching convois
+Trova convogli corrispondenti
 gl_btn_sort_bonus
 per bonus
 gl_btn_sort_name
@@ -71,6 +73,8 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 ness.
+humidities
+umidità
 Lake
 Lago
 Maximize height levels
@@ -83,10 +87,14 @@ Queueing
 Accodamento
 rainfall
 pioggia
+Return to menu
+Torna al menù
 Road toll
 Casello stradale
 sea
 mare
+Start this as a server
+Avvia come server
 Transfers
 Trasferimenti
 #_________________________________climates_text_________________________________
@@ -105,18 +113,28 @@ temperato
 #__________________________________error_text___________________________________
  Loading scenario script failed
 Caricamento dello scenario fallito
+Bridge blocked by way below or above.
+Ponte bloccato da strada sopra o sotto.
 Can't buy obsolete vehicles!
 Non puoi comprare veicoli obsoleti!
 Cannot alter water
 Non puoi modificare l'acqua
+Cannot build on a double slope!
+Non è possibile costruire su una doppia pendenza!
 Cannot built depot here!
 Impossibile costruire deposito qui.
 Cannot built this station/building\nin underground mode here.
 L'edificio non può\nessere costruito sotto terra.\n
+Cannot connect to the\ncenter of a double slope!
+Impossibile connettersi al\ncentro di una doppia pendenza!
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 Impossibile creare linea generia!\nSelezionare tipo linea\nusando i filtri.
 Cannot create socket
 Non si può creare il raccordo
+Cannot rotate this building!
+Impossibile ruotare questo edificio!
+Client closed connection during transfer
+Il client ha chiuso la connessione durante il caricamento
 Convoi handles exhausted!
 Massimo numero di convogli raggiunto
 Convoy already deleted!
@@ -137,6 +155,8 @@ Hier kann kein\nSignal aufge-\nstellt werden!\n
 Impossibile mettere QUI\ndei segnali ferroviari!\n
 In order to lock the game, you have to protect the public player by password!
 Per bloccare il cambio giocatore devi proteggere il giocatore pubblico con una password!
+Loading a new game will end the current server session!
+Caricare un nuovo gioco terminerà la sessione del server corrente!
 Lost connection\nto server!
 Connessione persa con il server!
 Lost synchronisation\nwith server.
@@ -149,6 +169,12 @@ Monorails are not available yet!
 Morotaie non ancora disponibili.
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 una fermata per scartamento ridotto deve stare su una linea a scartamento ridotto
+No bridges over runways!
+Impossibile costruire ponti sopra le piste di decollo!
+No curves on runways
+Curve non ammesse su piste di decollo
+No suitable crossing
+Nessun incrocio adatto
 No suitable way on the ground!
 Serve un percorso
 No through station here!
@@ -175,6 +201,10 @@ Server version too new
 Aggiorna la versione del gioco, quella del server è avanzata.
 Terraforming not possible\nhere in underground view
 Il terraforming è impossibile sottoterra.
+This tunnel branches. You can try Control+Click to remove.
+Questo tunnel si ramifica. Puoi provare Control+click per rimuovere.
+Too far away to merge stations!
+Stazioni troppo lontane per unirle!
 Upgrade must have\na higher level
 L'aggiornamento deve essere a un livello superiore
 Vehicle %s cannot choose because stop too short!
@@ -185,6 +215,8 @@ Le fermate ferroviarie\npossono essere piazzate\nsolo sui binari!\n
 #___________________________________help_text___________________________________
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
 <title>Aiuto tastiera</title>\n<h1><strong>Aiuto tastiera</strong></h1>\n<p>\n<strong>Aiuto tastiera</strong> Mostra le funzioni per vari tasti premuti sulla tastiera\n</p>\n<p>\n<strong>Aiuto tastiera</strong> si apre quando viene premuto un tasto non assegnato o da <a href="general.txt">Aiuto generale</a>.\n</p>\n<p>\nLe maiuscole sono diverse dalle minuscole (usare [<em>Shift</em>] per lettere maiuscole).\n</p>\n<p>\nTasti con le funzioni assegnate includono: \n</p>\n<p>\n[<em>Tasti freccia</em>]: muovi la vista nel senso della freccia.<br>\n[<em>Backspace</em>]: chiude tutte le finestre,barre e testi d'aiuto nella vista.<br>\n[<em>Cancella</em>], o [<em>Esc</em>]: chiude la finestra,barra o aiuto in primo piano sulla vista.<br>\n[<em>Enter</em>], or [<em>Return</em>]: usato per confermare azioni.<br>\n[<em>Pagina su</em>], o [<em>></em>]: aumenta zoom.<br>\n[<em>Pagina giù</em>], o [<em>simbolo "minore di"</em>]: diminuisce zoom.\n[<em>F1</em>]: apre <a href="general.txt">Aiuto Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: muove la vista verso sud.<br>\n[<em>2</em>]: muove la vista verso sud-est.<br>\n[<em>3</em>]: muove la vista verso est.<br>\n[<em>4</em>]: muove la vista verso sud-ovest.<br>\n[<em>6</em>]: muove la vista verso nord-est.<br>\n[<em>7</em>]: muove la vista verso ovest.<br>\n[<em>8</em>]: muove la vista verso nord-ovest.<br>\n[<em>9</em>]: muove la vista verso nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: usato in <a href="map.txt">Map</a> per vedere collegamenti in <a href="industry_info.txt">Catena approvvigionamenti industrie</a>.<br>\n[<em>CTRL</em>] + strumento: costruisce (segnali & <a href="station.txt">fermate</a>) al livello più alto; o costruisce strade più veloci sulle più lente; o più dritte (più dirette) strade e ferrovie.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] fino a [<em>F12</em>]): seleziona lo strumento richiamato da [<em>F2</em>] a [<em>F12</em>].\n</p>\n<p>
+At least one stop is connected to the town.
+Almeno una fermata è collegata alla città.
 Decrease water height
 Diminuisci altezza acqua
 Highlight railroad tracks
@@ -213,6 +245,8 @@ Overlay town names
 Sovrapponi i nomi delle città
 Please click on the map to add\nwaypoints or stops to this\nschedule.
 Click sulla mappa per aggiungere\npassaggi o fermate a questo\npercorso.
+Set tile climate %s
+Imposta il clima della casella %s
 Show capacity and if halt is overcrowded
 Mostra la capacità e se la fermata è sovraccarica
 Show how many convoi reach a station
@@ -297,12 +331,16 @@ New vehicle now available:\n%s\n
 \n Un nuovo veicolo è\n ora disponibile:\n\n\n -- %s --\n\n
 Now %u clients connected.
 Adesso sono connessi %i giocatori.
+overtaking
+sorpasso
 Remove vehicle from map. Use with care!
 Rimuovi veicolo dalla mappa.(Attenzione!)
 Screenshot\ngespeichert.\n
 Schermata\nsalvata.\n
 Sends the convoi to the last depot it departed from!
 Manda convoglio all'ultimo deposito da cui è partito
+Trees
+Alberi
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 Con una grande festa,\n%s ha costruito\nun nuovo monumento.\n%i cittadini festeggiano.
 #___________________________________obsolete____________________________________
@@ -315,6 +353,8 @@ Filtro Linee
 (%i)
 (in depot)
 (in deposito)
+/month
+/mese
 \nBauzeit bis
 \nfino al 
 \nBauzeit von
@@ -387,6 +427,8 @@ ha %i anni e %i mesi.
 <pulisci percorso>
 <create new line>
 <crea nuova linea>
+<h1>Warning</h1><p><strong>addons for
+<h1>Attenzione</h1><p><strong>addons per
 <individual schedule>
 <percorso individuale>
 <no line>
@@ -695,8 +737,12 @@ clf_chk_waren
 Filtro per merci:
 clf_title
 Filtro Lista Veicoli
+Climate
+Clima
 Climate Control
 Controllo clima
+Climates
+Climi
 closed
 chiuso
 COLOR_CHOOSE\n
@@ -733,6 +779,8 @@ convoi %d of %d
 Convoglio %d di %d
 convoi error tooltips
 Richiami errori convogli
+Convoi following mode
+Modalità inseguimento convoglio
 Convoi has been sent\nto the nearest depot\nof appropriate type.\n
 Convoglio deviato al deposito più vicino
 Convoi is sold when all wagons are empty.
@@ -803,6 +851,10 @@ Denkmal
 Monumento
 Departed
 Partiti
+Departs at
+Parte alle
+Departure after
+Partenza dopo
 Departure board
 Tabella partenze
 Departures per month
@@ -849,6 +901,8 @@ Eigenbesitz\n
 Proprietà pubblica\n
 Ein %s\npasst hier nicht.\n
 Un '%s'\nnon va bene qui!\n
+Einstellungen
+Impostazioni
 Einstellungen aendern
 Cambia opzioni
 electric
@@ -923,6 +977,8 @@ follow me
 Seguimi
 Follow the convoi on the map.
 Segui convoglio sulla mappa
+For questions and support please visit:
+Per domande e supporto visitare:
 Forest
 Foresta
 Found new city
@@ -1095,6 +1151,8 @@ invalid
 indefinito
 Invalid coordinate
 Ordine non valido
+Invert stops
+Inverti le fermate
 isometric map
 Mappa isometrica
 January
@@ -1169,6 +1227,8 @@ Lineless convoys serving this stop
 Convogli senza linea che si fermano qui
 Lines serving this stop
 Linee passanti
+List of industries on the map
+Elenco industrie sulla mappa
 LKW_tab
 Camion
 Load game
@@ -1575,6 +1635,8 @@ remove powerlines
 rimuovi linee elettriche
 remove roads
 rimuovi strada
+remove signal
+rimuovi segnale
 remove tracks
 rimuovi binari
 Remove wayobj %s
@@ -1599,6 +1661,8 @@ return ticket
 Replica ritorno
 Revenue
 Entrate
+Revenue/unit/100 tiles
+Entrate/unità/100 caselle
 Revision:
 Revisione:
 road
@@ -1607,6 +1671,8 @@ road vehicle
 Veicolo da strada
 Roadsign
 Cartello Stradale
+Rotate Building
+Ruota Edificio
 Rotate map
 Ruota mappa
 Rotation
@@ -1643,6 +1709,8 @@ Select a theme for display
 Scegli un tema
 Sell the selected vehicle(s)
 Vendi veicolo(i) selezionato.
+Selling of the program is forbidden.
+È vietata la vendita di questo programma.
 sended
 Spedito
 SEP_FRACTION
@@ -1653,6 +1721,10 @@ SEP_THOUSAND_EXPONENT
 3
 September
 Settembre
+Served by
+Servito da
+Served by me
+Servito da me
 Server did not respond!
 Il server non risponde!
 Serves Line:
@@ -1842,7 +1914,7 @@ Cambia richiami veicoli
 tonnen
 t
 Total inhabitants:
-Abitanti totali:
+Abitanti totali: 
 Tourist attractions
 Attrazioni turistiche
 Tourists
@@ -1899,6 +1971,8 @@ Tunnel must start on single way!
 Le gallerie devono iniziare su una singola via.
 Tunnelboden
 Galleria
+under the Artistic License
+secondo la Licenza Artistica
 underground mode
 Modalità sotterranea
 UNDO failed!
@@ -1937,6 +2011,8 @@ Vehicle Name
 Nome Veicolo
 Vehicle Power
 Potenza Veicolo
+vehicles stored
+veicoli in deposito
 Verbrauch
 Consumo
 Vergroessere die Karte\n
@@ -1993,6 +2069,10 @@ Weight
 Peso
 Weight:
 Peso:
+Weight/unit
+Peso/unità
+Welcome to Simutrans
+Benvenuti in Simutrans
 Wert
 Valore
 west
@@ -2043,8 +2123,28 @@ New world record for ship: %.1f km/h by %s.
 Nuovo record del mondo per\nnavi:\n %.1f km/h\nda %s.
 #________________________________script_ai_text_________________________________
 #________________________________script_ai_text_________________________________
+%s build additional convoy to line: %s
+%s costruisce un convoglio aggiuntivo sulla linea: %s
+%s build rail line from %s (%s) to %s (%s)
+%s costruisce linea ferroviaria da %s (%s) a %s (%s)
+%s build road line from %s (%s) to %s (%s)
+%s costruisce linea stradale da %s (%s) a %s (%s)
+%s build ship line from %s (%s) to %s (%s)
+%s costruisce linea navale da %s (%s) a %s (%s)
+%s extends the route from %s (%s) to %s (%s)
+%s estende il percorso da %s (%s) a %s (%s)
+%s optimize way line from %s (%s) to %s (%s)
+%s ottimizza percorso da %s (%s) a %s (%s)
+%s removes convoys from line: %s
+%s rimuove i convogli dalla linea: %s
 vehicles of the line %s were retired
 i veicoli della linea %s sono stati ritirati
+#_________________________________tooltip_text__________________________________
+#_________________________________tooltip_text__________________________________
+Add convois with similar schedule to this line.
+Aggiungi convogli con orari simili a questa linea.
+Enter intervall in days, hours, minutes
+Immettere l'intervallo in giorni, ore, minuti
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

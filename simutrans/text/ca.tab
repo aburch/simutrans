@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -282,7 +282,7 @@ Nova cadena industrial\nper %s\naprop de %s\nconstruïda amb\n%i indústries.
 New vehicle now available:\n%s\n
 \n Nou vehicle disponible:\n\n\n » %s «\n\n
 Now %u clients connected.
-Actualment hi ha %u clients connectats.
+Actualment hi ha %u client(s) connectat(s).
 Remove vehicle from map. Use with care!
 Eliminar vehicle del mapa. Fes-ho servir amb precaució!
 Screenshot\ngespeichert.\n
@@ -902,7 +902,7 @@ Generació: %.0f MW\n
 Gewicht
 Pes
 Gewinn
-Ingressos
+Ingressos 
 Give the selected vehicle(s) an individual schedule
 Atorga al(s) vehicle(s) seleccionat(s) un itinerari individual.
 gl_btn_sort_catg
@@ -1754,7 +1754,7 @@ Activar missatges de vehicles
 tonnen
 t
 Total inhabitants:
-Població:
+Població: 
 Tourist attractions
 Zones de turisme:
 Tourists

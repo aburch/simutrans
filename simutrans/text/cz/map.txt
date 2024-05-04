@@ -1,26 +1,26 @@
-<title>Nápovìda - mapa</title>
+<title>NÃ¡povÄ›da - mapa</title>
 <h1>Mapa</h1>
 
 <p>
-V tomto oknì mù¾ete prohlí¾et va¹i mapu z ptaèí perspektivy, a to vèetnì vèetnì mìst, prùmyslu, dopravy a dal¹ích volitelnıch údajù.
+V tomto oknÄ› mÅ¯Å¾ete prohlÃ­Å¾et vaÅ¡i mapu z ptaÄÃ­ perspektivy, a to vÄetnÄ› vÄetnÄ› mÄ›st, prÅ¯myslu, dopravy a dalÅ¡Ã­ch volitelnÃ½ch ÃºdajÅ¯.
 </p>
 
 <p>
-Ka¾dı typ prùmyslu je oznaèen jinou barvou, s vysvìtlivkami v dolní èásti okna s mapou.
-Pokud nad nìjakı objekt prùmyslu pøemístíte ukazatel my¹i, zobrazí se jeho název a vyznaèí se i s názvy odbìratelé.
+KaÅ¾dÃ½ typ prÅ¯myslu je oznaÄen jinou barvou, s vysvÄ›tlivkami v dolnÃ­ ÄÃ¡sti okna s mapou.
+Pokud nad nÄ›jakÃ½ objekt prÅ¯myslu pÅ™emÃ­stÃ­te ukazatel myÅ¡i, zobrazÃ­ se jeho nÃ¡zev a vyznaÄÃ­ se i s nÃ¡zvy odbÄ›ratelÃ©.
 </p>
 
 <p>
-Pokud chcete vidìt více detailù, kdekoliv v oknì s mapou kliknìte pravım tlaèítkem my¹i, co¾
-zpùsobí pøiblí¾ení mapy (a¾ do 2 stupòù). Oddálení je mo¾né stisknutím tlaèítka SHIFT a pravého tlaèítka my¹i.
+Pokud chcete vidÄ›t vÃ­ce detailÅ¯, kdekoliv v oknÄ› s mapou kliknÄ›te pravÃ½m tlaÄÃ­tkem myÅ¡i, coÅ¾
+zpÅ¯sobÃ­ pÅ™iblÃ­Å¾enÃ­ mapy (aÅ¾ do 2 stupÅˆÅ¯). OddÃ¡lenÃ­ je moÅ¾nÃ© stisknutÃ­m tlaÄÃ­tka SHIFT a pravÃ©ho tlaÄÃ­tka myÅ¡i.
 </p>
 
 <p>
-V dolní èásti okna se nalézají tlaèítka, po jejich¾ stisknutí se na mapì zobrazí (barvou dle intenzity) vybraná volba.<br>
-Pøi volbách "Cestujících" a "Po¹ty" bude jednou barvou zobrazeno území, které obsluhují va¹e stanice pro cestující nebo pro po¹tu.
-Pøi volbì "Tratì" budou barevnì zvıraznìny a odli¹eny rùzné druhy ¾eleznièních tra»í - bílou normální, èervenou elektrifikované, ¾lutou budou zvıraznìny semafory.
+V dolnÃ­ ÄÃ¡sti okna se nalÃ©zajÃ­ tlaÄÃ­tka, po jejichÅ¾ stisknutÃ­ se na mapÄ› zobrazÃ­ (barvou dle intenzity) vybranÃ¡ volba.<br>
+PÅ™i volbÃ¡ch "CestujÃ­cÃ­ch" a "PoÅ¡ty" bude jednou barvou zobrazeno ÃºzemÃ­, kterÃ© obsluhujÃ­ vaÅ¡e stanice pro cestujÃ­cÃ­ nebo pro poÅ¡tu.
+PÅ™i volbÄ› "TratÄ›" budou barevnÄ› zvÃ½raznÄ›ny a odliÅ¡eny rÅ¯znÃ© druhy Å¾elezniÄnÃ­ch traÅ¥Ã­ - bÃ­lou normÃ¡lnÃ­, Äervenou elektrifikovanÃ©, Å¾lutou budou zvÃ½raznÄ›ny semafory.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

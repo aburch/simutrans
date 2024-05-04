@@ -1,4 +1,4 @@
-Romana
+Â§Romana
 PROP_FONT_FILE
 prop-latin2.fnt
 ################################################################################
@@ -10,9 +10,9 @@ prop-latin2.fnt
 #                        Simutrans Base Translation File                       #
 #                             Scenario: Base texts                             #
 #                              Language: ro Romana                             #
-#                             Encoding: ISO-8859-2                             #
+#                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -196,7 +196,7 @@ New vehicle now available:\n%s\n
 Screenshot\ngespeichert.\n
 Imaginea \ns-a salvat.\n
 Sends the convoi to the last depot it departed from!
-Vehicolul este trimis în depoul de unde provine!
+Vehicolul este trimis Ã®n depoul de unde provine!
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 (%i)-
@@ -264,17 +264,17 @@ Coboara nivel
 Accelerate time
 Accelereaza timpul
 Active player only
-Doar jucãtor activ
+Doar jucÄƒtor activ
 Add forest
-Adaugã pãdure
+AdaugÄƒ pÄƒdure
 Add random citycar
-Adaugã ma?inã de ora? aleator
+AdaugÄƒ ma?inÄƒ de ora? aleator
 Add Stop
-Adaugã Stop
+AdaugÄƒ Stop
 Add stops for backward travel
-Adaugã stopuri pentru circula?ie inversã
+AdaugÄƒ stopuri pentru circula?ie inversÄƒ
 air
-pistã
+pistÄƒ
 aircraft_tab
 Avioane de transport
 airplane
@@ -682,7 +682,7 @@ Cladire
 Gewicht
 Greutate
 Gewinn
-Venit:
+Venit: 
 Give the selected vehicle(s) an individual schedule
 Da vehicolului selectat un program.
 gl_btn_sort_catg
@@ -892,7 +892,7 @@ Refuza schimbarile jucatorului (necesita confirmare).
 Lokomotive_tab
 Locomotive
 m3
-mÂ?
+mÃ‚?
 maglev vehicle
 vehicol maglev
 maglev_track
@@ -1070,7 +1070,7 @@ Depou nave
 Schleppkahn_tab
 Balize
 Sell the selected vehicle(s)
-Vehicolul selectat este vândut
+Vehicolul selectat este vÃ¢ndut
 SEP_FRACTION
 ,
 September
@@ -1104,7 +1104,7 @@ Parteneri:
 Tage alt
 zile
 There are still vehicles\nstored in this depot!\n
-Mai este vehicol\nîn depou!\n
+Mai este vehicol\nÃ®n depou!\n
 This Year
 Anul actual:
 tonnen
@@ -1126,7 +1126,7 @@ Actualizare traseu
 Verbrauch
 Consum
 verkaufen
-Vânzare
+VÃ¢nzare
 Verkehrsteilnehmer
 Automobil
 via %s\n
@@ -1140,7 +1140,7 @@ An
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &1_CITY_SYLL
-câmpie
+cÃ¢mpie
 &2_CITY_SYLL
 sat
 &4_CITY_SYLL
@@ -1148,19 +1148,19 @@ vad
 &6_CITY_SYLL
 dumbrava
 &7_CITY_SYLL
-vârf
+vÃ¢rf
 &9_CITY_SYLL
 cruci
 &A_CITY_SYLL
 hotar
 %5_CITY_SYLL
-Râmnicu
+RÃ¢mnicu
 %6_CITY_SYLL
 Slatina
 %7_CITY_SYLL
 Vama
 %8_CITY_SYLL
-Întorsura
+ÃŽntorsura
 %B_CITY_SYLL
 deal
 1center
@@ -1180,9 +1180,9 @@ deal
 5center
 %s transfer %s
 Acenter
-Nu existã!
+Nu existÄƒ!
 Aextern
-Nu existã!
+Nu existÄƒ!
 Asuburb
 Nu exista!
 Bcenter

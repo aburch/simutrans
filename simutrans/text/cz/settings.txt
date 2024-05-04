@@ -1,469 +1,469 @@
-<title>Nápovìda - nastavení</title>
+<title>NÃ¡povÄ›da - nastavenÃ­</title>
 
-<h1>Nastavení</h1>
+<h1>NastavenÃ­</h1>
 
-<p>V <em>nastavení</em> mù¾ete zmìnit takøka ka¾dı parametr hry, kterı byste mohli zmìnit ruèní úpravou souboru <em>simuconf.tab</em>. Ka¾dı parametr má stejnı vıznam jako jemu odpovídající øádek v souboru <em>simuconf.tab</em>. Tam také naleznete aktuální verzi domumentace (v angliètinì).
+<p>V <em>nastavenÃ­</em> mÅ¯Å¾ete zmÄ›nit takÅ™ka kaÅ¾dÃ½ parametr hry, kterÃ½ byste mohli zmÄ›nit ruÄnÃ­ Ãºpravou souboru <em>simuconf.tab</em>. KaÅ¾dÃ½ parametr mÃ¡ stejnÃ½ vÃ½znam jako jemu odpovÃ­dajÃ­cÃ­ Å™Ã¡dek vÂ souboru <em>simuconf.tab</em>. Tam takÃ© naleznete aktuÃ¡lnÃ­ verzi domumentace (vÂ angliÄtinÄ›).
 </p>
 <p>
-<it><strong>Upozornìní:</strong></it><br/>
-Neuvá¾enou zmìnou parametrù mù¾ete snadno udìlat hru pøíli¹ obtí¾nou a¾ nehratelnou nebo naopak pøíli¹ lehkou a¾ vás nebude bavit. Nìkteré volby mìní nároènost hry na vıkon poèítaèe.<br/>
+<it><strong>UpozornÄ›nÃ­:</strong></it><br/>
+NeuvÃ¡Å¾enou zmÄ›nou parametrÅ¯ mÅ¯Å¾ete snadno udÄ›lat hru pÅ™Ã­liÅ¡ obtÃ­Å¾nou aÅ¾ nehratelnou nebo naopak pÅ™Ã­liÅ¡ lehkou aÅ¾ vÃ¡s nebude bavit. NÄ›kterÃ© volby mÄ›nÃ­ nÃ¡roÄnost hry na vÃ½kon poÄÃ­taÄe.<br/>
 </p>
 
 
-<h2><strong><it>V¹eobecnì</it></strong></h2>
+<h2><strong><it>VÅ¡eobecnÄ›</it></strong></h2>
 <p>
-<em>savegame_version</em>: Verze formátu, v jakém má bıt hra ulo¾ena.
+<em>savegame_version</em>: Verze formÃ¡tu, vÂ jakÃ©m mÃ¡ bÃ½t hra uloÅ¾ena.
 </p>
 <p>
-Vıchozí hodnota: Nejnovìj¹í verze hry, napø. 112.1.
+VÃ½chozÃ­ hodnota: NejnovÄ›jÅ¡Ã­ verze hry, napÅ™. 112.1.
 </p>
 <p>
-<em>drive_left</em>: Povolením pøepnete na levostranı provoz.
+<em>drive_left</em>: PovolenÃ­m pÅ™epnete na levostranÃ½ provoz.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>signals_on_left</em>: Semafory a silnièní znaèky se budou zobrazovat na levé stanì komunikace.
+<em>signals_on_left</em>: Semafory a silniÄnÃ­ znaÄky se budou zobrazovat na levÃ© stanÄ› komunikace.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>autosave</em>: Jak èasto se má hra automaticky ukládat:<br/>
- - <em>0</em>: neukládat<br/>
- - <em>1</em>: ukládat mìsíènì<br/>
- - <em>3</em>: ukládat ètvrtletnì<br/>
- - <em>12</em>: ukládat roènì
+<em>autosave</em>: Jak Äasto se mÃ¡ hra automaticky uklÃ¡dat:<br/>
+ - <em>0</em>: neuklÃ¡dat<br/>
+ - <em>1</em>: uklÃ¡dat mÄ›sÃ­ÄnÄ›<br/>
+ - <em>3</em>: uklÃ¡dat ÄtvrtletnÄ›<br/>
+ - <em>12</em>: uklÃ¡dat roÄnÄ›
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>fast_forward</em>: Jak moc to pobì¾í rychle po kliknutí na ikonu zrychlit èas.
+<em>fast_forward</em>: Jak moc to pobÄ›Å¾Ã­ rychle po kliknutÃ­ na ikonu zrychlit Äas.
 </p>
 <p>
-Vıchozí hodnota: 50
+VÃ½chozÃ­ hodnota: 50
 </p>
 <p>
-<em>numbered_stations</em>: Pou¾ije pøi vytváøení názvù stanic èísla. Pokud zaká¾ete, zastávky mají názvy slo¾ené z názvu mìsta a názvù okolních budov (památek, továren) apod. Doporuèuji nepovolovat.
+<em>numbered_stations</em>: PouÅ¾ije pÅ™i vytvÃ¡Å™enÃ­ nÃ¡zvÅ¯ stanic ÄÃ­sla. Pokud zakÃ¡Å¾ete, zastÃ¡vky majÃ­ nÃ¡zvy sloÅ¾enÃ© z nÃ¡zvu mÄ›sta a nÃ¡zvÅ¯ okolnÃ­ch budov (pamÃ¡tek, tovÃ¡ren) apod. DoporuÄuji nepovolovat.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>show_names</em>: Zpùsoby zobrazení názvù stanic:<br/>
- - <em>0</em>: Jména mìst a zastávek nejsou zobrazena.<br/>
- - <em>1</em>: Jména mìst jsou v ¹edivém rámeèku, jména zastávek v modrém.<br/>
- - <em>2</em>: Jména mìst nejsou zobrazena, nad <a href="station.txt">zastávkou</a> je zobrazen barevnı indikátor stavu a grafické znázorníní mno¾ství èekajících polo¾ek.<br/>
- - <em>3</em>: Jsou zobrazena jména mìst a zastávek (jako pøi hodnotì 1) a navíc indikátor (jako pøi hodnotì 2)<br/>
-Pozn: Zpùsob zobrazení názvù mìst a zastávek je mo¾né mìnit i v prùbìhu hry pomocí klávesy <a href="keys.txt">[!]</a>.
+<em>show_names</em>: ZpÅ¯soby zobrazenÃ­ nÃ¡zvÅ¯ stanic:<br/>
+ - <em>0</em>: JmÃ©na mÄ›st a zastÃ¡vek nejsou zobrazena.<br/>
+ - <em>1</em>: JmÃ©na mÄ›st jsou v Å¡edivÃ©m rÃ¡meÄku, jmÃ©na zastÃ¡vek v modrÃ©m.<br/>
+ - <em>2</em>: JmÃ©na mÄ›st nejsou zobrazena, nad <a href="station.txt">zastÃ¡vkou</a> je zobrazen barevnÃ½ indikÃ¡tor stavu a grafickÃ© znÃ¡zornÃ­nÃ­ mnoÅ¾stvÃ­ ÄekajÃ­cÃ­ch poloÅ¾ek.<br/>
+ - <em>3</em>: Jsou zobrazena jmÃ©na mÄ›st a zastÃ¡vek (jako pÅ™i hodnotÄ› 1) a navÃ­c indikÃ¡tor (jako pÅ™i hodnotÄ› 2)<br/>
+Pozn: ZpÅ¯sob zobrazenÃ­ nÃ¡zvÅ¯ mÄ›st a zastÃ¡vek je moÅ¾nÃ© mÄ›nit i v prÅ¯bÄ›hu hry pomocÃ­ klÃ¡vesy <a href="keys.txt">[!]</a>.
 </p>
 <p>
-Vıchozí hodnota: 3
+VÃ½chozÃ­ hodnota: 3
 </p>
 <p>
-<em>bits_per_month</em>: Parametr urèuje, jak rychle ve høe plyne èas. Zvı¹ení hodnoty o jedna prodlou¾í délku mìsíce ve høe na dvojnásobek. Proto¾e mìsíc trvá dvakrát déle, továrny mají dvojnásobnou produkci a infrastruktura vás stojí dvojnásobek na údr¾bu. Ale pøepravíte dvakrát tolik.
-<br/>Vıchozí hodnota: 20
+<em>bits_per_month</em>: Parametr urÄuje, jak rychle ve hÅ™e plyne Äas. ZvÃ½Å¡enÃ­ hodnoty o jedna prodlouÅ¾Ã­ dÃ©lku mÄ›sÃ­ce ve hÅ™e na dvojnÃ¡sobek. ProtoÅ¾e mÄ›sÃ­c trvÃ¡ dvakrÃ¡t dÃ©le, tovÃ¡rny majÃ­ dvojnÃ¡sobnou produkci a infrastruktura vÃ¡s stojÃ­ dvojnÃ¡sobek na ÃºdrÅ¾bu. Ale pÅ™epravÃ­te dvakrÃ¡t tolik.
+<br/>VÃ½chozÃ­ hodnota: 20
 </p>
 <p>
- Tip: Pøipadá-li vám, ¾e se vlaky pohybují jako hlemı¾ï, ale nechcete, aby èas plynul moc rychle? Zvy¹te bits_per_month o 1 a pak hrajte pøi dvojnásobné rychlosti.
+ Tip: PÅ™ipadÃ¡-li vÃ¡m, Å¾e se vlaky pohybujÃ­ jako hlemÃ½Å¾Ä, ale nechcete, aby Äas plynul moc rychle? ZvyÅ¡te bits_per_month o 1 a pak hrajte pÅ™i dvojnÃ¡sobnÃ© rychlosti.
 </p>
 <p>
 <em>add_player_name_to_message</em>
-<br/>Ve verzi 112.0 tato volba u¾ chybí.
+<br/>Ve verzi 112.0 tato volba uÅ¾ chybÃ­.
 </p>
 <p>
 <em>use_timeline</em>: <br/>
- - <em>0</em>: Vypne zaèít roku, zaèít roku nepùjde zapnout.<br/>
- - <em>1</em>: Zapne zaèít roku, zaèít roku nepùjde vypnout.<br/>
- - <em>2</em>: Vypne zaèít roku<br/>
- - <em>3</em>: Zapne zaèít roku
+ - <em>0</em>: Vypne zaÄÃ­t roku, zaÄÃ­t roku nepÅ¯jde zapnout.<br/>
+ - <em>1</em>: Zapne zaÄÃ­t roku, zaÄÃ­t roku nepÅ¯jde vypnout.<br/>
+ - <em>2</em>: Vypne zaÄÃ­t roku<br/>
+ - <em>3</em>: Zapne zaÄÃ­t roku
 </p>
 <p>
-Vıchozí hodnota: 2
+VÃ½chozÃ­ hodnota: 2
 </p>
 <p>
 Tip: nastavte na 1 nebo 3.
 </p>
 <p>
-<em>starting_year</em>: Rok, kdy bude zaèínat nová hra. Pokud nastavíte pøíli¹ nízké èíslo, nemusí bıt dostupná ¾ádná vozidla. Vhodné nastavení závisí na grafické sadì.
+<em>starting_year</em>: Rok, kdy bude zaÄÃ­nat novÃ¡ hra. Pokud nastavÃ­te pÅ™Ã­liÅ¡ nÃ­zkÃ© ÄÃ­slo, nemusÃ­ bÃ½t dostupnÃ¡ Å¾Ã¡dnÃ¡ vozidla. VhodnÃ© nastavenÃ­ zÃ¡visÃ­ na grafickÃ© sadÄ›.
 </p>
 <p>
-Vıchozí hodnota: 1930
+VÃ½chozÃ­ hodnota: 1930
 </p>
 <p>
-Tip: Pokud jste zaèali moc brzy a nejsou dostupná vhodná vozidla, pøepnìte se na hráèe <em>Veøejné slu¾by</em> a v menu <a href="edittools.txt">editace mapy</a> pøidejte (i opakovanì) jeden rok.
+Tip: Pokud jste zaÄali moc brzy a nejsou dostupnÃ¡ vhodnÃ¡ vozidla, pÅ™epnÄ›te se na hrÃ¡Äe <em>VeÅ™ejnÃ© sluÅ¾by</em> a v menu <a href="edittools.txt">editace mapy</a> pÅ™idejte (i opakovanÄ›) jeden rok.
 </p>
 <p>
-<em>starting_month</em>: Mìsíc, v jakém zaène nová hra. Leden je 0, únor 1, atd.
+<em>starting_month</em>: MÄ›sÃ­c, v jakÃ©m zaÄne novÃ¡ hra. Leden je 0, Ãºnor 1, atd.
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>show_month</em>: Ovlivòuje zpùsob zobrazení data v levém dolním rohu obrazovky. Hodnoty mají následující vıznam:<br/>
- - <em>0</em>: roèní období (léto 1876)<br/>
- - <em>1</em>: mìsíc (èerven, léto 1876 3:47h)<br/>
- - <em>2</em>: japonské datum (léto 1876/èerven/2 3:56h)<br/>
- - <em>3</em>: americké datum (léto, èerven 2 1876 3:47am)<br/>
- - <em>4</em>: èeské datum (léto, 2. èerven 1876 3:47h)<br/>
- - <em>5</em>: japonské datum bez roèního období (1876/èerven/12 2:47h)<br/>
- - <em>6</em>: americké datum bez roèního období (èerven 2 1876 3:47am) <br/>
- - <em>7</em>: èeské datum bez roèního období (18. èerven 1876 3:47h)<br/>
+<em>show_month</em>: OvlivÅˆuje zpÅ¯sob zobrazenÃ­ data v levÃ©m dolnÃ­m rohu obrazovky. Hodnoty majÃ­ nÃ¡sledujÃ­cÃ­ vÃ½znam:<br/>
+ - <em>0</em>: roÄnÃ­ obdobÃ­ (lÃ©to 1876)<br/>
+ - <em>1</em>: mÄ›sÃ­c (Äerven, lÃ©to 1876 3:47h)<br/>
+ - <em>2</em>: japonskÃ© datum (lÃ©to 1876/Äerven/2 3:56h)<br/>
+ - <em>3</em>: americkÃ© datum (lÃ©to, Äerven 2 1876 3:47am)<br/>
+ - <em>4</em>: ÄeskÃ© datum (lÃ©to, 2. Äerven 1876 3:47h)<br/>
+ - <em>5</em>: japonskÃ© datum bez roÄnÃ­ho obdobÃ­ (1876/Äerven/12 2:47h)<br/>
+ - <em>6</em>: americkÃ© datum bez roÄnÃ­ho obdobÃ­ (Äerven 2 1876 3:47am) <br/>
+ - <em>7</em>: ÄeskÃ© datum bez roÄnÃ­ho obdobÃ­ (18. Äerven 1876 3:47h)<br/>
 </p>
 <p>
-Vıchozí hodnota: 3
+VÃ½chozÃ­ hodnota: 3
 </p>
 <p>
-Pozn: V originále jsou volby 4 a 7 nazvány "nìmecké datum".<br/>
+Pozn: V originÃ¡le jsou volby 4 a 7 nazvÃ¡ny "nÄ›meckÃ© datum".<br/>
 Tip: Nastavte 4 nebo 7.
 </p>
 <p>
-<em>random_grounds_probability</em>: Nastavuje èetnost vıskytu nepohybujících se objektù zpestøujících krajinu (groundobj), jako jsou balvany, kvìtiny, krtiny, jezíka, kamení apod. <br/>
+<em>random_grounds_probability</em>: Nastavuje Äetnost vÃ½skytu nepohybujÃ­cÃ­ch se objektÅ¯ zpestÅ™ujÃ­cÃ­ch krajinu (groundobj), jako jsou balvany, kvÄ›tiny, krtiny, jezÃ­ka, kamenÃ­ apod. <br/>
 0 - vypnuto<br/>
-jiná hodnota - na 1 pole s groundobj pøipadne n políèek bez groundobj. Tj. pøi random_grounds_probability=4 bude pøipadat na ka¾dá 4 políèka bez groundobj jedno pole s 1 groungobj.
+jinÃ¡ hodnota - na 1 pole s groundobj pÅ™ipadne n polÃ­Äek bez groundobj. Tj. pÅ™i random_grounds_probability=4 bude pÅ™ipadat na kaÅ¾dÃ¡ 4 polÃ­Äka bez groundobj jedno pole s 1 groungobj.
 </p>
 <p>
-Vıchozí hodnota: 10
+VÃ½chozÃ­ hodnota: 10
 </p>
 <p>
-<em>random_wildlife_probability</em>: Podobné jako pøedchozí, ale pro pohybující se objekty: ovce, husy, kamzíky apod.
+<em>random_wildlife_probability</em>: PodobnÃ© jako pÅ™edchozÃ­, ale pro pohybujÃ­cÃ­ se objekty: ovce, husy, kamzÃ­ky apod.
 </p>
 <p>
-Vıchozí hodnota: 1000
+VÃ½chozÃ­ hodnota: 1000
 </p>
 <p>
-<em>pedes_and_car_info</em>: Zapne zobrazování informací o chodcích a automobilech veøejné správy. Mù¾e bıt u¾iteèné, pokud chcete vìdìt, jaká osobní auta jezdí po silnicích, ale mù¾e obtì¾ovat, chcete-li infornace o vlastních vozidlech nebo zastávkách.
+<em>pedes_and_car_info</em>: Zapne zobrazovÃ¡nÃ­ informacÃ­ o chodcÃ­ch a automobilech veÅ™ejnÃ© sprÃ¡vy. MÅ¯Å¾e bÃ½t uÅ¾iteÄnÃ©, pokud chcete vÄ›dÄ›t, jakÃ¡ osobnÃ­ auta jezdÃ­ po silnicÃ­ch, ale mÅ¯Å¾e obtÄ›Å¾ovat, chcete-li infornace o vlastnÃ­ch vozidlech nebo zastÃ¡vkÃ¡ch.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>tree_info</em>: Zapne/vypne, ¾e pøi kliknutí <a href="inspection_tool.txt">inspekèní lupou</a> na strom se zobrazí informace.
+<em>tree_info</em>: Zapne/vypne, Å¾e pÅ™i kliknutÃ­ <a href="inspection_tool.txt">inspekÄnÃ­ lupou</a> na strom se zobrazÃ­ informace.
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
-<em>grounf_info</em>: Zapne zobrazení informací o terénu. Pøi kliknutí na zemskı povrch se pak zobrazí souøadnice a název pøíslu¹ného podnebného pásu.
+<em>grounf_info</em>: Zapne zobrazenÃ­ informacÃ­ o terÃ©nu. PÅ™i kliknutÃ­ na zemskÃ½ povrch se pak zobrazÃ­ souÅ™adnice a nÃ¡zev pÅ™Ã­sluÅ¡nÃ©ho podnebnÃ©ho pÃ¡su.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>townhall_info</em>: Povolí zobrazení informací o budovì radnice (po kliknutí na budovu). Pokud není povoleno, kliknutí na budovu radnice zobrazí pouze informace o mìstì.
+<em>townhall_info</em>: PovolÃ­ zobrazenÃ­ informacÃ­ o budovÄ› radnice (po kliknutÃ­ na budovu). Pokud nenÃ­ povoleno, kliknutÃ­ na budovu radnice zobrazÃ­ pouze informace o mÄ›stÄ›.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
 <em>only_single_info</em>:
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <br/>
 </p>
 
 
-<h2><strong><it>Zobrazení</it></strong></h2>
+<h2><strong><it>ZobrazenÃ­</it></strong></h2>
 <p>
-<em>frames_per_second</em>: Kolikrát je za 1s pøekreslována obrazovka.
-<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
+<em>frames_per_second</em>: KolikrÃ¡t je za 1s pÅ™ekreslovÃ¡na obrazovka.
+<br/>Pozn.: Do 112.0 bylo k nalezenÃ­ pod zÃ¡loÅ¾kou <em>VÅ¡eobecnÄ›</em>.
 </p>
 <p>
-Vıchozí hodnota: 25
+VÃ½chozÃ­ hodnota: 25
 </p>
 <p>
 <em>simple_drawing_tile_size</em>:
 </p>
 <p>
-Vıchozí hodnota: 24
+VÃ½chozÃ­ hodnota: 24
 </p>
 <p>
 <em>simple_drawing_fast_forward</em>:
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>water_animation_ms</em>:
-<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
+<br/>Pozn.: Do 112.0 bylo k nalezenÃ­ pod zÃ¡loÅ¾kou <em>VÅ¡eobecnÄ›</em>.
 </p>
 <p>
-Vıchozí hodnota: 250
+VÃ½chozÃ­ hodnota: 250
 </p>
 <p>
-<em>window_buttons_right</em>: Tlaèítka umístìná v záhlaví okna se zobrazí na pravé stranì.
+<em>window_buttons_right</em>: TlaÄÃ­tka umÃ­stÄ›nÃ¡ v zÃ¡hlavÃ­ okna se zobrazÃ­ na pravÃ© stranÄ›.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
 <em>window_frame_active</em>:
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
 <em>front_window_bar_color</em>:
 </p>
 <p>
-Vıchozí hodnota: 1
+VÃ½chozÃ­ hodnota: 1
 </p>
 <p>
 <em>front_window_text_color</em>:
 </p>
 <p>
-Vıchozí hodnota: 215
+VÃ½chozÃ­ hodnota: 215
 </p>
 <p>
 <em>bottom_window_bar_color</em>:
 </p>
 <p>
-Vıchozí hodnota: 4
+VÃ½chozÃ­ hodnota: 4
 </p>
 <p>
 <em>bottom_window_text_color</em>:
 </p>
 <p>
-Vıchozí hodnota: 209
+VÃ½chozÃ­ hodnota: 209
 </p>
 <p>
 <em>show_tooltips</em>:
-Zapne zobrazování kontextové nápovìdy - textu, co se objeví pøi najetí my¹í nad tlaèítko.
+Zapne zobrazovÃ¡nÃ­ kontextovÃ© nÃ¡povÄ›dy - textu, co se objevÃ­ pÅ™i najetÃ­ myÅ¡Ã­ nad tlaÄÃ­tko.
 </p>
 <p>
-Vıchozí hodnota: zapnuto
+VÃ½chozÃ­ hodnota: zapnuto
 </p>
 <p>
 <em>tooltip_background_color</em>:
 </p>
 <p>
-Vıchozí hodnota: 4
+VÃ½chozÃ­ hodnota: 4
 </p>
 <p>
 <em>tooltip_text_color</em>:
 </p>
 <p>
-<em>tooltip_delay</em>: Za jak dlouho se po najetí my¹i nad tlaèítko s kontextovou nápovìdou zobrazí nápovìda (v milisekundách).
+<em>tooltip_delay</em>: Za jak dlouho se po najetÃ­ myÅ¡i nad tlaÄÃ­tko s kontextovou nÃ¡povÄ›dou zobrazÃ­ nÃ¡povÄ›da (v milisekundÃ¡ch).
 </p>
 <p>
-Vıchozí hodnota: 500
+VÃ½chozÃ­ hodnota: 500
 </p>
 <p>
-<em>tooltip_duration</em>: Jak dlouho bude zobrazena kontextová nápovìda. (v milisekundách)
+<em>tooltip_duration</em>: Jak dlouho bude zobrazena kontextovÃ¡ nÃ¡povÄ›da. (v milisekundÃ¡ch)
 </p>
 <p>
-Vıchozí hodnota: 5000
+VÃ½chozÃ­ hodnota: 5000
 </p>
 <p>
 <em>cursor_overlay_color</em>
 </p>
 <p>
-<em>left_to_right_graphs</em>: Mìní smìr osy x v grafech.
-<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
-<br/>Doporuèuji zapnout.
+<em>left_to_right_graphs</em>: MÄ›nÃ­ smÄ›r osy x v grafech.
+<br/>Pozn.: Do 112.0 bylo k nalezenÃ­ pod zÃ¡loÅ¾kou <em>VÅ¡eobecnÄ›</em>.
+<br/>DoporuÄuji zapnout.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 <br/>
 </p>
 
 
-<h1>Hospodáøství a mìsta</h1>
+<h1>HospodÃ¡Å™stvÃ­ a mÄ›sta</h1>
 
 <p>
 <em>remove_dummy_player_months</em>:
-<br/>Pozn.: Nové, od verze 112.1
+<br/>Pozn.: NovÃ©, od verze 112.1
 </p>
 <p>
-Vıchozí hodnota: 6
+VÃ½chozÃ­ hodnota: 6
 </p>
 <p>
 <em>unprotect_abandoned_player_months</em>:
-<br/>Pozn.: Nové, od verze 112.1
+<br/>Pozn.: NovÃ©, od verze 112.1
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>starting_money</em>: Mno¾ství penìz, s jakım zaèínáte.
+<em>starting_money</em>: MnoÅ¾stvÃ­ penÄ›z, s jakÃ½m zaÄÃ­nÃ¡te.
 </p>
 <p>
 <em>pay_for_total_distance</em>:<br/>
- 0 - platba za rozdíl vzdálenosti zbıvající do cíle (mù¾e bıt záporná)<br/>
- 1 - platba za rozdíl vzdálenost do pøí¹tí pøestupní stanice <br/>
- 2 - platba za rozdíl vzdálenosti od minulé stanice
+ 0 - platba za rozdÃ­l vzdÃ¡lenosti zbÃ½vajÃ­cÃ­ do cÃ­le (mÅ¯Å¾e bÃ½t zÃ¡pornÃ¡)<br/>
+ 1 - platba za rozdÃ­l vzdÃ¡lenost do pÅ™Ã­Å¡tÃ­ pÅ™estupnÃ­ stanice <br/>
+ 2 - platba za rozdÃ­l vzdÃ¡lenosti od minulÃ© stanice
 </p>
 <p>
-Obtí¾nost zvı¹íte nastavením hodnoty na 1 nebo 0 (je¹tì tì¾¹í).
+ObtÃ­Å¾nost zvÃ½Å¡Ã­te nastavenÃ­m hodnoty na 1 nebo 0 (jeÅ¡tÄ› tÄ›Å¾Å¡Ã­).
 </p>
 <p>
-Vıchozí hodnota: 2
+VÃ½chozÃ­ hodnota: 2
 </p>
 <p>
 <em>bonus_base_factor</em>:
-<br/>Pozn.: Nové, od verze 112.1
+<br/>Pozn.: NovÃ©, od verze 112.1
 </p>
 <p>
-Vıchozí hodnota: 125
+VÃ½chozÃ­ hodnota: 125
 </p>
 <p>
 <em>first_beginner</em>
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>beginner_price_factor</em>: Kolikrát má zaèáteèník dostat víc zaplaceno za pøepravu. Údaj je v promile, tj. 1000 je stejnì jako normálnì.
+<em>beginner_price_factor</em>: KolikrÃ¡t mÃ¡ zaÄÃ¡teÄnÃ­k dostat vÃ­c zaplaceno za pÅ™epravu. Ãšdaj je v promile, tj. 1000 je stejnÄ› jako normÃ¡lnÄ›.
 </p>
 <p>
-Vıchozí hodnota: 1500, tj 1,5 krát.
+VÃ½chozÃ­ hodnota: 1500, tj 1,5 krÃ¡t.
 </p>
 <p>
-<em>allow_buying_obsolete_vehicles</em>: Povolí kupovat i ji¾ zastaralá vozidla.<br/>
-Tip: Doporuèuji povolit, v nìkterıch grafickıch sadách jsou mezery, a tak mù¾ete pou¾ívat aspoò zastaralá vozidla.
+<em>allow_buying_obsolete_vehicles</em>: PovolÃ­ kupovat i jiÅ¾ zastaralÃ¡ vozidla.<br/>
+Tip: DoporuÄuji povolit, v nÄ›kterÃ½ch grafickÃ½ch sadÃ¡ch jsou mezery, a tak mÅ¯Å¾ete pouÅ¾Ã­vat aspoÅˆ zastaralÃ¡ vozidla.
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
-<em>used_vehicle_reduction</em>: Ovlivòuje sni¾ování hodnoty vozidel s pøibıvajícím vìkem.
+<em>used_vehicle_reduction</em>: OvlivÅˆuje sniÅ¾ovÃ¡nÃ­ hodnoty vozidel s pÅ™ibÃ½vajÃ­cÃ­m vÄ›kem.
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>toll_running_cost_percentage</em>: Nastavuje vı¹i mıta v závislosti na provozních nákladech vozidla/soupravy. K celkové vı¹i mıta je pøipoèítána i následující polo¾ka. Mıto se platí majiteli komunikace. Je to jeden z mála zpùsobù, jak mù¾e veøejná správa získat finance.
+<em>toll_running_cost_percentage</em>: Nastavuje vÃ½Å¡i mÃ½ta v zÃ¡vislosti na provoznÃ­ch nÃ¡kladech vozidla/soupravy. K celkovÃ© vÃ½Å¡i mÃ½ta je pÅ™ipoÄÃ­tÃ¡na i nÃ¡sledujÃ­cÃ­ poloÅ¾ka. MÃ½to se platÃ­ majiteli komunikace. Je to jeden z mÃ¡la zpÅ¯sobÅ¯, jak mÅ¯Å¾e veÅ™ejnÃ¡ sprÃ¡va zÃ­skat finance.
 <br/>
-U nìkterıch grafickıch sad bıvá nastaveno na 10 (èti 10% z provozních nákladù). <br/>
-Tip: Zapnutím vıbìru mıta mù¾ete trochu pøidat høe na obtí¾nosti.
+U nÄ›kterÃ½ch grafickÃ½ch sad bÃ½vÃ¡ nastaveno na 10 (Äti 10% z provoznÃ­ch nÃ¡kladÅ¯). <br/>
+Tip: ZapnutÃ­m vÃ½bÄ›ru mÃ½ta mÅ¯Å¾ete trochu pÅ™idat hÅ™e na obtÃ­Å¾nosti.
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>toll_waycost_percentage</em>: Nastavuje procentuelní vı¹i mıta v závislosti na mìsíèních nákladech na údr¾bu komunikace (pøi bits_per_month=18). Takto získaná èástka je pøipoèítána k pøedcházející polo¾ce (toll_runnin_cost_percentage). Obvyklá hodnota je 5.
+<em>toll_waycost_percentage</em>: Nastavuje procentuelnÃ­ vÃ½Å¡i mÃ½ta v zÃ¡vislosti na mÄ›sÃ­ÄnÃ­ch nÃ¡kladech na ÃºdrÅ¾bu komunikace (pÅ™i bits_per_month=18). Takto zÃ­skanÃ¡ ÄÃ¡stka je pÅ™ipoÄÃ­tÃ¡na k pÅ™edchÃ¡zejÃ­cÃ­ poloÅ¾ce (toll_runnin_cost_percentage). ObvyklÃ¡ hodnota je 5.
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
-<em>just_in_time</em>: Pokud má odbìratel plné sklady, dodavatel pøestane dodávat zbo¾í. Kdy¾ ve skladu objejí volné místo, dodavatel opìt zaène todávat zbo¾í.<br/>
-Poznámka: Pokud má dodavatelùv sklad kapacitu vìt¹í ne¾ 15000, pak funguje jako "èerná díra" pro v¹echno dodané zbo¾í které pøesáhne hodnotu 15000.
+<em>just_in_time</em>: Pokud mÃ¡ odbÄ›ratel plnÃ© sklady, dodavatel pÅ™estane dodÃ¡vat zboÅ¾Ã­. KdyÅ¾ ve skladu objejÃ­ volnÃ© mÃ­sto, dodavatel opÄ›t zaÄne todÃ¡vat zboÅ¾Ã­.<br/>
+PoznÃ¡mka: Pokud mÃ¡ dodavatelÅ¯v sklad kapacitu vÄ›tÅ¡Ã­ neÅ¾ 15000, pak funguje jako "ÄernÃ¡ dÃ­ra" pro vÅ¡echno dodanÃ© zboÅ¾Ã­ kterÃ© pÅ™esÃ¡hne hodnotu 15000.
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>maximum_intransit_percentage</em>:
-<br/>Pozn.: Nové, od verze 112.1
+<br/>Pozn.: NovÃ©, od verze 112.1
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
 <em>crossconnect_factories</em>
 </p>
 <p>
-Vıchozí hodnota: Vypnuto (Pro hru skompilovanou s volnou OTTD_LIKE je to Zapnuto)
+VÃ½chozÃ­ hodnota: Vypnuto (Pro hru skompilovanou s volnou OTTD_LIKE je to Zapnuto)
 </p>
 <p>
 <em>crosconnect_factories_percentage</em>
 </p>
 <p>
-Vıchozí hodnota: 33 (Pro hru skompilovanou s volnou OTTD_LIKE je to 100)
+VÃ½chozÃ­ hodnota: 33 (Pro hru skompilovanou s volnou OTTD_LIKE je to 100)
 </p>
 <p>
-<em>industry_incerase_every</em>: Pøi jakém rùstu obyvatel dojde i k rùstu prùmyslu. (Postaví se nová(é) továrna(y), novì se propojí stávající.) Ni¾¹í èíslo znamená víc továren.
+<em>industry_incerase_every</em>: PÅ™i jakÃ©m rÅ¯stu obyvatel dojde i k rÅ¯stu prÅ¯myslu. (PostavÃ­ se novÃ¡(Ã©) tovÃ¡rna(y), novÄ› se propojÃ­ stÃ¡vajÃ­cÃ­.) NiÅ¾Å¡Ã­ ÄÃ­slo znamenÃ¡ vÃ­c tovÃ¡ren.
 </p>
 <p>
-Vıchozí hodnota: 2000
+VÃ½chozÃ­ hodnota: 2000
 </p>
 <p>
-<em>factory_spacing</em>: Minimální vzdálenost mezi továrnami.<br/>
-Tip: Máte-li rádi dlouhé vlaky nebo nechcete-li mít vırobce a spotøebitele nalepené na sebe, doporuèuji zvı¹it. Aspoò na dvojnásobek. Pøi pøíli¹ném zvı¹ení hodnoty nebude dost místa vhodného pro vıstavbu továren.
+<em>factory_spacing</em>: MinimÃ¡lnÃ­ vzdÃ¡lenost mezi tovÃ¡rnami.<br/>
+Tip: MÃ¡te-li rÃ¡di dlouhÃ© vlaky nebo nechcete-li mÃ­t vÃ½robce a spotÅ™ebitele nalepenÃ© na sebe, doporuÄuji zvÃ½Å¡it. AspoÅˆ na dvojnÃ¡sobek. PÅ™i pÅ™Ã­liÅ¡nÃ©m zvÃ½Å¡enÃ­ hodnoty nebude dost mÃ­sta vhodnÃ©ho pro vÃ½stavbu tovÃ¡ren.
 </p>
 <p>
-Vıchozí hodnota: 6
+VÃ½chozÃ­ hodnota: 6
 </p>
 <p>
 <em>electric_promile</em>
 </p>
 <p>
-Vıchozí hodnota: 330
+VÃ½chozÃ­ hodnota: 330
 </p>
 <p>
 <em>allow_undeground_transformers</em>:
 <br/>Pozn.: Od verze 112.0
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>passenger_factor</em>
 </p>
 <p>
-Vıchozí hodnota: 16
+VÃ½chozÃ­ hodnota: 16
 </p>
 <p>
-<em>minimum_city_distance</em>: Minimální vzdálenost mezi mìsty.
-<br/>Tip: Doporuèuji zvı¹it na dvojnásobek.
+<em>minimum_city_distance</em>: MinimÃ¡lnÃ­ vzdÃ¡lenost mezi mÄ›sty.
+<br/>Tip: DoporuÄuji zvÃ½Å¡it na dvojnÃ¡sobek.
 </p>
 <p>
-Vıchozí hodnota: 16
+VÃ½chozÃ­ hodnota: 16
 </p>
 <p>
 <em>special_building_distance</em>:
 <br/>Pozn.: Od verze 112.0
 </p>
 <p>
-Vıchozí hodnota: 3
+VÃ½chozÃ­ hodnota: 3
 </p>
 <p>
-<em>factory_worker_radius</em>: Z jakého okolí dojí¾dí do továrny zamìstnanci.
+<em>factory_worker_radius</em>: Z jakÃ©ho okolÃ­ dojÃ­Å¾dÃ­ do tovÃ¡rny zamÄ›stnanci.
 </p>
 <p>
-Vıchozí hodnota: 77
+VÃ½chozÃ­ hodnota: 77
 </p>
 <p>
-<em>factory_worker_minimum_towns</em>: Z kolika minimálnì mìst dojí¾dí do továrny zamìstnanci.
+<em>factory_worker_minimum_towns</em>: Z kolika minimÃ¡lnÄ› mÄ›st dojÃ­Å¾dÃ­ do tovÃ¡rny zamÄ›stnanci.
 </p>
 <p>
-Vıchozí hodnota: 1
+VÃ½chozÃ­ hodnota: 1
 </p>
 <p>
-<em>factory_worker_maximum_towns</em>: Z kolika nejvı¹e mìst budou do továrny dojí¾dìt zamìstnanci.
+<em>factory_worker_maximum_towns</em>: Z kolika nejvÃ½Å¡e mÄ›st budou do tovÃ¡rny dojÃ­Å¾dÄ›t zamÄ›stnanci.
 </p>
 <p>
-Vıchozí hodnota: 4
+VÃ½chozÃ­ hodnota: 4
 </p>
 <p>
 <em>factory_arrival_periods</em>
 </p>
 <p>
-Vıchozí hodnota: 4
+VÃ½chozÃ­ hodnota: 4
 </p>
 <p>
 <em>factory_enforce_demand</em>
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>factory_worker_percentage</em>
 </p>
 <p>
-Vıchozí hodnota: 33
+VÃ½chozÃ­ hodnota: 33
 </p>
 <p>
 <em>tourist_percentage</em>
 </p>
 <p>
-Vıchozí hodnota: 16
+VÃ½chozÃ­ hodnota: 16
 </p>
 <p>
 <em>locality_factor[].year</em>
@@ -475,113 +475,113 @@ Vıchozí hodnota: 16
 <em>passenger_multiplier</em>
 </p>
 <p>
-Vıchozí hodnota: 40
+VÃ½chozÃ­ hodnota: 40
 </p>
 <p>
 <em>mail_multiplier</em>
 </p>
 <p>
-Vıchozí hodnota: 20
+VÃ½chozÃ­ hodnota: 20
 </p>
 <p>
 <em>goods_multiplier</em>
 </p>
 <p>
-Vıchozí hodnota: 20
+VÃ½chozÃ­ hodnota: 20
 </p>
 <p>
 <em>growth_factor_villages</em>
 </p>
 <p>
-Vıchozí hodnota: 400
+VÃ½chozÃ­ hodnota: 400
 </p>
 <p>
 <em>growth_factor_cities</em>
 </p>
 <p>
-Vıchozí hodnota: 200
+VÃ½chozÃ­ hodnota: 200
 </p>
 <p>
 <em>growth_factor_capitals</em>
 </p>
 <p>
-Vıchozí hodnota: 100
+VÃ½chozÃ­ hodnota: 100
 </p>
 <p>
 <em>random_pedestrians</em>
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>stop_pedestrians</em>
 </p>
 <p>
-Vıchozí hodnota: Zapnuto
+VÃ½chozÃ­ hodnota: Zapnuto
 </p>
 <p>
 <em>citycar_level</em>
 </p>
 <p>
-Vıchozí hodnota: 5
+VÃ½chozÃ­ hodnota: 5
 </p>
 <p>
 <em>default_citycar_life</em>
 </p>
 <p>
-Vıchozí hodnota: 36
+VÃ½chozÃ­ hodnota: 36
 <br/>
 </p>
 
 
-<h1>Spojení</h1>
+<h1>SpojenÃ­</h1>
 <p>
 <em>separate_halt_capacities</em>
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
 <em>avoid_overcrowding</em>
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>no_routing_over_overcrowded</em>: Vypne pøepravu èehokoliv pøes pøeplnìné zastávky.
-<br/>Pokud se zastávka stane pøeplnìnou (je na ní více cestujících/po¹ty/zbo¾í, ne¾ má kapacitu), nebude cestujícími pou¾ita jako pøestupní stanice.
-<br/>Tip: Zapnìte pro zvı¹ení obtí¾nosti.
+<em>no_routing_over_overcrowded</em>: Vypne pÅ™epravu Äehokoliv pÅ™es pÅ™eplnÄ›nÃ© zastÃ¡vky.
+<br/>Pokud se zastÃ¡vka stane pÅ™eplnÄ›nou (je na nÃ­ vÃ­ce cestujÃ­cÃ­ch/poÅ¡ty/zboÅ¾Ã­, neÅ¾ mÃ¡ kapacitu), nebude cestujÃ­cÃ­mi pouÅ¾ita jako pÅ™estupnÃ­ stanice.
+<br/>Tip: ZapnÄ›te pro zvÃ½Å¡enÃ­ obtÃ­Å¾nosti.
 </p>
 <p>
-Vıchozí hodnota: Vypnuto
+VÃ½chozÃ­ hodnota: Vypnuto
 </p>
 <p>
-<em>station_coverage</em>: Ovlivòuje velikost spádové oblasti stanice - kolik polí od zastávky bude pokryto.<br/>
-Pozn: Nastavení se li¹í v závislosti na grafické sadì, 2 je obèas málo (pøi více hráèích není pomalu kam dávat ve mìstech zastávky), 4 mù¾e bıt pro nìkoho pøíli¹ moc, 3 je dobrı kompromis.
+<em>station_coverage</em>: OvlivÅˆuje velikost spÃ¡dovÃ© oblasti stanice - kolik polÃ­ od zastÃ¡vky bude pokryto.<br/>
+Pozn: NastavenÃ­ se liÅ¡Ã­ v zÃ¡vislosti na grafickÃ© sadÄ›, 2 je obÄas mÃ¡lo (pÅ™i vÃ­ce hrÃ¡ÄÃ­ch nenÃ­ pomalu kam dÃ¡vat ve mÄ›stech zastÃ¡vky), 4 mÅ¯Å¾e bÃ½t pro nÄ›koho pÅ™Ã­liÅ¡ moc, 3 je dobrÃ½ kompromis.
 </p>
 <p>
-Vıchozí hodnota: 2
+VÃ½chozÃ­ hodnota: 2
 </p>
 <p>
 <em>max_route_steps</em>
 </p>
 <p>
-Vıchozí hodnota: 1 000 000
+VÃ½chozÃ­ hodnota: 1 000 000
 </p>
 <p>
 <em>max_hops</em>
 </p>
 <p>
-Vıchozí hodnota: 2000
+VÃ½chozÃ­ hodnota: 2000
 </p>
 <p>
 <em>max_transfers</em>
 </p>
 <p>
-Vıchozí hodnota: 9
+VÃ½chozÃ­ hodnota: 9
 </p>
 <p>
-Následující parametry jsou vyu¾ívány pøi automatické vıstavbì silnic na zaèátku hry. Toto nemìòte, pokud nevíte, co dìláte!!!<br/>
+NÃ¡sledujÃ­cÃ­ parametry jsou vyuÅ¾Ã­vÃ¡ny pÅ™i automatickÃ© vÃ½stavbÄ› silnic na zaÄÃ¡tku hry. Toto nemÄ›Åˆte, pokud nevÃ­te, co dÄ›lÃ¡te!!!<br/>
 <em>way_straight</em> (1)<br/>
 <em>way_curve</em> (2)<br/>
 <em>way_double_curve</em> (6)<br/>
@@ -591,74 +591,74 @@ Následující parametry jsou vyu¾ívány pøi automatické vıstavbì silnic na zaèátku 
 <em>way_leaving_road</em> (25)<br/>
 </p>
 
-<h1>Vıdaje</h1>
+<h1>VÃ½daje</h1>
 <p>
 <em>maintenance_building</em>
 </p>
 <p>
-<em>cost_multiply_dock</em>: Náklady na vıstavbu pøístavu.
+<em>cost_multiply_dock</em>: NÃ¡klady na vÃ½stavbu pÅ™Ã­stavu.
 </p>
 <p>
-<em>cost_multiply_station</em>: Náklady na vıstavbu ¾eleznièní stavice.
+<em>cost_multiply_station</em>: NÃ¡klady na vÃ½stavbu Å¾elezniÄnÃ­ stavice.
 </p>
 <p>
-<em>cost_multiply_road_stop</em>: Náklady na vıstavbu silnièní zastávky. Vısledná cena vzniká vynásobením této konstanty úrobní zasávky. (Vy¹¹í úroveò znamená vy¹¹í kapacitu)
+<em>cost_multiply_road_stop</em>: NÃ¡klady na vÃ½stavbu silniÄnÃ­ zastÃ¡vky. VÃ½slednÃ¡ cena vznikÃ¡ vynÃ¡sobenÃ­m tÃ©to konstanty ÃºrobnÃ­ zasÃ¡vky. (VyÅ¡Å¡Ã­ ÃºroveÅˆ znamenÃ¡ vyÅ¡Å¡Ã­ kapacitu)
 </p>
 <p>
-<em>cost_multiply_airterminal</em>: Náklady na vıstavbu leti¹tního terminálu.
+<em>cost_multiply_airterminal</em>: NÃ¡klady na vÃ½stavbu letiÅ¡tnÃ­ho terminÃ¡lu.
 </p>
 <p>
-<em>cost_multiply_post</em>: Náklady na vıstavbu po¹ty.
+<em>cost_multiply_post</em>: NÃ¡klady na vÃ½stavbu poÅ¡ty.
 </p>
 <p>
-<em>cost_multiply_headquarter</em>: Náklady na vıstavbu sídla spoleènosti.
+<em>cost_multiply_headquarter</em>: NÃ¡klady na vÃ½stavbu sÃ­dla spoleÄnosti.
 </p>
 <p>
-<em>cost_depot_air</em>: Náklady na vıstabu hangáru.
+<em>cost_depot_air</em>: NÃ¡klady na vÃ½stabu hangÃ¡ru.
 </p>
 <p>
-<em>cost_depot_rail</em>: Náklady na vıstavbu ¾eleznièního depa.
+<em>cost_depot_rail</em>: NÃ¡klady na vÃ½stavbu Å¾elezniÄnÃ­ho depa.
 </p>
 <p>
-<em>cost_depot_road</em>: Náklady na vıstavbu silnièního depa.
+<em>cost_depot_road</em>: NÃ¡klady na vÃ½stavbu silniÄnÃ­ho depa.
 </p>
 <p>
-<em>cost_depot_ship</em>: Náklady na vıstavbu dokù.
+<em>cost_depot_ship</em>: NÃ¡klady na vÃ½stavbu dokÅ¯.
 </p>
 <p>
-<em>cost_buy_land</em>: Náklady na umístìní cedulky.
+<em>cost_buy_land</em>: NÃ¡klady na umÃ­stÄ›nÃ­ cedulky.
 </p>
 <p>
-<em>cost_alter_land</em>: Náklady na zmìnu terénu pouhım nasypáním zeminy nebo vykopáním jámy.
+<em>cost_alter_land</em>: NÃ¡klady na zmÄ›nu terÃ©nu pouhÃ½m nasypÃ¡nÃ­m zeminy nebo vykopÃ¡nÃ­m jÃ¡my.
 </p>
 <p>
-<em>cost_set_slope</em>: Náklady na zmìnu terému, zmìny v¹ak potøebují opìrné zdi.
+<em>cost_set_slope</em>: NÃ¡klady na zmÄ›nu terÃ©mu, zmÄ›ny vÅ¡ak potÅ™ebujÃ­ opÄ›rnÃ© zdi.
 </p>
 <p>
-<em>cost_found_city</em>: Cena za zalo¾ení nového mìsta.
+<em>cost_found_city</em>: Cena za zaloÅ¾enÃ­ novÃ©ho mÄ›sta.
 </p>
 <p>
 <em>cost_multiply_found_industry</em>
 </p>
 <p>
-<em>cost_remove_tree</em>: Náklady na odstranìní jednoho stromu.
+<em>cost_remove_tree</em>: NÃ¡klady na odstranÄ›nÃ­ jednoho stromu.
 </p>
 <p>
-<em>cost_multiply_remove_haus</em>: Náklady za odstranìní domu. Èíslo se pak násobí úrovní domu.
+<em>cost_multiply_remove_haus</em>: NÃ¡klady za odstranÄ›nÃ­ domu. ÄŒÃ­slo se pak nÃ¡sobÃ­ ÃºrovnÃ­ domu.
 </p>
 <p>
-<em>cost_multiply_remove_field</em>: Náklady na odstranìní jednoho políèka s polem.
+<em>cost_multiply_remove_field</em>: NÃ¡klady na odstranÄ›nÃ­ jednoho polÃ­Äka s polem.
 </p>
 <p>
-<em>cost_transformer</em>: Cena za vıstavbu trafostanice.
+<em>cost_transformer</em>: Cena za vÃ½stavbu trafostanice.
 </p>
 <p>
-<em>cost_maintain_transformer</em>: Cena za údr¾u trafostanice.<br/>
+<em>cost_maintain_transformer</em>: Cena za ÃºdrÅ¾u trafostanice.<br/>
 </p>
 
 
-<h1>Nastavení podnebí</h1>
-<p>Viz samostnı dialog <a href="climates.txt">nastavení podnebí</a></p>
+<h1>NastavenÃ­ podnebÃ­</h1>
+<p>Viz samostnÃ½ dialog <a href="climates.txt">nastavenÃ­ podnebÃ­</a></p>
 <p>
 <em>forest_base_size</em>
 </p>
@@ -669,21 +669,21 @@ Následující parametry jsou vyu¾ívány pøi automatické vıstavbì silnic na zaèátku 
 <em>forest_inverse_spare_tree_density</em>
 </p>
 <p>
-<em>max_no_of_trees_on_square</em>: Kolik stromù se mù¾e maximálnì vyskytovat na jednom poli.<br/>
-Pozn: Pøekreslování stromù je nároèné na vıkon.
+<em>max_no_of_trees_on_square</em>: Kolik stromÅ¯ se mÅ¯Å¾e maximÃ¡lnÄ› vyskytovat na jednom poli.<br/>
+Pozn: PÅ™ekreslovÃ¡nÃ­ stromÅ¯ je nÃ¡roÄnÃ© na vÃ½kon.
 </p>
-<p>Vıchozí hodnota: 3
+<p>VÃ½chozÃ­ hodnota: 3
 </p>
 <p>
 <em>tree_climates</em>
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
 <p>
 <em>no_tree_climates</em>
 </p>
 <p>
-Vıchozí hodnota: 0
+VÃ½chozÃ­ hodnota: 0
 </p>
-<p>Nápovìda odpovídá verzi 112.1, poslední úprava 1.1.2013</p>
+<p>NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 1.1.2013</p>

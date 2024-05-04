@@ -1,45 +1,45 @@
-<title>Cestovnı poriadok - pomoc</title>
+<title>CestovnÃ½ poriadok - pomoc</title>
 
-<h1>Cestovnı poriadok</h1>
+<h1>CestovnÃ½ poriadok</h1>
 
 <p>
-Popis tlaèidiel :
+Popis tlaÄidiel :
 </p>
 <p>
-<em>Pridat'</em> - toto tlaèidlo je aktívne hneï po zobrazení.
-Namiesto kurzora s lupou by mal byt' ¾ltı znaèkovaè, ktorım
-pooznaèuj v logickom slede v¹etky zastávky, stanice alebo
-nákladné rampy.<br>
-U ka¾dej zastávky, stanice alebo nákladnej rampy mô¾e¹ urèit' s akım
-minimálnym vyt'a¾ením bude dopravnı prostriedok odchádzat' (u nákladnıch
-dopravnıch prostriedkov odporúèam pre nakladanie 80-100%, u autobusov je
-lep¹ie ostat' na 0%). Då¾ku vlakov odporúèam väè¹iu ako u konkurencie.<br>
-Ak by si vykonával nejaké úpravy terénu, cesty alebo ¾eleznice poèas
-zadávania cestovného poriadku a vrátil sa spät' k zadávaniu, musí¹ kliknút'
-napr. na tlaèidlo ,,Vlo¾it' '' a následne na ,,Pridat' ''. Tım obnoví¹
-zobrazenie ¾ltého znaèkovaèa a mô¾e¹ pokraèovat' v zadávaní.<br>
-<strong>Maximálny poèet zastávok alebo staníc v cestovnom poriadku mô¾e byt' 16 !</strong>
-(Obmedzenie ich fyzického poètu na mape som zatiaµ nezistil).<br>
-Tip : Ak má¹ zapnutú konkurenciu, konkurencia mô¾e (ale nemusí) mat' vyt'a¾enie
-men¹ie ako 100% a chodit' tak poloprázdna a¾ takmer prázdna. Vykazuje tım ni¾¹í zisk.
-Pri odporúèanom nastavení vyt'a¾enia nákladnıch dopravnıch prostriedkov mô¾e¹ takto
-konkurenciu predbehnút' v zisku. Ak prevá¾a¹ suroviny alebo tovar, kde je aj konkurencia,
-tam je lep¹ie nastavit' minimálne vyt'a¾enie na 100% (=plne nalo¾it') ;-).
+<em>Pridat'</em> - toto tlaÄidlo je aktÃ­vne hneÄ po zobrazenÃ­.
+Namiesto kurzora s lupou by mal byt' Å¾ltÃ½ znaÄkovaÄ, ktorÃ½m
+pooznaÄuj v logickom slede vÅ¡etky zastÃ¡vky, stanice alebo
+nÃ¡kladnÃ© rampy.<br>
+U kaÅ¾dej zastÃ¡vky, stanice alebo nÃ¡kladnej rampy mÃ´Å¾eÅ¡ urÄit' s akÃ½m
+minimÃ¡lnym vyt'aÅ¾enÃ­m bude dopravnÃ½ prostriedok odchÃ¡dzat' (u nÃ¡kladnÃ½ch
+dopravnÃ½ch prostriedkov odporÃºÄam pre nakladanie 80-100%, u autobusov je
+lepÅ¡ie ostat' na 0%). DÄºÅ¾ku vlakov odporÃºÄam vÃ¤ÄÅ¡iu ako u konkurencie.<br>
+Ak by si vykonÃ¡val nejakÃ© Ãºpravy terÃ©nu, cesty alebo Å¾eleznice poÄas
+zadÃ¡vania cestovnÃ©ho poriadku a vrÃ¡til sa spÃ¤t' k zadÃ¡vaniu, musÃ­Å¡ kliknÃºt'
+napr. na tlaÄidlo ,,VloÅ¾it' '' a nÃ¡sledne na ,,Pridat' ''. TÃ½m obnovÃ­Å¡
+zobrazenie Å¾ltÃ©ho znaÄkovaÄa a mÃ´Å¾eÅ¡ pokraÄovat' v zadÃ¡vanÃ­.<br>
+<strong>MaximÃ¡lny poÄet zastÃ¡vok alebo stanÃ­c v cestovnom poriadku mÃ´Å¾e byt' 16 !</strong>
+(Obmedzenie ich fyzickÃ©ho poÄtu na mape som zatiaÄ¾ nezistil).<br>
+Tip : Ak mÃ¡Å¡ zapnutÃº konkurenciu, konkurencia mÃ´Å¾e (ale nemusÃ­) mat' vyt'aÅ¾enie
+menÅ¡ie ako 100% a chodit' tak poloprÃ¡zdna aÅ¾ takmer prÃ¡zdna. Vykazuje tÃ½m niÅ¾Å¡Ã­ zisk.
+Pri odporÃºÄanom nastavenÃ­ vyt'aÅ¾enia nÃ¡kladnÃ½ch dopravnÃ½ch prostriedkov mÃ´Å¾eÅ¡ takto
+konkurenciu predbehnÃºt' v zisku. Ak prevÃ¡Å¾aÅ¡ suroviny alebo tovar, kde je aj konkurencia,
+tam je lepÅ¡ie nastavit' minimÃ¡lne vyt'aÅ¾enie na 100% (=plne naloÅ¾it') ;-).
 </p>
 <p>
-<em>Vlo¾it'</em> - zapnutím tohto tlaèidla mô¾e¹ vlo¾it' pred oznaèenú zastávku alebo stanicu
-ïal¹iu (napr. po roz¹írení siete zastávok alebo staníc). Opät' pozor na maximálny poèet
-zastávok alebo staníc.
+<em>VloÅ¾it'</em> - zapnutÃ­m tohto tlaÄidla mÃ´Å¾eÅ¡ vloÅ¾it' pred oznaÄenÃº zastÃ¡vku alebo stanicu
+ÄalÅ¡iu (napr. po rozÅ¡Ã­renÃ­ siete zastÃ¡vok alebo stanÃ­c). OpÃ¤t' pozor na maximÃ¡lny poÄet
+zastÃ¡vok alebo stanÃ­c.
 </p>
 <p>
-<em>Zmazat'</em> - zapnutím tohto tlaèidla môze¹ vymazat' µubovolnú zastávku, stanicu
-alebo nákladnú rampu z cestovného poriadku (zastávka, stanica alebo nákladná
-rampa ale fyzicky zostáva, a¾ kım ju nezbúra¹)
+<em>Zmazat'</em> - zapnutÃ­m tohto tlaÄidla mÃ´zeÅ¡ vymazat' Ä¾ubovolnÃº zastÃ¡vku, stanicu
+alebo nÃ¡kladnÃº rampu z cestovnÃ©ho poriadku (zastÃ¡vka, stanica alebo nÃ¡kladnÃ¡
+rampa ale fyzicky zostÃ¡va, aÅ¾ kÃ½m ju nezbÃºraÅ¡)
 </p>
 <p>
-<em>Hotovo</em> - potvrdením ukonèí¹ zadávanie cestovného poriadku.
+<em>Hotovo</em> - potvrdenÃ­m ukonÄÃ­Å¡ zadÃ¡vanie cestovnÃ©ho poriadku.
 </p>
 <p>
-Pozn. prekladateµa : Pri zadávaní cestovného poriadku musí¹ kalkulovat' s trasou tak,
-aby si neprekroèil maximálny poèet zastávok.
+Pozn. prekladateÄ¾a : Pri zadÃ¡vanÃ­ cestovnÃ©ho poriadku musÃ­Å¡ kalkulovat' s trasou tak,
+aby si neprekroÄil maximÃ¡lny poÄet zastÃ¡vok.
 </p>

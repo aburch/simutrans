@@ -1,78 +1,78 @@
 <title>Ferroviaire</title>
 
-<h1>L'écran de gestion ferroviaire</h1>
+<h1>L'Ã©cran de gestion ferroviaire</h1>
 
 <p>
-Cet écran comprend les outils de construction de rails, gare, dépôt, tunnel,
-passages à niveau, signalisation pour trains.
+Cet Ã©cran comprend les outils de construction de rails, gare, dÃ©pÃ´t, tunnel,
+passages Ã  niveau, signalisation pour trains.
 </p>
 <p>
-En haut à gauche, il y a l'outil de construction des rails.
-Cet outil permet de construire les rails entre les carrés.
-Cliquez et votre curseur prendra la forme d'un passage à niveau.
-Pour construire une voie ferrée, cliquez d'abord sur le point de départ,
+En haut Ã  gauche, il y a l'outil de construction des rails.
+Cet outil permet de construire les rails entre les carrÃ©s.
+Cliquez et votre curseur prendra la forme d'un passage Ã  niveau.
+Pour construire une voie ferrÃ©e, cliquez d'abord sur le point de dÃ©part,
 le curseur prendra alors la forme d'un bulldozer. Cliquez ensuite
-sur le point d'arrivée de votre voie ferrée.
-Simutrans construira alors le chemin de fer entre les deux carrés. Il
-n'utilisera uniquement que des carrés libres. Il ne franchira pas de route,
+sur le point d'arrivÃ©e de votre voie ferrÃ©e.
+Simutrans construira alors le chemin de fer entre les deux carrÃ©s. Il
+n'utilisera uniquement que des carrÃ©s libres. Il ne franchira pas de route,
 n'utilsera pas de tunnels ou ponts. Si la construction n'est pas possible,
 il ne se passera rien.
 </p>
 <p>
 A sa droite, l'outil de placement des signaux ferroviaires. Cliquez dessus pour
 changer le curseur en signal. Ces signaux sont utiles pour contraindre les
-mouvements des trains. Utilisez les pour autoriser deux trains à emprunter
-le même chemin, mais l'un après l'autre.
+mouvements des trains. Utilisez les pour autoriser deux trains Ã  emprunter
+le mÃªme chemin, mais l'un aprÃ¨s l'autre.
 Les signaux sens-unique forcent les trains dans un sens. Pour placer un signal
 sens-unique, placer un signal et cliquez le afin de le changer en 'sens-unique'.
 En cliquant plusieurs fois sur un signal, vous changerez son sens, et son type
 (Mono ou bi-directionnel). Soyez prudent dans l'utilisation des signaux 'sens-unique'
-car les trains ne sauront pas quel chemin prendre si vous vous êtes trompés.
-Pour placer un signal, cliquez ensuite sur la protion de rail où vous voulez le
-placer. Les signaux sont placés au bord des carrés, mais comptent pour un seul
-carré. Il ne peut y avoir qu'un seul signal par carré.
+car les trains ne sauront pas quel chemin prendre si vous vous Ãªtes trompÃ©s.
+Pour placer un signal, cliquez ensuite sur la protion de rail oÃ¹ vous voulez le
+placer. Les signaux sont placÃ©s au bord des carrÃ©s, mais comptent pour un seul
+carrÃ©. Il ne peut y avoir qu'un seul signal par carrÃ©.
 Pour supprimer un signal, utilisez l'outil de destruction, et cliquez sur le
-carré où vous avez placé le signal. Ceci supprimera le signal en laissant intact
+carrÃ© oÃ¹ vous avez placÃ© le signal. Ceci supprimera le signal en laissant intact
 le rail.
 </p>
 <p>
 Le dernier symbole du haut est l'outil de construction de tunnels.
 Cliquez dessus et le curseur prendra l'image du tunnel.
-Les tunnels sont utilisés pour créer une seule de section de tunnel sous
-une montagne. Utilisez les pour éviter de contourner les montagnes.
+Les tunnels sont utilisÃ©s pour crÃ©er une seule de section de tunnel sous
+une montagne. Utilisez les pour Ã©viter de contourner les montagnes.
 Pour placer un tunnel, vous devez d'abord avoir vos sections de rails.
-Placez le début et la fin des rails au bord de la montagne (de chaque côté),
+Placez le dÃ©but et la fin des rails au bord de la montagne (de chaque cÃ´tÃ©),
 assurez-vous que les niveaux d'altitudes sont identiques. Pour construire le
-tunnel cliquez avec l'outil de placement sur l'une des deux extrémités.
+tunnel cliquez avec l'outil de placement sur l'une des deux extrÃ©mitÃ©s.
 </p>
 <p>
-Au dessous de ces symboles, il y a le passage à niveau. Cliquez dessus pour
-changer le curseur en passage à niveau. Ils sont utiles pour faire se croiser
-une route et une voie ferrée. Pour le placer, cliquez avec le bouton gauche sur
+Au dessous de ces symboles, il y a le passage Ã  niveau. Cliquez dessus pour
+changer le curseur en passage Ã  niveau. Ils sont utiles pour faire se croiser
+une route et une voie ferrÃ©e. Pour le placer, cliquez avec le bouton gauche sur
 une section de route.
 </p>
 <p>
-A gauche, c'est le dépôt ferroviaire. Cliquez dessus pour changer le curseur
-en dépôt. Ils sont utilisés pour acheter, assembler, démonter et vendre des
-motrices et des wagons. pour placer le dépôt, cliquez sur un début/fin de rails.
+A gauche, c'est le dÃ©pÃ´t ferroviaire. Cliquez dessus pour changer le curseur
+en dÃ©pÃ´t. Ils sont utilisÃ©s pour acheter, assembler, dÃ©monter et vendre des
+motrices et des wagons. pour placer le dÃ©pÃ´t, cliquez sur un dÃ©but/fin de rails.
 </p>
 <p>
 Le dernier symbole est celui de la construction de gare. Cliquez dessus, le
 curseur prendra la forme d'un segment de gare. Les gares permettent aux trains
-de charger et décharger les passagers et marchandises. Les gares peuvent être
-composées de plusieurs segments alignés ou juxtaposés.
-Les gares peuvent contenir un nombre illimités de marchandises, mais les
-usines produisent lorsque moins de 1000 unités (tonnes, palettes, m3) attendent.
-Les gares sont construites à partir de segments individuels.
-Pour positionner un segment, cliquez sur le carré où vous souhaitez le placer.
-Les gares doivent être construites sur des rails existant, mais ne peuvent pas
-être placées dans des montées, descentes et intersections. Chaque segment
-adjacent avec une gare devient une partie de celle-ci, même si elle est située
+de charger et dÃ©charger les passagers et marchandises. Les gares peuvent Ãªtre
+composÃ©es de plusieurs segments alignÃ©s ou juxtaposÃ©s.
+Les gares peuvent contenir un nombre illimitÃ©s de marchandises, mais les
+usines produisent lorsque moins de 1000 unitÃ©s (tonnes, palettes, m3) attendent.
+Les gares sont construites Ã  partir de segments individuels.
+Pour positionner un segment, cliquez sur le carrÃ© oÃ¹ vous souhaitez le placer.
+Les gares doivent Ãªtre construites sur des rails existant, mais ne peuvent pas
+Ãªtre placÃ©es dans des montÃ©es, descentes et intersections. Chaque segment
+adjacent avec une gare devient une partie de celle-ci, mÃªme si elle est situÃ©e
 sur une autre section de rail. A chaque segment correspondent 2 wagons ou
 motrices. Assurez-vous de la longueur des gares pour vos trains les plus longs.
-Tout wagon se trouvant hors de la gare ne sera pas chergé ou déchargé.
+Tout wagon se trouvant hors de la gare ne sera pas chergÃ© ou dÃ©chargÃ©.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

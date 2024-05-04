@@ -3,32 +3,32 @@
 <h1>Aide sur les options d'affichage</h1>
 
 <p>
-L'écran de gestion des options d'affichage permet de modifier de nombreuses
-paramètres qui vous permettrons de changer l'apparence visuelle de Simutrans.<br>
+L'Ã©cran de gestion des options d'affichage permet de modifier de nombreuses
+paramÃ¨tres qui vous permettrons de changer l'apparence visuelle de Simutrans.<br>
 Les options sont:</p>
 
 <p>
-<em>Luminosité</em> - Eclairci et assombri l'affichage.<br>
+<em>LuminositÃ©</em> - Eclairci et assombri l'affichage.<br>
 <em>Couleurs</em> - Sans effet<br>
-<em>Défilement</em> - La vitesse de défilement est proportionnelle au nombre défini.
+<em>DÃ©filement</em> - La vitesse de dÃ©filement est proportionnelle au nombre dÃ©fini.
 </p>
 
 <p>
-<em>Défilement inversé</em> - inverse ou pas la droite / gauche, haut / bas et vice-versa
-                          quand vous faites défiler.<br>
-<em>Afficher les piétons</em> - Des piétons sont créés et affichés ou pas autour des villes. Si votre
-                            Configuration matérielle est juste, n'activez pas cette option.<br>
-<em>Mode jour / nuit</em> - Simule ou non les modes jour et nuit. Cette option activée, peut vous
+<em>DÃ©filement inversÃ©</em> - inverse ou pas la droite / gauche, haut / bas et vice-versa
+                          quand vous faites dÃ©filer.<br>
+<em>Afficher les piÃ©tons</em> - Des piÃ©tons sont crÃ©Ã©s et affichÃ©s ou pas autour des villes. Si votre
+                            Configuration matÃ©rielle est juste, n'activez pas cette option.<br>
+<em>Mode jour / nuit</em> - Simule ou non les modes jour et nuit. Cette option activÃ©e, peut vous
                                   rendre une belle vue de nuit!
 </p>
 
 <p>
-La moitié basse de l'écran vous informe sur la performance de votre ordinateur. Ces nombres n'ont pas d'intérêts
-pour le déroulement du jeu.<br>
-<em>Important</em> - On pourrait vous demander cette information lorsque vous êtes amené à remonter un
+La moitiÃ© basse de l'Ã©cran vous informe sur la performance de votre ordinateur. Ces nombres n'ont pas d'intÃ©rÃªts
+pour le dÃ©roulement du jeu.<br>
+<em>Important</em> - On pourrait vous demander cette information lorsque vous Ãªtes amenÃ© Ã  remonter un
 dysfonctionnement.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

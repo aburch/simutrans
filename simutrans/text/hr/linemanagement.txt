@@ -53,7 +53,7 @@ Klik na ime Linije u listi za odabir (oznacava ime), tada klik na gumb opcije za
 <p>
 Kada je Linija odabrana, <a href="station.txt">Stajalistza</a> su prikazana gore lijevo u <strong>Upravljanje Linijom</strong>. Klik na Stajaliste u listi za otvaranje Informacija o Stajalistu.<br>
 Stavke prikazane za svako stajaliste sadrze:<br>
-<em>status-traku-boje:</em> Boje prikazuju operaciju od <a href="station.txt">Stajalista</a> s obzirom na popunjenost. Status-traka-boje je takoðer koristi u <a href="haltlist.txt">Listi Stajalista</a> i Informacija o Stakjalistu je iste boje prikazane u traci-boje iznad Stajalista u prikazu igre:<br>
+<em>status-traku-boje:</em> Boje prikazuju operaciju od <a href="station.txt">Stajalista</a> s obzirom na popunjenost. Status-traka-boje je takoÄ‘er koristi u <a href="haltlist.txt">Listi Stajalista</a> i Informacija o Stakjalistu je iste boje prikazane u traci-boje iznad Stajalista u prikazu igre:<br>
 - <em>zuto:</em> nije u sluzbi.<br>
 - <em>zeleno:</em> nisu potrebna poboljsanja.<br>
 - <em>narancasto:</em> moguca poboljsanja.<br>
@@ -85,7 +85,7 @@ Klik na ime Linije u listi za odabir (oznacava ime). Klik na opcija-dugme za pro
 - <em>Operativni Troskovi</em> - nastali troskovi od vozila u tranzitu.
 </p>
 <p>
-- <a href="finances.txt"><em>Profit</em></a> - stvoreni profit minus tro¹kovi koji su nastali (Prihod minus Operativni Troskovi).
+- <a href="finances.txt"><em>Profit</em></a> - stvoreni profit minus troÅ¡kovi koji su nastali (Prihod minus Operativni Troskovi).
 </p>
 <p>
 - <a href="convoiinfo.txt"><em>Konvoji</em></a> - broj Konvoja pridruzenih Liniji.

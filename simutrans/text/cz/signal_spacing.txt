@@ -1,47 +1,47 @@
-<title>Nápovìda - nastavení vzdálenosti semaforù</title>
+<title>NÃ¡povÄ›da - nastavenÃ­ vzdÃ¡lenosti semaforÅ¯</title>
 
 
 
-<h1>Nastavení vzdálenosti mezi semafory</h1>
+<h1>NastavenÃ­ vzdÃ¡lenosti mezi semafory</h1>
 
 
 
 <p>
 
-Dialog slou¾í k nastavení vzdálenosti mezi semafory, pokud jsou umis»ovány pomocí ta¾ení.
+Dialog slouÅ¾Ã­ k nastavenÃ­ vzdÃ¡lenosti mezi semafory, pokud jsou umisÅ¥ovÃ¡ny pomocÃ­ taÅ¾enÃ­.
 
 </p>
 
 <p>
 
-Dialog vyvoláte kliknutím <a href="mouse.txt">my¹i</a> na ikonu se semaforem v nabídce s nástroji pro <a href="railtools.txt">¾eleznici</a>, <a href="tramtools.txt">tramvaje</a> nebo <a href="monorailtools.txt">jednokolejku</a> pøi stisknuté klávese <a href="keys.txt">[Ctrl]</a>.
+Dialog vyvolÃ¡te kliknutÃ­m <a href="mouse.txt">myÅ¡i</a> na ikonu se semaforem v nabÃ­dce s nÃ¡stroji pro <a href="railtools.txt">Å¾eleznici</a>, <a href="tramtools.txt">tramvaje</a> nebo <a href="monorailtools.txt">jednokolejku</a> pÅ™i stisknutÃ© klÃ¡vese <a href="keys.txt">[Ctrl]</a>.
 
 </p>
 
 <p>
 
-Semafory mù¾ete umís»ovat ta¾ením na ji¾ existující tra». Tj. stejnım zpùsobem jako kdy¾ jste stavìli koleje.
+Semafory mÅ¯Å¾ete umÃ­sÅ¥ovat taÅ¾enÃ­m na jiÅ¾ existujÃ­cÃ­ traÅ¥. Tj. stejnÃ½m zpÅ¯sobem jako kdyÅ¾ jste stavÄ›li koleje.
 
 </p>
 
 <p>
 
-<em>vzdálenost mezi semafory</em>: Nastavuje, na kolik polí pøipadá jeden semafor.
+<em>vzdÃ¡lenost mezi semafory</em>: Nastavuje, na kolik polÃ­ pÅ™ipadÃ¡ jeden semafor.
 
 </p>
 
 <p>
 
-<em>Odstranit vlo¾ené semafory</em>:
+<em>Odstranit vloÅ¾enÃ© semafory</em>:
 
-Odstraní semafory které pøesahují nastavené mno¾ství jednoho semaforu na n políèek.
+OdstranÃ­ semafory kterÃ© pÅ™esahujÃ­ nastavenÃ© mnoÅ¾stvÃ­ jednoho semaforu na n polÃ­Äek.
 
 </p>
 
 <p>
 
-<em>Nahradit vlo¾ené semafory</em>:
+<em>Nahradit vloÅ¾enÃ© semafory</em>:
 
-(zatím nic nedìlá??)
+(zatÃ­m nic nedÄ›lÃ¡??)
 
 </p>

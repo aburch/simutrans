@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: frp Arpitan                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -380,7 +380,7 @@ G·ènèracion: %.0f MW\n
 Gewicht
 Pês
 Gewinn
-Renta:
+Renta: 
 Give the selected vehicle(s) an individual schedule
 Balyér u(s) vèyiclo(s) sèlèccionât(s) un itinèrèro individuèl
 gl_btn_sort_catg

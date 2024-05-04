@@ -202,8 +202,8 @@ Function componentsPre
   Call EnableSectionIfThere
   Push ${pak.nippon}
   Call EnableSectionIfThere
-  Push ${pak64.ho-scale}
-  Call EnableSectionIfThere
+;  Push ${pak64.ho-scale}
+;  Call EnableSectionIfThere
   Push ${pakHAJO}
   Call EnableSectionIfThere
   Push ${pakcontrast}
@@ -236,8 +236,6 @@ Function componentsPre
   Call EnableSectionIfThere
   Push ${pakTTD}
   Call EnableSectionIfThere
-;  Push ${pak64.ho-scale}
-;  Call EnableSectionIfThere
 FunctionEnd
 
 ; Some paksets don't have an open source license, so we have to show additional licences

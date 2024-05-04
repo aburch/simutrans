@@ -1,45 +1,45 @@
 <title>Les gares</title>
-<h1>L'écran de gestion des gares</h1>
+<h1>L'Ã©cran de gestion des gares</h1>
 
 <p>
-Dans cet écran, vous pouvez trouver toute l'information sur la gare concernée.
+Dans cet Ã©cran, vous pouvez trouver toute l'information sur la gare concernÃ©e.
 Vous pouvez voir les marchandises en attente de livraison, quelles marchandises
-sont attendues par les entreprises locales et quelles gares sont reliées à
+sont attendues par les entreprises locales et quelles gares sont reliÃ©es Ã 
 celle-ci.
 </p>
 
 <p>
-Vous pouvez également modifier le nom d'une gare en changeant son nom dans la
-zone de texte en haut de l'écran.
+Vous pouvez Ã©galement modifier le nom d'une gare en changeant son nom dans la
+zone de texte en haut de l'Ã©cran.
 Cliquez simplement sur le nom et entrez le nouveau nom. Appuyez sur la touche
-'Entrée' et votre modification est prise en compte.
+'EntrÃ©e' et votre modification est prise en compte.
 </p>
 <p>
-Au bas de cet écran, sont affichées les marchandises en attente de livraison
-dans cette gare. Cette information est structurée pour afficher tous les mêmes
+Au bas de cet Ã©cran, sont affichÃ©es les marchandises en attente de livraison
+dans cette gare. Cette information est structurÃ©e pour afficher tous les mÃªmes
 types de marchandise ensemble. Par exemple:<br>
 402 voitures en attente<br>
 83 passagers en attente
 </p>
 <p>
-Chacune de ces entêtes est éclatée en sous-entête, qui indiquent où les
+Chacune de ces entÃªtes est Ã©clatÃ©e en sous-entÃªte, qui indiquent oÃ¹ les
 marchandises doivent aller, et leur nombre exact. Par exemple:
 </p>
 <p>
 56 passagers en attente<br>
 - 25 passagers > Paris gare<br>
-- 29 passagers > Lyon gare via. Paris arrêt sud<br>
+- 29 passagers > Lyon gare via. Paris arrÃªt sud<br>
 - 2  passagers > Marseille gare
 </p>
 <p>
-Dans le coin supérieur droit se trouve un bouton nommé 'Détails'.
-Cliquez dessus pour faire ouvrir une autre fenêtre indiquant les besoins en
+Dans le coin supÃ©rieur droit se trouve un bouton nommÃ© 'DÃ©tails'.
+Cliquez dessus pour faire ouvrir une autre fenÃªtre indiquant les besoins en
 marchandises des industries locales, et les liaisons directes avec cette gare.
 </p>
 <p>
-Les liaisons directes sont définies pour chaque type de marchandise.
+Les liaisons directes sont dÃ©finies pour chaque type de marchandise.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

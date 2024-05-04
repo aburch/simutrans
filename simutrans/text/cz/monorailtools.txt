@@ -1,79 +1,79 @@
-<title>Nápovìda - nástroje pro jednokolejku a maglev</title>
+<title>NÃ¡povÄ›da - nÃ¡stroje pro jednokolejku a maglev</title>
 
 
 
-<h1>Nástroje pro jednokolejku/visutou ¾eleznici</h1>
+<h1>NÃ¡stroje pro jednokolejku/visutou Å¾eleznici</h1>
 
 
 
 <p>
 
-Nástroje pro jednokolejku/visutou ¾eleznici slou¾í k vıstavbì dopravní sítì pro pøepravu cestujících.
+NÃ¡stroje pro jednokolejku/visutou Å¾eleznici slouÅ¾Ã­ k vÃ½stavbÄ› dopravnÃ­ sÃ­tÄ› pro pÅ™epravu cestujÃ­cÃ­ch.
 
 </p>
 
-<p>Pokud jste pøi <a href="new_world.txt">vytváøení mapy</a> zadali volbu <em>zaèít roku</em>, nástroje mohou bıt do urèitého data nedostupné.</p>
+<p>Pokud jste pÅ™i <a href="new_world.txt">vytvÃ¡Å™enÃ­ mapy</a> zadali volbu <em>zaÄÃ­t roku</em>, nÃ¡stroje mohou bÃ½t do urÄitÃ©ho data nedostupnÃ©.</p>
 
 <p>
 
-Menu s nástroji otevøete kliknutím na ikonu oznaèenou <em>nástroje pro jednokolejku/visutou ¾eleznici</em> v <a href="mainmenu.txt">hlavním menu</a>.
-
-</p>
-
-<p>
-
-Podr¾íte-li kurzor <a href="mouse.txt">my¹i</a> na ikonou s nástroji zobrazí se <em>název</em>, <em>cena</em>, <em>(mìsíèní náklady na úrd¾bu)</em> a <em> maximální rychlost</em>.
+Menu s nÃ¡stroji otevÅ™ete kliknutÃ­m na ikonu oznaÄenou <em>nÃ¡stroje pro jednokolejku/visutou Å¾eleznici</em> v <a href="mainmenu.txt">hlavnÃ­m menu</a>.
 
 </p>
 
 <p>
 
-Nástroje obsahují (zleva doprava):
+PodrÅ¾Ã­te-li kurzor <a href="mouse.txt">myÅ¡i</a> na ikonou s nÃ¡stroji zobrazÃ­ se <em>nÃ¡zev</em>, <em>cena</em>, <em>(mÄ›sÃ­ÄnÃ­ nÃ¡klady na ÃºrdÅ¾bu)</em> a <em> maximÃ¡lnÃ­ rychlost</em>.
 
 </p>
 
 <p>
 
-<em>pøízemní jednokolejka</em>: Tra» postavíte stejnım zpùsobem, jako <a href="railtools.txt">¾eleznici</a>.
-
-</p>
-
-<p><em>visutá jednokolejka</em>: Mù¾e vést i nad domy a silnicemi.
+NÃ¡stroje obsahujÃ­ (zleva doprava):
 
 </p>
 
 <p>
 
-<em>návìstidla</em>: Pou¾ití <a href="signals.txt">návìstidel</a> je stejné jako u <a href="railtools.txt">¾eleznice</a> a <a href="tramtools.txt">tramvají</a>.
+<em>pÅ™Ã­zemnÃ­ jednokolejka</em>: TraÅ¥ postavÃ­te stejnÃ½m zpÅ¯sobem, jako <a href="railtools.txt">Å¾eleznici</a>.
+
+</p>
+
+<p><em>visutÃ¡ jednokolejka</em>: MÅ¯Å¾e vÃ©st i nad domy a silnicemi.
 
 </p>
 
 <p>
 
-<em>Odstranit visutou dráhu/jednokolejku</em>: Nástroj odstraní tra» visuté dráhy nebo jednokolejky. Pøi odstraòování dejte pozor na jednosmìrné semafory.
+<em>nÃ¡vÄ›stidla</em>: PouÅ¾itÃ­ <a href="signals.txt">nÃ¡vÄ›stidel</a> je stejnÃ© jako u <a href="railtools.txt">Å¾eleznice</a> a <a href="tramtools.txt">tramvajÃ­</a>.
 
 </p>
 
 <p>
 
-<em>mosty</em>: <a href="bridges.txt">Mosty</a> slou¾í k pøemostìní údolí a jinıch pøeká¾ek.
+<em>Odstranit visutou drÃ¡hu/jednokolejku</em>: NÃ¡stroj odstranÃ­ traÅ¥ visutÃ© drÃ¡hy nebo jednokolejky. PÅ™i odstraÅˆovÃ¡nÃ­ dejte pozor na jednosmÄ›rnÃ© semafory.
 
 </p>
 
 <p>
 
-<em>depo</em>: Vozidla pro jednokolejku/visutou dráhu koupíte v <a href="depot.txt">depu</a>. Depo postavíte na konci dráhy.
+<em>mosty</em>: <a href="bridges.txt">Mosty</a> slouÅ¾Ã­ k pÅ™emostÄ›nÃ­ ÃºdolÃ­ a jinÃ½ch pÅ™ekÃ¡Å¾ek.
 
 </p>
 
 <p>
 
-<em>zastávky</em>: Nástroj slou¾í k vıstavbì <a href="station.txt">stanic</a>. Kliknìte na nástroj a pak pole s dráhou jednokolejky.
+<em>depo</em>: Vozidla pro jednokolejku/visutou drÃ¡hu koupÃ­te v <a href="depot.txt">depu</a>. Depo postavÃ­te na konci drÃ¡hy.
 
 </p>
 
 <p>
 
-<em>základy jednokolejky</em>: Pomocí nástroje postavíte roz¹íøení <a href="station.txt">stanice</a>. Do stanice se vejde více cestujících. Také se zvı¹í náklady na údr¾bu.
+<em>zastÃ¡vky</em>: NÃ¡stroj slouÅ¾Ã­ k vÃ½stavbÄ› <a href="station.txt">stanic</a>. KliknÄ›te na nÃ¡stroj a pak pole s drÃ¡hou jednokolejky.
+
+</p>
+
+<p>
+
+<em>zÃ¡klady jednokolejky</em>: PomocÃ­ nÃ¡stroje postavÃ­te rozÅ¡Ã­Å™enÃ­ <a href="station.txt">stanice</a>. Do stanice se vejde vÃ­ce cestujÃ­cÃ­ch. TakÃ© se zvÃ½Å¡Ã­ nÃ¡klady na ÃºdrÅ¾bu.
 
 </p>

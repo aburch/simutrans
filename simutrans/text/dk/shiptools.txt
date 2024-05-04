@@ -1,39 +1,39 @@
-<title>Havneanlæg dialog hjælp</title>
+<title>HavneanlÃ¦g dialog hjÃ¦lp</title>
 
-<h1>Havneanlæg dialog</h1>
+<h1>HavneanlÃ¦g dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Denne dialog indeholder værktøjer til at bygge havne og skibsdepoter.
+Denne dialog indeholder vÃ¦rktÃ¸jer til at bygge havne og skibsdepoter.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Dialogen består af tre (3) symboler, hvoraf et repræsenterer havnebygning og
+Dialogen bestÃ¥r af tre (3) symboler, hvoraf et reprÃ¦senterer havnebygning og
 de to andre skibsdepoter.
 </p>
 
 <p>
-Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
+GÃ¥ende fra venstre mod hÃ¸jre samt oppefra og ned er de forskellige symboler:
 </p>
 
 <p>
 <em>Byg havn:</em><br>
-Dette værktøj benyttes til at bygge havne. Ved venstreklik på symbolet
+Dette vÃ¦rktÃ¸j benyttes til at bygge havne. Ved venstreklik pÃ¥ symbolet
 forandres cursoren til et havnesymbol. Herefter kan der bygges en havn ved at
-venstreklikke på en <strong>lige</strong> kyststrækning. Havne benyttes af
+venstreklikke pÃ¥ en <strong>lige</strong> kyststrÃ¦kning. Havne benyttes af
 skibe til at laste eller losse varer.<br>
-<strong>Bemærk at havne pt. ikke kan fjernes direkte. Det kan gøres ved fjerne
-havnen, hæve landniveauet og derefter sænke landniveauet.</strong>
+<strong>BemÃ¦rk at havne pt. ikke kan fjernes direkte. Det kan gÃ¸res ved fjerne
+havnen, hÃ¦ve landniveauet og derefter sÃ¦nke landniveauet.</strong>
 </p>
 
 <p>
 <em>Byg skibsdepot:</em><br>
-Et <a href="depot.txt">skibsdepot</a> benyttes til at bygge, sælge og
+Et <a href="depot.txt">skibsdepot</a> benyttes til at bygge, sÃ¦lge og
 tilknytte ruter til skibe. Der er to symboler til bygning af
-skibsdepoter. Disse er dog pånær udseendet fuldstændig ens. Et skibsdepot
-bygges ved at venstreklikke på symbolet, hvorved cursoren forandres til et
-skibsdepot symbol, og derefter venstreklikke på et hvilket som helst vandfelt,
-hvor depotet ønskes placeret. Som regel er det en fordel at placere depotet i
-nærheden af et eller flere fremtidige rutemål.
+skibsdepoter. Disse er dog pÃ¥nÃ¦r udseendet fuldstÃ¦ndig ens. Et skibsdepot
+bygges ved at venstreklikke pÃ¥ symbolet, hvorved cursoren forandres til et
+skibsdepot symbol, og derefter venstreklikke pÃ¥ et hvilket som helst vandfelt,
+hvor depotet Ã¸nskes placeret. Som regel er det en fordel at placere depotet i
+nÃ¦rheden af et eller flere fremtidige rutemÃ¥l.
 </p>

@@ -3,34 +3,34 @@
 <h1>Carte du jeu</h1>
 
 <p>
-On vient à la <strong>Carte du jeu</strong> en pressant '<em>m</em>' ou par le symbol <em>Carte</em> dans la liste des symbols.
+On vient Ã  la <strong>Carte du jeu</strong> en pressant '<em>m</em>' ou par le symbol <em>Carte</em> dans la liste des symbols.
 </p>
 <p>
-L'écran carte vous apporte une vue d'aigle sur le monde courrant avec des informations telles que les villes, les industries, les routes et les chemins de fer, vos véhicules etc. Vous allez atteindre chaque lieu en cliquant avec le bouton gauche.
+L'Ã©cran carte vous apporte une vue d'aigle sur le monde courrant avec des informations telles que les villes, les industries, les routes et les chemins de fer, vos vÃ©hicules etc. Vous allez atteindre chaque lieu en cliquant avec le bouton gauche.
 </p>
 <p>
-En cliquant avec le bouton droit de votre souris, vous obtenez la carte en trois échelles differentes. La même fonction a la roue de la souris.
+En cliquant avec le bouton droit de votre souris, vous obtenez la carte en trois Ã©chelles differentes. La mÃªme fonction a la roue de la souris.
 </p>
 <p>
-Chaque type d'industrie est référencé par une couleur différente, la légende est située au-dessous de la carte. Si le souris montre sur une industrie, les acheteurs sont soulignés; pressant simultanément la touche Shift, les fournisseurs sont mis en relief.
+Chaque type d'industrie est rÃ©fÃ©rencÃ© par une couleur diffÃ©rente, la lÃ©gende est situÃ©e au-dessous de la carte. Si le souris montre sur une industrie, les acheteurs sont soulignÃ©s; pressant simultanÃ©ment la touche Shift, les fournisseurs sont mis en relief.
 </p>
 <p>
-Les boutons colorés tout en bas de l'écran inscrivent certains informations dans la carte. S'il n'y a pas des indications de la couleur, l'échelle au droit de l'écran est utilisé.<br>
-<em>Passagers</em>marque tous les territoires en blanc qui sont attachés à un arrêt.<br>
-<em>Poste</em>marque tous les territoires en bleu qui sont attachés à un bureau de poste.<br>
-<em>Chargement</em>montre combien de chargement est transporté sur une pièce de la route ou du chemin de fer.<br>
-<em>Status</em>montre si les passagers à un arrêt sont transportes. La même vue est aussi utilisèe dans la liste des arrêts et à la ligne de status au nom de l'arrêt.<br>
-<em>Service</em>montre combien d'arrives et de départs se sont passés à un arrêt.<br>
-<em>Circulation</em>montre la densité de la circulation sur une ligne.<br>
-<em>Origine</em>montre combien de passagers et de chargement ont cet arrêt comme point de départ.<br>
-<em>Destination</em>montre combien de passagers et de chargement ont cet arrêt comme déstination.<br>
-<em>En attendant</em>montre combien de passagers et de chargement attendent à un arrêt pour être transportés.<br>
-<em>Voie</em>souligne les lignes de chemin de fer en blanc; les lignes electrifiées sont soulignées en rouge. Les signaux sont marqués par un point jaune.<br>
-<em>Limite de la vitesse</em>montre rélativement les vitesses maximales sur les routes et les chemins de fer.<br>
+Les boutons colorÃ©s tout en bas de l'Ã©cran inscrivent certains informations dans la carte. S'il n'y a pas des indications de la couleur, l'Ã©chelle au droit de l'Ã©cran est utilisÃ©.<br>
+<em>Passagers</em>marque tous les territoires en blanc qui sont attachÃ©s Ã  un arrÃªt.<br>
+<em>Poste</em>marque tous les territoires en bleu qui sont attachÃ©s Ã  un bureau de poste.<br>
+<em>Chargement</em>montre combien de chargement est transportÃ© sur une piÃ¨ce de la route ou du chemin de fer.<br>
+<em>Status</em>montre si les passagers Ã  un arrÃªt sont transportes. La mÃªme vue est aussi utilisÃ¨e dans la liste des arrÃªts et Ã  la ligne de status au nom de l'arrÃªt.<br>
+<em>Service</em>montre combien d'arrives et de dÃ©parts se sont passÃ©s Ã  un arrÃªt.<br>
+<em>Circulation</em>montre la densitÃ© de la circulation sur une ligne.<br>
+<em>Origine</em>montre combien de passagers et de chargement ont cet arrÃªt comme point de dÃ©part.<br>
+<em>Destination</em>montre combien de passagers et de chargement ont cet arrÃªt comme dÃ©stination.<br>
+<em>En attendant</em>montre combien de passagers et de chargement attendent Ã  un arrÃªt pour Ãªtre transportÃ©s.<br>
+<em>Voie</em>souligne les lignes de chemin de fer en blanc; les lignes electrifiÃ©es sont soulignÃ©es en rouge. Les signaux sont marquÃ©s par un point jaune.<br>
+<em>Limite de la vitesse</em>montre rÃ©lativement les vitesses maximales sur les routes et les chemins de fer.<br>
 <em>Lignes</em>inscrit les lignes de transport dans la carte en rouge.<br>
-<em>Attractions</em>enlarge les attractions touristiques inscrites dans la carte, et ils sont colorés selon leurs attractivités (Passagers).
+<em>Attractions</em>enlarge les attractions touristiques inscrites dans la carte, et ils sont colorÃ©s selon leurs attractivitÃ©s (Passagers).
 </p>
 <p>
-Actualisé pour Simutrans 0.85.04.1<br>
+ActualisÃ© pour Simutrans 0.85.04.1<br>
 21.4.2005
 </p>

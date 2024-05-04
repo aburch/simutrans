@@ -1,39 +1,39 @@
-<title>Seznam nápisù</title>
+<title>Seznam nÃ¡pisÅ¯</title>
 
-<!-- znakù -> nápisù? -->
+<!-- znakÅ¯ -> nÃ¡pisÅ¯? -->
 
-<h1><strong>Seznam nápisù</strong></h1>
+<h1><strong>Seznam nÃ¡pisÅ¯</strong></h1>
 
 
-
-<p>
-
-Zde jsou vypsány v¹echny nápisy vyskytující se na mapì.
-
-</p>
 
 <p>
 
-Seznam nápisù otevøete z menu <a href="list.txt">seznamy</a>.
+Zde jsou vypsÃ¡ny vÅ¡echny nÃ¡pisy vyskytujÃ­cÃ­ se na mapÄ›.
 
 </p>
 
-<p>{Tip: Nápisy lze pou¾ít napøíklad pro pojmenování øek nebo místo nástìnky v høe po síti. }</p>
+<p>
 
-<p> Dialogu umo¾òuje nápisy <em>øadit podle</em>:<br/>
-
-- <em>hráè</em>: Øadí podle hráèe.<br/>
-
-- <em>jméno</em>: Øadí nápisy podle textu.<br/>
-
-- <em>souøadnice</em>: Nápisy jsou øazeny podle souøadnic.
+Seznam nÃ¡pisÅ¯ otevÅ™ete z menu <a href="list.txt">seznamy</a>.
 
 </p>
 
-<p>Druhé tlaèítko pøepíná mezi <em>vzestupnım</em> a <em>sestupnım</em> zpùsobem øazení.</p>
+<p>{Tip: NÃ¡pisy lze pouÅ¾Ã­t napÅ™Ã­klad pro pojmenovÃ¡nÃ­ Å™ek nebo mÃ­sto nÃ¡stÄ›nky v hÅ™e po sÃ­ti. }</p>
 
-<p>Tlaèítko oznaèené <em>pouze aktivní hráè</em> umo¾òuje zobrazit nápisy pouze od právì aktivního hráèe.</p>
+<p> Dialogu umoÅ¾Åˆuje nÃ¡pisy <em>Å™adit podle</em>:<br/>
 
-<p>Kliknutí na <em>¹ipku</em> na zaèátku øádku vás pøemístí k nápisu.</p>
+- <em>hrÃ¡Ä</em>: Å˜adÃ­ podle hrÃ¡Äe.<br/>
 
-<p>Kliknutí na <em>text nápisu</em>  zobrazí okno s obrázkem místa, kde se nápis nachází.</p>
+- <em>jmÃ©no</em>: Å˜adÃ­ nÃ¡pisy podle textu.<br/>
+
+- <em>souÅ™adnice</em>: NÃ¡pisy jsou Å™azeny podle souÅ™adnic.
+
+</p>
+
+<p>DruhÃ© tlaÄÃ­tko pÅ™epÃ­nÃ¡ mezi <em>vzestupnÃ½m</em> a <em>sestupnÃ½m</em> zpÅ¯sobem Å™azenÃ­.</p>
+
+<p>TlaÄÃ­tko oznaÄenÃ© <em>pouze aktivnÃ­ hrÃ¡Ä</em> umoÅ¾Åˆuje zobrazit nÃ¡pisy pouze od prÃ¡vÄ› aktivnÃ­ho hrÃ¡Äe.</p>
+
+<p>KliknutÃ­ na <em>Å¡ipku</em> na zaÄÃ¡tku Å™Ã¡dku vÃ¡s pÅ™emÃ­stÃ­ k nÃ¡pisu.</p>
+
+<p>KliknutÃ­ na <em>text nÃ¡pisu</em>  zobrazÃ­ okno s obrÃ¡zkem mÃ­sta, kde se nÃ¡pis nachÃ¡zÃ­.</p>

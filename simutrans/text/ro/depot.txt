@@ -2,30 +2,30 @@
 
 <h1>Depou</h1>
 <p>
-Aici poşi procura vechiculele dorite ºi defineºti trasee.
+Aici poÅ£i procura vechiculele dorite ÅŸi defineÅŸti trasee.
 </p>
 <p>
-Poşi gãsi toate vechicolele ce pot fi cumpãrate la un anumit moment.
-Într-u tab sunt puse angrenajele (locomotivele respectiv camioanele ),
-iar în altul sunt puse vagoanele sau remorcile. Nu toate combinaşiile sunt permise,
-acesta este semnalat printr-o linie verde (permis) sau roºie (nepermis).
+PoÅ£i gÄƒsi toate vechicolele ce pot fi cumpÄƒrate la un anumit moment.
+Ãntr-u tab sunt puse angrenajele (locomotivele respectiv camioanele ),
+iar Ã®n altul sunt puse vagoanele sau remorcile. Nu toate combinaÅ£iile sunt permise,
+acesta este semnalat printr-o linie verde (permis) sau roÅŸie (nepermis).
 </p>
 <p>
-În partea de jos se gãsesc parametrii vehicolului dorit (preş, putere, capacitate etc.)
+Ãn partea de jos se gÄƒsesc parametrii vehicolului dorit (preÅ£, putere, capacitate etc.)
 </p>
 <p>
-Cu butonul "Start" porneºti noul convoi, însã numai atunci îl poşi porni dupã ce
-la punctul <a href="schedule.txt">"Traseu/rutã"</a> defineºti un traseu.
-Cu butonul "Dezleagã" dezlegi convoiul actual fãrã sã-şi primeºti înapoi banii.
-Preşul vehicolului este returnat când alegi butonul "Vinde". Preşul scade odatã cu
+Cu butonul "Start" porneÅŸti noul convoi, Ã®nsÄƒ numai atunci Ã®l poÅ£i porni dupÄƒ ce
+la punctul <a href="schedule.txt">"Traseu/rutÄƒ"</a> defineÅŸti un traseu.
+Cu butonul "DezleagÄƒ" dezlegi convoiul actual fÄƒrÄƒ sÄƒ-Å£i primeÅŸti Ã®napoi banii.
+PreÅ£ul vehicolului este returnat cÃ¢nd alegi butonul "Vinde". PreÅ£ul scade odatÄƒ cu
 trecerea timpului.
 </p>
 <p>
-Achizişionarea se face cu un click stâng pe vehicolul dorit. În partea dreaptã mai în
-jos poşi gãsi butonul cu care alegi dacã noul vehicol este pus în faşã sau în spate.
-<strong>Poşi lucra deodatã numai la un singur convoi!</strong>
+AchiziÅ£ionarea se face cu un click stÃ¢ng pe vehicolul dorit. Ãn partea dreaptÄƒ mai Ã®n
+jos poÅ£i gÄƒsi butonul cu care alegi dacÄƒ noul vehicol este pus Ã®n faÅ£Äƒ sau Ã®n spate.
+<strong>PoÅ£i lucra deodatÄƒ numai la un singur convoi!</strong>
 </p>
 <p>
-În timpul jocului dacã vrei ca convoiul sã meargã înpoi în depou inserteazã depoul,
-în traseul convoiului, sau apasã pe butonul "înapoi depou".
+Ãn timpul jocului dacÄƒ vrei ca convoiul sÄƒ meargÄƒ Ã®npoi Ã®n depou inserteazÄƒ depoul,
+Ã®n traseul convoiului, sau apasÄƒ pe butonul "Ã®napoi depou".
 </p>

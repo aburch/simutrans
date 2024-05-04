@@ -3,7 +3,7 @@
 <h1><strong>Postavljanje Klime</strong></h1>
 
 <p>
-Prozor <strong>Postavljanje Klime </strong> omoguæuje promjenu postavki za topografske i meteorolo¹ke aspekte svijeta igre. Otvara se skupa sa <a href="new_world.txt">Stvaranje Nove Igre</a> i <a href="language.txt">Jezici</a> prozori.
+Prozor <strong>Postavljanje Klime </strong> omoguÄ‡uje promjenu postavki za topografske i meteoroloÅ¡ke aspekte svijeta igre. Otvara se skupa sa <a href="new_world.txt">Stvaranje Nove Igre</a> i <a href="language.txt">Jezici</a> prozori.
 </p>
 
 <p>
@@ -15,7 +15,7 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 
 <p>
-<em>Razina Vode</em> - Postavlja koliko je visoka voda na mapi. Vi¹e vrijednosti daju manje zemlje i vi¹e tijela vode.
+<em>Razina Vode</em> - Postavlja koliko je visoka voda na mapi. ViÅ¡e vrijednosti daju manje zemlje i viÅ¡e tijela vode.
 </p>
 
 <p>
@@ -23,7 +23,7 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 
 <p>
-<em>Grubost Mape</em> - Postavlja grubost terena. Veæi brojevi stvaraju vi¹e talasanja u obalnim podruèjima. Za stvaranjwe realistiènijih linija obale, koristiti veæu vrijednost.<br>
+<em>Grubost Mape</em> - Postavlja grubost terena. VeÄ‡i brojevi stvaraju viÅ¡e talasanja u obalnim podruÄjima. Za stvaranjwe realistiÄnijih linija obale, koristiti veÄ‡u vrijednost.<br>
 </p>
 
 <p>
@@ -32,16 +32,16 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 <p>
 
-<em>ljetna linija snijega</em> - Linija snijega tijekom ljeta. Ovo je najveæa vrijednost terena odabrana u opcijama klime.
+<em>ljetna linija snijega</em> - Linija snijega tijekom ljeta. Ovo je najveÄ‡a vrijednost terena odabrana u opcijama klime.
 </p>
 
 <p>
-<em>Zimska Linija Snijega</em> - Postavlja visinu snje¾ne linije u zimi. Kako bi se snijeg pojavljivao u veæim podruèjima na mapi, dr¾ati ovu vrijednost niskom.
+<em>Zimska Linija Snijega</em> - Postavlja visinu snjeÅ¾ne linije u zimi. Kako bi se snijeg pojavljivao u veÄ‡im podruÄjima na mapi, drÅ¾ati ovu vrijednost niskom.
 </p>
 
 <p>
 <it>Postavke Klime</it>
-<br>Postavlja razne postavke klime za novu mapu. <br>Vrijednost pokraj svakog tipa klime postavlja visinu u mapi terena gdje se pojavljuje klima. Za iskljuèivanje odreğene klime, postaviti njegovu vrijednost na 0 (zero).
+<br>Postavlja razne postavke klime za novu mapu. <br>Vrijednost pokraj svakog tipa klime postavlja visinu u mapi terena gdje se pojavljuje klima. Za iskljuÄivanje odreÄ‘ene klime, postaviti njegovu vrijednost na 0 (zero).
 </p>
 
 <p>
@@ -49,15 +49,15 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 <p>
 
-<em>Tropska Klima</em> - Tipicno za ne-bezvodna podruèja oko ekvatora, stalno visoka temperatura na razini mora i mala uzviğenja.
+<em>Tropska Klima</em> - Tipicno za ne-bezvodna podruÄja oko ekvatora, stalno visoka temperatura na razini mora i mala uzviÄ‘enja.
 </p>
 
 <p>
-<em>Mediterabska klima</em> - Umjereno promjenjivo vla¾no vrijeme
+<em>Mediterabska klima</em> - Umjereno promjenjivo vlaÅ¾no vrijeme
 </p>
 
 <p>
-<em>Umjerena Klima</em> - Mo¾e se naæi u podruèjima izmeğu tropske i polarnih kapa, promijenjivo vrijeme.
+<em>Umjerena Klima</em> - MoÅ¾e se naÄ‡i u podruÄjima izmeÄ‘u tropske i polarnih kapa, promijenjivo vrijeme.
 </p>
 
 <p>
@@ -73,7 +73,7 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 
 <p>
-<em>Nema Drva</em> - Klik za omoguæenje. Omoguèiti ovu postavku za spreèavanje Simutrans-ovog iscrtavanja drva. Drva optereæuju CPU vrijeme za iscrtavanje. Koristiti ovu postavku na PCima sa sporijim CPU ili malo RAM-a.
+<em>Nema Drva</em> - Klik za omoguÄ‡enje. OmoguÄiti ovu postavku za spreÄavanje Simutrans-ovog iscrtavanja drva. Drva optereÄ‡uju CPU vrijeme za iscrtavanje. Koristiti ovu postavku na PCima sa sporijim CPU ili malo RAM-a.
 </p>
 
 <p>

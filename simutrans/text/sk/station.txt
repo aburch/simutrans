@@ -1,40 +1,40 @@
-<title> Stanica, zastávka</title>
+<title> Stanica, zastÃ¡vka</title>
 
-<h1>Stanica, zastávka a nákladná rampa</h1>
+<h1>Stanica, zastÃ¡vka a nÃ¡kladnÃ¡ rampa</h1>
 
 <p>
-Tu sa dozvie¹ informácie o stanici, zastávke, alebo nákladnej rampe,
-ktorú si zvolil. Prvou informáciou je èakajúci tovar, ktorı je potrebnı
-pre blízko le¾iace priemyselné odvetvia a na ktoré stanice alebo zastávky
-sú priame spojenia.
+Tu sa dozvieÅ¡ informÃ¡cie o stanici, zastÃ¡vke, alebo nÃ¡kladnej rampe,
+ktorÃº si zvolil. Prvou informÃ¡ciou je ÄakajÃºci tovar, ktorÃ½ je potrebnÃ½
+pre blÃ­zko leÅ¾iace priemyselnÃ© odvetvia a na ktorÃ© stanice alebo zastÃ¡vky
+sÃº priame spojenia.
 </p>
 <p>
-Mô¾e¹ tie¾ premenovat' svoju stanicu alebo zastávku - klikni na textové pole s názvom
-svojej stanice alebo zastávky. Objaví sa kurzor, èo znamená, ze mô¾e¹ upravovat'
-názov.
-Po úpravách názvu stlaè kláves Enter.
+MÃ´Å¾eÅ¡ tieÅ¾ premenovat' svoju stanicu alebo zastÃ¡vku - klikni na textovÃ© pole s nÃ¡zvom
+svojej stanice alebo zastÃ¡vky. ObjavÃ­ sa kurzor, Äo znamenÃ¡, ze mÃ´Å¾eÅ¡ upravovat'
+nÃ¡zov.
+Po ÃºpravÃ¡ch nÃ¡zvu stlaÄ klÃ¡ves Enter.
 </p>
 <p>
-Informácia o zastávke zobrazuje, ktorı tovar alebo pasa¾ieri èakajú na stanici.
-Informácie sú usporiadané tak, ¾e ka¾dá má svoje záhlavie pre rozdielny typ
-tovaru a iné, napr.<br>
-402 áut èaká<br>
-83 pasa¾ierov èaká
+InformÃ¡cia o zastÃ¡vke zobrazuje, ktorÃ½ tovar alebo pasaÅ¾ieri ÄakajÃº na stanici.
+InformÃ¡cie sÃº usporiadanÃ© tak, Å¾e kaÅ¾dÃ¡ mÃ¡ svoje zÃ¡hlavie pre rozdielny typ
+tovaru a inÃ©, napr.<br>
+402 Ã¡ut ÄakÃ¡<br>
+83 pasaÅ¾ierov ÄakÃ¡
 </p>
 <p>
-a ka¾dá informácia z tohoto záhlavia e¹te mô¾e obsahovat' podrobnej¹ie údaje (podriadené).
-Tieto udávajú cieµ, kam má tovar íst' a presné mno¾stvo tovaru alebo pasa¾ierov napr.
+a kaÅ¾dÃ¡ informÃ¡cia z tohoto zÃ¡hlavia eÅ¡te mÃ´Å¾e obsahovat' podrobnejÅ¡ie Ãºdaje (podriadenÃ©).
+Tieto udÃ¡vajÃº cieÄ¾, kam mÃ¡ tovar Ã­st' a presnÃ© mnoÅ¾stvo tovaru alebo pasaÅ¾ierov napr.
 </p>
 <p>
-56 pasa¾ierov èaká<br>
-- 25 pasa¾ierov > Pre¹ovská Kopanica BF<br>
-- 29 pasa¾ierov > Trnavské Mesto   cez Svitovská Dedina vıchod<br>
-- 2  pasa¾ieri > Ko¹ické Mesto Hlavné H
+56 pasaÅ¾ierov ÄakÃ¡<br>
+- 25 pasaÅ¾ierov > PreÅ¡ovskÃ¡ Kopanica BF<br>
+- 29 pasaÅ¾ierov > TrnavskÃ© Mesto   cez SvitovskÃ¡ Dedina vÃ½chod<br>
+- 2  pasaÅ¾ieri > KoÅ¡ickÃ© Mesto HlavnÃ© H
 </p>
 <p>
-Úplne vpravo nájde¹ tlaèidlo ,,Detaily''. Obsahuje informácie o tovare
+Ãšplne vpravo nÃ¡jdeÅ¡ tlaÄidlo ,,Detaily''. Obsahuje informÃ¡cie o tovare
 potrebnom
-pre ïal¹í priemysel, priamych spojeniach s ïal¹ími stanicami alebo zastávkami a tovar,
-ktorı sa sem privá¾a alebo odtiaµto odvá¾a preè.
-V¹etko je usporiadané tak, ¾e okam¾ite má¹ prehµad odkiaµ, èo a kam ide.
+pre ÄalÅ¡Ã­ priemysel, priamych spojeniach s ÄalÅ¡Ã­mi stanicami alebo zastÃ¡vkami a tovar,
+ktorÃ½ sa sem privÃ¡Å¾a alebo odtiaÄ¾to odvÃ¡Å¾a preÄ.
+VÅ¡etko je usporiadanÃ© tak, Å¾e okamÅ¾ite mÃ¡Å¡ prehÄ¾ad odkiaÄ¾, Äo a kam ide.
 </p>

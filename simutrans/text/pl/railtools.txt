@@ -3,35 +3,35 @@
 <h1>Budowa kolei</h1>
 
 <p>
-To okno zawiera narzedzia do budowy tor體, sygnal體, tuneli, lokomotywowni, skrzyzowan i stacji.
+To okno zawiera narzedzia do budowy tor贸w, sygnal贸w, tuneli, lokomotywowni, skrzyzowan i stacji.
 Po wybraniu danego narzedzia, obok kursora pojawi sie jego wizerunek.
 </p>
 <p>
-W lewym g髍nym rogu znajduje sie narzedzie do budowy tor體.
+W lewym g贸rnym rogu znajduje sie narzedzie do budowy tor贸w.
 Z jego pomoca mozna budowac tory miedzy dwoma kwadratami.
 Chcac zbudowac tory kliknij na kwadrat poczatkowy - kursor zamieni sie w buldozer - a nastepnie na kwadrat docelowy. Miedzy tymi kwadratami powstana tory (pola miedzy kwadratami powinny byc wolne). Jesli bedziesz chcial przeciac ulice zastosuj skrzyzowanie, most, lub tunel. Jesli nie bedzi polaczenia miedzy kwadratem poczatkowym i koncowym tory nie zostana wybudowane.
 </p>
 <p>
-Nastepna ikona pozwala budowac sygnalizacje kolejowe. Sygnaly pozwalaja ustalic ruch pociag體.
+Nastepna ikona pozwala budowac sygnalizacje kolejowe. Sygnaly pozwalaja ustalic ruch pociag贸w.
 Dzieki nim dwa pociagi moga poruszac sie po jednym torze.
-Syganal jednokierunkowy nakazuje pociagowi jazde wyznaczonym torem. Sygnaly jednokierunkowe budujemy w ten spos骲, ze stawiamy normalny sygnal i klikamy na niego - wtedy zamieni sie w syganl jednokierunkowy. Kolejne kliknieci spowoduje ze zmieni sie kierunek syganalu, a nastepne zamieni sygnal jednokierunkowy w dwukierunkowy (Sygnaly mozna zmieniac przy pomocy ikony 'sygnaly'). Nalezy uwazac aby zle ustawione sygnaly nie zablokowaly ruchu pociag體.
+Syganal jednokierunkowy nakazuje pociagowi jazde wyznaczonym torem. Sygnaly jednokierunkowe budujemy w ten spos贸b, ze stawiamy normalny sygnal i klikamy na niego - wtedy zamieni sie w syganl jednokierunkowy. Kolejne kliknieci spowoduje ze zmieni sie kierunek syganalu, a nastepne zamieni sygnal jednokierunkowy w dwukierunkowy (Sygnaly mozna zmieniac przy pomocy ikony 'sygnaly'). Nalezy uwazac aby zle ustawione sygnaly nie zablokowaly ruchu pociag贸w.
 Aby zbudowac sygnal kliknij lewym przyciskiem myszy na torach w miejscu gdzie ma stanac syganl.
 Sygnaly umieszczane sa na kwadratowym polu. Na jednym polu moze stac tylko jeden sygnal.
 Aby usunac sygnal uzyj narzedzia 'zniszcz'. Po kliknieciu na niepotrzebny sygnal zostanie on zlikwidowany (tory pozostana nienaruszone).
 </p>
 <p>
 Ostatnia ikona zawiera narzedzia do budowy tuneli.
-Tunele sa uzywane do budowy kr髏kich polaczen przez wysokie g髍y. Przed skonstruowaniem tunelu najpierw musisz wybudowac tory. Po obu stronach g髍y w wybranym przez Ciebie miejscu musisz wybudowac zakonczenie tor體 (koniecznie na tej samej wysokosci po obu stronach!). Nastepnie wybuduj tunel klikjac na narzedzie 'Tunel' i przeciagajac linie pomiedzy utworzonymi zakonczeniami tor體.
+Tunele sa uzywane do budowy kr贸tkich polaczen przez wysokie g贸ry. Przed skonstruowaniem tunelu najpierw musisz wybudowac tory. Po obu stronach g贸ry w wybranym przez Ciebie miejscu musisz wybudowac zakonczenie tor贸w (koniecznie na tej samej wysokosci po obu stronach!). Nastepnie wybuduj tunel klikjac na narzedzie 'Tunel' i przeciagajac linie pomiedzy utworzonymi zakonczeniami tor贸w.
 </p>
 <p>
 Kolejna ikona sa 'Skrzyzowania'.
 Dzieki 'Skrzyzowaniom' tory moga sie nawzajem przecinac. Skrzyzowania budujemy przez klikniecie na torach w miejscu gdzie chcemy je utworzyc.
 </p>
 <p>
-Nastepnym narzedziem jest 'Lokomotywownia'. W lokomotywowni kupujemy, naprawiamy i sprzedajemy lokomotywy i wagony. Lokomotywnie mozna zbudowac tylko na koncu tor體.
+Nastepnym narzedziem jest 'Lokomotywownia'. W lokomotywowni kupujemy, naprawiamy i sprzedajemy lokomotywy i wagony. Lokomotywnie mozna zbudowac tylko na koncu tor贸w.
 </p>
 <p>
-Ostatnia ikona to 'Stacja'. Stacje uzywane sa do zaladunku/wyladunku towar體 i przewozu ludzi. Stacje moaga miec dowolny ksztalt i rozmiar. Na stacjach mozna przechowywac niograniczona liczbe towar體, ale fabryki przyjmuja towary jesli oczekuje mniej niz 1000 jednostek towaru.
-Stacje budujemy na skraju tor體, ale nie moga powstac na pochylosciach skrzyzowaniach i zakretach.
-Kazdy segment stacji moze przyjac do 2 wagon體, dlatego upewnij sie czy dany pociag zmiesci sie w calosci na stacji. Wagony nie mieszczace sie na stacji nie moga transportowac towar體/ludzi.
+Ostatnia ikona to 'Stacja'. Stacje uzywane sa do zaladunku/wyladunku towar贸w i przewozu ludzi. Stacje moaga miec dowolny ksztalt i rozmiar. Na stacjach mozna przechowywac niograniczona liczbe towar贸w, ale fabryki przyjmuja towary jesli oczekuje mniej niz 1000 jednostek towaru.
+Stacje budujemy na skraju tor贸w, ale nie moga powstac na pochylosciach skrzyzowaniach i zakretach.
+Kazdy segment stacji moze przyjac do 2 wagon贸w, dlatego upewnij sie czy dany pociag zmiesci sie w calosci na stacji. Wagony nie mieszczace sie na stacji nie moga transportowac towar贸w/ludzi.
 </p>

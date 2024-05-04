@@ -3,21 +3,21 @@
 <h1>Setare monitor</h1>
 
 <p>
-Aici poşi defini setãrile dorite pt. monitor.
+Aici poÅ£i defini setÄƒrile dorite pt. monitor.
 </p>
 
 <p>
-<em>Luminozitate</em> - Schimbã lumina.<br>
-<em>Nr. de culori</em> - Nefuncşional încã<br>
-<em>Viteza de scrol</em> - Poşi seta viteza de scrol a mapei.
+<em>Luminozitate</em> - SchimbÄƒ lumina.<br>
+<em>Nr. de culori</em> - NefuncÅ£ional Ã®ncÄƒ<br>
+<em>Viteza de scrol</em> - PoÅ£i seta viteza de scrol a mapei.
 </p>
 
 <p>
-<em>Scrol invers</em> - Defilarea mapei se schimbã<br>
-<em>Aratã pietonii</em> - Aratã sau nu pietonii din oraº.<br>
-<em>Mod zi/noapte</em> - Aratã sau nu trecerea zile ºi a nopşilor.
+<em>Scrol invers</em> - Defilarea mapei se schimbÄƒ<br>
+<em>AratÄƒ pietonii</em> - AratÄƒ sau nu pietonii din oraÅŸ.<br>
+<em>Mod zi/noapte</em> - AratÄƒ sau nu trecerea zile ÅŸi a nopÅ£ilor.
 </p>
 <p>
-Îm partea de jos sunt unele informaşii nesemnificative în timpul jocului. Însã dacã ai ceva probleme
-cu jocul ºi vrei sã vorbeºti cu autorii probabil unele informaşii afiºate aici vor fi foarte importante.
+Ãm partea de jos sunt unele informaÅ£ii nesemnificative Ã®n timpul jocului. ÃnsÄƒ dacÄƒ ai ceva probleme
+cu jocul ÅŸi vrei sÄƒ vorbeÅŸti cu autorii probabil unele informaÅ£ii afiÅŸate aici vor fi foarte importante.
 </p>

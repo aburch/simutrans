@@ -14,7 +14,7 @@ Vrijednosti (u Hajo Kreditima) su prikazane za trenutnu i prethodne kalendarske 
 <em>Prethodna godina:</em> prethodna kalendarska godina igre.
 </p>
 <p>
-Godi¹nje vrijednosti se takoðer mogu vidjeti u grafikonu za zadnjih deset godina, ili mjesecne vrijednosti za zadnju godinu.<br>
+GodiÅ¡nje vrijednosti se takoÄ‘er mogu vidjeti u grafikonu za zadnjih deset godina, ili mjesecne vrijednosti za zadnju godinu.<br>
 Klik na vrijednost ime-gumb za promjenu detalja na grafu: y-os je kolicina, x-os je vrijeme.<br>
 Klik na indeksnu karticu na grafu index-kartici za promjenu skale x-osi:<br>
 <em>Godine:</em> prikaz godisnjih vrijednosti za zadnjih deset kalendarskih godina.<br>

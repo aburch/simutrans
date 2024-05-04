@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: uk Ukrainian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -938,7 +938,7 @@ Generation: %.0f MW
 Gewicht
 Маса
 Gewinn
-Прибуток:
+Прибуток: 
 Give the selected vehicle(s) an individual schedule
 Призначити обраним т/з індивідуальний розклад
 gl_btn_sort_catg
@@ -1810,7 +1810,7 @@ Toggle vehicle tooltips
 tonnen
 т
 Total inhabitants:
-Всього жителів:
+Всього жителів: 
 Tourist attractions
 Туристичні принади:
 Tourists

@@ -3,12 +3,12 @@
 <h1>Scule pt. automobile</h1>
 
 <p>
-Aici poşi gãsii toate uneltele necesare pt. managementul
-automobilelor procurate în depou.
+Aici poÅ£i gÄƒsii toate uneltele necesare pt. managementul
+automobilelor procurate Ã®n depou.
 </p>
 <p>
-Fiecare tip de ºosea permite o anumitã vitezã maximã.
+Fiecare tip de ÅŸosea permite o anumitÄƒ vitezÄƒ maximÄƒ.
 </p>
 <p>
-Traversã se poate construi numai pe cale feratã.
+TraversÄƒ se poate construi numai pe cale feratÄƒ.
 </p>

@@ -1,20 +1,20 @@
-<title>Køretøjsliste filter</title>
+<title>KÃ¸retÃ¸jsliste filter</title>
 
-<h1>Køretøjsliste filter dialog</h1>
+<h1>KÃ¸retÃ¸jsliste filter dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Denne filter dialog anvendes til at udvælge (filtrere) de køretøjer, som du
-ønsker at betragte i<br>
-<a href="convoi.txt">Køretøjsliste dialogen</a>
+Denne filter dialog anvendes til at udvÃ¦lge (filtrere) de kÃ¸retÃ¸jer, som du
+Ã¸nsker at betragte i<br>
+<a href="convoi.txt">KÃ¸retÃ¸jsliste dialogen</a>
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Til venstre findes tre filteroverskrifter, henholdsvis 'Filtrer på navn:',
-'Filtrer på type:' og 'Specialfilter:'. Til højre for disse findes en liste med
-overskriften 'Filtrer på varer:'. Under denne overskrifter findes tre knapper
-med teksterne 'alle', 'ingen' og 'inv.'. Listen består af en trykknap for
+Til venstre findes tre filteroverskrifter, henholdsvis 'Filtrer pÃ¥ navn:',
+'Filtrer pÃ¥ type:' og 'Specialfilter:'. Til hÃ¸jre for disse findes en liste med
+overskriften 'Filtrer pÃ¥ varer:'. Under denne overskrifter findes tre knapper
+med teksterne 'alle', 'ingen' og 'inv.'. Listen bestÃ¥r af en trykknap for
 samtlige varetyper.
 </p>
 
@@ -23,11 +23,11 @@ Samtlige fire overskrifter har en chechbox-knap tilknyttet.
 </p>
 
 <p>
-<strong>Bemærk - For at få foretaget en filtrering med en eller flere af de fire
+<strong>BemÃ¦rk - For at fÃ¥ foretaget en filtrering med en eller flere af de fire
 filtrerings muligheder skal:<br>
 a) Chechbox-knappen til venstre for overskriften trykkes ned.<br>
 b) Tilstandsknappen under overskriften 'Filter:' i</strong>
-<a href="convoi.txt">Køretøjsliste dialogen</a><strong> sættes til
+<a href="convoi.txt">KÃ¸retÃ¸jsliste dialogen</a><strong> sÃ¦ttes til
 'aktivt'</strong>
 </p>
 
@@ -36,36 +36,36 @@ De tre filtreringsmuligheder til venstre er:
 </p>
 
 <p>
-<em>Filtrer på navn:</em><br>
-Her er der mulighed for at udvælge køretøjer med et fælles navn. Dette gøres
-ved at skrive en del af eller hele det ønskede navn i listboksen under
+<em>Filtrer pÃ¥ navn:</em><br>
+Her er der mulighed for at udvÃ¦lge kÃ¸retÃ¸jer med et fÃ¦lles navn. Dette gÃ¸res
+ved at skrive en del af eller hele det Ã¸nskede navn i listboksen under
 overskriften. F.eks vil en indtastning af 'Ben' give alle toge, hvis navn
-begynder med Bennhardt. <strong>Bemærk at søgningen er
+begynder med Bennhardt. <strong>BemÃ¦rk at sÃ¸gningen er
 "case-sensitive"</strong>
 </p>
 
 <p>
-<em>Filtrer på type:</em><br>
-Her er der mulighed for at udvælge køretøjer efter deres type. De mulige typer
+<em>Filtrer pÃ¥ type:</em><br>
+Her er der mulighed for at udvÃ¦lge kÃ¸retÃ¸jer efter deres type. De mulige typer
 er Busser/lastbiler, tog, og skibe.
 </p>
 
 <p>
 <em>Special filter:</em><br>
 
-Her er der mulighed for at udvælge køretøjer, der opfylder følgende:<br>
+Her er der mulighed for at udvÃ¦lge kÃ¸retÃ¸jer, der opfylder fÃ¸lgende:<br>
 - Ingen rute (ikke kan finde en forbindelse)<br>
-- Ingen ruteplan har (ikke har fået en ruteplan tilknyttet)<br>
-- Ingen indtægt (i indeværende år)
+- Ingen ruteplan har (ikke har fÃ¥et en ruteplan tilknyttet)<br>
+- Ingen indtÃ¦gt (i indevÃ¦rende Ã¥r)
 </p>
 
 <p>
-Listen til højre giver mulighed for at udvælge køretøjer udfra de varer, der
-transporteres på køretøjet. <strong>Bemærk at dette filter ikke er helt
+Listen til hÃ¸jre giver mulighed for at udvÃ¦lge kÃ¸retÃ¸jer udfra de varer, der
+transporteres pÃ¥ kÃ¸retÃ¸jet. <strong>BemÃ¦rk at dette filter ikke er helt
 up-to-date, idet der for bulkgods og stykgodsvarer filtreres efter
-køretøjsbetegnelsen fremfor varetypen. Dvs. hvis der transporteres kul i en
-stenvogn, vil køretøjet fremgå under varetypen "sten" i stedet for
-"kul".</strong> De tre knapper under overskriften anvendes til at vælge
+kÃ¸retÃ¸jsbetegnelsen fremfor varetypen. Dvs. hvis der transporteres kul i en
+stenvogn, vil kÃ¸retÃ¸jet fremgÃ¥ under varetypen "sten" i stedet for
+"kul".</strong> De tre knapper under overskriften anvendes til at vÃ¦lge
 henholdsvis alle eller ingen af de mulige varetyper samt til at foretage den
-"inverse" trykknap udvælgelse.
+"inverse" trykknap udvÃ¦lgelse.
 </p>

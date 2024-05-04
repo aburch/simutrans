@@ -2,25 +2,25 @@
 <h1>Seznam stanic</h1>
 
 <p>
-<em>Seznam nabízí tyto mo¾nosti:</em>
+<em>Seznam nabÃ­zÃ­ tyto moÅ¾nosti:</em>
 </p>
 
 <p>
-<em>1.) Øazení:</em><br>
-Postupnım klikáním na první pøepínací tlaèítko mìníte kritéria, podle kterıch bude seznam øazen.<br>
-Vedlej¹ím tlaèítkem nastavujete, zda má bıt øazen sestupnì nebo vzestupnì.
+<em>1.) Å˜azenÃ­:</em><br>
+PostupnÃ½m klikÃ¡nÃ­m na prvnÃ­ pÅ™epÃ­nacÃ­ tlaÄÃ­tko mÄ›nÃ­te kritÃ©ria, podle kterÃ½ch bude seznam Å™azen.<br>
+VedlejÅ¡Ã­m tlaÄÃ­tkem nastavujete, zda mÃ¡ bÃ½t Å™azen sestupnÄ› nebo vzestupnÄ›.
 </p>
 
 <p>
 <em>2.) Filtr:</em><br>
-Kliknutím na tøetí tlaèítko aktivujete, nebo deaktivujete filtr.<br>
-Mo¾nosti tohoto filtru mù¾ete mìnit po kliknutí na tlaèítko <strong>nastavení</strong>.
+KliknutÃ­m na tÅ™etÃ­ tlaÄÃ­tko aktivujete, nebo deaktivujete filtr.<br>
+MoÅ¾nosti tohoto filtru mÅ¯Å¾ete mÄ›nit po kliknutÃ­ na tlaÄÃ­tko <strong>nastavenÃ­</strong>.
 </p>
 
 <p>
--><a href="haltlist_filter.txt">Nápovìda pro filtr</a>
+-><a href="haltlist_filter.txt">NÃ¡povÄ›da pro filtr</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

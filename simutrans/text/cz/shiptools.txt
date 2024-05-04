@@ -1,22 +1,22 @@
-<title>Nápovìda - lodní doprava</title>
-<h1>Lodní doprava</h1>
+<title>NÃ¡povÄ›da - lodnÃ­ doprava</title>
+<h1>LodnÃ­ doprava</h1>
 
 <p>
-Tento dialog vám umo¾òuje stavìt doky a pøístavy.
+Tento dialog vÃ¡m umoÅ¾Åˆuje stavÄ›t doky a pÅ™Ã­stavy.
 </p>
 
 <p>
-První je symbol pøístavù. Kliknutím na nìj se vám kurzor zmìní v obrázek pøístavu. Pøístavy dovolují naloïovat cestující a zbo¾í z nedalekıch továren a mìst. Ke stavbì pøístavu si vyberte místo na konci pevniny, které pøechází na vodu. Lze také stavìt velké pøístavy - musí se v¹ak navzájem dotıkat, èi bıt jinak spojeny - napø. ¾eleznièní zastávkou.
+PrvnÃ­ je symbol pÅ™Ã­stavÅ¯. KliknutÃ­m na nÄ›j se vÃ¡m kurzor zmÄ›nÃ­ v obrÃ¡zek pÅ™Ã­stavu. PÅ™Ã­stavy dovolujÃ­ naloÄovat cestujÃ­cÃ­ a zboÅ¾Ã­ z nedalekÃ½ch tovÃ¡ren a mÄ›st. Ke stavbÄ› pÅ™Ã­stavu si vyberte mÃ­sto na konci pevniny, kterÃ© pÅ™echÃ¡zÃ­ na vodu. Lze takÃ© stavÄ›t velkÃ© pÅ™Ã­stavy - musÃ­ se vÅ¡ak navzÃ¡jem dotÃ½kat, Äi bÃ½t jinak spojeny - napÅ™. Å¾elezniÄnÃ­ zastÃ¡vkou.
 </p>
 
 <p>
-K nastavení lodní zastávky musíte vybrat políèko, které je pøímo pøed pøístavem, ne v¹ak samotnı pøístav!<strong>Buïte rozvá¾ní se stavbou pøístavù, odstraòování pøístavù je¹tì není zcela funkèní!</strong>
+K nastavenÃ­ lodnÃ­ zastÃ¡vky musÃ­te vybrat polÃ­Äko, kterÃ© je pÅ™Ã­mo pÅ™ed pÅ™Ã­stavem, ne vÅ¡ak samotnÃ½ pÅ™Ã­stav!<strong>BuÄte rozvÃ¡Å¾nÃ­ se stavbou pÅ™Ã­stavÅ¯, odstraÅˆovÃ¡nÃ­ pÅ™Ã­stavÅ¯ jeÅ¡tÄ› nenÃ­ zcela funkÄnÃ­!</strong>
 </p>
 
 <p>
-Dva podobné symboly jsou pro stavbu doku, rozdíl je pouze v jejich orientaci, severní nebo vıchodní. Kliknutím na jeden z nich se vám kurzor zmìní v obrázek doku. Doky jsou urèeny pro nákup v¹ech dostupnıch typù lodí, a pro správu lodí zde zaparkovanıch (prodávání, nastavování linek a jízdního plánu aj.). Ke stavbì si vyberte místo na vodì, které chcete, mù¾e to bıt jakıkoliv vodní ètverec.
+Dva podobnÃ© symboly jsou pro stavbu doku, rozdÃ­l je pouze v jejich orientaci, severnÃ­ nebo vÃ½chodnÃ­. KliknutÃ­m na jeden z nich se vÃ¡m kurzor zmÄ›nÃ­ v obrÃ¡zek doku. Doky jsou urÄeny pro nÃ¡kup vÅ¡ech dostupnÃ½ch typÅ¯ lodÃ­, a pro sprÃ¡vu lodÃ­ zde zaparkovanÃ½ch (prodÃ¡vÃ¡nÃ­, nastavovÃ¡nÃ­ linek a jÃ­zdnÃ­ho plÃ¡nu aj.). Ke stavbÄ› si vyberte mÃ­sto na vodÄ›, kterÃ© chcete, mÅ¯Å¾e to bÃ½t jakÃ½koliv vodnÃ­ Ätverec.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

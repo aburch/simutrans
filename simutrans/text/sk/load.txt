@@ -1,13 +1,13 @@
-<title>Naèítanie - pomoc</title>
+<title>NaÄÃ­tanie - pomoc</title>
 
-<h1>Naèítat' ulo¾enú hru</h1>
+<h1>NaÄÃ­tat' uloÅ¾enÃº hru</h1>
 
 <p>
-Napí¹ názov ulo¾enej hry, alebo ju vyber zo zoznamu
-ulo¾enıch hier. Pokraèuj kliknutím na jej názov. Tımto
-vybranú hru spustí¹.
+NapÃ­Å¡ nÃ¡zov uloÅ¾enej hry, alebo ju vyber zo zoznamu
+uloÅ¾enÃ½ch hier. PokraÄuj kliknutÃ­m na jej nÃ¡zov. TÃ½mto
+vybranÃº hru spustÃ­Å¡.
 </p>
 <p>
-Hru vyma¾e¹ kliknutím na znaèku ,,X'' vedµa názvu
-(pozor na neopatrné kliknutie !).
+Hru vymaÅ¾eÅ¡ kliknutÃ­m na znaÄku ,,X'' vedÄ¾a nÃ¡zvu
+(pozor na neopatrnÃ© kliknutie !).
 </p>

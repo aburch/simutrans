@@ -1,30 +1,30 @@
 <title>Climate Control Help</title>
 <h1><strong>Climate Control</strong></h1>
 <p>
-<strong>Climate Control</strong> vous permet de modifier les options météorologiques et topographiques du monde à créer.</p>
+<strong>Climate Control</strong> vous permet de modifier les options mÃ©tÃ©orologiques et topographiques du monde Ã  crÃ©er.</p>
 <p>
-<strong>Climate Control</strong> s'ouvre automatiquement avec<a href="new_world.txt">la création d'un nouveau jeu</a>.</p>
+<strong>Climate Control</strong> s'ouvre automatiquement avec<a href="new_world.txt">la crÃ©ation d'un nouveau jeu</a>.</p>
 <p>
-<em>Niveau de la mer :</em> Hauteur de l'eau (entre 0, terre exclusivement, et 5, avec alors des îlots).</p>
+<em>Niveau de la mer :</em> Hauteur de l'eau (entre 0, terre exclusivement, et 5, avec alors des Ã®lots).</p>
 <p>
 <em>Hauteur montagne :</em> Hauteur des collines, entre 0 et 320.</p>
 <p>
-<em>Dénivelé carte :</em> Entre 0 et 6. Une valeur élevée favorise l'existence sur terre d'une multitude de niveaux différents d'altitude.</p>
+<em>DÃ©nivelÃ© carte :</em> Entre 0 et 6. Une valeur Ã©levÃ©e favorise l'existence sur terre d'une multitude de niveaux diffÃ©rents d'altitude.</p>
 <p>
-Si hauteur et dénivelé sont simultanément élevés, il y aura beaucoup de montagnes, avec des pentes raides.</p>
+Si hauteur et dÃ©nivelÃ© sont simultanÃ©ment Ã©levÃ©s, il y aura beaucoup de montagnes, avec des pentes raides.</p>
 <p>
-Si hauteur et dénivelé sont simultanément faibles, le monde généré sera très plat !</p>
+Si hauteur et dÃ©nivelÃ© sont simultanÃ©ment faibles, le monde gÃ©nÃ©rÃ© sera trÃ¨s plat !</p>
 <p>
-Si hauteur est élevée et que dénivelé est faible, il y aura peu de montagnes mais qui montent haut, les changements de niveaux étant éloignés (pente douce).</p>
+Si hauteur est Ã©levÃ©e et que dÃ©nivelÃ© est faible, il y aura peu de montagnes mais qui montent haut, les changements de niveaux Ã©tant Ã©loignÃ©s (pente douce).</p>
 <p>
-Si hauteur est faible et que dénivelé est élevé, alors le terrain est plat (les montagnes ont une pente raide... mais il n'y a pas de montagnes).</p>
+Si hauteur est faible et que dÃ©nivelÃ© est Ã©levÃ©, alors le terrain est plat (les montagnes ont une pente raide... mais il n'y a pas de montagnes).</p>
 <p>
-<em>Summer snowline :</em> Niveau à partir duquel il y a de la neige en été. Déterminé automatiquement à partie des choix suivants.</p>
+<em>Summer snowline :</em> Niveau Ã  partir duquel il y a de la neige en Ã©tÃ©. DÃ©terminÃ© automatiquement Ã  partie des choix suivants.</p>
 <p>
-<em>Winter snowline :</em> Niveau à partir duquel il y a de la neige en été. Choisissez 0 si vous aimez le blanc. Le niveau maximal dépend des choix suivants.</p>
+<em>Winter snowline :</em> Niveau Ã  partir duquel il y a de la neige en Ã©tÃ©. Choisissez 0 si vous aimez le blanc. Le niveau maximal dÃ©pend des choix suivants.</p>
 <p>
-<em>Desert, tropic, mediteranean, temperate, tundra, rocky :</em> Altitude à partie de laquelle  vous pouvez commencer à trouver des terrains appropriés pour chaque climat. Ces options peuvent également être définie dans les fichiers de configuration pour Simutrans.</p>
+<em>Desert, tropic, mediteranean, temperate, tundra, rocky :</em> Altitude Ã  partie de laquelle  vous pouvez commencer Ã  trouver des terrains appropriÃ©s pour chaque climat. Ces options peuvent Ã©galement Ãªtre dÃ©finie dans les fichiers de configuration pour Simutrans.</p>
 <br>
-Actualisé pour Simutrans 100.0
+ActualisÃ© pour Simutrans 100.0
 <br>
 05/07/2008.

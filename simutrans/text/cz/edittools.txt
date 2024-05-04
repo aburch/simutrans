@@ -1,50 +1,50 @@
-<title>Nápovìda - ediatace Mapy</title>
+<title>NÃ¡povÄ›da - ediatace Mapy</title>
 
 <h1><strong>Editace mapy</strong></h1>
 
-<p>Nástroje pro <em>editaci mapy</em> slou¾í k úpravì ji¾ hotové mapy.
-Nástroje umo¾òují zmìnu poètu obyvatel mìst, stavbu mìststıch silnic, památek, elektráren a prùmyslu, zmìnu aktuálního hráèe a pøidání jednoho roku ke stávajícímu datu.
+<p>NÃ¡stroje pro <em>editaci mapy</em> slouÅ¾Ã­ k ÃºpravÄ› jiÅ¾ hotovÃ© mapy.
+NÃ¡stroje umoÅ¾ÅˆujÃ­ zmÄ›nu poÄtu obyvatel mÄ›st, stavbu mÄ›ststÃ½ch silnic, pamÃ¡tek, elektrÃ¡ren a prÅ¯myslu, zmÄ›nu aktuÃ¡lnÃ­ho hrÃ¡Äe a pÅ™idÃ¡nÃ­ jednoho roku ke stÃ¡vajÃ­cÃ­mu datu.
 </p>
 <p>
-Nabídku s nástroji otevøete pokud jsete pøihlá¹en jako <a href="players.txt">hráè</a> <em>Veøejné slu¾by</em>. K pøepínání mezi hráèi slou¾í tlaèítko P+ v nabídce se <a href="special.txt">speciálními stavbami</a> nebo klávesa <a href="keys.txt">[P]</a>). <br>
-Po najetí kurzorem my¹i nad jednotlivé nástoje se zobrazí název nástroje, popøípadì i doplòující informace, k danému nástroji.</p>
+NabÃ­dku s nÃ¡stroji otevÅ™ete pokud jsete pÅ™ihlÃ¡Å¡en jako <a href="players.txt">hrÃ¡Ä</a> <em>VeÅ™ejnÃ© sluÅ¾by</em>. K pÅ™epÃ­nÃ¡nÃ­ mezi hrÃ¡Äi slouÅ¾Ã­ tlaÄÃ­tko P+ v nabÃ­dce se <a href="special.txt">speciÃ¡lnÃ­mi stavbami</a> nebo klÃ¡vesa <a href="keys.txt">[P]</a>). <br>
+Po najetÃ­ kurzorem myÅ¡i nad jednotlivÃ© nÃ¡stoje se zobrazÃ­ nÃ¡zev nÃ¡stroje, popÅ™Ã­padÄ› i doplÅˆujÃ­cÃ­ informace, k danÃ©mu nÃ¡stroji.</p>
 <p>
-Nástroje zahrnují,tyto polo¾ky. <strong>Poøadí polo¾ek se mù¾e li¹it</strong> v závislosti na jednotlivıch grafickıch sadách (anglicky paksets).
+NÃ¡stroje zahrnujÃ­,tyto poloÅ¾ky. <strong>PoÅ™adÃ­ poloÅ¾ek se mÅ¯Å¾e liÅ¡it</strong> v zÃ¡vislosti na jednotlivÃ½ch grafickÃ½ch sadÃ¡ch (anglicky paksets).
 </p>
 <p>
-<em>Zvìt¹it mìsto</em>: Nástroj zvı¹í poèet obyvatel <a href="citywindow.txt">mìsta</a> pøibli¾nì o 100 obyvatel. Jsou postaveny nové silnice a budovy.<br>
-Pou¾ití: Kliknìte na nástroj a pak kliknìte na mìsto.
+<em>ZvÄ›tÅ¡it mÄ›sto</em>: NÃ¡stroj zvÃ½Å¡Ã­ poÄet obyvatel <a href="citywindow.txt">mÄ›sta</a> pÅ™ibliÅ¾nÄ› o 100 obyvatel. Jsou postaveny novÃ© silnice a budovy.<br>
+PouÅ¾itÃ­: KliknÄ›te na nÃ¡stroj a pak kliknÄ›te na mÄ›sto.
 </p>
 <p>
-<em>Zmen¹it mìsto</em>: Nástroj umo¾òuje sní¾it poèet obyvatel daného mìsta. Poèet obyvatel se sní¾í o 100.<br>
-Pou¾ití: Kliknìte na nástroj a pak kliknìte na mìsto.
+<em>ZmenÅ¡it mÄ›sto</em>: NÃ¡stroj umoÅ¾Åˆuje snÃ­Å¾it poÄet obyvatel danÃ©ho mÄ›sta. PoÄet obyvatel se snÃ­Å¾Ã­ o 100.<br>
+PouÅ¾itÃ­: KliknÄ›te na nÃ¡stroj a pak kliknÄ›te na mÄ›sto.
 </p>
-<p><em>Zalo¾it nové mìsto</em>: Nástroj slou¾í k zalo¾ení nového mìsta.<br>
-Pou¾ití: Kliknìte na nástroj a pak kliknìte na pole, kde chcete mít nové mìsto. Mìsto se postaví na zvoleném poli nebo v jeho blízkosti.</p>
+<p><em>ZaloÅ¾it novÃ© mÄ›sto</em>: NÃ¡stroj slouÅ¾Ã­ k zaloÅ¾enÃ­ novÃ©ho mÄ›sta.<br>
+PouÅ¾itÃ­: KliknÄ›te na nÃ¡stroj a pak kliknÄ›te na pole, kde chcete mÃ­t novÃ© mÄ›sto. MÄ›sto se postavÃ­ na zvolenÃ©m poli nebo v jeho blÃ­zkosti.</p>
 <p><em>Zasadit strom *</em>:
-Nástroj umo¾òuje osázet terén stromy. Kliknìte na nástroj a pak na místo v krajinì.
+NÃ¡stroj umoÅ¾Åˆuje osÃ¡zet terÃ©n stromy. KliknÄ›te na nÃ¡stroj a pak na mÃ­sto v krajinÄ›.
 </p>
-<p><em>Zalo¾it les *</em>
-Nástroj slou¾í k vısadbì lesa. Kliknìte na nástroj a pak dvakrát kliknìte na rùzná místa v terénu. Prostor mezi nimi bude osázen tromy.</p>
+<p><em>ZaloÅ¾it les *</em>
+NÃ¡stroj slouÅ¾Ã­ k vÃ½sadbÄ› lesa. KliknÄ›te na nÃ¡stroj a pak dvakrÃ¡t kliknÄ›te na rÅ¯znÃ¡ mÃ­sta v terÃ©nu. Prostor mezi nimi bude osÃ¡zen tromy.</p>
 <p>
-<em>Mìstská silnice</em>: Nástroj slou¾í ke stavbì mìstské silnice. Pøi umístìní kurzoru nad ikonu se zobrazí cena a v závorce cena za údr¾bu.
-Pou¾ití: Mìstská silnice se staví stejnım zpùsobem, jako ostatní silnice. Kliknìte na symbol mìstské silnice, pak kliknìte na zaèátek a vıstavbu dokonèete kliknutím na konec. Cestu se nepodaøí vytvoøit, pokud se mezi zaèátkem a koncem nachází pøeká¾ka (øeka, ¾eleznice, èlenitı terén atd.)<br>
-Tip: Nerovnosti odstraníte pomocí <a href="slopetools.txt">nástrojù na úpravu terénu</a>, øeku pøekonáte <a href="bridges.txt">mostù</a>, skrz kopec se dostavete pomocí <a href="tunnels.txt">tunelu</a>.
-Druhım mo¾nı zpùsob: Po kliknutí na zaèátek dr¾te levé tlaèítko my¹i. Umístìte kurzor na konec budoucí cesty a pus»e tlaèítko.</p>
-<p>Tip: Nechcete-li, aby se soubì¾né cesty spojovaly, mìjte v prùbìhu pokládání stlaèenu klávesu <a href="keys.txt">Ctrl</a>. </p>
-<p><em>Øeka *</em>: Nástroj umo¾òuje pøidat do krajiny øeku. Máte na vıbìr z více mo¾ností, od potoka po veletok.</p>
-<p><em>Zahustit prùmysl</em>: Po kliknutí na tlaèítko se objeví na mapì dal¹í továrny.</p>
-<p><em>Pøidat továrnu</em>: Kliknutí na tlaèítko otevøe <a href="factory_build.txt"> dialog pro pøidání továrny</a>.</p>
-<p><em>Propojení továren</em>: Aby bylo mezi továrnami dodáváno zbo¾í, musejí mít továrny mezi sebou spojení (uzavøenı kontrakt). Automaticky vytvoøené továrny toto spojení mezi sebou mají. Pokud ruènì pøidáte do hry továrnu, potøebujete také nastavit, odkud má odebírat suroviny a kam dodávat vırobky. K tomu slou¾í toto tlaèítko. <br>
-Kliknìte na tlaèítko (zmìní se kurzor). Pak kliknìte postupnì na obì továrny, které mají uzovøít kontrakt.</p>
-<p><em>Pøidat kuriozitu</em>: Nástroj slou¾í k pøidání památek, pomníkù a jinıch zajímavostí do krajiny. Tyto objekty pøitahují turisty a po¹tu. <br>
-Po kliknutí na ikonu se zobrazí okno s vıbìrem konkrétní budovy.</p>
-<p><em>Pøidat mìstskou budovu</em>: Kliknutím otevøete dialog s nabídkou mìstskıch budov.</p>
-<p><em>Znemo¾nit dal¹í zmìnu hráèù</em>: Nástroj slou¾í k zamezení pøepínání mezi rùznımi <a href="players.txt">hráèi</a>. Aby ¹el tento nástroj pou¾ít, musí mít hráè nazıvanı <em>Veøejné slu¾by</em> nastavené heslo.<br>
-Pou¾ití: Kliknìte na ikonu nástroje a pak kliknìte kamkoliv na herní plochu.</p>
-<p><em>Pøidej jeden rok</em>: Pøidá jeden rok ke stávajícímu letopoètu. Pokud jste pou¾ili volbu <a href="new_world.txt">zaèít roku</a>, mohou se objevit nová dostupná vozidla a nìkterá ze stávajících vozidel mohou bıt oznaèena za zastaralá. Pomalej¹í vozidla mohou sní¾it zisk a nebo zaèít prodìlávat, proto¾e vınos z pøepravy závisí na prùmìrné rychlosti.<br>
-Pro pou¾ití kliknìte na tlaèítko.
+<em>MÄ›stskÃ¡ silnice</em>: NÃ¡stroj slouÅ¾Ã­ ke stavbÄ› mÄ›stskÃ© silnice. PÅ™i umÃ­stÄ›nÃ­ kurzoru nad ikonu se zobrazÃ­ cena a v zÃ¡vorce cena za ÃºdrÅ¾bu.
+PouÅ¾itÃ­: MÄ›stskÃ¡ silnice se stavÃ­ stejnÃ½m zpÅ¯sobem, jako ostatnÃ­ silnice. KliknÄ›te na symbol mÄ›stskÃ© silnice, pak kliknÄ›te na zaÄÃ¡tek a vÃ½stavbu dokonÄete kliknutÃ­m na konec. Cestu se nepodaÅ™Ã­ vytvoÅ™it, pokud se mezi zaÄÃ¡tkem a koncem nachÃ¡zÃ­ pÅ™ekÃ¡Å¾ka (Å™eka, Å¾eleznice, ÄlenitÃ½ terÃ©n atd.)<br>
+Tip: Nerovnosti odstranÃ­te pomocÃ­ <a href="slopetools.txt">nÃ¡strojÅ¯ na Ãºpravu terÃ©nu</a>, Å™eku pÅ™ekonÃ¡te <a href="bridges.txt">mostÅ¯</a>, skrz kopec se dostavete pomocÃ­ <a href="tunnels.txt">tunelu</a>.
+DruhÃ½m moÅ¾nÃ½ zpÅ¯sob: Po kliknutÃ­ na zaÄÃ¡tek drÅ¾te levÃ© tlaÄÃ­tko myÅ¡i. UmÃ­stÄ›te kurzor na konec budoucÃ­ cesty a pusÅ¥e tlaÄÃ­tko.</p>
+<p>Tip: Nechcete-li, aby se soubÄ›Å¾nÃ© cesty spojovaly, mÄ›jte v prÅ¯bÄ›hu poklÃ¡dÃ¡nÃ­ stlaÄenu klÃ¡vesu <a href="keys.txt">Ctrl</a>. </p>
+<p><em>Å˜eka *</em>: NÃ¡stroj umoÅ¾Åˆuje pÅ™idat do krajiny Å™eku. MÃ¡te na vÃ½bÄ›r z vÃ­ce moÅ¾nostÃ­, od potoka po veletok.</p>
+<p><em>Zahustit prÅ¯mysl</em>: Po kliknutÃ­ na tlaÄÃ­tko se objevÃ­ na mapÄ› dalÅ¡Ã­ tovÃ¡rny.</p>
+<p><em>PÅ™idat tovÃ¡rnu</em>: KliknutÃ­ na tlaÄÃ­tko otevÅ™e <a href="factory_build.txt"> dialog pro pÅ™idÃ¡nÃ­ tovÃ¡rny</a>.</p>
+<p><em>PropojenÃ­ tovÃ¡ren</em>: Aby bylo mezi tovÃ¡rnami dodÃ¡vÃ¡no zboÅ¾Ã­, musejÃ­ mÃ­t tovÃ¡rny mezi sebou spojenÃ­ (uzavÅ™enÃ½ kontrakt). Automaticky vytvoÅ™enÃ© tovÃ¡rny toto spojenÃ­ mezi sebou majÃ­. Pokud ruÄnÄ› pÅ™idÃ¡te do hry tovÃ¡rnu, potÅ™ebujete takÃ© nastavit, odkud mÃ¡ odebÃ­rat suroviny a kam dodÃ¡vat vÃ½robky. K tomu slouÅ¾Ã­ toto tlaÄÃ­tko. <br>
+KliknÄ›te na tlaÄÃ­tko (zmÄ›nÃ­ se kurzor). Pak kliknÄ›te postupnÄ› na obÄ› tovÃ¡rny, kterÃ© majÃ­ uzovÅ™Ã­t kontrakt.</p>
+<p><em>PÅ™idat kuriozitu</em>: NÃ¡stroj slouÅ¾Ã­ k pÅ™idÃ¡nÃ­ pamÃ¡tek, pomnÃ­kÅ¯ a jinÃ½ch zajÃ­mavostÃ­ do krajiny. Tyto objekty pÅ™itahujÃ­ turisty a poÅ¡tu. <br>
+Po kliknutÃ­ na ikonu se zobrazÃ­ okno s vÃ½bÄ›rem konkrÃ©tnÃ­ budovy.</p>
+<p><em>PÅ™idat mÄ›stskou budovu</em>: KliknutÃ­m otevÅ™ete dialog s nabÃ­dkou mÄ›stskÃ½ch budov.</p>
+<p><em>ZnemoÅ¾nit dalÅ¡Ã­ zmÄ›nu hrÃ¡ÄÅ¯</em>: NÃ¡stroj slouÅ¾Ã­ k zamezenÃ­ pÅ™epÃ­nÃ¡nÃ­ mezi rÅ¯znÃ½mi <a href="players.txt">hrÃ¡Äi</a>. Aby Å¡el tento nÃ¡stroj pouÅ¾Ã­t, musÃ­ mÃ­t hrÃ¡Ä nazÃ½vanÃ½ <em>VeÅ™ejnÃ© sluÅ¾by</em> nastavenÃ© heslo.<br>
+PouÅ¾itÃ­: KliknÄ›te na ikonu nÃ¡stroje a pak kliknÄ›te kamkoliv na hernÃ­ plochu.</p>
+<p><em>PÅ™idej jeden rok</em>: PÅ™idÃ¡ jeden rok ke stÃ¡vajÃ­cÃ­mu letopoÄtu. Pokud jste pouÅ¾ili volbu <a href="new_world.txt">zaÄÃ­t roku</a>, mohou se objevit novÃ¡ dostupnÃ¡ vozidla a nÄ›kterÃ¡ ze stÃ¡vajÃ­cÃ­ch vozidel mohou bÃ½t oznaÄena za zastaralÃ¡. PomalejÅ¡Ã­ vozidla mohou snÃ­Å¾it zisk a nebo zaÄÃ­t prodÄ›lÃ¡vat, protoÅ¾e vÃ½nos z pÅ™epravy zÃ¡visÃ­ na prÅ¯mÄ›rnÃ© rychlosti.<br>
+Pro pouÅ¾itÃ­ kliknÄ›te na tlaÄÃ­tko.
 </p>
-<p><em>Zmìnit velikost mapy</em>: Kliknutí na nástroj otevøe <a href="enlarge_map.txt">dialog slou¾ící ke zvìt¹ení rozmìrù mapy</a>.</p>
+<p><em>ZmÄ›nit velikost mapy</em>: KliknutÃ­ na nÃ¡stroj otevÅ™e <a href="enlarge_map.txt">dialog slouÅ¾Ã­cÃ­ ke zvÄ›tÅ¡enÃ­ rozmÄ›rÅ¯ mapy</a>.</p>
 
-<p><em>*</em> Nástroj není dostupnı ve v¹ech grafickıch sadách (anglicky paksets).</p>
+<p><em>*</em> NÃ¡stroj nenÃ­ dostupnÃ½ ve vÅ¡ech grafickÃ½ch sadÃ¡ch (anglicky paksets).</p>

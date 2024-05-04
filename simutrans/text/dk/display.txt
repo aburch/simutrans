@@ -4,26 +4,26 @@
 
 <p>
 <em>Beskrivelse:</em><br>
-Udseende dialogen giver mulighed for at ændre diverser indstillinger
-vedrørende Simutrans' udseende.<br>
+Udseende dialogen giver mulighed for at Ã¦ndre diverser indstillinger
+vedrÃ¸rende Simutrans' udseende.<br>
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er tre lister med teksterne 'Lysstyrke:', 'Farver:' og
+Ã˜verst i dialogen er tre lister med teksterne 'Lysstyrke:', 'Farver:' og
 'Scrolltempo:'. Hver liste har "scroll-knapper" tilknyttet. Herunder er tre
-"checkbokse" med tilhørende tekster 'Omvendt scrollning', 'Vis fodgængere' og
-Dag og nat indstilling. Nederst er en række aktuelle belastningsoplysninger
+"checkbokse" med tilhÃ¸rende tekster 'Omvendt scrollning', 'Vis fodgÃ¦ngere' og
+Dag og nat indstilling. Nederst er en rÃ¦kke aktuelle belastningsoplysninger
 vist.
 </p>
 
 <p>
-Følgende indstillinger er mulige:
+FÃ¸lgende indstillinger er mulige:
 </p>
 
 <p>
 <em>Lysstyrke:</em><br>
-Gør kortet lysere eller mørkere.
+GÃ¸r kortet lysere eller mÃ¸rkere.
 </p>
 
 <p>
@@ -33,33 +33,33 @@ Ingen effekt
 
 <p>
 <em>Scrolltempo:</em><br>
-Jo højere indstilling, desto hurtigere vil skærmenbilledet scrolle.
+Jo hÃ¸jere indstilling, desto hurtigere vil skÃ¦rmenbilledet scrolle.
 </p>
 
 <p>
 <em>Omvendt scrollning</em><br>
-Her kan indstilles om kortet skal bevæge sig op eller ned, når der scrolles
-opad og analogt med hensyn til venstre og højre. (fly-lignende
-kontroller). Det er nemmere at afprøve, end at skulle forklare :-)
+Her kan indstilles om kortet skal bevÃ¦ge sig op eller ned, nÃ¥r der scrolles
+opad og analogt med hensyn til venstre og hÃ¸jre. (fly-lignende
+kontroller). Det er nemmere at afprÃ¸ve, end at skulle forklare :-)
 </p>
 
 <p>
-<em>Vis fodgængere</em><br>
-Her kan indstilles om computeren skal skabe og vise fodgængere i byerne og
-omkring rutemål. Hvis din makine døjer med at opdatere skærmbilledet, så slå
+<em>Vis fodgÃ¦ngere</em><br>
+Her kan indstilles om computeren skal skabe og vise fodgÃ¦ngere i byerne og
+omkring rutemÃ¥l. Hvis din makine dÃ¸jer med at opdatere skÃ¦rmbilledet, sÃ¥ slÃ¥
 denne indstilling fra.
 </p>
 
 <p>
 <em>Dag og nat indstilling</em><br>
 Her indstilles om der alt efter tidspunktet skal skiftes imellem dag (lyst) og
-nat (mørkt) indstilling. Prøv det af !
+nat (mÃ¸rkt) indstilling. PrÃ¸v det af !
 </p>
 
 <p>
 Den nederste halvdel af dialogen indeholder information omkring hvorledes din
-computer klarer den aktuelle belastning. Disse værdier er ikke interessante
-med mindre du ved, hvad de står for.<br>
-<strong>Vigtigt</strong>Du kan blive bedt om at nævne disse værdier, når du
+computer klarer den aktuelle belastning. Disse vÃ¦rdier er ikke interessante
+med mindre du ved, hvad de stÃ¥r for.<br>
+<strong>Vigtigt</strong>Du kan blive bedt om at nÃ¦vne disse vÃ¦rdier, nÃ¥r du
 diskuterer performance problemer og andre bugs.
 </p>

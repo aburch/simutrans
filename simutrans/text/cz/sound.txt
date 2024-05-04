@@ -1,19 +1,19 @@
-<title>Nápovìda - zvuk a hudba</title>
+<title>NÃ¡povÄ›da - zvuk a hudba</title>
 <h1>Zvuk a hudba</h1>
 
 <p>
-Zde mù¾ete podle svého pøizpùsobit zvuky, které usly¹íte, a také hudbu, která bude hrát na pozadí hry.
+Zde mÅ¯Å¾ete podle svÃ©ho pÅ™izpÅ¯sobit zvuky, kterÃ© uslyÅ¡Ã­te, a takÃ© hudbu, kterÃ¡ bude hrÃ¡t na pozadÃ­ hry.
 </p>
 
 <p>
-Nastavení hlasitosti zvukù a hudby se provádí pomocí li¹ty, pøi pohybu doprava se zvy¹uje hlasitost, pøi posunu doleva se hlasitost sni¾uje. Hlasitost zvuku ovlivòuje hlasitost zvukù pøi stavìní a hlasitost zvukù vozidel. Hlasitost hudby ovlivòuje hlasitost právì pøehrávané písnièky.<br>
-Poslední tlaèítka slou¾í k pøevíjení hudby. Levé tlaèítko pøevine písnièku na zaèátek, pravé na konec. Pokud nejsou nakonfigurovány ¾ádné písnicky, jsou tyto tlaèítka neaktivní.<br>
+NastavenÃ­ hlasitosti zvukÅ¯ a hudby se provÃ¡dÃ­ pomocÃ­ liÅ¡ty, pÅ™i pohybu doprava se zvyÅ¡uje hlasitost, pÅ™i posunu doleva se hlasitost sniÅ¾uje. Hlasitost zvuku ovlivÅˆuje hlasitost zvukÅ¯ pÅ™i stavÄ›nÃ­ a hlasitost zvukÅ¯ vozidel. Hlasitost hudby ovlivÅˆuje hlasitost prÃ¡vÄ› pÅ™ehrÃ¡vanÃ© pÃ­sniÄky.<br>
+PoslednÃ­ tlaÄÃ­tka slouÅ¾Ã­ k pÅ™evÃ­jenÃ­ hudby. LevÃ© tlaÄÃ­tko pÅ™evine pÃ­sniÄku na zaÄÃ¡tek, pravÃ© na konec. Pokud nejsou nakonfigurovÃ¡ny Å¾Ã¡dnÃ© pÃ­snicky, jsou tyto tlaÄÃ­tka neaktivnÃ­.<br>
 </p>
 
 <p>
-<em>Pozor:</em> Hudba není dodávána spoleènì se Simutrans, musíte si ji sami do adresáøe Music nakopírovat. Tam také najdete dal¹í nápovìdu (anglicky).
+<em>Pozor:</em> Hudba nenÃ­ dodÃ¡vÃ¡na spoleÄnÄ› se Simutrans, musÃ­te si ji sami do adresÃ¡Å™e Music nakopÃ­rovat. Tam takÃ© najdete dalÅ¡Ã­ nÃ¡povÄ›du (anglicky).
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

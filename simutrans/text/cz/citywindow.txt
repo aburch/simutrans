@@ -1,67 +1,67 @@
-<title>Nápovìda - dialog mìsta</title>
+<title>NÃ¡povÄ›da - dialog mÄ›sta</title>
 
-<h1><strong>Dialog mìsta</strong></h1>
-
-<p>
-<em>Dialog mìsta</em> zobrazuje statistické údaje o zvoleném mìstu nebo vesnici, dvì mapy a graf zobrazující velièiny v závislosti na pøíslu¹nıch tlaèítkách. Umo¾òuje také zmìnit název.
-Dialog lze otevøít kliknutím na radnici nebo na název v seznamu mìst.
-</p>
-<p>Dialog obsahuje následující polo¾ky:</p>
-
-<p>První polo¾kou je <em>název</em> mìsta nebo vesnice. Je zobrazen na titulku okna mù¾ete jej nalét v <a href="citylist_filter.txt">Seznamu mìst</a>. 
-Název mìsta je pou¾it pøi vytváøení jmen <a href="station.txt">stanic a zastávek</a> uvnitø <a href="map.txt">hranic mìsta</a>. <br>
-Název mìsta zmìníte kliknutím do pole s názvem a pøepsáním na jinı název. Názvy mìst jsou naèítány ze soubory text/citylist_cz.txt z adresáøe pøíslu¹ného paku. Zachováte-li kódování, máte mo¾nost si do seznamu doplnit své oblíbené mìsto.</p>
-
-<p>Tip: Pomocí klávesy <a href="keys.txt">[!]</a> lze pøepnout zpùsob zobrazení názvu mìsta nad radnicí.  </p>
-
-<p><em>Velikost</em>ukazuje poèet obyvatel. V závorkách je pøírùstek obyvatelstva. (Je to prùmìrnı pøírùstek obyvatel za poslední tøi mìsíce, pøièem¾ ka¾dı mìsíc má jinou váhu.) </p>
-
-<p>Èíslice pøed nápisem <em>Budov</em> ukazuje poèet budov daného mìsta.</p>
-
-<p>Dva páry èísel o øádek ní¾e jsou mapové souøadnice <em>hranic mìsta</em>. První souøadnice oznaèuje levı horní roh, druhá pravı dolní. Souøadnice se mìní s rùstem mìsta a mohou se pøekrıvat.</p>
-
-<p>Èísla za nápisy <em>nezmìstnanıch</em> a <em>bezdomovcù</em> oznaèují poèet obyvatel bez zamìstnání a bydli¹tì. Tato èísla ovlivòují, jaké budovy (obytné/odchodní/prùmyslové) se budou stavìt.</p>
-
-<p>Volbou <em>Dovolit rùst mìsta</em> povolujeme nebo zakazujeme rùst mìsta. Kdy¾ volba není povolena, mìsto neporoste.</p>
-
-<p><em>Mapy</em> v dialogu mìsta ukazují cílová místa pro dopravu cestujících a po¹ty z tohoto mìsta. Mapa v pravo ukazuje data pro aktuální mìsíc, na mapì vlevo jsou data z minulého mìsíce. Cílová místa, jednotlivé teèky na mapì, jsou vybarvena následovnì: </p>
+<h1><strong>Dialog mÄ›sta</strong></h1>
 
 <p>
-- ¾lutá teèka: Cesta k cíli existuje a nástupní <a href="station.txt">stanice/zastávka</a> není pøeplnìná (usmìvavı smajlík v dialogu zastávky).<br>
-- oran¾ová teèka: K cíli neexistuje cesta.<br>
-- èervená teèka: K cíli existuje cesta, ale nástupní zastávka je pøeplnìná (neveselı smajlík v dialogu zastávky).
+<em>Dialog mÄ›sta</em> zobrazuje statistickÃ© Ãºdaje o zvolenÃ©m mÄ›stu nebo vesnici, dvÄ› mapy a graf zobrazujÃ­cÃ­ veliÄiny v zÃ¡vislosti na pÅ™Ã­sluÅ¡nÃ½ch tlaÄÃ­tkÃ¡ch. UmoÅ¾Åˆuje takÃ© zmÄ›nit nÃ¡zev.
+Dialog lze otevÅ™Ã­t kliknutÃ­m na radnici nebo na nÃ¡zev v seznamu mÄ›st.
+</p>
+<p>Dialog obsahuje nÃ¡sledujÃ­cÃ­ poloÅ¾ky:</p>
+
+<p>PrvnÃ­ poloÅ¾kou je <em>nÃ¡zev</em> mÄ›sta nebo vesnice. Je zobrazen na titulku okna mÅ¯Å¾ete jej nalÃ©t v <a href="citylist_filter.txt">Seznamu mÄ›st</a>. 
+NÃ¡zev mÄ›sta je pouÅ¾it pÅ™i vytvÃ¡Å™enÃ­ jmen <a href="station.txt">stanic a zastÃ¡vek</a> uvnitÅ™ <a href="map.txt">hranic mÄ›sta</a>. <br>
+NÃ¡zev mÄ›sta zmÄ›nÃ­te kliknutÃ­m do pole s nÃ¡zvem a pÅ™epsÃ¡nÃ­m na jinÃ½ nÃ¡zev. NÃ¡zvy mÄ›st jsou naÄÃ­tÃ¡ny ze soubory text/citylist_cz.txt z adresÃ¡Å™e pÅ™Ã­sluÅ¡nÃ©ho paku. ZachovÃ¡te-li kÃ³dovÃ¡nÃ­, mÃ¡te moÅ¾nost si do seznamu doplnit svÃ© oblÃ­benÃ© mÄ›sto.</p>
+
+<p>Tip: PomocÃ­ klÃ¡vesy <a href="keys.txt">[!]</a> lze pÅ™epnout zpÅ¯sob zobrazenÃ­ nÃ¡zvu mÄ›sta nad radnicÃ­.  </p>
+
+<p><em>Velikost</em>ukazuje poÄet obyvatel. V zÃ¡vorkÃ¡ch je pÅ™Ã­rÅ¯stek obyvatelstva. (Je to prÅ¯mÄ›rnÃ½ pÅ™Ã­rÅ¯stek obyvatel za poslednÃ­ tÅ™i mÄ›sÃ­ce, pÅ™iÄemÅ¾ kaÅ¾dÃ½ mÄ›sÃ­c mÃ¡ jinou vÃ¡hu.) </p>
+
+<p>ÄŒÃ­slice pÅ™ed nÃ¡pisem <em>Budov</em> ukazuje poÄet budov danÃ©ho mÄ›sta.</p>
+
+<p>Dva pÃ¡ry ÄÃ­sel o Å™Ã¡dek nÃ­Å¾e jsou mapovÃ© souÅ™adnice <em>hranic mÄ›sta</em>. PrvnÃ­ souÅ™adnice oznaÄuje levÃ½ hornÃ­ roh, druhÃ¡ pravÃ½ dolnÃ­. SouÅ™adnice se mÄ›nÃ­ s rÅ¯stem mÄ›sta a mohou se pÅ™ekrÃ½vat.</p>
+
+<p>ÄŒÃ­sla za nÃ¡pisy <em>nezmÄ›stnanÃ½ch</em> a <em>bezdomovcÅ¯</em> oznaÄujÃ­ poÄet obyvatel bez zamÄ›stnÃ¡nÃ­ a bydliÅ¡tÄ›. Tato ÄÃ­sla ovlivÅˆujÃ­, jakÃ© budovy (obytnÃ©/odchodnÃ­/prÅ¯myslovÃ©) se budou stavÄ›t.</p>
+
+<p>Volbou <em>Dovolit rÅ¯st mÄ›sta</em> povolujeme nebo zakazujeme rÅ¯st mÄ›sta. KdyÅ¾ volba nenÃ­ povolena, mÄ›sto neporoste.</p>
+
+<p><em>Mapy</em> v dialogu mÄ›sta ukazujÃ­ cÃ­lovÃ¡ mÃ­sta pro dopravu cestujÃ­cÃ­ch a poÅ¡ty z tohoto mÄ›sta. Mapa v pravo ukazuje data pro aktuÃ¡lnÃ­ mÄ›sÃ­c, na mapÄ› vlevo jsou data z minulÃ©ho mÄ›sÃ­ce. CÃ­lovÃ¡ mÃ­sta, jednotlivÃ© teÄky na mapÄ›, jsou vybarvena nÃ¡sledovnÄ›: </p>
+
+<p>
+- Å¾lutÃ¡ teÄka: Cesta k cÃ­li existuje a nÃ¡stupnÃ­ <a href="station.txt">stanice/zastÃ¡vka</a> nenÃ­ pÅ™eplnÄ›nÃ¡ (usmÄ›vavÃ½ smajlÃ­k v dialogu zastÃ¡vky).<br>
+- oranÅ¾ovÃ¡ teÄka: K cÃ­li neexistuje cesta.<br>
+- ÄervenÃ¡ teÄka: K cÃ­li existuje cesta, ale nÃ¡stupnÃ­ zastÃ¡vka je pÅ™eplnÄ›nÃ¡ (neveselÃ½ smajlÃ­k v dialogu zastÃ¡vky).
 </p>
 
 <p>
-Pod mapami se nachází <em>graf</em> ukazující statistiku pro dané mìsto.
-Na vodorovné ose je zobrazen èas, na svislé ose mno¾ství.
-Máte na vıbìr mezi zobrazením po mìsících nebo po letech.<br>
-<em>Roky</em>: zobrazí roèní hodnoty za 12 let<br>
-<em>Mìsíce</em>: zobrazí mìsíèní hodnoty za posledních 12 mìsícù
+Pod mapami se nachÃ¡zÃ­ <em>graf</em> ukazujÃ­cÃ­ statistiku pro danÃ© mÄ›sto.
+Na vodorovnÃ© ose je zobrazen Äas, na svislÃ© ose mnoÅ¾stvÃ­.
+MÃ¡te na vÃ½bÄ›r mezi zobrazenÃ­m po mÄ›sÃ­cÃ­ch nebo po letech.<br>
+<em>Roky</em>: zobrazÃ­ roÄnÃ­ hodnoty za 12 let<br>
+<em>MÄ›sÃ­ce</em>: zobrazÃ­ mÄ›sÃ­ÄnÃ­ hodnoty za poslednÃ­ch 12 mÄ›sÃ­cÅ¯
 </p>
 
-<p> Kliknutím na tlaèítka pod grafem zobrazíte nebo skryjete odpovídající køivku grafu.  Barva køivky odpovídá barvì tlaèítka:</p>
+<p> KliknutÃ­m na tlaÄÃ­tka pod grafem zobrazÃ­te nebo skryjete odpovÃ­dajÃ­cÃ­ kÅ™ivku grafu.  Barva kÅ™ivky odpovÃ­dÃ¡ barvÄ› tlaÄÃ­tka:</p>
 
 <p>
-<em>Obyvatelé:</em> Poèet obyvatel ¾ijících ve mìstì.<br>
-<em>Rùst mìsta:</em> Zmìna poètu obyvatel.<br>
-<em>Budovy:</em> Poèet budov ve mìstì.<br>
-<em>Osobní auta:</em> Kolik bylo generováno osobních aut.<br>
-<em>Pøepraveno:</em> Kolik cestujících vstupilo do dopravní sítì (veselı smajlík) v <a href="station.txt">dialogu stanice/zastávky</a><br>
-<em>Cestující:</em> Celkovı poèet cestujících vygenerovanıch v daném mìstì.<br>
-<em>Po¹ta èeká:</em> Po¹ta, která vstoupila do dopravní sítì.<br>
-<em>Po¹ta:</em> Celkové mno¾ství po¹ty vygenerované v daném mìstì.<br>
-<em>Pøijato:</em> Kolikráte bylo zji¹tìno, ¾e továrna ve mìstì má na skladì zbo¾í, které odebírá.<br>
-<em>Zbo¾í:</em> Poèet kontrol, pøi kterıch bylo zji¹»ováno, zda-li má továrna ve mìstì zbo¾í, které odebírá.<br>
+<em>ObyvatelÃ©:</em> PoÄet obyvatel Å¾ijÃ­cÃ­ch ve mÄ›stÄ›.<br>
+<em>RÅ¯st mÄ›sta:</em> ZmÄ›na poÄtu obyvatel.<br>
+<em>Budovy:</em> PoÄet budov ve mÄ›stÄ›.<br>
+<em>OsobnÃ­ auta:</em> Kolik bylo generovÃ¡no osobnÃ­ch aut.<br>
+<em>PÅ™epraveno:</em> Kolik cestujÃ­cÃ­ch vstupilo do dopravnÃ­ sÃ­tÄ› (veselÃ½ smajlÃ­k) v <a href="station.txt">dialogu stanice/zastÃ¡vky</a><br>
+<em>CestujÃ­cÃ­:</em> CelkovÃ½ poÄet cestujÃ­cÃ­ch vygenerovanÃ½ch v danÃ©m mÄ›stÄ›.<br>
+<em>PoÅ¡ta ÄekÃ¡:</em> PoÅ¡ta, kterÃ¡ vstoupila do dopravnÃ­ sÃ­tÄ›.<br>
+<em>PoÅ¡ta:</em> CelkovÃ© mnoÅ¾stvÃ­ poÅ¡ty vygenerovanÃ© v danÃ©m mÄ›stÄ›.<br>
+<em>PÅ™ijato:</em> KolikrÃ¡te bylo zjiÅ¡tÄ›no, Å¾e tovÃ¡rna ve mÄ›stÄ› mÃ¡ na skladÄ› zboÅ¾Ã­, kterÃ© odebÃ­rÃ¡.<br>
+<em>ZboÅ¾Ã­:</em> PoÄet kontrol, pÅ™i kterÃ½ch bylo zjiÅ¡Å¥ovÃ¡no, zda-li mÃ¡ tovÃ¡rna ve mÄ›stÄ› zboÅ¾Ã­, kterÃ© odebÃ­rÃ¡.<br>
 </p>
 
-<p>Tip: Nastavení tıkající se mìst mù¾e bıt mìnìno v souborech simuconf.tab a cityrules.tab.</p>
-<p> Rùst mìsta je podporován pøepravou cestujících a po¹ty a dodáváním zbo¾í do továren uvnitø hranic mìsta. 
-Rùst mìsta zahrnuje stavbu novıch silnic. Mìsto také pøebírá stávající silnice v blízkosti novì postavenıch budov do vlastnictví, tj. <a href="players.txt">hráèe</a> nazıvaného <em>Veøejné slu¾by</em>.
+<p>Tip: NastavenÃ­ tÃ½kajÃ­cÃ­ se mÄ›st mÅ¯Å¾e bÃ½t mÄ›nÄ›no v souborech simuconf.tab a cityrules.tab.</p>
+<p> RÅ¯st mÄ›sta je podporovÃ¡n pÅ™epravou cestujÃ­cÃ­ch a poÅ¡ty a dodÃ¡vÃ¡nÃ­m zboÅ¾Ã­ do tovÃ¡ren uvnitÅ™ hranic mÄ›sta. 
+RÅ¯st mÄ›sta zahrnuje stavbu novÃ½ch silnic. MÄ›sto takÃ© pÅ™ebÃ­rÃ¡ stÃ¡vajÃ­cÃ­ silnice v blÃ­zkosti novÄ› postavenÃ½ch budov do vlastnictvÃ­, tj. <a href="players.txt">hrÃ¡Äe</a> nazÃ½vanÃ©ho <em>VeÅ™ejnÃ© sluÅ¾by</em>.
 </p>
 
-<p>Tip: Zamı¹líte-li hrát dlouho a nechat mìsto vyrùst, vyplatí se postavit mìstu základní sí» pøímıch rovnıch ulic, nìkdy i o ¹íøi 2 polí. A¾ se mìsto rozroste, po rovnıch ulicích budou jezdit autobusy mnohem rychleji, ne¾ v køivolakıch ulièkách. Na ¹irokıch ulicích (o dvou polích) snadno postavíte obousmìrnou tramvajovou tra». Navíc nepotøebujete bourat budovy a tak nepøicházíte o obyvatele. Tyto budoucí ulice stavte tou nejlevnìj¹í silnicí s co nejmen¹ími náklady na údr¾bu. Mìsto si je samo vylep¹í, a¾ je bude potøebovat.</p>
+<p>Tip: ZamÃ½Å¡lÃ­te-li hrÃ¡t dlouho a nechat mÄ›sto vyrÅ¯st, vyplatÃ­ se postavit mÄ›stu zÃ¡kladnÃ­ sÃ­Å¥ pÅ™Ã­mÃ½ch rovnÃ½ch ulic, nÄ›kdy i o Å¡Ã­Å™i 2 polÃ­. AÅ¾ se mÄ›sto rozroste, po rovnÃ½ch ulicÃ­ch budou jezdit autobusy mnohem rychleji, neÅ¾ v kÅ™ivolakÃ½ch uliÄkÃ¡ch. Na Å¡irokÃ½ch ulicÃ­ch (o dvou polÃ­ch) snadno postavÃ­te obousmÄ›rnou tramvajovou traÅ¥. NavÃ­c nepotÅ™ebujete bourat budovy a tak nepÅ™ichÃ¡zÃ­te o obyvatele. Tyto budoucÃ­ ulice stavte tou nejlevnÄ›jÅ¡Ã­ silnicÃ­ s co nejmenÅ¡Ã­mi nÃ¡klady na ÃºdrÅ¾bu. MÄ›sto si je samo vylepÅ¡Ã­, aÅ¾ je bude potÅ™ebovat.</p>
 
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 2.1.2013.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 2.1.2013.
 </p>

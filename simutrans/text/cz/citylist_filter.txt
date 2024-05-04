@@ -1,22 +1,22 @@
-<title>Nápovìda - seznam mìst</title>
+<title>NÃ¡povÄ›da - seznam mÄ›st</title>
 
-<h1><strong>Seznam mìst</strong></h1>
+<h1><strong>Seznam mÄ›st</strong></h1>
 
-<p>Seznam mìst obsahuje podrobné údaje statistické údaje o <a href="citywindow.txt">mìstech</a>, poètu obyvatel, budov, pøepravnenıch cestující, po¹tì apod.</p>
-<p>Seznam mìst otevøeme kliknutím na ikonu <a href="list.txt">Seznamy</a> následovnım kliknutím na ikonu <em>Seznam mìst</em>. Seznam mìst lze té¾ otevøít klávesou <a href="keys.txt">[T]</a>.</p>
+<p>Seznam mÄ›st obsahuje podrobnÃ© Ãºdaje statistickÃ© Ãºdaje o <a href="citywindow.txt">mÄ›stech</a>, poÄtu obyvatel, budov, pÅ™epravnenÃ½ch cestujÃ­cÃ­, poÅ¡tÄ› apod.</p>
+<p>Seznam mÄ›st otevÅ™eme kliknutÃ­m na ikonu <a href="list.txt">Seznamy</a> nÃ¡sledovnÃ½m kliknutÃ­m na ikonu <em>Seznam mÄ›st</em>. Seznam mÄ›st lze tÃ©Å¾ otevÅ™Ã­t klÃ¡vesou <a href="keys.txt">[T]</a>.</p>
 
-<p> Èíslo za textem <em>Celkem obyvatel</em> sdìluje celkovı poèet obyvatel ve høe. Je to souèet obyvatel v¹ech obcí. Èíslo v závorkách znázoròuje rùst v¹ech mìst.</p>
+<p> ÄŒÃ­slo za textem <em>Celkem obyvatel</em> sdÄ›luje celkovÃ½ poÄet obyvatel ve hÅ™e. Je to souÄet obyvatel vÅ¡ech obcÃ­. ÄŒÃ­slo v zÃ¡vorkÃ¡ch znÃ¡zorÅˆuje rÅ¯st vÅ¡ech mÄ›st.</p>
 
-<p>Vlevo pod textem <em>øadit podle</em> se nachází dvì tlaèítka ovlivòující øazení. První tlaèítko umo¾òuje seøadit mìsta podle názvu (Jméno), poètu obyvatel (Obyvatelé) nebo pøírùstku obyvatel (Rùst mìsta). Druhım tlaèítkem pøepínáme mezi vzestupnım a sestupnım øazením.</p>
-<p>Kliknutím na název mìsta zobrazíte okno s podrobnımi <a href="citywindow.txt">informacemi o daném mìstì</a>.</p>
-<p>Kliknutím na trojúhelníkovité tlaèítko pøed názvem mìsta se pøemístíte na pozici daného mìsta.</p>
+<p>Vlevo pod textem <em>Å™adit podle</em> se nachÃ¡zÃ­ dvÄ› tlaÄÃ­tka ovlivÅˆujÃ­cÃ­ Å™azenÃ­. PrvnÃ­ tlaÄÃ­tko umoÅ¾Åˆuje seÅ™adit mÄ›sta podle nÃ¡zvu (JmÃ©no), poÄtu obyvatel (ObyvatelÃ©) nebo pÅ™Ã­rÅ¯stku obyvatel (RÅ¯st mÄ›sta). DruhÃ½m tlaÄÃ­tkem pÅ™epÃ­nÃ¡me mezi vzestupnÃ½m a sestupnÃ½m Å™azenÃ­m.</p>
+<p>KliknutÃ­m na nÃ¡zev mÄ›sta zobrazÃ­te okno s podrobnÃ½mi <a href="citywindow.txt">informacemi o danÃ©m mÄ›stÄ›</a>.</p>
+<p>KliknutÃ­m na trojÃºhelnÃ­kovitÃ© tlaÄÃ­tko pÅ™ed nÃ¡zvem mÄ›sta se pÅ™emÃ­stÃ­te na pozici danÃ©ho mÄ›sta.</p>
 
-<p> V seznamu mìst jsou tyto polo¾ky: název mìsta, poèet obyvatel a v kulatıch závorkách se nachází pøírùstek obyvatel. </p>
-<p> <em>Název mìsta</em> mù¾ete zmìnit v <a href="citywindow.txt">dialogu mìsta</a>. Dialog mìsta otevøete kliknutím na název mìsta nebo na pøíslu¹nou radnici.  </p>
+<p> V seznamu mÄ›st jsou tyto poloÅ¾ky: nÃ¡zev mÄ›sta, poÄet obyvatel a v kulatÃ½ch zÃ¡vorkÃ¡ch se nachÃ¡zÃ­ pÅ™Ã­rÅ¯stek obyvatel. </p>
+<p> <em>NÃ¡zev mÄ›sta</em> mÅ¯Å¾ete zmÄ›nit v <a href="citywindow.txt">dialogu mÄ›sta</a>. Dialog mÄ›sta otevÅ™ete kliknutÃ­m na nÃ¡zev mÄ›sta nebo na pÅ™Ã­sluÅ¡nou radnici.  </p>
 
-<p><em>Rùst mìsta</em> je zde poèítán jako vá¾enı aritmetickı prùmìr pøírùstku obyvatel mìsta za poslední mìsíce s vahami 5,4 a 1 zaokrouhlenı na desetiny.</p>
+<p><em>RÅ¯st mÄ›sta</em> je zde poÄÃ­tÃ¡n jako vÃ¡Å¾enÃ½ aritmetickÃ½ prÅ¯mÄ›r pÅ™Ã­rÅ¯stku obyvatel mÄ›sta za poslednÃ­ mÄ›sÃ­ce s vahami 5,4 a 1 zaokrouhlenÃ½ na desetiny.</p>
 
-<p>Tlaèítkem <em>Graf</em> zobrazíte graf a pøíslu¹ná tlaèítka umo¾òující zobrazit v grafu odpovídající polo¾ky. Máte na vıbìr mezi grafem za posledních 12 mìsícù nebo posledních 12 let.  </p> 
+<p>TlaÄÃ­tkem <em>Graf</em> zobrazÃ­te graf a pÅ™Ã­sluÅ¡nÃ¡ tlaÄÃ­tka umoÅ¾ÅˆujÃ­cÃ­ zobrazit v grafu odpovÃ­dajÃ­cÃ­ poloÅ¾ky. MÃ¡te na vÃ½bÄ›r mezi grafem za poslednÃ­ch 12 mÄ›sÃ­cÅ¯ nebo poslednÃ­ch 12 let.  </p> 
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 2.1.2013.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 2.1.2013.
 </p>

@@ -3,7 +3,7 @@
 
 <p>W tym oknie masz mozliwosc manipulacji AI graczy oraz ich wlaczania i wylaczania.</p>
 
-<p>Aby wl/wyl gracza CPU wystarczy kliknac na kwadracik obok kolorów graczy.
+<p>Aby wl/wyl gracza CPU wystarczy kliknac na kwadracik obok kolorÃ³w graczy.
 Prosze zauwazyc, ze raz wlaczony gracz CPU bedzie obecny nawet jesli zostanie wylaczony (zostanie tylko 'uspiony').</p>
 
 <p>W oknie tym mozna tez sprawdzic stan funduszy graczy CPU (w tej wersji tylko balans).</p>

@@ -7,9 +7,9 @@ Mapa pokazuje wyglad utworzonego swiata z zaznaczeniem miast, rozmieszczenia prz
 </p>
 
 <p>
-Kazdy rodzaj przemyslu oznaczony jest innym kolorem (Legenda kolorów znajduje sie u dolu mapy)
+Kazdy rodzaj przemyslu oznaczony jest innym kolorem (Legenda kolorÃ³w znajduje sie u dolu mapy)
 </p>
 
 <p>
-Jesli chcesz powiekszyc poglad mapy kliknij na niej prawym przyciskiem myszy. W ten sposób mozesz wybierac korzystac z dwuch stopni powiekszenia.
+Jesli chcesz powiekszyc poglad mapy kliknij na niej prawym przyciskiem myszy. W ten sposÃ³b mozesz wybierac korzystac z dwuch stopni powiekszenia.
 </p>

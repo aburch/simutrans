@@ -1,44 +1,44 @@
-<title>Seznam továren</title>
+<title>Seznam tovÃ¡ren</title>
 
-<h1><strong>Seznam továren</strong></h1>
+<h1><strong>Seznam tovÃ¡ren</strong></h1>
 
-<p>Seznam továren obsahuje informace o v¹ech <a href="industry_info.txt">továrnách</a> umístìnıch na herní plo¹e. </p>
-<p>Seznam továren otevøete z menu <a href="list.txt">Seznamy</a>.</p>
+<p>Seznam tovÃ¡ren obsahuje informace o vÅ¡ech <a href="industry_info.txt">tovÃ¡rnÃ¡ch</a> umÃ­stÄ›nÃ½ch na hernÃ­ ploÅ¡e. </p>
+<p>Seznam tovÃ¡ren otevÅ™ete z menu <a href="list.txt">Seznamy</a>.</p>
 <p>
-<em>Øadit podle</em>: Volba ovlivòuje poøadí zobrazenıch továren.<br>
-Kliknutím na tlaèítko pøepínáte mezi následujícími mo¾nostmi:
+<em>Å˜adit podle</em>: Volba ovlivÅˆuje poÅ™adÃ­ zobrazenÃ½ch tovÃ¡ren.<br>
+KliknutÃ­m na tlaÄÃ­tko pÅ™epÃ­nÃ¡te mezi nÃ¡sledujÃ­cÃ­mi moÅ¾nostmi:
 </p>
 <p>
-- <em>Název továrny</em> Øadí se abecednì podle názvu.<br>
-- <em>Pøíjem</em> Øadí podle mno¾ství pøijatého zbo¾í na skladì.<br>
-- <em>Odbìr</em> Øadí podle mno¾sví vırobkù èekajících na odvoz.<br>
-- <em>Vıroba</em> Poøadí je podle aktuální vırobní kapacity. <br>
-- <em>Stav</em> Seøadí továrny podle barevného indikátoru stavu.<br>
-- <em>Vıkon</em> Seøadí továrny podle zvı¹ení vıkonu zpùsobeného dodáním elektrické energie.
+- <em>NÃ¡zev tovÃ¡rny</em> Å˜adÃ­ se abecednÄ› podle nÃ¡zvu.<br>
+- <em>PÅ™Ã­jem</em> Å˜adÃ­ podle mnoÅ¾stvÃ­ pÅ™ijatÃ©ho zboÅ¾Ã­ na skladÄ›.<br>
+- <em>OdbÄ›r</em> Å˜adÃ­ podle mnoÅ¾svÃ­ vÃ½robkÅ¯ ÄekajÃ­cÃ­ch na odvoz.<br>
+- <em>VÃ½roba</em> PoÅ™adÃ­ je podle aktuÃ¡lnÃ­ vÃ½robnÃ­ kapacity. <br>
+- <em>Stav</em> SeÅ™adÃ­ tovÃ¡rny podle barevnÃ©ho indikÃ¡toru stavu.<br>
+- <em>VÃ½kon</em> SeÅ™adÃ­ tovÃ¡rny podle zvÃ½Å¡enÃ­ vÃ½konu zpÅ¯sobenÃ©ho dodÃ¡nÃ­m elektrickÃ© energie.
 </p>
 <p>
-- <em>Vzestupnì</em> / <em>sestupnì</em>: Pøepíná mezi vzestupnım a sestupnım øazením seznamu.  </br></p>
-<h1>továrny</h1>
-<p> Kliknutím na polo¾ku v seznamu zobrazíte <a href="industry_info.txt">podrobnìj¹í informace</a> o dané továrnì.</p>
-<p>U ka¾dé továrny jsou zobrazeny následující polo¾ky:</p>
+- <em>VzestupnÄ›</em> / <em>sestupnÄ›</em>: PÅ™epÃ­nÃ¡ mezi vzestupnÃ½m a sestupnÃ½m Å™azenÃ­m seznamu.  </br></p>
+<h1>tovÃ¡rny</h1>
+<p> KliknutÃ­m na poloÅ¾ku v seznamu zobrazÃ­te <a href="industry_info.txt">podrobnÄ›jÅ¡Ã­ informace</a> o danÃ© tovÃ¡rnÄ›.</p>
+<p>U kaÅ¾dÃ© tovÃ¡rny jsou zobrazeny nÃ¡sledujÃ­cÃ­ poloÅ¾ky:</p>
 <p>
-<em>barevnı indikátor stavu</em>: Barvy vypovídají o vırobì v dané továrnì. Stejné barvy jsou u¾ity v <a href="industry_info.txt">informacích o továrnì</a>.<br>
-- <em>bílá barva</em>: Továrna nic nepo¾aduje nebo nemá kontrakt s ¾ádnım dodavatelem.<br>
-- <em>¾lutá barva</em>: Továrna má odbìratele, ale nikdo od ní nedopravuje zbo¾í.<br>
-- <em>zelená barva</em>: Optimální stav, továrna vyrábí.<br>
-- <em>oran¾ová barva</em>: V provozu, sklad s aspoò jednou surovinou je plnı, ale zatím je pro koho vyrábìt a ve skladu s vırobky je volné místo.<br>
-- <em>èervená barva</em>: Hodnì surovin na skladu a není kam dodávat vırobky (mají plno).
+<em>barevnÃ½ indikÃ¡tor stavu</em>: Barvy vypovÃ­dajÃ­ o vÃ½robÄ› v danÃ© tovÃ¡rnÄ›. StejnÃ© barvy jsou uÅ¾ity v <a href="industry_info.txt">informacÃ­ch o tovÃ¡rnÄ›</a>.<br>
+- <em>bÃ­lÃ¡ barva</em>: TovÃ¡rna nic nepoÅ¾aduje nebo nemÃ¡ kontrakt s Å¾Ã¡dnÃ½m dodavatelem.<br>
+- <em>Å¾lutÃ¡ barva</em>: TovÃ¡rna mÃ¡ odbÄ›ratele, ale nikdo od nÃ­ nedopravuje zboÅ¾Ã­.<br>
+- <em>zelenÃ¡ barva</em>: OptimÃ¡lnÃ­ stav, tovÃ¡rna vyrÃ¡bÃ­.<br>
+- <em>oranÅ¾ovÃ¡ barva</em>: V provozu, sklad s aspoÅˆ jednou surovinou je plnÃ½, ale zatÃ­m je pro koho vyrÃ¡bÄ›t a ve skladu s vÃ½robky je volnÃ© mÃ­sto.<br>
+- <em>ÄervenÃ¡ barva</em>: HodnÄ› surovin na skladu a nenÃ­ kam dodÃ¡vat vÃ½robky (majÃ­ plno).
 </p>
 <p>
-<em>èervenı blesk</em> je zobrazen u továren pøipojenıch k <a href="special.txt">elektrické síti</a>.
+<em>ÄervenÃ½ blesk</em> je zobrazen u tovÃ¡ren pÅ™ipojenÃ½ch k <a href="special.txt">elektrickÃ© sÃ­ti</a>.
 </p>
-<p><em>symbol cestujících</em>: Továrna le¾í ve spádové oblasti aspoò jedné zastávky pro cestující.</p>
-<p><em>symbol po¹ty</em>: Továrna le¾í ve spádové oblasti aspoò jedné zastávky pro po¹tu.</p>
-<p><em>název továrny</em>:  Název továrny uvedenı v pøekladu.
+<p><em>symbol cestujÃ­cÃ­ch</em>: TovÃ¡rna leÅ¾Ã­ ve spÃ¡dovÃ© oblasti aspoÅˆ jednÃ© zastÃ¡vky pro cestujÃ­cÃ­.</p>
+<p><em>symbol poÅ¡ty</em>: TovÃ¡rna leÅ¾Ã­ ve spÃ¡dovÃ© oblasti aspoÅˆ jednÃ© zastÃ¡vky pro poÅ¡tu.</p>
+<p><em>nÃ¡zev tovÃ¡rny</em>:  NÃ¡zev tovÃ¡rny uvedenÃ½ v pÅ™ekladu.
 </p>
 <p>
-Hodnoty uvedené v závorkách mají následující vıznam:<br>
-- <em>pøijaté zbo¾í</em>: Mno¾ství vstupních surovin èekajících na zpracování.<br>
-- <em>èeká na odvoz</em>: Mno¾ství hotovıch vırobkù èekajících na odvoz.<br>
-- <em>aktuální produkce</em>: aktuální míra produkce - kolik vırobkù pøi souèasném tempu vıroby je továrna schopna vyrobit za mìsíc.
+Hodnoty uvedenÃ© v zÃ¡vorkÃ¡ch majÃ­ nÃ¡sledujÃ­cÃ­ vÃ½znam:<br>
+- <em>pÅ™ijatÃ© zboÅ¾Ã­</em>: MnoÅ¾stvÃ­ vstupnÃ­ch surovin ÄekajÃ­cÃ­ch na zpracovÃ¡nÃ­.<br>
+- <em>ÄekÃ¡ na odvoz</em>: MnoÅ¾stvÃ­ hotovÃ½ch vÃ½robkÅ¯ ÄekajÃ­cÃ­ch na odvoz.<br>
+- <em>aktuÃ¡lnÃ­ produkce</em>: aktuÃ¡lnÃ­ mÃ­ra produkce - kolik vÃ½robkÅ¯ pÅ™i souÄasnÃ©m tempu vÃ½roby je tovÃ¡rna schopna vyrobit za mÄ›sÃ­c.
 </p>

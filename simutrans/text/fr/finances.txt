@@ -2,57 +2,57 @@
 
 <h1>Finances <a href="keys.txt">[f]</a></h1>
 <p>
-Vous pouvez gérer vos finances par cet écran, accessible soit en pressant la touche 'f' ou en cliquant sur l'icône 'billet' dans la partie droite de la barre d'outils.
+Vous pouvez gÃ©rer vos finances par cet Ã©cran, accessible soit en pressant la touche 'f' ou en cliquant sur l'icÃ´ne 'billet' dans la partie droite de la barre d'outils.
 <br>
-Vous y trouverez les informations financières de votre entreprise pour l'année passée et l'année en cours.
-Ainsi qu'un graphique permettant de voir rapidement l'état de vos finances. Un clic sur les entêtes de valeurs les affiche dans le graphique. Les onglets permettent de voir les valeurs des 10 dernières années et des 12 derniers mois
+Vous y trouverez les informations financiÃ¨res de votre entreprise pour l'annÃ©e passÃ©e et l'annÃ©e en cours.
+Ainsi qu'un graphique permettant de voir rapidement l'Ã©tat de vos finances. Un clic sur les entÃªtes de valeurs les affiche dans le graphique. Les onglets permettent de voir les valeurs des 10 derniÃ¨res annÃ©es et des 12 derniers mois
 </p>
 
 <p>
 <em>Revenu</em> - Somme de tous les revenus dus au transport de marchandises et personnes.
 </p>
 <p>
-<em>Opération</em> - Frais de fonctionnement des véhicules en circulation (Les frais de chaque véhicule sont indiqués dans les informations des <a href="depot.txt">dépôts</a> et des <a href="convoiinfo.txt">convois</a>
+<em>OpÃ©ration</em> - Frais de fonctionnement des vÃ©hicules en circulation (Les frais de chaque vÃ©hicule sont indiquÃ©s dans les informations des <a href="depot.txt">dÃ©pÃ´ts</a> et des <a href="convoiinfo.txt">convois</a>
 </p>
 <p>
-<em>Maintenance</em>  - La somme des frais de maintenance des équipements qui vous appartiennent. Cette somme est déduite tous les mois et est indiquée à droite.
+<em>Maintenance</em>  - La somme des frais de maintenance des Ã©quipements qui vous appartiennent. Cette somme est dÃ©duite tous les mois et est indiquÃ©e Ã  droite.
 </p>
 <p>
-<em>Péages routiers</em> - Frais de péages pour l'utilisation des voies d'autres entreprises
+<em>PÃ©ages routiers</em> - Frais de pÃ©ages pour l'utilisation des voies d'autres entreprises
 </p>
 <p>
-<em>Lignes électriques</em> - Revenus des lignes électriques
+<em>Lignes Ã©lectriques</em> - Revenus des lignes Ã©lectriques
 </p>
 <p>
-<em>Profit opérationnel</em> - Profit sans les coûts de constructions et d'achats. Somme de revenu, opération, maintenance, péages et lignes électrique
+<em>Profit opÃ©rationnel</em> - Profit sans les coÃ»ts de constructions et d'achats. Somme de revenu, opÃ©ration, maintenance, pÃ©ages et lignes Ã©lectrique
 </p>
 <p>
-<em>Nouveaux véhicules</em> - Somme de tous les véhicules achetés et vendus dans n'importe quel type de dépôt.
+<em>Nouveaux vÃ©hicules</em> - Somme de tous les vÃ©hicules achetÃ©s et vendus dans n'importe quel type de dÃ©pÃ´t.
 </p>
 <p>
-<em>Construction</em> - C'est la somme des dépenses concernant les constructions dans l'année en comprenant les signaux ferroviaires, les rails, les routes, les arrêts, les gares, les dépôts et les postes.
+<em>Construction</em> - C'est la somme des dÃ©penses concernant les constructions dans l'annÃ©e en comprenant les signaux ferroviaires, les rails, les routes, les arrÃªts, les gares, les dÃ©pÃ´ts et les postes.
 </p>
 <p>
-<em>Profit</em> - Profit de l'année en cours. Somme de profit opérationnel, nouveaux véhicules et construction.
+<em>Profit</em> - Profit de l'annÃ©e en cours. Somme de profit opÃ©rationnel, nouveaux vÃ©hicules et construction.
 </p>
 <p>
-<em>Transporté(s)</em> - Somme de quantité de biens transportés.
-</p>
-
-<p>
-<em>Cash</em> - Argent disponible. Affiché au bas de l'écran.
-</p>
-<p>
-<em>Biens</em> - Valeur des biens (véhicules, voies, ...) possédés.
-</p>
-<p>
-<em>Marge</em> - Pourcentage entre profit opérationnel et revenu
-</p>
-<p>
-<em>Richesse</em> - Somme cash et biens. Si cette valeur est négative, vous êtes en faillite.
+<em>TransportÃ©(s)</em> - Somme de quantitÃ© de biens transportÃ©s.
 </p>
 
-<strong>Scénarios</strong>
 <p>
-Si vous jouez un scénario, l'objectif et le pourcentage de réussite est affiché.
+<em>Cash</em> - Argent disponible. AffichÃ© au bas de l'Ã©cran.
+</p>
+<p>
+<em>Biens</em> - Valeur des biens (vÃ©hicules, voies, ...) possÃ©dÃ©s.
+</p>
+<p>
+<em>Marge</em> - Pourcentage entre profit opÃ©rationnel et revenu
+</p>
+<p>
+<em>Richesse</em> - Somme cash et biens. Si cette valeur est nÃ©gative, vous Ãªtes en faillite.
+</p>
+
+<strong>ScÃ©narios</strong>
+<p>
+Si vous jouez un scÃ©nario, l'objectif et le pourcentage de rÃ©ussite est affichÃ©.
 </p>

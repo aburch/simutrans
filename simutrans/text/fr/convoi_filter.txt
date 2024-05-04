@@ -1,48 +1,48 @@
-<title>Filtres de véhicules</title>
+<title>Filtres de vÃ©hicules</title>
 
-<h1>Filtrage de la liste des véhicules</h1>
+<h1>Filtrage de la liste des vÃ©hicules</h1>
 
-<p>Cet écran vous permet de définir des critères de filtrage pour afficher la
-liste de vos véhicules.
+<p>Cet Ã©cran vous permet de dÃ©finir des critÃ¨res de filtrage pour afficher la
+liste de vos vÃ©hicules.
 </p>
 
-<p>Les filtres sont organisés en groupe, indiqués en blanc. Vous pouvez activer
-un ou plusieurs groupe de filtre en appuyant sur les boutons associés à chaque groupe.
+<p>Les filtres sont organisÃ©s en groupe, indiquÃ©s en blanc. Vous pouvez activer
+un ou plusieurs groupe de filtre en appuyant sur les boutons associÃ©s Ã  chaque groupe.
 </p>
 
 <p>
 <em>Filtre par Nom:</em>
-Ecrivez tout ou partie du nom de véhicule, et appuyez sur le bouton associé
-pour valider le critère.
+Ecrivez tout ou partie du nom de vÃ©hicule, et appuyez sur le bouton associÃ©
+pour valider le critÃ¨re.
 </p>
 
 <p>
 <em>Filtre marchandises:</em>
-Sélectionnez les marchandises transportées dans les véhicules que vous souhaitez
-voir affichés, et appuyez sur le bouton associé pour valider le critère.<br>
-Des boutons vous servent à sélectionner l'ensemble des critères marchandise ou
-aucun, ou encore d'inverser votre sélection.
+SÃ©lectionnez les marchandises transportÃ©es dans les vÃ©hicules que vous souhaitez
+voir affichÃ©s, et appuyez sur le bouton associÃ© pour valider le critÃ¨re.<br>
+Des boutons vous servent Ã  sÃ©lectionner l'ensemble des critÃ¨res marchandise ou
+aucun, ou encore d'inverser votre sÃ©lection.
 </p>
 
 <p>
 <em>Filtre par Type:</em>
-Sélectionnez le(s) type(s) de véhicule que vous voulez afficher, et appuyez sur
-le bouton associé pour valider le critère.
+SÃ©lectionnez le(s) type(s) de vÃ©hicule que vous voulez afficher, et appuyez sur
+le bouton associÃ© pour valider le critÃ¨re.
 </p>
 
 <p>
-<em>Filtre spécial:</em>
-Choissez ici les critères vous permettant de repérer les véhicules posant problème.
+<em>Filtre spÃ©cial:</em>
+Choissez ici les critÃ¨res vous permettant de repÃ©rer les vÃ©hicules posant problÃ¨me.
 </p>
 
 <p>
 <em>Important:</em>
-Lorsque vous associez plusieurs critères, les véhicules affichés répondront à au
-moins un critère. ex: filtre par type : Train et bâteau, tous les trains et tous
-les bâteaux.
+Lorsque vous associez plusieurs critÃ¨res, les vÃ©hicules affichÃ©s rÃ©pondront Ã  au
+moins un critÃ¨re. ex: filtre par type : Train et bÃ¢teau, tous les trains et tous
+les bÃ¢teaux.
 </p>
 
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

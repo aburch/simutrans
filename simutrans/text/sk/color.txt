@@ -1,15 +1,15 @@
-<title>Voµba farby - pomoc</title>
+<title>VoÄ¾ba farby - pomoc</title>
 
 <h1>Farby</h1>
 
 <p>
-V tomto menu si mô¾e¹ zvoli» farbu Tvojej spoloènosti.
-Bude spoloèná pre v¹etky Tvoje dopravné prostriedky, stanice atd.
+V tomto menu si mÃ´Å¾eÅ¡ zvoliÅ¥ farbu Tvojej spoloÄnosti.
+Bude spoloÄnÃ¡ pre vÅ¡etky Tvoje dopravnÃ© prostriedky, stanice atd.
 </p>
 <p>
-Zvoµ svoju svoju farbu jednoduchım kliknutím na niektorú
-zo zobrazenıch farieb.
+ZvoÄ¾ svoju svoju farbu jednoduchÃ½m kliknutÃ­m na niektorÃº
+zo zobrazenÃ½ch farieb.
 </p>
 <p>
-©tandardne je nastavená svetlomodrá farba.
+Å tandardne je nastavenÃ¡ svetlomodrÃ¡ farba.
 </p>

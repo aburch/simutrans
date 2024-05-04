@@ -1,31 +1,31 @@
-<title>Vejanlæg dialog hjælp </title>
+<title>VejanlÃ¦g dialog hjÃ¦lp </title>
 
-<h1>Vejanlæg dialog</h1>
+<h1>VejanlÃ¦g dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Denne dialog indeholder værktøjer til at bygge veje, busstoppesteder,
+Denne dialog indeholder vÃ¦rktÃ¸jer til at bygge veje, busstoppesteder,
 tunneller, lastepladser, vejdepoter og jernbaneovergange.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Dialogen består af seks (6) symboler, der hver repræsenterer et byggeværktøj.
+Dialogen bestÃ¥r af seks (6) symboler, der hver reprÃ¦senterer et byggevÃ¦rktÃ¸j.
 </p>
 
 <p>
-Gående fra venstre mod højre samt oppefra og ned er de forskellige symboler:
+GÃ¥ende fra venstre mod hÃ¸jre samt oppefra og ned er de forskellige symboler:
 </p>
 
 <p>
-<em>Byg vejanlæg:</em><br>
+<em>Byg vejanlÃ¦g:</em><br>
 
-Dette værktøj vil bygge en vej imellem to kort-kvadrater. Ved venstreklik på
+Dette vÃ¦rktÃ¸j vil bygge en vej imellem to kort-kvadrater. Ved venstreklik pÃ¥
 symbolet forandres cursoren til et vej-symbol. For at bygge en vej
-venstreklikkes på start-kvadratet. Cursoren forandres derved til en
-bulldozer. Venstreklik derefter på slut-kvadratet. Simutrans vil nu bygge en
+venstreklikkes pÃ¥ start-kvadratet. Cursoren forandres derved til en
+bulldozer. Venstreklik derefter pÃ¥ slut-kvadratet. Simutrans vil nu bygge en
 vej imellem de to kvadrater.<br>
-Der bliver kun bygget på frie kvadrater og over egne og andre spilleres veje.
+Der bliver kun bygget pÃ¥ frie kvadrater og over egne og andre spilleres veje.
 Andre spilleres jernbanespor vil ikke blive krydset. Benyt jernbaneovergange,
 broer eller tunneller til at krydse disse "forhindringer".<br>
 Hvis der ikke kan findes en forbindelse imellem de to kvadrater vil der ikke
@@ -34,51 +34,51 @@ blive bygget noget overhovedet.
 
 <p>
 <em>Byg busstoppested:</em><br>
-Dette værktøj benyttes til at bygge busstoppesteder på veje. Ved venstreklik
-på symbolet forandres cursoren til et stoppestedssymbol. Venstreklik derefter
-på en vej, hvor du vil have stoppestedet placeret.
+Dette vÃ¦rktÃ¸j benyttes til at bygge busstoppesteder pÃ¥ veje. Ved venstreklik
+pÃ¥ symbolet forandres cursoren til et stoppestedssymbol. Venstreklik derefter
+pÃ¥ en vej, hvor du vil have stoppestedet placeret.
 </p>
 
 <p>
 <em>Byg tunneller:</em><br>
-Dette værktøj benyttes til at bygge tuneller. Ved venstreklik på symbolet
-ændres cursoren til et tunnelsymbol. Tunneller benyttes til at lave
-<strong>lige</strong> vejstrækninger igennem et bjerg. Benyt tunneller til at
-undgå at skulle bygge udenom eller over bjerget.<br>
-For at bygge en tunnel skal vejene, der skal forbindes, bygges først. Byg de
-to veje så de ender overfor hinanden og opad en skråning på det bjerg,
-tunnellen skal gå igennnem. Det er vigtigt, at vejene er på samme niveau på
+Dette vÃ¦rktÃ¸j benyttes til at bygge tuneller. Ved venstreklik pÃ¥ symbolet
+Ã¦ndres cursoren til et tunnelsymbol. Tunneller benyttes til at lave
+<strong>lige</strong> vejstrÃ¦kninger igennem et bjerg. Benyt tunneller til at
+undgÃ¥ at skulle bygge udenom eller over bjerget.<br>
+For at bygge en tunnel skal vejene, der skal forbindes, bygges fÃ¸rst. Byg de
+to veje sÃ¥ de ender overfor hinanden og opad en skrÃ¥ning pÃ¥ det bjerg,
+tunnellen skal gÃ¥ igennnem. Det er vigtigt, at vejene er pÃ¥ samme niveau pÃ¥
 hver side af bjerget.<br>
-Venstreklik derefter på en af vejafslutningerne, hvorefter de vil blive
+Venstreklik derefter pÃ¥ en af vejafslutningerne, hvorefter de vil blive
 forbundet med en tunnel.
 </p>
 
 <p>
 <em>Byg lasteplads:</em><br>
-Dette værktøj benyttes til at bygge lastepladser. Lastepladser benyttes af
+Dette vÃ¦rktÃ¸j benyttes til at bygge lastepladser. Lastepladser benyttes af
 dine lastbiler til at laste eller aflevere varer. En lasteplads bygges ved at
-venstreklikke på symbolet, hvorved cursoren forandres til et lastepladssymbol,
-og derefter venstreklikke på en <strong>vejafslutning</strong>, hvor du vil
-have lastepladsen placeret. <strong>Bemærk at der højest kan være to køretøjer
-på en lastplads af gangen</strong>
+venstreklikke pÃ¥ symbolet, hvorved cursoren forandres til et lastepladssymbol,
+og derefter venstreklikke pÃ¥ en <strong>vejafslutning</strong>, hvor du vil
+have lastepladsen placeret. <strong>BemÃ¦rk at der hÃ¸jest kan vÃ¦re to kÃ¸retÃ¸jer
+pÃ¥ en lastplads af gangen</strong>
 </p>
 
 <p>
 <em>Byg vejdepot:</em><br>
-Dette værktøj benyttes til at bygge<br>
-<a href="depot.txt">vejdepoter.</a> Depoter benyttes til at købe, sælge og
-opdatere dine køretøjer. Depoter bygges, ligesom lastepladser på
-<strong>vejafslutninger</strong> ved at venstreklikke på symbolet, hvorved cursoren
+Dette vÃ¦rktÃ¸j benyttes til at bygge<br>
+<a href="depot.txt">vejdepoter.</a> Depoter benyttes til at kÃ¸be, sÃ¦lge og
+opdatere dine kÃ¸retÃ¸jer. Depoter bygges, ligesom lastepladser pÃ¥
+<strong>vejafslutninger</strong> ved at venstreklikke pÃ¥ symbolet, hvorved cursoren
 forandres til et depotsymbol, og derefter venstreklikke, hvor depotet skal
 placeres,
 </p>
 
 <p>
 <em>Byg jernbaneovergang:</em><br>
-Dette værktøj benyttes til at bygge en jernbaneovergang over et
-jernbanespor. Ved venstreklik på symbolet ændres cursoren til et
+Dette vÃ¦rktÃ¸j benyttes til at bygge en jernbaneovergang over et
+jernbanespor. Ved venstreklik pÃ¥ symbolet Ã¦ndres cursoren til et
 jernbaneovergangssymbol. Jernbaneovergange benyttes til at krydse
-jernbanespor. For at bygge en jernbaneovergang venstreklikkes på et
+jernbanespor. For at bygge en jernbaneovergang venstreklikkes pÃ¥ et
 <strong>lige</strong> sporstykke, hvorefter veje via jernbaneovergangen kan
 krydse jernbanesporet.
 </p>

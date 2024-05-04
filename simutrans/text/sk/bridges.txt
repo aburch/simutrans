@@ -1,36 +1,36 @@
-<title>Nástroj na stavbu mosta - pomoc</title>
+<title>NÃ¡stroj na stavbu mosta - pomoc</title>
 
 <h1>Stavba mosta</h1>
 
 <p>
 Most sa stavia podobne ako tunel.<br>
-<em>Cestnı most</em><br>
-Musí¹ mat' u¾ vytvorené cesty, ktoré spojí¹ mostom.
-Obe musia presne lícovat' (pasovat' proti sebe).
-My¹ou zvoµ nástroj cestného mosta. Prepojenie
-vytvorí¹ kliknutím na jeden z koncov prepájanıch ciest.
-Most môze¹ stavat' aj tak, ¾e jeden jeho koniec bude na
-kopci (do vı¹ky 1-nej pozície). Pokiaµ by sa Ti stalo,
-¾e cesta nie je prepojená, skús potiahnut' cestu e¹te
-o jednu pozíciu pod most.
+<em>CestnÃ½ most</em><br>
+MusÃ­Å¡ mat' uÅ¾ vytvorenÃ© cesty, ktorÃ© spojÃ­Å¡ mostom.
+Obe musia presne lÃ­covat' (pasovat' proti sebe).
+MyÅ¡ou zvoÄ¾ nÃ¡stroj cestnÃ©ho mosta. Prepojenie
+vytvorÃ­Å¡ kliknutÃ­m na jeden z koncov prepÃ¡janÃ½ch ciest.
+Most mÃ´zeÅ¡ stavat' aj tak, Å¾e jeden jeho koniec bude na
+kopci (do vÃ½Å¡ky 1-nej pozÃ­cie). PokiaÄ¾ by sa Ti stalo,
+Å¾e cesta nie je prepojenÃ¡, skÃºs potiahnut' cestu eÅ¡te
+o jednu pozÃ­ciu pod most.
 </p>
 <p>
-<em>®elezniènı most</em><br>
-Musí¹ mat' vytvorené ¾eleznièné trate, ktoré spojí¹ mostom.
-Obe musia presne lícovat' (pasovat' proti sebe).
-My¹ou zvoµ nástroj niektorého zo ¾elezniènıch mostov.
-Prepojenie ¾elezniènıch tratí vytvorí¹ kliknutím na jeden
-z koncov. Most s plnım dnom (bez boènej kon¹trukcie) má tú
-vıhodu, ze mô¾e¹ naò umiestnit' signalizáciu. Most môze¹
-postavit' aj tak, ze jeden koniec bude na kopci (do vı¹ky
-1-nej pozície). Pokiaµ by sa Ti stalo, ze ¾eleznièná trat'
-nie je prepojená, skús potiahnut' koµajnice e¹te o jednu
-pozíciu pod most.
+<em>Å½elezniÄnÃ½ most</em><br>
+MusÃ­Å¡ mat' vytvorenÃ© Å¾elezniÄnÃ© trate, ktorÃ© spojÃ­Å¡ mostom.
+Obe musia presne lÃ­covat' (pasovat' proti sebe).
+MyÅ¡ou zvoÄ¾ nÃ¡stroj niektorÃ©ho zo Å¾elezniÄnÃ½ch mostov.
+Prepojenie Å¾elezniÄnÃ½ch tratÃ­ vytvorÃ­Å¡ kliknutÃ­m na jeden
+z koncov. Most s plnÃ½m dnom (bez boÄnej konÅ¡trukcie) mÃ¡ tÃº
+vÃ½hodu, ze mÃ´Å¾eÅ¡ naÅˆ umiestnit' signalizÃ¡ciu. Most mÃ´zeÅ¡
+postavit' aj tak, ze jeden koniec bude na kopci (do vÃ½Å¡ky
+1-nej pozÃ­cie). PokiaÄ¾ by sa Ti stalo, ze Å¾elezniÄnÃ¡ trat'
+nie je prepojenÃ¡, skÃºs potiahnut' koÄ¾ajnice eÅ¡te o jednu
+pozÃ­ciu pod most.
 </p>
 <p>
-V oboch prípadoch platí, ze stavat' mosty s jednım koncom
-na kopci (príp. obidvomi) je mo¾né, len ak sú steny kopca
-zarovnané do vı¹ky 1-nej pozície. Mosty môze¹ stavat' aj tak,
-¾e preklenie¹ jamu (roklinu). Obe steny jamy (rokliny) v¹ak
-musia mat' opät zarovnané steny do håbky 1-nej pozície.
+V oboch prÃ­padoch platÃ­, ze stavat' mosty s jednÃ½m koncom
+na kopci (prÃ­p. obidvomi) je moÅ¾nÃ©, len ak sÃº steny kopca
+zarovnanÃ© do vÃ½Å¡ky 1-nej pozÃ­cie. Mosty mÃ´zeÅ¡ stavat' aj tak,
+Å¾e preklenieÅ¡ jamu (roklinu). Obe steny jamy (rokliny) vÅ¡ak
+musia mat' opÃ¤t zarovnanÃ© steny do hÄºbky 1-nej pozÃ­cie.
 </p>

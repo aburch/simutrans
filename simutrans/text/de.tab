@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -49,6 +49,8 @@ clf_btn_keine
 keine
 climate area percentage
 Größe Klimaregion
+Continue Game
+Weiterspielen
 CROSSING_SOUND
 Bahnübergänge
 FACTORY_SOUND
@@ -113,6 +115,8 @@ rainfall
 Luftfeuchte
 Reselect closes tools
 Werkzeug abwählen durch erneute Auswahl
+Return to menu
+Neues Spiel
 Road toll
 Maut
 Save
@@ -165,6 +169,8 @@ Cannot built depot here!
 Hier kann kein Depot gebaut werden!\n\nEin Depot kann nur auf einem Wegende\n\nmit dem passenden Typ gebaut werden.\n
 Cannot built this station/building\nin underground mode here.
 Dieses Gebäude / Haltestelle kann nicht\nim Untergrund gebaut werden.
+Cannot connect to the\ncenter of a double slope!
+Eine Brücke kann nicht in der Mitte eine steilen Kachel enden!\nEvt. kann man dies mit den Erdbewegungswerkezugen ändern.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
 Kann keine Linie vom Typ\n'Alle' erzeugen.\n\nWählen Sie einen\nanderen Linientyp aus
 Cannot create socket
@@ -433,6 +439,8 @@ Strg
 Ende
 [HOME]
 Pos1
+/month
+/Monat
 \nBauzeit bis
  bis 
 \nBauzeit von
@@ -485,8 +493,12 @@ Keine Einfahrt!
 %s %s Betriebshof
 %s has entered a depot.
 %s\nhat das Depot erreicht.
+%s has left.
+%s hat den Server verlassen.
 %s land %d %s
 %s %d Land %s
+%s now known as %s.
+%s heißt jetzt %s.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
 %s\nis crowded.
@@ -647,6 +659,8 @@ Available
 Verfügbar
 Available at custom date
 Verfügbar nach
+based on Simutrans 84.22.1
+aufbauend auf Simutrans 84.22.1
 battery
 Akkumulator
 baum builder
@@ -751,6 +765,10 @@ cars.\nstate
  Fahrzeugen\n
 Cash
 Kontostand
+Category
+Warenart
+Change label style
+Stil der Orts- und Haltsnamen
 Change player
 Spielerwechsel
 Chart
@@ -969,6 +987,8 @@ Destination
 Zielort
 Destroying map ...
 Kartenspeicher wird freigegeben ...
+Developed by the Simutrans Team
+Entwickelts von dem Simutrans-Team
 Die Bruecke ist nicht frei!\n
 Die Brücke ist nicht frei!\n
 diesel
@@ -1075,6 +1095,8 @@ Follow the convoi on the map.
 Dem Fahrzeug folgen.
 font size
 Zeichengröße
+For questions and support please visit:
+Fragen und Support gibt es via
 Forest
 Wälder
 Found new city
@@ -1115,6 +1137,8 @@ Generated
 Erzeugt
 Generation: %.0f MW
 Erzeugung: %.0f MW
+Gewinn
+Gewinn 
 Give the selected vehicle(s) an individual schedule
 Gib dem ausgewählten Fahrzeug einen eigenen Fahrplan.
 gl_btn_sort_catg
@@ -1157,6 +1181,8 @@ hide all building
 alle Gebäude minimieren
 hide city building
 Stadtgebäude minimieren
+Hide labels
+Ort- und Haltnamen nicht anzeigen
 hide objects under cursor
 Dinge im Umkreis um den Mauszeiger minimieren.
 hide station names
@@ -1777,6 +1803,8 @@ return ticket
 Rückfahrkarte
 Revenue
 Einnahmen
+Revenue/unit/100 tiles
+Gewinn pro 100 Kacheln
 Revert schedule
 Änderungen verwerfen
 Revision:
@@ -1849,6 +1877,8 @@ Select soundfont
 Wähle MIDI Soundfont
 Sell the selected vehicle(s)
 Verkaufe das ausgewählte Fahrzeug.
+Selling of the program is forbidden.
+Simutrans darf nicht verkauft werden.
 sended
 abgeschickt
 SEP_FRACTION
@@ -1985,6 +2015,8 @@ Soundfonts are located in the music directory.
 Soundfonts die sich im Musikverzeichnis befinden: 
 special freight
 Sonderfracht
+Speed Bonus
+Expressbonus
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Bonus in Prozent:\nMindestgeschwindigkeit Straße %i km/h,\nSchiene %i km/h, Wasser %i km/h, Luft %i km/h.\n
 Speedlimit
@@ -2068,7 +2100,7 @@ t
 Toolbar position:
 Position der Menüleiste:
 Total inhabitants:
-Gesamtbevölkerung:
+Gesamtbevölkerung: 
 Tourist attractions
 Touristenattraktionen
 Tourists
@@ -2133,6 +2165,8 @@ Tunnel must start on single way!
 Der Tunnel muss an\n einem Gleis oder\ einer Straße beginnen
 Tunnelboden
 Tunnel
+under the Artistic License
+OS unter der Artisitc License
 underground mode
 Untergrundansicht
 UNDO failed!
@@ -2225,6 +2259,12 @@ Weight
 Gewicht
 Weight:
 Gewicht:
+Weight/unit
+Gewicht
+Welcome to Simutrans
+Willkommen zu Simutrans
+Welcome, %s!
+Willkommen %s!
 west
 West
 Wind direction
@@ -2297,6 +2337,8 @@ Mirrors order of stops
 Reihenfolge der Halte invertieren.
 Revert to original schedule
 Alle Änderung des Fahrplans zurücknehmen.
+Tutorial not available for this pakset. Please try loading Pak128.
+Es gibt kein Tutorial für dieses Pakset. Pak, Pak128 und pak192 und vielleicht schon mehr haben ein Tutorial.
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

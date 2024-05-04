@@ -1,18 +1,18 @@
-<title>POMOC: Budowa dr骻</title>
+<title>POMOC: Budowa dr贸g</title>
 
-<h1>Budowa dr骻</h1>
+<h1>Budowa dr贸g</h1>
 
 <p>
-W tym oknie znajduja sie narzedzia do budowy dr骻, przystank體, tuneli, punkt體 za砤dunku, zajezdni itp. Po kliknieciu na dane narzedzie kursor zmieni sie w ikonke obrazujaca to narzedzie.
+W tym oknie znajduja sie narzedzia do budowy dr贸g, przystank贸w, tuneli, punkt贸w za艂adunku, zajezdni itp. Po kliknieciu na dane narzedzie kursor zmieni sie w ikonke obrazujaca to narzedzie.
 </p>
 <p>
-W lewym g髍nym rogu znajduje sie ikona budowy dr骻. Klikamy w miejscu gdzie droga ma sie rozpoczac (ikona zmieni sie w buldozer) a nastepnie zaznaczmy punkt, gdzie droga ma sie zakonczyc - droga zostanie zbudowana automatycznie.
+W lewym g贸rnym rogu znajduje sie ikona budowy dr贸g. Klikamy w miejscu gdzie droga ma sie rozpoczac (ikona zmieni sie w buldozer) a nastepnie zaznaczmy punkt, gdzie droga ma sie zakonczyc - droga zostanie zbudowana automatycznie.
 </p>
 <p>
-Nastepna ikona to 'Przystanek'. Na przystankach gromadza sie ludzie z najblizszej strefy i mozemy ich przewozic do innych przystank體. Na przystanku moga sie zmiescic dwa autobusy. Przystanki mozna budowac na drogach z wylaczeniem skrzyzowan i zakret體.
+Nastepna ikona to 'Przystanek'. Na przystankach gromadza sie ludzie z najblizszej strefy i mozemy ich przewozic do innych przystank贸w. Na przystanku moga sie zmiescic dwa autobusy. Przystanki mozna budowac na drogach z wylaczeniem skrzyzowan i zakret贸w.
 </p>
 <p>
-Kolejne narzedzie sluzy do budowy tuneli. Dzieki nim mozemy skr骳ic czas podr髗y poprzez duze g髍y. Przed wybudowaniem tunelu najpierw z obu stron g髍y musisz zbudowac drogi. Zakonczenie tych dr骻 musi znajdowac sie na tej samej wysokosci. Nastepnie wybieramy ikonke 'Tunel' i przeciagamy linie poprzez g髍y laczac konce dr骻.
+Kolejne narzedzie sluzy do budowy tuneli. Dzieki nim mozemy skr贸cic czas podr贸zy poprzez duze g贸ry. Przed wybudowaniem tunelu najpierw z obu stron g贸ry musisz zbudowac drogi. Zakonczenie tych dr贸g musi znajdowac sie na tej samej wysokosci. Nastepnie wybieramy ikonke 'Tunel' i przeciagamy linie poprzez g贸ry laczac konce dr贸g.
 </p>
 <p>
 Ponizej znajduje sie narzedzie 'Skrzyzowanie'. Jest ono uzywane w celu przeprowadzenia przez droge linii kolejowych. Skrzyzowanie tworzymy klikajac w miejscu gdzie ma ono powstac.
@@ -21,5 +21,5 @@ Ponizej znajduje sie narzedzie 'Skrzyzowanie'. Jest ono uzywane w celu przeprowa
 Na lewo widnieje symbol 'Zajezdnia'. W zajezdni kupujemy i sprzedajemy wszystkie dostepne pojazdy i przyczepy. Zajezdnie budujemy na segmentach konczacych droge.
 </p>
 <p>
-Ostatnie narzedzie to sluzy do budowy punkt體 przeladunku towar體. Punkty takie budujemy w poblizu kopaln i fabryk aby m骳 transportowac towary. W jednym punkcie moze stacjonowac r體noczensnie do dw骳h pojazd體. Punkty przeladunk體 budujemy na segmentach konczacych drogi.
+Ostatnie narzedzie to sluzy do budowy punkt贸w przeladunku towar贸w. Punkty takie budujemy w poblizu kopaln i fabryk aby m贸c transportowac towary. W jednym punkcie moze stacjonowac r贸wnoczensnie do dw贸ch pojazd贸w. Punkty przeladunk贸w budujemy na segmentach konczacych drogi.
 </p>

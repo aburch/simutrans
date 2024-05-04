@@ -1,15 +1,15 @@
-<title>Nápovìda - zasadit stromy</title>
+<title>NÃ¡povÄ›da - zasadit stromy</title>
 <h1><strong>Zasadit stromy</strong></h1>
-<p>Dialog vám umo¾òuje hrát si na zahradníka a sázet stromy.</p>
-<p>Dialog je dostupnı, pokud jste se pøepli na hráèe <em>Veøejné slu¾by</em>.</p>
-<p>Okno dialogu je rozdìleno na ètyøi èásti: <br>
-V levém horním rohu jsou dva panely umo¾òující vybírat mezi dostupnımi druhy stromù. Mù¾ete vybírat stromy podle názvu nebo podle ID.</p>
-<p> Pokud zvolíte nìjakı strom, pak se v levém dolním rohu zobrazí jeho obrázek.<br>
-V pravém horním rohu jsou zobrazeny volby. </p>
-<p>Volba <em>Ignorovat podnebí</em> umo¾òuje sázet stromy bez ohledu na podnebnı pás. Pokud ji povolíte, mù¾ete sázet tøeba tropické palmy do snìhu.</p>
-<p>Volba <em>Náhodné stáøí</em> umo¾òuje sázet stromy rùzné velikosti. Pokud není povolena, sázíte jen malé stromeèky.</p>
-<p> Pod volbami jsou informace o daném stromu: název, podnebnı pás nebo podnebné pásy a kdo danı stromek nakreslil.  </p>
+<p>Dialog vÃ¡m umoÅ¾Åˆuje hrÃ¡t si na zahradnÃ­ka a sÃ¡zet stromy.</p>
+<p>Dialog je dostupnÃ½, pokud jste se pÅ™epli na hrÃ¡Äe <em>VeÅ™ejnÃ© sluÅ¾by</em>.</p>
+<p>Okno dialogu je rozdÄ›leno na ÄtyÅ™i ÄÃ¡sti: <br>
+V levÃ©m hornÃ­m rohu jsou dva panely umoÅ¾ÅˆujÃ­cÃ­ vybÃ­rat mezi dostupnÃ½mi druhy stromÅ¯. MÅ¯Å¾ete vybÃ­rat stromy podle nÃ¡zvu nebo podle ID.</p>
+<p> Pokud zvolÃ­te nÄ›jakÃ½ strom, pak se v levÃ©m dolnÃ­m rohu zobrazÃ­ jeho obrÃ¡zek.<br>
+V pravÃ©m hornÃ­m rohu jsou zobrazeny volby. </p>
+<p>Volba <em>Ignorovat podnebÃ­</em> umoÅ¾Åˆuje sÃ¡zet stromy bez ohledu na podnebnÃ½ pÃ¡s. Pokud ji povolÃ­te, mÅ¯Å¾ete sÃ¡zet tÅ™eba tropickÃ© palmy do snÄ›hu.</p>
+<p>Volba <em>NÃ¡hodnÃ© stÃ¡Å™Ã­</em> umoÅ¾Åˆuje sÃ¡zet stromy rÅ¯znÃ© velikosti. Pokud nenÃ­ povolena, sÃ¡zÃ­te jen malÃ© stromeÄky.</p>
+<p> Pod volbami jsou informace o danÃ©m stromu: nÃ¡zev, podnebnÃ½ pÃ¡s nebo podnebnÃ© pÃ¡sy a kdo danÃ½ stromek nakreslil.  </p>
 
-<p>Tip: Celı les zasadíte pomocí tlaèítka <em>Zasadit les</em> z menu <a href="edittools.txt">editace mapy</a>.</p>
+<p>Tip: CelÃ½ les zasadÃ­te pomocÃ­ tlaÄÃ­tka <em>Zasadit les</em> z menu <a href="edittools.txt">editace mapy</a>.</p>
 
-<p>Nápovìda odpovídá verzi 112.1, poslední úprava 31.12.2012.</p>
+<p>NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 31.12.2012.</p>

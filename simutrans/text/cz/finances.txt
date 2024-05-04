@@ -1,80 +1,80 @@
-<title>Nápovìda - finance</title>
-<h1>Finance (klávesová zkratka: <em>f</em>)</h1>
+<title>NÃ¡povÄ›da - finance</title>
+<h1>Finance (klÃ¡vesovÃ¡ zkratka: <em>f</em>)</h1>
 
 <p>
-V dialogu finance naleznete tabulku rozpisu va¹ich pøíjmù a vıdajù za tento a minulı rok, a také graf vybranıch polo¾ek.
+V dialogu finance naleznete tabulku rozpisu vaÅ¡ich pÅ™Ã­jmÅ¯ a vÃ½dajÅ¯ za tento a minulÃ½ rok, aÂ takÃ© graf vybranÃ½ch poloÅ¾ek.
 </p>
 <p>
-Tabulku pøíjmù lze zobrazit po mìsících nebo po letech. Údaje lze zobrazit i jen pro jednotlivé zpùsoby pøepravy (od verze 112.3).
+Tabulku pÅ™Ã­jmÅ¯ lze zobrazit po mÄ›sÃ­cÃ­ch nebo po letech. Ãšdaje lze zobrazit i jen pro jednotlivÃ© zpÅ¯soby pÅ™epravy (od verze 112.3).
 
-Hodnoty jednotlivıch následujících polo¾ek jsou zobrazitelné v grafu.
-</p>
-
-<p>
-<i>levı sloupec</i>
+Hodnoty jednotlivÃ½ch nÃ¡sledujÃ­cÃ­ch poloÅ¾ek jsou zobrazitelnÃ© v grafu.
 </p>
 
 <p>
-<em>Pøepraveno</em> - Kolik zbo¾í, cestujících a po¹ty jste pøepravili.
-</p>
-<p>
-<em>Pøíjmy</em> - Souèet penìz, vydìlanıch pøepravou zbo¾í a cestujících
-</p>
-<p>
-<em>Provoz vozidel</em> - Provozní náklady za v¹echna vozidla
-</p>
-<p>
-<em>Údr¾ba</em> - Vıdaje za udr¾ování va¹ich staveb v dobrém stavu -
-opravy, úklid atd. Èím více tratí, cest, mostù, tunelù a staveb, tím je vìt¹í tato èástka.<br/>
-Jak vysoká je tato èástka na tento mìsíc, je uvedeno na posledním øádku dialogu.<br/>
-Tato èástka vám bude odeètena najednou, na zaèátku ka¾dého mìsíce. Vozidel se tato polo¾ka (zatím) netıká.<br/>
-(Mìsíèní náklady na údr¾bu vozidel jsou v simutrans experimental).
-</p>
-<p>
-<em>Mıto</em> - Mıtné za jízdu va¹ich vozidel po silnicích jinıch hráèù (platíme) a za jízdu cizích vozidel po va¹ich silnicích (je nám placeno).
-Vı¹i mıtného lze ovlivnit v <a href="settings.txt">nastavení</a> pøi vytváøení nové mapy v zálo¾ce <strong>Hospodáøství a mìsta</strong> volbami <strong>toll_running_cost_percentage</strong> a <strong>toll_waycost_percentage</strong>.
-</p>
-<p>
-<em>Zisk z vozidel</em> - Souèet pøedchozích ètyø polo¾ek vèetnì znaménka. (Pøíjmy + provoz vozidel + údr¾ba + mıto)
-</p>
-<p>
-<em>Nová vozidla</em> - Pøíjmy a vıdaje za prodaná èi zakoupená vozidla
-</p>
-<p>
-<em>Stavby</em> - Souèet vıdajù za v¹e co jste postavili - ¾eleznice, silnice, stanice atd.
-</p>
-<p>
-<em>Hosp. vısledek</em> - Celkovı souèet pøíjmù a vıdajù za tento popø. minulı rok
+<i>levÃ½ sloupec</i>
 </p>
 
 <p>
-<i>pravı sloupec</i>
+<em>PÅ™epraveno</em> - Kolik zboÅ¾Ã­, cestujÃ­cÃ­ch a poÅ¡ty jste pÅ™epravili.
+</p>
+<p>
+<em>PÅ™Ã­jmy</em> - SouÄet penÄ›z, vydÄ›lanÃ½ch pÅ™epravou zboÅ¾Ã­ aÂ cestujÃ­cÃ­ch
+</p>
+<p>
+<em>Provoz vozidel</em> - ProvoznÃ­ nÃ¡klady zaÂ vÅ¡echna vozidla
+</p>
+<p>
+<em>ÃšdrÅ¾ba</em> - VÃ½daje za udrÅ¾ovÃ¡nÃ­ vaÅ¡ich staveb vÂ dobrÃ©m stavu -
+opravy, Ãºklid atd. ÄŒÃ­m vÃ­ce tratÃ­, cest, mostÅ¯, tunelÅ¯ a staveb, tÃ­m je vÄ›tÅ¡Ã­ tato ÄÃ¡stka.<br/>
+Jak vysokÃ¡ je tato ÄÃ¡stka na tento mÄ›sÃ­c, je uvedeno naÂ poslednÃ­m Å™Ã¡dku dialogu.<br/>
+Tato ÄÃ¡stka vÃ¡m bude odeÄtena najednou, naÂ zaÄÃ¡tku kaÅ¾dÃ©ho mÄ›sÃ­ce. Vozidel se tato poloÅ¾ka (zatÃ­m) netÃ½kÃ¡.<br/>
+(MÄ›sÃ­ÄnÃ­ nÃ¡klady na ÃºdrÅ¾bu vozidel jsou v simutrans experimental).
+</p>
+<p>
+<em>MÃ½to</em> - MÃ½tnÃ© za jÃ­zdu vaÅ¡ich vozidel po silnicÃ­ch jinÃ½ch hrÃ¡ÄÅ¯ (platÃ­me) a za jÃ­zdu cizÃ­ch vozidel po vaÅ¡ich silnicÃ­ch (je nÃ¡m placeno).
+VÃ½Å¡i mÃ½tnÃ©ho lze ovlivnit v <a href="settings.txt">nastavenÃ­</a> pÅ™i vytvÃ¡Å™enÃ­ novÃ© mapy vÂ zÃ¡loÅ¾ce <strong>HospodÃ¡Å™stvÃ­ a mÄ›sta</strong> volbami <strong>toll_running_cost_percentage</strong> a <strong>toll_waycost_percentage</strong>.
+</p>
+<p>
+<em>Zisk z vozidel</em> - SouÄet pÅ™edchozÃ­ch ÄtyÅ™ poloÅ¾ek vÄetnÄ› znamÃ©nka. (PÅ™Ã­jmy + provoz vozidel + ÃºdrÅ¾ba + mÃ½to)
+</p>
+<p>
+<em>NovÃ¡ vozidla</em> - PÅ™Ã­jmy a vÃ½daje za prodanÃ¡ Äi zakoupenÃ¡ vozidla
+</p>
+<p>
+<em>Stavby</em> - SouÄet vÃ½dajÅ¯ za vÅ¡e co jste postavili - Å¾eleznice, silnice, stanice atd.
+</p>
+<p>
+<em>Hosp. vÃ½sledek</em> - CelkovÃ½ souÄet pÅ™Ã­jmÅ¯ a vÃ½dajÅ¯ za tento popÅ™. minulÃ½ rok
 </p>
 
 <p>
-<em>Zùstatek</em> - Vá¹ celkovı zùstatek penìz - stav va¹eho konta.
+<i>pravÃ½ sloupec</i>
+</p>
+
+<p>
+<em>ZÅ¯statek</em> - VÃ¡Å¡ celkovÃ½ zÅ¯statek penÄ›z - stav vaÅ¡eho konta.
 </p>
 <p>
-<em>Majetek</em> - souèet cen v¹eho va¹eho majetku - vozidel. Budovy, silnice, ¾eleznice, apod. se nepoèítají. Cena ka¾dého objektu postupnì èasem klesá.
+<em>Majetek</em> - souÄet cen vÅ¡eho vaÅ¡eho majetku - vozidel. Budovy, silnice, Å¾eleznice, apod. se nepoÄÃ­tajÃ­. Cena kaÅ¾dÃ©ho objektu postupnÄ› Äasem klesÃ¡.
 </p>
 <p>
-<em>Vıdìlek</em> - zisk z vozidel dìlenı pøíjmy
+<em>VÃ½dÄ›lek</em> - zisk z vozidel dÄ›lenÃ½ pÅ™Ã­jmy
 </p>
 <p>
-<em>Jmìní</em> - souèet zùstatku a hodnot v¹ech vozidel
+<em>JmÄ›nÃ­</em> - souÄet zÅ¯statku a hodnot vÅ¡ech vozidel
 </p>
 
 <p>Grafy</p>
 
 <p>
-Stiskem tlaèítek v pravé horní èásti dialogu mù¾ete zobrazit vıvoj zvolené hodnoty za souèasnı rok a pøedcházejících 24 let. (Od verze 112.3, døíve jen 11 let)<br/>
-Vıznam hodnot v grafu po stisknutí patøiènıch tlaèítek je stejnı jako v tabulce pøíjmù a vıdajù.<br/>
+Stiskem tlaÄÃ­tek v pravÃ© hornÃ­ ÄÃ¡sti dialogu mÅ¯Å¾ete zobrazit vÃ½voj zvolenÃ© hodnoty za souÄasnÃ½ rok a pÅ™edchÃ¡zejÃ­cÃ­ch 24 let. (Od verze 112.3, dÅ™Ã­ve jen 11 let)<br/>
+VÃ½znam hodnot v grafu po stisknutÃ­ patÅ™iÄnÃ½ch tlaÄÃ­tek je stejnÃ½ jako v tabulce pÅ™Ã­jmÅ¯ a vÃ½dajÅ¯.<br/>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>
 
 <p>
-Nápovìda odpovídá verzi 112.3, poslední úprava 31.12.2013.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.3, poslednÃ­ Ãºprava 31.12.2013.
 </p>

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -920,7 +920,7 @@ Gegenereerd
 Generation: %.0f MW
 Generatie: %.0f MW\n
 Gewinn
-Inkomsten
+Inkomsten 
 Give the selected vehicle(s) an individual schedule
 Ken het geselecteerde voertuig een eigen dienstregeling toe
 gl_btn_sort_catg
@@ -1770,7 +1770,7 @@ Voertuig info omschakelen
 tonnen
 t
 Total inhabitants:
-Aantal inwoners
+Aantal inwoners 
 Tourist attractions
 Bezienswaardigheden
 Tourists

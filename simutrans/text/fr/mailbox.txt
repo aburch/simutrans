@@ -2,23 +2,23 @@
 
 <h1>Centre des messages et options des messages</h1>
 <p>
-Dans le centre des messages arrivent tous les messages qui sont apparus depuis que le jeu a été créé ou chargé.
+Dans le centre des messages arrivent tous les messages qui sont apparus depuis que le jeu a Ã©tÃ© crÃ©Ã© ou chargÃ©.
 </p>
 <p>
-Avec le bouton <em>Options</em>, l'écran "Options des messages" va s'ouvrir. On y peut ajuster pour chaque message s'il apparaît dans une ligne en bas de l'écran principal de Simutrans (bouton de gauche), dans un écran temporaire (bouton du milieu) ou dans un écran permanent (bouton de droite).
+Avec le bouton <em>Options</em>, l'Ã©cran "Options des messages" va s'ouvrir. On y peut ajuster pour chaque message s'il apparaÃ®t dans une ligne en bas de l'Ã©cran principal de Simutrans (bouton de gauche), dans un Ã©cran temporaire (bouton du milieu) ou dans un Ã©cran permanent (bouton de droite).
 </p>
 <p>
 De haut en bas, les messages suivants sont ajustables :<br>
--<em>Nouvelle année :</em> un nouvel an a commencé.<br>
--<em>Nouveauté de l'AI :</em> un joueur AI a ouvert une nouvelle ligne.<br>
+-<em>Nouvelle annÃ©e :</em> un nouvel an a commencÃ©.<br>
+-<em>NouveautÃ© de l'AI :</em> un joueur AI a ouvert une nouvelle ligne.<br>
 -<em>Nouv dans villes :</em> une ville construit une mairie plus grande.<br>
--<em>Pas de route :</em> le véhicule nommé en ce message ne trouve pas de route pour le prochain arrêt.<br>
--<em>Industrie :</em> par la croissance de la ville, une nouvelle chaîne industrielle avec un magasin a été construite.<br>
--<em>Touriste :</em> une nouvelle attraction touristique ou un nouveau monument a été construit.<br>
--<em>Nouveau véhicule :</em> un nouveau véhicule est disponible.<br>
--<em>Gare remplie :</em> cet arrêt est surchargé.<br>
--<em>Problèmes :</em> l'entreprise du joueur est débitrice ou autres messages critiques.
+-<em>Pas de route :</em> le vÃ©hicule nommÃ© en ce message ne trouve pas de route pour le prochain arrÃªt.<br>
+-<em>Industrie :</em> par la croissance de la ville, une nouvelle chaÃ®ne industrielle avec un magasin a Ã©tÃ© construite.<br>
+-<em>Touriste :</em> une nouvelle attraction touristique ou un nouveau monument a Ã©tÃ© construit.<br>
+-<em>Nouveau vÃ©hicule :</em> un nouveau vÃ©hicule est disponible.<br>
+-<em>Gare remplie :</em> cet arrÃªt est surchargÃ©.<br>
+-<em>ProblÃ¨mes :</em> l'entreprise du joueur est dÃ©bitrice ou autres messages critiques.
 </p>
 <p>
-En cliquant sur un message avec le bouton gauche de la souris, on peut déplacer la vue du jeu sur l'événement.
+En cliquant sur un message avec le bouton gauche de la souris, on peut dÃ©placer la vue du jeu sur l'Ã©vÃ©nement.
 </p>

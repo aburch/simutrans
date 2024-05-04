@@ -6,19 +6,19 @@
 De aici se poate procura tren, vagoane, semafoare etc.
 </p>
 <p>
-Sunt mai multe tipuri de cale feratã, fiecare permişând o
-anumitã vitezã maximã.
+Sunt mai multe tipuri de cale feratÄƒ, fiecare permiÅ£Ã¢nd o
+anumitÄƒ vitezÄƒ maximÄƒ.
 </p>
 <p>
-Semafoarele la început pot semnala în ambele direcşii.
-Pt. a impune o anumitã direcşie trebuie fãcut click pe semafor,
-pânã ce se obşine direcşia doritã.
+Semafoarele la Ã®nceput pot semnala Ã®n ambele direcÅ£ii.
+Pt. a impune o anumitÄƒ direcÅ£ie trebuie fÄƒcut click pe semafor,
+pÃ¢nÄƒ ce se obÅ£ine direcÅ£ia doritÄƒ.
 </p>
 <p>
-La construirea tunelului trebuie luat în considerare faptul,
-cã ºinele trebuie urcate pe pantã. În caz contrar programul
+La construirea tunelului trebuie luat Ã®n considerare faptul,
+cÄƒ ÅŸinele trebuie urcate pe pantÄƒ. Ãn caz contrar programul
 nu permite construirea tunelezului.
 </p>
 <p>
-Convoiul dorit se poate asambla în combinaşia doritã în depou.
+Convoiul dorit se poate asambla Ã®n combinaÅ£ia doritÄƒ Ã®n depou.
 </p>

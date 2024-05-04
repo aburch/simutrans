@@ -1,22 +1,22 @@
-<title>POMOC: Jêzyki</title>
+<title>POMOC: JÄ™zyki</title>
 
-<h1><strong>Jêzyki</strong></h1>
-
-<p>
-Okno <strong>jêzyków</strong> pozwala zmieniæ jêzyk u¿ywany w grze.
-</p>
-<p>
-Mo¿na je otworzyæ za pomoc± <a href="options.txt">opcji gry</a>, wy¶wietla siê równie¿ przy <a href="new_world.txt">tworzeniu nowego ¶wiata</a>.
-</p>
-<p>
-Domy¶lnym jêzykiem gry jest jêzyk angielski. Je¶li chcesz graæ w innym jêzyku, zaznacz odpowiednie pole przy nazwie jêzyka.</p>
-<p>
-Jêzyk mo¿e byæ dowolnie zmieniany podczas gry. Aby go zmieniæ, wejd¼ w Opcje gry i kliknij Jêzyk.</p>
-<p>Zmiana nastêpuje natychmiastowo gdy tworzysz nowy ¶wiat lub przy zamykaniu okienka <strong>Jêzyki</strong> je¶li grasz na wcze¶niej stworzonej mapie.
-</p>
-<p>
-Je¿eli t³umaczenie zawiera b³êdy, niektóre teksty mog± wy¶wietlaæ siê w jêzyku angielskim. Je¶li tak jest, zg³o¶ to!
-</p>
+<h1><strong>JÄ™zyki</strong></h1>
 
 <p>
-Je¿eli chcesz pomóc w t³umaczeniu gry, odwied¼ stronê <strong>SimuTranslator</strong> - https://translator.simutrans.com <br/> Pamiêtaj, ka¿da pomoc siê przyda!</p>
+Okno <strong>jÄ™zykÃ³w</strong> pozwala zmieniÄ‡ jÄ™zyk uÅ¼ywany w grze.
+</p>
+<p>
+MoÅ¼na je otworzyÄ‡ za pomocÄ… <a href="options.txt">opcji gry</a>, wyÅ›wietla siÄ™ rÃ³wnieÅ¼ przy <a href="new_world.txt">tworzeniu nowego Å›wiata</a>.
+</p>
+<p>
+DomyÅ›lnym jÄ™zykiem gry jest jÄ™zyk angielski. JeÅ›li chcesz graÄ‡ w innym jÄ™zyku, zaznacz odpowiednie pole przy nazwie jÄ™zyka.</p>
+<p>
+JÄ™zyk moÅ¼e byÄ‡ dowolnie zmieniany podczas gry. Aby go zmieniÄ‡, wejdÅº w Opcje gry i kliknij JÄ™zyk.</p>
+<p>Zmiana nastÄ™puje natychmiastowo gdy tworzysz nowy Å›wiat lub przy zamykaniu okienka <strong>JÄ™zyki</strong> jeÅ›li grasz na wczeÅ›niej stworzonej mapie.
+</p>
+<p>
+JeÅ¼eli tÅ‚umaczenie zawiera bÅ‚Ä™dy, niektÃ³re teksty mogÄ… wyÅ›wietlaÄ‡ siÄ™ w jÄ™zyku angielskim. JeÅ›li tak jest, zgÅ‚oÅ› to!
+</p>
+
+<p>
+JeÅ¼eli chcesz pomÃ³c w tÅ‚umaczeniu gry, odwiedÅº stronÄ™ <strong>SimuTranslator</strong> - https://translator.simutrans.com <br/> PamiÄ™taj, kaÅ¼da pomoc siÄ™ przyda!</p>

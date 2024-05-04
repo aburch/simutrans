@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -918,7 +918,7 @@ Dihasilkan: %.0f MW\n
 Gewicht
 Berat
 Gewinn
-Pendapatan:
+Pendapatan: 
 Give the selected vehicle(s) an individual schedule
 Ubah rute/jadwal setiap kendaraan yang dipilih
 gl_btn_sort_catg
@@ -1776,7 +1776,7 @@ Tampilkan keterangan kendaraan saat disorot
 tonnen
 Ton
 Total inhabitants:
-Jumlah penghuni:
+Jumlah penghuni: 
 Tourist attractions
 Tempat wisata:
 Tourists

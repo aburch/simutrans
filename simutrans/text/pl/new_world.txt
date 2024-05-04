@@ -9,7 +9,7 @@ W tym oknie masz mozliwosc utworzenia nowej mapy. Mozesz przy tym korzystac z wi
 Ponizej znajduje sie lista opcji dostepnych przy tworzeniu swiata wraz z ich krotkim objasnienim .</p>
 
 <p>
-<em>Numer mapy</em> - Okre秎a wygl眃 秝iata wraz z iloscia miast, obszarem i polozeniem wody, wzniesien itp. Dla kazdej mapy dostepny jest podglad (Podglad zmienia sie jesli ustawisz opcje dodatkowe).
+<em>Numer mapy</em> - Okre艣la wygl膮d 艣wiata wraz z iloscia miast, obszarem i polozeniem wody, wzniesien itp. Dla kazdej mapy dostepny jest podglad (Podglad zmienia sie jesli ustawisz opcje dodatkowe).
 Domyslnie ustawiona jest mapa nr 33.
 <br>
 <em>Wielkosc mapy</em> - okresla wielkosc mapy w kwadratach w zakresi od 128*128 do 640*640. Domyslna wielkoscia jest 256.<br>
@@ -17,28 +17,28 @@ Domyslnie ustawiona jest mapa nr 33.
 </p>
 
 <p>
-<em>Osrodki przemyslowe</em> - Wielkosc ta oznacza ilosc zaklad體 przemyslowych/kopaln na mapie. Mala gestosc oznacza trudniejsza gre (trudniej jest ustalic trasy przejazdu, trasy te sa czesto bardzo dlugi)
-Domyslna gestosc osrodk體 przemyslowych wynosi 125.
+<em>Osrodki przemyslowe</em> - Wielkosc ta oznacza ilosc zaklad贸w przemyslowych/kopaln na mapie. Mala gestosc oznacza trudniejsza gre (trudniej jest ustalic trasy przejazdu, trasy te sa czesto bardzo dlugi)
+Domyslna gestosc osrodk贸w przemyslowych wynosi 125.
 <br>
 <em>Ilosc miast</em> - Pozwala ustalic ilosc miast na naszej mapie (od 2 do 64 miast). Domyslnie ustawiono 16 miast.
 <br>
-<em>Transport osobowy</em> - Okresla ilosc poruszajacych sie pojazd體 prywatnych. Domyslna wielkoscia jest 8.
+<em>Transport osobowy</em> - Okresla ilosc poruszajacych sie pojazd贸w prywatnych. Domyslna wielkoscia jest 8.
 </p>
 
 <p>
-<em>Poziomo wody</em> - Okresla wysokosc (w kwadratach) poziomu wody. Mniejsza liczba oznacza odsloniecie wiekszej ilosci lad體. Domyslny poziom wody to 4.
+<em>Poziomo wody</em> - Okresla wysokosc (w kwadratach) poziomu wody. Mniejsza liczba oznacza odsloniecie wiekszej ilosci lad贸w. Domyslny poziom wody to 4.
 <br>
-<em>Wysokosc g髍</em> -  Okresla wysokosc najwiekszych g髍 na mapie. Mniejsza liczba oznacza mniej malych g髍 i wawoz體. Dostepny zakres ustawien 0-160. Domyslna wilkoscia jest 160.
+<em>Wysokosc g贸r</em> -  Okresla wysokosc najwiekszych g贸r na mapie. Mniejsza liczba oznacza mniej malych g贸r i wawoz贸w. Dostepny zakres ustawien 0-160. Domyslna wilkoscia jest 160.
 <br>
 <em>Wygladzanie mapy</em> - Dzieki tej opcji wzniesienia moga byc lagodniejsze (zakres ustawien: 1-3).
 </p>
 
 <p>
-<em>Mapa losowa</em> -  Losowy wyb髍 mapy (Bez mozliwosci zmian innych efekt體).
+<em>Mapa losowa</em> -  Losowy wyb贸r mapy (Bez mozliwosci zmian innych efekt贸w).
 </p>
 
 <p>
-<em>Pokaz pasazer體</em> - Wlacza/wylacza pokazywanie ludzi poruszajacych sie w miastach.
+<em>Pokaz pasazer贸w</em> - Wlacza/wylacza pokazywanie ludzi poruszajacych sie w miastach.
 Opcje ta mozna zmienic w czasie gry wybierajac <a href="display.txt">'Opcje wyswietlania'</a>.
 <br>
 <em>Tryb dzien/noc</em> - Pozwala wybrac cykl dnia/nocy. Opcje te mozna zmienic podczas gry w menu <a href="display.txt">'Opcje wyswietlania'</a>.

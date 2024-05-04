@@ -239,7 +239,7 @@ bool banner_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	else if (comp == &install) {
 #if !defined(USE_OWN_PAKINSTALL)  &&  defined(_WIN32)
-		dr_download_pakset(env_t::base_dir, env_t::base_dir == env_t::user_dir);  // windows
+		dr_download_pakset(env_t::base_dir, strcmp(env_t::base_dir, env_t::user_dir)==0);  // windows
 #else
 		destroy_all_win(true);
 		create_win( new pakinstaller_t(), w_info, magic_pakinstall );

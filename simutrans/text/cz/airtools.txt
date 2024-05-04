@@ -1,128 +1,128 @@
-<title>Nápovìda - letecká doprava</title>
+<title>NÃ¡povÄ›da - leteckÃ¡ doprava</title>
 
-<h1><strong>Letecká doprava</strong></h1>
+<h1><strong>LeteckÃ¡ doprava</strong></h1>
 
 <p>
-Panel stavba leti¹tì obsahuje nástroje pro vıstavbu letecké dopravní sítì - pojí¾dìcí dráhy, ranveje, stání pro letadla, hangáru a dal¹ích budov.
+Panel stavba letiÅ¡tÄ› obsahuje nÃ¡stroje pro vÃ½stavbu leteckÃ© dopravnÃ­ sÃ­tÄ› - pojÃ­Å¾dÄ›cÃ­ drÃ¡hy, ranveje, stÃ¡nÃ­ pro letadla, hangÃ¡ru a dalÅ¡Ã­ch budov.
 </p>
 <p>
-Nabídku s nástroji pro leteckou dopravu zobrazíte kliknutím na ikonu letadla v menu v horní èásti hrací plochy.
+NabÃ­dku s nÃ¡stroji pro leteckou dopravu zobrazÃ­te kliknutÃ­m na ikonu letadla v menu v hornÃ­ ÄÃ¡sti hracÃ­ plochy.
 </p>
 <p>
-Podr¾íte-li kurzor nad ikonou nástroje, (po té, co jste otevøeli nabídlu pomocí kliknutí na symbol s letadlem) zobrazí se popisek obsahující název, <a href="finances.txt">náklady na vıstavbu</a>, v závorce mìsíèní náklady na údr¾bu a dal¹í doplòující text. U ranveje a pojí¾dìcí dráhy je to maximální rychlost, u stání pro letadla a terminálù je to kapacita.
+PodrÅ¾Ã­te-li kurzor nad ikonou nÃ¡stroje, (po tÃ©, co jste otevÅ™eli nabÃ­dlu pomocÃ­ kliknutÃ­ na symbol s letadlem) zobrazÃ­ se popisek obsahujÃ­cÃ­ nÃ¡zev, <a href="finances.txt">nÃ¡klady na vÃ½stavbu</a>, v zÃ¡vorce mÄ›sÃ­ÄnÃ­ nÃ¡klady na ÃºdrÅ¾bu a dalÅ¡Ã­ doplÅˆujÃ­cÃ­ text. U ranveje a pojÃ­Å¾dÄ›cÃ­ drÃ¡hy je to maximÃ¡lnÃ­ rychlost, u stÃ¡nÃ­ pro letadla a terminÃ¡lÅ¯ je to kapacita.
 </p>
 <p>
-Jestli¾e jste pøi vıbìru nové hry pou¾ili volbu <a href="new_world.txt">zaèít roku</a>, pak se s postupem èasu budou ve høe objevovat nové typy ranveje a leti¹tních budov.
+JestliÅ¾e jste pÅ™i vÃ½bÄ›ru novÃ© hry pouÅ¾ili volbu <a href="new_world.txt">zaÄÃ­t roku</a>, pak se s postupem Äasu budou ve hÅ™e objevovat novÃ© typy ranveje a letiÅ¡tnÃ­ch budov.
 </p>
 <p>
-Postup, jak na stavbu jednoduchého leti¹tì:<br>
+Postup, jak na stavbu jednoduchÃ©ho letiÅ¡tÄ›:<br>
 (i) Postavte ranvej.<br>
-(ii) Pøipojte k ranveji pojí¾dìcí dráhu. Pojí¾dìcí dráhu nepøipojujte ke koncùm ranveje. Letadla by pak nemusela vzlétnout. Pøipojte ji mezi druhé a pøedposlední políèko (vèetnì). <br>
-(iii) Na pojí¾dìcí dráhu umístìte <em>stání pro letadlo</em>.<br>
-(iv) Postavte hangár, popøípadì dal¹í budovy podle va¹ich po¾adavkù.
+(ii) PÅ™ipojte k ranveji pojÃ­Å¾dÄ›cÃ­ drÃ¡hu. PojÃ­Å¾dÄ›cÃ­ drÃ¡hu nepÅ™ipojujte ke koncÅ¯m ranveje. Letadla by pak nemusela vzlÃ©tnout. PÅ™ipojte ji mezi druhÃ© a pÅ™edposlednÃ­ polÃ­Äko (vÄetnÄ›). <br>
+(iii) Na pojÃ­Å¾dÄ›cÃ­ drÃ¡hu umÃ­stÄ›te <em>stÃ¡nÃ­ pro letadlo</em>.<br>
+(iv) Postavte hangÃ¡r, popÅ™Ã­padÄ› dalÅ¡Ã­ budovy podle vaÅ¡ich poÅ¾adavkÅ¯.
 </p>
 <p>
-Menu stavba leti¹tì obsahuje tyto nástroje (z leva do prava):
+Menu stavba letiÅ¡tÄ› obsahuje tyto nÃ¡stroje (z leva do prava):
 </p>
 <p>
-<em>Pojí¾dìcí dráha</em>
+<em>PojÃ­Å¾dÄ›cÃ­ drÃ¡ha</em>
 </p>
 <p>
-Pojí¾dìcí dráha umo¾òuje letadlùm pohyb mezi hangárem, pøistávací drahou a stáními pro letadla. Pojí¾dìcí dráhu je mo¾né postavit jen vodorovné plo¹e, stavba ve svahu není mo¾ná.
+PojÃ­Å¾dÄ›cÃ­ drÃ¡ha umoÅ¾Åˆuje letadlÅ¯m pohyb mezi hangÃ¡rem, pÅ™istÃ¡vacÃ­ drahou a stÃ¡nÃ­mi pro letadla. PojÃ­Å¾dÄ›cÃ­ drÃ¡hu je moÅ¾nÃ© postavit jen vodorovnÃ© ploÅ¡e, stavba ve svahu nenÃ­ moÅ¾nÃ¡.
 </p>
 <p>
-Pojí¾dìcí dráhu postavíte stejnım zpùsobem, jako silnici nebo ¾eleznici: <br/>
-(i) Kliknìte na ikonu s symbolem <em>pojí¾dìcí dráhy</em>. (Kurzor se zmìní na pojí¾dìcí dráhu.)<br/>
-(ii) Kliknìte na políèko, kde má pojí¾dìcí dráha zaèínat. (Kurzor se zmìní na buldozer a v pravém dolním rohu na stavové li¹tì se zobrazí rozdíl souøadnic mezi takto zvolenım poèátkem a aktuální polohou kurzoru.) <br/>
-(iii) Kliknìte na pole, kde má pojí¾dìcí dráha konèit.
+PojÃ­Å¾dÄ›cÃ­ drÃ¡hu postavÃ­te stejnÃ½m zpÅ¯sobem, jako silnici nebo Å¾eleznici: <br/>
+(i) KliknÄ›te na ikonu s symbolem <em>pojÃ­Å¾dÄ›cÃ­ drÃ¡hy</em>. (Kurzor se zmÄ›nÃ­ na pojÃ­Å¾dÄ›cÃ­ drÃ¡hu.)<br/>
+(ii) KliknÄ›te na polÃ­Äko, kde mÃ¡ pojÃ­Å¾dÄ›cÃ­ drÃ¡ha zaÄÃ­nat. (Kurzor se zmÄ›nÃ­ na buldozer a v pravÃ©m dolnÃ­m rohu na stavovÃ© liÅ¡tÄ› se zobrazÃ­ rozdÃ­l souÅ™adnic mezi takto zvolenÃ½m poÄÃ¡tkem a aktuÃ¡lnÃ­ polohou kurzoru.) <br/>
+(iii) KliknÄ›te na pole, kde mÃ¡ pojÃ­Å¾dÄ›cÃ­ drÃ¡ha konÄit.
 </p>
 <p>
-UPOZORNÌNÍ: Jestli¾e je pojí¾dìcí dráha pøipojena ke koncùm ranveje, nebo se vyskytuje na poli ve smìru pøistávání nebo startu, letadla mohou odmítat vzlétat nebo pøistávat.
+UPOZORNÄšNÃ: JestliÅ¾e je pojÃ­Å¾dÄ›cÃ­ drÃ¡ha pÅ™ipojena ke koncÅ¯m ranveje, nebo se vyskytuje na poli ve smÄ›ru pÅ™istÃ¡vÃ¡nÃ­ nebo startu, letadla mohou odmÃ­tat vzlÃ©tat nebo pÅ™istÃ¡vat.
 </p>
 <p>
-Tip: K odstranìní jednotlivıch èástí pojí¾dìcí plochy pou¾ijte tlaèítko <em>Odstranit</em> nebo <a href="keys.txt">Klávesovou zkratku [z]</a> (zpìt). Oboje vám nenahradí vynalo¾ené prostøedky ale pøi pou¾ití klávesové zkratky [z] nepøijdete peníze za odstranìní.
+Tip: K odstranÄ›nÃ­ jednotlivÃ½ch ÄÃ¡stÃ­ pojÃ­Å¾dÄ›cÃ­ plochy pouÅ¾ijte tlaÄÃ­tko <em>Odstranit</em> nebo <a href="keys.txt">KlÃ¡vesovou zkratku [z]</a> (zpÄ›t). Oboje vÃ¡m nenahradÃ­ vynaloÅ¾enÃ© prostÅ™edky ale pÅ™i pouÅ¾itÃ­ klÃ¡vesovÃ© zkratky [z] nepÅ™ijdete penÃ­ze za odstranÄ›nÃ­.
 </p>
 <p>
 <em>Ranvej</em>
 </p>
 <p>
-Ranvej slou¾í letadlùm pro pøistání a vzlet. Ranvej je mo¾né postavit jen na vodorovné plo¹e, nelze ji postavit na svahu. Ranveje se mohou navzájem køí¾it.
+Ranvej slouÅ¾Ã­ letadlÅ¯m pro pÅ™istÃ¡nÃ­ a vzlet. Ranvej je moÅ¾nÃ© postavit jen na vodorovnÃ© ploÅ¡e, nelze ji postavit na svahu. Ranveje se mohou navzÃ¡jem kÅ™Ã­Å¾it.
 </p>
 <p>
-Ranvej musí bıt rovná. Ranvej lze postavit ve smìrech sever/jih a vıchod/západ. Diagonální ranveje nejsou povoleny.
+Ranvej musÃ­ bÃ½t rovnÃ¡. Ranvej lze postavit ve smÄ›rech sever/jih a vÃ½chod/zÃ¡pad. DiagonÃ¡lnÃ­ ranveje nejsou povoleny.
 </p>
 <p>
 Stavba ranveje: <br/>
-(i) Kliknìte na nástroj. (Kurzor se zmìní na ranvej). <br/>
-(ii) Kliknìte na poèáteèní pole. (Kurzor se zmìní na buldozer.)<br/>
-(iii) Kliknìte na koncové políèko.
+(i) KliknÄ›te na nÃ¡stroj. (Kurzor se zmÄ›nÃ­ na ranvej). <br/>
+(ii) KliknÄ›te na poÄÃ¡teÄnÃ­ pole. (Kurzor se zmÄ›nÃ­ na buldozer.)<br/>
+(iii) KliknÄ›te na koncovÃ© polÃ­Äko.
 </p>
 <p>
-Tip: Konce ranveje nechte volné, nepøipojujte k nim pojí¾dìcí dráhu. Letadla by pak nemusela vzlétat nebo pøistávat.
+Tip: Konce ranveje nechte volnÃ©, nepÅ™ipojujte k nim pojÃ­Å¾dÄ›cÃ­ drÃ¡hu. Letadla by pak nemusela vzlÃ©tat nebo pÅ™istÃ¡vat.
 </p>
 <p>
-<em>Odstranit pojí¾dìcí dráhu</em>
+<em>Odstranit pojÃ­Å¾dÄ›cÃ­ drÃ¡hu</em>
 </p>
 <p>
-Nástroj odstraòuje úseky pojí¾dìcí dráhy nebo ranveje, pokud na ní nejsou pøítomna ¾ádná letadla. <a href="finances.txt">Peníze</a> za odstranìní se také úètují do polo¾ky vıstavba.
+NÃ¡stroj odstraÅˆuje Ãºseky pojÃ­Å¾dÄ›cÃ­ drÃ¡hy nebo ranveje, pokud na nÃ­ nejsou pÅ™Ã­tomna Å¾Ã¡dnÃ¡ letadla. <a href="finances.txt">PenÃ­ze</a> za odstranÄ›nÃ­ se takÃ© ÃºÄtujÃ­ do poloÅ¾ky vÃ½stavba.
 </p>
 <p>
-Odstranìní ranveje nebo pojí¾dìcí plochy:<br/>
-(i) Kliknìte na nástroj (Kurzor se zmìní na èervenı køí¾ek.)<br/>
-(ii) Kliknìte na políèko, odkud se má zaèít odstraòovat a je¹tì jednou kliknìte na políèko, kde se má skonèit s odstraòováním.
+OdstranÄ›nÃ­ ranveje nebo pojÃ­Å¾dÄ›cÃ­ plochy:<br/>
+(i) KliknÄ›te na nÃ¡stroj (Kurzor se zmÄ›nÃ­ na ÄervenÃ½ kÅ™Ã­Å¾ek.)<br/>
+(ii) KliknÄ›te na polÃ­Äko, odkud se mÃ¡ zaÄÃ­t odstraÅˆovat a jeÅ¡tÄ› jednou kliknÄ›te na polÃ­Äko, kde se mÃ¡ skonÄit s odstraÅˆovÃ¡nÃ­m.
 </p>
 <p>
-Tip: Dejte pozor, jesli se mezi na cestì mezi obìma políèky nenalézá znaèka zakazující vjezd v jednom ze smìrù. Nástroj pro odstraòování tento smìr následuje. Mohlo by se vám stát ¾e omylem odstraníte jinou ne¾ zamı¹lenou èást.
+Tip: Dejte pozor, jesli se mezi na cestÄ› mezi obÄ›ma polÃ­Äky nenalÃ©zÃ¡ znaÄka zakazujÃ­cÃ­ vjezd v jednom ze smÄ›rÅ¯. NÃ¡stroj pro odstraÅˆovÃ¡nÃ­ tento smÄ›r nÃ¡sleduje. Mohlo by se vÃ¡m stÃ¡t Å¾e omylem odstranÃ­te jinou neÅ¾ zamÃ½Å¡lenou ÄÃ¡st.
 </p>
 <p>
-<em>Hangár</em>
+<em>HangÃ¡r</em>
 </p>
 <p>
-Hangár je budova v ní¾ lze nakupovat, pøechovávat a prodávat letadla a vzducholodì, stejnì jako vlaky v <a href="depot.txt">depu</a>.
-Hangár lze postavit na konci pojí¾dìcí dráhy. Ka¾dı hangár má také mìsíèní náklady na údr¾bu, proto nestavte více hangárù, ne¾ potøebujete.
+HangÃ¡r je budova v nÃ­Å¾ lze nakupovat, pÅ™echovÃ¡vat a prodÃ¡vat letadla a vzducholodÄ›, stejnÄ› jako vlaky v <a href="depot.txt">depu</a>.
+HangÃ¡r lze postavit na konci pojÃ­Å¾dÄ›cÃ­ drÃ¡hy. KaÅ¾dÃ½ hangÃ¡r mÃ¡ takÃ© mÄ›sÃ­ÄnÃ­ nÃ¡klady na ÃºdrÅ¾bu, proto nestavte vÃ­ce hangÃ¡rÅ¯, neÅ¾ potÅ™ebujete.
 </p>
 <p>
-Stavba hangáru:<br/>
-(i) Kliknìte na nástroj. (Kurzor se zmìní na hangár.)<br/>
-(ii) Kliknìte na konec pojí¾dìcí dráhy.
+Stavba hangÃ¡ru:<br/>
+(i) KliknÄ›te na nÃ¡stroj. (Kurzor se zmÄ›nÃ­ na hangÃ¡r.)<br/>
+(ii) KliknÄ›te na konec pojÃ­Å¾dÄ›cÃ­ drÃ¡hy.
 </p>
 <p>
-Tip: Hangár odstraníte pomocí tlaèítka <em>Odstranit</em>. Hangár musí bıt prázdnı, jinak nejde odstranit.
+Tip: HangÃ¡r odstranÃ­te pomocÃ­ tlaÄÃ­tka <em>Odstranit</em>. HangÃ¡r musÃ­ bÃ½t prÃ¡zdnÃ½, jinak nejde odstranit.
 </p>
 <p>
-<em>Stání pro letadlo</em>
+<em>StÃ¡nÃ­ pro letadlo</em>
 </p>
 <p>
-Stání pro letadlo je místo, kde do letadel nastupují a z letadel vystupují cestující nebo je nakládáná a vykládána po¹ta nebo náklad. <br>
-Pokud není stání pro letadlo postaveno vedle jiného stání nebo leti¹tní budovy, vytvoøí novou <a href="station.txt">zastávku</a><br>
-Stání pro letadlo se staví na konec pojí¾dìcí dráhy, má náklady na údr¾bu a spádové území. 
+StÃ¡nÃ­ pro letadlo je mÃ­sto, kde do letadel nastupujÃ­ a z letadel vystupujÃ­ cestujÃ­cÃ­ nebo je naklÃ¡dÃ¡nÃ¡ a vyklÃ¡dÃ¡na poÅ¡ta nebo nÃ¡klad. <br>
+Pokud nenÃ­ stÃ¡nÃ­ pro letadlo postaveno vedle jinÃ©ho stÃ¡nÃ­ nebo letiÅ¡tnÃ­ budovy, vytvoÅ™Ã­ novou <a href="station.txt">zastÃ¡vku</a><br>
+StÃ¡nÃ­ pro letadlo se stavÃ­ na konec pojÃ­Å¾dÄ›cÃ­ drÃ¡hy, mÃ¡ nÃ¡klady na ÃºdrÅ¾bu a spÃ¡dovÃ© ÃºzemÃ­. 
 </p>
 <p>
-Stavba stání pro letadla:<br/>
-(i) Kliknìte na nástroj z nabídky. Kurzor se zmìní na stání pro letadlo a zvırazní se spádová oblast pole pod kurzorem.<br/>
-(ii) Kliknìne na konec pojí¾dìcí dráhy.
+Stavba stÃ¡nÃ­ pro letadla:<br/>
+(i) KliknÄ›te na nÃ¡stroj z nabÃ­dky. Kurzor se zmÄ›nÃ­ na stÃ¡nÃ­ pro letadlo a zvÃ½raznÃ­ se spÃ¡dovÃ¡ oblast pole pod kurzorem.<br/>
+(ii) KliknÄ›ne na konec pojÃ­Å¾dÄ›cÃ­ drÃ¡hy.
 </p>
 <p>
-Tip: Velikost spádové oblasti mù¾ete zmìnit pøi vytváøení nové hry v <a href="settings.txt">nastavení</a> (zálo¾ka Spojení, volba station_coverage)<br/>
-Stání pro letadlo odstraníte tlaèítkem <em>Odstranit</em>.<br/>
-Klávesou [v] Zobrazíte/skryjete spádové území.<br/>
-Letadla mohou pøistávat, pouze pokud je na leti¹ti dostatek volnıch stání pro letadla. Jinak krou¾í nad leti¹tìm a spotøebovávají palivo (a peníze).
+Tip: Velikost spÃ¡dovÃ© oblasti mÅ¯Å¾ete zmÄ›nit pÅ™i vytvÃ¡Å™enÃ­ novÃ© hry v <a href="settings.txt">nastavenÃ­</a> (zÃ¡loÅ¾ka SpojenÃ­, volba station_coverage)<br/>
+StÃ¡nÃ­ pro letadlo odstranÃ­te tlaÄÃ­tkem <em>Odstranit</em>.<br/>
+KlÃ¡vesou [v] ZobrazÃ­te/skryjete spÃ¡dovÃ© ÃºzemÃ­.<br/>
+Letadla mohou pÅ™istÃ¡vat, pouze pokud je na letiÅ¡ti dostatek volnÃ½ch stÃ¡nÃ­ pro letadla. Jinak krouÅ¾Ã­ nad letiÅ¡tÄ›m a spotÅ™ebovÃ¡vajÃ­ palivo (a penÃ­ze).
 </p>
 <p>
-<em>Leti¹tní budova</em>
+<em>LetiÅ¡tnÃ­ budova</em>
 </p>
 <p>
-Leti¹tní budova zvy¹uje kapacitu leti¹tì stejnım zpùsobem, jako nádra¾ní budova kapacitu ¾eleznièní stanice.
+LetiÅ¡tnÃ­ budova zvyÅ¡uje kapacitu letiÅ¡tÄ› stejnÃ½m zpÅ¯sobem, jako nÃ¡draÅ¾nÃ­ budova kapacitu Å¾elezniÄnÃ­ stanice.
 </p>
 <p>
 Stavba budovy:<br/>
-(i) Kliknìte na ikonu po¾adovaného roz¹íøení. (Kurzor se zmìní na ikonu obsahující roz¹íøení.)<br/>
-(ii) Kliknìte na po¾adovanou pozici vedle stávající zastávky/stání pro letadlo.  Budova se od teï pova¾uje za souèást leti¹tì.
+(i) KliknÄ›te na ikonu poÅ¾adovanÃ©ho rozÅ¡Ã­Å™enÃ­. (Kurzor se zmÄ›nÃ­ na ikonu obsahujÃ­cÃ­ rozÅ¡Ã­Å™enÃ­.)<br/>
+(ii) KliknÄ›te na poÅ¾adovanou pozici vedle stÃ¡vajÃ­cÃ­ zastÃ¡vky/stÃ¡nÃ­ pro letadlo.  Budova se od teÄ povaÅ¾uje za souÄÃ¡st letiÅ¡tÄ›.
 </p>
 <p>
-Tip: Budovu lze odstanit pomocí ikony <em>Odstranit</em>. <br>
-Stiskem tlaèítka [v] na klávesnici zobrazíte, respektive skryjete spádové území leti¹tì.
+Tip: Budovu lze odstanit pomocÃ­ ikony <em>Odstranit</em>. <br>
+Stiskem tlaÄÃ­tka [v] na klÃ¡vesnici zobrazÃ­te, respektive skryjete spÃ¡dovÃ© ÃºzemÃ­ letiÅ¡tÄ›.
 </p> 
 <p>
-Nápovìda odpovídá verzi 111.4, poslední úprava 21.10.2012.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 111.4, poslednÃ­ Ãºprava 21.10.2012.
 </p>

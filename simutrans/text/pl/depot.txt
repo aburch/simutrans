@@ -2,12 +2,12 @@
 
 <h1>Zajezdnia samochodowa & Lokomotywownia</h1>
 <p>
-W zajezdni mozesz kupic, sprzedac i ustalic rozklad jazdy dla wszystkich pojazdów kolowych, do niej nalezacych.
+W zajezdni mozesz kupic, sprzedac i ustalic rozklad jazdy dla wszystkich pojazdÃ³w kolowych, do niej nalezacych.
 </p>
 <p>
-Menu zajezdni zawiera informacje o pojazdach które mozesz kupic i tych które wlasnie kupiles.
-W górnej czesci okna, po prawej, wyswietlone sa wszystkie pojazdy które mozesz kupic. Na glównej zakladce znajduja sie samochody, autobusy i lokomotywy a na drugiej zakladce przyczepy i wagony. (W zaleznosci w zaleznosci od tego czy jest to Zajezdnia czy Lokomotywownia)
-U góry z lewej znajduje sie wizerunek wlasnie zestawionych pojazdów (samochód+przyczepa lub lokomotywa+wagony).</p>
+Menu zajezdni zawiera informacje o pojazdach ktÃ³re mozesz kupic i tych ktÃ³re wlasnie kupiles.
+W gÃ³rnej czesci okna, po prawej, wyswietlone sa wszystkie pojazdy ktÃ³re mozesz kupic. Na glÃ³wnej zakladce znajduja sie samochody, autobusy i lokomotywy a na drugiej zakladce przyczepy i wagony. (W zaleznosci w zaleznosci od tego czy jest to Zajezdnia czy Lokomotywownia)
+U gÃ³ry z lewej znajduje sie wizerunek wlasnie zestawionych pojazdÃ³w (samochÃ³d+przyczepa lub lokomotywa+wagony).</p>
 <p>
 Nizej znajduja sie wszystkie informacje o danym pojezdzie a na samym dole przyciski:
 </p>
@@ -15,16 +15,16 @@ Nizej znajduja sie wszystkie informacje o danym pojezdzie a na samym dole przyci
 'Start' wlacza dany pojazd do ruchu. Wczesniej jednak pojazd musi miec ustalony <a href="schedule.txt">'Rozklad jazdy'.</a>
 Dzieki opcji 'Sprzedaj' mozesz sprzedac dowolny pojazd, przyczepy czy wagony.</p>
 <p>
-Po najechaniu kursorem na wizerunek dowolnego pojazdu bedziesz mógl odczytac wszystkie wazne informacje o tym pojezdzie. Aby kupiæ wybrany pojazd wystarczy na nim kliknac. Pojawi sie on wtedy w lewej czesci okna na górze. Po kupieniu nastepnego pojazdu pojawi sie on na górze, a wczesniej kupiony nieco nizej. Jesli pojazd posiada wagony/przyczepy to pojawia sie one pod wszystkimi pojazdami.</p>
+Po najechaniu kursorem na wizerunek dowolnego pojazdu bedziesz mÃ³gl odczytac wszystkie wazne informacje o tym pojezdzie. Aby kupiÄ‡ wybrany pojazd wystarczy na nim kliknac. Pojawi sie on wtedy w lewej czesci okna na gÃ³rze. Po kupieniu nastepnego pojazdu pojawi sie on na gÃ³rze, a wczesniej kupiony nieco nizej. Jesli pojazd posiada wagony/przyczepy to pojawia sie one pod wszystkimi pojazdami.</p>
 <p>
 Aby zestawic pojazd z wagonami/przyczepami najpierw nalezy kupic pojazd, a nastepnie przejsc na zakladke 'Przyczepy' lub 'Wagony' i wybrac odpowiednie wagony/przyczepy.
-Mozna tez dokupic wagony/przyczepy do pojazdu ktory ich nie posiadal.<strong> W jednym czasie mozesz pracowac tylko nad jednym pojazdem.</strong> Aby sprzedac pojazd wybierz 'Sprzedaj' w menu zajezdni/lokomotywowni a nastepnie kliknij na pojazd który zamierzasz sprzedac.
-Na ekranie podana jest cena jaka mozesz uzyskac ze sprzedarzy. Cena ta wraz z uplywem czasu jest coraz nizsza. Uwaga! pojazd który chcesz sprzedac musi znajdowac sie w zajezdni/lokomotywowni.
+Mozna tez dokupic wagony/przyczepy do pojazdu ktory ich nie posiadal.<strong> W jednym czasie mozesz pracowac tylko nad jednym pojazdem.</strong> Aby sprzedac pojazd wybierz 'Sprzedaj' w menu zajezdni/lokomotywowni a nastepnie kliknij na pojazd ktÃ³ry zamierzasz sprzedac.
+Na ekranie podana jest cena jaka mozesz uzyskac ze sprzedarzy. Cena ta wraz z uplywem czasu jest coraz nizsza. Uwaga! pojazd ktÃ³ry chcesz sprzedac musi znajdowac sie w zajezdni/lokomotywowni.
 </p>
 <p>
 W celu ustalenia rozkladu jazdy wybierz przycisk<a href="schedule.txt">'Rozklad jazdy'</a>. Pojawi sie okno rozkladu jazdy. Kiedy juz ustalisz przebieg trasy wystarczy kliknac na przycisk 'Start' - pojazd wyruszy w droge.
 </p>
 <p>
 Aby pojazd skierowac do zajezdni/lokomotywoni musisz usunac z rozkladu jazdy wszystkie przystanki a nastepnie wstawic jako miejsce przystanku odpowiednia zajezdnie/lokomotywownie.
-Po dotarciu danego pojazdu do zajezdni/lokomotywowni bedzisz mógl go sprzedac lub zmienic ilosc wagonów/przyczep.
+Po dotarciu danego pojazdu do zajezdni/lokomotywowni bedzisz mÃ³gl go sprzedac lub zmienic ilosc wagonÃ³w/przyczep.
 </p>

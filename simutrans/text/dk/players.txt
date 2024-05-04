@@ -1,4 +1,4 @@
-<title>AI-spillerliste dialog hjælp</title>
+<title>AI-spillerliste dialog hjÃ¦lp</title>
 
 <h1>AI-spillerliste dialog</h1>
 
@@ -10,15 +10,15 @@ computerstyrede spillere i spillet.
 
 <p>
 <em>Udseende:</em><br>
-Dialogen består af seks (6) checkbox-knapper med angivelse af den enkelte
+Dialogen bestÃ¥r af seks (6) checkbox-knapper med angivelse af den enkelte
 spillers firmafarve.
 </p>
 
 <p>
-For at aktivere/stoppe en AI-spiller skal den pågældende checkbox
-markeres. Bemærk at selvom en AI-spiller "deaktiveres" vil vedkommendes
-eksisterende ruter fortsat modtage indtægter. Deaktivering af en AI-spiller
-får blot vedkommende "til at sove".
+For at aktivere/stoppe en AI-spiller skal den pÃ¥gÃ¦ldende checkbox
+markeres. BemÃ¦rk at selvom en AI-spiller "deaktiveres" vil vedkommendes
+eksisterende ruter fortsat modtage indtÃ¦gter. Deaktivering af en AI-spiller
+fÃ¥r blot vedkommende "til at sove".
 </p>
 
 <p>

@@ -3,7 +3,7 @@
 <h1>Selectare culoare</h1>
 
 <p>
-Aici poþi sã-þi alegi propria culoare. Cu culoarea aleasã sunt marcate toate
-proprietãþile ºi vechicolele tale. Nu toate obiectele sunt marcate cu culoarea aleasã,
-ci depinde cum a fost obiectul implantat în joc de cel care l-a proiectat.
+Aici poÅ£i sÄƒ-Å£i alegi propria culoare. Cu culoarea aleasÄƒ sunt marcate toate
+proprietÄƒÅ£ile ÅŸi vechicolele tale. Nu toate obiectele sunt marcate cu culoarea aleasÄƒ,
+ci depinde cum a fost obiectul implantat Ã®n joc de cel care l-a proiectat.
 </p>

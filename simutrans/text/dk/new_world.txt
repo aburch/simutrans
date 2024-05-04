@@ -1,26 +1,26 @@
-<title>Skab verden dialog hjælp</title>
+<title>Skab verden dialog hjÃ¦lp</title>
 
 <h1>Skab verden dialog <em>(X/Q)</em></h1>
 
 <p>
 <em>Beskrivelse:</em><br>
 Skab verden dialogen giver mulighed for at skabe et nyt kort (spil) med
-indstillinger, der vil influere på, hvorledes den nye verden vil se ud.
-Disse indstillinger kan være alt fra kortstørrelse til industritæthed.
+indstillinger, der vil influere pÃ¥, hvorledes den nye verden vil se ud.
+Disse indstillinger kan vÃ¦re alt fra kortstÃ¸rrelse til industritÃ¦thed.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst til venstre findes otte indstillingsmuligheder for det nye kort.<br>
-Til højre herfor er et "preview" areal, der viser, hvorledes det nye kort
+Ã˜verst til venstre findes otte indstillingsmuligheder for det nye kort.<br>
+Til hÃ¸jre herfor er et "preview" areal, der viser, hvorledes det nye kort
 vil se ud.<br>
-Under disse indstillinger er en knap til valg af tilfældigt kortnummer.<br>
-Nederst i dialogen findes fire knapper til indlæsning af gemte spil eller
+Under disse indstillinger er en knap til valg af tilfÃ¦ldigt kortnummer.<br>
+Nederst i dialogen findes fire knapper til indlÃ¦sning af gemte spil eller
 reliefkort, til at starte et nyt spil og til at afslutte Simutrans.
 </p>
 
 <p>
-Indstillingsmulighederne for et nye kort er følgende:
+Indstillingsmulighederne for et nye kort er fÃ¸lgende:
 </p>
 
 <p>
@@ -31,59 +31,59 @@ valgte indstillinger).
 </p>
 
 <p>
-<em>Størrelse:</em><br>
-Bestemmer hvor mange kvadrater kortet vil bestå af. Størrelsen varierer fra
-128*128 til 640*640 kvadrater. Default størrelsen er 256*256.<br>
-<strong>Vigtigt</strong> - Jo større et kort desto mere memory bliver
-benyttet. Vær opmærksom på om du har tilstrækkelig memory til at spille et
-spil med den valgte kortstørrelse.
+<em>StÃ¸rrelse:</em><br>
+Bestemmer hvor mange kvadrater kortet vil bestÃ¥ af. StÃ¸rrelsen varierer fra
+128*128 til 640*640 kvadrater. Default stÃ¸rrelsen er 256*256.<br>
+<strong>Vigtigt</strong> - Jo stÃ¸rre et kort desto mere memory bliver
+benyttet. VÃ¦r opmÃ¦rksom pÃ¥ om du har tilstrÃ¦kkelig memory til at spille et
+spil med den valgte kortstÃ¸rrelse.
 </p>
 
 <p>
-<em>Industritæthed:</em><br>
-Tætheden af industrier. Jo lavere tæthedesværdi desto sværere vil spillet
-blive, da der bliver færre industrier at transportere imellem. Default værdien
+<em>IndustritÃ¦thed:</em><br>
+TÃ¦theden af industrier. Jo lavere tÃ¦thedesvÃ¦rdi desto svÃ¦rere vil spillet
+blive, da der bliver fÃ¦rre industrier at transportere imellem. Default vÃ¦rdien
 er 125.
 </p>
 
 <p>
 <em>Antal byer:</em><br>
-Bestemmer hvor mange byer, der placeres på kortet. Værdierne går fra 2 til 64
-med 32 som default værdi.
+Bestemmer hvor mange byer, der placeres pÃ¥ kortet. VÃ¦rdierne gÃ¥r fra 2 til 64
+med 32 som default vÃ¦rdi.
 </p>
 
 <p>
-<em>Trafiktæthed:</em><br>
-Tætheden af private biler i byerne. Default værdien er 8.
+<em>TrafiktÃ¦thed:</em><br>
+TÃ¦theden af private biler i byerne. Default vÃ¦rdien er 8.
 </p>
 
 <p>
 <em>Vand niveau:</em><br>
-Afspejler hvor højt grundvandsspejlet er (hvor mange vandfelter, der vil
-være). Jo lavere værdi desto flere landfelter vil kortet indeholde. Default
-værdien er 4
+Afspejler hvor hÃ¸jt grundvandsspejlet er (hvor mange vandfelter, der vil
+vÃ¦re). Jo lavere vÃ¦rdi desto flere landfelter vil kortet indeholde. Default
+vÃ¦rdien er 4
 </p>
 
 <p>
-<em>Kuperet terræn:</em><br>
-Bestemmer højden af det højeste bjerg. Jo lavere værdi desto færre og lavere
-bjerge og dale. Værdierne går fra 0 til 160 med default værdi 160.
+<em>Kuperet terrÃ¦n:</em><br>
+Bestemmer hÃ¸jden af det hÃ¸jeste bjerg. Jo lavere vÃ¦rdi desto fÃ¦rre og lavere
+bjerge og dale. VÃ¦rdierne gÃ¥r fra 0 til 160 med default vÃ¦rdi 160.
 </p>
 
 <p>
 <em>Bjergstejlhed:</em><br>
-Angiver hvor stejle bjergene vil være. Jo lavere værdi desto "jævnere" vil
-bjergstigningerne være.
+Angiver hvor stejle bjergene vil vÃ¦re. Jo lavere vÃ¦rdi desto "jÃ¦vnere" vil
+bjergstigningerne vÃ¦re.
 </p>
 
 <p>
-<em>Tilfældigt kort:</em><br>
-Vælger et tilfældigt kortnummer (opdateret med de valgte indstillinger)
+<em>TilfÃ¦ldigt kort:</em><br>
+VÃ¦lger et tilfÃ¦ldigt kortnummer (opdateret med de valgte indstillinger)
 </p>
 
 <p>
-<em>Vis fodgængere</em><br>
-Bestemmer om fodgængere skal være synlige eller ej. Indstillingen kan ændres
+<em>Vis fodgÃ¦ngere</em><br>
+Bestemmer om fodgÃ¦ngere skal vÃ¦re synlige eller ej. Indstillingen kan Ã¦ndres
 under spillet<br>
 ved at benytte <a href="display.txt">Udseende dialogen.</a>
 </p>
@@ -91,7 +91,7 @@ ved at benytte <a href="display.txt">Udseende dialogen.</a>
 <p>
 <em>Dag og nat indstilling</em><br>
 Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og nat
-belysning. Denne indstilling kan ligeledes ændres under spillet<br>
+belysning. Denne indstilling kan ligeledes Ã¦ndres under spillet<br>
 ved at benytte <a href="display.txt">Udseende dialogen.</a>
 </p>
 
@@ -100,13 +100,13 @@ De fire knapper er:
 </p>
 
 <p>
-<em>Indlæs spil:</em><br>
-Indlæser et tidligere gemt spil.<br>
-Se <a href="load.txt">Indlæs dialogen</a> for nærmere information
+<em>IndlÃ¦s spil:</em><br>
+IndlÃ¦ser et tidligere gemt spil.<br>
+Se <a href="load.txt">IndlÃ¦s dialogen</a> for nÃ¦rmere information
 </p>
 
 <p>
-<em>Indlæs reliefkort:</em>
+<em>IndlÃ¦s reliefkort:</em>
 </p>
 
 <p>

@@ -1,4 +1,4 @@
-<title>Nápovìda - tramvaje</title>
+<title>NÃ¡povÄ›da - tramvaje</title>
 
 
 
@@ -8,64 +8,64 @@
 
 <p>
 
-Nabídka obsahuje nástroje ke stavbì tramvajové pøepravní sítì - kolejí, troleje, <a href="station.txt">zastávek</a> a <a href="depot.txt">depa</a>.
+NabÃ­dka obsahuje nÃ¡stroje ke stavbÄ› tramvajovÃ© pÅ™epravnÃ­ sÃ­tÄ› - kolejÃ­, troleje, <a href="station.txt">zastÃ¡vek</a> a <a href="depot.txt">depa</a>.
 
 </p>
 
 <p>
 
-Tramvaje mají ni¾¹í provozní náklady ne¾ autobusy co¾ je v¹ak vyvá¾eno vysokımi náklady na údr¾bu tramvajovıch tratí. Provozovat tramvaje se vyplatí pøi pøepravì vy¹¹ího poètu cestujících nebo ve mìstech s velkım poètem aut.
+Tramvaje majÃ­ niÅ¾Å¡Ã­ provoznÃ­ nÃ¡klady neÅ¾ autobusy coÅ¾ je vÅ¡ak vyvÃ¡Å¾eno vysokÃ½mi nÃ¡klady na ÃºdrÅ¾bu tramvajovÃ½ch tratÃ­. Provozovat tramvaje se vyplatÃ­ pÅ™i pÅ™epravÄ› vyÅ¡Å¡Ã­ho poÄtu cestujÃ­cÃ­ch nebo ve mÄ›stech s velkÃ½m poÄtem aut.
 
 </p>
 
-<p>Nabídku s nástroji k vıstavbì tramvajové tratì otevøete kliknutím na ikonu <em>tramvaje</em> v <a href="mainmenu.txt">hlavním menu</a>.
-
-</p>
-
-<p>
-
-Najedete-li kurzorem <a href="mouse.txt">my¹i</a> nad ikonu s naástrojem, zobrazí se popisek obsahující <em>oznaèení nástroje</em>, <em>náklady na vıstavbu</em>, <em>(náklady za údr¾bu)</em> a <em>maximální rychlost</em>. Menu obsahuje tyto nástroje:
+<p>NabÃ­dku s nÃ¡stroji k vÃ½stavbÄ› tramvajovÃ© tratÄ› otevÅ™ete kliknutÃ­m na ikonu <em>tramvaje</em> v <a href="mainmenu.txt">hlavnÃ­m menu</a>.
 
 </p>
 
 <p>
 
-<em>tramvajová tra»</em>: Nástroj slou¾í k vıstavbì tramvajové trati. Tramvajovou tra» je mo¾né umístit i na existující silnice. Vìt¹ina tramvají jezdí na elektrickou energii, tra» bude potøeba je¹tì elektrifikovat. </p>
+Najedete-li kurzorem <a href="mouse.txt">myÅ¡i</a> nad ikonu s naÃ¡strojem, zobrazÃ­ se popisek obsahujÃ­cÃ­ <em>oznaÄenÃ­ nÃ¡stroje</em>, <em>nÃ¡klady na vÃ½stavbu</em>, <em>(nÃ¡klady za ÃºdrÅ¾bu)</em> a <em>maximÃ¡lnÃ­ rychlost</em>. Menu obsahuje tyto nÃ¡stroje:
+
+</p>
 
 <p>
 
-<em>mosty</em>: Tramvajovı <a href="bridges.txt">most</a> obvykle moc nevyu¾ijete. Tramvajovou tra» postavíte i na silnièním mostu.</p>
+<em>tramvajovÃ¡ traÅ¥</em>: NÃ¡stroj slouÅ¾Ã­ k vÃ½stavbÄ› tramvajovÃ© trati. Tramvajovou traÅ¥ je moÅ¾nÃ© umÃ­stit i na existujÃ­cÃ­ silnice. VÄ›tÅ¡ina tramvajÃ­ jezdÃ­ na elektrickou energii, traÅ¥ bude potÅ™eba jeÅ¡tÄ› elektrifikovat. </p>
 
-<p><em>tunel</em>: Nástroj pou¾ijete pro vıstovbu <a href="underground.txt">tunelu</a>, trati pro podzemní ¹alinu.</p>
+<p>
+
+<em>mosty</em>: TramvajovÃ½ <a href="bridges.txt">most</a> obvykle moc nevyuÅ¾ijete. Tramvajovou traÅ¥ postavÃ­te i na silniÄnÃ­m mostu.</p>
+
+<p><em>tunel</em>: NÃ¡stroj pouÅ¾ijete pro vÃ½stovbu <a href="underground.txt">tunelu</a>, trati pro podzemnÃ­ Å¡alinu.</p>
 
 <p>
 
 <em>
 
-trolej</em>: Nástrojem elektrifikujete tramvajovou tra». Bez elektrifikace byste mohli pou¾ívat jen koòmi tak¾ené tramvaje.
+trolej</em>: NÃ¡strojem elektrifikujete tramvajovou traÅ¥. Bez elektrifikace byste mohli pouÅ¾Ã­vat jen koÅˆmi takÅ¾enÃ© tramvaje.
 
 </p>
 
 <p>
 
-<em>odstranit tra»</em>: Nástroj odstraòuje tra» vèetnì elektrifikace. Pøi odstraòování dejte pozor na jednosmìrné semafory, a» odstraníte jen to, co chcete.
+<em>odstranit traÅ¥</em>: NÃ¡stroj odstraÅˆuje traÅ¥ vÄetnÄ› elektrifikace. PÅ™i odstraÅˆovÃ¡nÃ­ dejte pozor na jednosmÄ›rnÃ© semafory, aÅ¥ odstranÃ­te jen to, co chcete.
 
 </p>
 
 <p>
 
-<em>semafory</em>: Nástroj slou¾í k <a href="signals.txt">umístìní semaforù</a> na tra».
+<em>semafory</em>: NÃ¡stroj slouÅ¾Ã­ k <a href="signals.txt">umÃ­stÄ›nÃ­ semaforÅ¯</a> na traÅ¥.
 
 </p>
 
 <p>
 
-<em>tramvajové depo</em>: V <a href="depot.txt">depu</a> koupíte tramvaje. Nezapomeòte jej elektrifikovat, jinak elektrické tramvaje nebudou dostupné.
+<em>tramvajovÃ© depo</em>: V <a href="depot.txt">depu</a> koupÃ­te tramvaje. NezapomeÅˆte jej elektrifikovat, jinak elektrickÃ© tramvaje nebudou dostupnÃ©.
 
 </p>
 
 <p>
 
-<em>tramvajová zastávka</em>: Nástrojem postavíte tramvajovou zastávku. Tramvaje mohou zastavovat i na autobusovıch zastávkách.
+<em>tramvajovÃ¡ zastÃ¡vka</em>: NÃ¡strojem postavÃ­te tramvajovou zastÃ¡vku. Tramvaje mohou zastavovat i na autobusovÃ½ch zastÃ¡vkÃ¡ch.
 
 </p>

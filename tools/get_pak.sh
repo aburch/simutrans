@@ -216,7 +216,6 @@ paksets=( \
   "http://downloads.sourceforge.net/project/simutrans/pakTTD/simupakTTD-124-0.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
   "http://pak128.jpn.org/souko/pak128.japan.120.0.cab" \
-#  "http://downloads.sourceforge.net/project/simutrans/pak128.japan/pak128.japan%20for120up/pak128.japan.120.0.cab" \
   "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
   "https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \

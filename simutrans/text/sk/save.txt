@@ -1,14 +1,14 @@
-<title>Ulo¾it' hru - pomoc</title>
+<title>UloÅ¾it' hru - pomoc</title>
 
-<h1>Ulo¾it' hru</h1>
+<h1>UloÅ¾it' hru</h1>
 
 <p>
-V dialógovom okne sa zobrazí zoznam názvov v¹etkıch dovtedy ulo¾enıch súborov.
-Ak chce¹ prepísat' existujúci súbor, klikni na prí¹lusnı názov (identifikátor)
-súboru. Simutrans ulo¾í Tvoju hru s tımto názvom.
+V dialÃ³govom okne sa zobrazÃ­ zoznam nÃ¡zvov vÅ¡etkÃ½ch dovtedy uloÅ¾enÃ½ch sÃºborov.
+Ak chceÅ¡ prepÃ­sat' existujÃºci sÃºbor, klikni na prÃ­Å¡lusnÃ½ nÃ¡zov (identifikÃ¡tor)
+sÃºboru. Simutrans uloÅ¾Ã­ Tvoju hru s tÃ½mto nÃ¡zvom.
 </p>
 <p>
-Ak chce¹ ulozit' hru s novım názvom, klikni na horné textové pole
-a zadaj svoj názov súboru. Kliknutím na ,,OK'' bude novı súbor
-so zadanım názvom ulo¾enı. Hru vymaze¹ kliknutím na znaèku ,,X'' vedµa názvu.
+Ak chceÅ¡ ulozit' hru s novÃ½m nÃ¡zvom, klikni na hornÃ© textovÃ© pole
+a zadaj svoj nÃ¡zov sÃºboru. KliknutÃ­m na ,,OK'' bude novÃ½ sÃºbor
+so zadanÃ½m nÃ¡zvom uloÅ¾enÃ½. Hru vymazeÅ¡ kliknutÃ­m na znaÄku ,,X'' vedÄ¾a nÃ¡zvu.
 </p>

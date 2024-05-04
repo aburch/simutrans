@@ -1,21 +1,21 @@
-<title>Nápovìda - vıbìr jazyka</title>
+<title>NÃ¡povÄ›da - vÃ½bÄ›r jazyka</title>
 <h1>Jazyk</h1>
 
 <p>
-Simutrans je vícejazyèná hra, a tak pokud existuje pøeklad do Va¹eho jazyka, mù¾ete si jej zvolit.<br>
-Po zmìnì jazyka zaène hra vypisovat v¹echny (pøelo¾ené) texty, ve Vámi zvoleném jazyce. Stávající
-otevøená okna je tøeba znovu otevøít, aby v nich do¹lo k vypsání textù ve zvoleném jazyce.
+Simutrans je vÃ­cejazyÄnÃ¡ hra, a tak pokud existuje pÅ™eklad do VaÅ¡eho jazyka, mÅ¯Å¾ete si jej zvolit.<br>
+Po zmÄ›nÄ› jazyka zaÄne hra vypisovat vÅ¡echny (pÅ™eloÅ¾enÃ©) texty, ve VÃ¡mi zvolenÃ©m jazyce. StÃ¡vajÃ­cÃ­
+otevÅ™enÃ¡ okna je tÅ™eba znovu otevÅ™Ã­t, aby v nich doÅ¡lo k vypsÃ¡nÃ­ textÅ¯ ve zvolenÃ©m jazyce.
 </p>
 
 <p>
-U stávajících mìst zùstanou jejich jména, která byla vytvoøena podle jazyka pøi generování nové mapy.
-Proto je vıhodné vybrat si jazyk je¹tì pøed generováním nové mapy, abyste v nìm mìli jména mìst.<br>
+U stÃ¡vajÃ­cÃ­ch mÄ›st zÅ¯stanou jejich jmÃ©na, kterÃ¡ byla vytvoÅ™ena podle jazyka pÅ™i generovÃ¡nÃ­ novÃ© mapy.
+Proto je vÃ½hodnÃ© vybrat si jazyk jeÅ¡tÄ› pÅ™ed generovÃ¡nÃ­m novÃ© mapy, abyste v nÄ›m mÄ›li jmÃ©na mÄ›st.<br>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>
 <p>
-Chcete-li pomoci s pøekladem Simutranù do va¹eho jazyka,<br>
-nav¹tivte https://translator.simutrans.com
+Chcete-li pomoci s pÅ™ekladem SimutranÅ¯ do vaÅ¡eho jazyka,<br>
+navÅ¡tivte https://translator.simutrans.com
 </p>

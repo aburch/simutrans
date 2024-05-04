@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -884,7 +884,7 @@ Generation: %.0f MW
 Gewicht
 Svoris
 Gewinn
-Pelnas:
+Pelnas: 
 Give the selected vehicle(s) an individual schedule
 Duoti transporto priemonei nuosavą grafiką.
 gl_btn_sort_catg
@@ -1728,7 +1728,7 @@ Keisti transporto pranešimus
 tonnen
 t
 Total inhabitants:
-Gyventojai:
+Gyventojai: 
 Tourist attractions
 Turistų traukos centrai:
 Tourists

@@ -1,31 +1,31 @@
-<title>Nápovìda - nastavení zobrazení</title>
-<h1>Nastavení zobrazení</h1>
+<title>NÃ¡povÄ›da - nastavenÃ­ zobrazenÃ­</title>
+<h1>NastavenÃ­ zobrazenÃ­</h1>
 
 <p>
-Dialog "Nastavení zobrazení" nabízí mo¾nost zmìny zobrazování rùznıch vizuálních prvkù v Simutrans.<br>
+Dialog "NastavenÃ­ zobrazenÃ­" nabÃ­zÃ­ moÅ¾nost zmÄ›ny zobrazovÃ¡nÃ­ rÅ¯znÃ½ch vizuÃ¡lnÃ­ch prvkÅ¯ v Simutrans.<br>
 </p>
 
 <p>
-<em>Jas</em> - Pøidá nebo ubere jas<br>
-<em>Barvy</em> - Testovací prvek, bez efektu<br>
-<em>Rychlost posuvu</em> - Velikost tohoto èísla udává rychlost posuvu obrazovky (pomocí my¹i nebo pomocí ¹ipek)
+<em>Jas</em> - PÅ™idÃ¡ nebo ubere jas<br>
+<em>Barvy</em> - TestovacÃ­ prvek, bez efektu<br>
+<em>Rychlost posuvu</em> - Velikost tohoto ÄÃ­sla udÃ¡vÃ¡ rychlost posuvu obrazovky (pomocÃ­ myÅ¡i nebo pomocÃ­ Å¡ipek)
 </p>
 
 <p>
-<em>Inverze posuvu</em> - Zpùsobí, ¾e posuv nahoru posune obrazovku dolu, posuv doleva ji posune doprava atd.<br>
-<em>Zobrazovat chodce</em> - Zpùsobí, ¾e se ve mìstech nebudou na ulicích zobrazovat chodci (ti kteøí chodí do nebo ze zastávek autobusu).<br>
-Vıhodné, napø. pokud máte pomalej¹í poèítaè. Náhodné chodce lze vypnout v konfiguraèním souboru simuconf.tab.<br>
-<em>Støídat den a noc</em> - Aktivuje støídání simulace dne a noci v prùbìhu hry. Pøi simulaci noci nìkteré objekty ve høe (vozidla, domy...) svítí.
+<em>Inverze posuvu</em> - ZpÅ¯sobÃ­, Å¾e posuv nahoru posune obrazovku dolu, posuv doleva ji posune doprava atd.<br>
+<em>Zobrazovat chodce</em> - ZpÅ¯sobÃ­, Å¾e se ve mÄ›stech nebudou na ulicÃ­ch zobrazovat chodci (ti kteÅ™Ã­ chodÃ­ do nebo ze zastÃ¡vek autobusu).<br>
+VÃ½hodnÃ©, napÅ™. pokud mÃ¡te pomalejÅ¡Ã­ poÄÃ­taÄ. NÃ¡hodnÃ© chodce lze vypnout v konfiguraÄnÃ­m souboru simuconf.tab.<br>
+<em>StÅ™Ã­dat den a noc</em> - Aktivuje stÅ™Ã­dÃ¡nÃ­ simulace dne a noci v prÅ¯bÄ›hu hry. PÅ™i simulaci noci nÄ›kterÃ© objekty ve hÅ™e (vozidla, domy...) svÃ­tÃ­.
 </p>
 
 <p>
-Dolní èást dialogu obsahuje rùzné informace o souèasném stavu hry, které jsou zde hlavnì z testovacích a vıvojáøskıch dùvodù.
+DolnÃ­ ÄÃ¡st dialogu obsahuje rÅ¯znÃ© informace o souÄasnÃ©m stavu hry, kterÃ© jsou zde hlavnÄ› z testovacÃ­ch a vÃ½vojÃ¡Å™skÃ½ch dÅ¯vodÅ¯.
 </p>
 
 <p>
--><a href="options.txt">Nápovìda pro nastavení hry</a>
+-><a href="options.txt">NÃ¡povÄ›da pro nastavenÃ­ hry</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

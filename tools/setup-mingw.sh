@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "First we update the system"
 pacman -Syu
 pacman -Syu
@@ -24,6 +26,8 @@ cp libminiupnpc.a $MINGW_PREFIX/lib
 cp *.h $MINGW_PREFIX/lib
 mkdir -p $MINGW_PREFIX/include/miniupnpc
 cp *.h $MINGW_PREFIX/include/miniupnpc
+cp include/*.h $MINGW_PREFIX/include/miniupnpc
+
 
 cd ../..
 rm -rf master.zip

@@ -1,62 +1,62 @@
-<title>Les dépôts</title>
+<title>Les dÃ©pÃ´ts</title>
 
-<h1>Les dépôts</h1>
+<h1>Les dÃ©pÃ´ts</h1>
 <p>
-Dans un dépôt, vous pouvez acheter, vendre et définir les trajets
-de tous les véhicules d'un type particulier, par exemple : véhicules
-routiers si vous êtes dans un dépôt routier.
+Dans un dÃ©pÃ´t, vous pouvez acheter, vendre et dÃ©finir les trajets
+de tous les vÃ©hicules d'un type particulier, par exemple : vÃ©hicules
+routiers si vous Ãªtes dans un dÃ©pÃ´t routier.
 </p>
 <p>
-La fenêtre des dépôts contient les informations sur les véhicules
-que vous pouvez acheter, et ceux que vous avez déjà achetés.
-Dans les onglets à droite, sont affichés les véhicules que vous pouvez acheter.
-En haut à gauche, se trouve le convoi en cours d'assemblage (train).
-Au milieu à gauche, se sont les locomotives et camions que vous avez achetés.
-En bas à gauche, les wagons et remorques qui vous appartiennent.
+La fenÃªtre des dÃ©pÃ´ts contient les informations sur les vÃ©hicules
+que vous pouvez acheter, et ceux que vous avez dÃ©jÃ  achetÃ©s.
+Dans les onglets Ã  droite, sont affichÃ©s les vÃ©hicules que vous pouvez acheter.
+En haut Ã  gauche, se trouve le convoi en cours d'assemblage (train).
+Au milieu Ã  gauche, se sont les locomotives et camions que vous avez achetÃ©s.
+En bas Ã  gauche, les wagons et remorques qui vous appartiennent.
 </p>
 <p>
-Dans la partie basse, vous trouverez les informations concernant le véhicule actuellement
-sélectionné, et en dessous, il y a trois boutons.
+Dans la partie basse, vous trouverez les informations concernant le vÃ©hicule actuellement
+sÃ©lectionnÃ©, et en dessous, il y a trois boutons.
 </p>
 <p>
-Le plus à gauche est le bouton 'Départ', qui vous permet lancer le véhicule sur le trajet
-préalablement définit.
-Celui du milieu est le bouton <a href="schedule.txt">'Trajet'</a>, qui vous permet de définir un
+Le plus Ã  gauche est le bouton 'DÃ©part', qui vous permet lancer le vÃ©hicule sur le trajet
+prÃ©alablement dÃ©finit.
+Celui du milieu est le bouton <a href="schedule.txt">'Trajet'</a>, qui vous permet de dÃ©finir un
 trajet pour le convoi en cours d'assemblage.
-Le bouton de droite est le bouton 'Vendre', qui vous permet de vendre des véhicules.
+Le bouton de droite est le bouton 'Vendre', qui vous permet de vendre des vÃ©hicules.
 </p>
 <p>
-Pour voir les informations sur un véhicule particulier, survolez à la
+Pour voir les informations sur un vÃ©hicule particulier, survolez Ã  la
 souris l'image correspondant. Vous les verrez alors dans la partie basse.
-Pour acheter un véhicule cliquez avec le bouton gauche de la souris sur le
-véhicule de votre choix dans l'onglet de droite.
-Il apparaîtra alors dans la partie gauche de la fenêtre.
-Le convoi que vous êtes en train de créer se trouve dans la partie supérieure de la fenêtre.
-Les autres véhicules (locomotives, camions, bateaux, chevaux) seront juste au dessous.
+Pour acheter un vÃ©hicule cliquez avec le bouton gauche de la souris sur le
+vÃ©hicule de votre choix dans l'onglet de droite.
+Il apparaÃ®tra alors dans la partie gauche de la fenÃªtre.
+Le convoi que vous Ãªtes en train de crÃ©er se trouve dans la partie supÃ©rieure de la fenÃªtre.
+Les autres vÃ©hicules (locomotives, camions, bateaux, chevaux) seront juste au dessous.
 Et les wagons, remorques et autres chariots apparaissent dans la partie du bas, juste au dessus
 de la partie 'informations'.
 </p>
 <p>
-Pour créer un convoi, vous pouvez soit acheter tous les véhicules voulus les uns après les
-autres, en commençant par la locomotive ou le camion, puis par les wagons ou remorques.
-Ou alors, en sélectionnant les véhicules dans la partie gauche de la fenêtre.
-<strong> Vous ne pouvez agir que sur un seul véhicule à la fois.</strong>
-Pour vendre un de vos véhicules, sélectionnez le mode vente en appuyant sur le
-bouton 'Vendre', puis survolez à la souris le véhicule. Le prix de vente est alors affiché dans
+Pour crÃ©er un convoi, vous pouvez soit acheter tous les vÃ©hicules voulus les uns aprÃ¨s les
+autres, en commenÃ§ant par la locomotive ou le camion, puis par les wagons ou remorques.
+Ou alors, en sÃ©lectionnant les vÃ©hicules dans la partie gauche de la fenÃªtre.
+<strong> Vous ne pouvez agir que sur un seul vÃ©hicule Ã  la fois.</strong>
+Pour vendre un de vos vÃ©hicules, sÃ©lectionnez le mode vente en appuyant sur le
+bouton 'Vendre', puis survolez Ã  la souris le vÃ©hicule. Le prix de vente est alors affichÃ© dans
 la partie 'informations', pour effectuer la vente, cliquez avec le bouton
-gauche de la souris sur le véhicule.
+gauche de la souris sur le vÃ©hicule.
 </p>
 <p>
-Pour définir le trajet d'un convoi cliquez sur le bouton
-<a href="schedule.txt">'Trajet'</a> qui affichera la fenêtre de gestion de trajet.
-Une fois le trajet définit, vous ordonnez le départ du convoi en appuyant sur le bouton 'Départ'.
+Pour dÃ©finir le trajet d'un convoi cliquez sur le bouton
+<a href="schedule.txt">'Trajet'</a> qui affichera la fenÃªtre de gestion de trajet.
+Une fois le trajet dÃ©finit, vous ordonnez le dÃ©part du convoi en appuyant sur le bouton 'DÃ©part'.
 </p>
 <p>
-Pour renvoyer un convoi vers un dépôt, modifiez le trajet du convoi en lui indiquant
-le dépôt comme unique destination. Une fois arrivé dans le dépôt, le convoi sera désassemblé et chaque
-véhicule sera de nouveau disponible pour être réarrangé ou vendu.
+Pour renvoyer un convoi vers un dÃ©pÃ´t, modifiez le trajet du convoi en lui indiquant
+le dÃ©pÃ´t comme unique destination. Une fois arrivÃ© dans le dÃ©pÃ´t, le convoi sera dÃ©sassemblÃ© et chaque
+vÃ©hicule sera de nouveau disponible pour Ãªtre rÃ©arrangÃ© ou vendu.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

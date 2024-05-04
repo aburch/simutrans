@@ -3,17 +3,17 @@
 <h1>Limba</h1>
 
 <p>
-Simutrans a fost tradus în mai multe limbi printre care ºi româna. Print selectarea limbajului
-dorit toate inscripşiile jocului se schimbã în limbajul selectat.
+Simutrans a fost tradus Ã®n mai multe limbi printre care ÅŸi romÃ¢na. Print selectarea limbajului
+dorit toate inscripÅ£iile jocului se schimbÄƒ Ã®n limbajul selectat.
 <br>
-Însã numele oraºelor de pe harta odatã creatã nu se schimbã. Pt. a folosi oraºe româneºti,
-prima datã trebuie selectat limba românã, dupã care trebuie creat o nouã hartã.
+ÃnsÄƒ numele oraÅŸelor de pe harta odatÄƒ creatÄƒ nu se schimbÄƒ. Pt. a folosi oraÅŸe romÃ¢neÅŸti,
+prima datÄƒ trebuie selectat limba romÃ¢nÄƒ, dupÄƒ care trebuie creat o nouÄƒ hartÄƒ.
 </p>
 
 <p>
-Pt. eventuale alte traduceri vizitaşi: <strong>www.simutrans.de sau 128.simutrans.com</strong>
+Pt. eventuale alte traduceri vizitaÅ£i: <strong>www.simutrans.de sau 128.simutrans.com</strong>
 </p>
 <p>
-Pentru a ajuta la traducerea Simutrans în limba dvs.,<br>
+Pentru a ajuta la traducerea Simutrans Ã®n limba dvs.,<br>
 vizitati https://translator.simutrans.com
 </p>

@@ -1,31 +1,31 @@
-<title>Nápovìda - úprava terénu</title>
+<title>NÃ¡povÄ›da - Ãºprava terÃ©nu</title>
 
-<h1>úprava terénu</h1>
+<h1>Ãºprava terÃ©nu</h1>
 
 <p>
-Nástroje pro úpravu terénu umo¾òují zvı¹it nebo sní¾it terén, tytvoøit za pomoci opìrnıch zdí rovinu nebo jen udìlat svah ¹iknı v po¾adovaném smìru. Slou¾í také k tvorbì stoupajících a klesajících <a href="underground.txt">tunelù</a>.
+NÃ¡stroje pro Ãºpravu terÃ©nu umoÅ¾ÅˆujÃ­ zvÃ½Å¡it nebo snÃ­Å¾it terÃ©n, tytvoÅ™it za pomoci opÄ›rnÃ½ch zdÃ­ rovinu nebo jen udÄ›lat svah Å¡iknÃ½ v poÅ¾adovanÃ©m smÄ›ru. SlouÅ¾Ã­ takÃ© k tvorbÄ› stoupajÃ­cÃ­ch a klesajÃ­cÃ­ch <a href="underground.txt">tunelÅ¯</a>.
 </p>
 <p>
-Menu s nástroji otevøete kliknutím na ikonu <em>úprava terénu</em> v <a href="mainmenu.txt"> hlavním menu</a>.
+Menu s nÃ¡stroji otevÅ™ete kliknutÃ­m na ikonu <em>Ãºprava terÃ©nu</em> v <a href="mainmenu.txt"> hlavnÃ­m menu</a>.
 </p>
-<p>Nástroj mù¾ete pou¾ít na polích bez silnic, ¾eleznic, budov apod. Vıjimku tvoøí nástroj <em> upravit svah</em> pou¾itı na koncích komunikací.
-</p>
-<p>
-Nástroj vyberete kliknutím n pøíslu¹nou ikonu.
+<p>NÃ¡stroj mÅ¯Å¾ete pouÅ¾Ã­t na polÃ­ch bez silnic, Å¾eleznic, budov apod. VÃ½jimku tvoÅ™Ã­ nÃ¡stroj <em> upravit svah</em> pouÅ¾itÃ½ na koncÃ­ch komunikacÃ­.
 </p>
 <p>
-<em>zvı¹it zemi</em>/<em>sní¾it zemi:</em> zvı¹í/sní¾í terén<br/>
-Kursor se zmìní na ¹ipku nahoru nebo dolu.<br/>
-Ke zvı¹ení resp. sní¾ení lze té¾ pou¾ít klávesové zkratky <a href="keys.txt">[u]</a> resp. [d].<br/>
-{Tip: Pokud místo klikání budete dr¾et levé tlaèítko <a href="mouse.txt">my¹i</a>, mù¾ete snadno vytvoøit velkou plochu terénu o stejné nadmoøské vı¹ce.
+NÃ¡stroj vyberete kliknutÃ­m n pÅ™Ã­sluÅ¡nou ikonu.
 </p>
 <p>
-<em>upravit svah:</em> upraví svah do po¾adovaného tvaru za pomoci opìrnıch zdí. Maximální rozdíl mezi sousedními poli je omezenı na rozdíl 2 vı¹kovıch stupnù.<br/>
-Pozn: pomocí tohoto nástroje se dá vytvoøit stoupání a klesání v <a href="underground.txt">tunelu</a>.
+<em>zvÃ½Å¡it zemi</em>/<em>snÃ­Å¾it zemi:</em> zvÃ½Å¡Ã­/snÃ­Å¾Ã­ terÃ©n<br/>
+Kursor se zmÄ›nÃ­ na Å¡ipku nahoru nebo dolu.<br/>
+Ke zvÃ½Å¡enÃ­ resp. snÃ­Å¾enÃ­ lze tÃ©Å¾ pouÅ¾Ã­t klÃ¡vesovÃ© zkratky <a href="keys.txt">[u]</a> resp. [d].<br/>
+{Tip: Pokud mÃ­sto klikÃ¡nÃ­ budete drÅ¾et levÃ© tlaÄÃ­tko <a href="mouse.txt">myÅ¡i</a>, mÅ¯Å¾ete snadno vytvoÅ™it velkou plochu terÃ©nu o stejnÃ© nadmoÅ™skÃ© vÃ½Å¡ce.
 </p>
 <p>
-<em>obnovit pøírodní terén</em>: Obnoví na daném políèku pøirozenı snah, odstraní opìrné zdi.<br/>
+<em>upravit svah:</em> upravÃ­ svah do poÅ¾adovanÃ©ho tvaru za pomoci opÄ›rnÃ½ch zdÃ­. MaximÃ¡lnÃ­ rozdÃ­l mezi sousednÃ­mi poli je omezenÃ½ na rozdÃ­l 2 vÃ½Å¡kovÃ½ch stupnÅ¯.<br/>
+Pozn: pomocÃ­ tohoto nÃ¡stroje se dÃ¡ vytvoÅ™it stoupÃ¡nÃ­ a klesÃ¡nÃ­ v <a href="underground.txt">tunelu</a>.
 </p>
 <p>
-{Tip: Úprava terénu se provádí snáze se zapnutou møí¾kou, zapnete ji klávesou [#] }
+<em>obnovit pÅ™Ã­rodnÃ­ terÃ©n</em>: ObnovÃ­ na danÃ©m polÃ­Äku pÅ™irozenÃ½ snah, odstranÃ­ opÄ›rnÃ© zdi.<br/>
+</p>
+<p>
+{Tip: Ãšprava terÃ©nu se provÃ¡dÃ­ snÃ¡ze se zapnutou mÅ™Ã­Å¾kou, zapnete ji klÃ¡vesou [#] }
 </p>

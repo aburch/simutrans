@@ -1,32 +1,32 @@
 <title>Aide maritime</title>
 
-<h1>L'écran de gestion maritime</h1>
+<h1>L'Ã©cran de gestion maritime</h1>
 <p>
-Cet écran vous donne accès aux outils de construction de quais et gares
+Cet Ã©cran vous donne accÃ¨s aux outils de construction de quais et gares
 maritime.
 </p>
 <p>
-Dans le coin supérieur gauche se trouve le symbole du quai de chargement
+Dans le coin supÃ©rieur gauche se trouve le symbole du quai de chargement
 maritime. Cliquez dessus et votre curseur prendra la forme de ce symbole.
-Les quais permettent aux bateaux de charger et décharger leurs marchandises
+Les quais permettent aux bateaux de charger et dÃ©charger leurs marchandises
 et passagers. Pour positionner un quai maritime cliquez sur la terre qui se
-trouve au bord de la mer, le quai est composé de deux parties : l'une sur la
-terre et l'autre en mer. Ils doivent être construits sur un littoral droit.
-Il est possible de construire de très grands quais, mais ils doivent toujours
-être adjacents les uns avec les autres. Pour diriger un bateau vers un quai,
-vous devrez l'envoyer vers un des carrés qui entoure le quai et pas le quai
-lui même. <strong>Attention, les quais ne peuvent pas encore être retirés
+trouve au bord de la mer, le quai est composÃ© de deux parties : l'une sur la
+terre et l'autre en mer. Ils doivent Ãªtre construits sur un littoral droit.
+Il est possible de construire de trÃ¨s grands quais, mais ils doivent toujours
+Ãªtre adjacents les uns avec les autres. Pour diriger un bateau vers un quai,
+vous devrez l'envoyer vers un des carrÃ©s qui entoure le quai et pas le quai
+lui mÃªme. <strong>Attention, les quais ne peuvent pas encore Ãªtre retirÃ©s
 proprement !</strong>
 </p>
 <p>
 En bas, vous trouverez deux symboles pour construire une gare maritime, ils
-diffèrent seulement par le fait que l'un est orienté vers la gauche et l'autre
-vers la droite. Cliquez sur l'un des deux pour changer votre curseur à son
-effigie. Les gares maritimes servent à acheter les navires que vous désirez.
-Pour positionner une gare maritime cliquez dans l'eau à l'endroit où vous
+diffÃ¨rent seulement par le fait que l'un est orientÃ© vers la gauche et l'autre
+vers la droite. Cliquez sur l'un des deux pour changer votre curseur Ã  son
+effigie. Les gares maritimes servent Ã  acheter les navires que vous dÃ©sirez.
+Pour positionner une gare maritime cliquez dans l'eau Ã  l'endroit oÃ¹ vous
 souhaitez construire votre gare maritime.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

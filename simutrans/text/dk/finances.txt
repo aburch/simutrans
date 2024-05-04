@@ -1,11 +1,11 @@
-<title>Finanser dialog hjælp</title>
+<title>Finanser dialog hjÃ¦lp</title>
 
 <h1>Finanser <em>(f)</em></h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Finanser dialogen viser dig såvel din aktuelle finansielle status som din
-status for sidste år. Dette giver dig indblik i din samlede profit eller tab
+Finanser dialogen viser dig sÃ¥vel din aktuelle finansielle status som din
+status for sidste Ã¥r. Dette giver dig indblik i din samlede profit eller tab
 !<br>
 Dialogen indeholder forskellige kategorier og viser den finansielle status for
 hver enkelt.
@@ -13,18 +13,18 @@ hver enkelt.
 
 <p>
 <em>Udseende:</em><br>
-Øverst til venstre er for kategorierne: Byggeudgifter, Nye køretøjer,
+Ã˜verst til venstre er for kategorierne: Byggeudgifter, Nye kÃ¸retÃ¸jer,
 Driftsomkostninger, Vedligeholdelse, Indkomst og Overskud vist to kolonner med
-resultaterne for henholdsvis dette år og sidste år.<br>
+resultaterne for henholdsvis dette Ã¥r og sidste Ã¥r.<br>
 Herunder er to linier, der henholdvis viser Kassebeholdning og
-vedligeholdelsesudgifterne pr. måned.<br>
+vedligeholdelsesudgifterne pr. mÃ¥ned.<br>
 Nederst i dialogen er et grafisk visningsareal, hvor en enkelt, flere eller
-alle kategorier kan afbildes grafisk. Dette gøres for hver enkelt kategori ved
-at vælge kategorien på knapperne øverst til højre i dialogen.
+alle kategorier kan afbildes grafisk. Dette gÃ¸res for hver enkelt kategori ved
+at vÃ¦lge kategorien pÃ¥ knapperne Ã¸verst til hÃ¸jre i dialogen.
 </p>
 
 <p>
-Kategorierne er følgende:
+Kategorierne er fÃ¸lgende:
 </p>
 
 <p>
@@ -34,47 +34,47 @@ signaler, havne etc.
 </p>
 
 <p>
-<em>Nye køretøjer:</em><br>
-De samlede udgifter for alle køretøjer: Toge, togvogne, lastbiler/busser,
-anhængere eller skibe, som du har købt.
+<em>Nye kÃ¸retÃ¸jer:</em><br>
+De samlede udgifter for alle kÃ¸retÃ¸jer: Toge, togvogne, lastbiler/busser,
+anhÃ¦ngere eller skibe, som du har kÃ¸bt.
 </p>
 
 <p>
 <em>Driftsomkostninger:</em><br>
-De samlede kørselsomkostninger for alle dine køretøjer.<br>
-For hvert enkelt køretøj kan omkostninger pr. kørt km. ses under oplysningerne
-for køretøjet i <a href="depot.txt">depotdialogen.</a>
+De samlede kÃ¸rselsomkostninger for alle dine kÃ¸retÃ¸jer.<br>
+For hvert enkelt kÃ¸retÃ¸j kan omkostninger pr. kÃ¸rt km. ses under oplysningerne
+for kÃ¸retÃ¸jet i <a href="depot.txt">depotdialogen.</a>
 </p>
 
 <p>
 <em>Vedligeholdelse:</em><br>
-Det beløb du skal betale for at vedligeholde dine jernbaner/veje/bygninger.
+Det belÃ¸b du skal betale for at vedligeholde dine jernbaner/veje/bygninger.
 </p>
 
 <p>
 <em>Indkomst:</em><br>
-Den samlede indtjening for alle køretøjer.<br>
-Fortjenesten (indtjening - driftsomkostninger) for hvert enkelt køretøj kan
-ses i menuen: Køretøjsliste.
+Den samlede indtjening for alle kÃ¸retÃ¸jer.<br>
+Fortjenesten (indtjening - driftsomkostninger) for hvert enkelt kÃ¸retÃ¸j kan
+ses i menuen: KÃ¸retÃ¸jsliste.
 </p>
 
 <p>
 <em>Overskud:</em><br>
-Det samlede overskud. Udregnes som summen af de ovennævnte kategorier.
+Det samlede overskud. Udregnes som summen af de ovennÃ¦vnte kategorier.
 </p>
 
 <p>
 <em>Kassebeholdning:</em><br>
 Din kontante kassebeholdning.<br>
-<strong>Hvis dette beløb ved udgangen af en måned er negativt tre (3) gange i
-træk, er du bankerot og har "tabt" spillet.<br>
-Bemærk at vedligeholdelsesudgifter betales pr. måned ved udgangen af
-måneden</strong>
+<strong>Hvis dette belÃ¸b ved udgangen af en mÃ¥ned er negativt tre (3) gange i
+trÃ¦k, er du bankerot og har "tabt" spillet.<br>
+BemÃ¦rk at vedligeholdelsesudgifter betales pr. mÃ¥ned ved udgangen af
+mÃ¥neden</strong>
 </p>
 
 <p>
 <em>Aktiver:</em><br>
-Dette udregnes som den samlede salgsværdi af alle dine køretøjer.
+Dette udregnes som den samlede salgsvÃ¦rdi af alle dine kÃ¸retÃ¸jer.
 </p>
 
 <p>

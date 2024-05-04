@@ -1,44 +1,44 @@
-<title>Help Finanşe</title>
+<title>Help FinanÅ£e</title>
 
-<h1>Finanşe (<em>f</em>)</h1>
+<h1>FinanÅ£e (<em>f</em>)</h1>
 
 <p>
-Aici poşi afla amãnunte despre starea economiei tale.Sunt afiºate cele mai
+Aici poÅ£i afla amÄƒnunte despre starea economiei tale.Sunt afiÅŸate cele mai
 importante parametre care pot fi analizate anual s-au lunar.
 </p>
 
-<p>Sunt afiºate:</p>
+<p>Sunt afiÅŸate:</p>
 
 <p>
-<em>Construcşii</em> - Suma cheltuitã pe construcşii noi.
-</p>
-
-<p>
-<em>Vehicole noi</em> - Suma cheltuitã pt. achizişionarea de noi vehicole.
+<em>ConstrucÅ£ii</em> - Suma cheltuitÄƒ pe construcÅ£ii noi.
 </p>
 
 <p>
-<em>Cost transport</em> - Suma ce este cheltuitã în timpul transporturilor.
+<em>Vehicole noi</em> - Suma cheltuitÄƒ pt. achiziÅ£ionarea de noi vehicole.
 </p>
 
 <p>
-<em>Întreşinere</em> - Suma necesarã întreşinerii vehicolelor ºi traseelor.
+<em>Cost transport</em> - Suma ce este cheltuitÄƒ Ã®n timpul transporturilor.
 </p>
 
 <p>
-<em>Venit</em> - Venitul realizat (este semnalat ºi în partea de jos a jocului)
+<em>ÃntreÅ£inere</em> - Suma necesarÄƒ Ã®ntreÅ£inerii vehicolelor ÅŸi traseelor.
 </p>
 
 <p>
-<em>Total</em> - Suma consturilor ºi veniturilor sus menşionate.
+<em>Venit</em> - Venitul realizat (este semnalat ÅŸi Ã®n partea de jos a jocului)
 </p>
 
 <p>
-<em>Balanşa</em> - Balanşa actualã.
+<em>Total</em> - Suma consturilor ÅŸi veniturilor sus menÅ£ionate.
+</p>
+
+<p>
+<em>BalanÅ£a</em> - BalanÅ£a actualÄƒ.
 </p>
 <p>
-<em>Întraşinere lunarã</em> - Costul înterşinerii lunare.
+<em>ÃntraÅ£inere lunarÄƒ</em> - Costul Ã®nterÅ£inerii lunare.
 </p>
 <p>
-În partea dreaptã, sus poşi afiºa grafic alte parametrii.
+Ãn partea dreaptÄƒ, sus poÅ£i afiÅŸa grafic alte parametrii.
 </p>

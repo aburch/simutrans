@@ -2,42 +2,42 @@
 <h1>Filtr seznamu stanic</h1>
 
 <p>
-<em>Filtr nabízí tyto mo¾nosti:</em>
+<em>Filtr nabÃ­zÃ­ tyto moÅ¾nosti:</em>
 </p>
 
 <p>
-<em>1.) Filtrovat jméno:</em><br>
-V seznamu budou zobrazeny pouze stanice, které se jmenují podle zadání.
+<em>1.) Filtrovat jmÃ©no:</em><br>
+V seznamu budou zobrazeny pouze stanice, kterÃ© se jmenujÃ­ podle zadÃ¡nÃ­.
 </p>
 
 <p>
 <em>2.) Filtrovat typ:</em><br>
-V seznamu budou zobrazena pouze stanice zvoleného typu.
+V seznamu budou zobrazena pouze stanice zvolenÃ©ho typu.
 </p>
 
 <p>
-<em>3.) Speciální filtrování:</em><br>
-V seznamu budou zobrazeny pouze stanice, které nemají spojení nebo jsou pøeplnìné.
+<em>3.) SpeciÃ¡lnÃ­ filtrovÃ¡nÃ­:</em><br>
+V seznamu budou zobrazeny pouze stanice, kterÃ© nemajÃ­ spojenÃ­ nebo jsou pÅ™eplnÄ›nÃ©.
 </p>
 
 <p>
-<em>4.) Podle vy¾adovaného prùmyslu:</em><br>
-Seznam zobrazí pouze stanice, které vy¾adují pro prùmysl na kterı jsou napojeny zvolené komodity. *
+<em>4.) Podle vyÅ¾adovanÃ©ho prÅ¯myslu:</em><br>
+Seznam zobrazÃ­ pouze stanice, kterÃ© vyÅ¾adujÃ­ pro prÅ¯mysl na kterÃ½ jsou napojeny zvolenÃ© komodity. *
 </p>
 
 <p>
-<em>5.) Podle produkovaného prùmyslu:</em><br>
-Seznam zobrazí pouze stanice, které produkují zvolené komodity. *
+<em>5.) Podle produkovanÃ©ho prÅ¯myslu:</em><br>
+Seznam zobrazÃ­ pouze stanice, kterÃ© produkujÃ­ zvolenÃ© komodity. *
 </p>
 
 <p>
-<em>*</em> Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tlaèítko <strong>nic</strong> naopak v¹echny odvybere. Tlaèítkem <strong>inv</strong> obrátíte aktuální vıbìr.
+<em>*</em> TlaÄÃ­tko <strong>vÅ¡e</strong> vybere vÅ¡echny komodity, tlaÄÃ­tko <strong>nic</strong> naopak vÅ¡echny odvybere. TlaÄÃ­tkem <strong>inv</strong> obrÃ¡tÃ­te aktuÃ¡lnÃ­ vÃ½bÄ›r.
 </p>
 
 <p>
--><a href="haltlist.txt">Nápovìda pro seznam stanic</a>
+-><a href="haltlist.txt">NÃ¡povÄ›da pro seznam stanic</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

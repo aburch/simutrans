@@ -1,74 +1,74 @@
-<title>Nápovìda - semafory</title>
+<title>NÃ¡povÄ›da - semafory</title>
 
 <h1>semafory</h1>
 
-<p>Text popisuje zpùsob, jak umis»ovat semafory pro <a href="railtools.txt">¾eleznici</a>, úzkokolejku, <a href="tramtools.txt">tramvaje</a> a <a href="monorailtools.txt">jednokolejku</a>.
+<p>Text popisuje zpÅ¯sob, jak umisÅ¥ovat semafory pro <a href="railtools.txt">Å¾eleznici</a>, Ãºzkokolejku, <a href="tramtools.txt">tramvaje</a> a <a href="monorailtools.txt">jednokolejku</a>.
 </p>
-<p>Pøi prvním kliknutí se umístí návìstidlo pro oba smìry, pøi dal¹ím kliknutí se zmìní na jednosnmìné, pøièem¾ prùjezd opaènım smìrem je zakázán. Dal¹ím kliknutím zmìníte smìr. Ètvrtım kliknutím se vrátíte k návìstidlu pro oba smìry.
+<p>PÅ™i prvnÃ­m kliknutÃ­ se umÃ­stÃ­ nÃ¡vÄ›stidlo pro oba smÄ›ry, pÅ™i dalÅ¡Ã­m kliknutÃ­ se zmÄ›nÃ­ na jednosnmÄ›nÃ©, pÅ™iÄemÅ¾ prÅ¯jezd opaÄnÃ½m smÄ›rem je zakÃ¡zÃ¡n. DalÅ¡Ã­m kliknutÃ­m zmÄ›nÃ­te smÄ›r. ÄŒtvrtÃ½m kliknutÃ­m se vrÃ¡tÃ­te k nÃ¡vÄ›stidlu pro oba smÄ›ry.
 </p>
 <p>
-<em>návìstidlo tra»ováho bloku</em> (èervené)<br/>
-Pou¹tí vlak pokud je následující blok volnı.<br/>
-Pøíklad: V bloku U1 a U4 se nachází vlaky. Na návìstidlu S1 je èervená, proto¾e v bloku U1 je vlak. Na návìstidlech S2 resp. S3 je zelená, proto¾e bloky U2 resp. U3 jsou prázdné. Vlak nacházející se v bloku U4 bude pokraèovat a¾ k návìstidlu S1 a tam bude èekat do té doby, ne¾ bude blok U1 volnı.
-Pou¾ívejte jej pro dvoukolejné tratì nebo na vıhybnách u jednokolejnıch tratí.<br/>
+<em>nÃ¡vÄ›stidlo traÅ¥ovÃ¡ho bloku</em> (ÄervenÃ©)<br/>
+PouÅ¡tÃ­ vlak pokud je nÃ¡sledujÃ­cÃ­ blok volnÃ½.<br/>
+PÅ™Ã­klad: V bloku U1 a U4 se nachÃ¡zÃ­ vlaky. Na nÃ¡vÄ›stidlu S1 je ÄervenÃ¡, protoÅ¾e v bloku U1 je vlak. Na nÃ¡vÄ›stidlech S2 resp. S3 je zelenÃ¡, protoÅ¾e bloky U2 resp. U3 jsou prÃ¡zdnÃ©. Vlak nachÃ¡zejÃ­cÃ­ se v bloku U4 bude pokraÄovat aÅ¾ k nÃ¡vÄ›stidlu S1 a tam bude Äekat do tÃ© doby, neÅ¾ bude blok U1 volnÃ½.
+PouÅ¾Ã­vejte jej pro dvoukolejnÃ© tratÄ› nebo na vÃ½hybnÃ¡ch u jednokolejnÃ½ch tratÃ­.<br/>
 -[--U1---S1---U2---S2---U3---S3---U4----<br/>
 ---------S---------S---------S--------]-<br/>
-S . . návìstidlo <br/>
-U . . blok mezi návìstidly <br/>
-[ ] . smìr jízdy (vlevo, vpravo)
+S . . nÃ¡vÄ›stidlo <br/>
+U . . blok mezi nÃ¡vÄ›stidly <br/>
+[ ] . smÄ›r jÃ­zdy (vlevo, vpravo)
 </p>
 <p>
-<em>návìstidlo vlakové cesty</em> (¾luté)<br/>
-Návìstidlo navíc kopíruje stav následujícího návìstidla. Je u¾iteèné napøíklad u køí¾ení dlou tratí.
+<em>nÃ¡vÄ›stidlo vlakovÃ© cesty</em> (Å¾lutÃ©)<br/>
+NÃ¡vÄ›stidlo navÃ­c kopÃ­ruje stav nÃ¡sledujÃ­cÃ­ho nÃ¡vÄ›stidla. Je uÅ¾iteÄnÃ© napÅ™Ã­klad u kÅ™Ã­Å¾enÃ­ dlou tratÃ­.
 </p>
 <p>
-<em>návìstidlo úseky s více zastávkami</em>:
-Toto návìstidlo pou¾ijete pøi slepıch odboèkách s více zastávkami. U¾iteèné napøíklad v tramvajové dopravì.
+<em>nÃ¡vÄ›stidlo Ãºseky s vÃ­ce zastÃ¡vkami</em>:
+Toto nÃ¡vÄ›stidlo pouÅ¾ijete pÅ™i slepÃ½ch odboÄkÃ¡ch s vÃ­ce zastÃ¡vkami. UÅ¾iteÄnÃ© napÅ™Ã­klad v tramvajovÃ© dopravÄ›.
 </p>
 <p>
-<em>návìstidlo volby stanièní koleje</em><br/>
-Pou¾ívejte pøed stanicemi s více kolejemi, návìstidlo vlaku vybere volnou kolej. Vlaky projí¾dìjící stanicí se na tomto návìstidlu zastaví, pokud nemají volnou celou cestu do svého cíle. Tomu lze pøedejít umístìním návìstidla <em>zákazu volby stanièní koleje</em> na ka¾dı z vıjezdù ze stanice.<br/>
+<em>nÃ¡vÄ›stidlo volby staniÄnÃ­ koleje</em><br/>
+PouÅ¾Ã­vejte pÅ™ed stanicemi s vÃ­ce kolejemi, nÃ¡vÄ›stidlo vlaku vybere volnou kolej. Vlaky projÃ­Å¾dÄ›jÃ­cÃ­ stanicÃ­ se na tomto nÃ¡vÄ›stidlu zastavÃ­, pokud nemajÃ­ volnou celou cestu do svÃ©ho cÃ­le. Tomu lze pÅ™edejÃ­t umÃ­stÄ›nÃ­m nÃ¡vÄ›stidla <em>zÃ¡kazu volby staniÄnÃ­ koleje</em> na kaÅ¾dÃ½ z vÃ½jezdÅ¯ ze stanice.<br/>
 _ _ _ _ x------x <br/>
 -[--ZV-x--------x-C--- <br/>
 ----C--x--------x-ZV--]- <br/>
 _ _ _ _ x------x <br/>
-C . . návìstidlo volby stanièní koleje <br/>
-ZV .. návìstidlo zákazu volby stanièní koleje <br/>
-x . . køí¾ení kolejí <br/>
-[ ] . smìr jízdy vlakù (vlevo, vpravo)
+C . . nÃ¡vÄ›stidlo volby staniÄnÃ­ koleje <br/>
+ZV .. nÃ¡vÄ›stidlo zÃ¡kazu volby staniÄnÃ­ koleje <br/>
+x . . kÅ™Ã­Å¾enÃ­ kolejÃ­ <br/>
+[ ] . smÄ›r jÃ­zdy vlakÅ¯ (vlevo, vpravo)
 </p>
 <p>
-<em>návìstidlo zákazu volby stanièní koleje</em>
-Toto návìstidlo automaticky vybere pro vlak vhodnou volnou kolej. Viz ukázky u¾ití návìstidel v ¾eleznièních stanicích.
+<em>nÃ¡vÄ›stidlo zÃ¡kazu volby staniÄnÃ­ koleje</em>
+Toto nÃ¡vÄ›stidlo automaticky vybere pro vlak vhodnou volnou kolej. Viz ukÃ¡zky uÅ¾itÃ­ nÃ¡vÄ›stidel v Å¾elezniÄnÃ­ch stanicÃ­ch.
 <br/>
 </p>
-<h1>ukázky pou¾ití návìstidel ve stanicích</h1>
+<h1>ukÃ¡zky pouÅ¾itÃ­ nÃ¡vÄ›stidel ve stanicÃ­ch</h1>
 <p>legenda:<br/>
 --- koleje<br/>
--+- koleje s køí¾ením<br/>
--E- zákaz volby koleje<br/>
-PS  návìstidlo vlakové cesty (¾luté)<br/>
-PS[ PS]  návìstidlo vlakové cesty (¾luté) prùjezdné jedním smìrem<br/>
-CS návìstidlo volby koleje<br/>
-CS[ CS] návìstidlo volby koleje prùjezdné jedním smìrem (smìr je osnaèen závorkou)<br/>
-S S[ S] návìstidlo tra»ového bloku, prùjezdné vlevo, prùjezdné vpravo<br/>
-[ ] smìr jízdy u dvoukolejné trati
-[[ ]] jednosmìrka
+-+- koleje s kÅ™Ã­Å¾enÃ­m<br/>
+-E- zÃ¡kaz volby koleje<br/>
+PS  nÃ¡vÄ›stidlo vlakovÃ© cesty (Å¾lutÃ©)<br/>
+PS[ PS]  nÃ¡vÄ›stidlo vlakovÃ© cesty (Å¾lutÃ©) prÅ¯jezdnÃ© jednÃ­m smÄ›rem<br/>
+CS nÃ¡vÄ›stidlo volby koleje<br/>
+CS[ CS] nÃ¡vÄ›stidlo volby koleje prÅ¯jezdnÃ© jednÃ­m smÄ›rem (smÄ›r je osnaÄen zÃ¡vorkou)<br/>
+S S[ S] nÃ¡vÄ›stidlo traÅ¥ovÃ©ho bloku, prÅ¯jezdnÃ© vlevo, prÅ¯jezdnÃ© vpravo<br/>
+[ ] smÄ›r jÃ­zdy u dvoukolejnÃ© trati
+[[ ]] jednosmÄ›rka
 </p>
 <p>
-<it>dvou- a vícekolejné nádra¾í na jednokolejné trati</it><br/>
-----+--E-[[--+---PS---Nástupi¹tì--PS--+--CS[---+----<br/>
-_ _ +---CS]--+---PS---Nástupi¹tì--PS--+--E-]]--+<br/>
-Pozn: pokud není dostupné [[ a ]], mù¾ete je v tomto schématu nahradit za PS[ a PS]<br/>
+<it>dvou- a vÃ­cekolejnÃ© nÃ¡draÅ¾Ã­ na jednokolejnÃ© trati</it><br/>
+----+--E-[[--+---PS---NÃ¡stupiÅ¡tÄ›--PS--+--CS[---+----<br/>
+_ _ +---CS]--+---PS---NÃ¡stupiÅ¡tÄ›--PS--+--E-]]--+<br/>
+Pozn: pokud nenÃ­ dostupnÃ© [[ a ]], mÅ¯Å¾ete je v tomto schÃ©matu nahradit za PS[ a PS]<br/>
 </p>
 <p>
-<it>dvoukolejné nádra¾í na dvoukolejné trati</it><br/>
--[--S[----E---+---PS---Nástupi¹tì--PS--+--CS[---S[---[-<br/>
--]--S]---CS]--+---PS---Nástupi¹tì--PS--+---E----S]---]-<br/>
+<it>dvoukolejnÃ© nÃ¡draÅ¾Ã­ na dvoukolejnÃ© trati</it><br/>
+-[--S[----E---+---PS---NÃ¡stupiÅ¡tÄ›--PS--+--CS[---S[---[-<br/>
+-]--S]---CS]--+---PS---NÃ¡stupiÅ¡tÄ›--PS--+---E----S]---]-<br/>
 </p>
-<p><it>vícekolejné nádra¾í s prùjezdnımi kolejemi na dvoukolejné trati</it><br/>
- _ _ _ _ _ _ _ +---PS---Nástupi¹tì---PS---+<br/>
+<p><it>vÃ­cekolejnÃ© nÃ¡draÅ¾Ã­ s prÅ¯jezdnÃ½mi kolejemi na dvoukolejnÃ© trati</it><br/>
+ _ _ _ _ _ _ _ +---PS---NÃ¡stupiÅ¡tÄ›---PS---+<br/>
 -[--S[---E---+-+---PS[---------------E----+--CS[---S[---[-<br/>
 -]--S]--CS]--+-+---E-----------------PS]--+---E----S]---]-<br/>
- _ _ _ _ _ _ _ +---PS---Nástupi¹tì---PS---+<br/>
+ _ _ _ _ _ _ _ +---PS---NÃ¡stupiÅ¡tÄ›---PS---+<br/>
 </p>

@@ -3,120 +3,120 @@
 <h1>Depot Dialog</h1>
 
 <p>
-<strong>I det følgende benyttes betegnelsen "køretøj" som samlebetegnelse for
-såvel enkeltkøretøjer som sammensatte køretøjer, toge og skibe.</strong>
+<strong>I det fÃ¸lgende benyttes betegnelsen "kÃ¸retÃ¸j" som samlebetegnelse for
+sÃ¥vel enkeltkÃ¸retÃ¸jer som sammensatte kÃ¸retÃ¸jer, toge og skibe.</strong>
 </p>
 
 <p>
 <em>Beskrivelse:</em><br>
-I et depot har du mulighed for at købe, sælge og lave ruteplaner for diverse
-køretøjer alt efter depottype. F.eks vejkøretøjer og anhængere i et vejdepot,
+I et depot har du mulighed for at kÃ¸be, sÃ¦lge og lave ruteplaner for diverse
+kÃ¸retÃ¸jer alt efter depottype. F.eks vejkÃ¸retÃ¸jer og anhÃ¦ngere i et vejdepot,
 toge og togvogne i et togdepot samt skibe i et skibsdepot.<br>
-Depot dialogen indeholder information om de køretøjer, du er i færd med at købe
-samt de køretøjer, som du allerede har købt, men endnu ikke har startet.
+Depot dialogen indeholder information om de kÃ¸retÃ¸jer, du er i fÃ¦rd med at kÃ¸be
+samt de kÃ¸retÃ¸jer, som du allerede har kÃ¸bt, men endnu ikke har startet.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst er en liste, der indeholder alle de købte køretøjer, som endnu ikke er
-blevet sendt ud af depotet (har fået tildelt ruteplan og er blevet
-startet). Det aktuelle køretøj er vist og de andre køretøjer fås frem ved at
+Ã˜verst er en liste, der indeholder alle de kÃ¸bte kÃ¸retÃ¸jer, som endnu ikke er
+blevet sendt ud af depotet (har fÃ¥et tildelt ruteplan og er blevet
+startet). Det aktuelle kÃ¸retÃ¸j er vist og de andre kÃ¸retÃ¸jer fÃ¥s frem ved at
 benytte scroll-knapperne ved siden af listen<br>
 Herunder er en analog liste, der indeholder alle de ruter, der er defineret.
-Den aktuelle rute er vist og de øvrige ruter fås ved at benytte
+Den aktuelle rute er vist og de Ã¸vrige ruter fÃ¥s ved at benytte
 scroll-knapperne<br>
-Dernæst følger et areal, hvor et billede af det aktuelle køretøj er vist.<br>
-Herunder er fire knapper, der er tilknyttet køretøjslisten: 'Start'
-'Ruteplan', 'Adskil' og 'Sælg'. Disse knapper giver mulighed for at starte, at
-lave ruteplan til, at adskille samt at sælge det aktuelle køretøj.<br>
+DernÃ¦st fÃ¸lger et areal, hvor et billede af det aktuelle kÃ¸retÃ¸j er vist.<br>
+Herunder er fire knapper, der er tilknyttet kÃ¸retÃ¸jslisten: 'Start'
+'Ruteplan', 'Adskil' og 'SÃ¦lg'. Disse knapper giver mulighed for at starte, at
+lave ruteplan til, at adskille samt at sÃ¦lge det aktuelle kÃ¸retÃ¸j.<br>
 Derunder er fire knapper, der er tilknyttet rutelisten: 'Ny rute' 'Tilnyt
 rute', 'Opdater rute' og 'Slet rute'. Disse knapper giver mulighed for at
-oprette en ny rute, at tilknytte den aktuelle rute til det aktuelle køretøj,
+oprette en ny rute, at tilknytte den aktuelle rute til det aktuelle kÃ¸retÃ¸j,
 at opdatere samt at slette den aktuelle rute. Derunder er to faneblade der
-indeholder de køretøjer og anhængere (Lokomotiver/togvogne, skibe), der kan
-købes<br>
-Herunder er et areal, der bruges til visning af oplysninger for køretøjerne på
-fanebladene. For at se oplysningerne om et køretøj, skal musen holdes over det
-pågældende køretøj på fanebladet.<br>
-Til højre på visningsarealet er en tilstands-knap, der ved tryk skifter
-imellem tre tilstande, henholdsvis: 'koble på', 'sætte foran' og 'sælge'.
+indeholder de kÃ¸retÃ¸jer og anhÃ¦ngere (Lokomotiver/togvogne, skibe), der kan
+kÃ¸bes<br>
+Herunder er et areal, der bruges til visning af oplysninger for kÃ¸retÃ¸jerne pÃ¥
+fanebladene. For at se oplysningerne om et kÃ¸retÃ¸j, skal musen holdes over det
+pÃ¥gÃ¦ldende kÃ¸retÃ¸j pÃ¥ fanebladet.<br>
+Til hÃ¸jre pÃ¥ visningsarealet er en tilstands-knap, der ved tryk skifter
+imellem tre tilstande, henholdsvis: 'koble pÃ¥', 'sÃ¦tte foran' og 'sÃ¦lge'.
 </p>
 
 <p>
-<em>Køb køretøj:</em><br>
-For at købe et køretøj, må der ikke være valgt et aktuelt køretøj -
-køretøjslisten "klikkes fremad" indtil den viser 'vælg nyt køretøj'. Derefter
-købes køretøjet ved at venstreklikke på det i fanebladet. Køretøjet vil
-derefter være vist som det aktuelle køretøj i det øverste visningsareal. Ved
-at anvende tilstands-knappen nederst til højre er det muligt at se hvilke
-køretøjer/anhængere, der henholdsvis kan "sættes foran/kobles på" det købte
-køretøj (dette markeres ved grønne bjælker i fanebladet under de mulige
-køretøjer)<br>
-Når det aktuelle køretøj er færdigsammensat, kan det tildeles en ruteplan og
-startes, eller du kan købe og sammensætte et nyt køretøj ved at "klikke
-fremad" på køretøjslisten foroven i dialogen.
+<em>KÃ¸b kÃ¸retÃ¸j:</em><br>
+For at kÃ¸be et kÃ¸retÃ¸j, mÃ¥ der ikke vÃ¦re valgt et aktuelt kÃ¸retÃ¸j -
+kÃ¸retÃ¸jslisten "klikkes fremad" indtil den viser 'vÃ¦lg nyt kÃ¸retÃ¸j'. Derefter
+kÃ¸bes kÃ¸retÃ¸jet ved at venstreklikke pÃ¥ det i fanebladet. KÃ¸retÃ¸jet vil
+derefter vÃ¦re vist som det aktuelle kÃ¸retÃ¸j i det Ã¸verste visningsareal. Ved
+at anvende tilstands-knappen nederst til hÃ¸jre er det muligt at se hvilke
+kÃ¸retÃ¸jer/anhÃ¦ngere, der henholdsvis kan "sÃ¦ttes foran/kobles pÃ¥" det kÃ¸bte
+kÃ¸retÃ¸j (dette markeres ved grÃ¸nne bjÃ¦lker i fanebladet under de mulige
+kÃ¸retÃ¸jer)<br>
+NÃ¥r det aktuelle kÃ¸retÃ¸j er fÃ¦rdigsammensat, kan det tildeles en ruteplan og
+startes, eller du kan kÃ¸be og sammensÃ¦tte et nyt kÃ¸retÃ¸j ved at "klikke
+fremad" pÃ¥ kÃ¸retÃ¸jslisten foroven i dialogen.
 </p>
 
 <p>
-<em>Start køretøj:</em><br>
-Efter tildeling af ruteplan kan det aktuelle køretøj startes ved at trykke på
+<em>Start kÃ¸retÃ¸j:</em><br>
+Efter tildeling af ruteplan kan det aktuelle kÃ¸retÃ¸j startes ved at trykke pÃ¥
 'Start' knappen.
 </p>
 
 <p>
 <em>Tildel ruteplan:</em><br>
 
-For at tildele det aktuelle køretøj en "individuel "ruteplan trykkes på
+For at tildele det aktuelle kÃ¸retÃ¸j en "individuel "ruteplan trykkes pÃ¥
 'Ruteplan' knappen, hvorefter ruteplanen defineres vha. den fremkomne
 <a href='schedule.txt'>ruteplansdialog.</a> Dette er kun fordelagtigt, hvis du
-ved, at køretøjet er det eneste, der vil benytte denne rute. Ifald du vil
-indsætte flere køretøjer på den samme rute, er det bedre først at definere
-ruten ved et trykke på 'Ny rute' og udfylde den fremkomne
+ved, at kÃ¸retÃ¸jet er det eneste, der vil benytte denne rute. Ifald du vil
+indsÃ¦tte flere kÃ¸retÃ¸jer pÃ¥ den samme rute, er det bedre fÃ¸rst at definere
+ruten ved et trykke pÃ¥ 'Ny rute' og udfylde den fremkomne
 <a href='schedule.txt'>ruteplansdialog</a>. Derefter figurerer ruten, som den
-aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved at
-trykke på 'Tilknyt rute' knappen.
+aktuelle rute i rutelisten og kan tilknyttes det aktuelle kÃ¸retÃ¸j ved at
+trykke pÃ¥ 'Tilknyt rute' knappen.
 </p>
 
 <p>
-<em>Adskil køretøj:</em><br>
-Det er muligt at adskille det aktuelle køretøj ved at trykke på 'Adskil'
-knappen. Køretøjet vil blive opdelt (f.eks i en lastbil og en anhænger) og
-derefter optræde som til rådighed stående enkeltkøretøjer på
-fanebladene. Disse enkeltkøretøjer kan benyttes til nye
-køretøjssammensætninger eller sælges ved at vælge "sælge-tilstanden" på
-tilstandsknappen nederst til højre og venstreklikke på enkeltkøretøjet i
+<em>Adskil kÃ¸retÃ¸j:</em><br>
+Det er muligt at adskille det aktuelle kÃ¸retÃ¸j ved at trykke pÃ¥ 'Adskil'
+knappen. KÃ¸retÃ¸jet vil blive opdelt (f.eks i en lastbil og en anhÃ¦nger) og
+derefter optrÃ¦de som til rÃ¥dighed stÃ¥ende enkeltkÃ¸retÃ¸jer pÃ¥
+fanebladene. Disse enkeltkÃ¸retÃ¸jer kan benyttes til nye
+kÃ¸retÃ¸jssammensÃ¦tninger eller sÃ¦lges ved at vÃ¦lge "sÃ¦lge-tilstanden" pÃ¥
+tilstandsknappen nederst til hÃ¸jre og venstreklikke pÃ¥ enkeltkÃ¸retÃ¸jet i
 fanebladet.
 </p>
 
 <p>
-<em>Sælg køretøj:</em><br>
-For at sælge (hele) det aktuelle køretøj trykkes på 'Sælg' knappen.
+<em>SÃ¦lg kÃ¸retÃ¸j:</em><br>
+For at sÃ¦lge (hele) det aktuelle kÃ¸retÃ¸j trykkes pÃ¥ 'SÃ¦lg' knappen.
 </p>
 
 <p>
 <em>Opret ny rute:</em><br>
-For at oprette en ny rute trykkes på 'Ny rute' knappen og derefter benyttes
+For at oprette en ny rute trykkes pÃ¥ 'Ny rute' knappen og derefter benyttes
 <a href='schedule.txt'>ruteplansdialogen</a>.
 </p>
 
 <p>
-<em>Tilknyt rute til køretøj:</em><br>
-For at tilknytte en rute til et køretøj vælges køretøjet som det aktuelle
-køretøj i køretøjslisten. Dernæst vælges den ønskede rute i rutelisten (eventuelt oprettes den
-først som nævnt ovenfor) og herefter trykkes på 'Tilknyt rute' knappen.
+<em>Tilknyt rute til kÃ¸retÃ¸j:</em><br>
+For at tilknytte en rute til et kÃ¸retÃ¸j vÃ¦lges kÃ¸retÃ¸jet som det aktuelle
+kÃ¸retÃ¸j i kÃ¸retÃ¸jslisten. DernÃ¦st vÃ¦lges den Ã¸nskede rute i rutelisten (eventuelt oprettes den
+fÃ¸rst som nÃ¦vnt ovenfor) og herefter trykkes pÃ¥ 'Tilknyt rute' knappen.
 </p>
 
 <p>
 <em>Opdater eller slet rute:</em><br>
-For at opdatere eller slette en rute vælges den ønskede rute i rutelisten og
-herefter trykkes enten på Opdater rute' knappen, hvorefter
-<a href='schedule.txt'>ruteplansdialogen</a> fremkommer eller på 'Slet rute'
+For at opdatere eller slette en rute vÃ¦lges den Ã¸nskede rute i rutelisten og
+herefter trykkes enten pÃ¥ Opdater rute' knappen, hvorefter
+<a href='schedule.txt'>ruteplansdialogen</a> fremkommer eller pÃ¥ 'Slet rute'
 knappen, hvorefter ruten slettes fra rutelisten.
 </p>
 
 <p>
-For senere at sende et køretøj tilbage i depotet, skal du indføje depotet i
-køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er kommet
-tilbage i depotet figurerer det i køretøjslisten og kan efter behag udbygges,
-adskilles, tildeles rute eller sælges.
+For senere at sende et kÃ¸retÃ¸j tilbage i depotet, skal du indfÃ¸je depotet i
+kÃ¸retÃ¸jets ruteplan - f.eks som nÃ¦ste rutemÃ¥l. Efter kÃ¸retÃ¸jet er kommet
+tilbage i depotet figurerer det i kÃ¸retÃ¸jslisten og kan efter behag udbygges,
+adskilles, tildeles rute eller sÃ¦lges.
 </p>

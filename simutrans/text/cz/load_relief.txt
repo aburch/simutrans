@@ -1,27 +1,27 @@
-<title>Nápovìda - naèíst terén</title>
+<title>NÃ¡povÄ›da - naÄÃ­st terÃ©n</title>
 
-<h1>Naèíst terén</h1>
+<h1>NaÄÃ­st terÃ©n</h1>
 
-<p>Dialog slou¾í k naètení vı¹kové mapy z obrázku. Mù¾e bıt také pou¾it k odstranìní ji¾ nepotøebnıch obrázkù.</p>
+<p>Dialog slouÅ¾Ã­ k naÄtenÃ­ vÃ½Å¡kovÃ© mapy z obrÃ¡zku. MÅ¯Å¾e bÃ½t takÃ© pouÅ¾it k odstranÄ›nÃ­ jiÅ¾ nepotÅ™ebnÃ½ch obrÃ¡zkÅ¯.</p>
 <p>
-Dialog<em>naèíst terém</em> otevøete z dialogu <a href="new_world.txt">Vytvoøit novou mapu</a> tlaèítkem <em>naèíst terén</em>.
+Dialog<em>naÄÃ­st terÃ©m</em> otevÅ™ete z dialogu <a href="new_world.txt">VytvoÅ™it novou mapu</a> tlaÄÃ­tkem <em>naÄÃ­st terÃ©n</em>.
 </p>
 <p>
-Kliknutím na <em>jméno souboru</em> vyberete a otevøete soubor.
+KliknutÃ­m na <em>jmÃ©no souboru</em> vyberete a otevÅ™ete soubor.
 </p>
 <p>
-Soubor mù¾ete vybrat také napsáním názvu do <em>pole nahoøe</em> a následovnım kliknutím na tlaèítko <em> ano</em>.</p>
+Soubor mÅ¯Å¾ete vybrat takÃ© napsÃ¡nÃ­m nÃ¡zvu do <em>pole nahoÅ™e</em> a nÃ¡sledovnÃ½m kliknutÃ­m na tlaÄÃ­tko <em> ano</em>.</p>
 <p>
-Kliknutím na tlaèítko <em>ne</em> dialog zavøete bez naètení èehokoliv.
+KliknutÃ­m na tlaÄÃ­tko <em>ne</em> dialog zavÅ™ete bez naÄtenÃ­ Äehokoliv.
 </p>
 <p>
-Znak <em>x</em> slou¾í ke okam¾itému smazání souboru s mapou. Pozor, na nic se neptá.
+Znak <em>x</em> slouÅ¾Ã­ ke okamÅ¾itÃ©mu smazÃ¡nÃ­ souboru s mapou. Pozor, na nic se neptÃ¡.
 </p>
 <p>
-Nìkteré pøedpøipravené terény jsou dostupné online na http://maps.simutrans.com.</p>
+NÄ›kterÃ© pÅ™edpÅ™ipravenÃ© terÃ©ny jsou dostupnÃ© online na http://maps.simutrans.com.</p>
 <p>
-Nové soubory musí bıt ve formátu .ppm nebo .bmp (nejlépe 256 bareb RLE compressed) a musí mıt umístìny v adresáøi <strong>simutrans/maps/</strong>.
+NovÃ© soubory musÃ­ bÃ½t ve formÃ¡tu .ppm nebo .bmp (nejlÃ©pe 256 bareb RLE compressed) a musÃ­ mÃ½t umÃ­stÄ›ny v adresÃ¡Å™i <strong>simutrans/maps/</strong>.
 </p>
 <p>
-{Tip: Ke tvorbì novıch map mù¾ete pou¾ít napøíklad program gimp.}
+{Tip: Ke tvorbÄ› novÃ½ch map mÅ¯Å¾ete pouÅ¾Ã­t napÅ™Ã­klad program gimp.}
 </p>

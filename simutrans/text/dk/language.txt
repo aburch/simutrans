@@ -1,52 +1,52 @@
-<title>Sprog dialog hjælp</title>
+<title>Sprog dialog hjÃ¦lp</title>
 
 <h1>Sprog dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Simutrans er et multilingualt spil, der tillader spilleren at vælge sit
-foretrukne sprog for alle viste tekster. (forudsat en oversættelse
+Simutrans er et multilingualt spil, der tillader spilleren at vÃ¦lge sit
+foretrukne sprog for alle viste tekster. (forudsat en oversÃ¦ttelse
 eksisterer)
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Dialogen består af en række radio-knapper. En radioknap for hvert muligt sprog.
+Dialogen bestÃ¥r af en rÃ¦kke radio-knapper. En radioknap for hvert muligt sprog.
 </p>
 
 <p>
-Når du vælger et sprog i radioknap-menuen vil samtlige tekster blive vist på
+NÃ¥r du vÃ¦lger et sprog i radioknap-menuen vil samtlige tekster blive vist pÃ¥
 dette sprog - med to undtagelser:
 </p>
 
 <p>
-1) De fleste åbne dialoger skifter først sprog, når de genåbnes.
+1) De fleste Ã¥bne dialoger skifter fÃ¸rst sprog, nÃ¥r de genÃ¥bnes.
 </p>
 
 <p>
-2) Eksisterende byer vil ikke ændre navn.
+2) Eksisterende byer vil ikke Ã¦ndre navn.
 </p>
 
 <p>
-For at give byer navne på dit foretrukne sprog, skal du vælge sprog før du
+For at give byer navne pÃ¥ dit foretrukne sprog, skal du vÃ¦lge sprog fÃ¸r du
 skaber et nyt kort.
 </p>
 
 <p>
-Hvis dit foretrukne sprog skulle mangle, findes der et par oversættelser på:
+Hvis dit foretrukne sprog skulle mangle, findes der et par oversÃ¦ttelser pÃ¥:
 </p>
 
 <p>
 http://www.simustation.de.vu og<br>
 http://www.simutrans.de<br>
-Disse oversættelser er dog ikke altid fuldstændige og up-to-date.
+Disse oversÃ¦ttelser er dog ikke altid fuldstÃ¦ndige og up-to-date.
 </p>
 
 <p>
-En anden mulighed ville selvfølgelig være, at du selv lavede en oversættelse ;-)
+En anden mulighed ville selvfÃ¸lgelig vÃ¦re, at du selv lavede en oversÃ¦ttelse ;-)
 </p>
 
 <p>
-For at hjælpe med at oversætte Simutrans på dit sprog,<br>
-besøg https://translator.simutrans.com
+For at hjÃ¦lpe med at oversÃ¦tte Simutrans pÃ¥ dit sprog,<br>
+besÃ¸g https://translator.simutrans.com
 </p>

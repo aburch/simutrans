@@ -1,8 +1,8 @@
-<title>Detalii staşii</title>
+<title>Detalii staÅ£ii</title>
 
-<h1>Detalii staşii</h1>
+<h1>Detalii staÅ£ii</h1>
 
 <p>
-Poşi analiza toate legãturile staşiei, precum ºi legãturile
-directe cu unitãşile de producşie.
+PoÅ£i analiza toate legÄƒturile staÅ£iei, precum ÅŸi legÄƒturile
+directe cu unitÄƒÅ£ile de producÅ£ie.
 </p>

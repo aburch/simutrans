@@ -2,12 +2,12 @@
 <h1>Opcje gry</h1>
 
 <p>
-W tym oknie mozesz dokonac szczególowych ustawien gry.
-Ponizej znajduje sie lista ustawien z krótkim opisem.
+W tym oknie mozesz dokonac szczegÃ³lowych ustawien gry.
+Ponizej znajduje sie lista ustawien z krÃ³tkim opisem.
 </p>
 
 <p>
-<em><a href="language.txt">Jezyk</a> - Umozliwia wybór wersji jezykowych gry.<br>
+<em><a href="language.txt">Jezyk</a> - Umozliwia wybÃ³r wersji jezykowych gry.<br>
 <em>Kolory graczy</em> - Pozwala wyrac/zmienic kolor twojej firmy.<br>
 <em><a href="display.txt">Wyswietlanie</a> - Opcje wyswietlania, np. tryb dzien/noc<br>
 <em><a href="sound.txt">Dzwiek</a> - Ustawienia dzwieku i muzyki.<br>

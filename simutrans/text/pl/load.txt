@@ -5,7 +5,7 @@
 <p>Dzieki tej opcji mozesz kontynuowac rozgrywania wczesniej i zapisana gre.
 To menu podobne jest do menu <a href="save.txt">'Zapisz gre'.</a></p>
 
-<p>Jesli bedziesz chcial wczytac gre której nie ma na dysku otrzymasz inforamacje o bledzie.</p>
+<p>Jesli bedziesz chcial wczytac gre ktÃ³rej nie ma na dysku otrzymasz inforamacje o bledzie.</p>
 
-<p><em>WAZNE</em> Gry zapisane w starszych wersjach SimuTrans moga byc niekompatybilne z nowszymi wersjami!!! Szczególowe informacje o mozliwosci uruchomienia starszych gier znajdziesz w dodatkowej dokumentacji na stronie gry.
+<p><em>WAZNE</em> Gry zapisane w starszych wersjach SimuTrans moga byc niekompatybilne z nowszymi wersjami!!! SzczegÃ³lowe informacje o mozliwosci uruchomienia starszych gier znajdziesz w dodatkowej dokumentacji na stronie gry.
 </p>

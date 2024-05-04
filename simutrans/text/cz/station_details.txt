@@ -8,44 +8,44 @@
 
 <p>
 
-Detaily stanice obsahují informace o stanici, které se neve¹ly do <a href="station.txt">dialogu stanice</a>.
+Detaily stanice obsahujÃ­ informace o stanici, kterÃ© se neveÅ¡ly do <a href="station.txt">dialogu stanice</a>.
 
 </p>
 
 <p>
 
-Okno obsahuje následující informace:
+Okno obsahuje nÃ¡sledujÃ­cÃ­ informace:
 
 </p>
 
 <p>
 
-<em>Pøipojené továrny</em>: Továrny nacházející se ve spádové oblasti dané stanice
+<em>PÅ™ipojenÃ© tovÃ¡rny</em>: TovÃ¡rny nachÃ¡zejÃ­cÃ­ se ve spÃ¡dovÃ© oblasti danÃ© stanice
 
-<br/>{Tip: Spádovou oblast zobrazíte klávesou <a href="keys.txt">[v]</a>.}
-
-</p>
-
-<p>
-
-<em>Zbo¾í vy¾adované pro okolní prùmysl</em>: <a href="goods_filter.txt">Zbo¾í</a>, které mù¾ete prostøednictvím této zastávky dová¾et.
+<br/>{Tip: SpÃ¡dovou oblast zobrazÃ­te klÃ¡vesou <a href="keys.txt">[v]</a>.}
 
 </p>
 
 <p>
 
-<em>linky obsluhující tuto stanici</em>: Seznam linek obsluhujících tuto stanici.
+<em>ZboÅ¾Ã­ vyÅ¾adovanÃ© pro okolnÃ­ prÅ¯mysl</em>: <a href="goods_filter.txt">ZboÅ¾Ã­</a>, kterÃ© mÅ¯Å¾ete prostÅ™ednictvÃ­m tÃ©to zastÃ¡vky dovÃ¡Å¾et.
 
 </p>
 
 <p>
 
-<em>Vozidla bez zadané linky ...</em>: Pokud pou¾íváte linky, tak by zde nemìlo bıt nic.
+<em>linky obsluhujÃ­cÃ­ tuto stanici</em>: Seznam linek obsluhujÃ­cÃ­ch tuto stanici.
 
 </p>
 
 <p>
 
-<em>Pøeprava odkud, èeho a kam</em>: Seznam zbo¾í dopravovaného z této stanice vèetnì míst kam je dopravováno.
+<em>Vozidla bez zadanÃ© linky ...</em>: Pokud pouÅ¾Ã­vÃ¡te linky, tak by zde nemÄ›lo bÃ½t nic.
+
+</p>
+
+<p>
+
+<em>PÅ™eprava odkud, Äeho a kam</em>: Seznam zboÅ¾Ã­ dopravovanÃ©ho z tÃ©to stanice vÄetnÄ› mÃ­st kam je dopravovÃ¡no.
 
 </p>

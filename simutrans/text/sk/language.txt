@@ -3,31 +3,31 @@
 <h1>Nastavenie jazyka</h1>
 
 <p>
-Spôsob ako zmenit nastavenie jazyka v hre Simutrans je voµbou
-Tvojho jazyka. Ak zvolí¹ jazyk predtım, ako spustí¹ novú hru,
-názvy miest u¾ budú vytvorené podµa tohto jazyka.
+SpÃ´sob ako zmenit nastavenie jazyka v hre Simutrans je voÄ¾bou
+Tvojho jazyka. Ak zvolÃ­Å¡ jazyk predtÃ½m, ako spustÃ­Å¡ novÃº hru,
+nÃ¡zvy miest uÅ¾ budÃº vytvorenÃ© podÄ¾a tohto jazyka.
 </p>
 <p>
-Nastavenie jazyka môze¹ kedykoµvek zmenit. Obsah otvorenıch
-okien nemô¾e byt aktualizovanı ihneï, ale a¾ po ich znovuotvorení.
+Nastavenie jazyka mÃ´zeÅ¡ kedykoÄ¾vek zmenit. Obsah otvorenÃ½ch
+okien nemÃ´Å¾e byt aktualizovanÃ½ ihneÄ, ale aÅ¾ po ich znovuotvorenÃ­.
 </p>
 <p>
-Teda ak chce¹ mat názvy miest v Tvojom jazyku, najprv vyber svoj jazyk
-a a¾ potom spusti novú hru.
+Teda ak chceÅ¡ mat nÃ¡zvy miest v Tvojom jazyku, najprv vyber svoj jazyk
+a aÅ¾ potom spusti novÃº hru.
 </p>
 <p>
-Ak chıba Tvoj po¾adovanı jazyk, skús pohµada» ïal¹ie preklady na:<br>
+Ak chÃ½ba Tvoj poÅ¾adovanÃ½ jazyk, skÃºs pohÄ¾adaÅ¥ ÄalÅ¡ie preklady na:<br>
 http://www.simutrans.de<br>
 http://www.simutrans.cjb.net<br>
 v sekcii <strong>,,Download''</strong>.<br>
 <br>
-Èeské stránky venované tejto hre nájde¹ na:<br>
+ÄŒeskÃ© strÃ¡nky venovanÃ© tejto hre nÃ¡jdeÅ¡ na:<br>
 http://www.simutrans.wz.cz
 </p>
-<p>Pozn. : Ale mô¾u to byt' star¹ie verzie prekladov.
-Väè¹ina textov vsak bıva bezprostredne aktualizovaná.
+<p>Pozn. : Ale mÃ´Å¾u to byt' starÅ¡ie verzie prekladov.
+VÃ¤ÄÅ¡ina textov vsak bÃ½va bezprostredne aktualizovanÃ¡.
 </p>
 <p>
-Ak chcete pomôc» s prekladom Simutranov do vá¹ho jazyka,<br>
-nav¹tívte stránku https://translator.simutrans.com
+Ak chcete pomÃ´cÅ¥ s prekladom Simutranov do vÃ¡Å¡ho jazyka,<br>
+navÅ¡tÃ­vte strÃ¡nku https://translator.simutrans.com
 </p>

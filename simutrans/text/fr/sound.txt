@@ -1,27 +1,27 @@
 <title>Aide sur les sons</title>
 
-<h1>Réglages sons et musiques</h1>
+<h1>RÃ©glages sons et musiques</h1>
 <p>
-Dans cet écran vous pourrez ajuster les niveaux sonores de la musique et
-des sons joués dans Simutrans.
+Dans cet Ã©cran vous pourrez ajuster les niveaux sonores de la musique et
+des sons jouÃ©s dans Simutrans.
 </p>
 
 <p>
-Les volume sont réglables via le curseur horizontal, pour augmenter déplacer le
+Les volume sont rÃ©glables via le curseur horizontal, pour augmenter dÃ©placer le
 curseur vers la droite.
-Le volume sonore définit le niveau des effets sonores du jeu tels que les
+Le volume sonore dÃ©finit le niveau des effets sonores du jeu tels que les
 bruits des trains, etc.
-Le volume usical définit le niveau de la musique d'ambiance(fond sonore) du jeu.
+Le volume usical dÃ©finit le niveau de la musique d'ambiance(fond sonore) du jeu.
 <br>
-Les derniers boutons au bas servent à définir le morceau de musique à jouer en
-tant que musique d'ambiance. Le bouton de gauche sert à faire défiler les
-morceaux de musique vers l'arrière et l'autre vers l'avant. S'il ne trouve aucun
+Les derniers boutons au bas servent Ã  dÃ©finir le morceau de musique Ã  jouer en
+tant que musique d'ambiance. Le bouton de gauche sert Ã  faire dÃ©filer les
+morceaux de musique vers l'arriÃ¨re et l'autre vers l'avant. S'il ne trouve aucun
 morceau de musique, c'est deux boutons n'auront aucun effet.<br>
 <em>NB:</em> La musique n'est pas fournie avec Simutrans, vous devrez l'ajouter
-manuellement. l'intérêt de cette aide ne concerne pas la procédure d'ajout de
+manuellement. l'intÃ©rÃªt de cette aide ne concerne pas la procÃ©dure d'ajout de
 musique.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

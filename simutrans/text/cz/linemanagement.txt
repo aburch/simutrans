@@ -1,104 +1,104 @@
-<title>Nápovìda - správa linek</title>
+<title>NÃ¡povÄ›da - sprÃ¡va linek</title>
 
 
 
-<h1><strong>Správa linek</strong></h1>
+<h1><strong>SprÃ¡va linek</strong></h1>
 
 
 
-<p>Dialog <em>správa linek</em>poskytuje informace o linkách a umo¾òuje je spravovat.</p>
+<p>Dialog <em>sprÃ¡va linek</em>poskytuje informace o linkÃ¡ch a umoÅ¾Åˆuje je spravovat.</p>
 
 
 
-<p>Linka je tvoøena jednou nebo více soupravami a spoleènım jízdním plánem.</p>
+<p>Linka je tvoÅ™ena jednou nebo vÃ­ce soupravami a spoleÄnÃ½m jÃ­zdnÃ­m plÃ¡nem.</p>
 
 <p>
 
-Dialog <em>správa linek</em> otevøete kliknutím na ikonu v hlavním menu, stiskem klávesy <a href="keys.txt">[w]</a> nebo kliknutím na tlaèítko pøed názvem linky v dialogu <a href="convoiinfo.txt">informace o soupravì</a>.
+Dialog <em>sprÃ¡va linek</em> otevÅ™ete kliknutÃ­m na ikonu v hlavnÃ­m menu, stiskem klÃ¡vesy <a href="keys.txt">[w]</a> nebo kliknutÃ­m na tlaÄÃ­tko pÅ™ed nÃ¡zvem linky v dialogu <a href="convoiinfo.txt">informace o soupravÄ›</a>.
 
 </p>
 
 <p>
 
-Vlevo nahoøe je seznam existujících linek. Linky mohou bıt filtrovány podle zpùsobu pøepravy:<br/>
+Vlevo nahoÅ™e je seznam existujÃ­cÃ­ch linek. Linky mohou bÃ½t filtrovÃ¡ny podle zpÅ¯sobu pÅ™epravy:<br/>
 
-<em>V¹e</em>: seznam linek v¹ech druhù dopravy.<br/>
+<em>VÅ¡e</em>: seznam linek vÅ¡ech druhÅ¯ dopravy.<br/>
 
 <em>jednokolejka</em>: seznam linek jednokolejky. <br/>
 
-<em>vlaky</em>: seznam ¾eleznièních linek.<br/>
+<em>vlaky</em>: seznam Å¾elezniÄnÃ­ch linek.<br/>
 
-<em>úzkokolejka</em>: seznam úzkokolejnıch ¾eleznièních linek.<br/>
+<em>Ãºzkokolejka</em>: seznam ÃºzkokolejnÃ½ch Å¾elezniÄnÃ­ch linek.<br/>
 
-<em>tramvaj</em>: seznam tramvajovıch linek<br/>
+<em>tramvaj</em>: seznam tramvajovÃ½ch linek<br/>
 
-<em>náklaïáky</em>: seznam linek silnièní dopravy.<br/>
+<em>nÃ¡klaÄÃ¡ky</em>: seznam linek silniÄnÃ­ dopravy.<br/>
 
-<em>lodì</em>: seznam linek lodní dopravy.<br/>
+<em>lodÄ›</em>: seznam linek lodnÃ­ dopravy.<br/>
 
-<em>letadla</em>: seznam linek letecké dopravy
-
-</p>
-
-<p>{Poznámka: Ne v¹echny zpùsoby pøepravy jsou v¾dy v dané grafické sadì dostupné.}</p>
-
-<p>
-
-Barva názvu linky v seznamu má následující vıznam:<br/>
-
-<em>bílá barva</em> - linka nemá pøiøazeno ¾ádné vozidlo<br/>
-
-<em>¾lutá barva</em> - není v provozu, nevytváøí zisk ani ztrátu<br/>
-
-<em>èerná barva</em> - linka je v zisku<br/>
-
-<em>modrá barva</em> - linka obsahuje zastaralá vozidla <br/>
-
-<em>èervená barva</em> - linka prodìlává
+<em>letadla</em>: seznam linek leteckÃ© dopravy
 
 </p>
 
-
-
-<p><it>tlaèítka pod seznamem</it></p>
+<p>{PoznÃ¡mka: Ne vÅ¡echny zpÅ¯soby pÅ™epravy jsou vÅ¾dy v danÃ© grafickÃ© sadÄ› dostupnÃ©.}</p>
 
 <p>
 
-Pod seznamem existujících linek jsou tlaèítka voleb pro správu linek<br/>
+Barva nÃ¡zvu linky v seznamu mÃ¡ nÃ¡sledujÃ­cÃ­ vÃ½znam:<br/>
 
-Aby bylo mo¾né linku zmìnit nebo smazat, musí bıt nìjaká linka vybrána. Linku vyberete kliknutím na její název v seznamu v levém horním rohu.
+<em>bÃ­lÃ¡ barva</em> - linka nemÃ¡ pÅ™iÅ™azeno Å¾Ã¡dnÃ© vozidlo<br/>
+
+<em>Å¾lutÃ¡ barva</em> - nenÃ­ v provozu, nevytvÃ¡Å™Ã­ zisk ani ztrÃ¡tu<br/>
+
+<em>ÄernÃ¡ barva</em> - linka je v zisku<br/>
+
+<em>modrÃ¡ barva</em> - linka obsahuje zastaralÃ¡ vozidla <br/>
+
+<em>ÄervenÃ¡ barva</em> - linka prodÄ›lÃ¡vÃ¡
 
 </p>
 
+
+
+<p><it>tlaÄÃ­tka pod seznamem</it></p>
+
 <p>
 
-Tlaèíka pod seznamem linek nabízejí tyto mo¾nosti:
+Pod seznamem existujÃ­cÃ­ch linek jsou tlaÄÃ­tka voleb pro sprÃ¡vu linek<br/>
+
+Aby bylo moÅ¾nÃ© linku zmÄ›nit nebo smazat, musÃ­ bÃ½t nÄ›jakÃ¡ linka vybrÃ¡na. Linku vyberete kliknutÃ­m na jejÃ­ nÃ¡zev v seznamu v levÃ©m hornÃ­m rohu.
 
 </p>
 
 <p>
 
-<em>nová linka:</em>Tlaèítkem otevøete novı <a href="schedule.txt">jízdní plán</a>. Jízdní plán obsahuje trasu, minimální mno¾ství nákladu a maximální dobu èekání u jednotlivıch stanic.<br/>
-
-Novı jízdní plán pøiøadíte zavøením okna s jízdním plánem.<br/>
-
-{Poznámka: Musíte vytváøet linku pro konktétní typ dopravního prostøedku (napø tramvaj), abstraktní linku nejde vytvoøit.}<br/>
-
-{Poznámka: Body v jízním plánu mimo zastávky a stanice jsou pouze prùjezdné, nic se na nich nenakládá ani nevykládá. Body ovliòují rezervování tratì pro vlaky.}
+TlaÄÃ­ka pod seznamem linek nabÃ­zejÃ­ tyto moÅ¾nosti:
 
 </p>
 
 <p>
 
-<em>Zmìnit linku:</em> Tlaèítkem otevøete stávající <a href="schedule.txt">jízdní plán</a>. Zmìna se projeví pøi uzavøení okna s jízním plánem.<br/>
+<em>novÃ¡ linka:</em>TlaÄÃ­tkem otevÅ™ete novÃ½ <a href="schedule.txt">jÃ­zdnÃ­ plÃ¡n</a>. JÃ­zdnÃ­ plÃ¡n obsahuje trasu, minimÃ¡lnÃ­ mnoÅ¾stvÃ­ nÃ¡kladu a maximÃ¡lnÃ­ dobu ÄekÃ¡nÃ­ u jednotlivÃ½ch stanic.<br/>
 
-Døíve ne¾ kliknete na tlaèítko, vyberte po¾adovanou linku kliknutím na její název v seznamu.
+NovÃ½ jÃ­zdnÃ­ plÃ¡n pÅ™iÅ™adÃ­te zavÅ™enÃ­m okna s jÃ­zdnÃ­m plÃ¡nem.<br/>
+
+{PoznÃ¡mka: MusÃ­te vytvÃ¡Å™et linku pro konktÃ©tnÃ­ typ dopravnÃ­ho prostÅ™edku (napÅ™ tramvaj), abstraktnÃ­ linku nejde vytvoÅ™it.}<br/>
+
+{PoznÃ¡mka: Body v jÃ­znÃ­m plÃ¡nu mimo zastÃ¡vky a stanice jsou pouze prÅ¯jezdnÃ©, nic se na nich nenaklÃ¡dÃ¡ ani nevyklÃ¡dÃ¡. Body ovliÅˆujÃ­ rezervovÃ¡nÃ­ tratÄ› pro vlaky.}
 
 </p>
 
 <p>
 
-<em>Smazat linku:</em> Odstraní vybranou linku. ®ádné dal¹í potvrzení není vy¾adováno.
+<em>ZmÄ›nit linku:</em> TlaÄÃ­tkem otevÅ™ete stÃ¡vajÃ­cÃ­ <a href="schedule.txt">jÃ­zdnÃ­ plÃ¡n</a>. ZmÄ›na se projevÃ­ pÅ™i uzavÅ™enÃ­ okna s jÃ­znÃ­m plÃ¡nem.<br/>
+
+DÅ™Ã­ve neÅ¾ kliknete na tlaÄÃ­tko, vyberte poÅ¾adovanou linku kliknutÃ­m na jejÃ­ nÃ¡zev v seznamu.
+
+</p>
+
+<p>
+
+<em>Smazat linku:</em> OdstranÃ­ vybranou linku. Å½Ã¡dnÃ© dalÅ¡Ã­ potvrzenÃ­ nenÃ­ vyÅ¾adovÃ¡no.
 
 </p>
 
@@ -110,47 +110,47 @@ Døíve ne¾ kliknete na tlaèítko, vyberte po¾adovanou linku kliknutím na její náze
 
 <p>
 
-Pokud je zvolena libovolná linka, pak se v levém dolním rohu zobrazí seznam <a href="station.txt">stanic</a>.<br/>
+Pokud je zvolena libovolnÃ¡ linka, pak se v levÃ©m dolnÃ­m rohu zobrazÃ­ seznam <a href="station.txt">stanic</a>.<br/>
 
-Polo¾ky zobrazené u ka¾dé stanice zahrnují:</p>
-
-<p>
-
-<em>barevnı indikátor stavu</em>: Barva ukazuje, jestli stanice není pøeplnìna. Stejné barevné schéma je pou¾ito i v <a href="haltlist.txt">seznamu stanic a zastávek</a> a také u zastávek ve na herní plo¹e. <br/>
-
-- <em>¾lutá</em>: zatím bez provozu.<br/>
-
-- <em>zelená</em>: v provozu, existuje dostateèná volná kapacita.<br/>
-
-- <em>oran¾ová</em>: zastávka zaèíná bıt pøeplnìna.<br/>
-
-- <em>èervená</em>: pøeplnìno, aspoò pro jeden typ pøepravovanıch polo¾ek není volná kapacita.</p>
+PoloÅ¾ky zobrazenÃ© u kaÅ¾dÃ© stanice zahrnujÃ­:</p>
 
 <p>
 
-<em>jméno</em> pøiøazené k zastávce.</p>
+<em>barevnÃ½ indikÃ¡tor stavu</em>: Barva ukazuje, jestli stanice nenÃ­ pÅ™eplnÄ›na. StejnÃ© barevnÃ© schÃ©ma je pouÅ¾ito i v <a href="haltlist.txt">seznamu stanic a zastÃ¡vek</a> a takÃ© u zastÃ¡vek ve na hernÃ­ ploÅ¡e. <br/>
+
+- <em>Å¾lutÃ¡</em>: zatÃ­m bez provozu.<br/>
+
+- <em>zelenÃ¡</em>: v provozu, existuje dostateÄnÃ¡ volnÃ¡ kapacita.<br/>
+
+- <em>oranÅ¾ovÃ¡</em>: zastÃ¡vka zaÄÃ­nÃ¡ bÃ½t pÅ™eplnÄ›na.<br/>
+
+- <em>ÄervenÃ¡</em>: pÅ™eplnÄ›no, aspoÅˆ pro jeden typ pÅ™epravovanÃ½ch poloÅ¾ek nenÃ­ volnÃ¡ kapacita.</p>
 
 <p>
 
-<em>èíslo</em> zastávky (jako souèást názvu), je tøeba povolit v <a href="settings.txt">nastavení</a> nebo v simuconf.tab.
+<em>jmÃ©no</em> pÅ™iÅ™azenÃ© k zastÃ¡vce.</p>
+
+<p>
+
+<em>ÄÃ­slo</em> zastÃ¡vky (jako souÄÃ¡st nÃ¡zvu), je tÅ™eba povolit v <a href="settings.txt">nastavenÃ­</a> nebo v simuconf.tab.
 
 </p>
 
 <p>
 
-<em>ikona vozidla</em> ukazuje které druhy dopravy mohou zastávku pou¾ít (vlak, silnièní doprava, ...)
+<em>ikona vozidla</em> ukazuje kterÃ© druhy dopravy mohou zastÃ¡vku pouÅ¾Ã­t (vlak, silniÄnÃ­ doprava, ...)
 
 </p>
 
 <p>
 
-<em>ikona(y) zbo¾í</em> zobrazuje, které polo¾ky (cestující, po¹ta, náklad) je zastávka schopna odbavit.
+<em>ikona(y) zboÅ¾Ã­</em> zobrazuje, kterÃ© poloÅ¾ky (cestujÃ­cÃ­, poÅ¡ta, nÃ¡klad) je zastÃ¡vka schopna odbavit.
 
 </p>
 
 <p>
 
-<em>èeká</em> mno¾ství èekajících cestující, po¹ty a zbo¾í.
+<em>ÄekÃ¡</em> mnoÅ¾stvÃ­ ÄekajÃ­cÃ­ch cestujÃ­cÃ­, poÅ¡ty a zboÅ¾Ã­.
 
 </p>
 
@@ -160,73 +160,73 @@ Polo¾ky zobrazené u ka¾dé stanice zahrnují:</p>
 
 <p>
 
-Na pravé stranì od seznamu linek se nachází graf, pole pro zmìnu názvu linky a seznam vozidel zvolené linky.
+Na pravÃ© stranÄ› od seznamu linek se nachÃ¡zÃ­ graf, pole pro zmÄ›nu nÃ¡zvu linky a seznam vozidel zvolenÃ© linky.
 
 </p>
 
 <p>
 
-Hodnoty v grafu zobrazíte kliknutím na odpovídající políèko pod grafem. Na vodorovné ose je zobrazen èas v mìsících.
+Hodnoty v grafu zobrazÃ­te kliknutÃ­m na odpovÃ­dajÃ­cÃ­ polÃ­Äko pod grafem. Na vodorovnÃ© ose je zobrazen Äas v mÄ›sÃ­cÃ­ch.
 
 </p>
 
 <p>
 
-<em>volná kapacita</em> - Mno¾ství volného prostoru (kterı by mohl bıt vyu¾it pro pøepravu ale zùstal nevyu¾itı).
+<em>volnÃ¡ kapacita</em> - MnoÅ¾stvÃ­ volnÃ©ho prostoru (kterÃ½ by mohl bÃ½t vyuÅ¾it pro pÅ™epravu ale zÅ¯stal nevyuÅ¾itÃ½).
 
 </p>
 
 <p>
 
-<em>pøepraveno</em> - mno¾ství pøepraveného zbo¾í / pøepravenıch cestující.
+<em>pÅ™epraveno</em> - mnoÅ¾stvÃ­ pÅ™epravenÃ©ho zboÅ¾Ã­ / pÅ™epravenÃ½ch cestujÃ­cÃ­.
 
 </p>
 
 <p>
 
-<em>pøíjmy</em> - peníze za dopravu.
+<em>pÅ™Ã­jmy</em> - penÃ­ze za dopravu.
 
 </p>
 
 <p>
 
-<em>provoz vozidel</em> - provozní náklady.
+<em>provoz vozidel</em> - provoznÃ­ nÃ¡klady.
 
 </p>
 
 <p>
 
-<em>zisk</em> - peníze za dopravu po odeètení provozních nákladù.
+<em>zisk</em> - penÃ­ze za dopravu po odeÄtenÃ­ provoznÃ­ch nÃ¡kladÅ¯.
 
 </p>
 
 <p>
 
-<em>soupravy</em> - poèet souprav pøiøazenıch k dané lince.
+<em>soupravy</em> - poÄet souprav pÅ™iÅ™azenÃ½ch k danÃ© lince.
 
 </p>
 
 <p>
 
-<em>délka/mìsíc</em> - Poèet kilometrù ujetıch vozidly dané linky.
+<em>dÃ©lka/mÄ›sÃ­c</em> - PoÄet kilometrÅ¯ ujetÃ½ch vozidly danÃ© linky.
 
 </p>
 
 <p>
 
-<em>Maxspeed</em> - teoretická maximální rychlost - jsou z ní poèítány bonusy za rychlej¹í pøepravu.
+<em>Maxspeed</em> - teoretickÃ¡ maximÃ¡lnÃ­ rychlost - jsou z nÃ­ poÄÃ­tÃ¡ny bonusy za rychlejÅ¡Ã­ pÅ™epravu.
 
 </p>
 
 <p>
 
-Editovatelné pole s názvem linky slou¾í ke zmìnì názvu.
+EditovatelnÃ© pole s nÃ¡zvem linky slouÅ¾Ã­ ke zmÄ›nÄ› nÃ¡zvu.
 
-{Tip: Pokud si linky vhodnì pojmenujete lépe se v seznamu budete orientovat i pøi vìt¹ím mno¾ství linek.
+{Tip: Pokud si linky vhodnÄ› pojmenujete lÃ©pe se v seznamu budete orientovat i pÅ™i vÄ›tÅ¡Ã­m mnoÅ¾stvÃ­ linek.
 
-Napø.: Louny 31415 <br/>
+NapÅ™.: Louny 31415 <br/>
 
-Pojmenované linky vyu¾ijete hlavnì v autobusové dopravì. }
+PojmenovanÃ© linky vyuÅ¾ijete hlavnÄ› v autobusovÃ© dopravÄ›. }
 
 </p>
 
@@ -236,28 +236,28 @@ Pojmenované linky vyu¾ijete hlavnì v autobusové dopravì. }
 
 <p>
 
-Pokud je vybrána nìjaká linka, v pravé dolním rohu se zobrazí seznam <a href="convoiinfo.txt">souprav</a> pøiøazenıch k lince.<br/>
+Pokud je vybrÃ¡na nÄ›jakÃ¡ linka, v pravÃ© dolnÃ­m rohu se zobrazÃ­ seznam <a href="convoiinfo.txt">souprav</a> pÅ™iÅ™azenÃ½ch k lince.<br/>
 
-Více informací o konkrétní soupravì získáte, pokud na ni v seznamu kliknete.<br/>
+VÃ­ce informacÃ­ o konkrÃ©tnÃ­ soupravÄ› zÃ­skÃ¡te, pokud na ni v seznamu kliknete.<br/>
 
-U souprav jsou zobrazeny následující polo¾ky:<br/>
+U souprav jsou zobrazeny nÃ¡sledujÃ­cÃ­ poloÅ¾ky:<br/>
 
-<em>název</em> kterı byl pøiøazen soupravì (vıchozí název je vytvoøen podle prvního vozidla soupravy pøi koupi v <a href="depot.txt">depu</a>).<br/>
+<em>nÃ¡zev</em> kterÃ½ byl pÅ™iÅ™azen soupravÄ› (vÃ½chozÃ­ nÃ¡zev je vytvoÅ™en podle prvnÃ­ho vozidla soupravy pÅ™i koupi v <a href="depot.txt">depu</a>).<br/>
 
-<em>poèet souprav</em> pøiøazenıch k daná lince<br/>
+<em>poÄet souprav</em> pÅ™iÅ™azenÃ½ch k danÃ¡ lince<br/>
 
-<em>kapacita</em> v¹ech souprav linky dohromady<br/>
+<em>kapacita</em> vÅ¡ech souprav linky dohromady<br/>
 
-<em>zisk/ztráta (oznaèená pøíjem)</em> provozní zisk/ztráta (pøíjem po odeètení provozních nákladù)<br/>
+<em>zisk/ztrÃ¡ta (oznaÄenÃ¡ pÅ™Ã­jem)</em> provoznÃ­ zisk/ztrÃ¡ta (pÅ™Ã­jem po odeÄtenÃ­ provoznÃ­ch nÃ¡kladÅ¯)<br/>
 
-Poznámka: Pozor vozidla také platí mıto a to zde zatím (ve verzi 111.1) není zapoèítáno.<br/>
+PoznÃ¡mka: Pozor vozidla takÃ© platÃ­ mÃ½to a to zde zatÃ­m (ve verzi 111.1) nenÃ­ zapoÄÃ­tÃ¡no.<br/>
 
-<em>nalo¾ené mno¾ství polo¾ek</em><br/>
+<em>naloÅ¾enÃ© mnoÅ¾stvÃ­ poloÅ¾ek</em><br/>
 
-<em>procentuální nalo¾ení souprav linky</em> v závorkách<br/>
+<em>procentuÃ¡lnÃ­ naloÅ¾enÃ­ souprav linky</em> v zÃ¡vorkÃ¡ch<br/>
 
-<em>linka:</em> ke které lince je souprava pøiøazena.<br/>
+<em>linka:</em> ke kterÃ© lince je souprava pÅ™iÅ™azena.<br/>
 
-<em>obrázek</em> zobrazení øazení vozidel v soupravì.
+<em>obrÃ¡zek</em> zobrazenÃ­ Å™azenÃ­ vozidel v soupravÄ›.
 
 </p>

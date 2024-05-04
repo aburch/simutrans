@@ -1,39 +1,39 @@
-<title>Køretøj dialog</title>
+<title>KÃ¸retÃ¸j dialog</title>
 
-<h1>Køretøj dialog</h1>
+<h1>KÃ¸retÃ¸j dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-For alle køretøjer (busser, lastbiler, toge og skibe) kan denne dialog åbnes
-ved at klikke på køretøjet. Dialogen giver nyttig information om køretøjet,
+For alle kÃ¸retÃ¸jer (busser, lastbiler, toge og skibe) kan denne dialog Ã¥bnes
+ved at klikke pÃ¥ kÃ¸retÃ¸jet. Dialogen giver nyttig information om kÃ¸retÃ¸jet,
 dets forbindelser og dets aktuelle lastgrad.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er køretøjets navn. Derefter følger en række oplysninger om
-køretøjet. Under disse oplysninger er en knap med teksten 'Statistik'. Herefter
-er et visningsareal, hvor oplysninger om den aktuelle last såsom mængde og
-destination fremgår.<br>
-Øverst til højre i dialogen er en knap med teksten 'Ruteplan' og herunder et
-billedudsnit med køretøjet. Ved at klikke på dette billedudsnit, vil køretøjet
-blive centreret på kortet. Sluttelig er der en slet-knap, der vil fjerne
-køretøjet <strong>uden</strong> at spørge først.
+Ã˜verst i dialogen er kÃ¸retÃ¸jets navn. Derefter fÃ¸lger en rÃ¦kke oplysninger om
+kÃ¸retÃ¸jet. Under disse oplysninger er en knap med teksten 'Statistik'. Herefter
+er et visningsareal, hvor oplysninger om den aktuelle last sÃ¥som mÃ¦ngde og
+destination fremgÃ¥r.<br>
+Ã˜verst til hÃ¸jre i dialogen er en knap med teksten 'Ruteplan' og herunder et
+billedudsnit med kÃ¸retÃ¸jet. Ved at klikke pÃ¥ dette billedudsnit, vil kÃ¸retÃ¸jet
+blive centreret pÃ¥ kortet. Sluttelig er der en slet-knap, der vil fjerne
+kÃ¸retÃ¸jet <strong>uden</strong> at spÃ¸rge fÃ¸rst.
 </p>
 
 <p>
-De to knapper har følgende funktion:
+De to knapper har fÃ¸lgende funktion:
 </p>
 
 <p>
 <em>Statistik</em><br>
-Statistik knappen udvider dialogen med et grafisk visningsareal og en række
-trykknapper, der hver repræsenterer et køretøjsnøgletal. Ved at trykke på en
-knap bliver udviklingen af det ønskede nøgletal illustreret grafisk i
+Statistik knappen udvider dialogen med et grafisk visningsareal og en rÃ¦kke
+trykknapper, der hver reprÃ¦senterer et kÃ¸retÃ¸jsnÃ¸gletal. Ved at trykke pÃ¥ en
+knap bliver udviklingen af det Ã¸nskede nÃ¸gletal illustreret grafisk i
 visningsarealet.
 </p>
 
 <p>
 <em>Ruteplan</em><br>
-Denne knap åbner en køretøjets <a href="schedule.txt">ruteplan dialog.</a>
+Denne knap Ã¥bner en kÃ¸retÃ¸jets <a href="schedule.txt">ruteplan dialog.</a>
 </p>

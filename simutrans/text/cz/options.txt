@@ -1,27 +1,27 @@
-<title>Nápovìda - nastavení hry</title>
-<h1>Nastavení hry</h1>
+<title>NÃ¡povÄ›da - nastavenÃ­ hry</title>
+<h1>NastavenÃ­ hry</h1>
 
 <p>
-Dialog nastavení je branou pro nastavení rozliènıch mo¾ností chování Simutrans bìhem hraní.<br>
-Následuje seznam voleb (s odkazy na detailnìj¹í informace), a krátkı popis ka¾dého nastavení.
+Dialog nastavenÃ­ je branou pro nastavenÃ­ rozliÄnÃ½ch moÅ¾nostÃ­ chovÃ¡nÃ­ Simutrans bÄ›hem hranÃ­.<br>
+NÃ¡sleduje seznam voleb (s odkazy na detailnÄ›jÅ¡Ã­ informace), a krÃ¡tkÃ½ popis kaÅ¾dÃ©ho nastavenÃ­.
 </p>
 
 <p>
-<a href="language.txt">Jazyk</a> - Umo¾òuje nastavit jazyk pro Simutrans.<br>
-<a href="color.txt">Barva hráèe</a> - Mìní barvu va¹í spoleènosti.<br>
-<a href="display.txt">Zobrazení</a> - Zmìní nastavení obrazovky, jako denní a noèní mód aj.<br>
-<a href="sound.txt">Zvuky</a> - Nastavení voleb pro zvuky v Simutrans.<br>
-<a href="players.txt">Hráèi</a> - Nastaví va¹e poèítaèové konkurenty.<br>
-<a href="load.txt">Naèíst</a> - Naète døíve ulo¾enou hru.<br>
-<a href="save.txt">Ulo¾it</a> - Ulo¾í právì hranou hru.<br>
-<a href="new_world.txt">Nová mapa</a> - Zaèít novou hru (nemù¾e bıt pøeru¹eno ¾ádnım dal¹ím dialogem)<br>
-<em>Konec</em> - Ukonèí hru bez dal¹ího potvrzení.
+<a href="language.txt">Jazyk</a> - UmoÅ¾Åˆuje nastavit jazyk pro Simutrans.<br>
+<a href="color.txt">Barva hrÃ¡Äe</a> - MÄ›nÃ­ barvu vaÅ¡Ã­ spoleÄnosti.<br>
+<a href="display.txt">ZobrazenÃ­</a> - ZmÄ›nÃ­ nastavenÃ­ obrazovky, jako dennÃ­ a noÄnÃ­ mÃ³d aj.<br>
+<a href="sound.txt">Zvuky</a> - NastavenÃ­ voleb pro zvuky v Simutrans.<br>
+<a href="players.txt">HrÃ¡Äi</a> - NastavÃ­ vaÅ¡e poÄÃ­taÄovÃ© konkurenty.<br>
+<a href="load.txt">NaÄÃ­st</a> - NaÄte dÅ™Ã­ve uloÅ¾enou hru.<br>
+<a href="save.txt">UloÅ¾it</a> - UloÅ¾Ã­ prÃ¡vÄ› hranou hru.<br>
+<a href="new_world.txt">NovÃ¡ mapa</a> - ZaÄÃ­t novou hru (nemÅ¯Å¾e bÃ½t pÅ™eruÅ¡eno Å¾Ã¡dnÃ½m dalÅ¡Ã­m dialogem)<br>
+<em>Konec</em> - UkonÄÃ­ hru bez dalÅ¡Ã­ho potvrzenÃ­.
 </p>
 
 <p>
-Více informací o ka¾dé polo¾ce najdete pøímo v její nápovìdì nebo po kliknutí na odkaz vı¹e.
+VÃ­ce informacÃ­ o kaÅ¾dÃ© poloÅ¾ce najdete pÅ™Ã­mo v jejÃ­ nÃ¡povÄ›dÄ› nebo po kliknutÃ­ na odkaz vÃ½Å¡e.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

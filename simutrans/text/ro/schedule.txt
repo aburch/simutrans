@@ -1,10 +1,10 @@
-<title>Traseu/rutã</title>
+<title>Traseu/rutÄƒ</title>
 
-<h1>Traseu/rutã</h1>
+<h1>Traseu/rutÄƒ</h1>
 
 <p>
-Aici defineºti trasee pt. convoaiele dorite. În fiecare staşie poşi defini
-cât la sutã din capacitatea de transport sã fie utilizat. Însã trebuie luat în
-considerare cã dacã unitatea de producşie nu poate sã umple vehicolul,
-atunci acesta va sta în staşie pânã ce se va umple la capacitatea setatã.
+Aici defineÅŸti trasee pt. convoaiele dorite. Ãn fiecare staÅ£ie poÅ£i defini
+cÃ¢t la sutÄƒ din capacitatea de transport sÄƒ fie utilizat. ÃnsÄƒ trebuie luat Ã®n
+considerare cÄƒ dacÄƒ unitatea de producÅ£ie nu poate sÄƒ umple vehicolul,
+atunci acesta va sta Ã®n staÅ£ie pÃ¢nÄƒ ce se va umple la capacitatea setatÄƒ.
 </p>

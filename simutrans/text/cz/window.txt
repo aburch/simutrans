@@ -1,55 +1,55 @@
-<title>Nápovìda - u¾ivatelské rozhraní</title>
+<title>NÃ¡povÄ›da - uÅ¾ivatelskÃ© rozhranÃ­</title>
 
 
 
-<h1>u¾ivatelské rozhraní</h1>
+<h1>uÅ¾ivatelskÃ© rozhranÃ­</h1>
 
 
 
 <p>
 
-Hra <em>simutrans</em> se ovládá pomocí <a href="mouse.txt">my¹i</a> a <a href="keys.txt">klávesovıch zkratek</a>.
+Hra <em>simutrans</em> se ovlÃ¡dÃ¡ pomocÃ­ <a href="mouse.txt">myÅ¡i</a> a <a href="keys.txt">klÃ¡vesovÃ½ch zkratek</a>.
 
 </p>
 
-<p>U¾ivatelské rozhraní je rozdìleno na tøi èásti: <a href="mainmenu.txt">hlavní menu</a>, zobrazení herní plochy a stavovou li¹tu.
-
-</p>
-
-<p>
-
-<em>stavová li¹ta</em>:
-
-Stavová li¹ta v dolní èásti zobrazuje dùle¾ité aktuální informace:
+<p>UÅ¾ivatelskÃ© rozhranÃ­ je rozdÄ›leno na tÅ™i ÄÃ¡sti: <a href="mainmenu.txt">hlavnÃ­ menu</a>, zobrazenÃ­ hernÃ­ plochy a stavovou liÅ¡tu.
 
 </p>
 
 <p>
 
-- <em>datum a èas</em>: Aktuální datum a èas, zpùsob zobrazení data a èasu upravíte v <a href="settings.txt">nastavení</a>.
+<em>stavovÃ¡ liÅ¡ta</em>:
+
+StavovÃ¡ liÅ¡ta v dolnÃ­ ÄÃ¡sti zobrazuje dÅ¯leÅ¾itÃ© aktuÃ¡lnÃ­ informace:
 
 </p>
 
 <p>
 
-- <em>jméno hráèe</em>: Je jméno právì aktivního hráèe. Mezi hráèi lze pøepínat klávesou <a href="keys.txt">P</a>.
+- <em>datum a Äas</em>: AktuÃ¡lnÃ­ datum a Äas, zpÅ¯sob zobrazenÃ­ data a Äasu upravÃ­te v <a href="settings.txt">nastavenÃ­</a>.
 
 </p>
 
 <p>
 
-- <em>stav konta</em>: Kolik <a href="finances.txt">penìz</a> máte na úètu.
+- <em>jmÃ©no hrÃ¡Äe</em>: Je jmÃ©no prÃ¡vÄ› aktivnÃ­ho hrÃ¡Äe. Mezi hrÃ¡Äi lze pÅ™epÃ­nat klÃ¡vesou <a href="keys.txt">P</a>.
 
 </p>
 
 <p>
 
-- <em>souøadnice</em>: Souøadnice aktuální polohy kurzoru <a href="mouse.txt">my¹i</a>.
+- <em>stav konta</em>: Kolik <a href="finances.txt">penÄ›z</a> mÃ¡te na ÃºÄtu.
 
 </p>
 
 <p>
 
-- <em>rychlost plynutí èasu</em>: Jak rychle ve høe plyne èas. Plynutí èasu zmìníte <a href="keys.txt">klávesami</a> [.] a [,].
+- <em>souÅ™adnice</em>: SouÅ™adnice aktuÃ¡lnÃ­ polohy kurzoru <a href="mouse.txt">myÅ¡i</a>.
+
+</p>
+
+<p>
+
+- <em>rychlost plynutÃ­ Äasu</em>: Jak rychle ve hÅ™e plyne Äas. PlynutÃ­ Äasu zmÄ›nÃ­te <a href="keys.txt">klÃ¡vesami</a> [.] a [,].
 
 </p>

@@ -3,20 +3,20 @@
 <h1>Nastavenia hry</h1>
 
 <p>
-Dialógovı re¾im voµbou niektorej z mo¾ností ponúkne e¹te ïal¹ie
-podúrovne nastavení. Potom sa zobrazí ¹tandardnı dialógovı re¾im.
-Slú¾ia spravidla na zmenu vlastností, naèítanie, ulo¾enie alebo
-ukonèenie hry.
+DialÃ³govÃ½ reÅ¾im voÄ¾bou niektorej z moÅ¾nostÃ­ ponÃºkne eÅ¡te ÄalÅ¡ie
+podÃºrovne nastavenÃ­. Potom sa zobrazÃ­ Å¡tandardnÃ½ dialÃ³govÃ½ reÅ¾im.
+SlÃºÅ¾ia spravidla na zmenu vlastnostÃ­, naÄÃ­tanie, uloÅ¾enie alebo
+ukonÄenie hry.
 </p>
 
 <p>
-<a href="language.txt">Jazyk</a> - zvoµ jazyk, ktorı bude¹ pouzívat' v hre Simutrans<br>
-<a href="color.txt">Farby</a> - ponúka mo¾nost' zmenit' farbu Tvojej spoloènosti<br>
-<a href="display.txt">Obraz</a> - nastavenie vlastností obrazu<br>
+<a href="language.txt">Jazyk</a> - zvoÄ¾ jazyk, ktorÃ½ budeÅ¡ pouzÃ­vat' v hre Simutrans<br>
+<a href="color.txt">Farby</a> - ponÃºka moÅ¾nost' zmenit' farbu Tvojej spoloÄnosti<br>
+<a href="display.txt">Obraz</a> - nastavenie vlastnostÃ­ obrazu<br>
 <a href="sound.txt">Zvuky</a> - nastavenie hlasitosti hudby a zvukov<br>
-<a href="players.txt">Konkurencia</a> - voµba konkurenènıch hráèov UMELEJ INTELIGENCIE<br>
-<a href="load.txt">Nacítat'</a> - naèítanie ulo¾enej hry<br>
-<a href="save.txt">Ulozit'</a> - ulo¾enie rozohranej hry<br>
-<a href="new_world.txt">Nová mapa</a> - re¹tart hry a ponuka novej mapy<br>
-<a href="">Skoncit'</a> - ukonèenie hry<br>
+<a href="players.txt">Konkurencia</a> - voÄ¾ba konkurenÄnÃ½ch hrÃ¡Äov UMELEJ INTELIGENCIE<br>
+<a href="load.txt">NacÃ­tat'</a> - naÄÃ­tanie uloÅ¾enej hry<br>
+<a href="save.txt">Ulozit'</a> - uloÅ¾enie rozohranej hry<br>
+<a href="new_world.txt">NovÃ¡ mapa</a> - reÅ¡tart hry a ponuka novej mapy<br>
+<a href="">Skoncit'</a> - ukonÄenie hry<br>
 </p>

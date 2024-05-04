@@ -2,25 +2,25 @@
 
 <strong>Planter un arbre</strong>
 
-<p>la fenêtre de plantation des arbres est séparée en quatre parties :
-<br> - en haut à gauche : liste de sélection des différents arbres disponibles
-<br> - en bas à gauche : image de l'arbre sélectionné
-<br> - en haut à droite : réglages des options
-<br> - en dessous à droite : informations concernant l'arbre sélectionné
+<p>la fenÃªtre de plantation des arbres est sÃ©parÃ©e en quatre parties :
+<br> - en haut Ã  gauche : liste de sÃ©lection des diffÃ©rents arbres disponibles
+<br> - en bas Ã  gauche : image de l'arbre sÃ©lectionnÃ©
+<br> - en haut Ã  droite : rÃ©glages des options
+<br> - en dessous Ã  droite : informations concernant l'arbre sÃ©lectionnÃ©
 </p>
 
 <p>
-<h1>Liste de sélection</h1>
-<br>Dans cette liste, vous trouvez tous les arbres disponibles selon les options sélectionnées à  droite. Ils sont classés de deux manières, accessibles via les onglets en haut de la liste :
+<h1>Liste de sÃ©lection</h1>
+<br>Dans cette liste, vous trouvez tous les arbres disponibles selon les options sÃ©lectionnÃ©es Ã   droite. Ils sont classÃ©s de deux maniÃ¨res, accessibles via les onglets en haut de la liste :
 <br>
-<em>translation</em> : donne le nom de l'arbre dans une langue donnée (français par exemple). Si aucune traduction n'est disponible dans cette langue, c'est le nom interne de l'objet qui est affiché.<br>
+<em>translation</em> : donne le nom de l'arbre dans une langue donnÃ©e (franÃ§ais par exemple). Si aucune traduction n'est disponible dans cette langue, c'est le nom interne de l'objet qui est affichÃ©.<br>
 <em>objet</em> : donne le nom interne de l'objet dans simutrans
 </p>
 
 <p>
 <h1>Options</h1>
 <br>
-<em>Ignore climates</em> : cette option désactive les restrictions de plantation dûes au climat.
+<em>Ignore climates</em> : cette option dÃ©sactive les restrictions de plantation dÃ»es au climat.
 <br>
-<em>Random year</em> : avec cette option, l'arbre planté aura un âge aléatoire
+<em>Random year</em> : avec cette option, l'arbre plantÃ© aura un Ã¢ge alÃ©atoire
 </p>

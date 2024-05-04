@@ -1,24 +1,24 @@
 <title>Simutrans - pomoc</title>
 
-<h1>Klikni na témy :</h1>
+<h1>Klikni na tÃ©my :</h1>
 
 <p>
-<a href="keys.txt">Ovládacie klávesy</a><br>
+<a href="keys.txt">OvlÃ¡dacie klÃ¡vesy</a><br>
 <a href="param.txt">Spustenie hry s parametrami</a>
 </p>
 <p>
 <a href="options.txt">Nastavenia hry</a><br>
-<a href="roadtools.txt">Nástroje na stavbu ciest</a><br>
-<a href="railtools.txt">Nástroje na stavbu ¾eleznice</a><br>
-<a href="shiptools.txt">Nástroje na stavbu lodnej dopravy</a><br>
-<a href="bridges.txt">Nástroje na stavbu mostov</a><br>
-<a href="station.txt">Stanice a zastávky</a><br>
-<a href="schedule.txt">Cestovnı poriadok</a><br>
-<a href="haltlist.txt">Prehµad zastávok</a><br>
-<a href="convoi.txt">Prehµad vozidlového parku</a><br>
-<a href="finances.txt">Prehµad financií</a><br>
+<a href="roadtools.txt">NÃ¡stroje na stavbu ciest</a><br>
+<a href="railtools.txt">NÃ¡stroje na stavbu Å¾eleznice</a><br>
+<a href="shiptools.txt">NÃ¡stroje na stavbu lodnej dopravy</a><br>
+<a href="bridges.txt">NÃ¡stroje na stavbu mostov</a><br>
+<a href="station.txt">Stanice a zastÃ¡vky</a><br>
+<a href="schedule.txt">CestovnÃ½ poriadok</a><br>
+<a href="haltlist.txt">PrehÄ¾ad zastÃ¡vok</a><br>
+<a href="convoi.txt">PrehÄ¾ad vozidlovÃ©ho parku</a><br>
+<a href="finances.txt">PrehÄ¾ad financiÃ­</a><br>
 </p>
 <p>
-Slovenskı popis : Ján Krnáè<br>
+SlovenskÃ½ popis : JÃ¡n KrnÃ¡Ä<br>
 Simutrans (c) Hj. Malthaner
 </p>

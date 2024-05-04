@@ -1,44 +1,44 @@
-<title>Novı svet - pomoc</title>
-<h1>Novı svet</h1>
+<title>NovÃ½ svet - pomoc</title>
+<h1>NovÃ½ svet</h1>
 <p>
-Tento re¾im ponúka nastavenie parametrov, ktoré budú urèovat'
-charakter mapy vytvorenej pre novú hru. V µavom hornom rohu
-obrazovky sa zároveò zobrazí ponuka na vıber jazyka.
+Tento reÅ¾im ponÃºka nastavenie parametrov, ktorÃ© budÃº urÄovat'
+charakter mapy vytvorenej pre novÃº hru. V Ä¾avom hornom rohu
+obrazovky sa zÃ¡roveÅˆ zobrazÃ­ ponuka na vÃ½ber jazyka.
 </p>
 <p>
-<em>Èíslo mapy</em> - èíslo ,,schémy'' mapy, vrátane mno¾sta a umiestnenia
-vody, kopcov, osadenia stromov, umiestnenia miest a priemyslu. Predbe¾né
-zobrazenie (náhµad) je zobrazenı pri ka¾dej mape. ©tandardne je nastavená mapa
-èíslo 33.<br>
-<em>Veµkost mapy</em> - akú veµkú mapu chce¹ hrat'. Rozmedzie
-je 128x128 - 576x576 stvorcekov. ©tandardné nastavenie je 256x256 ¹tvorèekov.<br>
-<em>Hustota priemyslu</em> - index urèuje, ako husto bude priemysel rozmiestnenı
-na mape. Èím je hustota priemyslu ni¾¹ia, tım sa stáva hra ta¾¹ou a
-tım sú mo¾nosti prepravy surovín alebo tovaru men¹ie. ©tandardné nastavenie je 125.<br>
-<em>Poèet miest</em> - koµko miest celkom bude rozmiestnenıch na mape.
-Rozmedzie je 2 - 64 miest. ©tandardné nastavenie je 16 miest.<br>
-<em>Hustota dopravy</em> - index urèuje, aká bude hustota premávky súkromnıch áut na cestách.
-©tandardné nastavenie je 8.<br>
-<em>Hladina vody</em> - index urèuje, aké mno¾stvo vody bude¹ mat' na mape.
-Èím bude hodnota väcsia, tım bude menej pevniny a naopak. ©tandardné nastavenie je 4.<br>
-<em>Vı¹kovı rozdiel</em> urèuje rozdiel medzi hladinou vody a najvy¹¹ím vrchom,
-t.j. maximálnu nadmorskú vı¹ku na mape. ©tandardné nastavenie je 160.<br>
-<em>Èlenitost' mapy</em> - index urèuje, èi pôjde o preva¾ne rovinu, pahorkatinu alebo
-horskú krajinu. Rovine zodpovedá najni¾¹ie èíslo a horskej krajine najvy¹¹ie císlo.
-Rozmedzie je 1 - 3. ©tandardné nastavenie je 2.
+<em>ÄŒÃ­slo mapy</em> - ÄÃ­slo ,,schÃ©my'' mapy, vrÃ¡tane mnoÅ¾sta a umiestnenia
+vody, kopcov, osadenia stromov, umiestnenia miest a priemyslu. PredbeÅ¾nÃ©
+zobrazenie (nÃ¡hÄ¾ad) je zobrazenÃ½ pri kaÅ¾dej mape. Å tandardne je nastavenÃ¡ mapa
+ÄÃ­slo 33.<br>
+<em>VeÄ¾kost mapy</em> - akÃº veÄ¾kÃº mapu chceÅ¡ hrat'. Rozmedzie
+je 128x128 - 576x576 stvorcekov. Å tandardnÃ© nastavenie je 256x256 Å¡tvorÄekov.<br>
+<em>Hustota priemyslu</em> - index urÄuje, ako husto bude priemysel rozmiestnenÃ½
+na mape. ÄŒÃ­m je hustota priemyslu niÅ¾Å¡ia, tÃ½m sa stÃ¡va hra taÅ¾Å¡ou a
+tÃ½m sÃº moÅ¾nosti prepravy surovÃ­n alebo tovaru menÅ¡ie. Å tandardnÃ© nastavenie je 125.<br>
+<em>PoÄet miest</em> - koÄ¾ko miest celkom bude rozmiestnenÃ½ch na mape.
+Rozmedzie je 2 - 64 miest. Å tandardnÃ© nastavenie je 16 miest.<br>
+<em>Hustota dopravy</em> - index urÄuje, akÃ¡ bude hustota premÃ¡vky sÃºkromnÃ½ch Ã¡ut na cestÃ¡ch.
+Å tandardnÃ© nastavenie je 8.<br>
+<em>Hladina vody</em> - index urÄuje, akÃ© mnoÅ¾stvo vody budeÅ¡ mat' na mape.
+ÄŒÃ­m bude hodnota vÃ¤csia, tÃ½m bude menej pevniny a naopak. Å tandardnÃ© nastavenie je 4.<br>
+<em>VÃ½Å¡kovÃ½ rozdiel</em> urÄuje rozdiel medzi hladinou vody a najvyÅ¡Å¡Ã­m vrchom,
+t.j. maximÃ¡lnu nadmorskÃº vÃ½Å¡ku na mape. Å tandardnÃ© nastavenie je 160.<br>
+<em>ÄŒlenitost' mapy</em> - index urÄuje, Äi pÃ´jde o prevaÅ¾ne rovinu, pahorkatinu alebo
+horskÃº krajinu. Rovine zodpovedÃ¡ najniÅ¾Å¡ie ÄÃ­slo a horskej krajine najvyÅ¡Å¡ie cÃ­slo.
+Rozmedzie je 1 - 3. Å tandardnÃ© nastavenie je 2.
 </p>
 <p>
-<strong>Tlaèidlá :</strong><br>
-<em>Náhodná mapa</em> - tlaèidlom si vyberá¹ mapu, ktorú hra náhodne vyberie a ponúkne.
-Tım sa nemenia iné nastavenia parametrov mapy.<br>
-<em>Ukázat' chodcov</em> - zapnutím bude hra zobrazovat' chodcov na ulici alebo vystupujúcich
-z vlaku alebo autobusu. Toto nastavenie mô¾e¹ menit' aj neskôr v nastaveniach obrazu -
+<strong>TlaÄidlÃ¡ :</strong><br>
+<em>NÃ¡hodnÃ¡ mapa</em> - tlaÄidlom si vyberÃ¡Å¡ mapu, ktorÃº hra nÃ¡hodne vyberie a ponÃºkne.
+TÃ½m sa nemenia inÃ© nastavenia parametrov mapy.<br>
+<em>UkÃ¡zat' chodcov</em> - zapnutÃ­m bude hra zobrazovat' chodcov na ulici alebo vystupujÃºcich
+z vlaku alebo autobusu. Toto nastavenie mÃ´Å¾eÅ¡ menit' aj neskÃ´r v nastaveniach obrazu -
 <a href="display.txt">Obraz</a>.<br>
-<em>Striedat' noc a deò</em> - zapnutím bude bude hra napodobnovat' chovanie sa dòa a noci.
-Toto nastavenie mô¾e¹ menit' aj neskôr v nastaveniach obrazu <a href="display.txt">Obraz</a>.<br>
-<em>Naèítat' hru</em> - umo¾ní Ti vybrat' a spustit' niektorú z ulo¾enıch hier.<br>
-<em>Naèítat' reliéf</em> - umo¾ní Ti vybrat' alternatívnu krajinu.<br>
-<em>Spustit' hru</em> - spustenie novej hry s tımi parametrami mapy, aké má¹ momentálne
-nastavené.<br>
-<em>Skoncit'</em> - ukoncí¹ hru Simutrans.
+<em>Striedat' noc a deÅˆ</em> - zapnutÃ­m bude bude hra napodobnovat' chovanie sa dÅˆa a noci.
+Toto nastavenie mÃ´Å¾eÅ¡ menit' aj neskÃ´r v nastaveniach obrazu <a href="display.txt">Obraz</a>.<br>
+<em>NaÄÃ­tat' hru</em> - umoÅ¾nÃ­ Ti vybrat' a spustit' niektorÃº z uloÅ¾enÃ½ch hier.<br>
+<em>NaÄÃ­tat' reliÃ©f</em> - umoÅ¾nÃ­ Ti vybrat' alternatÃ­vnu krajinu.<br>
+<em>Spustit' hru</em> - spustenie novej hry s tÃ½mi parametrami mapy, akÃ© mÃ¡Å¡ momentÃ¡lne
+nastavenÃ©.<br>
+<em>Skoncit'</em> - ukoncÃ­Å¡ hru Simutrans.
 </p>

@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: hu Magyar                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -950,7 +950,7 @@ Termelés: %.0f MW\n
 Gewicht
 Súly
 Gewinn
-Bevétel:
+Bevétel: 
 Give the selected vehicle(s) an individual schedule
 A járműhöz rendelt vonal vagy egyedi menetrend megadása
 gl_btn_sort_catg

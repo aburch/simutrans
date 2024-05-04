@@ -1,56 +1,56 @@
-<title>Aide routière</title>
+<title>Aide routiÃ¨re</title>
 
-<h1>L'écran de gestion routier</h1>
+<h1>L'Ã©cran de gestion routier</h1>
 
 <p>
-Cet écran vous donne accès a l'ensemble des outils de construction de routes,
-arrêts de bus, tunnels routiers, dépôts, passages à niveau, quai de chargement.
+Cet Ã©cran vous donne accÃ¨s a l'ensemble des outils de construction de routes,
+arrÃªts de bus, tunnels routiers, dÃ©pÃ´ts, passages Ã  niveau, quai de chargement.
 </p>
 <p>
-Dans le coin en haut à gauche se trouve l'outil de création de route.
-Cliquez dessus et le curseur prendra la forme du même symbole.
+Dans le coin en haut Ã  gauche se trouve l'outil de crÃ©ation de route.
+Cliquez dessus et le curseur prendra la forme du mÃªme symbole.
 Pour commencer la construction d'une route cliquez d'abord sur le point de
-départ, puis cliquez sur le point d'arrivée de la section. La route sera
+dÃ©part, puis cliquez sur le point d'arrivÃ©e de la section. La route sera
 construite entre ces deux points.
 </p>
 <p>
-A sa droite, le symbole indique la construction d'arrêts de bus. Cliquez dessus
-pour changer votre curseur en arrêts de bus. Les arrêts de bus permettent aux
-bus de prendre et déposer des passagers. Il peut contenir 2 bus, un dans chaque
-direction. Pour le placer, cliquez à l'endroit voulu. Il doit être positionné
+A sa droite, le symbole indique la construction d'arrÃªts de bus. Cliquez dessus
+pour changer votre curseur en arrÃªts de bus. Les arrÃªts de bus permettent aux
+bus de prendre et dÃ©poser des passagers. Il peut contenir 2 bus, un dans chaque
+direction. Pour le placer, cliquez Ã  l'endroit voulu. Il doit Ãªtre positionnÃ©
 sur une portion de route, mais pas dans les intersections, ni les virages.
 </p>
 <p>
 Le dernier symbole permet de construire les tunnels.
 Cliquez dessus et le curseur prendra l'image du tunnel.
-Les tunnels sont utilisés pour créer une seule de section de tunnel sous
-une montagne. Utilisez-les pour éviter de contourner les montagnes.
+Les tunnels sont utilisÃ©s pour crÃ©er une seule de section de tunnel sous
+une montagne. Utilisez-les pour Ã©viter de contourner les montagnes.
 Pour placer un tunnel, vous devez d'abord avoir vos sections de route.
-Placez le début et la fin de la route au bord de la montagne (de chaque côté),
+Placez le dÃ©but et la fin de la route au bord de la montagne (de chaque cÃ´tÃ©),
 assurez-vous que les niveaux d'altitudes sont identiques. Pour construire le
-tunnel cliquez avec l'outil de placement sur l'une des deux extrémités.
+tunnel cliquez avec l'outil de placement sur l'une des deux extrÃ©mitÃ©s.
 </p>
 <p>
-Au dessous de ces symboles, il y a le passage à niveau. Cliquez dessus pour
-changer le curseur en passage à niveau. Ils sont utiles pour faire se croiser
-une route et une voie ferrée. Pour le placer, cliquez avec le bouton gauche sur
+Au dessous de ces symboles, il y a le passage Ã  niveau. Cliquez dessus pour
+changer le curseur en passage Ã  niveau. Ils sont utiles pour faire se croiser
+une route et une voie ferrÃ©e. Pour le placer, cliquez avec le bouton gauche sur
 une section de route.
 </p>
 <p>
-A gauche, c'est le dépôt routier. Cliquez dessus pour changer le curseur
-en dépôt. Ils sont utilisés pour acheter, assembler, démonter et vendre des
-Camions, bus, fourgons postaux. Placer simplement le dépôt sur l'extrémité
-d'une portion de route à l'endroit voulu.
+A gauche, c'est le dÃ©pÃ´t routier. Cliquez dessus pour changer le curseur
+en dÃ©pÃ´t. Ils sont utilisÃ©s pour acheter, assembler, dÃ©monter et vendre des
+Camions, bus, fourgons postaux. Placer simplement le dÃ©pÃ´t sur l'extrÃ©mitÃ©
+d'une portion de route Ã  l'endroit voulu.
 </p>
 <p>
-Le dernier symbole représente les quais de chargement/déchargement.
+Le dernier symbole reprÃ©sente les quais de chargement/dÃ©chargement.
 Cliquez sur ce symbole et le curseur prendra sa forme. Les quais de chargement
-servent aux camions pour prendre et déposer des marchandises. Deux véhicules
-seulement peuvent emprunter un quai simultanément.
-Pour placer un quai de chargement, utilisez le même principe que pour les
-dépôts (ci-dessus).
+servent aux camions pour prendre et dÃ©poser des marchandises. Deux vÃ©hicules
+seulement peuvent emprunter un quai simultanÃ©ment.
+Pour placer un quai de chargement, utilisez le mÃªme principe que pour les
+dÃ©pÃ´ts (ci-dessus).
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

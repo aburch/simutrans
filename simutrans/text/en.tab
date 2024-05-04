@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -98,7 +98,7 @@ Waiting Trend
 rainfall
 humidity
 Reselect closes tools
-Reselect a tool deselect it
+Re-selecting a tool de-selects it
 Road toll
 Road Toll
 Save
@@ -141,6 +141,8 @@ Cannot built depot here!
 Cannot build a depot here.
 Cannot built this station/building\nin underground mode here.
 This station/building cannot be built underground.
+Cannot connect to the\ncenter of a double slope!
+A brige cannot connect to the middle of a double slope!\nUse landscaping tool to fix this.
 Convoi handles exhausted!
 Maximum number of convoys reached.
 Das Feld gehoert\neinem anderen Spieler\n
@@ -175,6 +177,8 @@ Not enough clearance.
 Between two ways a minimum height difference of two is needed.
 Not enough money!
 You do not have enough\nmoney to buy this!
+On narrowgauge track only!\n
+Must be placed on narrow gauge track only!
 Only public player can lock games!
 Only a public player can lock games!
 Only up and down movement in the underground!
@@ -282,7 +286,7 @@ Industry growth: New factory chain\nfor %s near\n%s built with\n%i factories.
 New vehicle now available:\n%s\n
 \n A new vehicle is\n now available:\n\n\n -- %s --\n\n
 Now %u clients connected.
-Right now %u clients are connected.
+Right now %u client(s) are connected.
 Remove vehicle from map. Use with care!
 Remove vehicle from map. (Use with care!)
 Screenshot\ngespeichert.\n
@@ -349,6 +353,8 @@ Age: %i years and %i months
 %s %s yard
 %s land %d %s
 %s %d outer %s
+%s now known as %s.
+%s is now known as %s.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s \nbuilt a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
@@ -778,7 +784,7 @@ Generation: %.0f MW\n
 Gewicht
 Weight
 Gewinn
-Income:
+Income: 
 Give the selected vehicle(s) an individual schedule
 Edit the selected vehicle(s) individual schedule or assigned line
 gl_btn_sort_catg

@@ -3,26 +3,26 @@
 <h1>Ecran des langues</h1>
 
 <p>
-Simutrans est multilingue et vous permet de choisir la langue dans laquelle vous désirez
+Simutrans est multilingue et vous permet de choisir la langue dans laquelle vous dÃ©sirez
 afficher les textes. (Seulement si la traduction existe)<br>
-Quand vous changez la langue (en sélectionnt la langue voulue), le jeu va alors afficher
-tous les textes dans cette langue. Les écrans ne tiendront compte de la modification
-qu'à leur prochaine ré-ouverture.<br>
-Les villes existantes ne changeront pas de nom, et garderont les noms du jeu au démarrage.
+Quand vous changez la langue (en sÃ©lectionnt la langue voulue), le jeu va alors afficher
+tous les textes dans cette langue. Les Ã©crans ne tiendront compte de la modification
+qu'Ã  leur prochaine rÃ©-ouverture.<br>
+Les villes existantes ne changeront pas de nom, et garderont les noms du jeu au dÃ©marrage.
 C'est pourquoi, lorsque vous souhaitez obtenir des noms de villes dans votre langue,
-choisissez la langue avant de créer un noveau jeu.
+choisissez la langue avant de crÃ©er un noveau jeu.
 </p>
 
 <p>
-Si vous ne trouvez pas votre langue préférée, quelques traductions sont disponibles
+Si vous ne trouvez pas votre langue prÃ©fÃ©rÃ©e, quelques traductions sont disponibles
 sur les sites http://www.simustation.de.vu et http://www.simutrans.de, mais elles
-ne sont pas toutes complètes, ni parfaitement à jour.
+ne sont pas toutes complÃ¨tes, ni parfaitement Ã  jour.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>
 <p>
-Pour aider à traduire Simutrans dans votre langue,<br>
+Pour aider Ã  traduire Simutrans dans votre langue,<br>
 visitez https://translator.simutrans.com
 </p>

@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -49,6 +49,8 @@ clf_btn_keine
 全解除
 climate area percentage
 気候区分の割合
+Continue Game
+前回の続き
 CROSSING_SOUND
 踏切の音量
 FACTORY_SOUND
@@ -113,6 +115,8 @@ rainfall
 降雨量
 Reselect closes tools
 選択済のツールボタンを押すと選択を解除する
+Return to menu
+メニューに戻る
 Road toll
 通行料
 Save
@@ -137,6 +141,8 @@ TRAFFIC_SOUND
 乗り物の音量
 Transfers
 乗降数
+Tutorial
+チュートリアル
 #_________________________________climates_text_________________________________
 #_________________________________climates_text_________________________________
 arctic
@@ -390,7 +396,7 @@ New factory chain\nfor %s near\n%s built with\n%i factories.
 New vehicle now available:\n%s\n
 「%s」が\n新たに使用可能になりました。
 Now %u clients connected.
-現在、 %u 名のプレーヤーが接続しています。
+現在、 %u 人がオンライン中です。
 overtaking
 車線
 Remove vehicle from map. Use with care!
@@ -411,6 +417,8 @@ Line Filter
 路線フィルター
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+...
+…
 (%.2f$/km %.2f$/m)
  (%.2f$/km %.2f$/月)
 (%.2f$/km)
@@ -439,6 +447,8 @@ Line Filter
 [DEL]
 [SCROLLLOCK]
 [SCROLL LOCK]
+/month
+/月
 \nBauzeit bis
  ～ 
 \nBauzeit von
@@ -495,6 +505,8 @@ Line Filter
 %s\nは車庫に着きました。\n
 %s land %d %s
 %s郊外第%d%s
+%s now known as %s.
+%s はプレイヤー名を %s に変更しました。
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s町は\n住民が%i人に達したので、\n新しい役場を建てました。
 %s\nis crowded.
@@ -1107,6 +1119,8 @@ Follow the convoi on the map.
 この編成を追ってマップを移動します
 font size
 フォントサイズ
+For questions and support please visit:
+質問・サポートは以下のサイトへアクセスしてください：
 Forest
 森
 Found new city
@@ -1201,6 +1215,8 @@ hide all building
 全ての建物を隠す
 hide city building
 都市の建物を隠す
+Hide labels
+駅名プレートを非表示にする
 hide objects under cursor
 カーソル周辺の樹木や建物を隠す
 hide station names
@@ -1572,7 +1588,7 @@ New line created!\nYou can assign the line now\nby selecting it from the\nline s
 New Vehicles
 購入費
 Nickname:
-名前：
+プレイヤー名：
 no buildings hidden
 すべての建物を表示
 no convois
@@ -2329,6 +2345,8 @@ Weight
 重量
 Weight:
 重量:
+Welcome to Simutrans
+ようこそ、Simutransへ
 Wert
 価格
 west
@@ -2401,6 +2419,8 @@ vehicles of the line %s were retired
 #_________________________________tooltip_text__________________________________
 Add convois with similar schedule to this line.
 この路線と同じスケジュールの車両を追加します。
+Tutorial not available for this pakset. Please try loading Pak128.
+このpakセットにはチュートリアルが用意されていません。(最新版のpak128を確認してみてください)
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL

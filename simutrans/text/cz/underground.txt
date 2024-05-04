@@ -1,37 +1,37 @@
-<title>Nápovìda - tunely a podzemí</title>
+<title>NÃ¡povÄ›da - tunely a podzemÃ­</title>
 
-<h1>tunely a podzemí</h1>
+<h1>tunely a podzemÃ­</h1>
 
 <p>
-Tunely mù¾eme stavìt dvìma zpùsoby: buï rovné pøímo z povrchu nebo komplikovanìj¹í za pomoci podzemního módu.
+Tunely mÅ¯Å¾eme stavÄ›t dvÄ›ma zpÅ¯soby: buÄ rovnÃ© pÅ™Ã­mo z povrchu nebo komplikovanÄ›jÅ¡Ã­ za pomoci podzemnÃ­ho mÃ³du.
 </p>
 <p>
-<it>pøímé tunely</it>
+<it>pÅ™Ã­mÃ© tunely</it>
 </p>
-<p>Pøímı tunel postavíte kliknutím na ikonu tunelu a následovnım kliknutím na svah kopce, kde má tunel zaèínat. Aby se tunel postavil, musejí bıt svahy u ústí tunelu správnì ¹ikmé.
-</p>
-<p>
-<it>komplikovanìj¹í tunely</it>
+<p>PÅ™Ã­mÃ½ tunel postavÃ­te kliknutÃ­m na ikonu tunelu a nÃ¡sledovnÃ½m kliknutÃ­m na svah kopce, kde mÃ¡ tunel zaÄÃ­nat. Aby se tunel postavil, musejÃ­ bÃ½t svahy u ÃºstÃ­ tunelu sprÃ¡vnÄ› Å¡ikmÃ©.
 </p>
 <p>
-Komplikovanìj¹í tunely je nutno stavìt poèástech. Nejprve postavíme stup pod zem. Klikneme na nástroj s tunelem a pak dr¾íme stisknutou sklávesu <a href="keys.txt">[Ctrl]</a> a my¹í klikneme na místo s zamı¹lenım poèátetkem tunelu.
-Pak se pøepneme do podzemního modu.
-</p>
-<p>V podzemním modu nebo pøi zobrazení jednotlové vı¹kové vrstvy stavíte podzemní tra» stejnım zpùsobem, jako nadzemní, pouze pou¾íváte ikonu tunel.
-</p>
-<p>Tunely mohou stoupat a klesat. Postavte tunel k místu zamı¹leného stoupání/klesání. V menu <a href="slopetools.txt"> úprava terénu</a> kliknìte na upravit svah (to s opìrnou zdí). Pak kliknìte na konec ¾eleznièní trati v tunelu. A máte v tunelu kopec.
+<it>komplikovanÄ›jÅ¡Ã­ tunely</it>
 </p>
 <p>
-V tunelu mù¾ete umis»ovat stanice, <a href="signals.txt">semafory</a> a <a href="depot.txt">depo</a> stejnım zpùsobem jako na povrchu.
+KomplikovanÄ›jÅ¡Ã­ tunely je nutno stavÄ›t poÄÃ¡stech. Nejprve postavÃ­me stup pod zem. Klikneme na nÃ¡stroj s tunelem a pak drÅ¾Ã­me stisknutou sklÃ¡vesu <a href="keys.txt">[Ctrl]</a> a myÅ¡Ã­ klikneme na mÃ­sto s zamÃ½Å¡lenÃ½m poÄÃ¡tetkem tunelu.
+Pak se pÅ™epneme do podzemnÃ­ho modu.
+</p>
+<p>V podzemnÃ­m modu nebo pÅ™i zobrazenÃ­ jednotlovÃ© vÃ½Å¡kovÃ© vrstvy stavÃ­te podzemnÃ­ traÅ¥ stejnÃ½m zpÅ¯sobem, jako nadzemnÃ­, pouze pouÅ¾Ã­vÃ¡te ikonu tunel.
+</p>
+<p>Tunely mohou stoupat a klesat. Postavte tunel k mÃ­stu zamÃ½Å¡lenÃ©ho stoupÃ¡nÃ­/klesÃ¡nÃ­. V menu <a href="slopetools.txt"> Ãºprava terÃ©nu</a> kliknÄ›te na upravit svah (to s opÄ›rnou zdÃ­). Pak kliknÄ›te na konec Å¾elezniÄnÃ­ trati v tunelu. A mÃ¡te v tunelu kopec.
 </p>
 <p>
-<it>podzemní mód(y)</it>
+V tunelu mÅ¯Å¾ete umisÅ¥ovat stanice, <a href="signals.txt">semafory</a> a <a href="depot.txt">depo</a> stejnÃ½m zpÅ¯sobem jako na povrchu.
 </p>
 <p>
-Ve høe existují dva zpùsoby, jak zobrazit komunikace pod zemskım povrchem.</p>
+<it>podzemnÃ­ mÃ³d(y)</it>
+</p>
 <p>
-<em>podzemní mód</em>: Stiskem <a href="keys.txt">klávesy</a> [U] se zobrazí jen terén bez v¹ech budov a stromù. Krom toho se zobrazí v¹echny tunely. To je u¾iteèné, pokud se chcete podívat, co v¹e se nachází pod zemí. Umo¾òuje stavìt tunely pod mìstem, k vıstavbì tunelù pod vysokohostkım masivem je vhodnìj¹í pou¾ít zobrazení po vrstvách.</p>
+Ve hÅ™e existujÃ­ dva zpÅ¯soby, jak zobrazit komunikace pod zemskÃ½m povrchem.</p>
 <p>
-<em>zobrazení po vrstvách</em>: Slou¾í k zobrazení komunikací v jednostlivıch vı¹kovıch vrstvách. Pou¾ijete jej nejen v podzemí ale i pøi stavbì ¾eleznièní trati pod mostem.<br/>
-Najeïte kurzorem <a href="mouse.txt">my¹i</a> na pole v úrovni, kterou chcete zobrazit. Stistnìte <a href="keys.txt">[Ctrl U]</a>.
+<em>podzemnÃ­ mÃ³d</em>: Stiskem <a href="keys.txt">klÃ¡vesy</a> [U] se zobrazÃ­ jen terÃ©n bez vÅ¡ech budov a stromÅ¯. Krom toho se zobrazÃ­ vÅ¡echny tunely. To je uÅ¾iteÄnÃ©, pokud se chcete podÃ­vat, co vÅ¡e se nachÃ¡zÃ­ pod zemÃ­. UmoÅ¾Åˆuje stavÄ›t tunely pod mÄ›stem, k vÃ½stavbÄ› tunelÅ¯ pod vysokohostkÃ½m masivem je vhodnÄ›jÅ¡Ã­ pouÅ¾Ã­t zobrazenÃ­ po vrstvÃ¡ch.</p>
+<p>
+<em>zobrazenÃ­ po vrstvÃ¡ch</em>: SlouÅ¾Ã­ k zobrazenÃ­ komunikacÃ­ v jednostlivÃ½ch vÃ½Å¡kovÃ½ch vrstvÃ¡ch. PouÅ¾ijete jej nejen v podzemÃ­ ale i pÅ™i stavbÄ› Å¾elezniÄnÃ­ trati pod mostem.<br/>
+NajeÄte kurzorem <a href="mouse.txt">myÅ¡i</a> na pole v Ãºrovni, kterou chcete zobrazit. StistnÄ›te <a href="keys.txt">[Ctrl U]</a>.
 </p>

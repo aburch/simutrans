@@ -1,42 +1,42 @@
-<title>Nápovìda - seznam vozidel</title>
+<title>NÃ¡povÄ›da - seznam vozidel</title>
 <h1>Seznam vozidel</h1>
 
 <p>
-Seznam vozidel obsahuje v¹echna vozidla daného hráèe. Otevøete jej z nabídky <a href="list.txt">seznamy</a>.
+Seznam vozidel obsahuje vÅ¡echna vozidla danÃ©ho hrÃ¡Äe. OtevÅ™ete jej z nabÃ­dky <a href="list.txt">seznamy</a>.
 </p>
 <p>
-<em>Seznam nabízí tyto mo¾nosti:</em>
+<em>Seznam nabÃ­zÃ­ tyto moÅ¾nosti:</em>
 </p>
 
 <p>
-<em>1.) Øazení:</em><br/>
-Postupnım klikáním na první pøepínací tlaèítko mìníte kritéria, podle kterıch bude seznam øazen: jméno, pøíjem, typ nebo interní ID.<br/>
-Vedlej¹ím tlaèítkem nastavujete, zda má bıt øazen sestupnì nebo vzestupnì.
+<em>1.) Å˜azenÃ­:</em><br/>
+PostupnÃ½m klikÃ¡nÃ­m na prvnÃ­ pÅ™epÃ­nacÃ­ tlaÄÃ­tko mÄ›nÃ­te kritÃ©ria, podle kterÃ½ch bude seznam Å™azen: jmÃ©no, pÅ™Ã­jem, typ nebo internÃ­ ID.<br/>
+VedlejÅ¡Ã­m tlaÄÃ­tkem nastavujete, zda mÃ¡ bÃ½t Å™azen sestupnÄ› nebo vzestupnÄ›.
 </p>
 
 <p>
 <em>2.) Filtr:</em><br/>
-Kliknutím na tøetí tlaèítko aktivujete, nebo deaktivujete filtr.<br/>
-Mo¾nosti tohoto filtru mù¾ete mìnit po kliknutí na tlaèítko <strong>nastavení</strong>.
+KliknutÃ­m na tÅ™etÃ­ tlaÄÃ­tko aktivujete, nebo deaktivujete filtr.<br/>
+MoÅ¾nosti tohoto filtru mÅ¯Å¾ete mÄ›nit po kliknutÃ­ na tlaÄÃ­tko <strong>nastavenÃ­</strong>.
 </p>
 
-<p>Barva textu s názvem vozidla poskytuje dal¹í informace:<br/>
-- <em>èerná</em> - V¹e je vpoøádku<br/>
-- <em>èervená</em> - Provoz soupravy je prodìleènı.<br/>
-- <em>bílá</em> - Souprava je v depu.<br/>
-- <em>¾lutá</em> - Od zaèátku roku stojí ve stanice a èeká na náklad.<br/>
-- <em>oran¾ová</em> - Zaseklé v dopravní zácpì nebo nemù¾e najít cestu k cíli.
+<p>Barva textu s nÃ¡zvem vozidla poskytuje dalÅ¡Ã­ informace:<br/>
+- <em>ÄernÃ¡</em> - VÅ¡e je vpoÅ™Ã¡dku<br/>
+- <em>ÄervenÃ¡</em> - Provoz soupravy je prodÄ›leÄnÃ½.<br/>
+- <em>bÃ­lÃ¡</em> - Souprava je v depu.<br/>
+- <em>Å¾lutÃ¡</em> - Od zaÄÃ¡tku roku stojÃ­ ve stanice a ÄekÃ¡ na nÃ¡klad.<br/>
+- <em>oranÅ¾ovÃ¡</em> - ZaseklÃ© v dopravnÃ­ zÃ¡cpÄ› nebo nemÅ¯Å¾e najÃ­t cestu k cÃ­li.
 
-</p>
-
-<p>
--><a href="convoi_filter.txt">Nápovìda pro filtr</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="convoi_filter.txt">NÃ¡povÄ›da pro filtr</a>
 </p>
 
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 21.1.2013.
+-><a href="about.txt">Informace o pÅ™ekladu</a>
+</p>
+
+<p>
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 21.1.2013.
 </p>

@@ -1,44 +1,44 @@
 <title>Aide sur un nouveau monde (nouveau jeu)</title>
-<h1>Créer un nouveau jeu</h1>
+<h1>CrÃ©er un nouveau jeu</h1>
 <p>
-Les fenêtres qui permettent de créer un nouveau monde sont accessible au lancement du jeu et, en cours de partie, en cliquant sur la disquette (option) puis sur menu général.</p>
+Les fenÃªtres qui permettent de crÃ©er un nouveau monde sont accessible au lancement du jeu et, en cours de partie, en cliquant sur la disquette (option) puis sur menu gÃ©nÃ©ral.</p>
 <p>
-Cet écran vous permet de créer une nouvelle carte (donc un nouveau jeu), en définissant les paramètres relatifs à l'époque, à la carte, à la météo, aux villes et aux industries.</p>
+Cet Ã©cran vous permet de crÃ©er une nouvelle carte (donc un nouveau jeu), en dÃ©finissant les paramÃ¨tres relatifs Ã  l'Ã©poque, Ã  la carte, Ã  la mÃ©tÃ©o, aux villes et aux industries.</p>
 <p>
-<em>Load game :</em> Vous permet de charger l'un de vos jeux précédemment sauvegardé.
+<em>Load game :</em> Vous permet de charger l'un de vos jeux prÃ©cÃ©demment sauvegardÃ©.
 <a href="load.txt">Cliquez ici pour plus d'infos</a>.</p>
 <p>
-<em>Charger un relief :</em> si vous disposez d'un fichier avec un relief déterminé.</p>
+<em>Charger un relief :</em> si vous disposez d'un fichier avec un relief dÃ©terminÃ©.</p>
 <p>
-<em>Numéro de carte :</em> Sélectionnez l'une des nombreuses cartes à jouer, soit en entrant le n° souhaité, soit en utilisant les boutons qui permettent de passer à la carte précédente/suivante, soit en cliquant sur «carte quelconque» pour qu'un numéro de carte soit tiré au sort.</p>
+<em>NumÃ©ro de carte :</em> SÃ©lectionnez l'une des nombreuses cartes Ã  jouer, soit en entrant le nÂ° souhaitÃ©, soit en utilisant les boutons qui permettent de passer Ã  la carte prÃ©cÃ©dente/suivante, soit en cliquant sur Â«carte quelconqueÂ» pour qu'un numÃ©ro de carte soit tirÃ© au sort.</p>
 <p>
-<em>Dimensions :</em> Nombre de carrés dont le monde généré sera composé. Valeur mini : 64, maxi : 4096. Attention à ne pas générer une carte trop grande pour la capacité de calcul de votre ordinateur. Une carte trop petite peut avoir pour conséquence un non respect de vos autres choix (s'il y a peu de terres, il ne pourra pas y avoir beaucoup de villes, par exemple).</p>
+<em>Dimensions :</em> Nombre de carrÃ©s dont le monde gÃ©nÃ©rÃ© sera composÃ©. Valeur mini : 64, maxi : 4096. Attention Ã  ne pas gÃ©nÃ©rer une carte trop grande pour la capacitÃ© de calcul de votre ordinateur. Une carte trop petite peut avoir pour consÃ©quence un non respect de vos autres choix (s'il y a peu de terres, il ne pourra pas y avoir beaucoup de villes, par exemple).</p>
 <p>
-<em>Nb villes :</em> Nombre initial de villes. D'autres villes peuvent être crées en cours de partie en payant une somme importante... ou en demandant au joueur service public de le faire.</p>
+<em>Nb villes :</em> Nombre initial de villes. D'autres villes peuvent Ãªtre crÃ©es en cours de partie en payant une somme importante... ou en demandant au joueur service public de le faire.</p>
 <p>
-<em>Moyenne d'habitants par Ville :</em> Nombre moyen de personnes vivant dans chaque ville (certaines villes seront bien évidemment plus grosses et d'autres plus petites, ce n'est qu'une moyenne).</p>
+<em>Moyenne d'habitants par Ville :</em> Nombre moyen de personnes vivant dans chaque ville (certaines villes seront bien Ã©videmment plus grosses et d'autres plus petites, ce n'est qu'une moyenne).</p>
 <p>
-<em>Intercity road len :</em> Longueur maximale de route reliant les villes entre elles. Une valeur élevée facilite les connexions routières entre les villes dès le début de la partie.</p>
+<em>Intercity road len :</em> Longueur maximale de route reliant les villes entre elles. Une valeur Ã©levÃ©e facilite les connexions routiÃ¨res entre les villes dÃ¨s le dÃ©but de la partie.</p>
 <p>
-<em>Densité Trafic :</em> Densité Trafic : Trafic généré par l'ordinateur. Entre 0 et 16 (modifiable en cours de partie dans les <a href="display.txt">options</a>). Une valeur élevée représente un challenge pour gérer risques d'embouteillages et circulation de vos bus et camions. Une valeur nulle permet une circulation totalement privée.</p>
+<em>DensitÃ© Trafic :</em> DensitÃ© Trafic : Trafic gÃ©nÃ©rÃ© par l'ordinateur. Entre 0 et 16 (modifiable en cours de partie dans les <a href="display.txt">options</a>). Une valeur Ã©levÃ©e reprÃ©sente un challenge pour gÃ©rer risques d'embouteillages et circulation de vos bus et camions. Une valeur nulle permet une circulation totalement privÃ©e.</p>
 <p>
-<em>Fabriques en dehors des villes :</em> Nombre d'usines : bâtiments autonomes comme l'éolienne, sites d'extraction de matières premières, agriculture et élevage, industries de transformation.</p>
+<em>Fabriques en dehors des villes :</em> Nombre d'usines : bÃ¢timents autonomes comme l'Ã©olienne, sites d'extraction de matiÃ¨res premiÃ¨res, agriculture et Ã©levage, industries de transformation.</p>
 <p>
-<em>Marchés dans les villes :</em> Industries de vente dans les villes (supermarchés, etc.). Ces bâtiments consomment des biens (à y acheminer) pour les vendre à la population, il ne produisent aucun bien à transporter.</p>
+<em>MarchÃ©s dans les villes :</em> Industries de vente dans les villes (supermarchÃ©s, etc.). Ces bÃ¢timents consomment des biens (Ã  y acheminer) pour les vendre Ã  la population, il ne produisent aucun bien Ã  transporter.</p>
 <p>
-<em>Tourist attractions :</em> Nombre initial de sites touristiques, qui génèrent du trafic passagers et de courrier.</p>
+<em>Tourist attractions :</em> Nombre initial de sites touristiques, qui gÃ©nÃ¨rent du trafic passagers et de courrier.</p>
 <p>
-<em>Use timeline start year :</em> Si la case est cochée, les limitations applicables aux bâtiments et véhicules seront appliquées en fonction de l'année de départ choisie. Attention, il n'y a pas de construction de fabrique en cours de partie (sauf en jouant le joueur service public qui peut ajouter des attractions, des centrales électriques et des marchés dans les villes), et si l'année de départ est très ancienne il peut n'y avoir aucune fabrique sur la carte. Si la case n'est pas cochée, vous pouvez commencer en 1750 avec des usines électroniques et des éoliennes.</p>
+<em>Use timeline start year :</em> Si la case est cochÃ©e, les limitations applicables aux bÃ¢timents et vÃ©hicules seront appliquÃ©es en fonction de l'annÃ©e de dÃ©part choisie. Attention, il n'y a pas de construction de fabrique en cours de partie (sauf en jouant le joueur service public qui peut ajouter des attractions, des centrales Ã©lectriques et des marchÃ©s dans les villes), et si l'annÃ©e de dÃ©part est trÃ¨s ancienne il peut n'y avoir aucune fabrique sur la carte. Si la case n'est pas cochÃ©e, vous pouvez commencer en 1750 avec des usines Ã©lectroniques et des Ã©oliennes.</p>
 <p>
-<em>Autoriser le changement de joueur :</em> Le titre est clair. Quand le changement est possible, il permet même d'incarner temporairement un joueur spécial qui bénéficie de quelques options spéciales et d'un découvert illimité : service public.</p>
+<em>Autoriser le changement de joueur :</em> Le titre est clair. Quand le changement est possible, il permet mÃªme d'incarner temporairement un joueur spÃ©cial qui bÃ©nÃ©ficie de quelques options spÃ©ciales et d'un dÃ©couvert illimitÃ© : service public.</p>
 <p>
-<em>Beginner Mode :</em> Les débutants et les mauvais gestionnaires peuvent cocher cette case pour bénéficier de revenu majorés de 50% et obliger les usines à toujours accepter les marchandises, même quand elles sont en surnombre vu la consommation du bâtiment.</p>
+<em>Beginner Mode :</em> Les dÃ©butants et les mauvais gestionnaires peuvent cocher cette case pour bÃ©nÃ©ficier de revenu majorÃ©s de 50% et obliger les usines Ã  toujours accepter les marchandises, mÃªme quand elles sont en surnombre vu la consommation du bÃ¢timent.</p>
 <p>
-<em>C'est parti ! :</em> Est-il nécessaire de préciser l'effet d'un click sur ce bouton une fois tous vos choix paramétrés ?</p>
+<em>C'est parti ! :</em> Est-il nÃ©cessaire de prÃ©ciser l'effet d'un click sur ce bouton une fois tous vos choix paramÃ©trÃ©s ?</p>
 <p>
-Pensez, en début de partie, à aller configurer, à partir du bouton en forme de disquette (option), les couleurs utilisées et les informations relatives aux joueurs (pour ajouter ou enlever des joueurs contrôlés par l'ordinateur, selon que vous préfériez jouer en solo ou avec des concurrents).</p>
+Pensez, en dÃ©but de partie, Ã  aller configurer, Ã  partir du bouton en forme de disquette (option), les couleurs utilisÃ©es et les informations relatives aux joueurs (pour ajouter ou enlever des joueurs contrÃ´lÃ©s par l'ordinateur, selon que vous prÃ©fÃ©riez jouer en solo ou avec des concurrents).</p>
 <p>
-Actualisé pour Simutrans 100.0
+ActualisÃ© pour Simutrans 100.0
 <br>
 05/07/2008.
 </p>

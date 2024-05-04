@@ -2,36 +2,36 @@
 
 <h1><strong>Les outils Aviation</strong></h1>
 
-<p>La barre d'outils "Aviation" contient les éléments nécessaires à la construction d'un réseau aérien. Ces outils permettent de construire (ou détruire) les pistes et voies de roulement (taxiways), les arrêts (lieux de chargement-déchargement pour les passagers, le courrier ou les biens), les dépôts (permettant d'acheter et gérer le matériel aérien - càd les avions la plupart du temps), ainsi que diverses extensions. Si vous jouez avec la <a href=new_world.txt>timeline</a> activée, certains bâtiments apparaîtront progressivement, vous donnant ainsi plus de choix.</p>
+<p>La barre d'outils "Aviation" contient les Ã©lÃ©ments nÃ©cessaires Ã  la construction d'un rÃ©seau aÃ©rien. Ces outils permettent de construire (ou dÃ©truire) les pistes et voies de roulement (taxiways), les arrÃªts (lieux de chargement-dÃ©chargement pour les passagers, le courrier ou les biens), les dÃ©pÃ´ts (permettant d'acheter et gÃ©rer le matÃ©riel aÃ©rien - cÃ d les avions la plupart du temps), ainsi que diverses extensions. Si vous jouez avec la <a href=new_world.txt>timeline</a> activÃ©e, certains bÃ¢timents apparaÃ®tront progressivement, vous donnant ainsi plus de choix.</p>
 
-<p>Cliquez sur l?icône "avion" dans la barre supérieure pour ouvrir la barre d'outils aviation. Passez le curseur de la souris sur les icônes des différents outils pour connaître leur nom et certaines données : <a href=finances.txt>coût</a> de construction, coût de la maintenance et vitesse maximum supportée.Sachez que les aéroports doivent être construits sur des surfaces planes, il n'y a pas de pentes possibles</p>
+<p>Cliquez sur l?icÃ´ne "avion" dans la barre supÃ©rieure pour ouvrir la barre d'outils aviation. Passez le curseur de la souris sur les icÃ´nes des diffÃ©rents outils pour connaÃ®tre leur nom et certaines donnÃ©es : <a href=finances.txt>coÃ»t</a> de construction, coÃ»t de la maintenance et vitesse maximum supportÃ©e.Sachez que les aÃ©roports doivent Ãªtre construits sur des surfaces planes, il n'y a pas de pentes possibles</p>
 
-<p>La méthode à suivre pour construire simplement un aéroport : <br>
+<p>La mÃ©thode Ã  suivre pour construire simplement un aÃ©roport : <br>
 1) construire une piste et un taxiway, les connecter<br>
-2) placer un arrêt sur une extrémité de taxiway<br>
-3) ajouter des bâtiments annexes si nécessaires</p>
+2) placer un arrÃªt sur une extrÃ©mitÃ© de taxiway<br>
+3) ajouter des bÃ¢timents annexes si nÃ©cessaires</p>
 
-La barre d'outils Aviation contient, de gauche à droite :<br>
-<p><em>Taxiway</em> : permet le déplacement des avions entre la piste de décollage/atterrissage et l'arrêt. Ces taxiways sont construits au niveau du sol.<br>
-IMPORTANT : les taxiways ne doivent pas être connectés aux pistes par l'extrémité des ces dernières, mais sur le coté des pistes, sous peine d'empêcher le décollage ou l?atterrissage.</br>
-Pour construire un taxiway, cliquez sur l'outil "taxiway" désiré (le curseur se change en "taxiway"). Cliquez sur le point de départ du taxiway, puis sur le point d'arrivée (qui peut être une case vide ou une piste).</p>
+La barre d'outils Aviation contient, de gauche Ã  droite :<br>
+<p><em>Taxiway</em> : permet le dÃ©placement des avions entre la piste de dÃ©collage/atterrissage et l'arrÃªt. Ces taxiways sont construits au niveau du sol.<br>
+IMPORTANT : les taxiways ne doivent pas Ãªtre connectÃ©s aux pistes par l'extrÃ©mitÃ© des ces derniÃ¨res, mais sur le cotÃ© des pistes, sous peine d'empÃªcher le dÃ©collage ou l?atterrissage.</br>
+Pour construire un taxiway, cliquez sur l'outil "taxiway" dÃ©sirÃ© (le curseur se change en "taxiway"). Cliquez sur le point de dÃ©part du taxiway, puis sur le point d'arrivÃ©e (qui peut Ãªtre une case vide ou une piste).</p>
 
-<p><em>Piste</em> : permet de construire une piste, utilisée par les avions pour décoller ou atterrir. Les pistes sont construites au niveau du sol, et peuvent éventuellement se croiser, mais ne peuvent être construites en diagonale.<br>
-Pour construire une piste, cliquez sur l'outil "piste" désiré (le curseur se change en "piste"). Cliquez sur le point de départ de la piste, puis sur le point d'arrivée, et ce en ligne droite stricte.<br>
-Les pistes doivent être connectées aux taxiways, sinon les avions ne pourront pas atterrir ou décoller.</p>
+<p><em>Piste</em> : permet de construire une piste, utilisÃ©e par les avions pour dÃ©coller ou atterrir. Les pistes sont construites au niveau du sol, et peuvent Ã©ventuellement se croiser, mais ne peuvent Ãªtre construites en diagonale.<br>
+Pour construire une piste, cliquez sur l'outil "piste" dÃ©sirÃ© (le curseur se change en "piste"). Cliquez sur le point de dÃ©part de la piste, puis sur le point d'arrivÃ©e, et ce en ligne droite stricte.<br>
+Les pistes doivent Ãªtre connectÃ©es aux taxiways, sinon les avions ne pourront pas atterrir ou dÃ©coller.</p>
 
-<p><em>Destruction de voies aériennes</em> : permet de supprimer des segments de pistes ou de taxiways, si aucun avion n'est présent dessus. Cet outil de destruction est <a href=finances.txt>payant</a>.<br>
-Pour détruire un segment, cliquer sur l'outil de destruction de voies aériennes (change le curseur en croix rouge). Cliquer sur la première extrémité du segment à supprimer, puis sur la deuxième.</p>
+<p><em>Destruction de voies aÃ©riennes</em> : permet de supprimer des segments de pistes ou de taxiways, si aucun avion n'est prÃ©sent dessus. Cet outil de destruction est <a href=finances.txt>payant</a>.<br>
+Pour dÃ©truire un segment, cliquer sur l'outil de destruction de voies aÃ©riennes (change le curseur en croix rouge). Cliquer sur la premiÃ¨re extrÃ©mitÃ© du segment Ã  supprimer, puis sur la deuxiÃ¨me.</p>
 
-<p><em>Dépot Aérien</em> : permet de construire un hangar pour acheter et gérer la flotte aérienne. Les hangars ont un cout de maintenance, et doivent être construits sur une extrémité de taxiway.<br>
-Pour construire un hangar, cliquez sur l'outil "hangar" désiré, puis sur une extrémité de taxiway.</p>
+<p><em>DÃ©pot AÃ©rien</em> : permet de construire un hangar pour acheter et gÃ©rer la flotte aÃ©rienne. Les hangars ont un cout de maintenance, et doivent Ãªtre construits sur une extrÃ©mitÃ© de taxiway.<br>
+Pour construire un hangar, cliquez sur l'outil "hangar" dÃ©sirÃ©, puis sur une extrÃ©mitÃ© de taxiway.</p>
 
-<p><em>Arrêts aériens et zones de chargement</em> : permet la construction d'<a href=stations.txt>arrêts</a> permettant aux avions de charger ou décharger des passagers, du courrier ou des biens. Si un tel arrêt n'est pas construit au contact d'un arrêt existant, cela va créer un nouvel arrêt.<br>
-Les arrêts ont un coût de maintenance et doivent être construits sur une extrémité de taxiway. ces arrêts possèdent une capacité de stockage de passagers ou biens. Un avion n'atterrira que si l'un de ces arrêts est libre et connecté à la piste via le taxiway.<br>
-Pour construire un arrêt, cliquez sur l'arrêt désiré, puis sur une extrémité de taxiway.<br>
-La touche "v" permet de montrer ou masquer la zone de couverture de l'arrêt.</p>
+<p><em>ArrÃªts aÃ©riens et zones de chargement</em> : permet la construction d'<a href=stations.txt>arrÃªts</a> permettant aux avions de charger ou dÃ©charger des passagers, du courrier ou des biens. Si un tel arrÃªt n'est pas construit au contact d'un arrÃªt existant, cela va crÃ©er un nouvel arrÃªt.<br>
+Les arrÃªts ont un coÃ»t de maintenance et doivent Ãªtre construits sur une extrÃ©mitÃ© de taxiway. ces arrÃªts possÃ¨dent une capacitÃ© de stockage de passagers ou biens. Un avion n'atterrira que si l'un de ces arrÃªts est libre et connectÃ© Ã  la piste via le taxiway.<br>
+Pour construire un arrÃªt, cliquez sur l'arrÃªt dÃ©sirÃ©, puis sur une extrÃ©mitÃ© de taxiway.<br>
+La touche "v" permet de montrer ou masquer la zone de couverture de l'arrÃªt.</p>
 
-<p><em>Bâtiments aériens et extensions</em> : permet de construire des extensions pour les stations. Ces extensions peuvent augmenter les coûts de maintenance, et permettre d'augmenter la capacité de stockage en passagers ou biens.<br> 
-Une petite image dans le coin de l?icône permet de connaître le type d'extension (pour passagers, courrier ou biens)<br>
-Pour construire une extension, cliquez sur l'outil d'extension désirée puis placez là au contact d'un arrêt ou extension existant. Elle devient alors un élément de l'arrêt.
+<p><em>BÃ¢timents aÃ©riens et extensions</em> : permet de construire des extensions pour les stations. Ces extensions peuvent augmenter les coÃ»ts de maintenance, et permettre d'augmenter la capacitÃ© de stockage en passagers ou biens.<br> 
+Une petite image dans le coin de l?icÃ´ne permet de connaÃ®tre le type d'extension (pour passagers, courrier ou biens)<br>
+Pour construire une extension, cliquez sur l'outil d'extension dÃ©sirÃ©e puis placez lÃ  au contact d'un arrÃªt ou extension existant. Elle devient alors un Ã©lÃ©ment de l'arrÃªt.
 </p>

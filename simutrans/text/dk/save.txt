@@ -1,19 +1,19 @@
 <title>Gem Help</title>
 
-<h1>Gem dialog hjælp</h1>
+<h1>Gem dialog hjÃ¦lp</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Hvis du ønsker at spille et spil over et længere tidsrum, bliver du nødt til
-at gemmme det på et tidspunkt. Simutrans giver mulighed for at gemme alle
-aktuelle data i en fil, der kan indlæses på et senere tidspunkt.
+Hvis du Ã¸nsker at spille et spil over et lÃ¦ngere tidsrum, bliver du nÃ¸dt til
+at gemmme det pÃ¥ et tidspunkt. Simutrans giver mulighed for at gemme alle
+aktuelle data i en fil, der kan indlÃ¦ses pÃ¥ et senere tidspunkt.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er overskriften 'Filnavn:' med en tilhørende tekstboks. Denne
+Ã˜verst i dialogen er overskriften 'Filnavn:' med en tilhÃ¸rende tekstboks. Denne
 tekstboks giver mulighed for at indtaste et navn, som spillet skal gemmes
-under. Derunder er en liste bestående af de spil, der befinder sig i
+under. Derunder er en liste bestÃ¥ende af de spil, der befinder sig i
 simutrans/save mappen. For alle spil er vist en-slet knap, spillets navn samt
 "gem-tidspunktet".<br>
 Nederst er en 'OK' og en 'Fortryd' knap.
@@ -21,14 +21,14 @@ Nederst er en 'OK' og en 'Fortryd' knap.
 
 <p>
 Et spil gemmes enten ved at taste et navn for spillet i tekstboksen og trykke
-på 'OK' knappen eller ved at gemme under et tidligere navn. Det sidste gøres
-ved trykke på spillets navn i listen, hvorved det tidligere gemte spil
+pÃ¥ 'OK' knappen eller ved at gemme under et tidligere navn. Det sidste gÃ¸res
+ved trykke pÃ¥ spillets navn i listen, hvorved det tidligere gemte spil
 overskrives.
 </p>
 
 <p>
-Det er muligt at slette gemte spil ved at trykke på
-slet-knappen. <strong>Bemærk at dette sletter spillet uden mulighed for at
-genskabe det !!</strong> Efter der er trykket på slet-knappen lukkes dialogen
+Det er muligt at slette gemte spil ved at trykke pÃ¥
+slet-knappen. <strong>BemÃ¦rk at dette sletter spillet uden mulighed for at
+genskabe det !!</strong> Efter der er trykket pÃ¥ slet-knappen lukkes dialogen
 uden yderligere meddelelser.
 </p>

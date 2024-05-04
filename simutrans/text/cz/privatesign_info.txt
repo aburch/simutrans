@@ -1,27 +1,27 @@
-<title>Závora</title>
+<title>ZÃ¡vora</title>
 
 
 
-<h1>závora</h1>
+<h1>zÃ¡vora</h1>
 
 
 
 <p>
 
-Závora umo¾òuje zakázat nebo povolit ostatním hráèùm vstup na silnici nebo ¾eleznièní tra».
+ZÃ¡vora umoÅ¾Åˆuje zakÃ¡zat nebo povolit ostatnÃ­m hrÃ¡ÄÅ¯m vstup na silnici nebo Å¾elezniÄnÃ­ traÅ¥.
 
-Je u¾iteèná k odfitrování aut veøejného hráèe, která by jinak bránila vjezdu nákladních vozidel k nákladové rampì.
+Je uÅ¾iteÄnÃ¡ k odfitrovÃ¡nÃ­ aut veÅ™ejnÃ©ho hrÃ¡Äe, kterÃ¡ by jinak brÃ¡nila vjezdu nÃ¡kladnÃ­ch vozidel k nÃ¡kladovÃ© rampÄ›.
 
 </p>
 
 <p>
 
-Závoru postavíte pomocí nástojù pro stavbu <a href="railtools.txt">¾eleznice</a> nebo <a href="roadtools.txt">silnice</a>.
+ZÃ¡voru postavÃ­te pomocÃ­ nÃ¡stojÅ¯ pro stavbu <a href="railtools.txt">Å¾eleznice</a> nebo <a href="roadtools.txt">silnice</a>.
 
 </p>
 
-<p>V levém horním rohu dialogu je napsáno, komu závora patøí.</p>
+<p>V levÃ©m hornÃ­m rohu dialogu je napsÃ¡no, komu zÃ¡vora patÅ™Ã­.</p>
 
-<p>Zamáèklé tlaèítko pøed jménem hráèe znamená vstup povolen.</p>
+<p>ZamÃ¡ÄklÃ© tlaÄÃ­tko pÅ™ed jmÃ©nem hrÃ¡Äe znamenÃ¡ vstup povolen.</p>
 
-<p>Tip: Vozidel veøejné správy se lze zbavit kombinací závory a jednosmìrky (na vıjezdu).</p>
+<p>Tip: Vozidel veÅ™ejnÃ© sprÃ¡vy se lze zbavit kombinacÃ­ zÃ¡vory a jednosmÄ›rky (na vÃ½jezdu).</p>

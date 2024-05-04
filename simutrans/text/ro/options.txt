@@ -1,19 +1,19 @@
-<title>Help Opşiuni</title>
-<h1>Opşiuni</h1>
+<title>Help OpÅ£iuni</title>
+<h1>OpÅ£iuni</h1>
 
 <p>
 <em>Limba</em> - Selectarea limbii<br>
-<em>Culoare jucãtor</em> - Selectarea culorii.<br>
-<em>Monitor</em> - Setãri monitor.<br>
-<em>Sunet</em> - Setãri sunete.<br>
-<em>Jucãtori</em> - Selectare adversari.<br>
-<em>Încarcã</em> - Încarcã joc salvat<br>
-<em>Salveazã</em> - Salvare joc.<br>
-<em>Hartã nouã</em> - Crearea unei noi hãrşi<br>
-<em>Terminare joc</em> - Ieºire din joc (jocul ne se salveazã automat)<br>
+<em>Culoare jucÄƒtor</em> - Selectarea culorii.<br>
+<em>Monitor</em> - SetÄƒri monitor.<br>
+<em>Sunet</em> - SetÄƒri sunete.<br>
+<em>JucÄƒtori</em> - Selectare adversari.<br>
+<em>ÃncarcÄƒ</em> - ÃncarcÄƒ joc salvat<br>
+<em>SalveazÄƒ</em> - Salvare joc.<br>
+<em>HartÄƒ nouÄƒ</em> - Crearea unei noi hÄƒrÅ£i<br>
+<em>Terminare joc</em> - IeÅŸire din joc (jocul ne se salveazÄƒ automat)<br>
 </p>
 
 <p>
 
-Detalii în help-ul meniurilor.
+Detalii Ã®n help-ul meniurilor.
 </p>

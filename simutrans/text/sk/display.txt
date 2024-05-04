@@ -2,41 +2,41 @@
 
 <h1>Obraz - pomoc</h1>
 <p>
-Tu si nastavuje¹ vlastnosti rolovania, zapína¹
-alebo vypína¹ zobrazenie chodcov a zapína¹ alebo
-vypína¹ efekt, ktorı napodobòuje striedanie dòa
+Tu si nastavujeÅ¡ vlastnosti rolovania, zapÃ­naÅ¡
+alebo vypÃ­naÅ¡ zobrazenie chodcov a zapÃ­naÅ¡ alebo
+vypÃ­naÅ¡ efekt, ktorÃ½ napodobÅˆuje striedanie dÅˆa
 a noci.
 </p>
 <p>
 <em>Rolovanie:</em><br>
-Pri rolovaní môze¹ klikaním na ¹ípky nastavit'
-citlivost' rolovania, t.j. o akú veµkú vzdialenost'
-sa Ti bude posúvat' zobrazenie. Èím je hodnota väè¹ia,
-o tım väè¹iu vzdialenost' (gradovanie) sa bude¹ presúvat'
-z jedného miesta na druhé u¾ pri nepatrnom pohybe my¹ou
-alebo povelom z klávesnice.<br>
-Ak ponechá¹ hodnotu rolovania na 1, mô¾e¹ dosiahnut' jemnej¹ieho
-presúvania sa po krajine.
+Pri rolovanÃ­ mÃ´zeÅ¡ klikanÃ­m na Å¡Ã­pky nastavit'
+citlivost' rolovania, t.j. o akÃº veÄ¾kÃº vzdialenost'
+sa Ti bude posÃºvat' zobrazenie. ÄŒÃ­m je hodnota vÃ¤ÄÅ¡ia,
+o tÃ½m vÃ¤ÄÅ¡iu vzdialenost' (gradovanie) sa budeÅ¡ presÃºvat'
+z jednÃ©ho miesta na druhÃ© uÅ¾ pri nepatrnom pohybe myÅ¡ou
+alebo povelom z klÃ¡vesnice.<br>
+Ak ponechÃ¡Å¡ hodnotu rolovania na 1, mÃ´Å¾eÅ¡ dosiahnut' jemnejÅ¡ieho
+presÃºvania sa po krajine.
 </p>
 <p>
-<em>Inverzné rolovanie:</em><br>
-Ak ti nevyhovuje posun po krajine voèi pohybu my¹ou a si zvyknutı na opaènı
-pohyb krajiny, zapni si túto funkciu.
+<em>InverznÃ© rolovanie:</em><br>
+Ak ti nevyhovuje posun po krajine voÄi pohybu myÅ¡ou a si zvyknutÃ½ na opaÄnÃ½
+pohyb krajiny, zapni si tÃºto funkciu.
 </p>
 <p>
-<em>Ukázat' chodcov:</em><br>
-Zapnutím tejto funkcie dosiahne¹ mimoriadne efektného zobrazenia pasa¾ierov,
-ktorı vystupujú z vlaku, autobusu alebo lode. Èím bude viac vystupujúcich
-pasa¾ierov, tım bude efekt viditeµnejsí (skoro ako mravenisko).
+<em>UkÃ¡zat' chodcov:</em><br>
+ZapnutÃ­m tejto funkcie dosiahneÅ¡ mimoriadne efektnÃ©ho zobrazenia pasaÅ¾ierov,
+ktorÃ½ vystupujÃº z vlaku, autobusu alebo lode. ÄŒÃ­m bude viac vystupujÃºcich
+pasaÅ¾ierov, tÃ½m bude efekt viditeÄ¾nejsÃ­ (skoro ako mravenisko).
 </p>
 <p>
-<em>Striedat' noc a deò:</em><br>
-Táto funkcia umo¾òuje napodobnit' striedanie dòa a noci. Odporúèam ju zapnút' iba
-v prípade, keï nemá¹ v pláne nijaké väè¹ie budovanie Tvojej dopravy a chce¹ iba
-také ,,oddychové'' hranie a pozeranie. Akonáhle sa pustí¹ do väè¹ieho budovania,
-tento efekt «a môze ru¹it'. Vtedy si ho vypni.
+<em>Striedat' noc a deÅˆ:</em><br>
+TÃ¡to funkcia umoÅ¾Åˆuje napodobnit' striedanie dÅˆa a noci. OdporÃºÄam ju zapnÃºt' iba
+v prÃ­pade, keÄ nemÃ¡Å¡ v plÃ¡ne nijakÃ© vÃ¤ÄÅ¡ie budovanie Tvojej dopravy a chceÅ¡ iba
+takÃ© ,,oddychovÃ©'' hranie a pozeranie. AkonÃ¡hle sa pustÃ­Å¡ do vÃ¤ÄÅ¡ieho budovania,
+tento efekt Å¤a mÃ´ze ruÅ¡it'. Vtedy si ho vypni.
 </p>
 <p>
-Slovenskı popis: Ján Krnáè<br>
+SlovenskÃ½ popis: JÃ¡n KrnÃ¡Ä<br>
 Simutrans (c) Hj. Malthaner
 </p>

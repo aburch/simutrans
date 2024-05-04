@@ -1,12 +1,12 @@
-<title>Nápovìda - vıbìr barev</title>
-<h1>Vıbìr barev</h1>
+<title>NÃ¡povÄ›da - vÃ½bÄ›r barev</title>
+<h1>VÃ½bÄ›r barev</h1>
 
 <p>
-Zde si mù¾ete vybrat barvu Va¹í spoleènosti.
-Je to barva, kterou bude mít Vá¹ majetek, jako jsou vlaky, nákladní auta, depa, stanice atd.<br>
-Ov¹em není to pravidlem, nìkterı majetek tuto barvu mít nebude.
+Zde si mÅ¯Å¾ete vybrat barvu VaÅ¡Ã­ spoleÄnosti.
+Je to barva, kterou bude mÃ­t VÃ¡Å¡ majetek, jako jsou vlaky, nÃ¡kladnÃ­ auta, depa, stanice atd.<br>
+OvÅ¡em nenÃ­ to pravidlem, nÄ›kterÃ½ majetek tuto barvu mÃ­t nebude.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

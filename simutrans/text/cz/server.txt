@@ -1,25 +1,25 @@
-<title>Hra po síti </title>
+<title>Hra po sÃ­ti </title>
 
-<h1><strong>Hra po síti </strong></h1>
-
-
-
-<p> Okno <strong>Informace o høe</strong> poskytuje údaje o herních serverech dostupnıch pro hru po síti, souèasném stavu hry na nich, a to vèetnì detailù jako je datum, poèet hráèù, souprav apod.</p>
+<h1><strong>Hra po sÃ­ti </strong></h1>
 
 
 
-<p> V horní èásti okna je zobrazen <em>seznam herních serverù</em>. Server vyberete kliknutím na text.</p>
+<p> Okno <strong>Informace o hÅ™e</strong> poskytuje Ãºdaje o hernÃ­ch serverech dostupnÃ½ch pro hru po sÃ­ti, souÄasnÃ©m stavu hry na nich, a to vÄetnÄ› detailÅ¯ jako je datum, poÄet hrÃ¡ÄÅ¯, souprav apod.</p>
 
 
 
-<p> Po ním jsou tlaèítka omezující vıbìr na servery se stejnou verzí programu a servery se stejnım pakem.</p>
+<p> V hornÃ­ ÄÃ¡sti okna je zobrazen <em>seznam hernÃ­ch serverÅ¯</em>. Server vyberete kliknutÃ­m na text.</p>
 
 
 
-<p>Pokud po¾adovanı server není v seznamu, zadejte jeho ip adresu do políèka.</p>
-
-<p>Tlaèítkem <em>dotázet se serveru</em> se serveru zeptáte na informace o právì probíhající høe.</p>
+<p> Po nÃ­m jsou tlaÄÃ­tka omezujÃ­cÃ­ vÃ½bÄ›r na servery se stejnou verzÃ­ programu a servery se stejnÃ½m pakem.</p>
 
 
 
-<p> Pomocí tlaèítka <em>hrát online</em> se pøipojíte k vámi zvolenému serveru. Poèkáte si, a¾ se naète mapa a mù¾ete hrát. </p>
+<p>Pokud poÅ¾adovanÃ½ server nenÃ­ v seznamu, zadejte jeho ip adresu do polÃ­Äka.</p>
+
+<p>TlaÄÃ­tkem <em>dotÃ¡zet se serveru</em> se serveru zeptÃ¡te na informace o prÃ¡vÄ› probÃ­hajÃ­cÃ­ hÅ™e.</p>
+
+
+
+<p> PomocÃ­ tlaÄÃ­tka <em>hrÃ¡t online</em> se pÅ™ipojÃ­te k vÃ¡mi zvolenÃ©mu serveru. PoÄkÃ¡te si, aÅ¾ se naÄte mapa a mÅ¯Å¾ete hrÃ¡t. </p>

@@ -1,12 +1,12 @@
-<title>Nápovìda - my¹</title>
+<title>NÃ¡povÄ›da - myÅ¡</title>
 
-<h1>My¹</h1>
+<h1>MyÅ¡</h1>
 
 <p>
-<em>levé tlaèítko</em> slou¾í ke klikání na objekty pomocí <a href="inspection_tool.txt">inspekèní lupy</a>, vıstavbì a ve¹kerému ovládání hry.</p>
+<em>levÃ© tlaÄÃ­tko</em> slouÅ¾Ã­ ke klikÃ¡nÃ­ na objekty pomocÃ­ <a href="inspection_tool.txt">inspekÄnÃ­ lupy</a>, vÃ½stavbÄ› a veÅ¡kerÃ©mu ovlÃ¡dÃ¡nÃ­ hry.</p>
 
-<p>pøi stisknutém <em>pravém tlaèítku</em> my¹i mù¾ete posouvat s mapou.</p>
+<p>pÅ™i stisknutÃ©m <em>pravÃ©m tlaÄÃ­tku</em> myÅ¡i mÅ¯Å¾ete posouvat s mapou.</p>
 
-<p><em>koleèko my¹i</em> slou¾í k pøiblí¾ení se k terénu nebo k oddálení se od nìj.</p>
+<p><em>koleÄko myÅ¡i</em> slouÅ¾Ã­ k pÅ™iblÃ­Å¾enÃ­ se k terÃ©nu nebo k oddÃ¡lenÃ­ se od nÄ›j.</p>
 
-<p> Chování my¹i mù¾e bıt ovlivnìnou stisknutím klávesy [Ctrl]</p>
+<p> ChovÃ¡nÃ­ myÅ¡i mÅ¯Å¾e bÃ½t ovlivnÄ›nou stisknutÃ­m klÃ¡vesy [Ctrl]</p>

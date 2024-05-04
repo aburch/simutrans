@@ -1,23 +1,23 @@
-<title>Nápovìda - silnièní semafory</title>
+<title>NÃ¡povÄ›da - silniÄnÃ­ semafory</title>
 
-<h1>silnièní semafory</h1>
+<h1>silniÄnÃ­ semafory</h1>
 
 <p>
-Silnièní semafory slou¾í k øízení dopravy na køi¾ovatkách.
+SilniÄnÃ­ semafory slouÅ¾Ã­ k Å™Ã­zenÃ­ dopravy na kÅ™iÅ¾ovatkÃ¡ch.
 </p>
 <p>
-Nástroj pro umístìní silnièního semaforu naleznete v menu <a href="roadtools.txt">silnièní dopravy</a>.
+NÃ¡stroj pro umÃ­stÄ›nÃ­ silniÄnÃ­ho semaforu naleznete v menu <a href="roadtools.txt">silniÄnÃ­ dopravy</a>.
 </p>
 <p>
-Okno s nastavením silnièních semaforù získáte kliknutím <a href="inspection_tool.txt">inspekèní lupou</a> na pole se semaforem.
-U semaforù lze nastavit délku fáze pro jednotlivé smìry z èasovı posun sepnutí.
+Okno s nastavenÃ­m silniÄnÃ­ch semaforÅ¯ zÃ­skÃ¡te kliknutÃ­m <a href="inspection_tool.txt">inspekÄnÃ­ lupou</a> na pole se semaforem.
+U semaforÅ¯ lze nastavit dÃ©lku fÃ¡ze pro jednotlivÃ© smÄ›ry z ÄasovÃ½ posun sepnutÃ­.
 </p>
 <p>
-V <em>prvním poli</em> (zleva) se nachází délka fáze (v sekundách) pro prùjezd severoji¾ním smìrem (z pravého horního rohu do levého dolního rohu).
+V <em>prvnÃ­m poli</em> (zleva) se nachÃ¡zÃ­ dÃ©lka fÃ¡ze (v sekundÃ¡ch) pro prÅ¯jezd severojiÅ¾nÃ­m smÄ›rem (z pravÃ©ho hornÃ­ho rohu do levÃ©ho dolnÃ­ho rohu).
 </p>
 <p>
-V <em>druhém poli</em> nastavíte délku fáze (v sekundách) pro prùjezd od vıchodu na západ a od západu na vıchod.
+V <em>druhÃ©m poli</em> nastavÃ­te dÃ©lku fÃ¡ze (v sekundÃ¡ch) pro prÅ¯jezd od vÃ½chodu na zÃ¡pad a od zÃ¡padu na vÃ½chod.
 </p>
 <p>
-V <em>tøetím poli</em> upravíte èasovı posuv, v jakém mají semafory spínat, aby byl co nejplynulej¹í prùjezd.
+V <em>tÅ™etÃ­m poli</em> upravÃ­te ÄasovÃ½ posuv, v jakÃ©m majÃ­ semafory spÃ­nat, aby byl co nejplynulejÅ¡Ã­ prÅ¯jezd.
 </p>

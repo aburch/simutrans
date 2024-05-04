@@ -6,7 +6,7 @@ W tym oknie masz mozliwosc ustawienia dzwieku i muzyki dla gry SimuTrans.
 </p>
 
 <p>
-Poziom dzwieku utawiamy suwakiem. Suwak efektów ustala glosnosc dla pociagów, samochodów itp., natomiast suwak 'Muzyka' ustala glosnosc melodii odgrywanych w tle.<br>
+Poziom dzwieku utawiamy suwakiem. Suwak efektÃ³w ustala glosnosc dla pociagÃ³w, samochodÃ³w itp., natomiast suwak 'Muzyka' ustala glosnosc melodii odgrywanych w tle.<br>
 Istnieje mozliwosc odgrywania muzyki w petli do przodu i do tylu (dwa odrebne przyciski). Jesli muzyka jest nie dostepna przyciski te sa nieaktywne.<br>
 <em>Uwaga:</em> Gra nie zawiera zadnych melodii. Nalezy je dolaczyc samodzielnie i ustalic kolejnosc odgrywania. Jak tego dokonac? Odpowiedz znajdziesz w pliku readme w katalogu 'Music'.
 </p>

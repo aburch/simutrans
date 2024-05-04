@@ -1,71 +1,71 @@
-<title>Nápovìda - nová mapa</title>
-<h1>Nová mapa</h1>
+<title>NÃ¡povÄ›da - novÃ¡ mapa</title>
+<h1>NovÃ¡ mapa</h1>
 
 <p>
-Dialog nová mapa vám poskytuje mo¾nost vytvoøit si mapu podle vlastních pøedstav. Mù¾ete ovlivnit reliéf mapy, hustotu prùmyslu, poèet mìst aj.
+Dialog novÃ¡ mapa vÃ¡m poskytuje moÅ¾nost vytvoÅ™it si mapu podle vlastnÃ­ch pÅ™edstav. MÅ¯Å¾ete ovlivnit reliÃ©f mapy, hustotu prÅ¯myslu, poÄet mÄ›st aj.
 </p>
 
 <p>
-Ní¾e následuje krátkı popis jednotlivıch nastavení nové mapy:
+NÃ­Å¾e nÃ¡sleduje krÃ¡tkÃ½ popis jednotlivÃ½ch nastavenÃ­ novÃ© mapy:
 </p>
 
 <p>
-<em>Èíslo mapy</em> - Urèuje reliéf mapy - kde jsou hory, voda atp.
+<em>ÄŒÃ­slo mapy</em> - UrÄuje reliÃ©f mapy - kde jsou hory, voda atp.
 </p>
 
 <p>
-<em>Velikost mapy</em> - Urèuje, jak bude mapa velká, tzn. kolik bude mít ètvereèkù. Od 8x8, a¾ po 4096x4096. Standardnì je nastaveno 256x256. Mapa mù¾e bıt i obdélníková, napøíklad 256x8064. Obdélníkové mapy mohou mít jeden rozmìr vìt¹í ne¾ 4096 polí.<br>
-<em>Dùle¾ité:</em> Velké mapy jsou hodnì nároèné na pamì», zva¾te proto, zda máte dostateènì velkou operaèní pamì», aby hra fungovala plynule.
+<em>Velikost mapy</em> - UrÄuje, jak bude mapa velkÃ¡, tzn. kolik bude mÃ­t ÄtvereÄkÅ¯. Od 8x8, aÅ¾ po 4096x4096. StandardnÄ› je nastaveno 256x256. Mapa mÅ¯Å¾e bÃ½t i obdÃ©lnÃ­kovÃ¡, napÅ™Ã­klad 256x8064. ObdÃ©lnÃ­kovÃ© mapy mohou mÃ­t jeden rozmÄ›r vÄ›tÅ¡Ã­ neÅ¾ 4096 polÃ­.<br>
+<em>DÅ¯leÅ¾itÃ©:</em> VelkÃ© mapy jsou hodnÄ› nÃ¡roÄnÃ© na pamÄ›Å¥, zvaÅ¾te proto, zda mÃ¡te dostateÄnÄ› velkou operaÄnÃ­ pamÄ›Å¥, aby hra fungovala plynule.
 </p>
 
 <p>
-<em>Hustota prùmyslu</em> - Urèuje, jaká bude hustota prùmyslu - továren, obchodù aj. - na generované mapì. Pokud si chcete hru ztí¾it, nastavte malé èíslo, bude potom obtí¾nìj¹í propojit prùmysl.
+<em>Hustota prÅ¯myslu</em> - UrÄuje, jakÃ¡ bude hustota prÅ¯myslu - tovÃ¡ren, obchodÅ¯ aj. - na generovanÃ© mapÄ›. Pokud si chcete hru ztÃ­Å¾it, nastavte malÃ© ÄÃ­slo, bude potom obtÃ­Å¾nÄ›jÅ¡Ã­ propojit prÅ¯mysl.
 </p>
 
 <p>
-<em>Poèet mìst</em> - Urèuje poèet mìst na mapì. Dostupné nastavení je od 0 a¾ do 999 mìst. Standardnì je nastaveno 16.
+<em>PoÄet mÄ›st</em> - UrÄuje poÄet mÄ›st na mapÄ›. DostupnÃ© nastavenÃ­ je od 0 aÅ¾ do 999 mÄ›st. StandardnÄ› je nastaveno 16.
 </p>
 
 <p>
-<em>Hustota provozu</em> - Hustota soukromıch aut ve mìstech. Standardnì je nastaveno 8. Doporuèujeme si zvolit malé èíslo, pøíli¹ná hustota není vhodná. Pozdìji mohou pøeká¾et va¹im vozidlùm.
+<em>Hustota provozu</em> - Hustota soukromÃ½ch aut ve mÄ›stech. StandardnÄ› je nastaveno 8. DoporuÄujeme si zvolit malÃ© ÄÃ­slo, pÅ™Ã­liÅ¡nÃ¡ hustota nenÃ­ vhodnÃ¡. PozdÄ›ji mohou pÅ™ekÃ¡Å¾et vaÅ¡im vozidlÅ¯m.
 </p>
 
 <p>
-<em>Úroveò vody</em> - Nastavuje, jak vysoko bude voda nad dnem. Pøi nízkém èísle moho bıt na mapì zálivy a prùlivy.
+<em>ÃšroveÅˆ vody</em> - Nastavuje, jak vysoko bude voda nad dnem. PÅ™i nÃ­zkÃ©m ÄÃ­sle moho bÃ½t na mapÄ› zÃ¡livy a prÅ¯livy.
 </p>
 
 <p>
-<em>Vı¹ka hor</em> -  Urèuje velikost nejvy¹¹ích hor na mapì. Dostupné nastavení je od 0 a¾ do 160. Nízké nastavení vytvoøí malé kopce a prùsmyky.
+<em>VÃ½Å¡ka hor</em> -  UrÄuje velikost nejvyÅ¡Å¡Ã­ch hor na mapÄ›. DostupnÃ© nastavenÃ­ je od 0 aÅ¾ do 160. NÃ­zkÃ© nastavenÃ­ vytvoÅ™Ã­ malÃ© kopce a prÅ¯smyky.
 </p>
 
 <p>
-<em>Zaoblení mapy</em> - Hodnota, která urèuje, jak hladké bude pøechody mezi hranami reliéfu.
+<em>ZaoblenÃ­ mapy</em> - Hodnota, kterÃ¡ urÄuje, jak hladkÃ© bude pÅ™echody mezi hranami reliÃ©fu.
 </p>
 
 <p>
-<em>Náhodná mapa</em> -  Vybere náhodnou mapu (èíslo mapy). Neovlivòuje ostatní nastavení.
+<em>NÃ¡hodnÃ¡ mapa</em> -  Vybere nÃ¡hodnou mapu (ÄÃ­slo mapy). NeovlivÅˆuje ostatnÃ­ nastavenÃ­.
 </p>
 
 <p>
-<em>Zobrazovat chodce</em> - Nastaví, zda budou zobrazováni chodci. Toto nastavení je mo¾né zmìnit bìhem hry v dialogu <a href="display.txt">zobrazení</a>.
+<em>Zobrazovat chodce</em> - NastavÃ­, zda budou zobrazovÃ¡ni chodci. Toto nastavenÃ­ je moÅ¾nÃ© zmÄ›nit bÄ›hem hry v dialogu <a href="display.txt">zobrazenÃ­</a>.
 </p>
 
 <p>
-<em>Støídat den a noc</em> - Zapne mód støídání dne a noci. Toto nastavení je mo¾né zmìnit bìhem hry v dialogu <a href="display.txt">zobrazení</a>.
+<em>StÅ™Ã­dat den a noc</em> - Zapne mÃ³d stÅ™Ã­dÃ¡nÃ­ dne a noci. Toto nastavenÃ­ je moÅ¾nÃ© zmÄ›nit bÄ›hem hry v dialogu <a href="display.txt">zobrazenÃ­</a>.
 </p>
 
 <p>
-<em>Naèíst</em> - Zobrazí dialog pro <a href="load.txt">naètení hry</a>.
+<em>NaÄÃ­st</em> - ZobrazÃ­ dialog pro <a href="load.txt">naÄtenÃ­ hry</a>.
 </p>
 
 <p>
-<em>Zaèít hru</em> - Vytvoøí novou mapu podle nastavení. Pokud je nastavena velká mapa èi jsou nastaveny velké hodnoty napø. poètu mìst èi husoty prùmyslu, vytváøení zabere del¹í dobu.
+<em>ZaÄÃ­t hru</em> - VytvoÅ™Ã­ novou mapu podle nastavenÃ­. Pokud je nastavena velkÃ¡ mapa Äi jsou nastaveny velkÃ© hodnoty napÅ™. poÄtu mÄ›st Äi husoty prÅ¯myslu, vytvÃ¡Å™enÃ­ zabere delÅ¡Ã­ dobu.
 </p>
 
 <p>
-<em>Konec</em> - Ukonèí hru bez dal¹ího potvrzení.
+<em>Konec</em> - UkonÄÃ­ hru bez dalÅ¡Ã­ho potvrzenÃ­.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

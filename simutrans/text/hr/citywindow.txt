@@ -6,7 +6,7 @@
 <strong>Statistika Grada</strong> prikazuje statistike o oznacenom urbanom podrucju i moze se koristiti za promjenu imena. Urbano podrucje je grad, gradic ili selo; ispod se pojam grad koristi za bilo koje urbano podrucje.
 </p>
 <p>
-Svaki grad ima vlastitu gradsku vijecnicu oko koje raste. Prijevoz putnika i poste poboljsava rast, ¹to ukljucuje ulice koje se grade ili koje se preuzimaju od <a href="players.txt">igraca javnog servisa</a>; nove gradsje zgrade i <a href="industry_info.txt">industrije</a> koje se pojavljuju; i granice grada se prosiruju.
+Svaki grad ima vlastitu gradsku vijecnicu oko koje raste. Prijevoz putnika i poste poboljsava rast, Å¡to ukljucuje ulice koje se grade ili koje se preuzimaju od <a href="players.txt">igraca javnog servisa</a>; nove gradsje zgrade i <a href="industry_info.txt">industrije</a> koje se pojavljuju; i granice grada se prosiruju.
 </p>
 <p>
 Klik na vijecnicu u pogledu igre sa <a href="inspection_tool.txt">Alatom Inspekcije</a> ili na grad koji je prikazan u<a href="citylist_filter.txt">Listi Gradova</a> za otvaranje <strong>Statistike Grada</strong>. Ovdje se moze vidjeti i promijeniti ime grada, neke statistike, dvije mini-map, i graf gdje je vidljiv razvoj tijekom vremena za razne faktore koji se odnose na grad.

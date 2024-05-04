@@ -6,47 +6,47 @@
 <em>Beskrivelse:</em><br>
 Ruteplan dialogen benyttes til at definere ruter imellem bustoppesteder,
 lastepladser, jernbanestationer, havne eller olieplatforme. Til en rute kan et
-eller flere køretøjer tilknyttes og startes, hvorefter de vil blive med at
-gennemkøre ruten, indtil de sendes tilbage i depot.
+eller flere kÃ¸retÃ¸jer tilknyttes og startes, hvorefter de vil blive med at
+gennemkÃ¸re ruten, indtil de sendes tilbage i depot.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er en liste med overskriften 'Min. last'. Til listen er to
+Ã˜verst i dialogen er en liste med overskriften 'Min. last'. Til listen er to
 scroll-knapper tilknyttet.<br>
-Derunder følger et visningsareal, der viser navne, nummer, Min. lastningsgrad
-samt koordinater for de forskellige rutemål. <br>
-Nederst er fire knapper med teksterne 'Tilføj', 'Indføj', 'Fjern' og 'Færdig'.
-Som default indstilling er knappen 'Tilføj' trykket ned.
+Derunder fÃ¸lger et visningsareal, der viser navne, nummer, Min. lastningsgrad
+samt koordinater for de forskellige rutemÃ¥l. <br>
+Nederst er fire knapper med teksterne 'TilfÃ¸j', 'IndfÃ¸j', 'Fjern' og 'FÃ¦rdig'.
+Som default indstilling er knappen 'TilfÃ¸j' trykket ned.
 </p>
 
 <p>
 <em>Opret en rute:</em><br>
-For at oprette en rute trykkes på 'Tilføj' knappen, hvorved cursoren forandres
-til et rutemål-symbol. Derefter venstreklikkes på de ønskede rutemål (ved en
-havn klikkes i vandet lige ved havnen) i den ønskede
-rækkefølge. <strong>Bemærk at der pt. er en maksimusgrænse på seksten (16)
-rutemål</strong><br>
-For samtlige rutemål kan der indstilles en "Minimums lastgrad". Minimum
-lastgraden er den procentsats af den samlede lastevne, som mindst skal være
-fyldt på køretøjet, før det fortsætter til næste rutemål. For at foretage
-denne indstilling klikkes til venstre for rutemålet i visningsarealet. Herved
-bliver rutemålet markeret som det aktuelle rutemål. Den ønskede minimums
+For at oprette en rute trykkes pÃ¥ 'TilfÃ¸j' knappen, hvorved cursoren forandres
+til et rutemÃ¥l-symbol. Derefter venstreklikkes pÃ¥ de Ã¸nskede rutemÃ¥l (ved en
+havn klikkes i vandet lige ved havnen) i den Ã¸nskede
+rÃ¦kkefÃ¸lge. <strong>BemÃ¦rk at der pt. er en maksimusgrÃ¦nse pÃ¥ seksten (16)
+rutemÃ¥l</strong><br>
+For samtlige rutemÃ¥l kan der indstilles en "Minimums lastgrad". Minimum
+lastgraden er den procentsats af den samlede lastevne, som mindst skal vÃ¦re
+fyldt pÃ¥ kÃ¸retÃ¸jet, fÃ¸r det fortsÃ¦tter til nÃ¦ste rutemÃ¥l. For at foretage
+denne indstilling klikkes til venstre for rutemÃ¥let i visningsarealet. Herved
+bliver rutemÃ¥let markeret som det aktuelle rutemÃ¥l. Den Ã¸nskede minimums
 lastgrad indstilles derefter ved at bruge listens
-scroll-knapper. <strong>Bemærk at et køretøj, der endnu ikke har fået påfyldt
-den ønskede minimums lastgrad, vil vente til dette er tilfældet og kan derved
-spærre rutemålet for andre køretøjer.</strong> Tilsidst trykkes på 'Færdig'
+scroll-knapper. <strong>BemÃ¦rk at et kÃ¸retÃ¸j, der endnu ikke har fÃ¥et pÃ¥fyldt
+den Ã¸nskede minimums lastgrad, vil vente til dette er tilfÃ¦ldet og kan derved
+spÃ¦rre rutemÃ¥let for andre kÃ¸retÃ¸jer.</strong> Tilsidst trykkes pÃ¥ 'FÃ¦rdig'
 knappen, hvorved ruten er defineret og dialogen lukkes.
 </p>
 
 <p>
 <em>Opdater en rute:</em><br>
-En rute kan opdateres på følgende måde:<br>
-- Ved at trykke på 'Tilføj' knappen og tilføje yderligere rutemål bagest i
-  rækkefølgen af rutemål<br>
-- Ved at trykke på 'Indføj' knappen hvorefter en nyt rutemål indføjes før
-  det aktuelt markerede rutemål i listen. Dette er den nemmeste måde at sende
-  køretøjer tilbage i depot på.<br>
-- Ved at trykke på 'Fjern' knappen, hvorefter det aktuelt markerede rutemål
-  kan fjernes fra listen ved at klikke på det.
+En rute kan opdateres pÃ¥ fÃ¸lgende mÃ¥de:<br>
+- Ved at trykke pÃ¥ 'TilfÃ¸j' knappen og tilfÃ¸je yderligere rutemÃ¥l bagest i
+  rÃ¦kkefÃ¸lgen af rutemÃ¥l<br>
+- Ved at trykke pÃ¥ 'IndfÃ¸j' knappen hvorefter en nyt rutemÃ¥l indfÃ¸jes fÃ¸r
+  det aktuelt markerede rutemÃ¥l i listen. Dette er den nemmeste mÃ¥de at sende
+  kÃ¸retÃ¸jer tilbage i depot pÃ¥.<br>
+- Ved at trykke pÃ¥ 'Fjern' knappen, hvorefter det aktuelt markerede rutemÃ¥l
+  kan fjernes fra listen ved at klikke pÃ¥ det.
 </p>

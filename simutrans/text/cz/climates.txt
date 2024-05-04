@@ -1,51 +1,51 @@
-<title>Nápovìda - nastavení podnebí</title>
-<h1><strong>Nastavení podnebí</strong></h1>
-<p>Dialog <em>Nastavení podnebí</em> umo¾òuje nastavit terén a podnebné pásy. Dialog otevøete kliknutím na tlaèítko <em>Nastavení podnebí</em> v dialogu s názvem <a href="new_world.txt">Vytvoøit novou mapu</a>.</p>
+<title>NÃ¡povÄ›da - nastavenÃ­ podnebÃ­</title>
+<h1><strong>NastavenÃ­ podnebÃ­</strong></h1>
+<p>Dialog <em>NastavenÃ­ podnebÃ­</em> umoÅ¾Åˆuje nastavit terÃ©n a podnebnÃ© pÃ¡sy. Dialog otevÅ™ete kliknutÃ­m na tlaÄÃ­tko <em>NastavenÃ­ podnebÃ­</em> v dialogu s nÃ¡zvem <a href="new_world.txt">VytvoÅ™it novou mapu</a>.</p>
 <p>
-Hodnoty upravíte kliknutím na ¹ipku vedle políèka.
+Hodnoty upravÃ­te kliknutÃ­m na Å¡ipku vedle polÃ­Äka.
 <br/>
 </p>
 
-<h1>Nastavení terénu</h1>
-<p><em>úroveò vody</em> - Nastavuje úroveò vody na mapì. Vy¹¹í èíslo znamená více vodních ploch a ménì pevné zemì.</p>
+<h1>NastavenÃ­ terÃ©nu</h1>
+<p><em>ÃºroveÅˆ vody</em> - Nastavuje ÃºroveÅˆ vody na mapÄ›. VyÅ¡Å¡Ã­ ÄÃ­slo znamenÃ¡ vÃ­ce vodnÃ­ch ploch a mÃ©nÄ› pevnÃ© zemÄ›.</p>
 <p>
-Vıchozí hodnota -2
+VÃ½chozÃ­ hodnota -2
 </p>
-<p><em>Nastavení vı¹ky hor</em> urèuje maximální vı¹ku terénu.</p>
+<p><em>NastavenÃ­ vÃ½Å¡ky hor</em> urÄuje maximÃ¡lnÃ­ vÃ½Å¡ku terÃ©nu.</p>
 <p>
-Vıchozí hodnota 160
+VÃ½chozÃ­ hodnota 160
 </p>
 <p>
-<em>Zaoblení mapy</em> - Urèuje èlenitost terénu. Èím vy¹¹í èíslo, tím èlenitìj¹í terén s mnoha prohlubnìmi a malımi vyvı¹eninami.
+<em>ZaoblenÃ­ mapy</em> - UrÄuje Älenitost terÃ©nu. ÄŒÃ­m vyÅ¡Å¡Ã­ ÄÃ­slo, tÃ­m ÄlenitÄ›jÅ¡Ã­ terÃ©n s mnoha prohlubnÄ›mi aÂ malÃ½mi vyvÃ½Å¡eninami.
 <br/>
 </p>
 
-<h1>Nastavení snìhu</h1>
-<p>Obsahuje nastavení tıkající se snì¾né èáry. Snì¾ná èára je zde vı¹ka, od které se objevuje na mapì sníh.</p>
-<p><em>Snì¾ná èára v létì</em> - vı¹ka snì¾né èáry v létì.</p>
-<p><em>Snì¾ná èára v zimì</em> - vı¹ka snì¾né èáry v zimì.
+<h1>NastavenÃ­ snÄ›hu</h1>
+<p>Obsahuje nastavenÃ­ tÃ½kajÃ­cÃ­ se snÄ›Å¾nÃ© ÄÃ¡ry. SnÄ›Å¾nÃ¡ ÄÃ¡ra je zde vÃ½Å¡ka, od kterÃ© se objevuje na mapÄ› snÃ­h.</p>
+<p><em>SnÄ›Å¾nÃ¡ ÄÃ¡ra v lÃ©tÄ›</em> - vÃ½Å¡ka snÄ›Å¾nÃ© ÄÃ¡ry v lÃ©tÄ›.</p>
+<p><em>SnÄ›Å¾nÃ¡ ÄÃ¡ra v zimÄ›</em> - vÃ½Å¡ka snÄ›Å¾nÃ© ÄÃ¡ry v zimÄ›.
 <br/>
 </p>
 
-<h1>Nastavení podnebí</h1>
-<p>Umo¾òuje nastavit na mapì podnebné pásy. 
-<br/>Hodnota vedle jednotlivıch podnebnıch pásù urèuje vı¹ku, ve které se danı podnebnı pás objeví. Podnebnı pás vypnete nastavením hodnoty na 0 (nulu). </p>
-<p><em>Pou¹»</em>  - Velmi málo srá¾ek, vysoké rozdíly v teplotách, málo stromù.</p>
-<p><em>Tropy</em> - Typické pro území okolo rovníku. Relativnì stálá vysoká teplota.</p>
-<p><em>Støedomoøí</em> - Mírnì promìnlivé teplé poèasí.</p>
-<p><em>Mírné</em> - Podnebnı pás se støídáním v¹ech ètyø roèních období.</p>
-<p><em>Tundra</em> - Nízké teploty, hranice polárních èepièek.</p>
-<p><em>Skaliska</em> - Suché klima, chladné zimy.
+<h1>NastavenÃ­ podnebÃ­</h1>
+<p>UmoÅ¾Åˆuje nastavit na mapÄ› podnebnÃ© pÃ¡sy. 
+<br/>Hodnota vedle jednotlivÃ½ch podnebnÃ½ch pÃ¡sÅ¯ urÄuje vÃ½Å¡ku, ve kterÃ© se danÃ½ podnebnÃ½ pÃ¡s objevÃ­. PodnebnÃ½ pÃ¡s vypnete nastavenÃ­m hodnoty na 0 (nulu). </p>
+<p><em>PouÅ¡Å¥</em>  - Velmi mÃ¡lo srÃ¡Å¾ek, vysokÃ© rozdÃ­ly v teplotÃ¡ch, mÃ¡lo stromÅ¯.</p>
+<p><em>Tropy</em> - TypickÃ© pro ÃºzemÃ­ okolo rovnÃ­ku. RelativnÄ› stÃ¡lÃ¡ vysokÃ¡ teplota.</p>
+<p><em>StÅ™edomoÅ™Ã­</em> - MÃ­rnÄ› promÄ›nlivÃ© teplÃ© poÄasÃ­.</p>
+<p><em>MÃ­rnÃ©</em> - PodnebnÃ½ pÃ¡s se stÅ™Ã­dÃ¡nÃ­m vÅ¡ech ÄtyÅ™ roÄnÃ­ch obdobÃ­.</p>
+<p><em>Tundra</em> - NÃ­zkÃ© teploty, hranice polÃ¡rnÃ­ch ÄepiÄek.</p>
+<p><em>Skaliska</em> - SuchÃ© klima, chladnÃ© zimy.
 <br/>
 </p>
 
-<h1>Ostatní nastavení</h1>
-<p><em>Bez stromù</em> - Kliknutím na tlaèítko zamezíte vytváøení stromù. Vykreslování stromù spotøebovává strojovı èas. Tuto vylbu pou¾ijte, máte-li pomalej¹í procesor nebo málo operaèní pamìti. </p>
-<p><em>Poèet øek</em> - Nastavuje maximální poèet øek, které mohou bıt vytvoøeny pøi tvorbì nové mapy.</p>
-<p><em>Min. délka øek</em> - Nastavuje minimální délku øek (poèet políèek).</p>
-<p><em>Max délka øek</em> - Nastavuje maximální délku øek (poèet políèek).
+<h1>OstatnÃ­ nastavenÃ­</h1>
+<p><em>Bez stromÅ¯</em> - KliknutÃ­m na tlaÄÃ­tko zamezÃ­te vytvÃ¡Å™enÃ­ stromÅ¯. VykreslovÃ¡nÃ­ stromÅ¯ spotÅ™ebovÃ¡vÃ¡ strojovÃ½ Äas. Tuto vylbu pouÅ¾ijte, mÃ¡te-li pomalejÅ¡Ã­ procesor nebo mÃ¡lo operaÄnÃ­ pamÄ›ti. </p>
+<p><em>PoÄet Å™ek</em> - Nastavuje maximÃ¡lnÃ­ poÄet Å™ek, kterÃ© mohou bÃ½t vytvoÅ™eny pÅ™i tvorbÄ› novÃ© mapy.</p>
+<p><em>Min. dÃ©lka Å™ek</em> - Nastavuje minimÃ¡lnÃ­ dÃ©lku Å™ek (poÄet polÃ­Äek).</p>
+<p><em>Max dÃ©lka Å™ek</em> - Nastavuje maximÃ¡lnÃ­ dÃ©lku Å™ek (poÄet polÃ­Äek).
 </p>
 
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 4.1.2013.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 4.1.2013.
 </p>

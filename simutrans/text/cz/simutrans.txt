@@ -1,18 +1,18 @@
-<title>Nápovìda - o pøekladu</title>
+<title>NÃ¡povÄ›da - o pÅ™ekladu</title>
 
-<h1>O pøekladu</h1>
+<h1>O pÅ™ekladu</h1>
 
 <p>
-Pøeklad je organizován online komunitou pomocí webové aplikace - <strong>https://translator.simutrans.com/</strong>.<br>
-Pùvodní verze Ondøej Machulda a Jiøí Voseèek.
+PÅ™eklad je organizovÃ¡n online komunitou pomocÃ­ webovÃ© aplikace - <strong>https://translator.simutrans.com/</strong>.<br>
+PÅ¯vodnÃ­ verze OndÅ™ej Machulda a JiÅ™Ã­ VoseÄek.
 </p>
 
 <p>
-Oficiální stránky Simutrans se nacházejí na adrese <strong>http://www.simutrans.com</strong>. Zde naleznete poslední verze,
-odkazy, a dal¹í informace...<br>
-Aktuální informace o dìní okolo Simutransu naleznete na blogu - <strong>http://blog.simutrans.com</strong>.<br>
-Velké mno¾ství informací obsahuje fórum - <strong>http://forum.simutrans.com</strong>.<br>
-Addons - "pøídavky" do Simutrans lze najít na <strong>http://addons.simutrans.com</strong> a na fóru.<br>
+OficiÃ¡lnÃ­ strÃ¡nky Simutrans se nachÃ¡zejÃ­ na adrese <strong>http://www.simutrans.com</strong>. Zde naleznete poslednÃ­ verze,
+odkazy, a dalÅ¡Ã­ informace...<br>
+AktuÃ¡lnÃ­ informace o dÄ›nÃ­ okolo Simutransu naleznete na blogu - <strong>http://blog.simutrans.com</strong>.<br>
+VelkÃ© mnoÅ¾stvÃ­ informacÃ­ obsahuje fÃ³rum - <strong>http://forum.simutrans.com</strong>.<br>
+Addons - "pÅ™Ã­davky" do Simutrans lze najÃ­t na <strong>http://addons.simutrans.com</strong> a na fÃ³ru.<br>
 </p>
 
 <p>

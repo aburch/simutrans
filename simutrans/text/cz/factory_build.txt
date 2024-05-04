@@ -1,29 +1,29 @@
-<title>Nápovìda - pøidat továrnu</title>
+<title>NÃ¡povÄ›da - pÅ™idat tovÃ¡rnu</title>
 
-<h1><strong>Pøidat továrnu</strong></h1>
-<p>Dialog umo¾òuje rùznì umis»ovat továrny na mapu. Otevøete jen z menu <a href="edittools.txt">editace mapy</a>.</p>
+<h1><strong>PÅ™idat tovÃ¡rnu</strong></h1>
+<p>Dialog umoÅ¾Åˆuje rÅ¯znÄ› umisÅ¥ovat tovÃ¡rny na mapu. OtevÅ™ete jen z menu <a href="edittools.txt">editace mapy</a>.</p>
 <p>
-Okno dialogu je rozdìleno do ètyø èástí.
+Okno dialogu je rozdÄ›leno do ÄtyÅ™ ÄÃ¡stÃ­.
 <br>
-V levém horním rohu se nachází seznam továren.<br>
-V levém dolním rohu se zobrazí obrázek naposledy zvolené továrny<br>
-V pravém horním rohu jsou tlaèítka pro zapnutí/vypntí filtrù jednotlivıch druhù továren.<br>
-V pravém dolním rohu (pod tlaèítky) se nachází podrobné informace o vybrané továrnì.<br>
+V levÃ©m hornÃ­m rohu se nachÃ¡zÃ­ seznam tovÃ¡ren.<br>
+V levÃ©m dolnÃ­m rohu se zobrazÃ­ obrÃ¡zek naposledy zvolenÃ© tovÃ¡rny<br>
+V pravÃ©m hornÃ­m rohu jsou tlaÄÃ­tka pro zapnutÃ­/vypntÃ­ filtrÅ¯ jednotlivÃ½ch druhÅ¯ tovÃ¡ren.<br>
+V pravÃ©m dolnÃ­m rohu (pod tlaÄÃ­tky) se nachÃ¡zÃ­ podrobnÃ© informace o vybranÃ© tovÃ¡rnÄ›.<br>
 </p>
-<h1>Seznam továren</h1>
-<p>V seznamu jsou vypsány v¹echny továrny. Obì zálo¾ky obsahují stejné továrny, seznamy se li¹í jen poøadím.</br>
-- <em>Podle jména</em>: Zálo¾ka obsahuje továrny setøídìné podle názvu uvedeného v pøekladu. Pokud není pøeklad dostupnı, pou¾ije se identifikátor (ID).<br>
-- <em>Podle ID</em>: Zde jsou továrny øazené podle vnitøního identifikátoru daného objektu.</p>
-<p>Barvy textu mají následující vıznam:<br>
-- <em>zelenı text</em>: Továrna zbo¾í pouze vytváøí, nic není nutno dová¾et.<br>
-- <em>èernı text</em>: Továrna spotøebovává suroviny a produkuje vırobky.<br>
-- <em>modrı text</em>: Továrna je pouze spotøebitelem zbo¾í.<br>
+<h1>Seznam tovÃ¡ren</h1>
+<p>V seznamu jsou vypsÃ¡ny vÅ¡echny tovÃ¡rny. ObÄ› zÃ¡loÅ¾ky obsahujÃ­ stejnÃ© tovÃ¡rny, seznamy se liÅ¡Ã­ jen poÅ™adÃ­m.</br>
+- <em>Podle jmÃ©na</em>: ZÃ¡loÅ¾ka obsahuje tovÃ¡rny setÅ™Ã­dÄ›nÃ© podle nÃ¡zvu uvedenÃ©ho v pÅ™ekladu. Pokud nenÃ­ pÅ™eklad dostupnÃ½, pouÅ¾ije se identifikÃ¡tor (ID).<br>
+- <em>Podle ID</em>: Zde jsou tovÃ¡rny Å™azenÃ© podle vnitÅ™nÃ­ho identifikÃ¡toru danÃ©ho objektu.</p>
+<p>Barvy textu majÃ­ nÃ¡sledujÃ­cÃ­ vÃ½znam:<br>
+- <em>zelenÃ½ text</em>: TovÃ¡rna zboÅ¾Ã­ pouze vytvÃ¡Å™Ã­, nic nenÃ­ nutno dovÃ¡Å¾et.<br>
+- <em>ÄernÃ½ text</em>: TovÃ¡rna spotÅ™ebovÃ¡vÃ¡ suroviny a produkuje vÃ½robky.<br>
+- <em>modrÃ½ text</em>: TovÃ¡rna je pouze spotÅ™ebitelem zboÅ¾Ã­.<br>
 </p>
 <h1>Volby</h1>
-<p><em>Ignorovat podnebí</em>: Vypne omezení, ve kterıch podnebnıch pásech lze továrnu postavit.</p>
-<p><em>Zaèít roku</em>: V seznamu jsou zobrazeny pouze továrny dostupné v danou dobu.</p>
-<p><em>Zobrazovat Zastaralá</em>: V seznamu jsou zobrazeny i ji¾ zastaralé továrny.</p>
-<p><em>Pouze mìstskı prùmysl</em>: Zobrazí se továrny, které lze postavit pouze ve mìstì.</p>
-<p><em>Pouze venkovskı prùmysl</em>: Zobrazí se pouze továrny stavìné mimo mìsta. Kdy¾ je zatr¾eno, staví se celı øetìz prùmyslu. To znamená, ¾e kromì zvolené továrny se postaví i její dodavatelé.</p>
-<p><em>Rotace</em>: Jestli¾e má daná továrna umo¾òuje pohled z více úhlù, mù¾ete mezi nimi pøepínat pomocí ¹ipek. Pøepínání ovlivòuje obrázek v levém dolním rohu. Jestli¾e je zobrazen nápis <em>náhodnì</em>, pou¾ije se náhodnì zvolenı podled.</p>
-<p><em>Vıroba</em>: Zde nastavíte rozsah vıroby. Èíslo urèuje poèet vyrobenıch/spotøebovanıch kusù/tun/metrù krychlovıch za jeden mìsíc.</p>
+<p><em>Ignorovat podnebÃ­</em>: Vypne omezenÃ­, ve kterÃ½ch podnebnÃ½ch pÃ¡sech lze tovÃ¡rnu postavit.</p>
+<p><em>ZaÄÃ­t roku</em>: V seznamu jsou zobrazeny pouze tovÃ¡rny dostupnÃ© v danou dobu.</p>
+<p><em>Zobrazovat ZastaralÃ¡</em>: V seznamu jsou zobrazeny i jiÅ¾ zastaralÃ© tovÃ¡rny.</p>
+<p><em>Pouze mÄ›stskÃ½ prÅ¯mysl</em>: ZobrazÃ­ se tovÃ¡rny, kterÃ© lze postavit pouze ve mÄ›stÄ›.</p>
+<p><em>Pouze venkovskÃ½ prÅ¯mysl</em>: ZobrazÃ­ se pouze tovÃ¡rny stavÄ›nÃ© mimo mÄ›sta. KdyÅ¾ je zatrÅ¾eno, stavÃ­ se celÃ½ Å™etÄ›z prÅ¯myslu. To znamenÃ¡, Å¾e kromÄ› zvolenÃ© tovÃ¡rny se postavÃ­ i jejÃ­ dodavatelÃ©.</p>
+<p><em>Rotace</em>: JestliÅ¾e mÃ¡ danÃ¡ tovÃ¡rna umoÅ¾Åˆuje pohled z vÃ­ce ÃºhlÅ¯, mÅ¯Å¾ete mezi nimi pÅ™epÃ­nat pomocÃ­ Å¡ipek. PÅ™epÃ­nÃ¡nÃ­ ovlivÅˆuje obrÃ¡zek v levÃ©m dolnÃ­m rohu. JestliÅ¾e je zobrazen nÃ¡pis <em>nÃ¡hodnÄ›</em>, pouÅ¾ije se nÃ¡hodnÄ› zvolenÃ½ podled.</p>
+<p><em>VÃ½roba</em>: Zde nastavÃ­te rozsah vÃ½roby. ÄŒÃ­slo urÄuje poÄet vyrobenÃ½ch/spotÅ™ebovanÃ½ch kusÅ¯/tun/metrÅ¯ krychlovÃ½ch za jeden mÄ›sÃ­c.</p>

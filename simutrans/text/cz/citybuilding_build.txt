@@ -1,31 +1,31 @@
-<title>Nápovìda - pøidání mìstské budovy</title>
-<h1><strong>Pøidat mìstskou budovu</strong></h1>
-<p>Dialog umo¾òuje ruènì umís»ovat mìstké budovy.</p>
-<p>Okno je rozdìleno do ètyø èástí.<br>
-V levém horním rohu je seznam budov.<br>
-V levém dolním rohu se zobrazí obrázek zvolené budovy.<br>
-V pravém horním rohu jsou tlaèítka pro zapnutí/vypnutí jednotlivıch filtrù pro mno¾inu budov. <br>
-Pod tlaèítky se nachází èást obsahující podrobné informace o daném domu: název, doplòující text, údaje o mno¾ství cestujících a po¹ty, období, ve kterém je budova dostupná, a jméno nebo pøezdívka autora. <br>
+<title>NÃ¡povÄ›da - pÅ™idÃ¡nÃ­ mÄ›stskÃ© budovy</title>
+<h1><strong>PÅ™idat mÄ›stskou budovu</strong></h1>
+<p>Dialog umoÅ¾Åˆuje ruÄnÄ› umÃ­sÅ¥ovat mÄ›stkÃ© budovy.</p>
+<p>Okno je rozdÄ›leno do ÄtyÅ™ ÄÃ¡stÃ­.<br>
+V levÃ©m hornÃ­m rohu je seznam budov.<br>
+V levÃ©m dolnÃ­m rohu se zobrazÃ­ obrÃ¡zek zvolenÃ© budovy.<br>
+V pravÃ©m hornÃ­m rohu jsou tlaÄÃ­tka pro zapnutÃ­/vypnutÃ­ jednotlivÃ½ch filtrÅ¯ pro mnoÅ¾inu budov. <br>
+Pod tlaÄÃ­tky se nachÃ¡zÃ­ ÄÃ¡st obsahujÃ­cÃ­ podrobnÃ© informace o danÃ©m domu: nÃ¡zev, doplÅˆujÃ­cÃ­ text, Ãºdaje o mnoÅ¾stvÃ­ cestujÃ­cÃ­ch a poÅ¡ty, obdobÃ­, ve kterÃ©m je budova dostupnÃ¡, a jmÃ©no nebo pÅ™ezdÃ­vka autora. <br>
 </p>
 <h1>Seznam budov</h1>
-<p> Seznam odsahuje v¹echny dostupné mìstské budovy. <br>
-Budovy je mo¾né øadit podle jména nebo podle identifikátoru. Vıbìr budov lze omezit na urèitou skupinu pomocí tlaèítek nacházejících se v pravém horním rohu.</p>
-<p> Jména a identifikátory mají barvu v závislosti na typu budovy:<br>
-<em>Modrá barva</em> je pro obytné budovy.<br>
-<em>Zelená barva</em> oznaèuje obchody a kanceláøe.<br>
-<em>Èerná barva</em> je urèena pro prùmyslové budovy.<br></p>
+<p> Seznam odsahuje vÅ¡echny dostupnÃ© mÄ›stskÃ© budovy. <br>
+Budovy je moÅ¾nÃ© Å™adit podle jmÃ©na nebo podle identifikÃ¡toru. VÃ½bÄ›r budov lze omezit na urÄitou skupinu pomocÃ­ tlaÄÃ­tek nachÃ¡zejÃ­cÃ­ch se v pravÃ©m hornÃ­m rohu.</p>
+<p> JmÃ©na a identifikÃ¡tory majÃ­ barvu v zÃ¡vislosti na typu budovy:<br>
+<em>ModrÃ¡ barva</em> je pro obytnÃ© budovy.<br>
+<em>ZelenÃ¡ barva</em> oznaÄuje obchody a kancelÃ¡Å™e.<br>
+<em>ÄŒernÃ¡ barva</em> je urÄena pro prÅ¯myslovÃ© budovy.<br></p>
 
-<h1>Tlaèítka voleb</h1>
+<h1>TlaÄÃ­tka voleb</h1>
 <p>
-<em>Ignorovat podnebí</em>: Tlaèítko ru¹í omezení budovy na pøíslu¹nı podnebnı pás, budovu pak mù¾ete umístit kamkoliv.<br>
-<em>Zaèít roku</em>: Tlaèítko zapíná omezení vıbìru budov podle data. Pokud je volba zapnuta, neuvidíte budovy, které se ji¾ nestaví, proto¾e jsou zastaralé. Také neuvidíte budovy, které bude mo¾no postavit v budocnosti.<br>
-<em>Zobrazit zastaralé</em>: Povolí zobrazit zastaralé typy budov.<br>
-<em>Obytnı dùm</em>: Zobrazí obytné budovy.<br>
-<em>Obchody a kanceláøe</em>: Zobrazí obchody a kanceláøe.<br>
-<em>Továrna</em>: Zobrazí továrny.<br>
-Pøedchozí volby tøi lze libovolnì kombinovat: napøíklad nechat zobrazit jen obytné budovy a kanceláøe.<br/>
-<em>Rotace</em>: Má-li budova obrázky pohledù z více úhlù, potom pomocí ¹ipek mù¾ete mìnit náhled budovy zobrazenı v levém dolním rohu.
+<em>Ignorovat podnebÃ­</em>: TlaÄÃ­tko ruÅ¡Ã­ omezenÃ­ budovy na pÅ™Ã­sluÅ¡nÃ½ podnebnÃ½ pÃ¡s, budovu pak mÅ¯Å¾ete umÃ­stit kamkoliv.<br>
+<em>ZaÄÃ­t roku</em>: TlaÄÃ­tko zapÃ­nÃ¡ omezenÃ­ vÃ½bÄ›ru budov podle data. Pokud je volba zapnuta, neuvidÃ­te budovy, kterÃ© se jiÅ¾ nestavÃ­, protoÅ¾e jsou zastaralÃ©. TakÃ© neuvidÃ­te budovy, kterÃ© bude moÅ¾no postavit v budocnosti.<br>
+<em>Zobrazit zastaralÃ©</em>: PovolÃ­ zobrazit zastaralÃ© typy budov.<br>
+<em>ObytnÃ½ dÅ¯m</em>: ZobrazÃ­ obytnÃ© budovy.<br>
+<em>Obchody a kancelÃ¡Å™e</em>: ZobrazÃ­ obchody a kancelÃ¡Å™e.<br>
+<em>TovÃ¡rna</em>: ZobrazÃ­ tovÃ¡rny.<br>
+PÅ™edchozÃ­ volby tÅ™i lze libovolnÄ› kombinovat: napÅ™Ã­klad nechat zobrazit jen obytnÃ© budovy a kancelÃ¡Å™e.<br/>
+<em>Rotace</em>: MÃ¡-li budova obrÃ¡zky pohledÅ¯ z vÃ­ce ÃºhlÅ¯, potom pomocÃ­ Å¡ipek mÅ¯Å¾ete mÄ›nit nÃ¡hled budovy zobrazenÃ½ v levÃ©m dolnÃ­m rohu.
 </p>
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 2.1.2013.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 2.1.2013.
 </p>

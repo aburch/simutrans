@@ -1,4 +1,4 @@
-<title>Reliefkort dialog hjælp</title>
+<title>Reliefkort dialog hjÃ¦lp</title>
 
 <h1>Reliefkort dialog</h1>
 
@@ -14,6 +14,6 @@ farvekodning findes nedenunder kortet.
 </p>
 
 <p>
-Hvis du ønsker at "se nærmere" på verden, kan du højreklikke på kortet,
+Hvis du Ã¸nsker at "se nÃ¦rmere" pÃ¥ verden, kan du hÃ¸jreklikke pÃ¥ kortet,
 hvorved der skiftes imellem to forskellige zoom niveauer.
 </p>

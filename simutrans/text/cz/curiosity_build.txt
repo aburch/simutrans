@@ -1,31 +1,31 @@
-<title>Nápovìda - pøidat kuriozitu. </title>
-<h1><strong>Stavba památek</strong></h1>
-<p>Dialog slou¾í k ruènímu pøidání památek do krajiny. Je rozdìlen na ètyøi èásti.</p>
+<title>NÃ¡povÄ›da - pÅ™idat kuriozitu. </title>
+<h1><strong>Stavba pamÃ¡tek</strong></h1>
+<p>Dialog slouÅ¾Ã­ k ruÄnÃ­mu pÅ™idÃ¡nÃ­ pamÃ¡tek do krajiny. Je rozdÄ›len na ÄtyÅ™i ÄÃ¡sti.</p>
 <p>
- V levém horním rohu je seznam dostupnıch budov.<br>
- Vlevo dole je zobrazen obrázek vybrané budovy.<br>
- Vpravo nahoøe jsou tlaèítka slou¾ící k roz¹íøení nebo zú¾ení vıbìru dostupnıch památek.<br>
- Vpravo dole jsou zobrazeny podrobnosti o vybrané budovì.<br></p>
+ V levÃ©m hornÃ­m rohu je seznam dostupnÃ½ch budov.<br>
+ Vlevo dole je zobrazen obrÃ¡zek vybranÃ© budovy.<br>
+ Vpravo nahoÅ™e jsou tlaÄÃ­tka slouÅ¾Ã­cÃ­ k rozÅ¡Ã­Å™enÃ­ nebo zÃºÅ¾enÃ­ vÃ½bÄ›ru dostupnÃ½ch pamÃ¡tek.<br>
+ Vpravo dole jsou zobrazeny podrobnosti o vybranÃ© budovÄ›.<br></p>
 <h1>Seznam budov</h1>
 <p>
-V seznamu jsou vypsány v¹echny zvlá¹tní budovy a památky, které jsou dostupné podle kritérií nastavenıch na pravé stanì dialogu (<em>mìstské památky</em>, <em>venkovské památky</em>, <em>památníky</em>).
-Obì zálo¾ky obsahují stejné památky, jen jinak oznaèené.<br>
- - <em>Podle jména</em>: Zálo¾ka obsahuje budovy setøídìné podle názvu uvedeného v pøekladu. Pokud není pøeklad dostupnı, pou¾ije se identifikátor.<br>
- - <em>Podle ID</em>: Pod touto zálo¾kou jsou budovy øazené podle vnitøního identifikátoru pro danı objekt.</p>
-<p> Budovy jsou rozli¹eny pomocí rozdílné barvy textu:<br>
- - <em>modrá barva</em>: památky, které lze postavit jen ve mìstì<br>
- - <em>zelená barva</em>: památky, které lze postavit jen na venkovì<br>
- - <em>èerná barva</em>: památníky; na ka¾dé mapì mù¾e bıt jen jeden<br>
+V seznamu jsou vypsÃ¡ny vÅ¡echny zvlÃ¡Å¡tnÃ­ budovy a pamÃ¡tky, kterÃ© jsou dostupnÃ© podle kritÃ©riÃ­ nastavenÃ½ch na pravÃ© stanÄ› dialogu (<em>mÄ›stskÃ© pamÃ¡tky</em>, <em>venkovskÃ© pamÃ¡tky</em>, <em>pamÃ¡tnÃ­ky</em>).
+ObÄ› zÃ¡loÅ¾ky obsahujÃ­ stejnÃ© pamÃ¡tky, jen jinak oznaÄenÃ©.<br>
+ - <em>Podle jmÃ©na</em>: ZÃ¡loÅ¾ka obsahuje budovy setÅ™Ã­dÄ›nÃ© podle nÃ¡zvu uvedenÃ©ho v pÅ™ekladu. Pokud nenÃ­ pÅ™eklad dostupnÃ½, pouÅ¾ije se identifikÃ¡tor.<br>
+ - <em>Podle ID</em>: Pod touto zÃ¡loÅ¾kou jsou budovy Å™azenÃ© podle vnitÅ™nÃ­ho identifikÃ¡toru pro danÃ½ objekt.</p>
+<p> Budovy jsou rozliÅ¡eny pomocÃ­ rozdÃ­lnÃ© barvy textu:<br>
+ - <em>modrÃ¡ barva</em>: pamÃ¡tky, kterÃ© lze postavit jen ve mÄ›stÄ›<br>
+ - <em>zelenÃ¡ barva</em>: pamÃ¡tky, kterÃ© lze postavit jen na venkovÄ›<br>
+ - <em>ÄernÃ¡ barva</em>: pamÃ¡tnÃ­ky; na kaÅ¾dÃ© mapÄ› mÅ¯Å¾e bÃ½t jen jeden<br>
 </p>
 <h1>Volby</h1>
 <p>
- - <em>ignorovat podnebí</em>: Ka¾dá památka má omezení, ve kterıch podnebnıch pásech mù¾e bıt postavena. Tímto tlaèítkem lze omezení vypnout.<br>
- - <em>Zaèít roku</em>: Seznam bude obsahovat pouze budovy které jsou ji¾ v daném roce dostuné. V seznamu nebudou budovy, které se objeví v pøí¹tích letech.<br>
- - <em>Zobrazit zastaralá</em>: V seznamu se zobrazí i budovy v dané dobì pova¾ované ji¾ za zastaralé.<br>
- - <em>Mìstské památky</em>: Zobrazí v seznamu památky, které lze postavit ve mìstì.<br>
- - <em>Venkovské památky</em>: Zobrazí v seznamu památky, které lze postavit mimo území mìsta.<br>
- - <em>Památník</em>: Zobrazí v seznamu památníky (budovy, které mohou bıt na mapì jen jedenkrát). <br>
- - <em>rotace</em>: Jestli¾e daná budova umo¾òuje pohled z více úhlù, mù¾ete pomocí ¹ipek mezi nimi pøepínat. Tím se bude mìnit obrázek v levém dolním rohu. Jestli¾e je zobrazen nápis <em>náhodnì</em>, pou¾ije se náhodnì vybranı pohled.</p>
+ - <em>ignorovat podnebÃ­</em>: KaÅ¾dÃ¡ pamÃ¡tka mÃ¡ omezenÃ­, ve kterÃ½ch podnebnÃ½ch pÃ¡sech mÅ¯Å¾e bÃ½t postavena. TÃ­mto tlaÄÃ­tkem lze omezenÃ­ vypnout.<br>
+ - <em>ZaÄÃ­t roku</em>: Seznam bude obsahovat pouze budovy kterÃ© jsou jiÅ¾ v danÃ©m roce dostunÃ©. V seznamu nebudou budovy, kterÃ© se objevÃ­ v pÅ™Ã­Å¡tÃ­ch letech.<br>
+ - <em>Zobrazit zastaralÃ¡</em>: V seznamu se zobrazÃ­ i budovy v danÃ© dobÄ› povaÅ¾ovanÃ© jiÅ¾ za zastaralÃ©.<br>
+ - <em>MÄ›stskÃ© pamÃ¡tky</em>: ZobrazÃ­ v seznamu pamÃ¡tky, kterÃ© lze postavit ve mÄ›stÄ›.<br>
+ - <em>VenkovskÃ© pamÃ¡tky</em>: ZobrazÃ­ v seznamu pamÃ¡tky, kterÃ© lze postavit mimo ÃºzemÃ­ mÄ›sta.<br>
+ - <em>PamÃ¡tnÃ­k</em>: ZobrazÃ­ v seznamu pamÃ¡tnÃ­ky (budovy, kterÃ© mohou bÃ½t na mapÄ› jen jedenkrÃ¡t). <br>
+ - <em>rotace</em>: JestliÅ¾e danÃ¡ budova umoÅ¾Åˆuje pohled z vÃ­ce ÃºhlÅ¯, mÅ¯Å¾ete pomocÃ­ Å¡ipek mezi nimi pÅ™epÃ­nat. TÃ­m se bude mÄ›nit obrÃ¡zek v levÃ©m dolnÃ­m rohu. JestliÅ¾e je zobrazen nÃ¡pis <em>nÃ¡hodnÄ›</em>, pouÅ¾ije se nÃ¡hodnÄ› vybranÃ½ pohled.</p>
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 5.1.2012.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 5.1.2012.
 </p>

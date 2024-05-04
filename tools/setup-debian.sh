@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo "We need to have a current system or it fails"
 apt update

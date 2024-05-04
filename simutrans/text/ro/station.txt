@@ -1,7 +1,7 @@
-<title>Help Staşii </title>
-<h1>Staşii</h1>
+<title>Help StaÅ£ii </title>
+<h1>StaÅ£ii</h1>
 
 <p>
-Sunt afiºate parametrii staşiei selectate (câşi pasageri sunt,
-câtã materie primã staşioneazã etc.)
+Sunt afiÅŸate parametrii staÅ£iei selectate (cÃ¢Å£i pasageri sunt,
+cÃ¢tÄƒ materie primÄƒ staÅ£ioneazÄƒ etc.)
 </p>

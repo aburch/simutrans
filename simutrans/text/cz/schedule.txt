@@ -1,41 +1,41 @@
-<title>Nápovìda - jízdní plán</title>
-<h1>Jízdní plán</h1>
+<title>NÃ¡povÄ›da - jÃ­zdnÃ­ plÃ¡n</title>
+<h1>JÃ­zdnÃ­ plÃ¡n</h1>
 
 <p>
-Jízdní plán je mo¾né vytváøet tøemi zpùsoby:
+JÃ­zdnÃ­ plÃ¡n je moÅ¾nÃ© vytvÃ¡Å™et tÅ™emi zpÅ¯soby:
 </p>
 
 <p>
-<em>1.)</em>Klasicky v nìjakém depu koupíte dopravní prostøedek a zmáèknete tlaèítko <strong>jízdní plán</strong>. Zobrazí se vám tabulka. Pøidejte si zastávky kliknutím kurzoru na po¾adované místo zastavení. Je mo¾né je zase odstraòovat tlaèítkem <strong>smazat</strong>. Kliknete na <strong>hotovo</strong> a mù¾ete dopravní prostøedek vypustit tlaèítkem <strong>start</strong>.
+<em>1.)</em>Klasicky v nÄ›jakÃ©m depu koupÃ­te dopravnÃ­ prostÅ™edek a zmÃ¡Äknete tlaÄÃ­tko <strong>jÃ­zdnÃ­ plÃ¡n</strong>. ZobrazÃ­ se vÃ¡m tabulka. PÅ™idejte si zastÃ¡vky kliknutÃ­m kurzoru na poÅ¾adovanÃ© mÃ­sto zastavenÃ­. Je moÅ¾nÃ© je zase odstraÅˆovat tlaÄÃ­tkem <strong>smazat</strong>. Kliknete na <strong>hotovo</strong> a mÅ¯Å¾ete dopravnÃ­ prostÅ™edek vypustit tlaÄÃ­tkem <strong>start</strong>.
 </p>
 
 <p>
-<em>2.)</em>Pøes funkci <strong>Nová linka</strong>. Po kliknutí na nìj se vám zobrazí stejná tabulka jako v pøedchozím pøípadì, postup je stejnı, a¾ na to, ze linka se ulo¾í a je mo¾né ji pojmenovat (tøeba Praha 456), pozdìji vyvolat (øádek nahoøe) a tlaèítkem <strong>nastavit linku</strong> pøiøadit její zastávky dal¹ímu libovolnému vozidlu.
+<em>2.)</em>PÅ™es funkci <strong>NovÃ¡ linka</strong>. Po kliknutÃ­ na nÄ›j se vÃ¡m zobrazÃ­ stejnÃ¡ tabulka jako v pÅ™edchozÃ­m pÅ™Ã­padÄ›, postup je stejnÃ½, aÅ¾ na to, ze linka se uloÅ¾Ã­ a je moÅ¾nÃ© ji pojmenovat (tÅ™eba Praha 456), pozdÄ›ji vyvolat (Å™Ã¡dek nahoÅ™e) a tlaÄÃ­tkem <strong>nastavit linku</strong> pÅ™iÅ™adit jejÃ­ zastÃ¡vky dalÅ¡Ã­mu libovolnÃ©mu vozidlu.
 </p>
 
 <p>
-<em>3.)</em>Stisknìte klávesu "w", co¾ je správa linek, o tom byla trochu øeè v minulém pøípade. Tam mù¾ete pøidat novou linku, smazat linku, èi zmìnit pro v¹echna vozidla linky najednou(!).
-Postup operací je stejnı, jako v pøedchozích pøípadech.
+<em>3.)</em>StisknÄ›te klÃ¡vesu "w", coÅ¾ je sprÃ¡va linek, o tom byla trochu Å™eÄ v minulÃ©m pÅ™Ã­pade. Tam mÅ¯Å¾ete pÅ™idat novou linku, smazat linku, Äi zmÄ›nit pro vÅ¡echna vozidla linky najednou(!).
+Postup operacÃ­ je stejnÃ½, jako v pÅ™edchozÃ­ch pÅ™Ã­padech.
 </p>
 
 <p>
-Nastavení <strong>èekat na x%</strong> urèuje, na kolik procent musí bıt vozidlo plné, aby mohlo vyjet. Tímto zabráníte zbyteènému je¾dìní poloprázdnıch èi úplnì prázdnıch vozidel.
+NastavenÃ­ <strong>Äekat na x%</strong> urÄuje, na kolik procent musÃ­ bÃ½t vozidlo plnÃ©, aby mohlo vyjet. TÃ­mto zabrÃ¡nÃ­te zbyteÄnÃ©mu jeÅ¾dÄ›nÃ­ poloprÃ¡zdnÃ½ch Äi ÃºplnÄ› prÃ¡zdnÃ½ch vozidel.
 </p>
 
 <p>
-Tlaèítkem <strong>Zpìtná jízda</strong> vlo¾íte na konec jízdního plánu aktuální zastávky, av¹ak v obráceném poøadí a bez poslední a první.
-Vozidlo se tak nebude od poslední zastávky vracet k první hned, ale pojede postupnì pøes ostatní zastávky v jízdním plánu v obráceném poøadí.
+TlaÄÃ­tkem <strong>ZpÄ›tnÃ¡ jÃ­zda</strong> vloÅ¾Ã­te na konec jÃ­zdnÃ­ho plÃ¡nu aktuÃ¡lnÃ­ zastÃ¡vky, avÅ¡ak v obrÃ¡cenÃ©m poÅ™adÃ­ a bez poslednÃ­ a prvnÃ­.
+Vozidlo se tak nebude od poslednÃ­ zastÃ¡vky vracet k prvnÃ­ hned, ale pojede postupnÄ› pÅ™es ostatnÃ­ zastÃ¡vky v jÃ­zdnÃ­m plÃ¡nu v obrÃ¡cenÃ©m poÅ™adÃ­.
 </p>
 
 <p>
-Doporuèujeme vyu¾ívat pouze linky a ne staré formy jízdních øádù, je to neefektivní pøi pøidávání novıch vozidel na stejnou trasu. Linky jsou také pøehlednìj¹í a v dialogu správy linek mù¾ete také sledovat mnoho statistickıch údajù.<br>
-Pokud ale neèekáte ¾e by se mohla linka pozdìji roz¹íøit na více ne¾ 1 vozidlo, v nepou¾ívání linek vám samozøejmì nic nebrání.
+DoporuÄujeme vyuÅ¾Ã­vat pouze linky a ne starÃ© formy jÃ­zdnÃ­ch Å™Ã¡dÅ¯, je to neefektivnÃ­ pÅ™i pÅ™idÃ¡vÃ¡nÃ­ novÃ½ch vozidel na stejnou trasu. Linky jsou takÃ© pÅ™ehlednÄ›jÅ¡Ã­ a v dialogu sprÃ¡vy linek mÅ¯Å¾ete takÃ© sledovat mnoho statistickÃ½ch ÃºdajÅ¯.<br>
+Pokud ale neÄekÃ¡te Å¾e by se mohla linka pozdÄ›ji rozÅ¡Ã­Å™it na vÃ­ce neÅ¾ 1 vozidlo, v nepouÅ¾Ã­vÃ¡nÃ­ linek vÃ¡m samozÅ™ejmÄ› nic nebrÃ¡nÃ­.
 </p>
 
 <p>
--><a href="depot.txt">Nápovìda pro depo</a>
+-><a href="depot.txt">NÃ¡povÄ›da pro depo</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

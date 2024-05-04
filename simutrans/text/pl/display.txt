@@ -13,12 +13,12 @@ Opis opcji:</p>
 </p>
 
 <p>
-<em>Odwr骳 przewijanie</em> - Zmiana kieruku przewijania na przeciwny (Ekran przewija sie trzymajac wcisniety prawy przycisk myszki)<br>
-<em>Pokaz pasazer體</em> - Mozna wlaczyc lub wylaczyc przedstawianie przechodni體 w grze (Jesli masz slaby komputer wylacz pokazywanie pasazer體<br>
+<em>Odwr贸c przewijanie</em> - Zmiana kieruku przewijania na przeciwny (Ekran przewija sie trzymajac wcisniety prawy przycisk myszki)<br>
+<em>Pokaz pasazer贸w</em> - Mozna wlaczyc lub wylaczyc przedstawianie przechodni贸w w grze (Jesli masz slaby komputer wylacz pokazywanie pasazer贸w<br>
 <em>Tryb dzien/noc</em> - Kiedy usawisz ten tryb cyklicznie bedzie nastepowala noc (Ciemny ekran z bardzo ciekawymi efektami!).
 </p>
 
 <p>
-Dolna czesc okna zawiera niekt髍e informacje zwiazane z praca komputera. Opcje te sa wazne jedynie dla prawdziwych 'komputerowc體'.<br>
+Dolna czesc okna zawiera niekt贸re informacje zwiazane z praca komputera. Opcje te sa wazne jedynie dla prawdziwych 'komputerowc贸w'.<br>
 <em>Wazne:</em> - Jesli bedziesz zglaszal problemy lub bledy mozesz byc poproszony o podanie tych informacji.
 </p>

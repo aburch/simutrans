@@ -3,15 +3,15 @@
 <h1>Okno mapy</h1>
 
 <p>
-Okno mapy môze¹ zobrazit stlaèením klávesu ,,m'',  alebo
-voµbou ikony ,,Mapa'' na hornej li¹te.
+Okno mapy mÃ´zeÅ¡ zobrazit stlaÄenÃ­m klÃ¡vesu ,,m'',  alebo
+voÄ¾bou ikony ,,Mapa'' na hornej liÅ¡te.
 </p>
 <p>
-Na mape má¹ zobrazenı svet miniatúrne s farebnım rozlí¹ením
-rôznych bodov ako sú priemyselné odvetvia, ¾ele¾nièné trate,
-cesty a mestá.
+Na mape mÃ¡Å¡ zobrazenÃ½ svet miniatÃºrne s farebnÃ½m rozlÃ­Å¡enÃ­m
+rÃ´znych bodov ako sÃº priemyselnÃ© odvetvia, Å¾eleÅ¾niÄnÃ© trate,
+cesty a mestÃ¡.
 </p>
 <p>
-Ak chce¹ zobrazit' aj konkrétny detail mapy, jednoducho klikni
-na príslu¹nı bod, a hra hneï zobrazí túto pozíciu na obrazovke.
+Ak chceÅ¡ zobrazit' aj konkrÃ©tny detail mapy, jednoducho klikni
+na prÃ­sluÅ¡nÃ½ bod, a hra hneÄ zobrazÃ­ tÃºto pozÃ­ciu na obrazovke.
 </p>

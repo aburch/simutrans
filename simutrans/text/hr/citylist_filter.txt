@@ -7,7 +7,7 @@
 </p>
 <p>
 Za otvaranje: klik nba city-list-tool u <a href="list.txt">Upravljanje Listom</a> ili stisnuti <a href="keys.txt">[T]</a>.<br>
-<strong>Lista Gradova</strong> ima dva gumba postavki koji odredjuju redoslijed po kojemu se pokazuju urbana poruËja (i njihovi stanovnici).<br>
+<strong>Lista Gradova</strong> ima dva gumba postavki koji odredjuju redoslijed po kojemu se pokazuju urbana poruƒçja (i njihovi stanovnici).<br>
 {Savjeti: Ako su stavke u listi djelomicno vidljive, tada <a href="mouse.txt">promijeniti velicinu</a> <strong>Lista Gradova</strong> ili pomicati se koristeci klizni pokazivac.}
 </p>
 <p>

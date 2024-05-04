@@ -6,22 +6,22 @@
 
 
 
-<p>Nástroj <em>odstranit</em> pou¾ijte k odstranìní ne¾ádoucích vìcí z jednoho pole.</p>
+<p>NÃ¡stroj <em>odstranit</em> pouÅ¾ijte k odstranÄ›nÃ­ neÅ¾Ã¡doucÃ­ch vÄ›cÃ­ z jednoho pole.</p>
 
 <p>
 
-Nástroj najdete v <a href="mainmenu.txt">hlavním menu</a> pod ikonou s èrvenım køí¾kem nebo buldozerem (pak128).
+NÃ¡stroj najdete v <a href="mainmenu.txt">hlavnÃ­m menu</a> pod ikonou s ÄrvenÃ½m kÅ™Ã­Å¾kem nebo buldozerem (pak128).
 
 </p>
 
 <p>
 
-Nástroj vyvoláte té¾ <a href="keys.txt">klávesou [r]</a>.
+NÃ¡stroj vyvolÃ¡te tÃ©Å¾ <a href="keys.txt">klÃ¡vesou [r]</a>.
 
 </p>
 
 <p>
 
-Nástroj mù¾e bıt pou¾it i k odstanìní chodcù a mìstskıch vozidel.
+NÃ¡stroj mÅ¯Å¾e bÃ½t pouÅ¾it i k odstanÄ›nÃ­ chodcÅ¯ a mÄ›stskÃ½ch vozidel.
 
 </p>

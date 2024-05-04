@@ -1,53 +1,53 @@
-<title>Nápovìda - po¹tovní schránka</title>
+<title>NÃ¡povÄ›da - poÅ¡tovnÃ­ schrÃ¡nka</title>
 
-<h1><strong>Po¹tovní schránka</strong></h1>
+<h1><strong>PoÅ¡tovnÃ­ schrÃ¡nka</strong></h1>
 
 <p>
-Po¹tovní schránka obsahuje seznam zpráv a umo¾òuje urèit, které zprávy se budou zobrazovat také na herní plo¹e.
+PoÅ¡tovnÃ­ schrÃ¡nka obsahuje seznam zprÃ¡v a umoÅ¾Åˆuje urÄit, kterÃ© zprÃ¡vy se budou zobrazovat takÃ© na hernÃ­ ploÅ¡e.
 </p>
 <p>
-Dialog <em>po¹tovní schránky</em> otevøete z <a href="mainmenu.txt">hlavního menu</a> nebo stiskem klávesy <a href="keys.txt">[B]</a>.
+Dialog <em>poÅ¡tovnÃ­ schrÃ¡nky</em> otevÅ™ete z <a href="mainmenu.txt">hlavnÃ­ho menu</a> nebo stiskem klÃ¡vesy <a href="keys.txt">[B]</a>.
 </p>
 <p>
-Tlaèítko <em>nastavení</em> otevøe dialog s nastavením, které zprávy se mají zobrazovat.
+TlaÄÃ­tko <em>nastavenÃ­</em> otevÅ™e dialog s nastavenÃ­m, kterÃ© zprÃ¡vy se majÃ­ zobrazovat.
 </p>
 <p>
-Pod jednotlivımi zálo¾kami se skrıvají roztøídìné zprávy.
+Pod jednotlivÃ½mi zÃ¡loÅ¾kami se skrÃ½vajÃ­ roztÅ™Ã­dÄ›nÃ© zprÃ¡vy.
 <br/>
 </p>
-<h1>Nastavení</h1>
+<h1>NastavenÃ­</h1>
 <p>
-<strong>Volby obsahují</strong> tøi sloupce ètvercovıch tlaèítek.
+<strong>Volby obsahujÃ­</strong> tÅ™i sloupce ÄtvercovÃ½ch tlaÄÃ­tek.
 </p>
 <p>
-První tlaèítko zobrazí zprávu dole na li¹tì, druhé v novém oknì a tøetí tlaèítko zobrazí zprávu v novém oknì nastálo (dokud ji hráè sám nezavøe).
+PrvnÃ­ tlaÄÃ­tko zobrazÃ­ zprÃ¡vu dole na liÅ¡tÄ›, druhÃ© v novÃ©m oknÄ› a tÅ™etÃ­ tlaÄÃ­tko zobrazÃ­ zprÃ¡vu v novÃ©m oknÄ› nastÃ¡lo (dokud ji hrÃ¡Ä sÃ¡m nezavÅ™e).
 </p>
 <p>
-<em>Novı rok</em>: Zaèal novı rok.
+<em>NovÃ½ rok</em>: ZaÄal novÃ½ rok.
 </p>
 <p>
-<em>Novinky AI</em>: Umìlá inteligence otevøela novou linku.
+<em>Novinky AI</em>: UmÄ›lÃ¡ inteligence otevÅ™ela novou linku.
 </p>
 <p>
-<em>Z mìst</em>: <a href="citywindow.txt">Obec</a> staví novou radnici.
+<em>Z mÄ›st</em>: <a href="citywindow.txt">Obec</a> stavÃ­ novou radnici.
 </p>
 <p>
-<em>Bloudìní:</em> Vozidlo nemù¾e najít cestu do dal¹ího bodu v <a href="schedule.txt">jízdním plánu</a>. Mezi nejèastìj¹í pøíèiny patøí nespojené cesty, ¹patnì postavenı semafor èi chybìjící elektrifikace.
+<em>BloudÄ›nÃ­:</em> Vozidlo nemÅ¯Å¾e najÃ­t cestu do dalÅ¡Ã­ho bodu v <a href="schedule.txt">jÃ­zdnÃ­m plÃ¡nu</a>. Mezi nejÄastÄ›jÅ¡Ã­ pÅ™Ã­Äiny patÅ™Ã­ nespojenÃ© cesty, Å¡patnÄ› postavenÃ½ semafor Äi chybÄ›jÃ­cÃ­ elektrifikace.
 </p>
 <p>
-<em>Novı prùmysl</em>: Stavba nové <a href="industryinfo.txt">továrny</a>, øetìzu továren nebo nové propojení továren zpùsobené vzrùstem poètu obyvatel.
+<em>NovÃ½ prÅ¯mysl</em>: Stavba novÃ© <a href="industryinfo.txt">tovÃ¡rny</a>, Å™etÄ›zu tovÃ¡ren nebo novÃ© propojenÃ­ tovÃ¡ren zpÅ¯sobenÃ© vzrÅ¯stem poÄtu obyvatel.
 </p>
 <p>
-<em>Diskuse</em>: Zprávy od ostatních hráèù (pøi høe po síti).
+<em>Diskuse</em>: ZprÃ¡vy od ostatnÃ­ch hrÃ¡ÄÅ¯ (pÅ™i hÅ™e po sÃ­ti).
 </p>
 <p>
-<em>Nová vozidla:</em> Je dostupné nové vozidlo nebo døíve dostupné vozidlo se stalo zastaralım a u¾ se nevyrábí (pokud jste pøi vytváøení hry povolili <a href="new_world.txt">zaèít roku</a>).
+<em>NovÃ¡ vozidla:</em> Je dostupnÃ© novÃ© vozidlo nebo dÅ™Ã­ve dostupnÃ© vozidlo se stalo zastaralÃ½m a uÅ¾ se nevyrÃ¡bÃ­ (pokud jste pÅ™i vytvÃ¡Å™enÃ­ hry povolili <a href="new_world.txt">zaÄÃ­t roku</a>).
 </p>
 <p>
-<em>Pøeplnìní:</em> <a href="station.txt">Stanice</a> nebo zastávka je pøeplnìna.
+<em>PÅ™eplnÄ›nÃ­:</em> <a href="station.txt">Stanice</a> nebo zastÃ¡vka je pÅ™eplnÄ›na.
 </p>
 <p>
-<em>Problémy</em>: Hráèova spoleènost je zadlu¾ená nebo jiné záva¾né zprávy.
+<em>ProblÃ©my</em>: HrÃ¡Äova spoleÄnost je zadluÅ¾enÃ¡ nebo jinÃ© zÃ¡vaÅ¾nÃ© zprÃ¡vy.
 </p>
-<p><em>dopravní zácpy</em>: Vozidla nìkde uvízla.
+<p><em>dopravnÃ­ zÃ¡cpy</em>: Vozidla nÄ›kde uvÃ­zla.
 </p>

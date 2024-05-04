@@ -2,13 +2,13 @@
 
 <h1>Nastavenia zvukov a hudby</h1>
 <p>
-V tomto menu nastavuje¹ hlasitost' zvukov, hlasitost' hudby
-a ktorú skladbu chce¹ aktuálne prehrat'.
+V tomto menu nastavujeÅ¡ hlasitost' zvukov, hlasitost' hudby
+a ktorÃº skladbu chceÅ¡ aktuÃ¡lne prehrat'.
 </p>
 <p>
-Pre zmenu hlasitosti zvukov a hudby uchop my¹ou jazdec posuvníka
-a posuò ho do ¾elanej polohy.
-Posunom vµavo uberá¹ a posunom vpravo pridáva¹ hlasitost'.
-Na zmenu hlasitosti a zmenu prehrávanej skladby mô¾e¹ pouzit'
-aj klikanie na príslu¹né ¹ípky posuvníkov.
+Pre zmenu hlasitosti zvukov a hudby uchop myÅ¡ou jazdec posuvnÃ­ka
+a posuÅˆ ho do Å¾elanej polohy.
+Posunom vÄ¾avo uberÃ¡Å¡ a posunom vpravo pridÃ¡vaÅ¡ hlasitost'.
+Na zmenu hlasitosti a zmenu prehrÃ¡vanej skladby mÃ´Å¾eÅ¡ pouzit'
+aj klikanie na prÃ­sluÅ¡nÃ© Å¡Ã­pky posuvnÃ­kov.
 </p>

@@ -1,20 +1,20 @@
-<title>Nápovìda - naèíst</title>
-<h1>Naèíst</h1>
+<title>NÃ¡povÄ›da - naÄÃ­st</title>
+<h1>NaÄÃ­st</h1>
 
 <p>
-Pøes dialog naèíst mù¾ete naèíst døíve ulo¾enou hru a pokraèovat v ní.
-Ovládání dialogu je velice podobné jako u dialogu <a href="save.txt">ukládání</a>.<br>
-Jednodu¹e vyberete hru, ve které chcete pokraèovat, a kliknìte na její jméno. Dialog se zavøe, hra se naète, a pokud v¹e probìhne bez problému, zobrazí se potvrzovací zpráva.
+PÅ™es dialog naÄÃ­st mÅ¯Å¾ete naÄÃ­st dÅ™Ã­ve uloÅ¾enou hru a pokraÄovat v nÃ­.
+OvlÃ¡dÃ¡nÃ­ dialogu je velice podobnÃ© jako u dialogu <a href="save.txt">uklÃ¡dÃ¡nÃ­</a>.<br>
+JednoduÅ¡e vyberete hru, ve kterÃ© chcete pokraÄovat, a kliknÄ›te na jejÃ­ jmÃ©no. Dialog se zavÅ™e, hra se naÄte, a pokud vÅ¡e probÄ›hne bez problÃ©mu, zobrazÃ­ se potvrzovacÃ­ zprÃ¡va.
 </p>
 
 <p>
-<em>Pozor:</em> Hry ulo¾ené z jinıch verzí Simutrans nemusejí bıt kompatibilní s touto verzí. Pokud se takovouto nekompatibilní hru pokusíte naèíst, obdr¾íte chybové hlá¹ení.
+<em>Pozor:</em> Hry uloÅ¾enÃ© z jinÃ½ch verzÃ­ Simutrans nemusejÃ­ bÃ½t kompatibilnÃ­ s touto verzÃ­. Pokud se takovouto nekompatibilnÃ­ hru pokusÃ­te naÄÃ­st, obdrÅ¾Ã­te chybovÃ© hlÃ¡Å¡enÃ­.
 </p>
 
 <p>
--><a href="save.txt">Nápovìda pro ukládání</a>
+-><a href="save.txt">NÃ¡povÄ›da pro uklÃ¡dÃ¡nÃ­</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

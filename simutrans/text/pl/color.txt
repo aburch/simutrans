@@ -1,7 +1,7 @@
-<title>POMOC: wyb髍 koloru</title>
+<title>POMOC: wyb贸r koloru</title>
 
-<h1>Wyb髍 koloru</h1>
+<h1>Wyb贸r koloru</h1>
 
 <p>
 Mozesz wybrac dla siebie odpowiedni kolor.
-Tym kolorem beda zaznaczone Twoje posiadlosci (budynki, tory itp.) Zwr骳 uwage, ze nie wszystkie nalezace do Ciebie budynki/pojazdy beda w tym kolorze (tak zadecydowali autorzy rysunk體). </p>
+Tym kolorem beda zaznaczone Twoje posiadlosci (budynki, tory itp.) Zwr贸c uwage, ze nie wszystkie nalezace do Ciebie budynki/pojazdy beda w tym kolorze (tak zadecydowali autorzy rysunk贸w). </p>

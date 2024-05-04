@@ -1,18 +1,18 @@
-<title>Konkurenèní hráèi - pomoc</title>
+<title>KonkurenÄnÃ­ hrÃ¡Äi - pomoc</title>
 
-<h1>Zoznam hráèov</h1>
+<h1>Zoznam hrÃ¡Äov</h1>
 
 <p>
-V tomto menu si schopnı vidiet' konkurenciu - UMELÚ INTELIGENCIU
-s mo¾nost'ou bud vypnutia alebo zapnutia ka¾dého z nich.
+V tomto menu si schopnÃ½ vidiet' konkurenciu - UMELÃš INTELIGENCIU
+s moÅ¾nost'ou bud vypnutia alebo zapnutia kaÅ¾dÃ©ho z nich.
 </p>
 <p>
-Bankovı zostatok - ka¾dı konkurent je slovne zobrazenı aj so zostatkom
-jeho úètu. Zapnút' alebo vypnút' ktoréhokoµvek z nich mô¾e¹ kliknutím
-na príslu¹né políèko vµavo.
-©tandardne je zapnutı jeden konkurent tyrkysovej farby.
+BankovÃ½ zostatok - kaÅ¾dÃ½ konkurent je slovne zobrazenÃ½ aj so zostatkom
+jeho ÃºÄtu. ZapnÃºt' alebo vypnÃºt' ktorÃ©hokoÄ¾vek z nich mÃ´Å¾eÅ¡ kliknutÃ­m
+na prÃ­sluÅ¡nÃ© polÃ­Äko vÄ¾avo.
+Å tandardne je zapnutÃ½ jeden konkurent tyrkysovej farby.
 </p>
 <p>
-Pozn. prekladateµa : Vypnutím konkurentov deaktivuje¹ u nich len moznost' nového
-investovania. Ich dovtedaj¹ie investièné aktivity v¹ak be¾ia naïalej.
+Pozn. prekladateÄ¾a : VypnutÃ­m konkurentov deaktivujeÅ¡ u nich len moznost' novÃ©ho
+investovania. Ich dovtedajÅ¡ie investiÄnÃ© aktivity vÅ¡ak beÅ¾ia naÄalej.
 </p>

@@ -2,34 +2,34 @@
 
 <h1>Financie</h1>
 
-<p>Stav Tvojich pena¾nıch prostriedkov mô¾es sprístupnit'
-stlaèením klávesu ,,f'' alebo voµbou ikony ,,Financie'' na hornej li¹te.<br>
-Zobrazená bude informácia o Tvojich financiách za posledné dva roky :
-príjmov a vıdavkov.</p>
-<p> Polo¾ky sú nasledujúce:</p>
+<p>Stav Tvojich penaÅ¾nÃ½ch prostriedkov mÃ´Å¾es sprÃ­stupnit'
+stlaÄenÃ­m klÃ¡vesu ,,f'' alebo voÄ¾bou ikony ,,Financie'' na hornej liÅ¡te.<br>
+ZobrazenÃ¡ bude informÃ¡cia o Tvojich financiÃ¡ch za poslednÃ© dva roky :
+prÃ­jmov a vÃ½davkov.</p>
+<p> PoloÅ¾ky sÃº nasledujÃºce:</p>
 
 <p>
-<em>Vıdaje na stavbu</em> - to je èokoµvek, èo si postavil v priebehu roka
-vrátane signalizácie, ¾eleznicnıch tratí, pô¹t a pod.
+<em>VÃ½daje na stavbu</em> - to je ÄokoÄ¾vek, Äo si postavil v priebehu roka
+vrÃ¡tane signalizÃ¡cie, Å¾eleznicnÃ½ch tratÃ­, pÃ´Å¡t a pod.
 </p>
 <p>
-<em>Nové vozidlá</em> - vıdaje na akıkoµvek dopravnı prostriedok, ktorı pribudol
-do Tvojho vozového parku v ktoromkoµvek depe.
+<em>NovÃ© vozidlÃ¡</em> - vÃ½daje na akÃ½koÄ¾vek dopravnÃ½ prostriedok, ktorÃ½ pribudol
+do Tvojho vozovÃ©ho parku v ktoromkoÄ¾vek depe.
 </p>
 <p>
-<em>Údr¾ba vozidiel</em> - náklady na údr¾bu v¹etkıch Tvojich dopravnıch prostriedkov.
+<em>ÃšdrÅ¾ba vozidiel</em> - nÃ¡klady na ÃºdrÅ¾bu vÅ¡etkÃ½ch Tvojich dopravnÃ½ch prostriedkov.
 </p>
 <p>
-<em>Príjem</em> - súhrn Tvojich príjmov za v¹etok prepravenı tovar a pasa¾ierov.
+<em>PrÃ­jem</em> - sÃºhrn Tvojich prÃ­jmov za vÅ¡etok prepravenÃ½ tovar a pasaÅ¾ierov.
 </p>
 <p>
-<em>Celkom</em> - súhrn Tvojich príjmov/vıdajov za rok. Toto je súhrn za v¹etky polo¾ky.
+<em>Celkom</em> - sÃºhrn Tvojich prÃ­jmov/vÃ½dajov za rok. Toto je sÃºhrn za vÅ¡etky poloÅ¾ky.
 </p>
 <p>
-<em>Zostatok</em> - celkové obchodné saldo Tvojej spoloènosti. To znamená celkovı stav
-Tvojich peòazí. Ak je kladnı, môze¹ ho pouzit' na ïalsie investovanie. Táto informácia je
-tie¾ zobrazená v stavovej (dolnej) li¹te obrazovky.
+<em>Zostatok</em> - celkovÃ© obchodnÃ© saldo Tvojej spoloÄnosti. To znamenÃ¡ celkovÃ½ stav
+Tvojich peÅˆazÃ­. Ak je kladnÃ½, mÃ´zeÅ¡ ho pouzit' na Äalsie investovanie. TÃ¡to informÃ¡cia je
+tieÅ¾ zobrazenÃ¡ v stavovej (dolnej) liÅ¡te obrazovky.
 </p>
 <p>
-<em>Podpora (mesacne)</em> - bonifikácia, dotácie a pod. Tvojich financií (mesaène).
+<em>Podpora (mesacne)</em> - bonifikÃ¡cia, dotÃ¡cie a pod. Tvojich financiÃ­ (mesaÄne).
 </p>

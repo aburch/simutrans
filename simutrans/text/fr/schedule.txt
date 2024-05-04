@@ -1,55 +1,55 @@
-<title>Itinéraires</title>
+<title>ItinÃ©raires</title>
 
-<h1>Programmation des itinéraires</h1>
-
-<p>
-Il a deux manières de programmer ses véhicules : <br>
-1 - Dans les dépôts, à la création un nouveau véhicule ou convoi.<br>
-2 - Dans la fenêtre d'un véhicule en fonctionnement, par l'option "trajet".<br>
-Les procédures sont semblables : On peut Ajouter, Insérer ou Supprimer des arrêts, ainsi que modifier la limite de charge minimum ou la liste des arrêts vers lesquels le véhicule doit être dirigé.
-</p>
-<p>A la fin, vous trouverez un exemple de l'utilisation des commandes qui sont décrites à suivre.<br>
-<br>
-<em>Aj. Arrêt :</em> il sert à ajouter des arrêts à la fin d'une liste.<br>
-<em>Ins. Arrêt :</em> il insère un arrêt avant celui identifié par <strong>>></strong>.<br>
-<em>Sup. Arrêt :</em> il sert à effacer un arrêt.<br>
-<em>Fin :</em> Quand vous avez terminé la définition de l'itinéraire de votre véhicule, l'appui sur ce bouton valide les modifications et ferme l'écran.<br>
-<em>Charge mini </em>(dans le haut de l'écran) : minimum de chargement que le véhicule doit atteindre pour continuer son chemin.<br>
-Il peut être 0, 20. 40. 60. 80 ou 100%. Zéro signifie que le véhicule va charger ce qu'il y aura dans la gare, et va partir immédiatement. Cent, le véhicule partira seulement quand il sera complet.<br>
-<br>
-<em>Attention donc,</em> vous pouvez bloquer d'autres trains, tandis que celui-ci attendra pour atteindre sa capacité minimum.
-</p>
+<h1>Programmation des itinÃ©raires</h1>
 
 <p>
-Exemple : Un train doit porter le bois de la forêt 1 (F1) et de la forêt (F2)
-à Scierie 1 (S1) et à une papeterie (FP). Vous construisez vos voies et vos gares. Vous créez le dépôts ferroviaire et achetez le train.
+Il a deux maniÃ¨res de programmer ses vÃ©hicules : <br>
+1 - Dans les dÃ©pÃ´ts, Ã  la crÃ©ation un nouveau vÃ©hicule ou convoi.<br>
+2 - Dans la fenÃªtre d'un vÃ©hicule en fonctionnement, par l'option "trajet".<br>
+Les procÃ©dures sont semblables : On peut Ajouter, InsÃ©rer ou Supprimer des arrÃªts, ainsi que modifier la limite de charge minimum ou la liste des arrÃªts vers lesquels le vÃ©hicule doit Ãªtre dirigÃ©.
+</p>
+<p>A la fin, vous trouverez un exemple de l'utilisation des commandes qui sont dÃ©crites Ã  suivre.<br>
+<br>
+<em>Aj. ArrÃªt :</em> il sert Ã  ajouter des arrÃªts Ã  la fin d'une liste.<br>
+<em>Ins. ArrÃªt :</em> il insÃ¨re un arrÃªt avant celui identifiÃ© par <strong>>></strong>.<br>
+<em>Sup. ArrÃªt :</em> il sert Ã  effacer un arrÃªt.<br>
+<em>Fin :</em> Quand vous avez terminÃ© la dÃ©finition de l'itinÃ©raire de votre vÃ©hicule, l'appui sur ce bouton valide les modifications et ferme l'Ã©cran.<br>
+<em>Charge mini </em>(dans le haut de l'Ã©cran) : minimum de chargement que le vÃ©hicule doit atteindre pour continuer son chemin.<br>
+Il peut Ãªtre 0, 20. 40. 60. 80 ou 100%. ZÃ©ro signifie que le vÃ©hicule va charger ce qu'il y aura dans la gare, et va partir immÃ©diatement. Cent, le vÃ©hicule partira seulement quand il sera complet.<br>
+<br>
+<em>Attention donc,</em> vous pouvez bloquer d'autres trains, tandis que celui-ci attendra pour atteindre sa capacitÃ© minimum.
+</p>
+
+<p>
+Exemple : Un train doit porter le bois de la forÃªt 1 (F1) et de la forÃªt (F2)
+Ã  Scierie 1 (S1) et Ã  une papeterie (FP). Vous construisez vos voies et vos gares. Vous crÃ©ez le dÃ©pÃ´ts ferroviaire et achetez le train.
 Cliquez sur 'Trajet''.
-Simutrans va vous ouvrir l'écran de gestion des trajets.
+Simutrans va vous ouvrir l'Ã©cran de gestion des trajets.
 On remarque tout de suite la charge mini: 0%.
-Et dans le bas, quatre boutons : 'Aj. Arrêt', 'Ins. Arrêt', 'Sup. Arrêt' et 'Fin'.
+Et dans le bas, quatre boutons : 'Aj. ArrÃªt', 'Ins. ArrÃªt', 'Sup. ArrÃªt' et 'Fin'.
 </p>
 <p>
-1. Pour créer l'itinéraire, cliquez sur <em>'Aj. Arrêt'</em>, commencez d'abord par le premier arrêt et ainsi de suite jusqu'au dernier du cycle. C'est très simple : le curseur va prendre l'aspect d'une pancarte où il est inscrit 'STOP', et il vous reste à cliquer sur les gares dans l'ordre désiré du
+1. Pour crÃ©er l'itinÃ©raire, cliquez sur <em>'Aj. ArrÃªt'</em>, commencez d'abord par le premier arrÃªt et ainsi de suite jusqu'au dernier du cycle. C'est trÃ¨s simple : le curseur va prendre l'aspect d'une pancarte oÃ¹ il est inscrit 'STOP', et il vous reste Ã  cliquer sur les gares dans l'ordre dÃ©sirÃ© du
 passage.
 </p>
 <p>
-2. Envisageons maintenant que le train ne doit pas quitter F1 avec moins de, disons, 20% de sa capacité, cliquez sur la gare de F1 dans le trajet, et après cela, dans la zone <em>'Charge mini'</em> sur la flèche de droite pour augmenter la charge à 20% . L'autre flèche diminue la charge minimum.
+2. Envisageons maintenant que le train ne doit pas quitter F1 avec moins de, disons, 20% de sa capacitÃ©, cliquez sur la gare de F1 dans le trajet, et aprÃ¨s cela, dans la zone <em>'Charge mini'</em> sur la flÃ¨che de droite pour augmenter la charge Ã  20% . L'autre flÃ¨che diminue la charge minimum.
 </p>
 <p>
-3. Nous allons dire que vous voulez que le train passe par une autre scierie, la scierie 2 (S2), qui serait entre S1 et FP. Pour ceci, cliquez sur <em>'Ins. Arrêt'</em> quand le trajet pointe sur la gare FP. Cliquez ensuite sur la gare S2. L'arrêt S2 sera entre S1 et FP. N'oubliez pas, qu'un raccordement doit exister entre la gare S2 et le circuit principal, et qu'il doit être électrifié, si votre train est électrique.
+3. Nous allons dire que vous voulez que le train passe par une autre scierie, la scierie 2 (S2), qui serait entre S1 et FP. Pour ceci, cliquez sur <em>'Ins. ArrÃªt'</em> quand le trajet pointe sur la gare FP. Cliquez ensuite sur la gare S2. L'arrÃªt S2 sera entre S1 et FP. N'oubliez pas, qu'un raccordement doit exister entre la gare S2 et le circuit principal, et qu'il doit Ãªtre Ã©lectrifiÃ©, si votre train est Ã©lectrique.
 </p>
 <p>
-4. Disons que vous allez réaliser un changement de votre système et que vous êtes contraint de détruire une gare (S1 par exemple). Dans la définition du trajet, comme vous avez détruit la gare S1, vous voyez que l'itinéraire contient les coordonnées du segment de cette gare (x,y).
-Vous devrez lors supprimer cette ligne de l'itinéraire : sélectionnez la ligne en question et appuyez sur le bouton <em>'Sup. Arrêt'</em>.
-Pour insérer la nouvelle gare, il suffit de suivre le procédé décrit dans le point 3.
+4. Disons que vous allez rÃ©aliser un changement de votre systÃ¨me et que vous Ãªtes contraint de dÃ©truire une gare (S1 par exemple). Dans la dÃ©finition du trajet, comme vous avez dÃ©truit la gare S1, vous voyez que l'itinÃ©raire contient les coordonnÃ©es du segment de cette gare (x,y).
+Vous devrez lors supprimer cette ligne de l'itinÃ©raire : sÃ©lectionnez la ligne en question et appuyez sur le bouton <em>'Sup. ArrÃªt'</em>.
+Pour insÃ©rer la nouvelle gare, il suffit de suivre le procÃ©dÃ© dÃ©crit dans le point 3.
 </p>
 <p>
-5. Pour quelque raison, vous voulez que le train passe une certaine gare, ou simplement se rende immédiatement à une gare précise. Avec la programmation du train ouvert, cliquez sur l'arrêt souhaité.
+5. Pour quelque raison, vous voulez que le train passe une certaine gare, ou simplement se rende immÃ©diatement Ã  une gare prÃ©cise. Avec la programmation du train ouvert, cliquez sur l'arrÃªt souhaitÃ©.
 </p>
 <p>
 6. Pour valider vos modifications, cliquez sur le bouton <em>'Fin'</em>.
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

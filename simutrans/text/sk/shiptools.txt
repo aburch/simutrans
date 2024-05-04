@@ -1,26 +1,26 @@
-<title>Lodná doprava - pomoc</title>
-<h1>Nástroje lodnej dopravy</h1>
+<title>LodnÃ¡ doprava - pomoc</title>
+<h1>NÃ¡stroje lodnej dopravy</h1>
 <p>
-Tu má¹ prístup k v¹etkım pomôckam, ktoré potrebuje¹
-na vybudovanie lodného parku a dokov.
+Tu mÃ¡Å¡ prÃ­stup k vÅ¡etkÃ½m pomÃ´ckam, ktorÃ© potrebujeÅ¡
+na vybudovanie lodnÃ©ho parku a dokov.
 </p>
 <p>
-Ako prvı nástroj je prístavné mólo. <em>Prístavné mólo</em>
-<a href""> musí stát' na okraji pevniny.</a>
-Móla mô¾e¹ ukladat' vedµa seba a tım zväè¹ovat' ich obslu¾nú kapacitu.
-Mólo vlo¾í¹ tak, ze klikne¹ my¹ou na symbol ,,dla¾dica'' a umiestni¹ ho
-na po¾adované miesto, najèastej¹ie v blízkosti nejakého
-priemyselného odvetvia. Ak si ho umiestnil správne, ostane tam.
-Ïal¹ou pomôckou je stavba doku.<br>
-<em>Dok</em> postaví¹ podobnım spôsobom ako prístavné mólo, ale
-<a href"">dok musí stát' na vode !</a> Mô¾e¹ si vybrat' medzi µavım a pravım
-dokom. Akonáhle má¹ dok postavenı, mô¾e¹ kupovat' lode kliknutím
-na dok, zadat' cestovnı poriadok - èo, odkiaµ a kam prevá¾at'.<br>
-Pamätaj na to, ¾e lode budú pri väè¹ích mólach zastavovat' na tom
-úseku (mieste), na ktorom si im oznaèil zastávku pri zadávaní cestovného poriadku.
+Ako prvÃ½ nÃ¡stroj je prÃ­stavnÃ© mÃ³lo. <em>PrÃ­stavnÃ© mÃ³lo</em>
+<a href""> musÃ­ stÃ¡t' na okraji pevniny.</a>
+MÃ³la mÃ´Å¾eÅ¡ ukladat' vedÄ¾a seba a tÃ½m zvÃ¤ÄÅ¡ovat' ich obsluÅ¾nÃº kapacitu.
+MÃ³lo vloÅ¾Ã­Å¡ tak, ze klikneÅ¡ myÅ¡ou na symbol ,,dlaÅ¾dica'' a umiestniÅ¡ ho
+na poÅ¾adovanÃ© miesto, najÄastejÅ¡ie v blÃ­zkosti nejakÃ©ho
+priemyselnÃ©ho odvetvia. Ak si ho umiestnil sprÃ¡vne, ostane tam.
+ÄalÅ¡ou pomÃ´ckou je stavba doku.<br>
+<em>Dok</em> postavÃ­Å¡ podobnÃ½m spÃ´sobom ako prÃ­stavnÃ© mÃ³lo, ale
+<a href"">dok musÃ­ stÃ¡t' na vode !</a> MÃ´Å¾eÅ¡ si vybrat' medzi Ä¾avÃ½m a pravÃ½m
+dokom. AkonÃ¡hle mÃ¡Å¡ dok postavenÃ½, mÃ´Å¾eÅ¡ kupovat' lode kliknutÃ­m
+na dok, zadat' cestovnÃ½ poriadok - Äo, odkiaÄ¾ a kam prevÃ¡Å¾at'.<br>
+PamÃ¤taj na to, Å¾e lode budÃº pri vÃ¤ÄÅ¡Ã­ch mÃ³lach zastavovat' na tom
+Ãºseku (mieste), na ktorom si im oznaÄil zastÃ¡vku pri zadÃ¡vanÃ­ cestovnÃ©ho poriadku.
 </p>
 <p>
-<strong>Pozor, doky nemô¾u byt' vzdialené od móla !</strong><br>
-Musia stát' vedµa móla. Kvôli terénu sú preto k dispozícii µavı a
-pravı dok. Inak sú obe zhodné a ponúkajú nákup rovnakıch typov lodí.
+<strong>Pozor, doky nemÃ´Å¾u byt' vzdialenÃ© od mÃ³la !</strong><br>
+Musia stÃ¡t' vedÄ¾a mÃ³la. KvÃ´li terÃ©nu sÃº preto k dispozÃ­cii Ä¾avÃ½ a
+pravÃ½ dok. Inak sÃº obe zhodnÃ© a ponÃºkajÃº nÃ¡kup rovnakÃ½ch typov lodÃ­.
 </p>

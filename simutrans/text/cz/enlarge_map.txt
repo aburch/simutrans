@@ -1,11 +1,11 @@
-<title>Nápovìda - Zmìnit velikost mapy</title>
-<h1><strong>Zmìnit velikost mapy</strong></h1>
-<p>Dialog slou¾í k roz¹íøení ji¾ vytvoøené mapy. </p>
-<p>Mapu lze roz¹íøit smìrem vpravo a smìrem dolu. Pokud chcete mapu roz¹íøit jinım smìrem, otoète ji, zvìt¹ete ji a otoète zpìt.<br>
-Tip: K otoèení pou¾ijte klávesu <a href="keys.txt">R</a>.</p>
-<p>Budoucí velikost mapy lze zadat pomocí klavesnice nebo ¹ipkami na stranách políèka. <br>
-<em>Horní políèko</em> slou¾í k zadání rozmìru zleva doprava, <em>druhé políèko</em> k zadání rozmìru shora dolu.</p>
-<p>Nejvìt¹í ètvercová mapa má delku strany 4096 políèek, nejvìt¹í obdélníková mapa má delku strany 8192 polí (pøi délce krat¹í strany 2048 polí).
+<title>NÃ¡povÄ›da - ZmÄ›nit velikost mapy</title>
+<h1><strong>ZmÄ›nit velikost mapy</strong></h1>
+<p>Dialog slouÅ¾Ã­ k rozÅ¡Ã­Å™enÃ­ jiÅ¾ vytvoÅ™enÃ© mapy. </p>
+<p>Mapu lze rozÅ¡Ã­Å™it smÄ›rem vpravo a smÄ›rem dolu. Pokud chcete mapu rozÅ¡Ã­Å™it jinÃ½m smÄ›rem, otoÄte ji, zvÄ›tÅ¡ete ji a otoÄte zpÄ›t.<br>
+Tip: K otoÄenÃ­ pouÅ¾ijte klÃ¡vesu <a href="keys.txt">R</a>.</p>
+<p>BudoucÃ­ velikost mapy lze zadat pomocÃ­ klavesnice nebo Å¡ipkami na stranÃ¡ch polÃ­Äka. <br>
+<em>HornÃ­ polÃ­Äko</em> slouÅ¾Ã­ k zadÃ¡nÃ­ rozmÄ›ru zleva doprava, <em>druhÃ© polÃ­Äko</em> k zadÃ¡nÃ­ rozmÄ›ru shora dolu.</p>
+<p>NejvÄ›tÅ¡Ã­ ÄtvercovÃ¡ mapa mÃ¡ delku strany 4096 polÃ­Äek, nejvÄ›tÅ¡Ã­ obdÃ©lnÃ­kovÃ¡ mapa mÃ¡ delku strany 8192 polÃ­ (pÅ™i dÃ©lce kratÅ¡Ã­ strany 2048 polÃ­).
 </p>
-<p><em>Poèet mìst</em> je poètem novì vytvoøenıch mìst.</p>
-<p><em>Medián</em> ovlivòuje poèet obyvatel v novì vytváøenıch mìstech.</p>
+<p><em>PoÄet mÄ›st</em> je poÄtem novÄ› vytvoÅ™enÃ½ch mÄ›st.</p>
+<p><em>MediÃ¡n</em> ovlivÅˆuje poÄet obyvatel v novÄ› vytvÃ¡Å™enÃ½ch mÄ›stech.</p>

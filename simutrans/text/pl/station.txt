@@ -6,17 +6,17 @@ Informacje te zawieraja niezbedne dane o wszystkich stacjach na mapie. Mozliwa j
 </p>
 
 <p>
-U g髍y okna znajduje sie nazwa stacji, kt髍a mozna zmienic klikajac na niej i wpisujac nowa.
+U g贸ry okna znajduje sie nazwa stacji, kt贸ra mozna zmienic klikajac na niej i wpisujac nowa.
 </p>
 
 <p>
-W tym oknie znajdziesz liste towar體 i pasazer體 danej stacji (ilosc i miejsce docelowe).
+W tym oknie znajdziesz liste towar贸w i pasazer贸w danej stacji (ilosc i miejsce docelowe).
 </p>
 
 <p>
-W szczeg髄owych informacjach znajdziesz takie dane jak:
+W szczeg贸lowych informacjach znajdziesz takie dane jak:
 - dokad nalezy przewozic towary/ludzi ze stacji
-- jakich towar體 potrzebuje miejscowy przemysl (co nalezy tu przywozic)
+- jakich towar贸w potrzebuje miejscowy przemysl (co nalezy tu przywozic)
 <br>
 
 <em>Uwaga:</em> Lista uaktualniana w czasie rzeczywistym.

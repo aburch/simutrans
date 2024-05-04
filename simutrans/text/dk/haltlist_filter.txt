@@ -1,20 +1,20 @@
-<title>Rutemålsliste filter dialog</title>
+<title>RutemÃ¥lsliste filter dialog</title>
 
-<h1>Rutemålsliste filter dialog</h1>
+<h1>RutemÃ¥lsliste filter dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-Denne filter dialog anvendes til at udvælge (filtrere) de rutemål, som du
-ønsker at betragte i<br>
-<a href="haltlist.txt">Rutemålsliste dialogen</a>
+Denne filter dialog anvendes til at udvÃ¦lge (filtrere) de rutemÃ¥l, som du
+Ã¸nsker at betragte i<br>
+<a href="haltlist.txt">RutemÃ¥lsliste dialogen</a>
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Til venstre findes tre filteroverskrifter, henholdsvis 'Filtrer på navn:',
-'Filtrer på type:' og 'Specialfilter:'. Til højre for disse findes to lister med
+Til venstre findes tre filteroverskrifter, henholdsvis 'Filtrer pÃ¥ navn:',
+'Filtrer pÃ¥ type:' og 'Specialfilter:'. Til hÃ¸jre for disse findes to lister med
 overskrifterne 'Forbruger:' og 'Producerer:'. Under begge disse overskrifter
-findes tre knapper med teksterne 'alle', 'ingen' og 'inv.'. Listerne består af
+findes tre knapper med teksterne 'alle', 'ingen' og 'inv.'. Listerne bestÃ¥r af
 en trykknap for samtlige varetyper.
 </p>
 
@@ -23,11 +23,11 @@ Samtlige fem overskrifter har en checkbox-knap tilknyttet.
 </p>
 
 <p>
-<strong>Bemærk - For at få foretaget en filtrering med en eller flere af de fem
+<strong>BemÃ¦rk - For at fÃ¥ foretaget en filtrering med en eller flere af de fem
 filtrerings muligheder skal:<br>
 a) Checkbox-knappen til venstre for overskriften trykkes ned.<br>
 b) Tilstandsknappen under overskriften 'Filter:' i</strong>
-<a href="haltlist.txt">Rutemålsliste dialogen</a><strong> sættes til
+<a href="haltlist.txt">RutemÃ¥lsliste dialogen</a><strong> sÃ¦ttes til
 'aktivt'</strong>
 </p>
 
@@ -36,28 +36,28 @@ De tre filtreringsmuligheder til venstre er:
 </p>
 
 <p>
-<em>Filtrer på navn:</em><br>
-Her er der mulighed for at udvælge rutemål med et fælles navn. Dette gøres ved
-at skrive en del af eller hele det ønskede navn i listboksen under
-overskriften. F.eks vil en indtastning af 'Gam' give alle rutemål, hvis navn
-begynder med Gammel. <strong>Bemærk at søgningen er "case-sensitive"</strong>
+<em>Filtrer pÃ¥ navn:</em><br>
+Her er der mulighed for at udvÃ¦lge rutemÃ¥l med et fÃ¦lles navn. Dette gÃ¸res ved
+at skrive en del af eller hele det Ã¸nskede navn i listboksen under
+overskriften. F.eks vil en indtastning af 'Gam' give alle rutemÃ¥l, hvis navn
+begynder med Gammel. <strong>BemÃ¦rk at sÃ¸gningen er "case-sensitive"</strong>
 </p>
 
 <p>
-<em>Filtrer på type:</em><br>
-Her er der mulighed for at udvælge rutemål efter deres type. De mulige
+<em>Filtrer pÃ¥ type:</em><br>
+Her er der mulighed for at udvÃ¦lge rutemÃ¥l efter deres type. De mulige
 typer er lastepladser, busstoppesteder, jernbanestationer og havne.
 </p>
 
 <p>
 <em>Special filter:</em><br>
-Her er der mulighed for at udvælge rutemål, der er overfyldte og
-rutemål, der ikke er forbundne.
+Her er der mulighed for at udvÃ¦lge rutemÃ¥l, der er overfyldte og
+rutemÃ¥l, der ikke er forbundne.
 </p>
 
 <p>
-De to lister giver mulighed for at udvælge rutemål udfra de varer, der
-forbruges eller produceres på rutemålet. De tre knapper under overskriften
-anvendes til at vælge henholdsvis alle eller ingen af de mulige varetyper samt
-til at foretage den "inverse" trykknap udvælgelse.
+De to lister giver mulighed for at udvÃ¦lge rutemÃ¥l udfra de varer, der
+forbruges eller produceres pÃ¥ rutemÃ¥let. De tre knapper under overskriften
+anvendes til at vÃ¦lge henholdsvis alle eller ingen af de mulige varetyper samt
+til at foretage den "inverse" trykknap udvÃ¦lgelse.
 </p>

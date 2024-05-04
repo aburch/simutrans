@@ -1,25 +1,25 @@
-<title>Nápovìda - seznamy</title>
+<title>NÃ¡povÄ›da - seznamy</title>
 
 <h1><strong>Seznamy</strong></h1>
 
-<p>Menu <em>seznamy</em> je rozcestníkem k dostupnım seznamùm. Díky nim máte pøehled.</p>
-<p>Menu otevøete kliknutím na ikonu <em>seznamy</em> v horní èásti obrazovky.</p>
-<p>Menu obsahuje následující polo¾ky:</p>
+<p>Menu <em>seznamy</em> je rozcestnÃ­kem k dostupnÃ½m seznamÅ¯m. DÃ­ky nim mÃ¡te pÅ™ehled.</p>
+<p>Menu otevÅ™ete kliknutÃ­m na ikonu <em>seznamy</em> v hornÃ­ ÄÃ¡sti obrazovky.</p>
+<p>Menu obsahuje nÃ¡sledujÃ­cÃ­ poloÅ¾ky:</p>
 
-<p><a href="haltlist.txt">seznam stanic</a>: Seznam v¹ech stanic a zastávek aktuálního hráèe. V seznamu nejsou zahrnuty pøístavy s pouze lodní dopravou (napø. ropné plo¹iny).
+<p><a href="haltlist.txt">seznam stanic</a>: Seznam vÅ¡ech stanic a zastÃ¡vek aktuÃ¡lnÃ­ho hrÃ¡Äe. V seznamu nejsou zahrnuty pÅ™Ã­stavy s pouze lodnÃ­ dopravou (napÅ™. ropnÃ© ploÅ¡iny).
 </p>
-<p><a href="linemanagement.txt">správa linek</a>: Seznam v¹ech linek.</p>
-<p><a href="convoi.txt">seznam vozidel</a>: Seznam v¹ech silnièních a ¾eleznièních vozidel, letadel a lodí.
-</p>
-<p>
-<a href="citylist_filter.txt">seznam mìst</a>: Seznam v¹ech mìst.
+<p><a href="linemanagement.txt">sprÃ¡va linek</a>: Seznam vÅ¡ech linek.</p>
+<p><a href="convoi.txt">seznam vozidel</a>: Seznam vÅ¡ech silniÄnÃ­ch a Å¾elezniÄnÃ­ch vozidel, letadel a lodÃ­.
 </p>
 <p>
-<a href="goods_filter.txt">seznam zbo¾í</a>: Seznam v¹ech dostupnıch typù pøepravovatelného zbo¾í. Pomù¾e v rozhodování, co se vyplatí pøepravovat.
+<a href="citylist_filter.txt">seznam mÄ›st</a>: Seznam vÅ¡ech mÄ›st.
 </p>
 <p>
-<a href="factorylist_filter.txt">seznam továren</a>: Seznam v¹ech továren na hrací plo¹e.
+<a href="goods_filter.txt">seznam zboÅ¾Ã­</a>: Seznam vÅ¡ech dostupnÃ½ch typÅ¯ pÅ™epravovatelnÃ©ho zboÅ¾Ã­. PomÅ¯Å¾e v rozhodovÃ¡nÃ­, co se vyplatÃ­ pÅ™epravovat.
 </p>
 <p>
-<a href="curiositylist_filter.txt">turistické cíle</a>: V¹echny památky, památníky a jiné turistické zajímavosti.</p>
-<p><a href="labellist_filter.txt">seznam znakù</a>: Seznam v¹ech nápisù umístìnıch do hry.</p>
+<a href="factorylist_filter.txt">seznam tovÃ¡ren</a>: Seznam vÅ¡ech tovÃ¡ren na hracÃ­ ploÅ¡e.
+</p>
+<p>
+<a href="curiositylist_filter.txt">turistickÃ© cÃ­le</a>: VÅ¡echny pamÃ¡tky, pamÃ¡tnÃ­ky a jinÃ© turistickÃ© zajÃ­mavosti.</p>
+<p><a href="labellist_filter.txt">seznam znakÅ¯</a>: Seznam vÅ¡ech nÃ¡pisÅ¯ umÃ­stÄ›nÃ½ch do hry.</p>

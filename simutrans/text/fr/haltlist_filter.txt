@@ -1,54 +1,54 @@
-<title>Filtrage des arrêts</title>
+<title>Filtrage des arrÃªts</title>
 
-<h1>Filtrage des arrêts, gares et quais de chargement</h1>
+<h1>Filtrage des arrÃªts, gares et quais de chargement</h1>
 
 <p>
-Cet écran vous permet de définir les critères de filtrage pour afficher la liste des arrêts.
+Cet Ã©cran vous permet de dÃ©finir les critÃ¨res de filtrage pour afficher la liste des arrÃªts.
 </p>
-<p>Les filtres sont organisés en groupe, indiqués en blanc. Vous pouvez activer
-un ou plusieurs groupe de filtre en appuyant sur les boutons associés à chaque groupe.
+<p>Les filtres sont organisÃ©s en groupe, indiquÃ©s en blanc. Vous pouvez activer
+un ou plusieurs groupe de filtre en appuyant sur les boutons associÃ©s Ã  chaque groupe.
 </p>
 
 <p>
 <em>Filtre par Nom:</em>
-Ecrivez tout ou partie du nom de l'arrêt, et appuyez sur le bouton associé
-pour valider le critère.
+Ecrivez tout ou partie du nom de l'arrÃªt, et appuyez sur le bouton associÃ©
+pour valider le critÃ¨re.
 </p>
 
 <p>
-<em>Filtre par Matières premières:</em>
-Sélectionnez les marchandises requises par les industries à proximité des
-arrêts que vous souhaitez voir s'afficher, et appuyez sur le bouton associé pour valider le critère.<br>
-Des boutons vous servent à sélectionner l'ensemble des critères marchandise ou
-aucun, ou encore d'inverser votre sélection.
+<em>Filtre par MatiÃ¨res premiÃ¨res:</em>
+SÃ©lectionnez les marchandises requises par les industries Ã  proximitÃ© des
+arrÃªts que vous souhaitez voir s'afficher, et appuyez sur le bouton associÃ© pour valider le critÃ¨re.<br>
+Des boutons vous servent Ã  sÃ©lectionner l'ensemble des critÃ¨res marchandise ou
+aucun, ou encore d'inverser votre sÃ©lection.
 </p>
 
 <p>
 <em>Filtre par Production:</em>
-Sélectionnez les marchandises produites par les industries à proximité des
-arrêts que vous souhaitez voir s'afficher, et appuyez sur le bouton associé pour valider le critère.<br>
-Des boutons vous servent à sélectionner l'ensemble des critères marchandise ou
-aucun, ou encore d'inverser votre sélection.
+SÃ©lectionnez les marchandises produites par les industries Ã  proximitÃ© des
+arrÃªts que vous souhaitez voir s'afficher, et appuyez sur le bouton associÃ© pour valider le critÃ¨re.<br>
+Des boutons vous servent Ã  sÃ©lectionner l'ensemble des critÃ¨res marchandise ou
+aucun, ou encore d'inverser votre sÃ©lection.
 </p>
 
 <p>
 <em>Filtre par Type:</em>
-Sélectionnez le(s) type(s) d'arrêt que vous voulez afficher, et appuyez sur
-le bouton associé pour valider le critère.
+SÃ©lectionnez le(s) type(s) d'arrÃªt que vous voulez afficher, et appuyez sur
+le bouton associÃ© pour valider le critÃ¨re.
 </p>
 
 <p>
-<em>Filtre spécial:</em>
-Choissez ici les critères vous permettant de repérer les arrêts posant problème.
+<em>Filtre spÃ©cial:</em>
+Choissez ici les critÃ¨res vous permettant de repÃ©rer les arrÃªts posant problÃ¨me.
 </p>
 
 <p>
 <em>Important:</em>
-Lorsque vous associez plusieurs critères, les arrêts affichés répondront à au
-moins un critère.
+Lorsque vous associez plusieurs critÃ¨res, les arrÃªts affichÃ©s rÃ©pondront Ã  au
+moins un critÃ¨re.
 </p>
 
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

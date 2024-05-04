@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                           Date Created: 20.03 2024                           #
+#                            Date Created: 4.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -49,6 +49,8 @@ clf_btn_keine
 Nada
 climate area percentage
 Tamaño de un clima único
+Continue Game
+Continuar Partida
 CROSSING_SOUND
 Advertencias de cruce
 FACTORY_SOUND
@@ -113,8 +115,12 @@ rainfall
 Humedad
 Reselect closes tools
 Re-seleccionar una herramienta la cierra
+Return to menu
+Volver al menú
 Road toll
 Peaje
+Save
+Guardar
 Scenario
 Información de Escenario
 sea
@@ -226,7 +232,7 @@ Entre dos vías, se necesita una diferencia de altura mínima de dos.
 Not enough money!
 ¡No tienes suficiente dinero\npara construir esto!
 On narrowgauge track only!\n
-¡Sólo vehiculos de vía estrecha!\n
+¡Sólo permitido en vía estrecha!\n
 Only public player can lock games!
 ¡Solo el jugador Servicio Público puede proteger la partida!
 Only up and down movement in the underground!
@@ -390,7 +396,7 @@ Crecimiento industrial: Nueva cadena industrial\npara %s\ncerca de %s\nconstruid
 New vehicle now available:\n%s\n
 \n Un nuevo vehículo está disponible:\n\n\n -- %s -- \n\n
 Now %u clients connected.
-Actualmente hay %u clientes conectados.
+Actualmente hay %u cliente(s) conectado(s).
 overtaking
 Adelantamiento
 Remove vehicle from map. Use with care!
@@ -411,6 +417,8 @@ Line Filter
 Filtro de Línea
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+...
+?
 (%.2f$/km %.2f$/m)
 (%.2f$/km %.2f$/mes)
 (%i)-
@@ -443,6 +451,8 @@ Filtro de Línea
 [BLOQ DESPL]
 [SHIFT]
 [MAYÚS]
+/month
+/mes
 \nBauzeit bis
  hasta 
 \nBauzeit von
@@ -499,6 +509,8 @@ Antigüedad: %i años y %i meses.
 %s ha llegado al depósito.
 %s land %d %s
 %s tierra %d %s
+%s now known as %s.
+%s ahora se conoce como %s.
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
 %s derrochó su dinero en un\nnuevo ayuntamiento\ncuando se alcanzaron los\n%i habitantes.
 %s\nis crowded.
@@ -515,6 +527,10 @@ Antigüedad: %i años y %i meses.
 <Limpiar itinerario>
 <create new line>
 <Crear línea nueva>
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<em>%s</em> - %s<br>\n
+[<em>%s</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <H1>Error: Objetos duplicados en el directorio principal del pak</H1><p><strong>En
 <h1>Warning</h1><p><strong>addons for
@@ -535,14 +551,28 @@ Antigüedad: %i años y %i meses.
 100 km/h = %i casillas/mes
 1LIGHT_CHOOSE
 Luminosidad:
+1th
+1.
 1WORLD_CHOOSE
 Opciones para una Nueva Partida:
+21th
+21.
+22th
+22.
+23th
+23.
 2LIGHT_CHOOSE
 Colores:
+2th
+2.
 2WORLD_CHOOSE
 Número de mapa:
+31th
+31.
 3LIGHT_CHOOSE
 Velocidad de desplazamiento:
+3th
+3.
 4LIGHT_CHOOSE
 Invertir Desplazamiento
 5LIGHT_CHOOSE
@@ -659,6 +689,8 @@ Bahndepot
 Depósito de Trenes
 Bankrott:\n\nDu bist bankrott.\n
 Bancarrota:\n\nEstás en numeros rojos.\n
+based on Simutrans 84.22.1
+basado en Simutrans 84.22.1
 battery
 Batería
 Baum
@@ -686,7 +718,7 @@ Tierra
 Bonus Multiplier: %i%%
 Multiplicador de bonificación: %i%%
 Bonus Speed: %i km/h
-Bonificación de Velocidad: %i km/h
+Bonificación por Velocidad: %i km/h
 Bonusspeed: %i km/h
 Velocidad máxima posible: %i km/h
 Boost (%%)
@@ -771,6 +803,10 @@ cars.\nstate
  Coches\n
 Cash
 Efectivo
+Category
+Categoría
+Change label style
+Cambiar estilo de nombres
 Change player
 Cambiar de jugador
 Chart
@@ -943,6 +979,8 @@ Customers live in:
 Los clientes viven en:
 Date format
 Formato de fecha
+DAY_SYMBOL
+Día
 deactivated in online mode
 Desactivado en modo online
 Dec.
@@ -997,6 +1035,8 @@ Destroying map ...
 Destruyendo viejo mapa...
 Details
 Detalles
+Developed by the Simutrans Team
+Desarrollado por el equipo de Simutrans
 Die Bruecke ist nicht frei!\n
 ¡El puente no está libre!\n
 diesel
@@ -1115,6 +1155,8 @@ Follow the convoi on the map.
 Sigue al convoy en el mapa.
 font size
 Tamaño de la fuente (sólo fuentes .ttf y .otf)
+For questions and support please visit:
+Para preguntas o apoyo técnico, visite:
 Forest
 Bosque
 Found new city
@@ -1158,7 +1200,7 @@ Generación: %.0f MW\n
 Gewicht
 Peso
 Gewinn
-Ingresos:
+Ingresos: 
 Give the selected vehicle(s) an individual schedule
 Editar el itinerario invididual o asignar línea a los vehículos seleccionados
 gl_btn_sort_catg
@@ -1205,6 +1247,8 @@ hide all building
 Ocultar todos los edificios
 hide city building
 Ocultar edificios urbanos
+Hide labels
+Ocultar nombres de lugares y paradas
 hide objects under cursor
 Ocultar objetos bajo el cursor
 hide station names
@@ -1362,7 +1406,7 @@ Last Month
 Last used tools
 Últimas herramientas usadas
 Last Year
-Último Año:
+Último año:
 Leaving depot!
 ¡Saliendo del Depósito!
 leer
@@ -1470,7 +1514,7 @@ Ampliar
 March
 Marzo
 Margin (%%)
-Margen
+Margen (%%)
 Marker
 Colocar Marcador
 max
@@ -1869,6 +1913,8 @@ return ticket
 Viaje de vuelta
 Revenue
 Ingresos
+Revenue/unit/100 tiles
+Ingresos por unidad y 100 casillas
 Revert schedule
 Deshacer cambios
 Revision:
@@ -1947,6 +1993,8 @@ Select soundfont
 Seleccionar soundfont
 Sell the selected vehicle(s)
 Vender los vehículos seleccionados
+Selling of the program is forbidden.
+Está prohibida la venta de este programa.
 sended
 Correo enviado
 SEP_FRACTION
@@ -2089,8 +2137,10 @@ Soundfonts are located in the music directory.
 Las fuentes de sonido se guardan en el directorio 'music'.
 special freight
 Mercancía especial
+Speed Bonus
+Bonificación por Velocidad
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-El bono de velocidad en porcentaje\nrequiere velocidad mínima de carretera %i km/h,\n de tren %i km/h, de barcos %i km/h, de aviones %i km/h,
+La bonificación por velocidad en porcentaje\nrequiere velocidad mínima de carretera %i km/h,\n de tren %i km/h, de barcos %i km/h, de aviones %i km/h,
 Speedlimit
 Límite de velocidad
 Speichern
@@ -2166,7 +2216,7 @@ There are still vehicles\nstored in this depot!\n
 This Month
 Este mes:
 This Year
-Este Año:
+Este año:
 Tile not empty.
 Limpia la casilla antes de usar\n una Herramienta de Pendiente Artificial.
 timeline
@@ -2186,7 +2236,7 @@ t
 Toolbar position:
 Posición de la barra:
 Total inhabitants:
-Población:
+Población: 
 Tourist attractions
 Atracciones turísticas:
 Tourists
@@ -2251,6 +2301,8 @@ Tunnel must start on single way!
 ¡Los túneles deben comenzar en una sola carretera!
 Tunnelboden
 Túnel
+under the Artistic License
+bajo la Artistic License
 underground mode
 Vista subterránea
 UNDO failed!
@@ -2351,6 +2403,10 @@ Weight
 Peso
 Weight:
 Peso:
+Weight/unit
+Peso/unidad
+Welcome to Simutrans
+Bienvenido a Simutrans
 Wert
 Valor
 west
@@ -2369,6 +2425,8 @@ Year
 Año
 Year %i has started.
 Ha comenzado el año %i.
+YEAR_SYMBOL
+Año
 Years
 Años
 Your primary color:
@@ -2427,6 +2485,8 @@ Mirrors order of stops
 Invierte el orden de las paradas.
 Revert to original schedule
 Deshace los cambios al itinerario.
+Tutorial not available for this pakset. Please try loading Pak128.
+Tutorial no disponible para este pakset.  Pruebe a cargar otros como el Pak128, Pak192,...
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 &0_CITY_SYLL
@@ -2457,6 +2517,10 @@ Deshace los cambios al itinerario.
  de la Cruz
 &D_CITY_SYLL
  de la Campiña
+&F_CITY_SYLL
+hogar
+&I_CITY_SYLL
+hielo
 %0_CITY_SYLL
 Peligros
 %1_CITY_SYLL
@@ -2503,6 +2567,12 @@ Moscardón
 El Payo
 %M_CITY_SYLL
 Cotillas
+0center
+%s centro %s
+0extern
+%s aldea %s
+0suburb
+%s suburbios %s
 1center
 %s %s
 1extern
@@ -2565,7 +2635,19 @@ Asuburb
 %s, zona suburbana %s
 Bcenter
 %s centro de %s
+Bextern
+¡No existe!
+Bsuburb
+¡No existe!
 Ccenter
 %s centro %s %s
+Cextern
+¡No existe!
 Csuburb
 %s afueras %s
+Dcenter
+¡No existe!
+Dextern
+¡No existe!
+Dsuburb
+¡No existe!

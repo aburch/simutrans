@@ -2,63 +2,63 @@
 <h1>Dialog depa</h1>
 
 <p>
-V depu mù¾ete nakupovat, prodávat, spojovat èi pøepojovat do konvojù (souprav) v¹echna vozidla zaparkovaná v depu. Dialog depa vám zobrazuje, jaká vozidla mù¾ete nakoupit a jaká jste ji¾ nakoupil.
+V depu mÅ¯Å¾ete nakupovat, prodÃ¡vat, spojovat Äi pÅ™epojovat do konvojÅ¯ (souprav) vÅ¡echna vozidla zaparkovanÃ¡ v depu. Dialog depa vÃ¡m zobrazuje, jakÃ¡ vozidla mÅ¯Å¾ete nakoupit a jakÃ¡ jste jiÅ¾ nakoupil.
 </p>
 
 <p>
-Smìrem shora dolù se okno depa skládá z nìkolika pruhù s rùznımi funkcemi.
+SmÄ›rem shora dolÅ¯ se okno depa sklÃ¡dÃ¡ z nÄ›kolika pruhÅ¯ s rÅ¯znÃ½mi funkcemi.
 </p>
 
 <p>
-Úplnì nahoøe je poèitadlo, zobrazující pozici v celkovém seznamu konvojù v depu. ©ipkami u prvního textového pole lze mezi zaparkovanımi konvoji pøepínat. Textové pole zobrazuje jejich název, kterı je zde mo¾no i upravit.
+ÃšplnÄ› nahoÅ™e je poÄitadlo, zobrazujÃ­cÃ­ pozici v celkovÃ©m seznamu konvojÅ¯ v depu. Å ipkami u prvnÃ­ho textovÃ©ho pole lze mezi zaparkovanÃ½mi konvoji pÅ™epÃ­nat. TextovÃ© pole zobrazuje jejich nÃ¡zev, kterÃ½ je zde moÅ¾no i upravit.
 </p>
 
 <p>
-Pod tímto se nalézá toto¾nı prvek, umo¾òující vıbìr linky. Více o linkách viz dále.
+Pod tÃ­mto se nalÃ©zÃ¡ totoÅ¾nÃ½ prvek, umoÅ¾ÅˆujÃ­cÃ­ vÃ½bÄ›r linky. VÃ­ce o linkÃ¡ch viz dÃ¡le.
 </p>
 
 <p>
-V oblasti mezi textovımi poli a zálo¾kami je zobrazen právì aktivní konvoj a podrobnosti o nìm. Udán je zde poèet vozidel v konvoji, potøebná délka stanice, hodnota konvoje pøi prodeji, dosa¾itelná rychlost naprázdno (a s nákladem) a nakonec linka, kterou konvoj obsluhuje.
+V oblasti mezi textovÃ½mi poli a zÃ¡loÅ¾kami je zobrazen prÃ¡vÄ› aktivnÃ­ konvoj a podrobnosti o nÄ›m. UdÃ¡n je zde poÄet vozidel v konvoji, potÅ™ebnÃ¡ dÃ©lka stanice, hodnota konvoje pÅ™i prodeji, dosaÅ¾itelnÃ¡ rychlost naprÃ¡zdno (a s nÃ¡kladem) a nakonec linka, kterou konvoj obsluhuje.
 </p>
 
 <p>
-Kliknutím na nìkteré vozidlo zobrazeného konvoje je toto vozidlo "zakonzervováno" - pøestává bıt souèástí konvoje a je vidìt pouze jako èíslice nad jeho druhem v tabulce dostupnıch vozidel. Odtud mù¾e bıt znovu vzato a zaøazeno do jiného konvoje.
+KliknutÃ­m na nÄ›kterÃ© vozidlo zobrazenÃ©ho konvoje je toto vozidlo "zakonzervovÃ¡no" - pÅ™estÃ¡vÃ¡ bÃ½t souÄÃ¡stÃ­ konvoje a je vidÄ›t pouze jako ÄÃ­slice nad jeho druhem v tabulce dostupnÃ½ch vozidel. Odtud mÅ¯Å¾e bÃ½t znovu vzato a zaÅ™azeno do jinÃ©ho konvoje.
 </p>
 
 <p>
-Dále je zde sada tlaèítek pro práci s vybranım konvojem. Úplnì nalevo je tlaèítko <strong>start</strong>, kterım konvoj "pustíte" z depa - pokud ji¾ má nastaveno <a href="schedule.txt">jízdní plán</a>. Dal¹ím tlaèítkem <strong>jízdní øád</strong> jej lze upravit individuálnì pro vybranı konvoj. Tlaèítkem <strong>rozebrat</strong> mù¾ete celı konvoj rozpojit a jednotlivá vozidla zakonzervovat. Tlaèítkem <strong>prodat</strong> prodáte celı aktuální konvoj.
+DÃ¡le je zde sada tlaÄÃ­tek pro prÃ¡ci s vybranÃ½m konvojem. ÃšplnÄ› nalevo je tlaÄÃ­tko <strong>start</strong>, kterÃ½m konvoj "pustÃ­te" z depa - pokud jiÅ¾ mÃ¡ nastaveno <a href="schedule.txt">jÃ­zdnÃ­ plÃ¡n</a>. DalÅ¡Ã­m tlaÄÃ­tkem <strong>jÃ­zdnÃ­ Å™Ã¡d</strong> jej lze upravit individuÃ¡lnÄ› pro vybranÃ½ konvoj. TlaÄÃ­tkem <strong>rozebrat</strong> mÅ¯Å¾ete celÃ½ konvoj rozpojit a jednotlivÃ¡ vozidla zakonzervovat. TlaÄÃ­tkem <strong>prodat</strong> prodÃ¡te celÃ½ aktuÃ¡lnÃ­ konvoj.
 </p>
 
 <p>
-Druhá øádka tlaèítek usnadòuje práci pøi tvorbì vìt¹ího mno¾ství konvojù. Tlaèítko <strong>nová linka</strong> zalo¾í novou linku, otevøe okno pro úpravu jejího <a href="schedule.txt">jízdního plánu</a> a vybere ji v seznamu vı¹e. Tlaèítkem <strong>pøiøadit linku</strong> je aktuální konvoj pøiøazen na vybranou linku. <strong>Zmìnit linku</strong> umo¾òuje upravit jízdní øád vybrané linky. <strong>Kopírovat</strong> vytvoøí duplikát aktuálního konvoje z vozidel dostupnıch v depu nebo novì nakoupenıch, vèetnì pøiøazení linky nebo nastavení jízdního plánu.
+DruhÃ¡ Å™Ã¡dka tlaÄÃ­tek usnadÅˆuje prÃ¡ci pÅ™i tvorbÄ› vÄ›tÅ¡Ã­ho mnoÅ¾stvÃ­ konvojÅ¯. TlaÄÃ­tko <strong>novÃ¡ linka</strong> zaloÅ¾Ã­ novou linku, otevÅ™e okno pro Ãºpravu jejÃ­ho <a href="schedule.txt">jÃ­zdnÃ­ho plÃ¡nu</a> a vybere ji v seznamu vÃ½Å¡e. TlaÄÃ­tkem <strong>pÅ™iÅ™adit linku</strong> je aktuÃ¡lnÃ­ konvoj pÅ™iÅ™azen na vybranou linku. <strong>ZmÄ›nit linku</strong> umoÅ¾Åˆuje upravit jÃ­zdnÃ­ Å™Ã¡d vybranÃ© linky. <strong>KopÃ­rovat</strong> vytvoÅ™Ã­ duplikÃ¡t aktuÃ¡lnÃ­ho konvoje z vozidel dostupnÃ½ch v depu nebo novÄ› nakoupenÃ½ch, vÄetnÄ› pÅ™iÅ™azenÃ­ linky nebo nastavenÃ­ jÃ­zdnÃ­ho plÃ¡nu.
 </p>
 
 <p>
-V tabulce uprostøed se zálo¾kami jsou zobrazena koupitelné druhy vozidel. Seznam mù¾e mít celkem 4 karty: <br>
-* vozidla pro osobní dopravu,<br>
-* elektrické osobní soupravy (tramvaje, trolejbusy, el. jednotky...),<br>
-* pohonná vozidla (lokomotivy, tahaèe apod.) a<br>
-* pøipojitelná vozidla (vagóny a pøívìsy).<br>
-Pokud nejsou v nìkterıch z tìchto kategorií dostupná ¾ádná vozidla, pøíslu¹ná zálo¾ka nemusí bıt zobrazena. Zakonzervovaná vozidla jsou zde zobrazena velkou èíslicí nad ikonou vozidla.
+V tabulce uprostÅ™ed se zÃ¡loÅ¾kami jsou zobrazena koupitelnÃ© druhy vozidel. Seznam mÅ¯Å¾e mÃ­t celkem 4 karty: <br>
+* vozidla pro osobnÃ­ dopravu,<br>
+* elektrickÃ© osobnÃ­ soupravy (tramvaje, trolejbusy, el. jednotky...),<br>
+* pohonnÃ¡ vozidla (lokomotivy, tahaÄe apod.) a<br>
+* pÅ™ipojitelnÃ¡ vozidla (vagÃ³ny a pÅ™Ã­vÄ›sy).<br>
+Pokud nejsou v nÄ›kterÃ½ch z tÄ›chto kategoriÃ­ dostupnÃ¡ Å¾Ã¡dnÃ¡ vozidla, pÅ™Ã­sluÅ¡nÃ¡ zÃ¡loÅ¾ka nemusÃ­ bÃ½t zobrazena. ZakonzervovanÃ¡ vozidla jsou zde zobrazena velkou ÄÃ­slicÃ­ nad ikonou vozidla.
 </p>
 
 <p>
-Pod tabulkou je trojice prvkù mìnících její obsah a zacházení s ním. <strong>Zobrazit v¹e</strong> pøepíná mezi zobrazením v¹ech vozidel èi pouze tìch, která lze zaøadit na konce aktuálního konvoje. <strong>Zobrazovat zastaralá</strong> uká¾e v depu i ji¾ nevyrábìné druhy vozidel.
+Pod tabulkou je trojice prvkÅ¯ mÄ›nÃ­cÃ­ch jejÃ­ obsah a zachÃ¡zenÃ­ s nÃ­m. <strong>Zobrazit vÅ¡e</strong> pÅ™epÃ­nÃ¡ mezi zobrazenÃ­m vÅ¡ech vozidel Äi pouze tÄ›ch, kterÃ¡ lze zaÅ™adit na konce aktuÃ¡lnÃ­ho konvoje. <strong>Zobrazovat zastaralÃ¡</strong> ukÃ¡Å¾e v depu i jiÅ¾ nevyrÃ¡bÄ›nÃ© druhy vozidel.
 </p>
 
 <p>
-Tlaèítko pøepíná druh zacházení s tabulkou koupitelnıch vozidel pøi kliknutí na její polo¾ku. <strong>Pøidat</strong> koupí danı druh vozidla a pøipojí jej na konec aktuálního konvoje. Pokud je k dispozici zakonzervovanı kus, je pou¾it namísto nákupu nového. dal¹í re¾im je <strong>na zaèátek</strong>, kterı je totoz¾nı, ale vozidlo se pøidá na zaèátek místo na konec. Poslední mo¾nost je <strong>prodat</strong>, která umo¾òuje prodávat vozidla zakonzervovaná ve va¹em depu.
+TlaÄÃ­tko pÅ™epÃ­nÃ¡ druh zachÃ¡zenÃ­ s tabulkou koupitelnÃ½ch vozidel pÅ™i kliknutÃ­ na jejÃ­ poloÅ¾ku. <strong>PÅ™idat</strong> koupÃ­ danÃ½ druh vozidla a pÅ™ipojÃ­ jej na konec aktuÃ¡lnÃ­ho konvoje. Pokud je k dispozici zakonzervovanÃ½ kus, je pouÅ¾it namÃ­sto nÃ¡kupu novÃ©ho. dalÅ¡Ã­ reÅ¾im je <strong>na zaÄÃ¡tek</strong>, kterÃ½ je totozÅ¾nÃ½, ale vozidlo se pÅ™idÃ¡ na zaÄÃ¡tek mÃ­sto na konec. PoslednÃ­ moÅ¾nost je <strong>prodat</strong>, kterÃ¡ umoÅ¾Åˆuje prodÃ¡vat vozidla zakonzervovanÃ¡ ve vaÅ¡em depu.
 </p>
 
 <p>
-Úplnì dole jsou zobrazeny informace o vozidle, jeho¾ ikona je pod kurzorem.
+ÃšplnÄ› dole jsou zobrazeny informace o vozidle, jehoÅ¾ ikona je pod kurzorem.
 </p>
 
 <p>
-K vytvoøení konvoje je vhodné postupovat od pøedu ke konci, tedy napø. nejprve koupit lokomotivy a poté pøikupovat vagóny. Najednou je mo¾né pracovat pouze s jedním konvojem. Pøesun vozidel mezi konvoji je mo¾nı pomocí zakonzervování (viz vı¹e).
+K vytvoÅ™enÃ­ konvoje je vhodnÃ© postupovat od pÅ™edu ke konci, tedy napÅ™. nejprve koupit lokomotivy a potÃ© pÅ™ikupovat vagÃ³ny. Najednou je moÅ¾nÃ© pracovat pouze s jednÃ­m konvojem. PÅ™esun vozidel mezi konvoji je moÅ¾nÃ½ pomocÃ­ zakonzervovÃ¡nÃ­ (viz vÃ½Å¡e).
 </p>
 
 <p>
-Viz také:
--><a href="schedule.txt">Nápovìda k jízdnímu plánu</a>
+Viz takÃ©:
+-><a href="schedule.txt">NÃ¡povÄ›da k jÃ­zdnÃ­mu plÃ¡nu</a>
 </p>

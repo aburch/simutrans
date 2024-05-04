@@ -1,42 +1,42 @@
-<title>Nápovìda - silnièní doprava</title>
-<h1>Silnièní doprava</h1>
+<title>NÃ¡povÄ›da - silniÄnÃ­ doprava</title>
+<h1>SilniÄnÃ­ doprava</h1>
 
 <p>
-Pøes dialog silnièní doprava mù¾ete stavìt silnice, tunely, zastávky, nakládací místa aj.
+PÅ™es dialog silniÄnÃ­ doprava mÅ¯Å¾ete stavÄ›t silnice, tunely, zastÃ¡vky, naklÃ¡dacÃ­ mÃ­sta aj.
 </p>
 
 <p>
-První jsou symboly rùznıch druhù <em>silnic</em>: Kliknutím na nìkterı z nich se kurzor zmìní v obrázek odpovídajícího druhu silnice. Rùzné druhy silnic se li¹í v max. rychlost, cenì, a cenì za údr¾bu. Parametry ka¾dého druhu se zobrazí po najetí kurzorem nad jeho obrázek. Cena v závorce je cena z údr¾bu.<br>
-Pro stavbu silnice kliknete na místo, kde má silnice zaèínat - musí bıt prázdné - a poté si vyberete místo, kde má silnice konèit. Nesmí bıt moc daleko a musí bıt spojitelné (nesmí napøíklad pøeká¾et ¾eleznice). Problém se ¾eleznicí øe¹í pøejezdy.
+PrvnÃ­ jsou symboly rÅ¯znÃ½ch druhÅ¯ <em>silnic</em>: KliknutÃ­m na nÄ›kterÃ½ z nich se kurzor zmÄ›nÃ­ v obrÃ¡zek odpovÃ­dajÃ­cÃ­ho druhu silnice. RÅ¯znÃ© druhy silnic se liÅ¡Ã­ v max. rychlost, cenÄ›, a cenÄ› za ÃºdrÅ¾bu. Parametry kaÅ¾dÃ©ho druhu se zobrazÃ­ po najetÃ­ kurzorem nad jeho obrÃ¡zek. Cena v zÃ¡vorce je cena z ÃºdrÅ¾bu.<br>
+Pro stavbu silnice kliknete na mÃ­sto, kde mÃ¡ silnice zaÄÃ­nat - musÃ­ bÃ½t prÃ¡zdnÃ© - a potÃ© si vyberete mÃ­sto, kde mÃ¡ silnice konÄit. NesmÃ­ bÃ½t moc daleko a musÃ­ bÃ½t spojitelnÃ© (nesmÃ­ napÅ™Ã­klad pÅ™ekÃ¡Å¾et Å¾eleznice). ProblÃ©m se Å¾eleznicÃ­ Å™eÅ¡Ã­ pÅ™ejezdy.
 </p>
 
 <p>
-Symbol <em>zastávek</em>: Kliknutím na nìj se kurzor zmìní v obrázek autobusové zastávky. Mohou zde tedy stavìt pouze autobusy a také dodávky na po¹tu. Pokud chcete pøepravovat po¹tu, musí bıt u zastávky postavena budova po¹ty. Kapacita zastávky je jeden autobus (po¹tovní dodávka) v ka¾dém smìru a 64 cestujících na jedno políèko zastávky (poèítá se i budova po¹ty). Pro stavbu vyberte jakékoliv rovné místo na silnici.
+Symbol <em>zastÃ¡vek</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek autobusovÃ© zastÃ¡vky. Mohou zde tedy stavÄ›t pouze autobusy a takÃ© dodÃ¡vky na poÅ¡tu. Pokud chcete pÅ™epravovat poÅ¡tu, musÃ­ bÃ½t u zastÃ¡vky postavena budova poÅ¡ty. Kapacita zastÃ¡vky je jeden autobus (poÅ¡tovnÃ­ dodÃ¡vka) v kaÅ¾dÃ©m smÄ›ru a 64 cestujÃ­cÃ­ch na jedno polÃ­Äko zastÃ¡vky (poÄÃ­tÃ¡ se i budova poÅ¡ty). Pro stavbu vyberte jakÃ©koliv rovnÃ© mÃ­sto na silnici.
 </p>
 
 <p>
-Symbol <em>nakládacího depa</em>: Kliknutím na nìj se kurzor zmìní v obrázek tohoto depa. Nakládací depa jsou pou¾ívány pro nalo¾ení v¹ech druhù vırobkù a surovin. Nakládací depo má kapacitu dvou aut a 1000 kusù ka¾dého druhu zbo¾í.
+Symbol <em>naklÃ¡dacÃ­ho depa</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek tohoto depa. NaklÃ¡dacÃ­ depa jsou pouÅ¾Ã­vÃ¡ny pro naloÅ¾enÃ­ vÅ¡ech druhÅ¯ vÃ½robkÅ¯ a surovin. NaklÃ¡dacÃ­ depo mÃ¡ kapacitu dvou aut a 1000 kusÅ¯ kaÅ¾dÃ©ho druhu zboÅ¾Ã­.
 </p>
 
 <p>
-Symbol <em>tunelu</em>: Kliknutím na nìj se kurzor zmìní v obrázek tunelu. Tunely se pou¾ívají pro protnutí hory, v místech, kde by objí¾ïka znaènì prodlou¾ila dobu cesty vozidla. Pro stavbu tunelu musíte nejprve postavit silnici. Místo, kde má tunel konèit musí bıt pøesnì naproti zaèátku tunelu. Tunel také nemù¾e stoupat, jeho konec musí bıt ve stejné vı¹ce jako zaèátek.
+Symbol <em>tunelu</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek tunelu. Tunely se pouÅ¾Ã­vajÃ­ pro protnutÃ­ hory, v mÃ­stech, kde by objÃ­Å¾Äka znaÄnÄ› prodlouÅ¾ila dobu cesty vozidla. Pro stavbu tunelu musÃ­te nejprve postavit silnici. MÃ­sto, kde mÃ¡ tunel konÄit musÃ­ bÃ½t pÅ™esnÄ› naproti zaÄÃ¡tku tunelu. Tunel takÃ© nemÅ¯Å¾e stoupat, jeho konec musÃ­ bÃ½t ve stejnÃ© vÃ½Å¡ce jako zaÄÃ¡tek.
 </p>
 
 <p>
-Symbol <em>pøejezdu</em>: Kliknutím na nìj se kurzor zmìní v obrázek ¾eleznièního pøejezdu. Pou¾ívá se v místì, kde se silnice protíná se ¾eleznicí. Pøejezd musí bıt postaven na ji¾ existují rovné èásti ¾eleznice nebo silnice.
+Symbol <em>pÅ™ejezdu</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek Å¾elezniÄnÃ­ho pÅ™ejezdu. PouÅ¾Ã­vÃ¡ se v mÃ­stÄ›, kde se silnice protÃ­nÃ¡ se Å¾eleznicÃ­. PÅ™ejezd musÃ­ bÃ½t postaven na jiÅ¾ existujÃ­ rovnÃ© ÄÃ¡sti Å¾eleznice nebo silnice.
 </p>
 
 <p>
-Symbol <em>silnièního depa</em>: Kliknutím na nìj se kurzor zmìní v obrázek depa.
-Depa umo¾òují nakoupit v¹echna dostupná vozidla, spojovat pøívìsy a vytváøet èi pøiøazovat jízdní plány.
-Ke stavbì si vyberte místo, kde konèí silnice - nejlep¹í je tedy postavit si odboèku.
+Symbol <em>silniÄnÃ­ho depa</em>: KliknutÃ­m na nÄ›j se kurzor zmÄ›nÃ­ v obrÃ¡zek depa.
+Depa umoÅ¾ÅˆujÃ­ nakoupit vÅ¡echna dostupnÃ¡ vozidla, spojovat pÅ™Ã­vÄ›sy a vytvÃ¡Å™et Äi pÅ™iÅ™azovat jÃ­zdnÃ­ plÃ¡ny.
+Ke stavbÄ› si vyberte mÃ­sto, kde konÄÃ­ silnice - nejlepÅ¡Ã­ je tedy postavit si odboÄku.
 </p>
 
 <p>
--><a href="bridges.txt">Stavba mostù</a><br>
--><a href="depot.txt">Nápovìda pro depo</a>
+-><a href="bridges.txt">Stavba mostÅ¯</a><br>
+-><a href="depot.txt">NÃ¡povÄ›da pro depo</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

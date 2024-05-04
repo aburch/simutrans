@@ -3,7 +3,7 @@
 <h1>Finanse (<em>f</em>)</h1>
 
 <p>
-W tym oknie mozesz obserwowac stan swoich finans體 w danym roku i w roku poprzednim.
+W tym oknie mozesz obserwowac stan swoich finans贸w w danym roku i w roku poprzednim.
 </p>
 
 <p>W oknie znajduja sie ponizsze inforamcje:</p>
@@ -17,16 +17,16 @@ W tym oknie mozesz obserwowac stan swoich finans體 w danym roku i w roku poprzed
 </p>
 
 <p>
-<em>Koszty przejazd體</em> - Koszty zwiazane z utrzymaniem wszystkich pojazd體.
+<em>Koszty przejazd贸w</em> - Koszty zwiazane z utrzymaniem wszystkich pojazd贸w.
 (Koszty te dostepne sa w oknie <a href="depot.txt">'Zajezdnia'</a>)
 </p>
 
 <p>
-<em>Doch骴</em> - Twoje dochody zwiazane z dzialalnoscia transportowa.
+<em>Doch贸d</em> - Twoje dochody zwiazane z dzialalnoscia transportowa.
 </p>
 
 <p>
-<em>Utrzymanie</em> - Koszty zwiazane z utrzymaniem budynk體, dr骻, most體 itp.
+<em>Utrzymanie</em> - Koszty zwiazane z utrzymaniem budynk贸w, dr贸g, most贸w itp.
 (Na dole okna znajduja sie miesieczne koszty utrzymania)
 </p>
 
@@ -35,5 +35,5 @@ W tym oknie mozesz obserwowac stan swoich finans體 w danym roku i w roku poprzed
 </p>
 
 <p>
-<em>Balans</em> - Pieniadze kt髍e posiadasz. Jest to kwota kt髍a mozesz inwestowac i wydawac.
+<em>Balans</em> - Pieniadze kt贸re posiadasz. Jest to kwota kt贸ra mozesz inwestowac i wydawac.
 </p>

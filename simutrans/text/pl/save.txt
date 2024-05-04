@@ -4,8 +4,8 @@
 
 <p>
 Jesli zamierzasz kontynuowac gre po wyjsciu z Simutrans bedziesz musial
-zapisac stan gry. Mozesz zapisac wszystkie gre w dowolnym momencie aby pózniej
-do niej powrócic.</p>
+zapisac stan gry. Mozesz zapisac wszystkie gre w dowolnym momencie aby pÃ³zniej
+do niej powrÃ³cic.</p>
 
 <p>W tym menu mozesz zapisac gre w nowym pliku, nadpisac istniejacy plik, lub usunac zapisana gre.
 Aby zapisac gre w nowym pliku musisz podac nazwe pliku i wcisnac przycisk 'zapisz' - za chwile pojawi sie komunikta potwierdzajacy zapis gry.

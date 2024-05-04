@@ -3,24 +3,24 @@
 <h1>Options</h1>
 
 <p>
-L'écran des options de jeu est le carrefour vers les différents écrans de paramétrage
-de Simutrans allant du réglage fin au réglage de comportement.
-Ci-dessous, vous trouverez une liste des écrans disponibles et une brève description
+L'Ã©cran des options de jeu est le carrefour vers les diffÃ©rents Ã©crans de paramÃ©trage
+de Simutrans allant du rÃ©glage fin au rÃ©glage de comportement.
+Ci-dessous, vous trouverez une liste des Ã©crans disponibles et une brÃ¨ve description
 de chacun.
 </p>
 
 <p>
-<a href="language.txt">Langue</a> - Définit la langue de jeu de Simutrans.<br>
+<a href="language.txt">Langue</a> - DÃ©finit la langue de jeu de Simutrans.<br>
 <a href="color.txt">Couleur</a> - Change la couleur de vos entreprises.<br>
-<a href="display.txt">Affichage</a> - Définit les paramètres d'affichage tels que les modes jour/nuit.<br>
+<a href="display.txt">Affichage</a> - DÃ©finit les paramÃ¨tres d'affichage tels que les modes jour/nuit.<br>
 <a href="sound.txt">Son</a> - Vos choix de musique d'ambiance.<br>
-<a href="players.txt">Joueurs</a> - Les différents joueurs adversaires.<br>
-<a href="load.txt">Charger</a> - Charger un jeu précédemment sauvegardé.<br>
+<a href="players.txt">Joueurs</a> - Les diffÃ©rents joueurs adversaires.<br>
+<a href="load.txt">Charger</a> - Charger un jeu prÃ©cÃ©demment sauvegardÃ©.<br>
 <a href="save.txt">Sauvegarder</a> - Sauvegarder la partie en cours.<br>
-<a href="new_world.txt">Menu général</a> - Démarrer un nouveau jeu (peut être annulé ensuite)<br>
+<a href="new_world.txt">Menu gÃ©nÃ©ral</a> - DÃ©marrer un nouveau jeu (peut Ãªtre annulÃ© ensuite)<br>
 <em>Quitter</em> - Quitter, sans message de confirmation.<br>
 </p>
 <p>
-Actualisé pour Simutrans 0.83.1.2<br>
+ActualisÃ© pour Simutrans 0.83.1.2<br>
 02/01/2003
 </p>

@@ -1,27 +1,27 @@
-<title>Nápovìda - ulo¾it</title>
-<h1>Ukládání hry</h1>
+<title>NÃ¡povÄ›da - uloÅ¾it</title>
+<h1>UklÃ¡dÃ¡nÃ­ hry</h1>
 
 <p>
-Pokud chcete ulo¾it Va¹i rozehranou hru, abyste jí mohli pozdìji naèíst a pokraèovat v ní, lze tak uèinit pøes dialog ulo¾it.
-V tomto dialogu (stejnì jako v dialogu naèíst) také mù¾ete smazat døíve ulo¾ené hry.
+Pokud chcete uloÅ¾it VaÅ¡i rozehranou hru, abyste jÃ­ mohli pozdÄ›ji naÄÃ­st a pokraÄovat v nÃ­, lze tak uÄinit pÅ™es dialog uloÅ¾it.
+V tomto dialogu (stejnÄ› jako v dialogu naÄÃ­st) takÃ© mÅ¯Å¾ete smazat dÅ™Ã­ve uloÅ¾enÃ© hry.
 </p>
 
 <p>
-Hru mù¾ete ulo¾it do nového souboru, èi pøepsat soubor ji¾ existující. Pro ulo¾ení do nového souboru musíte nejprve vlo¾it jméno tohoto souboru, a poté kliknout na tlaèítko <strong>ulo¾it</strong>.
-Dialog se zavøe, hra se ulo¾í, a pokud v¹e probìhne bez problému, zobrazí se potvrzovací zpráva.
+Hru mÅ¯Å¾ete uloÅ¾it do novÃ©ho souboru, Äi pÅ™epsat soubor jiÅ¾ existujÃ­cÃ­. Pro uloÅ¾enÃ­ do novÃ©ho souboru musÃ­te nejprve vloÅ¾it jmÃ©no tohoto souboru, a potÃ© kliknout na tlaÄÃ­tko <strong>uloÅ¾it</strong>.
+Dialog se zavÅ™e, hra se uloÅ¾Ã­, a pokud vÅ¡e probÄ›hne bez problÃ©mu, zobrazÃ­ se potvrzovacÃ­ zprÃ¡va.
 </p>
 
 <p>
-Pøi mazání a pøepisování souborù dbejte zvı¹ené opatrnosti, proto¾e pokud soubor jednou sma¾ete (èi pøepí¹ete novou hrou), ji¾ nelze obnovit.<br>
-Ke smazání tedy kliknìte na tlaèítko <strong>X</strong>, umístìné vedle jména souboru, kterı chcete smazat.<br>
-Pro pøepsání døíve ulo¾ené hry pouze kliknìte na jméno souboru k pøepsání.<br>
-<em>Hra bude bez dal¹ího potvrzení smazána (nebo pøepsána).</em>
+PÅ™i mazÃ¡nÃ­ a pÅ™episovÃ¡nÃ­ souborÅ¯ dbejte zvÃ½Å¡enÃ© opatrnosti, protoÅ¾e pokud soubor jednou smaÅ¾ete (Äi pÅ™epÃ­Å¡ete novou hrou), jiÅ¾ nelze obnovit.<br>
+Ke smazÃ¡nÃ­ tedy kliknÄ›te na tlaÄÃ­tko <strong>X</strong>, umÃ­stÄ›nÃ© vedle jmÃ©na souboru, kterÃ½ chcete smazat.<br>
+Pro pÅ™epsÃ¡nÃ­ dÅ™Ã­ve uloÅ¾enÃ© hry pouze kliknÄ›te na jmÃ©no souboru k pÅ™epsÃ¡nÃ­.<br>
+<em>Hra bude bez dalÅ¡Ã­ho potvrzenÃ­ smazÃ¡na (nebo pÅ™epsÃ¡na).</em>
 </p>
 
 <p>
--><a href="load.txt">Nápovìda pro naèítání</a>
+-><a href="load.txt">NÃ¡povÄ›da pro naÄÃ­tÃ¡nÃ­</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>

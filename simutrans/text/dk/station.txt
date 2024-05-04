@@ -1,38 +1,38 @@
-<title>Rutemål</title>
+<title>RutemÃ¥l</title>
 
-<h1>Rutemål dialog</h1>
+<h1>RutemÃ¥l dialog</h1>
 
 <p>
 <em>Beskrivelse:</em><br>
-For alle rutemål (busstoppesteder, lastepladser, jernbanestationer og havne)
-på kortet kan denne dialog åbnes ved at klikke på rutemålet. <strong>Bemærk,
-hvis der er køretøjer på rutemålet, vil en</strong>
-<a href="vehicle.txt">køretøjs dialog</a><strong>ligeledes blive åbnet for hvert
-køretøj.</strong> Dialogen giver nyttig information om rutemålet, dets
+For alle rutemÃ¥l (busstoppesteder, lastepladser, jernbanestationer og havne)
+pÃ¥ kortet kan denne dialog Ã¥bnes ved at klikke pÃ¥ rutemÃ¥let. <strong>BemÃ¦rk,
+hvis der er kÃ¸retÃ¸jer pÃ¥ rutemÃ¥let, vil en</strong>
+<a href="vehicle.txt">kÃ¸retÃ¸js dialog</a><strong>ligeledes blive Ã¥bnet for hvert
+kÃ¸retÃ¸j.</strong> Dialogen giver nyttig information om rutemÃ¥let, dets
 forbindelser og den aktuelle varesituation.
 </p>
 
 <p>
 <em>Udseende:</em><br>
-Øverst i dialogen er rutemålets navn og nummer. Derefter følger en oversigt
-over passagerer befordret fra rutemålet denne dag. Dernæst kommer en oversigt
+Ã˜verst i dialogen er rutemÃ¥lets navn og nummer. Derefter fÃ¸lger en oversigt
+over passagerer befordret fra rutemÃ¥let denne dag. DernÃ¦st kommer en oversigt
 over aktuelt ventende varer (og passagerer). Hertil er knyttet to knapper med
 teksten 'Statistik' og 'Destination' samt et visningsareal, der giver
-oplysninger om mængden af og destinationen for de ventende varer.<br> Øverst
-til højre i dialogen er en knap med teksten 'Detaljer' og herunder et
-billedudsnit af rutemålet. Ved at klikke på dette billedudsnit, vil rutemålet
-blive centreret på kortet.
+oplysninger om mÃ¦ngden af og destinationen for de ventende varer.<br> Ã˜verst
+til hÃ¸jre i dialogen er en knap med teksten 'Detaljer' og herunder et
+billedudsnit af rutemÃ¥let. Ved at klikke pÃ¥ dette billedudsnit, vil rutemÃ¥let
+blive centreret pÃ¥ kortet.
 </p>
 
 <p>
-De tre knapper har følgende funktion:
+De tre knapper har fÃ¸lgende funktion:
 </p>
 
 <p>
 <em>Statistik:</em><br>
-Statistik knappen udvider dialogen med et grafisk visningsareal og en række
-trykknapper, der hver repræsenterer et rutemålsnøgletal. Ved at trykke på en
-knap bliver udviklingen af det ønskede nøgletal illustreret grafisk i
+Statistik knappen udvider dialogen med et grafisk visningsareal og en rÃ¦kke
+trykknapper, der hver reprÃ¦senterer et rutemÃ¥lsnÃ¸gletal. Ved at trykke pÃ¥ en
+knap bliver udviklingen af det Ã¸nskede nÃ¸gletal illustreret grafisk i
 visningsarealet.
 </p>
 
@@ -40,35 +40,35 @@ visningsarealet.
 <em>Destination:</em><br>
 Dette er en "tilstandsknap" til sortering af oplysningerne om ventende varer i
 visningsarealet. De mulige sorteringsmuligheder (tilstande) er efter 'Destination',
-'via' og 'Mængde'
+'via' og 'MÃ¦ngde'
 </p>
 
 <p>
 <em>Detaljer:</em><br>
-Denne knap åbner en ny dialog med følgende yderligere rutemålsoplysninger:
+Denne knap Ã¥bner en ny dialog med fÃ¸lgende yderligere rutemÃ¥lsoplysninger:
 </p>
 
 <p>
 <em> - Forbundne industrier:</em><br>
-Angiver hvilke nærliggende industrier, der benytter dette rutemål til at
+Angiver hvilke nÃ¦rliggende industrier, der benytter dette rutemÃ¥l til at
 modtage eller aflevere varer. Denne oplysning er et glimrende check for, om et
-rutemål "er placeret tæt nok" på en industri til at kunne betjene denne. Et
-rutemål kan udmærket betjene flere industrier samtidigt
+rutemÃ¥l "er placeret tÃ¦t nok" pÃ¥ en industri til at kunne betjene denne. Et
+rutemÃ¥l kan udmÃ¦rket betjene flere industrier samtidigt
 </p>
 
 <p>
-<em> - Modtager følgende varer:</em><br>
-Angiver hvilke varer, der kan leveres til rutemålet.
+<em> - Modtager fÃ¸lgende varer:</em><br>
+Angiver hvilke varer, der kan leveres til rutemÃ¥let.
 </p>
 
 <p>
 <em> - Direkte ruter herfra:</em><br>
-Angiver hvilke andre rutemål, der er direkte forbindelse til samt hvilke
-varer, der leveres til eller fra dette rutemål.
+Angiver hvilke andre rutemÃ¥l, der er direkte forbindelse til samt hvilke
+varer, der leveres til eller fra dette rutemÃ¥l.
 </p>
 
 <p>
 <em> - Stoppested for rute:</em><br>
-Angiver hvilke definerede (nummererede) ruter, der har dette rutemål som
+Angiver hvilke definerede (nummererede) ruter, der har dette rutemÃ¥l som
 stoppested.
 </p>

@@ -1,38 +1,38 @@
-<title>Nápovìda - filtr seznamu vozidel</title>
+<title>NÃ¡povÄ›da - filtr seznamu vozidel</title>
 <h1>Filtr seznamu vozidel</h1>
 
 <p>
-<em>Filtr nabízí tyto mo¾nosti:</em>
+<em>Filtr nabÃ­zÃ­ tyto moÅ¾nosti:</em>
 </p>
 
 <p>
-<em>1.) Filtrovat jméno:</em><br>
-V seznamu budou zobrazena pouze vozidla, která se jmenují podle zadání.
+<em>1.) Filtrovat jmÃ©no:</em><br>
+V seznamu budou zobrazena pouze vozidla, kterÃ¡ se jmenujÃ­ podle zadÃ¡nÃ­.
 </p>
 
 <p>
 <em>2.) Filtrovat typ:</em><br>
-V seznamu budou zobrazena pouze vozidla zvoleného typu.
+V seznamu budou zobrazena pouze vozidla zvolenÃ©ho typu.
 </p>
 
 <p>
-<em>3.) Speciální filtrování:</em><br>
-V seznamu budou zobrazena pouze vozidla, která nemají pøíjem, nemají definován <a href='schedule.txt'>jízdní plán</a>, nemouhou nalézt trasu dle jízdního plánu, jsou v depu nebo nemají pøiøazenou ¾ádnou linku.
+<em>3.) SpeciÃ¡lnÃ­ filtrovÃ¡nÃ­:</em><br>
+V seznamu budou zobrazena pouze vozidla, kterÃ¡ nemajÃ­ pÅ™Ã­jem, nemajÃ­ definovÃ¡n <a href='schedule.txt'>jÃ­zdnÃ­ plÃ¡n</a>, nemouhou nalÃ©zt trasu dle jÃ­zdnÃ­ho plÃ¡nu, jsou v depu nebo nemajÃ­ pÅ™iÅ™azenou Å¾Ã¡dnou linku.
 </p>
 
 <p>
-<em>4.) Podle pøepravovaného zbo¾í:</em><br>
-V seznamu budou zobrazena pouze vozidla, která pøepravují zvolené komodity.
-Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tlaèítko <strong>nic</strong> naopak v¹echny odvybere. Tlaèítkem <strong>inv</strong> obrátíte aktuální vıbìr.
+<em>4.) Podle pÅ™epravovanÃ©ho zboÅ¾Ã­:</em><br>
+V seznamu budou zobrazena pouze vozidla, kterÃ¡ pÅ™epravujÃ­ zvolenÃ© komodity.
+TlaÄÃ­tko <strong>vÅ¡e</strong> vybere vÅ¡echny komodity, tlaÄÃ­tko <strong>nic</strong> naopak vÅ¡echny odvybere. TlaÄÃ­tkem <strong>inv</strong> obrÃ¡tÃ­te aktuÃ¡lnÃ­ vÃ½bÄ›r.
 </p>
 
 <p>
--><a href="convoi.txt">Nápovìda pro seznam vozidel</a>
+-><a href="convoi.txt">NÃ¡povÄ›da pro seznam vozidel</a>
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>
 <p>
-Nápovìda odpovídá verzi 112.1, poslední úprava 4.1.2012.
+NÃ¡povÄ›da odpovÃ­dÃ¡ verzi 112.1, poslednÃ­ Ãºprava 4.1.2012.
 </p>

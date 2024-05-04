@@ -2,11 +2,11 @@
 
 <h1>Transport morski</h1>
 <p>
-W tym oknie dostepne sa narzedzia do budowy stoczni, statk體 i port體.
+W tym oknie dostepne sa narzedzia do budowy stoczni, statk贸w i port贸w.
 </p>
 <p>
-W g髍nym lewym rogu znajduje sie ikona budowy port體. Po kliknieciu kursor zamieni sie w rysunek portu. Dzieki portom mozliwy jest transport ludzi i towar體 pomiedzy obszarami przedzielonymi woda lub na wyspy. Po kliknieciu na brzegu morza zostanie zbudowany port. Mozna zbudowac port nawet duzych rozmiar體. Aby przydzielic statek do portu podczas ustalania rozkladu musisz wybrac pole sasiadujace z portem.<strong>Uwaga! Podczas usuwania portu moga wystapic bledy!</strong>
+W g贸rnym lewym rogu znajduje sie ikona budowy port贸w. Po kliknieciu kursor zamieni sie w rysunek portu. Dzieki portom mozliwy jest transport ludzi i towar贸w pomiedzy obszarami przedzielonymi woda lub na wyspy. Po kliknieciu na brzegu morza zostanie zbudowany port. Mozna zbudowac port nawet duzych rozmiar贸w. Aby przydzielic statek do portu podczas ustalania rozkladu musisz wybrac pole sasiadujace z portem.<strong>Uwaga! Podczas usuwania portu moga wystapic bledy!</strong>
 </p>
 <p>
-W menu znajduja sie dwie ikony budowy stoczni. Jedyna r髗nica jest kierunek wyplywania gotowych statk體. Stocznie uzywane sa do produkcji statk體. Stocznie budujemy klikajac w wybranym miejscu na wodzie w poblizu brzegu.
+W menu znajduja sie dwie ikony budowy stoczni. Jedyna r贸znica jest kierunek wyplywania gotowych statk贸w. Stocznie uzywane sa do produkcji statk贸w. Stocznie budujemy klikajac w wybranym miejscu na wodzie w poblizu brzegu.
 </p>

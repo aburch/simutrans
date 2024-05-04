@@ -2,34 +2,34 @@
 <h1>Dialog stanice</h1>
 
 <p>
-Informaèní dialog lze zobrazit po kliknutí na libovolnou stanici. Poskytuje rùzné u¾iteèné informace o stanici, vèetnì mo¾nosti zobrazení grafù. Mù¾ete také u ka¾dé va¹í stanice kdykoliv zmìnit název.
+InformaÄnÃ­ dialog lze zobrazit po kliknutÃ­ na libovolnou stanici. Poskytuje rÅ¯znÃ© uÅ¾iteÄnÃ© informace o stanici, vÄetnÄ› moÅ¾nosti zobrazenÃ­ grafÅ¯. MÅ¯Å¾ete takÃ© u kaÅ¾dÃ© vaÅ¡Ã­ stanice kdykoliv zmÄ›nit nÃ¡zev.
 </p>
 
 <p>
-Dialog se skládá ze seznamu, nìkolika ovládacích tlaèítek nahoøe, a popøípadì také z èásti s grafy (viz ní¾e).<br>
-Vstupní pole nahoøe vám umo¾òuje zmìnit název. Tlaèítko <strong>detaily</strong> zobrazí detaily o stanici - jaké je odsud pøímé spojení, jaké linky obsluhují tuto stanici nebo tøeba jaké zbo¾í je napojenım prùmyslem produkováno a vy¾adováno.
+Dialog se sklÃ¡dÃ¡ ze seznamu, nÄ›kolika ovlÃ¡dacÃ­ch tlaÄÃ­tek nahoÅ™e, a popÅ™Ã­padÄ› takÃ© z ÄÃ¡sti s grafy (viz nÃ­Å¾e).<br>
+VstupnÃ­ pole nahoÅ™e vÃ¡m umoÅ¾Åˆuje zmÄ›nit nÃ¡zev. TlaÄÃ­tko <strong>detaily</strong> zobrazÃ­ detaily o stanici - jakÃ© je odsud pÅ™Ã­mÃ© spojenÃ­, jakÃ© linky obsluhujÃ­ tuto stanici nebo tÅ™eba jakÃ© zboÅ¾Ã­ je napojenÃ½m prÅ¯myslem produkovÃ¡no a vyÅ¾adovÃ¡no.
 </p>
 
 <p>
-Hlavní informace jsou zobrazeny uprostøed a v dolní èásti dialogu. Na seznamu se ukazují komodity, které èekají na odvezení ze stanice. Komodity lze øadit pomocí tlaèítka <strong>pøes/poèet/cíl</strong>.
+HlavnÃ­ informace jsou zobrazeny uprostÅ™ed a v dolnÃ­ ÄÃ¡sti dialogu. Na seznamu se ukazujÃ­ komodity, kterÃ© ÄekajÃ­ na odvezenÃ­ ze stanice. Komodity lze Å™adit pomocÃ­ tlaÄÃ­tka <strong>pÅ™es/poÄet/cÃ­l</strong>.
 </p>
 
 <p>
-Seznam zobrazuje komodity ji¾ tøídìné podle druhu, ka¾dı druh komodit je pohromadì v jedné èásti.
+Seznam zobrazuje komodity jiÅ¾ tÅ™Ã­dÄ›nÃ© podle druhu, kaÅ¾dÃ½ druh komodit je pohromadÄ› v jednÃ© ÄÃ¡sti.
 </p>
 
 <p>
-Dále jsou komodity uvnitø ka¾dé èásti tøídìny podle toho, kam má bıt která odvezena, pøes jakou pøestupní stanici èi dle poètu (závisí na tlaèítku <strong>pøes/poèet/cíl</strong>).
+DÃ¡le jsou komodity uvnitÅ™ kaÅ¾dÃ© ÄÃ¡sti tÅ™Ã­dÄ›ny podle toho, kam mÃ¡ bÃ½t kterÃ¡ odvezena, pÅ™es jakou pÅ™estupnÃ­ stanici Äi dle poÄtu (zÃ¡visÃ­ na tlaÄÃ­tku <strong>pÅ™es/poÄet/cÃ­l</strong>).
 </p>
 
 <p>
-Tlaèítkem <strong>Chart</strong> lze zapnout zobrazení grafù. Zde si pomocí tlaèítek mù¾ete vybrat, jakou statistickou informaci o stanici chcete zobrazit.
+TlaÄÃ­tkem <strong>Chart</strong> lze zapnout zobrazenÃ­ grafÅ¯. Zde si pomocÃ­ tlaÄÃ­tek mÅ¯Å¾ete vybrat, jakou statistickou informaci o stanici chcete zobrazit.
 </p>
 
 <p>
-<em>Poznámka:</em> Dialog je neustále obnovován, proto vidíte v¾dy aktuální informace o stanici, bez potøeby dialog znovu zavírat a otevírat.
+<em>PoznÃ¡mka:</em> Dialog je neustÃ¡le obnovovÃ¡n, proto vidÃ­te vÅ¾dy aktuÃ¡lnÃ­ informace o stanici, bez potÅ™eby dialog znovu zavÃ­rat a otevÃ­rat.
 </p>
 
 <p>
--><a href="about.txt">Informace o pøekladu</a>
+-><a href="about.txt">Informace o pÅ™ekladu</a>
 </p>
