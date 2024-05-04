@@ -4349,7 +4349,10 @@ obj=program_text
 name=%s has left.
 note=Shown as message if a client leaves
 --
-
+obj=program_text
+name=Lock Control key
+note=Tool button tooltip
+--
 
 
 

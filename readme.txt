@@ -58,13 +58,12 @@ Open the simutrans.sln, select the target (default is GDI) and build.
 
 3) CMake
 
-mkdir build && cd build
-(Unix) cmake -G "Insert Correct Makefiles Generator" ..
-(Unix) cmake build . -j 4
-(MSVC) cmake.exe .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake
-(MSVC) cmake.exe --build . --config Release
+(Unix) cmake -G "Insert Correct Makefiles Generator" -B build .
+(Unix) cmake --build build -j 4
+(MSVC) cmake.exe -B build -G "Visual Studio 16 2019" -A x64 -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake
+(MSVC) cmake.exe --build build --config Release
 
-See here a list of generators: https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html
+See here for a list of generators: https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html
 
 
 Cross-Compiling

@@ -75,17 +75,18 @@ Note that the svn repository is the main repository, and the git repository is j
 
 This is a list of libraries used by Simutrans. Not all of them are necessary, some are optional, so pick them according to your needs. Read below about how to install them.
 
-| Library       | Website                             | Necessary? | Notes                                                                    |
+| Library       | Website                             | Necessary? | Notes                                                                     |
 |---------------|-------------------------------------|------------|---------------------------------------------------------------------------|
 | zlib          | https://zlib.net/                   | Necessary  | Basic compression support                                                 |
-| bzip2         | https://www.bzip.org/downloads.html | Necessary  | Alternative compression. You can pick this or zstd                         |
-| libpng        | http://www.libpng.org/pub/png/      | Necessary  | Image manipulation                                                         |
-| libSDL2       | http://www.libsdl.org/              | Necessary* | *On Linux & Mac. Optional but recommended for Windows. Graphics back-end |
-| libzstd       | https://github.com/facebook/zstd    | Optional   | Alternative compression (larger save files than bzip2, but faster)         |
+| bzip2         | https://www.bzip.org/downloads.html | Necessary  | Alternative compression. You can pick this or zstd                        |
+| libpng        | http://www.libpng.org/pub/png/      | Necessary  | Image manipulation                                                        |
+| libSDL2       | http://www.libsdl.org/              | Necessary* | *On Linux & Mac. Optional but recommended for Windows. Graphics back-end  |
+| libzstd       | https://github.com/facebook/zstd    | Optional   | Alternative compression (larger save files than bzip2, but faster)        |
 | libfreetype   | http://www.freetype.org/            | Optional   | TrueType font support                                                     |
-| libminiupnpc  | http://miniupnp.free.fr/            | Optional   | Easy Server option                                                         |
+| libminiupnpc  | http://miniupnp.free.fr/            | Optional   | Easy Server option                                                        |
 | libfluidsynth | https://www.fluidsynth.org/         | Optional   | MIDI playback recommended on Linux & temporarily on Mac                   |
-| libSDL2_mixer | http://www.libsdl.org/              | Optional   | Alternative MIDI playback and sound system                                 |
+| libSDL2_mixer | http://www.libsdl.org/              | Optional   | Alternative MIDI playback and sound system                                |
+| libfontconfig | https://www.fontconfig.org/         | Optional   | Font autodetection (Linux/Mac)                                            |
 
 You will also need pkgconfig (Unix) or [vcpkg](https://github.com/Microsoft/vcpkg) (Microsoft Visual C++)
 
@@ -130,9 +131,8 @@ The executable will be built in build/simutrans.
 
 ##### Commandline on Linux/MinGW/MacOS ...
 ```
-mkdir build && cd build
-cmake -G "Insert Correct Makefiles Generator" ..
-cmake --build . -j 4
+cmake -G "Insert Correct Makefiles Generator" -B build .
+cmake --build build -j 4
 ```
 See [here](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html) for a list of generators.
 

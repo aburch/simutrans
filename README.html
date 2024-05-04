@@ -143,6 +143,12 @@
 <td>Optional</td>
 <td>Alternative MIDI playback and sound system</td>
 </tr>
+<tr>
+<td>libfontconfig</td>
+<td><a href="https://www.fontconfig.org/">https://www.fontconfig.org/</a></td>
+<td>Optional</td>
+<td>Font autodetection (Linux/Mac)</td>
+</tr>
 </tbody>
 </table>
 <p>You will also need pkgconfig (Unix) or <a href="https://github.com/Microsoft/vcpkg">vcpkg</a> (Microsoft Visual C++)</p>
@@ -176,9 +182,8 @@ make -j 4
 <h4 id="compiling-with-cmake"><a></a>2.3.3) Compiling with CMake</h4>
 <p>The executable will be built in build/simutrans.</p>
 <h5 id="commandline-on-linuxmingwmacos"><a></a>Commandline on Linux/MinGW/MacOS ...</h5>
-<pre><code>mkdir build &amp;&amp; cd build
-cmake -G "Insert Correct Makefiles Generator" ..
-cmake --build . -j 4
+<pre><code>cmake -G "Insert Correct Makefiles Generator" -B build .
+cmake --build build -j 4
 </code></pre>
 <p>See <a href="https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html">here</a> for a list of generators.</p>
 <h5 id="msvc"><a></a>MSVC</h5>
