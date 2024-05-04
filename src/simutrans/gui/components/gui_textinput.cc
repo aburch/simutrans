@@ -26,9 +26,9 @@ gui_textinput_t::gui_textinput_t() :
 	align(ALIGN_LEFT),
 	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
-	cursor_reference_time(0),
 	focus_received(false),
-	notify_all_changes_delay(0xFFFF)
+	notify_all_changes_delay(0xFFFF),
+	cursor_reference_time(0)
 { }
 
 

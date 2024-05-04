@@ -41,11 +41,7 @@ public:
 	// needed for WIN_OPEN events
 	void clear_dirty() { list_dirty=false; }
 
-	bool set_checkered(bool c) {
-		bool old = checkered;
-		checkered = c;
-		return c;
-	}
+	void set_checkered(bool c) { checkered = c; }
 
 	/**
 	* Adds a Component to the Container.

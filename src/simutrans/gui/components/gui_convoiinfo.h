@@ -34,7 +34,6 @@ private:
 	gui_label_t label_name, label_next_halt;
 	gui_label_buf_t label_line, label_profit;
 	button_t pos_next_halt;
-	gui_aligned_container_t *container_next_halt;
 
 public:
 	/**
