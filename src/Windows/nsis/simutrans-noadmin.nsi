@@ -201,6 +201,9 @@ test_for_pak:
   SectionGetFlags ${pak32} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pakTTD} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
   ; not pak selected!
   MessageBox MB_OK|MB_ICONSTOP "At least 1 pak set must be selected!" /SD IDOK
 show_not:

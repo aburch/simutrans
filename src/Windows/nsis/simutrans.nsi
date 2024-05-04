@@ -38,6 +38,7 @@ OutFile "simutrans-online-install.exe"
 
 InstallDir $PROGRAMFILES\Simutrans
 
+
 !define MUI_UNICON "..\stormoog.ico"
 
 !include "preparation-functions.nsh"
@@ -209,6 +210,9 @@ test_for_pak:
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak32} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pakTTD} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   ; not pak selected!
