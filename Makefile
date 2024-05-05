@@ -198,7 +198,7 @@ ifdef USE_FREETYPE
     endif
   endif
   ifdef USE_FONTCONFIG
-    CFLAGS  += -USE_FONTCONFIG
+    CFLAGS  += -DUSE_FONTCONFIG
     CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)
     LDFLAGS += $(shell $(FONTCONFIG_CONFIG) --libs)
   endif
