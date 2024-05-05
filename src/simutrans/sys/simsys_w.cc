@@ -99,7 +99,7 @@ bool dr_set_screen_scale(sint16 percent)
 		scale_ok = true;
 	}
 	else if (percent == 0) {
-		x_scale = x_scale = 32;
+		x_scale = y_scale = 32;
 		scale_ok = true;
 	}
 	else if (percent < 0) {
