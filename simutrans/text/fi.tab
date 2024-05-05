@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: fi Suomi                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -83,6 +83,10 @@ rocky
 alppi-ilmasto
 temperate
 lämmin ilmasto
+tropic
+troopp. ilmasto
+tundra
+tundrailmasto
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
 Cannot built depot here!
@@ -1509,12 +1513,8 @@ Transported
 Kuljetettu
 TrolleyBus_tab
 Johdinautot
-tropic
-troopp. ilmasto
 Truck
 Rekka
-tundra
-tundrailmasto
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnelin täytyy\nalkaa mäestä.\n
 Tunnel must start on single way!

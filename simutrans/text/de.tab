@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -119,8 +119,6 @@ Return to menu
 Neues Spiel
 Road toll
 Maut
-Save
-Spiel speichern
 Scenario
 Missionsstatus
 sea
@@ -153,6 +151,10 @@ rocky
 Alpines Klima
 temperate
 gem‰ﬂigtes Klima
+tropic
+Tropenklima
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1827,6 +1829,8 @@ sack
  Sack
 sail
 Wind
+Save
+Spiel speichern
 Saving map ...
 Speichere Karte ...
 Scenario complete: %i%%
@@ -2151,14 +2155,10 @@ Trees disabled!
 B‰ume ausgeschalten!
 TrolleyBus_tab
 Trolleybusse
-tropic
-Tropenklima
 Truck
 Straﬂe
 tt_Other
 Sonstige
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Der Tunnel muss an\neinem Hang beginnen!\n
 Tunnel must start on single way!

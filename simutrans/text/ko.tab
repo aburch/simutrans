@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,6 +93,10 @@ rocky
 고산 기후
 temperate
 온대 기후
+tropic
+열대 기후
+tundra
+툰드라 기후
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1797,14 +1801,10 @@ Transported
 수송실적
 TrolleyBus_tab
 트롤리 버스
-tropic
-열대 기후
 Truck
 트럭
 tt_Other
 기타
-tundra
-툰드라 기후
 Tunnel muss an\neinfachem\nHang beginnen!\n
 터널은 곧은 경사면에서\n 시작해야 합니다!\n
 Tunnel must start on single way!

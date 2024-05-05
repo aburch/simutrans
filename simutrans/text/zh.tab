@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                            Language: zh T. Chinese                           #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -89,6 +89,10 @@ rocky
 高山氣候
 temperate
 溫帶氣候
+tropic
+熱帶氣候
+tundra
+苔原氣候
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1621,12 +1625,8 @@ Transported
 路程
 TrolleyBus_tab
 無軌電車
-tropic
-熱帶氣候
 Truck
 貨車
-tundra
-苔原氣候
 Tunnel muss an\neinfachem\nHang beginnen!\n
 隧道入口必須建造在斜坡上
 Tunnel must start on single way!

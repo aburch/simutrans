@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: no Norsk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -61,6 +61,10 @@ rocky
 alpint klima
 temperate
 temperert klima
+tropic
+tropisk klima
+tundra
+tundraklima
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
 Monorails are not available yet!
@@ -559,10 +563,6 @@ Translation
 Oversettelse
 transparent station coverage
 gjennomsiktig dekningsomraade
-tropic
-tropisk klima
-tundra
-tundraklima
 Unemployed
 Arbeidsloes
 units/day

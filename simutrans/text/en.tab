@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -101,8 +101,6 @@ Reselect closes tools
 Re-selecting a tool de-selects it
 Road toll
 Road Toll
-Save
-Save game
 Scenario
 Scenario Info
 sea
@@ -129,6 +127,10 @@ rocky
 Alpine (rocky)
 temperate
 Temperate
+tropic
+Tropical
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1233,6 +1235,8 @@ sack
  bags
 sail
 wind
+Save
+Save game
 Scenario Debug
 Debug
 Scenario Error Log
@@ -1419,12 +1423,8 @@ Transported
 Trips
 TrolleyBus_tab
 Trolleybuses
-tropic
-Tropical
 tt_Other
 Other
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnels must\nstart on a straight\nslope!\n
 Tunnel must start on single way!

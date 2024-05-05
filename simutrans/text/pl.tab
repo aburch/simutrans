@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: pl Polski                             #
 #                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -115,8 +115,6 @@ Reselect closes tools
 Ponowny wybór narzędzia powoduje jego zamknięcie
 Road toll
 Opłata drogowa
-Save
-Zapisz
 Scenario
 Sceneria
 sea
@@ -149,6 +147,10 @@ rocky
 Ter. skaliste
 temperate
 Klim. umiarkowany
+tropic
+Klim. tropikalny
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1895,6 +1897,8 @@ sack
  Paczek
 sail
 Siła wiatru
+Save
+Zapisz
 Saving map ...
 Zapisuję mapę...
 Scenario complete: %i%%
@@ -2237,14 +2241,10 @@ Trees disabled!
 Drzewa nieaktywne!
 TrolleyBus_tab
 Trolejbusy
-tropic
-Klim. tropikalny
 Truck
 Drogowe
 tt_Other
 Inny
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunel musi\nzaczynać się na \nrównym zboczu!\n
 Tunnel must start on single way!

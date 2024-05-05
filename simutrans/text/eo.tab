@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -97,6 +97,10 @@ rocky
 Altmonta klimato
 temperate
 Mezvarma klimato
+tropic
+Tropika klimato
+tundra
+Tundra klimato
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1951,14 +1955,10 @@ Trees disabled!
 Arboj ne estas uzeblaj!
 TrolleyBus_tab
 Trolebusoj
-tropic
-Tropika klimato
 Truck
 Ŝarĝaŭto
 tt_Other
 Aliaj
-tundra
-Tundra klimato
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tuneloj devas esti sur rekta deklivo!
 Tunnel must start on single way!

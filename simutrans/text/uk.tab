@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: uk Ukrainian                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,6 +93,10 @@ rocky
 гірський клімат
 temperate
 помірний клімат
+tropic
+тропічний клімат
+tundra
+тундра
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1853,14 +1857,10 @@ Transported
 Перевезено
 TrolleyBus_tab
 тролейбуси
-tropic
-тропічний клімат
 Truck
 Вантажівка
 tt_Other
 Інше
-tundra
-тундра
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Тунелі мають починатися\nна прямому схилі!\n
 Tunnel must start on single way!

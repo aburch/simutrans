@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: ca Catala                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,6 +93,10 @@ rocky
 Alpí
 temperate
 Templat
+tropic
+Tropical
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1797,12 +1801,8 @@ Transported
 Viatges
 TrolleyBus_tab
 troleibús
-tropic
-Tropical
 Truck
 Camió
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 ¡El túnel ha de\ncomençar a una\npendent recta!\n
 Tunnel must start on single way!

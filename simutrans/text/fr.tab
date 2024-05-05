@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: fr Francais                            #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -95,8 +95,6 @@ Reselect closes tools
 Re-sélection d'un outil le ferme
 Road toll
 Péages routiers
-Save
-Enregistrer partie
 Scenario
 Scénario
 Transfers
@@ -113,6 +111,10 @@ rocky
 montagneux
 temperate
 Climat tempéré
+tropic
+climat tropical
+tundra
+Toundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1551,6 +1553,8 @@ sack
  sacs
 sail
 vent
+Save
+Enregistrer partie
 Saving map ...
 Sauvegarde de la carte ...
 Scenario complete: %i%%
@@ -1807,14 +1811,10 @@ Transported
 Transporté(s)
 TrolleyBus_tab
 trolley bus
-tropic
-climat tropical
 Truck
 Camion
 tt_Other
 autres
-tundra
-Toundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Le tunnel doit\ncommencer sur une\npente droite!\n
 Tunnel must start on single way!

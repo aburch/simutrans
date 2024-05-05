@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: pt Portugues                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,6 +93,10 @@ rocky
 Alpino
 temperate
 Temperado
+tropic
+Tropical
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1843,14 +1847,10 @@ Transported
 Transportado
 TrolleyBus_tab
 Trleibus
-tropic
-Tropical
 Truck
 Veículos rodoviários
 tt_Other
 Outros
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Um túnel deve começar no final de uma via que esteja sobre um terreno elevado e inclinado!
 Tunnel must start on single way!

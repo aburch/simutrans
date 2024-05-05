@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: sv Svenska                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,6 +91,10 @@ rocky
 Fjällklimat
 temperate
 Tempererat klimat
+tropic
+Tropiskt klimat
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1631,12 +1635,8 @@ Transported
 Antal resor
 TrolleyBus_tab
 Trådbuss
-tropic
-Tropiskt klimat
 Truck
 Landsvägsfordon
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Tunnlar måste\nbörja på raka\nsluttningar!\n
 Tunnel must start on single way!

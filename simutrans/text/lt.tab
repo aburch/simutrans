@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,6 +91,8 @@ rocky
 kalnų klimatas
 temperate
 vidutinis klimatas
+tropic
+tropikai
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
 Cannot built depot here!
@@ -1771,8 +1773,6 @@ Transported
 Nukeliavo
 TrolleyBus_tab
 troleibusai
-tropic
-tropikai
 Truck
 Sunkvežimiai
 Tunnel muss an\neinfachem\nHang beginnen!\n

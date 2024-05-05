@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -147,6 +147,10 @@ rocky
 Альпийский (скалистый)
 temperate
 Умеренный
+tropic
+Тропический
+tundra
+Субарктический
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -2097,14 +2101,10 @@ Trees disabled!
 Деревья запрещены!
 TrolleyBus_tab
 троллейбусы
-tropic
-Тропический
 Truck
 Грузовик
 tt_Other
 Другое
-tundra
-Субарктический
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Туннели должны начинаться\nна прямом склоне!\n
 Tunnel must start on single way!

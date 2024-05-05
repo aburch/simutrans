@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -95,6 +95,10 @@ rocky
 Rotsachtig
 temperate
 Gematigd
+tropic
+Tropisch
+tundra
+Toendra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1811,14 +1815,10 @@ Transported
 Vervoerd
 TrolleyBus_tab
 Trolleybussen
-tropic
-Tropisch
 Truck
 Vrachtwagen
 tt_Other
 Andere
-tundra
-Toendra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Een tunnel moet op\neen rechte\nhelling beginnen\n
 Tunnel must start on single way!

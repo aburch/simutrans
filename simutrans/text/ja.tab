@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                                Font: m+10r.bdf                               #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -119,8 +119,6 @@ Return to menu
 メニューに戻る
 Road toll
 通行料
-Save
-ゲームの保存
 Scenario
 シナリオ
 sea
@@ -155,6 +153,10 @@ rocky
 氷雪気候
 temperate
 温暖気候
+tropic
+熱帯気候
+tundra
+ツンドラ気候
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -187,6 +189,10 @@ Could not open file
 ファイルを開けません
 Das Feld gehoert\neinem anderen Spieler\n
 この場所は\n他のプレイヤーによって\nすでに占拠されています。\n
+Depots cannot be built on runways!
+車庫を滑走路上に建設することはできません！
+Depots must be built on flat dead-end way tiles!
+車庫は平坦な道路の行き止まりに設置できます
 Der Besitzer erlaubt das Entfernen nicht
 撤去できません。\nここは他社の所有地です。\n
 Diese Zusammenstellung kann nicht fahren!\n
@@ -503,6 +509,8 @@ Line Filter
 %s %s前 %s
 %s has entered a depot.
 %s\nは車庫に着きました。\n
+%s has left.
+%s がオフラインになりました。
 %s land %d %s
 %s郊外第%d%s
 %s now known as %s.
@@ -789,6 +797,8 @@ chooses a random map
 マップ番号を無作為に選びます
 citicens
 住民
+Cities can only be built on flat empty ground!
+市役所は平坦な空き地にのみ建設できます。
 City attraction
 都市内施設
 City industries
@@ -1409,6 +1419,8 @@ List of industries on the map
 マップ上の産業施設一覧
 LKW_tab
 トラック
+Load '%s'
+「%s」を再開します
 Load game
 ゲームの再開
 load height data from file
@@ -1607,6 +1619,8 @@ No stop here!
 ここには駅がありません。\nキャンセルします。
 No suitable ground!
 適切な場所ではありません。\n\n気候条件が合わない/空地ではない\nまたは線路/道路上ではありません\nまた地下では線路/道路上を起点としてください。
+No suitable townhall available for this climate!
+気候に適合する役所建築物がありません！
 No terminal station here!
 この形式の停車場は走路の終端に\n建ててください！
 no timeline
@@ -1897,6 +1911,8 @@ sack
  袋
 sail
 帆走
+Save
+ゲームの保存
 Saving map ...
 マップを保存中
 Scenario complete: %i%%
@@ -2233,14 +2249,10 @@ Trees disabled!
 樹木は使用できません！
 TrolleyBus_tab
 トロリーバス
-tropic
-熱帯気候
 Truck
 自動車
 tt_Other
 その他
-tundra
-ツンドラ気候
 Tunnel muss an\neinfachem\nHang beginnen!\n
 トンネルは直線の\n坂に作ってください。\n
 Tunnel must start on single way!
@@ -2347,6 +2359,8 @@ Weight:
 重量:
 Welcome to Simutrans
 ようこそ、Simutransへ
+Welcome, %s!
+%s がゲームに接続しました。
 Wert
 価格
 west

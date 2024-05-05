@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -119,8 +119,6 @@ Return to menu
 Volver al menú
 Road toll
 Peaje
-Save
-Guardar
 Scenario
 Información de Escenario
 sea
@@ -153,10 +151,16 @@ rocky
 Alpino
 temperate
 Templado
+tropic
+Tropical
+tundra
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
 ¡No se ha podido cargar\nel script del escenario!\n
+A building blocks the construction
+Un edificio bloquea la construcción.
 Bridge blocked by way below or above.
 Puente obstruído por otra vía debajo o encima.
 Can't buy obsolete vehicles!
@@ -187,6 +191,10 @@ Could not open file
 No se pudo abrir el archivo
 Das Feld gehoert\neinem anderen Spieler\n
 ¡Esta parcela\nes propiedad\nde otro jugador!\n
+Depots cannot be built on runways!
+¡Los depósitos no pueden construirse en pistas de aterrizaje!
+Depots must be built on flat dead-end way tiles!
+¡Los depósitos deben construirse en la casilla final de una vía!
 Der Besitzer erlaubt das Entfernen nicht
 El propietario no da\npermiso para\neliminarlo.\n
 Diese Zusammenstellung kann nicht fahren!\n
@@ -249,6 +257,8 @@ Server busy
 Servidor ocupado.
 Server version too new
 El servidor usa una versión más reciente del programa.
+Ship depots must be built on water!
+¡Los depósitos de barcos deben construirse sobre el agua!
 Show all revenue messages
 Mostrar todos los mensajes de ingresos.
 Show no revenue messages
@@ -507,6 +517,8 @@ Antigüedad: %i años y %i meses.
 %s - Parada %s
 %s has entered a depot.
 %s ha llegado al depósito.
+%s has left.
+%s se ha ido.
 %s land %d %s
 %s tierra %d %s
 %s now known as %s.
@@ -821,6 +833,8 @@ chooses a random map
 Elige un mapa al azar.
 citicens
 Ciudadanos
+Cities can only be built on flat empty ground!
+¡Las ciudades solo pueden construirse sobre terreno llano!
 City attraction
 Atracción turística de ciudad
 City industries
@@ -979,8 +993,6 @@ Customers live in:
 Los clientes viven en:
 Date format
 Formato de fecha
-DAY_SYMBOL
-Día
 deactivated in online mode
 Desactivado en modo online
 Dec.
@@ -1402,7 +1414,7 @@ M
 LARGE_NUMBER_VALUE
 1e6
 Last Month
-Último Mes:
+Último Mes
 Last used tools
 Últimas herramientas usadas
 Last Year
@@ -1443,6 +1455,8 @@ List of industries on the map
 Lista de industrias en el mapa
 LKW_tab
 Camiones
+Load '%s'
+Cargar %s
 Load game
 Cargar Partida
 load height data from file
@@ -1475,6 +1489,8 @@ Loading skins ...
 Cargando temas...
 Loading time:
 Completamente cargado en: 
+Lock Control key
+Mantener presionada tecla Control
 Lock game
 Impedir cambio de jugador (exige confirmación).
 Lokomotive_tab
@@ -1645,6 +1661,8 @@ No stop here!
 ¡Debes usar esta herramienta en paradas!
 No suitable ground!
 ¡No es el terreno adecuado!
+No suitable townhall available for this climate!
+¡No hay un edificio de ayuntamiento apropiado para este clima!
 No terminal station here!
 ¡No se puede construir una estación\n terminal aquí! Se necesita un tramo\n final de carretera/vía.
 no timeline
@@ -1939,6 +1957,8 @@ sack
  Sacos
 sail
 Viento
+Save
+Guardar
 Saving map ...
 Guardando mapa...
 Scenario complete: %i%%
@@ -2287,14 +2307,10 @@ Trees disabled!
 ¡Árboles deshabilitados!
 TrolleyBus_tab
 Trolebuses
-tropic
-Tropical
 Truck
 Camión
 tt_Other
 Otro
-tundra
-Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 ¡Los túneles deben\ncomenzar en una\npendiente recta!\n
 Tunnel must start on single way!
@@ -2407,6 +2423,8 @@ Weight/unit
 Peso/unidad
 Welcome to Simutrans
 Bienvenido a Simutrans
+Welcome, %s!
+¡Te damos la bienvenida, %s!
 Wert
 Valor
 west
@@ -2425,8 +2443,6 @@ Year
 Año
 Year %i has started.
 Ha comenzado el año %i.
-YEAR_SYMBOL
-Año
 Years
 Años
 Your primary color:

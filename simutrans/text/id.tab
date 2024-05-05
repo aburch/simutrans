@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -93,6 +93,10 @@ rocky
 Iklim Alpen
 temperate
 iklim sedang
+tropic
+Iklim Tropis
+tundra
+Iklim Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1819,14 +1823,10 @@ Transported
 Perjalanan
 TrolleyBus_tab
 Busway
-tropic
-Iklim Tropis
 Truck
 Truk
 tt_Other
 Lain-lain
-tundra
-Iklim Tundra
 Tunnel muss an\neinfachem\nHang beginnen!\n
 Terowongan harus\ndimulai di\nkemiringan lurus.\n
 Tunnel must start on single way!

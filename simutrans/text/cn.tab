@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                           Language: cn Sim. Chinese                          #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                            Date Created: 4.05 2024                           #
+#                            Date Created: 5.05 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -91,6 +91,10 @@ rocky
 高山气候
 temperate
 温带气候
+tropic
+热带气候
+tundra
+苔原气候
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -1659,12 +1663,8 @@ Transported
 路程
 TrolleyBus_tab
 无轨电车
-tropic
-热带气候
 Truck
 货车
-tundra
-苔原气候
 Tunnel muss an\neinfachem\nHang beginnen!\n
 隧道入口必须建造在斜坡上
 Tunnel must start on single way!
