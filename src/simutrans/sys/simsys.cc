@@ -1300,7 +1300,8 @@ bool dr_download_pakset( const char *data_dir, bool portable )
 	 * Otherwise the waiting for installation will fail!
 	 * (no idea how this works on XP though)
 	 */
-	shExInfo.lpVerb = L"runas";
+//	shExInfo.lpVerb = L"runas"; we do not need afmin rights any more
+	shExInfo.lpVerb = L"open";
 	shExInfo.lpFile = L"download-paksets.exe";
 	shExInfo.lpParameters = wparam;
 	shExInfo.lpDirectory = wpath_to_program;
