@@ -22,7 +22,7 @@ TRANSLATOR_URL=https://makie.de/translator
 # Use curl if available, else use wget
 curl -q -h > /dev/null
 if [ $? -eq 0 ]; then
-	if ![curl --head --silent --fail $TRANSLATOR_URL 2> /dev/null]; then
+	if ![ curl --head --silent --fail $TRANSLATOR_URL 2> /dev/null ]; then
 		TRANSLATOR_URL=https://translator.simutrans.com
 	fi
 	echo "Using translator at $TRANSLATOR_URL"
@@ -38,7 +38,7 @@ if [ $? -eq 0 ]; then
 else
     wget -q --help > /dev/null
     if [ $? -eq 0 ]; then
-		if ![wget -q --method=HEAD $TRANSLATOR_URL 2> /dev/null]; then
+		if ![ wget -q --method=HEAD $TRANSLATOR_URL 2> /dev/null ]; then
 			TRANSLATOR_URL=https://translator.simutrans.com
 		fi
 		echo "Using translator at $TRANSLATOR_URL"
