@@ -382,7 +382,9 @@ bool check_and_set_dir( const char *path, const char *info, char *result, const 
 		if(testfile) {
 			FILE* testf = fopen(testfile,"r");
 			ok = ok && testf;
-			fclose(testf);
+			if(testf) {
+				fclose(testf);
+			}
 		}
 		if(!ok) {
 			printf("WARNING: Objects not found in %s \"%s\"!\n",  info, path);
