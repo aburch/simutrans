@@ -127,10 +127,10 @@ Section "Uninstall"
   SetShellVarContext all
   StrCpy $PAKDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext current
+  DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans"
   MessageBox MB_YESNO "Remove global paksets from $PAKDIR?" /SD IDYES IDNO +2
   RMDir /r $PAKDIR
   
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans"
 SectionEnd
 
 !include "paksets.nsh"

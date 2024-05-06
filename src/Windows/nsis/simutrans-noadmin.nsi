@@ -56,11 +56,14 @@ Function PostExeInstall
   goto finishGDIexe
 
 NotPortable:
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "DisplayName" "Simutrans - A transport simulator"
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+  WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans" "DisplayIcon" "$\"$INSTDIR\uninstall.exe$\""
+
   ; make start menu entries
   CreateDirectory "$SMPROGRAMS\Simutrans"
   CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans.lnk" "$INSTDIR\Simutrans.exe" ""
   CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans (Debug).lnk" "$INSTDIR\Simutrans.exe" "-log 1 -debug 3"
-  CreateShortCut "$SMPROGRAMS\Simutrans\Simutrans Uninstall.lnk" "$INSTDIR\uninstall.exe" ""
 
 finishGDIexe:
 FunctionEnd
@@ -117,6 +120,7 @@ Section "Uninstall"
   SetShellVarContext all
   StrCpy $PAKDIR "$LOCALAPPDATA\simutrans"
   SetShellVarContext current
+  DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\Simutrans"
   MessageBox MB_YESNO "Remove global paksets from $PAKDIR?" /SD IDYES IDNO +2
   RMDir /r $PAKDIR
   
