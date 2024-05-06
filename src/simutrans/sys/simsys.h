@@ -163,7 +163,7 @@ bool check_and_set_dir(const char *path, const char *info, char *result, const c
 * @param base_dir_arg : command line argument "-set_basedir"
 * @param executable_path : Path to executable (as stored in argv[0])
 */
-bool dr_set_basedir(const char * base_dir_arg, char * executable_path);
+bool dr_set_basedir(const char *base_dir_arg, char *executable_path);
 
 /* query home directory */
 char const* dr_query_homedir();

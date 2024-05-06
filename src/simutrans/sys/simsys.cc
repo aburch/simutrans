@@ -379,13 +379,15 @@ bool check_and_set_dir( const char *path, const char *info, char *result, const 
 {
 	if(  path  &&  *path  ) {
 		bool ok = !dr_chdir(path);
-		FILE * testf = NULL;
-		ok &=  ok  &&  testfile  &&  (testf = fopen(testfile,"r"));
+		if(testfile) {
+			FILE* testf = fopen(testfile,"r");
+			ok = ok && testf;
+			fclose(testf);
+		}
 		if(!ok) {
 			printf("WARNING: Objects not found in %s \"%s\"!\n",  info, path);
 		}
 		else {
-			fclose(testf);
 			dr_getcwd( result, PATH_MAX-1 );
 			strcat( result, PATH_SEPARATOR );
 			return true;
@@ -532,8 +534,6 @@ char const *dr_query_homedir()
 	}
 #endif
 
-	// create directory and subdirectories
-	dr_mkdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
 	return buffer;
 }
@@ -578,8 +578,6 @@ char const *dr_query_installdir()
 	}
 #endif
 
-	// create directory and subdirectories
-	dr_mkdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
 	return buffer;
 }

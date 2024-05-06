@@ -589,6 +589,11 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
+	
+	// create directory and subdirectories
+	dr_mkdir(env_t::install_dir);
+	dr_mkdir(env_t::user_dir);
+    
 	// set portable, if base dir and user dir were same
 	not_portable &= strcmp( env_t::user_dir, env_t::base_dir )!=0;
 
