@@ -40,8 +40,8 @@ BUNDLE_PTHREADGC2 := @bundlepthread@
 # using UPnP for easy server hosting behind routers
 USE_UPNP := @upnp@
 
-# using freetype for Truetype font support
-USE_FREETYPE := @freetype@
+# using fontconfig for linux/mac TTF selection
+USE_FONTCONFIG := @fontconfig@
 
 # using zstd compression
 USE_ZSTD := @zstd@

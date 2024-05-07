@@ -82,7 +82,7 @@ This is a list of libraries used by Simutrans. Not all of them are necessary, so
 | libpng        | http://www.libpng.org/pub/png/      | Necessary  | Image manipulation                                                        |
 | libSDL2       | http://www.libsdl.org/              | Necessary* | *On Linux & Mac. Optional but recommended for Windows. Graphics back-end  |
 | libzstd       | https://github.com/facebook/zstd    | Optional   | Alternative compression (larger save files than bzip2, but faster)        |
-| libfreetype   | http://www.freetype.org/            | Optional   | TrueType font support                                                     |
+| libfreetype   | http://www.freetype.org/            | Necessary  | TrueType font support                                                     |
 | libminiupnpc  | http://miniupnp.free.fr/            | Optional   | Easy Server option                                                        |
 | libfluidsynth | https://www.fluidsynth.org/         | Optional   | MIDI playback recommended on Linux & temporarily on Mac                   |
 | libSDL2_mixer | http://www.libsdl.org/              | Optional   | Alternative MIDI playback and sound system                                |

@@ -1590,6 +1590,7 @@ int simu_main(int argc, char** argv)
 		// play next tune?
 		check_midi();
 
+#if COLOUR_DEPTH != 0
 		if(  new_world  ) {
 			dbg->message("simu_main()", "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans", koord3d::invalid, PLAYER_FLAG | color_idx_to_rgb(COL_SOFT_BLUE));
@@ -1597,6 +1598,7 @@ int simu_main(int argc, char** argv)
 			// only show new world, if no other dialogue is active ...
 			new_world = win_get_open_count()==0;
 		}
+#endif
 
 		// to purge all previous old messages
 		welt->get_message()->set_message_flags(env_t::message_flags[0], env_t::message_flags[1], env_t::message_flags[2], env_t::message_flags[3]);

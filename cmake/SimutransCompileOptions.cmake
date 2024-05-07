@@ -23,10 +23,6 @@ endif ()
 
 option(SIMUTRANS_VALGRIND_SUPPORT  "Add support for valgrind \"memcheck\" tool" OFF)
 
-if (Freetype_FOUND)
-	option(SIMUTRANS_USE_FREETYPE "Enable TrueType font support using freetype library" ON)
-endif (Freetype_FOUND)
-
 if (MiniUPNP_FOUND)
 	option(SIMUTRANS_USE_UPNP "Use MiniUPNP for easier server setup" ON)
 endif (MiniUPNP_FOUND)

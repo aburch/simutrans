@@ -170,33 +170,31 @@ ifdef MSG_LEVEL
   CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
-ifdef USE_FREETYPE
-  ifeq ($(shell expr $(USE_FREETYPE) \>= 1), 1)
-    CFLAGS   += -DUSE_FREETYPE
-    ifneq ($(FREETYPE_CONFIG),)
-      CFLAGS += $(shell $(FREETYPE_CONFIG) --cflags)
-      ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        # since static is not supported by slightly old freetype versions
-        FTF := $(shell $(FREETYPE_CONFIG) --libs --static)
-        ifneq ($(FTF),)
-          LDFLAGS += $(subst -lm ,,$(FTF))
-        else
-          LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
-        endif
+ifneq ($(BACKEND),posix)
+  ifneq ($(FREETYPE_CONFIG),)
+    CFLAGS += $(shell $(FREETYPE_CONFIG) --cflags)
+    ifeq ($(shell expr $(STATIC) \>= 1), 1)
+      # since static is not supported by slightly old freetype versions
+      FTF := $(shell $(FREETYPE_CONFIG) --libs --static)
+      ifneq ($(FTF),)
+        LDFLAGS += $(subst -lm ,,$(FTF))
       else
-        LDFLAGS   += $(shell $(FREETYPE_CONFIG) --libs)
+        LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
       endif
     else
-      LDFLAGS += -lfreetype
-      ifeq ($(OSTYPE),mingw)
-        LDFLAGS += -lpng -lharfbuzz
-      endif
+      LDFLAGS   += $(shell $(FREETYPE_CONFIG) --libs)
     endif
-
+  else
+    LDFLAGS += -lfreetype
     ifeq ($(OSTYPE),mingw)
-      LDFLAGS += -lfreetype
+      LDFLAGS += -lpng -lharfbuzz
     endif
   endif
+  
+  ifeq ($(OSTYPE),mingw)
+    LDFLAGS += -lfreetype
+  endif
+
   ifdef USE_FONTCONFIG
     CFLAGS  += -DUSE_FONTCONFIG
     CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)

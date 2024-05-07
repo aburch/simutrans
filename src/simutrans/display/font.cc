@@ -11,7 +11,7 @@
 #include "../simtypes.h"
 #include "../utils/simstring.h"
 
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 #include "../dataobj/environment.h"
 #endif
 
@@ -235,7 +235,7 @@ bool font_t::load_from_bdf(FILE *bdf_file)
 }
 #endif
 
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -456,7 +456,7 @@ bool font_t::load_from_file(const char *srcfilename)
 {
 	tstrncpy( fname, srcfilename, lengthof(fname) );
 
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 	bool ok = load_from_freetype( fname, env_t::fontsize );
 
 #if MSG_LEVEL>=4

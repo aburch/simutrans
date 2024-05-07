@@ -63,7 +63,7 @@ public:
 	const glyph_t& get_glyph(utf32 c) const;
 
 private:
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 	/// Load a freetype font
 	bool load_from_freetype(const char *fname, int pixel_height);
 #endif

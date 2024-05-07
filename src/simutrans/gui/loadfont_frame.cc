@@ -75,12 +75,8 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 	fontsize.add_listener(this);
 	fontsize.enable( is_resizable_font(env_t::fontname.c_str()) );
 
-#ifdef USE_FREETYPE
 	fnlabel.set_text( "font size" );
 	top_frame.add_component(&fontsize);
-#else
-	top_frame.remove_component(&fnlabel);
-#endif
 
 	unicode_only.init( button_t::square_automatic, "Only full Unicode fonts");
 	unicode_only.pressed = use_unicode;
@@ -125,7 +121,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 	if(  start_extension  &&  !STRICMP( start_extension, ".fon" )  ) {
 		return false;
 	}
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 	if(  ft_library  ) {
 		// if we can open this font, it is probably ok ...
 		FT_Face face;
@@ -154,7 +150,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 void loadfont_frame_t::fill_list()
 {
 	add_path( ((std::string)env_t::base_dir+"font/").c_str() );
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 	// ok, we can handle TTF fonts
 	ft_library = NULL;
 	if(  FT_Init_FreeType(&ft_library) != FT_Err_Ok  ) {
@@ -187,7 +183,7 @@ void loadfont_frame_t::fill_list()
 			continue;
 		}
 		i.button->set_typ(button_t::roundbox_state | button_t::flexible);
-#ifndef USE_FREETYPE
+#if COLOUR_DEPTH == 0
 	}
 #else
 		// Use internal name instead the cutted file name

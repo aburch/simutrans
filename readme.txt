@@ -28,9 +28,9 @@ Getting the libraries
 
 You will need pkgconfig (Unix) or vcpkg (Microsoft Visual C++) https://github.com/Microsoft/vcpkg
 
-- Needed (All): libpng2 libbzip2 zlib 
+- Needed (All): libpng2 libbzip2 zlib libfreetype
 - Needed (Linux/Mac): libSDL2 libfluidsynth (for midi music)
-- Optional but recommended: libzstd (faster compression) libfreetype (TrueType font support) miniupnpc (for easy server setup)
+- Optional but recommended: libzstd (faster compression) miniupnpc (for easy server setup)
 
 - MSVC: Copy install-building-libs-{architecture}.bat to the vcpkg folder and run it.
 - MSYS2/Ubuntu/Debian: Run setup-development.sh to get the libraries and set up the environment.

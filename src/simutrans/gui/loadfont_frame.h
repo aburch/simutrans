@@ -6,8 +6,7 @@
 #ifndef GUI_LOADFONT_FRAME_H
 #define GUI_LOADFONT_FRAME_H
 
-
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 #include "gui_theme.h"
 #include "../sys/simsys.h"
 
@@ -31,7 +30,7 @@
 class loadfont_frame_t : public savegame_frame_t
 {
 private:
-#ifdef USE_FREETYPE
+#if COLOUR_DEPTH != 0
 	FT_Library ft_library;
 #endif
 	static bool use_unicode;

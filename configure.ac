@@ -46,18 +46,12 @@ AC_SEARCH_LIBS(ZSTD_CStreamInSize, zstd,
 if test "$ac_cv_header_windows_h" == yes
 then
 	AC_SUBST(os_type, mingw)
-	# Mac stuff
 	AC_SUBST(av_foundation, 0)
 	# optional upnp
 	AC_SEARCH_LIBS(upnpDiscover, miniupnpc,
 		[AC_SUBST(upnp, 1)],
 		[AC_SUBST(upnp, 0)],
 		-liphlpapi -lws2_32 )
-	# optional freetype
-	AC_SEARCH_LIBS(FT_Init_FreeType, freetype,
-		[AC_SUBST(freetype, 1)],
-		[AC_SUBST(freetype, 0)],
-		-lpng -lharfbuzz -lgraphite2 -lfreetype )
 	# optional fluidsynth
 	AC_SEARCH_LIBS(new_fluid_settings, fluidsynth,
 		[AC_SUBST(fluidsynth, 1)],
@@ -68,11 +62,11 @@ else
 	AC_SEARCH_LIBS(upnpDiscover, miniupnpc,
 		[AC_SUBST(upnp, 1)],
 		[AC_SUBST(upnp, 0)] )
-	# optional freetype
-	AC_SEARCH_LIBS(FT_Init_FreeType, freetype,
-		[AC_SUBST(freetype, 1)],
-		[AC_SUBST(freetype, 0)],
-		-lpng )
+	# optional fontconfig
+	AC_SEARCH_LIBS(FcInitLoadConfigAndFonts, fontconfig,
+		[AC_SUBST(fontconfig, 1)],
+		[AC_SUBST(fontconfig, 0)],
+		-lfontconfig )
 	# optional fluidsynth
 	AC_SEARCH_LIBS(new_fluid_settings, fluidsynth,
 		[AC_SUBST(fluidsynth, 1)],
@@ -135,10 +129,12 @@ elif test "$ac_cv_header_windows_h" == yes
 then
 	AC_SUBST(backend, gdi)
 	AC_MSG_WARN([Using GDI backend!])
+	AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [], [AC_MSG_ERROR([FreeType Library is needed for graphical interface!])])
 elif test "$ac_cv_lib_SDL2_SDL_GetRenderDriverInfo" == yes
 then
 	AC_SUBST(backend, sdl2)
 	AC_MSG_WARN([Using SDL2 backend!])
+	AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [], [AC_MSG_ERROR([FreeType Library is needed for graphical interface!])])
 else
 	AC_SUBST(backend, posix)
 	AC_MSG_WARN([No backend found, using server (posix)!])
@@ -153,18 +149,6 @@ else
 	AC_SUBST(svn, 0)
 fi
 
-
-#switch off assembler on 64 bit (MISSING: Check for GNU Assembler and i86)
-AC_CHECK_SIZEOF(void*)
-if test "$ac_cv_sizeof_voidp" == 4
-then
-	if test "$ac_cv_cxx_compiler_gnu" == yes
-	then
-		AC_SUBST(flags, '')
-	else
-		AC_SUBST(flags, '-DUSE_C')
-	fi
-fi
 
 AC_CONFIG_FILES([config.default])
 AC_OUTPUT

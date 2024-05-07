@@ -11,7 +11,6 @@ echo OSTYPE=linux >> config.$1.txt
 echo COLOUR_DEPTH=16 >> config.$1.txt
 echo BACKEND=sdl2 >> config.$1.txt
 echo USE_SOFTPOINTER=1 >> config.$1.txt
-echo USE_FREETYPE=1 >> config.$1.txt
 echo USE_FLUIDSYNTH_MIDI=1 >> config.$1.txt
 echo WITH_REVISION=1 >> config.$1.txt
 echo MSG_LEVEL=3 >> config.$1.txt
