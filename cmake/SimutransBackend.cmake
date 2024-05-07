@@ -4,12 +4,12 @@
 #
 
 
-if (SDL2_FOUND)
+if (SDL2_FOUND AND Freetype_FOUND)
 	list(APPEND AVAILABLE_BACKENDS "sdl2")
 	mark_as_advanced(SDL2_DIR)
-endif (SDL2_FOUND)
+endif ()
 
-if (WIN32)
+if (WIN32 AND Freetype_FOUND)
 	list(APPEND AVAILABLE_BACKENDS "gdi")
 endif ()
 
