@@ -167,8 +167,22 @@ uint8 dr_get_max_threads()
 int dr_mkdir(char const* const path)
 {
 #ifdef _WIN32
-	// Perform operation.
-	int const result = SHCreateDirectory(NULL, U16View(path)) ? 0 : -1;
+	const char* new_dir_with_path = path;
+
+	// Perform operation needs absolute path
+	if (path[1] != ':'  &&  path[1] !=  '\\') {
+		// so let get the absolute path
+		char abs_buf[MAX_PATH];
+		dr_getcwd(abs_buf, MAX_PATH);
+		if (strlen(abs_buf) + strlen(path) + 2 >= MAX_PATH) {
+			return -1;
+		}
+		strcat(abs_buf, "\\");
+		strcat(abs_buf, path);
+		new_dir_with_path = abs_buf;
+	}
+
+	int result = SHCreateDirectory(NULL, U16View(new_dir_with_path)) ? 0 : -1;
 
 	// Translate error.
 	if (result != ERROR_SUCCESS) {

@@ -712,7 +712,7 @@ static void internal_GetEvents()
 		case SDL_APP_DIDENTERFOREGROUND:
 			dr_stop_textinput();
 			intr_enable();
-			//reanable midi
+			//reenable midi
 			break;
 
 		case SDL_WINDOWEVENT:
