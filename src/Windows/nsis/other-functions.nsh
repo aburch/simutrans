@@ -61,15 +61,15 @@ Function CheckForPortableInstall
   StrCpy $installinsimutransfolder "1"
   StrCpy $multiuserinstall "1"
   ; if the destination directory is the program dir, we must use use own documents directory for data
-  StrCmp $INSTDIR $PROGRAMFILES\simutrans AllSetPortable
-  StrCmp $INSTDIR $PROGRAMFILES64\simutrans AllSetPortable
-  StrCmp $INSTDIR $USERDIR AllSetPortable
+  StrCmp $INSTDIR $PROGRAMFILES\simutrans FinishSetPortable
+  StrCmp $INSTDIR $PROGRAMFILES64\simutrans FinishSetPortable
+  StrCmp $INSTDIR $USERDIR FinishSetPortable
   StrCpy $multiuserinstall "0"  ; check whether we already have a simuconf.tab, to get state from file
   IfFileExists "$INSTDIR\config\simuconf.tab" 0 PortableUnknown
   ; now we have a config. Without single_user install, it will be multiuser
   StrCpy $multiuserinstall "1"
   ${ConfigRead} "$INSTDIR\config\simuconf.tab" "singleuser_install" $R0
-  IfErrors YesPortable
+  IfErrors PortableUnknown
   ; skip a leading space
 PortableSpaceSkip:
   StrCpy $1 $R0 1
@@ -79,25 +79,31 @@ PortableSpaceSkip:
   ; skip the equal char
   StrCpy $R0 $R0 10 1
   IntOp $multiuserinstall $R0 ^ 1
-  Goto AllSetPortable
+  Goto FinishSetPortable
 
 PortableUnknown:
   ; ask whether this is a portable installation
+  ; check if there are paksets in the current folder
+  FindFirst $R0 $R1 "$INSTDIR\pak*"
+  IfErrors 0 YesPortable
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" /SD IDNO IDYES YesPortable
   StrCpy $multiuserinstall "1"
+  Goto FinishSetPortable
 YesPortable:
+Messagebox MB_OK "singleuser"
   StrCpy $PAKDIR $INSTDIR
-  Goto AllSetPortable
-NotPortable:
   StrCpy $multiuserinstall "0"
+  Goto FinishSetPortable
+NoPortable:
+Messagebox MB_OK "Multiuser"
   
-AllSetPortable:
+FinishSetPortable:
   ; now check, whether the path ends with "simutrans"
   StrCpy $0 $INSTDIR 9 -9
   StrCmp $0 simutrans +2
   StrCpy $installinsimutransfolder "0"
   ; here everything is ok
-;  MessageBox MB_OK "$INSTDIR $PAKDIR"
+  MessageBox MB_OK "$INSTDIR $PAKDIR"
 FunctionEnd
 
 !ifndef PAKSETINSTALL
@@ -110,7 +116,7 @@ Page custom MovePre MoveLeave "Moving paks to ProgramData"
 
 ; only show this page, if there are old paks to move ...
 Function MovePre
-  StrCmp $PAKDIR $INSTDIR0 0 +2
+  StrCmp $PAKDIR $INSTDIR 0 +2
   Abort
 
   StrCmp $multiuserinstall "1" +2

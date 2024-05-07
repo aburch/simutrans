@@ -27,7 +27,6 @@ var VersionString
 
 var multiuserinstall
 var installinsimutransfolder
-var installpaksetfolder
 
 XPStyle on
 
