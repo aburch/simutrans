@@ -2,7 +2,7 @@
 #define PAKSET_COUNT 20
 #define OBSOLETE_FROM (11)
 paksetinfo_t pakinfo[PAKSET_COUNT] = {
-	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-0/simupak64-124-0.zip", "pak", "pak64 123 r2126:2134", 15813 },
+	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-0/simupak64-124-0.zip", "pak", "pak64 124.0 r2146", 15813 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20124up%20%282.9%29/simupak128-2.9-for124.zip", "pak128", "pak128 2.9 for 124.0.0 git r538 hash 283a3e9", 414673 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192-comic.zip", "pak192.comic", "Pak192.Comic V0.7.1 Rev 1246", 892852 },
 	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-2_full.zip", "pak64.german", "pak64.german 0.124.0.0.2", 26348 },
