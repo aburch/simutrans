@@ -93,7 +93,7 @@ USE_FLUIDSYNTH_MIDI := @fluidsynth@
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS := -DREVISION="1234"
-FLAGS := @flags@ @endian@
+FLAGS := @endian@
 
 # Output directories:
 #
