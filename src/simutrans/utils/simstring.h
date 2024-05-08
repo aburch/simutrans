@@ -18,13 +18,17 @@
 #ifdef _MSC_VER
 #define STRICMP stricmp
 #define STRNICMP strnicmp
-#define STRCASESTR StrStrIA
-#include <shlwapi.h>
 #else
 #define STRICMP strcasecmp
 #define STRNICMP strncasecmp
-#define STRCASESTR strcasestr
 #endif
+#endif
+
+#ifdef _WIN32
+#define STRCASESTR StrStrIA
+#include <shlwapi.h>
+#else
+#define STRCASESTR strcasestr
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
