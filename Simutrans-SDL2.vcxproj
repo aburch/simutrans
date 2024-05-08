@@ -114,7 +114,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib;Shlwapi.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -167,7 +167,7 @@
       <MinimalRebuild Condition="'$(Configuration)|$(Platform)'=='Stable|Win32'">true</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;shell32.lib;winmm.lib;advapi32.lib;ws2_32.lib;imm32.lib;iphlpapi.lib;OleAut32.lib;GDI32.lib;version.lib;Ole32.lib;SetupAPI.lib;urlmon.lib;Shlwapi.lib</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LargeAddressAware Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LargeAddressAware>

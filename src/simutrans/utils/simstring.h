@@ -18,9 +18,12 @@
 #ifdef _MSC_VER
 #define STRICMP stricmp
 #define STRNICMP strnicmp
+#define STRCASESTR StrStrIA
+#include <shlwapi.h>
 #else
 #define STRICMP strcasecmp
 #define STRNICMP strncasecmp
+#define STRCASESTR strcasestr
 #endif
 #endif
 
