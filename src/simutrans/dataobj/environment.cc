@@ -285,7 +285,7 @@ void env_t::init()
 	max_acceleration=50;
 
 #ifdef MULTI_THREAD
-	num_threads = dr_get_max_threads();
+	num_threads = min(MAX_THREADS,dr_get_max_threads());
 #else
 	num_threads = 1;
 #endif
