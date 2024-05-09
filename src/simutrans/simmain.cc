@@ -589,11 +589,11 @@ int simu_main(int argc, char** argv)
 			}
 		}
 	}
-	
+
 	// create directory and subdirectories
 	dr_mkdir(env_t::install_dir);
 	dr_mkdir(env_t::user_dir);
-    
+
 	// set portable, if base dir and user dir were same
 	not_portable &= strcmp( env_t::user_dir, env_t::base_dir )!=0;
 
@@ -1097,7 +1097,7 @@ int simu_main(int argc, char** argv)
 	// set number of threads
 	if(  const char *ref_str = args.gimme_arg("-threads", 1)  ) {
 		uint8 want_threads = atoi(ref_str);
-		env_t::num_threads = clamp( want_threads, (uint8)1u, dr_get_max_threads() );
+		env_t::num_threads = clamp<uint8>( want_threads, (uint8)1u, min(dr_get_max_threads(), MAX_THREADS) );
 		env_t::num_threads = min( env_t::num_threads, MAX_THREADS );
 		dbg->message("simu_main()","Requested %d threads.", env_t::num_threads );
 	}
