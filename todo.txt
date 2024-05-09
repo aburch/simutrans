@@ -1,12 +1,13 @@
 To be done:
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
-- detail on vehicles (like factory_details)
 - city wayobj instead just sidewalks
 - building/tree heights in dats
 - fog view to the top?
 - instant text updates
 - bahnhofsdetaildialog (more text on the station buildings)
+- chat windows
+- parallel routing of start and stop is just a tile away from an own way.
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
