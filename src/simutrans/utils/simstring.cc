@@ -287,13 +287,13 @@ char *tstrncpy(char *dest, const char *src, size_t n)
 
 
 // simple strcasestr
-char *tstrcasestr(const char* str, const char* pattern)
+static const char *tstrcasestr(const char* str, const char* pattern)
 {
 	size_t i;
 	unsigned char c0 = *pattern, c1, c2;
 
 	if (c0 == '\0') {
-		return (char*)str;
+		return str;
 	}
 
 	c0 = toupper(c0);
@@ -302,7 +302,7 @@ char *tstrcasestr(const char* str, const char* pattern)
 			for (i = 1;; i++) {
 				c2 = pattern[i];
 				if (c2 != '\0') {
-					return (char*)str;
+					return str;
 				}
 				c1 = str[i];
 				if (toupper(c1) != toupper(c2)) {
@@ -313,7 +313,6 @@ char *tstrcasestr(const char* str, const char* pattern)
 	}
 	return NULL;
 }
-
 
 
 /**
@@ -427,11 +426,11 @@ std::string str_get_basename(const char* fullpath)
 /**
  * Removes ASCII control characters and the space character from the end of the string
  * See https://www.ascii-code.com/
- * 
+ *
  * @param string
  * @returns the string without control chars at the end
 */
-char* clear_invalid_ending_chars(char* string) 
+char* clear_invalid_ending_chars(char* string)
 {
 	static int MAX_ASCII_CHAR = 32;
 	size_t len = strlen(string);

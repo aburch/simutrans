@@ -28,7 +28,6 @@
 char* tstrcasestr(const char* str, const char* pattern);
 #define STRCASESTR tstrcasestr
 #else
-#error
 #define STRCASESTR strcasestr
 #endif
 
