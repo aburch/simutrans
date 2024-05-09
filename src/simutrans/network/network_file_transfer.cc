@@ -544,7 +544,7 @@ const char *network_http_get_file( const char* address, const char* name, const 
 
 			char new_ip[1024];
 			char new_path[1024];
-			if(char *c= STRCASESTR(line,"\nLocation: http://")) {
+			if(char *c= tstrcasestr(line,"\nLocation: http://")) {
 				tstrncpy(new_ip, c + 18, lengthof(new_ip));
 				if(char *c = strchr(new_ip, '/')) {
 					tstrncpy(new_path, c, lengthof(new_path));
@@ -554,7 +554,7 @@ const char *network_http_get_file( const char* address, const char* name, const 
 					return network_http_get_file(new_ip, new_path, filename);
 				}
 			}
-			if (STRCASESTR(line, "\nLocation: https://")) {
+			if (tstrcasestr(line, "\nLocation: https://")) {
 				return "Cannot handle https.";
 			}
 			return "Unknown redirect.";

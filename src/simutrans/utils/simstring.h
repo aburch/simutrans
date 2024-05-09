@@ -24,12 +24,6 @@
 #endif
 #endif
 
-#ifdef _WIN32
-char* tstrcasestr(const char* str, const char* pattern);
-#define STRCASESTR tstrcasestr
-#else
-#define STRCASESTR strcasestr
-#endif
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf(buf,len, format,...) _snprintf_s(buf, len,len, format, __VA_ARGS__)
@@ -94,6 +88,13 @@ void number_to_string_fit(char *ret, double f, int decimals, int max_length );
  * @return dest
  */
 char *tstrncpy(char *dest, const char *src, size_t n);
+
+
+/**
+ * caseless strstr
+ * @return first caseless match
+ */
+char* tstrcasestr(const char* str, const char* pattern);
 
 
 /**
