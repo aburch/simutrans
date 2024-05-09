@@ -285,6 +285,37 @@ char *tstrncpy(char *dest, const char *src, size_t n)
 }
 
 
+
+// simple strcasestr
+char *tstrcasestr(const char* str, const char* pattern)
+{
+	size_t i;
+	unsigned char c0 = *pattern, c1, c2;
+
+	if (c0 == '\0') {
+		return (char*)str;
+	}
+
+	c0 = toupper(c0);
+	for (; (c1 = *str) != '\0'; str++) {
+		if (toupper(c1) == c0) {
+			for (i = 1;; i++) {
+				c2 = pattern[i];
+				if (c2 != '\0') {
+					return (char*)str;
+				}
+				c1 = str[i];
+				if (toupper(c1) != toupper(c2)) {
+					break;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+
+
 /**
  * Removes whitespace from the end of the string.
  * Modifies the argument!
