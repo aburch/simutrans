@@ -166,6 +166,11 @@ uint8 dr_get_max_threads()
 // create a directory with all subdirectories needed
 int dr_mkdir(char const* const path)
 {
+	if (path == 0  ||  path[0]==0) {
+		// always succed on empty string (should never happen)
+		return 0;
+	}
+
 #ifdef _WIN32
 	const char* new_dir_with_path = path;
 
@@ -204,6 +209,7 @@ int dr_mkdir(char const* const path)
 
 	// remove trailing director separator
 	len = strnlen(tmp, sizeof(tmp));
+
 	if (tmp[len - 1] == *PATH_SEPARATOR) {
 		tmp[len - 1] = 0;
 	}
