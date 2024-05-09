@@ -286,7 +286,6 @@ char *tstrncpy(char *dest, const char *src, size_t n)
 
 
 
-#ifdef _WIN32
 // simple strcasestr
 char *tstrcasestr(const char* str, const char* pattern)
 {
@@ -314,7 +313,7 @@ char *tstrcasestr(const char* str, const char* pattern)
 	}
 	return NULL;
 }
-#endif
+
 
 
 /**
