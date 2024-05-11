@@ -286,32 +286,43 @@ char *tstrncpy(char *dest, const char *src, size_t n)
 
 
 
-// simple strcasestr
+/**
+ * strcasestr implementation. Search for a pattern in a given string, ignoring case.
+ * @param str: String to search in
+ * @param pattern: The pattern we are looking for.
+ * @returns: A char pointer to the start of the pattern we are looking for in the given string, or NULL if not found.
+ * Original code written by Clifford and shared at StackOverflow: https://stackoverflow.com/a/27304609
+*/
 char *tstrcasestr(const char* str, const char* pattern)
 {
-	size_t i;
-	unsigned char c0 = *pattern, c1, c2;
+    const char* p1 = str;
+    const char* p2 = pattern;
+    const char* r = *p2 == 0 ? str : 0;
 
-	if (c0 == '\0') {
-		return const_cast<char *>(str);
-	}
+    while( *p1 != 0 && *p2 != 0 ) {
+        if( tolower( (unsigned char)*p1 ) == tolower( (unsigned char)*p2 ) ) {
+            if( r == 0 ) {
+                r = p1;
+            }
+            p2++;
+        }
+        else {
+            p2 = pattern;
+            if( r != 0 ) {
+                p1 = r + 1;
+            }
+            if( tolower( (unsigned char)*p1 ) == tolower( (unsigned char)*p2 ) ) {
+                r = p1;
+                p2++;
+            }
+            else {
+                r = 0;
+            }
+        }
+        p1++;
+    }
 
-	c0 = toupper(c0);
-	for (; (c1 = *str) != '\0'; str++) {
-		if (toupper(c1) == c0) {
-			for (i = 1;; i++) {
-				c2 = pattern[i];
-				if (c2 != '\0') {
-					return const_cast<char *>(str);
-				}
-				c1 = str[i];
-				if (toupper(c1) != toupper(c2)) {
-					break;
-				}
-			}
-		}
-	}
-	return NULL;
+    return *p2 == 0 ? (char*)r : NULL;
 }
 
 
