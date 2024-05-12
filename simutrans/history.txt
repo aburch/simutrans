@@ -1,4 +1,8 @@
 	FIX: Cannot build ship depots on dead-end canal or river tiles
+	CHG: Freetype library is now a required dependency for non-server builds (previously it was optional)
+	FIX: Possible crash on systems with more than 12 logical cores
+	FIX: In-game pakset installer does not download paksets, caused by incorrect handling of HTTP response
+	FIX: Required data directories not created on first installation on Windows
 
 	
 Release of 124.0 (r11164 on 5-May-2024):
