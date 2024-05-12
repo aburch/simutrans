@@ -1,4 +1,4 @@
-name: Nightly build MacOS
+name: Nightly build MacOS Intel
 
 on: [push]
 
