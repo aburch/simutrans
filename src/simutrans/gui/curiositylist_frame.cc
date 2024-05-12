@@ -135,7 +135,7 @@ void curiositylist_frame_t::fill_list()
 		}
 	}
 	scrolly.sort(0);
-	scrolly.set_size( scrolly.get_size());
+	scrolly.set_size(scr_size(get_windowsize().w, scrolly.get_size().h));
 }
 
 

@@ -57,7 +57,7 @@ public:
 	convoihandle_t get_cnv() const { return cnv; }
 
 	using gui_aligned_container_t::get_min_size;
-	using gui_aligned_container_t::get_max_size;
+	scr_size get_max_size() const OVERRIDE { return scr_size(scr_size::inf.w, get_min_size().h); }
 };
 
 #endif

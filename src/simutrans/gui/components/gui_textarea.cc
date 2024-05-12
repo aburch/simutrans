@@ -48,32 +48,37 @@ void gui_textarea_t::recalc_size()
 
 scr_size gui_textarea_t::calc_size() const
 {
-	const char *text(*buf);
+	if (buf) {
+		const char *text(*buf);
 
-	// since we also want to dynamically change the size of the component
-	int new_lines=0;
-	scr_coord_val x_size = 0;
+		// since we also want to dynamically change the size of the component
+		int new_lines=0;
+		scr_coord_val x_size = 0;
 
-	if (  (text != NULL)  &&  (*text != '\0')  ) {
-		const char *buf=text;
-		const char *next;
+		if (  (text != NULL)  &&  (*text != '\0')  ) {
+			const char *buf=text;
+			const char *next;
 
-		do {
-			next = strchr(buf, '\n');
-			const size_t len = next ? next-buf : 99999;
-			const int px_len = display_calc_proportional_string_len_width(buf, len);
+			do {
+				next = strchr(buf, '\n');
+				const size_t len = next ? next-buf : 99999;
+				const int px_len = display_calc_proportional_string_len_width(buf, len);
 
-			if(  px_len > x_size  ) {
-				x_size = px_len;
-			}
+				if(  px_len > x_size  ) {
+					x_size = px_len;
+				}
 
-			new_lines += LINESPACE;
-		} while(  next != NULL  &&  ((void)(buf = next+1), *buf!=0)  );
+				new_lines += LINESPACE;
+			} while(  next != NULL  &&  ((void)(buf = next+1), *buf!=0)  );
+		}
+		if (x_size > 0) {
+			x_size += L_PADDING_RIGHT;
+		}
+		return scr_size( x_size, new_lines );
 	}
-	if (x_size > 0) {
-		x_size += L_PADDING_RIGHT;
+	else {
+		return scr_size(0, 0);
 	}
-	return scr_size( x_size, new_lines );
 }
 
 

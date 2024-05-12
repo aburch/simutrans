@@ -46,7 +46,7 @@ public:
 	 * Computes and returns preferred size.
 	 * Depends on current width.
 	 */
-	scr_size get_preferred_size();
+	scr_size get_preferred_size() const;
 
 	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };

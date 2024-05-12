@@ -42,7 +42,7 @@ public:
 	 * Computes and returns preferred size.
 	 * Depends on current width.
 	 */
-	scr_size get_preferred_size();
+	scr_size get_preferred_size() const;
 
 	scr_size get_text_size();
 
@@ -329,7 +329,7 @@ void gui_flowtext_intern_t::set_size(scr_size size_par)
  * get_preferred_size().w = max(width, maximal word length)
  * get_preferred_size().h = displayed height
  */
-scr_size gui_flowtext_intern_t::get_preferred_size()
+scr_size gui_flowtext_intern_t::get_preferred_size() const
 {
 	return preferred_size;
 	// cached result of output(scr_size(0, 0), false, true);
@@ -596,7 +596,7 @@ void gui_flowtext_t::set_size(scr_size size_par)
 }
 
 
-scr_size gui_flowtext_t::get_preferred_size()
+scr_size gui_flowtext_t::get_preferred_size() const
 {
 	return flowtext->get_preferred_size();
 }

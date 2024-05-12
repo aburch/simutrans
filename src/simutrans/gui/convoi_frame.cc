@@ -180,6 +180,7 @@ void convoi_frame_t::fill_list()
 		}
 	}
 	sort_list();
+	scrolly->set_size(scr_size(get_windowsize().w, scrolly->get_size().h));
 }
 
 

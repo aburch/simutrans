@@ -141,24 +141,36 @@ const char* gui_convoiinfo_t::get_text() const
 
 void gui_convoiinfo_t::update_label()
 {
+	bool size_change = false;
+
 	label_profit.buf().append(translator::translate("Gewinn"));
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
 	label_profit.update();
 
 	label_line.buf().clear();
 	if (cnv->in_depot()) {
-		label_line.set_visible( false );
+		if (label_line.is_visible()) {
+			label_line.buf();
+			label_line.set_visible(false);
+			size_change = true;
+		}
 		pos_next_halt.set_targetpos3d(cnv->get_home_depot());
 		label_next_halt.set_text("(in depot)");
 	}
 	else {
-		label_line.set_visible(true);
 		if( cnv->get_line().is_bound() ) {
+			if (!label_line.is_visible()) {
+				label_line.set_visible(true);
+				size_change = true;
+			}
 			label_line.buf().printf( "%s: %s", translator::translate( "Line" ), cnv->get_line()->get_name() );
 		}
 		else {
-			label_line.buf();
-			label_line.set_visible( false );
+			if (label_line.is_visible()) {
+				label_line.buf();
+				label_line.set_visible(false);
+				size_change = true;
+			}
 		}
 		label_line.update();
 
@@ -200,20 +212,25 @@ void gui_convoiinfo_t::update_label()
 				}
 			}
 			pos_next_halt.set_targetpos3d( end );
+			scr_size old_min = label_next_halt.get_max_size();
 			label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
+			if(old_min != label_next_halt.get_max_size()) {
+				size_change = true;
+			}
 		}
 		else {
 			route_bar.set_base(1);
 			cnv_route_index = 0;
 			next_reservation_index = 0;
-
 		}
 	}
 
 	label_name.set_text_pointer(cnv->get_name());
 	label_name.set_color(cnv->get_status_color());
 
-//	set_size(get_size());
+	if (size_change) {
+		set_size(scr_size(get_size().w, get_min_size().h));
+	}
 }
 
 /**

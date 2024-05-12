@@ -44,6 +44,18 @@ cbuffer_t::cbuffer_t (const cbuffer_t& cbx)
 }
 
 
+cbuffer_t::cbuffer_t(const char *txt)
+{
+	capacity = (txt ? strlen(txt)+1 : 256);
+	buf = new char[capacity];
+	size = 0;
+	if (txt) {
+		size = capacity-1;
+		strcpy(buf, txt);
+	}
+}
+
+
 cbuffer_t& cbuffer_t::operator= (const cbuffer_t& cbx)
 {
 	if (  this != &cbx  )

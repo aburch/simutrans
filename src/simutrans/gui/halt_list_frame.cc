@@ -310,6 +310,8 @@ void halt_list_frame_t::sort_list()
 		}
 	}
 	scrolly->sort();
+	scrolly->set_size(scr_size(get_windowsize().w, scrolly->get_size().h));
+
 }
 
 

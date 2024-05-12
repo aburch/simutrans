@@ -42,7 +42,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 scr_size gui_scrollpane_t::get_min_size() const
 {
 	scr_size csize = comp->get_min_scroll_size();
-	if( !csize ) {
+	if (csize.w > 0  ||  csize.h > 0) {
 		// the component does not have a minimum scroll size
 		// use min_size and limit it with max_width/height
 		csize = comp->get_min_size();
