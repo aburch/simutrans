@@ -108,7 +108,7 @@ SectionEnd
 
 Section /o "pak144.Excentrique" pak144.Excentrique
   AddSize 7621
-  StrCpy $downloadlink "https://github.com/Varkalandar/pak144.Excentrique/releases/download/Nightly/pak144.Excentrique_v008.zip"
+  StrCpy $downloadlink "https://github.com/Varkalandar/pak144.Excentrique/releases/download/r0.08/pak144.Excentrique_v008.zip"
   SetOutPath $PAKDIR
   StrCpy $archievename "pak144.Excentrique_v008.zip"
   StrCpy $downloadname "pak144.Excentrique"

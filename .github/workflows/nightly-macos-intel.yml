@@ -1,0 +1,36 @@
+name: Nightly build MacOS
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-13
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: install_dependencies
+      run: |
+        brew reinstall cmake pkg-config libpng freetype zstd sdl2 fluidsynth
+
+    - name: build
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . --target install
+
+    - name: distribute
+      run: |
+        cd build
+        zip -r simumac-nightly.zip simutrans
+
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/simumac-nightly.zip
+        asset_name: simumac-intel-nightly.zip
+        tag: Nightly
+        overwrite: true

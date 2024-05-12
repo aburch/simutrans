@@ -11,7 +11,7 @@ paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2096.zip", "pak128.CS", "Pak128.CS 0.3.0 r2096", 78628 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip", "pak128.Britain", "pak128.Britain 1.18 120.3 r1991", 241715 },
 	{ "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.2_for_ST_124.0/PAK128.german_2.2_for_ST_124.0.zip", "PAK128.german", "Pak128.german VS 2.2 (Rev. 500)", 561868 },
-	{ "https://github.com/Varkalandar/pak144.Excentrique/releases/download/Nightly/pak144.Excentrique_v008.zip", "pak144.Excentrique", "pak144.Excentrique v0.08", 7621 },
+	{ "https://github.com/Varkalandar/pak144.Excentrique/releases/download/r0.08/pak144.Excentrique_v008.zip", "pak144.Excentrique", "pak144.Excentrique v0.08", 7621 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pakTTD/simupakTTD-124-0.zip", "pakTTD", "pak64 120.4.1 r2146", 1995 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip", "pak96.comic", "pak96.comic V4.1 plus", 32526 },
 	{ "http://pak128.jpn.org/souko/pak128.japan.120.0.cab", "pak128.japan", "Pak128.Japan 120.0", 27780 },

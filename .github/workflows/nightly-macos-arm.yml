@@ -31,6 +31,6 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: build/simumac-nightly.zip
-        asset_name: simumac-nightly.zip
+        asset_name: simumac-arm-nightly.zip
         tag: Nightly
         overwrite: true
