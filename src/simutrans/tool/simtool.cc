@@ -5446,7 +5446,10 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 	if (wegtype==water_wt) {
 		bd = welt->lookup_kartenboden(pos.get_2d());
 		if(!bd->is_water()) {
-			return "Ship depots must be built on water!";
+			if (!bd->hat_weg(water_wt)) {
+				return "Ship depots must be built on water!";
+			}
+			bd = NULL;
 		}
 	}
 

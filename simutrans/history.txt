@@ -1,3 +1,6 @@
+	FIX: Cannot build ship depots on dead-end canal or river tiles
+
+	
 Release of 124.0 (r11164 on 5-May-2024):
 	ADD: map view can be changed with any general tool by dragging the pointer above a threshold
 	FIX: Cannot load PPM heightmaps
