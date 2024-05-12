@@ -151,6 +151,7 @@ int dr_stat(const char *path, struct stat *buf);
 
 /**
 * Check if the directory exists and if so set the result variable to it
+* If the directory doesn't exist previously, it will attempt to create it if testfile is not provided
 * @param path : Path to directory to check
 * @param info : String to provide extra log info
 * @param result : Variable to store the path to directory if it exists

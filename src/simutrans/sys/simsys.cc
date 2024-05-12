@@ -4,8 +4,9 @@
  */
 
 #include <ctype.h>
-#include <stdlib.h>
+#include <filesystem>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -399,7 +400,11 @@ bool check_and_set_dir( const char *path, const char *info, char *result, const 
 {
 	if(  path  &&  *path  ) {
 		bool ok = !dr_chdir(path);
-		if(testfile) {
+		// Attempt to create it (if we aren't testing for an existing directory containing a file).
+		if(!ok && !testfile) {
+			dr_mkdir(path);
+			ok = !dr_chdir(path);
+		} else if(testfile) {
 			FILE* testf = fopen(testfile,"r");
 			ok = ok && testf;
 			if(testf) {
