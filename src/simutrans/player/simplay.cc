@@ -268,6 +268,10 @@ void player_t::set_player_color(uint8 col1, uint8 col2)
 	player_color_1 = col1;
 	player_color_2 = col2;
 	display_set_player_color_scheme( player_nr, col1, col2 );
+	// update player window
+	if (ki_kontroll_t* frame = dynamic_cast<ki_kontroll_t*>(win_get_magic(magic_ki_kontroll_t))) {
+		frame->update_data();
+	}
 }
 
 
