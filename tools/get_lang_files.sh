@@ -12,7 +12,7 @@
 #
 
 OUTPUT_DIR=simutrans/text
-TRANSLATOR_URL=https://translator.simutrans.com/translator
+TRANSLATOR_URL=https://translator.simutrans.com
 
 # get the translations for basis
 # The first file is longer, but only because it contains SQL error messages
