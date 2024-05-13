@@ -48,8 +48,6 @@ private:
 
 	player_t *player;
 
-	void calc_chart_values();
-
 	gui_tab_panel_t year_month_tabs;
 
 	button_t headquarter;
