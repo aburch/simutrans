@@ -290,7 +290,6 @@ money_frame_t::money_frame_t(player_t *player) :
 	{
 		new_component<gui_label_t>("Show finances for transport type");
 
-		transport_type_c.set_selection(0);
 		transport_type_c.set_focusable( false );
 
 		for(int i=0, count=0; i<TT_MAX; ++i) {
