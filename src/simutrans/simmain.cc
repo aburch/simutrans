@@ -97,6 +97,9 @@
 #include "vehicle/vehicle.h"
 #include "vehicle/simroadtraffic.h"
 
+#ifdef STEAM_BUILT
+#include "../steam/steam.h"
+#endif
 
 using std::string;
 
@@ -671,6 +674,8 @@ int simu_main(int argc, char** argv)
 #ifdef __ANDROID__
 	// always save and reload on Android
 	env_t::reload_and_save_on_quit = true;
+#elif STEAM_BUILT
+	steam_t::get_instance()->install_workshop_items();
 #endif
 
 	// now set the desired objectfilename (override all previous settings)
@@ -1662,6 +1667,10 @@ int simu_main(int argc, char** argv)
 #if 0
 	// free all list memories (not working, since there seems to be unitialized list still waiting for automated destruction)
 	freelist_t::free_all_nodes();
+#endif
+
+#ifdef STEAM_BUILT
+	steam_t::get_instance()->shutdown();
 #endif
 
 	return EXIT_SUCCESS;

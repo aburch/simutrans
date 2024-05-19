@@ -451,3 +451,7 @@ char* clear_invalid_ending_chars(char* string)
 	}
 	return string;
 }
+
+void str_to_lowercase(std::string& s) {
+	std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+}

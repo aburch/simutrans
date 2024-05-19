@@ -382,6 +382,10 @@ private:
 	*/
 	uint32 next_midi_time;
 
+#ifdef STEAM_BUILT
+	uint32 next_steam_ui_time;
+#endif
+
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;
 	/** @} */

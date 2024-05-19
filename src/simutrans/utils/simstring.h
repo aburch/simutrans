@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <string>
+#include <algorithm>
 
 #ifdef __HAIKU__
 #include <strings.h>
@@ -137,5 +138,7 @@ std::string str_get_basename(const char* fullpath);
  * @returns string without control chars at the end
 */
 char* clear_invalid_ending_chars(char* string);
+
+void str_to_lowercase(std::string& s);
 
 #endif

@@ -20,7 +20,11 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimutransVcpkgTriplet.cmake)
 project(simutrans LANGUAGES C CXX)
 
 # Force C++14 everywhere
-set(CMAKE_CXX_STANDARD 14)
+if(SIMUTRANS_STEAM_BUILT)
+	set(CMAKE_CXX_STANDARD 17)
+else()
+	set(CMAKE_CXX_STANDARD 14)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -244,6 +248,13 @@ if ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 	endif (SIMUTRANS_USE_FLUIDSYNTH_MIDI)
 endif ((SIMUTRANS_BACKEND STREQUAL "sdl2") OR (SIMUTRANS_BACKEND STREQUAL "gdi"))
 
+if (SIMUTRANS_STEAM_BUILT AND NOT ANDROID)
+	target_sources(simutrans PRIVATE src/steam/steam.cc src/steam/workshop_item.cc src/steam/achievements.cc )
+	add_library(steam SHARED IMPORTED)
+	set_target_properties(steam PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/sdk/redistributable_bin/linux64/libsteam_api.so)
+	target_include_directories(simutrans PRIVATE ${CMAKE_SOURCE_DIR}/sdk/public/steam)
+	target_link_libraries(simutrans PUBLIC steam)
+endif ()
 
 #
 # compile options
