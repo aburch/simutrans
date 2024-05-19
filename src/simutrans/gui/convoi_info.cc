@@ -101,6 +101,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 
 	input.add_listener(this);
 	reset_cnv_name();
+	input.set_notify_all_changes_delay(500);
 	add_component(&input);
 
 	// top part: speedbars, view, buttons

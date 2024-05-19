@@ -323,6 +323,7 @@ void city_info_t::reset_city_name()
 		tstrncpy(old_name, city->get_name(), sizeof(old_name));
 		tstrncpy(name, city->get_name(), sizeof(name));
 		name_input.set_text(name, sizeof(name));
+		set_name(old_name);
 	}
 }
 
@@ -367,8 +368,6 @@ void gui_city_minimap_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const spar
 void city_info_t::update_labels()
 {
 	stadt_t* const c = city;
-
-	set_name(city->get_name());
 
 	// display city stats
 	lb_size.buf().printf( "%d (%.1f)", c->get_einwohner(), c->get_wachstum() / 10.0);         lb_size.update();

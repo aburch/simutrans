@@ -270,6 +270,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if(  comp == &input  ) {
 		rename_factory();
+		return false;
 	}
 	else if (comp == &highlight_consumers)
 	{
@@ -301,7 +302,6 @@ void fabrik_info_t::update_info()
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name(fab->get_name());
 	input.set_text( fabname, lengthof(fabname) );
-
 	update_components();
 }
 
