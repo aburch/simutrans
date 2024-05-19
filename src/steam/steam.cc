@@ -17,8 +17,8 @@
 #include "isteamutils.h"
 #include "steam_api.h"
 
-int MAX_WORKSHOP_ITEMS = 1000;	// API fetch limit
-int MAX_TAG_LENGTH = 100;
+#define MAX_WORKSHOP_ITEMS 1000	// API fetch limit
+#define MAX_TAG_LENGTH 100
 
 steam_t* steam_t::steam = nullptr;
 
@@ -55,7 +55,7 @@ void steam_t::install_workshop_items() {
 
 	int num_subscribed_items = SteamUGC()->GetNumSubscribedItems();
 
-	PublishedFileId_t subscribed_items[num_subscribed_items];
+	PublishedFileId_t subscribed_items[MAX_WORKSHOP_ITEMS];
 	SteamUGC()->GetSubscribedItems(subscribed_items, num_subscribed_items);
 
 	existing_items = steam_t::uninstall_old_items(previously_installed_items, subscribed_items, num_subscribed_items);
@@ -84,7 +84,7 @@ void steam_t::on_get_items_details(SteamUGCQueryCompleted_t* callback, bool fail
 	std::vector<workshop_item_t> installed_items;
 	if (!failure && callback->m_eResult == 1) {
 		int num_results = callback->m_unNumResultsReturned;
-		int num_tags_vector[num_results];
+		int num_tags_vector[MAX_WORKSHOP_ITEMS];
 
 		for (int result_index = 0; result_index < num_results; result_index++) {
 			num_tags_vector[result_index] = SteamUGC()->GetQueryUGCNumTags(callback->m_handle, result_index);

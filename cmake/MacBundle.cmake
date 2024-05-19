@@ -28,6 +28,10 @@ set_target_properties(simutrans PROPERTIES
 # Change the install directory from /usr/local to the build directory, so it's easier to package.
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 
+if (SIMUTRANS_STEAM_BUILT)
+	install(FILES ${CMAKE_SOURCE_DIR}/sdk/redistributable_bin/osx/libsteam_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/simutrans/simutrans.app/Contents/MacOS)
+endif ()
+
 install(CODE "
 	include(BundleUtilities)
 	fixup_bundle(\"${CMAKE_BINARY_DIR}/simutrans/simutrans.app\" \"\" \"\") 
