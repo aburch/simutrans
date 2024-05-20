@@ -15,9 +15,10 @@ grund_info_t::grund_info_t(const grund_t* _gr) :
 	gr(_gr),
 	lview(_gr->get_pos(), scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8)))
 {
-	textarea.set_width(textarea.get_size().w + get_base_tile_raster_width() - 64);
 	fill_buffer();
 	set_embedded(&lview);
+	textarea.set_width(textarea.get_size().w + get_base_tile_raster_width() - 64);
+	recalc_size();
 }
 
 
@@ -26,9 +27,6 @@ void grund_info_t::fill_buffer()
 	const cbuffer_t old_buf(buf);
 	buf.clear();
 	gr->info(buf);
-	if (strcmp(buf, old_buf)) {
-		recalc_size();
-	}
 }
 
 
@@ -39,6 +37,7 @@ void grund_info_t::fill_buffer()
  */
 void grund_info_t::draw(scr_coord pos, scr_size size)
 {
+	scr_size old_t_size = textarea.get_size();
 	fill_buffer();
 
 	// update for owner and name change
@@ -51,6 +50,11 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 	gui_frame_t::set_name(translator::translate(gr->get_name()));
 
 	gui_frame_t::draw(pos, size);
+
+	set_embedded(&lview);
+	if (old_t_size != textarea.get_size()) {
+		recalc_size();
+	}
 }
 
 

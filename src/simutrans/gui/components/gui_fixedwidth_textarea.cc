@@ -113,6 +113,16 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 			new_width = x_size;
 		}
 	}
+	else if (!*text  &&  draw) {
+		// no text and we really draw it => shrink to nothing
+		if (reserved_area.w > 0) {
+			new_width = reserved_area.w;
+			y = reserved_area.h;
+		}
+		else {
+			new_width = 0;
+		}
+	}
 
 	// pass 2: height caluclation and drawing (if requested)
 
