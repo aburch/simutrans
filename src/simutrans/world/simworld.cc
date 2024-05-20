@@ -2003,10 +2003,7 @@ karte_t::karte_t() :
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_midi_time = next_step_time = 0;
-#ifdef STEAM_BUILT
-	next_steam_ui_time = 0;
-#endif
+	next_midi_time = next_step_time = next_misc_time = 0;
 	fix_ratio_frame_time = 200;
 	idle_time = 0;
 	network_frame_count = 0;
@@ -6132,12 +6129,12 @@ bool karte_t::interactive(uint32 quit_month)
 		uint32 time = dr_time();
 
 
+		if(  (sint32)next_misc_time - (sint32)time <=0  ) {
 #ifdef STEAM_BUILT
-		if(  (sint32)next_steam_ui_time - (sint32)time <=0  ) {
 			steam_t::get_instance()->update_ui(get_last_year(), convoys().get_count());
-			next_steam_ui_time = time + 5000; // update ui every 5s
-		}
 #endif
+			next_misc_time = time + 5000; // every 5s
+		}
 
 		// check midi if next songs needs to be started
 		if(  (sint32)next_midi_time - (sint32)time <= 0  ) {

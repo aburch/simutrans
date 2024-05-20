@@ -18,7 +18,8 @@ public:
 	workshop_item_t(PublishedFileId_t id, std::string title);
 
 	/**
-	 * Sets the category tag. It will fail and return false if it is not "pakset", "scenario", "map", or "addon"
+	 * Sets the category tag. It must be "pakset", "scenario", "map", or "addon"
+	 * @returns false if it was unable to set category
 	 */
 	bool set_category_tag(std::string tag);
 	bool add_pakset_tag(std::string tag);

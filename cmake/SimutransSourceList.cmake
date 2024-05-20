@@ -277,6 +277,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/script/script.cc
 		src/simutrans/script/script_loader.cc
 		src/simutrans/script/script_tool_manager.cc
+		src/simutrans/simachievements.cc
 		src/simutrans/simconvoi.cc
 		src/simutrans/simdebug.cc
 		src/simutrans/simevent.cc

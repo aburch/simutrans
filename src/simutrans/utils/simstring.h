@@ -92,9 +92,12 @@ char *tstrncpy(char *dest, const char *src, size_t n);
 
 
 /**
- * caseless strstr
- * @return first caseless match
- */
+ * strcasestr implementation. Search for a pattern in a given string, ignoring case.
+ * @param str: String to search in
+ * @param pattern: The pattern we are looking for.
+ * @returns: A char pointer to the start of the pattern we are looking for in the given string, or NULL if not found.
+ * Original code written by Clifford and shared at StackOverflow: https://stackoverflow.com/a/27304609
+*/
 char* tstrcasestr(const char* str, const char* pattern);
 
 

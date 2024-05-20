@@ -27,6 +27,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
+#include "../simachievements.h"
 
 #include "../ground/grund.h"
 
@@ -591,6 +592,7 @@ void gebaeude_t::show_info()
 			}
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			first_tile->obj_t::show_info();
+			simachievements_t::check_query_ach(tile->get_desc()->get_name());
 		}
 	}
 }

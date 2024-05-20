@@ -22,7 +22,7 @@ private:
 
 	static steam_t* steam;
 
-	steam_achievements_t* g_SteamAchievements = NULL;
+	steam_achievements_t* steam_achievements = NULL;
 
 	bool is_api_initialized = false;
 	bool is_installing = false;
@@ -42,7 +42,6 @@ private:
 
 	std::vector<workshop_item_t> uninstall_old_items(std::vector<workshop_item_t> installed_items, PublishedFileId_t subscribed_items[],
 													 int num_subscribed_items);
-	void update_achievements();
 
 public:
 	static steam_t* get_instance();
@@ -50,6 +49,8 @@ public:
 	void install_workshop_items();
 
 	void update_ui(uint32 year, uint32 total_convoys);
+
+	steam_achievements_t* get_achievements() { return steam_achievements; }
 
 	void shutdown();
 

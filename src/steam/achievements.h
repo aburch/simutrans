@@ -1,9 +1,6 @@
 #include "isteamuserstats.h"
 #include "steam_api.h"
-
-enum EAchievements {
-	PLAY_PAK192_COMIC = 0,
-};
+#include <vector>
 
 struct achievement_t {
 	int m_eAchievementID;
@@ -14,21 +11,19 @@ struct achievement_t {
 	int m_iIconImage;
 };
 
-#define _ACH_ID(id, name) \
-	{ id, #id, name, "", 0, 0 }
-
 class steam_achievements_t {
 private:
 	uint64 app_id;
 	achievement_t *achievements;
-	int num_achievements;
 	bool stats_initialized;
+	std::vector<int> achievements_queue;
 
 public:
 	steam_achievements_t();
 
 	bool request_stats();
-	bool set_achievement(const char *ID);
+	// Note: not declaring type as "simachievements_enum" instead of "int" to avoid circular dependency issues
+	bool set_achievement(int ach_enum);
 	achievement_t *get_achievements() { return achievements; };
 
 	STEAM_CALLBACK(steam_achievements_t, on_user_stats_received, UserStatsReceived_t, m_CallbackUserStatsReceived);

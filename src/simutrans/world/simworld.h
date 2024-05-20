@@ -382,9 +382,11 @@ private:
 	*/
 	uint32 next_midi_time;
 
-#ifdef STEAM_BUILT
-	uint32 next_steam_ui_time;
-#endif
+	/**
+	 * Miscellaneus stuff that do not need to be updated frequently
+	 * Currently used for rich presence and achievements
+	*/
+	uint32 next_misc_time;
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;

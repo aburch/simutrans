@@ -292,6 +292,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\script\script.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\script\script_loader.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\script\script_tool_manager.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simachievements.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simconvoi.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simdebug.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simevent.cc" />

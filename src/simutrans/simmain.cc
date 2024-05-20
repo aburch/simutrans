@@ -44,6 +44,7 @@
 #include "tool/simmenu.h"
 #include "siminteraction.h"
 #include "simtypes.h"
+#include "simachievements.h"
 
 #include "sys/simsys.h"
 #include "display/simgraph.h"
@@ -1591,6 +1592,9 @@ int simu_main(int argc, char** argv)
 		create_win({ 0,0 }, new news_img("No soundfont found!\n\nMusic won't play until you load a soundfont from the sound options menu."), w_info, magic_none );
 	}
 #endif
+
+	simachievements_t::check_pakset_ach();
+
 	while(  !env_t::quit_simutrans  ) {
 		// play next tune?
 		check_midi();

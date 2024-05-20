@@ -569,6 +569,7 @@ SOURCES += src/simutrans/script/export_objs.cc
 SOURCES += src/simutrans/script/script.cc
 SOURCES += src/simutrans/script/script_loader.cc
 SOURCES += src/simutrans/script/script_tool_manager.cc
+SOURCES += src/simutrans/simachievements.cc
 SOURCES += src/simutrans/simconvoi.cc
 SOURCES += src/simutrans/simdebug.cc
 SOURCES += src/simutrans/simevent.cc

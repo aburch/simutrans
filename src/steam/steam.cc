@@ -10,9 +10,7 @@
 #include <fstream>
 
 #include "../simutrans/dataobj/environment.h"
-#include "../simutrans/io/rdwr/raw_file_rdwr_stream.h"
 #include "../simutrans/simdebug.h"
-#include "../simutrans/utils/simstring.h"
 #include "isteamugc.h"
 #include "isteamutils.h"
 #include "steam_api.h"
@@ -26,7 +24,7 @@ steam_t::steam_t() {
 	if (!(is_api_initialized = SteamAPI_Init())) {
 		dbg->warning("steam_t::steam_t()", "Steam API Initialization FAILED, Steam functionality won't be available!");
 	} else {
-		g_SteamAchievements = new steam_achievements_t();
+		steam_achievements = new steam_achievements_t();
 	}
 }
 
@@ -232,21 +230,11 @@ void steam_t::update_ui(uint32 year, uint32 total_convoys) {
 	SteamFriends()->SetRichPresence("year", std::to_string(year).c_str());
 	SteamFriends()->SetRichPresence("convoys", std::to_string(total_convoys).c_str());
 	SteamFriends()->SetRichPresence("steam_display", "#Playing");
-	update_achievements();
 	SteamAPI_RunCallbacks();
-}
-
-void steam_t::update_achievements() {
-	std::string pakset = env_t::pak_name;
-	pakset.pop_back();	// Remove path separator
-	achievement_t* achievements = g_SteamAchievements->get_achievements();
-	if (tstrcasestr(pakset.c_str(), "pak192.comic") && !achievements[PLAY_PAK192_COMIC].m_bAchieved) {
-		g_SteamAchievements->set_achievement(achievements[PLAY_PAK192_COMIC].m_pchAchievementID);
-	}
 }
 
 void steam_t::shutdown() {
 	SteamAPI_Shutdown();
-	if (g_SteamAchievements)
-		delete g_SteamAchievements;
+	if (steam_achievements)
+		delete steam_achievements;
 }
