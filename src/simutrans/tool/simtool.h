@@ -918,6 +918,7 @@ public:
 			env_t::hide_buildings==0 ? "hide city building" :
 			(env_t::hide_buildings==1) ? "hide all building" : "show all building");
 	}
+	bool is_selected() const OVERRIDE { return env_t::hide_buildings>0; }
 	bool init( player_t * ) OVERRIDE {
 		env_t::hide_buildings ++;
 		if(env_t::hide_buildings>env_t::ALL_HIDDEN_BUILDING) {
@@ -926,6 +927,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit(player_t* s) OVERRIDE { return init(s); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
@@ -987,7 +989,7 @@ class tool_quit_t : public tool_t {
 	// default_parameter not empty: start new game
 public:
 	tool_quit_t() : tool_t(TOOL_QUIT | SIMPLE_TOOL) { flags = WFL_LOCAL | WFL_NO_CHK; }
-	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Beenden"); }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( (default_param && *default_param) ? "Neue Welt" : "Beenden"); }
 	bool init( player_t * ) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return false; }
 	bool is_work_keeps_game_state() const OVERRIDE { return false; }
