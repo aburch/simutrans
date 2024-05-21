@@ -460,13 +460,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		// entry added or removed
 		init_line_selector();
 		reset_min_windowsize();
+		old_schedule_count = scd.get_schedule()->get_count();
 	}
 	else if(  old_line_count != cnv->get_owner()->simlinemgmt.get_line_count()  ) {
 		// line added or removed
 		init_line_selector();
 		reset_min_windowsize();
 	}
-	old_schedule_count = scd.get_schedule()->get_count();
 
 	line_button.enable( dynamic_cast<line_scrollitem_t*>(line_selector.get_selected_item()) );
 	line_button2.enable( line.is_bound() );
