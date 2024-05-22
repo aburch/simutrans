@@ -40,12 +40,7 @@ scr_size gui_scrolled_list_t::const_text_scrollitem_t::get_min_size() const
 
 scr_size gui_scrolled_list_t::const_text_scrollitem_t::get_max_size() const
 {
-//	if (!is_editable()) {
-//		return get_min_size();
-//	}
-//	else {
-		return scr_size(scr_size::inf.w, LINESPACE);
-//	}
+	return scr_size(scr_size::inf.w, LINESPACE);
 }
 
 // draws a single line of text
@@ -69,9 +64,6 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	item_list(container.get_components())
 {
 	container.set_table_layout(1,0);
-	container.set_margin( scr_size( D_H_SPACE, D_V_SPACE ), scr_size( D_H_SPACE, D_V_SPACE ) );
-	container.set_spacing( scr_size( D_H_SPACE, 0 ) );
-
 	set_component(&container);
 
 	this->type = type;
@@ -80,6 +72,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type, item_compare_func cmp) 
 	pos = scr_coord(0,0);
 	multiple_selection = false;
 	maximize = false;
+	sliders_dirty = true;
 }
 
 
@@ -162,34 +155,29 @@ void gui_scrolled_list_t::sort( int offset )
 }
 
 
-void gui_scrolled_list_t::set_size(scr_size size)
+void gui_scrolled_list_t::set_size(scr_size new_size)
 {
-	cleanup_elements();
+	// smaller margins
+	container.set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
+	container.set_spacing(scr_size(D_H_SPACE, 0));
 
-	container.set_size(size);
-	gui_scrollpane_t::set_size(size);
+	cleanup_elements(false);
 
-	// set all elements in list to same width
-	scr_coord_val width = 0;
-	for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ++iter) {
-		width = max( (*iter)->get_size().w, width);
-	}
-
-	for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ++iter) {
-		(*iter)->set_size( scr_size(width, (*iter)->get_size().h));
-	}
+	scr_size csize = container.get_size()+new_size-size; // shrink similar to scrollpane, so slider stay the same
+	container.gui_component_t::set_size(csize);
+	gui_component_t::set_size(new_size);
+	recalc_sliders(size);
+	sliders_dirty = true;	// we can only recalculate the need for sliders after draw since element size may be incorrect before
 }
 
 
 void gui_scrolled_list_t::reset_container_size()
 {
-	// reset element positioning
-	container.set_margin( scr_size( D_H_SPACE, 0 ), scr_size( D_H_SPACE, 0 ) );
-	container.set_spacing( scr_size( D_H_SPACE, 0 ) );
-
+	container.set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
+	container.set_spacing(scr_size(D_H_SPACE, 0));
 	scr_size csize = container.get_min_size();
-
 	container.set_size( csize );
+	sliders_dirty = true;
 }
 
 
@@ -261,14 +249,14 @@ void gui_scrolled_list_t::calc_selection(scrollitem_t* old_focus, scrollitem_t* 
 }
 
 
-void gui_scrolled_list_t::cleanup_elements()
+void gui_scrolled_list_t::cleanup_elements(bool resize)
 {
 	bool reset = false;
 	for(  vector_tpl<gui_component_t*>::iterator iter = item_list.begin();  iter != item_list.end();  ) {
 		if (scrollitem_t* const item = dynamic_cast<scrollitem_t*>( *iter ) ) {
 			if(  !item->is_valid()  ) {
 				container.remove_component(item);
-				reset = true;
+				reset = resize;
 			}
 			else {
 				++iter;
@@ -310,10 +298,43 @@ void gui_scrolled_list_t::draw(scr_coord offset)
 		}
 	}
 
-	scr_size old_size = container.get_min_size();
 	gui_scrollpane_t::draw(offset);
-	scr_size new_size = container.get_min_size();
-	if (old_size.h != new_size.h) {
-		set_size(get_size());
+
+	// find actual height and reset positions in case of size changes (as the final size is only know after redraws)
+	scr_coord_val w = 0;
+	scr_coord_val h = 0;
+	for (vector_tpl<gui_component_t*>::iterator iter = item_list.begin(); iter != item_list.end(); ++iter) {
+		if ((*iter)->is_visible()) {
+			(*iter)->set_pos(scr_coord(D_H_SPACE, h));
+			h += (*iter)->get_size().h;
+			w = max(w, (*iter)->get_min_size().w);
+		}
+	}
+	scr_size new_size(w + D_H_SPACE * 2, h);
+	bool has_vscroll = new_size.h > size.h || (new_size.w > size.w && h + new_size.h > size.h);
+	scr_coord_val client_width = size.w - 2 * D_H_SPACE - has_vscroll * D_SCROLLBAR_WIDTH;
+	if (w < client_width) {
+		w = client_width;
+		new_size.w = client_width + 2 * D_H_SPACE;
+	}
+	for (vector_tpl<gui_component_t*>::iterator iter = item_list.begin(); iter != item_list.end(); ++iter) {
+		if ((*iter)->is_visible()) {
+			scr_size c_size = (*iter)->get_size();
+			if (c_size.h == 0) {
+				(*iter)->set_size(scr_size(w, (*iter)->get_min_size().h));
+			} else if (sliders_dirty  ||  c_size.w < w  ) {
+				(*iter)->set_size(scr_size(w, c_size.h));
+			}
+		}
+	}
+	// now reset the positions in case of height changes
+	if (container.get_size() != new_size) {
+		container.gui_component_t::set_size(new_size);
+	}
+	if(sliders_dirty) {
+		// reset sliders
+		recalc_sliders_visible(size);
+		recalc_sliders(size);
+		sliders_dirty = false;	// to avoid flicker
 	}
 }

@@ -56,8 +56,6 @@ public:
 	char const* get_text() const OVERRIDE { return fab->get_name(); }
 	bool infowin_event(const event_t *) OVERRIDE;
 	bool is_valid() const OVERRIDE;
-	void set_size(scr_size size) OVERRIDE;
-	bool is_marginless() const OVERRIDE { return true; }
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };

@@ -25,8 +25,7 @@ factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 {
 	this->fab = fab;
 	// pos button
-	set_table_layout(7,1);
-	new_component<gui_margin_t>();
+	set_table_layout(0,1);
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
 	b->set_targetpos3d(fab->get_pos());
@@ -38,26 +37,17 @@ factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 		boost_electric.set_image(skinverwaltung_t::electricity->get_image_id(0), true);
 		add_component(&boost_electric);
 	}
-	else {
-		new_component<gui_empty_t>();
-	}
 	if (fab->get_desc()->get_pax_boost() ) {
 		boost_passenger.set_image(skinverwaltung_t::passengers->get_image_id(0), true);
 		add_component(&boost_passenger);
-	}
-	else {
-		new_component<gui_empty_t>();
 	}
 	if (fab->get_desc()->get_mail_boost() ) {
 		boost_mail.set_image(skinverwaltung_t::mail->get_image_id(0), true);
 		add_component(&boost_mail);
 	}
-	else {
-		new_component<gui_empty_t>();
-	}
 	// factory name
-	add_component(&label);
 	update_label();
+	add_component(&label);
 }
 
 
@@ -86,13 +76,6 @@ void factorylist_stats_t::update_label()
 	buf.append(fab->get_current_production(),0);
 	buf.append(") ");
 	label.update();
-}
-
-
-void factorylist_stats_t::set_size(scr_size size)
-{
-	gui_aligned_container_t::set_size(size);
-	label.set_size(scr_size(get_size().w - label.get_pos().x, label.get_size().h));
 }
 
 
@@ -129,11 +112,11 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 void factorylist_stats_t::draw(scr_coord pos)
 {
 	update_label();
+
 	// boost stuff
 	boost_electric.set_transparent(fab->get_prodfactor_electric()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | SYSCOL_IMAGE_TRANSPARENCY);
 	boost_passenger.set_transparent(fab->get_prodfactor_pax()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | SYSCOL_IMAGE_TRANSPARENCY);
 	boost_mail.set_transparent(fab->get_prodfactor_mail()>0 ? 0 : TRANSPARENT50_FLAG | OUTLINE_FLAG | SYSCOL_IMAGE_TRANSPARENCY);
-
 	indicator.set_color( color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]) );
 
 	gui_aligned_container_t::draw(pos);

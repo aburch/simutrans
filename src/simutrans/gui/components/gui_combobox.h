@@ -91,11 +91,7 @@ public:
 	/**
 	 * add element to droplist
 	 */
-	template<class C, class... As>
-	void new_component(const As &... as)
-	{
-		droplist.new_component<C>(as...);
-	}
+	template<class C, class... As> void new_component(const As &... as) { droplist.new_component<C>(as...); }
 
 	/**
 	 * remove all elements from droplist

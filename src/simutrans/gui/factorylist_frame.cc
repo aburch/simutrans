@@ -33,7 +33,6 @@ factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
 	scrolly(gui_scrolled_list_t::windowskin, factorylist_stats_t::compare)
 {
-	old_factories_count = 0;
 	scrolly.set_checkered(true);
 
 	set_table_layout(3,4);
@@ -77,10 +76,10 @@ factorylist_frame_t::factorylist_frame_t() :
 	add_component(&sorteddir);
 
 	add_component(&scrolly,3);
+	scrolly.set_maximize(true);
 	fill_list();
 
 	set_resizemode(diagonal_resize);
-	scrolly.set_maximize(true);
 	reset_min_windowsize();
 }
 

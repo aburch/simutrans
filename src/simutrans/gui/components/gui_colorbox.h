@@ -15,6 +15,7 @@
  */
 class gui_colorbox_t : public gui_component_t
 {
+protected:
 	PIXVAL color;
 
 	scr_size max_size;

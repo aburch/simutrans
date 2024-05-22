@@ -38,3 +38,4 @@ revision.h
 *.exe
 *.kdev4
 vcpkg_installed/
+UpgradeLog.htm

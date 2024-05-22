@@ -99,6 +99,9 @@ private:
 	enum type type;
 
 	bool maximize; // true if to expand to bottom right corner
+	bool sliders_dirty; // true if sliders need attention during next redraw
+
+	scr_coord_val c_old_width;
 
 	item_compare_func compare;
 
@@ -112,7 +115,7 @@ protected:
 	void reset_container_size();
 
 	/// deletes invalid elements from list
-	void cleanup_elements();
+	void cleanup_elements(bool resize=true);
 
 public:
 	virtual void set_skin_type(enum type t) { this->type = t; }

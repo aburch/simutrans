@@ -45,6 +45,7 @@ protected:
 	scr_coord_val max_width;
 	scr_coord_val max_height;
 
+	void recalc_sliders_visible(scr_size size);
 	void recalc_sliders(scr_size size);
 
 public:

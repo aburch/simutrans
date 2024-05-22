@@ -98,17 +98,25 @@ void gui_scrollpane_t::recalc_sliders(scr_size size)
 }
 
 
+// just hide or show then sliders
+void gui_scrollpane_t::recalc_sliders_visible(scr_size size)
+{
+	scr_coord k = comp->get_size() + comp->get_pos();
+	scroll_x.set_visible((k.x > size.w) && b_show_scroll_x);
+	scroll_y.set_visible((k.y > size.h) && b_show_scroll_y);
+}
+
+
+
 /**
  * Scrollpanes _must_ be used in this method to set the size
  */
 void gui_scrollpane_t::set_size(scr_size size)
 {
 	gui_component_t::set_size(size);
-	// automatically increase/decrease slider area
-	scr_coord k = comp->get_size()+comp->get_pos();
-	scroll_x.set_visible( (k.x > size.w)  &&  b_show_scroll_x  );
-	scroll_y.set_visible(  (k.y > size.h)  &&  b_show_scroll_y  );
+	recalc_sliders_visible(size);
 
+	// automatically increase/decrease slider area
 	scr_size c_size = size - comp->get_pos();
 	// resize scrolled component
 	if (scroll_x.is_visible()) {
@@ -308,7 +316,7 @@ void gui_scrollpane_t::draw(scr_coord pos)
 	scr_rect client = get_client() + pos;
 
 	PUSH_CLIP_FIT( client.x, client.y, client.w, client.h )
-		comp->draw( client.get_pos()-scr_coord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
+	comp->draw( client.get_pos()-scr_coord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
 	POP_CLIP()
 
 	// sliding bar background color is now handled by the scrollbar!

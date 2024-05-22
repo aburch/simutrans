@@ -29,7 +29,9 @@ private:
 
 	gui_aligned_container_t* child;  ///< new components will be appended to child
 
-	vector_tpl<gui_component_t*> owned_components; ///< we take ownership of these pointers
+	/// we take ownership of these pointers, i.e. delete them on close (for all new_component ptrs)
+	vector_tpl<gui_component_t*> owned_components;
+
 	/**
 	 * Computes min/max size of table cells.
 	 * Puts min/max height of rows into @p row_h, width into @p col_w.
@@ -82,7 +84,7 @@ public:
 	gui_aligned_container_t* add_table(uint16 columns_=0, uint16 rows_=0);
 
 	/**
-	 * Virturally closes the current table.
+	 * Virtually closes the current table.
 	 * New components will be added to its parent table.
 	 */
 	void end_table();
