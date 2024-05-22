@@ -13,7 +13,6 @@
 #include "components/gui_button.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_tab_panel.h"
-#include "components/gui_textinput.h"
 
 #include "components/action_listener.h"
 
@@ -25,11 +24,9 @@
 class message_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	char ibuf[256];
 	gui_scrolled_list_t scrolly;
 	gui_tab_panel_t tabs;     // tab panel for filtering messages
-	gui_textinput_t input;
-	button_t opaque_bt, option_bt, copy_bt;
+	button_t option_bt, copy_bt, open_chat_bt;
 	vector_tpl<sint32> tab_categories;
 
 	uint32 last_count; // of messages in list

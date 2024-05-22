@@ -44,6 +44,7 @@ class interaction_t;
 class tool_t;
 class scenario_t;
 class message_t;
+class chat_message_t;
 class way_desc_t;
 class network_world_command_t;
 class goods_desc_t;
@@ -52,7 +53,6 @@ class viewport_t;
 class records_t;
 class loadingscreen_t;
 class terraformer_t;
-
 
 /**
  * Threaded function caller.
@@ -437,6 +437,7 @@ private:
 	 * Holds all the text messages in the messagebox (chat, new vehicle etc).
 	 */
 	message_t *msg;
+	chat_message_t* chat_msg;
 
 	/**
 	 * Array indexed per way type. Used to determine the speedbonus.
@@ -565,6 +566,11 @@ public:
 	 * Returns the messagebox message container.
 	 */
 	message_t *get_message() { return msg; }
+
+	/**
+	 * Returns the messagebox message container.
+	 */
+	chat_message_t* get_chat_message() const { return chat_msg; }
 
 	/**
 	 * Set to something useful, if there is a total distance != 0 to show in the bar below.

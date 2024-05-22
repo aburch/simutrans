@@ -20,7 +20,9 @@
 #include "tpl/slist_tpl.h"
 #include "gui/messagebox.h"
 #include <string.h>
-
+#include <time.h>
+#include "simsound.h"
+#include "descriptor/sound_desc.h"
 
 #define MAX_SAVED_MESSAGES (2000)
 
@@ -276,43 +278,43 @@ void message_t::rotate90( sint16 size_w )
 }
 
 
-void message_t::rdwr( loadsave_t *file )
+void message_t::rdwr(loadsave_t* file)
 {
 	uint16 msg_count;
-	if(  file->is_saving()  ) {
+	if (file->is_saving()) {
 		msg_count = 0;
-		if( env_t::server ) {
+		if (env_t::server) {
 			// do not save local messages and expired messages
 			uint32 current_time = world()->get_current_month();
-			for(message_node_t* const i : list) {
-				if( i->type & do_not_rdwr_flag  ||  (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+			for (message_node_t* const i : list) {
+				if (i->type & do_not_rdwr_flag || (i->type & expire_after_one_month_flag && current_time - i->time > 1)) {
 					continue;
 				}
 				if (++msg_count == MAX_SAVED_MESSAGES) break;
 			}
-			file->rdwr_short( msg_count );
-			for(message_node_t* const i : list) {
+			file->rdwr_short(msg_count);
+			for (message_node_t* const i : list) {
 				if (msg_count == 0) break;
-				if(  i->type & do_not_rdwr_flag  || (i->type & expire_after_one_month_flag  &&  current_time - i->time > 1)  ) {
+				if (i->type & do_not_rdwr_flag || (i->type & expire_after_one_month_flag && current_time - i->time > 1)) {
 					continue;
 				}
 				i->rdwr(file);
-				msg_count --;
+				msg_count--;
 			}
 		}
 		else {
 			// do not save discardable messages (like changing player)
-			for(message_node_t* const i : list) {
+			for (message_node_t* const i : list) {
 				if (!(i->type & do_not_rdwr_flag)) {
 					if (++msg_count == MAX_SAVED_MESSAGES) break;
 				}
 			}
-			file->rdwr_short( msg_count );
-			for(message_node_t* const i : list) {
+			file->rdwr_short(msg_count);
+			for (message_node_t* const i : list) {
 				if (msg_count == 0) break;
-				if(  !(i->type & do_not_rdwr_flag)  ) {
+				if (!(i->type & do_not_rdwr_flag)) {
 					i->rdwr(file);
-					msg_count --;
+					msg_count--;
 				}
 			}
 		}
@@ -321,8 +323,188 @@ void message_t::rdwr( loadsave_t *file )
 		// loading
 		clear();
 		file->rdwr_short(msg_count);
-		while(  (msg_count--)>0  ) {
-			message_node_t *n = new message_node_t();
+		if (file->is_version_less(124, 1)) {
+			welt->get_chat_message()->clear();
+		}
+		while ((msg_count--) > 0) {
+			message_node_t* n = new message_node_t();
+			n->rdwr(file);
+			if (file->is_version_less(124, 1)) {
+				if (n->get_type_shifted() == (1 << message_t::chat)) {
+					char name[256];
+					char msg_no_name[256];
+					bool name_end = false;
+					int msg_start = 0;
+					sint8 player_nr = 0;
+
+					if (char* c = strchr(n->msg, ']')) {
+						*c = 0;
+						strcpy(name, n->msg+1);
+						strcpy(msg_no_name, c+1);
+					}
+					else {
+						strcpy(name, "Unknown");
+						tstrncpy(msg_no_name, n->msg,256);
+					}
+					if (n->color & PLAYER_FLAG) {
+						player_t* player = welt->get_player(n->color & (~PLAYER_FLAG));
+						if (player) {
+							player_nr = player->get_player_nr();
+						}
+					}
+					welt->get_chat_message()->convert_old_message(msg_no_name, name, player_nr, n->time, n->pos.get_2d());
+					continue; // remove the chat message
+				}
+			}
+			list.append(n);
+		}
+	}
+}
+
+
+chat_message_t::~chat_message_t()
+{
+	clear();
+}
+
+
+void chat_message_t::clear()
+{
+	while (!list.empty()) {
+		delete list.remove_first();
+	}
+}
+
+void chat_message_t::convert_old_message(const char* text, const char* name, sint8 player_nr, sint32 time, koord pos)
+{
+	chat_node* const n = new chat_node();
+	tstrncpy(n->msg, text, lengthof(n->msg));
+
+	n->flags = chat_message_t::none;
+	n->pos = pos;
+	n->player_nr = player_nr;
+	n->channel_nr = -1;
+	n->sender = name;
+	n->destination = 0;
+	n->time = time;
+	n->local_time = 0;
+	list.append(n);
+}
+
+void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sender_nr, plainstring sender_, plainstring recipient, koord pos, uint8 flags)
+{
+	cbuffer_t buf;  // Output which will be printed to ticker
+	player_t* player = world()->get_player(sender_nr);
+	// send this message to a ticker if public channel message
+	if (channel == -1) {
+		if (sender_nr >= 0 && sender_nr != PLAYER_UNOWNED) {
+			if (player) {
+				if (player != world()->get_active_player()) {
+					buf.printf("%s: %s", sender_.c_str(), text);
+					ticker::add_msg(buf, koord3d::invalid, SYSCOL_TEXT);
+					env_t::chat_unread_public++;
+					sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
+				}
+			}
+		}
+	}
+	else if (recipient && strcmp(recipient, env_t::nickname.c_str()) == 0  &&  sender_nr != world()->get_active_player_nr()) {
+		buf.printf("%s>> %s", sender_.c_str(), text);
+		ticker::add_msg(buf, koord3d::invalid, color_idx_to_rgb(COL_RED));
+		env_t::chat_unread_whisper++;
+		sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
+	}
+	else if (channel == world()->get_active_player_nr()  &&  sender_nr != world()->get_active_player_nr()) {
+		PIXVAL text_color = player ? color_idx_to_rgb(player->get_player_color1() + env_t::gui_player_color_dark) : SYSCOL_TEXT;
+		buf.printf("%s: %s", sender_.c_str(), text);
+		ticker::add_msg(buf, koord3d::invalid, text_color);
+		env_t::chat_unread_company++;
+		sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
+	}
+
+	if (!(flags & do_not_log_flag)) {
+		// we do not allow messages larger than 256 bytes
+		chat_node* const n = new chat_node();
+		tstrncpy(n->msg, text, lengthof(n->msg));
+		n->flags = flags;
+		n->pos = pos;
+
+		n->player_nr = sender_nr;
+		n->channel_nr = channel;
+		n->sender = sender_;
+		n->destination = recipient;
+
+		n->time = world()->get_current_month();
+		time_t ltime;
+		time(&ltime);
+		n->local_time = ltime;
+
+		list.append(n);
+	}
+}
+
+void chat_message_t::rename_client(plainstring old_name, plainstring new_name)
+{
+	for (chat_node* i : list) {
+		if (i->sender && strcmp(i->sender, old_name) == 0) {
+			i->sender = new_name;
+		}
+		if (i->destination && strcmp(i->destination, old_name) == 0) {
+			i->destination = new_name;
+		}
+	}
+}
+
+void chat_message_t::chat_node::rdwr(loadsave_t* file)
+{
+	file->rdwr_str(msg, lengthof(msg));
+	file->rdwr_byte(flags);
+	file->rdwr_byte(player_nr);
+	file->rdwr_byte(channel_nr);
+	file->rdwr_str(sender);
+	file->rdwr_str(destination);
+	file->rdwr_long(time);
+	sint64 tmp = local_time;
+	file->rdwr_longlong(tmp);
+	local_time = tmp;
+	pos.rdwr(file);
+}
+
+void chat_message_t::rotate90(sint16 size_w)
+{
+	for (chat_node* const i : list) {
+		i->pos.rotate90(size_w);
+	}
+}
+
+void chat_message_t::rdwr(loadsave_t* file)
+{
+	uint16 msg_count;
+	if (file->is_saving()) {
+		msg_count = 0;
+		// do not save discardable messages
+		for (chat_node* const i : list) {
+			if (!(i->flags & do_not_rdwr_flag)) {
+				if (++msg_count == MAX_SAVED_MESSAGES) break;
+			}
+		}
+		file->rdwr_short(msg_count);
+		for (chat_node* const i : list) {
+			if (msg_count == 0) break;
+			if (i->flags & do_not_rdwr_flag) {
+				continue;
+			}
+			i->rdwr(file);
+			msg_count--;
+		}
+	}
+	else {
+		// loading
+		clear();
+
+		file->rdwr_short(msg_count);
+		while ((msg_count--) > 0) {
+			chat_node* n = new chat_node();
 			n->rdwr(file);
 			list.append(n);
 		}

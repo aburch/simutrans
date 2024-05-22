@@ -98,6 +98,10 @@ public:
 
 	/// enable/disable server announcement
 	static uint32 server_announce;
+	static uint8 chat_unread_public;
+	static uint8 chat_unread_company;
+	static uint8 chat_unread_whisper;
+
 
 	/// number of seconds between announcements
 	static sint32 server_announce_interval;

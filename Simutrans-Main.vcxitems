@@ -102,6 +102,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\citylist_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\citylist_stats.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\climates.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\chat_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_aligned_container.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_building.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_button.cc" />
@@ -473,6 +474,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\citylist_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\citylist_stats.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\climates.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\chat_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\action_listener.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_action_creator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\components\gui_aligned_container.h" />

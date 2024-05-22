@@ -13,6 +13,7 @@
 #include "dataobj/koord.h"
 #include "dataobj/koord3d.h"
 #include "tpl/slist_tpl.h"
+#include "utils/plainstring.h"
 
 class karte_t;
 class karte_ptr_t;
@@ -94,6 +95,57 @@ public:
 	 * syntax: either @x,y or (x,y)
 	 */
 	static koord3d get_coord_from_text(const char* text);
+};
+
+
+class chat_message_t
+{
+public:
+	class chat_node {
+	public:
+		char msg[256];
+		uint8 flags;
+		sint8 player_nr;
+		sint8 channel_nr=-1;     // player(company) number, -1 = public chat
+		plainstring sender;      // NULL = system message
+		plainstring destination; // for whisper
+		koord pos;
+		sint32 time; // game date
+		time_t local_time;
+
+		void rdwr(loadsave_t* file);
+	};
+
+	enum {
+		none = 0,
+		do_not_log_flag  = 1<<1, // send system message via tool, but not logged chat window, send only ticker
+		do_not_rdwr_flag = 1<<2  // send system message via tool, logged but not saved
+		// TODO: We can consider flags such as messages pinned to the top by an admin, messages that remain for a certain amount of time, etc.
+	};
+
+	void add_chat_message(const char* text, sint8 channel=-1, sint8 sender_player_nr=1 /*PUBLIC_PLAYER_NR*/, plainstring sender=NULL, plainstring recipient=NULL, koord pos = koord::invalid, uint8 flags=chat_message_t::none);
+
+	chat_message_t() {};
+	~chat_message_t();
+
+private:
+	slist_tpl<chat_node*> list;
+
+public:
+	const slist_tpl<chat_node*>& get_list() const { return list; }
+
+	// for converting old log
+	void convert_old_message(const char* text, const char* name, sint8 player_nr, sint32 time, koord pos);
+
+	// call from nwc_nick_t
+	void rename_client(plainstring old_name, plainstring new_name);
+
+	void clear();
+
+	void rotate90(sint16 size_w);
+
+	void rdwr(loadsave_t* file);
+
 };
 
 #endif

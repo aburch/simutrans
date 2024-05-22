@@ -24,10 +24,10 @@
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
 #define SIM_SAVE_MINOR      0
-#define SIM_SERVER_MINOR    0
+#define SIM_SERVER_MINOR    1
 // NOTE: increment before next release to enable save/load of new features
 
-#define MAKEOBJ_VERSION "60.6"
+#define MAKEOBJ_VERSION "60.7"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x

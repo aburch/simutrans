@@ -2043,6 +2043,7 @@ karte_t::karte_t() :
 	map_counter = 0;
 
 	msg = new message_t();
+	chat_msg = new chat_message_t();
 
 	records = new records_t(this->msg);
 
@@ -3306,7 +3307,7 @@ void karte_t::step()
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
-		buf.printf("%d,", message_t::general | message_t::do_not_rdwr_flag);
+		buf.printf("%d,", chat_message_t::do_not_rdwr_flag | chat_message_t::do_not_log_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 		tmp_tool->set_default_param( buf );
@@ -3700,8 +3701,13 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 	}
 
-	// save all open windows (upon request)
+	if (file->is_version_atleast(124, 1)) {
+		chat_msg->rdwr(file);
+	}
+
 	file->rdwr_byte( active_player_nr );
+
+	// save all open windows (upon request)
 	rdwr_all_win(file);
 
 	file->set_buffered(false);
@@ -4234,6 +4240,13 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			win->set_text( msg );
 			create_win(win, w_info, magic_motd);
 		}
+	}
+
+	if (file->is_version_atleast(124, 1)) {
+		chat_msg->rdwr(file);
+	}
+	else {
+		// maybe move messages into chat_messages?
 	}
 
 	if(  file->is_version_atleast(102, 4)  ) {

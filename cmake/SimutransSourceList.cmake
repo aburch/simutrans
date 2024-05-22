@@ -117,6 +117,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/components/gui_timeinput.cc
 		src/simutrans/gui/components/gui_waytype_tab_panel.cc
 		src/simutrans/gui/components/gui_world_view.cc
+		src/simutrans/gui/chat_frame.cc
 		src/simutrans/gui/convoi_detail.cc
 		src/simutrans/gui/convoi_filter_frame.cc
 		src/simutrans/gui/convoi_frame.cc

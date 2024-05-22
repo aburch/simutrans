@@ -80,16 +80,18 @@ private:
  */
 class nwc_chat_t : public network_command_t {
 public:
-	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, const char* cn = NULL, const char* dn = NULL)
-	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), clientname(cn), destination(dn) {}
+	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, sint8 ch= -1, const char* cn = NULL, const char* dn = NULL, koord pos_=koord::invalid)
+	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), channel_nr(ch), clientname(cn), destination(dn), pos(pos_) {}
 
-	bool execute (karte_t *) OVERRIDE;
+	bool execute (karte_t * welt) OVERRIDE;
 	void rdwr () OVERRIDE;
 
-	void add_message (karte_t*) const;
+	void add_message(karte_t*) const;
 
 	plainstring message;            // Message text
 	sint8 player_nr;                // Company number message was sent as
+	sint8 channel_nr;               // Company channnel (-1 for public)
+	koord pos;
 	plainstring clientname;         // Name of client message is from
 	plainstring destination;        // Client to send message to (NULL for all)
 

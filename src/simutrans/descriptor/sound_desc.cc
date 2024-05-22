@@ -55,6 +55,7 @@ sint16 sound_desc_t::climate_sounds[MAX_CLIMATES]=
 	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND
 };
 
+sint16 sound_desc_t::message_sound;
 
 /* init sounds */
 /* standard sounds and old sounds are found in the file <pakset>/sound/sound.tab */
@@ -85,6 +86,7 @@ DBG_MESSAGE("sound_desc_t::init()","reading sound %s", fn  );
 			compatible_sound_id[i] = get_sound_id( fn );
 DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
 		}
+		message_sound = get_sound_id("message.wav");
 	}
 
 	// now assign special sounds for climates, beaches and forest

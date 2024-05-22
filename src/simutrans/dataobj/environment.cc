@@ -73,6 +73,10 @@ std::string env_t::server_pakurl;
 std::string env_t::server_infurl;
 std::string env_t::server_admin_pw;
 std::string env_t::server_motd_filename;
+uint8 env_t::chat_unread_public = 0;
+uint8 env_t::chat_unread_company = 0;
+uint8 env_t::chat_unread_whisper = 0;
+
 vector_tpl<std::string> env_t::listen;
 bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;

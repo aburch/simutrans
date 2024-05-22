@@ -53,6 +53,9 @@ public:
 	static sint16 forest_sound;
 	static sint16 climate_sounds[MAX_CLIMATES];
 
+	// sound for message notification
+	static sint16 message_sound;
+
 	static sint16 get_sound_id(const char *name);
 
 	static bool register_desc(sound_desc_t *desc);
