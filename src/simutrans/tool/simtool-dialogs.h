@@ -638,7 +638,7 @@ public:
 class dialog_chat_t : public tool_t {
 public:
 	dialog_chat_t() : tool_t(DIALOG_CHAT | DIALOGE_TOOL) {}
-	image_id get_icon(player_t*) const { return env_t::networkmode || !world()->get_chat_message()->get_list().empty() ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t*) const { return env_t::networkmode || !welt->get_chat_message()->get_list().empty() ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Chat"); }
 	bool is_selected() const OVERRIDE { return win_get_magic(magic_chatframe); }
 	bool init(player_t*) OVERRIDE {
