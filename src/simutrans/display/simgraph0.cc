@@ -236,6 +236,10 @@ void display_vline_wh_clip_rgb(scr_coord_val, scr_coord_val, scr_coord_val, PIXV
 {
 }
 
+void display_filled_roundbox_clip(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool)
+{
+}
+
 void display_array_wh(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL *)
 {
 }

@@ -3402,6 +3402,16 @@ void display_fillbox_wh_clip_rgb(scr_coord_val xp, scr_coord_val yp, scr_coord_v
 }
 
 
+void display_filled_roundbox_clip(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty)
+{
+	display_fillbox_wh_clip_rgb(xp+2,   yp, w-4, h, color, dirty);
+	display_fillbox_wh_clip_rgb(xp,     yp+2, 1, h-4, color, dirty);
+	display_fillbox_wh_clip_rgb(xp+1,   yp+1, 1, h-2, color, dirty);
+	display_fillbox_wh_clip_rgb(xp+w-1, yp+2, 1, h-4, color, dirty);
+	display_fillbox_wh_clip_rgb(xp+w-2, yp+1, 1, h-2, color, dirty);
+}
+
+
 /**
  * Draw vertical line
  */

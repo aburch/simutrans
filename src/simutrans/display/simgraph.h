@@ -245,6 +245,8 @@ void display_fillbox_wh_rgb(scr_coord_val xp, scr_coord_val yp, scr_coord_val w,
 
 void display_fillbox_wh_clip_rgb(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
+void display_filled_roundbox_clip(scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, PIXVAL color, bool dirty);
+
 void display_vline_wh_clip_rgb(scr_coord_val xp, scr_coord_val yp, scr_coord_val h, PIXVAL c, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 void display_flush_buffer();
