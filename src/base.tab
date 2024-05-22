@@ -4353,7 +4353,58 @@ obj=program_text
 name=Lock Control key
 note=Tool button tooltip
 --
-
+obj=program_text
+name=1 year ago
+note=chat window
+--
+obj=program_text
+name=%u years ago
+note=chat window
+--
+obj=program_text
+name=%u days ago
+note=chat window
+--
+obj=program_text
+name=%u hours ago
+note=chat window
+--
+obj=program_text
+name=1 minute ago
+note=chat window
+--
+obj=program_text
+name=%u minutes ago
+note=chat window
+--
+obj=program_text
+name=just now
+note=chat window
+--
+obj=tooltip_text
+name=Attach current coordinate to the comment
+note=chat window
+--
+obj=program_text
+name=%u Client(s)\n
+note=chat window
+--
+obj=program_text
+name=direct_chat_to:
+note=chat window
+--
+obj=program_text
+name=To: %s
+note=chat window
+--
+obj=program_text
+name=public_chat
+note=tab in chat window
+--
+obj=program_text
+name=company_chat
+note=tab in chat window
+--
 
 
 

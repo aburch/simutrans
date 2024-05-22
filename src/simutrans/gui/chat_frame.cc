@@ -151,7 +151,7 @@ private:
 		else if (diff > 60) {
 			uint8 minutes = (uint8)(diff / 60);
 			if (minutes == 1) {
-				lb_time_diff.buf().append(translator::translate(" 1 minute ago"));
+				lb_time_diff.buf().append(translator::translate("1 minute ago"));
 			}
 			else {
 				lb_time_diff.buf().printf(translator::translate("%u minutes ago"), minutes);
