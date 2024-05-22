@@ -366,11 +366,11 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &convoi_t::is_waiting, "is_waiting");
 	/**
-	 * @returns true if convoy is currently waiting (for way clearance)
+	 * @returns true if convoy is currently being followed
 	 */
 	register_method(vm, convoy_is_followed, "is_followed", true);
 	/**
-	 * @returns true if convoy is currently waiting (for way clearance)
+	 * @returns true if convoy is currently loading or unloading at a stop
 	 */
 	register_method(vm, convoy_is_loading, "is_loading", true);
 	/**
