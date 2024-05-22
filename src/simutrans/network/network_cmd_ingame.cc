@@ -352,7 +352,7 @@ bool nwc_chat_t::execute (karte_t* welt)
 		// Otherwise forward message as appropriate
 		socket_info_t &info = socket_list_t::get_client( client_id );
 
-		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, channel_nr, info.nickname.c_str(), destination );
+		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, channel_nr, info.nickname.c_str(), destination, pos );
 
 		if (  destination == NULL  ) {
 			// Do not send messages to ourself (server)
