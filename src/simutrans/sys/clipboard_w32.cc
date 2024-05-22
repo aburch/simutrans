@@ -28,13 +28,14 @@ void dr_copy(const char *source, size_t length)
 			// Allocate clipboard space.
 			int const len = (int)length;
 			int const wsize = MultiByteToWideChar(CP_UTF8, 0, source, len, NULL, 0) + 1;
-			LPWSTR const wstr = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, wsize * sizeof(WCHAR));
-
-			if(  wstr != NULL  ) {
+			HANDLE hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wsize * sizeof(WCHAR));
+			LPWSTR const wstr = (LPWSTR)GlobalLock(hglbCopy);
+			if (wstr != NULL) {
 				// Convert string. NUL appended implicitly by 0ed memory.
 				MultiByteToWideChar(CP_UTF8, 0, source, len, wstr, wsize);
-				SetClipboardData(CF_UNICODETEXT, wstr);
 			}
+			GlobalUnlock(hglbCopy);
+			SetClipboardData(CF_UNICODETEXT, hglbCopy);
 		}
 		CloseClipboard();
 	}
