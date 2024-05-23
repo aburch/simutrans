@@ -664,6 +664,19 @@ void convoi_info_t::change_schedule()
 }
 
 
+void convoi_info_t::update_schedule()
+{
+	cnv->check_pending_updates();
+	scd.init(cnv->get_schedule(), cnv->get_owner(), cnv, cnv->get_line(),true);
+	change_schedule();
+	if (switch_mode.get_aktives_tab() == &container_schedule) {
+		cnv->set_state(convoi_t::EDIT_SCHEDULE);
+		scd.highlight_schedule(true);
+	}
+}
+
+
+
 bool convoi_info_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {

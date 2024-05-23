@@ -81,7 +81,7 @@ protected:
 public:
 	gui_schedule_t();
 
-	void init(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t(), linehandle_t lin = linehandle_t() );
+	void init(schedule_t* schedule = NULL, player_t* player = NULL, convoihandle_t cnv = convoihandle_t(), linehandle_t lin = linehandle_t(), bool force=false );
 
 	virtual ~gui_schedule_t();
 

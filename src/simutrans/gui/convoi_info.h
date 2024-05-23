@@ -150,6 +150,8 @@ public:
 	void route_search_finished() { route_search_in_progress = false; }
 
 	void change_schedule();
+
+	void update_schedule();
 };
 
 #endif

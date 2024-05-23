@@ -3387,12 +3387,25 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, sch
 }
 
 
+void convoi_t::set_update_line(linehandle_t l)
+{
+	line_update_pending = l;
+	if (state == EDIT_SCHEDULE) {
+		// save, since it is in a step only mode
+		check_pending_updates();
+	}
+}
+
+
+
+
 // matches two halts; if the pos is not identical, maybe the halt still is the same
 bool convoi_t::matches_halt( const koord3d pos1, const koord3d pos2 )
 {
 	halthandle_t halt1 = haltestelle_t::get_halt(pos1, owner );
 	return pos1==pos2  ||  (halt1.is_bound()  &&  halt1==haltestelle_t::get_halt( pos2, owner ));
 }
+
 
 
 // updates a line schedule and tries to find the best next station to go
@@ -3500,6 +3513,12 @@ void convoi_t::check_pending_updates()
 			// next was depot. restore it
 			schedule->insert(welt->lookup(depot));
 			schedule->set_current_stop( (schedule->get_current_stop()+schedule->get_count()-1)%schedule->get_count() );
+		}
+
+		if (state == EDIT_SCHEDULE) {
+			if (convoi_info_t* info = dynamic_cast<convoi_info_t*>(win_get_magic(magic_convoi_info + self.get_id()))) {
+				info->update_schedule();
+			}
 		}
 
 		if (state != INITIAL) {

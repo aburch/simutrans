@@ -469,9 +469,9 @@ gui_schedule_t::~gui_schedule_t()
 	delete schedule;
 }
 
-void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, linehandle_t lin)
+void gui_schedule_t::init(schedule_t* schedule_, player_t* player, convoihandle_t cnv, linehandle_t lin, bool force)
 {
-	if( old_schedule != schedule_ ) {
+	if( force  ||  old_schedule != schedule_ ) {
 		if( old_schedule ) {
 			stats->highlight_schedule( false );
 			update_tool( false );

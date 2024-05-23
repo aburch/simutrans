@@ -319,11 +319,6 @@ private:
 	*/
 	void init_financial_history();
 
-	/**
-	* unset line -> remove cnv from line
-	*/
-	void unset_line();
-
 	// matches two halts; if the pos is not identical, maybe the halt still is
 	bool matches_halt( const koord3d pos1, const koord3d pos2 );
 
@@ -369,6 +364,13 @@ public:
 	* set line
 	*/
 	void set_line(linehandle_t );
+
+	/**
+	* unset line -> remove cnv from line
+	*/
+	void unset_line();
+
+	void set_update_line(linehandle_t l);
 
 	// updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();
@@ -712,8 +714,6 @@ public:
 	 * Method for yearly action
 	 */
 	void new_year();
-
-	void set_update_line(linehandle_t l) { line_update_pending = l; }
 
 	void set_home_depot(koord3d hd) { home_depot = hd; }
 
