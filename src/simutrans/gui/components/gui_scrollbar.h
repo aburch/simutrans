@@ -86,6 +86,9 @@ public:
 		// return clamped offset if really desired
 		return knob_offset - (knob_scroll_discrete  &&  total_size!=knob_offset+knob_size  ?  (knob_offset % knob_scroll_amount) : 0);
 	}
+
+	bool is_bottom() const { return total_size <= knob_offset + knob_size; }
+
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
 	void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }

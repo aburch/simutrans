@@ -341,23 +341,27 @@ chat_frame_t::chat_frame_t() :
 	tabs.add_listener(this);
 	add_component(&tabs);
 
-	add_table(3, 2);
+	add_table(0, 1);
 	{
-		bt_send_pos.init(button_t::posbutton | button_t::state, NULL);
-		bt_send_pos.set_tooltip("Attach current coordinate to the comment");
-		bt_send_pos.add_listener(this);
-		add_component(&bt_send_pos);
-
 		lb_channel.set_rigid(false);
 		add_component(&lb_channel);
 
 		inp_destination.set_text(ibuf_name, lengthof(ibuf_name));
 		inp_destination.add_listener(this);
 		add_component(&inp_destination);
+	}
+	end_table();
+
+	add_table(2, 1);
+	{
+		bt_send_pos.init(button_t::posbutton | button_t::state, NULL);
+		bt_send_pos.set_tooltip("Attach current coordinate to the comment");
+		bt_send_pos.add_listener(this);
+		add_component(&bt_send_pos);
 
 		input.set_text(ibuf, lengthof(ibuf));
 		input.add_listener(this);
-		add_component(&input,3);
+		add_component(&input);
 	}
 	end_table();
 
@@ -458,22 +462,26 @@ void chat_frame_t::fill_list()
 	}
 
 	inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
+	lb_channel.set_visible(tabs.get_active_tab_index() == CH_PUBLIC);
 
 	switch (chat_mode) {
 	default:
 	case CH_PUBLIC:
 		// system message and public chats
-		lb_channel.set_visible(false);
 		env_t::chat_unread_public = 0;
+		cb_direct_chat_targets.set_visible(false);
 		break;
 	case CH_COMPANY:
 		lb_channel.buf().append(current_player->get_name());
 		lb_channel.set_color(color_idx_to_rgb(current_player->get_player_color1() + env_t::gui_player_color_dark));
-		lb_channel.set_visible(true);
 		lb_channel.update();
+		cb_direct_chat_targets.set_visible(false);
 		env_t::chat_unread_company = 0;
 		break;
 	case CH_WHISPER:
+		lb_channel.buf().append("direct_chat_to:");
+		lb_channel.set_color(SYSCOL_TEXT);
+		lb_channel.update();
 		if (cb_direct_chat_targets.count_elements() != chat_history.get_count()) {
 			cb_direct_chat_targets.clear_elements();
 			for (uint32 i = 0; i < chat_history.get_count(); i++) {
@@ -486,6 +494,8 @@ void chat_frame_t::fill_list()
 	}
 
 	cont_chat_log[chat_mode].set_maximize(true);
+	set_windowsize(get_windowsize());
+	cont_chat_log[chat_mode].show_bottom();
 }
 
 
@@ -539,10 +549,6 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 		fill_list();
 		inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
 		if (tabs.get_active_tab_index() == CH_WHISPER) {
-			lb_channel.buf().append("direct_chat_to:");
-			lb_channel.set_color(SYSCOL_TEXT);
-			lb_channel.set_visible(true);
-			lb_channel.update();
 		}
 	}
 	return true;
