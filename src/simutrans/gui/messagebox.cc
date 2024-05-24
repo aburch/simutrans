@@ -76,6 +76,7 @@ void news_img::init(image_id id)
 		image.set_image(id, true);
 		image.enable_offset_removal(true);
 		image.set_size(image.get_min_size());
+		textarea.set_size(scr_size(textarea.get_size().w + image.get_size().w + D_H_SPACE + 1,0));
 		set_embedded(&image);
 	}
 }
