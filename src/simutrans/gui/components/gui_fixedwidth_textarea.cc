@@ -87,44 +87,51 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 	const utf8 *word_start = p;
 	const utf8 *line_end  = p;
 
-	// pass 1 (and not drawing): find out if we can shrink width
-	if(*text  &&  !draw  &&   reserved_area.w > 0   ) {
-		scr_coord_val new_lines = 0;
-		scr_coord_val x_size = 0;
-
-		if ((text != NULL) && (*text != '\0')) {
-			const char* buf = text;
-			const char* next;
-
-			do {
-				next = strchr(buf, '\n');
-				const size_t len = next ? next - buf : 99999;
-				// we are in the image area
-				const int px_len = display_calc_proportional_string_len_width(buf, len) + reserved_area.w;
-
-				if (px_len > x_size) {
-					x_size = px_len;
-				}
-
-				new_lines += LINESPACE;
-			} while (new_lines<reserved_area.h  &&  next != NULL && ((void)(buf = next + 1), *buf != 0));
-		}
-		if (x_size < new_width) {
-			new_width = x_size;
-		}
-	}
-	else if (!*text  &&  draw) {
-		// no text and we really draw it => shrink to nothing
-		if (reserved_area.w > 0) {
-			new_width = reserved_area.w;
-			y = reserved_area.h;
+	if (!text || !*text) {
+		if (!draw) {
+			// never had text => too early to guess minimum size
+			return scr_size(max(new_width, reserved_area.w), reserved_area.h);
 		}
 		else {
-			new_width = 0;
+			// still nothing => then empty ...
+			return scr_size(max(1, reserved_area.w), reserved_area.h);
 		}
 	}
 
-	// pass 2: height caluclation and drawing (if requested)
+	// pass 1 (and not drawing): find out if we can shrink width
+	if(!draw) {
+		scr_coord_val new_height = 0;
+		scr_coord_val x_size = 0;
+
+		// find the width needed for word next to the reserved text area
+		const char* next = text-1;
+		do {
+			const char* buf = next+1;
+			next = strchr(buf, '\n');
+
+			const size_t len = next ? next - buf : 999;
+			// we are in the image area
+			scr_coord_val px_len = display_calc_proportional_string_len_width(buf, len);
+			if (new_height <= reserved_area.h) {
+				px_len += reserved_area.w;
+			}
+			if (px_len > x_size) {
+				x_size = px_len;
+			}
+
+			new_height += LINESPACE;
+
+		} while (next  &&  next[1]); // ignore trailing \n
+
+		if (x_size < new_width) {
+			// shrink if smaller and return new width
+			new_width = x_size;
+			return scr_size(new_width, max(new_height, reserved_area.h));
+		}
+		// else we need pass 2
+	}
+
+	// pass 2: height calculation and drawing (if requested)
 
 	// also in unicode *c==0 is end
 	while(  *p!= UNICODE_NUL  ||  p!=line_end  ) {
