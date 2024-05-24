@@ -219,6 +219,8 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			buf.printf(translator::translate("%s now known as %s.", welt->get_settings().get_name_language_id()),
 				   info.nickname.c_str(), nick);
 
+			welt->get_chat_message()->rename_client(info.nickname, nick);
+
 			// record nickname change
 			for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
 				for(connection_info_t &iter : nwc_chg_player_t::company_active_clients[i]) {
