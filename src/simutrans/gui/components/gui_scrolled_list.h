@@ -100,7 +100,6 @@ private:
 
 	bool maximize; // true if to expand to bottom right corner
 	bool sliders_dirty; // true if sliders need attention during next redraw
-	bool next_draw_at_bottom; // true to show the bottom of the list after next draw
 
 	scr_coord_val c_old_width;
 

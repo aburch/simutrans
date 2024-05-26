@@ -47,6 +47,7 @@ private:
 	visible_mode_t visible_mode; // Show, hide or auto hide
 	bool           full;         // Scrollbar is full
 	bool dragging; // to handle event even when outside the knob ...
+	bool sticky_bottom; // stays at the bottom until first scrolling (default off)
 
 	// the following three values are from host (e.g. list), NOT actual size.
 	sint32 knob_offset; // offset from top-left
@@ -90,6 +91,9 @@ public:
 	bool is_bottom() const { return total_size <= knob_offset + knob_size; }
 
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
+
+	// repositioning sliders so it is always at the bottom until scrolled once
+	void set_sticky_bottom();
 
 	void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }
 	visible_mode_t get_visible_mode() { return visible_mode; }

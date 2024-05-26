@@ -22,7 +22,8 @@ scrollbar_t::scrollbar_t(type_t type) :
 	knob_size(10),
 	total_size(20),
 	knob_scroll_amount(LINESPACE), // equals one line
-	knob_scroll_discrete(false)
+	knob_scroll_discrete(false),
+	sticky_bottom(false)
 {
 	visible_mode = show_auto;
 
@@ -87,6 +88,15 @@ scr_size scrollbar_t::get_max_size() const
 }
 
 
+
+void scrollbar_t::set_sticky_bottom()
+{
+	sticky_bottom = true;
+	reposition_buttons();
+}
+
+
+
 void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 {
 	if(  new_total_size != total_size  ) {
@@ -107,7 +117,12 @@ void scrollbar_t::reposition_buttons()
 		size.w - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
 		// area will be actual area knob can move in
 
-	knob_offset = clamp( knob_offset, 0, total_size-knob_size );
+	if (!sticky_bottom) {
+		knob_offset = clamp(knob_offset, 0, total_size - knob_size);
+	}
+	else {
+		knob_offset = total_size - knob_size;
+	}
 
 	double size_ratio = (double)knob_size / (double)total_size;
 	scr_coord_val length = min( area, (scr_coord_val)( area*size_ratio+0.5) );
@@ -145,6 +160,7 @@ void scrollbar_t::scroll(sint32 updown)
 {
 	sint32 new_knob_offset = clamp( knob_offset+updown, 0, total_size-knob_size );
 	if(  new_knob_offset != knob_offset  ) {
+		sticky_bottom = false;
 		knob_offset = new_knob_offset;
 		call_listeners((long)knob_offset);
 		reposition_buttons();
