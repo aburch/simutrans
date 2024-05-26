@@ -64,18 +64,18 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 
 const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 {
-	STANDARD,
-	STANDARD,
-	STANDARD,
-	STANDARD,
-	STANDARD,
-	STANDARD,
-	PERCENT,
-	STANDARD,
-	PERCENT,
-	STANDARD,
-	PERCENT,
-	STANDARD
+	gui_chart_t::STANDARD,
+	gui_chart_t::STANDARD,
+	gui_chart_t::STANDARD,
+	gui_chart_t::STANDARD,
+	gui_chart_t::STANDARD,
+	gui_chart_t::STANDARD,
+	gui_chart_t::PERCENT,
+	gui_chart_t::STANDARD,
+	gui_chart_t::PERCENT,
+	gui_chart_t::STANDARD,
+	gui_chart_t::PERCENT,
+	gui_chart_t::STANDARD
 };
 
 char citylist_frame_t::name_filter[256] = "";

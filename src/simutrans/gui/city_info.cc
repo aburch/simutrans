@@ -226,7 +226,7 @@ void city_info_t::init()
 	//   skip electricity
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
 		sint16 curve = chart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_year(),
-			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			MAX_CITY_HISTORY, i, 12, gui_chart_t::STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 		// add button
 		buttons[i] = container_year.new_component<button_t>();
 		buttons[i]->init(button_t::box_state_automatic | button_t::flexible, hist_type[i]);
@@ -249,7 +249,7 @@ void city_info_t::init()
 	container_month.add_table(4,3)->set_force_equal_columns(true);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
 		sint16 curve = mchart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_month(),
-			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			MAX_CITY_HISTORY, i, 12, gui_chart_t::STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 
 		// add button
 		container_month.add_component(buttons[i]);

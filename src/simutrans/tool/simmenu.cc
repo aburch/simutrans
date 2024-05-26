@@ -171,7 +171,6 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(DIALOG_MINIMAP);
 		CASE_TO_STRING(DIALOG_LINEOVERVIEW);
 		CASE_TO_STRING(DIALOG_MESSAGES);
-		CASE_TO_STRING(DIALOG_CHAT);
 		CASE_TO_STRING(DIALOG_FINANCES);
 		CASE_TO_STRING(DIALOG_PLAYERS);
 		CASE_TO_STRING(DIALOG_DISPLAYOPTIONS);
@@ -203,6 +202,8 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(DIALOG_LIST_VEHICLE);
 		CASE_TO_STRING(DIALOG_SCRIPT_TOOL);
 		CASE_TO_STRING(DIALOG_EDIT_GROUNDOBJ);
+		CASE_TO_STRING(DIALOG_CHAT);
+		CASE_TO_STRING(DIALOG_PLAYER_RANKING);
 		}
 	}
 
@@ -382,6 +383,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_SCRIPT_TOOL:     tool = new dialog_script_tool_t();     break;
 		case DIALOG_EDIT_GROUNDOBJ:  tool = new dialog_edit_groundobj_t();  break;
 		case DIALOG_CHAT:            tool = new dialog_chat_t();            break;
+		case DIALOG_PLAYER_RANKING:  tool = new dialog_player_ranking_t();  break;
 		default:
 			dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 			return NULL;

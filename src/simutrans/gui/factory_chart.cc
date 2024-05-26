@@ -235,7 +235,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			else if (prod_cell_button[cell] < MAX_FAB_STAT) {
 				uint8 s = prod_cell_button[cell];
 				// add curve
-				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, (2<=s  &&  s<=4) ? PERCENT : STANDARD, false, true, 0, prod_convert[s] );
+				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, (2<=s  &&  s<=4) ? gui_chart_t::PERCENT : gui_chart_t::STANDARD, false, true, 0, prod_convert[s] );
 				// only show buttons, if the is something to do ...
 				if(
 					(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
@@ -256,7 +256,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 			else if (prod_cell_ref[cell] < MAX_FAB_REF_LINE) {
 				uint8 r = prod_cell_ref[cell];
 				// add curve
-				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, 0, 0, MAX_MONTH, r<3 ? PERCENT : STANDARD, false, true, 0, ref_convert[r] );
+				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, 0, 0, MAX_MONTH, r<3 ? gui_chart_t::PERCENT : gui_chart_t::STANDARD, false, true, 0, ref_convert[r] );
 				if(
 					(r==FAB_REF_MAX_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
 					(r==FAB_REF_MAX_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||

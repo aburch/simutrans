@@ -382,6 +382,22 @@ transport_type finance_t::translate_waytype_to_tt(const waytype_t wt)
 	}
 }
 
+/* order has to be same as in enum transport_type in file finance.h */
+/* Also these have to match the strings in simline_t::linetype2name! */
+/* (and it is sad that the order between those do not match ...) */
+const char* finance_t::transport_type_values[TT_MAX] = {
+	"All",
+	"Truck",
+	"Train",
+	"Ship",
+	"Monorail",
+	"Maglev",
+	"Tram",
+	"Narrowgauge",
+	"Aircraft",
+	"tt_Other",
+	"Powerlines",
+};
 
 /** compatibility code follows **/
 

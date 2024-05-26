@@ -123,6 +123,7 @@ enum magic_numbers {
 	magic_vehiclelist = magic_depotlist   + MAX_PLAYER_COUNT,
 	magic_pakinstall,
 	magic_chatframe,
+	magic_player_ranking,
 	magic_max
 };
 

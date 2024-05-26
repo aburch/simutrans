@@ -69,19 +69,19 @@ static const uint8 cost_type_color[MAX_PLAYER_COST_BUTTON] =
 
 static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON] =
 {
-	ATV_TRANSPORTED,                TT_ALL, STANDARD, // all transported goods
-	ATV_REVENUE_TRANSPORT,          TT_ALL, MONEY,    // Income
-	ATV_RUNNING_COST,               TT_ALL, MONEY,    // Vehicle running costs
-	ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, MONEY,    // Upkeep
-	ATV_WAY_TOLL,                   TT_ALL, MONEY,
-	ATV_OPERATING_PROFIT,           TT_ALL, MONEY,
-	ATV_NEW_VEHICLE,                TT_ALL, MONEY,   // New vehicles
-	ATV_CONSTRUCTION_COST,          TT_ALL, MONEY,   // Construction
-	ATV_PROFIT,                     TT_ALL, MONEY,
-	ATC_CASH,                       TT_MAX, MONEY,   // Cash
-	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, MONEY,   // value of all vehicles and buildings
-	ATV_PROFIT_MARGIN,              TT_ALL, PERCENT,
-	ATC_NETWEALTH,                  TT_MAX, MONEY,   // Total Cash + Assets
+	ATV_TRANSPORTED,                TT_ALL, gui_chart_t::STANDARD, // all transported goods
+	ATV_REVENUE_TRANSPORT,          TT_ALL, gui_chart_t::MONEY,    // Income
+	ATV_RUNNING_COST,               TT_ALL, gui_chart_t::MONEY,    // Vehicle running costs
+	ATV_INFRASTRUCTURE_MAINTENANCE, TT_ALL, gui_chart_t::MONEY,    // Upkeep
+	ATV_WAY_TOLL,                   TT_ALL, gui_chart_t::MONEY,
+	ATV_OPERATING_PROFIT,           TT_ALL, gui_chart_t::MONEY,
+	ATV_NEW_VEHICLE,                TT_ALL, gui_chart_t::MONEY,   // New vehicles
+	ATV_CONSTRUCTION_COST,          TT_ALL, gui_chart_t::MONEY,   // Construction
+	ATV_PROFIT,                     TT_ALL, gui_chart_t::MONEY,
+	ATC_CASH,                       TT_MAX, gui_chart_t::MONEY,   // Cash
+	ATV_NON_FINANCIAL_ASSETS,       TT_ALL, gui_chart_t::MONEY,   // value of all vehicles and buildings
+	ATV_PROFIT_MARGIN,              TT_ALL, gui_chart_t::PERCENT,
+	ATC_NETWEALTH,                  TT_MAX, gui_chart_t::MONEY,   // Total Cash + Assets
 };
 
 static const sint8 cell_to_buttons[] =
@@ -101,28 +101,28 @@ static const sint8 cell_to_buttons[] =
 // money label types: tt, atv, current/previous, type
 static const uint16 label_type[] =
 {
-	TT_ALL, ATV_TRANSPORTED,                0, STANDARD,
-	TT_ALL, ATV_TRANSPORTED,                1, STANDARD,
-	TT_ALL, ATV_REVENUE_TRANSPORT,          0, MONEY,
-	TT_ALL, ATV_REVENUE_TRANSPORT,          1, MONEY,
-	TT_ALL, ATV_RUNNING_COST,               0, MONEY,
-	TT_ALL, ATV_RUNNING_COST,               1, MONEY,
-	TT_ALL, ATV_INFRASTRUCTURE_MAINTENANCE, 0, MONEY,
-	TT_ALL, ATV_INFRASTRUCTURE_MAINTENANCE, 1, MONEY,
-	TT_ALL, ATV_WAY_TOLL,                   0, MONEY,
-	TT_ALL, ATV_WAY_TOLL,                   1, MONEY,
-	TT_ALL, ATV_OPERATING_PROFIT,           0, MONEY,
-	TT_ALL, ATV_OPERATING_PROFIT,           1, MONEY,
-	TT_ALL, ATV_NEW_VEHICLE,                0, MONEY,
-	TT_ALL, ATV_NEW_VEHICLE,                1, MONEY,
-	TT_ALL, ATV_CONSTRUCTION_COST,          0, MONEY,
-	TT_ALL, ATV_CONSTRUCTION_COST,          1, MONEY,
-	TT_ALL, ATV_PROFIT,                     0, MONEY,
-	TT_ALL, ATV_PROFIT,                     1, MONEY,
-	TT_MAX, ATC_CASH,                       0, MONEY,
-	TT_ALL, ATV_NON_FINANCIAL_ASSETS,       0, MONEY,
-	TT_ALL, ATV_PROFIT_MARGIN,              0, PERCENT,
-	TT_MAX, ATC_NETWEALTH,                  0, MONEY
+	TT_ALL, ATV_TRANSPORTED,                0, gui_chart_t::STANDARD,
+	TT_ALL, ATV_TRANSPORTED,                1, gui_chart_t::STANDARD,
+	TT_ALL, ATV_REVENUE_TRANSPORT,          0, gui_chart_t::MONEY,
+	TT_ALL, ATV_REVENUE_TRANSPORT,          1, gui_chart_t::MONEY,
+	TT_ALL, ATV_RUNNING_COST,               0, gui_chart_t::MONEY,
+	TT_ALL, ATV_RUNNING_COST,               1, gui_chart_t::MONEY,
+	TT_ALL, ATV_INFRASTRUCTURE_MAINTENANCE, 0, gui_chart_t::MONEY,
+	TT_ALL, ATV_INFRASTRUCTURE_MAINTENANCE, 1, gui_chart_t::MONEY,
+	TT_ALL, ATV_WAY_TOLL,                   0, gui_chart_t::MONEY,
+	TT_ALL, ATV_WAY_TOLL,                   1, gui_chart_t::MONEY,
+	TT_ALL, ATV_OPERATING_PROFIT,           0, gui_chart_t::MONEY,
+	TT_ALL, ATV_OPERATING_PROFIT,           1, gui_chart_t::MONEY,
+	TT_ALL, ATV_NEW_VEHICLE,                0, gui_chart_t::MONEY,
+	TT_ALL, ATV_NEW_VEHICLE,                1, gui_chart_t::MONEY,
+	TT_ALL, ATV_CONSTRUCTION_COST,          0, gui_chart_t::MONEY,
+	TT_ALL, ATV_CONSTRUCTION_COST,          1, gui_chart_t::MONEY,
+	TT_ALL, ATV_PROFIT,                     0, gui_chart_t::MONEY,
+	TT_ALL, ATV_PROFIT,                     1, gui_chart_t::MONEY,
+	TT_MAX, ATC_CASH,                       0, gui_chart_t::MONEY,
+	TT_ALL, ATV_NON_FINANCIAL_ASSETS,       0, gui_chart_t::MONEY,
+	TT_ALL, ATV_PROFIT_MARGIN,              0, gui_chart_t::PERCENT,
+	TT_MAX, ATC_NETWEALTH,                  0, gui_chart_t::MONEY
 };
 
 static const sint8 cell_to_moneylabel[] =
@@ -136,23 +136,6 @@ static const sint8 cell_to_moneylabel[] =
 	-1,  12,  13,  -1,  19,
 	-1,  14,  15,  -1,  20,
 	-1,  16,  17,  -1,  21,
-};
-
-/* order has to be same as in enum transport_type in file finance.h */
-/* Also these have to match the strings in simline_t::linetype2name! */
-/* (and it is sad that the order between those do not match ...) */
-const char * transport_type_values[TT_MAX] = {
-	"All",
-	"Truck",
-	"Train",
-	"Ship",
-	"Monorail",
-	"Maglev",
-	"Tram",
-	"Narrowgauge",
-	"Aircraft",
-	"tt_Other",
-	"Powerlines",
 };
 
 /// Helper method to query data from players statistics
@@ -180,7 +163,7 @@ class money_frame_label_t : public gui_label_buf_t
 
 public:
 	money_frame_label_t(uint8 tt, uint8 t, uint8 lt, uint8 i, bool mon)
-	: gui_label_buf_t(lt == STANDARD ? SYSCOL_TEXT : MONEY_PLUS, lt != MONEY ? gui_label_t::right : gui_label_t::money_right)
+	: gui_label_buf_t(lt == gui_chart_t::STANDARD ? SYSCOL_TEXT : MONEY_PLUS, lt != gui_chart_t::MONEY ? gui_label_t::right : gui_label_t::money_right)
 	, transport_type(tt), type(t), label_type(lt), index(i), monthly(mon)
 	{
 	}
@@ -192,10 +175,10 @@ public:
 		PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : SYSCOL_TEXT_UNUSED) : MONEY_MINUS;
 
 		switch (label_type) {
-			case MONEY:
+			case gui_chart_t::MONEY:
 				buf().append_money(value / 100.0);
 				break;
-			case PERCENT:
+			case gui_chart_t::PERCENT:
 				buf().append(value / 100.0, 2);
 				buf().append("%");
 				break;
@@ -294,7 +277,7 @@ money_frame_t::money_frame_t(player_t *player) :
 
 		for(int i=0, count=0; i<TT_MAX; ++i) {
 			if (!is_chart_table_zero(i)) {
-				transport_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(transport_type_values[i]), SYSCOL_TEXT);
+				transport_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(finance_t::transport_type_values[i]), SYSCOL_TEXT);
 				transport_types[ count++ ] = i;
 			}
 		}
@@ -349,7 +332,7 @@ money_frame_t::money_frame_t(player_t *player) :
 				if (cost >=0 ) {
 					// add chart line
 					const int curve_type = cost_type[3*cost+2];
-					const int curve_precision = curve_type == STANDARD ? 0 : 2;
+					const int curve_precision = curve_type == gui_chart_t::STANDARD ? 0 : 2;
 					sint16 curve = i == 0
 					? chart.add_curve(  color_idx_to_rgb(cost_type_color[cost]), *chart_table_year,  MAX_PLAYER_COST_BUTTON, cost, MAX_PLAYER_HISTORY_YEARS,  curve_type, false, true, curve_precision)
 					: mchart.add_curve( color_idx_to_rgb(cost_type_color[cost]), *chart_table_month, MAX_PLAYER_COST_BUTTON, cost, MAX_PLAYER_HISTORY_MONTHS, curve_type, false, true, curve_precision);

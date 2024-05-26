@@ -466,6 +466,9 @@ public:
 	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
 
+	// to tranlate back to strings for finances GUI
+	static const char* transport_type_values[TT_MAX];
+
 	void update_assets(sint64 delta, waytype_t wt);
 
 private:

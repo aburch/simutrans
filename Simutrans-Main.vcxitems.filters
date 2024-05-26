@@ -528,6 +528,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_ranking_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\privatesign_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -849,6 +852,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\script\script_tool_manager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simachievements.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simconvoi.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1054,9 +1060,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\squirrel\squirrel\sqvm.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\simachievements.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\chat_frame.cc">
@@ -1376,6 +1379,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\baum_edit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\chat_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\citybuilding_edit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1647,6 +1653,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_ranking_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\privatesign_info.h">
@@ -2226,9 +2235,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)src\squirrel\squirrel\sqvm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\chat_frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

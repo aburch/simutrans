@@ -74,6 +74,7 @@
 #include "labellist_frame.h"
 #include "display_settings.h"
 #include "optionen.h"
+#include "player_ranking_frame.h"
 
 #include "../simversion.h"
 
@@ -623,6 +624,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_labellist:      w = new labellist_frame_t(); break;
 					case magic_color_gui_t:    w = new color_gui_t(); break;
 					case magic_optionen_gui_t: w = new optionen_gui_t(); break;
+					case magic_player_ranking: w = new player_ranking_frame_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

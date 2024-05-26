@@ -31,7 +31,6 @@
 #include "../gui/kennfarbe.h"
 #include "../gui/help_frame.h"
 #include "../gui/message_frame.h"
-#include "../gui/chat_frame.h"
 #include "../gui/messagebox.h"
 #include "../gui/convoi_frame.h"
 #include "../gui/halt_list_frame.h"
@@ -51,6 +50,8 @@
 #include "../gui/depotlist_frame.h"
 #include "../gui/vehiclelist_frame.h"
 #include "../gui/script_tool_frame.h"
+#include "../gui/chat_frame.h"
+#include "../gui/player_ranking_frame.h"
 
 #include "../obj/baum.h"
 #include "../obj/groundobj.h"
@@ -668,6 +669,21 @@ public:
 			}
 		}
 	}
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
+};
+
+// open player ranking dialog
+class dialog_player_ranking_t : public tool_t {
+public:
+	dialog_player_ranking_t() : tool_t(DIALOG_PLAYER_RANKING | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Player ranking"); }
+	bool is_selected() const OVERRIDE { return win_get_magic(magic_player_ranking); }
+	bool init(player_t* player) OVERRIDE {
+		create_win(new player_ranking_frame_t(), w_info, magic_player_ranking);
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE { destroy_win(magic_player_ranking); return false; }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };

@@ -186,6 +186,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\pakselector.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\password_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_frame.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_ranking_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\privatesign_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\savegame_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_frame.cc" />
@@ -561,6 +562,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\pakselector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\password_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_frame.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\player_ranking_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\privatesign_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\savegame_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_frame.h" />
