@@ -88,7 +88,7 @@ private:
 	};
 	uint8 tail_dir;
 
-	sint64 msg_time;
+	time_t msg_time;
 	sint8 player_nr;
 	PIXVAL bgcolor;
 	cbuffer_t text;
@@ -193,7 +193,7 @@ public:
 
 	void set_size(scr_size new_size) OVERRIDE
 	{
-		scr_coord_val labelwidth = max(lb_date.get_size().w + bt_pos.is_visible() * D_POS_BUTTON_WIDTH, lb_time_diff.get_size().w);
+		scr_coord_val labelwidth = max(lb_date.get_size().w + bt_pos.is_visible() * D_POS_BUTTON_WIDTH, lb_local_time.get_size().w);
 		width = new_size.w;
 		message.set_width(new_size.w - (D_MARGIN_LEFT + D_MARGIN_RIGHT + D_H_SPACE * 2 + LINESPACE / 2 + 4 + labelwidth));
 		new_size.h = max(message.get_size().h + 4 + D_V_SPACE + lb_time_diff.get_size().h, lb_date.get_size().h + D_V_SPACE + lb_local_time.get_size().h);
@@ -228,7 +228,7 @@ public:
 			}
 		}
 
-		scr_coord_val labelwidth = max(lb_date.get_size().w + bt_pos.is_visible() * D_POS_BUTTON_WIDTH, lb_time_diff.get_size().w);
+		scr_coord_val labelwidth = max(lb_date.get_size().w + bt_pos.is_visible() * D_POS_BUTTON_WIDTH, lb_local_time.get_size().w);
 		scr_size bsize = get_size() - scr_size(D_MARGIN_LEFT + D_MARGIN_RIGHT + D_H_SPACE * 2 + LINESPACE / 2 + labelwidth, D_V_SPACE);
 		scr_coord_val off_w = D_H_SPACE;
 
