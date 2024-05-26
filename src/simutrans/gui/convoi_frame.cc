@@ -210,7 +210,7 @@ convoi_frame_t::convoi_frame_t() :
 	{
 		new_component<gui_label_t>("Filter:");
 		name_filter_input.set_text(name_filter, lengthof(name_filter));
-		name_filter_input.set_notify_all_changes_delay(0);
+		name_filter_input.set_notify_all_changes_delay(500);
 		name_filter_input.add_listener(this);
 		add_component(&name_filter_input);
 		name_filter_input.add_listener(this);

@@ -357,6 +357,7 @@ chat_frame_t::chat_frame_t() :
 
 		inp_destination.set_text(ibuf_name, lengthof(ibuf_name));
 		inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
+		inp_destination.set_notify_all_changes_delay(1000);
 		inp_destination.add_listener(this);
 		add_component(&inp_destination);
 
@@ -486,8 +487,7 @@ void chat_frame_t::fill_list()
 		env_t::chat_unread_whisper = 0;
 		break;
 	}
-
-	cont_chat_log[chat_mode].set_scroll_position(0, old_scroll_y - old_log_h + cont_chat_log[chat_mode].get_size().h);
+	cont_chat_log[chat_mode].show_bottom();
 	cont_chat_log[chat_mode].set_maximize(true);
 }
 
