@@ -4405,6 +4405,19 @@ obj=program_text
 name=company_chat
 note=tab in chat window
 --
+obj=program_text
+name=Player ranking
+note=player ranking window
+--
+obj=program_text
+name=Click to open the finance dialog.
+note=player ranking window
+--
+obj=program_text
+name=Last year's ranking
+note=player ranking window
+--
+
 
 
 
