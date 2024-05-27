@@ -1098,10 +1098,8 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 						minimap_t::get_instance()->calc_map_size();
 						// tell the player
 						if(tell_me) {
-							const char *stadt_name = translator::translate("nowhere");
-							if (!our_fab->get_target_cities().empty()) {
-								stadt_name = our_fab->get_target_cities()[0]->get_name();
-							}
+							stadt_t* s = welt->find_nearest_city(our_fab->get_pos().get_2d());
+							const char* stadt_name = s ? s->get_name() : translator::translate("nowhere");
 							cbuffer_t buf;
 							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
 							welt->get_message()->add_message(buf, pos, message_t::industry, CITY_KI, our_fab->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
