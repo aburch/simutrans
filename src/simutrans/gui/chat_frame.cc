@@ -548,7 +548,7 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 		fill_list();
 		inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
 		if (tabs.get_active_tab_index() == CH_WHISPER) {
-			lb_channel.buf().append("direct_chat_to:");
+			lb_channel.buf().append(translator::translate("direct_chat_to:"));
 			lb_channel.set_color(SYSCOL_TEXT);
 			lb_channel.set_visible(true);
 			lb_channel.update();
