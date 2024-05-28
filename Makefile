@@ -464,6 +464,7 @@ SOURCES += src/simutrans/gui/pakinstaller.cc
 SOURCES += src/simutrans/gui/pakselector.cc
 SOURCES += src/simutrans/gui/password_frame.cc
 SOURCES += src/simutrans/gui/player_frame.cc
+SOURCES += src/simutrans/gui/player_ranking_frame.cc
 SOURCES += src/simutrans/gui/privatesign_info.cc
 SOURCES += src/simutrans/gui/savegame_frame.cc
 SOURCES += src/simutrans/gui/scenario_frame.cc

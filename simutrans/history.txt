@@ -7,9 +7,10 @@
 	FIX: New world tool had wrong tooltip and hide building was never in selected state
 	ADD: (ranran) new chat window (dialog tool 36) and chat message system using direct and company chat options as well
 	CHG/FIX: Updating the line schedule of a convoi bound to this line will overwrite any pending changes from that schedule if open in the schedule window
+	FIX: dimensions of info windows more approprioate again
 	ADD: (ranran) player ranking frame as dialog tool 37
 
-	
+
 Release of 124.0 (r11164 on 5-May-2024):
 	ADD: map view can be changed with any general tool by dragging the pointer above a threshold
 	FIX: Cannot load PPM heightmaps

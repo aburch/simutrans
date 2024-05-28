@@ -77,16 +77,6 @@ target_sources(simutrans PRIVATE
 		src/simutrans/ground/monorailboden.cc
 		src/simutrans/ground/tunnelboden.cc
 		src/simutrans/ground/wasser.cc
-		src/simutrans/gui/ai_option.cc
-		src/simutrans/gui/ai_selector.cc
-		src/simutrans/gui/banner.cc
-		src/simutrans/gui/base_info.cc
-		src/simutrans/gui/baum_edit.cc
-		src/simutrans/gui/city_info.cc
-		src/simutrans/gui/citybuilding_edit.cc
-		src/simutrans/gui/citylist_frame.cc
-		src/simutrans/gui/citylist_stats.cc
-		src/simutrans/gui/climates.cc
 		src/simutrans/gui/components/gui_aligned_container.cc
 		src/simutrans/gui/components/gui_building.cc
 		src/simutrans/gui/components/gui_button.cc
@@ -117,6 +107,16 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/components/gui_timeinput.cc
 		src/simutrans/gui/components/gui_waytype_tab_panel.cc
 		src/simutrans/gui/components/gui_world_view.cc
+		src/simutrans/gui/ai_option.cc
+		src/simutrans/gui/ai_selector.cc
+		src/simutrans/gui/banner.cc
+		src/simutrans/gui/base_info.cc
+		src/simutrans/gui/baum_edit.cc
+		src/simutrans/gui/city_info.cc
+		src/simutrans/gui/citybuilding_edit.cc
+		src/simutrans/gui/citylist_frame.cc
+		src/simutrans/gui/citylist_stats.cc
+		src/simutrans/gui/climates.cc
 		src/simutrans/gui/chat_frame.cc
 		src/simutrans/gui/convoi_detail.cc
 		src/simutrans/gui/convoi_filter_frame.cc
@@ -171,6 +171,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/pakselector.cc
 		src/simutrans/gui/password_frame.cc
 		src/simutrans/gui/player_frame.cc
+		src/simutrans/gui/player_ranking_frame.cc
 		src/simutrans/gui/privatesign_info.cc
 		src/simutrans/gui/savegame_frame.cc
 		src/simutrans/gui/scenario_frame.cc
