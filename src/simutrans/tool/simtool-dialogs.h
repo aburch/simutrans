@@ -678,6 +678,15 @@ class dialog_player_ranking_t : public tool_t {
 public:
 	dialog_player_ranking_t() : tool_t(DIALOG_PLAYER_RANKING | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Player ranking"); }
+	image_id get_icon(player_t*) const {
+		int nr = 0;
+		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+			if (welt->get_player(i)) {
+				nr++;
+			}
+		}
+		return nr>2 ? icon : IMG_EMPTY;
+	}
 	bool is_selected() const OVERRIDE { return win_get_magic(magic_player_ranking); }
 	bool init(player_t* player) OVERRIDE {
 		create_win(new player_ranking_frame_t(), w_info, magic_player_ranking);
