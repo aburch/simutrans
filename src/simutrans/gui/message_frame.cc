@@ -60,7 +60,7 @@ message_frame_t::message_frame_t() :
 
 	set_table_layout(1,0);
 
-	add_table(4,0);
+	add_table(0,1);
 	{
 		option_bt.init(button_t::roundbox, translator::translate("Optionen"));
 		option_bt.add_listener(this);
@@ -70,10 +70,12 @@ message_frame_t::message_frame_t() :
 		copy_bt.add_listener(this);
 		add_component(&copy_bt);
 
-		open_chat_bt.init(button_t::roundbox, translator::translate("Chat"));
-		open_chat_bt.set_size(D_BUTTON_SIZE);
-		open_chat_bt.add_listener(this);
-		add_component(&open_chat_bt);
+		if (env_t::networkmode || !welt->get_chat_message()->get_list().empty()) {
+			open_chat_bt.init(button_t::roundbox, translator::translate("Chat"));
+			open_chat_bt.set_size(D_BUTTON_SIZE);
+			open_chat_bt.add_listener(this);
+			add_component(&open_chat_bt);
+		}
 
 		new_component<gui_fill_t>();
 	}
