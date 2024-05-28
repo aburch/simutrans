@@ -179,7 +179,7 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 	scrolly(&cont_players, true, true)
 {
 	selected_player = selected_player_nr;
-	last_year = world()->get_last_year();
+	last_year = 0; // update on first drawing
 	set_table_layout(1, 0);
 
 	add_table(2, 1)->set_alignment(ALIGN_TOP);
@@ -240,7 +240,7 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 	add_table(4, 0)->set_force_equal_columns(true);
 	{
 		for (uint8 i = 0; i < MAX_PLAYER_RANKING_CHARTS; i++) {
-			bt_charts[i].init(button_t::box_state | button_t::flexible, cost_type_name[i]);
+			bt_charts[i].init(button_t::roundbox_state | button_t::flexible, cost_type_name[i]);
 			bt_charts[i].background_color = color_idx_to_rgb(cost_type_color[i]);
 			if (i == selected_item) bt_charts[i].pressed = true;
 			bt_charts[i].add_listener(this);
@@ -426,7 +426,6 @@ bool player_ranking_frame_t::action_triggered(gui_action_creator_t* comp, value_
 				// nothing to do
 				return true;
 			}
-			bt_charts[i].pressed ^= 1;
 			selected_item = i;
 			update_chart();
 			return true;
@@ -455,9 +454,7 @@ void player_ranking_frame_t::update_chart()
 {
 	// deselect chart buttons
 	for (uint8 i = 0; i < MAX_PLAYER_RANKING_CHARTS; i++) {
-		if (i != selected_item) {
-			bt_charts[i].pressed = false;
-		}
+		bt_charts[i].pressed = i == selected_item;
 	}
 
 	// need to clear the chart once to update the suffix and digit
@@ -498,15 +495,6 @@ void player_ranking_frame_t::update_chart()
 }
 
 
-void player_ranking_frame_t::update_buttons()
-{
-	for (auto bt : buttons) {
-		bt->update();
-	}
-	scrolly.set_min_width(cont_players.get_min_size().w);
-}
-
-
 void player_ranking_frame_t::draw(scr_coord pos, scr_size size)
 {
 	if (last_year != world()->get_last_year()) {
@@ -516,4 +504,19 @@ void player_ranking_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	gui_frame_t::draw(pos, size);
+}
+
+
+void player_ranking_frame_t::rdwr(loadsave_t* file)
+{
+	transport_type_c.rdwr(file);
+	years_back_c.rdwr(file);
+	file->rdwr_byte(selected_item);
+
+	if (file->is_loading()) {
+		last_year = world()->get_last_year();
+		chart.set_seed(last_year);
+		update_chart();
+	}
+	scrolly.rdwr(file);
 }

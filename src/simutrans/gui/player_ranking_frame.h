@@ -67,10 +67,7 @@ private:
 
 	char years_back_s[MAX_PLAYER_HISTORY_YEARS][5];
 
-	gui_combobox_t
-		player_select[MAX_PLAYER_COUNT-1],
-		years_back_c,
-		transport_type_c;
+	gui_combobox_t years_back_c, transport_type_c;
 	uint16 transport_types[TT_OTHER];
 
 	gui_label_buf_t lb_player_val[MAX_PLAYER_COUNT-1];
@@ -102,10 +99,10 @@ public:
 
 	void update_chart();
 
-	void update_buttons();
-
 	// since no information are needed to be saved to restore this, returning magic is enough
 	uint32 get_rdwr_id() OVERRIDE { return magic_player_ranking; }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
 };
 
 #endif
