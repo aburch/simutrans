@@ -858,7 +858,7 @@ void depot_frame_t::update_data()
 		vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(i->get_name()), SYSCOL_TEXT);
 	}
 
-	if(  depot->selected_filter > vehicle_filter.count_elements()  ) {
+	if(  depot->selected_filter > (sint32)vehicle_filter.count_elements()  ) {
 		depot->selected_filter = VEHICLE_FILTER_RELEVANT;
 	}
 	vehicle_filter.set_selection(depot->selected_filter);
@@ -869,7 +869,7 @@ void depot_frame_t::update_data()
 		sort_by.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(vehicle_builder_t::vehicle_sort_by[i]), SYSCOL_TEXT);
 	}
 	sort_by.set_size(sort_by.get_size());
-	if(  depot->selected_sort_by > sort_by.count_elements()  ) {
+	if(  depot->selected_sort_by > (sint32)sort_by.count_elements()  ) {
 		depot->selected_sort_by = vehicle_builder_t::sb_name;
 	}
 	sort_by.set_selection(depot->selected_sort_by);

@@ -101,7 +101,7 @@ public:
 	/**
 	 * return number of elements in droplist
 	 */
-	int count_elements() const { return droplist.get_count(); }
+	uint32 count_elements() const { return droplist.get_count(); }
 
 	/**
 	 * return element at index from droplist

@@ -322,7 +322,7 @@ char *tstrcasestr(const char* str, const char* pattern)
         p1++;
     }
 
-    return *p2 == 0 ? (char*)r : NULL;
+    return *p2 == 0 ? const_cast<char *>(r) : NULL;
 }
 
 

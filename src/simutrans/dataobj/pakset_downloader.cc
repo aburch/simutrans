@@ -127,14 +127,26 @@ bool pak_download(vector_tpl<paksetinfo_t*>paks)
 #else
 
 #include "../utils/simstring.h"
-
 #include "../network/network_file_transfer.h"
-extern "C" {
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wundef"
+#  pragma GCC diagnostic ignored "-Wcast-qual"
+#  pragma GCC diagnostic ignored "-Wcalloc-transposed-args"
+#endif
+
 #define STDC
 #define voidpc voidpczip
 #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+extern "C" {
 #include "../../external/zip.c"
 };
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+
 
 static void extract_pak_from_zip(const char* zipfile)
 {

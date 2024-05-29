@@ -33,7 +33,7 @@ bool vehiclelist_stats_t::reverse = false;
 int vehiclelist_stats_t::img_width = 100;
 
 
-vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v) : 
+vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v) :
 	details(&details_buf,0)
 {
 	veh = v;
@@ -291,7 +291,7 @@ void vehiclelist_frame_t::fill_list()
 	const goods_desc_t *ware = idx_to_ware[ max( 0, ware_filter.get_selection() ) ];
 	// adding all vehiles, i.e. iterate over all available waytypes
 	for (uint32 i = 1; i < tabs.get_count(); i++) {
-		if(  tabs.get_active_tab_index()>0  &&  i!=tabs.get_active_tab_index()  ) {
+		if(  tabs.get_active_tab_index()>0  &&  (sint32)i!=tabs.get_active_tab_index()  ) {
 			// wrong waytype
 			continue;
 		}

@@ -680,8 +680,7 @@ void gui_textinput_t::set_text(char *text, size_t max)
 {
 	this->text = text;
 	this->max = max;
-	// whole text is selected by default
-	size_t len = strlen(text);
+
 	if (tail_cursor_pos == head_cursor_pos) {
 		// if same, keep positions
 	}

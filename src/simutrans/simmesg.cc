@@ -333,8 +333,6 @@ void message_t::rdwr(loadsave_t* file)
 				if (n->get_type_shifted() == (1 << message_t::chat)) {
 					char name[256];
 					char msg_no_name[256];
-					bool name_end = false;
-					int msg_start = 0;
 					sint8 player_nr = 0;
 
 					if (char* c = strchr(n->msg, ']')) {

@@ -135,7 +135,7 @@ public:
 	vector_tpl<sint32> get_selections() const;
 
 	scrollitem_t* get_selected_item() const;
-	sint32 get_count() const { return item_list.get_count(); }
+	uint32 get_count() const { return item_list.get_count(); }
 
 	void enable_multiple_selection() { multiple_selection = true; }
 

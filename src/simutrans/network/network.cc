@@ -1055,7 +1055,7 @@ void remove_port_forwarding( int port )
 #else
 // or we just get only our IP and hope we are not behind a router ...
 
-bool prepare_for_server(char* externalIPAddress, char* externalAltIPAddress, int port)
+bool prepare_for_server(char* externalIPAddress, char* externalAltIPAddress, int /*port*/)
 {
 	externalAltIPAddress[0] = 0;
 	// use the same routine as later the announce routine, otherwise update with dynamic IP fails

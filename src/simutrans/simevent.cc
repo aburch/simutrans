@@ -99,6 +99,10 @@ static void fill_event(event_t* const ev)
 	control_shift_state = sys_event.key_mod;
 
 	switch (sys_event.type) {
+		case SIM_NOEVENT:
+		case SIM_IGNORE_EVENT:
+			break;
+
 		case SIM_KEYBOARD:
 			ev->ev_class = EVENT_KEYBOARD;
 			ev->ev_code  = sys_event.code;

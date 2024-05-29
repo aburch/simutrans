@@ -81,7 +81,14 @@ private:
 class nwc_chat_t : public network_command_t {
 public:
 	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, sint8 ch= -1, const char* cn = NULL, const char* dn = NULL, koord pos_=koord::invalid)
-	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), channel_nr(ch), clientname(cn), destination(dn), pos(pos_) {}
+		: network_command_t(NWC_CHAT)
+		, message(msg)
+		, player_nr(pn)
+		, channel_nr(ch)
+		, pos(pos_)
+		, clientname(cn)
+		, destination(dn)
+	{}
 
 	bool execute (karte_t * welt) OVERRIDE;
 	void rdwr () OVERRIDE;

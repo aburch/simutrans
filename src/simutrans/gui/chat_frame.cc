@@ -387,8 +387,6 @@ void chat_frame_t::fill_list()
 	lb_now_online.update();
 
 	old_player_nr = current_player->get_player_nr();
-	scr_coord_val old_scroll_y = cont_chat_log[chat_mode].get_scroll_y();
-	scr_coord_val old_log_h = cont_chat_log[chat_mode].get_size().h;
 
 	cont_chat_log[chat_mode].clear_elements();
 	last_count = welt->get_chat_message()->get_list().get_count();
@@ -493,7 +491,7 @@ void chat_frame_t::fill_list()
 
 
 
-bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
+bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 {
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;

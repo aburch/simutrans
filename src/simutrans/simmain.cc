@@ -675,7 +675,7 @@ int simu_main(int argc, char** argv)
 #ifdef __ANDROID__
 	// always save and reload on Android
 	env_t::reload_and_save_on_quit = true;
-#elif STEAM_BUILT
+#elif defined(STEAM_BUILT) && STEAM_BUILT != 0
 	steam_t::get_instance()->install_workshop_items();
 #endif
 

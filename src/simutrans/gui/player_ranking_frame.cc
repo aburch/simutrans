@@ -339,9 +339,6 @@ void player_ranking_frame_t::sort_player()
 
 
 	if (count) {
-		// update labels
-		const bool is_atv = history_type_idx[selected_item * 2];
-
 		// check totals.
 		sint64 total = 0;
 

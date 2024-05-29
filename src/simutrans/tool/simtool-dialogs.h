@@ -688,7 +688,7 @@ public:
 		return nr>2 ? icon : IMG_EMPTY;
 	}
 	bool is_selected() const OVERRIDE { return win_get_magic(magic_player_ranking); }
-	bool init(player_t* player) OVERRIDE {
+	bool init(player_t */*player*/) OVERRIDE {
 		create_win(new player_ranking_frame_t(), w_info, magic_player_ranking);
 		return false;
 	}

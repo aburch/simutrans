@@ -550,8 +550,8 @@ bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		}
 	}
 	if(  comp == &transport_type_c) {
-		int tmp = transport_type_c.get_selection();
-		if((0 <= tmp) && (tmp < transport_type_c.count_elements())) {
+		const sint32 tmp = transport_type_c.get_selection();
+		if((0 <= tmp) && (tmp < (sint32)transport_type_c.count_elements())) {
 			transport_type_option = transport_types[tmp];
 		}
 		return true;
@@ -583,7 +583,7 @@ void money_frame_t::rdwr( loadsave_t *file )
 
 	file->rdwr_short(transport_type_option);
 	if (file->is_loading()) {
-		for(int i=0; i<transport_type_c.count_elements(); i++) {
+		for(uint32 i=0; i<transport_type_c.count_elements(); i++) {
 			if (transport_types[i] == transport_type_option) {
 				transport_type_c.set_selection(i);
 				break;
