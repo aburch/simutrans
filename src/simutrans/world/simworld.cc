@@ -2110,6 +2110,7 @@ void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, 
 		network_send_server(nwc);
 	}
 	else {
+		clear_random_mode(INTERACTIVE_RANDOM); // beacue the AI will call random to check where it can run
 		change_player_tool(cmd, player_nr, param, !get_public_player()->is_locked()  ||  scripted_call, true);
 		// update the window
 		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);

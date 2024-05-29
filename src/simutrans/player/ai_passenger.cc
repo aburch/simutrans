@@ -1175,6 +1175,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// still continue?
 				if(ok) {
 					koord list[2]={ platz1, platz2 };
+
 					// wait only, if target is not a hub but an attraction/factory
 					create_bus_transport_vehicle(platz1,1,list,2,end_stadt==NULL);
 					state = NR_SUCCESS;
@@ -1196,7 +1197,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 						cover_city_with_bus_route(platz1, 6);
 						cover_city_with_bus_route(platz2, 6);
 					}
-					welt->get_message()->add_message(buf, end_attraction->get_pos(), message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_base_image());
+					welt->get_message()->add_message(buf, welt->lookup_kartenboden(platz1)->get_pos(), message_t::ai, PLAYER_FLAG | player_nr, road_vehicle->get_base_image());
 				}
 			}
 		}
