@@ -38,6 +38,7 @@
 #include "../gui/simwin.h"
 #include "simworld.h"
 #include "../sys/simsys.h"
+#include "../simachievements.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/binary_heap_tpl.h"
@@ -6147,6 +6148,7 @@ bool karte_t::interactive(uint32 quit_month)
 #ifdef STEAM_BUILT
 			steam_t::get_instance()->update_ui(get_last_year(), convoys().get_count());
 #endif
+			simachievements_t::check_state_ach(this);
 			next_misc_time = time + 5000; // every 5s
 		}
 

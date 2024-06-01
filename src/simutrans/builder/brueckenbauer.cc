@@ -15,6 +15,7 @@
 #include "../obj/depot.h"
 #include "../player/simplay.h"
 #include "../simtypes.h"
+#include "../simachievements.h"
 
 #include "../ground/boden.h"
 #include "../ground/brueckenboden.h"
@@ -1053,6 +1054,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		msg = from->kann_alle_obj_entfernen(player);
 
 		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_owner()!=player)) {
+			simachievements_t::set_achievement(ACH_TOOL_REMOVE_BUSY_BRIDGE);
 			return "Die Bruecke ist nicht frei!\n";
 		}
 

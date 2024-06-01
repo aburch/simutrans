@@ -1,4 +1,5 @@
 #include "./simachenum.h"
+#include "./world/simworld.h"
 
 /**
  * Manages the achievement system. This currently only works for Steam achievements.
@@ -6,8 +7,6 @@
  */
 class simachievements_t {
 private:
-	// Set the given achievement.
-	static void set_achievement(simachievements_enum ach);
 
 public:
 	// Check achievements for loading the current pakset
@@ -15,6 +14,12 @@ public:
 
 	// Check achievements for querying a specific object
 	static void check_query_ach(const char* object_name);
+
+	// Check achievements that depend on game state
+	static void check_state_ach(karte_t* world);
+
+	// Set the given achievement. No check is made, use after the condition is fullfilled!
+	static void set_achievement(simachievements_enum ach);
 
 	// TODO: A function to set achievement from script tools (for scenarios, tutorial, etc...)
 };
