@@ -450,12 +450,14 @@ public:
 
 	/**
 	 * sorts list using specified comparator
+	 * returns true if list was changed
 	 */
-	void sort( int (*compare)(const T &l, const T &r) ){
+	bool sort( int (*compare)(const T &l, const T &r) ) {
 		if(  NULL == head  ||  head == tail  ) {
-			return;
+			return false;
 		}
 
+		bool needed_work = false;
 		for(  uint i=1;  i < node_count;  ++i  ) {
 			int changes = 0;
 			if(  compare( head->data, head->next->data ) > 0  ) {
@@ -485,7 +487,9 @@ public:
 			if(  changes == 0  ) {
 				break;
 			}
+			needed_work = true;
 		}
+		return needed_work;
 	}
 
 private:

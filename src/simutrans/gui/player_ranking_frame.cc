@@ -265,73 +265,88 @@ player_ranking_frame_t::~player_ranking_frame_t()
 
 void player_ranking_frame_t::sort_player()
 {
-	cont_players.remove_all();
+	bool reorder = false;
 	switch (selected_item)
 	{
 	case PR_REVENUE:
-		buttons.sort(compare_revenue);
+		reorder = buttons.sort(compare_revenue);
 		break;
 	case PR_PROFIT:
-		buttons.sort(compare_profit);
+		reorder = buttons.sort(compare_profit);
 		break;
 	case PR_TRANSPORT_PAX:
-		buttons.sort(compare_transport_pax);
+		reorder = buttons.sort(compare_transport_pax);
 		break;
 	case PR_TRANSPORT_MAIL:
-		buttons.sort(compare_transport_mail);
+		reorder = buttons.sort(compare_transport_mail);
 		break;
 	case PR_TRANSPORT_GOODS:
-		buttons.sort(compare_transport_goods);
+		reorder = buttons.sort(compare_transport_goods);
 		break;
 	case PR_CASH:
-		buttons.sort(compare_cash);
+		reorder = buttons.sort(compare_cash);
 		break;
 	case PR_NETWEALTH:
-		buttons.sort(compare_netwealth);
+		reorder = buttons.sort(compare_netwealth);
 		break;
 	case PR_MARGIN:
-		buttons.sort(compare_margin);
+		reorder = buttons.sort(compare_margin);
 		break;
 	default:
 	case PR_CONVOIS:
-		buttons.sort(compare_convois);
+		reorder = buttons.sort(compare_convois);
 		break;
 	}
+
 	uint8 count = 0;
-	for (uint i = 0; i < buttons.get_count(); i++) {
-		const uint8 player_nr = buttons.at(i)->get_player_nr();
-		// Exclude players who are not in the competition
-		if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
-			continue;
+	if (reorder) {
+		cont_players.remove_all();
+		for (uint i = 0; i < buttons.get_count(); i++) {
+			const uint8 player_nr = buttons.at(i)->get_player_nr();
+			// Exclude players who are not in the competition
+			if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
+				continue;
+			}
+			count++;
+
+			switch (i)
+			{
+			case 0:
+				cont_players.new_component<gui_label_t>("1", color_idx_to_rgb(COL_YELLOW), gui_label_t::centered);
+				break;
+			case 1:
+				cont_players.new_component<gui_label_t>("2", 0, gui_label_t::centered);
+				break;
+			case 2:
+				cont_players.new_component<gui_label_t>("3", 0, gui_label_t::centered);
+				break;
+
+			default:
+				gui_label_buf_t* lb = cont_players.new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::centered);
+				lb->buf().printf("%u", count);
+				lb->update();
+				lb->set_min_width(lb->get_min_size().w);
+				break;
+			}
+
+			if (player_nr != selected_player) {
+				buttons.at(i)->pressed = false;
+			}
+			cont_players.add_component(buttons.at(i));
+
+			cont_players.add_component(&lb_player_val[player_nr]);
 		}
-		count++;
-
-		switch (i)
-		{
-		case 0:
-			cont_players.new_component<gui_label_t>("1", color_idx_to_rgb(COL_YELLOW), gui_label_t::centered);
-			break;
-		case 1:
-			cont_players.new_component<gui_label_t>("2", 0, gui_label_t::centered);
-			break;
-		case 2:
-			cont_players.new_component<gui_label_t>("3", 0, gui_label_t::centered);
-			break;
-
-		default:
-			gui_label_buf_t* lb = cont_players.new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::centered);
-			lb->buf().printf("%u", count);
-			lb->update();
-			lb->set_min_width(lb->get_min_size().w);
-			break;
+	}
+	else {
+		// only update labels
+		for (uint i = 0; i < buttons.get_count(); i++) {
+			const uint8 player_nr = buttons.at(i)->get_player_nr();
+			// Exclude players who are not in the competition
+			if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
+				continue;
+			}
+			count++;
 		}
-
-		if (player_nr != selected_player) {
-			buttons.at(i)->pressed = false;
-		}
-		cont_players.add_component(buttons.at(i));
-
-		cont_players.add_component(&lb_player_val[player_nr]);
 	}
 
 
