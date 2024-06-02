@@ -193,6 +193,18 @@ static char *load_text(char const* const filename )
 		// check fallback english
 		file = dr_fopen((file_prefix + PATH_SEPARATOR + "en" + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
+	if (!file) {
+		// no help file found then sarch [pakset]/text/[lang]/
+		file = dr_fopen((env_t::pak_dir + file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename).c_str(), "rb");
+	}
+	if (!file) {
+		// no help file found then sarch [pakset]/text/[lang (bese)]/
+		file = dr_fopen((env_t::pak_dir + file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb");
+	}
+	if (!file) {
+		// no help file found then sarch [pakset]/text/en/
+		file = dr_fopen((env_t::pak_dir + file_prefix + "en" + PATH_SEPARATOR + filename).c_str(), "rb");
+	}
 	// go back to load/save dir
 	dr_chdir( env_t::user_dir );
 
