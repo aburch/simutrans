@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 5.05 2024                           #
+#                            Date Created: 2.06 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -458,7 +458,7 @@ Pos1
 \nis reserved by:
 \nreserviert von Zug: \n
 \nminimum speed:
-\nMindestgeschwin-\ndigkeit: 
+\nMindestgeschwindigkeit: 
 \nnot elektrified
 \nnicht elektrifiziert\n
 \nRibi (masked)
@@ -875,6 +875,8 @@ Configure AI setttings
 Parameter für Computergegner anpassen
 Congratulation\nScenario was complete in\n%i months %i years.
 Glückwünsche\n\nDas Spielziel wurde in\n\n%i Monat(en) und %i Jahr(en)\n\nerreicht!\n
+Connect factory
+Industrieanlagen mit Verträgen verbinden
 Connected stops
 Haltestelle (mit dieser Fabrik verbunden):
 Connected with server

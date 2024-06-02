@@ -90,7 +90,7 @@ PortableUnknown:
   StrCpy $multiuserinstall "1"
   Goto FinishSetPortable
 YesPortable:
-Messagebox MB_OK "singleuser"
+; Messagebox MB_OK "singleuser"
   StrCpy $PAKDIR $INSTDIR
   StrCpy $multiuserinstall "0"
   Goto FinishSetPortable
@@ -103,7 +103,7 @@ FinishSetPortable:
   StrCmp $0 simutrans +2
   StrCpy $installinsimutransfolder "0"
   ; here everything is ok
-  MessageBox MB_OK "$INSTDIR $PAKDIR"
+; MessageBox MB_OK "$INSTDIR $PAKDIR"
 FunctionEnd
 
 !ifndef PAKSETINSTALL

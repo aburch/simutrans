@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                            Language: sk Slovencina                           #
 #                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 5.05 2024                           #
+#                            Date Created: 2.06 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -47,6 +47,16 @@ clf_btn_invers
 opak
 clf_btn_keine
 nič
+climate area percentage
+veľkosť jedného podnebia
+Continue Game
+Pokračovať v hre
+CROSSING_SOUND
+zvuk výstrah na križovatkách
+FACTORY_SOUND
+Zvuky tovární
+Find matching convois
+Nájdi konvoje ktoré sa zhodujú
 gl_btn_sort_bonus
 podľa príplatku
 gl_btn_sort_name
@@ -55,6 +65,8 @@ gl_btn_sort_revenue
 podľa tržby
 gl_btn_unsort
 nezoradené
+height based
+Podnebie podľa výšky
 hl_btn_filter_disable
 Vypnutý
 hl_btn_filter_enable
@@ -77,10 +89,42 @@ hlf_btn_invers
 opak
 hlf_btn_keine
 nič
+humidities
+hranice vlhkosti
+Install
+Inštalovať
+Lake
+Jazero
+Lake height
+max. výška jazier
+Maximize height levels
+zvýšiť maximálnu výšku
+moisture land
+vzrast nad zemou
+moisture water
+vzrast nad vodou
 Networks
 Schéma siete
+Num pad keys always move map
+Numlock je vždy vypnutý
+Open Sea
+Oceán
+Queueing
+trend čakania
+rainfall
+vlhkosť
+Reselect closes tools
+vybranie nástroja znovu ho odloží
+Return to menu
+Späť do menu
 Road toll
 Mýto
+Scenario
+Info scenára
+sea
+námorné podnebie
+Single GUI
+jedno GUI
 Transfers
 Prestupy
 #_________________________________climates_text_________________________________
@@ -1117,6 +1161,8 @@ sack
  vriec
 sail
 vietor
+Save
+Uložiť hru
 Saving map ...
 Ukladám mapu ...
 Schienentunnel

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 5.05 2024                           #
+#                            Date Created: 2.06 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -41,6 +41,8 @@ clf_btn_invers
 wissel
 clf_btn_keine
 geen
+Continue Game
+Speel verder
 gl_btn_sort_bonus
 naar bonus
 gl_btn_sort_name

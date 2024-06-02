@@ -12,11 +12,15 @@ Prop-Latin1.bdf
 #                             Language: sv Svenska                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 5.05 2024                           #
+#                            Date Created: 2.06 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
 #__________________________________button_text__________________________________
+AMBIENT_SOUND
+omgivningsljud
+CASH_SOUND
+kassakling
 cl_btn_filter_disable
 av
 cl_btn_filter_enable
