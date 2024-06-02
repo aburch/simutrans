@@ -121,7 +121,7 @@ public:
 	/**
 	 * Fills the buffer with the obj name and detail translation (if there is any)
 	 */
-	static const char* translator::get_obj_info(cbuffer_t &buf, const char *name);
+	static const char *get_obj_info(cbuffer_t &buf, const char *name);
 
 	/**
 	 * @return replacement info for almost any object within the game

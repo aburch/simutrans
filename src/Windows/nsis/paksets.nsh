@@ -2,12 +2,12 @@
 SectionGroup /e "Pak64: main and addons" pak64group
 
 Section /o "pak" pak
-  AddSize 15813
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/124-0/simupak64-124-0.zip"
+  AddSize 15869
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/124-1/simupak64-124-1.zip"
   SetOutPath $PAKDIR
-  StrCpy $archievename "simupak64-124-0.zip"
+  StrCpy $archievename "simupak64-124-1.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 124.0 r2146"
+  StrCpy $VersionString "pak64 124.1 r2156"
   Call DownloadInstallZip
 SectionEnd
 Section /o "pak64 Food addon"
@@ -27,12 +27,12 @@ SectionGroupEnd
 
 
 Section /o "pak128" pak128
-  AddSize 414673
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20124up%20%282.9%29/simupak128-2.9-for124.zip"
+  AddSize 414630
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20%20124.1up%20%282.9.1%29/simupak128-2.9.1.zip"
   SetOutPath $PAKDIR
-  StrCpy $archievename "simupak128-2.9-for124.zip"
+  StrCpy $archievename "simupak128-2.9.1.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "pak128 2.9 for 124.0.0 git r538 hash 283a3e9"
+  StrCpy $VersionString "pak128 2.9.1 for 124.1.0 git r579 hash c3519a4"
   Call DownloadInstallZip
 SectionEnd
 
@@ -97,7 +97,7 @@ Section /o "pak128.Britain" pak128.Britain
 SectionEnd
 
 Section /o "PAK128.german" PAK128.german
-  AddSize 561868
+  AddSize 562328
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.2_for_ST_124.0/PAK128.german_2.2_for_ST_124.0.zip"
   SetOutPath $PAKDIR
   StrCpy $archievename "PAK128.german_2.2_for_ST_124.0.zip"
@@ -143,7 +143,6 @@ SectionEnd
 Section /o "pak128.japan" pak128.japan
   AddSize 27780
   StrCpy $downloadlink "http://pak128.jpn.org/souko/pak128.japan.120.0.cab"
-;  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/pak128.japan%20for120up/pak128.japan.120.0.cab"
   SetOutPath $PAKDIR
   StrCpy $archievename "pak128.japan.120.0.cab"
   StrCpy $downloadname "pak128.japan"
@@ -222,4 +221,3 @@ Section /o "pak64.ho-scale" pak64.ho-scale
 SectionEnd
 
 SectionGroupEnd
-
