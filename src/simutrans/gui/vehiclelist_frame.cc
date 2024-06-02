@@ -104,10 +104,16 @@ vehiclelist_stats_t::vehiclelist_stats_t(const vehicle_desc_t *v) :
 	display_calc_proportional_multiline_string_len_width( text2w, text2h, part2);
 	col2_width = text2w;
 
-	if (const char* detail_str = translator::translate_obj_details(veh->get_name())) {
-		details_buf.append(detail_str);
-		details.set_width(col1_width + col2_width);
-		name_h += details.get_size().h;
+	// we need to find out manually, if we have extra text to show
+	if (strlen(veh->get_name()) < 238) {
+		char ei[256];
+		sprintf(ei, "obj_%s_details", veh->get_name());
+		const char* translated_ei = translator::translate(ei);
+		if (ei != translated_ei) {
+			details_buf.append(translated_ei);
+			details.set_width(col1_width + col2_width);
+			name_h += details.get_size().h;
+		}
 	}
 
 	height = max( height, max( text1h, text2h ) + name_h )+D_V_SPACE;

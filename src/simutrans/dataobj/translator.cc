@@ -652,22 +652,27 @@ const char *translator::translate(const char *str)
 }
 
 
-const char *translator::translate_obj_details(const char *str)
-{
-	char text_key[256];
-	sprintf(text_key, "obj_%s_details", str);
-	const char* translated_detail = get_lang()->translate(text_key);
-	// returns input string if not there
-	if (translated_detail != text_key) {
-		return translated_detail;
-	}
-	return NULL;
-}
-
-
 const char *translator::translate(const char *str, int lang)
 {
 	return langs[lang].translate(str);
+}
+
+
+const char* translator::get_obj_info(cbuffer_t &buf,const char *name)
+{
+	buf.append(translator::translate(name));
+	buf.append("\n\n");
+
+	// append extra info if it is a short name
+	if (strlen(name) < 238) {
+		char ei[256];
+		sprintf(ei, "obj_%s_details", name);
+		const char* translated_ei = translate(ei);
+		if (ei != translated_ei) {
+			return translated_ei;
+		}
+	}
+	return NULL;
 }
 
 

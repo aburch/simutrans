@@ -34,10 +34,11 @@ signal_t::signal_t(loadsave_t *file) :
 
 void signal_t::info(cbuffer_t & buf) const
 {
-	// well, needs to be done
+	translator::get_obj_info(buf, desc->get_name());
+
 	obj_t::info(buf);
 
-	buf.printf("%s\n%s%u", translator::translate(desc->get_name()), translator::translate("\ndirection:"), get_dir());
+	buf.printf("%s%u", translator::translate("\ndirection:")+1, get_dir());
 	// copyright obmitted, signal dialog will show it
 }
 

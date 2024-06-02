@@ -324,6 +324,8 @@ void leitung_t::calc_neighbourhood()
 
 void leitung_t::info(cbuffer_t & buf) const
 {
+	translator::get_obj_info(buf, desc->get_name());
+
 	obj_t::info(buf);
 
 	powernet_t * const net = get_net();
@@ -573,6 +575,8 @@ void pumpe_t::finish_rd()
 
 void pumpe_t::info(cbuffer_t & buf) const
 {
+	translator::get_obj_info(buf, desc->get_name());
+
 	obj_t::info( buf );
 
 	buf.printf(translator::translate("Net ID: %p"), get_net());
@@ -830,7 +834,9 @@ void senke_t::finish_rd()
 
 void senke_t::info(cbuffer_t & buf) const
 {
-	obj_t::info( buf );
+	translator::get_obj_info(buf, desc->get_name());
+
+	obj_t::info(buf);
 
 	buf.printf(translator::translate("Net ID: %p"), get_net());
 	buf.printf("\n");

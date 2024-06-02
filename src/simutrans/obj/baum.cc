@@ -298,10 +298,7 @@ void baum_t::show_info()
 
 void baum_t::info(cbuffer_t &buf) const
 {
-	obj_t::info(buf);
-
-	buf.append( translator::translate(get_desc()->get_name()) );
-	buf.append( "\n\n" );
+	translator::get_obj_info(buf, get_desc()->get_name() );
 
 	const int age = (int)get_age();
 	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );

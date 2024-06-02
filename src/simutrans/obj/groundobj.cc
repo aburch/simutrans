@@ -271,9 +271,8 @@ void groundobj_t::show_info()
 
 void groundobj_t::info(cbuffer_t & buf) const
 {
-	obj_t::info(buf);
+	translator::get_obj_info(buf, get_desc()->get_name());
 
-	buf.append(translator::translate(get_desc()->get_name()));
 	if (char const* const maker = get_desc()->get_copyright()) {
 		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);

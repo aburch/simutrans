@@ -102,7 +102,7 @@ public:
 	/**
 	 * returns owner of object
 	 */
-	player_t * get_owner() const;
+	player_t *get_owner() const;
 
 	/**
 	 * routines to set, clear, get bit flags

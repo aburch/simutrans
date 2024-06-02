@@ -177,8 +177,6 @@ void roadsign_t::show_info()
 
 void roadsign_t::info(cbuffer_t & buf) const
 {
-	obj_t::info( buf );
-
 	if(  !desc->is_private_way()  ) {
 		buf.append(translator::translate("Roadsign"));
 		buf.append("\n");

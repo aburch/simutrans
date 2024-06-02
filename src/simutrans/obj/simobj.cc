@@ -141,7 +141,7 @@ void obj_t::info(cbuffer_t & buf) const
 	rtrim(translation);
 	buf.append( translation );
 	// only append linebreaks if not empty
-	if(  buf.len()>0  ) {
+	if(owner[0]>0) {
 		buf.append( "\n\n" );
 	}
 }

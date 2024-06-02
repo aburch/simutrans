@@ -16,7 +16,7 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 	view(obj, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	fill_buffer();
-	textarea.set_width( textarea.get_size().w + get_base_tile_raster_width() - 64);
+	//textarea.set_width( textarea.get_size().w + get_base_tile_raster_width() - 64);
 	set_embedded(&view);
 }
 
@@ -24,10 +24,6 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 void obj_infowin_t::fill_buffer()
 {
 	buf.clear();
-	if(  const char *translated_detail = translator::translate_obj_details(get_obj()->get_name())  ) {
-		buf.append( translated_detail );
-		buf.append("\n\n");
-	}
 	get_obj()->info(buf);
 }
 

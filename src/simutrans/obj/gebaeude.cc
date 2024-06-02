@@ -669,7 +669,7 @@ gebaeude_t* gebaeude_t::get_first_tile()
 
 void gebaeude_t::info(cbuffer_t & buf) const
 {
-	obj_t::info(buf);
+	const char* name=tile->get_desc()->get_name();
 
 	if(is_factory  &&  ptr.fab != NULL) {
 		buf.append((char *)0);
@@ -678,59 +678,56 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append(translator::translate("Baustelle"));
 		buf.append("\n");
 	}
-	else {
-		const char *desc = tile->get_desc()->get_name();
-		if(desc != NULL) {
-			const char *trans_desc = translator::translate(desc);
-			if(trans_desc==desc) {
-				// no description here
-				switch(tile->get_desc()->get_type()) {
-					case building_desc_t::city_res:
-						trans_desc = translator::translate("residential house");
-						break;
-					case building_desc_t::city_ind:
-						trans_desc = translator::translate("industrial building");
-						break;
-					case building_desc_t::city_com:
-						trans_desc = translator::translate("shops and stores");
-						break;
-					default:
-						// use file name
-						break;
-				}
-				buf.append(trans_desc);
-			}
-			else {
-				// since the format changed, we remove all but double newlines
-				char *text = new char[strlen(trans_desc)+1];
-				char *dest = text;
-				const char *src = trans_desc;
-				while(  *src!=0  ) {
-					*dest = *src;
-					if(src[0]=='\n') {
-						if(src[1]=='\n') {
-							src ++;
-							dest++;
-							*dest = '\n';
-						}
-						else {
-							*dest = ' ';
-						}
-					}
-					src ++;
-					dest ++;
-				}
-				// remove double line breaks at the end
-				*dest = 0;
-				while( dest>text  &&  *--dest=='\n'  ) {
-					*dest = 0;
-				}
-
-				buf.append(text);
-				delete [] text;
+	else if(name) {
+		const char *trans_name = translator::translate(name);
+		if(trans_name == name) {
+			// no translaion here
+			switch(tile->get_desc()->get_type()) {
+				case building_desc_t::city_res:
+					buf.append(translator::translate("residential house"));
+					break;
+				case building_desc_t::city_ind:
+					buf.append(translator::translate("industrial building"));
+					break;
+				case building_desc_t::city_com:
+					buf.append(translator::translate("shops and stores"));
+					break;
+				default:
+					buf.append(name);
+					break;
 			}
 		}
+		else {
+			// since the format changed, we remove all but double newlines
+			char *text = new char[strlen(trans_name)+1];
+			char *dest = text;
+			const char *src = trans_name;
+			while(  *src!=0  ) {
+				*dest = *src;
+				if(src[0]=='\n') {
+					if(src[1]=='\n') {
+						src ++;
+						dest++;
+						*dest = '\n';
+					}
+					else {
+						*dest = ' ';
+					}
+				}
+				src ++;
+				dest ++;
+			}
+			// remove double line breaks at the end
+			*dest = 0;
+			while( dest>text  &&  *--dest=='\n'  ) {
+				*dest = 0;
+			}
+
+			buf.append(text);
+			delete [] text;
+		}
 		buf.append( "\n\n" );
+		obj_t::info(buf); // append owner
 
 		// belongs to which city?
 		if(  !is_factory  &&  ptr.stadt != NULL  ) {
