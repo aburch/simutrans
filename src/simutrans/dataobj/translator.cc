@@ -669,7 +669,8 @@ const char* translator::get_obj_info(cbuffer_t &buf,const char *name)
 		sprintf(ei, "obj_%s_details", name);
 		const char* translated_ei = translate(ei);
 		if (ei != translated_ei) {
-			return translated_ei;
+			buf.append(translated_ei);
+			buf.append("\n\n");
 		}
 	}
 	return NULL;
