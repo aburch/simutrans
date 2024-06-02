@@ -78,6 +78,11 @@ public:
 	void append(const char* text, size_t maxchars);
 
 	/**
+	 * Removes all trailing whitespaces
+	 */
+	void rtrim();
+
+	/**
 	 * Return contents of buffer
 	 */
 	const char* get_str() const;

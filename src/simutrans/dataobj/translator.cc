@@ -661,6 +661,7 @@ const char *translator::translate(const char *str, int lang)
 const char* translator::get_obj_info(cbuffer_t &buf,const char *name)
 {
 	buf.append(translator::translate(name));
+	buf.rtrim();
 	buf.append("\n\n");
 
 	// append extra info if it is a short name
@@ -670,6 +671,7 @@ const char* translator::get_obj_info(cbuffer_t &buf,const char *name)
 		const char* translated_ei = translate(ei);
 		if (ei != translated_ei) {
 			buf.append(translated_ei);
+			buf.rtrim();
 			buf.append("\n\n");
 		}
 	}

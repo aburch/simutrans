@@ -116,6 +116,16 @@ void cbuffer_t::append_money(double money)
 	append(tmp);
 }
 
+
+void cbuffer_t::rtrim()
+{
+	// remove all trailing whichspaces, i.e. ASCII <= 32
+	while (size > 0 && buf[size - 1] <= ' ') {
+		size--;
+	}
+}
+
+
 const char* cbuffer_t::get_str() const
 {
 	return buf;
