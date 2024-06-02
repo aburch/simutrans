@@ -50,6 +50,8 @@ public:
 	uint32 get_rdwr_id() OVERRIDE { return magic_messageframe; }
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
+
+	void map_rotate90(sint16 /*new_ysize*/) OVERRIDE { fill_list();  }
 };
 
 #endif

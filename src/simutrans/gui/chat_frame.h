@@ -76,6 +76,9 @@ public:
 	uint32 get_rdwr_id() OVERRIDE { return magic_chatframe; }
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
+
+	// theoretically, map roatation should not happen with netwrok games ...
+	void map_rotate90(sint16 /*new_ysize*/) OVERRIDE { fill_list(); }
 };
 
 #endif
