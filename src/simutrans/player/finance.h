@@ -456,12 +456,6 @@ public:
 	void set_starting_money(sint64 amount) {  starting_money = amount; }
 
 	/**
-	 * Translates building_desc_t to transport_type
-	 * Building can be assigned to transport type using utyp
-	 */
-	static transport_type translate_utyp_to_tt(int utyp);
-
-	/**
 	 * Translates waytype_t to transport_type
 	 */
 	static transport_type translate_waytype_to_tt(waytype_t wt);
