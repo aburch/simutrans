@@ -5,7 +5,7 @@ paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64/124-1/simupak64-124-1.zip", "pak", "pak64 124.1 r2156", 15869 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20%20124.1up%20%282.9.1%29/simupak128-2.9.1.zip", "pak128", "pak128 2.9.1 for 124.1.0 git r579 hash c3519a4", 414630 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192-comic.zip", "pak192.comic", "Pak192.Comic V0.7.1 Rev 1246", 892852 },
-	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-2_full.zip", "pak64.german", "pak64.german 0.124.0.0.2", 26348 },
+	{ "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-3_full.zip", "pak64.german", "pak64.german 0.124.0.0.3", 26348 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak64.japan/123-0/simupak64.japan-123-0.zip", "pak.japan", "pak64.japan 123 r2101", 10175 },
 	{ "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip", "pak.nippon", "pak.nippon v0.6.2", 50198 },
 	{ "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2096.zip", "pak128.CS", "Pak128.CS 0.3.0 r2096", 78628 },

@@ -48,11 +48,11 @@ SectionEnd
 
 Section /o "pak64.german" pak64.german
   AddSize 26348
-  StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-2_full.zip"
+  StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-3_full.zip"
   SetOutPath $PAKDIR
-  StrCpy $archievename "pak64.german_0-124-0-0-2_full.zip"
+  StrCpy $archievename "pak64.german_0-124-0-0-3_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.124.0.0.2"
+  StrCpy $VersionString "pak64.german 0.124.0.0.3"
   Call DownloadInstallZip
 SectionEnd
 
