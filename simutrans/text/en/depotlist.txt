@@ -1,0 +1,7 @@
+<title>Depot list</title>
+
+<h1><strong>Depot list</strong></h1>
+
+<p>
+This dialog lists all the depots on the map. By using a tab, they could be filtered by the vehicle types. Right click on an entry or click on the arrow to change the position on the map to the depot area or left click on the entry to open the dialog of the depot.
+</p>

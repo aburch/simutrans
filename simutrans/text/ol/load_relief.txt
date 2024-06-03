@@ -1,0 +1,28 @@
+<title>Täütä korgevuskuva</title>
+
+<h1><strong>Täütä korgevuskuva</strong></h1>
+
+<p>
+    <strong>Täütä korgevuskuva</strong> -ikkunua käütetäh avuamah tiijostuo, mis on mugavutettu aloveh (käütettäväkse uvven kižan luajindas), da sidä voi müös käüttäü nämien iäreottuamizeh. Se avavuu <a href="new_world.txt">luaji uuzi kiža</a> -ikkunaspäi, da se näüttäü tiijostoloin nimet, päivümiärät da tallendusaijat luvettelos. Ku kaikin tiijostonimet ei nävü, käütä luvettelon oigienpuolistu <a href="mouse.txt">vieretüspalkkuo</a> vierettäkses nimien läbi.
+</p>
+
+<p>
+    N'apsahuta nimie luvettelospäi täüttiäkses mugavutetun kartan, libo süötä nimi ikkunan üläreunas olevah tekstujuaššiekkah: n'apsahuta juaššiekkua, kirjuta nimi da paina <a href="keys.txt">[Enter]</a>- libo [Return]-kluaviššua libo n'apsahuta <em>OK</em>-painoknopkua (viärü nimi ei rua nimidä, üritä uvvessah).
+</p>
+
+<p>
+    N'apsahuta nimen hural puolel olevua <em>x</em>-painoknopkua (ku on laitettu piäle simuconf.tab:s) ottuakses mainitun tiijoston iäre tiijostosistiemaspäi. Tiijostonimi lähtöü iäre luvettelospäi da ikkun salbavuu.<br>
+    <it>Varoitus:</it> tiijosto otetah iäre välittömästi da lujasti. Käütä funksiedu hüvin ruatusti!
+</p>
+
+<p>
+    Alovehii on suadavannu netispäi, ezim. sivustol https://maps.simutrans.com libo Steam Workshopispäi. Uvven tiijoston tuleh olla PPM- libo BMP-muvvos, mis jälgimäistü pidetäh tugie rajoitetusti. Tiijostot tuleh laittau kižan käüttäieččomistoh "simutrans/maps/".
+</p>
+
+<p>
+    Vihjavus: Tieduo omien alovehien luadimizespäi on suadavannu Simutransin wikis.
+</p>
+
+<p>
+    N'apsahuta <em>Peruuta</em>-painoknopkua libo üläoigies reunas olevua <em>x</em>-painoknopkua libo käütä kluaviššua salbuakses ikkunan.
+</p>

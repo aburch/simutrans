@@ -1,0 +1,28 @@
+<title>Landšaftan laitokset</title>
+
+<h1><strong>Landšaftan laitokset (ruan al)</strong></h1>
+
+<p>
+    <strong>Landšaftan laitokset</strong> -ikkun laittau kižamuailman topogruafellizii da meteorolougizii ominazuksii. Ikkun avavuu ühtes <a href="new_world.txt">luaji uuzi kiža</a> -ikkunan kel.
+</p>
+
+<p>
+    Muuttuakses jogahistu laitostu, n'apsahuta jogahizen valličuksen sivus olevii nuolipainoknopkii, libo süötä noumer juaššiekkah.
+</p>
+
+<p>
+    <it>Kartan valličukset</it>
+</p>
+
+<p>
+    <em>Vientazo</em> - Laittau vien korgevuon kartal (gipoutezu on -2). Korgeambat arvot tariččou vähembän muata da enämbi vezistölöi.
+</p>
+
+<p>
+    <em>Gorien korgevus</em> - Laittau alovehen enimäiskorgevuon.
+</p>
+
+<p>
+    <em>Kartan šarmakkoizus</em> - Laittau alovehen šarmakkoizuon. Suurembi noumer luadiu enämbi aldoiluu rannikkoalovehil (nenne on real'noimbii). Ülen šarmakkoizile kartoile ei vältämättäh voi luadie muga äijü linnoi, zavodoi libo dorogoi kui midä oli tarkoitus luadie.<br><br>
+    Varoitus: korgevustazoloi, mit on suurembii kui 33, tulis vältüö (nenne ei ole kižuajan käütettävännü). Liziä muatazoloi voi luadie tarbehen mugah alendamal vientazoa.
+</p>

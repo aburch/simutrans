@@ -1,0 +1,94 @@
+<title>Luaji uuzi kiža</title>
+
+<h1><strong>Luaji uuzi kiža</strong></h1>
+
+<p>
+    <strong>Luaji uuzi kiža</strong> -ikkunas laitetah uvven kižan ominazuksii. Täl luajitah uuzi kartu vallittuloil laitoksil. Voit muuttau monii eri kižan muuttujii, ezim. kartan suuruttu, eloikeskuksien miäryä kižan allus da zavodoin miäryä. Vallituspäi alovehespäi näytetäh myös ezikačeluversii.
+</p>
+
+<p>
+    Muut laitosikkunat ei ole käytettävis, ku tämä ikkun on avvoi. Tullakses järilleh nygözeh kižah, salbua ikkun n'apsahuttamal nimipalkis olevua <em>x</em>-painoknopkua.
+</p>
+
+<p>
+    Nuolipainoknopkat muuttau laitoksii, da valličusklietkat panou valličuksii piäle/pois piälpäi libo avuau uuzii ohjavusikkunoi.
+</p>
+
+<p>
+    <em>Kartan noumer</em> - Valličeh kižas käytettävän alovehen.<br>
+    Klikkua noumerjuaššiekkua da syötä kartan noumer, libo käytä nuolipainoknopkii siirdyäkses eri alovehvaihtoehtoloin välil. Ezikačelunägymy näyttäy vallitun alovehen moizena kui se nägys kižas (vezistöt on sinizii, madalembi mua on mustembi kui korgeambi mua).
+</p>
+
+<p>
+    <em>Suurus</em> - Laittau kartan suuruon L x K (levevys x korgevus) -muvvos. Ylembi arvo on levevys, da alembi on korgevus. Vuajittava keskusmuston miäry näytetäh salbavomerkien sydämes.<br>
+    Huom.: Suuremmat kartat vuadiu enämbän mustuo, da nennien generoindas meneh enämbän aigua. Kiža da muut gruafiekat vuadiu lizäkse 88 Mt mustuo pak64:s da 144 Mt pak128:s. Ylehizenä piäsiändönä älä yritä luadiu kartua mi on suurembi kui 512 x 512 plitkua tiedokonehel, mis on 256 Mt mustuo.
+</p>
+
+<p>
+    <em>Piävyndähine kartu</em> - Valličeh alovehen piävyndähizesti. Muut laitokset ei muutu.
+</p>
+
+<p>
+    <em>Täytä korgevuskuva</em> - Täyttäy mugavutetun alovehen. Avuau <a href="load_relief.txt">mainitun</a> ikkunan.
+</p>
+
+<p>
+    <em>Linnoin lugumiäry</em> - Laittau <a href="citywindow.txt">eloikeskuksien</a> miärän kižan allus. Ku kartu on liijan pieni libo liijan karhei, linnoi luajitah vähembän. Liziä uuzii linnoi voi panna manualizesti vaihtamal <a href="players.txt">julgizeh kižuajah</a>.
+</p>
+
+<p>
+    <em>Eläjii keskimiärin per linnu</em> - Laittau kaikkien eloikeskuksien keskimiaräzen eläiluvun. Simutrans yrittäy luadie enämbän pienii kylii kui suurii linnoi.
+</p>
+
+<p>
+    <em>Muantielöin piduhus</em> - Laittau eloikeskuksien keskeizien julgizien dorogoin enimäispiduhuon kižan allus. Laita täh suurembi arvo yhtistiäkses eloikeskuksii, mit on loitombana toizispäih.
+</p>
+
+<p>
+    <em>Zavodoi da kauppoi</em> - Laittau eloikeskuksien ulgopuolizien <a href="industry_info.txt">tevollizusruandučieppilöin</a> miärän kižan allus. Liziä tevollizusčieppilöi ilmestyy avtomuatillizesti eloikeskuksen eläiluvun kazvaes.<br>
+    Huom.: Ku aloveh on ylen mägine, sobijua tazamuata ei vältämättäh löydy tevollizusčieppilöin luadimizeh, sikse vähembän tevollizuttu ilmestyy.
+</p>
+
+<p>
+    <em>Turistunähtävyksii</em> - Laittau eloikeskuksien ulgopuolizien passažiiroi da poštua muanittelijoin mua-aloin miärän kižan allus. <a href="curiositylist_filter.txt">Turistunähtävykset</a> ilmestyy eloikeskuksien ulgopuolele uuzien kylien libo linnoin kel luajittuloin nähtävyksien lizäkse kartan luajindan jälgeh.
+</p>
+
+<p>
+    <em>Käytä aiguvälii algajen vuvves</em> - Laittau kižan allatusvuvven. N'apsahuta valličusklietkua kižatakses aiguperustehizil rajoituksil. Ku aigu kižas kuluu, liziä kulgunevvoi, srojii da zavodoi ilmestyy.
+</p>
+<p>
+    Ku funksiedu ei ole vallittu, kaikin kulgunevvot, srojut da zavodat on suadavannu da käytös kižas. Eloikeskukset ilmestyy eri aiguvälielpäi tulieloin srojien kel, da hil'l'ambat kulgunevvot ei ole muga tuloksekkahii kui boikoimbat, ku tulos laskietah käytetyn kulgunevvon keskivauhtin mugah.
+</p>
+
+<p>
+    <em>Algaitila</em> - Laittau valličuksen, mi andau luvan korgeambien tuloloin suandah kižas tavaroin da passažiiroin kullettamizespäi. Gipoutezuarvozesti, ku kižatah algaitilas, suat 150% arvospäi kui ku sais 100% tavallizes tilas. Lizäkse <a href="industry_info.txt">zavodat</a> ei lope tuotanduo ku kuluttajil on ylitaričustu.
+</p>
+
+<p>
+    <em>Laitokset</em> - Avuau <a href="settings.txt">levendetyt laitokset</a> -ikkunan. Tiäpäi piäzeh käzikse kaikkih parametroih mit on käytettävänny myös simuconf.tab -tiijostos.
+</p>
+
+<p>
+    <em>Landšaftan laitokset</em> - Avuau <a href="climates.txt">landšaftan laitokset</a> -ikkunan, mi ohjuau erilazii kartan laitoksii: šarmakkoizuttu, vientazoa, ilmastoloi, meččäy da jogiloi.
+</p>
+
+<p>
+    <em>Täytä kiža</em> - Täyttäy tallendetun kižan. Näyttäy <a href="load.txt">Täytä kiža</a> -ikkunan, mispäi voi jatkau aijembah <a href="save.txt">tallendettuu</a> kižua. Ku tallendettu kiža on täytetty, se korvuau nygözen kižan ilmai varmendustu.
+</p>
+
+<p>
+    <em>Täytä skenuario</em> - Täyttäy <a href="scenario.txt">skenuarion</a>, toizin sanoen kižan, mis tietty tavoiteh pidäy tavoittau. Tämä on vaihtoehto tavallizele, välläle Simutransin kižaluavule.<br>
+    Huom.: Mistah pakiettusarjois ei ole ni yhty skenuarioloi.
+</p>
+
+<p>
+    <em>Alla kiža</em> - Algau kižan luajimal uvven muailman vallituloil laitoksil. N'apsahuta painoknopkua kižatakses Simutransii. Ozua da hyvii kižakodvazii!
+</p>
+
+<p>
+    <em>Lope</em> - N'apsahuta painoknopkua lähtiekses iäre kižas.
+</p>
+
+<p>
+    Vihjavus: muuttuakses Simutransii käymäh laittaes täytettävii gipoutezuarvoloi libo muuloi globualoi muuttujii, muuta arvoloi simuconf.tab -tiijostos.
+</p>

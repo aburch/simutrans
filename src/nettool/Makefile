@@ -99,7 +99,6 @@ ifeq ($(origin NETTOOL_PROGDIR), undefined)
   NETTOOL_PROGDIR := ../../$(BUILDDIR)/$(TOOL)
 endif
 
-
 BUILDDIR := ../../$(BUILDDIR)
 
 TOOL_PROGDIR = $(NETTOOL_PROGDIR)

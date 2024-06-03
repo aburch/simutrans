@@ -1,0 +1,85 @@
+<title>Simutransin ohjavo</title>
+
+<strong><h1>Ülehine ohjavo</h1></strong>
+<p>
+    - <a href="simutrans.txt">Tulgua terveh</a><br>
+    - <a href="window.txt">Käüttöliittümü</a><br>
+    - <a href="mouse.txt">Hiiren käüttö</a><br>
+    - <a href="keys.txt">Klaviatuuran käüttö</a>
+</p>
+<p>
+    <a href="options.txt"><strong>Kižan laitokset</strong></a><br>
+    - <a href="language.txt">Kieli</a><br>
+    - <a href="color.txt">Kižuajan värit</a><br>
+    - <a href="display.txt">Näütön laitokset</a><br>
+    - <a href="sound.txt">Iäni ja muuzikku</a><br>
+    - <a href="players.txt">Kižuajat</a><br>
+    - <a href="load.txt">Kižan täüttiämine</a><br>
+    - <a href="save.txt">Tallendamine</a><br>
+    - <a href="new_world.txt">Uuzi kiža</a><br>
+    - - <a href="climates.txt">Landšaftan laitokset</a><br>
+    - - <a href="load_relief.txt">Korgevuskuvan käüttö</a>
+</p>
+<p>
+    <a href="window.txt"><strong>Piävalikko</strong></a><br>
+    - <a href="options.txt">Kižan laitokset</a><br>
+    - <a href="map.txt">Kartuikkuna</a><br>
+    - <a href="inspection_tool.txt">Tutkimisruadoinstr.</a><br>
+    - <a href="slopetools.txt">Muankohendeluruadoinstr.</a><br>
+    - <a href="railtools.txt">Raudutieruadoinstr.</a><br>
+    - <a href="monorailtools.txt">Üksiraizivoruadoinstr.</a><br>
+    - <a href="tramtools.txt">Tramvairuadoinstr.</a><br>
+    - <a href="roadtools.txt">Doroguruadoinstr.</a><br>
+    - <a href="shiptools.txt">Porturuadoinstr.</a><br>
+    - <a href="airtools.txt">Lendokentüruadoinstr.</a><br>
+    - <a href="special.txt">Spetsial'noit srojimisruadoinstrumentat</a><br>
+    - <a href="edittools.txt">Kižankohendeluruadoinstr.</a><br>
+    - <a href="removal_tools.txt">Hävitä/ota iäre</a>
+</p>
+<p>
+    - <a href="window.txt"><strong>Haldivoiččemisvalikko</strong></a><br>
+    - <a href="linemanagement.txt">Liinielöin haldivo</a><br>
+    - <a href="list.txt">Luvettelot</a><br>
+    - - <a href="haltlist.txt">Azetusluvettelo</a><br>
+    - - - <a href="haltlist_filter.txt">Azetus-/azemuluvettelon filtruičus</a><br>
+    - - <a href="convoi.txt">Kulgunevvoluvettelo</a><br>
+    - - - <a href="convoi_filter.txt">Kulgunevvoluvettelon filtruičus</a><br>
+    - - <a href="citylist_filter.txt">Linnuluvettelo</a><br>
+    - - <a href="goods_filter.txt">Tavarluvettelo</a><br>
+    - - <a href="factorylist_filter.txt">Zavoduluvettelo</a><br>
+    - - <a href="curiositylist_filter.txt">Nähtävüsluvettelo</a><br>
+    - <a href="mailbox.txt">Viestit</a><br>
+    - <a href="finances.txt">Talovus</a>
+</p>
+<p>
+    <a href="window.txt"><strong>Muut valličukset</strong></a><br>
+    - <a href="window.txt">Kuvakuabavuksen otto</a><br>
+    - <a href="window.txt">Pauzu</a><br>
+    - <a href="window.txt">Boikonda aigua</a><br>
+    - <a href="window.txt">Ohjavo</a>
+</p>
+<p>
+    <a href="inspection_tool.txt"><strong>Muut dialougat</strong></a><br>
+    - <a href="depot.txt">Depon haldivo</a><br>
+    - <a href="schedule.txt">Aiguluvettelon haldivo</a><br>
+    - <a href="station.txt">Azetuksen tiijot</a><br>
+    - - <a href="station_details.txt">Azetuksen lizätiijot</a><br>
+    - <a href="convoiinfo.txt">Kulgunevvon tiijot</a><br>
+    - - <a href="convoidetail.txt">Kulgunevvon lizätiijot</a><br>
+    - <a href="citywindow.txt">Linnan tiijot</a><br>
+    - <a href="industry_info.txt">Zavodan tiijot</a>
+</p>
+<p>
+    Abuu voi löudüö muuloil kielil<br>
+    müös tulieloil sivustoloil:<br>
+    <em>https://simutrans-germany.com/wiki/wiki/Home/</em><br>
+    <em>https://forum.simutrans.com/</em><br>
+    <em>https://www.tips.simutrans.com/</em><br>
+    libo tulielois ohjavokirjoispäi:<br>
+    Simutrans Starter Guide<br>
+    (ezim. <em>http://simutrans.igoreliezer.com/docs/<br>
+    Simutrans%20Starter%20Guide.pdf</em>)<br>
+    Simutrans Reference Manual<br>
+    (ezim. <em>http://simutrans.igoreliezer.com/docs<br>
+    /Simutrans%20Reference%20Manual.pdf</em>)
+</p>
