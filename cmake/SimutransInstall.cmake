@@ -17,6 +17,7 @@ elseif (UNIX AND NOT OPTION_BUNDLE_LIBRARIES AND NOT SINGLE_INSTALL)
 
 	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/simutrans.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 	install(FILES ${CMAKE_SOURCE_DIR}/src/linux/simutrans.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+	install(FILES ${CMAKE_SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo/com.simutrans.Simutrans.metainfo.xml)
 else ()
 	# Portable installation
 	set(SIMUTRANS_BASE_DIR "${CMAKE_BINARY_DIR}/simutrans")
@@ -32,11 +33,13 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/simutrans/" DESTINATION ${SIMUTRANS_BASE_
 #
 # Download language files
 #
-if (MSVC)
-	# MSVC has no variable on the install target path at execution time, which is why we expand the directories at creation time!
-	install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_lang_files.ps1 WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/..)")
-else ()
-	install(CODE "execute_process(COMMAND sh ${CMAKE_SOURCE_DIR}/tools/get_lang_files.sh WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/.. )")
+if (SIMUTRANS_UPDATE_LANGFILES)
+	if (MSVC)
+		# MSVC has no variable on the install target path at execution time, which is why we expand the directories at creation time!
+		install(CODE "execute_process(COMMAND powershell -ExecutionPolicy Bypass -File ${CMAKE_SOURCE_DIR}/tools/get_lang_files.ps1 WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/..)")
+	else ()
+		install(CODE "execute_process(COMMAND sh ${CMAKE_SOURCE_DIR}/tools/get_lang_files.sh WORKING_DIRECTORY ${SIMUTRANS_OUTPUT_DIR}/${SIMUTRANS_BASE_DIR}/.. )")
+	endif ()
 endif ()
 
 #

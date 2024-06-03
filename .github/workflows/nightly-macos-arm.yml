@@ -16,10 +16,8 @@ jobs:
 
     - name: build
       run: |
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --target install
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSIMUTRANS_UPDATE_LANGFILES=ON ..
+        cmake --build build --target install
 
     - name: distribute
       run: |

@@ -40,6 +40,7 @@ if(Fontconfig_FOUND)
 endif()
 
 option(SIMUTRANS_INSTALL_PAK64 "Download pak64 on install" OFF)
+option(SIMUTRANS_UPDATE_LANGFILES "Update language files from the translator on install" OFF)
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
 option(SIMUTRANS_USE_SYSLOG "Enable logging to syslog" OFF)
 option(SIMUTRANS_USE_IP4_ONLY "Use only IPv4" OFF)

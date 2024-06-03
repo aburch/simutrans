@@ -30,7 +30,7 @@ jobs:
 
     - name: build
       run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOPTION_BUNDLE_LIBRARIES=ON
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOPTION_BUNDLE_LIBRARIES=ON -DSIMUTRANS_UPDATE_LANGFILES=ON
         cmake --build build -j$(nproc) --target install
 
     - name: distribute
