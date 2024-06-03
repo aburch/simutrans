@@ -17,7 +17,7 @@ elseif (UNIX AND NOT OPTION_BUNDLE_LIBRARIES AND NOT SINGLE_INSTALL)
 
 	install(FILES ${CMAKE_SOURCE_DIR}/src/simutrans/simutrans.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 	install(FILES ${CMAKE_SOURCE_DIR}/src/linux/simutrans.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-	install(FILES ${CMAKE_SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo/com.simutrans.Simutrans.metainfo.xml)
+	install(FILES ${CMAKE_SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 else ()
 	# Portable installation
 	set(SIMUTRANS_BASE_DIR "${CMAKE_BINARY_DIR}/simutrans")
