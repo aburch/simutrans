@@ -1,3 +1,8 @@
+	FIX: BASE_DIR/config/simuconf.tab was not read when "signleuser" was used
+	FIX: right button scrolling on minimap was broken
+	FIX: reenable dragging of stations
+
+
 Release of 124.1 (r11272 on 3-June-2024):
 	FIX: Cannot build ship depots on dead-end canal or river tiles
 	CHG: Freetype library is now a required dependency for non-server builds (previously it was optional)
