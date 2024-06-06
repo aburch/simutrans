@@ -562,7 +562,7 @@ int simu_main(int argc, char** argv)
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
 	sprintf( path_to_simuconf, "config%ssimuconf.tab", PATH_SEPARATOR );
-	if(  not_portable  &&  simuconf.open( path_to_simuconf )  ) {
+	if(  simuconf.open( path_to_simuconf )  ) {
 		tabfileobj_t contents;
 		simuconf.read( contents );
 		// use different save directories
