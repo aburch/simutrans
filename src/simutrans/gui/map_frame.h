@@ -32,6 +32,7 @@ class gui_scrollpane_map_t : public gui_scrollpane_t
 private:
 	bool is_dragging;
 	bool is_cursor_hidden;
+	sint32 drag_start_x, drag_start_y;
 
 public:
 	gui_scrollpane_map_t(gui_component_t* comp);

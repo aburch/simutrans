@@ -78,6 +78,8 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 		is_dragging = false;
 		display_show_pointer(false);
 		is_cursor_hidden = true;
+		drag_start_x = get_scroll_x();
+		drag_start_y = get_scroll_y();
 		return true;
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
@@ -87,23 +89,9 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 		return true;
 	}
 	else if (IS_RIGHTDRAG(ev)) {
-		int x = get_scroll_x();
-		int y = get_scroll_y();
 		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
-
-		x += (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2;
-		y += (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2;
-
 		is_dragging = true;
-
-		set_scroll_position(max(0, x), max(0, y));
-#if 0
-		// Move the mouse pointer back to starting location
-		// To prevent a infinite mouse event loop, we just do it when needed.
-		if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
-			move_pointer(map_frame_t::screenpos.x + ev->cx, map_frame_t::screenpos.y + ev->cy);
-		}
-#endif
+		set_scroll_position(max(0, drag_start_x + (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2), max(0, drag_start_y + (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2));
 		return true;
 	}
 	else if (IS_RIGHTDBLCLK(ev)) {

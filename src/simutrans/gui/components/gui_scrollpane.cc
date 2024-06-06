@@ -277,13 +277,13 @@ void gui_scrollpane_t::set_scroll_position(int x, int y)
 }
 
 
-int gui_scrollpane_t::get_scroll_x() const
+sint32 gui_scrollpane_t::get_scroll_x() const
 {
 	return scroll_x.get_knob_offset();
 }
 
 
-int gui_scrollpane_t::get_scroll_y() const
+sint32 gui_scrollpane_t::get_scroll_y() const
 {
 	return scroll_y.get_knob_offset();
 }
