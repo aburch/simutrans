@@ -418,7 +418,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* tool_build_station_t::move(player_t* const player, uint16 const b, koord3d const pos) OVERRIDE;
+	char const* move(player_t* const player, uint16 const b, koord3d const pos) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
