@@ -168,7 +168,6 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 			translator::set_language( buttons[i].id );
 			init_font_from_lang();
-			destroy_all_win( true );
 
 			event_t* ev = new event_t();
 			ev->ev_class = EVENT_SYSTEM;
