@@ -716,13 +716,13 @@ std::string dr_get_system_font()
 		// Found a match
 		if (_wcsnicmp(wsFaceName.c_str(), wsValueName.c_str(), wsFaceName.length()) == 0) {
 			// full match
-			wsFontFile.assign((LPWSTR)valueData, valueDataSize);
+			wsFontFile.assign((LPWSTR)valueData, valueDataSize/2);
 			break;
 		}
 
 		// Sometimes the face name is a family name; then only a partial match will be possible
 		if (wcsstr(wsValueName.c_str(), wsFaceName.c_str())) {
-			wsBestMatch.assign((LPWSTR)valueData, valueDataSize);
+			wsBestMatch.assign((LPWSTR)valueData, valueDataSize/2);
 		}
 	} while (result != ERROR_NO_MORE_ITEMS);
 
