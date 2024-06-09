@@ -1,4 +1,5 @@
-	FIX: BASE_DIR/config/simuconf.tab was not read when "signleuser" was used
+	FIX: Cargo not always loading onto vehicles
+	FIX: BASE_DIR/config/simuconf.tab was not read when "-singleuser" was used
 	FIX: right button scrolling on minimap was broken
 	FIX: reenable dragging of stations
 

@@ -99,7 +99,7 @@ void haltestelle_t::step_all()
 		}
 	}
 
-	static vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
+	static vector_tpl<halthandle_t>::iterator resume_iter( alle_haltestellen.begin() );
 	if (alle_haltestellen.empty()) {
 		return;
 	}
@@ -108,30 +108,38 @@ void haltestelle_t::step_all()
 		// always start with reconnection, re-routing will happen after complete reconnection
 		status_step = RECONNECTING;
 		reconnect_counter = schedule_counter;
-		iter = alle_haltestellen.begin();
+		resume_iter = alle_haltestellen.begin();
 	}
 
+	// always iterate all halts to properly reset served halts
 	sint16 units_remaining = 128;
-	for (; iter != alle_haltestellen.end(); ++iter) {
-		if (units_remaining <= 0) return;
+	bool use_status_step = false;
+	for(  vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );  iter != alle_haltestellen.end();  ++iter  ) {
+		if(  iter == resume_iter  ) use_status_step = true; // resume reconnecting/rerouting from this halt
 
-		// iterate until the specified number of units were handled
-		if(  !(*iter)->step(status_step, units_remaining)  ) {
-			// too much rerouted => needs to continue at next round!
-			return;
+		if(  use_status_step  &&  units_remaining <= 0  ) {
+			// too many reconnections => continue with next halt on next step
+			resume_iter = iter;
+			use_status_step = false;
+		}
+
+		if(  !(*iter)->step( use_status_step ? status_step : 0, units_remaining)  ) {
+			// too much rerouted => continue with this halt on next round!
+			resume_iter = iter;
+			use_status_step = false;
 		}
 	}
 
-	if (status_step == RECONNECTING) {
+	if(  use_status_step  &&  status_step == RECONNECTING  ) {
 		// reconnecting finished, compute connected components in one sweep
 		rebuild_connected_components();
 		// reroute in next call
 		status_step = REROUTING;
 	}
-	else if (status_step == REROUTING) {
+	else if(  use_status_step  &&  status_step == REROUTING  ) {
+		// rerouting finished
 		status_step = 0;
 	}
-	iter = alle_haltestellen.begin();
 }
 
 
