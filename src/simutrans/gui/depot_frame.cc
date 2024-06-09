@@ -962,7 +962,7 @@ void depot_frame_t::update_data()
 			else {
 				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
 				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
-				max_kmh =   speed_to_kmh(cnv->get_min_top_speed());
+				max_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_min_weight,   cnv->get_min_top_speed()));
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
 
@@ -977,21 +977,23 @@ void depot_frame_t::update_data()
 			txt_convoi_count.append( (double)cnv->get_tile_length(), 0 );
 
 			cbuffer_t& txt_convoi_speed = labels[LB_CNV_SPEED]->buf();
-			if(  empty_kmh < 4  ||  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
-				// convoi way too slow
+			if(  empty_kmh > 3  &&  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
 				convoi_length_ok_sb = 0;
 				if(  max_kmh != min_kmh  &&  !use_sel_weight  ) {
 					txt_convoi_speed.printf("%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, max_kmh, translator::translate("loaded") );
-					if(  max_kmh != empty_kmh  || empty_kmh < 4  ) {
+					if(  max_kmh != empty_kmh  ) {
+						// lightest good in category slows convoi => too_slow
 						convoi_length_slower_sb = 0;
 						convoi_length_too_slow_sb = convoi_length;
 					}
 					else {
+						// heaviest good in category slows convoi, but not lightest  => slower
 						convoi_length_slower_sb = convoi_length;
 						convoi_length_too_slow_sb = 0;
 					}
 				}
 				else {
+					// all goods possible have same weight slowing convoi => too_slow
 					txt_convoi_speed.printf("%s %d km/h, %d km/h %s", translator::translate("Max. speed:"), empty_kmh, use_sel_weight ? sel_kmh : min_kmh, translator::translate("loaded") );
 					convoi_length_slower_sb = 0;
 					convoi_length_too_slow_sb = convoi_length;
@@ -999,9 +1001,17 @@ void depot_frame_t::update_data()
 			}
 			else {
 					txt_convoi_speed.printf("%s %d km/h", translator::translate("Max. speed:"), empty_kmh );
-					convoi_length_ok_sb = convoi_length;
 					convoi_length_slower_sb = 0;
-					convoi_length_too_slow_sb = 0;
+					if(  empty_kmh > 3) {
+						// convoi is same acceptable speed loaded or empty => ok
+						convoi_length_ok_sb = convoi_length;
+						convoi_length_too_slow_sb = 0;
+					}
+					else {
+						// convoi way too slow  => too_slow
+						convoi_length_ok_sb = 0;
+						convoi_length_too_slow_sb = convoi_length;
+					}
 			}
 
 			{
