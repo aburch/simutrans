@@ -195,7 +195,7 @@ std::string sve_cache_t::get_most_recent_compatible_save()
 	sint64 best_time = 0;
 
 	for (stringhashtable_tpl<sve_info_t *>::iterator it = cached_info.begin(); it != cached_info.end(); ++it) {
-		if (it->value->pak+"/" == env_t::pak_name && it->value->mod_time > best_time) {
+		if (it->value->pak+PATH_SEPARATOR == env_t::pak_name && it->value->mod_time > best_time) {
 			best_filename = it->key;
 			best_time = it->value->mod_time;
 		}
