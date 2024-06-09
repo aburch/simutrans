@@ -1,5 +1,4 @@
-/*
- * This file is part of the Simutrans project under the Artistic License.
+/* This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
  */
 
@@ -1318,6 +1317,20 @@ int simu_main(int argc, char** argv)
 		if( dr_rename(pak_name.c_str(), "temp-load.sve") == 0 ) {
 			loadgame = "temp-load.sve";
 			new_world = false;
+		}
+		else {
+			// test if rejoin server game
+			pak_name.erase(pak_name.length() - 3);
+			pak_name.append("net");
+			if (dr_rename(pak_name.c_str(), "temp-load.sve") == 0) {
+				if (FILE *f = dr_fopen("temp-load.sve", "r")) {
+					char servername[2048];
+					fgets(servername, 2048, f);
+					fclose(f);
+					loadgame = servername;
+					new_world = false;
+				}
+			}
 		}
 		env_t::restore_UI = true;
 	}

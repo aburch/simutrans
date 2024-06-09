@@ -258,21 +258,7 @@ static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 		// quitting immediate, save settings and game without visual feedback
 		intr_disable();
 		DBG_DEBUG("SDL_APP_TERMINATING", "env_t::reload_and_save_on_quit=%d", env_t::reload_and_save_on_quit);
-		if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
-			// save current game, if not online
-			bool old_restore_UI = env_t::restore_UI;
-			env_t::restore_UI = true;
-
-			// construct from pak name an autosave if requested
-			std::string pak_name("autosave-");
-			pak_name.append(env_t::pak_name);
-			pak_name.erase(pak_name.length() - 1);
-			pak_name.append(".sve");
-
-			dr_chdir(env_t::user_dir);
-			world()->save(pak_name.c_str(), true, SAVEGAME_VER_NR, true);
-			env_t::restore_UI = old_restore_UI;
-		}
+		world()->stop(true);
 		// save settings
 		{
 			dr_chdir(env_t::user_dir);

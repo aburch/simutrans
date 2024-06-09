@@ -7155,9 +7155,6 @@ bool tool_rotate90_t::init( player_t * )
 
 bool tool_quit_t::init( player_t * )
 {
-	if (env_t::networkmode) {
-		welt->network_disconnect();
-	}
 	if (!strempty(default_param)) {
 		// new world
 		destroy_all_win(true);
@@ -7166,6 +7163,9 @@ bool tool_quit_t::init( player_t * )
 	else {
 		// totally quit
 		welt->stop(true);
+	}
+	if (env_t::networkmode) {
+		welt->network_disconnect();
 	}
 	return false;
 }

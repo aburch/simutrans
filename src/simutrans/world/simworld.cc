@@ -5657,20 +5657,33 @@ void karte_t::stop(bool exit_game)
 			world->save(fn, false, SAVEGAME_VER_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
-		else if (env_t::reload_and_save_on_quit && !env_t::networkmode) {
-			// save current game, if not online
-			bool old_restore_UI = env_t::restore_UI;
-			env_t::restore_UI = true;
+		else if (env_t::reload_and_save_on_quit) {
+			if (env_t::networkmode) {
+				// construct from pak name an autosave if requested
+				std::string pak_name("autosave-");
+				pak_name.append(env_t::pak_name);
+				pak_name.erase(pak_name.length() - 1);
+				pak_name.append(".net");
 
-			// construct from pak name an autosave if requested
-			std::string pak_name("autosave-");
-			pak_name.append(env_t::pak_name);
-			pak_name.erase(pak_name.length() - 1);
-			pak_name.append(".sve");
+				FILE *f = dr_fopen(pak_name.c_str(), "w");
+				fputs(settings.get_filename(), f);
+				fclose(f);
+			}
+			else {
+				// save current game, if not online
+				bool old_restore_UI = env_t::restore_UI;
+				env_t::restore_UI = true;
 
-			dr_chdir(env_t::user_dir);
-			world->save(pak_name.c_str(), true, SAVEGAME_VER_NR, false);
-			env_t::restore_UI = old_restore_UI;
+				// construct from pak name an autosave if requested
+				std::string pak_name("autosave-");
+				pak_name.append(env_t::pak_name);
+				pak_name.erase(pak_name.length() - 1);
+				pak_name.append(".sve");
+
+				dr_chdir(env_t::user_dir);
+				world->save(pak_name.c_str(), true, SAVEGAME_VER_NR, false);
+				env_t::restore_UI = old_restore_UI;
+			}
 		}
 		destroy_all_win(true);
 	}
@@ -6439,8 +6452,7 @@ void karte_t::network_disconnect()
 	create_win({ display_get_width()/2-128, 40 }, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord3d::invalid, SYSCOL_TEXT );
 	last_active_player_nr = active_player_nr;
-
-	stop(false);
+	finish_loop = true; // kick me out to main screen
 }
 
 
