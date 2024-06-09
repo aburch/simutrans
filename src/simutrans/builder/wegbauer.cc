@@ -662,26 +662,24 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 		// universal check for bridges: enter bridges in bridge direction
 		if( from->get_typ()==grund_t::brueckenboden ) {
-			ribi_t::ribi br = ribi_type(zv);
 			if (weg_t *w = from->get_weg((waytype_t)(bautyp_mask & bautyp))) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(w->get_ribi_unmasked())) {
 					return false;
 				}
 			}
-			if (bautyp_mask & bautyp==powerline_wt  && from->get_leitung()) {
+			if ((bautyp_mask & bautyp)==powerline_wt  &&  from->get_leitung()) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(from->get_leitung()->get_ribi())) {
 					return false;
 				}
 			}
 		}
 		if( to->get_typ()==grund_t::brueckenboden ) {
-			ribi_t::ribi br = ribi_type(zv);
 			if (weg_t* w = to->get_weg((waytype_t)(bautyp_mask & bautyp))) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(w->get_ribi_unmasked())) {
 					return false;
 				}
 			}
-			if (bautyp_mask & bautyp == powerline_wt && to->get_leitung()) {
+			if ((bautyp_mask & bautyp) == powerline_wt  &&  to->get_leitung()) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(to->get_leitung()->get_ribi())) {
 					return false;
 				}
