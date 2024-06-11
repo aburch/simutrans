@@ -2178,7 +2178,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 		uint32 frame_start_time;
 		uint32 sync_steps_until_step = sync_steps_per_step;
 
-		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
+		while (gui && win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
 			frame_start_time = dr_time();
 
 			do {
@@ -2208,6 +2208,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 						(ev.ev_class == EVENT_CLICK && !gui->is_hit(ev.click_pos.x - pos.x, ev.click_pos.y - pos.y))
 					) {
 						destroy_win(gui);
+						gui = NULL;
 					}
 				}
 
@@ -2242,7 +2243,7 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 		display_show_pointer(true);
 		display_show_load_pointer(0);
 		display_fillbox_wh_rgb(0, 0, display_get_width(), display_get_height(), color_idx_to_rgb(COL_BLACK), true);
-		while (win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
+		while (gui && win_is_open(gui) && !env_t::quit_simutrans && !quit()) {
 			// do not move, do not close it!
 
 			// check for events again after waiting
