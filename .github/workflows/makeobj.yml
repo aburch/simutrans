@@ -1,0 +1,95 @@
+name: Nightly build
+
+on: [push]
+
+jobs:
+  makeobj_windows-nightly:
+    name: makeobj Windows
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: compile makeobj
+      run: |
+        cd "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\"
+        .\MSBuild.exe $Env:GITHUB_WORKSPACE\src\makeobj\Makeobj.vcxproj /p:Configuration=Release /p:Platform=x86
+        cd $Env:GITHUB_WORKSPACE\
+
+    - name: zip result
+      run: Compress-Archive build\makeobj\Makeobj.exe build\makeobj\makeobj_windows-nightly.zip
+      shell: pwsh
+
+    - name: Update binaries of Nightly Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: build/makeobj/makeobj_windows-nightly.zip
+        asset_name: makeobj_windows-nightly.zip
+        tag: Nightly
+        overwrite: true
+
+  makeobj_linux-x64-nightly:
+    name: makeobj Linux x64
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: install_dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -ym install autoconf
+          sudo apt-get -ym install libpng-dev
+          sudo apt-get -ym install libbz2-dev
+
+      - name: setup
+        run: |
+          autoconf
+          ./configure
+          echo "STATIC = 1" >>config.default
+          cat config.default >>/dev/stderr
+
+      - name: make makeobj
+        run: |
+          cd src/makeobj
+          make
+
+      - name: zip result
+        run: |
+          cd src/makeobj
+          zip -r -9 makeobj_linux-x64-nightly.zip makeobj
+
+      - name: Update binaries of Nightly Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: src/makeobj/makeobj_linux-x64-nightly.zip
+          asset_name: makeobj_linux-x64-nightly.zip
+          tag: Nightly
+          overwrite: true
+
+  makeobj-mac:
+    name: makeobj macOS x86
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure
+        run: cp configs/config.${{ github.job }} config.default
+      - name: Build
+        run: make -j2 makeobj
+      - name: zip result
+        run: zip -r -9 makeobj_macos-nightly.zip build/default/makeobj/makeobj
+      - name: Upload Artifact (CI)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: makeobj_macos-nightly.zip
+          asset_name: makeobj_macos-x86-nightly.zip
+          #name: ${{ github.job }}-nightly
+          #path: build/default/makeobj/makeobj
+          tag: Nightly
+          overwrite: true
