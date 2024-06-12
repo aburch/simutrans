@@ -2498,19 +2498,22 @@ void stadt_t::check_bau_townhall(bool new_town)
 					}
 				}
 			}
+
+			// Needs bounds checks for the edge case where a townhall is at the very top of the map and the townhall road is demolished
+			// (pos - whatever) could result in negative (or invalid) map coordinates given that pos can be zero and given that zero is a valid pos in the world
 			if (umziehen) {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
-				if (welt->lookup_kartenboden(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
+				if (welt->is_within_limits(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
 					alte_str = townhall_road;
 				}
 				else {
 					koord k = pos + (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
-					if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
+					if (welt->is_within_limits(k)  &&  welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 						alte_str = k;
 					}
 					else {
 						k = pos - (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
-						if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
+						if (welt->is_within_limits(k)  &&  welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 							alte_str = k;
 						}
 					}
