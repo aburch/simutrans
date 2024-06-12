@@ -25,11 +25,7 @@ jobs:
       shell: pwsh
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        cd vcpkg
-        ./bootstrap-vcpkg.bat
-        ./vcpkg integrate install
-        cd ..
+        vcpkg integrate install
         msbuild /m .\Simutrans-SDL2.vcxproj -p:Configuration=Release /p:platform=x64
 
     - name: Build zipfile

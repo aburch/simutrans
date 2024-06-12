@@ -31,8 +31,11 @@ extern log_t *dbg;
  */
 void init_logging(const char *logname, bool force_flush, bool log_debug, const char *greeting, const char* syslogtag );
 
+#define DO_EXPAND(VAL)  VAL ## 1
+#define EXPAND(VAL)     DO_EXPAND(VAL)
 
-#if !defined(MSG_LEVEL)
+#if !defined(MSG_LEVEL) || (EXPAND(MSG_LEVEL) == 1)
+#undef MSG_LEVEL
 #if defined(DEBUG)
 #define MSG_LEVEL 4
 #else
@@ -40,6 +43,8 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 #endif
 #endif
 
+#undef DO_EXPAND
+#undef EXPAND
 
 #if MSG_LEVEL >= 4
 #define DBG_DEBUG4 dbg->debug
