@@ -20,7 +20,7 @@
 class gui_convoiinfo_t : public gui_aligned_container_t, public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	static const char *profit;
+	sint64 old_income; // for size updates ...
 
 	/**
 	* Handle Convois to be displayed.

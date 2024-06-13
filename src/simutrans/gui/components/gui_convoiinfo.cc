@@ -24,8 +24,6 @@
 
 #include "../../utils/simstring.h"
 
-const char* gui_convoiinfo_t::profit;
-
 class gui_convoi_images_t : public gui_component_t
 {
 	convoihandle_t cnv;
@@ -70,6 +68,7 @@ public:
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
+	old_income = 0xFFFFFFFFFFFFFFFFull;
 
 	set_table_layout(3,0);
 	set_alignment(ALIGN_LEFT | ALIGN_BOTTOM);
@@ -141,7 +140,8 @@ const char* gui_convoiinfo_t::get_text() const
 
 void gui_convoiinfo_t::update_label()
 {
-	bool size_change = false;
+	bool size_change = old_income != cnv->get_jahresgewinn();
+	old_income == cnv->get_jahresgewinn();
 
 	label_profit.buf().append(translator::translate("Gewinn"));
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
