@@ -659,7 +659,7 @@ void rdwr_all_win(loadsave_t *file)
 				p.rdwr(file);
 				uint8 win_type;
 				file->rdwr_byte( win_type );
-				create_win( p, w, (wintype)win_type, id, true );
+				create_win( p, w, (wintype)win_type, id );
 				bool sticky, rollup;
 				file->rdwr_bool( sticky );
 				file->rdwr_bool( rollup );
@@ -724,7 +724,7 @@ int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
 	return create_win({ -1, -1 }, gui, wt, magic);
 }
 
-int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_t const magic, bool move_to_full_view)
+int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_t const magic)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -839,14 +839,12 @@ int create_win(scr_coord pos, gui_frame_t *const gui, wintype const wt, ptrdiff_
 
 		// try to go next to mouse bar
 		if (pos.x == -1) {
-			move_to_full_view = true;
 			pos.x = get_mouse_pos().x - gui->get_windowsize().w / 2;
 			pos.y = get_mouse_pos().y - gui->get_windowsize().h - get_tile_raster_width()/4;
 		}
 
 		// make sure window is on screen
-		win_clamp_xywh_position(pos, gui->get_windowsize(), move_to_full_view);
-
+		win_clamp_xywh_position(pos, gui->get_windowsize(), true);
 
 		win.pos = pos;
 		win.dirty = true;
@@ -892,7 +890,8 @@ int top_win(int win, bool keep_state )
 		return win;
 	} // already topped
 
-	  // mark old dirty
+
+	// mark old dirty
 	scr_size size = wins.back().gui->get_windowsize();
 	mark_rect_dirty_wc( wins.back().pos.x - 1, wins.back().pos.y - 1, wins.back().pos.x + size.w + 2, wins.back().pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
 	wins.back().dirty = true;

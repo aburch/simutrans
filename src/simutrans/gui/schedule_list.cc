@@ -251,7 +251,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 						}
 					}
 				}
-				create_win( lc, new line_management_gui_t(line, player, -1), w_info, (ptrdiff_t)line.get_rep(), true );
+				create_win( lc, new line_management_gui_t(line, player, -1), w_info, (ptrdiff_t)line.get_rep() );
 			}
 		}
 		scl.set_selection( -1 );

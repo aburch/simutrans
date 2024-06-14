@@ -83,7 +83,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Einstellungen aendern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_optionen_gui_t); }
 	bool init(player_t*) OVERRIDE{
-		create_win({ -1, -1 }, new optionen_gui_t(), w_info, magic_optionen_gui_t, true);
+		create_win({ -1, -1 }, new optionen_gui_t(), w_info, magic_optionen_gui_t);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_optionen_gui_t); return false; }
