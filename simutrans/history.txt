@@ -3,6 +3,7 @@
 	FIX: reenable dragging of stations
 	FIX: Cargo not always loading onto vehicles in large games
 	CHG: Reconnect to network games unless kicked out with desync
+	CHG: Allo again building roads through other people halts but do not take ownership
 
 
 Release of 124.1 (r11272 on 3-June-2024):

@@ -472,12 +472,6 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 		return true;
 	}
 
-	// check for other player stops
-	halthandle_t halt = to->get_halt();
-	if(halt.is_bound() && !check_owner(halt->get_owner(), player_builder)){
-		return false;
-	}
-
 	// first find all kind of buildings
 	gebaeude_t *building = to->find<gebaeude_t>();
 	if(building==NULL) {
@@ -2647,14 +2641,15 @@ void way_builder_t::build_road()
 		if(extend) {
 			weg_t * weg = gr->get_weg(road_wt);
 
-			// keep faster ways or if it is the same way
+			// keep faster ways or if it is the same way, or it is the way under the halt of an existing player
 			if(weg->get_desc()==desc  ||  keep_existing_ways
 				||  (keep_existing_city_roads  &&  weg->hat_gehweg())
 				||  (keep_existing_faster_ways  &&  weg->get_desc()->get_topspeed()>desc->get_topspeed())
 				||  (player_builder!=NULL  &&  weg->get_removal_error(player_builder)!=NULL)
 				||  (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)
 				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->get_removal_error(player_builder)!=NULL) // do not replace public roads crossing rails of other players
-			) {
+				||  (gr->get_halt().is_bound()  && !check_owner(gr->get_halt()->get_owner(), player_builder))
+				) {
 				//nothing to be done
 			}
 			else {
