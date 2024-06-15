@@ -93,6 +93,13 @@ static int compare_atv(uint8 player_nr_a, uint8 player_nr_b, uint8 atv_index)
 			comp = b_player->get_finance()->get_history_veh_year((transport_type)player_ranking_frame_t::transport_type_option, years_back - 1, atv_index) - a_player->get_finance()->get_history_veh_year((transport_type)player_ranking_frame_t::transport_type_option, years_back - 1, atv_index);
 		}
 	}
+	// if at least one if defined, it must go the the head of the list
+	else if(a_player) {
+		return true;
+	}
+	else if (b_player) {
+		return false;
+	}
 	if (comp == 0) {
 		comp = player_nr_b - player_nr_a;
 	}
@@ -111,6 +118,13 @@ static int compare_atc(uint8 player_nr_a, uint8 player_nr_b, uint8 atc_index)
 			comp = b_player->get_finance()->get_history_com_year(years_back - 1, atc_index) - a_player->get_finance()->get_history_com_year(years_back - 1, atc_index);
 		}
 	}
+	// if at least one if defined, it must go the the head of the list
+	else if (a_player) {
+		return true;
+	}
+	else if (b_player) {
+		return false;
+	}
 	if (comp == 0) {
 		comp = player_nr_b - player_nr_a;
 	}
@@ -121,7 +135,7 @@ static int compare_revenue(player_button_t* const& a, player_button_t* const& b)
 	return compare_atv(a->get_player_nr(), b->get_player_nr(), ATV_REVENUE);
 }
 static int compare_profit(player_button_t* const& a, player_button_t* const& b) {
-	return compare_atv(a->get_player_nr(), b->get_player_nr(), ATV_PROFIT);
+	return compare_atv(a->get_player_nr(), b->get_player_nr(), ATV_OPERATING_PROFIT);
 }
 static int compare_transport_pax(player_button_t* const& a, player_button_t* const& b) {
 	return compare_atv(a->get_player_nr(), b->get_player_nr(), ATV_TRANSPORTED_PASSENGER);
@@ -451,6 +465,9 @@ bool player_ranking_frame_t::action_triggered(gui_action_creator_t* comp, value_
 			transport_type_option = (uint8)v.i;
 			transport_type_option = transport_types[v.i];
 			update_chart();
+		}
+		else {
+			transport_type_option = TT_ALL;
 		}
 		return true;
 	}
