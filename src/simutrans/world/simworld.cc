@@ -3707,6 +3707,10 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		chat_msg->rdwr(file);
 	}
 
+	if (file->is_version_atleast(124, 2)) {
+		records->rdwr(file);
+	}
+
 	file->rdwr_byte( active_player_nr );
 
 	// save all open windows (upon request)
@@ -4249,6 +4253,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	}
 	else {
 		// maybe move messages into chat_messages?
+	}
+
+	if (file->is_version_atleast(124, 2)) {
+		records->rdwr(file);
 	}
 
 	if(  file->is_version_atleast(102, 4)  ) {

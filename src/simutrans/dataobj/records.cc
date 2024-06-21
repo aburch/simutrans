@@ -4,13 +4,44 @@
  */
 
 #include "records.h"
-#include "../dataobj/translator.h"
+#include "loadsave.h"
+#include "translator.h"
 #include "../player/simplay.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 #include "../simconvoi.h"
 #include "../utils/cbuffer.h"
+#include "../utils/simstring.h"
 #include "../vehicle/vehicle.h"
+
+#include "../macros.h"
+
+
+void records_t::speed_record_t::rdwr(loadsave_t* f)
+{
+	f->rdwr_long(speed);
+	f->rdwr_long(year_month);
+	pos.rdwr(f);
+	f->rdwr_byte(player_nr);
+	if (f->is_loading()) {
+		// for now it is not saved
+		cnv = convoihandle_t();
+	}
+	f->rdwr_str(name, lengthof(name));
+}
+
+
+void records_t::rdwr(loadsave_t* f)
+{
+	max_rail_speed.rdwr(f);
+	max_monorail_speed.rdwr(f);
+	max_maglev_speed.rdwr(f);
+	max_narrowgauge_speed.rdwr(f);
+	max_road_speed.rdwr(f);
+	max_ship_speed.rdwr(f);
+	max_air_speed.rdwr(f);
+}
+
 
 sint32 records_t::get_record_speed( waytype_t w ) const
 {
@@ -27,6 +58,7 @@ sint32 records_t::get_record_speed( waytype_t w ) const
 	}
 }
 
+
 void records_t::clear_speed_records()
 {
 	max_road_speed.speed = 0;
@@ -37,6 +69,7 @@ void records_t::clear_speed_records()
 	max_ship_speed.speed = 0;
 	max_air_speed.speed = 0;
 }
+
 
 void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k, uint32 current_month )
 {
@@ -60,23 +93,25 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k, 
 
 	// really new/faster?
 	if(k!=sr->pos  ||  sr->speed+1<max_speed) {
-		// update it
+		// update it first and notify if a repeat was achieved to avoid spamming messages
 		sr->cnv = cnv;
 		sr->speed = max_speed-1;
 		sr->year_month = current_month;
 		sr->pos = k;
-		sr->owner = NULL; // will be set, when accepted
+		sr->player_nr = PLAYER_UNOWNED; // will be set, when accepted
 	}
 	else {
+		// repeted same speed, same place
 		sr->cnv = cnv;
 		sr->speed = max_speed-1;
 		sr->pos = k;
 
 		// same convoi and same position
-		if(sr->owner==NULL  &&  current_month!=sr->year_month) {
+		if(sr->player_nr==PLAYER_UNOWNED  &&  current_month!=sr->year_month) {
 			// notify the world of this new record
 			sr->speed = max_speed-1;
-			sr->owner = cnv->get_owner();
+			sr->player_nr = cnv->get_owner()->get_player_nr();
+			tstrncpy(sr->name, cnv->get_internal_name(), lengthof(sr->name));
 			const char* text;
 			switch (cnv->front()->get_waytype()) {
 				default: NOT_REACHED
@@ -91,7 +126,8 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord3d k, 
 			}
 			cbuffer_t buf;
 			buf.printf( translator::translate(text), speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
-			msg->add_message( buf, sr->pos, message_t::new_vehicle|message_t::DO_NOT_SAVE_MSG, PLAYER_FLAG|sr->owner->get_player_nr() );
+
+			msg->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->player_nr );
 		}
 	}
 }

@@ -12,6 +12,7 @@
 
 class message_t;
 class player_t;
+class loadsave_t;
 
 /**
  * World record speed management.
@@ -32,6 +33,8 @@ public:
 	/** Resets all speed records. */
 	void clear_speed_records();
 
+	void rdwr(loadsave_t* f);
+
 private:
 	// Destination for world record notifications.
 	message_t *msg;
@@ -42,12 +45,15 @@ private:
 	class speed_record_t {
 	public:
 		convoihandle_t cnv;
+		char      name[128];
 		sint32    speed;
-		koord3d     pos;
-		player_t *owner;  // Owner
+		koord3d   pos;
+		sint8     player_nr;  // Owner
 		uint32    year_month;
 
-		speed_record_t() : cnv(), speed(0), pos(koord3d::invalid), owner(NULL), year_month(0) {}
+		speed_record_t() : cnv(), speed(0), pos(koord3d::invalid), player_nr(PLAYER_UNOWNED), year_month(0) { name[0] = 0; }
+
+		void rdwr(loadsave_t* f);
 	};
 
 	/// World rail speed record
