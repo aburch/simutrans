@@ -2200,7 +2200,7 @@ void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended)
 	}
 	// check for password-protected players
 	if(  (!tool_in->is_init_keeps_game_state()  ||  !tool_in->is_work_keeps_game_state())  &&  needs_check  &&
-		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE | GENERAL_TOOL))  &&
+		 !(tool_in->get_id() == (DIALOG_LOAD | DIALOGE_TOOL)  ||  tool_in->get_id() == (TOOL_CHANGE_PLAYER | SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE | GENERAL_TOOL))  &&
 		 player  &&  player->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win(new password_frame_t(player), w_info, magic_pwd_t + player->get_player_nr() );
