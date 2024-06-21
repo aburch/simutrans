@@ -193,7 +193,7 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	socket_info_t &info = socket_list_t::get_client(client_id);
 
 	cbuffer_t buf;
-	buf.printf("%d,", chat_message_t::do_not_rdwr_flag);
+	buf.printf("%d,", chat_message_t::DO_NOT_SAVE_MSG);
 
 	switch(what) {
 		case WELCOME: {
@@ -320,7 +320,7 @@ void nwc_chat_t::add_message(karte_t* welt) const
 	}
 	else {
 		// Whisper, do not store message in savegame
-		flag |= message_t::playermsg_flag;
+		flag |= message_t::PLAYER_MSG;
 		if (  player_nr < PLAYER_UNOWNED  ) {
 			buf.printf( "%s <%s> --> %s: %s", clientname.c_str(), welt->get_player( player_nr )->get_name(), destination.c_str(), message.c_str() );
 		}

@@ -283,40 +283,31 @@ void message_t::rdwr(loadsave_t* file)
 	uint16 msg_count;
 	if (file->is_saving()) {
 		msg_count = 0;
+		vector_tpl<message_node_t*>msg_to_save;
+		msg_to_save.reserve(list.get_count());
 		if (env_t::server) {
 			// do not save local messages and expired messages
 			uint32 current_time = world()->get_current_month();
 			for (message_node_t* const i : list) {
-				if (i->type & do_not_rdwr_flag || (i->type & expire_after_one_month_flag && current_time - i->time > 1)) {
+				if (i->type & DO_NOT_SAVE_MSG || (i->type & EXPIRE_AFTER_ONE_MONTH_MSG && current_time - i->time > 1)) {
 					continue;
 				}
-				if (++msg_count == MAX_SAVED_MESSAGES) break;
-			}
-			file->rdwr_short(msg_count);
-			for (message_node_t* const i : list) {
-				if (msg_count == 0) break;
-				if (i->type & do_not_rdwr_flag || (i->type & expire_after_one_month_flag && current_time - i->time > 1)) {
-					continue;
-				}
-				i->rdwr(file);
-				msg_count--;
+				msg_to_save.append(i);
 			}
 		}
 		else {
 			// do not save discardable messages (like changing player)
 			for (message_node_t* const i : list) {
-				if (!(i->type & do_not_rdwr_flag)) {
-					if (++msg_count == MAX_SAVED_MESSAGES) break;
+				if (!(i->type & DO_NOT_SAVE_MSG)) {
+					msg_to_save.append(i);
 				}
 			}
-			file->rdwr_short(msg_count);
-			for (message_node_t* const i : list) {
-				if (msg_count == 0) break;
-				if (!(i->type & do_not_rdwr_flag)) {
-					i->rdwr(file);
-					msg_count--;
-				}
-			}
+		}
+		// save only the last MAX_SAVED_MESSAGES
+		msg_count = (uint16)min(MAX_SAVED_MESSAGES, msg_to_save.get_count());
+		file->rdwr_short(msg_count);
+		for (uint32 i = msg_to_save.get_count() - msg_count; i < msg_to_save.get_count(); i++) {
+			msg_to_save[i]->rdwr(file);
 		}
 	}
 	else {
@@ -329,6 +320,7 @@ void message_t::rdwr(loadsave_t* file)
 		while ((msg_count--) > 0) {
 			message_node_t* n = new message_node_t();
 			n->rdwr(file);
+			// maybe add this rather to the chat
 			if (file->is_version_less(124, 1)) {
 				if (n->get_type_shifted() == (1 << message_t::chat)) {
 					char name[256];
@@ -378,7 +370,7 @@ void chat_message_t::convert_old_message(const char* text, const char* name, sin
 	chat_node* const n = new chat_node();
 	tstrncpy(n->msg, text, lengthof(n->msg));
 
-	n->flags = chat_message_t::none;
+	n->flags = chat_message_t::NONE;
 	n->pos = pos;
 	n->player_nr = player_nr;
 	n->channel_nr = -1;
@@ -420,7 +412,7 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 		sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
 	}
 
-	if (!(flags & do_not_log_flag)) {
+	if (!(flags & DO_NO_LOG_MSG)) {
 		// we do not allow messages larger than 256 bytes
 		chat_node* const n = new chat_node();
 		tstrncpy(n->msg, text, lengthof(n->msg));
@@ -479,21 +471,19 @@ void chat_message_t::rdwr(loadsave_t* file)
 {
 	uint16 msg_count;
 	if (file->is_saving()) {
-		msg_count = 0;
+		vector_tpl<chat_node*>msg_to_save;
+		msg_to_save.reserve(list.get_count());
 		// do not save discardable messages
 		for (chat_node* const i : list) {
-			if (!(i->flags & do_not_rdwr_flag)) {
-				if (++msg_count == MAX_SAVED_MESSAGES) break;
+			if (!(i->flags & DO_NOT_SAVE_MSG)) {
+				msg_to_save.append(i);
 			}
 		}
+		// save only the last MAX_SAVED_MESSAGES
+		msg_count = (uint16)min(MAX_SAVED_MESSAGES, msg_to_save.get_count());
 		file->rdwr_short(msg_count);
-		for (chat_node* const i : list) {
-			if (msg_count == 0) break;
-			if (i->flags & do_not_rdwr_flag) {
-				continue;
-			}
-			i->rdwr(file);
-			msg_count--;
+		for (uint32 i = msg_to_save.get_count() - msg_count; i < msg_to_save.get_count(); i++) {
+			msg_to_save[i]->rdwr(file);
 		}
 	}
 	else {

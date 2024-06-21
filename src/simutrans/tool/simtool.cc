@@ -8269,7 +8269,7 @@ const char* tool_add_message_t::work(player_t* player, koord3d pos )
 			return "";
 		}
 		welt->get_message()->add_message( text+1, pos, type,
-								player == NULL || ( (type & message_t::playermsg_flag) != 0)  ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+								player == NULL || ( (type & message_t::PLAYER_MSG) != 0)  ? color_idx_to_rgb(COL_BLACK) : PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 
 	}
 	return NULL;

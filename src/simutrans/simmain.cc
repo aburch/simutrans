@@ -1626,7 +1626,7 @@ int simu_main(int argc, char** argv)
 		welt->get_message()->set_message_flags(env_t::message_flags[0], env_t::message_flags[1], env_t::message_flags[2], env_t::message_flags[3]);
 
 		if (pakset_manager_t::needs_doubled_warning_message()) {
-			welt->get_message()->add_message(pakset_manager_t::get_doubled_warning_message(), koord3d::invalid, message_t::general | message_t::do_not_rdwr_flag);
+			welt->get_message()->add_message(pakset_manager_t::get_doubled_warning_message(), koord3d::invalid, message_t::general | message_t::DO_NOT_SAVE_MSG);
 		}
 
 		if(  !env_t::networkmode  &&  !env_t::server  ) {
