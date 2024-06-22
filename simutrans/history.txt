@@ -6,6 +6,7 @@
 	CHG: Allow again building roads through other people halts but do not take road ownership afterwards
 	FIX: Always have topped or new windows on the screen
 	FIX: Saving discarded the newest messages
+	FIX: number of players online in chat window now correct (and also showing offline state)
 
 
 Release of 124.1 (r11272 on 3-June-2024):

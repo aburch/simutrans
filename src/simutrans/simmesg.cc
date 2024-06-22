@@ -13,8 +13,10 @@
 #include "world/simworld.h"
 
 #include "dataobj/loadsave.h"
+#include "dataobj/translator.h"
 #include "dataobj/environment.h"
 #include "dataobj/pakset_manager.h"
+#include "network/network_socket_list.h"
 #include "player/simplay.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
@@ -27,6 +29,10 @@
 #define MAX_SAVED_MESSAGES (2000)
 
 static karte_ptr_t welt;
+
+uint8 clients_active = 0;
+const char *player_count;
+size_t player_count_lenght;
 
 uint32 message_node_t::get_type_shifted() const
 {
@@ -127,6 +133,8 @@ void message_t::clear()
 		delete list.remove_first();
 	}
 	ticker::clear_messages();
+	player_count = translator::translate("Now %u clients connected.", world()->get_settings().get_name_language_id());
+	player_count_lenght = strchr(player_count, '%') - player_count;
 }
 
 
@@ -161,6 +169,11 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 void message_t::add_message(const char *text, koord3d pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos.z );
+
+	// hacky, retrieve the number of clients for the last messages
+	if (strncmp(text, player_count, player_count_lenght) == 0) {
+		clients_active = atoi(text + player_count_lenght);
+	}
 
 	sint32 what_bit = 1<<(what_flags & MESSAGE_TYPE_MASK);
 	if(  what_bit&ignore_flags  ) {
@@ -352,6 +365,8 @@ void message_t::rdwr(loadsave_t* file)
 }
 
 
+
+
 chat_message_t::~chat_message_t()
 {
 	clear();
@@ -497,4 +512,17 @@ void chat_message_t::rdwr(loadsave_t* file)
 			list.append(n);
 		}
 	}
+}
+
+
+// return the number of connected clients
+uint8 chat_message_t::get_online_players()
+{
+	if (env_t::server) {
+		return socket_list_t::get_playing_clients();
+	}
+	else if (env_t::networkmode) {
+		return clients_active;
+	}
+	return 0;
 }

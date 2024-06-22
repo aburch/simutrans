@@ -13,7 +13,6 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
-#include "../dataobj/gameinfo.h"
 #include "../network/network_cmd_ingame.h"
 #include "../player/simplay.h"
 #include "../display/viewport.h"
@@ -203,7 +202,6 @@ public:
 	scr_size get_min_size() const OVERRIDE
 	{
 		return scr_size(100 + lb_time_diff.get_size().w, message.get_min_size().h + 4 + D_V_SPACE + lb_time_diff.get_size().h);
-//		return scr_size(100 + lb_time_diff.get_size().w, size.h);
 	}
 
 	scr_size get_max_size() const OVERRIDE
@@ -381,11 +379,6 @@ void chat_frame_t::fill_list()
 	player_t* current_player = world()->get_active_player();
 	const scr_coord_val width = get_windowsize().w;
 
-	gameinfo_t gi(world());
-
-	lb_now_online.buf().printf(translator::translate("%u Client(s)\n"), (unsigned)gi.get_clients());
-	lb_now_online.update();
-
 	old_player_nr = current_player->get_player_nr();
 
 	cont_chat_log[chat_mode].clear_elements();
@@ -407,8 +400,8 @@ void chat_frame_t::fill_list()
 				// no permission but visible messages you sent
 				continue;
 			}
-
 			break;
+
 		case CH_WHISPER:
 			if (i->destination == NULL || i->sender == NULL) {
 				continue;
@@ -431,8 +424,8 @@ void chat_frame_t::fill_list()
 			if (strcmp(env_t::nickname.c_str(), i->sender.c_str())) {
 				chat_history.append_unique(i->sender);
 			}
-
 			break;
+
 		default:
 		case CH_PUBLIC:
 			// system message and public chats
@@ -560,6 +553,9 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 
 void chat_frame_t::draw(scr_coord pos, scr_size size)
 {
+	lb_now_online.buf().printf(translator::translate(env_t::networkmode ? "%u Client(s)\n" : "Not online"), chat_message_t::get_online_players());
+	lb_now_online.update();
+
 	if (welt->get_chat_message()->get_list().get_count() != last_count || old_player_nr != world()->get_active_player_nr()) {
 		fill_list();
 	}

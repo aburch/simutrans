@@ -101,6 +101,7 @@ public:
 class chat_message_t
 {
 public:
+
 	class chat_node {
 	public:
 		char msg[256];
@@ -127,6 +128,8 @@ public:
 
 	chat_message_t() {};
 	~chat_message_t();
+
+	static uint8 get_online_players();
 
 private:
 	slist_tpl<chat_node*> list;

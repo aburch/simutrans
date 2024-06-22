@@ -4413,6 +4413,10 @@ obj=program_text
 name=Click to open the finance dialog.
 note=player ranking window
 --
+obj=program_text
+name=Not online
+note=message when offline in chat window
+--
 
 
 
