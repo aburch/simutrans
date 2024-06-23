@@ -301,7 +301,7 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width);
 #define proportional_string_len_width(text, len) display_calc_proportional_string_len_width(text, len)
 
 // length of a string in pixel
-int display_calc_proportional_string_len_width(const char* text, size_t len);
+scr_coord_val display_calc_proportional_string_len_width(const char* text, size_t len);
 
 // box which will contain the multi (or single) line of text
 void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, const char *text);
@@ -312,7 +312,7 @@ void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, con
  */
 
 // #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);
+scr_coord_val display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);
 /* macro are for compatibility */
 #define display_proportional_rgb(               x, y, txt, align, color, dirty)       display_text_proportional_len_clip_rgb( x, y, txt, align,           color, dirty, -1 )
 #define display_proportional_clip_rgb(          x, y, txt, align, color, dirty)       display_text_proportional_len_clip_rgb( x, y, txt, align | DT_CLIP, color, dirty, -1 )
@@ -325,7 +325,7 @@ void display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align,
 void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 
-int display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *inbuf, PIXVAL color);
+scr_coord_val display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *inbuf, PIXVAL color);
 
 // line drawing primitives
 void display_direct_line_rgb(const scr_coord_val x, const scr_coord_val y, const scr_coord_val xx, const scr_coord_val yy, const PIXVAL color);

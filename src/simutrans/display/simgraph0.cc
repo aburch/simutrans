@@ -274,7 +274,7 @@ size_t display_fit_proportional(const char *, scr_coord_val)
 	return 0;
 }
 
-int display_calc_proportional_string_len_width(const char*, size_t)
+scr_coord_val display_calc_proportional_string_len_width(const char*, size_t)
 {
 	return 0;
 }
@@ -286,7 +286,7 @@ void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, con
 }
 
 
-int display_text_proportional_len_clip_rgb(scr_coord_val, scr_coord_val, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
+scr_coord_val display_text_proportional_len_clip_rgb(scr_coord_val, scr_coord_val, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
 {
 	return 0;
 }
@@ -311,7 +311,7 @@ void display_ddd_proportional_clip(scr_coord_val, scr_coord_val, FLAGGED_PIXVAL,
 {
 }
 
-int display_multiline_text_rgb(scr_coord_val, scr_coord_val, const char *, PIXVAL)
+scr_coord_val display_multiline_text_rgb(scr_coord_val, scr_coord_val, const char *, PIXVAL)
 {
 	return 0;
 }

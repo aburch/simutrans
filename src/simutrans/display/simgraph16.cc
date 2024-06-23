@@ -3609,7 +3609,7 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
 /* proportional_string_width with a text of a given length
 * extended for universal font routines with unicode support
 */
-int display_calc_proportional_string_len_width(const char *text, size_t len)
+scr_coord_val display_calc_proportional_string_len_width(const char *text, size_t len)
 {
 	uint8 byte_length = 0;
 	uint8 pixel_width = 0;
@@ -3661,7 +3661,7 @@ void display_calc_proportional_multiline_string_len_width(int &xw, int &yh, cons
  * len parameter added - use -1 for previous behaviour.
  * completely renovated for unicode and 10 bit width and variable height
  */
-int display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
+scr_coord_val display_text_proportional_len_clip_rgb(scr_coord_val x, scr_coord_val y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
 {
 	scr_coord_val cL, cR, cT, cB;
 
@@ -3925,15 +3925,15 @@ void display_ddd_proportional_clip(scr_coord_val xpos, scr_coord_val ypos, FLAGG
 /**
  * Draw multiline text
  */
-int display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *buf, PIXVAL color)
+scr_coord_val display_multiline_text_rgb(scr_coord_val x, scr_coord_val y, const char *buf, PIXVAL color)
 {
-	int max_px_len = 0;
+	scr_coord_val max_px_len = 0;
 	if (buf != NULL && *buf != '\0') {
 		const char *next;
 
 		do {
 			next = strchr(buf, '\n');
-			const int px_len = display_text_proportional_len_clip_rgb(
+			const scr_coord_val px_len = display_text_proportional_len_clip_rgb(
 				x, y, buf,
 				ALIGN_LEFT | DT_CLIP, color, true,
 				next != NULL ? (int)(size_t)(next - buf) : -1

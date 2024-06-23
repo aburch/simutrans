@@ -83,6 +83,9 @@ class inthashtable_tpl<ptrdiff_t,scr_coord> old_win_pos;
 // hash-table: magic number to windowsize
 class inthashtable_tpl<ptrdiff_t, scr_size> saved_windowsizes;
 
+// ture if there is little space for the status messages
+static bool status_show_compact = false;
+
 
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
@@ -1745,6 +1748,20 @@ void win_poll_event(event_t* const ev)
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
 		ev->ev_class = IGNORE_EVENT;
+		// now see how much of the status text fits the display
+		scr_coord_val time_width = proportional_string_width(tick_to_string(wl->get_ticks()));
+		scr_coord_val player_width = proportional_string_width(wl->get_active_player()->get_name());
+		char buffer[128];
+		if (env_t::player_finance_display_account) {
+			money_to_string(buffer, (double)world()->get_active_player()->get_finance()->get_account_balance() / 100.0);
+		}
+		else {
+			money_to_string(buffer, (double)world()->get_active_player()->get_finance()->get_netwealth() / 100.0);
+		}
+		scr_coord_val money_width = proportional_string_width(buffer);
+		scr_coord_val position_width = proportional_string_width(wl->get_zeiger()->get_pos().get_str());
+		// if too long shorten radically
+		status_show_compact = (time_width + player_width + money_width + position_width) * 1.2 > ev->new_window_size.w;
 	}
 	// save and reload all windows (currently only used when a new theme is applied)
 	else if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
@@ -1902,7 +1919,16 @@ void win_display_flush(double konto)
 		}
 	}
 
-	char const *time = tick_to_string( wl->get_ticks() );
+	char const* time;
+	if (status_show_compact  &&  env_t::show_month >= env_t::DATE_FMT_JAPANESE  &&  env_t::show_month <= env_t::DATE_FMT_GERMAN) {
+		// omit season from the date string
+		env_t::show_month += 3;
+		time = tick_to_string(wl->get_ticks());
+		env_t::show_month -= 3;
+	}
+	else {
+		time = tick_to_string(wl->get_ticks());
+	}
 
 	// statusbar background
 	scr_coord_val const status_bar_height = win_get_statusbar_height();
@@ -1920,13 +1946,16 @@ void win_display_flush(double konto)
 		tooltip_ypos = env_t::menupos == MENU_BOTTOM ? status_bar_height + 10 + TICKER_HEIGHT * show_ticker : status_bar_y - 10 - TICKER_HEIGHT * show_ticker;
 	}
 
-	// season color
-	display_color_img( skinverwaltung_t::seasons_icons->get_image_id(wl->get_season()), 2, status_bar_icon_y, 0, false, true );
+	scr_coord_val left_border = 2;
+
+	// season icon
+	display_color_img( skinverwaltung_t::seasons_icons->get_image_id(wl->get_season()), left_border, status_bar_icon_y, 0, false, true );
 	if(  tooltip_check  &&  tooltip_xpos<14  ) {
 		static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
 		tooltip_text = translator::translate(seasons[wl->get_season()]);
 		tooltip_check = false;
 	}
+	left_border += 14;
 
 	scr_coord_val right_border = disp_width-4;
 
@@ -1969,6 +1998,7 @@ void win_display_flush(double konto)
 			tooltip_check = false;
 		}
 	}
+	right_border -= 4;
 
 	koord3d pos = wl->get_zeiger()->get_pos();
 
@@ -1989,7 +2019,9 @@ void win_display_flush(double konto)
 			info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
 		}
 		else if(!wl->is_paused()) {
-			info.printf(" (T=%1.2f)", wl->get_time_multiplier()/16.0 );
+			if (wl->get_time_multiplier() != 16) {
+				info.printf(" (T=%1.2f)", wl->get_time_multiplier() / 16.0);
+			}
 		}
 		else if(  skinverwaltung_t::pausesymbol==NULL  ) {
 			info.printf( " %s", translator::translate("GAME PAUSED") );
@@ -2010,18 +2042,56 @@ void win_display_flush(double konto)
 		}
 	}
 #endif
-	display_proportional_rgb(20, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
-	display_proportional_rgb(right_border-4, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
-	/* Since the visual center (disp_width + ((w_left + 8) & 0xFFF0) - ((w_right + 8) & 0xFFF0)) / 2;
-	 * jumps left and right with proportional fonts, we just take the actual center
+	left_border += 4 + display_proportional_rgb(left_border, status_bar_text_y, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	right_border -= 4 + display_proportional_rgb(right_border, status_bar_text_y, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
+
+	/* Since the visual center jumps left and right with proportional fonts, we quantisze by 16 pixel
 	 */
-	scr_coord_val middle = disp_width / 2;
+	left_border = (left_border + 15) & 0xFFFFFFF0ul;
+	right_border = (right_border - 15) & 0xFFFFFFF0ul;
 
 	if(wl->get_active_player()) {
 		char buffer[256];
-		display_proportional_rgb( middle-5, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|color_idx_to_rgb(wl->get_active_player()->get_player_color1()+env_t::gui_player_color_dark), true);
-		money_to_string(buffer, konto );
-		display_proportional_rgb( middle+5, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
+		scr_coord_val textwidth_pl = 0;
+		textwidth_pl = D_H_SPACE + proportional_string_width(wl->get_active_player()->get_name());
+		if (status_show_compact) {
+			number_to_string_fit(buffer, konto, 0, 10);
+			strcat(buffer, "$");
+		}
+		else {
+			money_to_string(buffer, konto);
+		}
+		scr_coord_val textwidth_mn = (proportional_string_width(buffer)+15) & 0xFFFFFFF0ul;
+		if (textwidth_mn + textwidth_pl < right_border - left_border) {
+			// everything fits
+			left_border += ( (right_border - left_border) - (textwidth_mn + textwidth_pl)  ) / 2;
+			left_border += D_H_SPACE + display_proportional_rgb(left_border, status_bar_text_y, wl->get_active_player()->get_name(), ALIGN_LEFT, PLAYER_FLAG | color_idx_to_rgb(wl->get_active_player()->get_player_color1() + env_t::gui_player_color_dark), true);
+			display_proportional_rgb(left_border, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0 ? MONEY_PLUS : MONEY_MINUS, true);
+		}
+		else {
+			// no space => only money
+			status_show_compact = true; // make sure the seasons are omitted next time
+			scr_coord_val width_left = (right_border - left_border - textwidth_mn);
+			if (width_left > 50) {
+				scr_rect r(left_border, status_bar_text_y, width_left-D_H_SPACE, LINESPACE);
+				display_proportional_ellipsis_rgb(r, wl->get_active_player()->get_name(), ALIGN_LEFT, PLAYER_FLAG | color_idx_to_rgb(wl->get_active_player()->get_player_color1() + env_t::gui_player_color_dark), true);
+				left_border += width_left;
+				// normal color
+				display_proportional_rgb(left_border, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0 ? MONEY_PLUS : MONEY_MINUS, true);
+			}
+			else {
+				// just money in player color, no player name
+				if (width_left > 0) {
+					left_border += (right_border - left_border - textwidth_mn) / 2;
+				}
+				else {
+					// shortest possible money strong
+					number_to_string_fit(buffer, konto, 0, 5);
+					strcat(buffer, "$");
+				}
+				display_proportional_rgb(left_border, status_bar_text_y, buffer, ALIGN_LEFT, konto >= 0.0 ? color_idx_to_rgb(wl->get_active_player()->get_player_color1() + env_t::gui_player_color_dark) : MONEY_MINUS, true);
+			}
+		}
 	}
 }
 

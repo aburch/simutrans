@@ -189,7 +189,7 @@ int number_to_string(char * p, double f, int decimals  )
 
 
 /**
- * tries to squeese a nubmer into a string with max_length
+ * tries to squeese a number into a string with max_length
  * Will still produce a too long string with too large nubmers!
  */
 void number_to_string_fit(char *ret, double f, int decimals, int max_length )
