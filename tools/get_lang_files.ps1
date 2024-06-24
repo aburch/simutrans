@@ -1,8 +1,8 @@
 # Downloade translations after post request and extract them
 
-$translator_url = "https://makie.de/translator"
-<# not sure why the second does not work ...
 $translator_url = "https://translator.simutrans.com"
+<# not sure why the second does not work ...
+$translator_url = "https://makie.de/translator"
 
 # Stackoverflow: First we create the request and get the status code
 $HTTP_Request = [System.Net.WebRequest]::Create("$translator_url")
