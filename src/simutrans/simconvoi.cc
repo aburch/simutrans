@@ -476,7 +476,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		else {
 			// since start may have been changed
 			route_t::index_t start_index = max(1,fahr[vehicle_count-1]->get_route_index())-1;
-			if (start_index > route.get_count()) {
+			if (start_index >= route.get_count()) {
 				dbg->error( "convoi_t::finish_rd()", "Routeindex of last vehicle of (%s) too large (%hu > %hu)!", get_name(), start_index, route.get_count() );
 				start_index = 0;
 			}
