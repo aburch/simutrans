@@ -16,6 +16,7 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 	obj_infowin_t(s),
 	sign(s)
 {
+	uint16 mask = sign->get_player_mask();
 	for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  welt->get_player(i)  ) {
 			players[i].init( button_t::square_state, welt->get_player(i)->get_name());
@@ -25,7 +26,7 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 			players[i].init( button_t::square_state, "");
 			players[i].disable();
 		}
-		players[i].pressed = (i>=8? sign->get_ticks_ow() & (1<<(i-8)) : sign->get_ticks_ns() & (1<<i) )!=0;
+		players[i].pressed = mask  & (1<<i);
 		add_component( &players[i] );
 	}
 
@@ -53,13 +54,13 @@ bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /
 		for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
 			if(comp == &players[i]) {
 				uint16 mask = sign->get_player_mask();
-				mask ^= 1 << i;
+				mask ^= (1 << i);
 				// change active player mask for this private sign
 				if(  i<8  ) {
-					sprintf( param, "%s,1,%i", sign->get_pos().get_str(), mask & 0x00FF );
+					sprintf( param, "%s,1,%u", sign->get_pos().get_str(), mask & 0x00FF );
 				}
 				else {
-					sprintf( param, "%s,0,%i", sign->get_pos().get_str(), mask >> 8 );
+					sprintf( param, "%s,0,%u", sign->get_pos().get_str(), mask >> 8 );
 				}
 				tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
 				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
