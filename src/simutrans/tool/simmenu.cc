@@ -1168,6 +1168,7 @@ void toolbar_t::update(player_t *player)
 			if ( !check_tool_availability(w,  welt->get_timeline_year_month()) ) {
 				continue;
 			}
+			w->enabled = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), w->get_id(), w->get_waytype());
 			// now add it to the toolbar gui
 			tool_selector->add_tool_selector( w );
 		}

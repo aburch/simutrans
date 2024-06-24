@@ -107,6 +107,7 @@ void bridge_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_BRIDGE | GENERAL_TOOL, wtyp)) {
 		return;
 	}
+	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_BRIDGE | GENERAL_TOOL, wtyp);
 
 	const uint16 time = welt->get_timeline_year_month();
 	vector_tpl<const bridge_desc_t*> matching(desc_table.get_count());
@@ -120,7 +121,8 @@ void bridge_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t
 	}
 
 	// now sorted ...
-	for(bridge_desc_t const* const i : matching) {
+	for(bridge_desc_t const *i : matching) {
+		i->get_builder()->enabled = enable;
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }

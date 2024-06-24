@@ -439,6 +439,14 @@ public:
 	const char* is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot);
 
 	/**
+	 * Checks if this tool is currently available to the player
+	 * Checks if player can use this tool at all.
+	 * Called for instance in karte_t::local_set_tool to change active tool or when filling toolbars.
+	 * @return true if player can use this tool and false (and the tool is greyed out).
+	 */
+	bool is_tool_enabled(const player_t* player, uint16 tool_id, sint16 wt);
+
+	/**
 	 * Called when player click link in scenario windows, after position changed.
 	 *
 	 * @param pos coordinate go to in link

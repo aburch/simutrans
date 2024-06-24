@@ -448,6 +448,7 @@ bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 
 	return true;
 }
 
+
 const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool_id, sint16 wt, koord3d pos)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
@@ -541,6 +542,22 @@ const char* scenario_t::is_convoy_allowed(const player_t* player, convoihandle_t
 	return NULL;
 
 }
+
+
+bool scenario_t::is_tool_enabled(const player_t * player, uint16 tool_id, sint16 wt)
+{
+	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
+		return true;
+	}
+	// then call script if available
+	if (what_scenario == SCRIPTED) {
+		bool ok = true;
+		const char* err = script->call_function(script_vm_t::FORCE, "is_tool_active", ok, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), tool_id, wt);
+		return err != NULL || ok;
+	}
+	return true;
+}
+
 
 const char* scenario_t::jump_to_link_executed(koord3d pos)
 {

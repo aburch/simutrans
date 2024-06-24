@@ -210,15 +210,19 @@ public:
 	// true, if the control key should be inverted
 	static uint8 control_invert;
 
+	///  disabled icons are greyed out
+	bool enabled;
+
+	/// cursor centered at marked area? default: false
+	bool cursor_centered;
+
 	/// cursor image
 	image_id cursor;
 
 	/// cursor marks this area
 	koord cursor_area;
 
-	/// cursor centered at marked area? default: false
-	bool cursor_centered;
-
+	
 	/// cursor offset within marked area (only effective if cursor_centered != false)
 	koord cursor_offset;
 
@@ -276,6 +280,7 @@ public:
 		default_param = NULL;
 		command_key = 0;
 		cursor_centered = false;
+		enabled = true;
 		flags = 0;
 		callback_id = 0;
 	}

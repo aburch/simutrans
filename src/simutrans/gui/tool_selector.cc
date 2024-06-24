@@ -343,6 +343,10 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, player->get_player_nr(), false, tool_dirty);
 			tools[i].tool->draw_after( draw_pos, tool_dirty);
+			if (!tools[i].tool->enabled) {
+				// grey out disbaled entries
+				display_img_blend(icon_img, draw_pos.x, draw_pos.y, TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_WHITE), false, tool_dirty);
+			}
 			// store whether tool was selected
 			tools[i].selected = tools[i].tool->is_selected();
 		}
