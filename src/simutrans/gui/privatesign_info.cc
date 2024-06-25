@@ -57,7 +57,7 @@ bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /
 				mask ^= (1 << i);
 				// change active player mask for this private sign
 				if(  i<8  ) {
-					sprintf( param, "%s,1,%u", sign->get_pos().get_str(), mask & 0x00FF );
+					sprintf( param, "%s,2,%u", sign->get_pos().get_str(), mask & 0x00FF );
 				}
 				else {
 					sprintf( param, "%s,0,%u", sign->get_pos().get_str(), mask >> 8 );
@@ -75,7 +75,8 @@ bool privatesign_info_t::action_triggered( gui_action_creator_t *comp, value_t /
 // notify for an external update
 void privatesign_info_t::update_data()
 {
+	uint16 mask = sign->get_player_mask();
 	for(  int i=0;  i<PLAYER_UNOWNED;  i++  ) {
-		players[i].pressed = (i>=8? sign->get_ticks_ow() & (1<<(i-8)) : sign->get_ticks_ns() & (1<<i) )!=0;
+		players[i].pressed = (mask >> i)&1;
 	}
 }

@@ -76,7 +76,7 @@ public:
 	const char* get_name() const OVERRIDE { return "Roadsign"; }
 
 	// assuming this is a private way sign
-	uint16 get_player_mask() const { return (ticks_ow<<8)|ticks_ns; }
+	uint16 get_player_mask() const { return (ticks_ow<<8)|ticks_offset; }
 
 	/**
 	 * waytype associated with this object
