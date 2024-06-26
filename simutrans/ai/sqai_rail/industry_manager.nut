@@ -17,6 +17,7 @@ class my_line_t extends line_x
   build_line          = world.get_time() // create line
   next_vehicle_check  = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next vehicle check
   next_check          = world.get_time().ticks
+  stuck_check         = 0 // check stuck vehicles
   halt_length         = 0 // tiles from halts
   add_convoy_time     = world.get_time().ticks + world.get_time().ticks_per_month // save ticks for next add convoy - destroy convoy then add time
   line_bridges_count  = 0 // count non player bridges from line
@@ -770,37 +771,40 @@ class industry_manager_t extends manager_t
           //gui.add_message_at(our_player, "(768) ####  loading convoy stucked ", world.get_time())
           local traffic_obj = find_signal("traffic_light", line.get_waytype())
 
-          // end_l
-          local asf = astar_route_finder(wt)
-          local result = asf.search_route([list[i].get_pos()], [end_l])
-          local route_tile = []
-          if ("err" in result) {
+          if ( traffic_obj != null ) {
+            // end_l
+            local asf = astar_route_finder(wt)
+            local result = asf.search_route([list[i].get_pos()], [end_l])
+            local route_tile = []
+            if ("err" in result) {
 
-          }
-          else {
-            foreach(node in result.routes) {
-              local tile = tile_x(node.x, node.y, node.z)
-              route_tile.append(tile)
             }
-            sleep()
-          }
-          local traffic_build = 0
-          for ( local s = 0; s < route_tile.len(); s++ ) {
-            local test_way = route_tile[s].find_object(mo_way)
-            local test_traffic_light = route_tile[s].find_object(mo_roadsign)
-
-            if ( test_traffic_light == null && dir.is_threeway(route_tile[s].get_way_dirs(wt_road)) && (test_way.get_owner().nr == our_player_nr || test_way.get_owner().nr == 1) ) {
-
-              local err = command_x.build_sign_at(our_player, route_tile[s], traffic_obj)
-              traffic_build++
-
-            } else if ( test_traffic_light != null ) {
-              traffic_build++
+            else {
+              foreach(node in result.routes) {
+                local tile = tile_x(node.x, node.y, node.z)
+                route_tile.append(tile)
+              }
+              sleep()
             }
+            local traffic_build = 0
+            for ( local s = 0; s < route_tile.len(); s++ ) {
+              local test_way = route_tile[s].find_object(mo_way)
+              local test_traffic_light = route_tile[s].find_object(mo_roadsign)
+
+              if ( test_traffic_light == null && dir.is_threeway(route_tile[s].get_way_dirs(wt_road)) && (test_way.get_owner().nr == our_player_nr || test_way.get_owner().nr == 1) ) {
+
+                local err = command_x.build_sign_at(our_player, route_tile[s], traffic_obj)
+                traffic_build++
+
+              } else if ( test_traffic_light != null ) {
+                traffic_build++
+              }
 
               if ( traffic_build >= 2 ) {
                 continue
               }
+
+            }
 
           }
 
@@ -827,6 +831,10 @@ class industry_manager_t extends manager_t
           line.next_vehicle_check = world.get_time().ticks + next_time
           if ( cnv_remove_count < cnv_count ) {
             line.next_vehicle_check = world.get_time().ticks + (next_time * 4)
+          }
+          if ( line.stuck_check == 1 ) {
+            // small check intervall
+            line.next_vehicle_check = world.get_time().ticks + (next_time / 2)
           }
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
@@ -987,6 +995,15 @@ class industry_manager_t extends manager_t
       }
       //if ( debug ) gui.add_message_at(our_player, "**** line 816 - line_bridges_count = " + line.line_bridges_count + " ## ", g[0])
 
+    }
+
+    if ( wt == wt_road && line.stuck_check == 0 ) {
+      local t = nexttile[2];
+      local d = t.get_way_dirs(wt)
+      if ( is_threeway(d) ) {
+        line.stuck_check = 1
+        gui.add_message_at(our_player, "**** line 997 - set line.stuck_check = 1 ", t)
+      }
     }
 
     // count bridges from other player
