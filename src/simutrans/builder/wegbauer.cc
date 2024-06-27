@@ -507,6 +507,20 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 }
 
 
+//  helper function for building parallel ways
+bool way_builder_t::has_neighbour_with_way(koord3d pos, waytype_t wt) const
+{
+	for (int i = 0; i < 8; i++) {
+		if (grund_t* gr = welt->lookup(pos + koord::neighbours[i])) {
+			if (gr->get_weg(wt)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
 /**
  * This is the core routine for the way search
  * it will check
@@ -750,12 +764,29 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (str==NULL  ||  !(ribi_t::is_straight(test_ribi) || test_ribi==0 ))) {
 				return false;
 			}
-			// calculate costs
-			*costs = str ? 0 : s.way_count_straight;
-			if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
-				*costs += 4; // avoid crossings
+			// test if we are next to a way
+			if (!str  &&  prefer_parallel) {
+				if (to->get_weg(road_wt)) {
+					// we have to join? make it expensive
+					*costs = s.way_count_leaving_way;
+				}
+				else if (has_neighbour_with_way(from->get_pos(), road_wt)) {
+					// we are parallel => make it cheap
+					*costs = s.way_count_straight;
+				}
+				else {
+					// new way not parallel to an existing
+					*costs = s.way_count_no_way;
+				}
 			}
-			if(to->get_weg_hang()!=0  &&  !to_flat) {
+			else {
+				// calculate costs
+				*costs = (!str ^ prefer_parallel) ? s.way_count_no_way : s.way_count_straight;
+			}
+			if((!str  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
+				*costs += s.way_count_avoid_crossings; // avoid crossings
+			}
+			if (to->get_weg_hang() != 0  &&  !to_flat) {
 				*costs += s.way_count_slope;
 			}
 		}
@@ -781,11 +812,27 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  !(ribi_t::is_straight(test_ribi) || test_ribi==0 ))) {
 				return false;
 			}
-			// calculate costs
-			*costs = s.way_count_straight;
-			if (!sch) *costs += 1; // only prefer existing rails a little
-			if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
-				*costs += 4; // avoid crossings
+			// test if we are next to a way
+			if (!sch  &&  prefer_parallel) {
+				if (to->get_weg(track_wt)) {
+					// we have to join? make it expensive
+					*costs = s.way_count_leaving_way;
+				}
+				else if (has_neighbour_with_way(from->get_pos(), track_wt)) {
+					// we are parallel => make it cheap
+					*costs = s.way_count_straight;
+				}
+				else {
+					// new way not parallel to an existing
+					*costs = s.way_count_no_way;
+				}
+			}
+			else {
+				// calculate costs
+				*costs = (!sch ^ prefer_parallel) ? s.way_count_no_way : s.way_count_straight;
+			}
+			if((sch  &&  to->has_two_ways())  ||  (!sch &&  to->hat_wege())) {
+				*costs += s.way_count_avoid_crossings; // avoid crossings
 			}
 			if(to->get_weg_hang()!=0  &&  !to_flat) {
 				*costs += s.way_count_slope;
@@ -812,9 +859,8 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			}
 			if(ok) {
 				// calculate costs
-				*costs = s.way_count_straight;
-				if (!to->hat_weg(track_wt)) *costs += 1; // only prefer existing rails a little
-				// prefer own track
+				*costs += sch ? s.way_count_straight : s.way_count_no_way;
+				// prefer own track a little more
 				if(to->hat_weg(road_wt)) {
 					*costs += s.way_count_straight;
 				}
@@ -858,7 +904,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 				*costs = s.way_count_straight;
 				if(  !to->get_leitung()  ) {
 					// extra malus for not following an existing line or going on ways
-					*costs += s.way_count_double_curve + (to->hat_wege() ? 8 : 0); // prefer existing powerlines
+					*costs += s.way_count_leaving_way + (to->hat_wege() ? s.way_count_avoid_crossings : 0); // prefer existing powerlines
 				}
 			}
 		break;
@@ -870,7 +916,15 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			ok = canal  ||  !fundament;
 			// calculate costs
 			if(ok) {
-				*costs = to->is_water() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
+				if (to->is_water()) {
+					*costs = 0; // prefer water very much
+				}
+				else if (canal) {
+					*costs = s.way_count_straight; // next prefer existing canal
+				}
+				else {
+					*costs = s.way_count_leaving_way; // new canal very expensive
+				}
 				if(to->get_weg_hang()!=0  &&  !to_flat) {
 					*costs += s.way_count_slope * 2;
 				}
@@ -1222,8 +1276,9 @@ way_builder_t::way_builder_t(player_t* player)
 	, keep_existing_faster_ways(false)
 	, keep_existing_city_roads(false)
 	, build_sidewalk(false)
-	, maximum(2000)  // CA $ PER TILE
+	, prefer_parallel(false)
 {
+	maximum = welt->get_settings().way_count_maximum; // building cost, (curves etc.)
 }
 
 
@@ -1499,7 +1554,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				if (tmp->parent->gr->hat_weg(wt) && !gr->hat_weg(wt) && to->hat_weg(wt)) {
 					// but only if not straight track
 					if(!ribi_t::is_straight(tmp->dir)) {
-						new_g += s.way_count_leaving_road;
+						new_g += s.way_count_leaving_way;
 					}
 				}
 			}
@@ -1587,6 +1642,7 @@ DBG_DEBUG("way_builder_t::intern_calc_route()","steps=%i  (max %i) in route, ope
 		return cost;
 	}
 }
+
 
 
 void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
@@ -2009,7 +2065,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				if (tmp->parent->gr->hat_weg(wt) && !(gr? gr: gu)->hat_weg(wt) && to->hat_weg(wt)) {
 					// but only if not straight track
 					if(!ribi_t::is_straight(tmp->dir)) {
-						new_g += s.way_count_leaving_road;
+						new_g += s.way_count_leaving_way;
 					}
 				}
 			}

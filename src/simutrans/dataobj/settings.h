@@ -351,8 +351,12 @@ public:
 	sint32 way_count_90_curve;
 	sint32 way_count_slope;
 	sint32 way_count_tunnel;
+	sint32 way_count_no_way;
+	sint32 way_count_avoid_crossings;
+	sint32 way_count_leaving_way;
+	sint32 way_count_maximum;
+	sint32 way_count_way_parallel;
 	uint32 way_max_bridge_len;
-	sint32 way_count_leaving_road;
 
 	// 0 = empty, otherwise some value from simplay
 	uint8 player_type[MAX_PLAYER_COUNT];

@@ -268,14 +268,17 @@ settings_t::settings_t() :
 	cst_make_public_months = 60;
 
 	// costs for the way searcher
-	way_count_straight=1;
-	way_count_curve=2;
-	way_count_double_curve=6;
-	way_count_90_curve=15;
-	way_count_slope=10;
-	way_count_tunnel=8;
-	way_max_bridge_len=15;
-	way_count_leaving_road=25;
+	way_count_straight=2;
+	way_count_curve=4;
+	way_count_double_curve=12;
+	way_count_90_curve=30;
+	way_count_slope=20;
+	way_count_tunnel=16;
+	way_count_leaving_way=50;
+	way_count_no_way = 3; // slightly prefer existing ways
+	way_count_avoid_crossings = 8; // prefer less system crossings
+	way_count_maximum = 2000; // limit for allowed ways (can be set lower to avoid covering the whole map with two clicks)
+	way_max_bridge_len = 15;
 
 	// default: joined capacities
 	separate_halt_capacities = false;
@@ -708,7 +711,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_count_slope );
 			file->rdwr_long(way_count_tunnel );
 			file->rdwr_long(way_max_bridge_len );
-			file->rdwr_long(way_count_leaving_road );
+			file->rdwr_long(way_count_leaving_way );
 		}
 		else {
 			// name of stops
@@ -933,6 +936,12 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 		// otherwise the default values of the last one will be used
+
+		if (file->is_version_atleast(124, 2)) {
+			file->rdwr_long(way_count_no_way);
+			file->rdwr_long(way_count_avoid_crossings);
+			file->rdwr_long(way_count_maximum);
+		}
 	}
 
 	// sometimes broken savegames could have no legal direction for take off ...
@@ -1536,8 +1545,11 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	way_count_90_curve     = contents.get_int_clamped("way_90_curve",       way_count_90_curve,     1, INT_MAX );
 	way_count_slope        = contents.get_int_clamped("way_slope",          way_count_slope,        1, INT_MAX );
 	way_count_tunnel       = contents.get_int_clamped("way_tunnel",         way_count_tunnel,       1, INT_MAX );
-	way_max_bridge_len     = contents.get_int_clamped("way_max_bridge_len", way_max_bridge_len,     1, INT_MAX );
-	way_count_leaving_road = contents.get_int_clamped("way_leaving_road",   way_count_leaving_road, 1, INT_MAX );
+	way_max_bridge_len     = contents.get_int_clamped("way_max_bridge_len", way_max_bridge_len, 1, INT_MAX);
+	way_count_leaving_way  = contents.get_int_clamped("way_leaving_road",   way_count_leaving_way, 1, INT_MAX);
+	way_count_no_way       = contents.get_int_clamped("way_count_no_way",   way_count_no_way, 1, INT_MAX);
+	way_count_avoid_crossings = contents.get_int_clamped("way_count_avoid_crossings", way_count_avoid_crossings, 1, INT_MAX);
+	way_count_maximum      = contents.get_int_clamped("way_count_maximum",  way_count_maximum, 1, INT_MAX);
 
 	/*
 	 * Selection of savegame format through inifile

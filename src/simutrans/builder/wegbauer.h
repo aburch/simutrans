@@ -73,7 +73,7 @@ public:
 		bot_flag       = 1 << 8,  ///< do not connect to other ways
 		elevated_flag  = 1 << 9,  ///< elevated structure
 		terraform_flag = 1 << 10,
-		tunnel_flag    = 1 << 11  ///< underground structure
+		tunnel_flag    = 1 << 11, ///< underground structure
 	};
 
 private:
@@ -119,9 +119,12 @@ private:
 	bool keep_existing_faster_ways;
 	bool keep_existing_city_roads;
 
+	// try to keep a way close to existing ways
+	bool prefer_parallel;
+
 	bool build_sidewalk;
 
-	uint32 maximum;    // hoechste Suchtiefe
+	sint32 maximum;    // highest cost
 
 	koord3d_vector_t route;
 
@@ -141,6 +144,8 @@ public:
 	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer = false );
 
 private:
+	bool has_neighbour_with_way(koord3d pos, waytype_t wt) const;
+
 	// checks, if we can build a bridge here ...
 	// may modify next_gr array!
 	void check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel);
@@ -180,6 +185,10 @@ public:
 	const koord3d_vector_t &get_route() const { return route; }
 
 	uint32 get_count() const { return route.get_count(); }
+
+	void set_prefer_parallel(bool yesno) {
+		prefer_parallel = yesno;
+	}
 
 	/**
 	 * If a way is built on top of another way, should the type

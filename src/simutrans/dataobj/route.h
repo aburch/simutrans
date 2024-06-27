@@ -58,8 +58,8 @@ public:
 	public:
 		ANode * parent;
 		const grund_t* gr;
-		uint32 f;        ///< heuristic for cost to reach target
-		uint32 g;        ///< cost to reach this tile
+		sint32 f;        ///< heuristic for cost to reach target
+		sint32 g;        ///< cost to reach this tile
 		uint8 dir;       ///< driving direction
 		uint8 ribi_from; ///< we came from this direction
 		uint16 count;    ///< length of route up to here

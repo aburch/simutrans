@@ -2590,6 +2590,55 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 			my_end.z -= welt->get_settings().get_way_height_clearance();
 		}
 	}
+
+	// Find out if this might be intended to become a parallel way
+	bool assume_parallel = false;
+	if (grund_t *gr=welt->lookup(start)) {
+		if (weg_t *w=gr->get_weg(desc->get_wtyp())) {
+			// we start on a way; but if it is an end, maybe continue building a parallel way
+			if (ribi_t::is_single(w->get_ribi_unmasked())) {
+				koord zv = (koord)(ribi_t::rotate90(w->get_ribi_unmasked()));
+				if (grund_t* gr = welt->lookup(start + zv)) {
+					// is there a parallel way?
+					assume_parallel = gr->get_weg(desc->get_wtyp());
+				}
+				if (grund_t* gr = welt->lookup(start - zv)) {
+					// is there a parallel way?
+					assume_parallel |= gr->get_weg(desc->get_wtyp())!=0;
+				}
+			}
+		}
+		else {
+			// find out if there is a way close by
+			for (int i = 0; i < 8; i++) {
+				if (grund_t* gr = welt->lookup(start + koord::neighbours[i])) {
+					if (gr->get_weg(desc->get_wtyp())) {
+						assume_parallel = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	if (assume_parallel) {
+		bool assume_parallel2 = false;
+		if (grund_t* gr = welt->lookup(my_end)) {
+			if (!gr->get_weg(desc->get_wtyp())) {
+				for (int i = 0; i < 8; i++) {
+					if (grund_t* gr = welt->lookup(my_end + koord::neighbours[i])) {
+						if (gr->get_weg(desc->get_wtyp())) {
+							assume_parallel2 = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		// both start and end are one tile from a way 
+		assume_parallel &= assume_parallel2;
+	}
+	bauigel.set_prefer_parallel(assume_parallel);
+
 	// and continue as normal ...
 	const char *err;
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
@@ -2599,6 +2648,14 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 	else {
 		err = bauigel.calc_route(start,my_end);
 	}
+
+	if (assume_parallel&0) {
+		// restore preference for existing ways
+		sint32 tmp = welt->get_settings().way_count_no_way;
+		welt->get_settings().way_count_no_way = welt->get_settings().way_count_straight;
+		welt->get_settings().way_count_straight = tmp;
+	}
+
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 	return err;
 }

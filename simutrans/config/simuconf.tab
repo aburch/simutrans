@@ -540,6 +540,24 @@ allow_merge_distant_halt=2
 # max length
 #river_max_length = 320
 
+################################# way builder #################################
+#  please be careful in changing these
+#  Wrong values could completely break the way builder
+#
+
+#	way_count_straight=2
+#	way_count_curve=4
+#	way_count_double_curve=12
+#	way_count_90_curve=30
+#	way_count_slope=20
+#	way_count_tunnel=16
+#	way_count_leaving_way=50 // used for powerline and channels to prefer exiting ways stronger
+#	way_count_no_way = 3 // prefer existing ways a little
+#	way_count_avoid_crossings = 8 // prefer less system crossings
+#	way_count_maximum = 2000 // search cost limit (set lower to avoid covering the whole map with two clicks)
+#	way_max_bridge_len=15
+
+
 ################################# forest stuff #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
