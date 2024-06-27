@@ -81,12 +81,12 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
-		ticks_ns = ticks_ow = 0;
+		ticks_offset = ticks_ow = 0;
 		if(  player->get_player_nr() >= 8  ) {
 			ticks_ow = 1 << (player->get_player_nr()-8);
 		}
 		else {
-			ticks_ns = 1 << player->get_player_nr();
+			ticks_offset = 1 << player->get_player_nr();
 		}
 	}
 	/* if more than one state, we will switch direction and phase for traffic lights
