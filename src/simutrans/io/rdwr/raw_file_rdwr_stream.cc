@@ -17,8 +17,9 @@ raw_file_rdwr_stream_t::raw_file_rdwr_stream_t(const std::string &filename, bool
 	if (!file) {
 		status = STATUS_ERR_NOT_EXISTING;
 	}
-
-	status = STATUS_OK;
+	else {
+		status = STATUS_OK;
+	}
 }
 
 
@@ -43,8 +44,10 @@ raw_file_rdwr_stream_t::raw_file_rdwr_stream_t(FILE *f, bool writing) :
 
 raw_file_rdwr_stream_t::~raw_file_rdwr_stream_t()
 {
-	fflush(file);
-	fclose(file);
+	if (file) {
+		fflush(file);
+		fclose(file);
+	}
 }
 
 
