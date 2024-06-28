@@ -2649,13 +2649,6 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 		err = bauigel.calc_route(start,my_end);
 	}
 
-	if (assume_parallel&0) {
-		// restore preference for existing ways
-		sint32 tmp = welt->get_settings().way_count_no_way;
-		welt->get_settings().way_count_no_way = welt->get_settings().way_count_straight;
-		welt->get_settings().way_count_straight = tmp;
-	}
-
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 	return err;
 }

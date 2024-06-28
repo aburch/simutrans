@@ -268,14 +268,14 @@ settings_t::settings_t() :
 	cst_make_public_months = 60;
 
 	// costs for the way searcher
-	way_count_straight=2;
-	way_count_curve=4;
-	way_count_double_curve=12;
+	way_count_straight = 1; // cost on existing way
+	way_count_no_way = 3; // slightly prefer existing ways
+	way_count_curve = 5; // diagonal curve
+	way_count_double_curve=10;
 	way_count_90_curve=30;
 	way_count_slope=20;
 	way_count_tunnel=16;
 	way_count_leaving_way=50;
-	way_count_no_way = 3; // slightly prefer existing ways
 	way_count_avoid_crossings = 8; // prefer less system crossings
 	way_count_maximum = 2000; // limit for allowed ways (can be set lower to avoid covering the whole map with two clicks)
 	way_max_bridge_len = 15;
@@ -1547,8 +1547,8 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	way_count_tunnel       = contents.get_int_clamped("way_tunnel",         way_count_tunnel,       1, INT_MAX );
 	way_max_bridge_len     = contents.get_int_clamped("way_max_bridge_len", way_max_bridge_len, 1, INT_MAX);
 	way_count_leaving_way  = contents.get_int_clamped("way_leaving_road",   way_count_leaving_way, 1, INT_MAX);
-	way_count_no_way       = contents.get_int_clamped("way_count_no_way",   way_count_no_way, 1, INT_MAX);
-	way_count_avoid_crossings = contents.get_int_clamped("way_count_avoid_crossings", way_count_avoid_crossings, 1, INT_MAX);
+	way_count_no_way       = contents.get_int_clamped("way_no_way",   way_count_no_way, 1, INT_MAX);
+	way_count_avoid_crossings = contents.get_int_clamped("way_avoid_crossings", way_count_avoid_crossings, 1, INT_MAX);
 	way_count_maximum      = contents.get_int_clamped("way_count_maximum",  way_count_maximum, 1, INT_MAX);
 
 	/*
