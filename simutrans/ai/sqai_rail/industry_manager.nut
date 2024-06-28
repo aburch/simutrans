@@ -836,6 +836,7 @@ class industry_manager_t extends manager_t
             // small check intervall
             line.next_vehicle_check = world.get_time().ticks + (next_time / 2)
           }
+
         } else {
           line.next_vehicle_check = world.get_time().ticks + (world.get_time().ticks_per_month * 2)
 
@@ -1000,9 +1001,9 @@ class industry_manager_t extends manager_t
     if ( wt == wt_road && line.stuck_check == 0 ) {
       local t = nexttile[2];
       local d = t.get_way_dirs(wt)
-      if ( is_threeway(d) ) {
+      if ( dir.is_threeway(d) ) {
         line.stuck_check = 1
-        gui.add_message_at(our_player, "**** line 997 - set line.stuck_check = 1 ", t)
+        gui.add_message_at(our_player, "**** line 1006 - set line.stuck_check = 1 ", t)
       }
     }
 
