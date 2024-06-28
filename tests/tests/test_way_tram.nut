@@ -70,33 +70,31 @@ function test_way_tram_build_parallel()
 		// FIXME this is different from the road pattern (which is all straight roads even without ctrl)
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
-				"2AAEEAAAAAAAAAE8",
-				"2AEB9.........3C",
-				"2A9............1",
-				"2AAEEAAAAAAAAAE8",
-				"2AEB9.........3C",
-				"2A9............1",
-				"2AAEEAAAAAAAAAE8",
-				"2AEB9.........3C",
-				"2A9............1",
-				"2AAEEAAAAAAAAAE8",
-				"2AEB9.........3C",
-				"2A9............1",
-				"2AAEEAAAAAAAAAE8",
-				"2AEB9.........3C",
-				"2A9............1",
-				"2AAAAAAAAAAAAAA8"
+				"6EEAAAAAAAAAAAE8",
+				"7B9...........3C",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"1..............1",
+				"6EEAAAAAAAAAAAE8",
+				"7B9...........3C",
+				"5..............5",
+				"5..............5",
+				"5..............5",
+				"1..............1"
 			])
 
-		for (local i = 0; i < 15; i = i + 3) {
-			ASSERT_EQUAL(remover.work(pl, coord3d(0, i, 0), coord3d(15, i, 0), "" + wt_rail), null)
-			ASSERT_EQUAL(remover.work(pl, coord3d(3, i, 0), coord3d(4, i, 0), "" + wt_rail), null)
-			ASSERT_EQUAL(remover.work(pl, coord3d(0, i+1, 0), coord3d(0, i+2, 0), "" + wt_rail), null)
-			ASSERT_EQUAL(remover.work(pl, coord3d(2, i+1, 0), coord3d(3, i+1, 0), "" + wt_rail), null)
-			ASSERT_EQUAL(remover.work(pl, coord3d(14, i, 0), coord3d(15, i+2, 0), "" + wt_rail), null)
-		}
-
+		ASSERT_EQUAL(remover.work(pl, coord3d(0, 9, 0), coord3d(15, 9, 0), "" + wt_rail), null)
 		ASSERT_EQUAL(remover.work(pl, coord3d(0, 15, 0), coord3d(15, 15, 0), "" + wt_rail), null)
+		for (local i = 0; i < 15; i = i + 10) {
+			ASSERT_EQUAL(remover.work(pl, coord3d(1, i, 0), coord3d(0, 1+i, 0), "" + wt_rail), null)
+			ASSERT_EQUAL(remover.work(pl, coord3d(1, i+1, 0), coord3d(2, i, 0), "" + wt_rail), null)
+			ASSERT_EQUAL(remover.work(pl, coord3d(14, i, 0), coord3d(15, i, 0), "" + wt_rail), null)
+		}
 	}
 
 	RESET_ALL_PLAYER_FUNDS()
