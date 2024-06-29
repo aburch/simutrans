@@ -999,11 +999,14 @@ class industry_manager_t extends manager_t
     }
 
     if ( wt == wt_road && line.stuck_check == 0 ) {
-      local t = nexttile[2];
-      local d = t.get_way_dirs(wt)
-      if ( dir.is_threeway(d) ) {
-        line.stuck_check = 1
-        gui.add_message_at(our_player, "**** line 1006 - set line.stuck_check = 1 ", t)
+      for ( local x = 1; x < 5; x++ ) {
+        local t = nexttile[x];
+        local d = t.get_way_dirs(wt)
+        if ( dir.is_threeway(d) ) {
+          line.stuck_check = 1
+          gui.add_message_at(our_player, "**** line 1007 - set line.stuck_check = 1 ", t)
+          break
+        }
       }
     }
 
