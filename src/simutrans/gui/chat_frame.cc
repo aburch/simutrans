@@ -49,7 +49,8 @@ public:
 		sender = m->sender;
 		set_table_layout(2, 1);
 		set_margin(scr_size(D_H_SPACE, 0), scr_size(D_H_SPACE, 0));
-		if (player_t* p = world()->get_player(m->player_nr)) {
+		player_t* p = world()->get_player(m->player_nr);
+		if (p  &&  chat_message_t::get_online_nicks().is_contained(sender)) {
 			bt_whisper_to.init(button_t::arrowright, NULL);
 			bt_whisper_to.set_focusable(false);
 			bt_whisper_to.add_listener(this);
@@ -152,7 +153,7 @@ public:
 		msg_time = m->local_time;
 		player_nr = m->player_nr;
 		tail_dir = m->sender == "" ? no_tail
-			: (strcmp(m->sender, env_t::nickname.c_str()) == 0) ? tail_right : tail_left;
+			: (m->sender==env_t::nickname.c_str()) ? tail_right : tail_left;
 		old_min = -1;
 
 		bt_pos.set_typ(button_t::posbutton_automatic);
@@ -313,7 +314,6 @@ chat_frame_t::chat_frame_t() :
 	gui_frame_t(translator::translate("Chat"))
 {
 	ibuf[0] = 0;
-	ibuf_name[0] = 0;
 
 	set_table_layout(1, 0);
 	set_focusable(false);
@@ -349,15 +349,11 @@ chat_frame_t::chat_frame_t() :
 		bt_send_pos.add_listener(this);
 		add_component(&bt_send_pos);
 
-		lb_channel.set_visible(tabs.get_active_tab_index() != CH_PUBLIC);
 		lb_channel.set_rigid(false);
 		add_component(&lb_channel);
 
-		inp_destination.set_text(ibuf_name, lengthof(ibuf_name));
-		inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
-		inp_destination.set_notify_all_changes_delay(1000);
-		inp_destination.add_listener(this);
-		add_component(&inp_destination);
+		cb_direct_chat_targets.add_listener(this);
+		add_component(&cb_direct_chat_targets);
 
 		input.set_text(ibuf, lengthof(ibuf));
 		input.add_listener(this);
@@ -384,6 +380,7 @@ void chat_frame_t::fill_list()
 	cont_chat_log[chat_mode].clear_elements();
 	last_count = welt->get_chat_message()->get_list().get_count();
 
+	plainstring dest = cb_direct_chat_targets.get_selection()>=0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
 	plainstring prev_poster = "";
 	sint8 prev_company = -1;
 	bool player_locked = current_player->is_locked();
@@ -403,26 +400,18 @@ void chat_frame_t::fill_list()
 			break;
 
 		case CH_WHISPER:
-			if (i->destination == NULL || i->sender == NULL) {
+			if (i->destination == NULL  ||  i->sender == NULL) {
 				continue;
 			}
-			if (i->destination == "" || i->sender == "") {
+			if (i->destination == ""  ||  i->sender == "") {
 				continue;
 			}
-			if (!strcmp(env_t::nickname.c_str(), i->destination.c_str()) && !strcmp(env_t::nickname.c_str(), i->sender.c_str())) {
+			if (i->destination!=env_t::nickname.c_str()  &&  i->sender!=env_t::nickname.c_str()) {
 				continue;
 			}
-
 			// direct chat mode
-			if (ibuf_name[0] != 0 && (strcmp(ibuf_name, i->destination.c_str()) && strcmp(ibuf_name, i->sender.c_str()))) {
+			if (dest != ""  &&  dest != i->destination  &&  dest != i->sender) {
 				continue;
-			}
-
-			if (strcmp(env_t::nickname.c_str(), i->destination.c_str())) {
-				chat_history.append_unique(i->destination);
-			}
-			if (strcmp(env_t::nickname.c_str(), i->sender.c_str())) {
-				chat_history.append_unique(i->sender);
 			}
 			break;
 
@@ -440,8 +429,8 @@ void chat_frame_t::fill_list()
 
 		// Name display is omitted for unnamed system messages,
 		//  self-messages, or consecutive messages by the same client from same company.
-		const bool skip_name = i->sender == "" || (strcmp(i->sender, env_t::nickname.c_str()) == 0)
-			|| (strcmp(i->sender.c_str(), prev_poster.c_str()) == 0 && (i->player_nr == prev_company));
+		const bool skip_name = i->sender == "" ||  i->sender == env_t::nickname.c_str()
+			|| (i->sender==prev_poster  &&  i->player_nr == prev_company);
 		if (!skip_name) {
 			// new chat owner element
 			cont_chat_log[chat_mode].new_component<gui_chat_owner_t>(i);
@@ -451,8 +440,8 @@ void chat_frame_t::fill_list()
 		prev_company = i->player_nr;
 	}
 
-	inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
-
+	cb_direct_chat_targets.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
+	lb_channel.set_visible(tabs.get_active_tab_index() != CH_PUBLIC);
 	switch (chat_mode) {
 	default:
 	case CH_PUBLIC:
@@ -461,20 +450,20 @@ void chat_frame_t::fill_list()
 		env_t::chat_unread_public = 0;
 		break;
 	case CH_COMPANY:
-		lb_channel.buf().append(current_player->get_name());
+		lb_channel.set_text(current_player->get_name());
 		lb_channel.set_color(color_idx_to_rgb(current_player->get_player_color1() + env_t::gui_player_color_dark));
-		lb_channel.set_visible(true);
-		lb_channel.update();
 		env_t::chat_unread_company = 0;
 		break;
 	case CH_WHISPER:
-		if (cb_direct_chat_targets.count_elements() != chat_history.get_count()) {
-			cb_direct_chat_targets.clear_elements();
-			for (uint32 i = 0; i < chat_history.get_count(); i++) {
-				cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_history[i], SYSCOL_TEXT);
+		lb_channel.set_text("direct_chat_to:");
+		lb_channel.set_color(SYSCOL_TEXT);
+		cb_direct_chat_targets.clear_elements();
+		for (uint32 i = 0; i < chat_message_t::get_online_nicks().get_count(); i++) {
+			cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
+			if (chat_message_t::get_online_nicks()[i] == dest) {
+				cb_direct_chat_targets.set_selection(i);
 			}
 		}
-		cb_direct_chat_targets.set_visible(chat_history.get_count() && cb_direct_chat_targets.count_elements());
 		env_t::chat_unread_whisper = 0;
 		break;
 	}
@@ -489,9 +478,9 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;
 		const sint8 sender_company_nr = welt->get_active_player()->is_locked() ? -1 : welt->get_active_player()->get_player_nr();
-		plainstring dest = tabs.get_active_tab_index() == CH_WHISPER ? ibuf_name : 0;
+		plainstring dest = cb_direct_chat_targets.get_selection() >= 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
 
-		if (dest != 0 && strcmp(dest.c_str(), env_t::nickname.c_str()) == 0) {
+		if (dest != "" && dest==env_t::nickname.c_str()) {
 			return true; // message to myself
 		}
 
@@ -506,11 +495,6 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 		}
 
 		ibuf[0] = 0;
-	}
-	else if (comp == &inp_destination && tabs.get_active_tab_index() == CH_WHISPER) {
-		lb_whisper_target.buf().printf("To: %s", ibuf_name);
-		lb_whisper_target.update();
-		fill_list();
 	}
 	else if (comp == &opaque_bt) {
 		if (!opaque_bt.pressed && env_t::chat_window_transparency != 100) {
@@ -531,19 +515,11 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 		bt_send_pos.pressed ^= 1;
 	}
 	else if (comp == &cb_direct_chat_targets) {
-		if (!cb_direct_chat_targets.count_elements()) return true;
 		activate_whisper_to(cb_direct_chat_targets.get_selected_item()->get_text());
 		fill_list();
 	}
 	else if (comp == &tabs) {
 		fill_list();
-		inp_destination.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
-		if (tabs.get_active_tab_index() == CH_WHISPER) {
-			lb_channel.buf().append(translator::translate("direct_chat_to:"));
-			lb_channel.set_color(SYSCOL_TEXT);
-			lb_channel.set_visible(true);
-			lb_channel.update();
-		}
 		resize(scr_size(0, 0));
 	}
 	return true;
@@ -573,25 +549,24 @@ void chat_frame_t::rdwr(loadsave_t* file)
 	file->rdwr_str(ibuf, lengthof(ibuf));
 }
 
+
 void chat_frame_t::activate_whisper_to(const char* recipient)
 {
-	if (strcmp(recipient, env_t::nickname.c_str()) == 0) {
+	if (recipient == env_t::nickname.c_str()) {
 		return; // message to myself
 	}
-	sprintf(ibuf_name, "%s", recipient);
-	lb_whisper_target.buf().printf("To: %s", recipient);
-	lb_whisper_target.update();
 
-	inp_destination.set_text(ibuf_name, lengthof(ibuf_name));
-	inp_destination.set_size(scr_size(proportional_string_width(ibuf_name), D_EDIT_HEIGHT));
+	int sel = -1;
+	for (int i = 0; i < cb_direct_chat_targets.count_elements(); i++) {
+		if (recipient == cb_direct_chat_targets.get_element(i)->get_text()) {
+			sel = i;
+			break;
+		}
+	}
+	cb_direct_chat_targets.set_selection(sel);
 
 	tabs.set_active_tab_index(CH_WHISPER);
-	inp_destination.set_visible(true);
-	lb_channel.buf().append("direct_chat_to:");
-	lb_channel.set_color(SYSCOL_TEXT);
-	lb_channel.set_visible(true);
-	lb_channel.update();
-	//set_focus(&input); // this cause the crash
-	//fill_list();
+
+	fill_list();
 	resize(scr_size(0, 0));
 }

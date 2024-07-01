@@ -38,6 +38,8 @@ class plainstring
 		operator char const*() const { return str_; }
 		operator char*()             { return str_; }
 
+		bool operator ==(const plainstring o) const { return *this==o.c_str(); }
+		bool operator !=(const plainstring o) const { return !(*this == o.c_str()); }
 		bool operator ==(char const* const o) const { return str_ && o ? std::strcmp(str_, o) == 0 : str_ == o; }
 		bool operator !=(char const* const o) const { return !(*this == o); }
 

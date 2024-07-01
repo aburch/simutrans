@@ -9,6 +9,7 @@
 #include "simticker.h"
 #include "display/simgraph.h"
 #include "simcolor.h"
+#include "gui/chat_frame.h"
 #include "gui/simwin.h"
 #include "world/simworld.h"
 
@@ -133,6 +134,7 @@ void message_t::clear()
 	}
 	ticker::clear_messages();
 	clients.clear();
+	clients.append(env_t::nickname.c_str());
 }
 
 
@@ -415,6 +417,9 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 			nick = strtok(NULL, "\t");
 		}
 		flags |= DO_NO_LOG_MSG|DO_NOT_SAVE_MSG; // not saving this message
+		if (chat_frame_t* cf = (chat_frame_t*)win_get_magic(magic_chatframe)) {
+			cf->fill_list();
+		}
 	}
 	else if (recipient && strcmp(recipient, env_t::nickname.c_str()) == 0  &&  sender_nr != world()->get_active_player_nr()) {
 		buf.printf("%s>> %s", sender_.c_str(), text);
@@ -521,14 +526,5 @@ void chat_message_t::rdwr(loadsave_t* file)
 // return the number of connected clients
 const vector_tpl<plainstring>& chat_message_t::get_online_nicks()
 {
-	/*
-	if (env_t::server) {
-		return socket_list_t::get_playing_clients();
-	}
-	else if (env_t::networkmode) {
-		return clients_active;
-	}
-	return 0;
-	*/
 	return clients;
 }
