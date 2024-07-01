@@ -8012,7 +8012,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
 	koord pos2d;
 	sint8 z;
 	uint16 ns, ticks;
-	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hu,%hu", &pos2d.x, &pos2d.y, &z, &ns, &ticks )  ) {
+	if(  5!=sscanf( default_param, "%hi,%hi,%hhi,%hu,%hu", &pos2d.x, &pos2d.y, &z, &ns, &ticks )  ) {
 		return false;
 	}
 	koord3d pos(pos2d, z);

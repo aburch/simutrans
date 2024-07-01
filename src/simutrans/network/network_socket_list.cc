@@ -328,6 +328,29 @@ void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients, 
 }
 
 
+plainstring socket_list_t::get_all_nicks()
+{
+	std::string nicks
+#if COLOUR_DEPTH>0
+	// only add server nick, if server has a gui
+	 = env_t::nickname
+#endif
+	;
+
+	for (uint32 i = server_sockets; i < list.get_count(); i++) {
+		if (list[i]->is_active() && list[i]->socket != INVALID_SOCKET
+			&& (list[i]->state == socket_info_t::playing || list[i]->state == socket_info_t::connected)
+			) {
+			if (!nicks.empty()) {
+				nicks += "\t";
+			}
+			nicks += list[i]->nickname;
+		}
+	}
+	return nicks.c_str();
+}
+
+
 SOCKET socket_list_t::fill_set(fd_set *fds)
 {
 	SOCKET s_max = 0;

@@ -129,7 +129,7 @@ public:
 	chat_message_t() {};
 	~chat_message_t();
 
-	static uint8 get_online_players();
+	static const vector_tpl<plainstring> &get_online_nicks();
 
 private:
 	slist_tpl<chat_node*> list;

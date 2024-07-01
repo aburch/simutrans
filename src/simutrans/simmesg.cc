@@ -30,9 +30,8 @@
 
 static karte_ptr_t welt;
 
-uint8 clients_active = 0;
-const char *player_count;
-size_t player_count_lenght;
+static vector_tpl<plainstring>clients;
+
 
 uint32 message_node_t::get_type_shifted() const
 {
@@ -133,8 +132,7 @@ void message_t::clear()
 		delete list.remove_first();
 	}
 	ticker::clear_messages();
-	player_count = translator::translate("Now %u clients connected.", world()->get_settings().get_name_language_id());
-	player_count_lenght = strchr(player_count, '%') - player_count;
+	clients.clear();
 }
 
 
@@ -169,11 +167,6 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 void message_t::add_message(const char *text, koord3d pos, uint16 what_flags, FLAGGED_PIXVAL color, image_id image )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i,%i)", text, pos.x, pos.y, pos.z );
-
-	// hacky, retrieve the number of clients for the last messages
-	if (strncmp(text, player_count, player_count_lenght) == 0) {
-		clients_active = atoi(text + player_count_lenght);
-	}
 
 	sint32 what_bit = 1<<(what_flags & MESSAGE_TYPE_MASK);
 	if(  what_bit&ignore_flags  ) {
@@ -413,6 +406,16 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 			}
 		}
 	}
+	if (channel == -2) {
+		// text contains the current nicks, separated by TAB
+		clients.clear();
+		char* nick = strtok((char*)text, "\t");
+		while (nick) {
+			clients.append(nick);
+			nick = strtok(NULL, "\t");
+		}
+		flags |= DO_NO_LOG_MSG|DO_NOT_SAVE_MSG; // not saving this message
+	}
 	else if (recipient && strcmp(recipient, env_t::nickname.c_str()) == 0  &&  sender_nr != world()->get_active_player_nr()) {
 		buf.printf("%s>> %s", sender_.c_str(), text);
 		ticker::add_msg(buf, koord3d::invalid, color_idx_to_rgb(COL_RED));
@@ -516,8 +519,9 @@ void chat_message_t::rdwr(loadsave_t* file)
 
 
 // return the number of connected clients
-uint8 chat_message_t::get_online_players()
+const vector_tpl<plainstring>& chat_message_t::get_online_nicks()
 {
+	/*
 	if (env_t::server) {
 		return socket_list_t::get_playing_clients();
 	}
@@ -525,4 +529,6 @@ uint8 chat_message_t::get_online_players()
 		return clients_active;
 	}
 	return 0;
+	*/
+	return clients;
 }

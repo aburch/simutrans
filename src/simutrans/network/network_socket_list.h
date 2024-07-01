@@ -189,6 +189,8 @@ public:
 	 */
 	static void send_all(network_command_t* nwc, bool only_playing_clients, uint8 player_nr = PLAYER_UNOWNED);
 
+	static plainstring get_all_nicks();
+
 	static void change_state(uint32 id, socket_info_t::connection_state_t new_state);
 
 	/**

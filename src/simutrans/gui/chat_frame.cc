@@ -553,7 +553,7 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 
 void chat_frame_t::draw(scr_coord pos, scr_size size)
 {
-	lb_now_online.buf().printf(translator::translate(env_t::networkmode ? "%u Client(s)\n" : "Not online"), chat_message_t::get_online_players());
+	lb_now_online.buf().printf(translator::translate(env_t::networkmode ? "%u Client(s)\n" : "Not online"), chat_message_t::get_online_nicks().get_count());
 	lb_now_online.update();
 
 	if (welt->get_chat_message()->get_list().get_count() != last_count || old_player_nr != world()->get_active_player_nr()) {

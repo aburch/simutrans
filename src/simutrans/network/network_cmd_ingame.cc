@@ -97,7 +97,6 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			fseek( fh, 0, SEEK_END );
 			nwgi.len = ftell( fh );
 			rewind( fh );
-//			nwj.client_id = network_get_client_id(s);
 			nwgi.rdwr();
 			if ( nwgi.send( s ) ) {
 				// send gameinfo
@@ -275,6 +274,9 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	network_send_server(nwc);
 	// since init always returns false, it is safe to delete immediately
 	delete tmp_tool;
+	// now tell all clients the new nicks
+	nwc_chat_t* nwchat = new nwc_chat_t(socket_list_t::get_all_nicks(), PLAYER_UNOWNED, -2, NULL, NULL, koord::invalid);
+	network_send_server(nwchat);
 }
 
 
