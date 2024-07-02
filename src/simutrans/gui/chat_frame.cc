@@ -380,7 +380,6 @@ void chat_frame_t::fill_list()
 	cont_chat_log[chat_mode].clear_elements();
 	last_count = welt->get_chat_message()->get_list().get_count();
 
-	plainstring dest = cb_direct_chat_targets.get_selection()>=0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
 	plainstring prev_poster = "";
 	sint8 prev_company = -1;
 	bool player_locked = current_player->is_locked();
@@ -410,7 +409,7 @@ void chat_frame_t::fill_list()
 				continue;
 			}
 			// direct chat mode
-			if (dest != ""  &&  dest != i->destination  &&  dest != i->sender) {
+			if (selected_destination != ""  &&  selected_destination != i->destination  &&  selected_destination != i->sender) {
 				continue;
 			}
 			break;
@@ -460,9 +459,12 @@ void chat_frame_t::fill_list()
 		cb_direct_chat_targets.clear_elements();
 		for (uint32 i = 0; i < chat_message_t::get_online_nicks().get_count(); i++) {
 			cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
-			if (chat_message_t::get_online_nicks()[i] == dest) {
+			if (chat_message_t::get_online_nicks()[i] == selected_destination) {
 				cb_direct_chat_targets.set_selection(i);
 			}
+		}
+		if (cb_direct_chat_targets.get_selection() == -1) {
+			selected_destination = "";
 		}
 		env_t::chat_unread_whisper = 0;
 		break;
@@ -556,15 +558,7 @@ void chat_frame_t::activate_whisper_to(const char* recipient)
 		return; // message to myself
 	}
 
-	int sel = -1;
-	for (int i = 0; i < cb_direct_chat_targets.count_elements(); i++) {
-		if (recipient == cb_direct_chat_targets.get_element(i)->get_text()) {
-			sel = i;
-			break;
-		}
-	}
-	cb_direct_chat_targets.set_selection(sel);
-
+	selected_destination = recipient;
 	tabs.set_active_tab_index(CH_WHISPER);
 
 	fill_list();

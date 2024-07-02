@@ -141,6 +141,23 @@ void nwc_nick_t::rdwr()
 }
 
 
+static bool nick_already_taken(const plainstring& nick,uint32 client_id)
+{
+	// check for same nick
+	for (uint32 i = 0; i < socket_list_t::get_count(); i++) {
+		socket_info_t& info = socket_list_t::get_client(i);
+		if ((info.state == socket_info_t::playing  ||  i == 0)
+			&&  i != client_id
+			&&  nick == info.nickname.c_str())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 /**
  * if server: checks whether nickname is taken and generates default nick
  */
@@ -149,32 +166,23 @@ bool nwc_nick_t::execute(karte_t *welt)
 	if(env_t::server) {
 		uint32 client_id = socket_list_t::get_client_id(packet->get_sender());
 
-		if(nickname==NULL) {
+		if(nickname==NULL  ||  nickname=="Admin"  || nick_already_taken(nickname, client_id)) {
 			goto generate_default_nick;
 		}
 
-		// check for same nick
-		for(uint32 i = 0; i<socket_list_t::get_count(); i++) {
-			socket_info_t& info = socket_list_t::get_client(i);
-			if ( (info.state == socket_info_t::playing  ||  i==0)
-				&&  i != client_id
-				&&  (nickname == info.nickname.c_str()  ||  nickname == "Admin")  )
-			{
-				goto generate_default_nick;
-			}
-		}
 		if (id == NWC_NICK) {
 			// do not call this tool if called by nwc_join_t::execute
 			nwc_nick_t::server_tools(welt, client_id, CHANGE_NICK, nickname);
 		}
 		return true;
 
-generate_default_nick:
+	generate_default_nick:
 		// nick exists already
-		// generate default nick
-		cbuffer_t buf;
-		buf.printf("Client#%d", client_id);
-		nickname = (const char*)buf;
+		// generate default nick from city names
+		const vector_tpl<char*>& city_names = translator::get_city_name_list();
+		do {
+			nickname = city_names[sim_async_rand(city_names.get_count())];
+		} while (nick_already_taken(nickname, client_id));
 		return true;
 	}
 	else {
@@ -358,7 +366,7 @@ bool nwc_chat_t::execute (karte_t* welt)
 
 		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, channel_nr, info.nickname.c_str(), destination, pos );
 
-		if (  destination == NULL  ||  info.state== socket_info_t::server) {
+		if (  destination == NULL  ||  destination=="") {
 			// Do not send messages to ourself (server)
 			network_send_all( nwchat, true );
 
@@ -380,6 +388,11 @@ bool nwc_chat_t::execute (karte_t* welt)
 			// Send to a specific client
 			// Look up a client with a matching name, if none matches
 			// send a message back saying that client doesn't exist
+
+			// is it for us => no need to send further away
+			if (destination == env_t::nickname.c_str()) {
+				welt->get_chat_message()->add_chat_message(message.c_str(), channel_nr, player_nr, info.nickname, destination, pos);
+			}
 
 			// Check if destination nick exists
 			for (  uint32 i = 0;  i < socket_list_t::get_count();  i++  ) {

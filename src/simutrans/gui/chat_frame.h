@@ -45,6 +45,7 @@ private:
 
 	uint32 last_count = 0; // of messages in list
 	sint8 old_player_nr = 0;
+	plainstring selected_destination;
 
 public:
 	chat_frame_t();
