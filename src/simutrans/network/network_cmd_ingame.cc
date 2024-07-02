@@ -358,7 +358,7 @@ bool nwc_chat_t::execute (karte_t* welt)
 
 		nwc_chat_t* nwchat = new nwc_chat_t( message, player_nr, channel_nr, info.nickname.c_str(), destination, pos );
 
-		if (  destination == NULL  ) {
+		if (  destination == NULL  ||  info.state== socket_info_t::server) {
 			// Do not send messages to ourself (server)
 			network_send_all( nwchat, true );
 
