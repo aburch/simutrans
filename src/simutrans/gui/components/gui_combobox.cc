@@ -385,7 +385,7 @@ scr_size gui_combobox_t::get_min_size() const
 {
 	scr_size bl = bt_prev.get_min_size();
 	scr_size ti = textinp.get_min_size();
-	scr_size sl = droplist.get_min_size();
+	scr_size sl = droplist.get_container_min_size();
 	scr_size br = bt_next.get_min_size();
 
 	if (sl.w == scr_size::inf.w) {
@@ -401,8 +401,10 @@ scr_size gui_combobox_t::get_min_size() const
 scr_size gui_combobox_t::get_max_size() const
 {
 	scr_size msize = get_min_size();
-	msize.w = droplist.get_max_size().w;
-
+	if (!is_rigid()) {
+		// expand as much as one can
+		msize.w = droplist.get_max_size().w;
+	}
 	return msize;
 }
 

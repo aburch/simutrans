@@ -375,8 +375,41 @@ void chat_frame_t::fill_list()
 	player_t* current_player = world()->get_active_player();
 	const scr_coord_val width = get_windowsize().w;
 
-	old_player_nr = current_player->get_player_nr();
+	cb_direct_chat_targets.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
+	lb_channel.set_visible(tabs.get_active_tab_index() != CH_PUBLIC);
+	switch (chat_mode) {
+	default:
+	case CH_PUBLIC:
+		// system message and public chats
+		lb_channel.set_visible(false);
+		env_t::chat_unread_public = 0;
+		break;
+	case CH_COMPANY:
+		lb_channel.set_text(current_player->get_name());
+		lb_channel.set_color(color_idx_to_rgb(current_player->get_player_color1() + env_t::gui_player_color_dark));
+		env_t::chat_unread_company = 0;
+		break;
+	case CH_WHISPER:
+		lb_channel.set_text("direct_chat_to:");
+		lb_channel.set_color(SYSCOL_TEXT);
+		cb_direct_chat_targets.clear_elements();
+		cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show all"), SYSCOL_TEXT);
+		cb_direct_chat_targets.set_selection(0);
+		for (uint32 i = 0; i < chat_message_t::get_online_nicks().get_count(); i++) {
+			if (chat_message_t::get_online_nicks()[i] != env_t::nickname.c_str()) {
+				cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
+				if (chat_message_t::get_online_nicks()[i] == selected_destination) {
+					cb_direct_chat_targets.set_selection(i);
+				}
+			}
+		}
+		cb_direct_chat_targets.set_size(cb_direct_chat_targets.get_min_size());
+		cb_direct_chat_targets.set_rigid(true);
+		env_t::chat_unread_whisper = 0;
+		break;
+	}
 
+	old_player_nr = current_player->get_player_nr();
 	cont_chat_log[chat_mode].clear_elements();
 	last_count = welt->get_chat_message()->get_list().get_count();
 
@@ -439,38 +472,9 @@ void chat_frame_t::fill_list()
 		prev_company = i->player_nr;
 	}
 
-	cb_direct_chat_targets.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
-	lb_channel.set_visible(tabs.get_active_tab_index() != CH_PUBLIC);
-	switch (chat_mode) {
-	default:
-	case CH_PUBLIC:
-		// system message and public chats
-		lb_channel.set_visible(false);
-		env_t::chat_unread_public = 0;
-		break;
-	case CH_COMPANY:
-		lb_channel.set_text(current_player->get_name());
-		lb_channel.set_color(color_idx_to_rgb(current_player->get_player_color1() + env_t::gui_player_color_dark));
-		env_t::chat_unread_company = 0;
-		break;
-	case CH_WHISPER:
-		lb_channel.set_text("direct_chat_to:");
-		lb_channel.set_color(SYSCOL_TEXT);
-		cb_direct_chat_targets.clear_elements();
-		for (uint32 i = 0; i < chat_message_t::get_online_nicks().get_count(); i++) {
-			cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
-			if (chat_message_t::get_online_nicks()[i] == selected_destination) {
-				cb_direct_chat_targets.set_selection(i);
-			}
-		}
-		if (cb_direct_chat_targets.get_selection() == -1) {
-			selected_destination = "";
-		}
-		env_t::chat_unread_whisper = 0;
-		break;
-	}
 	cont_chat_log[chat_mode].show_bottom();
 	cont_chat_log[chat_mode].set_maximize(true);
+	set_windowsize(get_windowsize());
 }
 
 
@@ -480,9 +484,9 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;
 		const sint8 sender_company_nr = welt->get_active_player()->is_locked() ? -1 : welt->get_active_player()->get_player_nr();
-		plainstring dest = cb_direct_chat_targets.get_selection() >= 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
+		plainstring dest = cb_direct_chat_targets.get_selection() > 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : env_t::nickname.c_str();
 
-		if (dest != "" && dest==env_t::nickname.c_str()) {
+		if (dest==env_t::nickname.c_str()) {
 			return true; // message to myself
 		}
 

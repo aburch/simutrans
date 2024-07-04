@@ -118,6 +118,8 @@ protected:
 	void cleanup_elements(bool resize=true);
 
 public:
+	scr_size get_container_min_size() const { return container.get_min_size(); }
+
 	virtual void set_skin_type(enum type t) { this->type = t; }
 
 	void set_cmp(item_compare_func cmp) { compare = cmp; }
