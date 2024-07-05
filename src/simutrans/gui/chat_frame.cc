@@ -399,12 +399,11 @@ void chat_frame_t::fill_list()
 			if (chat_message_t::get_online_nicks()[i] != env_t::nickname.c_str()) {
 				cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
 				if (chat_message_t::get_online_nicks()[i] == selected_destination) {
-					cb_direct_chat_targets.set_selection(i);
+					cb_direct_chat_targets.set_selection(i+1);
 				}
 			}
 		}
-		cb_direct_chat_targets.set_size(cb_direct_chat_targets.get_min_size());
-		cb_direct_chat_targets.set_rigid(true);
+		cb_direct_chat_targets.set_minimize(true);
 		env_t::chat_unread_whisper = 0;
 		break;
 	}
@@ -479,7 +478,7 @@ void chat_frame_t::fill_list()
 
 
 
-bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
+bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 {
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;
@@ -521,7 +520,7 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t)
 		bt_send_pos.pressed ^= 1;
 	}
 	else if (comp == &cb_direct_chat_targets) {
-		activate_whisper_to(cb_direct_chat_targets.get_selected_item()->get_text());
+		activate_whisper_to(v.i > 0 ? cb_direct_chat_targets.get_element(v.i)->get_text() : env_t::nickname.c_str());
 		fill_list();
 	}
 	else if (comp == &tabs) {

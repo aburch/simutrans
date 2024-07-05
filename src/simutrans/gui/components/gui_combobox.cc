@@ -26,6 +26,7 @@ gui_combobox_t::gui_combobox_t(gui_scrolled_list_t::item_compare_func cmp) :
 	gui_component_t(true),
 	droplist(gui_scrolled_list_t::listskin, cmp)
 {
+	minimize = false;
 	bt_prev.set_typ(button_t::arrowleft);
 	bt_prev.set_pos( scr_coord(0,2) );
 
@@ -401,7 +402,7 @@ scr_size gui_combobox_t::get_min_size() const
 scr_size gui_combobox_t::get_max_size() const
 {
 	scr_size msize = get_min_size();
-	if (!is_rigid()) {
+	if (!minimize) {
 		// expand as much as one can
 		msize.w = droplist.get_max_size().w;
 	}
