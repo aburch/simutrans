@@ -999,8 +999,9 @@ class industry_manager_t extends manager_t
     }
 
     if ( wt == wt_road && line.stuck_check == 0 ) {
+      local way_count = nexttile.len()
       for ( local x = 1; x < 5; x++ ) {
-        local t = nexttile[x];
+        local t = nexttile[way_count-x];
         local d = t.get_way_dirs(wt)
         if ( dir.is_threeway(d) ) {
           line.stuck_check = 1
