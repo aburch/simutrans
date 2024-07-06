@@ -712,12 +712,15 @@ int simu_main(int argc, char** argv)
 		if( const char* pak = args.gimme_arg( "-objects", 1 ) ) {
 			if( set_pakdir( pak ) ) {
 				env_t::pak_name = pak;
+				if (env_t::pak_name.back() == '/') {
+					env_t::pak_name.pop_back();
+				}
 				env_t::pak_name += PATH_SEPARATOR;
 			}
 		}
 	}
 
-	if(  env_t::pak_dir.empty()  ) {
+	if(  env_t::pak_name.empty()  ) {
 		if(  const char *filename = args.gimme_arg("-load", 1)  ) {
 			// try to get a pak file path from a savegame file
 			// read pak_extension from file
@@ -728,7 +731,7 @@ int simu_main(int argc, char** argv)
 			if(  test.rd_open(fn.c_str()) == loadsave_t::FILE_STATUS_OK  ) {
 				// add pak extension
 				const char *pak = test.get_pak_extension();
-				if(  !STRICMP(pak,"(unknown)")  ) {
+				if(  strcmp(pak,"(unknown)")!=0  ) {
 					if( set_pakdir( pak ) ) {
 						env_t::pak_name = pak;
 						env_t::pak_name += PATH_SEPARATOR;
