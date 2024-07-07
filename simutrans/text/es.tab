@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: es Espanol                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 6.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -537,8 +537,6 @@ Antigüedad: %i años y %i meses.
 <Limpiar itinerario>
 <create new line>
 <Crear línea nueva>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <em>%s</em> - %s<br>\n
 [<em>%s</em>]: %s<br>\n
 <h1>Error</h1><p><strong>

@@ -33,7 +33,8 @@ class chat_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
 	char ibuf[256];
-	gui_aligned_container_t cont_tab_whisper;
+
+	gui_aligned_container_t* inputtable;
 
 	gui_scrolled_list_t	cont_chat_log[3];
 	gui_tab_panel_t tabs;
@@ -46,6 +47,8 @@ private:
 	uint32 last_count = 0; // of messages in list
 	sint8 old_player_nr = 0;
 	plainstring selected_destination;
+
+	bool reactivate_input;
 
 public:
 	chat_frame_t();

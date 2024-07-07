@@ -493,7 +493,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(  IS_LEFTTPLCLK(ev)  ) {
-		// since now the focus could be received while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse not there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->click_pos.x,ev->click_pos.y) )  ) {
 			// not us, just in old focus from previous selection or tab

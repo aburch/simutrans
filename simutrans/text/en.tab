@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 6.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -133,8 +133,6 @@ tundra
 Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
- Loading scenario script failed
-Twin House\n\nAfter a long discussion with no conclusion about the interior decoration of their house, the Burns family decided to divide their house. Father and son manned the left half, Mother and daughter call the shots in the right half.
 Cannot alter water
 This basin cannot be further drained or filled.
 Cannot build on a double slope!
@@ -377,6 +375,8 @@ Age: %i years and %i months
 1 convoy
 1 Einzelfahrzeug im Depot
 1 vehicle stored here.
+1 minute ago
+one minute ago
 1LIGHT_CHOOSE
 Brightness:
 1WORLD_CHOOSE
@@ -609,6 +609,8 @@ closed
 closed.
 COLOR_CHOOSE\n
 Please choose two\ncolours from the\nimage on the right:
+company_chat
+Company chat
 Company_msg
 Competitors
 Congratulation\nScenario was complete in\n%i months %i years.
@@ -683,6 +685,8 @@ Destroying map ...
 Destroying old map ...
 Die Bruecke ist nicht frei!\n
 The bridge is not free!\n
+direct_chat_to:
+Direct message to
 directmail
 Leaflets
 Direkt erreichbare Haltestellen
@@ -1125,6 +1129,8 @@ PaxDest
 Destinations
 Percent Electricity
 Electricity output (%% demand):
+personal_chat
+Private chats
 Planes are not available yet!
 Aircrafts are not yet available.
 Plant tree
@@ -1173,6 +1179,8 @@ Produktion
 Production:
 promote to line
 Promote to line
+public_chat
+General chat
 q1
 Spring
 q2

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                            Date Created: 6.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -158,7 +158,9 @@ Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
-Doppelhaus\n\nNach langer Diskussion über die Inneneinrichtung entschied sich Familie Brenz das Haus zu teilen. Vater und Sohn sind Herr über die linke Hälfte, Mutter und Tochter haben das Sagen in der rechten Hälfte.
+ Das Laden des Szenarioskripts ist fehlgeschlagen
+A building blocks the construction
+Ein Gebäude ist im Weg!
 Bridge blocked by way below or above.
 Die Höhe der Brücke über dem Weg darunter reicht nicht aus.
 Can't buy obsolete vehicles!
@@ -189,6 +191,10 @@ Could not open file
 Konnte die Datei nicht öffnen.
 Das Feld gehoert\neinem anderen Spieler\n
 Das Grundstück\ngehört einem\nanderen Spieler!\n
+Depots cannot be built on runways!
+Ein Hangar kann nicht auf Landebahnen gebaut werden!
+Depots must be built on flat dead-end way tiles!
+Ein Depot kann nur auf einem flachen Wegenden gebaut werden!
 Der Besitzer erlaubt das Entfernen nicht
 Der Besitzer\nerlaubt das\nEntfernen nicht.\n
 Diese Zusammenstellung kann nicht fahren!\n
@@ -247,6 +253,8 @@ Server busy
 Server antwortet nicht!
 Server version too new
 Der Server benutzt eine neuere Programmversion.
+Ship depots must be built on water!
+Eine Werft muss auf dem Wasser gebaut werden!
 Show all revenue messages
 Alle Buchungen an Halten
 Show no revenue messages
@@ -511,8 +519,16 @@ Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
 %s is bankrott gegangen.\nDie Firma wurde aufgelöst,\nund alles verkauft.
 %u Client(s)\n
 %i Mitspieler\n
+%u days ago
+vor %u Tagen
+%u hours ago
+vor %u Stunden
+%u minutes ago
+vor %u Minuten
 %u Player (%u locked)\n
 %i Unternehmen (%i mit Passwort)\n
+%u years ago
+vor %u Jahren
 <clear schedule>
 <Fahrplan löschen>
 <create new line>
@@ -531,6 +547,10 @@ Bürgermeister will\nnicht mehr frieren:\n%s\nbaut ein neues Rathaus.\n
 <Fahrplan zu Linie>
 1 convoi
 1 Fahrzeugverband
+1 minute ago
+gerade eben
+1 year ago
+vor einem Jahr
 100 km/h = %i tiles/month
 100 km/h = %i Felder/Monat
 1LIGHT_CHOOSE
@@ -785,6 +805,8 @@ chooses a random map
 Wählt eine Zufallskarte aus
 citicens
 Einwohner
+Cities can only be built on flat empty ground!
+Eine Stadt kann nur auf flachen Boden gegründet werden!
 City attraction
 Stadtattraktionen
 City industries
@@ -849,6 +871,8 @@ clf_chk_waren
 Waren filtern:
 clf_title
 Fahrzeugliste - Einstellungen
+Click to open the finance dialog.
+Anlicken öffnet die Finanzen des Spielers
 Climate
 Klimazone
 Climate Control
@@ -863,6 +887,8 @@ COLOR_CHOOSE\n
 Bitte wählen Sie\nzwei Kennfarbe\ndurch Anklicken:\n
 Company bankrupt
 Die Firma ist pleite!
+company_chat
+Firmeninterner Chat
 Company_msg
 Konkurrenz
 Comparing pak files ...
@@ -997,6 +1023,8 @@ Die Bruecke ist nicht frei!\n
 Die Brücke ist nicht frei!\n
 diesel
 Diesel
+direct_chat_to:
+Direktnachricht an
 directmail
 Wurfsendung
 Direkt erreichbare Haltestellen
@@ -1305,6 +1333,8 @@ Jump to
 Zentrieren auf
 June
 Juni
+just now
+jetzt
 Kann Spielstand\nnicht laden.\n
 Kann Spielstand\nnicht laden!\n
 Kann Spielstand\nnicht speichern.\n
@@ -1401,6 +1431,8 @@ Loading skins ...
 eigene Skins laden ...
 Loading time:
 Voll Beladen in: 
+Lock Control key
+Steurungstaste einrasten
 Lock game
 Karte gegen weiteren Spielerwechsel schützen.
 Lokomotive_tab
@@ -1561,6 +1593,8 @@ No stop here!
 Werkzeug wirkt nur auf Haltestellen!
 No suitable ground!
 Dieser Boden ist ungeeignet.
+No suitable townhall available for this climate!
+Kein Rathaus für dieses Klima vorhanden!
 No terminal station here!
 Ein Endhalt kann nur\nauf einem Endstück\ngebaut werden!\n
 no timeline
@@ -1587,6 +1621,8 @@ Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again la
 Nicht möglich!\nDer Fahrplan kann zur Zeit\nnicht geändert werden.\nVersuchen Sie es später\nnoch einmal!
 Not enough fields would remain.
 Um jeden Hof muss eine\nMindestanzahl von Feldern\nübrigbleiben.
+Not online
+Nicht Online
 now
 jetzt
 Now active as %s.\n
@@ -1675,6 +1711,8 @@ PaxDest
 Reiseziele
 Percent Electricity
 Anteil Kraftwerke (%%)
+personal_chat
+Direktnachrichten
 Planes are not available yet!
 Noch keine Fluggeräte erfunden!
 Plant tree
@@ -1711,6 +1749,8 @@ player 8
 Spieler 8
 player 9
 Spieler 9
+Player ranking
+Spielerrangfolge
 Please choose vehicles first\n
 Bitte wählen sie zuerst einen Fahrzeugverband aus.
 Postrate
@@ -1739,6 +1779,8 @@ Production/Boost
 Produktionskennzahlen
 promote to line
 Neue Linie
+public_chat
+Allgemeiner Chat
 q1
 Frühling
 q2
@@ -2097,6 +2139,8 @@ To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
 Der Verkehr in %1$s nimmt zu:\n%3$i waren bei der Eröffnung\nvon %2$s.
 To heavy traffic\nresults in traffic jam.\n
 Verkehrsmeldung:\nStau seit Monaten.\n
+To: %s
+An: %s
 Toggle day/night view
 Tag/Nachtmodus umschalten
 Toggle vehicle tooltips
@@ -2333,6 +2377,8 @@ Fahrzeuge der Linie %s wurden ausgemustert
 #_________________________________tooltip_text__________________________________
 Add convois with similar schedule to this line.
 Finde Fahrzeuge mit gleichen Zielen und füge sie hinzu.
+Attach current coordinate to the comment
+Hefte die aktuelle Position auf der Karte an die Nachtricht an.
 Enter intervall in days, hours, minutes
 Zeitspanne in Tagen, Stunden und Minuten eingeben.
 Mirrors order of stops

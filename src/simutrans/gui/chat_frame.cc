@@ -127,7 +127,7 @@ private:
 		else if (diff > 60) {
 			uint8 minutes = (uint8)(diff / 60);
 			if (minutes == 1) {
-				lb_time_diff.buf().append(translator::translate(" 1 minute ago"));
+				lb_time_diff.buf().append(translator::translate("1 minute ago"));
 			}
 			else {
 				lb_time_diff.buf().printf(translator::translate("%u minutes ago"), minutes);
@@ -317,7 +317,6 @@ chat_frame_t::chat_frame_t() :
 
 	set_table_layout(1, 0);
 	set_focusable(false);
-	cont_tab_whisper.set_focusable(false);
 	add_table(3, 1);
 	{
 		opaque_bt.set_focusable(false);
@@ -342,14 +341,13 @@ chat_frame_t::chat_frame_t() :
 	tabs.add_listener(this);
 	add_component(&tabs);
 
-	add_table(4, 1);
+	inputtable = add_table(4, 1);
 	{
 		bt_send_pos.init(button_t::posbutton | button_t::state, NULL);
 		bt_send_pos.set_tooltip("Attach current coordinate to the comment");
 		bt_send_pos.add_listener(this);
 		add_component(&bt_send_pos);
 
-		lb_channel.set_rigid(false);
 		add_component(&lb_channel);
 
 		cb_direct_chat_targets.add_listener(this);
@@ -362,6 +360,7 @@ chat_frame_t::chat_frame_t() :
 	end_table();
 
 	set_resizemode(diagonal_resize);
+	reactivate_input = true;
 
 	last_count = 0;
 	reset_min_windowsize();
@@ -375,6 +374,8 @@ void chat_frame_t::fill_list()
 	player_t* current_player = world()->get_active_player();
 	const scr_coord_val width = get_windowsize().w;
 
+	input.set_rigid(false);
+	input.set_visible(true);
 	cb_direct_chat_targets.set_visible(tabs.get_active_tab_index() == CH_WHISPER);
 	lb_channel.set_visible(tabs.get_active_tab_index() != CH_PUBLIC);
 	switch (chat_mode) {
@@ -396,14 +397,20 @@ void chat_frame_t::fill_list()
 		cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show all"), SYSCOL_TEXT);
 		cb_direct_chat_targets.set_selection(0);
 		for (uint32 i = 0; i < chat_message_t::get_online_nicks().get_count(); i++) {
-			if (chat_message_t::get_online_nicks()[i] != env_t::nickname.c_str()) {
-				cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
-				if (chat_message_t::get_online_nicks()[i] == selected_destination) {
-					cb_direct_chat_targets.set_selection(i+1);
-				}
+			if (chat_message_t::get_online_nicks()[i] == env_t::nickname.c_str()) {
+				continue;
+			}
+			cb_direct_chat_targets.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(chat_message_t::get_online_nicks()[i], SYSCOL_TEXT);
+			if (chat_message_t::get_online_nicks()[i] == selected_destination) {
+				cb_direct_chat_targets.set_selection(cb_direct_chat_targets.count_elements()-1);
 			}
 		}
 		cb_direct_chat_targets.set_minimize(true);
+		if (cb_direct_chat_targets.get_selection()==0) {
+			input.set_rigid(true);
+			input.set_visible(false);
+			selected_destination = env_t::nickname.c_str();
+		}
 		env_t::chat_unread_whisper = 0;
 		break;
 	}
@@ -473,7 +480,7 @@ void chat_frame_t::fill_list()
 
 	cont_chat_log[chat_mode].show_bottom();
 	cont_chat_log[chat_mode].set_maximize(true);
-	set_windowsize(get_windowsize());
+	resize(scr_size(0,0));
 }
 
 
@@ -483,11 +490,7 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;
 		const sint8 sender_company_nr = welt->get_active_player()->is_locked() ? -1 : welt->get_active_player()->get_player_nr();
-		plainstring dest = cb_direct_chat_targets.get_selection() > 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : env_t::nickname.c_str();
-
-		if (dest==env_t::nickname.c_str()) {
-			return true; // message to myself
-		}
+		plainstring dest = cb_direct_chat_targets.get_selection() > 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
 
 		// Send chat message to server for distribution
 		nwc_chat_t* nwchat = new nwc_chat_t(ibuf, sender_company_nr, (sint8)channel, env_t::nickname.c_str(), dest.c_str(), bt_send_pos.pressed ? world()->get_viewport()->get_world_position() : koord::invalid);
@@ -498,8 +501,8 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 		if (tabs.get_active_tab_index() == CH_WHISPER) {
 			world()->get_chat_message()->add_chat_message(ibuf, channel, sender_company_nr, env_t::nickname.c_str(), dest, bt_send_pos.pressed ? world()->get_viewport()->get_world_position() : koord::invalid);
 		}
-
 		ibuf[0] = 0;
+		reactivate_input = true;
 	}
 	else if (comp == &opaque_bt) {
 		if (!opaque_bt.pressed && env_t::chat_window_transparency != 100) {
@@ -521,11 +524,9 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 	}
 	else if (comp == &cb_direct_chat_targets) {
 		activate_whisper_to(v.i > 0 ? cb_direct_chat_targets.get_element(v.i)->get_text() : env_t::nickname.c_str());
-		fill_list();
 	}
 	else if (comp == &tabs) {
-		fill_list();
-		resize(scr_size(0, 0));
+		last_count = 0xFFFFFFFFul; // update upside of infowin_event!
 	}
 	return true;
 }
@@ -540,6 +541,20 @@ void chat_frame_t::draw(scr_coord pos, scr_size size)
 	if (welt->get_chat_message()->get_list().get_count() != last_count || old_player_nr != world()->get_active_player_nr()) {
 		fill_list();
 	}
+
+	if (reactivate_input) {
+		if (win_get_top() == this) {
+			inputtable->set_focus(&input);
+			set_focus(inputtable);
+			event_t ev;
+			ev.ev_class = EVENT_CLICK;
+			ev.ev_code = MOUSE_LEFTBUTTON;
+			ev.mouse_pos = scr_coord(1, 1);
+			input.infowin_event(&ev);
+			reactivate_input = false;
+		}
+	}
+
 	gui_frame_t::draw(pos, size);
 }
 
@@ -557,13 +572,8 @@ void chat_frame_t::rdwr(loadsave_t* file)
 
 void chat_frame_t::activate_whisper_to(const char* recipient)
 {
-	if (recipient == env_t::nickname.c_str()) {
-		return; // message to myself
-	}
-
 	selected_destination = recipient;
 	tabs.set_active_tab_index(CH_WHISPER);
-
-	fill_list();
-	resize(scr_size(0, 0));
+	last_count = 0xFFFFFFFFul; // update upside of infowin_event!
+	reactivate_input = true;
 }

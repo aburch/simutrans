@@ -61,7 +61,6 @@ private:
 	gui_chart_t chart;
 
 	gui_aligned_container_t cont_players;
-	gui_empty_t empty;
 	gui_scrollpane_t scrolly;
 	button_t bt_charts[MAX_PLAYER_RANKING_CHARTS];
 
@@ -79,8 +78,6 @@ private:
 	uint8 selected_item= PR_REVENUE;
 	uint8 selected_player;
 
-	void sort_player();
-
 	bool is_chart_table_zero(uint8 player_nr) const;
 
 public:
@@ -97,7 +94,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void update_chart();
+	void update_chart(bool full_update);
 
 	// since no information are needed to be saved to restore this, returning magic is enough
 	uint32 get_rdwr_id() OVERRIDE { return magic_player_ranking; }

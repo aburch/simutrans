@@ -9,6 +9,8 @@
 	FIX: number of players online in chat window now correct (and also showing offline state)
 	ADD: prefer to build parallel ways, if starting next to an existing way
 	FIX: overflow in bits in private way sign could allow/deny unexpectant players
+	FIX: loading pak from savegame again (so only savegame needed on commandline)
+	CHG: Activate input field if chat is active or after sending message
 
 
 Release of 124.1 (r11272 on 3-June-2024):

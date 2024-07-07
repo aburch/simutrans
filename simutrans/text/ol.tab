@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                          Language: olo Livvinkarjal                          #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.06 2024                           #
+#                            Date Created: 6.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -507,8 +507,6 @@ Azetus %s on tungokselline.
 <tyhjendä aiguluvettelo>
 <create new line>
 <luo uuzi liinii>
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
 <h1>Error</h1><p><strong>
 <h1>Ošipku: Monda yhtenluaduistu objektua pakiettusarjan piäeččomistos</h1><p><strong>Koht(i/a)s 
 <h1>Warning</h1><p><strong>addons for
@@ -2066,7 +2064,7 @@ Soundfontat on 'music'-eččomistas.
 special freight
 Spetsgruuzu
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Vuajittai vähimäisvauhti vauhtibonuksele (%):\ndorogat %i km/h, raudutiet %i km/h,\nlaivat %i km/h, lendokonehet %i km/h
+Vuajittai vähimäisvauhti vauhtibonuksele (%%):\ndorogat %i km/h, raudutiet %i km/h,\nlaivat %i km/h, lendokonehet %i km/h
 Speedlimit
 Vauhtirajoitus
 Speichern
