@@ -308,7 +308,8 @@ int dr_rename(const char *existing_utf8, const char *new_utf8)
 		DWORD error = GetLastError();
 		if (error == ERROR_FILE_NOT_FOUND) {
 			errno = ENOENT;
-		} else if(error == ERROR_ACCESS_DENIED) {
+		}
+		else if(error == ERROR_ACCESS_DENIED) {
 			errno = EACCES;
 		}
 	}

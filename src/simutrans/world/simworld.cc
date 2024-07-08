@@ -5676,6 +5676,17 @@ void karte_t::stop(bool exit_game)
 				FILE *f = dr_fopen(pak_name.c_str(), "w");
 				fputs(settings.get_filename(), f);
 				fclose(f);
+
+				// save windows
+				loadsave_t file;
+				pak_name.append(".sve");
+				if (file.wr_open(pak_name.c_str(), loadsave_t::autosave_mode, loadsave_t::autosave_level, env_t::pak_name.c_str(), SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK) {
+					// we could open for writing
+					file.rdwr_byte(active_player_nr);
+					// save all open windows
+					rdwr_all_win(&file);
+				}
+
 			}
 			else {
 				// save current game, if not online

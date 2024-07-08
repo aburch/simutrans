@@ -1490,7 +1490,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	if(  scen == NULL && (loadgame==""  ||  !welt->load(loadgame.c_str()))  ) {
+	if(  scen == NULL  &&  (loadgame==""  ||  !welt->load(loadgame.c_str()))  ) {
 		// create a default map
 		DBG_MESSAGE("simu_main()", "Init with default map (failing will be a pak error!)");
 
@@ -1539,6 +1539,26 @@ int simu_main(int argc, char** argv)
 		}
 
 		tool_t::toolbar_tool[0]->init(welt->get_active_player());
+
+		if (env_t::networkmode) {
+			// try to restore windows
+			loadsave_t file;
+			std::string name("autosave-");
+			name.append(env_t::pak_name);
+			name.erase(name.length() - 1);
+			name.append(".net.sve");
+			dr_remove("temp-load.sve"); // we load under tempary name if there was a crash => no reloading next time
+			if (!dr_rename(name.c_str(),"temp-load.sve")  &&  file.rd_open("temp-load.sve") == loadsave_t::FILE_STATUS_OK) {
+				uint8 pn;
+				intr_disable();
+				file.rdwr_byte(pn);
+				welt->switch_active_player(pn, true);
+				rdwr_all_win(&file);
+				intr_enable();
+			}
+			// rename back, so we could get the same windows after a desync (when using the commandline to join)
+			dr_rename( "temp-load.sve", name.c_str() );
+		}
 	}
 
 	welt->set_fast_forward(false);
