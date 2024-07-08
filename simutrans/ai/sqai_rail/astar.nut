@@ -4837,11 +4837,14 @@ function optimize_way_line(route, wt, int_run, o_line) {
       local pl_check = [tile_way[0].get_owner().nr, tile_way[1].get_owner().nr]
       local build_check = 0
       if ( (pl_check[0] == our_player_nr || pl_check[0] == 1) && (pl_check[1] == our_player_nr || pl_check[1] == 1) ) {
-        build_check = 1
+        // no bridge by bridge and tunnel
+        if ( !tile_1.is_bridge() && !tile_3.is_bridge() && !tile_1.is_tunnel() && !tile_3.is_tunnel() ) {
+          build_check = 1
+        }
       }
 
       if ( wt == wt_road && build_check == 1 && world.get_time().year >= 1935 ) {
-        if ( (tile_1_d == 5 && tile_3_d == 5) || (tile_1_d == 10 && tile_3_d == 10) ) {
+        if ( (tile_1_d == 5 && tile_3_d == 5) || (tile_1_d == 10 && tile_3_d == 10)  ) {
           if ( print_message_box == 3 ) {
             gui.add_message_at(our_player, " test crossing = " + check_crossing, tile_2)
             gui.add_message_at(our_player, " find way = " + tile_2.find_object(mo_way), tile_2)
