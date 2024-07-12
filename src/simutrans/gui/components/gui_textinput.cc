@@ -559,11 +559,6 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
 
-			if (head_cursor_pos==0xFFFF) {
-				// since before the first draw, the text was likely not set correctly
-				head_cursor_pos = strlen(text);
-			}
-
 			dr_start_textinput();
 			const scr_coord gui_xy = win_get_pos( win_get_top() );
 			const scr_coord_val x = pos.x + gui_xy.x + get_current_cursor_x();
@@ -585,6 +580,12 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
 
 	if(  text  ) {
+
+		if (head_cursor_pos == 0xFFFF) {
+			// since before the first draw, the text was likely not set correctly
+			head_cursor_pos = strlen(text);
+		}
+
 		// recalculate scroll offset
 		const int text_width = proportional_string_width(text);
 		const scr_coord_val view_width = size.w - 3;
@@ -659,7 +660,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 			// display selected text block with light grey text on charcoal bounding box
 			if(  head_cursor_pos!= tail_cursor_pos  ) {
 				const size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
-				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
+				size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
 				display_fillbox_wh_clip_rgb(x_base_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
