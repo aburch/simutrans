@@ -51,7 +51,6 @@ size_t gui_textinput_t::calc_cursor_pos(const int x)
 {
 	size_t new_cursor_pos = 0;
 	if(  text  ) {
-
 		const char* tmp_text = text;
 		uint8 byte_length = 0;
 		uint8 pixel_width = 0;
@@ -560,8 +559,12 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
 
-			dr_start_textinput();
+			if (head_cursor_pos==0xFFFF) {
+				// since before the first draw, the text was likely not set correctly
+				head_cursor_pos = strlen(text);
+			}
 
+			dr_start_textinput();
 			const scr_coord gui_xy = win_get_pos( win_get_top() );
 			const scr_coord_val x = pos.x + gui_xy.x + get_current_cursor_x();
 			const scr_coord_val y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
@@ -676,17 +679,18 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 
 
 
-void gui_textinput_t::set_text(char *text, size_t max)
+void gui_textinput_t::set_text(char *t, size_t max)
 {
-	this->text = text;
+	char *old_text = text;
+	this->text = t;
 	this->max = max;
 
-	if (tail_cursor_pos == head_cursor_pos) {
+	if (old_text  &&   tail_cursor_pos == head_cursor_pos) {
 		// if same, keep positions
 	}
 	else {
 		// whole text is selected by default
-		head_cursor_pos = strlen(text);
+		head_cursor_pos = 0xFFFF;
 		tail_cursor_pos = 0;
 	}
 	text_dirty = false;
