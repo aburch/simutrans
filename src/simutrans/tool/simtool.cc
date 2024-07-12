@@ -661,20 +661,30 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 		gr->obj_remove(lt);
 	}
 
-	// do not delete crossing, so we remove it
-	crossing_t *cr = gr->find<crossing_t>(2);
-	if(cr) {
-		gr->obj_remove(cr);
-	}
-	// do not delete pointers - they may come from players on other clients
-	zeiger_t *zeiger = gr->find<zeiger_t>();
-	if(zeiger) {
-		gr->obj_remove(zeiger);
-	}
-	// do not delete other players label
-	label_t *label = gr->find<label_t>();
-	if(label) {
-		gr->obj_remove(label);
+	// do not delete crossing, labels, pointer and flying airplanes, so we store them
+	minivec_tpl<obj_t*>stuff_to_keep;
+	for (int i = 0; i < gr->obj_count(); ) {
+		obj_t *obj = gr->obj_bei(i);
+		switch (gr->obj_bei(i)->get_typ()) {
+			case obj_t::crossing:
+			case obj_t::zeiger:
+			case obj_t::label:
+				stuff_to_keep.append(obj);
+				gr->obj_remove(obj);
+				break;
+			case obj_t::air_vehicle:
+				if (obj->get_removal_error(player)) {
+					// on the ground => do not touch
+					i++;
+				}
+				else {
+					stuff_to_keep.append(obj);
+					gr->obj_remove(obj);
+				}
+				break;
+			default:
+				i++;
+		}
 	}
 
 	// remove all other stuff (clouds, ...)
@@ -696,18 +706,8 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 		}
 	}
 
-	if(lt) {
-		DBG_MESSAGE("tool_remover()",  "add again powerline");
-		gr->obj_add(lt);
-	}
-	if(cr) {
-		gr->obj_add(cr);
-	}
-	if(zeiger) {
-		gr->obj_add(zeiger);
-	}
-	if(label) {
-		gr->obj_add(label);
+	for (int i=0; i < stuff_to_keep.get_count(); i++) {
+		gr->obj_add(stuff_to_keep[i]);
 	}
 
 	// could not delete everything

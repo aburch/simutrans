@@ -243,7 +243,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 	target_halt = halthandle_t(); // no block reserved
 
 	const weg_t *w=welt->lookup(start)->get_weg(air_wt);
-	bool start_in_the_air = (w==NULL);
+	bool start_in_the_air = (w==NULL)  ||  state==flying  ||  flying_height>0;
 	bool end_in_air=false;
 
 	search_for_stop = takeoff = touchdown = 0x7ffffffful;
