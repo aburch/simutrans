@@ -137,6 +137,8 @@ bool gui_theme_t::gui_drop_shadows;
  */
 void gui_theme_t::init_gui_defaults()
 {
+	skinverwaltung_t::restore_all_skins();
+
 	gui_color_text                         = color_idx_to_rgb(COL_BLACK);
 	gui_color_text_highlight               = color_idx_to_rgb(COL_WHITE);
 	gui_color_text_shadow                  = color_idx_to_rgb(COL_BLACK);

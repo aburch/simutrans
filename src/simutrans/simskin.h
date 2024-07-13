@@ -163,6 +163,12 @@ public:
 	 */
 	static const skin_desc_t *get_extra( const char *str, int len, skintyp_t type = menu );
 
+	// called after all paksets are loaded to restore icons overlaid by skin paks
+	static void save_all_skins();
+
+	// restore pakset originals
+	static void restore_all_skins();
+
 private:
 	/// holds objects from paks with type 'menu' and 'cursor'
 	static slist_tpl<const skin_desc_t *>extra_menu_obj;

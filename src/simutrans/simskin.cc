@@ -8,8 +8,10 @@
 #include "simskin.h"
 
 #include "tpl/slist_tpl.h"
-/*
- * Alle Skin-Bestandteile, die wir brauchen
+#include "tpl/vector_tpl.h"
+
+ /*
+ * Skins, mostly GUI elements
  */
 
 // menus
@@ -84,7 +86,6 @@ const skin_desc_t* skinverwaltung_t::tunnel_texture     = NULL;
 slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_menu_obj;
 slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_cursor_obj;
 
-
 static special_obj_tpl<skin_desc_t> const misc_objekte[] = {
 	{ &skinverwaltung_t::senke,             "PowerDest"    },
 	{ &skinverwaltung_t::pumpe,             "PowerSource"  },
@@ -130,6 +131,8 @@ static special_obj_tpl<skin_desc_t> const symbol_objekte[] = {
 	{ NULL, NULL }
 };
 
+static const skin_desc_t* restore_symbol_objekte[lengthof(symbol_objekte)];
+
 // simutrans will work without those
 static special_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
@@ -156,6 +159,8 @@ static special_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::no_route,           "NoRoute"        },
 	{ NULL, NULL }
 };
+
+static const skin_desc_t *restore_fakultative_objekte[lengthof(fakultative_objekte)];
 
 static special_obj_tpl<skin_desc_t> const cursor_objekte[] = {
 	// old cursors
@@ -238,4 +243,27 @@ const skin_desc_t *skinverwaltung_t::get_extra( const char *str, int len, skinty
 		}
 	}
 	return NULL;
+}
+
+
+void skinverwaltung_t::save_all_skins()
+{
+	for (int i = 0; symbol_objekte[i].name != 0;  i++) {
+		restore_symbol_objekte[i] = *(symbol_objekte[i].desc);
+	}
+	for (int i = 0; fakultative_objekte[i].name != 0; i++) {
+		restore_fakultative_objekte[i]= *(fakultative_objekte[i].desc);
+	}
+}
+
+
+void skinverwaltung_t::restore_all_skins()
+{
+	// only saving the original pak objects once
+	for (int i = 0; symbol_objekte[i].name != 0; i++) {
+		*symbol_objekte[i].desc = restore_symbol_objekte[i];
+	}
+	for (int i = 0; fakultative_objekte[i].name != 0; i++) {
+		*fakultative_objekte[i].desc = restore_fakultative_objekte[i];
+	}
 }
