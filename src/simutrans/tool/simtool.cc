@@ -353,70 +353,121 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 
 /****************************************** now the actual tools **************************************/
+
+
 const char *tool_query_t::work( player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
+	minivec_tpl<gui_frame_t*>info;
+
 	if(gr) {
 		// not single_info: show least important first
-		const bool reverse = !env_t::single_info  ||  is_ctrl_pressed();
+		minivec_tpl<convoihandle_t>convois;
+		const bool reverse = is_ctrl_pressed();
 
 		// iterate through different stages of importance
-		const uint8 max_stages = 4;
-		for(uint8 stage = 0; stage<max_stages; stage++) {
+		const uint8 max_stages = 5;
+		for(uint8 stage = 0; stage<5; stage++) {
 
 			uint32 old_count = win_get_open_count();
 
 			switch (reverse ? max_stages-1-stage: stage) {
-				case 0: { // halts
+				case 0: // halts
 					if(  gr->get_halt().is_bound()  ) {
 						gr->get_halt()->open_info_window();
+						if (old_count < win_get_open_count()) {
+							info.append(win_get_top());
+						}
 					}
 					break;
-				}
+				
 				case 1: // labels
 					if(  gr->get_flag(grund_t::marked)  ) {
-						label_t *lb = gr->find<label_t>();
-						if(  lb  ) {
+						if(label_t *lb = gr->find<label_t>()) {
 							lb->show_info();
 							if(  old_count < win_get_open_count()  ) {
-								return NULL;
+								info.append(win_get_top());
 							}
 						}
 					}
 					break;
-				case 2: { // objects
-					convoihandle_t cnv;
+
+				case 2: // convois
 					for (uint8 n = gr->get_top(); n-- != 0;) {
-						obj_t *obj = gr->obj_bei(reverse ? gr->get_top()-1-n : n);
+						obj_t* obj = gr->obj_bei(reverse ? gr->get_top() - 1 - n : n);
 
 						if (vehicle_t* veh = dynamic_cast<vehicle_t*>(obj)) {
-							if (veh->get_convoi()->self == cnv) {
-								continue; // do not try to open the same window twice, does not work so great with env_t::second_open_closes_win
-							}
-							cnv = veh->get_convoi()->self;
+							convois.append_unique(veh->get_convoi()->self);
 						}
-						if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
+					}
+					for (uint8 n = 0; n < convois.get_count(); n++) {
+						convois[n]->open_info_window();
+						if (old_count < win_get_open_count()) {
+							if (env_t::single_info) {
+								return NULL;
+							}
+							info.append(win_get_top());
+						}
+					}
+					break;
+				
+				case 3: // objects
+					for (uint8 n = gr->get_top(); n-- != 0;) {
+						obj_t* obj = gr->obj_bei(reverse ? gr->get_top() - 1 - n : n);
+
+						if (vehicle_t* veh = dynamic_cast<vehicle_t*>(obj)) {
+							// already openend them
+							continue;
+						}
+						if (obj && obj->get_typ() != obj_t::wayobj && obj->get_typ() != obj_t::pillar && obj->get_typ() != obj_t::label) {
 							DBG_MESSAGE("tool_query_t()", "index %u", (unsigned)n);
 							obj->show_info();
 							// did some new window open?
-							if(env_t::single_info  &&  old_count < win_get_open_count()) {
-								return NULL;
+							if (old_count < win_get_open_count()) {
+								if (env_t::single_info) {
+									return NULL;
+								}
+								info.append(win_get_top());
 							}
 							old_count = win_get_open_count(); // click may have closed a window, open a new one if possible
 						}
 					}
 					break;
-				}
-				case 3:
+				
+				case 4:
 				default: // ground
 					gr->open_info_window();
+					if (old_count < win_get_open_count()) {
+						info.append(win_get_top());
+					}
 					break;
 			}
 
-			if(  env_t::single_info  &&  old_count < win_get_open_count()  ) {
+			if(  env_t::single_info  &&  !info.empty()) {
 				return NULL;
 			}
+			if(stage==2  && !info.empty()) {
+				// we have a station, label or convois => do not show roads until next click
+				break;
+			}
 		}
+	}
+	if (info.get_count() == 2) {
+		scr_coord pos = welt->get_viewport()->get_screen_coord(gr->get_pos());
+		// try to tile the windows
+		win_set_pos(info[0], pos - scr_size(info[0]->get_windowsize().w,info[0]->get_windowsize().h/2));
+		win_set_pos(info[1], pos - scr_size(0, info[1]->get_windowsize().h/2));
+	}
+	else if (info.get_count() > 2) {
+		scr_coord pos = welt->get_viewport()->get_screen_coord(gr->get_pos());
+		// try to tile the windows
+		win_set_pos(info[0], pos - info[0]->get_windowsize());
+		win_set_pos(info[1], pos - scr_size(0, info[1]->get_windowsize().h));
+		win_set_pos(info[2], pos - scr_size(info[2]->get_windowsize().w,0));
+		if (info.get_count() > 3) {
+			win_set_pos(info[3], pos);
+		}
+		// the rest will sit on top of each other
 	}
 	return NULL;
 }

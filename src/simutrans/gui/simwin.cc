@@ -1425,7 +1425,17 @@ void win_set_pos(gui_frame_t *gui, scr_coord new_pos)
 {
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  wins[i].gui == gui  ) {
-			wins[i].pos   = new_pos;
+			// Allow snap to screen edge
+			scr_coord other_pos( (env_t::menupos == MENU_LEFT) * env_t::iconsize.w, (env_t::menupos == MENU_TOP) * env_t::iconsize.h + (env_t::menupos == MENU_BOTTOM) * win_get_statusbar_height());
+			scr_size other_size( display_get_width() - other_pos.x - (env_t::menupos == MENU_RIGHT) * env_t::iconsize.w,
+				display_get_height() - win_get_statusbar_height() - env_t::iconsize.h);
+			if (show_ticker) {
+				other_size.h -= TICKER_HEIGHT;
+			}
+			scr_rect screen(other_pos, other_size);
+			scr_rect window(new_pos, gui->get_windowsize());
+			window.clip(screen);
+			wins[i].pos   = window.get_pos();
 			wins[i].dirty = true;
 			return;
 		}

@@ -14,6 +14,7 @@
 	ADD: restore open windows when rejoining a network game
 	ADD: restore pakset symbols after changing the gui skin
 	CHG: don't save default player colours with the settings/game, use pakset simuconf.tab only
+	CHG: single_info now tiles the windows. If there is a convoi or halt, not way or other info will be shown (default for Android)
 
 
 Release of 124.1 (r11272 on 3-June-2024):
