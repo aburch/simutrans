@@ -621,8 +621,7 @@ int simu_main(int argc, char** argv)
 				env_t::default_settings.rdwr(&settings_file);
 				settings_file.close();
 				// reset to false (otherwise these settings will persist)
-				env_t::default_settings.set_freeplay( false );
-				env_t::default_settings.set_allow_player_change( true );
+				env_t::default_settings.reset_after_global_settings_reload();
 				env_t::server_announce = 0;
 			}
 		}

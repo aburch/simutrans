@@ -111,6 +111,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 		loadsave_t file;
 		if(  file.rd_open("default.sve") == loadsave_t::FILE_STATUS_OK  ) {
 			sets->rdwr(&file);
+			sets->reset_after_global_settings_reload();
 			file.close();
 		}
 

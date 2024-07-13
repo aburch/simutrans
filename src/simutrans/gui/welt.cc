@@ -514,6 +514,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  file.wr_open("default.sve",loadsave_t::binary,0,"settings only",SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK  ) {
 			// save default setting
 			env_t::default_settings.rdwr(&file);
+			env_t::default_settings.reset_after_global_settings_reload();
 			file.close();
 		}
 	}

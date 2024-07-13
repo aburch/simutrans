@@ -333,6 +333,18 @@ void settings_t::set_default_climates()
 }
 
 
+void settings_t::reset_after_global_settings_reload()
+{
+	freeplay = false;
+	env_t::default_settings.set_freeplay(false);
+	allow_player_change = true;
+	// restore default player colors to undefined
+	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+		default_player_color[i][0] = 255;
+		default_player_color[i][1] = 255;
+	}
+	default_player_color_random = false;
+}
 
 void settings_t::rdwr(loadsave_t *file)
 {

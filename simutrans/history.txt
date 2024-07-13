@@ -11,7 +11,9 @@
 	FIX: overflow in bits in private way sign could allow/deny unexpectant players
 	FIX: loading pak from savegame again (so only savegame needed on commandline)
 	CHG: Activate input field if chat is active or after sending message
-	ADD: restore open windows when rejoining a networkgame
+	ADD: restore open windows when rejoining a network game
+	ADD: restore pakset symbols after changing the gui skin
+	CHG: don't save default player colours with the settings/game, use pakset simuconf.tab only
 
 
 Release of 124.1 (r11272 on 3-June-2024):

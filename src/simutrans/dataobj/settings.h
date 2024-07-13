@@ -652,6 +652,9 @@ public:
 
 	bool get_stop_halt_as_scheduled() const { return stop_halt_as_scheduled; }
 	void set_stop_halt_as_scheduled(bool b) { stop_halt_as_scheduled = b; }
+
+	// some settigns are not to be saved in the global settings
+	void reset_after_global_settings_reload();
 };
 
 #endif
