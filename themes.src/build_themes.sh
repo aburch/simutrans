@@ -48,6 +48,7 @@ cd ../pak64german/files
 ../../makeobj pak
 cd ../file-large
 ../../makeobj pak
+../../makeobj pak128 ./ ./dat_128.txt
 cd ..
 ..\makeobj merge ./menu.pak64german.pak ./files/*.pak
 ..\makeobj merge ./menu.pak64german_large.pak ./files_large/*.pak
@@ -62,4 +63,3 @@ cd ..
 mv pak192comic/menu.pak192comic.pak ../../simutrans/themes
 mv pak192comicxxl/menu.pak192comicxxl.pak ../../simutrans/themes
 cp *.tab ../../simutrans/themes
-
