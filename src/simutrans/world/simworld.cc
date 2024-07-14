@@ -679,6 +679,8 @@ void karte_t::init_tiles()
 
 	nosave_warning = nosave = false;
 
+	type_of_generation = AUTO_GENERATED;
+
 	if (env_t::server) {
 		nwc_auth_player_t::init_player_lock_server(this);
 	}

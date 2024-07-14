@@ -1538,6 +1538,7 @@ int simu_main(int argc, char** argv)
 			// just init view (world was loaded from file)
 			intr_set_view(view);
 			win_set_world(welt);
+			welt->type_of_generation = karte_t::RESTORED_WORLD;
 		}
 
 		tool_t::toolbar_tool[0]->init(welt->get_active_player());

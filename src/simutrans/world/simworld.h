@@ -72,6 +72,9 @@ class karte_t : public surface_t
 	static karte_t* world; ///< static single instance
 
 public:
+	// kind of map
+	enum { AUTO_GENERATED, SCENARIO_WORLD, NEW_WORLD, RESTORED_WORLD, CLIENT_WORLD, LOADED_WORLD } type_of_generation;
+
 	/**
 	 * Height of a point of the map with "perlin noise".
 	 * Uses map roughness and mountain height from @p sets.

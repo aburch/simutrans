@@ -491,6 +491,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			filename += ((server_scrollitem_t*)serverlist.get_selected_item())->get_dns();
 			destroy_win( this );
 			welt->load( filename.c_str() );
+			welt->type_of_generation = karte_t::CLIENT_WORLD;
 			display_show_load_pointer(0);
 		}
 		// If we have a valid custom server entry, connect to that
@@ -499,6 +500,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			filename += newserver_name;
 			destroy_win( this );
 			welt->load( filename.c_str() );
+			welt->type_of_generation = karte_t::CLIENT_WORLD;
 			display_show_load_pointer(0);
 		}
 		else {

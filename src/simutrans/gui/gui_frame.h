@@ -112,12 +112,12 @@ public:
 	 */
 	scr_size get_windowsize() const { return windowsize; }
 
-protected:
 	/**
 	 * Sets the window sizes
 	 */
 	virtual void set_windowsize(scr_size size);
 
+protected:
 	/**
 	 * Set minimum size of the window
 	 */

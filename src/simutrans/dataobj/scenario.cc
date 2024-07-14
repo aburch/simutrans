@@ -113,6 +113,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		buf.clear();
 		buf.printf("%s.sve", scenario_name.c_str());
 		welt->get_settings().set_filename( strdup(buf) );
+		welt->type_of_generation = karte_t::SCENARIO_WORLD;
 		// re-initialize coordinate and rotation handling
 		script_api::coordinate_transform_t::initialize();
 	}

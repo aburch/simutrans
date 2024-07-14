@@ -39,8 +39,11 @@ bool loadsave_frame_t::item_action(const char *filename)
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
-		else if(  env_t::server  ) {
-			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
+		else {
+			if (env_t::server) {
+				welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
+			}
+			welt->type_of_generation = karte_t::LOADED_WORLD;
 		}
 		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}

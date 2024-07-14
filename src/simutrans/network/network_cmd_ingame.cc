@@ -744,6 +744,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		welt->save( fn, true, SERVER_SAVEGAME_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
+		welt->type_of_generation = karte_t::CLIENT_WORLD;
 		env_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
@@ -794,6 +795,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->load( fn );
+		welt->type_of_generation = karte_t::LOADED_WORLD;
 		env_t::restore_UI = old_restore_UI;
 
 		// restore steps

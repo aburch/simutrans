@@ -517,6 +517,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			env_t::default_settings.reset_after_global_settings_reload();
 			file.close();
 		}
+		welt->type_of_generation = karte_t::NEW_WORLD;
 	}
 	else if(comp==&return_menu) {
 		destroy_all_win(true);
