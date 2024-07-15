@@ -328,6 +328,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_SHOW_FACTORY_STORAGE: tool = new tool_show_factory_storage_t(); break;
 		case TOOL_TOGGLE_CONTROL:       tool = new tool_toggle_control_t();       break;
 		case TOOL_LOAD_SCENARIO:        tool = new tool_load_scenario_t();        break;
+		case TOOL_DAY_NIGHT_TOGGLE:     tool = new tool_day_night_toggle_t();    break;
 		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case UNUSED_WKZ_PWDHASH_TOOL:
 			dbg->warning("create_simple_tool()", "Deprecated tool [%i] requested", toolnr);

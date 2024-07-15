@@ -1135,6 +1135,23 @@ public:
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 };
 
+// on off of night mode
+class tool_day_night_toggle_t : public tool_t {
+public:
+	tool_day_night_toggle_t() : tool_t(TOOL_DAY_NIGHT_TOGGLE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("8WORLD_CHOOSE"); }
+	bool is_selected() const OVERRIDE { return env_t::night_shift; }
+	bool init(player_t*) OVERRIDE {
+		env_t::night_shift = !env_t::night_shift;
+		welt->set_dirty();
+		return false;
+	}
+	bool exit(player_t* s) OVERRIDE { return init(s); }
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
+};
+
+
 
 /******************************** Internal tools ***********/
 
