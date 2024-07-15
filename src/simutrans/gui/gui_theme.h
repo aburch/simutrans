@@ -25,6 +25,8 @@ class image_t;
  * These is going to be moved into the theme handling later.
  */
 
+#define D_BUTTONS_PER_ROW      (gui_theme_t::gui_buttons_per_row)
+
 #define D_BUTTON_SIZE          (gui_theme_t::gui_button_size  )
 #define D_BUTTON_WIDTH         (gui_theme_t::gui_button_size.w)
 #define D_BUTTON_HEIGHT        (gui_theme_t::gui_button_size.h)
@@ -116,6 +118,7 @@ class image_t;
 // bars of goods waiting in stations
 #define D_WAITINGBAR_WIDTH     (gui_theme_t::gui_waitingbar_width)
 
+#if 0
 // Button grid helpers
 #define BUTTON1_X     (D_MARGIN_LEFT)
 #define BUTTON2_X     (D_MARGIN_LEFT+1*(D_BUTTON_WIDTH+D_H_SPACE))
@@ -123,9 +126,10 @@ class image_t;
 #define BUTTON4_X     (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
 #define BUTTON_X(col) ( (col) * (D_BUTTON_WIDTH  + D_H_SPACE) )
 #define BUTTON_Y(row) ( (row) * (D_BUTTON_HEIGHT + D_V_SPACE) )
+#endif
 
 // The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
-#define D_DEFAULT_WIDTH (D_MARGINS_X + 4*D_BUTTON_WIDTH + 3*D_H_SPACE)
+#define D_DEFAULT_WIDTH (D_MARGINS_X + D_BUTTONS_PER_ROW*D_BUTTON_WIDTH + (D_BUTTONS_PER_ROW-1)*D_H_SPACE)
 #define D_DEFAULT_HEIGHT (max(56, get_base_tile_raster_width() * 7 / 8) + 208 + D_SCROLLBAR_HEIGHT)
 
 // Max Kielland: align helper, returns the offset to apply to N1 for a center alignment around N2
@@ -258,6 +262,7 @@ public:
 
 	/// @name GUI element sizes used by gui components
 	/// @{
+	static sint16   gui_buttons_per_row;          // how many buttons in a default dialog
 	static scr_size gui_divider_size;
 	static scr_size gui_button_size;
 	static scr_size gui_color_button_text_offset; // extra offset for the text (in case of asymmetric or buttons with color on the left)

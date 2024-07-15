@@ -70,6 +70,7 @@ PIXVAL gui_theme_t::gui_color_object_highlight;
  * These are the built in default theme element sizes and
  * are overridden by the PAK file if a new image is defined.
  */
+sint16   gui_theme_t::gui_buttons_per_row;
 scr_size gui_theme_t::gui_button_size;
 scr_size gui_theme_t::gui_button_text_offset;
 scr_size gui_theme_t::gui_color_button_size;
@@ -212,6 +213,8 @@ void gui_theme_t::init_gui_defaults()
 	gui_gadget_size              = scr_size(16,16);
 	gui_indicator_size           = scr_size(20,4);
 	gui_focus_offset             = scr_coord(1,1);
+
+	gui_buttons_per_row          = max(2, min(4, display_get_width() / (D_BUTTON_WIDTH + D_H_SPACE + D_MARGIN_LEFT)));
 
 	gui_titlebar_height  = 16;
 	gui_frame_left       = 10;
@@ -581,6 +584,9 @@ gui_theme_t::gui_color_object_highlight                 = (PIXVAL)contents.get_c
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 
 	env_t::chat_window_transparency =   100 - contents.get_int("gui_chat_window_network_transparency", 100 - env_t::chat_window_transparency);
+
+	// needs to be changed after resize events too
+	gui_buttons_per_row = max(2, min(4, display_get_width() / (D_BUTTON_WIDTH + D_H_SPACE + D_MARGIN_LEFT)));
 
 	if(  toolbar_last_used_t::last_used_tools  &&  init_tools  ) {
 		// only re-init if already inited

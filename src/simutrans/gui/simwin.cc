@@ -699,11 +699,14 @@ void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, boo
 	}
 	scr_rect screen(other_pos, other_size);
 
-	if (pos.x < other_pos.x) {
-		pos.x = other_pos.x;
-	}
 	if (pos.y < other_pos.y) {
+		// y alsways visible
 		pos.y = other_pos.y;
+	}
+	if (move_topleft) {
+		if (pos.x < other_pos.x) {
+			pos.x = other_pos.x;
+		}
 	}
 
 	// should we move to be fully on screen?
@@ -716,34 +719,46 @@ void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, boo
 		}
 	}
 
-	if (gui  &&  (pos.x<other_pos.x  ||  pos.y<other_pos.y)) {
-		// window still to big => maybe we can resize it to fit the screen
-		scr_size minsize = gui->get_min_windowsize();
-		if (minsize != wh) {
-			bool resize = false;
-			if (pos.x < other_pos.y  &&  minsize.w < other_size.w) {
-				// too wide
-				pos.x = other_pos.x;
-				minsize.w = other_size.w;
-				resize = true;
+	if (gui) {
+		if (wh.w > other_size.w || wh.h > other_size.h) {
+			// window still to big => maybe we can resize it to fit the screen
+			scr_size minsize = gui->get_min_windowsize();
+			if (minsize != wh) {
+				bool resize = false;
+				if (pos.x < other_pos.y && minsize.w < other_size.w) {
+					// too wide
+					pos.x = other_pos.x;
+					minsize.w = other_size.w;
+					resize = true;
+				}
+				if (pos.y < other_pos.y && minsize.h < other_size.h) {
+					//too high
+					pos.y = other_pos.y;
+					minsize.h = other_size.h;
+					resize = true;
+				}
+				if (resize) {
+					gui->set_windowsize(minsize);
+				}
 			}
-			if (pos.y < other_pos.y  &&  minsize.h < other_size.h) {
-				//too high
-				pos.y = other_pos.y;
-				minsize.h = other_size.h;
-				resize = true;
+			else if (move_topleft) {
+				// center on screen
+				if (pos.x < other_pos.x) {
+					pos.x = other_pos.x - (wh.w - other_size.w) / 2;
+				}
+				if (pos.y < other_pos.y) {
+					pos.y = other_pos.y - (wh.h - other_size.h) / 2;
+				}
 			}
-			if (resize) {
-				gui->set_windowsize(minsize);
+			// make sure some corner remains visible
+			if (pos.x + wh.w < other_pos.x + D_MARGIN_LEFT) {
+				pos.x = other_pos.x + D_MARGIN_LEFT - wh.w;
 			}
-		}
-		else {
-			// center on screen
-			if (pos.x < other_pos.x) {
-				pos.x = other_pos.x - (wh.w - other_size.w) / 2;
+			if (pos.x > other_pos.x + other_size.w - D_MARGIN_LEFT) {
+				pos.x = other_pos.x + other_size.w - D_MARGIN_LEFT;
 			}
-			if (pos.y < other_pos.y) {
-				pos.y = other_pos.y - (wh.h - other_size.h) / 2;
+			if (pos.y + D_TITLEBAR_HEIGHT > other_pos.y + other_size.h) {
+				pos.y = other_pos.y + other_size.h - D_TITLEBAR_HEIGHT;
 			}
 		}
 	}
@@ -1768,6 +1783,7 @@ void win_poll_event(event_t* const ev)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE  ) {
 		// main window resized
 		simgraph_resize( ev->new_window_size );
+		gui_theme_t::gui_buttons_per_row = max(2, min(4, display_get_width() / (D_BUTTON_WIDTH + D_H_SPACE + D_MARGIN_LEFT)));
 		ticker::redraw();
 		tool_t::update_toolbars();
 		for( uint i = 0; i<wins.get_count(); i++ ) {

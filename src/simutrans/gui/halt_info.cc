@@ -402,14 +402,13 @@ void halt_info_t::init(halthandle_t halt)
 
 	// chart
 	switch_mode.add_tab(&container_chart, translator::translate("Chart"));
-	container_chart.set_table_layout(1,0);
+	container_chart.set_table_layout(D_BUTTONS_PER_ROW,0);
+	container_chart.set_force_equal_columns(true);
 
 	chart.set_min_size(scr_size(0, CHART_HEIGHT));
 	chart.set_dimension(12, 10000);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
-	container_chart.add_component(&chart);
-
-	container_chart.add_table(4,2);
+	container_chart.add_component(&chart, D_BUTTONS_PER_ROW);
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		uint16 curve = chart.add_curve(color_idx_to_rgb(cost_type_color[cost]), halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 
@@ -417,10 +416,8 @@ void halt_info_t::init(halthandle_t halt)
 		b->init(button_t::box_state_automatic | button_t::flexible, cost_type[cost]);
 		b->background_color = color_idx_to_rgb(cost_type_color[cost]);
 		b->pressed = false;
-
 		button_to_chart.append(b, &chart, curve);
 	}
-	container_chart.end_table();
 
 	update_components();
 	set_resizemode(diagonal_resize);

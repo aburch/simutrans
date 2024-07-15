@@ -192,7 +192,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	chart.set_min_size(scr_size(0, CHART_HEIGHT));
 	container_stats.add_component(&chart);
 
-	container_stats.add_table(4,2)->set_force_equal_columns(true);
+	container_stats.add_table(D_BUTTONS_PER_ROW,0)->set_force_equal_columns(true);
 
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
 		uint16 curve = chart.add_curve( color_idx_to_rgb(cost_type_color[cost]), cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
@@ -213,7 +213,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 
 	container_details.set_table_layout(1,0);
 
-	container_details.add_table(4, 1)->set_force_equal_columns(true);
+	container_details.add_table(D_BUTTONS_PER_ROW, 0)->set_force_equal_columns(true);
 	{
 		no_load_button.init(button_t::roundbox | button_t::flexible, "no load");
 		no_load_button.set_tooltip("No goods are loaded onto this convoi.");

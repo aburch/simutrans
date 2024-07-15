@@ -159,12 +159,12 @@ citylist_frame_t::citylist_frame_t() :
 	// .. put the same buttons in both containers
 	button_t* buttons[karte_t::MAX_WORLD_COST];
 
-	container_year.set_table_layout(4,3);
-	container_year.add_component(&chart,4);
+	container_year.set_table_layout(D_BUTTONS_PER_ROW,0);
+	container_year.set_force_equal_columns(true);
+	container_year.add_component(&chart, D_BUTTONS_PER_ROW);
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_min_size(scr_size(0, 8*LINESPACE));
-
 	for (int i = 0; i<karte_t::MAX_WORLD_COST; i++) {
 		sint16 curve = chart.add_curve(color_idx_to_rgb(hist_type_color[i]), welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, i, MAX_WORLD_HISTORY_YEARS, hist_type_type[i], false, true, (i==1) ? 1 : 0 );
 		// add button
@@ -176,14 +176,14 @@ citylist_frame_t::citylist_frame_t() :
 		button_to_chart.append(buttons[i], &chart, curve);
 	}
 
-	container_month.set_table_layout(4,3);
-	container_month.add_component(&mchart,4);
+	container_month.set_table_layout(D_BUTTONS_PER_ROW, 0);
+	container_month.set_force_equal_columns(true);
+	container_month.add_component(&mchart, D_BUTTONS_PER_ROW);
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	mchart.set_min_size(scr_size(0, 8*LINESPACE));
 	for (int i = 0; i<karte_t::MAX_WORLD_COST; i++) {
 		sint16 curve = mchart.add_curve(color_idx_to_rgb(hist_type_color[i]), welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, i, MAX_WORLD_HISTORY_MONTHS, hist_type_type[i], false, true, (i==1) ? 1 : 0 );
-
 		// add button
 		container_month.add_component(buttons[i]);
 		button_to_chart.append(buttons[i], &mchart, curve);

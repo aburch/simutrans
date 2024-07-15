@@ -111,7 +111,13 @@ banner_t::banner_t() : gui_frame_t("")
 		add_component( &install );
 
 		new_component<gui_fill_t>(false, true);
-		new_component<gui_divider_t>();
+		if (D_BUTTONS_PER_ROW < 4) {
+			// narrow screen
+			new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
+		}
+		else {
+			new_component<gui_divider_t>();
+		}
 
 		// Quit button
 		quit.init( button_t::roundbox | button_t::flexible, "Beenden");
@@ -146,7 +152,9 @@ banner_t::banner_t() : gui_frame_t("")
 			}
 			end_table();
 			new_component<gui_fill_t>();
-			new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
+			if (D_BUTTONS_PER_ROW >= 4) {
+				new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
+			}
 		}
 		end_table();
 

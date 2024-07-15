@@ -129,17 +129,18 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 
 	switch_mode.add_tab( &container_stats, translator::translate( "Chart" ) );
 
-	container_stats.set_table_layout( 1, 0 );
+	container_stats.set_table_layout( D_BUTTONS_PER_ROW, 0 );
+	container_stats.set_force_equal_columns(true);
 
 	chart.set_dimension( 12, 10000 );
 	chart.set_background( SYSCOL_CHART_BACKGROUND );
 	chart.set_min_size( scr_size( 0, CHART_HEIGHT ) );
-	container_stats.add_component( &chart );
+	container_stats.add_component( &chart, D_BUTTONS_PER_ROW);
 
 	switch_mode.add_tab( &container_convois, translator::translate( "cl_title" ) );
 
 	container_convois.set_table_layout( 1, 0 );
-	container_convois.add_table( 4, 1 )->set_force_equal_columns( true );
+	container_convois.add_table( D_BUTTONS_PER_ROW, 0 )->set_force_equal_columns(D_BUTTONS_PER_ROW>=4);
 
 	bt_delete_line.init( button_t::roundbox | button_t::flexible, "Delete Line" );
 	bt_delete_line.set_tooltip( "Delete the selected line (if without associated convois)." );
@@ -158,7 +159,6 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	container_convois.add_component( &bt_find_convois );
 
 	container_convois.end_table();
-
 	container_convois.add_component(&scrolly_convois);
 
 	switch_mode.add_tab(&container_halts, translator::translate("hl_title"));
@@ -199,7 +199,6 @@ void line_management_gui_t::init()
 		bt_withdraw_line.pressed = line->get_withdraw();
 		// init_chart
 		if( chart.get_curve_count() == 0 ) {
-			container_stats.add_table( 4, 3 )->set_force_equal_columns( true );
 			for( int cost = 0; cost < MAX_LINE_COST; cost++ ) {
 				uint16 curve = chart.add_curve( color_idx_to_rgb( cost_type_color[ cost ] ), line->get_finance_history(), MAX_LINE_COST, idx2cost[cost], MAX_MONTHS, cost_type_money[ cost ], cost_type_default[cost], true, cost_type_money[ cost ] * 2 );
 
@@ -211,7 +210,6 @@ void line_management_gui_t::init()
 
 				button_to_chart.append( b, &chart, curve );
 			}
-			container_stats.end_table();
 			old_convoi_count = -1; // recalc!
 		}
 		// start editing

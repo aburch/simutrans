@@ -240,7 +240,7 @@ map_frame_t::map_frame_t() :
 	set_table_layout(1,0);
 
 	// first row of controls
-	add_table(4,1);
+	add_table(D_BUTTONS_PER_ROW,0);
 	{
 		// first row of controls
 		b_show_network_option.init(button_t::roundbox_state, "Show networks");
@@ -271,28 +271,61 @@ map_frame_t::map_frame_t() :
 
 
 	// second row of controls
-	zoom_row = add_table(7,0);
+	if (D_BUTTONS_PER_ROW >= 4) {
+		zoom_row = add_table(0, 1);
+		{
+			// zoom levels label
+			new_component<gui_label_t>("map zoom");
+
+			// zoom levels arrow left
+			zoom_buttons[0].init(button_t::repeatarrowleft, NULL);
+			zoom_buttons[0].add_listener(this);
+			add_component(zoom_buttons + 0);
+
+			// zoom level value label
+			sint16 zoom_in, zoom_out;
+			minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
+			zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out);
+			zoom_value_label.update();
+			add_component(&zoom_value_label);
+
+			// zoom levels arrow right
+			zoom_buttons[1].init(button_t::repeatarrowright, NULL);
+			zoom_buttons[1].add_listener(this);
+			add_component(zoom_buttons + 1);
+
+		}
+	}
+	else {
+		// narrow screen
+		zoom_row = add_table(0, 1);
+		{
+			// zoom levels label
+			new_component<gui_label_t>("map zoom");
+
+			// zoom levels arrow left
+			zoom_buttons[0].init(button_t::repeatarrowleft, NULL);
+			zoom_buttons[0].add_listener(this);
+			add_component(zoom_buttons + 0);
+
+			// zoom level value label
+			sint16 zoom_in, zoom_out;
+			minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
+			zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out);
+			zoom_value_label.update();
+			add_component(&zoom_value_label);
+
+			// zoom levels arrow right
+			zoom_buttons[1].init(button_t::repeatarrowright, NULL);
+			zoom_buttons[1].add_listener(this);
+			add_component(zoom_buttons + 1);
+
+			new_component<gui_fill_t>();
+		}
+		end_table();
+		add_table(0,1);
+	}
 	{
-		// zoom levels label
-		new_component<gui_label_t>("map zoom");
-
-		// zoom levels arrow left
-		zoom_buttons[0].init(button_t::repeatarrowleft, NULL);
-		zoom_buttons[0].add_listener( this );
-		add_component( zoom_buttons+0 );
-
-		// zoom level value label
-		sint16 zoom_in, zoom_out;
-		minimap_t::get_instance()->get_zoom_factors(zoom_out, zoom_in);
-		zoom_value_label.buf().printf("%i:%i", zoom_in, zoom_out );
-		zoom_value_label.update();
-		add_component( &zoom_value_label );
-
-		// zoom levels arrow right
-		zoom_buttons[1].init(button_t::repeatarrowright, NULL);
-		zoom_buttons[1].add_listener( this );
-		add_component( zoom_buttons+1 );
-
 		// rotate map 45 degrees (isometric view)
 		b_rotate45.init( button_t::square_state, "isometric map");
 		b_rotate45.set_tooltip("Similar view as the main window");
@@ -324,7 +357,13 @@ map_frame_t::map_frame_t() :
 	network_filter_container.set_visible(false);
 	add_component(&network_filter_container);
 
-	network_filter_container.set_table_layout(5,1);
+	if (D_BUTTONS_PER_ROW == 4) {
+		network_filter_container.set_table_layout(0, 1);
+	}
+	else {
+		network_filter_container.set_table_layout(1, 0);
+	}
+	network_filter_container.add_table(0, 1);
 	// insert selections: show networks, in filter container
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
@@ -345,8 +384,10 @@ map_frame_t::map_frame_t() :
 	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
 	network_filter_container.add_component(&viewed_player_c);
+	network_filter_container.end_table();
 
 	// freight combo for network overlay
+	network_filter_container.add_table(0, 1);
 	{
 		viewable_freight_types.append(NULL);
 		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("All"), SYSCOL_TEXT) ;
@@ -396,13 +437,16 @@ map_frame_t::map_frame_t() :
 	b_overlay_networks_load_factor.pressed = 0;
 	minimap_t::get_instance()->show_network_load_factor = 0;
 	network_filter_container.add_component( &b_overlay_networks_load_factor );
+	network_filter_container.end_table();
 
 	// filter container
 	filter_container.set_visible(false);
 	add_component(&filter_container);
 	filter_container.set_table_layout(1, 0);
 
-	filter_container.add_table(5,0)->set_force_equal_columns(true);
+	int w = network_filter_container.get_min_size().w;
+	const int FILTER_BUTTONS_PER_ROW = max(3, min(5, max(display_get_width(),w) / (D_BUTTON_WIDTH + D_H_SPACE + D_MARGIN_LEFT)));
+	filter_container.add_table(FILTER_BUTTONS_PER_ROW,0)->set_force_equal_columns(true);
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
 		filter_buttons[index].init( button_t::box_state | button_t::flexible, button_init[index].button_text);
@@ -415,7 +459,7 @@ map_frame_t::map_frame_t() :
 	update_buttons();
 
 	// directory container
-	directory_container.set_table_layout(4,0);
+	directory_container.set_table_layout(D_BUTTONS_PER_ROW,0);
 	directory_container.set_visible(false);
 	add_component(&directory_container);
 
@@ -423,7 +467,7 @@ map_frame_t::map_frame_t() :
 	b_filter_factory_list.init(button_t::square_state, "Show only used");
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
-	directory_container.add_component( &b_filter_factory_list, 4 );
+	directory_container.add_component( &b_filter_factory_list, D_BUTTONS_PER_ROW);
 	update_factory_legend();
 
 	// scale container
