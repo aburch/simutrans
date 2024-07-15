@@ -46,7 +46,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 		revert_to_default_sve.add_listener( this );
 		add_component( &revert_to_default_sve);
 
-		if (world()->type_of_generation != karte_t::NEW_WORLD  && sets!=&welt->get_settings()) {
+		if (world()->type_of_generation != karte_t::AUTO_GENERATED  &&  sets != &welt->get_settings()) {
 			revert_to_last_save.init(button_t::roundbox | button_t::flexible, "Current game");
 			revert_to_last_save.add_listener(this);
 			add_component(&revert_to_last_save);
