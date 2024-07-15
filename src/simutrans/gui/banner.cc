@@ -214,7 +214,7 @@ bool banner_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	else if(  comp == &new_map  ) {
 		destroy_all_win(true);
-		create_win( new welt_gui_t(&env_t::default_settings), w_info, magic_welt_gui_t );
+		create_win( new welt_gui_t(), w_info, magic_welt_gui_t );
 	}
 	else if(  comp == &play_tutorial  ) {
 		destroy_all_win(true);

@@ -40,7 +40,7 @@ private:
 	settings_climates_stats_t climates;
 	gui_scrollpane_t          scrolly_climates;
 
-	button_t revert_to_default, revert_to_last_save;
+	button_t revert_to_simuconf, revert_to_default_sve, revert_to_last_save;
 
 public:
 	settings_frame_t(settings_t*);

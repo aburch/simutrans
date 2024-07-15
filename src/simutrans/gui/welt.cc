@@ -24,6 +24,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/tabfile.h"
 
 // just for their structure size ...
 #include "../obj/way/schiene.h"
@@ -56,11 +57,32 @@
 #define L_PREVIEW_SIZE_MIN (16)
 
 
-welt_gui_t::welt_gui_t(settings_t* const sets_par) :
+welt_gui_t::welt_gui_t() :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
 	map(0,0)
 {
-	sets = sets_par;
+	{
+		// reread from simucon.tab(s) the settings and apply them
+		tabfile_t simuconf;
+		sets = new settings_t();
+		dr_chdir(env_t::base_dir);
+		if (simuconf.open("config/simuconf.tab")) {
+			sets->parse_simuconf(simuconf);
+			sets->parse_colours(simuconf);
+		}
+		stadt_t::cityrules_init();
+		dr_chdir(env_t::pak_dir.c_str());
+		if (simuconf.open("config/simuconf.tab")) {
+			sets->parse_simuconf(simuconf);
+			sets->parse_colours(simuconf);
+		}
+		dr_chdir(env_t::user_dir);
+		if (simuconf.open("simuconf.tab")) {
+			sets->parse_simuconf(simuconf);
+			sets->parse_colours(simuconf);
+		}
+		simuconf.close();
+	}
 	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
 	city_density       = ( sets->get_city_count()      ) ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_city_count()      : 0.0;
@@ -499,6 +521,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		destroy_all_win(true);
 		welt->get_message()->clear();
 		create_win({ 200, 100 }, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
+		env_t::default_settings = *sets;
+		delete sets;
 		if(loaded_heightfield) {
 			welt->load_heightfield(&env_t::default_settings);
 		}

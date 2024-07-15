@@ -26,7 +26,7 @@ class welt_gui_t  :
 	public  gui_frame_t,
 	private action_listener_t
 {
-	settings_t* sets;
+	settings_t *sets;
 
 	/// Mini Map-Preview
 	array2d_tpl<PIXVAL> map;
@@ -81,7 +81,7 @@ class welt_gui_t  :
 
 
 public:
-	welt_gui_t(settings_t*);
+	welt_gui_t();
 
 public:
 	/**

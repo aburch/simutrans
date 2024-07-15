@@ -17,6 +17,8 @@
 	CHG: if only_single_info=0 now tiling the info windows. If there is a convoi or halt, not way or other info will be shown (default for Android)
 	CHG: Try to resize windows if they do not fit on screen
 	CHG: Continue game on banner will really continue a game and not destroy the current one by loading an older version
+	CHG: Better support for narrow but high (portrait) screens
+	CHG: A new game always uses the settigns from the simuconf.tab. Use the buttons in the extended settings to load other values
 
 
 Release of 124.1 (r11272 on 3-June-2024):

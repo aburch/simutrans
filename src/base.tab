@@ -2592,12 +2592,6 @@ name=Routing
 obj=program_text
 name=Costs
 -
-obj=program_text
-name=Simuconf.tab
--
-obj=program_text
-name=Default.sve
--
 obj=error_text
 name=Cannot create socket
 -
@@ -4416,6 +4410,14 @@ note=player ranking window
 obj=program_text
 name=Not online
 note=message when offline in chat window
+--
+obj=program_text
+name=Current game
+note=loading default in extended settings
+--
+obj=program_text
+name=Load settings from
+note=loading setting in extended settings
 --
 
 

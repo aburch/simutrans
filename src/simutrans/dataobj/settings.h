@@ -38,6 +38,7 @@ class settings_t
 	friend class settings_routing_stats_t;
 	friend class settings_economy_stats_t;
 	friend class settings_costs_stats_t;
+	friend class settings_frame_t;
 	friend class settings_climates_stats_t;
 	friend class climate_gui_t;
 	friend class welt_gui_t;

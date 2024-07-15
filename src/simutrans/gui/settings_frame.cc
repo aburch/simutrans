@@ -14,6 +14,10 @@
 #include "../dataobj/tabfile.h"
 #include "settings_frame.h"
 
+#include "components/gui_label.h"
+
+#include "../world/simworld.h"
+
 
 #include "components/action_listener.h"
 
@@ -30,15 +34,23 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	scrolly_climates(&climates, true, true)
 {
 	set_table_layout(1,0);
-	add_table(2,1);
+	add_table(0,1);
 	{
-		revert_to_default.init( button_t::roundbox, "Simuconf.tab");
-		revert_to_default.add_listener( this );
-		add_component( &revert_to_default );
+		new_component<gui_label_t>("Load settings from");
 
-		revert_to_last_save.init( button_t::roundbox, "Default.sve");
-		revert_to_last_save.add_listener( this );
-		add_component( &revert_to_last_save );
+		revert_to_simuconf.init( button_t::roundbox | button_t::flexible, "Simuconf.tab");
+		revert_to_simuconf.add_listener( this );
+		add_component( &revert_to_simuconf );
+
+		revert_to_default_sve.init( button_t::roundbox | button_t::flexible, "Default.sve");
+		revert_to_default_sve.add_listener( this );
+		add_component( &revert_to_default_sve);
+
+		if (world()->type_of_generation != karte_t::NEW_WORLD  && sets!=&welt->get_settings()) {
+			revert_to_last_save.init(button_t::roundbox | button_t::flexible, "Current game");
+			revert_to_last_save.add_listener(this);
+			add_component(&revert_to_last_save);
+		}
 	}
 	end_table();
 
@@ -72,7 +84,14 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
  /* triggered, when button clicked; only single button registered, so the action is clear ... */
 bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
-	if(  comp==&revert_to_default  ) {
+	// some things must stay the same when loading defaults
+	std::string old_save = sets->get_filename();
+	sint32 old_number = sets->get_map_number();
+	uint8 old_rot = sets->get_rotation();
+	uint8 old_player_type[MAX_PLAYER_COUNT];
+	memcpy(old_player_type, sets->player_type, sizeof(old_player_type));
+	// now we can change values
+	if(  comp==&revert_to_simuconf  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
 		env_t::init();
@@ -104,7 +123,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 		climates.init( sets );
 		set_windowsize(get_windowsize());
 	}
-	else if(  comp==&revert_to_last_save  ) {
+	else if(  comp==&revert_to_default_sve) {
 		// load settings of last generated map
 		dr_chdir( env_t::user_dir  );
 
@@ -124,6 +143,23 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 		climates.init( sets );
 		set_windowsize(get_windowsize());
 	}
+	else if (comp == &revert_to_last_save) {
+		// setting of the current map
+		*sets = world()->get_settings();
+		// and update ...
+		general.init(sets);
+		display.init(sets);
+		economy.init(sets);
+		routing.init(sets);
+		costs.init(sets);
+		climates.init(sets);
+		set_windowsize(get_windowsize());
+	}
+	// restore essential values
+	sets->set_filename(old_save.c_str());
+	sets->map_number = old_number;
+	sets->rotation = old_rot;
+	memcpy(sets->player_type, old_player_type, sizeof(old_player_type));
 	return true;
 }
 
