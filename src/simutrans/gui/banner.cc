@@ -59,6 +59,7 @@ public:
 banner_t::banner_t() : gui_frame_t("")
 {
 	set_table_layout(3,0);
+	gui_image_t* image1, *image2;
 
 	add_table(1, 0); {
 		// Continue game button now really continues the current game and not overwrite an ongoing game
@@ -111,13 +112,11 @@ banner_t::banner_t() : gui_frame_t("")
 		add_component( &install );
 
 		new_component<gui_fill_t>(false, true);
-		if (D_BUTTONS_PER_ROW < 4) {
 			// narrow screen
-			new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
-		}
-		else {
-			new_component<gui_divider_t>();
-		}
+		image1 = new_component<gui_image_t>();
+		image1->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
+		image1->set_visible(false);
+		new_component<gui_divider_t>();
 
 		// Quit button
 		quit.init( button_t::roundbox | button_t::flexible, "Beenden");
@@ -152,9 +151,8 @@ banner_t::banner_t() : gui_frame_t("")
 			}
 			end_table();
 			new_component<gui_fill_t>();
-			if (D_BUTTONS_PER_ROW >= 4) {
-				new_component<gui_image_t>()->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
-			}
+			image2 = new_component<gui_image_t>();
+			image2->set_image(skinverwaltung_t::logosymbol->get_image_id(0), true);
 		}
 		end_table();
 
@@ -182,11 +180,29 @@ banner_t::banner_t() : gui_frame_t("")
 		new_component<gui_fill_t>(false, true);
 		new_component<banner_text_t>();
 		new_component<gui_fill_t>(false, true);
-		new_component<gui_label_t>(get_version(), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>("Version " VERSION_NUMBER, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right)->set_shadow(SYSCOL_TEXT_SHADOW, true);
+		new_component<gui_label_t>(
+			"" VERSION_DATE
+#ifdef REVISION
+			" r" QUOTEME(REVISION)
+#endif
+#ifdef GIT_HASH
+			" hash " QUOTEME(GIT_HASH)
+#endif
+#if defined DEBUG
+#	define L_DEBUG_TEXT " (debug)"
+#endif
+		, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right)->set_shadow(SYSCOL_TEXT_SHADOW, true);
 	}
 	end_table();
 
 	reset_min_windowsize();
+
+	if (get_windowsize().w > display_get_width()) {
+		image1->set_visible(true);
+		image2->set_visible(false);
+		reset_min_windowsize();
+	}
 }
 
 
