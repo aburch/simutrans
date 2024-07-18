@@ -19,6 +19,8 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_aligned_container.h"
 #include "components/gui_button_to_chart.h"
+#include "components/gui_scrollpane.h"
+
 
 class factory_chart_t : public gui_aligned_container_t
 {
@@ -35,6 +37,9 @@ private:
 	// GUI components for other production-related statistics
 	gui_aligned_container_t prod_cont;
 	gui_chart_t prod_chart;
+
+	// use only if dialog too wide for screen
+	gui_scrollpane_t goods_pane, prod_pane;
 
 	// Variables for reference lines
 	sint64 prod_ref_line_data[MAX_FAB_REF_LINE];
