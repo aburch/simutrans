@@ -19,6 +19,8 @@
 	CHG: Continue game on banner will really continue a game and not destroy the current one by loading an older version
 	CHG: Better support for narrow but high (portrait) screens
 	CHG: A new game always uses the settigns from the simuconf.tab. Use the buttons in the extended settings to load other values
+	ADD: new simple tool 42 for toggle day night view
+	CHG: line list, load dialoges and online game windows shrunk in width
 
 
 Release of 124.1 (r11272 on 3-June-2024):

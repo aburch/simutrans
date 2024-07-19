@@ -74,9 +74,8 @@ server_frame_t::server_frame_t() :
 	// When in network mode, display only local map info (and nickname changer)
 	// When not in network mode, display server picker
 	if (  !env_t::networkmode  ) {
-		new_component<gui_label_t>("Select a server to join:" );
-		new_component<gui_fill_t>();
-		join.init(button_t::roundbox, "join game");
+		new_component_span<gui_label_t>("Select a server to join:",2);
+		join.init(button_t::roundbox | button_t::flexible, "join game");
 		join.disable();
 		join.add_listener(this);
 		add_component(&join);
@@ -87,39 +86,38 @@ server_frame_t::server_frame_t() :
 		serverlist.add_listener(this);
 
 		// Show mismatched checkbox
-		show_mismatched.init( button_t::square_state, "Show mismatched");
+		show_mismatched.init( button_t::square_state | button_t::flexible, "Show mismatched");
 		show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
 		show_mismatched.add_listener( this );
 		add_component( &show_mismatched );
 
 		// Show offline checkbox
-		show_offline.init( button_t::square_state, "Show offline");
+		show_offline.init( button_t::square_state | button_t::flexible, "Show offline");
 		show_offline.set_tooltip( "Show servers that are offline" );
 		show_offline.add_listener( this );
 		add_component( &show_offline, 2 );
 
 		new_component_span<gui_divider_t>(3);
 
-		new_component_span<gui_label_t>("Or enter a server manually:", 3);
+		new_component_span<gui_label_t>("Or enter a server manually:", 2);
+		add.init(button_t::roundbox | button_t::flexible, "Query server");
+		add.add_listener(this);
+		add_component(&add);
 
 		// Add server input/button
 		addinput.set_text( newserver_name, sizeof( newserver_name ) );
 		addinput.add_listener( this );
-		add_component( &addinput, 2 );
-
-		add.init( button_t::roundbox, "Query server");
-		add.add_listener( this );
-		add_component( &add );
+		add_component( &addinput, 3 );
 
 		new_component_span<gui_divider_t>(3);
 	}
 
 	if(!env_t::networkmode) {
-		add_component(&revision, 2);
+		add_component(&revision);
 
-		find_mismatch.init(button_t::roundbox, "find mismatch");
+		find_mismatch.init(button_t::roundbox | button_t::flexible, "find mismatch");
 		find_mismatch.add_listener(this);
-		add_component(&find_mismatch);
+		add_component(&find_mismatch,2);
 	}
 	else {
 		add_component(&revision, 3);
@@ -132,30 +130,32 @@ server_frame_t::server_frame_t() :
 #endif
 	new_component_span<gui_divider_t>(3);
 
-	add_component(map);
-
-	add_table(1,0)->set_force_equal_columns(true);
+	add_table(2, 1, 3);
 	{
-		add_table(3,1);
+		add_component(map);
+		add_table(3,2);
 		{
 			add_component(&label_size);
 			new_component<gui_fill_t>();
 			add_component( &date );
+
+			add_component(&game_text,3);
 		}
 		end_table();
-
-		add_component(&game_text);
 	}
 	end_table();
-	new_component<gui_fill_t>();
 
 	new_component_span<gui_divider_t>(3);
 
-	new_component<gui_label_t>("Nickname:" );
-	add_component( &nick, 2 );
-	nick.add_listener(this);
-	nick.set_text( nick_buf, lengthof( nick_buf ) );
-	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
+	add_table(2, 1, 3);
+	{
+		new_component<gui_label_t>("Nickname:" );
+		nick.add_listener(this);
+		nick.set_text( nick_buf, lengthof( nick_buf ) );
+		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
+		add_component(&nick);
+	}
+	end_table();
 
 	if (  !env_t::networkmode  ) {
 		// only update serverlist, when not already in network mode

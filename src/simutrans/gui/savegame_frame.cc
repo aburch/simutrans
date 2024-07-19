@@ -85,22 +85,21 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	// Controls below will be sized and positioned in set_windowsize()
 	new_component<gui_divider_t>();
 
-	add_table(3,1);
 	add_component(&bottom_left_frame);
 	bottom_left_frame.set_table_layout(1,0);
 
-	new_component<gui_fill_t>();
+	add_table(3, 1)->set_force_equal_columns(true);
+	{
+		new_component<gui_fill_t>();
 
-	add_table(2,1)->set_force_equal_columns(true);
-	savebutton.init( button_t::roundbox | button_t::flexible, "Ok" );
-	savebutton.add_listener( this );
-	add_component( &savebutton );
+		savebutton.init(button_t::roundbox | button_t::flexible, "Ok");
+		savebutton.add_listener(this);
+		add_component(&savebutton);
 
-	cancelbutton.init( button_t::roundbox | button_t::flexible, "Cancel" );
-	cancelbutton.add_listener( this );
-	add_component( &cancelbutton );
-	end_table();
-
+		cancelbutton.init(button_t::roundbox | button_t::flexible, "Cancel");
+		cancelbutton.add_listener(this);
+		add_component(&cancelbutton);
+	}
 	end_table();
 
 	top_frame.set_focus( &input );

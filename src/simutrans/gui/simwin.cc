@@ -725,13 +725,13 @@ void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, boo
 			scr_size minsize = gui->get_min_windowsize();
 			if (minsize != wh) {
 				bool resize = false;
-				if (pos.x < other_pos.y && minsize.w < other_size.w) {
+				if (pos.x < other_pos.x  &&  minsize.w < other_size.w) {
 					// too wide
 					pos.x = other_pos.x;
 					minsize.w = other_size.w;
 					resize = true;
 				}
-				if (pos.y < other_pos.y && minsize.h < other_size.h) {
+				if (pos.y < other_pos.y  &&  minsize.h < other_size.h) {
 					//too high
 					pos.y = other_pos.y;
 					minsize.h = other_size.h;
