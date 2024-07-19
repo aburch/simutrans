@@ -412,6 +412,11 @@ void welt_gui_t::resize_preview()
  */
 bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
+	if (!sets) {
+		// new map has been already created => ignored late events
+		return true;
+	}
+
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
 
