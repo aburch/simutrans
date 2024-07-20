@@ -184,6 +184,9 @@ public:
 	/// converts numpad keys to arrows no matter of numlock state
 	static bool numpad_always_moves_map;
 
+	/// the leftbutton grags the minimap, not to real location
+	static bool leftdrag_in_minimap;
+
 	/// open info windows for pedestrian and private cars
 	static bool road_user_info;
 

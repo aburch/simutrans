@@ -364,6 +364,9 @@ compass_map_position = 13
 # if set to 0, it will always produce numbers
 numpad_always_moves_map = 1
 
+# drag the minimap with the left mouse too instead dragging the main map position (1=default)
+#leftdrag_in_minimap=1
+
 # Position of the main menu bar (0=left, 1=top[default], 2=right, 3=bottom)
 #menubar_position = 0
 

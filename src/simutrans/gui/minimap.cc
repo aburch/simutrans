@@ -1186,7 +1186,7 @@ bool minimap_t::infowin_event(const event_t *ev)
 	last_world_pos = k;
 
 	// recenter
-	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
+	if(IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)) {
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 
 		const sint8 min_hgt = world->is_within_grid_limits(k) ? world->min_hgt(k) : 0;

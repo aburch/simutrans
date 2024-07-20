@@ -50,6 +50,7 @@ enum {
 	IDBTN_SIMPLE_DRAWING,
 	IDBTN_CHANGE_FONT,
 	IDBTN_INFINITE_SCROLL,
+	IDBTN_LEFTDRAG_MINIMAP,
 	COLORS_MAX_BUTTONS
 };
 
@@ -255,6 +256,11 @@ map_settings_t::map_settings_t()
 	buttons[IDBTN_IGNORE_NUMLOCK].init(button_t::square_state, "Num pad keys always move map");
 	buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
 	add_component(buttons + IDBTN_IGNORE_NUMLOCK, 2);
+
+	// Numpad key
+	buttons[IDBTN_LEFTDRAG_MINIMAP].init(button_t::square_state, "Left button drags minimap too");
+	buttons[IDBTN_LEFTDRAG_MINIMAP].pressed = env_t::leftdrag_in_minimap;
+	add_component(buttons + IDBTN_LEFTDRAG_MINIMAP, 2);
 
 	// Scroll inverse checkbox
 	buttons[IDBTN_SCROLL_INVERSE].init(button_t::square_state, "4LIGHT_CHOOSE");
@@ -620,6 +626,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	case IDBTN_IGNORE_NUMLOCK:
 		env_t::numpad_always_moves_map = !env_t::numpad_always_moves_map;
 		buttons[IDBTN_IGNORE_NUMLOCK].pressed = env_t::numpad_always_moves_map;
+		break;
+	case IDBTN_LEFTDRAG_MINIMAP:
+		env_t::leftdrag_in_minimap = !env_t::leftdrag_in_minimap;
+		buttons[IDBTN_LEFTDRAG_MINIMAP].pressed = env_t::leftdrag_in_minimap;
 		break;
 	case IDBTN_SCROLL_INVERSE:
 		env_t::scroll_multi = -env_t::scroll_multi;

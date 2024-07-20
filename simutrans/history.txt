@@ -21,6 +21,8 @@
 	CHG: A new game always uses the settigns from the simuconf.tab. Use the buttons in the extended settings to load other values
 	ADD: new simple tool 42 for toggle day night view
 	CHG: line list, load dialoges and online game windows shrunk in width
+	ADD: left moving minimap insted of dragging location to have easier use with touch devices
+	ADD: new option leftdrag_in_minimap in simuconf.tab to allow dragging in minimap with left mouse button (now default)
 
 
 Release of 124.1 (r11272 on 3-June-2024):

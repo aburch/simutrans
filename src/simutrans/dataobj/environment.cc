@@ -113,6 +113,7 @@ uint8 env_t::chat_window_transparency = 75;
 bool env_t::hide_rail_return_ticket = true;
 
 bool env_t::numpad_always_moves_map = true;
+bool env_t::leftdrag_in_minimap = true;
 
 // only used internally => do not touch further
 bool env_t::quit_simutrans = false;
@@ -631,6 +632,9 @@ void env_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_bool(random_pedestrians);
 		file->rdwr_bool(stop_pedestrians);
+	}
+	if (file->is_version_atleast(124, 2)) {
+		file->rdwr_bool(leftdrag_in_minimap);
 	}
 
 	// server settings are not saved, since they are server specific

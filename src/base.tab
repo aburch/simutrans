@@ -4419,6 +4419,10 @@ obj=program_text
 name=Load settings from
 note=loading setting in extended settings
 --
+obj=program_text
+name=Left button drags minimap too
+note=in display settings
+--
 
 
 

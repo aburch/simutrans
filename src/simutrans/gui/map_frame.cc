@@ -111,7 +111,33 @@ bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
 		}
 		return true;
 	}
-	else if (is_cursor_hidden) {
+	else if (IS_LEFTCLICK(ev)  &&  env_t::leftdrag_in_minimap) {
+		// dragging move the map also with left button (for touch screens)
+		is_dragging = false;
+		display_show_pointer(false);
+		is_cursor_hidden = true;
+		drag_start_x = get_scroll_x();
+		drag_start_y = get_scroll_y();
+		return true;
+	}
+	else if (IS_LEFTDRAG(ev)  &&  env_t::leftdrag_in_minimap) {
+		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
+		is_dragging = true;
+		set_scroll_position(max(0, drag_start_x + (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2), max(0, drag_start_y + (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2));
+		return true;
+	}
+	else if (IS_LEFTRELEASE(ev)  &&  env_t::leftdrag_in_minimap) {
+		is_dragging = false;
+		display_show_pointer(true);
+		is_cursor_hidden = false;
+		// did we move the map a little (same as in siminteraction.cc  interaction_t::process_event( event_t &ev ))
+		if (abs(ev->click_pos.x-ev->mouse_pos.x) + abs(ev->click_pos.y - ev->mouse_pos.y) >= env_t::scroll_threshold) {
+			// swallow release even, only move map
+			return true;
+		}
+		// else we call the standard code
+	}
+	if (is_cursor_hidden) {
 		display_show_pointer(true);
 		is_cursor_hidden = false;
 	}

@@ -1055,6 +1055,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 
 	env_t::hide_keyboard           = contents.get_int( "hide_keyboard", env_t::hide_keyboard ) != 0;
 	env_t::numpad_always_moves_map = contents.get_int( "numpad_always_moves_map", env_t::numpad_always_moves_map ) != 0;
+	env_t::leftdrag_in_minimap     = contents.get_int( "leftdrag_in_minimap", env_t::leftdrag_in_minimap ) != 0;
 
 	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
 
