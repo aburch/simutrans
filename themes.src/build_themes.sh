@@ -16,6 +16,7 @@ cp *.tab ../../simutrans/themes
 cd ../flat
 rm -rf *.pak
 ../makeobj pak flat.pak flat-skin.dat
+../makeobj pak flat-touch.pak flat-skin-touch.dat
 mv *.pak ../../simutrans/themes
 cp *.tab ../../simutrans/themes
 

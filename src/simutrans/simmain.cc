@@ -948,6 +948,8 @@ int simu_main(int argc, char** argv)
 	skinverwaltung_t::save_all_skins(); // save empty to have the pakset default
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
 		dr_chdir( env_t::user_dir );
+		dr_remove("settings_old.xml");
+		dr_rename("settings.xml", "settings_old.xml"); // or we are stuck on a broken theme forever
 		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		if(  !themes_ok  ) {
@@ -955,6 +957,7 @@ int simu_main(int argc, char** argv)
 			dr_chdir( "themes" );
 			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true, false );
 		}
+		dr_rename("settings_old.xml", "settings.xml"); // or we are stuck on a broken theme forever
 	}
 	// specified themes not found => try default themes
 #if COLOUR_DEPTH != 0

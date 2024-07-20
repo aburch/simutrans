@@ -1,6 +1,7 @@
 name=Pak192.ComicXXL
 ##################################pakstuff##################################
 # pak with the images for this theme
+# These are under CC-BY-SA 3.0!
 themeimages=menu.pak192comicxxl.pak
 
 ####sizes####
@@ -144,6 +145,7 @@ bottom_window_text_color = #bd9a84
 #Title color (Newer)
 default_window_title_color = #422810
 bottom_window_darkness = 30
+gui_chat_window_network_transparency = 0
 
 
 ##################################toolbar##################################
