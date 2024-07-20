@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -757,8 +757,6 @@ Deccelerate time
 Tijd vertragen
 decrease underground view level
 lager ondergronds niveau
-Default.sve
-Standaard
 Del Stop
 Verwijderen
 Delete Line

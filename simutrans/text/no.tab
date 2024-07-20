@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                              Language: no Norsk                              #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -507,8 +507,6 @@ show station names
 vis navn paa stasjoner
 Show/hide statistics
 Vis/skjul statistikk
-Simuconf.tab
-Eksisterer ikke!
 Size (%d MB):
 Stoerrelse (%d MB):
 Sound

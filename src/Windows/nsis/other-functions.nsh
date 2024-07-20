@@ -242,6 +242,8 @@ Function componentsPre
   Call EnableSectionIfThere
   Push ${pakTTD}
   Call EnableSectionIfThere
+  Push ${pak48.bitlit}
+  Call EnableSectionIfThere
 FunctionEnd
 
 ; Some paksets don't have an open source license, so we have to show additional licences
@@ -295,9 +297,9 @@ PageExEnd
 ; Some packs are GPL
 Function CheckForGPL
 
-  SectionGetFlags ${pak64.ho-scale} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} showGPL
+;  SectionGetFlags ${pak64.ho-scale} $R0
+;  IntOp $R0 $R0 & ${SF_SELECTED}
+;  IntCmp $R0 ${SF_SELECTED} showGPL
 
   SectionGetFlags ${pakcontrast} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
@@ -320,6 +322,10 @@ PageExEnd
 Function CheckForCC
 
   SectionGetFlags ${pak192.comic} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} showCC
+
+  SectionGetFlags ${pak48.bitlit} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} showCC
 

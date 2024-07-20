@@ -8,6 +8,7 @@ Have lots of fun playing Simutrans!
 The following pak is under CC-BY-SA:
 
 - pak192 comic
+- pak48.bitlit
 
 -----------------------------------------------------------------------------
 

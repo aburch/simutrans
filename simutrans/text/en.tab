@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 6.07 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -659,8 +659,6 @@ deactivated in online mode
 Not active while online
 Deccelerate time
 Decelerate time
-Default.sve
-Default
 Del Stop
  Remove
 Delete Line
@@ -957,6 +955,8 @@ load height data from file
 Load height data from file.
 Load scenario
 Load Scenario
+Load settings from
+Apply settings from
 loaded passenger/freight
 Sort passengers/freight by
 Loading (%i->%i%%)!

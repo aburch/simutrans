@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -831,8 +831,6 @@ December
 Dicembre
 decrease underground view level
 Diminuisci livello visione sotterranea
-Default.sve
-Default
 Del Stop
 Rimuovi
 Delete Line

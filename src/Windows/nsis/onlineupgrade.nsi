@@ -57,9 +57,9 @@ Function .onSelChange
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak.nippon} $R0
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak64.ho-scale} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show_not
+;  SectionGetFlags ${pak64.ho-scale} $R0
+;  IntOp $R0 $R0 & ${SF_SELECTED}
+;  IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pakcontrast} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
@@ -96,6 +96,12 @@ Function .onSelChange
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak32} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pakTTD} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} show_not
+  SectionGetFlags ${pak48.bitlit} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
   ; not pak selected!

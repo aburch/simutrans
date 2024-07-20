@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                             Language: cz Cestina                             #
 #                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -759,8 +759,6 @@ December
 Prosinec
 decrease underground view level
 Snížit úroveň řezu skrz terén
-Default.sve
-Výchozí
 Del Stop
 Smazat
 Delete Line
@@ -1697,8 +1695,6 @@ Sim:
 Simloops:
 Similar view as the main window
 Podobný náhled jako v hlavním okně
-Simuconf.tab
-simuconf.tab
 Size (%d MB):
 Velikost (%d MB):
 sliced underground mode

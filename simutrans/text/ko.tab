@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: ko Korean                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -727,8 +727,6 @@ December
 12월
 decrease underground view level
 지하시점 레벨 낮추기
-Default.sve
-기본값
 Del Stop
 제거
 Delete Line

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: id Indonesia                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -751,8 +751,6 @@ December
 Desember
 decrease underground view level
 kurangi tingkat tampilan bawah tanah
-Default.sve
-Default
 Del Stop
 Hapus
 Delete Line
@@ -1671,8 +1669,6 @@ Sim:
 Simloops:
 Similar view as the main window
 Tampilan mirip dengan jendela utama
-Simuconf.tab
-simuconf.tab
 Size (%d MB):
 Luas Peta
 sliced underground mode

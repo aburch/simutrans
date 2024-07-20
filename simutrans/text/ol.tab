@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                          Language: olo Livvinkarjal                          #
 #                                Encoding: UTF-8                               #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 6.07 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -937,8 +937,6 @@ December
 talvikuu
 decrease underground view level
 Alenda muanalazen nägymän tazoa
-Default.sve
-Gipoutezuarvot
 Del Stop
 Ota iäre
 Delete Line

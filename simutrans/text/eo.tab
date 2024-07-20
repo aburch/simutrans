@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: eo Esperanto                            #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -817,8 +817,6 @@ December
 Decembro
 decrease underground view level
 Malaltigi subteran nivelon
-Default.sve
-Implicitaĵo
 Del Stop
  Forigi
 Delete Line

@@ -12,7 +12,7 @@ cyr.bdf
 #                             Language: ru Russian                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -941,8 +941,6 @@ December
 Декабрь
 decrease underground view level
 уменьшить уровень подземного режима
-Default.sve
-По умолчанию
 Del Stop
 Удалить
 Delete Line

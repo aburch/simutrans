@@ -12,7 +12,7 @@ cyr.bdf
 #                            Language: lt Lithuanian                           #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -713,8 +713,6 @@ December
 Gruodis
 decrease underground view level
 nuleisti požeminį vaizdą
-Default.sve
-Numatytas
 Del Stop
 Pašalinti
 Delete Line

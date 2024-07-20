@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 6.07 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -965,6 +965,8 @@ curiosity builder
 Sehenswürdigkeiten bauen
 curlist_title
 Touristenziele
+Current game
+Spiel in Hintergrund
 Currently playing:
 Gerade abgespielt wird:
 Customers live in:
@@ -981,8 +983,6 @@ December
 Dezember
 decrease underground view level
 Ebene durch Karte tiefer
-Default.sve
-Default
 Del Stop
 Löschen
 Delete Line
@@ -1371,6 +1371,8 @@ Last Year
 Vorjahr
 Leaving depot!
 Verlässt Depot!
+Left button drags minimap too
+Linke Maustaste bewegt auch Reliefkartenausschnitt
 legacy (large heights)
 Alter Modus (Doppelte Höhen)
 legacy (small heights)
@@ -1411,6 +1413,8 @@ Load script tool
 Skript-Werkzeug laden
 Load Scripted AI
 Skript-KI laden
+Load settings from
+Einstellungen übernehmen von
 loaded
 geladen.
 loaded passenger/freight

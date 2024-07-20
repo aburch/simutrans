@@ -2,12 +2,12 @@
 SectionGroup /e "Pak64: main and addons" pak64group
 
 Section /o "pak" pak
-  AddSize 15869
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/124-1/simupak64-124-1.zip"
+  AddSize 15847
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/124-2/simupak64-124-2.zip"
   SetOutPath $PAKDIR
-  StrCpy $archievename "simupak64-124-1.zip"
+  StrCpy $archievename "simupak64-124-2.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 124.1 r2156"
+  StrCpy $VersionString "pak64 124.2 r2169"
   Call DownloadInstallZip
 SectionEnd
 Section /o "pak64 Food addon"
@@ -47,7 +47,7 @@ Section /o "pak192.comic" pak192.comic
 SectionEnd
 
 Section /o "pak64.german" pak64.german
-  AddSize 26348
+  AddSize 26365
   StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-3_full.zip"
   SetOutPath $PAKDIR
   StrCpy $archievename "pak64.german_0-124-0-0-3_full.zip"
@@ -124,6 +124,16 @@ Section /o "pakTTD" pakTTD
   StrCpy $downloadname "pakTTD"
   StrCpy $VersionString "pak64 120.4.1 r2146"
   Call DownloadInstallZip
+SectionEnd
+
+Section /o "pak48.bitlit" pak48.bitlit
+  AddSize 1674
+  StrCpy $downloadlink "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1c/pak48.bitlit_0.1c.zip"
+  SetOutPath $PAKDIR
+  StrCpy $archievename "pak48.bitlit_0.1c.zip"
+  StrCpy $downloadname "pak48.bitlit"
+  StrCpy $VersionString "pak48.bitlit v0.1c"
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 
@@ -210,14 +220,5 @@ Section /o "pak64.scifi" pak64.scifi
   Call DownloadInstallZip
 SectionEnd
 
-Section /o "pak64.ho-scale" pak64.ho-scale
-  AddSize 9022
-  StrCpy $downloadlink "http://simutrans.bilkinfo.de/pak64.ho-scale-latest.tar.gz"
-  SetOutPath $PAKDIR
-  StrCpy $archievename "pak64.ho-scale-latest.tar.gz"
-  StrCpy $downloadname "pak64.ho-scale"
-  StrCpy $VersionString ""
-  Call DownloadInstallTgzWithoutSimutrans
-SectionEnd
-
 SectionGroupEnd
+

@@ -7,7 +7,7 @@ Have lots of fun playing Simutrans!
 
 The following paks are under GPL:
 
-- pak64 HO-scale
+- pak64 HO-scale (lost)
 - pak64 contrast
 
 -----------------------------------------------------------------------------

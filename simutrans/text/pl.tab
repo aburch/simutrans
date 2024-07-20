@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: pl Polski                             #
 #                                Encoding: UTF-8                               #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 2.06 2024                           #
+#                           Date Created: 20.07 2024                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -953,8 +953,6 @@ December
 Grudzień
 decrease underground view level
 zmniejsz poziom widoku pod ziemią
-Default.sve
-Standardowe
 Del Stop
 Usuń
 Delete Line
