@@ -194,6 +194,7 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 {
 	selected_player = selected_player_nr;
 	last_year = 0; // update on first drawing
+	count = 0;
 	set_table_layout(1, 0);
 
 	add_table(2, 1)->set_alignment(ALIGN_TOP);
@@ -203,10 +204,6 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 		chart.set_dimension(years_back, 10000);
 		chart.set_seed(welt->get_last_year());
 		chart.set_background(SYSCOL_CHART_BACKGROUND);
-
-		cont_players.set_table_layout(3, 0);
-		cont_players.set_alignment(ALIGN_CENTER_H);
-		cont_players.set_margin(scr_size(0, 0), scr_size(D_SCROLLBAR_WIDTH + D_H_SPACE, D_SCROLLBAR_HEIGHT));
 
 		for (int np = 0; np < MAX_PLAYER_COUNT; np++) {
 			if (np == PUBLIC_PLAYER_NR) continue;
@@ -234,6 +231,7 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 			}
 			transport_type_c.add_listener(this);
 			transport_type_c.set_selection(0);
+			transport_type_c.set_rigid(true);
 			add_component(&transport_type_c);
 
 			scrolly.set_maximize(true);
@@ -371,18 +369,16 @@ void player_ranking_frame_t::update_chart(bool full_update)
 		// check order
 		full_update |= buttons.sort(compare_function[selected_item]);
 		// check if the number of entries changed
-		uint8 old_count = buttons.get_count();
-		uint8 count = 0;
+		uint8 new_count = 0;
 		for (uint i = 0; i < buttons.get_count(); i++) {
 			const uint8 player_nr = buttons.at(i)->get_player_nr();
 			// Exclude players who are not in the competition
 			if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
 				continue;
 			}
-			count++;
+			new_count++;
 		}
-		full_update |= count != old_count;
-		scrolly.set_visible(count);
+		full_update |= count != new_count;
 	}
 
 	// deselect chart buttons
@@ -393,7 +389,11 @@ void player_ranking_frame_t::update_chart(bool full_update)
 	// rebuilt list
 	if (full_update) {
 		cont_players.remove_all();
-		uint8 count = 0;
+		cont_players.set_table_layout(3, 0);
+		cont_players.set_alignment(ALIGN_CENTER_H);
+		cont_players.set_margin(scr_size(0, 0), scr_size(D_SCROLLBAR_WIDTH + D_H_SPACE, D_SCROLLBAR_HEIGHT));
+
+		count = 0;
 		for (uint i = 0; i < buttons.get_count(); i++) {
 			const uint8 player_nr = buttons.at(i)->get_player_nr();
 			// Exclude players who are not in the competition
@@ -424,7 +424,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 				buttons.at(i)->pressed = false;
 			}
 			cont_players.add_component(buttons.at(i));
-			cont_players.add_component(&lb_player_val[player_nr]);
+			cont_players.add_component(&lb_player_val[i]);
 		}
 		cont_players.new_component_span<gui_fill_t>(1,1,3);
 	}
@@ -469,13 +469,13 @@ void player_ranking_frame_t::update_chart(bool full_update)
 	for (uint i = 0; i < buttons.get_count(); i++) {
 		const uint8 player_nr = buttons.at(i)->get_player_nr();
 		// Exclude players who are not in the competition
-		if (welt->get_player(i)==0  ||  player_nr == PUBLIC_PLAYER_NR  ||  is_chart_table_zero(player_nr)) {
+		if (player_nr == PUBLIC_PLAYER_NR  ||  is_chart_table_zero(player_nr)) {
 			continue;
 		}
 		if (player_nr != selected_player) {
 			buttons.at(i)->pressed = false;
 		}
-		const finance_t* finance = welt->get_player(i)->get_finance();
+		const finance_t* finance = welt->get_player(player_nr)->get_finance();
 		PIXVAL color = SYSCOL_TEXT;
 		sint64 value = is_atv ? finance->get_history_veh_year((transport_type)player_ranking_frame_t::transport_type_option, years_back, history_type_idx[selected_item * 2 + 1])
 			: finance->get_history_com_year(years_back, history_type_idx[selected_item * 2 + 1]);
@@ -500,6 +500,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 	}
 
 	transport_type_c.set_visible(is_atv);
+	scrolly.set_visible(count > 0);
 	if (full_update  ||  cont_min_sz!=cont_players.get_min_size()) {
 		resize(scr_size(0, 0));
 		reset_min_windowsize();
@@ -509,7 +510,6 @@ void player_ranking_frame_t::update_chart(bool full_update)
 
 void player_ranking_frame_t::draw(scr_coord pos, scr_size size)
 {
-	static sint8 updatetime = 10; // update all 10 frames
 	if (last_year != world()->get_last_year()) {
 		// new year has started:
 		last_year = world()->get_last_year();
@@ -525,7 +525,6 @@ void player_ranking_frame_t::draw(scr_coord pos, scr_size size)
 		}
 		chart.set_seed(last_year);
 		years_back_c.set_selection(sel <= 0 ? 0 : (sel == 1 ? 1 : sel + 1));
-		updatetime = 0;
 		update_chart(true);
 	}
 	else {

@@ -77,6 +77,7 @@ private:
 
 	uint8 selected_item= PR_REVENUE;
 	uint8 selected_player;
+	uint8 count;
 
 	bool is_chart_table_zero(uint8 player_nr) const;
 
