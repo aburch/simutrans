@@ -175,6 +175,8 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// we will handle dragging ourselves inf not prevented
 		if(  b_is_dragging  &&  ev->ev_class < INFOWIN  ) {
 			// now drag: scrollbars are not in pixel, but we will scroll one unit per pixels ...
+			scroll_x.set_sticky_bottom(false);
+			scroll_y.set_sticky_bottom(false);
 			scroll_x.set_knob_offset(scroll_x.get_knob_offset() - (ev->mouse_pos.x - origin.x));
 			scroll_y.set_knob_offset(scroll_y.get_knob_offset() - (ev->mouse_pos.y - origin.y));
 			origin = ev->mouse_pos;

@@ -1,6 +1,9 @@
 	FIX: player_ranking transport type was not set_rigid => crash on all general comparison
 	FIX: do not carry over old chat messages to new games
 	CHG: when merging stops, keep the name of the bigger stop
+	FIX: insticky bottom on drag to allow scrolling of chat
+	FIX: too many null mouse moving events in SDL2 broke double clicks
+	CHG: double click copies chat text
 
 
 Release of 124.2 (r11351 on 20-July-2024):

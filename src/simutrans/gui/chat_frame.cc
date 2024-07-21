@@ -277,10 +277,10 @@ public:
 	bool infowin_event(const event_t* ev)
 	{
 		bool swallowed = gui_scrolled_list_t::scrollitem_t::infowin_event(ev);
-		if (!swallowed && IS_LEFTRELEASE(ev)) {
+		if (!swallowed) {
 			event_t ev2 = *ev;
 			ev2.move_origin(scr_coord(D_MARGIN_LEFT, 0));
-			if (message.getroffen(ev2.click_pos)) {
+			if (message.getroffen(ev2.click_pos)  &&  IS_LEFTDBLCLK(ev)) {
 				// add them to clipboard
 				char msg_no_break[258];
 				int j;
@@ -299,7 +299,7 @@ public:
 				create_win(new news_img("Copied."), w_time_delete, magic_none);
 				swallowed = true;
 			}
-			else if (bt_pos.getroffen(ev2.click_pos)) {
+			else if (bt_pos.getroffen(ev2.click_pos)  &&  IS_LEFTRELEASE(ev)) {
 				ev2.move_origin(bt_pos.get_pos());
 				swallowed = bt_pos.infowin_event(&ev2);
 			}

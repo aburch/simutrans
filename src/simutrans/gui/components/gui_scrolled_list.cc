@@ -272,7 +272,7 @@ void gui_scrolled_list_t::cleanup_elements(bool resize)
 
 void gui_scrolled_list_t::show_bottom()
 {
-	scroll_y.set_sticky_bottom();;
+	scroll_y.set_sticky_bottom(true);
 }
 
 

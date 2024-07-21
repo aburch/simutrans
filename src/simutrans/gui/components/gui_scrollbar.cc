@@ -89,9 +89,9 @@ scr_size scrollbar_t::get_max_size() const
 
 
 
-void scrollbar_t::set_sticky_bottom()
+void scrollbar_t::set_sticky_bottom(bool b)
 {
-	sticky_bottom = true;
+	sticky_bottom = b;
 	reposition_buttons();
 }
 

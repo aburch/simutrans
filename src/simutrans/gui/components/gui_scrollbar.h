@@ -85,7 +85,7 @@ public:
 
 	sint32 get_knob_offset() const {
 		// return clamped offset if really desired
-		return knob_offset - (knob_scroll_discrete  &&  total_size!=knob_offset+knob_size  ?  (knob_offset % knob_scroll_amount) : 0);
+		return knob_offset - ((knob_scroll_discrete  &&  total_size!=knob_offset+knob_size)  ?  (knob_offset % knob_scroll_amount) : 0);
 	}
 
 	bool is_bottom() const { return total_size <= knob_offset + knob_size; }
@@ -93,7 +93,7 @@ public:
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
 	// repositioning sliders so it is always at the bottom until scrolled once
-	void set_sticky_bottom();
+	void set_sticky_bottom(bool);
 
 	void set_visible_mode(visible_mode_t vm) { visible_mode = vm; }
 	visible_mode_t get_visible_mode() { return visible_mode; }
