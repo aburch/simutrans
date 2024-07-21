@@ -2534,6 +2534,14 @@ void haltestelle_t::merge_halt( halthandle_t halt_merged )
 
 	halt_merged->change_owner( owner );
 
+	// take the name from the larger halt
+	if (get_capacity(0) + get_capacity(1) + get_capacity(2) < halt_merged->get_capacity(0) + halt_merged->get_capacity(1) + halt_merged->get_capacity(2)) {
+		// the other halt was bigger => keep the old name
+		plainstring bigger_name = halt_merged->get_name();
+		halt_merged->set_name(" ");
+		set_name(bigger_name);
+	}
+
 	// add statistics
 	for(  int month=0;  month<MAX_MONTHS;  month++  ) {
 		for(  int type=0;  type<MAX_HALT_COST;  type++  ) {

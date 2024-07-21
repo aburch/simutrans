@@ -1331,6 +1331,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	active_player = players[HUMAN_PLAYER_NR];
 	tool_t::update_toolbars();
 
+	msg->clear();
+	chat_msg->clear();
+
 	set_dirty();
 	step_mode = PAUSE_FLAG;
 	simloops = 60;
@@ -4063,6 +4066,7 @@ void karte_t::load(loadsave_t *file)
 	}
 	else if(  !env_t::networkmode  ) {
 		msg->clear();
+		chat_msg->clear();
 	}
 DBG_MESSAGE("karte_t::load()", "messages loaded");
 

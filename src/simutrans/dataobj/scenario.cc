@@ -132,6 +132,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	// register ourselves
 	welt->set_scenario(this);
 	welt->get_message()->clear();
+	welt->get_chat_message()->clear();
 
 	// set start time
 	sint32 const time = welt->get_current_month();
