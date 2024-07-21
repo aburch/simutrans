@@ -78,7 +78,7 @@ void message_node_t::rdwr(loadsave_t *file)
 }
 
 
-FLAGGED_PIXVAL message_node_t::get_player_color(karte_t *welt) const
+PIXVAL message_node_t::get_player_color(karte_t *welt) const
 {
 	// correct for player color
 	FLAGGED_PIXVAL colorval = color;
@@ -86,7 +86,7 @@ FLAGGED_PIXVAL message_node_t::get_player_color(karte_t *welt) const
 		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
 		colorval = player ? PLAYER_FLAG+color_idx_to_rgb(player->get_player_color1()+env_t::gui_player_color_dark) : color_idx_to_rgb(MN_GREY0);
 	}
-	return colorval;
+	return (PIXVAL)colorval;
 }
 
 
@@ -396,19 +396,23 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 	cbuffer_t buf;  // Output which will be printed to ticker
 	player_t* player = world()->get_player(sender_nr);
 	// send this message to a ticker if public channel message
-	if (channel == -1) {
-		if (sender_nr >= 0 && sender_nr != PLAYER_UNOWNED) {
-			if (player) {
-				if (player != world()->get_active_player()) {
+	if (channel >= -1) {
+		if (sender_nr >= 0  &&  sender_nr != PLAYER_UNOWNED) {
+			if (player != world()->get_active_player()) {
+				// so it is not a message sent from us
+				bool show_message = channel == -1; // message for all?
+				show_message |= channel == world()->get_active_player_nr(); // company message for us?
+				show_message |= recipient && strcmp(recipient, env_t::nickname.c_str()) == 0; // private chat for us?
+				if(show_message) {
 					buf.printf("%s: %s", sender_.c_str(), text);
-					ticker::add_msg(buf, koord3d::invalid, SYSCOL_TEXT);
+					ticker::add_msg(buf, koord3d::invalid, PLAYER_FLAG|sender_nr);
 					env_t::chat_unread_public++;
 					sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
 				}
 			}
 		}
 	}
-	if (channel == -2) {
+	else if (channel == -2) {
 		// text contains the current nicks, separated by TAB
 		clients.clear();
 		char* nick = strtok((char*)text, "\t");
@@ -420,19 +424,6 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 		if (chat_frame_t* cf = (chat_frame_t*)win_get_magic(magic_chatframe)) {
 			cf->fill_list();
 		}
-	}
-	else if (recipient && strcmp(recipient, env_t::nickname.c_str()) == 0  &&  sender_nr != world()->get_active_player_nr()) {
-		buf.printf("%s>> %s", sender_.c_str(), text);
-		ticker::add_msg(buf, koord3d::invalid, color_idx_to_rgb(COL_RED));
-		env_t::chat_unread_whisper++;
-		sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
-	}
-	else if (channel == world()->get_active_player_nr()  &&  sender_nr != world()->get_active_player_nr()) {
-		PIXVAL text_color = player ? color_idx_to_rgb(player->get_player_color1() + env_t::gui_player_color_dark) : SYSCOL_TEXT;
-		buf.printf("%s: %s", sender_.c_str(), text);
-		ticker::add_msg(buf, koord3d::invalid, text_color);
-		env_t::chat_unread_company++;
-		sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
 	}
 
 	if (!(flags & DO_NO_LOG_MSG)) {

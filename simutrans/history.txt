@@ -4,6 +4,7 @@
 	FIX: insticky bottom on drag to allow scrolling of chat
 	FIX: too many null mouse moving events in SDL2 broke double clicks
 	CHG: double click copies chat text
+	FIX: wrong colors and double messges for private chat messages
 
 
 Release of 124.2 (r11351 on 20-July-2024):

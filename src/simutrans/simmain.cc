@@ -1645,7 +1645,7 @@ int simu_main(int argc, char** argv)
 #if COLOUR_DEPTH != 0
 		if(  new_world  ) {
 			dbg->message("simu_main()", "Show banner ... " );
-			ticker::add_msg("Welcome to Simutrans", koord3d::invalid, PLAYER_FLAG | color_idx_to_rgb(COL_SOFT_BLUE));
+			ticker::add_msg("Welcome to Simutrans", koord3d::invalid, PLAYER_FLAG | 1);
 			modal_dialogue( new banner_t(), magic_none, welt, never_quit, true );
 			// only show new world, if no other dialogue is active ...
 			new_world = win_get_open_count()==0;

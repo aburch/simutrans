@@ -36,7 +36,7 @@ message_stats_t::message_stats_t(const message_node_t *m, uint32 sid) :
 	// text buffer
 	gui_label_buf_t *label = new_component<gui_label_buf_t>(msg->get_player_color(welt));
 
-	// now fill buffer, first teh date
+	// now fill buffer, first the date
 	label->buf().printf( "(%s) ", translator::get_short_date( msg->time/12, msg->time%12 ) );
 
 	// then the text (without line break)

@@ -173,7 +173,7 @@ void ticker::draw()
 	PUSH_CLIP( width-dx_since_last_draw, start_y, dx_since_last_draw, TICKER_HEIGHT );
 	for(node & n : list) {
 		if (n.xpos < width) {
-			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.color, true);
+			display_proportional_clip_rgb(n.xpos, start_y + TICKER_V_SPACE, n.msg, ALIGN_LEFT, n.get_player_color(welt), true);
 		}
 	}
 	POP_CLIP();
