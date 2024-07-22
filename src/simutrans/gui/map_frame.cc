@@ -43,109 +43,6 @@ bool  map_frame_t::zoomed = true;
 scr_coord map_frame_t::screenpos;
 
 
-gui_scrollpane_map_t::gui_scrollpane_map_t(gui_component_t* comp) : gui_scrollpane_t(comp)
-{
-	set_allow_dragging(false);
-	is_dragging = false;
-	is_cursor_hidden = false;
-}
-
-
-void gui_scrollpane_map_t::zoom(bool magnify)
-{
-	if (minimap_t::get_instance()->change_zoom_factor(magnify)) {
-		map_frame_t::zoomed = true;
-
-		// recalculate scroll bar width
-		set_size(get_size());
-		// invalidate old offsets
-		old_ij = koord::invalid;
-	}
-}
-
-
-bool gui_scrollpane_map_t::infowin_event(event_t const* ev)
-{
-	if (IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
-		// otherwise these would go to the vertical scroll bars
-		zoom(IS_WHEELUP(ev));
-		return true;
-	}
-
-	// hack: minimap can resize upon right click
-	// we track this here, and adjust size.
-	if (IS_RIGHTCLICK(ev)) {
-		is_dragging = false;
-		display_show_pointer(false);
-		is_cursor_hidden = true;
-		drag_start_x = get_scroll_x();
-		drag_start_y = get_scroll_y();
-		return true;
-	}
-	else if (IS_RIGHTRELEASE(ev)) {
-		is_dragging = false;
-		display_show_pointer(true);
-		is_cursor_hidden = false;
-		return true;
-	}
-	else if (IS_RIGHTDRAG(ev)) {
-		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
-		is_dragging = true;
-		set_scroll_position(max(0, drag_start_x + (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2), max(0, drag_start_y + (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2));
-		return true;
-	}
-	else if (IS_RIGHTDBLCLK(ev)) {
-		// zoom to fit window
-		do { // first, zoom all the way in
-			map_frame_t::zoomed = false;
-			zoom(true);
-		} while (map_frame_t::zoomed);
-
-		// then zoom back out to fit
-		const scr_size s_size = get_size() - D_SCROLLBAR_SIZE;
-		scr_size size = minimap_t::get_instance()->get_size();
-		map_frame_t::zoomed = true;
-		while (map_frame_t::zoomed && max(size.w / s_size.w, size.h / s_size.h)) {
-			zoom(false);
-			size = minimap_t::get_instance()->get_size();
-		}
-		return true;
-	}
-	else if (IS_LEFTCLICK(ev)  &&  env_t::leftdrag_in_minimap) {
-		// dragging move the map also with left button (for touch screens)
-		is_dragging = false;
-		display_show_pointer(false);
-		is_cursor_hidden = true;
-		drag_start_x = get_scroll_x();
-		drag_start_y = get_scroll_y();
-		return true;
-	}
-	else if (IS_LEFTDRAG(ev)  &&  env_t::leftdrag_in_minimap) {
-		const int scroll_direction = (env_t::scroll_multi > 0 ? 1 : -1);
-		is_dragging = true;
-		set_scroll_position(max(0, drag_start_x + (ev->mouse_pos.x - ev->click_pos.x) * scroll_direction * 2), max(0, drag_start_y + (ev->mouse_pos.y - ev->click_pos.y) * scroll_direction * 2));
-		return true;
-	}
-	else if (IS_LEFTRELEASE(ev)  &&  env_t::leftdrag_in_minimap) {
-		is_dragging = false;
-		display_show_pointer(true);
-		is_cursor_hidden = false;
-		// did we move the map a little (same as in siminteraction.cc  interaction_t::process_event( event_t &ev ))
-		if (abs(ev->click_pos.x-ev->mouse_pos.x) + abs(ev->click_pos.y - ev->mouse_pos.y) >= env_t::scroll_threshold) {
-			// swallow release even, only move map
-			return true;
-		}
-		// else we call the standard code
-	}
-	if (is_cursor_hidden) {
-		display_show_pointer(true);
-		is_cursor_hidden = false;
-	}
-
-	return gui_scrollpane_t::infowin_event(ev);
-}
-
-
 /**
  * Entries in factory legend: show color indicator + name
  */
@@ -233,35 +130,50 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", minimap_t::MAP_OWNER }
 };
 
-#define scrolly (*p_scrolly)
+
+// tiny helper function
+bool map_frame_t::zoom(bool magnify)
+{
+	if (minimap_t::get_instance()->change_zoom_factor(magnify)) {
+		map_frame_t::zoomed = true;
+		// recalculate scroll bar width
+		scrolly.set_size(scrolly.get_size());
+		// invalidate old offsets
+		old_ij = koord::invalid;
+		return true;
+	}
+	return false;
+}
+
 
 map_frame_t::map_frame_t() :
-	gui_frame_t( translator::translate("Reliefkarte") )
+	gui_frame_t( translator::translate("Reliefkarte") ),
+	karte(minimap_t::get_instance()),
+	scrolly(karte)
 {
 	// init statics
 	old_ij = koord::invalid;
 	zoomed = false;
 
-	// init map
-	minimap_t *karte = minimap_t::get_instance();
 	karte->init();
 	karte->set_display_mode( ( minimap_t::MAP_DISPLAY_MODE)env_t::default_mapmode );
+
 	// show all players by default
 	karte->player_showed_on_map = -1;
 
-	p_scrolly = new gui_scrollpane_map_t( minimap_t::get_instance());
-	p_scrolly->set_maximize( true );
-	p_scrolly->set_min_width( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT );
-	// initialize scrollbar positions -- LATER
-	const scr_size size = karte->get_size();
-	const scr_size s_size=scrolly.get_size();
-	const koord ij = welt->get_viewport()->get_world_position();
-	const scr_size win_size = size-s_size; // this is the visible area
+	// init map
+	scrolly.set_maximize(true);
+	scrolly.set_min_width(D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT);
 
+
+	// map the current position visible
+	const koord ij = welt->get_viewport()->get_world_position();
+	const scr_size size = karte->get_size();
+	const scr_size s_size = scrolly.get_size();
+	const scr_size win_size = size - s_size; // this is the visible area
 	scrolly.set_scroll_position( clamp(ij.x-win_size.w/2, 0, size.w), clamp(ij.y-win_size.h/2, 0, size.h) );
 	scrolly.set_focusable( true );
 	scrolly.set_scrollbar_mode(scrollbar_t::show_always);
-
 
 	set_table_layout(1,0);
 
@@ -507,7 +419,7 @@ map_frame_t::map_frame_t() :
 	// map scrolly
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_discrete_y(false);
-	take_component(p_scrolly);
+	add_component(&scrolly);
 
 	// restore window size and options
 	show_hide_legend( legend_visible );
@@ -649,13 +561,9 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 		filter_factory_list = !filter_factory_list;
 		show_hide_directory( b_show_directory.pressed );
 	}
-	else if(  comp == zoom_buttons+1  ) {
-		// zoom out
-		p_scrolly->zoom(true);
-	}
-	else if(  comp == zoom_buttons+0  ) {
-		// zoom in
-		p_scrolly->zoom(false);
+	else if (comp == zoom_buttons+0  ||  comp == zoom_buttons+1) {
+		// zoom in/out
+		zoomed |= zoom(comp != zoom_buttons);
 	}
 	else if(  comp == &b_rotate45  ) {
 		// rotated/straight map
@@ -737,6 +645,29 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		else if(ev->ev_code == WIN_CLOSE) {
 			minimap_t::get_instance()->is_visible = false;
 		}
+	}
+
+	// zoom with scrollwheel
+	if (IS_WHEELDOWN(ev) || IS_WHEELUP(ev)) {
+		zoomed |= zoom(IS_WHEELUP(ev));
+		return true;
+	}
+
+	// center map with rightdobuleclick
+	if (IS_RIGHTDBLCLK(ev)) {
+		// zoom minimap to fit window
+		while (karte->change_zoom_factor(true))
+			{}
+		if (scrolly.get_client().w < karte->get_size().w  ||  scrolly.get_client().h < karte->get_size().h) {
+			// zoom out until no longer fits
+			while (karte->change_zoom_factor(false)  &&  (scrolly.get_client().w < karte->get_size().w  ||  scrolly.get_client().h < karte->get_size().h))
+				{}
+		}
+		map_frame_t::zoomed = true;
+		scrolly.set_size(scrolly.get_size());
+		// invalidate old offsets
+		old_ij = koord::invalid;
+		return true;
 	}
 
 	return gui_frame_t::infowin_event(ev);

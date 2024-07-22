@@ -20,30 +20,10 @@
 #include "../simline.h"
 
 class karte_ptr_t;
+class minimap_t;
 
 #define MAP_MAX_BUTTONS (22)
 
-
-/**
- * Scroll-container of map, so we can rightdrag and zoom with wheel
- */
-class gui_scrollpane_map_t : public gui_scrollpane_t
-{
-private:
-	bool is_dragging;
-	bool is_cursor_hidden;
-	sint32 drag_start_x, drag_start_y;
-
-public:
-	gui_scrollpane_map_t(gui_component_t* comp);
-
-	// we use rightclick dragging and scrollwhell for zoom, so we need to catch some events before
-	bool infowin_event(event_t const*) OVERRIDE;
-
-	scr_size get_max_size() const OVERRIDE { return scr_size::inf; }
-
-	void zoom(bool magnify);
-};
 
 /**
  * Minimap window
@@ -54,6 +34,8 @@ class map_frame_t :
 {
 private:
 	static karte_ptr_t welt;
+
+	minimap_t* karte;
 
 	/**
 	 * This is kind of hack: we know there can only be one map frame
@@ -74,7 +56,7 @@ private:
 
 	gui_aligned_container_t filter_container, network_filter_container, scale_container, directory_container, *zoom_row;
 
-	gui_scrollpane_map_t *p_scrolly;
+	gui_scrollpane_t scrolly;
 
 	button_t filter_buttons[MAP_MAX_BUTTONS];
 	button_t zoom_buttons[2];
@@ -94,13 +76,16 @@ private:
 	gui_combobox_t transport_type_c;
 	gui_combobox_t freight_type_c;
 
-//	void zoom(bool zoom_out);
+
 	void update_buttons();
 	void update_factory_legend();
 	void show_hide_legend(const bool show);
 	void show_hide_network_option(const bool show);
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
+
+	static bool zoomed; // if true, zoom label will be updated on next redraw
+	bool zoom(bool magnify);
 
 public:
 	/**
@@ -109,7 +94,6 @@ public:
 	 */
 	const char *get_help_filename() const OVERRIDE {return "map.txt";}
 
-	static bool zoomed; // if true, zoom label will be uopdated on next redraw
 	static scr_coord screenpos;
 
 	/**
