@@ -72,8 +72,9 @@ size_t gui_textinput_t::calc_cursor_pos(const int x)
 bool gui_textinput_t::remove_selection()
 {
 	if(  head_cursor_pos!=tail_cursor_pos  ) {
+		size_t len = strlen(text);
 		size_t start_pos = min(head_cursor_pos, tail_cursor_pos);
-		size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
+		size_t end_pos = min(len, ::max(head_cursor_pos, tail_cursor_pos) );
 		tail_cursor_pos = head_cursor_pos = start_pos;
 		do {
 			text_dirty = true;
