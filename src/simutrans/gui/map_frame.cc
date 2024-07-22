@@ -647,12 +647,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	// zoom with scrollwheel
-	if (IS_WHEELDOWN(ev) || IS_WHEELUP(ev)) {
-		zoomed |= zoom(IS_WHEELUP(ev));
-		return true;
-	}
-
 	// center map with rightdobuleclick
 	if (IS_RIGHTDBLCLK(ev)) {
 		// zoom minimap to fit window
@@ -670,7 +664,16 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	return gui_frame_t::infowin_event(ev);
+	scr_size karte_sz = karte->get_size();
+	bool swallowed = gui_frame_t::infowin_event(ev);
+
+	if (karte_sz != karte->get_size()) {
+		// minimap was zoomed
+		map_frame_t::zoomed = true;
+		scrolly.set_size(scrolly.get_size());
+		old_ij = koord::invalid;
+	}
+	return swallowed;
 }
 
 
