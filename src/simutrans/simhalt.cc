@@ -104,12 +104,26 @@ void haltestelle_t::step_all()
 		return;
 	}
 
-	// start a reconnection only if the last run has finished to avoid an eternal reconenction loop without ever rerouting
-	const uint8 schedule_counter = welt->get_schedule_counter();
-	if (status_step == 0  &&  reconnect_counter != schedule_counter) {
-		// start with reconnection, re-routing will happen after complete reconnection
-		status_step = RECONNECTING;
-		reconnect_counter = schedule_counter;
+	// reset served stops of all halts
+	for (auto halt : alle_haltestellen) {
+		for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
+			halt->halt_served_this_step[i].clear();
+		}
+	}
+
+	// currently no reconnection/rerouting in progress?
+	if (status_step == 0) {
+		// than maybe start a reconnection (we start only when finished to avoid an eternal reconenction loop without ever rerouting)
+		const uint8 schedule_counter = welt->get_schedule_counter();
+		if (reconnect_counter != schedule_counter) {
+			// start with reconnection, re-routing will happen after complete reconnection
+			status_step = RECONNECTING;
+			reconnect_counter = schedule_counter;
+		}
+		else {
+			// nothing to step if there is no rerouting/reconnection
+			return;
+		}
 	}
 
 	// we iterate in charges
@@ -971,14 +985,10 @@ bool haltestelle_t::has_available_network(const player_t* player, uint8 catg_ind
 
 
 
-
+// steps is currently only called during reconnectiong and reoruting
+// any change need to change step_all()
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 {
-	// reset served stops
-	for(  int i=0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
-		halt_served_this_step[i].clear();
-	}
-
 	switch(what) {
 		case RECONNECTING:
 			units_remaining -= (rebuild_connections()/256)+2;
@@ -990,6 +1000,7 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 			recalc_status();
 			break;
 		default:
+			dbg->fatal("haltestelle_t::step()","Unknown step mode %i",what);
 			break;
 	}
 	return true;
