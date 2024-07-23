@@ -83,7 +83,7 @@ class inthashtable_tpl<ptrdiff_t,scr_coord> old_win_pos;
 // hash-table: magic number to windowsize
 class inthashtable_tpl<ptrdiff_t, scr_size> saved_windowsizes;
 
-// ture if there is little space for the status messages
+// true if there is little space for the status messages
 static bool status_show_compact = false;
 
 
@@ -2072,7 +2072,7 @@ void win_display_flush(double konto)
 		}
 	}
 #ifdef DEBUG
-	if(  env_t::verbose_debug>3  ) {
+	if(  env_t::verbose_debug>1  ) {
 		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
 			info.append( " +" );
 		}
