@@ -115,12 +115,9 @@ void haltestelle_t::step_all()
 	// we iterate in charges
 	sint16 units_remaining = 1024;
 	bool use_status_step = false;
-	while (next_halt_to_step < alle_haltestellen.get_count()) {
+	while (units_remaining > 0  &&  next_halt_to_step < alle_haltestellen.get_count()) {
 		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
-		if(  !halt->step( status_step, units_remaining)  ) {
-			// too much rerouted => continue with this halt on next round!
-			return;
-		}
+		halt->step(status_step, units_remaining);
 	}
 	// finished, so we can start over next time
 	next_halt_to_step = 0;
@@ -1037,10 +1034,6 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 	}
 
 	for(  ; last_catg_index<goods_manager_t::get_max_catg_index(); last_catg_index++) {
-
-		if(  units_remaining<=0  ) {
-			return false;
-		}
 
 		if(cargo[last_catg_index]) {
 
