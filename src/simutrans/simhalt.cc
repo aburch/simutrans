@@ -99,44 +99,39 @@ void haltestelle_t::step_all()
 		}
 	}
 
-	static vector_tpl<halthandle_t>::iterator resume_iter( alle_haltestellen.begin() );
+	static uint32 next_halt_to_step=0;
 	if (alle_haltestellen.empty()) {
 		return;
 	}
+
+	// start a reconnection only if the last run has finished to avoid an eternal reconenction loop without ever rerouting
 	const uint8 schedule_counter = welt->get_schedule_counter();
-	if (reconnect_counter != schedule_counter) {
-		// always start with reconnection, re-routing will happen after complete reconnection
+	if (status_step == 0  &&  reconnect_counter != schedule_counter) {
+		// start with reconnection, re-routing will happen after complete reconnection
 		status_step = RECONNECTING;
 		reconnect_counter = schedule_counter;
-		resume_iter = alle_haltestellen.begin();
 	}
 
-	// always iterate all halts to properly reset served halts
-	sint16 units_remaining = 128;
+	// we iterate in charges
+	sint16 units_remaining = 1024;
 	bool use_status_step = false;
-	for(  vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );  iter != alle_haltestellen.end();  ++iter  ) {
-		if(  iter == resume_iter  ) use_status_step = true; // resume reconnecting/rerouting from this halt
-
-		if(  use_status_step  &&  units_remaining <= 0  ) {
-			// too many reconnections => continue with next halt on next step
-			resume_iter = iter;
-			use_status_step = false;
-		}
-
-		if(  !(*iter)->step( use_status_step ? status_step : 0, units_remaining)  ) {
+	while (next_halt_to_step < alle_haltestellen.get_count()) {
+		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
+		if(  !halt->step( status_step, units_remaining)  ) {
 			// too much rerouted => continue with this halt on next round!
-			resume_iter = iter;
-			use_status_step = false;
+			return;
 		}
 	}
+	// finished, so we can start over next time
+	next_halt_to_step = 0;
 
-	if(  use_status_step  &&  status_step == RECONNECTING  ) {
+	if(  status_step == RECONNECTING  ) {
 		// reconnecting finished, compute connected components in one sweep
 		rebuild_connected_components();
 		// reroute in next call
 		status_step = REROUTING;
 	}
-	else if(  use_status_step  &&  status_step == REROUTING  ) {
+	else if(  status_step == REROUTING  ) {
 		// rerouting finished
 		status_step = 0;
 	}

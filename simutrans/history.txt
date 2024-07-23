@@ -5,6 +5,7 @@
 	FIX: too many null mouse moving events in SDL2 broke double clicks
 	CHG: double click copies chat text
 	FIX: wrong colors and double messges for private chat messages
+	FIX: was not iterating over all stops correctly
 
 
 Release of 124.2 (r11351 on 20-July-2024):
