@@ -78,11 +78,10 @@ function test_transport_pax_valid_route()
 	// and start the convoy
 	depot.start_all_convoys(pl)
 
-	// make sure that the graph linking all halts is updated (may take up to four steps)
-	while(get_speed_kmh(cnv)<25) {
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
 		sleep()
 	}
-	sleep()
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x.passenger, 30), 1) // 1 == OK
@@ -175,11 +174,10 @@ function test_transport_mail_valid_route()
 	// and start the convoy
 	depot.start_all_convoys(pl)
 
-	// make sure that the graph linking all halts is updated (may take up to four steps)
-	while(get_speed_kmh(cnv)<25) {
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
 		sleep()
 	}
-	sleep()
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x.mail, 30), 1) // 1 == OK
@@ -278,11 +276,10 @@ function test_transport_freight_valid_route()
 	// and start the convoy
 	depot.start_all_convoys(pl)
 
-	// make sure that the graph linking all halts is updated (may take up to four steps)
-	while(get_speed_kmh(cnv)<25) {
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
 		sleep()
 	}
-	sleep()
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x("Kohle"), 18), 1) // 1 == OK
@@ -439,8 +436,10 @@ function test_transport_pax_valid_route()
 	depot.start_all_convoys(pl)
 
 	// make sure that the graph linking all halts is updated
-	sleep()
-	sleep()
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
+		sleep()
+	}
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x.passenger, 30), 1) // 1 == OK
@@ -534,8 +533,10 @@ function test_transport_mail_valid_route()
 	depot.start_all_convoys(pl)
 
 	// make sure that the graph linking all halts is updated
-	sleep()
-	sleep()
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
+		sleep()
+	}
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x.mail, 30), 1) // 1 == OK
@@ -635,8 +636,10 @@ function test_transport_freight_valid_route()
 	depot.start_all_convoys(pl)
 
 	// make sure that the graph linking all halts is updated
-	sleep()
-	sleep()
+	// make sure that the graph linking and all halts is updated
+	while(!halt_x.is_rerouting_finished()) {
+		sleep()
+	}
 
 	{
 		ASSERT_EQUAL(world.generate_goods(coord(3, 7), coord(3, 2), good_desc_x("Kohle"), 18), 1) // 1 == OK

@@ -101,8 +101,6 @@ void haltestelle_t::step_all()
 
 	static uint32 next_halt_to_step=0;
 	if (alle_haltestellen.empty()) {
-		next_halt_to_step = 0;
-		status_step = 0;
 		return;
 	}
 
@@ -135,21 +133,18 @@ void haltestelle_t::step_all()
 		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
 		halt->step(status_step, units_remaining);
 	}
+	// finished, so we can start over next time
+	next_halt_to_step = 0;
 
-	if (next_halt_to_step >= alle_haltestellen.get_count()) {
-		// finished, so we can start over next time
-		next_halt_to_step = 0;
-
-		if(  status_step == RECONNECTING  ) {
-			// reconnecting finished, compute connected components in one sweep
-			rebuild_connected_components();
-			// reroute in next call
-			status_step = REROUTING;
-		}
-		else if(  status_step == REROUTING  ) {
-			// rerouting finished
-			status_step = 0;
-		}
+	if(  status_step == RECONNECTING  ) {
+		// reconnecting finished, compute connected components in one sweep
+		rebuild_connected_components();
+		// reroute in next call
+		status_step = REROUTING;
+	}
+	else if(  status_step == REROUTING  ) {
+		// rerouting finished
+		status_step = 0;
 	}
 }
 
@@ -999,9 +994,7 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
 			units_remaining -= (rebuild_connections()/256)+2;
 			break;
 		case REROUTING:
-			if(  !reroute_goods(units_remaining)  ) {
-				return false;
-			}
+			reroute_goods(units_remaining);
 			recalc_status();
 			break;
 		default:
@@ -1041,9 +1034,8 @@ void haltestelle_t::new_month()
 /**
  * Called after schedule calculation of all stations is finished
  * will distribute the goods to changed routes (if there are any)
- * returns true upon completion
  */
-bool haltestelle_t::reroute_goods(sint16 &units_remaining)
+void haltestelle_t::reroute_goods(sint16 &units_remaining)
 {
 	if(  last_catg_index==255  ) {
 		last_catg_index = 0;
@@ -1115,7 +1107,6 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 	// likely the display must be updated after this
 	resort_freight_info = true;
 	last_catg_index = 255; // all categories are rerouted
-	return true; // all updated ...
 }
 
 

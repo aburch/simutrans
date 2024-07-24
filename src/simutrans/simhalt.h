@@ -365,9 +365,8 @@ public:
 	/**
 	* Called after schedule calculation of all stations is finished
 	* will distribute the goods to changed routes (if there are any)
-	* returns true upon completion
 	*/
-	bool reroute_goods(sint16 &units_remaining);
+	void reroute_goods(sint16 &units_remaining);
 
 	/**
 	 * getter/setter for sortby
@@ -413,7 +412,7 @@ public:
 	 */
 	void rebuild_linked_connections();
 
-	uint8 get_reconnect_counter() const  { return reconnect_counter; }
+	static uint8 get_reconnect_counter() { return reconnect_counter; }
 
 	void rotate90( const sint16 y_size );
 

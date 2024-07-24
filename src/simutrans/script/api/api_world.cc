@@ -125,6 +125,9 @@ uint32 world_generate_goods(karte_t *welt, koord from, koord to, const goods_des
 		if (good.get_desc() == goods_manager_t::passengers) {
 			start_halt->add_pax_happy(good.amount);
 		}
+		else {
+			start_halt->recalc_status();
+		}
 		}
 		break;
 	}

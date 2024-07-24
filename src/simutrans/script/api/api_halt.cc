@@ -13,9 +13,9 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simhalt.h"
+#include "../../world/simworld.h"
 
 halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player ); // api_schedule.cc, interfaces haltestelle_t::get_halt
-
 
 namespace script_api {
 
@@ -47,6 +47,12 @@ vector_tpl<sint64> const& get_halt_stat(const haltestelle_t *halt, sint32 INDEX)
 		}
 	}
 	return v;
+}
+
+
+bool is_rerouting_finished()
+{
+	return haltestelle_t::get_rerouting_status() == 0  &&  haltestelle_t::get_reconnect_counter() == world()->get_schedule_counter();
 }
 
 
@@ -301,6 +307,12 @@ void export_halt(HSQUIRRELVM vm)
 	 * @return halt instance
 	 */
 	STATIC register_method(vm, &get_halt_from_koord3d, "get_halt", false, true);
+
+	/**
+	 * Checks if the rerouting of halts is finsihed
+	 * @return true if all reconnections are finished
+	 */
+	STATIC register_method(vm, &is_rerouting_finished, "is_rerouting_finished", false, true);
 
 	end_class(vm);
 }
