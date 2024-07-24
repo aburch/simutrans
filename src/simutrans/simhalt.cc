@@ -101,6 +101,8 @@ void haltestelle_t::step_all()
 
 	static uint32 next_halt_to_step=0;
 	if (alle_haltestellen.empty()) {
+		next_halt_to_step = 0;
+		status_step = 0;
 		return;
 	}
 
@@ -133,18 +135,21 @@ void haltestelle_t::step_all()
 		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
 		halt->step(status_step, units_remaining);
 	}
-	// finished, so we can start over next time
-	next_halt_to_step = 0;
 
-	if(  status_step == RECONNECTING  ) {
-		// reconnecting finished, compute connected components in one sweep
-		rebuild_connected_components();
-		// reroute in next call
-		status_step = REROUTING;
-	}
-	else if(  status_step == REROUTING  ) {
-		// rerouting finished
-		status_step = 0;
+	if (next_halt_to_step >= alle_haltestellen.get_count()) {
+		// finished, so we can start over next time
+		next_halt_to_step = 0;
+
+		if(  status_step == RECONNECTING  ) {
+			// reconnecting finished, compute connected components in one sweep
+			rebuild_connected_components();
+			// reroute in next call
+			status_step = REROUTING;
+		}
+		else if(  status_step == REROUTING  ) {
+			// rerouting finished
+			status_step = 0;
+		}
 	}
 }
 
