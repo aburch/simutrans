@@ -1,6 +1,7 @@
 	FIX: Did not submit full patch for halt iteration
 	ADD: Support for through depots (dims 2)
 	FIX: proper building of parallel ways also for elevated ways
+	FIX: no public chat after private
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):

@@ -130,7 +130,6 @@ void haltestelle_t::step_all()
 
 	// we iterate in charges
 	sint16 units_remaining = 1024;
-	bool use_status_step = false;
 	while (units_remaining > 0  &&  next_halt_to_step < alle_haltestellen.get_count()) {
 		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
 		halt->step(status_step, units_remaining);

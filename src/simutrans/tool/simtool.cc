@@ -414,8 +414,7 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 				case 3: // objects
 					for (uint8 n = gr->get_top(); n-- != 0;) {
 						obj_t* obj = gr->obj_bei(reverse ? gr->get_top() - 1 - n : n);
-
-						if (vehicle_t* veh = dynamic_cast<vehicle_t*>(obj)) {
+						if (dynamic_cast<vehicle_t*>(obj)) {
 							// already openend them
 							continue;
 						}

@@ -490,10 +490,10 @@ bool chat_frame_t::action_triggered(gui_action_creator_t* comp, value_t v)
 	if (comp == &input && ibuf[0] != 0) {
 		const sint8 channel = tabs.get_active_tab_index() == CH_COMPANY ? (sint8)world()->get_active_player_nr() : -1;
 		const sint8 sender_company_nr = welt->get_active_player()->is_locked() ? -1 : welt->get_active_player()->get_player_nr();
-		plainstring dest = cb_direct_chat_targets.get_selection() > 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
+		const char *dest = cb_direct_chat_targets.get_selection() > 0 ? cb_direct_chat_targets.get_selected_item()->get_text() : "";
 
 		// Send chat message to server for distribution
-		nwc_chat_t* nwchat = new nwc_chat_t(ibuf, sender_company_nr, (sint8)channel, env_t::nickname.c_str(), dest.c_str(), bt_send_pos.pressed ? world()->get_viewport()->get_world_position() : koord::invalid);
+		nwc_chat_t* nwchat = new nwc_chat_t(ibuf, sender_company_nr, (sint8)channel, env_t::nickname.c_str(), tabs.get_active_tab_index() != CH_WHISPER ? "" : dest, bt_send_pos.pressed ? world()->get_viewport()->get_world_position() : koord::invalid);
 		network_send_server(nwchat);
 
 		// FIXME?: Once the destination and sender clients are closed, those comments will not be left anywhere...

@@ -141,7 +141,7 @@ const char* gui_convoiinfo_t::get_text() const
 void gui_convoiinfo_t::update_label()
 {
 	bool size_change = old_income != cnv->get_jahresgewinn();
-	old_income == cnv->get_jahresgewinn();
+	old_income = cnv->get_jahresgewinn();
 
 	label_profit.buf().append(translator::translate("Gewinn"));
 	label_profit.buf().append_money(cnv->get_jahresgewinn() / 100.0);
