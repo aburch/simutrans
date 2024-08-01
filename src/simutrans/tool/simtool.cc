@@ -5625,8 +5625,7 @@ const char* tool_build_depot_t::tool_depot_aux(player_t* player, koord3d pos, co
 		layout = ribi_t::is_straight_ew(ribi);
 	}
 	else {
-		dbg->error("tool_build_depot_t::tool_depot_aux()", "Broken depot name \"%s\"", desc->get_name());
-		return NULL;
+		dbg->warning("tool_build_depot_t::tool_depot_aux()", "Broken depot name \"%s\"", desc->get_name());
 	}
 
 	hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
