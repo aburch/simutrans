@@ -5552,18 +5552,18 @@ bool tool_build_roadsign_t::calc_route(route_t &route, player_t *player, const k
 
 
 // build all types of depots
-const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype)
+const char* tool_build_depot_t::tool_depot_aux(player_t* player, koord3d pos, const building_desc_t* desc, waytype_t wegtype)
 {
-	if(!welt->is_within_limits(pos.get_2d())) {
+	if (!welt->is_within_limits(pos.get_2d())) {
 		return "";
 	}
 
-	grund_t *bd = NULL;
+	grund_t* bd = NULL;
 
 	// special for the Seven Seas ...
-	if (wegtype==water_wt) {
+	if (wegtype == water_wt) {
 		bd = welt->lookup_kartenboden(pos.get_2d());
-		if(!bd->is_water()) {
+		if (!bd->is_water()) {
 			if (!bd->hat_weg(water_wt)) {
 				return "Ship depots must be built on water!";
 			}
@@ -5572,27 +5572,27 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 	}
 
 	if (!bd) {
-		bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
+		bd = tool_intern_koord_to_weg_grund(player, welt, pos, wegtype);
 	}
 
 	if (!bd) {
 		return "Depots must be built on flat dead-end way tiles!";
 	}
-	else if (bd->has_two_ways() || bd->is_halt() || bd->get_depot()!=NULL) { // avoid building over a stop
+	else if (bd->has_two_ways() || bd->is_halt() || bd->get_depot() != NULL) { // avoid building over a stop or on a second way
 		return "Tile not empty.";
 	}
 
 	// no depots on runways!
-	if(desc->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_desc()->get_styp()!=type_flat) {
+	if (desc->get_extra() == air_wt && bd->get_weg(air_wt)->get_desc()->get_styp() != type_flat) {
 		return "Depots cannot be built on runways!";
 	}
 
-	if (const char *errmsg = bd->kann_alle_obj_entfernen(player)) {
+	if (const char* errmsg = bd->kann_alle_obj_entfernen(player)) {
 		return errmsg;
 	}
 
 	ribi_t::ribi ribi;
-	if(bd->is_water()) {
+	if (bd->is_water()) {
 		// assume one orientation with water
 		ribi = ribi_t::south;
 	}
@@ -5600,18 +5600,34 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 		ribi = bd->get_weg_ribi_unmasked(wegtype);
 	}
 
-	if(!ribi_t::is_single(ribi)  ||  bd->get_weg_hang()!=slope_t::flat) {
+	int layout = 0;
+	if (bd->get_weg_hang() != slope_t::flat) {
 		return "Depots must be built on flat dead-end way tiles!";
 	}
-
-	int layout = 0;
-
-	switch(ribi) {
-		//case ribi_t::south:layout = 0;  break;
-		case ribi_t::east:  layout = 1;    break;
-		case ribi_t::north: layout = 2;    break;
-		case ribi_t::west:  layout = 3;    break;
+	if (desc->get_all_layouts() == 4) {
+		// classical four rotation depot
+		if (!ribi_t::is_single(ribi)) {
+			return "Depots must be built on flat dead-end way tiles!";
+		}
+		switch (ribi) {
+			//case ribi_t::south:layout = 0;  break;
+			case ribi_t::east:  layout = 1;    break;
+			case ribi_t::north: layout = 2;    break;
+			case ribi_t::west:  layout = 3;    break;
+		}
 	}
+	else if (desc->get_all_layouts() == 2) {
+		// two rotation through depot
+		if (!ribi_t::is_straight(ribi)) {
+			return "Depots must be built on flat dead-end way tiles!";
+		}
+		layout = ribi_t::is_straight_ew(ribi);
+	}
+	else {
+		dbg->error("tool_build_depot_t::tool_depot_aux()", "Broken depot name \"%s\"", desc->get_name());
+		return NULL;
+	}
+
 
 	hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
 	player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());

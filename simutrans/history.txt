@@ -1,3 +1,7 @@
+	FIX: Did not submit full patch for halt iteration
+	ADD: Support for through depots (dims 2)
+
+
 Release of 124.2.1 (r11365 on 25-July-2024):
 	FIX: player_ranking transport type was not set_rigid => crash on all general comparison
 	FIX: do not carry over old chat messages to new games

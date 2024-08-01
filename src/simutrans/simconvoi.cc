@@ -248,6 +248,12 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 		}
 		// so we are on a taxiway/runway here ...
 	}
+	if (grund_t* gr = welt->lookup(ziel)) {
+		if (depot_t* dp = gr->get_depot()) {
+			// don't stop in other peoples depot
+			return !(dp->get_owner() == get_owner()  &&  fahr[0]  &&  dp->get_waytype() == fahr[0]->get_waytype());
+		}
+	}
 	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
