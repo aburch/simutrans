@@ -75,8 +75,8 @@ FunctionEnd
 
 Section /o "Executable (GDI)" GDIexe
   AddSize 19164
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/142-2-1/simuwin-142-2-1.zip"
-  StrCpy $archievename "simuwin-142-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/124-2-1/simuwin-124-2-1.zip"
+  StrCpy $archievename "simuwin-124-2-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   SetOutPath $INSTDIR
   Call DownloadInstallZip
@@ -85,8 +85,8 @@ SectionEnd
 
 Section "Executable (SDL2)" SDLexe
   AddSize 21508
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/142-2-1/simuwin-sdl-142-2-1.zip"
-  StrCpy $archievename "simuwin-sdl-142-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/124-2-1/simuwin-sdl-124-2-1.zip"
+  StrCpy $archievename "simuwin-sdl-124-2-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2)"
   SetOutPath $INSTDIR
   Call DownloadInstallZip
@@ -95,8 +95,8 @@ SectionEnd
 
 Section /o "Executable (GDI 64bit)" GDI64exe
   AddSize 18672
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/142-2-1/simuwin-x64-142-2-1.zip"
-  StrCpy $archievename "simuwin-x64-142-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/124-2-1/simuwin-x64-124-2-1.zip"
+  StrCpy $archievename "simuwin-x64-124-2-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI) only needed for huge maps"
   SetOutPath $INSTDIR
   Call DownloadInstallZip
@@ -105,8 +105,8 @@ SectionEnd
 
 Section /o "Executable (SDL2 64bit)" SDL64exe
   AddSize 17180
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/142-2-1/simuwin-x64-sdl-142-2-1.zip"
-  StrCpy $archievename "simuwin-sdl-x64-142-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/124-2-1/simuwin-x64-sdl-124-2-1.zip"
+  StrCpy $archievename "simuwin-sdl-x64-124-2-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2) only needed for huge maps"
   SetOutPath $INSTDIR
   Call DownloadInstallZip

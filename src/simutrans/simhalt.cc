@@ -101,6 +101,8 @@ void haltestelle_t::step_all()
 
 	static uint32 next_halt_to_step=0;
 	if (alle_haltestellen.empty()) {
+		next_halt_to_step = 0;
+		status_step = 0;
 		return;
 	}
 
@@ -133,18 +135,21 @@ void haltestelle_t::step_all()
 		halthandle_t halt = alle_haltestellen[next_halt_to_step++];
 		halt->step(status_step, units_remaining);
 	}
-	// finished, so we can start over next time
-	next_halt_to_step = 0;
 
-	if(  status_step == RECONNECTING  ) {
-		// reconnecting finished, compute connected components in one sweep
-		rebuild_connected_components();
-		// reroute in next call
-		status_step = REROUTING;
-	}
-	else if(  status_step == REROUTING  ) {
-		// rerouting finished
-		status_step = 0;
+	// finished iteration, so we can proceed to next step
+	if(next_halt_to_step >= alle_haltestellen.get_count()) {
+		next_halt_to_step = 0;
+
+		if(  status_step == RECONNECTING  ) {
+			// reconnecting finished, compute connected components in one sweep
+			rebuild_connected_components();
+			// reroute in next call
+			status_step = REROUTING;
+		}
+		else if(  status_step == REROUTING  ) {
+			// rerouting finished
+			status_step = 0;
+		}
 	}
 }
 
@@ -593,14 +598,15 @@ void haltestelle_t::set_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup(get_basis_pos3d());
 	if(gr) {
-		if(gr->get_flag(grund_t::has_text)) {
-			halthandle_t h = all_names.remove(gr->get_text());
+		if (gr->get_flag(grund_t::has_text)) {
+			const char* old_name = gr->get_text();
+			halthandle_t h = all_names.remove(old_name);
 			if(h!=self) {
 				DBG_MESSAGE("haltestelle_t::set_name()","removing name %s already used!",gr->get_text());
 			}
 		}
 		if(!gr->find<label_t>()) {
-			gr->set_text( new_name );
+			gr->set_text(new_name);
 			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
 				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
