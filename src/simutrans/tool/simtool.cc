@@ -2661,8 +2661,9 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 		}
 		else {
 			// find out if there is a way close by
+			koord3d delta_z(0, 0, (bautyp & way_builder_t::elevated_flag) != 0);
 			for (int i = 0; i < 8; i++) {
-				if (grund_t* gr = welt->lookup(start + koord::neighbours[i])) {
+				if (grund_t* gr = welt->lookup(start + koord::neighbours[i] + delta_z)) {
 					if (gr->get_weg(desc->get_wtyp())) {
 						assume_parallel = true;
 						break;
@@ -2675,8 +2676,9 @@ const char *tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d 
 		bool assume_parallel2 = false;
 		if (grund_t* gr = welt->lookup(my_end)) {
 			if (!gr->get_weg(desc->get_wtyp())) {
+				koord3d delta_z(0, 0, (bautyp & way_builder_t::elevated_flag) != 0);
 				for (int i = 0; i < 8; i++) {
-					if (grund_t* gr = welt->lookup(my_end + koord::neighbours[i])) {
+					if (grund_t* gr = welt->lookup(my_end + koord::neighbours[i] + delta_z)) {
 						if (gr->get_weg(desc->get_wtyp())) {
 							assume_parallel2 = true;
 							break;
@@ -5627,7 +5629,6 @@ const char* tool_build_depot_t::tool_depot_aux(player_t* player, koord3d pos, co
 		dbg->error("tool_build_depot_t::tool_depot_aux()", "Broken depot name \"%s\"", desc->get_name());
 		return NULL;
 	}
-
 
 	hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
 	player_t::book_construction_costs(player, -desc->get_price(welt), pos.get_2d(), desc->get_finance_waytype());

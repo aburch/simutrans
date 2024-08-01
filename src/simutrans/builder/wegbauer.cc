@@ -795,7 +795,8 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 		case schiene:
 		default:
 		{
-			const weg_t *sch=to->get_weg(desc->get_wtyp());
+			waytype_t wt = desc->get_wtyp();
+			const weg_t *sch=to->get_weg(wt);
 			// extra check for AI construction (not adding to existing tracks!)
 			if((bautyp&bot_flag)!=0  &&  (sch  ||  to->get_halt().is_bound())) {
 				return false;
@@ -814,11 +815,11 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 			}
 			// test if we are next to a way
 			if (!sch  &&  prefer_parallel) {
-				if (to->get_weg(track_wt)) {
+				if (to->get_weg(wt)) {
 					// we have to join? make it expensive
 					*costs = s.way_count_leaving_way;
 				}
-				else if (has_neighbour_with_way(from->get_pos(), track_wt)) {
+				else if (has_neighbour_with_way(from->get_pos(), wt)) {
 					// we are parallel => make it cheap
 					*costs = s.way_count_straight;
 				}
