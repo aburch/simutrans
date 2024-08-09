@@ -204,7 +204,7 @@ download_and_install_pakset()
 # generated list of pak sets
 obsolete_start_index=12
 paksets=( \
-  "http://downloads.sourceforge.net/project/simutrans/pak64/124-2/simupak64-124-2.zip" \
+  "http://downloads.sourceforge.net/project/simutrans/pak64/124-2-2/simupak64-124-2-2.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20%20124.1up%20%282.9.1%29/simupak128-2.9.1.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic%20V0.7.1/pak192-comic.zip" \
   "http://simutrans-germany.com/pak.german/pak64.german_0-124-0-0-3_full.zip" \
@@ -212,7 +212,7 @@ paksets=( \
   "https://github.com/wa-st/pak-nippon/releases/download/v0.6.2/pak.nippon-v0.6.2.zip" \
   "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS-r2096.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip" \
-  "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_2.2_for_ST_124.0/PAK128.german_2.2_for_ST_124.0.zip" \
+  "http://pak128-german.de/PAK128.german_2.3_beta.zip" \
   "https://github.com/Varkalandar/pak144.Excentrique/releases/download/r0.08/pak144.Excentrique_v008.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pakTTD/simupakTTD-124-0.zip" \
   "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1c/pak48.bitlit_0.1c.zip" \
