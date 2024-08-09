@@ -772,6 +772,8 @@ Release of 102.2.1 (r2928)
 	ADD: toolbar, which did not fit their space can be scrolled (either manu menu or when toolbar_max_height = 1)
 	ADD: new parameter for icons in windows title bars: gui_gadgetwidth and gui_gadget_height (although the latter is unused for now)
 	FIX: Labelist with own player filter works again
+	FIX: halt are properly reconnected
+	FIX: if convoi load in parralele without minimum load, the second convoi could leave empty
 
 
 

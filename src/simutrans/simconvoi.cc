@@ -1194,7 +1194,7 @@ void convoi_t::step()
 	}
 
 	if( state==LOADING ) {
-		// handled seperately, since otherwise departues are delayed
+		// handled seperately, since otherwise departures are delayed
 		laden();
 	}
 
@@ -3008,6 +3008,30 @@ station_tile_search_ready: ;
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool wants_more = false;
 
+	// check if there is a convoi infront of us
+	bool all_served_this_stop = true;
+	bool checked[256];
+	memset(checked, 0, 256);
+	for (unsigned i = 0; i < vehicles_loading  &&  all_served_this_stop; i++) {
+		vehicle_t* v = fahr[i];
+
+		// has no freight ...
+		if (fahr[i]->get_cargo_max() == 0) {
+			continue;
+		}
+
+		const uint8 catg = fahr[i]->get_cargo_type()->get_catg_index();
+		if (!checked[catg]) {
+			checked[catg] = true;
+			for (auto h : destination_halts) {
+				if (!halt->get_halt_served_this_step()[catg].is_contained(h)) {
+					all_served_this_stop = false;
+					break;
+				}
+			}
+		}
+	}
+
 	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
 
@@ -3026,8 +3050,8 @@ station_tile_search_ready: ;
 			cargo_type_prev = NULL;
 		}
 
-		if(  max_amount > amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
-			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot)
+		if(  max_amount > amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  &&  !all_served_this_stop  ) {
+			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot) or that stop has been served already
 			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
 				amount += v->load_cargo(halt, destination_halts, max_amount-amount);
@@ -3086,7 +3110,7 @@ station_tile_search_ready: ;
 	}
 
 	// continue loading
-	if (wants_more) {
+	if (wants_more  ||  all_served_this_stop) {
 		//  there might be still cargo available (or cnv has to wait until departure)
 		return;
 	}
