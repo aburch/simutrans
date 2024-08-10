@@ -2957,24 +2957,31 @@ station_tile_search_ready: ;
 	// next stop in schedule will be a depot
 	bool next_depot = false;
 
+	// check if there is a convoi infront of us
+	bool all_served_this_stop = true;
+
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
 	if (!no_load) {
 		const uint8 count = schedule->get_count();
+		bool first_entry = true;
 		for(  uint8 i=1;  i<count;  i++  ) {
 			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
 
 			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, owner);
 			if(plan_halt == halt) {
 				// we will come later here again ...
+				// the following halt is the same => there will never be a halt to serve
+				all_served_this_stop &= !first_entry;
 				break;
 			}
 			else if(  !plan_halt.is_bound()  ) {
 				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
 					if(  gr->get_depot()  ) {
-
-						next_depot = i==1;
-						// do not load for stops after a depot
+						// on our way to depot => there will never be a halt to serve
+						all_served_this_stop &= !first_entry;
+						next_depot = first_entry;
+						// otherwise do not load for stops after a depot
 						break;
 					}
 				}
@@ -2982,10 +2989,15 @@ station_tile_search_ready: ;
 			}
 			for( uint8 const idx : goods_catg_index ) {
 				if(  !halt->get_halt_served_this_step()[idx].is_contained(plan_halt)  ) {
-					// not somebody loaded before us in the queue
-					destination_halts.append(plan_halt);
-					break;
+					// if overcroding mode, do add overcrowded steps
+					if (!welt->get_settings().is_avoid_overcrowding()  ||  !plan_halt->is_overcrowded(idx)) {
+						// not somebody loaded before us in the queue
+						destination_halts.append(plan_halt);
+						all_served_this_stop = false;
+						break;
+					}
 				}
+				first_entry = false;
 			}
 		}
 	}
@@ -3007,32 +3019,6 @@ station_tile_search_ready: ;
 	// cargo type of previous vehicle that could not be filled
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool wants_more = false;
-
-	// check if there is a convoi infront of us
-	bool all_served_this_stop = true;
-	if (!no_load  &&  !next_depot) {
-		bool checked[256];
-		memset(checked, 0, 256);
-		for (unsigned i = 0; i < vehicles_loading && all_served_this_stop; i++) {
-			vehicle_t* v = fahr[i];
-
-			// has no freight ...
-			if (fahr[i]->get_cargo_max() == 0) {
-				continue;
-			}
-
-			const uint8 catg = fahr[i]->get_cargo_type()->get_catg_index();
-			if (!checked[catg]) {
-				checked[catg] = true;
-				for (auto h : destination_halts) {
-					if (!halt->get_halt_served_this_step()[catg].is_contained(h)) {
-						all_served_this_stop = false;
-						break;
-					}
-				}
-			}
-		}
-	}
 
 	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
@@ -3100,6 +3086,9 @@ station_tile_search_ready: ;
 		if(  ticks_until_departure <= 0  ) {
 			// depart if nothing to load (wants_more==false)
 			departure_time_reached = !wants_more;
+			if (departure_time_reached) {
+				all_served_this_stop = false;
+			}
 		}
 		else {
 			// else continue loading (even if full) until departure time reached
@@ -3118,9 +3107,10 @@ station_tile_search_ready: ;
 	}
 
 	// loading is finished => maybe drive on
+	bool max_wait = schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks();
 	if(  loading_level >= loading_limit  ||  no_load
 		||  departure_time_reached
-		||  (schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks()  )  ) {
+		||  max_wait  ) {
 
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty
@@ -3128,7 +3118,7 @@ station_tile_search_ready: ;
 			return;
 		}
 
-		if (all_served_this_stop) {
+		if (all_served_this_stop  &&  !max_wait) {
 			// continue loading
 			return;
 		}
