@@ -1,9 +1,9 @@
-Release of 124.2.2 (r11375 on 9-August-2024):
 	ADD: Support for through depots (dims 2)
 	FIX: proper building of parallel ways also for elevated ways
 	FIX: no public chat after private
 	FIX: halt are properly reconnected
 	FIX: if convoi load in parralele without minimum load, the second convoi could leave empty
+	FIX: again retire convois when empty
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):

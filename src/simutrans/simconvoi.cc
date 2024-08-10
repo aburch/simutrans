@@ -3010,23 +3010,25 @@ station_tile_search_ready: ;
 
 	// check if there is a convoi infront of us
 	bool all_served_this_stop = true;
-	bool checked[256];
-	memset(checked, 0, 256);
-	for (unsigned i = 0; i < vehicles_loading  &&  all_served_this_stop; i++) {
-		vehicle_t* v = fahr[i];
+	if (!no_load  &&  !next_depot) {
+		bool checked[256];
+		memset(checked, 0, 256);
+		for (unsigned i = 0; i < vehicles_loading && all_served_this_stop; i++) {
+			vehicle_t* v = fahr[i];
 
-		// has no freight ...
-		if (fahr[i]->get_cargo_max() == 0) {
-			continue;
-		}
+			// has no freight ...
+			if (fahr[i]->get_cargo_max() == 0) {
+				continue;
+			}
 
-		const uint8 catg = fahr[i]->get_cargo_type()->get_catg_index();
-		if (!checked[catg]) {
-			checked[catg] = true;
-			for (auto h : destination_halts) {
-				if (!halt->get_halt_served_this_step()[catg].is_contained(h)) {
-					all_served_this_stop = false;
-					break;
+			const uint8 catg = fahr[i]->get_cargo_type()->get_catg_index();
+			if (!checked[catg]) {
+				checked[catg] = true;
+				for (auto h : destination_halts) {
+					if (!halt->get_halt_served_this_step()[catg].is_contained(h)) {
+						all_served_this_stop = false;
+						break;
+					}
 				}
 			}
 		}
@@ -3050,7 +3052,7 @@ station_tile_search_ready: ;
 			cargo_type_prev = NULL;
 		}
 
-		if(  max_amount > amount  &&  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  &&  !all_served_this_stop  ) {
+		if(  !all_served_this_stop  &&  max_amount > amount  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
 			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot) or that stop has been served already
 			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
@@ -3110,7 +3112,7 @@ station_tile_search_ready: ;
 	}
 
 	// continue loading
-	if (wants_more  ||  all_served_this_stop) {
+	if (wants_more) {
 		//  there might be still cargo available (or cnv has to wait until departure)
 		return;
 	}
@@ -3123,6 +3125,11 @@ station_tile_search_ready: ;
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty
 			self_destruct();
+			return;
+		}
+
+		if (all_served_this_stop) {
+			// continue loading
 			return;
 		}
 
