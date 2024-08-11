@@ -1895,10 +1895,7 @@ void stadt_t::step_passagiere()
 			if(  route_result==haltestelle_t::ROUTE_OK  ) {
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
-
-				if (wtyp == goods_manager_t::passengers) {
-					start_halt->add_pax_happy(pax.amount);
-				}
+				start_halt->add_pax_happy(pax.amount);
 
 				// people were transported so are logged
 				city_history_year[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_left_to_do;
@@ -1927,16 +1924,12 @@ void stadt_t::step_passagiere()
 				// overcrowded routes cause unhappiness to be logged
 
 				if(  start_halt.is_bound()  ) {
-					if (wtyp == goods_manager_t::passengers) {
-						start_halt->add_pax_unhappy(pax_left_to_do);
-					}
+					start_halt->add_pax_unhappy(pax_left_to_do);
 				}
 				else {
 					// all routes to goal are overcrowded -> register at first stop (closest)
 					for(halthandle_t const s : start_halts) {
-						if (wtyp == goods_manager_t::passengers) {
-							s->add_pax_unhappy(pax_left_to_do);
-						}
+						s->add_pax_unhappy(pax_left_to_do);
 						merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_ORANGE));
 						break;
 					}
@@ -1948,9 +1941,7 @@ void stadt_t::step_passagiere()
 			else if (  route_result == haltestelle_t::NO_ROUTE  ) {
 				// since there is no route from any start halt -> register no route at first halts (closest)
 				for(halthandle_t const s : start_halts) {
-					if (wtyp == goods_manager_t::passengers) {
-						s->add_pax_no_route(pax_left_to_do);
-					}
+					s->add_pax_no_route(pax_left_to_do);
 					break;
 				}
 				merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_DARK_ORANGE));
@@ -1998,9 +1989,7 @@ void stadt_t::step_passagiere()
 						return_halt->starte_mit_route(return_pax);
 
 						// log departed at stop
-						if (wtyp == goods_manager_t::passengers) {
-							return_halt->add_pax_happy(pax_return);
-						}
+						return_halt->add_pax_happy(pax_return);
 
 						// log departed at destination city
 						dest_city->city_history_year[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_return;
@@ -2008,10 +1997,9 @@ void stadt_t::step_passagiere()
 					}
 					else {
 						// stop is crowded
-						if (wtyp ==goods_manager_t::passengers) {
-							return_halt->add_pax_unhappy(pax_return);
-						}
+						return_halt->add_pax_unhappy(pax_return);
 					}
+
 				}
 				else if(  route_result == haltestelle_t::ROUTE_WALK  ) {
 					// walking can produce return flow as a result of commuters to industry, monuments or stupidly big stops
@@ -2032,9 +2020,7 @@ void stadt_t::step_passagiere()
 					// overcrowded routes cause unhappiness to be logged
 
 					if (pax.get_target_halt().is_bound()) {
-						if (wtyp == goods_manager_t::passengers) {
-							pax.get_target_halt()->add_pax_unhappy(pax_return);
-						}
+						pax.get_target_halt()->add_pax_unhappy(pax_return);
 					}
 					else {
 						// the unhappy passengers will be added to the first stops near destination (might be none)
@@ -2043,9 +2029,7 @@ void stadt_t::step_passagiere()
 						for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
 							halthandle_t halt = dest_halt_list[h];
 							if (halt->is_enabled(wtyp)) {
-								if (wtyp == goods_manager_t::passengers) {
-									halt->add_pax_unhappy(pax_return);
-								}
+								halt->add_pax_unhappy(pax_return);
 								break;
 							}
 						}
@@ -2058,9 +2042,7 @@ void stadt_t::step_passagiere()
 					for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
 						halthandle_t halt = dest_halt_list[h];
 						if (halt->is_enabled(wtyp)) {
-							if (wtyp == goods_manager_t::passengers) {
-								halt->add_pax_no_route(pax_return);
-							}
+							halt->add_pax_no_route(pax_return);
 							break;
 						}
 					}
@@ -2077,10 +2059,7 @@ void stadt_t::step_passagiere()
 		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {
 			halthandle_t halt = plan->get_haltlist()[h];
 			if(  halt->is_enabled(wtyp)  ) {
-				if (wtyp == goods_manager_t::passengers) {
-					halt->add_pax_unhappy(num_pax);
-				}
-
+				halt->add_pax_unhappy(num_pax);
 				is_there_any_stop = true; // only overcrowded
 				break;
 			}
@@ -2131,15 +2110,13 @@ void stadt_t::step_passagiere()
 			for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
 				halthandle_t halt = dest_halt_list[h];
 				if (  halt->is_enabled(wtyp)  ) {
-
-					if (wtyp == goods_manager_t::passengers) {
-						// "just" overcrowded or no stops at all?
-						if(  is_there_any_stop  ) {
-							halt->add_pax_unhappy(pax_return);
-						}
-						else {
-							halt->add_pax_no_route(pax_return);
-						}
+					if(  is_there_any_stop  ) {
+						// "just" overcrowded
+						halt->add_pax_unhappy(pax_return);
+					}
+					else {
+						// no stops at all
+						halt->add_pax_no_route(pax_return);
 					}
 					break;
 				}

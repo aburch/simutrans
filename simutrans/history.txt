@@ -4,7 +4,6 @@
 	FIX: halt are properly reconnected
 	FIX: if convoi load in parralele without minimum load, the second convoi could leave empty
 	FIX: again retire convois when empty
-	FIX: Mail counted as happy/unhappy/no route passengers in some cases
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):
