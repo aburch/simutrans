@@ -3118,7 +3118,7 @@ station_tile_search_ready: ;
 			return;
 		}
 
-		if (all_served_this_stop  &&  !max_wait) {
+		if(all_served_this_stop  &&  !max_wait  &&  !destination_halts.empty()) {
 			// continue loading
 			return;
 		}
