@@ -937,8 +937,8 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 	if(  last_loading_step != welt->get_steps()  ) {
 		last_loading_step = welt->get_steps();
 		// now iterate over all convois
-		for(  vector_tpl<convoihandle_t>::iterator i = loading_here.begin(); i != loading_here.end();  ) {
-			convoihandle_t const c = *i;
+		for (uint32 i = 0;  i<loading_here.get_count();  ) {
+			convoihandle_t const c = loading_here[i];
 			if (c.is_bound() && c->get_state() == convoi_t::LOADING) {
 				// now we load into convoi
 				c->hat_gehalten(self);
@@ -947,7 +947,7 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 				++i;
 			}
 			else {
-				i = loading_here.erase( i );
+				loading_here.remove_at(i);
 			}
 		}
 	}
