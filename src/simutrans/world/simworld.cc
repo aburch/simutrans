@@ -3252,7 +3252,7 @@ void karte_t::step()
 	for (size_t i = convoi_array.get_count(); i-- != 0;) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
-		if((i&7)==0) {
+		if((i&15)==0) {
 			INT_CHECK("simworld 1947");
 		}
 	}

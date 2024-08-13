@@ -2959,6 +2959,8 @@ station_tile_search_ready: ;
 
 	// check if there is a convoi infront of us
 	bool all_served_this_stop = true;
+	// drive on, if all stops are overcrowded to reduce overcrowding
+	bool all_overcrowded = true;
 
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
@@ -2996,6 +2998,9 @@ station_tile_search_ready: ;
 						all_served_this_stop = false;
 						break;
 					}
+				}
+				else if (!plan_halt->is_overcrowded(idx)) {
+					all_overcrowded = false;
 				}
 				first_entry = false;
 			}
@@ -3118,7 +3123,7 @@ station_tile_search_ready: ;
 			return;
 		}
 
-		if(all_served_this_stop  &&  !max_wait  &&  !destination_halts.empty()) {
+		if(all_served_this_stop  &&  !max_wait  &&  !(destination_halts.empty()  &&  all_overcrowded)) {
 			// continue loading
 			return;
 		}
