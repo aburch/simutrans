@@ -405,6 +405,11 @@ name=Build drain
 -
 obj=program_text
 name=build HQ
+note=finance window
+-
+obj=program_text
+name=show HQ
+note=finance window
 -
 obj=program_text
 name=Build land consumer
@@ -2015,6 +2020,7 @@ name=Update Line
 -
 obj=program_text
 name=upgrade HQ
+note=finance window
 -
 obj=program_text
 name=Use timeline start year
