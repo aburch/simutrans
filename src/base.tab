@@ -408,10 +408,6 @@ name=build HQ
 note=finance window
 -
 obj=program_text
-name=show HQ
-note=finance window
--
-obj=program_text
 name=Build land consumer
 -
 obj=program_text
@@ -1754,6 +1750,10 @@ obj=program_text
 name=show grid
 -
 obj=program_text
+name=show HQ
+note=finance window
+-
+obj=program_text
 name=Show industry
 -
 obj=program_text
@@ -2020,7 +2020,7 @@ name=Update Line
 -
 obj=program_text
 name=upgrade HQ
-note=finance window
+note=HQ info window
 -
 obj=program_text
 name=Use timeline start year
