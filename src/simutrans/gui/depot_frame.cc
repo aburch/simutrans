@@ -1362,7 +1362,9 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 		update_data();
 		cnv = depot->get_convoi(icnv);
 	}
-	update_vehicle_info_text(pos);
+	if (win_get_top() == this) {
+		update_vehicle_info_text(pos);
+	}
 
 	gui_frame_t::draw(pos, size);
 }

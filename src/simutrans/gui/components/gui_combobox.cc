@@ -185,7 +185,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
-				if(  IS_LEFTRELEASE(ev)  ) {
+				if(  IS_LEFTRELEASE(ev)  ||  IS_LEFTCLICK(ev)) {
 					close_box();
 					return false;
 				}
