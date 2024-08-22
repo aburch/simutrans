@@ -528,7 +528,7 @@ void player_t::ai_bankrupt()
 			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);
 				// remove tunnel and bridges first
-				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_owner()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
+				if(  gr->obj_count()>0  &&  gr->obj_bei(0)->get_owner()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
 					koord3d pos = gr->get_pos();
 
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
@@ -545,7 +545,7 @@ void player_t::ai_bankrupt()
 						continue;
 					}
 				}
-				for (uint8 i = gr->get_top(); i-- != 0;) {
+				for (uint8 i = gr->obj_count(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
 						sint32 costs = 0;
@@ -624,7 +624,7 @@ void player_t::ai_bankrupt()
 					}
 				}
 				// remove empty tiles (elevated ways)
-				if (!gr->ist_karten_boden()  &&  gr->get_top()==0) {
+				if (!gr->ist_karten_boden()  &&  gr->obj_count()==0) {
 					plan->boden_entfernen(gr);
 				}
 			}
@@ -851,7 +851,7 @@ sint64 player_t::undo()
 		}
 		// we allow ways, unimportant stuff but no vehicles, signals, wayobjs etc
 		if(gr->obj_count()>0) {
-			for( unsigned i=0;  i<gr->get_top();  i++  ) {
+			for( unsigned i=0;  i<gr->obj_count();  i++  ) {
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
 					case obj_t::zeiger:

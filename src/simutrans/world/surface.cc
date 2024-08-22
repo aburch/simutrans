@@ -277,7 +277,7 @@ bool surface_t::is_plan_height_changeable(sint16 x, sint16 y) const
 
 		ok = (gr->ist_natur() || gr->is_water())  &&  !gr->hat_wege()  &&  !gr->is_halt();
 
-		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
+		for(  int i=0; ok  &&  i<gr->obj_count(); i++  ) {
 			const obj_t *obj = gr->obj_bei(i);
 			assert(obj != NULL);
 			ok =

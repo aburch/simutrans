@@ -590,7 +590,7 @@ public:
 	 */
 	void display_overlay(sint16 xpos, sint16 ypos);
 
-	inline obj_t *first_obj() const { return objlist.bei(offsets[flags/has_way1]); }
+	inline obj_t *first_no_way_obj() const { return objlist.bei(offsets[flags/has_way1]); }
 	obj_t *suche_obj(obj_t::typ typ) const { return objlist.suche(typ,0); }
 	obj_t *obj_remove_top() { return objlist.remove_last(); }
 
@@ -600,9 +600,8 @@ public:
 	bool obj_remove(const obj_t* obj) { return objlist.remove(obj); }
 	bool obj_loesche_alle(player_t *player) { return objlist.loesche_alle(player,offsets[flags/has_way1]); }
 	bool obj_ist_da(const obj_t* obj) const { return objlist.ist_da(obj); }
-	obj_t * obj_bei(uint8 n) const { return objlist.bei(n); }
-	uint8  obj_count() const { return objlist.get_top()-offsets[flags/has_way1]; }
-	uint8 get_top() const {return objlist.get_top();}
+	obj_t *obj_bei(uint8 n) const { return objlist.bei(n); }
+	uint8 obj_count() const { return objlist.get_top(); }
 
 	// moves all object from the old to the new grund_t
 	void take_obj_from( grund_t *gr);

@@ -463,7 +463,7 @@ void private_car_t::rdwr(loadsave_t *file)
 
 bool private_car_t::can_enter_tile(grund_t *gr)
 {
-	if(gr->get_top()>200) {
+	if(gr->obj_count()>200) {
 		// already too many things here
 		return false;
 	}
@@ -929,7 +929,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 				return false;
 			}
 			// Check for other vehicles on the next tile
-			const uint8 top = gr->get_top();
+			const uint8 top = gr->obj_count();
 			for(  uint8 j=1;  j<top;  j++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 					// check for other traffic on the road
@@ -1054,7 +1054,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		}
 
 		// Check for other vehicles on the next tile
-		const uint8 top = gr->get_top();
+		const uint8 top = gr->obj_count();
 		for(  uint8 j=1;  j<top;  j++  ) {
 			if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 				// check for other traffic on the road
@@ -1125,7 +1125,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
 		ribi_t::ribi their_direction = ribi_t::backward(calc_direction( pos_prev_prev, to->get_pos()));
-		const uint8 top = gr->get_top();
+		const uint8 top = gr->obj_count();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
 			if(  v  &&  v->get_direction() == their_direction  ) {

@@ -115,7 +115,7 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 	if(leading) {
 
 		assert(gr);
-		if(  gr->get_top()>251  ) {
+		if(  gr->obj_count()>251  ) {
 			// too many ships already here ..
 			return false;
 		}

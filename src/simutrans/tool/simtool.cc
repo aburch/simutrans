@@ -393,8 +393,8 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 					break;
 
 				case 2: // convois
-					for (uint8 n = gr->get_top(); n-- != 0;) {
-						obj_t* obj = gr->obj_bei(reverse ? gr->get_top() - 1 - n : n);
+					for (uint8 n = gr->obj_count(); n-- != 0;) {
+						obj_t* obj = gr->obj_bei(reverse ? gr->obj_count() - 1 - n : n);
 
 						if (vehicle_t* veh = dynamic_cast<vehicle_t*>(obj)) {
 							convois.append_unique(veh->get_convoi()->self);
@@ -412,8 +412,8 @@ const char *tool_query_t::work( player_t *, koord3d pos )
 					break;
 				
 				case 3: // objects
-					for (uint8 n = gr->get_top(); n-- != 0;) {
-						obj_t* obj = gr->obj_bei(reverse ? gr->get_top() - 1 - n : n);
+					for (uint8 n = gr->obj_count(); n-- != 0;) {
+						obj_t* obj = gr->obj_bei(reverse ? gr->obj_count() - 1 - n : n);
 						if (dynamic_cast<vehicle_t*>(obj)) {
 							// already openend them
 							continue;
@@ -480,7 +480,7 @@ bool tool_remover_t::tool_remover_intern(player_t *player, koord3d pos, sint8 ty
 DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// check if there is something to remove from here ...
 	grund_t *gr = welt->lookup(pos);
-	if (!gr  ||  gr->get_top()==0) {
+	if (!gr  ||  gr->obj_count()==0) {
 		msg = "";
 		return false;
 	}
@@ -493,7 +493,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 				delete l;
 				return true;
 			}
-			else if(  gr->get_top()==1  ||  type == obj_t::label  ) {
+			else if(  gr->obj_count()==1  ||  type == obj_t::label  ) {
 				// only complain if this is the last object on this tile ...
 				return false;
 			}
@@ -549,7 +549,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 			lt->cleanup(player);
 			delete lt;
 			// now everything gone?
-			if(  gr->get_top() == 1  ) {
+			if(  gr->obj_count() == 1  ) {
 				// delete tunnel too
 				tunnel_t *t = gr->find<tunnel_t>();
 				t->cleanup(player);
@@ -713,28 +713,21 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 
 	// do not delete crossing, labels, pointer and flying airplanes, so we store them
 	minivec_tpl<obj_t*>stuff_to_keep;
-	for (int i = 0; i < gr->obj_count(); ) {
-		obj_t *obj = gr->obj_bei(i);
-		switch (gr->obj_bei(i)->get_typ()) {
-			case obj_t::crossing:
-			case obj_t::zeiger:
-			case obj_t::label:
-				stuff_to_keep.append(obj);
-				gr->obj_remove(obj);
-				break;
-			case obj_t::air_vehicle:
-				if (obj->get_removal_error(player)) {
-					// on the ground => do not touch
-					i++;
-				}
-				else {
-					stuff_to_keep.append(obj);
-					gr->obj_remove(obj);
-				}
-				break;
-			default:
-				i++;
-		}
+	if (obj_t* obj = gr->find<crossing_t>()) {
+		stuff_to_keep.append(obj);
+		gr->obj_remove(obj);
+	}
+	if (obj_t* obj = gr->find<zeiger_t>()) {
+		stuff_to_keep.append(obj);
+		gr->obj_remove(obj);
+	}
+	if (obj_t* obj = gr->find<label_t>()) {
+		stuff_to_keep.append(obj);
+		gr->obj_remove(obj);
+	}
+	while(obj_t* obj = gr->find<air_vehicle_t>()) {
+		stuff_to_keep.append(obj);
+		gr->obj_remove(obj);
 	}
 
 	// remove all other stuff (clouds, ...)
@@ -817,7 +810,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 	}
 
 	// remove empty tile
-	if(  !gr->ist_karten_boden()  &&  gr->get_top()==0  ) {
+	if(  !gr->ist_karten_boden()  &&  gr->obj_count()==0  ) {
 		// unmark kartenboden (is marked during underground mode deletion)
 		welt->lookup_kartenboden(k)->clear_flag(grund_t::marked);
 		// remove upper or lower ground
@@ -1430,13 +1423,13 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				gr1->set_flag(grund_t::dirty);
 				// update new positions if changed
 				if(  new_pos!=pos  ) {
-					for(  int i=0;  i<gr1->get_top();  i++  ) {
+					for(  int i=0;  i<gr1->obj_count();  i++  ) {
 						gr1->obj_bei(i)->set_pos( new_pos );
 					}
 				}
 				// correct tree offsets if slope has changed
 				if(  slope_changed  ) {
-					for(  int i=0;  i<gr1->get_top();  i++  ) {
+					for(  int i=0;  i<gr1->obj_count();  i++  ) {
 						baum_t *tree = obj_cast<baum_t>(gr1->obj_bei(i));
 						if (tree) {
 							tree->recalc_off();
@@ -1558,7 +1551,7 @@ const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 	if(gr  &&  gr->hat_wege()) {
 
 		// first start route search of the convoi here
-		for( uint8 i = 0; i < gr->get_top(); i++ ) {
+		for( uint8 i = 0; i < gr->obj_count(); i++ ) {
 			uint8 typ = gr->obj_bei(i)->get_typ();
 			if( typ >= obj_t::road_vehicle  &&  typ <= obj_t::air_vehicle ) {
 				vehicle_t *veh = dynamic_cast<vehicle_t *>(gr->obj_bei( i ));
@@ -1758,7 +1751,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 		return "No suitable townhall available for this climate!";
 	}
 
-	gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
+	gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_no_way_obj());
 	if (gb && gb->is_townhall()) {
 		dbg->warning("tool_add_city()", "Already a city here");
 		return NOTICE_TILE_FULL;
@@ -2902,7 +2895,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	}
 	// eventually we have to remove trees on start tile
 	if (desc->get_waytype() != powerline_wt) {
-		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+		for(  uint8 i=0;  i<gr->obj_count();  i++  ) {
 			obj_t *obj = gr->obj_bei(i);
 			switch(obj->get_typ()) {
 				case obj_t::baum:
@@ -2968,7 +2961,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	}
 	// eventually we have to remove trees on end tile
 	if (desc->get_waytype() != powerline_wt) {
-		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+		for(  uint8 i=0;  i<gr->obj_count();  i++  ) {
 			obj_t *obj = gr->obj_bei(i);
 			switch(obj->get_typ()) {
 				case obj_t::baum:
@@ -3470,7 +3463,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 				// check all if we want to delete the first on a no-ground tile
 				bool check_all = !gr->ist_karten_boden()  &&  gr->has_two_ways()  &&  gr->get_weg_nr(0)->get_waytype()==wt;
 				// we have to do a fine check
-				for( uint i=0;  i<gr->get_top()  &&  can_delete;  i++  ) {
+				for( uint i=0;  i<gr->obj_count()  &&  can_delete;  i++  ) {
 					obj_t *obj = gr->obj_bei(i);
 					const uint8 type = obj->get_typ();
 					// ignore pillars, powerlines
@@ -3830,7 +3823,7 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 		}
 		else {
 			grund_t *gr = welt->lookup(r[i]);
-			for(int n=0;  n<gr->get_top();  n++  ) {
+			for(int n=0;  n<gr->obj_count();  n++  ) {
 				obj_t *obj = gr->obj_bei(n);
 				if(  obj  &&  obj->get_typ()==obj_t::wayobj  ) {
 					wayobj_t *wo = static_cast<wayobj_t *>(obj);
@@ -6767,7 +6760,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 			}
 
 			// make way object public if any suitable
-			for (uint8 i = 1; i < gr->get_top(); i++) {
+			for (uint8 i = 1; i < gr->obj_count(); i++) {
 				if (wayobj_t* const wo = obj_cast<wayobj_t>(gr->obj_bei(i))) {
 					player_t* woplayer = wo->get_owner();
 					if (player == woplayer) {

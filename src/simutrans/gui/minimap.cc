@@ -902,7 +902,7 @@ bool minimap_t::calc_map_pixel(const grund_t *gr)
 			break;
 
 		case MAP_FOREST:
-			if (gr->get_top() > 1 && gr->obj_bei(gr->get_top() - 1)->get_typ() == obj_t::baum) {
+			if (gr->obj_count() > 1 && gr->obj_bei(gr->obj_count() - 1)->get_typ() == obj_t::baum) {
 				set_map_color(k, color_idx_to_rgb(COL_GREEN));
 				return true;
 			}

@@ -658,7 +658,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
 				// toll for using electricity
 				grund_t *gr = welt->lookup(weg->get_pos());
-				for(  int i=1;  i<gr->get_top();  i++  ) {
+				for(  int i=1;  i<gr->obj_count();  i++  ) {
 					obj_t *d=gr->obj_bei(i);
 					if(  wayobj_t const* const wo = obj_cast<wayobj_t>(d)  )  {
 						if(  wo->get_waytype()==weg->get_waytype()  ) {
@@ -2391,7 +2391,7 @@ void convoi_t::rdwr(loadsave_t *file)
 						gr->find<crossing_t>()->add_to_crossing(v);
 					}
 				}
-				if(  gr->get_top()>253  ) {
+				if(  gr->obj_count()>253  ) {
 					dbg->warning( "convoi_t::rdwr()", "cannot put vehicle on ground at (%s)", gr->get_pos().get_str() );
 				}
 				gr->obj_add(v);
@@ -3763,7 +3763,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				return false;
 			}
 			// Check for other vehicles on the next tile
-			const uint8 top = gr->get_top();
+			const uint8 top = gr->obj_count();
 			for(  uint8 j=1;  j<top;  j++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 					// check for other traffic on the road
@@ -3847,7 +3847,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		time_overtaking += d;
 
 		// Check for other vehicles
-		const uint8 top = gr->get_top();
+		const uint8 top = gr->obj_count();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			if (vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))) {
 				// check for other traffic on the road
@@ -3911,7 +3911,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 		// Check for other vehicles in facing direction
 		ribi_t::ribi their_direction = ribi_t::backward( fahr[0]->calc_direction(pos_prev, pos_next) );
-		const uint8 top = gr->get_top();
+		const uint8 top = gr->obj_count();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
 			if(  v  &&  v->get_direction() == their_direction  &&  v->get_overtaker()  ) {

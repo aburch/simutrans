@@ -2493,7 +2493,7 @@ void haltestelle_t::change_owner( player_t *player )
 		}
 
 		// make way object public if any suitable
-		for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
+		for(  uint8 i = 1;  i < gr->obj_count();  i++  ) {
 			if(  wayobj_t *const wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
 				player_t *woplayer = wo->get_owner();
 				if(  owner==woplayer  ) {

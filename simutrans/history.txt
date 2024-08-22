@@ -4,6 +4,7 @@
 	FIX: halt are properly reconnected
 	FIX: if convoi load in parralele without minimum load, the second convoi could leave empty
 	FIX: again retire convois when empty
+	FIX: obj_count() did not count ways and was a relict that may have caused rare strange errors in other places
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):

@@ -54,7 +54,7 @@ uint8 tree_builder_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_co
 {
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
-		if(  has_trees_for_climate( welt->get_climate(pos) )  &&  gr->ist_natur()  &&  gr->get_top() < maximum_count  ) {
+		if(  has_trees_for_climate( welt->get_climate(pos) )  &&  gr->ist_natur()  &&  gr->obj_count() < maximum_count  ) {
 			obj_t *obj = gr->obj_bei(0);
 			if(obj) {
 				switch(obj->get_typ()) {
@@ -77,7 +77,7 @@ uint8 tree_builder_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_co
 				}
 			}
 
-			const uint8 count_planted = min( maximum_count - gr->get_top(), count);
+			const uint8 count_planted = min( maximum_count - gr->obj_count(), count);
 			for (uint8 i=0; i<count_planted; i++) {
 				gr->obj_add( new baum_t(gr->get_pos()) ); //plants the tree(s)
 			}
@@ -99,8 +99,8 @@ bool tree_builder_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc
 
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
-		if(  gr->ist_natur()  &&  gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
-			if(  gr->get_top() > 0  ) {
+		if(  gr->ist_natur()  &&  gr->obj_count() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
+			if(  gr->obj_count() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {
 					case obj_t::cloud:
 					case obj_t::air_vehicle:
@@ -201,7 +201,7 @@ void tree_builder_t::fill_trees(int dichte, sint16 xtop, sint16 ytop, sint16 xbo
 	for(  pos.y=ytop;  pos.y<ybottom;  pos.y++  ) {
 		for(  pos.x=xtop;  pos.x<xbottom;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
-			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
+			if(gr->obj_count() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
 				const uint16 cl = 1 << welt->get_climate(pos);
 				const settings_t &s = welt->get_settings();

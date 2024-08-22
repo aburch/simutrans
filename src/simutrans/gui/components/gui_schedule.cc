@@ -227,7 +227,7 @@ public:
 		marking &= env_t::visualize_schedule;
 		for(schedule_entry_t const& i : schedule->entries) {
 			if (grund_t* const gr = welt->lookup(i.pos)) {
-				for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
+				for(  uint idx=0;  idx<gr->obj_count();  idx++  ) {
 					obj_t *obj = gr->obj_bei(idx);
 					if(  marking  ) {
 						if(  !obj->is_moving()  ) {

@@ -63,7 +63,7 @@ void crossing_logic_t::recalc_state()
 		for(crossing_t* const i : crossings) {
 			// add vehicles already there
 			if (grund_t* const gr = welt->lookup(i->get_pos())) {
-				for( uint8 i=3;  i<gr->get_top();  i++  ) {
+				for( uint8 i=3;  i<gr->obj_count();  i++  ) {
 					if(  vehicle_base_t const* const v = obj_cast<vehicle_base_t>(gr->obj_bei(i))  ) {
 						add_to_crossing( v );
 					}

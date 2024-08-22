@@ -30,7 +30,7 @@ using namespace script_api;
 SQInteger get_next_object(HSQUIRRELVM vm)
 {
 	grund_t *gr = param<grund_t*>::get(vm, 1);
-	return generic_get_next(vm, gr ? gr->get_top() : 0);
+	return generic_get_next(vm, gr ? gr->obj_count() : 0);
 }
 
 
@@ -40,7 +40,7 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	uint8 index = param<uint8>::get(vm, 2);
 
 	obj_t *obj = NULL;
-	if (gr  &&  index < gr->get_top()) {
+	if (gr  &&  index < gr->obj_count()) {
 		obj = gr->obj_bei(index);
 	}
 	return param<obj_t*>::push(vm, obj);
@@ -49,7 +49,7 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 SQInteger get_object_count(HSQUIRRELVM vm)
 {
 	grund_t *gr = param<grund_t*>::get(vm, 1);
-	return param<uint8>::push(vm, gr ? gr->get_top() : 0);
+	return param<uint8>::push(vm, gr ? gr->obj_count() : 0);
 }
 
 call_tool_work tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
@@ -123,7 +123,7 @@ vector_tpl<convoihandle_t> const get_convoy_list(grund_t* gr)
 	static vector_tpl<convoihandle_t> list;
 	list.clear();
 
-	for( uint8 n = 0; n<gr->get_top(); n++) {
+	for( uint8 n = 0; n<gr->obj_count(); n++) {
 		obj_t* obj = gr->obj_bei( n );
 		if( vehicle_t* veh = dynamic_cast<vehicle_t*>(obj) ) {
 			convoihandle_t cnv;

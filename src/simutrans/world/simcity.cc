@@ -1311,7 +1311,7 @@ void stadt_t::finish_rd()
 
 	if(townhall_road==koord::invalid) {
 		// guess road tile based on current orientation
-		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
+		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_no_way_obj());
 		if(  gb  &&  gb->is_townhall()  ) {
 			koord k(gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout()));
 			switch (gb->get_tile()->get_layout()) {
@@ -2430,7 +2430,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 	const building_desc_t* desc = hausbauer_t::get_special( has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos) );
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
-		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
+		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_no_way_obj());
 		bool neugruendung = !has_townhall ||  !gb || !gb->is_townhall();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
@@ -2457,7 +2457,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
 					// is there a part of our townhall in this corner
 					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
-					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_obj()) : 0;
+					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_no_way_obj()) : 0;
 					if (gb0  &&  gb0->is_townhall()  &&  gb0->get_tile()->get_desc()==desc_old  &&  gb0->get_stadt()==this) {
 						old_layout = test_layout;
 						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
@@ -2609,7 +2609,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		// sets has_townhall to true
-		DBG_MESSAGE("stadt_t::check_bau_townhall()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
+		DBG_MESSAGE("stadt_t::check_bau_townhall()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_no_way_obj());
 
 		// if not during initialization
 		if (!new_town) {
@@ -2690,7 +2690,7 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 			building_desc_t::btype t = building_desc_t::unknown;
 			if (const grund_t* gr = welt->lookup_kartenboden(k)) {
-				if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
+				if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_no_way_obj())) {
 					t = gb->get_tile()->get_desc()->get_type();
 				}
 			}
@@ -3059,7 +3059,7 @@ void stadt_t::build_city_building(const koord k)
 		grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
 		if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 			// We have a building as a neighbor...
-			if(  gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
+			if(  gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_no_way_obj())  ) {
 				// We really have a building as a neighbor...
 				const building_desc_t* neighbor_building = gb->get_tile()->get_desc();
 				neighbor_building_clusters |= neighbor_building->get_clusters();
@@ -3085,7 +3085,7 @@ void stadt_t::build_city_building(const koord k)
 					grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
 					if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 						// We have a building as a neighbor...
-						if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
+						if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_no_way_obj())  ) {
 							// We really have a building as a neighbor...
 							const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
 							if(  testgb->get_pos().z == zpos  &&  neighbor_building->is_city_building()  &&  neighbor_building->get_x()*neighbor_building->get_y()==1  ) {
@@ -3217,7 +3217,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			grund_t* gr = welt->lookup_kartenboden(k + area3x3[area_level]);
 			if(  gr  &&  gr->get_typ() == grund_t::fundament  &&  gr->obj_bei(0)->get_typ() == obj_t::gebaeude  ) {
 				// We have a building as a neighbor...
-				if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_obj())  ) {
+				if(  gebaeude_t const* const testgb = obj_cast<gebaeude_t>(gr->first_no_way_obj())  ) {
 					// We really have a building here
 					const building_desc_t* neighbor_building = testgb->get_tile()->get_desc();
 					if(  neighbor_building->is_city_building()  ) {
@@ -3628,7 +3628,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					bd->set_grund_hang( slope_t::flat );
 					bd->set_hoehe( bd->get_hoehe() + h_diff );
 					// transfer objects to on new grund
-					for(  int i=0;  i<bd->get_top();  i++  ) {
+					for(  int i=0;  i<bd->obj_count();  i++  ) {
 						bd->obj_bei(i)->set_pos( bd->get_pos() );
 					}
 
@@ -3642,7 +3642,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 						bd->set_grund_hang( old_slope );
 						bd->set_hoehe( bd->get_hoehe() - h_diff );
 						// transfer objects to on new grund
-						for(  int i=0;  i<bd->get_top();  i++  ) {
+						for(  int i=0;  i<bd->obj_count();  i++  ) {
 							bd->obj_bei(i)->set_pos( bd->get_pos() );
 						}
 					}

@@ -655,7 +655,7 @@ gebaeude_t* gebaeude_t::get_first_tile()
 	for( k.y = 0; k.y < size.y; k.y++ ) {
 		for( k.x = 0; k.x < size.x; k.x++ ) {
 			if( grund_t* gr = welt->lookup( pos0+k ) ) {
-				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_no_way_obj()) ) {
 					if( is_same_building( add_gb ) ) {
 						return add_gb;
 					}

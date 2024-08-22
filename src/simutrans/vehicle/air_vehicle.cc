@@ -548,7 +548,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	restart_speed = -1;
 
 	assert(gr);
-	if(gr->get_top()>250) {
+	if(gr->obj_count()>250) {
 		// too many objects here
 		return false;
 	}
@@ -559,7 +559,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index < takeoff  &&  route_index > 1  &&  takeoff<cnv->get_route()->get_count()-1  ) {
 		// check, if tile occupied by a plane on ground
 		if(  route_index > 1  ) {
-			for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
+			for(  uint8 i = 1;  i<gr->obj_count();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
 				// we drive through non leading vehicels for now ...
 				if(  obj->get_typ() == obj_t::air_vehicle  &&  ((air_vehicle_t*)obj)->get_convoi()!=cnv  ) {

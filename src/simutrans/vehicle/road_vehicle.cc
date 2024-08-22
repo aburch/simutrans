@@ -323,7 +323,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		assert(gr);
 
 		const strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
-		if(  !str  ||  gr->get_top() > 250  ) {
+		if(  !str  ||  gr->obj_count() > 250  ) {
 			// too many cars here or no street
 			return false;
 		}
@@ -401,7 +401,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 
 				str = (strasse_t *)gr->get_weg(road_wt);
-				if(  !str  ||  gr->get_top() > 250  ) {
+				if(  !str  ||  gr->obj_count() > 250  ) {
 					// too many cars here or no street
 					if(  !second_check_count  &&  !str) {
 						cnv->suche_neue_route();

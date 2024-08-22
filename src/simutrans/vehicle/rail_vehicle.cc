@@ -600,7 +600,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	assert(gr);
-	if(gr->get_top()>250) {
+	if(gr->obj_count()>250) {
 		// too many objects here
 		return false;
 	}

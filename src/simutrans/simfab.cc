@@ -3273,7 +3273,7 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	for( k.y = 0; k.y < size.y; k.y++ ) {
 		for( k.x = 0; k.x < size.x; k.x++ ) {
 			if( grund_t* gr = welt->lookup( pos0+k ) ) {
-				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_no_way_obj()) ) {
 					if( add_gb->get_fabrik()==this ) {
 						tile_list.append( (pos0+k).get_2d() );
 					}

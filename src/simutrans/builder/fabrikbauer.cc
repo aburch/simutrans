@@ -155,7 +155,7 @@ public:
 					}
 					// check for trees unless the map was generated without trees
 					if(  site==factory_desc_t::forest  &&  welt->get_settings().get_tree_distribution()!=settings_t::TREE_DIST_NONE  &&  condmet < mincond  ) {
-						for(uint8 i=0; i< gr->get_top(); i++) {
+						for(uint8 i=0; i< gr->obj_count(); i++) {
 							if (gr->obj_bei(i)->get_typ() == obj_t::baum) {
 								condmet++;
 							}

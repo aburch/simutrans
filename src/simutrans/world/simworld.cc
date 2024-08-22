@@ -919,7 +919,7 @@ void karte_t::distribute_cities(int new_city_count, sint32 new_mean_citizen_coun
 				}
 				else {
 					// look for a road near the townhall
-					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(cities[i]->get_pos())->first_obj());
+					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(cities[i]->get_pos())->first_no_way_obj());
 					bool ok = false;
 					if(  gb  &&  gb->is_townhall()  ) {
 						koord k_check = cities[i]->get_pos() + koord(-1,-1);
@@ -1172,7 +1172,7 @@ DBG_DEBUG("karte_t::distribute_movingobj()","distributing movingobjs");
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_size().x-1; k.x++) {
 				grund_t *gr = lookup_kartenboden_nocheck(k);
 				// flat ground or open water
-				if(  gr->get_top()==0  &&  (  (gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat)  ||  (has_water  &&  gr->is_water())  )  ) {
+				if(  gr->obj_count()==0  &&  (  (gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat)  ||  (has_water  &&  gr->is_water())  )  ) {
 					queried --;
 					if(  queried<0  ) {
 						const groundobj_desc_t *desc = movingobj_t::random_movingobj_for_climate( get_climate(k) );
@@ -1617,7 +1617,7 @@ void karte_t::distribute_trees_region( sint16 xtop, sint16 ytop, sint16 xbottom,
 			for(  pos.y=ytop;  pos.y<ybottom;  pos.y++  ) {
 				for(  pos.x=xtop;  pos.x<xbottom;  pos.x++  ) {
 					grund_t *gr = lookup_kartenboden(pos);
-					if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
+					if(gr->obj_count() == 0  &&  gr->get_typ() == grund_t::boden)  {
 						if(humidity_map.at(pos.x,pos.y)>75) {
 							const uint32 tree_probability = (humidity_map.at(pos.x,pos.y) - 75)/5 + 38;
 							uint8 number_to_plant = 0;
@@ -3995,7 +3995,7 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 				else if(  max_h < gr->get_hoehe()  ) {
 					max_h = gr->get_hoehe();
 				}
-				for(  int n = 0;  n < gr->get_top();  n++  ) {
+				for(  int n = 0;  n < gr->obj_count();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(obj) {
 						obj->finish_rd();
@@ -4580,7 +4580,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 						gr->set_hoehe( max_hgt_nocheck(k) );
 						gr->set_grund_hang( slope_t::flat );
 						// transfer object to on new grund
-						for(  int i=0;  i<gr->get_top();  i++  ) {
+						for(  int i=0;  i<gr->obj_count();  i++  ) {
 							gr->obj_bei(i)->set_pos( gr->get_pos() );
 						}
 					}
@@ -6032,7 +6032,7 @@ sint16 karte_t::get_sound_id(grund_t *gr)
 			}
 		}
 		// try forest
-		if (  sound_desc_t::forest_sound!=NO_SOUND  &&  gr->get_top() > 0  &&  gr->obj_bei(0)->get_typ() == obj_t::baum  ) {
+		if (  sound_desc_t::forest_sound!=NO_SOUND  &&  gr->obj_count() > 0  &&  gr->obj_bei(0)->get_typ() == obj_t::baum  ) {
 			return sound_desc_t::forest_sound;
 		}
 		if(  gr->get_pos().z >= get_snowline()  ) {

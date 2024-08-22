@@ -470,7 +470,7 @@ bool way_builder_t::check_owner( const player_t *player1, const player_t *player
 /// direction results from layout
 bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 {
-	if(  dir==koord(0,0) || to->obj_count()==0  ) {
+	if(  dir==koord(0,0)  ||  to->first_no_way_obj()==0  ) {
 		return true;
 	}
 
@@ -2511,7 +2511,7 @@ sint64 way_builder_t::calc_costs()
 				}
 			}
 			// eventually we have to remove trees
-			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+			for(  uint8 i=0;  i<gr->obj_count();  i++  ) {
 				obj_t *obj = gr->obj_bei(i);
 				switch(obj->get_typ()) {
 					case obj_t::baum:

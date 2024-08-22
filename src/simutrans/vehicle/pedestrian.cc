@@ -201,7 +201,7 @@ void pedestrian_t::generate_pedestrians_at(grund_t *bd, int &count)
 
 		// we create maximal 4 pedestrians here for performance reasons
 		for (int i = 0; i < 4 && count > 0; i++) {
-			if (bd->get_top() >= 120) {
+			if (bd->obj_count() >= 120) {
 				// tile too full
 				return;
 			}
@@ -209,7 +209,7 @@ void pedestrian_t::generate_pedestrians_at(grund_t *bd, int &count)
 			pedestrian_t* fg = new pedestrian_t(bd);
 			if (fg->time_to_life > 0  &&  bd->obj_add(fg) != 0) {
 				fg->calc_height(bd);
-				uint32 separate_pedestrians = (bd->get_top()*23) << YARDS_PER_VEHICLE_STEP_SHIFT;
+				uint32 separate_pedestrians = (bd->obj_count()*23) << YARDS_PER_VEHICLE_STEP_SHIFT;
 				// walk a little
 				fg->sync_step( (separate_pedestrians % (255 << YARDS_PER_VEHICLE_STEP_SHIFT))/128 );
 				count--;
@@ -267,7 +267,7 @@ grund_t* pedestrian_t::hop_check()
 		return NULL;
 	}
 
-	if (from->get_top() >= 240) {
+	if (from->obj_count() >= 240) {
 		time_to_life = 0;
 		return NULL; // target tile full, just die
 	}

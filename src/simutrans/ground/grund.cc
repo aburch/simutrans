@@ -505,7 +505,7 @@ void grund_t::rotate90()
 	// then rotate the things on this tile
 	objlist.rotate90_moving();
 	uint8 trees = 0, offset = 0;
-	if(  get_top()==254  ) {
+	if(  obj_count()==254  ) {
 		dbg->warning( "grund_t::rotate90()", "Too many stuff on (%s)", pos.get_str() );
 	}
 	for(  uint8 i=0;  i<objlist.get_top();  i++  ) {
@@ -562,7 +562,7 @@ void grund_t::enlarge_map( sint16, sint16 /*new_size_y*/ )
 void grund_t::take_obj_from(grund_t* other_gr)
 {
 	// transfer all things
-	while( other_gr->get_top() ) {
+	while( other_gr->obj_count() ) {
 		objlist.add( other_gr->obj_remove_top() );
 	}
 	// transfer the way flags
@@ -1797,7 +1797,7 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 */
 depot_t* grund_t::get_depot() const
 {
-	return dynamic_cast<depot_t *>(first_obj());
+	return dynamic_cast<depot_t *>(first_no_way_obj());
 }
 
 
@@ -2072,9 +2072,9 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
 		sint32 costs = 0;
 
-		for(  sint16 i=get_top();  i>=0;  i--  ) {
+		for(  sint16 i=obj_count();  i>=0;  i--  ) {
 			// we need to delete backwards, since we might miss things otherwise
-			if(  i>=get_top()  ) {
+			if(  i>=obj_count()  ) {
 				continue;
 			}
 
@@ -2174,7 +2174,7 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 	waytype_t wt1 = ( wt == tram_wt ) ? track_wt : wt;
 
 	// since there might be more than one, we have to iterate through all of them
-	for(  uint8 i = 0;  i < get_top();  i++  ) {
+	for(  uint8 i = 0;  i < obj_count();  i++  ) {
 		obj_t *obj = obj_bei(i);
 		if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 			waytype_t wt2 = wayobj->get_desc()->get_wtyp();
