@@ -2315,10 +2315,10 @@ void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*qui
 					}
 				}
 
-				if(dismissible){
+				if(dismissible  &&  gui){
 					if (
 						(ev.ev_class == EVENT_KEYBOARD) ||
-						(ev.ev_class == EVENT_CLICK && !gui->is_hit(ev.click_pos.x - pos.x, ev.click_pos.y - pos.y))
+						(ev.ev_class == EVENT_CLICK  &&  !gui->is_hit(ev.click_pos.x - pos.x, ev.click_pos.y - pos.y))
 					) {
 						destroy_win(gui);
 						gui = NULL;
