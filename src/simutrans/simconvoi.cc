@@ -2974,7 +2974,7 @@ station_tile_search_ready: ;
 			if(plan_halt == halt) {
 				// we will come later here again ...
 				// the following halt is the same => there will never be a halt to serve
-				all_served_this_stop &= !first_entry;
+				all_served_this_stop &= first_entry;
 				break;
 			}
 			else if(  !plan_halt.is_bound()  ) {
