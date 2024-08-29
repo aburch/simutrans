@@ -398,11 +398,12 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 	// send this message to a ticker if public channel message
 	if (channel >= -1) {
 		if (sender_nr >= 0  &&  sender_nr != PLAYER_UNOWNED) {
-			if (player != world()->get_active_player()) {
+			bool company = channel == world()->get_active_player_nr();
+			if (player != world()->get_active_player()  ||  company) {
 				// so it is not a message sent from us
 				bool show_message = channel == -1; // message for all?
-				show_message |= channel == world()->get_active_player_nr(); // company message for us?
-				show_message |= recipient && strcmp(recipient, env_t::nickname.c_str()) == 0; // private chat for us?
+				show_message |= company; // company message for us?
+				show_message |= recipient  &&  strcmp(recipient, env_t::nickname.c_str()) == 0; // private chat for us?
 				if(show_message) {
 					buf.printf("%s: %s", sender_.c_str(), text);
 					ticker::add_msg(buf, koord3d::invalid, PLAYER_FLAG|sender_nr);
