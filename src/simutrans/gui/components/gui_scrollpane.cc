@@ -19,14 +19,14 @@
 /**
  * @param comp the scrolling component
  */
-gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool b_scroll_y) :
+gui_scrollpane_t::gui_scrollpane_t(gui_component_t* comp, bool b_scroll_x, bool b_scroll_y) :
 	scroll_x(scrollbar_t::horizontal),
 	scroll_y(scrollbar_t::vertical)
 {
 	this->comp = comp;
 
-	max_width = D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT;
-	max_height = D_DEFAULT_HEIGHT/2-D_MARGIN_TOP-D_MARGIN_BOTTOM;
+	max_width = D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT;
+	max_height = D_DEFAULT_HEIGHT / 2 - D_MARGIN_TOP - D_MARGIN_BOTTOM;
 
 	b_show_scroll_x = b_scroll_x;
 	b_show_scroll_y = b_scroll_y;
@@ -42,15 +42,15 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x, bool 
 scr_size gui_scrollpane_t::get_min_size() const
 {
 	scr_size csize = comp->get_min_scroll_size();
-	if (csize.w > 0  ||  csize.h > 0) {
+	if (csize.w > 0 || csize.h > 0) {
 		// the component does not have a minimum scroll size
 		// use min_size and limit it with max_width/height
 		csize = comp->get_min_size();
-		csize.w = min( csize.w, max_width );
-		csize.h = min( csize.h, max_height );
+		csize.w = min(csize.w, max_width);
+		csize.h = min(csize.h, max_height);
 	}
-	csize.w = max( csize.w, scroll_x.get_min_size().w );
-	csize.h = max( csize.h, scroll_y.get_min_size().h );
+	csize.w = max(csize.w, scroll_x.get_min_size().w);
+	csize.h = max(csize.h, scroll_y.get_min_size().h);
 	return csize;
 
 }
@@ -66,44 +66,30 @@ scr_size gui_scrollpane_t::get_max_size() const
  */
 void gui_scrollpane_t::recalc_sliders(scr_size size)
 {
-	scroll_x.set_pos( scr_coord(0, size.h-D_SCROLLBAR_HEIGHT) );
-	scroll_y.set_pos( scr_coord(size.w-D_SCROLLBAR_WIDTH, 0) );
-	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
-		scroll_x.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_x.set_knob( size.w-D_SCROLLBAR_WIDTH, comp->get_size().w + comp->get_pos().x );
-	}
-	else if(  b_has_size_corner  ) {
-		scroll_x.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_x.set_knob( size.w, comp->get_size().w + comp->get_pos().x );
-	}
-	else {
-		scroll_x.set_size( size );
-		scroll_x.set_knob( size.w, comp->get_size().w + comp->get_pos().x );
-	}
-
-	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
-		scroll_y.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_y.set_knob( size.h, comp->get_size().h + comp->get_pos().y );
-	}
-	else if(  b_has_size_corner  ) {
-		scroll_y.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_y.set_knob( size.h, comp->get_size().h + comp->get_pos().y );
-	}
-	else {
-		scroll_y.set_size( size );
-		scroll_y.set_knob( size.h, comp->get_size().h + comp->get_pos().y );
-	}
-
+	scroll_x.set_pos(scr_coord(0, size.h - D_SCROLLBAR_HEIGHT));
+	scroll_y.set_pos(scr_coord(size.w - D_SCROLLBAR_WIDTH, 0));
+	scr_coord_val off_x = (b_show_scroll_x  &&  scroll_x.is_visible());
+	scr_coord_val off_y = (b_show_scroll_y  &&  scroll_y.is_visible());
+	bool need_sizecorner = off_x | off_y;
+	off_x |= need_sizecorner;
+	off_y |= need_sizecorner;
+	scroll_x.set_size(size - D_SCROLLBAR_SIZE*off_y);
+	scroll_x.set_knob(size.w - D_SCROLLBAR_WIDTH*off_y, comp->get_size().w + comp->get_pos().x);
+	scroll_y.set_size(size - D_SCROLLBAR_SIZE*off_x);
+	scroll_y.set_knob(size.h - D_SCROLLBAR_HEIGHT*off_x, comp->get_size().h + comp->get_pos().y);
 	old_comp_size = comp->get_size();
 }
 
 
-// just hide or show then sliders
+// just hide or show then sliders according to the object size
 void gui_scrollpane_t::recalc_sliders_visible(scr_size size)
 {
 	scr_coord k = comp->get_size() + comp->get_pos();
-	scroll_x.set_visible((k.x > size.w) && b_show_scroll_x);
-	scroll_y.set_visible((k.y > size.h) && b_show_scroll_y);
+	bool need_x = (k.x > size.w) && b_show_scroll_x;
+	bool need_y = (k.y + need_x * D_SCROLLBAR_HEIGHT > size.h) && b_show_scroll_y;
+	need_x = (k.x + need_y*D_SCROLLBAR_WIDTH > size.w) && b_show_scroll_x;
+	scroll_x.set_visible(need_x);
+	scroll_y.set_visible(need_y);
 }
 
 
@@ -120,10 +106,10 @@ void gui_scrollpane_t::set_size(scr_size size)
 	scr_size c_size = size - comp->get_pos();
 	// resize scrolled component
 	if (scroll_x.is_visible()) {
-		c_size.h -= scroll_x.get_size().h;
+		c_size.h -= D_SCROLLBAR_HEIGHT;
 	}
 	if (scroll_y.is_visible()) {
-		c_size.w -= scroll_y.get_size().w;
+		c_size.w -= D_SCROLLBAR_WIDTH;
 	}
 
 	c_size.clip_lefttop( comp->get_min_size() );

@@ -130,6 +130,7 @@ public:
 	const scr_size operator -(const scr_size& other ) const { return scr_size( w - other.w, h - other.h ); }
 	const scr_size operator +(const scr_coord& other ) const { return scr_size( other.x + w, other.y + h); }
 	const scr_size operator -(const scr_coord& other ) const { return scr_size( w - other.x, h - other.y ); }
+	const scr_size operator *(const scr_coord_val& i) const { return scr_size(w*i, h*i); }
 
 	void rdwr(loadsave_t *file)
 	{
