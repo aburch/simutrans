@@ -66,6 +66,10 @@
 // Use own routines for downloading paks and installing (requires libzip and libcurl)
 //#define USE_OWN_PAKINSTALL
 
+// if defined, if overrides the packing of the structures and allows for 255 ground pre planquadrat_t (default 15)
+// DO NOT USE THIS UNLESS YOU REALLY NEED IT!!!
+//#define MAX_PLAN_SIZE 255
+
 /*********************** Useful things for debugging ... ********************/
 
 /* will highlight marked areas and convoi will leave traces */

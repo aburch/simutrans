@@ -128,10 +128,12 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
 	DBG_MESSAGE("sizes", "private_car_t: %d\n", sizeof(private_car_t));
 
+	DBG_MESSAGE("sizes", "objlist_t: %d", sizeof(objlist_t));
 	DBG_MESSAGE("sizes", "grund_t: %d", sizeof(grund_t));
 	DBG_MESSAGE("sizes", "boden_t: %d", sizeof(boden_t));
 	DBG_MESSAGE("sizes", "wasser_t: %d", sizeof(wasser_t));
 	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
+	DBG_MESSAGE("sizes", "planquadrat_t[100]: %d\n", sizeof(planquadrat_t[100]));
 
 	DBG_MESSAGE("sizes", "ware_t: %d", sizeof(ware_t));
 	DBG_MESSAGE("sizes", "vehicle_t: %d", sizeof(vehicle_t));
@@ -157,57 +159,60 @@ static void show_times(karte_t *welt, main_view_t *view)
 
 	image_id img = ground_desc_t::outside->get_image(0,0);
 
+	display_color_img(img, 120, 100, 1, 0, 1);
 	uint32 ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
 		display_img_aux( img, 50, 50, 1, 0, true  CLIP_NUM_DEFAULT);
 	}
-	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_img() %i iterations took %li ms", i, dr_time() - ms );
 
 	image_id player_img = skinverwaltung_t::color_options->get_image_id(0);
 	ms = dr_time();
 	for (i = 0;  i < 1000000;  i++) {
 		display_color_img( player_img, 120, 100, i%15, 0, 1);
 	}
-	dbg->message( "display_color_img() with recolor", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_color_img() with recolor %i iterations took %li ms", i, dr_time() - ms );
 
 	ms = dr_time();
-	for (i = 0;  i < 1000000;  i++) {
+	for (i = 0;  i < 100000;  i++) {
 		display_color_img( img, 120, 100, 0, 1, 1);
 		display_color_img( player_img, 160, 150, 16, 1, 1);
 	}
-	dbg->message( "display_color_img()", "3x %i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_color_img() 3x %i iterations took %li ms", i, dr_time() - ms );
 
+#if !defined(MULTI_THREAD)
 	ms = dr_time();
 	for (i = 0;  i < 600000;  i++) {
 		dr_prepare_flush();
 		dr_flush();
 	}
-	dbg->message( "display_flush_buffer()", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_flush_buffer() %i iterations took %li ms", i, dr_time() - ms );
+#endif
 
 	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
 		display_text_proportional_len_clip_rgb(100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, -1);
 	}
-	dbg->message( "display_text_proportional_len_clip_rgb()", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_text_proportional_len_clip_rgb() %i iterations took %li ms", i, dr_time() - ms );
 
 	ms = dr_time();
 	for (i = 0;  i < 300000;  i++) {
 		display_fillbox_wh_rgb(100, 120, 300, 50, 0, false);
 	}
-	dbg->message( "display_fillbox_wh_rgb()", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "display_fillbox_wh_rgb() %i iterations took %li ms", i, dr_time() - ms );
 
 	ms = dr_time();
 	for (i = 0; i < 2000; i++) {
 		view->display(true);
 	}
-	dbg->message( "view->display(true)", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "view->display(true) %i iterations took %li ms", i, dr_time() - ms );
 
 	ms = dr_time();
 	for (i = 0; i < 2000; i++) {
 		view->display(true);
 		win_display_flush(0.0);
 	}
-	dbg->message( "view->display(true) and flush", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "view->display(true) and flush %i iterations took %li ms", i, dr_time() - ms );
 
 	ms = dr_time();
 	for (i = 0; i < 40000000/(int)weg_t::get_alle_wege().get_count(); i++) {
@@ -216,7 +221,24 @@ static void show_times(karte_t *welt, main_view_t *view)
 			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::north );
 		}
 	}
-	dbg->message( "grund_t::get_neighbour()", "%i iterations took %li ms", i*weg_t::get_alle_wege().get_count(), dr_time() - ms );
+	dbg->message("show_times()", "grund_t::get_neighbour() %i iterations took %li ms", i*weg_t::get_alle_wege().get_count(), dr_time() - ms );
+
+	ms = dr_time();
+	for (i = 0; i < 1000; i++) {
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->sync_step(100);
+		welt->display(1000);
+		welt->step();
+	}
+	dbg->message("show_times()", "welt->sync_step(200)*10/display(1000)/step %i iterations took %li ms", i, dr_time() - ms);
 
 	ms = dr_time();
 	for (i = 0; i < 2000; i++) {
@@ -224,7 +246,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 		welt->display(200);
 		welt->step();
 	}
-	dbg->message( "welt->sync_step(200)/display(200)/step", "%i iterations took %li ms", i, dr_time() - ms );
+	dbg->message("show_times()", "welt->sync_step(200)/display(200)/step %i iterations took %li ms", i, dr_time() - ms );
 }
 #endif
 

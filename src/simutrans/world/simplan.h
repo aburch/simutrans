@@ -6,10 +6,19 @@
 #ifndef WORLD_SIMPLAN_H
 #define WORLD_SIMPLAN_H
 
-
+#include "../simconst.h"
 #include "../halthandle.h"
 #include "../ground/grund.h"
 
+#if !defined(MAX_PLAN_SIZE)
+#if defined(_M_X64)  ||  defined(__x86_64__)
+#define MAX_PLAN_SIZE 15
+#elif defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86)
+#define MAX_PLAN_SIZE 15
+#else
+#define MAX_PLAN_SIZE 255
+#endif
+#endif
 
 class karte_ptr_t;
 class grund_t;
@@ -18,27 +27,40 @@ class obj_t;
 class planquadrat_t;
 void swap(planquadrat_t& a, planquadrat_t& b);
 
-
 /**
  * The map (karte_t) consists of map squares (planquadrat_t).
  * planquadrat_t objects consist of zero or more ground objects (grund_t).
+ * As it is not that often accessed and wasting 6 bytes per field for 64 bit.
+ * This is the only structure we pak and makes the sync_step even faster.
+ * (I guess more cache hits.)
+ * As I have no ARM machine to test if it dies with 32 bit ARM misalignment
+ * no packing is done for ARM for now
  */
+#if defined(__GNUC__)  &&  MAX_PLAN_SIZE==15
+class __attribute__((__packed__)) planquadrat_t
+#else
 class planquadrat_t
+#endif
 {
 	static karte_ptr_t welt;
 private:
 	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
 	halthandle_t *halt_list;
 
-	uint8 ground_size, halt_list_count;
-
-	// stores climate related settings
-	uint8 climate_data;
-
 	union DATA {
 		grund_t ** some;    // valid if capacity > 1
 		grund_t * one;      // valid if capacity == 1
 	} data;
+
+#if MAX_PLAN_SIZE==15
+	uint8 ground_size:4;
+	uint8 halt_list_count:4;
+	uint8 climate_data:8;
+#else
+	uint8 ground_size;
+	uint8 halt_list_count;
+	uint8 climate_data;
+#endif
 
 public:
 	/**

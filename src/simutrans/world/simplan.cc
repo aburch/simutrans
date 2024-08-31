@@ -36,11 +36,11 @@ karte_ptr_t planquadrat_t::welt;
 
 void swap(planquadrat_t& a, planquadrat_t& b)
 {
-	sim::swap(a.halt_list, b.halt_list);
-	sim::swap(a.ground_size, b.ground_size);
-	sim::swap(a.halt_list_count, b.halt_list_count);
-	sim::swap(a.data, b.data);
-	sim::swap(a.climate_data, b.climate_data);
+	// since sim::swap down not work for bitfields, we brute force copy memory
+	char tmp[sizeof(planquadrat_t)];
+	memcpy(tmp, &a, sizeof(planquadrat_t));
+	memcpy(&a, &b, sizeof(planquadrat_t));
+	memcpy(&a, tmp, sizeof(planquadrat_t));
 }
 
 // deletes also all grounds in this array!
@@ -125,6 +125,9 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 			return;
 		}
 		bd->set_kartenboden(false);
+		if (ground_size == MAX_PLAN_SIZE) {
+			dbg->fatal("", "Maximum %d grounds at %s exhausted", MAX_PLAN_SIZE, data.some[0]->get_pos().get_2d().get_str());
+		}
 		// extend array if needed
 		grund_t **tmp = new grund_t *[ground_size+1];
 		for( uint8 j=0;  j<i;  j++  ) {
@@ -670,6 +673,10 @@ halthandle_t planquadrat_t::get_halt(player_t *player) const
 	return halthandle_t();
 }
 
+/**
+ * The following haltlist routines takes at least 5 bytes of memory per tile but speed up passenger generation a lot
+ */
+
 
 // these functions are private helper functions for halt_list
 void planquadrat_t::halt_list_remove( halthandle_t halt )
@@ -686,10 +693,17 @@ void planquadrat_t::halt_list_remove( halthandle_t halt )
 }
 
 
+// Adds a halt to a haltlist. If too many, the farthest (at the highest index) will be kicked out
+// ATTENTION: since it is an internal routine, we assume we do not use pos>halt_list_count!!!
 void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 {
+	if (halt_list_count == MAX_PLAN_SIZE) {
+		dbg->warning("planquadrat_t::halt_list_insert_at()", "Maximum %d haltlist at %s, kick out last", MAX_PLAN_SIZE, data.some[0]->get_pos().get_2d().get_str());
+		halt_list_count--;
+	}
 	// extend list?
 	if((halt_list_count%4)==0) {
+		// in the very rare cases of shrinking below 4 and growing again above 4, we do some unneccessary reallocation
 		halthandle_t *tmp = new halthandle_t[halt_list_count+4];
 		if(halt_list!=NULL) {
 			// now insert
@@ -709,9 +723,6 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 }
 
 
-/**
- * The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
- */
 void planquadrat_t::add_to_haltlist(halthandle_t halt, bool unsorted)
 {
 	if(halt.is_bound()) {
