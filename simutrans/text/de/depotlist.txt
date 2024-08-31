@@ -1,0 +1,7 @@
+<title>Depotliste</title>
+
+<h1><strong>Depotliste</strong></h1>
+
+<p>
+Die Depotliste zeight alle Garagen, Hangar, Werften, Bahnbetriebwerke und natürlich auch Depots, also jene Orte wo man Fahrzeuge kaufen oder neu zusammenstellen kann. Mit dem Tab kann man bestimmte Transportmittel auswählen. Wie bei allen Listen, springt ein Rechtsklick, Klick mit Control, oder ein Linksklick auf das Dreieck an die Stell der Karte mit dem Depot. Ein Linksklick auf eine Zeile öffnet dirkt das Depot.
+</p>

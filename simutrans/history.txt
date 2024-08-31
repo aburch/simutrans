@@ -1,4 +1,4 @@
-Release of 124.2.2 (r11394 on 31-Aug-2024):
+Release of 124.2.2 (r11395 on 31-Aug-2024):
 	ADD: Support for through depots (dims 2)
 	FIX: proper building of parallel ways also for elevated ways
 	FIX: no public chat after private
