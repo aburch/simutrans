@@ -337,12 +337,12 @@ void message_t::rdwr(loadsave_t* file)
 
 					if (char* c = strchr(n->msg, ']')) {
 						*c = 0;
-						strcpy(name, n->msg+1);
-						strcpy(msg_no_name, c+1);
+						strcpy(name, n->msg + 1);
+						strcpy(msg_no_name, c + 1);
 					}
 					else {
 						strcpy(name, "Unknown");
-						tstrncpy(msg_no_name, n->msg,256);
+						tstrncpy(msg_no_name, n->msg, 256);
 					}
 					if (n->color & PLAYER_FLAG) {
 						player_t* player = welt->get_player(n->color & (~PLAYER_FLAG));
@@ -391,22 +391,24 @@ void chat_message_t::convert_old_message(const char* text, const char* name, sin
 	list.append(n);
 }
 
-void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sender_nr, plainstring sender_, plainstring recipient, koord pos, uint8 flags)
+void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sender_nr, plainstring sender_nick, plainstring recipient, koord pos, uint8 flags)
 {
 	cbuffer_t buf;  // Output which will be printed to ticker
 	player_t* player = world()->get_player(sender_nr);
 	// send this message to a ticker if public channel message
-	if (channel >= -1) {
-		if (sender_nr >= 0  &&  sender_nr != PLAYER_UNOWNED) {
-			bool company = channel == world()->get_active_player_nr();
-			if (player != world()->get_active_player()  ||  company) {
-				// so it is not a message sent from us
-				bool show_message = channel == -1; // message for all?
-				show_message |= company; // company message for us?
-				show_message |= recipient  &&  strcmp(recipient, env_t::nickname.c_str()) == 0; // private chat for us?
+	if (channel >= -1) { // and not mine
+		if (sender_nr >= 0 && sender_nr != PLAYER_UNOWNED) {
+			// not mine?
+			if(strcmp(sender_nick, env_t::nickname.c_str()) != 0){
+				bool company_msg = channel == world()->get_active_player_nr();
+				bool private_msg = recipient  &&  strcmp(recipient, env_t::nickname.c_str()) == 0;
+				bool show_message = channel == -1 // message for all?
+									|| company_msg // company message for us?
+									|| private_msg; // private chat for us?
 				if(show_message) {
-					buf.printf("%s: %s", sender_.c_str(), text);
-					ticker::add_msg(buf, koord3d::invalid, PLAYER_FLAG|sender_nr);
+					buf.printf("%s: %s", sender_nick.c_str(), text);
+					int type = message_t::chat_common + company_msg + private_msg*2;
+					ticker::add_msg(buf, koord3d::invalid, PLAYER_FLAG|sender_nr, type );
 					env_t::chat_unread_public++;
 					sound_play(sound_desc_t::message_sound, 255, TOOL_SOUND);
 				}
@@ -436,7 +438,7 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 
 		n->player_nr = sender_nr;
 		n->channel_nr = channel;
-		n->sender = sender_;
+		n->sender = sender_nick;
 		n->destination = recipient;
 
 		n->time = world()->get_current_month();

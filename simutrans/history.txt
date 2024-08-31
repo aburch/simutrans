@@ -6,7 +6,7 @@
 	FIX: again retire convois when empty
 	FIX: obj_count() did not count ways and was a relict that may have caused rare strange errors in other places
 	FIX: Longstanding bug with the size of scrollpanes with horizontal sliders
-	FIX: company messages again
+	FIX: company messages again, properly show messages in ticker, open chatframe for viewing on ticker click
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):

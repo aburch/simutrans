@@ -55,6 +55,9 @@ public:
 		warnings     = 8,
 		traffic_jams = 9,
 		scenario     = 10,
+		chat_common  = 11,
+		chat_company = 12,
+		chat_private = 13,
 		MAX_MESSAGE_TYPE,
 		MESSAGE_TYPE_MASK = 0xf,
 

@@ -64,6 +64,14 @@ public:
 
 	void activate_whisper_to(const char* recipient);
 
+	void activate_tab(uint16 t) {
+		if(t<3) {
+			tabs.set_active_tab_index(t);
+			last_count = 0xFFFFFFFFul; // update upside of infowin_event!
+			reactivate_input = true;
+		}
+	}
+
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void set_dirty() { resize(scr_size(0, 0)); }

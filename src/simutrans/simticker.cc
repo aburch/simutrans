@@ -11,6 +11,8 @@
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"
 #include "gui/gui_theme.h"
+#include "gui/simwin.h"
+#include "gui/chat_frame.h"
 #include "world/simworld.h"
 #include "simmesg.h"
 #include "display/viewport.h"
@@ -103,16 +105,17 @@ void ticker::add_msg_node(const message_node_t& msg)
 }
 
 
-void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color)
+void ticker::add_msg(const char* txt, koord3d pos, FLAGGED_PIXVAL color, int type)
 {
 	node n;
 	tstrncpy(n.msg, txt, lengthof(n.msg));
 	n.pos = pos;
 	n.color = color;
 	// set to default values
-	n.type  = message_t::general;
-	n.time  = 0;
+	n.type = message_t::general;
+	n.time = 0;
 	n.image = IMG_EMPTY;
+	n.type = type;
 
 	add_msg_node(n);
 }
@@ -222,7 +225,15 @@ void ticker::process_click(int x)
 			}
 		}
 	}
-	if (clicked->pos != koord3d::invalid) {
+	if ((clicked->type & message_t::MESSAGE_TYPE_MASK) >= message_t::chat_common  &&  (clicked->type & message_t::MESSAGE_TYPE_MASK) <= message_t::chat_private) {
+		chat_frame_t* si = (chat_frame_t*)win_get_magic(magic_chatframe);
+		if (si == NULL) {
+			si = new chat_frame_t();
+			create_win({ 0, 200 }, si, w_info, magic_chatframe);
+		}
+		si->activate_tab((clicked->type & message_t::MESSAGE_TYPE_MASK) - message_t::chat_common);
+	}
+	else if (clicked->pos != koord3d::invalid) {
 		if(welt->is_within_limits(clicked->pos.get_2d())) {
 			welt->get_viewport()->change_world_position(clicked->pos);
 		}
