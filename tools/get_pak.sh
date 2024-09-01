@@ -215,7 +215,7 @@ paksets=( \
   "http://pak128-german.de/PAK128.german_2.3_beta.zip" \
   "https://github.com/Varkalandar/pak144.Excentrique/releases/download/r0.08/pak144.Excentrique_v008.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pakTTD/simupakTTD-124-0.zip" \
-  "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1c/pak48.bitlit_0.1c.zip" \
+  "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1d/pak48.bitlit_0.1d.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
   "http://pak128.jpn.org/souko/pak128.japan.120.0.cab" \
   "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \

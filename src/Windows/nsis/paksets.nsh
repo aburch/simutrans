@@ -127,12 +127,12 @@ Section /o "pakTTD" pakTTD
 SectionEnd
 
 Section /o "pak48.bitlit" pak48.bitlit
-  AddSize 1674
-  StrCpy $downloadlink "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1c/pak48.bitlit_0.1c.zip"
+  AddSize 1762
+  StrCpy $downloadlink "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1d/pak48.bitlit_0.1d.zip"
   SetOutPath $PAKDIR
-  StrCpy $archievename "pak48.bitlit_0.1c.zip"
+  StrCpy $archievename "pak48.bitlit_0.1d.zip"
   StrCpy $downloadname "pak48.bitlit"
-  StrCpy $VersionString "pak48.bitlit v0.1c"
+  StrCpy $VersionString "pak48.bitlit v0.1d"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 

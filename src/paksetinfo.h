@@ -13,7 +13,7 @@ paksetinfo_t pakinfo[PAKSET_COUNT] = {
 	{ "http://pak128-german.de/PAK128.german_2.3_beta.zip", "PAK128.german", "Pak128.german VS 2.3.beta (Rev. 527)", 571188 },
 	{ "https://github.com/Varkalandar/pak144.Excentrique/releases/download/r0.08/pak144.Excentrique_v008.zip", "pak144.Excentrique", "pak144.Excentrique v0.08", 7621 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pakTTD/simupakTTD-124-0.zip", "pakTTD", "pak64 120.4.1 r2146", 1995 },
-	{ "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1c/pak48.bitlit_0.1c.zip", "pak48.bitlit", "pak48.bitlit v0.1c", 1674 },
+	{ "http://codeberg.org/Nazalassa/pak48.bitlit/releases/download/0.1d/pak48.bitlit_0.1d.zip", "pak48.bitlit", "pak48.bitlit v0.1d", 1762 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip", "pak96.comic", "pak96.comic V4.1 plus", 32526 },
 	{ "http://pak128.jpn.org/souko/pak128.japan.120.0.cab", "pak128.japan", "Pak128.Japan 120.0", 27780 },
 	{ "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip", "pak32", "", 3420 },
