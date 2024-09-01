@@ -40,7 +40,7 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 	char tmp[sizeof(planquadrat_t)];
 	memcpy(tmp, &a, sizeof(planquadrat_t));
 	memcpy(&a, &b, sizeof(planquadrat_t));
-	memcpy(&a, tmp, sizeof(planquadrat_t));
+	memcpy(&b, tmp, sizeof(planquadrat_t));
 }
 
 // deletes also all grounds in this array!

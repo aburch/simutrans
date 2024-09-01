@@ -1,4 +1,4 @@
-Release of 124.2.2 (r11395 on 31-Aug-2024):
+Release of 124.2.2 (r11397 on 1-Sep-2024):
 	ADD: Support for through depots (dims 2)
 	FIX: proper building of parallel ways also for elevated ways
 	FIX: no public chat after private
@@ -9,6 +9,7 @@ Release of 124.2.2 (r11395 on 31-Aug-2024):
 	FIX: Longstanding bug with the size of scrollpanes with horizontal sliders
 	FIX: company messages again, properly show messages in ticker, open chatframe for viewing on ticker click
 	CHG: packing planqudrat_t reduces size by 2 byte (32 bit 12->10) or 6 byte (24->18) and accelerates sync_step by 10-20% (only on Intel on GnuC compatible compilers)
+	FIX: rotation workin again
 
 
 Release of 124.2.1 (r11365 on 25-July-2024):
