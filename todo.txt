@@ -6,11 +6,9 @@ To be done:
 - fog view to the top?
 - instant text updates
 - bahnhofsdetaildialog (more text on the station buildings)
-- parallel routing of start and stop is just a tile away from an own way.
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
-- better chat
 
 reconsider:
 - leave stop if other convoi has arrived there patch
