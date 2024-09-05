@@ -94,6 +94,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	scrolly_halts( gui_scrolled_list_t::windowskin ),
 	loading_info( &loading_text )
 {
+	is_saving_gui = false;
 	set_table_layout( 3, 0 );
 	set_alignment(ALIGN_TOP);
 	line = line_;
@@ -173,7 +174,7 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 	switch_mode.set_active_tab_index(active_tab);
 
 	if (line.is_bound() ) {
-		init();
+		init(true);
 	}
 	old_convoi_count = old_halt_count = 0;
 
@@ -183,13 +184,13 @@ line_management_gui_t::line_management_gui_t( linehandle_t line_, player_t* play
 }
 
 
-void line_management_gui_t::init()
+void line_management_gui_t::init(bool not_rdwr)
 {
 	if( line.is_bound() ) {
 		// title
 		set_name(line->get_name() );
 		// schedule
-		scd.init( line->get_schedule(), player, convoihandle_t(), linehandle_t() );
+		scd.init(not_rdwr?line->get_schedule():scd.get_schedule(), player, convoihandle_t(), linehandle_t(),true);
 		// we use local buffer to prevent sudden death on line deletion
 		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
 		tstrncpy(line_name, line->get_name(), sizeof(line_name));
@@ -337,6 +338,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	sint32 cont_xoff, cont_yoff;
 	sint32 halt_xoff, halt_yoff;
 	uint8 player_nr;
+
+	is_saving_gui = file->is_saving();
+
 	if( file->is_saving() ) {
 		cont_xoff = scrolly_convois.get_scroll_x();
 		cont_yoff = scrolly_convois.get_scroll_y();
@@ -369,7 +373,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 			scrolly_convois.set_scroll_position( cont_xoff, cont_yoff );
 			scrolly_halts.set_scroll_position( halt_xoff, halt_yoff );
 
-			init();
+			init(false);
 		}
 		else {
 			line = linehandle_t();
@@ -507,7 +511,7 @@ void line_management_gui_t::rename_line()
 bool line_management_gui_t::infowin_event( const event_t *ev )
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  &&  !is_saving_gui  ) {
 			apply_schedule();
 		}
 		scd.highlight_schedule( false );
@@ -523,5 +527,6 @@ bool line_management_gui_t::infowin_event( const event_t *ev )
 		}
 	}
 
+	is_saving_gui = false;
 	return gui_frame_t::infowin_event( ev );
 }

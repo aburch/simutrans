@@ -80,6 +80,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv, bool edit_schedule) :
 	view(scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scroll_freight(&container_freight, true, true)
 {
+	is_saving_gui = false;
 	if( cnv.is_bound() ) {
 		init( cnv );
 		if( edit_schedule ) {
@@ -680,7 +681,7 @@ void convoi_info_t::update_schedule()
 bool convoi_info_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-		if(  switch_mode.get_aktives_tab() == &container_schedule  ) {
+		if(  switch_mode.get_aktives_tab() == &container_schedule  &&  !is_saving_gui  ) {
 			// apply schedule here, to reset wait_lock for convoys in convoi_t::set_schedule
 			apply_schedule();
 		}
@@ -695,6 +696,7 @@ bool convoi_info_t::infowin_event(const event_t *ev)
 		}
 		minimap_t::get_instance()->set_selected_cnv(cnv);
 	}
+	is_saving_gui = false;
 
 	return gui_frame_t::infowin_event(ev);
 }
@@ -735,6 +737,8 @@ void convoi_info_t::rename_cnv()
 
 void convoi_info_t::rdwr(loadsave_t *file)
 {
+	is_saving_gui = true; // so we do not apply the schedule on window closing
+
 	// handle
 	convoi_t::rdwr_convoihandle_t(file, cnv);
 
@@ -775,6 +779,11 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		reset_min_windowsize();
 		set_windowsize(size);
+		if (switch_mode.get_aktives_tab() == &container_schedule) {
+			cnv->set_state(convoi_t::EDIT_SCHEDULE);
+			scd.highlight_schedule(true);
+		}
+
 	}
 }
 

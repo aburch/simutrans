@@ -1,3 +1,6 @@
+	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
+
+
 Release of 124.2.2 (r11400 on 2-Sep-2024):
 	ADD: Support for through depots (dims 2)
 	FIX: proper building of parallel ways also for elevated ways

@@ -110,6 +110,8 @@ private:
 
 	void apply_schedule();
 
+	bool is_saving_gui;
+
 public:
 	convoi_info_t(convoihandle_t cnv = convoihandle_t(), bool change_schedule = false);
 

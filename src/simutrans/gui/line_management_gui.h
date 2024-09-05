@@ -67,7 +67,10 @@ class line_management_gui_t : public gui_frame_t, public action_listener_t
 
 	sint32 capacity, load;
 
-	void init();
+	// only true if the window is closing due to finishign a game. The changes will not apply!
+	bool is_saving_gui;
+
+	void init(bool);
 
 	void apply_schedule();
 
