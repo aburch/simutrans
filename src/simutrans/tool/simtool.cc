@@ -5063,7 +5063,7 @@ const char *tool_rotate_building_t::work( player_t *player, koord3d pos )
 		}
 	}
 	else if (gr->hat_wege()) {
-		// roate siwtch graphics
+		// roate switch graphics
 		for (uint i=0; i < 2; i++) {
 			if (weg_t* w =gr->get_weg_nr(i)) {
 				if (w->get_waytype()!=road_wt  &&  ribi_t::is_threeway(w->get_ribi_unmasked())) {

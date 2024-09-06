@@ -1,4 +1,5 @@
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
+	CHG: no way foreground draw in stations and depots (and other buildings)
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
