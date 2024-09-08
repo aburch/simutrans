@@ -3985,7 +3985,7 @@ player_t* karte_t::get_player_or_create(uint8 n)
 		return players[n];
 	}
 	dbg->error("get_player()", "No player %d in this game -> make a new one", n);
-	players[n] = new player_t(n);
+	init_new_player(n, player_t::HUMAN);
 	return players[n];
 }
 
@@ -4301,8 +4301,6 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 {
-	uint8 old_players[MAX_PLAYER_COUNT];
-
 	if (file->is_loading()) {
 		// zum laden vorbereiten -> tabelle loeschen
 		powernet_t::new_world();
@@ -4312,12 +4310,17 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		settings = env_t::default_settings;
 	}
 	else {
-		// do not set value for empty player
-
+		// do not set value for empty player and correct existing players
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			old_players[i] = settings.get_player_type(i);
 			if(  players[i]==NULL  ) {
-				settings.set_player_type(i, player_t::EMPTY);
+				if (settings.get_player_type(i)) {
+					dbg->error("karte_t::rdwr_gamestate()", "State %d of non-existing player %d correct to 0 (EMPTY)", settings.get_player_type(i), i);
+					settings.set_player_type(i, player_t::EMPTY);
+				}
+			}
+			else if(settings.get_player_type(i)-1>= player_t::MAX_AI-1) {
+				dbg->error("karte_t::rdwr_gamestate()", "State %d of player %d correct to 1 (HUMAN)", settings.get_player_type(i), i);
+				settings.set_player_type(i, player_t::HUMAN);
 			}
 		}
 	}
@@ -4328,11 +4331,6 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		// some functions (finish_rd) need to know what version was loaded
 		load_version = file->get_version_int();
 		loaded_rotation = settings.get_rotation();
-	}
-	else {
-		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-			settings.set_player_type(i, old_players[i]);
-		}
 	}
 
 	if (file->is_version_atleast(122, 1)) {
