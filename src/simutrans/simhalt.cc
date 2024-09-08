@@ -2781,11 +2781,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		owner = welt->get_player(owner_n);
-		if (!owner) {
-			dbg->fatal("haltestelle_t::rdwr", "Halt (%hu) has no owner!", self.get_id());
-		}
-
+		owner = welt->get_player_or_create(owner_n);
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);

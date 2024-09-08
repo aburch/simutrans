@@ -731,7 +731,9 @@ public:
 	 * Player management here
 	 */
 	uint8 sp2num(player_t *player);
-	player_t * get_player(uint8 n) const { return players[n&15]; }
+	player_t* get_player(uint8 n) const { return players[n&15]; }
+	// return player or gives error and cerates player to recover broken savegames
+	player_t* get_player_or_create(uint8 n);
 	player_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr, bool silent);

@@ -1,5 +1,7 @@
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
 	CHG: no way foreground draw in stations and depots (and other buildings)
+	FIX: loading of roadsings broken for player >=8 and old versions
+	CHG: create lost players during game laoding to recover more from broken savegames
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):

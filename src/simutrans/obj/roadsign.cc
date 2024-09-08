@@ -631,11 +631,10 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 		// init ownership of private ways signs
 		if(  desc  &&  desc->is_private_way()  ) {
-			ticks_ns = 0xFD;
-			ticks_ow = 0xFF;
 			if(  file->is_version_less(124, 2)  ) {
 				// private sign mask now in ticks_ow and ticks_offset
-				ticks_ns = ticks_offset;
+				ticks_offset = ticks_ns;
+				ticks_ns = 0xFF;
 			}
 		}
 	}

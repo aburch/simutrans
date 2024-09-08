@@ -3978,6 +3978,18 @@ static pthread_mutex_t height_mutex;
 static recursive_mutex_maker_t height_mutex_maker(height_mutex);
 #endif
 
+player_t* karte_t::get_player_or_create(uint8 n)
+{
+	n &= 15;
+	if (players[n]) {
+		return players[n];
+	}
+	dbg->error("get_player()", "No player %d in this game -> make a new one", n);
+	players[n] = new player_t(n);
+	return players[n];
+}
+
+
 
 void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {

@@ -2268,7 +2268,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(vehicle_count > fahr.get_count()) {
 			fahr.resize(vehicle_count, NULL);
 		}
-		owner = welt->get_player( owner_n );
+		owner = welt->get_player_or_create( owner_n );
 
 		// sanity check for values ... plus correction
 		if(sp_soll < 0) {
