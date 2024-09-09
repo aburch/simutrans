@@ -400,7 +400,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 				// check for any building on this tile
 				for (  uint8 i = 1;  i < gr->obj_count();  i++  ) {
 					if (dynamic_cast<gebaeude_t *>(gr->obj_bei(i))) {
-						// no foreground in stations
+						// no foreground in depots
 						set_foreground_image(IMG_EMPTY);
 						break;
 					}
@@ -478,6 +478,23 @@ void weg_t::calc_image()
 		}
 		else if (!ribi_t::is_twoway(ribi)) {
 			set_images(image_flat, ribi, snow);
+			// nide foreground in stations and depots
+			if (foreground_image != IMG_EMPTY) {
+				if (from->is_halt()) {
+					// no foreground in stations
+					set_foreground_image(IMG_EMPTY);
+				}
+				else if (ribi_t::is_single(ribi)  &&  from->obj_count() > 1) {
+					// check for any building on this tile
+					for (uint8 i = 1; i < from->obj_count(); i++) {
+						if (dynamic_cast<gebaeude_t*>(from->obj_bei(i))) {
+							// no foreground in depots
+							set_foreground_image(IMG_EMPTY);
+							break;
+						}
+					}
+				}
+			}
 		}
 		// recursion to find out of diagonal
 		else {
@@ -515,6 +532,25 @@ void weg_t::calc_image()
 					}
 				}
 			}
+
+			// level track
+			if (foreground_image != IMG_EMPTY) {
+				if (from->is_halt()) {
+					// no foreground in stations
+					set_foreground_image(IMG_EMPTY);
+				}
+				else if (ribi_t::is_straight(ribi) && from->obj_count() > 1) {
+					// check for any building on this tile
+					for (uint8 i = 1; i < from->obj_count(); i++) {
+						if (dynamic_cast<gebaeude_t*>(from->obj_bei(i))) {
+							// no foreground in depots
+							set_foreground_image(IMG_EMPTY);
+							break;
+						}
+					}
+				}
+			}
+
 		}
 	}
 	if(  image!=old_image  ) {
