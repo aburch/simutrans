@@ -2,6 +2,7 @@
 	CHG: no way foreground draw in stations and depots (and other buildings)
 	FIX: loading of roadsings broken for player >=8 and old versions
 	CHG: create lost players during game laoding to recover more from broken savegames
+	FIX: handle focussed objects in tab correctly (like comboboxes)
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):

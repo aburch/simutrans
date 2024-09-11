@@ -181,13 +181,11 @@ DBG_MESSAGE("event","HOWDY!");
 						close_box();
 					}
 				}
-				return true;
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
-				if(  IS_LEFTRELEASE(ev)  ||  IS_LEFTCLICK(ev)) {
+				if(  IS_LEFTRELEASE(ev)  ) {
 					close_box();
-					return false;
 				}
 			}
 		}
