@@ -559,11 +559,12 @@ char const *dr_query_homedir()
 	}
 #else
 	int maxlen = PATH_MAX + 22;
+	unsigned n;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		unsigned n = snprintf(buffer, maxlen, "%s/simutrans", getenv("HOME"));
+		n = snprintf(buffer, maxlen, "%s/simutrans", getenv("HOME"));
 	}
 	else {
-		unsigned n = snprintf(buffer, maxlen, "%s/simutrans", getenv("XDG_DATA_HOME"));
+		n = snprintf(buffer, maxlen, "%s/simutrans", getenv("XDG_DATA_HOME"));
 	}
 	if (n >= maxlen) {
 		return NULL;
@@ -598,7 +599,7 @@ char const *dr_query_installdir()
 	strcat(buffer, foldername);
 #elif defined __APPLE__
 	int maxlen = PATH_MAX + 22;
-	unsigned n = sprintf(buffer, maxlen, "%s/Library/Simutrans/paksets", getenv("HOME"));
+	unsigned n = snprintf(buffer, maxlen, "%s/Library/Simutrans/paksets", getenv("HOME"));
 	if (n >= maxlen) {
 		return NULL;
 	}
@@ -610,11 +611,12 @@ char const *dr_query_installdir()
 	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
 #else
 	int maxlen = PATH_MAX + 22;
+	unsigned n;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		unsigned n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("HOME"));
+		n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("HOME"));
 	}
 	else {
-		unsigned n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
+		n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
 	}
 	if (n >= maxlen) {
 		return NULL;
