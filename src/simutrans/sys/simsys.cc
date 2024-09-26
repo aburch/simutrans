@@ -533,7 +533,11 @@ char const *dr_query_homedir()
 	strcat(buffer, PATH_SEPARATOR);
 	strcat(buffer, foldername);
 #elif defined __APPLE__
-	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
+	int maxlen = PATH_MAX + 22;
+	unsigned n = snprintf(buffer, maxlen, "%s/Library/Simutrans", getenv("HOME"));
+	if (n >= maxlen) {
+		return NULL;
+	}
 #elif defined __HAIKU__
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);
@@ -554,13 +558,17 @@ char const *dr_query_homedir()
 		tstrncpy(buffer, SDL_GetPrefPath("Simutrans Team", "simutrans"), lengthof(buffer));
 	}
 #else
+	int maxlen = PATH_MAX + 22;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		sprintf(buffer, "%s/simutrans", getenv("HOME"));
-	} else {
-		sprintf(buffer, "%s/simutrans", getenv("XDG_DATA_HOME"));
+		unsigned n = snprintf(buffer, maxlen, "%s/simutrans", getenv("HOME"));
+	}
+	else {
+		unsigned n = snprintf(buffer, maxlen, "%s/simutrans", getenv("XDG_DATA_HOME"));
+	}
+	if (n >= maxlen) {
+		return NULL;
 	}
 #endif
-
 	strcat(buffer, PATH_SEPARATOR);
 	return buffer;
 }
@@ -589,7 +597,11 @@ char const *dr_query_installdir()
 	strcat(buffer, PATH_SEPARATOR);
 	strcat(buffer, foldername);
 #elif defined __APPLE__
-	sprintf(buffer, "%s/Library/Simutrans/paksets", getenv("HOME"));
+	int maxlen = PATH_MAX + 22;
+	unsigned n = sprintf(buffer, maxlen, "%s/Library/Simutrans/paksets", getenv("HOME"));
+	if (n >= maxlen) {
+		return NULL;
+	}
 #elif defined __HAIKU__
 	BPath userDir;
 	find_directory(B_USER_DIRECTORY, &userDir);
@@ -597,11 +609,15 @@ char const *dr_query_installdir()
 #elif defined __ANDROID__
 	tstrncpy(buffer,SDL_AndroidGetExternalStoragePath(),lengthof(buffer));
 #else
+	int maxlen = PATH_MAX + 22;
 	if( getenv("XDG_DATA_HOME") == NULL ) {
-		sprintf(buffer, "%s/simutrans/paksets", getenv("HOME"));
+		unsigned n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("HOME"));
 	}
 	else {
-		sprintf(buffer, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
+		unsigned n = snprintf(buffer, maxlen, "%s/simutrans/paksets", getenv("XDG_DATA_HOME"));
+	}
+	if (n >= maxlen) {
+		return NULL;
 	}
 #endif
 
