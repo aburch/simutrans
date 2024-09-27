@@ -6461,7 +6461,7 @@ void karte_t::announce_server(server_announce_type_t status)
 
 		if (network_http_post(ANNOUNCE_SERVER1, ANNOUNCE_URL, buf, NULL)) {
 #ifdef ANNOUNCE_SERVER2
-			if (network_http_post(ANNOUNCE_SERVER2, ANNOUNCE_URL, buf, NULL)) {
+			if (network_http_post(ANNOUNCE_SERVER2, ANNOUNCE_URL, buf, NULL))
 #ifdef ANNOUNCE_SERVER3
 				if (network_http_post(ANNOUNCE_SERVER3, ANNOUNCE_URL, buf, NULL))
 #endif
