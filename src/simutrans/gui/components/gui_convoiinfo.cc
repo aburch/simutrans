@@ -213,7 +213,8 @@ void gui_convoiinfo_t::update_label()
 			}
 			pos_next_halt.set_targetpos3d( end );
 			scr_size old_min = label_next_halt.get_max_size();
-			label_next_halt.set_text_pointer(h.is_bound()?h->get_name():translator::translate("wegpunkt"));
+			new_halt_name = (h.is_bound() ? h->get_name() : translator::translate("Wegpunkt"));
+			label_next_halt.set_text(new_halt_name.c_str());
 			if(old_min != label_next_halt.get_max_size()) {
 				size_change = true;
 			}

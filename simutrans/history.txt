@@ -1,7 +1,7 @@
 	FIX: open schedule get applied during rw (reload, quit, change language), line window crashes
-	CHG: no way foreground draw in stations and depots (and other buildings)
+	CHG: no way foreground drawn inside stations and depots (and other buildings)
 	FIX: loading of roadsings broken for player >=8 and old versions
-	CHG: create lost players during game laoding to recover more from broken savegames
+	CHG: create lost players during game loading to recover more from broken savegames
 	FIX: handle focussed objects in tab correctly (like comboboxes)
 
 

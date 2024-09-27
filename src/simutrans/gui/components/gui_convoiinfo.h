@@ -13,6 +13,8 @@
 #include "gui_speedbar.h"
 #include "../../convoihandle.h"
 
+#include <string>
+
 /**
  * Convoi info stats, like loading status bar
  * One element of the vehicle list display
@@ -34,6 +36,8 @@ private:
 	gui_label_t label_name, label_next_halt;
 	gui_label_buf_t label_line, label_profit;
 	button_t pos_next_halt;
+
+	std::string new_halt_name;	// otherwise the halt may be free during screen updates
 
 public:
 	/**
