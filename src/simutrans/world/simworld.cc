@@ -6460,11 +6460,15 @@ void karte_t::announce_server(server_announce_type_t status)
 		buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
 
 		if (network_http_post(ANNOUNCE_SERVER1, ANNOUNCE_URL, buf, NULL)) {
+#ifdef ANNOUNCE_SERVER2
 			if (network_http_post(ANNOUNCE_SERVER2, ANNOUNCE_URL, buf, NULL)) {
-				if (network_http_post(ANNOUNCE_SERVER3, ANNOUNCE_URL, buf, NULL)) {
+#ifdef ANNOUNCE_SERVER3
+				if (network_http_post(ANNOUNCE_SERVER3, ANNOUNCE_URL, buf, NULL))
+#endif
+#endif
 					dbg->warning("announce_server", "All announce servers down!");
-				}
-			}
+			
+
 		}
 
 		// Record time of this announce

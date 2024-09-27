@@ -73,10 +73,9 @@
 
 /*********************** Settings related to network games ********************/
 
-/* Server to announce status to */
-#define ANNOUNCE_SERVER1 "servers.simutrans.org:80"
-#define ANNOUNCE_SERVER2 "ct234.pm2-host.1awww.com:80"
-#define ANNOUNCE_SERVER3 "servers.simutrans-forum.de:80"
+/* Server to announce status to (up to three alternative servers possible) */
+#define ANNOUNCE_SERVER1 "servers.simutrans-forum.de:80"
+#define ANNOUNCE_SERVER2 "servers.simutrans.org:80"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

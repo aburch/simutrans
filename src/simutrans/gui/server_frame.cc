@@ -279,13 +279,21 @@ bool server_frame_t::update_serverlist ()
 
 	if ((err = network_http_get(ANNOUNCE_SERVER1, ANNOUNCE_LIST_URL, buf))) {
 		dbg->warning("server_frame_t::update_serverlist", "Could not download server list from %s: %s", ANNOUNCE_SERVER1, err);
+#ifdef ANNOUNCE_SERVER2
 		if ((err = network_http_get(ANNOUNCE_SERVER2, ANNOUNCE_LIST_URL, buf))) {
 			dbg->warning("server_frame_t::update_serverlist", "Could not download server list from %s: %s", ANNOUNCE_SERVER2, err);
+#ifdef ANNOUNCE_SERVER3
 			if ((err = network_http_get(ANNOUNCE_SERVER3, ANNOUNCE_LIST_URL, buf))) {
 				dbg->error("server_frame_t::update_serverlist", "Could not download server list from %s: %s", ANNOUNCE_SERVER3, err);
 				return false;
 			}
+#else
+			return false;
+#endif
 		}
+#else
+		return false;
+#endif
 	}
 
 	// Parse listing into CSV_t object
