@@ -631,9 +631,6 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 	case IDBTN_INFINITE_SCROLL:
 		env_t::scroll_infinite ^= 1;
 		break;
-	case IDBTN_INFINITE_SCROLL:
-		env_t::scroll_infinite ^= 1;
-		break;
 	case IDBTN_PEDESTRIANS_AT_STOPS:
 		if( !env_t::networkmode || welt->get_active_player_nr() == PUBLIC_PLAYER_NR ) {
 			welt->set_tool( tool_t::simple_tool[ TOOL_TOOGLE_PAX & 0xFFF ], welt->get_active_player() );
