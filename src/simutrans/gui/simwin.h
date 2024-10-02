@@ -124,6 +124,7 @@ enum magic_numbers {
 	magic_pakinstall,
 	magic_chatframe,
 	magic_player_ranking,
+	magic_script_generator,	// only during saving
 	magic_max
 };
 

@@ -27,16 +27,21 @@ script_tool_frame_t::script_tool_frame_t() : savegame_frame_t(NULL, true, NULL, 
 {
 	static cbuffer_t pakset_script_tool;
 	static cbuffer_t addons_script_tool;
+	static cbuffer_t user_addons_script_tool;
 
 	pakset_script_tool.clear();
-	pakset_script_tool.printf("%stool/", env_t::pak_dir.c_str());
+	pakset_script_tool.printf("%stool%s", env_t::pak_dir.c_str(), PATH_SEPARATOR);
 
 	addons_script_tool.clear();
-	addons_script_tool.printf("%saddons/%stool/", env_t::install_dir, env_t::pak_name.c_str());
+	addons_script_tool.printf("%saddons%s%stool%s", env_t::install_dir, PATH_SEPARATOR, env_t::pak_name.c_str(), PATH_SEPARATOR);
+
+	user_addons_script_tool.clear();
+	user_addons_script_tool.printf("%saddons%s%stool%s", env_t::user_dir, PATH_SEPARATOR, env_t::pak_name.c_str(), PATH_SEPARATOR);
 
 	if (env_t::default_settings.get_with_private_paks()) {
 		this->add_path(addons_script_tool);
 	}
+	this->add_path(user_addons_script_tool);	// always add user addons
 	this->add_path(pakset_script_tool);
 
 	set_name(translator::translate("Load script tool"));

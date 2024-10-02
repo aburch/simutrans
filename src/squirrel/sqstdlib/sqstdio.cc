@@ -5,6 +5,8 @@
 #include "../sqstdio.h"
 #include "sqstdstream.h"
 
+#include "../../simutrans/sys/simsys.h"
+
 #define SQSTD_FILE_TYPE_TAG ((SQUnsignedInteger)(SQSTD_STREAM_TYPE_TAG | 0x00000001))
 //basic API
 SQFILE sqstd_fopen(const SQChar *filename ,const SQChar *mode)

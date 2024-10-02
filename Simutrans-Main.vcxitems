@@ -192,6 +192,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_info.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\schedule_list.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\script_generator_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\script_tool_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\server_frame.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\gui\settings_frame.cc" />
@@ -316,6 +317,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\sys\simsys.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simmenu.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool-script-generator.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\tool\simtool-scripted.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\utils\cbuffer.cc" />
     <ClCompile Include="$(MSBuildThisFileDirectory)src\simutrans\utils\checklist.cc" />
@@ -568,6 +570,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\scenario_info.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\schedule_list.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\script_generator_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\server_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\settings_frame.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)src\simutrans\gui\settings_stats.h" />

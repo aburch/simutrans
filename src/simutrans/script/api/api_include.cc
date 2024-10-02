@@ -7,6 +7,9 @@
 #include "../../../squirrel/sqstdio.h" // for loadfile
 #include "../../../squirrel/sq_extensions.h" // for sq_call_restricted
 
+#include "../../sys/simsys.h"
+#include "../../dataobj/environment.h"
+
 /** @file api_include.cc exports include. */
 
 using namespace script_api;
@@ -23,7 +26,14 @@ SQInteger include_aux(HSQUIRRELVM vm)
 
 	// path to scenario files
 	cbuffer_t buf;
-	buf.printf("%s/%s.nut", include_path, filename);
+	buf.printf("%s%s%s.nut", include_path, PATH_SEPARATOR, filename);
+
+	struct stat dummy;
+	if (dr_stat(buf,&dummy)) {
+		// file does not exist, try other path
+		buf.clear();
+		buf.printf("%sscript%s%s.nut", env_t::base_dir, PATH_SEPARATOR, filename);
+	}
 
 	// load script
 	if (!SQ_SUCCEEDED(sqstd_loadfile(vm, (const char*)buf, true))) {

@@ -177,6 +177,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/gui/scenario_frame.cc
 		src/simutrans/gui/scenario_info.cc
 		src/simutrans/gui/schedule_list.cc
+		src/simutrans/gui/script_generator_frame.cc
 		src/simutrans/gui/script_tool_frame.cc
 		src/simutrans/gui/server_frame.cc
 		src/simutrans/gui/settings_frame.cc
@@ -300,6 +301,7 @@ target_sources(simutrans PRIVATE
 		src/simutrans/simware.cc
 		src/simutrans/sys/simsys.cc
 		src/simutrans/tool/simmenu.cc
+		src/simutrans/tool/simtool-script-generator.cc
 		src/simutrans/tool/simtool-scripted.cc
 		src/simutrans/tool/simtool.cc
 		src/simutrans/utils/cbuffer.cc

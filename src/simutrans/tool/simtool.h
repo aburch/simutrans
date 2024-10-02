@@ -10,19 +10,20 @@
 /// New OO tool system
 
 #include "../simtypes.h"
-#include "../world/simworld.h"
-#include "../tool/simmenu.h"
-#include "../obj/simobj.h"
 
+#include "../world/simworld.h"
+
+#include "../tool/simmenu.h"
+
+#include "../obj/simobj.h"
 #include "../obj/way/schiene.h"
+#include "../obj/baum.h"
+#include "../obj/groundobj.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 
 #include "../display/viewport.h"
-
-#include "../obj/baum.h"
-#include "../obj/groundobj.h"
 
 #include "../player/simplay.h"
 
@@ -681,6 +682,20 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove signal"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+};
+
+
+// saves the infrostructure of an area as a building script
+class tool_generate_script_t : public two_click_tool_t {
+public:
+	tool_generate_script_t() : two_click_tool_t(TOOL_GENERATE_SCRIPT | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return "generate script"; }
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool save_script(const char *fullpath, const char *command) const;
+private:
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE { return 3; };
 };
 
 
