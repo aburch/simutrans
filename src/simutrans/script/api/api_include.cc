@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <sys/stat.h>
+
 #include "../api_function.h"
 #include "../../../squirrel/sqstdio.h" // for loadfile
 #include "../../../squirrel/sq_extensions.h" // for sq_call_restricted
