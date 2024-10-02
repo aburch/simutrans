@@ -37,7 +37,7 @@ bool pak_need_update(const paksetinfo_t *pi)
 	outside.append(PATH_SEPARATOR);
 	outside.append("ground.Outside.pak");
 
-	if(  FILE* f = fopen(outside.get_str(), "r")  ) {
+	if(  FILE* f = dr_fopen(outside.get_str(), "r")  ) {
 		fseek(f, 99, SEEK_SET);
 		uint8 len = fgetc(f);
 		fgetc(f);
@@ -378,14 +378,14 @@ static size_t curl_write_data(void* ptr, size_t size, size_t nmemb, FILE* stream
 
 static CURLcode curl_download_file(CURL* curl, const char* target_file, const char* url)
 {
-	FILE* fp = fopen(target_file, "wb");
+	FILE* fp = dr_fopen(target_file, "wb");
 	CURLcode res;
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	char cabundle_path[PATH_MAX];
 	sprintf(cabundle_path, "%s%s", env_t::base_dir, "cacert.pem");
 	FILE* cabundle_file;
-	if ((cabundle_file = fopen(cabundle_path, "r"))) {
+	if ((cabundle_file = dr_fopen(cabundle_path, "r"))) {
 		fclose(cabundle_file);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
 		curl_easy_setopt(curl, CURLOPT_CAINFO, cabundle_path);

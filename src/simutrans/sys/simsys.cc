@@ -451,7 +451,7 @@ bool dr_set_basedir(const char * base_dir_arg, char * executable_path)
 			dr_getcwd(env_t::base_dir, lengthof(env_t::base_dir));
 			strcat( env_t::base_dir, PATH_SEPARATOR );
 			// test if base installation
-			if (FILE* f = fopen("config/simuconf.tab", "r")) {
+			if (FILE* f = dr_fopen("config/simuconf.tab", "r")) {
 				fclose(f);
 				found_basedir = true;
 			}

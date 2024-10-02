@@ -103,7 +103,7 @@ bool loadfont_frame_t::compare_items ( const dir_entry_t & entry, const char *in
  */
 bool loadfont_frame_t::check_file(const char *filename, const char *)
 {
-	FILE *test = fopen( filename, "r" );
+	FILE *test = dr_fopen( filename, "r" );
 	if(  test == NULL  ) {
 		return false;
 	}

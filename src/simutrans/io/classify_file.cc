@@ -23,6 +23,11 @@
 
 #include <cstring>
 
+#ifdef MAKEOBJ
+#define dr_fopen fopen
+#endif
+
+
 
 bool classify_as_png(FILE *f, file_info_t *info);
 bool classify_as_bmp(FILE *f, file_info_t *info);
@@ -61,12 +66,7 @@ file_classify_status_t classify_save_file(const char *path, file_info_t *info)
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
 
-#ifdef MAKEOBJ
-	FILE *f = fopen(path, "rb");
-#else
 	FILE *f = dr_fopen(path, "rb");
-#endif
-
 	if (!f) {
 		// Do not warn about this since we can also use this function to check whether a file exists
 		return FILE_CLASSIFY_NOT_EXISTING;
@@ -150,12 +150,7 @@ file_classify_status_t classify_image_file(const char *path, file_info_t *info)
 		return FILE_CLASSIFY_INVALID_ARGS;
 	}
 
-#ifdef MAKEOBJ
-	FILE *f = fopen(path, "rb");
-#else
 	FILE *f = dr_fopen(path, "rb");
-#endif
-
 	if (!f) {
 		// Do not warn about this since we can also use this function to check whether a file exists
 		return FILE_CLASSIFY_NOT_EXISTING;

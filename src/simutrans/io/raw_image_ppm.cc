@@ -12,14 +12,15 @@
 #include "../simio.h"
 #include "../simmem.h"
 
+#ifdef MAKEOBJ
+#define dr_fopen fopen
+#else
+#include "../sys/simsys.h"
+#endif
 
 bool raw_image_t::read_ppm(const char *filename)
 {
-#ifdef MAKEOBJ
-	FILE *file = fopen(filename, "rb");
-#else
 	FILE *file = dr_fopen(filename, "rb");
-#endif
 
 	// ppm format
 	char buf[255];
