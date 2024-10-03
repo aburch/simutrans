@@ -699,6 +699,24 @@ private:
 };
 
 
+// Copies item under cursor into cursor
+class tool_pipette_t : public tool_t
+{
+public:
+	tool_pipette_t() : tool_t(TOOL_PIPETTE | GENERAL_TOOL) {}
+
+public:
+	const char *get_tooltip(const player_t *) const OVERRIDE { return translator::translate("Pipette"); }
+	const char *work(player_t *, koord3d) OVERRIDE;
+	bool is_init_keeps_game_state() const OVERRIDE { return true; }
+	bool is_work_keeps_game_state() const OVERRIDE { return true; }
+
+private:
+	const char* tool_pipette_t::allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
+	roadsign_t* tool_pipette_t::select_sign(const grund_t* gr, const player_t* owner) const;
+};
+
+
 // internal tool: show error message at specific coordinate
 // used for scenario error messages send by server
 class tool_error_message_t : public tool_t {

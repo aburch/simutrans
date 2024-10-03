@@ -24,6 +24,8 @@ public:
 	signal_t(loadsave_t *file);
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_desc_t *desc, bool preview = false) : roadsign_t(player,pos,dir,desc,preview) { state = STATE_RED;}
 
+	const roadsign_desc_t* get_desc() const { return desc; }
+
 	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 

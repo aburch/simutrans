@@ -120,6 +120,7 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(TOOL_PLANT_GROUNDOBJ);
 		CASE_TO_STRING(TOOL_REMOVE_SIGNAL);
 		CASE_TO_STRING(TOOL_GENERATE_SCRIPT);
+		CASE_TO_STRING(TOOL_PIPETTE);
 		CASE_TO_STRING(TOOL_ADD_MESSAGE);
 		}
 	}
@@ -276,6 +277,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ADD_MESSAGE:                 tool = new tool_add_message_t();         break;
 		case TOOL_REMOVE_SIGNAL:               tool = new tool_remove_signal_t();       break;
 		case TOOL_GENERATE_SCRIPT:             tool = new tool_generate_script_t();     break;
+		case TOOL_PIPETTE:                     tool = new tool_pipette_t();             break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;

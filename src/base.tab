@@ -4430,14 +4430,17 @@ name=Left button drags minimap too
 note=in display settings
 --
 obj=program_text
-name=
+name=The script cannot be saved!\n
 note=Script generator
 --
 obj=program_text
 name=The generated script was saved!\n
 note=Script generator
 --
-
+obj=error_text
+name=Not allowed to copy object.
+note=Pipette tool
+--
 
 
 
