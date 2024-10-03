@@ -6,6 +6,7 @@
 	ADD: (from simutrans OTPR) tool 44 for generating macro building scripts including terrafroming and station and extension buildings (rebuilding may fail of connection station tiles had been deleted or are outside of the marked area)
 	CHG: squirrel script can now also include any file in the script program directory
 	ADD: pipette tool (started by ceeac, extended to copy and check for more objects)
+	FIX: convoi length bar not so long to need immediately a scrollbar
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):

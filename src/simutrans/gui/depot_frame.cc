@@ -227,14 +227,13 @@ void depot_frame_t::init(depot_t *dep)
 	/*
 	* [CONVOI]
 	*/
-	cont_convoi.set_table_layout(2,0);
+	cont_convoi.set_table_layout(1,0);
 	cont_convoi.set_margin(scr_size(0,0), scr_size(0,0));
 	cont_convoi.set_spacing(scr_size(0,0));
-	cont_convoi.add_component(&convoi,2);
+	cont_convoi.add_component(&convoi);
 	convoi.set_max_rows(1);
 
 	sb_convoi_length.set_base( depot->get_max_convoi_length() * CARUNITS_PER_TILE / 2 - 1);
-	sb_convoi_length.set_vertical(false);
 	convoi_length_ok_sb = 0;
 	convoi_length_slower_sb = 0;
 	convoi_length_too_slow_sb = 0;
@@ -246,7 +245,6 @@ void depot_frame_t::init(depot_t *dep)
 		sb_convoi_length.add_color_value(&convoi_length_ok_sb, color_idx_to_rgb(COL_GREEN));
 		sb_convoi_length.add_color_value(&convoi_length_slower_sb, color_idx_to_rgb(COL_ORANGE));
 		sb_convoi_length.add_color_value(&convoi_length_too_slow_sb, color_idx_to_rgb(COL_RED));
-		cont_convoi.new_component<gui_margin_t>(gui_image_list_t::BORDER,0); // compensate for offset in gui_image_list_t
 		cont_convoi.add_component(&sb_convoi_length);
 	}
 	add_component(&scrolly_convoi);
@@ -465,6 +463,7 @@ void depot_frame_t::set_windowsize( scr_size size )
 		gui_image_list_t* il = ilists[i];
 		il->set_max_width(size.w);
 	}
+	sb_convoi_length.set_size(scr_size(size.w - D_MARGINS_X, D_INDICATOR_HEIGHT));
 	gui_frame_t::set_windowsize(size);
 }
 

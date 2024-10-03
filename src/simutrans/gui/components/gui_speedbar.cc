@@ -67,6 +67,28 @@ void gui_speedbar_t::draw(scr_coord offset)
 	}
 }
 
+void gui_speedbar_fixed_length_t::draw(scr_coord offset)
+{
+	offset += pos;
+
+	sint32 from = 0;
+	for (info_t const& i : values) {
+		sint32 const to = min(*i.value, base) * fixed_width / base;
+		if (to > from) {
+			sint32 to_w = min(size.w, from);
+			display_fillbox_wh_clip_rgb(offset.x + from, offset.y, to - from, size.h, i.color, true);
+			from = to + 1;
+		}
+		if (from > size.w) {
+			// reached size already
+			break;
+		}
+	}
+	if (from < size.w) {
+		display_fillbox_wh_clip_rgb(offset.x + from, offset.y, size.w - from, size.h, color_idx_to_rgb(MN_GREY0), true);
+	}
+}
+
 void gui_routebar_t::set_base(sint32 base)
 {
 	this->base = base != 0 ? base : 1;
