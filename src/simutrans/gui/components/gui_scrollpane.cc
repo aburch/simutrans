@@ -41,13 +41,14 @@ gui_scrollpane_t::gui_scrollpane_t(gui_component_t* comp, bool b_scroll_x, bool 
 
 scr_size gui_scrollpane_t::get_min_size() const
 {
-	scr_size csize = comp->get_min_scroll_size();
-	if (csize.w > 0 || csize.h > 0) {
-		// the component does not have a minimum scroll size
-		// use min_size and limit it with max_width/height
-		csize = comp->get_min_size();
-		csize.w = min(csize.w, max_width);
-		csize.h = min(csize.h, max_height);
+	// the component does not have a minimum scroll size
+	// use min_size and limit it with max_width/height
+	scr_size csize = comp->get_min_size();
+	csize.w = min(csize.w, max_width);
+	csize.h = min(csize.h, max_height);
+	if (scroll_x.is_visible() && !b_show_scroll_y) {
+		// need to add space for x-scroolbar as y-scrolling is out of question
+		csize.h += D_SCROLLBAR_HEIGHT;
 	}
 	csize.w = max(csize.w, scroll_x.get_min_size().w);
 	csize.h = max(csize.h, scroll_y.get_min_size().h);
@@ -57,7 +58,12 @@ scr_size gui_scrollpane_t::get_min_size() const
 
 scr_size gui_scrollpane_t::get_max_size() const
 {
-	return comp->get_max_size();
+	scr_size csize = comp->get_max_size();
+	if (csize.h!=scr_size::inf.h  &&  scroll_x.is_visible()  &&  !b_show_scroll_y) {
+		// need to add space for x-scroolbar as y-scrolling is out of question
+		csize.h += D_SCROLLBAR_HEIGHT;
+	}
+	return csize;
 }
 
 

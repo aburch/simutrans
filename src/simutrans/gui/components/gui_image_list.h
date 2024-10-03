@@ -102,7 +102,6 @@ public:
 
 	scr_size get_min_size() const OVERRIDE;
 	scr_size get_max_size() const OVERRIDE;
-	scr_size get_min_scroll_size() const OVERRIDE;
 };
 
 #endif

@@ -144,9 +144,3 @@ scr_size gui_image_list_t::get_max_size() const
 	}
 	return scr_size((images->get_count()+1)*grid.x + 2*BORDER, grid.y + 2*BORDER);
 }
-
-
-scr_size gui_image_list_t::get_min_scroll_size() const
-{
-	return scr_size(grid.x + 2*BORDER, grid.y + 2*BORDER);
-}
