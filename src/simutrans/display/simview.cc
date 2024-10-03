@@ -342,10 +342,12 @@ void main_view_t::display(bool force_dirty)
 
 			case 1:
 				// show message of active player
-				int x = welt->get_active_player_nr();
-				if(  welt->get_player(x)  ) {
-					welt->get_player(x)->display_messages();
+				if (welt->get_active_player()) {
+					welt->get_active_player()->display_messages();
 				}
+				break;
+
+			default: // no messages
 				break;
 		}
 

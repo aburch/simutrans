@@ -4429,7 +4429,14 @@ obj=program_text
 name=Left button drags minimap too
 note=in display settings
 --
-
+obj=program_text
+name=
+note=Script generator
+--
+obj=program_text
+name=The generated script was saved!\n
+note=Script generator
+--
 
 
 
