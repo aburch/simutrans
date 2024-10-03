@@ -712,8 +712,7 @@ public:
 	bool is_work_keeps_game_state() const OVERRIDE { return true; }
 
 private:
-	const char* tool_pipette_t::allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
-	roadsign_t* tool_pipette_t::select_sign(const grund_t* gr, const player_t* owner) const;
+	const char* allow_tool_check(const obj_t* obj, const obj_desc_timelined_t* desc, const player_t* pl) const;
 };
 
 
