@@ -1542,7 +1542,10 @@ bool tool_clear_reservation_t::exit( player_t * )
 
 bool tool_clear_reservation_t::is_selected() const
 {
-	return schiene_t::show_reservations;
+	if (welt->get_tool(welt->get_active_player_nr())==this) {
+		return true;
+	}
+	return false;
 }
 
 const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
@@ -7393,6 +7396,17 @@ bool tool_quit_t::init( player_t * )
 	}
 	if (env_t::networkmode) {
 		welt->network_disconnect();
+	}
+	return false;
+}
+
+
+bool tool_toggle_reservation_t::is_selected() const
+{
+	if (tool_t* t = welt->get_tool(welt->get_active_player_nr())) {
+		if (t->get_id() != (TOOL_CLEAR_RESERVATION | GENERAL_TOOL)) {
+			return schiene_t::show_reservations;
+		}
 	}
 	return false;
 }

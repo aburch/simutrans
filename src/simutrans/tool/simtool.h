@@ -689,7 +689,7 @@ public:
 class tool_generate_script_t : public two_click_tool_t {
 public:
 	tool_generate_script_t() : two_click_tool_t(TOOL_GENERATE_SCRIPT | GENERAL_TOOL) {}
-	char const* get_tooltip(player_t const*) const OVERRIDE { return "generate script"; }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("generate script"); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
 	bool save_script(const char *fullpath, const char *command) const;
 private:
@@ -1098,7 +1098,7 @@ class tool_toggle_reservation_t : public tool_t {
 public:
 	tool_toggle_reservation_t() : tool_t(TOOL_TOGGLE_RESERVATION | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("show/hide block reservations"); }
-	bool is_selected() const OVERRIDE { return schiene_t::show_reservations; }
+	bool is_selected() const OVERRIDE;
 	bool init( player_t * ) OVERRIDE {
 		schiene_t::show_reservations ^= 1;
 		welt->set_dirty();

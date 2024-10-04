@@ -1,4 +1,4 @@
-# text group = 'message_text'
+ text group = 'message_text'
 # text group = 'button_text'
 # text group = 'climates_text'
 # text group = 'error_text'
@@ -4441,8 +4441,14 @@ obj=error_text
 name=Not allowed to copy object.
 note=Pipette tool
 --
-
-
+obj=program_text
+name=generate script
+note= tooltip
+--
+obj=program_text
+name=Pipette
+note= tooltip
+--
 
 
 #obj=help_text
