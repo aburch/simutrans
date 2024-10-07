@@ -67,13 +67,18 @@ DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, rows=%i",ww,rows);
 			// At least, 3 rows is needed to drag toolbar
 			tool_icon_width = min( tool_icon_width, max(env_t::toolbar_max_width, 3) );
 		}
+		scr_rect screen = win_get_max_window_area();
+		uint16 max_tool_icon_height = max(1, (screen.h - win_get_statusbar_height()) / env_t::iconsize.h);
+		tool_icon_height = min(rows, max_tool_icon_height);
 	}
-	tool_icon_height = max( (display_get_height()/env_t::iconsize.h)-3, 1 );
+	else {
+		tool_icon_height = 1;
+	}
 	if(  env_t::toolbar_max_height > 0  ) {
 		tool_icon_height = min(tool_icon_height, env_t::toolbar_max_height);
 	}
 	dirty = true;
-	set_windowsize( scr_size( tool_icon_width*env_t::iconsize.w, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*env_t::iconsize.h+D_TITLEBAR_HEIGHT ) );
+	set_windowsize( scr_size( tool_icon_width*env_t::iconsize.w, tool_icon_height*env_t::iconsize.h+D_TITLEBAR_HEIGHT ) );
 	tool_icon_disp_start = 0;
 	tool_icon_disp_end = min( tool_icon_disp_start+tool_icon_width*tool_icon_height, tools.get_count() );
 	has_prev_next = ((uint32)tool_icon_width*tool_icon_height < tools.get_count());
@@ -273,7 +278,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			tool_icon_width = (display_get_width() + env_t::iconsize.w - 1) / env_t::iconsize.w;
 			tool_icon_height = 1; // only single row for title bar
 			set_windowsize(sz);
-			// check for too large values (acter changing width etc.)
+			// check for too large values (after changing width etc.)
 			if (  display_get_width() >= (int)tools.get_count() * env_t::iconsize.w  ) {
 				tool_icon_disp_start = 0;
 				offset.x = 0;
@@ -292,7 +297,8 @@ void tool_selector_t::draw(scr_coord pos, scr_size sz)
 			allow_break = false;
 			tool_icon_width = 1;
 			// only single column for title bar
-			tool_icon_height = (display_get_height() - win_get_statusbar_height() + env_t::iconsize.h - 1) / env_t::iconsize.h;
+			scr_rect screen = win_get_max_window_area();
+			tool_icon_height = max(1,(screen.h - win_get_statusbar_height() + env_t::iconsize.h-1) / env_t::iconsize.h);
 			set_windowsize(scr_size(env_t::iconsize.w, display_get_height() - win_get_statusbar_height()));
 
 			if ( display_get_height() >= (int)tools.get_count() * env_t::iconsize.h  ) {

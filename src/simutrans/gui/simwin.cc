@@ -682,12 +682,9 @@ void rdwr_all_win(loadsave_t *file)
 }
 
 
-/* tries to get a window on the screen
- * without titlebar hidden by any menubar/satus bar elements
- */
-void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, bool move_topleft )
+
+scr_rect win_get_max_window_area()
 {
-	// reposition to keep on screen
 	scr_coord other_pos((env_t::menupos == MENU_LEFT) * env_t::iconsize.w, (env_t::menupos == MENU_TOP) * env_t::iconsize.h + (env_t::menupos == MENU_BOTTOM) * win_get_statusbar_height());
 	scr_size other_size(display_get_width() - other_pos.x - (env_t::menupos == MENU_RIGHT) * env_t::iconsize.w,
 		display_get_height() - win_get_statusbar_height() - env_t::iconsize.h);
@@ -697,7 +694,20 @@ void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, boo
 			other_pos.y += TICKER_HEIGHT;
 		}
 	}
-	scr_rect screen(other_pos, other_size);
+	return scr_rect(other_pos, other_size);
+}
+
+
+
+/* tries to get a window on the screen
+ * without titlebar hidden by any menubar/satus bar elements
+ */
+void win_clamp_xywh_position( gui_frame_t* gui, scr_coord &pos, scr_size wh, bool move_topleft )
+{
+	// reposition to keep on screen
+	scr_rect screen = win_get_max_window_area();
+	scr_coord other_pos  = screen.get_pos();
+	scr_size  other_size = screen.get_size();
 
 	if (pos.y < other_pos.y) {
 		// y alsways visible

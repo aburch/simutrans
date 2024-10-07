@@ -29,7 +29,6 @@ SQInteger include_aux(HSQUIRRELVM vm)
 	// path to scenario files
 	cbuffer_t buf;
 	buf.printf("%s%s%s.nut", include_path, PATH_SEPARATOR, filename);
-
 	struct stat dummy;
 	if (dr_stat(buf,&dummy)) {
 		// file does not exist, try other path
