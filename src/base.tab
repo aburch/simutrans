@@ -1,4 +1,4 @@
- text group = 'message_text'
+# text group = 'message_text'
 # text group = 'button_text'
 # text group = 'climates_text'
 # text group = 'error_text'
