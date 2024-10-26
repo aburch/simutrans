@@ -391,6 +391,8 @@ int terraformer_t::raise_to(const node_t &node)
 		assert(false);
 	}
 
+	bool recalc_climate = gr-> is_water()  ||  welt->get_settings().get_climate_generator() == settings_t::HEIGHT_BASED;
+
 	// change height and slope, for water tiles only if they will become land
 	if(  !gr->is_water()  ||  (hmaxneu > water_hgt  ||  (hneu == water_hgt  &&  hmaxneu == water_hgt)  )  ) {
 		gr->set_pos( koord3d( node.x, node.y, disp_hneu ) );
@@ -401,7 +403,9 @@ int terraformer_t::raise_to(const node_t &node)
 
 	// update north point in grid
 	welt->set_grid_hgt_nocheck(node.x, node.y, hn_nw);
-	welt->calc_climate(koord(node.x,node.y), true);
+	if (recalc_climate) {
+		welt->calc_climate(koord(node.x, node.y), true);
+	}
 
 	if ( node.x+1 == welt->get_size().x ) {
 		// update eastern grid coordinates too if we are in the edge.
@@ -535,6 +539,8 @@ int terraformer_t::lower_to(const node_t &node)
 	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
 	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
 
+	bool recalc_climate = welt->get_settings().get_climate_generator() == settings_t::HEIGHT_BASED;
+
 	// change height and slope for land tiles only
 	if(  !gr->is_water()  ||  (hmaxneu > water_hgt)  ) {
 		gr->set_pos( koord3d( node.x, node.y, disp_hneu ) );
@@ -574,14 +580,17 @@ int terraformer_t::lower_to(const node_t &node)
 
 				welt->set_water_hgt_nocheck( neighbour, hneu );
 				welt->access_nocheck(neighbour)->correct_water();
+				recalc_climate = true;
 			}
 		}
 	}
 
-	welt->calc_climate( koord( node.x, node.y ), false );
-	for(  sint16 i = 0;  i < 8;  i++  ) {
-		const koord neighbour = koord( node.x, node.y ) + koord::neighbours[i];
-		welt->calc_climate( neighbour, false );
+	if (recalc_climate) {
+		welt->calc_climate( koord( node.x, node.y ), false );
+		for(  sint16 i = 0;  i < 8;  i++  ) {
+			const koord neighbour = koord( node.x, node.y ) + koord::neighbours[i];
+			welt->calc_climate( neighbour, false );
+		}
 	}
 
 	// recalc landscape images - need to extend 2 in each direction
