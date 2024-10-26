@@ -16,6 +16,13 @@
 
 #if COLOUR_DEPTH != 0
 
+#ifndef ZOOM_NEUTRAL
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+extern const sint32 zoom_num[MAX_ZOOM_FACTOR + 1];
+extern const sint32 zoom_den[MAX_ZOOM_FACTOR + 1];
+#endif
+
 extern scr_coord_val default_font_ascent;
 extern scr_coord_val default_font_linespace;
 
@@ -25,6 +32,14 @@ extern scr_coord_val default_font_linespace;
 #  define LINEASCENT 0
 // a font height of zero could cause division by zero errors, even though it should not be used in a server
 #  define LINESPACE  1
+
+#ifndef ZOOM_NEUTRAL
+#define MAX_ZOOM_FACTOR (0)
+#define ZOOM_NEUTRAL (0)
+extern const sint32 zoom_num[1];
+extern const sint32 zoom_den[1];
+#endif
+
 #endif
 
 

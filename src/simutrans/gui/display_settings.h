@@ -24,7 +24,10 @@ class gui_settings_t : public gui_aligned_container_t, public action_listener_t
 {
 private:
 	gui_numberinput_t screen_scale_numinp;
+	button_t icon_scale_down, icon_scale_up;
 	button_t screen_scale_auto;
+	scr_coord_val base_icon_height;
+	uint icon_zoom;
 
 	gui_label_buf_t
 		frame_time_value_label,

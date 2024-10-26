@@ -9,8 +9,18 @@
 #include <math.h>
 #include <algorithm>
 
-#include "../macros.h"
 #include "../simtypes.h"
+
+ /*
+  * Zoom factor (must be done before including simgraph)
+  */
+#define MAX_ZOOM_FACTOR (9)
+#define ZOOM_NEUTRAL (3)
+uint32 zoom_factor = ZOOM_NEUTRAL;
+extern const sint32 zoom_num[MAX_ZOOM_FACTOR + 1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
+extern const sint32 zoom_den[MAX_ZOOM_FACTOR + 1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
+
+#include "../macros.h"
 #include "font.h"
 #include "../pathes.h"
 #include "../simconst.h"
@@ -29,9 +39,10 @@
 #include "../gui/simwin.h"
 #include "../dataobj/environment.h"
 
+#include "../obj/roadsign.h" // for signal status indicator
+
 #include "simgraph.h"
 
-#include "../obj/roadsign.h" // for signal status indicator
 
 
 #ifdef _MSC_VER
@@ -508,16 +519,6 @@ display_image_proc display_color = NULL;
 display_blend_proc display_blend = NULL;
 display_alpha_proc display_alpha = NULL;
 signed short current_tile_raster_width = 0;
-
-
-/*
- * Zoom factor
- */
-#define MAX_ZOOM_FACTOR (9)
-#define ZOOM_NEUTRAL (3)
-static uint32 zoom_factor = ZOOM_NEUTRAL;
-static sint32 zoom_num[MAX_ZOOM_FACTOR+1] = { 2, 3, 4, 1, 3, 5, 1, 3, 1, 1 };
-static sint32 zoom_den[MAX_ZOOM_FACTOR+1] = { 1, 2, 3, 1, 4, 8, 2, 8, 4, 8 };
 
 
 static inline rgb888_t pixval_to_rgb888(PIXVAL colour)

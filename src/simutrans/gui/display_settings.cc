@@ -112,6 +112,33 @@ gui_settings_t::gui_settings_t()
 
 	new_component<gui_fill_t>();
 
+	// screen scale number input
+	new_component<gui_label_t>("Icon size:");
+	base_icon_height = 32;
+	if (tool_t::general_tool[TOOL_QUERY]->get_icon(NULL) != IMG_EMPTY)
+	{
+		scr_coord_val dummy;
+		display_get_base_image_offset(tool_t::general_tool[TOOL_QUERY]->get_icon(NULL), &dummy, &dummy, &dummy, &base_icon_height);
+	}
+	// find current zoom factor
+	for (icon_zoom = 0; icon_zoom <= MAX_ZOOM_FACTOR; icon_zoom++) {
+		if (env_t::iconsize.h >= (base_icon_height * zoom_num[icon_zoom]) / zoom_den[icon_zoom]) {
+			// since we go from large size
+			break;
+		}
+	}
+	add_table(2, 0);
+	{
+		icon_scale_down.set_typ(button_t::arrowleft);
+		icon_scale_down.add_listener(this);
+		add_component(&icon_scale_down);
+		icon_scale_up.set_typ(button_t::arrowright);
+		icon_scale_up.add_listener(this);
+		add_component(&icon_scale_up);
+	}
+	end_table();
+	new_component<gui_fill_t>();
+
 	// position of menu
 	new_component<gui_label_t>("Toolbar position:");
 	switch (env_t::menupos) {
@@ -212,7 +239,34 @@ bool gui_settings_t::action_triggered(gui_action_creator_t *comp, value_t v)
 		dr_set_screen_scale(-1);
 		screen_scale_numinp.set_value(dr_get_screen_scale());
 	}
+	else if (comp == &icon_scale_down) {
+		if (icon_zoom < MAX_ZOOM_FACTOR) {
+			icon_scale_up.enable(true);
+			icon_zoom++;
+			goto icon_resize;
+		}
+		icon_scale_down.enable(false);
+	}
+	else if (comp == &icon_scale_up) {
+		if (icon_zoom > 0) {
+			icon_scale_down.enable(true);
+			icon_zoom--;
+			goto icon_resize;
+		}
+		icon_scale_up.enable(false);
+	}
 
+	return true;
+
+icon_resize:
+	scr_coord_val new_size = (zoom_num[icon_zoom] * base_icon_height) / zoom_den[icon_zoom];
+	env_t::iconsize.h = env_t::iconsize.w = new_size;
+
+	// reload windows to update
+	event_t* ev = new event_t();
+	ev->ev_class = EVENT_SYSTEM;
+	ev->ev_code = SYSTEM_RELOAD_WINDOWS;
+	queue_event(ev);
 	return true;
 }
 
