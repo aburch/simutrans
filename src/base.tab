@@ -4449,6 +4449,14 @@ obj=program_text
 name=Pipette
 note= tooltip
 --
+obj=error_text
+name=Watertable reached
+note=too deep lowering failed
+--
+obj=program_text
+name=Icon size:
+note=text in diplay opetions
+--
 
 
 #obj=help_text

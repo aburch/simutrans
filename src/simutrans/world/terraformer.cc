@@ -627,7 +627,7 @@ const char *terraformer_t::can_lower_plan_to(const player_t *player, sint16 x, s
 	}
 
 	if(  h < welt->get_groundwater() - 3  ) {
-		return "";
+		return "Watertable reached";
 	}
 
 	const sint8 hmax = plan->get_kartenboden()->get_hoehe();
