@@ -12,7 +12,8 @@
 
 scr_coord_val tile_raster_width = 16; // zoomed
 scr_coord_val base_tile_raster_width = 16; // original
-
+extern const sint32 zoom_num[1] = { 1 };
+extern const sint32 zoom_den[1] = { 1 };
 
 PIXVAL color_idx_to_rgb(PIXVAL idx)
 {
