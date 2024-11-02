@@ -9,6 +9,8 @@
 	FIX: convoi length bar not so long to need immediately a scrollbar
 	ADD: manually increase tool icon size in display settings window
 	FIX: keep current tile's climate on lower/raise if climate mode is humidity based
+	ADD: error message if digging below water table
+	CHG: lowering tiles next to water will flood them again as a long time ago
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
