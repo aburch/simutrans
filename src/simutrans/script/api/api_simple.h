@@ -58,6 +58,19 @@ namespace script_api {
 			ticks(t), ticks_per_month(tpm), next_month_ticks(nmt)
 		{}
 	};
+
+	struct mytool_data_t 
+	{
+		koord3d start_pos;
+		bool is_drag_tool;
+		bool is_ctrl;
+		bool is_shift;
+
+		mytool_data_t(koord3d pos, bool drag, bool ctrl, bool shift) :
+			start_pos(pos), is_drag_tool(drag), is_ctrl(ctrl), is_shift(shift)
+		{}
+	};
+
 };
 
 #endif

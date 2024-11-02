@@ -67,6 +67,16 @@ SQInteger param<mytime_ticks_t>::push(HSQUIRRELVM vm, mytime_ticks_t const& v)
 	return 1;
 }
 
+SQInteger param<mytool_data_t>::push(HSQUIRRELVM vm, mytool_data_t const& v)
+{
+	sq_newtableex(vm, 6);
+	create_slot<koord3d>(vm, "start_pos",	v.start_pos);
+	create_slot<bool>(vm, "is_drag_tool",	v.is_drag_tool);
+	create_slot<bool>(vm, "is_ctrl",		v.is_ctrl);
+	create_slot<bool>(vm, "is_shift",		v.is_shift);
+	return 1;
+}
+
 
 mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
 {

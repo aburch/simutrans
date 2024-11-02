@@ -33,6 +33,7 @@
 #include "../script/api/api.h"
 #include "../script/api_param.h"
 #include "../script/api_class.h"
+#include "../script/api/api_simple.h"
 
 #include "../tpl/plainstringhashtable_tpl.h"
 

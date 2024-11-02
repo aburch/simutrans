@@ -64,6 +64,7 @@ namespace script_api {
 	// forward declaration
 	struct mytime_t;
 	struct mytime_ticks_t;
+	struct mytool_data_t;
 
 	/**
 	 * Templated interface to transfer variables from / to squirrel.
@@ -400,6 +401,7 @@ namespace script_api {
 	declare_specialized_param(schedule_entry_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
+	declare_specialized_param(mytool_data_t, "i|t|x|y", "tool_data_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(simline_t*, "t|x|y", "line_x");
 	declare_specialized_param(player_t*, "t|x|y", "player_x");
