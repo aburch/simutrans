@@ -495,8 +495,25 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 	// cannot be done for two_click_tool_t's as they depend on routefinding,
 	// which is done per client
 	if (what_scenario == SCRIPTED) {
+		koord3d start_pos = pos;
+		bool is_drag_tool = false;
+		bool is_ctrl = false;
+		bool is_shift = false;
+		uint8 player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
+		if(player_nr != PLAYER_UNOWNED){
+			if (two_click_tool_t *two_tool = dynamic_cast<two_click_tool_t*>(welt->get_tool(player_nr))) {
+				start_pos = two_tool->get_start_pos();
+				is_drag_tool = !two_tool->is_first_click();
+				is_ctrl = two_tool->is_ctrl_pressed();
+				is_shift = two_tool->is_shift_pressed();
+			}
+			else if (tool_t *tool = dynamic_cast<tool_t*>(welt->get_tool(player_nr))) {
+				is_ctrl = tool->is_ctrl_pressed();
+				is_shift = tool->is_shift_pressed();
+			}
+		}
 		static plainstring msg;
-		const char *err = script->call_function(script_vm_t::FORCE, "is_work_allowed_here", msg, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), tool_id, pos);
+		const char *err = script->call_function(script_vm_t::FORCE, "is_work_allowed_here", msg, player_nr, tool_id, pos, script_api::mytool_data_t(start_pos, is_drag_tool, is_ctrl, is_shift));
 
 		return err == NULL ? msg.c_str() : NULL;
 	}
