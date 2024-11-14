@@ -10,7 +10,6 @@
 	ADD: manually increase tool icon size in display settings window
 	FIX: keep current tile's climate on lower/raise if climate mode is humidity based
 	ADD: error message if digging below water table
-	CHG: lowering tiles next to water will flood them again as a long time ago
 	ADD: (Yona-TYT) more parameters to "is_work_allowed_here"
 
 

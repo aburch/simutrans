@@ -166,9 +166,8 @@ int terraformer_t::apply()
 	}
 	else {
 		for(node_t const& i : list) {
-			n += lower_to(i,false);	// lower and recalculate water table
+			n += lower_to(i);
 		}
-		lower_to(list[0],true); // only recalculate water table for first point (and maybe convert to water)
 	}
 
 	return n;
@@ -436,115 +435,174 @@ int terraformer_t::raise_to(const node_t &node)
 }
 
 
-int terraformer_t::lower_to(const node_t &node, bool watertable_only)
+void terraformer_t::correct_watertable()
+{
+	sint8 water_table = -128;
+	koord xymax = koord::invalid;
+	for (auto i : list) {
+		koord k(i.x, i.y);
+		xymax.clip_min(k);
+		grund_t* gr = welt->lookup_kartenboden_nocheck(k);
+		if (gr->is_water()) {
+			water_table = gr->get_hoehe();
+		}
+	}
+	// no water inside
+	if (water_table == -128) {
+
+	}
+}
+
+
+
+int terraformer_t::lower_to(const node_t &node)
 {
 	assert(welt->is_within_limits(node.x,node.y));
 
 	int n = 0;
 	grund_t *gr = welt->lookup_kartenboden_nocheck(node.x,node.y);
-	assert(gr!=0);
-	const koord k = koord(node.x, node.y);
-
-	if (gr->get_typ() == grund_t::wasser) {
-		welt->set_water_hgt_nocheck(node.x, node.y, gr->get_hoehe());
-		return 0;	// no change for water, no cost
-	}
-
 	sint8 water_hgt = welt->get_water_hgt_nocheck(node.x,node.y);
 	const sint8 h0 = gr->get_hoehe();
-	bool recalc_climate = false;
 
-	if (!watertable_only) {
-		// old height
-		const sint8 h0_sw = gr->is_water() ? welt->lookup_hgt_nocheck(k) : h0 + corner_sw(gr->get_grund_hang());
-		const sint8 h0_se = h0 + corner_se(gr->get_grund_hang());
-		const sint8 h0_ne = h0 + corner_ne(gr->get_grund_hang());
-		const sint8 h0_nw = h0 + corner_nw(gr->get_grund_hang());
+	// old height
+	const sint8 h0_sw = gr->is_water() ? min( water_hgt, welt->lookup_hgt_nocheck(node.x,   node.y+1) ) : h0 + corner_sw( gr->get_grund_hang() );
+	const sint8 h0_se = gr->is_water() ? min( water_hgt, welt->lookup_hgt_nocheck(node.x+1, node.y+1) ) : h0 + corner_se( gr->get_grund_hang() );
+	const sint8 h0_ne = gr->is_water() ? min( water_hgt, welt->lookup_hgt_nocheck(node.x+1, node.y  ) ) : h0 + corner_ne( gr->get_grund_hang() );
+	const sint8 h0_nw = gr->is_water() ? min( water_hgt, welt->lookup_hgt_nocheck(node.x,   node.y  ) ) : h0 + corner_nw( gr->get_grund_hang() );
 
-		// new height
-		const sint8 hn_sw = min(node.hsw, h0_sw);
-		const sint8 hn_se = min(node.hse, h0_se);
-		const sint8 hn_ne = min(node.hne, h0_ne);
-		const sint8 hn_nw = min(node.hnw, h0_nw);
+	// new height
+	const sint8 hn_sw = min(node.hsw, h0_sw);
+	const sint8 hn_se = min(node.hse, h0_se);
+	const sint8 hn_ne = min(node.hne, h0_ne);
+	const sint8 hn_nw = min(node.hnw, h0_nw);
 
-		// nothing to do?
-		if(  h0_sw <= node.hsw  &&  h0_se <= node.hse  &&  h0_ne <= node.hne  &&  h0_nw <= node.hnw  ) {
+	// nothing to do?
+	if(  gr->is_water()  ) {
+		if(  h0_nw <= node.hnw  ) {
 			return 0;
 		}
-
-		recalc_climate = welt->get_settings().get_climate_generator() == settings_t::HEIGHT_BASED;
-
-		// calc new height and slope
-		const sint8 hneu    = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
-		const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
-
-		// calc new height and slope
-		const sint8 disp_hneu  = hneu;
-		const sint8 disp_hn_sw = hn_sw;
-		const sint8 disp_hn_se = hn_se;
-		const sint8 disp_hn_ne = hn_ne;
-		const sint8 disp_hn_nw = hn_nw;
-		const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
-
-		// change height and slope for land tiles only
-		if(  !gr->is_water()  ) {
-			gr->set_pos( koord3d( node.x, node.y, disp_hneu ) );
-			gr->set_grund_hang( (slope_t::type)sneu );
-			welt->access_nocheck(node.x,node.y)->abgesenkt();
-			// may have been already converted to water ...
-			gr = welt->lookup_kartenboden_nocheck(node.x, node.y);
-			if (gr->is_water()) {
-				welt->set_water_hgt_nocheck(koord(node.x, node.y), gr->get_hoehe());
-				gr->set_grund_hang(slope_t::flat);
-			}
-		}
-
-		// update north point in grid
-		welt->set_grid_hgt_nocheck(node.x, node.y, hn_nw);
-		if ( node.x+1 == welt->get_size().x ) {
-			// update eastern grid coordinates too if we are in the edge.
-			welt->set_grid_hgt_nocheck(node.x+1, node.y,   hn_ne);
-			welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
-		}
-
-		if ( node.y+1 == welt->get_size().y ) {
-			// update southern grid coordinates too if we are in the edge.
-			welt->set_grid_hgt_nocheck(node.x,   node.y+1, hn_sw);
-			welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
-		}
-
-		n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
+	}
+	else if(  h0_sw <= node.hsw  &&  h0_se <= node.hse  &&  h0_ne <= node.hne  &&  h0_nw <= node.hnw  ) {
+		return 0;
 	}
 
-	// correct the water table for this tile 
-	if (!gr->is_water()) {
-		sint8 water_table = gr->get_hoehe();
-		sint8 max_water_table = water_table-4;
-		// find out if surrounded by water
-		for (sint16 i = 0; i < 8; i++) {
-			const koord neighbour = koord(node.x, node.y) + koord::neighbours[i];
-			if (grund_t* ngr = welt->lookup_kartenboden(neighbour)) {
-				if (ngr->is_water()) {
-					max_water_table = ngr->get_hoehe();
-					break;
-				}
-				else {
-					max_water_table = max(max_water_table, welt->get_water_hgt_nocheck(neighbour));
+	// calc new height and slope
+	const sint8 hneu    = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
+	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
+
+	if(  hneu >= water_hgt  ) {
+		// calculate water table from surrounding tiles - start off with height on this tile
+		sint8 water_table = water_hgt >= h0 ? water_hgt : welt->get_groundwater() - 4;
+
+		/*
+		 * we test each corner in turn to see whether it is at the base height of the tile.
+		 * If it is we then mark the 3 surrounding tiles for that corner for checking.
+		 * Surrounding tiles are indicated by bits going anti-clockwise from
+		 * (binary) 00000001 for north-west through to (binary) 10000000 for north
+		 * as this is the order of directions used by koord::neighbours[]
+		 */
+
+		uint8 neighbour_flags = 0;
+
+		if(  hn_nw == hneu  ) {
+			neighbour_flags |= 0x83;
+		}
+		if(  hn_ne == hneu  ) {
+			neighbour_flags |= 0xe0;
+		}
+		if(  hn_se == hneu  ) {
+			neighbour_flags |= 0x38;
+		}
+		if(  hn_sw == hneu  ) {
+			neighbour_flags |= 0x0e;
+		}
+
+		for(  sint16 i = 0;  i < 8 ;  i++  ) {
+			const koord neighbour = koord( node.x, node.y ) + koord::neighbours[i];
+
+			// here we look at the bit in neighbour_flags for this direction
+			// we shift it i bits to the right and test the least significant bit
+
+			if(  welt->is_within_limits( neighbour )  &&  ((neighbour_flags >> i) & 1)  ) {
+				grund_t *gr2 = welt->lookup_kartenboden_nocheck( neighbour );
+				const sint8 water_hgt_neighbour = welt->get_water_hgt_nocheck( neighbour );
+				if(  gr2  &&  (water_hgt_neighbour >= gr2->get_hoehe())  &&  water_hgt_neighbour <= hneu  ) {
+					water_table = max( water_table, water_hgt_neighbour );
 				}
 			}
 		}
-		if (max_water_table >= gr->get_hoehe()) {
-			welt->set_water_hgt_nocheck(koord(node.x, node.y), max_water_table);
-			welt->access_nocheck(koord(node.x, node.y))->correct_water();
+
+		for(  sint16 i = 0;  i < 8 ;  i++  ) {
+			const koord neighbour = koord( node.x, node.y ) + koord::neighbours[i];
+			if(  welt->is_within_limits( neighbour )  ) {
+				grund_t *gr2 = welt->lookup_kartenboden_nocheck( neighbour );
+				if(  gr2  &&  gr2->get_hoehe() < water_table  ) {
+					i = 8;
+					//water_table = welt->get_groundwater() - 4;
+				}
+			}
 		}
-		else {
-			// wamimum decrease of water table by one away from bodies of water
-			welt->set_water_hgt_nocheck(koord(node.x, node.y), max_water_table);
+
+		// only allow water table to be lowered (except for case of sea level)
+		// this prevents severe (errors!
+		if(  water_table < welt->get_water_hgt_nocheck(node.x,node.y)  ) {
+			water_hgt = water_table;
+			welt->set_water_hgt_nocheck(node.x, node.y, water_table );
 		}
 	}
-	else {
-		welt->set_water_hgt_nocheck(koord(node.x, node.y), gr->get_hoehe());
-		gr->set_grund_hang(slope_t::flat);
+
+	// calc new height and slope
+	const sint8 disp_hneu  = max( hneu,  water_hgt );
+	const sint8 disp_hn_sw = max( hn_sw, water_hgt );
+	const sint8 disp_hn_se = max( hn_se, water_hgt );
+	const sint8 disp_hn_ne = max( hn_ne, water_hgt );
+	const sint8 disp_hn_nw = max( hn_nw, water_hgt );
+	const slope_t::type sneu = encode_corners(disp_hn_sw - disp_hneu, disp_hn_se - disp_hneu, disp_hn_ne - disp_hneu, disp_hn_nw - disp_hneu);
+
+	bool recalc_climate = welt->get_settings().get_climate_generator() == settings_t::HEIGHT_BASED;
+
+	// change height and slope for land tiles only
+	if(  !gr->is_water()  ||  (hmaxneu > water_hgt)  ) {
+		gr->set_pos( koord3d( node.x, node.y, disp_hneu ) );
+		gr->set_grund_hang( (slope_t::type)sneu );
+		welt->access_nocheck(node.x,node.y)->abgesenkt();
+	}
+
+	// update north point in grid
+	welt->set_grid_hgt_nocheck(node.x, node.y, hn_nw);
+	if ( node.x+1 == welt->get_size().x ) {
+		// update eastern grid coordinates too if we are in the edge.
+		welt->set_grid_hgt_nocheck(node.x+1, node.y,   hn_ne);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
+	}
+
+	if ( node.y+1 == welt->get_size().y ) {
+		// update southern grid coordinates too if we are in the edge.
+		welt->set_grid_hgt_nocheck(node.x,   node.y+1, hn_sw);
+		welt->set_grid_hgt_nocheck(node.x+1, node.y+1, hn_se);
+	}
+
+	// water heights
+	// lower water height for higher neighbouring tiles
+	// find out how high water is
+	for(  sint16 i = 0;  i < 8;  i++  ) {
+		const koord neighbour = koord( node.x, node.y ) + koord::neighbours[i];
+		if(  welt->is_within_limits( neighbour )  ) {
+			const sint8 water_hgt_neighbour = welt->get_water_hgt_nocheck( neighbour );
+			if(water_hgt_neighbour > hneu  ) {
+				if(  welt->min_hgt_nocheck( neighbour ) < water_hgt_neighbour  ) {
+					// convert to flat ground before lowering water level
+					welt->raise_grid_to( neighbour.x,     neighbour.y,     water_hgt_neighbour );
+					welt->raise_grid_to( neighbour.x + 1, neighbour.y,     water_hgt_neighbour );
+					welt->raise_grid_to( neighbour.x,     neighbour.y + 1, water_hgt_neighbour );
+					welt->raise_grid_to( neighbour.x + 1, neighbour.y + 1, water_hgt_neighbour );
+				}
+
+				welt->set_water_hgt_nocheck( neighbour, hneu );
+				//welt->access_nocheck(neighbour)->correct_water();
+				recalc_climate = true;
+			}
+		}
 	}
 
 	if (recalc_climate) {
@@ -564,13 +622,15 @@ int terraformer_t::lower_to(const node_t &node, bool watertable_only)
 		}
 	}
 
-	welt->lookup_kartenboden_nocheck(node.x, node.y)->calc_image();
-	if ((node.x + 2) < welt->get_size().x) {
-		welt->lookup_kartenboden_nocheck(node.x + 1, node.y)->calc_image();
+	n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
+
+	welt->lookup_kartenboden_nocheck(node.x,node.y)->calc_image();
+	if( (node.x+2) < welt->get_size().x ) {
+		welt->lookup_kartenboden_nocheck(node.x+1,node.y)->calc_image();
 	}
 
-	if ((node.y + 2) < welt->get_size().y) {
-		welt->lookup_kartenboden_nocheck(node.x, node.y + 1)->calc_image();
+	if( (node.y+2) < welt->get_size().y ) {
+		welt->lookup_kartenboden_nocheck(node.x,node.y+1)->calc_image();
 	}
 
 	return n;
