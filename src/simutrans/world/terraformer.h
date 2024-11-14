@@ -109,8 +109,6 @@ private:
 	 */
 	int raise_to(const node_t &node);
 
-	void correct_watertable();
-
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
 	 * New heights for each corner given.

@@ -435,26 +435,6 @@ int terraformer_t::raise_to(const node_t &node)
 }
 
 
-void terraformer_t::correct_watertable()
-{
-	sint8 water_table = -128;
-	koord xymax = koord::invalid;
-	for (auto i : list) {
-		koord k(i.x, i.y);
-		xymax.clip_min(k);
-		grund_t* gr = welt->lookup_kartenboden_nocheck(k);
-		if (gr->is_water()) {
-			water_table = gr->get_hoehe();
-		}
-	}
-	// no water inside
-	if (water_table == -128) {
-
-	}
-}
-
-
-
 int terraformer_t::lower_to(const node_t &node)
 {
 	assert(welt->is_within_limits(node.x,node.y));
@@ -538,7 +518,7 @@ int terraformer_t::lower_to(const node_t &node)
 				grund_t *gr2 = welt->lookup_kartenboden_nocheck( neighbour );
 				if(  gr2  &&  gr2->get_hoehe() < water_table  ) {
 					i = 8;
-					//water_table = welt->get_groundwater() - 4;
+					water_table = welt->get_groundwater() - 4;
 				}
 			}
 		}
@@ -599,7 +579,7 @@ int terraformer_t::lower_to(const node_t &node)
 				}
 
 				welt->set_water_hgt_nocheck( neighbour, hneu );
-				//welt->access_nocheck(neighbour)->correct_water();
+				welt->access_nocheck(neighbour)->correct_water();
 				recalc_climate = true;
 			}
 		}
