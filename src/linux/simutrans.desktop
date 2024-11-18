@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Simutrans
+GenericName=Transportation Simulation Game
 Comment=Transportation simulator
 Exec=simutrans
 Icon=simutrans
