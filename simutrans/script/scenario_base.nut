@@ -41,9 +41,10 @@ foreach(tool_id in map.editing_tools) {
  * Called when filling toolbars, activating tools
  * Results are not transferred over network, use the rules.forbid_* functions in this case
  *
+ * @param name is parameter (string) i.e. description for way tools
  * @return 1 if allowed, null otherwise
  */
-function is_tool_allowed(pl, tool_id, wt)
+function is_tool_allowed(pl, tool_id, wt, name)
 {
 	if (pl == 1) return true
 	return scenario.forbidden_tools.find( tool_id )==null; // null => not found => allowed
@@ -54,11 +55,11 @@ function is_tool_allowed(pl, tool_id, wt)
  * Error messages are sent back over network to clients.
  * Does not work with waybuilding etc use the rules.forbid_* functions in this case.
  *
+ * @param name is parameter (string) i.e. description for way tools
  * @param pos is a table with coordinate { x=, y=, z=}
- * @param tool is a table with current tool properties {coord3d start_pos, bool is_drag_tool, bool is_ctrl, bool is_shift}
  * @return null if allowed, an error message otherwise
  */
-function is_work_allowed_here(pl, tool_id, pos, tool)
+function is_work_allowed_here(pl, tool_id, name, pos, tool)
 {
 	return null
 }

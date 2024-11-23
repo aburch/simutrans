@@ -213,6 +213,7 @@ register_function("is_scenario_completed");
  * @param pl player number
  * @param tool_id see @ref tool_ids
  * @param wt waytype of tool
+ * @param name is parameter (string) i.e. description for way tools
  * @returns true if tool is allowed.
  * @typemask bool(integer,integer,way_types)
  * @ingroup scen_skel
@@ -237,6 +238,7 @@ register_function("is_tool_allowed");
  *
  * @param pl player number
  * @param tool_id see @ref tool_ids
+ * @param name is parameter (string) i.e. description for way tools
  * @param pos coordinate
  *
  * @return null if allowed, an error message otherwise

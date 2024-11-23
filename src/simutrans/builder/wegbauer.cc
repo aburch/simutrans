@@ -296,10 +296,10 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 {
 	// check if scenario forbids this
 	const waytype_t rwtyp = wtyp!=track_wt  || styp!=type_tram  ? wtyp : tram_wt;
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp, 0)) {
 		return;
 	}
-	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp);
+	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp, 0);
 
 	const uint16 time = welt->get_timeline_year_month();
 
@@ -309,7 +309,9 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 	for(auto const &iter : desc_table) {
 		way_desc_t const* const desc = iter.value;
 		if (  desc->get_styp()==styp &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  &&  desc->is_available(time)  ) {
+			if (welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp, desc->get_name())) {
 				matching.append(desc);
+			}
 		}
 	}
 
@@ -317,7 +319,7 @@ void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wt
 
 	// now add sorted ways
 	for(way_desc_t const* const i : matching) {
-		i->get_builder()->enabled = enable;
+		i->get_builder()->enabled = enable  && welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp, i->get_name());
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -574,7 +576,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 	bool ok = true;
 
 	// check scenario conditions
-	if (welt->get_scenario()->is_work_allowed_here(player_builder, (bautyp&tunnel_flag ? TOOL_BUILD_TUNNEL : TOOL_BUILD_WAY)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
+	if (welt->get_scenario()->is_work_allowed_here(player_builder, (bautyp&tunnel_flag ? TOOL_BUILD_TUNNEL : TOOL_BUILD_WAY)|GENERAL_TOOL, bautyp&bautyp_mask, desc->get_name(), to->get_pos()) != NULL) {
 		return false;
 	}
 

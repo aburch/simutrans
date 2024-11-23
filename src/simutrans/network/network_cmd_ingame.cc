@@ -1159,17 +1159,17 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 
 		// do scenario checks here, send error message back
 		if ( scen->is_scripted() ) {
-			if (!scen->is_tool_allowed(welt->get_player(player_nr), tool_id, wt)) {
-				dbg->warning("nwc_tool_t::clone", "tool_id=%s  wt=%d tool not allowed", tool_t::id_to_string(tool_id), wt);
+			if (!scen->is_tool_allowed(welt->get_player(player_nr), tool_id, wt, default_param)) {
+				dbg->warning("nwc_tool_t::clone", "tool_id=%s  wt=%d param=%p, tool not allowed", tool_t::id_to_string(tool_id), wt, default_param.c_str());
 				// TODO return error message ?
 				return NULL;
 			}
 			if (!init) {
-				const char *err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, pos);
+				const char *err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, default_param, pos);
 				if (err == NULL) {
 					if (two_click_tool_t *two_ctool = dynamic_cast<two_click_tool_t*>(tool)) {
 						if (!two_ctool->is_first_click()) {
-							err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, two_ctool->get_start_pos());
+							err = scen->is_work_allowed_here(welt->get_player(player_nr), tool_id, wt, default_param, two_ctool->get_start_pos());
 						}
 					}
 				}

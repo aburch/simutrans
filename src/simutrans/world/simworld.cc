@@ -2200,7 +2200,7 @@ void karte_t::set_tool_api( tool_t *tool_in, player_t *player, bool& suspended)
 	}
 	bool needs_check = !tool_in->no_check();
 	// check for scenario conditions
-	if(  needs_check  &&  !scenario->is_tool_allowed(player, tool_in->get_id(), tool_in->get_waytype())  ) {
+	if(  needs_check  &&  !scenario->is_tool_allowed(player, tool_in->get_id(), tool_in->get_waytype(), tool_in->get_default_param())  ) {
 		return;
 	}
 	// check for password-protected players
@@ -5769,11 +5769,11 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 		tool->flags |= tool_t::WFL_LOCAL;
 		// check allowance by scenario
 		if ( (tool->flags & tool_t::WFL_NO_CHK) == 0  &&  get_scenario()->is_scripted()) {
-			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype()) ) {
+			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype(), tool->get_default_param()) ) {
 				err = "";
 			}
 			else {
-				err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), pos);
+				err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), tool->get_default_param(), pos);
 			}
 		}
 		if (err == NULL) {
@@ -6144,7 +6144,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// some tool movement is expensive (like route search) and must be done outsied sync_step
 			// to avoid calling a the non-reentrant route search twice
 			tool_t *tool = selected_tool[active_player_nr];
-			const char* err = scenario->is_work_allowed_here(active_player, tool->get_id(), tool->get_waytype(), next_deferred_move_to);
+			const char* err = scenario->is_work_allowed_here(active_player, tool->get_id(), tool->get_waytype(), tool->get_default_param(), next_deferred_move_to);
 			if (err == NULL) {
 				koord3d target = next_deferred_move_to;
 				next_deferred_move_to = koord3d::invalid;

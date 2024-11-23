@@ -3371,7 +3371,7 @@ public:
 		return test_driver;
 	}
 private:
-	bool check_next_tile(const grund_t* gr) const OVERRIDE { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
+	bool check_next_tile(const grund_t* gr) const OVERRIDE { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), 0, gr->get_pos())==NULL;}
 	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return other->get_ribi(gr); }
 	waytype_t get_waytype() const OVERRIDE { return other->get_waytype(); }
 	int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const OVERRIDE { return other->get_cost(gr, w, max_speed, from); }
@@ -3410,7 +3410,7 @@ uint8 tool_wayremover_t::is_valid_pos( player_t *player, const koord3d &pos, con
 		return 0;
 	}
 	if(is_scenario()) {
-		error = welt->get_scenario()->is_work_allowed_here(player, get_id(), wt, pos);
+		error = welt->get_scenario()->is_work_allowed_here(player, get_id(), wt, 0, pos);
 		if (error) {
 			dbg->warning("tool_wayremover_t::is_within_limits()", error);
 			return 0;

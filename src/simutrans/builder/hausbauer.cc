@@ -308,7 +308,7 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, building_desc_t::bty
 	if(  toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)  ) {
 		return;
 	}
-	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), toolnr | GENERAL_TOOL, wt);
+	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), toolnr | GENERAL_TOOL, wt, 0);
 
 	const uint16 time = welt->get_timeline_year_month();
 	DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
@@ -317,8 +317,10 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, building_desc_t::bty
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", desc->get_name(), desc);
 		if(  desc->get_type()==btype  &&  desc->get_builder()  &&  (btype==building_desc_t::headquarters  ||  desc->get_extra()==(uint16)wt)  ) {
 			if(  desc->is_available(time)  ) {
-				desc->get_builder()->enabled = enable;
-				tool_selector->add_tool_selector( desc->get_builder() );
+				if (welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt, desc->get_name())) {
+					desc->get_builder()->enabled = enable  &&  welt->get_scenario()->is_tool_enabled(welt->get_active_player(), toolnr | GENERAL_TOOL, wt, desc->get_name());
+					tool_selector->add_tool_selector( desc->get_builder() );
+				}
 			}
 		}
 	}

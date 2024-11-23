@@ -173,6 +173,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool, "forbid_way_tool");
@@ -184,6 +185,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool,  "allow_way_tool");
@@ -195,6 +197,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
@@ -209,6 +212,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @see tool_ids way_types player_all
@@ -222,6 +226,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
@@ -236,6 +241,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @see tool_ids way_types player_all

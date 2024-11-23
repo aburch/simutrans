@@ -84,7 +84,7 @@ function get_result_text(pl)
 }
 
 
-function is_tool_allowed(pl, tool_id, wt)
+function is_tool_allowed(pl, tool_id, wt, name)
 {
 	return true
 }

@@ -663,7 +663,7 @@ const char *terraformer_t::can_lower_plan_to(const player_t *player, sint16 x, s
 
 	// check allowance by scenario
 	if (welt->get_scenario()->is_scripted()) {
-		return welt->get_scenario()->is_work_allowed_here(player, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return welt->get_scenario()->is_work_allowed_here(player, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, 0, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;
@@ -688,7 +688,7 @@ const char *terraformer_t::can_raise_plan_to(const player_t *player, sint16 x, s
 
 	// check allowance by scenario
 	if (welt->get_scenario()->is_scripted()) {
-		return welt->get_scenario()->is_work_allowed_here(player, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return welt->get_scenario()->is_work_allowed_here(player, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, 0, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;

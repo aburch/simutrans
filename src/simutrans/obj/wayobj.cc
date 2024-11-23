@@ -486,7 +486,7 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp)) {
 		return;
 	}
-	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp);
+	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp, 0 );
 
 	const uint16 time=welt->get_timeline_year_month();
 
@@ -497,16 +497,18 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 		if(  desc->is_available(time)  ) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", desc->get_name(), desc);
+			// only add items with a cursor
 			if(  desc->get_builder()  &&  wtyp==desc->get_wtyp()  ) {
-				// only add items with a cursor
-				matching.append(desc);
+				if (welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp, desc->get_name())) {
+					matching.append(desc);
+				}
 			}
 		}
 	}
 	// sort the tools before adding to menu
 	std::sort(matching.begin(), matching.end(), compare_wayobj_desc);
 	for(way_obj_desc_t const* const i : matching) {
-		i->get_builder()->enabled = enable;
+		i->get_builder()->enabled = enable  &&  welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp, i->get_name());
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }

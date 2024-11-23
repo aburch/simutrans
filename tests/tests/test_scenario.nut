@@ -22,6 +22,87 @@ function test_scenario_rules_allow_forbid_tool()
 }
 
 
+function test_scenario_rules_allow_forbid_way_tool()
+{
+	local waybuilder = command_x(tool_build_way)
+	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
+	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
+	local pl = player_x(0)
+
+	rules.forbid_way_tool_rect(0, tool_build_way, wt_road, road.get_name(), coord(2, 2), coord(5, 5), "Foo Bar")
+
+	// Fully in forbiden zone
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(5, 5, 0), road, true), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+	}
+
+	// Ending in forbidden zone
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(0, 2, 0), coord3d(2, 2, 0), road, true), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+	}
+
+	// Starting in forbidden zone
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(0, 2, 0), road, true), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+	}
+
+	// make sure we can build other ways
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(0, 2, 0), rail, true), null)
+		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"2A8.....",
+				"........",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
+
+		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(2, 2, 0), coord3d(0, 2, 0), "" + wt_rail), null)
+	}
+
+	// clean up
+	rules.clear()
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_scenario_rules_allow_forbid_way_tool_rect()
 {
 	local waybuilder = command_x(tool_build_way)
@@ -29,7 +110,7 @@ function test_scenario_rules_allow_forbid_way_tool_rect()
 	local rail = way_desc_x.get_available_ways(wt_rail, st_flat)[0]
 	local pl = player_x(0)
 
-	rules.forbid_way_tool_rect(0, tool_build_way, wt_road, coord(2, 2), coord(5, 5), "Foo Bar")
+	rules.forbid_way_tool_rect(0, tool_build_way, wt_road, "", coord(2, 2), coord(5, 5), "Foo Bar")
 
 	// Fully in forbiden zone
 	{
@@ -110,7 +191,7 @@ function test_scenario_rules_allow_forbid_way_tool_cube()
 	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 	local pl = player_x(0)
 
-	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, coord3d(2, 2, 1), coord3d(5, 5, 2), "Foo Bar")
+	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, "", coord3d(2, 2, 1), coord3d(5, 5, 2), "Foo Bar")
 
 	// build below
 	{
@@ -153,7 +234,7 @@ function test_scenario_rules_allow_forbid_way_tool_cube()
 	}
 
 	rules.clear()
-	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, coord3d(0, 0, 1), coord3d(0, 0, 1), "Foo Bar")
+	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, "", coord3d(0, 0, 1), coord3d(0, 0, 1), "Foo Bar")
 
 	// build double height slope through forbidden cube
 	{
@@ -188,7 +269,7 @@ function test_scenario_rules_allow_forbid_tool_stacked_rect()
 	local setslope = command_x.set_slope
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 
-	rules.forbid_way_tool_rect(0, tool_build_way, wt_road, coord(1, 1), coord(14, 14), "Foo Bar 1")
+	rules.forbid_way_tool_rect(0, tool_build_way, wt_road, "", coord(1, 1), coord(14, 14), "Foo Bar 1")
 
 	// build in outer allowed ring, near map border
 	{
@@ -222,7 +303,7 @@ function test_scenario_rules_allow_forbid_tool_stacked_rect()
 			])
 	}
 
-	rules.allow_way_tool_rect(0, tool_build_way, wt_road, coord(2, 2), coord(13, 13))
+	rules.allow_way_tool_rect(0, tool_build_way, wt_road, "", coord(2, 2), coord(13, 13))
 
 	// try building in allowed ring, does not work because rules cannot be stacked
 	{
@@ -254,7 +335,7 @@ function test_scenario_rules_allow_forbid_tool_stacked_cube()
 	local setslope = command_x.set_slope
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 
-	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, coord3d(1, 1, 0), coord3d(14, 14, 0), "Foo Bar 1")
+	rules.forbid_way_tool_cube(0, tool_build_way, wt_road, "", coord3d(1, 1, 0), coord3d(14, 14, 0), "Foo Bar 1")
 
 	// build in outer allowed ring, near map border
 	{
@@ -288,7 +369,7 @@ function test_scenario_rules_allow_forbid_tool_stacked_cube()
 			])
 	}
 
-	rules.allow_way_tool_cube(0, tool_build_way, wt_road, coord3d(2, 2, 0), coord3d(13, 13, 0))
+	rules.allow_way_tool_cube(0, tool_build_way, wt_road, "", coord3d(2, 2, 0), coord3d(13, 13, 0))
 
 	// try building in allowed ring, does not work because rules cannot be stacked
 	{

@@ -733,7 +733,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp)) {
 		return;
 	}
-	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp);
+	bool enable = welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp, 0);
 
 	const uint16 time = welt->get_timeline_year_month();
 
@@ -741,13 +741,15 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	for(auto const& i : table) {
 		roadsign_desc_t const* const desc = i.value;
+		// only add items with a cursor
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  ) {
-			// only add items with a cursor
-			matching.insert_ordered( desc, compare_roadsign_desc );
+			if (welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp, desc->get_name())) {
+				matching.insert_ordered(desc, compare_roadsign_desc);
+			}
 		}
 	}
 	for(roadsign_desc_t const* const i : matching) {
-		i->get_builder()->enabled = enable;
+		i->get_builder()->enabled = enable  &&  welt->get_scenario()->is_tool_enabled(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp, i->get_name());
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
