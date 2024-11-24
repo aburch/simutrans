@@ -2615,10 +2615,27 @@ void stadt_t::check_bau_townhall(bool new_town)
 					road1.x = size.x - umziehen;
 					break;
 			}
+			// make them one tile shorter, if not lookup
+			if (!welt->lookup_kartenboden(best_pos + road0)) {
+				if (dir == ribi_t::east || dir == ribi_t::west) {
+					road0.y ++;
+				}
+				else {
+					road0.x ++;
+				}
+			}
+			if (!welt->lookup_kartenboden(best_pos + road1)) {
+				if (dir == ribi_t::east || dir == ribi_t::west) {
+					road0.y --;
+				}
+				else {
+					road0.x --;
+				}
+			}
 			// build the road in front of the townhall
-			if (road0!=road1) {
+			if (road0!=road1  &&  welt->lookup_kartenboden(best_pos + road0)  &&  welt->lookup_kartenboden(best_pos + road1)) {
 				way_builder_t bauigel(NULL);
-				bauigel.init_builder(way_builder_t::strasse, welt->get_city_road(), NULL, NULL);
+				bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.build();
