@@ -621,13 +621,19 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 
 	// Auto-connect to a way outside the new tunnel mouth
 	grund_t *ground_outside = welt->lookup(end-zv);
-	if( !ground_outside ) {
-		ground_outside = welt->lookup(end-zv+koord3d(0,0,-1));
-		if(  ground_outside  &&  ground_outside->get_grund_hang() != tunnel->get_grund_hang()  ) {
-			// Not the correct slope.
-			ground_outside = NULL;
+	if (!ground_outside) {
+		ground_outside = welt->lookup_kartenboden(end.get_2d() - zv);
+		if (ground_outside) {
+			if (!ground_outside->hat_weg(desc->get_waytype())
+				|| ground_outside->get_weg_hang() != slope_t::flat
+				|| (end.z - ground_outside->get_pos().z) != slope_t::max_diff(ground_outside->get_grund_hang())
+				) {
+				// Not the correct slope/height
+				ground_outside = NULL;
+			}
 		}
 	}
+	// check if we can connect
 	if( ground_outside) {
 		weg_t *way_outside = ground_outside->get_weg( desc->get_waytype() );
 		if( way_outside ) {

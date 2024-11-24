@@ -12,6 +12,7 @@
 	ADD: error message if digging below water table
 	ADD: scenario can now allow and forbid specific way tools (also sped up the forbid list processing)
 	CHG: Making the road in front of the city hall one tile longer to each side, so city growth works with any set cityrules
+	FIX: also connect bridges to tunnels in pak128 double slope situations
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
