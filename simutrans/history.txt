@@ -10,7 +10,8 @@
 	ADD: manually increase tool icon size in display settings window
 	FIX: keep current tile's climate on lower/raise if climate mode is humidity based
 	ADD: error message if digging below water table
-	ADD: (Yona-TYT) more parameters to "is_work_allowed_here"
+	ADD: scenario can now allow and forbid specific way tools (also sped up the forbid list processing)
+	CHG: Making the road in front of the city hall one tile longer to each side, so city growth works with any set cityrules
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):

@@ -2431,7 +2431,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_no_way_obj());
-		bool neugruendung = !has_townhall ||  !gb || !gb->is_townhall();
+		const bool neugruendung = !has_townhall  ||  !gb  || !gb->is_townhall();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
@@ -2559,44 +2559,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 		// Now built the new townhall (remember old orientation)
 		int layout = umziehen || neugruendung ? simrand(desc->get_all_layouts()) : old_layout % desc->get_all_layouts();
 		// on which side should we place the road?
-		uint8 dir;
-		// offset of building within searched place, start and end of road
-		koord offset(0,0), road0(0,0),road1(0,0);
-		dir = ribi_t::layout_to_ribi[layout & 3];
-		switch(dir) {
-			case ribi_t::east:
-				road0.x = desc->get_x(layout);
-				road1.x = desc->get_x(layout);
-				road1.y = desc->get_y(layout)-1;
-				break;
-			case ribi_t::north:
-				road1.x = desc->get_x(layout)-1;
-				if (neugruendung || umziehen) {
-					offset.y = 1;
-				}
-				else {
-					// offset already included in position of old townhall
-					road0.y=-1;
-					road1.y=-1;
-				}
-				break;
-			case ribi_t::west:
-				road1.y = desc->get_y(layout)-1;
-				if (neugruendung || umziehen) {
-					offset.x = 1;
-				}
-				else {
-					// offset already included in in position of old townhall
-					road0.x=-1;
-					road1.x=-1;
-				}
-				break;
-			case ribi_t::south:
-			default:
-				road0.y = desc->get_y(layout);
-				road1.x = desc->get_x(layout)-1;
-				road1.y = desc->get_y(layout);
-		}
+		uint8 dir = ribi_t::layout_to_ribi[layout & 3];
 		if (neugruendung || umziehen) {
 			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
 		}
@@ -2605,13 +2568,14 @@ void stadt_t::check_bau_townhall(bool new_town)
 			dbg->error( "stadt_t::check_bau_townhall", "no better position found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::build(owner, best_pos + offset, layout, desc);
+		gebaeude_t const* const new_gb = hausbauer_t::build(owner, best_pos, layout, desc);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		// sets has_townhall to true
 		DBG_MESSAGE("stadt_t::check_bau_townhall()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_no_way_obj());
 
 		// if not during initialization
+		koord offset(dir == ribi_t::west, dir == ribi_t::north);
 		if (!new_town) {
 			cbuffer_t buf;
 			buf.printf(translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name.c_str(), get_einwohner());
@@ -2622,6 +2586,35 @@ void stadt_t::check_bau_townhall(bool new_town)
 		}
 
 		if (neugruendung || umziehen) {
+
+			// offset of building within searched place, start and end of road
+			koord road0(0,0);
+			koord road1(0,0);
+			koord size = desc->get_size(layout);
+
+			switch (dir) {
+				case ribi_t::east:
+					road0.x = road1.x = size.x;
+					road0.y = -neugruendung;
+					road1.y = size.y - umziehen;
+					break;
+				case ribi_t::west:
+					road0.x = road1.x = -1;
+					road0.y = -neugruendung;
+					road1.y = size.y - umziehen;
+					break;
+				case ribi_t::north:
+					road0.y = road1.y = -1;
+					road0.x = -neugruendung;
+					road1.x = size.x - umziehen;
+					break;
+				case ribi_t::south:
+				default:
+					road0.y = road1.y = size.y;
+					road0.x = -neugruendung;
+					road1.x = size.x - umziehen;
+					break;
+			}
 			// build the road in front of the townhall
 			if (road0!=road1) {
 				way_builder_t bauigel(NULL);
