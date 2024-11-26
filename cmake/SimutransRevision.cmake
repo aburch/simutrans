@@ -84,6 +84,38 @@ if (SIMUTRANS_WC_REVISION)
 	# reduces needless rebuilds
 	execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different revision.h.txt "${SOURCE_DIR}/src/simutrans/revision.h")
 
+	# gather informations to update flatpak and Android creation files
+	STRING(STRIP ${SIMUTRANS_WC_REVISION} SIMUTRANS_WC_REVISION)
+
+	file(READ "${SOURCE_DIR}/src/simutrans/simversion.h" FILE_CONTENT)
+	string(REGEX MATCH "#define SIM_VERSION_MAJOR[ ]+([0-9]*)" _ ${FILE_CONTENT})
+	set(ver_major ${CMAKE_MATCH_1})
+	string(REGEX MATCH "#define SIM_VERSION_MINOR[ ]+([0-9]*)" _ ${FILE_CONTENT})
+	set(ver_minor ${CMAKE_MATCH_1})
+	string(REGEX MATCH "#define SIM_VERSION_PATCH[ ]+([0-9]*)" _ ${FILE_CONTENT})
+	set(ver_patch ${CMAKE_MATCH_1})
+	string(REGEX MATCH "#define[ ]+SIM_VERSION_BUILD[ ]+SIM_BUILD_RELEASE[\r\n]+" RELEASE_FLAG ${FILE_CONTENT})
+	
+	string(TIMESTAMP TODAY "%Y-%m-%d")
+	
+	# finally, update flatpak xml
+	file(READ "${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml" FILE_CONTENT)
+	if(RELEASE_FLAG STREQUAL "")
+		string(REGEX REPLACE "<release .*/>" "<release version=\"${ver_major}.${ver_minor}.${ver_patch} nightly\" date=\"${TODAY}\" revision=\"${SIMUTRANS_WC_REVISION}\"/>" FILE_CONTENT "${FILE_CONTENT}" )
+	else ()
+		string(REGEX REPLACE "<release .*/>" "<release version=\"${ver_major}.${ver_minor}.${ver_patch}\" date=\"${TODAY}\" revision=\"${SIMUTRANS_WC_REVISION}\"/>" FILE_CONTENT "${FILE_CONTENT}" )
+	endif ()
+	file(WRITE "${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml" "${FILE_CONTENT}")
+
+	# and Android files
+	file(READ "${SOURCE_DIR}/src/android/AndroidAppSettings.cfg" FILE_CONTENT)
+	if(RELEASE_FLAG STREQUAL "")
+		string(REGEX REPLACE "AppVersionName=\"[0-9.]+-[A-z]+[a-z]+\"" "AppVersionName=\"${ver_major}.${ver_minor}.${ver_patch}-Nightly\"" FILE_CONTENT "${FILE_CONTENT}" )
+	else ()
+		string(REGEX REPLACE "AppVersionName=\"[0-9.]+-[A-z]+[a-z]+\"" "AppVersionName=\"${ver_major}.${ver_minor}.${ver_patch}-Release\"" FILE_CONTENT "${FILE_CONTENT}" )
+	endif ()
+	file(WRITE "${SOURCE_DIR}/src/android/AndroidAppSettings.cfg" "${FILE_CONTENT}")
+
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
@@ -94,4 +126,3 @@ else ()
 		file(WRITE "${CMAKE_SOURCE_DIR}/revision.h" "#define REVISION \n")
 	endif ()
 endif ()
-
