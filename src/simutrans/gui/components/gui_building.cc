@@ -7,6 +7,7 @@
 #include "gui_image.h"
 #include "../../descriptor/building_desc.h"
 #include "../../tpl/vector_tpl.h"
+#include "../../world/simworld.h"
 
 
 gui_building_t::gui_building_t(const building_desc_t* d, int r)
@@ -34,7 +35,7 @@ void gui_building_t::init(const building_desc_t* d, int r)
 				id = desc->get_tile(layout,i,j)->get_foreground(0,0);
 			}
 			if (id != IMG_EMPTY) {
-				gui_image_t *img = new gui_image_t(id);
+				gui_image_t *img = new gui_image_t(id, world()->get_active_player_nr());
 				img->set_pos(scr_coord( 2*(i-j)*rw4, (i+j)*rw4 ));
 				images.append(img);
 				// compute bounding box
@@ -65,6 +66,7 @@ void gui_building_t::draw(scr_coord offset)
 {
 	scr_coord pos = get_pos() + offset - tl;
 	for(gui_image_t* img : images) {
+		img->set_player_nr(world()->get_active_player_nr());
 		img->draw(pos);
 	}
 }
