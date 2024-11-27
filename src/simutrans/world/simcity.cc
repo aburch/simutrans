@@ -2616,7 +2616,8 @@ void stadt_t::check_bau_townhall(bool new_town)
 					break;
 			}
 			// make them one tile shorter, if not lookup
-			if (!welt->lookup_kartenboden(best_pos + road0)) {
+			gr = welt->lookup_kartenboden(best_pos + road0);
+			if (!gr  ||  !slope_t::is_way(gr->get_grund_hang())) {
 				if (dir == ribi_t::east || dir == ribi_t::west) {
 					road0.y ++;
 				}
@@ -2624,7 +2625,8 @@ void stadt_t::check_bau_townhall(bool new_town)
 					road0.x ++;
 				}
 			}
-			if (!welt->lookup_kartenboden(best_pos + road1)) {
+			gr = welt->lookup_kartenboden(best_pos + road1);
+			if (!gr || !slope_t::is_way(gr->get_grund_hang())) {
 				if (dir == ribi_t::east || dir == ribi_t::west) {
 					road0.y --;
 				}
