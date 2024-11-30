@@ -775,7 +775,8 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",st
 	schedule_t *schedule=new truck_schedule_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<count;  j++) {
-		schedule->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10, j == 0 || !do_wait ? 0 : 15 );
+		// either no wait for load or wait for 10% and maximum 1/10th of a month
+		schedule->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10, j == 0 || !do_wait ? 0 : 6553 );
 	}
 	schedule->set_current_stop( stops[0]==startpos2d );
 	schedule->finish_editing();

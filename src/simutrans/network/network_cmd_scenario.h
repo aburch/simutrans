@@ -69,6 +69,7 @@ public:
 
 	scenario_t::forbidden_t *rule;
 	bool forbid;
+	uint16 player_nr;
 
 private:
 	nwc_scenario_rules_t(const nwc_scenario_rules_t&);

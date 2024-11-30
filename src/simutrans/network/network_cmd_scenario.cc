@@ -101,7 +101,7 @@ void nwc_scenario_rules_t::do_command(karte_t *welt)
 {
 	scenario_t *scen = welt->get_scenario();
 
-	scen->intern_forbid(rule, forbid);
+	scen->intern_forbid(rule, player_nr, forbid);
 	rule = NULL; // pointer is now invalid
 }
 
@@ -111,6 +111,8 @@ void nwc_scenario_rules_t::rdwr()
 	network_broadcast_world_command_t::rdwr();
 	rule->rdwr(packet);
 	packet->rdwr_bool(forbid);
+	packet->rdwr_short(player_nr);
+
 }
 
 
@@ -118,6 +120,7 @@ nwc_scenario_rules_t::nwc_scenario_rules_t(const nwc_scenario_rules_t& nwr)
 : network_broadcast_world_command_t(NWC_SCENARIO_RULES, nwr.get_sync_step(), nwr.get_map_counter())
 {
 	forbid = nwr.forbid;
+	player_nr = nwr.player_nr;
 	rule = new scenario_t::forbidden_t(*nwr.rule);
 }
 

@@ -99,7 +99,6 @@ private:
 		};
 
 		forbid_type type;
-		uint8 player_nr;
 		/// id of tool to be forbidden, as set by constructors of classes derived from
 		/// tool_t, @see tool/simtool.h
 		uint16 toolnr;
@@ -112,16 +111,16 @@ private:
 		plainstring error;
 
 		/// constructor: forbid tool/etc for a certain player
-		forbidden_t(forbid_type type_=forbid_tool, uint8 player_nr_=255, uint16 toolnr_=0, sint16 waytype_=invalid_wt, const char *param_=NULL) :
-			type(type_), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
+		forbidden_t(forbid_type type_=forbid_tool, uint16 toolnr_=0, sint16 waytype_=invalid_wt, const char *param_=NULL) :
+			type(type_), toolnr(toolnr_), waytype(waytype_),
 			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error()
 		{
 			parameter_hash = string_to_hash(param_);
 		}
 
 		/// constructor: forbid tool for a certain player at certain locations (and heights)
-		forbidden_t(uint8 player_nr_, uint16 toolnr_, sint16 waytype_, const char *param_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
-			type(forbid_tool_rect), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
+		forbidden_t(uint16 toolnr_, sint16 waytype_, const char *param_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
+			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
 		{
 			parameter_hash = string_to_hash(param_);
 		}
@@ -156,7 +155,6 @@ private:
 			uint8 t = (uint8)type;
 			file->rdwr_byte(t);
 			type= (forbid_type)t;
-			file->rdwr_byte(player_nr);
 			file->rdwr_short(toolnr);
 			file->rdwr_short(waytype);
 			file->rdwr_long(parameter_hash);
@@ -173,8 +171,8 @@ private:
 		const forbidden_t& operator=(const forbidden_t&);
 	};
 
-	/// list of forbidden tools
-	vector_tpl<forbidden_t*>forbidden_tools;
+	/// list of forbidden tools for each player (last is all players)
+	vector_tpl<forbidden_t*>forbidden_tools[MAX_PLAYER_COUNT];
 
 	/// set to true if rules changed to update toolbars,
 	/// toolbars and active tools will be updated in next call to step()
@@ -182,21 +180,21 @@ private:
 
 	/**
 	 * helper function:
-	 * @param other given record
+	 * @param other given record and the player_nr to test for (or PLAYER_UNOWNED)
 	 * @returns first index i such that
 	 *          forbidden_tools[i-1] < other <= forbidden_tools[i] <= other
 	 *          or returns  forbidden_tools.get_count() if no such index is found
 	 */
-	uint32 find_first(const forbidden_t &other) const;
+	uint32 find_first(const forbidden_t &other, uint player_nr) const;
 
 	/**
 	 * helper function:
-	 * @param other given record
+	 * @param other given record  and the player_nr to test for (or PLAYER_UNOWNED)
 	 * @returns first index i such that
-	 *          that the type, toolnumber, and waytype matches (but but player, and parameter may be wrong)
+	 *          that the type, toolnumber, and waytype matches (but parameter may be wrong)
 	 *          or returns  forbidden_tools.get_count() if no such index is found
 	 */
-	uint32 find_first_type_tool_wt(const forbidden_t& other) const;
+	uint32 find_first_type_tool_wt(const forbidden_t& other, uint player_nr) const;
 
 	/**
 	 * Helper function:
@@ -205,7 +203,7 @@ private:
 	 * @param test must be pointer to allocated memory, will be invalid after call
 	 * @param forbid if true puts, if false removes into/from list
 	 */
-	void intern_forbid(forbidden_t *test, bool forbid);
+	void intern_forbid(forbidden_t *test, uint player_nr, bool forbid);
 
 	/**
 	 * Helper function: works on forbidden_tools directly (if not in network-mode)
@@ -213,7 +211,7 @@ private:
 	 * @param test must be pointer to allocated memory, will be invalid after call
 	 * @param forbid if true forbids, if false allows the record
 	 */
-	void call_forbid_tool(forbidden_t *test, bool forbid);
+	void call_forbid_tool(forbidden_t *test, uint player_nr, bool forbid);
 	/// @}
 
 	/// bit set if player has won / lost
