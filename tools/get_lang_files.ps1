@@ -1,6 +1,7 @@
 # Downloade translations after post request and extract them
 
-$translator_url = "https://translator.simutrans.com"
+#$translator_url = "https://translator.simutrans.com"
+$translator_url = "https://makie.de/translator"
 <# not sure why the second does not work ...
 $translator_url = "https://makie.de/translator"
 
