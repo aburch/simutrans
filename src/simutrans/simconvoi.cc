@@ -3112,6 +3112,8 @@ station_tile_search_ready: ;
 	}
 
 	// loading is finished => maybe drive on
+	uint16 mw = schedule->get_current_entry().waiting_time;
+	uint32 wtt = schedule->get_current_entry().get_waiting_ticks();
 	bool max_wait = schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks();
 	if(  loading_level >= loading_limit  ||  no_load
 		||  departure_time_reached
