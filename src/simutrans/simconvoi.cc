@@ -2960,7 +2960,7 @@ station_tile_search_ready: ;
 	// check if there is a convoi infront of us
 	bool all_served_this_stop = true;
 	// drive on, if all stops are overcrowded to reduce overcrowding
-	bool all_overcrowded = true;
+	bool all_stops_overcrowded = true;
 
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
@@ -2999,13 +2999,17 @@ station_tile_search_ready: ;
 						break;
 					}
 				}
-				else if (!plan_halt->is_overcrowded(idx)) {
-					all_overcrowded = false;
+				else {
+					if (!plan_halt->is_overcrowded(idx)) {
+						all_stops_overcrowded = false;
+					}
 				}
 				first_entry = false;
 			}
 		}
 	}
+	// if there is at least one stop that we serve => not all overcrowded (otherwise we would drive on)
+	all_stops_overcrowded &= all_served_this_stop;
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
@@ -3084,15 +3088,13 @@ station_tile_search_ready: ;
 	wait_lock = min(time, 0xFFFF);
 
 	// check if departure time is reached
-	bool departure_time_reached = false;
 	if (schedule->get_current_entry().get_absolute_departures()) {
 
 		sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
 		if(  ticks_until_departure <= 0  ) {
 			// depart if nothing to load (wants_more==false)
-			departure_time_reached = !wants_more;
-			if (departure_time_reached) {
-				all_served_this_stop = false;
+			if (wants_more) {
+				return;
 			}
 		}
 		else {
@@ -3101,47 +3103,43 @@ station_tile_search_ready: ;
 				// no loading time imposed, make sure we do not wait too long if the departure is imminent
 				wait_lock = min( WTT_LOADING, ticks_until_departure );
 			}
-			wants_more = true;
+			return;
 		}
 	}
-
-	// continue loading
-	if (wants_more) {
-		//  there might be still cargo available (or cnv has to wait until departure)
-		return;
+	else {
+		// check for maximum load
+		if (wants_more  ||  loading_level < loading_limit  ) {
+// if (  wants_more  ||  (loading_level >= loading_limit  &&  !all_stops_overcrowded)  ) {
+			// still more freight left or not reached limit
+			return;
+		}
+		// not reached maximum load: do we have to wait more?
+		if (schedule->get_current_entry().waiting_time > 0) {
+			if ((welt->get_ticks() - arrived_time) < schedule->get_current_entry().get_waiting_ticks()) {
+				// continue waiting
+				return;
+			}
+		}
 	}
 
 	// loading is finished => maybe drive on
-	uint16 mw = schedule->get_current_entry().waiting_time;
-	uint32 wtt = schedule->get_current_entry().get_waiting_ticks();
-	bool max_wait = schedule->get_current_entry().waiting_time > 0  &&  (welt->get_ticks() - arrived_time) > schedule->get_current_entry().get_waiting_ticks();
-	if(  loading_level >= loading_limit  ||  no_load
-		||  departure_time_reached
-		||  max_wait  ) {
-
-		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
-			// destroy when empty
-			self_destruct();
-			return;
-		}
-
-		if(all_served_this_stop  &&  !max_wait  &&  !(destination_halts.empty()  &&  all_overcrowded)) {
-			// continue loading
-			return;
-		}
-
-		calc_speedbonus_kmh();
-
-		// add available capacity after loading(!) to statistics
-		for (unsigned i = 0; i<vehicle_count; i++) {
-			book(get_vehicle(i)->get_cargo_max()-get_vehicle(i)->get_total_cargo(), CONVOI_CAPACITY);
-		}
-
-		// Advance schedule
-		schedule->advance();
-		state = ROUTING_1;
-		loading_limit = 0;
+	if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+		// destroy when empty
+		self_destruct();
+		return;
 	}
+
+	calc_speedbonus_kmh();
+
+	// add available capacity after loading(!) to statistics
+	for (unsigned i = 0; i<vehicle_count; i++) {
+		book(get_vehicle(i)->get_cargo_max()-get_vehicle(i)->get_total_cargo(), CONVOI_CAPACITY);
+	}
+
+	// Advance schedule
+	schedule->advance();
+	state = ROUTING_1;
+	loading_limit = 0;
 
 	INT_CHECK("convoi_t::hat_gehalten");
 }

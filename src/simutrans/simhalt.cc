@@ -2098,6 +2098,9 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 		for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
 			halthandle_t plan_halt = destination_halts[i];
 
+			// mark this stop as served, even if I do not load to avoid stealing transfer freight by later processed convois
+			halt_served_this_step[good_category->get_catg_index()].append_unique(plan_halt);
+
 			// The random offset will ensure that all goods have an equal chance to be loaded.
 			uint32 offset = simrand(warray->get_count());
 			for(  uint32 i=0;  i<warray->get_count();  i++  ) {
@@ -2146,9 +2149,6 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 						tmp.amount = 0;
 					}
 					load.insert(neu);
-
-					// mark this stop as served
-					halt_served_this_step[good_category->get_catg_index()].append_unique(plan_halt);
 
 					book(neu.amount, HALT_DEPARTED);
 					resort_freight_info = true;
