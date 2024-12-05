@@ -802,57 +802,46 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 
 
 /**
- * Load freight from halt
+ * Load the given goods
  * @return amount loaded
  */
-uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts)
+uint16 vehicle_t::load_cargo(slist_tpl<ware_t>& freight_add)
 {
-	if(  !halt.is_bound()  ||  !halt->gibt_ab(desc->get_freight_type())  ) {
+	if(  freight_add.empty()  ) {
+		// now empty, but usually, we can get it here ...
 		return 0;
 	}
 
 	const uint16 total_freight_start = total_freight;
-	const uint16 capacity_left = desc->get_capacity() - total_freight;
-	if (capacity_left > 0) {
+	for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
+		ware_t &ware = *iter_z;
 
-		slist_tpl<ware_t> freight_add;
-		halt->fetch_goods( freight_add, desc->get_freight_type(), capacity_left, destination_halts);
+		total_freight += ware.menge;
+		sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
 
-		if(  freight_add.empty()  ) {
-			// now empty, but usually, we can get it here ...
-			return 0;
-		}
-
-		for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
-			ware_t &ware = *iter_z;
-
-			total_freight += ware.menge;
-			sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
-
-			// could this be joined with existing freight?
-			FOR( slist_tpl<ware_t>, & tmp, fracht ) {
-				// for pax: join according next stop
-				// for all others we *must* use target coordinates
-				if(  ware.same_destination(tmp)  ) {
-					tmp.menge += ware.menge;
-					ware.menge = 0;
-					break;
-				}
-			}
-
-			// if != 0 we could not join it to existing => load it
-			if(  ware.menge != 0  ) {
-				++iter_z;
-				// we add list directly
-			}
-			else {
-				iter_z = freight_add.erase(iter_z);
+		// could this be joined with existing freight?
+		FOR( slist_tpl<ware_t>, & tmp, fracht ) {
+			// for pax: join according next stop
+			// for all others we *must* use target coordinates
+			if(  ware.same_destination(tmp)  ) {
+				tmp.menge += ware.menge;
+				ware.menge = 0;
+				break;
 			}
 		}
 
-		if(  !freight_add.empty()  ) {
-			fracht.append_list(freight_add);
+		// if != 0 we could not join it to existing => load it
+		if(  ware.menge != 0  ) {
+			++iter_z;
+			// we add list directly
 		}
+		else {
+			iter_z = freight_add.erase(iter_z);
+		}
+	}
+
+	if(  !freight_add.empty()  ) {
+		fracht.append_list(freight_add);
 	}
 	return total_freight - total_freight_start;
 }
@@ -895,7 +884,9 @@ void vehicle_t::remove_stale_cargo()
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
-							tmp.access_zwischenziel() = halt;
+							vector_tpl<halthandle_t> transit_halts;
+							transit_halts.append(halt);
+							tmp.set_transit_halts(transit_halts);
 							if (!tmp.get_ziel().is_bound()) {
 								// set target, to prevent that unload_freight drops cargo
 								tmp.set_ziel( halt );
@@ -1180,6 +1171,11 @@ void vehicle_t::hop(grund_t* gr)
 	if(  route_index>=cnv->get_route()->get_count()-1  ||  coupling_index==route_index  ) {
 		route_index ++;
 		check_for_finish = true;
+		// estimate pos_next if possible
+		const koord3d estimated_pos_next = cnv->get_route()->opposite_pos_of_route_ending(get_waytype());
+		if(  estimated_pos_next != koord3d::invalid  ) {
+			pos_next = estimated_pos_next;
+		}
 	}
 	else {
 		route_index ++;
@@ -1252,8 +1248,14 @@ void vehicle_t::hop(grund_t* gr)
 			// since route_index is already incremented, this is coupling point.
 			steps_next = cnv->get_next_coupling_steps();
 		}
-		else if(  check_for_finish  &&  (direction==ribi_t::north  ||  direction==ribi_t::west)  ) {
-			steps_next = (steps_next/2)+1;
+		else if(  check_for_finish  ) {
+			if(  direction==ribi_t::north  ||  direction==ribi_t::west  ||  direction==ribi_t::southeast  ) {
+				steps_next = (steps_next/2)+1;
+			} else if(  direction==ribi_t::northeast  ) {
+				steps_next = (steps_next/4)+1;
+			} else if(  direction==ribi_t::northwest  ||  direction==ribi_t::southwest  ) {
+				steps_next = 1;
+			}
 		}
 		cnv->must_recalc_data_front();
 	}
@@ -1268,23 +1270,12 @@ void vehicle_t::hop(grund_t* gr)
 	calc_friction(gr);
 
 	if (old_friction != current_friction) {
-		cnv->update_friction_weight( (current_friction-old_friction) * (sint64)sum_weight);
+		cnv->must_recalc_friction_weight();
 	}
 
 	// if speed limit changed, then cnv must recalc
 	if (speed_limit != old_speed_limit) {
-		if (speed_limit < old_speed_limit) {
-			if (speed_limit < cnv->get_speed_limit()) {
-				// update
-				cnv->set_speed_limit(speed_limit);
-			}
-		}
-		else {
-			if (old_speed_limit == cnv->get_speed_limit()) {
-				// convoy's speed limit may be larger now
-				cnv->must_recalc_speed_limit();
-			}
-		}
+		cnv->must_recalc_speed_limit();
 	}
 }
 
@@ -1656,7 +1647,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware_t ware( desc->get_freight_type() );
 			ware.menge = 0;
 			ware.set_ziel( halthandle_t() );
-			ware.set_zwischenziel( halthandle_t() );
+			ware.clear_transit_halts();
 			ware.set_zielpos( get_pos().get_2d() );
 			ware.rdwr(file);
 		}
@@ -1736,6 +1727,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		total_freight = 0;
 		FOR(slist_tpl<ware_t>, const& c, fracht) {
 			total_freight += c.menge;
+		}
+
+		if(  const grund_t* gr = welt->lookup(get_pos())  ) {
+			calc_friction(gr);
 		}
 	}
 
@@ -2076,7 +2071,7 @@ bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 		}
 	}
 	target_halt = halthandle_t(); // no block reserved
-	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_tile_length() );
+	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv->get_entire_convoy_length() );
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
@@ -3273,7 +3268,7 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 	}
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
-	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length(true);
+	uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_entire_convoy_length();
 	return route->calc_route(welt, start, ziel, this, max_speed, len);
 }
 
@@ -3384,39 +3379,41 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
-	if(  sch1->can_reserve(cnv->self)  ) {
-		//  just check, if we reached a free stop position of this halt
-		if(  gr->is_halt()  &&  gr->get_halt()==target_halt  ) {
-			// now we must check the predecessor ...
-			if(  prev_gr!=NULL  ) {
-				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
-				const ribi_t::ribi ribi = ribi_type(dir);
-				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
-					// signal/one way sign wrong direction
-					return false;
-				}
-				grund_t *to;
-				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ) {
-					// end of stop: Is it long enough?
-					// end of stop could be also signal!
-					uint16 tiles = cnv->get_tile_length(true);
-					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ) {
-							return false;
-						}
-						gr = to;
-						tiles --;
-					}
-					return true;
-				}
-			}
-		}
+	if(  !sch1->can_reserve(cnv->self)  ) {
+		return false;
 	}
-	return false;
+	//  just check, if we reached a free stop position of this halt
+	if(  !gr->is_halt()  ||  gr->get_halt()!=target_halt  ) {
+		return false;
+	}
+	// now we must check the predecessor ...
+	if(  !prev_gr  ) {
+		return false;
+	}
+	const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
+	const ribi_t::ribi ribi = ribi_type(dir);
+	const weg_t* way = gr->get_weg(get_waytype());
+	if(  way->get_ribi_maske() & ribi  ) {
+		// signal/one way sign wrong direction
+		return false;
+	}
+	const ribi_t::ribi next_gr_ribi = way->get_ribi_unmasked() & ~ribi_t::backward(ribi);
+	grund_t *to;
+	if(  ribi_t::is_single(next_gr_ribi)  &&
+		gr->get_neighbour(to, get_waytype(), next_gr_ribi)  &&
+		(to->get_halt()==target_halt)  &&
+		(to->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))==0
+	) {
+		// We can still go forward.
+		return false;
+	}
+	// end of stop: Is it long enough?
+	const uint32 available_halt_length = cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi); // 256 units per a straight tile
+	return available_halt_length >= ((uint32)cnv->get_entire_convoy_length()) << 4;
 }
 
 // this routine is called by find_route, to determined if we reached a coupling point
-bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_gr, sint16 &coupling_steps) const
+bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_gr) const
 {
 	const schiene_t * sch = (const schiene_t *) gr->get_weg(get_waytype());
 	if(  !gr  ||  !prev_gr  ||  !sch  ) {
@@ -3431,36 +3428,23 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 	const ribi_t::ribi ribi = ribi_type(dir);
 	// Find target vehicle to couple with
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
-		if(  rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos))  ) {
-			// there is a suitable waiting convoy for coupling -> this is coupling point.
-			if(  cnv->can_start_coupling(v->get_convoi())  &&  v->get_convoi()->is_loading()  ) {
-				if(  !v->is_last()  &&  !v->is_leading()  ) {
-					// we have to couple with either end of the convoy.
-					continue;
-				}
-				// set coupling index and step
-				// c_step can be negative, so it must be handled as sint16.
-				// TODO: in case that the vehicle length is over 16.
-				coupling_steps = v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
-				// Is the platform long enough?
-				grund_t *to;
-				sint16 steps_remain = cnv->get_entire_convoy_length() * VEHICLE_STEPS_PER_CARUNIT - coupling_steps - VEHICLE_STEPS_PER_TILE;
-				if(  coupling_steps>0  ) {
-					steps_remain += VEHICLE_STEPS_PER_TILE;
-				}
-				while(  steps_remain>0  ) {
-					if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ) {
-						return false;
-					}
-					gr = to;
-					steps_remain -= VEHICLE_STEPS_PER_TILE;
-				}
-				return true;
-			} else {
-				// other convoy exists.
-				return false;
-			}
+		rail_vehicle_t* const v = dynamic_cast<rail_vehicle_t*>(gr->obj_bei(pos));
+		// there is a suitable waiting convoy for coupling -> this is coupling point.
+		// we have to couple with either end of the convoy.
+		if(  !v  ||
+			!cnv->can_start_coupling(v->get_convoi())  ||
+			!v->get_convoi()->is_loading()  ||
+			(!v->is_last()  &&  !v->is_leading())  ) {
+			continue;
 		}
+		// Is the platform long enough?
+		// TODO: consider visual steps offset
+		const bool is_diagonal_way_tile = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
+		const sint16 tile_length = is_diagonal_way_tile ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
+		const sint32 available_halt_length = 
+		cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi)
+		- tile_length + v->get_steps();
+		return available_halt_length >= cnv->get_entire_convoy_length() * VEHICLE_STEPS_PER_CARUNIT;
 	}
 
 	return false;
@@ -4194,9 +4178,11 @@ bool rail_vehicle_t::can_couple(const route_t* route, uint16 start_index, uint16
 					// set coupling index and step
 					// c_step can be negative, so it must be handled as sint16.
 					// TODO: in case that the vehicle length is over 16.
-					sint16 c_step = v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
+					const sint16 c_step = v->get_steps() - VEHICLE_STEPS_PER_CARUNIT*v->get_desc()->get_length();
+					const bool is_diagonal_way = ribi_t::is_bend(gr->get_weg(get_waytype())->get_ribi_unmasked());
+					const sint16 tile_length = is_diagonal_way ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 					coupling_index = c_step<0 ? max(i-1,0) : i;
-					coupling_steps = c_step<0 ? c_step+VEHICLE_STEPS_PER_TILE : c_step;
+					coupling_steps = c_step<0 ? c_step + tile_length : c_step;
 					return true;
 				} else {
 					// other convoy exists.

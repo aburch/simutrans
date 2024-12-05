@@ -30,11 +30,10 @@ karte_ptr_t interaction_t::world;
 
 void interaction_t::move_view( const event_t &ev )
 {
-	static scr_coord_val old_move_dx=0, old_move_dy=0;
 	koord new_ij = viewport->get_world_position();
 
-	sint16 new_xoff = viewport->get_x_off() - (ev.mx - ev.cx) * env_t::scroll_multi;
-	sint16 new_yoff = viewport->get_y_off() - (ev.my - ev.cy) * env_t::scroll_multi;
+	sint16 new_xoff = viewport->get_x_off() - (ev.mx-ev.cx) * env_t::scroll_multi;
+	sint16 new_yoff = viewport->get_y_off() - (ev.my-ev.cy) * env_t::scroll_multi;
 
 	// this sets the new position and mark screen dirty
 	// => with next refresh we will be at a new location
@@ -42,11 +41,11 @@ void interaction_t::move_view( const event_t &ev )
 
 	// move the mouse pointer back to starting location => infinite mouse movement
 	if ((ev.mx - ev.cx) != 0 || (ev.my - ev.cy) != 0) {
-		if(!env_t::scroll_infinite  ||  !move_pointer(ev.cx, ev.cy)) {
+		if (!env_t::scroll_infinite || !move_pointer(ev.cx, ev.cy)) {
 			// fails in finger mode
 			change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
 		}
-	}
+		}
 }
 
 
@@ -106,6 +105,12 @@ void interaction_t::move_cursor( const event_t &ev )
 				}
 			}
 			tool->flags = 0;
+		}
+
+		if(  (ev.button_state&7)==0  ) {
+			// time, since mouse got here
+			world->set_mouse_rest_time(dr_time());
+			world->set_sound_wait_time(AMBIENT_SOUND_INTERVALL); // 13s no movement: play sound
 		}
 	}
 }

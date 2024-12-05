@@ -814,6 +814,9 @@ int simu_main(int argc, char** argv)
 			dr_set_screen_scale(atoi(scaling));
 		}
 	}
+	else {
+		dr_set_screen_scale(env_t::display_scale_percent);
+	}
 
 	int parameter[2];
 	parameter[0] = args.has_arg("-async");
@@ -827,7 +830,7 @@ int simu_main(int argc, char** argv)
 	// Get optimal resolution.
 	if (disp_width == 0 || disp_height == 0) {
 		resolution const res = dr_query_screen_resolution();
-		if (fullscreen != WINDOWED) {
+		if (fullscreen) {
 			disp_width  = res.w;
 			disp_height = res.h;
 		}
@@ -1470,7 +1473,15 @@ int simu_main(int argc, char** argv)
 		intr_set_view(view);
 		win_set_world(welt);
 
-		const char *err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		const char *err = "";
+		if (env_t::default_settings.get_with_private_paks()) {
+			// try addon directory first
+			err = scen->init(("addons/" + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		}
+		if (err) {
+			// no addon scenario, look in pakset
+			err = scen->init((env_t::data_dir + env_t::objfilename + "scenario/").c_str(), scen_name, welt);
+		}
 		if(  err  ) {
 			dbg->error("simu_main()", "Could not load scenario %s%s: %s", env_t::objfilename.c_str(), scen_name, err);
 			delete scen;

@@ -404,3 +404,17 @@ void factory_edit_frame_t::set_windowsize(scr_size size)
 	cb_rotation.set_size(scr_size(w, cbs.h));
 	inp_production.set_size(scr_size(w, nis.h));
 }
+
+
+void factory_edit_frame_t::rdwr( loadsave_t *file ) {
+	uint8 button_pressed_flags = bt_city_chain.pressed | (bt_land_chain.pressed<<1);
+	file->rdwr_byte(button_pressed_flags);
+	bt_city_chain.pressed = button_pressed_flags & 1;
+	bt_land_chain.pressed = (button_pressed_flags>>1) & 1;
+
+	sint32 production_value = inp_production.get_value();
+	file->rdwr_long(production_value);
+	inp_production.set_value(production_value);
+
+	extend_edit_gui_t::rdwr(file);
+}

@@ -9,10 +9,12 @@
 
 #include <stdio.h>
 #include <string>
+#include <functional>
 
 #include "../simtypes.h"
 #include "../io/classify_file.h"
 #include "../io/rdwr/rdwr_stream.h"
+#include "../tpl/vector_tpl.h"
 
 
 class plainstring;
@@ -153,6 +155,27 @@ public:
 	void rdwr_longlong(sint64 &i);
 	void rdwr_bool(bool &i);
 	void rdwr_double(double &dbl);
+
+	/// Read and write the given vector object.
+	/// @tparam T The type of the vector.
+	/// @param vector The vector to read and write.
+	/// @param rdwr The lambda function to read and write the elements of the vector.
+	template<class T> void rdwr_vector(vector_tpl<T> &vector, std::function<void(loadsave_t*, T&)> rdwr_elem) {
+		uint32 count = vector.get_count();
+		rdwr_long(count);
+		if(  is_loading()  ) {
+			vector.clear();
+			for(  uint32 i = 0;  i < count;  i++  ) {
+				T item;
+				rdwr_elem(this, item);
+				vector.append(item);
+			}
+		} else {
+			for(  uint32 i = 0;  i < count;  i++  ) {
+				rdwr_elem(this, vector[i]);
+			}
+		}
+	};
 
 	void wr_obj_id(short id);
 	short rd_obj_id();

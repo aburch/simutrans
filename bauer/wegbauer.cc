@@ -487,7 +487,20 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 		if(  layouts==4  ) {
 			return  r == ribi_t::layout_to_ribi[layout];
 		}
-		return ribi_t::is_straight( r | ribi_t::doubles(ribi_t::layout_to_ribi[layout&1]) );
+		if(  layout<16  ) {
+			// straight way tile
+			return ribi_t::is_straight( r | ribi_t::doubles(ribi_t::layout_to_ribi[layout&1]) );
+		}
+		// diagonal way tile
+		ribi_t::ribi gb_connected_direction;
+		if(  (layout&0x30)==0x10  ) {
+			// vertical
+			gb_connected_direction = (layout&1) ? ribi_t::southwest : ribi_t::northeast;
+		} else {
+			// horizontal
+			gb_connected_direction = (layout&1) ? ribi_t::northwest : ribi_t::southeast;
+		}
+		return r & gb_connected_direction;
 	}
 	return true;
 }
@@ -2654,8 +2667,7 @@ void way_builder_t::build_road()
 				str->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
 				str->set_owner(player_builder);
-				// respect speed limit of crossing
-				str->count_sign();
+				upgrade_crossing_if_needed(gr);
 			}
 		}
 		else {
@@ -2723,7 +2735,7 @@ void way_builder_t::build_track()
 				}
 
 				// build tram track over crossing -> remove crossing
-				if(  gr->has_two_ways()  &&  desc->get_styp()==type_tram  &&  weg->get_desc()->get_styp() != type_tram  ) {
+				if(  gr->has_two_ways()  &&  desc->get_styp()==type_tram  &&  weg->get_desc()->get_styp() != type_tram  &&  gr->hat_weg(waytype_t::road_wt)  ) {
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_image(), 0);
@@ -2757,6 +2769,7 @@ void way_builder_t::build_track()
 					weg->set_owner(player_builder);
 					// respect speed limit of crossing
 					weg->count_sign();
+					upgrade_crossing_if_needed(gr);
 				}
 			}
 			else {
@@ -3136,4 +3149,15 @@ void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
 			if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 		}
 	}
+}
+
+
+void way_builder_t::upgrade_crossing_if_needed( const grund_t* gr )
+{
+	crossing_t* crossing = gr->find<crossing_t>();
+	if(  !gr->ist_uebergang()  ||  !crossing  ) {
+		// A crossing does not exist on the given tile.
+		return;
+	}
+	crossing->finish_rd();
 }

@@ -201,6 +201,7 @@ const char *tool_t::id_to_string(uint16 id)
 		CASE_TO_STRING(DIALOG_LIST_VEHICLE);
 		CASE_TO_STRING(DIALOG_SCRIPT_TOOL);
 		CASE_TO_STRING(DIALOG_EDIT_GROUNDOBJ);
+		CASE_TO_STRING(DIALOG_ROUTE_SEARCH);
 		}
 	}
 
@@ -272,7 +273,8 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_PLANT_GROUNDOBJ:             tool = new tool_plant_groundobj_t();     break;
 		case TOOL_ADD_MESSAGE:                 tool = new tool_add_message_t();         break;
 		case TOOL_REMOVE_SIGNAL:               tool = new tool_remove_signal_t();       break;
-		case TOOL_CHANGE_CITY_OF_CITYBUILDING: tool = new tool_change_city_of_citybuilding_t(); break;
+		case TOOL_REMOVE_HALT:                 tool = new tool_remove_halt_t();     break;
+		case TOOL_EXTINGUISH_WAITING_GOODS:    tool = new tool_extinguish_waiting_goods_t(); break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
@@ -333,6 +335,7 @@ tool_t *create_simple_tool(int toolnr)
 		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
 		case TOOL_SWITCH_PUBLIC_PLAYER:             tool = new tool_switch_public_player_t(); break;
 		case TOOL_SENDING_MONEY:             tool = new tool_sending_money_t(); break;
+		case TOOL_MERGE_PLAYER:      tool = new tool_merge_player_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -382,6 +385,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_LIST_VEHICLE:    tool = new dialog_list_vehicle_t();    break;
 		case DIALOG_SCRIPT_TOOL:     tool = new dialog_script_tool_t();     break;
 		case DIALOG_EDIT_GROUNDOBJ:  tool = new dialog_edit_groundobj_t();  break;
+		case DIALOG_ROUTE_SEARCH:    tool = new dialog_route_search_t();    break;
 		default:
 			dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 			return NULL;

@@ -37,7 +37,6 @@ private:
 
 	gui_combobox_t sortedby;
 	button_t sorteddir;
-	button_t bt_copy_csv;
 	button_t filter_by_owner;
 	gui_combobox_t filterowner;
 
@@ -78,8 +77,6 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
-
-	void copy_csv_format();
 
 	void rdwr(loadsave_t* file) OVERRIDE;
 

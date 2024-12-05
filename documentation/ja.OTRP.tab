@@ -153,6 +153,12 @@ Do not load cargos until the departure time comes.
 発車時刻になるまで積載しません．
 hlf_chk_include_public
 公共駅を含める
+Departure slot group
+発車枠グループ
+Shares the departure time slot with the selected line here.
+選択された路線と発車枠を共有します。
+<new departure slot group>
+<新しい発車枠グループ>
 #------円表記------
 $
  円
@@ -204,8 +210,44 @@ Accept trade this convoi
 この車両を受け入れます
 Permitted
 譲渡許可済み
+#------プレイヤー併合------
+merge player
+プレイヤーの併合
+Player merger
+プレイヤーの併合
+Select players to be merged.
+併合するプレイヤーを選択してください。
+merged player
+併合対象
+merge to
+併合先
+Merge
+併合する
+#------旅客経路検索ウィンドウ------
+Pax route search
+旅客経路検索
+From:
+出発:
+To:
+到着:
+Search
+検索
+Swap
+入替
+Please enter halt names and press search.
+停留所名を入力し、検索ボタンを押してください。
+No connection found!
+接続が見つかりません！
+From halt not found.
+出発停留所が見つかりません。
+To halt not found.
+到着停留所が見つかりません。
+No route found!
+経路が見つかりません！
 #------その他の翻訳------
 next stop
 次の駅へ
 Max. wayobj speed:
 架線速度:
+Fetching server list...
+サーバリストを取得中...

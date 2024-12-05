@@ -50,6 +50,7 @@
 #include "gui/depotlist_frame.h"
 #include "gui/vehiclelist_frame.h"
 #include "gui/script_tool_frame.h"
+#include "gui/route_search_frame.h"
 
 #include "obj/baum.h"
 #include "obj/groundobj.h"
@@ -631,6 +632,20 @@ public:
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_themes); return false; }
+	bool is_init_network_safe() const OVERRIDE{ return true; }
+	bool is_work_network_safe() const OVERRIDE{ return true; }
+};
+
+/* open the goods route search window */
+class dialog_route_search_t : public tool_t {
+public:
+	dialog_route_search_t() : tool_t(DIALOG_ROUTE_SEARCH | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("goods route search"); }
+	bool init(player_t*) OVERRIDE{
+		create_win(new route_search_frame_t(), w_info, (ptrdiff_t)this);
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win((ptrdiff_t)this); return false; }
 	bool is_init_network_safe() const OVERRIDE{ return true; }
 	bool is_work_network_safe() const OVERRIDE{ return true; }
 };

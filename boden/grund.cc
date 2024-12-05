@@ -1800,6 +1800,24 @@ depot_t* grund_t::get_depot() const
 }
 
 
+bool grund_t::has_depot() const 
+{
+	obj_t* obj = first_obj();
+	if(  obj==NULL  ) {
+		return false;
+	}
+	obj_t::typ obj_type = obj->get_typ();
+	return obj_type == obj_t::bahndepot ||
+		obj_type == obj_t::strassendepot ||
+		obj_type == obj_t::schiffdepot ||
+		obj_type == obj_t::airdepot ||
+		obj_type == obj_t::monoraildepot ||
+		obj_type == obj_t::tramdepot ||
+		obj_type == obj_t::maglevdepot ||
+		obj_type == obj_t::narrowgaugedepot;
+}
+
+
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = get_weg(wegtyp);

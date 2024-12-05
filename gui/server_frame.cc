@@ -26,10 +26,33 @@
 #include "help_frame.h"
 #include "components/gui_divider.h"
 
+#include <thread>
+#include <mutex>
+
 static char nick_buf[256];
 
 // char server_frame_t::newserver_name[2048];
 
+// static buffer for updating the server list asynchronously
+static std::mutex server_frame_draw_mutex;
+struct {
+	server_frame_t* window;
+	cbuffer_t network_buf;
+} typedef server_list_request_result_t;
+// DO NOT access _server_list_result directly! Always use setter/getter functions.
+static server_list_request_result_t _server_list_result{ NULL, cbuffer_t() };
+
+void set_server_list_result(server_list_request_result_t r) {
+	std::unique_lock<std::mutex> lk(server_frame_draw_mutex);
+	_server_list_result = r;
+}
+
+server_list_request_result_t pop_server_list_result() {
+	std::unique_lock<std::mutex> lk(server_frame_draw_mutex);
+	server_list_request_result_t result = _server_list_result;
+	_server_list_result = server_list_request_result_t{ NULL, cbuffer_t() };
+	return result;
+}
 
 class gui_minimap_t : public gui_component_t
 {
@@ -300,8 +323,36 @@ PIXVAL server_frame_t::update_info()
 }
 
 
-bool server_frame_t::update_serverlist ()
+void server_frame_t::update_serverlist ()
 {
+	update_error("Fetching server list...");
+	std::thread thd(&server_frame_t::update_serverlist_threaded, this);
+	thd.detach();
+}
+
+
+void server_frame_t::update_serverlist_threaded () {
+	// Download game listing from listings server into memory
+	cbuffer_t network_buf;
+
+	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, network_buf )  ) {
+		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
+		return;
+	}
+
+	set_server_list_result(server_list_request_result_t{this, network_buf});
+}
+
+
+void server_frame_t::handle_serverlist_request_result(cbuffer_t network_buf) {
+	buf.clear();
+	
+	// Parse listing into CSV_t object
+	CSV_t csvdata( network_buf.get_str() );
+	int ret;
+
+	dbg->message( "server_frame_t::update_serverlist", "CSV_t: %s", csvdata.get_str() );
+
 	// Based on current dialog settings, should we show mismatched servers or not
 	uint revision = 0;
 	const char* pakset = NULL;
@@ -311,20 +362,6 @@ bool server_frame_t::update_serverlist ()
 		revision = current.get_game_engine_revision();
 		pakset   = current.get_pak_name();
 	}
-
-	// Download game listing from listings server into memory
-	cbuffer_t buf;
-
-	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
-		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
-		return false;
-	}
-
-	// Parse listing into CSV_t object
-	CSV_t csvdata( buf.get_str() );
-	int ret;
-
-	dbg->message( "server_frame_t::update_serverlist", "CSV_t: %s", csvdata.get_str() );
 
 	// For each listing entry, determine if it matches the version supplied to this function
 	do {
@@ -418,8 +455,6 @@ bool server_frame_t::update_serverlist ()
 
 	set_dirty();
 	resize(scr_size(0, 0));
-
-	return true;
 }
 
 
@@ -570,6 +605,11 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 	// update nickname if necessary
 	if (  get_focus() != &nick  &&  env_t::nickname != nick_buf  ) {
 		tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
+	}
+
+	server_list_request_result_t server_list_result = pop_server_list_result();
+	if(  server_list_result.window==this  ) {
+		handle_serverlist_request_result(server_list_result.network_buf);
 	}
 
 	gui_frame_t::draw( pos, size );

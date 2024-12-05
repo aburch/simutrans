@@ -306,13 +306,18 @@ settings_t::settings_t() :
 	citycar_route_weight_speed = 0;
 	
 	advance_to_end = true;
-	first_come_first_serve = false;
+	goods_routing_policy = GRP_NF_RC;
 	waiting_limit_for_first_come_first_serve = 500000;
 	
 	routecost_wait = 8;
 	routecost_halt = 1;
 	
 	spacing_shift_divisor = 24*60;
+
+	base_waiting_ticks_for_rail_convoi = 40000;
+	base_waiting_ticks_for_road_convoi = 60000;
+	base_waiting_ticks_for_ship_convoi = 60000;
+	base_waiting_ticks_for_air_convoi = 200000;
 }
 
 
@@ -938,11 +943,24 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(routecost_halt);
 			file->rdwr_short(spacing_shift_divisor);
 		}
-		if(  file->get_OTRP_version() >= 28  ) {
-			file->rdwr_bool(first_come_first_serve);
+		if(  file->get_OTRP_version() >= 36  ) {
+			uint8 dummy = goods_routing_policy;
+			file->rdwr_byte(dummy);
+			goods_routing_policy = (goods_routing_policy_t)dummy;
+		} else if(  file->get_OTRP_version() >= 28  ) {
+			// previously, only GRP_FIFO_RC or GRP_NF_RC were possible
+			bool dummy = goods_routing_policy == GRP_FIFO_RC;
+			file->rdwr_bool(dummy);
+			goods_routing_policy = dummy ? GRP_FIFO_RC : GRP_NF_RC;
 		}
 		if(  file->get_OTRP_version() >= 31  ) {
 			file->rdwr_long(waiting_limit_for_first_come_first_serve);
+		}
+		if(  file->get_OTRP_version() >= 38  ) {
+			file->rdwr_long(base_waiting_ticks_for_rail_convoi);
+			file->rdwr_long(base_waiting_ticks_for_road_convoi);
+			file->rdwr_long(base_waiting_ticks_for_ship_convoi);
+			file->rdwr_long(base_waiting_ticks_for_air_convoi);
 		}
 		if(  file->is_version_atleast(122, 1)  ) {
 			file->rdwr_enum(climate_generator);
@@ -1628,7 +1646,7 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	citycar_route_weight_speed = contents.get_int("citycar_route_weight_speed", citycar_route_weight_speed);
 	
 	advance_to_end = contents.get_int("advance_to_end", advance_to_end);
-	first_come_first_serve = contents.get_int("first_come_first_serve", first_come_first_serve);
+	goods_routing_policy = (goods_routing_policy_t)contents.get_int("goods_routing_policy", goods_routing_policy);
 	waiting_limit_for_first_come_first_serve 
 		= contents.get_int("waiting_limit_for_first_come_first_serve", waiting_limit_for_first_come_first_serve);
 	
@@ -1636,6 +1654,11 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	routecost_halt = contents.get_int("routecost_halt", routecost_halt);
 	
 	spacing_shift_divisor = contents.get_int("spacing_shift_divisor", spacing_shift_divisor);
+
+	base_waiting_ticks_for_rail_convoi = contents.get_int("base_waiting_ticks_for_rail_convoi", base_waiting_ticks_for_rail_convoi);
+	base_waiting_ticks_for_road_convoi = contents.get_int("base_waiting_ticks_for_road_convoi", base_waiting_ticks_for_road_convoi);
+	base_waiting_ticks_for_ship_convoi = contents.get_int("base_waiting_ticks_for_ship_convoi", base_waiting_ticks_for_ship_convoi);
+	base_waiting_ticks_for_air_convoi = contents.get_int("base_waiting_ticks_for_air_convoi", base_waiting_ticks_for_air_convoi);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", objfilename.c_str() ) );
@@ -1897,4 +1920,20 @@ void settings_t::set_player_color_to_default(player_t* const player) const
 citycar_routing_param_t settings_t::get_citycar_routing_param() const {
 	citycar_routing_param_t r = {citycar_route_weight_crowded, citycar_route_weight_vacant, citycar_route_weight_speed};
 	return r;
+}
+
+
+uint32 settings_t::get_base_waiting_ticks(waytype_t waytype) const {
+	if(  waytype == road_wt  ) {
+		return base_waiting_ticks_for_road_convoi;
+	}
+	else if(  waytype == water_wt  ) {
+		return base_waiting_ticks_for_ship_convoi;
+	}
+	else if(  waytype == air_wt  ) {
+		return base_waiting_ticks_for_air_convoi;
+	}
+	else {
+		return base_waiting_ticks_for_rail_convoi;
+	}
 }

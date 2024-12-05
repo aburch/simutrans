@@ -316,3 +316,17 @@ void curiosity_edit_frame_t::draw(scr_coord pos, scr_size size)
 
 	extend_edit_gui_t::draw(pos,size);
 }
+
+
+void curiosity_edit_frame_t::rdwr( loadsave_t *file )
+{
+	uint8 button_pressed_flags = bt_city_attraction.pressed;
+	button_pressed_flags |= bt_land_attraction.pressed << 1;
+	button_pressed_flags |= bt_monuments.pressed << 2;
+	file->rdwr_byte(button_pressed_flags);
+	bt_city_attraction.pressed = button_pressed_flags & 1;
+	bt_land_attraction.pressed = (button_pressed_flags >> 1) & 1;
+	bt_monuments.pressed = (button_pressed_flags >> 2) & 1;
+
+	extend_edit_gui_t::rdwr(file);
+}

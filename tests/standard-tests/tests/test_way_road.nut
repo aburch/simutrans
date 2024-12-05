@@ -264,10 +264,8 @@ function test_way_road_build_bend()
 	}
 
 	{
-		local raise = command_x(tool_raise_land)
-		local lower = command_x(tool_lower_land)
 
-		raise.work(pl, coord3d(2, 2, 0))
+		command_x.grid_raise(pl, coord3d(2, 2, 0))
 
 		local err = command_x.build_way(pl, coord3d(0, 1, 0), coord3d(1, 0, 0), desc, true)
 		ASSERT_EQUAL(err, null)
@@ -284,7 +282,7 @@ function test_way_road_build_bend()
 			])
 
 		remover.work(pl, tile_x(0, 1, 0), coord3d(1, 0, 0), "" + wt_road)
-		lower.work(pl, coord3d(2, 2, 0))
+		command_x.grid_lower(pl, coord3d(2, 2, 0))
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
 				"........",
@@ -634,7 +632,7 @@ function test_way_road_build_crossing()
 	// road too fast, cannot build crossing
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), "")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), fast_road, true), translate("No suitable crossing"))
 
 		ASSERT_WAY_PATTERN(wt_rail, coord3d(0, 0, 0),
 			[
@@ -719,7 +717,7 @@ function test_way_road_upgrade_crossing()
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
 
 	// hard-coded because there is no crossing_desc_x/crossing_x
-	local crossing_road_speed = 30
+	local crossing_road_speed = 80
 	local crossing_rail_speed = 160
 
 	// upgrade road past max crossing speed; works, but road crossing speed is limited
@@ -755,6 +753,23 @@ function test_way_road_upgrade_crossing()
 		ASSERT_TRUE(tile_x(3, 2, 0).has_two_ways())
 		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_road).get_max_speed(), min(crossing_road_speed, fast_road.get_topspeed()))
 		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_rail).get_max_speed(), min(crossing_rail_speed, rail.get_topspeed()))
+	}
+
+	// clean up
+	ASSERT_EQUAL(remover.work(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), "" + wt_rail), null)
+	ASSERT_EQUAL(remover.work(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
+
+	// upgrade rail with crossing; the crossing is upgraded
+	{
+		local fast_rail = way_desc_x("wooden_sleeper_track")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 2, 0), coord3d(4, 2, 0), slow_road, true), null)
+		// The crossing whose speed limit for rail is 80kph is built here.
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), rail, true), null)
+		// upgrade rail. The crossing should be upgraded to the one whose speed limit for rail is 160kph.
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 1, 0), coord3d(3, 3, 0), fast_rail, true), null)
+
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_road).get_max_speed(), min(crossing_road_speed, slow_road.get_topspeed()))
+		ASSERT_EQUAL(tile_x(3, 2, 0).get_way(wt_rail).get_max_speed(), min(crossing_rail_speed, fast_rail.get_topspeed()))
 	}
 
 	// clean up
@@ -894,10 +909,10 @@ function test_way_road_upgrade_downgrade_across_bridge()
 	ASSERT_TRUE(slow_road.get_topspeed() < fast_road.get_topspeed())
 
 	// build bridge
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 6, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 6, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
 	ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 5, 0), bridge), null)
 
 	// upgrade road
@@ -993,10 +1008,10 @@ function test_way_road_upgrade_downgrade_across_bridge()
 
 	// remove bridge
 	ASSERT_EQUAL(remover.work(pl, start_pos, end_pos, "" + wt_road), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 6, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 6, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 6, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
 
 	// clean up
 	ASSERT_EQUAL(pl.get_current_maintenance(), 0)
@@ -1004,105 +1019,39 @@ function test_way_road_upgrade_downgrade_across_bridge()
 }
 
 
-function test_way_road_build_cityroad()
+function test_way_road_cityroad_build()
 {
-	local pl = player_x(0)
 	local public_pl = player_x(1)
-	local builder = command_x(tool_build_cityroad)
-	local remover = command_x(tool_remove_way)
-	local start_pos = coord3d(3, 6, 0)
-	local end_pos = coord3d(3, 2, 0)
-	local all_roads = way_desc_x.get_available_ways(wt_road, st_flat)
-	all_roads.sort(@(a, b) a.get_topspeed() <=> b.get_topspeed())
+	local start_pos = coord3d(3, 2, 0)
+	local end_pos = coord3d(3, 6, 0)
 
-	local slow_road = all_roads[0]
-	local fast_road = all_roads[1]
+	// build single tile -> should fail
+	{
+		ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, start_pos, "city_road"), "")
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+		[
+			"........",
+			"........",
+			"........",
+			"........",
+			"........",
+			"........",
+			"........",
+			"........"
+		])
+	}
 
 	// build city road
 	{
-		ASSERT_EQUAL(builder.work(pl, start_pos, end_pos, slow_road.get_name()), null)
+		ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "city_road"), null)
 
 		for (local y = start_pos.y; y < end_pos.y; ++y) {
-			local r = way_x(3, y, 0)
+			local r = way_x(start_pos.x, y, start_pos.z)
 			ASSERT_TRUE(r != null)
 			ASSERT_TRUE(r.is_valid())
 			ASSERT_TRUE(r.has_sidewalk())
-			ASSERT_EQUAL(r.get_desc().get_name(), slow_road.get_name())
-		}
-
-		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
-			[
-				"........",
-				"........",
-				"...4....",
-				"...5....",
-				"...5....",
-				"...5....",
-				"...1....",
-				"........"
-			])
-	}
-
-	// upgrade cityroad
-	{
-		ASSERT_EQUAL(builder.work(pl, start_pos, end_pos, fast_road.get_name()), null)
-
-		for (local y = start_pos.y; y < end_pos.y; ++y) {
-			local r = way_x(3, y, 0)
-			ASSERT_TRUE(r != null)
-			ASSERT_TRUE(r.is_valid())
-			ASSERT_TRUE(r.has_sidewalk())
-			ASSERT_EQUAL(r.get_desc().get_name(), fast_road.get_name())
-		}
-
-		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
-			[
-				"........",
-				"........",
-				"...4....",
-				"...5....",
-				"...5....",
-				"...5....",
-				"...1....",
-				"........"
-			])
-	}
-
-	// downgrade cityroad
-	{
-		builder.set_flags(2)
-		ASSERT_EQUAL(builder.work(pl, start_pos, end_pos, fast_road.get_name()), null)
-		builder.set_flags(0)
-		for (local y = start_pos.y; y < end_pos.y; ++y) {
-			local r = way_x(3, y, 0)
-			ASSERT_TRUE(r != null)
-			ASSERT_TRUE(r.is_valid())
-			ASSERT_TRUE(r.has_sidewalk())
-			ASSERT_EQUAL(r.get_desc().get_name(), slow_road.get_name())
-		}
-
-		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
-			[
-				"........",
-				"........",
-				"...4....",
-				"...5....",
-				"...5....",
-				"...5....",
-				"...1....",
-				"........"
-			])
-	}
-
-	// replace cityroad by normal road
-	{
-		ASSERT_EQUAL(command_x.build_way(pl start_pos, end_pos, fast_road, true), null)
-		for (local y = start_pos.y; y < end_pos.y; ++y) {
-			local r = way_x(3, y, 0)
-			ASSERT_TRUE(r != null)
-			ASSERT_TRUE(r.is_valid())
-			ASSERT_FALSE(r.has_sidewalk())
-			ASSERT_EQUAL(r.get_desc().get_name(), fast_road.get_name())
+			ASSERT_EQUAL(r.desc.name, "city_road")
 		}
 
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
@@ -1119,8 +1068,168 @@ function test_way_road_build_cityroad()
 	}
 
 	// clean up
-	ASSERT_EQUAL(remover.work(pl, start_pos, end_pos, "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, start_pos, end_pos, "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
 
+
+function test_way_road_cityroad_upgrade_with_cityroad()
+{
+	local public_pl = player_x(1)
+	local start_pos = coord3d(3, 2, 0)
+	local end_pos = coord3d(3, 6, 0)
+
+	ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "city_road"), null)
+
+	// upgrade cityroad
+	{
+		ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "cobblestone_road"), null)
+
+		for (local y = start_pos.y; y < end_pos.y; ++y) {
+			local r = way_x(start_pos.x, y, start_pos.z)
+			ASSERT_TRUE(r != null)
+			ASSERT_TRUE(r.is_valid())
+			ASSERT_TRUE(r.has_sidewalk())
+			ASSERT_EQUAL(r.desc.name, "city_road") // FIXME Should this not be cobblestone_road?
+		}
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"...4....",
+				"...5....",
+				"...5....",
+				"...5....",
+				"...1....",
+				"........"
+			])
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, start_pos, end_pos, "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_road_cityroad_downgrade_with_cityroad()
+{
+	local public_pl = player_x(1)
+	local start_pos = coord3d(3, 2, 0)
+	local end_pos = coord3d(3, 6, 0)
+
+	ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "cobblestone_road"), null)
+
+	// downgrade cityroad
+	{
+		local builder = command_x(tool_build_cityroad)
+		builder.set_flags(2)
+		ASSERT_EQUAL(builder.work(public_pl, start_pos, end_pos, "city_road"), null)
+
+		for (local y = start_pos.y; y < end_pos.y; ++y) {
+			local r = way_x(start_pos.x, y, start_pos.y)
+			ASSERT_TRUE(r != null)
+			ASSERT_TRUE(r.is_valid())
+			ASSERT_TRUE(r.has_sidewalk())
+			ASSERT_EQUAL(r.desc.name, "city_road")
+		}
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"...4....",
+				"...5....",
+				"...5....",
+				"...5....",
+				"...1....",
+				"........"
+			])
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, start_pos, end_pos, "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_road_cityroad_replace_by_normal_road()
+{
+	local public_pl = player_x(1)
+	local start_pos = coord3d(3, 2, 0)
+	local end_pos = coord3d(3, 6, 0)
+
+	ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "city_road"), null)
+
+	// replace cityroad by normal road
+	{
+		ASSERT_EQUAL(command_x.build_way(public_pl start_pos, end_pos, way_desc_x("cobblestone_road"), true), null)
+
+		for (local y = start_pos.y; y < end_pos.y; ++y) {
+			local r = way_x(start_pos.x, y, start_pos.z)
+			ASSERT_TRUE(r != null)
+			ASSERT_TRUE(r.is_valid())
+			ASSERT_FALSE(r.has_sidewalk())
+			ASSERT_EQUAL(r.desc.name, "cobblestone_road")
+		}
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"...4....",
+				"...5....",
+				"...5....",
+				"...5....",
+				"...1....",
+				"........"
+			])
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, start_pos, end_pos, "" + wt_road), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_way_road_cityroad_replace_keep_existing()
+{
+	local public_pl = player_x(1)
+	local start_pos = coord3d(3, 2, 0)
+	local end_pos = coord3d(3, 6, 0)
+
+	ASSERT_EQUAL(command_x(tool_build_cityroad).work(public_pl, start_pos, end_pos, "city_road"), null)
+
+	// replace cityroad by normal road
+	{
+		local builder = command_x(tool_build_way)
+		builder.set_flags(1) // enable shift -> keep city roads
+
+		ASSERT_EQUAL(builder.work(public_pl, start_pos, end_pos, "cobblestone_road"), null)
+
+		for (local y = start_pos.y; y < end_pos.y; ++y) {
+			local r = way_x(start_pos.x, y, start_pos.z)
+			ASSERT_TRUE(r != null)
+			ASSERT_TRUE(r.is_valid())
+			ASSERT_TRUE(r.has_sidewalk())
+			ASSERT_EQUAL(r.desc.name, "city_road")
+		}
+
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"...4....",
+				"...5....",
+				"...5....",
+				"...5....",
+				"...1....",
+				"........"
+			])
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, start_pos, end_pos, "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 

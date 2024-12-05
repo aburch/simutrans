@@ -702,26 +702,6 @@ private:
 	void read_start_position(player_t *player, const koord3d &pos);
 };
 
-class tool_change_city_of_citybuilding_t : public two_click_tool_t {
-public:
-	tool_change_city_of_citybuilding_t() : two_click_tool_t(TOOL_CHANGE_CITY_OF_CITYBUILDING | GENERAL_TOOL) {}
-	char const *get_tooltip(player_t const *) const OVERRIDE { return translator::translate("change city of citybuilding"); }
-
-private:
-	char const *do_work(player_t*, koord3d const &, koord3d const &) OVERRIDE;
-	void mark_tiles(player_t*, koord3d const &, koord3d const &) OVERRIDE;
-	uint8 is_valid_pos(player_t*, koord3d const &pos, char const *&error, koord3d const &start) OVERRIDE {
-		grund_t *bd = welt->lookup(pos);
-		if (bd==NULL) {
-			error = "";
-			return 0;
-		}
-
-		return 2;
-	};
-	image_id get_marker_image() const OVERRIDE { return cursor; };
-};
-
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
 class tool_make_stop_public_t : public tool_t {
@@ -761,6 +741,20 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 
+// removes station or stop from tile
+class tool_remove_halt_t : public two_click_tool_t {
+	public:
+	tool_remove_halt_t() : two_click_tool_t(TOOL_REMOVE_HALT | GENERAL_TOOL) { one_click = true; }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("remove halt"); }
+	bool is_init_network_safe() const OVERRIDE { return true; }
+private:
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
+	image_id get_marker_image() const OVERRIDE;
+	bool remove_halt(player_t*, koord3d const&);
+};
+
 // internal tool: show error message at specific coordinate
 // used for scenario error messages send by server
 class tool_error_message_t : public tool_t {
@@ -769,6 +763,15 @@ public:
 	bool init(player_t*) OVERRIDE { return true; }
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE { return default_param ? default_param : ""; }
+};
+
+
+class tool_extinguish_waiting_goods_t : public tool_t {
+public:
+	tool_extinguish_waiting_goods_t() : tool_t(TOOL_EXTINGUISH_WAITING_GOODS | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Remove all waiting goods and pax"); }
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
 };
 
 
@@ -1334,6 +1337,13 @@ public:
 	char const* work(player_t* player, koord3d k) OVERRIDE;
 	bool is_init_network_safe() const OVERRIDE { return false; }
 	bool is_work_network_safe() const OVERRIDE { return false; }
+};
+
+class tool_merge_player_t : public tool_t {
+public:
+	tool_merge_player_t() : tool_t(TOOL_MERGE_PLAYER | SIMPLE_TOOL) {}
+	bool init(player_t * ) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
 #endif

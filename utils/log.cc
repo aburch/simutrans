@@ -318,7 +318,7 @@ void log_t::custom_fatal(char *buffer)
 	if(  tee  &&  log!=tee  ) {
 		fputs( buffer, tee );
 	}
-	abort();
+
 #ifdef SYSLOG
 	if (  syslog  ) {
 		::syslog( LOG_ERR, buffer );

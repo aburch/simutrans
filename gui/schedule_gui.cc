@@ -234,10 +234,13 @@ cbuffer_t schedule_gui_stats_t::buf;
 schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoihandle_t cnv_) :
 	gui_frame_t( translator::translate("Fahrplan"), NULL),
 	line_selector(line_scrollitem_t::compare),
+	departure_slot_group_selector(company_color_line_scroll_item_t::compare),
 	lb_waitlevel(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_wait("1/"),
 	lb_load("Full load"),
+	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Maxspeed"),
+	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -422,6 +425,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&numimp_max_speed);
 	}
 	end_table();
+
+	// Additional waiting time on goods routing, when TBGR is enabled
+	add_table(2,1);
+	{
+		add_component(&lb_tbgr_waiting_time);
+		numimp_tbgr_waiting_time.set_width( 60 );
+		numimp_tbgr_waiting_time.set_value( schedule->get_additional_base_waiting_time() );
+		numimp_tbgr_waiting_time.set_limits( 0, 999999 );
+		numimp_tbgr_waiting_time.set_increment_mode(1);
+		numimp_tbgr_waiting_time.add_listener(this);
+		add_component(&numimp_tbgr_waiting_time);
+	}
+	end_table();
 	
 	// coupling related buttons
 	add_table(2,1);
@@ -504,28 +520,37 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 	bt_same_dep_time.add_listener(this);
 	bt_same_dep_time.pressed = schedule->is_same_dep_time();
 	add_component(&bt_same_dep_time);
+
+	if(  !cnv.is_bound()  ) {
+		lb_departure_slot_group.set_tooltip(translator::translate("Shares the departure time slot with the selected line here."));
+		add_component(&lb_departure_slot_group);
+
+		init_departure_slot_group_selector();
+		departure_slot_group_selector.add_listener(this);
+		add_component(&departure_slot_group_selector);
+	}
 	
 	extract_advanced_settings(false);
 
 	add_table(2,1);
+	{
+		bt_revert.init(button_t::roundbox, "Revert schedule");
+		bt_revert.set_tooltip("Revert to original schedule");
+		bt_revert.add_listener(this);
+		add_component(&bt_revert);
 
-	bt_revert.init(button_t::roundbox, "Revert schedule");
-	bt_revert.set_tooltip("Revert to original schedule");
-	bt_revert.add_listener(this);
-	add_component(&bt_revert);
-
-	// return tickets
-	if(  !env_t::hide_rail_return_ticket  ||  schedule->get_waytype()==road_wt  ||  schedule->get_waytype()==air_wt  ||  schedule->get_waytype()==water_wt  ) {
-		//  hide the return ticket on rail stuff, where it causes much trouble
-		bt_return.init(button_t::roundbox, "return ticket");
-		bt_return.set_tooltip("Add stops for backward travel");
-		bt_return.add_listener(this);
-		add_component(&bt_return);
+		// return tickets
+		if(  !env_t::hide_rail_return_ticket  ||  schedule->get_waytype()==road_wt  ||  schedule->get_waytype()==air_wt  ||  schedule->get_waytype()==water_wt  ) {
+			//  hide the return ticket on rail stuff, where it causes much trouble
+			bt_return.init(button_t::roundbox, "return ticket");
+			bt_return.set_tooltip("Add stops for backward travel");
+			bt_return.add_listener(this);
+			add_component(&bt_return);
+		}
+		else {
+			new_component<gui_fill_t>();
+		}
 	}
-	else {
-		new_component<gui_fill_t>();
-	}
-
 	end_table();
 
 	// action button row
@@ -693,10 +718,14 @@ void schedule_gui_t::update_selection()
  */
 bool schedule_gui_t::infowin_event(const event_t *ev)
 {
-	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  )  {
-
+	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  ) {
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
-		line_selector.close_box();
+		if(  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
+			line_selector.close_box();
+		}
+		if(  !departure_slot_group_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
+			departure_slot_group_selector.close_box();
+		}
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  &&  schedule!=NULL  ) {
 
@@ -939,6 +968,9 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &numimp_max_speed) {
 		schedule->set_max_speed((uint16)p.i);
 	}
+	else if(comp == &numimp_tbgr_waiting_time) {
+		schedule->set_additional_base_waiting_time((uint32)p.i);
+	}
 	else if(comp == &bt_transfer_interval) {
 		if (!schedule->empty()) {
 			schedule->entries[schedule->get_current_stop()].set_transfer_interval(!bt_transfer_interval.pressed);
@@ -965,6 +997,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		}
 		schedule = old_schedule->copy();
 		stats->schedule = schedule;
+		init_departure_slot_group_selector();
 		stats->update_schedule();
 		update_selection();
 	}
@@ -972,6 +1005,16 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
 			init_line_selector();
 			strcpy(old_schedule_filter,schedule_filter);
+		}
+	}
+	else if(comp == &departure_slot_group_selector) {
+		uint32 selection = p.i;
+		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(departure_slot_group_selector.get_element(selection))  ) {
+			const sint64 id = li->get_line()->get_schedule()->get_departure_slot_group_id();
+			schedule->set_departure_slot_group_id(id);
+		}
+		else {
+			schedule->set_new_departure_slot_group_id();
 		}
 	}
 	// recheck lines
@@ -1038,6 +1081,43 @@ void schedule_gui_t::init_line_selector()
 }
 
 
+void schedule_gui_t::init_departure_slot_group_selector()
+{
+	departure_slot_group_selector.clear_elements();
+
+	departure_slot_group_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<new departure slot group>"), SYSCOL_TEXT ) ;
+
+	// When there are other lines whose departure_slot_group_id is same as this schedule,
+	// select the line which matches first.
+	// Otherwise, select the line of this schedule.
+	uint32 this_schedule_index = 0;
+	uint32 selection = 0;
+
+	for(uint8 player_id = 0; player_id < MAX_PLAYER_COUNT; player_id++) {
+		const player_t* player = world()->get_player(player_id);
+		if(  !player  ) {
+			continue;
+		}
+		vector_tpl<linehandle_t> lines;
+		player->simlinemgmt.get_lines(schedule->get_type(), &lines);
+		FOR(  vector_tpl<linehandle_t>, const line,  lines  ) {
+			if(  schedule->matches(world(), line->get_schedule())  ) {
+				this_schedule_index = departure_slot_group_selector.count_elements();
+			}
+			else if(  line->get_schedule()->get_departure_slot_group_id()==schedule->get_departure_slot_group_id()  &&  selection==0  ) {
+				selection = departure_slot_group_selector.count_elements();
+			}
+			departure_slot_group_selector.new_component<company_color_line_scroll_item_t>(line);
+		}
+	}
+
+	if(  selection==0  ) {
+		selection = this_schedule_index;
+	}
+	departure_slot_group_selector.set_selection( selection );
+	// line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
+	// departure_slot_group_selector.sort( offset );
+}
 
 void schedule_gui_t::draw(scr_coord pos, scr_size size)
 {
@@ -1144,8 +1224,14 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	bt_same_dep_time.set_visible(yesno);
 	bt_load_before_departure.set_visible(yesno);
 	bt_transfer_interval.set_visible(yesno);
+	lb_departure_slot_group.set_visible(yesno);
+	departure_slot_group_selector.set_visible(yesno);
 	
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
+
+	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy() == goods_routing_policy_t::GRP_FIFO_ET;
+	lb_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
+	numimp_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
 }

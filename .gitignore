@@ -28,10 +28,9 @@
 *.patch
 *.log
 /doxygen
-autom4te.cache/
-configure
-revision.h
 .vs/
+revision.h
 .idea
 *.d
 *.res
+.DS_Store

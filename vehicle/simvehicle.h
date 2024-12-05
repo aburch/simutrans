@@ -31,6 +31,9 @@ class route_t;
  */
 class vehicle_base_t : public obj_t
 {
+public:
+	static uint8 diagonal_vehicle_steps_per_tile;
+	
 protected:
 	// offsets for different directions
 	static sint8 dxdy[16];
@@ -38,7 +41,7 @@ protected:
 	// to make the length on diagonals configurable
 	// Number of vehicle steps along a diagonal...
 	// remember to subtract one when stepping down to 0
-	static uint8 diagonal_vehicle_steps_per_tile;
+	// static uint8 diagonal_vehicle_steps_per_tile;
 	static uint8 old_diagonal_vehicle_steps_per_tile;
 	static uint16 diagonal_multiplier;
 
@@ -432,10 +435,10 @@ public:
 	uint16 unload_cargo(halthandle_t halt, bool all );
 
 	/**
-	 * Load freight from halt
+	 * Load the given goods
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts);
+	uint16 load_cargo(slist_tpl<ware_t>& goods_to_load);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -579,7 +582,7 @@ public:
 
 	// returns true for the way search to an unknown target.
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE;
-	bool is_coupling_target(const grund_t *, const grund_t *, sint16 &) const OVERRIDE;
+	bool is_coupling_target(const grund_t *, const grund_t *) const OVERRIDE;
 
 	// handles all block stuff and route choosing ...
 	bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8) OVERRIDE;

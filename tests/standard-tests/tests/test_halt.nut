@@ -12,11 +12,11 @@
 function test_halt_build_rail_single_tile()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local stationbuilder = command_x(tool_build_station)
 	local wayremover = command_x(tool_remove_way)
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0] // road because it has double slopes available
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {} )[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	// preconditions
@@ -30,7 +30,7 @@ function test_halt_build_rail_single_tile()
 
 	{
 		for (local sl = slope.flat; sl < slope.raised; ++sl) {
-			ASSERT_EQUAL(setslope.work(pl, pos, "" + sl), sl != slope.flat ? null : "")
+			ASSERT_EQUAL(setslope(pl, pos, sl), sl != slope.flat ? null : "")
 			ASSERT_EQUAL(stationbuilder.work(pl, pos, station_desc.get_name()), "No suitable way on the ground!")
 
 			ASSERT_EQUAL(pl.get_current_maintenance(), 0)
@@ -38,12 +38,12 @@ function test_halt_build_rail_single_tile()
 		}
 	}
 
-	ASSERT_EQUAL(setslope.work(pl, pos, "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, pos, slope.flat), null)
 
 	// cannot build on non-flat tile
 	{
 		for (local sl = slope.flat+1; sl < slope.raised; ++sl) {
-			ASSERT_EQUAL(setslope.work(pl, pos, "" + sl), null)
+			ASSERT_EQUAL(setslope(pl, pos, sl), null)
 
 			local d = slope.to_dir(sl)
 			if (d != dir.none) { // only consider slopes we can build roads on
@@ -63,12 +63,12 @@ function test_halt_build_rail_single_tile()
 		}
 	}
 
-	ASSERT_EQUAL(setslope.work(pl, pos, "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, pos, slope.flat), null)
 
 	// build on bridge
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 4, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 4, 0), slope.north), null)
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 2, 0), bridge_desc.get_name()), null)
 
 		local old_maintenance = pl.get_current_maintenance()
@@ -88,8 +88,8 @@ function test_halt_build_rail_single_tile()
 		ASSERT_EQUAL(pl.get_current_maintenance(), old_maintenance)
 
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 4, 0)), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 2, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 4, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 2, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 4, 0), slope.flat), null)
 
 		ASSERT_EQUAL(pl.get_current_maintenance(), 0)
 	}
@@ -102,8 +102,6 @@ function test_halt_build_rail_single_tile()
 function test_halt_build_harbour()
 {
 	local pl = player_x(0)
-	local lower = command_x(tool_lower_land)
-	local raise = command_x(tool_raise_land)
 	local stationbuilder = command_x(tool_build_station)
 	local station_desc = building_desc_x.get_available_stations(building_desc_x.harbour, wt_water, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
 	local setclimate = command_x(tool_set_climate)
@@ -116,14 +114,14 @@ function test_halt_build_harbour()
 
 	// build harbour on sloped land: should fail
 	{
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), station_desc.get_name()), "")
 		ASSERT_EQUAL(tile_x(4, 3, 0).find_object(mo_building), null)
 
-		ASSERT_EQUAL(lower.work(pl, coord3d(4, 4, 0)), null)
-		ASSERT_EQUAL(lower.work(pl, coord3d(5, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 4, 0)), null)
+		ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 4, 0)), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), station_desc.get_name()), "")
 		ASSERT_EQUAL(tile_x(4, 3, 0).find_object(mo_building), null)
@@ -143,10 +141,183 @@ function test_halt_build_harbour()
 	}
 
 	// clean up
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 4, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 3, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_multiple_rotations()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(3, 3, 0), coord3d(3, 3, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop"), "More than one possibility to build this dock found.")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(3, 3, 0), coord3d(3, 3, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_fixed_rotation_valid()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop,2"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 3, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_water_fixed_rotation_invalid()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 0), "LakeShipStop,1"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_outside_map()
+{
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(-1, -1, 0), "LakeShipStop"), "")
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_map_border_auto_rotation()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 1, 0), coord3d(4, 1, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 0, 0), "LakeShipStop"), null)
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 1, 0), coord3d(4, 0, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 0, 0)), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_map_border_fixed_rotation()
+{
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 0, 0), "LakeShipStop,2"), "No suitable ground!")
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_on_bridge()
+{
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.south), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 4, 0), slope.north), null)
+	ASSERT_EQUAL(command_x(tool_build_bridge).work(player_x(0), coord3d(4, 2, 0), "Schiffhebewerk"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 1), "LakeShipStop"), "")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(0), coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.flat), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 4, 0), slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_on_slope()
+{
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.north), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 2, 0), slope.flat), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_near_cliff()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 3, 0), slope.all_up_slope), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 3, 1), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	ASSERT_EQUAL(command_x.set_slope(player_x(0), coord3d(4, 3, 1), slope.all_down_slope), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_in_water()
+{
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_set_climate).work(player_x(0), coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_flat_dock_occupied()
+{
+	ASSERT_EQUAL(command_x(tool_build_house).work(player_x(1), coord3d(4, 2, 0), "11RES_01_23"), null)
+
+	{
+		ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(4, 2, 0), "LakeShipStop"), "No suitable ground!")
+	}
+
+	// clean up
+	ASSERT_EQUAL(command_x(tool_remover).work(player_x(1), coord3d(4, 2, 0)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -187,11 +358,12 @@ function test_halt_build_air()
 	RESET_ALL_PLAYER_FUNDS()
 }
 
+
 function test_halt_build_multi_tile()
 {
 	local pl = player_x(0)
 	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {})[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
 	// 2 adjacent tiles
@@ -206,7 +378,7 @@ function test_halt_build_multi_tile()
 		ASSERT_TRUE(halt != null)
 		ASSERT_EQUAL(tile_x(2, 2, 0).get_halt().get_name(), tile_x(3, 2, 0).get_halt().get_name()) // check that this is really the same halt
 		ASSERT_EQUAL(halt.get_owner().get_name(), pl.get_name())
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 0) // FIXME this should be 1
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 1)
 		ASSERT_TRUE(halt.accepts_good(good_desc_x.passenger))
 		ASSERT_FALSE(halt.accepts_good(good_desc_x.mail))
 
@@ -229,7 +401,7 @@ function test_halt_build_multi_tile()
 			ASSERT_TRUE(t.find_object(mo_building) != null)
 
 			// expected_tiles.find(t) != null won't work
-			ASSERT_TRUE(expected_tiles.filter(@(idx, val) t.x == val.x && t.y == val.y && t.z == val.z).len() == 1)
+			ASSERT_EQUAL(expected_tiles.filter(@(idx, val) t.x == val.x && t.y == val.y && t.z == val.z).len(), 1)
 		}
 
 		ASSERT_EQUAL(halt.get_freight_to_dest(good_desc_x.passenger, coord(2, 2)), 0)
@@ -288,8 +460,8 @@ function test_halt_build_multi_tile()
 		ASSERT_TRUE(halt != null)
 		ASSERT_TRUE(halt.accepts_good(good_desc_x.passenger))
 		ASSERT_FALSE(halt.accepts_good(good_desc_x.mail))
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 0) // FIXME this should be 1
-		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.mail), 0)
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.passenger), 1)
+		ASSERT_EQUAL(halt.is_connected(halt, good_desc_x.mail), 1)
 
 		for (local x = 0; x < 16; ++x) {
 			ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(x, 0, 0), coord3d(x, 15, 0), "" + wt_road), null)
@@ -474,14 +646,12 @@ function test_halt_build_on_tunnel_entrance()
 {
 	local pl = player_x(0)
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x.passenger)[0]
 
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 1, 0), rail_tunnel.get_name()), null)
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(3, 2, 0), rail_tunnel.get_name()), null)
@@ -500,10 +670,10 @@ function test_halt_build_on_tunnel_entrance()
 	remover.set_flags(2)
 	ASSERT_EQUAL(remover.work(pl, coord3d(4, 1, 0)), null)
 
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -513,13 +683,13 @@ function test_halt_build_on_bridge_end()
 {
 	local pl = player_x(0)
 	local rail_bridge = bridge_desc_x.get_available_bridges(wt_rail)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_rail, good_desc_x.passenger)[0]
 
 	// north-south direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.north), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc), null)
@@ -530,24 +700,25 @@ function test_halt_build_on_bridge_end()
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.flat), null)
 	}
 
 	// east-west direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.east), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.west), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.east), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.west), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 3, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(3, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.flat), null)
 	}
 
+	// clean up
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -566,8 +737,94 @@ function test_halt_build_on_depot()
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc), "No suitable ground!")
 	}
 
+	// clean up
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_rail), null)
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
+function test_halt_build_station_invalid_param()
+{
+	// null default_param
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), null), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// empty default_param
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), ""), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information not a number
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,bar"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 1
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,16"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 2
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,-2"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// rotation information number out of range 3 (out of sint8 range)
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_build_station).work(player_x(0), coord3d(0, 0, 0), "foo,1000"), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Error during initializing tool")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// clean up
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -575,11 +832,11 @@ function test_halt_build_on_depot()
 function test_halt_build_station_extension()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local stationbuilder = command_x(tool_build_station)
 	local wayremover = command_x(tool_remove_way)
 	local road_desc = way_desc_x.get_available_ways(wt_road, st_flat)[0] // road because it has double slopes available
-	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x.passenger)[0] // FIXME: null instead of pax fails
+	local station_desc = building_desc_x.get_available_stations(building_desc_x.station, wt_road, {})[0]
 	local stext_desc = building_desc_x.get_available_stations(building_desc_x.station_extension, wt_rail, good_desc_x.passenger)[0]
 	local bridge_desc = bridge_desc_x.get_available_bridges(wt_road)[0]
 
@@ -614,9 +871,9 @@ function test_halt_build_station_extension()
 
 	// build station extension on raised tile: should succeed
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 1), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 2), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 1), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 2), slope.all_up_slope), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(5, 3, 3), stext_desc.get_name()), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(5, 3, 3)), null)
@@ -629,8 +886,8 @@ function test_halt_build_station_extension()
 
 	{
 		// diagonal too
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 2, 0), "" + slope.all_up_slope), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 2, 1), "" + slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 2, 0), slope.all_up_slope), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 2, 1), slope.all_up_slope), null)
 
 		ASSERT_EQUAL(stationbuilder.work(pl, coord3d(5, 2, 2), stext_desc.get_name()), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(5, 2, 2)), null)
@@ -936,14 +1193,12 @@ function test_halt_make_public_underground()
 	local tunnel_desc = tunnel_desc_x.get_available_tunnels(wt_road)[0]
 	local pax_halt    = building_desc_x("LongBusStop")
 	local makepublic  = command_x(tool_make_stop_public)
-	local raise       = command_x(tool_raise_land)
-	local lower       = command_x(tool_lower_land)
 	local stationbuilder = command_x(tool_build_station)
 
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(raise.work(public_pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(public_pl, coord3d(5, 4, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 2, 0), tunnel_desc.get_name()), null)
 	ASSERT_EQUAL(stationbuilder.work(pl, coord3d(4, 3, 0), pax_halt.get_name()), null)
@@ -964,8 +1219,41 @@ function test_halt_make_public_underground()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(public_pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_road), null)
 
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(5, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(4, 4, 0)), null)
-	ASSERT_EQUAL(lower.work(public_pl, coord3d(5, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(4, 4, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(public_pl, coord3d(5, 4, 0)), null)
+}
+
+
+function test_halt_move_stop_invalid_param()
+{
+	// out of map limits
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_stop_mover).work(player_x(0), coord3d(-1, -1, 0), coord3d(-1, -1, 0)), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Tool has no effects")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// no way
+	{
+		local error_caught = false
+		try {
+			ASSERT_EQUAL(command_x(tool_stop_mover).work(player_x(0), coord3d(1, 1, 0), coord3d(3, 1, 0)), "")
+		}
+		catch (e) {
+			error_caught = true
+			ASSERT_EQUAL(e, "Tool has no effects")
+		}
+		ASSERT_TRUE(error_caught)
+	}
+
+	// clean up
+	RESET_ALL_PLAYER_FUNDS()
 }

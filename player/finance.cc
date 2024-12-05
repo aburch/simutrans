@@ -351,9 +351,8 @@ void finance_t::set_assets(const sint64 (&assets)[TT_MAX])
 }
 
 
-void finance_t::update_assets(sint64 const delta, const waytype_t wt)
+void finance_t::update_assets(sint64 const delta, const transport_type tt)
 {
-	transport_type tt = translate_waytype_to_tt(wt);
 	veh_year[ tt][0][ATV_NON_FINANCIAL_ASSETS] += delta;
 	veh_month[tt][0][ATV_NON_FINANCIAL_ASSETS] += delta;
 	veh_year[ TT_ALL][0][ATV_NON_FINANCIAL_ASSETS] += delta;
@@ -361,6 +360,12 @@ void finance_t::update_assets(sint64 const delta, const waytype_t wt)
 
 	com_year[ 0][ATC_NETWEALTH] += delta;
 	com_month[0][ATC_NETWEALTH] += delta;
+}
+
+void finance_t::update_assets(sint64 const delta, const waytype_t wt)
+{
+	transport_type tt = translate_waytype_to_tt(wt);
+	update_assets(delta, tt);
 }
 
 

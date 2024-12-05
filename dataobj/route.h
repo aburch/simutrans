@@ -140,13 +140,26 @@ public:
 
 	/**
 	 * Calculates the route from @p start to @p target
+	 * @param for max_len, 16 is one tile
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_tile_len );
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_len );
 
 	/**
 	 * Load/Save of the route.
 	 */
 	void rdwr(loadsave_t *file);
+	
+	/*
+	 * Returns the equivalent pos of route[-1].
+	 * Returns koord3d::invalid when the way on route.front() is not two_way connected or other errors.
+	 */
+	koord3d opposite_pos_of_route_starting(waytype_t waytype) const;
+	
+	/*
+	 * Returns the equivalent pos of route[route.get_count()].
+	 * Returns koord3d::invalid when the way on route.back() is not two_way connected or other errors.
+	 */
+	koord3d opposite_pos_of_route_ending(waytype_t waytype) const;
 };
 
 #endif

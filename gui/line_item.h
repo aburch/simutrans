@@ -9,6 +9,8 @@
 
 #include "components/gui_scrolled_list.h"
 #include "../linehandle_t.h"
+#include "../player/simplay.h"
+#include "../simline.h"
 
 /**
  * Container for list entries - consisting of text and color
@@ -39,6 +41,16 @@ public:
 	bool is_valid() const OVERRIDE { return line.is_bound(); } //  can be used to indicate invalid entries
 	bool is_editable() const OVERRIDE { return true; }
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
+};
+
+class company_color_line_scroll_item_t: public line_scrollitem_t 
+{
+public:
+	company_color_line_scroll_item_t( linehandle_t l ) : line_scrollitem_t(l) {};
+	PIXVAL get_color() const OVERRIDE {
+		const uint8 color_idx = get_line()->get_owner()->get_player_color1();
+		return color_idx_to_rgb(color_idx);
+	}
 };
 
 #endif

@@ -9,6 +9,7 @@
 
 #include "../descriptor/building_desc.h"
 #include "../dataobj/koord3d.h"
+#include "../halthandle_t.h"
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"
 
@@ -146,12 +147,19 @@ public:
 	 * @param param if building a stop, pointer to the halt handle
 	 */
 	static gebaeude_t* build_station_extension_depot(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
+	
+	// Build a stop on a digonal way tile. Use this only when the way of pos is diagonal.
+	// desc has to have 48 layouts.
+	static gebaeude_t* build_station_on_diagonal_way(player_t* player, koord3d pos, const building_desc_t* desc, const ribi_t::ribi way_connection, halthandle_t halt);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const building_desc_t *> *get_list(building_desc_t::btype typ);
 
 	/// @returns city building list of type @p typ (res/com/ind)
 	static const vector_tpl<const building_desc_t *> *get_citybuilding_list(building_desc_t::btype  typ);
+	
+private:
+	static gebaeude_t* build_station_extension_depot_with_complete_layout_bits(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param);
 };
 
 #endif

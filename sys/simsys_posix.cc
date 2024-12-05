@@ -35,10 +35,12 @@ bool dr_set_screen_scale(sint16)
 	return false;
 }
 
+
 sint16 dr_get_screen_scale()
 {
 	return 100;
 }
+
 
 bool dr_os_init(const int*)
 {
@@ -95,8 +97,9 @@ void dr_textur(int, int, int, int)
 {
 }
 
-void move_pointer(int, int)
+bool move_pointer(int, int)
 {
+	return false;
 }
 
 void set_pointer(int)

@@ -36,6 +36,17 @@ class schedule_t;
 class cbuffer_t;
 class signal_t;
 
+// A struct to represent the directly reachable halts
+struct convoi_reachable_halt_t {
+	halthandle_t halt;
+
+	// The estimated time to reach the halt from the current stop
+	uint32 journey_time;
+
+	convoi_reachable_halt_t(halthandle_t h, uint32 t): halt(h), journey_time(t) {}
+	convoi_reachable_halt_t(): halt(halthandle_t()), journey_time(0) {}
+};
+
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
  */
@@ -109,6 +120,7 @@ private:
 	uint16 recalc_data        : 1; ///< true, when convoy has to recalculate weights and speed limits
 	uint16 recalc_speed_limit : 1; ///< true, when convoy has to recalculate speed limits
 	bool recalc_min_top_speed : 1; ///< true, when convoy has to recalculate min_top_speed and is_electric
+	bool recalc_friction_weight  : 1; ///< true, when vehicle has to recalculate the friction weight
 
 	uint16 previous_delta_v   :12; /// 12 bit! // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelerate
 	// 36 bytes
@@ -126,7 +138,7 @@ private:
 	 * when loading/driving.
 	 */
 	sint64 sum_gesamtweight;
-	sint64 sum_friction_weight;
+	sint64 sum_friction_weight; // valid only when the convoy is the parent.
 	// 56 bytes
 	sint32 akt_speed_soll;    // target speed
 	sint32 akt_speed;         // current speed
@@ -210,7 +222,7 @@ private:
 	* Convoi owner
 	*/
 	player_t *owner;
-	
+
 	/**
 	* a convoy that goes together with this convoy.
 	* @author THLeaderH
@@ -268,14 +280,14 @@ private:
 	 * restoring reservations after loading a game.
 	 */
 	uint16 next_reservation_index;
-	
+
 	/**
 	 * This holds coordinates reserved by this convoy.
 	 * Used when reservation is triggered by longblocksignal.
 	 * @author THLeaderH
 	 */
 	vector_tpl<koord3d> reserved_tiles;
-	
+
 	/*
 	 * these give the index and steps of the coupling point.
 	 * Convois do the coupling process when reaching this index.
@@ -283,8 +295,13 @@ private:
 	 */
 	uint16 next_coupling_index;
 	uint8 next_coupling_steps;
-	
+
 	bool coupling_done;
+
+	/*
+	 * The initial convoy direction to get to the next stop.
+	 * This is valid only when the convoy is in loading state.
+	*/
 	ribi_t::ribi next_initial_direction;
 
 	/**
@@ -292,14 +309,14 @@ private:
 	 * Used to calculate when it should depart due to the 'month wait time'
 	 */
 	uint32 arrived_time;
-	
+
 	/**
 	 * Time when convoi departs the current stop
 	 * 0 means departure slot is not reserved.
 	 */
 	uint32 scheduled_departure_time;
 	uint32 scheduled_coupling_delay_tolerance;
-	
+
 	uint32 time_last_arrived;
 
 	/**
@@ -329,7 +346,7 @@ private:
 	uint8 acceleration_magnification;
 
 	bool in_delay_recovery;
-	
+
 	typedef struct {
 		bool valid;
 		signal_t* sig;
@@ -371,7 +388,7 @@ private:
 	* if the direction is the same as before
 	*/
 	bool can_go_alte_richtung();
-	
+
 	// alte_richtung of coupled convoy is set by the head convoy.
 	void set_alte_richtung(ribi_t::ribi r) { alte_richtung = r; }
 
@@ -426,9 +443,15 @@ private:
 	 */
 	void unregister_stops();
 
+	/**
+	 * Calculates and set sum_friction_weight considering the coupling convoys.
+	 * recalc_friction_weight is reset by this function.
+	 */
+	void calc_sum_friction_weight();
+
 	uint32 move_to(uint16 start_index);
-	
-	vector_tpl<std::pair< uint16, uint16> > crossing_reservation_index; 
+
+	vector_tpl<std::pair< uint16, uint16> > crossing_reservation_index;
 
 	/**
 	 * the route index of the point to quit yielding lane
@@ -446,11 +469,37 @@ private:
 	// When this convoy requested lane crossing...
 	uint32 request_cross_ticks;
 
+	struct fetched_fresh_goods_t {
+		uint32 amount;
+		uint32 arrived_time;
+
+		fetched_fresh_goods_t(uint32 a, uint32 t): amount(a), arrived_time(t) {}
+		fetched_fresh_goods_t(): amount(0), arrived_time(0) {}
+	};
+
+	// The goods fetched with haltestelle_t::fetch_loadable_fresh_goods at the stopping halt.
+	// Used for calculating the average goods waiting time at the halt.
+	// Valid only when journey time based goods routing is enabled and the convoy is in the loading status.
+	vector_tpl<fetched_fresh_goods_t> fetched_fresh_goods;
+
+	// A sub routine of hat_gehalten()
+	// Returns the amount of the loaded goods
+	uint16 fetch_goods_and_load(vehicle_t* vehicle, const halthandle_t halt, const vector_tpl<halthandle_t> destination_halts, uint32 requested_amount);
+
+	// A sub routine of hat_gehalten()
+	// Pushes the weighed average goods waiting time to the schedule
+	// when the journey time based goods routing is enabled.
+	void push_goods_waiting_time_if_needed();
+
+	/// A sub routine of hat_gehalten()
+	/// Pushes the convoy stopping time at the current halt to the schedule
+	void push_convoy_stopping_time();
+
 public:
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
 	*/
-	void hat_gehalten(halthandle_t halt);
+	void hat_gehalten(halthandle_t halt, uint32 halt_length_in_vehicle_steps);
 
 	const route_t* get_route() const { return &route; }
 	route_t* access_route() { return &route; }
@@ -593,7 +642,7 @@ public:
 	 *         actual currently set speed.
 	 */
 	const sint32& get_akt_speed() const { return akt_speed; }
-	
+
 	/*
 	 * When this convoy is coupled, akt_speed is set by the head convoy.
 	 * @author THLeaderH
@@ -610,7 +659,7 @@ public:
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 	void set_min_top_speed(sint32 t) {min_top_speed = t;}
-	
+
 	// calculate min_top_speed taking coupling convoys into account. This does not broadcast min_top_speed for the coupling convoys.
 	sint32 calc_min_top_speed();
 
@@ -619,9 +668,6 @@ public:
 
 	/// @returns weight of convoy including freight
 	const sint64 & get_sum_gesamtweight() const {return sum_gesamtweight;}
-
-	/// changes sum_friction_weight, called when vehicle changed tile and friction changes as well.
-	void update_friction_weight(sint64 delta_friction_weight) { sum_friction_weight += delta_friction_weight; }
 
 	/// @returns theoretical max speed of a convoy with given @p total_power and @p total_weight
 	static sint32 calc_max_speed(uint64 total_power, uint64 total_weight, sint32 speed_limit);
@@ -662,7 +708,7 @@ public:
 	* force calculate a new route
 	*/
 	void suche_neue_route();
-	
+
 	/**
 	 * remove all track reservations (trains only)
 	 */
@@ -784,7 +830,7 @@ public:
 	* At which loading level is the train allowed to start? 0 during driving.
 	*/
 	const sint32 &get_loading_limit() const { return loading_limit; }
-	
+
 	bool is_loading() const { return state==LOADING  ||  state==COUPLED_LOADING; }
 
 	/**
@@ -858,7 +904,7 @@ public:
 	 */
 	uint16 &get_next_reservation_index() { return next_reservation_index; }
 	void set_next_reservation_index(uint16 n);
-	
+
 	/* these functions modify only reserved_tiles.
 	 * reservation of tiles has to be done separately.
 	 * @author THLeaderH
@@ -876,7 +922,7 @@ public:
 	uint16 get_next_coupling_index() const {return next_coupling_index;}
 	uint8 get_next_coupling_steps() const {return next_coupling_steps;}
 	void set_next_coupling(uint16 n, uint8 m) { next_coupling_index = n; next_coupling_steps = m; }
-	
+
 	convoihandle_t get_coupling_convoi() const {return coupling_convoi;}
 
 	/* the current state of the convoi */
@@ -902,6 +948,9 @@ public:
 	void must_recalc_min_top_speed() { recalc_min_top_speed = true; }
 	void reset_recalc_min_top_speed() { recalc_min_top_speed = false; }
 	bool get_recalc_min_top_speed() const { return recalc_min_top_speed; }
+	void must_recalc_friction_weight() { recalc_friction_weight = true; }
+	void reset_recalc_friction_weight() { recalc_friction_weight = false; }
+	bool get_recalc_friction_weight() const { return recalc_friction_weight; }
 
 	// calculates the speed used for the speedbonus base, and the max achievable speed at current power/weight for overtakers
 	void calc_speedbonus_kmh();
@@ -936,33 +985,33 @@ public:
 	void set_next_cross_lane(bool);
 
 	virtual void refresh(sint8,sint8) OVERRIDE;
-	 
+
 	void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
 	void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
-	 
+
 	void calc_crossing_reservation();
 	vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
 	void remove_crossing_reservation_at(uint16 idx) { crossing_reservation_index.remove_at(idx); }
-	
+
 	// Couple with given convoy
 	bool couple_convoi(convoihandle_t coupled);
 	convoihandle_t uncouple_convoi();
-	
+
 	bool is_coupled() const { return state==COUPLED  ||  state==COUPLED_LOADING; }
 	bool is_waiting_for_coupling() const;
-	
+
 	bool can_continue_coupling() const;
 	bool can_start_coupling(convoi_t* parent) const;
-	
+
 	ribi_t::ribi get_next_initial_direction() const { return next_initial_direction; }
 	void clear_next_initial_direction() { next_initial_direction = ribi_t::none; }
 	bool is_coupling_done() const { return coupling_done; }
 	void set_coupling_done(bool tf) { coupling_done = tf; }
-	
+
 	void set_arrived_time(uint32 t) { arrived_time = t; }
 	uint32 get_departure_time() const { return scheduled_departure_time; } // in ticks.
 	uint32 get_coupling_delay_tolerance() const { return scheduled_coupling_delay_tolerance; }
-	
+
 	// register journey time to the current schedule entry
 	void register_journey_time();
 	void set_time_last_arrived(uint32 t) { time_last_arrived = t; }
@@ -978,6 +1027,11 @@ public:
 	uint8 accept_player_nr = 0;
 	void set_accept_player_nr(uint8 n) { accept_player_nr = n; }
 	uint8 get_accept_player_nr() const { return accept_player_nr; }
+
+	// returns the available halt length for the given convoy position.
+	// The returned steps includes the entire tile length on which the front vehicle is.
+	static uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir, const waytype_t waytype);
+	uint32 calc_available_halt_length_in_vehicle_steps(koord3d front_vehicle_pos, ribi_t::ribi front_vehicle_dir) const;
 };
 
 #endif

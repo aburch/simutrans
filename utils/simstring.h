@@ -117,5 +117,11 @@ char const* strstart(char const* str, char const* start);
  */
 static inline bool strempty(char const* const s) { return !s || s[0] == '\0'; }
 
+// properties used in implementations
+static char thousand_sep = ',';
+static char fraction_sep = '.';
+static const char *large_number_string = "M";
+static double large_number_factor = 1e99; // off
+static int thousand_sep_exponent = 3;
 
 #endif

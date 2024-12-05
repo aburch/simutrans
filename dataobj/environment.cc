@@ -13,11 +13,9 @@
 #include "../sys/simsys.h"
 #include "../simmesg.h"
 #include "koord3d.h"
-#include "../simcity.h"
 
 #include "../utils/simrandom.h"
 void rdwr_win_settings(loadsave_t *file); // simwin
-
 
 sint16 env_t::menupos = MENU_TOP;
 sint16 env_t::fullscreen = WINDOWED;
@@ -113,8 +111,6 @@ bool env_t::hide_trees;
 uint8 env_t::hide_buildings;
 bool env_t::hide_under_cursor;
 uint16 env_t::cursor_hide_range;
-bool env_t::highlight_city;
-stadt_t *env_t::highlighted_city;
 bool env_t::use_transparency_station_coverage;
 uint8 env_t::station_coverage_show;
 sint32 env_t::show_names;
@@ -234,9 +230,6 @@ void env_t::init()
 	cursor_hide_range = 5;
 
 	scroll_infinite = false;
-
-	highlight_city = false;
-	highlighted_city = NULL;
 
 	visualize_schedule = true;
 
@@ -616,10 +609,12 @@ void env_t::rdwr(loadsave_t *file)
 
 		file->rdwr_short( fullscreen );
 	}
-
-	if( file->is_version_atleast(123, 1) ) {
-		file->rdwr_short(display_scale_percent);
+	if (file->get_OTRP_version()>=33) {
 		file->rdwr_bool(scroll_infinite);
+	}
+
+	if(  file->is_version_atleast(123, 1)  ||  file->get_OTRP_version()>=33  ) {
+		file->rdwr_short(display_scale_percent);
 	}
 
 	// server settings are not saved, since they are server specific

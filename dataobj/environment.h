@@ -13,7 +13,6 @@
 #include "../simcolor.h"
 #include "settings.h"
 #include "../display/scr_coord.h"
-#include "../simcity.h"
 
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
@@ -313,9 +312,6 @@ public:
 
 	/// Hide buildings and trees within range of mouse cursor
 	static uint16 cursor_hide_range;
-
-	static bool highlight_city;
-	static stadt_t *highlighted_city;
 
 	/// color used for cursor overlay blending
 	static uint32 cursor_overlay_color_rgb;

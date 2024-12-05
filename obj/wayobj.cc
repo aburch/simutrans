@@ -91,7 +91,10 @@ wayobj_t::~wayobj_t()
 						max_speed = b->get_desc()->get_topspeed();
 					}
 				}
-				weg->set_max_speed(max_speed);
+				// Updating way's max speed is needed unless the way is a railway track.
+				if(  wt!=track_wt  ) {
+					weg->set_max_speed(max_speed);
+				}
 				weg->set_max_wayobj_speed(0);
 			}
 			else {

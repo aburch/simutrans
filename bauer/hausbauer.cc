@@ -637,15 +637,24 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			}
 			if(  gb  &&  gb->get_tile()->get_desc()->is_transport_building()  ) {
 				corner_layout &= ~2; // clear near bit
-				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase &= 0xb; // clear near bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+				const koord xy = gb->get_tile()->get_offset();
+				uint8 layoutbase = gb->get_tile()->get_layout();
+				if(  layoutbase>=16  ) {
+					if(  (layoutbase & 0x30) == 0x10  ) {
+						// vertical diagonal. 010->000, 011->001
+						layoutbase &= ~2;
+					} 
+					else if(  (layoutbase & 6) != 6  ) {
+						// horizontal diagonal. 011->001, 101->001
+						layoutbase &= ~6;
 					}
 				}
+				else if(  gb->get_tile()->get_desc()->get_all_layouts()>4  ) {
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xb; // clear near bit on neighbour
+					}
+				}
+				gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 			}
 		}
 
@@ -668,15 +677,24 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->get_tile()->get_desc()->is_transport_building()) {
 				corner_layout &= ~4; // clear far bit
-
-				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-					if((layoutbase & 1) == (layout & 1)) {
-						layoutbase &= 0xd; // clear far bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+				const koord xy = gb->get_tile()->get_offset();
+				uint8 layoutbase = gb->get_tile()->get_layout();
+				if(  layoutbase>=16  ) {
+					if(  (layoutbase & 0x30) == 0x10  ) {
+						// vertical diagonal. 100->000, 101->001
+						layoutbase &= ~4;
+					} 
+					else if(  (layoutbase & 6) != 6  ) {
+						// horizontal diagonal. 010->000, 100->100
+						layoutbase &= ~6;
 					}
 				}
+				else if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
+					if((layoutbase & 1) == (layout & 1)) {
+						layoutbase &= 0xd; // clear far bit on neighbour
+					}
+				}
+				gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 			}
 		}
 	}
@@ -686,7 +704,106 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 		built_layout = (corner_layout | (built_layout&9) ) % desc->get_all_layouts();
 	}
 
-	const building_tile_desc_t *tile = desc->get_tile(built_layout, 0, 0);
+	return build_station_extension_depot_with_complete_layout_bits(player, pos, built_layout, desc, param);
+}
+
+
+gebaeude_t* hausbauer_t::build_station_on_diagonal_way(player_t* player, koord3d pos, const building_desc_t* desc, const ribi_t::ribi way_connection, halthandle_t halt) {
+	const grund_t* bd = world()->lookup(pos);
+	
+	// bits (Note that it's quite different from for straight way.)
+	// (1<<0) ... way connected direction. 0 - contains east (ne/se), 1 - contains west (ws/wn)
+	// (1<<1), (1<<2) ... connection of platform. 
+	// 00 - combined, 01 - end to up/left direction, 10 - end to down/right direction, 11 - single tile
+	// (1<<3) ... front/back. 0 - front, 1 - back.
+	// (1<<4), (1<<5) ... (00 - straight way), 01 - vertical, 10 - horizontal
+	
+	// calculate (1<<4), (1<<5)
+	const uint16 diagonal_direction_bits = (way_connection == ribi_t::northeast || way_connection == ribi_t::southwest) ? 0x10 : 0x20;
+	
+	// calculate (1<<0)
+	const uint16 way_connection_dir_bits = way_connection & ribi_t::west ? 1 : 0;
+	
+	// calculate neighbour_diagonal_stops
+	const sint8 offset = bd->get_hoehe()+bd->get_weg_yoff()/TILE_HEIGHT_STEP;
+	grund_t *gr;
+	gebaeude_t* neighbour_diagonal_stops[] = {NULL, NULL, NULL, NULL};
+	const koord pos_2d = bd->get_pos().get_2d();
+	for(  unsigned i=0;  i<4;  i++  ) {
+		// oriented buildings here - get neighbouring layouts
+		gr = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset));
+		if(  !gr  ) {
+			// check whether bridge end tile
+			grund_t * gr_off1 = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset-1));
+			grund_t * gr_off2 = world()->lookup(koord3d(pos_2d+koord::nesw[i],offset-2));
+			if(gr_off1 && gr_off1->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+				gr = gr_off1;
+			}
+			else if(gr_off2 && gr_off2->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+				gr = gr_off2;
+			}
+		}
+		if(  !gr  ||  !gr->get_halt().is_bound()  ) {
+			continue;
+		}
+		// check, if there is an oriented stop
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(  gb==NULL  ) {
+			continue;
+		}
+		const building_desc_t::btype gb_type = gb->get_tile()->get_desc()->get_type();
+		if(  gb_type==building_desc_t::generic_stop  ) {
+			neighbour_diagonal_stops[i] = gb;
+		}
+	}
+	
+	// calculate (1<<1), (1<<2), (1<<3)
+	// check connected direction
+	const uint8 up_left_directions = (diagonal_direction_bits == 0x10) ? ribi_t::northwest: ribi_t::southwest;
+	uint8 corner_bits = 3; // (1<<1), (1<<2), will be left shifted. Use the isolated image by default.
+	uint8 front_back_bit = 0; // (1<<3)
+	for(  unsigned i=0;  i<4;  i++  ) {
+		if(  (ribi_t::nesw[i] & way_connection) == 0  ) { continue; }
+		gebaeude_t* gb = neighbour_diagonal_stops[i];
+		if(  !gb  ) { continue; }
+		const bool is_up_left_dir = (up_left_directions & ribi_t::nesw[i]) > 0;
+		corner_bits &= ~(is_up_left_dir ? 1 : 2);
+		
+		// clear adjoining stop connection bits on neighbour
+		const uint32 gb_desc_all_layouts = gb->get_tile()->get_desc()->get_all_layouts();
+		koord xy = gb->get_tile()->get_offset();
+		uint8 layoutbase = gb->get_tile()->get_layout();
+		if(  layoutbase >= 16  ) {
+			// gb is a stop on a diagonal way.
+			layoutbase &= ~(is_up_left_dir ? 4 : 2);
+			gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+			front_back_bit = layoutbase & (1<<3);
+		} else if(  gb_desc_all_layouts >= 8  ) {
+			// for a stop on a straight way, just change adjoining stop connection bits.
+			layoutbase &= ~((ribi_t::nesw[i] & ribi_t::southeast) ? 4 : 2);
+			gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
+		}
+	}
+	
+	// check not connected direction
+	if(  corner_bits == 3  ) {
+		for(  unsigned i=0;  i<4;  i++  ) {
+			if(  (ribi_t::nesw[i] & way_connection) > 0  ) { continue; }
+			const gebaeude_t* gb = neighbour_diagonal_stops[i];
+			if(  !gb  ) { continue; }
+			const bool gb_is_back_image = (gb->get_tile()->get_layout() & 8) > 0;
+			front_back_bit = gb_is_back_image ? 0 : 8;
+		}
+	}
+	
+	const uint8 layout = diagonal_direction_bits | front_back_bit | (corner_bits << 1) | way_connection_dir_bits;
+	return build_station_extension_depot_with_complete_layout_bits(player, pos, layout, desc, &halt);
+}
+
+
+gebaeude_t *hausbauer_t::build_station_extension_depot_with_complete_layout_bits(player_t *player, koord3d pos, int layout_bits, const building_desc_t *desc, void *param)
+{
+	const building_tile_desc_t *tile = desc->get_tile(layout_bits, 0, 0);
 	gebaeude_t *gb;
 	if(  desc->get_type() == building_desc_t::depot  ) {
 		switch(  desc->get_extra()  ) {
