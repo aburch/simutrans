@@ -11,9 +11,10 @@
 #include "linehandle_t.h"
 #include "halthandle_t.h"
 
-#include "simobj.h"
+#include "obj/simobj.h"
 #include "display/simgraph.h"
 #include "simtypes.h"
+#include "simware.h"
 
 #include "bauer/goods_manager.h"
 
@@ -25,10 +26,16 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/minivec_tpl.h"
+#include <variant>
+#include <list>
+#include <vector>
+#include <memory>
 
 
 #define RECONNECTING (1)
 #define REROUTING (2)
+#define WEIGHT_UPDATE (3) // Reconnect the network to update weight, but do not cause rerouting
 
 #define MAX_HALT_COST   8 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -53,8 +60,10 @@ class koord3d;
 class loadsave_t;
 class schedule_t;
 class player_t;
-class ware_t;
+struct halt_waiting_goods_t;
 template<class T> class bucket_heap_tpl;
+
+#define INVALID_CARGO_ARRIVED_TIME 0
 
 // -------------------------- Haltestelle ----------------------------
 
@@ -68,9 +77,26 @@ template<class T> class bucket_heap_tpl;
 class haltestelle_t
 {
 public:
-	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4};
+	enum station_flags {
+		NOT_ENABLED = 0,
+		PAX         = 1 << 0,
+		POST        = 1 << 1,
+		WARE        = 1 << 2
+	};
 
-	enum stationtyp {invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256 }; //could be combined with or!
+	// can be combined with or!
+	enum stationtyp {
+		invalid         = 0,
+		loadingbay      = 1 << 0,
+		railstation     = 1 << 1,
+		dock            = 1 << 2,
+		busstop         = 1 << 3,
+		airstop         = 1 << 4,
+		monorailstop    = 1 << 5,
+		tramstop        = 1 << 6,
+		maglevstop      = 1 << 7,
+		narrowgaugestop = 1 << 8
+	};
 
 private:
 	/// List of all halts in the game.
@@ -99,13 +125,13 @@ private:
 
 	PIXVAL status_color, last_status_color;
 	sint16 last_bar_count;
-	vector_tpl<KOORD_VAL> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
+	vector_tpl<scr_coord_val> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, mail, goods
 	uint8 overcrowded[256/8]; ///< bit field for each goods type (max 256)
 
 	static uint8 status_step; // NONE or SCHEDULING or REROUTING
 
-	slist_tpl<convoihandle_t> loading_here;
+	vector_tpl<convoihandle_t> loading_here;
 	sint32 last_loading_step;
 
 	koord init_pos; // for halt without grounds, created during game initialisation
@@ -120,7 +146,7 @@ public:
 	 * List of convois currently loading at this station.
 	 * May contain invalid handles!
 	 */
-	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
+	const vector_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
 
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
@@ -202,7 +228,9 @@ public:
 		convoihandle_t reservation[2];
 	};
 
-	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
+	const slist_tpl<tile_t> &get_tiles() const { return tiles; }
+
+	typedef std::variant<linehandle_t, convoihandle_t> traveler_t;
 
 	/**
 	 * directly reachable halt with its connection weight
@@ -212,12 +240,14 @@ public:
 		/// directly reachable halt
 		halthandle_t halt;
 		/// best connection weight to reach this destination
-		uint16 weight:15;
+		uint32 weight:31;
 		/// is halt a transfer halt
 		bool is_transfer:1;
+		/// the line or convoy which has the schedule to get to the halt with the best weight
+		traveler_t best_weight_traveler;
 
-		connection_t() : weight(0), is_transfer(false) { }
-		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight), is_transfer(false) { }
+		connection_t() : weight(0), is_transfer(false), best_weight_traveler(linehandle_t()) { }
+		connection_t(halthandle_t _halt, uint32 _weight, traveler_t _best_weight_traveler) : halt(_halt), weight(_weight), is_transfer(false), best_weight_traveler(_best_weight_traveler) { }
 
 		bool operator == (const connection_t &other) const { return halt == other.halt; }
 		bool operator != (const connection_t &other) const { return halt != other.halt; }
@@ -271,6 +301,11 @@ private:
 	/// All links to networks of all freight categories, filled by rebuild_connected_components.
 	link_t* all_links;
 
+	/// Links to be commited to all_links by rebuild_connected_components.
+	/// Since the links are calculated by rebuild_connections for one halt one by one, 
+	/// we need to store the calculated links and commit them for all hals at once.
+	link_t* staged_all_links;
+
 	/**
 	 * Fills in catg_connected_component values for all halts and all categories.
 	 * Uses depth-first search.
@@ -286,9 +321,15 @@ private:
 	 */
 	void fill_connected_component(uint8 catg, uint16 comp);
 
+	using cargo_item_t = std::shared_ptr<halt_waiting_goods_t>;
 
 	// Array with different categories that contains all waiting goods at this stop
-	slist_tpl<ware_t> **cargo;
+	slist_tpl<cargo_item_t> **cargo;
+
+	// Array with different categories that contains the reference of
+	// waiting goods which haven't had a chance to be loaded yet.
+	// Valid only when TBGR is enabled.
+	std::vector<std::list<std::weak_ptr<halt_waiting_goods_t>>> fresh_cargo;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -321,8 +362,9 @@ private:
 	 */
 	bool vereinige_waren(const ware_t &ware);
 
-	// add the ware to the internal storage, called only internally
-	void add_ware_to_halt(ware_t ware);
+	// add the goods to the internal storage, called only internally
+	// Returns the shared_ptr reference of the added goods.
+	std::shared_ptr<halt_waiting_goods_t> add_goods_to_halt(halt_waiting_goods_t);
 
 	/**
 	 * liefert wartende ware an eine Fabrik
@@ -333,11 +375,6 @@ private:
 	 * transfers all goods to given station
 	 */
 	void transfer_goods(halthandle_t halt);
-	
-	
-	void fetch_goods_FIFO( slist_tpl<ware_t> &load, slist_tpl<ware_t> *wares, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
-	
-	void fetch_goods_nearest_first( slist_tpl<ware_t> &load, slist_tpl<ware_t> *wares, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
 
 	/**
 	* parameter to ease sorting
@@ -349,6 +386,10 @@ private:
 	haltestelle_t(loadsave_t *file);
 	haltestelle_t(koord pos, player_t *player);
 	~haltestelle_t();
+
+	// incremented when the connection weight is updated.
+	// Use this to check if the connection is updated.
+	static uint8 connection_update_counter;
 
 public:
 	/**
@@ -372,7 +413,7 @@ public:
 	/**
 	 * Draws some nice colored bars giving some status information
 	 */
-	void display_status(KOORD_VAL xpos, KOORD_VAL ypos);
+	void display_status(sint16 xpos, sint16 ypos);
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
@@ -447,18 +488,20 @@ public:
 	 */
 	void new_month();
 
+	uint8 get_connection_update_counter() const { return connection_update_counter;}
+
 private:
 	/* Node used during route search */
 	struct route_node_t
 	{
 		halthandle_t halt;
-		uint16       aggregate_weight;
+		uint32       aggregate_weight;
 
 		route_node_t() : aggregate_weight(0) {}
-		route_node_t(halthandle_t h, uint16 w) : halt(h), aggregate_weight(w) {}
+		route_node_t(halthandle_t h, uint32 w) : halt(h), aggregate_weight(w) {}
 
 		// dereferencing to be used in binary_heap_tpl
-		inline uint16 operator * () const { return aggregate_weight; }
+		inline uint32 operator * () const { return aggregate_weight; }
 	};
 
 	// open_list needs access to route_node_t
@@ -471,7 +514,7 @@ private:
 		// in static function search_route():  previous transfer halt (to track back route)
 		// in member function search_route_resumable(): first transfer halt to get there
 		halthandle_t transfer;
-		uint16 best_weight;
+		uint32 best_weight;
 		uint16 depth:14;
 		bool destination:1;
 		bool overcrowded:1;
@@ -494,6 +537,10 @@ private:
 	 */
 	static halthandle_t last_search_origin;
 	static uint8        last_search_ware_catg_idx;
+
+	static void build_transit_halts_from_halt_data(vector_tpl<halthandle_t> &transit_halts, const halthandle_t destination);
+
+	bool is_route_search_needed(const ware_t &ware) const;
 	
 	// data structure of departure_slot_table below.
 	struct departure_t{
@@ -513,9 +560,22 @@ private:
 	 * Treated like hash table that allows hash collision.
 	 */
 	slist_tpl<departure_t> departure_slot_table[DST_SIZE];
+
+	/**
+	 * Holds whether the amount of waiting goods exceeds the limit to use FIFO fetching policy,
+	 * to avoid calling computational get_ware_summe function repeatedly.
+	 * Updated by recalc_status().
+	 * The key is the goods category index.
+	 */
+	inthashtable_tpl<uint8, bool> waiting_amount_exceeds_FIFO_limit;
 	
 public:
-	enum routing_result_flags { NO_ROUTE=0, ROUTE_OK=1, ROUTE_WALK=2, ROUTE_OVERCROWDED=8 };
+	enum routing_result_flags {
+		NO_ROUTE          = 0,
+		ROUTE_OK          = 1,
+		ROUTE_WALK        = 2,
+		ROUTE_OVERCROWDED = 8
+	};
 
 	/**
 	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
@@ -636,14 +696,48 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * Fetches goods from this halt
+	 * Fetches goods from this halt. The goods which arrived to the halt first will be fetched first.
+	 * @param load Output parameter. Goods info will be put into this list, the vehicle has to load them.
+	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
+	 * @param requested_amount How many units of the cargo we can fetch.
+	 */
+	void fetch_goods_FIFO(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
+
+	/**
+	 * Fetches goods from this halt. 
+	 * The goods to the halt which is in the first of destination_halts will be fetched first.
 	 * @param load Output parameter. Goods will be put into this list, the vehicle has to load them.
 	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
-	 * @param amount How many units of the cargo we can fetch.
-	 * @param schedule Schedule of the vehicle requesting the fetch.
-	 * @param sp Company that's requesting the fetch.
+	 * @param requested_amount How many units of the cargo we can fetch.
 	 */
-	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
+	void fetch_goods_nearest_first(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
+
+	struct reachable_halt_t {
+		halthandle_t halt;
+		uint32 journey_time;
+
+		reachable_halt_t(halthandle_t h, uint32 t) : halt(h), journey_time(t) {}
+		reachable_halt_t() : journey_time(0) {}
+	};
+
+	/**
+	 * Calculates the destination halts for which the goods can be loaded to the convoy.
+	 * @param destination_halts Output parameter. The destination halts will be put into this table. The key is the goods category index.
+	 * @param reachable_halts The halts reachable with the convoy.
+	 * @param goods_category_indexes The list of goods category indexes.
+	 * @param cnv The convoy which is requesting the destination halts.
+	 */
+	void calc_destination_halt(inthashtable_tpl<uint8, vector_tpl<halthandle_t>> &destination_halts, const vector_tpl<reachable_halt_t> &reachable_halts, const minivec_tpl<uint8> &goods_category_indexes, convoihandle_t cnv);
+
+	struct loadable_fresh_goods_t {
+		ware_t::goods_amount_t amount;
+		uint32 arrived_time;
+
+		loadable_fresh_goods_t(ware_t::goods_amount_t a, uint32 t) : amount(a), arrived_time(t) {}
+		loadable_fresh_goods_t() : amount(0), arrived_time(INVALID_CARGO_ARRIVED_TIME) {}
+	};
+
+	void fetch_loadable_fresh_goods(vector_tpl<loadable_fresh_goods_t>& to, const uint8 goods_category_index, const vector_tpl<halthandle_t>& destination_halts);
 
 	/**
 	 * Delivers goods (ware_t) to this halt.
@@ -683,14 +777,12 @@ public:
 	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
 	/**
-	 * @param buf the buffer to fill
-	 * @return Goods description text (buf)
+	 * @param[out] buf Goods description text
 	 */
 	void get_freight_info(cbuffer_t & buf);
 
 	/**
-	 * @param buf the buffer to fill
-	 * @return short list of the waiting goods (i.e. 110 Wood, 15 Coal)
+	 * @param[out] buf short list of the waiting goods (i.e. 110 Wood, 15 Coal)
 	 */
 	void get_short_freight_info(cbuffer_t & buf) const;
 
@@ -805,13 +897,16 @@ public:
 	 * arr_tick: ticks of arrival
 	 * dep_tick: ticks of requested departure slot
 	 * exp_tick: expiration ticks of the slot
+	 * 
+	 * @returns true when the departure slot was successfully booked. false when denied.
 	 */
 	bool book_departure (uint32 arr_tick, uint32 dep_tick, uint32 exp_tick, convoihandle_t cnv);
 	
 	bool erase_departure(uint32 dep_tick, convoihandle_t cnv);
 	
 	bool is_departure_booked(uint32 dep_tick, uint8 stop_index, linehandle_t line) const;
-	
+
+	void extinguish_all_waiting_goods();
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

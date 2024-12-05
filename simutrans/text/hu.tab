@@ -12,7 +12,7 @@ cyr.bdf
 #                              Language: hu Magyar                             #
 #                                Encoding: UTF-8                               #
 #                                 Font: cyr.bdf                                #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -449,7 +449,7 @@ Add Stop
 Hozzáadás
 Add stops for backward travel
 Megállók hozzáadása a visszaúthoz
-Air
+air_wt
 Repülőgépek
 aircraft_tab
 Repülőgépek

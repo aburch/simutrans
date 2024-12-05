@@ -132,16 +132,16 @@ public:
 			// city buildings
 			city_res          = 37, ///< residential city buildings
 			city_com          = 38, ///< commercial  city buildings
-			city_ind          = 39, ///< industrial  city buildings
+			city_ind          = 39  ///< industrial  city buildings
 		};
 
 
 		enum flag_t {
 			FLAG_NULL        = 0,
-			FLAG_NO_INFO     = 1, ///< do not show info window
-			FLAG_NO_PIT      = 2, ///< do not show construction pit
-			FLAG_NEED_GROUND = 4, ///< needs ground drawn below
-			FLAG_HAS_CURSOR  = 8  ///< there is cursor/icon for this
+			FLAG_NO_INFO     = 1 << 0, ///< do not show info window
+			FLAG_NO_PIT      = 1 << 1, ///< do not show construction pit
+			FLAG_NEED_GROUND = 1 << 2, ///< needs ground drawn below
+			FLAG_HAS_CURSOR  = 1 << 3  ///< there is cursor/icon for this
 		};
 private:
 	/**
@@ -164,7 +164,7 @@ private:
 			monorail_geb      = 22,
 			wartehalle        = 30,
 			mail              = 31,
-			lagerhalle        = 32,
+			lagerhalle        = 32
 		};
 
 	building_desc_t::btype type;

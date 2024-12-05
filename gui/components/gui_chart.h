@@ -91,7 +91,7 @@ public:
 
 	void set_min_size(scr_size);
 private:
-	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *, int precision ) const;
+	void calc_gui_chart_values(sint64 *baseline, double *scale, char *, char *, int precision ) const;
 
 	/*
 	 * curve struct

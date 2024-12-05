@@ -5,15 +5,16 @@
 
 #include "depotlist_frame.h"
 #include "gui_theme.h"
+
+#include "../player/simplay.h"
+
 #include "../simdepot.h"
 #include "../simskin.h"
+#include "../simworld.h"
+
 #include "../dataobj/translator.h"
+
 #include "../descriptor/skin_desc.h"
-
-enum sort_mode_t { by_coord, by_waytype, by_vehicle, SORT_MODES };
-
-int depotlist_stats_t::sort_mode = by_waytype;
-bool depotlist_stats_t::reverse = false;
 
 
 depotlist_stats_t::depotlist_stats_t(depot_t *d)
@@ -130,24 +131,9 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 	assert(fa != NULL  &&  fb != NULL);
 	depot_t *a=fa->depot, *b=fb->depot;
 
-	int cmp;
-	switch( sort_mode ) {
-	default:
-	case by_coord:
-		cmp = 0;
-		break;
-
-	case by_waytype:
-		cmp = a->get_waytype() - b->get_waytype();
-		break;
-
-	case by_vehicle:
-		cmp = a->convoi_count() - b->convoi_count();
-		if( cmp == 0 ) {
-			cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
-		}
-		break;
-
+	int cmp = a->convoi_count() - b->convoi_count();
+	if( cmp == 0 ) {
+		cmp = a->get_vehicle_list().get_count() - b->get_vehicle_list().get_count();
 	}
 	if (cmp == 0) {
 		cmp = koord_distance( a->get_pos(), koord( 0, 0 ) ) - koord_distance( b->get_pos(), koord( 0, 0 ) );
@@ -155,17 +141,9 @@ bool depotlist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 			cmp = a->get_pos().x - b->get_pos().x;
 		}
 	}
-	return reverse ? cmp > 0 : cmp < 0;
+	return cmp > 0;
 }
 
-
-
-
-static const char *sort_text[SORT_MODES] = {
-	"koord",
-	"waytype",
-	"vehicles stored"
-};
 
 depotlist_frame_t::depotlist_frame_t(player_t *player) :
 	gui_frame_t( translator::translate("dp_title"), player ),
@@ -175,23 +153,36 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
 	last_depot_count = 0;
 
 	set_table_layout(1,0);
-	new_component<gui_label_t>("hl_txt_sort");
 
-	add_table(2,0);
-	sortedby.init(button_t::roundbox, sort_text[depotlist_stats_t::sort_mode]);
-	sortedby.add_listener(this);
-	add_component(&sortedby);
+	scrolly.set_maximize(true);
 
-	sorteddir.init(button_t::roundbox, depotlist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-	sorteddir.add_listener(this);
-	add_component(&sorteddir);
-	end_table();
+	tabs.init_tabs(&scrolly);
+	tabs.add_listener(this);
+	add_component(&tabs);
 
-	add_component(&scrolly);
 	fill_list();
 
 	set_resizemode(diagonal_resize);
+	reset_min_windowsize();
+}
+
+
+depotlist_frame_t::depotlist_frame_t() :
+	gui_frame_t(translator::translate("dp_title"), NULL),
+	scrolly(gui_scrolled_list_t::windowskin, depotlist_stats_t::compare)
+{
+	player = NULL;
+	last_depot_count = 0;
+
+	set_table_layout(1, 0);
+
 	scrolly.set_maximize(true);
+
+	tabs.init_tabs(&scrolly);
+	tabs.add_listener(this);
+	add_component(&tabs);
+
+	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
 }
 
@@ -201,15 +192,8 @@ depotlist_frame_t::depotlist_frame_t(player_t *player) :
  */
 bool depotlist_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(comp == &sortedby) {
-		depotlist_stats_t::sort_mode = (depotlist_stats_t::sort_mode + 1) % SORT_MODES;
-		sortedby.set_text(sort_text[depotlist_stats_t::sort_mode]);
-		scrolly.sort(0);
-	}
-	else if(comp == &sorteddir) {
-		depotlist_stats_t::reverse = !depotlist_stats_t::reverse;
-		sorteddir.set_text( depotlist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		scrolly.sort(0);
+	if (comp == &tabs) {
+		fill_list();
 	}
 	return true;
 }
@@ -219,8 +203,10 @@ void depotlist_frame_t::fill_list()
 {
 	scrolly.clear_elements();
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-		if( depot->get_owner() == player ) {
-			scrolly.new_component<depotlist_stats_t>( depot );
+		if(  depot->get_owner() == player  ) {
+			if(  tabs.get_active_tab_index() == 0  ||  depot->get_waytype() == tabs.get_active_tab_waytype()  ) {
+				scrolly.new_component<depotlist_stats_t>(depot);
+			}
 		}
 	}
 	scrolly.sort(0);
@@ -237,4 +223,22 @@ void depotlist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	gui_frame_t::draw(pos,size);
+}
+
+void depotlist_frame_t::rdwr(loadsave_t* file)
+{
+	scr_size size = get_windowsize();
+	uint8 player_nr = player ? player->get_player_nr() : 0;
+
+	file->rdwr_byte(player_nr);
+	size.rdwr(file);
+	tabs.rdwr(file);
+	scrolly.rdwr(file);
+
+	if (file->is_loading()) {
+		player = welt->get_player(player_nr);
+		win_set_magic(this, magic_depotlist + player_nr);
+		fill_list();
+		set_windowsize(size);
+	}
 }

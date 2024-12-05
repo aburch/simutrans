@@ -166,10 +166,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const range        = obj.get_int("range",               10);
 	uint16 const chance       = obj.get_int("distributionweight",   1);
 	uint8  const color        = obj.get_color("mapcolor", 255);
+
 	if (color == 255) {
 		dbg->fatal( "Factory", "%s missing an identification color! (mapcolor)", obj_writer_t::last_name );
-		exit(1);
 	}
+
 	uint16 const pax_level = obj.get_int("pax_level", 12);
 
 	uint16 expand_probability = obj.get_int("expand_probability", 0);

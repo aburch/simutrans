@@ -54,6 +54,12 @@ bottom_window_bar_color = 3
 front_window_text_color = #FFFFFF
 bottom_window_text_color = #C0C0C0
 
+# make the chat window transparent in network games
+gui_chat_window_network_transparency = 13
+
+# if defined, use plain color for chat window in network games
+gui_color_chat_window_network_transparency = #000000
+
 #################################colour stuff#################################
 
 default_window_title_color = #194766
@@ -70,7 +76,7 @@ gui_color_edit_text = #c98926
 gui_color_edit_text_selected = #FAFAFA
 gui_color_edit_text_disabled = #868c86
 gui_color_edit_background_selected = #5686a6
-gui_color_edit_beam = #333333
+gui_color_edit_beam = #ffffff
 
 gui_color_chart_background = #333333
 gui_color_chart_lines_zero = #FAFAFA
@@ -166,6 +172,7 @@ gui_color_button_text_offset = 5,0,5
 # next and prev arrows for scrolling appears
 toolbar_max_width = 0
 toolbar_max_height = 0
+
 ###################################pakstuff###################################
 
 # pak with the images for this theme

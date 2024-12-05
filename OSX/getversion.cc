@@ -3,10 +3,12 @@
  * (see LICENSE.txt)
  */
 
-#include <stdio.h>
 #include "../simversion.h"
 
-main()
+#include <cstdio>
+
+
+int main()
 {
-	printf("%s\n", VERSION_NUMBER);
+	return puts(VERSION_NUMBER) < 0;
 }

@@ -5,7 +5,7 @@
 
 #include "../simworld.h"
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../boden/grund.h"
 #include "../player/simplay.h"
 #include "../display/simimg.h"
@@ -123,12 +123,16 @@ void bruecke_t::rdwr(loadsave_t *file)
 	file->rdwr_enum(img);
 
 	if(file->is_loading()) {
+		if (!s) {
+			dbg->fatal("bruecke_t::rdwr", "No bridge name for bridge at (%s)", get_pos().get_str());
+		}
+
 		desc = bridge_builder_t::get_desc(s);
 		if(desc==NULL) {
 			desc = bridge_builder_t::get_desc(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
-			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, get_pos().x, get_pos().y );
+			dbg->warning( "bruecke_t::rdwr", "Unknown bridge \"%s\" at (%s) will be replaced with best match!", s, get_pos().get_str() );
 			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
 		}
 		free(const_cast<char *>(s));
@@ -165,7 +169,7 @@ void bruecke_t::finish_rd()
 				desc = bridge_builder_t::find_bridge( weg->get_waytype(), weg->get_max_speed(), 0 );
 			}
 			if(desc==NULL) {
-				dbg->fatal("bruecke_t::finish_rd()","Unknown bridge for type %x at (%i,%i)", weg->get_waytype(), get_pos().x, get_pos().y );
+				dbg->fatal("bruecke_t::finish_rd()", "Unknown bridge for type %x at (%s)", weg->get_waytype(), get_pos().get_str() );
 			}
 		}
 		else {
@@ -175,10 +179,11 @@ void bruecke_t::finish_rd()
 				desc = bridge_builder_t::find_bridge( powerline_wt, 0, 0 );
 			}
 			if(desc==NULL) {
-				dbg->fatal("bruecke_t::finish_rd()","No powerbridge to built bridge type at (%i,%i)", get_pos().x, get_pos().y );
+				dbg->fatal("bruecke_t::finish_rd()", "No powerline bridge to build bridge type at (%s)", get_pos().get_str() );
 			}
 		}
 	}
+	fix_ramp_desc_if_needed(gr);
 
 	player_t *player=get_owner();
 	// change maintenance
@@ -211,6 +216,38 @@ void bruecke_t::finish_rd()
 			img = desc->get_start( gr->get_grund_hang() );
 		}
 	}
+}
+
+
+// Old versions may set incorrect way desc to a bridge ramp.
+void bruecke_t::fix_ramp_desc_if_needed(const grund_t* gr) {
+	if(  desc->get_waytype()==powerline_wt  ) {
+		// no ramps for powerlines
+		return;
+	}
+	weg_t* weg = gr->get_weg_nr(0);
+	// check if the tile is a ramp
+	const slope_t::type slope = gr->get_grund_hang();
+	if(  slope==slope_t::flat  ) {
+		// This tile is a middle of the bridge.
+		return;
+	}
+	grund_t* adjacent_bridge_gr = NULL;
+	for(uint8 i=0; i<4; i++) {
+		grund_t* agr;
+		if(  !gr->get_neighbour(agr, desc->get_waytype(), (1<<i))  ||  agr->get_typ()!=grund_t::brueckenboden  ||  agr->get_grund_hang()!=slope_t::flat  ) {
+			// This is not a flat bridge tile
+			continue;
+		}
+		adjacent_bridge_gr = agr;
+		break;
+	}
+	const weg_t* adjacent_bridge_weg = adjacent_bridge_gr ? adjacent_bridge_gr->get_weg_nr(0) : NULL;
+	if(  !adjacent_bridge_weg  ) {
+		// adjacent bridge tile not found?
+		return;
+	}
+	weg->set_desc(adjacent_bridge_weg->get_desc());
 }
 
 
@@ -264,7 +301,7 @@ void bruecke_t::rotate90()
 // players can remove public owned ways
 const char *bruecke_t::is_deletable(const player_t *player)
 {
-	if (get_player_nr()==welt->get_public_player()->get_player_nr()) {
+	if (get_owner_nr()==PUBLIC_PLAYER_NR) {
 		return NULL;
 	}
 	else {

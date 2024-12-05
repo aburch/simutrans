@@ -63,7 +63,7 @@ char depot_frame_t::name_filter_value[64] = "";
 static int sort_by_action;
 
 bool depot_frame_t::show_retired_vehicles = false;
-bool depot_frame_t::show_all = true;
+bool depot_frame_t::show_all = false;
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t("", NULL),
@@ -134,7 +134,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [CONVOI]
 	*/
-	convoi.set_player_nr(depot->get_player_nr());
+	convoi.set_player_nr(depot->get_owner_nr());
 	convoi.add_listener(this);
 
 	cont_convoi.add_component(&lb_convoi_number);
@@ -199,19 +199,24 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_replacement_seed.set_tooltip("Set as the replacement seed convoy");
 	add_component(&bt_replacement_seed);
 
+	bt_paste_convoi.set_typ(button_t::roundbox);
+	bt_paste_convoi.add_listener(this);
+	bt_paste_convoi.set_tooltip("Paste the copied convoi");
+	add_component(&bt_paste_convoi);
+
 	/*
 	* [PANEL]
 	*/
-	pas.set_player_nr(depot->get_player_nr());
+	pas.set_player_nr(depot->get_owner_nr());
 	pas.add_listener(this);
 
-	electrics.set_player_nr(depot->get_player_nr());
+	electrics.set_player_nr(depot->get_owner_nr());
 	electrics.add_listener(this);
 
-	loks.set_player_nr(depot->get_player_nr());
+	loks.set_player_nr(depot->get_owner_nr());
 	loks.add_listener(this);
 
-	waggons.set_player_nr(depot->get_player_nr());
+	waggons.set_player_nr(depot->get_owner_nr());
 	waggons.add_listener(this);
 
 	add_component(&tabs);
@@ -316,6 +321,7 @@ void depot_frame_t::layout(scr_size *size)
 	scr_coord_val grid_dx;
 	scr_coord_val placement_dx;
 
+
 	/*
 	* These parameter are adjusted to resolution.
 	* - Some extra space looks nicer.
@@ -324,8 +330,8 @@ void depot_frame_t::layout(scr_size *size)
 	grid.y = depot->get_y_grid() * get_base_tile_raster_width() / 64 + 6;
 	placement.x = depot->get_x_placement() * get_base_tile_raster_width() / 64 + 2;
 	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
-	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
-	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
+	grid_dx = depot->get_grid_dx() * get_base_tile_raster_width() / 64 / 2;
+	placement_dx = depot->get_placement_dx() * get_base_tile_raster_width() / 64 / 4;
 
 	// calculate some useful default width first (since everything depends on width)
 	scr_size win_size = (size != NULL) ? *size : get_windowsize();
@@ -523,6 +529,10 @@ void depot_frame_t::layout(scr_size *size)
 	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, ACTIONS_VSTART));
 	bt_sell.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_sell.set_text("verkaufen");
+
+	bt_paste_convoi.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2, ACTIONS_VSTART + D_BUTTON_HEIGHT));
+	bt_paste_convoi.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
+	bt_paste_convoi.set_text("Paste Convoi");
 	
 	bt_replacement_seed.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, ACTIONS_VSTART + D_BUTTON_HEIGHT));
 	bt_replacement_seed.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
@@ -1138,7 +1148,7 @@ void depot_frame_t::update_data()
 			else {
 				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
 				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
-				max_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_min_weight,   cnv->get_min_top_speed()));
+				max_kmh =   speed_to_kmh(cnv->get_min_top_speed());
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
 
@@ -1153,11 +1163,12 @@ void depot_frame_t::update_data()
 			txt_convoi_count.append( (double)cnv->get_tile_length(), 0 );
 
 			txt_convoi_speed.clear();
-			if(  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
+			if(  empty_kmh < 4  ||  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
+				// convoi way too slow
 				convoi_length_ok_sb = 0;
 				if(  max_kmh != min_kmh  &&  !use_sel_weight  ) {
 					txt_convoi_speed.printf("%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, max_kmh, translator::translate("loaded") );
-					if(  max_kmh != empty_kmh  ) {
+					if(  max_kmh != empty_kmh  || empty_kmh < 4  ) {
 						convoi_length_slower_sb = 0;
 						convoi_length_too_slow_sb = convoi_length;
 					}
@@ -1188,11 +1199,21 @@ void depot_frame_t::update_data()
 				txt_convoi_cost.clear();
 				if(  sint64 fix_cost = cnv->get_fixed_cost()  ) {
 					money_to_string(  buf, (double)cnv->get_purchase_cost() / 100.0, false );
-					txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), buf, (double)cnv->get_running_cost()/100.0, (double)fix_cost/100.0 );
+					if(env_t::show_yen){
+						txt_convoi_cost.printf( translator::translate("Cost: %8s (%d$/km %d$/m)\n"), buf, cnv->get_running_cost(), fix_cost );
+					}
+					else{
+						txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), buf, (double)cnv->get_running_cost()/100.0, (double)fix_cost/100.0 );
+					}
 				}
 				else {
 					money_to_string(  buf, cnv->get_purchase_cost() / 100.0, false );
-					txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)cnv->get_running_cost() / 100.0 );
+					if(env_t::show_yen){
+						txt_convoi_cost.printf( translator::translate("Cost: %8s (%d$/km)\n"), buf, cnv->get_running_cost() );
+					}
+					else{
+						txt_convoi_cost.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), buf, (double)cnv->get_running_cost() / 100.0 );
+					}
 				}
 			}
 
@@ -1406,14 +1427,6 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &convoy_selector  ) {
 			icnv = p.i - 1;
-/*
-			if(  !depot->get_convoi(icnv).is_bound()  ) {
-				set_focus( NULL );
-			}
-			else {
-				set_focus( (gui_component_t *)&convoy_selector );
-			}
-*/
 		}
 		else if(  comp == &line_selector  ) {
 			const int selection = p.i;
@@ -1460,6 +1473,17 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 		}
 		else if(  comp == &vehicle_filter  ) {
 			depot->selected_filter = vehicle_filter.get_selection();
+		}
+		else if(  comp == &bt_paste_convoi  ) {
+			if(  welt->get_copy_convoi().is_bound()  ) {
+				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( welt->get_copy_convoi() )  ) {
+					depot->call_depot_tool('p', welt->get_copy_convoi(), NULL);
+				}
+				else {
+					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
+				}
+			}
+			return true;
 		}
 		else {
 			return false;
@@ -1516,6 +1540,10 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
+	if (ev->ev_code == WIN_TOP) {
+		update_data();
+	}
+
 	if(  swallowed  &&  get_focus()==&name_filter_input  &&  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  ) {
 		depot_t::update_all_win();
 	}
@@ -1542,6 +1570,8 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bt_show_all.enable( action_allowed );
 	bt_veh_action.enable( action_allowed );
 	line_button.enable( action_allowed );
+
+	bt_paste_convoi.enable( action_allowed );
 	
 	bt_replacement_seed.set_text(cnv==depot->get_replacement_seed() ? "Unregister replacement" : "Replacement seed");
 
@@ -1618,8 +1648,6 @@ void depot_frame_t::open_schedule_editor()
 void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 {
 	cbuffer_t buf;
-	const scr_size size = get_windowsize();
-	PUSH_CLIP(pos.x, pos.y, size.w-1, size.h-1);
 
 	gui_component_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1678,7 +1706,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 				break;
 			}
 		}
-		display_proportional_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_clip_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
 	}
 
 	if(  veh_type  ) {
@@ -1697,12 +1725,22 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		if(  sint64 fix_cost = welt->scale_with_month_length( veh_type->get_fixed_cost() )  ) {
 			char tmp[128];
 			money_to_string( tmp, veh_type->get_price() / 100.0, false );
-			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
+			if(env_t::show_yen){
+				buf.printf( translator::translate("Cost: %8s (%d$/km %d$/m)\n"), tmp, veh_type->get_running_cost(), fix_cost );
+			}
+			else{
+				buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
+			}
 		}
 		else {
 			char tmp[128];
 			money_to_string(  tmp, veh_type->get_price() / 100.0, false );
-			buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_running_cost()/100.0 );
+			if(env_t::show_yen){
+				buf.printf( translator::translate("Cost: %8s (%d$/km)\n"), tmp, veh_type->get_running_cost() );
+			}
+			else{
+				buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_running_cost()/100.0 );
+			}
 		}
 
 		if(  veh_type->get_capacity() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
@@ -1761,15 +1799,13 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		txt_convoi_number.clear();
 		if (convoi_number>-1){
 			txt_convoi_number.printf("%d", convoi_number + 1);
-			lb_convoi_number.set_pos(scr_coord(((depot->get_x_grid() * get_base_tile_raster_width() / 64 + 4) - (depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2))*convoi_number + 4, 4));
+			lb_convoi_number.set_pos(scr_coord(((depot->get_x_num_grid() * get_base_tile_raster_width() / 64 + 4) - (depot->get_x_num_grid() * get_base_tile_raster_width() / 64 / 2))*convoi_number + 4, 4));
 		}
 	}
 	else {
 		txt_convoi_number.clear();
 		new_vehicle_length_sb = 0;
 	}
-
-	POP_CLIP();
 }
 
 
@@ -1780,17 +1816,23 @@ void depot_frame_t::update_tabs()
 
 	bool one = false;
 
+	// add only if there are any trolleybuses
+	if(  !electrics_vec.empty()  ) {
+		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
+		one = true;
+	}
+
 	// add only if there are any
 	if(  !pas_vec.empty()  ) {
 		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
 		one = true;
 	}
 
-	// add only if there are any trolleybuses
+/* 	// add only if there are any trolleybuses
 	if(  !electrics_vec.empty()  ) {
 		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
 		one = true;
-	}
+	} */
 
 	// add, if wagons are there ...
 	if(  !loks_vec.empty()  ||  !waggons_vec.empty()  ) {

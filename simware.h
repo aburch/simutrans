@@ -10,6 +10,7 @@
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
 #include "descriptor/goods_desc.h"
+#include "tpl/vector_tpl.h"
 
 class goods_manager_t;
 class karte_t;
@@ -49,9 +50,13 @@ private:
 	halthandle_t ziel;
 
 	/**
-	 * Handle of station, where the packet has to leave convoy.
+	 * The halts where the packet has to leave convoy.
+	 * It includes the final destination halt.
 	 */
-	halthandle_t zwischenziel;
+	vector_tpl<halthandle_t> transit_halts;
+
+	// A placeholder object for get_zwischenziel()
+	const halthandle_t invalid_halt = halthandle_t();
 
 	/**
 	 * Target position (factory, etc)
@@ -67,9 +72,18 @@ public:
 	const halthandle_t &get_ziel() const { return ziel; }
 	void set_ziel(const halthandle_t &ziel) { this->ziel = ziel; }
 
-	const halthandle_t &get_zwischenziel() const { return zwischenziel; }
-	halthandle_t &access_zwischenziel() { return zwischenziel; }
-	void set_zwischenziel(const halthandle_t &zwischenziel) { this->zwischenziel = zwischenziel; }
+	const vector_tpl<halthandle_t>& get_transit_halts() const { return transit_halts; }
+	void set_transit_halts(vector_tpl<halthandle_t> const& th) { 
+		// Copy all transit_halts entries
+		vector_tpl<halthandle_t> tmp_vector = th;
+		swap(transit_halts, tmp_vector);
+	}
+	void clear_transit_halts() { transit_halts.clear(); }
+	void pop_first_transit_halts() { transit_halts.remove_at(0); }
+	// Returns the first transit halt, or an invalid handle if there are none.
+	const halthandle_t &get_zwischenziel() const {
+		return transit_halts.empty() ? invalid_halt : transit_halts.front();
+	}
 
 	koord get_zielpos() const { return zielpos; }
 	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
@@ -77,6 +91,8 @@ public:
 	ware_t();
 	ware_t(const goods_desc_t *typ);
 	ware_t(loadsave_t *file);
+	ware_t(const ware_t&);
+	ware_t& operator=(const ware_t&);
 
 	/// @returns the non-translated name of the ware.
 	const char *get_name() const { return get_desc()->get_name(); }
@@ -96,11 +112,18 @@ public:
 	bool is_freight() const {  return index>2; }
 
 	int operator==(const ware_t &w) {
+		if(  w.transit_halts.get_count()!=transit_halts.get_count()  ) {
+			return false;
+		}
+		for(  uint32 i=0;  i<transit_halts.get_count();  i++  ) {
+			if(  w.transit_halts[i]!=transit_halts[i]  ) {
+				return false;
+			}
+		}
 		return index  == w.index  &&
 			menge == w.menge &&
 			to_factory == w.to_factory &&
 			ziel  == w.ziel  &&
-			zwischenziel == w.zwischenziel &&
 			zielpos == w.zielpos;
 	}
 

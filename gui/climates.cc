@@ -18,6 +18,7 @@
 
 #include "../display/simgraph.h"
 
+static const char *wind_dir_text[4] = { "North", "East", "South", "West" };
 
 /**
  * set the climate borders
@@ -56,6 +57,17 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		snowline_winter.init( sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 		snowline_winter.add_listener( this );
 		add_component( &snowline_winter );
+
+		new_component<gui_label_t>( "Wind direction" );
+		wind_dir.set_focusable( false );
+		for( int i = 0; i < 4; i++ ) {
+			wind_dir.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( wind_dir_text[i] ), SYSCOL_TEXT );
+			if ((1 << i) == sets->wind_direction) {
+				wind_dir.set_selection(i);
+			}
+		}
+		add_component( &wind_dir );
+		wind_dir.add_listener( this );
 	}
 	end_table();
 
@@ -125,7 +137,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
 		tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
-		tree.set_selection( sets->get_tree() );
+		tree.set_selection( sets->get_tree_distribution() );
 		add_component( &tree );
 		tree.add_listener( this );
 
@@ -166,10 +178,14 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	if(comp==&tree) {
-		sets->set_tree((sint16)v.i);
+		const settings_t::tree_distribution_t value = (settings_t::tree_distribution_t)clamp(v.i, (long)settings_t::TREE_DIST_NONE, (long)settings_t::TREE_DIST_COUNT-1);
+		sets->set_tree_distribution(value);
+	}
+	if(comp==&wind_dir) {
+		sets->wind_direction = (ribi_t::ribi)(1 << v.i);
 	}
 	else if(comp==&lake) {
-		sets->lake_height = (sint16)v.i;
+		sets->lake_height = (sint8)v.i;
 	}
 	else if(comp==&water_level) {
 		sets->groundwater = (sint16)v.i;
@@ -197,13 +213,13 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		if( sets->get_climate_generator()==settings_t::HEIGHT_BASED ) {
 
 			// disable rainfall tree generation
-			if( sets->get_tree()==2 ) {
-				sets->set_tree(1);
+			if( sets->get_tree_distribution()==settings_t::TREE_DIST_RAINFALL ) {
+				sets->set_tree_distribution(settings_t::TREE_DIST_RANDOM);
 			}
 			tree.clear_elements();
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
-			tree.set_selection( sets->get_tree() );
+			tree.set_selection( sets->get_tree_distribution() );
 
 			// enable climate height selection
 			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {
@@ -218,7 +234,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "none" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "random" ), SYSCOL_TEXT );
 			tree.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate( "rainfall" ), SYSCOL_TEXT );
-			tree.set_selection( sets->get_tree() );
+			tree.set_selection( sets->get_tree_distribution() );
 
 			// disable climate height selection (except arctic which is used for snowline)
 			for(  int i=desert_climate-1;  i<arctic_climate-1;  i++  ) {
@@ -239,31 +255,28 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		river_min.set_limits(0,max(16,v.i)-16);
 	}
 	else if(comp==&moistering) {
-		sets->moisture = (sint16)v.i;
+		sets->moisture = (sint8)v.i;
 	}
 	else if(comp==&moistering_water) {
-		sets->moisture_water = (sint16)v.i;
+		sets->moisture_water = (sint8)v.i;
 	}
 	else if(comp==&humidities[0]) {
-		sets->desert_humidity = (sint16)v.i;
+		sets->desert_humidity = (sint8)v.i;
 	}
 	else if(comp==&humidities[1]) {
-		sets->tropic_humidity = (sint16)v.i;
-	}
-	else if(comp==&snowline_winter) {
-		sets->winter_snowline = (sint16)v.i;
+		sets->tropic_humidity = (sint8)v.i;
 	}
 	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
 	else if(comp==&snowline_summer) {
 		// set artic borders
-		sets->patch_size_percentage = (sint16)v.i;
+		sets->patch_size_percentage = (sint8)v.i;
 	}
 
 	// Update temperature borders
 	for(  int i=0;  i<5;  i++  ) {
-		sets->climate_temperature_borders[i] = temperatures[i].get_value();
+		sets->climate_temperature_borders[i] = (sint8)temperatures[i].get_value();
 	}
 
 	// Update height borders
@@ -272,8 +285,8 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		climate_borders_ui[i][0].set_value( climate_borders_ui[i][0].get_value() );
 		climate_borders_ui[i][1].set_limits( climate_borders_ui[i][0].get_value(), 127 );
 		climate_borders_ui[i][1].set_value( climate_borders_ui[i][1].get_value() );
-		sets->climate_borders[i+1][0] = climate_borders_ui[i][0].get_value();
-		sets->climate_borders[i+1][1] = climate_borders_ui[i][1].get_value();
+		sets->climate_borders[i+1][0] = (sint8)climate_borders_ui[i][0].get_value();
+		sets->climate_borders[i+1][1] = (sint8)climate_borders_ui[i][1].get_value();
 	}
 
 	return true;

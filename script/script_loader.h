@@ -6,6 +6,7 @@
 #ifndef SCRIPT_SCRIPT_LOADER_H
 #define SCRIPT_SCRIPT_LOADER_H
 
+
 class script_vm_t;
 
 struct script_loader_t
@@ -17,7 +18,7 @@ struct script_loader_t
 	static script_vm_t* start_vm(const char* base_file_name, const char* logfile_name, const char* include_path, bool is_scenario);
 
 	/**
-	 * Loads base script files: programdir/script/script_base.nut and programdir/script/[base].
+	 * Loads base script files: env_t::data_dir/script/script_base.nut and env_t::data_dir/script/[base].
 	 */
 	static bool load_base_script(script_vm_t *vm, const char* base);
 

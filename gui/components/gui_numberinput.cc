@@ -36,6 +36,7 @@ gui_numberinput_t::gui_numberinput_t() :
 	set_increment_mode( 1 );
 	wrap_mode( true );
 	b_enabled = true;
+	no_tooltip = false;
 	digits = 5;
 
 	set_size( scr_size( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
@@ -47,14 +48,14 @@ void gui_numberinput_t::set_size(scr_size size_par) {
 
 	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w - D_H_SPACE, size_par.h) );
 
-	bt_left.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	bt_left.set_pos( scr_coord(0,(size.h-D_ARROW_LEFT_HEIGHT)/2) );
 	textinp.align_to( &bt_left, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 	bt_right.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( D_H_SPACE / 2, 0) );
 }
 
 scr_size gui_numberinput_t::get_max_size() const
 {
-	uint16 max_digits = max(digits, log10( max( max(1, abs(min_value)), abs(max_value) ) )+1);
+	uint16 max_digits = max(digits, log10( (uint32)max( max(1, abs(min_value)), abs(max_value) ) )+1);
 	return scr_size(display_get_char_max_width( "+-/0123456789" ) * max_digits + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + D_H_SPACE,
 					max(LINESPACE+4, max(D_ARROW_LEFT_HEIGHT, D_ARROW_RIGHT_HEIGHT)));
 }
@@ -226,12 +227,13 @@ sint32 gui_numberinput_t::get_prev_value()
 
 
 // all init in one ...
-void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap,  uint16 digits_ )
+void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap,  uint16 digits_, bool tooltip )
 {
 	set_limits( min, max );
 	set_value( value );
 	set_increment_mode( mode );
 	wrap_mode( wrap );
+	allow_tooltip(tooltip);
 	digits = digits_;
 }
 
@@ -241,13 +243,20 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 	// buttons pressed
 	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
+		ev2.move_origin(bt_left.get_pos());
 		return bt_left.infowin_event(&ev2);
 	}
 	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
-		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
+		ev2.move_origin(bt_right.get_pos());
 		return bt_right.infowin_event(&ev2);
+	}
+	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
+		// losing focus
+		set_value( get_text_value() );
+		// just to be sure, value may be the same
+		call_listeners(value_t(value));
+		return false;
 	}
 	else {
 		// since button have different callback ...
@@ -255,13 +264,16 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 		sint32 new_value = value;
 
 		// mouse wheel -> fast increase / decrease
-		if(IS_WHEELUP(ev)){
-			new_value = get_next_value();
+		if (getroffen(ev->mx + pos.x, ev->my + pos.y)) {
+			if(IS_WHEELUP(ev)) {
+				new_value = get_next_value();
+				result = true;
+			}
+			else if(IS_WHEELDOWN(ev)){
+				new_value = get_prev_value();
+				result = true;
+			}
 		}
-		else if(IS_WHEELDOWN(ev)){
-			new_value = get_prev_value();
-		}
-
 		// catch non-number keys
 		if(  ev->ev_class == EVENT_KEYBOARD  ||  value==new_value  ) {
 			// assume false input
@@ -301,7 +313,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 			}
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
-				translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
+				ev2.move_origin(textinp.get_pos());
 				result = textinp.infowin_event(&ev2);
 				new_value = get_text_value();
 			}
@@ -319,15 +331,6 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 
 		return result;
 	}
-
-	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
-		// loosing focus ...
-		set_value( get_text_value() );
-		// just to be sure: call listener (value may be same)
-		call_listeners(value_t(value));
-	}
-
-	return false;
 }
 
 
@@ -342,7 +345,7 @@ void gui_numberinput_t::draw(scr_coord offset)
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.draw(new_offset);
 
-	if(getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )) {
+	if(!no_tooltip  &&  getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
 		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}

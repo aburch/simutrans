@@ -10,6 +10,7 @@
 #include "extend_edit.h"
 #include "components/gui_numberinput.h"
 #include "../utils/cbuffer_t.h"
+#include "simwin.h"
 
 class factory_desc_t;
 
@@ -39,12 +40,14 @@ private:
 
 	gui_numberinput_t inp_production;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
 
 	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	factory_edit_frame_t(player_t* player);
+
+	static bool sortreverse;
 
 	/**
 	* in top-level windows the name is displayed in titlebar
@@ -62,6 +65,10 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void set_windowsize(scr_size size) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_factory_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

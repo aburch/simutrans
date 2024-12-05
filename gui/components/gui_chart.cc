@@ -12,6 +12,7 @@
 #include "../../simcolor.h"
 #include "../../utils/simstring.h"
 #include "../../dataobj/environment.h"
+#include "../../dataobj/translator.h"
 #include "../../display/simgraph.h"
 #include "../gui_theme.h"
 
@@ -116,8 +117,8 @@ void gui_chart_t::draw(scr_coord offset)
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;
 
-	float scale = 0;
-	float* pscale = &scale;
+	double scale = 0;
+	double* pscale = &scale;
 
 	// calc baseline and scale
 	calc_gui_chart_values(pbaseline, pscale, cmin, cmax, 18);
@@ -229,14 +230,21 @@ void gui_chart_t::draw(scr_coord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
-						number_to_string_fit(cmin, display_tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
-						if (c.suffix) {
-							strcat(cmin, c.suffix);
+						if(c.type == 1 && env_t::show_yen){
+							number_to_string_fit(cmin, display_tmp*100, c.precision, maximum_axis_len - (c.suffix != NULL) );
+							if (c.suffix) {
+								strcat(cmin, translator::translate(c.suffix));
+							}
+						}
+						else{
+							number_to_string_fit(cmin, display_tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
+							if (c.suffix) {
+								strcat(cmin, c.suffix);
+							}							
 						}
 
 						if(  env_t::left_to_right_graphs  ) {
-							const sint16 width = proportional_string_width(cmin)+7;
-							display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
+							display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
 							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
@@ -251,13 +259,15 @@ void gui_chart_t::draw(scr_coord offset)
 }
 
 
-void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax, int maximum_axis_len) const
+void gui_chart_t::calc_gui_chart_values(sint64 *baseline, double *scale, char *cmin, char *cmax, int maximum_axis_len) const
 {
 	sint64 tmp=0;
 	double min = 0, max = 0;
 	const char* min_suffix = NULL;
 	const char* max_suffix = NULL;
 	int precision = 0;
+
+	bool show_yen = false;
 
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
@@ -267,19 +277,46 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				if(  c.convert  ) {
 					tmp = c.convert(tmp);
 				}
-				else if(  c.type!=0  ) {
+				else if(  c.type==0  ) {
+					if (min > tmp) {
+						min = tmp ;
+						precision = c.precision;
+						min_suffix = c.suffix;
+					}
+					if (max < tmp) {
+						max = tmp;
+						precision = c.precision;
+						max_suffix = c.suffix;
+					}
+				}
+				else if(  c.type==2 || !env_t::show_yen ) {
 					tmp /= 100;
 					precision = 0;
+					if (min > tmp) {
+						min = tmp ;
+						precision = c.precision;
+						min_suffix = c.suffix;
+					}
+					if (max < tmp) {
+						max = tmp;
+						precision = c.precision;
+						max_suffix = c.suffix;
+					}
 				}
-				if (min > tmp) {
-					min = tmp ;
-					precision = c.precision;
-					min_suffix = c.suffix;
-				}
-				if (max < tmp) {
-					max = tmp;
-					precision = c.precision;
-					max_suffix = c.suffix;
+				else if(  c.type==1  ) {
+					// tmp /= 100;
+					precision = 0;
+					show_yen = true;
+					if (min > tmp) {
+						min = tmp;
+						precision = c.precision;
+						min_suffix = translator::translate(c.suffix);
+					}
+					if (max < tmp) {
+						max = tmp;
+						precision = c.precision;
+						max_suffix = translator::translate(c.suffix);
+					}
 				}
 			}
 		}
@@ -300,13 +337,22 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
-	*scale = (double)(max - min) / (size.h-2-4-LINESPACE-(LINESPACE/2));
-	if(*scale==0.0) {
-		*scale = 1.0;
+	if(show_yen){
+		*scale = (double)(max - min)/100 / (size.h-2-4-LINESPACE-(LINESPACE/2));
+		if(*scale==0.0) {
+			*scale = 1.0;
+		}
+		// baseline: y-pos for the "zero" line in the chart
+		*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - labs((sint64)(min /100 / *scale )));
 	}
-
-	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - labs((sint64)(min / *scale )));
+	else{
+		*scale = (double)(max - min) / (size.h-2-4-LINESPACE-(LINESPACE/2));
+		if(*scale==0.0) {
+			*scale = 1.0;
+		}
+		// baseline: y-pos for the "zero" line in the chart
+		*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - labs((sint64)(min / *scale )));
+	}
 }
 
 

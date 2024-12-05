@@ -12,6 +12,7 @@
 #include "../factory_desc.h"
 #include "../xref_desc.h"
 #include "../../network/pakset_info.h"
+#include "../../tpl/array_tpl.h"
 
 #include "factory_reader.h"
 
@@ -40,15 +41,15 @@ uint16 rescale_probability(const uint16 p)
 
 obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	field_class_desc_t *desc = new field_class_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	uint16 v = decode_uint16(p);
+	field_class_desc_t *desc = new field_class_desc_t();
+
 	if(  v==0x8001  ) {
 		// field class specific data
 		desc->snow_image = decode_uint8(p);
@@ -73,15 +74,15 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 
 obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	field_group_desc_t *desc = new field_group_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	uint16 v = decode_uint16(p);
+	field_group_desc_t *desc = new field_group_desc_t();
+
 	if(  v==0x8003  ) {
 		desc->probability = rescale_probability( decode_uint16(p) );
 		desc->max_fields = decode_uint16(p);
@@ -167,16 +168,16 @@ void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 
 obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, desc_buf, node.size);
-
-	smoke_desc_t *desc = new smoke_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	sint16 x = decode_sint16(p);
 	sint16 y = decode_sint16(p);
+
+	smoke_desc_t *desc = new smoke_desc_t();
 	desc->pos_off = koord( x, y );
 
 	x = decode_sint16(p);
@@ -193,20 +194,20 @@ obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-	ALLOCA(char, desc_buf, node.size);
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
-	factory_supplier_desc_t *desc = new factory_supplier_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-	char * p = desc_buf;
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	factory_supplier_desc_t *desc = new factory_supplier_desc_t();
 
 	if(version == 1) {
 		// Versioned node, version 1
@@ -231,21 +232,18 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 
 obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-	ALLOCA(char, desc_buf, node.size);
-
-	factory_product_desc_t *desc = new factory_product_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-
-	char * p = desc_buf;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
+	factory_product_desc_t *desc = new factory_product_desc_t();
 	if(version == 1) {
 		// Versioned node, version 1
 		desc->capacity = decode_uint16(p);
@@ -272,25 +270,21 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	// DBG_DEBUG("factory_reader_t::read_node()", "called");
-	ALLOCA(char, desc_buf, node.size);
-
-	factory_desc_t *desc = new factory_desc_t();
-
-	// Read data
-	fread(desc_buf, node.size, 1, fp);
-
-	char * p = desc_buf;
-
-	desc->sound_id = NO_SOUND;
-	desc->sound_interval = 0xFFFFFFFFul;
-	desc->smokerotations = 0;
+	array_tpl<char> desc_buf(node.size);
+	if (fread(desc_buf.begin(), node.size, 1, fp) != 1) {
+		return NULL;
+	}
+	char *p = desc_buf.begin();
 
 	// old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
-
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	factory_desc_t *desc = new factory_desc_t();
+	desc->sound_id = NO_SOUND;
+	desc->sound_interval = 0xFFFFFFFFul;
+	desc->smokerotations = 0;
 
 	typedef factory_desc_t::site_t site_t;
 	if(version == 5) {

@@ -7,14 +7,19 @@
 #define OBJ_WOLKE_H
 
 
+#include "simobj.h"
+
 #include "../descriptor/skin_desc.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../display/simimg.h"
 
-#define DEFAULT_EXHAUSTSMOKE_TIME (2497)
 
 class karte_t;
+
+
+#define DEFAULT_EXHAUSTSMOKE_TIME (2497)
+
 
 /**
  * smoke clouds (formerly sync_wolke_t)

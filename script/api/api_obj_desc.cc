@@ -19,6 +19,7 @@
 #include "../../descriptor/goods_desc.h"
 #include "../../descriptor/roadsign_desc.h"
 #include "../../descriptor/way_obj_desc.h"
+#include "../../descriptor/factory_desc.h"
 #include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/tunnelbauer.h"
@@ -273,6 +274,52 @@ const vector_tpl<const way_obj_desc_t*>& get_available_wayobjs(waytype_t wt)
 		}
 	}
 	return dummy;
+}
+
+
+#ifdef DOXYGEN
+/**
+ * Description of input/output slots
+ */
+struct factory_slot_information_x { // begin_class("factory_slot_information_x")
+	good_desc_x good; ///< type of produced/consumed good
+	integer capacity; ///< capacity to store the good
+	integer factor;   ///< production/consumption factor
+}; // end_class
+#endif
+
+SQInteger get_factory_outputs(HSQUIRRELVM vm)
+{
+	const factory_desc_t *desc = param<const factory_desc_t *>::get(vm, -1);
+	sq_newarray(vm, 0);
+	if (desc) {
+		for(uint16 i=0; i<desc->get_product_count(); i++) {
+			const factory_product_desc_t *fp = desc->get_product(i);
+			sq_newtable(vm);
+			create_slot(vm, "good", fp->get_output_type());
+			create_slot(vm, "capacity", fp->get_capacity());
+			create_slot(vm, "factor", fp->get_factor());
+			sq_arrayappend(vm, -2);
+		}
+	}
+	return 1;
+}
+
+SQInteger get_factory_inputs(HSQUIRRELVM vm)
+{
+	const factory_desc_t *desc = param<const factory_desc_t *>::get(vm, -1);
+	sq_newarray(vm, 0);
+	if (desc) {
+		for(uint16 i=0; i<desc->get_supplier_count(); i++) {
+			const factory_supplier_desc_t *fp = desc->get_supplier(i);
+			sq_newtable(vm);
+			create_slot(vm, "good", fp->get_input_type());
+			create_slot(vm, "capacity", fp->get_capacity());
+			create_slot(vm, "factor", fp->get_consumption());
+			sq_arrayappend(vm, -2);
+		}
+	}
+	return 1;
 }
 
 
@@ -535,6 +582,43 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &building_is_terminus, "is_terminus", true);
 
+	end_class(vm);
+
+	/**
+	 * Object descriptors for factories.
+	 */
+	begin_desc_class(vm, "factory_desc_x", "obj_desc_x", (GETDESCFUNC)param<const factory_desc_t*>::getfunc());
+	/**
+	 * @returns name
+	 */
+	register_method(vm, &factory_desc_t::get_name, "get_name");
+	/**
+	 * Descriptor of associated building.
+	 */
+	register_method(vm, &factory_desc_t::get_building, "get_building_desc");
+	/**
+	 * @returns true if this factory produces electricity
+	 */
+	register_method(vm, &factory_desc_t::is_electricity_producer, "is_electricity_producer");
+	/**
+	 * Initial production of a factory is get_productivity_base() + rand( get_productivity_range() ).
+	 * @returns base production
+	 */
+	register_method(vm, &factory_desc_t::get_productivity, "get_productivity_base");
+	/**
+	 * @returns base production variable range
+	 */
+	register_method(vm, &factory_desc_t::get_range, "get_productivity_range");
+	/**
+	 * Returns array with information about input goods
+	 * @typemask array<factory_slot_information_x> ()
+	 */
+	register_function(vm, get_factory_inputs, "get_inputs", 1, "t|x|y");
+	/**
+	 * Returns array with information about input goods
+	 * @typemask array<factory_slot_information_x> ()
+	 */
+	register_function(vm, get_factory_outputs, "get_outputs", 1, "t|x|y");
 	end_class(vm);
 
 	/**

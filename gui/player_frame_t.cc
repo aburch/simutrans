@@ -23,6 +23,7 @@
 #include "password_frame.h" // for the password
 #include "ai_selector.h"
 #include "player_frame_t.h"
+#include "player_merge_frame.h"
 
 
 class password_button_t : public button_t
@@ -54,7 +55,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].init(button_t::square_state, "");
 			player_active[i-2].add_listener(this);
 			player_active[i-2].set_rigid(true);
-			add_component( player_active+i-2 );
+			add_component( player_active+(i-2) );
 		}
 		else {
 			new_component<gui_empty_t>();
@@ -108,7 +109,13 @@ ki_kontroll_t::ki_kontroll_t() :
 	freeplay.add_listener(this);
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay, 5 );
-
+	
+	// player merging
+	merge_player.init( button_t::roundbox_state | button_t::flexible, "merge player");
+	merge_player.add_listener(this);
+	merge_player.pressed = false;
+	add_component( &merge_player, 5 );
+	
 	update_data(); // calls reset_min_windowsize
 
 	set_windowsize(get_min_windowsize());
@@ -123,6 +130,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 	// Free play button?
 	if(  comp == &freeplay  ) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
+		return true;
+	}
+	
+	if(  comp == &merge_player  ) {
+		create_win(new player_merge_frame_t(), w_info, (ptrdiff_t)magic_none );
 		return true;
 	}
 
@@ -364,6 +376,12 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	}
 
 	player_change_to[welt->get_active_player_nr()].pressed = true;
+	
+	if(  welt->get_active_player() == welt->get_public_player()  ) {
+		merge_player.enable();
+	} else {
+		merge_player.disable();
+	}
 
 	// All controls updated, draw them...
 	gui_frame_t::draw(pos, size);

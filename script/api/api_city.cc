@@ -134,7 +134,7 @@ void export_city(HSQUIRRELVM vm)
 	 * Get monthly statistics of number of citizens.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable2<bool,sint32>(true, HIST_CITICENS), true);
+	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable2<bool,sint32>(true, HIST_CITIZENS), true);
 	/**
 	 * Get monthly statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current month
@@ -174,7 +174,7 @@ void export_city(HSQUIRRELVM vm)
 	 * Get per year statistics of number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable2<bool,sint32>(false, HIST_CITICENS), true );
+	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable2<bool,sint32>(false, HIST_CITIZENS), true );
 	/**
 	 * Get per year statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current year

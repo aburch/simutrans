@@ -25,10 +25,17 @@
  */
 class del_button_t : public button_t
 {
+	scr_coord_val w;
 public:
-	del_button_t() : button_t() { init(button_t::roundbox, "X"); }
-
-	scr_size get_min_size() const OVERRIDE { return scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT); }
+	del_button_t() : button_t()
+	{
+		init(button_t::roundbox, "X");
+		w = max(D_BUTTON_HEIGHT, display_get_char_width('X') + D_BUTTON_PADDINGS_X);
+	}
+	scr_size get_min_size() const OVERRIDE
+	{
+		return scr_size(w, D_BUTTON_HEIGHT);
+	}
 };
 
 /**
@@ -70,7 +77,6 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	// Needs to be scrollable, size is adjusted in set_windowsize()
 	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V);
 	scrolly.set_size_corner(false);
-	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
 	add_component(&scrolly);
 	scrolly.set_maximize(true);
 
@@ -153,10 +159,10 @@ void savegame_frame_t::add_section(std::string &name){
 	char *label_text = new char [L_SHORTENED_SIZE+prefix_len+2];
 	char *path_expanded = new char[FILENAME_MAX];
 
-	size_t program_dir_len = strlen(env_t::program_dir);
+	const size_t data_dir_len = strlen(env_t::data_dir);
 
-	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::program_dir,program_dir_len) == 0  ) {
-		// starts with program_dir or an absolute path
+	if(  name[0]=='/'  ||  name[0]=='\\'  ||  name[1]==':'  ||  strncmp(name.c_str(),env_t::data_dir,data_dir_len) == 0  ) {
+		// starts with data_dir or an absolute path
 		tstrncpy(path_expanded, name.c_str(), FILENAME_MAX);
 	}
 	else {
@@ -271,7 +277,6 @@ void savegame_frame_t::list_filled( void )
 {
 	uint cols = (delete_enabled ? 1 : 0) + 1 + (label_enabled ? 1 : 0);
 	button_frame.set_table_layout(1,0);
-	button_frame.add_table(cols,0);
 	button_frame.add_table(cols,0)->set_spacing(scr_size(D_H_SPACE,D_FILELIST_V_SPACE)); // change space between entries to zero to see more on screen
 
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
@@ -586,9 +591,6 @@ void savegame_frame_t::set_filename(const char *file_name)
  * letter is present it is translated to upper case
  *
  * @param path  A pointer to the path string. This string is modified.
- *
- * @return      The function is not returning anything per say, but the
- *              contents of the path parameter has been modified on return.
  */
 void savegame_frame_t::cleanup_path(char *path)
 {

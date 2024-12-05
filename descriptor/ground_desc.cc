@@ -22,9 +22,11 @@ const int totalslopes = 81;
 * maybe they should be put in their own module, even though they are only used here ...
 */
 
+#if COLOUR_DEPTH != 0
 #define red_comp(pix)    (((pix)>>10)&0x001f)
 #define green_comp(pix)   (((pix)>>5)&0x001f)
 #define blue_comp(pix)         ((pix)&0x001f)
+#endif
 
 
 /* combines a texture and a lightmap
@@ -86,6 +88,7 @@ static image_t* create_textured_tile(const image_t* image_lightmap, const image_
 	assert(dest - image_dest->get_data() == (ptrdiff_t)image_dest->get_pic()->len);
 #else
 	(void)image_texture;
+	(void)binary;
 #endif
 	image_dest->register_image();
 	return image_dest;
@@ -370,7 +373,7 @@ static special_obj_tpl<ground_desc_t> const grounds[] = {
 // the water and seven climates
 static const char* const climate_names[MAX_CLIMATES] =
 {
-	"Water", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
+	"sea", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
 };
 
 // from this number on there will be all ground images
@@ -438,7 +441,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 {
 	ground_desc_t::world = world;
 
-	printf("Calculating textures ...");
+	DBG_DEBUG("ground_desc_t::init_ground_textures()", "Calculating ground textures ...");
 
 	// free old ones
 	if(image_offset!=IMG_EMPTY) {
@@ -915,7 +918,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 	}
 #endif
 	//dbg->message("ground_desc_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->imageid);
-	printf("done\n");
+	DBG_DEBUG("ground_desc_t::init_ground_textures()", "Init ground textures successful");
 }
 
 

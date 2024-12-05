@@ -286,7 +286,7 @@ money_frame_t::money_frame_t(player_t *player) :
 	}
 
 	// select transport type
-	gui_aligned_container_t *top = add_table(4,1);
+	gui_aligned_container_t *top = add_table(4,3);
 	{
 		new_component<gui_label_t>("Show finances for transport type");
 
@@ -312,6 +312,43 @@ money_frame_t::money_frame_t(player_t *player) :
 		add_component(&headquarter);
 		headquarter.init(button_t::roundbox, "");
 		headquarter.add_listener(this);
+
+
+		new_component<gui_fill_t>();
+		new_component<gui_fill_t>();
+
+		send_money_format.set_align(gui_label_t::align_t::centered);
+		sprintf(send_money_format_str,"0");
+		send_money_format.set_text_pointer(send_money_format_str);
+		add_component(&send_money_format);
+
+		new_component<gui_fill_t>();
+
+
+		new_component<gui_label_t>("Sending money to another player");
+
+		viewable_players[ 0 ] = 0;
+		for(  int np = 0, count = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
+			if(  welt->get_player( np )  ) {
+				send_money_player_num.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+env_t::gui_player_color_dark));
+				viewable_players[ count++ ] = np;
+			}
+		}
+		send_money_player_num.set_selection(player->get_player_nr());
+		send_money_player_num.set_focusable( true );
+		send_money_player_num.add_listener( this );
+		add_component(&send_money_player_num);
+
+		write_money.set_width( 100 );
+		write_money.set_value( 0 );
+		write_money.set_increment_mode(1);
+		write_money.add_listener(this);
+		add_component(&write_money);
+
+		add_component(&send_money_button);
+		send_money_button.init(button_t::roundbox, "");
+		send_money_button.add_listener(this);
+		send_money_button.set_text(translator::translate("Sending money"));
 	}
 	end_table();
 
@@ -483,6 +520,26 @@ void money_frame_t::update_labels()
 		}
 	}
 
+	// update send_money button
+	send_money_button.disable();
+	write_money.disable();
+	if(  player == welt->get_active_player()  ){
+		write_money.enable();
+		send_money_button.enable();
+		if(welt->get_active_player_nr() != 1 && welt->get_active_player()->get_finance()->get_account_balance()/1000 <= 2000000000){
+			write_money.set_limits(0, welt->get_active_player()->get_finance()->get_account_balance()/1000);
+		}
+		else{
+			write_money.set_limits(0, 2000000000);
+		}
+		money_to_string(send_money_format_str, (double)write_money.get_value(), false);
+	}
+	else{
+		send_money_player_num.set_selection(player->get_player_nr());
+		write_money.set_value(0);
+		sprintf(send_money_format_str, "0");
+	}
+
 	// current maintenance
 	double maintenance = player->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option) / 100.0;
 	maintenance_money.append_money(-maintenance);
@@ -573,6 +630,23 @@ bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			transport_type_option = transport_types[tmp];
 		}
 		return true;
+	}
+	if(  comp == &send_money_button  ){
+		sint64 chech_send_money_value = (sint64)write_money.get_value() * 100;
+		if(welt->get_active_player_nr() == 1 || player->get_finance()->get_account_balance()>chech_send_money_value){
+			if ( welt->get_player(viewable_players[send_money_player_num.get_selection()]) ){
+				bool suspended = false;
+				tool_t *tmp_tool = create_tool( TOOL_SENDING_MONEY | SIMPLE_TOOL );
+				cbuffer_t buf;
+				buf.printf( "%lld", chech_send_money_value );
+				tmp_tool->set_default_param( buf );
+				welt->call_work(tmp_tool, player, koord3d(0,0,viewable_players[send_money_player_num.get_selection()]), suspended);
+			}
+		}
+
+		if(welt->get_active_player_nr() != 1 && welt->get_active_player()->get_finance()->get_account_balance()/1000 <= 2000000000 && write_money.get_value() >= welt->get_active_player()->get_finance()->get_account_balance()/1000){
+			write_money.set_value(welt->get_active_player()->get_finance()->get_account_balance()/1000);
+		}
 	}
 	return false;
 }

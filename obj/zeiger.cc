@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simhalt.h"
 #include "../boden/grund.h"
 #include "../dataobj/environment.h"

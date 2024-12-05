@@ -526,7 +526,7 @@ bool gui_flowtext_intern_t::infowin_event(const event_t* ev)
 			if(  link.tl.y+LINESPACE == link.br.y  ) {
 				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {
 					call_listeners((void const*)link.param.c_str());
-					break;
+					return true;
 				}
 			}
 			else {
@@ -534,23 +534,23 @@ bool gui_flowtext_intern_t::infowin_event(const event_t* ev)
 				if(  link.tl.x <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
 					// in top line
 					call_listeners((void const*)link.param.c_str());
-					break;
+					return true;
 				}
 				else if(  0 <= evpos.x  &&  evpos.x < link.br.x  &&  link.br.y-LINESPACE <= evpos.y  &&  evpos.y < link.br.y  ) {
 					// in last line
 					call_listeners((void const*)link.param.c_str());
-					break;
+					return true;
 				}
 				else if(  0 <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
 					// line in between
 					call_listeners((void const*)link.param.c_str());
-					break;
+					return true;
 				}
 
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
 

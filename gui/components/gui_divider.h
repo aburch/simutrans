@@ -20,7 +20,7 @@ public:
 	void init( scr_coord xy, scr_coord_val width, scr_coord_val height = D_DIVIDER_HEIGHT ) {
 		set_pos( xy );
 		set_size( scr_size( width, height ) );
-	};
+	}
 
 	scr_size get_min_size() const OVERRIDE;
 

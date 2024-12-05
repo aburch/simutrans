@@ -8,7 +8,7 @@
 #include "../boden/grund.h"
 #include "../simworld.h"
 #include "../display/simimg.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../player/simplay.h"
 #include "../simtool.h"
 
@@ -91,7 +91,11 @@ wayobj_t::~wayobj_t()
 						max_speed = b->get_desc()->get_topspeed();
 					}
 				}
-				weg->set_max_speed(max_speed);
+				// Updating way's max speed is needed unless the way is a railway track.
+				if(  wt!=track_wt  ) {
+					weg->set_max_speed(max_speed);
+				}
+				weg->set_max_wayobj_speed(0);
 			}
 			else {
 				dbg->warning("wayobj_t::~wayobj_t()","ground was not a way!");
@@ -99,22 +103,22 @@ wayobj_t::~wayobj_t()
 		}
 	}
 
-	mark_image_dirty( get_front_image(), 0 );
-	mark_image_dirty( get_image(), 0 );
+	mark_image_dirty( get_front_image_test(), 0 );
+	mark_image_dirty( get_image_test(), 0 );
 	grund_t *gr = welt->lookup( get_pos() );
 	if( gr ) {
 		for( uint8 i = 0; i < 4; i++ ) {
 			// Remove ribis from adjacent wayobj.
-			if( ribi_t::nsew[i] & get_dir() ) {
+			if( ribi_t::nesw[i] & get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nsew[i] ) ) {
+				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nesw[i] ) ) {
 					wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() );
 					if( wo2 ) {
-						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
-						wo2->mark_image_dirty( wo2->get_image(), 0 );
-						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nsew[i]) );
-						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
-						wo2->mark_image_dirty( wo2->get_image(), 0 );
+						wo2->mark_image_dirty( wo2->get_front_image_test(), 0 );
+						wo2->mark_image_dirty( wo2->get_image_test(), 0 );
+						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nesw[i]) );
+						wo2->mark_image_dirty( wo2->get_front_image_test(), 0 );
+						wo2->mark_image_dirty( wo2->get_image_test(), 0 );
 						wo2->set_flag(obj_t::dirty);
 					}
 				}
@@ -177,7 +181,7 @@ void wayobj_t::cleanup(player_t *player)
 // players can remove public owned wayobjs
 const char *wayobj_t::is_deletable(const player_t *player)
 {
-	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  ) {
+	if(  get_owner_nr()==PUBLIC_PLAYER_NR  ) {
 		return NULL;
 	}
 	return obj_t::is_deletable(player);
@@ -214,7 +218,10 @@ void wayobj_t::finish_rd()
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
-			if(weg->get_max_speed()>desc->get_topspeed()) {
+			if(wt == track_wt){
+				weg->set_max_wayobj_speed(desc->get_topspeed());
+			}
+			else if(weg->get_max_speed()>desc->get_topspeed()) {
 				weg->set_max_speed(desc->get_topspeed());
 			}
 		}
@@ -315,7 +322,7 @@ void wayobj_t::calc_image()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, wt, ribi_t::nsew[r])) {
+						if(gr->get_neighbour(to, wt, ribi_t::nesw[r])) {
 							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_image();
@@ -363,8 +370,8 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, con
 			else {
 				// extend this one instead
 				existing_wayobj->set_dir(dir|existing_wayobj->get_dir());
-				existing_wayobj->mark_image_dirty( existing_wayobj->get_front_image(), 0 );
-				existing_wayobj->mark_image_dirty( existing_wayobj->get_image(), 0 );
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_front_image_test(), 0 );
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_image_test(), 0 );
 				existing_wayobj->set_flag(obj_t::dirty);
 				return;
 			}
@@ -375,21 +382,21 @@ void wayobj_t::extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, con
 		gr->obj_add(wo);
 		wo->finish_rd();
 		wo->calc_image();
-		wo->mark_image_dirty( wo->get_front_image(), 0 );
+		wo->mark_image_dirty( wo->get_front_image_test(), 0 );
 		wo->set_flag(obj_t::dirty);
 		player_t::book_construction_costs( owner,  -desc->get_price(), pos.get_2d(), desc->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.
-			if( ribi_t::nsew[i] & ~wo->get_dir() ) {
+			if( ribi_t::nesw[i] & ~wo->get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nsew[i] ) ) {
+				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nesw[i] ) ) {
 					wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() );
 					if( wo2 ) {
-						wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nsew[i]) );
-						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
-						wo->set_dir( wo->get_dir() | ribi_t::nsew[i] );
-						wo->mark_image_dirty( wo->get_front_image(), 0 );
+						wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nesw[i]) );
+						wo2->mark_image_dirty( wo2->get_front_image_test(), 0 );
+						wo->set_dir( wo->get_dir() | ribi_t::nesw[i] );
+						wo->mark_image_dirty( wo->get_front_image_test(), 0 );
 					}
 				}
 			}
@@ -511,4 +518,245 @@ const way_obj_desc_t *wayobj_t::get_overhead_line(waytype_t wt, uint16 time)
 const way_obj_desc_t* wayobj_t::find_desc(const char *str)
 {
 	return wayobj_t::table.get(str);
+}
+
+image_id wayobj_t::is_need_crossing_image(ribi_t::ribi ribi, bool front) const
+{
+	if(ribi == ribi_t::northsoutheast){
+		grund_t *from = welt->lookup(get_pos());
+		grund_t *east;
+		if(from->get_neighbour(east, track_wt, ribi_t::east) && east->get_wayobj(track_wt)){
+			ribi_t::ribi east_ribi = east->get_wayobj(track_wt)->get_dir();
+			if(east_ribi == ribi_t::northwest){
+				return desc->get_crossing_image_id(ribi, true, front);
+			}
+			else if(east_ribi == ribi_t::southwest){
+				return desc->get_crossing_image_id(ribi, false, front);
+			}
+			else if(east_ribi == ribi_t::northsouthwest){
+				grund_t *north;
+				grund_t *south;
+				grund_t *north_east;
+				grund_t *south_east;
+				if(  from->get_neighbour(north, track_wt, ribi_t::north) && from->get_neighbour(south, track_wt, ribi_t::south)
+						&& east->get_neighbour(north_east, track_wt, ribi_t::north) && east->get_neighbour(south_east, track_wt, ribi_t::south))
+				{
+					ribi_t::ribi north_masked_ribi = north->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_masked_ribi = south->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi north_east_masked_ribi = north_east->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_east_masked_ribi = south_east->get_weg(track_wt)->get_ribi_masked();
+					if((north_masked_ribi & ribi_t::northwest) && (south_east_masked_ribi & ribi_t::southeast) && (south_masked_ribi != ribi_t::north || north_east_masked_ribi != ribi_t::south)){
+						return desc->get_crossing_image_id(ribi, true, front);
+					}
+					else if((north_masked_ribi & ribi_t::southwest) && (south_east_masked_ribi & ribi_t::northeast) && (south_masked_ribi != ribi_t::south || north_east_masked_ribi != ribi_t::north)){
+						return desc->get_crossing_image_id(ribi, true, front);
+					}
+					else if((south_masked_ribi & ribi_t::southwest) && (north_east_masked_ribi & ribi_t::northeast) && (north_masked_ribi != ribi_t::south || south_east_masked_ribi != ribi_t::north)){
+						return desc->get_crossing_image_id(ribi, false, front);
+					}
+					else if((south_masked_ribi & ribi_t::northwest) && (north_east_masked_ribi & ribi_t::southeast) && (north_masked_ribi != ribi_t::north || south_east_masked_ribi != ribi_t::south)){
+						return desc->get_crossing_image_id(ribi, false, front);
+					}
+				}
+			}
+			else if( east_ribi == ribi_t::all ){
+				grund_t *south;
+				grund_t *north_east;
+				grund_t *east_east;
+				if(  from->get_neighbour(south, track_wt, ribi_t::south)
+						&& east->get_neighbour(north_east, track_wt, ribi_t::north)
+						&& east->get_neighbour(east_east, track_wt, ribi_t::east))
+				{
+					ribi_t::ribi south_masked_ribi = south->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi north_east_masked_ribi = north_east->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi east_east_masked_ribi = east_east->get_weg(track_wt)->get_ribi_masked();
+					if((north_east_masked_ribi & ribi_t::north) && (south_masked_ribi & ribi_t::southwest) && east_east->get_weg(track_wt)->get_ribi_unmasked() == ribi_t::northwest && (east_east_masked_ribi & ribi_t::north)){
+						return desc->get_crossing_image_id(ribi, false, front);
+					}
+				}
+				
+				if(desc->has_switch_ex_image() && from->is_use_wayobj_ex_image(ribi_t::backward(ribi))){
+					return desc->get_crossing_image_ex_id(ribi, false, front);
+				}
+			}
+			else if(desc->has_switch_ex_image() && from->is_use_wayobj_ex_image(ribi_t::backward(ribi))){
+				return desc->get_crossing_image_ex_id(ribi, false, front);
+			}
+		}
+	}
+	else if(ribi == ribi_t::northsouthwest){
+		grund_t *from = welt->lookup(get_pos());
+		grund_t *west = welt->lookup(from->get_pos() + koord3d(-1,0,0));
+		if(west && west->get_wayobj(track_wt)){
+			ribi_t::ribi west_ribi = west->get_wayobj(track_wt)->get_dir();
+			if(west_ribi == ribi_t::southeast){
+				return desc->get_crossing_image_id(ribi,true,front);
+			}
+			else if(west_ribi == ribi_t::northeast){
+				return desc->get_crossing_image_id(ribi,false,front);
+			}
+			else if(west_ribi == ribi_t::northsoutheast){
+				grund_t *north;
+				grund_t *south;
+				grund_t *north_west;
+				grund_t *south_west;
+				if(  from->get_neighbour(north, track_wt, ribi_t::north) && from->get_neighbour(south, track_wt, ribi_t::south)
+						&& west->get_neighbour(north_west, track_wt, ribi_t::north) && west->get_neighbour(south_west, track_wt, ribi_t::south))
+				{
+					ribi_t::ribi north_masked_ribi = north->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_masked_ribi = south->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi north_west_masked_ribi = north_west->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_west_masked_ribi = south_west->get_weg(track_wt)->get_ribi_masked();
+
+					if((south_masked_ribi & ribi_t::northeast) && (north_west_masked_ribi & ribi_t::southwest) && (north_masked_ribi != ribi_t::north || south_west_masked_ribi != ribi_t::south)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((south_masked_ribi & ribi_t::southeast) && (north_west_masked_ribi & ribi_t::northwest) && (north_masked_ribi != ribi_t::south || south_west_masked_ribi != ribi_t::north)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((north_masked_ribi & ribi_t::northeast) && (south_west_masked_ribi & ribi_t::southwest) && (south_masked_ribi != ribi_t::north || north_west_masked_ribi != ribi_t::south)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+					else if((north_masked_ribi & ribi_t::southeast) && (south_west_masked_ribi & ribi_t::northwest) && (south_masked_ribi != ribi_t::south || north_west_masked_ribi != ribi_t::north)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+				}
+			}
+			else if(desc->has_switch_ex_image() && from->is_use_wayobj_ex_image(ribi_t::backward(ribi))){
+				return desc->get_crossing_image_ex_id(ribi, false, front);
+			}
+		}
+	}
+	else if(ribi == ribi_t::northeastwest){
+		grund_t *from = welt->lookup(get_pos());
+		grund_t *north = welt->lookup(from->get_pos() + koord3d(0,-1,0));
+		if(north && north->get_wayobj(track_wt)){
+			ribi_t::ribi north_ribi = north->get_wayobj(track_wt)->get_dir();
+			if(north_ribi == ribi_t::southeast){
+				return desc->get_crossing_image_id(ribi,true,front);
+			}
+			else if(north_ribi == ribi_t::southwest){
+				return desc->get_crossing_image_id(ribi,false,front);
+			}
+			else if(north_ribi == ribi_t::southeastwest){
+				grund_t *west;
+				grund_t *east;
+				grund_t *north_west;
+				grund_t *north_east;
+				if(  from->get_neighbour(west, track_wt, ribi_t::west) && from->get_neighbour(east, track_wt, ribi_t::east)
+						&& north->get_neighbour(north_west, track_wt, ribi_t::west) && north->get_neighbour(north_east, track_wt, ribi_t::east))
+				{
+					ribi_t::ribi west_masked_ribi = west->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi east_masked_ribi = east->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi north_west_masked_ribi = north_west->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi north_east_masked_ribi = north_east->get_weg(track_wt)->get_ribi_masked();
+
+					if((east_masked_ribi & ribi_t::southwest) && (north_west_masked_ribi & ribi_t::northeast) && (west_masked_ribi != ribi_t::west || north_east_masked_ribi != ribi_t::east)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((east_masked_ribi & ribi_t::southeast) && (north_west_masked_ribi & ribi_t::northwest) && (west_masked_ribi != ribi_t::east || north_east_masked_ribi != ribi_t::west)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((west_masked_ribi & ribi_t::southwest) && (north_east_masked_ribi & ribi_t::northeast) && (east_masked_ribi != ribi_t::west || north_west_masked_ribi != ribi_t::east)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+					else if((west_masked_ribi & ribi_t::southeast) && (north_east_masked_ribi & ribi_t::northwest) && (east_masked_ribi != ribi_t::east || north_west_masked_ribi != ribi_t::west)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+				}
+			}
+			else if(desc->has_switch_ex_image() && from->is_use_wayobj_ex_image(ribi_t::backward(ribi))){
+				return desc->get_crossing_image_ex_id(ribi, false, front);
+			}
+		}
+	}
+	else if(ribi == ribi_t::southeastwest){
+		grund_t *from = welt->lookup(get_pos());
+		grund_t *south = welt->lookup(from->get_pos() + koord3d(0,1,0));
+		if(south && south->get_wayobj(track_wt)){
+			ribi_t::ribi south_ribi = south->get_wayobj(track_wt)->get_dir();
+			if(south_ribi == ribi_t::northwest){
+				return desc->get_crossing_image_id(ribi,true,front);
+			}
+			else if(south_ribi == ribi_t::northeast){
+				return desc->get_crossing_image_id(ribi,false,front);
+			}
+			else if(south_ribi == ribi_t::northeastwest){
+				grund_t *west;
+				grund_t *east;
+				grund_t *south_west;
+				grund_t *south_east;
+				if(  from->get_neighbour(west, track_wt, ribi_t::west) && from->get_neighbour(east, track_wt, ribi_t::east)
+						&& south->get_neighbour(south_west, track_wt, ribi_t::west) && south->get_neighbour(south_east, track_wt, ribi_t::east))
+				{
+					ribi_t::ribi west_masked_ribi = west->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi east_masked_ribi = east->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_west_masked_ribi = south_west->get_weg(track_wt)->get_ribi_masked();
+					ribi_t::ribi south_east_masked_ribi = south_east->get_weg(track_wt)->get_ribi_masked();
+					if((west_masked_ribi & ribi_t::northwest) && (south_east_masked_ribi & ribi_t::southeast) && (east_masked_ribi != ribi_t::west || south_west_masked_ribi != ribi_t::east)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((west_masked_ribi & ribi_t::northeast) && (south_east_masked_ribi & ribi_t::southwest) && (east_masked_ribi != ribi_t::east || south_west_masked_ribi != ribi_t::west)){
+						return desc->get_crossing_image_id(ribi,true,front);
+					}
+					else if((east_masked_ribi & ribi_t::northwest) && (south_west_masked_ribi & ribi_t::southeast) && (west_masked_ribi != ribi_t::west || south_east_masked_ribi != ribi_t::east)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+					else if((east_masked_ribi & ribi_t::northeast) && (south_west_masked_ribi & ribi_t::southwest) && (west_masked_ribi != ribi_t::east || south_east_masked_ribi != ribi_t::west)){
+						return desc->get_crossing_image_id(ribi,false,front);
+					}
+				}
+			}
+			else if(desc->has_switch_ex_image() && from->is_use_wayobj_ex_image(ribi_t::backward(ribi))){
+				return desc->get_crossing_image_ex_id(ribi, false, front);
+			}
+		}
+	}
+	else if(ribi == ribi_t::all && desc->has_switch_ex_image()){
+		grund_t *from = welt->lookup(get_pos());
+		grund_t *north;
+		grund_t *south;
+		grund_t *west;
+		grund_t *east;
+		if(  from->get_neighbour(north, track_wt, ribi_t::north) && from->get_neighbour(south, track_wt, ribi_t::south)
+		&& from->get_neighbour(west, track_wt, ribi_t::west) && from->get_neighbour(east, track_wt, ribi_t::east)
+		&& north->get_wayobj(track_wt) && south->get_wayobj(track_wt) && west->get_wayobj(track_wt) && east->get_wayobj(track_wt))
+		{
+			ribi_t::ribi north_ribi = north->get_wayobj(track_wt)->get_dir();
+			ribi_t::ribi south_ribi = south->get_wayobj(track_wt)->get_dir();
+			ribi_t::ribi west_ribi = west->get_wayobj(track_wt)->get_dir();
+			ribi_t::ribi east_ribi = east->get_wayobj(track_wt)->get_dir();
+			if(ribi_t::is_bend(north_ribi) && ribi_t::is_bend(south_ribi) && (north_ribi & south_ribi)){
+				return desc->get_crossing_image_ex_id((ribi_t::backward(north_ribi) | ribi_t::backward(south_ribi)),true,front);
+			}
+			else if(ribi_t::is_bend(east_ribi) && ribi_t::is_bend(west_ribi) && (east_ribi & west_ribi)){
+				return desc->get_crossing_image_ex_id((ribi_t::backward(east_ribi) | ribi_t::backward(west_ribi)),true,front);
+			}
+			ribi_t::ribi north_masked_ribi = north->get_weg(track_wt)->get_ribi_masked();
+			// ribi_t::ribi south_masked_ribi = south->get_weg(get_waytype())->get_ribi_masked();
+			
+			if( east_ribi == ribi_t::northwest && east->get_weg(track_wt)->get_ribi() == ribi_t::west){
+				grund_t *southwest;
+				if( west->get_neighbour(southwest, track_wt, ribi_t::south) ){
+					ribi_t::ribi southwest_masked_ribi = southwest->get_weg(track_wt)->get_ribi_masked();
+					if((north_masked_ribi & ribi_t::north) && (southwest_masked_ribi & ribi_t::southwest)){						
+						return desc->get_crossing_image_ex_id(ribi_t::southeastwest,false,front);
+					}
+				}
+			}
+/* 			else if( east_ribi == ribi_t::southwest ){
+				grund_t *northwest;
+				if( west->get_neighbour(northwest, get_waytype(), ribi_t::north) && northwest->get_weg(get_waytype())){
+					ribi_t::ribi northwest_masked_ribi = northwest->get_weg(get_waytype())->get_ribi_masked();
+					if((south_masked_ribi & ribi_t::south) && (northwest_masked_ribi & ribi_t::north)){
+						set_images(image_ex, ribi_t::northeastwest, snow, false);
+						west->get_weg(get_waytype())->set_images(image_switch, west_ribi, snow, true);
+						return;
+					}
+				}
+			} */
+		}
+	}
+
+	return front ? desc->get_front_image_id(ribi) : desc->get_back_image_id(ribi);
 }

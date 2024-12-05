@@ -7,7 +7,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 #include "../display/simimg.h"
@@ -26,7 +26,7 @@ signal_t::signal_t(loadsave_t *file) :
 	if(desc==NULL) {
 		desc = roadsign_t::default_signal;
 	}
-	state = rot;
+	state = STATE_RED;
 }
 
 

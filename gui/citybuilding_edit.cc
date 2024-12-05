@@ -27,33 +27,68 @@
 // new tool definition
 tool_build_house_t* citybuilding_edit_frame_t::haus_tool=new tool_build_house_t();
 cbuffer_t citybuilding_edit_frame_t::param_str;
+bool citybuilding_edit_frame_t::sortreverse = false;
 
 
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
-	int diff = a->get_level()-b->get_level();
+	int diff = strcmp( a->get_name(), b->get_name() );
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_name(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	if(  diff==0  ) {
-		diff = a->get_type()-b->get_type();
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_level_pax(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = a->get_level() - b->get_level();
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_level_mail(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = a->get_mail_level() - b->get_mail_level();
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_date_intro(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = a->get_intro_year_month() - b->get_intro_year_month();
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_date_retire(const building_desc_t* a, const building_desc_t* b)
+{
+	int diff = a->get_retire_year_month() - b->get_retire_year_month();
+	if(  diff==0  ) {
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
+}
+static bool compare_building_desc_size(const building_desc_t* a, const building_desc_t* b)
+{
+	koord a_koord = a->get_size();
+	koord b_koord = b->get_size();
+	int diff = a_koord.x * a_koord.y - b_koord.x * b_koord.y;
+	if(  diff==0  ) {
+		//same area - sort by side to seperate different shapes
+		diff = a_koord.x - b_koord.x;
 	}
 	if(  diff==0  ) {
 		diff = strcmp(a->get_name(), b->get_name());
 	}
-	return diff < 0;
+	return citybuilding_edit_frame_t::sortreverse ? diff > 0 : diff < 0;
 }
-
-
-static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
-{
-	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
-	if(  diff==0  ) {
-		diff = a->get_level()-b->get_level();
-	}
-	if(  diff==0  ) {
-		diff = a->get_type()-b->get_type();
-	}
-	return diff < 0;
-}
-
 
 
 citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
@@ -67,66 +102,83 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	bt_res.init( button_t::square_state, "residential house");
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
-	cont_right.add_component(&bt_res);
+	cont_filter.add_component(&bt_res);
 
 	bt_com.init( button_t::square_state, "shops and stores");
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
-	cont_right.add_component(&bt_com);
+	cont_filter.add_component(&bt_com);
 
 	bt_ind.init( button_t::square_state, "industrial building");
 	bt_ind.add_listener(this);
-	cont_right.add_component(&bt_ind);
-	bt_com.pressed = true;
+	bt_ind.pressed = true;
+	cont_filter.add_component(&bt_ind);
+
+	// add to sorting selection
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_PAX);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_LEVEL_MAIL);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_INTRO);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_DATE_RETIRE);
+	cb_sortedby.new_component<gui_sorting_item_t>(gui_sorting_item_t::BY_SIZE);
+	cb_sortedby.set_selection(2);
 
 	// rotation
-	gui_aligned_container_t *tbl = cont_right.add_table(2,0);
+	gui_aligned_container_t *tbl = cont_options.add_table(2,0);
 	tbl->new_component<gui_label_t>("Rotation");
 	tbl->add_component(&cb_rotation);
 	cb_rotation.add_listener(this);
 	cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
-	cont_right.end_table();
+	cont_options.end_table();
 
-	fill_list( is_show_trans_name );
+	fill_list();
 
 	reset_min_windowsize();
 }
-
+// put item in list according to filter/sorter
+void citybuilding_edit_frame_t::put_item_in_list( const building_desc_t* desc )
+{
+	const bool allow_obsolete = bt_obsolete.pressed;
+	const bool use_timeline = bt_timeline.pressed | bt_timeline_custom.pressed;
+	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : bt_timeline_custom.pressed ? ni_timeline_year.get_value()*12 + ni_timeline_month.get_value()-1 : 0;
+	const uint8 chosen_climate = get_climate();
+	const uint8 sortedby = get_sortedby();
+	sortreverse = sort_order.pressed;
+	if( (!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete)) )
+		&&  ( desc->get_allowed_climate_bits() & chosen_climate) ) {
+		// timeline allows for this, and so does climates setting
+		switch(sortedby) {
+			case gui_sorting_item_t::BY_NAME_TRANSLATED:     building_list.insert_ordered( desc, compare_building_desc_name );           break;
+			case gui_sorting_item_t::BY_LEVEL_PAX:           building_list.insert_ordered( desc, compare_building_desc_level_pax );      break;
+			case gui_sorting_item_t::BY_LEVEL_MAIL:          building_list.insert_ordered( desc, compare_building_desc_level_mail );     break;
+			case gui_sorting_item_t::BY_DATE_INTRO:          building_list.insert_ordered( desc, compare_building_desc_date_intro );     break;
+			case gui_sorting_item_t::BY_DATE_RETIRE:         building_list.insert_ordered( desc, compare_building_desc_date_retire );    break;
+			case gui_sorting_item_t::BY_SIZE:                building_list.insert_ordered( desc, compare_building_desc_size );           break;
+			default:                                         building_list.insert_ordered( desc, compare_building_desc );
+		}
+	}
+}
 
 
 // fill the current building_list
-void citybuilding_edit_frame_t::fill_list( bool translate )
+void citybuilding_edit_frame_t::fill_list()
 {
-	const bool allow_obsolete = bt_obsolete.pressed;
-	const bool use_timeline = bt_timeline.pressed;
-	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : 0;
-
 	building_list.clear();
 
 	if(bt_res.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_res)) {
-			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
-				// timeline allows for this
-				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
-			}
+			put_item_in_list(desc);
 		}
 	}
 
 	if(bt_com.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_com)) {
-			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
-				// timeline allows for this
-				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
-			}
+			put_item_in_list(desc);
 		}
 	}
 
 	if(bt_ind.pressed) {
 		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_citybuilding_list(building_desc_t::city_ind)) {
-			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
-				// timeline allows for this
-				building_list.insert_ordered(desc, translate?compare_building_desc_trans:compare_building_desc );
-			}
+			put_item_in_list(desc);
 		}
 	}
 
@@ -138,11 +190,11 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		PIXVAL color;
 		switch (i->get_type()) {
-			case building_desc_t::city_res: color = color_idx_to_rgb(COL_BLUE);       break;
-			case building_desc_t::city_com: color = color_idx_to_rgb(COL_DARK_GREEN); break;
-			default:                        color = SYSCOL_TEXT;                      break;
+			case building_desc_t::city_res: color = color_idx_to_rgb(COL_DARK_BLUE + env_t::gui_player_color_dark); break;
+			case building_desc_t::city_com: color = color_idx_to_rgb(40 + env_t::gui_player_color_dark);            break;
+			default:                        color = SYSCOL_TEXT;                                                    break;
 		}
-		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
+		char const* const name = get_sortedby()==gui_sorting_item_t::BY_NAME_OBJECT ?  i->get_name() : translator::translate(i->get_name());
 		scl.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(name, color);
 		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
@@ -161,15 +213,15 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *comp,val
 	// only one chain can be shown
 	if(  comp==&bt_res  ) {
 		bt_res.pressed ^= 1;
-		fill_list( is_show_trans_name );
+		fill_list();
 	}
 	else if(  comp==&bt_com  ) {
 		bt_com.pressed ^= 1;
-		fill_list( is_show_trans_name );
+		fill_list();
 	}
 	else if(  comp==&bt_ind  ) {
 		bt_ind.pressed ^= 1;
-		fill_list( is_show_trans_name );
+		fill_list();
 	}
 	else if( comp == &cb_rotation) {
 		change_item_info( scl.get_selection() );
@@ -252,10 +304,22 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		if(welt->get_tool(player->get_player_nr())==haus_tool) {
 			welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 		}
+		buf.clear();
 		building_image.init(NULL, 0);
 		cb_rotation.clear_elements();
 		cb_rotation.new_component<gui_rotation_item_t>(gui_rotation_item_t::random);
 	}
 	info_text.recalc_size();
 	reset_min_windowsize();
+}
+
+
+void citybuilding_edit_frame_t::rdwr( loadsave_t *file )
+{
+	uint8 button_pressed_flags = bt_res.pressed | (bt_com.pressed<<1) | (bt_ind.pressed<<2);
+	file->rdwr_byte(button_pressed_flags);
+	bt_res.pressed = button_pressed_flags & 1;
+	bt_com.pressed = (button_pressed_flags >> 1) & 1;
+	bt_ind.pressed = (button_pressed_flags >> 2) & 1;
+	extend_edit_gui_t::rdwr(file);
 }

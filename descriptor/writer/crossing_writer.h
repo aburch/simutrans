@@ -12,20 +12,22 @@
 #include "../objversion.h"
 
 
-class crossing_writer_t : public obj_writer_t {
-	private:
-		static crossing_writer_t the_instance;
+class crossing_writer_t : public obj_writer_t
+{
+private:
+	static crossing_writer_t the_instance;
 
-		crossing_writer_t() { register_writer(true); }
+	crossing_writer_t() { register_writer(true); }
 
-	protected:
-		virtual std::string get_node_name(FILE *fp) const { return name_from_next_node(fp); }
+protected:
+	std::string get_node_name(FILE *fp) const OVERRIDE { return name_from_next_node(fp); }
 
-	public:
-		virtual void write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj);
+public:
+	void write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj) OVERRIDE;
 
-		virtual obj_type get_type() const { return obj_crossing; }
-		virtual const char *get_type_name() const { return "crossing"; }
+	obj_type get_type() const OVERRIDE { return obj_crossing; }
+	const char *get_type_name() const OVERRIDE { return "crossing"; }
 };
+
 
 #endif

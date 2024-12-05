@@ -23,7 +23,7 @@ As of version 30, OTRP is based on Simutrans Standard nightly r9281.
  [Please refer here](cherry-picked-commits.txt) for the cherry-picked commits.
 
 # Download
-In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset folder.  
+In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://osdn.net/projects/otrp/downloads/76098/RibiArrow.zip/ and put it in your pakset folder.  
 
 You can download the OTRP executable binary from the links below. **(2021 August 15th, updated to ver 30.)**  
 windows(GDI 64bit): https://osdn.net/projects/otrp/downloads/75752/sim-WinGDI64-OTRPv30.exe/  

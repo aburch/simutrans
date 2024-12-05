@@ -33,20 +33,19 @@ public:
 	 * Resize modes
 	 */
 	enum resize_modes {
-		no_resize = 0, vertical_resize = 1, horizontal_resize = 2, diagonal_resize = 3
+		no_resize         = 0,
+		vertical_resize   = 1,
+		horizontal_resize = 2,
+		diagonal_resize   = 3
 	};
 
 private:
 
 	const char *name;
-	scr_size size;
+	scr_size windowsize; ///< Size of the whole window (possibly with title bar)
+	scr_size min_windowsize; ///< min size of the whole window
 
-	/**
-	 * Min. size of the window
-	 */
-	scr_size min_windowsize;
-
-	resize_modes resize_mode; // 25-may-02  markus weber added
+	resize_modes resize_mode;
 	const player_t *owner;
 
 	// set true for total redraw
@@ -77,8 +76,7 @@ protected:
 
 public:
 	/**
-	 s et_*
-	 * @param name, Window title
+	 * @param name Window title
 	 * @param player owner for color
 	 */
 	gui_frame_t(const char *name, const player_t *player=NULL);
@@ -112,7 +110,7 @@ public:
 	/**
 	 * @return gets the window sizes
 	 */
-	scr_size get_windowsize() const { return size; }
+	scr_size get_windowsize() const { return windowsize; }
 
 protected:
 	/**
@@ -123,7 +121,7 @@ protected:
 	/**
 	 * Set minimum size of the window
 	 */
-	void set_min_windowsize(scr_size size) { min_windowsize = size; }
+	void set_min_windowsize(scr_size new_size) { min_windowsize = new_size; }
 
 	/**
 	 * Set minimum window size to minimum size of container.
@@ -140,7 +138,7 @@ public:
 	 * @return the usable width and height of the window
 	*/
 	scr_size get_client_windowsize() const {
-		return size - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
+		return windowsize - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
 	}
 
 	/**
@@ -196,7 +194,7 @@ public:
 	/**
 	 * Get resize mode
 	 */
-	resize_modes get_resizemode() { return resize_mode; }
+	resize_modes get_resizemode() const { return resize_mode; }
 
 	/**
 	 * Returns true, if inside window area.

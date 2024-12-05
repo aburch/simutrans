@@ -101,7 +101,7 @@ bool loadfont_frame_t::compare_items ( const dir_entry_t & entry, const char *in
 
 /**
  * CHECK FILE
- * Check if a file name qualifies to be added tot he item list.
+ * Check if a file name qualifies to be added to the item list.
  */
 bool loadfont_frame_t::check_file(const char *filename, const char *)
 {
@@ -121,9 +121,13 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 			bool is_unicode = false;
 			uint32 numchars=0;
 			test = fopen( filename, "r" );
-			while(  !feof(test)) {
+
+			while(  !feof(test)  ) {
 				char str[1024];
-				fgets( str, lengthof(str), test);
+				if (fgets( str, lengthof(str), test) == NULL) {
+					break;
+				}
+
 				if(  STRNICMP(str,"CHARSET_REGISTRY", 16 )==0  ) {
 					is_unicode = strstr( str, "ISO10646" );
 				}
@@ -172,7 +176,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *)
 // parses the directory, using freetype lib, in installed
 void loadfont_frame_t::fill_list()
 {
-	add_path( ((std::string)env_t::program_dir+"font/").c_str() );
+	add_path( ((std::string)env_t::data_dir+"font/").c_str() );
 #ifdef USE_FREETYPE
 	// ok, we can handle TTF fonts
 	ft_library = NULL;
@@ -201,7 +205,7 @@ void loadfont_frame_t::fill_list()
 			continue;
 		}
 		i.button->set_typ(button_t::roundbox_state | button_t::flexible);
-#if !USE_FREETYPE
+#ifndef USE_FREETYPE
 	}
 #else
 		// Use internal name instead the cutted file name
@@ -251,7 +255,6 @@ void loadfont_frame_t::rdwr( loadsave_t *file )
 		resize( scr_coord(0,0) );
 	}
 }
-
 
 
 bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t v)

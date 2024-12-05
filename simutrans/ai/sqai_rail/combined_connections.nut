@@ -50,6 +50,10 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 			gui.add_message_at(our_player, " **** rprt_road - gain_per_m : " + rprt_road.gain_per_m + " # distance : " + rprt_road.distance, world.get_time())
 		}
 
+		if (rprt_water == null ) {
+			return failed()
+			//rprt_water = report_t()
+		}
 		// find flat harbour building
 		local station_list = building_desc_x.get_available_stations(building_desc_x.flat_harbour, wt_water, good_desc_x(freight))
 		rprt_water.action.planned_harbour_flat = industry_connection_planner_t.select_station(station_list, 1, rprt_water.action.planned_convoy.capacity)
@@ -71,6 +75,13 @@ class amphibious_connection_planner_t extends industry_connection_planner_t
 		}
 
 		if (marine == null) {
+			return r_t(RT_TOTAL_FAIL)
+		}
+
+		// check build cost
+		if ( wt == wt_rail && rprt_rail.cost_fix > our_player.get_current_cash() ) {
+			return r_t(RT_TOTAL_FAIL)
+		} else if ( wt == wt_road && rprt_road.cost_fix > our_player.get_current_cash() ) {
 			return r_t(RT_TOTAL_FAIL)
 		}
 
@@ -356,8 +367,9 @@ class amphibious_pathfinder_t extends astar
 	{
 		local pos = coord(cnode.x, cnode.y)
 
-		for(local d0 = 1; d0<16; d0*=2) {
-			for (local d = d0; d <= 3*d0; d+=2*d0) {
+		for(local d = 1; d<16; d++) {
+			// test all 8 neighbouring tiles
+			if (!dir.is_threeway(d)) {
 
 				local c = pos + dir.to_coord(d)
 

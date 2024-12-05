@@ -4,7 +4,7 @@
  */
 
 #include "simdebug.h"
-#include "simobj.h"
+#include "obj/simobj.h"
 #include "simfab.h"
 #include "display/simgraph.h"
 #include "simmenu.h"
@@ -367,7 +367,7 @@ void planquadrat_t::abgesenkt()
 			kartenboden_setzen( gr );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if (gr2  &&  gr2->is_water()) {
 					gr2->calc_image();
 				}
@@ -396,7 +396,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}
@@ -408,7 +408,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nesw[r]);
 				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}
@@ -435,8 +435,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
 			const sint8 h = gr->get_hoehe();
-			const slope_t::type slope = gr->get_grund_hang();
-			const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+			const sint8 htop = h + slope_t::max_diff( gr->get_grund_hang() );
 			// above ground
 			if(  h > h0  ) {
 				break;
@@ -468,7 +467,6 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
-
 				// still underground
 				if(  h < h0  ) {
 					continue;
@@ -480,7 +478,7 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 				// not too low?
 				if(  htop >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
-					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
+					const sint16 yh = ypos - tile_raster_scale_y( (h + corner_nw(data.some[j]->get_grund_hang()) - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
 						display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
 					}
@@ -495,15 +493,21 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		}
 	}
 	// above ground drawing height
-	for(  ;  i < ground_size;  i++  ) {
+	for( ; i < ground_size; i++ ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
-		const slope_t::type slope = gr->get_grund_hang();
-		const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+		const sint8 htop = h + slope_t::max_diff( gr->get_grund_hang() );
 
 		// still underground
-		if(  h < h0  ) {
-			continue;
+		if( h < h0 ) {
+			if(  grund_t::underground_mode != grund_t::ugm_level  ) {
+				continue;
+			}
+			// in level underground mode we show also the underground slope tiles one level down
+			if(  htop < h0   ||  data.some[0]->get_hoehe() == h0 ) {
+				// but only if there is not just ground above and they would sine through
+				continue;
+			}
 		}
 		// too high?
 		if(  h > hmax  ) {

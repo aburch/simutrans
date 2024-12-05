@@ -31,12 +31,9 @@
 #include "../dataobj/environment.h"
 #endif
 
-#ifdef NETTOOL
-#include "../tpl/vector_tpl.h"
-#endif
-
 #include "../utils/simstring.h"
 #include "../tpl/slist_tpl.h"
+
 
 static bool network_active = false;
 uint16 network_server_port = 0;
@@ -326,10 +323,10 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 /**
  * Start up server on the port specified
- * Server will listen on all addresses specified in env_t::listen
+ * Server will listen on all addresses specified in @p listen_addrs
  * @return true on success
  */
-bool network_init_server( int port )
+bool network_init_server( int port, const vector_tpl<std::string> &listen_addrs )
 {
 	if (  port==0  ) {
 		dbg->fatal( "network_init_server()", "Cannot host on port 0!" );
@@ -341,8 +338,9 @@ bool network_init_server( int port )
 	socket_list_t::reset();
 
 #ifdef USE_IP4_ONLY
+	(void)listen_addrs;
 
-	SOCKET my = socket( PF_INET, SOCK_STREAM, 0 );
+	const SOCKET my = socket( PF_INET, SOCK_STREAM, 0 );
 	if (  my == INVALID_SOCKET  ) {
 		dbg->fatal( "network_init_server()", "Failed to open socket!" );
 		return false;
@@ -368,16 +366,8 @@ bool network_init_server( int port )
 
 #else
 
-#ifdef NETTOOL
-	// Nettool doesn't have env, so fake it
-	vector_tpl<std::string> ips;
-	ips.append_unique("::");
-	ips.append_unique("0.0.0.0");
-#else
-	vector_tpl<std::string> const& ips = env_t::listen;
-#endif
 	// For each address in the list of listen addresses try and create a socket to listen on
-	FOR(vector_tpl<std::string>, const& ip, ips) {
+	FOR(vector_tpl<std::string>, const& ip, listen_addrs) {
 		int ret;
 		char port_nr[16];
 		sprintf( port_nr, "%u", port );
@@ -457,7 +447,7 @@ bool network_init_server( int port )
 		dbg->fatal( "network_init_server()", "Unable to add any server sockets!" );
 	}
 	else {
-		printf("Server started, added %d server sockets\n", socket_list_t::get_server_sockets());
+		dbg->message("network_init_server", "Server started, added %d server sockets", socket_list_t::get_server_sockets());
 	}
 
 #endif
@@ -557,7 +547,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			network_command_t *nwc = socket_list_t::get_client(client_id).receive_nwc();
 			if (nwc) {
 				received_command_queue.append(nwc);
-				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender );
+				dbg->warning( "network_check_activity()", "received cmd %s (id %d) from socket[%d]", nwc->get_name(), nwc->get_id(), sender );
 			}
 			// errors are caught and treated in socket_info_t::receive_nwc
 		}
@@ -705,7 +695,7 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 				tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 				// can we write?
 				if(  select( FD_SETSIZE, NULL, &fds, NULL, &tv )!=1  ) {
-					dbg->warning("network_send_data", "could not write to [%s]", dest);
+					dbg->warning("network_send_data", "could not write to socket [%d]", dest);
 					return false;
 				}
 			}
@@ -843,7 +833,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 {
 	myIPaddr.clear();
 	altIPaddr.clear();
-	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router and we can get IP6 too)
+	// query for IP (faster than asking router using uPnP and we can get IP6 too)
 	const char *err = network_http_get( QUERY_ADDR_IP, QUERY_ADDR_URL, altIPaddr );
 	// if we have a dual stack system, IP6 should be preferred, i.e. we have now the IP6
 	if(  err==NULL  &&  strstr(altIPaddr,":")  ) {
@@ -860,7 +850,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 		altIPaddr.clear();
 	}
 
-#if 0
+#ifdef LOOKUP_OWN_IP_NAME
 	// enable to try to get a symbolic name for IPv4
 	if(  !err  ) {
 		struct sockaddr_in sin;
@@ -878,6 +868,7 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 		}
 	}
 #endif
+
 	return err==NULL;
 }
 
@@ -942,7 +933,6 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	freeUPNPDevlist(devlist);
 
 	externalAltIPAddress[0] = 0;
-#if 1
 	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
 	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
@@ -952,41 +942,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 			strcpy( externalAltIPAddress, altIPaddr );
 		}
 	}
-#else
-	// now we have (or have not) the IPv4 at this point (due to the protocol), we check for IP6 too or try to get at least an IP addr
-	cbuffer_t myIPaddr;
-	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
-	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
-	if(  !err  ) {
-		if(  has_IP  ) {
-			if(  strcmp(externalIPAddress, myIPaddr.get_str())!=0  ) {
-				strcpy( externalAltIPAddress, myIPaddr.get_str() );
-			}
-		}
-		else {
-			strcpy( externalIPAddress, myIPaddr.get_str() );
-			has_IP = true;
-		}
-	}
 
-	// we have an external IP, let's find if we have a DNS name for it
-	if (!network_initialize()) {
-		return has_IP;
-	}
-
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family      = AF_INET;
-	sin.sin_addr.s_addr = inet_addr(externalIPAddress);
-	sin.sin_port        = 0; // If 0, port is chosen by system
-	char hostname[1024];
-	hostname[0] = 0;
-
-	int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, 0, 0);
-	if(  !failed  &&  *hostname  ) {
-		strcpy( externalIPAddress, hostname );
-	}
-#endif
 	return has_IP;
 }
 
@@ -1027,15 +983,19 @@ void remove_port_forwarding( int port )
 #else
 // or we just get only our IP and hope we are not behind a router ...
 
-bool prepare_for_server(char *externalIPAddress, char *, int)
+bool prepare_for_server(char* externalIPAddress, char* externalAltIPAddress, int port)
 {
-	cbuffer_t myIPaddr;
-	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
-	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
-	if(  !err  ) {
-		strcpy( externalIPAddress, myIPaddr.get_str() );
+	externalAltIPAddress[0] = 0;
+	// use the same routine as later the announce routine, otherwise update with dynamic IP fails
+	cbuffer_t myIPaddr, altIPaddr;
+	if (get_external_IP(myIPaddr, altIPaddr)) {
+		strcpy(externalIPAddress, myIPaddr);
+		if (altIPaddr.len()) {
+			strcpy(externalAltIPAddress, altIPaddr);
+		}
 		return true;
 	}
+
 	return false;
 }
 

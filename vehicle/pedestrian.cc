@@ -3,7 +3,7 @@
  * (see LICENSE.txt)
  */
 
-#include <stdio.h>
+#include "pedestrian.h"
 
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -13,10 +13,12 @@
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
 
-#include "simpeople.h"
+#include "../utils/cbuffer_t.h"
 #include "../descriptor/pedestrian_desc.h"
+
+#include <cstdio>
+
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
@@ -290,9 +292,9 @@ void pedestrian_t::hop(grund_t *gr)
 	// randomized offset
 	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : simrand(4);
 
-	ribi_t::ribi new_direction;
+	ribi_t::ribi new_direction = ribi_t::none;
 	for(uint r = 0; r < 4; r++) {
-		new_direction = ribi_t::nsew[ (r+offset) & 3];
+		new_direction = ribi_t::nesw[ (r+offset) & 3];
 
 		if(  (ribi & new_direction)!=0  &&  gr->get_neighbour(to, road_wt, new_direction) ) {
 			// this is our next target

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: it Italiano                            #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -71,6 +71,8 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 ness.
+lake
+crea laghi
 Maximize height levels
 Massimizza livelli altezza
 Networks
@@ -421,6 +423,8 @@ ha %i anni e %i mesi.
 1 convoglio
 1 Einzelfahrzeug im Depot
 1 veicolo in deposito
+100 km/h = %i tiles/month
+100 km/h = %i caselle/mese
 1LIGHT_CHOOSE
 Luminosità:
 1WORLD_CHOOSE
@@ -477,7 +481,7 @@ Add Stop
 Aggiungi
 Add stops for backward travel
 Aggiungi fermate viaggio ritorno
-Air
+air_wt
 pista di rullaggio
 aircraft_tab
 Aerei merci
@@ -613,6 +617,8 @@ Cancel
 Annulla
 Cannot connect to offline server!
 Impossibile connettersi, server offline!
+Capacity
+Capacità
 Capacity:
 Capacità:
 Capacity: %.0f MW
@@ -755,10 +761,14 @@ Copy Convoi
 Copia Convoglio
 Copy the selected convoi and its schedule or line
 Copia convoglio selezionato con percorso o linea
+Cost
+Costo
 cost for removal
 Costi per rimozione
-Cost: %8s (%.2f$/km %.f$/m)\n
-Costo: %8s (%.2f$/km %.f$/m)\n
+Cost per unit
+Costo per unità
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Costo: %8s (%.2f$/km %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Costo: %8s (%.2f$/km)\n
 Costs
@@ -954,7 +964,7 @@ Generazione: %.0f MW\n
 Gewicht
 Peso
 Gewinn
-Incasso: 
+Profitti: 
 Give the selected vehicle(s) an individual schedule
 Dai al veicolo(i) selezionato un percorso individuale.
 gl_btn_sort_catg
@@ -1077,6 +1087,8 @@ Insert stop before the current stop
 Inserisci fermata prima della corrente
 Intercity road len:
 Lunghezza strade interurbane:
+Intro. date
+Data intro.
 Intro. date:
 Data intro.:
 invalid
@@ -1141,6 +1153,8 @@ Leistung: %d kW
 Potenza: %d kW
 Leitung
 Elettrodotto
+length: %d
+lunghezza: %d
 letzen Monat: diesen Monat:
 scorso mese:         questo mese:
 Line
@@ -1194,7 +1208,7 @@ Centro Messaggi
 Mailbox Options
 Opzioni Centro Messaggi
 Maintenance
-Manutenzione
+Manutenz. edifici
 make stop public (or join with public stop next) costs %i per tile and level
 far diventare la fermata pubblica (o collega a fermata pubblica vicina) costa %i$ per area e livello 
 Manual (Human)
@@ -1212,11 +1226,13 @@ Margine (%)
 Marker
 Cartello
 Max Boost (%)
-Massimo incremento (%)
+Incr. max. (%)
 Max income:
 Guadagno max:
+Max. speed
+Velocità max.
 Max. speed:
-Velocità max:
+Velocità max.:
 Maximum 254 stops\nin a schedule!\n
 Al massimo 254 fermate\nin un percorso!\n
 maximum length of rivers
@@ -1233,6 +1249,8 @@ Meldung
 Messaggio
 Menge
 ammontare
+merge stop
+unisci fermate
 MessageOptionsText
 \nNuovo Anno\n\nNotizie Avversari\n\nNotizie Città\n\nPercorsi Ostruiti\n\nNuove Fabbriche\n\nChat\n\nNuovi Veicoli\n\nStazioni Piene\n\nProblemi\n\nIngorghi Traffico
 min
@@ -1543,6 +1561,8 @@ Restore natural slope
 Ripristina pendio naturale.
 Restwert:
 Prezzo di vendita:
+Retire date
+Data ritiro
 Retire. date:
 Data ritiro:
 return ticket
@@ -1850,7 +1870,7 @@ Disoccupati
 Unhappy
 Infelici
 units/day
- unità/giorno
+ unità/mese
 Update Line
 Aggiorna linea
 upgrade HQ
@@ -1902,7 +1922,7 @@ Traffico
 Wasser
 Acqua
 Water
-Canale
+Acqua
 Water level
 Livello acqua:
 water vehicle
@@ -1921,6 +1941,8 @@ Ways not connected
 Vie non connesse
 Wegpunkt
 Waypoint
+Weight
+Peso
 Weight:
 Peso:
 Wert

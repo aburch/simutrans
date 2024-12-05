@@ -10,8 +10,8 @@
 #include "simgraph.h"
 
 
-KOORD_VAL tile_raster_width = 16; // zoomed
-KOORD_VAL base_tile_raster_width = 16; // original
+scr_coord_val tile_raster_width = 16; // zoomed
+scr_coord_val base_tile_raster_width = 16; // original
 
 
 PIXVAL color_idx_to_rgb(PIXVAL idx)
@@ -34,7 +34,7 @@ void env_t_rgb_to_system_colors()
 {
 }
 
-KOORD_VAL display_set_base_raster_width(KOORD_VAL)
+scr_coord_val display_set_base_raster_width(scr_coord_val)
 {
 	return 0;
 }
@@ -57,11 +57,11 @@ int zoom_factor_down()
 	return false;
 }
 
-void mark_rect_dirty_wc(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
+void mark_rect_dirty_wc(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val)
 {
 }
 
-void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE)
+void mark_rect_dirty_clip(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -69,7 +69,7 @@ void mark_screen_dirty()
 {
 }
 
-void display_mark_img_dirty(image_id, KOORD_VAL, KOORD_VAL)
+void display_mark_img_dirty(image_id, scr_coord_val, scr_coord_val)
 {
 }
 
@@ -78,21 +78,21 @@ bool display_load_font(const char*, bool)
 	return true;
 }
 
-sint16 display_get_width()
+scr_coord_val display_get_width()
 {
 	return 0;
 }
 
-sint16 display_get_height()
+scr_coord_val display_get_height()
 {
 	return 0;
 }
 
-void display_set_height(KOORD_VAL)
+void display_set_height(scr_coord_val)
 {
 }
 
-void display_set_actual_width(KOORD_VAL)
+void display_set_actual_width(scr_coord_val)
 {
 }
 
@@ -104,16 +104,17 @@ void display_set_player_color_scheme(const int, const uint8, const uint8)
 {
 }
 
-void register_image(struct image_t* image)
+void register_image(image_t* image)
 {
 	image->imageid = 1;
 }
 
-void display_snapshot(int, int, int, int)
+bool display_snapshot(const scr_rect &)
 {
+	return false;
 }
 
-void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_image_offset(image_id image, scr_coord_val *xoff, scr_coord_val *yoff, scr_coord_val *xw, scr_coord_val *yw)
 {
 	if(  image < 2  ) {
 		// initialize offsets with dummy values
@@ -147,11 +148,11 @@ clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 	return clip_rect;
 }
 
-void display_set_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE, bool)
+void display_set_clip_wh(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val  CLIP_NUM_DEF_NOUSE, bool)
 {
 }
 
-void display_push_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE)
+void display_push_clip_wh(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -163,19 +164,19 @@ void display_pop_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
 }
 
-void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
+void display_scroll_band(const scr_coord_val, const scr_coord_val, const scr_coord_val)
 {
 }
 
-void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_img_aux(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_color_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_color_img(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_base_img(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -191,19 +192,19 @@ void display_img_stretch_blend( const stretch_map_t &, scr_rect, FLAGGED_PIXVAL)
 {
 }
 
-void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_blend(const image_id, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, const int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_blend(const image_id, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const FLAGGED_PIXVAL, const int, int  CLIP_NUM_DEF_NOUSE)
+void display_base_img_alpha(const image_id, const image_id, const unsigned, scr_coord_val, scr_coord_val, const sint8, const FLAGGED_PIXVAL, const bool, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -221,25 +222,25 @@ PIXVAL display_blend_colors(PIXVAL, PIXVAL, int)
 }
 
 
-void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int )
+void display_blend_wh_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, int )
 {
 }
 
 
-void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool )
+void display_fillbox_wh_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool )
 {
 }
 
 
-void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
+void display_fillbox_wh_clip_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
+void display_vline_wh_clip_rgb(scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-void display_array_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL *)
+void display_array_wh(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL *)
 {
 }
 
@@ -256,12 +257,12 @@ sint32 get_prev_char(const char*, sint32 pos)
 	return pos - 1;
 }
 
-KOORD_VAL display_get_char_width(utf32)
+scr_coord_val display_get_char_width(utf32)
 {
 	return 0;
 }
 
-KOORD_VAL display_get_char_max_width(const char*, size_t)
+scr_coord_val display_get_char_max_width(const char*, size_t)
 {
 	return 0;
 }
@@ -298,32 +299,32 @@ void display_calc_proportional_multiline_string_len_width( int &xw, int &yh, con
 }
 
 
-int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
+int display_text_proportional_len_clip_rgb(scr_coord_val, scr_coord_val, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
 {
 	return 0;
 }
 
-void display_outline_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int, sint32)
+void display_outline_proportional_rgb(scr_coord_val, scr_coord_val, PIXVAL, PIXVAL, const char *, int, sint32)
 {
 }
 
-void display_shadow_proportional_rgb(KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, const char *, int, sint32)
+void display_shadow_proportional_rgb(scr_coord_val, scr_coord_val, PIXVAL, PIXVAL, const char *, int, sint32)
 {
 }
 
-void display_ddd_box_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL, bool)
+void display_ddd_box_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, PIXVAL, bool)
 {
 }
 
-void display_ddd_box_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, PIXVAL)
+void display_ddd_box_clip_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, PIXVAL, PIXVAL)
 {
 }
 
-void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int  CLIP_NUM_DEF_NOUSE)
+void display_ddd_proportional_clip(scr_coord_val, scr_coord_val, FLAGGED_PIXVAL, FLAGGED_PIXVAL, const char *, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-int display_multiline_text_rgb(KOORD_VAL, KOORD_VAL, const char *, PIXVAL)
+int display_multiline_text_rgb(scr_coord_val, scr_coord_val, const char *, PIXVAL)
 {
 	return 0;
 }
@@ -344,11 +345,12 @@ void display_show_load_pointer(int)
 {
 }
 
-void simgraph_init(KOORD_VAL, KOORD_VAL, int)
+bool simgraph_init(scr_size, sint16)
 {
+	return true;
 }
 
-int is_display_init()
+bool is_display_init()
 {
 	return false;
 }
@@ -362,7 +364,7 @@ void simgraph_exit()
 	dr_os_close();
 }
 
-void simgraph_resize(KOORD_VAL, KOORD_VAL)
+void simgraph_resize(scr_size)
 {
 }
 
@@ -370,27 +372,31 @@ void display_snapshot()
 {
 }
 
-void display_direct_line_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PIXVAL)
+void display_direct_line_rgb(const scr_coord_val, const scr_coord_val, const scr_coord_val, const scr_coord_val, const PIXVAL)
 {
 }
 
-void display_direct_line_dotted_rgb(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const KOORD_VAL, const PIXVAL)
+void display_direct_line_dotted_rgb(const scr_coord_val, const scr_coord_val, const scr_coord_val, const scr_coord_val, const scr_coord_val, const scr_coord_val, const PIXVAL)
 {
 }
 
-void display_circle_rgb( KOORD_VAL, KOORD_VAL, int, const PIXVAL )
+void display_circle_rgb( scr_coord_val, scr_coord_val, int, const PIXVAL )
 {
 }
 
-void display_filled_circle_rgb( KOORD_VAL, KOORD_VAL, int, const PIXVAL )
+void display_filled_circle_rgb( scr_coord_val, scr_coord_val, int, const PIXVAL )
 {
 }
 
-void draw_bezier_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL, KOORD_VAL, KOORD_VAL )
+void draw_bezier_rgb(scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL, scr_coord_val, scr_coord_val )
 {
 }
 
-void display_right_triangle_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, const PIXVAL, const bool)
+void display_right_triangle_rgb(scr_coord_val, scr_coord_val, scr_coord_val, const PIXVAL, const bool)
+{
+}
+
+void display_signal_direction_rgb( scr_coord_val, scr_coord_val, uint8, uint8, PIXVAL, PIXVAL, bool, uint8 )
 {
 }
 
@@ -402,13 +408,12 @@ void display_progress(int, int)
 {
 }
 
-void display_img_aligned( const image_id, scr_rect, int, int )
+void display_img_aligned( const image_id, scr_rect, int, bool )
 {
 }
 
-KOORD_VAL display_proportional_ellipsis_rgb( scr_rect, const char *, int, PIXVAL, bool, bool, PIXVAL)
+void display_proportional_ellipsis_rgb( scr_rect, const char *, int, PIXVAL, bool, bool, PIXVAL)
 {
-	return 0;
 }
 
 image_id get_image_count()

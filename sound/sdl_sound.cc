@@ -20,7 +20,7 @@ static int use_sound = 0;
 /*
  * defines the number of channels available
  */
-#define CHANNELS 4
+#define NUM_AUDIO_CHANNELS 4
 
 
 /*
@@ -55,7 +55,7 @@ struct channel {
 
 
 /* this array contains all the information of the currently played samples */
-static channel channels[CHANNELS];
+static channel channels[NUM_AUDIO_CHANNELS];
 
 
 /* the format of the output audio channel in use
@@ -71,7 +71,7 @@ void sdl_sound_callback(void *, Uint8 * stream, int len)
 	/*
 	* add all the sample that need to be played
 	*/
-	for(  int c = 0;  c < CHANNELS;  c++  ) {
+	for(  int c = 0;  c < NUM_AUDIO_CHANNELS;  c++  ) {
 		/*
 		* only do something, if the channel is used
 		*/
@@ -129,7 +129,7 @@ bool dr_init_sound()
 				// finished initializing
 				sound_ok = 1;
 
-				for (i = 0; i < CHANNELS; i++)
+				for (i = 0; i < NUM_AUDIO_CHANNELS; i++)
 				channels[i].sample = 255;
 
 				// start playing sounds
@@ -227,7 +227,7 @@ void dr_play_sample(int sample_number, int volume)
 		}
 
 		/* find an empty channel, and play */
-		for (c = 0; c < CHANNELS; c++) {
+		for (c = 0; c < NUM_AUDIO_CHANNELS; c++) {
 			if (channels[c].sample == 255) {
 				channels[c].sample = sample_number;
 				channels[c].sample_pos = 0;

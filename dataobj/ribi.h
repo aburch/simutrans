@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Simutrans project under the Artistic License.
  * (see LICENSE.txt)
@@ -24,11 +25,11 @@ class slope_t {
 
 	/// Named constants for the flags table
 	enum {
-		doubles = 1,   ///< two-height difference slopes
-		way_ns  = 2,   ///< way possible in north-south direction
-		way_ew  = 4,   ///< way possible in east-west direction
-		single  = 8,   ///< way possible
-		all_up  = 16,  ///< all corners raised
+		doubles = 1 << 0, ///< two-height difference slopes
+		way_ns  = 1 << 1, ///< way possible in north-south direction
+		way_ew  = 1 << 2, ///< way possible in east-west direction
+		single  = 1 << 3, ///< way possible
+		all_up  = 1 << 4  ///< all corners raised
 	};
 
 public:
@@ -40,7 +41,7 @@ public:
 	 * Named constants for special cases.
 	 */
 	enum _type {
-		flat=0,
+		flat = 0,
 
 		northwest = 27, ///< NW corner
 		northeast = 9,  ///< NE corner
@@ -118,10 +119,10 @@ struct slope4_t {
 	#define scorner_ne(i) ((i/4)%2) // ne corner
 	#define scorner_nw(i) (i/8)     // nw corner
 	enum _corners {
-		corner_SW = 1,
-		corner_SE = 2,
-		corner_NE = 4,
-		corner_NW = 8
+		corner_SW = 1 << 0,
+		corner_SE = 1 << 1,
+		corner_NE = 1 << 2,
+		corner_NW = 1 << 3
 	};
 };
 
@@ -136,12 +137,12 @@ class ribi_t {
 
 	/// Named constants for properties of directions
 	enum {
-		single      = 1,  ///< only one bit set, way ends here
-		straight_ns = 2,  ///< contains straight n/s connection
-		straight_ew = 4,  ///< contains straight e/w connection
-		bend        = 8,   ///< is a bend
-		twoway      = 16, ///< two bits set
-		threeway    = 32, ///< three bits set
+		single      = 1 << 0, ///< only one bit set, way ends here
+		straight_ns = 1 << 1, ///< contains straight n/s connection
+		straight_ew = 1 << 2, ///< contains straight e/w connection
+		bend        = 1 << 3, ///< is a bend
+		twoway      = 1 << 4, ///< two bits set
+		threeway    = 1 << 5  ///< three bits set
 	};
 
 public:
@@ -150,22 +151,22 @@ public:
 	 * 1=North, 2=East, 4=South, 8=West
 	 */
 	enum _ribi {
-		none =0,
-		north = 1,
-		east = 2,
-		northeast = 3,
-		south = 4,
-		northsouth = 5,
-		southeast = 6,
+		none           = 0,
+		north          = 1,
+		east           = 2,
+		northeast      = 3,
+		south          = 4,
+		northsouth     = 5,
+		southeast      = 6,
 		northsoutheast = 7,
-		west = 8,
-		northwest = 9,
-		eastwest = 10,
-		northeastwest = 11,
-		southwest = 12,
+		west           = 8,
+		northwest      = 9,
+		eastwest       = 10,
+		northeastwest  = 11,
+		southwest      = 12,
 		northsouthwest = 13,
-		southeastwest = 14,
-		all = 15
+		southeastwest  = 14,
+		all            = 15
 	};
 	typedef uint8 ribi;
 
@@ -173,13 +174,13 @@ public:
 	 * Named constants to translate direction to image number for vehicles, signs.
 	 */
 	enum _dir {
-		dir_invalid = 0,
-		dir_south = 0,
-		dir_west = 1,
+		dir_invalid   = 0,
+		dir_south     = 0,
+		dir_west      = 1,
 		dir_southwest = 2,
 		dir_southeast = 3,
-		dir_north = 4,
-		dir_east = 5,
+		dir_north     = 4,
+		dir_east      = 5,
 		dir_northeast = 6,
 		dir_northwest = 7
 	};
@@ -192,15 +193,23 @@ private:
 	static const ribi doppelr[16];
 	/// Lookup table to convert ribi to dir.
 	static const dir  dirs[16];
+
 public:
-	/// Table containing the four compass directions
-	static const ribi nsew[4];
+
+	/// Table containing the four compass directions (now as function)
+	struct _nesw {
+		ribi operator [] ( const uint8 i ) const { return 1<<i; }
+	};
+	static const _nesw nesw;
+
 	/// Convert building layout to ribi (four rotations), use doppelt in case of two rotations
 	static const ribi layout_to_ribi[4]; // building layout to ribi (for four rotations, for two use doppelt()!
 
+	static bool is_perpendicular(ribi x, ribi y);
+
+#ifdef RIBI_LOOKUP
 	static bool is_twoway(ribi x) { return (flags[x]&twoway)!=0; }
 	static bool is_threeway(ribi x) { return (flags[x]&threeway)!=0; }
-	static bool is_perpendicular(ribi x, ribi y);
 	static bool is_single(ribi x) { return (flags[x] & single) != 0; }
 	static bool is_bend(ribi x) { return (flags[x] & bend) != 0; }
 	static bool is_straight(ribi x) { return (flags[x] & (straight_ns | straight_ew)) != 0; }
@@ -209,9 +218,34 @@ public:
 
 	/// Convert single/straight direction into their doubled form (n, ns -> ns), map all others to zero
 	static ribi doubles(ribi x) { return doppelr[x]; }
+
 	/// Backward direction for single ribi's, bitwise-NOT for all others
 	static ribi backward(ribi x) { return backwards[x]; }
 
+	/// Convert ribi to dir
+	static dir get_dir(ribi x) { return dirs[x]; }
+#else
+#ifdef USE_GCC_POPCOUNT
+	static uint8 get_numways(ribi x) { return (__builtin_popcount(x)); }
+	static bool is_twoway(ribi x) { return get_numways(x) == 2; }
+	static bool is_threeway(ribi x) { return get_numways(x) > 2; }
+	static bool is_single(ribi x) { return get_numways(x) == 1; }
+#else
+	static bool is_twoway(ribi x) { return (0x1668 >> x) & 1; }
+	static bool is_threeway(ribi x) { return (0xE880 >> x) & 1; }
+	static bool is_single(ribi x) { return (0x0116 >> x) & 1; }
+#endif
+	static bool is_bend(ribi x) { return (0x1248 >> x) & 1; }
+	static bool is_straight(ribi x) { return (0x0536 >> x) & 1; }
+	static bool is_straight_ns(ribi x) { return (0x0032 >> x) & 1; }
+	static bool is_straight_ew(ribi x) { return (0x0504 >> x) & 1; }
+
+	static ribi doubles(ribi x) { return (INT64_C(0x00000A0A00550A50) >> (x * 4)) & 0x0F; }
+	static ribi backward(ribi x) { return (INT64_C(0x01234A628951C84F) >> (x * 4)) & 0x0F; }
+
+	/// Convert ribi to dir
+	static dir get_dir(ribi x) { return (INT64_C(0x0002007103006540) >> (x * 4)) & 0x7; }
+#endif
 	/**
 	 * Same as backward, but for single directions only.
 	 * Effectively does bit rotation. Avoids lookup table backwards.
@@ -227,9 +261,6 @@ public:
 	static ribi rotate90l(ribi x) { return ((x  |  x<<4) >> 1) & 0xf; }
 	static ribi rotate45(ribi x) { return (is_single(x) ? x|rotate90(x) : x&rotate90(x)); } // 45 to the right
 	static ribi rotate45l(ribi x) { return (is_single(x) ? x|rotate90l(x) : x&rotate90l(x)); } // 45 to the left
-
-	/// Convert ribi to dir
-	static dir get_dir(ribi x) { return dirs[x]; }
 };
 
 /**

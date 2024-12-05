@@ -196,7 +196,7 @@ SQInteger _stream_writestr(HSQUIRRELVM v) {
 	sq_getstring(v, 2, &str);
 	SQChar str2[strlen(str)+1];
 	strcpy(str2, str);
-	self->Write(str2, sizeof(SQChar)*(strlen(str2))+1);
+	self->Write(str2, sizeof(SQChar)*(strlen(str2)));
 	return 0;
 }
 

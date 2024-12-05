@@ -25,7 +25,7 @@ void set_frame_time(uint32 ms);
 
 void intr_refresh_display(bool dirty);
 
-void intr_set(karte_t *welt, main_view_t *view);
+void intr_set_view(main_view_t *view);
 
 void intr_set_last_time(uint32 time);
 
@@ -33,9 +33,6 @@ void intr_set_last_time(uint32 time);
 void intr_enable();
 void intr_disable();
 
-
-// force sync_step (done before sleeping)
-void interrupt_force();
 
 void interrupt_check(const char* caller_info = "0");
 

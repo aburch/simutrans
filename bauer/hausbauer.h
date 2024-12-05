@@ -9,6 +9,7 @@
 
 #include "../descriptor/building_desc.h"
 #include "../dataobj/koord3d.h"
+#include "../halthandle_t.h"
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"
 
@@ -36,7 +37,7 @@ private:
 	static vector_tpl<const building_desc_t*> townhalls;         ///< Town halls
 	static vector_tpl<const building_desc_t*> monuments;         ///< All monuments
 	static vector_tpl<const building_desc_t*> unbuilt_monuments; ///< All unbuilt monuments
-	static vector_tpl<const building_desc_t*> headquarters;       ///< Company headquarters
+	static vector_tpl<const building_desc_t*> headquarters;      ///< Company headquarters
 	static vector_tpl<const building_desc_t*> station_building;  ///< All station buildings
 
 	/// @returns a random entry from @p list
@@ -123,7 +124,7 @@ public:
 	/**
 	 * Removes an arbitrary building.
 	 * It will also take care of factories and foundations.
-	 * @param sp the player wanting to remove the building.
+	 * @param player the player wanting to remove the building.
 	 */
 	static void remove(player_t *player, gebaeude_t *gb);
 
@@ -133,11 +134,12 @@ public:
 	 * Also the underlying ground will be changed to foundation.
 	 * @param param if building a factory, pointer to the factory,
 	 *              if building a stop, pointer to the halt handle.
+	 * Can only build houses on map ground!
 	 *
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.
 	 */
-	static gebaeude_t* build(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
+	static gebaeude_t* build(player_t* player, koord pos, int layout, const building_desc_t* desc, void* param = NULL);
 
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.
@@ -145,12 +147,19 @@ public:
 	 * @param param if building a stop, pointer to the halt handle
 	 */
 	static gebaeude_t* build_station_extension_depot(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
+	
+	// Build a stop on a digonal way tile. Use this only when the way of pos is diagonal.
+	// desc has to have 48 layouts.
+	static gebaeude_t* build_station_on_diagonal_way(player_t* player, koord3d pos, const building_desc_t* desc, const ribi_t::ribi way_connection, halthandle_t halt);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const building_desc_t *> *get_list(building_desc_t::btype typ);
 
 	/// @returns city building list of type @p typ (res/com/ind)
 	static const vector_tpl<const building_desc_t *> *get_citybuilding_list(building_desc_t::btype  typ);
+	
+private:
+	static gebaeude_t* build_station_extension_depot_with_complete_layout_bits(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param);
 };
 
 #endif

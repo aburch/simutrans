@@ -2,7 +2,7 @@ This is a form for reporting problems with Simutrans.
 
 Please report any problems, crashes, and bugs to the forum
 
-http://forum.simutrans.com
+https://forum.simutrans.com
 
 Try to provide as much information as possible. The following list may serve as a guide line:
 

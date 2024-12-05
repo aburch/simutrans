@@ -44,7 +44,7 @@ private:
 		temperatures[5];
 
 	gui_combobox_t
-		tree;
+		tree, wind_dir;
 
 	gui_numberinput_t
 		lake; // lake height

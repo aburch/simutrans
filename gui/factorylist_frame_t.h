@@ -7,6 +7,7 @@
 #define GUI_FACTORYLIST_FRAME_T_H
 
 
+#include "simwin.h"
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
@@ -23,12 +24,16 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
 private:
 	static const char *sort_text[factorylist::SORT_MODES];
 
-	button_t sortedby;
+	gui_combobox_t sortedby;
 	button_t sorteddir;
 	button_t filter_by_owner;
 	gui_combobox_t filterowner;
 
 	gui_scrolled_list_t scrolly;
+
+	static char name_filter[256];
+	char last_name_filter[256];
+	gui_textinput_t name_filter_input;
 
 	void fill_list();
 
@@ -46,6 +51,10 @@ public:
 	bool has_min_sizer() const OVERRIDE { return true; }
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
+
+	void rdwr(loadsave_t* file) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_factorylist; }
 };
 
 #endif

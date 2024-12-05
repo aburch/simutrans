@@ -50,8 +50,13 @@ public:
 
 	halthandle_t get_halt() const { return halt; }
 
-	using gui_aligned_container_t::get_min_size;
-	using gui_aligned_container_t::get_max_size;
+	scr_size get_min_size() const OVERRIDE {
+		return gui_aligned_container_t::get_min_size() + scr_size(D_H_SPACE, D_V_SPACE);
+	}
+
+	scr_size get_max_size() const OVERRIDE {
+		return get_min_size();
+	}
 };
 
 #endif

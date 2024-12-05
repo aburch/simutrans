@@ -31,10 +31,15 @@ private:
 /**
  * Displays fatal error message.
  */
-class fatal_news : public news_window
+class fatal_news : public news_window, private action_listener_t
 {
+	button_t copy_to_clipboard;
+
 public:
 	fatal_news(const char* text);
+
+private:
+	bool action_triggered(gui_action_creator_t *comp, value_t extra) OVERRIDE;
 };
 
 

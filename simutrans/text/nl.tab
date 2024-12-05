@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                            Language: nl Nederlands                           #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -481,7 +481,7 @@ Add Stop
 Toevoegen
 Add stops for backward travel
 Toevoegen van de stops voor de terugweg
-Air
+air_wt
 start/taxibaan
 aircraft_tab
 Vrachtvliegtuigen
@@ -759,8 +759,8 @@ Copy the selected convoi and its schedule or line
 Kopieer dit voertuig inclusief dienstregeling of lijn
 cost for removal
 Kosten voor verwijdering 
-Cost: %8s (%.2f$/km %.f$/m)\n
-Kosten: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Kosten: %s (%.2f$/km, %.2f$/m)\n
 Cost: %8s (%.2f$/km)\n
 Kosten: %8s (%.2f$/km)\n
 Costs

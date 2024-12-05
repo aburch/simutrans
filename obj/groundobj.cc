@@ -5,7 +5,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtypes.h"
@@ -28,6 +28,7 @@
 /******************************** static routines for desc management ****************************************************************/
 
 vector_tpl<const groundobj_desc_t *> groundobj_t::groundobj_typen(0);
+weighted_vector_tpl<uint32>* groundobj_t::groundobj_list_per_climate = NULL;
 
 stringhashtable_tpl<groundobj_desc_t *> groundobj_t::desc_table;
 
@@ -35,6 +36,52 @@ stringhashtable_tpl<groundobj_desc_t *> groundobj_t::desc_table;
 bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
 	return strcmp(a->get_name(), b->get_name())<0;
+}
+
+// total number of groundobj for a certain climate
+int groundobj_t::get_count(climate cl)
+{
+	return groundobj_list_per_climate[cl].get_count();
+}
+
+/**
+ * groundobj planting function - it takes care of checking suitability of area
+ */
+bool groundobj_t::plant_groundobj_on_coordinate(koord pos, const groundobj_desc_t *desc, const bool check_climate)
+{
+	// none there
+	if(  desc_table.empty()  ) {
+		return false;
+	}
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if(  gr  ) {
+		if(  gr->ist_natur()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
+			if(  gr->get_top() > 0  ) {
+				switch(gr->obj_bei(0)->get_typ()) {
+					case obj_t::wolke:
+					case obj_t::air_vehicle:
+					case obj_t::leitung:
+					case obj_t::label:
+					case obj_t::zeiger:
+						// ok to built here
+						break;
+					case obj_t::baum:
+						if( desc->can_build_trees_here() ) {
+							break;
+						}
+						/* FALLTHROUGH */
+						// leave these (and all other empty)
+					default:
+						return false;
+				}
+
+			}
+			groundobj_t *g = new groundobj_t(gr->get_pos(), desc); //plants the groundobj
+			gr->obj_add( g );
+			return true; //groundobj was planted - currently unused value is not checked
+		}
+	}
+	return false;
 }
 
 
@@ -53,6 +100,17 @@ bool groundobj_t::successfully_loaded()
 		groundobj_typen.append( NULL );
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
 	}
+
+	delete [] groundobj_list_per_climate;
+	groundobj_list_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
+	for(  uint32 typ=0;  typ<groundobj_typen.get_count()-1;  typ++  ) {
+		// add this groundobj to climates
+		for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
+			if(  groundobj_typen[typ]->is_allowed_climate((climate)j)  ) {
+				groundobj_list_per_climate[j].append(typ, groundobj_typen[typ]->get_distribution_weight());
+			}
+		}
+	}
 	return true;
 }
 
@@ -67,6 +125,7 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 	desc_table.put(desc->get_name(), desc );
 	return true;
 }
+
 
 
 /**
@@ -105,15 +164,20 @@ const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits c
 
 
 /******************************* end of static ******************************************/
-
+uint16 groundobj_t::random_groundobj_for_climate_intern(climate cl)
+{
+	// now weight their distribution
+	weighted_vector_tpl<uint32> const& g = groundobj_list_per_climate[cl];
+	return g.empty() ? 0xFFFF : pick_any_weighted(g);
+}
 
 
 // recalculates only the seasonal image
 void groundobj_t::calc_image()
 {
 	const groundobj_desc_t *desc=get_desc();
-	const sint16 seasons = desc->get_seasons()-1;
-	uint8 season=0;
+	const uint8 seasons = desc->get_seasons()-1;
+	uint8 season = 0;
 
 	// two possibilities
 	switch(seasons) {

@@ -63,6 +63,152 @@ char tool_t::toolstr[1024];
 
 toolbar_last_used_t *toolbar_last_used_t::last_used_tools = NULL;
 
+
+
+const char *tool_t::id_to_string(uint16 id)
+{
+#define CASE_TO_STRING(entry) case entry: return #entry
+
+	if (id & GENERAL_TOOL) {
+		switch (id & ~GENERAL_TOOL) {
+		CASE_TO_STRING(TOOL_QUERY);
+		CASE_TO_STRING(TOOL_REMOVER);
+		CASE_TO_STRING(TOOL_RAISE_LAND);
+		CASE_TO_STRING(TOOL_LOWER_LAND);
+		CASE_TO_STRING(TOOL_SETSLOPE);
+		CASE_TO_STRING(TOOL_RESTORESLOPE);
+		CASE_TO_STRING(TOOL_MARKER);
+		CASE_TO_STRING(TOOL_CLEAR_RESERVATION);
+		CASE_TO_STRING(TOOL_TRANSFORMER);
+		CASE_TO_STRING(TOOL_ADD_CITY);
+		CASE_TO_STRING(TOOL_CHANGE_CITY_SIZE);
+		CASE_TO_STRING(TOOL_PLANT_TREE);
+		CASE_TO_STRING(TOOL_SCHEDULE_ADD);
+		CASE_TO_STRING(TOOL_SCHEDULE_INS);
+		CASE_TO_STRING(TOOL_BUILD_WAY);
+		CASE_TO_STRING(TOOL_BUILD_BRIDGE);
+		CASE_TO_STRING(TOOL_BUILD_TUNNEL);
+		CASE_TO_STRING(TOOL_WAYREMOVER);
+		CASE_TO_STRING(TOOL_BUILD_WAYOBJ);
+		CASE_TO_STRING(TOOL_BUILD_STATION);
+		CASE_TO_STRING(TOOL_BUILD_ROADSIGN);
+		CASE_TO_STRING(TOOL_BUILD_DEPOT);
+		CASE_TO_STRING(TOOL_BUILD_HOUSE);
+		CASE_TO_STRING(TOOL_BUILD_LAND_CHAIN);
+		CASE_TO_STRING(TOOL_CITY_CHAIN);
+		CASE_TO_STRING(TOOL_BUILD_FACTORY);
+		CASE_TO_STRING(TOOL_LINK_FACTORY);
+		CASE_TO_STRING(TOOL_HEADQUARTER);
+		CASE_TO_STRING(TOOL_LOCK_GAME);
+		CASE_TO_STRING(TOOL_ADD_CITYCAR);
+		CASE_TO_STRING(TOOL_FOREST);
+		CASE_TO_STRING(TOOL_STOP_MOVER);
+		CASE_TO_STRING(TOOL_MAKE_STOP_PUBLIC);
+		CASE_TO_STRING(TOOL_REMOVE_WAYOBJ);
+		CASE_TO_STRING(TOOL_SLICED_AND_UNDERGROUND_VIEW);
+		CASE_TO_STRING(TOOL_BUY_HOUSE);
+		CASE_TO_STRING(TOOL_BUILD_CITYROAD);
+		CASE_TO_STRING(TOOL_ERROR_MESSAGE);
+		CASE_TO_STRING(TOOL_CHANGE_WATER_HEIGHT);
+		CASE_TO_STRING(TOOL_SET_CLIMATE);
+		CASE_TO_STRING(TOOL_ROTATE_BUILDING);
+		CASE_TO_STRING(TOOL_MERGE_STOP);
+		CASE_TO_STRING(TOOL_EXEC_SCRIPT);
+		CASE_TO_STRING(TOOL_EXEC_TWO_CLICK_SCRIPT);
+		CASE_TO_STRING(TOOL_PLANT_GROUNDOBJ);
+		CASE_TO_STRING(TOOL_ADD_MESSAGE);
+		CASE_TO_STRING(TOOL_REMOVE_SIGNAL);
+		}
+	}
+	else if (id & SIMPLE_TOOL) {
+		switch (id & ~SIMPLE_TOOL) {
+		CASE_TO_STRING(TOOL_PAUSE);
+		CASE_TO_STRING(TOOL_FASTFORWARD);
+		CASE_TO_STRING(TOOL_SCREENSHOT);
+		CASE_TO_STRING(TOOL_INCREASE_INDUSTRY);
+		CASE_TO_STRING(TOOL_UNDO);
+		CASE_TO_STRING(TOOL_SWITCH_PLAYER);
+		CASE_TO_STRING(TOOL_STEP_YEAR);
+		CASE_TO_STRING(TOOL_CHANGE_GAME_SPEED);
+		CASE_TO_STRING(TOOL_ZOOM_IN);
+		CASE_TO_STRING(TOOL_ZOOM_OUT);
+		CASE_TO_STRING(TOOL_SHOW_COVERAGE);
+		CASE_TO_STRING(TOOL_SHOW_NAME);
+		CASE_TO_STRING(TOOL_SHOW_GRID);
+		CASE_TO_STRING(TOOL_SHOW_TREES);
+		CASE_TO_STRING(TOOL_SHOW_HOUSES);
+		CASE_TO_STRING(TOOL_SHOW_UNDERGROUND);
+		CASE_TO_STRING(TOOL_ROTATE90);
+		CASE_TO_STRING(TOOL_QUIT);
+		CASE_TO_STRING(TOOL_FILL_TREES);
+		CASE_TO_STRING(TOOL_DAYNIGHT_LEVEL);
+		CASE_TO_STRING(TOOL_VEHICLE_TOOLTIPS);
+		CASE_TO_STRING(TOOL_TOOGLE_PAX);
+		CASE_TO_STRING(TOOL_TOOGLE_PEDESTRIANS);
+		CASE_TO_STRING(TOOL_TRAFFIC_LEVEL);
+		CASE_TO_STRING(TOOL_CHANGE_CONVOI);
+		CASE_TO_STRING(TOOL_CHANGE_LINE);
+		CASE_TO_STRING(TOOL_CHANGE_DEPOT);
+		CASE_TO_STRING(TOOL_CHANGE_PLAYER);
+		CASE_TO_STRING(TOOL_CHANGE_TRAFFIC_LIGHT);
+		CASE_TO_STRING(TOOL_CHANGE_CITY);
+		CASE_TO_STRING(TOOL_RENAME);
+		CASE_TO_STRING(TOOL_TOGGLE_RESERVATION);
+		CASE_TO_STRING(TOOL_VIEW_OWNER);
+		CASE_TO_STRING(TOOL_HIDE_UNDER_CURSOR);
+		CASE_TO_STRING(TOOL_MOVE_MAP);
+		CASE_TO_STRING(TOOL_ROLLUP_ALL_WIN);
+		CASE_TO_STRING(TOOL_RECOLOUR_TOOL);
+		CASE_TO_STRING(UNUSED_TOOL_ADD_MESSAGE);
+		CASE_TO_STRING(UNUSED_WKZ_PWDHASH_TOOL);
+		}
+	}
+	else if (id & DIALOGE_TOOL) {
+		switch (id & ~DIALOGE_TOOL) {
+		CASE_TO_STRING(DIALOG_HELP);
+		CASE_TO_STRING(DIALOG_OPTIONS);
+		CASE_TO_STRING(DIALOG_MINIMAP);
+		CASE_TO_STRING(DIALOG_LINEOVERVIEW);
+		CASE_TO_STRING(DIALOG_MESSAGES);
+		CASE_TO_STRING(DIALOG_FINANCES);
+		CASE_TO_STRING(DIALOG_PLAYERS);
+		CASE_TO_STRING(DIALOG_DISPLAYOPTIONS);
+		CASE_TO_STRING(DIALOG_SOUND);
+		CASE_TO_STRING(DIALOG_LANGUAGE);
+		CASE_TO_STRING(DIALOG_PLAYERCOLOR);
+		CASE_TO_STRING(DIALOG_JUMP);
+		CASE_TO_STRING(DIALOG_LOAD);
+		CASE_TO_STRING(DIALOG_SAVE);
+		CASE_TO_STRING(DIALOG_LIST_HALT);
+		CASE_TO_STRING(DIALOG_LIST_CONVOI);
+		CASE_TO_STRING(DIALOG_LIST_TOWN);
+		CASE_TO_STRING(DIALOG_LIST_GOODS);
+		CASE_TO_STRING(DIALOG_LIST_FACTORY);
+		CASE_TO_STRING(DIALOG_LIST_CURIOSITY);
+		CASE_TO_STRING(DIALOG_EDIT_FACTORY);
+		CASE_TO_STRING(DIALOG_EDIT_ATTRACTION);
+		CASE_TO_STRING(DIALOG_EDIT_HOUSE);
+		CASE_TO_STRING(DIALOG_EDIT_TREE);
+		CASE_TO_STRING(DIALOG_ENLARGE_MAP);
+		CASE_TO_STRING(DIALOG_LIST_LABEL);
+		CASE_TO_STRING(DIALOG_CLIMATES);
+		CASE_TO_STRING(DIALOG_SETTINGS);
+		CASE_TO_STRING(DIALOG_GAMEINFO);
+		CASE_TO_STRING(DIALOG_THEMES);
+		CASE_TO_STRING(DIALOG_SCENARIO);
+		CASE_TO_STRING(DIALOG_SCENARIO_INFO);
+		CASE_TO_STRING(DIALOG_LIST_DEPOT);
+		CASE_TO_STRING(DIALOG_LIST_VEHICLE);
+		CASE_TO_STRING(DIALOG_SCRIPT_TOOL);
+		CASE_TO_STRING(DIALOG_EDIT_GROUNDOBJ);
+		CASE_TO_STRING(DIALOG_ROUTE_SEARCH);
+		}
+	}
+
+	return "<unknown tool>";
+}
+
+
 // separator in toolbars
 class tool_dummy_t : public tool_t {
 public:
@@ -71,7 +217,7 @@ public:
 	bool init(player_t*) OVERRIDE { return false; }
 	bool is_init_network_safe() const OVERRIDE { return true; }
 	bool is_work_network_safe() const OVERRIDE { return true; }
-	bool is_move_network_save(player_t*) const OVERRIDE { return true; }
+	bool is_move_network_safe(player_t*) const OVERRIDE { return true; }
 };
 tool_t *tool_t::dummy = new tool_dummy_t();
 
@@ -124,7 +270,11 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_EXEC_SCRIPT:                 tool = new tool_exec_script_t();         break;
 		case TOOL_EXEC_TWO_CLICK_SCRIPT:       tool = new tool_exec_two_click_script_t(); break;
 		case TOOL_GENERATE_SCRIPT:             tool = new tool_generate_script_t();     break;
-		case TOOL_CHANGE_CITY_OF_CITYBUILDING: tool = new tool_change_city_of_citybuilding_t(); break;
+		case TOOL_PLANT_GROUNDOBJ:             tool = new tool_plant_groundobj_t();     break;
+		case TOOL_ADD_MESSAGE:                 tool = new tool_add_message_t();         break;
+		case TOOL_REMOVE_SIGNAL:               tool = new tool_remove_signal_t();       break;
+		case TOOL_REMOVE_HALT:                 tool = new tool_remove_halt_t();     break;
+		case TOOL_EXTINGUISH_WAITING_GOODS:    tool = new tool_extinguish_waiting_goods_t(); break;
 		default:
 			dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 			return NULL;
@@ -173,12 +323,19 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
 		case TOOL_CHANGE_CITY:  tool = new tool_change_city_t(); break;
 		case TOOL_RENAME:       tool = new tool_rename_t(); break;
-		case TOOL_ADD_MESSAGE:  tool = new tool_add_message_t(); break;
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
 		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		case TOOL_TOGGLE_MESSAGE:    tool = new tool_money_messages_t(); break;
+		case TOOL_MOVE_MAP:             tool = new tool_move_map_t(); break;
+		case TOOL_ROLLUP_ALL_WIN:       tool = new tool_rollup_all_win_t();       break;
+		case TOOL_RECOLOUR_TOOL:        tool = new tool_recolour_t();             break;
+		case TOOL_SHOW_FACTORY_STORAGE: tool = new tool_show_factory_storage_t(); break;
+		case UNUSED_TOOL_ADD_MESSAGE: // fall-through - intended!!!111elf
+		case TOOL_SWITCH_PUBLIC_PLAYER:             tool = new tool_switch_public_player_t(); break;
+		case TOOL_SENDING_MONEY:             tool = new tool_sending_money_t(); break;
+		case TOOL_MERGE_PLAYER:      tool = new tool_merge_player_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -227,6 +384,8 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_LIST_DEPOT:      tool = new dialog_list_depot_t();      break;
 		case DIALOG_LIST_VEHICLE:    tool = new dialog_list_vehicle_t();    break;
 		case DIALOG_SCRIPT_TOOL:     tool = new dialog_script_tool_t();     break;
+		case DIALOG_EDIT_GROUNDOBJ:  tool = new dialog_edit_groundobj_t();  break;
+		case DIALOG_ROUTE_SEARCH:    tool = new dialog_route_search_t();    break;
 		default:
 			dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 			return NULL;
@@ -251,6 +410,7 @@ tool_t *create_tool(int toolnr)
 	if (tool == NULL) {
 		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
 	}
+
 	return tool;
 }
 
@@ -261,7 +421,7 @@ tool_t *create_tool(int toolnr)
  */
 void general_tool_get_desc_builder(uint16 id, const char *param_str, const obj_desc_timelined_t* &desc, tool_t* &tool)
 {
-	if (  id & (SIMPLE_TOOL | DIALOGE_TOOL) ) {
+	if (  id & ((uint16)SIMPLE_TOOL | (uint16)DIALOGE_TOOL) ) {
 		return;
 	}
 	id = id & (~GENERAL_TOOL);
@@ -290,7 +450,7 @@ void general_tool_get_desc_builder(uint16 id, const char *param_str, const obj_d
 			case TOOL_HEADQUARTER: {
 				const building_desc_t* desc2 = hausbauer_t::get_desc(param_str);
 				desc = desc2;
-				tool = desc2->get_builder();
+				tool = desc2 ? desc2->get_builder() : NULL;
 				return;
 			}
 			default: ;
@@ -330,7 +490,7 @@ void set_defaults_general_tool(tool_t *tool, const char *param_str)
  * will still be applied - show buttons with icons regardless of
  * whether the objects they build are available or not.
  */
-bool check_tool_availability(const tool_t *tool, uint64 time)
+bool check_tool_availability(const tool_t *tool, uint16 time)
 {
 	if (  tool  ==  NULL  ) {
 		return true;
@@ -344,12 +504,39 @@ bool check_tool_availability(const tool_t *tool, uint64 time)
 }
 
 
-static utf32 str_to_key( const char *str )
+static utf32 str_to_key( const char *str, uint8 *modifier )
 {
+	*modifier = 0;	// default no modufier check
 	if(  str[1]==','  ||  str[1]<=' ') {
 		return (uint8)*str;
 	}
 	else {
+		// check for control char
+		if(str[0]=='^') {
+			if( str[1]==0  ||  str[1]=='^'  ) {
+				return str[1];
+			}
+			else {
+				*modifier = 2;
+				// only single character following =>make is 1..26 value
+				if(  isalpha( str[1] )  ) {
+					return tolower(str[1]) - 'a' + 1;
+				}
+				str++;
+			}
+		}
+		// add shift as requested modifier?
+		if(str[0]=='+') {
+			if(  str[ 1 ] == '+' ||  str[1]==0  ) {
+				return '+';
+			}
+			*modifier = 1;
+			str++;
+		}
+		// direct value (decimal)
+		if(str[0]=='#') {
+			return (str[1]=='#') ? str[1] : atoi(str+1);
+		}
 		// check for utf8
 		if(  127<(uint8)*str  ) {
 			size_t len = 0;
@@ -357,14 +544,6 @@ static utf32 str_to_key( const char *str )
 			if(str[len]==',') {
 				return c;
 			}
-		}
-		// control char
-		if(str[0]=='^') {
-			return (str[1]&(~32))-64;
-		}
-		// direct value (decimal)
-		if(str[0]=='#') {
-			return atoi(str+1);
 		}
 		// Function key?
 		if(str[0]=='F') {
@@ -377,6 +556,14 @@ static utf32 str_to_key( const char *str )
 		if (strstart(str, "COMMA")) {
 			return ',';
 		}
+		// Scroll lock
+		if (strstart(str, "SCROLLLOCK")) {
+			return SIM_KEY_SCROLLLOCK;
+		}
+		// break/pause key
+		if (strstart(str, "PAUSE")) {
+			return SIM_KEY_PAUSE;
+		}
 		// HOME
 		if (strstart(str, "HOME")) {
 			return SIM_KEY_HOME;
@@ -384,6 +571,23 @@ static utf32 str_to_key( const char *str )
 		// END
 		if (strstart(str, "END")) {
 			return SIM_KEY_END;
+		}
+		// END
+		if (strstart(str, "ESC")) {
+			// but currently fixed binding!
+			return SIM_KEY_ESCAPE;
+		}
+		if (strstart(str, "DELETE")) {
+			// but currently fixed binding!
+			return SIM_KEY_DELETE;
+		}
+		if (strstart(str, "BACKSPACE")) {
+			// but currently fixed binding!
+			return SIM_KEY_BACKSPACE;
+		}
+		// NUMPAD
+		if(  const char *c=strstart(str, "NUM_")  ) {
+			return SIM_KEY_NUMPAD_BASE + atoi( c );
 		}
 	}
 	// invalid key
@@ -400,6 +604,12 @@ void tool_t::init_menu()
 		general_tool.append(tool);
 	}
 	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
+		// To squelch warning on startup
+		if( i == UNUSED_TOOL_ADD_MESSAGE || i == UNUSED_WKZ_PWDHASH_TOOL) {
+			simple_tool.append(NULL);
+			continue;
+		}
+
 		tool_t *tool = create_simple_tool( i );
 		simple_tool.append(tool);
 	}
@@ -427,13 +637,14 @@ static bool compare_tool(tool_t const* const a, tool_t const* const b)
 
 
 // read a tab file to add images, cursors and sound to the tools
-void tool_t::read_menu(const std::string &objfilename)
+bool tool_t::read_menu(const std::string &menuconf_path)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
+
 	// only use pak specific menus, since otherwise images may be missing
-	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
-		dbg->fatal("tool_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
+	if (!menuconf.open(menuconf_path.c_str())) {
+		return false;
 	}
 
 	tabfileobj_t contents;
@@ -447,8 +658,8 @@ void tool_t::read_menu(const std::string &objfilename)
 		const skin_desc_t *icons;
 		const skin_desc_t *cursor;
 		bool with_sound;
-
 	};
+
 	tool_class_info_t info[] = {
 		{ "general_tool", GENERAL_TOOL_COUNT, general_tool, skinverwaltung_t::tool_icons_general, skinverwaltung_t::cursor_general, true },
 		{ "simple_tool",  SIMPLE_TOOL_COUNT,  simple_tool,  skinverwaltung_t::tool_icons_simple,  NULL, false},
@@ -456,12 +667,13 @@ void tool_t::read_menu(const std::string &objfilename)
 	};
 
 	// first init all tools
-	DBG_MESSAGE( "tool_t::init_menu()", "Reading general menu" );
+	DBG_MESSAGE( "tool_t::read_menu()", "Reading general menu" );
 	for(  uint16 t=0; t<3; t++) {
 		for(  uint16 i=0;  i<info[t].count;  i++  ) {
 			char id[256];
 			sprintf( id, "%s[%i]", info[t].type, i );
 			const char *str = contents.get( id );
+
 			/* Format of str:
 			 * for general tools: icon,cursor,sound,key
 			 *     icon is image number in menu.GeneralTools, cursor image number in cursor.GeneralTools
@@ -470,12 +682,24 @@ void tool_t::read_menu(const std::string &objfilename)
 			 * -1 will disable any of them
 			 */
 			tool_t *tool = info[t].tools[i];
+
+			if (!tool) {
+				if (str && strcmp(str, "") != 0) {
+					// this key is present in the tab file
+					dbg->warning("tool_t::read_menu", "Ignoring deprecated %s[%i] (%s)", info[t].type, i, tool_t::id_to_string((1<<(t+12)) | i));
+				}
+
+				continue;
+			}
+
+			while(*str==' ') {
+				str++;
+			}
+
 			if(*str  &&  *str!=',') {
 				// ok, first comes icon
-				while(*str==' ') {
-					str++;
-				}
 				uint16 icon = (uint16)atoi(str);
+
 				if(  icon==0  &&  *str!='0'  ) {
 					// check, if file name ...
 					int i=0;
@@ -533,7 +757,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					str++;
 				}
 				if(*str>=' ') {
-					tool->command_key = str_to_key(str);
+					tool->command_key = str_to_key(str, &tool->command_flags);
 					char_to_tool.append(tool);
 				}
 			}
@@ -670,7 +894,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: General tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)GENERAL_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "simple_tool[")) {
@@ -686,7 +910,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: Simple tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)SIMPLE_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "dialog_tool[")) {
@@ -702,7 +926,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
+					dbg->warning( "tool_t::read_menu()", "When parsing menuconf.tab: Dialog tool id is not valid (%hhu >= %i). Tool ignored.", toolnr, (int)DIALOGE_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "toolbar[")) {
@@ -713,20 +937,24 @@ void tool_t::read_menu(const std::string &objfilename)
 						addtool = toolbar_last_used_t::last_used_tools;
 					}
 					else {
-						dbg->fatal( "Error in menuconf: toolbar cannot call main toolbar", "%s", toolname );
+						dbg->error( "Error in menuconf: toolbar cannot call main toolbar", "%s", toolname );
+						return false;
 					}
 				}
+
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
 						param_str = "Unnamed toolbar";
-						dbg->warning( "tool_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
+						dbg->warning( "tool_t::read_menu()", "Missing title for toolbar[%hhu]", toolnr);
 					}
+
 					char *c = strdup(param_str);
 					const char *title = c;
 					c += strcspn(c, ",");
 					if (*c != '\0') {
 						*c++ = '\0';
 					}
+
 					toolbar_t* const tb = new toolbar_t(toolbar_tool.get_count() | TOOLBAR_TOOL, title, c);
 					toolbar_tool.append(tb);
 					addtool = tb;
@@ -738,12 +966,13 @@ void tool_t::read_menu(const std::string &objfilename)
 				addtool->default_param = strdup(toolname);
 				addtool->command_key = 1;
 			}
+
 			if(addtool) {
 				if(icon!=IMG_EMPTY) {
 					addtool->icon = icon;
 				}
 				if(key_str!=NULL) {
-					addtool->command_key = str_to_key(key_str);
+					addtool->command_key = str_to_key(key_str,&(addtool->command_flags));
 					char_to_tool.append(addtool);
 				}
 				if(param_str!=NULL  &&  ((addtool->get_id() & TOOLBAR_TOOL) == 0)) {
@@ -757,6 +986,7 @@ void tool_t::read_menu(const std::string &objfilename)
 
 	// sort characters
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
+	return true;
 }
 
 
@@ -836,7 +1066,7 @@ const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 image_id toolbar_t::get_icon(player_t *player) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_EMPTY  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=welt->get_public_player()->get_player_nr())  ) {
+	if(  icon==IMG_EMPTY  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=PUBLIC_PLAYER_NR)  ) {
 		return IMG_EMPTY;
 	}
 	// now have we a least one visible tool?
@@ -1088,7 +1318,7 @@ bool two_click_tool_t::is_first_click() const
 }
 
 
-bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
+bool two_click_tool_t::is_work_here_network_safe(player_t *player, koord3d pos )
 {
 	if(  one_click && !is_ctrl_pressed()  ) {
 		return false;
@@ -1098,7 +1328,7 @@ bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
 	}
 	const char *error = ""; //default: nosound
 	uint8 value = is_valid_pos( player, pos, error, koord3d::invalid );
-	DBG_MESSAGE("two_click_tool_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
+	DBG_MESSAGE("two_click_tool_t::is_work_here_network_safe", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		// cannot work here at all -> safe
 		return true;
@@ -1162,7 +1392,12 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 			error = do_work( player, start, pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
-		init( player ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
+		if( value == 6 || value == 7){
+			start = koord3d::invalid;
+		}
+		else{
+			init( player ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
+		}
 	}
 	return error;
 }
@@ -1260,7 +1495,7 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		grund_t *gr = welt->lookup( pos );
 		delete z;
 		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t):
-		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() ) {
+		if(gr  &&  gr->is_dummy_ground()) {
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;
 			assert( !welt->lookup(pos));

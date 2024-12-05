@@ -117,10 +117,15 @@ class finder {
 		}
 		else {
 			foreach(obj in tile.get_objects()) {
-				if (obj.get_type() != mo_way) continue;
+				try {
+					if (obj.get_type() != mo_way) continue;
 
-				if (obj.get_waytype() == wt_water) {
-					return obj.get_desc().get_topspeed() > 5
+					if (obj.get_waytype() == wt_water) {
+						return obj.get_desc().get_topspeed() > 5
+					}
+				}
+				catch(ev) {
+					// object gone, most likely vehicle that moved on
 				}
 			}
 		}

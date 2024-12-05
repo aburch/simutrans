@@ -8,10 +8,20 @@
 
 
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 
 
-class objlist_t {
+/**
+ * All things including ways are stored in this structure.
+ * The entries are packed, i.e. the first free entry is at the top.
+ * To save memory, a single element (like in the case for houses or a single tree)
+ * is stored directly (obj.one) and capacity==1. Otherwise obj.some points to an
+ * array.
+ * The objects are sorted according to their drawing order.
+ * ways are always first.
+ */
+class objlist_t
+{
 private:
 	union {
 		obj_t **some;    // valid if capacity > 1

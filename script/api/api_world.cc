@@ -74,6 +74,11 @@ uint32 get_next_attraction_base(uint32 start)
 	return attractions.get_count();
 }
 
+uint32 world_get_bits_per_month()
+{
+	return welt->ticks_per_world_month_shift;
+}
+
 
 SQInteger world_attraction_list_next(HSQUIRRELVM vm)
 {
@@ -185,7 +190,7 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * Get monthly statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITIZENS), true );
 	/**
 	 * Get monthly statistics of total city growth.
 	 * @returns array, index [0] corresponds to current month
@@ -250,7 +255,7 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * Get per year statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITIZENS), true );
 	/**
 	 * Get per year statistics of total city growth.
 	 * @returns array, index [0] corresponds to current year
@@ -333,6 +338,10 @@ void export_world(HSQUIRRELVM vm, bool scenario)
 	 * @typemask coord()
 	 */
 	STATIC register_function(vm, world_get_size, "get_size", 1, ".");
+	/**
+	 * Returns bits_per_month
+	 */
+	STATIC register_method(vm, world_get_bits_per_month, "get_bits_per_month");
 
 	end_class(vm);
 

@@ -36,11 +36,6 @@ public:
 		return hash;
 	}
 
-	static void dump(const char *key)
-	{
-		printf("%s", key);
-	}
-
 	static diff_type comp(const char *key1, const char *key2)
 	{
 		return strcmp(key1, key2);

@@ -17,7 +17,7 @@ echo "OPTIMISE = 1" >>config.default
 echo "MULTI_THREAD = 1" >>config.default
 echo "WIN32_CONSOLE = 1" >>config.default
 echo "USE_ZSTD = 1" >>config.default
-echo "USE_FREETYPE = 0" >>config.default
+echo "USE_FREETYPE = 1" >>config.default
 echo "WITH_REVISION = $(svn info --show-item revision svn://servers.simutrans.org/simutrans)" >>config.default
 echo "STATIC = 1" >>config.default
 make -j

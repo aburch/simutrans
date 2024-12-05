@@ -7,7 +7,7 @@
 #define OBJ_ROADSIGN_H
 
 
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simtypes.h"
 #include "../descriptor/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"
@@ -25,7 +25,11 @@ protected:
 	image_id image;
 	image_id foreground_image;
 
-	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
+	enum {
+		SHOW_FONT        = 1,
+		SHOW_BACK        = 2,
+		SWITCH_AUTOMATIC = 16
+	};
 
 	uint8 state:2; // counter for steps ...
 	uint8 dir:4;
@@ -48,7 +52,11 @@ protected:
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
-	enum signalstate {rot=0, gruen=1, naechste_rot=2 };
+	enum signalstate {
+		STATE_RED    = 0,
+		STATE_GREEN  = 1,
+		STATE_YELLOW = 2  // next state is red
+	};
 
 	/**
 	 * return direction or the state of the traffic light
@@ -165,6 +173,7 @@ public:
 	void display_after(int xpos, int ypos, bool dirty) const OVERRIDE;
 #endif
 
+	inline bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)) || ((dir & ribi_t::northeast) && (dir & ribi_t::southwest)) || ((dir & ribi_t::northwest) && (dir & ribi_t::southeast)); }
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 

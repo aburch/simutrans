@@ -205,6 +205,12 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 	}
 	acnv->set_home_depot( get_pos() );
 	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
+
+	if (acnv->front()->get_owner() != acnv->get_owner()){
+		for(int i = 0; i < acnv->get_vehicle_count(); i++){
+			acnv->get_vehikel(i)->set_owner(acnv->get_owner());
+		}
+	}
 	
 	if(  schedule_adjust  &&  replacement_seed.is_bound()  &&  replacement_seed!=acnv  ) {
 		// replace cars of the arrived convoy, then start it immediately.
@@ -336,7 +342,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 }
 
 
-convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
+convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution, bool is_copy_schedule)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
 		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_desc()->get_waytype() ) {
@@ -361,13 +367,15 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 			}
 		}
-		if (old_cnv->get_line().is_bound()) {
-			new_cnv->set_line(old_cnv->get_line());
-			new_cnv->get_schedule()->set_current_stop( old_cnv->get_schedule()->get_current_stop() );
-		}
-		else {
-			if (old_cnv->get_schedule() != NULL) {
-				new_cnv->set_schedule(old_cnv->get_schedule()->copy());
+		if(is_copy_schedule){
+			if (old_cnv->get_line().is_bound()) {
+				new_cnv->set_line(old_cnv->get_line());
+				new_cnv->get_schedule()->set_current_stop( old_cnv->get_schedule()->get_current_stop() );
+			}
+			else {
+				if (old_cnv->get_schedule() != NULL) {
+					new_cnv->set_schedule(old_cnv->get_schedule()->copy());
+				}
 			}
 		}
 
@@ -580,7 +588,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 			}
 			if(v->get_desc()) {
 				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->get_desc()->get_name());
-				list.insert( v );
+				list.append( v );
 			}
 			else {
 				dbg->error("depot_t::vehikel_laden()","vehicle has no desc => ignored");
@@ -609,7 +617,7 @@ const char * depot_t::is_deletable(const player_t *player)
 	}
 
 	FOR(slist_tpl<convoihandle_t>, const c, convois) {
-		if (  c.is_bound()  &&  c->get_vehicle_count() > 0) {
+		if (c.is_bound() && c->get_vehicle_count() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
 	}
@@ -684,4 +692,116 @@ unsigned schiffdepot_t::get_max_convoi_length() const
 unsigned airdepot_t::get_max_convoi_length() const
 {
 	return welt->get_settings().get_max_air_convoi_length();
+}
+
+// train
+sint8 bahndepot_t::get_x_placement() const
+{
+	const sint8 x_placement = atoi(translator::translate("bahndepot_x_placement"));
+	return x_placement!=0 ? x_placement : -25;
+}
+sint8 bahndepot_t::get_y_placement() const
+{
+	const sint8 y_placement = atoi(translator::translate("bahndepot_y_placement"));
+	return y_placement!=0 ? y_placement : -28;
+}
+sint8 bahndepot_t::get_x_grid() const
+{
+	const sint8 x_grid = atoi(translator::translate("bahndepot_x_grid"));
+	return x_grid!=0 ? x_grid : 24;
+}
+sint8 bahndepot_t::get_x_num_grid() const
+{
+	const sint8 x_num_grid = atoi(translator::translate("bahndepot_x_num_grid"));
+	return x_num_grid!=0 ? x_num_grid : 24;
+}
+sint8 bahndepot_t::get_y_grid() const
+{
+	const sint8 y_grid = atoi(translator::translate("bahndepot_y_grid"));
+	return y_grid!=0 ? y_grid : 24;
+}
+sint8 bahndepot_t::get_grid_dx() const
+{
+	const sint8 grid_dx = atoi(translator::translate("bahndepot_grid_dx"));
+	return grid_dx!=0 ? grid_dx : 24;
+}
+sint8 bahndepot_t::get_placement_dx() const
+{
+	const sint8 placement_dx = atoi(translator::translate("bahndepot_placement_dx"));
+	return placement_dx!=0 ? placement_dx : 24;
+}
+
+// ship
+sint8 schiffdepot_t::get_x_placement() const
+{
+	const sint8 x_placement = atoi(translator::translate("schiffdepot_x_placement"));
+	return x_placement!=0 ? x_placement : -1;
+}
+sint8 schiffdepot_t::get_y_placement() const
+{
+	const sint8 y_placement = atoi(translator::translate("schiffdepot_y_placement"));
+	return y_placement!=0 ? y_placement : -11;
+}
+sint8 schiffdepot_t::get_x_grid() const
+{
+	const sint8 x_grid = atoi(translator::translate("schiffdepot_x_grid"));
+	return x_grid!=0 ? x_grid : 60;
+}
+sint8 schiffdepot_t::get_x_num_grid() const
+{
+	const sint8 x_num_grid = atoi(translator::translate("schiffdepot_x_num_grid"));
+	return x_num_grid!=0 ? x_num_grid : 60;
+}
+sint8 schiffdepot_t::get_y_grid() const
+{
+	const sint8 y_grid = atoi(translator::translate("schiffdepot_y_grid"));
+	return y_grid!=0 ? y_grid : 46;
+}
+sint8 schiffdepot_t::get_grid_dx() const
+{
+	const sint8 grid_dx = atoi(translator::translate("schiffdepot_grid_dx"));
+	return grid_dx!=0 ? grid_dx : 60;
+}
+sint8 schiffdepot_t::get_placement_dx() const
+{
+	const sint8 placement_dx = atoi(translator::translate("schiffdepot_placement_dx"));
+	return placement_dx!=0 ? placement_dx : 60;
+}
+
+
+// airplane
+sint8 airdepot_t::get_x_placement() const
+{
+	const sint8 x_placement = atoi(translator::translate("airdepot_x_placement"));
+	return x_placement!=0 ? x_placement : -10;
+}
+sint8 airdepot_t::get_y_placement() const
+{
+	const sint8 y_placement = atoi(translator::translate("airdepot_y_placement"));
+	return y_placement!=0 ? y_placement : -23;
+}
+sint8 airdepot_t::get_x_grid() const
+{
+	const sint8 x_grid = atoi(translator::translate("airdepot_x_grid"));
+	return x_grid!=0 ? x_grid : 36;
+}
+sint8 airdepot_t::get_x_num_grid() const
+{
+	const sint8 x_num_grid = atoi(translator::translate("airdepot_x_num_grid"));
+	return x_num_grid!=0 ? x_num_grid : 36;
+}
+sint8 airdepot_t::get_y_grid() const
+{
+	const sint8 y_grid = atoi(translator::translate("airdepot_y_grid"));
+	return y_grid!=0 ? y_grid : 36;
+}
+sint8 airdepot_t::get_grid_dx() const
+{
+	const sint8 grid_dx = atoi(translator::translate("airdepot_grid_dx"));
+	return grid_dx!=0 ? grid_dx : 36;
+}
+sint8 airdepot_t::get_placement_dx() const
+{
+	const sint8 placement_dx = atoi(translator::translate("airdepot_placement_dx"));
+	return placement_dx!=0 ? placement_dx : 36;
 }

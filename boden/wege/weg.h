@@ -9,7 +9,7 @@
 
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
 #include "../../simskin.h"
@@ -29,7 +29,8 @@ template <class T> class slist_tpl;
 
 enum way_statistics {
 	WAY_STAT_GOODS   = 0, ///< number of goods transported over this way
-	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
+	WAY_STAT_CONVOIS = 1, ///< number of convois that passed this way
+	WAY_STAT_MAX
 };
 
 /**
@@ -52,14 +53,14 @@ public:
 	static const slist_tpl <weg_t *> & get_alle_wege();
 
 	enum {
-		HAS_SIDEWALK   = 0x01,
-		IS_ELECTRIFIED = 0x02,
-		HAS_SIGN       = 0x04,
-		HAS_SIGNAL     = 0x08,
-		HAS_WAYOBJ     = 0x10,
-		HAS_CROSSING   = 0x20,
-		IS_DIAGONAL    = 0x40, // marker for diagonal image
-		IS_SNOW        = 0x80  // marker, if above snowline currently
+		HAS_SIDEWALK   = 1 << 0,
+		IS_ELECTRIFIED = 1 << 1,
+		HAS_SIGN       = 1 << 2,
+		HAS_SIGNAL     = 1 << 3,
+		HAS_WAYOBJ     = 1 << 4,
+		HAS_CROSSING   = 1 << 5,
+		IS_DIAGONAL    = 1 << 6, // marker for diagonal image
+		IS_SNOW        = 1 << 7  // marker, if above snowline currently
 	};
 
 private:
@@ -99,6 +100,10 @@ private:
 	image_id image;
 	image_id foreground_image;
 
+	bool is_ex_image;
+
+	uint16 max_wayobj_speed;
+
 
 	/**
 	* Initializes all member variables
@@ -111,14 +116,6 @@ private:
 	virtual void init_statistics();
 
 protected:
-
-	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
-
-	/**
-	 * initializes both front and back images
-	 * switch images are set in schiene_t::reserve
-	 */
-	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
 public:
 	weg_t(loadsave_t*) : obj_no_info_t() { init(); }
@@ -135,6 +132,21 @@ public:
 	 * Actual image recalculation
 	 */
 	void calc_image() OVERRIDE;
+
+	enum image_type {
+		image_flat,
+		image_slope,
+		image_diagonal,
+		image_switch,
+		image_ex
+	};
+
+	/**
+	 * initializes both front and back images
+	 * switch images are set in schiene_t::reserve
+	 * needed by tunnel mouths
+	 */
+	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw = false);
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -211,6 +223,8 @@ public:
 	*/
 	virtual ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); };
 
+	virtual ribi_t::ribi get_ribi_masked() const { return (ribi_t::ribi)(ribi & ribi_maske); };
+
 	/**
 	* For signals it is necessary to mask out certain ribi to prevent vehicles
 	* from driving the wrong way (e.g. oneway roads)
@@ -234,6 +248,7 @@ public:
 	*/
 	int get_statistics(int type) const { return statistics[1][type]; }
 
+	sint64 get_stat(int month, int stat_type) const { assert(stat_type<WAY_STAT_MAX  &&  0<=month  &&  month<MAX_WAY_STAT_MONTHS); return statistics[month][stat_type]; }
 	/**
 	* new month
 	*/
@@ -271,6 +286,17 @@ public:
 
 	inline void set_foreground_image( image_id b ) { foreground_image = b; }
 	virtual image_id get_front_image() const OVERRIDE {return foreground_image;}
+
+	inline void set_is_ex_image( bool c ) { is_ex_image = c; }
+	bool get_is_ex_image() const  {return is_ex_image;}
+
+
+	void select_switch_image(bool snow);
+	void select_switch_road_image(bool snow);
+
+
+	void set_max_wayobj_speed(sint32 s) { max_wayobj_speed = s; }
+	sint32 get_max_wayobj_speed() const { return max_wayobj_speed; }
 
 
 	// correct maintenance

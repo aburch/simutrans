@@ -61,9 +61,12 @@
 #	define GET_LAST_ERROR() (errno)
 #endif
 
+#include "../tpl/vector_tpl.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
+
+
 // version of network protocol code
 #define NETWORK_VERSION (1)
 
@@ -79,7 +82,7 @@ void network_set_socket_nodelay( SOCKET sock );
 SOCKET network_open_address(char const* cp, char const*& err);
 
 // if successful, starts a server on this port
-bool network_init_server( int port );
+bool network_init_server( int port, const vector_tpl<std::string> &listen_addrs );
 
 /**
  * returns pointer to command or NULL
@@ -106,8 +109,8 @@ network_command_t* network_check_activity(karte_t *welt, int timeout);
  *    return true if connection is still open and sending can be continued later
  *
  * @param buf the data
- * @param count length of buffer and number of bytes to be sent
- * @param sent number of bytes sent
+ * @param size length of buffer and number of bytes to be sent
+ * @param[out] count number of bytes actually sent
  * @param timeout_ms time-out in milliseconds
  */
 bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms );

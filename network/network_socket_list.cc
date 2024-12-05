@@ -122,26 +122,26 @@ uint32 socket_list_t::server_sockets;
 /**
  * book-keeping for the number of connected / playing clients
  */
-void socket_list_t::book_state_change(uint8 state, sint8 incr)
+void socket_list_t::book_state_change(socket_info_t::connection_state_t state, sint8 incr)
 {
 	switch (state) {
-		case socket_info_t::server:
-			// do not change
-			break;
 		case socket_info_t::connected:
 			connected_clients += incr;
 			break;
 		case socket_info_t::playing:
 			playing_clients += incr;
 			break;
+
+		// do not change
 		case socket_info_t::inactive:
+		case socket_info_t::server:
 		default:
 			break;
 	}
 }
 
 
-void socket_list_t::change_state(uint32 id, uint8 new_state)
+void socket_list_t::change_state(uint32 id, socket_info_t::connection_state_t new_state)
 {
 	book_state_change(list[id]->state, -1);
 	list[id]->state = new_state;
@@ -396,8 +396,12 @@ void socket_list_t::rdwr(packet_t *p, vector_tpl<socket_info_t*> *list)
 		if (p->is_loading()) {
 			list->append(new socket_info_t());
 		}
-		p->rdwr_byte((*list)[i]->state);
-		if ( (*list)[i]->state==socket_info_t::playing) {
+
+		uint8 s = (*list)[i]->state;
+		p->rdwr_byte(s);
+		(*list)[i]->state = socket_info_t::connection_state_t(s);
+
+		if ( s==socket_info_t::playing) {
 			(*list)[i]->rdwr(p);
 		}
 	}

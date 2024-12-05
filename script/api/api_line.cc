@@ -88,6 +88,7 @@ SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 		set_slot(vm, "line_id", line.get_id());
 		return 1;
 	}
+	sq_raise_error(vm, "Invalid line handle provided");
 	return SQ_ERROR;
 }
 

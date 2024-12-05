@@ -26,7 +26,7 @@ void gui_building_t::init(const building_desc_t* d, int r)
 		return;
 	}
 
-	KOORD_VAL rw4 = get_base_tile_raster_width()/4;
+	scr_coord_val rw4 = get_base_tile_raster_width()/4;
 	for(int i=0; i< desc->get_x(layout); i++) {
 		for(int j=0; j < desc->get_y(layout); j++) {
 			image_id id = desc->get_tile(layout,i,j)->get_background(0,0,0);

@@ -9,7 +9,7 @@
 
 #include "../simtypes.h"
 #include "../display/simimg.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../dataobj/ribi.h"
 #include "../descriptor/way_obj_desc.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -49,14 +49,17 @@ public:
 
 	void rotate90() OVERRIDE;
 
+	image_id is_need_crossing_image(ribi_t::ribi ribi, bool front) const;
+
+#if COLOUR_DEPTH != 0 && MULTI_THREAD != 0
 	/**
 	* the back image, drawn before vehicles
 	*/
 	image_id get_image() const OVERRIDE {
-		return hang ? desc->get_back_slope_image_id(hang) :
-			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) :
-				(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir))
-				);
+		return hang ? desc->get_back_slope_image_id(hang) :		
+			(diagonal ? desc->get_back_diagonal_image_id(dir) : 
+				(ribi_t::is_threeway(dir) && desc->has_switch_image() ? is_need_crossing_image(dir,false) : desc->get_back_image_id(dir))
+			);
 	}
 
 	/**
@@ -64,9 +67,35 @@ public:
 	 */
 	image_id get_front_image() const OVERRIDE {
 		return hang ? desc->get_front_slope_image_id(hang) :
-			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) :
-				(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir))
-				);
+			(diagonal ? desc->get_front_diagonal_image_id(dir) : 
+				(ribi_t::is_threeway(dir) && desc->has_switch_image() ? is_need_crossing_image(dir,true) : desc->get_front_image_id(dir))
+			);
+	}
+#else
+	/**
+	* the back image, drawn before vehicles
+	*/
+	image_id get_image() const OVERRIDE {
+		return hang ? desc->get_back_slope_image_id(hang) :		
+			(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir));
+	}
+
+	/**
+	 * the front image, drawn after everything else
+	 */
+	image_id get_front_image() const OVERRIDE {
+		return hang ? desc->get_front_slope_image_id(hang) :
+			(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir));
+	}
+#endif
+	image_id get_image_test() const {
+		return hang ? desc->get_back_slope_image_id(hang) :
+			(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir));
+	}
+
+	image_id get_front_image_test() const {
+		return hang ? desc->get_front_slope_image_id(hang) :
+			(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir));
 	}
 
 	typ get_typ() const OVERRIDE { return wayobj; }

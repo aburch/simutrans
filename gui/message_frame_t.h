@@ -11,11 +11,10 @@
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
-#include "components/gui_scrollpane.h"
+#include "components/gui_scrolled_list.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_textinput.h"
 
-#include "message_stats_t.h"
 #include "components/action_listener.h"
 
 
@@ -27,13 +26,16 @@ class message_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
 	char ibuf[256];
-	message_stats_t stats;
-	gui_scrollpane_t scrolly;
+	gui_scrolled_list_t scrolly;
 	gui_tab_panel_t tabs;     // tab panel for filtering messages
 	gui_textinput_t input;
 	button_t option_bt, copy_bt;
 	vector_tpl<sint32> tab_categories;
 
+	uint32 last_count; // of messages in list
+	sint32 message_type;  // message type for filtering; -1 indicates no filtering
+	void fill_list();
+	void filter_list(sint32 type);
 public:
 	message_frame_t();
 
@@ -48,6 +50,8 @@ public:
 	void rdwr(loadsave_t *) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_messageframe; }
+
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };
 
 #endif

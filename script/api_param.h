@@ -10,7 +10,7 @@
 /** @file api_param.h templates for transfer of function call parameters */
 
 #include "../squirrel/squirrel.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../simtypes.h"
 #include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer_t.h"
@@ -97,7 +97,8 @@ namespace script_api {
 	/**
 	 * Create slots in table/class on the stack:
 	 * it has the same effect as 'table.name <- value'.
-	 * @tparam type of the new value
+	 *
+	 * @tparam T type of the new value
 	 * @param name name of the slot to be created
 	 * @param value value to be set
 	 * @param static_ true if this should be a static class member
@@ -120,7 +121,7 @@ namespace script_api {
 
 	/**
 	 * Sets value to existing variable in table, instance etc at index @p index.
-	 * @tparam type of the new value
+	 * @tparam T type of the new value
 	 * @param name name of the slot to be created
 	 * @param value value to be set
 	 * @param index of table/instance/etc on the stack
@@ -142,7 +143,7 @@ namespace script_api {
 
 	/**
 	 * Gets value to existing variable in table, instance etc at index @p index.
-	 * @tparam type of the new value
+	 * @tparam T type of the new value
 	 * @param name name of the slot to be created
 	 * @param value will be set upon success
 	 * @param index of table/instance/etc on the stack

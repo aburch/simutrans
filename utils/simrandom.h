@@ -7,8 +7,12 @@
 #define UTILS_SIMRANDOM_H
 
 
-#include <stddef.h>
 #include "../simtypes.h"
+
+#include <cstddef>
+
+
+class loadsave_t;
 
 
 uint32 get_random_seed();
@@ -27,10 +31,20 @@ uint32 simrand(const uint32 max);
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
 uint32 simrand_plain();
 
+/// reads/writes the sate of the random number generator
+void simrand_rdwr(loadsave_t *file);
+
 double perlin_noise_2D(const double x, const double y, const double persistence);
 
 // for network debugging, i.e. finding hidden simrands in wrong places
-enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
+enum {
+	INTERACTIVE_RANDOM = 1 << 0,
+	STEP_RANDOM        = 1 << 1,
+	SYNC_STEP_RANDOM   = 1 << 2,
+	LOAD_RANDOM        = 1 << 3,
+	MAP_CREATE_RANDOM  = 1 << 4
+};
+
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
 uint16 get_random_mode();
@@ -57,35 +71,6 @@ template<typename T, template<typename> class U> T const& pick_any_weighted(U<T>
 	return container.at_weight(simrand(container.get_sum_weight()));
 }
 
-/* Randomly select an entry from the given subset of a weighted container. */
-template<typename T, typename U> T const& pick_any_weighted_subset(U const& container)
-{
-	return container.at_weight(simrand(container.get_sum_weight()));
-}
-
-/* Randomly select an entry from the given array. */
-template<typename T, size_t N> T const& pick_any_async(T const (&array)[N])
-{
-	return array[sim_async_rand(N)];
-}
-
-/* Randomly select an entry from the given container. */
-template<typename T, template<typename> class U> T const& pick_any_async(U<T> const& container)
-{
-	return container[sim_async_rand(container.get_count())];
-}
-
-/* Randomly select an entry from the given weighted container. */
-template<typename T, template<typename> class U> T const& pick_any_weighted_async(U<T> const& container)
-{
-	return container.at_weight(sim_async_rand(container.get_sum_weight()));
-}
-
-/* Randomly select an entry from the given subset of a weighted container. */
-template<typename T, typename U> T const& pick_any_weighted_subset_async(U const& container)
-{
-	return container.at_weight(sim_async_rand(container.get_sum_weight()));
-}
 
 // compute integer log10
 uint32 log10( uint32 v );

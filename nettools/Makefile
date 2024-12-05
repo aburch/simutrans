@@ -13,7 +13,6 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
 endif
 
 # Absolutely essential
-CFLAGS += -DNETTOOL
 CXXFLAGS += -DNETTOOL
 
 ifeq ($(OSTYPE),cygwin)
@@ -30,58 +29,44 @@ ifeq ($(OSTYPE),mingw)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
   CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
-    CFLAGS   += -O3
     CXXFLAGS += -O3
 
     # clang does not support fno-schedule-insns
     ifeq ($(findstring clang, $(CXX)),)
-      CFLAGS   += -fno-schedule-insns
       CXXFLAGS += -fno-schedule-insns
-    endif
-
-    ifneq ($(OSTYPE),mac)
-      CFLAGS  += -minline-all-stringops
     endif
   endif
 else
-  CFLAGS   += -O
   CXXFLAGS += -O
 endif
 
 ifdef DEBUG
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
-    CFLAGS   += -g -DDEBUG
     CXXFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    CFLAGS   += -fno-inline
     CXXFLAGS += -fno-inline
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
 else
-  CFLAGS += -DNDEBUG
   CXXFLAGS += -DNDEBUG
 endif
 
 ifdef PROFILE
   ifeq ($(shell expr $(PROFILE) \>= 1), 1)
-    CFLAGS   += -pg -DPROFILE -fno-inline
     CXXFLAGS += -pg -DPROFILE -fno-inline
     LDFLAGS += -pg
   endif
 endif
 
-CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
-CXXFLAGS += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CXXFLAGS += -DREVISION -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
 
 # SOLO_SOURCES contains files which are unique to nettool;
 # SHARED_SOURCES contains those with the exact same object code in nettool and simutrans;
@@ -94,12 +79,12 @@ SHARED_SOURCES += ../network/network_address.cc
 SHARED_SOURCES += ../network/network_cmd.cc
 SHARED_SOURCES += ../network/network_packet.cc
 SHARED_SOURCES += ../network/network_socket_list.cc
-SHARED_SOURCES += ../network/pwd_hash.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/fetchopt.cc
 SHARED_SOURCES += ../utils/sha1.cc
+SHARED_SOURCES += ../utils/sha1_hash.cc
 VARIANT_SOURCES += ../utils/log.cc
 VARIANT_SOURCES += ../network/network.cc
 VARIANT_SOURCES += ../network/network_file_transfer.cc

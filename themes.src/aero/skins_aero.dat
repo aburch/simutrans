@@ -2,7 +2,7 @@
 # Simutrans window skin definitions for themes
 # Author: prissi
 #
-# All image names must start with "> " to have them non zoomable
+# All image name must starts with "> " to have them unzoomeable
 #
 # This theme tries a macintosh-look
 #
@@ -13,18 +13,42 @@ name=Button
 Image[0]=> button.0.0
 Image[1]=> button.0.2
 Image[2]=> button.0.1
-# pressed left, middle, right
-Image[3]=> button.1.0
-Image[4]=> button.1.2
-Image[5]=> button.1.1
-# disabled left, middle, right
-Image[6]=> button.2.0
-Image[7]=> button.2.2
-Image[8]=> button.2.1
-# color mask left, middle, right
-Image[9]=> button.3.0
-Image[10]=> button.3.2
-Image[11]=> button.3.1
+Image[3]=> button.0.3
+Image[4]=> button.0.5
+Image[5]=> button.0.4
+Image[6]=> button.0.6
+Image[7]=> button.0.8
+Image[8]=> button.0.7
+# pressed
+Image[9]=> button.1.0
+Image[10]=> button.1.2
+Image[11]=> button.1.1
+Image[12]=> button.1.3
+Image[13]=> button.1.5
+Image[14]=> button.1.4
+Image[15]=> button.1.6
+Image[16]=> button.1.8
+Image[17]=> button.1.7
+# disabled (will use the unpressed color mask)
+Image[18]=> button.2.0
+Image[19]=> button.2.2
+Image[20]=> button.2.1
+Image[21]=> button.2.3
+Image[22]=> button.2.5
+Image[23]=> button.2.4
+Image[24]=> button.2.6
+Image[25]=> button.2.8
+Image[26]=> button.2.7
+# color mask (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[27]=> button.0.0
+Image[28]=> button.0.2
+Image[29]=> button.0.1
+Image[30]=> button.0.3
+Image[31]=> button.0.5
+Image[32]=> button.0.4
+Image[33]=> button.0.6
+Image[34]=> button.0.8
+Image[35]=> button.0.7
 --
 Obj=menu
 name=Editfield
@@ -55,17 +79,36 @@ Image[8]=> listbox.2.1
 Obj=menu
 name=Roundbutton
 # unpressed left, middle, right
-Image[0]=> roundbutton.0.0
-Image[1]=> roundbutton.0.2
-Image[2]=> roundbutton.0.1
-# pressed left, middle, right
-Image[3]=> roundbutton.1.0
-Image[4]=> roundbutton.1.2
-Image[5]=> roundbutton.1.1
-# disabled left, middle, right
-Image[6]=> roundbutton.2.0
-Image[7]=> roundbutton.2.2
-Image[8]=> roundbutton.2.1
+# unpressed
+Image[0]=> button.0.0
+Image[1]=> button.0.2
+Image[2]=> button.0.1
+Image[3]=> button.0.3
+Image[4]=> button.0.5
+Image[5]=> button.0.4
+Image[6]=> button.0.6
+Image[7]=> button.0.8
+Image[8]=> button.0.7
+# pressed
+Image[9]=> button.1.0
+Image[10]=> button.1.2
+Image[11]=> button.1.1
+Image[12]=> button.1.3
+Image[13]=> button.1.5
+Image[14]=> button.1.4
+Image[15]=> button.1.6
+Image[16]=> button.1.8
+Image[17]=> button.1.7
+# disabled
+Image[18]=> button.2.0
+Image[19]=> button.2.2
+Image[20]=> button.2.1
+Image[21]=> button.2.3
+Image[22]=> button.2.5
+Image[23]=> button.2.4
+Image[24]=> button.2.6
+Image[25]=> button.2.8
+Image[26]=> button.2.7
 --
 Obj=menu
 name=Checkbutton
@@ -122,15 +165,15 @@ Image[23]=> scrollbar.3.4
 # window background
 Obj=menu
 name=Back
-Image[0]=> back.0.0
-Image[1]=> back.0.0
-Image[2]=> back.0.0
-Image[3]=> back.0.0
-Image[4]=> back.0.0
-Image[5]=> back.0.0
-Image[6]=> back.0.0
-Image[7]=> back.0.0
-Image[8]=> back.0.0
+Image[0]=> alt_back.0.0
+Image[1]=> alt_back.0.1
+Image[2]=> alt_back.0.2
+Image[3]=> alt_back.1.0
+Image[4]=> alt_back.1.1
+Image[5]=> alt_back.1.2
+Image[6]=> alt_back.2.0
+Image[7]=> alt_back.2.1
+Image[8]=> alt_back.2.2
 --
 # window symbols
 Obj=menu

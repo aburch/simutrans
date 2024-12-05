@@ -31,7 +31,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roa
 	new_component<gui_fill_t>();
 
 	signal_spacing_inp.add_listener(this);
-	signal_spacing_inp.init(signal_spacing, 1, 50, 1, true, 3);
+	signal_spacing_inp.init(signal_spacing, 1, 255, 1, true, 3);
 	add_component( &signal_spacing_inp );
 
 	remove_button.init( button_t::square_state, "remove interm. signals");

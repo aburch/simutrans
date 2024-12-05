@@ -8,7 +8,7 @@
 
 
 #include "../simtypes.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
 #include "../ifc/simtestdriver.h"
@@ -31,6 +31,9 @@ class route_t;
  */
 class vehicle_base_t : public obj_t
 {
+public:
+	static uint8 diagonal_vehicle_steps_per_tile;
+	
 protected:
 	// offsets for different directions
 	static sint8 dxdy[16];
@@ -38,7 +41,7 @@ protected:
 	// to make the length on diagonals configurable
 	// Number of vehicle steps along a diagonal...
 	// remember to subtract one when stepping down to 0
-	static uint8 diagonal_vehicle_steps_per_tile;
+	// static uint8 diagonal_vehicle_steps_per_tile;
 	static uint8 old_diagonal_vehicle_steps_per_tile;
 	static uint16 diagonal_multiplier;
 
@@ -174,9 +177,9 @@ public:
 	/**
 	 * Vehicle movement: enter tile, add this to the ground.
 	 * @pre position (obj_t::pos) needs to be updated prior to calling this functions
-	 * @return pointer to ground (never NULL)
+	 * @param gr pointer to ground (never NULL)
 	 */
-	virtual void enter_tile(grund_t*);
+	virtual void enter_tile(grund_t *gr);
 
 	/**
 	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
@@ -218,14 +221,14 @@ private:
 	uint32 sum_weight;
 
 	grund_t* hop_check() OVERRIDE;
-	
+
 	static ptrhashtable_tpl<const vehicle_desc_t*, uint32> full_load_weights; // key: name of vehicle desc
 
 	/**
 	 * Calculate friction caused by slopes and curves.
 	 */
 	virtual void calc_friction(const grund_t *gr);
-	
+
 	static uint32 calc_full_load_weight(const vehicle_desc_t*);
 
 protected:
@@ -354,7 +357,7 @@ public:
 	 */
 	inline sint16 get_frictionfactor() const { return current_friction; }
 
-	/* 
+	/*
 	 * Return total weight including freight (in kg!)
 	*/
 	uint32 get_total_weight() const;
@@ -432,10 +435,10 @@ public:
 	uint16 unload_cargo(halthandle_t halt, bool all );
 
 	/**
-	 * Load freight from halt
+	 * Load the given goods
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts);
+	uint16 load_cargo(slist_tpl<ware_t>& goods_to_load);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -486,7 +489,7 @@ private:
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 	koord3d last_stop_for_intersection;
-	
+
 	vector_tpl<koord3d> reserving_tiles;
 
 protected:
@@ -496,7 +499,7 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*) OVERRIDE;
-	
+
 	void leave_tile() OVERRIDE;
 
 	void rotate90() OVERRIDE;
@@ -507,7 +510,7 @@ public:
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
-	
+
 	~road_vehicle_t();
 
 	void set_convoi(convoi_t *c) OVERRIDE;
@@ -529,7 +532,7 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const OVERRIDE { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	obj_t::typ get_typ() const OVERRIDE { return road_vehicle; }
-	
+
 	koord3d get_pos_prev() const { return pos_prev; }
 
 	schedule_t * generate_new_schedule() const OVERRIDE;
@@ -542,7 +545,7 @@ public:
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 
 	void refresh();
-	
+
 	void unreserve_all_tiles();
 };
 
@@ -579,7 +582,7 @@ public:
 
 	// returns true for the way search to an unknown target.
 	bool is_target(const grund_t *,const grund_t *) const OVERRIDE;
-	bool is_coupling_target(const grund_t *, const grund_t *, sint16 &) const OVERRIDE;
+	bool is_coupling_target(const grund_t *, const grund_t *) const OVERRIDE;
 
 	// handles all block stuff and route choosing ...
 	bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8) OVERRIDE;
@@ -587,7 +590,7 @@ public:
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
 	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false ) const;
-	
+
 	bool can_couple(const route_t* route, uint16 start_index, uint16 &coupling_index, uint8 &coupling_steps, bool ignore_signals = false);
 
 	void leave_tile() OVERRIDE;
@@ -601,7 +604,7 @@ public:
 	void set_convoi(convoi_t *c) OVERRIDE;
 
 	virtual schedule_t * generate_new_schedule() const OVERRIDE;
-	
+
 	// step() routine called by convoy
 	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
 };
@@ -710,14 +713,22 @@ public:
 class air_vehicle_t : public vehicle_t
 {
 public:
-	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
+	enum flight_state {
+		taxiing             = 0,
+		departing           = 1,
+		flying              = 2,
+		landing             = 3,
+		looking_for_parking = 4,
+		circling            = 5,
+		taxiing_to_halt     = 6
+	};
 
 private:
 	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
-#ifdef USE_DIFFERENT_WIND
+/* #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
-#endif
+#endif */
 	// only used for route search and approach vectors of get_ribi() (do not need saving)
 	koord3d search_start;
 	koord3d search_end;
@@ -727,6 +738,16 @@ private:
 	sint16 flying_height;
 	sint16 target_height;
 	uint32 search_for_stop, touchdown, takeoff;
+
+	sint16 altitude_level; // for AFHP
+	sint16 landing_distance; // for AFHP
+
+	void calc_altitude_level(sint32 speed_limit_kmh){
+		altitude_level = max(5, speed_limit_kmh/33);
+		altitude_level = min(altitude_level, 30);
+		// landing_distance = altitude_level - 1;
+		landing_distance = altitude_level - 2;
+	}
 
 protected:
 	// jumps to next tile and correct the height ...

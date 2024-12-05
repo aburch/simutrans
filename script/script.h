@@ -60,7 +60,7 @@ public:
 		FORCE,   ///< function has to return, raise error if not
 		FORCEX,  ///< function has to return, raise error if not, give more opcodes
 		QUEUE,   ///< function call can be queued, return value can be propagated by call back
-		TRY,     ///< function call will not be queued, if virtual machine is suspended just return
+		TRY      ///< function call will not be queued, if virtual machine is suspended just return
 	};
 
 	/**
@@ -150,12 +150,21 @@ public:
 		push_param(A3, arg3);
 		do_function_call();
 	}
+	template<class R, class A1, class A2, class A3, class A4>
+	const char* call_function(call_type_t ct, const char* function, R& ret, A1 arg1, A2 arg2, A3 arg3, A4 arg4) {
+		prep_function_call();
+		push_param(A1, arg1);
+		push_param(A2, arg2);
+		push_param(A3, arg3);
+		push_param(A4, arg4);
+		do_function_call();
+	}
 
 	/**
 	 * Registers a c++ function to be available as callback.
 	 * A callback is called when a function call got suspended, resumed, and returned something.
 	 * @tparam F function signature
-	 * @param F function pointer
+	 * @param funcptr function pointer
 	 * @param name register callback under this name
 	 */
 	template<typename F>

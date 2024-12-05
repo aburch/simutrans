@@ -16,7 +16,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../bauer/hausbauer.h"
 #include "../gui/headquarter_info.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "simobj.h"
 #include "../simfab.h"
 #include "../display/simimg.h"
 #include "../display/simgraph.h"
@@ -153,6 +153,17 @@ void gebaeude_t::rotate90()
 		else if(  building_desc->get_all_layouts()==8  &&  building_desc->get_type() >= building_desc_t::city_res  ) {
 			// eight layout city building
 			layout = (layout & 4) + ((layout+3) & 3);
+		}
+		else if(  layout>=16  ) {
+			// diagonal tile layout for stations
+			// construct the rotated layout
+			const bool is_vertical = (layout & 0x30) == 0x10;
+			uint8 bits_to_invert = 0x30; // invert vertical / horizontal
+			bits_to_invert |= is_vertical ? 8 : 1; // front/back or way connected direction
+			if(  ((layout&6) == 2  ||  (layout&6) == 4)  &&  is_vertical  ) {
+				bits_to_invert |= 6; // connection of halt
+			}
+			layout ^= bits_to_invert;
 		}
 		else {
 			// 8 & 16 tile lyoutout for stations
@@ -392,7 +403,7 @@ image_id gebaeude_t::get_image() const
 
 image_id gebaeude_t::get_outline_image() const
 {
-	if (((env_t::hide_buildings != 0 && env_t::hide_with_transparency) || (env_t::highlight_city && this->get_stadt() == env_t::highlighted_city)) && !zeige_baugrube) {
+	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
 		return tile->get_background( anim_frame, 0, season );
 	}
@@ -414,19 +425,13 @@ FLAGGED_PIXVAL gebaeude_t::get_outline_colour() const
 			disp_colour = color_idx_to_rgb(colours[tile->get_desc()->get_type()]) | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
-	else if(env_t::highlight_city) {
-		if(is_city_building() && this->get_stadt() == env_t::highlighted_city) {
-			disp_colour = color_idx_to_rgb(colours[0]) | TRANSPARENT75_FLAG | OUTLINE_FLAG;
-		}
-	}
-
 	return disp_colour;
 }
 
 
 image_id gebaeude_t::get_image(int nr) const
 {
-	if(zeige_baugrube || env_t::hide_buildings || (env_t::highlight_city && this->get_stadt() == env_t::highlighted_city)) {
+	if(zeige_baugrube || env_t::hide_buildings) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -442,9 +447,8 @@ image_id gebaeude_t::get_front_image() const
 	}
 	if (env_t::hide_buildings != 0   &&  (is_city_building()  ||  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_type() < building_desc_t::others))) {
 		return IMG_EMPTY;
-	} else if (env_t::highlight_city && is_city_building()) {
-		return IMG_EMPTY;
-	} else {
+	}
+	else {
 		// Show depots, station buildings etc.
 		return tile->get_foreground( anim_frame, season );
 	}
@@ -536,14 +540,40 @@ bool gebaeude_t::is_city_building() const
 }
 
 
+uint32 gebaeude_t::get_tile_list( vector_tpl<grund_t *> &list ) const
+{
+	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset(); // get origin
+	koord k;
+
+	list.clear();
+	// add all tiles
+	for( k.y = 0; k.y < size.y; k.y++ ) {
+		for( k.x = 0; k.x < size.x; k.x++ ) {
+			if( grund_t* gr = welt->lookup( pos0+k ) ) {
+				if( gebaeude_t* const add_gb = gr->find<gebaeude_t>() ) {
+					if( is_same_building( add_gb ) ) {
+						list.append( gr );
+					}
+				}
+			}
+		}
+	}
+	return list.get_count();
+}
+
+
+
+
 void gebaeude_t::show_info()
 {
 	if(get_fabrik()) {
 		ptr.fab->open_info_window();
 		return;
 	}
-	int old_count = win_get_open_count();
-	bool special = is_headquarter() || is_townhall();
+
+	const uint32 old_count = win_get_open_count();
+	const bool special = is_headquarter() || is_townhall();
 
 	if(is_headquarter()) {
 		create_win( new headquarter_info_t(get_owner()), w_info, magic_headquarter+get_owner()->get_player_nr() );
@@ -555,28 +585,22 @@ void gebaeude_t::show_info()
 	if(!tile->get_desc()->no_info_window()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// iterate over all places to check if there is already an open window
-			const building_desc_t* const building_desc = tile->get_desc();
-			const uint8 layout = tile->get_layout();
-			koord k;
-			for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
-				for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
-					const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-					if (tile == NULL || !tile->has_image()) {
-						continue;
-					}
-					if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k)) {
-						gebaeude_t *gb = gr->find<gebaeude_t>();
-						if (gb  &&  gb->get_tile() == tile) {
-							if (win_get_magic((ptrdiff_t)gb)) {
-								// already open
-								return;
-							}
-						}
-					}
+			gebaeude_t * first_tile = NULL;
+			static vector_tpl<grund_t *> gb_tiles;
+			get_tile_list( gb_tiles );
+			FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+				// no need for check, we jsut did before ...
+				gebaeude_t* gb = gr->find<gebaeude_t>();
+				if( win_get_magic( (ptrdiff_t)gb ) ) {
+					// already open
+					return;
+				}
+				if( first_tile==0 ) {
+					first_tile = gb;
 				}
 			}
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-			get_first_tile()->obj_t::show_info();
+			first_tile->obj_t::show_info();
 		}
 	}
 }
@@ -594,24 +618,16 @@ bool gebaeude_t::is_within_players_network(const player_t* player) const
 	}
 
 	// normal building: iterate over all tiles
-	const building_desc_t* const building_desc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
-	koord k;
-	for (k.x = 0; k.x<building_desc->get_x(layout); k.x++) {
-		for (k.y = 0; k.y<building_desc->get_y(layout); k.y++) {
-			// check for hole in the building ...
-			const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-			if (tile == NULL || !tile->has_image()) {
-				continue;
-			}
-			// now search for stops serving this tile
-			if(  const planquadrat_t *plan = welt->access( get_pos().get_2d() - get_tile()->get_offset() + k )  ) {
-				if(  plan->get_haltlist_count() > 0   ) {
-					const halthandle_t *const halt_list = plan->get_haltlist();
-					for(  int h = 0;  h < plan->get_haltlist_count();  h++  ) {
-						if(  halt_list[h].is_bound()  &&  (halt_list[h]->get_pax_enabled()  || halt_list[h]->get_mail_enabled() )  &&  halt_list[h]->has_available_network(player)  ) {
-							return true;
-						}
+	vector_tpl<grund_t*> gb_tiles;
+	get_tile_list( gb_tiles );
+	FOR( vector_tpl<grund_t*>, gr, gb_tiles ) {
+		// no need for check, we jsut did before ...
+		if( const planquadrat_t* plan = welt->access( gr->get_pos().get_2d()) ) {
+			if( plan->get_haltlist_count() > 0 ) {
+				const halthandle_t* const halt_list = plan->get_haltlist();
+				for( int h = 0; h < plan->get_haltlist_count(); h++ ) {
+					if( halt_list[h].is_bound()  &&  (halt_list[h]->get_pax_enabled()  || halt_list[h]->get_mail_enabled())  &&  halt_list[h]->has_available_network( player ) ) {
+						return true;
 					}
 				}
 			}
@@ -639,19 +655,18 @@ bool gebaeude_t::is_same_building(const gebaeude_t* other) const
 
 gebaeude_t* gebaeude_t::get_first_tile()
 {
-	const building_desc_t* const building_desc = tile->get_desc();
-	const uint8 layout = tile->get_layout();
+	koord size = get_tile()->get_desc()->get_size( get_tile()->get_layout() );
+	const koord3d pos0 = get_pos() - get_tile()->get_offset(); // get origin
 	koord k;
-	for(k.x=0; k.x<building_desc->get_x(layout); k.x++) {
-		for(k.y=0; k.y<building_desc->get_y(layout); k.y++) {
-			const building_tile_desc_t *tile = building_desc->get_tile(layout, k.x, k.y);
-			if (tile==NULL  ||  !tile->has_image()) {
-				continue;
-			}
-			if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
-				gebaeude_t *gb = gr->find<gebaeude_t>();
-				if (gb  &&  gb->get_tile() == tile) {
-					return gb;
+
+	// add all tiles
+	for( k.y = 0; k.y < size.y; k.y++ ) {
+		for( k.x = 0; k.x < size.x; k.x++ ) {
+			if( grund_t* gr = welt->lookup( pos0+k ) ) {
+				if( gebaeude_t* const add_gb = obj_cast<gebaeude_t>(gr->first_obj()) ) {
+					if( is_same_building( add_gb ) ) {
+						return add_gb;
+					}
 				}
 			}
 		}
@@ -744,7 +759,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append("\n");
 		if(get_owner()==NULL) {
 			const sint32 v = (sint32)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_desc()->get_level() + 1) / 100 );
-			buf.printf("\n%s: %ld$\n", translator::translate("Wert"), v);
+			buf.printf("\n%s: %d$\n", translator::translate("Wert"), v);
 		}
 
 		if (char const* const maker = tile->get_desc()->get_copyright()) {
@@ -754,8 +769,11 @@ void gebaeude_t::info(cbuffer_t & buf) const
 #ifdef DEBUG
 		buf.append( "\n\nrotation " );
 		buf.append( tile->get_layout(), 0 );
-		buf.append( " best layout " );
-		buf.append( stadt_t::orient_city_building( get_pos().get_2d() - tile->get_offset(), tile->get_desc(), koord(3,3) ), 0 );
+		if(  !env_t::networkmode  ) {
+			// Calling stadt_t::orient_city_building here in a network game causes a crash.
+			buf.append( " best layout " );
+			buf.append( stadt_t::orient_city_building( get_pos().get_2d() - tile->get_offset(), tile->get_desc(), koord(3,3) ), 0 );
+		}
 		buf.append( "\n" );
 #endif
 	}
@@ -974,58 +992,52 @@ void gebaeude_t::cleanup(player_t *player)
 	}
 
 	player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
+	
+	const grund_t * this_gr = welt->lookup( get_pos() );
+	if(tile->get_desc()->get_all_layouts()==1  ||  is_city_building()  ||  !this_gr) {
+		mark_images_dirty();
+		return;
+	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
-	if(tile->get_desc()->get_all_layouts()>1  &&  !is_city_building()) {
-
-		// realign surrounding buildings...
-		uint32 layout = tile->get_layout();
-
-		// detect if we are connected at far (north/west) end
-		grund_t * gr = welt->lookup( get_pos() );
-		if(gr) {
-			sint8 offset = gr->get_weg_yoff()/TILE_HEIGHT_STEP;
-			gr = welt->lookup( get_pos()+koord3d( (layout & 1 ? koord::east : koord::south), offset) );
-			if(!gr) {
-				// check whether bridge end tile
-				grund_t * gr_tmp = welt->lookup( get_pos()+koord3d( (layout & 1 ? koord::east : koord::south),offset - 1) );
-				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
-					gr = gr_tmp;
-				}
-			}
-			if(gr) {
-				gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4u) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-					if((layoutbase & 1u) == (layout & 1u)) {
-						layoutbase |= 4u; // set far bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
-					}
-				}
-			}
-
-			// detect if near (south/east) end
-			gr = welt->lookup( get_pos()+koord3d( (layout & 1 ? koord::west : koord::north), offset) );
-			if(!gr) {
-				// check whether bridge end tile
-				grund_t * gr_tmp = welt->lookup( get_pos()+koord3d( (layout & 1 ? koord::west : koord::north),offset - 1) );
-				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
-					gr = gr_tmp;
-				}
-			}
-			if(gr) {
-				gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4) {
-					koord xy = gb->get_tile()->get_offset();
-					uint8 layoutbase = gb->get_tile()->get_layout();
-					if((layoutbase & 1u) == (layout & 1u)) {
-						layoutbase |= 2u; // set near bit on neighbour
-						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
-					}
-				}
+	// realign surrounding buildings...
+	const uint32 layout = tile->get_layout();
+	
+	// [straight/vertical/horizontal][layout&1][index_to_lookup]
+	const koord directions_to_lookup[3][2][2] = {
+		{{koord::south, koord::north}, {koord::east, koord::west}},
+		{{koord::north, koord::east}, {koord::west, koord::south}},
+		{{koord::south, koord::east}, {koord::west, koord::north}}
+	};
+	const ribi_t::ribi bit_4_turn_on_dir[3] = {
+		ribi_t::southeast, // straight
+		ribi_t::northwest, // vertical diagonal
+		ribi_t::southwest // horizontal diagonal
+	};
+	
+	// check adjacent tiles and turn on the connection bit.
+	const sint8 offset = this_gr->get_weg_yoff()/TILE_HEIGHT_STEP;
+	// WORKAROUND: station extensions have somehow inverted layout bits.
+	const bool is_generic_ext = tile->get_desc()->get_type() == building_desc_t::generic_extension;
+	for(  uint8 i=0;  i<2;  i++  ) {
+		const koord dir = directions_to_lookup[(layout&0x30)>>4][(layout&1)^is_generic_ext][i];
+		grund_t* gr = welt->lookup(get_pos() + koord3d(dir, offset));
+		if(!gr) {
+			// check whether bridge end tile
+			grund_t * gr_tmp = welt->lookup(get_pos() + koord3d(dir, offset - 1));
+			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+				gr = gr_tmp;
 			}
 		}
+		gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+		if(  !gb  ||  gb->get_tile()->get_desc()->get_all_layouts()<=4u  ) {
+			continue;
+		}
+		const koord xy = gb->get_tile()->get_offset();
+		uint8 layoutbase = gb->get_tile()->get_layout();
+		const bool bit_4_turn_on = (ribi_type(dir) & bit_4_turn_on_dir[(layoutbase&0x30)>>4]) > 0;
+		layoutbase |= bit_4_turn_on ? 4u : 2u; // set far bit on neighbour
+		gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 	}
 	mark_images_dirty();
 }

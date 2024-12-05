@@ -8,6 +8,8 @@
 
 
 #include "../simtypes.h"
+#include "../simunits.h"
+
 
 /**
  * Class dealing with overtaking

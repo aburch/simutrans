@@ -16,6 +16,7 @@
 #include "../../simline.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
+#include "../../dataobj/schedule.h"
 
 
 using namespace script_api;
@@ -100,7 +101,8 @@ call_tool_init player_create_line(player_t *player, waytype_t wt)
 	}
 	// build param string (see schedule_list_gui_t::action_triggered)
 	cbuffer_t buf;
-	buf.printf( "c,0,%i,0,0|%i|", lt, lt);
+	const sint64 departure_group_slot_id = schedule_t::issue_new_departure_slot_group_id();
+	buf.printf( "c,0,%i,0,0|%lli|%i|", lt, departure_group_slot_id, lt );
 	return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 }
 

@@ -56,9 +56,12 @@ void kanal_t::rdwr(loadsave_t *file)
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_kanal;
+				if (desc == NULL) {
+					dbg->fatal("kanal_t::rdwr", "Trying to load canal but pakset has no water ways!");
+				}
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
-			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
+			dbg->warning("kanal_t::rdwr()", "Unknown canal '%s' replaced by '%s' (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 		set_desc(desc);
 		if(old_max_speed>0) {

@@ -23,7 +23,6 @@ CFLAGS  += $(PNG_CFLAGS)
 LDFLAGS += $(PNG_LDFLAGS)
 
 # Absolutely essential
-CFLAGS += -DMAKEOBJ
 CXXFLAGS += -DMAKEOBJ
 
 STD_LIBS += -lz -lbz2 -lpng
@@ -42,63 +41,48 @@ ifeq ($(OSTYPE),mingw)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
   CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  CFLAGS   += -I/usr/local/include
   CXXFLAGS += -I/usr/local/include
 endif
 
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
-    CFLAGS   += -O3
     CXXFLAGS += -O3
 
     # clang does not support fno-schedule-insns
     ifeq ($(findstring clang, $(CXX)),)
-      CFLAGS   += -fno-schedule-insns
       CXXFLAGS += -fno-schedule-insns
-    endif
-
-    ifneq ($(OSTYPE),mac)
-      CFLAGS  += -minline-all-stringops
     endif
   endif
 else
-  CFLAGS   += -O
   CXXFLAGS += -O
 endif
 
 ifdef DEBUG
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
-    CFLAGS   += -g -DDEBUG
     CXXFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    CFLAGS   += -fno-inline
     CXXFLAGS += -fno-inline
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
 else
-  CFLAGS += -DNDEBUG
   CXXFLAGS += -DNDEBUG
 endif
 
 ifdef PROFILE
   ifeq ($(shell expr $(PROFILE) \>= 1), 1)
-    CFLAGS   += -pg -DPROFILE -fno-inline
     CXXFLAGS += -pg -DPROFILE -fno-inline
     LDFLAGS += -pg
   endif
 endif
 
-CFLAGS   += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
-CXXFLAGS += -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CXXFLAGS += -DREVISION -Wall -Wextra -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
 
 # SOLO_SOURCES contains files which are unique to makeobj;
 # SHARED_SOURCES contains those with the exact same object code in makeobj and simutrans;
@@ -133,14 +117,19 @@ SOLO_SOURCES += ../descriptor/writer/vehicle_writer.cc
 SOLO_SOURCES += ../descriptor/writer/way_writer.cc
 SOLO_SOURCES += ../descriptor/writer/way_obj_writer.cc
 SOLO_SOURCES += ../descriptor/writer/xref_writer.cc
-SOLO_SOURCES += ../utils/dr_rdpng.cc
 SHARED_SOURCES += ../descriptor/image.cc
 SHARED_SOURCES += ../dataobj/freelist.cc
+SHARED_SOURCES += ../io/raw_image.cc
+SHARED_SOURCES += ../simio.h
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 VARIANT_SOURCES += ../dataobj/tabfile.cc
+VARIANT_SOURCES += ../io/classify_file.cc
+VARIANT_SOURCES += ../io/raw_image_bmp.cc
+VARIANT_SOURCES += ../io/raw_image_png.cc
+VARIANT_SOURCES += ../io/raw_image_ppm.cc
 VARIANT_SOURCES += ../utils/log.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)

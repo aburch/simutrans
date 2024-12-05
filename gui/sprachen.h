@@ -37,7 +37,7 @@ public:
 	 * Causes the required fonts for currently selected
 	 * language to be loaded if true
 	 */
-	static void init_font_from_lang(bool font);
+	static void init_font_from_lang();
 
 	sprachengui_t();
 

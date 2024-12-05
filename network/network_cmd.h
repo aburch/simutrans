@@ -11,12 +11,14 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "network.h"
-#include "pwd_hash.h"
+#include "../utils/sha1_hash.h"
+
 
 class address_list_t;
 class karte_t;
 class packet_t;
 class socket_info_t;
+
 
 // actual commands
 enum {
@@ -49,9 +51,10 @@ protected:
 	// ready for sending
 	bool   ready;
 public:
-	network_command_t(uint16 /*id*/);
+	network_command_t(uint16 id);
 	network_command_t();
 	virtual ~network_command_t();
+
 	// receive: calls rdwr from packet
 	// return true on success
 	bool receive(packet_t *p);
@@ -72,9 +75,9 @@ public:
 	// if returns true this can be deleted afterwards
 	virtual bool execute(karte_t *) { return true;}
 
-	virtual const char* get_name() { return "network_command_t";}
-
 	uint16 get_id() { return id;}
+
+	const char *get_name() const { return id_to_string(id); }
 
 	SOCKET get_sender();
 
@@ -87,6 +90,8 @@ public:
 	// creates an instance:
 	// gets the nwc-id from the packet, and reads its data
 	static network_command_t* read_from_packet(packet_t *p);
+
+	static const char *id_to_string(uint16 id);
 };
 
 
@@ -98,17 +103,17 @@ public:
 	uint32 flag;
 
 	enum {
-		SRVC_LOGIN_ADMIN     = 0,
-		SRVC_ANNOUNCE_SERVER = 1,
-		SRVC_GET_CLIENT_LIST = 2,
-		SRVC_KICK_CLIENT     = 3,
-		SRVC_BAN_CLIENT      = 4,
-		SRVC_GET_BLACK_LIST  = 5,
-		SRVC_BAN_IP          = 6,
-		SRVC_UNBAN_IP        = 7,
-		SRVC_ADMIN_MSG       = 8,
-		SRVC_SHUTDOWN        = 9,
-		SRVC_FORCE_SYNC      = 10,
+		SRVC_LOGIN_ADMIN      = 0,
+		SRVC_ANNOUNCE_SERVER  = 1,
+		SRVC_GET_CLIENT_LIST  = 2,
+		SRVC_KICK_CLIENT      = 3,
+		SRVC_BAN_CLIENT       = 4,
+		SRVC_GET_BLACK_LIST   = 5,
+		SRVC_BAN_IP           = 6,
+		SRVC_UNBAN_IP         = 7,
+		SRVC_ADMIN_MSG        = 8,
+		SRVC_SHUTDOWN         = 9,
+		SRVC_FORCE_SYNC       = 10,
 		SRVC_GET_COMPANY_LIST = 11,
 		SRVC_GET_COMPANY_INFO = 12,
 		SRVC_UNLOCK_COMPANY   = 13,
@@ -130,8 +135,6 @@ public:
 #endif
 
 	void rdwr() OVERRIDE;
-
-	const char* get_name() OVERRIDE { return "nwc_service_t";}
 };
 
 
@@ -151,7 +154,7 @@ public:
 	bool execute(karte_t *) OVERRIDE;
 #endif
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_auth_player_t";}
+
 	pwd_hash_t hash;
 	uint16 player_unlocked;
 	uint8  player_nr;

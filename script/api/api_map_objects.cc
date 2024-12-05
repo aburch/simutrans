@@ -12,7 +12,7 @@
 #include "../api_class.h"
 #include "../api_function.h"
 
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
 #include "../../simdepot.h"
 #include "../../simworld.h"
 #include "../../boden/grund.h"
@@ -31,6 +31,7 @@
 // for depot tools
 #include "../../simconvoi.h"
 #include "../../simmenu.h"
+#include "../../descriptor/building_desc.h"
 #include "../../descriptor/vehicle_desc.h"
 
 
@@ -434,6 +435,26 @@ bool field_is_deleteable(field_t* f)
 	return f->is_deletable( welt->get_player(1) ) == NULL;
 }
 
+
+vector_tpl<sint64> const& get_way_stat(weg_t* weg, sint32 INDEX)
+{
+	static vector_tpl<sint64> v;
+	v.clear();
+	if (weg  &&  0<=INDEX  &&  INDEX<WAY_STAT_MAX) {
+		for(uint16 i = 0; i < MAX_WAY_STAT_MONTHS; i++) {
+			v.append( weg->get_stat(i, INDEX) );
+		}
+	}
+	return v;
+}
+
+vector_tpl<grund_t*> const& get_tile_list( gebaeude_t *gb )
+{
+	static vector_tpl<grund_t*> list;
+	gb->get_tile_list( list );
+	return list;
+}
+
 void export_map_objects(HSQUIRRELVM vm)
 {
 	/**
@@ -552,6 +573,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &gebaeude_t::get_tile, "get_desc");
 	/**
+	 * @returns coord for all tiles
+	 */
+	register_method( vm, &get_tile_list, "get_tile_list", true );
+	/**
 	 * @returns true if both building tiles are part of one (multi-tile) building
 	 */
 	register_method(vm, &gebaeude_t::is_same_building, "is_same_building");
@@ -644,6 +669,16 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns max speed in kmh.
 	 */
 	register_method(vm, &weg_t::get_max_speed, "get_max_speed");
+	/**
+	 * Get monthly statistics of goods transported on this way.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_way_stat, "get_transported_goods", freevariable<sint32>(WAY_STAT_GOODS), true);
+	/**
+	 * Get monthly statistics of convoys that used this way.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_way_stat, "get_convoys_passed",    freevariable<sint32>(WAY_STAT_CONVOIS), true);
 	end_class(vm);
 
 

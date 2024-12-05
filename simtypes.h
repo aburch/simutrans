@@ -116,7 +116,17 @@ enum climate_bits
 	all_but_arctic_climate = ALL_CLIMATES & ~arctic_climate_bit
 };
 
-enum sound_type_t { TOOL_SOUND=0, TRAFFIC_SOUND=1, AMBIENT_SOUND=2, FACTORY_SOUND=3, CROSSING_SOUND=4, CASH_SOUND=5, MAX_SOUND_TYPES, ALL_SOUND=255 };
+enum sound_type_t {
+	TOOL_SOUND     = 0,
+	TRAFFIC_SOUND  = 1,
+	AMBIENT_SOUND  = 2,
+	FACTORY_SOUND  = 3,
+	CROSSING_SOUND = 4,
+	CASH_SOUND     = 5,
+	MAX_SOUND_TYPES,
+
+	ALL_SOUND = 0xFF
+};
 
 /**
  * Vordefinierte Wegtypen.
@@ -146,7 +156,7 @@ enum systemtype_t {
 	type_runway   = 1,   ///< flag for runway (only aircrafts)
 	type_tram     = 7,   ///< tram track (waytype = track_wt)
 	type_river    = 255, ///< flag for river
-	type_all      = 255, ///< special ?
+	type_all      = 255  ///< special ?
 };
 
 /**

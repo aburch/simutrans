@@ -23,6 +23,12 @@ namespace script_api {
 		}
 		return t.is_selected();
 	}
+
+	bool is_game_paused()
+	{
+		tool_pause_t t;
+		return t.is_selected();
+	}
 };
 
 using namespace script_api;
@@ -75,6 +81,13 @@ void export_control(HSQUIRRELVM vm)
 	 * @returns true when successful.
 	 */
 	STATIC register_method(vm, &pause_game, "pause", false, true);
+	/**
+	 * Checks whether game is paused.
+	 * Note that scripts only run for unpaused games.
+	 * This can only be used in functions that are called by user actions (e.g., is_*_allowed).
+	 * @returns true when successful.
+	 */
+	STATIC register_method(vm, &is_game_paused, "is_paused", false, true);
 
 	/**
 	 * Scripts can pause the game in case of error. Toggle this behavior by parameter @p p.

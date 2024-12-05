@@ -137,11 +137,12 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 		}
 		format++;
 		// read out position
-		int i = atoi(format);
+		const int i = atoi(format);
 		// skip numbers
 		while(*format  &&  ('0'<=*format  &&  *format<='9') ) format++;
+
 		// check for correct positional argument
-		if (i>0) {
+		if (i>0 && i<=max_params) {
 			if (format  &&  *format=='$')  {
 				format ++;
 				if (found > 0  &&  !positional) {
@@ -168,7 +169,7 @@ static void get_format_mask(const char* format, char *typemask, int max_params, 
 				if (mask == ' ') {
 					// broken format string
 				}
-				else {
+				else if (pos < max_params) {
 					// found valid format
 					typemask[pos] = mask;
 					found++;

@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                             Font: Prop-Latin1.bdf                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -45,6 +45,8 @@ clf_btn_invers
 inv.
 clf_btn_keine
 none
+climate area percentage
+Size single climate 
 CROSSING_SOUND
 crossign warnings
 FACTORY_SOUND
@@ -57,6 +59,8 @@ gl_btn_sort_revenue
 Revenue
 gl_btn_unsort
 Unsorted
+height based
+Climate from height
 hl_btn_filter_disable
 Disabled
 hl_btn_filter_enable
@@ -79,16 +83,28 @@ hlf_btn_invers
 inv.
 hlf_btn_keine
 none
+humidities
+humitdity borders
 lake
 Create inland lakes
+Lake height
+max. lake height
+moisture land
+increase over land
+moisture water
+increase over water
 Queueing
 Waiting Trend
+rainfall
+humidity
 Road toll
 Road Toll
 Scenario
 Scenario Info
 Start this as a server
 Start a server using this game.
+temperature-humidity based
+Climates from weather
 TOOL_SOUND
 tool action sounds
 TRAFFIC_SOUND
@@ -98,19 +114,19 @@ Passing through
 #_________________________________climates_text_________________________________
 #_________________________________climates_text_________________________________
 arctic
-Arctic climate
+Arctic
 desert
-Desert climate
+Desert
 mediterran
-Mediterranean climate
+Mediterranean
 rocky
-Alpine (rocky) climate
+Alpine (rocky)
 temperate
-Temperate climate
+Temperate
 tropic
-Tropical climate
+Tropical
 tundra
-Tundra climate
+Tundra
 #__________________________________error_text___________________________________
 #__________________________________error_text___________________________________
  Loading scenario script failed
@@ -173,6 +189,8 @@ Not enough money!
 You do not have enough\nmoney to buy this!
 Only public player can lock games!
 Only a public player can lock games!
+Only up and down movement in the underground!
+An underground tile can be only raised and lowered using the all up/down tools!
 Out of funds
 You don't have enough money left for this!
 Post muss neben\nHaltestelle\nliegen!\n
@@ -194,7 +212,9 @@ Rail stations must\nbe placed on the\nrailroad track.\n
 <h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
 <title>Help</title><h1>Help Index</h1><p><it>About Simutrans</it></p>%1$s<p><it>How to use</it></p>%2$s<p><it>How to start a game</it></p>%4$s<p><it>How to play</it></p>%5$s<p><it>Tools</it></p>%3$s<p><it>Others windows</it></p>%6$s
 <title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Keyboard Binding</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.\n</p>\n<p>\n<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts in game-view.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text in game-view.<br>\n[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or  [<em> less than symbol</em>]: zoom-out game-view.\n[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br></p>\n<p>\n[<em>1</em>]: scroll game-view south-wards.<br>\n[<em>2</em>]: scroll game-view south-east-wards.<br>\n[<em>3</em>]: scroll game-view east-wards.<br>\n[<em>4</em>]: scroll game-view south-west-wards.<br>\n[<em>6</em>]: scroll game-view north-east-wards.<br>\n[<em>7</em>]: scroll game-view west-wards.<br>\n[<em>8</em>]: scroll game-view north-west-wards.<br>\n[<em>9</em>]: scroll game-view north-wards.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on <a href="map.txt">Map</a> to see links in <a href="industry_info.txt">Industry Supply Chain</a>.<br>\n[<em>CTRL</em>] + tool: build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n</p>
+<title>Keyboard Binding</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<p><strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or  [<em> less than symbol</em>]: zoom-out game-view.\n[<em>CTRL</em>] + tool: build straighter ways (even over faster ways) or reverse selection order during query or deletion.<br>\n</p>
+Color-coded terrain according to altitude.
+Show/hide terrain contour shading.
 Decrease water height
 Drain water one level
 Highlite depots
@@ -301,8 +321,16 @@ Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
 You have %d months\nto pay off your debt.\n
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
+#_________________________________program text__________________________________
+#_________________________________program text__________________________________
+vh_title
+List of all vehicles
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
+(%.2f$/km %.2f$/m)
+ (%.2f$/km %.2f$/month)
+(%.2f$/km)
+ (%.2f$/km)
 (%i)-
 (%i) 
 \nBauzeit bis
@@ -341,6 +369,8 @@ With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
 %d vehicles stored here.
 %i car(s),
 %i cars, 
+%i km/h (max. %ikm/h)
+%i km/h (max. %i km/h)
 %i years %i months old.
 Age: %i years and %i months
 %s at (%i,%i) now public stop.
@@ -414,6 +444,8 @@ Add server
 Add stops for backward travel
 Add stops for backward travel.
 Air
+Airline
+air_wt
 runway/taxiway
 aircraft_tab
 Freight planes
@@ -468,7 +500,7 @@ biological
 Blockstrecke ist\nbelegt\n
 \nRail block is in use\nby another train!\n
 Boden
-Land
+Ground
 Bonusspeed: %i km/h
 Max. possible speed: %i km/h
 bridge is too high for its type!
@@ -627,8 +659,8 @@ Copy the selected convoi and its schedule or line
 Copy the selected convoy and its schedule or line
 cost for removal
 Cost to remove 
-Cost: %8s (%.2f$/km %.f$/m)\n
-Cost: %s (%.2f$/km %.2fm)\n
+Cost: %8s (%.2f$/km %.2f$/m)\n
+Cost: %s (%.2f$/km %.2f$/month)\n
 curiosity builder
 Curiosity builder
 curlist_title
@@ -665,6 +697,8 @@ Dock
 dock
 Dock must be built on single slope!
 Docks must be built on a single-sloped tile.
+dp_title
+Depot list
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 You have %d months to repay your debt.
 Durchsatz
@@ -1232,7 +1266,7 @@ Sliced map view
 Sort by
 sort passenger/freight by
 special freight
-Special Freight
+Special freight
 Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Speedbonus in percent\nrequires minimum speed for road %i km/h,\nrail %i km/h, ships %i km/h, planes %i km/h,
 Speedlimit

@@ -10,42 +10,31 @@
 #include "obj_reader.h"
 
 
-class tile_reader_t : public obj_reader_t {
-	static tile_reader_t the_instance;
+class tile_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(tile_reader_t, obj_tile, "tile");
 
-	tile_reader_t() { register_reader(); }
 public:
-	static tile_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_tile; }
-	char const* get_type_name() const OVERRIDE { return "tile"; }
-
-	/**
-	 * Read a node. Does version check and compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
 
 
-class building_reader_t : public obj_reader_t {
-	static building_reader_t the_instance;
+class building_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(building_reader_t, obj_building, "building");
 
-	building_reader_t() { register_reader(); }
 protected:
-	void register_obj(obj_desc_t*&) OVERRIDE;
+	/// @copydoc obj_reader_t::register_obj
+	void register_obj(obj_desc_t *&desc) OVERRIDE;
+
+	/// @copydoc obj_reader_t::successfully_loaded
 	bool successfully_loaded() const OVERRIDE;
 
 public:
-	static building_reader_t*instance() { return &the_instance; }
-
-	obj_type get_type() const OVERRIDE { return obj_building; }
-	char const* get_type_name() const OVERRIDE { return "building"; }
-
-	/**
-	 * Read a node. Does version check and compatibility transformations.
-	 */
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
-
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 };
+
 
 #endif

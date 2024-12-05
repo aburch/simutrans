@@ -50,7 +50,7 @@ void sve_info_t::rdwr(loadsave_t *file)
 	const char *s = strdup(pak.c_str());
 	file->rdwr_str(s);
 	if (file->is_loading()) {
-		pak = s;
+		pak = s ? s : "<unknown pak>";
 	}
 	free(const_cast<char *>(s));
 	file->rdwr_longlong(mod_time);
@@ -72,7 +72,7 @@ bool loadsave_frame_t::item_action(const char *filename)
 			welt->switch_server( false, true );
 		}
 		else if(  env_t::server  ) {
-			welt->announce_server(0);
+			welt->announce_server(karte_t::SERVER_ANNOUNCE_HELLO);
 		}
 		DBG_MESSAGE( "loadsave_frame_t::item_action", "load world %li ms", dr_time() - start_load );
 	}
@@ -143,7 +143,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 		 * Upon an error the cache will be rebuilt then next time.
 		 */
 		dr_rename( SAVE_PATH_X "_cached.xml", SAVE_PATH_X "_load_cached.xml" );
-		if(  file.rd_open(SAVE_PATH_X "_load_cached.xml")  ) {
+		if(  file.rd_open(SAVE_PATH_X "_load_cached.xml") == loadsave_t::FILE_STATUS_OK  ) {
 			// ignore comment
 			const char *text=NULL;
 			file.rdwr_str(text);
@@ -244,7 +244,8 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached.xml";
-	if(  file.wr_open(cache_file, loadsave_t::xml, 0, "cache", SAVEGAME_VER_NR)  ) {
+
+	if(  file.wr_open(cache_file, loadsave_t::xml, 0, "cache", SAVEGAME_VER_NR) == loadsave_t::FILE_STATUS_OK  ) {
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);
 		FOR(stringhashtable_tpl<sve_info_t*>, const& i, cached_info) {

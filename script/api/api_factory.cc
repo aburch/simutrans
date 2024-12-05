@@ -8,6 +8,7 @@
 /** @file api_factory.cc exports factory related functions. */
 
 #include "get_next.h"
+#include "api_obj_desc_base.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
@@ -113,6 +114,10 @@ vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
 	return square_get_halt_list(plan);
 }
 
+ leitung_t* factory_get_transformer( fabrik_t* fab )
+ {
+	 return fab->get_transformers().empty() ? NULL :fab->get_transformers().front();
+ }
 
 call_tool_init factory_set_name(fabrik_t *fab, const char* name)
 {
@@ -355,7 +360,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Get connected transformer (if any).
 	 * @returns transformer
 	 */
-	register_method(vm, &fabrik_t::get_transformer, "get_transformer");
+	register_method(vm, factory_get_transformer, "get_transformer", true);
 	/**
 	 * @returns number of fields belonging to this factory
 	 */
@@ -364,6 +369,18 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns minimum number of fields required
 	 */
 	register_method(vm, &fabrik_t::get_min_field_count, "get_min_field_count");
+	/**
+	 * @returns factory descriptor
+	 */
+	register_method(vm, &fabrik_t::get_desc, "get_desc");
+	/**
+	 * @returns factory rotation
+	 */
+	register_method(vm, &fabrik_t::get_rotate, "get_rotate");
+	/**
+	 * @returns factory base production
+	 */
+	register_method(vm, &fabrik_t::get_base_production, "get_base_production");
 	// pop class
 	end_class(vm);
 

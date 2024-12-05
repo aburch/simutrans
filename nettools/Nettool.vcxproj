@@ -90,10 +90,10 @@
     <ClCompile Include="..\network\network_file_transfer.cc" />
     <ClCompile Include="..\network\network_packet.cc" />
     <ClCompile Include="..\network\network_socket_list.cc" />
-    <ClCompile Include="..\network\pwd_hash.cc" />
     <ClCompile Include="..\utils\fetchopt.cc" />
     <ClCompile Include="..\utils\log.cc" />
     <ClCompile Include="..\utils\sha1.cc" />
+    <ClCompile Include="..\utils\sha1_hash.cc" />
     <ClCompile Include="..\utils\simstring.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -147,7 +147,6 @@
     <ClInclude Include="..\network\network_packet.h" />
     <ClInclude Include="..\network\network_socket_list.h" />
     <ClInclude Include="..\network\pakset_info.h" />
-    <ClInclude Include="..\network\pwd_hash.h" />
     <ClInclude Include="..\sys\simsys.h" />
     <ClInclude Include="..\tpl\hashtable_tpl.h" />
     <ClInclude Include="..\tpl\quickstone_tpl.h" />
@@ -161,6 +160,7 @@
     <ClInclude Include="..\utils\log.h" />
     <ClInclude Include="..\utils\plainstring.h" />
     <ClInclude Include="..\utils\sha1.h" />
+    <ClInclude Include="..\utils\sha1_hash.h" />
     <ClInclude Include="..\utils\simstring.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

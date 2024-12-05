@@ -351,9 +351,8 @@ void finance_t::set_assets(const sint64 (&assets)[TT_MAX])
 }
 
 
-void finance_t::update_assets(sint64 const delta, const waytype_t wt)
+void finance_t::update_assets(sint64 const delta, const transport_type tt)
 {
-	transport_type tt = translate_waytype_to_tt(wt);
 	veh_year[ tt][0][ATV_NON_FINANCIAL_ASSETS] += delta;
 	veh_month[tt][0][ATV_NON_FINANCIAL_ASSETS] += delta;
 	veh_year[ TT_ALL][0][ATV_NON_FINANCIAL_ASSETS] += delta;
@@ -361,6 +360,12 @@ void finance_t::update_assets(sint64 const delta, const waytype_t wt)
 
 	com_year[ 0][ATC_NETWEALTH] += delta;
 	com_month[0][ATC_NETWEALTH] += delta;
+}
+
+void finance_t::update_assets(sint64 const delta, const waytype_t wt)
+{
+	transport_type tt = translate_waytype_to_tt(wt);
+	update_assets(delta, tt);
 }
 
 
@@ -389,7 +394,7 @@ transport_type finance_t::translate_waytype_to_tt(const waytype_t wt)
 #define OLD_MAX_PLAYER_HISTORY_MONTHS  (12) // number of months to keep history
 
 enum player_cost {
-	COST_CONSTRUCTION=0,     // Construction
+	COST_CONSTRUCTION = 0,   // Construction
 	COST_VEHICLE_RUN,        // Vehicle running costs
 	COST_NEW_VEHICLE,        // New vehicles
 	COST_INCOME,             // Income
@@ -407,7 +412,7 @@ enum player_cost {
 	COST_TRANSPORTED_GOOD,
 	COST_ALL_CONVOIS,        // number of convois
 	COST_SCENARIO_COMPLETED, // scenario success (only useful if there is one ... )
-	COST_WAY_TOLLS,
+	COST_WAY_TOLLS
 	// OLD_MAX_PLAYER_COST = 19
 };
 

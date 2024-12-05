@@ -17,6 +17,7 @@
 #include "gui/curiosity_edit.h"
 #include "gui/citybuilding_edit.h"
 #include "gui/baum_edit.h"
+#include "gui/groundobj_edit.h"
 #include "gui/jump_frame.h"
 #include "gui/optionen.h"
 #include "gui/map_frame.h"
@@ -49,6 +50,11 @@
 #include "gui/depotlist_frame.h"
 #include "gui/vehiclelist_frame.h"
 #include "gui/script_tool_frame.h"
+#include "gui/route_search_frame.h"
+
+#include "obj/baum.h"
+#include "obj/groundobj.h"
+
 
 class player_t;
 
@@ -76,7 +82,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Einstellungen aendern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_optionen_gui_t); }
 	bool init(player_t*) OVERRIDE{
-		create_win(240, 120, new optionen_gui_t(), w_info, magic_optionen_gui_t);
+		create_win(-1, -1, new optionen_gui_t(), w_info, magic_optionen_gui_t, true);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_optionen_gui_t); return false; }
@@ -104,10 +110,10 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player) const OVERRIDE{ return player->get_player_nr() == 1 ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t* player) const OVERRIDE{ return player->get_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
-		if (player->get_player_nr() != welt->get_public_player()->get_player_nr()) {
+		if (!player->is_public_service()) {
 			create_win(new schedule_list_gui_t(player), w_info, magic_line_management_t + player->get_player_nr());
 		}
 		return false;
@@ -332,12 +338,12 @@ class dialog_list_halt_t : public tool_t {
 public:
 	dialog_list_halt_t() : tool_t(DIALOG_LIST_HALT | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("hl_title"); }
-	bool is_selected() const OVERRIDE{ return win_get_magic(magic_halt_list_t + welt->get_active_player_nr()); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_halt_list + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
-		create_win(new halt_list_frame_t(player), w_info, magic_halt_list_t + player->get_player_nr());
+		create_win(new halt_list_frame_t(), w_info, magic_halt_list + player->get_player_nr());
 		return false;
 	}
-	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_halt_list_t + player->get_player_nr()); return false; }
+	bool exit(player_t* player) OVERRIDE{ destroy_win(magic_halt_list + player->get_player_nr()); return false; }
 	bool is_init_network_safe() const OVERRIDE{ return true; }
 	bool is_work_network_safe() const OVERRIDE{ return true; }
 };
@@ -347,10 +353,10 @@ class dialog_list_convoi_t : public tool_t {
 public:
 	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
-		create_win(new convoi_frame_t(player), w_info, magic_convoi_list + player->get_player_nr());
+		create_win(new convoi_frame_t(), w_info, magic_convoi_list + player->get_player_nr());
 		return false;
 	}
 	bool exit(player_t* const player) OVERRIDE{ destroy_win(magic_convoi_list + player->get_player_nr()); return false; }
@@ -364,7 +370,7 @@ public:
 	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("dp_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depotlist + welt->get_active_player_nr()); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == 1 ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE{
 		create_win(new depotlist_frame_t(player), w_info, magic_depotlist + player->get_player_nr());
 		return false;
@@ -505,15 +511,33 @@ class dialog_edit_tree_t : public tool_t {
 public:
 	dialog_edit_tree_t() : tool_t(DIALOG_EDIT_TREE | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("baum builder"); }
-	image_id get_icon(player_t *) const OVERRIDE { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const OVERRIDE { return tree_builder_t::has_trees() ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_tree); }
 	bool init(player_t* player) OVERRIDE{
-		if (baum_t::get_count() > 0 && !is_selected()) {
+		if(  tree_builder_t::has_trees()  && !is_selected()  ) {
 			create_win(new baum_edit_frame_t(player), w_info, magic_edit_tree);
 		}
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_edit_tree); return false; }
+	bool is_init_network_safe() const OVERRIDE{ return true; }
+	bool is_work_network_safe() const OVERRIDE{ return true; }
+};
+
+/* groundobj placing dialog */
+class dialog_edit_groundobj_t : public tool_t {
+public:
+	dialog_edit_groundobj_t() : tool_t(DIALOG_EDIT_GROUNDOBJ | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("groundobj builder"); }
+	image_id get_icon(player_t *) const OVERRIDE { return groundobj_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_groundobj); }
+	bool init(player_t* player) OVERRIDE{
+		if (!is_selected()) {
+			create_win(new groundobj_edit_frame_t(player), w_info, magic_edit_groundobj);
+		}
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_edit_groundobj); return false; }
 	bool is_init_network_safe() const OVERRIDE{ return true; }
 	bool is_work_network_safe() const OVERRIDE{ return true; }
 };
@@ -608,6 +632,20 @@ public:
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_themes); return false; }
+	bool is_init_network_safe() const OVERRIDE{ return true; }
+	bool is_work_network_safe() const OVERRIDE{ return true; }
+};
+
+/* open the goods route search window */
+class dialog_route_search_t : public tool_t {
+public:
+	dialog_route_search_t() : tool_t(DIALOG_ROUTE_SEARCH | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("goods route search"); }
+	bool init(player_t*) OVERRIDE{
+		create_win(new route_search_frame_t(), w_info, (ptrdiff_t)this);
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win((ptrdiff_t)this); return false; }
 	bool is_init_network_safe() const OVERRIDE{ return true; }
 	bool is_work_network_safe() const OVERRIDE{ return true; }
 };

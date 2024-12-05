@@ -38,18 +38,36 @@ public:
 	 * flexible:      flag, can be set to box, square to get infinitely enlarging buttons
 	 */
 	enum type {
-		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, repeatarrowleft, repeatarrowright, posbutton,
-		TYPE_MASK = 127,
-		state = 128,
-		square_state     = square | state,
-		box_state        = box | state,
-		roundbox_state   = roundbox | state,
+		square = 1,
+		box,
+		roundbox,
+		imagebox,
+		sortarrow,
+		arrowleft,
+		arrowright,
+		arrowup,
+		arrowdown,
+		repeatarrowleft,
+		repeatarrowright,
+		posbutton,
+		TYPE_MASK = (1 << 7) - 1,
+
+		state            = 1 << 7,
+		square_state     = square     | state,
+		box_state        = box        | state,
+		roundbox_state   = roundbox   | state,
+		imagebox_state   = imagebox   | state,
+		sortarrow_state  = sortarrow  | state,
 		arrowright_state = arrowright | state,
-		automatic = 256,
+
+		automatic           = 1 << 8,
 		square_automatic    = square_state | automatic,
-		box_state_automatic = box_state | automatic,
-		posbutton_automatic = posbutton | automatic,
-		flexible = 512
+		box_state_automatic = box_state    | automatic,
+		imagebox_automatic  = imagebox     | automatic,
+		sortarrow_automatic = sortarrow    | automatic,
+		posbutton_automatic = posbutton    | automatic,
+
+		flexible = 1 << 9
 	};
 
 protected:
@@ -96,7 +114,6 @@ public:
 	PIXVAL text_color;
 
 	bool pressed;
-	scr_coord_val text_offset_x;
 
 	button_t();
 

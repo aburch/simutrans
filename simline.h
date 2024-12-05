@@ -37,7 +37,18 @@ class schedule_t;
 class simline_t {
 
 public:
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
+	enum linetype {
+		line            = 0,
+		truckline       = 1,
+		trainline       = 2,
+		shipline        = 3,
+		airline         = 4,
+		monorailline    = 5,
+		tramline        = 6,
+		maglevline      = 7,
+		narrowgaugeline = 8,
+		MAX_LINE_TYPE
+	};
 
 protected:
 	schedule_t * schedule;
@@ -132,7 +143,7 @@ public:
 	 * get name of line
 	 */
 	char const* get_name() const { return name; }
-	void set_name(const char *str) { name = str; }
+	void set_name(const char *str);
 
 	/*
 	 * load or save the line
@@ -192,7 +203,7 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	player_t *get_owner() const {return player;}
-
+	void set_owner(player_t* p) { player = p; }
 
 };
 

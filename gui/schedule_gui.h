@@ -37,13 +37,18 @@ class gui_schedule_entry_t;
  */
 class schedule_gui_t : public gui_frame_t, public action_listener_t
 {
-	enum mode_t {adding, inserting, removing, undefined_mode};
+	enum mode_t {
+		adding,
+		inserting,
+		removing,
+		undefined_mode
+	};
 
 	mode_t mode;
 
 	// only active with lines
 	button_t bt_promote_to_line;
-	gui_combobox_t line_selector;
+	gui_combobox_t line_selector, departure_slot_group_selector;
 	gui_label_buf_t lb_waitlevel;
 
 	// always needed
@@ -51,7 +56,7 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_revert, bt_return;
 	button_t bt_wait_load;
 
-	gui_label_t lb_wait, lb_load;
+	gui_label_t lb_wait, lb_load, lb_departure_slot_group;
 	gui_numberinput_t numimp_load, numimp_wait_load;
 	
 	// for advanced settings
@@ -59,12 +64,13 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	button_t bt_extract_settings;
 	button_t bt_find_parent, bt_wait_for_child; // convoy coupling
 	button_t bt_no_load, bt_no_unload, bt_tmp_schedule, bt_wait_for_time, 
-		bt_same_dep_time, bt_full_load_acceleration, bt_unload_all,
+		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
 		bt_load_before_departure;
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
-		numimp_delay_tolerance, numimp_max_speed;
-	gui_label_t lb_spacing, lb_title1, lb_title2, lb_max_speed;
-	char lb_spacing_str[10];
+		numimp_delay_tolerance, numimp_max_speed, numimp_tbgr_waiting_time;
+	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time;
+	char lb_spacing_str[20];
+	char lb_spacing_shift_str[15];
 
 	schedule_gui_stats_t* stats;
 	gui_scrollpane_t scrolly;
@@ -72,6 +78,10 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 	// to add new lines automatically
 	uint32 old_line_count;
 	uint32 last_schedule_count;
+
+	char schedule_filter[256];
+	char old_schedule_filter[256];
+	gui_textinput_t name_filter_input;
 
 	// set the correct tool now ...
 	void update_tool(bool set);
@@ -98,6 +108,7 @@ public:
 
 	// for updating info ...
 	void init_line_selector();
+	void init_departure_slot_group_selector();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

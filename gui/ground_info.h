@@ -7,23 +7,28 @@
 #define GUI_GROUND_INFO_H
 
 
-#include "base_info.h"
+#include "gui_frame.h"
 #include "components/gui_location_view_t.h"
 #include "../utils/cbuffer_t.h"
-#include "components/gui_fixedwidth_textarea.h"
+#include "components/gui_textarea.h"
 
 class grund_t;
 
-class grund_info_t : public base_infowin_t
+class grund_info_t : public gui_frame_t
 {
 protected:
 	/**
 	 * The ground we observe. The ground will delete this object
 	 * if self deleted.
 	 */
+	cbuffer_t buf, empty;
+
 	const grund_t* gr;
 
 	location_view_t view;
+	gui_textarea_t textarea, textarea2;
+
+	void recalc_size();
 
 public:
 	grund_info_t(const grund_t* gr);

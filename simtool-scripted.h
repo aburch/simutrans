@@ -6,6 +6,7 @@
 #ifndef SIMTOOL_SCRIPTED_H
 #define SIMTOOL_SCRIPTED_H
 
+
 #include "simmenu.h"
 #include "script/script.h"
 #include "utils/plainstring.h"
@@ -65,12 +66,14 @@ protected:
 	const char* call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1);
 	template<class R, class A1, class A2>
 	const char* call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1, A2 arg2);
+	template<class R, class A1, class A2, class A3>
+	const char* call_function(script_vm_t::call_type_t ct, const char* function, player_t* player, R& ret, A1 arg1, A2 arg2, A3 arg3);
 public:
 	exec_script_base_t(const scripted_tool_info_t *i) : info(i), script(NULL) {}
 	virtual ~exec_script_base_t();
 
 	void set_info(const scripted_tool_info_t *i);
-	const scripted_tool_info_t* get_info() const { return info; };
+	const scripted_tool_info_t* get_info() const { return info; }
 
 	void init_images(tool_t *tool) const;
 

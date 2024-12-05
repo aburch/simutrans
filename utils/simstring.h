@@ -53,7 +53,7 @@ void set_thousand_sep_exponent(int new_thousand_sep_exponent);
 /**
  * Set abbreviation and the amount by which large money amounts will be shortened
  */
-void set_large_amout( const char *, const double v );
+void set_large_amount( const char *, const double v );
 
 /**
  * copies n lines of the source into a buffer
@@ -117,5 +117,11 @@ char const* strstart(char const* str, char const* start);
  */
 static inline bool strempty(char const* const s) { return !s || s[0] == '\0'; }
 
+// properties used in implementations
+static char thousand_sep = ',';
+static char fraction_sep = '.';
+static const char *large_number_string = "M";
+static double large_number_factor = 1e99; // off
+static int thousand_sep_exponent = 3;
 
 #endif

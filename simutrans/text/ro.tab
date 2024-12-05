@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: ro Romana                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -305,7 +305,7 @@ Add Stop
 Adaugã Stop
 Add stops for backward travel
 Adaugã stopuri pentru circula?ie inversã
-Air
+air_wt
 pistã
 aircraft_tab
 Avioane de transport

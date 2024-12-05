@@ -10,7 +10,7 @@ ai <- {}
 ai.short_description <- "Test AI player implementation"
 
 ai.author <-"dwachs/Andarix"
-ai.version <- "0.5.3"
+ai.version <- "0.7.5"
 
 // includes
 include("basic")  // .. definition of basic node classes
@@ -66,19 +66,14 @@ possible_names <- ["Petersil Cars", "Teumer Alp Dream Trucks", "Runk & Strunk Tr
  */
 function start(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
+	init(pl_nr)
+	// set a funny name
 
 	if (our_player_nr > 1  &&  our_player_nr-2 < possible_names.len()) {
 		player_x(our_player_nr).set_name( possible_names[our_player_nr-2]);
 	}
-	our_player = player_x(our_player_nr)
 
 	print("Act as player no " + our_player_nr + " under the name " + our_player.get_name())
-	// set pause by script error
-	debug.set_pause_on_error(true)
-
-	init_tree()
 }
 
 /**
@@ -112,7 +107,7 @@ function init_tree()
 	}
 
 	if (!("station_manager" in persistent)) {
-		persistent.station_manager <- freight_station_manager_t()
+		persistent.station_manager <- freight_station_manager_t(1)
 	}
 }
 
@@ -121,18 +116,23 @@ function init_tree()
  */
 function resume_game(pl_nr)
 {
-	init()
-	our_player_nr = pl_nr
-	our_player    = player_x(our_player_nr)
-
-	init_tree()
+	init(pl_nr)
 
 	s = persistent.s
 }
 
-function init()
+function init(pl_nr)
 {
+	debug.set_pause_on_error(true)
+
+	our_player_nr = pl_nr
+	our_player    = player_x(our_player_nr)
+
+	srand(our_player_nr * 4711)
+
 	annotate_classes() // sets class name as attribute for all known classes (save.nut)
+
+	init_tree()
 }
 
 /**
@@ -155,11 +155,22 @@ function step()
 	if (s._step > s._next_construction_step) {
 		local r = factorysearcher.get_report()
 
+
 		if (r   &&  r.action) {
 			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
+		} else {
+			if ( r && r.action && r.retire_time < world.get_time() ) {
+				gui.add_message_at(our_player, "####### report out of time ", world.get_time())
+				return r_t(RT_TOTAL_FAIL)
+			}
+			if ( r && r.action && r.retire_obj <= world.get_time().raw ) {
+					gui.add_message_at(our_player, "####### object out of time ", world.get_time())
+					return r_t(RT_TOTAL_FAIL)
+			}
 		}
 		s._next_construction_step += 1 + (s._step % 3)
+
 	}
 }
 
@@ -207,4 +218,44 @@ function save()
 	print("save used " + (toc-tic) + " ops, remaining = " + rem)
 
 	return str
+}
+
+/**
+ * Returns random number rand with 0 <= rand < upper
+ */
+function myrand(upper)
+{
+	if (upper <= 1) {
+		return upper-1
+	}
+	local rem = (RAND_MAX % upper) + 1
+	local r
+	do {
+		r = rand()
+	} while (r > RAND_MAX - rem)
+	return r % upper
+}
+
+/**
+ * Returns ticks for today + @p m months
+ */
+function today_plus_months(m)
+{
+	local time = world.get_time()
+	return time.ticks + m * time.ticks_per_month
+}
+
+/**
+ * returns pakset name (lower case)
+ *
+ *
+ */
+function get_set_name()
+{
+	local pakset = get_pakset_name()  // full string from ground.outside.pak
+	local s = pakset.find(" ")
+	pakset = pakset.slice(0, s)
+	pakset = pakset.tolower()
+
+	return pakset
 }

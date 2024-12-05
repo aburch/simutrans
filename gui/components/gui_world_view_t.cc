@@ -8,7 +8,8 @@
 #include "gui_world_view_t.h"
 #include "../../simworld.h"
 #include "../../display/viewport.h"
-#include "../../simobj.h"
+#include "../../obj/simobj.h"
+#include "../../obj/zeiger.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../vehicle/simvehicle.h"
@@ -63,9 +64,11 @@ bool world_view_t::infowin_event(const event_t* ev)
 		koord3d const& pos = get_location();
 		if (welt->is_within_limits(pos.get_2d())) {
 			welt->get_viewport()->change_world_position(pos);
+			welt->get_zeiger()->change_pos( pos );
 		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
 
@@ -202,7 +205,8 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
-		if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  ) {
+		// if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  ) {
+		if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  * 5) {
 #ifdef MULTI_THREAD
 			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
 #else
@@ -246,11 +250,13 @@ void world_view_t::set_size(scr_size size)
 void world_view_t::calc_offsets(scr_size size, sint16 dy_off)
 {
 	const sint16 max_dx = size.w/(raster/2) + 2;
-	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
+	// const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
+	const sint16 max_dy = (size.h/(raster/2) + dy_off + 10)&0x0FFE;
 
 	// build offset list
 	offsets.clear();
-	for(  sint16 dy = -max_dy;  dy <= 5;  ) {
+	// for(  sint16 dy = -max_dy;  dy <= 5;  ) {
+	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
 		{
 			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
 				const koord check( (dy + dx) / 2, (dy - dx) / 2);

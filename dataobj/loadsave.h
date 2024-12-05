@@ -9,15 +9,20 @@
 
 #include <stdio.h>
 #include <string>
+#include <functional>
 
 #include "../simtypes.h"
+#include "../io/classify_file.h"
+#include "../io/rdwr/rdwr_stream.h"
+#include "../tpl/vector_tpl.h"
+
 
 class plainstring;
-struct file_descriptors_t;
+
 
 /**
  * This class replaces the FILE when loading and saving games.
- * </p>
+ *
  * Can now read and write 3 formats: text, binary and zipped
  * Input format is automatically detected.
  * Output format has a default, changeable with set_savemode, but can be
@@ -25,46 +30,50 @@ struct file_descriptors_t;
  */
 class loadsave_t
 {
+private:
+	// during reading, a fatal error will rename the file to "oldnam"-error, so one can try again
+	void NORETURN fatal(const char* who, const char* format, ...);
+
+	struct buf_t
+	{
+		size_t pos;
+		size_t len;
+		char *buf;
+	};
+
 public:
 	enum mode_t {
-		binary=0,
-		text=1,
-		xml=2,
-		zipped=4,
-		xml_zipped=6,
-		bzip2=8,
-		xml_bzip2=10,
-		zstd=16,
-		xml_zstd=18
+		binary     = 0,
+		text       = 1 << 0,
+		xml        = 1 << 1,
+		zipped     = 1 << 2,
+		bzip2      = 1 << 3,
+		zstd       = 1 << 4,
+		xml_zipped = xml | zipped,
+		xml_bzip2  = xml | bzip2,
+		xml_zstd   = xml | zstd
 	};
 
-	enum file_error_t {
-		FILE_ERROR_OK=0,
-		FILE_ERROR_NOT_EXISTING,
-		FILE_ERROR_BZ_CORRUPT,
-		FILE_ERROR_GZ_CORRUPT,
-		FILE_ERROR_NO_VERSION,
-		FILE_ERROR_FUTURE_VERSION,
-		FILE_ERROR_UNSUPPORTED_COMPRESSION
+	enum file_status_t {
+		FILE_STATUS_OK = 0,
+		FILE_STATUS_ERR_NOT_EXISTING,
+		FILE_STATUS_ERR_CORRUPT,
+		FILE_STATUS_ERR_NO_VERSION,
+		FILE_STATUS_ERR_FUTURE_VERSION,
+		FILE_STATUS_ERR_UNSUPPORTED_COMPRESSION
 	};
 
-private:
-	file_error_t last_error;
+protected:
 	int mode; ///< See mode_t
-	bool saving;
 	bool buffered;
 	unsigned curr_buff;
-	unsigned buf_pos[2];
-	unsigned buf_len[2];
-	char* ls_buf[2];
-	uint32 version;
-	uint8 OTRP_version;
-	int ident;		// only for XML formatting
-	char pak_extension[64];	// name of the pak folder during savetime
+	buf_t buff[2];
 
-	std::string filename;   // the current name ...
+	int indent;              // only for XML formatting
+	file_info_t finfo;
+	std::string filename;
 
-	file_descriptors_t *fd;
+	rdwr_stream_t *stream;
 
 	/// @sa putc
 	inline void lsputc(int c);
@@ -72,8 +81,9 @@ private:
 	/// @sa getc
 	inline int lsgetc();
 
-	size_t write(const void * buf, size_t len);
 	size_t read(void *buf, size_t len);
+	size_t write(const void *buf, size_t len);
+	void write_indent();
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 
@@ -87,9 +97,11 @@ private:
 	 * Reads into buffer number @p buf_num.
 	 * @returns number of bytes read or -1 in case of error
 	 */
-	int fill_buffer(int buf_num);
+	size_t fill_buffer(int buf_num);
 
 	void flush_buffer(int buf_num);
+
+	bool is_xml() const { return mode&xml; }
 
 public:
 	struct combined_version { uint32 version; uint8 OTRP_version; };
@@ -103,11 +115,14 @@ public:
 	loadsave_t();
 	~loadsave_t();
 
-	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, int level, const char *pak_extension, const char *savegame_version );
-	const char *close();
+	/// Open save file for reading. File format is detected automatically.
+	file_status_t rd_open(const char *filename);
 
-	file_error_t get_last_error() { return last_error; }
+	/// Open save file for writing.
+	file_status_t wr_open(const char *filename, mode_t mode, int level, const char *pak_extension, const char *savegame_version );
+
+	/// Close an open save file. Returns an error message if saving was unsuccessful, the empty string otherwise.
+	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
 	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }
@@ -120,20 +135,16 @@ public:
 	bool is_eof();
 
 	void set_buffered(bool enable);
-	unsigned get_buf_pos(int buf_num) const { return buf_pos[buf_num]; }
-	bool is_loading() const { return !saving; }
-	bool is_saving() const { return saving; }
-	bool is_zipped() const { return mode&zipped; }
-	bool is_bzip2() const { return mode&bzip2; }
-	bool is_zstd() const { return mode&zstd; }
-	bool is_xml() const { return mode&xml; }
-	const char *get_pak_extension() const { return pak_extension; }
+	unsigned get_buf_pos(int buf_num) const { return buff[buf_num].pos; }
+	bool is_loading() const { return stream && !stream->is_writing(); }
+	bool is_saving() const { return stream && stream->is_writing(); }
+	const char *get_pak_extension() const { return finfo.pak_extension; }
 
-	uint8 get_OTRP_version() const { return OTRP_version; }
-	uint32 get_version_int() const { return version; }
+	uint32 get_version_int() const { return finfo.version; }
+	uint8 get_OTRP_version() const { return finfo.OTRP_version; }
 	inline bool is_version_atleast(uint32 major, uint32 save_minor) const { return !is_version_less(major, save_minor); }
-	inline bool is_version_less(uint32 major, uint32 save_minor)    const { return version <  major * 1000U + save_minor; }
-	inline bool is_version_equal(uint32 major, uint32 save_minor)   const { return version == major * 1000U + save_minor; }
+	inline bool is_version_less(uint32 major, uint32 save_minor)    const { return finfo.version <  major * 1000U + save_minor; }
+	inline bool is_version_equal(uint32 major, uint32 save_minor)   const { return finfo.version == major * 1000U + save_minor; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);
@@ -145,6 +156,27 @@ public:
 	void rdwr_bool(bool &i);
 	void rdwr_double(double &dbl);
 
+	/// Read and write the given vector object.
+	/// @tparam T The type of the vector.
+	/// @param vector The vector to read and write.
+	/// @param rdwr The lambda function to read and write the elements of the vector.
+	template<class T> void rdwr_vector(vector_tpl<T> &vector, std::function<void(loadsave_t*, T&)> rdwr_elem) {
+		uint32 count = vector.get_count();
+		rdwr_long(count);
+		if(  is_loading()  ) {
+			vector.clear();
+			for(  uint32 i = 0;  i < count;  i++  ) {
+				T item;
+				rdwr_elem(this, item);
+				vector.append(item);
+			}
+		} else {
+			for(  uint32 i = 0;  i < count;  i++  ) {
+				rdwr_elem(this, vector[i]);
+			}
+		}
+	};
+
 	void wr_obj_id(short id);
 	short rd_obj_id();
 	void wr_obj_id(const char *id_text);
@@ -153,8 +185,9 @@ public:
 	// s is a malloc-ed string (will be freed and newly allocated on load time!)
 	void rdwr_str(const char *&s);
 
-	// s is a buf of size given
-	void rdwr_str(char* s, size_t size);
+	/// @p s is a buf of size given
+	/// @p size includes space for the trailing 0
+	void rdwr_str(char *s, size_t size);
 
 	/**
 	 * Read/Write plainstring.
@@ -182,7 +215,6 @@ public:
 		}
 	}
 };
-
 
 
 // this produced semicautomatic hierarchies

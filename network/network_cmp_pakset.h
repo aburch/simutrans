@@ -21,6 +21,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg);
 /**
  * nwc_pakset_info_t
  * @from-client: client wants to get pakset info from server
+ * @from-server: server sends pakset info back to client
  */
 class nwc_pakset_info_t : public network_command_t {
 public:
@@ -29,7 +30,6 @@ public:
 
 	bool execute(karte_t *) OVERRIDE;
 	void rdwr() OVERRIDE;
-	const char* get_name() OVERRIDE { return "nwc_pakset_info_t";}
 
 	enum {
 		CL_INIT       = 0, // client want pakset info

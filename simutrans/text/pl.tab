@@ -12,7 +12,7 @@ prop-latin2.fnt
 #                              Language: pl Polski                             #
 #                             Encoding: ISO-8859-2                             #
 #                             Font: prop-latin2.fnt                            #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -441,7 +441,7 @@ Add Stop
 Dodaj
 Add stops for backward travel
 Dodaj stacje drogi powrotnej
-Air
+air_wt
 Powietrzne
 aircraft_tab
 Transportowe
@@ -488,7 +488,7 @@ Dostêpny
 Bahndepot
 Lokomotywownia
 battery
-Baterie
+akumulatorowy
 Baum
 Drzewo
 baum builder
@@ -712,7 +712,7 @@ Przeznaczenie
 Details
 Szczegó³y
 diesel
-Diesel
+spalinowy
 Direkt erreichbare Haltestellen
 Bezpo¶rednie po³±czenie z
 disable midi
@@ -734,7 +734,7 @@ Ein %s\npasst hier nicht.\n
 Einstellungen aendern
 Zmieñ opcje
 electric
-Elektryczny
+elektryczny
 Electrify track
 Elektryfikuj trasê
 enlarge map
@@ -1444,7 +1444,7 @@ Przepe³nienia
 Status
 Stan
 steam
-Parowy
+parowy
 Step timeline one year
 Przesuñ czas o rok do przodu
 Stops

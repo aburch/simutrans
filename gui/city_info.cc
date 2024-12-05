@@ -9,7 +9,6 @@
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/environment.h"
 #include "../display/viewport.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -198,12 +197,6 @@ void city_info_t::init()
 		allow_growth.pressed = city->get_citygrowth();
 		allow_growth.add_listener( this );
 		add_component(&allow_growth);
-
-		// add "change highlight button"
-		highlight.init( button_t::box_state_automatic | button_t::flexible, "Highlight");
-		highlight.pressed = false;
-		highlight.add_listener( this );
-		add_component(&highlight);
 		end_table();
 
 		pax_map = new_component<gui_city_minimap_t>(city);
@@ -278,12 +271,6 @@ city_info_t::~city_info_t()
 		}
 	}
 	city->stadtinfo_options = flags;
-	
-	env_t::highlight_city = false;
-	env_t::highlighted_city = NULL;
-
-	welt->set_dirty();
-	welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_public_player());
 }
 
 
@@ -411,24 +398,6 @@ bool city_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if(  comp==&name_input  ) {
 		// send rename command if necessary
 		rename_city();
-	}
-	if(  comp==&highlight && highlight.pressed  ) {
-		env_t::highlight_city = true;
-		env_t::highlighted_city = city;
-
-		welt->set_dirty();
-		welt->set_tool( tool_t::general_tool[TOOL_CHANGE_CITY_OF_CITYBUILDING], welt->get_public_player());
-
-		return true;
-	}
-	else if (	comp==&highlight && !highlight.pressed	) {
-		env_t::highlight_city = false;
-		env_t::highlighted_city = NULL;
-
-		welt->set_dirty();
-		welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_public_player());
-
-		return true;
 	}
 	return false;
 }

@@ -76,8 +76,12 @@ enum {
 	TOOL_MERGE_STOP,
 	TOOL_EXEC_SCRIPT,
 	TOOL_EXEC_TWO_CLICK_SCRIPT,
+	TOOL_PLANT_GROUNDOBJ,
+	TOOL_ADD_MESSAGE,
+	TOOL_REMOVE_SIGNAL,
 	TOOL_GENERATE_SCRIPT,
-	TOOL_CHANGE_CITY_OF_CITYBUILDING,
+	TOOL_REMOVE_HALT,
+	TOOL_EXTINGUISH_WAITING_GOODS,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -116,13 +120,20 @@ enum {
 	TOOL_CHANGE_TRAFFIC_LIGHT,
 	TOOL_CHANGE_CITY,
 	TOOL_RENAME,
-	TOOL_ADD_MESSAGE,
+	UNUSED_TOOL_ADD_MESSAGE,
 	TOOL_TOGGLE_RESERVATION,
 	TOOL_VIEW_OWNER,
 	TOOL_HIDE_UNDER_CURSOR,
 	TOOL_CHANGE_ROADSIGN,
 	TOOL_SHOW_RIBI,
 	TOOL_TOGGLE_MESSAGE,
+	TOOL_MOVE_MAP,
+	TOOL_ROLLUP_ALL_WIN,
+	TOOL_SWITCH_PUBLIC_PLAYER,
+	TOOL_SENDING_MONEY,
+	TOOL_RECOLOUR_TOOL,
+	TOOL_SHOW_FACTORY_STORAGE,
+	TOOL_MERGE_PLAYER,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -164,6 +175,8 @@ enum {
 	DIALOG_LIST_DEPOT,
 	DIALOG_LIST_VEHICLE,
 	DIALOG_SCRIPT_TOOL,
+	DIALOG_EDIT_GROUNDOBJ,
+	DIALOG_ROUTE_SEARCH,
 	DIALOGE_TOOL_COUNT,
 	DIALOGE_TOOL = 0x4000
 };
@@ -174,6 +187,7 @@ enum {
 	TOOL_LAST_USED = 1022,
 	TOOLBAR_TOOL = 0x8000u
 };
+
 
 class tool_t {
 protected:
@@ -188,6 +202,10 @@ protected:
 	const char *default_param;
 public:
 	uint16 get_id() const { return id; }
+
+	const char *get_name() const { return id_to_string(id); }
+
+	static const char *id_to_string(uint16 id);
 
 	static tool_t *dummy;
 
@@ -215,11 +233,11 @@ public:
 	uint32 callback_id;
 
 	enum {
-		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
-		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
-		WFL_LOCAL  = 4, ///< tool call was issued by local client
-		WFL_SCRIPT = 8, ///< tool call was issued by script
-		WFL_NO_CHK = 16, ///< tool call needs no password or scenario checks
+		WFL_SHIFT  = 1 << 0, ///< shift-key was pressed when mouse-click happened
+		WFL_CTRL   = 1 << 1, ///< ctrl-key was pressed when mouse-click happened
+		WFL_LOCAL  = 1 << 2, ///< tool call was issued by local client
+		WFL_SCRIPT = 1 << 3, ///< tool call was issued by script
+		WFL_NO_CHK = 1 << 4  ///< tool call needs no password or scenario checks
 	};
 	uint8 flags; // flags are set before init/work/move is called
 
@@ -230,6 +248,7 @@ public:
 	bool no_check()           const { return flags & WFL_NO_CHK; }
 	bool can_use_gui()        const { return is_local_execution()  &&  !is_scripted(); }
 
+	uint8  command_flags; // only shift and control
 	uint16 command_key;// key to toggle action for this function
 
 	static vector_tpl<tool_t *> general_tool;
@@ -245,7 +264,9 @@ public:
 	static void init_menu();
 	static void exit_menu();
 
-	static void read_menu(const std::string &objfilename);
+	/// Read tool, toolbar configuration and tool shortcuts from @p menuconf
+	/// @param menuconf Path to file to read
+	static bool read_menu(const std::string &menuconf);
 
 	static uint16 const dummy_id = 0xFFFFU;
 
@@ -279,13 +300,13 @@ public:
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_safe() const { return false; }
-	virtual bool is_move_network_save(player_t *) const { return true; }
+	virtual bool is_move_network_safe(player_t *) const { return true; }
 
 	// if is_work_network_safe()==false
-	// and is_work_here_network_save(...)==false
+	// and is_work_here_network_safe(...)==false
 	// then work-command is sent over network
 	virtual bool is_work_network_safe() const { return false; }
-	virtual bool is_work_here_network_save(player_t *, koord3d) { return false; }
+	virtual bool is_work_here_network_safe(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after(scr_coord pos, bool dirty) const;
@@ -376,7 +397,7 @@ public:
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 
-	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
+	bool is_work_here_network_safe(player_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed

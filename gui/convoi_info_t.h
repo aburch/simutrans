@@ -32,7 +32,13 @@ class convoi_detail_t;
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
+	enum sort_mode_t {
+		by_destination = 0,
+		by_via         = 1,
+		by_amount_via  = 2,
+		by_amount      = 3,
+		SORT_MODES     = 4
+	};
 
 private:
 	/**
@@ -47,11 +53,14 @@ private:
 	gui_speedbar_t filled_bar;
 	gui_speedbar_t speed_bar;
 	gui_routebar_t route_bar;
+	sint32 next_reservation_index;
 	gui_chart_t chart;
 	button_t button;
 	button_t follow_button;
 	button_t go_home_button;
 	button_t no_load_button;
+	button_t set_recovery_button;
+	button_t next_stop_button;
 
 	gui_tab_panel_t switch_mode;
 	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;

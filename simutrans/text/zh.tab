@@ -12,7 +12,7 @@ wenquanyi_9pt.bdf
 #                            Language: zh T. Chinese                           #
 #                                Encoding: UTF-8                               #
 #                            Font: wenquanyi_9pt.bdf                           #
-#                            Date Created: 3.02 2020                           #
+#                           Date Created: 20.10 2020                           #
 #                                                                              #
 ################################################################################
 #__________________________________button_text__________________________________
@@ -393,7 +393,7 @@ Add Stop
 新建車站
 Add stops for backward travel
 為回程路段增設車站
-Air
+air_wt
 空運
 aircraft_tab
 貨機

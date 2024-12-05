@@ -141,7 +141,7 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	end_table();
 
-	add_table(4,1)->set_force_equal_columns(true);
+	add_table(4,2)->set_force_equal_columns(true);
 	{
 		// this convoi doesn't belong to an AI
 		button.init(button_t::roundbox | button_t::flexible, "Fahrplan");
@@ -163,6 +163,19 @@ void convoi_info_t::init(convoihandle_t cnv)
 		follow_button.set_tooltip("Follow the convoi on the map.");
 		follow_button.add_listener(this);
 		add_component(&follow_button);
+
+		set_recovery_button.init(button_t::roundbox | button_t::flexible, "recovery");
+		set_recovery_button.set_tooltip("Recovery operation will be carried out.");
+		set_recovery_button.add_listener(this);
+		add_component(&set_recovery_button);
+
+		next_stop_button.init(button_t::roundbox | button_t::flexible, "next stop");
+		next_stop_button.set_tooltip("Go to the next station.");
+		next_stop_button.add_listener(this);
+		add_component(&next_stop_button);
+
+		new_component<gui_fill_t>();
+		new_component<gui_fill_t>();
 	}
 	end_table();
 
@@ -206,7 +219,6 @@ void convoi_info_t::init(convoihandle_t cnv)
 	}
 	container_stats.end_table();
 
-
 	cnv->set_sortby( env_t::default_sortmode );
 
 	// convoy details in tab
@@ -222,8 +234,13 @@ void convoi_info_t::init(convoihandle_t cnv)
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
 	speed_bar.add_color_value(&mean_convoi_speed, color_idx_to_rgb(COL_GREEN));
+
 	// we update this ourself!
 	route_bar.init(&cnv_route_index, 0);
+	if( cnv->get_vehicle_count()>0  &&  dynamic_cast<rail_vehicle_t *>(cnv->front()) ) {
+		// only for trains etc.
+		route_bar.set_reservation( &next_reservation_index );
+	}
 	route_bar.set_height(9);
 
 	update_labels();
@@ -292,6 +309,8 @@ void convoi_info_t::update_labels()
 
 	// only show assigned line, if there is one!
 	if(  cnv->get_line().is_bound()  ) {
+		schedule_t::get_schedule_flag_text(line_label.buf(), cnv->get_schedule());
+
 		line_label.buf().append(cnv->get_line()->get_name());
 		line_label.set_color(cnv->get_line()->get_state_color());
 	}
@@ -319,7 +338,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
 	if(!cnv.is_bound()) {
 		destroy_win(this);
+		return;
 	}
+	next_reservation_index = cnv->get_next_reservation_index();
 
 	// make titlebar dirty to display the correct coordinates
 	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
@@ -357,6 +378,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}
 		no_load_button.pressed = cnv->get_no_load();
 		no_load_button.enable();
+		set_recovery_button.pressed = cnv->is_in_delay_recovery();
+		set_recovery_button.enable();
+		next_stop_button.enable();
 	}
 	else {
 		if(  line_bound  ) {
@@ -368,6 +392,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		button.disable();
 		go_home_button.disable();
 		no_load_button.disable();
+		set_recovery_button.disable();
+		next_stop_button.disable();
 	}
 
 	// update button & labels
@@ -484,6 +510,16 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 				delete schedule;
 			}
 		} // end go home button
+
+		if(  comp == &set_recovery_button  ) {
+			cnv->call_convoi_tool( 'e', NULL );
+			return true;
+		}
+
+		if(  comp == &next_stop_button  ) {
+			cnv->call_convoi_tool( 't', NULL );
+			return true;
+		}
 	}
 	return false;
 }

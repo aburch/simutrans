@@ -8,7 +8,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simobj.h"
+#include "../obj/simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 #include "../simtypes.h"
@@ -231,7 +231,13 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 		use_calc_height = true;
 	}
-	weg_next = 0;
+
+	if (file->is_version_atleast(122, 1)) {
+		file->rdwr_long(weg_next);
+	}
+	else if (file->is_loading()) {
+		weg_next = 0;
+	}
 }
 
 
@@ -361,7 +367,7 @@ grund_t* movingobj_t::hop_check()
 		uint8 until=0;
 		// find all tiles we can go
 		for(  int i=0;  i<4;  i++  ) {
-			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsew[i]);
+			const grund_t *check = welt->lookup_kartenboden(pos+koord::nesw[i]);
 			if(check_next_tile(check)  &&  check->get_pos()!=get_pos()) {
 				to[until++] = check;
 			}

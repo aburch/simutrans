@@ -7,6 +7,9 @@
 #define SIMIO_H
 
 
+#include <cstdio>
+
+
 /**
  * Reads a line from a file. Skips lines starting with #
  * @see fgets

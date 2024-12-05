@@ -37,8 +37,8 @@ class scenario_t
 private:
 	/// possible states of scenario
 	enum scenario_state_t {
-		INACTIVE = 0,         ///< scenario inactive
-		SCRIPTED = 7,         ///< scenario active (non-network game or at server)
+		INACTIVE         = 0, ///< scenario inactive
+		SCRIPTED         = 7, ///< scenario active (non-network game or at server)
 		SCRIPTED_NETWORK = 8  ///< scenario active, network game at client
 	};
 
@@ -81,7 +81,11 @@ private:
 	 * tools or to have toolbars reflect allowed tools.
 	 */
 	struct forbidden_t {
-		enum forbid_type { forbid_tool = 1, forbid_tool_rect = 2};
+		enum forbid_type {
+			forbid_tool      = 1,
+			forbid_tool_rect = 2
+		};
+
 		forbid_type type;
 		uint8 player_nr;
 		/// id of tool to be forbidden, as set by constructors of classes derived from
@@ -97,12 +101,12 @@ private:
 		/// constructor: forbid tool/etc for a certain player
 		forbidden_t(forbid_type type_=forbid_tool, uint8 player_nr_=255, uint16 toolnr_=0, sint16 waytype_=invalid_wt) :
 			type(type_), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
-			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error() {};
+			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error() {}
 
 		/// constructor: forbid tool for a certain player at certain locations (and heights)
 		forbidden_t(uint8 player_nr_, uint16 toolnr_, sint16 waytype_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
 			type(forbid_tool_rect), player_nr(player_nr_), toolnr(toolnr_), waytype(waytype_),
-			pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error() {};
+			pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error() {}
 
 		// copy constructor
 		forbidden_t(const forbidden_t&);
@@ -433,6 +437,15 @@ public:
 	 * @return null if allowed, an error message otherwise
 	 */
 	const char* is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot);
+
+	/**
+	 * Called when player click link in scenario windows, after position changed.
+	 *
+	 * @param pos coordinate go to in link
+	 *
+	 * @return an error message otherwise or null
+	 */
+	const char* jump_to_link_executed(koord3d pos);
 
 	/// @return debug dump of forbidden tools
 	const char* get_forbidden_text();

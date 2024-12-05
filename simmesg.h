@@ -34,27 +34,29 @@ public:
 
 		void rdwr(loadsave_t *file);
 
-		uint32 get_type_shifted() const { return 1<<(type & ~(do_not_rdwr_flag|playermsg_flag|expire_after_one_month_flag)); }
+		uint32 get_type_shifted() const { return 1<<(type & MESSAGE_TYPE_MASK); }
 
 		FLAGGED_PIXVAL get_player_color(karte_t*) const;
 	};
 
 	enum msg_typ {
-		general=0,
-		ai=1,
-		city=2,
-		problems=3,
-		industry=4,
-		chat=5,
-		new_vehicle=6,
-		full=7,
-		warnings=8,
-		traffic_jams=9,
-		scenario=10,
+		general      = 0,
+		ai           = 1,
+		city         = 2,
+		problems     = 3,
+		industry     = 4,
+		chat         = 5,
+		new_vehicle  = 6,
+		full         = 7,
+		warnings     = 8,
+		traffic_jams = 9,
+		scenario     = 10,
 		MAX_MESSAGE_TYPE,
-		expire_after_one_month_flag = 0x2000u,
-		do_not_rdwr_flag = 0x4000u,
-		playermsg_flag = 0x8000u
+		MESSAGE_TYPE_MASK = 0xf,
+
+		expire_after_one_month_flag = 1 << 13,
+		do_not_rdwr_flag            = 1 << 14,
+		playermsg_flag              = 1 << 15
 	};
 
 	void add_message( const char *text, koord pos, uint16 what, FLAGGED_PIXVAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );

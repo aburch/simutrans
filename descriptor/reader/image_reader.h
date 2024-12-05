@@ -10,16 +10,20 @@
 #include "obj_reader.h"
 
 
-class image_reader_t : public obj_reader_t {
-	static image_reader_t the_instance;
+class image_t;
 
-	image_reader_t() { register_reader(); }
+
+class image_reader_t : public obj_reader_t
+{
+	OBJ_READER_DEF(image_reader_t, obj_image, "image");
+
 public:
-	static image_reader_t* instance() { return &the_instance; }
+	/// @copydoc obj_reader_t::read_node
+	obj_desc_t *read_node(FILE *fp, obj_node_info_t &node) OVERRIDE;
 
-	obj_type get_type() const OVERRIDE { return obj_image; }
-	char const* get_type_name() const OVERRIDE { return "image"; }
-	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+private:
+	bool image_has_valid_data(image_t *img) const;
 };
+
 
 #endif

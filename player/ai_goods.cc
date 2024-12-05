@@ -799,7 +799,7 @@ void ai_goods_t::step()
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
 				FOR(  slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()  ) {
 					// consumer and not completely overcrowded
-					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
+					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::STATUS_BAD  ) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(  missing>0  ) {
 							start_fabs.append( fab, 100/(missing+1)+1 );
@@ -1475,6 +1475,7 @@ bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const goods_desc_
 void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 {
 	koord3d k3d;
+
 	if(file->is_saving()) {
 		k3d = fab1->get_pos();
 		k3d.rdwr(file);
@@ -1484,12 +1485,18 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		file->rdwr_str( s );
 	}
 	else {
-		k3d.rdwr(file);
-		fab1 = fabrik_t::get_fab( k3d.get_2d() );
-		k3d.rdwr(file);
-		fab2 = fabrik_t::get_fab( k3d.get_2d() );
+		koord3d pos1, pos2;
+		pos1.rdwr(file);
+		fab1 = fabrik_t::get_fab( pos1.get_2d() );
+		pos2.rdwr(file);
+		fab2 = fabrik_t::get_fab( pos2.get_2d() );
+
 		const char *temp=NULL;
 		file->rdwr_str( temp );
+
+		if (!temp) {
+			dbg->fatal("ai_goods_t::fabconnection_t::rdwr", "No name for freight connection between %s and %s", pos1.get_fullstr(), pos2.get_fullstr());
+		}
 		ware = goods_manager_t::get_info(temp);
 	}
 }

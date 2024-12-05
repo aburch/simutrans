@@ -23,7 +23,7 @@ version30現在，simutrans standard nightly r9281をベースにしています
 追加で取り込んでいるコミットについては [こちらを参照](cherry-picked-commits.txt) してください．
 
 # ダウンロード
-実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください．  
+実行には本体の他にribi-arrowアドオンが必要なので https://osdn.net/projects/otrp/downloads/76098/RibiArrow.zip/ からDLしてpakセットの中に突っ込んでください．  
 
 本体は下のリンクからどうぞ．**（2021年8月15日PM9時　ver30に更新）**  
 windows(GDI 64bit): https://osdn.net/projects/otrp/downloads/75752/sim-WinGDI64-OTRPv30.exe/  

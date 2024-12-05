@@ -8,6 +8,7 @@
 
 
 #include "extend_edit.h"
+#include "simwin.h"
 
 class tool_build_house_t;
 class building_desc_t;
@@ -29,12 +30,15 @@ private:
 	button_t bt_land_attraction;
 	button_t bt_monuments;
 
-	void fill_list( bool translate ) OVERRIDE;
+	void fill_list() OVERRIDE;
+	void put_item_in_list(const building_desc_t* desc );
 
 	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	curiosity_edit_frame_t(player_t* player);
+
+	static bool sortreverse;
 
 	/**
 	* in top-level windows the name is displayed in titlebar
@@ -56,6 +60,10 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_curiosity_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

@@ -7,8 +7,12 @@
 #define DISPLAY_SIMVIEW_H
 
 
+#include "simgraph.h"
+
+
 class karte_t;
 class viewport_t;
+
 
 /**
  * World view class, it contains the routines that handle world display to the pixel buffer.
@@ -75,7 +79,7 @@ public:
 	 * @param h Height of the rectangle to draw.
 	 * @param dirty Mark the specified area as dirty.
 	 */
-	void display_background( KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, bool dirty );
+	void display_background( scr_coord_val xp, scr_coord_val yp, scr_coord_val w, scr_coord_val h, bool dirty );
 
 };
 

@@ -9,10 +9,6 @@
 
 #include "simcolor.h"
 
-// Max Kielland
-// Classic helper macro to transform a #define value into a "string"
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
 
 // For test purposes themes can be disabled or an alternative theme.tab file can be used.
 //  -1 = No theme, use internal fallback
@@ -25,7 +21,13 @@ class skin_desc_t;
 
 class skinverwaltung_t {
 public:
-	enum skintyp_t { nothing, menu, cursor, symbol, misc };
+	enum skintyp_t {
+		nothing,
+		menu,
+		cursor,
+		symbol,
+		misc
+	};
 
 	/// @name icons used in the toolbars
 	/// @{

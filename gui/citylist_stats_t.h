@@ -27,7 +27,14 @@ private:
 	gui_label_buf_t label;
 	void update_label();
 public:
-	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_MODES, SORT_REVERSE=0x80 };
+	enum sort_mode_t {
+		SORT_BY_NAME = 0,
+		SORT_BY_SIZE,
+		SORT_BY_GROWTH,
+		SORT_MODES,
+		SORT_REVERSE = 0x80
+	};
+
 	static sort_mode_t sort_mode;
 	static uint8 player_nr;
 

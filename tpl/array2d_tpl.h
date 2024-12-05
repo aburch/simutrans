@@ -7,7 +7,6 @@
 #define TPL_ARRAY2D_TPL_H
 
 
-
 #include <stdio.h>
 #include <string.h>
 

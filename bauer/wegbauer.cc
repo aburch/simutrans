@@ -34,6 +34,7 @@
 #include "../boden/monorailboden.h"
 #include "../boden/tunnelboden.h"
 #include "../boden/grund.h"
+#include "../boden/wasser.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/route.h"
@@ -57,6 +58,7 @@
 
 #include "../ifc/simtestdriver.h"
 
+#include "../tpl/array_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "../gui/minimap.h" // for debugging
@@ -98,7 +100,6 @@ bool way_builder_t::successfully_loaded()
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
 		dbg->fatal( "way_builder_t::successfully_loaded()", "No road found at all!" );
-		return false;
 	}
 
 	set_default(schiene_t::default_schiene,         track_wt,       type_flat, 80);
@@ -486,7 +487,20 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 		if(  layouts==4  ) {
 			return  r == ribi_t::layout_to_ribi[layout];
 		}
-		return ribi_t::is_straight( r | ribi_t::doubles(ribi_t::layout_to_ribi[layout&1]) );
+		if(  layout<16  ) {
+			// straight way tile
+			return ribi_t::is_straight( r | ribi_t::doubles(ribi_t::layout_to_ribi[layout&1]) );
+		}
+		// diagonal way tile
+		ribi_t::ribi gb_connected_direction;
+		if(  (layout&0x30)==0x10  ) {
+			// vertical
+			gb_connected_direction = (layout&1) ? ribi_t::southwest : ribi_t::northeast;
+		} else {
+			// horizontal
+			gb_connected_direction = (layout&1) ? ribi_t::northwest : ribi_t::southeast;
+		}
+		return r & gb_connected_direction;
 	}
 	return true;
 }
@@ -1533,8 +1547,6 @@ DBG_DEBUG("way_builder_t::intern_calc_route()","steps=%i  (max %i) in route, ope
 		}
 		return cost;
 	}
-
-	return -1;
 }
 
 
@@ -2043,8 +2055,6 @@ DBG_DEBUG("way_builder_t::intern_calc_route()","steps=%i  (max %i) in route, ope
 		}
 		return cost;
 	}
-
-	return -1;
 }
 
 
@@ -2065,8 +2075,11 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
 
 	// not too close to the border?
-	if(  !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
-	     !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	// if(  !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
+	    //  !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	const uint16 border=15;
+	if(	 !(welt->is_within_limits(start-koord(border,border))  &&  welt->is_within_limits(start+koord(border,border)))  ||
+		 !(welt->is_within_limits(ziel-koord(border,border))  &&  welt->is_within_limits(ziel+koord(border,border)))  ) {
 		if(player_builder==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
@@ -2495,7 +2508,6 @@ bool way_builder_t::build_tunnel_tile()
 				lt->set_desc( wb );
 				tunnel->obj_add( lt );
 				lt->finish_rd();
-				player_t::add_maintenance( player_builder, -lt->get_desc()->get_maintenance(), powerline_wt);
 			}
 			tunnel->calc_image();
 			cost -= tunnel_desc->get_price();
@@ -2524,8 +2536,12 @@ bool way_builder_t::build_tunnel_tile()
 						str->set_street_flag(street_flag);
 					}
 					// respect max speed of catenary
-					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
-					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
+					waytype_t waytype = tunnel_desc->get_waytype();
+					wayobj_t const* const wo = gr->get_wayobj(waytype);
+					if(wo && waytype == track_wt){
+						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
+					}
+					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
 						weg->set_max_speed( wo->get_desc()->get_topspeed() );
 					}
 					gr->calc_image();
@@ -2545,10 +2561,6 @@ bool way_builder_t::build_tunnel_tile()
 					lt = new leitung_t(gr->get_pos(), player_builder);
 					lt->set_desc( wb );
 					gr->obj_add( lt );
-				}
-				else {
-					lt->leitung_t::finish_rd(); // only change powerline aspect
-					player_t::add_maintenance( player_builder, -lt->get_desc()->get_maintenance(), powerline_wt);
 				}
 			}
 		}
@@ -2628,10 +2640,10 @@ void way_builder_t::build_road()
 				str->set_street_flag(street_flag);
 			}
 			// keep faster ways or if it is the same way ... (@author prissi)
-			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  &&  str->get_street_flag()==street_flag  )  
-				||  keep_existing_ways  
-				||  (keep_existing_city_roads  &&  str->hat_gehweg())  
-				||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  
+			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  &&  str->get_street_flag()==street_flag  )
+				||  keep_existing_ways
+				||  (keep_existing_city_roads  &&  str->hat_gehweg())
+				||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())
 				||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL)
 				||  (gr->has_two_ways()  &&  gr->get_weg_nr(1)->is_deletable(player_builder)!=NULL) // do not replace public roads crossing rails of other players
 			) {
@@ -2655,8 +2667,7 @@ void way_builder_t::build_road()
 				str->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
 				str->set_owner(player_builder);
-				// respect speed limit of crossing
-				str->count_sign();
+				upgrade_crossing_if_needed(gr);
 			}
 		}
 		else {
@@ -2724,7 +2735,7 @@ void way_builder_t::build_track()
 				}
 
 				// build tram track over crossing -> remove crossing
-				if(  gr->has_two_ways()  &&  desc->get_styp()==type_tram  &&  weg->get_desc()->get_styp() != type_tram  ) {
+				if(  gr->has_two_ways()  &&  desc->get_styp()==type_tram  &&  weg->get_desc()->get_styp() != type_tram  &&  gr->hat_weg(waytype_t::road_wt)  ) {
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
 						cr->mark_image_dirty( cr->get_image(), 0);
@@ -2746,14 +2757,19 @@ void way_builder_t::build_track()
 					cost -= max( weg->get_desc()->get_price(), desc->get_price() );
 					weg->set_desc(desc);
 					// respect max speed of catenary
-					wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
-					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
+					waytype_t waytype = desc->get_wtyp();
+					wayobj_t const* const wo = gr->get_wayobj(waytype);
+					if(wo && waytype == track_wt){
+						weg->set_max_wayobj_speed(wo->get_desc()->get_topspeed());
+					}
+					else if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
 						weg->set_max_speed( wo->get_desc()->get_topspeed() );
 					}
 					player_t::add_maintenance( player_builder, weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 					weg->set_owner(player_builder);
 					// respect speed limit of crossing
 					weg->count_sign();
+					upgrade_crossing_if_needed(gr);
 				}
 			}
 			else {
@@ -2771,10 +2787,10 @@ void way_builder_t::build_track()
 					}
 
 					for(  int j = 0;  j < 4;  j++  ) {
-						if (ribi_t::nsew[j] & slope_ribi) {
+						if (ribi_t::nesw[j] & slope_ribi) {
 							grund_t *sea = NULL;
-							if (gr->get_neighbour(sea, invalid_wt, ribi_t::nsew[j])  &&  sea->is_water()  ) {
-								gr->weg_erweitern( water_wt, ribi_t::nsew[j] );
+							if (gr->get_neighbour(sea, invalid_wt, ribi_t::nesw[j])  &&  sea->is_water()  ) {
+								gr->weg_erweitern( water_wt, ribi_t::nesw[j] );
 								sea->calc_image();
 							}
 						}
@@ -2828,9 +2844,9 @@ void way_builder_t::build_powerline()
 		}
 		else {
 			// modernize the network
-			if( !keep_existing_faster_ways  ||  lt->get_desc()->get_topspeed() < desc->get_topspeed()  ) {
+			if(lt->get_typ() == obj_t::leitung  && (!keep_existing_faster_ways  ||  lt->get_desc()->get_topspeed() < desc->get_topspeed())  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_owner(),  -lt->get_desc()->get_maintenance(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_maintenance(), powerline_wt );
 			}
 		}
 		if (build_powerline) {
@@ -2856,7 +2872,7 @@ class fluss_test_driver_t : public test_driver_t
 	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt); }
 	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
 	int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
-	bool is_target(const grund_t *cur,const grund_t *) const OVERRIDE { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
+	bool is_target(const grund_t *cur,const grund_t *) const OVERRIDE { return cur->is_water()  &&  cur->get_hoehe()<=world()->get_groundwater(); }
 };
 
 
@@ -2869,12 +2885,30 @@ void way_builder_t::build_river()
 	 * route.front() tile at the ocean, route.back() the spring of the river
 	 */
 
-	// Do we join an other river?
 	uint32 start_n = 0;
+	uint32 end_n = get_count();
+	// first find coast ...
 	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
-		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ||  welt->lookup(route[idx])->get_hoehe() == welt->get_water_hgt(route[idx].get_2d())  ) {
+		if(  welt->lookup(route[idx])->get_hoehe() == welt->get_water_hgt(route[idx].get_2d())  ) {
 			start_n = idx;
 		}
+		else {
+			break;
+		}
+	}
+	// Do we join an other river?
+	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
+		if( welt->lookup( route[idx] )->get_weg(water_wt)  ) {
+			// river or channel
+			start_n = idx;
+		}
+	}
+	// No spring on a slope
+	while(  end_n>start_n  ) {
+		if(  welt->lookup( route[end_n-1] )->get_grund_hang() == slope_t::flat  ) {
+			break;
+		}
+		end_n --;
 	}
 	if(  start_n == get_count()-1  ) {
 		// completely joined another river => nothing to do
@@ -2882,37 +2916,70 @@ void way_builder_t::build_river()
 	}
 
 	// first check then lower riverbed
-	const sint8 start_h = route[start_n].z;
-	uint32 end_n = get_count();
-	uint32 i = start_n;
-	while(i<get_count()) {
-		// first find all tiles that are on the same level as tile i
-		// and check whether we can lower all of them
-		// if lowering fails we do not continue river building
-		bool ok = true;
-		uint32 j;
-		for(j=i; j<get_count() &&  ok; j++) {
-			// one step higher?
-			if (route[j].z > route[i].z) break;
-			// check
-			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h));
+	sint8 start_h = max(route[start_n].z,welt->get_groundwater());
+	vector_tpl<bool> lower_tile( end_n );    // This contains the tiles which can be lowered.
+	vector_tpl<sint8> lower_tile_h( end_n ); // to this value
+
+	// first: find possible valley
+	for( uint32 i=0;  i < end_n;  i++  ) {
+
+		bool can_lower = true;
+
+		if(  route[i].z < start_h   ) {
+			// skip all tiles below last sea level
+			can_lower = false;
 		}
-		// now lower all tiles that have the same height as tile i
-		for(uint32 k=i; k<j; k++) {
-			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+
+		grund_t *gr = welt->lookup( route[i] );
+		if(  gr->is_water()  ) {
+			// not lowering the sea or lakes
+			start_h = welt->get_water_hgt( route[i].get_2d() );
+			can_lower = false;
 		}
-		if (!ok) {
-			end_n = j;
-			break;
+
+		if(  gr->hat_weg(water_wt)  ) {
+			// not lowering exiting rivers
+			start_h = route[i].z;
+			can_lower = false;
 		}
-		i = j;
+
+		// check
+		if(  can_lower  ) {
+			can_lower = welt->can_flatten_tile( NULL, route[i].get_2d(), max( route[i].z-1, start_h ) );
+		}
+
+		lower_tile.append( can_lower );
+		lower_tile_h.append( start_h );
+
+		sint8 current_h = route[i].z+slope_t::max_diff(gr->get_grund_hang());
+		if(  current_h > start_h + 1  ) {
+			start_h++;
+		}
 	}
-	// nothing to built ?
-	if (start_n >= end_n-1) {
-		return;
+
+	// now lower all tiles
+	for(  uint32 i=start_n;  i<end_n;  i++  ) {
+		if(  lower_tile[i]  ) {
+			if(  !welt->flatten_tile( NULL, route[i].get_2d(), lower_tile_h[i] ) ) {
+				// illegal slope encountered, give up ...
+				return;
+			}
+		}
+	}
+
+	// and raise all tiles that resulted in slopes on curves
+	for( uint32 i = max(end_n, 2) - 2; i > start_n+1;   i-- ) {
+		grund_t *gr = welt->lookup_kartenboden( route[i].get_2d() );
+		if(  !gr->get_weg_ribi( water_wt )  &&  gr->get_grund_hang()!=slope_t::flat  ) {
+			if(  !ribi_t::is_straight(ribi_type(route[i+1].get_2d()-route[i-1].get_2d()))  ) {
+				welt->flatten_tile( NULL, route[i].get_2d(), gr->get_hoehe()+1 );
+				DBG_MESSAGE( "wrong river slope", route[i].get_str() );
+			}
+		}
 	}
 
 	// now build the river
+	uint32 last_common_water_tile = start_n;
 	grund_t *gr_first = NULL;
 	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
@@ -2924,30 +2991,36 @@ void way_builder_t::build_river()
 			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_type(route[i-1]-route[i]);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
-				weg_t *sch=weg_t::alloc(water_wt);
-				sch->set_desc(desc);
-				gr->neuen_weg_bauen(sch, ribi, NULL);
+				weg_t *river=weg_t::alloc(water_wt);
+				river->set_desc(desc);
+				gr->neuen_weg_bauen(river, ribi, NULL);
 			}
+			else {
+				last_common_water_tile = i;
+			}
+		}
+		else {
+			dynamic_cast<wasser_t *>(gr)->recalc_water_neighbours();
+			last_common_water_tile = i;
 		}
 	}
 	gr_first->calc_image(); // to calculate ribi of water tiles
 
 	// we will make rivers gradually larger by stepping up their width
-	if(  env_t::river_types>1  &&  start_n<get_count()) {
-		/* since we will stop at the first crossing with an existent river,
-		 * we cannot make sure, we have the same destination;
-		 * thus we use the routefinder to find the sea
-		 */
+	// Since we cannot quickly find out, if a lake has another influx, we just assume all rivers after a lake are navigatable
+	if(  env_t::river_types>1  ) {
+		// now all rivers will end in the sea (or a lake) and thus there must be a valid route!
+		// unless weare the first and there is no lake on the way.
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
-		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::all, 0x7FFFFFFF)) {
+		if (to_the_sea.calc_route(welt, welt->lookup_kartenboden(route[last_common_water_tile].get_2d())->get_pos(), welt->lookup_kartenboden(route[0].get_2d())->get_pos(), &river_tester, 0, 0x7FFFFFFF)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
 					for(  type=env_t::river_types-1;  type>0;  type--  ) {
 						// lookup type
 						if(  w->get_desc()==desc_table.get(env_t::river_type[type])  ) {
-							break;
+								break;
 						}
 					}
 					// still room to expand
@@ -3076,4 +3149,15 @@ void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
 			if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 		}
 	}
+}
+
+
+void way_builder_t::upgrade_crossing_if_needed( const grund_t* gr )
+{
+	crossing_t* crossing = gr->find<crossing_t>();
+	if(  !gr->ist_uebergang()  ||  !crossing  ) {
+		// A crossing does not exist on the given tile.
+		return;
+	}
+	crossing->finish_rd();
 }

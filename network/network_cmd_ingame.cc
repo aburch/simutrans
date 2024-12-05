@@ -88,7 +88,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 		// init the rest of the packet
 		SOCKET s = packet->get_sender();
 		loadsave_t fd;
-		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, 0, "info", SERVER_SAVEGAME_VER_NR )  ) {
+		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, 0, "info", SERVER_SAVEGAME_VER_NR ) == loadsave_t::FILE_STATUS_OK  ) {
 			gameinfo_t gi(welt);
 			gi.rdwr( &fd );
 			fd.close();
@@ -130,6 +130,15 @@ void nwc_nick_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_str(nickname);
+
+	if (packet->is_loading() && env_t::server && id == NWC_NICK) {
+		const SOCKET sock = packet->get_sender();
+		const socket_info_t &client = socket_list_t::get_client(socket_list_t::get_client_id(sock));
+
+		if (client.state != socket_info_t::playing) {
+			packet->failed();
+		}
+	}
 }
 
 
@@ -257,10 +266,10 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 		}
 		default: return;
 	}
-	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | GENERAL_TOOL );
 	tmp_tool->set_default_param( buf );
 	// queue tool for network
-	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), true);
+	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), false);
 	network_send_server(nwc);
 	// since init always returns false, it is safe to delete immediately
 	delete tmp_tool;
@@ -275,7 +284,16 @@ void nwc_chat_t::rdwr()
 	packet->rdwr_str( clientname );
 	packet->rdwr_str( destination );
 
-	dbg->warning("nwc_chat_t::rdwr", "rdwr message=%s plnr=%d clientname=%s destination=%s", message.c_str(), player_nr, clientname.c_str(), destination.c_str());
+	if (packet->is_loading() && env_t::server) {
+		const SOCKET sock = packet->get_sender();
+		const socket_info_t &client = socket_list_t::get_client(socket_list_t::get_client_id(sock));
+
+		if (client.state != socket_info_t::playing) {
+			packet->failed();
+		}
+	}
+
+	dbg->message("nwc_chat_t::rdwr", "rdwr message=%s plnr=%d clientname=%s destination=%s", message.c_str(), player_nr, clientname.c_str(), destination.c_str());
 }
 
 
@@ -531,6 +549,10 @@ void nwc_game_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(len);
+
+	if (packet->is_loading() && env_t::server) {
+		packet->failed();
+	}
 }
 
 
@@ -664,6 +686,10 @@ void nwc_sync_t::rdwr()
 	network_world_command_t::rdwr();
 	packet->rdwr_long(client_id);
 	packet->rdwr_long(new_map_counter);
+
+	if (packet->is_loading() && env_t::server) {
+		packet->failed();
+	}
 }
 
 
@@ -716,7 +742,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// first save password hashes
 		sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 		loadsave_t file;
-		if(file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR )) {
+		if(  file.wr_open(fn, loadsave_t::zipped, 1, "hashes", SAVEGAME_VER_NR ) == loadsave_t::FILE_STATUS_OK  ) {
 			welt->rdwr_player_password_hashes( &file );
 			file.close();
 		}
@@ -742,7 +768,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		// ok, now sending game
 		// this sends nwc_game_t
-		const char *err = network_send_file( client_id, fn );
+		const char *err = network_send_file( socket_list_t::get_socket(client_id), fn );
 		if (err) {
 			dbg->warning("nwc_sync_t::do_command","send game failed with: %s", err);
 		}
@@ -944,6 +970,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 
 
 nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0),
+	init(false),
 	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	tool = NULL;
@@ -1027,9 +1054,8 @@ void nwc_tool_t::rdwr()
 		custom_data.append_tail(*packet);
 	}
 
-	//if (packet->is_loading()) {
-		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s tool_id=%d defpar=%s init=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), tool_id, (char const*)default_param, init, flags);
-	//}
+	dbg->message("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s tool_id=%s defpar=%s init=%d flags=%d",
+		id, tool_client_id, player_nr, pos.get_str(), tool_t::id_to_string(tool_id), default_param.c_str(), init, flags);
 }
 
 
@@ -1094,7 +1120,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		// check whether player is authorized do this
 		socket_info_t const& info = socket_list_t::get_client(our_client_id);
 		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
-			if (tool_id == (TOOL_ADD_MESSAGE|SIMPLE_TOOL)) {
+			if (tool_id == (TOOL_ADD_MESSAGE | GENERAL_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
 			else {
@@ -1110,7 +1136,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		// do scenario checks here, send error message back
 		if ( scen->is_scripted() ) {
 			if (!scen->is_tool_allowed(welt->get_player(player_nr), tool_id, wt)) {
-				dbg->warning("nwc_tool_t::clone", "tool_id=%d  wt=%d tool not allowed", tool_id, wt);
+				dbg->warning("nwc_tool_t::clone", "tool_id=%s  wt=%d tool not allowed", tool_t::id_to_string(tool_id), wt);
 				// TODO return error message ?
 				return NULL;
 			}
@@ -1129,7 +1155,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 					nwt->default_param = err;
 					nwt->last_sync_step = welt->get_last_checklist_sync_step();
 					nwt->last_checklist = welt->get_last_checklist();
-					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d  error=%s", nwt->get_sync_step(), tool_id, err);
+					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%s  error=%s", nwt->get_sync_step(), tool_t::id_to_string(tool_id), err);
 					return nwt;
 				}
 			}
@@ -1140,7 +1166,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	nwc_tool_t *nwt = new nwc_tool_t(*this);
 	nwt->last_sync_step = welt->get_last_checklist_sync_step();
 	nwt->last_checklist = welt->get_last_checklist();
-	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d %s", nwt->get_sync_step(), tool_id, init ? "init" : "work");
+	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%s %s", nwt->get_sync_step(), tool_t::id_to_string(tool_id), init ? "init" : "work");
 	return nwt;
 }
 
@@ -1148,7 +1174,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 bool nwc_tool_t::ignore_old_events() const
 {
 	// messages are allowed to arrive at any time (return true if message)
-	return tool_id==(SIMPLE_TOOL|TOOL_ADD_MESSAGE);
+	return tool_id==(GENERAL_TOOL|TOOL_ADD_MESSAGE);
 }
 
 
@@ -1205,11 +1231,11 @@ void nwc_tool_t::do_command(karte_t *welt)
 		}
 		err = tool->work( player, pos );
 		// only local players get the callback
-		if (local  &&  callback_id == 0) {
+		if (local  &&  callback_id == 0  &&  player) {
 			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {
-			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);
+			dbg->warning("nwc_tool_t::do_command","Tool %s failed with '%s'", tool->get_name(), err);
 		}
 		tool->exit(player);
 	}
@@ -1260,7 +1286,7 @@ bool nwc_service_t::execute(karte_t *welt)
 
 		case SRVC_ANNOUNCE_SERVER:
 			// Startup announce, to force full details resend
-			welt->announce_server( 0 );
+			welt->announce_server( karte_t::SERVER_ANNOUNCE_HELLO );
 			break;
 
 		case SRVC_GET_CLIENT_LIST: {

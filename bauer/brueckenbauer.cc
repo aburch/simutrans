@@ -246,7 +246,7 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const ch
 	// take slopes on grounds below into accout
 	const sint8 clearance = welt->get_settings().get_way_height_clearance()-1;
 	for(int dz = -clearance -2; dz <= clearance; dz++) {
-		grund_t *gr2;
+		grund_t *gr2 = NULL;
 		if (dz != 0 && (gr2 = welt->lookup(pos + koord3d(0,0,dz)))) {
 
 			const slope_t::type slope = gr2->get_weg_hang();
@@ -580,8 +580,8 @@ bool bridge_builder_t::is_start_of_bridge( const grund_t *gr )
 		// now check for end of rampless bridges
 		ribi_t::ribi ribi = gr->get_weg_ribi_unmasked( gr->get_leitung() ? powerline_wt : gr->get_weg_nr(0)->get_waytype() );
 		for(  int i=0;  i<4;  i++  ) {
-			if(  ribi_t::nsew[i] & ribi  ) {
-				grund_t *to = welt->lookup( gr->get_pos()+koord(ribi_t::nsew[i]) );
+			if(  ribi_t::nesw[i] & ribi  ) {
+				grund_t *to = welt->lookup( gr->get_pos()+koord(ribi_t::nesw[i]) );
 				if(  to  &&  !to->ist_bruecke()  ) {
 					return true;
 				}
@@ -787,7 +787,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  slope_t::max_diff(slope) : bridge_height;
-		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode, street_flag, true );
+		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, way_desc, overtaking_mode, street_flag, true );
 		if(  desc->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(desc->get_waytype());
 		}
@@ -877,7 +877,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode, street_flag, false);
+		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, way_desc, overtaking_mode, street_flag, false);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -949,7 +949,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 }
 
 
-void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
+void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
 {
 	assert(weg_hang <= slope_t::max_number);
 
@@ -975,6 +975,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			weg = weg_t::alloc( desc->get_waytype() );
 			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ), end.get_2d(), desc->get_waytype());
 		}
+		weg->set_desc( way_desc );
 		weg->set_max_speed( desc->get_topspeed() );
 		if(  desc->get_waytype()==road_wt  ) {
 			strasse_t* str = (strasse_t*) weg;
@@ -1089,7 +1090,7 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
-			if(  (zv == koord::invalid  ||  zv == koord::nsew[r])  &&  from->get_neighbour(to, delete_wegtyp, ribi_t::nsew[r])  &&  !marker.is_marked(to)  &&  to->ist_bruecke()  ) {
+			if(  (zv == koord::invalid  ||  zv == koord::nesw[r])  &&  from->get_neighbour(to, delete_wegtyp, ribi_t::nesw[r])  &&  !marker.is_marked(to)  &&  to->ist_bruecke()  ) {
 				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_desc()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.mark(to);
@@ -1110,13 +1111,13 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 			// starts on slope or elevated way, or it consist only of the ramp
 			ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );
 			for(  uint i = 0;  i < 4;  i++  ) {
-				if(  bridge_ribi & ribi_t::nsew[i]  ) {
+				if(  bridge_ribi & ribi_t::nesw[i]  ) {
 					grund_t *prev;
 					// if we have a ramp, then only check the higher end!
-					if(  gr->get_neighbour( prev, wegtyp, ribi_t::nsew[i])  &&  !prev->ist_bruecke()  &&  !end_list.is_contained(prev->get_pos())   ) {
+					if(  gr->get_neighbour( prev, wegtyp, ribi_t::nesw[i])  &&  !prev->ist_bruecke()  &&  !end_list.is_contained(prev->get_pos())   ) {
 						if(  weg_t *w = prev->get_weg( wegtyp )  ) {
 							// now remove ribi (or full way)
-							w->set_ribi( (~ribi_t::backward( ribi_t::nsew[i] )) & w->get_ribi_unmasked() );
+							w->set_ribi( (~ribi_t::backward( ribi_t::nesw[i] )) & w->get_ribi_unmasked() );
 							if(  w->get_ribi_unmasked() == 0  ) {
 								// nowthing left => then remove completel
 								prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
@@ -1173,20 +1174,25 @@ const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytyp
 		// starts on slope or elevated way, or it consist only of the ramp
 		ribi_t::ribi bridge_ribi = gr->get_weg_ribi_unmasked( wegtyp );
 		for(  uint i = 0;  i < 4;  i++  ) {
-			if(  bridge_ribi & ribi_t::nsew[i]  ) {
+			if(  bridge_ribi & ribi_t::nesw[i]  ) {
 				grund_t *prev;
 				// if we have a ramp, then only check the higher end!
-				if(  gr->get_neighbour( prev, wegtyp, ribi_t::nsew[i])  &&  prev->get_hoehe() > gr->get_hoehe()  ) {
+				if(  gr->get_neighbour( prev, wegtyp, ribi_t::nesw[i])  &&  prev->get_hoehe() > gr->get_hoehe()  ) {
 					if(  weg_t *w = prev->get_weg( wegtyp )  ) {
 						// now remove ribi (or full way)
-						w->set_ribi( (~ribi_t::backward( ribi_t::nsew[i] )) & w->get_ribi_unmasked() );
+						w->set_ribi( (~ribi_t::backward( ribi_t::nesw[i] )) & w->get_ribi_unmasked() );
 						if(  w->get_ribi_unmasked() == 0  ) {
-							// nowthing left => then remove completel
+							// nothing left => then remove completly
+							koord3d prev_pos = prev->get_pos();
 							prev->remove_everything_from_way( player, wegtyp, bridge_ribi ); // removes stop and signals correctly
 							prev->weg_entfernen( wegtyp, true );
 							if(  prev->get_typ() == grund_t::monorailboden  ) {
 								welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
 								delete prev;
+							}
+							else if(  prev->get_typ() == grund_t::tunnelboden  &&  !prev->hat_wege()  ) {
+								grund_t* gr_new = new boden_t(prev->get_pos(), prev->get_grund_hang());
+								welt->access(prev->get_pos().get_2d())->kartenboden_setzen(gr_new);
 							}
 						}
 						else {

@@ -4,6 +4,7 @@
  */
 
 #include "trafficlight_info.h"
+#include "components/gui_label.h"
 #include "../obj/roadsign.h" // The rest of the dialog
 
 #include "../simmenu.h"
@@ -50,6 +51,14 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	  add_component( &yellow_ow );
 	}
 	end_table();
+
+	// show author below the settings
+	if (char const* const maker = roadsign->get_desc()->get_copyright()) {
+		gui_label_buf_t* lb = new_component<gui_label_buf_t>();
+		lb->buf().printf(translator::translate("Constructed by %s"), maker);
+		lb->update();
+	}
+
 	recalc_size();
 }
 

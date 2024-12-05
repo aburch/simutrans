@@ -46,7 +46,7 @@ public:
 	 * Numbering of all image pieces
 	 */
 	enum img_t {
-		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Ramp, S_Ramp, O_Ramp, W_Ramp, NS_Pillar, OW_Pillar,
+		NS_Segment,  OW_Segment,  N_Start,  S_Start,  O_Start,  W_Start,  N_Ramp,  S_Ramp,  O_Ramp,  W_Ramp,  NS_Pillar,  OW_Pillar,
 		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Ramp2, S_Ramp2, O_Ramp2, W_Ramp2, NS_Pillar2, OW_Pillar2
 	};
 

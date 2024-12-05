@@ -11,6 +11,7 @@
 
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "../display/scr_coord.h"
 
 
 /*
@@ -28,16 +29,16 @@ struct event_t;
 
 /* Types for the window */
 enum wintype {
-	w_info         = 1, // A info window
-	w_do_not_delete= 2, // A window whose GUI object should not be deleted on close
-	w_no_overlap   = 4, // try to place it below a previous window with the same flag
-	w_time_delete  = 8  // deletion after MESG_WAIT has elapsed
+	w_info          = 1 << 0, // A info window
+	w_do_not_delete = 1 << 1, // A window whose GUI object should not be deleted on close
+	w_no_overlap    = 1 << 2, // try to place it below a previous window with the same flag
+	w_time_delete   = 1 << 3  // deletion after MESG_WAIT has elapsed
 };
 ENUM_BITSET(wintype)
 
 
 enum magic_numbers {
-	magic_none = -1,
+	magic_none     = -1,
 	magic_reserved = 0,
 
 	// from here on, delete second 'new'-ed object in create_win
@@ -69,18 +70,20 @@ enum magic_numbers {
 	magic_city_info_t,
 	magic_citylist_frame_t,
 	magic_mainhelp,
+
 	// player dependent stuff => 16 times present
 	magic_finances_t,
-	magic_convoi_list=magic_finances_t+MAX_PLAYER_COUNT,
-	magic_convoi_list_filter=magic_convoi_list+MAX_PLAYER_COUNT,
-	magic_line_list=magic_convoi_list_filter+MAX_PLAYER_COUNT,
-	magic_halt_list=magic_line_list+MAX_PLAYER_COUNT,
-	magic_line_management_t=magic_halt_list+MAX_PLAYER_COUNT,
-	magic_ai_options_t=magic_line_management_t+MAX_PLAYER_COUNT,
-	magic_ai_selector=magic_ai_options_t+MAX_PLAYER_COUNT,
-	magic_pwd_t=magic_ai_selector+MAX_PLAYER_COUNT,
-	magic_jump=magic_pwd_t+MAX_PLAYER_COUNT,
-	magic_headquarter = magic_jump + MAX_PLAYER_COUNT,
+	magic_convoi_list        = magic_finances_t         + MAX_PLAYER_COUNT,
+	magic_convoi_list_filter = magic_convoi_list        + MAX_PLAYER_COUNT,
+	magic_line_list          = magic_convoi_list_filter + MAX_PLAYER_COUNT,
+	magic_halt_list          = magic_line_list          + MAX_PLAYER_COUNT,
+	magic_line_management_t  = magic_halt_list          + MAX_PLAYER_COUNT,
+	magic_ai_options_t       = magic_line_management_t  + MAX_PLAYER_COUNT,
+	magic_ai_selector        = magic_ai_options_t       + MAX_PLAYER_COUNT,
+	magic_pwd_t              = magic_ai_selector        + MAX_PLAYER_COUNT,
+	magic_jump               = magic_pwd_t              + MAX_PLAYER_COUNT,
+	magic_headquarter        = magic_jump               + MAX_PLAYER_COUNT,
+
 	// normal stuff
 	magic_curiositylist,
 	magic_factorylist,
@@ -98,31 +101,37 @@ enum magic_numbers {
 	magic_station_building_select,
 	magic_server_frame_t,
 	magic_pakset_info_t,
-	magic_schedule_rdwr_dummy, // only used to save/load schedules
-	magic_line_schedule_rdwr_dummy, // only used to save/load line schedules
+	magic_schedule_rdwr_dummy,       // only used to save/load schedules
+	magic_line_schedule_rdwr_dummy,  // only used to save/load line schedules
 	magic_motd,
 	magic_factory_info, // only used to load/save
 	magic_font,
+	magic_soundfont, // only with USE_FLUIDSYNTH_MIDI
+	magic_edit_groundobj,
+
 	// magic numbers with big jumps between them
 	magic_convoi_info,
-	magic_UNUSED_convoi_detail=magic_convoi_info+65536, // unused range
-	magic_halt_info=magic_UNUSED_convoi_detail +65536,
-	magic_UNUSED_halt_detail=magic_halt_info+65536, // unused range
-	magic_toolbar=magic_UNUSED_halt_detail+65536,
-	magic_script_error=magic_toolbar+256,
+	magic_UNUSED_convoi_detail = magic_convoi_info          + 0x10000, // unused range
+	magic_halt_info            = magic_UNUSED_convoi_detail + 0x10000,
+	magic_UNUSED_halt_detail   = magic_halt_info            + 0x10000, // unused range
+	magic_toolbar              = magic_UNUSED_halt_detail   + 0x10000,
+	magic_script_error         = magic_toolbar              + 0x100,
 	magic_haltlist_filter,
 	magic_depot, // only used to load/save
-	magic_halt_list_t,
-	magic_depotlist = magic_halt_list_t + MAX_PLAYER_COUNT,
-	magic_vehiclelist = magic_depotlist + MAX_PLAYER_COUNT,
+	magic_depotlist   = magic_depot + MAX_PLAYER_COUNT,
+	magic_vehiclelist = magic_depotlist   + MAX_PLAYER_COUNT,
 	magic_script_generator,
+	magic_pakinstall,
+	magic_citybuilding_edit,
+	magic_curiosity_edit,
+	magic_factory_edit,
+	magic_baum_edit,
+	magic_groundobj_edit,
 	magic_max
 };
 
 // Holding time for auto-closing windows
 #define MESG_WAIT 80
-
-void init_map_win();
 
 // windows with a valid id can be saved and restored
 void rdwr_all_win(loadsave_t *file);
@@ -130,8 +139,13 @@ void rdwr_all_win(loadsave_t *file);
 // save windowsizes in settings
 void rdwr_win_settings(loadsave_t *file);
 
+void win_clamp_xywh_position(scr_coord_val &x, scr_coord_val &y, scr_size wh, bool move_to_full_view);
+
 int create_win(gui_frame_t*, wintype, ptrdiff_t magic);
-int create_win(int x, int y, gui_frame_t*, wintype, ptrdiff_t magic);
+int create_win(scr_coord_val x, scr_coord_val y, gui_frame_t*, wintype, ptrdiff_t magic, bool move_to_show_full=false);
+
+// call to avoid the main menu getting mouse events while dragging
+void catch_dragging();
 
 bool check_pos_win(event_t*);
 
@@ -146,7 +160,12 @@ gui_frame_t *win_get_top();
 // returns the focused component of the top window
 gui_component_t *win_get_focus();
 
-int win_get_open_count();
+// true, if the focus is currently in a text field
+bool win_is_textinput();
+
+uint32 win_get_open_count();
+
+gui_frame_t* win_get_index(uint32 i);
 
 // returns the window (if open) otherwise zero
 gui_frame_t *win_get_magic(ptrdiff_t magic);
@@ -165,6 +184,9 @@ bool destroy_win(const gui_frame_t *ig);
 bool destroy_win(const ptrdiff_t magic);
 
 void destroy_all_win(bool destroy_sticky);
+
+void rollup_all_win();
+void rolldown_all_win();
 
 bool top_win(const gui_frame_t *ig, bool keep_rollup=false  );
 void display_all_win();
@@ -192,18 +214,21 @@ void win_redraw_world();
 /**
  * Loads new font. Notifies gui's, world.
  */
-void win_load_font(const char *fname, uint16 fontsize);
+void win_load_font(const char *fname, uint8 fontsize);
 
 /**
  * Sets the tooltip to display.
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = 0, const void *const group = 0);
+void win_set_tooltip(scr_coord_val xpos, scr_coord_val ypos, const char *text, const void *const owner = 0, const void *const group = 0);
 
 /**
  * Sets a static tooltip that follows the mouse
  * *MUST* be explicitly unset!
  */
 void win_set_static_tooltip(const char *text);
+
+// shows a modal dialoge (blocks other interaction)
+void modal_dialogue(gui_frame_t* gui, ptrdiff_t magic, karte_t* welt, bool (*quit)());
 
 #endif

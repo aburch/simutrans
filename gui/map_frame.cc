@@ -75,7 +75,6 @@ public:
 	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord pos = get_pos() + offset;
-		display_ddd_box_clip_rgb( pos.x, pos.y+D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4) );
 		display_fillbox_wh_clip_rgb( pos.x, pos.y+D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, color, false );
 		label.draw( pos+scr_size(D_INDICATOR_BOX_WIDTH+D_H_SPACE,0) );
 	}
@@ -93,7 +92,7 @@ public:
 		double bar_width = (double)get_size().w/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh_clip_rgb(pos.x + (i*bar_width), pos.y+2,  bar_width+1, 7, minimap_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
+			display_fillbox_wh_clip_rgb(pos.x + (scr_coord_val)(i*bar_width), pos.y+2, (scr_coord_val)bar_width+1, 7, minimap_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
 		}
 	}
 	scr_size get_min_size() const OVERRIDE
@@ -158,6 +157,7 @@ map_frame_t::map_frame_t() :
 	karte->player_showed_on_map = -1;
 
 	p_scrolly = new gui_scrollpane_map_t( minimap_t::get_instance());
+	p_scrolly->set_maximize( true );
 	p_scrolly->set_min_width( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT );
 	// initialize scrollbar positions -- LATER
 	const scr_size size = karte->get_size();
@@ -383,6 +383,27 @@ void map_frame_t::update_buttons()
 }
 
 
+
+static bool compare_factories(const factory_desc_t *const a, const factory_desc_t *const b)
+{
+	const bool a_producer_only = a->get_supplier_count() == 0;
+	const bool b_producer_only = b->get_supplier_count() == 0;
+	const bool a_consumer_only = a->get_product_count() == 0;
+	const bool b_consumer_only = b->get_product_count() == 0;
+
+	if (a_producer_only != b_producer_only) {
+		return a_producer_only; // producers to the front
+	}
+	else if (a_consumer_only != b_consumer_only) {
+		return !a_consumer_only; // consumers to the end
+	}
+	else {
+		// both of same type, sort by name
+		return strcmp(translator::translate(a->get_name()), translator::translate(b->get_name())) < 0;
+	}
+}
+
+
 void map_frame_t::update_factory_legend()
 {
 	directory_container.remove_all();
@@ -394,7 +415,7 @@ void map_frame_t::update_factory_legend()
 		if(  filter_factory_list  ) {
 			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 				if(  f->get_desc()->get_distribution_weight() > 0  ) {
-					factory_types.append_unique(f->get_desc());
+					factory_types.insert_unique_ordered(f->get_desc(), compare_factories);
 				}
 			}
 		}
@@ -402,10 +423,12 @@ void map_frame_t::update_factory_legend()
 			FOR(stringhashtable_tpl<factory_desc_t const*>, i, factory_builder_t::get_factory_table()) {
 				factory_desc_t const* const d = i.value;
 				if (d->get_distribution_weight() > 0) {
-					factory_types.append_unique(d);
+					factory_types.insert_unique_ordered(d, compare_factories);
 				}
 			}
 		}
+		// now sort
+
 		// add corresponding legend entries
 		FOR(vector_tpl<const factory_desc_t*>, f, factory_types) {
 			directory_container.new_component<legend_entry_t>(f->get_name(), f->get_color());
@@ -571,7 +594,7 @@ void map_frame_t::zoom(bool magnify)
 bool map_frame_t::infowin_event(const event_t *ev)
 {
 	event_t ev2 = *ev;
-	translate_event(&ev2, -scrolly.get_pos().x, -scrolly.get_pos().y-D_TITLEBAR_HEIGHT);
+	ev2.move_origin(scrolly.get_pos() + scr_coord(0, D_TITLEBAR_HEIGHT));
 
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {

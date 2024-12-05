@@ -6,6 +6,7 @@
 #include "gui_label.h"
 #include "../gui_frame.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/environment.h"
 #include "../../utils/simstring.h"
 #include "../simwin.h"
 
@@ -14,11 +15,21 @@
  */
 
 static scr_coord_val separator_width = 0;
+static scr_coord_val large_money_width = 0;
 
 gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	align(align_), tooltip(NULL)
 {
 	separator_width = proportional_string_width( ",00$" );
+
+	if (get_large_money_string()) {
+		cbuffer_t buf;
+		buf.printf("%s$", get_large_money_string());
+		large_money_width = proportional_string_width((const char*) buf);
+	}
+	else {
+		large_money_width = 0;
+	}
 
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, scr_coord (0,0), color_, align_);
@@ -62,34 +73,41 @@ void gui_label_t::draw(scr_coord offset)
 {
 	if(  align == money_right) {
 		if(text) {
-			const char *seperator = NULL;
-			const bool not_a_number = atol(text)==0  &&  !isdigit(*text);
+			const char *separator = NULL;
+			const bool not_a_number = atol(text)==0  &&  !isdigit(*text)  &&  *text != '-';
 
-			// position of separator
 			scr_coord right = pos + offset;
-			if (align == money_right) {
-				right.x += get_size().w - separator_width;
-			}
 
 			if(  !not_a_number  ) {
-				seperator = strrchr(text, get_fraction_sep());
-				if(seperator==NULL  &&  get_large_money_string()!=NULL) {
-					seperator = strrchr(text, *(get_large_money_string()) );
+				// find first letter of large_money_width in text
+				if (get_large_money_string()!=NULL) {
+					separator = strrchr(text, *(get_large_money_string()) );
+					if (separator) {
+						right.x += get_size().w;
+					}
+				}
+				// look for fraction_sep (e.g., comma)
+				if (separator==NULL) {
+					// everything else align at decimal separator
+					right.x += get_size().w - separator_width;
+					separator = strrchr(text, get_fraction_sep());
 				}
 			}
 
-			if(seperator) {
-				display_proportional_clip_rgb(right.x, right.y, seperator, ALIGN_LEFT, color, true);
-				if(  seperator!=text  ) {
-					display_text_proportional_len_clip_rgb(right.x, right.y, text, ALIGN_RIGHT | DT_CLIP, color, true, seperator-text );
+			if(separator) {
+				display_proportional_clip_rgb(right.x, right.y, separator, ALIGN_LEFT, color, true);
+				if(  separator!=text  ) {
+					if (shadowed) {
+						display_text_proportional_len_clip_rgb(right.x+1, right.y+1, text, ALIGN_RIGHT | DT_CLIP, color_shadow, true, separator - text);
+					}
+					display_text_proportional_len_clip_rgb(right.x, right.y, text, ALIGN_RIGHT | DT_CLIP, color, true, separator-text );
 				}
 			}
-			else if(  not_a_number  ) {
-				// normal text, correct for money decimals
-				display_proportional_clip_rgb(right.x+separator_width, right.y, text, ALIGN_RIGHT, color, true);
-			}
 			else {
-				// integer numbers without decimals, align at decimal separator
+				// integer or normal text
+				if (shadowed) {
+					display_proportional_clip_rgb(right.x + 1, right.y + 1, text, ALIGN_RIGHT | DT_CLIP, color_shadow, true);
+				}
 				display_proportional_clip_rgb(right.x, right.y, text, ALIGN_RIGHT, color, true);
 			}
 		}

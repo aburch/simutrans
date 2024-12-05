@@ -65,7 +65,9 @@ private:
 	 * As long we do not have resource scripts, we display make
 	 * some tables for the main attributes of each button.
 	 */
-	enum { FILTER_BUTTONS=17 };
+	enum {
+		FILTER_BUTTONS = 6
+	};
 
 	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
@@ -80,7 +82,7 @@ private:
 	 */
 	button_t filter_buttons[FILTER_BUTTONS];
 
-	gui_aligned_container_t name_filter, accepts_filter, sends_filter;
+	gui_aligned_container_t special_filter, accepts_filter, sends_filter;
 	gui_tab_panel_t tabs;
 
 	gui_textinput_t name_filter_input;

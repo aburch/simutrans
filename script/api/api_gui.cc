@@ -25,22 +25,22 @@
 using namespace script_api;
 
 
-void_t add_scenario_message_at(const char* text, koord pos)
+call_tool_work add_scenario_message_at(const char* text, koord pos)
 {
-	if (text) {
-		message_t *msg = welt->get_message();
-		msg->add_message(text, pos, message_t::scenario, PLAYER_FLAG|welt->get_active_player()->get_player_nr());
-	}
-	return void_t();
+	// build param string (see tool_add_message_t::init)
+	cbuffer_t buf;
+	buf.printf("%d,%s", message_t::scenario, text);
+
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, welt->get_active_player(), koord3d(pos, 0));
 }
 
-void_t add_ai_message_at(player_t *player, const char* text, koord pos)
+call_tool_work add_ai_message_at(player_t *player, const char* text, koord pos)
 {
-	if (text) {
-		message_t *msg = welt->get_message();
-		msg->add_message(text, pos, message_t::ai, PLAYER_FLAG|player->get_player_nr());
-	}
-	return void_t();
+	// build param string (see tool_add_message_t::init)
+	cbuffer_t buf;
+	buf.printf("%d,%s", message_t::ai, text);
+
+	return call_tool_work(TOOL_ADD_MESSAGE | GENERAL_TOOL, (const char*)buf, 0, player, koord3d(pos, 0));
 }
 
 call_tool_work add_scenario_message(player_t* player, const char* text)
@@ -94,7 +94,7 @@ void_t close_all_windows()
 
 void_t take_screenshot()
 {
-	display_snapshot( 0, 0, display_get_width(), display_get_height() );
+	display_snapshot( scr_rect(0, 0, display_get_width(), display_get_height()) );
 	return void_t();
 }
 
@@ -143,7 +143,6 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		*
 		* @param text Text to be shown. Has to be a translated string or a translatable string.
 		* @param position Position of the view on the map. Clicking on the message will center viewport at this position.
-		* @warning Message only shown on server, but stored in savegame.
 		* @note Only available in scenario mode.
 		* @ingroup scen_only
 		*/
@@ -168,7 +167,6 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		* @param player sending this message
 		* @param text Text to be shown. Has to be a translated string or a translatable string.
 		* @param position Position of the view on the map. Clicking on the message will center viewport at this position.
-		* @warning Message only shown on server, but stored in savegame.
 		* @ingroup ai_only
 		*/
 		STATIC register_method(vm, &add_ai_message_at, "add_message_at");

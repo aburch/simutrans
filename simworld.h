@@ -20,13 +20,15 @@
 #include "tpl/slist_tpl.h"
 
 #include "dataobj/settings.h"
-#include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/rect.h"
 
-#include "simplan.h"
+#include "utils/checklist.h"
+#include "utils/sha1_hash.h"
 
+#include "simplan.h"
 #include "simdebug.h"
+
 
 struct sound_info;
 class stadt_t;
@@ -47,27 +49,7 @@ class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
-
-struct checklist_t
-{
-	uint32 random_seed;
-	uint16 halt_entry;
-	uint16 line_entry;
-	uint16 convoy_entry;
-
-	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0) { }
-	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry)
-		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
-
-	bool operator == (const checklist_t &other) const
-	{
-		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry );
-	}
-	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
-
-	void rdwr(memory_rw_t *buffer);
-	int print(char *buffer, const char *entity) const;
-};
+class loadingscreen_t;
 
 
 /**
@@ -89,12 +71,10 @@ class karte_t
 
 public:
 	/**
-	 * Height of a point of the map with "perlin noise"
-	 *
-	 * @param frequency in 0..1.0 roughness, the higher the rougher
-	 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+	 * Height of a point of the map with "perlin noise".
+	 * Uses map roughness and mountain height from @p sets.
 	 */
-	static sint32 perlin_hoehe(settings_t const*, koord k, koord size);
+	static sint32 perlin_hoehe(settings_t const *sets, koord k, koord size);
 
 	/**
 	 * Loops over tiles setting heights from perlin noise
@@ -102,7 +82,7 @@ public:
 	void perlin_hoehe_loop(sint16, sint16, sint16, sint16);
 
 	enum player_cost {
-		WORLD_CITICENS=0,        ///< total people
+		WORLD_CITIZENS = 0,      ///< total people
 		WORLD_GROWTH,            ///< growth (just for convenience)
 		WORLD_TOWNS,             ///< number of all cities
 		WORLD_FACTORIES,         ///< number of all consuming only factories
@@ -120,13 +100,28 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS   (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
-	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
+	enum {
+		NORMAL       = 0,
+		PAUSE_FLAG   = 1 << 0,
+		FAST_FORWARD = 1 << 1,
+		FIX_RATIO    = 1 << 2
+	};
 
 	/**
 	 * Missing things during loading:
 	 * factories, vehicles, roadsigns or catenary may be severe
 	 */
-	enum missing_level_t { NOT_MISSING=0, MISSING_FACTORY=1, MISSING_VEHICLE=2, MISSING_SIGN=3, MISSING_WAYOBJ=4, MISSING_ERROR=4, MISSING_BRIDGE, MISSING_BUILDING, MISSING_WAY };
+	enum missing_level_t {
+		NOT_MISSING     = 0,
+		MISSING_FACTORY = 1,
+		MISSING_VEHICLE = 2,
+		MISSING_SIGN    = 3,
+		MISSING_WAYOBJ  = 4,
+		MISSING_ERROR   = 4,
+		MISSING_BRIDGE,
+		MISSING_BUILDING,
+		MISSING_WAY
+	};
 
 private:
 	/**
@@ -256,8 +251,8 @@ private:
 	/**
 	 * Table for fast conversion from height to climate.
 	 */
-	uint8 height_to_climate[128];
-	uint8 num_climates_at_height[128];
+	uint8 height_to_climate[256];
+	uint8 num_climates_at_height[256];
 
 	/**
 	* Contains the intended climate for a tile
@@ -332,7 +327,7 @@ private:
 	 * @param keep_water returns false if water tiles would be raised above water
 	 * @param hsw desired height of sw-corner
 	 * @param hse desired height of se-corner
-	 * @param hse desired height of ne-corner
+	 * @param hne desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
@@ -356,7 +351,7 @@ private:
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner
 	 * @param hse desired height of se-corner
-	 * @param hse desired height of ne-corner
+	 * @param hne desired height of ne-corner
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
@@ -647,6 +642,8 @@ private:
 	 */
 	void load(loadsave_t *file);
 
+	void rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls);
+
 	/**
 	 * Removes all objects, deletes all data structures and frees all accessible memory.
 	 */
@@ -682,14 +679,19 @@ private:
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.
 	 */
-	void distribute_groundobjs_cities(int new_cities, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y );
+	void distribute_cities(int new_cities, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y );
+	void distribute_groundobjs(sint16 old_x, sint16 old_y);
+	void distribute_movingobjs(sint16 old_x, sint16 old_y);
 
 	/**
 	 * The last time when a server announce was performed (in ms).
 	 */
 	uint32 server_last_announce_time;
 
-	enum { SYNCX_FLAG = 0x01, GRIDS_FLAG = 0x02 };
+	enum {
+		SYNCX_FLAG = 1 << 0,
+		GRIDS_FLAG = 1 << 1
+	};
 
 	void world_xy_loop(xy_loop_func func, uint8 flags);
 	static void *world_xy_loop_thread(void *);
@@ -705,12 +707,19 @@ private:
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
+	enum server_announce_type_t
+	{
+		SERVER_ANNOUNCE_HELLO     = 0, ///< my server is now up
+		SERVER_ANNOUNCE_HEARTBEAT = 1, ///< my server is still up
+		SERVER_ANNOUNCE_GOODBYE   = 2, ///< my server is now down
+	};
+
 	/**
 	 * Announce server and current state to listserver.
 	 * @param status Specifies what information should be announced
 	 * or offline (the latter only in cases where it is shutting down)
 	 */
-	void announce_server(int status);
+	void announce_server(server_announce_type_t status);
 
 	/// cache the current maximum and minimum height on the map
 	sint8 max_height, min_height;
@@ -904,7 +913,13 @@ public:
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call=false);
 
-	enum change_player_tool_cmds { new_player=1, toggle_freeplay=2, delete_player=3, toggle_player_active=4 };
+	enum change_player_tool_cmds {
+		new_player           = 1,
+		toggle_freeplay      = 2,
+		delete_player        = 3,
+		toggle_player_active = 4
+	};
+
 	/**
 	 * @param exec If false checks whether execution is allowed, if true executes tool.
 	 * @returns Whether execution is allowed.
@@ -1025,6 +1040,12 @@ public:
 
 	uint32 get_next_month_ticks() const { return next_month_ticks; }
 
+	// convert the time in ticks to time in the spacing shift divisor.
+	uint16 tick_to_divided_time(uint32 tick) const {
+    	const uint16 divisor = get_settings().get_spacing_shift_divisor();
+    	return (uint16)((uint64)tick * divisor / ticks_per_world_month);
+	}
+
 	/**
 	 * Absolute month (count start year zero).
 	 */
@@ -1121,8 +1142,14 @@ public:
 		}
 	}
 
-	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; };
-	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; };
+	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; }
+	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; }
+
+
+	convoihandle_t copy_convoi;
+
+	void set_copy_convoi(convoihandle_t cnv) { copy_convoi = cnv; };
+	convoihandle_t get_copy_convoi() { return copy_convoi; }
 
 private:
 	/**
@@ -1351,7 +1378,7 @@ public:
 	  * Initialize map.
 	  * @param sets Game settings.
 	  */
-	void init(settings_t*, sint8 const* heights);
+	void init(settings_t *sets, sint8 const* heights);
 
 	void init_tiles();
 
@@ -1594,6 +1621,7 @@ public:
 
 	inline void set_grid_hgt(koord k, sint8 hgt) { set_grid_hgt(k.x, k.y, hgt); }
 
+	void get_height_slope_from_grid(koord k, sint8 &hgt, uint8 &slope);
 
 private:
 	/**
@@ -1714,9 +1742,9 @@ public:
 	/**
 	 * Plays the sound when the position is inside the visible region.
 	 * The sound plays lower when the position is outside the visible region.
-	 * @param pos Position at which the event took place.
+	 * @param k Position at which the event took place.
 	 * @param idx Index of the sound
-	 * @param idx t is the type of sound (for selective muting etc.)
+	 * @param t is the type of sound (for selective muting etc.)
 	 */
 	bool play_sound_area_clipped(koord k, uint16 idx, sound_type_t t) const;
 
@@ -1729,13 +1757,13 @@ public:
 
 	/**
 	 * Saves the map to a file.
-	 * @param Filename name of the file to write.
+	 * @param filename name of the file to write.
 	 */
 	void save(const char *filename, bool autosave, const char *version, bool silent);
 
 	/**
 	 * Loads a map from a file.
-	 * @param Filename name of the file to read.
+	 * @param filename name of the file to read.
 	 */
 	bool load(const char *filename);
 
@@ -1743,7 +1771,7 @@ public:
 	 * Creates a map from a heightfield.
 	 * @param sets game settings.
 	 */
-	void load_heightfield(settings_t*);
+	void load_heightfield(settings_t *sets);
 
 	/**
 	 * Stops simulation and optionally closes the game.
@@ -1837,5 +1865,10 @@ private:
 	// no cast to bool please
 	operator bool () const;
 };
+
+// a helper function to compare two ticks considering ticks overflow
+inline bool is_first_ticks_bigger(uint32 v1, uint32 v2) {
+	return (v1 != v2) && ((v1 > v2) ^ ((v1&0x80000000) != (v2&0x80000000)));
+}
 
 #endif

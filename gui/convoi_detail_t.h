@@ -12,6 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
+#include "components/gui_combobox.h"
 #include "../convoihandle_t.h"
 
 class scr_coord;
@@ -24,7 +25,13 @@ class karte_ptr_t;
 class convoi_detail_t : public gui_aligned_container_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
+	enum sort_mode_t {
+		by_destination = 0,
+		by_via         = 1,
+		by_amount_via  = 2,
+		by_amount      = 3,
+		SORT_MODES     = 4
+	};
 
 private:
 	gui_aligned_container_t container;
@@ -35,6 +42,10 @@ private:
 	convoihandle_t cnv;
 	button_t sale_button;
 	button_t withdraw_button;
+	button_t copy_convoi_button;
+	button_t trade_convoi_button;
+	uint8 viewable_players[MAX_PLAYER_COUNT];
+	gui_combobox_t trade_player_num;
 
 	static karte_ptr_t welt;
 public:
