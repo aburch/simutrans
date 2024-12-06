@@ -85,7 +85,7 @@ const char *halt_list_frame_t::sort_text[SORT_MODES] = {
 	"hl_btn_sort_name",
 	"hl_btn_sort_waiting",
 	"hl_btn_sort_type",
-	"hl_btn_sort_transfers",
+	"hl_btn_sort_throughput",
 	"hl_btn_sort_waiting_percentage"
 };
 
@@ -113,46 +113,56 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
 		case nach_typ: // sort by station type
 			order = halt1->get_station_type() - halt2->get_station_type();
 			break;
-		case nach_transfer: // sort by no of transfers in previous month
+		case nach_throughput: // sort by no of throughput in previous month
 		{
-			int id1 = halt1->get_finance_history( 1, HALT_ARRIVED) == 0 ||
+			// check if more than 1 month of history
+			int month1 = halt1->get_finance_history( 1, HALT_ARRIVED) == 0 ||
 				halt1->get_finance_history( 1, HALT_DEPARTED) == 0 ? 0 : 1;
-			auto halt1_transfers = halt1->get_finance_history(id1, HALT_ARRIVED)
-				< halt1->get_finance_history(id1, HALT_DEPARTED) ?
-				halt1->get_finance_history(id1, HALT_ARRIVED) :
-				halt1->get_finance_history(id1, HALT_DEPARTED);
-			int id2 = halt2->get_finance_history( 1, HALT_ARRIVED) == 0 ||
+			int month2 = halt2->get_finance_history( 1, HALT_ARRIVED) == 0 ||
 				halt2->get_finance_history( 1, HALT_DEPARTED) == 0 ? 0 : 1;
-			auto halt2_transfers = halt2->get_finance_history(id2, HALT_ARRIVED)
-				< halt2->get_finance_history(id2, HALT_DEPARTED) ?
-				halt2->get_finance_history(id2, HALT_ARRIVED) :
-				halt2->get_finance_history(id2, HALT_DEPARTED);
-			order = halt1_transfers > halt2_transfers ? 1 :
-				halt1_transfers < halt2_transfers ? -1 : 0;
+			
+			// get throughput of this month (either this or previous month)
+			auto halt1_throughput = 
+				min(halt1->get_finance_history(month1, HALT_ARRIVED),
+					halt1->get_finance_history(month1, HALT_DEPARTED));
+			auto halt2_throughput = 
+				min(halt2->get_finance_history(month2, HALT_ARRIVED),
+					halt2->get_finance_history(month2, HALT_DEPARTED));
+			
+			// check throughput order
+			order = halt1_throughput > halt2_throughput ? 1 :
+				halt1_throughput < halt2_throughput ? -1 : 0;
 			break;
 		}
 		case nach_wartend_percent: // sort by waiting goods percentage
 		{
+			// set sums to 0
 			sint64 sum1 = 0;
 			sint64 sum2 = 0;
-			for(unsigned int i=0; i<goods_manager_t::get_count(); i++) {
-				const goods_desc_t *wtyp = goods_manager_t::get_info(i);
-				if(halt1->gibt_ab(wtyp)) {
-					sum1 += halt1->get_capacity( i>2?2:i );
+
+			// add the capacities of the halts to their respective sums
+			for (uint8 i = 0; i < 3; i++) {
+				if (halt1->get_capacity(i)) {
+					sum1 += halt1->get_capacity(i);
 				}
-				if(halt2->gibt_ab(wtyp)) {
-					sum2 += halt2->get_capacity( i>2?2:i );
+				if (halt2->get_capacity(i)) {
+					sum2 += halt2->get_capacity(i);
 				}
 			}
 
+			// calculate the comparison value
+			double val1 = (double) halt1->get_finance_history( 0, HALT_WAITING ) * sum2;
+			double val2 = (double) halt2->get_finance_history( 0, HALT_WAITING ) * sum1;
+
+			// check order based on the sums and values
 			if (sum1 == 0 && sum2 != 0) {
     			order = -1; // Halt2 has non-zero sum, so it comes first
 			} else if (sum1 != 0 && sum2 == 0) {
 				order = 1; // Halt1 has non-zero sum, so it comes first
-			} else if (sum1 != 0 && sum2 != 0) {
-				double per1 = (double) halt1->get_finance_history( 0, HALT_WAITING )/sum1 * 100;
-				double per2 = (double) halt2->get_finance_history( 0, HALT_WAITING )/sum2 * 100;
-				order = per1 > per2 ? 1 : (per1 < per2 ? -1 : 0);
+			} else if (sum1 != 0 && sum2 != 0) 
+				order = val1 > val2 ? 1 : (val1 < val2 ? -1 : 0);
+			} else {
+				order = 0;
 			}
 			break;
 		}
