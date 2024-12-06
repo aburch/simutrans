@@ -8,6 +8,7 @@
 
 
 #include "../simtypes.h"
+#include "../display/scr_coord.h"
 
 #ifndef NETTOOL
 #include <zlib.h>
@@ -72,7 +73,6 @@ extern sys_event_t sys_event;
 
 extern char const PATH_SEPARATOR[];
 
-
 /// @param scale_percent
 ///   Possible values:
 ///     -1:    auto (scale according to screen DPI setting)
@@ -84,18 +84,17 @@ bool dr_set_screen_scale(sint16 scale_percent);
 /// @returns Relative size of the virtual display, in percent
 sint16 dr_get_screen_scale();
 
-
 bool dr_os_init(int const* parameter);
 
 /* maximum size possible (if there) */
 struct resolution
 {
-	int w;
-	int h;
+	scr_coord_val w;
+	scr_coord_val h;
 };
 resolution dr_query_screen_resolution();
 
-int dr_os_open(int w, int h, sint16 fullscreen);
+int dr_os_open(scr_size window_size, sint16 fullscreen);
 void dr_os_close();
 
 // returns the locale; NULL if unknown

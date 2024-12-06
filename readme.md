@@ -1,3 +1,11 @@
+(2020 - now)<br>
+This repository adds to the code base of [simutrans](https://simutrans.com/) with some quality-of-life additions. The [master branch](https://github.com/danivenk/simutrans) is based on [aburch/simutrans](https://github.com/aburch/simutrans), both the [OTRP](https://github.com/danivenk/simutrans/tree/OTRP) & [OTRP-update](https://github.com/danivenk/simutrans/tree/OTRP-update) branches are based on [teamhimeh/simutrans](https://github.com/teamhimeh/simutrans)'s OTRP, where the [OTRP](https://github.com/danivenk/simutrans/tree/OTRP) branch is the "stable" branch and the [OTRP-update](https://github.com/danivenk/simutrans/tree/OTRP-update) the development branch. For a detailed description of the changes made to the Standard version of Simutrans in OTRP see the [documentation](https://github.com/teamhimeh/simutrans/wiki) (Japanese only).
+
+As for the changes made in this fork (mind you, not all additions made in this depo's OTRP version are also added to this repo's standard version) are as follows:
+- The ability choose which city city buildings belong to by clicking the highlight button in the city dialog and then clicking on the citybuilding.
+- A copy population data button in the city list dialog (using the copy data functionality from OTRP), which copies the city names & city population data to the clipboard for easier parsing outside the game.
+- Added two different sorting methods to the halt list dialog. Sort by transfers (the bigger of departed or arrived passengers last month) & waiting percentage (percentage of goods waiting compared to the halt capacity)
+
 How to compile
 --------------
 

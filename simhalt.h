@@ -786,6 +786,10 @@ public:
 	 */
 	void get_short_freight_info(cbuffer_t & buf) const;
 
+	void get_transfers_info(cbuffer_t& buf) const;
+	
+	void get_percent_info(cbuffer_t& buf) const;
+
 	/**
 	 * Opens an information window for this station.
 	 */

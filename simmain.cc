@@ -398,6 +398,9 @@ void print_help()
 		" -autodpi            Automatic screen scaling for high DPI screens\n"
 		" -screen_scale N     Manual screen scaling to N percent (0=off)\n"
 		"                     Ignored when -autodpi is specified\n"
+		" -autodpi            Automatic screen scaling for high DPI screens\n"
+		" -screen_scale N     Manual screen scaling to N percent (0=off)\n"
+		"                     Ignored when -autodpi is specified\n"
 		" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
 		" -server_name NAME   Name of server for announcements\n"
 		" -server_admin_pw PW password for server administration\n"
@@ -830,7 +833,8 @@ int simu_main(int argc, char** argv)
 	// Get optimal resolution.
 	if (disp_width == 0 || disp_height == 0) {
 		resolution const res = dr_query_screen_resolution();
-		if (fullscreen) {
+		if (fullscreen != WINDOWED) {
+		if (fullscreen != WINDOWED) {
 			disp_width  = res.w;
 			disp_height = res.h;
 		}

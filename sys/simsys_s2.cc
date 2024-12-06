@@ -149,6 +149,7 @@ sint32 y_scale = SCALE_NEUTRAL_Y;
 bool has_soft_keyboard = false;
 
 
+// no autoscaling yet
 bool dr_set_screen_scale(sint16 scale_percent)
 {
 	const sint32 old_x_scale = x_scale;
@@ -217,7 +218,6 @@ sint16 dr_get_screen_scale()
 {
 	return (x_scale*100)/SCALE_NEUTRAL_X;
 }
-
 
 static int SDLCALL my_event_filter(void* /*userdata*/, SDL_Event* event)
 {
@@ -427,7 +427,7 @@ bool internal_create_surfaces(int tex_width, int tex_height)
 
 
 // open the window
-int dr_os_open(int screen_width, int screen_height, sint16 fs)
+int dr_os_open(const scr_size window_size, sint16 fs)
 {
 	// scale up
 	resolution res = dr_query_screen_resolution();
@@ -446,7 +446,7 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_RESIZABLE;
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI; // apparently needed for Apple retina displays
 
-	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, flags );
+	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_size.w, window_size.h, flags );
 	if(  window == NULL  ) {
 		dbg->error("dr_os_open(SDL2)", "Could not open the window: %s", SDL_GetError() );
 		return 0;
@@ -455,7 +455,7 @@ int dr_os_open(int screen_width, int screen_height, sint16 fs)
 	if(  !internal_create_surfaces( tex_pitch, tex_h )  ) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", screen_width, screen_height, screen->w, screen->h );
+	DBG_MESSAGE("dr_os_open(SDL2)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", window_size.w, window_size.h, screen->w, screen->h );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -587,13 +587,11 @@ static bool in_finger_handling = false;
 // move cursor to the specified location
 bool move_pointer(int x, int y)
 {
-	{
-		if (in_finger_handling) {
-			return false;
-		}
-		SDL_WarpMouseInWindow(window, TEX_TO_SCREEN_X(x), TEX_TO_SCREEN_Y(y));
-		return true;
+	if (in_finger_handling) {
+		return false;
 	}
+	SDL_WarpMouseInWindow( window, TEX_TO_SCREEN_X(x), TEX_TO_SCREEN_Y(y) );
+	return true;
 }
 
 

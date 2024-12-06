@@ -702,6 +702,26 @@ private:
 	void read_start_position(player_t *player, const koord3d &pos);
 };
 
+class tool_change_city_of_citybuilding_t : public two_click_tool_t {
+public:
+	tool_change_city_of_citybuilding_t() : two_click_tool_t(TOOL_CHANGE_CITY_OF_CITYBUILDING | GENERAL_TOOL) {}
+	char const *get_tooltip(player_t const *) const OVERRIDE { return translator::translate("change city of citybuilding"); }
+
+private:
+	char const *do_work(player_t*, koord3d const &, koord3d const &) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const &, koord3d const &) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const &pos, char const *&error, koord3d const &start) OVERRIDE {
+		grund_t *bd = welt->lookup(pos);
+		if (bd==NULL) {
+			error = "";
+			return 0;
+		}
+
+		return 2;
+	};
+	image_id get_marker_image() const OVERRIDE { return cursor; };
+};
+
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
 class tool_make_stop_public_t : public tool_t {
