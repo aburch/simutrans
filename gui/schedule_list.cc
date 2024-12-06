@@ -12,6 +12,7 @@
 #include "line_item.h"
 #include "simwin.h"
 #include "journey_time_info.h"
+#include "goods_waiting_time.h"
 
 #include "../simcolor.h"
 #include "../simdepot.h"
@@ -310,6 +311,15 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_show_journey_time.disable();
 	add_component(&bt_show_journey_time);
 
+	bt_goods_waiting_time.init(button_t::roundbox, "Waiting Time",
+		scr_coord(RIGHT_COLUMN_OFFSET+2*D_BUTTON_WIDTH+2*D_H_SPACE, bt_y),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_goods_waiting_time.set_tooltip("Show goods waiting times at stations.");
+	bt_goods_waiting_time.set_visible(false);
+	bt_goods_waiting_time.add_listener(this);
+	bt_goods_waiting_time.disable();
+	add_component(&bt_goods_waiting_time);
+
 	//CHART
 	chart.set_dimension(12, 1000);
 	chart.set_pos( scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP) );
@@ -442,6 +452,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	else if(  comp == &bt_show_journey_time  ) {
 		if(  line.is_bound()  ) {
 			create_win( new gui_journey_time_info_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
+		}
+	}
+	else if(  comp == &bt_goods_waiting_time  ) {
+		if(  line.is_bound()  ) {
+			create_win( new gui_goods_waiting_time_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if(  comp == &tabs  ) {
@@ -727,6 +742,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_edit_line.enable();
 		bt_copy_line.enable();
 		bt_show_journey_time.enable();
+		bt_goods_waiting_time.enable();
 
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
@@ -777,6 +793,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_edit_line.disable();
 		bt_copy_line.disable();
 		bt_show_journey_time.disable();
+		bt_goods_waiting_time.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
 			chart.hide_curve(i);
 		}
@@ -792,6 +809,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
 	bt_show_journey_time.set_visible( line.is_bound() );
+	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy()==goods_routing_policy_t::GRP_FIFO_ET;
+	bt_goods_waiting_time.set_visible( is_tbgr_enabled  &&  line.is_bound() );
 
 	reset_line_name();
 }

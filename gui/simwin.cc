@@ -73,6 +73,11 @@
 #include "labellist_frame_t.h"
 #include "display_settings.h"
 #include "optionen.h"
+#include "citybuilding_edit.h"
+#include "baum_edit.h"
+#include "groundobj_edit.h"
+#include "curiosity_edit.h"
+#include "factory_edit.h"
 
 #include "../simversion.h"
 
@@ -625,6 +630,11 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_labellist:      w = new labellist_frame_t(); break;
 					case magic_color_gui_t:    w = new color_gui_t(); break;
 					case magic_optionen_gui_t: w = new optionen_gui_t(); break;
+					case magic_citybuilding_edit: w = new citybuilding_edit_frame_t(wl->get_active_player()); break;
+					case magic_curiosity_edit: w = new curiosity_edit_frame_t(wl->get_active_player()); break;
+					case magic_factory_edit:   w = new factory_edit_frame_t(wl->get_active_player()); break;
+					case magic_baum_edit:      w = new baum_edit_frame_t(wl->get_active_player()); break;
+					case magic_groundobj_edit: w = new groundobj_edit_frame_t(wl->get_active_player()); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
@@ -731,7 +741,7 @@ void calculate_window_pos(scr_coord_val &x, scr_coord_val &y, bool &move_to_full
 		y = get_mouse_y() - gui->get_windowsize().h - get_tile_raster_width()/4;
 		return;
 	}
-	
+
 	sint16 const menu_height = env_t::iconsize.h;
 	// try to keep the toolbar below all other toolbars
 	// we go for left
@@ -1980,7 +1990,7 @@ void win_display_flush(double konto)
 	const float month_ratio = (float)(wl->get_ticks()%wl->ticks_per_world_month)/wl->ticks_per_world_month;
 	sprintf(spacing_shift_str, "%d/%d", (uint16)(month_ratio*divisor), divisor);
 	display_proportional_rgb(80+w_left, status_bar_text_y, spacing_shift_str, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
-	
+
 	char convert_spacing_shift_str[10];
 	const uint16 month_ratio_second = 86400/divisor;
 	uint32 second = (uint16)(month_ratio*divisor) * month_ratio_second;

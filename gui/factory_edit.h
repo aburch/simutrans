@@ -10,6 +10,7 @@
 #include "extend_edit.h"
 #include "components/gui_numberinput.h"
 #include "../utils/cbuffer_t.h"
+#include "simwin.h"
 
 class factory_desc_t;
 
@@ -64,6 +65,10 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void set_windowsize(scr_size size) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_factory_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

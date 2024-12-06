@@ -92,20 +92,20 @@ function test_depot_build_invalid_pos()
 
 	// no shipyards on land
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), shipyard), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), shipyard), "Ship depots must be built on water!")
 	}
 
 	// no land depots on water
 	{
 		ASSERT_EQUAL(command_x(tool_set_climate).work(pl, coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_water), null)
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), hangar), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), hangar), "Depots must be built on flat dead-end way tiles!")
 		ASSERT_EQUAL(command_x(tool_set_climate).work(pl, coord3d(4, 2, 0), coord3d(4, 2, 0), "" + cl_mediterran), null)
 	}
 
 	// no hangars on runways
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 5, 0), coord3d(5, 7, 0), runway_desc, true), null)
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 5, 0), hangar), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 5, 0), hangar), "Depots cannot be built on runways!")
 		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 5, 0), coord3d(5, 7, 0), "" + wt_air), null)
 	}
 
@@ -113,20 +113,20 @@ function test_depot_build_invalid_pos()
 
 	// no depot in the middle of a road
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Depots must be built on flat dead-end way tiles!")
 	}
 
 	// no depot over a stop
 	{
 		ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc, 0), null)
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), road_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), road_depot), "Tile not empty.")
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 	}
 
 	// do not replace existing depots
 	{
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), road_depot), null)
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), road_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), road_depot), "Tile not empty.")
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 	}
 
@@ -134,7 +134,7 @@ function test_depot_build_invalid_pos()
 
 	// no depot on road-road crossings
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Depots must be built on flat dead-end way tiles!")
 	}
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 3, 0), coord3d(5, 3, 0), "" + wt_road), null)
@@ -142,7 +142,7 @@ function test_depot_build_invalid_pos()
 
 	// no depot on road-rail crossings
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 3, 0), road_depot), "Tile not empty.")
 	}
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(3, 3, 0), coord3d(5, 3, 0), "" + wt_rail), null)
@@ -206,7 +206,7 @@ function test_depot_build_road_on_tram_crossing()
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(3, 2, 0), coord3d(4, 2, 0), tramtrack, true), null)
 
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), default_depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), default_depot), "Tile not empty.")
 	}
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_road), null)
@@ -374,7 +374,7 @@ function test_depot_build_tram()
 function test_depot_build_sloped()
 {
 	local pl = player_x(0)
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
 	local wayremover = command_x(tool_remove_way)
 
@@ -382,7 +382,7 @@ function test_depot_build_sloped()
 
 	{
 		for (local sl = slope.flat+1; sl < slope.raised; ++sl) {
-			ASSERT_EQUAL(setslope.work(pl, pos, "" + sl), null)
+			ASSERT_EQUAL(setslope(pl, pos, sl), null)
 
 			local d = slope.to_dir(sl)
 			if (d != dir.none) { // only consider slopes we can build roads on
@@ -393,7 +393,7 @@ function test_depot_build_sloped()
 				ASSERT_EQUAL(command_x.build_way(pl, adjacent, pos, road, true), null)
 				local old_maintenance = pl.get_current_maintenance()
 
-				ASSERT_EQUAL(command_x.build_depot(pl, pos, get_depot_by_wt(wt_road)), "Cannot built depot here!") // sic!
+				ASSERT_EQUAL(command_x.build_depot(pl, pos, get_depot_by_wt(wt_road)), "Depots must be built on flat dead-end way tiles!")
 				ASSERT_EQUAL(pl.get_current_maintenance(), old_maintenance)
 				ASSERT_EQUAL(tile_x(pos.x, pos.y, pos.z).find_object(mo_building), null)
 
@@ -403,7 +403,7 @@ function test_depot_build_sloped()
 	}
 
 	// clean up
-	ASSERT_EQUAL(setslope.work(pl, pos, "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, pos, slope.flat), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -412,13 +412,11 @@ function test_depot_build_on_tunnel_entrance()
 {
 	local pl = player_x(0)
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
-	local raise = command_x(tool_raise_land)
-	local lower = command_x(tool_lower_land)
 
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(raise.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(5, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(4, 1, 0), rail_tunnel.get_name()), null)
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(3, 2, 0), rail_tunnel.get_name()), null)
@@ -441,10 +439,10 @@ function test_depot_build_on_tunnel_entrance()
 	ASSERT_EQUAL(remover.work(pl, coord3d(4, 3, 0)), null)
 	ASSERT_EQUAL(remover.work(pl, coord3d(3, 2, 0)), null)
 
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(4, 3, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 2, 0)), null)
-	ASSERT_EQUAL(lower.work(pl, coord3d(5, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(5, 3, 0)), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -454,34 +452,34 @@ function test_depot_build_on_bridge_end()
 {
 	local pl = player_x(0)
 	local rail_bridge = bridge_desc_x.get_available_bridges(wt_rail)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 
 	// north-south direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.south), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.north), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.south), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.north), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(4, 2, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 4, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(4, 2, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 2, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(4, 4, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 2, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(4, 4, 0), slope.flat), null)
 	}
 
 	// east-west direction
 	{
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.east), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.west), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.east), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.west), null)
 
 		ASSERT_EQUAL(command_x(tool_build_bridge).work(pl, coord3d(3, 3, 0), rail_bridge.get_name()), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(3, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(5, 3, 0), get_depot_by_wt(wt_rail)), null)
 		ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
 
-		ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.flat), null)
-		ASSERT_EQUAL(setslope.work(pl, coord3d(5, 3, 0), "" + slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.flat), null)
+		ASSERT_EQUAL(setslope(pl, coord3d(5, 3, 0), slope.flat), null)
 	}
 
 	RESET_ALL_PLAYER_FUNDS()
@@ -499,7 +497,7 @@ function test_depot_build_on_halt()
 	ASSERT_EQUAL(command_x.build_station(pl, coord3d(4, 2, 0), station_desc), null)
 
 	{
-		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), depot), "Cannot built depot here!")
+		ASSERT_EQUAL(command_x.build_depot(pl, coord3d(4, 2, 0), depot), "Tile not empty.")
 	}
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(4, 2, 0), coord3d(4, 4, 0), "" + wt_rail), null)

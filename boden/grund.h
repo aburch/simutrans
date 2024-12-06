@@ -622,6 +622,10 @@ public:
 	*/
 	depot_t *get_depot() const;
 
+	// Returns if there is a depot on this tile.
+	// This implementation is faster than get_depot() != NULL.
+	bool has_depot() const;
+
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================

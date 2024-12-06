@@ -435,10 +435,10 @@ public:
 	uint16 unload_cargo(halthandle_t halt, bool all );
 
 	/**
-	 * Load freight from halt
+	 * Load the given goods
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts);
+	uint16 load_cargo(slist_tpl<ware_t>& goods_to_load);
 
 	/**
 	* Remove freight that no longer can reach it's destination

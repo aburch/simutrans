@@ -6298,9 +6298,7 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 		koord k;
 		k.x = start.x;
 		k.y = start.y;
-		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-			return work_on_ground(player, k);
-		}
+		return work_on_ground(player, k);
 	}
 	else {
 		koord wh, nw;
@@ -7716,6 +7714,16 @@ bool tool_remove_halt_t::remove_halt(player_t* player, koord3d const &pos)
 }
 
 
+const char* tool_extinguish_waiting_goods_t::work(player_t* player, koord3d pos) {
+	const halthandle_t halt = haltestelle_t::get_halt(pos, player);
+	if(  !halt.is_bound()  ) {
+		return "No stop found, or different player!";
+	}
+	halt->extinguish_all_waiting_goods();
+	return NULL;
+}
+
+
 bool tool_show_trees_t::init( player_t * )
 {
 	env_t::hide_trees = !env_t::hide_trees;
@@ -8143,6 +8151,17 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 'g': // change schedule
 			{
+				if(  cnv->get_schedule()!=NULL  ) {
+					cbuffer_t schedule_cmp_buf;
+					schedule_t* const cnv_schedule = cnv->get_schedule();
+					cnv_schedule->sprintf_schedule( schedule_cmp_buf );
+					if(  strncmp(schedule_cmp_buf, p, schedule_cmp_buf.len() + 1)==0  ) {
+						// No need to update the schedule.  Avoid discarding the time history.
+						cnv_schedule->finish_editing();
+						cnv->set_schedule(cnv_schedule);
+						break;
+					}
+				}
 				schedule_t *schedule = cnv->create_schedule()->copy();
 				schedule->finish_editing();
 				if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
@@ -8372,6 +8391,13 @@ bool tool_change_line_t::init( player_t *player )
 		case 'g': // change schedule
 			{
 				if (line.is_bound()) {
+					cbuffer_t schedule_cmp_buf;
+					line->get_schedule()->sprintf_schedule( schedule_cmp_buf );
+					if(  strncmp(schedule_cmp_buf, p, schedule_cmp_buf.len() + 1)==0  ) {
+						// No need to update the schedule. Avoid discarding the time history.
+						line->get_schedule()->finish_editing();
+						break;
+					}
 					schedule_t *schedule = line->get_schedule()->copy();
 					if (schedule->sscanf_schedule( p )  &&  (no_check()  ||  scenario_check_schedule(welt, player, schedule, can_use_gui())) ) {
 						schedule->finish_editing();

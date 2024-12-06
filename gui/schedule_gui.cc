@@ -240,6 +240,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	lb_load("Full load"),
 	lb_departure_slot_group("Departure slot group"),
 	lb_max_speed("Maxspeed"),
+	lb_tbgr_waiting_time("Additional goods routing waiting time"),
 	stats(new schedule_gui_stats_t() ),
 	scrolly(stats)
 {
@@ -422,6 +423,19 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		numimp_max_speed.set_increment_mode(1);
 		numimp_max_speed.add_listener(this);
 		add_component(&numimp_max_speed);
+	}
+	end_table();
+
+	// Additional waiting time on goods routing, when TBGR is enabled
+	add_table(2,1);
+	{
+		add_component(&lb_tbgr_waiting_time);
+		numimp_tbgr_waiting_time.set_width( 60 );
+		numimp_tbgr_waiting_time.set_value( schedule->get_additional_base_waiting_time() );
+		numimp_tbgr_waiting_time.set_limits( 0, 999999 );
+		numimp_tbgr_waiting_time.set_increment_mode(1);
+		numimp_tbgr_waiting_time.add_listener(this);
+		add_component(&numimp_tbgr_waiting_time);
 	}
 	end_table();
 	
@@ -954,6 +968,9 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	else if(comp == &numimp_max_speed) {
 		schedule->set_max_speed((uint16)p.i);
 	}
+	else if(comp == &numimp_tbgr_waiting_time) {
+		schedule->set_additional_base_waiting_time((uint32)p.i);
+	}
 	else if(comp == &bt_transfer_interval) {
 		if (!schedule->empty()) {
 			schedule->entries[schedule->get_current_stop()].set_transfer_interval(!bt_transfer_interval.pressed);
@@ -1213,4 +1230,8 @@ void schedule_gui_t::extract_advanced_settings(bool yesno) {
 	const bool coupling_waytype = schedule->get_waytype()!=road_wt  &&  schedule->get_waytype()!=air_wt  &&  schedule->get_waytype()!=water_wt;
 	bt_wait_for_child.set_visible(coupling_waytype  &&  yesno);
 	bt_find_parent.set_visible(coupling_waytype  &&  yesno);
+
+	const bool is_tbgr_enabled = world()->get_settings().get_goods_routing_policy() == goods_routing_policy_t::GRP_FIFO_ET;
+	lb_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
+	numimp_tbgr_waiting_time.set_visible(is_tbgr_enabled  &&  yesno);
 }

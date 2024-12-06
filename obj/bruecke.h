@@ -21,6 +21,8 @@ private:
 	const bridge_desc_t *desc;
 	bridge_desc_t::img_t img;
 
+	void fix_ramp_desc_if_needed(const grund_t*);
+
 protected:
 	void rdwr(loadsave_t *file) OVERRIDE;
 

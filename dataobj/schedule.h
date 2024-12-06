@@ -37,6 +37,10 @@ class schedule_t
 	// defined in sint64 since uint64 value cannot be handled with rdwr_longlong
 	sint64 departure_slot_group_id;
 
+	// The base waiting time of the schedule on the goods route search when TBGR is enabled.
+	// The unit is OTRP divided time, same as the departure time slot offset.
+	uint32 additional_base_waiting_time;
+
 	static schedule_entry_t dummy_entry;
 
 	/**
@@ -53,7 +57,7 @@ class schedule_t
 	}
 
 protected:
-	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0) {}
+	schedule_t() : editing_finished(false), current_stop(0), flags(0), max_speed(0), departure_slot_group_id(0), additional_base_waiting_time(0) {}
 
 public:
 	enum schedule_type {
@@ -143,6 +147,8 @@ public:
 
 	bool is_full_load_time() const { return (flags&FULL_LOAD_TIME)>0; }
 	void set_full_load_time(bool y) { y ? flags |= FULL_LOAD_TIME : flags &= ~FULL_LOAD_TIME; }
+	uint32 get_additional_base_waiting_time() const { return additional_base_waiting_time; }
+	void set_additional_base_waiting_time(uint32 w) { additional_base_waiting_time = w; }
 	
 	void set_spacing_for_all(uint16);
 	void set_spacing_shift_for_all(uint16);
@@ -218,11 +224,11 @@ public:
 	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
 	
 	/*
-	 * Get corresponding entry of this schedule to Nth entry of the other schedule.
+	 * Get the index of the corresponding entry of this schedule to Nth entry of the other schedule.
 	 * Removes the effect of depot entries.
-	 * Return NULL if it does not exist.
+	 * Returns -1 if it does not exist.
 	 */
-	schedule_entry_t* access_corresponding_entry(schedule_t* other, uint8 n);
+	sint16 get_corresponding_entry_index(const schedule_t* other, uint8 n) const;
 	
 	// get current_stop excluding depot entries
 	uint8 get_current_stop_exluding_depot() const;
@@ -230,6 +236,10 @@ public:
 	static void get_schedule_flag_text(cbuffer_t& buf, schedule_t* schedule);
 
 	static sint64 issue_new_departure_slot_group_id();
+
+	// Returns the median journey time ticks between the given index halt and the previous halt (or waypoint).
+	// Returns Euclid distance / max_speed if no journey time record is available.
+	uint32 get_median_journey_time(uint8 index, uint32 max_speed_kmh) const;
 };
 
 

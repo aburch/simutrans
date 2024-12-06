@@ -9,11 +9,13 @@
 //
 
 include("tests/test_building")
+include("tests/test_city")
 include("tests/test_climate")
 include("tests/test_depot")
 include("tests/test_dir")
 include("tests/test_factory")
 include("tests/test_good")
+include("tests/test_groundobj")
 include("tests/test_halt")
 include("tests/test_headquarters")
 include("tests/test_label")
@@ -24,6 +26,7 @@ include("tests/test_scenario")
 include("tests/test_sign")
 include("tests/test_slope")
 include("tests/test_terraform")
+include("tests/test_transport")
 include("tests/test_trees")
 include("tests/test_way_bridge")
 include("tests/test_way_road")
@@ -34,12 +37,27 @@ include("tests/test_wayobj")
 
 
 all_tests <- [
-	test_building_build_house,
+	test_building_build_house_invalid_param,
+	test_building_build_house_random,
+	test_building_build_house_valid_desc,
+	test_building_build_house_invalid_desc,
+	test_building_build_house_auto_rotation_attraction,
+	test_building_build_house_auto_rotation_citybuilding,
 	test_building_build_multi_tile_sloped,
+	test_building_buy_house_invalid_param,
+	test_building_buy_house_from_public_player,
+	test_building_buy_house_attraction,
 	test_building_rotate_house,
 	test_building_rotate_harbour,
 	test_building_rotate_station,
 	test_building_rotate_factory,
+	test_city_add_invalid,
+	test_city_add_cannot_afford,
+	test_city_add_by_public_player,
+	test_city_add_on_existing_townhall,
+	test_city_add_near_map_border,
+	test_city_change_size_invalid_params,
+	test_city_change_size_to_minimum
 	test_climate_invalid,
 	test_climate_flat,
 	test_climate_cliff,
@@ -71,8 +89,29 @@ all_tests <- [
 	test_factory_link,
 	test_good_is_interchangeable,
 	test_good_speed_bonus,
+	test_groundobj_build_invalid_param,
+	test_groundobj_build_invalid_pos,
+	test_groundobj_build_random,
+	test_groundobj_build_specific,
+	test_groundobj_build_invalid_climate,
+	test_groundobj_build_ignore_climate,
+	test_groundobj_build_occupied,
+	test_groundobj_build_on_trees,
+	test_groundobj_build_on_slope,
 	test_halt_build_rail_single_tile,
 	test_halt_build_harbour,
+	test_halt_build_flat_dock_near_water,
+	test_halt_build_flat_dock_near_water_multiple_rotations,
+	test_halt_build_flat_dock_near_water_fixed_rotation_valid,
+	test_halt_build_flat_dock_near_water_fixed_rotation_invalid,
+	test_halt_build_flat_dock_outside_map,
+	test_halt_build_flat_dock_near_map_border_auto_rotation,
+	test_halt_build_flat_dock_near_map_border_fixed_rotation
+	test_halt_build_flat_dock_on_bridge,
+	test_halt_build_flat_dock_on_slope,
+	test_halt_build_flat_dock_near_cliff,
+	test_halt_build_flat_dock_in_water,
+	test_halt_build_flat_dock_occupied,
 	test_halt_build_air,
 	test_halt_build_multi_tile,
 	test_halt_build_multi_mode,
@@ -83,11 +122,13 @@ all_tests <- [
 	test_halt_build_on_tunnel_entrance,
 	test_halt_build_on_bridge_end,
 	test_halt_build_on_depot,
+	test_halt_build_station_invalid_param,
 	test_halt_build_station_extension,
 	test_halt_upgrade_downgrade,
 	test_halt_make_public_single,
 	test_halt_make_public_multi_tile,
 	test_halt_make_public_underground,
+	test_halt_move_stop_invalid_param,
 	test_headquarters_build_flat,
 	test_label,
 	test_player_cash,
@@ -96,10 +137,12 @@ all_tests <- [
 	test_player_name,
 	test_player_lines,
 	test_powerline_connect,
-	test_powerline_bridge,
+	test_powerline_build_below_powerbridge,
+	test_powerline_build_powerbridge_above_powerline,
 	test_powerline_build_transformer,
 	test_powerline_build_over_transformer,
 	test_powerline_build_transformer_multiple,
+	test_powerline_remove_powerbridge,
 	test_powerline_ways,
 	test_reservation_clear_ground,
 	test_reservation_clear_road,
@@ -111,6 +154,7 @@ all_tests <- [
 	test_scenario_rules_allow_forbid_tool_stacked_cube,
 	test_sign_build_oneway,
 	test_sign_build_trafficlight,
+	test_sign_remove_trafficlight,
 	test_sign_build_private_way,
 	test_sign_build_signal,
 	test_sign_build_signal_multiple,
@@ -121,6 +165,9 @@ all_tests <- [
 	test_slope_set_and_restore,
 	test_slope_get_price,
 	test_slope_set_near_map_border,
+	test_slope_restore_on_foundation,
+	test_slope_restore_on_bridge,
+	test_slope_restore_on_label,
 	test_slope_max_height_diff,
 	test_terraform_raise_lower_land,
 	test_terraform_raise_lower_land_at_map_border,
@@ -129,7 +176,22 @@ all_tests <- [
 	test_terraform_raise_lower_land_at_water_edge,
 	test_terraform_raise_lower_land_below_way,
 	test_terraform_raise_lower_water_level,
-	test_trees_plant_single,
+	test_transport_generate_pax_invalid_pos,
+	test_transport_generate_pax_walked,
+	test_transport_generate_pax_no_route,
+	test_transport_pax_valid_route,
+	test_transport_mail_valid_route,
+	test_transport_freight_valid_route,
+	test_trees_plant_single_invalid_pos,
+	test_trees_plant_single_invalid_param,
+	test_trees_plant_single_null_param,
+	test_trees_plant_single_empty_param,
+	test_trees_plant_single_invalid_desc,
+	test_trees_plant_single_when_disabled,
+	test_trees_plant_single_random_age,
+	test_trees_plant_single_ignore_climate,
+	test_trees_plant_single_max_per_square,
+	test_trees_plant_single_occupied,
 	test_trees_plant_forest,
 	test_way_bridge_build_ground,
 	test_way_bridge_build_at_slope,
@@ -146,7 +208,11 @@ all_tests <- [
 	test_way_road_upgrade_crossing,
 	test_way_road_upgrade_downgrade,
 	test_way_road_upgrade_downgrade_across_bridge,
-	test_way_road_build_cityroad,
+	test_way_road_cityroad_build,
+	test_way_road_cityroad_upgrade_with_cityroad,
+	test_way_road_cityroad_downgrade_with_cityroad,
+	test_way_road_cityroad_replace_by_normal_road,
+	test_way_road_cityroad_replace_keep_existing,
 	test_way_road_has_double_slopes,
 	test_way_road_make_public,
 	test_way_runway_build_rw_flat,

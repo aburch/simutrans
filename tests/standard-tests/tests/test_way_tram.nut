@@ -181,12 +181,12 @@ function test_way_tram_build_across_road_bridge()
 {
 	local pl = player_x(0)
 	local bridge = bridge_desc_x.get_available_bridges(wt_road)[0]
-	local setslope = command_x(tool_setslope)
+	local setslope = command_x.set_slope
 	local tramway = way_desc_x.get_available_ways(wt_rail, st_tram)[0]
 
 	// build bridge
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.south), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.north), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.south), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.north), null)
 	ASSERT_EQUAL(command_x.build_bridge_at(pl, coord3d(3, 3, 0), bridge), null)
 
 	// and build tram track
@@ -220,8 +220,8 @@ function test_way_tram_build_across_road_bridge()
 	}
 
 	ASSERT_EQUAL(command_x(tool_remover).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 3, 0), "" + slope.flat), null)
-	ASSERT_EQUAL(setslope.work(pl, coord3d(3, 5, 0), "" + slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 3, 0), slope.flat), null)
+	ASSERT_EQUAL(setslope(pl, coord3d(3, 5, 0), slope.flat), null)
 
 	RESET_ALL_PLAYER_FUNDS()
 }
@@ -270,12 +270,12 @@ function test_way_tram_build_in_tunel()
 	local road_tunnel = tunnel_desc_x.get_available_tunnels(wt_road)[0]
 	local rail_tunnel = tunnel_desc_x.get_available_tunnels(wt_rail)[0]
 
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(2, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(2, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(3, 3, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 2, 0)), null)
-	ASSERT_EQUAL(command_x(tool_raise_land).work(pl, coord3d(4, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(2, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(3, 3, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 2, 0)), null)
+	ASSERT_EQUAL(command_x.grid_raise(pl, coord3d(4, 3, 0)), null)
 
 	ASSERT_EQUAL(command_x(tool_build_tunnel).work(pl, coord3d(1, 2, 0), road_tunnel.get_name()), null)
 
@@ -337,12 +337,12 @@ function test_way_tram_build_in_tunel()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(1, 2, 0), coord3d(4, 2, 0), "" + wt_road), null)
 
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(2, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(2, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(3, 3, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 2, 1)), null)
-	ASSERT_EQUAL(command_x(tool_lower_land).work(pl, coord3d(4, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(2, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(3, 3, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 2, 1)), null)
+	ASSERT_EQUAL(command_x.grid_lower(pl, coord3d(4, 3, 1)), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 

@@ -312,3 +312,14 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 	info_text.recalc_size();
 	reset_min_windowsize();
 }
+
+
+void citybuilding_edit_frame_t::rdwr( loadsave_t *file )
+{
+	uint8 button_pressed_flags = bt_res.pressed | (bt_com.pressed<<1) | (bt_ind.pressed<<2);
+	file->rdwr_byte(button_pressed_flags);
+	bt_res.pressed = button_pressed_flags & 1;
+	bt_com.pressed = (button_pressed_flags >> 1) & 1;
+	bt_ind.pressed = (button_pressed_flags >> 2) & 1;
+	extend_edit_gui_t::rdwr(file);
+}

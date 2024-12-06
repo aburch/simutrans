@@ -356,6 +356,7 @@ void weg_t::count_sign()
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
 	const grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
+		max_speed = desc->get_topspeed(); // reset max_speed
 		uint8 i = 1;
 		// if there is a crossing, the start index is at least three ...
 		if(  gr->ist_uebergang()  ) {
@@ -629,7 +630,7 @@ void weg_t::select_switch_image(bool snow){
 					ribi_t::ribi south_masked_ribi = south->get_weg(track_wt)->get_ribi_masked();
 					ribi_t::ribi north_east_masked_ribi = north_east->get_weg(track_wt)->get_ribi_masked();
 					ribi_t::ribi south_east_masked_ribi = south_east->get_weg(track_wt)->get_ribi_masked();
-					if( ((north_masked_ribi & ribi_t::northwest) && (south_east_masked_ribi & ribi_t::southeast) && (south_masked_ribi != ribi_t::north || north_east_masked_ribi != ribi_t::south)) 
+					if( ((north_masked_ribi & ribi_t::northwest) && (south_east_masked_ribi & ribi_t::southeast) && (south_masked_ribi != ribi_t::north || north_east_masked_ribi != ribi_t::south))
 						|| ((north_masked_ribi & ribi_t::southwest) && (south_east_masked_ribi & ribi_t::northeast) && (south_masked_ribi != ribi_t::south || north_east_masked_ribi != ribi_t::north)) )
 					{
 						set_images(image_switch, ribi, snow, true);
@@ -807,7 +808,7 @@ void weg_t::select_switch_image(bool snow){
 			}
 			ribi_t::ribi north_masked_ribi = north->get_weg(track_wt)->get_ribi_masked();
 			// ribi_t::ribi south_masked_ribi = south->get_weg(get_waytype())->get_ribi_masked();
-			
+
 			if( east_ribi == ribi_t::northwest && east->get_weg(track_wt)->get_ribi() == ribi_t::west){
 				grund_t *southwest;
 				if( west->get_neighbour(southwest, track_wt, ribi_t::south) ){
@@ -856,7 +857,7 @@ void weg_t::select_switch_road_image(bool snow){
 					}
 					else if( !ribi_t::is_threeway(north_ribi) ){
 						set_images(image_ex, ribi, snow, false);
-						return;						
+						return;
 					}
 				}
 			}
@@ -882,7 +883,7 @@ void weg_t::select_switch_road_image(bool snow){
 					}
 					else if( !ribi_t::is_threeway(south_ribi) ){
 						set_images(image_ex, ribi, snow, false);
-						return;						
+						return;
 					}
 				}
 			}
@@ -908,7 +909,7 @@ void weg_t::select_switch_road_image(bool snow){
 					}
 					else if( !ribi_t::is_threeway(east_ribi) ){
 						set_images(image_ex, ribi, snow, false);
-						return;						
+						return;
 					}
 				}
 			}
@@ -918,11 +919,11 @@ void weg_t::select_switch_road_image(bool snow){
 		grund_t *from = welt->lookup(get_pos());
 		grund_t *south;
 		grund_t *east;
-		grund_t *west;		
+		grund_t *west;
 		if(  from->get_neighbour(south, road_wt, ribi_t::south) && from->get_neighbour(east, road_wt, ribi_t::east) && from->get_neighbour(west, road_wt, ribi_t::west)  ){
 			ribi_t::ribi south_ribi = south->get_weg(road_wt)->get_ribi_unmasked();
 			ribi_t::ribi east_ribi = east->get_weg(road_wt)->get_ribi_unmasked();
-			ribi_t::ribi west_ribi = west->get_weg(road_wt)->get_ribi_unmasked();			
+			ribi_t::ribi west_ribi = west->get_weg(road_wt)->get_ribi_unmasked();
 			if(south_ribi == ribi_t::all || ribi_t::is_threeway(south_ribi)){
 				if((ribi_t::is_twoway(east_ribi) || ribi_t::is_single(east_ribi)) && (ribi_t::is_twoway(west_ribi) || ribi_t::is_single(west_ribi))){
 					set_images(image_switch, ribi, snow, false);
@@ -935,9 +936,9 @@ void weg_t::select_switch_road_image(bool snow){
 					}
 					else if(ribi_t::is_twoway(west_ribi) || ribi_t::is_single(west_ribi)){
 						set_images(image_ex, ribi, snow, false);
-						return;						
+						return;
 					}
-				}					
+				}
 			}
 		}
 	}

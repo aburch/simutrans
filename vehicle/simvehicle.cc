@@ -802,57 +802,46 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 
 
 /**
- * Load freight from halt
+ * Load the given goods
  * @return amount loaded
  */
-uint16 vehicle_t::load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts)
+uint16 vehicle_t::load_cargo(slist_tpl<ware_t>& freight_add)
 {
-	if(  !halt.is_bound()  ||  !halt->gibt_ab(desc->get_freight_type())  ) {
+	if(  freight_add.empty()  ) {
+		// now empty, but usually, we can get it here ...
 		return 0;
 	}
 
 	const uint16 total_freight_start = total_freight;
-	const uint16 capacity_left = desc->get_capacity() - total_freight;
-	if (capacity_left > 0) {
+	for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
+		ware_t &ware = *iter_z;
 
-		slist_tpl<ware_t> freight_add;
-		halt->fetch_goods( freight_add, desc->get_freight_type(), capacity_left, destination_halts);
+		total_freight += ware.menge;
+		sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
 
-		if(  freight_add.empty()  ) {
-			// now empty, but usually, we can get it here ...
-			return 0;
-		}
-
-		for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
-			ware_t &ware = *iter_z;
-
-			total_freight += ware.menge;
-			sum_weight += ware.menge * ware.get_desc()->get_weight_per_unit();
-
-			// could this be joined with existing freight?
-			FOR( slist_tpl<ware_t>, & tmp, fracht ) {
-				// for pax: join according next stop
-				// for all others we *must* use target coordinates
-				if(  ware.same_destination(tmp)  ) {
-					tmp.menge += ware.menge;
-					ware.menge = 0;
-					break;
-				}
-			}
-
-			// if != 0 we could not join it to existing => load it
-			if(  ware.menge != 0  ) {
-				++iter_z;
-				// we add list directly
-			}
-			else {
-				iter_z = freight_add.erase(iter_z);
+		// could this be joined with existing freight?
+		FOR( slist_tpl<ware_t>, & tmp, fracht ) {
+			// for pax: join according next stop
+			// for all others we *must* use target coordinates
+			if(  ware.same_destination(tmp)  ) {
+				tmp.menge += ware.menge;
+				ware.menge = 0;
+				break;
 			}
 		}
 
-		if(  !freight_add.empty()  ) {
-			fracht.append_list(freight_add);
+		// if != 0 we could not join it to existing => load it
+		if(  ware.menge != 0  ) {
+			++iter_z;
+			// we add list directly
 		}
+		else {
+			iter_z = freight_add.erase(iter_z);
+		}
+	}
+
+	if(  !freight_add.empty()  ) {
+		fracht.append_list(freight_add);
 	}
 	return total_freight - total_freight_start;
 }
@@ -895,7 +884,9 @@ void vehicle_t::remove_stale_cargo()
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
-							tmp.access_zwischenziel() = halt;
+							vector_tpl<halthandle_t> transit_halts;
+							transit_halts.append(halt);
+							tmp.set_transit_halts(transit_halts);
 							if (!tmp.get_ziel().is_bound()) {
 								// set target, to prevent that unload_freight drops cargo
 								tmp.set_ziel( halt );
@@ -1279,7 +1270,7 @@ void vehicle_t::hop(grund_t* gr)
 	calc_friction(gr);
 
 	if (old_friction != current_friction) {
-		cnv->update_friction_weight( (current_friction-old_friction) * (sint64)sum_weight);
+		cnv->must_recalc_friction_weight();
 	}
 
 	// if speed limit changed, then cnv must recalc
@@ -1656,7 +1647,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware_t ware( desc->get_freight_type() );
 			ware.menge = 0;
 			ware.set_ziel( halthandle_t() );
-			ware.set_zwischenziel( halthandle_t() );
+			ware.clear_transit_halts();
 			ware.set_zielpos( get_pos().get_2d() );
 			ware.rdwr(file);
 		}
@@ -1736,6 +1727,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		total_freight = 0;
 		FOR(slist_tpl<ware_t>, const& c, fracht) {
 			total_freight += c.menge;
+		}
+
+		if(  const grund_t* gr = welt->lookup(get_pos())  ) {
+			calc_friction(gr);
 		}
 	}
 

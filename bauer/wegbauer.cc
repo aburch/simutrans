@@ -2667,8 +2667,7 @@ void way_builder_t::build_road()
 				str->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
 				str->set_owner(player_builder);
-				// respect speed limit of crossing
-				str->count_sign();
+				upgrade_crossing_if_needed(gr);
 			}
 		}
 		else {
@@ -2770,6 +2769,7 @@ void way_builder_t::build_track()
 					weg->set_owner(player_builder);
 					// respect speed limit of crossing
 					weg->count_sign();
+					upgrade_crossing_if_needed(gr);
 				}
 			}
 			else {
@@ -3149,4 +3149,15 @@ void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
 			if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 		}
 	}
+}
+
+
+void way_builder_t::upgrade_crossing_if_needed( const grund_t* gr )
+{
+	crossing_t* crossing = gr->find<crossing_t>();
+	if(  !gr->ist_uebergang()  ||  !crossing  ) {
+		// A crossing does not exist on the given tile.
+		return;
+	}
+	crossing->finish_rd();
 }

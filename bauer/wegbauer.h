@@ -125,7 +125,7 @@ private:
 	 */
 	overtaking_mode_t overtaking_mode;
 	uint8 street_flag;
-	 
+
 	/**
 	 * Only for elevated way
 	 * @author THLeaderH
@@ -183,6 +183,8 @@ private:
 	void build_track();
 	void build_powerline();
 	void build_river();
+
+	void upgrade_crossing_if_needed(const grund_t*);
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 

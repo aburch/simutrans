@@ -223,6 +223,27 @@ merge to
 併合先
 Merge
 併合する
+#------旅客経路検索ウィンドウ------
+Pax route search
+旅客経路検索
+From:
+出発:
+To:
+到着:
+Search
+検索
+Swap
+入替
+Please enter halt names and press search.
+停留所名を入力し、検索ボタンを押してください。
+No connection found!
+接続が見つかりません！
+From halt not found.
+出発停留所が見つかりません。
+To halt not found.
+到着停留所が見つかりません。
+No route found!
+経路が見つかりません！
 #------その他の翻訳------
 next stop
 次の駅へ

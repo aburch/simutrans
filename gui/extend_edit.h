@@ -167,6 +167,13 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	/**
+	 * Sub-classing note:
+	 * Call extend_edit_gui_t::rdwr AFTER reading/writing the states of the sub class
+	 * which affects the listed items.
+	*/
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif
