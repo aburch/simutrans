@@ -159,7 +159,7 @@ bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t con
     			order = -1; // Halt2 has non-zero sum, so it comes first
 			} else if (sum1 != 0 && sum2 == 0) {
 				order = 1; // Halt1 has non-zero sum, so it comes first
-			} else if (sum1 != 0 && sum2 != 0) {
+			} else if (sum1 != 0 && sum2 != 0) 
 				order = val1 > val2 ? 1 : (val1 < val2 ? -1 : 0);
 			} else {
 				order = 0;

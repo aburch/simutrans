@@ -35,6 +35,7 @@ private:
 
 	gui_textinput_t name_input;    ///< Input field where the name of the city can be changed
 	button_t allow_growth;         ///< Checkbox to enable/disable city growth
+	button_t highlight;
 	gui_label_buf_t lb_size, lb_buildings, lb_border, lb_unemployed, lb_homeless;
 
 	gui_tab_panel_t year_month_tabs;

@@ -14,6 +14,9 @@
 #include "../utils/cbuffer_t.h"
 #include "components/gui_button_to_chart.h"
 #include "components/gui_scrolled_list.h"
+#include "../sys/simsys.h"
+#include "messagebox.h"
+#include "simwin.h"
 
 
 /**
@@ -102,10 +105,18 @@ citylist_frame_t::citylist_frame_t() :
 
 	list.set_table_layout(1,0);
 
-	list.add_table(3, 3);
+	list.add_table(3, 4);
 	list.new_component<gui_label_t>("Filter:");
 	name_filter_input.set_text(name_filter, lengthof(name_filter));
 	list.add_component(&name_filter_input);
+
+	// add copy csv button
+	bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
+
+	bt_copy_csv.set_tooltip("Copy the list of city name and population to clipboard in csv format.");
+	bt_copy_csv.add_listener(this);
+	list.add_component(&bt_copy_csv);
+	list.new_component<gui_fill_t>();
 	list.new_component<gui_fill_t>();
 
 	filter_by_owner.init( button_t::square_automatic, "Served by" );
@@ -139,7 +150,6 @@ citylist_frame_t::citylist_frame_t() :
 	sorteddir.pressed = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
 	sorteddir.add_listener(this);
 	list.add_component(&sorteddir);
-
 
 	list.end_table();
 	list.add_component(&scrolly);
@@ -244,7 +254,39 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if( comp == &filter_by_owner ) {
 		fill_list();
 	}
+	else if( comp == &bt_copy_csv ) {
+		copy_csv_format();
+	}
 	return true;
+}
+
+// copy citylist and respective populations to clipboard
+void citylist_frame_t::copy_csv_format() {
+	// copy in csv format. separator is \t.
+	cbuffer_t clipboard;
+	
+	// append header
+	clipboard.append("City\tpopulation\n");
+	
+	// loop over the cities shown in the city list and add the name/population size
+	for (int i = 0; i < scrolly.get_count(); i++) {
+
+		// get city from city list
+		const citylist_stats_t* element = dynamic_cast<const citylist_stats_t*>(scrolly.get_element(i));
+		stadt_t* city = element->get_city();
+
+		// add to clipboard
+		clipboard.printf( "%s\t", city->get_name() );
+		clipboard.printf( "%d\n", city->get_einwohner());
+	}
+
+	// tell user if successfull or not
+	if(  clipboard.len()>0  ) {
+		dr_copy( clipboard, clipboard.len() );
+		create_win( new news_img("Population data was copied to clipboard.\n"), w_time_delete, magic_none );
+	} else {
+		dbg->error("citylist_frame_t::copy_csv_format()", "There is nothing to copy.\n");
+	}
 }
 
 

@@ -37,6 +37,7 @@ private:
 
 	gui_combobox_t sortedby;
 	button_t sorteddir;
+	button_t bt_copy_csv;
 	button_t filter_by_owner;
 	gui_combobox_t filterowner;
 
@@ -78,9 +79,14 @@ public:
 
 	void map_rotate90( sint16 ) OVERRIDE { fill_list(); }
 
+	void copy_csv_format();
+
 	void rdwr(loadsave_t* file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_citylist_frame_t; }
+
+private:
+	void copy_csv_format();
 };
 
 #endif

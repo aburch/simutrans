@@ -48,6 +48,9 @@ public:
 	bool infowin_event(const event_t *) OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;
 
+	// get city pointer from scrollitem
+	stadt_t* get_city() const { return city; };
+
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
 };
 
