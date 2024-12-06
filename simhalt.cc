@@ -235,6 +235,42 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 }
 
 
+halthandle_t haltestelle_t::get_stoppable_halt(const koord3d pos, const player_t *player )
+{
+	const grund_t *gr = welt->lookup(pos);
+	if(  !gr  ) { return halthandle_t(); }
+	const halthandle_t halt = gr->get_halt();
+	if(  halt.is_bound()  ) {
+		const bool accepts_other_player = halt->is_other_player_connection_allowed();
+		if(  player_t::check_owner(player, halt->get_owner())  ||  accepts_other_player  ) {
+			return halt;
+		}
+	}
+	if(  !gr->is_water()  ) { return halthandle_t(); }
+	// no halt? => we do the water check
+	// may catch bus stops close to water ...
+	const planquadrat_t *plan = welt->access(pos.get_2d());
+	const uint8 cnt = plan->get_haltlist_count();
+	// first check for own stop
+	for(  uint8 i=0;  i<cnt;  i++  ) {
+		halthandle_t halt = plan->get_haltlist()[i];
+		if(  halt->get_owner()==player  &&  halt->get_station_type()&dock  ) {
+			return halt;
+		}
+	}
+	// then for public stop 
+	for(  uint8 i=0;  i<cnt;  i++  ) {
+		halthandle_t halt = plan->get_haltlist()[i];
+		const bool accepts_other_player = halt->is_other_player_connection_allowed();
+		if(  (halt->get_owner()==welt->get_public_player()  ||  accepts_other_player)  &&  halt->get_station_type()&dock  ) {
+			return halt;
+		}
+	}
+	// so: nothing found
+	return halthandle_t();
+}
+
+
 koord haltestelle_t::get_basis_pos() const
 {
 	return get_basis_pos3d().get_2d();
@@ -444,6 +480,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	reconnect_counter = welt->get_schedule_counter()-1;
 
 	enables = NOT_ENABLED;
+	flags = 0;
 
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
@@ -470,6 +507,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	owner = player;
 
 	enables = NOT_ENABLED;
+	flags = 0;
 	// force total re-routing
 	reconnect_counter = welt->get_schedule_counter()-1;
 	last_catg_index = 255;
@@ -1283,7 +1321,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
+		while(  start_index < schedule->get_count()  &&  get_stoppable_halt( schedule->entries[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
 		if(  start_index==schedule->get_count()  ) {
@@ -1330,7 +1368,7 @@ sint32 haltestelle_t::rebuild_connections()
 		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 			const uint8 current_entry_index = (start_index+j)%schedule->get_count();
 			const schedule_entry_t current_entry = schedule->entries[current_entry_index];
-			halthandle_t current_halt = get_halt(current_entry.pos, owner );
+			halthandle_t current_halt = get_stoppable_halt(current_entry.pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points.
 				// just count the journey time
@@ -1352,7 +1390,7 @@ sint32 haltestelle_t::rebuild_connections()
 				if(  is_tbgr_enabled  ) {
 					aggregate_weight = estimated_waiting_ticks(schedule, current_entry_index) - current_entry.get_median_convoy_stopping_time();
 				} else {
-					aggregate_weight = WEIGHT_HALT;
+					aggregate_weight = WEIGHT_WAIT;
 				}
 			 	force_transfer_search |= (current_entry.is_unload_all()  ||  current_entry.is_no_load()  ||  current_entry.is_no_unload());
 				no_load_section = current_entry.is_no_load();
@@ -3269,11 +3307,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					if(  file->get_OTRP_version()>=36  ) {
 						file->rdwr_long(arrived_time);
 					}
+					sint64 archived_address;
+					if(  file->get_OTRP_version()>=40  ) {
+						file->rdwr_longlong(archived_address);
+					}
 					if(  ware.get_desc()  &&  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						cargo_item_t goods_ref = add_goods_to_halt(halt_waiting_goods_t(ware, arrived_time));
 						if(  file->get_OTRP_version()>=40  ) {
-							sint64 archived_address;
-							file->rdwr_longlong(archived_address);
 							archived_cargo_address_table.put(archived_address, goods_ref);
 						}
 						// restore in-transit information
@@ -3389,6 +3429,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_vector(ref_addresses, rdwr_longlong_item);
 			}
 		}
+	}
+
+	if(  file->get_OTRP_version()>=42  ) {
+		file->rdwr_byte(flags);
 	}
 }
 
@@ -3547,8 +3591,8 @@ void haltestelle_t::recalc_status()
 
 	// update waiting_amount_exceeds_FIFO_limit
 	const uint32 fifo_limit = world()->get_settings().get_waiting_limit_for_first_come_first_serve();
-	for(  uint32 i = 0;  i<goods_manager_t::get_count();  i++  ) {
-		if(  slist_tpl<cargo_item_t> * warray = cargo[i]  ) {
+	for(  uint32 i = 0;  i<goods_manager_t::get_max_catg_index();  i++  ) {
+		if(  cargo[i] != NULL  ) {
 			const uint32 ware_sum = get_ware_summe(goods_manager_t::get_info(i));
 			waiting_amount_exceeds_FIFO_limit.set(i, ware_sum > fifo_limit);
 		}
@@ -3703,7 +3747,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	vector_tpl<linehandle_t> check_line(0);
 
 	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_owner() == welt->get_public_player();
+	bool public_halt = get_owner() == welt->get_public_player()  ||  is_other_player_connection_allowed();
 
 	uint8 const pl_min = public_halt ? 0                : get_owner()->get_player_nr();
 	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_owner()->get_player_nr()+1;
@@ -3715,7 +3759,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
 					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->entries  ) {
-						if(  get_halt(k.pos, player) == self  ) {
+						if(  get_stoppable_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
 						}
@@ -3730,7 +3774,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
 				FOR(minivec_tpl<schedule_entry_t>, const& k, schedule->entries) {
-					if (get_halt(k.pos, cnv->get_owner()) == self) {
+					if (get_stoppable_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -3839,7 +3883,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->entries  ) {
-			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
+			if(  get_stoppable_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -3855,7 +3899,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
-			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
+			if(  get_stoppable_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -4188,7 +4232,7 @@ bool unregistered_journey_time_exists(const schedule_t* schedule, player_t* play
 		if(  
 			this_entry.get_median_journey_time()>0  || // valid record exists
 			this_entry.pos==prev_entry.pos  ||
-			haltestelle_t::get_halt(this_entry.pos, player)==haltestelle_t::get_halt(prev_entry.pos, player)
+			haltestelle_t::get_stoppable_halt(this_entry.pos, player)==haltestelle_t::get_stoppable_halt(prev_entry.pos, player)
 		) {
 			// valid record exists.
 			continue;
@@ -4325,5 +4369,25 @@ void haltestelle_t::fetch_loadable_fresh_goods(vector_tpl<loadable_fresh_goods_t
 		}
 		to_array.append(loadable_fresh_goods_t(item->goods.menge, item->arrived_time));
 		iterator = fresh_cargo[goods_category_index].erase(iterator);
+	}
+}
+
+
+void haltestelle_t::toggle_other_player_connection_allowed() {
+	flags ^= HS_ALLOW_OTHER_PLAYER_CONNECTION;
+	if(  (flags&HS_ALLOW_OTHER_PLAYER_CONNECTION)==0  ) {
+		// We have to exclude the other player's connections.
+		for(uint32 i=registered_lines.get_count(); i-->0;) {
+			if(  registered_lines[i]->get_owner()!=get_owner()  ) {
+				stale_lines.append_unique(registered_lines[i]);
+				registered_lines.remove_at(i);
+			}
+		}
+		for(uint32 i=registered_convoys.get_count(); i-->0;) {
+			if(  registered_convoys[i]->get_owner()!=get_owner()  ) {
+				stale_convois.append_unique(registered_convoys[i]);
+				registered_convoys.remove_at(i);
+			}
+		}
 	}
 }

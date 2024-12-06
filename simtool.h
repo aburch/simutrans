@@ -1327,6 +1327,14 @@ public:
 	bool is_init_network_safe() const OVERRIDE { return false; }
 };
 
+// change the halt options
+class tool_change_halt_t : public tool_t {
+public:
+	tool_change_halt_t() : tool_t(TOOL_CHANGE_HALT | SIMPLE_TOOL) {}
+	bool init(player_t*) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return false; }
+};
+
 // internal tool: rename stuff
 class tool_rename_t : public tool_t {
 public:

@@ -2532,7 +2532,13 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 			return schedule->get_error_msg();
 		}
 		// and check for ownership
-		if(  !bd->is_halt()  ) {
+		if(  bd->is_halt()  ) {
+			if(  !haltestelle_t::get_stoppable_halt(pos, player).is_bound()  ) {
+				// A halt exists, but the player check failed.
+				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+		}
+		else {
 			weg_t *w = bd->get_weg( schedule->get_waytype() );
 			if(  w==NULL  &&  schedule->get_waytype()==tram_wt  ) {
 				w = bd->get_weg( track_wt );
@@ -2543,9 +2549,6 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 			if(  bd->get_depot()  &&  !player_t::check_owner( bd->get_depot()->get_owner(), player )  ) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
-		}
-		if(  bd->is_halt()  &&  !player_t::check_owner( player, bd->get_halt()->get_owner()) ) {
-			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, now we have a valid ground
 		if(append) {
@@ -6967,7 +6970,7 @@ void tool_stop_mover_t::read_start_position(player_t *player, const koord3d &pos
 		}
 	}
 	// .. and halt
-	last_halt = haltestelle_t::get_halt(pos,player);
+	last_halt = haltestelle_t::get_stoppable_halt(pos,player);
 }
 
 
@@ -6979,7 +6982,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 		return 0;
 	}
 	// check halt ownership
-	halthandle_t h = haltestelle_t::get_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
 	if(  h.is_bound()  &&  !player_t::check_owner( player, h->get_owner() )  ) {
 		error = "Das Feld gehoert\neinem anderen Spieler\n";
 		return 0;
@@ -7027,7 +7030,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 
 	// second click
 	grund_t *bd = welt->lookup(pos);
-	halthandle_t h = haltestelle_t::get_halt(pos,player);
+	halthandle_t h = haltestelle_t::get_stoppable_halt(pos,player);
 
 	if (bd) {
 		const halthandle_t new_halt = h;
@@ -7090,7 +7093,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
 						FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
-							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_owner()) == last_halt) ||
+							if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k.pos, cnv->get_owner()) == last_halt) ||
 									old_platform.is_contained(k.pos)) {
 								k.pos   = pos;
 								updated = true;
@@ -7126,7 +7129,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 					bool updated = false;
 					FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
 						// ok!
-						if ((catch_all_halt && haltestelle_t::get_halt( k.pos, line->get_owner()) == last_halt) ||
+						if ((catch_all_halt && haltestelle_t::get_stoppable_halt( k.pos, line->get_owner()) == last_halt) ||
 								old_platform.is_contained(k.pos)) {
 							k.pos   = pos;
 							updated = true;
@@ -8085,6 +8088,9 @@ bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, 
  * 'r' : release the child convoy
  * 'a' : set convoy trading acceptance
  * 'o' : change convoy owner by trading
+ * 'e' : toggle delay recovery
+ * 't' : go to next stop
+ * 'v' : reversing convoi direction
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -8276,6 +8282,12 @@ bool tool_change_convoi_t::init( player_t *player )
 		case 'o':
 		{
 			cnv->trade_convoi();
+		}
+		break;
+
+		case 'v':
+		{
+			cnv->reverse_vehicles_on_user_request();
 		}
 		break;
 	}
@@ -9020,6 +9032,21 @@ bool tool_change_city_t::init( player_t *player )
 	return false;
 }
 
+
+bool tool_change_halt_t::init(player_t *player) {
+	uint16 halt_id;
+	// Read the halt id and flags from the default param. Then update the flags of the halt.
+	if(  sscanf( default_param, "%hu", &halt_id )!=1  ) {
+		return false;
+	}
+	halthandle_t halt;
+	halt.set_id(halt_id);
+	if(  !halt.is_bound()  ||  !player_t::check_owner(halt->get_owner(), player)  ) {
+		return false;
+	}
+	halt->toggle_other_player_connection_allowed();
+	return false;
+}
 
 
 /* Handles renaming of ingame entities. Needs a default param:

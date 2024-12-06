@@ -119,6 +119,14 @@ citylist_frame_t::citylist_frame_t() :
 	list.new_component<gui_fill_t>();
 	list.new_component<gui_fill_t>();
 
+	// add copy csv button
+	bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
+	bt_copy_csv.set_tooltip("Copy the list of city name and population to clipboard in csv format.");
+	bt_copy_csv.add_listener(this);
+	list.add_component(&bt_copy_csv);
+	list.new_component<gui_fill_t>();
+	list.new_component<gui_fill_t>();
+
 	filter_by_owner.init( button_t::square_automatic, "Served by" );
 	filter_by_owner.add_listener(this);
 	filter_by_owner.set_tooltip( "At least one stop is connected to the town" );

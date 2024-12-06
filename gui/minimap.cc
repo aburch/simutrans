@@ -235,7 +235,7 @@ void minimap_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
-		halthandle_t station = haltestelle_t::get_halt( cur.pos, cnv->get_owner() );
+		halthandle_t station = haltestelle_t::get_stoppable_halt( cur.pos, cnv->get_owner() );
 		if(  station.is_bound()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
