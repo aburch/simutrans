@@ -237,7 +237,7 @@ convoi_frame_t::convoi_frame_t() :
 	scrolly->set_maximize( true );
 
 	tabs.init_tabs(scrolly);
-	for(  int i = 0;  i < tabs.get_count();  i++  ) {
+	for(  uint32 i = 0;  i < tabs.get_count();  i++  ) {
 		if(current_wt == tabs.get_tab_waytype(i)) {
 			tabs.set_active_tab_index(i);
 			break;
@@ -326,7 +326,7 @@ void convoi_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( sortreverse );
 	file->rdwr_long( filter_flags );
 	if( file->is_saving() ) {
-		uint8 good_nr = waren_filter->get_count();
+		uint8 good_nr = waren_filter ? waren_filter->get_count() : 0;
 		file->rdwr_byte( good_nr );
 		if (good_nr > 0) {
 			FOR( slist_tpl<const goods_desc_t *>, const i, *waren_filter ) {

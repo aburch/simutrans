@@ -44,7 +44,7 @@ void gui_goods_waiting_time_stat_t::update()
     set_table_layout(NUM_WAITING_TIME_STORED+2,0);
     for(uint8 index = 0; index < schedule->entries.get_count(); index++) {
         const schedule_entry_t& entry = schedule->entries[index];
-        const halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
+        const halthandle_t halt = haltestelle_t::get_stoppable_halt(entry.pos, player);
         gui_label_buf_t *title_lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
         if(  halt.is_bound()  ) {
             // Show the halt name

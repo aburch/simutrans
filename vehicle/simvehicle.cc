@@ -868,7 +868,7 @@ void vehicle_t::remove_stale_cargo()
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
-					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
+					if(  haltestelle_t::get_stoppable_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}
@@ -880,7 +880,7 @@ void vehicle_t::remove_stale_cargo()
 				const int max_count = cnv->get_schedule()->entries.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_stoppable_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -1037,6 +1037,19 @@ vehicle_t::vehicle_t() :
 bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	return route->calc_route(welt, start, ziel, this, max_speed, 0 );
+}
+
+
+void vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
+{
+	vehicle_base_t::get_screen_offset(xoff, yoff, raster_width);
+	if(  cnv==NULL  ||  cnv==(convoi_t *)1  ||  !cnv->is_reversed()  ) {
+		return;
+	}
+	// Add offset when the vehicle is reversed.
+	const sint32 steps_delta = (VEHICLE_STEPS_PER_TILE / 2 - get_desc()->get_length_in_steps());
+	xoff += (steps_delta*dx) >> 10;
+	yoff += ((steps_delta*dy) >> 10);
 }
 
 
@@ -1466,10 +1479,10 @@ void vehicle_t::calc_image()
 {
 	image_id old_image=get_image();
 	if (fracht.empty()) {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_direction()),NULL));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()),NULL));
 	}
 	else {
-		set_image(desc->get_image_id(ribi_t::get_dir(get_direction()), fracht.front().get_desc()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_image_direction()), fracht.front().get_desc()));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -1798,6 +1811,16 @@ vehicle_t::~vehicle_t()
 }
 
 
+ribi_t::ribi vehicle_t::get_image_direction() const
+{
+	if(  cnv!=NULL  &&  cnv!=(convoi_t*)1  &&  cnv->is_reversed()  ) {
+		return ribi_t::backward(get_direction());
+	}
+	else {
+		return get_direction();
+	}
+}
+
 #ifdef MULTI_THREAD
 void vehicle_t::display_overlay(int xpos, int ypos) const
 {
@@ -1810,7 +1833,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 		return;
 	}
 	PIXVAL color = 0; // not used, but stop compiler warning about uninitialized
-	char tooltip_text[1024];
+	constexpr uint16 tooltip_text_size = 1024;
+	char tooltip_text[tooltip_text_size];
 	tooltip_text[0] = 0;
 	uint8 state = env_t::show_vehicle_states;
 
@@ -1876,10 +1900,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 						const sint32 time_remain_delay_coupling = (cnv->get_departure_time() + cnv->get_coupling_delay_tolerance() - world()->get_ticks())*conversion_ratio;
 
 						if( cnv->is_waiting_for_coupling() && time_remain>time_remain_delay_coupling ){
-							sprintf( tooltip_text, translator::translate("Waiting for coupling. %i left!"), time_remain_delay_coupling);
+							snprintf( tooltip_text, tooltip_text_size, translator::translate("Waiting for coupling. %i left!"), time_remain_delay_coupling);
 						}
 						else{
-							sprintf( tooltip_text, translator::translate("Waiting for schedule. %i left!"), time_remain);
+							snprintf( tooltip_text, tooltip_text_size, translator::translate("Waiting for schedule. %i left!"), time_remain);
 						}
 					}
 					else if(  cnv->is_waiting_for_coupling()  ) {
@@ -1887,7 +1911,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_global) const
 						tstrncpy( tooltip_text, translator::translate("Waiting for coupling!"), lengthof(tooltip_text) );
 					} else {
 						// the convoy is waiting for minimum loading.
-						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+						snprintf( tooltip_text, tooltip_text_size, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
 					}
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
@@ -2212,7 +2236,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 
 	// are we heading to a target?
 	route_t *rt = cnv->access_route();
-	target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
+	target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner() );
 	if(  target_halt.is_bound()  ) {
 
 		// since convois can long than one tile, check is more difficult
@@ -2783,7 +2807,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
-			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
+			halthandle_t halt = haltestelle_t::get_stoppable_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
 			vehicle_base_t* v = other_lane_blocked(false, offset);
 			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
 				restart_speed = 0;
@@ -3097,7 +3121,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 		if(target  &&  leading  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
-			target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
+			target_halt = haltestelle_t::get_stoppable_halt( rt->back(), get_owner() );
 			if(  target_halt.is_bound()  ) {
 				for(  uint32 i=0;  i<c->get_tile_length()  &&  i+1<rt->get_count();  i++  ) {
 					target_halt->reserve_position( welt->lookup( rt->at(rt->get_count()-i-1) ), cnv->self );
@@ -3444,7 +3468,7 @@ bool rail_vehicle_t::is_coupling_target(const grund_t *gr, const grund_t *prev_g
 		const sint32 available_halt_length = 
 		cnv->calc_available_halt_length_in_vehicle_steps(gr->get_pos(), ribi)
 		- tile_length + v->get_steps();
-		return available_halt_length >= cnv->get_entire_convoy_length() * VEHICLE_STEPS_PER_CARUNIT;
+		return available_halt_length >= (sint32)cnv->get_entire_convoy_length() * VEHICLE_STEPS_PER_CARUNIT;
 	}
 
 	return false;

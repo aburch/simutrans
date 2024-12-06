@@ -75,7 +75,7 @@ private:
 	gui_textinput_t input;
 	gui_chart_t chart;
 	location_view_t view;
-	button_t sort_button;
+	button_t sort_button, other_players_connection_button;
 
 	gui_button_to_chart_array_t button_to_chart;
 
