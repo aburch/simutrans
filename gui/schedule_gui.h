@@ -67,8 +67,8 @@ class schedule_gui_t : public gui_frame_t, public action_listener_t
 		bt_same_dep_time, bt_full_load_acceleration, bt_full_load_time,bt_unload_all,bt_transfer_interval,
 		bt_load_before_departure;
 	gui_numberinput_t numimp_spacing, numimp_spacing_shift, 
-		numimp_delay_tolerance, numimp_max_speed;
-	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed;
+		numimp_delay_tolerance, numimp_max_speed, numimp_tbgr_waiting_time;
+	gui_label_t lb_spacing, lb_spacing_shift, lb_title1, lb_title2, lb_max_speed, lb_tbgr_waiting_time;
 	char lb_spacing_str[20];
 	char lb_spacing_shift_str[15];
 

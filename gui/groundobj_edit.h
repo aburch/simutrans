@@ -9,6 +9,7 @@
 
 #include "extend_edit.h"
 #include "components/gui_image.h"
+#include "simwin.h"
 
 
 class groundobj_desc_t;
@@ -49,6 +50,8 @@ public:
 	* @return the filename for the helptext, or NULL
 	*/
 	const char* get_help_filename() const OVERRIDE { return "groundobj_build.txt"; }
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_groundobj_edit; }
 };
 
 #endif

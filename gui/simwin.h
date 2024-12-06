@@ -122,6 +122,11 @@ enum magic_numbers {
 	magic_vehiclelist = magic_depotlist   + MAX_PLAYER_COUNT,
 	magic_script_generator,
 	magic_pakinstall,
+	magic_citybuilding_edit,
+	magic_curiosity_edit,
+	magic_factory_edit,
+	magic_baum_edit,
+	magic_groundobj_edit,
 	magic_max
 };
 

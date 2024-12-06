@@ -164,3 +164,13 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 	info_text.recalc_size();
 	reset_min_windowsize();
 }
+
+
+void baum_edit_frame_t::rdwr( loadsave_t *file )
+{
+	bool randomage_pressed = bt_randomage.pressed;
+	file->rdwr_bool( randomage_pressed );
+	bt_randomage.pressed = randomage_pressed;
+
+	extend_edit_gui_t::rdwr(file);
+}

@@ -84,6 +84,9 @@ public:
 	void rdwr(loadsave_t* file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_citylist_frame_t; }
+
+private:
+	void copy_csv_format();
 };
 
 #endif

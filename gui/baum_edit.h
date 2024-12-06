@@ -9,6 +9,7 @@
 
 #include "extend_edit.h"
 #include "components/gui_image.h"
+#include "simwin.h"
 
 
 class tree_desc_t;
@@ -53,6 +54,10 @@ public:
 	const char* get_help_filename() const OVERRIDE { return "baum_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_baum_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

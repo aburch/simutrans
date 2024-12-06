@@ -179,7 +179,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	cont_options.add_component(&bt_climates);
 
 	//setting scrollable content box
-	scrolly.set_visible(true);	
+	scrolly.set_visible(true);
 	scrolly.set_min_width( (D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT-2*D_H_SPACE)/2 );
 }
 
@@ -271,4 +271,56 @@ uint8 extend_edit_gui_t::get_sortedby() const
 		return item->get_sortedby();
 	}
 	return ALL_CLIMATES;
+}
+
+void extend_edit_gui_t::rdwr(loadsave_t *file)
+{
+	// window size
+	scr_size size = get_windowsize();
+	size.rdwr( file );
+	if(  file->is_loading()  ) {
+		set_windowsize(size);
+	}
+
+	uint8 climate = cb_climates.get_selection();
+	file->rdwr_byte(climate);
+	cb_climates.set_selection(climate);
+
+	uint8 sortedby = cb_sortedby.get_selection();
+	file->rdwr_byte(sortedby);
+	cb_sortedby.set_selection(sortedby);
+
+	// read and write button states
+	uint8 bt_pressed_flags = bt_obsolete.pressed;
+	bt_pressed_flags |= bt_timeline.pressed << 1;
+	bt_pressed_flags |= bt_climates.pressed << 2;
+	bt_pressed_flags |= bt_timeline_custom.pressed << 3;
+	bt_pressed_flags |= sort_order.pressed << 4;
+	file->rdwr_byte(bt_pressed_flags);
+	bt_obsolete.pressed = bt_pressed_flags & 1;
+	bt_timeline.pressed = (bt_pressed_flags & (1 << 1)) > 0;
+	bt_climates.pressed = (bt_pressed_flags & (1 << 2)) > 0;
+	bt_timeline_custom.pressed = (bt_pressed_flags & (1 << 3)) > 0;
+	sort_order.pressed = (bt_pressed_flags & (1 << 4)) > 0;
+
+	sint32 ni_timeline_year_value = ni_timeline_year.get_value();
+	file->rdwr_long(ni_timeline_year_value);
+	ni_timeline_year.set_value(ni_timeline_year_value);
+
+	sint32 ni_timeline_month_value = ni_timeline_month.get_value();
+	file->rdwr_long(ni_timeline_month_value);
+	ni_timeline_month.set_value(ni_timeline_month_value);
+
+	sint32 scl_selection = scl.get_selection();
+	file->rdwr_long(scl_selection);
+	uint8 rotation = cb_rotation.get_selection();
+	file->rdwr_byte(rotation);
+	if(  file->is_loading()  ) {
+		fill_list();
+		scl.set_selection(scl_selection);
+		change_item_info(scl_selection);
+		// rotation is set here, because the candidates are dependent on the selected object.
+		cb_rotation.set_selection(rotation);
+		change_item_info(scl_selection);
+	}
 }

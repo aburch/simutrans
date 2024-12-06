@@ -128,7 +128,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 	// added sorting to ware's destination list
 	int pos = 0;
-	ware_t* wlist = MALLOCN( ware_t, warray.get_count() );
+	ware_t* wlist = new ware_t[warray.get_count()];
 
 	// track any lost good amounts during packet merger
 	// only created when needed
@@ -268,5 +268,5 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		add_ware_heading(buf, 0, g.menge, &g, what_doing);
 	}
 
-	free( wlist );
+	delete[] wlist;
 }

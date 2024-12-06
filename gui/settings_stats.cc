@@ -213,6 +213,13 @@ void settings_display_stats_t::read(settings_t* const)
 	READ_BOOL_VALUE( env_t::player_finance_display_account );
 }
 
+static char const * const goods_routing_policy_string[] =
+{
+	"loading nearest first, routing with route cost",
+	"loading in arrival order, routing with route cost",
+	"loading in arrival order, routing with estimated time"
+};
+
 void settings_routing_stats_t::init(settings_t const* const sets)
 {
 	INIT_INIT
@@ -245,9 +252,20 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "routecost_halt", sets->routecost_halt, 1, 250, 1, false );
 	SEPERATOR
 	INIT_BOOL( "advance_to_end", sets->get_advance_to_end() );
-	INIT_BOOL( "first_come_first_serve", sets->get_first_come_first_serve() );
+	// combobox for trees generator
+	goods_routing_policy.clear_elements();
+	for(  uint32 i=0;  i<lengthof(goods_routing_policy_string);  i++  ) {
+		goods_routing_policy.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( goods_routing_policy_string[i], SYSCOL_TEXT ) ;
+	}
+	goods_routing_policy.set_selection( sets->get_goods_routing_policy() );
+	goods_routing_policy.set_focusable( false );
+	add_component( &goods_routing_policy, 2);
 	INIT_NUM( "waiting_limit_for_first_come_first_serve", sets->get_waiting_limit_for_first_come_first_serve(), 100, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
-
+	SEPERATOR
+	INIT_NUM ( "base_waiting_ticks_for_rail_convoi", sets->base_waiting_ticks_for_rail_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_road_convoi", sets->base_waiting_ticks_for_road_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_ship_convoi", sets->base_waiting_ticks_for_ship_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
+	INIT_NUM ( "base_waiting_ticks_for_air_convoi", sets->base_waiting_ticks_for_air_convoi, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_END
 }
 
@@ -282,8 +300,13 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->routecost_wait );
 	READ_NUM_VALUE( sets->routecost_halt );
 	READ_BOOL_VALUE( sets->advance_to_end );
-	READ_BOOL_VALUE( sets->first_come_first_serve);
+	sets->goods_routing_policy = (goods_routing_policy_t)::clamp(goods_routing_policy.get_selection(), (int)GRP_NF_RC, (int)GRP_FIFO_ET );
 	READ_NUM_VALUE( sets->waiting_limit_for_first_come_first_serve );
+
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_rail_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_road_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_ship_convoi );
+	READ_NUM_VALUE( sets->base_waiting_ticks_for_air_convoi );
 }
 
 

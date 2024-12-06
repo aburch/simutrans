@@ -347,6 +347,39 @@ function test_sign_build_trafficlight()
 }
 
 
+function test_sign_remove_trafficlight()
+{
+	local pl = player_x(0)
+	local public_pl = player_x(1)
+	local wayremover = command_x(tool_remove_way)
+	local road = way_desc_x.get_available_ways(wt_road, st_flat)[0]
+	local trafficlight = sign_desc_x.get_available_signs(wt_road).filter(@(idx, sign) sign.is_traffic_light())[0]
+
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(1, 2, 0), coord3d(3, 2, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 4, 0), coord3d(5, 6, 0), road, true), null)
+	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 5, 0), coord3d(6, 5, 0), road, true), null)
+
+	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(2, 2, 0), trafficlight), null)
+	ASSERT_EQUAL(command_x.build_sign_at(pl, coord3d(5, 5, 0), trafficlight), null)
+
+	// Note that both traffic lights must have the same direction for the test to work
+	// So the second traffic light must not change direction between the two wayremover calls
+	{
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(2, 1, 0), coord3d(2, 3, 0), "" + wt_road), null)
+		ASSERT_EQUAL(wayremover.work(pl, coord3d(4, 5, 0), coord3d(6, 5, 0), "" + wt_road), null)
+
+		ASSERT_EQUAL(tile_x(2, 2, 0).find_object(mo_signal), null)
+		ASSERT_EQUAL(tile_x(5, 5, 0).find_object(mo_signal), null)
+	}
+
+	ASSERT_EQUAL(wayremover.work(pl, coord3d(1, 2, 0), coord3d(3, 2, 0), "" + wt_road), null)
+	ASSERT_EQUAL(wayremover.work(pl, coord3d(5, 4, 0), coord3d(5, 6, 0), "" + wt_road), null)
+
+	RESET_ALL_PLAYER_FUNDS()
+}
+
+
 function test_sign_build_private_way()
 {
 	local pl = player_x(0)
@@ -929,10 +962,10 @@ function test_sign_build_signal_multiple()
 		ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(0, 2, 0), coord3d(7, 2, 0), "" + wt_rail), null)
 	}
 
+	// FIXME click-and-drag for tools using script is not supported
 	{
 		ASSERT_EQUAL(command_x.build_way(pl, coord3d(0, 2, 0), coord3d(7, 2, 0), rail, true), null)
 
-		// FIXME click-and-drag for tools is not supported
 		local error_caught = false
 		try {
 			command_x(tool_build_roadsign).work(pl, coord3d(1, 2, 0), coord3d(6, 2, 0), signal.get_name())
@@ -957,53 +990,70 @@ function test_sign_replace_signal()
 	local signal = sign_desc_x.get_available_signs(wt_rail).filter(@(idx, sign) sign.is_signal())[0]
 	local presignal = sign_desc_x.get_available_signs(wt_rail).filter(@(idx, sign) sign.is_pre_signal())[0]
 
-	// precondistions
+	// preconditions
 	ASSERT_TRUE(signal != null)
 	ASSERT_TRUE(presignal != null)
+	ASSERT_TRUE(rail != null)
 
 	ASSERT_EQUAL(command_x.build_way(pl, coord3d(4, 3, 0), coord3d(6, 3, 0), rail, true), null)
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.name), null)
 
-	// try replacing one-directional signals
+	// replace two-directional signals
 	{
-		ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
-
-		local error_caught = false
-		try {
-			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
-		}
-		catch (e) {
-			ASSERT_EQUAL(e, "Tool has no effects")
-			error_caught = true
-		}
-		ASSERT_TRUE(error_caught)
+		local old_cash = pl.current_cash * 100
+		local old_maint = pl.current_maintenance
+		command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), presignal.name)
 
 		local s = sign_x(5, 3, 0)
+
 		ASSERT_TRUE(s != null)
-		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
+		ASSERT_EQUAL(s.desc.name, presignal.name)
+		ASSERT_EQUAL(pl.current_cash * 100,   old_cash  - signal.cost        - presignal.cost)
+		ASSERT_EQUAL(pl.current_maintenance,  old_maint + signal.maintenance - presignal.maintenance)
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"....2A8.",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
 	}
+
+	// make 2-way signal 1-way
+	ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), presignal.name), null)
 
 	// and one-directional signals
 	{
-		ASSERT_EQUAL(command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.get_name()), null)
+		local old_cash = pl.current_cash * 100
+		local old_maint = pl.current_maintenance
 
-		local error_caught = false
-		try {
-			command_x(tool_build_roadsign).work(pl,        coord3d(5, 3, 0), presignal.get_name())
-		}
-		catch (e) {
-			ASSERT_EQUAL(e, "Tool has no effects")
-			error_caught = true
-		}
-		ASSERT_TRUE(error_caught)
+		command_x(tool_build_roadsign).work(pl, coord3d(5, 3, 0), signal.name)
 
-		local s = sign_x(5, 3, 0)
+		local s = sign_x(5, 3 , 0)
+
 		ASSERT_TRUE(s != null)
-		ASSERT_EQUAL(s.get_desc().get_name(), signal.get_name())
+		ASSERT_EQUAL(s.desc.name, signal.name)
+		ASSERT_EQUAL(pl.current_cash * 100,   old_cash  - signal.cost        - presignal.cost)
+		ASSERT_EQUAL(pl.current_maintenance,  old_maint - signal.maintenance + presignal.maintenance)
+		ASSERT_WAY_PATTERN_MASKED(wt_rail, coord3d(0, 0, 0),
+			[
+				"........",
+				"........",
+				"........",
+				"....288.",
+				"........",
+				"........",
+				"........",
+				"........"
+			])
 	}
 
-	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(6, 3, 0), coord3d(4, 3, 0), "" + wt_rail), null)
-
 	// clean up
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(6, 3, 0), coord3d(4, 3, 0), "" + wt_rail), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 

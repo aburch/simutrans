@@ -8,13 +8,7 @@
 #include "messagebox.h"
 #include "simwin.h"
 
-
-uint16 tick_to_divided_time(uint32 tick) {
-  const uint16 divisor = world()->get_settings().get_spacing_shift_divisor();
-  return (uint16)((uint64)tick * divisor / world()->ticks_per_world_month);
-}
-
-uint32 get_latest_dep_slot(schedule_entry_t& entry, uint32 current_time) {
+uint32 get_latest_dep_slot(const schedule_entry_t& entry, uint32 current_time) {
   const sint32 spacing_shift = (sint64)entry.spacing_shift * world()->ticks_per_world_month / world()->get_settings().get_spacing_shift_divisor();
   uint64 slot = (current_time - spacing_shift) * (uint64)entry.spacing / world()->ticks_per_world_month;
   return slot * world()->ticks_per_world_month / entry.spacing + spacing_shift;
@@ -24,7 +18,7 @@ gui_journey_time_stat_t::gui_journey_time_stat_t(schedule_t*, player_t* pl) {
   player = pl;
 }
 
-void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times, bool& empty_slot_exists) {
+void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& journey_times, vector_tpl<uint32*>& stopping_times, bool& empty_slot_exists) {
   schedule_t* schedule = line->get_schedule();
   scr_size size = get_size();
   remove_all();
@@ -32,8 +26,34 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
   set_table_layout(NUM_ARRIVAL_TIME_STORED+2,0);
   uint8 depot_entry_count = 0;
   for(uint8 idx=0; idx<schedule->entries.get_count(); idx++) {
-    schedule_entry_t& e = schedule->entries[idx];
-    gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
+    const schedule_entry_t& e = schedule->entries[idx];
+    const uint8 prev_idx = idx > 0 ? idx - 1 : schedule->entries.get_count() - 1;
+
+    // journey time between the previous halt
+    gui_label_buf_t *lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left); // empty
+    for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
+      lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
+      uint32 t = journey_times[idx][i];
+      if(  t==0  ) {
+        lb->buf().printf("-");
+      } else {
+        lb->buf().printf("%d", t - stopping_times[prev_idx][i]);
+        if(i == 0){
+          journey_time_sum += t;
+        }
+      }
+      lb->update();
+      if(  t>0  &&  (sint32)t-(sint32)journey_times[idx][0]>4  ) {
+        lb->set_color(color_idx_to_rgb(COL_RED));
+      } else if(  t>0  &&  (sint32)journey_times[idx][0]-(sint32)t>4  ) {
+        lb->set_color(color_idx_to_rgb(COL_BLUE));
+      } else {
+        lb->set_color(SYSCOL_TEXT);
+      }
+    }
+
+    // Stopping time at the halt
+    lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::left);
     halthandle_t const halt = haltestelle_t::get_halt(e.pos, player);
     if(  halt.is_bound()  ) {
       // show halt name
@@ -49,23 +69,18 @@ void gui_journey_time_stat_t::update(linehandle_t line, vector_tpl<uint32*>& jou
       depot_entry_count += (gr  &&  gr->get_depot());
     }
     lb->update();
-    
-    for(uint8 i=0; i<NUM_ARRIVAL_TIME_STORED+1; i++) {
+    for(uint8 i=0; i<NUM_STOPPING_TIME_STORED+1; i++) {
       lb = new_component<gui_label_buf_t>(SYSCOL_TEXT, gui_label_t::right);
-      uint32 t = journey_times[idx][i];
+      uint32 t = stopping_times[idx][i];
       if(  t==0  ) {
         lb->buf().printf("-");
       } else {
         lb->buf().printf("%d", t);
-        if(i == 0){
-          journey_time_sum += t;
-        }
-
       }
       lb->update();
-      if(  t>0  &&  (sint32)t-(sint32)journey_times[idx][0]>4  ) {
+      if(  t>0  &&  (sint32)t-(sint32)stopping_times[idx][0]>4  ) {
         lb->set_color(color_idx_to_rgb(COL_RED));
-      } else if(  t>0  &&  (sint32)journey_times[idx][0]-(sint32)t>4  ) {
+      } else if(  t>0  &&  (sint32)stopping_times[idx][0]-(sint32)t>4  ) {
         lb->set_color(color_idx_to_rgb(COL_BLUE));
       } else {
         lb->set_color(SYSCOL_TEXT);
@@ -212,6 +227,9 @@ gui_journey_time_info_t::~gui_journey_time_info_t() {
   for(uint8 i=0; i<journey_times.get_count(); i++) {
     delete[] journey_times[i];
   }
+  for(uint8 i=0; i<stopping_times.get_count(); i++) {
+    delete[] stopping_times[i];
+  }
 }
 
 
@@ -220,18 +238,21 @@ void gui_journey_time_info_t::update() {
   for(uint8 i=journey_times.get_count(); i<schedule->entries.get_count(); i++) {
     journey_times.append(new uint32[NUM_ARRIVAL_TIME_STORED+1]);
   }
+  for(uint8 i=stopping_times.get_count(); i<schedule->entries.get_count(); i++) {
+    stopping_times.append(new uint32[NUM_STOPPING_TIME_STORED+1]);
+  }
   
   // calculate journey time and average time
   journey_time_sum = 0;
   for(uint8 i=0; i<schedule->entries.get_count(); i++) {
     uint32 sum = 0;
     uint8 cnt = 0;
-    const uint8 kc = (schedule->entries[i].at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
+    const uint8 kc = (schedule->entries[i].jt_at_index + NUM_ARRIVAL_TIME_STORED - 1) % NUM_ARRIVAL_TIME_STORED;
     for(uint8 k=0; k<NUM_ARRIVAL_TIME_STORED; k++) {
       uint32* ca = schedule->entries[i].journey_time;
       uint8 ica = (kc + NUM_ARRIVAL_TIME_STORED - k) % NUM_ARRIVAL_TIME_STORED;
       if(  ca[ica]>0  ) {
-        journey_times[i][k+1] = tick_to_divided_time(ca[ica]);
+        journey_times[i][k+1] = world()->tick_to_divided_time(ca[ica]);
         sum += journey_times[i][k+1];
         cnt += 1;
       } else {
@@ -246,6 +267,25 @@ void gui_journey_time_info_t::update() {
       journey_times[i][0] = 0;
     }
   }
+
+  // calculate stopping time
+  for(uint8 i=0; i<schedule->entries.get_count(); i++) {
+    uint32 sum = 0;
+    uint8 cnt = 0;
+    const uint8 kc = (schedule->entries[i].cs_at_index + NUM_STOPPING_TIME_STORED - 1) % NUM_STOPPING_TIME_STORED;
+    for(uint8 k=0; k<NUM_STOPPING_TIME_STORED; k++) {
+      uint32* ca = schedule->entries[i].convoy_stopping_time;
+      uint8 ica = (kc + NUM_STOPPING_TIME_STORED - k) % NUM_STOPPING_TIME_STORED;
+      if(  ca[ica]>0  ) {
+        stopping_times[i][k+1] = world()->tick_to_divided_time(ca[ica]);
+        sum += stopping_times[i][k+1];
+        cnt += 1;
+      } else {
+        stopping_times[i][k+1] = 0;
+      }
+    }
+    stopping_times[i][0] = cnt>0 ? sum/cnt : 0;
+  }
   
   // disable copy buttons if schedule is empty
   bt_copy_names.enable(!schedule->entries.empty());
@@ -254,7 +294,7 @@ void gui_journey_time_info_t::update() {
   
   // update stat
   bool empty_slot_exists = false;
-  stat.update(line, journey_times, empty_slot_exists);
+  stat.update(line, journey_times, stopping_times, empty_slot_exists);
   insufficient_cnv_label.set_visible(empty_slot_exists);
   reset_min_windowsize();
 }

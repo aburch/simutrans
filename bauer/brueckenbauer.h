@@ -80,7 +80,7 @@ public:
 	 * @param overtaking_mode condition of overtaking. This is applied only to road.
 	 * @param beginning if this ramp is beginning of the bridge, be true. otherwise, be false. (for ribi_mask_oneway)
 	 */
-	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning);
+	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning);
 
 	/**
 	 * Actually builds the bridge without checks.

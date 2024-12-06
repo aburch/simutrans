@@ -8,6 +8,7 @@
 
 
 #include "extend_edit.h"
+#include "simwin.h"
 
 #include "components/gui_building.h"
 #include "../utils/cbuffer_t.h"
@@ -56,6 +57,10 @@ public:
 	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_citybuilding_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

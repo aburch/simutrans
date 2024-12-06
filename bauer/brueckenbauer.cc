@@ -787,7 +787,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  slope_t::max_diff(slope) : bridge_height;
-		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode, street_flag, true );
+		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, way_desc, overtaking_mode, street_flag, true );
 		if(  desc->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(desc->get_waytype());
 		}
@@ -877,7 +877,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode, street_flag, false);
+		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, way_desc, overtaking_mode, street_flag, false);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -949,7 +949,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 }
 
 
-void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
+void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
 {
 	assert(weg_hang <= slope_t::max_number);
 
@@ -975,6 +975,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			weg = weg_t::alloc( desc->get_waytype() );
 			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ), end.get_2d(), desc->get_waytype());
 		}
+		weg->set_desc( way_desc );
 		weg->set_max_speed( desc->get_topspeed() );
 		if(  desc->get_waytype()==road_wt  ) {
 			strasse_t* str = (strasse_t*) weg;

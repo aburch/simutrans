@@ -32,6 +32,20 @@ struct citycar_routing_param_t
 	sint16 weight_speed;
 };
 
+// The policy of how to route and loads the goods at stops.
+enum goods_routing_policy_t {
+	// The goods routing is based on route cost.
+	// At stops, the goods to the nearest destination are loaded first.
+	GRP_NF_RC = 0,
+
+	// The goods routing is based on route cost.
+	// At stops, the goods are loaded in the order of the arrival.
+	GRP_FIFO_RC = 1,
+
+	// The goods routing is based on the estimated time to reach the destination.
+	// At stops, the goods are loaded in the order of the arrival.
+	GRP_FIFO_ET = 2,
+};
 
 /**
  * Game settings
@@ -326,11 +340,11 @@ private:
 	
 	// only for trains. If true, trains advance to the end of the platform.
 	bool advance_to_end;
-	
-	bool first_come_first_serve;
+
+	goods_routing_policy_t goods_routing_policy;
 	
 	// When the amount of waiting goods/passengers exceeds this value,
-	// first_come_first_serve is no longer applied to reduce the calculation load.
+	// goods are loaded with "nearest first" policy to reduce the calculation load.
 	uint32 waiting_limit_for_first_come_first_serve;
 	
 	// paramters for haltestelle_t::rebuild_connections()
@@ -339,6 +353,13 @@ private:
 	
 	// divide a month for departure spacing
 	uint16 spacing_shift_divisor;
+
+	// time based goods routing stuff
+	// These values are added to the connection weight for each ride.
+	uint32 base_waiting_ticks_for_rail_convoi;
+	uint32 base_waiting_ticks_for_road_convoi;
+	uint32 base_waiting_ticks_for_ship_convoi;
+	uint32 base_waiting_ticks_for_air_convoi;
 
 public:
 	/* the big cost section */
@@ -688,7 +709,7 @@ public:
 	bool get_advance_to_end() const { return advance_to_end; }
 	void set_advance_to_end(bool b) { advance_to_end = b; }
 	
-	bool get_first_come_first_serve() const { return first_come_first_serve; }
+	goods_routing_policy_t get_goods_routing_policy() const { return goods_routing_policy; }
 	uint32 get_waiting_limit_for_first_come_first_serve() const 
 		{ return waiting_limit_for_first_come_first_serve; }
 	
@@ -696,6 +717,8 @@ public:
 	uint8 get_routecost_wait() const { return routecost_wait; }
 	
 	uint16 get_spacing_shift_divisor() const { return spacing_shift_divisor; }
+
+	uint32 get_base_waiting_ticks(waytype_t waytype) const;
 };
 
 #endif

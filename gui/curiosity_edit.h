@@ -8,6 +8,7 @@
 
 
 #include "extend_edit.h"
+#include "simwin.h"
 
 class tool_build_house_t;
 class building_desc_t;
@@ -59,6 +60,10 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	uint32 get_rdwr_id() OVERRIDE { return magic_curiosity_edit; }
+
+	void rdwr( loadsave_t *file ) OVERRIDE;
 };
 
 #endif

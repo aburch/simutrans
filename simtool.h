@@ -786,6 +786,15 @@ public:
 };
 
 
+class tool_extinguish_waiting_goods_t : public tool_t {
+public:
+	tool_extinguish_waiting_goods_t() : tool_t(TOOL_EXTINGUISH_WAITING_GOODS | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Remove all waiting goods and pax"); }
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_safe() const OVERRIDE { return true; }
+};
+
+
 /********************* one click tools ****************************/
 
 class tool_pause_t : public tool_t {
