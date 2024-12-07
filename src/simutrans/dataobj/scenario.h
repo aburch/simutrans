@@ -94,8 +94,9 @@ private:
 		}
 
 		enum forbid_type {
-			forbid_tool      = 1,
-			forbid_tool_rect = 2
+			forbid_tool			= 1,
+			allow_tool_rect 	= 2,
+			forbid_tool_rect	= 3
 		};
 
 		forbid_type type;
@@ -201,9 +202,10 @@ private:
 	 * Puts/removes new record into/from forbidden_tools list, checks for identical entries.
 	 * Only call this method from call_forbid_tool(forbidden_t *,bool)
 	 * @param test must be pointer to allocated memory, will be invalid after call
-	 * @param forbid if true puts, if false removes into/from list
+	 * @param add_rule if true add rule, if false removes rule from list
+	 * @returns vule 1 if added rule, and 2 deleted previous rule, return 0 on error
 	 */
-	void intern_forbid(forbidden_t *test, uint player_nr, bool forbid);
+	void intern_forbid(forbidden_t *test, uint player_nr, bool add_rule);
 
 	/**
 	 * Helper function: works on forbidden_tools directly (if not in network-mode)
@@ -358,7 +360,7 @@ public:
 	 * @ingroup squirrel-api
 	 * @see forbid_tool
 	 */
-	void allow_tool(uint8 player_nr, uint16 tool_id);
+	void clear_forbid_tool(uint8 player_nr, uint16 tool_id);
 
 	/**
 	 * Forbid tool with certain waytype
@@ -370,12 +372,6 @@ public:
 	 * @param wt waytype
 	 */
 	void forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param);
-
-	/**
-	 * @ingroup squirrel-api
-	 * @see forbid_way_tool
-	 */
-	void allow_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param);
 
 	/**
 	 * Forbid tool with certain waytype within rectangular region on the map
@@ -390,12 +386,6 @@ public:
 	 * @param err error message presented to user when trying to apply this tool
 	 */
 	void forbid_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se, plainstring err);
-
-	/**
-	 * @ingroup squirrel-api
-	 * @see forbid_way_tool_rect
-	 */
-	void allow_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se);
 
 	/**
 	 * Forbid tool with certain waytype within cubic region on the map.
@@ -413,15 +403,43 @@ public:
 
 	/**
 	 * @ingroup squirrel-api
-	 * @see forbid_way_tool_cube
+	 * @see forbid_way_tool
 	 */
-	void allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw, koord3d pos_se);
+	void clear_forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param);
+
+	void clear_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw_0, koord pos_se_0, bool allow);
+
+	/**
+	 * clear rule with certain waytype within cubic region on the map.
+	 * @ingroup squirrel-api
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param pos_nw coordinate of north-western corner of cube
+	 * @param pos_se coordinate of south-eastern corner of cube
+	 * @param allow clear and allow rule (true) or clear a forbid rule (false)
+	 */
+	void clear_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw_0, koord3d pos_se_0, bool allow);
 
 	/**
 	 * Clears all rules.
 	 * @ingroup squirrel-api
 	 */
 	void clear_rules();
+
+	/**
+	 * @ingroup squirrel-api
+	 * @see forbid_way_tool_rect
+	 */
+	void allow_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se);
+
+	/**
+	 * @ingroup squirrel-api
+	 * @see forbid_way_tool_cube
+	 */
+	void allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw, koord3d pos_se);
 
 	/**
 	 * Toolbars/active tools need an update due to changed rules; update is done in step().

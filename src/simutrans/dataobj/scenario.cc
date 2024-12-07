@@ -342,25 +342,41 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 }
 
 
-void scenario_t::intern_forbid(forbidden_t *test, uint player_nr, bool forbid)
+void scenario_t::intern_forbid(forbidden_t* test, uint player_nr, bool add_rule)
 {
 	bool changed = false;
 	forbidden_t::forbid_type type = test->type;
 
-	for(uint32 i = find_first(*test,player_nr); i < forbidden_tools[player_nr].get_count()  &&  *forbidden_tools[player_nr][i] <= *test; i++) {
-		if (*test == *forbidden_tools[player_nr][i]) {
-			// entry exists already
-			delete test;
-			if (!forbid) {
-				delete forbidden_tools[player_nr][i];
-				forbidden_tools[player_nr].remove_at(i);
-				changed = true;
+	bool current_add = add_rule;
+	for (int i=0; i<1+add_rule; i++) {
+		if(add_rule  &&  type!=forbidden_t::forbid_tool) {
+			if (type == forbidden_t::allow_tool_rect) {
+				// before adding an allow rule, remove a identical forbid rule
+				test->type = (i == 0) ? forbidden_t::forbid_tool_rect : forbidden_t::allow_tool_rect;
+				current_add = i;
 			}
-			goto end;
+			else if (type == forbidden_t::forbid_tool_rect) {
+				// before adding a forbind rule, remove a identical allowed rule
+				test->type = (i == 0) ? forbidden_t::allow_tool_rect : forbidden_t::forbid_tool_rect;
+			}
+			current_add = i; // first pass remove, next pass add
+		}
+
+		for (uint32 i = find_first(*test, player_nr); i < forbidden_tools[player_nr].get_count() && *forbidden_tools[player_nr][i] <= *test; i++) {
+			if (*test == *forbidden_tools[player_nr][i]) {
+				// entry exists already
+				delete test;
+				if (!current_add) {
+					delete forbidden_tools[player_nr][i];
+					forbidden_tools[player_nr].remove_at(i);
+					changed = true;
+				}
+				goto end;
+			}
 		}
 	}
 	// entry does not exist
-	if (forbid) {
+	if (add_rule) {
 		forbidden_tools[player_nr].insert_ordered(test, scenario_t::forbidden_t::compare);
 		changed = true;
 	}
@@ -393,7 +409,7 @@ void scenario_t::forbid_tool(uint8 player_nr, uint16 tool_id)
 }
 
 
-void scenario_t::allow_tool(uint8 player_nr, uint16 tool_id)
+void scenario_t::clear_forbid_tool(uint8 player_nr, uint16 tool_id)
 {
 	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, tool_id, invalid_wt);
 	call_forbid_tool(test, player_nr, false);
@@ -407,7 +423,7 @@ void scenario_t::forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, 
 }
 
 
-void scenario_t::allow_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param)
+void scenario_t::clear_forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param)
 {
 	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, tool_id, wt, param);
 	call_forbid_tool(test, player_nr, false);
@@ -417,6 +433,12 @@ void scenario_t::allow_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, c
 void scenario_t::forbid_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se, plainstring err)
 {
 	forbid_way_tool_cube(player_nr, tool_id, wt, param, koord3d(pos_nw, -128), koord3d(pos_se, 127), err);
+}
+
+
+void scenario_t::clear_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se, bool allow)
+{
+	clear_way_tool_cube(player_nr, tool_id, wt, param, koord3d(pos_nw, -128), koord3d(pos_se, 127), allow);
 }
 
 
@@ -439,6 +461,19 @@ void scenario_t::forbid_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t
 }
 
 
+void scenario_t::clear_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw_0, koord3d pos_se_0, bool allow)
+{
+	koord pos_nw(min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
+	koord pos_se(max(pos_nw_0.x, pos_se_0.x), max(pos_nw_0.y, pos_se_0.y));
+	sint8 hmin(min(pos_nw_0.z, pos_se_0.z));
+	sint8 hmax(max(pos_nw_0.z, pos_se_0.z));
+
+	forbidden_t* test = new forbidden_t(tool_id, wt, param, pos_nw, pos_se, hmin, hmax);
+	test->type = allow ? forbidden_t::allow_tool_rect : forbidden_t::forbid_tool_rect;
+	call_forbid_tool(test, player_nr, false);
+}
+
+
 void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char *param, koord3d pos_nw_0, koord3d pos_se_0)
 {
 	koord pos_nw( min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
@@ -447,7 +482,8 @@ void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t 
 	sint8 hmax( max(pos_nw_0.z, pos_se_0.z) );
 
 	forbidden_t *test = new forbidden_t(tool_id, wt, param, pos_nw, pos_se, hmin, hmax);
-	call_forbid_tool(test, player_nr, false);
+	test->type = forbidden_t::allow_tool_rect;
+	call_forbid_tool(test, player_nr, true);
 }
 
 
@@ -516,8 +552,42 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 		return NULL;
 	}
 
-	// first test the list
+	// first test for allowed tools
 	uint8 player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
+	while(1) {
+		if (!forbidden_tools[player_nr].empty()) {
+			// only area rules can allow
+			forbidden_t test2(forbidden_t::allow_tool_rect, tool_id, wt, param);
+			uint32 p_hash = test2.parameter_hash;
+			for (uint32 i = find_first_type_tool_wt(test2, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
+				// there is something, we need to test more
+				forbidden_t const& f = *forbidden_tools[player_nr][i];
+				if (f.type != forbidden_t::forbid_tool_rect || f.toolnr != tool_id) {
+					// reached end of forbidden tools with this id => done
+					break;
+				}
+				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
+					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
+						// parameter matches too => check rectangle
+						if (f.pos_nw.x <= pos.x && f.pos_nw.y <= pos.y && pos.x <= f.pos_se.x && pos.y <= f.pos_se.y) {
+							// check height
+							if (f.hmin <= pos.z && pos.z <= f.hmax) {
+								goto allowed_tool_rect;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (player_nr == PLAYER_UNOWNED) {
+			break;
+		}
+		// retry with unowned rules
+		player_nr = PLAYER_UNOWNED;
+	}
+
+	// then test for forbidden tools
+	player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
 	while(1) {
 		if (!forbidden_tools[player_nr].empty()) {
 			forbidden_t test1(forbidden_t::forbid_tool, tool_id, wt, param);
@@ -568,6 +638,26 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 					}
 				}
 			}
+			forbidden_t test3(forbidden_t::allow_tool_rect, tool_id, wt, param);
+			for (uint32 i = find_first_type_tool_wt(test3, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
+				// there is something, we need to test more
+				forbidden_t const& f = *forbidden_tools[player_nr][i];
+				if (f.type != forbidden_t::allow_tool_rect || f.toolnr != tool_id) {
+					// reached end of forbidden tools with this id => done
+					break;
+				}
+				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
+					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
+						// parameter matches too => check rectangle
+						if (f.pos_nw.x <= pos.x && f.pos_nw.y <= pos.y && pos.x <= f.pos_se.x && pos.y <= f.pos_se.y) {
+							// check height
+							if (f.hmin <= pos.z && pos.z <= f.hmax) {
+								return NULL;
+							}
+						}
+					}
+				}
+			}
 		}
 		if (player_nr == PLAYER_UNOWNED) {
 			break;
@@ -576,6 +666,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 		player_nr = PLAYER_UNOWNED;
 	}
 
+allowed_tool_rect:
 	// then call the script
 	// cannot be done for two_click_tool_t's as they depend on routefinding,
 	// which is done per client

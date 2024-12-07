@@ -145,7 +145,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 	}
 	else if (comp == &revert_to_last_save) {
 		// setting of the current map
-		*sets = world()->get_settings();
+		*sets = env_t::default_settings;
 		// and update ...
 		general.init(sets);
 		display.init(sets);

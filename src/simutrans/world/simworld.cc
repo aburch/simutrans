@@ -3930,6 +3930,8 @@ bool karte_t::load(const char *filename)
 		}
 		else {
 			step_mode = NORMAL;
+			// save current map settings only in non-networkmode
+			env_t::default_settings = settings;
 		}
 
 		ok = true;
@@ -4350,7 +4352,7 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 		}
 
 		if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
-			if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
+			if (settings.get_allow_player_change()  &&  env_t::default_settings.get_use_timeline() < 2) {
 				// not locked => eventually switch off timeline settings, if explicitly stated
 				settings.set_use_timeline(env_t::default_settings.get_use_timeline());
 				DBG_DEBUG("karte_t::rdwr_gamestate()", "timeline: reset to %i", env_t::default_settings.get_use_timeline() );
@@ -5666,7 +5668,7 @@ void karte_t::stop(bool exit_game)
 			}
 
 			// remove passwords before transfer on the server and set default client mask
-			// they will be restored in karte_t::laden
+			// they will be restored in karte_t::load
 			for (uint8 i = 0; i < PLAYER_UNOWNED; i++) {
 				player_t *player = world->get_player(i);
 				if (player  && !player->access_password_hash().empty()) {

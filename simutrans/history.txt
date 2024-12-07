@@ -15,6 +15,7 @@
 	FIX: also connect bridges to tunnels in pak128 double slope situations
 	FIX: Station rotation preview ignored active player (always showed player 0 colours)
 	FIX: if a convoi served a station but did not load anything (maybe full), another convoi did not check this stations and could get stuck even with waiting for zero load
+	ADD: allow cubic rule that overrideds any forbidden cubic rules and explicit clear rules calls
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):

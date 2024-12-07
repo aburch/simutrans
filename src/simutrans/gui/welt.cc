@@ -65,6 +65,7 @@ welt_gui_t::welt_gui_t() :
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
 		sets = new settings_t();
+		*sets = env_t::default_settings;
 		dr_chdir(env_t::base_dir);
 		if (simuconf.open("config/simuconf.tab")) {
 			sets->parse_simuconf(simuconf);

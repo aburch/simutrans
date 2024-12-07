@@ -157,16 +157,6 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_tool, "forbid_tool");
 
 	/**
-	 * Allow tool.
-	 *
-	 * @param player_nr number of player this rule applies to,
-	 *                  if this is set to player_all then this acts for all players except public player
-	 * @param tool_id id of tool
-	 * @see tool_ids way_types player_all
-	 */
-	STATIC register_method(vm, &scenario_t::allow_tool,  "allow_tool");
-
-	/**
 	 * Forbid tool with certain waytype.
 	 *
 	 * @param player_nr number of player this rule applies to,
@@ -177,18 +167,6 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool, "forbid_way_tool");
-
-	/**
-	 * Allow tool with certain waytype.
-	 *
-	 * @param player_nr number of player this rule applies to,
-	 *                  if this is set to player_all then this acts for all players except public player
-	 * @param tool_id id of tool
-	 * @param wt waytype
-	 * @param default_paramter object name or 0 (to catch all)
-	 * @see tool_ids way_types player_all
-	 */
-	STATIC register_method(vm, &scenario_t::allow_way_tool,  "allow_way_tool");
 
 	/**
 	 * Forbid tool with certain waytype within rectangular region on the map.
@@ -206,20 +184,6 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_rect, "forbid_way_tool_rect");
 
 	/**
-	 * Allow tool with certain waytype within rectangular region on the map.
-	 *
-	 * @param player_nr number of player this rule applies to,
-	 *                  if this is set to player_all then this acts for all players except public player
-	 * @param tool_id id of tool
-	 * @param wt waytype
-	 * @param default_paramter object name or 0 (to catch all)
-	 * @param pos_nw coordinate of north-western corner of rectangle
-	 * @param pos_se coordinate of south-eastern corner of rectangle
-	 * @see tool_ids way_types player_all
-	 */
-	STATIC register_method(vm, &scenario_t::allow_way_tool_rect,  "allow_way_tool_rect");
-
-	/**
 	 * Forbid tool with certain waytype within cubic region on the map.
 	 *
 	 * @param player_nr number of player this rule applies to,
@@ -235,6 +199,80 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
 
 	/**
+	 * Allow tool.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @see tool_ids way_types player_all
+	 */
+	STATIC register_method(vm, &scenario_t::clear_forbid_tool, "clear_forbid_tool");
+
+	/**
+	 * clear fule with certain waytype.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
+	 * @see tool_ids way_types player_all
+	 */
+	STATIC register_method(vm, &scenario_t::clear_forbid_way_tool, "clear_forbid_way_tool");
+
+	/**
+	 * clear rule with certain waytype within rectangular region on the map.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
+	 * @param pos_nw coordinate of north-western corner of rectangle
+	 * @param pos_se coordinate of south-eastern corner of rectangle
+	 * @param allow clear either allo (true) or forbid (false) rule
+	 * @see tool_ids way_types player_all
+	 */
+	STATIC register_method(vm, &scenario_t::clear_way_tool_rect, "clear_way_tool_rect");
+
+	/**
+	 * clear rule with certain waytype within cubic region on the map.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
+	 * @param pos_nw 3d-coordinate of north-western corner of cube
+	 * @param pos_se 3d-coordinate of south-eastern corner of cube
+	 * @param allow clear either allo (true) or forbid (false) rule
+	 * @see tool_ids way_types player_all
+	 */
+	STATIC register_method(vm, &scenario_t::clear_way_tool_cube, "clear_way_tool_cube");
+
+	/**
+	 * Clear all forbidding rules, effectively allowing all tools again that were forbidden using functions of the table @ref rules.
+	 *
+	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
+	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
+	 */
+	STATIC register_method(vm, &scenario_t::clear_rules, "clear");
+
+	/**
+	 * Allow tool with certain waytype within rectangular region on the map.
+	 *
+	 * @param player_nr number of player this rule applies to,
+	 *                  if this is set to player_all then this acts for all players except public player
+	 * @param tool_id id of tool
+	 * @param wt waytype
+	 * @param default_paramter object name or 0 (to catch all)
+	 * @param pos_nw coordinate of north-western corner of rectangle
+	 * @param pos_se coordinate of south-eastern corner of rectangle
+	 * @see tool_ids way_types player_all
+	 */
+	STATIC register_method(vm, &scenario_t::allow_way_tool_rect,  "allow_way_tool_rect");
+
+	/**
 	 * Allow tool with certain waytype within cubic region on the map.
 	 *
 	 * @param player_nr number of player this rule applies to,
@@ -247,14 +285,6 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_cube,  "allow_way_tool_cube");
-
-	/**
-	 * Clear all forbidding rules, effectively allowing all tools again that were forbidden using functions of the table @ref rules.
-	 *
-	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
-	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
-	 */
-	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
 
 	/**
 	 * Signals that toolbars and active tools need to be checked against scenario rules again.
