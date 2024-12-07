@@ -49,7 +49,7 @@ protected:
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 
-	static freelist_tpl<roadsign_t> rs; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
+	static freelist_tpl<roadsign_t>rs; // if not declared static, it would consume 4 bytes due to empty class nonzero rules
 
 public:
 	enum signalstate {
