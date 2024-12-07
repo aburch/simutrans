@@ -353,7 +353,6 @@ void scenario_t::intern_forbid(forbidden_t* test, uint player_nr, bool add_rule)
 			if (type == forbidden_t::allow_tool_rect) {
 				// before adding an allow rule, remove a identical forbid rule
 				test->type = (i == 0) ? forbidden_t::forbid_tool_rect : forbidden_t::allow_tool_rect;
-				current_add = i;
 			}
 			else if (type == forbidden_t::forbid_tool_rect) {
 				// before adding a forbind rule, remove a identical allowed rule
@@ -638,26 +637,6 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 					}
 				}
 			}
-			forbidden_t test3(forbidden_t::allow_tool_rect, tool_id, wt, param);
-			for (uint32 i = find_first_type_tool_wt(test3, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
-				// there is something, we need to test more
-				forbidden_t const& f = *forbidden_tools[player_nr][i];
-				if (f.type != forbidden_t::allow_tool_rect || f.toolnr != tool_id) {
-					// reached end of forbidden tools with this id => done
-					break;
-				}
-				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
-					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
-						// parameter matches too => check rectangle
-						if (f.pos_nw.x <= pos.x && f.pos_nw.y <= pos.y && pos.x <= f.pos_se.x && pos.y <= f.pos_se.y) {
-							// check height
-							if (f.hmin <= pos.z && pos.z <= f.hmax) {
-								return NULL;
-							}
-						}
-					}
-				}
-			}
 		}
 		if (player_nr == PLAYER_UNOWNED) {
 			break;
@@ -690,7 +669,6 @@ allowed_tool_rect:
 		}
 		static plainstring msg;
 		const char *err = script->call_function(script_vm_t::FORCE, "is_work_allowed_here", msg, player_nr, tool_id, param, pos, script_api::mytool_data_t(start_pos, is_drag_tool, is_ctrl, is_shift));
-
 		return err == NULL ? msg.c_str() : NULL;
 	}
 	return NULL;
