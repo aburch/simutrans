@@ -3,6 +3,8 @@
  * (see LICENSE.txt)
  */
 
+#include <string.h>
+
 #include "script_tool_frame.h"
 
 #include "../script/script_tool_manager.h"
@@ -15,7 +17,6 @@
 #include "../sys/simsys.h"
 #include "../utils/cbuffer.h"
 #include "../utils/simstring.h"
-
 
 script_tool_frame_t::~script_tool_frame_t()
 {
@@ -60,6 +61,8 @@ bool script_tool_frame_t::item_action(const char *fullpath)
 
 	tool_t* tool = script_tool_manager_t::load_tool(fullpath, tool_t::general_tool[is_one_click ? TOOL_EXEC_SCRIPT : TOOL_EXEC_TWO_CLICK_SCRIPT]);
 	assert(tool);
+	const char* p = strrchr(fullpath, *PATH_SEPARATOR);
+	tool->set_default_param( p?p+1:fullpath );
 
 	welt->set_tool(tool, welt->get_active_player());
 	return true;
