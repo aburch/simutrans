@@ -561,7 +561,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 			for (uint32 i = find_first_type_tool_wt(test2, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
 				// there is something, we need to test more
 				forbidden_t const& f = *forbidden_tools[player_nr][i];
-				if (f.type != forbidden_t::forbid_tool_rect || f.toolnr != tool_id) {
+				if (f.type != forbidden_t::allow_tool_rect  ||  f.toolnr != tool_id) {
 					// reached end of forbidden tools with this id => done
 					break;
 				}
