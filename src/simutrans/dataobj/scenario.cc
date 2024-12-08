@@ -325,9 +325,12 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 	}
 	// now binary search: low < other <= high
 	uint32 low = 0, high = forbidden_tools[player_nr].get_count() - 1;
+	forbidden_t *lookup_rule = NULL;
+	uint32 mid = high;
 	while (low + 1 < high) {
-		uint32 mid = (low + high) / 2;
-		if (*forbidden_tools[player_nr][mid] < other) {
+		mid = (low + high) / 2;
+		lookup_rule = forbidden_tools[player_nr][mid];
+		if (*lookup_rule < other) {
 			low = mid;
 			// now low < other
 		}
@@ -337,8 +340,14 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 		}
 	};
 	// did we find something?
-	bool ok = forbidden_tools[player_nr][high]->type == other.type  &&  forbidden_tools[player_nr][high]->toolnr == other.toolnr;
-	return ok ? high : forbidden_tools[player_nr].get_count();
+	if (forbidden_tools[player_nr][high]->toolnr == other.toolnr  &&  forbidden_tools[player_nr][high]->type == other.type) {
+		return high;
+	}
+	// if other has a default param, but the catch all is empty, then it is never found
+	if (high-- > 0  &&  forbidden_tools[player_nr][high]->toolnr == other.toolnr  &&  forbidden_tools[player_nr][high]->type == other.type) {
+		return high;
+	}
+	return forbidden_tools[player_nr].get_count();
 }
 
 
@@ -522,7 +531,7 @@ bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 
 						if (err == NULL) {
 							err = "";
 						}
-						return err;
+						return false;
 					}
 				}
 			}
