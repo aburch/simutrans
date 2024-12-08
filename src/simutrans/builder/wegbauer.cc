@@ -1375,6 +1375,17 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 	if( !has_target_ground ) {
 		return -1;
 	}
+	// check scenario conditions for start and endpoint
+	for (koord3d const& pos : start) {
+		if (welt->get_scenario()->is_work_allowed_here(player_builder, TOOL_BUILD_WAY | GENERAL_TOOL, bautyp & bautyp_mask, desc->get_name(), pos) != NULL) {
+			return -1;
+		}
+	}
+	for (koord3d const& pos : ziel) {
+		if (welt->get_scenario()->is_work_allowed_here(player_builder, TOOL_BUILD_WAY | GENERAL_TOOL, bautyp & bautyp_mask, desc->get_name(), pos) != NULL) {
+			return -1;
+		}
+	}
 
 	// calculate the minimal cuboid containing 'ziel'
 	koord3d mini, maxi;

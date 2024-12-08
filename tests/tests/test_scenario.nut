@@ -305,17 +305,49 @@ function test_scenario_rules_allow_forbid_tool_stacked_rect()
 
 	rules.allow_way_tool_rect(0, tool_build_way, wt_road, "", coord(2, 2), coord(13, 13))
 
-	// try building in allowed ring, does not work because rules cannot be stacked
+	// try building in allowed ring, does work since introdcued allowed rules
 	{
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), road_desc, false), null)
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
 				"6AAAA8..",
 				"5.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
+				"........",
+				"........"
+			])
+	}
+
+	// try building from inside allowed ring to forbidden rect, must fail
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 1, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"6AAAA8..",
 				"5.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
+				"........",
+				"........"
+			])
+	}
+
+	// try building from inside allowed ring to outside, must fail => we cannot cross border
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(0, 0, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"6AAAA8..",
 				"5.......",
-				"5.......",
-				"1.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
 				"........",
 				"........"
 			])
@@ -324,6 +356,7 @@ function test_scenario_rules_allow_forbid_tool_stacked_rect()
 	rules.clear()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 0, 0), coord3d(0, 5, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
 
@@ -369,19 +402,51 @@ function test_scenario_rules_allow_forbid_tool_stacked_cube()
 			])
 	}
 
-	rules.allow_way_tool_cube(0, tool_build_way, wt_road, "", coord3d(2, 2, 0), coord3d(13, 13, 0))
+	rules.allow_way_tool_rect(0, tool_build_way, wt_road, "", coord(2, 2), coord(13, 13))
 
-	// try building in allowed ring, does not work because rules cannot be stacked
+	// try building in allowed ring, does work since introdcued allowed rules
 	{
-		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), road_desc, false), null)
 		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
 			[
 				"6AAAA8..",
 				"5.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
+				"........",
+				"........"
+			])
+	}
+
+	// try building from inside allowed ring to forbidden rect, must fail
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(5, 1, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"6AAAA8..",
 				"5.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
+				"........",
+				"........"
+			])
+	}
+
+	// try building from inside allowed ring to outside, must fail => we cannot cross border
+	{
+		ASSERT_EQUAL(command_x.build_way(pl, coord3d(0, 0, 0), coord3d(2, 5, 0), road_desc, false), "")
+		ASSERT_WAY_PATTERN(wt_road, coord3d(0, 0, 0),
+			[
+				"6AAAA8..",
 				"5.......",
-				"5.......",
-				"1.......",
+				"5..6A8..",
+				"5.69....",
+				"5.5.....",
+				"1.1.....",
 				"........",
 				"........"
 			])
@@ -390,5 +455,6 @@ function test_scenario_rules_allow_forbid_tool_stacked_cube()
 	rules.clear()
 
 	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 0, 0), coord3d(0, 5, 0), "" + wt_road), null)
+	ASSERT_EQUAL(command_x(tool_remove_way).work(pl, coord3d(5, 2, 0), coord3d(2, 5, 0), "" + wt_road), null)
 	RESET_ALL_PLAYER_FUNDS()
 }
