@@ -221,7 +221,7 @@ paksets=( \
   "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
   "https://github.com/Varkalandar/pak48.Excentrique/releases/download/v0.19_RC3/pak48.excentrique_v019rc3.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \
-  "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
+  "http://downloads.sourceforge.net/project/simutrans/OldFiles/PakHD_v04B_100-0.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \
   "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.x_v0.2.zip" \
 #  "https://simutrans.bilkinfo.de/pak64.ho-scale-latest.tar.gz" \ #lost it
