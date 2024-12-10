@@ -534,7 +534,7 @@ sint32 scenario_t::matching_rule(const uint8 player_nr, const forbidden_t &test,
 		for (uint32 i = find_first_type_tool_wt(test_wildcard, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
 			// there is something, we need to test more
 			forbidden_t const& f = *forbidden_tools[player_nr][i];
-			if (f.type != forbidden_t::forbid_tool  ||  f.toolnr != test.toolnr  ||  f.waytype > test.waytype) {
+			if (f.type != test.type  ||  f.toolnr != test.toolnr  ||  f.waytype > test.waytype) {
 				// reached end of forbidden tools with this id => done
 				break;
 			}
@@ -611,13 +611,13 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 	// first test for allowed tools
 	uint8 player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
 	forbidden_t test(forbidden_t::allow_tool_rect, tool_id, wt, param);
-	uint32 idx = matching_rule(player_nr, test, pos);
+	sint32 idx = matching_rule(player_nr, test, pos);
 	if (idx == -1 && player_nr != PLAYER_UNOWNED) {
 		// retry as public player
 		player_nr = PLAYER_UNOWNED;
 		idx = matching_rule(player_nr, test, pos);
 	}
-	if (idx == 1) {
+	if (idx == -1) {
 		// not allowed => test for forbidden area
 		player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
 		test.type = forbidden_t::forbid_tool;
@@ -633,18 +633,18 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 			if (err == NULL) {
 				err = "";
 			}
-			return false;
+			return err;
 		}
 		// not found => test rectangles
-		if (idx == 1) {
+		if (idx == -1) {
 			// not found
 			player_nr = player ? player->get_player_nr() : PLAYER_UNOWNED;
 			test.type = forbidden_t::forbid_tool_rect;
-			idx = matching_rule(player_nr, test, koord3d::invalid);
+			idx = matching_rule(player_nr, test, pos);
 			if (idx == -1 && player_nr != PLAYER_UNOWNED) {
 				// retry as public player
 				player_nr = PLAYER_UNOWNED;
-				idx = matching_rule(player_nr, test, koord3d::invalid);
+				idx = matching_rule(player_nr, test, pos);
 			}
 			if (idx >= 0) {
 				// we found a forbidden rule
@@ -652,7 +652,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 				if (err == NULL) {
 					err = "";
 				}
-				return false;
+				return err;
 			}
 		}
 	}
