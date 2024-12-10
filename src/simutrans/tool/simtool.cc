@@ -4873,7 +4873,7 @@ waytype_t tool_build_station_t::get_waytype() const
 			return water_wt;
 		case building_desc_t::generic_extension:
 		default:
-			return invalid_wt;
+			return ignore_wt;
 	}
 }
 

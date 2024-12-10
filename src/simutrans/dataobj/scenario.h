@@ -82,7 +82,7 @@ private:
 	 */
 	struct forbidden_t {
 
-		static const uint32 EMPTY_HASH=0xFFFFFFFFu;
+		static const uint32 EMPTY_HASH=0;
 
 		static uint32 string_to_hash(const char* p)
 		{
@@ -92,7 +92,7 @@ private:
 				for (; *p; p++)
 					hash = MULTIPLIER * hash + (unsigned char)*p;
 			}
-			return hash;
+			return hash & 0x7FFFFFFu; // since we do singed compare afterwards
 		}
 
 		enum forbid_type {
@@ -114,8 +114,8 @@ private:
 		plainstring error;
 
 		/// constructor: forbid tool/etc for a certain player
-		forbidden_t(forbid_type type_=forbid_tool, uint16 toolnr_=0, sint16 waytype_=invalid_wt, const char *param_=NULL) :
-			type(type_), toolnr(toolnr_), waytype(waytype_),
+		forbidden_t(forbid_type type_=forbid_tool, uint16 toolnr_=0, sint16 waytype_= ignore_wt, const char *param_=NULL) :
+			type(type_), toolnr(toolnr_), waytype(waytype_ < 0 ? ignore_wt : waytype_),
 			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error()
 		{
 			parameter_hash = string_to_hash(param_);
@@ -123,7 +123,7 @@ private:
 
 		/// constructor: forbid tool for a certain player at certain locations (and heights)
 		forbidden_t(uint16 toolnr_, sint16 waytype_, const char *param_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
-			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
+			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_ < 0 ? ignore_wt : waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
 		{
 			parameter_hash = string_to_hash(param_);
 		}
@@ -222,6 +222,9 @@ private:
 	 */
 	void call_forbid_tool(forbidden_t *test, uint player_nr, bool forbid);
 	/// @}
+
+		// internal function, returns the idx of the first matching rule of 0xFFFFFF
+	sint32 matching_rule(const uint8 player, const forbidden_t& test, koord3d pos) const;
 
 	/// bit set if player has won / lost
 	uint16 won;
@@ -459,7 +462,7 @@ public:
 	 * Called for instance in karte_t::local_set_tool to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
-	bool is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt = invalid_wt, const char *param=0);
+	bool is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt = ignore_wt, const char *param=0);
 
 	/**
 	 * Checks if player can use the tool at this position.
