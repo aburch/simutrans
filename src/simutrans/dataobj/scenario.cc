@@ -215,26 +215,42 @@ const char* scenario_t::get_forbidden_text()
 }
 
 
+sint32 scenario_t::forbidden_t::diff(const forbidden_t& other) const
+{
+	sint32 diff = (sint32)type - (sint32)other.type;
+	if (diff == 0) {
+		diff = (sint32)toolnr - (sint32)other.toolnr;
+		if (diff == 0) {
+			// trick is waytype invalid is at end => finding also all previous waytypes first
+			diff = (sint32)waytype - (sint32)other.waytype;
+			if (diff == 0) {
+				// trick is emopty hash is at end => finding also all previous hashes first
+				diff = (sint32)parameter_hash - (sint32)other.parameter_hash;
+				if (diff == 0  &&  type == forbidden_t::allow_tool_rect) {
+					diff = pos_nw.x - other.pos_nw.x;
+					if (diff == 0) {
+						diff = pos_nw.y - other.pos_nw.y;
+						if (diff == 0) {
+							diff = (pos_nw.x - pos_se.x) * (pos_nw.y - pos_se.y) - (other.pos_nw.x - other.pos_se.x) * (other.pos_nw.y - other.pos_se.y);
+						}
+					}
+				}
+			}
+		}
+	}
+	return diff;
+}
+
+
 bool scenario_t::forbidden_t::operator <(const forbidden_t &other) const
 {
-	bool lt = type < other.type;
-	if (!lt  &&  type == other.type) {
-		sint32 diff = (sint32)toolnr - (sint32)other.toolnr;
-		if (diff == 0) {
-			diff = (sint32)waytype - (sint32)other.waytype;
-		}
-		if (diff == 0) {
-			diff = (sint32)parameter_hash - (sint32)other.parameter_hash;
-		}
-		lt = diff < 0;
-	}
-	return lt;
+	return diff(other) < 0;
 }
 
 
 bool scenario_t::forbidden_t::operator ==(const forbidden_t &other) const
 {
-	bool eq = (type == other.type) && (waytype == other.waytype) && (toolnr == other.toolnr) && (parameter_hash == other.parameter_hash);
+	bool eq = diff(other)==0;
 	if (eq) {
 		switch (type) {
 			case forbid_tool_rect:
@@ -319,32 +335,40 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 		// everything is smaller
 		return forbidden_tools[player_nr].get_count();
 	}
-	else if (forbidden_tools[player_nr][0]->type == other.type  &&  forbidden_tools[player_nr][0]->toolnr == other.toolnr  &&  (forbidden_tools[player_nr][0]->waytype == invalid_wt  ||  forbidden_tools[player_nr][0]->waytype==other.waytype)  ) {
+	else if(forbidden_tools[player_nr][0]->type == other.type  &&  forbidden_tools[player_nr][0]->toolnr == other.toolnr  &&  (forbidden_tools[player_nr][0]->waytype == invalid_wt  ||  forbidden_tools[player_nr][0]->waytype==other.waytype)  ) {
 		// first is matching
 		return 0;
 	}
 	// now binary search: low < other <= high
 	uint32 low = 0, high = forbidden_tools[player_nr].get_count() - 1;
-	forbidden_t *lookup_rule = NULL;
 	uint32 mid = high;
 	while (low + 1 < high) {
 		mid = (low + high) / 2;
-		lookup_rule = forbidden_tools[player_nr][mid];
-		if (*lookup_rule < other) {
+		sint32 result = forbidden_tools[player_nr][mid]->diff(other);
+		if(result<0) {
 			low = mid;
 			// now low < other
 		}
-		else {
+		else if(result>0) {
 			high = mid;
 			// now other <= high
+		}
+		else {
+			// exact match
+			return mid;
 		}
 	};
 	// did we find something?
 	if (forbidden_tools[player_nr][high]->toolnr == other.toolnr  &&  forbidden_tools[player_nr][high]->type == other.type) {
-		return high;
-	}
-	// if other has a default param, but the catch all is empty, then it is never found
-	if (high-- > 0  &&  forbidden_tools[player_nr][high]->toolnr == other.toolnr  &&  forbidden_tools[player_nr][high]->type == other.type) {
+		if (forbidden_tools[player_nr][high]->waytype > other.waytype) {
+			if (high > 0  &&  forbidden_tools[player_nr][high - 1]->waytype == other.waytype  &&  forbidden_tools[player_nr][high - 1]->toolnr == other.toolnr  &&  forbidden_tools[player_nr][high - 1]->type == other.type) {
+				// since default_param may differ, we could get near matches one to the left
+				return high - 1;
+			}
+			else {
+				return forbidden_tools[player_nr].get_count();
+			}
+		}
 		return high;
 	}
 	return forbidden_tools[player_nr].get_count();
@@ -520,12 +544,12 @@ bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 
 			for (uint32 i = find_first_type_tool_wt(test1, player_nr); i < forbidden_tools[player_nr].get_count(); i++) {
 				// there is something, we need to test more
 				forbidden_t const& f = *forbidden_tools[player_nr][i];
-				if (f.type != forbidden_t::forbid_tool || f.toolnr != tool_id) {
+				if (f.type != forbidden_t::forbid_tool  ||  f.toolnr != tool_id) {
 					// reached end of forbidden tools with this id => done
 					break;
 				}
 				if (f.waytype == invalid_wt || f.waytype == wt) {
-					if (f.parameter_hash == 0 || f.parameter_hash == p_hash) {
+					if (f.parameter_hash == forbidden_t::EMPTY_HASH  ||  f.parameter_hash == p_hash) {
 						// parameter matches too => forbidden
 						const char* err = f.error.c_str();
 						if (err == NULL) {
@@ -575,7 +599,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 					break;
 				}
 				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
-					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
+					if (f.parameter_hash == forbidden_t::EMPTY_HASH ||  f.parameter_hash == p_hash) {
 						// parameter matches too => check rectangle
 						if (f.pos_nw.x <= pos.x && f.pos_nw.y <= pos.y && pos.x <= f.pos_se.x && pos.y <= f.pos_se.y) {
 							// check height
@@ -610,7 +634,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 					break;
 				}
 				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
-					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
+					if (f.parameter_hash == forbidden_t::EMPTY_HASH  ||  f.parameter_hash == p_hash) {
 						// parameter matches too => forbidden
 						const char* err = f.error.c_str();
 						if (err == NULL) {
@@ -631,7 +655,7 @@ const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool
 					break;
 				}
 				if (f.waytype == invalid_wt  ||  f.waytype == wt) {
-					if (f.parameter_hash == 0  ||  f.parameter_hash == p_hash) {
+					if (f.parameter_hash == forbidden_t::EMPTY_HASH  ||  f.parameter_hash == p_hash) {
 						// parameter matches too => check rectangle
 						if (f.pos_nw.x <= pos.x && f.pos_nw.y <= pos.y && pos.x <= f.pos_se.x && pos.y <= f.pos_se.y) {
 							// check height

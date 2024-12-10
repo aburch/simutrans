@@ -82,10 +82,12 @@ private:
 	 */
 	struct forbidden_t {
 
+		static const uint32 EMPTY_HASH=0xFFFFFFFFu;
+
 		static uint32 string_to_hash(const char* p)
 		{
 			const uint32 MULTIPLIER = 37;
-			uint32 hash = 0;
+			uint32 hash = EMPTY_HASH;
 			if (p) {
 				for (; *p; p++)
 					hash = MULTIPLIER * hash + (unsigned char)*p;
@@ -130,7 +132,12 @@ private:
 		forbidden_t(const forbidden_t&);
 
 		/**
-		 * @returns if this < other, compares: type, playernr, tool, wt
+		 * @returns difference
+		 */
+		sint32 diff(const forbidden_t&) const;
+
+		/**
+		 * @returns if this < other, compares: type, playernr, tool, wt, parameter
 		 * DIRTY: (a <= b)  &&  (b <= a)  DOES NOT imply  a == b
 		 */
 		bool operator <(const forbidden_t &) const;
@@ -139,7 +146,7 @@ private:
 
 		static bool compare(const forbidden_t *a, const forbidden_t *b)
 		{
-			return *a < *b;
+			return a->diff(*b) < 0;
 		}
 
 		/**
