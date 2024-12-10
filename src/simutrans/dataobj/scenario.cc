@@ -560,6 +560,13 @@ sint32 scenario_t::matching_rule(const uint8 player_nr, const forbidden_t &test,
 
 
 
+void scenario_t::clear_player_rules(uint8 player_nr)
+{
+	clear_ptr_vector(forbidden_tools[player_nr]);
+	need_toolbar_update = true;
+}
+
+
 bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt, const char* param)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {

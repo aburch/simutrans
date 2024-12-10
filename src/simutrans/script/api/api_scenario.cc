@@ -259,6 +259,14 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::clear_rules, "clear");
 
 	/**
+	 * Clear all forbidding rules for a selec player
+	 *
+	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
+	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
+	 */
+	STATIC register_method(vm, &scenario_t::clear_player_rules, "clear_player");
+
+	/**
 	 * Allow tool with certain waytype within rectangular region on the map.
 	 *
 	 * @param player_nr number of player this rule applies to,

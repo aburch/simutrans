@@ -440,6 +440,12 @@ public:
 	void clear_rules();
 
 	/**
+	 * Clears all rules for a player selec
+	 * @ingroup squirrel-api
+	 */
+	void clear_player_rules(uint8 player_nr);
+
+	/**
 	 * @ingroup squirrel-api
 	 * @see forbid_way_tool_rect
 	 */
