@@ -148,7 +148,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	 */
 	begin_enum("way_types");
 	/// catch all value: used to forbid tools for all waytypes
-	enum_slot(vm, "wt_all", invalid_wt);
+	enum_slot(vm, "wt_all", ignore_wt);
 	/// road
 	enum_slot(vm, "wt_road", road_wt);
 	/// rail
