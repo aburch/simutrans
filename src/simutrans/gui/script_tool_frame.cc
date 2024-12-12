@@ -62,8 +62,9 @@ bool script_tool_frame_t::item_action(const char *fullpath)
 	tool_t* tool = script_tool_manager_t::load_tool(fullpath, tool_t::general_tool[is_one_click ? TOOL_EXEC_SCRIPT : TOOL_EXEC_TWO_CLICK_SCRIPT]);
 	assert(tool);
 	const char* p = strrchr(fullpath, *PATH_SEPARATOR);
-	tool->set_default_param( p?p+1:fullpath );
-
+	static plainstring last_default_param;
+	last_default_param = p ? p + 1 : fullpath;
+	tool->set_default_param(last_default_param);
 	welt->set_tool(tool, welt->get_active_player());
 	return true;
 }
