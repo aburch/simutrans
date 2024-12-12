@@ -47,6 +47,9 @@ message_option_t::message_option_t() :
 		while(  *p < ' '  &&  *p  ) {
 			p++;
 		}
+		for (int i = 0; i < message_t::MAX_MESSAGE_TYPE; i++) {
+			option_texts[i][0] = 0;
+		}
 		for(  int j=0;   *p>=' '; p++  ) {
 			if(  j < MAX_MESSAGE_OPTION_TEXTLEN-1  ) {
 				option_texts[i][j++] = *p;
