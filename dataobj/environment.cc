@@ -23,7 +23,6 @@ void rdwr_win_settings(loadsave_t *file); // simwin
 sint16 env_t::menupos = MENU_TOP;
 sint16 env_t::fullscreen = WINDOWED;
 sint16 env_t::display_scale_percent = 100;
-sint16 env_t::display_scale_percent = 100;
 bool env_t::reselect_closes_tool = true;
 
 sint8 env_t::pak_tile_height_step = 16;
