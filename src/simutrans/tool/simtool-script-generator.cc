@@ -373,7 +373,7 @@ bool tool_generate_script_t::save_script(const char* fullpath, const char *comma
 		fname.printf("%s%sdescription.tab", fullpath, PATH_SEPARATOR);
 		if (file = dr_fopen(fname, "w")) {
 			fprintf(file, "title=Building %s\n", short_name.get_str());
-			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\nicon = BuilderScript\n", short_name.get_str());
+			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\ncursor=BuilderScript\n", short_name.get_str());
 			fclose(file);
 		}
 		create_win(new news_img("The generated script was saved!\n"), w_time_delete, magic_none);
