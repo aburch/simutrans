@@ -335,15 +335,18 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	koord3d e = end == koord3d::invalid ? start : end;
 	koord k1 = koord(min(start.x, e.x), min(start.y, e.y));
 	koord k2 = koord(max(start.x, e.x), max(start.y, e.y));
+	koord area( k2.x-k1.x+1, k2.y-k1.y+1 );
 
 	cbuffer_t generated_script_buf;
+	generated_script_buf.printf("// automated rebuild scrip with size (%d,%d)\n\n", area.x, area.y); // comment
 	generated_script_buf.append("include(\"hm_toolkit_v1a\")\n\nfunction hm_build() {\n"); // header
 
-	write_command(generated_script_buf, write_slope_at, k1, k2, start);
-	write_way_command_t(generated_script_buf, k1, k2, start).write();
-	write_wayobj_command_t(generated_script_buf, k1, k2, start).write();
-	write_command_halt(generated_script_buf, write_station_at, k1, k2, start);
-	write_command(generated_script_buf, write_sign_at, k1, k2, start);
+	koord3d begin(k1, start.z);
+	write_command(generated_script_buf, write_slope_at, k1, k2, begin);
+	write_way_command_t(generated_script_buf, k1, k2, begin).write();
+	write_wayobj_command_t(generated_script_buf, k1, k2, begin).write();
+	write_command_halt(generated_script_buf, write_station_at, k1, k2, begin);
+	write_command(generated_script_buf, write_sign_at, k1, k2, begin);
 
 	generated_script_buf.append("}\n"); // footer
 
@@ -351,12 +354,12 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	dir_buf.printf("%saddons%s%stool%s", env_t::user_dir, PATH_SEPARATOR, env_t::pak_name.c_str(), PATH_SEPARATOR);
 	dr_mkdir(dir_buf.get_str());
 
-	create_win(new script_generator_frame_t(this, dir_buf.get_str(), generated_script_buf), w_info, magic_script_generator);
+	create_win(new script_generator_frame_t(this, dir_buf.get_str(), generated_script_buf, area ), w_info, magic_script_generator);
 	return NULL;
 }
 
 
-bool tool_generate_script_t::save_script(const char* fullpath, const char *command) const
+bool tool_generate_script_t::save_script(const char* fullpath, const char *command, koord area) const
 {
 	dr_mkdir(fullpath);
 	cbuffer_t fname;
@@ -373,6 +376,7 @@ bool tool_generate_script_t::save_script(const char* fullpath, const char *comma
 		fname.printf("%s%sdescription.tab", fullpath, PATH_SEPARATOR);
 		if (file = dr_fopen(fname, "w")) {
 			fprintf(file, "title=Building %s\n", short_name.get_str());
+			fprintf(file, "cursor_area=%d,%d\n", area.x, area.y);
 			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\ncursor=BuilderScript\n", short_name.get_str());
 			fclose(file);
 		}

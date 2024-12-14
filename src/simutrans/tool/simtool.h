@@ -691,7 +691,7 @@ public:
 	tool_generate_script_t() : two_click_tool_t(TOOL_GENERATE_SCRIPT | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("generate script"); }
 	bool is_init_keeps_game_state() const OVERRIDE { return true; }
-	bool save_script(const char *fullpath, const char *command) const;
+	bool save_script(const char *fullpath, const char *command, koord area) const;
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
