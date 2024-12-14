@@ -42,6 +42,8 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 
+#include "../sys/simsys.h"
+
 #include "../unicode.h"
 
 
@@ -268,8 +270,16 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
 
+	bt_copy_data.init(button_t::roundbox, "Copy Haltdata",
+		scr_coord(D_MARGIN_LEFT, bt_y+2*(D_BUTTON_HEIGHT+D_V_SPACE)),
+		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_copy_data.set_tooltip("Copy the data of the halt labels.");
+	bt_copy_data.add_listener(this);
+	bt_copy_data.disable();
+	add_component(&bt_copy_data);
+
 	// lower left corner: halt list of selected line
-	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + D_BUTTON_HEIGHT*2+ D_V_SPACE*2));
+	scrolly_haltestellen.set_pos(scr_coord(0, bt_y + 3*(D_BUTTON_HEIGHT+ D_V_SPACE)));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -436,6 +446,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			delete tmp_tool;
 			depot_t::update_all_win();
 		}
+	}
+	else if (  comp == &bt_copy_data  ) {
+		copy_csv_format();
 	}
 	else if(  comp == &bt_withdraw_line  ) {
 		bt_withdraw_line.pressed ^= 1;
@@ -731,6 +744,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scrolly_convois.set_size(scrolly_convois.get_size());
 
 		bt_delete_line.disable();
+		bt_copy_data.enable();
 		add_component(&bt_withdraw_line);
 		bt_withdraw_line.disable();
 		if(  icnv>0  ) {
@@ -792,6 +806,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		bt_delete_line.disable();
 		bt_edit_line.disable();
 		bt_copy_line.disable();
+		bt_copy_data.disable();
 		bt_show_journey_time.disable();
 		bt_goods_waiting_time.disable();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
@@ -851,6 +866,35 @@ void schedule_list_gui_t::update_data(linehandle_t changed_line)
 		if(  changed_line.get_id() == line.get_id()  ) {
 			reset_line_name();
 		}
+	}
+}
+
+
+
+
+// copy halt names and respective labels to clipboard
+void schedule_list_gui_t::copy_csv_format() {
+	// copy in csv format. separator is \t.
+	cbuffer_t clipboard;
+	
+	// append header
+	clipboard.append("halt\tlabel\n");
+	
+	// loop over the halts of the schedule and add the name/cargo label
+	if (  line.is_bound()  ) {
+		for (int i = 0; i < scrolly_haltestellen.get_count(); i++) {
+			const halt_list_stats_t* element = dynamic_cast<const halt_list_stats_t*>(scrolly_haltestellen.get_element(i));
+			clipboard.printf( "%s\t", element->get_text());
+			element->set_buffer_to_cargoinfo(clipboard);
+		}
+	}
+	
+	// tell user if successfull or not
+	if(  clipboard.len()>0  ) {
+		dr_copy( clipboard, clipboard.len() );
+		create_win( new news_img("Halt data was copied to clipboard.\n"), w_time_delete, magic_none );
+	} else {
+		dbg->error("schedule_list_gui_t::copy_csv_format()", "There is nothing to copy.\n");
 	}
 }
 
