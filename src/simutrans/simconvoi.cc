@@ -2903,11 +2903,11 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	// now find out station length
 	uint16 vehicles_loading = 0;
-	if(fahr[0]->get_desc()->get_waytype() == water_wt) {
+	if (fahr[0]->get_desc()->get_waytype() == water_wt) {
 		// harbour and river stop load any size
 		vehicles_loading = vehicle_count;
 	}
-	else if (vehicle_count == 1  &&  CARUNITS_PER_TILE >= fahr[0]->get_desc()->get_length()) {
+	else if (vehicle_count == 1 && CARUNITS_PER_TILE >= fahr[0]->get_desc()->get_length()) {
 		vehicles_loading = 1;
 		// one vehicle, which fits into one tile
 	}
@@ -2915,16 +2915,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		// difference between actual station length and vehicle lenghts
 		sint16 station_length = -fahr[vehicles_loading]->get_desc()->get_length();
 		// iterate through tiles in straight line and look for station
-		koord zv = koord( ribi_t::backward(fahr[0]->get_direction()) );
+		koord zv = koord(ribi_t::backward(fahr[0]->get_direction()));
 		koord3d pos = fahr[0]->get_pos();
-		grund_t *gr=welt->lookup(pos);
+		grund_t* gr = welt->lookup(pos);
 		// start on bridge?
 		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
 		do {
 			// advance one station tile
 			station_length += CARUNITS_PER_TILE;
 
-			while(station_length >= 0) {
+			while (station_length >= 0) {
 				vehicles_loading++;
 				if (vehicles_loading < vehicle_count) {
 					station_length -= fahr[vehicles_loading]->get_desc()->get_length();
@@ -2939,19 +2939,19 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			pos += zv;
 			gr = welt->lookup(pos);
 			if (gr == NULL) {
-				gr = welt->lookup(pos-koord3d(0,0,1));
+				gr = welt->lookup(pos - koord3d(0, 0, 1));
 				if (gr == NULL) {
-					gr = welt->lookup(pos-koord3d(0,0,2));
+					gr = welt->lookup(pos - koord3d(0, 0, 2));
 				}
-				if (gr  &&  (pos.z != gr->get_hoehe() + gr->get_weg_yoff()/TILE_HEIGHT_STEP) ) {
+				if (gr && (pos.z != gr->get_hoehe() + gr->get_weg_yoff() / TILE_HEIGHT_STEP)) {
 					// not end/start of bridge
 					break;
 				}
 			}
 
-		}  while(  gr  &&  gr->get_halt() == halt  );
+		} while (gr && gr->get_halt() == halt);
 		// finished
-station_tile_search_ready: ;
+	station_tile_search_ready:;
 	}
 
 	// next stop in schedule will be a depot
@@ -2967,19 +2967,19 @@ station_tile_search_ready: ;
 	if (!no_load) {
 		const uint8 count = schedule->get_count();
 		bool first_entry = true;
-		for(  uint8 i=1;  i<count;  i++  ) {
+		for (uint8 i = 1; i < count; i++) {
 			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
 
 			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, owner);
-			if(plan_halt == halt) {
+			if (plan_halt == halt) {
 				// we will come later here again ...
 				// the following halt is the same => there will never be a halt to serve
 				all_served_this_stop &= first_entry;
 				break;
 			}
-			else if(  !plan_halt.is_bound()  ) {
-				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
-					if(  gr->get_depot()  ) {
+			else if (!plan_halt.is_bound()) {
+				if (grund_t* gr = welt->lookup(schedule->entries[wrap_i].pos)) {
+					if (gr->get_depot()) {
 						// on our way to depot => there will never be a halt to serve
 						all_served_this_stop &= !first_entry;
 						next_depot = first_entry;
@@ -2989,10 +2989,10 @@ station_tile_search_ready: ;
 				}
 				continue;
 			}
-			for( uint8 const idx : goods_catg_index ) {
-				if(  !halt->get_halt_served_this_step()[idx].is_contained(plan_halt)  ) {
+			for (uint8 const idx : goods_catg_index) {
+				if (!halt->get_halt_served_this_step()[idx].is_contained(plan_halt)) {
 					// if overcroding mode, do add overcrowded steps
-					if (!welt->get_settings().is_avoid_overcrowding()  ||  !plan_halt->is_overcrowded(idx)) {
+					if (!welt->get_settings().is_avoid_overcrowding() || !plan_halt->is_overcrowded(idx)) {
 						// not somebody loaded before us in the queue
 						destination_halts.append(plan_halt);
 						all_served_this_stop = false;
@@ -3018,7 +3018,7 @@ station_tile_search_ready: ;
 	uint32 time = 0; // min time for loading/unloading
 
 	uint32 current_tick = welt->get_ticks();
-	if (last_load_tick==0) {
+	if (last_load_tick == 0) {
 		// first stop here, so no time passed yet
 		last_load_tick = current_tick;
 	}
@@ -3029,7 +3029,7 @@ station_tile_search_ready: ;
 	const goods_desc_t* cargo_type_prev = NULL;
 	bool wants_more = false;
 
-	for(unsigned i=0; i<vehicles_loading; i++) {
+	for (unsigned i = 0; i < vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
 
 		// has no freight ...
@@ -3040,41 +3040,41 @@ station_tile_search_ready: ;
 		uint32 min_loading_step_time = v->get_desc()->get_loading_time() / v->get_cargo_max() + 1;
 		time = max(time, min_loading_step_time);
 		uint16 max_amount = next_depot ? 32767 : (v->get_cargo_max() * loading_ms) / ((uint32)v->get_desc()->get_loading_time() + 1) + 1;
-		uint16 amount = v->unload_cargo(halt, next_depot, max_amount );
+		uint16 amount = v->unload_cargo(halt, next_depot, max_amount);
 
-		if( amount > 0 ) {
+		if (amount > 0) {
 			// could unload something, so we are open for new stuff
 			cargo_type_prev = NULL;
 		}
 
-		if(  !all_served_this_stop  &&  max_amount > amount  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
+		if (!all_served_this_stop && max_amount > amount && v->get_total_cargo() < v->get_cargo_max()) {
 			// load if: not unloaded something first or not filled and not forbidden (no_load or next is depot) or that stop has been served already
-			if(cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
+			if (cargo_type_prev == NULL || !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load
-				amount += v->load_cargo(halt, destination_halts, max_amount-amount);
-				unloading_state &= amount==0;
+				amount += v->load_cargo(halt, destination_halts, max_amount - amount);
+				unloading_state &= amount == 0;
 			}
-			if (v->get_total_cargo() < v->get_cargo_max()  &&  amount < max_amount  ) {
+			if (v->get_total_cargo() < v->get_cargo_max() && amount < max_amount) {
 				// not full, but running out of goods
 				cargo_type_prev = v->get_cargo_type();
 			}
 		}
 
-		if(  amount  ) {
+		if (amount) {
 			v->mark_image_dirty(v->get_image(), 0);
 			v->calc_image();
 			changed_loading_level = true;
 		}
 
-		wants_more |= (amount == max_amount)  &&  (v->get_total_cargo() < v->get_cargo_max());
+		wants_more |= (amount == max_amount) && (v->get_total_cargo() < v->get_cargo_max());
 	}
 	freight_info_resort |= changed_loading_level;
-	if(  changed_loading_level  ) {
+	if (changed_loading_level) {
 		halt->recalc_status();
 	}
 
 	// any unloading/loading went on?
-	if(  changed_loading_level  ) {
+	if (changed_loading_level) {
 		calc_loading();
 	}
 	else {
@@ -3083,51 +3083,56 @@ station_tile_search_ready: ;
 	}
 	loading_limit = schedule->get_current_entry().minimum_loading;
 
-	assert(time > 0  ||  !wants_more);
-	// time == 0 => wants_more == false, can only happen if all vehicles in station have no transport capacity (i.e., locomotives)
-	wait_lock = min(time, 0xFFFF);
+	if(!no_load  ||  wants_more) {
+		// only check for further waiting, in not no_load is set
 
-	// check if departure time is reached
-	if (schedule->get_current_entry().get_absolute_departures()) {
+		assert(time > 0 || !wants_more);
+		// time == 0 => wants_more == false, can only happen if all vehicles in station have no transport capacity (i.e., locomotives)
+		wait_lock = min(time, 0xFFFF);
 
-		sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
-		if(  ticks_until_departure <= 0  ) {
-			// depart if nothing to load (wants_more==false)
-			if (wants_more) {
+		// check if departure time is reached
+		if (schedule->get_current_entry().get_absolute_departures()) {
+
+			sint32 ticks_until_departure = get_departure_ticks() - welt->get_ticks();
+			if (ticks_until_departure <= 0) {
+				// depart if nothing to load (wants_more==false)
+				if (wants_more) {
+					return;
+				}
+			}
+			else {
+				// else continue loading (even if full) until departure time reached
+				if (wait_lock == 0) {
+					// no loading time imposed, make sure we do not wait too long if the departure is imminent
+					wait_lock = min(WTT_LOADING, ticks_until_departure);
+				}
 				return;
 			}
 		}
 		else {
-			// else continue loading (even if full) until departure time reached
-			if (wait_lock==0) {
-				// no loading time imposed, make sure we do not wait too long if the departure is imminent
-				wait_lock = min( WTT_LOADING, ticks_until_departure );
-			}
-			return;
-		}
-	}
-	else {
-		// check for maximum load
-		if (wants_more  ||  loading_level < loading_limit  ) {
-// if (  wants_more  ||  (loading_level >= loading_limit  &&  !all_stops_overcrowded)  ) {
-			// still more freight left or not reached limit
-			return;
-		}
-		// not reached maximum load: do we have to wait more?
-		if (schedule->get_current_entry().waiting_time > 0) {
-			if ((welt->get_ticks() - arrived_time) < schedule->get_current_entry().get_waiting_ticks()) {
-				// continue waiting
+			// check for maximum load
+			if (wants_more || loading_level < loading_limit) {
+				// if (  wants_more  ||  (loading_level >= loading_limit  &&  !all_stops_overcrowded)  ) {
+							// still more freight left or not reached limit
 				return;
+			}
+			// not reached maximum load: do we have to wait more?
+			if (schedule->get_current_entry().waiting_time > 0) {
+				if ((welt->get_ticks() - arrived_time) < schedule->get_current_entry().get_waiting_ticks()) {
+					// continue waiting
+					return;
+				}
 			}
 		}
 	}
 
 	// loading is finished => maybe drive on
-	if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
+	if (withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())) {
 		// destroy when empty
 		self_destruct();
 		return;
 	}
+
 
 	calc_speedbonus_kmh();
 

@@ -199,7 +199,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			return koord3d::invalid;
 		}
 
-		if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_TUNNEL|GENERAL_TOOL, wegtyp, desc->get_name(), pos)) {
+		if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_TUNNEL|GENERAL_TOOL, desc->get_finance_waytype(), desc->get_name(), pos)) {
 			if (msg) {
 				*msg = err;
 			}
