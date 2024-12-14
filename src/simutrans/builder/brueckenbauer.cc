@@ -371,7 +371,7 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 		pos = pos + zv;
 
 		// test scenario conditions
-		if(  (error_msg = scen->is_work_allowed_here(player, TOOL_BUILD_BRIDGE|GENERAL_TOOL, wegtyp, desc->get_name(), pos)) != NULL  ) {
+		if(  (error_msg = scen->is_work_allowed_here(player, TOOL_BUILD_BRIDGE|GENERAL_TOOL, desc->get_finance_waytype(), desc->get_name(), pos)) != NULL  ) {
 			// fail silent?
 			return koord3d::invalid;
 		}
@@ -721,6 +721,11 @@ const char *bridge_builder_t::build( player_t *player, const koord3d pos, const 
 
 	if(!ribi) {
 		return "A bridge must start on a way!";
+	}
+
+	// test scenario conditions
+	if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_BRIDGE | GENERAL_TOOL, desc->get_finance_waytype(), desc->get_name(), pos)) {
+		return err;
 	}
 
 	zv = koord(ribi_t::backward(ribi));

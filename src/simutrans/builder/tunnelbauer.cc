@@ -371,6 +371,10 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 	}
 	zv = koord(slope);
 
+	if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_TUNNEL | GENERAL_TOOL, desc->get_finance_waytype(), desc->get_name(), gr->get_pos())) {
+		return err;
+	}
+
 	// Search tunnel end and check intermediate tiles
 	const char *err = NULL;
 	koord3d end = koord3d::invalid;
