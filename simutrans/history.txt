@@ -16,9 +16,10 @@
 	FIX: Station rotation preview ignored active player (always showed player 0 colours)
 	FIX: if a convoi served a station but did not load anything (maybe full), another convoi did not check this stations and could get stuck even with waiting for zero load
 	ADD: allow cubic rule that overrideds any forbidden cubic rules and explicit clear rules calls
-	FIX: screnario allow and forbid rules were handling wildcard badly. Also, ignore_wt shoudl be used for ignore this parameter (no enforced in rule creation)
+	FIX: screnario allow and forbid rules were handling wildcard badly. Also, ignore_wt should be used for ignore this parameter (no enforced in rule creation)
 	ADD: clear rules of a single player
-
+	FIX: Possible crash when deleting stops during connection recalculation on large maps
+ 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
 	ADD: Support for through depots (dims 2)

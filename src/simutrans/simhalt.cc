@@ -1351,9 +1351,11 @@ void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 	all_links[catg_idx].catg_connected_component = comp;
 
 	for(connection_t &c : all_links[catg_idx].connections) {
-		c.halt->fill_connected_component(catg_idx, comp);
-		// cache the is_transfer value
-		c.is_transfer = c.halt->is_transfer(catg_idx);
+		if (c.halt.is_bound()) {
+			c.halt->fill_connected_component(catg_idx, comp);
+			// cache the is_transfer value
+			c.is_transfer = c.halt->is_transfer(catg_idx);
+		}
 	}
 }
 
