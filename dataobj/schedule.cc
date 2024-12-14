@@ -92,7 +92,7 @@ halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) co
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count();  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  &&  h != halt  ) {
 				return h;
 			}
@@ -109,7 +109,7 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 {
 	if(  entries.get_count()>1  ) {
 		for(  uint i=1;  i < entries.get_count()-1u;  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
+			halthandle_t h = haltestelle_t::get_stoppable_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  ) {
 				return h;
 			}
@@ -119,16 +119,15 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point )
+bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(  entries.get_count()>=254  ) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
-
 	if(  is_stop_allowed(gr)  ) {
-		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point));
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags));
 		current_stop ++;
 		make_current_stop_valid();
 		return true;
@@ -142,16 +141,15 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint16 waiting
 
 
 
-bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint8 coupling_point)
+bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint16 waiting_time_shift, uint16 stop_flags)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(entries.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
-
 	if(is_stop_allowed(gr)) {
-		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, coupling_point), 4);
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, stop_flags), 4);
 		return true;
 	}
 	else {
@@ -276,7 +274,12 @@ void schedule_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			if(file->get_OTRP_version()>=22) {
+			if(file->get_OTRP_version()>=41) {
+				uint16 flags = entries[i].get_stop_flags();
+				file->rdwr_short(flags);
+				entries[i].set_stop_flags(flags);
+			}
+			else if(file->get_OTRP_version()>=22) {
 				uint8 flags = entries[i].get_stop_flags();
 				file->rdwr_byte(flags);
 				entries[i].set_stop_flags(flags);
@@ -432,7 +435,7 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	vector_tpl<halthandle_t> halts;
 	for(  uint8 idx = 0;  idx < this->entries.get_count();  idx++  ) {
 		koord3d p = this->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_stoppable_halt( p, player );
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -440,7 +443,7 @@ bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 	vector_tpl<halthandle_t> other_halts;
 	for(  uint8 idx = 0;  idx < schedule->entries.get_count();  idx++  ) {
 		koord3d p = schedule->entries[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, player );
+		halthandle_t halt = haltestelle_t::get_stoppable_halt( p, player );
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -570,7 +573,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 	uint8 cnt = 1;
 	char str[10];
 	str[0] = '[';
-	const uint8 flag = entry.get_stop_flags();
+	const uint16 flag = entry.get_stop_flags();
 	if(  flag&schedule_entry_t::WAIT_FOR_COUPLING  ) {
 		str[cnt] = 'W';
 		cnt++;
@@ -599,6 +602,14 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 		str[cnt] = 'I';
 		cnt++;
 	}
+	if(  entry.is_reverse_convoy()  ) {
+		str[cnt] = 'R';
+		cnt++;
+	}
+	if(  entry.is_reverse_convoi_coupling()  ) {
+		str[cnt] = 'T';
+		cnt++;
+	}
 	// there are at least one attributes.
 	if(  cnt>1  ) {
 		str[cnt] = ']';
@@ -611,7 +622,7 @@ void construct_schedule_entry_attributes(cbuffer_t& buf, schedule_entry_t const&
 void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
 {
 	const char *p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
+	halthandle_t halt = haltestelle_t::get_stoppable_halt(entry.pos, player_);
 	if(halt.is_bound()) {
 		construct_schedule_entry_attributes(buf, entry);
 		if(  max_chars <= 0  ) {

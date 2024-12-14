@@ -61,6 +61,7 @@ private:
 	button_t no_load_button;
 	button_t set_recovery_button;
 	button_t next_stop_button;
+	button_t reversed_button;
 
 	gui_tab_panel_t switch_mode;
 	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;

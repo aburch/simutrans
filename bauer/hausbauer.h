@@ -55,7 +55,7 @@ public:
 	/**
 	 * Finds a station building enabling pax/mail/goods for the AI.
 	 * If @p time == 0 the timeline will be ignored.
-	 * @param enables station enabled flags (see haltestelle_t::station_flags)
+	 * @param enables station enabled flags (see haltestelle_t::station_goods_type)
 	 * @returns a random station that can be built above ground.
 	 */
 	static const building_desc_t* get_random_station(const building_desc_t::btype utype, const waytype_t wt, const uint16 time, const uint8 enables);

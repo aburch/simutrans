@@ -113,7 +113,6 @@ citylist_frame_t::citylist_frame_t() :
 
 	// add copy csv button
 	bt_copy_csv.init(button_t::roundbox | button_t::flexible, translator::translate("Copy csv format"));
-
 	bt_copy_csv.set_tooltip("Copy the list of city name and population to clipboard in csv format.");
 	bt_copy_csv.add_listener(this);
 	list.add_component(&bt_copy_csv);

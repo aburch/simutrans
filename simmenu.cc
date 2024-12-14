@@ -337,6 +337,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_SWITCH_PUBLIC_PLAYER:             tool = new tool_switch_public_player_t(); break;
 		case TOOL_SENDING_MONEY:             tool = new tool_sending_money_t(); break;
 		case TOOL_MERGE_PLAYER:      tool = new tool_merge_player_t(); break;
+		case TOOL_CHANGE_HALT:       tool = new tool_change_halt_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
