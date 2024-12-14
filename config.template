@@ -46,7 +46,7 @@
 #USE_ZSTD := 1
 
 # use fontconfig to find default font (does not work for windows)
-USE_FONTCONFIG := @fontconfig@
+#USE_FONTCONFIG := 0
 
 # enable link time optimizations
 #LTO := 1

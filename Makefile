@@ -24,9 +24,8 @@ HOSTCXX ?=$(CXX)
 SDL2_CONFIG      ?= pkg-config sdl2
 #SDL2_CONFIG     ?= sdl2-config
 FREETYPE_CONFIG  ?= pkg-config freetype2
-#FREETYPE_CONFIG ?= freetype-config
+# FREETYPE_CONFIG ?= freetype-config
 FONTCONFIG_CONFIG  ?= pkg-config fontconfig
-
 
 BACKENDS  := gdi sdl2 mixer_sdl2 posix
 OSTYPES   := amiga freebsd haiku linux mac mingw openbsd
@@ -195,7 +194,8 @@ ifneq ($(BACKEND),posix)
     LDFLAGS += -lfreetype
   endif
 
-  ifdef USE_FONTCONFIG
+  ifeq ($(shell expr $(USE_FONTCONFIG) \>= 1), 1)
+    sdfsfsd := $(shell echo error)
     CFLAGS  += -DUSE_FONTCONFIG
     CFLAGS  += $(shell $(FONTCONFIG_CONFIG) --cflags)
     LDFLAGS += $(shell $(FONTCONFIG_CONFIG) --libs)

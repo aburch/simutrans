@@ -337,7 +337,7 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	koord k2 = koord(max(start.x, e.x), max(start.y, e.y));
 
 	cbuffer_t generated_script_buf;
-	generated_script_buf.append("include(\"../hm_toolkit_v1a\")\n\nfunction hm_build() {\n"); // header
+	generated_script_buf.append("include(\"hm_toolkit_v1a\")\n\nfunction hm_build() {\n"); // header
 
 	write_command(generated_script_buf, write_slope_at, k1, k2, start);
 	write_way_command_t(generated_script_buf, k1, k2, start).write();
@@ -373,7 +373,7 @@ bool tool_generate_script_t::save_script(const char* fullpath, const char *comma
 		fname.printf("%s%sdescription.tab", fullpath, PATH_SEPARATOR);
 		if (file = dr_fopen(fname, "w")) {
 			fprintf(file, "title=Building %s\n", short_name.get_str());
-			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\n", short_name.get_str());
+			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\nicon = BuilderScript\n", short_name.get_str());
 			fclose(file);
 		}
 		create_win(new news_img("The generated script was saved!\n"), w_time_delete, magic_none);

@@ -134,6 +134,7 @@ void exec_script_base_t::load_script(const char* path, player_t* player)
 			dbg->error("tool_exec_script_t::load_script", "error [%s] calling %s", err, (const char*)buf);
 			delete script;
 			script = NULL;
+			return;
 		}
 	}
 	// older versions did not support the flags parameter - correct with helper function
