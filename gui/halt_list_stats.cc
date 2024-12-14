@@ -122,11 +122,11 @@ void halt_list_stats_t::draw(scr_coord offset)
 
 
 void halt_list_stats_t::set_buffer_to_cargoinfo( cbuffer_t& buffer) const {
-	if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_transfer) {
-			halt->get_transfers_info( buffer );
-		} else if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
-			halt->get_percent_info( buffer );
-		} else {
-			halt->get_short_freight_info( buffer );
-		}
+	if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_throughput) {
+		halt->get_throughput_info( buffer );
+	} else if (halt_list_frame_t::get_sortierung() == halt_list_frame_t::sort_mode_t::nach_wartend_percent) {
+		halt->get_waiting_occupancy_info( buffer );
+	} else {
+		halt->get_short_freight_info( buffer );
+	}
 }
