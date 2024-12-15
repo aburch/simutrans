@@ -177,7 +177,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 								all_bridgepos.append(bend);
 								bend -= origin;
 								// write bridge building command
-								buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d]);\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+								buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d])\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
 							}
 							// or the end of the map ...
 							break;
@@ -187,7 +187,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 							all_bridgepos.append(bend);
 							bend -= origin;
 							// write bridge building command
-							buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d]);\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+							buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d])\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
 							break;
 						}
 						checkpos += zv;
