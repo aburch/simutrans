@@ -42,6 +42,25 @@ class hm_slope_tl extends hm_base_tl {
   }
 }
 
+class hm_bridge_tl extends hm_base_tl {
+	desc = null
+	desc_name = null
+	start = null
+	ziel = null
+	constructor(d_name, s, z) {
+		desc = bridge_desc_x.get_desc(d_name)
+		start = coord3d(s[0],s[1],s[2])
+		ziel = coord3d(z[0],z[1],z[2])
+		hm_commands.append(this)
+	}
+	function exec(player, origin) {
+		if (desc==null) {
+			return "Bridge " + desc_name + " is not found!"
+		}
+		return command_x.build_bridge(player, origin+start, origin+ziel, desc)
+	}
+}
+
 class hm_way_tl extends hm_base_tl {
   desc = null
   desc_name = null

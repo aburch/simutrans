@@ -2725,7 +2725,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 	return err ? err : "";
 }
 
-void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
+void tool_build_way_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
 	const char *err = calc_route( bauigel, start, end );
@@ -2865,7 +2865,7 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	ribi = (ribi_t::ribi)i;
 }
 
-void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
+void tool_build_bridge_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )
 {
 	const ribi_t::ribi ribi_mark = ribi_type(end-start);
 	const koord zv(ribi_mark);

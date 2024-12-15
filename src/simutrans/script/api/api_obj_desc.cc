@@ -703,6 +703,10 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &bridge_desc_t::get_max_height, "get_max_height");
 	/**
+	 * Returns a bridge with the given name
+	 */
+	STATIC register_method(vm, bridge_builder_t::get_desc, "get_desc", false, true);
+	/**
 	 * Returns a list with available bridge types.
 	 */
 	STATIC register_method(vm, bridge_builder_t::get_available_bridges, "get_available_bridges", false, true);

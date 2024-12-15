@@ -370,6 +370,14 @@ public:
 	inline bool ist_bruecke() const {return get_typ()==brueckenboden;}
 
 	/**
+	* gives true for grounds inside tunnel (not tunnel mouths)
+	* check for visibility in is_visible()
+	*/
+	inline bool ist_auf_bruecke() const {
+		return (get_typ() == brueckenboden  &&  !ist_karten_boden());
+	}
+
+	/**
 	* true if tunnelboden (hence true also for tunnel mouths)
 	* check for visibility in is_visible()
 	*/

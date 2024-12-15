@@ -15,6 +15,7 @@
 #include "../gui/simwin.h"
 
 #include "../obj/wayobj.h"
+#include "../obj/bruecke.h"
 #include "../obj/gebaeude.h"
 #include "../obj/signal.h"
 #include "../obj/zeiger.h"
@@ -35,24 +36,28 @@ void tool_generate_script_t::mark_tiles(player_t*, const koord3d& start, const k
 	koord k;
 	for (k.x = k1.x; k.x <= k2.x; k.x++) {
 		for (k.y = k1.y; k.y <= k2.y; k.y++) {
-			grund_t* gr = welt->lookup(koord3d(k.x, k.y, start.z));
-			if (!gr) {
-				continue;
+			if (planquadrat_t* plan = welt->access(k.x, k.y)) {
+				for (uint8 i = 0; i < plan->get_boden_count(); i++) {
+					if (grund_t* gr = plan->get_boden_bei(i)) {
+						if (gr->ist_karten_boden() || gr->get_pos().z > plan->get_boden_bei(0)->get_pos().z) {
+							zeiger_t* marker = new zeiger_t(gr->get_pos(), NULL);
+							const uint8 grund_hang = gr->get_grund_hang();
+				/*			const uint8 weg_hang = gr->get_weg_hang();
+							const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang)) +
+								3 * max(corner_se(grund_hang), corner_se(weg_hang)) +
+								9 * max(corner_ne(grund_hang), corner_ne(weg_hang)) +
+								27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
+							uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;*/
+							marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
+							uint8 back_hang = (grund_hang % 3) + 3 * ((uint8)(grund_hang / 9)) + 27;
+							marker->set_image(ground_desc_t::marker->get_image(back_hang));
+							marker->mark_image_dirty(marker->get_image(), 0);
+							gr->obj_add(marker);
+							marked.insert(marker);
+						}
+					}
+				}
 			}
-			zeiger_t* marker = new zeiger_t(gr->get_pos(), NULL);
-
-			const uint8 grund_hang = gr->get_grund_hang();
-			const uint8 weg_hang = gr->get_weg_hang();
-			const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang)) +
-				3 * max(corner_se(grund_hang), corner_se(weg_hang)) +
-				9 * max(corner_ne(grund_hang), corner_ne(weg_hang)) +
-				27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
-			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
-			marker->set_image(ground_desc_t::marker->get_image(back_hang));
-			marker->mark_image_dirty(marker->get_image(), 0);
-			gr->obj_add(marker);
-			marked.insert(marker);
 		}
 	}
 }
@@ -114,7 +119,7 @@ static void write_sign_at(cbuffer_t& buf, const koord3d pos, const koord3d origi
 static void write_slope_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	const grund_t* gr = world()->lookup(pos);
-	if (!gr || !gr->ist_karten_boden()) {
+	if (!gr || gr->is_water()  ||  gr->ist_auf_bruecke()  ) {
 		return;
 	}
 	const koord3d pb = pos - origin;
@@ -132,9 +137,64 @@ static void write_slope_at(cbuffer_t& buf, const koord3d pos, const koord3d orig
 		}
 	}
 	// check slopes
-	const slope_t::type slp = gr->get_weg_hang();
+	const slope_t::type slp = gr->get_grund_hang();
 	if (slp > 0) {
 		buf.printf("\thm_slope_tl(%d,[%d,%d,%d])\n", slp, pb.x, pb.y, pb.z);
+	}
+}
+
+
+// we only write bridges inside the marked area
+static void write_command_bridges(cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
+{
+	vector_tpl<koord3d> all_bridgepos;;
+	karte_t* welt = world();
+	for (sint16 x = start.x; x <= end.x; x++) {
+		for (sint16 y = start.y; y <= end.y; y++) {
+			if (grund_t* gr = welt->lookup_kartenboden(x, y)) {
+				if (gr->ist_bruecke()) {
+					koord3d bstart = gr->get_pos();
+					bruecke_t* br = gr->find<bruecke_t>();
+					assert(br);
+					if (all_bridgepos.is_contained(bstart)) {
+						// already handled
+						continue;
+					}
+					all_bridgepos.append(bstart);
+
+					// find end of bridge
+					koord zv = (gr->get_grund_hang() != slope_t::flat) ? -koord(gr->get_grund_hang()) : koord(gr->get_weg_hang());
+					koord3d checkpos(zv,slope_t::max_diff(gr->get_weg_hang()));
+					checkpos += bstart;
+					bstart -= origin;
+					while(checkpos.x>=start.x && checkpos.y>=start.y && checkpos.x<=end.x && checkpos.y<=end.y) {
+						gr = welt->lookup(checkpos);
+						if (!gr) {
+							// nothing here => must be the end
+							gr = welt->lookup_kartenboden(checkpos.get_2d());
+							if (gr) {
+								koord3d bend = gr->get_pos();
+								all_bridgepos.append(bend);
+								bend -= origin;
+								// write bridge building command
+								buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d]);\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+							}
+							// or the end of the map ...
+							break;
+						}
+						else if (!gr->ist_auf_bruecke()) {
+							koord3d bend = gr->get_pos();
+							all_bridgepos.append(bend);
+							bend -= origin;
+							// write bridge building command
+							buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d]);\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+							break;
+						}
+						checkpos += zv;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -175,7 +235,11 @@ static void write_command(cbuffer_t& buf, void (*func)(cbuffer_t&, const koord3d
 		for (sint16 y = start.y; y <= end.y; y++) {
 			if (planquadrat_t* plan = welt->access(x, y)) {
 				for (uint8 i = 0; i < plan->get_boden_count(); i++) {
-					func(buf, plan->get_boden_bei(i)->get_pos(), origin);
+					if (grund_t* gr = plan->get_boden_bei(i)) {
+						if (!gr->ist_im_tunnel()) {
+							func(buf, plan->get_boden_bei(i)->get_pos(), origin);
+						}
+					}
 				}
 			}
 		}
@@ -343,6 +407,7 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 
 	koord3d begin(k1, start.z);
 	write_command(generated_script_buf, write_slope_at, k1, k2, begin);
+	write_command_bridges(generated_script_buf, k1, k2, begin);
 	write_way_command_t(generated_script_buf, k1, k2, begin).write();
 	write_wayobj_command_t(generated_script_buf, k1, k2, begin).write();
 	write_command_halt(generated_script_buf, write_station_at, k1, k2, begin);

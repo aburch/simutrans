@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 
-	const koord3d& operator -= (koord3d& a)
+	const koord3d& operator -= (const koord3d& a)
 	{
 		x -= a.x;
 		y -= a.y;
