@@ -3111,15 +3111,18 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 		else {
 			// check for maximum load
-			if (wants_more || loading_level < loading_limit) {
-				// if (  wants_more  ||  (loading_level >= loading_limit  &&  !all_stops_overcrowded)  ) {
-							// still more freight left or not reached limit
+			if (wants_more) {
 				return;
 			}
-			// not reached maximum load: do we have to wait more?
-			if (schedule->get_current_entry().waiting_time > 0) {
-				if ((welt->get_ticks() - arrived_time) < schedule->get_current_entry().get_waiting_ticks()) {
-					// continue waiting
+			if(loading_level < loading_limit) {
+				// not reached maximum load: do we have to wait more?
+				if (schedule->get_current_entry().waiting_time > 0) {
+					if ((welt->get_ticks() - arrived_time) < schedule->get_current_entry().get_waiting_ticks()) {
+						// continue waiting
+						return;
+					}
+				}
+				else {
 					return;
 				}
 			}
