@@ -16,6 +16,7 @@
 #include "../simskin.h"
 #include "../world/simworld.h"
 #include "../obj/zeiger.h"
+#include "../sys/simsys.h"
 
 void export_scripted_tools(HSQUIRRELVM vm);
 
@@ -116,7 +117,8 @@ void exec_script_base_t::load_script(const char* path, player_t* player)
 		script = NULL;
 	}
 	// start vm
-	script = script_loader_t::start_vm("tool_base.nut", buf, path, false);
+	dr_chdir(path);
+	script = script_loader_t::start_vm("tool_base.nut", buf, ".", false);
 	if (script == NULL) {
 		return;
 	}
@@ -129,9 +131,9 @@ void exec_script_base_t::load_script(const char* path, player_t* player)
 	// call script to initialize it
 	buf.clear();
 	buf.printf( "%s/tool.nut", path );
-	if (const char* err = script->call_script(buf)) {
+	if (const char* err = script->call_script("tool.nut")) {
 		if (strcmp(err, "suspended")) {
-			dbg->error("tool_exec_script_t::load_script", "error [%s] calling %s", err, (const char*)buf);
+			dbg->error("tool_exec_script_t::load_script", "error [%s] calling %s/tool.nut", err, (const char*)path);
 			delete script;
 			script = NULL;
 			return;

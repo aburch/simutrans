@@ -24,7 +24,9 @@ protected:
 	 */
 	bool item_action(const char *fullpath) OVERRIDE;
 	
-	bool ok_action(const char *fullpath) OVERRIDE;
+	bool ok_action(const char* fullpath) OVERRIDE;
+
+	bool del_action(const char* fullpath) OVERRIDE;
 
 	/**
 	 * Returns extra file info: title of tool from description.tab

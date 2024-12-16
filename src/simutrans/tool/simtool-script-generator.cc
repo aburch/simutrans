@@ -315,11 +315,22 @@ public:
 
 class write_way_command_t : public write_path_command_t {
 protected:
+	bool system_type0;
+
 	void append_command(koord3d pos, const ribi_t::ribi(&dirs)[2]) OVERRIDE
 	{
 		const grund_t* gr = world()->lookup(pos);
 		const weg_t* weg0 = gr ? gr->get_weg_nr(0) : NULL;
 		if (!weg0) {
+			return;
+		}
+		if (system_type0) {
+			if (weg0->get_desc()->get_styp() > 0  &&  (weg0->get_waytype() != air_wt || !ribi_t::is_threeway(weg0->get_ribi_unmasked()))) {
+				// second pass for trams on roads and runways
+				return;
+			}
+		}
+		else if(weg0->get_desc()->get_styp()==0) {
 			return;
 		}
 		koord3d pb = pos - origin; // relative base pos
@@ -348,10 +359,11 @@ protected:
 	}
 
 public:
-	write_way_command_t(cbuffer_t& b, koord s, koord e, koord3d o) :
+	write_way_command_t(cbuffer_t& b, koord s, koord e, koord3d o, bool first_pass) :
 		write_path_command_t(b, s, e, o)
 	{
 		cmd_str = "hm_way_tl";
+		system_type0 = first_pass;
 	}
 };
 
@@ -408,7 +420,8 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	koord3d begin(k1, start.z);
 	write_command(generated_script_buf, write_slope_at, k1, k2, begin);
 	write_command_bridges(generated_script_buf, k1, k2, begin);
-	write_way_command_t(generated_script_buf, k1, k2, begin).write();
+	write_way_command_t(generated_script_buf, k1, k2, begin, true).write();
+	write_way_command_t(generated_script_buf, k1, k2, begin, false).write();
 	write_wayobj_command_t(generated_script_buf, k1, k2, begin).write();
 	write_command_halt(generated_script_buf, write_station_at, k1, k2, begin);
 	write_command(generated_script_buf, write_sign_at, k1, k2, begin);

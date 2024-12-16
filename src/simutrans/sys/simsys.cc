@@ -227,7 +227,6 @@ int dr_mkdir(char const* const path)
 }
 
 
-
 bool dr_movetotrash(const char *path)
 {
 #ifdef _WIN32
@@ -288,6 +287,8 @@ int dr_remove(const char *path)
 			errno = EACCES;
 		}
 	}
+	// try to remove directory if this is a directory and empty ...
+	success = RemoveDirectoryW(U16View(path));
 
 	return success ? 0 : -1;
 #else
