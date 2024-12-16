@@ -315,12 +315,19 @@ public:
 
 class write_way_command_t : public write_path_command_t {
 protected:
-	bool system_type0;
+	bool first_pass;
 
 	void append_command(koord3d pos, const ribi_t::ribi(&dirs)[2]) OVERRIDE
 	{
 		const grund_t* gr = world()->lookup(pos);
-		const weg_t* weg0 = gr ? gr->get_weg_nr(0) : NULL;
+		if (!gr) {
+			return;
+		}
+		bool weg_nr = 0;
+		if (!first_pass  &&  gr->get_weg_nr(1)) {
+			weg_nr = 1;
+		}
+		const weg_t* weg0 = gr->get_weg_nr(weg_nr);
 		if (!weg0) {
 			return;
 		}
@@ -336,24 +343,40 @@ protected:
 			grund_t* to = NULL;
 			gr->get_neighbour(to, weg0->get_waytype(), dirs[i]);
 			if (to && to->get_typ() == gr->get_typ()) {
-				if (start_styp == to->get_weg_nr(0)->get_desc()->get_styp()) {
-					if (system_type0  &&  start_styp != 0) {
+				const weg_t* to_weg = to->get_weg_nr(0);
+				bool to_weg_nr = 0;
+				if (to_weg->get_waytype() != weg0->get_waytype()) {
+					to_weg = to->get_weg_nr(1);
+					to_weg_nr = 1;
+					if (to_weg->get_waytype() != weg0->get_waytype()) {
+						continue;
+					}
+				}
+				// check system tppe (for airplanes)
+				if (start_styp == to_weg->get_desc()->get_styp()) {
+					if (first_pass  &&  start_styp != 0) {
 						// we connect in this round only to other system types for one step
 						continue;
 					}
-					if (!system_type0 && start_styp == 0) {
+					if (!first_pass && start_styp == 0) {
 						// we connect in this round only to other system types
 						continue;
 					}
 				}
-				else if (!system_type0) {
+				else if (!first_pass) {
 					continue;
 				}
 				koord3d tp = to->get_pos() - origin;
 				if (to->get_typ() == grund_t::monorailboden) {
 					tp = tp - koord3d(0, 0, world()->get_settings().get_way_height_clearance());
 				}
-				const way_desc_t* d = (weg0->get_desc()->get_styp()==0 && system_type0) ? weg0->get_desc() : to->get_weg_nr(0)->get_desc();
+				const way_desc_t* d = (weg0->get_desc()->get_styp()==0 && first_pass) ? weg0->get_desc() : to_weg->get_desc();
+				if (weg_nr > 0) {
+					d = weg0->get_desc();
+				}
+				if (to_weg_nr > 0) {
+					d = to_weg->get_desc();
+				}
 				commands.append(script_cmd{ pb, tp, d->get_name() });
 			}
 		}
@@ -365,11 +388,11 @@ protected:
 	}
 
 public:
-	write_way_command_t(cbuffer_t& b, koord s, koord e, koord3d o, bool first_pass) :
+	write_way_command_t(cbuffer_t& b, koord s, koord e, koord3d o, bool fp) :
 		write_path_command_t(b, s, e, o)
 	{
 		cmd_str = "hm_way_tl";
-		system_type0 = first_pass;
+		first_pass = fp;
 	}
 };
 
