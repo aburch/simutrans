@@ -324,15 +324,7 @@ protected:
 		if (!weg0) {
 			return;
 		}
-		if (system_type0) {
-			if (weg0->get_desc()->get_styp() > 0  &&  (weg0->get_waytype() != air_wt || !ribi_t::is_threeway(weg0->get_ribi_unmasked()))) {
-				// second pass for trams on roads and runways
-				return;
-			}
-		}
-		else if(weg0->get_desc()->get_styp()==0) {
-			return;
-		}
+		systemtype_t start_styp = weg0->get_desc()->get_styp();
 		koord3d pb = pos - origin; // relative base pos
 		if (gr->get_typ() == grund_t::monorailboden) {
 			pb.z -= world()->get_settings().get_way_height_clearance();
@@ -344,11 +336,25 @@ protected:
 			grund_t* to = NULL;
 			gr->get_neighbour(to, weg0->get_waytype(), dirs[i]);
 			if (to && to->get_typ() == gr->get_typ()) {
+				if (start_styp == to->get_weg_nr(0)->get_desc()->get_styp()) {
+					if (system_type0  &&  start_styp != 0) {
+						// we connect in this round only to other system types for one step
+						continue;
+					}
+					if (!system_type0 && start_styp == 0) {
+						// we connect in this round only to other system types
+						continue;
+					}
+				}
+				else if (!system_type0) {
+					continue;
+				}
 				koord3d tp = to->get_pos() - origin;
 				if (to->get_typ() == grund_t::monorailboden) {
 					tp = tp - koord3d(0, 0, world()->get_settings().get_way_height_clearance());
 				}
-				commands.append(script_cmd{ pb, tp, to->get_weg_nr(0)->get_desc()->get_name() });
+				const way_desc_t* d = (weg0->get_desc()->get_styp()==0 && system_type0) ? weg0->get_desc() : to->get_weg_nr(0)->get_desc();
+				commands.append(script_cmd{ pb, tp, d->get_name() });
 			}
 		}
 	}
