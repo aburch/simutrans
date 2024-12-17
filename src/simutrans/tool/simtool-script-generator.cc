@@ -164,7 +164,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 
 					// find end of bridge
 					koord zv = (gr->get_grund_hang() != slope_t::flat) ? -koord(gr->get_grund_hang()) : koord(gr->get_weg_hang());
-					koord3d checkpos(zv,slope_t::max_diff(gr->get_weg_hang()));
+					koord3d checkpos(zv,slope_t::max_diff(max(gr->get_weg_hang(),gr->get_grund_hang())));
 					checkpos += bstart;
 					bstart -= origin;
 					while(checkpos.x>=start.x && checkpos.y>=start.y && checkpos.x<=end.x && checkpos.y<=end.y) {
@@ -435,7 +435,7 @@ public:
 };
 
 
-char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, const koord3d& end)
+char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, const koord3d& end)
 {
 	koord3d e = end == koord3d::invalid ? start : end;
 	koord k1 = koord(min(start.x, e.x), min(start.y, e.y));
@@ -444,7 +444,9 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 
 	cbuffer_t generated_script_buf;
 	generated_script_buf.printf("// automated rebuild scrip with size (%d,%d)\n\n", area.x, area.y); // comment
-	generated_script_buf.append("include(\"hm_toolkit_v1a\")\n\nfunction hm_build() {\n"); // header
+	generated_script_buf.append("include(\"hm_toolkit_v3\")\n\nfunction hm_build() {\n"); // header
+
+	int cmdlen = generated_script_buf.len();
 
 	koord3d begin(k1, start.z);
 	write_command(generated_script_buf, write_slope_at, k1, k2, begin);
@@ -455,6 +457,10 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	write_command_halt(generated_script_buf, write_station_at, k1, k2, begin);
 	write_command(generated_script_buf, write_sign_at, k1, k2, begin);
 
+	if (cmdlen == generated_script_buf.len()) {
+		return NULL;
+	}
+
 	generated_script_buf.append("}\n"); // footer
 
 	cbuffer_t dir_buf;
@@ -462,6 +468,11 @@ char const* tool_generate_script_t::do_work(player_t*, const koord3d& start, con
 	dr_mkdir(dir_buf.get_str());
 
 	create_win(new script_generator_frame_t(this, dir_buf.get_str(), generated_script_buf, area ), w_info, magic_script_generator);
+
+	if (can_use_gui()  &&  pl == welt->get_active_player()) {
+		welt->set_tool(general_tool[TOOL_QUERY], pl);
+	}
+
 	return NULL;
 }
 

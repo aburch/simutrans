@@ -234,6 +234,7 @@ bool tool_exec_script_t::exit(player_t* player)
 const char* tool_exec_script_t::work(player_t* player, koord3d pos)
 {
 	static plainstring res;
+	res = NULL;
 	// callback
 	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, (const char*)"");
 	// now call

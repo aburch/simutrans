@@ -42,6 +42,7 @@ bool script_generator_frame_t::del_action(const char* fullpath)
 	dr_remove("description.tab");
 	dr_remove("tool.nut");
 	dr_remove("script-exec-0.log");
+	dr_chdir("..");
 	const char* p = strrchr(fullpath, *PATH_SEPARATOR);
 	if (!p) {
 		p = strrchr(fullpath, '/');
