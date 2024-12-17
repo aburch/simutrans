@@ -19,7 +19,8 @@
 	FIX: screnario allow and forbid rules were handling wildcard badly. Also, ignore_wt should be used for ignore this parameter (no enforced in rule creation)
 	ADD: clear rules of a single player
 	FIX: Possible crash when deleting stops during connection recalculation on large maps
- 
+	ADD: scaling of icon size is now in percent to be independent from actual icon sizes (icon_scaling = 100)
+
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
 	ADD: Support for through depots (dims 2)

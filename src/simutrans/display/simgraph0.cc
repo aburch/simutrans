@@ -173,6 +173,12 @@ void display_color_img(const image_id, scr_coord_val, scr_coord_val, const sint8
 {
 }
 
+scr_size display_get_best_matching_size(const image_id, sint16)
+{
+	return scr_size(32, 32); // default size
+}
+
+
 void display_base_img(const image_id, scr_coord_val, scr_coord_val, const sint8, const bool, const bool  CLIP_NUM_DEF_NOUSE)
 {
 }

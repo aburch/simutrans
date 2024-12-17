@@ -21,11 +21,12 @@ tooltip_duration = 5000
 # maximum size of tool bars in tools (0 = no limit)
 # if more tools than allowed by height,
 # next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
+# this should be left for the user to customize
+#toolbar_max_width = 0
+#toolbar_max_height = 0
 
 # larger icons too
-icon_width = 48
+icon_scaling = 150
 
 # use the larger Button height
 gui_button_height = 22

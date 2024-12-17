@@ -26,7 +26,7 @@ tooltip_duration = 5000
 left_to_right_graphs  = 0
 
 # larger icons too
-icon_width = 40
+icon_scaling = 100
 
 # Default button width
 gui_button_width = 130

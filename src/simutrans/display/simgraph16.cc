@@ -1640,6 +1640,27 @@ static void rezoom_img(const image_id n)
 }
 
 
+
+// get next smallest size when scaling to percent
+scr_size display_get_best_matching_size(const image_id n, sint16 zoom_percent)
+{
+	if (n < anz_images  &&  images[n].base_h > 0) {
+		int old_zoom_factor = zoom_factor;
+		int new_w = (images[n].base_w * zoom_percent + 1) / 100;
+		for (int i = 0; i <= MAX_ZOOM_FACTOR; i++) {
+			int zoom_w = (images[n].base_w * zoom_num[i]) / zoom_den[i];
+			int zoom_h = (images[n].base_h * zoom_num[i]) / zoom_den[i];
+			if (zoom_w <= new_w) {
+				// first size smaller or equal to requested
+				return scr_size(zoom_w, zoom_h);
+			}
+		}
+	}
+	return scr_size(32, 32); // default size
+}
+
+
+
 // force a certain size on a image (for rescaling tool images)
 void display_fit_img_to_width( const image_id n, sint16 new_w )
 {

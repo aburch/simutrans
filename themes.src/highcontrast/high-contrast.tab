@@ -128,7 +128,7 @@ gui_player_color_bright = 5
 ##################################size stuff##################################
 
 # force main menu icon size
-icon_width = 32
+icon_scaling = 100
 
 # titlebar height
 gui_titlebar_height = 15
@@ -171,9 +171,9 @@ gui_color_button_text_offset = 5,0,5
 
 # maximum size of tool bars in tools (0 = no limit)
 # if more tools than allowed by height,
-# next and prev arrows for scrolling appears
-toolbar_max_width = 0
-toolbar_max_height = 0
+# this should be left for the user to customize
+#toolbar_max_width = 0
+#toolbar_max_height = 0
 
 ###################################pakstuff###################################
 

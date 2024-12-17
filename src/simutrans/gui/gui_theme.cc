@@ -503,9 +503,6 @@ bool gui_theme_t::themes_init(const char *file_name, bool init_fonts, bool init_
 		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[2], 0);
 	}
 
-	// default iconsize (square for now)
-	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );
-
 	// maybe not the best place, rather use simwin for the static defines?
 	gui_theme_t::gui_color_text                         = (PIXVAL)contents.get_color("gui_color_text", SYSCOL_TEXT);
 	gui_theme_t::gui_color_text_highlight               = (PIXVAL)contents.get_color("gui_color_text_highlight", SYSCOL_TEXT_HIGHLIGHT);
@@ -582,6 +579,12 @@ gui_theme_t::gui_color_object_highlight                 = (PIXVAL)contents.get_c
 	env_t::tooltip_duration =     contents.get_int("tooltip_duration",           env_t::tooltip_duration );
 	env_t::toolbar_max_width =    contents.get_int("toolbar_max_width",          env_t::toolbar_max_width );
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
+
+	// default iconsize scaling (must be read before the images)
+	env_t::iconscaling = contents.get_int("icon_scaling", env_t::iconscaling);
+	if (skinverwaltung_t::tool_icons_general) {
+		env_t::iconsize = display_get_best_matching_size(skinverwaltung_t::tool_icons_general->get_image_id(0), env_t::iconscaling);
+	}
 
 	env_t::chat_window_transparency =   100 - contents.get_int("gui_chat_window_network_transparency", 100 - env_t::chat_window_transparency);
 

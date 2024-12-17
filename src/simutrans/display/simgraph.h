@@ -168,6 +168,9 @@ scr_coord_val display_get_height();
 void display_set_height(scr_coord_val);
 void display_set_actual_width(scr_coord_val);
 
+// get next smallest size when scaling to percent
+scr_size display_get_best_matching_size(const image_id n, sint16 zoom_percent);
+
 // force a certain size on a image (for rescaling tool images)
 void display_fit_img_to_width( const image_id n, sint16 new_w );
 

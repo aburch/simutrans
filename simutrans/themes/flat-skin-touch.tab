@@ -112,8 +112,15 @@ gui_color_loadingbar_progress = #4d4d4d
 gui_color_loadingbar_inner = #cfcfcf
 
 ##################################size stuff##################################
+# maximum size of tool bars in tools (0 = no limit, negative relative to window width)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
 
-icon_width = 48
+#toolbar_max_width = 0
+toolbar_max_height = 1 (to not occupy so much screen space)
+
+icon_scaling = 200
+
 gui_titlebar_height = 28
 gui_gadget_width = 28
 gui_tab_header_vsize = 26

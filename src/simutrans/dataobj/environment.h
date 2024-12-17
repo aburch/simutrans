@@ -245,6 +245,7 @@ public:
 
 	static sint16 window_snap_distance;
 
+	static sint16 iconscaling;
 	static scr_size iconsize;
 
 	/// customize your tooltips

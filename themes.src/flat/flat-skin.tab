@@ -115,10 +115,14 @@ gui_color_loadingbar_inner = #cfcfcf
 # maximum size of tool bars in tools (0 = no limit)
 # if more tools than allowed by height,
 # next and prev arrows for scrolling appears
-icon_width = 32
+icon_scaling = 100
 
-toolbar_max_width = 0
-toolbar_max_height = 0
+# maximum size of tool bars in tools (0 = no limit, negative relative to window width)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+# this should be left for the user to customize
+#toolbar_max_width = 0
+#toolbar_max_height = 0
 
 ##################################pakstuff##################################
 
