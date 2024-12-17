@@ -342,7 +342,7 @@ protected:
 			}
 			grund_t* to = NULL;
 			gr->get_neighbour(to, weg0->get_waytype(), dirs[i]);
-			if (to && to->get_typ() == gr->get_typ()) {
+			if (to) {
 				const weg_t* to_weg = to->get_weg_nr(0);
 				bool to_weg_nr = 0;
 				if (to_weg->get_waytype() != weg0->get_waytype()) {
@@ -352,7 +352,7 @@ protected:
 						continue;
 					}
 				}
-				// check system tppe (for airplanes)
+				// check system type (for airplanes)
 				if (start_styp == to_weg->get_desc()->get_styp()) {
 					if (first_pass  &&  start_styp != 0) {
 						// we connect in this round only to other system types for one step
@@ -363,7 +363,7 @@ protected:
 						continue;
 					}
 				}
-				else if (!first_pass) {
+				else if (!first_pass  &&  start_styp!=0) {
 					continue;
 				}
 				koord3d tp = to->get_pos() - origin;
