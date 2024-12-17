@@ -16,6 +16,7 @@
 
 #include "../obj/wayobj.h"
 #include "../obj/bruecke.h"
+#include "../obj/depot.h"
 #include "../obj/gebaeude.h"
 #include "../obj/signal.h"
 #include "../obj/zeiger.h"
@@ -63,18 +64,13 @@ void tool_generate_script_t::mark_tiles(player_t*, const koord3d& start, const k
 }
 
 
-static void write_station_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
+static void write_depot_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	if (const grund_t* gr = world()->lookup(pos)) {
-		if (const gebaeude_t* obj = gr->find<gebaeude_t>()) {
+		if (const depot_t* obj = gr->get_depot()) {
 			const building_desc_t* desc = obj->get_tile()->get_desc();
-			if (!desc->is_transport_building() || desc->is_depot()) {
-				// no depots using this tool
-				return;
-			}
-			// now this pos has a stop.
 			koord3d diff = pos - origin;
-			buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d])\n", desc->get_name(), diff.x, diff.y, diff.z);
+			buf.printf("\thm_depot_tl(\"%s\",[%d,%d,%d])\n", desc->get_name(), diff.x, diff.y, diff.z);
 		}
 	}
 }
@@ -201,7 +197,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 
 // since the building order is important, we build the station in the same tile order as the original
 // May be still fail if there have been connecting tiles that have been deleted ...
-static void write_command_halt(cbuffer_t& buf, void (*func)(cbuffer_t&, const koord3d, const koord3d), const koord start, const koord end, const koord3d origin)
+static void write_command_halt(cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
 {
 	vector_tpl<halthandle_t> all_halt;
 	karte_t *welt = world();
@@ -221,7 +217,11 @@ static void write_command_halt(cbuffer_t& buf, void (*func)(cbuffer_t&, const ko
 		for (const haltestelle_t::tile_t& t : halt->get_tiles()) {
 			koord p = t.grund->get_pos().get_2d();
 			if (start.x <= p.x && p.x <= end.x && start.y <= p.y && p.y <= end.y) {
-					func(buf, t.grund->get_pos(), origin);
+				if (const gebaeude_t* obj = t.grund->find<gebaeude_t>()) {
+					const building_desc_t* desc = obj->get_tile()->get_desc();
+					koord3d diff = t.grund->get_pos() - origin;
+					buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d])\n", desc->get_name(), diff.x, diff.y, diff.z);
+				}
 			}
 		}
 	}
@@ -352,19 +352,21 @@ protected:
 						continue;
 					}
 				}
-				// check system type (for airplanes)
-				if (start_styp == to_weg->get_desc()->get_styp()) {
-					if (first_pass  &&  start_styp != 0) {
-						// we connect in this round only to other system types for one step
+				if (!to_weg_nr  &&  !weg_nr) {
+					// check system type (for airplanes etc.) if there is only one way
+					if (start_styp == to_weg->get_desc()->get_styp()) {
+						if (first_pass && start_styp != 0) {
+							// we connect in this round only to other system types for one step
+							continue;
+						}
+						if (!first_pass && start_styp == 0) {
+							// we connect in this round only to other system types
+							continue;
+						}
+					}
+					else if (!first_pass) {
 						continue;
 					}
-					if (!first_pass && start_styp == 0) {
-						// we connect in this round only to other system types
-						continue;
-					}
-				}
-				else if (!first_pass  &&  start_styp!=0) {
-					continue;
 				}
 				koord3d tp = to->get_pos() - origin;
 				if (to->get_typ() == grund_t::monorailboden) {
@@ -454,7 +456,8 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	write_way_command_t(generated_script_buf, k1, k2, begin, true).write();
 	write_way_command_t(generated_script_buf, k1, k2, begin, false).write();
 	write_wayobj_command_t(generated_script_buf, k1, k2, begin).write();
-	write_command_halt(generated_script_buf, write_station_at, k1, k2, begin);
+	write_command_halt(generated_script_buf, k1, k2, begin);
+	write_command(generated_script_buf, write_depot_at, k1, k2, begin);
 	write_command(generated_script_buf, write_sign_at, k1, k2, begin);
 
 	if (cmdlen == generated_script_buf.len()) {

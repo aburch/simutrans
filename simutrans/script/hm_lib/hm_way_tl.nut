@@ -55,8 +55,7 @@ class hm_way_tl extends hm_base_tl {
     local err = command_x.build_way(player, origin+start, origin+ziel, desc, true)
     if(err!=null) {
       //calc_route() failed to find a path.
-      local message = format(translate("Way building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
-      return [message, null]
+      return format(translate("Way building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
     } else {
       return null
     }
