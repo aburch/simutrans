@@ -84,10 +84,6 @@
 /* define USE_VALGRIND_MEMCHECK to make valgrind aware of the freelist memory pool */
 //#define USE_VALGRIND_MEMCHECK
 
-/* define this to check for double free and sizes for freelist */
-//#define DEBUG_FREELIST
-
-
 /**************************** automatic stuff ********************************/
 
 

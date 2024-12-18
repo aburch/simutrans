@@ -9,8 +9,9 @@
 #include <typeinfo>
 
 #include "../simmem.h"
+#include "../simdebug.h"
 
-#ifdef MULTI_THREADx
+#ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 #endif
 
@@ -19,6 +20,9 @@
 #ifdef USE_VALGRIND_MEMCHECK
 #include <valgrind/memcheck.h>
 #endif
+
+/* define this to check for double free and sizes for freelist */
+#define DEBUG_FREELIST
 
 /**
   * A template class for const sized memory pool
@@ -50,7 +54,7 @@ private:
 	// list of all allocated memory
 	nodelist_node_t* chunk_list;
 
-#ifdef MULTI_THREADx
+#ifdef MULTI_THREAD
 	pthread_mutex_t freelist_mutex = PTHREAD_MUTEX_INITIALIZER;;
 #endif
 
@@ -72,7 +76,7 @@ public:
 
 	void *gimme_node()
 	{
-#ifdef MULTI_THREADx
+#ifdef MULTI_THREAD
 		pthread_mutex_lock(&freelist_mutex);
 #endif
 		nodelist_node_t *tmp;
@@ -119,7 +123,15 @@ public:
 		tmp = freelist;
 		freelist = tmp->next;
 
-#ifdef MULTI_THREADx
+#ifdef DEBUG_FREELIST
+		assert(tmp->canary[0] == canary_free[0] && tmp->canary[1] == canary_free[1] && tmp->canary[2] == canary_free[2] && tmp->canary[3] == canary_free[3]);
+		tmp->canary[0] = canary_used[0];
+		tmp->canary[1] = canary_used[1];
+		tmp->canary[2] = canary_used[2];
+#endif
+		nodecount++;
+
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock(&freelist_mutex);
 #endif
 
@@ -128,14 +140,6 @@ public:
 		VALGRIND_MEMPOOL_CHANGE(tmp, tmp, tmp, sizeof(T));
 		VALGRIND_MAKE_MEM_UNDEFINED(tmp, sizeof(T));
 #endif
-
-#ifdef DEBUG_FREELIST
-		assert(tmp->canary[0] == canary_free[0] && tmp->canary[1] == canary_free[1] && tmp->canary[2] == canary_free[2] && tmp->canary[3] == canary_free[3]);
-		tmp->canary[0] = canary_used[0];
-		tmp->canary[1] = canary_used[1];
-		tmp->canary[2] = canary_used[2];
-#endif
-		nodecount++;
 
 		return (void *)(&(tmp->next));
 	}
@@ -166,7 +170,7 @@ public:
 		VALGRIND_MAKE_MEM_UNDEFINED(p, sizeof(nodelist_node_t));
 #endif
 
-#ifdef MULTI_THREADx
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock(&freelist_mutex);
 #endif
 
@@ -188,7 +192,7 @@ public:
 		if (nodecount == 0) {
 			free_all_nodes();
 		}
-#ifdef MULTI_THREADx
+#ifdef MULTI_THREAD
 		pthread_mutex_unlock(&freelist_mutex);
 #endif
 	}
