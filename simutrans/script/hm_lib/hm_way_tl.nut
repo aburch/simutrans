@@ -6,12 +6,16 @@ include("hm_lib/hm_obj_selector")
 class hm_way_tl extends hm_base_tl {
   desc_name = null
   start = null
-  ziel = null
+  ziel  = null
+  wtype = null
+  stype = null
 
-  constructor(d_name, s, z) {
+  constructor(d_name, s, z, wt = null, st = null) {
     desc_name = d_name
     start = coord3d(s[0],s[1],s[2])
-    ziel = coord3d(z[0],z[1],z[2])
+    ziel  = coord3d(z[0],z[1],z[2])
+    wtype = wt
+    stype = st
     hm_commands.append(this)
   }
 
@@ -37,7 +41,8 @@ class hm_way_tl extends hm_base_tl {
       }
       return [null, d]
     } else {
-      local d = hm_get_way_desc(desc_name)
+      local d = hm_get_way_desc(desc_name, wtype, stype)
+      //gui.add_message_at(player, "_get_desc - hm_get_way_desc() " + d, world.get_time())
       if(d==null) {
         local message = format(translate("Way %s (%s) is not found!"), translate(desc_name), desc_name)
         return [message, null]
@@ -55,7 +60,8 @@ class hm_way_tl extends hm_base_tl {
     local err = command_x.build_way(player, origin+start, origin+ziel, desc, true)
     if(err!=null) {
       //calc_route() failed to find a path.
-      return format(translate("Way building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
+      local message = format(translate("Way building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
+      return message
     } else {
       return null
     }

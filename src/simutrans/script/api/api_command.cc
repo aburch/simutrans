@@ -316,11 +316,12 @@ call_tool_work build_wayobj(player_t* pl, koord3d start, koord3d end, const way_
 }
 
 
-typedef call_tool_work(*bsr_type)(player_t*, koord3d, const building_desc_t*, my_ribi_t);
+typedef call_tool_work(*bsr_type)(player_t*, koord3d, const building_desc_t*, sint16);
 
-call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, my_ribi_t rotation)
+call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, sint16 rot)
 {
 	// rotation: SENW -> 0123, see station_building_select_t
+#if 0
 	int rot = -1;
 	switch( (ribi_t::ribi)rotation )
 	{
@@ -330,6 +331,9 @@ call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_
 		case ribi_t::west:  rot = 3; break;
 		default: ;
 	}
+#else
+
+#endif
 	if (building == NULL  ||  !building->is_transport_building()) {
 		return call_tool_work("No building provided");
 	}
@@ -347,11 +351,11 @@ SQInteger command_build_station(HSQUIRRELVM vm)
 	/* possible calling conventions:
 	 *
 	 * build_station(player, pos, desc)           - top == 4
-	 * build_station(player, pos, desc, rotation) - top == 5
+	 * build_station(player, pos, desc, layout  ) - top == 5
 	 */
 	if (sq_gettop(vm) == 4) {
-		// rotation parameter missing, push default value
-		sq_pushinteger(vm, ribi_t::all);
+		// layout parameter missing, push default value
+		sq_pushinteger(vm, -1);
 	}
 	return embed_call_t<bsr_type>::call_function(vm, build_station_rotation, false);
 }
@@ -551,7 +555,7 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param pl player to pay for the work
 	 * @param pos position to place the depot
 	 * @param station type of station to be built
-	 * @param rotaton (optional parameter) rotation of building (only used for flat docks, put direction from land to water here)
+	 * @param layout (optional parameter) rotation of building (only used for flat docks and extensions, ribi are not allowed and must be converted!)
 	 */
 	STATIC register_function(vm, command_build_station, "build_station", -4 /* at least 4 parameters */,
 							 func_signature_t<bsr_type>::get_typemask(false).c_str(), false /* static */);

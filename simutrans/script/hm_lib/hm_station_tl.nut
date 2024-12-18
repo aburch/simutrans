@@ -1,19 +1,17 @@
 include("hm_lib/hm_global")
 
 class hm_station_tl extends hm_base_tl {
-  desc = null
+  desc      = null
   desc_name = null
-  pos = null
-  constructor(sta_name, p) {
+  pos       = null
+  wtype     = 0
+  rotation  = 15
+
+  constructor(sta_name, p, wt = 0, r = 15) {
     desc_name = sta_name
-    pos = coord3d(p[0],p[1],p[2])
-    // find descriptor
-    foreach (d in building_desc_x.get_building_list(building_desc_x.station)) {
-      if(d.get_name()==desc_name) {
-        desc = d
-        break
-      }
-    }
+    pos       = coord3d(p[0],p[1],p[2])
+    wtype     = wt
+    rotation  = r
     hm_commands.append(this)
   }
 
@@ -39,13 +37,12 @@ class hm_station_tl extends hm_base_tl {
       }
       return [null, d]
     } else {
-      foreach (d in building_desc_x.get_building_list(building_desc_x.station)) {
-        if(d.get_name()==desc_name) {
-          return [null, d]
-        }
+      local d = hm_get_building_desc(desc_name, wtype, building_desc_x.station)
+      if(d==null) {
+        local message = format(translate("Station %s (%s) is not found!"), translate(desc_name), desc_name)
+        return [message, null]
       }
-      local message = format(translate("Station %s (%s) is not found!"), translate(desc_name), desc_name)
-      return [message, null]
+      return [null, d]
     }
   }
 
@@ -55,6 +52,6 @@ class hm_station_tl extends hm_base_tl {
       return dr[0] // there was a error in obtaining the desc
     }
     local desc = dr[1]
-    return command_x.build_station(player, origin+pos, desc);
+    return command_x.build_station(player, origin+pos, desc, rotation);
   }
 }

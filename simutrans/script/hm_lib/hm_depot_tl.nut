@@ -1,19 +1,23 @@
 include("hm_lib/hm_global")
 
 class hm_depot_tl extends hm_base_tl {
-  desc = null
+  desc      = null
   desc_name = null
-  pos = null
-  constructor(sta_name, p) {
+  pos       = null
+  wtype     = null
+
+  constructor(sta_name, p, wt = null) {
     desc_name = sta_name
-    pos = coord3d(p[0],p[1],p[2])
+    pos       = coord3d(p[0],p[1],p[2])
+    wtype     = wt
     // find descriptor
+    /*
     foreach (d in building_desc_x.get_building_list(building_desc_x.depot)) {
       if(d.get_name()==desc_name) {
         desc = d
         break
       }
-    }
+    }*/
     hm_commands.append(this)
   }
 
@@ -39,13 +43,12 @@ class hm_depot_tl extends hm_base_tl {
       }
       return [null, d]
     } else {
-      foreach (d in building_desc_x.get_building_list(building_desc_x.depot)) {
-        if(d.get_name()==desc_name) {
-          return [null, d]
-        }
+      local d = hm_get_building_desc(desc_name, wtype, building_desc_x.depot)
+      if(d==null) {
+        local message = format(translate("Depot %s (%s) is not found!"), translate(desc_name), desc_name)
+        return [message, null]
       }
-      local message = format(translate("Depot %s (%s) is not found!"), translate(desc_name), desc_name)
-      return [message, null]
+      return [null, d]
     }
   }
 

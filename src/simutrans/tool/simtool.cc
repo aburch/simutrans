@@ -4036,7 +4036,10 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 	}
 	else {
 		// rotation was pre-selected; just search for stop now
-		assert(  rotation < desc->get_all_layouts()  );
+		if (rotation < desc->get_all_layouts()) {
+			dbg->warning("tool_station_building_aux()", "%s rotation larger than %d", this->default_param, desc->get_all_layouts());
+			rotation %= desc->get_all_layouts();
+		}
 		koord testsize = desc->get_size(rotation);
 		offsets = koord(0,0);
 
@@ -4510,7 +4513,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 }
 
 // build all types of stops but sea harbours
-const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
+const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, sint8 layout, waytype_t wegtype, const char *type_name )
 {
 	koord k = pos.get_2d();
 DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
@@ -4539,121 +4542,128 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		return "Flugzeughalt muss auf\nRunway liegen!\n";
 	}
 
-	// find out orientation ...
-	uint32 layout = 0;
-	ribi_t::ribi ribi=ribi_t::none;
-	if(  desc->get_all_layouts()==2  ||  desc->get_all_layouts()==8  ||  desc->get_all_layouts()==16  ) {
-		// through station
-		if(  bd->has_two_ways()  ) {
-			// a crossing or maybe just a tram track on a road ...
-			ribi = bd->get_weg_nr(0)->get_ribi_unmasked()  |  bd->get_weg_nr(1)->get_ribi_unmasked();
+	if(  layout <= -1  ||  layout > desc->get_all_layouts()  ) {
+
+		// find out orientation ...
+		ribi_t::ribi ribi = ribi_t::none;
+		if(  desc->get_all_layouts()==2  ||  desc->get_all_layouts()==8  ||  desc->get_all_layouts()==16  ) {
+			// through station
+			if(  bd->has_two_ways()  ) {
+				// a crossing or maybe just a tram track on a road ...
+				ribi = bd->get_weg_nr(0)->get_ribi_unmasked()  |  bd->get_weg_nr(1)->get_ribi_unmasked();
+			}
+			else if(  bd->hat_wege()  ) {
+				ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
+			}
+			// not straight: sorry cannot build here ...
+			if(  !ribi_t::is_straight(ribi)  ) {
+				return p_error;
+			}
+			layout = (ribi & ribi_t::northsouth)?0 :1;
 		}
-		else if(  bd->hat_wege()  ) {
-			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
+		else if(  desc->get_all_layouts()==4  ) {
+			// terminal station
+			if(  bd->hat_wege()  ) {
+				ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
+			}
+			// sorry cannot build here ... (not a terminal tile)
+			if(  !ribi_t::is_single(ribi)  ) {
+				return p_error;
+			}
+
+			switch(ribi) {
+				//case ribi_t::south:layout = 0;  break;
+				case ribi_t::east:   layout = 1;    break;
+				case ribi_t::north:  layout = 2;    break;
+				case ribi_t::west:  layout = 3;    break;
+			}
 		}
-		// not straight: sorry cannot build here ...
-		if(  !ribi_t::is_straight(ribi)  ) {
-			return p_error;
-		}
-		layout = (ribi & ribi_t::northsouth)?0 :1;
-	}
-	else if(  desc->get_all_layouts()==4  ) {
-		// terminal station
-		if(  bd->hat_wege()  ) {
-			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
-		}
-		// sorry cannot build here ... (not a terminal tile)
-		if(  !ribi_t::is_single(ribi)  ) {
-			return p_error;
+		else {
+			// something wrong with station number of layouts
+			dbg->fatal( "tool_station_t::tool_station_aux", "%s has wrong number of layouts (must be 2,4,8,16!)", desc->get_name() );
 		}
 
-		switch(ribi) {
-			//case ribi_t::south:layout = 0;  break;
-			case ribi_t::east:   layout = 1;    break;
-			case ribi_t::north:  layout = 2;    break;
-			case ribi_t::west:  layout = 3;    break;
+		if(  desc->get_all_layouts() == 8  ||  desc->get_all_layouts() == 16  ) {
+			// through station - complex layout
+			// bits
+			// 1 = north south/east west (as simple layout)
+			// 2 = use far end image  \ can be combined
+			// 3 = use near end image / to use both end image
+			// 4 = platform face - 0 = far, 1 = near
+
+			// bit 1 has already been set
+
+			ribi_t::ribi next_own = ribi_t::none;
+
+			sint8 offset = bd->get_hoehe()+bd->get_weg_yoff()/TILE_HEIGHT_STEP;
+
+			grund_t *gr;
+			sint32 neighbour_layout[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+			for(  unsigned i=0;  i<4;  i++  ) {
+				// oriented buildings here - get neighbouring layouts
+				gr = welt->lookup(koord3d(k+koord::nesw[i],offset));
+				if(!gr) {
+					// check whether bridge end tile
+					grund_t * gr_tmp = welt->lookup(koord3d(k+koord::nesw[i],offset-1));
+					if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+						gr = gr_tmp;
+					}
+					else {
+						grund_t * gr_tmp = welt->lookup(koord3d(k+koord::nesw[i],offset-2));
+						if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+							gr = gr_tmp;
+						}
+					}
+				}
+				if(  gr && gr->get_halt().is_bound()  ) {
+					// check, if there is an oriented stop
+					const gebaeude_t* gb = gr->find<gebaeude_t>();
+					if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4  &&  (gb->get_tile()->get_desc()->get_type()>building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()>building_desc_t::flat_dock)  ) {
+						next_own |= ribi_t::nesw[i];
+						neighbour_layout[ribi_t::nesw[i]] = gb->get_tile()->get_layout();
+					}
+				}
+			}
+
+			// now for the details
+			ribi_t::ribi senkrecht = ~ribi_t::doubles(ribi);
+			ribi_t::ribi waagerecht = ribi_t::doubles(ribi);
+			if(next_own!=ribi_t::none) {
+				// oriented buildings here
+				if(ribi_t::is_single(ribi & next_own)) {
+					// only a single next neighbour on the same track
+					layout |= neighbour_layout[ribi & next_own] & 8;
+				}
+				else if(ribi_t::is_straight(ribi & next_own)) {
+					// two neighbours on the same track, use the north/west one
+					layout |= neighbour_layout[ribi & next_own & ribi_t::northwest] & 8;
+				}
+				else if(ribi_t::is_single((~ribi) & waagerecht & next_own)) {
+					// neighbour across break in track
+					layout |= neighbour_layout[(~ribi) & waagerecht & next_own] & 8;
+				}
+				else {
+					// no buildings left and right
+					// oriented buildings left and right
+					if(neighbour_layout[senkrecht & next_own & ribi_t::northwest] != -1) {
+						// just rotate layout
+						layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::northwest]&8);
+					}
+					else {
+						if(neighbour_layout[senkrecht & next_own & ribi_t::southeast] != -1) {
+							layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::southeast]&8);
+						}
+					}
+				}
+			}
+			// avoid orientation on 8 tiled buildings
+			layout &= (desc->get_all_layouts()-1);
 		}
 	}
 	else {
-		// something wrong with station number of layouts
-		dbg->fatal( "tool_station_t::tool_station_aux", "%s has wrong number of layouts (must be 2,4,8,16!)", desc->get_name() );
-	}
+		// obey predefined layout
 
-	if(  desc->get_all_layouts() == 8  ||  desc->get_all_layouts() == 16  ) {
-		// through station - complex layout
-		// bits
-		// 1 = north south/east west (as simple layout)
-		// 2 = use far end image  \ can be combined
-		// 3 = use near end image / to use both end image
-		// 4 = platform face - 0 = far, 1 = near
-
-		// bit 1 has already been set
-
-		ribi_t::ribi next_own = ribi_t::none;
-
-		sint8 offset = bd->get_hoehe()+bd->get_weg_yoff()/TILE_HEIGHT_STEP;
-
-		grund_t *gr;
-		sint32 neighbour_layout[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-		for(  unsigned i=0;  i<4;  i++  ) {
-			// oriented buildings here - get neighbouring layouts
-			gr = welt->lookup(koord3d(k+koord::nesw[i],offset));
-			if(!gr) {
-				// check whether bridge end tile
-				grund_t * gr_tmp = welt->lookup(koord3d(k+koord::nesw[i],offset-1));
-				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
-					gr = gr_tmp;
-				}
-				else {
-					grund_t * gr_tmp = welt->lookup(koord3d(k+koord::nesw[i],offset-2));
-					if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
-						gr = gr_tmp;
-					}
-				}
-			}
-			if(  gr && gr->get_halt().is_bound()  ) {
-				// check, if there is an oriented stop
-				const gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4  &&  (gb->get_tile()->get_desc()->get_type()>building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()>building_desc_t::flat_dock)  ) {
-					next_own |= ribi_t::nesw[i];
-					neighbour_layout[ribi_t::nesw[i]] = gb->get_tile()->get_layout();
-				}
-			}
-		}
-
-		// now for the details
-		ribi_t::ribi senkrecht = ~ribi_t::doubles(ribi);
-		ribi_t::ribi waagerecht = ribi_t::doubles(ribi);
-		if(next_own!=ribi_t::none) {
-			// oriented buildings here
-			if(ribi_t::is_single(ribi & next_own)) {
-				// only a single next neighbour on the same track
-				layout |= neighbour_layout[ribi & next_own] & 8;
-			}
-			else if(ribi_t::is_straight(ribi & next_own)) {
-				// two neighbours on the same track, use the north/west one
-				layout |= neighbour_layout[ribi & next_own & ribi_t::northwest] & 8;
-			}
-			else if(ribi_t::is_single((~ribi) & waagerecht & next_own)) {
-				// neighbour across break in track
-				layout |= neighbour_layout[(~ribi) & waagerecht & next_own] & 8;
-			}
-			else {
-				// no buildings left and right
-				// oriented buildings left and right
-				if(neighbour_layout[senkrecht & next_own & ribi_t::northwest] != -1) {
-					// just rotate layout
-					layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::northwest]&8);
-				}
-				else {
-					if(neighbour_layout[senkrecht & next_own & ribi_t::southeast] != -1) {
-						layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::southeast]&8);
-					}
-				}
-			}
-		}
-		// avoid orientation on 8 tiled buildings
-		layout &= (desc->get_all_layouts()-1);
+		// todo: check way ribis
 	}
 
 	halthandle_t old_halt = bd->get_halt();
@@ -4966,20 +4976,20 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 		case building_desc_t::generic_stop: {
 			switch(desc->get_extra()) {
 				case road_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, "H");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, rotation, road_wt, "H");
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), "BF");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, rotation, (waytype_t)desc->get_extra(), "BF");
 					break;
 				case water_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, "Dock");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, rotation, water_wt, "Dock");
 					break;
 				case air_wt:
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, air_wt, "Airport");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, rotation, air_wt, "Airport");
 					break;
 			}
 			break;

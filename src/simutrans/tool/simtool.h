@@ -409,7 +409,7 @@ private:
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
-	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
+	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, sint8, waytype_t, const char *halt_suffix );
 	const building_desc_t *get_desc( sint8 &rotation ) const;
 
 public:

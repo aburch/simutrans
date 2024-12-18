@@ -660,7 +660,19 @@ class ship_connector_t extends manager_t
             if (err) gui.add_message_at(our_player, "Failed to flatten slope at " + coord_to_string(tile) +"\n" + err, tile)
           }
           if (err == null) {
-            err = command_x.build_station(our_player, tile, planned_harbour_flat, dir.backward(d_water_to_land))
+            local rotation = 0
+            switch (dir.backward(d_water_to_land)) {
+              case 2:
+                rotation = 1
+                break
+              case 1:
+                rotation = 2
+                break
+              case 8:
+                rotation = 3
+              default:
+            }
+            err = command_x.build_station(our_player, tile, planned_harbour_flat, rotation)
             if (err) gui.add_message_at(our_player, "Failed to build flat harbour at " + coord_to_string(tile) +"\n" + err, tile)
           }
           local size = planned_harbour_flat.get_size(0)

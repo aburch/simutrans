@@ -3,12 +3,17 @@ include("hm_lib/hm_global")
 // valid only for wt_rail
 class hm_wayobj_tl extends hm_base_tl {
   desc_name = null
-  start = null
-  ziel = null
-  constructor(d_name, s, z) {
+  start     = null
+  ziel      = null
+  wtype     = null
+  overhead  = null
+
+  constructor(d_name, s, z, wt = null, oh = null) {
     desc_name = d_name
-    start = coord3d(s[0],s[1],s[2])
-    ziel = coord3d(z[0],z[1],z[2])
+    start     = coord3d(s[0],s[1],s[2])
+    ziel      = coord3d(z[0],z[1],z[2])
+    wtype     = wt
+    overhead  = oh
     hm_commands.append(this)
   }
 
@@ -36,15 +41,13 @@ class hm_wayobj_tl extends hm_base_tl {
       return [null, d]
     }
     else {
-      foreach(wt in hm_all_waytypes) {
-        foreach (c in wayobj_desc_x.get_available_wayobjs(wt)) {
-          if(c.get_name()==desc_name) {
-            return [null, c]
-          }
-        }
+      local d = hm_get_wayobjs_desc(desc_name, wtype, overhead)
+      //gui.add_message_at(player, "_get_desc - hm_get_way_desc() " + d, world.get_time())
+      if(d==null) {
+        local message = format(translate("Wayobj %s (%s) is not found!"), translate(desc_name), desc_name)
+        return [message, null]
       }
-      local message = format(translate("Wayobj %s (%s) is not found!"), translate(desc_name), desc_name)
-      return [message, null]
+      return [null, d]
     }
   }
 
@@ -58,7 +61,7 @@ class hm_wayobj_tl extends hm_base_tl {
     if(err!=null) {
       //calc_route() failed to find a path.
       local message = format(translate("Wayobj building path from ($s) to (%s) is not found!"), (origin+start).tostring(), (origin+ziel).tostring())
-      return [message, null]
+      return message
     } else {
       return null
     }

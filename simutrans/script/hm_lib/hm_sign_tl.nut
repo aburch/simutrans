@@ -3,12 +3,15 @@ include("hm_lib/hm_functions")
 
 class hm_sign_tl extends hm_base_tl {
   desc_name = null
-  pos = null
-  num_exec = 1
-  constructor(sign_name, num, p) {
+  pos       = null
+  num_exec  = 1
+  wtype     = null
+
+  constructor(sign_name, num, p, wt = null) {
     desc_name = sign_name
-    pos = coord3d(p[0],p[1],p[2])
-    num_exec = num
+    pos       = coord3d(p[0],p[1],p[2])
+    num_exec  = num
+    wtype     = wt
     hm_commands.append(this)
   }
 
@@ -34,7 +37,7 @@ class hm_sign_tl extends hm_base_tl {
       }
       return [null, d]
     } else {
-      local d = hm_get_sign_desc(desc_name)
+      local d = hm_get_sign_desc(desc_name, wtype)
       if(d==null) {
         local message = format(translate("Sign %s (%s) is not found!"), translate(desc_name), desc_name)
         return [message, null]

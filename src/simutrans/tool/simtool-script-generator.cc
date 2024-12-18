@@ -70,7 +70,7 @@ static void write_depot_at(cbuffer_t& buf, const koord3d pos, const koord3d orig
 		if (const depot_t* obj = gr->get_depot()) {
 			const building_desc_t* desc = obj->get_tile()->get_desc();
 			koord3d diff = pos - origin;
-			buf.printf("\thm_depot_tl(\"%s\",[%d,%d,%d])\n", desc->get_name(), diff.x, diff.y, diff.z);
+			buf.printf("\thm_depot_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, desc->get_finance_waytype());
 		}
 	}
 }
@@ -107,7 +107,7 @@ static void write_sign_at(cbuffer_t& buf, const koord3d pos, const koord3d origi
 			cnt = (d == ribi_t::north || d == ribi_t::south) ^ ow ? 2 : 3;
 		}
 		koord3d diff = pos - origin;
-		buf.printf("\thm_sign_tl(\"%s\",%d,[%d,%d,%d])\n", sign->get_desc()->get_name(), cnt, diff.x, diff.y, diff.z);
+		buf.printf("\thm_sign_tl(\"%s\",%d,[%d,%d,%d],%d)\n", sign->get_desc()->get_name(), cnt, diff.x, diff.y, diff.z, sign->get_desc()->get_waytype());
 	}
 }
 
@@ -173,7 +173,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 								all_bridgepos.append(bend);
 								bend -= origin;
 								// write bridge building command
-								buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d])\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+								buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d],%d)\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z, br->get_waytype());
 							}
 							// or the end of the map ...
 							break;
@@ -183,7 +183,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 							all_bridgepos.append(bend);
 							bend -= origin;
 							// write bridge building command
-							buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d])\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z);
+							buf.printf("\thm_bridge_tl(\"%s\",[%d,%d,%d],[%d,%d,%d],%d)\n", br->get_desc()->get_name(), bstart.x, bstart.y, bstart.z, bend.x, bend.y, bend.z, br->get_waytype());
 							break;
 						}
 						checkpos += zv;
@@ -217,10 +217,14 @@ static void write_command_halt(cbuffer_t& buf, const koord start, const koord en
 		for (const haltestelle_t::tile_t& t : halt->get_tiles()) {
 			koord p = t.grund->get_pos().get_2d();
 			if (start.x <= p.x && p.x <= end.x && start.y <= p.y && p.y <= end.y) {
-				if (const gebaeude_t* obj = t.grund->find<gebaeude_t>()) {
-					const building_desc_t* desc = obj->get_tile()->get_desc();
-					koord3d diff = t.grund->get_pos() - origin;
-					buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d])\n", desc->get_name(), diff.x, diff.y, diff.z);
+				if (const gebaeude_t* gb = t.grund->find<gebaeude_t>()) {
+					sint16 rotation = gb->get_tile()->get_layout();
+					if (gb->get_tile()->get_offset() == koord(0, 0)) {
+						// only for left top tile save
+						const building_desc_t* desc = gb->get_tile()->get_desc();
+						koord3d diff = t.grund->get_pos() - origin;
+						buf.printf("\thm_station_tl(\"%s\",[%d,%d,%d],%d,%d)\n", desc->get_name(), diff.x, diff.y, diff.z, gb->get_waytype(), rotation);
+					}
 				}
 			}
 		}
@@ -254,6 +258,8 @@ protected:
 		koord3d start;
 		koord3d end;
 		const char* desc_name;
+		waytype_t way_type;
+		sint16 system_type;
 	} typedef script_cmd;
 	vector_tpl<script_cmd> commands;
 
@@ -308,7 +314,12 @@ public:
 				}
 			}
 			// all adjacent entries were concatenated.
-			buf.printf("\t%s(\"%s\",[%d,%d,%d],[%d,%d,%d])\n", cmd_str, cmd.desc_name, cmd.start.x, cmd.start.y, cmd.start.z, cmd.end.x, cmd.end.y, cmd.end.z);
+			if (cmd.system_type >= 0) {
+				buf.printf("\t%s(\"%s\",[%d,%d,%d],[%d,%d,%d],%d,%d)\n", cmd_str, cmd.desc_name, cmd.start.x, cmd.start.y, cmd.start.z, cmd.end.x, cmd.end.y, cmd.end.z, cmd.way_type, cmd.system_type);
+			}
+			else {
+				buf.printf("\t%s(\"%s\",[%d,%d,%d],[%d,%d,%d],%d)\n", cmd_str, cmd.desc_name, cmd.start.x, cmd.start.y, cmd.start.z, cmd.end.x, cmd.end.y, cmd.end.z, cmd.way_type);
+			}
 		}
 	}
 };
@@ -379,7 +390,7 @@ protected:
 				if (to_weg_nr > 0) {
 					d = to_weg->get_desc();
 				}
-				commands.append(script_cmd{ pb, tp, d->get_name() });
+				commands.append(script_cmd{ pb, tp, d->get_name(), d->get_waytype(), (sint16)d->get_styp() });
 			}
 		}
 	}
@@ -418,7 +429,7 @@ protected:
 			gr->get_neighbour(to, type, dirs[i]);
 			const wayobj_t* t_obj = to ? to->get_wayobj(type) : NULL;
 			if (t_obj && t_obj->get_desc() == wayobj->get_desc()) {
-				commands.append(script_cmd{ pos - origin, to->get_pos() - origin, wayobj->get_desc()->get_name() });
+				commands.append(script_cmd{ pos - origin, to->get_pos() - origin, wayobj->get_desc()->get_name(), wayobj->get_waytype(),-1 });
 			}
 		}
 	}
