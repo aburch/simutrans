@@ -53,6 +53,7 @@ class viewport_t;
 class records_t;
 class loadingscreen_t;
 class terraformer_t;
+class building_desc_t;
 
 /**
  * Threaded function caller.
@@ -985,7 +986,7 @@ public:
 
 	/// Try to add a new city at @p pos with @p citizens inhabitants.
 	/// Returns NULL on failure.
-	stadt_t *create_city(koord pos, sint32 citizens);
+	stadt_t *create_city(koord pos, sint32 citizens, const building_desc_t* th=NULL, sint16 rotation=-1);
 
 	/// Removes town from map, houses will be left over.
 	bool remove_city(stadt_t *s);

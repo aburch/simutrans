@@ -1059,7 +1059,7 @@ const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 image_id toolbar_t::get_icon(player_t *player) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_EMPTY  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=PUBLIC_PLAYER_NR)  ) {
+	if(  icon==IMG_EMPTY  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=PLAYER_PUBLIC_NR)  ) {
 		return IMG_EMPTY;
 	}
 	// now have we a least one visible tool?

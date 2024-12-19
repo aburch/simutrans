@@ -186,6 +186,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 };
 
+// default_string (optional) population,townhallname,rotation
 class tool_add_city_t : public kartenboden_tool_t {
 public:
 	tool_add_city_t() : kartenboden_tool_t(TOOL_ADD_CITY | GENERAL_TOOL) {}

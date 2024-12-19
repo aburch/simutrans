@@ -963,5 +963,5 @@ bool player_t::can_afford(sint64 cost) const
 
 bool player_t::is_public_service() const
 {
-	return get_player_nr() == PUBLIC_PLAYER_NR;
+	return get_player_nr() == PLAYER_PUBLIC_NR;
 }

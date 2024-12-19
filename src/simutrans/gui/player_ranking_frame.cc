@@ -206,7 +206,7 @@ player_ranking_frame_t::player_ranking_frame_t(uint8 selected_player_nr) :
 		chart.set_background(SYSCOL_CHART_BACKGROUND);
 
 		for (int np = 0; np < MAX_PLAYER_COUNT; np++) {
-			if (np == PUBLIC_PLAYER_NR) continue;
+			if (np == PLAYER_PUBLIC_NR) continue;
 			if (welt->get_player(np)) {
 				player_button_t* b = new player_button_t(np);
 				b->add_listener(this);
@@ -373,7 +373,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 		for (uint i = 0; i < buttons.get_count(); i++) {
 			const uint8 player_nr = buttons.at(i)->get_player_nr();
 			// Exclude players who are not in the competition
-			if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
+			if (player_nr == PLAYER_PUBLIC_NR || is_chart_table_zero(player_nr)) {
 				continue;
 			}
 			new_count++;
@@ -397,7 +397,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 		for (uint i = 0; i < buttons.get_count(); i++) {
 			const uint8 player_nr = buttons.at(i)->get_player_nr();
 			// Exclude players who are not in the competition
-			if (player_nr == PUBLIC_PLAYER_NR || is_chart_table_zero(player_nr)) {
+			if (player_nr == PLAYER_PUBLIC_NR || is_chart_table_zero(player_nr)) {
 				continue;
 			}
 			count++;
@@ -437,7 +437,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 		// need to clear the chart once to update the suffix and digit
 		chart.remove_curves();
 		for (int np = 0; np < MAX_PLAYER_COUNT - 1; np++) {
-			if (np == PUBLIC_PLAYER_NR) continue;
+			if (np == PLAYER_PUBLIC_NR) continue;
 			if (player_t* player = welt->get_player(np)) {
 				if (is_chart_table_zero(np)) {
 					continue;
@@ -469,7 +469,7 @@ void player_ranking_frame_t::update_chart(bool full_update)
 	for (uint i = 0; i < buttons.get_count(); i++) {
 		const uint8 player_nr = buttons.at(i)->get_player_nr();
 		// Exclude players who are not in the competition
-		if (player_nr == PUBLIC_PLAYER_NR  ||  is_chart_table_zero(player_nr)) {
+		if (player_nr == PLAYER_PUBLIC_NR  ||  is_chart_table_zero(player_nr)) {
 			continue;
 		}
 		if (player_nr != selected_player) {

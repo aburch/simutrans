@@ -269,7 +269,7 @@ void bruecke_t::rotate90()
 // players can remove public owned ways
 const char *bruecke_t::get_removal_error(const player_t *player)
 {
-	if (get_owner_nr()==PUBLIC_PLAYER_NR) {
+	if (get_owner_nr()==PLAYER_PUBLIC_NR) {
 		return NULL;
 	}
 	else {

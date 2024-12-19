@@ -27,8 +27,8 @@ class tool_t;
 class finance_t;
 
 
-#define HUMAN_PLAYER_NR  (0)
-#define PUBLIC_PLAYER_NR (1)
+#define PLAYER_HUMAN_NR  (0)
+#define PLAYER_PUBLIC_NR (1)
 
 
 /**

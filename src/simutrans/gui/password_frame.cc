@@ -30,7 +30,7 @@ password_frame_t::password_frame_t( player_t *player ) :
 
 	this->player = player;
 
-	if(  !player->is_locked()  ||  (welt->get_active_player_nr()==PUBLIC_PLAYER_NR  &&  !welt->get_public_player()->is_locked())   ) {
+	if(  !player->is_locked()  ||  (welt->get_active_player_nr()==PLAYER_PUBLIC_NR  &&  !welt->get_public_player()->is_locked())   ) {
 		// allow to change name name
 		tstrncpy( player_name_str, player->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
@@ -93,7 +93,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *comp, value_t p )
 			/* if current active player is player 1 and this is unlocked, he may reset passwords
 			 * otherwise you need the valid previous password
 			 */
-			if(  !player->is_locked()  ||  (welt->get_active_player_nr()==PUBLIC_PLAYER_NR  &&  !welt->get_public_player()->is_locked())   ) {
+			if(  !player->is_locked()  ||  (welt->get_active_player_nr()==PLAYER_PUBLIC_NR  &&  !welt->get_public_player()->is_locked())   ) {
 				// set password
 				player->access_password_hash() = hash;
 				player->unlock(true, false);

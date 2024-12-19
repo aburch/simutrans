@@ -23,6 +23,7 @@
 
 #include "../sys/simsys.h"
 
+#include "../world/simcity.h"
 #include "../world/simworld.h"
 #include "../world/simplan.h"
 
@@ -43,14 +44,18 @@ void tool_generate_script_t::mark_tiles(player_t*, const koord3d& start, const k
 						if (gr->ist_karten_boden() || gr->get_pos().z > plan->get_boden_bei(0)->get_pos().z) {
 							zeiger_t* marker = new zeiger_t(gr->get_pos(), NULL);
 							const uint8 grund_hang = gr->get_grund_hang();
-				/*			const uint8 weg_hang = gr->get_weg_hang();
+#if 0
+							// this would use the way slope, not the ground slope
+							const uint8 weg_hang = gr->get_weg_hang();
 							const uint8 hang = max(corner_sw(grund_hang), corner_sw(weg_hang)) +
 								3 * max(corner_se(grund_hang), corner_se(weg_hang)) +
 								9 * max(corner_ne(grund_hang), corner_ne(weg_hang)) +
 								27 * max(corner_nw(grund_hang), corner_nw(weg_hang));
-							uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;*/
-							marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
+							uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+#else
 							uint8 back_hang = (grund_hang % 3) + 3 * ((uint8)(grund_hang / 9)) + 27;
+#endif
+							marker->set_foreground_image(ground_desc_t::marker->get_image(grund_hang % 27));
 							marker->set_image(ground_desc_t::marker->get_image(back_hang));
 							marker->mark_image_dirty(marker->get_image(), 0);
 							gr->obj_add(marker);
@@ -64,19 +69,81 @@ void tool_generate_script_t::mark_tiles(player_t*, const koord3d& start, const k
 }
 
 
-static void write_depot_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
+static void write_city_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
-	if (const grund_t* gr = world()->lookup(pos)) {
-		if (const depot_t* obj = gr->get_depot()) {
-			const building_desc_t* desc = obj->get_tile()->get_desc();
-			koord3d diff = pos - origin;
-			buf.printf("\thm_depot_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, desc->get_finance_waytype());
+	if (pl->is_public_service()) {
+		if (const grund_t* gr = world()->lookup(pos)) {
+			if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
+				sint16 rotation = gb->get_tile()->get_layout();
+				if (gb->get_tile()->get_offset() == koord(0, 0)) {
+					if (gb->is_townhall()) {
+						koord3d diff = pos - origin;
+						buf.printf("\thm_city_set_population_tl(%ld,[%d,%d,%d])\n", gb->get_stadt()->get_finance_history_month(0, HIST_CITIZENS), diff.x, diff.y, diff.z);
+					}
+				}
+			}
 		}
 	}
 }
 
 
-static void write_sign_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
+static void write_house_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+{
+	if (const grund_t* gr = world()->lookup(pos)) {
+		if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			if (gb->get_tile()->get_offset() == koord(0, 0)) {
+				// we have a start tile here => more checks
+				const building_desc_t* desc = gb->get_tile()->get_desc();
+				if (!desc->is_transport_building()) {
+					sint16 rotation = gb->get_tile()->get_layout();
+					if (pl->is_public_service()) {
+						if (desc->is_headquarters()) {
+							// skipping
+						}
+						else if (desc->is_factory()) {
+							koord3d diff = pos - origin;
+							//		buf.printf("\thm_factor_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						}
+						else if (desc->is_attraction()) {
+							koord3d diff = pos - origin;
+							buf.printf("\thm_attraction_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						}
+						else if (gb->is_townhall()) {
+							koord3d diff = pos - origin;
+							buf.printf("\thm_city_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						}
+						else if (desc->is_connected_with_town()) {
+							koord3d diff = pos - origin;
+							buf.printf("\thm_house_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						}
+					}
+					else if (gb->get_owner() == pl) {
+						koord3d diff = pos - origin;
+						buf.printf("\thm_%s_tl(\"%s\",[%d,%d,%d],%d)\n", (desc->is_headquarters() ? "headquarter" : "house"), desc->get_name(), diff.x, diff.y, diff.z, rotation);
+					}
+				}
+			}
+		}
+	}
+}
+
+
+static void write_depot_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+{
+	if (const grund_t* gr = world()->lookup(pos)) {
+		if (const depot_t* obj = gr->get_depot()) {
+			if (obj->get_owner() == pl) {
+				const building_desc_t* desc = obj->get_tile()->get_desc();
+				koord3d diff = pos - origin;
+				buf.printf("\thm_depot_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, desc->get_finance_waytype());
+			}
+		}
+	}
+}
+
+
+// taking all roadsigns for now
+static void write_sign_at(player_t* , cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	const grund_t* gr = world()->lookup(pos);
 	const weg_t* weg = gr ? gr->get_weg_nr(0) : NULL;
@@ -112,12 +179,24 @@ static void write_sign_at(cbuffer_t& buf, const koord3d pos, const koord3d origi
 }
 
 
-static void write_slope_at(cbuffer_t& buf, const koord3d pos, const koord3d origin)
+static void write_slope_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	const grund_t* gr = world()->lookup(pos);
-	if (!gr || gr->is_water()  ||  gr->ist_auf_bruecke()  ) {
+	if (!gr  ||  gr->is_water()  ||  gr->ist_auf_bruecke()  ||  gr->ist_im_tunnel()) {
 		return;
 	}
+	if(!pl->is_public_service()) {
+		// only save used tiles unless public service
+		if (gr->ist_natur()  &&  gr->get_typ()==grund_t::boden) {
+			// do not touch
+			return;
+		}
+		if (origin.z > pos.z  &&  (gr->obj_count()==0  ||  gr->obj_bei(0)->get_owner() != pl)) {
+			// do not save tiles below the start unless is mine
+			return;
+		}
+	}
+
 	const koord3d pb = pos - origin;
 	sint8 diff = pb.z;
 	while (diff != 0) {
@@ -140,8 +219,8 @@ static void write_slope_at(cbuffer_t& buf, const koord3d pos, const koord3d orig
 }
 
 
-// we only write bridges inside the marked area
-static void write_command_bridges(cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
+// we only write bridges inside the marked area (ignoring ownership)
+static void write_command_bridges(player_t*, cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
 {
 	vector_tpl<koord3d> all_bridgepos;;
 	karte_t* welt = world();
@@ -197,7 +276,7 @@ static void write_command_bridges(cbuffer_t& buf, const koord start, const koord
 
 // since the building order is important, we build the station in the same tile order as the original
 // May be still fail if there have been connecting tiles that have been deleted ...
-static void write_command_halt(cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
+static void write_command_halt(player_t* pl, cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
 {
 	vector_tpl<halthandle_t> all_halt;
 	karte_t *welt = world();
@@ -206,7 +285,7 @@ static void write_command_halt(cbuffer_t& buf, const koord start, const koord en
 			if (planquadrat_t* plan = welt->access(x, y)) {
 				for (uint8 i = 0; i < plan->get_boden_count(); i++) {
 					halthandle_t h = plan->get_boden_bei(i)->get_halt();
-					if (h.is_bound()) {
+					if (h.is_bound()  &&  (h->get_owner()==pl  ||  h->get_owner()->get_player_nr()==PLAYER_PUBLIC_NR)) {
 						all_halt.append_unique(h);
 					}
 				}
@@ -232,7 +311,7 @@ static void write_command_halt(cbuffer_t& buf, const koord start, const koord en
 }
 
 
-static void write_command(cbuffer_t& buf, void (*func)(cbuffer_t&, const koord3d, const koord3d), const koord start, const koord end, const koord3d origin)
+static void write_command(player_t *pl, cbuffer_t& buf, void (*func)(player_t*, cbuffer_t&, const koord3d, const koord3d), const koord start, const koord end, const koord3d origin)
 {
 	karte_t* welt = world();
 	for (sint16 x = start.x; x <= end.x; x++) {
@@ -241,7 +320,7 @@ static void write_command(cbuffer_t& buf, void (*func)(cbuffer_t&, const koord3d
 				for (uint8 i = 0; i < plan->get_boden_count(); i++) {
 					if (grund_t* gr = plan->get_boden_bei(i)) {
 						if (!gr->ist_im_tunnel()) {
-							func(buf, plan->get_boden_bei(i)->get_pos(), origin);
+							func(pl, buf, plan->get_boden_bei(i)->get_pos(), origin);
 						}
 					}
 				}
@@ -263,6 +342,8 @@ protected:
 	} typedef script_cmd;
 	vector_tpl<script_cmd> commands;
 
+	const player_t* player;
+
 	cbuffer_t& buf;
 
 	const char* cmd_str;
@@ -275,8 +356,8 @@ protected:
 	virtual bool can_concatnate(script_cmd& a, script_cmd& b) = 0;
 
 public:
-	write_path_command_t(cbuffer_t& b, koord s, koord e, koord3d o) :
-		buf(b), start(s), end(e), origin(o) { };
+	write_path_command_t(player_t* pl, cbuffer_t& b, koord s, koord e, koord3d o) :
+		player(pl), buf(b), start(s), end(e), origin(o) { };
 
 	void write() {
 		for (sint8 z = -128; z < 127; z++) { // iterate for all height
@@ -401,8 +482,8 @@ protected:
 	}
 
 public:
-	write_way_command_t(cbuffer_t& b, koord s, koord e, koord3d o, bool fp) :
-		write_path_command_t(b, s, e, o)
+	write_way_command_t(player_t* pl, cbuffer_t& b, koord s, koord e, koord3d o, bool fp) :
+		write_path_command_t(pl, b, s, e, o)
 	{
 		cmd_str = "hm_way_tl";
 		first_pass = fp;
@@ -440,8 +521,8 @@ protected:
 	}
 
 public:
-	write_wayobj_command_t(cbuffer_t& b, koord s, koord e, koord3d o) :
-		write_path_command_t(b, s, e, o)
+	write_wayobj_command_t(player_t *pl, cbuffer_t& b, koord s, koord e, koord3d o) :
+		write_path_command_t(pl, b, s, e, o)
 	{
 		cmd_str = "hm_wayobj_tl";
 	}
@@ -462,14 +543,18 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	int cmdlen = generated_script_buf.len();
 
 	koord3d begin(k1, start.z);
-	write_command(generated_script_buf, write_slope_at, k1, k2, begin);
-	write_command_bridges(generated_script_buf, k1, k2, begin);
-	write_way_command_t(generated_script_buf, k1, k2, begin, true).write();
-	write_way_command_t(generated_script_buf, k1, k2, begin, false).write();
-	write_wayobj_command_t(generated_script_buf, k1, k2, begin).write();
-	write_command_halt(generated_script_buf, k1, k2, begin);
-	write_command(generated_script_buf, write_depot_at, k1, k2, begin);
-	write_command(generated_script_buf, write_sign_at, k1, k2, begin);
+	write_command(pl, generated_script_buf, write_slope_at, k1, k2, begin);
+	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true).write();
+	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false).write();
+	write_wayobj_command_t(pl, generated_script_buf, k1, k2, begin).write();
+	write_command_halt(pl, generated_script_buf, k1, k2, begin);
+	write_command(pl, generated_script_buf, write_depot_at, k1, k2, begin);
+	write_command(pl, generated_script_buf, write_sign_at, k1, k2, begin);
+	write_command(pl, generated_script_buf, write_house_at, k1, k2, begin);
+	if (pl->is_public_service()) {
+		write_command(pl, generated_script_buf, write_city_at, k1, k2, begin);
+	}
 
 	if (cmdlen == generated_script_buf.len()) {
 		return NULL;

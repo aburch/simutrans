@@ -969,7 +969,7 @@ static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* c
 }
 
 
-stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
+stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens, const building_desc_t* th, sint16 rotation) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
@@ -1034,14 +1034,14 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	has_townhall = false;
 
 	// 1. Rathaus bei 0 Leuten bauen
-	check_bau_townhall(true);
+	check_bau_townhall( true, th, rotation);
 
 	unsupplied_city_growth = 0;
 	allow_citygrowth = true;
 
 	// only build any houses if townhall is already there
 	// city should be deleted if it has no buildings
-	if (!buildings.empty()) {
+	if (!buildings.empty()  &&  citizens>0) {
 		change_size( citizens, true );
 	}
 
@@ -1293,7 +1293,7 @@ void stadt_t::finish_rd()
 
 	if (!has_townhall) {
 		dbg->warning("stadt_t::finish_rd()", "City %s has no valid townhall after loading the savegame, try to build a new one.", get_name());
-		check_bau_townhall(true);
+		check_bau_townhall(true,NULL,-1);
 	}
 	// new city => need to grow
 	if (buildings.empty()) {
@@ -1799,7 +1799,7 @@ void stadt_t::step_grow_city( bool new_town )
 		}
 
 		check_bau_spezial(new_town);
-		check_bau_townhall(new_town);
+		check_bau_townhall(new_town,NULL,-1);
 		check_bau_factory(new_town); // add industry? (not during creation)
 		INT_CHECK("simcity 275");
 	}
@@ -2425,9 +2425,11 @@ void stadt_t::check_bau_spezial(bool new_town)
 }
 
 
-void stadt_t::check_bau_townhall(bool new_town)
+void stadt_t::check_bau_townhall(bool new_town, const building_desc_t* desc, sint16 rotation)
 {
-	const building_desc_t* desc = hausbauer_t::get_special( has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos) );
+	if (desc == NULL) {
+		desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
+	}
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_no_way_obj());
@@ -2436,7 +2438,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
 		koord k;
-		int old_layout(0);
+		int old_layout = rotation;
 
 		DBG_MESSAGE("check_bau_townhall()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
@@ -2557,7 +2559,13 @@ void stadt_t::check_bau_townhall(bool new_town)
 		}
 
 		// Now built the new townhall (remember old orientation)
-		int layout = umziehen || neugruendung ? simrand(desc->get_all_layouts()) : old_layout % desc->get_all_layouts();
+		sint16 layout = old_layout;
+		if (old_layout == -1  ||  neugruendung) {
+			layout = simrand(desc->get_all_layouts());
+		}
+		else {
+			layout = old_layout % desc->get_all_layouts();
+		}
 		// on which side should we place the road?
 		uint8 dir = ribi_t::layout_to_ribi[layout & 3];
 		if (neugruendung || umziehen) {

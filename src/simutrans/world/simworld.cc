@@ -552,12 +552,12 @@ void karte_t::rem_convoi(convoihandle_t const cnv)
 }
 
 
-stadt_t *karte_t::create_city(const koord pos, sint32 citizens)
+stadt_t *karte_t::create_city(const koord pos, sint32 citizens, const building_desc_t* th, sint16 rotation)
 {
 	// if city is owned by player and player removes special
 	// buildings the game crashes. To avoid this problem cities
 	// always belong to the public player
-	stadt_t *new_city = new stadt_t(get_public_player(), pos, citizens);
+	stadt_t *new_city = new stadt_t(get_public_player(), pos, citizens, th, rotation);
 	if (new_city->get_einwohner() == 0) {
 		delete new_city;
 		return NULL;
@@ -632,8 +632,8 @@ void karte_t::init_tiles()
 		// old default: AI 3 passenger, other goods
 		players[i] = (i<2) ? new player_t(i) : NULL;
 	}
-	active_player = players[HUMAN_PLAYER_NR];
-	active_player_nr = HUMAN_PLAYER_NR;
+	active_player = players[PLAYER_HUMAN_NR];
+	active_player_nr = PLAYER_HUMAN_NR;
 
 	// defaults without timeline
 	average_speed[0] = 60;
@@ -1315,7 +1315,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
 	// finishes the line preparation and sets id 0 to invalid ...
-	players[HUMAN_PLAYER_NR]->simlinemgmt.finish_rd();
+	players[PLAYER_HUMAN_NR]->simlinemgmt.finish_rd();
 
 	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
@@ -1327,8 +1327,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		}
 	}
 
-	active_player_nr = HUMAN_PLAYER_NR;
-	active_player = players[HUMAN_PLAYER_NR];
+	active_player_nr = PLAYER_HUMAN_NR;
+	active_player = players[PLAYER_HUMAN_NR];
 	tool_t::update_toolbars();
 
 	msg->clear();
@@ -4465,8 +4465,8 @@ void karte_t::rdwr_gamestate(loadsave_t *file, loadingscreen_t *ls)
 			}
 		}
 		// so far, player 1 will be active (may change in future)
-		active_player = players[HUMAN_PLAYER_NR];
-		active_player_nr = HUMAN_PLAYER_NR;
+		active_player = players[PLAYER_HUMAN_NR];
+		active_player_nr = PLAYER_HUMAN_NR;
 	}
 
 	// rdwr tree ID mapping to restore tree IDs
@@ -5569,7 +5569,7 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 
 void karte_t::remove_player(uint8 player_nr)
 {
-	if ( player_nr!=PUBLIC_PLAYER_NR  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
+	if ( player_nr!=PLAYER_PUBLIC_NR  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
 		players[player_nr]->ai_bankrupt();
 		delete players[player_nr];
 		players[player_nr] = NULL;
@@ -5577,13 +5577,13 @@ void karte_t::remove_player(uint8 player_nr)
 		nwc_chg_player_t::company_removed(player_nr);
 
 		// if default human, create new instace of it (to avoid crashes)
-		if(  player_nr == HUMAN_PLAYER_NR  ) {
-			players[0] = new player_t( HUMAN_PLAYER_NR );
+		if(  player_nr == PLAYER_HUMAN_NR  ) {
+			players[0] = new player_t( PLAYER_HUMAN_NR );
 		}
 		// if currently still active => reset to default human
 		if(  player_nr == active_player_nr  ) {
-			active_player_nr = HUMAN_PLAYER_NR;
-			active_player = players[HUMAN_PLAYER_NR];
+			active_player_nr = PLAYER_HUMAN_NR;
+			active_player = players[PLAYER_HUMAN_NR];
 			if(  !env_t::server  ) {
 				const scr_coord pos{ display_get_width()/2-128, 40 };
 				create_win( pos, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -5606,9 +5606,9 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 
 	// no cheating allowed?
 	if (!settings.get_allow_player_change() && get_public_player()->is_locked()) {
-		active_player_nr = HUMAN_PLAYER_NR;
-		active_player = players[HUMAN_PLAYER_NR];
-		if(new_player!=HUMAN_PLAYER_NR) {
+		active_player_nr = PLAYER_HUMAN_NR;
+		active_player = players[PLAYER_HUMAN_NR];
+		if(new_player!=PLAYER_HUMAN_NR) {
 			create_win( new news_img("On this map, you are not\nallowed to change player!\n"), w_time_delete, magic_none);
 		}
 	}
@@ -6531,7 +6531,7 @@ const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 
 player_t *karte_t::get_public_player() const
 {
-	return get_player(PUBLIC_PLAYER_NR);
+	return get_player(PLAYER_PUBLIC_NR);
 }
 
 

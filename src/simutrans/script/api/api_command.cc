@@ -321,19 +321,6 @@ typedef call_tool_work(*bsr_type)(player_t*, koord3d, const building_desc_t*, si
 call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_desc_t* building, sint16 rot)
 {
 	// rotation: SENW -> 0123, see station_building_select_t
-#if 0
-	int rot = -1;
-	switch( (ribi_t::ribi)rotation )
-	{
-		case ribi_t::south: rot = 0; break;
-		case ribi_t::east:  rot = 1; break;
-		case ribi_t::north: rot = 2; break;
-		case ribi_t::west:  rot = 3; break;
-		default: ;
-	}
-#else
-
-#endif
 	if (building == NULL  ||  !building->is_transport_building()) {
 		return call_tool_work("No building provided");
 	}

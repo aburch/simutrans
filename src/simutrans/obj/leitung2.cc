@@ -418,7 +418,7 @@ void leitung_t::rdwr(loadsave_t *file)
 // players can remove public owned powerlines
 const char *leitung_t::get_removal_error(const player_t *player)
 {
-	if(  get_owner_nr()==PUBLIC_PLAYER_NR  &&  player  ) {
+	if(  get_owner_nr()==PLAYER_PUBLIC_NR  &&  player  ) {
 		return NULL;
 	}
 	return obj_t::get_removal_error(player);

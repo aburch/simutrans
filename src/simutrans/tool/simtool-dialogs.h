@@ -111,7 +111,7 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player) const OVERRIDE{ return !player || player->get_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t* player) const OVERRIDE{ return !player || player->get_player_nr() == PLAYER_PUBLIC_NR ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
 		if (!player->is_public_service()) {
@@ -352,7 +352,7 @@ class dialog_list_convoi_t : public tool_t {
 public:
 	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PLAYER_PUBLIC_NR ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
 	bool init(player_t* player) OVERRIDE{
 		create_win(new convoi_frame_t(), w_info, magic_convoi_list + player->get_player_nr());
@@ -369,7 +369,7 @@ public:
 	dialog_list_depot_t() : tool_t(DIALOG_LIST_DEPOT | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("dp_title"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_depotlist + welt->get_active_player_nr()); }
-	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PUBLIC_PLAYER_NR ? IMG_EMPTY : icon; }
+	image_id get_icon(player_t*) const OVERRIDE{ return welt->get_active_player_nr() == PLAYER_PUBLIC_NR ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE{
 		create_win(new depotlist_frame_t(player), w_info, magic_depotlist + player->get_player_nr());
 		return false;

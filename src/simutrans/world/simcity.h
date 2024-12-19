@@ -349,7 +349,7 @@ private:
 	/**
 	 * baut ein angemessenes Rathaus
 	 */
-	void check_bau_townhall(bool);
+	void check_bau_townhall(bool new_town, const building_desc_t* th, sint16 rotation);
 
 	/**
 	 * constructs a new consumer
@@ -474,7 +474,7 @@ public:
 	 * @param pos Planquadratkoordinate
 	 * @param citizens number of citizens
 	 */
-	stadt_t(player_t* player, koord pos, sint32 citizens);
+	stadt_t(player_t* player, koord pos, sint32 citizens, const building_desc_t* th = NULL, sint16 rotation = -1);
 
 	/**
 	 * Erzeugt eine neue City nach Angaben aus der Datei file.
