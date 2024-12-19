@@ -503,11 +503,11 @@ void grund_t::rotate90()
 	pos.rotate90( welt->get_size().y-1 );
 	slope = slope_t::rotate90( slope );
 	// then rotate the things on this tile
+	if (obj_count() == 254) {
+		dbg->warning("grund_t::rotate90()", "Too many stuff on (%s)", pos.get_str());
+	}
 	objlist.rotate90_moving();
 	uint8 trees = 0, offset = 0;
-	if(  obj_count()==254  ) {
-		dbg->warning( "grund_t::rotate90()", "Too many stuff on (%s)", pos.get_str() );
-	}
 	for(  uint8 i=0;  i<objlist.get_top();  i++  ) {
 		obj_bei(i)->rotate90();
 		if (obj_bei(i)->get_typ() == obj_t::baum) {

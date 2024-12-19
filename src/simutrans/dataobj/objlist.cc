@@ -625,7 +625,6 @@ void objlist_t::rotate90_moving()
 		return;
 
 	obj_t **old_some = obj.some;
-//	obj.some = dl_alloc(capacity);
 	obj_t* temp_some[254];
 	obj.some = temp_some;
 
@@ -726,8 +725,8 @@ void objlist_t::rotate90_moving()
 
 	while (top < old_top)
 		obj.some[top++] = old_some[end++];
-
-//	dl_free(old_some, capacity);
+	memcpy(old_some, obj.some, sizeof(void*) * top);
+	obj.some = old_some;
 }
 
 

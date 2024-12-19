@@ -30,6 +30,10 @@ static freelist_size_t* all_lists[NUM_LIST] = {
 	NULL
 };
 
+#ifdef MULTI_THREAD
+static pthread_mutex_t freelist_mutex_create = PTHREAD_MUTEX_INITIALIZER;;
+#endif
+
 void* freelist_t::gimme_node(size_t size)
 {
 	size_t idx = (size + 3) / 4;
@@ -37,7 +41,13 @@ void* freelist_t::gimme_node(size_t size)
 		return xmalloc(size);
 	}
 	if (all_lists[idx] == NULL) {
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&freelist_mutex_create);
+#endif
 		all_lists[idx] = new freelist_size_t(size * 4);
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&freelist_mutex_create);
+#endif
 	}
 	return all_lists[idx]->gimme_node();
 }
