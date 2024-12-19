@@ -329,7 +329,12 @@ call_tool_work build_station_rotation(player_t* pl, koord3d pos, const building_
 	}
 	static cbuffer_t buf;
 	buf.clear();
-	buf.printf("%s,%i", building->get_name(), rot);
+	if (rot >= 0) {
+		buf.printf("%s,%i", building->get_name(), rot);
+	}
+	else {
+		buf.printf("%s", building->get_name());
+	}
 	return call_tool_work(TOOL_BUILD_STATION | GENERAL_TOOL, buf, 0, pl, pos);
 }
 

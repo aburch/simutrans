@@ -4594,9 +4594,9 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 			}
 
 			switch(ribi) {
-				//case ribi_t::south:layout = 0;  break;
-				case ribi_t::east:   layout = 1;    break;
-				case ribi_t::north:  layout = 2;    break;
+				case ribi_t::south: layout = 0;  break;
+				case ribi_t::east:  layout = 1;    break;
+				case ribi_t::north: layout = 2;    break;
 				case ribi_t::west:  layout = 3;    break;
 			}
 		}
@@ -4650,6 +4650,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 			// now for the details
 			ribi_t::ribi senkrecht = ~ribi_t::doubles(ribi);
 			ribi_t::ribi waagerecht = ribi_t::doubles(ribi);
+			layout = 0;
 			if(next_own!=ribi_t::none) {
 				// oriented buildings here
 				if(ribi_t::is_single(ribi & next_own)) {
@@ -4678,6 +4679,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 					}
 				}
 			}
+			assert(layout >= 0);
 			// avoid orientation on 8 tiled buildings
 			layout &= (desc->get_all_layouts()-1);
 		}
