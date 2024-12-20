@@ -1926,7 +1926,32 @@ function expand_station(pl, fields, wt, select_station, start_fld, combined_halt
           // bridge start field -> build to ground
           fields[i].z -= 1
         }
-        err = command_x.build_station(pl, fields[i], select_station)
+        // set the rotation for build
+        local rotation = 0
+        /*
+        switch (fields[i].get_way_dirs(wt)) {
+          case 2:
+            rotation = 1
+            break
+          case 1:
+            rotation = 2
+            break
+          case 8:
+            rotation = 3
+            break
+          default:
+
+        }*/
+        local d = tile_x(fields[i].x, fields[i].y, fields[i].z).get_way_dirs(wt)
+        if ( d == 2 || d == 8 || d == 10 ) {
+          rotation = 1
+        } else if ( d == 1 || d == 4 || d == 5 ) {
+          rotation = 0
+        }
+
+        if (debug) gui.add_message_at(pl, "(1952) ---=> set the rotation for build " + rotation, fields[i])
+
+        err = command_x.build_station(pl, fields[i], select_station, rotation)
         if ( err ) {
           if ( print_message_box > 0 ) {
             gui.add_message_at(pl, "(1615) ---=> not build station tile at " + coord3d_to_string(fields[i]), fields[i])

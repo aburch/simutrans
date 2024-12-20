@@ -210,7 +210,8 @@ class road_connector_t extends manager_t
             return restart_with_phase0()
             //return error_handler()
           } else if ( c_generate_start || obj_building == null) {
-            err = command_x.build_station(pl, c_start, planned_station )
+            err = build_road_station(c_start, planned_station)
+            //err = command_x.build_station(pl, c_start, planned_station )
           }
           if (err) {
             if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_start) + " [" + err + "]", c_start)// try again
@@ -220,7 +221,8 @@ class road_connector_t extends manager_t
           else {
             c_generate_start = false // station build, do not search for another place
           }
-          err = command_x.build_station(pl, c_end, planned_station )
+          err = build_road_station(c_end, planned_station)
+          //err = command_x.build_station(pl, c_end, planned_station )
           if (err) {
             if (debug) gui.add_message_at(pl, "Failed to build road station at  " + coord_to_string(c_end) + " [" + err + "]", c_end)
             // try again
@@ -518,6 +520,31 @@ class road_connector_t extends manager_t
     }
     local d = res.end
     c_depot = tile_x(d.x, d.y, d.z)
+  }
+
+  function build_road_station(tile, station) {
+    local err = null
+
+    local d = tile_x(tile.x, tile.y, tilez).get_way_dirs(wt_road)
+    local rotation = 0
+    switch (d) {
+      case 2:
+        rotation = 1
+        break
+      case 1:
+        rotation = 2
+        break
+      case 8:
+        rotation = 3
+        break
+      default:
+
+    }
+
+
+    err = command_x.build_station(pl, tile, station, rotation )
+
+    return err
   }
 }
 
