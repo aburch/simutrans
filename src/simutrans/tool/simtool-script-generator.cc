@@ -119,7 +119,13 @@ static void write_house_at(player_t* pl, cbuffer_t& buf, const koord3d pos, cons
 					}
 					else if (gb->get_owner() == pl) {
 						koord3d diff = pos - origin;
-						buf.printf("\thm_%s_tl(\"%s\",[%d,%d,%d],%d)\n", (desc->is_headquarters() ? "headquarter" : "house"), desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						if (desc->is_headquarters()) {
+							// headquarter has a level instead desc
+							buf.printf("\thm_headquarter_tl(%d,[%d,%d,%d],%d)\n", pl->get_headquarter_level(), diff.x, diff.y, diff.z, rotation);
+						}
+						else {
+							buf.printf("\thm_house_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+						}
 					}
 				}
 			}
