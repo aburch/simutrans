@@ -436,12 +436,12 @@ void money_frame_t::update_labels()
 
 	// update headquarter button
 	headquarter.disable();
-	if(  player->get_ai_id()!=player_t::HUMAN  ) {
+	if(  player->get_ai_id()!=player_t::HUMAN  &&  player->get_ai_id() != player_t::AI_SCRIPTED  ) {
 		headquarter.set_tooltip( "Configure AI setttings" );
 		headquarter.set_text( "Configure AI" );
 		headquarter.enable();
 	}
-	else {
+	else if(  player->get_ai_id() == player_t::HUMAN  ) {
 		koord pos = player->get_headquarter_pos();
 		headquarter.set_text( pos != koord::invalid ? "show HQ" : "build HQ" );
 		headquarter.set_tooltip( NULL );
@@ -463,6 +463,9 @@ void money_frame_t::update_labels()
 		else {
 			headquarter.enable();
 		}
+	}
+	else {
+		// just ugly dark box ...
 	}
 
 	// current maintenance
