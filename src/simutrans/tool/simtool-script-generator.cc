@@ -219,6 +219,29 @@ static void write_slope_at(player_t* pl, cbuffer_t& buf, const koord3d pos, cons
 }
 
 
+static void write_ground_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+{
+	const grund_t* gr = world()->lookup(pos);
+	if (!gr || gr->is_water() || gr->ist_auf_bruecke() || gr->ist_im_tunnel()) {
+		return;
+	}
+	if (!pl->is_public_service()) {
+		// only save used tiles unless public service
+		if (gr->ist_natur() && gr->get_typ() == grund_t::boden) {
+			// do not touch
+			return;
+		}
+		if (origin.z > pos.z && (gr->obj_count() == 0 || gr->obj_bei(0)->get_owner() != pl)) {
+			// do not save tiles below the start unless is mine
+			return;
+		}
+	}
+
+	const koord3d pb = pos - origin;
+	buf.printf("\thm_ground_tl(%d,[%d,%d,%d])\n", gr->get_grund_hang(), pb.x, pb.y, pb.z);
+}
+
+
 // we only write bridges inside the marked area (ignoring ownership)
 static void write_command_bridges(player_t*, cbuffer_t& buf, const koord start, const koord end, const koord3d origin)
 {
@@ -543,7 +566,7 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	int cmdlen = generated_script_buf.len();
 
 	koord3d begin(k1, start.z);
-	write_command(pl, generated_script_buf, write_slope_at, k1, k2, begin);
+	write_command(pl, generated_script_buf, write_ground_at, k1, k2, begin); // write all used tiles
 	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true).write();
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false).write();
