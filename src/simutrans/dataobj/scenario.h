@@ -115,7 +115,7 @@ private:
 
 		/// constructor: forbid tool/etc for a certain player
 		forbidden_t(forbid_type type_=forbid_tool, uint16 toolnr_=0, sint16 waytype_= ignore_wt, const char *param_=NULL) :
-			type(type_), toolnr(toolnr_), waytype(waytype_ < 0 ? ignore_wt : waytype_),
+			type(type_), toolnr(toolnr_), waytype(waytype_ < 0 ? (sint16)ignore_wt : waytype_),
 			pos_nw(koord::invalid), pos_se(koord::invalid), hmin(-128), hmax(127), error()
 		{
 			parameter_hash = string_to_hash(param_);
@@ -123,7 +123,7 @@ private:
 
 		/// constructor: forbid tool for a certain player at certain locations (and heights)
 		forbidden_t(uint16 toolnr_, sint16 waytype_, const char *param_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
-			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_ < 0 ? ignore_wt : waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
+			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_ < 0 ? (sint16)ignore_wt : waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
 		{
 			parameter_hash = string_to_hash(param_);
 		}

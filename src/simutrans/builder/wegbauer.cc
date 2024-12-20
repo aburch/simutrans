@@ -679,7 +679,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 					return false;
 				}
 			}
-			if ((bautyp_mask & bautyp)==powerline_wt  &&  from->get_leitung()) {
+			if ((bautyp_mask & bautyp)==leitung  &&  from->get_leitung()) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(from->get_leitung()->get_ribi())) {
 					return false;
 				}
@@ -691,7 +691,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 					return false;
 				}
 			}
-			if ((bautyp_mask & bautyp) == powerline_wt  &&  to->get_leitung()) {
+			if ((bautyp_mask & bautyp) == leitung  &&  to->get_leitung()) {
 				if (ribi_t::doubles(ribi_t::ribi(ribi_type(zv))) != ribi_t::doubles(to->get_leitung()->get_ribi())) {
 					return false;
 				}
@@ -1278,8 +1278,8 @@ way_builder_t::way_builder_t(player_t* player)
 	, keep_existing_ways(false)
 	, keep_existing_faster_ways(false)
 	, keep_existing_city_roads(false)
-	, build_sidewalk(false)
 	, prefer_parallel(false)
+	, build_sidewalk(false)
 {
 	maximum = welt->get_settings().way_count_maximum; // building cost, (curves etc.)
 }

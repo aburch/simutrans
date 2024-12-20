@@ -100,7 +100,7 @@ public:
 			chunk_list = chunk;
 			p += sizeof(nodelist_node_t);
 			// then enter nodes into nodelist
-			for (int i = 0; i < new_chuck_size; i++) {
+			for (size_t i = 0; i < new_chuck_size; i++) {
 				nodelist_node_t* tmp = (nodelist_node_t*)(p + i*NODE_SIZE);
 #ifdef USE_VALGRIND_MEMCHECK
 				// tell valgrind that we reserved space for one nodelist_node_t
