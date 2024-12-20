@@ -40,7 +40,7 @@ waytype_t get_waytype(const char* waytype)
 	} else if (!STRICMP(waytype, "power")) {
 		uv8 = powerline_wt;
 	} else if (!STRICMP(waytype, "decoration")) {
-		uv8 = any_wt;
+		uv8 = decoration_wt;
 	} else {
 		dbg->fatal("get_waytype()","invalid waytype \"%s\"\n", waytype);
 	}

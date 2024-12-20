@@ -3720,7 +3720,7 @@ bool tool_build_wayobj_t::init( player_t *player )
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	waytype_t waytype = wt;
-	if(  waytype == any_wt  ) {
+	if(  waytype == decoration_wt  ) {
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
 	// special treatment for deports, since track electrication cannot "drive" into tram depot

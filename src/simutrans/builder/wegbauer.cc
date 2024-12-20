@@ -2935,7 +2935,7 @@ class fluss_test_driver_t : public test_driver_t
 {
 	bool check_next_tile(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	ribi_t::ribi get_ribi(const grund_t* gr) const OVERRIDE { return gr->get_weg_ribi_unmasked(water_wt); }
-	waytype_t get_waytype() const OVERRIDE { return invalid_wt; }
+	waytype_t get_waytype() const OVERRIDE { return ignore_wt; }
 	int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const OVERRIDE { return 1; }
 	bool is_target(const grund_t *cur,const grund_t *) const OVERRIDE { return cur->is_water()  &&  cur->get_hoehe()<=world()->get_groundwater(); }
 };

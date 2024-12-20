@@ -1976,7 +1976,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	// must be a single direction
 	assert( ribi_t::is_single(ribi) );
 
-	if(  type != invalid_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
+	if(  type > ignore_wt  &&   (get_weg_ribi_unmasked(type) & ribi) == 0  ) {
 		// no way on this tile in the given direction
 		return false;
 	}
@@ -1991,7 +1991,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	if(  get_grund_hang() == slope_t::flat  &&  get_weg_hang() == slope_t::flat  ) {
 		if(  grund_t *gr = plan->get_boden_in_hoehe( pos.z )  ) {
 			if(  gr->get_grund_hang() == slope_t::flat  &&  gr->get_weg_hang() == slope_t::flat  ) {
-				if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
+				if(  type <= ignore_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
 					to = gr;
 					return true;
 				}
@@ -2005,7 +2005,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 		grund_t* gr = plan->get_boden_bei(i);
 		if(gr->get_vmove(back)==this_height) {
 			// test, if connected
-			if(  type == invalid_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
+			if(  type <= ignore_wt  ||  (gr->get_weg_ribi_unmasked(type) & back)  ) {
 				to = gr;
 				return true;
 			}

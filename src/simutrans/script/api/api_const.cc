@@ -167,6 +167,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "wt_air", air_wt);
 	/// powerlines
 	enum_slot(vm, "wt_power", powerline_wt);
+	/// decomartion for inspecifed wayobj
+	enum_slot(vm, "wt_decoration", powerline_wt);
 	/// invalid
 	enum_slot(vm, "wt_invalid", invalid_wt);
 	end_enum();

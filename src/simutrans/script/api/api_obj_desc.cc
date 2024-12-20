@@ -157,7 +157,7 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 	}
 
 	// use wt_all (which is equal to invalid_wt, see api_const.cc) to get buildings for all waytypes
-	bool accept_all_wt = wt == invalid_wt  ||  wt == ignore_wt  ||  wt == any_wt;
+	bool accept_all_wt = wt == invalid_wt  ||  wt == ignore_wt;
 
 	uint16 time = welt->get_timeline_year_month();
 	for(building_desc_t const* const desc : *p) {

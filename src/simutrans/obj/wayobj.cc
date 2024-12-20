@@ -217,7 +217,7 @@ void wayobj_t::finish_rd()
 	if(desc->is_overhead_line()) {
 		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
-		if (wt == any_wt) {
+		if (wt == decoration_wt) {
 			weg_t *weg2 = welt->lookup(get_pos())->get_weg_nr(1);
 			if (weg2) {
 				weg2->set_electrify(true);
@@ -290,7 +290,7 @@ void wayobj_t::calc_image()
 		}
 
 		ribi_t::ribi sec_way_ribi_unmasked = 0;
-		if(wt == any_wt) {
+		if(wt == decoration_wt) {
 			if (weg_t *sec_w = gr->get_weg_nr(1)) {
 				sec_way_ribi_unmasked = sec_w->get_ribi_unmasked();
 			}

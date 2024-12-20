@@ -98,7 +98,7 @@ enum sound_type_t {
  */
 enum waytype_t {
 	invalid_wt       =  -1,
-	ignore_wt        =   0,
+	ignore_wt        =   0, // fixme: many places assume invalid_wt stands for building any_wt
 	road_wt          =   1,
 	track_wt         =   2,
 	water_wt         =   3,
@@ -109,7 +109,7 @@ enum waytype_t {
 	narrowgauge_wt   =   8,
 	air_wt           =  16,
 	powerline_wt     = 128,
-	any_wt           = 255
+	decoration_wt    = 255
 };
 
 
