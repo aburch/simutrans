@@ -3687,7 +3687,7 @@ waytype_t tool_build_wayobj_t::get_waytype() const
 	}
 	else {
 		sint16 wt;
-		return (std::sscanf(default_param, "%d", &wt) == 1) ? (waytype_t)wt : invalid_wt;
+		return (default_param  &&  std::sscanf(default_param, "%d", &wt) == 1) ? (waytype_t)wt : invalid_wt;
 	}
 }
 
