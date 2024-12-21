@@ -59,11 +59,10 @@ static plainstring koord3d_to_string_intern(koord3d k)
 void export_string_methods(HSQUIRRELVM vm)
 {
 	/**
-	 * Helper method to translate strings.
+	 * Helper method to translate strings, needed to identify the correct overloaded function
 	 * @param text string to translate
 	 * @returns translation of given string
 	 */
-	// need to identify the correct overloaded function
 	register_method<const char* (*)(const char*)>(vm, &translator::translate, "translate");
 
 	/**
@@ -110,7 +109,9 @@ void export_string_methods(HSQUIRRELVM vm)
 	register_method(vm, &translator::get_month_name, "get_month_name");
 
 	/**
-	 * Translates difference of ticks to string.
+	 * Translates difference of ticks to string which could even have months in it.
+	 * @param difftick_to_string_intern ticks in simutrans units
+	 * @returns time difference using the current local setting
 	 */
 	register_method(vm, &difftick_to_string_intern, "difftick_to_string");
 }
@@ -147,7 +148,7 @@ void export_scenario(HSQUIRRELVM vm)
 	begin_class(vm, "rules", 0);
 
 	/**
-	 * Forbid tool.
+	 * Forbid an internal tool.
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to player_all then this acts for all players except public player
@@ -157,25 +158,25 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_tool, "forbid_tool");
 
 	/**
-	 * Forbid tool with certain waytype.
+	 * Forbid an internal tool with certain waytype.
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
-	 * @param default_paramter object name or 0 (to catch all)
+	 * @param default_paramter object name or null (to catch all)
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool, "forbid_way_tool");
 
 	/**
-	 * Forbid tool with certain waytype within rectangular region on the map.
+	 * Forbid an internal tool with certain waytype within rectangular region on the map.
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
-	 * @param default_paramter object name or 0 (to catch all)
+	 * @param default_paramter object name or null (to catch all)
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
@@ -184,13 +185,13 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_rect, "forbid_way_tool_rect");
 
 	/**
-	 * Forbid tool with certain waytype within cubic region on the map.
+	 * Forbid an internal tool with certain waytype within cubic region on the map.
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
-	 * @param default_paramter object name or 0 (to catch all)
+	 * @param default_paramter object name or null (to catch all)
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
@@ -199,7 +200,7 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
 
 	/**
-	 * Allow tool.
+	 * Allow again an internal tool.
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to player_all then this acts for all players except public player

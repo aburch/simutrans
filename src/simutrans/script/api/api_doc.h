@@ -40,7 +40,7 @@
  * The scenario plays in a savegame. This savegame is tied to the pak-set you are using (e.g. pak64, pak128.Britain).
  * Hence, the scenario files have to go into a sub-folder of the pak-set.
  * The pak-set is found in a directory named pak-something, which is in the same directory, where the program
- * itself is located.
+ * itself is located or under user-directory/addons/.
  *
  * Your scenario file goes into the folder
  *
