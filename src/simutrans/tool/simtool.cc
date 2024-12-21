@@ -3687,7 +3687,8 @@ waytype_t tool_build_wayobj_t::get_waytype() const
 		return desc ? desc->get_wtyp() : invalid_wt;
 	}
 	else {
-		return default_param ? (waytype_t)atoi( default_param ) : invalid_wt;
+		sint16 wt;
+		return (std::sscanf(default_param, "%d", &wt) == 1) ? (waytype_t)wt : invalid_wt;
 	}
 }
 
@@ -4773,6 +4774,7 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 
 	char *building = strdup( default_param );
 	const building_tile_desc_t *tdsc = NULL;
+	rotation = -1;
 
 	if(  building  ) {
 		char *p = strrchr( building, ',' );
@@ -4783,10 +4785,6 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 				return NULL;
 			}
 		}
-		else {
-			rotation = -1;
-		}
-
 		tdsc = hausbauer_t::find_tile(building, 0);
 		free( building );
 	}

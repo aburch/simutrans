@@ -457,7 +457,6 @@ void money_frame_t::update_labels()
 					headquarter.set_tooltip( headquarter_tooltip );
 					headquarter.enable();
 				}
-
 			}
 		}
 		else {
