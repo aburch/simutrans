@@ -418,7 +418,8 @@ void chat_message_t::add_chat_message(const char* text, sint8 channel, sint8 sen
 	else if (channel == -2) {
 		// text contains the current nicks, separated by TAB
 		clients.clear();
-		char* nick = strtok((char*)text, "\t");
+		std::string temp = text; // strtok alters the string, so make a copy to be safe
+		char* nick = strtok(const_cast<char *>(temp.data()), "\t");
 		while (nick) {
 			clients.append(nick);
 			nick = strtok(NULL, "\t");
