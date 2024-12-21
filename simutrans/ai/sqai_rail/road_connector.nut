@@ -537,12 +537,15 @@ class road_connector_t extends manager_t
       case 8:
         rotation = 3
         break
+      case 10:
+        rotation = 1
+        break
       default:
 
     }
 
 
-    err = command_x.build_station(pl, tile, station, rotation )
+    err = command_x.build_station(our_player, tile, station, rotation )
 
     return err
   }
