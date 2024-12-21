@@ -36,10 +36,10 @@ INPUT                  = api_factory.cc \
 			 api_tiles.cc
 
 INPUT_FILTER           = ./filter_cpp.sh
-FILTER_PATTERNS        = *.nut
-
-FILTER_SOURCE_FILES    = YES
-FILTER_SOURCE_PATTERNS = ./filter_sq.sh
+FILTER_PATTERNS        = *.cc
+ 
+#FILTER_SOURCE_FILES    = YES
+#FILTER_SOURCE_PATTERNS = ./filter_sq.sh
 
 SOURCE_BROWSER         = YES
 
@@ -47,4 +47,4 @@ ENABLE_PREPROCESSING   = YES
 PREDEFINED             = SQAPI_DOC
 
 EXAMPLE_PATH           = ../../../../simutrans/pak/scenario/
-EXAMPLE_PATTERNS       = *.nut
+EXAMPLE_PATTERNS       = *.nut =
