@@ -66,7 +66,7 @@ public:
 
 	char const* get_text() const OVERRIDE { return ""; }
 
-	bool action_triggered(gui_action_creator_t* comp, value_t) {
+	bool action_triggered(gui_action_creator_t* comp, value_t) OVERRIDE {
 		if (comp == &bt_whisper_to) {
 			chat_frame_t* win = dynamic_cast<chat_frame_t*>(win_get_magic(magic_chatframe));
 			win->activate_whisper_to(sender.c_str());
@@ -210,7 +210,7 @@ public:
 		return scr_size(scr_size::inf.w, message.get_size().h + 4 + D_V_SPACE + lb_time_diff.get_size().h);
 	}
 
-	char const* get_text() const { return ""; }
+	char const* get_text() const OVERRIDE { return ""; }
 
 	void draw(scr_coord offset) OVERRIDE
 	{
@@ -274,7 +274,7 @@ public:
 		}
 	}
 
-	bool infowin_event(const event_t* ev)
+	bool infowin_event(const event_t* ev) OVERRIDE
 	{
 		bool swallowed = gui_scrolled_list_t::scrollitem_t::infowin_event(ev);
 		if (!swallowed) {

@@ -639,7 +639,7 @@ public:
 class dialog_chat_t : public tool_t {
 public:
 	dialog_chat_t() : tool_t(DIALOG_CHAT | DIALOGE_TOOL) {}
-	image_id get_icon(player_t*) const { return env_t::networkmode || !welt->get_chat_message()->get_list().empty() ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode || !welt->get_chat_message()->get_list().empty() ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Chat"); }
 	bool is_selected() const OVERRIDE { return win_get_magic(magic_chatframe); }
 	bool init(player_t*) OVERRIDE {
@@ -678,7 +678,7 @@ class dialog_player_ranking_t : public tool_t {
 public:
 	dialog_player_ranking_t() : tool_t(DIALOG_PLAYER_RANKING | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Player ranking"); }
-	image_id get_icon(player_t*) const {
+	image_id get_icon(player_t*) const OVERRIDE {
 		int nr = 0;
 		for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 			if (welt->get_player(i)) {
