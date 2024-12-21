@@ -101,8 +101,8 @@ static void write_house_at(player_t* pl, cbuffer_t& buf, const koord3d pos, cons
 							// skipping
 						}
 						else if (desc->is_factory()) {
-							koord3d diff = pos - origin;
-							//		buf.printf("\thm_factor_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+							// koord3d diff = pos - origin;
+							// buf.printf("\thm_factor_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
 						}
 						else if (desc->is_attraction()) {
 							koord3d diff = pos - origin;

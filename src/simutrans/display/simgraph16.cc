@@ -1645,7 +1645,6 @@ static void rezoom_img(const image_id n)
 scr_size display_get_best_matching_size(const image_id n, sint16 zoom_percent)
 {
 	if (n < anz_images  &&  images[n].base_h > 0) {
-		int old_zoom_factor = zoom_factor;
 		int new_w = (images[n].base_w * zoom_percent + 1) / 100;
 		for (int i = 0; i <= MAX_ZOOM_FACTOR; i++) {
 			int zoom_w = (images[n].base_w * zoom_num[i]) / zoom_den[i];

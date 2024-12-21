@@ -362,7 +362,6 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 	}
 
 	scenario_t *scen = welt->get_scenario();
-	waytype_t wegtyp = desc->get_waytype();
 	error_msg = NULL;
 	uint16 length = 0;
 

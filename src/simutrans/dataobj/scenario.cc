@@ -314,7 +314,6 @@ uint32 scenario_t::find_first(const forbidden_t &other, uint player_nr) const
 		}
 	};
 	// still: low < other <= high
-	bool notok = other < *forbidden_tools[player_nr][high];
 	return high;
 }
 
@@ -326,7 +325,7 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 		// empty
 		return 0;
 	}
-	forbidden_t &b = *forbidden_tools[player_nr].back();
+
 	if(forbidden_tools[player_nr].back()->type < other.type  ||  (forbidden_tools[player_nr].back()->type == other.type  &&  forbidden_tools[player_nr].back()->toolnr < other.toolnr)  ) {
 		// everything is smaller
 		return forbidden_tools[player_nr].get_count();

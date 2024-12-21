@@ -75,7 +75,6 @@ void gui_speedbar_fixed_length_t::draw(scr_coord offset)
 	for (info_t const& i : values) {
 		sint32 const to = min(*i.value, base) * fixed_width / base;
 		if (to > from) {
-			sint32 to_w = min(size.w, from);
 			display_fillbox_wh_clip_rgb(offset.x + from, offset.y, to - from, size.h, i.color, true);
 			from = to + 1;
 		}

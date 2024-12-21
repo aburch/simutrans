@@ -1766,7 +1766,6 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 	sint16 rotation = -1;
 	if (!strempty(default_param)) {
 		char* building = strdup(default_param);
-		const building_tile_desc_t* tdsc = NULL;
 
 		citizens = atoi(building);
 		char* p = strrchr(building, ',');
@@ -7092,7 +7091,7 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 			return err;
 		}
 		if (tool_t* t = gb->get_tile()->get_desc()->get_builder()) {
-			welt->set_tool(gb->get_tile()->get_desc()->get_builder(), pl);
+			welt->set_tool(t, pl);
 		}
 		// here on factories, monuments, town halls, city buildings and more
 		if (gb->get_fabrik()) {

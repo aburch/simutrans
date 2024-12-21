@@ -128,7 +128,7 @@ bool gui_tab_panel_t::tab_getroffen(scr_coord p)
 bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
 	if (gui_component_t *t=get_aktives_tab()) {
-		if (gui_component_t *comp = t->get_focus()) {
+		if (t->get_focus()) {
 			// we must go through the containers or we do not get the correct offsets
 			event_t ev2 = *ev;
 			ev2.move_origin(t->get_pos());
