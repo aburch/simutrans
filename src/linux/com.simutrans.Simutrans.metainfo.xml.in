@@ -32,7 +32,7 @@
     <binary>simutrans</binary>
   </provides>
   <releases>
-    <release version="124.1" date="2024-06-02"/>
+    <release version="@ver_major@.@ver_minor@.@ver_patch@@nightly_suffix@" date="@TODAY@" revision="@SIMUTRANS_WC_REVISION@"/>
   </releases>
   <content_rating type="oars-1.1">
     <content_attribute id="language-humor">mild</content_attribute>

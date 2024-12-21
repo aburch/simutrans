@@ -39,3 +39,5 @@ revision.h
 *.kdev4
 vcpkg_installed/
 UpgradeLog.htm
+src/linux/com.simutrans.Simutrans.metainfo.xml
+src/android/AndroidAppSettings.cfg

@@ -7,10 +7,10 @@ AppName="Simutrans"
 AppFullName=com.simutrans
 
 # Application version code (integer)
-AppVersionCode=01242
+AppVersionCode=0@ver_major@@ver_minor@
 
 # Application user-visible version name (string)
-AppVersionName="124.2.2-Release"
+AppVersionName="@ver_major@.@ver_minor@.@ver_patch@@nightly_suffix@"
 
 # Specify path to download application data in zip archive in the form "Description|URL|MirrorURL^Description2|URL2|MirrorURL2^..."
 # If you'll start Description with '!' symbol it will be enabled by default, '!!' will also hide the entry from the menu, so it cannot be disabled

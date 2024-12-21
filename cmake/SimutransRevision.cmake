@@ -99,23 +99,30 @@ if (SIMUTRANS_WC_REVISION)
 	string(TIMESTAMP TODAY "%Y-%m-%d")
 	
 	# finally, update flatpak xml
-	file(READ "${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml" FILE_CONTENT)
-	if(RELEASE_FLAG STREQUAL "")
-		string(REGEX REPLACE "<release .*/>" "<release version=\"${ver_major}.${ver_minor}.${ver_patch} nightly\" date=\"${TODAY}\" revision=\"${SIMUTRANS_WC_REVISION}\"/>" FILE_CONTENT "${FILE_CONTENT}" )
+	if (RELEASE_FLAG)
+		set(nightly_suffix "")
 	else ()
-		string(REGEX REPLACE "<release .*/>" "<release version=\"${ver_major}.${ver_minor}.${ver_patch}\" date=\"${TODAY}\" revision=\"${SIMUTRANS_WC_REVISION}\"/>" FILE_CONTENT "${FILE_CONTENT}" )
+		set(nightly_suffix " nightly")
 	endif ()
-	file(WRITE "${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml" "${FILE_CONTENT}")
+
+	configure_file(
+		"${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml.in"
+		"${SOURCE_DIR}/src/linux/com.simutrans.Simutrans.metainfo.xml"
+		@ONLY
+	)
 
 	# and Android files
-	file(READ "${SOURCE_DIR}/src/android/AndroidAppSettings.cfg" FILE_CONTENT)
-	if(RELEASE_FLAG STREQUAL "")
-		string(REGEX REPLACE "AppVersionName=\"[0-9.]+-[A-z]+[a-z]+\"" "AppVersionName=\"${ver_major}.${ver_minor}.${ver_patch}-Nightly\"" FILE_CONTENT "${FILE_CONTENT}" )
+	if (RELEASE_FLAG)
+		set(nightly_suffix "-Release")
 	else ()
-		string(REGEX REPLACE "AppVersionName=\"[0-9.]+-[A-z]+[a-z]+\"" "AppVersionName=\"${ver_major}.${ver_minor}.${ver_patch}-Release\"" FILE_CONTENT "${FILE_CONTENT}" )
+		set(nightly_suffix "-Nightly")
 	endif ()
-	file(WRITE "${SOURCE_DIR}/src/android/AndroidAppSettings.cfg" "${FILE_CONTENT}")
 
+	configure_file(
+		"${SOURCE_DIR}/src/android/AndroidAppSettings.cfg.in"
+		"${SOURCE_DIR}/src/android/AndroidAppSettings.cfg"
+		@ONLY
+	)
 else ()
 	message(WARNING "Could not find revision information because this repository "
 		"is neither a Subversion nor a Git repository. Revision information "
