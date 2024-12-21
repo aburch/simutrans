@@ -525,7 +525,7 @@ class road_connector_t extends manager_t
   function build_road_station(tile, station) {
     local err = null
 
-    local d = tile_x(tile.x, tile.y, tilez).get_way_dirs(wt_road)
+    local d = tile_x(tile.x, tile.y, tile.z).get_way_dirs(wt_road)
     local rotation = 0
     switch (d) {
       case 2:
