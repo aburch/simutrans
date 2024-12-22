@@ -5691,7 +5691,7 @@ bool tool_build_depot_t::init( player_t *player )
 	}
 
 	// no depots for player 1
-	if(player!=welt->get_public_player()) {
+	if(!player->is_public_service()) {
 		cursor = desc->get_cursor()->get_image_id(0);
 		return true;
 	}
@@ -7050,8 +7050,8 @@ const char* tool_remove_signal_t::work( player_t* player, koord3d pos )
 // only public plaYer can copy public objects
 const char* tool_pipette_t::allow_tool_check(const obj_t* obj, const obj_desc_timelined_t *desc, const player_t* pl) const
 {
-	if (pl != welt->get_player(1)) {
-		if (obj->get_owner() == NULL   ||  obj->get_owner() == welt->get_player(1)) {
+	if (!pl->is_public_service()) {
+		if (obj->get_owner() == NULL   ||  obj->get_owner() != pl) {
 			return "Not allowed to copy object.";
 		}
 		if (!desc->is_available(welt->get_timeline_year_month())) {
@@ -7084,14 +7084,20 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 	select_and_check(bruecke_t)
 
 	if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
-		if (gr->get_depot() && pl == welt->get_player(1)) {
-			return "Not allowed to copy object.";
-		}
 		if (const char *err = allow_tool_check(gb, gb->get_tile()->get_desc(), pl)) {
 			return err;
 		}
-		if (tool_t* t = gb->get_tile()->get_desc()->get_builder()) {
-			welt->set_tool(t, pl);
+		const building_desc_t* desc = gb->get_tile()->get_desc();
+		if (!pl->is_public_service()) {
+			// since we are not allowed to create public infrastructure as normal player, we must forbid this too
+			if (desc->is_city_building()  ||  desc->is_attraction()  ||  desc->is_townhall()  ||  desc->is_monument()) {
+				return "Not allowed to copy object.";
+			}
+		}
+		else {
+			if (desc->is_depot()  ||  desc->is_headquarters()  ||  desc->is_townhall()) {
+				return "Not allowed to copy object.";
+			}
 		}
 		// here on factories, monuments, town halls, city buildings and more
 		if (gb->get_fabrik()) {
@@ -7107,18 +7113,32 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 			welt->set_tool(&t, pl);
 			return NULL;
 		}
-		else if (gb->get_tile()->get_desc()->is_attraction()  ||  gb->get_tile()->get_desc()->is_city_building()) {
+		else if (desc->is_attraction()  ||  desc->is_city_building()) {
 			static tool_build_house_t t = tool_build_house_t();
 			t.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 			param_str.clear();
-			param_str.printf("%i%i%s",
+			const char* dn = gb->get_tile()->get_desc()->get_name();
+			param_str.printf("%d,%s",
 				gb->get_tile()->get_layout(), /*rotation*/
 				gb->get_tile()->get_desc()->get_name());
 			t.set_default_param(param_str);
 			welt->set_tool(&t, pl);
 			return NULL;
 		}
+		else if (tool_t* t = gb->get_tile()->get_desc()->get_builder()) {
+			welt->set_tool(t, pl);
+			return NULL;
+		}
 		return "Not allowed to copy object.";
+	}
+
+	if (depot_t *depot=gr->get_depot()) {
+		if (pl->is_public_service()) {
+			return "Not allowed to copy object.";
+		}
+		tool_t* t = depot->get_tile()->get_desc()->get_builder();
+		welt->set_tool(t, pl);
+		return NULL;
 	}
 
 	if (gr->get_weg_nr(0)) {
@@ -7138,7 +7158,8 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 	}
 
 	select_and_check(leitung_t);
-	if (gr->find<senke_t>() || gr->find<pumpe_t>()) {
+	if (gr->find<senke_t>()  ||  gr->find<pumpe_t>()) {
+		// missing: check for ownership
 		welt->set_tool(tool_t::general_tool[TOOL_TRANSFORMER], pl);
 		return NULL;
 	}
@@ -7153,15 +7174,17 @@ const char *tool_pipette_t::work(player_t *pl, koord3d pos)
 	}
 
 	if (groundobj_t* b = gr->find<groundobj_t>()) {
-		static tool_plant_groundobj_t t;
-		param_str.clear();
-		param_str.printf("%i%i,%s", 1, 0, b->get_desc()->get_name());
-		t.set_default_param(param_str);
-		t.cursor = tool_t::general_tool[TOOL_PLANT_GROUNDOBJ]->cursor;
-		welt->set_tool(&t, pl);
+		if (pl->is_public_service()) {
+			static tool_plant_groundobj_t t;
+			param_str.clear();
+			param_str.printf("%i%i,%s", 1, 0, b->get_desc()->get_name());
+			t.set_default_param(param_str);
+			t.cursor = tool_t::general_tool[TOOL_PLANT_GROUNDOBJ]->cursor;
+			welt->set_tool(&t, pl);
+		}
 	}
 
-	return NULL;
+	return gr->obj_count()>0 ? "Not allowed to copy object." : NULL;
 }
 
 
