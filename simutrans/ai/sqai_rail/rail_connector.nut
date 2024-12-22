@@ -861,6 +861,7 @@ class depot_pathfinder extends astar_builder
 
       for (local i = 1; i<route.len(); i++) {
         local err = command_x.build_way(our_player, route[i-1], route[i], way, false )
+        if (debug) gui.add_message_at(our_player, "command_x.build_way rail  search_route :" + err, world.get_time())
         if (err) {
           gui.add_message_at(our_player, "Failed to build rail from  " + coord_to_string(route[i-1]) + " to " + coord_to_string(route[i]) +"\n" + err, route[i])
           return { err =  err }
