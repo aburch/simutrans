@@ -10,6 +10,7 @@
 
 #include "../simmem.h"
 #include "../simdebug.h"
+#include "../simconst.h"
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
@@ -21,8 +22,6 @@
 #include <valgrind/memcheck.h>
 #endif
 
-/* define this to check for double free and sizes for freelist */
-#define DEBUG_FREELIST
 
 /**
   * A template class for const sized memory pool

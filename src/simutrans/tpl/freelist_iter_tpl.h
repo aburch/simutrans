@@ -6,10 +6,12 @@
 #ifndef TPL_FREELIST_ITER_TPL_H
 #define TPL_FREELIST_ITER_TPL_H
 
-#include <typeinfo>
 
 #include "../simmem.h"
+#include "../simconst.h"
+
 #include <bitset>
+#include <typeinfo>
 
 #ifdef MULTI_THREADx
 #include "../utils/simthread.h"
@@ -40,7 +42,6 @@ private:
 	const char *canary_free = "\xAA\x55\xAA";
 	const char *canary_used = "\x55\xAA\x55";
 
-	#define NODE_SIZE (sizeof(T) + sizeof(nodelist_node_t)-sizeof(nodelist_node_t *))
 
 #ifdef MULTI_THREADx
 	pthread_mutex_t freelist_mutex = PTHREAD_MUTEX_INITIALIZER;;
@@ -54,7 +55,8 @@ private:
 
 	// we aim for near 32 kB chunks, hoping that the system will allocate them on each page
 	// and they fit the L1 cache
-	const size_t new_chuck_size = (32250*8) / (NODE_SIZE*8+1);
+	static constexpr size_t NODE_SIZE = (sizeof(T) + sizeof(nodelist_node_t)-sizeof(nodelist_node_t *));
+	static constexpr size_t new_chuck_size = (32250*8) / (NODE_SIZE*8+1);
 
 	struct chunklist_node_t {
 		chunklist_node_t *chunk_next;

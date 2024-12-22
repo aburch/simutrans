@@ -31,7 +31,6 @@
 #if defined DEBUG
 #	include <stdlib.h>
 #	define NOT_REACHED abort();
-//#	define DEBUG_FREELIST
 #else
 #	define NOT_REACHED
 #endif
