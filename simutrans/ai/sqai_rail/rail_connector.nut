@@ -351,8 +351,9 @@ class rail_connector_t extends manager_t
             combined_halt = true
           }
 
+          //
           // check place and build station to c_start
-          s_src = check_station(pl, c_start, count, wt_rail, planned_station, 1, combined_halt)
+          s_src = check_station(pl, c_start, c_route, count, wt_rail, planned_station, 1, combined_halt)
           if ( s_src == false ) {
             print("Failed to build station at " + coord_to_string(c_start))
             if ( print_message_box > 0 ) {
@@ -403,7 +404,7 @@ class rail_connector_t extends manager_t
 
 
           // check place and build station to c_end
-          s_dest = check_station(pl, c_end, count, wt_rail, station_select, 1, combined_halt)
+          s_dest = check_station(pl, c_end, c_route, count, wt_rail, station_select, 1, combined_halt)
           if ( s_dest == false ) {
             print("Failed to build station at " + coord_to_string(c_end))
             if ( print_message_box > 0 ) {
@@ -719,7 +720,7 @@ class rail_connector_t extends manager_t
             //if ( err != null ) { gui.add_message_at(pl, "check_station build_way " + err, t_start[0]) }
             //::debug.pause()
     if ( err == null ) {
-      err = check_station(pl, t_start[0], st_lenght, wt_rail, planned_station, 0)
+      err = check_station(pl, t_start[0], routes, st_lenght, wt_rail, planned_station, 0)
       if ( err == false ) {
         gui.add_message_at(pl, "check_station " + err, t_start[0])
       }
@@ -739,7 +740,7 @@ class rail_connector_t extends manager_t
                 //local tool = command_x(tool_remove_way)
 
         if ( err == null ) {
-          err = check_station(pl, t_end[0], st_lenght, wt_rail, planned_station, 0)
+          err = check_station(pl, t_end[0], routes, st_lenght, wt_rail, planned_station, 0)
           if ( err == true ) {
             // station end ok
             // remove track -> error by build

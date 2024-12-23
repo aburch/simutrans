@@ -218,7 +218,10 @@ class industry_connection_planner_t extends manager_t
       local t = tile_x(fsrc.x, fsrc.y, 0)
       gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, t)
     }
-
+    if ( debug ) {
+      local t = tile_x(fsrc.x, fsrc.y, 0)
+      gui.add_message_at(our_player, "Plan " + wt_name[wt] + " link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y, t)
+    }
     local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
     prototyper.valuate = bound_valuator
 
@@ -419,9 +422,9 @@ class industry_connection_planner_t extends manager_t
 
       // check build station rail
       if ( calc_route != "No route" ) {
-        rail_station = check_station(our_player, calc_route.routes[calc_route.routes.len()-1], count, wt_rail, planned_station, 0, true)
+        rail_station = check_station(our_player, calc_route.routes[calc_route.routes.len()-1], calc_route.routes, count, wt_rail, planned_station, 0, true)
         if (rail_station) {
-          rail_station = check_station(our_player, calc_route.routes[0], count, wt_rail, planned_station, 0, true)
+          rail_station = check_station(our_player, calc_route.routes[0], calc_route.routes, count, wt_rail, planned_station, 0, true)
           //if (debug) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, calc_route.routes[0])
         }
         //if (debug && !rail_station) gui.add_message_at(our_player, "-check build station rail- rail_station " + rail_station, calc_route.routes[0])
@@ -843,13 +846,14 @@ class industry_connection_planner_t extends manager_t
     dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
     dbgprint("Report: dist = " + cnv_valuator.distance + " way_cost = " + planned_way.get_cost())
     dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
-    if ( print_message_box == 4 ) {
+    if ( print_message_box == 4 || debug) {
       gui.add_message_at(our_player, "----- ", world.get_time())
       gui.add_message_at(our_player, "Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name(), world.get_time())
       gui.add_message_at(our_player, "Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys = " + planned_convoy.nr_convoys + ", cost_build = " + r.cost_fix + ", cost_monthly = " + r.cost_monthly, world.get_time())
       gui.add_message_at(our_player, "Report: dist = " + r.distance + " way_cost = " + planned_way.get_cost(), world.get_time())
       gui.add_message_at(our_player, "Report: station = " + planned_station.get_cost() + " depot = " + planned_depot.get_cost(), world.get_time())
 
+      gui.add_message_at(our_player, "Report: bridge tiles = " + planned_bridge.tiles, world.get_time())
 
       gui.add_message_at(our_player, " * Report: freight = " + freight + " convoy capacity = " + conv_capacity, world.get_time())
       gui.add_message_at(our_player, " * Report: input amount = " + freight_input + " input amount / convoy capacity = " + input_convoy, world.get_time())

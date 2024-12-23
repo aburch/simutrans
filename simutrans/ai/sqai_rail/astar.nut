@@ -1555,16 +1555,24 @@ function remove_tile_to_empty(tiles, wt, t_array = 1) {
  * in case of success, the value of starts_field maybe changed
  *
  */
-function check_station(pl, starts_field, st_lenght, wt, select_station, build = 1, combined_halt = false) {
+function check_station(pl, starts_field, t_route, st_lenght, wt, select_station, build = 1, combined_halt = false) {
 
     // print messages box
     // 1
     // 2
     local print_message_box = 0
+    //if ( build == 1 ) { print_message_box = 2 }
 
     if ( print_message_box == 2 ) {
       gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
     }
+
+            local tiles_st = t_route.slice((t_route.len()-st_lenght), t_route.len())
+            if ( starts_field == t_route[0] ) {
+              tiles_st.clear()
+              tiles_st = t_route.slice(0, st_lenght)
+            }
+            gui.add_message_at(pl, "tiles_st.len() = " + tiles_st.len(), world.get_time())
 
     local st_build = false
     local err = null
@@ -1604,11 +1612,11 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
 
         local b1_tile = tile_x(starts_field.x + step * dc.x, starts_field.y + step * dc.y, starts_field.z)
         if ( print_message_box == 2 ) {
-          gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), world.get_time())
+          gui.add_message_at(pl, " ---> test : " + coord3d_to_string(b1_tile), b1_tile)
           gui.add_message_at(pl, " ---=> dir.double(d) : " + dir.double(current_d), world.get_time())
         }
 
-        if ( test_field(pl, b1_tile, wt, dir.double(current_d), starts_field.z) &&  test_tile_is_empty(b1_tile)) {
+        if ( test_field(pl, b1_tile, wt, dir.double(current_d), starts_field.z) && test_tile_is_empty(b1_tile)) {
           if ( print_message_box == 2 ) {
             gui.add_message_at(pl, " ---=> add tile : " + coord3d_to_string(b1_tile), world.get_time())
           }
@@ -1632,6 +1640,39 @@ function check_station(pl, starts_field, st_lenght, wt, select_station, build = 
           }
           // search in forward direction failed, now go backward
           step = -1
+        }
+      }
+
+      // check route tiles for station build
+      if ( print_message_box == 2 && b_tile.len() > 0 ) {
+        gui.add_message_at(pl, " coord3d_to_string(b_tile[0]) " + coord3d_to_string(b_tile[0]) + " - coord3d_to_string(starts_field) " + coord3d_to_string(starts_field), starts_field)
+      }
+      if ( b_tile.len() > 0 && ( coord3d_to_string(b_tile[0]) != coord3d_to_string(starts_field) || b_tile.len() < st_lenght ) ) {
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(pl, " check station tiles to route tiles ", starts_field)
+        }
+        local rc = 1
+        if (starts_field.x == tiles_st[0].x ) {
+          for ( local i = 1; i < st_lenght; i++ ) {
+            if ( tiles_st[0].x == tiles_st[i].x ) { rc++ }
+          }
+        }
+        if (starts_field.y == tiles_st[0].y ) {
+          for ( local i = 1; i < st_lenght; i++ ) {
+            if ( tiles_st[0].y == tiles_st[i].y ) { rc++ }
+          }
+        }
+
+        if ( print_message_box == 2 ) {
+          gui.add_message_at(pl, " rc " + rc + " - st_lenght " + st_lenght, starts_field)
+        }
+        if ( rc == st_lenght ) {
+          // replace stations fields
+          b_tile.clear()
+          b_tile = tiles_st
+          if ( print_message_box == 2 ) {
+            gui.add_message_at(pl, " set station tiles to route tiles ", starts_field)
+          }
         }
       }
 
@@ -1732,7 +1773,9 @@ function test_field(pl, t_tile, wt, rotate, ref_hight, way_exists = 0) {
  * removed objects for empty tiles: tree, ground_object, moving_object
  *
  */
-function test_tile_is_empty(tile) {
+function test_tile_is_empty(t_tile) {
+  local tile = tile_x(t_tile.x, t_tile.y, t_tile.z)
+
   local tile_tree = tile.find_object(mo_tree)
   local tile_groundobj = tile.find_object(mo_groundobj)
   local tile_moving_object = tile.find_object(mo_moving_object)
