@@ -1658,18 +1658,20 @@ function check_station(pl, starts_field, t_route, st_lenght, wt, select_station,
         if (starts_field.x == tiles_st[0].x ) {
           for ( local i = 1; i < st_lenght; i++ ) {
             if ( tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z).has_ways() ) {
-              local d = tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z).get_way_dirs(wt)
+              local t = tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z)
+              local d = t.get_way_dirs(wt)
               if ( print_message_box == 2 ) gui.add_message_at(pl, " dir.double(d) " + dir.double(d), tiles_st[i])
-              if ( tiles_st[0].x == tiles_st[i].x && dir.double(d) ) { rc++ }
+              if ( tiles_st[0].x == tiles_st[i].x && dir.double(d) && t.get_slope() == 0 ) { rc++ }
             }
           }
         }
         if (starts_field.y == tiles_st[0].y ) {
           for ( local i = 1; i < st_lenght; i++ ) {
             if ( tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z).has_ways() ) {
-              local d = tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z).get_way_dirs(wt)
+              local t = tile_x(tiles_st[i].x, tiles_st[i].y, tiles_st[i].z)
+              local d = t.get_way_dirs(wt)
               if ( print_message_box == 2 ) gui.add_message_at(pl, " dir.double(d) " + dir.double(d), tiles_st[i])
-              if ( tiles_st[0].y == tiles_st[i].y && dir.double(d) ) { rc++ }
+              if ( tiles_st[0].y == tiles_st[i].y && dir.double(d) && t.get_slope() == 0 ) { rc++ }
             }
           }
         }
