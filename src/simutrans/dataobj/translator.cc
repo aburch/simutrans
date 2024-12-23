@@ -216,7 +216,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 	}
 	// not found => try pak location
 	if(  file==NULL  ) {
-		string local_file_name(env_t::pak_name + "text/" + fileprefix + langs[lang].iso_base + ".txt");
+		string local_file_name(env_t::pak_dir + "text/" + fileprefix + langs[lang].iso_base + ".txt");
 		DBG_DEBUG("translator::load_custom_list()", "try to read city name list from '%s'", local_file_name.c_str());
 		file = dr_fopen(local_file_name.c_str(), "rb");
 	}
