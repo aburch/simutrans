@@ -1567,12 +1567,15 @@ function check_station(pl, starts_field, t_route, st_lenght, wt, select_station,
       gui.add_message_at(pl, " --- start field : " + coord3d_to_string(starts_field) + "  # station lenght : " + st_lenght, world.get_time())
     }
 
-            local tiles_st = t_route.slice((t_route.len()-st_lenght), t_route.len())
-            if ( starts_field == t_route[0] ) {
-              tiles_st.clear()
-              tiles_st = t_route.slice(0, st_lenght)
-            }
-            gui.add_message_at(pl, "tiles_st.len() = " + tiles_st.len(), world.get_time())
+    // save tiles from route
+    local tiles_st = t_route.slice(0, st_lenght)
+    if ( print_message_box == 2 ) gui.add_message_at(pl, "tiles_st.len() = " + tiles_st.len(), tiles_st[0])
+    if ( starts_field == t_route[t_route.len()-1] ) {
+       tiles_st.clear()
+       tiles_st = t_route.slice((t_route.len()-st_lenght), t_route.len())
+       tiles_st.reverse()
+       if ( print_message_box == 2 ) gui.add_message_at(pl, "replace tiles_st.len() = " + tiles_st.len(), tiles_st[0])
+    }
 
     local st_build = false
     local err = null
@@ -1673,6 +1676,7 @@ function check_station(pl, starts_field, t_route, st_lenght, wt, select_station,
           if ( print_message_box == 2 ) {
             gui.add_message_at(pl, " set station tiles to route tiles ", starts_field)
           }
+          step_end = 0
         }
       }
 
@@ -1687,10 +1691,10 @@ function check_station(pl, starts_field, t_route, st_lenght, wt, select_station,
 
       // correct first tile of station
       // (this will correct c_start/c_end if these are used in the call to this method)
-      if (st_build  &&  step_end > 0 && build == 1) {
+      if (st_build && step_end > 0 && build == 1) {
         starts_field.x += step_end*dc.x
         starts_field.y += step_end*dc.y
-        //gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
+        gui.add_message_at(pl, " ---> first tile of station reset : " + coord3d_to_string(starts_field), starts_field)
       }
       if (st_build) {
         break // leave for loop to test directions
@@ -4449,6 +4453,7 @@ function optimize_way_line(route, wt, int_run, o_line) {
       }
 
       for (local j = 1; j < 9; j++ ) {
+        if ( r < 0 ) { break }
         stations_awst_2.append(route[r+j])
 
       }

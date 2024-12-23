@@ -175,6 +175,11 @@ class rail_connector_t extends manager_t
             //::debug.pause()
             if ( build_status != true ) {
               calc_route = test_route(our_player, c_end, c_start, planned_way)
+
+              if ( calc_route == "No route" ) {
+                return r_t(RT_TOTAL_FAIL)
+              }
+
               build_status = check_build_station(calc_route)
               if ( build_status == true ) {
                 local c = c_start
@@ -500,6 +505,7 @@ class rail_connector_t extends manager_t
         }
       case 6: // create schedule
         {
+          //gui.add_message_at(pl, "c_start " + coord_to_string(c_start) +  " - c_end " + coord_to_string(c_end), world.get_time())
           local sched = schedule_x(wt_rail, [])
           sched.entries.append( schedule_entry_x(c_start, 100, 0) );
           sched.entries.append( schedule_entry_x(c_end, 0, 0) );
