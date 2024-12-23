@@ -755,11 +755,13 @@ DBG_MESSAGE("tool_remover()",  "took out powerline");
 
 	// could not delete everything
 	if(msg) {
+		if (lt) gr->obj_add(lt);
 		return false;
 	}
 	if(return_ok) {
 		// no sound
 		msg = "";
+		if (lt) gr->obj_add(lt);
 		return true;
 	}
 
@@ -772,6 +774,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 		weg_t *w = gr->get_weg_nr(1);
 		if(gr->get_typ()==grund_t::brueckenboden  &&  w==NULL) {
 			// do not delete the middle of a bridge
+			if (lt) gr->obj_add(lt);
 			return false;
 		}
 		if(  w  &&  w->get_waytype()==water_wt  ) {
@@ -781,11 +784,19 @@ DBG_MESSAGE("tool_remover()", "removing way");
 		if(w==NULL  ||  w->get_removal_error(player)!=NULL) {
 			w = gr->get_weg_nr(0);
 			if(w==NULL) {
-				// no way at all ...
-				return true;
+				if (lt) {
+					gr->obj_add(lt);
+					msg = lt->get_removal_error(player);
+					return false;
+				}
+				else {
+					// no way at all ...
+					return true;
+				}
 			}
 			if(const char *err = w->get_removal_error(player)){
 				msg = err;
+				if (lt) gr->obj_add(lt);
 				return false;
 			}
 		}
@@ -808,6 +819,8 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			}
 		}
 	}
+
+	if (lt) gr->obj_add(lt);
 
 	// remove empty tile
 	if(  !gr->ist_karten_boden()  &&  gr->obj_count()==0  ) {
