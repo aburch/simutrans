@@ -11,6 +11,9 @@ trim_trailing_whitespace = true
 [*.{txt,tab}]
 trim_trailing_whitespace = false
 
+[**/CMakeLists.txt]
+trim_trailing_whitespace = true
+
 [*.rc]
 indent_style = space
 indent_size = 1
