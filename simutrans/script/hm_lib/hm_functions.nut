@@ -89,7 +89,7 @@ function hm_get_sign_desc(desc_name, wt, sigtype) {
       }
     }
   } else {
-    // set waytype
+    // set waytype and signal type
     // object not available then replace
     local list = sign_desc_x.get_available_signs(wt)
     foreach (s in list) {
