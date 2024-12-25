@@ -2,6 +2,7 @@ this.hm_commands <- [] // array to store the commands
 this.player <- null
 
 class hm_slope {
+  FL = 0
   N1 = 4
   N2 = 8
   S1 = 36
