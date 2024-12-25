@@ -69,6 +69,21 @@ void tool_generate_script_t::mark_tiles(player_t*, const koord3d& start, const k
 }
 
 
+static void write_owner_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+{
+	if (pl->is_public_service()) {
+		if (const grund_t* gr = world()->lookup(pos)) {
+			if (obj_t* obj = gr->obj_bei(0)) {
+				if (obj->get_owner() != pl) {
+					koord3d diff = pos - origin;
+					buf.printf("\thm_set_owner_tl(%hu,[%d,%d,%d])\n", obj->get_owner_nr(), diff.x, diff.y, diff.z);
+				}
+			}
+		}
+	}
+}
+
+
 static void write_city_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	if (pl->is_public_service()) {
@@ -80,6 +95,23 @@ static void write_city_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const
 						koord3d diff = pos - origin;
 						buf.printf("\thm_city_set_population_tl(%ld,[%d,%d,%d])\n", gb->get_stadt()->get_finance_history_month(0, HIST_CITIZENS), diff.x, diff.y, diff.z);
 					}
+				}
+			}
+		}
+	}
+}
+
+
+static void write_townhall_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+{
+	if (const grund_t* gr = world()->lookup(pos)) {
+		if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			if (gb->get_tile()->get_offset() == koord(0, 0)) {
+				// we have a start tile here => more checks
+				const building_desc_t* desc = gb->get_tile()->get_desc();
+				if (gb->is_townhall()) {
+					koord3d diff = pos - origin;
+					buf.printf("\thm_city_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, gb->get_tile()->get_layout());
 				}
 			}
 		}
@@ -106,11 +138,10 @@ static void write_house_at(player_t* pl, cbuffer_t& buf, const koord3d pos, cons
 						}
 						else if (desc->is_attraction()) {
 							koord3d diff = pos - origin;
-							buf.printf("\thm_attraction_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+							buf.printf("\thm_house_tl(\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
 						}
 						else if (gb->is_townhall()) {
-							koord3d diff = pos - origin;
-							buf.printf("\thm_city_tl(0,\"%s\",[%d,%d,%d],%d)\n", desc->get_name(), diff.x, diff.y, diff.z, rotation);
+							// has been hopefully already written ...
 						}
 						else if (desc->is_connected_with_town()) {
 							koord3d diff = pos - origin;
@@ -572,7 +603,14 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	int cmdlen = generated_script_buf.len();
 
 	koord3d begin(k1, start.z);
+	if (pl->is_public_service()) {
+		// ensure this is run by public service
+		generated_script_buf.append("\tif(this.player.nr != 1) {\n\t\treturn \"Must be run as public player!\"\n\t}\n\n");
+	}
 	write_command(pl, generated_script_buf, write_ground_at, k1, k2, begin); // write all used tiles
+	if (pl->is_public_service()) {
+		write_command(pl, generated_script_buf, write_townhall_at, k1, k2, begin);
+	}
 	write_command_bridges(pl, generated_script_buf, k1, k2, begin);
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, true).write();
 	write_way_command_t(pl, generated_script_buf, k1, k2, begin, false).write();
@@ -582,7 +620,8 @@ char const* tool_generate_script_t::do_work(player_t* pl, const koord3d& start, 
 	write_command(pl, generated_script_buf, write_sign_at, k1, k2, begin);
 	write_command(pl, generated_script_buf, write_house_at, k1, k2, begin);
 	if (pl->is_public_service()) {
-		write_command(pl, generated_script_buf, write_city_at, k1, k2, begin);
+		write_command(pl, generated_script_buf, write_owner_at, k1, k2, begin);
+//		write_command(pl, generated_script_buf, write_city_at, k1, k2, begin);
 	}
 
 	if (cmdlen == generated_script_buf.len()) {

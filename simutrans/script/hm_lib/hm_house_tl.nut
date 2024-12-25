@@ -34,6 +34,7 @@ class hm_house_tl extends hm_base_tl {
   }
 
   function exec(player, origin) {
-    return command_x(tool_build_house).work(player, pos+origin, format("%d,%s", rotation, desc_name))
+    return command_x(tool_build_house).work(player, pos+origin, format("1%d%s", rotation, desc_name))
   }
 }
+
