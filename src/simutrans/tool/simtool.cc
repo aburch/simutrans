@@ -701,9 +701,9 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// if type is given, then last check and leave here. Below other stuff and ways gets removed.
 	if (type != obj_t::undefined) {
 		for (uint i = 0; i < gr->obj_count(); i++) {
-			const obj_t* obj = gr->obj_bei(i);
+			obj_t* obj = gr->obj_bei(i);
 			if (obj->get_typ() == type  &&  player_t::check_owner(obj->get_owner(),player)) {
-				msg = dep->get_removal_error(player);
+				msg = obj->get_removal_error(player);
 				if (msg) {
 					return false;
 				}
