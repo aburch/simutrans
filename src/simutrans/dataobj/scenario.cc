@@ -330,7 +330,7 @@ uint32 scenario_t::find_first_type_tool_wt(const forbidden_t& other, uint player
 		// everything is smaller
 		return forbidden_tools[player_nr].get_count();
 	}
-	if (forbidden_tools[player_nr][0]->type > other.type  ||  (forbidden_tools[player_nr].back()->type == other.type  &&  forbidden_tools[player_nr].back()->toolnr > other.toolnr)  ) {
+	if (forbidden_tools[player_nr][0]->type > other.type  ||  (forbidden_tools[player_nr][0]->type == other.type  &&  forbidden_tools[player_nr][0]->toolnr > other.toolnr)) {
 		// everything is smaller
 		return forbidden_tools[player_nr].get_count();
 	}
