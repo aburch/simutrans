@@ -211,7 +211,9 @@ static void write_sign_at(player_t* , cbuffer_t& buf, const koord3d pos, const k
 			cnt = (d == ribi_t::north || d == ribi_t::south) ^ ow ? 2 : 3;
 		}
 		koord3d diff = pos - origin;
-		buf.printf("\thm_sign_tl(\"%s\",%d,[%d,%d,%d],%d)\n", sign->get_desc()->get_name(), cnt, diff.x, diff.y, diff.z, sign->get_desc()->get_waytype());
+		buf.printf("\thm_sign_tl(\"%s\",%d,[%d,%d,%d],%d,%u)\n", sign->get_desc()->get_name(), cnt, diff.x, diff.y, diff.z,
+			sign->get_desc()->get_waytype(),
+			sign->get_desc()->is_traffic_light() ? 512 : sign->get_desc()->get_flags());
 	}
 }
 

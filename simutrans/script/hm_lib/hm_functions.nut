@@ -100,35 +100,38 @@ function hm_get_sign_desc(desc_name, wt, sigtype) {
       if ( obj == null ) {
         local found = false
         switch ( sigtype ) {
-          case 0 :
+          case 1 :
             found = s.is_one_way()
             break
-          case 1 :
+          case 2 :
             found = s.is_choose_sign()
             break
-          case 2 :
+          case 4 :
             found = s.is_private_way()
             break
-          case 4 :
+          case 8 :
             found = s.is_signal()
             break
-          case 8 :
-            found = s.is_pre_signal()
+          case 10 : // signal and choose
+            found = s.is_choose_sign()
             break
           case 16 :
+            found = s.is_pre_signal()
+            break
+          case 512 :
             found = s.is_traffic_light()
             break
-          case 32 :
+          case 64 :
             found = s.is_longblock_signal()
             break
-          case 64 :
+          case 128 :
             found = s.is_end_choose_signal()
             break
-          case 128 :
+          case 256 :
             found = s.is_priority_signal()
             break
           default :
-
+            // does not know how to handle that combination (like minimum speed and oneway)
         }
 
         if ( found ) {

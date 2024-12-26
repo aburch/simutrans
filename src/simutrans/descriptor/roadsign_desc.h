@@ -63,9 +63,6 @@ public:
 
 	bool is_private_way() const { return (flags & PRIVATE_ROAD) != 0; }
 
-	//  return true for a traffic light
-	bool is_traffic_light() const { return (get_count() > 4); }
-
 	bool is_choose_sign() const { return (flags & CHOOSE_SIGN) != 0; }
 
 	//  return true for signal
@@ -96,6 +93,9 @@ public:
 				SIGN_LONGBLOCK_SIGNAL)
 			) != 0;
 	}
+
+	//  return true for a traffic light
+	bool is_traffic_light() const { return !is_signal_type()  &&  get_count() > 4; }
 
 	uint16 get_flags() const { return flags; }
 
