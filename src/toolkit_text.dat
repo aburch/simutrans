@@ -1,0 +1,116 @@
+obj=script_toolkit
+name=Way key %s is not defined.
+note=messages hm_way_tl
+-
+obj=script_toolkit
+name=No way was detected between %s.
+note=messages hm_way_tl
+-
+obj=script_toolkit
+name=Selected way %s is not available.
+note=messages hm_way_tl
+-
+obj=script_toolkit
+name=Way %s (%s) is not found!
+note=messages hm_way_tl
+-
+obj=script_toolkit
+name=Way building path from ($s) to (%s) is not found!
+note=messages hm_way_tl
+-
+obj=script_toolkit
+name=Bridge %s (%s) is not found!
+note==messages hm_bridge_tl
+-
+obj=script_toolkit
+name=Bridge building path from (%s) to (%s) is not found!
+note==messages hm_bridge_tl
+-
+obj=script_toolkit
+name=Depot key %s is not defined.
+note==messages hm_depot_tl
+-
+obj=script_toolkit
+name=No depot was detected between %s.
+note==messages hm_depot_tl
+-
+obj=script_toolkit
+name=Selected depot %s is not available.
+note==messages hm_depot_tl
+-
+obj=script_toolkit
+name=Depot %s (%s) is not found!
+note==messages hm_depot_tl
+-
+obj=script_toolkit
+name=No ways were found at %s.
+note=message hm_remove_tl
+-
+obj=script_toolkit
+name=Sign key %s is not defined.
+note=message hm_sign_tl
+-
+obj=script_toolkit
+name=No sign was detected between %s.
+note=message hm_sign_tl
+-
+obj=script_toolkit
+name=Selected sign %s is not available.
+note=message hm_sign_tl
+-
+obj=script_toolkit
+name=Sign %s (%s) is not found!
+note=message hm_sign_tl
+-
+obj=script_toolkit
+name=Error constructing signal on tile %s.
+note=message hm_sign_tl
+-
+obj=script_toolkit
+name=Tile %s is not a valid ground!
+note=message hm_slope_tl
+-
+obj=script_toolkit
+name=Station key %s is not defined.
+note=message hm_station_tl
+-
+obj=script_toolkit
+name=No station was detected between %s.
+note=message hm_station_tl
+-
+obj=script_toolkit
+name=Selected station %s is not available.
+note=message hm_station_tl
+-
+obj=script_toolkit
+name=Station %s (%s) is not found!
+note=message hm_station_tl
+-
+obj=script_toolkit
+name=Wayobj key %s is not defined.
+note=message hm_wayobj_tl
+-
+obj=script_toolkit
+name=No wayobj was detected between %s.
+note=message hm_wayobj_tl
+-
+obj=script_toolkit
+name=Selected wayobj %s is not available.
+note=message hm_wayobj_tl
+-
+obj=script_toolkit
+name=Wayobj %s (%s) is not found!
+note=message hm_wayobj_tl
+-
+obj=script_toolkit
+name=Wayobj building path from ($s) to (%s) is not found!
+note=message hm_wayobj_tl
+-
+obj=script_toolkit
+name=Selected area not free for build!
+note=message hm_test_area_tl
+-
+#obj=script_toolkit
+#name=
+#note=
+#-
