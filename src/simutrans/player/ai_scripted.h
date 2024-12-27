@@ -12,6 +12,7 @@
 
 class script_vm_t;
 
+/// Squirrel Script AI
 class ai_scripted_t : public ai_t
 {
 	/// name of ai, files are searched in ai/ai_name/...
