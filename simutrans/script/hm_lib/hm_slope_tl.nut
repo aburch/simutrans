@@ -109,7 +109,7 @@ class hm_test_area_tl extends hm_base_tl {
         } else {
           // The tile has objects that prevent construction.
           err = true
-          gui.add_message_at(player_x(1), "tile is not free " + coord3d_to_string(tile), world.get_time())
+          //gui.add_message_at(player_x(1), "tile is not free " + coord3d_to_string(tile), world.get_time())
           break
         }
 
