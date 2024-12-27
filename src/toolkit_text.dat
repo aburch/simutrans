@@ -110,6 +110,10 @@ obj=script_toolkit
 name=Selected area not free for build!
 note=message hm_test_area_tl
 -
+obj=script_toolkit
+name=The terrain is not suitable for construction.
+note=message hm_test_area_tl
+-
 #obj=script_toolkit
 #name=
 #note=
