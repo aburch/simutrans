@@ -11,6 +11,7 @@
 #include "simwin.h"
 
 #include "../world/simworld.h"
+#include "../player/ai_scripted.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
 #include "../simcolor.h"
@@ -291,9 +292,39 @@ money_frame_t::money_frame_t(player_t *player) :
 
 		new_component<gui_fill_t>();
 
-		add_component(&headquarter);
-		headquarter.init(button_t::roundbox, "");
-		headquarter.add_listener(this);
+		// headquarter/ai settings button/ai info string
+		if (player->get_ai_id() != player_t::HUMAN && player->get_ai_id() != player_t::AI_SCRIPTED) {
+			headquarter.init(button_t::roundbox, "Configure AI");
+			headquarter.add_listener(this);
+			headquarter.set_tooltip("Configure AI setttings");
+			add_component(&headquarter);
+		}
+		else if (player->get_ai_id() == player_t::HUMAN) {
+			koord pos = player->get_headquarter_pos();
+			headquarter.set_text(pos != koord::invalid ? "show HQ" : "build HQ");
+			headquarter.set_tooltip(NULL);
+
+			if (pos == koord::invalid) {
+				if (player == welt->get_active_player()) {
+					// reuse tooltip from tool_headquarter_t
+					const char* c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
+					if (c) {
+						// only true, if the headquarter can be built/updated
+						headquarter_tooltip.clear();
+						headquarter_tooltip.append(c);
+						headquarter.set_tooltip(headquarter_tooltip);
+					}
+				}
+
+			}
+			headquarter.add_listener(this);
+			add_component(&headquarter);
+		}
+		else {
+			new_component<gui_label_t>(dynamic_cast<ai_scripted_t*>(player)->get_ai_name());
+		}
+
+
 	}
 	end_table();
 
@@ -434,40 +465,25 @@ void money_frame_t::update_labels()
 		scenario_completion.update();
 	}
 
-	// update headquarter button
-	headquarter.disable();
-	if(  player->get_ai_id()!=player_t::HUMAN  &&  player->get_ai_id() != player_t::AI_SCRIPTED  ) {
-		headquarter.set_tooltip( "Configure AI setttings" );
-		headquarter.set_text( "Configure AI" );
-		headquarter.enable();
-	}
-	else if(  player->get_ai_id() == player_t::HUMAN  ) {
+	if (player->get_ai_id() == player_t::HUMAN) {
 		koord pos = player->get_headquarter_pos();
-		headquarter.set_text( pos != koord::invalid ? "show HQ" : "build HQ" );
-		headquarter.set_tooltip( NULL );
+		headquarter.set_text(pos != koord::invalid ? "show HQ" : "build HQ");
+		headquarter.set_tooltip(NULL);
 
 		if (pos == koord::invalid) {
-			if(player == welt->get_active_player()) {
+			if (player == welt->get_active_player()) {
 				// reuse tooltip from tool_headquarter_t
-				const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
-				if(c) {
+				if (const char* c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player)) {
 					// only true, if the headquarter can be built/updated
 					headquarter_tooltip.clear();
 					headquarter_tooltip.append(c);
-					headquarter.set_tooltip( headquarter_tooltip );
-					headquarter.enable();
+					headquarter.set_tooltip(headquarter_tooltip);
 				}
 			}
 		}
-		else {
-			headquarter.enable();
-		}
+		headquarter.enable(player == welt->get_active_player());
 	}
-	else {
-		// just ugly dark box ...
-	}
-
-	// current maintenance
+		// current maintenance
 	double maintenance = player->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option) / 100.0;
 	maintenance_money.append_money(-maintenance);
 	maintenance_money.update();

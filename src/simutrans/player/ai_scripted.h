@@ -51,6 +51,8 @@ public:
 
 	uint8 get_ai_id() const OVERRIDE { return AI_SCRIPTED; }
 
+	const char* get_ai_name() const { return ai_name; }
+
 	void step() OVERRIDE;
 
 	/**
