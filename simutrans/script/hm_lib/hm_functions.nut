@@ -118,9 +118,6 @@ function hm_get_sign_desc(desc_name, wt, sigtype) {
           case 16 :
             found = s.is_pre_signal()
             break
-          case 512 :
-            found = s.is_traffic_light()
-            break
           case 64 :
             found = s.is_longblock_signal()
             break
@@ -129,6 +126,9 @@ function hm_get_sign_desc(desc_name, wt, sigtype) {
             break
           case 256 :
             found = s.is_priority_signal()
+            break
+          case 512 :
+            found = s.is_traffic_light()
             break
           default :
             // does not know how to handle that combination (like minimum speed and oneway)
@@ -181,23 +181,49 @@ function hm_get_wayobjs_desc(desc_name, wt, overhead) {
   return obj
 }
 
+/**
+ *  search player building object
+ *
+ *  @param desc_name object name
+ *  @param wt waytype
+ *  @param building_type building_desc_x::building_type
+ *
+ *  @todo harbour, flat_harbour, station_extension
+ */
 function hm_get_building_desc(desc_name, wt, building_type) {
   local obj   = null
   local goods = {}
 
+  local list = null
+  if ( building_type == building_desc_x.depot ) {
+    // depot list all waytypes
+    list = building_desc_x.get_building_list(building_desc_x.depot)
+  } else if ( wt != null && building_type == building_desc_x.station ) {
+    // station list waytype and available
+    list = building_desc_x.get_available_stations(building_desc_x.station, wt, goods)
+  }
+
   if ( wt != null ) {
-    // not set waytype => 0 searches all ways
-    foreach (b in building_desc_x.get_available_stations(building_type, wt, goods) ) {
-      if(b.get_name()==desc_name) {
+    // searche waytypes
+    foreach (b in list ) {
+      if(b.get_name()==desc_name && b.is_available(world.get_time())) {
         obj = b
         break
       }
+      if ( obj == null && b.is_available(world.get_time()) ) {
+        //gui.add_message_at(player, "waytype: " + b.get_waytype(), world.get_time())
+        if ( b.get_waytype() == wt ) {
+          obj = b
+          //gui.add_message_at(player, "fallback " + obj.get_name(), world.get_time())
+        }
+      }
     }
   }
-  if ( obj == null ) {
-    // not set waytype => 0 searches all ways
+
+  if ( obj == null && wt == null && building_type == building_desc_x.station ) {
+    // not set waytype -> 0 searches all ways
     foreach (b in building_desc_x.get_building_list(building_desc_x.station)) {
-      if(b.get_name()==desc_name) {
+      if(b.get_name()==desc_name && b.is_available(world.get_time())) {
         obj = b
         break
       }
@@ -205,3 +231,4 @@ function hm_get_building_desc(desc_name, wt, building_type) {
   }
   return obj
 }
+
