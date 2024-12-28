@@ -154,6 +154,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_tool, "forbid_tool");
 
@@ -166,6 +168,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param wt waytype
 	 * @param default_paramter object name or null (to catch all)
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool, "forbid_way_tool");
 
@@ -181,6 +185,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_rect, "forbid_way_tool_rect");
 
@@ -196,6 +202,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
 
@@ -206,6 +214,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 *                  if this is set to player_all then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_forbid_tool, "clear_forbid_tool");
 
@@ -218,6 +228,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param wt waytype
 	 * @param default_paramter object name or 0 (to catch all)
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_forbid_way_tool, "clear_forbid_way_tool");
 
@@ -233,6 +245,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param allow clear either allo (true) or forbid (false) rule
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_way_tool_rect, "clear_way_tool_rect");
 
@@ -248,6 +262,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @param allow clear either allo (true) or forbid (false) rule
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_way_tool_cube, "clear_way_tool_cube");
 
@@ -256,6 +272,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 *
 	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
 	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_rules, "clear");
 
@@ -264,6 +282,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 *
 	 * Only effects tools forbidden by rules::forbid_tool, rules::forbid_way_tool, rules::forbid_way_tool_cube, rules::forbid_way_tool_rect.
 	 * The result of ::is_tool_allowed and ::is_work_allowed_here is not influenced.
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::clear_player_rules, "clear_player");
 
@@ -278,6 +298,8 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_rect,  "allow_way_tool_rect");
 
@@ -292,11 +314,16 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
 	 * @see tool_ids way_types player_all
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::allow_way_tool_cube,  "allow_way_tool_cube");
 
 	/**
 	 * Signals that toolbars and active tools need to be checked against scenario rules again.
+	 *
+	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::gui_needs_update,  "gui_needs_update");
 
@@ -306,12 +333,14 @@ void export_scenario(HSQUIRRELVM vm)
 	/**
 	 * Table with methods help debugging.
 	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	begin_class(vm, "debug", 0);
 
 	/**
 	 * @returns text containing all active rules, can be used in @ref get_debug_text
 	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	STATIC register_method(vm, &scenario_t::get_forbidden_text,  "get_forbidden_text");
 

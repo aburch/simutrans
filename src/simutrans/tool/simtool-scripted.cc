@@ -17,6 +17,7 @@
 #include "../world/simworld.h"
 #include "../obj/zeiger.h"
 #include "../sys/simsys.h"
+#include "../dataobj/environment.h"
 
 void export_scripted_tools(HSQUIRRELVM vm);
 
@@ -139,6 +140,7 @@ void exec_script_base_t::load_script(const char* path, player_t* player)
 			return;
 		}
 	}
+	dr_chdir(env_t::user_dir);
 	// older versions did not support the flags parameter - correct with helper function
 	if (const char* err = script->call_function(script_vm_t::QUEUE, "correct_missing_flags_argument")) {
 		if (strcmp(err, "suspended")) {

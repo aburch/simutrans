@@ -12,50 +12,51 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/environment.h"
 
-#include "../gui/factory_edit.h"
-#include "../gui/curiosity_edit.h"
-#include "../gui/citybuilding_edit.h"
 #include "../gui/baum_edit.h"
-#include "../gui/groundobj_edit.h"
-#include "../gui/jump_frame.h"
-#include "../gui/optionen.h"
-#include "../gui/map_frame.h"
+#include "../gui/chat_frame.h"
+#include "../gui/citybuilding_edit.h"
+#include "../gui/citylist_frame.h"
+#include "../gui/climates.h"
+#include "../gui/convoi_frame.h"
+#include "../gui/curiosity_edit.h"
+#include "../gui/curiositylist_frame.h"
+#include "../gui/depotlist_frame.h"
 #include "../gui/display_settings.h"
-#include "../gui/player_frame.h"
-#include "../gui/loadsave_frame.h"
-#include "../gui/money_frame.h"
-#include "../gui/schedule_list.h"
-#include "../gui/sound_frame.h"
-#include "../gui/sprachen.h"
-#include "../gui/kennfarbe.h"
+#include "../gui/enlarge_map_frame.h"
+#include "../gui/factory_edit.h"
+#include "../gui/factorylist_frame.h"
+#include "../gui/goods_frame.h"
+#include "../gui/groundobj_edit.h"
+#include "../gui/halt_list_frame.h"
 #include "../gui/help_frame.h"
+#include "../gui/jump_frame.h"
+#include "../gui/kennfarbe.h"
+#include "../gui/labellist_frame.h"
+#include "../gui/loadsave_frame.h"
+#include "../gui/map_frame.h"
 #include "../gui/message_frame.h"
 #include "../gui/messagebox.h"
-#include "../gui/convoi_frame.h"
-#include "../gui/halt_list_frame.h"
-#include "../gui/citylist_frame.h"
-#include "../gui/goods_frame.h"
-#include "../gui/factorylist_frame.h"
-#include "../gui/curiositylist_frame.h"
-#include "../gui/enlarge_map_frame.h"
-#include "../gui/labellist_frame.h"
-#include "../gui/climates.h"
-#include "../gui/settings_frame.h"
-#include "../gui/server_frame.h"
-#include "../gui/schedule_list.h"
-#include "../gui/themeselector.h"
+#include "../gui/money_frame.h"
+#include "../gui/optionen.h"
+#include "../gui/player_frame.h"
+#include "../gui/player_ranking_frame.h"
 #include "../gui/scenario_frame.h"
 #include "../gui/scenario_info.h"
-#include "../gui/depotlist_frame.h"
-#include "../gui/vehiclelist_frame.h"
+#include "../gui/schedule_list.h"
 #include "../gui/script_tool_frame.h"
-#include "../gui/chat_frame.h"
-#include "../gui/player_ranking_frame.h"
+#include "../gui/server_frame.h"
+#include "../gui/settings_frame.h"
+#include "../gui/sound_frame.h"
+#include "../gui/sprachen.h"
+#include "../gui/themeselector.h"
+#include "../gui/vehiclelist_frame.h"
 
 #include "../obj/baum.h"
 #include "../obj/groundobj.h"
 
+#include "../sys/simsys.h"
 
 class player_t;
 
@@ -252,6 +253,7 @@ public:
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
 		if(  !env_t::server  ) {
+			dr_chdir(env_t::user_dir);
 			create_win(new loadsave_frame_t(true), w_info, magic_load_t);
 		}
 		else {
@@ -273,6 +275,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Speichern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_save_t); }
 	bool init(player_t*) OVERRIDE{
+		dr_chdir(env_t::user_dir);
 		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
 		return false;
 	}
