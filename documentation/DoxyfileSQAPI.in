@@ -3,9 +3,14 @@
 # (see LICENSE.txt)
 #
 
+#
 # Doxygen file to generate documentation for Squirrel API
+# Assumes Doxygen is started in src/simutrans/script/api/
+#
+
 PROJECT_NAME           = Simutrans-Squirrel-API
-OUTPUT_DIRECTORY       = ../../../doxygen/sqapi
+PROJECT_ICON           = @CMAKE_CURRENT_SOURCE_DIR@/src/simutrans/simutrans.svg
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/documentation/sqapi/
 
 EXTRACT_PRIVATE        = YES
 
@@ -46,5 +51,5 @@ SOURCE_BROWSER         = YES
 ENABLE_PREPROCESSING   = YES
 PREDEFINED             = SQAPI_DOC
 
-EXAMPLE_PATH           = ../../../../simutrans/pak/scenario/
+EXAMPLE_PATH           = @CMAKE_CURRENT_SOURCE_DIR@/simutrans/pak/scenario/
 EXAMPLE_PATTERNS       = *.nut =

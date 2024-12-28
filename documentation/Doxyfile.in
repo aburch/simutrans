@@ -27,11 +27,11 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 
-PROJECT_NAME           = "Simutrans Programm"
+PROJECT_NAME           = "Simutrans"
 
-PROJECT_ICON           = ./simutrans/simutrans.svg
+PROJECT_ICON           = "@CMAKE_CURRENT_SOURCE_DIR@/src/simutrans/simutrans.svg"
 
-OUTPUT_DIRECTORY       = D:/simutrans_entwicklung/svn/simutrans_svn/trunk/src/simutrans_docu
+OUTPUT_DIRECTORY       = "@CMAKE_CURRENT_BINARY_DIR@/documentation/simutrans/"
 
 OUTPUT_LANGUAGE        = English
 
@@ -71,18 +71,18 @@ SORT_BY_SCOPE_NAME     = YES
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = ./simutrans
+INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/src/"
 
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.h \
-                         *.hh \
-                         *.md
+                         *.mm
 
 RECURSIVE              = YES
 
 # Simutrans Squirrel API has its own documentation definition
-EXCLUDE                = simutrans/script/api
+EXCLUDE                = "@CMAKE_CURRENT_SOURCE_DIR@/src/simutrans/script/" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/src/external/"
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -145,3 +145,7 @@ GENERATE_MAN           = YES
 #---------------------------------------------------------------------------
 # Configuration options related to diagram generator tools
 #---------------------------------------------------------------------------
+
+HAVE_DOT = @DOXYGEN_HAVE_DOT@
+
+DOT_PATH = "@graphviz_dot_dir@"

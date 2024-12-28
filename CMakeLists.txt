@@ -100,7 +100,11 @@ else ()
 	if (${VS} EQUAL 0)
 		# using a script for MSVC project files
 		file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/src/simutrans/revision.h "#define REVISION \n")
-		add_custom_command(TARGET simutrans PRE_BUILD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND cscript.exe /Nologo tools/revision.jse COMMENT "Find SVN revision")
+		add_custom_command(TARGET simutrans PRE_BUILD
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			COMMAND cscript.exe ARGS "/Nologo tools/revision.jse"
+			COMMENT "Find SVN revision"
+		)
 	else ()
 		# using custom target svnhear that is always built to update the revision.h file using cmake script
 		add_custom_target(svnheader ALL DEPENDS svn_header)
@@ -109,6 +113,51 @@ else ()
 		add_dependencies(simutrans svnheader)
 	endif ()
 endif ()
+
+
+#
+# Documentation
+#
+find_package(Doxygen)
+
+if (DOXYGEN_FOUND)
+	if (DOXYGEN_HAVE_DOT)
+		# DOXYGEN_DOT_PATH is deprecated, see
+		# https://cmake.org/cmake/help/latest/module/FindDoxygen.html#variable:DOXYGEN_DOT_PATH
+		get_target_property(graphviz_dot_executable doxygen::dot IMPORTED_LOCATION)
+		get_filename_component(graphviz_dot_temp_dir ${GRAPHVIZ_DOT_EXE} DIRECTORY)
+		file(TO_NATIVE_PATH "${graphviz_dot_temp_dir}" graphviz_dot_dir)
+	endif ()
+
+	configure_file(
+		documentation/Doxyfile.in
+		documentation/Doxyfile
+		@ONLY
+	)
+
+	doxygen_add_docs(docs_simutrans
+		CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/documentation/Doxyfile
+	)
+
+	add_custom_target(docs DEPENDS docs_simutrans)
+
+	# The sqapi doxygen file depends on .sh shell scripts to filter files
+	if (LINUX OR MINGW)
+		configure_file(
+			documentation/DoxyfileSQAPI.in
+			documentation/DoxyfileSQAPI
+			@ONLY
+		)
+
+		doxygen_add_docs(docs_sqapi
+			CONFIG_FILE       ${CMAKE_CURRENT_BINARY_DIR}/documentation/DoxyfileSQAPI
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/simutrans/script/api/
+		)
+
+		add_dependencies(docs docs_sqapi)
+	endif ()
+endif ()
+
 
 #
 # Libraries
