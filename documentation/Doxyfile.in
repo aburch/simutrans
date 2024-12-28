@@ -71,7 +71,8 @@ SORT_BY_SCOPE_NAME     = YES
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 
-INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/src/"
+INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/src/" \
+                         "@CMAKE_CURRENT_SOURCE_DIR@/documentation/simutrans_doc.h"
 
 FILE_PATTERNS          = *.c \
                          *.cc \

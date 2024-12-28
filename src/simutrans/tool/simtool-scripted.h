@@ -26,6 +26,8 @@ class skin_desc_t;
  *       plainstring  menu=my_script
  *       skin_desc_t* icon=one_click_test: cursor, icon, marker
  *
+ *	@ingroup squirrel-tool-api
+ * 
  */
 struct scripted_tool_info_t {
 	plainstring path;        ///< path to files

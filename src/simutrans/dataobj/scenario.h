@@ -358,7 +358,7 @@ public:
 	/// @name Interface to forbid tools in-game
 	/**
 	 * Forbid tool
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
@@ -367,14 +367,14 @@ public:
 	void forbid_tool(uint8 player_nr, uint16 tool_id);
 
 	/**
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 * @see forbid_tool
 	 */
 	void clear_forbid_tool(uint8 player_nr, uint16 tool_id);
 
 	/**
 	 * Forbid tool with certain waytype
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
@@ -385,7 +385,7 @@ public:
 
 	/**
 	 * Forbid tool with certain waytype within rectangular region on the map
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
@@ -399,7 +399,7 @@ public:
 
 	/**
 	 * Forbid tool with certain waytype within cubic region on the map.
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
@@ -412,7 +412,7 @@ public:
 	void forbid_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw, koord3d pos_se, plainstring err);
 
 	/**
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 * @see forbid_way_tool
 	 */
 	void clear_forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param);
@@ -435,31 +435,31 @@ public:
 
 	/**
 	 * Clears all rules.
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 */
 	void clear_rules();
 
 	/**
 	 * Clears all rules for a player selec
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 */
 	void clear_player_rules(uint8 player_nr);
 
 	/**
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 * @see forbid_way_tool_rect
 	 */
 	void allow_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord pos_nw, koord pos_se);
 
 	/**
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 * @see forbid_way_tool_cube
 	 */
 	void allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw, koord3d pos_se);
 
 	/**
 	 * Toolbars/active tools need an update due to changed rules; update is done in step().
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 */
 	void gui_needs_update() { need_toolbar_update = true; }
 
