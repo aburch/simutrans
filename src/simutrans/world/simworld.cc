@@ -5768,20 +5768,21 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 	suspended = false;
 	const char *err = NULL;
 	bool network_safe_tool = tool->is_work_keeps_game_state() || tool->is_work_here_keeps_game_state(player, pos);
-	if(  !env_t::networkmode  ||  network_safe_tool  ) {
-		// do the work
-		tool->flags |= tool_t::WFL_LOCAL;
-		// check allowance by scenario
-		if ( (tool->flags & tool_t::WFL_NO_CHK) == 0  &&  get_scenario()->is_scripted()) {
-			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype(), tool->get_default_param()) ) {
-				err = "";
-			}
-			else {
-				err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), tool->get_default_param(), pos);
-			}
+
+	// do the check for allowed (always done locally)
+	tool->flags |= tool_t::WFL_LOCAL;
+	// first allowance by scenario
+	if(  (tool->flags & tool_t::WFL_NO_CHK) == 0  &&  get_scenario()->is_scripted()  ) {
+		if(  !get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype(), tool->get_default_param())  ) {
+			err = "";
 		}
-		if (err == NULL) {
-			if (network_safe_tool  ||  (get_random_mode() & INTERACTIVE_RANDOM) == 0) {
+		else {
+			err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), tool->get_default_param(), pos);
+		}
+	}
+	if (err == NULL) {
+		if(  !env_t::networkmode  ||  network_safe_tool  ) {
+			if(  network_safe_tool  ||  (get_random_mode() & INTERACTIVE_RANDOM) == 0  ) {
 				// call work if it would not affect game state or if the call is not during sync_step
 				err = tool->work(player, pos);
 				suspended = false;
@@ -5795,14 +5796,14 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 				suspended = true;
 			}
 		}
-	}
-	else {
-		// queue tool for network
-		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
-		network_send_server(nwc);
-		suspended = true;
-		// reset tool
-		tool->init(player);
+		else {
+			// queue tool for network
+			nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
+			network_send_server(nwc);
+			suspended = true;
+			// reset tool
+			tool->init(player);
+		}
 	}
 	return err;
 }
