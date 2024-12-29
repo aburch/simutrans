@@ -604,7 +604,7 @@ void loadsave_t::flush_buffer(int buf_num)
 	// Cannot abort the saving process, so just ignore any further flushes
 	// if the previous flush has failed.
 	// loadsave_t::close() handles propagation of the error message.
-	if (stream->get_status() == rdwr_stream_t::STATUS_OK) {
+	if (stream->get_status() == rdwr_stream_t::STATUS_OK && buff[buf_num].pos > 0) {
 		stream->write(buff[buf_num].buf, buff[buf_num].pos);
 	}
 	buff[buf_num].pos = 0;
