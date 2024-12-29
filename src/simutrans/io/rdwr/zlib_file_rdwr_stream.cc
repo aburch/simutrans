@@ -10,11 +10,18 @@
 #include "../../simdebug.h"
 
 #include <cassert>
+#include <cerrno>
 
 
 zlib_file_rdwr_stream_t::zlib_file_rdwr_stream_t(const std::string &filename, bool writing, int compression) :
 	rdwr_stream_t(writing)
 {
+	// Should be 0 anyway, but make sure to only catch errors from zlib
+	// zlib might not set errno appropriately in all error cases
+	// (source: https://refspecs.linuxbase.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/zlib-gzopen-1.html)
+	// so reset it to a known value. The value will be translated to GENERIC_ERROR by set_status_from_errno
+	errno = 0;
+
 	if (is_writing()) {
 		compression = clamp( compression, 1, 9 );
 		char compr[4] = { 'w', 'b', (char)('0' + compression), 0 };
@@ -23,8 +30,14 @@ zlib_file_rdwr_stream_t::zlib_file_rdwr_stream_t(const std::string &filename, bo
 	else {
 		gzfp = dr_gzopen(filename.c_str(), "rb");
 	}
-	gzbuffer(gzfp, 65536);
-	status = STATUS_OK;
+
+	if (gzfp == Z_NULL) {
+		set_status_from_errno();
+	}
+	else {
+		gzbuffer(gzfp, 65536);
+		status = STATUS_OK;
+	}
 }
 
 
@@ -70,10 +83,23 @@ size_t zlib_file_rdwr_stream_t::read(void *buf, size_t len)
 size_t zlib_file_rdwr_stream_t::write(const void *buf, size_t len)
 {
 	assert(is_writing());
+	assert(len > 0);
+
 	const int bytes_written = gzwrite(gzfp, const_cast<void *>(buf), len);
 
-	if (bytes_written == 0) {
-		status = STATUS_ERR_FULL;
+	if (bytes_written <= 0) {
+		// error occurred
+		int errnum = Z_OK;
+		gzerror(gzfp, &errnum);
+
+		switch (errnum) {
+			case Z_MEM_ERROR:    status = STATUS_ERR_OUT_OF_MEMORY;   return 0;
+			case Z_STREAM_ERROR: status = STATUS_ERR_NOT_INITIALIZED; return 0;
+			case Z_BUF_ERROR:    status = STATUS_ERR_FULL;            return 0;
+			case Z_ERRNO:        set_status_from_errno(); return 0;
+		}
+
+		status = STATUS_ERR_GENERIC_ERROR;
 		return 0;
 	}
 	else {
@@ -82,4 +108,34 @@ size_t zlib_file_rdwr_stream_t::write(const void *buf, size_t len)
 	}
 }
 
+
+void zlib_file_rdwr_stream_t::set_status_from_errno()
+{
+	switch (errno) {
+		case EPERM:
+		case ENOENT:
+		case EIO:
+		case EBADF:
+		case EBADFD:
+		case EACCES:
+		case ENODEV:
+		case EISDIR:
+		case ELOOP:
+			status = STATUS_ERR_FILE_INACCESSIBLE;
+			break;
+
+		case ENOMEM:
+			status = STATUS_ERR_OUT_OF_MEMORY;
+			break;
+
+		case EFBIG:
+		case ENOSPC:
+			status = STATUS_ERR_FULL;
+			break;
+
+		default:
+			status = STATUS_ERR_GENERIC_ERROR;
+			break;
+	}
+}
 

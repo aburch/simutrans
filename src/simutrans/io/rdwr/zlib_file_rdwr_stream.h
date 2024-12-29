@@ -27,6 +27,9 @@ public:
 	size_t write(const void *buf, size_t len) OVERRIDE;
 
 private:
+	void set_status_from_errno();
+
+private:
 	gzFile gzfp;
 };
 

@@ -24,7 +24,7 @@ bzip2_file_rdwr_stream_t::bzip2_file_rdwr_stream_t(const std::string &filename, 
 
 	status = STATUS_OK;
 	if (fp==NULL) {
-		status = STATUS_ERR_NOT_EXISTING;
+		status = STATUS_ERR_FILE_INACCESSIBLE;
 	}
 	if(  bse!=BZ_OK  ) {
 		status = STATUS_ERR_CORRUPT;

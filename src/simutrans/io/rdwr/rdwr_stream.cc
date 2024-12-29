@@ -7,7 +7,7 @@
 
 
 rdwr_stream_t::rdwr_stream_t(bool writing) :
-	status(STATUS_INVALID),
+	status(STATUS_ERR_NOT_INITIALIZED),
 	writing(writing)
 {
 }

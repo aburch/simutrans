@@ -15,7 +15,7 @@ raw_file_rdwr_stream_t::raw_file_rdwr_stream_t(const std::string &filename, bool
 {
 	file = dr_fopen(filename.c_str(), writing ? "wb" : "rb");
 	if (!file) {
-		status = STATUS_ERR_NOT_EXISTING;
+		status = STATUS_ERR_FILE_INACCESSIBLE;
 	}
 	else {
 		status = STATUS_OK;
@@ -28,7 +28,7 @@ raw_file_rdwr_stream_t::raw_file_rdwr_stream_t(FILE *f, bool writing) :
 	file(f)
 {
 	if (!file) {
-		status = STATUS_ERR_NOT_EXISTING;
+		status = STATUS_ERR_FILE_INACCESSIBLE;
 	}
 	else if (ferror(file)) {
 		status = STATUS_ERR_CORRUPT;

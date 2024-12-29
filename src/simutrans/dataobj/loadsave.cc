@@ -316,7 +316,7 @@ loadsave_t::file_status_t loadsave_t::rd_open(const char *filename_utf8)
 	if (cl_status != FILE_CLASSIFY_OK) {
 		// file likely does not exist
 		dbg->warning("loadsave_t::rd_open", "File '%s' does not exist or is not accessible", filename_utf8);
-		return FILE_STATUS_ERR_NOT_EXISTING;
+		return FILE_STATUS_ERR_INACCESSIBLE;
 	}
 	else if(  finfo.version == INVALID_FILE_VERSION  ) {
 		return FILE_STATUS_ERR_NO_VERSION;
@@ -380,7 +380,7 @@ loadsave_t::file_status_t loadsave_t::rd_open(const char *filename_utf8)
 			dbg->warning("loadsave_t::rd_open", "Cannot read from '%s'", filename_utf8);
 		}
 
-		return FILE_STATUS_ERR_NOT_EXISTING;
+		return FILE_STATUS_ERR_INACCESSIBLE;
 	}
 
 	// skip header
@@ -428,7 +428,7 @@ loadsave_t::file_status_t loadsave_t::wr_open( const char *filename_utf8, mode_t
 
 	if (stream->get_status() != rdwr_stream_t::STATUS_OK) {
 		dbg->error("loadsave_t::wr_open", "Cannot open '%s' for writing!", filename_utf8);
-		return (stream->get_status() == rdwr_stream_t::STATUS_ERR_NOT_EXISTING) ? FILE_STATUS_ERR_NOT_EXISTING : FILE_STATUS_ERR_CORRUPT;
+		return (stream->get_status() == rdwr_stream_t::STATUS_ERR_FILE_INACCESSIBLE) ? FILE_STATUS_ERR_INACCESSIBLE : FILE_STATUS_ERR_CORRUPT;
 	}
 
 	set_buffered( true );
@@ -494,16 +494,19 @@ const char *loadsave_t::close()
 	const char *errmsg = NULL;
 
 	switch (stream->get_status()) {
-	case rdwr_stream_t::STATUS_EOF:
-	case rdwr_stream_t::STATUS_OK: errmsg = NULL; break;
+		case rdwr_stream_t::STATUS_OK:
+		case rdwr_stream_t::STATUS_EOF:
+			errmsg = NULL; break;
 
-	case rdwr_stream_t::STATUS_ERR_CORRUPT:        errmsg = "Corrupt save file";         break;
-	case rdwr_stream_t::STATUS_ERR_DEPRECATED:     errmsg = "Save file version too old"; break;
-	case rdwr_stream_t::STATUS_ERR_FUTURE_VERSION: errmsg = "Save file version too new"; break;
-	case rdwr_stream_t::STATUS_ERR_NO_VERSION:     errmsg = "Unversioned save file";     break;
-	case rdwr_stream_t::STATUS_ERR_FULL:           errmsg = "No space left on device";   break;
-	case rdwr_stream_t::STATUS_ERR_NOT_EXISTING:   errmsg = "File not found";            break;
-	case rdwr_stream_t::STATUS_INVALID:            errmsg = "<Invalid status>";          break;
+		case rdwr_stream_t::STATUS_ERR_NOT_INITIALIZED:   errmsg = "Not initialized";                                    break;
+		case rdwr_stream_t::STATUS_ERR_GENERIC_ERROR:     errmsg = "Unknown error";                                      break;
+		case rdwr_stream_t::STATUS_ERR_FILE_INACCESSIBLE: errmsg = "File not found or inaccessible. Check permissions."; break;
+		case rdwr_stream_t::STATUS_ERR_FULL:              errmsg = "No space left on device";                            break;
+		case rdwr_stream_t::STATUS_ERR_OUT_OF_MEMORY:     errmsg = "Out of memory";                                      break;
+		case rdwr_stream_t::STATUS_ERR_NO_VERSION:        errmsg = "Unversioned save file";                              break;
+		case rdwr_stream_t::STATUS_ERR_FUTURE_VERSION:    errmsg = "Save file version too new";                          break;
+		case rdwr_stream_t::STATUS_ERR_OBSOLETE_VERSION:  errmsg = "Save file version too old";                          break;
+		case rdwr_stream_t::STATUS_ERR_CORRUPT:           errmsg = "Corrupt save file";                                  break;
 	}
 
 	delete stream;

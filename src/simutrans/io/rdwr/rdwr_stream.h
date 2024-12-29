@@ -24,15 +24,19 @@ public:
 public:
 	enum status_t
 	{
-		STATUS_INVALID = -1,     ///< Not initialized
-		STATUS_OK = 0,
-		STATUS_EOF,              ///< (when reading) end of file/buffer reached
-		STATUS_ERR_NOT_EXISTING, ///< (when reading) File does not exist
-		STATUS_ERR_FULL,         ///< (when writing) No space left in buffer or hard drive
-		STATUS_ERR_NO_VERSION,
-		STATUS_ERR_FUTURE_VERSION,
-		STATUS_ERR_DEPRECATED,   ///< Version too old
-		STATUS_ERR_CORRUPT       ///< ex.: file malformed, file no longer accessible
+		STATUS_OK  = 0,
+		STATUS_EOF = 1,                  ///< (when reading) end of file/buffer reached
+
+		// error codes
+		STATUS_ERR_NOT_INITIALIZED   = -1, ///< Not initialized
+		STATUS_ERR_GENERIC_ERROR     = -2, ///< Catch-all for unknown errors
+		STATUS_ERR_FILE_INACCESSIBLE = -3, ///< File not found or wrong permissions on file or directory
+		STATUS_ERR_FULL              = -4, ///< (when writing) No space left in buffer or hard drive
+		STATUS_ERR_OUT_OF_MEMORY     = -5, ///< Failed to allocate memory. This is likely an error cascaded from the underlying library.
+		STATUS_ERR_NO_VERSION        = -6,
+		STATUS_ERR_FUTURE_VERSION    = -7,
+		STATUS_ERR_OBSOLETE_VERSION  = -8,  ///< Version too old
+		STATUS_ERR_CORRUPT           = -9   ///< ex.: file malformed
 	};
 
 	status_t get_status() const { return status; }
