@@ -69,7 +69,7 @@
 /**
  * Mask, applied to yards, to eliminate anything smaller than a vehicle step
  * Assumes yards are in uint32 variables.... derivative of YARDS_PER_VEHICLE_STEP_SHIFT
- * #define YARDS_VEHICLE_STEP_MASK (0xFFFFF000)
+ * \def YARDS_VEHICLE_STEP_MASK (0xFFFFF000)
  */
 #define YARDS_VEHICLE_STEP_MASK ~((1<<YARDS_PER_VEHICLE_STEP_SHIFT)-1)
 

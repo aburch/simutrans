@@ -753,7 +753,11 @@ public:
 
 	/**
 	 * Network safe initiation of new and deletion of players, change freeplay.
-	 * @param param Player type (human / ai) of new players.
+	 *
+	 * @param cmd
+	 * @param player_nr
+	 * @param param Player type (human / C ai / script ai) of new players.
+	 * @param scripted_call
 	 */
 	void call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool scripted_call=false);
 
@@ -765,6 +769,10 @@ public:
 	};
 
 	/**
+	 * @param cmd
+	 * @param player_nr
+	 * @param param
+	 * @param public_player_unlocked
 	 * @param exec If false checks whether execution is allowed, if true executes tool.
 	 * @returns Whether execution is allowed.
 	 */
@@ -955,7 +963,9 @@ public:
 
 	 /**
 	  * Initialize map.
+	  * 
 	  * @param sets Game settings.
+	  * @param heights
 	  */
 	void init(settings_t *sets, sint8 const* heights);
 
@@ -1168,7 +1178,11 @@ public:
 
 	/**
 	 * Saves the map to a file.
+	 * 
 	 * @param filename name of the file to write.
+	 * @param autosave
+	 * @param version
+	 * @param silent
 	 */
 	void save(const char *filename, bool autosave, const char *version, bool silent);
 

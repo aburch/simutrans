@@ -118,8 +118,10 @@ static HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD
     return hr;
 }
 
-/**
+/*
  * loads a single sample
+ *
+ * @param strFileName
  * @return a handle for that sample or -1 on failure
  */
 int dr_load_sample(char const* strFileName)
@@ -162,9 +164,11 @@ int dr_load_sample(char const* strFileName)
     return wfs.get_count() - 1;
 }
 
-/**
+/*
  * plays a sample
- * @param key the key for the sample to be played
+ * 
+ * @param sample_number the key for the sample to be played
+ * @param volume
  */
 void dr_play_sample(int sample_number, int volume)
 {

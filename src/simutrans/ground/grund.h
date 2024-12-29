@@ -558,37 +558,60 @@ public:
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
+	 *
+	 * @param xpos
+	 * @param ypos
+	 * @param raster_tile_width
 	 * @param is_global set to true, if this is called during the whole screen update
+	 * @param CLIP_NUM_DEF
 	 */
 	void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * similar to above but yields clipping error
 	 * => only used for zoom out
+	 * 
+	 * @param xpos
+	 * @param ypos
+	 * @param raster_tile_width
 	 * @param is_global set to true, if this is called during the whole screen update
+	 * @param CLIP_NUM_DEF
 	 */
 	void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * displays background images of all non-moving objects on the tile
+	 * 
+	 * @param xpos
+	 * @param ypos
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @param draw_ways if true then draw images of ways
 	 * @param visible if false then draw only grids and markers
 	 * @return index of first vehicle on the tile
+	 * @param CLIP_NUM_DEF
 	 */
 	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible  CLIP_NUM_DEF) const;
 
 	/**
 	 * displays vehicle (background) images
+	 * 
+	 * @param xpos
+	 * @param ypos
 	 * @param start_offset start with object at this index
 	 * @param ribi draws only vehicles driving in this direction (or against this)
 	 * @param ontile is true if we are on the tile that defines the clipping
+	 * @param CLIP_NUM_DEF
 	 */
 	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
 
 	/**
 	 * displays all foreground images
+	 * 
+	 * @param xpos
+	 * @param ypos
 	 * @param is_global set to true, if this is called during the whole screen update
+	 * @param start_offset
+	 * @param CLIP_NUM_DEF
 	 */
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
 
@@ -620,7 +643,7 @@ public:
 	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }
 
 	/**
-	* Interface zur Bauen und abfragen von Gebaeuden
+	* Interface zum Bauen und abfragen von Gebaeuden
 	* =============================================
 	*/
 

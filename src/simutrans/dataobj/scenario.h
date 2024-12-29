@@ -188,7 +188,9 @@ private:
 
 	/**
 	 * helper function:
+	 * 
 	 * @param other given record and the player_nr to test for (or PLAYER_UNOWNED)
+	 * @param player_nr player
 	 * @returns first index i such that
 	 *          forbidden_tools[i-1] < other <= forbidden_tools[i] <= other
 	 *          or returns  forbidden_tools.get_count() if no such index is found
@@ -197,7 +199,9 @@ private:
 
 	/**
 	 * helper function:
+	 * 
 	 * @param other given record  and the player_nr to test for (or PLAYER_UNOWNED)
+	 * @param player_nr player
 	 * @returns first index i such that
 	 *          that the type, toolnumber, and waytype matches (but parameter may be wrong)
 	 *          or returns  forbidden_tools.get_count() if no such index is found
@@ -208,7 +212,9 @@ private:
 	 * Helper function:
 	 * Puts/removes new record into/from forbidden_tools list, checks for identical entries.
 	 * Only call this method from call_forbid_tool(forbidden_t *,bool)
+	 * 
 	 * @param test must be pointer to allocated memory, will be invalid after call
+	 * @param player_nr player
 	 * @param add_rule if true add rule, if false removes rule from list
 	 * @returns vule 1 if added rule, and 2 deleted previous rule, return 0 on error
 	 */
@@ -217,7 +223,9 @@ private:
 	/**
 	 * Helper function: works on forbidden_tools directly (if not in network-mode)
 	 * or sends information over network (if at server)
+	 * 
 	 * @param test must be pointer to allocated memory, will be invalid after call
+	 * @param player_nr player
 	 * @param forbid if true forbids, if false allows the record
 	 */
 	void call_forbid_tool(forbidden_t *test, uint player_nr, bool forbid);
@@ -291,7 +299,9 @@ public:
 
 	/**
 	 * Sets percentage of scenario completion. Used as callback if script call got suspended.
+	 * 
 	 * @param player_nr player
+	 * @param percentage
 	 * @returns dummy return value
 	 */
 	bool set_completion(sint32 player_nr, sint32 percentage);
@@ -380,6 +390,7 @@ public:
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param param
 	 */
 	void forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param);
 
@@ -391,6 +402,7 @@ public:
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param param
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param err error message presented to user when trying to apply this tool
@@ -405,6 +417,7 @@ public:
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
+	 * @param param
 	 * @param pos_nw coordinate of north-western corner of cube
 	 * @param pos_se coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool
@@ -421,14 +434,15 @@ public:
 
 	/**
 	 * clear rule with certain waytype within cubic region on the map.
-	 * @ingroup squirrel-api
+	 * @ingroup squirrel-scen-api
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
 	 * @param tool_id id of tool
 	 * @param wt waytype
-	 * @param pos_nw coordinate of north-western corner of cube
-	 * @param pos_se coordinate of south-eastern corner of cube
+	 * @param param
+	 * @param pos_nw_0 coordinate of north-western corner of cube
+	 * @param pos_se_0 coordinate of south-eastern corner of cube
 	 * @param allow clear and allow rule (true) or clear a forbid rule (false)
 	 */
 	void clear_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, const char* param, koord3d pos_nw_0, koord3d pos_se_0, bool allow);

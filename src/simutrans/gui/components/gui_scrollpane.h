@@ -51,6 +51,8 @@ protected:
 public:
 	/**
 	 * @param comp the scrolling component
+	 * @param b_scroll_x
+	 * @param b_scroll_y
 	 */
 	gui_scrollpane_t(gui_component_t *comp, bool b_scroll_x = false, bool b_scroll_y = true);
 

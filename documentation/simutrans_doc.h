@@ -9,7 +9,7 @@
 /**
  * @mainpage
  *
- * Simutrans 
+ * Simutrans
  *
  * @tableofcontents
  *
@@ -17,14 +17,14 @@
  *
  *
  *
- *
- * @section squirrel Scripting language
+ * ## squirrel Scripting language
+ * @section s_squirrel
  * ------------------
  *
  * The scripts have to be written in squirrel. The manual can be found at <a href="http://squirrel-lang.org/">Squirrel main page</a>.
  * As squirrels like to crack nuts, understandably the script files get the extension '.nut'.
  *
- * @subsection s_scenarios Scripted scenarios
+ * @subsection sec_scenarios Scripted scenarios
  *
  * ....
  *
@@ -54,7 +54,7 @@
  * </tt>
  *
  *
- * @subsection s_ai_player Scripted AI players
+ * @subsection sec_ai_player Scripted AI players
  *
  * ....
  *
@@ -78,7 +78,7 @@
  * addons/ai/myai/
  * </tt>
  *
- * @subsection s_scripted_tools Scripted tools
+ * @subsection sec_scripted_tools Scripted tools
  *
  * ....
  *
@@ -96,7 +96,7 @@
  * pak-something/
  * </tt>
  *
-* 
+*
  */
 
 
@@ -129,11 +129,10 @@
    */
 
    /**
-	* @defgroup squirrel-toolkit-api Squirrel toolkit interface
-	*
-	* The following methods create macro scripted tools.
-	* 
-	* 
-	*
-	*/
-
+  * @defgroup squirrel-toolkit-api Squirrel toolkit interface
+  *
+  * The following methods create macro scripted tools.
+  *
+  *
+  *
+  */

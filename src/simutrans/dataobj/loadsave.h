@@ -110,6 +110,8 @@ public:
 
 	/**
 	 * Parses the version information from @p version_text to a version number.
+	 *
+	 * @param version_text
 	 * @param[out] pak Pointer to a sufficiently large buffer (>= 64 chars); when the function returns,
 	 *                 @p pak contains the pakset extension string. May be NULL.
 	 * @retval 0   if an error occurred or the save cannot be loaded

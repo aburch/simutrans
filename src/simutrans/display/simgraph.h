@@ -143,6 +143,7 @@ void simgraph_resize(scr_size new_window_size);
 
 /**
  * Loads the font, returns the number of characters in it
+ * @param fname
  * @param reload if true forces reload
  */
 bool display_load_font(const char *fname, bool reload = false);

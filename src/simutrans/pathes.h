@@ -10,12 +10,14 @@
 /**
  * This header defines all paths used be simutrans relative to the game directory.
  *
+ * \parblock
  * two defines for all paths - if You want the root path,  use:
  *   #define _PATH ""
  *   #define _PATH_X ""
  * else use
  *   #define _PATH "somewhere"
  *   #define _PATH_X _PATH "/"
+ * \endparblock
  */
 
 #define USER_PAK_PATH      "simutrans"

@@ -43,6 +43,8 @@ protected:
 	/**
 	 * Creates thing at position given by @p gr.
 	 * Does not add it to the tile!
+	 *
+	 * @param gr
 	 * @param random number to compute initial direction.
 	 */
 	road_user_t(grund_t* gr, uint16 random);

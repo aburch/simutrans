@@ -4226,13 +4226,13 @@ void display_signal_direction_rgb(scr_coord_val x, scr_coord_val y, uint8 way_di
 
 /**
  * Print a bezier curve between points A and B
- * @Ax,Ay=start coordinate of Bezier curve
- * @Bx,By=end coordinate of Bezier curve
- * @ADx,ADy=vector for start direction of curve
- * @BDx,BDy=vector for end direction of Bezier curve
- * @colore=color for curve to be drawn
- * @draw=for dotted lines, how many pixels to be drawn (leave 0 for solid line)
- * @dontDraw=for dotted lines, how many pixels to not be drawn (leave 0 for solid line)
+ * @param Ax,Ay start coordinate of Bezier curve
+ * @param Bx,By end coordinate of Bezier curve
+ * @param ADx,ADy vector for start direction of curve
+ * @param BDx,BDy vector for end direction of Bezier curve
+ * @param colore color for curve to be drawn
+ * @param draw for dotted lines, how many pixels to be drawn (leave 0 for solid line)
+ * @param dontDraw for dotted lines, how many pixels to not be drawn (leave 0 for solid line)
  */
 void draw_bezier_rgb(scr_coord_val Ax, scr_coord_val Ay, scr_coord_val Bx, scr_coord_val By, scr_coord_val ADx, scr_coord_val ADy, scr_coord_val BDx, scr_coord_val BDy, const PIXVAL colore, scr_coord_val draw, scr_coord_val dontDraw)
 {

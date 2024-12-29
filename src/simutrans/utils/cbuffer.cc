@@ -327,6 +327,7 @@ static void replace_double_percent(const char* format, char* &repaired)
  *
  * @param master the master string to compare against
  * @param translated the translated string taken from some tab file
+ * @param repaired_p
  * @returns whether format in translated is ok
  */
 bool cbuffer_t::check_and_repair_format_strings(const char* master, const char* translated, char** repaired_p)

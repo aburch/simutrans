@@ -715,8 +715,12 @@ void network_send_server(network_command_t* nwc )
 
 /**
  * send data to dest
+ *
+ * @param dest
  * @param buf the data
  * @param size length of buffer and number of bytes to be sent
+ * @param count
+ * @param timeout_ms
  * @return true if data was completely send, false if an error occurs and connection needs to be closed
  */
 bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms )
@@ -782,9 +786,12 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 
 /**
  * receive data from sender
+ *
+ * @param sender
  * @param dest the destination buffer
  * @param len length of destination buffer and number of bytes to be received
  * @param received number of received bytes is returned here
+ * @param timeout_ms
  * @return true if connection is still valid, false if an error occurs and connection needs to be closed
  */
 bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms )

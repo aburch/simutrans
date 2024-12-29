@@ -11,7 +11,9 @@
 #include <typeinfo>
 #include "../simdebug.h"
 
-/*
+/**
+ * @file spezial_obj_tpl.h
+ * 
  * Routines to manage special object descriptors lists used in the program.
  */
 
@@ -29,7 +31,7 @@ template<class desc_t> struct special_obj_tpl {
  * An object pointer is set on the passed list, if the name of the
  * object belongs to one of the objects mentioned in the list.
  * @param so List to operate over.
- * @parem desc Descriptor to add.
+ * @param desc Descriptor to add.
  */
 template<class desc_t> bool register_desc(special_obj_tpl<desc_t> const* so, desc_t const* const desc)
 {

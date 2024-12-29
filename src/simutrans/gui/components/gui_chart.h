@@ -50,11 +50,16 @@ public:
 
 	/**
 	 * Adds a curve to the graph
+	 * 
 	 * @param color    color for this curve; default 0
 	 * @param values   reference to values
 	 * @param size     elements to skip before next valid entry (only useful in multidimensional arrays)
 	 * @param offset   element to start with
 	 * @param elements elements in values
+	 * @param type
+	 * @param show
+	 * @param show_value
+	 * @param precision
 	 * @param proc     conversion procedure to be applied to supplied values
 	 * @returns curve's id
 	 */

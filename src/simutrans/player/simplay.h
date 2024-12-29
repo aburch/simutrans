@@ -102,7 +102,9 @@ protected:
 
 	/**
 	 * Adds some amount to the maintenance costs.
+	 *
 	 * @param change the change
+	 * @param wt 
 	 * @return the new maintenance costs
 	 */
 	sint64 add_maintenance(sint64 change, waytype_t const wt=ignore_wt);
@@ -131,23 +133,30 @@ public:
 
 	/**
 	 * Adds construction costs to accounting statistics.
+	 *
+	 * @param player
 	 * @param amount How much does it cost
+	 * @param k 
 	 * @param wt type of transport
 	 */
 	static void book_construction_costs(player_t * const player, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Accounts bought/sold vehicles.
+	 * 
 	 * @param price money used for purchase of vehicle,
 	 *              negative value = vehicle bought,
 	 *              positive value = vehicle sold
+	 * @param k
 	 * @param wt type of transport for accounting purpose
 	 */
 	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Adds income to accounting statistics.
+	 *
 	 * @param amount earned money
+	 * @param k
 	 * @param wt transport type used in accounting statistics
 	 * @param cathegory parameter
 	 *  0 ... passenger

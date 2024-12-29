@@ -98,6 +98,8 @@ public:
 	/**
 	 * Let convoi leave the depot.
 	 * If not possible, a message is displayed and the function returns false.
+	 *
+	 * @param cnv
 	 * @param local_execution if true, this method creates pop-ups in case of errors
 	 */
 	bool start_convoi(convoihandle_t cnv, bool local_execution);

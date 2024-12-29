@@ -48,7 +48,8 @@ public:
  * @param path              Optional search path. If null next call to add_path()
  *                          defines the deefault path. Default value is NULL.
  * @param delete_enabled    Show (true) or hide (false) the delete buttons.
- *                          This is an optional parameter with a default value of true;
+ *                          This is an optional parameter with a default value of true.
+ * @param back_to_menu
  */
 savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, const char *path, const bool delete_enabled, bool back_to_menu) : gui_frame_t( translator::translate("Load/Save") ),
 	suffix(suffix),

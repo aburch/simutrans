@@ -57,7 +57,13 @@ public:
 	baum_t(loadsave_t *file);
 	baum_t(koord3d pos);
 
-	/// @param age Must be smaller than 4095
+	/**
+	 * @param pos
+	 * @param type
+	 * @param age Must be smaller than 4095
+	 * @param slope
+	 *
+	 */
 	baum_t(koord3d pos, uint8 type, uint16 age, slope_t::type slope );
 
 	baum_t(koord3d pos, const tree_desc_t *desc);
@@ -107,7 +113,7 @@ public:
 	/// @copydoc obj_t::show_info
 	void show_info() OVERRIDE;
 
-	/// @copydoc obj-t::info
+	/// @copydoc obj_t::info
 	void info(cbuffer_t & buf) const OVERRIDE;
 
 	/// @copydoc obj_t::cleanup

@@ -23,10 +23,11 @@ public:
 	 * Reads height data from 8 or 24 bit bmp or ppm files.
 	 *
 	 * @param filename the file to load the height data from.
+	 * @param groundwater
+	 * @param update_only_values When true, do not allocate the height field; instead, only update @p ww and @p hh
 	 * @param[out] hfield 2d array of height values.
 	 * @param[out] ww width of @p hfield. On failure, this value is undefined.
 	 * @param[out] hh height of @p hfield. On failure, this value is undefined.
-	 * @param update_only_values When true, do not allocate the height field; instead, only update @p ww and @p hh
 	 *
 	 * @return true on success, false on failure. On success, @p hfield contains
 	 * the height field data (must be free()'d by the caller unless @p update_only_values is set).

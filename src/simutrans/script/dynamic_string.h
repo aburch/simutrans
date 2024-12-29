@@ -41,7 +41,9 @@ public:
 
 	/**
 	 * Update the string, calls fetch_result().
+	 * 
 	 * @param script the scripting engine, if script == NULL then this needs server communication
+	 * @param player
 	 * @param force_update will force to update even if cache is still valid
 	 */
 	void update(script_vm_t *script, player_t *player, bool force_update=false);
@@ -60,6 +62,7 @@ public:
 	 * some time threshold is exceeded (or force_update is true).
 	 *
 	 * @param function script function incl arguments to be called
+	 * @param script
 	 * @param listener will be updated should the result change in future
 	 * @param force_update force an update, do not use cached string
 	 * @returns string or NULL if nothing available (yet)
@@ -83,7 +86,10 @@ public:
 private:
 	/**
 	 * Calls a script
+	 * 
 	 * @param function is the full function call including integer parameters
+	 * @param script
+	 * @param result
 	 * @returns true if call was successfull
 	 */
 	static bool call_script(const char* function, script_vm_t* script, plainstring& result);

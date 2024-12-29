@@ -100,7 +100,10 @@ public:
 
 	/**
 	 * Method checks whether next tile is free to move on.
-	 * @param gr_next next tile, must not be NULL
+	 * 
+	 * @param second_check_count
+	 * @param[out] gr_next next tile, must not be NULL
+	 * @param[out] restart_speed
 	 */
 	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count) = 0;
 

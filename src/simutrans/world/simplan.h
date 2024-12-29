@@ -203,6 +203,8 @@ private:
 public:
 	/**
 	 * The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
+	 *
+	 * @param halt
 	 * @param unsorted if true then halt list will be sorted later by call to sort_haltlist, see karte_t::plans_finish_rd.
 	 */
 	void add_to_haltlist(halthandle_t halt, bool unsorted = false);

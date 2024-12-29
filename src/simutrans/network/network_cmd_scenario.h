@@ -42,7 +42,9 @@ public:
 
 	/**
 	 * Callback method: sends answer back to client.
+	 * 
 	 * @param function result of this function is returned
+	 * @param result
 	 * @param client_id to send result to
 	 * @returns dummy boolean value
 	 */

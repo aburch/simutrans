@@ -48,6 +48,7 @@ public:
 	 * @param bridge_height on success, the height of the bridge that we can build
 	 * @param ai_bridge if this bridge is being built by an AI
 	 * @param min_length the minimum length of the bridge.
+	 * @param high_bridge
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
 	static koord3d find_end_pos(player_t *player, koord3d pos, const koord zv, const bridge_desc_t *desc, const char *&error_msg, sint8 &bridge_height, bool ai_bridge=false, uint32 min_length=0, bool high_bridge = false );
@@ -57,6 +58,7 @@ public:
 	 *
 	 * @param player the player wanting to build the  bridge.
 	 * @param gr the ground to check.
+	 * @param wt
 	 * @param r is ribi_t::none of the direction from bridge to ground.
 	 * @return true, if bridge ramp can be built here.
 	 */
@@ -75,6 +77,8 @@ public:
 	 *
 	 * @param player the player wanting to build the bridge
 	 * @param end the position of the ramp
+	 * @param ribi_neu
+	 * @param weg_hang
 	 * @param desc the bridge description.
 	 */
 	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc);
@@ -139,8 +143,10 @@ public:
 
 	/**
 	 * Fill menu with icons for all ways of the given waytype
+	 *
 	 * @param tool_selector gui object of the toolbar
 	 * @param wtyp way type
+	 * @param sound_ok
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 

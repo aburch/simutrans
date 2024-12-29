@@ -1320,9 +1320,11 @@ void dr_fatal_notify(char const* const msg)
 
 
 
-/**
+/*
  * Open a program/starts a script to download pak sets from sourceforge
+ * 
  * @param data_dir : actual simutrans pakfile directory
+ * @param portable
  * @return false, if nothing was downloaded
  */
 bool dr_download_pakset( const char *data_dir, bool portable )

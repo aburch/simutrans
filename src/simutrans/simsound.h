@@ -22,8 +22,10 @@ int sound_get_global_volume();
 
 /// Sets volume for a specific type of sound.
 /// @param volume in range 0..255
+/// @param t
 void sound_set_specific_volume( int volume, sound_type_t t );
 
+/// @param t
 /// @returns volume in range 0..255
 int sound_get_specific_volume( sound_type_t t );
 
@@ -32,6 +34,7 @@ int sound_get_specific_volume( sound_type_t t );
  *
  * @param idx    Index of the sound
  * @param volume in range 0..255
+ * @param t
  */
 void sound_play(uint16 idx, uint8 volume, sound_type_t t );
 

@@ -1516,6 +1516,12 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
  *
  * if USE_ROUTE_SLIST_TPL is defined, the list template will be used.
  * However, this is about 50% slower.
+ *
+ * @param start_halts
+ * @param start_halt_count
+ * @param no_routing_over_overcrowding
+ * @param return_ware
+ * @param[out] ware
  */
 int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {

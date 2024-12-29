@@ -53,6 +53,9 @@ private:
 
 	/**
 	 * Finds a random producer producing @p ware.
+	 *
+	 * @param producer
+	 * @param ware
 	 * @param timeline the current time (months)
 	 */
 	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline );
@@ -85,6 +88,7 @@ public:
 	/**
 	 * @param electric true to limit search to electricity producers only
 	 * @param cl allowed climates
+	 * @param timeline
 	 * @returns a random consumer
 	 */
 	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline );
@@ -96,6 +100,8 @@ public:
 	 * @param info Description for the new factory
 	 * @param initial_prod_base Initial base production (-1 to disable)
 	 * @param rotate building rotation (0..3)
+	 * @param pos
+	 * @param owner
 	 * @returns The newly constructed factory.
 	 */
 	static fabrik_t* build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner);
@@ -127,15 +133,25 @@ public:
 private:
 	/**
 	 * Checks if the site at @p pos is suitable for construction.
+	 *
+	 * @param pos
 	 * @param size Size of the building site
+	 * @param site
+	 * @param is_factory
 	 * @param cl allowed climates
 	 */
 	static bool check_construction_site(koord pos, koord size, factory_desc_t::site_t site, bool is_factory, climate_bits cl);
 
 	/**
 	 * Find a random site to place a factory.
+	 *
+	 * @param pos
 	 * @param radius Radius of the search circle around @p pos
 	 * @param size size of the building site
+	 * @param site
+	 * @param desc
+	 * @param ignore_climates
+	 * @param max_iterations
 	 */
 	static koord3d find_random_construction_site(koord pos, int radius, koord size, factory_desc_t::site_t site, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations);
 

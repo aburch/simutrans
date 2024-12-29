@@ -194,6 +194,12 @@ int dr_load_sample(const char *filename)
 }
 
 
+/*
+ * plays a sample
+ *
+ * @param sample_number the key for the sample to be played
+ * @param volume
+  */
 void dr_play_sample(int sample_number, int volume)
 {
 	if (use_sound <= 0 || sample_number == -1) {

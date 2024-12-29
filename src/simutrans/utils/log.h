@@ -104,6 +104,11 @@ public:
 
 
 	/**
+	 * @param logname
+	 * @param fource_flush
+	 * @param log_debug
+	 * @param log_console
+	 * @param greeting
 	 * @param syslogtag only used with syslog
 	 */
 	log_t(const char* logname, bool force_flush, bool log_debug, bool log_console, const char* greeting, const char* syslogtag=NULL);

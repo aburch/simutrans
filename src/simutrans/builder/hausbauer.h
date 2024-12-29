@@ -54,6 +54,10 @@ public:
 	/**
 	 * Finds a station building enabling pax/mail/goods for the AI.
 	 * If @p time == 0 the timeline will be ignored.
+	 * 
+	 * @param utype
+	 * @param wt
+	 * @param time
 	 * @param enables station enabled flags (see haltestelle_t::station_flags)
 	 * @returns a random station that can be built above ground.
 	 */
@@ -123,7 +127,9 @@ public:
 	/**
 	 * Removes an arbitrary building.
 	 * It will also take care of factories and foundations.
+	 * 
 	 * @param player the player wanting to remove the building.
+	 * @param gb
 	 */
 	static void remove(player_t *player, gebaeude_t *gb);
 
@@ -131,6 +137,11 @@ public:
 	 * Main function to build all non-traffic buildings, including factories.
 	 * Building size can be larger than 1x1.
 	 * Also the underlying ground will be changed to foundation.
+	 *
+	 * @param player
+	 * @param pos
+	 * @param layout
+	 * @param desc
 	 * @param param if building a factory, pointer to the factory,
 	 *              if building a stop, pointer to the halt handle.
 	 * Can only build houses on map ground!
@@ -143,6 +154,11 @@ public:
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.
 	 * Stations with layout>4 may change the layout of neighbouring buildings. (->end of rail platforms)
+	 * 
+	 * @param player
+	 * @param pos
+	 * @param layout
+	 * @param desc
 	 * @param param if building a stop, pointer to the halt handle
 	 */
 	static gebaeude_t* build_station_extension_depot(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);

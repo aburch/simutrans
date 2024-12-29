@@ -1301,7 +1301,13 @@ uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uin
  * Routine to draw vehicles
  * .. vehicles are draws if driving in direction ribi (with special treatment of flying aircrafts)
  * .. clips vehicle only along relevant edges (depends on ribi and vehicle direction)
- * @param ontile if true then vehicles are on the tile that defines the clipping
+ *
+ * @param draw_obj
+ * @param xpos
+ * @param ypos
+ * @param ribi
+ * @ param ontile if true then vehicles are on the tile that defines the clipping
+ * @param CLIP_NUM_DEF
  * @return the index of the first non-moving thing
  *
  * objlist_t::display_obj_vh() .. called by the methods in grund_t
@@ -1356,6 +1362,9 @@ uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uin
 
 /**
  * Routine to draw foreground images of everything on the tile (no clipping) and powerlines
+ *
+ * @param xpos
+ * @param ypos
  * @param start_offset .. draws also background images of all objects with index>=start_offset
  * @param is_global will be only true for the main display; all miniworld windows should still reset main window
  */

@@ -577,6 +577,8 @@ public:
 
 	/**
 	 * Add tile to list of station tiles.
+	 *
+	 * @param gb
 	 * @param relink_factories if true call verbinde_fabriken, if not true take care of factory connections yourself
 	 */
 	bool add_grund(grund_t *gb, bool relink_factories = true);
@@ -628,9 +630,11 @@ public:
 
 	/**
 	 * Fetches goods from this halt
+	 * 
 	 * @param load Output parameter. Goods will be put into this list, the vehicle has to load them.
 	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
 	 * @param requested_amount How many units of the cargo we can fetch.
+	 * @param destination_halts
 	 */
 	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
 

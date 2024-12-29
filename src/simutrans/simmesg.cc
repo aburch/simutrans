@@ -161,6 +161,8 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 
 /**
  * Add a message to the message list
+ *
+ * @param text
  * @param pos        position of the event
  * @param color      message color
  * @param what_flags type of message

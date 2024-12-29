@@ -55,11 +55,12 @@ public:
 	 * locating and drawing objects. This mechanic is due to the fact objects are drawn in relation of their top-left pixel, and that coordinate might be outside
 	 * the clipping rectangle. Think of water tiles on the top of screen of high buildings that fall over the bottom of screen, but so high that their top has to
 	 * remain visible.
+	 * 
 	 * @param lt Top-left pixel coordinate of the rectangle. In pixels.
-	 * @param wt Width and height f the rectangle. In pixels.
+	 * @param wh Width and height f the rectangle. In pixels.
 	 * @param y_min Minimum height of the screen (top pixel row) to start processing objects to draw.
 	 * @param y_max Maximum height of the screen (bottom pixel row) to start processing objects to draw.
-	 * @param dirty If set to true, will mark the whole rectangle as dirty.
+	 * @param force_dirty If set to true, will mark the whole rectangle as dirty.
 	 * @param threaded If set to true, indicates there are more threads drawing on screen, and this routine will use mutexes when needed.
 	 */
 #ifdef MULTI_THREAD

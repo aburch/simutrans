@@ -84,8 +84,10 @@ bool dr_init_sound()
 
 
 
-/**
+/*
  * loads a sample
+ *
+ * @param filename
  * @return a handle for that sample or -1 on failure
  */
 int dr_load_sample(const char *filename)
@@ -112,8 +114,10 @@ int dr_load_sample(const char *filename)
 
 /**
  * plays a sample
- * @param key the key for the sample to be played
- */
+ *
+ * @param sample_nummer the key for the sample to be played
+ * @param volume
+  */
 void dr_play_sample(int sample_number, int volume)
 {
 	// sound enabled and a valid sample

@@ -57,8 +57,11 @@ public:
 
 	/**
 	 * Add new tab to tab bar
+	 * 
 	 * @param c is tab component
 	 * @param name is name for tab component
+	 * @param b
+	 * @param tooltip
 	 */
 	void add_tab(gui_component_t *c, const char *name, const skin_desc_t *b=NULL, const char *tooltip=NULL );
 

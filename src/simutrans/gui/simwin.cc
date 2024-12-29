@@ -2205,6 +2205,10 @@ void win_load_font(const char *fname, uint8 fontsize)
 /**
  * Sets the tooltip to display.
  * Has to be called from within gui_frame_t::draw
+ *
+ * @param pos
+ * @param text
+ * @param group
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  */
 void win_set_tooltip(scr_coord pos, const char *text, const void *const owner, const void *const group)
