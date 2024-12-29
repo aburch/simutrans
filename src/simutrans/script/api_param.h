@@ -167,6 +167,8 @@ namespace script_api {
 	template<class T> struct param<const T*> {
 		/**
 		 * Gets parameters for calls to c++ functions from stack.
+		 *
+		 * @param vm
 		 * @param index on stack
 		 * @return value of parameter
 		 */
@@ -176,6 +178,8 @@ namespace script_api {
 		}
 		/**
 		 * Pushes parameters for calls to squirrel functions on stack.
+		 *
+		 * @param vm
 		 * @return positive value for success, negative for failure
 		 */
 		static SQInteger push(HSQUIRRELVM vm, const T* const& v)
@@ -201,6 +205,8 @@ namespace script_api {
 	template<class T> struct param<const T> {
 		/**
 		 * Gets parameters for calls to c++ functions from stack.
+		 *
+		 * @param vm
 		 * @param index on stack
 		 * @return value of parameter
 		 */

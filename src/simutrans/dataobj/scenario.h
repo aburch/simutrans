@@ -216,7 +216,7 @@ private:
 	 * @param test must be pointer to allocated memory, will be invalid after call
 	 * @param player_nr player
 	 * @param add_rule if true add rule, if false removes rule from list
-	 * @returns vule 1 if added rule, and 2 deleted previous rule, return 0 on error
+	 * @returns value 1 if added rule, and 2 deleted previous rule, return 0 on error
 	 */
 	void intern_forbid(forbidden_t *test, uint player_nr, bool add_rule);
 

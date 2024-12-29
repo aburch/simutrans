@@ -40,7 +40,7 @@ public:
  *  - Lines starting with '#' or ' ' are comment lines.
  *  - The file content is treated as a list of objects.
  *  - Objects are separated by a line starting with a dash (-)
- *  - Each object can contain any number of lines in the format '<Key>=<Value>'
+ *  - Each object can contain any number of lines in the format '&lt;Key>=<Value>'
  *    These line are NOT ordered
  *  - If keys are duplicated for one object, the first value is used
  *  - Keys are not case sensitive
@@ -59,8 +59,9 @@ public:
 	/**
 	 * Read an entire object from the open file.
 	 *
-	 * @return bool false, if empty object or eof
 	 * @param[out] objinfo  will receive the object info
+	 * @param fp file
+	 * @return bool false, if empty object or eof
 	 */
 	bool read(tabfileobj_t &objinfo, FILE *fp = NULL);
 

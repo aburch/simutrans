@@ -373,8 +373,11 @@ private:
 
 protected:
 	/**
-	 * baut ein Stueck Strasse
-	 * @param k Bauposition
+	 * builds a piece of road
+	 * 
+	 * @param k tile to build
+	 * @param player_ player
+	 * @param forced 
 	 */
 	bool build_road(const koord k, player_t *player_, bool forced);
 
@@ -384,6 +387,7 @@ private:
 	/**
 	 * @param pos position to check
 	 * @param regel the rule to evaluate
+	 * @param rotation
 	 * @return true on match, false otherwise
 	 */
 	static bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
@@ -425,6 +429,8 @@ public:
 
 	/**
 	 * This function adds houses to the city house list.
+	 *
+	 * @param gb building
 	 * @param ordered true for multithreaded loading, will insert buidings ordered, will not update city limits
 	 */
 	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
@@ -468,16 +474,20 @@ public:
 	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
 	/**
-	 * Erzeugt eine neue City auf Planquadrat (x,y) die dem Spieler sp
-	 * gehoert.
+	 * Creates a new city on grid square (x,y) that belongs to player sp.
+	 * 
+	 * 
 	 * @param player The owner of the city
 	 * @param pos Planquadratkoordinate
 	 * @param citizens number of citizens
+	 * @param th townhall object
+	 * @param rotation
 	 */
 	stadt_t(player_t* player, koord pos, sint32 citizens, const building_desc_t* th = NULL, sint16 rotation = -1);
 
 	/**
 	 * Erzeugt eine neue City nach Angaben aus der Datei file.
+	 * 
 	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
 	 */
@@ -491,6 +501,7 @@ public:
 	 * die City wieder erzeugt werden kann. Die Gebaude und strassen der
 	 * City werden nicht mit der City gespeichert sondern mit den
 	 * Planquadraten auf denen sie stehen.
+	 * 
 	 * @see stadt_t::stadt_t()
 	 * @see planquadrat_t
 	 */
@@ -542,6 +553,7 @@ public:
 
 	/**
 	 * Search for a possible Passenger or Mail destination.
+	 * 
 	 * @param target_factories the factory set to use (eg passenger or mail).
 	 * @param generated number of passengers already generated, used to fairly distribute to factories.
 	 * @param will_return set to the jounrey return type on return.
@@ -566,7 +578,10 @@ public:
 	 * Generates an array of random coordinates suitable for creating cities.
 	 * Do not consider coordinates in (0,0) - (old_x, old_y)
 	 * (leave @p old_x and @p old_y 0 to generate cities on the whole map).
+	 *
 	 * @param count how many cities to generate
+	 * @param old_x
+	 * @param old_y
 	 */
 	static vector_tpl<koord> *random_place(sint32 count, sint16 old_x, sint16 old_y);
 

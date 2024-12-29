@@ -184,6 +184,8 @@ public:
 
 	/**
 	 * send command to all clients
+	 *
+	 * @param nwc
 	 * @param only_playing_clients if true then send only to playing clients
 	 * @param player_nr if != PLAYER_UNOWNED then only send to clients with this player unlocked
 	 */
@@ -204,6 +206,7 @@ private:
 public: // from now stuff to deal with fd_set's
 
 	/**
+	 * @param fds
 	 * @param offset pointer to an offset
 	 * @return the first client whose bit is set in fd_set
 	 */

@@ -85,6 +85,8 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
+	 *
+	 * @param node
 	 * @param player player who wants to lower
 	 * @param keep_water returns false if water tiles would be raised above water
 	 * @returns NULL if raise_to operation can be performed, an error message otherwise
@@ -94,6 +96,8 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
+	 *
+	 * @param node 
 	 * @param player player who wants to lower
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
@@ -102,6 +106,7 @@ private:
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
 	 * New heights for each corner given.
+	 * 
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)

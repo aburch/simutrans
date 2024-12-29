@@ -57,6 +57,7 @@ namespace script_api {
 	 *
 	 * Same as non-templated register_function. Typemask und paramcheck will be deduced from the template parameter.
 	 *
+	 * @param vm
 	 * @tparam F function pointer signature of c++ method
 	 * @param funcptr function pointer to custom implementation
 	 * @param name name of the method as visible from squirrel
@@ -80,6 +81,7 @@ namespace script_api {
 	 * @pre Assumes that there is a table/class at the top of the stack to
 	 *      attach the function to it.
 	 *
+	 * @param vm
 	 * @tparam F type for free variables, @see freevariable
 	 * @param funcptr function pointer to custom implementation
 	 * @param name name of the method as visible from squirrel
@@ -114,6 +116,7 @@ namespace script_api {
 	 * @pre Assumes that there is a table/class at the top of the stack to
 	 *      attach the function to it.
 	 *
+	 * @param vm
 	 * @tparam F function pointer signature of c++ method
 	 * @param funcptr pointer to the c++ method
 	 * @param name name of the method as visible from squirrel
@@ -150,6 +153,7 @@ namespace script_api {
 	 * @pre Assumes that there is a table/class at the top of the stack to
 	 *      attach the function to it.
 	 *
+	 * @param vm
 	 * @tparam F function pointer signature of c++ method
 	 * @tparam V class to push default parameters as free variables
 	 * @param funcptr pointer to the c++ method
@@ -192,6 +196,7 @@ namespace script_api {
 	 *      attach the function to it.
 	 * @see register_method
 	 *
+	 * @param vm
 	 * @tparam F function pointer signature of c++ method
 	 * @param funcptr pointer to the c++ method
 	 * @param name name of the method as visible from squirrel

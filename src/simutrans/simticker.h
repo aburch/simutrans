@@ -25,6 +25,8 @@ namespace ticker
 
 	/**
 	 * Add a message to the message list
+	 *
+	 * @param txt
 	 * @param pos    position of the event
 	 * @param color  message color
 	 * @param type   what kind of message

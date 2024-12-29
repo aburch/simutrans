@@ -25,7 +25,7 @@ public:
 	/// @copydoc grund_t::get_name
 	const char *get_name() const OVERRIDE { return "Monorailboden"; }
 
-	/// @coypdoc grund_t::get_typ
+	/// @copydoc grund_t::get_typ
 	typ get_typ() const OVERRIDE { return monorailboden; }
 };
 

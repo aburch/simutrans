@@ -9,6 +9,8 @@
 
 /**
  * creates class, leaves it at the top of the stack
+ *
+ * @param vm
  */
 SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const char* baseclass)
 {
@@ -55,6 +57,8 @@ void script_api::end_class(HSQUIRRELVM vm)
 
 /**
  * pushes class
+ *
+ * @param vm
  */
 SQInteger script_api::push_class(HSQUIRRELVM vm, const char* classname)
 {
@@ -70,6 +74,8 @@ SQInteger script_api::push_class(HSQUIRRELVM vm, const char* classname)
 
 /**
  * pushes constructor of class: closure (the constructor) and environment (the class)
+ *
+ * @param vm
  */
 SQInteger script_api::prepare_constructor(HSQUIRRELVM vm, const char* classname)
 {

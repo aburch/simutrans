@@ -30,10 +30,14 @@ public:
 
 	/**
 	 * Executes the requested file search. It will look in subdirectories recursively when a max_depth is given.
+	 * 
 	 * @param filepath Base path to search in.
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
+	 * 
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 *
+	 * @param flags
 	 * @param max_depth Maximum depth of recursive search (0=search only the directory given by @p filepath).
 	 * @returns Number of files that matched the search parameters.
 	 */
@@ -62,21 +66,29 @@ public:
 private:
 	/**
 	 * Make the preparations for the search and then call search_path to do the actual search.
+	 * 
 	 * @param filepath Base path to search in. (This path can have either / or \ as deliminator on windows.
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
+	 * 
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 *
+	 * @param search_flag
 	 * @param max_depth Maximum depth of recursive search.
 	 */
 	int prepare_search(const std::string &filepath, const std::string &extension, search_flags_t search_flags, const int max_depth = 0);
 
 	/**
 	 * Real implementation of the search. It will call itself recursively to search in subdirectories when a max_depth is given.
+	 * 
 	 * @param path Path to search in. (This path can have either / or \ as deliminator on windows.
 	 * @param name Name of file to search. It will be "*" if not searching for an specific file.
 	 * @param ext Extension of files to search for.
+	 * 
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
+	 *
+	 * @param search_flag
 	 * @param max_depth Maximum depth of recursive search.
 	 */
 	void search_path(const std::string path, const std::string name, const std::string ext, search_flags_t search_flags, const int max_depth = 0 );

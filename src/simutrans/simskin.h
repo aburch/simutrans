@@ -157,8 +157,10 @@ public:
 
 	/**
 	 * retrieves objects with type=menu and given name
+	 * 
 	 * @param str pointer to beginning of name string (not null-terminated)
 	 * @param len length of string
+	 * @param type
 	 * @return pointer to skin object or NULL if nothing found
 	 */
 	static const skin_desc_t *get_extra( const char *str, int len, skintyp_t type = menu );

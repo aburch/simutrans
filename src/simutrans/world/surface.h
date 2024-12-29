@@ -316,8 +316,12 @@ public:
 
 	inline sint8 get_water_hgt(koord k) const { return get_water_hgt(k.x, k.y); }
 
-	/// Sets water height.
-	/// @param x,y tile position
+	/**
+	 * Sets water height.
+	 * 
+	 * @param x,y tile position
+	 * @param hgt
+	 */ 
 	void set_water_hgt_nocheck(sint16 x, sint16 y, sint8 hgt) { water_hgts[x + y * cached_grid_size.x] = hgt; }
 
 	inline void set_water_hgt_nocheck(koord k, sint8 hgt) { water_hgts[k.x + k.y * cached_grid_size.x] = hgt; }
@@ -376,13 +380,19 @@ public:
 
 	/**
 	 * Increases the height of the grid coordinate (@p x, @p y) by one.
+	 *
+	 * @param player player
 	 * @param pos Grid coordinate.
+	 * @param[out] err
 	 */
 	int grid_raise(const player_t *player, koord pos, const char *&err);
 
 	/**
 	 * Decreases the height of the grid coordinate (@p x, @p y) by one.
+	 *
+	 * @param player player
 	 * @param pos Grid coordinate.
+	 * @param[out] err
 	 */
 	int grid_lower(const player_t *player, koord pos, const char *&err);
 

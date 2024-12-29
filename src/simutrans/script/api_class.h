@@ -23,6 +23,8 @@ namespace script_api {
 	/**
 	 * Creates squirrel class on the stack. Inherits from @p baseclass.
 	 * Has to be complemented by call to end_class.
+	 *
+	 * @param vm
 	 * @param classname name of squirrel class
 	 * @param baseclass name of base class (or NULL)
 	 * @return SQ_OK or SQ_ERROR
@@ -33,6 +35,8 @@ namespace script_api {
 	 * Creates squirrel class on the stack. Inherits from @p baseclass.
 	 * Has to be complemented by call to end_class.
 	 * Assigns the tag from param<C>::tag() to the class.
+	 *
+	 * @param vm
 	 * @tparam C assigns tag from C::tag() to the new class
 	 * @return SQ_OK or SQ_ERROR
 	 */
@@ -49,6 +53,8 @@ namespace script_api {
 	/**
 	 * Pushes class on stack.
 	 * Has to be complemented by call to end_class.
+	 *
+	 * @param vm
 	 * @param classname name of squirrel class, must exist prior to calling this function
 	 * @param baseclasses dummy string containing base classes - to create nice doxygen output
 	 * @return SQ_OK or SQ_ERROR
@@ -63,6 +69,8 @@ namespace script_api {
 	/**
 	 * Pushes the squirrel class onto the stack.
 	 * Has to be complemented by call to end_class.
+	 *
+	 * @param vm
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR
 	 */
@@ -72,6 +80,8 @@ namespace script_api {
 	/**
 	 * Prepares call to class to instantiate.
 	 * Pushes class and dummy object.
+	 *
+	 * @param vm
 	 * @param classname name of squirrel class
 	 * @return SQ_OK or SQ_ERROR
 	 */
@@ -120,6 +130,8 @@ namespace script_api {
 		/**
 		 * Assumes that constructor of corresponding squirrel class
 		 * accepts one parameter (the id).
+		 *
+		 * @param vm
 		 * @return positive value for success, negative for failure
 		 */
 		static SQInteger push(HSQUIRRELVM vm, quickstone_tpl<T> const& h)

@@ -131,9 +131,12 @@ public:
 	bool old_slope_compatibility_mode;
 	/**
 	 * Create an artificial slope
+	 * 
 	 * @param player the player doing the task
 	 * @param pos position where the slope will be generated
 	 * @param slope the slope type
+	 * @param old_slope_compatibility
+	 * @param just_check
 	 */
 	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool old_slope_compatibility, bool just_check = false);
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
