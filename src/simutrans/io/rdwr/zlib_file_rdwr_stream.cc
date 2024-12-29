@@ -116,7 +116,6 @@ void zlib_file_rdwr_stream_t::set_status_from_errno()
 		case ENOENT:
 		case EIO:
 		case EBADF:
-		case EBADFD:
 		case EACCES:
 		case ENODEV:
 		case EISDIR:
