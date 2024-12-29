@@ -318,6 +318,7 @@ const char* tool_exec_two_click_script_t::do_work(player_t* player, const koord3
 	script->prepare_callback("exec_script_base_work_callback", 3, (exec_script_base_t*)this, player, (const char*)"");
 	// now call
 	uint8 keys = flags & (tool_t::WFL_SHIFT  |  tool_t::WFL_CTRL);
+	res = NULL;
 	const char* err = call_function(script_vm_t::QUEUE, "do_work", player, res, start, end, keys);
 	if (err  &&  strcmp(err, "suspended")==0) {
 		// suspended
