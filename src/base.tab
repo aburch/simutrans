@@ -4457,7 +4457,10 @@ obj=program_text
 name=Icon size:
 note=text in diplay options
 --
-
+obj=error_text
+name=Forbidden by scenario
+note=error on trying to select and execute a forbidden tool
+--
 
 #obj=help_text
 #name=Lower values mean more local sounds
