@@ -13,12 +13,19 @@
  *
  * @tableofcontents
  *
+ * Simutrans Code Documentation
+ *
+ * License
+ * =======
+ *
+ * Simutrans is licensed under the Artistic License version 1.0. The Artistic License 1.0 is an OSI-approved license which allows for use, distribution, modification, and distribution of modified versions, under the terms of the Artistic License 1.0. For the complete license text see LICENSE.txt.
+ *
+ * Simutrans paksets (which are necessary to run the game) have their own license, but no one is included alongside this code.
  *
  *
  *
  *
- * ## squirrel Scripting language
- * @section s_squirrel
+ * @section s_squirrel squirrel Scripting language
  * ------------------
  *
  * The scripts have to be written in squirrel. The manual can be found at <a href="http://squirrel-lang.org/">Squirrel main page</a>.
@@ -96,7 +103,8 @@
  * pak-something/
  * </tt>
  *
-*
+ *
+ * Check out the sections on the <a href="modules.html">Modules</a> page.
  */
 
 
