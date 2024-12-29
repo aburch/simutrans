@@ -5774,7 +5774,7 @@ const char* karte_t::call_work_api(tool_t *tool, player_t *player, koord3d pos, 
 	// first allowance by scenario
 	if(  (tool->flags & tool_t::WFL_NO_CHK) == 0  &&  get_scenario()->is_scripted()  ) {
 		if(  !get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype(), tool->get_default_param())  ) {
-			err = "";
+			err = "Forbidden by scenario";
 		}
 		else {
 			err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), tool->get_default_param(), pos);
