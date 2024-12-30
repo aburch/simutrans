@@ -394,13 +394,6 @@ void display_signal_direction_rgb( scr_coord_val, scr_coord_val, uint8, uint8, P
 {
 }
 
-void display_set_progress_text(const char *)
-{
-}
-
-void display_progress(int, int)
-{
-}
 
 void display_img_aligned( const image_id, scr_rect, int, bool )
 {
