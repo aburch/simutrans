@@ -2984,8 +2984,9 @@ void karte_t::new_month()
 
 	// no autosave in networkmode or when the new world dialogue is shown
 	if( !env_t::networkmode  &&  env_t::autosave>0  &&  last_month%env_t::autosave==0  &&  !win_get_magic(magic_welt_gui_t)  ) {
-		char buf[128];
-		sprintf( buf, "save/autosave%02i.sve", last_month+1 );
+		cbuffer_t buf;
+		dr_chdir(env_t::user_dir); // make sure we are in the right directory
+		buf.printf( SAVE_PATH_X "autosave%02i.sve", last_month+1 );
 		save( buf, true, env_t::savegame_version_str, true );
 	}
 }
@@ -6063,6 +6064,7 @@ sint16 karte_t::get_sound_id(grund_t *gr)
 
 static void heavy_rotate_saves(const char *prefix, uint32 sync_steps, uint32 num_to_keep)
 {
+	dr_chdir(env_t::user_dir);
 	dr_mkdir( SAVE_PATH_X "heavy");
 
 	cbuffer_t name;
