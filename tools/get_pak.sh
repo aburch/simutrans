@@ -182,6 +182,9 @@ download_and_install_pakset()
   elif [ -n "$(file "$pakzippath" | grep -i "Zip archive data")" ]; then
     # .zip
     install_zip "$pakzippath"
+  elif [ "$(od --address-radix=n --read-bytes=4 --format=x1 $pakzippath)" = " 50 4b 03 04" ]; then
+    # also .zip, if file failed for some reason
+    install_zip "$pakzippath"
   else
     rm -f "$pakzippath"
     echo "Error: Cannot extract unknown archive format" >&2
