@@ -8487,52 +8487,33 @@ bool tool_rename_t::init(player_t *player)
 
 bool tool_recolour_t::init(player_t *)
 {
-	uint8 id = 0;
-
 	// skip the rest of the command
 	const char *p = default_param;
 	const char what = *p++;
+
 	switch(  what  ) {
 		case '1':
-		case '2':
-			id = atoi(p);
-			while(  *p>0  &&  *p++!=','  ) {
+		case '2': {
+			const uint8 player_nr = atoi(p);
+			player_t *target_pl = player_nr < 16 ? welt->get_player(player_nr) : NULL;
+			if (target_pl) {
+				while (*p>0  &&  *p++!=',') {}
+				if (*p) {
+					const uint8 new_colour = atoi(p);
+					const uint8 col1 = what == '1' ? new_colour : target_pl->get_player_color1();
+					const uint8 col2 = what == '2' ? new_colour : target_pl->get_player_color2();
+
+					target_pl->set_player_color(col1, col2);
+					return false;
+				}
 			}
-			break;
+			// fallthrough
+		}
+
 		default:
-			dbg->error( "tool_recolour_t::init", "illegal request! (%s)", default_param );
+			dbg->error( "tool_recolour_t::init", "Illegal request for player colour change! (%s)", default_param );
 			return false;
 	}
-
-	const uint8 colour = atoi(p);
-
-	// now for action ...
-	switch(  what  )
-	{
-		case '1': // Change player colour 1
-		{
-			if(welt->get_player(id))
-			{
-				welt->get_player(id)->set_player_color(colour, welt->get_player(id)->get_player_color2());
-				return false;
-			}
-			break;
-		}
-
-		case '2': // Change player colour 2
-		{
-			if(welt->get_player(id))
-			{
-				welt->get_player(id)->set_player_color( welt->get_player(id)->get_player_color1(), colour);
-				return false;
-			}
-			break;
-		}
-	}
-
-	// we are only getting here, if we could not process this request
-	dbg->error( "wkz_recolour_t::init", "could not perform (%s)", default_param );
-	return false;
 }
 
 
