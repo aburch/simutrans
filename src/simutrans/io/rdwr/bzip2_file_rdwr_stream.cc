@@ -27,7 +27,7 @@ bzip2_file_rdwr_stream_t::bzip2_file_rdwr_stream_t(const std::string &filename, 
 		status = STATUS_ERR_FILE_INACCESSIBLE;
 	}
 	if(  bse!=BZ_OK  ) {
-		status = STATUS_ERR_CORRUPT;
+		status = STATUS_ERR_WRITEFAILURE;
 	}
 }
 

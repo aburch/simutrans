@@ -3609,9 +3609,6 @@ name=Not enough bytes transferred
 note=server did not send enough bytes when transmitting a game
 -
 obj=error_text
-name=Could not open file
--
-obj=error_text
 name=Client closed connection during transfer
 -
 obj=error_text
@@ -4460,6 +4457,30 @@ note=text in diplay options
 obj=error_text
 name=Forbidden by scenario
 note=error on trying to select and execute a forbidden tool
+--
+obj=error_text
+name=Could not open file
+note=Whenever one cannot access a file
+--
+obj=error_text
+name=Not initialized
+note=Could not initilise extrenal library
+--
+obj=error_text
+name=Unknown error
+note=General error occured
+--
+obj=error_text
+name=Not enough empty space
+note=not written as much bytes as requested => disk full or device busy
+--
+obj=error_text
+name=Failed to write file
+note=write operation could not finish or did not even start (permissions?)
+--
+obj=error_text
+name=Corrupt file
+note=reading failed due to Corrupt or incomplete file
 --
 
 #obj=help_text

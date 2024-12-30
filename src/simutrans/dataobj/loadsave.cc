@@ -20,6 +20,7 @@
 #include "../utils/simstring.h"
 
 #include "loadsave.h"
+#include "translator.h"
 
 #include "../io/rdwr/bzip2_file_rdwr_stream.h"
 #include "../io/rdwr/raw_file_rdwr_stream.h"
@@ -500,19 +501,19 @@ const char *loadsave_t::close()
 
 		case rdwr_stream_t::STATUS_ERR_NOT_INITIALIZED:   errmsg = "Not initialized";                                    break;
 		case rdwr_stream_t::STATUS_ERR_GENERIC_ERROR:     errmsg = "Unknown error";                                      break;
-		case rdwr_stream_t::STATUS_ERR_FILE_INACCESSIBLE: errmsg = "File not found or inaccessible. Check permissions."; break;
-		case rdwr_stream_t::STATUS_ERR_FULL:              errmsg = "No space left on device";                            break;
-		case rdwr_stream_t::STATUS_ERR_OUT_OF_MEMORY:     errmsg = "Out of memory";                                      break;
-		case rdwr_stream_t::STATUS_ERR_NO_VERSION:        errmsg = "Unversioned save file";                              break;
-		case rdwr_stream_t::STATUS_ERR_FUTURE_VERSION:    errmsg = "Save file version too new";                          break;
-		case rdwr_stream_t::STATUS_ERR_OBSOLETE_VERSION:  errmsg = "Save file version too old";                          break;
-		case rdwr_stream_t::STATUS_ERR_CORRUPT:           errmsg = "Corrupt save file";                                  break;
+		case rdwr_stream_t::STATUS_ERR_FILE_INACCESSIBLE: errmsg = "Could not open file";                                break;
+		case rdwr_stream_t::STATUS_ERR_FULL:              errmsg = "Not enough empty space";                             break;
+		case rdwr_stream_t::STATUS_ERR_WRITEFAILURE:      errmsg = "Failed to write file";                               break;
+		case rdwr_stream_t::STATUS_ERR_NO_VERSION:        errmsg = "Unversioned save file";                              break; // unused
+		case rdwr_stream_t::STATUS_ERR_FUTURE_VERSION:    errmsg = "Save file version too new";                          break; // unused
+		case rdwr_stream_t::STATUS_ERR_OBSOLETE_VERSION:  errmsg = "Save file version too old";                          break; // unused
+		case rdwr_stream_t::STATUS_ERR_CORRUPT:           errmsg = "Corrupt file";                                       break;
 	}
 
 	delete stream;
 	stream = NULL;
 
-	return errmsg;
+	return errmsg ? translator::translate(errmsg) : NULL;
 }
 
 

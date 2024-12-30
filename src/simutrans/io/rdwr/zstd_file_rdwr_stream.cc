@@ -27,7 +27,7 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 		compression_context = ZSTD_createCCtx();
 		if(  compression_context == NULL  ) {
 			// zstd could not init
-			status = STATUS_ERR_CORRUPT;
+			status = STATUS_ERR_NOT_INITIALIZED;
 			return;
 		}
 #if ZSTD_VERSION_MAJOR<=1  &&  ZSTD_VERSION_MINOR<=3
@@ -36,14 +36,14 @@ zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t(const std::string &filename, bo
 		size_t ret1 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_compressionLevel, compression_level );
 		if (ZSTD_isError(ret1)) {
 			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot set compression level: %s", ZSTD_getErrorName(ret1));
-			status = STATUS_ERR_CORRUPT;
+			status = STATUS_ERR_NOT_INITIALIZED;
 			return;
 		}
 
 // 		const size_t ret2 = ZSTD_CCtx_setParameter( compression_context, ZSTD_c_checksumFlag, 1 );
 // 		if (ZSTD_isError(ret2)) {
 // 			dbg->error("zstd_file_rdwr_stream_t::zstd_file_rdwr_stream_t", "Cannot enable file checksumming: %s", ZSTD_getErrorName(ret2));
-// 			status = STATUS_ERR_CORRUPT;
+// 			status = STATUS_ERR_NOT_INITIALIZED;
 // 			return;
 // 		}
 
@@ -200,7 +200,7 @@ size_t zstd_file_rdwr_stream_t::write(const void *buf, size_t len)
 		const size_t ret = ZSTD_compressStream( compression_context, &zout, &zin );
 		if (ZSTD_isError(ret)) {
 			dbg->error("zstd_file_rdwr_stream_t::write", "Error during compression: %s", ZSTD_getErrorName(ret));
-			status = STATUS_ERR_CORRUPT;
+			status = STATUS_ERR_WRITEFAILURE;
 			return 0;
 		}
 

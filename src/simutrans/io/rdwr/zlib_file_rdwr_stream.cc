@@ -93,10 +93,10 @@ size_t zlib_file_rdwr_stream_t::write(const void *buf, size_t len)
 		gzerror(gzfp, &errnum);
 
 		switch (errnum) {
-			case Z_MEM_ERROR:    status = STATUS_ERR_OUT_OF_MEMORY;   return 0;
+			case Z_MEM_ERROR:    status = STATUS_ERR_WRITEFAILURE;    return 0; // memerror means the lib could not malloc 260k => something else must be very wrong
 			case Z_STREAM_ERROR: status = STATUS_ERR_NOT_INITIALIZED; return 0;
 			case Z_BUF_ERROR:    status = STATUS_ERR_FULL;            return 0;
-			case Z_ERRNO:        set_status_from_errno(); return 0;
+			case Z_ERRNO:        set_status_from_errno();             return 0;
 		}
 
 		status = STATUS_ERR_GENERIC_ERROR;
@@ -124,7 +124,8 @@ void zlib_file_rdwr_stream_t::set_status_from_errno()
 			break;
 
 		case ENOMEM:
-			status = STATUS_ERR_OUT_OF_MEMORY;
+			// this can only fail if there is invalid chunk data in the lib
+			status = STATUS_ERR_CORRUPT;
 			break;
 
 		case EFBIG:
