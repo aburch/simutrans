@@ -304,6 +304,8 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 
 void ai_scripted_t::finish_rd()
 {
+	ai_t::finish_rd();
+
 	if (script) {
 		uint8 dummy = 0;
 		if (const char* err = script->call_function(script_vm_t::QUEUE, "resume_game", dummy, get_player_nr())) {

@@ -22,6 +22,7 @@
 	ADD: scaling of icon size is now in percent to be independent from actual icon sizes (icon_scaling = 100)
 	FIX: Failed to find city- or streetlists for paksets installed in non-default locations (e.g. simutrans/paksets/)
 	FIX: Removal tool removes powerlines of other players
+	FIX: Player colours of scripted AIs appear to revert to the default colours on reload
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
