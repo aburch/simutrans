@@ -75,21 +75,21 @@ struct clip_dimension {
 
 // save the current clipping and set a new one
 #define PUSH_CLIP(x,y,w,h) \
-{\
-clip_dimension const p_cr = display_get_clip_wh(); \
-display_set_clip_wh(x, y, w, h);
+	{\
+		clip_dimension const p_cr = display_get_clip_wh(); \
+		display_set_clip_wh(x, y, w, h);
 
 // save the current clipping and set a new one
 // fit it to old clipping region
 #define PUSH_CLIP_FIT(x,y,w,h) \
-{\
-	clip_dimension const p_cr = display_get_clip_wh(); \
-	display_set_clip_wh(x, y, w, h CLIP_NUM_DEFAULT, true);
+	{\
+		clip_dimension const p_cr = display_get_clip_wh(); \
+		display_set_clip_wh(x, y, w, h CLIP_NUM_DEFAULT, true);
 
 // restore a saved clipping rect
 #define POP_CLIP() \
-display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
-}
+		display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
+	}
 
 /**
  *
