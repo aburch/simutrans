@@ -771,6 +771,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	register_method(vm, &goods_desc_t::get_weight_per_unit, "get_weight_per_unit"); // in kg
 
 	/**
+	 * @returns metric unit name
+	 */
+	register_method(vm, &goods_desc_t::get_mass, "get_metric");
+
+	/**
 	 * Calculates transport revenue per tile and freight unit.
 	 * Takes speedbonus into account.
 	 * Value contains an additional factor of 3000. Don't ask.

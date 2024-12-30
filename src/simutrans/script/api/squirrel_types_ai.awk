@@ -165,6 +165,7 @@ BEGIN {
 	export_types_ai["good_desc_x::get_catg_index"] = "integer()"
 	export_types_ai["good_desc_x::is_interchangeable"] = "bool(good_desc_x)"
 	export_types_ai["good_desc_x::get_weight_per_unit"] = "integer()"
+	export_types_ai["good_desc_x::get_metric"] = "string()"
 	export_types_ai["good_desc_x::calc_revenue"] = "integer(way_types, integer)"
 	export_types_ai["sign_desc_x::is_one_way"] = "bool()"
 	export_types_ai["sign_desc_x::is_private_way"] = "bool()"
