@@ -12,6 +12,21 @@
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 
+
+static uint32 string_to_hash(const char* p)
+{
+	const uint32 MULTIPLIER = 37;
+	uint32 hash = 0;
+	if (p) {
+		const char* start = p;
+		for (; *p && (p - start) < 256; p++) {
+			hash = MULTIPLIER * hash + (unsigned char)*p;
+		}
+	}
+	return hash;
+}
+
+
 void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init)
 {
 	if (text.has_changed()  ||  init) {
@@ -80,8 +95,10 @@ void scenario_info_t::update_scenario_texts(bool init)
 {
 	scenario_t *scen = welt->get_scenario();
 	scr_size border_size = get_client_windowsize() - info.get_pos() - scr_size(D_MARGIN_RIGHT + D_SCROLLBAR_WIDTH, D_MARGIN_BOTTOM + D_SCROLLBAR_HEIGHT);
+	uint32 new_hash = string_to_hash(scen->info_text) + string_to_hash(scen->goal_text);
 	if (init) {
 		scen->update_scenario_texts();
+		string_hash = 0;
 	}
 	update_dynamic_texts( info, scen->info_text, border_size, init);
 	update_dynamic_texts( goal, scen->goal_text, border_size, init);
@@ -92,6 +109,10 @@ void scenario_info_t::update_scenario_texts(bool init)
 
 	const char *d = scen->debug_text;
 	debug_msg.set_visible(d  &&  *d);
+	if (string_hash!=new_hash) {
+		string_hash = new_hash;
+		set_windowsize(get_windowsize());
+	}
 }
 
 void scenario_info_t::draw(scr_coord pos, scr_size size)

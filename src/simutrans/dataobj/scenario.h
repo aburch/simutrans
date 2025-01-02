@@ -90,8 +90,10 @@ private:
 			const uint32 MULTIPLIER = 37;
 			uint32 hash = EMPTY_HASH;
 			if (p) {
-				for (; *p; p++)
+				const char *start = p;
+				for (; *p && (p-start) < 128; p++) {
 					hash = MULTIPLIER * hash + (unsigned char)*p;
+				}
 			}
 			return hash & 0x7FFFFFFu; // since we do singed compare afterwards
 		}
