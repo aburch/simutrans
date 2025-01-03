@@ -43,7 +43,7 @@ inline unsigned int string_to_hash(const char* p, size_t maxlen)
 	unsigned int hash = 0;
 	if (p) {
 		const char* start = p;
-		for (; *p && (p - start) < maxlen; p++) {
+		for (; *p && (size_t)(p - start) < maxlen; p++) {
 			hash = MULTIPLIER * hash + (unsigned char)*p;
 		}
 	}
@@ -55,7 +55,6 @@ inline unsigned int string_to_hash(const char* p)
 {
 	unsigned int hash = 0;
 	if (p) {
-		const char* start = p;
 		for (; *p; p++) {
 			hash = MULTIPLIER * hash + (unsigned char)*p;
 		}

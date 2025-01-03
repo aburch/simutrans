@@ -288,7 +288,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const sint32 max_cost)
 {
 	assert((get_random_mode() & SYNC_STEP_RANDOM) == 0);
 
@@ -542,7 +542,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	}
 	else {
 #ifdef DEBUG
-		uint32 best = tmp->g;
+		sint32 best = tmp->g;
 #endif
 		// reached => construct route
 		route.store_at( tmp->count, tmp->gr->get_pos() );
@@ -689,7 +689,9 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 #ifdef DEBUG_ROUTES
 	const uint32 ms = dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
+
+	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, INT32_MAX);
+
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {
 		DBG_DEBUG("route_t::calc_route()", "route from %d,%d to %d,%d with %i steps in %u ms found.", start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );

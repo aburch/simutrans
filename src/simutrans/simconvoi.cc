@@ -2959,8 +2959,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// check if there is a convoi infront of us
 	bool all_served_this_stop = true;
-	// drive on, if all stops are overcrowded to reduce overcrowding
-	bool all_stops_overcrowded = true;
 
 	// prepare a list of all destination halts in the schedule
 	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
@@ -2999,17 +2997,10 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 						break;
 					}
 				}
-				else {
-					if (!plan_halt->is_overcrowded(idx)) {
-						all_stops_overcrowded = false;
-					}
-				}
 				first_entry = false;
 			}
 		}
 	}
-	// if there is at least one stop that we serve => not all overcrowded (otherwise we would drive on)
-	all_stops_overcrowded &= all_served_this_stop;
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn

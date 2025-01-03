@@ -3105,7 +3105,7 @@ void way_builder_t::build_river()
 
 void way_builder_t::build()
 {
-	if(get_count()<2  ||  get_count() > maximum) {
+	if(get_count()<2  ||  get_count() > (uint32)maximum) {
 DBG_MESSAGE("way_builder_t::build()","called, but no valid route.");
 		// no valid route here ...
 		return;

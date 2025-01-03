@@ -102,7 +102,7 @@ static void write_city_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const
 }
 
 
-static void write_townhall_at(player_t* pl, cbuffer_t& buf, const koord3d pos, const koord3d origin)
+static void write_townhall_at(player_t */*pl*/, cbuffer_t& buf, const koord3d pos, const koord3d origin)
 {
 	if (const grund_t* gr = world()->lookup(pos)) {
 		if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
@@ -661,7 +661,7 @@ bool tool_generate_script_t::save_script(const char* fullpath, const char *comma
 		fclose(file);
 		fname.clear();
 		fname.printf("%s%sdescription.tab", fullpath, PATH_SEPARATOR);
-		if (file = dr_fopen(fname, "w")) {
+		if ((file = dr_fopen(fname, "w"))) {
 			fprintf(file, "title=Building %s\n", short_name.get_str());
 			fprintf(file, "cursor_area=%d,%d\n", area.x, area.y);
 			fprintf(file, "type=one_click\ntooltip=Building %s created by Simutrans\nrestart=1\nicon=BuilderScript\n", short_name.get_str());

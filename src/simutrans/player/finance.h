@@ -126,9 +126,6 @@ inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
  * Class to encapsulate all company related statistics.
  */
 class finance_t {
-	/** transport company */
-	player_t * player;
-
 	karte_t * world;
 
 	/**
