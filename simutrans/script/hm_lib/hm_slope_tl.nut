@@ -121,12 +121,12 @@ class hm_test_area_tl extends hm_base_tl {
         } else {
           // The tile has objects that prevent construction.
           err = "not_free"
-          gui.add_message_at(player_x(1), "tile is not free " + coord3d_to_string(tile), world.get_time())
+          //gui.add_message_at(player_x(1), "tile is not free " + coord3d_to_string(tile), world.get_time())
           break
         }
 
         if ( check_z ) {
-          gui.add_message_at(player_x(1), "tile terraform test " + coord3d_to_string(tile), world.get_time())
+          //gui.add_message_at(player_x(1), "tile terraform test " + coord3d_to_string(tile), world.get_time())
           if ( s_tile.z != tile.z || tile.get_slope() > 0) {
             err = "terraform"
             break
