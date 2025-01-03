@@ -151,19 +151,6 @@ void export_tiles(HSQUIRRELVM vm)
 	begin_class(vm, "tile_x", "coord3d,extend_get,ingame_object");
 
 	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
-	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_object_index, "_get",    2, "x i|s");
-	/**
-	 * Returns number of objects on the tile.
-	 * @typemask integer()
-	 */
-	register_function(vm, get_object_count, "get_count",  1, "x");
-	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
 	 * If not tile is found, it returns the ground tile.
 	 * Raises error, if (@p x, @p y) coordinates are out-of-range.
