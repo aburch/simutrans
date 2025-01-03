@@ -5,8 +5,7 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
@@ -18,7 +17,7 @@ jobs:
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get -yqq update
-        sudo apt-get -ym install curl expect git libc6:i386 libgcc1:i386 libncurses5:i386 libstdc++6:i386 zlib1g:i386 openjdk-17-jdk wget unzip vim make subversion zip
+        sudo apt-get -ym install curl expect git libc6:i386 libgcc1:i386 libncurses6:i386 libstdc++6:i386 zlib1g:i386 openjdk-17-jdk wget unzip vim make subversion zip
 
     - name: Setup Android SDK environment variables
       run: |
