@@ -11,6 +11,7 @@
 
 #include "koord3d.h"
 #include "../utils/plainstring.h"
+#include "../utils/simstring.h"
 #include "../script/dynamic_string.h"
 #include "../dataobj/ribi.h"
 #include "../convoihandle.h"
@@ -85,19 +86,6 @@ private:
 
 		static const uint32 EMPTY_HASH=0;
 
-		static uint32 string_to_hash(const char* p)
-		{
-			const uint32 MULTIPLIER = 37;
-			uint32 hash = EMPTY_HASH;
-			if (p) {
-				const char *start = p;
-				for (; *p && (p-start) < 128; p++) {
-					hash = MULTIPLIER * hash + (unsigned char)*p;
-				}
-			}
-			return hash & 0x7FFFFFFu; // since we do singed compare afterwards
-		}
-
 		enum forbid_type {
 			forbid_tool			= 1,
 			allow_tool_rect 	= 2,
@@ -126,14 +114,14 @@ private:
 				parameter_hash = 0;
 				return;
 			}
-			parameter_hash = string_to_hash(param_);
+			parameter_hash = string_to_hash(param_)&0x7FFFFFFul;
 		}
 
 		/// constructor: forbid tool for a certain player at certain locations (and heights)
 		forbidden_t(uint16 toolnr_, sint16 waytype_, const char *param_, koord nw, koord se, sint8 hmin_=-128, sint8 hmax_=127) :
 			type(forbid_tool_rect), toolnr(toolnr_), waytype(waytype_ < 0 ? (sint16)ignore_wt : waytype_), pos_nw(nw), pos_se(se), hmin(hmin_), hmax(hmax_), error()
 		{
-			parameter_hash = string_to_hash(param_);
+			parameter_hash = string_to_hash(param_) & 0x7FFFFFFul;
 		}
 
 		// copy constructor

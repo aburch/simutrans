@@ -23,9 +23,7 @@ private:
 
 	gui_flowtext_t info, goal, rule, result, about, error, debug_msg;
 
-	uint32 string_hash;
-
-	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
+	bool update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
 	uint16 get_tab_index(const char* which);
 public:

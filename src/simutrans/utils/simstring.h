@@ -36,6 +36,35 @@
  */
 void set_thousand_sep(char c);
 
+#define MULTIPLIER 37
+
+inline unsigned int string_to_hash(const char* p, size_t maxlen)
+{
+	unsigned int hash = 0;
+	if (p) {
+		const char* start = p;
+		for (; *p && (p - start) < maxlen; p++) {
+			hash = MULTIPLIER * hash + (unsigned char)*p;
+		}
+	}
+	return hash;
+}
+
+
+inline unsigned int string_to_hash(const char* p)
+{
+	unsigned int hash = 0;
+	if (p) {
+		const char* start = p;
+		for (; *p; p++) {
+			hash = MULTIPLIER * hash + (unsigned char)*p;
+		}
+	}
+	return hash;
+}
+
+#undef MULTIPLIER
+
 
 /**
  * Set fraction separator, used in money_to_string and

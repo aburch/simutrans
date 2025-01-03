@@ -574,6 +574,8 @@ gui_flowtext_t::~gui_flowtext_t()
 
 void gui_flowtext_t::set_text(const char* text)
 {
+	// reset position if text is changed
+	set_scroll_position(0, 0);
 	flowtext->set_text(text);
 }
 
