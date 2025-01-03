@@ -7,14 +7,14 @@ name: Automated Tests
 
 jobs:
   run-tests-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         sudo apt-get -y update
-        sudo apt-get -ym install libbz2-dev zlib1g-dev libpng-dev autoconf clang-14 ccache moreutils
+        sudo apt-get -ym install libbz2-dev zlib1g-dev libpng-dev autoconf clang-18 ccache moreutils
     - name: Cache
       uses: actions/cache@v4
       with:
