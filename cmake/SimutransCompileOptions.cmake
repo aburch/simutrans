@@ -39,6 +39,7 @@ if(Fontconfig_FOUND)
 	option(SIMUTRANS_USE_FONTCONFIG "Use Fontconfig for font autodetection" ON)
 endif()
 
+option(SIMUTRANS_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 option(SIMUTRANS_INSTALL_PAK64 "Download pak64 on install" OFF)
 option(SIMUTRANS_UPDATE_LANGFILES "Update language files from the translator on install" OFF)
 option(SIMUTRANS_ENABLE_PROFILING "Enable profiling code" OFF)
@@ -128,6 +129,10 @@ if (MSVC)
 	add_definitions(-DNOMINMAX)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
 
+	if (SIMUTRANS_WARNINGS_AS_ERRORS)
+		add_compile_options(/WX)
+	endif ()
+
 	if (CMAKE_SIZEOF_VOID_P EQUAL 4)
 		add_link_options(/LARGEADDRESSAWARE)
 	endif ()
@@ -142,7 +147,6 @@ else (MSVC) # Assume GCC/Clang
 		-Wcast-qual
 		-Wpointer-arith
 		-Wcast-align
-		-Walloca
 		-Wduplicated-cond
 	)
 
@@ -154,6 +158,10 @@ else (MSVC) # Assume GCC/Clang
 		-Wno-cast-align              # for squirrel
 		-Wno-return-std-move         # for squirrel
 	)
+
+	if (SIMUTRANS_WARNINGS_AS_ERRORS)
+		add_compile_options(-Werror)
+	endif ()
 
 	# only add large address linking to 32 bin windows programs
 	if (WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
