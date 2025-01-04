@@ -102,6 +102,7 @@ register_function("get_about_text");
 
 /**
  * Text shown in the 'Rules' tab in the scenario info window.
+ * Must return quickly and must not modify the map! Calling tools is forbidden!
  *
  * Text can contain several html-like tags:
  * - \<p\>, \<br\>: line break
@@ -110,7 +111,7 @@ register_function("get_about_text");
  *       - link to another tab of scenario info window: href="tabname", where tabname is one of: info, goal, rules, result, about
  *       - link to position on the map: href="(x,y)" or href="(x,y,z)", click on link will jump to the map position
  *       - call scripted method: href="script:bla(1)" will call bla(1). The characters \>, ', \" are not allowed in the string and will produce weird results.
- *         The called method should return quickly.
+ *         The called method must return quickly and must not modify the map! Calling tools is forbidden!
  *
  * @code
  * <h1>Here is an example.</h1>
