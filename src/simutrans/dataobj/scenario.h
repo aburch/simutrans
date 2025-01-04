@@ -276,6 +276,9 @@ public:
 	/// @return true if scenario is scripted
 	bool is_scripted() const { return what_scenario == SCRIPTED  ||  what_scenario == SCRIPTED_NETWORK; }
 
+	/// @return true if scenario is scripted and local
+	bool is_local() const { return what_scenario == SCRIPTED; }
+
 	/**
 	 * compiles and executes given string
 	 * @returns error msg (or NULL if succeeded)
@@ -331,6 +334,12 @@ public:
 	 * @see dynamic_string::update
 	 */
 	void update_scenario_texts();
+
+	/**
+	 * Forced update the scenario goal text for scripts
+	 * @see dynamic_string::update
+	 */
+	void update_scenario_goal_text();
 
 	/**
 	 * opens scenario info window at tab @p tab.

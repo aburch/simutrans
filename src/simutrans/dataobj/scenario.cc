@@ -126,6 +126,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	cached_text_files.clear();
 
 	what_scenario = SCRIPTED;
+	dynamic_string::CACHE_TIME = 1000;
 
 	// callback
 	script->register_callback(&scenario_t::set_completion, "scenario_t_set_completed");
@@ -902,6 +903,13 @@ void scenario_t::update_scenario_texts()
 }
 
 
+void scenario_t::update_scenario_goal_text()
+{
+	player_t *player = welt->get_active_player();
+	goal_text.update(script, player, is_local());
+}
+
+
 plainstring scenario_t::load_language_file(const char* filename)
 {
 	if (filename == NULL) {
@@ -1081,6 +1089,8 @@ void scenario_t::rdwr(loadsave_t *file)
 		what_scenario = 0;
 		rdwr_error = true;
 	}
+	dynamic_string::CACHE_TIME = what_scenario == SCRIPTED ? 1000 : 10000;
+
 }
 
 void scenario_t::rotate90(const sint16 y_size)

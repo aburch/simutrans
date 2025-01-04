@@ -35,7 +35,11 @@ private:
 
 	/// script method to be called to retrieve text
 	const char* method;
+
 public:
+	// time between updates to strings
+	static uint32 CACHE_TIME;
+
 	dynamic_string(const char *method_) : str(NULL), changed(false), method(method_) { }
 	~dynamic_string();
 

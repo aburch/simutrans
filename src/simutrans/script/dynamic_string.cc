@@ -17,7 +17,7 @@
 #include "../utils/cbuffer.h"
 #include "../utils/simstring.h"
 
-uint32 const CACHE_TIME = 10000; // 10s
+uint32 dynamic_string::CACHE_TIME = 1000; // 10s
 
 struct cached_string_t {
 	plainstring result;
@@ -27,7 +27,7 @@ struct cached_string_t {
 
 	cached_string_t(loadsave_t* file)
 	{
-		time = dr_time() - CACHE_TIME;
+		time = dr_time() - 10000;
 		listener = NULL;
 		rdwr(file);
 	}
