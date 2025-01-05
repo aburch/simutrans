@@ -23,6 +23,7 @@
 	FIX: Failed to find city- or streetlists for paksets installed in non-default locations (e.g. simutrans/paksets/)
 	FIX: Removal tool removes powerlines of other players
 	FIX: Player colours of scripted AIs appear to revert to the default colours on reload
+	FIX: Tree distribution setting reverts to random when trees are disabled during new world generation
 
 
 Release of 124.2.2 (r11400 on 2-Sep-2024):
