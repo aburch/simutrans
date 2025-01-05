@@ -1048,7 +1048,7 @@ void vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_wid
 	}
 	const int dir = ribi_t::get_dir(get_direction());
 	// Add offset when the vehicle is reversed.
-	const sint32 steps_delta = (VEHICLE_STEPS_PER_TILE / 2 - get_desc()->get_length_in_steps())+raster_width*env_t::reverse_base_offsets[dir][2];
+	const sint32 steps_delta = +raster_width*(VEHICLE_STEPS_PER_TILE / 2 - get_desc()->get_length_in_steps()+env_t::reverse_base_offsets[dir][2]);
 	xoff += ((steps_delta*dx) >> 10)+tile_raster_scale_x(env_t::reverse_base_offsets[dir][0],raster_width);
 	yoff += ((steps_delta*dy) >> 10)+tile_raster_scale_y(env_t::reverse_base_offsets[dir][1],raster_width);
 }
