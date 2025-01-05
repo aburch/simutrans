@@ -31,6 +31,8 @@
 #define NEVER 0xFFFFU
 
 
+sint8 env_t::reverse_base_offsets[8][3];
+
 settings_t::settings_t() :
 	filename(""),
 	heightfield("")
@@ -1077,6 +1079,65 @@ void settings_t::parse_simuconf( tabfile_t& simuconf, sint16& disp_width, sint16
 	env_t::numpad_always_moves_map = contents.get_int( "numpad_always_moves_map", env_t::numpad_always_moves_map ) != 0;
 
 	env_t::player_finance_display_account = contents.get_int( "player_finance_display_account", env_t::player_finance_display_account ) != 0;
+
+	// setting reverse offsets
+	vector_tpl<int> temp_offset_s = contents.get_ints("reverse_base_offset_south");
+	if (temp_offset_s.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[0][i] = temp_offset_s[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[0][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_w = contents.get_ints("reverse_base_offset_west");
+	if (temp_offset_w.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[1][i] = temp_offset_w[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[1][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_sw = contents.get_ints("reverse_base_offset_southwest");
+	if (temp_offset_sw.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[2][i] = temp_offset_sw[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[2][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_se = contents.get_ints("reverse_base_offset_southeast");
+	if (temp_offset_se.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[3][i] = temp_offset_se[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[3][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_n = contents.get_ints("reverse_base_offset_north");
+	if (temp_offset_n.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[4][i] = temp_offset_n[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[4][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_e = contents.get_ints("reverse_base_offset_east");
+	if (temp_offset_e.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[5][i] = temp_offset_e[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[5][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_ne = contents.get_ints("reverse_base_offset_northeast");
+	if (temp_offset_ne.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[6][i] = temp_offset_ne[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[6][i] = 0;}
+	}
+	vector_tpl<int> temp_offset_nw = contents.get_ints("reverse_base_offset_northwest");
+	if (temp_offset_nw.get_count()>=3){
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[7][i] = temp_offset_nw[i];}
+	}
+	else{
+		for(uint8 i=0; i<3; i++){env_t::reverse_base_offsets[7][i] = 0;}
+	}
+
 
 	// network stuff
 	env_t::server_frames_ahead              = contents.get_int_clamped( "server_frames_ahead",             env_t::server_frames_ahead,              0, INT_MAX );

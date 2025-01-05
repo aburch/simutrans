@@ -523,6 +523,9 @@ public:
 	static koord commandline_server_start_position;
 
 	static bool send_tax_public;
+
+	// Graphical offsets for reverseing vehicles
+	static sint8 reverse_base_offsets[8][3];
 };
 
 #endif
