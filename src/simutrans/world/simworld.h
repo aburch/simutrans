@@ -106,7 +106,7 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS   (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
-	enum {
+	enum step_mode_t {
 		NORMAL       = 0,
 		PAUSE_FLAG   = 1 << 0,
 		FAST_FORWARD = 1 << 1,
@@ -326,11 +326,10 @@ private:
 	 */
 	uint32 next_month_ticks;
 
-	/**
-	 * Default time stretching factor.
-	 */
+	/// Default time stretching factor, 4 bits fractional part
 	uint32 time_multiplier;
 
+	/// @ref step_mode_t
 	uint8 step_mode;
 
 	/// @note variable used in interactive()
@@ -350,24 +349,21 @@ private:
 	 */
 	sint32 fix_ratio_frame_time;
 
-	/**
-	 * For performance comparison.
-	 */
+	/// Average number of calls to display() per second, 4 bits fractional part
 	uint32 realFPS;
 
-	/**
-	 * For performance comparison.
-	 */
+	/// Average number of calls to step() per second.
+	/// Fractional factor of 10, so the real average number of steps is simloops/10
 	uint32 simloops;
 
-	/// To calculate the fps and the simloops.
+	/// Index for last_frame_ms
+	uint8 last_frame_idx;
+
+	/// Real-world time when the last display() finished, indexed by @ref last_frame_idx
 	uint32 last_frame_ms[32];
 
-	/// To calculate the fps and the simloops.
+	/// Time when the last step started, indexed by @ref steps counter (modulo array size)
 	uint32 last_step_nr[32];
-
-	/// To calculate the fps and the simloops.
-	uint8 last_frame_idx;
 
 	/**
 	 * ms, when the last time events were handled.
@@ -394,6 +390,7 @@ private:
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;
+
 	/** @} */
 
 	/**

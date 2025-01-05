@@ -3144,7 +3144,7 @@ void karte_t::set_schedule_counter()
 void karte_t::step()
 {
 	DBG_DEBUG4("karte_t::step", "start step");
-	uint32 time = dr_time();
+	uint32 step_start_time = dr_time();
 
 	// calculate delta_t before handling overflow in ticks
 	uint32 delta_t = ticks - last_step_ticks;
@@ -3174,16 +3174,16 @@ void karte_t::step()
 		if(delta_t>10000) {
 			dbg->error( "karte_t::step()", "delta_t (%u) out of bounds!", delta_t );
 			last_step_ticks = ticks;
-			next_step_time = time+10;
+			next_step_time = step_start_time+10;
 			return;
 		}
 		idle_time = 0;
 		last_step_nr[steps%32] = ticks;
-		next_step_time = time+(3200/get_time_multiplier());
+		next_step_time = step_start_time + (3200/get_time_multiplier());
 	}
 	else if(  step_mode==FAST_FORWARD  ) {
 		// fast forward first: get average simloops (i.e. calculate acceleration)
-		last_step_nr[steps%32] = time;
+		last_step_nr[steps%32] = step_start_time;
 		int last_5_simloops = simloops;
 		if(  last_step_nr[(steps+32-5)%32] < last_step_nr[steps%32]  ) {
 			// since 5 steps=1s
@@ -3207,7 +3207,7 @@ void karte_t::step()
 		if( idle_time + 10u >= get_frame_time()) {
 			idle_time = get_frame_time()-10;
 		}
-		next_step_time = time+idle_time;
+		next_step_time = step_start_time+idle_time;
 	}
 	else {
 		// network mode
