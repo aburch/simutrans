@@ -518,8 +518,9 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		}
 		else {
 			climate_gui_t *cg = new climate_gui_t(sets);
-			const scr_coord pos{ (display_get_width() - cg->get_windowsize().w-10), 40 };
-			create_win(pos, cg, w_info, magic_climate );
+			const scr_coord_val xoff = min(win_get_pos(this).x + this->size.w, display_get_width() - cg->get_windowsize().w );
+			const scr_coord_val yoff = win_get_pos(this).y;
+			create_win({ xoff, yoff }, cg, w_info, magic_climate );
 			open_climate_gui.pressed = true;
 		}
 	}
