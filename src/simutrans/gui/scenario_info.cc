@@ -91,7 +91,7 @@ void scenario_info_t::update_scenario_texts(bool init)
 	if (scen->is_local()) {
 		scen->update_scenario_texts();
 	}
-	uint32 new_hash_goal = string_to_hash(scen->goal_text, 256);
+	uint32 new_hash_goal = string_to_hash(scen->goal_text, 64);
 	int x = goal.get_scroll_x();
 	int y = goal.get_scroll_y();
 
