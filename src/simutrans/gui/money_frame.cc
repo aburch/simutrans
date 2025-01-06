@@ -450,7 +450,7 @@ void money_frame_t::update_labels()
 
 	// scenario
 	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
-		welt->get_scenario()->update_scenario_texts();
+		// the text are updated asynchron from the scenario
 		scenario_desc.buf().append( welt->get_scenario()->description_text );
 		scenario_desc.buf().append( ":" );
 		scenario_desc.update();

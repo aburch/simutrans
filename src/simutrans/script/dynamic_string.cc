@@ -118,7 +118,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 			script->prepare_callback("dynamicstring_record_result", 2, (const char*)buf, (const char*)"");
 
 			// call script; if QUEUE, it may continue to run another script in the background which alters then the map
-			const char* err = script->call_function(script_vm_t::FORCE, method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
+			const char* err = script->call_function(script_vm_t::QUEUE, method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
 			if (!script_vm_t::is_call_suspended(err)) {
 				if ( s != (const char*)str) {
 					changed = true;

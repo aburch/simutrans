@@ -23,9 +23,9 @@ private:
 
 	gui_flowtext_t info, goal, rule, result, about, error, debug_msg;
 
-	uint32 hash_goal;
+	uint32 hash_text;
 
-	bool update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
+	bool update_dynamic_texts(gui_flowtext_t *flow, dynamic_string *text, scr_size size, bool init);
 
 	uint16 get_tab_index(const char* which);
 public:
@@ -41,9 +41,11 @@ public:
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	void update_scenario_texts(bool init);
+	void update_scenario_texts();
 
 	void open_tab(const char* which);
+
+	int get_open_tab() { return tabs.get_active_tab_index(); }
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_scenario_info; }
 	void rdwr( loadsave_t *file ) OVERRIDE;

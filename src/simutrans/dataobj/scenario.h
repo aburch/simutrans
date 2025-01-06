@@ -329,17 +329,13 @@ public:
 	dynamic_string debug_text;
 	/// @}
 
+	enum {INFO=0, GOAL, RULE, RESULT, ABOUT, SCRIPT_DEBUG, DESCRIPTION, ALL=-1};
+
 	/**
 	 * Called to update the scenario texts
 	 * @see dynamic_string::update
 	 */
-	void update_scenario_texts();
-
-	/**
-	 * Forced update the scenario goal text for scripts
-	 * @see dynamic_string::update
-	 */
-	void update_scenario_goal_text();
+	void update_scenario_texts(int which);
 
 	/**
 	 * opens scenario info window at tab @p tab.

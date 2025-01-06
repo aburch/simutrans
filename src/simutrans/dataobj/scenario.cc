@@ -41,6 +41,10 @@
 
 #include <stdarg.h>
 
+
+const int LOCAL_CACHE_TIME = 750;
+const int NETWORK_CACHE_TIME = 10000;
+
 // cache the scenario text files
 static plainstringhashtable_tpl<plainstring> cached_text_files;
 
@@ -126,7 +130,7 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	cached_text_files.clear();
 
 	what_scenario = SCRIPTED;
-	dynamic_string::CACHE_TIME = 1000;
+	dynamic_string::CACHE_TIME = LOCAL_CACHE_TIME;
 
 	// callback
 	script->register_callback(&scenario_t::set_completion, "scenario_t_set_completed");
@@ -773,8 +777,14 @@ void scenario_t::step()
 {
 	if (!script) {
 		// update texts at clients if info window open
-		if (env_t::networkmode  &&  !env_t::server  &&  win_get_magic(magic_scenario_info)) {
-			update_scenario_texts();
+		if (env_t::networkmode  &&  !env_t::server  ) {
+			// update texts
+			if (scenario_info_t* win = (scenario_info_t*)win_get_magic(magic_scenario_info)) {
+				update_scenario_texts(win->get_open_tab());
+			}
+			else if (win_get_magic(magic_scenario_info)) {
+				update_scenario_texts(DESCRIPTION);
+			}
 		}
 		return;
 	}
@@ -820,8 +830,11 @@ void scenario_t::step()
 	update_won_lost(new_won, new_lost);
 
 	// update texts
-	if (win_get_magic(magic_scenario_info) ) {
-		update_scenario_texts();
+	if (scenario_info_t *win = (scenario_info_t*)win_get_magic(magic_scenario_info) ) {
+		update_scenario_texts(win->get_open_tab());
+	}
+	else if (win_get_magic(magic_scenario_info)) {
+		update_scenario_texts(DESCRIPTION);
 	}
 
 	// update toolbars if necessary
@@ -890,23 +903,41 @@ void scenario_t::update_won_lost(uint16 new_won, uint16 new_lost)
 }
 
 
-void scenario_t::update_scenario_texts()
+void scenario_t::update_scenario_texts(int what)
 {
-	player_t *player = welt->get_active_player();
-	info_text.update(script, player);
-	goal_text.update(script, player);
-	rule_text.update(script, player);
-	result_text.update(script, player);
-	about_text.update(script, player);
-	debug_text.update(script, player);
-	description_text.update(script, player);
-}
-
-
-void scenario_t::update_scenario_goal_text()
-{
-	player_t *player = welt->get_active_player();
-	goal_text.update(script, player, is_local());
+	player_t* player = welt->get_active_player();
+	switch (what) {
+		case INFO:
+			info_text.update(script, player);
+			return;
+		case GOAL:
+			goal_text.update(script, player);
+			return;
+		case RULE:
+			rule_text.update(script, player);
+			return;
+		case RESULT:
+			result_text.update(script, player);
+			return;
+		case ABOUT:
+			about_text.update(script, player);
+			return;
+		case SCRIPT_DEBUG:
+			debug_text.update(script, player);
+			return;
+		case DESCRIPTION:
+			description_text.update(script, player);
+			return;
+		case ALL:
+			info_text.update(script, player);
+			goal_text.update(script, player);
+			rule_text.update(script, player);
+			result_text.update(script, player);
+			about_text.update(script, player);
+			debug_text.update(script, player);
+			description_text.update(script, player);
+			return;
+	}
 }
 
 
@@ -1089,7 +1120,7 @@ void scenario_t::rdwr(loadsave_t *file)
 		what_scenario = 0;
 		rdwr_error = true;
 	}
-	dynamic_string::CACHE_TIME = what_scenario == SCRIPTED ? 1000 : 10000;
+	dynamic_string::CACHE_TIME = what_scenario == SCRIPTED ? LOCAL_CACHE_TIME : NETWORK_CACHE_TIME;
 
 }
 
