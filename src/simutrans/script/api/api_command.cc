@@ -206,10 +206,12 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 		// must be scenario - set flag
 		tool->flags |= tool_t::WFL_NO_CHK;
 	}
+#if 0
 	// sanity check
 	if (player == NULL) {
 		return sq_raise_error(vm, "Called tool with player == null");
 	}
+#endif
 	uint8 flags = tool->flags; // might be reset by init()
 
 	// call init before work (but check network safety)
