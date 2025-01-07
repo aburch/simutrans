@@ -156,7 +156,11 @@ public:
 
 	void cleanup(player_t *player) OVERRIDE;
 
-	/// @copydoc obj_t::finish_rd
+	/**
+	 * Called after the world is completely
+	 * add buildings to towns if needed
+	 * may repair broken buildings if REPAIR_MULTITILE_BUILD is set
+	 */
 	void finish_rd() OVERRIDE;
 
 	// currently animated

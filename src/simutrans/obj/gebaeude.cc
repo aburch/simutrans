@@ -6,6 +6,10 @@
 #include <string.h>
 #include <ctype.h>
 
+// repair multitile building which have lost thier orientation due to replacements
+// may not work properly with multithread builds
+//#define REPAIR_MULTITILE_BUILD
+
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -962,6 +966,30 @@ void gebaeude_t::finish_rd()
 		else if(  !is_factory  ) {
 			ptr.stadt = NULL;
 		}
+#ifdef REPAIR_MULTITILE_BUILD
+		// check multitile buildings for lost tiles
+		koord size = tile->get_desc()->get_size(0);
+		const building_desc_t* desc = tile->get_desc();
+		if (size.x + size.y > 2) {
+			// ATTENTION: So far does only work for symmetrical buildings
+			if (grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d() - size + koord(1, 1))) {
+				if (gebaeude_t* gb = gr->find<gebaeude_t>()) {
+					if (gb->get_tile() == tile) {
+						// found misalinged building here => correct its tiles
+						for (sint16 dx = 0; dx < size.x; dx++) {
+							for (sint16 dy = 0; dy < size.x; dy++) {
+								if (grund_t* gbgr = welt->lookup(gr->get_pos() + koord(dx, dy))) {
+									if (gebaeude_t* gb = gbgr->find<gebaeude_t>()) {
+										gb->set_tile(desc->get_tile(0, dx, dy), false);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 }
 
