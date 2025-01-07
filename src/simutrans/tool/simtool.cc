@@ -5001,8 +5001,12 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 		return msg;
 	}
 
-	if (label_t *lb) {
-		delete lb;
+	// remove old labels on station tiles
+	if (label_t* l = gr->find<label_t>()) {
+		if (const char *msg = l->get_removal_error(player)) {
+			return msg;
+		}
+		delete l;
 	}
 
 	sint8 rotation = 0;
