@@ -4746,7 +4746,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	bool neu = !halt.is_bound();
 
 	if(neu) {
-		if(  bd && bd->get_halt().is_bound()  ) {
+		if(  bd->get_halt().is_bound()  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		halt = haltestelle_t::create(k, player);
@@ -4999,6 +4999,10 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	// check underground / above ground
 	if (const char* msg = check_pos(player, pos)) {
 		return msg;
+	}
+
+	if (label_t *lb) {
+		delete lb;
 	}
 
 	sint8 rotation = 0;

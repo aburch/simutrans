@@ -604,11 +604,12 @@ void haltestelle_t::set_name(const char *new_name)
 				DBG_MESSAGE("haltestelle_t::set_name()","removing name %s already used!",gr->get_text());
 			}
 		}
-		if(!gr->find<label_t>()) {
-			gr->set_text(new_name);
-			if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
-				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
-			}
+		if (label_t *lb=gr->find<label_t>()) {
+			delete lb;	// very old games had labels for names
+		}
+		gr->set_text(new_name);
+		if(new_name  &&  all_names.set(gr->get_text(),self).is_bound() ) {
+			DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 		}
 		halt_info_t *const info_frame = dynamic_cast<halt_info_t *>( win_get_magic( magic_halt_info + self.get_id() ) );
 		if(  info_frame  ) {
@@ -3321,7 +3322,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// re-add name
 	if (station_name_to_transfer != NULL  &&  !tiles.empty()) {
 		label_t *lb = tiles.front().grund->find<label_t>();
-		delete lb;
+		delete lb;	// very old version had labels for names
 		set_name( station_name_to_transfer );
 	}
 
