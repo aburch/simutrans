@@ -799,11 +799,11 @@ void depot_frame_t::update_data()
 		// if still nothing, resort to line management dialoge
 		if(  !last_selected_line.is_bound()  ) {
 			// try last specific line
-			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ depot->get_line_type() ];
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner_nr() ][ depot->get_line_type() ];
 		}
 		if(  !last_selected_line.is_bound()  ) {
 			// try last general line
-			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner()->get_player_nr() ][ 0 ];
+			last_selected_line = schedule_list_gui_t::selected_line[ depot->get_owner_nr() ][ 0 ];
 			if(  last_selected_line.is_bound()  &&  last_selected_line->get_linetype() != depot->get_line_type()  ) {
 				last_selected_line = linehandle_t();
 			}

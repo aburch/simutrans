@@ -47,7 +47,7 @@ bool labellist_stats_t::compare(const gui_component_t *aa, const gui_component_t
 				const label_t* a_l = a->get_label();
 				const label_t* b_l = b->get_label();
 				if(a_l && b_l) {
-					cmp = a_l->get_owner()->get_player_nr() - b_l->get_owner()->get_player_nr();
+					cmp = a_l->get_owner_nr() - b_l->get_owner_nr();
 				}
 			}
 			break;
@@ -77,7 +77,12 @@ labellist_stats_t::labellist_stats_t(koord label_pos)
 	label.update();
 
 	if (const label_t *lb = get_label()) {
-		label.set_color(PLAYER_FLAG | color_idx_to_rgb(lb->get_owner()->get_player_color1()+env_t::gui_player_color_dark));
+		if (lb->get_owner()) {
+			label.set_color(PLAYER_FLAG | color_idx_to_rgb(lb->get_owner()->get_player_color1() + env_t::gui_player_color_dark));
+		}
+		else {
+			label.set_color(env_t::default_window_title_color);
+		}
 	}
 }
 
