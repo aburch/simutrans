@@ -27,7 +27,7 @@ label_info_t::label_info_t(label_t* l) :
 
 	add_table(3,0)->set_alignment(ALIGN_TOP);
 	// left: player name
-	new_component<gui_label_t>(label->get_owner()->get_name());
+	new_component<gui_label_t>(label->get_owner() ? label->get_owner()->get_name() : "" );
 	new_component<gui_fill_t>();
 	// right column: view
 	add_component( &view );
