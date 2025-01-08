@@ -77,10 +77,12 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 		// must be scenario - set flag
 		tool->flags |= tool_t::WFL_NO_CHK;
 	}
+#if 0
 	// sanity check
 	if (player == NULL) {
 		return sq_raise_error(vm, "Called tool with player == null");
 	}
+#endif
 	// check if calling suspendable tools is blocked
 	if (!v.no_block) {
 		if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
